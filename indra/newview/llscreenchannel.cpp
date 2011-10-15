@@ -41,6 +41,7 @@
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 #include "llscriptfloater.h"
+#include "llrootview.h"
 
 #include <algorithm>
 
@@ -48,12 +49,19 @@ using namespace LLNotificationsUI;
 
 bool LLScreenChannel::mWasStartUpToastShown = false;
 
-
-LLRect get_channel_rect()
+LLFastTimer::DeclareTimer FTM_GET_CHANNEL_RECT("Calculate Notification Channel Region");
+LLRect LLScreenChannelBase::getChannelRect()
 {
+	LLFastTimer _(FTM_GET_CHANNEL_RECT);
 	LLRect channel_rect;
-	LLView* floater_snap_region = LLUI::getRootView()->getChildView("floater_snap_region");
+	LLRect chiclet_rect;
+	LLView* floater_snap_region = gViewerWindow->getRootView()->getChildView("floater_snap_region");
 	floater_snap_region->localRectToScreen(floater_snap_region->getLocalRect(), &channel_rect);
+
+	LLView* chiclet_region = gViewerWindow->getRootView()->getChildView("chiclet_container");
+	chiclet_region->localRectToScreen(chiclet_region->getLocalRect(), &chiclet_rect);
+
+	channel_rect.mTop = chiclet_rect.mBottom;
 	return channel_rect;
 }
 
@@ -79,6 +87,11 @@ LLScreenChannelBase::LLScreenChannelBase(const Params& p)
 
 	setMouseOpaque( false );
 	setVisible(FALSE);
+}
+
+void LLScreenChannelBase::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+	redrawToasts();
 }
 
 bool  LLScreenChannelBase::isHovering()
@@ -116,16 +129,16 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect rect)
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	// top and bottom set by updateBottom()
+	// top and bottom set by updateRect()
 	setRect(LLRect(channel_left, 0, channel_right, 0));
-	updateBottom();
+	updateRect();
 	setVisible(TRUE);
 }
 
-void	LLScreenChannelBase::updateBottom()
+void	LLScreenChannelBase::updateRect()
 {
-	S32 channel_top = get_channel_rect().mTop;
-	S32 channel_bottom = get_channel_rect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_top = getChannelRect().mTop;
+	S32 channel_bottom = getChannelRect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	S32 channel_left = getRect().mLeft;
 	S32 channel_right = getRect().mRight;
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
@@ -146,7 +159,7 @@ LLScreenChannel::LLScreenChannel(const Params& p)
 void LLScreenChannel::init(S32 channel_left, S32 channel_right)
 {
 	LLScreenChannelBase::init(channel_left, channel_right);
-	LLRect channel_rect = get_channel_rect();
+	LLRect channel_rect = getChannelRect();
 	updatePositionAndSize(channel_rect);
 }
 
@@ -460,6 +473,15 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
+	LLView* floater_snap_region = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+
+	if (!getParent())
+	{
+		// connect to floater snap region just to get resize events, we don't care about being a proper widget 
+		floater_snap_region->addChild(this);
+		setFollows(FOLLOWS_ALL);
+	}
+
 	if(mToastList.size() == 0)
 		return;
 
@@ -486,7 +508,7 @@ void LLScreenChannel::showToastsBottom()
 	S32		toast_margin = 0;
 	std::vector<ToastElem>::reverse_iterator it;
 
-	updateBottom();
+	updateRect();
 
 	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
 
@@ -518,7 +540,7 @@ void LLScreenChannel::showToastsBottom()
 				(*it).toast->translate(0, shift);
 			}
 
-			LLRect channel_rect = get_channel_rect();
+			LLRect channel_rect = getChannelRect();
 			// don't show toasts if there is not enough space
 			if(toast_rect.mTop > channel_rect.mTop)
 			{
@@ -591,6 +613,96 @@ void LLScreenChannel::showToastsCentre()
 //--------------------------------------------------------------------------
 void LLScreenChannel::showToastsTop()
 {
+	LLRect channel_rect = getChannelRect();
+
+	LLRect	toast_rect;	
+	S32		top = channel_rect.mTop;
+	S32		toast_margin = 0;
+	std::vector<ToastElem>::reverse_iterator it;
+
+	updateRect();
+
+	LLDockableFloater* floater = dynamic_cast<LLDockableFloater*>(LLDockableFloater::getInstanceHandle().get());
+
+	for(it = mToastList.rbegin(); it != mToastList.rend(); ++it)
+	{
+		if(it != mToastList.rbegin())
+		{
+			LLToast* toast = (*(it-1)).toast;
+			top = toast->getRect().mBottom - toast->getTopPad();
+			toast_margin = gSavedSettings.getS32("ToastGap");
+		}
+
+		toast_rect = (*it).toast->getRect();
+		toast_rect.setLeftTopAndSize(channel_rect.mRight - toast_rect.getWidth(),
+			top, toast_rect.getWidth(),
+			toast_rect.getHeight());
+		(*it).toast->setRect(toast_rect);
+
+		if(floater && floater->overlapsScreenChannel())
+		{
+			if(it == mToastList.rbegin())
+			{
+				// move first toast above docked floater
+				S32 shift = -floater->getRect().getHeight();
+				if(floater->getDockControl())
+				{
+					shift -= floater->getDockControl()->getTongueHeight();
+				}
+				(*it).toast->translate(0, shift);
+			}
+
+			LLRect channel_rect = getChannelRect();
+			// don't show toasts if there is not enough space
+			if(toast_rect.mBottom < channel_rect.mBottom)
+			{
+				break;
+			}
+		}
+
+		bool stop_showing_toasts = (*it).toast->getRect().mBottom < channel_rect.mBottom;
+
+		if(!stop_showing_toasts)
+		{
+			if( it != mToastList.rend()-1)
+			{
+				S32 toast_bottom = (*it).toast->getRect().mBottom - gSavedSettings.getS32("ToastGap");
+				stop_showing_toasts = toast_bottom < channel_rect.mBottom;
+			}
+		} 
+
+		// at least one toast should be visible
+		if(it == mToastList.rbegin())
+		{
+			stop_showing_toasts = false;
+		}
+
+		if(stop_showing_toasts)
+			break;
+
+		if( !(*it).toast->getVisible() )
+		{
+			// HACK
+			// EXT-2653: it is necessary to prevent overlapping for secondary showed toasts
+			(*it).toast->setVisible(TRUE);
+		}		
+		if(!(*it).toast->hasFocus())
+		{
+			// Fixing Z-order of toasts (EXT-4862)
+			// Next toast will be positioned under this one.
+			gFloaterView->sendChildToBack((*it).toast);
+		}
+	}
+
+	// Dismiss toasts we don't have space for (STORM-391).
+	if(it != mToastList.rend())
+	{
+		mHiddenToastsNum = 0;
+		for(; it != mToastList.rend(); it++)
+		{
+			(*it).toast->hide();
+		}
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -820,7 +932,7 @@ void LLScreenChannel::updateShowToastsState()
 		return;
 	}
 
-	updateBottom();
+	updateRect();
 }
 
 //--------------------------------------------------------------------------

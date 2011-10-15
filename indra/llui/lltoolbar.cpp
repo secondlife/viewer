@@ -668,6 +668,7 @@ void LLToolBar::draw()
 			if (command && btn->mIsEnabledSignal)
 			{
 				const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
+				// TODO: make button appear disabled but have it still respond to drag and drop
 				btn->setEnabled(button_command_enabled);
 			}
 
@@ -941,6 +942,16 @@ void LLToolBarButton::onMouseCaptureLost()
 	mIsDragged = false;
 }
 
+void LLToolBarButton::onCommit()
+{
+	LLCommand* command = LLCommandManager::instance().getCommand(mId);
+
+	if (!mIsEnabledSignal || (*mIsEnabledSignal)(this, command->isEnabledParameters()))
+	{
+		LLButton::onCommit();
+	}
+}
+
 void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
@@ -958,9 +969,6 @@ const std::string LLToolBarButton::getToolTip() const
 		return LLView::getToolTip();
 	}
 }
-
-
-
 
 
 

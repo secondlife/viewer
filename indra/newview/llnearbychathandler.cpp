@@ -89,8 +89,6 @@ public:
 	void onToastDestroyed	(LLToast* toast, bool app_quitting);
 	void onToastFade		(LLToast* toast);
 
-	void reshape			(S32 width, S32 height, BOOL called_from_parent);
-
 	void redrawToasts()
 	{
 		arrangeToasts();
@@ -379,7 +377,7 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	}
 
 	LLRect	toast_rect;	
-	updateBottom();
+	updateRect();
 
 	LLRect channel_rect;
 	floater_snap_region->localRectToOtherView(floater_snap_region->getLocalRect(), &channel_rect, gFloaterView);
@@ -436,13 +434,8 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 		}
 	}
 
-	}
-
-void LLNearbyChatScreenChannel::reshape			(S32 width, S32 height, BOOL called_from_parent)
-{
-	LLScreenChannelBase::reshape(width, height, called_from_parent);
-	arrangeToasts();
 }
+
 
 
 //-----------------------------------------------------------------------------------------------

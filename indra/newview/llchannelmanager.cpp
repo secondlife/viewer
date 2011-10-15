@@ -74,6 +74,7 @@ LLScreenChannel* LLChannelManager::createNotificationChannel()
 	LLScreenChannelBase::Params p;
 	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
 	p.channel_align = CA_RIGHT;
+	p.toast_align = NA_TOP;
 
 	// Getting a Channel for our notifications
 	return dynamic_cast<LLScreenChannel*> (LLChannelManager::getInstance()->getChannel(p));
