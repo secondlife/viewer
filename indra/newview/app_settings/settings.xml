@@ -7796,7 +7796,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>32</integer>
+    <integer>16</integer>
   </map>
     <key>RenderDebugTextureBind</key>
     <map>

@@ -65,7 +65,8 @@ RenderShadowDetail			1	2
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
-RenderMaxTextureIndex		1	32
+RenderMaxTextureIndex		1	16
+
 
 //
 // Low Graphics Settings
