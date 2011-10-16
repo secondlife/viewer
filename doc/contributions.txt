@@ -66,6 +66,7 @@ Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
 	SNOW-84
+	OPEN-38
 	SNOW-240
 	SNOW-477
 	SNOW-522
@@ -575,6 +576,8 @@ Jonathan Yap
 	STORM-1567
 	STORM-1572
 	STORM-1574
+	STORM-1579
+	STORM-1639
 Kadah Coba
     STORM-1060
 Jondan Lundquist
@@ -622,6 +625,7 @@ Latif Khalifa
 	VWR-5370
 leliel Mirihi
 	STORM-1100
+	STORM-1602
 len Starship
 Lisa Lowe
 	CT-218
@@ -1032,6 +1036,9 @@ Synystyr Texan
 Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
+	STORM-1602
+	STORM-1258
+    VWR-26622
 Talamasca
 Tali Rosca
 Tayra Dagostino

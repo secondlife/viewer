@@ -1168,14 +1168,11 @@ private:
 	std::vector<LLWearable*> mWearablesAwaitingItems;
 };
 
-void LLAgentWearables::createStandardWearables(BOOL female)
+void LLAgentWearables::createStandardWearables()
 {
-	llwarns << "Creating Standard " << (female ? "female" : "male")
-			<< " Wearables" << llendl;
+	llwarns << "Creating standard wearables" << llendl;
 
 	if (!isAgentAvatarValid()) return;
-
-	gAgentAvatarp->setSex(female ? SEX_FEMALE : SEX_MALE);
 
 	const BOOL create[LLWearableType::WT_COUNT] = 
 		{

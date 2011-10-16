@@ -50,6 +50,8 @@
 #include "llfocusmgr.h"
 
 #include <list>
+#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
 class LLSD;
 
@@ -435,12 +437,15 @@ public:
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
-	virtual		LLView*	childFromPoint(S32 x, S32 y);
+	virtual		LLView*	childFromPoint(S32 x, S32 y, bool recur=false);
 
 	// view-specific handlers 
 	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
 
+	std::string getPathname() const;
+	// static method handles NULL pointer too
+	static std::string getPathname(const LLView*);
 
 	template <class T> T* findChild(const std::string& name, BOOL recurse = TRUE) const
 	{
@@ -522,11 +527,17 @@ public:
 	virtual S32	notify(const LLSD& info) { return 0;};
 
 	static const LLViewDrawContext& getDrawContext();
+	
+	// Returns useful information about this ui widget.
+	LLSD getInfo(void);
 
 protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
 	void			drawChildren();
+	bool			visibleAndContains(S32 local_x, S32 local_Y);
+	bool			visibleEnabledAndContains(S32 local_x, S32 local_y);
+	void			logMouseEvent();
 
 	LLView*	childrenHandleKey(KEY key, MASK mask);
 	LLView* childrenHandleUnicodeChar(llwchar uni_char);
@@ -549,8 +560,23 @@ protected:
 	LLView* childrenHandleToolTip(S32 x, S32 y, MASK mask);
 
 	ECursorType mHoverCursor;
-	
+
+	virtual void addInfo(LLSD & info);
 private:
+
+	template <typename METHOD, typename XDATA>
+	LLView* childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra);
+
+	template <typename METHOD, typename CHARTYPE>
+	LLView* childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+									CHARTYPE c, MASK mask);
+
+	// adapter to blur distinction between handleKey() and handleUnicodeChar()
+	// for childrenHandleCharEvent()
+	BOOL	handleUnicodeCharWithDummyMask(llwchar uni_char, MASK /* dummy */, BOOL from_parent)
+	{
+		return handleUnicodeChar(uni_char, from_parent);
+	}
 
 	LLView*		mParentView;
 	child_list_t mChildList;
@@ -593,7 +619,35 @@ private:
 
 	LLView& getDefaultWidgetContainer() const;
 
+	// This allows special mouse-event targeting logic for testing.
+	typedef boost::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
+	static DrilldownFunc sDrilldown;
+
 public:
+	// This is the only public accessor to alter sDrilldown. This is not
+	// an accident. The intended usage pattern is like:
+	// {
+	//     LLView::TemporaryDrilldownFunc scoped_func(myfunctor);
+	//     // ... test with myfunctor ...
+	// } // exiting block restores original LLView::sDrilldown
+	class TemporaryDrilldownFunc: public boost::noncopyable
+	{
+	public:
+		TemporaryDrilldownFunc(const DrilldownFunc& func):
+			mOldDrilldown(sDrilldown)
+		{
+			sDrilldown = func;
+		}
+
+		~TemporaryDrilldownFunc()
+		{
+			sDrilldown = mOldDrilldown;
+		}
+
+	private:
+		DrilldownFunc mOldDrilldown;
+	};
+
 	// Depth in view hierarchy during rendering
 	static S32	sDepth;
 

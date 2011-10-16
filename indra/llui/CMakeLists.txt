@@ -116,6 +116,7 @@ set(llui_SOURCE_FILES
     llurlmatch.cpp
     llurlregistry.cpp
     llviewborder.cpp
+    llviewinject.cpp
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
@@ -222,6 +223,7 @@ set(llui_HEADER_FILES
     llurlmatch.h
     llurlregistry.h
     llviewborder.h
+    llviewinject.h
     llviewmodel.h
     llview.h
     llviewquery.h

@@ -2264,6 +2264,85 @@ void LLAppearanceMgr::updateIsDirty()
 	}
 }
 
+// *HACK: Must match name in Library or agent inventory
+const std::string ROOT_GESTURES_FOLDER = "Gestures";
+const std::string COMMON_GESTURES_FOLDER = "Common Gestures";
+const std::string MALE_GESTURES_FOLDER = "Male Gestures";
+const std::string FEMALE_GESTURES_FOLDER = "Female Gestures";
+const std::string SPEECH_GESTURES_FOLDER = "Speech Gestures";
+const std::string OTHER_GESTURES_FOLDER = "Other Gestures";
+
+void LLAppearanceMgr::copyLibraryGestures()
+{
+	llinfos << "Copying library gestures" << llendl;
+
+	// Copy gestures
+	LLUUID lib_gesture_cat_id =
+		gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE,false,true);
+	if (lib_gesture_cat_id.isNull())
+	{
+		llwarns << "Unable to copy gestures, source category not found" << llendl;
+	}
+	LLUUID dst_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_GESTURE);
+
+	std::vector<std::string> gesture_folders_to_copy;
+	gesture_folders_to_copy.push_back(MALE_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(FEMALE_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(COMMON_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(SPEECH_GESTURES_FOLDER);
+	gesture_folders_to_copy.push_back(OTHER_GESTURES_FOLDER);
+
+	for(std::vector<std::string>::iterator it = gesture_folders_to_copy.begin();
+		it != gesture_folders_to_copy.end();
+		++it)
+	{
+		std::string& folder_name = *it;
+
+		LLPointer<LLInventoryCallback> cb(NULL);
+
+		// After copying gestures, activate Common, Other, plus
+		// Male and/or Female, depending upon the initial outfit gender.
+		ESex gender = gAgentAvatarp->getSex();
+
+		std::string activate_male_gestures;
+		std::string activate_female_gestures;
+		switch (gender) {
+			case SEX_MALE:
+				activate_male_gestures = MALE_GESTURES_FOLDER;
+				break;
+			case SEX_FEMALE:
+				activate_female_gestures = FEMALE_GESTURES_FOLDER;
+				break;
+			case SEX_BOTH:
+				activate_male_gestures = MALE_GESTURES_FOLDER;
+				activate_female_gestures = FEMALE_GESTURES_FOLDER;
+				break;
+		}
+
+		if (folder_name == activate_male_gestures ||
+			folder_name == activate_female_gestures ||
+			folder_name == COMMON_GESTURES_FOLDER ||
+			folder_name == OTHER_GESTURES_FOLDER)
+		{
+			cb = new ActivateGestureCallback;
+		}
+
+		LLUUID cat_id = findDescendentCategoryIDByName(lib_gesture_cat_id,folder_name);
+		if (cat_id.isNull())
+		{
+			llwarns << "failed to find gesture folder for " << folder_name << llendl;
+		}
+		else
+		{
+			llinfos << "initiating fetch and copy for " << folder_name << " cat_id " << cat_id << llendl;
+			callAfterCategoryFetch(cat_id,
+								   boost::bind(&LLAppearanceMgr::shallowCopyCategory,
+											   &LLAppearanceMgr::instance(),
+											   cat_id, dst_id, cb));
+		}
+	}
+}
+
 void LLAppearanceMgr::autopopulateOutfits()
 {
 	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
@@ -2285,9 +2364,16 @@ void LLAppearanceMgr::autopopulateOutfits()
 void LLAppearanceMgr::onFirstFullyVisible()
 {
 	gAgentAvatarp->debugAvatarVisible();
+
 	// The auto-populate is failing at the point of generating outfits
 	// folders, so don't do the library copy until that is resolved.
 	// autopopulateOutfits();
+
+	// If this is the first time we've ever logged in,
+	// then copy default gestures from the library.
+	if (gAgent.isFirstLogin()) {
+		copyLibraryGestures();
+	}
 }
 
 bool LLAppearanceMgr::updateBaseOutfit()
