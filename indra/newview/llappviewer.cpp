@@ -724,7 +724,7 @@ bool LLAppViewer::init()
 	//set the max heap size.
 	initMaxHeapSize() ;
 
-	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled")) ;
+	LLPrivateMemoryPoolManager::initClass((BOOL)gSavedSettings.getBOOL("MemoryPrivatePoolEnabled"), (U32)gSavedSettings.getU32("MemoryPrivatePoolSize")) ;
 
 	// write Google Breakpad minidump files to our log directory
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
@@ -1124,9 +1124,12 @@ void LLAppViewer::checkMemory()
 {
 	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
 	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
-	const static U32 MAX_SIZE_CHECKED_MEMORY_BLOCK = 64 * 1024 * 1024 ; //64 MB
-	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-	static void* last_reserved_address = NULL ;
+	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;	
+
+	if(!gGLManager.mDebugGPU)
+	{
+		return ;
+	}
 
 	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
 	{
@@ -1134,53 +1137,12 @@ void LLAppViewer::checkMemory()
 	}
 	mMemCheckTimer.reset() ;
 
-	if(gGLManager.mDebugGPU)
-	{
-		//update the availability of memory
-		LLMemory::updateMemoryInfo() ;
-	}
+	//update the availability of memory
+	LLMemory::updateMemoryInfo() ;
 
-	//check the virtual address space fragmentation
-	if(!last_reserved_address)
-	{
-		last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
-	}
-	else
-	{
-		last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
-		if(!last_reserved_address) //failed, try once more
-		{
-			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
-		}
-	}
+	bool is_low = LLMemory::isMemoryPoolLow() ;
 
-	S32 is_low = !last_reserved_address || LLMemory::isMemoryPoolLow() ;
-
-	//if(is_low < 0) //to force quit
-	//{
-	//	if(force_quit_timer > MAX_QUIT_WAIT_TIME) //just hit the limit for the first time
-	//	{
-	//		//send out the notification to tell the viewer is about to quit in 30 seconds.
-	//		LLNotification::Params params("ForceQuitDueToLowMemory");
-	//		LLNotifications::instance().add(params);
-
-	//		force_quit_timer = MAX_QUIT_WAIT_TIME - MEMORY_CHECK_INTERVAL ;
-	//	}
-	//	else
-	//	{
-	//		force_quit_timer -= MEMORY_CHECK_INTERVAL ;
-	//		if(force_quit_timer < 0.f)
-	//		{
-	//			forceQuit() ; //quit
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-	//}
-
-	LLPipeline::throttleNewMemoryAllocation(!is_low ? FALSE : TRUE) ;		
+	LLPipeline::throttleNewMemoryAllocation(is_low) ;		
 	
 	if(is_low)
 	{
@@ -1213,7 +1175,7 @@ bool LLAppViewer::mainLoop()
 	//-------------------------------------------
 
 	// Create IO Pump to use for HTTP Requests.
-	gServicePump = new LLPumpIO;
+	gServicePump = new LLPumpIO(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 	LLCurl::setCAFile(gDirUtilp->getCAFile());
 
@@ -1572,16 +1534,16 @@ bool LLAppViewer::cleanup()
 	}
 
 	// *TODO - generalize this and move DSO wrangling to a helper class -brad
-	for(std::map<apr_dso_handle_t*, boost::shared_ptr<LLAPRPool> >::iterator plugin = mPlugins.begin();
-		plugin != mPlugins.end(); ++plugin)
+	std::set<struct apr_dso_handle_t *>::const_iterator i;
+	for(i = mPlugins.begin(); i != mPlugins.end(); ++i)
 	{
 		int (*ll_plugin_stop_func)(void) = NULL;
-		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, plugin->first, "ll_plugin_stop");
+		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, *i, "ll_plugin_stop");
 		ll_plugin_stop_func();
 
-		rv = apr_dso_unload(plugin->first);
+		rv = apr_dso_unload(*i);
 	}
-	mPlugins.clear();	// Forget handles and destroy all memory pools.
+	mPlugins.clear();
 
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
@@ -2019,7 +1981,7 @@ bool LLAppViewer::initThreads()
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
-		LLFastTimer::sLogLock = new LLMutex;
+		LLFastTimer::sLogLock = new LLMutex(NULL);
 		mFastTimerLogThread = new LLFastTimerLogThread(LLFastTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
@@ -3267,7 +3229,8 @@ void LLAppViewer::handleViewerCrash()
 		else crash_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,ERROR_MARKER_FILE_NAME);
 		llinfos << "Creating crash marker file " << crash_file_name << llendl;
 		
-		LLAPRFile crash_file(crash_file_name, LL_APR_W);
+		LLAPRFile crash_file ;
+		crash_file.open(crash_file_name, LL_APR_W);
 		if (crash_file.getFileHandle())
 		{
 			LL_INFOS("MarkerFile") << "Created crash marker file " << crash_file_name << LL_ENDL;
@@ -3331,10 +3294,11 @@ bool LLAppViewer::anotherInstanceRunning()
 	LL_DEBUGS("MarkerFile") << "Checking marker file for lock..." << LL_ENDL;
 
 	//Freeze case checks
-	if (LLAPRFile::isExist(marker_file, LL_APR_RB))
+	if (LLAPRFile::isExist(marker_file, NULL, LL_APR_RB))
 	{
 		// File exists, try opening with write permissions
-		LLAPRFile outfile(marker_file, LL_APR_WB);
+		LLAPRFile outfile ;
+		outfile.open(marker_file, LL_APR_WB);
 		apr_file_t* fMarker = outfile.getFileHandle() ; 
 		if (!fMarker)
 		{
@@ -3373,25 +3337,25 @@ void LLAppViewer::initMarkerFile()
 	std::string llerror_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, LLERROR_MARKER_FILE_NAME);
 	std::string error_marker_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, ERROR_MARKER_FILE_NAME);
 
-	if (LLAPRFile::isExist(mMarkerFileName, LL_APR_RB) && !anotherInstanceRunning())
+	if (LLAPRFile::isExist(mMarkerFileName, NULL, LL_APR_RB) && !anotherInstanceRunning())
 	{
 		gLastExecEvent = LAST_EXEC_FROZE;
 		LL_INFOS("MarkerFile") << "Exec marker found: program froze on previous execution" << LL_ENDL;
 	}    
-	if(LLAPRFile::isExist(logout_marker_file, LL_APR_RB))
+	if(LLAPRFile::isExist(logout_marker_file, NULL, LL_APR_RB))
 	{
 		gLastExecEvent = LAST_EXEC_LOGOUT_FROZE;
 		LL_INFOS("MarkerFile") << "Last exec LLError crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
 		LLAPRFile::remove(logout_marker_file);
 	}
-	if(LLAPRFile::isExist(llerror_marker_file, LL_APR_RB))
+	if(LLAPRFile::isExist(llerror_marker_file, NULL, LL_APR_RB))
 	{
 		if(gLastExecEvent == LAST_EXEC_LOGOUT_FROZE) gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
 		else gLastExecEvent = LAST_EXEC_LLERROR_CRASH;
 		LL_INFOS("MarkerFile") << "Last exec LLError crashed, setting LastExecEvent to " << gLastExecEvent << LL_ENDL;
 		LLAPRFile::remove(llerror_marker_file);
 	}
-	if(LLAPRFile::isExist(error_marker_file, LL_APR_RB))
+	if(LLAPRFile::isExist(error_marker_file, NULL, LL_APR_RB))
 	{
 		if(gLastExecEvent == LAST_EXEC_LOGOUT_FROZE) gLastExecEvent = LAST_EXEC_LOGOUT_CRASH;
 		else gLastExecEvent = LAST_EXEC_OTHER_CRASH;
@@ -3407,7 +3371,7 @@ void LLAppViewer::initMarkerFile()
 	
 	// Create the marker file for this execution & lock it
 	apr_status_t s;
-	s = mMarkerFile.open(mMarkerFileName, LL_APR_W, LLAPRFile::long_lived);
+	s = mMarkerFile.open(mMarkerFileName, LL_APR_W, TRUE);	
 
 	if (s == APR_SUCCESS && mMarkerFile.getFileHandle())
 	{
@@ -4653,7 +4617,8 @@ void LLAppViewer::sendLogoutRequest()
 		gLogoutInProgress = TRUE;
 		mLogoutMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,LOGOUT_MARKER_FILE_NAME);
 		
-		LLAPRFile outfile(mLogoutMarkerFileName, LL_APR_W);
+		LLAPRFile outfile ;
+		outfile.open(mLogoutMarkerFileName, LL_APR_W);
 		mLogoutMarkerFile =  outfile.getFileHandle() ;
 		if (mLogoutMarkerFile)
 		{
@@ -5105,15 +5070,14 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 	}
 #endif // LL_WINDOWS
 
-	boost::shared_ptr<LLAPRPool> eventhost_dso_memory_pool_ptr(new LLAPRPool);
-	LLAPRPool& eventhost_dso_memory_pool(*eventhost_dso_memory_pool_ptr);
-	apr_dso_handle_t* eventhost_dso_handle = NULL;
+	apr_dso_handle_t * eventhost_dso_handle = NULL;
+	apr_pool_t * eventhost_dso_memory_pool = NULL;
 
 	//attempt to load the shared library
-	eventhost_dso_memory_pool.create();
+	apr_pool_create(&eventhost_dso_memory_pool, NULL);
 	apr_status_t rv = apr_dso_load(&eventhost_dso_handle,
 		dso_path.c_str(),
-		eventhost_dso_memory_pool());
+		eventhost_dso_memory_pool);
 	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
 	llassert_always(eventhost_dso_handle != NULL);
 
@@ -5133,8 +5097,7 @@ void LLAppViewer::loadEventHostModule(S32 listen_port)
 		llerrs << "problem loading eventhost plugin, status: " << status << llendl;
 	}
 
-	// Store the handle and link it to the pool that was used to allocate it.
-	mPlugins[eventhost_dso_handle] = eventhost_dso_memory_pool_ptr;
+	mPlugins.insert(eventhost_dso_handle);
 }
 
 void LLAppViewer::launchUpdater()
