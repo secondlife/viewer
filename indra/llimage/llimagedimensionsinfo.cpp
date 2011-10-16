@@ -40,7 +40,7 @@ bool LLImageDimensionsInfo::load(const std::string& src_filename,U32 codec)
 	mSrcFilename = src_filename;
 
 	S32 file_size = 0;
-	apr_status_t s = mInfile.open(src_filename, LL_APR_RB, LLAPRFile::long_lived, &file_size);
+	apr_status_t s = mInfile.open(src_filename, LL_APR_RB, NULL, &file_size);
 
 	if (s != APR_SUCCESS)
 	{
