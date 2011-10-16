@@ -72,9 +72,9 @@ public:
 	void onMouseEnter(S32 x, S32 y, MASK mask);
 	void onMouseCaptureLost();
 
+	void onCommit();
+
 	virtual const std::string getToolTip() const;		
-
-
 
 private:
 	LLCommandId		mId;

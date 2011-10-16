@@ -70,6 +70,8 @@ public:
 
 	LLScreenChannelBase(const Params&);
 
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
 	// Channel's outfit-functions
 	// update channel's size and position in the World View
 	virtual void		updatePositionAndSize(LLRect rect);
@@ -116,7 +118,8 @@ public:
 	LLHandle<LLScreenChannelBase> getHandle() { mRootHandle.bind(this); return mRootHandle; }
 
 protected:
-	void	updateBottom();
+	void	updateRect();
+	LLRect	getChannelRect();
 
 	// Channel's flags
 	bool		mControlHovering;

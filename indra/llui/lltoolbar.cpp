@@ -422,7 +422,7 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	LLRect button_rect;
 	while (it_button != end_button)
 	{
-		button_rect  = (*it_button)->getRect();
+		button_rect = (*it_button)->getRect();
 		S32 point_x = button_rect.mRight + mPadRight;
 		S32 point_y = button_rect.mBottom - mPadBottom;
 
@@ -444,11 +444,11 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 			S32 mid_point = (button_rect.mRight + button_rect.mLeft) / 2;
 			if (button_panel_x < mid_point)
 			{
-				mDragx = button_rect.mLeft - mPadLeft;
-				mDragy = button_rect.mTop + mPadTop;
-			}
-			else
-			{
+		mDragx = button_rect.mLeft - mPadLeft;
+		mDragy = button_rect.mTop + mPadTop;
+	}
+	else
+	{
 				rank++;
 				mDragx = button_rect.mRight + mPadRight - 1;
 				mDragy = button_rect.mTop + mPadTop;
@@ -475,12 +475,12 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	{
 		// We hit passed the end of the list so put the insertion point at the end
 		if (orientation == LLLayoutStack::HORIZONTAL)
-		{
+	{
 			mDragx = button_rect.mRight + mPadRight;
 			mDragy = button_rect.mTop + mPadTop;
-		}
-		else
-		{
+	}
+	else
+	{
 			mDragx = button_rect.mLeft - mPadLeft;
 			mDragy = button_rect.mBottom - mPadBottom;
 		}
@@ -691,6 +691,7 @@ void LLToolBar::draw()
 			if (command && btn->mIsEnabledSignal)
 			{
 				const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
+				// TODO: make button appear disabled but have it still respond to drag and drop
 				btn->setEnabled(button_command_enabled);
 			}
 
@@ -964,6 +965,16 @@ void LLToolBarButton::onMouseCaptureLost()
 	mIsDragged = false;
 }
 
+void LLToolBarButton::onCommit()
+{
+	LLCommand* command = LLCommandManager::instance().getCommand(mId);
+
+	if (!mIsEnabledSignal || (*mIsEnabledSignal)(this, command->isEnabledParameters()))
+	{
+		LLButton::onCommit();
+	}
+}
+
 void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
@@ -981,9 +992,6 @@ const std::string LLToolBarButton::getToolTip() const
 		return LLView::getToolTip();
 	}
 }
-
-
-
 
 
 
