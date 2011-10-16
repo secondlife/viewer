@@ -43,16 +43,15 @@
 bool LLProxy::sUDPProxyEnabled = false;
 
 // Some helpful TCP static functions.
-static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
-static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host); // Open a TCP channel to a given host
+static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
+static LLSocket::ptr_t tcp_open_channel(LLHost host); // Open a TCP channel to a given host
 static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP channel
 
 LLProxy::LLProxy():
 		mHTTPProxyEnabled(false),
-		mProxyMutex(0),
+		mProxyMutex(NULL),
 		mUDPProxy(),
 		mTCPProxy(),
-		mPool(gAPRPoolp),
 		mHTTPProxy(),
 		mProxyType(LLPROXY_SOCKS),
 		mAuthMethodSelected(METHOD_NOAUTH),
@@ -64,14 +63,13 @@ LLProxy::LLProxy():
 LLProxy::~LLProxy()
 {
 	stopSOCKSProxy();
-	sUDPProxyEnabled  = false;
-	mHTTPProxyEnabled = false;
+	disableHTTPProxy();
 }
 
 /**
  * @brief Open the SOCKS 5 TCP control channel.
  *
- * Perform a SOCKS 5 authentication and UDP association to the proxy server.
+ * Perform a SOCKS 5 authentication and UDP association with the proxy server.
  *
  * @param proxy The SOCKS 5 server to connect to.
  * @return SOCKS_OK if successful, otherwise a socks error code from llproxy.h.
@@ -84,11 +82,15 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 	socks_auth_request_t  socks_auth_request;
 	socks_auth_response_t socks_auth_response;
 
-	socks_auth_request.version     = SOCKS_VERSION;       // SOCKS version 5
-	socks_auth_request.num_methods = 1;                   // Sending 1 method.
-	socks_auth_request.methods     = getSelectedAuthMethod(); // Send only the selected method.
+	socks_auth_request.version		= SOCKS_VERSION;				// SOCKS version 5
+	socks_auth_request.num_methods	= 1;							// Sending 1 method.
+	socks_auth_request.methods		= getSelectedAuthMethod();		// Send only the selected method.
 
-	result = tcp_handshake(mProxyControlChannel, (char*)&socks_auth_request, sizeof(socks_auth_request), (char*)&socks_auth_response, sizeof(socks_auth_response));
+	result = tcp_blocking_handshake(mProxyControlChannel,
+									static_cast<char*>(static_cast<void*>(&socks_auth_request)),
+									sizeof(socks_auth_request),
+									static_cast<char*>(static_cast<void*>(&socks_auth_response)),
+									sizeof(socks_auth_response));
 	if (result != APR_SUCCESS)
 	{
 		LL_WARNS("Proxy") << "SOCKS authentication request failed, error on TCP control channel : " << result << LL_ENDL;
@@ -98,12 +100,12 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 
 	if (socks_auth_response.method == AUTH_NOT_ACCEPTABLE)
 	{
-		LL_WARNS("Proxy") << "SOCKS 5 server refused all our authentication methods" << LL_ENDL;
+		LL_WARNS("Proxy") << "SOCKS 5 server refused all our authentication methods." << LL_ENDL;
 		stopSOCKSProxy();
 		return SOCKS_NOT_ACCEPTABLE;
 	}
 
-	// SOCKS 5 USERNAME/PASSWORD authentication
+	/* SOCKS 5 USERNAME/PASSWORD authentication */
 	if (socks_auth_response.method == METHOD_PASSWORD)
 	{
 		// The server has requested a username/password combination
@@ -115,11 +117,15 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 		password_auth[1] = socks_username.size();
 		memcpy(&password_auth[2], socks_username.c_str(), socks_username.size());
 		password_auth[socks_username.size() + 2] = socks_password.size();
-		memcpy(&password_auth[socks_username.size()+3], socks_password.c_str(), socks_password.size());
+		memcpy(&password_auth[socks_username.size() + 3], socks_password.c_str(), socks_password.size());
 
 		authmethod_password_reply_t password_reply;
 
-		result = tcp_handshake(mProxyControlChannel, password_auth, request_size, (char*)&password_reply, sizeof(password_reply));
+		result = tcp_blocking_handshake(mProxyControlChannel,
+										password_auth,
+										request_size,
+										static_cast<char*>(static_cast<void*>(&password_reply)),
+										sizeof(password_reply));
 		delete[] password_auth;
 
 		if (result != APR_SUCCESS)
@@ -151,7 +157,11 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 	// "If the client is not in possession of the information at the time of the UDP ASSOCIATE,
 	//  the client MUST use a port number and address of all zeros. RFC 1928"
 
-	result = tcp_handshake(mProxyControlChannel, (char*)&connect_request, sizeof(connect_request), (char*)&connect_reply, sizeof(connect_reply));
+	result = tcp_blocking_handshake(mProxyControlChannel,
+									static_cast<char*>(static_cast<void*>(&connect_request)),
+									sizeof(connect_request),
+									static_cast<char*>(static_cast<void*>(&connect_reply)),
+									sizeof(connect_reply));
 	if (result != APR_SUCCESS)
 	{
 		LL_WARNS("Proxy") << "SOCKS connect request failed, error on TCP control channel : " << result << LL_ENDL;
@@ -170,6 +180,7 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 	mUDPProxy.setAddress(proxy.getAddress());
 	// The connection was successful. We now have the UDP port to send requests that need forwarding to.
 	LL_INFOS("Proxy") << "SOCKS 5 UDP proxy connected on " << mUDPProxy << LL_ENDL;
+
 	return SOCKS_OK;
 }
 
@@ -177,7 +188,8 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
  * @brief Initiates a SOCKS 5 proxy session.
  *
  * Performs basic checks on host to verify that it is a valid address. Opens the control channel
- * and then negotiates the proxy connection with the server.
+ * and then negotiates the proxy connection with the server. Closes any existing SOCKS
+ * connection before proceeding. Also disables an HTTP proxy if it is using SOCKS as the proxy.
  *
  *
  * @param host Socks server to connect to.
@@ -185,43 +197,37 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
  */
 S32 LLProxy::startSOCKSProxy(LLHost host)
 {
-	S32 status = SOCKS_OK;
-
 	if (host.isOk())
 	{
 		mTCPProxy = host;
 	}
 	else
 	{
-		status = SOCKS_INVALID_HOST;
+		return SOCKS_INVALID_HOST;
 	}
 
-	if (mProxyControlChannel && status == SOCKS_OK)
+	// Close any running SOCKS connection.
+	stopSOCKSProxy();
+
+	mProxyControlChannel = tcp_open_channel(mTCPProxy);
+	if (!mProxyControlChannel)
 	{
-		tcp_close_channel(&mProxyControlChannel);
+		return SOCKS_HOST_CONNECT_FAILED;
 	}
 
-	if (status == SOCKS_OK)
-	{
-		mProxyControlChannel = tcp_open_channel(mPool, mTCPProxy);
-		if (!mProxyControlChannel)
-		{
-			status = SOCKS_HOST_CONNECT_FAILED;
-		}
-	}
+	S32 status = proxyHandshake(mTCPProxy);
 
-	if (status == SOCKS_OK)
+	if (status != SOCKS_OK)
 	{
-		status = proxyHandshake(mTCPProxy);
-	}
-	if (status == SOCKS_OK)
-	{
-		sUDPProxyEnabled = true;
+		// Shut down the proxy if any of the above steps failed.
+		stopSOCKSProxy();
 	}
 	else
 	{
-		stopSOCKSProxy();
+		// Connection was successful.
+		sUDPProxyEnabled = true;
 	}
+
 	return status;
 }
 
@@ -242,7 +248,7 @@ void LLProxy::stopSOCKSProxy()
 
 	if (LLPROXY_SOCKS == getHTTPProxyType())
 	{
-		void disableHTTPProxy();
+		disableHTTPProxy();
 	}
 
 	if (mProxyControlChannel)
@@ -351,16 +357,6 @@ void LLProxy::disableHTTPProxy()
 }
 
 /**
- * @brief Get the HTTP proxy address and port
- */
-//
-LLHost LLProxy::getHTTPProxy() const
-{
-	LLMutexLock lock(&mProxyMutex);
-	return mHTTPProxy;
-}
-
-/**
  * @brief Get the currently selected HTTP proxy type
  */
 LLHttpProxyType LLProxy::getHTTPProxyType() const
@@ -441,21 +437,21 @@ void LLProxy::applyProxySettings(CURL* handle)
 		// Now test again to verify that the proxy wasn't disabled between the first check and the lock.
 		if (mHTTPProxyEnabled)
 		{
-			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()));
-			check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()));
+			LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()));
+			LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()));
 
 			if (mProxyType == LLPROXY_SOCKS)
 			{
-				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
+				LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5));
 				if (mAuthMethodSelected == METHOD_PASSWORD)
 				{
 					std::string auth_string = mSocksUsername + ":" + mSocksPassword;
-					check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()));
+					LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()));
 				}
 			}
 			else
 			{
-				check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
+				LLCurlFF::check_easy_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP));
 			}
 		}
 	}
@@ -474,7 +470,7 @@ void LLProxy::applyProxySettings(CURL* handle)
  * @param maxinlen		Maximum possible length of received data.  Short reads are allowed.
  * @return 				Indicates APR status code of exchange. APR_SUCCESS if exchange was successful, -1 if invalid data length was received.
  */
-static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
+static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen)
 {
 	apr_socket_t* apr_socket = handle->getSocket();
 	apr_status_t rv = APR_SUCCESS;
@@ -523,13 +519,12 @@ static S32 tcp_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outl
  *
  * Checks for a successful connection, and makes sure the connection is closed if it fails.
  *
- * @param pool		APR pool to pass into the LLSocket.
  * @param host		The host to open the connection to.
  * @return			The created socket.  Will evaluate as NULL if the connection is unsuccessful.
  */
-static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
+static LLSocket::ptr_t tcp_open_channel(LLHost host)
 {
-	LLSocket::ptr_t socket = LLSocket::create(pool, LLSocket::STREAM_TCP);
+	LLSocket::ptr_t socket = LLSocket::create(NULL, LLSocket::STREAM_TCP);
 	bool connected = socket->blockingConnect(host);
 	if (!connected)
 	{
@@ -542,7 +537,7 @@ static LLSocket::ptr_t tcp_open_channel(apr_pool_t* pool, LLHost host)
 /**
  * @brief Close the socket.
  *
- * @param handle_ptr A pointer-to-pointer to avoid increasing the use count.
+ * @param handle_ptr The handle of the socket being closed. A pointer-to-pointer to avoid increasing the use count.
  */
 static void tcp_close_channel(LLSocket::ptr_t* handle_ptr)
 {

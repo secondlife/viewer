@@ -936,13 +936,18 @@ LLStringUtil::size_type LLStringUtil::getSubstitution(const std::string& instr, 
 {
 	const std::string delims (",");
 	
-	// Find the first ]
-	size_type pos2 = instr.find(']', start);
+	// Find the first [
+	size_type pos1 = instr.find('[', start);
+	if (pos1 == std::string::npos)
+		return std::string::npos;
+
+	//Find the first ] after the initial [
+	size_type pos2 = instr.find(']', pos1);
 	if (pos2 == std::string::npos)
 		return std::string::npos;
 
-	// Find the last [ before ]
-	size_type pos1 = instr.find_last_of('[', pos2-1);
+	// Find the last [ before ] in case of nested [[]]
+	pos1 = instr.find_last_of('[', pos2-1);
 	if (pos1 == std::string::npos || pos1 < start)
 		return std::string::npos;
 	

@@ -94,7 +94,7 @@ public:
 		Params()
 		:	texture_view("texture_view")
 		{
-			mouse_opaque(false);
+			changeDefault(mouse_opaque, false);
 		}
 	};
 	LLTextureBar(const Params& p)
@@ -387,7 +387,7 @@ public:
 		:	texture_view("texture_view")
 		{
 			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-			rect(LLRect(0,0,100,line_height * 4));
+			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
 
@@ -486,7 +486,7 @@ public:
 		:	texture_view("texture_view")
 		{
 			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-			rect(LLRect(0,0,100,line_height * 4));
+			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
 

@@ -51,7 +51,7 @@
 			<combo_box.item label="Tous les objets et avatars" name="3"/>
 			<combo_box.item label="Tout" name="4"/>
 		</combo_box>
-		<slider label="Propriétés physiques de l&apos;avatar :" name="AvatarPhysicsDetail"/>
+		<slider label="Prop. physiques avatar :" name="AvatarPhysicsDetail"/>
 		<text name="AvatarPhysicsDetailText">
 			Faible
 		</text>
@@ -102,8 +102,8 @@
 			Rendu du terrain :
 		</text>
 		<radio_group name="TerrainDetailRadio">
-			<radio_item label="Bas" name="0"/>
-			<radio_item label="Haut" name="2"/>
+			<radio_item label="Faible" name="0"/>
+			<radio_item label="Élevé" name="2"/>
 		</radio_group>
 		--&gt;
 	</panel>

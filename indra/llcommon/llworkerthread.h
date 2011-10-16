@@ -83,7 +83,7 @@ private:
 	LLMutex* mDeleteMutex;
 	
 public:
-	LLWorkerThread(const std::string& name, bool threaded = true);
+	LLWorkerThread(const std::string& name, bool threaded = true, bool should_pause = false);
 	~LLWorkerThread();
 
 	/*virtual*/ S32 update(U32 max_time_ms);

@@ -16,7 +16,7 @@
 			<bottomtray_button label="移動" name="movement_btn" tool_tip="顯示 / 隱藏 移動控制"/>
 		</layout_panel>
 		<layout_panel name="cam_panel">
-			<bottomtray_button label="View" name="camera_btn" tool_tip="顯示 / 隱藏 攝影機控制"/>
+			<bottomtray_button label="視角" name="camera_btn" tool_tip="顯示 / 隱藏 攝影機控制"/>
 		</layout_panel>
 		<layout_panel name="snapshot_panel">
 			<bottomtray_button name="snapshots" tool_tip="拍攝快照"/>

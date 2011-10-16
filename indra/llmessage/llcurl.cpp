@@ -222,7 +222,7 @@ namespace boost
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
 std::set<CURL*> LLCurl::Easy::sActiveHandles;
 LLMutex* LLCurl::Easy::sHandleMutex = NULL;
-
+LLMutex* LLCurl::Easy::sMultiMutex = NULL;
 
 //static
 CURL* LLCurl::Easy::allocEasyHandle()
@@ -499,7 +499,7 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 	
 	//don't verify host name so urls with scrubbed host names will work (improves DNS performance)
 	setopt(CURLOPT_SSL_VERIFYHOST, 0);
-	setopt(CURLOPT_TIMEOUT, CURL_REQUEST_TIMEOUT);
+	setopt(CURLOPT_TIMEOUT, llmax(time_out, CURL_REQUEST_TIMEOUT));
 
 	setoptString(CURLOPT_URL, url);
 
@@ -553,6 +553,11 @@ LLCurl::Multi::~Multi()
 {
 	llassert(isStopped());
 
+	if (LLCurl::sMultiThreaded)
+	{
+		LLCurl::Easy::sMultiMutex->lock();
+	}
+
 	delete mSignal;
 	mSignal = NULL;
 
@@ -573,6 +578,11 @@ LLCurl::Multi::~Multi()
 
 	check_curl_multi_code(curl_multi_cleanup(mCurlMultiHandle));
 	--gCurlMultiCount;
+
+	if (LLCurl::sMultiThreaded)
+	{
+		LLCurl::Easy::sMultiMutex->unlock();
+	}
 }
 
 CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
@@ -606,6 +616,7 @@ void LLCurl::Multi::run()
 		mPerformState = PERFORM_STATE_PERFORMING;
 		if (!mQuitting)
 		{
+			LLMutexLock lock(LLCurl::Easy::sMultiMutex);
 			doPerform();
 		}
 	}
@@ -1179,6 +1190,7 @@ void LLCurl::initClass(bool multi_threaded)
 	check_curl_code(code);
 	
 	Easy::sHandleMutex = new LLMutex(NULL);
+	Easy::sMultiMutex = new LLMutex(NULL);
 
 #if SAFE_SSL
 	S32 mutex_count = CRYPTO_num_locks();
@@ -1200,6 +1212,8 @@ void LLCurl::cleanupClass()
 
 	delete Easy::sHandleMutex;
 	Easy::sHandleMutex = NULL;
+	delete Easy::sMultiMutex;
+	Easy::sMultiMutex = NULL;
 
 	for (std::set<CURL*>::iterator iter = Easy::sFreeHandles.begin(); iter != Easy::sFreeHandles.end(); ++iter)
 	{
@@ -1213,3 +1227,13 @@ void LLCurl::cleanupClass()
 }
 
 const unsigned int LLCurl::MAX_REDIRECTS = 5;
+
+// Provide access to LLCurl free functions outside of llcurl.cpp without polluting the global namespace.
+void LLCurlFF::check_easy_code(CURLcode code)
+{
+	check_curl_code(code);
+}
+void LLCurlFF::check_multi_code(CURLMcode code)
+{
+	check_curl_multi_code(code);
+}

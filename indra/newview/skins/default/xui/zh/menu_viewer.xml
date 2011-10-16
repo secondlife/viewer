@@ -139,45 +139,46 @@
 		<menu_item_check label="Disable Camera Constraints" name="Disable Camera Distance"/>
 		<menu_item_check label="高解析度快照" name="HighResSnapshot"/>
 		<menu_item_check label="靜音拍攝快照到硬碟" name="QuietSnapshotsToDisk"/>
+		<menu_item_check label="壓縮快照存到硬碟" name="CompressSnapshotsToDisk"/>
 		<menu label="效能工具" name="Performance Tools">
 			<menu_item_call label="Lag Meter" name="Lag Meter"/>
 			<menu_item_check label="統計列" name="Statistics Bar"/>
 			<menu_item_check label="Show Avatar Rendering Cost" name="Avatar Rendering Cost"/>
 		</menu>
-		<menu label="Highlighting and Visibility" name="Highlighting and Visibility">
+		<menu label="高亮顯示與可見度" name="Highlighting and Visibility">
 			<menu_item_check label="Cheesy Beacon" name="Cheesy Beacon"/>
-			<menu_item_check label="Hide Particles" name="Hide Particles"/>
-			<menu_item_check label="Hide Selected" name="Hide Selected"/>
+			<menu_item_check label="隱藏粒子效果" name="Hide Particles"/>
+			<menu_item_check label="隱藏所選擇的" name="Hide Selected"/>
 			<menu_item_check label="高亮顯示透明物件" name="Highlight Transparent"/>
 			<menu_item_check label="顯示 HUD 附件" name="Show HUD Attachments"/>
-			<menu_item_check label="Show Mouselook Crosshairs" name="ShowCrosshairs"/>
+			<menu_item_check label="顯示第一人稱視角準星" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Rendering Types" name="Rendering Types">
-			<menu_item_check label="Simple" name="Simple"/>
+			<menu_item_check label="簡單" name="Simple"/>
 			<menu_item_check label="半透明" name="Alpha"/>
-			<menu_item_check label="Tree" name="Tree"/>
-			<menu_item_check label="Avatars" name="Character"/>
-			<menu_item_check label="SurfacePath" name="SurfacePath"/>
-			<menu_item_check label="Sky" name="Sky"/>
-			<menu_item_check label="Water" name="Water"/>
-			<menu_item_check label="Ground" name="Ground"/>
-			<menu_item_check label="Volume" name="Volume"/>
-			<menu_item_check label="Grass" name="Grass"/>
-			<menu_item_check label="Clouds" name="Clouds"/>
-			<menu_item_check label="Particles" name="Particles"/>
-			<menu_item_check label="Bump" name="Bump"/>
+			<menu_item_check label="樹木" name="Tree"/>
+			<menu_item_check label="化身" name="Character"/>
+			<menu_item_check label="地表" name="SurfacePath"/>
+			<menu_item_check label="天空" name="Sky"/>
+			<menu_item_check label="水文" name="Water"/>
+			<menu_item_check label="地面" name="Ground"/>
+			<menu_item_check label="體積" name="Volume"/>
+			<menu_item_check label="草地" name="Grass"/>
+			<menu_item_check label="雲彩" name="Clouds"/>
+			<menu_item_check label="粒子效果" name="Particles"/>
+			<menu_item_check label="碰撞" name="Bump"/>
 		</menu>
 		<menu label="Rendering Features" name="Rendering Features">
 			<menu_item_check label="UI" name="UI"/>
 			<menu_item_check label="Selected" name="Selected"/>
 			<menu_item_check label="Highlighted" name="Highlighted"/>
 			<menu_item_check label="Dynamic Textures" name="Dynamic Textures"/>
-			<menu_item_check label="Foot Shadows" name="Foot Shadows"/>
-			<menu_item_check label="Fog" name="Fog"/>
+			<menu_item_check label="腳步陰影" name="Foot Shadows"/>
+			<menu_item_check label="霧氣" name="Fog"/>
 			<menu_item_check label="Test FRInfo" name="Test FRInfo"/>
-			<menu_item_check label="Flexible Objects" name="Flexible Objects"/>
+			<menu_item_check label="彈性物件" name="Flexible Objects"/>
 		</menu>
-		<menu_item_check label="Use Plugin Read Thread" name="Use Plugin Read Thread"/>
+		<menu_item_check label="使用外卦讀取緒" name="Use Plugin Read Thread"/>
 		<menu_item_call label="清除群組快取資料" name="ClearGroupCache"/>
 		<menu_item_check label="滑鼠平滑移動" name="Mouse Smoothing"/>
 		<menu label="快速鍵" name="Shortcuts">
@@ -213,13 +214,13 @@
 			<menu_item_check label="除錯控制台" name="Debug Console"/>
 			<menu_item_call label="通知控制台" name="Notifications"/>
 			<menu_item_check label="材質尺寸控制台" name="Texture Size"/>
-			<menu_item_check label="Texture Category Console" name="Texture Category"/>
-			<menu_item_check label="Fast Timers" name="Fast Timers"/>
+			<menu_item_check label="材質分類控制台" name="Texture Category"/>
+			<menu_item_check label="快速碼錶" name="Fast Timers"/>
 			<menu_item_check label="記憶體" name="Memory"/>
-			<menu_item_call label="Region Info to Debug Console" name="Region Info to Debug Console"/>
+			<menu_item_call label="地區資訊傳至除錯控制台" name="Region Info to Debug Console"/>
 			<menu_item_call label="群組資訊至除錯控制台" name="Group Info to Debug Console"/>
 			<menu_item_call label="Capabilities Info to Debug Console" name="Capabilities Info to Debug Console"/>
-			<menu_item_check label="Camera" name="Camera"/>
+			<menu_item_check label="攝影機" name="Camera"/>
 			<menu_item_check label="風力" name="Wind"/>
 			<menu_item_check label="FOV" name="FOV"/>
 			<menu_item_check label="Badge" name="Badge"/>
@@ -244,7 +245,7 @@
 			<menu_item_call label="模擬記憶體不足" name="Memory Leaking Simulation"/>
 		</menu>
 		<menu label="Render Tests" name="Render Tests">
-			<menu_item_check label="Camera Offset" name="Camera Offset"/>
+			<menu_item_check label="攝影機位移" name="Camera Offset"/>
 			<menu_item_check label="Randomize Framerate" name="Randomize Framerate"/>
 			<menu_item_check label="Periodic Slow Frame" name="Periodic Slow Frame"/>
 			<menu_item_check label="Frame Test" name="Frame Test"/>
@@ -275,12 +276,12 @@
 			<menu_item_check label="Shadows from Sun/Moon/Projectors" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO and Shadow Smoothing" name="SSAO and Shadow Smoothing"/>
 			<menu_item_check label="Global Illumination (experimental)" name="Global Illumination"/>
-			<menu_item_check label="Debug GL" name="Debug GL"/>
-			<menu_item_check label="Debug Pipeline" name="Debug Pipeline"/>
+			<menu_item_check label="GL 除錯" name="Debug GL"/>
+			<menu_item_check label="管線除錯" name="Debug Pipeline"/>
 			<menu_item_check label="自動半透明遮罩（遞延）" name="Automatic Alpha Masks (deferred)"/>
 			<menu_item_check label="自動半透明遮罩（非遞延）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animation Textures" name="Animation Textures"/>
-			<menu_item_check label="Disable Textures" name="Disable Textures"/>
+			<menu_item_check label="關閉材質" name="Disable Textures"/>
 			<menu_item_check label="Full Res Textures" name="Rull Res Textures"/>
 			<menu_item_check label="Audit Textures" name="Audit Textures"/>
 			<menu_item_check label="Texture Atlas (experimental)" name="Texture Atlas"/>
@@ -297,30 +298,30 @@
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
 		</menu>
 		<menu_item_call label="Dump Scripted Camera" name="Dump Scripted Camera"/>
-		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
-		<menu label="Recorder" name="Recorder">
-			<menu_item_call label="Start Playback" name="Start Playback"/>
-			<menu_item_call label="Stop Playback" name="Stop Playback"/>
-			<menu_item_check label="Loop Playback" name="Loop Playback"/>
-			<menu_item_call label="Start Record" name="Start Record"/>
-			<menu_item_call label="Stop Record" name="Stop Record"/>
+		<menu_item_call label="碰撞、推擠與打擊" name="Bumps, Pushes &amp;amp; Hits"/>
+		<menu label="錄製器" name="Recorder">
+			<menu_item_call label="開始播放" name="Start Playback"/>
+			<menu_item_call label="停止播放" name="Stop Playback"/>
+			<menu_item_check label="循環播放" name="Loop Playback"/>
+			<menu_item_call label="開始錄製" name="Start Record"/>
+			<menu_item_call label="停止錄製" name="Stop Record"/>
 		</menu>
-		<menu label="World" name="World">
-			<menu_item_check label="Sim Sun Override" name="Sim Sun Override"/>
+		<menu label="世界" name="World">
+			<menu_item_check label="模擬器太陽設定覆蓋" name="Sim Sun Override"/>
 			<menu_item_check label="Cheesy Beacon" name="Cheesy Beacon"/>
-			<menu_item_check label="Fixed Weather" name="Fixed Weather"/>
+			<menu_item_check label="固定天氣" name="Fixed Weather"/>
 			<menu_item_call label="傾印地區物件快取" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
-			<menu_item_call label="Media Browser Test" name="Web Browser Test"/>
-			<menu_item_call label="Web Content Browser" name="Web Content Browser"/>
+			<menu_item_call label="測試媒體瀏覽器" name="Web Browser Test"/>
+			<menu_item_call label="網頁內容瀏覽器" name="Web Content Browser"/>
 			<menu_item_call label="Dump SelectMgr" name="Dump SelectMgr"/>
 			<menu_item_call label="傾印收納區" name="Dump Inventory"/>
-			<menu_item_call label="Dump Timers" name="Dump Timers"/>
+			<menu_item_call label="傾印碼錶" name="Dump Timers"/>
 			<menu_item_call label="Dump Focus Holder" name="Dump Focus Holder"/>
 			<menu_item_call label="Print Selected Object Info" name="Print Selected Object Info"/>
 			<menu_item_call label="Print Agent Info" name="Print Agent Info"/>
-			<menu_item_call label="Memory Stats" name="Memory Stats"/>
+			<menu_item_call label="計憶體狀態" name="Memory Stats"/>
 			<menu_item_check label="Region Debug Console" name="Region Debug Console"/>
 			<menu_item_check label="Debug SelectMgr" name="Debug SelectMgr"/>
 			<menu_item_check label="Debug Clicks" name="Debug Clicks"/>
@@ -331,9 +332,9 @@
 			<menu_item_check label="Debug WindowProc" name="Debug WindowProc"/>
 		</menu>
 		<menu label="XUI" name="XUI">
-			<menu_item_call label="Reload Color Settings" name="Reload Color Settings"/>
-			<menu_item_call label="Show Font Test" name="Show Font Test"/>
-			<menu_item_check label="Show XUI Names" name="Show XUI Names"/>
+			<menu_item_call label="重新載入顏色設定" name="Reload Color Settings"/>
+			<menu_item_call label="顯示字型測試" name="Show Font Test"/>
+			<menu_item_check label="顯示 XUI 名稱" name="Show XUI Names"/>
 			<menu_item_call label="送出測試 IMs" name="Send Test IMs"/>
 			<menu_item_call label="沖洗名稱快取資料" name="Flush Names Caches"/>
 		</menu>
@@ -348,12 +349,12 @@
 			<menu label="Character Tests" name="Character Tests">
 				<menu_item_call label="Appearance To XML" name="Appearance To XML"/>
 				<menu_item_call label="Toggle Character Geometry" name="Toggle Character Geometry"/>
-				<menu_item_call label="Test Male" name="Test Male"/>
-				<menu_item_call label="Test Female" name="Test Female"/>
-				<menu_item_call label="Toggle PG" name="Toggle PG"/>
-				<menu_item_check label="Allow Select Avatar" name="Allow Select Avatar"/>
+				<menu_item_call label="男性測試" name="Test Male"/>
+				<menu_item_call label="女性測試" name="Test Female"/>
+				<menu_item_call label="PG　切換" name="Toggle PG"/>
+				<menu_item_check label="允許選擇化身" name="Allow Select Avatar"/>
 			</menu>
-			<menu_item_call label="Force Params to Default" name="Force Params to Default"/>
+			<menu_item_call label="強制參數為預設值" name="Force Params to Default"/>
 			<menu_item_check label="動作資訊" name="Animation Info"/>
 			<menu_item_check label="慢動作" name="Slow Motion Animations"/>
 			<menu_item_check label="顯示注視在" name="Show Look At"/>

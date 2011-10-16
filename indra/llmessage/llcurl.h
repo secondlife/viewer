@@ -232,6 +232,7 @@ public:
 
 private:
 	friend class LLCurl;
+	friend class LLCurl::Multi;
 
 	CURL*				mCurlEasyHandle;
 	struct curl_slist*	mHeaders;
@@ -251,6 +252,7 @@ private:
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
 	static LLMutex* sHandleMutex;
+	static LLMutex* sMultiMutex;
 };
 
 class LLCurl::Multi : public LLThread
@@ -371,7 +373,11 @@ private:
 	bool mResultReturned;
 };
 
-void check_curl_code(CURLcode code);
-void check_curl_multi_code(CURLMcode code);
+// Provide access to LLCurl free functions outside of llcurl.cpp without polluting the global namespace.
+namespace LLCurlFF
+{
+	void check_easy_code(CURLcode code);
+	void check_multi_code(CURLMcode code);
+}
 
 #endif // LL_LLCURL_H

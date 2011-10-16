@@ -138,7 +138,6 @@
 			<menu_item_call label="Son ([COST] L$)..." name="Upload Sound"/>
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modèle..." name="Upload Model"/>
-			<menu_item_call label="Assistant Modèle..." name="Upload Model Wizard"/>
 			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
 		</menu>
 		<menu_item_call label="Annuler" name="Undo"/>
@@ -253,6 +252,7 @@
 			<menu_item_check label="Afficher les matrices" name="Show Matrices"/>
 			<menu_item_check label="Afficher la couleur sous le curseur" name="Show Color Under Cursor"/>
 			<menu_item_check label="Afficher la mémoire" name="Show Memory"/>
+			<menu_item_check label="Afficher les infos de mémoire privées" name="Show Private Mem Info"/>
 			<menu_item_check label="Afficher les mises à jour des objets" name="Show Updates"/>
 		</menu>
 		<menu label="Forcer une erreur" name="Force Errors">

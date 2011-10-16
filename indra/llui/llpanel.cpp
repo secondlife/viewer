@@ -90,7 +90,6 @@ LLPanel::Params::Params()
 	visible_callback("visible_callback"),
 	accepts_badge("accepts_badge")
 {
-	name = "panel";
 	addSynonym(background_visible, "bg_visible");
 	addSynonym(has_border, "border_visible");
 	addSynonym(label, "title");

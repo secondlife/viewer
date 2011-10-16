@@ -16,7 +16,7 @@
      name="no_matched_tabs_msg"
      v_pad="15"
      width="200"
-     wrap="true "/>
+     wrap="true"/>
     <!-- This widget will not be created in viewer. Only its value will be used for empty accordion without filter. -->
     <no_visible_tabs_text
      name="no_visible_tabs_msg"

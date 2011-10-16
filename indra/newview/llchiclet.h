@@ -107,9 +107,9 @@ public:
 	{
 		Params()
 		{
-			draw_tooltip(FALSE);
-			mouse_opaque(FALSE);
-			default_icon_name("Generic_Person");
+			changeDefault(draw_tooltip, FALSE);
+			changeDefault(mouse_opaque, FALSE);
+			changeDefault(default_icon_name, "Generic_Person");
 		};
 	};
 
@@ -131,9 +131,8 @@ public:
 		Optional<std::string> default_icon;
 
 		Params()
-		 : default_icon("default_icon", "Generic_Group")
-		{
-		};
+		:	default_icon("default_icon", "Generic_Group")
+		{}
 	};
 
 	/**
@@ -162,9 +161,9 @@ public:
 		Optional<std::string> default_icon;
 
 		Params()
-		 : default_icon("default_icon", "Generic_Object_Small")
+		:	default_icon("default_icon", "Generic_Object_Small")
 		{
-			avatar_id = LLUUID::null;
+			changeDefault(avatar_id, LLUUID::null);
 		};
 	};
 
@@ -314,9 +313,7 @@ public:
 		TYPE_AD_HOC
 	};
 	struct Params : public LLInitParam::Block<Params, LLChiclet::Params>
-	{
-		Params(){}
-	};
+	{};
 
 	
 	virtual ~LLIMChiclet() {};

@@ -193,7 +193,7 @@
     </text>
     <text
        follows="left|top"
-       height="20"
+       height="60"
        layout="topleft"
        left_delta="0"
        name="height_text_lbl11"

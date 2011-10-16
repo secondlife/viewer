@@ -411,7 +411,6 @@ public:
 			cc = llsd_from_file("fake_upload_error.xml");
 		}
 
-		//assert_main_thread();
 		mThread->mPendingUploads--;
 		dump_llsd_to_file(cc,make_dump_name("whole_model_upload_response_",dump_num));
 		
@@ -445,7 +444,7 @@ public:
 };
 
 LLMeshRepoThread::LLMeshRepoThread()
-: LLThread("mesh repo", NULL) 
+: LLThread("mesh repo") 
 { 
 	mWaiting = false;
 	mMutex = new LLMutex(NULL);
@@ -1321,6 +1320,7 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	std::map<LLModel*,S32> mesh_index;
 	std::string model_name;
+	std::string model_metric;
 
 	S32 instance_num = 0;
 	
@@ -1340,6 +1340,11 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 			if (model_name.empty())
 			{
 				model_name = data.mBaseModel->getName();
+			}
+
+			if (model_metric.empty())
+			{
+				model_metric = data.mBaseModel->getMetric();
 			}
 
 			std::stringstream ostr;
@@ -1455,6 +1460,8 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 	if (model_name.empty()) model_name = "mesh model";
 	result["name"] = model_name;
+	if (model_metric.empty()) model_metric = "MUT_Unspecified";
+	res["metric"] = model_metric;
 	result["asset_resources"] = res;
 	dump_llsd_to_file(result,make_dump_name("whole_model_",dump_num));
 
@@ -1463,51 +1470,57 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 
 void LLMeshUploadThread::generateHulls()
 {
+	bool has_valid_requests = false ;
+
 	for (instance_map::iterator iter = mInstance.begin(); iter != mInstance.end(); ++iter)
+	{
+		LLMeshUploadData data;
+		data.mBaseModel = iter->first;
+
+		LLModelInstance& instance = *(iter->second.begin());
+
+		for (S32 i = 0; i < 5; i++)
 		{
-			LLMeshUploadData data;
-			data.mBaseModel = iter->first;
-
-			LLModelInstance& instance = *(iter->second.begin());
-
-			for (S32 i = 0; i < 5; i++)
-			{
-				data.mModel[i] = instance.mLOD[i];
-			}
-
-			//queue up models for hull generation
-			LLModel* physics = NULL;
-
-			if (data.mModel[LLModel::LOD_PHYSICS].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_PHYSICS];
-			}
-			else if (data.mModel[LLModel::LOD_LOW].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_LOW];
-			}
-			else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
-			{
-				physics = data.mModel[LLModel::LOD_MEDIUM];
-			}
-			else
-			{
-				physics = data.mModel[LLModel::LOD_HIGH];
-			}
-
-			llassert(physics != NULL);
-
-			DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
-			if(request->isValid())
-			{
-				gMeshRepo.mDecompThread->submitRequest(request);
-			}
+			data.mModel[i] = instance.mLOD[i];
 		}
 
+		//queue up models for hull generation
+		LLModel* physics = NULL;
+
+		if (data.mModel[LLModel::LOD_PHYSICS].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_PHYSICS];
+		}
+		else if (data.mModel[LLModel::LOD_LOW].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_LOW];
+		}
+		else if (data.mModel[LLModel::LOD_MEDIUM].notNull())
+		{
+			physics = data.mModel[LLModel::LOD_MEDIUM];
+		}
+		else
+		{
+			physics = data.mModel[LLModel::LOD_HIGH];
+		}
+
+		llassert(physics != NULL);
+
+		DecompRequest* request = new DecompRequest(physics, data.mBaseModel, this);
+		if(request->isValid())
+		{
+			gMeshRepo.mDecompThread->submitRequest(request);
+			has_valid_requests = true ;
+		}
+	}
+		
+	if(has_valid_requests)
+	{
 		while (!mPhysicsComplete)
 		{
 			apr_sleep(100);
 		}
+	}	
 }
 
 void LLMeshUploadThread::doWholeModelUpload()
@@ -1688,6 +1701,7 @@ void LLMeshRepository::cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header)
 		{
 			LLPointer<LLVolume> volume = new LLVolume(volume_params, LLVolumeLODGroup::getVolumeScaleFromDetail(i));
 			volume->copyVolumeFaces(data.mModel[i]);
+			volume->setMeshAssetLoaded(TRUE);
 		}
 	}
 
@@ -2141,11 +2155,6 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 	if (volume)
 	{
-		if (volume->getNumVolumeFaces() == 0 && !volume->isTetrahedron())
-		{
-			volume->makeTetrahedron();
-		}
-
 		LLVolumeParams params = volume->getParams();
 
 		LLVolumeLODGroup* group = LLPrimitive::getVolumeManager()->getGroup(params);
@@ -2156,7 +2165,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 			if (last_lod >= 0)
 			{
 				LLVolume* lod = group->refLOD(last_lod);
-				if (lod && !lod->isTetrahedron() && lod->getNumVolumeFaces() > 0)
+				if (lod && lod->isMeshAssetLoaded() && lod->getNumVolumeFaces() > 0)
 				{
 					group->derefLOD(lod);
 					return last_lod;
@@ -2168,7 +2177,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 			for (S32 i = detail-1; i >= 0; --i)
 			{
 				LLVolume* lod = group->refLOD(i);
-				if (lod && !lod->isTetrahedron() && lod->getNumVolumeFaces() > 0)
+				if (lod && lod->isMeshAssetLoaded() && lod->getNumVolumeFaces() > 0)
 				{
 					group->derefLOD(lod);
 					return i;
@@ -2181,7 +2190,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 			for (S32 i = detail+1; i < 4; ++i)
 			{
 				LLVolume* lod = group->refLOD(i);
-				if (lod && !lod->isTetrahedron() && lod->getNumVolumeFaces() > 0)
+				if (lod && lod->isMeshAssetLoaded() && lod->getNumVolumeFaces() > 0)
 				{
 					group->derefLOD(lod);
 					return i;
@@ -2432,7 +2441,6 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 		if (volume->getNumVolumeFaces() <= 0)
 		{
 			llwarns << "Mesh loading returned empty volume." << llendl;
-			volume->makeTetrahedron();
 		}
 		
 		{ //update system volume
@@ -2440,6 +2448,7 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 			if (sys_volume)
 			{
 				sys_volume->copyVolumeFaces(volume);
+				sys_volume->setMeshAssetLoaded(TRUE);
 				LLPrimitive::getVolumeManager()->unrefVolume(sys_volume);
 			}
 			else
@@ -2496,7 +2505,7 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 	return mThread->getActualMeshLOD(mesh_params, lod);
 }
 
-const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj)
+const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
 	if (mesh_id.notNull())
 	{
@@ -2752,7 +2761,7 @@ void LLMeshRepository::uploadError(LLSD& args)
 }
 
 //static
-F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod)
+F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32* bytes_visible, S32 lod, F32 *unscaled_value)
 {
 	F32 max_distance = 512.f;
 
@@ -2840,6 +2849,11 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 					   triangles_mid*mid_area +
 					   triangles_low*low_area +
 					  triangles_lowest*lowest_area;
+
+	if (unscaled_value)
+	{
+		*unscaled_value = weighted_avg;
+	}
 
 	return weighted_avg/gSavedSettings.getU32("MeshTriangleBudget")*15000.f;
 }
@@ -3135,32 +3149,33 @@ void LLPhysicsDecomp::doDecompositionSingleHull()
 		llwarns << "Could not execute decomposition stage when attempting to create single hull." << llendl;
 		make_box(mCurRequest);
 	}
-
-	mMutex->lock();
-	mCurRequest->mHull.clear();
-	mCurRequest->mHull.resize(1);
-	mCurRequest->mHullMesh.clear();
-	mMutex->unlock();
-
-	std::vector<LLVector3> p;
-	LLCDHull hull;
-		
-	// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
-	decomp->getSingleHull(&hull);
-
-	const F32* v = hull.mVertexBase;
-
-	for (S32 j = 0; j < hull.mNumVertices; ++j)
+	else
 	{
-		LLVector3 vert(v[0], v[1], v[2]); 
-		p.push_back(vert);
-		v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
-	}
+		mMutex->lock();
+		mCurRequest->mHull.clear();
+		mCurRequest->mHull.resize(1);
+		mCurRequest->mHullMesh.clear();
+		mMutex->unlock();
+
+		std::vector<LLVector3> p;
+		LLCDHull hull;
+		
+		// if LLConvexDecomposition is a stub, num_hulls should have been set to 0 above, and we should not reach this code
+		decomp->getSingleHull(&hull);
+
+		const F32* v = hull.mVertexBase;
+
+		for (S32 j = 0; j < hull.mNumVertices; ++j)
+		{
+			LLVector3 vert(v[0], v[1], v[2]); 
+			p.push_back(vert);
+			v = (F32*) (((U8*) v) + hull.mVertexStrideBytes);
+		}
 						
-	mMutex->lock();
-	mCurRequest->mHull[0] = p;
-	mMutex->unlock();	
-			
+		mMutex->lock();
+		mCurRequest->mHull[0] = p;
+		mMutex->unlock();	
+	}		
 #else
 	setMeshData(mesh, false);
 
@@ -3498,8 +3513,7 @@ void LLMeshRepository::buildPhysicsMesh(LLModel::Decomposition& decomp)
 bool LLMeshRepository::meshUploadEnabled()
 {
 	LLViewerRegion *region = gAgent.getRegion();
-	if(gSavedSettings.getBOOL("MeshEnabled") && 
-	   LLViewerParcelMgr::getInstance()->allowAgentBuild() &&
+	if(gSavedSettings.getBOOL("MeshEnabled") &&
 	   region)
 	{
 		return region->meshUploadEnabled();

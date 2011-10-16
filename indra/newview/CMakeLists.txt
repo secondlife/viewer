@@ -77,7 +77,7 @@ include_directories(
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
-    llaccountingquotamanager.cpp
+    llaccountingcostmanager.cpp
     llagent.cpp
     llagentaccess.cpp
     llagentcamera.cpp
@@ -213,6 +213,7 @@ set(viewer_SOURCE_FILES
     llfloatermodelwizard.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
+    llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
@@ -368,6 +369,7 @@ set(viewer_SOURCE_FILES
     llpanelmarketplaceinbox.cpp
     llpanelmarketplaceinboxinventory.cpp
     llpanelmarketplaceoutbox.cpp
+    llpanelmarketplaceoutboxinventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
     llpanelmediasettingssecurity.cpp
@@ -638,7 +640,7 @@ set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
     groupchatlistener.h
-    llaccountingquotamanager.h
+    llaccountingcostmanager.h
     llagent.h
     llagentaccess.h
     llagentcamera.h
@@ -775,6 +777,7 @@ set(viewer_HEADER_FILES
     llfloatermodelwizard.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
+    llfloaterobjectweights.h
     llfloateropenobject.h
     llfloaterpay.h
     llfloaterperms.h
@@ -924,6 +927,7 @@ set(viewer_HEADER_FILES
     llpanelmarketplaceinbox.h
     llpanelmarketplaceinboxinventory.h
     llpanelmarketplaceoutbox.h
+    llpanelmarketplaceoutboxinventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
     llpanelmediasettingssecurity.h

@@ -354,7 +354,6 @@ static unsigned get_till_eol(std::istream& input, char *buf, unsigned bufsize)
 	return count;
 }
 
-LLFastTimer::DeclareTimer FTM_SD_PARSE_READ_STREAM("LLSD Read Stream");
 S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 {
 	XML_Status status;
@@ -374,7 +373,7 @@ S32 LLSDXMLParser::Impl::parse(std::istream& input, LLSD& data)
 		{
 			break;
 		}
-		{ LLFastTimer _(FTM_SD_PARSE_READ_STREAM);
+		{
 		
 			count = get_till_eol(input, (char *)buffer, BUFFER_SIZE);
 			if (!count)

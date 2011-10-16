@@ -26,10 +26,10 @@ Try selecting a smaller area.
 		You do not have permission to buy land for your active group.
 	</floater.string>
 	<floater.string name="parcel_not_for_sale">
-		The selected parcel is not for sale.
+		所選擇的地段不出售。.
 	</floater.string>
 	<floater.string name="group_already_owns">
-		The group already owns the parcel.
+		這個群組已擁有這個地段。
 	</floater.string>
 	<floater.string name="you_already_own">
 		你已經擁有這個地段。
@@ -62,7 +62,7 @@ Try selecting a smaller area.
 		Cannot buy now:
 	</floater.string>
 	<floater.string name="not_for_sale">
-		Not for sale:
+		不出售：
 	</floater.string>
 	<floater.string name="none_needed">
 		none needed

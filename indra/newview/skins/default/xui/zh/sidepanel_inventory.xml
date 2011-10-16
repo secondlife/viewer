@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Things" name="objects panel">
+<panel label="事物" name="objects panel">
 	<panel label="" name="sidepanel__inventory_panel">
 		<panel name="button_panel">
 			<layout_stack name="button_panel_ls">
@@ -11,8 +11,8 @@
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
 					<button label="Shop" name="shop_btn" tool_tip="Open Marketplace webpage"/>
-					<button label="Wear" name="wear_btn" tool_tip="穿上所選擇的裝扮"/>
-					<button label="Play" name="play_btn"/>
+					<button label="穿上" name="wear_btn" tool_tip="穿上所選擇的裝扮"/>
+					<button label="播放" name="play_btn"/>
 					<button label="瞬間傳送" name="teleport_btn" tool_tip="瞬間傳送到所選的區域"/>
 				</layout_panel>
 			</layout_stack>

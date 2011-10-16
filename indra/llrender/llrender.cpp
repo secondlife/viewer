@@ -927,13 +927,7 @@ LLRender::LLRender()
     mMode(LLRender::TRIANGLES),
     mCurrTextureUnitIndex(0),
     mMaxAnisotropy(0.f) 
-{
-	mBuffer = new LLVertexBuffer(immediate_mask, 0);
-	mBuffer->allocateBuffer(4096, 0, TRUE);
-	mBuffer->getVertexStrider(mVerticesp);
-	mBuffer->getTexCoord0Strider(mTexcoordsp);
-	mBuffer->getColorStrider(mColorsp);
-	
+{	
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
 	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
 	{
@@ -964,6 +958,17 @@ LLRender::~LLRender()
 	shutdown();
 }
 
+void LLRender::init()
+{
+	llassert_always(mBuffer.isNull()) ;
+
+	mBuffer = new LLVertexBuffer(immediate_mask, 0);
+	mBuffer->allocateBuffer(4096, 0, TRUE);
+	mBuffer->getVertexStrider(mVerticesp);
+	mBuffer->getTexCoord0Strider(mTexcoordsp);
+	mBuffer->getColorStrider(mColorsp);
+}
+
 void LLRender::shutdown()
 {
 	for (U32 i = 0; i < mTexUnits.size(); i++)
@@ -979,6 +984,7 @@ void LLRender::shutdown()
 		delete mLightState[i];
 	}
 	mLightState.clear();
+	mBuffer = NULL ;
 }
 
 void LLRender::refreshState(void)

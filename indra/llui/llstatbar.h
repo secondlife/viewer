@@ -65,7 +65,7 @@ public:
 			  show_mean("show_mean", TRUE),
 			  stat("stat")
 		{
-			follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
+			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
 	};
 	LLStatBar(const Params&);

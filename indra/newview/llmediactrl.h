@@ -166,6 +166,9 @@ public:
 		// Incoming media event dispatcher
 		virtual void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
+		// right click debugging item
+		void onOpenWebInspector();
+
 		LLUUID getTextureID() {return mMediaTextureID;}
 
 	protected:

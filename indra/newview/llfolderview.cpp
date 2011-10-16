@@ -181,6 +181,7 @@ LLFolderView::Params::Params()
 // Default constructor
 LLFolderView::LLFolderView(const Params& p)
 :	LLFolderViewFolder(p),
+	mRunningHeight(0),
 	mScrollContainer( NULL ),
 	mPopupMenuHandle(),
 	mAllowMultiSelect(p.allow_multiselect),
@@ -479,6 +480,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		target_height = running_height;
 	}
 
+	mRunningHeight = running_height;
 	LLRect scroll_rect = mScrollContainer->getContentWindowRect();
 	reshape( llmax(scroll_rect.getWidth(), total_width), running_height );
 
@@ -524,10 +526,11 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLRect scroll_rect;
 	if (mScrollContainer)
 	{
+		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
 	width = llmax(mMinWidth, scroll_rect.getWidth());
-	height = llmax(height, scroll_rect.getHeight());
+	height = llmax(mRunningHeight, scroll_rect.getHeight());
 
 	// restrict width with scroll container's width
 	if (mUseEllipses)
@@ -1007,6 +1010,33 @@ void LLFolderView::removeSelectedItems( void )
 	LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLFolderView::onItemsRemovalConfirmation, this, _1, _2));
 }
 
+bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFolderViewItem*>& selectedItems)
+{
+	LLFolderViewItem* item_parent = dynamic_cast<LLFolderViewItem*>(item->getParent());
+
+	if (item_parent)
+	{
+		for(std::vector<LLFolderViewItem*>::const_iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+		{
+			const LLFolderViewItem* const selected_item = (*it);
+
+			LLFolderViewItem* parent = item_parent;
+
+			while (parent)
+			{
+				if (selected_item == parent)
+				{
+					return true;
+				}
+
+				parent = dynamic_cast<LLFolderViewItem*>(parent->getParent());
+			}
+		}
+	}
+
+	return false;
+}
+
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -1081,7 +1111,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 			if (!new_selection)
 			{
 				new_selection = last_item->getPreviousOpenNode(FALSE);
-				while (new_selection && new_selection->isSelected())
+				while (new_selection && (new_selection->isSelected() || isDescendantOfASelectedItem(new_selection, items)))
 				{
 					new_selection = new_selection->getPreviousOpenNode(FALSE);
 				}
@@ -1693,7 +1723,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 	}
 
 	BOOL handled = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(getRoot()))
+	if (mParentPanel->hasFocus())
 	{
 		// SL-51858: Key presses are not being passed to the Popup menu.
 		// A proper fix is non-trivial so instead just close the menu.
@@ -1915,9 +1945,9 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	if (!handled)
 	{
 		if (getListener()->getUUID().notNull())
-		{
-			LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-		}
+	{
+		handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	}
 		else
 		{
 			if (!mFolders.empty())

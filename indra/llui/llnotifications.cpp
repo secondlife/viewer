@@ -245,7 +245,6 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 	LLParamSDParser parser;
 	parser.writeSD(mFormData, p.form_elements);
 
-	mFormData = mFormData[""];
 	if (!mFormData.isArray())
 	{
 		// change existing contents to a one element array
