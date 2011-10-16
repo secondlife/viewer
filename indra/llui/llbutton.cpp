@@ -83,7 +83,6 @@ LLButton::Params::Params()
 	label_color_selected("label_color_selected"),	// requires is_toggle true
 	label_color_disabled("label_color_disabled"),
 	label_color_disabled_selected("label_color_disabled_selected"),
-	highlight_color("highlight_color"),
 	image_color("image_color"),
 	image_color_disabled("image_color_disabled"),
 	image_overlay_color("image_overlay_color", LLColor4::white),
@@ -99,10 +98,13 @@ LLButton::Params::Params()
 	scale_image("scale_image", true),
 	hover_glow_amount("hover_glow_amount"),
 	commit_on_return("commit_on_return", true),
+	display_pressed_state("display_pressed_state", true),
 	use_draw_context_alpha("use_draw_context_alpha", true),
 	badge("badge"),
 	handle_right_mouse("handle_right_mouse"),
-	held_down_delay("held_down_delay")
+	held_down_delay("held_down_delay"),
+	button_flash_count("button_flash_count"),
+	button_flash_rate("button_flash_rate")
 {
 	addSynonym(is_toggle, "toggle");
 	changeDefault(initial_value, LLSD(false));
@@ -136,7 +138,6 @@ LLButton::LLButton(const LLButton::Params& p)
 	mSelectedLabelColor(p.label_color_selected()),
 	mDisabledLabelColor(p.label_color_disabled()),
 	mDisabledSelectedLabelColor(p.label_color_disabled_selected()),
-	mHighlightColor(p.highlight_color()),
 	mImageColor(p.image_color()),
 	mFlashBgColor(p.flash_color()),
 	mDisabledImageColor(p.image_color_disabled()),
@@ -159,12 +160,15 @@ LLButton::LLButton(const LLButton::Params& p)
 	mCommitOnReturn(p.commit_on_return),
 	mFadeWhenDisabled(FALSE),
 	mForcePressedState(false),
+	mDisplayPressedState(p.display_pressed_state),
 	mLastDrawCharsCount(0),
 	mMouseDownSignal(NULL),
 	mMouseUpSignal(NULL),
 	mHeldDownSignal(NULL),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
-	mHandleRightMouse(p.handle_right_mouse)
+	mHandleRightMouse(p.handle_right_mouse),
+	mButtonFlashCount(p.button_flash_count),
+	mButtonFlashRate(p.button_flash_rate)
 {
 	static LLUICachedControl<S32> llbutton_orig_h_pad ("UIButtonOrigHPad", 0);
 	static Params default_params(LLUICtrlFactory::getDefaultParams<LLButton>());
@@ -292,6 +296,24 @@ void LLButton::onCommit()
 	LLUICtrl::onCommit();
 }
 
+boost::signals2::connection LLButton::setClickedCallback(const CommitCallbackParam& cb)
+{
+	return setClickedCallback(initCommitCallback(cb));
+}
+boost::signals2::connection LLButton::setMouseDownCallback(const CommitCallbackParam& cb)
+{
+	return setMouseDownCallback(initCommitCallback(cb));
+}
+boost::signals2::connection LLButton::setMouseUpCallback(const CommitCallbackParam& cb)
+{
+	return setMouseUpCallback(initCommitCallback(cb));
+}
+boost::signals2::connection LLButton::setHeldDownCallback(const CommitCallbackParam& cb)
+{
+	return setHeldDownCallback(initCommitCallback(cb));
+}
+
+
 boost::signals2::connection LLButton::setClickedCallback( const commit_signal_t::slot_type& cb )
 {
 	if (!mCommitSignal) mCommitSignal = new commit_signal_t();
@@ -314,7 +336,7 @@ boost::signals2::connection LLButton::setHeldDownCallback( const commit_signal_t
 }
 
 
-// *TODO: Deprecate (for backwards compatability only)
+// *TODO: Deprecate (for backwards compatibility only)
 boost::signals2::connection LLButton::setClickedCallback( button_callback_t cb, void* data )
 {
 	return setClickedCallback(boost::bind(cb, data));
@@ -511,15 +533,6 @@ BOOL	LLButton::handleRightMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
-
-void LLButton::onMouseEnter(S32 x, S32 y, MASK mask)
-{
-	LLUICtrl::onMouseEnter(x, y, mask);
-
-	if (isInEnabledChain())
-		mNeedsHighlight = TRUE;
-}
-
 void LLButton::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	LLUICtrl::onMouseLeave(x, y, mask);
@@ -534,6 +547,10 @@ void LLButton::setHighlight(bool b)
 
 BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 {
+	if (isInEnabledChain() 
+		&& (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this))
+		mNeedsHighlight = TRUE;
+
 	if (!childrenHandleHover(x, y, mask))
 	{
 		if (mMouseDownTimer.getStarted())
@@ -554,21 +571,29 @@ BOOL LLButton::handleHover(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLButton::getOverlayImageSize(S32& overlay_width, S32& overlay_height)
+{
+	overlay_width = mImageOverlay->getWidth();
+	overlay_height = mImageOverlay->getHeight();
+
+	F32 scale_factor = llmin((F32)getRect().getWidth() / (F32)overlay_width, (F32)getRect().getHeight() / (F32)overlay_height, 1.f);
+	overlay_width = llround((F32)overlay_width * scale_factor);
+	overlay_height = llround((F32)overlay_height * scale_factor);
+}
+
 
 // virtual
 void LLButton::draw()
 {
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 	bool flash = FALSE;
-	static LLUICachedControl<F32> button_flash_rate("ButtonFlashRate", 0);
-	static LLUICachedControl<S32> button_flash_count("ButtonFlashCount", 0);
 
 	if( mFlashing )
 	{
 		F32 elapsed = mFlashingTimer.getElapsedTimeF32();
-		S32 flash_count = S32(elapsed * button_flash_rate * 2.f);
+		S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
 		// flash on or off?
-		flash = (flash_count % 2 == 0) || flash_count > S32((F32)button_flash_count * 2.f);
+		flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
 	}
 
 	bool pressed_by_keyboard = FALSE;
@@ -597,7 +622,7 @@ void LLButton::draw()
 	LLColor4 glow_color = LLColor4::white;
 	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
 	LLUIImage* imagep = NULL;
-	if (pressed)
+	if (pressed && mDisplayPressedState)
 	{
 		imagep = selected ? mImagePressedSelected : mImagePressed;
 	}
@@ -707,16 +732,7 @@ void LLButton::draw()
 	}
 
 	// Unselected label assignments
-	LLWString label;
-
-	if( getToggleState() )
-	{
-		label = mSelectedLabel;
-	}
-	else
-	{
-		label = mUnselectedLabel;
-	}
+	LLWString label = getCurrentLabel();
 
 	// overlay with keyboard focus border
 	if (hasFocus())
@@ -781,18 +797,16 @@ void LLButton::draw()
 	if (mImageOverlay.notNull())
 	{
 		// get max width and height (discard level 0)
-		S32 overlay_width = mImageOverlay->getWidth();
-		S32 overlay_height = mImageOverlay->getHeight();
+		S32 overlay_width;
+		S32 overlay_height;
 
-		F32 scale_factor = llmin((F32)getRect().getWidth() / (F32)overlay_width, (F32)getRect().getHeight() / (F32)overlay_height, 1.f);
-		overlay_width = llround((F32)overlay_width * scale_factor);
-		overlay_height = llround((F32)overlay_height * scale_factor);
+		getOverlayImageSize(overlay_width, overlay_height);
 
 		S32 center_x = getLocalRect().getCenterX();
 		S32 center_y = getLocalRect().getCenterY();
 
 		//FUGLY HACK FOR "DEPRESSED" BUTTONS
-		if (pressed)
+		if (pressed && mDisplayPressedState)
 		{
 			center_y--;
 			center_x++;
@@ -803,7 +817,11 @@ void LLButton::draw()
 		LLColor4 overlay_color = mImageOverlayColor.get();
 		if (!enabled)
 		{
-			overlay_color.mV[VALPHA] = 0.5f;
+			overlay_color.mV[VALPHA] = 0.3f;
+		}
+		else if (!getToggleState())
+		{
+			overlay_color.mV[VALPHA] = 0.75f;
 		}
 		overlay_color.mV[VALPHA] *= alpha;
 
@@ -811,6 +829,7 @@ void LLButton::draw()
 		{
 		case LLFontGL::LEFT:
 			text_left += overlay_width + mImgOverlayLabelSpace;
+			text_width -= overlay_width + mImgOverlayLabelSpace;
 			mImageOverlay->draw(
 				mLeftHPad,
 				center_y - (overlay_height / 2), 
@@ -828,6 +847,7 @@ void LLButton::draw()
 			break;
 		case LLFontGL::RIGHT:
 			text_right -= overlay_width + mImgOverlayLabelSpace;
+			text_width -= overlay_width + mImgOverlayLabelSpace;
 			mImageOverlay->draw(
 				getRect().getWidth() - mRightHPad - overlay_width,
 				center_y - (overlay_height / 2), 
@@ -863,7 +883,7 @@ void LLButton::draw()
 
 		S32 y_offset = 2 + (getRect().getHeight() - 20)/2;
 	
-		if (pressed)
+		if (pressed && mDisplayPressedState)
 		{
 			y_offset--;
 			x++;
@@ -919,7 +939,7 @@ void LLButton::setToggleState(BOOL b)
 
 void LLButton::setFlashing( BOOL b )	
 { 
-	if (b != mFlashing)
+	if ((bool)b != mFlashing)
 	{
 		mFlashing = b; 
 		mFlashingTimer.reset();
@@ -959,6 +979,23 @@ void LLButton::setLabelSelected( const LLStringExplicit& label )
 	mSelectedLabel = label;
 }
 
+bool LLButton::labelIsTruncated() const
+{
+	return getCurrentLabel().getString().size() > mLastDrawCharsCount;
+}
+
+const LLUIString& LLButton::getCurrentLabel() const
+{
+	if( getToggleState() )
+	{
+		return mSelectedLabel;
+	}
+	else
+	{
+		return mUnselectedLabel;
+	}
+}
+
 void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
 {
 	mImageUnselected = image;
@@ -970,16 +1007,7 @@ void LLButton::setImageUnselected(LLPointer<LLUIImage> image)
 
 void LLButton::autoResize()
 {
-	LLUIString label;
-	if(getToggleState())
-	{
-		label = mSelectedLabel;
-	}
-	else
-	{
-		label = mUnselectedLabel;
-	}
-	resize(label);
+	resize(getCurrentLabel());
 }
 
 void LLButton::resize(LLUIString label)
@@ -989,11 +1017,32 @@ void LLButton::resize(LLUIString label)
 	// get current btn length 
 	S32 btn_width =getRect().getWidth();
     // check if it need resize 
-	if (mAutoResize == TRUE)
+	if (mAutoResize)
 	{ 
-		if (btn_width - (mRightHPad + mLeftHPad) < label_width)
+		S32 min_width = label_width + mLeftHPad + mRightHPad;
+		if (mImageOverlay)
 		{
-			setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mLeft + label_width + mLeftHPad + mRightHPad , getRect().mBottom));
+			S32 overlay_width = mImageOverlay->getWidth();
+			F32 scale_factor = (getRect().getHeight() - (mImageOverlayBottomPad + mImageOverlayTopPad)) / (F32)mImageOverlay->getHeight();
+			overlay_width = llround((F32)overlay_width * scale_factor);
+
+			switch(mImageOverlayAlignment)
+			{
+			case LLFontGL::LEFT:
+			case LLFontGL::RIGHT:
+				min_width += overlay_width + mImgOverlayLabelSpace;
+				break;
+			case LLFontGL::HCENTER:
+				min_width = llmax(min_width, overlay_width + mLeftHPad + mRightHPad);
+				break;
+			default:
+				// draw nothing
+				break;
+			}
+		}
+		if (btn_width < min_width)
+		{
+			reshape(min_width, getRect().getHeight());
 		}
 	} 
 }
@@ -1140,7 +1189,7 @@ void LLButton::setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname)
 	// Set the button control value (toggle state) to the floater visibility control (Sets the value as well)
 	button->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
 	// Set the clicked callback to toggle the floater
-	button->setClickedCallback(boost::bind(&LLFloaterReg::toggleFloaterInstance, sdname));
+	button->setClickedCallback(boost::bind(&LLFloaterReg::toggleInstance, sdname, LLSD()));
 }
 
 // static

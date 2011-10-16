@@ -34,7 +34,9 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llviewerfoldertype.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
@@ -43,7 +45,6 @@
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llgesturemgr.h"
-#include "llsidetray.h"
 
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
@@ -220,7 +221,7 @@ public:
 		// support secondlife:///app/inventory/show
 		if (params[0].asString() == "show")
 		{
-			LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD());
+			LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD());
 			return true;
 		}
 
@@ -976,7 +977,7 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 		if (panel)
 		{
 			panel->showDefaultSubpart();

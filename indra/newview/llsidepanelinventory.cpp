@@ -34,6 +34,7 @@
 #include "llbutton.h"
 #include "lldate.h"
 #include "llfirstuse.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
 #include "llhttpclient.h"
 #include "llinventorybridge.h"
@@ -172,16 +173,20 @@ LLSidepanelInventory::~LLSidepanelInventory()
 
 void handleInventoryDisplayInboxChanged()
 {
-	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-
-	sidepanel_inventory->enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	if (sidepanel_inventory)
+	{
+		sidepanel_inventory->enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+	}
 }
 
 void handleInventoryDisplayOutboxChanged()
 {
-	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-
-	sidepanel_inventory->enableOutbox(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	if (sidepanel_inventory)
+	{
+		sidepanel_inventory->enableOutbox(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
+	}
 }
 
 BOOL LLSidepanelInventory::postBuild()
@@ -277,16 +282,20 @@ BOOL LLSidepanelInventory::postBuild()
 		enableOutbox(gSavedSettings.getBOOL("InventoryDisplayOutbox"));
 
 		// Trigger callback for after login so we can setup to track inbox and outbox changes after initial inventory load
-		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::handleLoginComplete, this));
+		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInboxOutbox, this));
 	}
 
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
 	gSavedSettings.getControl("InventoryDisplayOutbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayOutboxChanged));
 
+	updateInboxOutbox();
+	// Update the verbs buttons state.
+	updateVerbs();
+
 	return TRUE;
 }
 
-void LLSidepanelInventory::handleLoginComplete()
+void LLSidepanelInventory::updateInboxOutbox()
 {
 	//
 	// Track inbox and outbox folder changes

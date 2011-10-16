@@ -35,6 +35,7 @@
 #include "llavataractions.h"
 #include "llfloaterinventory.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llimfloater.h"
 #include "llimview.h"
@@ -42,7 +43,6 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llsidepanelinventory.h"
-#include "llsidetray.h"
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
@@ -1077,10 +1077,9 @@ void LLInventoryPanel::dumpSelectionInformation(void* user_data)
 
 BOOL is_inventorysp_active()
 {
-	if (!LLSideTray::getInstance()->isPanelActive("sidepanel_inventory")) return FALSE;
-	LLSidepanelInventory *inventorySP = dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-	if (!inventorySP) return FALSE; 
-	return inventorySP->isMainInventoryPanelActive();
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	if (!sidepanel_inventory || !sidepanel_inventory->isInVisibleChain()) return FALSE;
+	return sidepanel_inventory->isMainInventoryPanelActive();
 }
 
 // static
@@ -1090,34 +1089,24 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	LLInventoryPanel* res = NULL;
 	LLFloater* active_inv_floaterp = NULL;
 
-	// A. If the inventory side panel is open, use that preferably.
+	LLFloater* floater_my_inventory = LLFloaterReg::getInstance("my_inventory");
+	if (!floater_my_inventory)
+	{
+		llwarns << "Could not find My Inventory floater" << llendl;
+		return FALSE;
+	}
+
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+
+	// A. If the inventory side panel floater is open, use that preferably.
 	if (is_inventorysp_active())
 	{
-		LLSidepanelInventory *inventorySP = dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-		if (inventorySP)
-		{
-			return inventorySP->getActivePanel();
-		}
+		// Get the floater's z order to compare it to other inventory floaters' order later.
+		res = sidepanel_inventory->getActivePanel();
+		z_min = gFloaterView->getZOrder(floater_my_inventory);
+		active_inv_floaterp = floater_my_inventory;
 	}
-	// or if it is in floater undocked from sidetray get it and remember z order of floater to later compare it
-	// with other inventory floaters order.
-	else if (!LLSideTray::getInstance()->isTabAttached("sidebar_inventory"))
-	{
-		LLSidepanelInventory *inventorySP =
-			dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
-		LLFloater* inv_floater = LLFloaterReg::findInstance("side_bar_tab", LLSD("sidebar_inventory"));
-		if (inventorySP && inv_floater)
-		{
-			res = inventorySP->getActivePanel();
-			z_min = gFloaterView->getZOrder(inv_floater);
-			active_inv_floaterp = inv_floater;
-		}
-		else
-		{
-			llwarns << "Inventory tab is detached from sidetray, but  either panel or floater were not found!" << llendl;
-		}
-	}
-	
+
 	// B. Iterate through the inventory floaters and return whichever is on top.
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
@@ -1147,14 +1136,9 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	// C. If no panels are open and we don't want to force open a panel, then just abort out.
 	if (!auto_open) return NULL;
 	
-	// D. Open the inventory side panel and use that.
-    LLSD key;
-	LLSidepanelInventory *sidepanel_inventory =
-		dynamic_cast<LLSidepanelInventory *>(LLSideTray::getInstance()->showPanel("sidepanel_inventory", key));
-	if (sidepanel_inventory)
-	{
-		return sidepanel_inventory->getActivePanel();
-	}
+	// D. Open the inventory side panel floater and use that.
+	floater_my_inventory->openFloater();
+	return sidepanel_inventory->getActivePanel();
 
 	return NULL;
 }

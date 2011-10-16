@@ -653,12 +653,12 @@ OSStatus	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 	//   (It is destroyed by NavDialogDispose() below.)
 	error = NavCreateChooseFileDialog(&mNavOptions, NULL, NULL, NULL, navOpenFilterProc, (void*)(&filter), &navRef);
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	if (error == noErr)
 		error = NavDialogRun(navRef);
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	if (error == noErr)
 		error = NavDialogGetReply(navRef, &navReply);
@@ -808,13 +808,13 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 		}
 	}
 	
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	// Run the dialog
 	if (error == noErr)
 		error = NavDialogRun(navRef);
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	if (error == noErr)
 		error = NavDialogGetReply(navRef, &navReply);
@@ -1204,7 +1204,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		return FALSE;
 	}
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
 	
@@ -1284,7 +1284,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		rtn = (getFileCount() == 1);
 	}
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	return rtn;
 }
@@ -1299,7 +1299,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		return FALSE;
 	}
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
 	
@@ -1337,7 +1337,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		rtn = (getFileCount() == 1);
 	}
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	return rtn;
 }
@@ -1352,7 +1352,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 		return FALSE;
 	}
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
 	
@@ -1370,7 +1370,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 		rtn = !mFiles.empty();
 	}
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	return rtn;
 }

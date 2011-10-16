@@ -46,7 +46,6 @@
 #include "llagentui.h"
 #include "llappviewer.h"
 #include "llavatariconctrl.h"
-#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
 #include "llimfloater.h"
@@ -1675,23 +1674,10 @@ LLCallDialog::~LLCallDialog()
 	LLUI::removePopup(this);
 }
 
-void LLCallDialog::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
-}
-
 BOOL LLCallDialog::postBuild()
 {
 	if (!LLDockableFloater::postBuild())
 		return FALSE;
-
-	// dock the dialog to the Speak Button, where other sys messages appear
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
-
-	setDockControl(new LLDockControl(
-		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP,
-		boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
 
 	return TRUE;
 }
@@ -2449,8 +2435,10 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
+		
+		LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+		LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
 
-		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 		if(nearby_chat)
 		{
 			nearby_chat->addMessage(chat);

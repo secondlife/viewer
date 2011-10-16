@@ -91,7 +91,6 @@ public:
 								label_color_selected,
 								label_color_disabled,
 								label_color_disabled_selected,
-								highlight_color,
 								image_color,
 								image_color_disabled,
 								image_overlay_color,
@@ -120,7 +119,8 @@ public:
 		// misc
 		Optional<bool>			is_toggle,
 								scale_image,
-								commit_on_return;
+								commit_on_return,
+								display_pressed_state;
 		
 		Optional<F32>				hover_glow_amount;
 		Optional<TimeIntervalParam>	held_down_delay;
@@ -130,6 +130,9 @@ public:
 		Optional<LLBadge::Params>	badge;
 
 		Optional<bool>				handle_right_mouse;
+
+		Optional<S32>				button_flash_count;
+		Optional<F32>				button_flash_rate;
 
 		Params();
 	};
@@ -157,7 +160,6 @@ public:
 	virtual void	draw();
 	/*virtual*/ BOOL postBuild();
 
-	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
 	virtual void	onMouseCaptureLost();
 
@@ -167,6 +169,11 @@ public:
 	void			setSelectedLabelColor( const LLColor4& c )			{ mSelectedLabelColor = c; }
 	void			setUseEllipses( BOOL use_ellipses )					{ mUseEllipses = use_ellipses; }
 
+
+	boost::signals2::connection setClickedCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setMouseDownCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setMouseUpCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setHeldDownCallback(const CommitCallbackParam& cb);
 
 	boost::signals2::connection setClickedCallback( const commit_signal_t::slot_type& cb ); // mouse down and up within button
 	boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
@@ -235,6 +242,8 @@ public:
 
 
 	S32				getLastDrawCharsCount() const { return mLastDrawCharsCount; }
+	bool			labelIsTruncated() const;
+	const LLUIString&	getCurrentLabel() const;
 
 	void			setScaleImage(BOOL scale)			{ mScaleImage = scale; }
 	BOOL			getScaleImage() const				{ return mScaleImage; }
@@ -270,8 +279,12 @@ public:
 protected:
 	LLPointer<LLUIImage> getImageUnselected() const	{ return mImageUnselected; }
 	LLPointer<LLUIImage> getImageSelected() const	{ return mImageSelected; }
+	void getOverlayImageSize(S32& overlay_width, S32& overlay_height);
 
 	LLFrameTimer	mMouseDownTimer;
+	bool			mNeedsHighlight;
+	S32				mButtonFlashCount;
+	F32				mButtonFlashRate;
 
 private:
 	void			drawBorder(LLUIImage* imagep, const LLColor4& color, S32 size);
@@ -321,21 +334,19 @@ private:
 	   flash icon name is set in attributes(by default it isn't). First way is used otherwise. */
 	LLPointer<LLUIImage>		mImageFlash;
 
-	LLUIColor					mHighlightColor;
 	LLUIColor					mFlashBgColor;
 
 	LLUIColor					mImageColor;
 	LLUIColor					mDisabledImageColor;
 
-	BOOL						mIsToggle;
-	BOOL						mScaleImage;
+	bool						mIsToggle;
+	bool						mScaleImage;
 
-	BOOL						mDropShadowedText;
-	BOOL						mAutoResize;
-	BOOL						mUseEllipses;
-	BOOL						mBorderEnabled;
-
-	BOOL						mFlashing;
+	bool						mDropShadowedText;
+	bool						mAutoResize;
+	bool						mUseEllipses;
+	bool						mBorderEnabled;
+	bool						mFlashing;
 
 	LLFontGL::HAlign			mHAlign;
 	S32							mLeftHPad;
@@ -355,10 +366,10 @@ private:
 	F32							mHoverGlowStrength;
 	F32							mCurGlowStrength;
 
-	BOOL						mNeedsHighlight;
-	BOOL						mCommitOnReturn;
-	BOOL						mFadeWhenDisabled;
+	bool						mCommitOnReturn;
+	bool						mFadeWhenDisabled;
 	bool						mForcePressedState;
+	bool						mDisplayPressedState;
 
 	LLFrameTimer				mFlashingTimer;
 

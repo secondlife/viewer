@@ -41,7 +41,6 @@
 #include "llsyswellwindow.h"
 #include "llimfloater.h"
 #include "llscriptfloater.h"
-#include "llsidetray.h"
 
 #include <algorithm>
 
@@ -49,28 +48,37 @@ using namespace LLNotificationsUI;
 
 bool LLScreenChannel::mWasStartUpToastShown = false;
 
+
+LLRect get_channel_rect()
+{
+	LLRect channel_rect;
+	LLView* floater_snap_region = LLUI::getRootView()->getChildView("floater_snap_region");
+	floater_snap_region->localRectToScreen(floater_snap_region->getLocalRect(), &channel_rect);
+	return channel_rect;
+}
+
+
 //--------------------------------------------------------------------------
 //////////////////////
 // LLScreenChannelBase
 //////////////////////
 
-LLScreenChannelBase::LLScreenChannelBase(const LLUUID& id) :
-												mToastAlignment(NA_BOTTOM)
-												,mCanStoreToasts(true)
-												,mHiddenToastsNum(0)
-												,mHoveredToast(NULL)
-												,mControlHovering(false)
-												,mShowToasts(true)
+LLScreenChannelBase::LLScreenChannelBase(const Params& p) 
+:	LLUICtrl(p),
+	mToastAlignment(p.toast_align),
+	mCanStoreToasts(true),
+	mHiddenToastsNum(0),
+	mHoveredToast(NULL),
+	mControlHovering(false),
+	mShowToasts(true),
+	mID(p.id),
+	mDisplayToastsAlways(p.display_toasts_always),
+	mChannelAlignment(p.channel_align)
 {	
-	mID = id;
-	mWorldViewRectConnection = gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLScreenChannelBase::updatePositionAndSize, this, _1, _2));
+	mID = p.id;
 
 	setMouseOpaque( false );
 	setVisible(FALSE);
-}
-LLScreenChannelBase::~LLScreenChannelBase()
-{
-	mWorldViewRectConnection.disconnect();
 }
 
 bool  LLScreenChannelBase::isHovering()
@@ -83,38 +91,20 @@ bool  LLScreenChannelBase::isHovering()
 	return mHoveredToast->isHovered();
 }
 
-void LLScreenChannelBase::resetPositionAndSize()
+void LLScreenChannelBase::updatePositionAndSize(LLRect rect)
 {
-	LLRect rc = gViewerWindow->getWorldViewRectScaled();
-	updatePositionAndSize(rc, rc);
-}
-
-void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
-{
-	/*
-	take sidetray into account - screenchannel should not overlap sidetray
-	*/
-	S32 world_rect_padding = 0;
-	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE
-		&& LLSideTray::instanceCreated	())
-	{
-		world_rect_padding += LLSideTray::getInstance()->getVisibleWidth();
-	}
-
-
-	S32 top_delta = old_world_rect.mTop - new_world_rect.mTop;
 	LLRect this_rect = getRect();
 
-	this_rect.mTop -= top_delta;
+	this_rect.mTop = rect.mTop;
 	switch(mChannelAlignment)
 	{
 	case CA_LEFT :
 		break;
 	case CA_CENTRE :
-		this_rect.setCenterAndSize( (new_world_rect.getWidth() - world_rect_padding) / 2, new_world_rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
+		this_rect.setCenterAndSize( (rect.getWidth()) / 2, rect.getHeight() / 2, this_rect.getWidth(), this_rect.getHeight());
 		break;
 	case CA_RIGHT :
-		this_rect.setLeftTopAndSize(new_world_rect.mRight - world_rect_padding - this_rect.getWidth(),
+		this_rect.setLeftTopAndSize(rect.mRight - this_rect.getWidth(),
 			this_rect.mTop,
 			this_rect.getWidth(),
 			this_rect.getHeight());
@@ -126,12 +116,6 @@ void LLScreenChannelBase::updatePositionAndSize(LLRect old_world_rect, LLRect ne
 
 void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 {
-	if(LLSideTray::instanceCreated())
-	{
-		LLSideTray*	side_bar = LLSideTray::getInstance();
-		side_bar->setVisibleWidthChangeCallback(boost::bind(&LLScreenChannelBase::resetPositionAndSize, this));
-	}
-
 	// top and bottom set by updateBottom()
 	setRect(LLRect(channel_left, 0, channel_right, 0));
 	updateBottom();
@@ -140,31 +124,30 @@ void LLScreenChannelBase::init(S32 channel_left, S32 channel_right)
 
 void	LLScreenChannelBase::updateBottom()
 {
-	S32 channel_top = gViewerWindow->getWorldViewRectScaled().getHeight();
-	S32 channel_bottom = gSavedSettings.getS32("ChannelBottomPanelMargin");
+	S32 channel_top = get_channel_rect().mTop;
+	S32 channel_bottom = get_channel_rect().mBottom + gSavedSettings.getS32("ChannelBottomPanelMargin");
 	S32 channel_left = getRect().mLeft;
 	S32 channel_right = getRect().mRight;
 	setRect(LLRect(channel_left, channel_top, channel_right, channel_bottom));
 }
-
 
 //--------------------------------------------------------------------------
 //////////////////////
 // LLScreenChannel
 //////////////////////
 //--------------------------------------------------------------------------
-LLScreenChannel::LLScreenChannel(LLUUID& id):	
-LLScreenChannelBase(id)
-,mStartUpToastPanel(NULL)
-{	
+LLScreenChannel::LLScreenChannel(const Params& p)
+:	LLScreenChannelBase(p),
+	mStartUpToastPanel(NULL)
+{
 }
 
 //--------------------------------------------------------------------------
 void LLScreenChannel::init(S32 channel_left, S32 channel_right)
 {
 	LLScreenChannelBase::init(channel_left, channel_right);
-	LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
-	updatePositionAndSize(world_rect, world_rect);
+	LLRect channel_rect = get_channel_rect();
+	updatePositionAndSize(channel_rect);
 }
 
 //--------------------------------------------------------------------------
@@ -201,19 +184,8 @@ std::list<LLToast*> LLScreenChannel::findToasts(const Matcher& matcher)
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_world_rect)
+void LLScreenChannel::updatePositionAndSize(LLRect new_world_rect)
 {
-	/*
-	take sidetray into account - screenchannel should not overlap sidetray
-	*/
-	S32 world_rect_padding = 0;
-	if (gSavedSettings.getBOOL("SidebarCameraMovement") == FALSE 
-		&& LLSideTray::instanceCreated	())
-	{
-		world_rect_padding += LLSideTray::getInstance()->getVisibleWidth();
-	}
-
-
 	LLRect this_rect = getRect();
 
 	switch(mChannelAlignment)
@@ -222,11 +194,11 @@ void LLScreenChannel::updatePositionAndSize(LLRect old_world_rect, LLRect new_wo
 		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
 		break;
 	case CA_CENTRE :
-		LLScreenChannelBase::updatePositionAndSize(old_world_rect, new_world_rect);
+		LLScreenChannelBase::updatePositionAndSize(new_world_rect);
 		return;
 	case CA_RIGHT :
 		this_rect.mTop = (S32) (new_world_rect.getHeight() * getHeightRatio());
-		this_rect.setLeftTopAndSize(new_world_rect.mRight - world_rect_padding - this_rect.getWidth(),
+		this_rect.setLeftTopAndSize(new_world_rect.mRight - this_rect.getWidth(),
 			this_rect.mTop,
 			this_rect.getWidth(),
 			this_rect.getHeight());
@@ -546,9 +518,9 @@ void LLScreenChannel::showToastsBottom()
 				(*it).toast->translate(0, shift);
 			}
 
-			LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
+			LLRect channel_rect = get_channel_rect();
 			// don't show toasts if there is not enough space
-			if(toast_rect.mTop > world_rect.mTop)
+			if(toast_rect.mTop > channel_rect.mTop)
 			{
 				break;
 			}

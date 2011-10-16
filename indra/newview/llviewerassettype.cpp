@@ -80,7 +80,9 @@ LLViewerAssetDictionary::LLViewerAssetDictionary()
 	addEntry(LLViewerAssetType::AT_LINK_FOLDER, 		new ViewerAssetEntry(DAD_LINK));
 
 	addEntry(LLViewerAssetType::AT_MESH, 				new ViewerAssetEntry(DAD_MESH));
-
+	
+	addEntry(LLViewerAssetType::AT_WIDGET, 				new ViewerAssetEntry(DAD_WIDGET));
+	
 	addEntry(LLViewerAssetType::AT_NONE, 				new ViewerAssetEntry(DAD_NONE));
 };
 

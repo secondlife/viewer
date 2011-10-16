@@ -37,14 +37,13 @@
 #include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
-#include "llbottomtray.h"
 #include "lldraghandle.h"
 #include "llimfloater.h"
+#include "llimview.h"
 #include "llfloaterreg.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "lltextutil.h"
-#include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
@@ -97,7 +96,7 @@ static void* create_non_avatar_caller(void*)
 LLVoiceChannel* LLCallFloater::sCurrentVoiceChannel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
-: LLTransientDockableFloater(NULL, false, key)
+: LLFloater(key)
 , mSpeakerManager(NULL)
 , mParticipants(NULL)
 , mAvatarList(NULL)
@@ -113,10 +112,6 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::instance().addObserver(this);
-	LLTransientFloaterMgr::getInstance()->addControlView(this);
-
-	// force docked state since this floater doesn't save it between recreations
-	setDocked(true);
 
 	// update the agent's name if display name setting change
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
@@ -139,13 +134,11 @@ LLCallFloater::~LLCallFloater()
 	{
 		LLVoiceClient::getInstance()->removeObserver(this);
 	}
-	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 // virtual
 BOOL LLCallFloater::postBuild()
 {
-	LLTransientDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLCallFloater::onAvatarListRefreshed, this));
 
@@ -153,12 +146,6 @@ BOOL LLCallFloater::postBuild()
 
 	mNonAvatarCaller = findChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
-
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");
-
-	setDockControl(new LLDockControl(
-		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP));
 
 	initAgentData();
 
@@ -204,13 +191,13 @@ void LLCallFloater::draw()
 	if (mParticipants)
 		mParticipants->updateRecentSpeakersOrder();
 
-	LLTransientDockableFloater::draw();
+	LLFloater::draw();
 }
 
 // virtual
 void LLCallFloater::setFocus( BOOL b )
 {
-	LLTransientDockableFloater::setFocus(b);
+	LLFloater::setFocus(b);
 
 	// Force using active floater transparency (STORM-730).
 	// We have to override setFocus() for LLCallFloater because selecting an item

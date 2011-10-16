@@ -125,7 +125,9 @@ void LLWeb::loadURLInternal(const std::string &url, const std::string& target, c
 // Explicitly open a Web URL using the Web content floater
 void LLWeb::loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
 {
-	LLFloaterWebContent::create(LLFloaterWebContent::Params().url(url).target(target).id(uuid));
+	LLFloaterWebContent::Params p;
+	p.url(url).target(target).id(uuid);
+	LLFloaterReg::showInstance("web_content", p);
 }
 
 // static
@@ -208,6 +210,7 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["VERSION_BUILD"] = LLVersionInfo::getBuild();
 	substitution["CHANNEL"] = LLVersionInfo::getChannel();
 	substitution["GRID"] = LLGridManager::getInstance()->getGridLabel();
+	substitution["GRID_LOWERCASE"] = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	substitution["SESSION_ID"] = gAgent.getSessionID();
 	substitution["FIRST_LOGIN"] = gAgent.isFirstLogin();
