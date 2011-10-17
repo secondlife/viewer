@@ -85,7 +85,9 @@ LLButton::Params::Params()
 	label_color_disabled_selected("label_color_disabled_selected"),
 	image_color("image_color"),
 	image_color_disabled("image_color_disabled"),
-	image_overlay_color("image_overlay_color", LLColor4::white),
+	image_overlay_color("image_overlay_color", LLColor4::white % 0.75f),
+	image_overlay_disabled_color("image_overlay_disabled_color", LLColor4::white % 0.3f),
+	image_overlay_selected_color("image_overlay_selected_color", LLColor4::white),
 	flash_color("flash_color"),
 	pad_right("pad_right", LLUI::sSettingGroups["config"]->getS32("ButtonHPad")),
 	pad_left("pad_left", LLUI::sSettingGroups["config"]->getS32("ButtonHPad")),
@@ -143,6 +145,8 @@ LLButton::LLButton(const LLButton::Params& p)
 	mDisabledImageColor(p.image_color_disabled()),
 	mImageOverlay(p.image_overlay()),
 	mImageOverlayColor(p.image_overlay_color()),
+	mImageOverlayDisabledColor(p.image_overlay_disabled_color()),
+	mImageOverlaySelectedColor(p.image_overlay_selected_color()),
 	mImageOverlayAlignment(LLFontGL::hAlignFromName(p.image_overlay_alignment)),
 	mImageOverlayTopPad(p.image_top_pad),
 	mImageOverlayBottomPad(p.image_bottom_pad),
@@ -817,11 +821,11 @@ void LLButton::draw()
 		LLColor4 overlay_color = mImageOverlayColor.get();
 		if (!enabled)
 		{
-			overlay_color.mV[VALPHA] = 0.3f;
+			overlay_color = mImageOverlayDisabledColor.get();
 		}
 		else if (!getToggleState())
 		{
-			overlay_color.mV[VALPHA] = 0.75f;
+			overlay_color = mImageOverlaySelectedColor.get();
 		}
 		overlay_color.mV[VALPHA] *= alpha;
 

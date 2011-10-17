@@ -94,6 +94,7 @@ public:
 								image_color,
 								image_color_disabled,
 								image_overlay_color,
+								image_overlay_selected_color,
 								image_overlay_disabled_color,
 								flash_color;
 
@@ -305,6 +306,7 @@ protected:
 	LLPointer<LLUIImage>		mImageOverlay;
 	LLFontGL::HAlign			mImageOverlayAlignment;
 	LLUIColor					mImageOverlayColor;
+	LLUIColor					mImageOverlaySelectedColor;
 	LLUIColor					mImageOverlayDisabledColor;
 
 	LLPointer<LLUIImage>		mImageUnselected;
