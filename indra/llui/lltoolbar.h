@@ -48,7 +48,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLButton::Params>
 	{
 		Optional<LLUI::RangeS32::Params>	button_width;
-		Optional<S32>				desired_height;
+		Optional<S32>						desired_height;
 
 		Params()
 		:	button_width("button_width"),
@@ -63,7 +63,7 @@ public:
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
 	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
-
+	void setEnabled(BOOL enabled);
 	void setCommandId(const LLCommandId& id) { mId = id; }
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
@@ -89,6 +89,13 @@ private:
 	enable_signal_t*	mIsEnabledSignal;
 	enable_signal_t*	mIsRunningSignal;
 	enable_signal_t*	mIsStartingSignal;
+	LLPointer<LLUIImage>	mOriginalImageSelected,
+							mOriginalImageUnselected,
+							mOriginalImagePressed,
+							mOriginalImagePressedSelected;
+	LLUIColor				mOriginalLabelColor,
+							mOriginalLabelColorSelected,
+							mOriginalImageOverlayColor;
 };
 
 

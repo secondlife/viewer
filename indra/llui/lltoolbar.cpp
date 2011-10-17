@@ -692,7 +692,7 @@ void LLToolBar::draw()
 			{
 				const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
 				// TODO: make button appear disabled but have it still respond to drag and drop
-				btn->setEnabled(button_command_enabled);
+				btn->setEnabled(false);//button_command_enabled);
 			}
 
 			if (command && btn->mIsRunningSignal)
@@ -901,7 +901,14 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mIsStartingSignal(NULL),
 	mIsDragged(false),
 	mStartDragItemCallback(NULL),
-	mHandleDragItemCallback(NULL)
+	mHandleDragItemCallback(NULL),
+	mOriginalImageSelected(p.image_selected),
+	mOriginalImageUnselected(p.image_unselected),
+	mOriginalImagePressed(p.image_pressed),
+	mOriginalImagePressedSelected(p.image_pressed_selected),
+	mOriginalLabelColor(p.label_color),
+	mOriginalLabelColorSelected(p.label_color_selected),
+	mOriginalImageOverlayColor(p.image_overlay_color)
 {
 	mButtonFlashRate = 0.0;
 	mButtonFlashCount = 0;
@@ -979,6 +986,32 @@ void LLToolBarButton::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLButton::reshape(mWidthRange.clamp(width), height, called_from_parent);
 }
+
+void LLToolBarButton::setEnabled(BOOL enabled)
+{
+	if (enabled)
+	{
+		mImageSelected = mOriginalImageSelected;
+		mImageUnselected = mOriginalImageUnselected;
+		mImagePressed = mOriginalImagePressed;
+		mImagePressedSelected = mOriginalImagePressedSelected;
+		mUnselectedLabelColor = mOriginalLabelColor;
+		mSelectedLabelColor = mOriginalLabelColorSelected;
+		mImageOverlayColor = mOriginalImageOverlayColor;
+	}
+
+	else
+	{
+		mImageSelected = mImageDisabledSelected;
+		mImageUnselected = mImageDisabled;
+		mImagePressed = mImageDisabled;
+		mImagePressedSelected = mImageDisabledSelected;
+		mUnselectedLabelColor = mDisabledLabelColor;
+		mSelectedLabelColor = mDisabledSelectedLabelColor;
+		mImageOverlayColor = mImageOverlayDisabledColor;
+	}
+}
+
 
 const std::string LLToolBarButton::getToolTip() const	
 { 

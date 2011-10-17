@@ -94,6 +94,7 @@ public:
 								image_color,
 								image_color_disabled,
 								image_overlay_color,
+								image_overlay_disabled_color,
 								flash_color;
 
 		// layout
@@ -286,11 +287,9 @@ protected:
 	S32				mButtonFlashCount;
 	F32				mButtonFlashRate;
 
-private:
 	void			drawBorder(LLUIImage* imagep, const LLColor4& color, S32 size);
 	void			resetMouseDownTimer();
 
-private:
 	commit_signal_t* 			mMouseDownSignal;
 	commit_signal_t* 			mMouseUpSignal;
 	commit_signal_t* 			mHeldDownSignal;
@@ -306,6 +305,7 @@ private:
 	LLPointer<LLUIImage>		mImageOverlay;
 	LLFontGL::HAlign			mImageOverlayAlignment;
 	LLUIColor					mImageOverlayColor;
+	LLUIColor					mImageOverlayDisabledColor;
 
 	LLPointer<LLUIImage>		mImageUnselected;
 	LLUIString					mUnselectedLabel;
