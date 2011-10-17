@@ -60,6 +60,7 @@
 #include "llnearbychat.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextbox.h"
+#include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 
@@ -1676,8 +1677,11 @@ LLCallDialog::~LLCallDialog()
 
 BOOL LLCallDialog::postBuild()
 {
-	if (!LLDockableFloater::postBuild())
+	if (!LLDockableFloater::postBuild() || !gToolBarView)
 		return FALSE;
+
+	LLView *anchor_panel = gToolBarView->findChildView("speak");
+	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
 
 	return TRUE;
 }
