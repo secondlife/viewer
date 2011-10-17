@@ -363,10 +363,8 @@ static bool sort_toasts_predicate(LLHandle<LLToast> first, LLHandle<LLToast> sec
 void LLNearbyChatScreenChannel::arrangeToasts()
 {
 	if(mStopProcessing || isHovering())
-
 		return;
 
-	LLLayoutStack::updateClass();
 	LLView* floater_snap_region = gViewerWindow->getRootView()->getChildView("floater_snap_region");
 
 	if (!getParent())
