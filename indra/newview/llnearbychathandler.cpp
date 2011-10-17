@@ -384,9 +384,9 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	channel_rect.mLeft += 10;
 	channel_rect.mRight = channel_rect.mLeft + 300;
 
-	S32 channel_bottom = channel_rect.mBottom;
+	S32 channel_top = channel_rect.mTop;
 
-	S32		bottom = channel_bottom + 10;
+	S32		top = channel_top - 10;
 	S32		margin = gSavedSettings.getS32("ToastGap");
 
 	//sort active toasts
@@ -403,9 +403,9 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 			continue;
 		}
 
-		S32 toast_top = bottom + toast->getRect().getHeight() + margin;
+		S32 toast_bottom = top - toast->getRect().getHeight() - margin;
 
-		if(toast_top > channel_rect.getHeight())
+		if(toast_bottom < channel_rect.mBottom)
 		{
 			while(it!=m_active_toasts.end())
 			{
@@ -416,10 +416,10 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 		}
 
 		toast_rect = toast->getRect();
-		toast_rect.setLeftTopAndSize(channel_rect.mLeft , bottom + toast_rect.getHeight(), toast_rect.getWidth() ,toast_rect.getHeight());
+		toast_rect.setOriginAndSize(channel_rect.mLeft , toast_bottom, toast_rect.getWidth() ,toast_rect.getHeight());
 
 		toast->setRect(toast_rect);
-		bottom += toast_rect.getHeight() - toast->getTopPad() + margin;
+		top -= toast_rect.getHeight() - toast->getTopPad() + margin;
 	}
 	
 	// use reverse order to provide correct z-order and avoid toast blinking
