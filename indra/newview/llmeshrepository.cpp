@@ -447,9 +447,9 @@ LLMeshRepoThread::LLMeshRepoThread()
 : LLThread("mesh repo") 
 { 
 	mWaiting = false;
-	mMutex = new LLMutex();
-	mHeaderMutex = new LLMutex();
-	mSignal = new LLCondition();
+	mMutex = new LLMutex(NULL);
+	mHeaderMutex = new LLMutex(NULL);
+	mSignal = new LLCondition(NULL);
 }
 
 LLMeshRepoThread::~LLMeshRepoThread()
@@ -1198,7 +1198,7 @@ LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, 
 	mUploadTextures = upload_textures;
 	mUploadSkin = upload_skin;
 	mUploadJoints = upload_joints;
-	mMutex = new LLMutex();
+	mMutex = new LLMutex(NULL);
 	mCurlRequest = NULL;
 	mPendingUploads = 0;
 	mFinished = false;
@@ -2043,7 +2043,7 @@ LLMeshRepository::LLMeshRepository()
 
 void LLMeshRepository::init()
 {
-	mMeshMutex = new LLMutex();
+	mMeshMutex = new LLMutex(NULL);
 	
 	LLConvexDecomposition::getInstance()->initSystem();
 
@@ -2866,8 +2866,8 @@ LLPhysicsDecomp::LLPhysicsDecomp()
 	mQuitting = false;
 	mDone = false;
 
-	mSignal = new LLCondition();
-	mMutex = new LLMutex();
+	mSignal = new LLCondition(NULL);
+	mMutex = new LLMutex(NULL);
 }
 
 LLPhysicsDecomp::~LLPhysicsDecomp()
