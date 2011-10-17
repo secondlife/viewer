@@ -1681,10 +1681,8 @@ BOOL LLCallDialog::postBuild()
 		return FALSE;
 
 	LLView *anchor_panel = gToolBarView->findChildView("speak");
-	if (anchor_panel)
-	{
-		setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
-	}
+	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
+
 	return TRUE;
 }
 
