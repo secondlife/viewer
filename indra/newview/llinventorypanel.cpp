@@ -1077,7 +1077,7 @@ void LLInventoryPanel::dumpSelectionInformation(void* user_data)
 
 BOOL is_inventorysp_active()
 {
-	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (!sidepanel_inventory || !sidepanel_inventory->isInVisibleChain()) return FALSE;
 	return sidepanel_inventory->isMainInventoryPanelActive();
 }
@@ -1089,22 +1089,22 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	LLInventoryPanel* res = NULL;
 	LLFloater* active_inv_floaterp = NULL;
 
-	LLFloater* floater_my_inventory = LLFloaterReg::getInstance("my_inventory");
-	if (!floater_my_inventory)
+	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
+	if (!floater_inventory)
 	{
 		llwarns << "Could not find My Inventory floater" << llendl;
 		return FALSE;
 	}
 
-	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 
 	// A. If the inventory side panel floater is open, use that preferably.
 	if (is_inventorysp_active())
 	{
 		// Get the floater's z order to compare it to other inventory floaters' order later.
 		res = sidepanel_inventory->getActivePanel();
-		z_min = gFloaterView->getZOrder(floater_my_inventory);
-		active_inv_floaterp = floater_my_inventory;
+		z_min = gFloaterView->getZOrder(floater_inventory);
+		active_inv_floaterp = floater_inventory;
 	}
 
 	// B. Iterate through the inventory floaters and return whichever is on top.
@@ -1137,7 +1137,7 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	if (!auto_open) return NULL;
 	
 	// D. Open the inventory side panel floater and use that.
-	floater_my_inventory->openFloater();
+	floater_inventory->openFloater();
 	return sidepanel_inventory->getActivePanel();
 
 	return NULL;

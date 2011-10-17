@@ -221,7 +221,7 @@ public:
 		// support secondlife:///app/inventory/show
 		if (params[0].asString() == "show")
 		{
-			LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD());
+			LLFloaterSidePanelContainer::showPanel("inventory", LLSD());
 			return true;
 		}
 

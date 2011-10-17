@@ -459,28 +459,28 @@ BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id)
 
 void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id)
 {
-	LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD().with("id", item_uuid).with("object", object_id));
+	LLFloaterSidePanelContainer::showPanel("inventory", LLSD().with("id", item_uuid).with("object", object_id));
 }
 
 void show_item_profile(const LLUUID& item_uuid)
 {
 	LLUUID linked_uuid = gInventory.getLinkedItemID(item_uuid);
-	LLFloaterSidePanelContainer::showPanel("my_inventory", LLSD().with("id", linked_uuid));
+	LLFloaterSidePanelContainer::showPanel("inventory", LLSD().with("id", linked_uuid));
 }
 
 void show_item_original(const LLUUID& item_uuid)
 {
-	LLFloater* floater_my_inventory = LLFloaterReg::getInstance("my_inventory");
-	if (!floater_my_inventory)
+	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
+	if (!floater_inventory)
 	{
 		llwarns << "Could not find My Inventory floater" << llendl;
 		return;
 	}
 
 	//sidetray inventory panel
-	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 
-	bool reset_inventory_filter = !floater_my_inventory->isInVisibleChain();
+	bool reset_inventory_filter = !floater_inventory->isInVisibleChain();
 
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
 	if (!active_panel) 

@@ -445,7 +445,7 @@ void LLAvatarActions::csr(const LLUUID& id, std::string name)
 void LLAvatarActions::share(const LLUUID& id)
 {
 	LLSD key;
-	LLFloaterSidePanelContainer::showPanel("my_inventory", key);
+	LLFloaterSidePanelContainer::showPanel("inventory", key);
 
 	LLUUID session_id = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL,id);
 
@@ -702,7 +702,7 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 
 	if (inventory_selected_uuids.empty())
 	{
-		LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+		LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		if (sidepanel_inventory)
 		{
 			inventory_selected_uuids = sidepanel_inventory->getInboxOrOutboxSelectionList();

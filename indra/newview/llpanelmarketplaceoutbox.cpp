@@ -89,7 +89,7 @@ void LLPanelMarketplaceOutbox::handleLoginComplete()
 
 void LLPanelMarketplaceOutbox::onFocusReceived()
 {
-	LLSidepanelInventory * sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	LLSidepanelInventory * sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (sidepanel_inventory)
 	{
 		sidepanel_inventory->clearSelections(true, true, false);
@@ -98,7 +98,7 @@ void LLPanelMarketplaceOutbox::onFocusReceived()
 
 void LLPanelMarketplaceOutbox::onSelectionChange()
 {
-	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("my_inventory");
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (sidepanel_inventory)
 	{
 		sidepanel_inventory->updateVerbs();

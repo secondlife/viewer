@@ -2587,7 +2587,7 @@ void handle_object_inspect()
 	{
 		LLSD key;
 		key["task"] = "task";
-		LLFloaterSidePanelContainer::showPanel("my_inventory", key);
+		LLFloaterSidePanelContainer::showPanel("inventory", key);
 	}
 	
 	/*
