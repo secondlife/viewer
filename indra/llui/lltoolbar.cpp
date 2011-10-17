@@ -1014,9 +1014,8 @@ void LLToolBarButton::setEnabled(BOOL enabled)
 		mUnselectedLabelColor = mOriginalLabelColor;
 		mSelectedLabelColor = mOriginalLabelColorSelected;
 		mImageOverlayColor = mOriginalImageOverlayColor;
-		mOriginalImageOverlaySelectedColor = mOriginalImageOverlaySelectedColor;
+		mImageOverlaySelectedColor = mOriginalImageOverlaySelectedColor;
 	}
-
 	else
 	{
 		mImageSelected = mImageDisabledSelected;

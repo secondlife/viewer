@@ -823,7 +823,7 @@ void LLButton::draw()
 		{
 			overlay_color = mImageOverlayDisabledColor.get();
 		}
-		else if (!getToggleState())
+		else if (getToggleState())
 		{
 			overlay_color = mImageOverlaySelectedColor.get();
 		}
