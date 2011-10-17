@@ -690,7 +690,7 @@ void LLToolBar::draw()
 
 			if (command && btn->mIsEnabledSignal)
 			{
-				const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
+				//const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
 				// TODO: make button appear disabled but have it still respond to drag and drop
 				btn->setEnabled(false);//button_command_enabled);
 			}
