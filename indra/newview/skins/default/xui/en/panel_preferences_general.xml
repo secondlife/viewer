@@ -92,11 +92,6 @@
          value="ja" />
         <combo_box.item
          enabled="true"
-         label="简体 (Simplified Chinese) - Beta"
-         name="Simplified Chinese"
-         value="zh_CN" />
-        <combo_box.item
-         enabled="true"
          label="正體 (Traditional Chinese) - Beta"
          name="Traditional Chinese"
          value="zh" />
