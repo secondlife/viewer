@@ -44,6 +44,7 @@
 #include "llparticipantlist.h"
 #include "llspeakers.h"
 #include "lltextutil.h"
+#include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplayname.h"
 #include "llviewerwindow.h"
@@ -96,7 +97,7 @@ static void* create_non_avatar_caller(void*)
 LLVoiceChannel* LLCallFloater::sCurrentVoiceChannel = NULL;
 
 LLCallFloater::LLCallFloater(const LLSD& key)
-: LLFloater(key)
+: LLTransientDockableFloater(NULL, false, key)
 , mSpeakerManager(NULL)
 , mParticipants(NULL)
 , mAvatarList(NULL)
@@ -112,6 +113,7 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 
 	mFactoryMap["non_avatar_caller"] = LLCallbackMap(create_non_avatar_caller, NULL);
 	LLVoiceClient::instance().addObserver(this);
+	LLTransientFloaterMgr::getInstance()->addControlView(this);
 
 	// update the agent's name if display name setting change
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
@@ -134,6 +136,7 @@ LLCallFloater::~LLCallFloater()
 	{
 		LLVoiceClient::getInstance()->removeObserver(this);
 	}
+	LLTransientFloaterMgr::getInstance()->removeControlView(this);
 }
 
 // virtual
@@ -151,10 +154,6 @@ BOOL LLCallFloater::postBuild()
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
-	setIsChrome(true);
-	//chrome="true" hides floater caption 
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(TRUE);
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	updateSession();

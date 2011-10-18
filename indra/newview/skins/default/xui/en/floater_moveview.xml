@@ -15,6 +15,7 @@
  save_rect="true"
  save_visibility="true"
  save_dock_state="true"
+ chrome="true"
  title="MOVE"
  width="133">
     <string

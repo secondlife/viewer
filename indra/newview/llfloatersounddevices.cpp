@@ -55,9 +55,6 @@ BOOL LLFloaterSoundDevices::postBuild()
 {
 	LLTransientDockableFloater::postBuild();
 
-	setIsChrome(TRUE);
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(TRUE);
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 
 	LLPanelVoiceDeviceSettings* panel = findChild<LLPanelVoiceDeviceSettings>("device_settings_panel");
