@@ -151,10 +151,6 @@ BOOL LLCallFloater::postBuild()
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
-	setIsChrome(true);
-	//chrome="true" hides floater caption 
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(TRUE);
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	updateSession();

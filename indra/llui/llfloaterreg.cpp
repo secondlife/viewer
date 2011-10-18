@@ -462,16 +462,16 @@ void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& 
 	else if (instance->isMinimized())
 	{
 		instance->setMinimized(FALSE);
-		instance->setFocus(TRUE);
+		instance->setVisibleAndFrontmost();
 	}
 	else if (!instance->isShown())
 	{
 		instance->openFloater(key);
-		instance->setFocus(TRUE);
+		instance->setVisibleAndFrontmost();
 	}
-	else if (!instance->hasFocus() && !instance->getIsChrome())
+	else if (!instance->isFrontmost())
 	{
-		instance->setFocus(TRUE);
+		instance->setVisibleAndFrontmost();
 	}
 	else
 	{

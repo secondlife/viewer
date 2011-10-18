@@ -4,6 +4,7 @@
  can_resize="true"
  can_minimize="true"
  can_close="true"
+ chrome="true"
  height="205"
  layout="topleft"
  min_height="124"

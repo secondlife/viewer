@@ -128,7 +128,8 @@ public:
 								save_rect,
 								save_visibility,
 								save_dock_state,
-								can_dock;
+								can_dock,
+								show_title;
 		
 		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
 		Optional<S32>								specified_left;
@@ -209,7 +210,6 @@ public:
 	std::string		getTitle() const;
 	void			setShortTitle( const std::string& short_title );
 	std::string		getShortTitle() const;
-	void			setTitleVisible(bool visible);
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
