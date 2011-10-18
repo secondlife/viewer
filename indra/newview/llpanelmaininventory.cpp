@@ -38,6 +38,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterreg.h"
 #include "llmenubutton.h"
 #include "lloutfitobserver.h"
@@ -51,7 +52,6 @@
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
 #include "llsidepanelinventory.h"
-#include "llsidetray.h"
 
 const std::string FILTERS_FILENAME("filters.xml");
 
@@ -579,8 +579,13 @@ void LLPanelMainInventory::updateItemcountText()
 
 void LLPanelMainInventory::onFocusReceived()
 {
-	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-	
+	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	if (!sidepanel_inventory)
+	{
+		llwarns << "Could not find Inventory Panel in My Inventory floater" << llendl;
+		return;
+	}
+
 	sidepanel_inventory->clearSelections(false, true, true);
 }
 
@@ -1164,7 +1169,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 
 	if (command_name == "share")
 	{
-		LLSidepanelInventory* parent = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+		LLSidepanelInventory* parent = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		return parent ? parent->canShare() : FALSE;
 	}
 

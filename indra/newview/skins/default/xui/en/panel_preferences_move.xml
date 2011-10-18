@@ -86,16 +86,6 @@
    name="appearance_camera_movement"
    tool_tip="Use automatic camera positioning while in edit mode"
    width="242" />
-  <check_box
-   control_name="SidebarCameraMovement"
-   follows="left|top"
-   height="16"
-   initial_value="true"
-   label="Sidebar"
-   layout="topleft"
-   name="appearance_sidebar_positioning"
-   tool_tip="Use automatic camera positioning for sidebar"
-   width="242" />
   <icon
 	 follows="left|top"
 	 height="18"
@@ -117,7 +107,7 @@
    name="keyboard_lbl"
    width="270"
    top_delta="2">
-   Keyboard:
+    Keyboard:
   </text>
   <check_box
    control_name="ArrowKeysAlwaysMove"
@@ -149,7 +139,7 @@
    name="mouse_lbl"
    width="270"
    top_pad="15">
-   Mouse:
+    Mouse:
   </text>
   <check_box
    control_name="FirstPersonAvatarVisible"
@@ -205,7 +195,7 @@
    name="single_click_action_lbl"
    width="150"
    top_pad="20">
-   Single click on land:
+    Single click on land:
   </text>
   <combo_box
    height="23"
@@ -235,7 +225,7 @@
    name="double_click_action_lbl"
    width="150"
    top_pad="12">
-   Double click on land:
+    Double click on land:
   </text>
   <combo_box
    height="23"

@@ -32,6 +32,7 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llinventorypanel.h"
 #include "llfiltereditor.h"
@@ -41,7 +42,6 @@
 #include "lloutfitobserver.h"
 #include "llpaneleditwearable.h"
 #include "llpaneloutfitsinventory.h"
-#include "llsidetray.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
 #include "llviewercontrol.h"
@@ -163,7 +163,6 @@ void LLSidepanelAppearance::onOpen(const LLSD& key)
 	else
 	{
 		// Switch to the requested panel.
-		// *TODO: replace this crap with LLSideTrayPanelContainer
 		std::string type = key["type"].asString();
 		if (type == "my_outfits")
 		{
@@ -456,7 +455,7 @@ void LLSidepanelAppearance::refreshCurrentOutfitName(const std::string& name)
 //static
 void LLSidepanelAppearance::editWearable(LLWearable *wearable, LLView *data, BOOL disable_camera_switch)
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance");
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD());
 
 	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(data);
 	if (panel)

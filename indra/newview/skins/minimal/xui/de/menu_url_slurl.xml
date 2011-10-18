@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="Ortsinformationen anzeigen" name="show_place"/>
-	<menu_item_call label="Auf Karte zeigen" name="show_on_map"/>
-	<menu_item_call label="Zu Position teleportieren" name="teleport_to_location"/>
-	<menu_item_call label="SLurl in die Zwischenablage kopieren" name="url_copy"/>
-</context_menu>

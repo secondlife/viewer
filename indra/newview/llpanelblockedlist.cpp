@@ -37,7 +37,7 @@
 
 // project include
 #include "llfloateravatarpicker.h"
-#include "llsidetray.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llsidetraypanelcontainer.h"
 
 static LLRegisterPanelClassWrapper<LLPanelBlockedList> t_panel_blocked_list("panel_block_list_sidetray");
@@ -99,7 +99,7 @@ void LLPanelBlockedList::selectBlocked(const LLUUID& mute_id)
 
 void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 {
-	LLSideTray::getInstance()->showPanel("panel_block_list_sidetray", LLSD().with(BLOCKED_PARAM_NAME, idToSelect));
+	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD().with(BLOCKED_PARAM_NAME, idToSelect));
 }
 
 

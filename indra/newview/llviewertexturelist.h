@@ -220,24 +220,27 @@ public:
 
 	bool initFromFile();
 
-	LLPointer<LLUIImage> preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect);
+	LLPointer<LLUIImage> preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect);
 	
 	static void onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 private:
 	LLPointer<LLUIImage> loadUIImageByName(const std::string& name, const std::string& filename,
 		                           BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
+								   const LLRect& clip_rect = LLRect::null,
 		                           LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
 	LLPointer<LLUIImage> loadUIImageByID(const LLUUID& id,
 								 BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, 
+								 const LLRect& clip_rect = LLRect::null,
 								 LLViewerTexture::EBoostLevel boost_priority = LLViewerTexture::BOOST_UI);
 
-	LLPointer<LLUIImage> loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null);
+	LLPointer<LLUIImage> loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips = FALSE, const LLRect& scale_rect = LLRect::null, const LLRect& clip_rect = LLRect::null);
 
 
 	struct LLUIImageLoadData
 	{
 		std::string mImageName;
 		LLRect mImageScaleRegion;
+		LLRect mImageClipRegion;
 	};
 
 	typedef std::map< std::string, LLPointer<LLUIImage> > uuid_ui_image_map_t;

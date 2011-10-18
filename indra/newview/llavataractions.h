@@ -35,7 +35,7 @@
 #include <vector>
 
 class LLInventoryPanel;
-
+class LLFloater;
 
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
@@ -96,6 +96,7 @@ public:
 	static void showProfile(const LLUUID& id);
 	static void hideProfile(const LLUUID& id);
 	static bool profileVisible(const LLUUID& id);
+	static LLFloater* getProfileFloater(const LLUUID& id);
 
 	/**
 	 * Show avatar on world map.

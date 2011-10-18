@@ -9,7 +9,7 @@
  visible="false"
  width="128">
     <menu_item_check
-         label="Show Navigation Bar"
+         label="Show Navigation &amp; Favorites Bar"
          layout="topleft"
          name="ShowNavbarNavigationPanel">
            <on_click
@@ -18,17 +18,6 @@
              <on_check
              function="CheckControl"
              parameter="ShowNavbarNavigationPanel" />
-    </menu_item_check>
-    <menu_item_check
-         label="Show Favorites Bar"
-         layout="topleft"
-         name="ShowNavbarFavoritesPanel">
-           <on_click
-             function="ToggleControl"
-             parameter="ShowNavbarFavoritesPanel" /> 
-             <on_check
-             function="CheckControl"
-             parameter="ShowNavbarFavoritesPanel" />
     </menu_item_check>
     <menu_item_check
          label="Show Mini-Location Bar"

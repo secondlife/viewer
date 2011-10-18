@@ -87,8 +87,6 @@ private:
 	void reshapeBrowser();
 	void addFavoritesToStartLocation();
 	void addUsersWithFavoritesToUsername();
-	void onModeChange(const LLSD& original_value, const LLSD& new_value);
-	void onModeChangeConfirm(const LLSD& original_value, const LLSD& new_value, const LLSD& notification, const LLSD& response);
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);

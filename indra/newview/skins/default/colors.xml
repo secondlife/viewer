@@ -795,6 +795,10 @@
     <color
      name="DirectChatColor"
      reference="LtOrange" />
+
+    <color
+      name="ToolbarDropZoneColor"
+      value=".48 .69 1 .5" />
   
     <!-- Generic color names (legacy) -->
   <color

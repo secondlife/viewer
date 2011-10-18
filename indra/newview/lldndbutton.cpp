@@ -31,16 +31,9 @@
 
 static LLDefaultChildRegistry::Register<LLDragAndDropButton> r("dnd_button");
 
-LLDragAndDropButton::Params::Params()
-{
-
-}
-
 LLDragAndDropButton::LLDragAndDropButton(const Params& params)
 : LLButton(params)
-{
-
-}
+{}
 
 BOOL LLDragAndDropButton::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept, std::string& tooltip_msg)
 {

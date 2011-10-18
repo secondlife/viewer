@@ -53,7 +53,8 @@ public:
 								id;
 		Optional<bool>			show_chrome,
 								allow_address_entry,
-								trusted_content;
+								trusted_content,
+								show_page_title;
 		Optional<LLRect>		preferred_media_size;
 
 		_Params();
@@ -91,13 +92,14 @@ protected:
 	void open_media(const Params& );
 	void set_current_url(const std::string& url);
 
-	LLMediaCtrl* mWebBrowser;
-	LLComboBox* mAddressCombo;
-	LLIconCtrl *mSecureLockIcon;
-	LLTextBox* mStatusBarText;
-	LLProgressBar* mStatusBarProgress;
-	std::string mCurrentURL;
-	std::string mUUID;
+	LLMediaCtrl*	mWebBrowser;
+	LLComboBox*		mAddressCombo;
+	LLIconCtrl*		mSecureLockIcon;
+	LLTextBox*		mStatusBarText;
+	LLProgressBar*	mStatusBarProgress;
+	std::string		mCurrentURL;
+	std::string		mUUID;
+	bool			mShowPageTitle;
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H

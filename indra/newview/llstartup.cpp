@@ -131,7 +131,6 @@
 #include "llsecondlifeurls.h"
 #include "llselectmgr.h"
 #include "llsky.h"
-#include "llsidetray.h"
 #include "llstatview.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
 #include "llsurface.h"

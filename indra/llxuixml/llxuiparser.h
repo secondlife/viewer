@@ -116,7 +116,7 @@ private:
 	bool readAttributes(LLXMLNodePtr nodep, LLInitParam::BaseBlock& block);
 
 	//reader helper functions
-	static bool readNoValue(Parser& parser, void* val_ptr);
+	static bool readFlag(Parser& parser, void* val_ptr);
 	static bool readBoolValue(Parser& parser, void* val_ptr);
 	static bool readStringValue(Parser& parser, void* val_ptr);
 	static bool readU8Value(Parser& parser, void* val_ptr);
@@ -133,23 +133,23 @@ private:
 	static bool readSDValue(Parser& parser, void* val_ptr);
 
 	//writer helper functions
-	static bool writeNoValue(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeBoolValue(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeStringValue(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeU8Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeS8Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeU16Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeS16Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeU32Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeS32Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeF32Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeF64Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeColor4Value(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeUIColorValue(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeUUIDValue(Parser& parser, const void* val_ptr, const name_stack_t&);
-	static bool writeSDValue(Parser& parser, const void* val_ptr, const name_stack_t&);
+	static bool writeFlag(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeBoolValue(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeStringValue(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeU8Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeS8Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeU16Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeS16Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeU32Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeS32Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeF32Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeF64Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeColor4Value(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeUIColorValue(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeUUIDValue(Parser& parser, const void* val_ptr, name_stack_t&);
+	static bool writeSDValue(Parser& parser, const void* val_ptr, name_stack_t&);
 
-	LLXMLNodePtr getNode(const name_stack_t& stack);
+	LLXMLNodePtr getNode(name_stack_t& stack);
 
 private:
 	Parser::name_stack_t			mNameStack;
@@ -157,9 +157,8 @@ private:
 	// Root of the widget XML sub-tree, for example, "line_editor"
 	LLXMLNodePtr					mWriteRootNode;
 	
-	typedef std::map<S32, LLXMLNodePtr>	out_nodes_t;
+	typedef std::map<std::string, LLXMLNodePtr>	out_nodes_t;
 	out_nodes_t						mOutNodes;
-	S32								mLastWriteGeneration;
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
 	std::string						mCurFileName;
@@ -197,7 +196,7 @@ public:
 
 private:
 	//reader helper functions
-	static bool readNoValue(Parser&, void* val_ptr);
+	static bool readFlag(Parser&, void* val_ptr);
 	static bool readBoolValue(Parser&, void* val_ptr);
 	static bool readStringValue(Parser&, void* val_ptr);
 	static bool readU8Value(Parser&, void* val_ptr);
@@ -226,7 +225,6 @@ private:
 
 	Parser::name_stack_t			mNameStack;
 	struct XML_ParserStruct*		mParser;
-	S32								mLastWriteGeneration;
 	LLXMLNodePtr					mLastWrittenChild;
 	S32								mCurReadDepth;
 	std::string						mCurFileName;
