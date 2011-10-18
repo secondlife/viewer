@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_pick_info">
-	<text name="title" value="Información del destacado"/>
+	<text name="title" value="Datos del destacado"/>
 	<scroll_container name="profile_scroll">
 		<panel name="scroll_content_panel">
 			<text_editor name="pick_name" value="[nombre]"/>

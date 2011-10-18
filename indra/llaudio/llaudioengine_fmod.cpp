@@ -673,7 +673,7 @@ bool LLAudioBufferFMOD::loadWAV(const std::string& filename)
 		return false;
 	}
 
-	if (!LLAPRFile::isExist(filename, LL_APR_RPB))
+	if (!LLAPRFile::isExist(filename, NULL, LL_APR_RPB))
 	{
 		// File not found, abort.
 		return false;

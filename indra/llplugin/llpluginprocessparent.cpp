@@ -33,7 +33,6 @@
 #include "llpluginmessageclasses.h"
 
 #include "llapr.h"
-#include "llscopedvolatileaprpool.h"
 
 //virtual 
 LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
@@ -43,7 +42,6 @@ LLPluginProcessParentOwner::~LLPluginProcessParentOwner()
 
 bool LLPluginProcessParent::sUseReadThread = false;
 apr_pollset_t *LLPluginProcessParent::sPollSet = NULL;
-LLAPRPool LLPluginProcessParent::sPollSetPool;
 bool LLPluginProcessParent::sPollsetNeedsRebuild = false;
 LLMutex *LLPluginProcessParent::sInstancesMutex;
 std::list<LLPluginProcessParent*> LLPluginProcessParent::sInstances;
@@ -54,7 +52,7 @@ class LLPluginProcessParentPollThread: public LLThread
 {
 public:
 	LLPluginProcessParentPollThread() :
-		LLThread("LLPluginProcessParentPollThread")
+		LLThread("LLPluginProcessParentPollThread", gAPRPoolp)
 	{
 	}
 protected:
@@ -79,11 +77,12 @@ protected:
 
 };
 
-LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner* owner)
+LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner *owner):
+	mIncomingQueueMutex(gAPRPoolp)
 {
 	if(!sInstancesMutex)
 	{
-		sInstancesMutex = new LLMutex;
+		sInstancesMutex = new LLMutex(gAPRPoolp);
 	}
 	
 	mOwner = owner;
@@ -96,7 +95,6 @@ LLPluginProcessParent::LLPluginProcessParent(LLPluginProcessParentOwner* owner)
 	mBlocked = false;
 	mPolledInput = false;
 	mPollFD.client_data = NULL;
-	mPollFDPool.create();
 
 	mPluginLaunchTimeout = 60.0f;
 	mPluginLockupTimeout = 15.0f;
@@ -173,28 +171,44 @@ void LLPluginProcessParent::init(const std::string &launcher_filename, const std
 bool LLPluginProcessParent::accept()
 {
 	bool result = false;
+	
 	apr_status_t status = APR_EGENERAL;
+	apr_socket_t *new_socket = NULL;
+	
+	status = apr_socket_accept(
+		&new_socket,
+		mListenSocket->getSocket(),
+		gAPRPoolp);
 
-	mSocket = LLSocket::create(status, mListenSocket);
 	
 	if(status == APR_SUCCESS)
 	{
 //		llinfos << "SUCCESS" << llendl;
 		// Success.  Create a message pipe on the new socket
+
+		// we MUST create a new pool for the LLSocket, since it will take ownership of it and delete it in its destructor!
+		apr_pool_t* new_pool = NULL;
+		status = apr_pool_create(&new_pool, gAPRPoolp);
+
+		mSocket = LLSocket::create(new_socket, new_pool);
 		new LLPluginMessagePipe(this, mSocket);
 
 		result = true;
 	}
+	else if(APR_STATUS_IS_EAGAIN(status))
+	{
+//		llinfos << "EAGAIN" << llendl;
+
+		// No incoming connections.  This is not an error.
+		status = APR_SUCCESS;
+	}
 	else
 	{
-		mSocket.reset();
-		// EAGAIN means "No incoming connections". This is not an error.
-		if (!APR_STATUS_IS_EAGAIN(status))
-		{
-			// Some other error.
-			ll_apr_warn_status(status);
-			errorState();
-		}
+//		llinfos << "Error:" << llendl;
+		ll_apr_warn_status(status);
+		
+		// Some other error.
+		errorState();
 	}
 	
 	return result;	
@@ -260,10 +274,10 @@ void LLPluginProcessParent::idle(void)
 
 			case STATE_INITIALIZED:
 			{
+	
 				apr_status_t status = APR_SUCCESS;
-				LLScopedVolatileAPRPool addr_pool;
 				apr_sockaddr_t* addr = NULL;
-				mListenSocket = LLSocket::create(LLSocket::STREAM_TCP);
+				mListenSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);
 				mBoundPort = 0;
 				
 				// This code is based on parts of LLSocket::create() in lliosocket.cpp.
@@ -274,7 +288,7 @@ void LLPluginProcessParent::idle(void)
 					APR_INET,
 					0,	// port 0 = ephemeral ("find me a port")
 					0,
-					addr_pool);
+					gAPRPoolp);
 					
 				if(ll_apr_warn_status(status))
 				{
@@ -587,7 +601,7 @@ void LLPluginProcessParent::setMessagePipe(LLPluginMessagePipe *message_pipe)
 	if(message_pipe != NULL)
 	{
 		// Set up the apr_pollfd_t
-		mPollFD.p = mPollFDPool();
+		mPollFD.p = gAPRPoolp;
 		mPollFD.desc_type = APR_POLL_SOCKET;
 		mPollFD.reqevents = APR_POLLIN|APR_POLLERR|APR_POLLHUP;
 		mPollFD.rtnevents = 0;
@@ -634,7 +648,6 @@ void LLPluginProcessParent::updatePollset()
 		// delete the existing pollset.
 		apr_pollset_destroy(sPollSet);
 		sPollSet = NULL;
-		sPollSetPool.destroy();
 	}
 	
 	std::list<LLPluginProcessParent*>::iterator iter;
@@ -657,14 +670,12 @@ void LLPluginProcessParent::updatePollset()
 		{
 #ifdef APR_POLLSET_NOCOPY
 			// The pollset doesn't exist yet.  Create it now.
-			sPollSetPool.create();
-			apr_status_t status = apr_pollset_create(&sPollSet, count, sPollSetPool(), APR_POLLSET_NOCOPY);
+			apr_status_t status = apr_pollset_create(&sPollSet, count, gAPRPoolp, APR_POLLSET_NOCOPY);
 			if(status != APR_SUCCESS)
 			{
 #endif // APR_POLLSET_NOCOPY
 				LL_WARNS("PluginPoll") << "Couldn't create pollset.  Falling back to non-pollset mode." << LL_ENDL;
 				sPollSet = NULL;
-				sPollSetPool.destroy();
 #ifdef APR_POLLSET_NOCOPY
 			}
 			else
