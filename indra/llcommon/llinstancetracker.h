@@ -193,7 +193,12 @@ public:
 	}
 
 protected:
-	LLInstanceTracker(KEY key) { add_(key); }
+	LLInstanceTracker(KEY key) 
+	{ 
+		// make sure static data outlives all instances
+		getStatic();
+		add_(key); 
+	}
 	virtual ~LLInstanceTracker() 
 	{ 
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
@@ -281,7 +286,8 @@ public:
 protected:
 	LLInstanceTracker()
 	{
-		// it's safe but unpredictable to create instances of this type while all instances are being iterated over.  I hate unpredictable.	 This assert will probably be turned on early in the next development cycle.
+		// make sure static data outlives all instances
+		getStatic();
 		getSet_().insert(static_cast<T*>(this));
 	}
 	virtual ~LLInstanceTracker()
