@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview_sound">
-	<text name="desc txt">
-		Omschrijving:
-	</text>
-	<button label="Lokaal afspelen" label_selected="Lokaal afspelen" name="Sound audition btn" tool_tip="Speel dit geluid of zodat alleen u het kunt horen."/>
-	<button label="In wereld afspelen" label_selected="In wereld afspelen" name="Sound play btn" tool_tip="Speel dit geluid of zodat anderen het kunnen horen."/>
-</floater>
