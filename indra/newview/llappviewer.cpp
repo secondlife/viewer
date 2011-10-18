@@ -89,6 +89,7 @@
 #include "llweb.h"
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
+#include "llcallfloater.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -110,6 +111,7 @@
 // Third party library includes
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+
 
 
 #if LL_WINDOWS
@@ -1183,6 +1185,7 @@ bool LLAppViewer::mainLoop()
 
 	LLVoiceChannel::initClass();
 	LLVoiceClient::getInstance()->init(gServicePump);
+	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLCallFloater::sOnCurrentChannelChanged, _1), true);
 	LLTimer frameTimer,idleTimer;
 	LLTimer debugTime;
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
