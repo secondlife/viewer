@@ -307,7 +307,7 @@
          name="Ukrainian"
          value="uk" />
         <combo_box.item
-         label="中文 (简体) (Chinese)"
+         label="中文 (正體) (Chinese)"
          name="Chinese"
          value="zh" />
         <combo_box.item
