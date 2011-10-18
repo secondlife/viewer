@@ -347,6 +347,7 @@ LLFloaterCamera::LLFloaterCamera(const LLSD& val)
 	mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
 	LLHints::registerHintTarget("view_popup", LLView::getHandle());
+	mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 }
 
 // virtual
