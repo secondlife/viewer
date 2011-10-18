@@ -2,7 +2,7 @@
 <!-- All our XML is utf-8 encoded. -->
 <panel
   name="instant_message"
-  width="315"
+  width="300"
   height="180"
   follows="all">
      <avatar_icon

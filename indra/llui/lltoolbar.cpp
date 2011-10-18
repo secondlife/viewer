@@ -690,9 +690,8 @@ void LLToolBar::draw()
 
 			if (command && btn->mIsEnabledSignal)
 			{
-				//const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
-				// TODO: make button appear disabled but have it still respond to drag and drop
-				btn->setEnabled(false);//button_command_enabled);
+				const bool button_command_enabled = (*btn->mIsEnabledSignal)(btn, command->isEnabledParameters());
+				btn->setEnabled(button_command_enabled);
 			}
 
 			if (command && btn->mIsRunningSignal)
@@ -763,6 +762,16 @@ void LLToolBar::createButtons()
 	mNeedsLayout = true;
 }
 
+void LLToolBarButton::callIfEnabled(LLUICtrl::commit_callback_t commit, LLUICtrl* ctrl, const LLSD& param )
+{
+	LLCommand* command = LLCommandManager::instance().getCommand(mId);
+
+	if (!mIsEnabledSignal || (*mIsEnabledSignal)(this, command->isEnabledParameters()))
+	{
+		commit(ctrl, param);
+	}
+}
+
 LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 {
 	LLCommand* commandp = LLCommandManager::instance().getCommand(id);
@@ -778,6 +787,24 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 
 	if (!mReadOnly)
 	{
+		enable_callback_t isEnabledCB;
+
+		const std::string& isEnabledFunction = commandp->isEnabledFunctionName();
+		if (isEnabledFunction.length() > 0)
+		{
+			LLUICtrl::EnableCallbackParam isEnabledParam;
+			isEnabledParam.function_name = isEnabledFunction;
+			isEnabledParam.parameter = commandp->isEnabledParameters();
+			isEnabledCB = initEnableCallback(isEnabledParam);
+
+			if (NULL == button->mIsEnabledSignal)
+			{
+				button->mIsEnabledSignal = new enable_signal_t();
+			}
+
+			button->mIsEnabledSignal->connect(isEnabledCB);
+		}
+
 		LLUICtrl::CommitCallbackParam executeParam;
 		executeParam.function_name = commandp->executeFunctionName();
 		executeParam.parameter = commandp->executeParameters();
@@ -789,30 +816,18 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 			LLUICtrl::CommitCallbackParam executeStopParam;
 			executeStopParam.function_name = executeStopFunction;
 			executeStopParam.parameter = commandp->executeStopParameters();
+			LLUICtrl::commit_callback_t execute_func = initCommitCallback(executeParam);
+			LLUICtrl::commit_callback_t stop_func = initCommitCallback(executeStopParam);
 			
-			button->setMouseDownCallback(executeParam);
-			button->setMouseUpCallback(executeStopParam);
+			button->setMouseDownCallback(boost::bind(&LLToolBarButton::callIfEnabled, button, execute_func, _1, _2));
+			button->setMouseUpCallback(boost::bind(&LLToolBarButton::callIfEnabled, button, stop_func, _1, _2));
 		}
 		else
 		{
 			button->setCommitCallback(executeParam);
 		}
 
-		const std::string& isEnabledFunction = commandp->isEnabledFunctionName();
-		if (isEnabledFunction.length() > 0)
-		{
-			LLUICtrl::EnableCallbackParam isEnabledParam;
-			isEnabledParam.function_name = isEnabledFunction;
-			isEnabledParam.parameter = commandp->isEnabledParameters();
-			enable_signal_t::slot_type isEnabledCB = initEnableCallback(isEnabledParam);
 
-			if (NULL == button->mIsEnabledSignal)
-			{
-				button->mIsEnabledSignal = new enable_signal_t();
-			}
-
-			button->mIsEnabledSignal->connect(isEnabledCB);
-		}
 
 		const std::string& isRunningFunction = commandp->isRunningFunctionName();
 		if (isRunningFunction.length() > 0)
@@ -908,7 +923,8 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mOriginalImagePressedSelected(p.image_pressed_selected),
 	mOriginalLabelColor(p.label_color),
 	mOriginalLabelColorSelected(p.label_color_selected),
-	mOriginalImageOverlayColor(p.image_overlay_color)
+	mOriginalImageOverlayColor(p.image_overlay_color),
+	mOriginalImageOverlaySelectedColor(p.image_overlay_selected_color)
 {
 	mButtonFlashRate = 0.0;
 	mButtonFlashCount = 0;
@@ -998,8 +1014,8 @@ void LLToolBarButton::setEnabled(BOOL enabled)
 		mUnselectedLabelColor = mOriginalLabelColor;
 		mSelectedLabelColor = mOriginalLabelColorSelected;
 		mImageOverlayColor = mOriginalImageOverlayColor;
+		mImageOverlaySelectedColor = mOriginalImageOverlaySelectedColor;
 	}
-
 	else
 	{
 		mImageSelected = mImageDisabledSelected;
@@ -1009,6 +1025,7 @@ void LLToolBarButton::setEnabled(BOOL enabled)
 		mUnselectedLabelColor = mDisabledLabelColor;
 		mSelectedLabelColor = mDisabledSelectedLabelColor;
 		mImageOverlayColor = mImageOverlayDisabledColor;
+		mImageOverlaySelectedColor = mImageOverlayDisabledColor;
 	}
 }
 

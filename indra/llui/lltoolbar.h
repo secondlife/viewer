@@ -77,6 +77,8 @@ public:
 	virtual const std::string getToolTip() const;		
 
 private:
+	void callIfEnabled(LLUICtrl::commit_callback_t commit, LLUICtrl* ctrl, const LLSD& param );
+
 	LLCommandId		mId;
 	S32				mMouseDownX;
 	S32				mMouseDownY;
@@ -95,7 +97,8 @@ private:
 							mOriginalImagePressedSelected;
 	LLUIColor				mOriginalLabelColor,
 							mOriginalLabelColorSelected,
-							mOriginalImageOverlayColor;
+							mOriginalImageOverlayColor,
+							mOriginalImageOverlaySelectedColor;
 };
 
 

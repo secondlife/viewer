@@ -94,9 +94,9 @@
            label_ref="Command_Inventory_Label"
            tooltip_ref="Command_Inventory_Tooltip"
            execute_function="Floater.ToggleOrBringToFront"
-           execute_parameters="my_inventory"
+           execute_parameters="inventory"
            is_running_function="Floater.IsOpen"
-           is_running_parameters="my_inventory"
+           is_running_parameters="inventory"
            />
   <command name="map"
            available_in_toybox="true"
