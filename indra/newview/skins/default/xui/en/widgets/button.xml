@@ -15,7 +15,6 @@
         label_color_selected="ButtonLabelSelectedColor"
         label_color_disabled="ButtonLabelDisabledColor"
         label_color_disabled_selected="ButtonLabelSelectedDisabledColor"
-        highlight_color="ButtonUnselectedFgColor"
         image_color="ButtonImageColor"
         image_color_disabled="ButtonImageColor"
         flash_color="ButtonFlashBgColor"
@@ -27,5 +26,9 @@
         scale_image="true"
         handle_right_mouse="true"
         use_draw_context_alpha="true"
-        held_down_delay.seconds="0.5">
+        held_down_delay.seconds="0.5"
+        button_flash_count="8"
+        button_flash_rate="1.25"
+        display_pressed_state="true"
+        >
 </button>

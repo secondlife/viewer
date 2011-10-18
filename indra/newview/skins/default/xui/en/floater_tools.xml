@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="cascading"
  legacy_header_height="18"
  follows="left|top|right"
  height="580"
@@ -515,7 +516,8 @@
      image_disabled_selected="Object_Grass"
      image_selected="Object_Grass_Selected"
      image_unselected="Object_Grass"
-     image_overlay_color="Red"
+     image_overlay_color="1 0 0 .75"
+     image_overlay_selected_color="1 0 0 1"
      layout="topleft"
      left_delta="29"
      name="ToolGrass"

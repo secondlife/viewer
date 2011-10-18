@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="specified"
+ specified_left="320"
+ specified_bottom="80"
  legacy_header_height="18"
- can_dock="true"
  can_minimize="true"
- can_close="false"
+ can_close="true"
  follows="bottom"
  height="164"
  layout="topleft"
  name="camera_floater"
  help_topic="camera_floater"
- save_rect="true"
  save_visibility="true"
- save_dock_state="true"
  single_instance="true"
+ title="VIEW"
+ save_rect="true"
  width="228">
     <floater.string
      name="rotate_tooltip">
