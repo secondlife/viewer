@@ -199,8 +199,7 @@ void LLManipRotate::render()
 					gl_circle_2d( 0, 0,  mRadiusMeters, CIRCLE_STEPS, TRUE );
 				}
 				
-				GLdouble plane_eqn[] = { 0, 0, 1, 0 };
-				glClipPlane( GL_CLIP_PLANE0, plane_eqn );
+				gGL.flush();
 			}
 			gGL.popMatrix();
 		}
