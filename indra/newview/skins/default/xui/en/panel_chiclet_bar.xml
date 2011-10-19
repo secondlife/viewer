@@ -42,7 +42,7 @@
              top="7"
              width="189">
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  follows="right"
                  height="29"
                  image_hover_selected="SegmentedBtn_Left_Over"
@@ -57,9 +57,9 @@
                  tab_stop="false"
                  top="-28"
                  visible="false"
-                 width="7" />
+                 width="12" />
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  follows="right"
                  height="29"
                  image_hover_selected="SegmentedBtn_Right_Over"
@@ -74,7 +74,7 @@
                  tab_stop="false"
                  top="-28"
                  visible="false"
-                 width="7" />
+                 width="12" />
       </chiclet_panel>
     </layout_panel>
     <layout_panel auto_resize="false"
@@ -110,7 +110,7 @@ image_pressed           "Lit" - there are new messages
 image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
              -->
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  follows="right"
                  halign="center"
                  height="23"
@@ -151,7 +151,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
              top="5"
              width="35">
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  bottom_pad="3"
                  follows="right"
                  halign="center"
