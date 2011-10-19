@@ -240,7 +240,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 	gViewerWindow->setup3DRender();
 }
 
-const F32 WIND_ALTITUDE			= 180.f;
+const F32 WIND_RELATIVE_ALTITUDE			= 25.f;
 
 void LLWind::renderVectors()
 {
@@ -254,7 +254,7 @@ void LLWind::renderVectors()
 	gGL.pushMatrix();
 	LLVector3 origin_agent;
 	origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
-	gGL.translatef(origin_agent.mV[VX], origin_agent.mV[VY], WIND_ALTITUDE);
+	gGL.translatef(origin_agent.mV[VX], origin_agent.mV[VY], gAgent.getPositionAgent().mV[VZ] + WIND_RELATIVE_ALTITUDE);
 	for (j = 0; j < mSize; j++)
 	{
 		for (i = 0; i < mSize; i++)
