@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="false"
      can_resize="false" height="480" min_height="480" min_width="940"
-     name="Model Preview" title="Upload Model" width="940"
+     name="Model Preview" title="UPLOAD MODEL" width="940"
       help_topic="upload_model" >
 
   <string name="status_idle"></string>

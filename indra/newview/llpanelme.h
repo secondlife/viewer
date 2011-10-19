@@ -49,7 +49,6 @@ public:
 	LLPanelMe();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ bool notifyChildren(const LLSD& info);
 
 	/*virtual*/ BOOL postBuild();
 
@@ -58,7 +57,6 @@ private:
 	void buildEditPanel();
 
 	void onEditProfileClicked();
-	void onCancelClicked();
 
 	LLPanelMyProfileEdit *  mEditPanel;
 

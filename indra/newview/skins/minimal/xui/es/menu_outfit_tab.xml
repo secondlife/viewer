@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Outfit">
-	<menu_item_call label="Ponerme - Reemplazar el vestuario actual" name="wear_replace"/>
-	<menu_item_call label="Ponerme - Añadir al vestuario actual" name="wear_add"/>
-	<menu_item_call label="Quitarme - Quitar del vestuario actual" name="take_off"/>
-	<menu_item_call label="Editar el vestuario" name="edit"/>
-	<menu_item_call label="Renombrar el vestuario" name="rename"/>
-	<menu_item_call label="Borrar el vestuario" name="delete"/>
-</context_menu>

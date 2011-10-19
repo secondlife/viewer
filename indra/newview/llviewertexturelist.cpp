@@ -1342,7 +1342,8 @@ LLUIImagePtr LLUIImageList::getUIImageByID(const LLUUID& image_id, S32 priority)
 
 	const BOOL use_mips = FALSE;
 	const LLRect scale_rect = LLRect::null;
-	return loadUIImageByID(image_id, use_mips, scale_rect, (LLViewerTexture::EBoostLevel)priority);
+	const LLRect clip_rect = LLRect::null;
+	return loadUIImageByID(image_id, use_mips, scale_rect, clip_rect, (LLViewerTexture::EBoostLevel)priority);
 }
 
 LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priority)
@@ -1356,32 +1357,33 @@ LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priori
 
 	const BOOL use_mips = FALSE;
 	const LLRect scale_rect = LLRect::null;
-	return loadUIImageByName(image_name, image_name, use_mips, scale_rect, (LLViewerTexture::EBoostLevel)priority);
+	const LLRect clip_rect = LLRect::null;
+	return loadUIImageByName(image_name, image_name, use_mips, scale_rect, clip_rect, (LLViewerTexture::EBoostLevel)priority);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std::string& filename,
-											  BOOL use_mips, const LLRect& scale_rect, LLViewerTexture::EBoostLevel boost_priority )
+											  BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority )
 {
 	if (boost_priority == LLViewerTexture::BOOST_NONE)
 	{
 		boost_priority = LLViewerTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTextureFromFile(filename, MIPMAP_NO, boost_priority);
-	return loadUIImage(imagep, name, use_mips, scale_rect);
+	return loadUIImage(imagep, name, use_mips, scale_rect, clip_rect);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByID(const LLUUID& id,
-											BOOL use_mips, const LLRect& scale_rect, LLViewerTexture::EBoostLevel boost_priority)
+											BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority)
 {
 	if (boost_priority == LLViewerTexture::BOOST_NONE)
 	{
 		boost_priority = LLViewerTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(id, MIPMAP_NO, boost_priority);
-	return loadUIImage(imagep, id.asString(), use_mips, scale_rect);
+	return loadUIImage(imagep, id.asString(), use_mips, scale_rect, clip_rect);
 }
 
-LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect)
+LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect)
 {
 	if (!imagep) return NULL;
 
@@ -1402,13 +1404,14 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 		LLUIImageLoadData* datap = new LLUIImageLoadData;
 		datap->mImageName = name;
 		datap->mImageScaleRegion = scale_rect;
+		datap->mImageClipRegion = clip_rect;
 
 		imagep->setLoadedCallback(onUIImageLoaded, 0, FALSE, FALSE, datap, NULL);
 	}
 	return new_imagep;
 }
 
-LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect)
+LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect)
 {
 	// look for existing image
 	uuid_ui_image_map_t::iterator found_it = mUIImages.find(name);
@@ -1418,7 +1421,7 @@ LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::s
 		llerrs << "UI Image " << name << " already loaded." << llendl;
 	}
 
-	return loadUIImageByName(name, filename, use_mips, scale_rect);
+	return loadUIImageByName(name, filename, use_mips, scale_rect, clip_rect);
 }
 
 //static 
@@ -1432,6 +1435,7 @@ void LLUIImageList::onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_v
 	LLUIImageLoadData* image_datap = (LLUIImageLoadData*)user_data;
 	std::string ui_image_name = image_datap->mImageName;
 	LLRect scale_rect = image_datap->mImageScaleRegion;
+	LLRect clip_rect = image_datap->mImageClipRegion;
 	if (final)
 	{
 		delete image_datap;
@@ -1448,9 +1452,21 @@ void LLUIImageList::onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_v
 		// from power-of-2 gl image
 		if (success && imagep.notNull() && src_vi && (src_vi->getUrl().compare(0, 7, "file://")==0))
 		{
-			F32 clip_x = (F32)src_vi->getOriginalWidth() / (F32)src_vi->getFullWidth();
-			F32 clip_y = (F32)src_vi->getOriginalHeight() / (F32)src_vi->getFullHeight();
-			imagep->setClipRegion(LLRectf(0.f, clip_y, clip_x, 0.f));
+			F32 full_width = (F32)src_vi->getFullWidth();
+			F32 full_height = (F32)src_vi->getFullHeight();
+			F32 clip_x = (F32)src_vi->getOriginalWidth() / full_width;
+			F32 clip_y = (F32)src_vi->getOriginalHeight() / full_height;
+			if (clip_rect != LLRect::null)
+			{
+				imagep->setClipRegion(LLRectf(llclamp((F32)clip_rect.mLeft / full_width, 0.f, 1.f),
+											llclamp((F32)clip_rect.mTop / full_height, 0.f, 1.f),
+											llclamp((F32)clip_rect.mRight / full_width, 0.f, 1.f),
+											llclamp((F32)clip_rect.mBottom / full_height, 0.f, 1.f)));
+			}
+			else
+			{
+				imagep->setClipRegion(LLRectf(0.f, clip_y, clip_x, 0.f));
+			}
 			if (scale_rect != LLRect::null)
 			{
 				imagep->setScaleRegion(
@@ -1471,6 +1487,7 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 	Optional<std::string>	file_name;
 	Optional<bool>			preload;
 	Optional<LLRect>		scale;
+	Optional<LLRect>		clip;
 	Optional<bool>			use_mips;
 
 	UIImageDeclaration()
@@ -1478,6 +1495,7 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 		file_name("file_name"),
 		preload("preload", false),
 		scale("scale"),
+		clip("clip"),
 		use_mips("use_mips", false)
 	{}
 };
@@ -1572,7 +1590,7 @@ bool LLUIImageList::initFromFile()
 			{
 				continue;
 			}
-			preloadUIImage(image.name, file_name, image.use_mips, image.scale);
+			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip);
 		}
 
 		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))

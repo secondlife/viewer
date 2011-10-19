@@ -126,8 +126,6 @@ protected:
 private:
 	void createResizeBars();
 	void calcMinExtents();
-	S32 getDefaultHeight(S32 cur_height);
-	S32 getDefaultWidth(S32 cur_width);
 
 	const ELayoutOrientation mOrientation;
 
@@ -181,6 +179,8 @@ public:
 
 	void initFromParams(const Params& p);
 
+	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+
 	S32 getMinDim() const { return mMinDim; }
 	void setMinDim(S32 value) { mMinDim = value; if (!mExpandedMinDimSpecified) mExpandedMinDim = value; }
 
@@ -202,22 +202,26 @@ public:
 		return min_dim;
 	}
 
+	void setOrientation(LLLayoutStack::ELayoutOrientation orientation) { mOrientation = orientation; }
+
 protected:
 	LLLayoutPanel(const Params& p);
 	
-	F32 getCollapseFactor(LLLayoutStack::ELayoutOrientation orientation);
+	F32 getCollapseFactor();
 
-	bool mExpandedMinDimSpecified;
-	S32 mExpandedMinDim;
+	bool	mExpandedMinDimSpecified;
+	S32		mExpandedMinDim;
 	
-	S32 mMinDim;
-	S32 mMaxDim;
-	BOOL mAutoResize;
-	BOOL mUserResize;
-	BOOL mCollapsed;
+	S32		mMinDim;
+	S32		mMaxDim;
+	bool	mAutoResize;
+	bool	mUserResize;
+	bool	mCollapsed;
+	F32		mVisibleAmt;
+	F32		mCollapseAmt;
+	F32		mFractionalSize;
+	LLLayoutStack::ELayoutOrientation mOrientation;
 	class LLResizeBar* mResizeBar;
-	F32 mVisibleAmt;
-	F32 mCollapseAmt;
 };
 
 

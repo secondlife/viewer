@@ -58,7 +58,10 @@ LLChannelManager::~LLChannelManager()
 {
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
-		delete (*it).channel;
+		LLScreenChannelBase* channel = it->channel.get();
+		if (!channel) continue;
+
+		delete channel;
 	}
 
 	mChannelList.clear();
@@ -68,9 +71,10 @@ LLChannelManager::~LLChannelManager()
 LLScreenChannel* LLChannelManager::createNotificationChannel()
 {
 	//  creating params for a channel
-	LLChannelManager::Params p;
+	LLScreenChannelBase::Params p;
 	p.id = LLUUID(gSavedSettings.getString("NotificationChannelUUID"));
 	p.channel_align = CA_RIGHT;
+	p.toast_align = NA_TOP;
 
 	// Getting a Channel for our notifications
 	return dynamic_cast<LLScreenChannel*> (LLChannelManager::getInstance()->getChannel(p));
@@ -84,16 +88,19 @@ void LLChannelManager::onLoginCompleted()
 	// calc a number of all offline notifications
 	for(std::vector<ChannelElem>::iterator it = mChannelList.begin(); it !=  mChannelList.end(); ++it)
 	{
+		LLScreenChannelBase* channel = it->channel.get();
+		if (!channel) continue;
+
 		// don't calc notifications for Nearby Chat
-		if((*it).channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
+		if(channel->getChannelID() == LLUUID(gSavedSettings.getString("NearByChatChannelUUID")))
 		{
 			continue;
 		}
 
 		// don't calc notifications for channels that always show their notifications
-		if(!(*it).channel->getDisplayToastsAlways())
+		if(!channel->getDisplayToastsAlways())
 		{
-			away_notifications +=(*it).channel->getNumberOfHiddenToasts();
+			away_notifications +=channel->getNumberOfHiddenToasts();
 		}
 	}
 
@@ -106,7 +113,7 @@ void LLChannelManager::onLoginCompleted()
 	else
 	{
 		// create a channel for the StartUp Toast
-		LLChannelManager::Params p;
+		LLScreenChannelBase::Params p;
 		p.id = LLUUID(gSavedSettings.getString("StartUpChannelUUID"));
 		p.channel_align = CA_RIGHT;
 		mStartUpChannel = createChannel(p);
@@ -157,33 +164,22 @@ LLScreenChannelBase*	LLChannelManager::addChannel(LLScreenChannelBase* channel)
 
 	ChannelElem new_elem;
 	new_elem.id = channel->getChannelID();
-	new_elem.channel = channel;
+	new_elem.channel = channel->getHandle();
 
 	mChannelList.push_back(new_elem); 
 
 	return channel;
 }
 
-LLScreenChannel* LLChannelManager::createChannel(LLChannelManager::Params& p)
+LLScreenChannel* LLChannelManager::createChannel(LLScreenChannelBase::Params& p)
 {
-	LLScreenChannel* new_channel = new LLScreenChannel(p.id); 
+	LLScreenChannel* new_channel = new LLScreenChannel(p); 
 
-	if(!new_channel)
-	{
-		llerrs << "LLChannelManager::getChannel(LLChannelManager::Params& p) - can't create a channel!" << llendl;		
-	}
-	else
-	{
-		new_channel->setToastAlignment(p.toast_align);
-		new_channel->setChannelAlignment(p.channel_align);
-		new_channel->setDisplayToastsAlways(p.display_toasts_always);
-
-		addChannel(new_channel);
-	}
+	addChannel(new_channel);
 	return new_channel;
 }
 
-LLScreenChannelBase* LLChannelManager::getChannel(LLChannelManager::Params& p)
+LLScreenChannelBase* LLChannelManager::getChannel(LLScreenChannelBase::Params& p)
 {
 	LLScreenChannelBase* new_channel = findChannelByID(p.id);
 
@@ -195,19 +191,19 @@ LLScreenChannelBase* LLChannelManager::getChannel(LLChannelManager::Params& p)
 }
 
 //--------------------------------------------------------------------------
-LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID id)
+LLScreenChannelBase* LLChannelManager::findChannelByID(const LLUUID& id)
 {
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())
 	{
-		return (*it).channel;
+		return (*it).channel.get();
 	}
 
 	return NULL;
 }
 
 //--------------------------------------------------------------------------
-void LLChannelManager::removeChannelByID(const LLUUID id)
+void LLChannelManager::removeChannelByID(const LLUUID& id)
 {
 	std::vector<ChannelElem>::iterator it = find(mChannelList.begin(), mChannelList.end(), id); 
 	if(it != mChannelList.end())
@@ -222,7 +218,10 @@ void LLChannelManager::muteAllChannels(bool mute)
 	for (std::vector<ChannelElem>::iterator it = mChannelList.begin();
 			it != mChannelList.end(); it++)
 	{
-		it->channel->setShowToasts(!mute);
+		if (it->channel.get())
+		{
+			it->channel.get()->setShowToasts(!mute);
+		}
 	}
 }
 

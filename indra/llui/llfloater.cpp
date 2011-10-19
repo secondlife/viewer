@@ -62,6 +62,17 @@
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
 
+namespace LLInitParam
+{
+	void TypeValues<LLFloaterEnums::EOpenPositioning>::declareValues()
+	{
+		declare("none",       LLFloaterEnums::OPEN_POSITIONING_NONE);
+		declare("cascading",  LLFloaterEnums::OPEN_POSITIONING_CASCADING);
+		declare("centered",   LLFloaterEnums::OPEN_POSITIONING_CENTERED);
+		declare("specified",  LLFloaterEnums::OPEN_POSITIONING_SPECIFIED);
+	}
+}
+
 std::string	LLFloater::sButtonNames[BUTTON_COUNT] = 
 {
 	"llfloater_close_btn",		//BUTTON_CLOSE
@@ -154,7 +165,6 @@ LLFloater::Params::Params()
 :	title("title"),
 	short_title("short_title"),
 	single_instance("single_instance", false),
-	auto_tile("auto_tile", false),
 	can_resize("can_resize", false),
 	can_minimize("can_minimize", true),
 	can_close("can_close", true),
@@ -164,7 +174,9 @@ LLFloater::Params::Params()
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
-	open_centered("open_centered", false),
+	open_positioning("open_positioning", LLFloaterEnums::OPEN_POSITIONING_NONE),
+	specified_left("specified_left"),
+	specified_bottom("specified_bottom"),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
 	close_image("close_image"),
@@ -227,12 +239,14 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
 	mKey(key),
-	mAutoTile(p.auto_tile),
 	mCanTearOff(p.can_tear_off),
 	mCanMinimize(p.can_minimize),
 	mCanClose(p.can_close),
 	mDragOnLeft(p.can_drag_on_left),
 	mResizable(p.can_resize),
+	mOpenPositioning(p.open_positioning),
+	mSpecifiedLeft(p.specified_left),
+	mSpecifiedBottom(p.specified_bottom),
 	mMinWidth(p.min_width),
 	mMinHeight(p.min_height),
 	mHeaderHeight(p.header_height),
@@ -459,15 +473,24 @@ void LLFloater::layoutResizeCtrls()
 	mResizeHandle[3]->setRect(rect);
 }
 
-void LLFloater::enableResizeCtrls(bool enable)
+void LLFloater::enableResizeCtrls(bool enable, bool width, bool height)
 {
+	mResizeBar[LLResizeBar::LEFT]->setVisible(enable && width);
+	mResizeBar[LLResizeBar::LEFT]->setEnabled(enable && width);
+
+	mResizeBar[LLResizeBar::TOP]->setVisible(enable && height);
+	mResizeBar[LLResizeBar::TOP]->setEnabled(enable && height);
+	
+	mResizeBar[LLResizeBar::RIGHT]->setVisible(enable && width);
+	mResizeBar[LLResizeBar::RIGHT]->setEnabled(enable && width);
+	
+	mResizeBar[LLResizeBar::BOTTOM]->setVisible(enable && height);
+	mResizeBar[LLResizeBar::BOTTOM]->setEnabled(enable && height);
+
 	for (S32 i = 0; i < 4; ++i)
 	{
-		mResizeBar[i]->setVisible(enable);
-		mResizeBar[i]->setEnabled(enable);
-
-		mResizeHandle[i]->setVisible(enable);
-		mResizeHandle[i]->setEnabled(enable);
+		mResizeHandle[i]->setVisible(enable && width && height);
+		mResizeHandle[i]->setEnabled(enable && width && height);
 	}
 }
 
@@ -660,6 +683,7 @@ void LLFloater::openFloater(const LLSD& key)
 	}
 	else
 	{
+		applyControlsAndPosition(LLFloaterReg::getLastFloaterCascading());
 		setMinimized(FALSE);
 		setVisibleAndFrontmost(mAutoFocus);
 	}
@@ -822,43 +846,100 @@ LLMultiFloater* LLFloater::getHost()
 	return (LLMultiFloater*)mHostHandle.get(); 
 }
 
-void    LLFloater::applySavedVariables()
+void LLFloater::applyControlsAndPosition(LLFloater* other)
 {
-	applyRectControl();
-	applyDockState();
+	if (!applyDockState())
+	{
+		if (!applyRectControl())
+		{
+			applyPositioning(other);
+		}
+	}
 }
 
-void LLFloater::applyRectControl()
+bool LLFloater::applyRectControl()
 {
-	// first, center on screen if requested	
-	if (mOpenCentered)
-	{
-		center();
-	}
+	bool saved_rect = false;
 
-	// override center if we have saved rect control
+	// If we have a saved rect, use it
 	if (mRectControl.size() > 1)
 	{
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
-		if (rect.getWidth() > 0 && rect.getHeight() > 0)
+		saved_rect = rect.notEmpty();
+		if (saved_rect)
 		{
-			translate( rect.mLeft - getRect().mLeft, rect.mBottom - getRect().mBottom);
+			setOrigin(rect.mLeft, rect.mBottom);
+
 			if (mResizable)
 			{
 				reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
 			}
 		}
 	}
+
+	return saved_rect;
 }
 
-void LLFloater::applyDockState()
+bool LLFloater::applyDockState()
 {
+	bool docked = false;
+
 	if (mDocStateControl.size() > 1)
 	{
-		bool dockState = getControlGroup()->getBOOL(mDocStateControl);
-		setDocked(dockState);
+		docked = getControlGroup()->getBOOL(mDocStateControl);
+		setDocked(docked);
 	}
 
+	return docked;
+}
+
+void LLFloater::applyPositioning(LLFloater* other)
+{
+	// Otherwise position according to the positioning code
+	switch (mOpenPositioning)
+	{
+	case LLFloaterEnums::OPEN_POSITIONING_CENTERED:
+		center();
+		break;
+
+	case LLFloaterEnums::OPEN_POSITIONING_SPECIFIED:
+		{
+			// Translate relative to snap rect
+			setOrigin(mSpecifiedLeft, mSpecifiedBottom);
+			const LLRect& snap_rect = gFloaterView->getSnapRect();
+			translate(snap_rect.mLeft, snap_rect.mBottom);
+			translateIntoRect(snap_rect, FALSE);
+		}
+		break;
+
+	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
+		if (other != NULL)
+		{
+			stackWith(*other);
+		}
+		else
+		{
+			static const U32 CASCADING_FLOATER_HOFFSET = 0;
+			static const U32 CASCADING_FLOATER_VOFFSET = 0;
+			
+			const LLRect& snap_rect = gFloaterView->getSnapRect();
+
+			const S32 horizontal_offset = CASCADING_FLOATER_HOFFSET;
+			const S32 vertical_offset = snap_rect.getHeight() - CASCADING_FLOATER_VOFFSET;
+
+			S32 rect_height = getRect().getHeight();
+			setOrigin(horizontal_offset, vertical_offset - rect_height);
+
+			translate(snap_rect.mLeft, snap_rect.mBottom);
+			translateIntoRect(snap_rect, FALSE);
+		}
+		break;
+
+	case LLFloaterEnums::OPEN_POSITIONING_NONE:
+	default:
+		// Do nothing
+		break;
+	}
 }
 
 void LLFloater::applyTitle()
@@ -1029,7 +1110,7 @@ void LLFloater::setMinimized(BOOL minimize)
 
 	if (minimize == mMinimized) return;
 
-	if(mMinimizeSignal)
+	if (mMinimizeSignal)
 	{
 		(*mMinimizeSignal)(this, LLSD(minimize));
 	}
@@ -2451,6 +2532,52 @@ void LLFloaterView::closeAllChildren(bool app_quitting)
 	}
 }
 
+void LLFloaterView::hiddenFloaterClosed(LLFloater* floater)
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		if (it->first.get() == floater)
+		{
+			it->second.disconnect();
+			mHiddenFloaters.erase(it);
+			break;
+		}
+	}
+}
+
+void LLFloaterView::hideAllFloaters()
+{
+	child_list_t child_list = *(getChildList());
+
+	for (child_list_iter_t it = child_list.begin(); it != child_list.end(); ++it)
+	{
+		LLFloater* floaterp = dynamic_cast<LLFloater*>(*it);
+		if (floaterp && floaterp->getVisible())
+		{
+			floaterp->setVisible(false);
+			boost::signals2::connection connection = floaterp->mCloseSignal.connect(boost::bind(&LLFloaterView::hiddenFloaterClosed, this, floaterp));
+			mHiddenFloaters.push_back(std::make_pair(floaterp->getHandle(), connection));
+		}
+	}
+}
+
+void LLFloaterView::showHiddenFloaters()
+{
+	for (hidden_floaters_t::iterator it = mHiddenFloaters.begin(), end_it = mHiddenFloaters.end();
+		it != end_it;
+		++it)
+	{
+		LLFloater* floaterp = it->first.get();
+		if (floaterp)
+		{
+			floaterp->setVisible(true);
+		}
+		it->second.disconnect();
+	}
+	mHiddenFloaters.clear();
+}
 
 BOOL LLFloaterView::allChildrenClosed()
 {
@@ -2549,7 +2676,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getLocalRect(), allow_partial_outside ))
+	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ))
 	{
 		floater->clearSnapTarget();
 	}
@@ -2775,7 +2902,6 @@ void LLFloater::setInstanceName(const std::string& name)
 		{
 			mDocStateControl = LLFloaterReg::declareDockStateControl(ctrl_name);
 		}
-
 	}
 }
 
@@ -2837,8 +2963,10 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
-	mAutoTile = p.auto_tile;
-	mOpenCentered = p.open_centered;
+
+	mOpenPositioning = p.open_positioning;
+	mSpecifiedLeft = p.specified_left;
+	mSpecifiedBottom = p.specified_bottom;
 
 	if (p.save_rect && mRectControl.empty())
 	{
@@ -2848,7 +2976,6 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	{
 		mVisibilityControl = "t"; // flag to build mVisibilityControl name once mInstanceName is set
 	}
-
 	if(p.save_dock_state)
 	{
 		mDocStateControl = "t"; // flag to build mDocStateControl name once mInstanceName is set
@@ -2857,7 +2984,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	// open callback 
 	if (p.open_callback.isProvided())
 	{
-		mOpenSignal.connect(initCommitCallback(p.open_callback));
+		setOpenCallback(initCommitCallback(p.open_callback));
 	}
 	// close callback 
 	if (p.close_callback.isProvided())
@@ -2870,6 +2997,11 @@ boost::signals2::connection LLFloater::setMinimizeCallback( const commit_signal_
 { 
 	if (!mMinimizeSignal) mMinimizeSignal = new commit_signal_t();
 	return mMinimizeSignal->connect(cb); 
+}
+
+boost::signals2::connection LLFloater::setOpenCallback( const commit_signal_t::slot_type& cb )
+{
+	return mOpenSignal.connect(cb);
 }
 
 boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::slot_type& cb )
@@ -2916,7 +3048,9 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 			return FALSE;
 		}
 
-		parser.readXUI(referenced_xml, params, LLUICtrlFactory::getInstance()->getCurFileName());
+		Params referenced_params;
+		parser.readXUI(referenced_xml, referenced_params, LLUICtrlFactory::getInstance()->getCurFileName());
+		params.fillFrom(referenced_params);
 
 		// add children using dimensions from referenced xml for consistent layout
 		setShape(params.rect);

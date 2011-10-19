@@ -92,11 +92,12 @@ void LLDockControl::setDock(LLView* dockWidget)
 
 void LLDockControl::getAllowedRect(LLRect& rect)
 {
-	rect = mDockableFloater->getRootView()->getRect();
+	rect = mDockableFloater->getRootView()->getChild<LLView>("non_toolbar_panel")->getRect();
 }
 
 void LLDockControl::repositionDockable()
 {
+	if (!mDockWidget) return;
 	LLRect dockRect = mDockWidget->calcScreenRect();
 	LLRect rootRect;
 	mGetAllowedRectCallback(rootRect);
@@ -160,7 +161,7 @@ bool LLDockControl::isDockVisible()
 			case TOP:
 			{
 				// check is dock inside parent rect
-				// assume that parent for all dockable flaoters
+				// assume that parent for all dockable floaters
 				// is the root view
 				LLRect dockParentRect =
 						mDockWidget->getRootView()->calcScreenRect();

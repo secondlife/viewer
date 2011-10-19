@@ -217,12 +217,12 @@ OSStatus	LLDirPicker::doNavChooseDialog()
 
 	error = NavCreateChooseFolderDialog(&mNavOptions, &doNavCallbackEvent, NULL, NULL, &navRef);
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	if (error == noErr)
 		error = NavDialogRun(navRef);
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	if (error == noErr)
 		error = NavDialogGetReply(navRef, &navReply);

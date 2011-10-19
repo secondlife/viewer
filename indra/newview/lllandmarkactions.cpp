@@ -413,7 +413,7 @@ void LLLandmarkActions::copySLURLtoClipboard(const LLUUID& landmarkInventoryItem
 
 void copy_slurl_to_clipboard_callback(const std::string& slurl)
 {
-	gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(slurl));
+	gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(slurl));
 	LLSD args;
 	args["SLURL"] = slurl;
 	LLNotificationsUtil::add("CopySLURL", args);

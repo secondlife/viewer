@@ -97,7 +97,7 @@
          parameter="ShowWorldMapButton" />
     </menu_item_check>
     <menu_item_check
-     label="Mini-Map button"
+     label="Mini-map button"
      layout="topleft"
      name="ShowMiniMapButton">
         <menu_item_check.on_click

@@ -52,7 +52,7 @@ Snowstorm_viewer-project-review.login_channel = "Project Viewer - Snowstorm Team
 Snowstorm_viewer-project-review.codeticket_add_context = true
 
 # ========================================
-# Viewer Beta
+# Viewer Beta (Owner: Dessie Linden)
 # ========================================
 viewer-beta.viewer_channel = "Second Life Beta Viewer"
 viewer-beta.login_channel = "Second Life Beta Viewer"
@@ -66,7 +66,7 @@ viewer-pre-beta.build_viewer_update_version_manager = true
 
 
 # ========================================
-# Viewer Release
+# Viewer Release (Owner: Dessie Linden)
 # ========================================
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
@@ -77,7 +77,7 @@ viewer-pre-release.viewer_channel = "Second Life Release"
 viewer-pre-release.login_channel = "Second Life Release"
 viewer-pre-release.build_debug_release_separately = true
 viewer-pre-release.build_viewer_update_version_manager = true
-#viewer-pre-release.release-viewer.jira = DRTVWR-46
+#viewer-pre-release.release-viewer.jira = DRTVWR-92
 
 
 # ========================================

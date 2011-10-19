@@ -61,7 +61,7 @@ public:
 		{}
 	};
 
-	struct NameColumn : public LLInitParam::Choice<NameColumn>
+	struct NameColumn : public LLInitParam::ChoiceBlock<NameColumn>
 	{
 		Alternative<S32>				column_index;
 		Alternative<std::string>		column_name;

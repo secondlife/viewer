@@ -28,7 +28,7 @@
 #define LL_LLMOVEVIEW_H
 
 // Library includes
-#include "lltransientdockablefloater.h"
+#include "llfloater.h"
 
 class LLButton;
 class LLJoystickAgentTurn;
@@ -38,7 +38,7 @@ class LLJoystickAgentSlide;
 // Classes
 //
 class LLFloaterMove
-:	public LLTransientDockableFloater
+:	public LLFloater
 {
 	LOG_CLASS(LLFloaterMove);
 	friend class LLFloaterReg;
@@ -58,7 +58,6 @@ public:
 	static void setSittingMode(BOOL bSitting);
 	static void enableInstance(BOOL bEnable);
 	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 
 	static void sUpdateFlyingStatus();
 
@@ -87,7 +86,6 @@ private:
 	void initModeButtonMap();
 	void setModeButtonToggleState(const EMovementMode mode);
 	void updateButtonsWithMovementMode(const EMovementMode newMode);
-	void updatePosition();
 	void showModeButtons(BOOL bShow);
 
 public:
