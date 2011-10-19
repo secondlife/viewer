@@ -539,7 +539,6 @@ LLFloater::~LLFloater()
 		delete mResizeHandle[i];
 	}
 
-	storeRectControl();
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
