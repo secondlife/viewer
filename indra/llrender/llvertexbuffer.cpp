@@ -227,6 +227,7 @@ void LLVBOPool::cleanup()
 			l.pop_front();
 
 			LLVertexBuffer::sAllocatedBytes -= size;
+			sBytesPooled -= size;
 		}
 
 		size *= 2;

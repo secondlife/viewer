@@ -6109,11 +6109,8 @@ void LLPipeline::resetVertexBuffers()
 
 	gSky.resetVertexBuffers();
 
-	if (LLVertexBuffer::sGLCount > 0)
-	{
-		LLVertexBuffer::cleanupClass();
-	}
-
+	LLVertexBuffer::cleanupClass();
+	
 	//delete all name pool caches
 	LLGLNamePool::cleanupPools();
 
