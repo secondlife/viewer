@@ -42,7 +42,7 @@
              top="7"
              width="189">
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  follows="right"
                  height="29"
                  image_hover_selected="SegmentedBtn_Left_Over"
@@ -57,9 +57,9 @@
                  tab_stop="false"
                  top="-28"
                  visible="false"
-                 width="7" />
+                 width="12" />
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  follows="right"
                  height="29"
                  image_hover_selected="SegmentedBtn_Right_Over"
@@ -74,7 +74,7 @@
                  tab_stop="false"
                  top="-28"
                  visible="false"
-                 width="7" />
+                 width="12" />
       </chiclet_panel>
     </layout_panel>
     <layout_panel auto_resize="false"
