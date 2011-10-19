@@ -229,6 +229,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		gGL.flush();
 		glClear(GL_COLOR_BUFFER_BIT);
 		gViewerWindow->mWindow->swapBuffers();
+		LLPipeline::refreshCachedSettings();
+		LLPipeline::refreshRenderDeferred();
 		gPipeline.resizeScreenTexture();
 		gResizeScreenTexture = FALSE;
 		gWindowResized = FALSE;
@@ -615,27 +617,16 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//Increment drawable frame counter
 		LLDrawable::incrementVisible();
 
+		LLPipeline::refreshCachedSettings();
+		LLPipeline::refreshRenderDeferred();
+
 		LLSpatialGroup::sNoDelete = TRUE;
-		LLPipeline::sUseOcclusion = 
-				(!gUseWireframe
-				&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
-				&& gSavedSettings.getBOOL("UseOcclusion") 
-				&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 		LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 
 		/*if (LLPipeline::sUseOcclusion && LLPipeline::sRenderDeferred)
 		{ //force occlusion on for all render types if doing deferred render (tighter shadow frustum)
 			LLPipeline::sUseOcclusion = 3;
 		}*/
-
-		LLPipeline::refreshCachedSettings();
-		LLPipeline::refreshRenderDeferred();
-		
-		LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
-		LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
-		LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
-		LLVOAvatar::sMaxVisible = (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
-		LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 
 		S32 occlusion = LLPipeline::sUseOcclusion;
 		if (gDepthDirty)

@@ -840,6 +840,18 @@ void LLPipeline::refreshRenderDeferred()
 //static
 void LLPipeline::refreshCachedSettings()
 {
+	LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
+	LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
+	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
+	LLVOAvatar::sMaxVisible = (U32)gSavedSettings.getS32("RenderAvatarMaxVisible");
+	LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
+
+	LLPipeline::sUseOcclusion = 
+			(!gUseWireframe
+			&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
+			&& gSavedSettings.getBOOL("UseOcclusion") 
+			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
+	
 	VertexShaderEnable = gSavedSettings.getBOOL("VertexShaderEnable");
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
 	WindLightUseAtmosShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
