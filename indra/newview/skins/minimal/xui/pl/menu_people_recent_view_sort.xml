@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_check label="Porządkuj według daty" name="sort_most"/>
-	<menu_item_check label="Porządkuj według nazwy" name="sort_name"/>
-	<menu_item_check label="Wyświetlaj ikonki" name="view_icons"/>
-	<menu_item_call label="Pokaż zablokowanych Rezydentów &amp; obiekty" name="show_blocked_list"/>
-</menu>

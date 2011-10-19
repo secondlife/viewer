@@ -282,7 +282,21 @@ public:
 	static void		toggleFlying();
 	static bool		enableFlying();
 	BOOL			canFly(); 			// Does this parcel allow you to fly?
-	
+
+	//--------------------------------------------------------------------
+	// Voice
+	//--------------------------------------------------------------------
+public:
+	bool 			isVoiceConnected() const { return mVoiceConnected; }
+	void			setVoiceConnected(const bool b)	{ mVoiceConnected = b; }
+
+	static void		pressMicrophone(const LLSD& name);
+	static void		releaseMicrophone(const LLSD& name);
+	static bool		isMicrophoneOn(const LLSD& sdname);
+
+private:
+	bool			mVoiceConnected;
+
 	//--------------------------------------------------------------------
 	// Chat
 	//--------------------------------------------------------------------
@@ -574,6 +588,15 @@ private:
 /**                    Teleport
  **                                                                            **
  *******************************************************************************/
+
+	// Build
+public:
+	bool			canEditParcel() const { return mCanEditParcel; }
+private:
+	bool			mCanEditParcel;
+
+	static bool isActionAllowed(const LLSD& sdname);
+	static void parcelChangedCallback();
 
 /********************************************************************************
  **                                                                            **

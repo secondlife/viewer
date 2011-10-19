@@ -237,7 +237,7 @@ public:
 	friend class LLNormalTextSegment;
 	friend class LLUICtrlFactory;
 
-	struct LineSpacingParams : public LLInitParam::Choice<LineSpacingParams>
+	struct LineSpacingParams : public LLInitParam::ChoiceBlock<LineSpacingParams>
 	{
 		Alternative<F32>	multiple;
 		Alternative<S32>	pixels;

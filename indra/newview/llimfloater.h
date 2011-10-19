@@ -145,8 +145,6 @@ private:
 	static void*	createPanelIMControl(void* userdata);
 	static void*	createPanelGroupControl(void* userdata);
 	static void* 	createPanelAdHocControl(void* userdata);
-	// gets a rect that bounds possible positions for the LLIMFloater on a screen (EXT-1111)
-	void getAllowedRect(LLRect& rect);
 
 	// Add the "User is typing..." indicator.
 	void addTypingIndicator(const LLIMInfo* im_info);
@@ -155,10 +153,6 @@ private:
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
 	static void closeHiddenIMToasts();
-
-	static bool resetAllowedRectPadding();
-	//need to keep this static for performance issues
-	static S32 sAllowedRectRightPadding;
 
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 

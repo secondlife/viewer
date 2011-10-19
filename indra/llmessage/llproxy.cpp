@@ -49,7 +49,7 @@ static void tcp_close_channel(LLSocket::ptr_t* handle_ptr); // Close an open TCP
 
 LLProxy::LLProxy():
 		mHTTPProxyEnabled(false),
-		mProxyMutex(),
+		mProxyMutex(NULL),
 		mUDPProxy(),
 		mTCPProxy(),
 		mHTTPProxy(),
@@ -524,7 +524,7 @@ static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataou
  */
 static LLSocket::ptr_t tcp_open_channel(LLHost host)
 {
-	LLSocket::ptr_t socket = LLSocket::create(LLSocket::STREAM_TCP);
+	LLSocket::ptr_t socket = LLSocket::create(NULL, LLSocket::STREAM_TCP);
 	bool connected = socket->blockingConnect(host);
 	if (!connected)
 	{

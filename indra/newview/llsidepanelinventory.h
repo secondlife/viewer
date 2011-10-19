@@ -47,7 +47,7 @@ public:
 	virtual ~LLSidepanelInventory();
 
 private:
-	void handleLoginComplete();
+	void updateInboxOutbox();
 	
 public:
 	void observeInboxOutboxCreation();

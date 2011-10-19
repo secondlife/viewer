@@ -36,10 +36,10 @@
 #include "llagentwearables.h"
 #include "llagentui.h"
 #include "llanimationstates.h"
-#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
+#include "llchicletbar.h"
 #include "llconsole.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
@@ -68,9 +68,11 @@
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
+#include "lltoolbarview.h"
 #include "lltoolpie.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
+#include "lluictrl.h"
 #include "llurlentry.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplay.h"
@@ -152,6 +154,60 @@ bool handleSlowMotionAnimation(const LLSD& newvalue)
 	return true;
 }
 
+// static
+void LLAgent::parcelChangedCallback()
+{
+	bool can_edit = LLToolMgr::getInstance()->canEdit();
+
+	gAgent.mCanEditParcel = can_edit;
+}
+
+// static
+bool LLAgent::isActionAllowed(const LLSD& sdname)
+{
+	bool retval = false;
+
+	const std::string& param = sdname.asString();
+
+	if (param == "build")
+	{
+		retval = gAgent.canEditParcel();
+	}
+	else if (param == "speak")
+	{
+		if ( gAgent.isVoiceConnected() )
+		{
+			retval = true;
+		}
+		else
+		{
+			retval = false;
+		}
+	}
+
+	return retval;
+}
+
+// static 
+void LLAgent::pressMicrophone(const LLSD& name)
+{
+	LLFirstUse::speak(false);
+
+	 LLVoiceClient::getInstance()->inputUserControlState(true);
+}
+
+// static 
+void LLAgent::releaseMicrophone(const LLSD& name)
+{
+	LLVoiceClient::getInstance()->inputUserControlState(false);
+}
+
+// static
+bool LLAgent::isMicrophoneOn(const LLSD& sdname)
+{
+	return LLVoiceClient::getInstance()->getUserPTTState();
+}
+
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
 // locally believes the end user has godlike powers.
@@ -183,6 +239,7 @@ LLAgent::LLAgent() :
 	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
+	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
@@ -231,6 +288,8 @@ LLAgent::LLAgent() :
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
 	mGenderChosen(FALSE),
+	
+	mVoiceConnected(false),
 
 	mAppearanceSerialNum(0),
 
@@ -246,6 +305,13 @@ LLAgent::LLAgent() :
 	mListener.reset(new LLAgentListener(*this));
 
 	mMoveTimer.stop();
+
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
+
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
 }
 
 // Requires gSavedSettings to be initialized.
@@ -1797,11 +1863,12 @@ void LLAgent::endAnimationUpdateUI()
 	// clean up UI from mode we're leaving
 	if (gAgentCamera.getLastCameraMode() == CAMERA_MODE_MOUSELOOK )
 	{
+		gToolBarView->setToolBarsVisible(true);
 		// show mouse cursor
 		gViewerWindow->showCursor();
 		// show menus
 		gMenuBarView->setVisible(TRUE);
-		LLNavigationBar::getInstance()->setVisible(TRUE);
+		LLNavigationBar::getInstance()->setVisible(TRUE && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
 		gStatusBar->setVisibleForMouselook(true);
 
 		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
@@ -1809,7 +1876,7 @@ void LLAgent::endAnimationUpdateUI()
 			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
 		}
 
-		LLBottomTray::getInstance()->onMouselookModeOut();
+		LLChicletBar::getInstance()->setVisible(TRUE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
@@ -1906,14 +1973,19 @@ void LLAgent::endAnimationUpdateUI()
 	//---------------------------------------------------------------------
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 	{
-		// hide menus
+		// clean up UI
+		// first show anything hidden by UI toggle
+		gViewerWindow->setUIVisibility(TRUE);
+
+		// then hide stuff we want hidden for mouselook 
+		gToolBarView->setToolBarsVisible(false);
 		gMenuBarView->setVisible(FALSE);
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
 
 		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
-		LLBottomTray::getInstance()->onMouselookModeIn();
+		LLChicletBar::getInstance()->setVisible(FALSE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
@@ -3361,7 +3433,14 @@ bool LLAgent::teleportCore(bool is_local)
 	LLFloaterReg::hideInstance("region_info");
 
 	// minimize the Search floater (STORM-1474)
-	LLFloaterReg::getInstance("search")->setMinimized(TRUE);
+	{
+		LLFloater* instance = LLFloaterReg::getInstance("search");
+
+		if (instance && instance->getVisible())
+		{
+			instance->setMinimized(TRUE);
+		}
+	}
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();

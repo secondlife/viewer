@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_group_plus">
-	<menu_item_check label="Trier en commençant par le plus récent" name="sort_most"/>
-	<menu_item_check label="Trier par nom" name="sort_name"/>
-	<menu_item_check label="Afficher les icônes des résidents" name="view_icons"/>
-	<menu_item_call label="Afficher les résidents et les objets ignorés" name="show_blocked_list"/>
-</menu>

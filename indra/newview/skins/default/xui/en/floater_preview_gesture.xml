@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- auto_tile="true"
  height="460"
  layout="topleft"
  name="gesture_preview"

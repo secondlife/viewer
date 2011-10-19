@@ -234,7 +234,7 @@ LLVFS::LLVFS(const std::string& index_filename, const std::string& data_filename
 	mDataFP(NULL),
 	mIndexFP(NULL)
 {
-	mDataMutex = new LLMutex;
+	mDataMutex = new LLMutex(0);
 
 	S32 i;
 	for (i = 0; i < VFSLOCK_COUNT; i++)
@@ -2098,7 +2098,8 @@ void LLVFS::dumpFiles()
 			std::string filename = id.asString() + extension;
 			llinfos << " Writing " << filename << llendl;
 			
-			LLAPRFile outfile(filename, LL_APR_WB);
+			LLAPRFile outfile;
+			outfile.open(filename, LL_APR_WB);
 			outfile.write(&buffer[0], size);
 			outfile.close();
 

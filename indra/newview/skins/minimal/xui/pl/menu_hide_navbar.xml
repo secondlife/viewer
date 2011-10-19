@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="hide_navbar_menu">
-	<menu_item_check label="Pokaż pasek Nawigacji" name="ShowNavbarNavigationPanel"/>
-	<menu_item_check label="Pokaż pasek Ulubionych" name="ShowNavbarFavoritesPanel"/>
-	<menu_item_check label="Pokaż pasek mini-lokalizacji" name="ShowMiniLocationPanel"/>
-</menu>
