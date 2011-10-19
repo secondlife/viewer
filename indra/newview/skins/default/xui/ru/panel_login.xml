@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_login">
+	<layout_stack name="login_widgets">
+		<layout_panel name="login">
+			<text name="username_text">
+				имя пользователя:
+			</text>
+			<text name="password_text">
+				пароль:
+			</text>
+			<button label="войти" name="connect_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>
