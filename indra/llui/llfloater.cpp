@@ -174,6 +174,7 @@ LLFloater::Params::Params()
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
+	show_title("show_title", true),
 	open_positioning("open_positioning", LLFloaterEnums::OPEN_POSITIONING_NONE),
 	specified_left("specified_left"),
 	specified_bottom("specified_bottom"),
@@ -538,7 +539,6 @@ LLFloater::~LLFloater()
 		delete mResizeHandle[i];
 	}
 
-	storeRectControl();
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
@@ -1142,10 +1142,6 @@ void LLFloater::setMinimized(BOOL minimize)
 			mButtonsEnabled[BUTTON_RESTORE] = TRUE;
 		}
 
-		if (mDragHandle)
-		{
-			mDragHandle->setVisible(TRUE);
-		}
 		setBorderVisible(TRUE);
 
 		for(handle_set_iter_t dependent_it = mDependents.begin();
@@ -1296,17 +1292,7 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 		mButtons[BUTTON_CLOSE]->setToolTip(LLStringExplicit(getButtonTooltip(Params(), BUTTON_CLOSE, is_chrome)));
 	}
 	
-	// no titles displayed on "chrome" floaters
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(!is_chrome);
-	
 	LLPanel::setIsChrome(is_chrome);
-}
-
-void LLFloater::setTitleVisible(bool visible)
-{
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(visible);
 }
 
 // Change the draw style to account for the foreground state.
@@ -1812,7 +1798,7 @@ void LLFloater::draw()
 		{
 			drawChild(mButtons[i]);
 		}
-		drawChild(mDragHandle);
+		drawChild(mDragHandle, 0, 0, TRUE);
 	}
 	else
 	{
@@ -2990,6 +2976,11 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	if (p.close_callback.isProvided())
 	{
 		setCloseCallback(initCommitCallback(p.close_callback));
+	}
+
+	if (mDragHandle)
+	{
+		mDragHandle->setTitleVisible(p.show_title);
 	}
 }
 

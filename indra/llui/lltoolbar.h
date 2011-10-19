@@ -185,6 +185,7 @@ public:
 	int  removeCommand(const LLCommandId& commandId);		// Returns the rank the removed command was at, RANK_NONE if not found
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
+	bool stopCommandInProgress(const LLCommandId& commandId);
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }

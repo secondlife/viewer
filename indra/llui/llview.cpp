@@ -721,7 +721,7 @@ LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& m
 
 // XDATA might be MASK, or S32 clicks
 template <typename METHOD, typename XDATA>
-LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra)
+LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block)
 {
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
@@ -734,7 +734,7 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
 		}
 
 		if ((viewp->*method)( local_x, local_y, extra )
-			|| viewp->blockMouseEvent( local_x, local_y ))
+			|| (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
 		{
 			viewp->logMouseEvent();
 			return viewp;
@@ -1021,7 +1021,7 @@ BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks);
+	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks, false);
 }
 
 // Called during downward traversal
