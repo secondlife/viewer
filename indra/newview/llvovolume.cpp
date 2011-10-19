@@ -4666,6 +4666,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	texture_index_channels = llmin(texture_index_channels, (S32) gSavedSettings.getU32("RenderMaxTextureIndex"));
 	
+	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
+	texture_index_channels = llmin(texture_index_channels, 16);
 
 	while (face_iter != faces.end())
 	{

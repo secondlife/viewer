@@ -357,6 +357,9 @@ void LLViewerShaderMgr::setShaders()
 
 	LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) gSavedSettings.getU32("RenderMaxTextureIndex")), 1);
 
+	//NEVER use more than 16 texture channels (work around for prevalent driver bug)
+	LLGLSLShader::sIndexedTextureChannels = llmin(LLGLSLShader::sIndexedTextureChannels, 16);
+
 	reentrance = true;
 
 	if (LLRender::sGLCoreProfile || gGLManager.mGLVersion >= 2.f)
