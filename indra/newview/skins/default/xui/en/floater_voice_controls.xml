@@ -19,19 +19,19 @@
  width="282">
     <string
      name="title_nearby">
-        Nearby voice
+        VOICE SETTINGS
     </string>
     <string
      name="title_group">
-        Group call with [GROUP]
+        GROUP CALL WITH [GROUP]
     </string>
     <string
      name="title_adhoc">
-        Conference call
+        CONFERENCE CALL
     </string>
     <string
      name="title_peer_2_peer">
-        Call with [NAME]
+        CALL WITH [NAME]
     </string>
     <string
      name="no_one_near">
