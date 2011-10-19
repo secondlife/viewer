@@ -259,8 +259,8 @@ void LLWind::renderVectors()
 	{
 		for (i = 0; i < mSize; i++)
 		{
-			x = mCloudVelX[i + j*mSize] * WIND_SCALE_HACK;
-			y = mCloudVelY[i + j*mSize] * WIND_SCALE_HACK;
+			x = mVelX[i + j*mSize] * WIND_SCALE_HACK;
+			y = mVelY[i + j*mSize] * WIND_SCALE_HACK;
 			gGL.pushMatrix();
 			gGL.translatef((F32)i * region_width_meters/mSize, (F32)j * region_width_meters/mSize, 0.0);
 			gGL.color3f(0,1,0);

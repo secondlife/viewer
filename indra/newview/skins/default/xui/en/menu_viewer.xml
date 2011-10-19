@@ -2437,6 +2437,16 @@
            parameter="raycast" />
         </menu_item_check>
 		<menu_item_check
+         label="Wind Vectors"
+         name="Wind Vectors">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="wind vectors" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="wind vectors" />
+        </menu_item_check>
+        <menu_item_check
          label="Render Complexity"
          name="rendercomplexity">
           <menu_item_check.on_check
