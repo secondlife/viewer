@@ -65,7 +65,7 @@ extern "C" {
 #undef LL_PA_SYM
 
 static bool sSymsGrabbed = false;
-static LLAPRPool sSymPADSOMemoryPool;
+static apr_pool_t *sSymPADSOMemoryPool = NULL;
 static apr_dso_handle_t *sSymPADSOHandleG = NULL;
 
 bool grab_pa_syms(std::string pulse_dso_name)
@@ -84,11 +84,11 @@ bool grab_pa_syms(std::string pulse_dso_name)
 #define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll##PASYM, sSymPADSOHandle, #PASYM); if (rv != APR_SUCCESS) {INFOMSG("Failed to grab symbol: %s", #PASYM); if (REQUIRED) sym_error = true;} else DEBUGMSG("grabbed symbol: %s from %p", #PASYM, (void*)ll##PASYM);}while(0)
 
 	//attempt to load the shared library
-	sSymPADSOMemoryPool.create();
+	apr_pool_create(&sSymPADSOMemoryPool, NULL);
   
 	if ( APR_SUCCESS == (rv = apr_dso_load(&sSymPADSOHandle,
 					       pulse_dso_name.c_str(),
-					       sSymPADSOMemoryPool()) ))
+					       sSymPADSOMemoryPool) ))
 	{
 		INFOMSG("Found DSO: %s", pulse_dso_name.c_str());
 
@@ -130,8 +130,12 @@ void ungrab_pa_syms()
 		apr_dso_unload(sSymPADSOHandleG);
 		sSymPADSOHandleG = NULL;
 	}
-
-	sSymPADSOMemoryPool.destroy();
+	
+	if ( sSymPADSOMemoryPool )
+	{
+		apr_pool_destroy(sSymPADSOMemoryPool);
+		sSymPADSOMemoryPool = NULL;
+	}
 	
 	// NULL-out all of the symbols we'd grabbed
 #define LL_PA_SYM(REQUIRED, PASYM, RTN, ...) do{ll##PASYM = NULL;}while(0)

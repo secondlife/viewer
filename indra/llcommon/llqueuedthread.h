@@ -149,7 +149,7 @@ public:
 	static handle_t nullHandle() { return handle_t(0); }
 	
 public:
-	LLQueuedThread(const std::string& name, bool threaded = true);
+	LLQueuedThread(const std::string& name, bool threaded = true, bool should_pause = false);
 	virtual ~LLQueuedThread();	
 	virtual void shutdown();
 	

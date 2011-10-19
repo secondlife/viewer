@@ -674,6 +674,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mRetryAttempt(0),
 	  mActiveCount(0),
 	  mGetStatus(0),
+	  mWorkMutex(NULL),
 	  mFirstPacket(0),
 	  mLastPacket(-1),
 	  mTotalPackets(0),
@@ -1810,11 +1811,13 @@ bool LLTextureFetchWorker::writeToCacheComplete()
 // public
 
 LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode)
-	: LLWorkerThread("TextureFetch", threaded),
+	: LLWorkerThread("TextureFetch", threaded, true),
 	  mDebugCount(0),
 	  mDebugPause(FALSE),
 	  mPacketCount(0),
 	  mBadPacketCount(0),
+	  mQueueMutex(getAPRPool()),
+	  mNetworkQueueMutex(getAPRPool()),
 	  mTextureCache(cache),
 	  mImageDecodeThread(imagedecodethread),
 	  mTextureBandwidth(0),

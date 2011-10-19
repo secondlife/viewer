@@ -51,7 +51,7 @@ class LLLoadingIndicator
 	LOG_CLASS(LLLoadingIndicator);
 public:
 
-	struct Images : public LLInitParam::Block<Images>
+	struct Images : public LLInitParam::BatchBlock<Images>
 	{
 		Multiple<LLUIImage*>	image;
 
@@ -63,7 +63,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<F32>			images_per_sec;
-		Batch<Images>			images;
+		Optional<Images>		images;
 
 		Params()
 		:	images_per_sec("images_per_sec", 1.0f),

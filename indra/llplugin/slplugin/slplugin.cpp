@@ -176,6 +176,8 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 int main(int argc, char **argv)
 #endif
 {
+	ll_init_apr();
+
 	// Set up llerror logging
 	{
 		LLError::initForApplication(".");
@@ -390,6 +392,8 @@ int main(int argc, char **argv)
 	}
 
 	delete plugin;
+
+	ll_cleanup_apr();
 
 	return 0;
 }

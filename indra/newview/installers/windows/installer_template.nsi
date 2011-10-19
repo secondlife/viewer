@@ -52,10 +52,10 @@ RequestExecutionLevel admin	; on Vista we must be admin because we write to Prog
 !include "%%SOURCE%%\installers\windows\lang_fr.nsi"
 !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
 !include "%%SOURCE%%\installers\windows\lang_it.nsi"
-!include "%%SOURCE%%\installers\windows\lang_ko.nsi"
-!include "%%SOURCE%%\installers\windows\lang_nl.nsi"
 !include "%%SOURCE%%\installers\windows\lang_pl.nsi"
 !include "%%SOURCE%%\installers\windows\lang_pt-br.nsi"
+!include "%%SOURCE%%\installers\windows\lang_ru.nsi"
+!include "%%SOURCE%%\installers\windows\lang_tr.nsi"
 !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
 
 # *TODO: Move these into the language files themselves
@@ -66,11 +66,11 @@ LangString LanguageCode ${LANG_SPANISH}  "es"
 LangString LanguageCode ${LANG_FRENCH}   "fr"
 LangString LanguageCode ${LANG_JAPANESE} "ja"
 LangString LanguageCode ${LANG_ITALIAN}  "it"
-LangString LanguageCode ${LANG_KOREAN}   "ko"
-LangString LanguageCode ${LANG_DUTCH}    "nl"
 LangString LanguageCode ${LANG_POLISH}   "pl"
 LangString LanguageCode ${LANG_PORTUGUESEBR} "pt"
-LangString LanguageCode ${LANG_SIMPCHINESE}  "zh"
+LangString LanguageCode ${LANG_RUSSIAN}  "ru"
+LangString LanguageCode ${LANG_TURKISH}  "tr"
+LangString LanguageCode ${LANG_TRADCHINESE}  "zh"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tweak for different servers/builds (this placeholder is replaced by viewer_manifest.py)

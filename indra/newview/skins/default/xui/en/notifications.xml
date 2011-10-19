@@ -4624,6 +4624,20 @@ Are you sure you want to quit?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmRestoreToybox"
+   type="alertmodal">
+    <unique/>
+Are you sure you want to restore your default buttons and toolbars? 
+    
+You cannot undo this action.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="DeleteItems"
    type="alertmodal">
     <unique/>
@@ -7383,19 +7397,6 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   </notification>
 
   <notification
- name="ModeChange"
- label=""
- type="alertmodal">
-    <unique/>
-    Changing modes requires you to quit and restart.
-    <tag>confirm</tag>
-    <usetemplate
-   name="okcancelbuttons"
-   yestext="Quit"
-   notext="Don't Quit"/>
-    </notification>
-
-  <notification
  name="NoClassifieds"
  label=""
  type="alertmodal">
@@ -7549,6 +7550,20 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    notext="Don't Quit"/>
   </notification>
 
+  <notification
+    name="ConfirmHideUI"
+    label=""
+    type="alertmodal">
+    <unique/>
+    <tag>confirm</tag>
+    This action will hide all menu items and buttons. To get them back, click [SHORTCUT] again.
+    <usetemplate
+      name="okcancelignore"
+      yestext="OK"
+      notext="Cancel"
+      ignoretext="Confirm before hiding UI"/>
+  </notification>
+  
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
