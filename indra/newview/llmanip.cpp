@@ -372,14 +372,14 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 	//LLVector3  center_agent  = LLSelectMgr::getInstance()->getBBoxOfSelection().getCenterAgent();
 	LLVector3  center_agent  = getPivotPoint();
 
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
-		glTranslatef(center_agent.mV[VX], center_agent.mV[VY], center_agent.mV[VZ]);
+		gGL.translatef(center_agent.mV[VX], center_agent.mV[VY], center_agent.mV[VZ]);
 
 		F32 angle_radians, x, y, z;
 
 		grid_rot.getAngleAxis(&angle_radians, &x, &y, &z);
-		glRotatef(angle_radians * RAD_TO_DEG, x, y, z);
+		gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
 		F32 region_size = LLWorld::getInstance()->getRegionWidthInMeters();
 
@@ -416,7 +416,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		}
 		LLUI::setLineWidth(1.0f);
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 void LLManip::renderXYZ(const LLVector3 &vec) 
@@ -466,11 +466,11 @@ void LLManip::renderXYZ(const LLVector3 &vec)
 		feedback_string = llformat("X: %.3f", vec.mV[VX]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *font, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -102.f, (F32)vertical_offset, LLColor4(1.f, 0.5f, 0.5f, 1.f), FALSE);
 
-		glColor3f(0.5f, 1.f, 0.5f);
+		gGL.diffuseColor3f(0.5f, 1.f, 0.5f);
 		feedback_string = llformat("Y: %.3f", vec.mV[VY]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *font, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -27.f, (F32)vertical_offset, LLColor4(0.5f, 1.f, 0.5f, 1.f), FALSE);
 		
-		glColor3f(0.5f, 0.5f, 1.f);
+		gGL.diffuseColor3f(0.5f, 0.5f, 1.f);
 		feedback_string = llformat("Z: %.3f", vec.mV[VZ]);
 		hud_render_text(utf8str_to_wstring(feedback_string), camera_pos, *font, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, 48.f, (F32)vertical_offset, LLColor4(0.5f, 0.5f, 1.f, 1.f), FALSE);
 	}
@@ -481,8 +481,8 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
 	const LLFontGL* big_fontp = LLFontGL::getFontSansSerif();
 
 	BOOL hud_selection = mObjectSelection->getSelectType() == SELECT_TYPE_HUD;
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
 	LLVector3 render_pos = pos;
 	if (hud_selection)
 	{
@@ -490,7 +490,7 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
 		F32 inv_zoom_amt = 1.f / zoom_amt;
 		// scale text back up to counter-act zoom level
 		render_pos = pos * zoom_amt;
-		glScalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
+		gGL.scalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
 	}
 
 	// render shadow first
@@ -501,7 +501,7 @@ void LLManip::renderTickText(const LLVector3& pos, const std::string& text, cons
 	gViewerWindow->setup3DViewport();
 	hud_render_utf8text(text, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(text), 3.f, color, mObjectSelection->getSelectType() == SELECT_TYPE_HUD);
 
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string& suffix, const LLColor4 &color)
@@ -539,8 +539,8 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 	}
 
 	BOOL hud_selection = mObjectSelection->getSelectType() == SELECT_TYPE_HUD;
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
 	LLVector3 render_pos = pos;
 	if (hud_selection)
 	{
@@ -548,7 +548,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 		F32 inv_zoom_amt = 1.f / zoom_amt;
 		// scale text back up to counter-act zoom level
 		render_pos = pos * zoom_amt;
-		glScalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
+		gGL.scalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
 	}
 
 	LLColor4 shadow_color = LLColor4::black;
@@ -573,7 +573,7 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 		gViewerWindow->setup3DViewport();
 		hud_render_utf8text(val_string, render_pos, *big_fontp, LLFontGL::NORMAL, LLFontGL::NO_SHADOW, -0.5f * big_fontp->getWidthF32(val_string), 3.f, color, hud_selection);
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 LLColor4 LLManip::setupSnapGuideRenderPass(S32 pass)

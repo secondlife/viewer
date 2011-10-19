@@ -1034,14 +1034,11 @@ void LLFloaterPreference::refreshEnabledState()
 	}
 	
 	// Vertex Shaders
-	// Global Shader Enable
-	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
 	// radio set for terrain detail mode
 	LLRadioGroup*   mRadioTerrainDetail = getChild<LLRadioGroup>("TerrainDetailRadio");   // can be linked with control var
 	
-	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
-	
-	BOOL shaders = ctrl_shader_enable->get();
+	BOOL shaders = gGLManager.mGLVersion >= 2.f;
+
 	if (shaders)
 	{
 		mRadioTerrainDetail->setValue(1);
@@ -1057,7 +1054,7 @@ void LLFloaterPreference::refreshEnabledState()
 	
 	// *HACK just checks to see if we can use shaders... 
 	// maybe some cards that use shaders, but don't support windlight
-	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+	ctrl_wind_light->setEnabled(shaders);
 
 	//Deferred/SSAO/Shadows
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
@@ -1095,7 +1092,6 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
-	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_avatar_impostors = getChild<LLCheckBoxCtrl>("AvatarImpostors");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
@@ -1106,9 +1102,6 @@ void LLFloaterPreference::disableUnavailableSettings()
 	// if vertex shaders off, disable all shader related products
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
 	{
-		ctrl_shader_enable->setEnabled(FALSE);
-		ctrl_shader_enable->setValue(FALSE);
-		
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
 		
