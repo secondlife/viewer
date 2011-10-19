@@ -118,12 +118,6 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
-	// Changing shader also changes the terrain detail to high, reflect that change here
-	if (newvalue.asBoolean())
-	{
-		// shaders enabled, set terrain detail to high
-		gSavedSettings.setS32("RenderTerrainDetail", 1);
-	}
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
