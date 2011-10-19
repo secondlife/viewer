@@ -110,7 +110,7 @@ image_pressed           "Lit" - there are new messages
 image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well is open
              -->
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  follows="right"
                  halign="center"
                  height="23"
@@ -151,7 +151,7 @@ image_pressed_selected  "Lit" + "Selected" - there are new messages and the Well
              top="5"
              width="35">
         <button
-                 auto_resize="true"
+                 auto_resize="false"
                  bottom_pad="3"
                  follows="right"
                  halign="center"
