@@ -50,7 +50,7 @@
 		<combo_box.item label="Русский (Russian)" name="Russian"/>
 		<combo_box.item label="Türkçe (Turkish)" name="Turkish"/>
 		<combo_box.item label="Українська (Ukrainian)" name="Ukrainian"/>
-		<combo_box.item label="中文 (简体) (Chinese)" name="Chinese"/>
+		<combo_box.item label="中文 (正體) (Chinese)" name="Chinese"/>
 		<combo_box.item label="日本語 (Japanese)" name="Japanese"/>
 		<combo_box.item label="한국어 (Korean)" name="Korean"/>
 	</combo_box>
