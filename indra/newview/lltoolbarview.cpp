@@ -355,6 +355,12 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
+
+			// Second, stop the command if it is in progress and requires stopping!
+			LLCommandId command_id = LLCommandId(uuid);
+			gToolBarView->mToolbarLeft->stopCommandInProgress(command_id);
+			gToolBarView->mToolbarRight->stopCommandInProgress(command_id);
+			gToolBarView->mToolbarBottom->stopCommandInProgress(command_id);
 			
 			// Second, check if the command is present in one of the 3 toolbars
 			// If it is, store the command, the toolbar and the rank in the toolbar and
