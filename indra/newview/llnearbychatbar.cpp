@@ -53,6 +53,8 @@
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
 const S32 EXPANDED_HEIGHT = 300;
+const S32 COLLAPSED_HEIGHT = 60;
+const S32 EXPANDED_MIN_HEIGHT = 150;
 
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
@@ -102,7 +104,7 @@ BOOL LLNearbyChatBar::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
-	mExpandedHeight = getMinHeight() + EXPANDED_HEIGHT;
+	mExpandedHeight = COLLAPSED_HEIGHT + EXPANDED_HEIGHT;
 
 	enableResizeCtrls(true, true, false);
 
@@ -113,11 +115,12 @@ bool LLNearbyChatBar::applyRectControl()
 {
 	bool rect_controlled = LLFloater::applyRectControl();
 	
-	if (getRect().getHeight() > getMinHeight())
+	if (getRect().getHeight() > COLLAPSED_HEIGHT)
 	{
 		getChildView("nearby_chat")->setVisible(true);
 		mExpandedHeight = getRect().getHeight();
 		enableResizeCtrls(true);
+		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 	}
 
 	return rect_controlled;
@@ -373,15 +376,19 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 	if (nearby_chat->getVisible())
 	{
 		mExpandedHeight = getRect().getHeight();
+		setResizeLimits(getMinWidth(), COLLAPSED_HEIGHT);
 		nearby_chat->setVisible(FALSE);
-		reshape(getRect().getWidth(), getMinHeight());
+		reshape(getRect().getWidth(), COLLAPSED_HEIGHT);
 		enableResizeCtrls(true, true, false);
+		storeRectControl();
 	}
 	else
 	{
 		nearby_chat->setVisible(TRUE);
+		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 		reshape(getRect().getWidth(), mExpandedHeight);
 		enableResizeCtrls(true);
+		storeRectControl();
 	}
 }
 
