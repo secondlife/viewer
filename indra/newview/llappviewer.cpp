@@ -773,10 +773,7 @@ bool LLAppViewer::init()
 		LLViewerAssetStatsFF::init();
 	}
 
-	// init main thread's local data pool before initializing the threads - Nyx
-	LLThreadLocalData::init();
-
-    initThreads();
+	initThreads();
 	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ;
 
 	// Initialize settings early so that the defaults for ignorable dialogs are

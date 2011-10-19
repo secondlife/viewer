@@ -122,14 +122,7 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 void LLDrawPoolTerrain::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
-	if (mVertexShaderLevel > 0)
-	{
-		sDetailMode = 1;
-	}
-	else
-	{
-		sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
-	}
+	sDetailMode = gSavedSettings.getS32("RenderTerrainDetail");
 }
 
 void LLDrawPoolTerrain::beginRenderPass( S32 pass )
@@ -137,9 +130,24 @@ void LLDrawPoolTerrain::beginRenderPass( S32 pass )
 	LLFastTimer t(FTM_RENDER_TERRAIN);
 	LLFacePool::beginRenderPass(pass);
 
-	sShader = LLPipeline::sUnderWaterRender ? 
-					&gTerrainWaterProgram :
-					&gTerrainProgram;
+	if (sDetailMode > 0)
+	{
+		sShader = LLPipeline::sUnderWaterRender ? 
+						&gTerrainWaterProgram :
+						&gTerrainProgram;
+	}
+	else
+	{
+		if (LLPipeline::sUnderWaterRender)
+		{
+			sShader = &gObjectSimpleNonIndexedTexGenWaterProgram;
+		}
+		else
+		{
+			sShader = &gObjectSimpleNonIndexedTexGenProgram;
+		}
+	}
+					
 
 	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
@@ -200,7 +208,15 @@ void LLDrawPoolTerrain::render(S32 pass)
 	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
 		gPipeline.enableLightsDynamic();
-		renderFullShader();
+
+		if (sDetailMode > 0)
+		{
+			renderFullShader();
+		}
+		else
+		{
+			renderSimple();
+		}
 	}
 	else
 	{
@@ -827,13 +843,21 @@ void LLDrawPoolTerrain::renderSimple()
 	tp0.setVec(tscale, 0.f, 0.0f, -1.f*(origin_agent.mV[0]/256.f));
 	tp1.setVec(0.f, tscale, 0.0f, -1.f*(origin_agent.mV[1]/256.f));
 	
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-	
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		sShader->uniform4fv("object_plane_s", 1, tp0.mV);
+		sShader->uniform4fv("object_plane_t", 1, tp1.mV);
+	}
+	else
+	{
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
+		glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
+	}
+
 	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 
 	drawLoop();
@@ -843,8 +867,11 @@ void LLDrawPoolTerrain::renderSimple()
 	
 	gGL.getTexUnit(0)->activate();
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
+	}
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);

@@ -1039,16 +1039,8 @@ void LLFloaterPreference::refreshEnabledState()
 	
 	BOOL shaders = gGLManager.mGLVersion >= 2.f;
 
-	if (shaders)
-	{
-		mRadioTerrainDetail->setValue(1);
-		mRadioTerrainDetail->setEnabled(FALSE);
-	}
-	else
-	{
-		mRadioTerrainDetail->setEnabled(TRUE);		
-	}
-	
+	mRadioTerrainDetail->setEnabled(TRUE);		
+		
 	// WindLight
 	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	
