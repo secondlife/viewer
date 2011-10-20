@@ -1071,6 +1071,7 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	if (by_user)
 	{
 		storeRectControl();
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_NONE;
 	}
 
 	// if not minimized, adjust all snapped dependents to new shape
