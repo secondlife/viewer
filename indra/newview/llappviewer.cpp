@@ -520,6 +520,8 @@ static void settings_to_globals()
 
 	LLSurface::setTextureSize(gSavedSettings.getU32("RegionTextureSize"));
 	
+	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
+
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
 	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
 	LLVOVolume::sDistanceFactor			= 1.f-LLVOVolume::sLODFactor * 0.1f;
@@ -588,7 +590,7 @@ static void settings_modify()
 	gSavedSettings.setBOOL("VectorizeSkin", FALSE);
 
 	// disable fullscreen mode, unsupported
-	gSavedSettings.setBOOL("WindowFullScreen", FALSE);
+	//gSavedSettings.setBOOL("WindowFullScreen", FALSE);
 #endif
 }
 
@@ -771,7 +773,7 @@ bool LLAppViewer::init()
 		LLViewerAssetStatsFF::init();
 	}
 
-    initThreads();
+	initThreads();
 	LL_INFOS("InitInfo") << "Threads initialized." << LL_ENDL ;
 
 	// Initialize settings early so that the defaults for ignorable dialogs are
@@ -2893,7 +2895,7 @@ bool LLAppViewer::initWindow()
 		VIEWER_WINDOW_CLASSNAME,
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
 		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
-		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
+		gSavedSettings.getBOOL("FullScreen"), ignorePixelDepth);
 
 	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
 

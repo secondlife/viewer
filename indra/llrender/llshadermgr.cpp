@@ -81,7 +81,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
 	if (features->calculatesAtmospherics)
 	{
-		if (!shader->attachObject("windlight/atmosphericsVarsV.glsl"))
+		if (features->hasWaterFog)
+		{
+			if (!shader->attachObject("windlight/atmosphericsVarsWaterV.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (!shader->attachObject("windlight/atmosphericsVarsV.glsl"))
 		{
 			return FALSE;
 		}
@@ -161,7 +168,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if(features->calculatesAtmospherics)
 	{
-		if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
+		if (features->hasWaterFog)
+		{
+			if (!shader->attachObject("windlight/atmosphericsVarsWaterF.glsl"))
+			{
+				return FALSE;
+			}
+		}
+		else if (!shader->attachObject("windlight/atmosphericsVarsF.glsl"))
 		{
 			return FALSE;
 		}
@@ -241,7 +255,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -280,7 +294,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}		
 	}
@@ -304,7 +318,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		else if (features->hasWaterFog)
@@ -336,7 +350,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -355,7 +369,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -395,7 +409,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 						return FALSE;
 					}
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 	}
@@ -419,7 +433,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 		
@@ -438,10 +452,26 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				{
 					return FALSE;
 				}
-				shader->mFeatures.mIndexedTextureChannels = gGLManager.mNumTextureImageUnits-1;
+				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
 		}
 	}
+
+	if (features->mIndexedTextureChannels <= 1)
+	{
+		if (!shader->attachObject("objects/nonindexedTextureV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (!shader->attachObject("objects/indexedTextureV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	return TRUE;
 }
 
@@ -477,7 +507,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns)
 		}
 		else
 		{
-			LL_DEBUGS("ShaderLoading") << log << LL_ENDL;
+			LL_INFOS("ShaderLoading") << log << LL_ENDL;
 		}
 	}
  }
@@ -531,23 +561,57 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//we can't have any lines longer than 1024 characters 
-	//or any shaders longer than 1024 lines... deal - DaveP
+	//or any shaders longer than 4096 lines... deal - DaveP
 	GLcharARB buff[1024];
-	GLcharARB* text[1024];
+	GLcharARB* text[4096];
 	GLuint count = 0;
 
 	if (gGLManager.mGLVersion < 2.1f)
 	{
 		text[count++] = strdup("#version 110\n");
+		text[count++] = strdup("#define ATTRIBUTE attribute\n");
+		text[count++] = strdup("#define VARYING varying\n");
 	}
 	else if (gGLManager.mGLVersion < 3.f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
+		text[count++] = strdup("#define FXAA_GLSL_120 1\n");
+		text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
+		text[count++] = strdup("#define ATTRIBUTE attribute\n");
+		text[count++] = strdup("#define VARYING varying\n");
 	}
 	else
-	{  //set version to 1.30
-		text[count++] = strdup("#version 130\n");
+	{  
+		if (gGLManager.mGLVersion < 4.f)
+		{
+			//set version to 1.30
+			text[count++] = strdup("#version 130\n");
+		}
+		else
+		{ //set version to 400
+			text[count++] = strdup("#version 400\n");
+		}
+
+		text[count++] = strdup("#define DEFINE_GL_FRAGCOLOR 1\n");
+		text[count++] = strdup("#define FXAA_GLSL_130 1\n");
+
+		text[count++] = strdup("#define ATTRIBUTE in\n");
+
+		if (type == GL_VERTEX_SHADER_ARB)
+		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
+			// ("varying" is deprecated after version 1.20)
+			text[count++] = strdup("#define VARYING out\n");
+		}
+		else
+		{
+			text[count++] = strdup("#define VARYING in\n");
+		}
+
+		//backwards compatibility with legacy texture lookup syntax
+		text[count++] = strdup("#define textureCube texture\n");
+		text[count++] = strdup("#define texture2DLod textureLod\n");
+		text[count++] = strdup("#define	shadow2D texture\n");
 	}
 
 	//copy preprocessor definitions into buffer
@@ -571,7 +635,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		.
 		uniform sampler2D texN;
 		
-		varying float vary_texture_index;
+		VARYING float vary_texture_index;
 
 		vec4 diffuseLookup(vec2 texcoord)
 		{
@@ -597,7 +661,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup(decl.c_str());
 		}
 
-		text[count++] = strdup("varying float vary_texture_index;\n");
+		if (texture_index_channels > 1)
+		{
+			text[count++] = strdup("VARYING float vary_texture_index;\n");
+		}
+
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
 		text[count++] = strdup("{\n");
 		
@@ -649,7 +717,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 
 	//copy file into memory
-	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(buff) ) 
+	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
 	{
 		text[count++] = (GLcharARB *)strdup((char *)buff); 
 	}
@@ -704,14 +772,24 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 				LL_WARNS("ShaderLoading") << "GLSL Compilation Error: (" << error << ") in " << filename << LL_ENDL;
 				dumpObjectLog(ret);
 
+#if LL_WINDOWS
 				std::stringstream ostr;
 				//dump shader source for debugging
 				for (GLuint i = 0; i < count; i++)
 				{
 					ostr << i << ": " << text[i];
+
+					if (i % 128 == 0)
+					{ //dump every 128 lines
+
+						LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+						ostr = std::stringstream();
+					}
+
 				}
 
 				LL_WARNS("ShaderLoading") << "\n" << ostr.str() << llendl;
+#endif // LL_WINDOWS
 
 				ret = 0;
 			}
@@ -817,5 +895,179 @@ BOOL LLShaderMgr::validateProgramObject(GLhandleARB obj)
 	}
 
 	return success;
+}
+
+//virtual
+void LLShaderMgr::initAttribsAndUniforms()
+{
+	//MUST match order of enum in LLVertexBuffer.h
+	mReservedAttribs.push_back("position");
+	mReservedAttribs.push_back("normal");
+	mReservedAttribs.push_back("texcoord0");
+	mReservedAttribs.push_back("texcoord1");
+	mReservedAttribs.push_back("texcoord2");
+	mReservedAttribs.push_back("texcoord3");
+	mReservedAttribs.push_back("diffuse_color");
+	mReservedAttribs.push_back("emissive");
+	mReservedAttribs.push_back("binormal");
+	mReservedAttribs.push_back("weight");
+	mReservedAttribs.push_back("weight4");
+	mReservedAttribs.push_back("clothing");
+	mReservedAttribs.push_back("texture_index");
+	
+	//matrix state
+	mReservedUniforms.push_back("modelview_matrix");
+	mReservedUniforms.push_back("projection_matrix");
+	mReservedUniforms.push_back("inv_proj");
+	mReservedUniforms.push_back("modelview_projection_matrix");
+	mReservedUniforms.push_back("normal_matrix");
+	mReservedUniforms.push_back("texture_matrix0");
+	mReservedUniforms.push_back("texture_matrix1");
+	mReservedUniforms.push_back("texture_matrix2");
+	mReservedUniforms.push_back("texture_matrix3");
+	llassert(mReservedUniforms.size() == LLShaderMgr::TEXTURE_MATRIX3+1);
+
+	mReservedUniforms.push_back("viewport");
+
+	mReservedUniforms.push_back("light_position");
+	mReservedUniforms.push_back("light_direction");
+	mReservedUniforms.push_back("light_attenuation");
+	mReservedUniforms.push_back("light_diffuse");
+	mReservedUniforms.push_back("light_ambient");
+	mReservedUniforms.push_back("light_count");
+	mReservedUniforms.push_back("light");
+	mReservedUniforms.push_back("light_col");
+	mReservedUniforms.push_back("far_z");
+
+	llassert(mReservedUniforms.size() == LLShaderMgr::MULTI_LIGHT_FAR_Z+1);
+
+
+	mReservedUniforms.push_back("proj_mat");
+	mReservedUniforms.push_back("proj_near");
+	mReservedUniforms.push_back("proj_p");
+	mReservedUniforms.push_back("proj_n");
+	mReservedUniforms.push_back("proj_origin");
+	mReservedUniforms.push_back("proj_range");
+	mReservedUniforms.push_back("proj_ambiance");
+	mReservedUniforms.push_back("proj_shadow_idx");
+	mReservedUniforms.push_back("shadow_fade");
+	mReservedUniforms.push_back("proj_focus");
+	mReservedUniforms.push_back("proj_lod");
+	mReservedUniforms.push_back("proj_ambient_lod");
+
+	llassert(mReservedUniforms.size() == LLShaderMgr::PROJECTOR_AMBIENT_LOD+1);
+
+	mReservedUniforms.push_back("color");
+	mReservedUniforms.push_back("highlight_color");
+	
+	mReservedUniforms.push_back("diffuseMap");
+	mReservedUniforms.push_back("specularMap");
+	mReservedUniforms.push_back("bumpMap");
+	mReservedUniforms.push_back("environmentMap");
+	mReservedUniforms.push_back("cloude_noise_texture");
+	mReservedUniforms.push_back("fullbright");
+	mReservedUniforms.push_back("lightnorm");
+	mReservedUniforms.push_back("sunlight_color");
+	mReservedUniforms.push_back("ambient");
+	mReservedUniforms.push_back("blue_horizon");
+	mReservedUniforms.push_back("blue_density");
+	mReservedUniforms.push_back("haze_horizon");
+	mReservedUniforms.push_back("haze_density");
+	mReservedUniforms.push_back("cloud_shadow");
+	mReservedUniforms.push_back("density_multiplier");
+	mReservedUniforms.push_back("distance_multiplier");
+	mReservedUniforms.push_back("max_y");
+	mReservedUniforms.push_back("glow");
+	mReservedUniforms.push_back("cloud_color");
+	mReservedUniforms.push_back("cloud_pos_density1");
+	mReservedUniforms.push_back("cloud_pos_density2");
+	mReservedUniforms.push_back("cloud_scale");
+	mReservedUniforms.push_back("gamma");
+	mReservedUniforms.push_back("scene_light_strength");
+
+	llassert(mReservedUniforms.size() == LLShaderMgr::SCENE_LIGHT_STRENGTH+1);
+
+	mReservedUniforms.push_back("center");
+	mReservedUniforms.push_back("size");
+	mReservedUniforms.push_back("falloff");
+
+
+	mReservedUniforms.push_back("minLuminance");
+	mReservedUniforms.push_back("maxExtractAlpha");
+	mReservedUniforms.push_back("lumWeights");
+	mReservedUniforms.push_back("warmthWeights");
+	mReservedUniforms.push_back("warmthAmount");
+	mReservedUniforms.push_back("glowStrength");
+	mReservedUniforms.push_back("glowDelta");
+
+	llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_DELTA+1);
+
+	mReservedUniforms.push_back("shadow_matrix");
+	mReservedUniforms.push_back("env_mat");
+	mReservedUniforms.push_back("shadow_clip");
+	mReservedUniforms.push_back("sun_wash");
+	mReservedUniforms.push_back("shadow_noise");
+	mReservedUniforms.push_back("blur_size");
+	mReservedUniforms.push_back("ssao_radius");
+	mReservedUniforms.push_back("ssao_max_radius");
+	mReservedUniforms.push_back("ssao_factor");
+	mReservedUniforms.push_back("ssao_factor_inv");
+	mReservedUniforms.push_back("ssao_effect_mat");
+	mReservedUniforms.push_back("screen_res");
+	mReservedUniforms.push_back("near_clip");
+	mReservedUniforms.push_back("shadow_offset");
+	mReservedUniforms.push_back("shadow_bias");
+	mReservedUniforms.push_back("spot_shadow_bias");
+	mReservedUniforms.push_back("spot_shadow_offset");
+	mReservedUniforms.push_back("sun_dir");
+	mReservedUniforms.push_back("shadow_res");
+	mReservedUniforms.push_back("proj_shadow_res");
+	mReservedUniforms.push_back("depth_cutoff");
+	mReservedUniforms.push_back("norm_cutoff");
+	
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_NORM_CUTOFF+1);
+
+	mReservedUniforms.push_back("tc_scale");
+	mReservedUniforms.push_back("rcp_screen_res");
+	mReservedUniforms.push_back("rcp_frame_opt");
+	mReservedUniforms.push_back("rcp_frame_opt2");
+	
+	mReservedUniforms.push_back("focal_distance");
+	mReservedUniforms.push_back("blur_constant");
+	mReservedUniforms.push_back("tan_pixel_angle");
+	mReservedUniforms.push_back("magnification");
+
+	mReservedUniforms.push_back("depthMap");
+	mReservedUniforms.push_back("shadowMap0");
+	mReservedUniforms.push_back("shadowMap1");
+	mReservedUniforms.push_back("shadowMap2");
+	mReservedUniforms.push_back("shadowMap3");
+	mReservedUniforms.push_back("shadowMap4");
+	mReservedUniforms.push_back("shadowMap5");
+
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW5+1);
+
+	mReservedUniforms.push_back("normalMap");
+	mReservedUniforms.push_back("positionMap");
+	mReservedUniforms.push_back("diffuseRect");
+	mReservedUniforms.push_back("specularRect");
+	mReservedUniforms.push_back("noiseMap");
+	mReservedUniforms.push_back("lightFunc");
+	mReservedUniforms.push_back("lightMap");
+	mReservedUniforms.push_back("bloomMap");
+	mReservedUniforms.push_back("projectionMap");
+
+	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
+
+	std::set<std::string> dupe_check;
+
+	for (U32 i = 0; i < mReservedUniforms.size(); ++i)
+	{
+		if (dupe_check.find(mReservedUniforms[i]) != dupe_check.end())
+		{
+			llerrs << "Duplicate reserved uniform name found: " << mReservedUniforms[i] << llendl;
+		}
+		dupe_check.insert(mReservedUniforms[i]);
+	}
 }
 

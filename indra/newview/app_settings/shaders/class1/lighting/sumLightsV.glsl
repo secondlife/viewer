@@ -23,7 +23,8 @@
  * $/LicenseInfo$
  */
  
-
+uniform vec4 light_position[8];
+uniform vec3 light_diffuse[8];
 
 float calcDirectionalLight(vec3 n, vec3 l);
 
@@ -36,10 +37,10 @@ vec4 sumLights(vec3 pos, vec3 norm, vec4 color, vec4 baseLight)
 	vec4 col;
 	col.a = color.a;
 	
-	col.rgb = gl_LightSource[1].diffuse.rgb * calcDirectionalLight(norm, gl_LightSource[1].position.xyz);
+	col.rgb = light_diffuse[1].rgb * calcDirectionalLight(norm, light_position[1].xyz);
 	col.rgb = scaleDownLight(col.rgb);
 	col.rgb += atmosAmbient(baseLight.rgb);
-	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, gl_LightSource[0].position.xyz));
+	col.rgb += atmosAffectDirectionalLight(calcDirectionalLight(norm, light_position[0].xyz));
 	
 	col.rgb = min(col.rgb*color.rgb, 1.0);
 	

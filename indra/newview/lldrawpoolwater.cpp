@@ -59,6 +59,8 @@ BOOL LLDrawPoolWater::sSkipScreenCopy = FALSE;
 BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
 LLColor4 LLDrawPoolWater::sWaterFogColor = LLColor4(0.2f, 0.5f, 0.5f, 0.f);
+F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
+
 LLVector3 LLDrawPoolWater::sLightDir;
 
 LLDrawPoolWater::LLDrawPoolWater() :
@@ -219,7 +221,7 @@ void LLDrawPoolWater::render(S32 pass)
 		water_color.setVec(1.f, 1.f, 1.f, 0.5f*(1.f + up_dot));
 	}
 
-	glColor4fv(water_color.mV);
+	gGL.diffuseColor4fv(water_color.mV);
 
 	// Automatically generate texture coords for detail map
 	glEnable(GL_TEXTURE_GEN_S); //texture unit 1
@@ -275,15 +277,15 @@ void LLDrawPoolWater::render(S32 pass)
 		gSky.mVOSkyp->getCubeMap()->enable(0);
 		gSky.mVOSkyp->getCubeMap()->bind();
 
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadIdentity();
 		LLMatrix4 camera_mat = LLViewerCamera::getInstance()->getModelview();
 		LLMatrix4 camera_rot(camera_mat.getMat3());
 		camera_rot.invert();
 
-		glLoadMatrixf((F32 *)camera_rot.mMatrix);
+		gGL.loadMatrix((F32 *)camera_rot.mMatrix);
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		LLOverrideFaceColor overrid(this, 1.f, 1.f, 1.f,  0.5f*up_dot);
 
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
@@ -310,9 +312,9 @@ void LLDrawPoolWater::render(S32 pass)
 		
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		
 	}
 
@@ -331,6 +333,21 @@ void LLDrawPoolWater::render(S32 pass)
 void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
 	LLVOSky *voskyp = gSky.mVOSkyp;
+
+	LLGLSLShader* shader = NULL;
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		if (LLPipeline::sUnderWaterRender)
+		{
+			shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
+		}
+		else
+		{
+			shader = &gObjectSimpleNonIndexedTexGenProgram;
+		}
+
+		shader->bind();
+	}
 
 	stop_glerror();
 
@@ -354,10 +371,13 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	gGL.getTexUnit(0)->bind(mOpaqueWaterImagep);
 
 	// Automatically generate texture coords for water texture
-	glEnable(GL_TEXTURE_GEN_S); //texture unit 0
-	glEnable(GL_TEXTURE_GEN_T); //texture unit 0
-	glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-	glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	if (!shader)
+	{
+		glEnable(GL_TEXTURE_GEN_S); //texture unit 0
+		glEnable(GL_TEXTURE_GEN_T); //texture unit 0
+		glTexGenf(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+		glTexGenf(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	}
 
 	// Use the fact that we know all water faces are the same size
 	// to save some computation
@@ -380,10 +400,18 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	F32 tp0[4] = { 16.f / 256.f, 0.0f, 0.0f, offset };
 	F32 tp1[4] = { 0.0f, 16.f / 256.f, 0.0f, offset };
 
-	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
-	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+	if (!shader)
+	{
+		glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
+		glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
+	}
+	else
+	{
+		shader->uniform4fv("object_plane_s", 1, tp0);
+		shader->uniform4fv("object_plane_t", 1, tp1);
+	}
 
-	glColor3f(1.f, 1.f, 1.f);
+	gGL.diffuseColor3f(1.f, 1.f, 1.f);
 
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
@@ -399,9 +427,12 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 
 	stop_glerror();
 
-	// Reset the settings back to expected values
-	glDisable(GL_TEXTURE_GEN_S); //texture unit 0
-	glDisable(GL_TEXTURE_GEN_T); //texture unit 0
+	if (!shader)
+	{
+		// Reset the settings back to expected values
+		glDisable(GL_TEXTURE_GEN_S); //texture unit 0
+		glDisable(GL_TEXTURE_GEN_T); //texture unit 0
+	}
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
@@ -622,8 +653,6 @@ void LLDrawPoolWater::shade()
 	{
 		water_color.mV[3] = 0.9f;
 	}
-
-	glColor4fv(water_color.mV);
 
 	{
 		LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);

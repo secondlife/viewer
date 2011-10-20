@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llviewerobject.h
  * @brief Description of LLViewerObject class, which is the base class for most objects in the viewer.
  *
@@ -811,7 +811,7 @@ public:
 
 	virtual F32 getPartSize(S32 idx);
 	virtual void getGeometry(S32 idx,
-								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector4a>& verticesp,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
