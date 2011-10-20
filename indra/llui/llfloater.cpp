@@ -1479,6 +1479,7 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 		if(offerClickToButton(x, y, mask, BUTTON_CLOSE)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_RESTORE)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_TEAR_OFF)) return TRUE;
+		if(offerClickToButton(x, y, mask, BUTTON_DOCK)) return TRUE;
 
 		// Otherwise pass to drag handle for movement
 		return mDragHandle->handleMouseDown(x, y, mask);
@@ -1584,6 +1585,12 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	{
 		mDocked = docked;
 		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
+
+		if (mDocked)
+		{
+			setMinimized(FALSE);
+		}
+
 		updateTitleButtons();
 
 		storeDockStateControl();
