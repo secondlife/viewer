@@ -147,3 +147,12 @@ LLDebugView::~LLDebugView()
 	gTextureCategoryView = NULL;
 }
 
+void LLDebugView::draw()
+{
+	LLView* floater_snap_region = getRootView()->getChildView("floater_snap_region");
+	LLRect debug_rect;
+	floater_snap_region->localRectToOtherView(floater_snap_region->getLocalRect(), &debug_rect, getParent());
+
+	setShape(debug_rect);
+	LLView::draw();
+}

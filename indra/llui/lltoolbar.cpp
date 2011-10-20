@@ -217,7 +217,7 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 	if ((rank >= mButtonCommands.size()) || (rank == RANK_NONE))
 	{
 		// In that case, back load
-		mButtonCommands.push_back(commandId);
+		mButtonCommands.push_back(command->id());
 		mButtons.push_back(button);
 	}
 	else 
@@ -232,7 +232,7 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 			rank--;
 		}
 		// ...then insert
-		mButtonCommands.insert(it_command,commandId);
+		mButtonCommands.insert(it_command, command->id());
 		mButtons.insert(it_button,button);
 	}
 
@@ -821,7 +821,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	if (!commandp) return NULL;
 
 	LLToolBarButton::Params button_p;
-	button_p.name = id.name();
+	button_p.name = commandp->name();
 	button_p.label = LLTrans::getString(commandp->labelRef());
 	button_p.tool_tip = LLTrans::getString(commandp->tooltipRef());
 	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
@@ -999,13 +999,13 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	{
 		if (!mIsDragged)
 		{
-			mStartDragItemCallback(x,y,mId.uuid());
+			mStartDragItemCallback(x, y, this);
 			mIsDragged = true;
 			handled = TRUE;
 		}
 		else 
 		{
-			handled = mHandleDragItemCallback(x,y,mId.uuid(),LLAssetType::AT_WIDGET);
+			handled = mHandleDragItemCallback(x, y, mId.uuid(), LLAssetType::AT_WIDGET);
 		}
 	}
 	else

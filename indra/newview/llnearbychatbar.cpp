@@ -114,15 +114,19 @@ BOOL LLNearbyChatBar::postBuild()
 bool LLNearbyChatBar::applyRectControl()
 {
 	bool rect_controlled = LLFloater::applyRectControl();
-	
-	if (getRect().getHeight() > COLLAPSED_HEIGHT)
+
+	LLView* nearby_chat = getChildView("nearby_chat");	
+	if (!nearby_chat->getVisible())
 	{
-		getChildView("nearby_chat")->setVisible(true);
-		mExpandedHeight = getRect().getHeight();
+		reshape(getRect().getWidth(), getMinHeight());
+		enableResizeCtrls(true, true, false);
+	}
+	else
+	{
 		enableResizeCtrls(true);
 		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
 	}
-
+	
 	return rect_controlled;
 }
 
