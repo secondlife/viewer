@@ -5090,6 +5090,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 	// Ambient
 	if (!LLGLSLShader::sNoFixedFunction)
 	{
+		gGL.syncMatrices();
 		LLColor4 ambient = gSky.getTotalAmbientColor();
 		gGL.setAmbientLightColor(ambient);
 	}
