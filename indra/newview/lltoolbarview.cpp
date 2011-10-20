@@ -128,7 +128,7 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 	}
 	else 
 	{
-		llwarns	<< "Toolbars creation : the command " << command.name() << " cannot be found in the command manager" << llendl;
+		llwarns	<< "Toolbars creation : the command with id " << command.uuid().asString() << " cannot be found in the command manager" << llendl;
 		return false;
 	}
 	return true;
@@ -193,9 +193,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.left_toolbar.button_display_mode;
 			mToolbarLeft->setButtonType(button_type);
 		}
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
+		BOOST_FOREACH(const LLCommandId::Params& command_name_param, toolbar_set.left_toolbar.commands)
 		{
-			addCommand(LLCommandId(command),mToolbarLeft);
+			if (addCommand(LLCommandId(command_name_param), mToolbarLeft) == false)
+			{
+				llwarns << "Error adding command '" << command_name_param.name() << "' to left toolbar." << llendl;
+			}
 		}
 	}
 	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
@@ -205,9 +208,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.right_toolbar.button_display_mode;
 			mToolbarRight->setButtonType(button_type);
 		}
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
+		BOOST_FOREACH(const LLCommandId::Params& command_name_param, toolbar_set.right_toolbar.commands)
 		{
-			addCommand(LLCommandId(command),mToolbarRight);
+			if (addCommand(LLCommandId(command_name_param), mToolbarRight) == false)
+			{
+				llwarns << "Error adding command '" << command_name_param.name() << "' to right toolbar." << llendl;
+			}
 		}
 	}
 	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
@@ -217,9 +223,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.bottom_toolbar.button_display_mode;
 			mToolbarBottom->setButtonType(button_type);
 		}
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
+		BOOST_FOREACH(const LLCommandId::Params& command_name_param, toolbar_set.bottom_toolbar.commands)
 		{
-			addCommand(LLCommandId(command),mToolbarBottom);
+			if (addCommand(LLCommandId(command_name_param), mToolbarBottom) == false)
+			{
+				llwarns << "Error adding command '" << command_name_param.name() << "' to bottom toolbar." << llendl;
+			}
 		}
 	}
 	return true;
@@ -289,9 +298,9 @@ void LLToolBarView::addToToolset(command_id_list_t& command_list, Toolbar& toolb
 		LLCommand* command = mgr.getCommand(*it);
 		if (command)
 		{
-			LLCommandId::Params commandParams;
-			commandParams.name = command->id().name();
-			toolbar.commands.add(commandParams);
+			LLCommandId::Params command_name_param;
+			command_name_param.name = command->name();
+			toolbar.commands.add(command_name_param);
 		}
 	}
 }

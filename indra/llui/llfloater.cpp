@@ -875,7 +875,8 @@ bool LLFloater::applyRectControl()
 {
 	bool saved_rect = false;
 
-	if (LLFloaterReg::getLastFloaterInGroup(mInstanceName))
+	LLFloater* last_in_group = LLFloaterReg::getLastFloaterInGroup(mInstanceName);
+	if (last_in_group && last_in_group != this)
 	{
 		// other floaters in our group, position ourselves relative to them and don't save the rect
 		mRectControl.clear();
@@ -1589,6 +1590,7 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 		if (mDocked)
 		{
 			setMinimized(FALSE);
+			mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_NONE;
 		}
 
 		updateTitleButtons();
