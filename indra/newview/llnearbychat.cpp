@@ -214,9 +214,10 @@ void LLNearbyChat::updateChatHistoryStyle()
 //static 
 void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
-	//LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-	//if(nearby_chat)
-	//	nearby_chat->updateChatHistoryStyle();
+	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
+	if(nearby_chat)
+		nearby_chat->updateChatHistoryStyle();
 }
 
 bool isWordsName(const std::string& name)
