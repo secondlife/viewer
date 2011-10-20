@@ -196,7 +196,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 		return;
 	}
 	// Render simplified land if video card can't do sufficient multitexturing
-	if (!gGLManager.mHasARBEnvCombine || (gGLManager.mNumTextureUnits < 2))
+	if (!LLGLSLShader::sNoFixedFunction || !gGLManager.mHasARBEnvCombine || (gGLManager.mNumTextureUnits < 2))
 	{
 		renderSimple(); // Render without multitexture
 		return;
