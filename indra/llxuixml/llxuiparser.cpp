@@ -51,6 +51,14 @@ static 	LLInitParam::Parser::parser_read_func_map_t sXSDReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sXSDWriteFuncs;
 static 	LLInitParam::Parser::parser_inspect_func_map_t sXSDInspectFuncs;
 
+static 	LLInitParam::Parser::parser_read_func_map_t sSimpleXUIReadFuncs;
+static 	LLInitParam::Parser::parser_write_func_map_t sSimpleXUIWriteFuncs;
+static 	LLInitParam::Parser::parser_inspect_func_map_t sSimpleXUIInspectFuncs;
+
+const char* NO_VALUE_MARKER = "no_value";
+
+const S32 LINE_NUMBER_HERE = 0;
+
 struct MaxOccur : public LLInitParam::ChoiceBlock<MaxOccur>
 {
 	Alternative<int> count;
@@ -1190,12 +1198,6 @@ struct ScopedFile
 
 	LLFILE* mFile;
 };
-static 	LLInitParam::Parser::parser_read_func_map_t sSimpleXUIReadFuncs;
-static 	LLInitParam::Parser::parser_write_func_map_t sSimpleXUIWriteFuncs;
-static 	LLInitParam::Parser::parser_inspect_func_map_t sSimpleXUIInspectFuncs;
-
-const char* NO_VALUE_MARKER = "no_value";
-
 LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t element_cb)
 :	Parser(sSimpleXUIReadFuncs, sSimpleXUIWriteFuncs, sSimpleXUIInspectFuncs),
 	mCurReadDepth(0),
@@ -1300,6 +1302,11 @@ void LLSimpleXUIParser::characterDataHandler(void *userData, const char *s, int 
 	self->characterData(s, len);
 }
 
+void LLSimpleXUIParser::characterData(const char *s, int len)
+{
+	mTextContents += std::string(s, len);
+}
+
 void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 {
 	processText();
@@ -1372,6 +1379,37 @@ void LLSimpleXUIParser::startElement(const char *name, const char **atts)
 
 }
 
+void LLSimpleXUIParser::endElement(const char *name)
+{
+	bool has_text = processText();
+
+	// no text, attributes, or children
+	if (!has_text && mEmptyLeafNode.back())
+	{
+		// submit this as a valueless name (even though there might be text contents we haven't seen yet)
+		mCurAttributeValueBegin = NO_VALUE_MARKER;
+		mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
+	}
+
+	if (--mOutputStack.back().second == 0)
+	{
+		if (mOutputStack.empty())
+		{
+			LL_ERRS("ReadXUI") << "Parameter block output stack popped while empty." << LL_ENDL;
+		}
+		mOutputStack.pop_back();
+	}
+
+	S32 num_tokens_to_pop = mTokenSizeStack.back();
+	mTokenSizeStack.pop_back();
+	while(num_tokens_to_pop-- > 0)
+	{
+		mNameStack.pop_back();
+	}
+	mScope.pop_back();
+	mEmptyLeafNode.pop_back();
+}
+
 bool LLSimpleXUIParser::readAttributes(const char **atts)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -1421,43 +1459,6 @@ bool LLSimpleXUIParser::processText()
 	return false;
 }
 
-void LLSimpleXUIParser::endElement(const char *name)
-{
-	bool has_text = processText();
-
-	// no text, attributes, or children
-	if (!has_text && mEmptyLeafNode.back())
-	{
-		// submit this as a valueless name (even though there might be text contents we haven't seen yet)
-		mCurAttributeValueBegin = NO_VALUE_MARKER;
-		mOutputStack.back().first->submitValue(mNameStack, *this, mParseSilently);
-	}
-
-	if (--mOutputStack.back().second == 0)
-	{
-		if (mOutputStack.empty())
-		{
-			LL_ERRS("ReadXUI") << "Parameter block output stack popped while empty." << LL_ENDL;
-		}
-		mOutputStack.pop_back();
-	}
-
-	S32 num_tokens_to_pop = mTokenSizeStack.back();
-	mTokenSizeStack.pop_back();
-	while(num_tokens_to_pop-- > 0)
-	{
-		mNameStack.pop_back();
-	}
-	mScope.pop_back();
-	mEmptyLeafNode.pop_back();
-}
-
-void LLSimpleXUIParser::characterData(const char *s, int len)
-{
-	mTextContents += std::string(s, len);
-}
-
-
 /*virtual*/ std::string LLSimpleXUIParser::getCurrentElementName()
 {
 	std::string full_name;
@@ -1470,8 +1471,6 @@ void LLSimpleXUIParser::characterData(const char *s, int len)
 
 	return full_name;
 }
-
-const S32 LINE_NUMBER_HERE = 0;
 
 void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
