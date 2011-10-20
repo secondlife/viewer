@@ -685,7 +685,12 @@ void LLFloater::openFloater(const LLSD& key)
 	}
 	else
 	{
-		applyControlsAndPosition(LLFloaterReg::getLastFloaterCascading());
+		LLFloater* floater_to_stack = LLFloaterReg::getLastFloaterInGroup(mInstanceName);
+		if (!floater_to_stack)
+		{
+			floater_to_stack = LLFloaterReg::getLastFloaterCascading();
+		}
+		applyControlsAndPosition(floater_to_stack);
 		setMinimized(FALSE);
 		setVisibleAndFrontmost(mAutoFocus);
 	}
