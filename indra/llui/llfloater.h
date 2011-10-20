@@ -120,6 +120,7 @@ public:
 								short_title;
 		
 		Optional<bool>			single_instance,
+								reuse_instance,
 								can_resize,
 								can_minimize,
 								can_close,
@@ -409,6 +410,7 @@ private:
 	LLUIString		mShortTitle;
 	
 	BOOL			mSingleInstance;	// TRUE if there is only ever one instance of the floater
+	bool			mReuseInstance;		// true if we want to hide the floater when we close it instead of destroying it
 	std::string		mInstanceName;		// Store the instance name so we can remove ourselves from the list
 	
 	BOOL			mCanTearOff;

@@ -76,11 +76,10 @@ public:
 
 	static bool loadDefaultToolbars();
 	
-	static void startDragTool( S32 x, S32 y, const LLUUID& uuid);
-	static BOOL handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
-	static BOOL handleDropTool(	void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
-	static void stopDragTool();
-	void onEndDrag();
+	static void startDragTool(S32 x, S32 y, LLToolBarButton* button);
+	static BOOL handleDragTool(S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
+	static BOOL handleDropTool(void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
+	static void resetDragTool(LLToolBarButton* button);
 
 	bool isModified() const;
 	
@@ -100,10 +99,8 @@ private:
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
 	
-	LLCommandId mDragCommand;
-	int			mDragRank;
-	LLToolBar*	mDragToolbar;
-	bool		mDragStarted;
+	bool				mDragStarted;
+	LLToolBarButton*	mDragToolbarButton;
 };
 
 extern LLToolBarView* gToolBarView;

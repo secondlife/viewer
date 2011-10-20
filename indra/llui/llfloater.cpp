@@ -165,6 +165,7 @@ LLFloater::Params::Params()
 :	title("title"),
 	short_title("short_title"),
 	single_instance("single_instance", false),
+	reuse_instance("reuse_instance", false),
 	can_resize("can_resize", false),
 	can_minimize("can_minimize", true),
 	can_close("can_close", true),
@@ -239,6 +240,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
+	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
 	mKey(key),
 	mCanTearOff(p.can_tear_off),
 	mCanMinimize(p.can_minimize),
@@ -683,7 +685,12 @@ void LLFloater::openFloater(const LLSD& key)
 	}
 	else
 	{
-		applyControlsAndPosition(LLFloaterReg::getLastFloaterCascading());
+		LLFloater* floater_to_stack = LLFloaterReg::getLastFloaterInGroup(mInstanceName);
+		if (!floater_to_stack)
+		{
+			floater_to_stack = LLFloaterReg::getLastFloaterCascading();
+		}
+		applyControlsAndPosition(floater_to_stack);
 		setMinimized(FALSE);
 		setVisibleAndFrontmost(mAutoFocus);
 	}
@@ -776,12 +783,19 @@ void LLFloater::closeFloater(bool app_quitting)
 			else
 			{
 				setVisible(FALSE);
+				if (!mReuseInstance)
+				{
+					destroy();
+				}
 			}
 		}
 		else
 		{
 			setVisible(FALSE); // hide before destroying (so handleVisibilityChange() gets called)
-			destroy();
+			if (!mReuseInstance)
+			{
+				destroy();
+			}
 		}
 	}
 }
@@ -861,9 +875,15 @@ bool LLFloater::applyRectControl()
 {
 	bool saved_rect = false;
 
-	// If we have a saved rect, use it
-	if (mRectControl.size() > 1)
+	if (LLFloaterReg::getLastFloaterInGroup(mInstanceName))
 	{
+		// other floaters in our group, position ourselves relative to them and don't save the rect
+		mRectControl.clear();
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_CASCADING;
+	}
+	else if (mRectControl.size() > 1)
+	{
+		// If we have a saved rect, use it
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		saved_rect = rect.notEmpty();
 		if (saved_rect)
@@ -1051,6 +1071,7 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	if (by_user)
 	{
 		storeRectControl();
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_NONE;
 	}
 
 	// if not minimized, adjust all snapped dependents to new shape
@@ -1382,7 +1403,10 @@ void LLFloater::moveResizeHandlesToFront()
 
 BOOL LLFloater::isFrontmost()
 {
-	return gFloaterView && gFloaterView->getFrontmost() == this && getVisible();
+	LLFloaterView* floater_view = getParentByType<LLFloaterView>();
+	return getVisible()
+			&& (floater_view 
+				&& floater_view->getFrontmost() == this);
 }
 
 void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
@@ -1455,6 +1479,7 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 		if(offerClickToButton(x, y, mask, BUTTON_CLOSE)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_RESTORE)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_TEAR_OFF)) return TRUE;
+		if(offerClickToButton(x, y, mask, BUTTON_DOCK)) return TRUE;
 
 		// Otherwise pass to drag handle for movement
 		return mDragHandle->handleMouseDown(x, y, mask);
@@ -1560,6 +1585,12 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	{
 		mDocked = docked;
 		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
+
+		if (mDocked)
+		{
+			setMinimized(FALSE);
+		}
+
 		updateTitleButtons();
 
 		storeDockStateControl();
@@ -2949,6 +2980,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
+	mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
 
 	mOpenPositioning = p.open_positioning;
 	mSpecifiedLeft = p.specified_left;
@@ -3230,7 +3262,6 @@ void LLFloater::stackWith(LLFloater& other)
 
 	next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, getRect().getWidth(), getRect().getHeight());
 	
-	mRectControl.clear(); // don't save rect of stacked floaters
 	setShape(next_rect);
 }
 

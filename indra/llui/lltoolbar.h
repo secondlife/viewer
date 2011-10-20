@@ -36,8 +36,9 @@
 #include "llassettype.h"
 
 class LLToolBar;
+class LLToolBarButton;
 
-typedef boost::function<void (S32 x, S32 y, const LLUUID& uuid)> tool_startdrag_callback_t;
+typedef boost::function<void (S32 x, S32 y, LLToolBarButton* button)> tool_startdrag_callback_t;
 typedef boost::function<BOOL (S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type)> tool_handledrag_callback_t;
 typedef boost::function<BOOL (void* data, S32 x, S32 y, LLToolBar* toolbar)> tool_handledrop_callback_t;
 

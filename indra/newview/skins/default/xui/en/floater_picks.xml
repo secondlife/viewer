@@ -10,6 +10,7 @@
  name="floater_picks"
  save_rect="true"
  save_visibility="true"
+ reuse_instance="true"
  title="Picks"
  width="333" >
    <panel
