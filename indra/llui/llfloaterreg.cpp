@@ -167,6 +167,7 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 				res->setInstanceName(name);
 
 				LLFloater *last_floater = (list.empty() ? NULL : list.back());
+
 				res->applyControlsAndPosition(last_floater);
 
 				gFloaterView->adjustToFitScreen(res, false);

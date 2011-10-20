@@ -165,6 +165,7 @@ LLFloater::Params::Params()
 :	title("title"),
 	short_title("short_title"),
 	single_instance("single_instance", false),
+	reuse_instance("reuse_instance", false),
 	can_resize("can_resize", false),
 	can_minimize("can_minimize", true),
 	can_close("can_close", true),
@@ -239,6 +240,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
+	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
 	mKey(key),
 	mCanTearOff(p.can_tear_off),
 	mCanMinimize(p.can_minimize),
@@ -776,12 +778,19 @@ void LLFloater::closeFloater(bool app_quitting)
 			else
 			{
 				setVisible(FALSE);
+				if (!mReuseInstance)
+				{
+					destroy();
+				}
 			}
 		}
 		else
 		{
 			setVisible(FALSE); // hide before destroying (so handleVisibilityChange() gets called)
-			destroy();
+			if (!mReuseInstance)
+			{
+				destroy();
+			}
 		}
 	}
 }
@@ -861,9 +870,15 @@ bool LLFloater::applyRectControl()
 {
 	bool saved_rect = false;
 
-	// If we have a saved rect, use it
-	if (mRectControl.size() > 1)
+	if (LLFloaterReg::getLastFloaterInGroup(mInstanceName))
 	{
+		// other floaters in our group, position ourselves relative to them and don't save the rect
+		mRectControl.clear();
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_CASCADING;
+	}
+	else if (mRectControl.size() > 1)
+	{
+		// If we have a saved rect, use it
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		saved_rect = rect.notEmpty();
 		if (saved_rect)
@@ -2949,6 +2964,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
+	mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
 
 	mOpenPositioning = p.open_positioning;
 	mSpecifiedLeft = p.specified_left;
@@ -3230,7 +3246,6 @@ void LLFloater::stackWith(LLFloater& other)
 
 	next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, getRect().getWidth(), getRect().getHeight());
 	
-	mRectControl.clear(); // don't save rect of stacked floaters
 	setShape(next_rect);
 }
 

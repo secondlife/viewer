@@ -10,6 +10,7 @@
  name="floater_my_inventory"
  save_rect="true"
  save_visibility="true"
+ reuse_instance="false"
  title="INVENTORY"
  width="333" >
    <panel
