@@ -39,7 +39,6 @@
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
 	: LLFloater(key)
-	, mBtnRestoreDefaults(NULL)
 	, mToolBar(NULL)
 {
 	mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", boost::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
@@ -59,20 +58,19 @@ bool compare_localized_command_labels(LLCommand * cmd1, LLCommand * cmd2)
 
 BOOL LLFloaterToybox::postBuild()
 {	
-	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
+
 	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
 	mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 	mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 	
-	LLCommandManager& cmdMgr = LLCommandManager::instance();
-
 	//
 	// Sort commands by localized labels so they will appear alphabetized in all languages
 	//
 
 	std::list<LLCommand *> alphabetized_commands;
 
+	LLCommandManager& cmdMgr = LLCommandManager::instance();
 	for (U32 i = 0; i < cmdMgr.commandCount(); i++)
 	{
 		LLCommand * command = cmdMgr.getCommand(i);
