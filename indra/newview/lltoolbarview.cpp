@@ -29,6 +29,7 @@
 
 #include "lltoolbarview.h"
 
+#include "llappviewer.h"
 #include "lldir.h"
 #include "llxmlnode.h"
 #include "lltoolbar.h"
@@ -36,11 +37,17 @@
 #include "lltooldraganddrop.h"
 #include "llclipboard.h"
 
+#include "llagent.h"  // HACK for destinations guide on startup
+#include "llfloaterreg.h"  // HACK for destinations guide on startup
+#include "llviewercontrol.h"  // HACK for destinations guide on startup
+
 #include <boost/foreach.hpp>
 
 LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
+
+void handleLoginToolbarSetup();
 
 bool isToolDragged()
 {
@@ -97,6 +104,8 @@ BOOL LLToolBarView::postBuild()
 	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
 	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&handleLoginToolbarSetup));
 	
 	return TRUE;
 }
@@ -466,3 +475,18 @@ bool LLToolBarView::isModified() const
 
 	return modified;
 }
+
+
+//
+// HACK to bring up destinations guide at startup
+//
+
+void handleLoginToolbarSetup()
+{
+	// Open the destinations guide by default on first login, per Rhett
+	if (gSavedSettings.getBOOL("FirstLoginThisInstall") || gAgent.isFirstLogin())
+	{
+		LLFloaterReg::showInstance("destinations");
+	}
+}
+
