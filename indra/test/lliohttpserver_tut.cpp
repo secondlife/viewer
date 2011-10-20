@@ -76,12 +76,14 @@ namespace tut
 		HTTPServiceTestData()
 			: mResponse(NULL)
 		{
+			apr_pool_create(&mPool, NULL);
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(mRoot);
 			mRoot.addNode("/delayed/echo", new DelayedEcho(this));
 			mRoot.addNode("/wire/hello", new LLHTTPNodeForPipe<WireHello>);
 		}
 		
+		apr_pool_t* mPool;
 		LLHTTPNode mRoot;
 		LLHTTPNode::ResponsePtr mResponse;
 		LLSD mResult;
@@ -105,7 +107,7 @@ namespace tut
 			LLPipeStringExtractor* extractor = new LLPipeStringExtractor();
 			
 			LLPumpIO* pump;
-			pump = new LLPumpIO();
+			pump = new LLPumpIO(mPool);
 
 			LLPumpIO::chain_t chain;
 			LLSD context;

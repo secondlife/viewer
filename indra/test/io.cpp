@@ -823,13 +823,15 @@ namespace tut
 	class PumpAndChainTestData
 	{
 	protected:
+		apr_pool_t* mPool;
 		LLPumpIO* mPump;
 		LLPumpIO::chain_t mChain;
 		
 	public:
 		PumpAndChainTestData()
 		{
-			mPump = new LLPumpIO();
+			apr_pool_create(&mPool, NULL);
+			mPump = new LLPumpIO(mPool);
 		}
 		
 		~PumpAndChainTestData()
@@ -906,9 +908,12 @@ namespace tut
 		
 		pipe_and_pump_fitness()
 		{
-			LLFrameTimer::updateFrameTime();			
-			mPump = new LLPumpIO();
+			apr_pool_create(&mPool, NULL);
+
+			LLFrameTimer::updateFrameTime();
+			mPump = new LLPumpIO(mPool);
 			mSocket = LLSocket::create(
+				mPool,
 				LLSocket::STREAM_TCP,
 				SERVER_LISTEN_PORT);
 		}
@@ -942,6 +947,7 @@ namespace tut
 			new LLPipeStringInjector("suckers never play me"));
 		boost::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
+			mPool,
 			mSocket,
 			factory);
 		server->setResponseTimeout(SHORT_CHAIN_EXPIRY_SECS);
@@ -956,7 +962,7 @@ namespace tut
 		// Set up the client
 		//lldebugs << "fitness_test_object::test<1> - connecting client."
 		//	 << llendl;
-		LLSocket::ptr_t client = LLSocket::create(LLSocket::STREAM_TCP);
+		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
@@ -988,6 +994,7 @@ namespace tut
 		emitter_t* emitter = new emitter_t(new LLIOFuzz(1000000));
 		boost::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
+			mPool,
 			mSocket,
 			factory);
 		server->setResponseTimeout(SHORT_CHAIN_EXPIRY_SECS);
@@ -998,7 +1005,7 @@ namespace tut
 		pump_loop(mPump, 0.1f);
 
 		// Set up the client
-		LLSocket::ptr_t client = LLSocket::create(LLSocket::STREAM_TCP);
+		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
@@ -1030,6 +1037,7 @@ namespace tut
 		emitter_t* emitter = new emitter_t(new LLIOFuzz(1000000));
 		boost::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
+			mPool,
 			mSocket,
 			factory);
 		server->setResponseTimeout(SHORT_CHAIN_EXPIRY_SECS);
@@ -1040,7 +1048,7 @@ namespace tut
 		pump_loop(mPump, 0.1f);
 
 		// Set up the client
-		LLSocket::ptr_t client = LLSocket::create(LLSocket::STREAM_TCP);
+		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
@@ -1072,6 +1080,7 @@ namespace tut
 		emitter_t* emitter = new emitter_t(new LLIOFuzz(1000000));
 		boost::shared_ptr<LLChainIOFactory> factory(emitter);
 		LLIOServerSocket* server = new LLIOServerSocket(
+			mPool,
 			mSocket,
 			factory);
 		server->setResponseTimeout(SHORT_CHAIN_EXPIRY_SECS + 1.80f);
@@ -1082,7 +1091,7 @@ namespace tut
 		pump_loop(mPump, 0.1f);
 
 		// Set up the client
-		LLSocket::ptr_t client = LLSocket::create(LLSocket::STREAM_TCP);
+		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
@@ -1112,6 +1121,7 @@ namespace tut
 		sleeper_t* sleeper = new sleeper_t(new LLIOSleeper);
 		boost::shared_ptr<LLChainIOFactory> factory(sleeper);
 		LLIOServerSocket* server = new LLIOServerSocket(
+			mPool,
 			mSocket,
 			factory);
 		server->setResponseTimeout(1.0);
@@ -1124,7 +1134,7 @@ namespace tut
 		lldebugs << "** Server is up." << llendl;
 
 		// Set up the client
-		LLSocket::ptr_t client = LLSocket::create(LLSocket::STREAM_TCP);
+		LLSocket::ptr_t client = LLSocket::create(mPool, LLSocket::STREAM_TCP);
 		LLHost server_host("127.0.0.1", SERVER_LISTEN_PORT);
 		bool connected = client->blockingConnect(server_host);
 		ensure("Connected to server", connected);
@@ -1242,12 +1252,14 @@ namespace tut
 		LLPumpIO::chain_t mChain;
 		LLSimpleRPCClient* mClient;
 		LLSD mResponse;
+		apr_pool_t* mPool;
 
 		rpc_server_data() :
 			mPump(NULL),
 			mClient(NULL)
 		{
-			mPump = new LLPumpIO();
+			apr_pool_create(&mPool, NULL);
+			mPump = new LLPumpIO(mPool);
 			mClient = new LLSimpleRPCClient(&mResponse);
 			mChain.push_back(LLIOPipe::ptr_t(mClient));
 			mChain.push_back(LLIOPipe::ptr_t(new LLFilterSD2XMLRPCRequest));

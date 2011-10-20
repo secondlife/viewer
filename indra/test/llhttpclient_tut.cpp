@@ -36,6 +36,7 @@
 // These are too slow on Windows to actually include in the build. JC
 #if !LL_WINDOWS
 
+#include "llapr.h"
 #include "lltut.h"
 #include "llhttpclient.h"
 #include "llformat.h"
@@ -84,9 +85,10 @@ namespace tut
 	public:
 		HTTPClientTestData()
 		{
+			apr_pool_create(&mPool, NULL);
 			LLCurl::initClass(false);
-			mServerPump = new LLPumpIO();
-			mClientPump = new LLPumpIO();
+			mServerPump = new LLPumpIO(mPool);
+			mClientPump = new LLPumpIO(mPool);
 			LLHTTPClient::setPump(*mClientPump);
 		}
 		
@@ -98,7 +100,7 @@ namespace tut
 
 		void setupTheServer()
 		{
-			LLHTTPNode& root = LLIOHTTPServer::create(*mServerPump, 8888);
+			LLHTTPNode& root = LLIOHTTPServer::create(mPool, *mServerPump, 8888);
 
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(root);
