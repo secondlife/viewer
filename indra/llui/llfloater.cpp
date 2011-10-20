@@ -1403,7 +1403,10 @@ void LLFloater::moveResizeHandlesToFront()
 
 BOOL LLFloater::isFrontmost()
 {
-	return gFloaterView && gFloaterView->getFrontmost() == this && getVisible();
+	LLFloaterView* floater_view = getParentByType<LLFloaterView>();
+	return getVisible()
+			&& (floater_view 
+				&& floater_view->getFrontmost() == this);
 }
 
 void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
