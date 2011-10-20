@@ -52,6 +52,7 @@
          user_resize="false"
          auto_resize="false"
          layout="topleft"
+         min_height="20"
          height="20"
          name="my_panel">
             <avatar_icon
@@ -133,6 +134,7 @@
           height="132"
           name="callers_panel"
           user_resize="false" 
+          auto_resize="true"
           width="280">
         <avatar_list
          follows="all"
