@@ -1453,11 +1453,10 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 			}
 			else
 			{
-				gGL.getTexUnit(1)->activate();
+				gGL.getTexUnit(0)->activate();
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 				gPipeline.mTextureMatrixOps++;
-				gGL.getTexUnit(0)->activate();
 			}
 
 			gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
@@ -1470,7 +1469,7 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 		{
 			if (params.mTexture.notNull())
 			{
-				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture) ;
+				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture);
 				params.mTexture->addTextureStats(params.mVSize);		
 			}
 			else
