@@ -33,6 +33,7 @@ class LLViewerShaderMgr: public LLShaderMgr
 {
 public:
 	static BOOL sInitialized;
+	static bool sSkipReload;
 
 	LLViewerShaderMgr();
 	/* virtual */ ~LLViewerShaderMgr();

@@ -59,6 +59,7 @@ using std::make_pair;
 using std::string;
 
 BOOL				LLViewerShaderMgr::sInitialized = FALSE;
+bool				LLViewerShaderMgr::sSkipReload = false;
 
 LLVector4			gShinyOrigin;
 
@@ -350,7 +351,7 @@ void LLViewerShaderMgr::setShaders()
 	//setShaders might be called redundantly by gSavedSettings, so return on reentrance
 	static bool reentrance = false;
 	
-	if (!gPipeline.mInitialized || !sInitialized || reentrance)
+	if (!gPipeline.mInitialized || !sInitialized || reentrance || sSkipReload)
 	{
 		return;
 	}
@@ -401,9 +402,6 @@ void LLViewerShaderMgr::setShaders()
 	if (gViewerWindow)
 	{
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
-		//VICIOUS HACK -- some drivers will time out if we don't redraw the window within 2 seconds, and this operation can take awhile
-		//minimizing tells the driver we won't be updating the window for a bit
-		gViewerWindow->getWindow()->minimize();
 	}
 
 	// Lighting
