@@ -821,7 +821,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	if (!commandp) return NULL;
 
 	LLToolBarButton::Params button_p;
-	button_p.name = commandp->id().name();  // Make sure to retrieve the name from the command itself, not the passed in id
+	button_p.name = commandp->name();
 	button_p.label = LLTrans::getString(commandp->labelRef());
 	button_p.tool_tip = LLTrans::getString(commandp->tooltipRef());
 	button_p.image_overlay = LLUI::getUIImage(commandp->icon());
