@@ -175,7 +175,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 	}
 	else if (param == "speak")
 	{
-		if ( gAgent.isVoiceConnected() )
+		if ( gAgent.isVoiceConnected() && LLViewerParcelMgr::getInstance()->allowAgentVoice() )
 		{
 			retval = true;
 		}
