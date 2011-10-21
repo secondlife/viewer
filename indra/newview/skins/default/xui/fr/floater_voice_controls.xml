@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Contrôles vocaux">
+<floater name="floater_voice_controls" title="CONTROLES DE LA VOIX">
 	<string name="title_nearby">
-		CHAT VOCAL PRÈS DE VOUS
+		Chat près de vous
 	</string>
 	<string name="title_group">
 		Appel de groupe avec [GROUP]

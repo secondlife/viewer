@@ -2665,9 +2665,18 @@ Display settings have been set to safe levels because you have specified the -sa
 
   <notification
    icon="alertmodal.tga"
-   name="DisplaySetToRecommended"
+   name="DisplaySetToRecommendedGPUChange"
    type="alertmodal">
-Display settings have been set to recommended levels based on your system configuration.
+Display settings have been set to recommended levels because your graphics card changed
+from &apos;[LAST_GPU]&apos;
+to &apos;[THIS_GPU]&apos;
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DisplaySetToRecommendedFeatureChange"
+   type="alertmodal">
+Display settings have been set to recommended levels because of a change to the rendering subsystem.
   </notification>
 
   <notification

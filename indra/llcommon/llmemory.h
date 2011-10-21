@@ -400,6 +400,7 @@ private:
 	BOOL mPrivatePoolEnabled;
 	U32  mMaxPrivatePoolSize;
 
+	static std::vector<LLPrivateMemoryPool*> sDanglingPoolList ;
 public:
 	//debug and statistics info.
 	void updateStatistics() ;
