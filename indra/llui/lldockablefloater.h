@@ -113,6 +113,8 @@ public:
 
 	bool getUniqueDocking() { return mUniqueDocking;	}
 	bool getUseTongue() { return mUseTongue; }
+
+	void setUseTongue(bool use_tongue) { mUseTongue = use_tongue;}
 private:
 	/**
 	 * Provides unique of dockable floater.
