@@ -213,19 +213,19 @@ Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar 
 				Fator de bônus para objetos na região: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso de prims:
+				Capacidade da região:
 			</text>
 			<text name="objects_available">
 				[COUNT] de [MAX] ([AVAILABLE] disponíveis)
 			</text>
 			<text name="Primitives parcel supports:">
-				Prims suportados pelo lote:
+				Capacidade do lote do terreno:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims no lote:
+				Impacto no lote do terreno:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
