@@ -112,6 +112,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mStartDragItemCallback(NULL),
 	mHandleDragItemCallback(NULL),
 	mHandleDropCallback(NULL),
+	mButtonAddSignal(NULL),
 	mDragAndDropTarget(false)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
@@ -121,6 +122,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 LLToolBar::~LLToolBar()
 {
 	delete mPopupMenuHandle.get();
+	delete mButtonAddSignal;
 }
 
 void LLToolBar::createContextMenu()
@@ -212,7 +214,6 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 	mButtonPanel->addChild(button);
 	mButtonMap.insert(std::make_pair(commandId.uuid(), button));
 
-
 	// Insert the command and button in the right place in their respective lists
 	if ((rank >= mButtonCommands.size()) || (rank == RANK_NONE))
 	{
@@ -234,6 +235,11 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 		// ...then insert
 		mButtonCommands.insert(it_command, command->id());
 		mButtons.insert(it_button,button);
+	}
+
+	if (mButtonAddSignal)
+	{
+		(*mButtonAddSignal)(button);
 	}
 
 	mNeedsLayout = true;
@@ -896,6 +902,12 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	button->setCommandId(id);
 
 	return button;
+}
+
+boost::signals2::connection LLToolBar::setButtonAddCallback(const button_add_signal_t::slot_type& cb)
+{
+	if (!mButtonAddSignal) mButtonAddSignal = new button_add_signal_t();
+	return mButtonAddSignal->connect(cb);
 }
 
 BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

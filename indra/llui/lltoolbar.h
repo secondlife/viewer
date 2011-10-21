@@ -195,6 +195,9 @@ public:
 
 	LLToolBarButton* createButton(const LLCommandId& id);
 
+	typedef boost::signals2::signal<void (LLView* button)> button_add_signal_t;
+	boost::signals2::connection setButtonAddCallback(const button_add_signal_t::slot_type& cb);
+
 	bool hasButtons() const { return !mButtons.empty(); }
 	bool isModified() const { return mModified; }
 
@@ -255,6 +258,8 @@ private:
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 
 	LLHandle<class LLContextMenu>			mPopupMenuHandle;
+
+	button_add_signal_t*			mButtonAddSignal;
 };
 
 
