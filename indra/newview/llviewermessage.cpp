@@ -3129,7 +3129,7 @@ protected:
 
 	void handleFailure()
 	{
-		llwarns << "translation failed for mesg " << m_origMesg << llendl;
+		llwarns << "translation failed for mesg " << m_origMesg << " toLang " << m_toLang << " fromLang " << m_fromLang << llendl;
 		m_chat.mText += " (?)";
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
