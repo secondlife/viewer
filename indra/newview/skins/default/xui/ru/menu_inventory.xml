@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Поделиться" name="Share"/>
+	<menu_item_call label="Купить" name="Task Buy"/>
+	<menu_item_call label="Открыть" name="Task Open"/>
+	<menu_item_call label="Воспроизвести" name="Task Play"/>
+	<menu_item_call label="Свойства" name="Task Properties"/>
+	<menu_item_call label="Переименовать" name="Task Rename"/>
+	<menu_item_call label="Удалить" name="Task Remove"/>
+	<menu_item_call label="Очистить корзину" name="Empty Trash"/>
+	<menu_item_call label="Очистить бюро находок" name="Empty Lost And Found"/>
+	<menu_item_call label="Новая папка" name="New Folder"/>
+	<menu_item_call label="Новый скрипт" name="New Script"/>
+	<menu_item_call label="Новая заметка" name="New Note"/>
+	<menu_item_call label="Новый жест" name="New Gesture"/>
+	<menu label="Новая одежда" name="New Clothes">
+		<menu_item_call label="Новая рубашка" name="New Shirt"/>
+		<menu_item_call label="Новые брюки" name="New Pants"/>
+		<menu_item_call label="Новая обувь" name="New Shoes"/>
+		<menu_item_call label="Новые носки" name="New Socks"/>
+		<menu_item_call label="Новый пиджак" name="New Jacket"/>
+		<menu_item_call label="Новая юбка" name="New Skirt"/>
+		<menu_item_call label="Новые перчатки" name="New Gloves"/>
+		<menu_item_call label="Новая майка" name="New Undershirt"/>
+		<menu_item_call label="Новые трусы" name="New Underpants"/>
+		<menu_item_call label="Новая альфа-маска" name="New Alpha Mask"/>
+		<menu_item_call label="Новое тату" name="New Tattoo"/>
+		<menu_item_call label="Новая физика" name="New Physics"/>
+	</menu>
+	<menu label="Новые части тела" name="New Body Parts">
+		<menu_item_call label="Новая фигура" name="New Shape"/>
+		<menu_item_call label="Новая кожа" name="New Skin"/>
+		<menu_item_call label="Новые волосы" name="New Hair"/>
+		<menu_item_call label="Новые глаза" name="New Eyes"/>
+	</menu>
+	<menu label="Сменить тип" name="Change Type">
+		<menu_item_call label="По умолчанию" name="Default"/>
+		<menu_item_call label="Перчатки" name="Gloves"/>
+		<menu_item_call label="Пиджак" name="Jacket"/>
+		<menu_item_call label="Брюки" name="Pants"/>
+		<menu_item_call label="Фигура" name="Shape"/>
+		<menu_item_call label="Обувь" name="Shoes"/>
+		<menu_item_call label="Рубашка" name="Shirt"/>
+		<menu_item_call label="Юбка" name="Skirt"/>
+		<menu_item_call label="Трусы" name="Underpants"/>
+		<menu_item_call label="Майка" name="Undershirt"/>
+	</menu>
+	<menu_item_call label="Телепорт" name="Landmark Open"/>
+	<menu_item_call label="Открыть" name="Animation Open"/>
+	<menu_item_call label="Открыть" name="Sound Open"/>
+	<menu_item_call label="Сменить текущий костюм" name="Replace Outfit"/>
+	<menu_item_call label="Добавить к текущему костюму" name="Add To Outfit"/>
+	<menu_item_call label="Убрать из текущего костюма" name="Remove From Outfit"/>
+	<menu_item_call label="Найти оригинал" name="Find Original"/>
+	<menu_item_call label="Удалить навсегда" name="Purge Item"/>
+	<menu_item_call label="Восстановить вещь" name="Restore Item"/>
+	<menu_item_call label="Открыть" name="Open"/>
+	<menu_item_call label="Открыть оригинал" name="Open Original"/>
+	<menu_item_call label="Свойства" name="Properties"/>
+	<menu_item_call label="Переименовать" name="Rename"/>
+	<menu_item_call label="Копировать UUID актива" name="Copy Asset UUID"/>
+	<menu_item_call label="Копировать" name="Copy"/>
+	<menu_item_call label="Вставить" name="Paste"/>
+	<menu_item_call label="Вставить как ссылку" name="Paste As Link"/>
+	<menu_item_call label="Удалить" name="Remove Link"/>
+	<menu_item_call label="Удалить" name="Delete"/>
+	<menu_item_call label="Удалить системную папку" name="Delete System Folder"/>
+	<menu_item_call label="Начать конференцию" name="Conference Chat Folder"/>
+	<menu_item_call label="Воспроизвести" name="Sound Play"/>
+	<menu_item_call label="О закладке" name="About Landmark"/>
+	<menu_item_call label="Проиграть для всех" name="Animation Play"/>
+	<menu_item_call label="Проиграть для себя" name="Animation Audition"/>
+	<menu_item_call label="Отправить IM-сообщение" name="Send Instant Message"/>
+	<menu_item_call label="Предложить телепортацию..." name="Offer Teleport..."/>
+	<menu_item_call label="Начать конференцию" name="Conference Chat"/>
+	<menu_item_call label="Активировать" name="Activate"/>
+	<menu_item_call label="Деактивировать" name="Deactivate"/>
+	<menu_item_call label="Сохранить как" name="Save As"/>
+	<menu_item_call label="Отсоединить от себя" name="Detach From Yourself"/>
+	<menu_item_call label="Надеть" name="Wearable And Object Wear"/>
+	<menu label="Присоединить к" name="Attach To"/>
+	<menu label="Присоединить к данным в игре" name="Attach To HUD"/>
+	<menu_item_call label="Изменить" name="Wearable Edit"/>
+	<menu_item_call label="Добавить" name="Wearable Add"/>
+	<menu_item_call label="Снять" name="Take Off"/>
+	<menu_item_call label="Копировать в «Торговые исходящие»" name="Merchant Copy"/>
+	<menu_item_call label="Переместить в «Торговые исходящие»" name="Merchant Move"/>
+	<menu_item_call label="- нет действий -" name="--no options--"/>
+</menu>

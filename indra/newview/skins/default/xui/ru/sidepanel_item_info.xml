@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="Профиль объекта">
+	<panel.string name="unknown">
+		(неизвестно)
+	</panel.string>
+	<panel.string name="public">
+		(публичное)
+	</panel.string>
+	<panel.string name="you_can">
+		Вы можете:
+	</panel.string>
+	<panel.string name="owner_can">
+		Владелец может:
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local], [day,datetime,local] [mth,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</panel.string>
+	<panel.string name="origin_inventory">
+		(инвентарь)
+	</panel.string>
+	<panel.string name="origin_inworld">
+		(в мире)
+	</panel.string>
+	<text name="title" value="Профиль объекта"/>
+	<text name="origin" value="(инвентарь)"/>
+	<scroll_container name="item_profile_scroll">
+		<panel label="" name="item_profile">
+			<text name="LabelItemNameTitle">
+				Название:
+			</text>
+			<text name="LabelItemDescTitle">
+				Описание:
+			</text>
+			<text name="LabelCreatorTitle">
+				Создатель:
+			</text>
+			<text name="LabelOwnerTitle">
+				Владелец:
+			</text>
+			<text name="LabelAcquiredTitle">
+				Приобретено:
+			</text>
+			<panel name="perms_inv">
+				<text name="perm_modify">
+					Вы можете:
+				</text>
+				<check_box label="Изменять" name="CheckOwnerModify"/>
+				<check_box label="Копировать" name="CheckOwnerCopy"/>
+				<check_box label="Передать" name="CheckOwnerTransfer"/>
+				<text name="AnyoneLabel">
+					Все:
+				</text>
+				<check_box label="Копировать" name="CheckEveryoneCopy"/>
+				<text name="GroupLabel">
+					Группа:
+				</text>
+				<check_box label="Поделиться" name="CheckShareWithGroup" tool_tip="Позволить всем участникам выбранной группы получить установленные вам права на этот объект. Для включения ролевых ограничений необходимо произвести сделку."/>
+				<text name="NextOwnerLabel">
+					Следующий владелец:
+				</text>
+				<check_box label="Изменять" name="CheckNextOwnerModify"/>
+				<check_box label="Копировать" name="CheckNextOwnerCopy"/>
+				<check_box label="Передать" name="CheckNextOwnerTransfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
+			</panel>
+			<check_box label="Для продажи" name="CheckPurchase"/>
+			<combo_box name="combobox sale copy">
+				<combo_box.item label="Копировать" name="Copy"/>
+				<combo_box.item label="Оригинал" name="Original"/>
+			</combo_box>
+			<spinner label="Цена: L$" name="Edit Cost"/>
+		</panel>
+	</scroll_container>
+	<panel name="button_panel">
+		<button label="Отмена" name="cancel_btn"/>
+	</panel>
+</panel>
