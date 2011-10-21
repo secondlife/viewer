@@ -2028,7 +2028,7 @@ Returns a string with the requested data about the region
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
-	<string name="InventoryInboxNoItems">Items purchased through the marketplace will be delivered here.</string>
+	<string name="InventoryInboxNoItems">When you purchase or otherwise receive an item, it will appear here so you can drag it to a folder in your inventory, or delete it if you do not wish to keep it.</string>
 	<string name="MarketplaceURL">http://marketplace.[DOMAIN_NAME]</string>
 	<string name="MarketplaceURL_CreateStore">http://marketplace.[DOMAIN_NAME]/create_store</string>
 	<string name="MarketplaceURL_LearnMore">http://marketplace.[DOMAIN_NAME]/learn_more</string>
