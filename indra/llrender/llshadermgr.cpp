@@ -566,13 +566,20 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[4096];
 	GLuint count = 0;
 
-	if (gGLManager.mGLVersion < 2.1f)
+	F32 version = gGLManager.mGLVersion;
+
+//hack to never use GLSL > 1.20 on OSX
+#if LL_DARWIN
+	version = llmin(version, 2.9f);
+#endif
+
+	if (version < 2.1f)
 	{
 		text[count++] = strdup("#version 110\n");
 		text[count++] = strdup("#define ATTRIBUTE attribute\n");
 		text[count++] = strdup("#define VARYING varying\n");
 	}
-	else if (gGLManager.mGLVersion < 3.f)
+	else if (version < 3.f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
@@ -583,7 +590,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	}
 	else
 	{  
-		if (gGLManager.mGLVersion < 4.f)
+		if (version < 4.f)
 		{
 			//set version to 1.30
 			text[count++] = strdup("#version 130\n");
