@@ -322,6 +322,7 @@ void LLSpatialGroup::buildOcclusion()
 	
 	{
 		mOcclusionVerts->flush();
+		LLVertexBuffer::unbind();
 	}
 
 	clearState(LLSpatialGroup::OCCLUSION_DIRTY);
