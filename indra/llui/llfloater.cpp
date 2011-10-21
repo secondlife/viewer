@@ -880,7 +880,7 @@ bool LLFloater::applyRectControl()
 	{
 		// other floaters in our group, position ourselves relative to them and don't save the rect
 		mRectControl.clear();
-		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_CASCADING;
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP;
 	}
 	else if (mRectControl.size() > 1)
 	{
@@ -933,6 +933,7 @@ void LLFloater::applyPositioning(LLFloater* other)
 		}
 		break;
 
+	case LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP:
 	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
 		if (other != NULL)
 		{
