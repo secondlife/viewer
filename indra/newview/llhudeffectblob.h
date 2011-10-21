@@ -35,6 +35,8 @@ class LLHUDEffectBlob : public LLHUDEffect
 public:
 	friend class LLHUDObject;
 
+	void markDead();
+
 	void setPixelSize(S32 pixels) { mPixelSize = pixels; }
 
 protected:
