@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Üyeler ve Roller" name="roles_tab">
+	<panel.string name="default_needs_apply_text">
+		Kaydedilmemiş değişiklikler var
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Değişikliklerinizi kaydetmek istiyor musunuz?
+	</panel.string>
+	<tab_container name="roles_tab_container">
+		<panel label="ÜYELER" name="members_sub_tab" tool_tip="Üyeler">
+			<panel.string name="help_text">
+				Üyelere atanmış Rolleri ekleyebilir veya kaldırabilirsiniz.
+Ctrl tuşuna basıp adlarına tıklayarak birden fazla Üye seçebilirsiniz.
+			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] m²
+			</panel.string>
+			<filter_editor label="Üyeleri Filtrele" name="filter_input"/>
+			<name_list name="member_list">
+				<name_list.columns label="Üye" name="name"/>
+				<name_list.columns label="Bağış" name="donated"/>
+				<name_list.columns label="Durum" name="online"/>
+			</name_list>
+			<button label="Davet Et" name="member_invite"/>
+			<button label="Çıkar" name="member_eject"/>
+		</panel>
+		<panel label="ROLLER" name="roles_sub_tab">
+			<panel.string name="help_text">
+				Roller, birer başlığa ve Üyelerin gerçekleştirmesine izin verilen Yetenekler listesine sahiptir.
+ Bir Üye bir veya daha fazla sayıda Role ait olabilir.
+ Bir grupta 10&apos;a kadar Rol olabilir, buna Herkes ve Sahip Rolü de dahildir.
+			</panel.string>
+			<panel.string name="cant_delete_role">
+				&apos;Herkes&apos; ve &apos;Sahipler&apos; Rolleri özeldir, silinemez.
+			</panel.string>
+			<filter_editor label="Rolleri Filtrele" name="filter_input"/>
+			<scroll_list name="role_list">
+				<scroll_list.columns label="Rol" name="name"/>
+				<scroll_list.columns label="Başlık" name="title"/>
+				<scroll_list.columns label="#" name="members"/>
+			</scroll_list>
+			<button label="Yeni Rol" name="role_create"/>
+			<button label="Rolü Sil" name="role_delete"/>
+		</panel>
+		<panel label="YETENEKLER" name="actions_sub_tab" tool_tip="Bir Yeteneğin Açıklamasını ve bu Yeteneğe hangi Rollerin ve Üyelerin sahip olabileceğini görebilirsiniz.">
+			<panel.string name="help_text">
+				Yetenekler sayesinde Rollerle ilişkili Üyeler bu grup içerisinde belirli şeyler yapabilir.
+ Yeteneklerin kapsamı oldukça geniştir.
+			</panel.string>
+			<filter_editor label="Yetenekleri Filtrele" name="filter_input"/>
+			<scroll_list name="action_list" tool_tip="Bir Yeteneği seçerek daha çok ayrıntı görebilirsiniz"/>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Atanmış Roller
+		</text>
+		<text name="static2">
+			İzin Verilen Yetenekler
+		</text>
+		<scroll_list name="member_allowed_actions" tool_tip="İzin verilen her bir yeteneğin ayrıntıları için yetenekler sekmesine bakın"/>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Rol Adı
+		</text>
+		<text name="static3">
+			Rol Başlığı
+		</text>
+		<text name="static2">
+			Açıklama
+		</text>
+		<text name="static4">
+			Atanmış Üyeler
+		</text>
+		<check_box label="Üyeleri göster" name="role_visible_in_list" tool_tip="Bu rolün üyelerinin, Genel sekmesinde grup dışındaki kişilere görünüp görünmeyeceğini ayarlar."/>
+		<text name="static5">
+			İzin Verilen Yetenekler
+		</text>
+		<scroll_list name="role_allowed_actions" tool_tip="İzin verilen her bir yeteneğin ayrıntıları için yetenekler sekmesine bakın"/>
+	</panel>
+	<panel name="actions_footer">
+		<text_editor name="action_description">
+			Bu Yetenek &apos;Bu Gruptan Üye Çıkarma&apos;dır. Bir Sahibi sadece başka bir Sahip çıkartabilir.
+		</text_editor>
+		<text name="static2">
+			Bu yeteneğe sahip Roller
+		</text>
+		<text name="static3">
+			Bu yeteneğe sahip Üyeler
+		</text>
+	</panel>
+</panel>

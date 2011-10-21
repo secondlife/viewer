@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_im_control_panel">
+	<layout_stack name="vertical_stack">
+		<layout_panel name="call_btn_panel">
+			<button label="Ara" name="call_btn"/>
+		</layout_panel>
+		<layout_panel name="end_call_btn_panel">
+			<button label="Aramadan Ayrıl" name="end_call_btn"/>
+		</layout_panel>
+		<layout_panel name="voice_ctrls_btn_panel">
+			<button label="Ses Denetimleri" name="voice_ctrls_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

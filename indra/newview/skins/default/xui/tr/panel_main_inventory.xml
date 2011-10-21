@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Eşyalar" name="main inventory panel">
+	<panel.string name="ItemcountFetching">
+		[ITEM_COUNT] Öge Alınıyor... [FILTER]
+	</panel.string>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] Öge [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Ögeler:
+	</text>
+	<filter_editor label="Envanteri Filtrele" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="ENVANTERİM" name="All Items"/>
+		<recent_inventory_panel label="SON" name="Recent Items"/>
+	</tab_container>
+	<layout_stack name="bottom_panel">
+		<layout_panel name="options_gear_btn_panel">
+			<menu_button name="options_gear_btn" tool_tip="İlave seçenekleri göster"/>
+		</layout_panel>
+		<layout_panel name="add_btn_panel">
+			<button name="add_btn" tool_tip="Yeni öge ekle"/>
+		</layout_panel>
+		<layout_panel name="trash_btn_panel">
+			<dnd_button name="trash_btn" tool_tip="Seçilen öğeyi sil"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

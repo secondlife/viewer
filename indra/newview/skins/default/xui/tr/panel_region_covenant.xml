@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sözleşme" name="Covenant">
+	<panel.string name="can_resell">
+		Bu bölgede satın alınan arazi tekrar satılabilir.
+	</panel.string>
+	<panel.string name="can_not_resell">
+		Bu bölgede satın alınan arazi tekrar satılamayabilir.
+	</panel.string>
+	<panel.string name="can_change">
+		Bu bölgede satın alınan arazi birleştirilebilir veya bölünebilir.
+	</panel.string>
+	<panel.string name="can_not_change">
+		Bu bölgede satın alınan arazi birleştirilemeyebilir veya bölünemeyebilir.
+	</panel.string>
+	<text name="estate_section_lbl">
+		Gayrimenkul
+	</text>
+	<text name="estate_name_lbl">
+		Ad:
+	</text>
+	<text name="estate_name_text">
+		anakara
+	</text>
+	<text name="estate_owner_lbl">
+		Sahip:
+	</text>
+	<text name="estate_owner_text">
+		(hiçbiri)
+	</text>
+	<text name="estate_cov_lbl">
+		Sözleşme:
+	</text>
+	<text name="covenant_timestamp_text">
+		Son Değiştirme: 31 Ara, Çar 16:00:00 1969
+	</text>
+	<text_editor name="covenant_editor">
+		Bu Gayrimenkul için Sözleşmesi yok.
+	</text_editor>
+	<button label="Sıfırla" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Sözleşmede yapılan değişiklikler gayrimenkul içerisindeki tüm parsellerde gösterilir.
+	</text>
+	<text name="covenant_instructions">
+		Bu gayrimenkul için Sözleşmeyi değiştirmek amacıyla bir not kartını sürükleyin ve bırakın.
+	</text>
+	<text name="region_section_lbl">
+		Bölge
+	</text>
+	<text name="region_name_lbl">
+		Ad:
+	</text>
+	<text name="region_name_text">
+		Erica
+	</text>
+	<text name="region_landtype_lbl">
+		Tür:
+	</text>
+	<text name="region_landtype_text">
+		Anakara / Banliyö
+	</text>
+	<text name="region_maturity_lbl">
+		Seviye:
+	</text>
+	<text name="region_maturity_text">
+		Yetişkin
+	</text>
+	<text name="resellable_lbl">
+		Tekrar Satış:
+	</text>
+	<text name="resellable_clause">
+		Bu bölgedeki arazi tekrar satılamayabilir.
+	</text>
+	<text name="changeable_lbl">
+		Böl:
+	</text>
+	<text name="changeable_clause">
+		Bu bölgedeki arazi birleştirilemeyebilir/bölünemeyebilir.
+	</text>
+</panel>

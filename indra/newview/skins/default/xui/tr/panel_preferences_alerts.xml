@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Açılır Uyarılar" name="popups">
+	<text name="tell_me_label">
+		Bana söyle:
+	</text>
+	<check_box label="L$ harcadığımda veya aldığımda" name="notify_money_change_checkbox"/>
+	<check_box label="Arkadaşlarım oturum açtığında veya kapattığında" name="friends_online_notify_checkbox"/>
+	<text name="show_label">
+		Daima göster:
+	</text>
+	<text name="dont_show_label">
+		Asla gösterme:
+	</text>
+</panel>

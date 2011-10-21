@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="EKRAN ADINI DEĞİŞTİR">
+	<text name="info_text">
+		Avatarınıza verdiğiniz ad, Ekran Adınız olarak değerlendirilir. Bunu haftada bir kere değiştirebilirsiniz.
+	</text>
+	<text name="lockout_text">
+		Ekran Adınızı şu saate kadar değiştiremezsiniz: [TIME].
+	</text>
+	<text name="set_name_label">
+		Yeni Ekran Adı:
+	</text>
+	<text name="name_confirm_label">
+		Onaylamak için yeni adınızı tekrar yazın:
+	</text>
+	<button label="Kaydet" name="save_btn" tool_tip="Yeni Ekran Adınızı kaydedin"/>
+	<button label="Sıfırla" name="reset_btn" tool_tip="Ekran Adını Kullanıcı Adıyla aynı yap"/>
+	<button label="İptal" name="cancel_btn"/>
+</floater>

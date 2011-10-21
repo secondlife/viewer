@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Bir Üyeyi Davet Et" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Yeni sahipler davet etmek istediğinize emin misiniz? Bu eylem geri döndürülemez!
+	</panel.string>
+	<panel.string name="loading">
+		(yükleniyor...)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Seçtiğiniz bazı Sakinler zaten grupta yer alıyor, bu yüzden bunlara davetiye gönderilmedi.
+	</panel.string>
+	<text name="help_text">
+		Grubunuza davet etmek için birden fazla Sakin seçebilirsiniz. Başlamak için &quot;Sakin Seçiciyi Aç&quot; üzerine tıklayın.
+	</text>
+	<button label="Sakin Seçiciyi Aç" name="add_button"/>
+	<name_list name="invitee_list" tool_tip="Ctrl tuşunu basılı tutun ve seçmek istediğiniz Sakinlerin adlarına tıklayın"/>
+	<button label="Seçilenleri Listeden Çıkar" name="remove_button" tool_tip="Yukarıda seçilen Sakinleri davet listesinden çıkarır"/>
+	<text name="role_text">
+		Onları hala Role atayacağınızı seçin:
+	</text>
+	<combo_box name="role_name" tool_tip="Üyeleri atamanıza izin verilen Roller listesinden seçin"/>
+	<button label="Davetiye Gönder" name="ok_button"/>
+	<button label="İptal" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Grup Davetiyesi
+	</string>
+</panel>

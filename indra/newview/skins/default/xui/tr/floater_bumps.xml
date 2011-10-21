@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_bumps" title="TOSLAMALAR, İTMELER VE VURMALAR">
+	<floater.string name="none_detected">
+		Hiçbiri tespit edilmedi
+	</floater.string>
+	<floater.string name="bump">
+		[TIME]  [NAME] size tosladı
+	</floater.string>
+	<floater.string name="llpushobject">
+		[TIME]  [NAME] bir komut dosyasıyla sizi itti
+	</floater.string>
+	<floater.string name="selected_object_collide">
+		[TIME]  [NAME] bir nesneyle size vurdu
+	</floater.string>
+	<floater.string name="scripted_object_collide">
+		[TIME]  [NAME] komut doyalı bir nesneyle size vurdu
+	</floater.string>
+	<floater.string name="physical_object_collide">
+		[TIME]  [NAME] fiziki bir nesneyle size vurdu
+	</floater.string>
+	<floater.string name="timeStr">
+		[[hour,datetime,slt]:[min,datetime,slt]]
+	</floater.string>
+</floater>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Self Pie">
+	<menu_item_call label="Otur" name="Sit Down Here"/>
+	<menu_item_call label="Kalk" name="Stand Up"/>
+	<context_menu label="Çıkar" name="Take Off &gt;">
+		<context_menu label="Giysiler" name="Clothes &gt;">
+			<menu_item_call label="Gömlek" name="Shirt"/>
+			<menu_item_call label="Pantolon" name="Pants"/>
+			<menu_item_call label="Etek" name="Skirt"/>
+			<menu_item_call label="Ayakkabılar" name="Shoes"/>
+			<menu_item_call label="Çoraplar" name="Socks"/>
+			<menu_item_call label="Ceket" name="Jacket"/>
+			<menu_item_call label="Eldivenler" name="Gloves"/>
+			<menu_item_call label="Fanila" name="Self Undershirt"/>
+			<menu_item_call label="Külot" name="Self Underpants"/>
+			<menu_item_call label="Dövme" name="Self Tattoo"/>
+			<menu_item_call label="Alfa" name="Self Alpha"/>
+			<menu_item_call label="Tüm Giysiler" name="All Clothes"/>
+		</context_menu>
+		<context_menu label="BÜG" name="Object Detach HUD"/>
+		<context_menu label="Ayır" name="Object Detach"/>
+		<menu_item_call label="Tümünü Ayır" name="Detach All"/>
+	</context_menu>
+	<menu_item_call label="Dış Görünümü Değiştir" name="Chenge Outfit"/>
+	<menu_item_call label="Dış Görünümümü Düzenle" name="Edit Outfit"/>
+	<menu_item_call label="Şeklimi Düzenle" name="Edit My Shape"/>
+	<menu_item_call label="Arkadaşlarım" name="Friends..."/>
+	<menu_item_call label="Gruplarım" name="Groups..."/>
+	<menu_item_call label="Profilim" name="Profile..."/>
+	<menu_item_call label="Dokularda Hata Ayıkla" name="Debug..."/>
+</toggleable_menu>
