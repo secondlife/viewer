@@ -94,6 +94,8 @@ private:
 	bool	addCommand(const LLCommandId& commandId, LLToolBar*	toolbar);
 	void	addToToolset(command_id_list_t& command_list, Toolbar& toolbar) const;
 
+	static void	onToolBarButtonAdded(LLView* button);
+
 	// Pointers to the toolbars handled by the toolbar view
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
