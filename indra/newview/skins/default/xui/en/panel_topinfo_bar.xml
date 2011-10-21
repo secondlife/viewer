@@ -4,7 +4,7 @@
  background_opaque="false"
  bg_opaque_color="Black_50"
  bg_alpha_color="Black_50"
- follows="left|top|right"
+ follows="left|top"
  height="19"
  layout="topleft"
  name="topinfo_bar"
