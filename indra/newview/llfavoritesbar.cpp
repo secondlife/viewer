@@ -504,20 +504,29 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 {
+	// Identify the button hovered and the side to drop
 	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+	bool insert_before = true;	
+	if (!dest)
+	{
+		insert_before = false;
+		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+	}
 
-	// there is no need to handle if an item was dragged onto itself
+	// There is no need to handle if an item was dragged onto itself
 	if (dest && dest->getLandmarkId() == mDragItemId)
 	{
 		return;
 	}
 
+	// Insert the dragged item in the right place
 	if (dest)
 	{
-		LLInventoryModel::updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId());
+		LLInventoryModel::updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId(), insert_before);
 	}
 	else
 	{
+		// This can happen when the item list is empty
 		mItems.push_back(gInventory.getItem(mDragItemId));
 	}
 
@@ -534,22 +543,31 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 
 void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y)
 {
+	// Identify the button hovered and the side to drop
 	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
-
-	// there is no need to handle if an item was dragged onto itself
+	bool insert_before = true;	
+	if (!dest)
+	{
+		insert_before = false;
+		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+	}
+	
+	// There is no need to handle if an item was dragged onto itself
 	if (dest && dest->getLandmarkId() == mDragItemId)
 	{
 		return;
 	}
-
+	
 	LLPointer<LLViewerInventoryItem> viewer_item = new LLViewerInventoryItem(item);
 
+	// Insert the dragged item in the right place
 	if (dest)
 	{
-		insertBeforeItem(mItems, dest->getLandmarkId(), viewer_item);
+		insertItem(mItems, dest->getLandmarkId(), viewer_item, insert_before);
 	}
 	else
 	{
+		// This can happen when the item list is empty
 		mItems.push_back(viewer_item);
 	}
 
@@ -1337,29 +1355,28 @@ BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array
 	return result;
 }
 
-LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
+void LLFavoritesBarCtrl::insertItem(LLInventoryModel::item_array_t& items, const LLUUID& dest_item_id, LLViewerInventoryItem* insertedItem, bool insert_before)
 {
-	LLInventoryModel::item_array_t::iterator result = items.end();
+	// Get the iterator to the destination item
+	LLInventoryModel::item_array_t::iterator it_dest = LLInventoryModel::findItemIterByUUID(items, dest_item_id);
+	if (it_dest == items.end())
+		return;
 
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	// Go to the next element if one wishes to insert after the dest element
+	if (!insert_before)
 	{
-		if ((*i)->getUUID() == id)
-		{
-			result = i;
-			break;
-		}
+		++it_dest;
 	}
-
-	return result;
-}
-
-void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem)
-{
-	LLViewerInventoryItem* beforeItem = gInventory.getItem(beforeItemId);
-	llassert(beforeItem);
-	if (beforeItem)
+	
+	// Insert the source item in the right place
+	if (it_dest != items.end())
 	{
-		items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+		items.insert(it_dest, insertedItem);
+	}
+	else 
+	{
+		// Append to the list if it_dest reached the end
+		items.push_back(insertedItem);
 	}
 }
 
