@@ -544,12 +544,16 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y)
 {
 	// Identify the button hovered and the side to drop
-	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
-	bool insert_before = true;	
-	if (!dest)
+	LLFavoriteLandmarkButton* dest = NULL;
+	bool insert_before = true;
+	if (!mItems.empty())
 	{
-		insert_before = false;
-		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+		if (!dest)
+		{
+			insert_before = false;
+			dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+		}
 	}
 	
 	// There is no need to handle if an item was dragged onto itself
