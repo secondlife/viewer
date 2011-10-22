@@ -35,6 +35,7 @@
 #include "lltoolbar.h"
 #include "llbutton.h"
 #include "lltooldraganddrop.h"
+#include "lltransientfloatermgr.h"
 #include "llclipboard.h"
 
 #include "llagent.h"  // HACK for destinations guide on startup
@@ -96,14 +97,17 @@ BOOL LLToolBarView::postBuild()
 	mToolbarLeft->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
 	mToolbarLeft->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+	mToolbarLeft->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded, _1));
 	
 	mToolbarRight->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
 	mToolbarRight->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+	mToolbarRight->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded, _1));
 	
 	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
 	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+	mToolbarBottom->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded, _1));
 
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&handleLoginToolbarSetup));
 	
@@ -311,6 +315,22 @@ void LLToolBarView::addToToolset(command_id_list_t& command_list, Toolbar& toolb
 			command_name_param.name = command->name();
 			toolbar.commands.add(command_name_param);
 		}
+	}
+}
+
+void LLToolBarView::onToolBarButtonAdded(LLView* button)
+{
+	if (button && button->getName() == "speak")
+	{
+		// Add the "Speak" button as a control view in LLTransientFloaterMgr
+		// to prevent hiding the transient IM floater upon pressing "Speak".
+		LLTransientFloaterMgr::getInstance()->addControlView(button);
+	}
+	else if (button && button->getName() == "voice")
+	{
+		// Add the "Voice controls" button as a control view in LLTransientFloaterMgr
+		// to prevent hiding the transient IM floater upon pressing "Voice controls".
+		LLTransientFloaterMgr::getInstance()->addControlView(button);
 	}
 }
 
