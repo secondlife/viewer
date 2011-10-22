@@ -12,6 +12,7 @@
   name="floater_people"
   save_rect="true"
   single_instance="true"
+  reuse_instance="true"
   title="PEOPLE"
   width="333">
     <panel_container

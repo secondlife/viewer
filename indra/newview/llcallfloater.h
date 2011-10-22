@@ -28,7 +28,7 @@
 #ifndef LL_LLCALLFLOATER_H
 #define LL_LLCALLFLOATER_H
 
-#include "llfloater.h"
+#include "lltransientdockablefloater.h"
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
 
@@ -52,7 +52,7 @@ class LLSpeakersDelayActionsStorage;
  * When the Resident is engaged in any chat except Nearby Chat, the Voice Control Panel
  * also provides a 'Leave Call' button to allow the Resident to leave that voice channel.
  */
-class LLCallFloater : public LLFloater, LLVoiceClientParticipantObserver
+class LLCallFloater : public LLTransientDockableFloater, LLVoiceClientParticipantObserver
 {
 public:
 
@@ -261,6 +261,9 @@ private:
 	 * @see sOnCurrentChannelChanged()
 	 */
 	static LLVoiceChannel* sCurrentVoiceChannel;
+
+	/* virtual */
+	LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };

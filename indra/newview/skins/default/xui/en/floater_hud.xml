@@ -8,6 +8,7 @@
  help_topic="floater_hud"
  save_rect="true"
  save_visibility="true"
+ chrome="true"
  title="TUTORIAL"
  width="362">
     <web_browser

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  open_positioning="cascading"
+ ignore_ui_scale="false"
  legacy_header_height="225"
  can_minimize="true"
  can_close="true"
@@ -14,6 +15,7 @@
  single_instance="true"
  help_topic="destinations"
  save_rect="true"
+ save_visibility="true"
  title="DESTINATIONS"
  width="840">
     <web_browser

@@ -54,14 +54,6 @@ LLFloaterHUD::LLFloaterHUD(const LLSD& key)
 		return;
 	}
 	
-	// Don't grab the focus as it will impede performing in-world actions
-	// while using the HUD
-	setIsChrome(TRUE);
-
-	// Chrome doesn't show the window title by default, but here we
-	// want to show it.
-	setTitleVisible(true);
-	
 	// Opaque background since we never get the focus
 	setBackgroundOpaque(TRUE);
 }

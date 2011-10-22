@@ -162,9 +162,14 @@ void LLDockableFloater::setVisible(BOOL visible)
 
 void LLDockableFloater::setMinimized(BOOL minimize)
 {
-	if(minimize)
+	if(minimize && isDocked())
 	{
+		// minimizing a docked floater just hides it
 		setVisible(FALSE);
+	}
+	else
+	{
+		LLFloater::setMinimized(minimize);
 	}
 }
 

@@ -5432,21 +5432,23 @@ Your calling card was declined.
   </notification>
 
   <notification
-   icon="notifytip.tga"
-   name="TeleportToLandmark"
-   type="notifytip">
-You can teleport to locations like &apos;[NAME]&apos; by opening the Places panel on the right side of your screen, and then select the Landmarks tab.
-Click on any landmark to select it, then click &apos;Teleport&apos; at the bottom of the panel.
-(You can also double-click on the landmark, or right-click it and choose &apos;Teleport&apos;.)
+ icon="notifytip.tga"
+ name="TeleportToLandmark"
+ type="notifytip">
+    To teleport to locations like &apos;[NAME]&apos;, click on the &quot;Places&quot; button,
+    then select the Landmarks tab in the window that opens. Click on any
+    landmark to select it, then click &apos;Teleport&apos; at the bottom of the window.
+    (You can also double-click on the landmark, or right-click it and
+    choose &apos;Teleport&apos;.)
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-You can contact Residents like &apos;[NAME]&apos; by opening the People panel on the right side of your screen.
-Select the Resident from the list, then click &apos;IM&apos; at the bottom of the panel.
-(You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
+    To contact Residents like &apos;[NAME]&apos;, click on the &quot;People&quot; button , select a Resident from the window that opens, then click &apos;IM&apos; at the
+    bottom of the window.
+    (You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
   </notification>
 
   <notification

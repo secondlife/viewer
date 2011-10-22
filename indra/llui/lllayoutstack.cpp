@@ -47,6 +47,19 @@ void LLLayoutStack::OrientationNames::declareValues()
 //
 // LLLayoutPanel
 //
+LLLayoutPanel::Params::Params()	
+:	expanded_min_dim("expanded_min_dim", 0),
+	min_dim("min_dim", 0),
+	max_dim("max_dim", S32_MAX),
+	user_resize("user_resize", true),
+	auto_resize("auto_resize", true)
+{
+	addSynonym(min_dim, "min_width");
+	addSynonym(min_dim, "min_height");
+	addSynonym(max_dim, "max_width");
+	addSynonym(max_dim, "max_height");
+}
+
 LLLayoutPanel::LLLayoutPanel(const Params& p)	
 :	LLPanel(p),
 	mExpandedMinDimSpecified(false),
@@ -527,8 +540,8 @@ void LLLayoutStack::updateLayout(BOOL force_resize)
 	// not enough room to fit existing contents
 	if (force_resize == FALSE
 		// layout did not complete by reaching target position
-		&& ((mOrientation == VERTICAL && cur_y != -mPanelSpacing)
-			|| (mOrientation == HORIZONTAL && cur_x != getRect().getWidth() + mPanelSpacing)))
+		&& ((mOrientation == VERTICAL && llround(cur_y) != -mPanelSpacing)
+			|| (mOrientation == HORIZONTAL && llround(cur_x) != getRect().getWidth() + mPanelSpacing)))
 	{
 		// do another layout pass with all stacked elements contributing
 		// even those that don't usually resize
