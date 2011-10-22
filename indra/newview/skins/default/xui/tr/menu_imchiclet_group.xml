@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="IMChiclet Group Menu">
+	<menu_item_call label="Grup Bilgisi" name="Show Profile"/>
+	<menu_item_call label="Oturumu Göster" name="Chat"/>
+	<menu_item_call label="Oturumu Bitir" name="End Session"/>
+</menu>

@@ -8,9 +8,9 @@
 		Generato con [COMPILER] versione [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Tu sei  [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
+		Tu sei  [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] in [REGION] che si trova a &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[SERVER_RELEASE_NOTES_URL]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		CPU: [CPU]
@@ -36,6 +36,9 @@ Versione Server voice: [VOICE_VERSION]
 	</floater.string>
 	<floater.string name="AboutTraffic">
 		Pacchetti perduti: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%) Informazioni
+	</floater.string>
+	<floater.string name="ErrorFetchingServerReleaseNotesURL">
+		Errore nel recupero URL note rilascio versione
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Informazioni" name="support_panel">

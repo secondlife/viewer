@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="top_objects" title="Top Nesneler">
+	<floater.string name="top_scripts_title">
+		Top Komut Dosyaları
+	</floater.string>
+	<floater.string name="top_scripts_text">
+		[COUNT] komut tosyası toplam [TIME] ms sürüyor
+	</floater.string>
+	<floater.string name="scripts_score_label">
+		Süre
+	</floater.string>
+	<floater.string name="scripts_mono_time_label">
+		Mono Süre
+	</floater.string>
+	<floater.string name="top_colliders_title">
+		En Çok Çarpışanlar
+	</floater.string>
+	<floater.string name="top_colliders_text">
+		En çok potansiyel çarpışma yaşayan [COUNT] nesne
+	</floater.string>
+	<floater.string name="colliders_score_label">
+		Skor
+	</floater.string>
+	<floater.string name="none_descriptor">
+		Hiçbiri bulunamadı.
+	</floater.string>
+	<text name="title_text">
+		Yükleniyor...
+	</text>
+	<scroll_list name="objects_list">
+		<scroll_list.columns label="Skor" name="score"/>
+		<scroll_list.columns label="Ad" name="name"/>
+		<scroll_list.columns label="Sahip" name="owner"/>
+		<scroll_list.columns label="Konum" name="location"/>
+		<scroll_list.columns label="Süre" name="time"/>
+		<scroll_list.columns label="Mono Süre" name="mono_time"/>
+		<scroll_list.columns label="URL&apos;ler" name="URLs"/>
+	</scroll_list>
+	<text name="id_text">
+		Nesne Kimliği:
+	</text>
+	<button label="İşareti Göster" name="show_beacon_btn"/>
+	<text name="obj_name_text">
+		Nesne adı:
+	</text>
+	<button label="Filtrele" name="filter_object_btn"/>
+	<text name="owner_name_text">
+		Sahip:
+	</text>
+	<button label="Filtrele" name="filter_owner_btn"/>
+	<button label="Seçileni İade Et" name="return_selected_btn"/>
+	<button label="Tümünü İade Et" name="return_all_btn"/>
+	<button label="Seçileni Devre Dışı Bırak" name="disable_selected_btn"/>
+	<button label="Tümüni Devre Dışı Bırak" name="disable_all_btn"/>
+</floater>

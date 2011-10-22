@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="world_map">
+	<panel.string name="Loading">
+		Загрузка...
+	</panel.string>
+	<panel.string name="InvalidLocation">
+		Неправильное место
+	</panel.string>
+	<panel.string name="world_map_north">
+		С
+	</panel.string>
+	<panel.string name="world_map_east">
+		В
+	</panel.string>
+	<panel.string name="world_map_west">
+		З
+	</panel.string>
+	<panel.string name="world_map_south">
+		Ю
+	</panel.string>
+	<panel.string name="world_map_southeast">
+		ЮВ
+	</panel.string>
+	<panel.string name="world_map_northeast">
+		СВ
+	</panel.string>
+	<panel.string name="world_map_southwest">
+		ЮЗ
+	</panel.string>
+	<panel.string name="world_map_northwest">
+		СЗ
+	</panel.string>
+	<panel.string name="world_map_person">
+		1 человек
+	</panel.string>
+	<panel.string name="world_map_people">
+		Людей: [NUMBER]
+	</panel.string>
+	<text label="С" name="floater_map_north">
+		С
+	</text>
+	<text label="В" name="floater_map_east">
+		В
+	</text>
+	<text label="З" name="floater_map_west">
+		З
+	</text>
+	<text label="Ю" name="floater_map_south">
+		Ю
+	</text>
+	<text label="ЮВ" name="floater_map_southeast">
+		ЮВ
+	</text>
+	<text label="СВ" name="floater_map_northeast">
+		СВ
+	</text>
+	<text label="ЮЗ" name="floater_map_southwest">
+		ЮЗ
+	</text>
+	<text label="СЗ" name="floater_map_northwest">
+		СЗ
+	</text>
+</panel>

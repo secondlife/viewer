@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_help_browser" title="YARDIM TARAYICISI">
+	<floater.string name="loading_text">
+		Yükleniyor...
+	</floater.string>
+</floater>

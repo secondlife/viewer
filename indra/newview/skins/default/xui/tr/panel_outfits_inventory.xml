@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Eşyalar" name="Outfits">
+	<panel.string name="wear_outfit_tooltip">
+		Seçilen dış görünümü giy
+	</panel.string>
+	<panel.string name="wear_items_tooltip">
+		Seçilen öğeleri giy
+	</panel.string>
+	<tab_container name="appearance_tabs">
+		<panel label="DIŞ GÖRÜNÜMLERİM" name="outfitslist_tab"/>
+		<panel label="GİYİLEN" name="cof_tab"/>
+	</tab_container>
+	<panel name="bottom_panel">
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Farklı Kaydet" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="wear_btn_lp">
+				<button label="Giy" name="wear_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

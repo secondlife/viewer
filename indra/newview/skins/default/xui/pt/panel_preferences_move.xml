@@ -7,18 +7,33 @@
 	</text>
 	<check_box label="Construir/Editar" name="edit_camera_movement" tool_tip="Use o posicionamento automático da câmera quando entrar e sair do modo de edição"/>
 	<check_box label="Aparência" name="appearance_camera_movement" tool_tip="Use o posicionamento automático da câmera quando em modo de edição"/>
-	<check_box initial_value="verdadeiro" label="Barra lateral" name="appearance_sidebar_positioning" tool_tip="Usar posicionamento automático da câmera na barra lateral"/>
+	<text name="keyboard_lbl">
+		Teclado:
+	</text>
+	<check_box label="Teclas de seta sempre me movem" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Dê dois toques e pressione para correr" name="tap_tap_hold_to_run"/>
+	<text name="mouse_lbl">
+		Mouse:
+	</text>
 	<check_box label="Mostre-me em visão de mouse" name="first_person_avatar_visible"/>
 	<text name=" Mouse Sensitivity">
 		Sensibilidade do mouse:
 	</text>
 	<check_box label="Inverter" name="invert_mouse"/>
-	<check_box label="Teclas de seta sempre me movem" name="arrow_keys_move_avatar_check"/>
-	<check_box label="Dê dois toques e pressione para correr" name="tap_tap_hold_to_run"/>
-	<check_box label="Dar dois cliques para:" name="double_click_chkbox"/>
-	<radio_group name="double_click_action">
-		<radio_item label="Teletransportar" name="radio_teleport"/>
-		<radio_item label="Piloto automático" name="radio_autopilot"/>
-	</radio_group>
+	<text name="single_click_action_lbl">
+		Clique único no terreno:
+	</text>
+	<combo_box name="single_click_action_combo">
+		<combo_box.item label="Nenhuma ação" name="0"/>
+		<combo_box.item label="Mover para ponto clicado" name="1"/>
+	</combo_box>
+	<text name="double_click_action_lbl">
+		Clique duplo no terreno:
+	</text>
+	<combo_box name="double_click_action_combo">
+		<combo_box.item label="Nenhuma ação" name="0"/>
+		<combo_box.item label="Mover para ponto clicado" name="1"/>
+		<combo_box.item label="Teletransportar para ponto clicado" name="2"/>
+	</combo_box>
 	<button label="Outros dispositivos" name="joystick_setup_button"/>
 </panel>

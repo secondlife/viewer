@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_sound">
+	<floater.string name="Title">
+		Звук: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Описание:
+	</text>
+	<button label="Проиграть для всех" label_selected="Проиграть для всех" name="Sound play btn" tool_tip="Воспроизведение этого звука могут слышать другие участники"/>
+	<button label="Проиграть для себя" label_selected="Проиграть для себя" name="Sound audition btn" tool_tip="Воспроизведение этого звука могу слышать только я"/>
+</floater>

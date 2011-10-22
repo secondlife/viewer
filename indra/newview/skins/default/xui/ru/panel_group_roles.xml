@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Участники и роли" name="roles_tab">
+	<panel.string name="default_needs_apply_text">
+		Есть несохраненные изменения
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Хотите сохранить изменения?
+	</panel.string>
+	<tab_container name="roles_tab_container">
+		<panel label="УЧАСТНИКИ" name="members_sub_tab" tool_tip="Участники">
+			<panel.string name="help_text">
+				Можно добавлять или удалять роли, назначенные участникам.
+Чтобы выбрать несколько участников, удерживайте клавишу CTRL и
+щелкайте нужные имена.
+			</panel.string>
+			<panel.string name="donation_area">
+				[AREA] м²
+			</panel.string>
+			<filter_editor label="Фильтр участников" name="filter_input"/>
+			<name_list name="member_list">
+				<name_list.columns label="Участник" name="name"/>
+				<name_list.columns label="Вклад" name="donated"/>
+				<name_list.columns label="Статус" name="online"/>
+			</name_list>
+			<button label="Пригласить" name="member_invite"/>
+			<button label="Выкинуть" name="member_eject"/>
+		</panel>
+		<panel label="РОЛИ" name="roles_sub_tab">
+			<panel.string name="help_text">
+				У ролей есть название и список способностей,
+доступных участникам. У участников может быть
+одна или несколько ролей. У группы может быть до 10 ролей,
+в том числе роли «Все» и «Владелец».
+			</panel.string>
+			<panel.string name="cant_delete_role">
+				Роли «Все» и «Владелец» являются особыми и не могут быть удалены.
+			</panel.string>
+			<filter_editor label="Фильтр ролей" name="filter_input"/>
+			<scroll_list name="role_list">
+				<scroll_list.columns label="Роль" name="name"/>
+				<scroll_list.columns label="Название" name="title"/>
+				<scroll_list.columns label="#" name="members"/>
+			</scroll_list>
+			<button label="Создать роль" name="role_create"/>
+			<button label="Удалить роль" name="role_delete"/>
+		</panel>
+		<panel label="СПОСОБНОСТИ" name="actions_sub_tab" tool_tip="Можно просмотреть описание способности, а также какие участники и роли ею обладают.">
+			<panel.string name="help_text">
+				Способности позволяют участникам, которым назначены соответствующие роли, выполнять особые
+действия в группе. Имеется широкий выбор способностей.
+			</panel.string>
+			<filter_editor label="Фильтр способностей" name="filter_input"/>
+			<scroll_list name="action_list" tool_tip="Выберите способность, чтобы просмотреть данные о ней"/>
+		</panel>
+	</tab_container>
+	<panel name="members_footer">
+		<text name="static">
+			Назначенные роли
+		</text>
+		<text name="static2">
+			Доступные способности
+		</text>
+		<scroll_list name="member_allowed_actions" tool_tip="Данные о каждой доступной способности см. на вкладке «Способности»"/>
+	</panel>
+	<panel name="roles_footer">
+		<text name="static">
+			Имя роли
+		</text>
+		<text name="static3">
+			Название роли
+		</text>
+		<text name="static2">
+			Описание
+		</text>
+		<text name="static4">
+			Назначенные участники
+		</text>
+		<check_box label="Показывать участников" name="role_visible_in_list" tool_tip="Определяет, будут ли участники этой роли видны на вкладке «Основные» жителям, которые не входят в группу."/>
+		<text name="static5">
+			Доступные способности
+		</text>
+		<scroll_list name="role_allowed_actions" tool_tip="Данные о каждой доступной способности см. на вкладке «Способности»"/>
+	</panel>
+	<panel name="actions_footer">
+		<text_editor name="action_description">
+			Это способность «Исключать участников из группы». Владельца может исключить только другой владелец.
+		</text_editor>
+		<text name="static2">
+			Роли с этой способностью
+		</text>
+		<text name="static3">
+			Участники с этой способностью
+		</text>
+	</panel>
+</panel>

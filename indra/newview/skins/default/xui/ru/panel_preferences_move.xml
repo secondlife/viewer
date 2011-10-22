@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Перемещение" name="move_panel">
+	<slider label="Угол обзора" name="camera_fov"/>
+	<slider label="Расстояние" name="camera_offset_scale"/>
+	<text name="heading2">
+		Автоматическая установка позиции для:
+	</text>
+	<check_box label="Создания/редактирование" name="edit_camera_movement" tool_tip="Производить автоматическое позиционирование камеры при входе в режим редактирования и выходе из него"/>
+	<check_box label="Внешность" name="appearance_camera_movement" tool_tip="Производить автоматическое позиционирование камеры в режиме изменения внешности"/>
+	<check_box initial_value="истина" label="Боковая панель" name="appearance_sidebar_positioning" tool_tip="Производить автоматическое позиционирование камеры для боковой панели"/>
+	<check_box label="Показывать меня при обзоре мышью" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Чувствительность мыши:
+	</text>
+	<check_box label="Инвертировать" name="invert_mouse"/>
+	<check_box label="Клавиши стрелок всегда перемещают меня" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Бег после двойного нажатия клавиши" name="tap_tap_hold_to_run"/>
+	<check_box label="Двойной щелчок для:" name="double_click_chkbox"/>
+	<radio_group name="double_click_action">
+		<radio_item label="Телепорт" name="radio_teleport"/>
+		<radio_item label="Автопилот" name="radio_autopilot"/>
+	</radio_group>
+	<button label="Другие устройства" name="joystick_setup_button"/>
+</panel>

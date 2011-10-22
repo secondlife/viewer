@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_bumps" title="СТОЛКНОВЕНИЯ, ТОЛЧКИ И УДАРЫ">
+	<floater.string name="none_detected">
+		Ничего не обнаружено
+	</floater.string>
+	<floater.string name="bump">
+		[TIME] [NAME] столкнулся с вами
+	</floater.string>
+	<floater.string name="llpushobject">
+		[TIME] [NAME] толкнул вас с помощью скрипта
+	</floater.string>
+	<floater.string name="selected_object_collide">
+		[TIME] [NAME] ударил вас объектом
+	</floater.string>
+	<floater.string name="scripted_object_collide">
+		[TIME] [NAME] ударил вас скриптовым объектом
+	</floater.string>
+	<floater.string name="physical_object_collide">
+		[TIME] [NAME] ударил вас физическим объектом
+	</floater.string>
+	<floater.string name="timeStr">
+		[[hour,datetime,slt]:[min,datetime,slt]]
+	</floater.string>
+</floater>

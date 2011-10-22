@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Bildirimler" name="notices_tab">
+	<panel.string name="help_text">
+		Bildirimler ile bir ileti ve opsiyonel olarak eklenmiş bir öğe gönderebilirsiniz.
+Bildirimler sadece Bildirim alma imkanına sahip olan Rollerdeki grup üyelerine gider.
+Genel sekmesinde Bildirimleri kapatabilirsiniz.
+	</panel.string>
+	<panel.string name="no_notices_text">
+		Eski bildirimler mevcut değil
+	</panel.string>
+	<text name="lbl2">
+		Bildirimler 14 gün boyunca saklanır.
+Günde grup başına maksimum sınır 200&apos;dür
+	</text>
+	<scroll_list name="notice_list">
+		<scroll_list.columns label="Konu" name="subject"/>
+		<scroll_list.columns label="Kimden" name="from"/>
+		<scroll_list.columns label="Tarih" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Bildirim yok
+	</text>
+	<button label="Yeni Bildirim" name="create_new_notice" tool_tip="Yeni bir bildirim oluştur"/>
+	<button name="refresh_notices" tool_tip="Bildirimler listesini yenile"/>
+	<panel label="Yeni Bildirim Oluştur" name="panel_create_new_notice">
+		<text name="lbl">
+			Bildirim Oluştur
+		</text>
+		<text name="lbl3">
+			Konu:
+		</text>
+		<text name="lbl4">
+			İleti:
+		</text>
+		<text name="lbl5">
+			Ekle:
+		</text>
+		<text name="string">
+			Bir öğeyi eklemek için buraya sürükleyin ve bırakın:
+		</text>
+		<button label="Envanter" name="open_inventory" tool_tip="Envanteri Aç"/>
+		<button name="remove_attachment" tool_tip="Bildiriminizden aksesuarı kaldır"/>
+		<button label="Gönder" label_selected="Gönder" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Bu bildirimle bir envanter öğesini göndermek için öğeyi bu hedef kutuya sürükleyin. Öğeyi eklemek için kopyalama ve aktarma iznine sahip olmalısınız."/>
+	</panel>
+	<panel label="Eski Bildirimi Göster" name="panel_view_past_notice">
+		<text name="lbl">
+			Arşivlenmiş Bildirim
+		</text>
+		<text name="lbl2">
+			Yeni bir bildirim göndermek için + düğmesine tıklayın
+		</text>
+		<text name="lbl3">
+			Konu:
+		</text>
+		<text name="lbl4">
+			İleti:
+		</text>
+		<button label="Aksesuarı Aç" name="open_attachment"/>
+	</panel>
+</panel>

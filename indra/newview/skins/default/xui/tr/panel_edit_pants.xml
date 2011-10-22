@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_pants_panel">
+	<panel name="avatar_pants_color_panel">
+		<texture_picker label="Doku" name="Fabric" tool_tip="Bir resim seçmek için tıklayın"/>
+		<color_swatch label="Renk/Ton" name="Color/Tint" tool_tip="Renk seçiciyi açmak için tıklayın"/>
+	</panel>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="pants_main_tab" title="Pantolon"/>
+		</accordion>
+	</panel>
+</panel>

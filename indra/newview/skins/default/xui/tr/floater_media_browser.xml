@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_about" title="ORTAM TARAYICISI">
+	<floater.string name="home_page_url">
+		http://www.secondlife.com
+	</floater.string>
+	<floater.string name="support_page_url">
+		http://support.secondlife.com
+	</floater.string>
+	<layout_stack name="stack1">
+		<layout_panel name="nav_controls">
+			<button label="Geri" name="back"/>
+			<button label="İleri" name="forward"/>
+			<button label="Yeniden Yükle" name="reload"/>
+			<button label="Git" name="go"/>
+		</layout_panel>
+		<layout_panel name="time_controls">
+			<button label="başa sar" name="rewind"/>
+			<button label="durdur" name="stop"/>
+			<button label="ileri" name="seek"/>
+		</layout_panel>
+		<layout_panel name="parcel_owner_controls">
+			<button label="Mevcut Sayfayı Parsele Gönder" name="assign"/>
+		</layout_panel>
+		<layout_panel name="external_controls">
+			<button label="Web Tarayıcımda Aç" name="open_browser"/>
+			<check_box label="Her zaman web tarayıcımda aç" name="open_always"/>
+			<button label="Kapat" name="close"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

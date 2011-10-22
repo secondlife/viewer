@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Land Pie">
+	<menu_item_call label="Arazi Hakkında" name="Place Information..."/>
+	<menu_item_call label="Buraya Otur" name="Sit Here"/>
+	<menu_item_call label="Bu Araziyi Satın Al" name="Land Buy"/>
+	<menu_item_call label="Geçiş Hakkı Satın Al" name="Land Buy Pass"/>
+	<menu_item_call label="İnşa Et" name="Create"/>
+	<menu_item_call label="Yüzeyi Düzenle" name="Edit Terrain"/>
+</context_menu>

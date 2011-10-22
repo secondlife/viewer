@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_classified_info">
+	<panel.string name="type_mature">
+		Orta
+	</panel.string>
+	<panel.string name="type_pg">
+		Genel İçerik
+	</panel.string>
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] ışınlama, [MAP] harita, [PROFILE] profil
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Etkin
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Devre dışı
+	</panel.string>
+	<text name="title" value="İlan Bilgisi"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text_editor name="classified_name" value="[ad]"/>
+			<text name="classified_location_label" value="Konum:"/>
+			<text_editor name="classified_location" value="[yükleniyor...]"/>
+			<text name="content_type_label" value="İçerik Türü:"/>
+			<text_editor name="content_type" value="[içerik türü]"/>
+			<text name="category_label" value="Kategori:"/>
+			<text_editor name="category" value="[kategori]"/>
+			<text name="creation_date_label" value="Oluşturma tarihi:"/>
+			<text_editor name="creation_date" tool_tip="Oluşturma tarihi" value="[tarih]"/>
+			<text name="price_for_listing_label" value="İlan ücreti:"/>
+			<text_editor name="price_for_listing" tool_tip="İlan ücreti." value="[ücret]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Tıklamalar:"/>
+					<text_editor name="click_through_text" tool_tip="Tıklama verileri" value="[tıklamalar]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Otomatik yenileme:"/>
+					<text name="auto_renew" value="Etkin"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Açıklama:"/>
+					<text_editor name="classified_desc" value="[açıklama]"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</scroll_container>
+	<panel name="buttons">
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Işınla" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Harita" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Düzenle" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

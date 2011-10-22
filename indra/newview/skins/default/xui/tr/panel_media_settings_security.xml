@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Güvenlik" name="Media Settings Security">
+	<check_box initial_value="false" label="Sadece Belirlenen URL Desenlerine Erişime İzin Ver" name="whitelist_enable"/>
+	<text name="home_url_fails_some_items_in_whitelist">
+		Ana sayfanın başarısız olduğu girişler işaretli:
+	</text>
+	<button label="Ekle" name="whitelist_add"/>
+	<button label="Sil" name="whitelist_del"/>
+	<text name="home_url_fails_whitelist">
+		Uyarı: Genel sekmesinde belirtilen ana sayfa bu beyaz listede yer almıyor. Geçerli bir giriş ekleninceye kadar devre dışı bırakıldı.
+	</text>
+</panel>

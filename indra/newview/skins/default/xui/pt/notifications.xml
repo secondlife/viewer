@@ -1899,6 +1899,12 @@ Mover para o inventário o(s) item(s)?
 		Tem certeza que deseja sair?
 		<usetemplate ignoretext="Confirmar antes de sair" name="okcancelignore" notext="Não sair" yestext="Sair"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Tem certeza que deseja restaurar seus botões e barras de ferramenta padrão? 
+    
+Não é possível desfazer essa ação.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Confirmar antes de excluir" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -2976,10 +2982,6 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 			<button name="cancel" text="Cancelar"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Para alterar o modo, é preciso fechar e reiniciar.
-		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		É preciso usar o modo Avançado para criar e editar anúncios classificados.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
@@ -3023,6 +3025,10 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 	<notification label="" name="NoSearch">
 		É preciso estar no modo Avançado para fazer pesquisas. Deseja sair para mudar o modo?
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Essa ação irá ocultar todos os itens de menu e botões. Para trazê-los de volta, clique em [SHORTCUT] novamente.
+		<usetemplate ignoretext="Confirmar antes de ocultar interface" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Aparentemente a sua máquina não atende os requisitos de hardware do [APP_NAME].  [APP_NAME] requer placas de vídeo OpenGL com suporte a multitexturas.  Se sua place de vídeo tiver este perfil, atualize o driver da placa de vídeo, assim como patches e service packs do sistema operacional. 

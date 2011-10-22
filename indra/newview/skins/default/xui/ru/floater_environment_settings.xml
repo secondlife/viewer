@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="НАСТРОЙКИ СРЕДЫ">
+	<text name="note">
+		Приведенные ниже параметры позволяют настроить среду клиента.
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="Использовать настройки региона" name="use_region_settings"/>
+		<radio_item label="Настроить среду" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="note">
+			Примечание. Ваши персональные настройки не видны другим пользователям.
+		</text>
+		<text name="water_settings_title">
+			Настройка воды
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-Выбор настройки-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			Небо и суточный цикл
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="Небо не меняется" name="my_sky_settings"/>
+			<radio_item label="Суточный цикл" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-Выбор настройки-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-Выбор настройки-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="ОК" name="ok_btn"/>
+	<button label="Отмена" name="cancel_btn"/>
+</floater>
