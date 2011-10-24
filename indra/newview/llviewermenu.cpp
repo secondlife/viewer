@@ -7962,6 +7962,9 @@ void initialize_menus()
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
@@ -8336,6 +8339,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
 
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
