@@ -9,6 +9,7 @@
   name="floater_places"
   help_topic="floater_places"
   save_rect="true"
+  reuse_instance="true"
   title="PLACES"
   min_height="230"
   min_width="333"
