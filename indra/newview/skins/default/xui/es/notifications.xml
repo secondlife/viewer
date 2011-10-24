@@ -1919,6 +1919,12 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		¿Estás seguro de que quieres salir?
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		¿Estás seguro de que quieres restaurar los botones y barras de herramientas predeterminados? 
+    
+Esta acción no se puede deshacer.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Confirmar antes de eliminar elementos" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -2999,10 +3005,6 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 			<button name="cancel" text="Cancelar"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Para cambiar de modo tienes que salir y reiniciar.
-		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		La creación y edición de clasificados sólo está disponible en el modo Avanzado. ¿Quieres salir y cambiar de modo? El selector de modo se encuentra en la pantalla de inicio de sesión.
 		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
@@ -3046,6 +3048,10 @@ Al ocultar el botón Hablar se desactiva la función de voz.
 	<notification label="" name="NoSearch">
 		Las búsquedas solo están disponibles en el modo Avanzado. ¿Quieres cerrar sesión y cambiar de modo?
 		<usetemplate name="okcancelbuttons" notext="No salir" yestext="Salir"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Esta acción ocultará todos los botones y elementos de menú. Para restaurarlos, pulsa otra vez en [SHORTCUT].
+		<usetemplate ignoretext="Confirmar antes de ocultar la IU" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Parece que no tienes el hardware apropiado para [APP_NAME]. [APP_NAME] requiere una tarjeta gráfica OpenGL que admita texturas múltiples (&apos;multitexture support&apos;). Si la tienes, comprueba que tienes los últimos &apos;drivers&apos; para tu tarjeta gráfica, así como los últimos parches y &apos;service packs&apos; para tu sistema operativo.
