@@ -166,7 +166,7 @@
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
-         label="Toolbars..."
+         label="Toolbar buttons..."
          name="Toolbars"
          shortcut="control|T">
             <menu_item_call.on_click
