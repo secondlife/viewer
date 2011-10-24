@@ -10,7 +10,7 @@
 	<floater.string name="AboutPosition">
 		Вы в точке [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] в регионе «[REGION]», расположенном на &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[SERVER_RELEASE_NOTES_URL]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		ЦП: [CPU]
@@ -35,6 +35,9 @@
 	</floater.string>
 	<floater.string name="AboutTraffic">
 		Потеряно пакетов: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</floater.string>
+	<floater.string name="ErrorFetchingServerReleaseNotesURL">
+		Ошибка при получении URL-адреса заметок о выпуске сервера.
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Данные" name="support_panel">
