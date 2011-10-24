@@ -367,7 +367,7 @@ NVIDIA GTX 550					.*NVIDIA .*GTX *55.*						3		1
 NVIDIA GTX 560					.*NVIDIA .*GTX *56.*						3		1
 NVIDIA GTX 570					.*NVIDIA .*GTX *57.*						3		1
 NVIDIA GTX 580M					.*NVIDIA .*GTX *580M.*						3		1
-NVIDIA GTX 580					.*NVIDIA .*GTX *58.*						3		1
+NVIDIA GTX 580					.*NVIDIA .*GTX *58.*						3		0
 NVIDIA GTX 590					.*NVIDIA .*GTX *59.*						3		1
 NVIDIA C51						.*NVIDIA .*C51.*							0		1
 NVIDIA G72						.*NVIDIA .*G72.*							1		1

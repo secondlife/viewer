@@ -731,7 +731,7 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("NoPixelShaders");
 	}
-	if (!gGLManager.mHasVertexShader)
+	if (!gGLManager.mHasVertexShader || !mGPUSupported)
 	{
 		maskFeatures("NoVertexShaders");
 	}
