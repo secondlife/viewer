@@ -22,13 +22,19 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
- 
+
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_projection_matrix;
+
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec2 vary_texcoord0;
+
 void main()
 {
 	//transform vertex
-	gl_Position = ftransform();
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	
-	gl_FrontColor = gl_Color;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
 }

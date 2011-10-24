@@ -24,19 +24,27 @@
  */
  
 
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragData[3];
+#endif
 
 /////////////////////////////////////////////////////////////////////////
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-varying vec4 vary_CloudColorSun;
-varying vec4 vary_CloudColorAmbient;
-varying float vary_CloudDensity;
+VARYING vec4 vary_CloudColorSun;
+VARYING vec4 vary_CloudColorAmbient;
+VARYING float vary_CloudDensity;
 
 uniform sampler2D cloud_noise_texture;
 uniform vec4 cloud_pos_density1;
 uniform vec4 cloud_pos_density2;
 uniform vec4 gamma;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_texcoord3;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light) {
@@ -50,14 +58,14 @@ vec3 scaleSoftClip(vec3 light) {
 void main()
 {
 	// Set variables
-	vec2 uv1 = gl_TexCoord[0].xy;
-	vec2 uv2 = gl_TexCoord[1].xy;
+	vec2 uv1 = vary_texcoord0.xy;
+	vec2 uv2 = vary_texcoord1.xy;
 
 	vec4 cloudColorSun = vary_CloudColorSun;
 	vec4 cloudColorAmbient = vary_CloudColorAmbient;
 	float cloudDensity = vary_CloudDensity;
-	vec2 uv3 = gl_TexCoord[2].xy;
-	vec2 uv4 = gl_TexCoord[3].xy;
+	vec2 uv3 = vary_texcoord2.xy;
+	vec2 uv4 = vary_texcoord3.xy;
 
 	// Offset texture coords
 	uv1 += cloud_pos_density1.xy;	//large texture, visible density

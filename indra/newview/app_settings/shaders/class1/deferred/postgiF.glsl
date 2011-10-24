@@ -22,9 +22,11 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+ #ifdef DEFINE_GL_FRAGCOLOR
+ out vec4 gl_FragColor;
+ #endif
  
-
-
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect giLightMap;
@@ -38,7 +40,7 @@ uniform int kern_length;
 uniform float kern_scale;
 uniform vec3 blur_quad;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -94,7 +96,5 @@ void main()
 	
 	col = col*col*blur_quad.x + col*blur_quad.y + blur_quad.z;
 	
-	gl_FragData[0].xyz = col;
-	
-	//gl_FragColor = ccol;
+	gl_FragColor.rgb = col;
 }

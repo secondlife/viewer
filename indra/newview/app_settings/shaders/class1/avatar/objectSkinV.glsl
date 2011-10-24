@@ -24,7 +24,7 @@
 
 
 
-attribute vec4 object_weight;  
+ATTRIBUTE vec4 weight4;  
 
 uniform mat4 matrixPalette[32];
 
@@ -32,8 +32,8 @@ mat4 getObjectSkinnedTransform()
 {
 	int i; 
 	
-	vec4 w = fract(object_weight);
-	vec4 index = floor(object_weight);
+	vec4 w = fract(weight4);
+	vec4 index = floor(weight4);
 	
 	float scale = 1.0/(w.x+w.y+w.z+w.w);
 	w *= scale;
