@@ -68,6 +68,7 @@
      image_pressed="ComboButton_UpSelected"
      image_pressed_selected="ComboButton_Selected"
      height="23"
+     chrome="true"
      name="show_nearby_chat"
      tool_tip="Shows/hides nearby chat log">
     </button>
