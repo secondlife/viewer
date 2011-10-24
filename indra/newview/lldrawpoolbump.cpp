@@ -786,7 +786,7 @@ void LLDrawPoolBump::endBump(U32 pass)
 	{
 		// Disable texture blending on unit 1
 		gGL.getTexUnit(1)->activate();
-		//gGL.getTexUnit(1)->disable();
+		gGL.getTexUnit(1)->disable();
 		gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 		// Disable texture blending on unit 0
