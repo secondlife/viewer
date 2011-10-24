@@ -25,10 +25,10 @@
 		Araziyi seçmek için tıklayın ve sürükleyin
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] nesne ( [PRIM_COUNT] prim [PE_STRING] ) seçili
+		[OBJ_COUNT] nesne seçili, [LAND_IMPACT] arazi etkisi
 	</floater.string>
-	<floater.string name="status_selectprimequiv">
-		, [SEL_WEIGHT] prim eşdeğerleri
+	<floater.string name="status_remaining_capacity">
+		Kalan kapasite [LAND_CAPACITY].
 	</floater.string>
 	<button name="button focus" tool_tip="Odak"/>
 	<button name="button move" tool_tip="Hareket Et"/>
@@ -107,8 +107,8 @@
 	<text name="selection_empty">
 		Seçilen bir şey yok.
 	</text>
-	<text name="selection_weight">
-		Fizik ağırlığı [PHYS_WEIGHT], İşleme Maliyeti [DISP_WEIGHT].
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Ek bilgi]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Genel" name="General">
@@ -321,7 +321,6 @@
 				Dikiş türü
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="(hiçbiri)" name="None"/>
 				<combo_box.item label="Küre" name="Sphere"/>
 				<combo_box.item label="Torus" name="Torus"/>
 				<combo_box.item label="Düzlem" name="Plane"/>
