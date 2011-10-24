@@ -701,6 +701,9 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
+	refreshCachedSettings();
+	refreshRenderDeferred();
+
 	// remember these dimensions
 	mScreenWidth = resX;
 	mScreenHeight = resY;
@@ -8435,6 +8438,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	BOOL skip_avatar_update = FALSE;
 	if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
 	{
+
 		skip_avatar_update = TRUE;
 	}
 
