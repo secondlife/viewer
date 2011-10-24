@@ -935,7 +935,7 @@ void LLFloater::applyPositioning(LLFloater* other)
 
 	case LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP:
 	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
-		if (other != NULL)
+		if (other != NULL && other != this)
 		{
 			stackWith(*other);
 		}
