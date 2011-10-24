@@ -28,6 +28,6 @@
 void fullbright_lighting();
 
 void main() 
-{F
+{
 	fullbright_lighting();
 }
