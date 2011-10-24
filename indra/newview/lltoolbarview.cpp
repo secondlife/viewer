@@ -151,6 +151,7 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 bool LLToolBarView::loadToolbars(bool force_default)
 {
 	LLToolBarView::ToolbarSet toolbar_set;
+	bool err = false;
 	
 	// Load the toolbars.xml file
 	std::string toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
@@ -165,24 +166,39 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	}
 	
 	LLXMLNodePtr root;
-	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
+	if (!LLXMLNode::parseFile(toolbar_file, root, NULL))
 	{
 		llwarns << "Unable to load toolbars from file: " << toolbar_file << llendl;
-		return false;
+		err = true;
 	}
-	if(!root->hasName("toolbars"))
+	
+	if (!err && !root->hasName("toolbars"))
 	{
 		llwarns << toolbar_file << " is not a valid toolbars definition file" << llendl;
-		return false;
+		err = true;
 	}
 	
 	// Parse the toolbar settings
 	LLXUIParser parser;
-	parser.readXUI(root, toolbar_set, toolbar_file);
-	if (!toolbar_set.validateBlock())
+	if (!err)
 	{
-		llerrs << "Unable to validate toolbars from file: " << toolbar_file << llendl;
-		return false;
+		parser.readXUI(root, toolbar_set, toolbar_file);
+	}
+	if (!err && !toolbar_set.validateBlock())
+	{
+		llwarns << "Unable to validate toolbars from file: " << toolbar_file << llendl;
+		err = true;
+	}
+	
+	if (err)
+	{
+		if (force_default)
+		{
+			llerrs << "Unable to load toolbars from default file : " << toolbar_file << llendl;
+			return false;
+		}
+		// Try to load the default toolbars
+		return loadToolbars(true);
 	}
 	
 	// Clear the toolbars now before adding the loaded commands and settings
