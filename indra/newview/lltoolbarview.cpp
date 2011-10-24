@@ -73,7 +73,8 @@ LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 	mToolbarRight(NULL),
 	mToolbarBottom(NULL),
 	mDragStarted(false),
-	mDragToolbarButton(NULL)
+	mDragToolbarButton(NULL),
+	mToolbarsLoaded(false)
 {
 }
 
@@ -244,6 +245,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			}
 		}
 	}
+	mToolbarsLoaded = true;
 	return true;
 }
 
@@ -255,6 +257,10 @@ bool LLToolBarView::loadDefaultToolbars()
 	if (gToolBarView)
 	{
 		retval = gToolBarView->loadToolbars(true);
+		if (retval)
+		{
+			gToolBarView->saveToolbars();
+		}
 	}
 
 	return retval;
@@ -262,6 +268,9 @@ bool LLToolBarView::loadDefaultToolbars()
 
 void LLToolBarView::saveToolbars() const
 {
+	if (!mToolbarsLoaded)
+		return;
+	
 	// Build the parameter tree from the toolbar data
 	LLToolBarView::ToolbarSet toolbar_set;
 	if (mToolbarLeft)
@@ -460,6 +469,9 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 				int new_rank = toolbar->getRankFromPosition(x,y);
 				toolbar->addCommand(command_id, new_rank);
 			}
+			
+			// Save the new toolbars configuration
+			gToolBarView->saveToolbars();
 		}
 		else
 		{
