@@ -113,6 +113,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mHandleDragItemCallback(NULL),
 	mHandleDropCallback(NULL),
 	mButtonAddSignal(NULL),
+	mButtonEnterSignal(NULL),
 	mDragAndDropTarget(false)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
@@ -123,6 +124,7 @@ LLToolBar::~LLToolBar()
 {
 	delete mPopupMenuHandle.get();
 	delete mButtonAddSignal;
+	delete mButtonEnterSignal;
 }
 
 void LLToolBar::createContextMenu()
@@ -352,6 +354,23 @@ bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
 					command_button->onCommit();
 				}
 			}
+		}
+	}
+
+	return (command_button != NULL);
+}
+
+bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash)
+{
+	LLButton * command_button = NULL;
+
+	if (commandId != LLCommandId::null)
+	{
+		command_id_map::iterator it = mButtonMap.find(commandId.uuid());
+		if (it != mButtonMap.end())
+		{
+			command_button = it->second;
+			command_button->setFlashing(flash ? TRUE : FALSE);
 		}
 	}
 
@@ -876,8 +895,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 			button->setCommitCallback(executeParam);
 		}
 
-
-
+		// Set up "is running" query callback
 		const std::string& isRunningFunction = commandp->isRunningFunctionName();
 		if (isRunningFunction.length() > 0)
 		{
@@ -904,10 +922,16 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	return button;
 }
 
-boost::signals2::connection LLToolBar::setButtonAddCallback(const button_add_signal_t::slot_type& cb)
+boost::signals2::connection LLToolBar::setButtonAddCallback(const button_signal_t::slot_type& cb)
 {
-	if (!mButtonAddSignal) mButtonAddSignal = new button_add_signal_t();
+	if (!mButtonAddSignal) mButtonAddSignal = new button_signal_t();
 	return mButtonAddSignal->connect(cb);
+}
+
+boost::signals2::connection LLToolBar::setButtonEnterCallback(const button_signal_t::slot_type& cb)
+{
+	if (!mButtonEnterSignal) mButtonEnterSignal = new button_signal_t();
+	return mButtonEnterSignal->connect(cb);
 }
 
 BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -981,8 +1005,6 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mOriginalImageOverlayColor(p.image_overlay_color),
 	mOriginalImageOverlaySelectedColor(p.image_overlay_selected_color)
 {
-	mButtonFlashRate = 0.0;
-	mButtonFlashCount = 0;
 }
 
 LLToolBarButton::~LLToolBarButton()
@@ -1024,6 +1046,7 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	{
 		handled = LLButton::handleHover(x, y, mask);
 	}
+
 	return handled;
 }
 
@@ -1035,6 +1058,12 @@ void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
 	if (!gFocusMgr.getMouseCapture() || gFocusMgr.getMouseCapture() == this)
 	{
 		mNeedsHighlight = TRUE;
+	}
+
+	LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
+	if (parent_toolbar && parent_toolbar->mButtonEnterSignal)
+	{
+		(*(parent_toolbar->mButtonEnterSignal))(this);
 	}
 }
 
@@ -1084,25 +1113,25 @@ void LLToolBarButton::setEnabled(BOOL enabled)
 	}
 }
 
-
 const std::string LLToolBarButton::getToolTip() const	
 { 
 	std::string tooltip;
+
 	if (labelIsTruncated() || getCurrentLabel().empty())
 	{
-		return LLTrans::getString(LLCommandManager::instance().getCommand(mId)->labelRef()) + " -- " + LLView::getToolTip();
+		tooltip = LLTrans::getString(LLCommandManager::instance().getCommand(mId)->labelRef()) + " -- " + LLView::getToolTip();
 	}
 	else
 	{
-		return LLView::getToolTip();
+		tooltip = LLView::getToolTip();
 	}
+
+	LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
+	if (parent_toolbar && parent_toolbar->mButtonTooltipSuffix.length() > 0)
+	{
+		tooltip = tooltip + "\n(" + parent_toolbar->mButtonTooltipSuffix + ")";
+	}
+
+	return tooltip;
 }
-
-
-
-
-
-
-
-
 
