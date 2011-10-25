@@ -1767,7 +1767,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 		error = TRUE;
 	}
 
-	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &active_texture);
+	/*glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &active_texture);
 	if (active_texture != GL_TEXTURE0_ARB)
 	{
 		llwarns << "Active texture corrupted: " << active_texture << llendl;
@@ -1776,7 +1776,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 			gFailLog << "Active texture corrupted: " << active_texture << std::endl;
 		}
 		error = TRUE;
-	}
+	}*/
 
 	static const char* label[] =
 	{
