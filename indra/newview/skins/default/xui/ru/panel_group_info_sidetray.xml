@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Профиль группы" name="GroupInfo">
+	<panel.string name="default_needs_apply_text">
+		Есть несохраненные изменения
+	</panel.string>
+	<panel.string name="want_apply_text">
+		Вы хотите сохранить эти изменения?
+	</panel.string>
+	<panel.string name="group_join_btn">
+		Присоединиться (L$[AMOUNT])
+	</panel.string>
+	<panel.string name="group_join_free">
+		Бесплатно
+	</panel.string>
+	<panel name="group_info_top">
+		<text_editor name="group_name" value="(Загрузка...)"/>
+		<line_editor label="Введите здесь название новой группы" name="group_name_editor"/>
+	</panel>
+	<layout_stack name="layout">
+		<layout_panel name="group_accordions">
+			<accordion name="groups_accordion">
+				<accordion_tab name="group_general_tab" title="Общие"/>
+				<accordion_tab name="group_roles_tab" title="Роли"/>
+				<accordion_tab name="group_notices_tab" title="Уведомления"/>
+				<accordion_tab name="group_land_tab" title="Земля/активы"/>
+			</accordion>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="button_row_ls">
+		<layout_panel name="btn_chat_lp">
+			<button label="Чат" name="btn_chat"/>
+		</layout_panel>
+		<layout_panel name="call_btn_lp">
+			<button label="Звонок группе" name="btn_call" tool_tip="Звонок этой группе"/>
+		</layout_panel>
+		<layout_panel name="btn_apply_lp">
+			<button label="Сохранить" label_selected="Сохранить" name="btn_apply"/>
+			<button label="Создать группу" name="btn_create" tool_tip="Создать новую группу"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

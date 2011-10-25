@@ -982,7 +982,7 @@ namespace LLInitParam
 					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
-						if (name_value_lookup_t::getValueFromName(name, typed_param.mValues))
+						if (name_value_lookup_t::getValueFromName(name, value))
 						{
 							typed_param.add(value);
 							typed_param.mValues.back().setValueName(name);
@@ -1013,7 +1013,7 @@ namespace LLInitParam
 					bool value_written = parser.writeValue(*it, name_stack);
 					if (!value_written)
 					{
-						std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
+						std::string calculated_key = it->calcValueName(key);
 						if (!parser.writeValue(calculated_key, name_stack))
 						{
 							break;

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Explicit left edge to avoid overlapping build tools -->
+<floater name="telehub" title="IŞINLAMA İSTASYONU">
+	<text name="status_text_connected">
+		Işınlama istasyonu nesneye [OBJECT] bağlandı
+	</text>
+	<text name="status_text_not_connected">
+		Hiçbir ışınlama istasyonu bağlı değil
+	</text>
+	<text name="help_text_connected">
+		Çıkarmak için, Bağlantıyı Kes&apos;e tıkla.
+	</text>
+	<text name="help_text_not_connected">
+		Nesneyi seç ve Işınlama İstasyonuna Bağlan&apos;a tıkla
+	</text>
+	<button label="Işınlanma İstasyonuna Bağlan" name="connect_btn"/>
+	<button label="Bağlantıyı Kes" name="disconnect_btn"/>
+	<text name="spawn_points_text">
+		Üreme Noktaları (konumlar, nesneler değil):
+	</text>
+	<button label="Üreme Ekle" name="add_spawn_point_btn"/>
+	<button label="Üreme Çıkar" name="remove_spawn_point_btn"/>
+	<text name="spawn_point_help">
+		Konum belirtmek için nesneyi seç ve &quot;Üreme Ekle&quot;ye tıkla
+Daha sonra nesneyi taşıyabilir veya silebilirsiniz.
+Konumlar ışınlanma istasyonu merkezine görelidir.
+SL dünyasında vurgulamak için listedeki bir ögeyi seçin.
+	</text>
+</floater>

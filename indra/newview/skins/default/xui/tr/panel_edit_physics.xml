@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Göğüs Hoplaması"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Göğüs Çatalı"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Göğüs Sallanması"/>
+			<accordion_tab name="physics_belly_tab" title="Göbek Hoplaması"/>
+			<accordion_tab name="physics_butt_tab" title="Popo Hoplaması"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Popo Sallanması"/>
+			<accordion_tab name="physics_advanced_tab" title="Gelişmiş Parametreler"/>
+		</accordion>
+	</panel>
+</panel>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Avatar Context Menu">
+	<menu_item_call label="Смотреть профиль" name="View Profile"/>
+	<menu_item_call label="В друзья" name="Add Friend"/>
+	<menu_item_call label="Удалить из друзей" name="Remove Friend"/>
+	<menu_item_call label="IM" name="IM"/>
+	<menu_item_call label="Звонок" name="Call"/>
+	<menu_item_call label="Карта" name="Map"/>
+	<menu_item_call label="Поделиться" name="Share"/>
+	<menu_item_call label="Заплатить" name="Pay"/>
+	<menu_item_check label="Черный список" name="Block/Unblock"/>
+	<menu_item_call label="Предложить телепорт" name="teleport"/>
+</context_menu>

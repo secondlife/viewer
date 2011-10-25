@@ -56,7 +56,8 @@ const std::string& LLTeleportHistoryItem::getTitle() const
 LLTeleportHistory::LLTeleportHistory():
 	mCurrentItem(-1),
 	mRequestedItem(-1),
-	mGotInitialUpdate(false)
+	mGotInitialUpdate(false),
+	mTeleportHistoryStorage(NULL)
 {
 	mTeleportFinishedConn = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLTeleportHistory::updateCurrentLocation, this, _1));
@@ -115,6 +116,10 @@ void LLTeleportHistory::handleLoginComplete()
 
 void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 {
+	if (!mTeleportHistoryStorage)
+	{
+		mTeleportHistoryStorage = LLTeleportHistoryStorage::getInstance();
+	}
 	if (mRequestedItem != -1) // teleport within the history in progress?
 	{
 		mCurrentItem = mRequestedItem;
@@ -152,7 +157,7 @@ void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 		if (mCurrentItem < 0 || mCurrentItem >= (int) mItems.size()) // sanity check
 		{
 			llwarns << "Invalid current item. (this should not happen)" << llendl;
-			llassert(!"Invalid current teleport histiry item");
+			llassert(!"Invalid current teleport history item");
 			return;
 		}
 		LLVector3 new_pos_local = gAgent.getPosAgentFromGlobal(new_pos);

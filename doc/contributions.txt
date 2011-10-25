@@ -576,9 +576,13 @@ Jonathan Yap
 	STORM-1572
 	STORM-1574
 	STORM-1579
+	STORM-1638
+	STORM-976
 	STORM-1639
+	STORM-910
+	STORM-1642
 Kadah Coba
-    STORM-1060
+	STORM-1060
 Jondan Lundquist
 Josef Munster
 Josette Windlow
@@ -1136,6 +1140,7 @@ Vector Hastings
 	VWR-8726
 Veritas Raymaker
 Vex Streeter
+	STORM-1642
 Viaticus Speculaas
 Vick Forcella
 Villain Baroque

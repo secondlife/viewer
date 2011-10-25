@@ -105,9 +105,6 @@ BOOL LLFloaterMap::postBuild()
 	// Get the drag handle all the way in back
 	sendChildToBack(getDragHandle());
 
-	//setIsChrome(TRUE);
-	//getDragHandle()->setTitleVisible(TRUE);
-	
 	// keep onscreen
 	gFloaterView->adjustToFitScreen(this, FALSE);
 

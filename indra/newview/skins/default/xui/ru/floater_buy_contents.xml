@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_buy_contents" title="ПОКУПКА СОДЕРЖИМОГО">
+	<floater.string name="no_copy_text">
+		(не копируется)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(не изменяется)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(не передается)
+	</floater.string>
+	<text name="contains_text">
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; содержит:
+	</text>
+	<text name="buy_text">
+		Купить за L$[AMOUNT] у жителя [NAME]?
+	</text>
+	<check_box label="Надеть одежду сейчас" name="wear_check"/>
+	<button label="Купить" label_selected="Купить" name="buy_btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_btn"/>
+</floater>

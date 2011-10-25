@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Display Name" title="СМЕНА ЭКРАННОГО ИМЕНИ">
+	<text name="info_text">
+		Имя, которое вы даете аватару, называется экранным именем. Вы можете менять его раз в неделю.
+	</text>
+	<text name="lockout_text">
+		Вы не можете менять экранное имя до: [TIME].
+	</text>
+	<text name="set_name_label">
+		Новое экранное имя:
+	</text>
+	<text name="name_confirm_label">
+		Наберите новое имя еще раз для подтверждения:
+	</text>
+	<button label="Сохранить" name="save_btn" tool_tip="Сохранить ваше новое экранное имя"/>
+	<button label="Сброс" name="reset_btn" tool_tip="Сменить экранное имя на имя пользователя"/>
+	<button label="Отмена" name="cancel_btn"/>
+</floater>

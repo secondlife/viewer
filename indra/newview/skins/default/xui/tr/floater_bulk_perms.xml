@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floaterbulkperms" title="İÇERİK İZİNLERİNİ DÜZENLE">
+	<floater.string name="nothing_to_modify_text">
+		Seçim içerisinde düzenlenebilir içerik yok.
+	</floater.string>
+	<floater.string name="status_text">
+		[NAME] üzerinde izinler ayarlanıyor
+	</floater.string>
+	<floater.string name="start_text">
+		İzin değişiklik talepleri başlatılıyor...
+	</floater.string>
+	<floater.string name="done_text">
+		İzin değişiklik talepleri sonlandırıldı.
+	</floater.string>
+	<icon name="icon_animation" tool_tip="Animasyon"/>
+	<icon name="icon_bodypart" tool_tip="Vücut Bölümleri"/>
+	<icon name="icon_clothing" tool_tip="Giysiler"/>
+	<icon name="icon_gesture" tool_tip="Mimikler"/>
+	<icon name="icon_notecard" tool_tip="Not Kartları"/>
+	<icon name="icon_object" tool_tip="Nesneler"/>
+	<icon name="icon_script" tool_tip="Komut Dosyaları"/>
+	<icon name="icon_sound" tool_tip="Sesler"/>
+	<icon name="icon_texture" tool_tip="Dokular"/>
+	<button label="√ Tümü" name="check_all"/>
+	<button label="Temizle" label_selected="Hiçbiri" name="check_none"/>
+	<text name="newperms">
+		Yeni İçerik İzinleri
+	</text>
+	<text name="GroupLabel">
+		Grup:
+	</text>
+	<check_box label="Paylaş" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		Herkes:
+	</text>
+	<check_box label="Kopyala" name="everyone_copy"/>
+	<text name="NextOwnerLabel">
+		Sonraki sahip:
+	</text>
+	<check_box label="Değiştir" name="next_owner_modify"/>
+	<check_box label="Kopyala" name="next_owner_copy"/>
+	<check_box initial_value="true" label="Aktar" name="next_owner_transfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+	<button label="Tamam" name="apply"/>
+	<button label="İptal" name="close"/>
+</floater>

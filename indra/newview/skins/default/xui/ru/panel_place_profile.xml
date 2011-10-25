@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="place_profile">
+	<string name="on" value="Вкл."/>
+	<string name="off" value="Выкл."/>
+	<string name="anyone" value="Все"/>
+	<string name="available" value="доступно"/>
+	<string name="allocated" value="расположено"/>
+	<string name="title_place" value="Профиль места"/>
+	<string name="title_teleport_history" value="История телепортов"/>
+	<string name="not_available" value="(нет)"/>
+	<string name="unknown" value="(неизвестно)"/>
+	<string name="public" value="(публичное)"/>
+	<string name="none_text" value="(нет)"/>
+	<string name="sale_pending_text" value="(Ожидание продажи)"/>
+	<string name="group_owned_text" value="(Собственность группы)"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="м²"/>
+	<string name="all_residents_text" value="Все жители"/>
+	<string name="group_text" value="Группа"/>
+	<string name="can_resell">
+		Приобретенная в этом регионе земля может быть перепродана.
+	</string>
+	<string name="can_not_resell">
+		Приобретенная в этом регионе земля не может быть перепродана.
+	</string>
+	<string name="can_change">
+		Приобретенная в этом регионе земля может быть объединена или разделена.
+	</string>
+	<string name="can_not_change">
+		Приобретенная в этом регионе земля не может быть объединена или разделена.
+	</string>
+	<string name="server_update_text">
+		Информация о месте недоступна без обновления сервера.
+	</string>
+	<string name="server_error_text">
+		Информация об этом месте сейчас недоступна. Повторите попытку позже.
+	</string>
+	<string name="server_forbidden_text">
+		Информация об этом месте недоступна из-за ограничений доступа.  Согласуйте свой уровень доступа с владельцем участка.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local], [day,datetime,local] [mth,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Назад"/>
+	<text name="title" value="Профиль места"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="Образец_региона"/>
+			<text name="parcel_title" value="Образец_участка, название Long (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="owner_label" value="Владелец:"/>
+			<text name="owner_value" value="Алексей Сверхдлинноеимянов"/>
+			<text name="maturity_value" value="неизвестен"/>
+			<accordion name="advanced_info_accordion">
+				<accordion_tab name="parcel_characteristics_tab" title="Участок">
+					<panel name="parcel_characteristics_panel">
+						<text name="rating_label" value="Рейтинг:"/>
+						<text name="rating_value" value="неизвестен"/>
+						<text name="voice_label" value="Голос:"/>
+						<text name="voice_value" value="Вкл."/>
+						<text name="fly_label" value="Полет:"/>
+						<text name="fly_value" value="Вкл."/>
+						<text name="push_label" value="Толкание:"/>
+						<text name="push_value" value="Выкл."/>
+						<text name="build_label" value="Строительство:"/>
+						<text name="build_value" value="Вкл."/>
+						<text name="scripts_label" value="Скрипты:"/>
+						<text name="scripts_value" value="Вкл."/>
+						<text name="damage_label" value="Повреждения:"/>
+						<text name="damage_value" value="Выкл."/>
+						<text name="see_avatars_label" value="Видеть аватары:"/>
+						<text name="see_avatars_value" value="Выкл."/>
+						<button label="О земле" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="Регион">
+					<panel name="region_information_panel">
+						<text name="region_name_label" value="Регион:"/>
+						<text name="region_name" value="Лососево"/>
+						<text name="region_type_label" value="Тип:"/>
+						<text name="region_type" value="Лосось"/>
+						<text name="region_rating_label" value="Рейтинг:"/>
+						<text name="region_rating" value="Взрослый"/>
+						<text name="region_owner_label" value="Владелец:"/>
+						<text name="region_owner" value="лосось Ван Лосось очень длинное имя лосось"/>
+						<text name="region_group_label" value="Группа:"/>
+						<text name="region_group">
+							Крепкий лосось из Лососево под Усть-Лососинском
+						</text>
+						<button label="Регион/землевладение" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="Землевладение">
+					<panel name="estate_information_panel">
+						<text name="estate_name_label" value="Землевладение:"/>
+						<text name="estate_rating_label" value="Рейтинг:"/>
+						<text name="estate_owner_label" value="Владелец:"/>
+						<text name="estate_owner" value="Длина имени владельца теста (длинное имя)"/>
+						<text name="covenant_label" value="Соглашение:"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="Для продажи">
+					<panel name="sales_panel">
+						<text name="sales_price_label" value="Цена:"/>
+						<text name="area_label" value="Площадь:"/>
+						<text name="traffic_label" value="Посещаемость:"/>
+						<text name="primitives_label" value="Примитивы:"/>
+						<text name="parcel_scripts_label" value="Скрипты:"/>
+						<text name="terraform_limits_label" value="Терраформирование:"/>
+						<text name="subdivide_label" value="Способность разделения/объединения:"/>
+						<text name="resale_label" value="Способность перепродажи:"/>
+						<text name="sale_to_label" value="Продажа для:"/>
+					</panel>
+				</accordion_tab>
+			</accordion>
+		</panel>
+	</scroll_container>
+</panel>

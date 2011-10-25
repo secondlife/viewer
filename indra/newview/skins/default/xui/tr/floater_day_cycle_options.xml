@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Day Cycle Floater" title="GÜN DÖNGÜSÜ DÜZENLEYİCİ">
+	<tab_container name="Day Cycle Tabs">
+		<panel label="Gün Döngüsü" name="Day Cycle">
+			<multi_slider initial_value="0" name="WLTimeSlider"/>
+			<multi_slider initial_value="0" name="WLDayCycleKeys"/>
+			<text name="WL12am">
+				12öö
+			</text>
+			<text name="WL3am">
+				3öö
+			</text>
+			<text name="WL6am">
+				6öö
+			</text>
+			<text name="WL9amHash">
+				9öö
+			</text>
+			<text name="WL12pmHash">
+				12ös
+			</text>
+			<text name="WL3pm">
+				3ös
+			</text>
+			<text name="WL6pm">
+				6ös
+			</text>
+			<text name="WL9pm">
+				9ös
+			</text>
+			<text name="WL12am2">
+				12öö
+			</text>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL3amHash">
+				I
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL9amHash2">
+				I
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL3pmHash">
+				I
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL9pmHash">
+				I
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<button label="Anahtar Ekle" label_selected="Anahtar Ekle" name="WLAddKey"/>
+			<button label="Anahtarı Sil" label_selected="Anahtarı Sil" name="WLDeleteKey"/>
+			<text name="WLCurKeyFrameText">
+				Anahtar Kare Ayarları:
+			</text>
+			<text name="WLCurKeyTimeText">
+				Anahtar Zamanı:
+			</text>
+			<spinner label="Saat" name="WLCurKeyHour"/>
+			<spinner label="Dak" name="WLCurKeyMin"/>
+			<text name="WLCurKeyTimeText2">
+				Anahtar Ön Ayarı:
+			</text>
+			<combo_box label="Ön Ayar" name="WLKeyPresets"/>
+			<text name="DayCycleText">
+				Yasla:
+			</text>
+			<combo_box label="5 dak" name="WLSnapOptions"/>
+			<text name="DayCycleText2">
+				Döngü Uzunluğu:
+			</text>
+			<spinner label="Saat" name="WLLengthOfDayHour"/>
+			<spinner label="Dak" name="WLLengthOfDayMin"/>
+			<spinner label="San" name="WLLengthOfDaySec"/>
+			<text name="DayCycleText3">
+				Önizleme:
+			</text>
+			<button label="Oyna" label_selected="Oyna" name="WLAnimSky"/>
+			<button label="Durdur!" label_selected="Durdur" name="WLStopAnimSky"/>
+			<button label="Gayrimenkul Saati Kullan" label_selected="Gayrimenkul Saatine Git" name="WLUseLindenTime"/>
+			<button label="Test Gününü Kaydet" label_selected="Test Gününü Kaydet" name="WLSaveDayCycle"/>
+			<button label="Test Gününü Yükle" label_selected="Test Gününü Yükle" name="WLLoadDayCycle"/>
+		</panel>
+	</tab_container>
+</floater>

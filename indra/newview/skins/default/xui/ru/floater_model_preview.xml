@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Preview" title="Передать модель">
+	<string name="status_idle">
+		Неактивно
+	</string>
+	<string name="status_parse_error">
+		Проблема при анализе файла DAE – см. подробности в журнале.
+	</string>
+	<string name="status_reading_file">
+		Загрузка...
+	</string>
+	<string name="status_generating_meshes">
+		Создаются меши...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Ошибка. Число вершин превышает 65534. Прервано.
+	</string>
+	<string name="bad_element">
+		Ошибка: недопустимый элемент
+	</string>
+	<string name="high">
+		Высокий
+	</string>
+	<string name="medium">
+		Средний
+	</string>
+	<string name="low">
+		Низкий
+	</string>
+	<string name="lowest">
+		Самый низкий
+	</string>
+	<string name="mesh_status_good">
+		Доставлено!
+	</string>
+	<string name="mesh_status_na">
+		Н/Д
+	</string>
+	<string name="mesh_status_none">
+		Нет
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Отличается число текстурируемых граней на уровнях детализации.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Отличается число экземпляров меша на уровнях детализации.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Слишком много вершин на уровне детализации.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Отсутствует необходимый уровень детализации.
+	</string>
+	<string name="layer_all">
+		Все
+	</string>
+	<string name="decomposing">
+		Анализ...
+	</string>
+	<string name="simplifying">
+		Упрощение...
+	</string>
+	<string name="tbd">
+		Позже
+	</string>
+	<text name="name_label">
+		Название:
+	</text>
+	<text name="lod_label">
+		Просмотр:
+	</text>
+	<combo_box name="preview_lod_combo" tool_tip="Уровень детализации при предварительном просмотре">
+		<combo_item name="high">
+			Уровень детализации: высокий
+		</combo_item>
+		<combo_item name="medium">
+			Уровень детализации: средний
+		</combo_item>
+		<combo_item name="low">
+			Уровень детализации: низкий
+		</combo_item>
+		<combo_item name="lowest">
+			Уровень детализации: самый низкий
+		</combo_item>
+	</combo_box>
+	<text name="warning_title">
+		ВНИМАНИЕ!
+	</text>
+	<text name="warning_message">
+		Вы не сможете завершить передачу этой модели на серверы Second Life. [[VURL] Узнайте, как] получить право на передачу сеточных моделей.
+	</text>
+	<text name="weights_text">
+		Загрузка:
+Физические данные:
+Сервер:
+Эквивалент в примитивах:
+	</text>
+	<text name="weights">
+		[ST]
+[PH]
+[SIM]
+[EQ]
+	</text>
+	<tab_container name="import_tab">
+		<panel label="Уровень детализации" name="lod_panel">
+			<text name="lod_table_header">
+				Выберите уровень детализации:
+			</text>
+			<text name="high_label" value="высокий"/>
+			<text name="high_triangles" value="0"/>
+			<text name="high_vertices" value="0"/>
+			<text name="medium_label" value="средний"/>
+			<text name="medium_triangles" value="0"/>
+			<text name="medium_vertices" value="0"/>
+			<text name="low_label" value="низкий"/>
+			<text name="low_triangles" value="0"/>
+			<text name="low_vertices" value="0"/>
+			<text name="lowest_label" value="самый низкий"/>
+			<text name="lowest_triangles" value="0"/>
+			<text name="lowest_vertices" value="0"/>
+			<text name="lod_table_footer">
+				Уровень детализации: [DETAIL]
+			</text>
+			<radio_group name="lod_file_or_limit" value="lod_from_file">
+				<radio_item label="Загрузка из файла" name="lod_from_file"/>
+				<radio_item label="Автосоздание" name="lod_auto_generate"/>
+				<radio_item label="Нет" name="lod_none"/>
+			</radio_group>
+			<button label="Обзор..." name="lod_browse"/>
+			<combo_box name="lod_mode">
+				<combo_item name="triangle_limit">
+					Предельное число треугольников
+				</combo_item>
+				<combo_item name="error_threshold">
+					Порог ошибки
+				</combo_item>
+			</combo_box>
+			<text name="build_operator_text">
+				Оператор построения:
+			</text>
+			<text name="queue_mode_text">
+				Режим очереди:
+			</text>
+			<combo_box name="build_operator">
+				<combo_item name="edge_collapse">
+					Слияние ребер
+				</combo_item>
+				<combo_item name="half_edge_collapse">
+					Слияние ребер к одной вершине
+				</combo_item>
+			</combo_box>
+			<combo_box name="queue_mode">
+				<combo_item name="greedy">
+					интенсивный
+				</combo_item>
+				<combo_item name="lazy">
+					медленный
+				</combo_item>
+				<combo_item name="independent">
+					независимый
+				</combo_item>
+			</combo_box>
+			<text name="border_mode_text">
+				Границы:
+			</text>
+			<text name="share_tolderance_text">
+				Допуск на совпадение:
+			</text>
+			<combo_box name="border_mode">
+				<combo_item name="border_unlock">
+					нефиксированные
+				</combo_item>
+				<combo_item name="border_lock">
+					фиксированные
+				</combo_item>
+			</combo_box>
+			<text name="crease_label">
+				Угол сгиба:
+			</text>
+			<spinner name="crease_angle" value="75"/>
+		</panel>
+		<panel label="Физика" name="physics_panel">
+			<panel name="physics geometry">
+				<radio_group name="physics_load_radio" value="physics_load_from_file">
+					<radio_item label="Файл:" name="physics_load_from_file"/>
+					<radio_item label="Использовать уровни детализации:" name="physics_use_lod"/>
+				</radio_group>
+				<combo_box name="physics_lod_combo" tool_tip="Уровень детализации для физической формы">
+					<combo_item name="physics_lowest">
+						самый низкий
+					</combo_item>
+					<combo_item name="physics_low">
+						низкий
+					</combo_item>
+					<combo_item name="physics_medium">
+						средний
+					</combo_item>
+					<combo_item name="physics_high">
+						высокий
+					</combo_item>
+				</combo_box>
+				<button label="Обзор..." name="physics_browse"/>
+			</panel>
+			<panel name="physics analysis">
+				<slider label="Гладкость:" name="Smooth"/>
+				<check_box label="Закрыть отверстия (медленно)" name="Close Holes (Slow)"/>
+				<button label="Анализ" name="Decompose"/>
+				<button label="Отмена" name="decompose_cancel"/>
+			</panel>
+			<panel name="physics simplification">
+				<slider label="Проходов:" name="Combine Quality"/>
+				<slider label="Масштаб деталей:" name="Detail Scale"/>
+				<slider label="Сохранять:" name="Retain%"/>
+				<button label="Упрощение" name="Simplify"/>
+				<button label="Отмена" name="simplify_cancel"/>
+			</panel>
+			<panel name="physics info">
+				<slider label="Просмотр разложения:" name="physics_explode"/>
+				<text name="physics_triangles">
+					Треугольников: [TRIANGLES]
+				</text>
+				<text name="physics_points">
+					Вершин: [POINTS]
+				</text>
+				<text name="physics_hulls">
+					Оболочек: [HULLS]
+				</text>
+			</panel>
+		</panel>
+		<panel label="Модификаторы" name="modifiers_panel">
+			<spinner name="import_scale" value="1.0"/>
+			<text name="import_dimensions">
+				[X] x [Y] x [Z] м
+			</text>
+			<check_box label="Текстуры" name="upload_textures"/>
+			<check_box label="Вес кожи" name="upload_skin"/>
+			<check_box label="Положение сочленений" name="upload_joints"/>
+			<spinner name="pelvis_offset" value="0.0"/>
+		</panel>
+	</tab_container>
+	<text name="upload_fee">
+		Плата за передачу: L$ [FEE]
+	</text>
+	<button label="По умолчанию" name="reset_btn" tool_tip="По умолчанию"/>
+	<button label="Рассчитать вес и плату" name="calculate_btn" tool_tip="Рассчитать вес и плату"/>
+	<button label="Передача" name="ok_btn" tool_tip="Передать в симулятор"/>
+	<button label="Отмена" name="cancel_btn"/>
+</floater>

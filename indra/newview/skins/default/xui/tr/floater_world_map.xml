@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="DÜNYA HARİTASI">
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			Lejand
+		</text>
+	</panel>
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Haritanın merkezi avatarımın konumu olsun"/>
+		<text name="me_label">
+			Ben
+		</text>
+		<text name="person_label">
+			Kişi
+		</text>
+		<text name="infohub_label">
+			Bilgi İstasyonu
+		</text>
+		<text name="land_sale_label">
+			Arazi Satışı
+		</text>
+		<text name="auction_label">
+			arazi açık artırması
+		</text>
+		<text name="by_owner_label">
+			sahibi tarafından
+		</text>
+		<button name="Go Home" tool_tip="Ana konumuma ışınla"/>
+		<text name="Home_label">
+			Ana konum
+		</text>
+		<text name="events_label">
+			Etkinlikler:
+		</text>
+		<text name="pg_label">
+			Genel
+		</text>
+		<check_box initial_value="true" name="events_mature_chk"/>
+		<text name="events_mature_label">
+			Orta
+		</text>
+		<text name="events_adult_label">
+			Yetişkin
+		</text>
+	</panel>
+	<panel name="layout_panel_3">
+		<text name="find_on_map_label">
+			Haritada Bul
+		</text>
+	</panel>
+	<panel name="layout_panel_4">
+		<combo_box label="Çevrimiçi Arkadaşlar" name="friend combo" tool_tip="Haritada arkadaşlar gösterilsin">
+			<combo_box.item label="Çevrimiçi Arkadaşlarım" name="item1"/>
+		</combo_box>
+		<combo_box label="Yer İmlerim" name="landmark combo" tool_tip="Haritada gösterilecek yer imi">
+			<combo_box.item label="Yer İmlerim" name="item1"/>
+		</combo_box>
+		<search_editor label="Adlarına Göre Bölgeler" name="location" tool_tip="Bir bölgenin adını yazın"/>
+		<button label="Bul" name="DoSearch" tool_tip="Bölge ara"/>
+		<button name="Clear" tool_tip="Takip çizgilerini temizle ve haritayı sıfırla"/>
+		<text name="events_label">
+			Konum:
+		</text>
+		<button label="Işınla" name="Teleport" tool_tip="Seçilen konuma ışınla"/>
+		<button label="SLurl&apos;i Kopyala" name="copy_slurl" tool_tip="Mevcut konumu, web üzerinde kullanılması için SLurl olarak kopyalar."/>
+		<button label="Seçimi Göster" name="Show Destination" tool_tip="Haritanın merkezi seçilen konum olsun"/>
+	</panel>
+	<panel name="layout_panel_5">
+		<text name="zoom_label">
+			Yakınlaştır
+		</text>
+	</panel>
+</floater>

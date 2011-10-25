@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_web_content" title="">
+	<layout_stack name="stack1">
+		<layout_panel name="nav_controls">
+			<button name="back" tool_tip="Geri Git"/>
+			<button name="forward" tool_tip="İleri Git"/>
+			<button name="stop" tool_tip="Navigasyonu durdur"/>
+			<button name="reload" tool_tip="Sayfayı tekrar yükle"/>
+			<combo_box name="address" tool_tip="URL&apos;yi buraya gir"/>
+			<icon name="media_secure_lock_flag" tool_tip="Güvenli Tarama"/>
+			<button name="popexternal" tool_tip="Mevcut URL&apos;yi masaüstü tarayıcıda aç"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

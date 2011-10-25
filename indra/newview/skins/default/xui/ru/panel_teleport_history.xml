@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Teleport History">
+	<accordion name="history_accordion">
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/places/[SEARCH_TERM] поиском]."/>
+		<no_visible_tabs_text name="no_teleports_msg" value="История телепортов пуста. Воспользуйтесь [secondlife:///app/search/places/ поиском]."/>
+		<accordion_tab name="today" title="Сегодня"/>
+		<accordion_tab name="yesterday" title="Вчера"/>
+		<accordion_tab name="2_days_ago" title="2 дня назад"/>
+		<accordion_tab name="3_days_ago" title="3 дня назад"/>
+		<accordion_tab name="4_days_ago" title="4 дня назад"/>
+		<accordion_tab name="5_days_ago" title="5 дней назад"/>
+		<accordion_tab name="6_days_and_older" title="6 дней назад и раньше"/>
+		<accordion_tab name="1_month_and_older" title="1 месяц назад и раньше"/>
+		<accordion_tab name="6_months_and_older" title="6 месяцев назад и раньше"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="Показать дополнительные параметры"/>
+	</panel>
+</panel>

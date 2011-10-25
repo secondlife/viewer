@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarpicker" title="SAKİNİ SEÇ">
+	<floater.string name="not_found">
+		&apos;[TEXT]&apos; bulunamadı
+	</floater.string>
+	<floater.string name="no_one_near">
+		Yakında kimse yok
+	</floater.string>
+	<floater.string name="no_results">
+		Sonuç yok
+	</floater.string>
+	<floater.string name="searching">
+		Arıyor...
+	</floater.string>
+	<string name="Select">
+		Seç
+	</string>
+	<string name="Close">
+		Kapat
+	</string>
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Ara" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Bir kişinin adının bir kısmını yazın:
+			</text>
+			<button label="Git" label_selected="Git" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="Ad" name="name"/>
+				<columns label="Kullanıcı Adı" name="username"/>
+			</scroll_list>
+		</panel>
+		<panel label="Arkadaşlar" name="FriendsPanel">
+			<text name="InstructSelectFriend">
+				Bir kişiyi seçin:
+			</text>
+		</panel>
+		<panel label="Bana Yakın" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Yakındaki bir kişiyi seçin:
+			</text>
+			<slider label="Mesafe" name="near_me_range"/>
+			<text name="meters">
+				Metre
+			</text>
+			<scroll_list name="NearMe">
+				<columns label="Ad" name="name"/>
+				<columns label="Kullanıcı Adı" name="username"/>
+			</scroll_list>
+		</panel>
+	</tab_container>
+	<button label="Tamam" label_selected="Tamam" name="ok_btn"/>
+	<button label="İptal" label_selected="İptal" name="cancel_btn"/>
+</floater>

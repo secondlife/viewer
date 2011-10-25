@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu label="Düzenle" name="Edit">
+	<menu_item_call label="Geri Al" name="Undo"/>
+	<menu_item_call label="Yinele" name="Redo"/>
+	<menu_item_call label="Kes" name="Cut"/>
+	<menu_item_call label="Kopyala" name="Copy"/>
+	<menu_item_call label="Yapıştır" name="Paste"/>
+	<menu_item_call label="Sil" name="Delete"/>
+	<menu_item_call label="Çoğalt" name="Duplicate"/>
+	<menu_item_call label="Tümünü Seç" name="Select All"/>
+	<menu_item_call label="Seçimi Kaldır" name="Deselect"/>
+</menu>

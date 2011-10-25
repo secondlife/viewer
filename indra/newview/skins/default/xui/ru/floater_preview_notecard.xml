@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview notecard" title="ЗАМЕТКА:">
+	<floater.string name="no_object">
+		Невозможно найти объект, содержащий эту заметку.
+	</floater.string>
+	<floater.string name="not_allowed">
+		У вас нет прав для просмотра заметки.
+	</floater.string>
+	<floater.string name="Title">
+		Заметка: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Описание:
+	</text>
+	<text_editor name="Notecard Editor">
+		Загрузка...
+	</text_editor>
+	<button label="Сохранить" label_selected="Сохранить" name="Save"/>
+	<button label="Удалить" label_selected="Удалить" name="Delete"/>
+</floater>

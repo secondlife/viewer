@@ -10,6 +10,7 @@
   top="10" 
   min_width="335"
   name="floater_how_to"
+  help_topic="how_to"
   single_instance="true"
   save_rect="true"
   title="HOW TO"

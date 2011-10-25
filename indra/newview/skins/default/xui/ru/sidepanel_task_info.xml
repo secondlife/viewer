@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Профиль объекта">
+	<panel.string name="text deed continued">
+		Сделка
+	</panel.string>
+	<panel.string name="text deed">
+		Сделка
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Этот объект можно изменять
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Эти объекты можно изменять
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Этот объект нельзя изменять
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Эти объекты нельзя изменять
+	</panel.string>
+	<panel.string name="text modify warning">
+		Этот объект содержит объединенные части
+	</panel.string>
+	<panel.string name="Cost Default">
+		Цена: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Всего: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Цена за: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Смешанная цена
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Смешанная продажа
+	</panel.string>
+	<text name="title" value="Профиль объекта"/>
+	<text name="where" value="(в мире)"/>
+	<panel label="" name="properties_panel">
+		<text name="Name:">
+			Название:
+		</text>
+		<text name="Description:">
+			Описание:
+		</text>
+		<text name="CreatorNameLabel">
+			Создатель:
+		</text>
+		<text name="Owner:">
+			Владелец:
+		</text>
+		<text name="Group_label">
+			Группа:
+		</text>
+		<button name="button set group" tool_tip="Выберите группу для передачи ей прав доступа к объекту"/>
+		<name_box initial_value="Загрузка..." name="Group Name Proxy"/>
+		<button label="Сделка" label_selected="Сделка" name="button deed" tool_tip="В результате сделки объект передается группе, при этом права на него будут соответствовать правам следующего владельца. Переданный группе объект может передаваться должностным лицом группы."/>
+		<text name="label click action">
+			Действие по щелчку:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Коснуться (по умолчанию)" name="Touch/grab(default)"/>
+			<combo_box.item label="Сесть на объект" name="Sitonobject"/>
+			<combo_box.item label="Купить объект" name="Buyobject"/>
+			<combo_box.item label="Заплатить за объект" name="Payobject"/>
+			<combo_box.item label="Открыть" name="Open"/>
+		</combo_box>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Этот объект можно изменять
+			</text>
+			<text name="Anyone can:">
+				Все:
+			</text>
+			<check_box label="Копировать" name="checkbox allow everyone copy"/>
+			<check_box label="Переместить" name="checkbox allow everyone move"/>
+			<text name="GroupLabel">
+				Группа:
+			</text>
+			<check_box label="Поделиться" name="checkbox share with group" tool_tip="Позволить всем участникам выбранной группы получить установленные вам права на этот объект. Для включения ролевых ограничений необходимо произвести сделку."/>
+			<text name="NextOwnerLabel">
+				Следующий владелец:
+			</text>
+			<check_box label="Изменять" name="checkbox next owner can modify"/>
+			<check_box label="Копировать" name="checkbox next owner can copy"/>
+			<check_box label="Передать" name="checkbox next owner can transfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
+		</panel>
+		<check_box label="Для продажи" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Копировать" name="Copy"/>
+			<combo_box.item label="Контент" name="Contents"/>
+			<combo_box.item label="Оригинал" name="Original"/>
+		</combo_box>
+		<spinner label="Цена: L$" name="Edit Cost"/>
+		<check_box label="Показать в результатах поиска" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
+		<text name="B:">
+			Н:
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			В:
+		</text>
+		<text name="N:">
+			С:
+		</text>
+		<text name="F:">
+			F:
+		</text>
+	</panel>
+	<panel name="button_panel">
+		<button label="Открыть" name="open_btn"/>
+		<button label="Заплатить" name="pay_btn"/>
+		<button label="Купить" name="buy_btn"/>
+		<button label="Подробности" name="details_btn"/>
+	</panel>
+</panel>

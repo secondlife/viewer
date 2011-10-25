@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map" title="">
+<floater name="Map" title="MINI MAPPA">
 	<floater.string name="ToolTipMsg">
 		[REGION](Fai doppio clic per aprire la Mappa, premi il tasto Maiusc e trascina per la panoramica)
 	</floater.string>
@@ -7,7 +7,7 @@
 		[REGION](Fai doppio clic per teleportarti, premi il tasto Maiusc e trascina per la panoramica)
 	</floater.string>
 	<floater.string name="mini_map_caption">
-		MINI MAPPA
+		Mini mappa
 	</floater.string>
 	<text label="N" name="floater_map_north" text="N">
 		N

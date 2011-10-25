@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_sound">
+	<floater.string name="Title">
+		Ses: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Açıklama:
+	</text>
+	<button label="SL Dünyasında Oynat" label_selected="SL Dünyasında Oynat" name="Sound play btn" tool_tip="Bu ses başkaların işitebileceği bir şekilde çalınsın"/>
+	<button label="Yerel Olarak Oynat" label_selected="Yerel Olarak Oynat" name="Sound audition btn" tool_tip="Bu ses sadece sizin işitebileceğiniz bir şekilde çalınsın"/>
+</floater>

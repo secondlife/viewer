@@ -272,6 +272,7 @@
          top="0"
          width="313">
             <text_editor
+             font="Monospace"
              enabled="false"
              type="string"
              follows="all"

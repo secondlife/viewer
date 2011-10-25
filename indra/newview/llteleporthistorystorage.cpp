@@ -66,6 +66,7 @@ struct LLSortItemsByDate
 LLTeleportHistoryStorage::LLTeleportHistoryStorage() :
 	mFilename("teleport_history.txt")
 {
+	mItems.clear();
 	LLTeleportHistory *th = LLTeleportHistory::getInstance();
 	if (th)
 		th->setHistoryChangedCallback(boost::bind(&LLTeleportHistoryStorage::onTeleportHistoryChange, this));	

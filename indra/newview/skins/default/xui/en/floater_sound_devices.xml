@@ -6,6 +6,7 @@
  can_minimize="true"
  can_resize="false"
  can_close="false"
+ chrome="true"
  save_dock_state="true"
  save_visibility="true"
  save_rect="true"

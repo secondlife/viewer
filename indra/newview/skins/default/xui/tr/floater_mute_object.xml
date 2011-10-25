@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="block by name" title="NESNEYİ ADINA GÖRE ENGELLE">
+	<text name="message">
+		Bir nesneyi engelle
+	</text>
+	<line_editor name="object_name">
+		Nesne adı
+	</line_editor>
+	<text name="note">
+		* Sadece nesne metnini engeller, sesleri engellemez
+	</text>
+	<button label="Tamam" name="OK"/>
+	<button label="İptal" name="Cancel"/>
+</floater>

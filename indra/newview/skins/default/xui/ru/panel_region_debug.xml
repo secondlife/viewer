@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Отладка" name="Debug">
+	<text name="region_text_lbl">
+		Регион:
+	</text>
+	<text name="region_text">
+		неизвестно
+	</text>
+	<check_box label="Отключить скрипты" name="disable_scripts_check" tool_tip="Отключить все скрипты в этом регионе"/>
+	<check_box label="Отключить столкновения" name="disable_collisions_check" tool_tip="Отключить столкновения не-аватаров в этом регионе"/>
+	<check_box label="Отключить физику" name="disable_physics_check" tool_tip="Выключить всю физику в этом регионе"/>
+	<button label="Применить" name="apply_btn"/>
+	<text name="objret_text_lbl">
+		Возврат объектов
+	</text>
+	<text name="resident_text_lbl">
+		Житель:
+	</text>
+	<line_editor name="target_avatar_name">
+		(нет)
+	</line_editor>
+	<button label="Выбор" name="choose_avatar_btn"/>
+	<text name="options_text_lbl">
+		Параметры:
+	</text>
+	<check_box label="Со скриптами" name="return_scripts" tool_tip="Возвращаются только объекты со скриптами"/>
+	<check_box label="На чужой земле" name="return_other_land" tool_tip="Возвращаются только объекты, расположенные на чужой земле"/>
+	<check_box label="С каждого региона этого землевладения" name="return_estate_wide" tool_tip="Возвращаются объекты со всех регионов, образующих это землевладение"/>
+	<button label="Возврат" name="return_btn"/>
+	<button label="Самые активные участники столкновений..." name="top_colliders_btn" tool_tip="Список объектов, для которых столкновения наиболее вероятны"/>
+	<button label="Список лучших скриптов..." name="top_scripts_btn" tool_tip="Объекты, в которых скрипты выполняются дольше всего"/>
+	<button label="Перезагрузить регион" name="restart_btn" tool_tip="Отсчитать 2 минуты и перезагрузить регион"/>
+	<button label="Отложить перезагрузку" name="cancel_restart_btn" tool_tip="Отложить перезагрузку региона на час"/>
+</panel>

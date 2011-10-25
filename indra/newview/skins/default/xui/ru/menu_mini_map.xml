@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Близко" name="Zoom Close"/>
+	<menu_item_call label="Средне" name="Zoom Medium"/>
+	<menu_item_call label="Далеко" name="Zoom Far"/>
+	<menu_item_call label="Сбросить увеличение" name="Zoom Default"/>
+	<menu_item_check label="Вращать карту" name="Rotate Map"/>
+	<menu_item_check label="Автоцентрирование" name="Auto Center"/>
+	<menu_item_call label="Остановить слежение" name="Stop Tracking"/>
+	<menu_item_call label="Карта мира" name="World Map"/>
+</menu>

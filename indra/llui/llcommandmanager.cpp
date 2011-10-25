@@ -41,7 +41,7 @@
 // LLCommandId class
 //
 
-const LLCommandId LLCommandId::null = LLCommandId();
+const LLCommandId LLCommandId::null = LLCommandId("null command");
 
 //
 // LLCommand class
@@ -67,10 +67,11 @@ LLCommand::Params::Params()
 }
 
 LLCommand::LLCommand(const LLCommand::Params& p)
-	: mAvailableInToybox(p.available_in_toybox)
+	: mIdentifier(p.name)
+	, mAvailableInToybox(p.available_in_toybox)
 	, mIcon(p.icon)
-	, mIdentifier(p.name)
 	, mLabelRef(p.label_ref)
+	, mName(p.name)
 	, mTooltipRef(p.tooltip_ref)
 	, mExecuteFunction(p.execute_function)
 	, mExecuteParameters(p.execute_parameters)
@@ -134,7 +135,7 @@ void LLCommandManager::addCommand(LLCommand * command)
 	mCommandIndices[command_id.uuid()] = mCommands.size();
 	mCommands.push_back(command);
 
-	lldebugs << "Successfully added command: " << command->id().name() << llendl;
+	lldebugs << "Successfully added command: " << command->name() << llendl;
 }
 
 //static

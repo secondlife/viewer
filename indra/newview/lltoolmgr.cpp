@@ -247,24 +247,10 @@ bool LLToolMgr::canEdit()
 
 void LLToolMgr::toggleBuildMode()
 {
-	if (inBuildMode())
-	{
-		if (gSavedSettings.getBOOL("EditCameraMovement"))
-		{
-			// just reset the view, will pull us out of edit mode
-			handle_reset_view();
-		}
-		else
-		{
-			// manually disable edit mode, but do not affect the camera
-			gAgentCamera.resetView(false);
-			LLFloaterReg::hideInstance("build");
-			gViewerWindow->showCursor();			
-		}
-		// avoid spurious avatar movements pulling out of edit mode
-		LLViewerJoystick::getInstance()->setNeedsReset();
-	}
-	else
+	LLFloaterReg::toggleInstanceOrBringToFront("build");
+
+	bool build_visible = LLFloaterReg::instanceVisible("build");
+	if (build_visible)
 	{
 		ECameraMode camMode = gAgentCamera.getCameraMode();
 		if (CAMERA_MODE_MOUSELOOK == camMode ||	CAMERA_MODE_CUSTOMIZE_AVATAR == camMode)
@@ -291,7 +277,7 @@ void LLToolMgr::toggleBuildMode()
 			}
 		}
 
-		
+
 		setCurrentToolset(gBasicToolset);
 		getCurrentToolset()->selectTool( LLToolCompCreate::getInstance() );
 
@@ -304,6 +290,24 @@ void LLToolMgr::toggleBuildMode()
 		LLViewerJoystick::getInstance()->setNeedsReset();
 
 	}
+	else
+	{
+		if (gSavedSettings.getBOOL("EditCameraMovement"))
+		{
+			// just reset the view, will pull us out of edit mode
+			handle_reset_view();
+		}
+		else
+		{
+			// manually disable edit mode, but do not affect the camera
+			gAgentCamera.resetView(false);
+			LLFloaterReg::hideInstance("build");
+			gViewerWindow->showCursor();			
+		}
+		// avoid spurious avatar movements pulling out of edit mode
+		LLViewerJoystick::getInstance()->setNeedsReset();
+	}
+
 }
 
 bool LLToolMgr::inBuildMode()

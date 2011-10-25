@@ -53,7 +53,6 @@ protected:
 	void onBtnRestoreDefaults();
 
 public:
-	LLButton *	mBtnRestoreDefaults;
 	LLToolBar *	mToolBar;
 };
 

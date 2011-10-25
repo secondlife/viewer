@@ -2028,7 +2028,7 @@ Returns a string with the requested data about the region
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
-	<string name="InventoryInboxNoItems">Items purchased through the marketplace will be delivered here.</string>
+	<string name="InventoryInboxNoItems">When you purchase or otherwise receive an item, it will appear here so you can drag it to a folder in your inventory, or delete it if you do not wish to keep it.</string>
 	<string name="MarketplaceURL">http://marketplace.[DOMAIN_NAME]</string>
 	<string name="MarketplaceURL_CreateStore">http://marketplace.[DOMAIN_NAME]/create_store</string>
 	<string name="MarketplaceURL_LearnMore">http://marketplace.[DOMAIN_NAME]/learn_more</string>
@@ -2269,7 +2269,7 @@ Returns a string with the requested data about the region
 	<string name="NextStipendDay"       value="The next stipend day is " />
 	<string name="GroupPlanningDate">[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]</string>
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
-	<string name="GroupColumn"          value="                      Group" />
+	<string name="GroupColumn"          value="            Group" />
 	<string name="Balance">Balance</string>
 	<string name="Credits">Credits</string>
 	<string name="Debits">Debits</string>
@@ -3678,7 +3678,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
   <string name="Command_View_Label">View</string>
-  <string name="Command_Voice_Label">Nearby voice</string>
+  <string name="Command_Voice_Label">Voice settings</string>
 
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
@@ -3703,7 +3703,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
-  <string name="Command_Voice_Tooltip">People nearby with voice capability</string>
+  <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
 
  <!-- Mesh UI terms -->
   <string name="Retain%">Retain%</string>

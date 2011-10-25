@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_folder_gear">
+	<menu_item_call label="Добавить закладку" name="add_landmark"/>
+	<menu_item_call label="Добавить папку" name="add_folder"/>
+	<menu_item_call label="Восстановить предмет" name="restore_item"/>
+	<menu_item_call label="Вырезать" name="cut"/>
+	<menu_item_call label="Копировать" name="copy_folder"/>
+	<menu_item_call label="Вставить" name="paste"/>
+	<menu_item_call label="Переименовать" name="rename"/>
+	<menu_item_call label="Удалить" name="delete"/>
+	<menu_item_call label="Открыть" name="expand"/>
+	<menu_item_call label="Закрыть" name="collapse"/>
+	<menu_item_call label="Открыть все папки" name="expand_all"/>
+	<menu_item_call label="Закрыть все папки" name="collapse_all"/>
+	<menu_item_check label="Сортировать по дате" name="sort_by_date"/>
+</toggleable_menu>
