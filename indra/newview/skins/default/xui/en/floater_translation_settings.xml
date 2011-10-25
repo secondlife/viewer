@@ -7,7 +7,7 @@
  help_topic="environment_editor_floater"
  save_rect="true"
  title="CHAT TRANSLATION SETTINGS"
- width="480">
+ width="485">
 
  <string name="bing_api_key_not_verified">Bing appID not verified. Please try again.</string>
  <string name="google_api_key_not_verified">Google API key not verified. Please try again.</string>
@@ -27,7 +27,7 @@
   height="20"
   follows="left|top"
   layout="topleft"
-  left="10"
+  left="40"
   name="translate_language_label"
   top_pad="20"
   width="130">
@@ -118,7 +118,7 @@
   follows="top|left|right"
   height="15"
   layout="topleft"
-  left="10"
+  left="40"
   name="tip"
   top_pad="20"
   width="330"
@@ -153,10 +153,10 @@
   follows="top|right"
   height="20"
   layout="topleft"
-  left="40"
+  left="70"
   name="bing_api_key_label"
   top_pad="-55"
-  width="100">
+  width="85">
   Bing [http://www.bing.com/developers/createapp.aspx AppID]:
   </text>
  <line_editor
@@ -168,7 +168,7 @@
   max_length_chars="50"
   top_delta="-4"
   name="bing_api_key"
-  width="220" />
+  width="210" />
  <button
   follows="left|top"
   height="23"
@@ -183,12 +183,12 @@
   follows="top|right"
   height="20"
   layout="topleft"
-  left="40"
+  left="70"
   length="1"
   name="google_api_key_label"
   top_pad="50"
   type="string"
-  width="100">
+  width="85">
   Google [http://code.google.com/apis/language/translate/v2/getting_started.html#auth API key]:
  </text>
  <line_editor
@@ -200,7 +200,7 @@
   max_length_chars="50"
   top_delta="-4"
   name="google_api_key"
-  width="220" />
+  width="210" />
  <button
   follows="left|top"
   height="23"
@@ -215,7 +215,7 @@
   follows="top|right"
   height="20"
   layout="topleft"
-  left="155"
+  left="185"
   length="1"
   name="google_links_text"
   top_delta="-23"
