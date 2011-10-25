@@ -22,12 +22,19 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
+
 uniform sampler2D tex0;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(tex0, gl_TexCoord[0].xy).a * gl_Color.a;
+	float alpha = texture2D(tex0, vary_texcoord0.xy).a * vertex_color.a;
 
-	gl_FragColor = vec4(gl_Color.rgb, alpha);
+	gl_FragColor = vec4(vertex_color.rgb, alpha);
 }

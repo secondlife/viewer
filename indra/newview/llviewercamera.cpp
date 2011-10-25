@@ -218,8 +218,15 @@ void LLViewerCamera::calcProjection(const F32 far_distance) const
 void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zflip, BOOL no_hacks)
 {
 	GLint* viewport = (GLint*) gGLViewport;
-	GLdouble* model = gGLModelView;
-	GLdouble* proj = gGLProjection;
+	F64 model[16];
+	F64 proj[16];
+
+	for (U32 i = 0; i < 16; i++)
+	{
+		model[i] = (F64) gGLModelView[i];
+		proj[i] = (F64) gGLProjection[i];
+	}
+
 	GLdouble objX,objY,objZ;
 
 	LLVector3 frust[8];
@@ -325,8 +332,8 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	aspect = getAspect();
 
 	// Load camera view matrix
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.loadIdentity();
 
 	glh::matrix4f proj_mat;
 
@@ -385,14 +392,14 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	proj_mat *= gl_perspective(fov_y,aspect,z_near,z_far);
 
-	glLoadMatrixf(proj_mat.m);
+	gGL.loadMatrix(proj_mat.m);
 
 	for (U32 i = 0; i < 16; i++)
 	{
 		gGLProjection[i] = proj_mat.m[i];
 	}
 
-	glMatrixMode( GL_MODELVIEW );
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	glh::matrix4f modelview((GLfloat*) OGL_TO_CFR_ROTATION);
 
@@ -402,7 +409,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	modelview *= glh::matrix4f(ogl_matrix);
 	
-	glLoadMatrixf(modelview.m);
+	gGL.loadMatrix(modelview.m);
 	
 	if (for_selection && (width > 1 || height > 1))
 	{
@@ -420,7 +427,6 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	if (!for_selection && mZoomFactor == 1.f)
 	{
 		// Save GL matrices for access elsewhere in code, especially project_world_to_screen
-		//glGetDoublev(GL_MODELVIEW_MATRIX, gGLModelView);
 		for (U32 i = 0; i < 16; i++)
 		{
 			gGLModelView[i] = modelview.m[i];
@@ -428,14 +434,6 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	}
 
 	updateFrustumPlanes(*this);
-
-	/*if (gSavedSettings.getBOOL("CameraOffset"))
-	{
-		glMatrixMode(GL_PROJECTION);
-		glTranslatef(0,0,-50);
-		glRotatef(20.0,1,0,0);
-		glMatrixMode(GL_MODELVIEW);
-	}*/
 }
 
 
@@ -443,11 +441,20 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 // screen coordinates to the agent's region.
 void LLViewerCamera::projectScreenToPosAgent(const S32 screen_x, const S32 screen_y, LLVector3* pos_agent) const
 {
-
 	GLdouble x, y, z;
+
+	F64 mdlv[16];
+	F64 proj[16];
+
+	for (U32 i = 0; i < 16; i++)
+	{
+		mdlv[i] = (F64) gGLModelView[i];
+		proj[i] = (F64) gGLProjection[i];
+	}
+
 	gluUnProject(
 		GLdouble(screen_x), GLdouble(screen_y), 0.0,
-		gGLModelView, gGLProjection, (GLint*)gGLViewport,
+		mdlv, proj, (GLint*)gGLViewport,
 		&x,
 		&y,
 		&z );
@@ -484,8 +491,17 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 	viewport[2] = world_view_rect.getWidth();
 	viewport[3] = world_view_rect.getHeight();
 
+	F64 mdlv[16];
+	F64 proj[16];
+
+	for (U32 i = 0; i < 16; i++)
+	{
+		mdlv[i] = (F64) gGLModelView[i];
+		proj[i] = (F64) gGLProjection[i];
+	}
+
 	if (GL_TRUE == gluProject(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ],
-								gGLModelView, gGLProjection, (GLint*)viewport,
+								mdlv, proj, (GLint*)viewport,
 								&x, &y, &z))
 	{
 		// convert screen coordinates to virtual UI coordinates
@@ -587,9 +603,19 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 	viewport[2] = world_view_rect.getWidth();
 	viewport[3] = world_view_rect.getHeight();
 	GLdouble	x, y, z;			// object's window coords, GL-style
+
+	F64 mdlv[16];
+	F64 proj[16];
+
+	for (U32 i = 0; i < 16; i++)
+	{
+		mdlv[i] = (F64) gGLModelView[i];
+		proj[i] = (F64) gGLProjection[i];
+	}
+
 	if (GL_TRUE == gluProject(pos_agent.mV[VX], pos_agent.mV[VY],
-							  pos_agent.mV[VZ], gGLModelView,
-							  gGLProjection, (GLint*)viewport,
+							  pos_agent.mV[VZ], mdlv,
+							  proj, (GLint*)viewport,
 							  &x, &y, &z))
 	{
 		x /= gViewerWindow->getDisplayScale().mV[VX];

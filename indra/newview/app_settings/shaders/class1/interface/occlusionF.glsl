@@ -23,6 +23,10 @@
  * $/LicenseInfo$
  */
  
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
+
 void main() 
 {
 	gl_FragColor = vec4(1,1,1,1);

@@ -159,11 +159,11 @@ void LLFloaterPostcard::draw()
 		}
 		{
 
-		glMatrixMode(GL_TEXTURE);
-		glPushMatrix();
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.pushMatrix();
 		{
-			glScalef(mImageScale.mV[VX], mImageScale.mV[VY], 1.f);
-			glMatrixMode(GL_MODELVIEW);
+			gGL.scalef(mImageScale.mV[VX], mImageScale.mV[VY], 1.f);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			gl_draw_scaled_image(rect.mLeft,
 								 rect.mBottom,
 								 rect.getWidth(),
@@ -171,9 +171,9 @@ void LLFloaterPostcard::draw()
 								 mViewerImage.get(), 
 								 LLColor4::white % alpha);
 		}
-		glMatrixMode(GL_TEXTURE);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.popMatrix();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		}
 	}
 }

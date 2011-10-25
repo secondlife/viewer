@@ -23,13 +23,24 @@
  * $/LicenseInfo$
  */
 
- 
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
-uniform sampler2D diffuseMap;
+vec4 diffuseLookup(vec2 texcoord);
+
+vec3 fullbrightAtmosTransport(vec3 light);
+vec4 applyWaterFog(vec4 color);
 
 void fullbright_lighting_water()
 {
-	gl_FragColor = texture2D(diffuseMap, gl_TexCoord[0].xy);
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
+
+	color.rgb = fullbrightAtmosTransport(color.rgb);
+	
+	gl_FragColor = applyWaterFog(color);
 }
 

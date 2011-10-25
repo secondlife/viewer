@@ -22,14 +22,18 @@
  * $/LicenseInfo$
  */
 
-
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2D diffuseMap;
 
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	//gl_FragColor = vec4(1,1,1,gl_Color.a * texture2D(diffuseMap, gl_TexCoord[0].xy).a);
+	//gl_FragColor = vec4(1,1,1,vertex_color.a * texture2D(diffuseMap, vary_texcoord0.xy).a);
 	gl_FragColor = vec4(1,1,1,1);
 }
 
