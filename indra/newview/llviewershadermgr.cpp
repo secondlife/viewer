@@ -363,8 +363,8 @@ void LLViewerShaderMgr::setShaders()
 
 	reentrance = true;
 
-	if (LLRender::sGLCoreProfile || gGLManager.mGLVersion >= 2.f)
-	{  //ALWAYS use shaders where available
+	if (LLRender::sGLCoreProfile || (gGLManager.mGLVersion >= 2.f && !gGLManager.mIsIntel))
+	{  //ALWAYS use shaders where available (except for intel, intel prefers fixed function)
 		if (!gSavedSettings.getBOOL("VertexShaderEnable"))
 		{ //vertex shaders MUST be enabled to use core profile
 			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
