@@ -212,19 +212,19 @@
 				Бонусный множитель для объектов: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Примитивов используется:
+				Емкость региона:
 			</text>
 			<text name="objects_available">
 				[COUNT] из [MAX] ([AVAILABLE] доступно)
 			</text>
 			<text name="Primitives parcel supports:">
-				Разрешено для размещения:
+				Емкость участка:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Примитивов на участке:
+				Воздействие участка:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]

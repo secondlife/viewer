@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map" title="">
+<floater name="Map" title="МИНИКАРТА">
 	<floater.string name="ToolTipMsg">
 		[REGION](Двойной щелчок открывает карту, shift+перетягивание – обзор)
 	</floater.string>
@@ -7,7 +7,7 @@
 		[REGION](Двойной щелчок – телепортация, shift+перетягивание – обзор)
 	</floater.string>
 	<floater.string name="mini_map_caption">
-		МИНИКАРТА
+		Миникарта
 	</floater.string>
 	<text label="С" name="floater_map_north">
 		С

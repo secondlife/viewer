@@ -7,18 +7,33 @@
 	</text>
 	<check_box label="制作・編集" name="edit_camera_movement" tool_tip="編集モードのオン・オフの切り替えに、自動カメラポジションを使います"/>
 	<check_box label="容姿" name="appearance_camera_movement" tool_tip="編集モードに入ったときに、自動カメラポジションを使います"/>
-	<check_box initial_value="true" label="サイドバー" name="appearance_sidebar_positioning" tool_tip="サイドバーに自動カメラポジションを使います"/>
+	<text name="keyboard_lbl">
+		キーボード：
+	</text>
+	<check_box label="常にキー操作で動くようにする" name="arrow_keys_move_avatar_check"/>
+	<check_box label="上矢印キー2度押し+長押しで走る" name="tap_tap_hold_to_run"/>
+	<text name="mouse_lbl">
+		マウス：
+	</text>
 	<check_box label="一人称視点で表示する" name="first_person_avatar_visible"/>
 	<text name=" Mouse Sensitivity">
 		一人称視点のマウスの感度：
 	</text>
 	<check_box label="切り替え" name="invert_mouse"/>
-	<check_box label="常にキー操作で動くようにする" name="arrow_keys_move_avatar_check"/>
-	<check_box label="上矢印キー2度押し+長押しで走る" name="tap_tap_hold_to_run"/>
-	<check_box label="ダブルクリックで次の操作：" name="double_click_chkbox"/>
-	<radio_group name="double_click_action">
-		<radio_item label="テレポート" name="radio_teleport"/>
-		<radio_item label="自動追跡" name="radio_autopilot"/>
-	</radio_group>
+	<text name="single_click_action_lbl">
+		土地をシングルクリック：
+	</text>
+	<combo_box name="single_click_action_combo">
+		<combo_box.item label="動作なし" name="0"/>
+		<combo_box.item label="クリックされた地点に移動" name="1"/>
+	</combo_box>
+	<text name="double_click_action_lbl">
+		土地をダブルクリック：
+	</text>
+	<combo_box name="double_click_action_combo">
+		<combo_box.item label="動作なし" name="0"/>
+		<combo_box.item label="クリックされた地点に移動" name="1"/>
+		<combo_box.item label="クリックされた地点にテレポート" name="2"/>
+	</combo_box>
 	<button label="その他のディバイス" name="joystick_setup_button"/>
 </panel>

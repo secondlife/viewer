@@ -29,22 +29,22 @@
 		Önbellek temizleniyor...
 	</string>
 	<string name="StartupInitializingTextureCache">
-		Doku Önbelleği Başlatılıyor...
+		Doku önbelleği başlatılıyor...
 	</string>
 	<string name="StartupInitializingVFS">
 		VFS Başlatılıyor...
 	</string>
 	<string name="StartupRequireDriverUpdate">
-		Grafik Başlatma Başarılamadı. Lütfen Grafik Sürücünüzü Güncelleştirin!
+		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
 	<string name="ProgressRestoring">
 		Geri yükleniyor...
 	</string>
 	<string name="ProgressChangingResolution">
-		Çözünürlük Değiştiriliyor...
+		Çözünürlük değiştiriliyor...
 	</string>
 	<string name="Fullbright">
-		Tam Parlak (Eski)
+		Tam parlak (eski)
 	</string>
 	<string name="LoginInProgress">
 		Oturum açılıyor. [APP_NAME] kilitlenmiş görünebilir.  Lütfen bekleyin.
@@ -77,10 +77,10 @@
 		Önbellek dosyaları doğrulanıyor (60-90 saniye zaman alabilir)...
 	</string>
 	<string name="LoginProcessingResponse">
-		Yanıt İşleniyor...
+		Yanıt işleniyor...
 	</string>
 	<string name="LoginInitializingWorld">
-		Dünya Başlatılıyor...
+		Dünya başlatılıyor...
 	</string>
 	<string name="LoginDecodingImages">
 		Görüntülerin kodu çözülüyor...
@@ -128,7 +128,7 @@
 		Ağ sunucusu tarafından döndürülen sertifika imzası doğrulanamadı.  Lütfen Ağ yöneticinize başvurun.
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Ağ Hatası: Bağlantı kurulamadı, lütfen ağ bağlantınızı kontrol edin.
+		Ağ hatası: Bağlantı kurulamadı, lütfen ağ bağlantınızı kontrol edin.
 	</string>
 	<string name="LoginFailed">
 		Oturum açılamadı.
@@ -1272,6 +1272,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="Marketplace Error Internal Import">
 		Hata: Bu öğede bir sorun var.  Daha sonra tekrar deneyin.
+	</string>
+	<string name="Open landmarks">
+		Açık yer imleri
 	</string>
 	<string name="no_transfer" value="(aktarım yok)"/>
 	<string name="no_modify" value="(değiştirme yok)"/>
@@ -4251,8 +4254,8 @@ Kötüye Kullanımı Bildirme
 	<string name="Female - Wow">
 		Kadın - Vay be
 	</string>
-	<string name="/bow1">
-		/selamlama1
+	<string name="/bow">
+		/selamlama
 	</string>
 	<string name="/clap">
 		/alkış
@@ -4775,5 +4778,173 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="ParticleHiding">
 		Parçacıklar Gizleniyor
+	</string>
+	<string name="Command_AboutLand_Label">
+		Arazi hakkında
+	</string>
+	<string name="Command_Appearance_Label">
+		Görünüm
+	</string>
+	<string name="Command_Avatar_Label">
+		Avatar
+	</string>
+	<string name="Command_Build_Label">
+		İnşa Et
+	</string>
+	<string name="Command_Chat_Label">
+		Sohbet
+	</string>
+	<string name="Command_Compass_Label">
+		Pusula
+	</string>
+	<string name="Command_Destinations_Label">
+		Hedef Konumlar
+	</string>
+	<string name="Command_Gestures_Label">
+		Mimikler
+	</string>
+	<string name="Command_HowTo_Label">
+		Nasıl yapılır
+	</string>
+	<string name="Command_Inventory_Label">
+		Envanter
+	</string>
+	<string name="Command_Map_Label">
+		Harita
+	</string>
+	<string name="Command_Marketplace_Label">
+		Pazaryeri
+	</string>
+	<string name="Command_MiniMap_Label">
+		Mini-harita
+	</string>
+	<string name="Command_Move_Label">
+		Hareket Et
+	</string>
+	<string name="Command_People_Label">
+		Kişiler
+	</string>
+	<string name="Command_Picks_Label">
+		Favoriler
+	</string>
+	<string name="Command_Places_Label">
+		Yerler
+	</string>
+	<string name="Command_Preferences_Label">
+		Tercihler
+	</string>
+	<string name="Command_Profile_Label">
+		Profil
+	</string>
+	<string name="Command_Search_Label">
+		Ara
+	</string>
+	<string name="Command_Snapshot_Label">
+		Anlık görüntü
+	</string>
+	<string name="Command_Speak_Label">
+		Konuş
+	</string>
+	<string name="Command_View_Label">
+		Görünüm
+	</string>
+	<string name="Command_Voice_Label">
+		Yakındaki ses
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Ziyaret ettiğiniz araziyle ilgili bilgi
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Avatarınızı değiştirin
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Eksiksiz bir avatar seçin
+	</string>
+	<string name="Command_Build_Tooltip">
+		Nesneler oluşturma ve yüzeyi şekillendirme
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Metin kullanarak yakındaki kişilerle sohbet etmek
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Pusula
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		İlgilendiğiniz hedef konumlar
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Avatarınız için mimikler
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Genel görevleri nasıl yapacağınız
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Eşyalarınızı görüntüleyin ve kullanın
+	</string>
+	<string name="Command_Map_Tooltip">
+		Dünya haritası
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Alışveriş yap
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Yakındaki kişileri göster
+	</string>
+	<string name="Command_Move_Tooltip">
+		Avatarınızı hareket ettirmek
+	</string>
+	<string name="Command_People_Tooltip">
+		Arkadaşlar, gruplar ve yakındaki kişiler
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Profilinizde sık kullanılan olarak gösterilecek yerler
+	</string>
+	<string name="Command_Places_Tooltip">
+		Kaydettiğiniz yerler
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Tercihler
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Profilinizi düzenleyin veya görüntüleyin
+	</string>
+	<string name="Command_Search_Tooltip">
+		Yerler, etkinlikler ve kişiler bulmak
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Resim çekin
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Mikrofonunuzu kullanarak yakındaki kişilerle konuşun
+	</string>
+	<string name="Command_View_Tooltip">
+		Kamera açısını değiştirmek
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Ses imkanına sahip yakındaki kişiler
+	</string>
+	<string name="Retain%">
+		Koru %
+	</string>
+	<string name="Detail">
+		Ayrıntı
+	</string>
+	<string name="Better Detail">
+		Daha İyi Ayrıntı
+	</string>
+	<string name="Surface">
+		Yüzey
+	</string>
+	<string name="Solid">
+		Katı
+	</string>
+	<string name="Wrap">
+		Sar
+	</string>
+	<string name="Preview">
+		Önizleme
+	</string>
+	<string name="Normal">
+		Normal
 	</string>
 </strings>

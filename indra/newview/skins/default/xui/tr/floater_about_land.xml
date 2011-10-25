@@ -212,19 +212,19 @@
 				Bölge Nesne Bonusu Faktörü: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				İlkel Kullanım:
+				Bölge kapasitesi:
 			</text>
 			<text name="objects_available">
 				[COUNT] / [MAX] ([AVAILABLE]) uygun
 			</text>
 			<text name="Primitives parcel supports:">
-				Prim parsel desteği:
+				Parsel arazi kapasitesi:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Parseldeki prims:
+				Parsel arazi etkisi:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
