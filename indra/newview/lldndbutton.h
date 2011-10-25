@@ -43,10 +43,7 @@
 class LLDragAndDropButton : public LLButton
 {
 public:
-	struct Params : public LLInitParam::Block<Params, LLButton::Params>
-	{
-		Params();
-	};
+	struct Params : public LLInitParam::Block<Params, LLButton::Params> {};
 
 	LLDragAndDropButton(const Params& params);
 

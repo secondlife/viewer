@@ -2040,11 +2040,12 @@ void LLAgentCamera::resetCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 {
-	if (!gSavedSettings.getBOOL("EnableMouselook") || LLViewerJoystick::getInstance()->getOverrideCamera())
+	if (!gSavedSettings.getBOOL("EnableMouselook") 
+		|| LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		return;
 	}
-
+	
 	// visibility changes at end of animation
 	gViewerWindow->getWindow()->resetBusyCount();
 

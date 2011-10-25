@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="build options floater" title="GRID OPTIES">
-	<spinner label="Grid eenheid (meters)" name="GridResolution" width="180" label_width="122"/>
-	<spinner label="Grid extensies (meters)" name="GridDrawSize" width="180" label_width="122"/>
-	<check_box label="Sub-eenheid snap Inschakelen" name="GridSubUnit"/>
-	<check_box label="Toon dwarsdoorsnede" name="GridCrossSection"/>
-	<slider label="Grid opaakheid" name="GridOpacity"/>
-</floater>
