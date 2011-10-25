@@ -1070,7 +1070,7 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	const LLRect old_rect = getRect();
 	LLView::handleReshape(new_rect, by_user);
 
-	if (by_user)
+	if (by_user && !isMinimized())
 	{
 		storeRectControl();
 		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_NONE;
