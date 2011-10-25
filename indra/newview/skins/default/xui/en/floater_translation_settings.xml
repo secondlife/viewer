@@ -6,7 +6,7 @@
  name="floater_translation_settings"
  help_topic="environment_editor_floater"
  save_rect="true"
- title="TRANSLATION SETTINGS"
+ title="CHAT TRANSLATION SETTINGS"
  width="480">
 
  <string name="bing_api_key_not_verified">Bing appID not verified. Please try again.</string>
@@ -17,7 +17,7 @@
 
  <check_box
   height="16"     
-  label="Use machine translation while chatting"
+  label="Enable machine translation while chatting"
   layout="topleft"
   left="10"
   name="translate_chat_checkbox"
@@ -123,7 +123,7 @@
   top_pad="20"
   width="330"
   wrap="true">
-  Choose translation service to use:
+  Choose translation service:
  </text>
 
  <radio_group
