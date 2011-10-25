@@ -1196,6 +1196,7 @@ S32 LLPipeline::getMaxLightingDetail() const
 S32 LLPipeline::setLightingDetail(S32 level)
 {
 	LLMemType mt_ld(LLMemType::MTYPE_PIPELINE_LIGHTING_DETAIL);
+	refreshCachedSettings();
 
 	if (level < 0)
 	{
