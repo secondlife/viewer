@@ -824,6 +824,11 @@ void LLToolBar::createButtons()
 {
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
+		if (mButtonRemoveSignal)
+		{
+			(*mButtonRemoveSignal)(button);
+		}
+		
 		delete button;
 	}
 	mButtons.clear();
@@ -835,6 +840,11 @@ void LLToolBar::createButtons()
 		mButtons.push_back(button);
 		mButtonPanel->addChild(button);
 		mButtonMap.insert(std::make_pair(command_id.uuid(), button));
+		
+		if (mButtonAddSignal)
+		{
+			(*mButtonAddSignal)(button);
+		}
 	}
 	mNeedsLayout = true;
 }
