@@ -241,7 +241,7 @@ void LLFloaterTranslationSettings::verifyKey(int service, const std::string& key
 void LLFloaterTranslationSettings::onEditorFocused(LLFocusableElement* control)
 {
 	LLLineEditor* editor = dynamic_cast<LLLineEditor*>(control);
-	if (editor)
+	if (editor && editor->hasTabStop()) // if enabled. getEnabled() doesn't work
 	{
 		if (editor->getTentative())
 		{
