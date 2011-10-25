@@ -30,13 +30,16 @@
 #include "lltoolbarview.h"
 
 #include "llappviewer.h"
-#include "lldir.h"
-#include "llxmlnode.h"
-#include "lltoolbar.h"
 #include "llbutton.h"
-#include "lltooldraganddrop.h"
-#include "lltransientfloatermgr.h"
 #include "llclipboard.h"
+#include "lldir.h"
+#include "lldockablefloater.h"
+#include "lldockcontrol.h"
+#include "llimview.h"
+#include "lltransientfloatermgr.h"
+#include "lltoolbar.h"
+#include "lltooldraganddrop.h"
+#include "llxmlnode.h"
 
 #include "llagent.h"  // HACK for destinations guide on startup
 #include "llfloaterreg.h"  // HACK for destinations guide on startup
@@ -102,6 +105,7 @@ BOOL LLToolBarView::postBuild()
 		mToolbars[i]->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 		mToolbars[i]->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
 		mToolbars[i]->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded,_1));
+		mToolbars[i]->setButtonRemoveCallback(boost::bind(LLToolBarView::onToolBarButtonRemoved,_1));
 	}
 
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&handleLoginToolbarSetup));
@@ -391,17 +395,85 @@ void LLToolBarView::addToToolset(command_id_list_t& command_list, Toolbar& toolb
 
 void LLToolBarView::onToolBarButtonAdded(LLView* button)
 {
-	if (button && button->getName() == "speak")
+	llassert(button);
+	
+	if (button->getName() == "speak")
 	{
 		// Add the "Speak" button as a control view in LLTransientFloaterMgr
 		// to prevent hiding the transient IM floater upon pressing "Speak".
 		LLTransientFloaterMgr::getInstance()->addControlView(button);
+		
+		// Redock incoming and/or outgoing call windows, if applicable
+		
+		LLFloater* incoming_floater = LLFloaterReg::getLastFloaterInGroup("incoming_call");
+		LLFloater* outgoing_floater = LLFloaterReg::getLastFloaterInGroup("outgoing_call");
+		
+		if (incoming_floater && incoming_floater->isShown())
+		{
+			LLCallDialog* incoming = dynamic_cast<LLCallDialog *>(incoming_floater);
+			llassert(incoming);
+			
+			LLDockControl* dock_control = incoming->getDockControl();
+			if (dock_control->getDock() == NULL)
+			{
+				incoming->dockToToolbarButton("speak");
+			}
+		}
+		
+		if (outgoing_floater && outgoing_floater->isShown())
+		{
+			LLCallDialog* outgoing = dynamic_cast<LLCallDialog *>(outgoing_floater);
+			llassert(outgoing);
+			
+			LLDockControl* dock_control = outgoing->getDockControl();
+			if (dock_control->getDock() == NULL)
+			{
+				outgoing->dockToToolbarButton("speak");
+			}
+		}
 	}
-	else if (button && button->getName() == "voice")
+	else if (button->getName() == "voice")
 	{
 		// Add the "Voice controls" button as a control view in LLTransientFloaterMgr
 		// to prevent hiding the transient IM floater upon pressing "Voice controls".
 		LLTransientFloaterMgr::getInstance()->addControlView(button);
+	}
+}
+
+void LLToolBarView::onToolBarButtonRemoved(LLView* button)
+{
+	llassert(button);
+
+	if (button->getName() == "speak")
+	{
+		LLTransientFloaterMgr::getInstance()->removeControlView(button);
+		
+		// Undock incoming and/or outgoing call windows
+		
+		LLFloater* incoming_floater = LLFloaterReg::getLastFloaterInGroup("incoming_call");
+		LLFloater* outgoing_floater = LLFloaterReg::getLastFloaterInGroup("outgoing_call");
+		
+		if (incoming_floater && incoming_floater->isShown())
+		{
+			LLDockableFloater* incoming = dynamic_cast<LLDockableFloater *>(incoming_floater);
+			llassert(incoming);
+
+			LLDockControl* dock_control = incoming->getDockControl();
+			dock_control->setDock(NULL);
+		}
+		
+		if (outgoing_floater && outgoing_floater->isShown())
+		{
+			LLDockableFloater* outgoing = dynamic_cast<LLDockableFloater *>(outgoing_floater);
+			llassert(outgoing);
+
+			LLDockControl* dock_control = outgoing->getDockControl();
+			dock_control->setDock(NULL);
+		}
+	}
+	else if (button->getName() == "voice")
+	{
+		LLTransientFloaterMgr::getInstance()->removeControlView(button);
 	}
 }
 

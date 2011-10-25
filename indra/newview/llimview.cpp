@@ -1679,15 +1679,43 @@ BOOL LLCallDialog::postBuild()
 {
 	if (!LLDockableFloater::postBuild() || !gToolBarView)
 		return FALSE;
+	
+	dockToToolbarButton("speak");
+	
+	return TRUE;
+}
 
-	LLView *anchor_panel = gToolBarView->findChildView("speak");
-	LLDockControl::DocAt dock_pos = getDockControlPos();
-	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(dock_pos), dock_pos));
+void LLCallDialog::dockToToolbarButton(const std::string& toolbarButtonName)
+{
+	LLDockControl::DocAt dock_pos = getDockControlPos(toolbarButtonName);
+	LLView *anchor_panel = gToolBarView->findChildView(toolbarButtonName);
 
 	setUseTongue(anchor_panel);
 
-	return TRUE;
+	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(dock_pos), dock_pos));
 }
+
+LLDockControl::DocAt LLCallDialog::getDockControlPos(const std::string& toolbarButtonName)
+{
+	LLCommandId command_id(toolbarButtonName);
+	S32 toolbar_loc = gToolBarView->hasCommand(command_id);
+	
+	LLDockControl::DocAt doc_at = LLDockControl::TOP;
+	
+	switch (toolbar_loc)
+	{
+		case LLToolBarView::TOOLBAR_LEFT:
+			doc_at = LLDockControl::RIGHT;
+			break;
+			
+		case LLToolBarView::TOOLBAR_RIGHT:
+			doc_at = LLDockControl::LEFT;
+			break;
+	}
+	
+	return doc_at;
+}
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLOutgoingCallDialog
@@ -1750,22 +1778,6 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 		avatar_icon->setValue("Avaline_Icon");
 		avatar_icon->setToolTip(std::string(""));
 	}
-}
-
-LLDockControl::DocAt LLCallDialog::getDockControlPos()
-{
-	LLToolBar* tool_bar = NULL;
-
-	if((tool_bar = gToolBarView->getChild<LLToolBar>("toolbar_left")) && tool_bar->hasChild("speak", true))
-	{
-		return LLDockControl::RIGHT; // Speak button in the left toolbar so the call floater should be to the right of the speak button
-	}
-	else if((tool_bar = gToolBarView->getChild<LLToolBar>("toolbar_right")) && tool_bar->hasChild("speak", true))
-	{
-		return LLDockControl::LEFT; // Speak button in the right toolbar so the call floater should be to the left of the speak button
-	}
-
-	return LLDockControl::TOP;
 }
 
 bool LLCallDialog::lifetimeHasExpired()

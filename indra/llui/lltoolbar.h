@@ -71,6 +71,7 @@ public:
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
 	void onMouseCaptureLost();
 
 	void onCommit();
@@ -202,6 +203,8 @@ public:
 	typedef boost::signals2::signal<void (LLView* button)> button_signal_t;
 	boost::signals2::connection setButtonAddCallback(const button_signal_t::slot_type& cb);
 	boost::signals2::connection setButtonEnterCallback(const button_signal_t::slot_type& cb);
+	boost::signals2::connection setButtonLeaveCallback(const button_signal_t::slot_type& cb);
+	boost::signals2::connection setButtonRemoveCallback(const button_signal_t::slot_type& cb);
 
 	void setTooltipButtonSuffix(const std::string& suffix) { mButtonTooltipSuffix = suffix; }
 
@@ -269,6 +272,8 @@ private:
 
 	button_signal_t*				mButtonAddSignal;
 	button_signal_t*				mButtonEnterSignal;
+	button_signal_t*				mButtonLeaveSignal;
+	button_signal_t*				mButtonRemoveSignal;
 
 	std::string						mButtonTooltipSuffix;
 };

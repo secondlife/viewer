@@ -117,6 +117,7 @@ private:
 	void	addToToolset(command_id_list_t& command_list, Toolbar& toolbar) const;
 
 	static void	onToolBarButtonAdded(LLView* button);
+	static void onToolBarButtonRemoved(LLView* button);
 
 	// Pointers to the toolbars handled by the toolbar view
 	LLToolBar*  mToolbars[TOOLBAR_COUNT];

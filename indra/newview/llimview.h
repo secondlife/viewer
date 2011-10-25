@@ -495,10 +495,12 @@ public:
 
 	virtual BOOL postBuild();
 
+	void dockToToolbarButton(const std::string& toolbarButtonName);
+	
 	// check timer state
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen(const LLSD& key);
-
+	
 protected:
 	// lifetime timer for a notification
 	LLTimer	mLifetimeTimer;
@@ -521,7 +523,7 @@ protected:
 	LLSD mPayload;
 
 private:
-	LLDockControl::DocAt getDockControlPos();
+	LLDockControl::DocAt getDockControlPos(const std::string& toolbarButtonName);
 };
 
 class LLIncomingCallDialog : public LLCallDialog
