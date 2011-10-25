@@ -4248,8 +4248,8 @@ support@secondlife.com.
 	<string name="Female - Wow">
 		Женщина – ух ты!
 	</string>
-	<string name="/bow1">
-		/поклон1
+	<string name="/bow">
+		/поклон
 	</string>
 	<string name="/clap">
 		/хлопнуть
