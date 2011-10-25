@@ -3705,7 +3705,11 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
 
- <!-- Mesh UI terms -->
+  <string name="Toolbar_Bottom_Tooltip">currently in your bottom toolbar</string>
+  <string name="Toolbar_Left_Tooltip"  >currently in your left toolbar</string>
+  <string name="Toolbar_Right_Tooltip" >currently in your right toolbar</string>
+
+  <!-- Mesh UI terms -->
   <string name="Retain%">Retain%</string>
   <string name="Detail">Detail</string>
   <string name="Better Detail">Better Detail</string>

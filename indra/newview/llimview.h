@@ -491,7 +491,7 @@ class LLCallDialog : public LLDockableFloater
 {
 public:
 	LLCallDialog(const LLSD& payload);
-	~LLCallDialog();
+	virtual ~LLCallDialog();
 
 	virtual BOOL postBuild();
 
@@ -519,6 +519,9 @@ protected:
 	void setIcon(const LLSD& session_id, const LLSD& participant_id);
 
 	LLSD mPayload;
+
+private:
+	LLDockControl::DocAt getDockControlPos();
 };
 
 class LLIncomingCallDialog : public LLCallDialog

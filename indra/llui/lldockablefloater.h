@@ -124,7 +124,7 @@ private:
 
 protected:
 	void setDockControl(LLDockControl* dockControl);
-	const LLUIImagePtr& getDockTongue();
+	const LLUIImagePtr& getDockTongue(LLDockControl::DocAt dock_side = LLDockControl::TOP);
 
 	// Checks if docking should be forced.
 	// It may be useful e.g. if floater created in mouselook mode (see EXT-5609)

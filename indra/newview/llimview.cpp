@@ -1681,7 +1681,8 @@ BOOL LLCallDialog::postBuild()
 		return FALSE;
 
 	LLView *anchor_panel = gToolBarView->findChildView("speak");
-	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
+	LLDockControl::DocAt dock_pos = getDockControlPos();
+	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(dock_pos), dock_pos));
 
 	setUseTongue(anchor_panel);
 
@@ -1749,6 +1750,22 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 		avatar_icon->setValue("Avaline_Icon");
 		avatar_icon->setToolTip(std::string(""));
 	}
+}
+
+LLDockControl::DocAt LLCallDialog::getDockControlPos()
+{
+	LLToolBar* tool_bar = NULL;
+
+	if((tool_bar = gToolBarView->getChild<LLToolBar>("toolbar_left")) && tool_bar->hasChild("speak", true))
+	{
+		return LLDockControl::RIGHT; // Speak button in the left toolbar so the call floater should be to the right of the speak button
+	}
+	else if((tool_bar = gToolBarView->getChild<LLToolBar>("toolbar_right")) && tool_bar->hasChild("speak", true))
+	{
+		return LLDockControl::LEFT; // Speak button in the right toolbar so the call floater should be to the left of the speak button
+	}
+
+	return LLDockControl::TOP;
 }
 
 bool LLCallDialog::lifetimeHasExpired()

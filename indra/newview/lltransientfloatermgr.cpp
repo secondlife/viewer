@@ -104,6 +104,8 @@ void LLTransientFloaterMgr::hideTransientFloaters(S32 x, S32 y)
 
 bool LLTransientFloaterMgr::isControlClicked(ETransientGroup group, controls_set_t& set, S32 x, S32 y)
 {
+	std::list< LLHandle<LLView> > dead_handles;
+	
 	bool res = true;
 	for (controls_set_t::iterator it = set.begin(); it
 			!= set.end(); it++)
@@ -113,7 +115,7 @@ bool LLTransientFloaterMgr::isControlClicked(ETransientGroup group, controls_set
 		LLHandle<LLView> handle = *it;
 		if (handle.isDead())
 		{
-			mGroupControls.find(group)->second.erase(handle);
+			dead_handles.push_back(handle);
 			continue;
 		}
 
@@ -132,6 +134,13 @@ bool LLTransientFloaterMgr::isControlClicked(ETransientGroup group, controls_set
 			break;
 		}
 	}
+
+	for (std::list< LLHandle<LLView> >::iterator it = dead_handles.begin(); it != dead_handles.end(); ++it)
+	{
+		LLHandle<LLView> handle = *it;
+		mGroupControls.find(group)->second.erase(handle);
+	}
+	
 	return res;
 }
 

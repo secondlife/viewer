@@ -43,6 +43,7 @@ public:
 	{
 		TOP,
 		LEFT,
+		RIGHT,
 		BOTTOM
 	};
 
