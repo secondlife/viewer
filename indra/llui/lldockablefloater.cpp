@@ -239,8 +239,21 @@ void LLDockableFloater::setDockControl(LLDockControl* dockControl)
 	setDocked(isDocked());
 }
 
-const LLUIImagePtr& LLDockableFloater::getDockTongue()
+const LLUIImagePtr& LLDockableFloater::getDockTongue(LLDockControl::DocAt dock_side)
 {
+	switch(dock_side)
+	{
+	case LLDockControl::LEFT:
+		mDockTongue = LLUI::getUIImage("windows/Flyout_Left.png");
+		break;
+	case LLDockControl::RIGHT:
+		mDockTongue = LLUI::getUIImage("windows/Flyout_Right.png");
+		break;
+	default:
+		mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
+		break;
+	}
+
 	return mDockTongue;
 }
 
