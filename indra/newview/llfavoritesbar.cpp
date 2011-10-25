@@ -443,17 +443,17 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			{
 				setLandingTab(dest);
 			}
-			/*
-			 * the condition dest == NULL can be satisfied not only in the case
-			 * of dragging to the right from the last tab of the favbar. there is a
-			 * small gap between each tab. if the user drags something exactly there
-			 * then mLandingTab will be set to NULL and the dragged item will be pushed
-			 * to the end of the favorites bar. this is incorrect behavior. that's why
-			 * we need an additional check which excludes the case described previously
-			 * making sure that the mouse pointer is beyond the last tab.
-			 */
-			else if (mLastTab && x >= mLastTab->getRect().mRight)
+			else if (mLastTab && (x >= mLastTab->getRect().mRight))
 			{
+				/*
+				 * the condition dest == NULL can be satisfied not only in the case
+				 * of dragging to the right from the last tab of the favbar. there is a
+				 * small gap between each tab. if the user drags something exactly there
+				 * then mLandingTab will be set to NULL and the dragged item will be pushed
+				 * to the end of the favorites bar. this is incorrect behavior. that's why
+				 * we need an additional check which excludes the case described previously
+				 * making sure that the mouse pointer is beyond the last tab.
+				 */
 				setLandingTab(NULL);
 			}
 
@@ -467,7 +467,6 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 				if (drop)
 				{
 					handleExistingFavoriteDragAndDrop(x, y);
-					showDragMarker(FALSE);
 				}
 			}
 			else
@@ -490,7 +489,6 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 						setLandingTab(NULL);
 					}
 					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
-					showDragMarker(FALSE);
 				}
 			}
 		}
@@ -664,7 +662,7 @@ void LLFavoritesBarCtrl::draw()
 		{
 			// mouse pointer hovers over an existing tab
 			LLRect rect = mLandingTab->getRect();
-			mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
+			mImageDragIndication->draw(rect.mLeft, rect.getHeight(), w, h);
 		}
 		else if (mLastTab)
 		{
@@ -672,6 +670,8 @@ void LLFavoritesBarCtrl::draw()
 			LLRect rect = mLastTab->getRect();
 			mImageDragIndication->draw(rect.mRight, rect.getHeight(), w, h);
 		}
+		// Once drawn, mark this false so we won't draw it again (unless we hit the favorite bar again)
+		mShowDragMarker = FALSE;
 	}
 }
 
@@ -743,7 +743,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	if (first_changed_item_index <= mItems.count())
 	{
 		// Rebuild the buttons only
-		// child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
+		// child_list_t is a linked list, so safe to erase from the middle if we pre-increment the iterator
 
 		while (child_it != childs->end())
 		{
@@ -832,9 +832,9 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 
 	/**
 	 * WORKAROUND:
-	 * there are some problem with displaying of fonts in buttons. 
-	 * Empty space (or ...) is displaying instead of last symbols, even though the width of the button is enough.
-	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  20 pixels.
+	 * There are some problem with displaying of fonts in buttons. 
+	 * Empty space or ellipsis might be displayed instead of last symbols, even though the width of the button is enough.
+	 * The problem disappears if we pad the button with 20 pixels.
 	 */
 	int required_width = mFont->getWidth(item->getName()) + 20;
 	int width = required_width > def_button_width? def_button_width : required_width;
@@ -862,7 +862,6 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	fav_btn->setRect(butt_rect);
 	// change only left and save bottom
 	fav_btn->setFont(mFont);
-	fav_btn->setName(item->getName());
 	fav_btn->setLabel(item->getName());
 	fav_btn->setToolTip(item->getName());
 	fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
@@ -1320,25 +1319,24 @@ BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 
 LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
 {
-	LLUICtrl* ctrl = 0;
-	S32 screenX, screenY;
+	LLUICtrl* ctrl = NULL;
 	const child_list_t* list = getChildList();
 
-	localPointToScreen(x, y, &screenX, &screenY);
-
-	// look for a child which contains the point (screenX, screenY) in it's rectangle
 	for (child_list_const_iter_t i = list->begin(); i != list->end(); ++i)
 	{
-		LLRect rect;
-		localRectToScreen((*i)->getRect(), &rect);
-
-		if (rect.pointInRect(screenX, screenY))
+		// Look only for children that are favorite buttons
+		if ((*i)->getName() == "favorites_bar_btn")
 		{
-			ctrl = dynamic_cast<LLUICtrl*>(*i);
-			break;
+			LLRect rect = (*i)->getRect();
+			// We consider a button hit if the cursor is left of the right side
+			// This makes the hit a bit less finicky than hitting directly on the button itself
+			if (x <= rect.mRight)
+			{
+				ctrl = dynamic_cast<LLUICtrl*>(*i);
+				break;
+			}
 		}
 	}
-
 	return ctrl;
 }
 
