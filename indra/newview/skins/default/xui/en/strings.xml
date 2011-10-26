@@ -3529,6 +3529,10 @@ Try enclosing path to the editor with double quotes.
  <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
  <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
 
+ <!--  Machine translation of chat messahes -->
+ <string name="TranslationFailed">Translation failed: [REASON]</string>
+ <string name="TranslationResponseParseError">Error parsing translation response.</string>
+
   <!-- Key names begin -->
   <string name="Esc">Esc</string>
   <string name="Space">Space</string>
