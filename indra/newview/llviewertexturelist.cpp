@@ -1069,10 +1069,19 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 	}
 	else
 	{
-		if (get_recommended)
-			max_texmem = 128;
-		else
+		if (!get_recommended)
+		{
 			max_texmem = 512;
+		}
+		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
+		{
+			max_texmem = 512;
+		}
+		else
+		{
+			max_texmem = 128;
+		}
+
 		llwarns << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << llendl;
 	}
 
