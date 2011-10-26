@@ -2003,6 +2003,8 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
+	LLImage::initClass();
+
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
 
@@ -2012,8 +2014,7 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
 													sImageDecodeThread,
 													enable_threads && true,
-													app_metrics_qa_mode);
-	LLImage::initClass();
+													app_metrics_qa_mode);	
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
