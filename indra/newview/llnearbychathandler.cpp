@@ -568,7 +568,8 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not 
 	sChatWatcher->post(notification);
 
 
-	if( chat_bar->getVisible() && nearby_chat->getVisible() 
+	if( !chat_bar->isMinimized()
+		&& nearby_chat->isInVisibleChain() 
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| !mChannel->getShowToasts() ) // to prevent toasts in Busy mode
