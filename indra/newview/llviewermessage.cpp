@@ -2451,13 +2451,16 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				break;
 			}
 
-			// The group notice packet does not have an AgentID.  Try to obtain one from the name cache.
-			// If there is a cache miss and a background fetch has to occur the group notice may
-			// be displayed even though the resident has been muted.
+			// The group notice packet does not have an AgentID.  Obtain one from the name cache.
 			std::string legacy_name = gCacheName->buildLegacyName(original_name);
 			LLUUID agent_id;
 			gCacheName->getUUID(legacy_name, agent_id);
-			if (agent_id.notNull() && LLMuteList::getInstance()->isMuted(agent_id))
+
+			if (agent_id.isNull())
+			{
+				LL_WARNS("Messaging") << "buildLegacyName returned null" << LL_ENDL;			
+			}
+			else if (LLMuteList::getInstance()->isMuted(agent_id))
 			{
 				break;
 			}
