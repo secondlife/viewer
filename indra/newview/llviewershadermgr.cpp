@@ -827,6 +827,8 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 		gTerrainProgram.mFeatures.calculatesLighting = true;
 		gTerrainProgram.mFeatures.calculatesAtmospherics = true;
 		gTerrainProgram.mFeatures.hasAtmospherics = true;
+		gTerrainProgram.mFeatures.mIndexedTextureChannels = 0;
+		gTerrainProgram.mFeatures.disableTextureIndex = true;
 		gTerrainProgram.mFeatures.hasGamma = true;
 		gTerrainProgram.mShaderFiles.clear();
 		gTerrainProgram.mShaderFiles.push_back(make_pair("environment/terrainV.glsl", GL_VERTEX_SHADER_ARB));
@@ -895,6 +897,8 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gTerrainWaterProgram.mFeatures.calculatesAtmospherics = true;
 		gTerrainWaterProgram.mFeatures.hasAtmospherics = true;
 		gTerrainWaterProgram.mFeatures.hasWaterFog = true;
+		gTerrainWaterProgram.mFeatures.mIndexedTextureChannels = 0;
+		gTerrainWaterProgram.mFeatures.disableTextureIndex = true;
 		gTerrainWaterProgram.mShaderFiles.clear();
 		gTerrainWaterProgram.mShaderFiles.push_back(make_pair("environment/terrainV.glsl", GL_VERTEX_SHADER_ARB));
 		gTerrainWaterProgram.mShaderFiles.push_back(make_pair("environment/terrainWaterF.glsl", GL_FRAGMENT_SHADER_ARB));
