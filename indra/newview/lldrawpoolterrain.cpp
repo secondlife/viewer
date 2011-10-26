@@ -189,6 +189,8 @@ void LLDrawPoolTerrain::render(S32 pass)
 		compp->mDetailTextures[i]->addTextureStats(1024.f*1024.f); // assume large pixel area
 	}
 
+	LLOverrideFaceColor override(this, 1.f, 1.f, 1.f, 1.f);
+
 	if (!gGLManager.mHasMultitexture)
 	{
 		// No multitexture, render simple land.
@@ -203,8 +205,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 	}
 
 	LLGLSPipeline gls;
-	LLOverrideFaceColor override(this, 1.f, 1.f, 1.f, 1.f);
-
+	
 	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
 		gPipeline.enableLightsDynamic();

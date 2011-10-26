@@ -33,7 +33,6 @@ uniform vec4 object_plane_s;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec3 normal;
-ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec2 texcoord1;
 
@@ -72,7 +71,7 @@ void main()
 	/// Potentially better without it for water.
 	pos /= pos.w;
 
-	vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0));
+	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0));
 	
 	vertex_color = color;
 
