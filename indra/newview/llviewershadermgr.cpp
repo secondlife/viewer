@@ -584,7 +584,6 @@ void LLViewerShaderMgr::setShaders()
 	if (gViewerWindow)
 	{
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
-		gViewerWindow->getWindow()->restore();
 	}
 	gPipeline.createGLBuffers();
 

@@ -553,7 +553,7 @@ bool LLGLManager::initGL()
 		&mDriverVersionVendorString );
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
-	
+
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
 	if (mGLVendor.substr(0,4) == "ATI ")
