@@ -243,12 +243,15 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 		mButtons.insert(it_button,button);
 	}
 
+	mNeedsLayout = true;
+
+	updateLayoutAsNeeded();
+
+
 	if (mButtonAddSignal)
 	{
 		(*mButtonAddSignal)(button);
 	}
-
-	mNeedsLayout = true;
 
 	return true;
 }
