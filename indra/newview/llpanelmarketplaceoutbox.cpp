@@ -36,6 +36,7 @@
 #include "llfloatersidepanelcontainer.h"
 #include "llinventorypanel.h"
 #include "llloadingindicator.h"
+#include "llmarketplacefunctions.h"
 #include "llnotificationsutil.h"
 #include "llpanelmarketplaceinbox.h"
 #include "llsdutil.h"
@@ -82,7 +83,7 @@ void LLPanelMarketplaceOutbox::handleLoginComplete()
 {
 	mSyncButton = getChild<LLButton>("outbox_sync_btn");
 	mSyncButton->setCommitCallback(boost::bind(&LLPanelMarketplaceOutbox::onSyncButtonClicked, this));
-	mSyncButton->setEnabled(!isOutboxEmpty());
+	mSyncButton->setEnabled(getMarketplaceSyncEnabled() && !isOutboxEmpty());
 	
 	mSyncIndicator = getChild<LLLoadingIndicator>("outbox_sync_indicator");
 }
@@ -227,20 +228,7 @@ void LLPanelMarketplaceOutbox::onSyncButtonClicked()
 	updateSyncButtonStatus();
 
 	// Make the url for the inventory import request
-	std::string url = "https://marketplace.secondlife.com/";
-
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
-
-		// TEMP for Jim's pdp
-		//url = "http://pdp24.lindenlab.com:3000/";
-	}
-	
-	url += "api/1/users/";
-	url += gAgent.getID().getString();
-	url += "/inventory_import";
+	std::string url = getMarketplaceURL_InventoryImport();
 
 	llinfos << "http get:  " << url << llendl;
 	LLHTTPClient::get(url, new LLInventorySyncResponder(this), LLViewerMedia::getHeaders());
@@ -315,7 +303,7 @@ void LLPanelMarketplaceOutbox::updateSyncButtonStatus()
 		mSyncIndicator->setVisible(false);
 
 		mSyncButton->setVisible(true);
-		mSyncButton->setEnabled(!isOutboxEmpty());
+		mSyncButton->setEnabled(getMarketplaceSyncEnabled() && !isOutboxEmpty());
 	}
 }
 
@@ -356,7 +344,7 @@ void LLPanelMarketplaceOutbox::draw()
 	
 	if (!isSyncInProgress())
 	{
-		mSyncButton->setEnabled(not_empty);
+		mSyncButton->setEnabled(getMarketplaceSyncEnabled() && not_empty);
 	}
 	
 	LLPanel::draw();
