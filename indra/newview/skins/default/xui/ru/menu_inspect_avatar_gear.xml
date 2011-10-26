@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="Смотреть профиль" name="view_profile"/>
+	<menu_item_call label="В друзья" name="add_friend"/>
+	<menu_item_call label="IM" name="im"/>
+	<menu_item_call label="Звонок" name="call"/>
+	<menu_item_call label="Телепорт" name="teleport"/>
+	<menu_item_call label="Пригласить в группу" name="invite_to_group"/>
+	<menu_item_call label="Заблокировать" name="block"/>
+	<menu_item_call label="Разблокировать" name="unblock"/>
+	<menu_item_call label="Пожаловаться" name="report"/>
+	<menu_item_call label="Заморозить" name="freeze"/>
+	<menu_item_call label="Выкинуть" name="eject"/>
+	<menu_item_call label="Выкинуть" name="kick"/>
+	<menu_item_call label="Поддержка" name="csr"/>
+	<menu_item_call label="Отладка текстур" name="debug"/>
+	<menu_item_call label="Найти на карте" name="find_on_map"/>
+	<menu_item_call label="Приблизить" name="zoom_in"/>
+	<menu_item_call label="Заплатить" name="pay"/>
+	<menu_item_call label="Поделиться" name="share"/>
+</toggleable_menu>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="ENVANTER ÖGESİ ÖZELLİKLERİ">
+	<floater.string name="unknown">
+		(bilinmiyor)
+	</floater.string>
+	<floater.string name="public">
+		(kamuya açık)
+	</floater.string>
+	<floater.string name="you_can">
+		Şunu yapabilirsiniz:
+	</floater.string>
+	<floater.string name="owner_can">
+		Sahip şunu yapabilir:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<text name="LabelItemNameTitle">
+		Ad:
+	</text>
+	<text name="LabelItemDescTitle">
+		Açıklama:
+	</text>
+	<text name="LabelCreatorTitle">
+		Oluşturan:
+	</text>
+	<button label="Profil..." name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+		Sahip:
+	</text>
+	<button label="Profil..." name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+		Alınan:
+	</text>
+	<text name="LabelAcquiredDate">
+		24 Mayıs Çarş 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		Siz:
+	</text>
+	<check_box label="Düzenle" name="CheckOwnerModify"/>
+	<check_box label="Kopyala" name="CheckOwnerCopy"/>
+	<check_box label="Tekrar Sat" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Herkes:
+	</text>
+	<check_box label="Kopyala" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Grup:
+	</text>
+	<check_box label="Paylaş" name="CheckShareWithGroup"/>
+	<text name="NextOwnerLabel">
+		Sonraki sahip:
+	</text>
+	<check_box label="Düzenle" name="CheckNextOwnerModify"/>
+	<check_box label="Kopyala" name="CheckNextOwnerCopy"/>
+	<check_box label="Tekrar Sat" name="CheckNextOwnerTransfer"/>
+	<check_box label="Satılık" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Kopyala" name="Copy"/>
+		<combo_box.item label="Orijinal" name="Original"/>
+	</combo_box>
+	<spinner label="Fiyat:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
+</floater>

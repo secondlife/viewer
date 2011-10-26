@@ -31,6 +31,7 @@
 #include "llfocusmgr.h"
 #include "llinventory.h"
 #include "lllandmarkactions.h"
+#include "lltoolbarview.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "llmenugl.h"
@@ -41,10 +42,10 @@
 #include "llinventoryclipboard.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "lllandmarkactions.h"
 #include "llnotificationsutil.h"
-#include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"
@@ -54,6 +55,7 @@
 static LLDefaultChildRegistry::Register<LLFavoritesBarCtrl> r("favorites_bar");
 
 const S32 DROP_DOWN_MENU_WIDTH = 250;
+const S32 DROP_DOWN_MENU_TOP_PAD = 13;
 
 /**
  * Helper for LLFavoriteLandmarkButton and LLFavoriteLandmarkMenuItem.
@@ -360,7 +362,7 @@ struct LLFavoritesSort
 
 LLFavoritesBarCtrl::Params::Params()
 : image_drag_indication("image_drag_indication"),
-  chevron_button("chevron_button"),
+  more_button("more_button"),
   label("label")
 {
 }
@@ -389,10 +391,10 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	gInventory.addObserver(this);
 
 	//make chevron button                                                                                                                               
-	LLButton::Params chevron_button_params(p.chevron_button);                                         
-	chevron_button_params.click_callback.function(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));     
-	mChevronButton = LLUICtrlFactory::create<LLButton> (chevron_button_params);
-	addChild(mChevronButton); 
+	LLTextBox::Params more_button_params(p.more_button);
+	mMoreTextBox = LLUICtrlFactory::create<LLTextBox> (more_button_params);
+	mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
+	addChild(mMoreTextBox);
 
 	LLTextBox::Params label_param(p.label);
 	mBarLabel = LLUICtrlFactory::create<LLTextBox> (label_param);
@@ -403,8 +405,8 @@ LLFavoritesBarCtrl::~LLFavoritesBarCtrl()
 {
 	gInventory.removeObserver(this);
 
-	LLView::deleteViewByHandle(mOverflowMenuHandle);
-	LLView::deleteViewByHandle(mContextMenuHandle);
+	delete mOverflowMenuHandle.get();
+	delete mContextMenuHandle.get();
 }
 
 BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -692,7 +694,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
 	int first_changed_item_index = 0;
-	int rightest_point = getRect().mRight - mChevronButton->getRect().getWidth();
+	int rightest_point = getRect().mRight - mMoreTextBox->getRect().getWidth();
 	//lets find first changed button
 	while (child_it != childs->end() && first_changed_item_index < mItems.count())
 	{
@@ -735,9 +737,9 @@ void LLFavoritesBarCtrl::updateButtons()
 		}
 		// we have to remove ChevronButton to make sure that the last item will be LandmarkButton to get the right aligning
 		// keep in mind that we are cutting all buttons in space between the last visible child of favbar and ChevronButton
-		if (mChevronButton->getParent() == this)
+		if (mMoreTextBox->getParent() == this)
 		{
-			removeChild(mChevronButton);
+			removeChild(mMoreTextBox);
 		}
 		int last_right_edge = 0;
 		//calculate new buttons offset
@@ -777,13 +779,13 @@ void LLFavoritesBarCtrl::updateButtons()
 			S32 buttonHGap = button_params.rect.left; // default value
 			LLRect rect;
 			// Chevron button should stay right aligned
-			rect.setOriginAndSize(getRect().mRight - mChevronButton->getRect().getWidth() - buttonHGap, 0,
-					mChevronButton->getRect().getWidth(),
-					mChevronButton->getRect().getHeight());
+			rect.setOriginAndSize(getRect().mRight - mMoreTextBox->getRect().getWidth() - buttonHGap, 0,
+					mMoreTextBox->getRect().getWidth(),
+					mMoreTextBox->getRect().getHeight());
 
-			addChild(mChevronButton);
-			mChevronButton->setRect(rect);
-			mChevronButton->setVisible(TRUE);
+			addChild(mMoreTextBox);
+			mMoreTextBox->setRect(rect);
+			mMoreTextBox->setVisible(TRUE);
 		}
 		// Update overflow menu
 		LLToggleableMenu* overflow_menu = static_cast <LLToggleableMenu*> (mOverflowMenuHandle.get());
@@ -816,8 +818,8 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	int width = required_width > def_button_width? def_button_width : required_width;
 	LLFavoriteLandmarkButton* fav_btn = NULL;
 
-	// do we have a place for next button + double buttonHGap + mChevronButton ? 
-	if(curr_x + width + 2*button_x_delta +  mChevronButton->getRect().getWidth() > getRect().mRight )
+	// do we have a place for next button + double buttonHGap + mMoreTextBox ?
+	if(curr_x + width + 2*button_x_delta +  mMoreTextBox->getRect().getWidth() > getRect().mRight )
 	{
 		return NULL;
 	}
@@ -893,84 +895,155 @@ void LLFavoritesBarCtrl::showDropDownMenu()
 {
 	if (mOverflowMenuHandle.isDead())
 	{
-		LLToggleableMenu::Params menu_p;
-		menu_p.name("favorites menu");
-		menu_p.can_tear_off(false);
-		menu_p.visible(false);
-		menu_p.scrollable(true);
-		menu_p.max_scrollable_items = 10;
-		menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
-
-		LLToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
-		mOverflowMenuHandle = menu->getHandle();
+		createOverflowMenu();
 	}
 
 	LLToggleableMenu* menu = (LLToggleableMenu*)mOverflowMenuHandle.get();
-
-	if (menu)
+	if (menu && menu->toggleVisibility())
 	{
-		if (!menu->toggleVisibility())
-			return;
-
-		U32 max_width = llmin(DROP_DOWN_MENU_WIDTH, getRect().getWidth());
 		if (mUpdateDropDownItems)
 		{
-			menu->empty();
-
-			U32 widest_item = 0;
-
-			for (S32 i = mFirstDropDownItem; i < mItems.count(); i++)
-			{
-				LLViewerInventoryItem* item = mItems.get(i);
-				const std::string& item_name = item->getName();
-
-				LLFavoriteLandmarkMenuItem::Params item_params;
-				item_params.name(item_name);
-				item_params.label(item_name);
-
-				item_params.on_click.function(boost::bind(
-						&LLFavoritesBarCtrl::onButtonClick, this,
-						item->getUUID()));
-				LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
-				menu_item->initFavoritesBarPointer(this);
-				menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3, _4));
-				menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
-				menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
-				menu_item->setLandmarkID(item->getUUID());
-
-				// Check whether item name wider than menu
-				if (menu_item->getNominalWidth() > max_width)
-				{
-					S32 chars_total = item_name.length();
-					S32 chars_fitted = 1;
-					menu_item->setLabel(LLStringExplicit(""));
-					S32 label_space = max_width - menu_item->getFont()->getWidth("...") - 
-							menu_item->getNominalWidth();// This returns width of menu item with empty label (pad pixels) 
-
-					while (chars_fitted < chars_total
-							&& menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
-					{
-						chars_fitted++;
-					}
-					chars_fitted--; // Rolling back one char, that doesn't fit
-
-					menu_item->setLabel(item_name.substr(0, chars_fitted)
-							+ "...");
-				}
-				widest_item = llmax(widest_item, menu_item->getNominalWidth());
-
-				menu->addChild(menu_item);
-			}
-			mUpdateDropDownItems = false;
+			updateMenuItems(menu);
 		}
 
 		menu->buildDrawLabels();
 		menu->updateParent(LLMenuGL::sMenuContainer);
-
-		menu->setButtonRect(mChevronButton->getRect(), this);
-
-		LLMenuGL::showPopup(this, menu, getRect().getWidth() - max_width, 0);
+		menu->setButtonRect(mMoreTextBox->getRect(), this);
+		positionAndShowMenu(menu);
 	}
+}
+
+void LLFavoritesBarCtrl::createOverflowMenu()
+{
+	LLToggleableMenu::Params menu_p;
+	menu_p.name("favorites menu");
+	menu_p.can_tear_off(false);
+	menu_p.visible(false);
+	menu_p.scrollable(true);
+	menu_p.max_scrollable_items = 10;
+	menu_p.preferred_width = DROP_DOWN_MENU_WIDTH;
+
+	LLToggleableMenu* menu = LLUICtrlFactory::create<LLFavoriteLandmarkToggleableMenu>(menu_p);
+	mOverflowMenuHandle = menu->getHandle();
+}
+
+void LLFavoritesBarCtrl::updateMenuItems(LLToggleableMenu* menu)
+{
+	menu->empty();
+
+	U32 widest_item = 0;
+
+	for (S32 i = mFirstDropDownItem; i < mItems.count(); i++)
+	{
+		LLViewerInventoryItem* item = mItems.get(i);
+		const std::string& item_name = item->getName();
+
+		LLFavoriteLandmarkMenuItem::Params item_params;
+		item_params.name(item_name);
+		item_params.label(item_name);
+		item_params.on_click.function(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
+
+		LLFavoriteLandmarkMenuItem *menu_item = LLUICtrlFactory::create<LLFavoriteLandmarkMenuItem>(item_params);
+		menu_item->initFavoritesBarPointer(this);
+		menu_item->setRightMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonRightClick, this, item->getUUID(), _1, _2, _3, _4));
+		menu_item->LLUICtrl::setMouseDownCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseDown, this, item->getUUID(), _1, _2, _3, _4));
+		menu_item->LLUICtrl::setMouseUpCallback(boost::bind(&LLFavoritesBarCtrl::onButtonMouseUp, this, item->getUUID(), _1, _2, _3, _4));
+		menu_item->setLandmarkID(item->getUUID());
+
+		fitLabelWidth(menu_item);
+
+		widest_item = llmax(widest_item, menu_item->getNominalWidth());
+
+		menu->addChild(menu_item);
+	}
+
+	addOpenLandmarksMenuItem(menu);
+	mUpdateDropDownItems = false;
+}
+
+void LLFavoritesBarCtrl::fitLabelWidth(LLMenuItemCallGL* menu_item)
+{
+	U32 max_width = llmin(DROP_DOWN_MENU_WIDTH, getRect().getWidth());
+	std::string item_name = menu_item->getName();
+
+	// Check whether item name wider than menu
+	if (menu_item->getNominalWidth() > max_width)
+	{
+		S32 chars_total = item_name.length();
+		S32 chars_fitted = 1;
+		menu_item->setLabel(LLStringExplicit(""));
+		S32 label_space = max_width - menu_item->getFont()->getWidth("...") -
+				menu_item->getNominalWidth();// This returns width of menu item with empty label (pad pixels)
+
+		while (chars_fitted < chars_total
+				&& menu_item->getFont()->getWidth(item_name, 0, chars_fitted) < label_space)
+		{
+			chars_fitted++;
+		}
+		chars_fitted--; // Rolling back one char, that doesn't fit
+
+		menu_item->setLabel(item_name.substr(0, chars_fitted) + "...");
+	}
+}
+
+void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
+{
+	std::string label_untrans = "Open landmarks";
+	std::string	label_transl;
+	bool translated = LLTrans::findString(label_transl, label_untrans);
+
+	LLMenuItemCallGL::Params item_params;
+	item_params.name("open_my_landmarks");
+	item_params.label(translated ? label_transl: label_untrans);
+	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", LLSD()));
+	LLMenuItemCallGL* menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
+
+	fitLabelWidth(menu_item);
+
+	LLMenuItemSeparatorGL::Params sep_params;
+	sep_params.enabled_color=LLUIColorTable::instance().getColor("MenuItemEnabledColor");
+	sep_params.disabled_color=LLUIColorTable::instance().getColor("MenuItemDisabledColor");
+	sep_params.highlight_bg_color=LLUIColorTable::instance().getColor("MenuItemHighlightBgColor");
+	sep_params.highlight_fg_color=LLUIColorTable::instance().getColor("MenuItemHighlightFgColor");
+	LLMenuItemSeparatorGL* separator = LLUICtrlFactory::create<LLMenuItemSeparatorGL>(sep_params);
+
+	menu->addChild(separator);
+	menu->addChild(menu_item);
+}
+
+void LLFavoritesBarCtrl::positionAndShowMenu(LLToggleableMenu* menu)
+{
+	U32 max_width = llmin(DROP_DOWN_MENU_WIDTH, getRect().getWidth());
+
+	S32 menu_x = getRect().getWidth() - max_width;
+	S32 menu_y = getParent()->getRect().mBottom - DROP_DOWN_MENU_TOP_PAD;
+
+	// the menu should be offset of the right edge of the window
+	// so it's no covered by buttons in the right-side toolbar.
+	LLToolBar* right_toolbar = gToolBarView->getChild<LLToolBar>("toolbar_right");
+	if (right_toolbar && right_toolbar->hasButtons())
+	{
+		S32 toolbar_top = 0;
+
+		if (LLView* top_border_panel = right_toolbar->getChild<LLView>("button_panel"))
+		{
+			toolbar_top = top_border_panel->calcScreenRect().mTop;
+		}
+
+		// Calculating the bottom (in screen coord) of the drop down menu
+		S32 menu_top = getParent()->getRect().mBottom - DROP_DOWN_MENU_TOP_PAD;
+		S32 menu_bottom = menu_top - menu->getRect().getHeight();
+		S32 menu_bottom_screen = 0;
+
+		localPointToScreen(0, menu_bottom, &menu_top, &menu_bottom_screen);
+
+		if (menu_bottom_screen < toolbar_top)
+		{
+			menu_x -= right_toolbar->getRect().getWidth();
+		}
+	}
+
+	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
 }
 
 void LLFavoritesBarCtrl::onButtonClick(LLUUID item_id)
@@ -1057,7 +1130,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 		key["type"] = "landmark";
 		key["id"] = mSelectedItemID;
 
-		LLSideTray::getInstance()->showPanel("panel_places", key);
+		LLFloaterSidePanelContainer::showPanel("places", key);
 	}
 	else if (action == "copy_slurl")
 	{

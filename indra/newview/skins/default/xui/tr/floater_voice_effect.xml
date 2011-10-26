@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Yerler" name="voice_effects" title="SES ŞEKİLLENDİRME">
+	<string name="no_voice_effect">
+		(Ses Şekillendirme Yok)
+	</string>
+	<string name="active_voice_effect">
+		(Etkin)
+	</string>
+	<string name="unsubscribed_voice_effect">
+		(Abonelik İptal)
+	</string>
+	<string name="new_voice_effect">
+		(Yeni!)
+	</string>
+	<string name="effect_Arena">
+		Arena
+	</string>
+	<string name="effect_Beast">
+		Yaratık
+	</string>
+	<string name="effect_Buff">
+		Yapılı
+	</string>
+	<string name="effect_Buzz">
+		Vızıltı
+	</string>
+	<string name="effect_Camille">
+		Camille
+	</string>
+	<string name="effect_Creepy">
+		Korkutucu
+	</string>
+	<string name="effect_CreepyBot">
+		KorkutucuBot
+	</string>
+	<string name="effect_Cyber">
+		Siber
+	</string>
+	<string name="effect_DeepBot">
+		DerinBot
+	</string>
+	<string name="effect_Demon">
+		İblis
+	</string>
+	<string name="effect_Flirty">
+		Cilveli
+	</string>
+	<string name="effect_Foxy">
+		Alımlı
+	</string>
+	<string name="effect_Halloween_2010_Bonus">
+		Halloween_2010_Bonus
+	</string>
+	<string name="effect_Helium">
+		Helyum
+	</string>
+	<string name="effect_Husky">
+		Güçlü
+	</string>
+	<string name="effect_Intercom">
+		İnterkom
+	</string>
+	<string name="effect_Macho">
+		Maço
+	</string>
+	<string name="effect_Micro">
+		Mikro
+	</string>
+	<string name="effect_Mini">
+		Mini
+	</string>
+	<string name="effect_Nano">
+		Nano
+	</string>
+	<string name="effect_Nightmare">
+		Kabus
+	</string>
+	<string name="effect_PopBot">
+		PopBot
+	</string>
+	<string name="effect_Rachel">
+		Rachel
+	</string>
+	<string name="effect_Radio">
+		Radyo
+	</string>
+	<string name="effect_Robot">
+		Robot
+	</string>
+	<string name="effect_Roxanne">
+		Roxanne
+	</string>
+	<string name="effect_Sabrina">
+		Sabrina
+	</string>
+	<string name="effect_Samantha">
+		Samantha
+	</string>
+	<string name="effect_Sexy">
+		Seksi
+	</string>
+	<string name="effect_Shorty">
+		Bücür
+	</string>
+	<string name="effect_Sneaky">
+		Sinsi
+	</string>
+	<string name="effect_Stallion">
+		Maskülen
+	</string>
+	<string name="effect_Sultry">
+		İhtiraslı
+	</string>
+	<string name="effect_Thunder">
+		Gök gürültüsü
+	</string>
+	<string name="effect_Vixen">
+		Çekici
+	</string>
+	<string name="effect_WhinyBot">
+		AğlakBot
+	</string>
+	<text name="preview_text">
+		Önizleme için
+	</text>
+	<text name="status_text">
+		Bir örnek kaydettikten sonra sese tıklayarak nasıl olduğunu duyun.
+	</text>
+	<button label="Kaydet" name="record_btn" tool_tip="Sesinizin örneğini kaydedin."/>
+	<button label="Durdur" name="record_stop_btn"/>
+	<text name="voice_morphing_link">
+		[[URL] Hemen Abone Ol]
+	</text>
+	<scroll_list name="voice_effect_list" tool_tip="Sesinizin örneğini kaydettikten sonra önizleme için bir efekte tıklayın.">
+		<scroll_list.columns label="Ses Adı" name="name"/>
+		<scroll_list.columns label="Bitiş Tarihi" name="expires"/>
+	</scroll_list>
+</floater>

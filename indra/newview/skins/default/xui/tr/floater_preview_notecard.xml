@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview notecard" title="NOT KARTI:">
+	<floater.string name="no_object">
+		Bu not kartını içeren nesne bulunamadı.
+	</floater.string>
+	<floater.string name="not_allowed">
+		Bu not kartını görüntüleme izniniz yok.
+	</floater.string>
+	<floater.string name="Title">
+		Not Kartı: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Açıklama:
+	</text>
+	<text_editor name="Notecard Editor">
+		Yükleniyor...
+	</text_editor>
+	<button label="Kaydet" label_selected="Kaydet" name="Save"/>
+	<button label="Sil" label_selected="Sil" name="Delete"/>
+</floater>

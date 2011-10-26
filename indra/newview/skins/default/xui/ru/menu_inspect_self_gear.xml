@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Self Pie">
+	<menu_item_call label="Сесть" name="Sit Down Here"/>
+	<menu_item_call label="Встать" name="Stand Up"/>
+	<context_menu label="Снять" name="Take Off &gt;">
+		<context_menu label="одежду" name="Clothes &gt;">
+			<menu_item_call label="рубашку" name="Shirt"/>
+			<menu_item_call label="брюки" name="Pants"/>
+			<menu_item_call label="юбку" name="Skirt"/>
+			<menu_item_call label="обувь" name="Shoes"/>
+			<menu_item_call label="носки" name="Socks"/>
+			<menu_item_call label="пиджак" name="Jacket"/>
+			<menu_item_call label="перчатки" name="Gloves"/>
+			<menu_item_call label="майку" name="Self Undershirt"/>
+			<menu_item_call label="трусы" name="Self Underpants"/>
+			<menu_item_call label="тату" name="Self Tattoo"/>
+			<menu_item_call label="альфа-маску" name="Self Alpha"/>
+			<menu_item_call label="всю одежду" name="All Clothes"/>
+		</context_menu>
+		<context_menu label="данные в игре" name="Object Detach HUD"/>
+		<context_menu label="Отсоединить" name="Object Detach"/>
+		<menu_item_call label="Отсоединить все" name="Detach All"/>
+	</context_menu>
+	<menu_item_call label="Сменить костюм" name="Chenge Outfit"/>
+	<menu_item_call label="Изменить костюм" name="Edit Outfit"/>
+	<menu_item_call label="Изменить фигуру" name="Edit My Shape"/>
+	<menu_item_call label="Мои друзья" name="Friends..."/>
+	<menu_item_call label="Мои группы" name="Groups..."/>
+	<menu_item_call label="Мой профиль" name="Profile..."/>
+	<menu_item_call label="Отладка текстур" name="Debug..."/>
+</toggleable_menu>

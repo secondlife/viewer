@@ -40,7 +40,6 @@
 #include "llparticipantlist.h"
 #include "llimview.h"
 #include "llvoicechannel.h"
-#include "llsidetray.h"
 #include "llspeakers.h"
 #include "lltrans.h"
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="incoming call" title="Входящий звонок">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Локальный голосовой чат
+	</floater.string>
+	<floater.string name="anonymous">
+		анонимно
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		вызывает.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		теперь участвует в групповом голосовом чате.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		присоединился (-лась) к голосовому каналу «[GROUP]».
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		Хотите выйти из чата «[CURRENT_CHAT]» и присоединиться к звонку «[GROUP]»?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		Хотите выйти из чата «[CURRENT_CHAT]» и присоединиться к этому голосовому чату?
+	</floater.string>
+	<text name="question">
+		Хотите выйти из чата «[CURRENT_CHAT]» и присоединиться к этому голосовому чату?
+	</text>
+	<button label="Принять" label_selected="Принять" name="Accept"/>
+	<button label="Отклонить" label_selected="Отклонить" name="Reject"/>
+	<button label="Начать IM" name="Start IM"/>
+</floater>

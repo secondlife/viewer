@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="publish_classified" title="İlan Yayınlama">
+	<text name="explanation_text">
+		Seri ilanınız yayına verildiği günden itibaren bir hafta boyunca yayında kalacaktır.
+        
+Unutmayın, İlan ücretleri iade edilmez.
+	</text>
+	<spinner label="Fiyat: L$" name="price_for_listing" tool_tip="İlan ücreti." value="50"/>
+	<button label="Yayınla" name="publish_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+</floater>

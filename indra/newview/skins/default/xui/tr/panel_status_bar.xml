@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="status">
+	<panel.string name="packet_loss_tooltip">
+		Paket Kaybı
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Bant genişliği
+	</panel.string>
+	<panel.string name="time">
+		[hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<panel name="balance_bg">
+		<text name="balance" tool_tip="L$ bakiyenizi yenilemek için buraya tıklayın" value="L$20"/>
+		<button label="L$ SATIN AL" name="buyL" tool_tip="Daha fazla L$ satın almak için tıklayın"/>
+	</panel>
+	<combo_box name="mode_combo" tool_tip="Modunuzu seçin. Hızlı ve kolay keşif yapmak ile sohbet etmek için Temel seçimini yapın. Daha fazla özelliğe erişmek için Gelişmiş seçimini yapın.">
+		<combo_box.item label="Temel Mod" name="Basic"/>
+		<combo_box.item label="Gelişmiş Mod" name="Advanced"/>
+	</combo_box>
+	<text name="TimeText" tool_tip="Geçerli zaman (Pasifik)">
+		24:00 AM PST
+	</text>
+	<button name="media_toggle_btn" tool_tip="Tüm Ortam Öğelerini Başlat/Durdur (Müzik, Video, Web sayfaları)"/>
+	<button name="volume_btn" tool_tip="Küresel Ses Kontrolü"/>
+</panel>

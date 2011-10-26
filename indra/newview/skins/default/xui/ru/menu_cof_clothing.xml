@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="COF Clothing">
+	<menu_item_call label="Снять" name="take_off"/>
+	<menu_item_call label="Изменить" name="edit"/>
+	<menu_item_call label="Заменить" name="replace"/>
+</context_menu>

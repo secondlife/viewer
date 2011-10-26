@@ -947,7 +947,7 @@ LLMenuItemBranchGL::LLMenuItemBranchGL(const LLMenuItemBranchGL::Params& p)
 
 LLMenuItemBranchGL::~LLMenuItemBranchGL()
 {
-	LLView::deleteViewByHandle(mBranchHandle);
+	delete mBranchHandle.get();
 }
 
 // virtual
@@ -1731,7 +1731,7 @@ void LLMenuGL::setCanTearOff(BOOL tear_off)
 	{
 		LLMenuItemTearOffGL::Params p;
 		mTearOffItem = LLUICtrlFactory::create<LLMenuItemTearOffGL>(p);
-		addChildInBack(mTearOffItem);
+		addChild(mTearOffItem);
 	}
 	else if (!tear_off && mTearOffItem != NULL)
 	{

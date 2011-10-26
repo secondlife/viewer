@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview">
+	<text name="name_label">
+		Ad:
+	</text>
+	<text name="description_label">
+		Açıklama:
+	</text>
+	<text name="preview_label">
+		Görüntüyü şu şekilde önizle:
+	</text>
+	<combo_box label="Giysi Türü" name="clothing_type_combo">
+		<item label="Görüntü" name="Image" value="Görüntü"/>
+		<item label="Saç" name="Hair" value="Saç"/>
+		<item label="Kadın Kafası" name="FemaleHead" value="Kadın Kafası"/>
+		<item label="Kadın Üst Gövde" name="FemaleUpperBody" value="Kadın Üst Gövde"/>
+		<item label="Kadın Alt Gövde" name="FemaleLowerBody" value="Kadın Alt Gövde"/>
+		<item label="Erkek Kafası" name="MaleHead" value="Erkek Kafası"/>
+		<item label="Erkek Üst Gövde" name="MaleUpperBody" value="Erkek Üst Gövde"/>
+		<item label="Erkek Alt Gövde" name="MaleLowerBody" value="Erkek Alt Gövde"/>
+		<item label="Etek" name="Skirt" value="Etek"/>
+		<item label="Şekillendirilmiş Prim" name="SculptedPrim" value="Şekillendirilmiş Prim"/>
+	</combo_box>
+	<text name="bad_image_text">
+		Görüntü okunamadı
+
+Görüntüyü 24 bit Targa .tga olarak kaydetmeyi dene.
+	</text>
+	<check_box label="Kayıpsız sıkıştırmayı kullan" name="lossless_check"/>
+	<button label="İptal" name="cancel_btn"/>
+	<button label="Karşıya Yükle (L$[AMOUNT])" name="ok_btn"/>
+</floater>

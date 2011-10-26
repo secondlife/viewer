@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_physics_panel">
+	<panel label="" name="accordion_panel">
+		<accordion name="physics_accordion">
+			<accordion_tab name="physics_breasts_updown_tab" title="Груди прыгают"/>
+			<accordion_tab name="physics_breasts_inout_tab" title="Ложбинка между грудей"/>
+			<accordion_tab name="physics_breasts_leftright_tab" title="Груди покачиваются"/>
+			<accordion_tab name="physics_belly_tab" title="Живот прыгает"/>
+			<accordion_tab name="physics_butt_tab" title="Ягодицы прыгают"/>
+			<accordion_tab name="physics_butt_leftright_tab" title="Ягодицы покачиваются"/>
+			<accordion_tab name="physics_advanced_tab" title="Дополнительные параметры"/>
+		</accordion>
+	</panel>
+</panel>

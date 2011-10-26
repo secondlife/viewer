@@ -43,8 +43,8 @@ public :
 		{
 		}
 
-		virtual void handleResponse(const std::string &translation, const std::string &recognized_lang) {};
-		virtual void handleFailure() {};
+		virtual void handleResponse(const std::string &translation, const std::string &recognized_lang) = 0;
+		virtual void handleFailure() = 0;
 
 	public:
 		~TranslationReceiver()
@@ -54,40 +54,7 @@ public :
 		virtual void completedRaw(	U32 status,
 									const std::string& reason,
 									const LLChannelDescriptors& channels,
-									const LLIOPipe::buffer_ptr_t& buffer)
-		{
-			if (200 <= status && status < 300)
-			{
-				LLBufferStream istr(channels, buffer.get());
-				std::stringstream strstrm;
-				strstrm << istr.rdbuf();
-
-				const std::string result = strstrm.str();
-				std::string translation;
-				std::string detected_language;
-
-				if (!parseGoogleTranslate(result, translation, detected_language))
-				{
-					handleFailure();
-					return;
-				}
-				
-				// Fix up the response
-				LLStringUtil::replaceString(translation, "&lt;", "<");
-				LLStringUtil::replaceString(translation, "&gt;",">");
-				LLStringUtil::replaceString(translation, "&quot;","\"");
-				LLStringUtil::replaceString(translation, "&#39;","'");
-				LLStringUtil::replaceString(translation, "&amp;","&");
-				LLStringUtil::replaceString(translation, "&apos;","'");
-
-				handleResponse(translation, detected_language);
-			}
-			else
-			{
-				LL_WARNS("Translate") << "HTTP request for Google Translate failed with status " << status << ", reason: " << reason << LL_ENDL;
-				handleFailure();
-			}
-		}
+									const LLIOPipe::buffer_ptr_t& buffer);
 
 	protected:
 		const std::string m_toLang;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_voice_effect">
+	<string name="no_voice_effect">
+		Изменение голоса отключено
+	</string>
+	<string name="preview_voice_effects">
+		Прослушать изменение голоса  ▶
+	</string>
+	<string name="get_voice_effects">
+		Приобрести изменение голоса  ▶
+	</string>
+	<combo_box name="voice_effect" tool_tip="Выбор типа изменения для своего голоса">
+		<combo_box.item label="Изменение голоса отключено" name="no_voice_effect"/>
+	</combo_box>
+</panel>

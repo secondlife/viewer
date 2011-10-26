@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container">
+	<floater.string name="real_url">
+		http://secondlife.com/app/tos/
+	</floater.string>
+	<floater.string name="loading_url">
+		data:text/html,%3Chtml%3E%3Chead%3E%3C/head%3E%3Cbody text=%22000000%22%3E%3Ch2%3E Loading %3Ca%20target%3D%22_external%22%20href%3D%22http%3A//secondlife.com/app/tos/%22%3ETerms%20of%20Service%3C/a%3E...%3C/h2%3E %3C/body%3E %3C/html%3E
+	</floater.string>
+	<button label="Продолжить" label_selected="Продолжить" name="Continue"/>
+	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+	<check_box label="Я принимаю условия Пользовательского соглашения и Политики конфиденциальности" name="agree_chk"/>
+	<text name="tos_heading">
+		Внимательно прочитайте Пользовательское соглашение и Политику конфиденциальности. Для входа в [SECOND_LIFE] вы должны согласиться с условиями соглашения.
+	</text>
+</floater>

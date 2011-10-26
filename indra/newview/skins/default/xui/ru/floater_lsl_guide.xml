@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="СПРАВКА ПО LSL">
+	<check_box label="Курсор" name="lock_check"/>
+	<combo_box label="Блокировка" name="history_combo"/>
+	<button label="Назад" name="back_btn"/>
+	<button label="Вперед" name="fwd_btn"/>
+</floater>

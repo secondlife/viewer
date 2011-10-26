@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Give Money">
+	<string name="payee_group">
+		Заплатить группе
+	</string>
+	<string name="payee_resident">
+		Заплатить жителю
+	</string>
+	<text name="payee_name">
+		Ericacita Moostopolison
+	</text>
+	<text name="object_name_label">
+		Через объект:
+	</text>
+	<icon name="icon_object" tool_tip="Объекты"/>
+	<text name="object_name_text">
+		Мой офигенный объект с неэпически длинным названием
+	</text>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
+	<text name="amount text">
+		Или введите количество:
+	</text>
+	<button label="Заплатить" label_selected="Заплатить" name="pay btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel btn"/>
+</floater>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="inspect" title="ИНСПЕКТИРОВАНИЕ ОБЪЕКТОВ">
+	<floater.string name="timeStamp">
+		[wkday,datetime,local], [day,datetime,local] [mth,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</floater.string>
+	<scroll_list name="object_list" tool_tip="Выбор объекта из этого списка приведет к его подсветке">
+		<scroll_list.columns label="Название объекта" name="object_name"/>
+		<scroll_list.columns label="Имя владельца" name="owner_name"/>
+		<scroll_list.columns label="Имя создателя" name="creator_name"/>
+		<scroll_list.columns label="Дата создания" name="creation_date"/>
+	</scroll_list>
+	<button label="Профиль владельца..." name="button owner" tool_tip="Показывает профиль владельца подсвеченного объекта"/>
+	<button label="Профиль создателя..." name="button creator" tool_tip="Показывает профиль создателя подсвеченного объекта"/>
+</floater>

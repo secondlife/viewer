@@ -53,10 +53,12 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
+#include "llprogressview.h"
 #include "llsky.h"
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerinventory.h"
+#include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"
 #include "llviewercontrol.h"
@@ -110,6 +112,8 @@ void LLTracker::stopTracking(void* userdata)
 void LLTracker::drawHUDArrow()
 {
 	if (!gSavedSettings.getBOOL("RenderTrackerBeacon")) return;
+
+	if (gViewerWindow->getProgressView()->getVisible()) return;
 
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	

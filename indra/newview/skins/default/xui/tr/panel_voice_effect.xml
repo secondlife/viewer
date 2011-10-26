@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_voice_effect">
+	<string name="no_voice_effect">
+		Ses Şekillendirme Kapalı
+	</string>
+	<string name="preview_voice_effects">
+		Ses Şekillendirme Önizleme  ▶
+	</string>
+	<string name="get_voice_effects">
+		Ses Şekillendirmeyi Etkinleştir ▶
+	</string>
+	<combo_box name="voice_effect" tool_tip="Sesinizi değiştirmek için bir Ses Şekli seçin">
+		<combo_box.item label="Ses Şekillendirme Kapalı" name="no_voice_effect"/>
+	</combo_box>
+</panel>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Изменить подборку" name="panel_edit_pick">
+	<panel.string name="location_notice">
+		(будет обновлено после сохранения)
+	</panel.string>
+	<text name="title">
+		Изменить подборку
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Щелкните для выбора изображения"/>
+			<text name="Name:">
+				Название:
+			</text>
+			<text name="description_label">
+				Описание:
+			</text>
+			<text name="location_label">
+				Место:
+			</text>
+			<text name="pick_location">
+				загрузка…
+			</text>
+			<button label="Поставить текущее место" name="set_to_curr_location_btn"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Сохранить подборку" name="save_changes_btn"/>
+			</layout_panel>
+			<layout_panel name="layout_panel2">
+				<button label="Отмена" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Teleport History">
+	<accordion name="history_accordion">
+		<no_matched_tabs_text name="no_matched_teleports_msg" value="Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin."/>
+		<no_visible_tabs_text name="no_teleports_msg" value="Işınlanma geçmişi boş. [secondlife:///app/search/places/ Arama] yapmayı deneyin."/>
+		<accordion_tab name="today" title="Bugün"/>
+		<accordion_tab name="yesterday" title="Dün"/>
+		<accordion_tab name="2_days_ago" title="2 gün önce"/>
+		<accordion_tab name="3_days_ago" title="3 gün önce"/>
+		<accordion_tab name="4_days_ago" title="4 gün önce"/>
+		<accordion_tab name="5_days_ago" title="5 gün önce"/>
+		<accordion_tab name="6_days_and_older" title="6 gün önce ve daha eski"/>
+		<accordion_tab name="1_month_and_older" title="1 ay önce ve daha eski"/>
+		<accordion_tab name="6_months_and_older" title="6 ay önce ve daha eski"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="İlave seçenekleri göster"/>
+	</panel>
+</panel>

@@ -25,10 +25,10 @@
 		Klicken und ziehen, um Land auszuwählen
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] Objekte ([PRIM_COUNT] Prims [PE_STRING]) ausgewählt
+		[OBJ_COUNT] Objekte ausgewählt, Auswirkung auf Land [LAND_IMPACT]
 	</floater.string>
-	<floater.string name="status_selectprimequiv">
-		, Prim-Äquivalenz [SEL_WEIGHT]
+	<floater.string name="status_remaining_capacity">
+		Verbleibende Kapazität [LAND_CAPACITY].
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="Fokus"/>
 	<button label="" label_selected="" name="button move" tool_tip="Verschieben"/>
@@ -105,8 +105,8 @@
 	<text name="selection_empty">
 		Nichts ausgewählt.
 	</text>
-	<text name="selection_weight">
-		Physikgewicht [PHYS_WEIGHT], Darstellungskosten [DISP_WEIGHT].
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Weitere Infos]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Allgemein" name="General">
@@ -322,7 +322,6 @@
 				Naht
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="(keiner)" name="None"/>
 				<combo_box.item label="Kugel" name="Sphere"/>
 				<combo_box.item label="Torus" name="Torus"/>
 				<combo_box.item label="Fläche" name="Plane"/>

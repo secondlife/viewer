@@ -44,24 +44,14 @@ namespace LLNotificationsUI
 class LLChannelManager : public LLSingleton<LLChannelManager>
 {
 public:
-	struct Params
-	{
-		LLUUID				id;
-		bool				display_toasts_always;
-		EToastAlignment		toast_align;
-		EChannelAlignment	channel_align;
 
-		Params()
-		:	id(LLUUID("")), display_toasts_always(false), toast_align(NA_BOTTOM), channel_align(CA_LEFT)
-		{}
-	};
 
 	struct ChannelElem
 	{
-		LLUUID				id;
-		LLScreenChannelBase*	channel;
+		LLUUID							id;
+		LLHandle<LLScreenChannelBase>	channel;
 
-		ChannelElem() : id(LLUUID("")), channel(NULL) { }
+		ChannelElem() { }
 
 		ChannelElem(const ChannelElem &elem)
 		{
@@ -84,18 +74,18 @@ public:
 	void onStartUpToastClose();
 
 	// creates a new ScreenChannel according to the given parameters or returns existing if present
-	LLScreenChannelBase*	getChannel(LLChannelManager::Params& p);
+	LLScreenChannelBase*	getChannel(LLScreenChannelBase::Params& p);
 
 	LLScreenChannelBase*	addChannel(LLScreenChannelBase* channel);
 
 	// returns a channel by its ID
-	LLScreenChannelBase*	findChannelByID(const LLUUID id);
+	LLScreenChannelBase*	findChannelByID(const LLUUID& id);
 
 	// creator of the Notification channel, that is used in more than one handler
 	LLScreenChannel*		createNotificationChannel();
 
 	// remove channel methods
-	void	removeChannelByID(const LLUUID id);
+	void	removeChannelByID(const LLUUID& id);
 
 	/**
 	 * Manages toasts showing for all channels.
@@ -117,7 +107,7 @@ public:
 	std::vector<ChannelElem>& getChannelList() { return mChannelList;}
 private:
 
-	LLScreenChannel* createChannel(LLChannelManager::Params& p);
+	LLScreenChannel* createChannel(LLScreenChannelBase::Params& p);
 
 	LLScreenChannel*			mStartUpChannel;
 	std::vector<ChannelElem>	mChannelList;

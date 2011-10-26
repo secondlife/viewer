@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Paylaş" name="Share"/>
+	<menu_item_call label="Satın Al" name="Task Buy"/>
+	<menu_item_call label="Aç" name="Task Open"/>
+	<menu_item_call label="Oyna" name="Task Play"/>
+	<menu_item_call label="Özellikler" name="Task Properties"/>
+	<menu_item_call label="Yeniden Adlandır" name="Task Rename"/>
+	<menu_item_call label="Sil" name="Task Remove"/>
+	<menu_item_call label="Çöpü Boşalt" name="Empty Trash"/>
+	<menu_item_call label="Kaybedip Bulduklarımı Boşalt" name="Empty Lost And Found"/>
+	<menu_item_call label="Yeni Klasör" name="New Folder"/>
+	<menu_item_call label="Yeni Komut Dosyası" name="New Script"/>
+	<menu_item_call label="Yeni Not Kartı" name="New Note"/>
+	<menu_item_call label="Yeni Mimik" name="New Gesture"/>
+	<menu label="Yeni Giysiler" name="New Clothes">
+		<menu_item_call label="Yeni Gömlek" name="New Shirt"/>
+		<menu_item_call label="Yeni Pantolon" name="New Pants"/>
+		<menu_item_call label="Yeni Ayakkabılar" name="New Shoes"/>
+		<menu_item_call label="Yeni Çoraplar" name="New Socks"/>
+		<menu_item_call label="Yeni Ceket" name="New Jacket"/>
+		<menu_item_call label="Yeni Etek" name="New Skirt"/>
+		<menu_item_call label="Yeni Eldivenler" name="New Gloves"/>
+		<menu_item_call label="Yeni Fanila" name="New Undershirt"/>
+		<menu_item_call label="Yeni Külot" name="New Underpants"/>
+		<menu_item_call label="Yeni Alfa Maskesi" name="New Alpha Mask"/>
+		<menu_item_call label="Yeni Dövme" name="New Tattoo"/>
+		<menu_item_call label="Yeni Fizik" name="New Physics"/>
+	</menu>
+	<menu label="Yeni Vücut Bölümleri" name="New Body Parts">
+		<menu_item_call label="Yeni Şekil" name="New Shape"/>
+		<menu_item_call label="Yeni Dış Katman" name="New Skin"/>
+		<menu_item_call label="Yeni Saç" name="New Hair"/>
+		<menu_item_call label="Yeni Gözler" name="New Eyes"/>
+	</menu>
+	<menu label="Türü Değiştir" name="Change Type">
+		<menu_item_call label="Varsayılan" name="Default"/>
+		<menu_item_call label="Eldivenler" name="Gloves"/>
+		<menu_item_call label="Ceket" name="Jacket"/>
+		<menu_item_call label="Pantolon" name="Pants"/>
+		<menu_item_call label="Şekil" name="Shape"/>
+		<menu_item_call label="Ayakkabılar" name="Shoes"/>
+		<menu_item_call label="Gömlek" name="Shirt"/>
+		<menu_item_call label="Etek" name="Skirt"/>
+		<menu_item_call label="Külot" name="Underpants"/>
+		<menu_item_call label="Fanila" name="Undershirt"/>
+	</menu>
+	<menu_item_call label="Işınla" name="Landmark Open"/>
+	<menu_item_call label="Aç" name="Animation Open"/>
+	<menu_item_call label="Aç" name="Sound Open"/>
+	<menu_item_call label="Mevcut Dış Görünümü Değiştir" name="Replace Outfit"/>
+	<menu_item_call label="Mevcut Dış Görünüme Ekle" name="Add To Outfit"/>
+	<menu_item_call label="Mevcut Dış Görünümden Kaldır" name="Remove From Outfit"/>
+	<menu_item_call label="Orijinali Bul" name="Find Original"/>
+	<menu_item_call label="Öğeyi Temizle" name="Purge Item"/>
+	<menu_item_call label="Öğeyi Geri Yükle" name="Restore Item"/>
+	<menu_item_call label="Aç" name="Open"/>
+	<menu_item_call label="Orijinali Aç" name="Open Original"/>
+	<menu_item_call label="Özellikler" name="Properties"/>
+	<menu_item_call label="Yeniden Adlandır" name="Rename"/>
+	<menu_item_call label="Varlık UUID&apos;sini Kopyala" name="Copy Asset UUID"/>
+	<menu_item_call label="Kopyala" name="Copy"/>
+	<menu_item_call label="Yapıştır" name="Paste"/>
+	<menu_item_call label="Bağlantı Olarak Yapıştır" name="Paste As Link"/>
+	<menu_item_call label="Sil" name="Remove Link"/>
+	<menu_item_call label="Sil" name="Delete"/>
+	<menu_item_call label="Sistem Klasörünü Sil" name="Delete System Folder"/>
+	<menu_item_call label="Konferans Sohbeti Başlat" name="Conference Chat Folder"/>
+	<menu_item_call label="Oyna" name="Sound Play"/>
+	<menu_item_call label="Yer İmi Hakkında" name="About Landmark"/>
+	<menu_item_call label="SL Dünyasında Oynat" name="Animation Play"/>
+	<menu_item_call label="Yerel Olarak Oynat" name="Animation Audition"/>
+	<menu_item_call label="Anlık İleti Gönder" name="Send Instant Message"/>
+	<menu_item_call label="Işınlama Teklif Et..." name="Offer Teleport..."/>
+	<menu_item_call label="Konferans Sohbeti Başlat" name="Conference Chat"/>
+	<menu_item_call label="Etkinleştir" name="Activate"/>
+	<menu_item_call label="Devre Dışı Bırak" name="Deactivate"/>
+	<menu_item_call label="Farklı Kaydet" name="Save As"/>
+	<menu_item_call label="Kendinizden Ayırın" name="Detach From Yourself"/>
+	<menu_item_call label="Giy" name="Wearable And Object Wear"/>
+	<menu label="Şuna Ekle:" name="Attach To"/>
+	<menu label="BÜG&apos;e Ekle" name="Attach To HUD"/>
+	<menu_item_call label="Düzenle" name="Wearable Edit"/>
+	<menu_item_call label="Ekle" name="Wearable Add"/>
+	<menu_item_call label="Çıkar" name="Take Off"/>
+	<menu_item_call label="Satıcı Giden Kutusuna Kopyala" name="Merchant Copy"/>
+	<menu_item_call label="Satıcı Giden Kutusuna Taşı" name="Merchant Move"/>
+	<menu_item_call label="--seçenek yok--" name="--no options--"/>
+</menu>

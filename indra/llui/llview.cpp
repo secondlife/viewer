@@ -721,7 +721,7 @@ LLView* LLView::childrenHandleCharEvent(const std::string& desc, const METHOD& m
 
 // XDATA might be MASK, or S32 clicks
 template <typename METHOD, typename XDATA>
-LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra)
+LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block)
 {
 	BOOST_FOREACH(LLView* viewp, mChildList)
 	{
@@ -734,7 +734,7 @@ LLView* LLView::childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDA
 		}
 
 		if ((viewp->*method)( local_x, local_y, extra )
-			|| viewp->blockMouseEvent( local_x, local_y ))
+			|| (allow_mouse_block && viewp->blockMouseEvent( local_x, local_y )))
 		{
 			viewp->logMouseEvent();
 			return viewp;
@@ -862,15 +862,16 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 
 	// parents provide tooltips first, which are optionally
 	// overridden by children, in case child is mouse_opaque
-	if (!mToolTipMsg.empty())
+	std::string tooltip = getToolTip();
+	if (!tooltip.empty())
 	{
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-			? 0.f
+			? LLUI::sSettingGroups["config"]->getF32( "ToolTipFastDelay" )
 			: LLUI::sSettingGroups["config"]->getF32( "ToolTipDelay" );
 		LLToolTipMgr::instance().show(LLToolTip::Params()
-			.message(mToolTipMsg)
+			.message(tooltip)
 			.sticky_rect(calcScreenRect())
 			.delay_time(timeout));
 
@@ -1020,7 +1021,7 @@ BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks);
+	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks, false);
 }
 
 // Called during downward traversal
@@ -1599,13 +1600,6 @@ LLView* LLView::findNextSibling(LLView* child)
 	}
 
 	return (next_it != mChildList.end()) ? *next_it : NULL;
-}
-
-void LLView::deleteViewByHandle(LLHandle<LLView> handle)
-{
-	LLView* viewp = handle.get();
-
-	delete viewp;
 }
 
 

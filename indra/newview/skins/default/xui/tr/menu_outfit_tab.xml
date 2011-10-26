@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Outfit">
+	<menu_item_call label="Giysi - Mevcut Dış Görünümü Değiştir" name="wear_replace"/>
+	<menu_item_call label="Giysi - Mevcut Dış Görünüme Ekle" name="wear_add"/>
+	<menu_item_call label="Çıkar - Mevcut Dış Görünümden Kaldır" name="take_off"/>
+	<menu_item_call label="Dış Görünümü Düzenle" name="edit"/>
+	<menu_item_call label="Dış Görünümü Yeniden Adlandır" name="rename"/>
+	<menu_item_call label="Dış Görünümü Sil" name="delete"/>
+</context_menu>

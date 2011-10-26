@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_group_plus">
+	<menu_item_call label="Bilgileri Görüntüle" name="View Info"/>
+	<menu_item_call label="Sohbet" name="Chat"/>
+	<menu_item_call label="Ara" name="Call"/>
+	<menu_item_call label="Etkinleştir" name="Activate"/>
+	<menu_item_call label="Ayrıl" name="Leave"/>
+</menu>

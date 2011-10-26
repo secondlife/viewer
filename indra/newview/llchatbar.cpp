@@ -60,7 +60,6 @@
 #include "llui.h"
 #include "llviewermenu.h"
 #include "lluictrlfactory.h"
-#include "llbottomtray.h"
 
 //
 // Globals
@@ -95,7 +94,7 @@ LLChatBar::LLChatBar()
 	mGestureCombo(NULL),
 	mObserver(NULL)
 {
-	setIsChrome(TRUE);
+	//setIsChrome(TRUE);
 }
 
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<floater name="Delete Env Preset" title="ORTAM ÖN AYARINI SİL">
+	<string name="title_water">
+		Su Ön Ayarını Sil
+	</string>
+	<string name="title_sky">
+		Gökyüzü Ön Ayarını Sil
+	</string>
+	<string name="title_day_cycle">
+		Gün Döngüsünü Sil
+	</string>
+	<string name="label_water">
+		Ön Ayar:
+	</string>
+	<string name="label_sky">
+		Ön Ayar:
+	</string>
+	<string name="label_day_cycle">
+		Gün döngüsü:
+	</string>
+	<string name="msg_confirm_deletion">
+		Seçili ön ayarı silmek istediğinize emin misiniz?
+	</string>
+	<string name="msg_sky_is_referenced">
+		Bazı gün döngüleri tarafından başvurulan bir ön ayar kaldırılamaz.
+	</string>
+	<string name="combo_label">
+		-Bir ön ayar seçin-
+	</string>
+	<text name="label">
+		Ön Ayar:
+	</text>
+	<button label="Sil" name="delete"/>
+	<button label="İptal" name="cancel"/>
+</floater>

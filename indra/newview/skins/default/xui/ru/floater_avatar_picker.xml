@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarpicker" title="ВЫБЕРИТЕ ЖИТЕЛЯ">
+	<floater.string name="not_found">
+		Текст «[TEXT]» не найден
+	</floater.string>
+	<floater.string name="no_one_near">
+		Рядом никого нет
+	</floater.string>
+	<floater.string name="no_results">
+		Нет результатов
+	</floater.string>
+	<floater.string name="searching">
+		Поиск...
+	</floater.string>
+	<string name="Select">
+		Выбрать
+	</string>
+	<string name="Close">
+		Закрыть
+	</string>
+	<tab_container name="ResidentChooserTabs">
+		<panel label="Поиск" name="SearchPanel">
+			<text name="InstructSearchResidentName">
+				Наберите часть имени жителя:
+			</text>
+			<button label="Перейти" label_selected="Перейти" name="Find"/>
+			<scroll_list name="SearchResults">
+				<columns label="Название" name="name"/>
+				<columns label="Имя пользователя" name="username"/>
+			</scroll_list>
+		</panel>
+		<panel label="Друзья" name="FriendsPanel">
+			<text name="InstructSelectFriend">
+				Выберите жителя:
+			</text>
+		</panel>
+		<panel label="Рядом со мной" name="NearMePanel">
+			<text name="InstructSelectResident">
+				Выберите жителя поблизости:
+			</text>
+			<slider label="Расстояние" name="near_me_range"/>
+			<text name="meters">
+				Метров
+			</text>
+			<scroll_list name="NearMe">
+				<columns label="Название" name="name"/>
+				<columns label="Имя пользователя" name="username"/>
+			</scroll_list>
+		</panel>
+	</tab_container>
+	<button label="ОК" label_selected="ОК" name="ok_btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_btn"/>
+</floater>
