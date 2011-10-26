@@ -78,6 +78,24 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
+class LLBuildNavMesh  : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		bool result = true;
+		return result;
+	}
+};
+
+class LLFileUploadNavMesh  : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		llinfos<<"ok"<<llendl;
+		return true;
+	}
+};
+
 class LLFileEnableUpload : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -1284,5 +1302,7 @@ void init_menu_file()
 	view_listener_t::addMenu(new LLMeshEnabled(), "File.MeshEnabled");
 	view_listener_t::addMenu(new LLMeshUploadVisible(), "File.VisibleUploadModel");
 
+	//prep#
+	view_listener_t::addCommit(new LLFileUploadNavMesh(), "File.UploadNavMesh");
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }
