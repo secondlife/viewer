@@ -1206,9 +1206,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9cd66e879908f047d9af665b92946ecc</string>
+              <string>b8fd242bb1e65f0a534cbe0a84b03958</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/239803/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110830.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/243922/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20111026.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1230,9 +1230,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ab9393795515cbbe9526bde33b41bf2a</string>
+              <string>8d3f9291493ea81442684eff0b3a5e53</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/239670/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110829.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/243860/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20111026.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
