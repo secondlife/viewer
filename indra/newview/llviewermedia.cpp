@@ -2301,6 +2301,16 @@ void LLViewerMediaImpl::clearCache()
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::setPageZoomFactor( double factor )
+{
+	if(mMediaSource)
+	{
+		mMediaSource->set_page_zoom_factor( factor );
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {

@@ -202,6 +202,7 @@ public:
 	bool pluginSupportsMediaBrowser(void);
 	
 	void focus(bool focused);
+	void set_page_zoom_factor( double factor );
 	void clear_cache();
 	void clear_cookies();
 	void set_cookies(const std::string &cookies);

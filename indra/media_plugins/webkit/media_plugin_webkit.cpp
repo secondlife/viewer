@@ -323,7 +323,7 @@ private:
 		LLQtWebKit::getInstance()->enablePlugins( mPluginsEnabled );
 
 		// turn on/off Javascript based on what host app tells us
-		LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
+		LLQtWebKit::getInstance()->enableJavaScript( mJavascriptEnabled );
 
 		std::stringstream str;
 		str << "Cookies enabled = " << mCookiesEnabled << ", plugins enabled = " << mPluginsEnabled << ", Javascript enabled = " << mJavascriptEnabled;
@@ -346,7 +346,7 @@ private:
 		// append details to agent string
 		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 		postDebugMessage( "Updating user agent with " + mUserAgent );
-		
+
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
 		LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
@@ -1297,6 +1297,15 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 					keyEvent(LLQtWebKit::KE_KEY_UP, KEY_TAB, decodeModifiers(empty));
 					mFirstFocus = false;
 				}
+			}
+			else if(message_name == "set_page_zoom_factor")
+			{
+#if LLQTWEBKIT_API_VERSION >= 15
+				F32 factor = message_in.getValueReal("factor");
+				LLQtWebKit::getInstance()->setPageZoomFactor(factor);
+#else
+				llwarns << "Ignoring setPageZoomFactor message (llqtwebkit version is too old)." << llendl;
+#endif
 			}
 			else if(message_name == "clear_cache")
 			{

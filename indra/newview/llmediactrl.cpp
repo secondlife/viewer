@@ -113,7 +113,7 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	}
 
 	setIgnoreUIScale(p.ignore_ui_scale);
-	
+
 	setHomePageUrl(p.start_url, p.initial_mime_type);
 	
 	setBorderVisible(p.border_visible);
@@ -778,6 +778,18 @@ void LLMediaCtrl::draw()
 				gGL.translateUI(floorf(LLFontGL::sCurOrigin.mX * LLUI::sGLScaleFactor.mV[VX]), 
 							floorf(LLFontGL::sCurOrigin.mY * LLUI::sGLScaleFactor.mV[VY]), 
 							LLFontGL::sCurOrigin.mZ);
+			}
+			else
+			{
+				// zoom is an expensive operation - only do it if value changes
+				// TODO: move this logic out to mMediaSource->setPageZoomFactor() ??
+				static double prev_ui_scale = 0.0f;
+				double ui_scale = LLUI::sGLScaleFactor.mV[ VX ];
+				if ( ui_scale != prev_ui_scale )
+				{
+					mMediaSource->setPageZoomFactor( ui_scale );
+					prev_ui_scale = ui_scale;
+				}
 			}
 
 			// scale texture to fit the space using texture coords

@@ -250,6 +250,7 @@ public:
 	std::string getMediaEntryURL() { return mMediaEntryURL; }
 	void setHomeURL(const std::string& home_url, const std::string& mime_type = LLStringUtil::null) { mHomeURL = home_url; mHomeMimeType = mime_type;};
 	void clearCache();
+	void setPageZoomFactor( double factor );
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
 	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
