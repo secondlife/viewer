@@ -60,6 +60,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 	void showHistory();
+	/*virtual*/void setMinimized(BOOL b);
 
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
