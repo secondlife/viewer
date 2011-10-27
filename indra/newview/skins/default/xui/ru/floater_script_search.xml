@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script search" title="ПОИСК В СКРИПТЕ">
+	<check_box label="Без учета регистра" name="case_text"/>
+	<button label="Поиск" label_selected="Поиск" name="search_btn"/>
+	<button label="Заменить" label_selected="Заменить" name="replace_btn"/>
+	<button label="Заменить все" label_selected="Заменить все" name="replace_all_btn"/>
+	<text name="txt">
+		Поиск
+	</text>
+	<text name="txt2">
+		Заменить
+	</text>
+</floater>

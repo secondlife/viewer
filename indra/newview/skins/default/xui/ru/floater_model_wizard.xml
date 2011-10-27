@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Wizard" title="ПЕРЕДАТЬ МАСТЕР МОДЕЛИРОВАНИЯ">
+	<button label="5. Передать" name="upload_btn"/>
+	<button label="4. Просмотр" name="review_btn"/>
+	<button label="3. Физика" name="physics_btn"/>
+	<button label="2. Оптимизировать" name="optimize_btn"/>
+	<button label="1. Выбрать файл" name="choose_file_btn"/>
+	<panel name="choose_file_panel">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
+				Выберите файл
+			</text>
+		</panel>
+		<panel name="choose_file_content_panel">
+			<text name="advanced_users_text">
+				Пользователям, работающим в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
+			</text>
+			<button label="Перейти в расширенный режим" name="switch_to_advanced"/>
+			<text name="choose_model_file_label">
+				Выберите файл модели для передачи
+			</text>
+			<button label="Обзор..." label_selected="Обзор..." name="browse"/>
+			<text name="support_collada_text">
+				В Second Life поддерживаются файлы COLLADA (﻿DAE)
+			</text>
+			<text name="dimensions_label">
+				Размеры (в метрах):
+			</text>
+			<text name="dimensions">
+				X         Y         Z
+			</text>
+			<text name="warning_label">
+				ВНИМАНИЕ!
+			</text>
+			<text name="warning_text">
+				Вы не сможете завершить передачу этой модели на серверы Second Life. [secondlife:///app/floater/learn_more Узнайте, как] настроить в вашем аккаунте передачу сеточных моделей.
+			</text>
+		</panel>
+	</panel>
+	<panel name="optimize_panel">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
+				Оптимизировать модель
+			</text>
+		</panel>
+		<text name="optimize_hint">
+			Мы оптимизировали модель для повышения быстродействия. По желанию можно выполнить дополнительную настройку.
+		</text>
+		<panel name="optimize_content_panel">
+			<text name="generating_lod_label">
+				Создается уровень детализации
+			</text>
+			<text name="high_detail_text">
+				Создать уровень детализации: высокий
+			</text>
+			<text name="medium_detail_text">
+				Создать уровень детализации: средний
+			</text>
+			<text name="low_detail_text">
+				Создать уровень детализации: низкий
+			</text>
+			<text name="lowest_detail_text">
+				Создать уровень детализации: самый низкий
+			</text>
+		</panel>
+		<panel name="content2">
+			<text name="optimize_performance_text">
+				Быстродействие
+			</text>
+			<text name="optimize_faster_rendering_text">
+				Ускорить прорисовку
+Меньше деталей
+Уменьшить вес примитива
+			</text>
+			<text name="optimize_accuracy_text">
+				Точность
+			</text>
+			<text name="optimize_slower_rendering_text">
+				Замедлить прорисовку
+Больше деталей
+Повысить вес примитива
+			</text>
+			<text name="accuracy_slider_mark1">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark2">
+				&apos;
+			</text>
+			<text name="accuracy_slider_mark3">
+				&apos;
+			</text>
+			<button label="Пересчитать геометрию" name="recalculate_geometry_btn"/>
+			<text name="geometry_preview_label">
+				Просмотр геометрии
+			</text>
+			<combo_box name="preview_lod_combo" tool_tip="Детализация при предварительном просмотре">
+				<combo_item name="preview_lod_high">
+					Детально
+				</combo_item>
+				<combo_item name="preview_lod_medium">
+					Средняя детализация
+				</combo_item>
+				<combo_item name="preview_lod_low">
+					Мало деталей
+				</combo_item>
+				<combo_item name="preview_lod_lowest">
+					Минимум деталей
+				</combo_item>
+			</combo_box>
+		</panel>
+	</panel>
+	<panel name="physics_panel">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
+				Настроить физические параметры
+			</text>
+		</panel>
+		<text name="physics_hint">
+			Мы создадим форму для внешнего каркаса модели. Настройте уровень детализации формы в соответствии с целями, для которых предназначена модель.
+		</text>
+		<panel name="physics_content_panel">
+			<text name="physics_performance_text">
+				Быстродействие
+			</text>
+			<text name="physics_faster_rendering_text">
+				Ускорить прорисовку
+Меньше деталей
+Уменьшить вес примитива
+			</text>
+			<text name="physics_accuracy_text">
+				Точность
+			</text>
+			<text name="physics_slower_dendering_text">
+				Замедлить прорисовку
+Больше деталей
+Повысить вес примитива
+			</text>
+			<text name="physics_example_1">
+				Примеры:
+подвижные объекты;
+летающие объекты;
+транспорт.
+			</text>
+			<text name="physics_example_2">
+				Примеры:
+небольшие неподвижные объекты;
+простые объекты;
+простая мебель.
+			</text>
+			<text name="physics_example_3">
+				Примеры:
+неподвижные объекты;
+сложные объекты;
+здания.
+			</text>
+			<button label="Пересчитать физические данные" name="recalculate_physics_btn"/>
+			<button label="Пересчет..." name="recalculating_physics_btn"/>
+			<text name="physics_preview_label">
+				Просмотр физических данных
+			</text>
+			<combo_box name="preview_lod_combo2" tool_tip="Детализация при предварительном просмотре">
+				<combo_item name="preview_lod2_high">
+					Детально
+				</combo_item>
+				<combo_item name="preview_lod2_medium">
+					Средняя детализация
+				</combo_item>
+				<combo_item name="preview_lod2_low">
+					Мало деталей
+				</combo_item>
+				<combo_item name="preview_lod2_lowest">
+					Минимум деталей
+				</combo_item>
+			</combo_box>
+		</panel>
+	</panel>
+	<panel name="review_panel">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
+				Пересмотреть
+			</text>
+		</panel>
+		<panel name="review_content_panel">
+			<text name="review_prim_equiv">
+				Воздействие на участок/регион: эквивалент в примитивах: [EQUIV]
+			</text>
+			<text name="review_fee">
+				За передачу с вашего счета будет снята плата в размере L$[FEE].
+			</text>
+			<text name="review_confirmation">
+				Нажав кнопку «Передать», вы подтверждаете, что у вас есть надлежащие права на все составляющие модели.
+			</text>
+		</panel>
+	</panel>
+	<panel name="upload_panel">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
+				Передача завершена
+			</text>
+		</panel>
+		<text name="model_uploaded_text">
+			Ваша модель передана.
+		</text>
+		<text name="inventory_text">
+			Находится в папке «Объекты» вашего инвентаря.
+		</text>
+		<text name="charged_fee">
+			С вашего счета снято: L$[FEE].
+		</text>
+	</panel>
+	<button label="&lt;&lt; Назад" name="back"/>
+	<button label="Далее &gt;&gt;" name="next"/>
+	<button label="Рассчитать вес и плату &gt;&gt;" name="calculate"/>
+	<button label="Расчет..." name="calculating"/>
+	<button label="Передать" name="upload" tool_tip="Передать в симулятор"/>
+	<button label="Отмена" name="cancel"/>
+	<button label="Закрыть" name="close"/>
+	<spinner name="import_scale" value="1.0"/>
+	<string name="status_idle">
+		Неактивно
+	</string>
+	<string name="status_parse_error">
+		Проблема при анализе файла DAE – см. подробности в журнале.
+	</string>
+	<string name="status_reading_file">
+		Загрузка...
+	</string>
+	<string name="status_generating_meshes">
+		Создаются меши...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Ошибка. Число вершин превышает 65534. Прервано.
+	</string>
+	<string name="bad_element">
+		Ошибка: недопустимый элемент
+	</string>
+	<string name="high">
+		высокий
+	</string>
+	<string name="medium">
+		средний
+	</string>
+	<string name="low">
+		низкий
+	</string>
+	<string name="lowest">
+		самый низкий
+	</string>
+	<string name="mesh_status_good">
+		Доставлено!
+	</string>
+	<string name="mesh_status_na">
+		Н/Д
+	</string>
+	<string name="mesh_status_none">
+		Нет
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Отличается число текстурируемых граней на уровнях детализации.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Отличается число экземпляров меша на уровнях детализации.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Слишком много вершин на уровне детализации.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Отсутствует необходимый уровень детализации.
+	</string>
+	<string name="layer_all">
+		Все
+	</string>
+</floater>

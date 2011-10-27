@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="queue" title="СБРОСИТЬ ПРОГРЕСС">
+	<floater.string name="Starting">
+		Запуск [START] объектов (объектов: [COUNT]).
+	</floater.string>
+	<floater.string name="Done">
+		Готово.
+	</floater.string>
+	<floater.string name="Resetting">
+		Сброс
+	</floater.string>
+	<floater.string name="Running">
+		Запущен
+	</floater.string>
+	<floater.string name="NotRunning">
+		Не запущен
+	</floater.string>
+	<button label="Закрыть" label_selected="Закрыть" name="close"/>
+</floater>

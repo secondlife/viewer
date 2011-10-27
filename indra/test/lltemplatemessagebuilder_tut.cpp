@@ -29,6 +29,7 @@
 #include "linden_common.h"
 #include "lltut.h"
 
+#include "llapr.h"
 #include "llmessagetemplate.h"
 #include "llquaternion.h"
 #include "lltemplatemessagebuilder.h"
@@ -52,6 +53,7 @@ namespace tut
 			static bool init = false;
 			if(! init)
 			{
+				ll_init_apr();
 				const F32 circuit_heartbeat_interval=5;
 				const F32 circuit_timeout=100;
 

@@ -9,7 +9,6 @@
  name="floater_about"
  help_topic="floater_about"
  save_rect="true"
- auto_tile="true"
  title="MEDIA BROWSER"
  width="820">
     <floater.string

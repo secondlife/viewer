@@ -100,17 +100,11 @@ BOOL LLFloaterMap::postBuild()
 	mTextBoxSouthWest = getChild<LLTextBox> ("floater_map_southwest");
 	mTextBoxNorthWest = getChild<LLTextBox> ("floater_map_northwest");
 
-	stretchMiniMap(getRect().getWidth() - MAP_PADDING_LEFT - MAP_PADDING_RIGHT
-		,getRect().getHeight() - MAP_PADDING_TOP - MAP_PADDING_BOTTOM);
-
 	updateMinorDirections();
 
 	// Get the drag handle all the way in back
 	sendChildToBack(getDragHandle());
 
-	setIsChrome(TRUE);
-	getDragHandle()->setTitleVisible(TRUE);
-	
 	// keep onscreen
 	gFloaterView->adjustToFitScreen(this, FALSE);
 
@@ -223,40 +217,10 @@ void LLFloaterMap::draw()
 	LLFloater::draw();
 }
 
-// virtual
-void LLFloaterMap::onFocusReceived()
-{
-	setBackgroundOpaque(true);
-	LLPanel::onFocusReceived();
-}
-
-// virtual
-void LLFloaterMap::onFocusLost()
-{
-	setBackgroundOpaque(false);
-	LLPanel::onFocusLost();
-}
-
-void LLFloaterMap::stretchMiniMap(S32 width,S32 height)
-{
-	//fix for ext-7112
-	//by default ctrl can't overlap caption area
-	if(mMap)
-	{
-		LLRect map_rect;
-		map_rect.setLeftTopAndSize( MAP_PADDING_LEFT, getRect().getHeight() - MAP_PADDING_TOP, width, height);
-		mMap->reshape( width, height, 1);
-		mMap->setRect(map_rect);
-	}
-}
-
 void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
 	LLFloater::reshape(width, height, called_from_parent);
 	
-	stretchMiniMap(width - MAP_PADDING_LEFT - MAP_PADDING_RIGHT
-		,height - MAP_PADDING_TOP - MAP_PADDING_BOTTOM);
-
 	updateMinorDirections();
 }
 
@@ -283,18 +247,5 @@ void LLFloaterMap::handleZoom(const LLSD& userdata)
 	if (scale != 0.0f)
 	{
 		mMap->setScale(scale);
-	}
-}
-
-void	LLFloaterMap::setMinimized(BOOL b)
-{
-	LLFloater::setMinimized(b);
-	if(b)
-	{
-		setTitle(getString("mini_map_caption"));
-	}
-	else
-	{
-		setTitle("");
 	}
 }

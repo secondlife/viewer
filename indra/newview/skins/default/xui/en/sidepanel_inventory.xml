@@ -67,6 +67,8 @@
 										top="0"
 										orientation="vertical"
 										name="inbox_outbox_layout_stack"
+                    open_time_constant="0.02"
+                    close_time_constant="0.02"
 										height="235"
 										width="330">
 								 <layout_panel
@@ -91,10 +93,10 @@
                       label=""
                       height="200"
                       width="330">
-                     <string name="InboxLabelWithArg">Received Items ([NUM])</string>
-                     <string name="InboxLabelNoArg">Received Items</string>
+                     <string name="InboxLabelWithArg">Received items ([NUM])</string>
+                     <string name="InboxLabelNoArg">Received items</string>
                      <button
-                        label="Received Items"
+                        label="Received items"
 												font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
@@ -122,7 +124,7 @@
                         halign="right"
                         top_pad="0"
                         width="300">
-                        [NUM] New
+                        [NUM] new
                      </text>
                      <panel
                         follows="all"
@@ -173,10 +175,10 @@
                       label=""
                       height="200"
                       width="330">
-                     <string name="OutboxLabelWithArg">Merchant Outbox ([NUM])</string>
-                     <string name="OutboxLabelNoArg">Merchant Outbox</string>
+                     <string name="OutboxLabelWithArg">Merchant outbox ([NUM])</string>
+                     <string name="OutboxLabelNoArg">Merchant outbox</string>
                      <button
-                        label="Merchant Outbox"
+                        label="Merchant outbox"
                         font="SansSerifMedium"
                         name="outbox_btn"
                         height="35"

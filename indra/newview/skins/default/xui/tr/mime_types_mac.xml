@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<mimetypes name="default">
+	<widgetset name="web">
+		<label name="web_label">
+			Web İçeriği
+		</label>
+		<tooltip name="web_tooltip">
+			Bu konumda Web içeriği var
+		</tooltip>
+		<playtip name="web_playtip">
+			Web içeriğini göster
+		</playtip>
+	</widgetset>
+	<widgetset name="movie">
+		<label name="movie_label">
+			Film
+		</label>
+		<tooltip name="movie_tooltip">
+			Burada oynatılacak bir film var
+		</tooltip>
+		<playtip name="movie_playtip">
+			Filmi oynat
+		</playtip>
+	</widgetset>
+	<widgetset name="image">
+		<label name="image_label">
+			Görüntü
+		</label>
+		<tooltip name="image_tooltip">
+			Bu konumda bir görüntü var
+		</tooltip>
+		<playtip name="image_playtip">
+			Bu konumdaki görüntüyü göster
+		</playtip>
+	</widgetset>
+	<widgetset name="audio">
+		<label name="audio_label">
+			Ses
+		</label>
+		<tooltip name="audio_tooltip">
+			Bu konumda ses var
+		</tooltip>
+		<playtip name="audio_playtip">
+			Bu konumdaki sesi çal
+		</playtip>
+	</widgetset>
+	<scheme name="rtsp">
+		<label name="rtsp_label">
+			Gerçek Zamanlı Akış
+		</label>
+	</scheme>
+	<mimetype name="blank">
+		<label name="blank_label">
+			- Hiçbiri -
+		</label>
+	</mimetype>
+	<mimetype name="none/none">
+		<label name="none/none_label">
+			- Hiçbiri -
+		</label>
+	</mimetype>
+	<mimetype name="audio/*">
+		<label name="audio2_label">
+			Ses
+		</label>
+	</mimetype>
+	<mimetype name="video/*">
+		<label name="video2_label">
+			Video
+		</label>
+	</mimetype>
+	<mimetype name="image/*">
+		<label name="image2_label">
+			Görüntü
+		</label>
+	</mimetype>
+	<mimetype name="video/vnd.secondlife.qt.legacy">
+		<label name="vnd.secondlife.qt.legacy_label">
+			Film (QuickTime)
+		</label>
+	</mimetype>
+	<mimetype name="application/javascript">
+		<label name="application/javascript_label">
+			Javascript
+		</label>
+	</mimetype>
+	<mimetype name="application/ogg">
+		<label name="application/ogg_label">
+			Ogg Ses/Video
+		</label>
+	</mimetype>
+	<mimetype name="application/pdf">
+		<label name="application/pdf_label">
+			PDF Belgesi
+		</label>
+	</mimetype>
+	<mimetype name="application/postscript">
+		<label name="application/postscript_label">
+			Postscript Belgesi
+		</label>
+	</mimetype>
+	<mimetype name="application/rtf">
+		<label name="application/rtf_label">
+			Zengin Metin (RTF)
+		</label>
+	</mimetype>
+	<mimetype name="application/smil">
+		<label name="application/smil_label">
+			Eşzamanlı Multimedya Tümleştirme Dili (SMIL)
+		</label>
+	</mimetype>
+	<mimetype name="application/xhtml+xml">
+		<label name="application/xhtml+xml_label">
+			Web Sayfası (XHTML)
+		</label>
+	</mimetype>
+	<mimetype name="application/x-director">
+		<label name="application/x-director_label">
+			Macromedia Director
+		</label>
+	</mimetype>
+	<mimetype name="audio/mid">
+		<label name="audio/mid_label">
+			Ses (MIDI)
+		</label>
+	</mimetype>
+	<mimetype name="audio/mpeg">
+		<label name="audio/mpeg_label">
+			Ses (MP3)
+		</label>
+	</mimetype>
+	<mimetype name="audio/x-aiff">
+		<label name="audio/x-aiff_label">
+			Ses (AIFF)
+		</label>
+	</mimetype>
+	<mimetype name="audio/x-wav">
+		<label name="audio/x-wav_label">
+			Ses (WAV)
+		</label>
+	</mimetype>
+	<mimetype name="image/bmp">
+		<label name="image/bmp_label">
+			Görüntü (BMP)
+		</label>
+	</mimetype>
+	<mimetype name="image/gif">
+		<label name="image/gif_label">
+			Görüntü (GIF)
+		</label>
+	</mimetype>
+	<mimetype name="image/jpeg">
+		<label name="image/jpeg_label">
+			Görüntü (JPEG)
+		</label>
+	</mimetype>
+	<mimetype name="image/png">
+		<label name="image/png_label">
+			Görüntü (PNG)
+		</label>
+	</mimetype>
+	<mimetype name="image/svg+xml">
+		<label name="image/svg+xml_label">
+			Görüntü (SVG)
+		</label>
+	</mimetype>
+	<mimetype name="image/tiff">
+		<label name="image/tiff_label">
+			Görüntü (TIFF)
+		</label>
+	</mimetype>
+	<mimetype name="text/html">
+		<label name="text/html_label">
+			Web Sayfası
+		</label>
+	</mimetype>
+	<mimetype name="text/plain">
+		<label name="text/plain_label">
+			Metin
+		</label>
+	</mimetype>
+	<mimetype name="text/xml">
+		<label name="text/xml_label">
+			XML
+		</label>
+	</mimetype>
+	<mimetype name="video/mpeg">
+		<label name="video/mpeg_label">
+			Film (MPEG)
+		</label>
+	</mimetype>
+	<mimetype name="video/mp4">
+		<label name="video/mp4_label">
+			Film (MP4)
+		</label>
+	</mimetype>
+	<mimetype name="video/quicktime">
+		<label name="video/quicktime_label">
+			Film (QuickTime)
+		</label>
+	</mimetype>
+	<mimetype name="video/x-ms-asf">
+		<label name="video/x-ms-asf_label">
+			Film (Windows Media ASF)
+		</label>
+	</mimetype>
+	<mimetype name="video/x-ms-wmv">
+		<label name="video/x-ms-wmv_label">
+			Film (Windows Media WMV)
+		</label>
+	</mimetype>
+	<mimetype name="video/x-msvideo">
+		<label name="video/x-msvideo_label">
+			Film (AVI)
+		</label>
+	</mimetype>
+</mimetypes>

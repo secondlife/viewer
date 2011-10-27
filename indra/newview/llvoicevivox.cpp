@@ -55,7 +55,7 @@
 #include "llimview.h" // for LLIMMgr
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
-//#include "llfirstuse.h"
+#include "llfirstuse.h"
 #include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
@@ -942,7 +942,7 @@ void LLVivoxVoiceClient::stateMachine()
 
 				if(!mSocket)
 				{
-					mSocket = LLSocket::create(LLSocket::STREAM_TCP);	
+					mSocket = LLSocket::create(gAPRPoolp, LLSocket::STREAM_TCP);	
 				}
 				
 				mConnected = mSocket->blockingConnect(mDaemonHost);
@@ -6258,6 +6258,19 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 		it = mStatusObservers.upper_bound(observer);
 	}
 
+	// skipped to avoid speak button blinking
+	if (   status != LLVoiceClientStatusObserver::STATUS_JOINING
+		&& status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL)
+	{
+		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+
+		gAgent.setVoiceConnected(voice_status);
+
+		if (voice_status)
+		{
+			LLFirstUse::speak(true);
+		}
+	}
 }
 
 void LLVivoxVoiceClient::addObserver(LLFriendObserver* observer)

@@ -27,6 +27,7 @@
 
 // Dependencies
 #include "linden_common.h"
+#include "llapr.h"
 #include "llsingleton.h"
 #include "lltrans.h"
 #include "lluistring.h"

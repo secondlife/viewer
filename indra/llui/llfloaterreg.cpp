@@ -59,17 +59,55 @@ void LLFloaterReg::add(const std::string& name, const std::string& filename, con
 //static
 LLFloater* LLFloaterReg::getLastFloaterInGroup(const std::string& name)
 {
-	LLRect rect;
 	const std::string& groupname = sGroupMap[name];
 	if (!groupname.empty())
 	{
 		instance_list_t& list = sInstanceMap[groupname];
 		if (!list.empty())
 		{
-			return list.back();
+			for (instance_list_t::reverse_iterator iter = list.rbegin(); iter != list.rend(); ++iter)
+			{
+				LLFloater* inst = *iter;
+
+				if (inst->getVisible() && !inst->isMinimized())
+				{
+					return inst;
+				}
+			}
 		}
 	}
 	return NULL;
+}
+
+LLFloater* LLFloaterReg::getLastFloaterCascading()
+{
+	LLRect candidate_rect;
+	candidate_rect.mTop = 100000;
+	LLFloater* candidate_floater = NULL;
+
+	std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
+	for( ; it != it_end; ++it)
+	{
+		const std::string& group_name = it->second;
+
+		instance_list_t& instances = sInstanceMap[group_name];
+
+		for (instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); ++iter)
+		{
+			LLFloater* inst = *iter;
+
+			if (inst->getVisible() && inst->isPositioning(LLFloaterEnums::OPEN_POSITIONING_CASCADING))
+			{
+				if (candidate_rect.mTop > inst->getRect().mTop)
+				{
+					candidate_floater = inst;
+					candidate_rect = inst->getRect();
+				}
+			}
+		}
+	}
+
+	return candidate_floater;
 }
 
 //static
@@ -107,37 +145,33 @@ LLFloater* LLFloaterReg::getInstance(const std::string& name, const LLSD& key)
 			if (!groupname.empty())
 			{
 				instance_list_t& list = sInstanceMap[groupname];
-				int index = list.size();
 
 				res = build_func(key);
-				
+				if (!res)
+				{
+					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
+					return NULL;
+				}
 				bool success = res->buildFromFile(xui_file, NULL);
 				if (!success)
 				{
 					llwarns << "Failed to build floater type: '" << name << "'." << llendl;
 					return NULL;
 				}
-					
+
 				// Note: key should eventually be a non optional LLFloater arg; for now, set mKey to be safe
 				if (res->mKey.isUndefined()) 
 				{
-						res->mKey = key;
+					res->mKey = key;
 				}
 				res->setInstanceName(name);
-				res->applySavedVariables(); // Can't apply rect and dock state until setting instance name
-				if (res->mAutoTile && !res->getHost() && index > 0)
-				{
-					LLFloater* last_floater = getLastFloaterInGroup(groupname);
-					if (last_floater)
-					{
-						res->stackWith(*last_floater);
-						gFloaterView->adjustToFitScreen(res, true);
-					}
-				}
-				else
-				{
-					gFloaterView->adjustToFitScreen(res, false);
-				}
+
+				LLFloater *last_floater = (list.empty() ? NULL : list.back());
+
+				res->applyControlsAndPosition(last_floater);
+
+				gFloaterView->adjustToFitScreen(res, false);
+
 				list.push_back(res);
 			}
 		}
@@ -403,70 +437,71 @@ void LLFloaterReg::registerControlVariables()
 	}
 }
 
-// Callbacks
-
-// static
-// Call once (i.e use for init callbacks)
-void LLFloaterReg::initUICtrlToFloaterVisibilityControl(LLUICtrl* ctrl, const LLSD& sdname)
+//static
+void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key)
 {
-	// Get the visibility control name for the floater
-	std::string vis_control_name = LLFloaterReg::declareVisibilityControl(sdname.asString());
-	// Set the control value to the floater visibility control (Sets the value as well)
-	ctrl->setControlVariable(LLFloater::getControlGroup()->getControl(vis_control_name));
-}
+	//
+	// Floaters controlled by the toolbar behave a bit differently from others.
+	// Namely they have 3-4 states as defined in the design wiki page here:
+	//   https://wiki.lindenlab.com/wiki/FUI_Button_states
+	//
+	// The basic idea is this:
+	// * If the target floater is minimized, this button press will un-minimize it.
+	// * Else if the target floater is closed open it.
+	// * Else if the target floater does not have focus, give it focus.
+	//       * Also, if it is not on top, bring it forward when focus is given.
+	// * Else the target floater is open, close it.
+	// 
 
-// callback args may use "floatername.key" format
-static void parse_name_key(std::string& name, LLSD& key)
-{
-	std::string instname = name;
-	std::size_t dotpos = instname.find(".");
-	if (dotpos != std::string::npos)
+	std::string name = sdname.asString();
+	LLFloater* instance = getInstance(name, key); 
+
+	if (!instance)
 	{
-		name = instname.substr(0, dotpos);
-		key = LLSD(instname.substr(dotpos+1, std::string::npos));
+		lldebugs << "Unable to get instance of floater '" << name << "'" << llendl;
+	}
+	else if (instance->isMinimized())
+	{
+		instance->setMinimized(FALSE);
+		instance->setVisibleAndFrontmost();
+	}
+	else if (!instance->isShown())
+	{
+		instance->openFloater(key);
+		instance->setVisibleAndFrontmost();
+	}
+	else if (!instance->isFrontmost())
+	{
+		instance->setVisibleAndFrontmost();
+	}
+	else
+	{
+		instance->closeFloater();
 	}
 }
 
-//static
-void LLFloaterReg::showFloaterInstance(const LLSD& sdname)
+// static
+U32 LLFloaterReg::getVisibleFloaterInstanceCount()
 {
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	showInstance(name, key, TRUE);
-}
-//static
-void LLFloaterReg::hideFloaterInstance(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	hideInstance(name, key);
-}
-//static
-void LLFloaterReg::toggleFloaterInstance(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	toggleInstance(name, key);
-}
+	U32 count = 0;
 
-//static
-bool LLFloaterReg::floaterInstanceVisible(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	return instanceVisible(name, key);
-}
+	std::map<std::string,std::string>::const_iterator it = sGroupMap.begin(), it_end = sGroupMap.end();
+	for( ; it != it_end; ++it)
+	{
+		const std::string& group_name = it->second;
 
-//static
-bool LLFloaterReg::floaterInstanceMinimized(const LLSD& sdname)
-{
-	LLSD key;
-	std::string name = sdname.asString();
-	parse_name_key(name, key);
-	LLFloater* instance = findInstance(name, key); 
-	return LLFloater::isShown(instance);
+		instance_list_t& instances = sInstanceMap[group_name];
+
+		for (instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); ++iter)
+		{
+			LLFloater* inst = *iter;
+
+			if (inst->getVisible() && !inst->isMinimized())
+			{
+				count++;
+			}
+		}
+	}
+
+	return count;
 }

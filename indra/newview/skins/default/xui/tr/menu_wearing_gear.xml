@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Wearing">
+	<menu_item_call label="Dış Görünümü Düzenle" name="edit"/>
+	<menu_item_call label="Çıkar" name="takeoff"/>
+	<menu_item_call label="Dış görünüm listesini panoya kopyala" name="copy"/>
+</toggleable_menu>

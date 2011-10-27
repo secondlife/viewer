@@ -44,12 +44,20 @@ LLHUDEffectBlob::~LLHUDEffectBlob()
 {
 }
 
+void LLHUDEffectBlob::markDead()
+{
+	mImage = NULL;
+
+	LLHUDEffect::markDead();
+}
+
 void LLHUDEffectBlob::render()
 {
 	F32 time = mTimer.getElapsedTimeF32();
 	if (mDuration < time)
 	{
 		markDead();
+		return;
 	}
 
 	LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mPositionGlobal);

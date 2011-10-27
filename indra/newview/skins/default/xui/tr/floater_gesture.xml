@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Yerler" name="gestures" title="MİMİKLER">
+	<floater.string name="loading">
+		Yükleniyor...
+	</floater.string>
+	<floater.string name="playing">
+		(Oynuyor)
+	</floater.string>
+	<floater.string name="copy_name">
+		[COPY_NAME] kopyası
+	</floater.string>
+	<scroll_list name="gesture_list">
+		<scroll_list.columns label="Ad" name="name"/>
+		<scroll_list.columns label="Sohbet" name="trigger"/>
+		<scroll_list.columns label="Anahtar" name="shortcut"/>
+	</scroll_list>
+	<panel label="bottom_panel" name="bottom_panel">
+		<menu_button name="gear_btn" tool_tip="İlave seçenekler"/>
+		<button name="new_gesture_btn" tool_tip="Yeni mimik yap"/>
+		<button name="activate_btn" tool_tip="Seçilen mimiği Etkinleştir/Devre Dışı Bırak"/>
+		<button name="del_btn" tool_tip="Bu mimiği sil"/>
+	</panel>
+	<button label="Düzenle" name="edit_btn"/>
+	<button label="Oyna" name="play_btn"/>
+	<button label="Durdur" name="stop_btn"/>
+</floater>

@@ -270,7 +270,7 @@ private:
 
     LLAllocator mAlloc;
 
-	std::map<apr_dso_handle_t*, boost::shared_ptr<LLAPRPool> > mPlugins;
+	std::set<struct apr_dso_handle_t*> mPlugins;
 
 	LLFrameTimer mMemCheckTimer;
 	

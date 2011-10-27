@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<text name="title" value="О подборке"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text_editor name="pick_name" value="[название]"/>
+			<text_editor name="pick_location" value="[загрузка...]"/>
+			<text_editor name="pick_desc" value="[описание]"/>
+		</panel>
+	</scroll_container>
+	<panel name="buttons">
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Телепорт" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Карта" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Изменить" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

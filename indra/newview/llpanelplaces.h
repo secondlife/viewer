@@ -77,6 +77,8 @@ public:
 
 	std::string getPlaceInfoType() { return mPlaceInfoType; }
 
+	bool tabsCreated() { return mTabsCreated;}
+
 	/*virtual*/ S32 notifyParent(const LLSD& info);
 
 private:
@@ -146,7 +148,12 @@ private:
 
 	bool						isLandmarkEditModeOn;
 
+	// Holds info whether "My Landmarks" and "Teleport History" tabs have been created.
+	bool						mTabsCreated;
+
 	LLSafeHandle<LLParcelSelection>	mParcel;
+
+	boost::signals2::connection mAgentParcelChangedConnection;
 };
 
 #endif //LL_LLPANELPLACES_H

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="İŞARETLER">
+	<panel name="beacons_panel">
+		<text name="label_show">
+			Göster :
+		</text>
+		<check_box label="İşaretler" name="beacons"/>
+		<check_box label="Vurgulananlar" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="İşaret genişliği">
+			Genişlik:
+		</text>
+		<text name="label_objects">
+			Bu nesneler için.
+		</text>
+		<check_box label="Fiziksel" name="physical"/>
+		<check_box label="Komut Dosyalı" name="scripted"/>
+		<check_box label="Sadece dokun" name="touch_only"/>
+		<check_box label="Ses kaynakları" name="sounds"/>
+		<check_box label="Parçacık kaynakları" name="particles"/>
+		<check_box label="Ortam kaynakları" name="moapbeacon"/>
+	</panel>
+</floater>

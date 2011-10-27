@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <!-- See also settings.xml UIFloater* settings for configuration -->
-<floater 
+<floater
  name="floater"
+ open_positioning="none"
+ layout="topleft"
  bg_opaque_color="FloaterFocusBackgroundColor"
  bg_alpha_color="FloaterDefaultBackgroundColor"
  bg_opaque_image="Window_Foreground" 

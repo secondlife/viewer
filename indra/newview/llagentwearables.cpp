@@ -33,6 +33,7 @@
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -42,7 +43,6 @@
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltexlayer.h"
 #include "lltooldraganddrop.h"
 #include "llviewerregion.h"
@@ -1168,14 +1168,11 @@ private:
 	std::vector<LLWearable*> mWearablesAwaitingItems;
 };
 
-void LLAgentWearables::createStandardWearables(BOOL female)
+void LLAgentWearables::createStandardWearables()
 {
-	llwarns << "Creating Standard " << (female ? "female" : "male")
-			<< " Wearables" << llendl;
+	llwarns << "Creating standard wearables" << llendl;
 
 	if (!isAgentAvatarValid()) return;
-
-	gAgentAvatarp->setSex(female ? SEX_FEMALE : SEX_MALE);
 
 	const BOOL create[LLWearableType::WT_COUNT] = 
 		{
@@ -2015,7 +2012,7 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 	}
 
 	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
-	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
+	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("appearance");
 	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }
 

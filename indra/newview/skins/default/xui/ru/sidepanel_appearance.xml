@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Костюмы" name="appearance panel">
+	<string name="No Outfit" value="Нет костюма"/>
+	<string name="Unsaved Changes" value="Не сохраненные изменения"/>
+	<string name="Now Wearing" value="Сейчас надето..."/>
+	<string name="Changing outfits" value="Смена костюмов"/>
+	<panel name="panel_currentlook">
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Статус)
+		</text>
+		<text name="currentlook_name">
+			Мой костюм с очень длинным названием, например, ЛОСОСЬ
+		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Изменить костюм"/>
+	</panel>
+	<filter_editor label="Фильтр для костюмов" name="Filter"/>
+</panel>

@@ -151,6 +151,9 @@ public:
 
 	// Create initial outfits from library.
 	void autopopulateOutfits();
+
+	// Copy initial gestures from library.
+	void copyLibraryGestures();
 	
 	void wearBaseOutfit();
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Renkler" name="colors_panel">
+	<text name="effects_color_textbox">
+		Efektlerim (seçim ışını):
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Renk Seçiciyi açmak için tıklayın"/>
+	<text name="font_colors">
+		Sohbet font renkleri:
+	</text>
+	<text name="text_box1">
+		Ben
+	</text>
+	<text name="text_box2">
+		Diğerleri
+	</text>
+	<text name="text_box3">
+		Nesneler
+	</text>
+	<text name="text_box4">
+		Sistem
+	</text>
+	<text name="text_box5">
+		Hatalar
+	</text>
+	<text name="text_box10">
+		Doğrudan
+	</text>
+	<text name="text_box7">
+		Sahip
+	</text>
+	<text name="text_box9">
+		URL&apos;ler
+	</text>
+	<text name="bubble_chat">
+		Ad etiketinin arka plan rengi (ayrıca Balon Sohbeti de etkiler):
+	</text>
+	<color_swatch name="background" tool_tip="Ad etiketi rengini seç"/>
+	<slider label="Geçirgenlik:" name="bubble_chat_opacity" tool_tip="Ad etiketi geçirgenliğini seç"/>
+	<text name="floater_opacity">
+		Gezdirici Geçirgenliği:
+	</text>
+	<slider label="Etkin:" name="active"/>
+	<slider label="Etkin değil:" name="inactive"/>
+</panel>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Object Pie">
+	<menu_item_call label="Коснуться" name="Object Touch"/>
+	<menu_item_call label="Изменить" name="Edit..."/>
+	<menu_item_call label="Строительство" name="Build"/>
+	<menu_item_call label="Открыто" name="Open"/>
+	<menu_item_call label="Сесть здесь" name="Object Sit"/>
+	<menu_item_call label="Встать" name="Object Stand Up"/>
+	<menu_item_call label="Профиль объекта" name="Object Inspect"/>
+	<menu_item_call label="Приблизить" name="Zoom In"/>
+	<context_menu label="Надеть" name="Put On">
+		<menu_item_call label="Надеть" name="Wear"/>
+		<menu_item_call label="Добавить" name="Add"/>
+		<context_menu label="Присоединить" name="Object Attach"/>
+		<context_menu label="Присоединить HUD" name="Object Attach HUD"/>
+	</context_menu>
+	<context_menu label="Управление" name="Remove">
+		<menu_item_call label="Жалоба" name="Report Abuse..."/>
+		<menu_item_call label="Заблокировать" name="Object Mute"/>
+		<menu_item_call label="Возврат" name="Return..."/>
+	</context_menu>
+	<menu_item_call label="Взять" name="Pie Object Take"/>
+	<menu_item_call label="Взять копию" name="Take Copy"/>
+	<menu_item_call label="Заплатить" name="Pay..."/>
+	<menu_item_call label="Купить" name="Buy..."/>
+	<menu_item_call label="Удалить" name="Delete"/>
+</context_menu>

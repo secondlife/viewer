@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="LSL REFERANSI">
+	<check_box label="İmleci izle" name="lock_check"/>
+	<combo_box label="Kilitle" name="history_combo"/>
+	<button label="Geri" name="back_btn"/>
+	<button label="İleri" name="fwd_btn"/>
+</floater>

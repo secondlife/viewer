@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="KOMUT DOSYASI: YENİ KOMUT DOSYASI">
+	<floater.string name="not_allowed">
+		Bu komut dosyasını görüntüleyemez veya düzenleyemezsiniz, çünkü &quot;kopyalanamaz&quot; olarak ayarlanmıştır. Bir nesnenin içerisindeki bir komut dosyasını görüntülemek veya düzenlemek için tam izinlere ihtiyacınız var.
+	</floater.string>
+	<floater.string name="script_running">
+		Çalışıyor
+	</floater.string>
+	<floater.string name="Title">
+		KOMUT DOSYASI: [NAME]
+	</floater.string>
+	<button label="Sıfırla" label_selected="Sıfırla" name="Reset"/>
+	<check_box initial_value="true" label="Çalışıyor" name="running"/>
+	<check_box initial_value="true" label="Mono" name="mono"/>
+</floater>
