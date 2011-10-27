@@ -68,7 +68,6 @@ static LLDefaultChildRegistry::Register<LLMediaCtrl> r("web_browser");
 LLMediaCtrl::Params::Params()
 :	start_url("start_url"),
 	border_visible("border_visible", true),
-	ignore_ui_scale("ignore_ui_scale", true),
 	decouple_texture_size("decouple_texture_size", false),
 	texture_width("texture_width", 1024),
 	texture_height("texture_height", 1024),
@@ -89,7 +88,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mFrequentUpdates( true ),
 	mForceUpdate( false ),
 	mHomePageUrl( "" ),
-	mIgnoreUIScale( true ),
 	mAlwaysRefresh( false ),
 	mMediaSource( 0 ),
 	mTakeFocusOnClick( p.focus_on_click ),
@@ -112,8 +110,6 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 		setCaretColor( (unsigned int)color.mV[0], (unsigned int)color.mV[1], (unsigned int)color.mV[2] );
 	}
 
-	setIgnoreUIScale(p.ignore_ui_scale);
-
 	setHomePageUrl(p.start_url, p.initial_mime_type);
 	
 	setBorderVisible(p.border_visible);
@@ -124,10 +120,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 
 	if(!getDecoupleTextureSize())
 	{
-		S32 screen_width = mIgnoreUIScale ? 
-			llround((F32)getRect().getWidth() * LLUI::sGLScaleFactor.mV[VX]) : getRect().getWidth();
-		S32 screen_height = mIgnoreUIScale ? 
-			llround((F32)getRect().getHeight() * LLUI::sGLScaleFactor.mV[VY]) : getRect().getHeight();
+		S32 screen_width = llround((F32)getRect().getWidth() * LLUI::sGLScaleFactor.mV[VX]);
+		S32 screen_height = llround((F32)getRect().getHeight() * LLUI::sGLScaleFactor.mV[VY]);
 			
 		setTextureSize(screen_width, screen_height);
 	}
@@ -471,8 +465,8 @@ void LLMediaCtrl::reshape( S32 width, S32 height, BOOL called_from_parent )
 {
 	if(!getDecoupleTextureSize())
 	{
-		S32 screen_width = mIgnoreUIScale ? llround((F32)width * LLUI::sGLScaleFactor.mV[VX]) : width;
-		S32 screen_height = mIgnoreUIScale ? llround((F32)height * LLUI::sGLScaleFactor.mV[VY]) : height;
+		S32 screen_width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
+		S32 screen_height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
 
 		// when floater is minimized, these sizes are negative
 		if ( screen_height > 0 && screen_width > 0 )
@@ -689,6 +683,8 @@ bool LLMediaCtrl::ensureMediaSourceExists()
 			mMediaSource->addObserver( this );
 			mMediaSource->setBackgroundColor( getBackgroundColor() );
 			mMediaSource->setTrustedBrowser(mTrusted);
+			mMediaSource->setPageZoomFactor( LLUI::sGLScaleFactor.mV[ VX ] );
+
 			if(mClearCache)
 			{
 				mMediaSource->clearCache();
@@ -770,27 +766,7 @@ void LLMediaCtrl::draw()
 	{
 		gGL.pushUIMatrix();
 		{
-			if (mIgnoreUIScale)
-			{
-				gGL.loadUIIdentity();
-				// font system stores true screen origin, need to scale this by UI scale factor
-				// to get render origin for this view (with unit scale)
-				gGL.translateUI(floorf(LLFontGL::sCurOrigin.mX * LLUI::sGLScaleFactor.mV[VX]), 
-							floorf(LLFontGL::sCurOrigin.mY * LLUI::sGLScaleFactor.mV[VY]), 
-							LLFontGL::sCurOrigin.mZ);
-			}
-			else
-			{
-				// zoom is an expensive operation - only do it if value changes
-				// TODO: move this logic out to mMediaSource->setPageZoomFactor() ??
-				static double prev_ui_scale = 0.0f;
-				double ui_scale = LLUI::sGLScaleFactor.mV[ VX ];
-				if ( ui_scale != prev_ui_scale )
-				{
-					mMediaSource->setPageZoomFactor( ui_scale );
-					prev_ui_scale = ui_scale;
-				}
-			}
+			mMediaSource->setPageZoomFactor( LLUI::sGLScaleFactor.mV[ VX ] );
 
 			// scale texture to fit the space using texture coords
 			gGL.getTexUnit(0)->bind(media_texture);
@@ -837,14 +813,6 @@ void LLMediaCtrl::draw()
 			
 			x_offset = (r.getWidth() - width) / 2;
 			y_offset = (r.getHeight() - height) / 2;		
-
-			if(mIgnoreUIScale)
-			{
-				x_offset = llround((F32)x_offset * LLUI::sGLScaleFactor.mV[VX]);
-				y_offset = llround((F32)y_offset * LLUI::sGLScaleFactor.mV[VY]);
-				width = llround((F32)width * LLUI::sGLScaleFactor.mV[VX]);
-				height = llround((F32)height * LLUI::sGLScaleFactor.mV[VY]);
-			}
 
 			// draw the browser
 			gGL.begin( LLRender::QUADS );
@@ -912,14 +880,14 @@ void LLMediaCtrl::convertInputCoords(S32& x, S32& y)
 		coords_opengl = mMediaSource->getMediaPlugin()->getTextureCoordsOpenGL();
 	}
 	
-	x = mIgnoreUIScale ? llround((F32)x * LLUI::sGLScaleFactor.mV[VX]) : x;
+	x = llround((F32)x * LLUI::sGLScaleFactor.mV[VX]);
 	if ( ! coords_opengl )
 	{
-		y = mIgnoreUIScale ? llround((F32)(y) * LLUI::sGLScaleFactor.mV[VY]) : y;
+		y = llround((F32)(y) * LLUI::sGLScaleFactor.mV[VY]);
 	}
 	else
 	{
-		y = mIgnoreUIScale ? llround((F32)(getRect().getHeight() - y) * LLUI::sGLScaleFactor.mV[VY]) : getRect().getHeight() - y;
+		y = llround((F32)(getRect().getHeight() - y) * LLUI::sGLScaleFactor.mV[VY]);
 	};
 }
 

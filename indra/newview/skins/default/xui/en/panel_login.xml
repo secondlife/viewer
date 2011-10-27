@@ -32,8 +32,7 @@ top="600"
   start_url=""
   top="0"
   height="600"
-  width="980" 
-  ignore_ui_scale="false"/>
+  width="980"/>
 <layout_stack
 follows="left|bottom|right"
 name="login_widgets"
