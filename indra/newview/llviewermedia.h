@@ -417,6 +417,7 @@ private:
 private:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
+	F64		mZoomFactor;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
 	std::string mMediaURL;			// The last media url set with NavigateTo
