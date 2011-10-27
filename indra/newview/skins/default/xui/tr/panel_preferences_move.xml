@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Hareket Et" name="move_panel">
+	<slider label="Gröünüm açısı" name="camera_fov"/>
+	<slider label="Mesafe" name="camera_offset_scale"/>
+	<text name="heading2">
+		Şunun için otomatik konum:
+	</text>
+	<check_box label="İnşa Et/Düzenle" name="edit_camera_movement" tool_tip="Düzenleme moduna girerken ve düzenleme modundan çıkarken otomatik kamera konumunu kullanın"/>
+	<check_box label="Görünüm" name="appearance_camera_movement" tool_tip="Düzenleme modundayken otomatik kamera konumunu kullan"/>
+	<text name="keyboard_lbl">
+		Klavye:
+	</text>
+	<check_box label="Ok tuşları beni her zaman hareket ettirir" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Koşmak için iki kez dokun ve tut" name="tap_tap_hold_to_run"/>
+	<text name="mouse_lbl">
+		Fare:
+	</text>
+	<check_box label="Fare üzerinden görünümde beni göster" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Fare üzerinden görünümde fare hassasiyeti
+	</text>
+	<check_box label="Tersine çevir" name="invert_mouse"/>
+	<text name="single_click_action_lbl">
+		Arazi üzerine tek tıklama:
+	</text>
+	<combo_box name="single_click_action_combo">
+		<combo_box.item label="Eylem yok" name="0"/>
+		<combo_box.item label="Tıklanan noktaya hareket et" name="1"/>
+	</combo_box>
+	<text name="double_click_action_lbl">
+		Arazi üzerine çift tıklama:
+	</text>
+	<combo_box name="double_click_action_combo">
+		<combo_box.item label="Eylem yok" name="0"/>
+		<combo_box.item label="Tıklanan noktaya hareket et" name="1"/>
+		<combo_box.item label="Tıklanan noktaya ışınla" name="2"/>
+	</combo_box>
+	<button label="Diğer Aygıtlar" name="joystick_setup_button"/>
+</panel>

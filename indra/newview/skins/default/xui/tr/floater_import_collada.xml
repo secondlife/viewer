@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Import Collada" title="Sahneyi İçeri Aktar">
+	<text name="mesh count">
+		Örgüler: [COUNT]
+	</text>
+	<text name="texture count">
+		Dokular: [COUNT]
+	</text>
+	<text name="status">
+		Durum: [STATUS]
+	</text>
+	<button label="İptal" name="cancel"/>
+	<button label="Tamam" name="ok"/>
+	<string name="status_idle">
+		Boşta
+	</string>
+	<string name="status_uploading">
+		[NAME] karşıya yükleniyor
+	</string>
+	<string name="status_creating">
+		[NAME] nesnesi oluşturuluyor
+	</string>
+</floater>

@@ -1435,6 +1435,7 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	LLStringUtil::format (time_str, substitution);
 
 	text.append(time_str);
+	text.append(".  ");
 
 	if (current_interval == 0)
 	{
@@ -1445,8 +1446,8 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 		LLStringUtil::format (time_str, substitution);
 
 		text.append(time_str);
-		text.append("\n\n");
-		text.append(llformat("%-24sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
+		text.append(".\n\n");
+		text.append(llformat("%-23sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
 		text.append(1, '\n');
 	}
 

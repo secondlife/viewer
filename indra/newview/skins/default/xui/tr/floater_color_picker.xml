@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="RENK SEÇİCİ">
+	<text name="r_val_text">
+		Kırmızı:
+	</text>
+	<text name="g_val_text">
+		Yeşil:
+	</text>
+	<text name="b_val_text">
+		Mavi:
+	</text>
+	<text name="h_val_text">
+		Ton:
+	</text>
+	<text name="s_val_text">
+		Sat:
+	</text>
+	<text name="l_val_text">
+		Par:
+	</text>
+	<check_box label="Şimdi uygula" name="apply_immediate"/>
+	<button label="Tamam" label_selected="Tamam" name="select_btn"/>
+	<button label="İptal" label_selected="İptal" name="cancel_btn"/>
+	<text name="Current color:">
+		Geçerli renk:
+	</text>
+	<text name="(Drag below to save.)">
+		(Kaydetmek için aşağıya sürükleyin)
+	</text>
+</floater>

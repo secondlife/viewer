@@ -389,6 +389,7 @@ LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
 	LLTeleportHistoryFlatItemStorage::instance().purge();
 	delete mGearMenuHandle.get();
+	mTeleportHistoryChangedConnection.disconnect();
 }
 
 BOOL LLTeleportHistoryPanel::postBuild()
@@ -679,29 +680,32 @@ void LLTeleportHistoryPanel::refresh()
 			// tab_boundary_date would be earliest possible date for this tab
 			S32 tab_idx = 0;
 			getNextTab(date, tab_idx, tab_boundary_date);
-
-			LLAccordionCtrlTab* tab = mItemContainers.get(mItemContainers.size() - 1 - tab_idx);
-			tab->setVisible(true);
-
-			// Expand all accordion tabs when filtering
-			if(!sFilterSubString.empty())
+			tab_idx = mItemContainers.size() - 1 - tab_idx;
+			if (tab_idx >= 0)
 			{
-				//store accordion tab state when filter is not empty
-				tab->notifyChildren(LLSD().with("action","store_state"));
-				
-				tab->setDisplayChildren(true);
-			}
-			// Restore each tab's expand state when not filtering
-			else
-			{
-				bool collapsed = isAccordionCollapsedByUser(tab);
-				tab->setDisplayChildren(!collapsed);
-				
-				//restore accordion state after all those accodrion tabmanipulations
-				tab->notifyChildren(LLSD().with("action","restore_state"));
-			}
+				LLAccordionCtrlTab* tab = mItemContainers.get(tab_idx);
+				tab->setVisible(true);
 
-			curr_flat_view = getFlatListViewFromTab(tab);
+				// Expand all accordion tabs when filtering
+				if(!sFilterSubString.empty())
+				{
+					//store accordion tab state when filter is not empty
+					tab->notifyChildren(LLSD().with("action","store_state"));
+				
+					tab->setDisplayChildren(true);
+				}
+				// Restore each tab's expand state when not filtering
+				else
+				{
+					bool collapsed = isAccordionCollapsedByUser(tab);
+					tab->setDisplayChildren(!collapsed);
+			
+					//restore accordion state after all those accodrion tabmanipulations
+					tab->notifyChildren(LLSD().with("action","restore_state"));
+				}
+
+				curr_flat_view = getFlatListViewFromTab(tab);
+			}
 		}
 
 		if (curr_flat_view)
@@ -760,7 +764,12 @@ void LLTeleportHistoryPanel::onTeleportHistoryChange(S32 removed_index)
 void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 {
 	// Flat list for 'Today' (mItemContainers keeps accordion tabs in reverse order)
-	LLFlatListView* fv = getFlatListViewFromTab(mItemContainers[mItemContainers.size() - 1]);
+	LLFlatListView* fv = NULL;
+	
+	if (mItemContainers.size() > 0)
+	{
+		fv = getFlatListViewFromTab(mItemContainers[mItemContainers.size() - 1]);
+	}
 
 	// Empty flat list for 'Today' means that other flat lists are empty as well,
 	// so all items from teleport history should be added.
@@ -828,19 +837,27 @@ void LLTeleportHistoryPanel::showTeleportHistory()
 
 	// Starting to add items from last one, in reverse order,
 	// since TeleportHistory keeps most recent item at the end
+	if (!mTeleportHistory)
+	{
+		mTeleportHistory = LLTeleportHistoryStorage::getInstance();
+	}
+
 	mCurrentItem = mTeleportHistory->getItems().size() - 1;
 
 	for (S32 n = mItemContainers.size() - 1; n >= 0; --n)
 	{
 		LLAccordionCtrlTab* tab = mItemContainers.get(n);
-		tab->setVisible(false);
-
-		LLFlatListView* fv = getFlatListViewFromTab(tab);
-		if (fv)
+		if (tab)
 		{
-			// Detached panels are managed by LLTeleportHistoryFlatItemStorage
-			std::vector<LLPanel*> detached_items;
-			fv->detachItems(detached_items);
+			tab->setVisible(false);
+
+			LLFlatListView* fv = getFlatListViewFromTab(tab);
+			if (fv)
+			{
+				// Detached panels are managed by LLTeleportHistoryFlatItemStorage
+				std::vector<LLPanel*> detached_items;
+				fv->detachItems(detached_items);
+			}
 		}
 	}
 }

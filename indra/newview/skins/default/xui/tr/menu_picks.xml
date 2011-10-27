@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Picks">
+	<menu_item_call label="Bilgi" name="pick_info"/>
+	<menu_item_call label="Düzenle" name="pick_edit"/>
+	<menu_item_call label="Işınla" name="pick_teleport"/>
+	<menu_item_call label="Harita" name="pick_map"/>
+	<menu_item_call label="Sil" name="pick_delete"/>
+</context_menu>

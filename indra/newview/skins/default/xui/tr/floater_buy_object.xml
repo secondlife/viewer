@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="NESNENİN KOPYASINI SATIN AL">
+	<floater.string name="title_buy_text">
+		Satın Al
+	</floater.string>
+	<floater.string name="title_buy_copy_text">
+		Şunun bir kopyasını satın alın:
+	</floater.string>
+	<floater.string name="no_copy_text">
+		(kopya yok)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(değiştirme yok)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(aktarım yok)
+	</floater.string>
+	<text name="contents_text">
+		İçeriği:
+	</text>
+	<text name="buy_text">
+		L$[AMOUNT] karşılığında şuradan satın alın:
+	</text>
+	<text name="buy_name_text">
+		[NAME]?
+	</text>
+	<button label="Satın Al" label_selected="Satın Al" name="buy_btn"/>
+	<button label="İptal" label_selected="İptal" name="cancel_btn"/>
+</floater>

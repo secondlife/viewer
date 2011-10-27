@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Test Floater" title="ТЕСТИРОВАТЬ ОКНО">
+	<string name="test_the_vlt">
+		Эта строка CHANGE2 извлечена.
+	</string>
+	<string name="testing_eli">
+		Проверка изменений.
+	</string>
+</floater>

@@ -1276,6 +1276,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="Marketplace Error Internal Import">
 		Erreur : un problème est survenu concernant cet article. Veuillez réessayer ultérieurement.
 	</string>
+	<string name="Open landmarks">
+		Ouvrir les repères
+	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
 	<string name="no_copy" value=" (pas de copie)"/>
@@ -4254,7 +4257,7 @@ de l&apos;infraction signalée
 	<string name="Female - Wow">
 		Femme - Ouah !
 	</string>
-	<string name="/bow1">
+	<string name="/bow">
 		/s&apos;incliner
 	</string>
 	<string name="/clap">
@@ -4766,5 +4769,173 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="ParticleHiding">
 		Masquage des particules
+	</string>
+	<string name="Command_AboutLand_Label">
+		À propos du terrain
+	</string>
+	<string name="Command_Appearance_Label">
+		Apparence
+	</string>
+	<string name="Command_Avatar_Label">
+		Avatar
+	</string>
+	<string name="Command_Build_Label">
+		Construire
+	</string>
+	<string name="Command_Chat_Label">
+		Chat
+	</string>
+	<string name="Command_Compass_Label">
+		Boussole
+	</string>
+	<string name="Command_Destinations_Label">
+		Destinations
+	</string>
+	<string name="Command_Gestures_Label">
+		Gestes
+	</string>
+	<string name="Command_HowTo_Label">
+		Aide rapide
+	</string>
+	<string name="Command_Inventory_Label">
+		Inventaire
+	</string>
+	<string name="Command_Map_Label">
+		Carte
+	</string>
+	<string name="Command_Marketplace_Label">
+		Place du marché
+	</string>
+	<string name="Command_MiniMap_Label">
+		Mini-carte
+	</string>
+	<string name="Command_Move_Label">
+		Bouger
+	</string>
+	<string name="Command_People_Label">
+		Personnes
+	</string>
+	<string name="Command_Picks_Label">
+		Favoris
+	</string>
+	<string name="Command_Places_Label">
+		Lieux
+	</string>
+	<string name="Command_Preferences_Label">
+		Préférences
+	</string>
+	<string name="Command_Profile_Label">
+		Profil
+	</string>
+	<string name="Command_Search_Label">
+		Recherche
+	</string>
+	<string name="Command_Snapshot_Label">
+		Photo
+	</string>
+	<string name="Command_Speak_Label">
+		Parler
+	</string>
+	<string name="Command_View_Label">
+		Vue
+	</string>
+	<string name="Command_Voice_Label">
+		Chat près de vous
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Information sur le terrain que vous visitez
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Modifier votre avatar
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Choisir un avatar complet
+	</string>
+	<string name="Command_Build_Tooltip">
+		Construction d&apos;objets et remodelage du terrain
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Parler aux personnes près de vous par chat écrit
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Boussole
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		Destinations intéressantes
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Gestes de votre avatar
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Comment effectuer les opérations courantes
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Afficher et utiliser vos possessions
+	</string>
+	<string name="Command_Map_Tooltip">
+		Carte du monde
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Faire du shopping
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Afficher les personnes près de vous
+	</string>
+	<string name="Command_Move_Tooltip">
+		Faire bouger votre avatar
+	</string>
+	<string name="Command_People_Tooltip">
+		Amis, groupes et personnes près de vous
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Lieux à afficher comme favoris dans votre profil
+	</string>
+	<string name="Command_Places_Tooltip">
+		Lieux enregistrés
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Préférences
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Modifier ou afficher votre profil
+	</string>
+	<string name="Command_Search_Tooltip">
+		Trouver des lieux, personnes, événements
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Prendre une photo
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Parler aux personnes près de vous en utilisant votre micro
+	</string>
+	<string name="Command_View_Tooltip">
+		Changer l&apos;angle de la caméra
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Personnes près de vous avec le chat vocal
+	</string>
+	<string name="Retain%">
+		Garder%
+	</string>
+	<string name="Detail">
+		Détail
+	</string>
+	<string name="Better Detail">
+		Meilleur détail
+	</string>
+	<string name="Surface">
+		Surface
+	</string>
+	<string name="Solid">
+		Solide
+	</string>
+	<string name="Wrap">
+		Wrap
+	</string>
+	<string name="Preview">
+		Aperçu
+	</string>
+	<string name="Normal">
+		Normal
 	</string>
 </strings>

@@ -66,9 +66,9 @@ namespace LLFloaterEnums
 	{
 		OPEN_POSITIONING_NONE,
 		OPEN_POSITIONING_CASCADING,
+		OPEN_POSITIONING_CASCADE_GROUP,
 		OPEN_POSITIONING_CENTERED,
 		OPEN_POSITIONING_SPECIFIED,
-
 		OPEN_POSITIONING_COUNT
 	};
 }
@@ -120,6 +120,7 @@ public:
 								short_title;
 		
 		Optional<bool>			single_instance,
+								reuse_instance,
 								can_resize,
 								can_minimize,
 								can_close,
@@ -128,7 +129,8 @@ public:
 								save_rect,
 								save_visibility,
 								save_dock_state,
-								can_dock;
+								can_dock,
+								show_title;
 		
 		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
 		Optional<S32>								specified_left;
@@ -209,7 +211,6 @@ public:
 	std::string		getTitle() const;
 	void			setShortTitle( const std::string& short_title );
 	std::string		getShortTitle() const;
-	void			setTitleVisible(bool visible);
 	virtual void	setMinimized(BOOL b);
 	void			moveResizeHandlesToFront();
 	void			addDependentFloater(LLFloater* dependent, BOOL reposition = TRUE);
@@ -409,6 +410,7 @@ private:
 	LLUIString		mShortTitle;
 	
 	BOOL			mSingleInstance;	// TRUE if there is only ever one instance of the floater
+	bool			mReuseInstance;		// true if we want to hide the floater when we close it instead of destroying it
 	std::string		mInstanceName;		// Store the instance name so we can remove ourselves from the list
 	
 	BOOL			mCanTearOff;

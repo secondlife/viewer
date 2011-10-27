@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Общие" name="Media Settings General">
+	<text name="home_label">
+		Домашняя страница:
+	</text>
+	<text name="home_fails_whitelist_label">
+		(Эта страница не определена в белом списке)
+	</text>
+	<line_editor name="home_url" tool_tip="Домашняя страница для этого медиа-источника"/>
+	<text name="preview_label">
+		Предварительный просмотр
+	</text>
+	<text name="current_url_label">
+		Текущая страница:
+	</text>
+	<text name="current_url" tool_tip="Текущая страница для этого медиа-источника" value=""/>
+	<button label="Сброс" name="current_url_reset_btn"/>
+	<check_box initial_value="ложь" label="Автоматическое зацикливание" name="auto_loop"/>
+	<check_box initial_value="ложь" label="Реакция на первый щелчок" name="first_click_interact"/>
+	<check_box initial_value="ложь" label="Автоувеличение" name="auto_zoom"/>
+	<check_box initial_value="ложь" label="Автоматическое проигрывание" name="auto_play"/>
+	<text name="media_setting_note">
+		Примечание. Жители могут переопределять эту настройку.
+	</text>
+	<check_box initial_value="ложь" label="Автомасштабирование на объекте" name="auto_scale"/>
+	<text name="size_label">
+		Размер:
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

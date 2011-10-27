@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Outfits">
+	<accordion name="outfits_accordion">
+		<no_matched_tabs_text name="no_matched_outfits_msg" value="Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/all/[SEARCH_TERM] поиском]."/>
+		<no_visible_tabs_text name="no_outfits_msg" value="У вас пока нет никаких костюмов. Воспользуйтесь [secondlife:///app/search/all/ поиском]."/>
+	</accordion>
+	<panel name="bottom_panel">
+		<menu_button name="options_gear_btn" tool_tip="Показать дополнительные параметры"/>
+		<button name="trash_btn" tool_tip="Удалить выбранный костюм"/>
+	</panel>
+</panel>

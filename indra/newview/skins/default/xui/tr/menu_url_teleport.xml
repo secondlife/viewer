@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Bu Konuma Işınla" name="teleport"/>
+	<menu_item_call label="Haritada Göster" name="show_on_map"/>
+	<menu_item_call label="SLurl&apos;yi Panoya Kopyala" name="url_copy"/>
+</context_menu>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="ПАМЯТЬ РЕГИОНА" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Память под скрипты на участке
+	</text>
+	<text name="loading_text">
+		Загрузка...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Размер (Кб)" name="size"/>
+		<scroll_list.columns label="URL-адреса" name="urls"/>
+		<scroll_list.columns label="Название объекта" name="name"/>
+		<scroll_list.columns label="Владелец объекта" name="owner"/>
+		<scroll_list.columns label="Участок" name="parcel"/>
+		<scroll_list.columns label="Место" name="location"/>
+	</scroll_list>
+	<button label="Обновить список" name="refresh_list_btn"/>
+	<button label="Подсветить" name="highlight_btn"/>
+	<button label="Возврат" name="return_btn"/>
+</panel>

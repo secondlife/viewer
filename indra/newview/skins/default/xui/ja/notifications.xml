@@ -1953,6 +1953,12 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 		終了しようとしています。続けますか？
 		<usetemplate ignoretext="終了時の確認" name="okcancelignore" notext="終了しない" yestext="終了"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		デフォルトのボタンとツールバーを復元しますか？ 
+    
+この操作は元に戻せません。
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="アイテムを削除する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
@@ -3041,10 +3047,6 @@ M キーを押して変更します。
 			<button name="cancel" text="取り消し"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		モードを変更するには終了して再起動する必要があります。
-		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		クラシファイド広告の作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
@@ -3088,6 +3090,10 @@ M キーを押して変更します。
 	<notification label="" name="NoSearch">
 		検索はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		この操作により、全てのメニュー項目とボタンが非表示になります。再び表示するには [SHORTCUT] をもう一度クリックしてください。
+		<usetemplate ignoretext="UI を非表示にする前に確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] に必要なハードウェアがないようです。 [APP_NAME] にはマルチテクスチャをサポートする OpenGL グラフィックカードが必要です。 お使いのグラフィックカードの最新ドライバがインストールされているかどうか、オペレーティングシステムのサービスパックとパッチが入っているかをご確認ください。

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Outfit Wearable Context Menu">
+	<menu_item_call label="Değiştir" name="wear_replace"/>
+	<menu_item_call label="Giy" name="wear_wear"/>
+	<menu_item_call label="Ekle" name="wear_add"/>
+	<menu_item_call label="Çıkar / Ayır" name="take_off_or_detach"/>
+	<menu_item_call label="Ayır" name="detach"/>
+	<context_menu label="Şuna ekle" name="wearable_attach_to"/>
+	<context_menu label="BÜG&apos;e Ekle" name="wearable_attach_to_hud"/>
+	<menu_item_call label="Çıkar" name="take_off"/>
+	<menu_item_call label="Düzenle" name="edit"/>
+	<menu_item_call label="Öğe Profili" name="object_profile"/>
+	<menu_item_call label="Orijinali Göster" name="show_original"/>
+</context_menu>

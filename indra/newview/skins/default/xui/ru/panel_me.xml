@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Мой профиль" name="panel_me">
+	<panel label="МОЯ ПОДБОРКА" name="panel_picks"/>
+</panel>

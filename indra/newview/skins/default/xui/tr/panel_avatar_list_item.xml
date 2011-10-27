@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="avatar_list_item">
+	<string name="FormatSeconds">
+		[COUNT]sn
+	</string>
+	<string name="FormatMinutes">
+		[COUNT]dk
+	</string>
+	<string name="FormatHours">
+		[COUNT]sa
+	</string>
+	<string name="FormatDays">
+		[COUNT]gn
+	</string>
+	<string name="FormatWeeks">
+		[COUNT]hf
+	</string>
+	<string name="FormatMonths">
+		[COUNT]ay
+	</string>
+	<string name="FormatYears">
+		[COUNT]yl
+	</string>
+	<text name="avatar_name" value="(yükleniyor)"/>
+	<text name="last_interaction" value="0sn"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Bu arkadaşınızın nesnelerini düzenleyebilirsiniz"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Bu arkadaşınız nesnelerinizi düzenleyebilir, silebilir veya alabilir"/>
+	<icon name="permission_map_icon" tool_tip="Bu arkadaşınız haritada sizi bulabilir"/>
+	<icon name="permission_online_icon" tool_tip="Bu arkadaşınız çevrimiçi olduğunuzda sizi görebilir"/>
+	<button name="profile_btn" tool_tip="Profili göster"/>
+</panel>

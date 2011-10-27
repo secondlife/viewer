@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Post-Process Floater" title="İŞLEM SONRASI AYARLARI">
+	<tab_container name="Post-Process Tabs">
+		<panel label="Renk Filtresi" name="wmiColorFilterPanel">
+			<check_box label="Etkinleştir" name="wmiColorFilterToggle"/>
+			<text name="wmiColorFilterBrightnessText">
+				Parlaklık
+			</text>
+			<text name="wmiColorFilterSaturationText">
+				Doygunluk
+			</text>
+			<text name="wmiColorFilterContrastText">
+				Kontrast
+			</text>
+			<text name="wmiColorFilterBaseText">
+				Kontrast Baz Rengi
+			</text>
+			<slider label="R" name="wmiColorFilterBaseR"/>
+			<slider label="G" name="wmiColorFilterBaseG"/>
+			<slider label="B" name="wmiColorFilterBaseB"/>
+			<slider label="I" name="wmiColorFilterBaseI"/>
+		</panel>
+		<panel label="Gece Görüşü" name="wmiNightVisionPanel">
+			<check_box label="Etkinleştir" name="wmiNightVisionToggle"/>
+			<text name="wmiNightVisionBrightMultText">
+				Işık Yükseltme Çarpanı
+			</text>
+			<text name="wmiNightVisionNoiseSizeText">
+				Gürültü Büyüklüğü
+			</text>
+			<text name="wmiNightVisionNoiseStrengthText">
+				Gürültü Gücü
+			</text>
+		</panel>
+		<panel label="Işıma" name="wmiBloomPanel">
+			<check_box label="Etkinleştir" name="wmiBloomToggle"/>
+			<text name="wmiBloomExtractText">
+				Parlaklık Çıkarma
+			</text>
+			<text name="wmiBloomSizeText">
+				Işıma Büyüklüğü
+			</text>
+			<text name="wmiBloomStrengthText">
+				Işıma Gücü
+			</text>
+		</panel>
+		<panel label="Ekstralar" name="Extras">
+			<button label="EfektYükle" label_selected="EfektYükle" name="PPLoadEffect"/>
+			<button label="EfektKaydet" label_selected="EfektKaydet" name="PPSaveEffect"/>
+			<line_editor label="Efekt Adı" name="PPEffectNameEditor"/>
+		</panel>
+	</tab_container>
+</floater>

@@ -1,4 +1,8 @@
 version 15
+// The version number above should be implemented IF AND ONLY IF some
+// change has been made that is sufficiently important to justify
+// resetting the graphics preferences of all users to the recommended
+// defaults.  This should be as rare an event as we can manage.
 
 // NOTE: This is mostly identical to featuretable.txt with a few differences
 // Should be combined into one table

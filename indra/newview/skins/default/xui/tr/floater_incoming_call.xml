@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="incoming call" title="Gelen arama">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Yakındaki Sesli Sohbet
+	</floater.string>
+	<floater.string name="anonymous">
+		anonim
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		arıyor.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		bir Sesli Sohbet aramasına bir konferans araması ile katıldı.
+	</floater.string>
+	<floater.string name="VoiceInviteGroup">
+		&apos;[GROUP]&apos; ses kanalına şimdi katıldı.
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionGroup">
+		[CURRENT_CHAT] sohbetinden ayrılıp, &apos;[GROUP]&apos; aramasına katılmak istiyor musunuz?
+	</floater.string>
+	<floater.string name="VoiceInviteQuestionDefault">
+		[CURRENT_CHAT] sohbetinden ayrılıp, bu sesli sohbete katılmak istiyor musunuz?
+	</floater.string>
+	<text name="question">
+		[CURRENT_CHAT] sohbetinden ayrılıp, bu sesli sohbete katılmak istiyor musunuz?
+	</text>
+	<button label="Kabul Et" label_selected="Kabul Et" name="Accept"/>
+	<button label="Reddet" label_selected="Reddet" name="Reject"/>
+	<button label="Aİ Başlat" name="Start IM"/>
+</floater>

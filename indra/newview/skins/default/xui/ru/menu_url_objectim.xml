@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Url Popup">
+	<menu_item_call label="Показать информацию об объекте" name="show_object"/>
+	<menu_item_call label="Показать на карте" name="show_on_map"/>
+	<menu_item_call label="Телепорт в местоположение объекта" name="teleport_to_object"/>
+	<menu_item_call label="Копировать название объекта в буфер обмена" name="url_copy_label"/>
+	<menu_item_call label="Копировать URL-адрес SL в буфер обмена" name="url_copy"/>
+</context_menu>

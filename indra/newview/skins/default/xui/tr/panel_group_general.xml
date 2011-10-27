@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Genel" name="general_tab">
+	<panel.string name="help_text">
+		Genel sekmesinde bu grup hakkında genel bilgiler, üyelerin listesi, genel Grup Tercihleri ve üye seçenekleri yer alır.
+
+Daha fazla yardım edinmek için farenizi seçeneklerin üzerine getirin.
+	</panel.string>
+	<panel.string name="group_info_unchanged">
+		Genel grup bilgileri değişti
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		Üye verileri alınıyor
+	</panel.string>
+	<panel name="group_info_top">
+		<texture_picker label="" name="insignia" tool_tip="Bir resim seçmek için tıklayın"/>
+		<text name="prepend_founded_by">
+			Kurucu:
+		</text>
+		<text name="join_cost_text">
+			Ücretsiz
+		</text>
+		<button label="ŞİMDİ KATIL!" name="btn_join"/>
+	</panel>
+	<text_editor name="charter">
+		Grup Bildirgesi
+	</text_editor>
+	<name_list name="visible_members">
+		<name_list.columns label="Üye" name="name"/>
+		<name_list.columns label="Başlık" name="title"/>
+		<name_list.columns label="Durum" name="status"/>
+	</name_list>
+	<text name="my_group_settngs_label">
+		Ben
+	</text>
+	<text name="active_title_label">
+		Başlığım:
+	</text>
+	<combo_box name="active_title" tool_tip="Bu grup etkin olduğunda avatarınızın ad etiketinde görünecek başlığı belirler."/>
+	<check_box label="Grup bildirimleri al" name="receive_notices" tool_tip="Bu gruptan Bildirim almak isteyip istemediğinizi belirler.  Bu grup size istemediğiniz bildirimler yolluyorsa bu kutudaki işareti kaldırın."/>
+	<check_box label="Profilimde göster" name="list_groups_in_profile" tool_tip="Bu grubu profilinizde göstermeyi isteyip istemediğinizi belirler"/>
+	<panel name="preferences_container">
+		<text name="group_settngs_label">
+			Grup
+		</text>
+		<check_box label="Herkes katılabilir" name="open_enrollement" tool_tip="Bu grubun davet edilmeden yeni üyelerin katılmasına imkan tanıyıp tanımayacağını belirler."/>
+		<check_box label="Katılma ücreti" name="check_enrollment_fee" tool_tip="Bu gruba katılmak için bir kayıt ücretinin gerekip gerekmeyeceğini belirler"/>
+		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Kayıt Ücreti işaretlendiğinde yeni üyeler gruba katılmak için bu ücreti ödemelidir."/>
+		<combo_box name="group_mature_check" tool_tip="Grubunuzun Orta seviyede içeriğe sahip olup olmadığını belirler">
+			<combo_item name="select_mature">
+				- Erişkinlik seviyesini seçin -
+			</combo_item>
+			<combo_box.item label="Orta Seviyede İçerik" name="mature"/>
+			<combo_box.item label="Genel İçerik" name="pg"/>
+		</combo_box>
+		<check_box initial_value="true" label="Aramada göster" name="show_in_group_list" tool_tip="Kişiler arama sonuçlarında bu grubu görebilsin"/>
+	</panel>
+</panel>

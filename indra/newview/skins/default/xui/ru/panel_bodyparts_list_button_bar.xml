@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="clothing_list_button_bar_panel">
+	<button label="Перейти" name="switch_btn"/>
+</panel>

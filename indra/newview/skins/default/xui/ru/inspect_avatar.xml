@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[AGE]
+	</string>
+	<string name="Details">
+		[SL_PROFILE]
+	</string>
+	<text name="user_subtitle" value="11 месяцев и 3 дня назад"/>
+	<text name="user_details">
+		Это мое описание Second Life и я думаю, что оно великолепно. Но почему-то из-за моей любви к долгим разговорам оно оказалось слишком длинным
+	</text>
+	<slider name="volume_slider" tool_tip="Громкость голоса" value="0.5"/>
+	<button label="Добавить в друзья" name="add_friend_btn"/>
+	<button label="IM" name="im_btn"/>
+	<button label="Профиль" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="Отключить голос" name="disable_voice"/>
+		<button label="Включить голос" name="enable_voice"/>
+	</panel>
+</floater>

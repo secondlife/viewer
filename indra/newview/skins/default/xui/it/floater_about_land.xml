@@ -218,19 +218,19 @@ o suddivisa.
 				Fattore bonus degli oggetti della regione: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso delle primitive:
+				Capacità regione:
 			</text>
 			<text name="objects_available">
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)
 			</text>
 			<text name="Primitives parcel supports:">
-				Oggetti che il terreno supporta:
+				Capacità lotto di terreno:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Oggetti sul terreno:
+				Impatto lotto di terreno:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]

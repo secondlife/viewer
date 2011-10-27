@@ -50,31 +50,20 @@ public:
 		{}
 	};
 
-	LLCommandId()
-		: mName("null command")
-	{
-		mUUID = LLUUID::generateNewID(mName);
-	}
-	
 	LLCommandId(const std::string& name)
-		: mName(name)
 	{
 		mUUID = LLUUID::generateNewID(name);
 	}
 
 	LLCommandId(const Params& p)
-	:	mName(p.name)
 	{
 		mUUID = LLUUID::generateNewID(p.name);
 	}
 
 	LLCommandId(const LLUUID& uuid)
-	:	mName(""),
-		mUUID(uuid)
-	{
-	}
+	:	mUUID(uuid)
+	{}
 	
-	const std::string& name() const { return mName; }
 	const LLUUID& uuid() const { return mUUID; }
 
 	bool operator!=(const LLCommandId& command) const
@@ -87,15 +76,9 @@ public:
 		return (mUUID == command.mUUID);
 	}
 
-	bool operator<(const LLCommandId& command) const
-	{
-		return (mName < command.mName);
-	}
-
 	static const LLCommandId null;
 
 private:
-	std::string mName;
 	LLUUID		mUUID;
 };
 
@@ -137,6 +120,7 @@ public:
 	const std::string& icon() const { return mIcon; }
 	const LLCommandId& id() const { return mIdentifier; }
 	const std::string& labelRef() const { return mLabelRef; }
+	const std::string& name() const { return mName; }
 	const std::string& tooltipRef() const { return mTooltipRef; }
 
 	const std::string& executeFunctionName() const { return mExecuteFunction; }
@@ -160,6 +144,7 @@ private:
 	bool        mAvailableInToybox;
 	std::string mIcon;
 	std::string mLabelRef;
+	std::string mName;
 	std::string mTooltipRef;
 
 	std::string mExecuteFunction;
