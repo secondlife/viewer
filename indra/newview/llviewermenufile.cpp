@@ -78,6 +78,7 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
+#include "LLPathingLib.h"
 class LLBuildNavMesh  : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -92,6 +93,17 @@ class LLFileUploadNavMesh  : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		llinfos<<"ok"<<llendl;
+		LLPathingLib::initSystem();
+		if (LLPathingLib::getInstance() == NULL)
+		{ 
+			llinfos<<"ick"<<llendl;
+		}
+		else
+		{
+			llinfos<<"ok2"<<llendl;
+			LLPathingLib::getInstance()->testNavMeshGenerationWithLocalAsset();
+		}
+		
 		return true;
 	}
 };
