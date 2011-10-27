@@ -1431,7 +1431,7 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	LLSD substitution;
 	// We don't do time zone corrections of the calculated number of seconds
 	// because we don't have a full time stamp, only a date.
-	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%m/%d/%Y", start_date);
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 	LLStringUtil::format (time_str, substitution);
 
 	text.append(time_str);
@@ -1442,7 +1442,7 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 		text.append(LLTrans::getString("NextStipendDay"));
 
 		time_str = date_format_str;
-		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%m/%d/%Y", next_stipend_date);
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", next_stipend_date);
 		LLStringUtil::format (time_str, substitution);
 
 		text.append(time_str);
