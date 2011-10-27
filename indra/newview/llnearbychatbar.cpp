@@ -399,6 +399,15 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 	}
 }
 
+void LLNearbyChatBar::setMinimized(BOOL b)
+{
+	if (b != LLFloater::isMinimized())
+	{
+		LLFloater::setMinimized(b);
+		getChildView("nearby_chat")->setVisible(!b);
+	}
+}
+
 void LLNearbyChatBar::onChatBoxCommit()
 {
 	if (mChatBox->getText().length() > 0)

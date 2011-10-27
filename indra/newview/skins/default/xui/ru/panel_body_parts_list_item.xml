@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="wearable_item">
+	<text name="item_name" value="..."/>
+	<panel name="btn_lock" tool_tip="У вас нет прав для изменения"/>
+	<panel name="btn_edit_panel">
+		<button name="btn_edit" tool_tip="Изменить фигуру"/>
+	</panel>
+</panel>

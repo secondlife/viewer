@@ -29,7 +29,8 @@
 #include "linden_common.h"
 
 #include "llplugininstance.h"
-#include "llthread.h"			// Needed for LLThread::tldata().mRootPool
+
+#include "llapr.h"
 
 #if LL_WINDOWS
 #include "direct.h"	// needed for _chdir()
@@ -51,7 +52,6 @@ const char *LLPluginInstance::PLUGIN_INIT_FUNCTION_NAME = "LLPluginInitEntryPoin
  * @param[in] owner Plugin instance. TODO:DOC is this a good description of what "owner" is?
  */
 LLPluginInstance::LLPluginInstance(LLPluginInstanceMessageListener *owner) :
-	mDSOHandlePool(LLThread::tldata().mRootPool),
 	mDSOHandle(NULL),
 	mPluginUserData(NULL),
 	mPluginSendMessageFunction(NULL)
@@ -97,7 +97,7 @@ int LLPluginInstance::load(const std::string& plugin_dir, std::string &plugin_fi
 
 	int result = apr_dso_load(&mDSOHandle,
 					  plugin_file.c_str(),
-					  mDSOHandlePool());
+					  gAPRPoolp);
 	if(result != APR_SUCCESS)
 	{
 		char buf[1024];

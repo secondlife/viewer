@@ -100,12 +100,16 @@ void LLDockControl::repositionDockable()
 	if (!mDockWidget) return;
 	LLRect dockRect = mDockWidget->calcScreenRect();
 	LLRect rootRect;
+	LLRect floater_rect = mDockableFloater->calcScreenRect();
 	mGetAllowedRectCallback(rootRect);
 
-	// recalculate dockable position if dock position changed, dock visibility changed,
-	// root view rect changed or recalculation is forced
-	if (mPrevDockRect != dockRect  || mDockWidgetVisible != isDockVisible()
-			|| mRootRect != rootRect || mRecalculateDocablePosition)
+	// recalculate dockable position if:
+	if (mPrevDockRect != dockRect					//dock position   changed
+		|| mDockWidgetVisible != isDockVisible()	//dock visibility changed
+		|| mRootRect != rootRect					//root view rect  changed
+		|| mFloaterRect != floater_rect				//floater rect    changed
+		|| mRecalculateDockablePosition				//recalculation is forced
+	)
 	{
 		// undock dockable and off() if dock not visible
 		if (!isDockVisible())
@@ -136,7 +140,8 @@ void LLDockControl::repositionDockable()
 
 		mPrevDockRect = dockRect;
 		mRootRect = rootRect;
-		mRecalculateDocablePosition = false;
+		mFloaterRect = floater_rect;
+		mRecalculateDockablePosition = false;
 		mDockWidgetVisible = isDockVisible();
 	}
 }
@@ -341,7 +346,7 @@ void LLDockControl::on()
 	 if (isDockVisible())
 	{
 		mEnabled = true;
-		mRecalculateDocablePosition = true;
+		mRecalculateDockablePosition = true;
 	}
 }
 
@@ -352,7 +357,7 @@ void LLDockControl::off()
 
 void LLDockControl::forceRecalculatePosition()
 {
-	mRecalculateDocablePosition = true;
+	mRecalculateDockablePosition = true;
 }
 
 void LLDockControl::drawToungue()

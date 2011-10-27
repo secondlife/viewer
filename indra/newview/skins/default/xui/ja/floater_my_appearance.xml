@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_my_appearance" title="容姿">
+	<panel label="容姿の編集" name="main_panel"/>
+</floater>

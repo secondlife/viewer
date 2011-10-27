@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_remote_object">
+	<text name="object_name">
+		Проверка очень длинного имени объекта. О боже, поверить не могу что имя этого объекта может быть таким длинным, честно!
+	</text>
+	<text name="object_owner_label">
+		Владелец:
+	</text>
+	<text name="object_owner">
+		Длинноеимяаватара Джонсонзначитсынджона
+	</text>
+	<text name="object_slurl">
+		http://slurl.com/Ahern/50/50/50
+	</text>
+	<button label="Карта" name="map_btn"/>
+	<button label="Заблокировать" name="block_btn"/>
+	<button label="Закрыть" name="close_btn"/>
+</floater>

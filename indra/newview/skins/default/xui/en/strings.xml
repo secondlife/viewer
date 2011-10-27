@@ -3709,7 +3709,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Toolbar_Left_Tooltip"  >currently in your left toolbar</string>
   <string name="Toolbar_Right_Tooltip" >currently in your right toolbar</string>
 
-  <!-- Mesh UI terms -->
+ <!-- Mesh UI terms -->
   <string name="Retain%">Retain%</string>
   <string name="Detail">Detail</string>
   <string name="Better Detail">Better Detail</string>

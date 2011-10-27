@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_classified_info">
+	<panel.string name="type_mature">
+		Moderate-контент
+	</panel.string>
+	<panel.string name="type_pg">
+		General-контент
+	</panel.string>
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		Телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
+	</panel.string>
+	<panel.string name="date_fmt">
+		[day,datetime,slt].[mthnum,datetime,slt].[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Включено
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Выключено
+	</panel.string>
+	<text name="title" value="Информация о рекламе"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text_editor name="classified_name" value="[название]"/>
+			<text name="classified_location_label" value="Место:"/>
+			<text_editor name="classified_location" value="[загрузка...]"/>
+			<text name="content_type_label" value="Тип контента:"/>
+			<text_editor name="content_type" value="[тип контента]"/>
+			<text name="category_label" value="Категория:"/>
+			<text_editor name="category" value="[категория]"/>
+			<text name="creation_date_label" value="Дата создания:"/>
+			<text_editor name="creation_date" tool_tip="Дата создания" value="[дата]"/>
+			<text name="price_for_listing_label" value="Стоимость размещения:"/>
+			<text_editor name="price_for_listing" tool_tip="Стоимость размещения." value="[цена]"/>
+			<layout_stack name="descr_stack">
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Переходы:"/>
+					<text_editor name="click_through_text" tool_tip="Информация о переходах" value="[переходы]"/>
+				</layout_panel>
+				<layout_panel name="price_layout_panel">
+					<text name="auto_renew_label" value="Автооплата:"/>
+					<text name="auto_renew" value="Включено"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Описание:"/>
+					<text_editor name="classified_desc" value="[описание]"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</scroll_container>
+	<panel name="buttons">
+		<layout_stack name="layout_stack1">
+			<layout_panel name="layout_panel1">
+				<button label="Телепортация" name="teleport_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Карта" name="show_on_map_btn"/>
+			</layout_panel>
+			<layout_panel name="edit_btn_lp">
+				<button label="Изменить" name="edit_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

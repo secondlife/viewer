@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="item properties" title="СВОЙСТВА ПРЕДМЕТА">
+	<floater.string name="unknown">
+		(неизвестно)
+	</floater.string>
+	<floater.string name="public">
+		(публичное)
+	</floater.string>
+	<floater.string name="you_can">
+		Вы можете:
+	</floater.string>
+	<floater.string name="owner_can">
+		Владелец может:
+	</floater.string>
+	<floater.string name="acquiredDate">
+		[wkday,datetime,local], [day,datetime,local] [mth,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</floater.string>
+	<text name="LabelItemNameTitle">
+		Название:
+	</text>
+	<text name="LabelItemDescTitle">
+		Описание:
+	</text>
+	<text name="LabelCreatorTitle">
+		Создатель:
+	</text>
+	<button label="Профиль…" name="BtnCreator"/>
+	<text name="LabelOwnerTitle">
+		Владелец:
+	</text>
+	<button label="Профиль…" name="BtnOwner"/>
+	<text name="LabelAcquiredTitle">
+		Приобретено:
+	</text>
+	<text name="LabelAcquiredDate">
+		Ср 24 Май 12:50:46 2006
+	</text>
+	<text name="OwnerLabel">
+		Вы:
+	</text>
+	<check_box label="Изменить" name="CheckOwnerModify"/>
+	<check_box label="Копировать" name="CheckOwnerCopy"/>
+	<check_box label="Перепродать" name="CheckOwnerTransfer"/>
+	<text name="AnyoneLabel">
+		Все:
+	</text>
+	<check_box label="Копировать" name="CheckEveryoneCopy"/>
+	<text name="GroupLabel">
+		Группа:
+	</text>
+	<check_box label="Поделиться" name="CheckShareWithGroup"/>
+	<text name="NextOwnerLabel">
+		Следующий владелец:
+	</text>
+	<check_box label="Изменить" name="CheckNextOwnerModify"/>
+	<check_box label="Копировать" name="CheckNextOwnerCopy"/>
+	<check_box label="Перепродать" name="CheckNextOwnerTransfer"/>
+	<check_box label="Для продажи" name="CheckPurchase"/>
+	<combo_box name="combobox sale copy">
+		<combo_box.item label="Копировать" name="Copy"/>
+		<combo_box.item label="Оригинал" name="Original"/>
+	</combo_box>
+	<spinner label="Цена:" name="Edit Cost"/>
+	<text name="CurrencySymbol">
+		L$
+	</text>
+</floater>

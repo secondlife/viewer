@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map" title="">
+<floater name="Map" title="ミニマップ">
 	<floater.string name="ToolTipMsg">
 		[REGION]（ダブルクリックで地図を開く。Shift‐ドラッグで水平・垂直移動）
 	</floater.string>

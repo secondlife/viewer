@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Teleport History Item Context Menu">
+	<menu_item_call label="Телепорт" name="Teleport"/>
+	<menu_item_call label="Информация" name="More Information"/>
+	<menu_item_call label="Копировать в буфер обмена" name="CopyToClipboard"/>
+</context_menu>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_alpha_panel">
+	<scroll_container name="avatar_alpha_color_panel_scroll">
+		<panel name="avatar_alpha_color_panel">
+			<texture_picker label="Düşük Alfa" name="Lower Alpha" tool_tip="Bir resim seçmek için tıklayın"/>
+			<texture_picker label="Yüksek Alfa" name="Upper Alpha" tool_tip="Bir resim seçmek için tıklayın"/>
+			<texture_picker label="Baş Alfası" name="Head Alpha" tool_tip="Bir resim seçmek için tıklayın"/>
+			<texture_picker label="Göz Alfası" name="Eye Alpha" tool_tip="Bir resim seçmek için tıklayın"/>
+			<texture_picker label="Saç Alfası" name="Hair Alpha" tool_tip="Bir resim seçmek için tıklayın"/>
+		</panel>
+	</scroll_container>
+</panel>

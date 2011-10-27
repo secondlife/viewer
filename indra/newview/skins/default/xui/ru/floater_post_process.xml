@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Post-Process Floater" title="НАСТРОЙКИ ПОСЛЕДУЮЩЕЙ ОБРАБОТКИ">
+	<tab_container name="Post-Process Tabs">
+		<panel label="Цветовой фильтр" name="wmiColorFilterPanel">
+			<check_box label="Вкл." name="wmiColorFilterToggle"/>
+			<text name="wmiColorFilterBrightnessText">
+				Яркость
+			</text>
+			<text name="wmiColorFilterSaturationText">
+				Насыщенность
+			</text>
+			<text name="wmiColorFilterContrastText">
+				Контрастность
+			</text>
+			<text name="wmiColorFilterBaseText">
+				Основной цвет контрастности
+			</text>
+			<slider label="К" name="wmiColorFilterBaseR"/>
+			<slider label="З" name="wmiColorFilterBaseG"/>
+			<slider label="С" name="wmiColorFilterBaseB"/>
+			<slider label="И" name="wmiColorFilterBaseI"/>
+		</panel>
+		<panel label="Ночное видение" name="wmiNightVisionPanel">
+			<check_box label="Вкл." name="wmiNightVisionToggle"/>
+			<text name="wmiNightVisionBrightMultText">
+				Коэффициент усиления света
+			</text>
+			<text name="wmiNightVisionNoiseSizeText">
+				Размер искажений
+			</text>
+			<text name="wmiNightVisionNoiseStrengthText">
+				Мощность искажений
+			</text>
+		</panel>
+		<panel label="Ореол" name="wmiBloomPanel">
+			<check_box label="Вкл." name="wmiBloomToggle"/>
+			<text name="wmiBloomExtractText">
+				Яркость света
+			</text>
+			<text name="wmiBloomSizeText">
+				Размер ореола
+			</text>
+			<text name="wmiBloomStrengthText">
+				Мощность ореола
+			</text>
+		</panel>
+		<panel label="Дополнительно" name="Extras">
+			<button label="Загрузить эффект" label_selected="Загрузить эффект" name="PPLoadEffect"/>
+			<button label="Сохранить эффект" label_selected="Сохранить эффект" name="PPSaveEffect"/>
+			<line_editor label="Название эффекта" name="PPEffectNameEditor"/>
+		</panel>
+	</tab_container>
+</floater>

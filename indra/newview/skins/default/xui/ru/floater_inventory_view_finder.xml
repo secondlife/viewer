@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Inventory Finder" title="INVENTORY_RECENT_ITEMS">
+	<check_box label="Анимация" name="check_animation"/>
+	<check_box label="Визитки" name="check_calling_card"/>
+	<check_box label="Одежда" name="check_clothing"/>
+	<check_box label="Жесты" name="check_gesture"/>
+	<check_box label="Закладки" name="check_landmark"/>
+	<check_box label="Меши" name="check_mesh"/>
+	<check_box label="Заметки" name="check_notecard"/>
+	<check_box label="Объекты" name="check_object"/>
+	<check_box label="Скрипты" name="check_script"/>
+	<check_box label="Звуки" name="check_sound"/>
+	<check_box label="Текстуры" name="check_texture"/>
+	<check_box label="Снимки" name="check_snapshot"/>
+	<button label="Все" label_selected="Все" name="All"/>
+	<button label="Нет" label_selected="Нет" name="None"/>
+	<check_box label="Всегда показывать папки" name="check_show_empty"/>
+	<check_box label="С момента выхода" name="check_since_logoff"/>
+	<text name="- OR -">
+		- ИЛИ -
+	</text>
+	<spinner label="Часов назад" name="spin_hours_ago"/>
+	<spinner label="Дней назад" name="spin_days_ago"/>
+	<button label="Закрыть" label_selected="Закрыть" name="Close"/>
+</floater>

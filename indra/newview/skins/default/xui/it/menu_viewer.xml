@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Io" name="Me">
-		<menu_item_call label="Preferenze" name="Preferences"/>
-		<menu_item_call label="Il mio Dashboard" name="Manage My Account">
+		<menu_item_call label="Dashboard..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=it"/>
 		</menu_item_call>
-		<menu_item_call label="Compra L$" name="Buy and Sell L$"/>
-		<menu_item_call label="Il mio profilo" name="Profile"/>
-		<menu_item_call label="Il mio aspetto" name="ChangeOutfit"/>
-		<menu_item_check label="Il mio inventario" name="Inventory"/>
-		<menu_item_check label="Il mio inventario" name="ShowSidetrayInventory"/>
-		<menu_item_check label="Le mie gesture" name="Gestures"/>
-		<menu_item_check label="La mia voce" name="ShowVoice"/>
+		<menu_item_call label="Profilo..." name="Profile"/>
+		<menu_item_call label="Aspetto fisico..." name="ChangeOutfit"/>
+		<menu_item_check label="Inventario..." name="Inventory"/>
+		<menu_item_check label="Gesture..." name="Gestures"/>
+		<menu_item_check label="Voce..." name="ShowVoice"/>
 		<menu label="Spostamento" name="Movement">
 			<menu_item_call label="Siedi" name="Sit Down Here"/>
 			<menu_item_check label="Vola" name="Fly"/>
 			<menu_item_check label="Corri sempre" name="Always Run"/>
 			<menu_item_call label="Ferma animazione" name="Stop Animating My Avatar"/>
 		</menu>
-		<menu label="Il mio stato" name="Status">
+		<menu label="Stato" name="Status">
 			<menu_item_call label="Assente" name="Set Away"/>
 			<menu_item_call label="Non disponibile" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="Richiedi diritti Admin" name="Request Admin Options"/>
 		<menu_item_call label="Lascia stato Admin" name="Leave Admin Options"/>
+		<menu_item_call label="Compra L$" name="Buy and Sell L$"/>
+		<menu_item_call label="Preferenze..." name="Preferences"/>
+		<menu_item_call label="Barre strumenti..." name="Toolbars"/>
+		<menu_item_call label="Nascondi tutti i controlli" name="Hide UI"/>
 		<menu_item_call label="Esci da [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunica" name="Communicate">
@@ -145,7 +146,6 @@
 	</menu>
 	<menu label="Aiuto" name="Help">
 		<menu_item_call label="Aiuto di [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_check label="Attiva suggerimenti" name="Enable Hints"/>
 		<menu_item_call label="Segnala abuso" name="Report Abuse"/>
 		<menu_item_call label="Segnala bug" name="Report Bug"/>
 		<menu_item_call label="Informazioni su [APP_NAME]" name="About Second Life"/>
@@ -161,7 +161,7 @@
 		<menu label="Strumenti di performance" name="Performance Tools">
 			<menu_item_call label="Misuratore lag" name="Lag Meter"/>
 			<menu_item_check label="Barra statistiche" name="Statistics Bar"/>
-			<menu_item_check label="Mostra costo di rendering dell&apos;avatar" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Mostra peso visualizzazione per avatar" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Evidenziazione e visibilità" name="Highlighting and Visibility">
 			<menu_item_check label="Effetto marcatore lampeggiante" name="Cheesy Beacon"/>
@@ -271,6 +271,7 @@
 			<menu_item_check label="Aggiorna tipo" name="Update Type"/>
 			<menu_item_check label="Info livello dettaglio" name="LOD Info"/>
 			<menu_item_check label="Crea coda" name="Build Queue"/>
+			<menu_item_check label="Complessità rendering" name="rendercomplexity"/>
 			<menu_item_check label="Scolpisci" name="Sculpt"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">

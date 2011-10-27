@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_voice_controls" title="УПРАВЛЕНИЕ ГОЛОСОМ">
+	<string name="title_nearby">
+		Голоса собеседников
+	</string>
+	<string name="title_group">
+		Звонок группе [GROUP]
+	</string>
+	<string name="title_adhoc">
+		Конференция
+	</string>
+	<string name="title_peer_2_peer">
+		Звонок пользователю [NAME]
+	</string>
+	<string name="no_one_near">
+		Нет никого с включенным голосом
+	</string>
+	<layout_stack name="my_call_stack">
+		<layout_panel name="my_panel">
+			<text name="user_text" value="Мой аватар:"/>
+		</layout_panel>
+		<layout_panel name="leave_call_panel">
+			<layout_stack name="voice_effect_and_leave_call_stack">
+				<layout_panel name="leave_call_btn_panel">
+					<button label="Прервать звонок" name="leave_call_btn"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

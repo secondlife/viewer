@@ -1925,6 +1925,12 @@ Inventarobjekt(e) verschieben?
 		Wirklich beenden?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Möchten Sie wirklich Ihre Standardschaltflächen und -symbolleisten wiederherstellen? 
+    
+Diese Aktion kann nicht rückgängig gemacht werden.
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Vor dem Löschen von Objekten bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
@@ -3008,10 +3014,6 @@ Durch Ausblenden der Schaltfläche „Sprechen“ wird die Sprechfunktion deakti
 			<button name="cancel" text="Abbrechen"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Zum Wechsel des Modus müssen Sie das Programm beenden und neu starten.
-		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		Die Erstellung und Bearbeitung von Anzeigen ist nur im Modus „Erweitert“ möglich. Möchten Sie das Programm beenden und den Modus wechseln? Die Modusauswahl ist auf dem Anmeldebildschirm zu finden.
 		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
@@ -3055,6 +3057,10 @@ Durch Ausblenden der Schaltfläche „Sprechen“ wird die Sprechfunktion deakti
 	<notification label="" name="NoSearch">
 		Die Suche ist nur im Modus „Erweitert“ möglich. Möchten Sie sich abmelden und den Modus wechseln?
 		<usetemplate name="okcancelbuttons" notext="Nicht beenden" yestext="Beenden"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Durch diese Aktion werden alle Menüelemente und Schaltflächen ausgeblendet. Um sie wieder anzuzeigen, klicken Sie erneut auf [SHORTCUT].
+		<usetemplate ignoretext="Vor Ausblenden der UI bestätigen" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Ihr Computer entspricht nicht den Hardwareanforderungen von [APP_NAME]. [APP_NAME] setzt eine OpenGL-Grafikkarte mit Multitextur-Unterstützung voraus. Falls Ihre Grafikkarte diese Funktion unterstützt, installieren Sie die neuesten Treiber sowie die aktuellen Service Packs und Patches für Ihr Betriebssystem.

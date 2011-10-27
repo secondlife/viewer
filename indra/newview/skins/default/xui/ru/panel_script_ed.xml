@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="script panel">
+	<panel.string name="loading">
+		Загрузка...
+	</panel.string>
+	<panel.string name="can_not_view">
+		Вы не можете просматривать и изменять этот скрипт, поскольку для него выбрана категория «не копируемые». Для просмотра или изменения скрипта в объекте нужны полные права доступа.
+	</panel.string>
+	<panel.string name="public_objects_can_not_run">
+		Общедоступные объекты не могут запускать скрипты
+	</panel.string>
+	<panel.string name="script_running">
+		Выполняется
+	</panel.string>
+	<panel.string name="Title">
+		Скрипт: [NAME]
+	</panel.string>
+	<panel.string name="external_editor_not_set">
+		Выберите редактор, задав переменную среды LL_SCRIPT_EDITOR или параметр ExternalEditor.
+	</panel.string>
+	<menu_bar name="script_menu">
+		<menu label="Файл" name="File">
+			<menu_item_call label="Сохранить" name="Save"/>
+			<menu_item_call label="Отменить все изменения" name="Revert All Changes"/>
+		</menu>
+		<menu label="Изменить" name="Edit">
+			<menu_item_call label="Отменить" name="Undo"/>
+			<menu_item_call label="Вернуть" name="Redo"/>
+			<menu_item_call label="Вырезать" name="Cut"/>
+			<menu_item_call label="Копировать" name="Copy"/>
+			<menu_item_call label="Вставить" name="Paste"/>
+			<menu_item_call label="Выделить все" name="Select All"/>
+			<menu_item_call label="Снять выделение" name="Deselect"/>
+			<menu_item_call label="Поиск и замена..." name="Search / Replace..."/>
+		</menu>
+		<menu label="Справка" name="Help">
+			<menu_item_call label="Справка..." name="Help..."/>
+			<menu_item_call label="Справка по ключевым словам..." name="Keyword Help..."/>
+		</menu>
+	</menu_bar>
+	<text_editor name="Script Editor">
+		Загрузка...
+	</text_editor>
+	<combo_box label="Вставить..." name="Insert..."/>
+	<button label="Сохранить" label_selected="Сохранить" name="Save_btn"/>
+	<button label="Изменить..." name="Edit_btn"/>
+</panel>

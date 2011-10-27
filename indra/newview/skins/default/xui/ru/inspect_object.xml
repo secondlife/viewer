@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_object">
+	<string name="Creator">
+		От [CREATOR]
+	</string>
+	<string name="CreatorAndOwner">
+		От [CREATOR]
+Владелец [OWNER]
+	</string>
+	<string name="Price">
+		L$[AMOUNT]
+	</string>
+	<string name="PriceFree">
+		Бесплатно!
+	</string>
+	<string name="Touch">
+		Коснуться
+	</string>
+	<string name="Sit">
+		Сесть
+	</string>
+	<text name="object_creator">
+		от secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+владелец secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
+	</text>
+	<text name="price_text">
+		L$30,000
+	</text>
+	<icon name="secure_browsing" tool_tip="Безопасный просмотр"/>
+	<text name="object_media_url">
+		http://www.superdupertest.com
+	</text>
+	<button label="Купить" name="buy_btn"/>
+	<button label="Заплатить" name="pay_btn"/>
+	<button label="Взять копию" name="take_free_copy_btn"/>
+	<button label="Коснуться" name="touch_btn"/>
+	<button label="Сесть" name="sit_btn"/>
+	<button label="Открыто" name="open_btn"/>
+	<button label="Больше" name="more_info_btn"/>
+</floater>

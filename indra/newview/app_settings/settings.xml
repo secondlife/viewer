@@ -4257,7 +4257,7 @@
         <key>Type</key>
         <string>Boolean</string>
         <key>Value</key>
-        <integer>1</integer>
+        <integer>0</integer>
     </map>
     <key>InventoryDisplayOutbox</key>
     <map>
@@ -4589,21 +4589,21 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
-    <key>LastGPUClass</key>
+    <key>LastGPUString</key>
     <map>
       <key>Comment</key>
-      <string>[DO NOT MODIFY] previous GPU class for tracking hardware changes</string>
+      <string>[DO NOT MODIFY] previous GPU id string for tracking hardware changes</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>String</string>
       <key>Value</key>
-      <integer>-1</integer>
+      <string></string>
     </map>
     <key>LastFeatureVersion</key>
     <map>
       <key>Comment</key>
-      <string>[DO NOT MODIFY] Version number for tracking hardware changes</string>
+      <string>[DO NOT MODIFY] Feature Table Version number for tracking rendering system changes</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

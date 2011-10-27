@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="notification" title="BİLDİRİMLER KONSOLU">
+	<text_editor name="payload">
+		Yükleniyor...
+	</text_editor>
+	<combo_box label="Yanıt" name="response"/>
+</floater>

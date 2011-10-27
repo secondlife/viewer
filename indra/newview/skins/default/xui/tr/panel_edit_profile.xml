@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profil Düzenlemesi" name="edit_profile_panel">
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO] [AGEVERIFICATION]
+	</string>
+	<string name="RegisterDateFormat">
+		[REG_DATE] ([AGE])
+	</string>
+	<string name="AcctTypeResident" value="Sakin"/>
+	<string name="AcctTypeTrial" value="Deneme"/>
+	<string name="AcctTypeCharterMember" value="Ayrıcalıklı Üye"/>
+	<string name="AcctTypeEmployee" value="Linden Lab Çalışanı"/>
+	<string name="PaymentInfoUsed" value="Kullanılan Ödeme Bilgisi"/>
+	<string name="PaymentInfoOnFile" value="Dosyadaki Ödeme Bilgisi"/>
+	<string name="NoPaymentInfoOnFile" value="Dosyada Ödeme Bilgisi Yok"/>
+	<string name="AgeVerified" value="Yaşı Doğrulanmış"/>
+	<string name="NotAgeVerified" value="Yaşı Doğrulanmamış"/>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url">
+		http://secondlife.com/my
+	</string>
+	<string name="no_partner_text" value="Hiçbiri"/>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="data_panel">
+				<text name="display_name_label" value="Ekran Adı:"/>
+				<text name="solo_username_label" value="Kullanıcı Adı:"/>
+				<button name="set_name" tool_tip="Ekran Adını Ayarla"/>
+				<text name="user_label" value="Kullanıcı Adı:"/>
+				<panel name="lifes_images_panel">
+					<panel name="second_life_image_panel">
+						<text name="second_life_photo_title_text" value="[SECOND_LIFE]:"/>
+					</panel>
+					<icon label="" name="2nd_life_edit_icon" tool_tip="Bir görüntü seçmek için tıklayın"/>
+				</panel>
+				<panel name="first_life_image_panel">
+					<text name="real_world_photo_title_text" value="Gerçek Dünya:"/>
+				</panel>
+				<icon label="" name="real_world_edit_icon" tool_tip="Bir görüntü seçmek için tıklayın"/>
+				<text name="title_homepage_text">
+					Ana sayfa:
+				</text>
+				<line_editor name="homepage_edit" value="http://"/>
+				<text name="title_acc_status_text" value="Hesabım:"/>
+				<text_editor name="acc_status_text" value="Sakin. Dosyada ödeme bilgisi yok."/>
+				<text name="my_account_link" value="[[URL] Kontrol Panelime Git]"/>
+				<text name="title_partner_text" value="Partnerim:"/>
+				<panel name="partner_data_panel">
+					<text initial_value="(alınıyor)" name="partner_text"/>
+				</panel>
+				<text name="partner_edit_link" value="[[URL] Düzenle]"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<panel name="profile_me_buttons_panel">
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="Değişiklikleri Kaydet" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="İptal" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

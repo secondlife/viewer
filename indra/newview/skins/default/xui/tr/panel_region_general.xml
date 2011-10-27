@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Bölge" name="General">
+	<text name="region_text_lbl">
+		Bölge:
+	</text>
+	<text name="region_text">
+		bilinmiyor
+	</text>
+	<text name="version_channel_text_lbl">
+		Sürüm:
+	</text>
+	<text name="version_channel_text">
+		bilinmiyor
+	</text>
+	<text name="region_type_lbl">
+		Tür:
+	</text>
+	<text name="region_type">
+		bilinmiyor
+	</text>
+	<check_box label="Yer Şekillendirmeyi Engelle" name="block_terraform_check"/>
+	<check_box label="Uçmayı Engelle" name="block_fly_check"/>
+	<check_box label="Hasara İzin Ver" name="allow_damage_check"/>
+	<check_box label="İtmeyi Kısıtla" name="restrict_pushobject"/>
+	<check_box label="Arazinin Tekrar Satışına İzin Ver" name="allow_land_resell_check"/>
+	<check_box label="Arazinin Birleşmesine/Bölünmesine İzin Ver" name="allow_parcel_changes_check"/>
+	<check_box label="Aramada Arazinin Gösterilmesini Engelle" name="block_parcel_search_check" tool_tip="Arama sonuçlarında bu bölge ve parselleri görünsün"/>
+	<check_box label="Örgü Nesnelere İzin Ver" name="mesh_rez_enabled_check" tool_tip="Bu bölgede insanların örgü nesneleri oluşturmasına izin verilsin"/>
+	<spinner label="Aracı Limiti" name="agent_limit_spin"/>
+	<spinner label="Nesne Bonusu" name="object_bonus_spin"/>
+	<text label="Erişkinlik" name="access_text">
+		Seviye:
+	</text>
+	<icons_combo_box label="Orta" name="access_combo">
+		<icons_combo_box.item label="Yetişkin" name="Adult" value="42"/>
+		<icons_combo_box.item label="Orta" name="Mature" value="21"/>
+		<icons_combo_box.item label="Genel" name="PG" value="13"/>
+	</icons_combo_box>
+	<button label="Uygula" name="apply_btn"/>
+	<button label="Bir Sakini Ana Konuma Işınla..." name="kick_btn"/>
+	<button label="Tüm Sakinleri Ana Konuma Işınla..." name="kick_all_btn"/>
+	<button label="Bölgeye İleti Gönder..." name="im_btn"/>
+	<button label="Işınlanma İstasyonu Yönet..." name="manage_telehub_btn"/>
+</panel>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_tattoo_panel">
+	<panel name="avatar_tattoo_color_panel">
+		<texture_picker label="Baş Dövmesi" name="Head Tattoo" tool_tip="Bir resim seçmek için tıklayın"/>
+		<texture_picker label="Üst Gövde Dövmesi" name="Upper Tattoo" tool_tip="Bir resim seçmek için tıklayın"/>
+		<texture_picker label="Alt Gövde Dövmesi" name="Lower Tattoo" tool_tip="Bir resim seçmek için tıklayın"/>
+		<color_swatch label="Renk/Ton" name="Color/Tint" tool_tip="Renk seçiciyi açmak için tıklayın"/>
+	</panel>
+</panel>
