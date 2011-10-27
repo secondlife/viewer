@@ -34,6 +34,7 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llerror.h"
 
 LLEventAPI::LLEventAPI(const std::string& name, const std::string& desc, const std::string& field):
     lbase(name, field),
@@ -44,4 +45,33 @@ LLEventAPI::LLEventAPI(const std::string& name, const std::string& desc, const s
 
 LLEventAPI::~LLEventAPI()
 {
+}
+
+LLEventAPI::Response::Response(const LLSD& seed, const LLSD& request, const LLSD::String& replyKey):
+    mResp(seed),
+    mReq(request),
+    mKey(replyKey)
+{}
+
+LLEventAPI::Response::~Response()
+{
+    // When you instantiate a stack Response object, if the original
+    // request requested a reply, send it when we leave this block, no
+    // matter how.
+    sendReply(mResp, mReq, mKey);
+}
+
+void LLEventAPI::Response::warn(const std::string& warning)
+{
+    LL_WARNS("LLEventAPI::Response") << warning << LL_ENDL;
+    mResp["warnings"].append(warning);
+}
+
+void LLEventAPI::Response::error(const std::string& error)
+{
+    // Use LL_WARNS rather than LL_ERROR: we don't want the viewer to shut
+    // down altogether.
+    LL_WARNS("LLEventAPI::Response") << error << LL_ENDL;
+
+    mResp["error"] = error;
 }

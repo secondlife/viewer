@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="place_profile">
+	<string name="on" value="Açık"/>
+	<string name="off" value="Kapalı"/>
+	<string name="anyone" value="Herkes"/>
+	<string name="available" value="kullanılabilir"/>
+	<string name="allocated" value="tahsis edilen"/>
+	<string name="title_place" value="Profili Yerleştir"/>
+	<string name="title_teleport_history" value="Işınlanma Geçmişi"/>
+	<string name="not_available" value="(G/D)"/>
+	<string name="unknown" value="(bilinmiyor)"/>
+	<string name="public" value="(kamuya açık)"/>
+	<string name="none_text" value="(hiçbiri)"/>
+	<string name="sale_pending_text" value="(Satış Bekliyor)"/>
+	<string name="group_owned_text" value="(Sahibi Olunan Grup)"/>
+	<string name="price_text" value="L$"/>
+	<string name="area_text" value="m²"/>
+	<string name="all_residents_text" value="Tüm Second Life Sakinleri"/>
+	<string name="group_text" value="Grup"/>
+	<string name="can_resell">
+		Bu bölgede satın alınan arazi tekrar satılabilir.
+	</string>
+	<string name="can_not_resell">
+		Bu bölgede satın alınan arazi tekrar satılamayabilir.
+	</string>
+	<string name="can_change">
+		Bu bölgede satın alınan arazi birleştirilebilir veya bölünebilir.
+	</string>
+	<string name="can_not_change">
+		Bu bölgede satın alınan arazi birleştirilemeyebilir veya bölünemeyebilir.
+	</string>
+	<string name="server_update_text">
+		Sunucu güncelleştirmesi olmadan yer bilgisi mevcut olmaz.
+	</string>
+	<string name="server_error_text">
+		Bu konum hakkında şu anda bilgi mevcut değil, lütfen daha sonra tekrar deneyin.
+	</string>
+	<string name="server_forbidden_text">
+		Erişim kısıtlamaları nedeniyle bu konum hakkında bilgiye erişilemiyor.  Lütfen parsel sahibi nezdinde izinlerinizi kontrol edin.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Geri"/>
+	<text name="title" value="Profili Yerleştir"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="Örnek Bölge"/>
+			<text name="parcel_title" value="Örnek Parsel, Uzun Ad (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="owner_label" value="Sahip:"/>
+			<text name="owner_value" value="Alex Superduperlongenamenton"/>
+			<text name="maturity_value" value="bilinmiyor"/>
+			<accordion name="advanced_info_accordion">
+				<accordion_tab name="parcel_characteristics_tab" title="Parsel">
+					<panel name="parcel_characteristics_panel">
+						<text name="rating_label" value="Seviye:"/>
+						<text name="rating_value" value="bilinmiyor"/>
+						<text name="voice_label" value="Sesli:"/>
+						<text name="voice_value" value="Açık"/>
+						<text name="fly_label" value="Uçma:"/>
+						<text name="fly_value" value="Açık"/>
+						<text name="push_label" value="İtme:"/>
+						<text name="push_value" value="Kapalı"/>
+						<text name="build_label" value="İnşa Et:"/>
+						<text name="build_value" value="Açık"/>
+						<text name="scripts_label" value="Komut Dosyaları:"/>
+						<text name="scripts_value" value="Açık"/>
+						<text name="damage_label" value="Hasar:"/>
+						<text name="damage_value" value="Kapalı"/>
+						<text name="see_avatars_label" value="Avatarları Gör:"/>
+						<text name="see_avatars_value" value="Kapalı"/>
+						<button label="Arazi Hakkında" name="about_land_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="region_information_tab" title="Bölge">
+					<panel name="region_information_panel">
+						<text name="region_name_label" value="Bölge:"/>
+						<text name="region_name" value="Geyik arazisi"/>
+						<text name="region_type_label" value="Tür:"/>
+						<text name="region_type" value="Geyik"/>
+						<text name="region_rating_label" value="Seviye:"/>
+						<text name="region_rating" value="Yetişkin"/>
+						<text name="region_owner_label" value="Sahip:"/>
+						<text name="region_owner" value="geyik Can Geyik ekstra uzun ad geyik"/>
+						<text name="region_group_label" value="Grup:"/>
+						<text name="region_group">
+							Geyik Şehrinin Güçlü Geyiği soundvillemoose
+						</text>
+						<button label="Bölge/Gayrimenkul" name="region_info_btn"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="estate_information_tab" title="Gayrimenkul">
+					<panel name="estate_information_panel">
+						<text name="estate_name_label" value="Gayrimenkul:"/>
+						<text name="estate_rating_label" value="Seviye:"/>
+						<text name="estate_owner_label" value="Sahip:"/>
+						<text name="estate_owner" value="Sahip adının uzunluğu uzun adla deneniyor"/>
+						<text name="covenant_label" value="Sözleşme:"/>
+					</panel>
+				</accordion_tab>
+				<accordion_tab name="sales_tab" title="Satılık">
+					<panel name="sales_panel">
+						<text name="sales_price_label" value="Fiyat:"/>
+						<text name="area_label" value="Alan:"/>
+						<text name="traffic_label" value="Trafik:"/>
+						<text name="primitives_label" value="Temel öğeler:"/>
+						<text name="parcel_scripts_label" value="Komut Dosyaları:"/>
+						<text name="terraform_limits_label" value="Yer şekillendirme limitleri:"/>
+						<text name="subdivide_label" value="Bölme/Katma yeteneği:"/>
+						<text name="resale_label" value="Tekrar Satış yeteneği:"/>
+						<text name="sale_to_label" value="Şu Alıcıya Satılık:"/>
+					</panel>
+				</accordion_tab>
+			</accordion>
+		</panel>
+	</scroll_container>
+</panel>

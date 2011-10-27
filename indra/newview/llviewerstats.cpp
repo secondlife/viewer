@@ -854,7 +854,7 @@ void send_stats()
 	body["DisplayNamesEnabled"] = gSavedSettings.getBOOL("UseDisplayNames");
 	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
 	
-	body["MinimalSkin"] = !gSavedSettings.getString("SessionSettingsFile").empty();
+	body["MinimalSkin"] = false;
 	
 	LLViewerStats::getInstance()->addToMessage(body);
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());

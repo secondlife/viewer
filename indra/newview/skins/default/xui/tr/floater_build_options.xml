@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="AĞ SEÇENEKLERİ">
+	<floater.string name="grid_screen_text">
+		Ekran
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Yerel
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Dünya
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referans
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Aksesuar
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Ağ geçirgenliği">
+		Mod
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Nesneyi konumlandırmak için ağ cetvelini seçin">
+		<combo_box.item label="Dünya ağı" name="World"/>
+		<combo_box.item label="Yerel ağ" name="Local"/>
+		<combo_box.item label="Referans ağı" name="Reference"/>
+	</combo_box>
+	<spinner label="Birimler (metre)" name="GridResolution"/>
+	<spinner label="Kapsamlar (metre)" name="GridDrawSize"/>
+	<check_box label="Alt birimlere geç" name="GridSubUnit"/>
+	<check_box label="Çapraz kesitleri göster" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Ağ geçirgenliği">
+		Geçirgenlik:
+	</text>
+</floater>

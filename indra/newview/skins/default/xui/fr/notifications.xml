@@ -1909,6 +1909,12 @@ Déplacer les objets de l&apos;inventaire ?
 		Êtes-vous certain de vouloir quitter ?
 		<usetemplate ignoretext="Confirmer avant de quitter" name="okcancelignore" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Etes-vous certain de vouloir restaurer vos boutons et barres d&apos;outils par défaut ? 
+    
+Vous ne pouvez pas annuler cette action.
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Confirmer avant de supprimer des articles" name="okcancelignore" notext="Annuler" yestext="OK"/>
@@ -2995,10 +3001,6 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 			<button name="cancel" text="Annuler"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Vous devez quitter et redémarrer l&apos;application afin de changer de mode.
-		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		Pour créer et modifier des petites annonces, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
@@ -3042,6 +3044,10 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 	<notification label="" name="NoSearch">
 		La recherche est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Cette action cachera tous les objets des menus et boutons. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
+		<usetemplate ignoretext="Confimer avant de cacher l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Vous semblez ne pas avoir le matériel requis pour utiliser [APP_NAME]. [APP_NAME] requiert une carte graphique OpenGL avec une prise en charge du multitexturing. Si vous avez une telle carte, assurez-vous que vous avez aussi les pilotes les plus récents pour la carte, ainsi que les service packs et les patchs pour votre système d&apos;exploitation.

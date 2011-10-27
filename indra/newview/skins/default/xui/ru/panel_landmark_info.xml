@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="Создать закладку"/>
+	<string name="title_edit_landmark" value="Изменить закладку"/>
+	<string name="title_landmark" value="Закладка"/>
+	<string name="not_available" value="(неизвестно)"/>
+	<string name="unknown" value="(неизвестно)"/>
+	<string name="public" value="(публичное)"/>
+	<string name="server_update_text">
+		Необходимо обновление сервера, чтобы информация стала доступна.
+	</string>
+	<string name="server_error_text">
+		Информация об этом месте сейчас недоступна. Повторите попытку позже.
+	</string>
+	<string name="server_forbidden_text">
+		Информация об этом месте недоступна, поскольку у вас нет прав на ее просмотр.  Узнайте о своих правах, связавшись с владельцем участка.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local], [day,datetime,local] [mth,datetime,local] [year,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Назад"/>
+	<text name="title" value="Профиль места"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="Образец_региона"/>
+			<text name="parcel_title" value="Пример участка, длина имени (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="maturity_value" value="неизвестно"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="Владелец:"/>
+				<text name="creator_label" value="Создатель:"/>
+				<text name="created_label" value="Создано:"/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="Название:"/>
+				<text name="notes_label" value="Мои заметки:"/>
+				<text name="folder_label" value="Расположение закладки:"/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

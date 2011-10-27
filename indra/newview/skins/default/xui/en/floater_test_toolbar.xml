@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="500"
+ layout="topleft"
+ name="floater_test_toolbar"
+ translate="false"
+ width="500">
+  <toolbar name="test_toolbar_top"
+           button_display_mode="icons_with_text"
+           follows="left|right|top"
+           height="50"
+           width="500"
+           left="0"
+           top="20"
+           min_button_width="0"
+           max_button_width="100"
+           side="top">
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
+  </toolbar>
+  <toolbar name="test_toolbar_left"
+           button_display_mode="icons_with_text"
+           follows="left|bottom|top"
+           height="380"
+           width="200"
+           left="0"
+           top="70"
+           min_button_width="100"           
+           side="left">
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
+  </toolbar>
+  <toolbar name="test_toolbar_right"
+           button_display_mode="icons_with_text"
+           follows="right|bottom|top"
+           height="380"
+           width="200"
+           right="500"
+           top="70"
+           side="right">
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
+  </toolbar>
+  <toolbar name="test_toolbar_bottom"
+           button_display_mode="icons_with_text"
+           follows="left|right|bottom"
+           height="50"
+           width="500"
+           left="0"
+           bottom="500"
+           min_button_width="100"
+           side="bottom">
+    <command name="avatar"/>
+    <command name="build"/>
+    <command name="chat"/>
+  </toolbar>
+</floater>

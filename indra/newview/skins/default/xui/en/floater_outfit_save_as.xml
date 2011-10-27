@@ -4,7 +4,7 @@
  can_minimize="false"
  height="100"
  layout="topleft"
- title="Save Outfit"
+ title="SAVE OUTFIT"
  name="modal container"
  width="240">
     <button

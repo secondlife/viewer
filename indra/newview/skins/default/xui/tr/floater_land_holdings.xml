@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="land holdings floater" title="ARAZİM">
+	<floater.string name="area_string">
+		[AREA] m²
+	</floater.string>
+	<scroll_list name="parcel list">
+		<scroll_list.columns label="Parsel" name="name"/>
+		<scroll_list.columns label="Bölge" name="location"/>
+		<scroll_list.columns label="Tür" name="type"/>
+		<scroll_list.columns label="Alan" name="area"/>
+	</scroll_list>
+	<button label="Işınla" label_selected="Işınla" name="Teleport" tool_tip="Bu arazinin merkezine ışınlama yapılsın."/>
+	<button label="Harita" label_selected="Harita" name="Show on Map" tool_tip="Bu arazi dünya haritasında gösterilsin"/>
+	<text name="contrib_label">
+		Gruplarınıza katkılar:
+	</text>
+	<scroll_list name="grant list">
+		<scroll_list.columns label="Grup" name="group"/>
+		<scroll_list.columns label="Alan" name="area"/>
+	</scroll_list>
+	<text name="allowed_label">
+		Mevcut ödeme planı kapsamında sahip olunmasına izin verilen araziler:
+	</text>
+	<text name="allowed_text">
+		[AREA] m²
+	</text>
+	<text name="current_label">
+		Şu anda sahip olunan araziler:
+	</text>
+	<text name="current_text">
+		[AREA] m²
+	</text>
+	<text name="available_label">
+		Arazi satın alımı için kullanılabilir:
+	</text>
+	<text name="available_text">
+		[AREA] m²
+	</text>
+</floater>

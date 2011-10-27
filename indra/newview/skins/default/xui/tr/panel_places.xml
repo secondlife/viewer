@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Yerler" name="places panel">
+	<string name="landmarks_tab_title" value="YER İMLERİM"/>
+	<string name="teleport_history_tab_title" value="IŞINLAMA GEÇMİŞİ"/>
+	<filter_editor label="Yerlerimi Filtrele" name="Filter"/>
+	<panel name="button_panel">
+		<layout_stack name="bottom_bar_ls0">
+			<layout_panel name="lp1">
+				<layout_stack name="bottom_bar_ls1">
+					<layout_panel name="teleport_btn_lp">
+						<button label="Işınla" name="teleport_btn" tool_tip="Seçilen alana ışınla"/>
+					</layout_panel>
+					<layout_panel name="chat_btn_lp">
+						<button label="Harita" name="map_btn" tool_tip="İlişkili alanı Dünya Haritasında göster"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+			<layout_panel name="lp2">
+				<layout_stack name="bottom_bar_ls3">
+					<layout_panel name="edit_btn_lp">
+						<button label="Düzenle" name="edit_btn" tool_tip="Yer imi bilgisini düzenle"/>
+					</layout_panel>
+					<layout_panel name="overflow_btn_lp">
+						<menu_button name="overflow_btn" tool_tip="İlave seçenekleri göster"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_profile_ls">
+					<layout_panel name="profile_btn_lp">
+						<button label="Profil" name="profile_btn" tool_tip="Yer profilini göster"/>
+					</layout_panel>
+				</layout_stack>
+				<layout_stack name="bottom_bar_close_ls3">
+					<layout_panel name="close_btn_lp">
+						<button label="Kapat" name="close_btn"/>
+					</layout_panel>
+				</layout_stack>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls2">
+			<layout_panel name="save_btn_lp">
+				<button label="Kaydet" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="cancel_btn_lp">
+				<button label="İptal" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

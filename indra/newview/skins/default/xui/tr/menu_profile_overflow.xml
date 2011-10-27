@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="profile_overflow_menu">
+	<menu_item_call label="Harita" name="show_on_map"/>
+	<menu_item_call label="Öde" name="pay"/>
+	<menu_item_call label="Paylaş" name="share"/>
+	<menu_item_call label="Engelle" name="block"/>
+	<menu_item_call label="Engellemeyi Kaldır" name="unblock"/>
+	<menu_item_call label="Çıkar" name="kick"/>
+	<menu_item_call label="Dondur" name="freeze"/>
+	<menu_item_call label="Çöz" name="unfreeze"/>
+	<menu_item_call label="CSR" name="csr"/>
+</toggleable_menu>

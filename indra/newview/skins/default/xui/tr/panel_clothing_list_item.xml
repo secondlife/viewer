@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="wearable_item">
+	<button name="btn_delete" tool_tip="Dış görünümden çıkar"/>
+	<text name="item_name" value="..."/>
+	<panel name="btn_lock" tool_tip="Düzenleme izniniz yok"/>
+	<panel name="btn_edit_panel">
+		<button name="btn_edit" tool_tip="Bu giyilebilir ögeyi düzenle"/>
+	</panel>
+</panel>

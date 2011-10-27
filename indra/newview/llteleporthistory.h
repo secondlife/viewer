@@ -33,6 +33,7 @@
 #include <string>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+#include "llteleporthistorystorage.h"
 
 
 /**
@@ -210,6 +211,8 @@ private:
 	 */
 	bool					mGotInitialUpdate;
 	
+	LLTeleportHistoryStorage*	mTeleportHistoryStorage;
+
 	/**
 	 * Signal emitted when the history gets changed.
 	 * 

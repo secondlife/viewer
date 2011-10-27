@@ -58,6 +58,7 @@ public:
 
 	// Inherited functionality
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onClose(bool app_quitting);
 
 	LLInventoryPanel* getPanel();
 	LLPanelMainInventory* getMainInventoryPanel() { return mPanelMainInventory;}

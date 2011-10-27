@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Url Popup">
-	<menu_item_call label="Teletransportar para este lugar" name="teleport"/>
-	<menu_item_call label="Mostrar no mapa" name="show_on_map"/>
-	<menu_item_call label="Copiar SLurl para área de transferência" name="url_copy"/>
-</context_menu>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="beacons" title="МЕТКИ">
+	<panel name="beacons_panel">
+		<text name="label_show">
+			Показать:
+		</text>
+		<check_box label="Метки" name="beacons"/>
+		<check_box label="Подсветку" name="highlights"/>
+		<text name="beacon_width_label" tool_tip="Ширина меток">
+			Ширина:
+		</text>
+		<text name="label_objects">
+			Для этих объектов:
+		</text>
+		<check_box label="Физический" name="physical"/>
+		<check_box label="Скриптовые" name="scripted"/>
+		<check_box label="Только касание" name="touch_only"/>
+		<check_box label="Источники звука" name="sounds"/>
+		<check_box label="Источники частиц" name="particles"/>
+		<check_box label="Источники медиа" name="moapbeacon"/>
+	</panel>
+</floater>

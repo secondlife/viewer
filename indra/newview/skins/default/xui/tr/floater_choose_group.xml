@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="groups" title="GRUPLAR">
+	<text name="groupdesc">
+		Bir grup seç:
+	</text>
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+</floater>

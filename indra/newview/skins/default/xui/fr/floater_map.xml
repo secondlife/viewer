@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Map" title="">
+<floater name="Map" title="Mini-carte">
 	<floater.string name="ToolTipMsg">
 		[REGION](Carte : double-clic ; Panoramique : Maj + faire glisser)
 	</floater.string>
@@ -7,7 +7,7 @@
 		[REGION](Téléportation : double-clic ; Panoramique : Maj + faire glisser)
 	</floater.string>
 	<floater.string name="mini_map_caption">
-		MINI-CARTE
+		Mini-carte
 	</floater.string>
 	<text label="N" name="floater_map_north" text="N">
 		N

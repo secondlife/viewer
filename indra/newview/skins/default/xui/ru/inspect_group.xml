@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_group">
+	<string name="PrivateGroup">
+		Частная группа
+	</string>
+	<string name="FreeToJoin">
+		Бесплатное вступление
+	</string>
+	<string name="CostToJoin">
+		L$[AMOUNT] за вступление
+	</string>
+	<string name="YouAreMember">
+		Вы участник группы
+	</string>
+	<text name="group_subtitle">
+		123 участника
+	</text>
+	<text name="group_details">
+		Группа жителей, которые могут создавать комнату с лосем.
+Бойся лося!  Бойся!  И мангуста тоже!
+	</text>
+	<text name="group_cost">
+		L$123 за вступление
+	</text>
+	<button label="Вступить" name="join_btn"/>
+	<button label="Покинуть" name="leave_btn"/>
+	<button label="Смотреть профиль" name="view_profile_btn"/>
+</floater>

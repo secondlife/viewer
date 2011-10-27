@@ -41,8 +41,6 @@
 #include "llkeyboard.h"
 #include "linked_lists.h"
 #include "llwindowcallbacks.h"
-#include "llwindowlistener.h"
-#include <boost/lambda/core.hpp>
 
 
 //
@@ -118,17 +116,10 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
 	  mFlags(flags),
 	  mHighSurrogate(0)
 {
-	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
-	// pass its value right now. Instead, pass it a nullary function that
-	// will, when we later need it, return the value of gKeyboard.
-	// boost::lambda::var() constructs such a functor on the fly.
-	mListener = new LLWindowListener(callbacks, boost::lambda::var(gKeyboard));
 }
 
 LLWindow::~LLWindow()
 {
-	delete mListener;
-	mListener = NULL;
 }
 
 //virtual

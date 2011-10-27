@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Вещи" name="main inventory panel">
+	<panel.string name="ItemcountFetching">
+		Обнаружено [ITEM_COUNT] вещей... [FILTER]
+	</panel.string>
+	<panel.string name="ItemcountCompleted">
+		[ITEM_COUNT] вещей [FILTER]
+	</panel.string>
+	<text name="ItemcountText">
+		Вещи:
+	</text>
+	<filter_editor label="Фильтр для инвентаря" name="inventory search editor"/>
+	<tab_container name="inventory filter tabs">
+		<inventory_panel label="МОЙ ИНВЕНТАРЬ" name="All Items"/>
+		<recent_inventory_panel label="НЕДАВНИЕ" name="Recent Items"/>
+	</tab_container>
+	<layout_stack name="bottom_panel">
+		<layout_panel name="options_gear_btn_panel">
+			<menu_button name="options_gear_btn" tool_tip="Показать дополнительные параметры"/>
+		</layout_panel>
+		<layout_panel name="add_btn_panel">
+			<button name="add_btn" tool_tip="Добавить новую вещь"/>
+		</layout_panel>
+		<layout_panel name="trash_btn_panel">
+			<dnd_button name="trash_btn" tool_tip="Удалить выбранную вещь"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

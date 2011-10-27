@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="preview_anim">
-	<text name="desc txt">
-		Omschrijving:
-	</text>
-	<button label="Afspelen in wereld" label_selected="Stop" name="Anim play btn" tool_tip="Speel deze animatie af, zodat anderen hem kunnen zien." width="120"/>
-	<button label="Lokaal afspelen" label_selected="Stop" name="Anim audition btn" tool_tip="Speel deze animatie af, zodat alleen u hem kunt zien." width="110"/>
-</floater>

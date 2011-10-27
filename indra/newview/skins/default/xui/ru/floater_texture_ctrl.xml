@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="ВЫБРАТЬ: ТЕКСТУРУ">
+	<floater.string name="choose_picture">
+		Щелкните для выбора изображения
+	</floater.string>
+	<floater.string name="pick title">
+		Выбрать:
+	</floater.string>
+	<text name="Multiple">
+		Несколько текстур
+	</text>
+	<text name="unknown">
+		Размер: [DIMENSIONS]
+	</text>
+	<button label="По умолчанию" label_selected="По умолчанию" name="Default"/>
+	<button label="Нет" label_selected="Нет" name="None"/>
+	<button label="Очистить" label_selected="Очистить" name="Blank"/>
+	<check_box initial_value="истина" label="Применить сейчас" name="apply_immediate_check"/>
+	<filter_editor label="Фильтровать текстуры" name="inventory search editor"/>
+	<check_box initial_value="ложь" label="Показывать папки" name="show_folders_check"/>
+	<button label="ОК" label_selected="ОК" name="Select"/>
+	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+</floater>
