@@ -10,7 +10,7 @@
 	<floater.string name="AboutPosition">
 		Du er ved [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] i regionen [REGION] lokaliseret ved &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[SERVER_RELEASE_NOTES_URL]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		CPU: [CPU]
