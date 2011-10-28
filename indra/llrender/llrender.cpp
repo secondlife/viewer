@@ -1142,16 +1142,6 @@ void LLRender::syncMatrices()
 {
 	stop_glerror();
 
-	GLenum mode[] = 
-	{
-		GL_MODELVIEW,
-		GL_PROJECTION,
-		GL_TEXTURE,
-		GL_TEXTURE,
-		GL_TEXTURE,
-		GL_TEXTURE,
-	};
-
 	U32 name[] = 
 	{
 		LLShaderMgr::MODELVIEW_MATRIX,
@@ -1272,6 +1262,16 @@ void LLRender::syncMatrices()
 	}
 	else if (!LLGLSLShader::sNoFixedFunction)
 	{
+		GLenum mode[] = 
+		{
+			GL_MODELVIEW,
+			GL_PROJECTION,
+			GL_TEXTURE,
+			GL_TEXTURE,
+			GL_TEXTURE,
+			GL_TEXTURE,
+		};
+
 		for (U32 i = 0; i < 2; ++i)
 		{
 			if (mMatHash[i] != mCurMatHash[i])

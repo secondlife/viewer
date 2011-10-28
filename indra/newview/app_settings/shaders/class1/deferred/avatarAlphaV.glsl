@@ -52,6 +52,8 @@ VARYING vec2 vary_texcoord0;
 
 uniform float near_clip;
 
+uniform vec4 color;
+
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
@@ -123,17 +125,17 @@ void main()
 	col.rgb += light_diffuse[6].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[6], light_direction[6], light_attenuation[6].x, light_attenuation[6].y, light_attenuation[6].z);
 	col.rgb += light_diffuse[7].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[7], light_direction[7], light_attenuation[7].x, light_attenuation[7].y, light_attenuation[7].z);
 	
-	vary_pointlight_col = col.rgb;
+	vary_pointlight_col = col.rgb*color.rgb;
 
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
 	
-	vary_ambient = col.rgb;
-	vary_directional = atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), 0.0));
+	vary_ambient = col.rgb*color.rgb;
+	vary_directional = color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), 0.0));
 	
-	col.rgb = min(col.rgb, 1.0);
+	col.rgb = col.rgb * color.rgb;
 	
 	vertex_color = col;
 

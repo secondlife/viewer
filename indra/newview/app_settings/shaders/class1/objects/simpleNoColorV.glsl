@@ -28,6 +28,8 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
+uniform vec4 color;
+
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
@@ -50,8 +52,8 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.));
-	vertex_color = color;
+	vec4 col = calcLighting(pos.xyz, norm, color, vec4(0.));
+	vertex_color = col;
 
 	
 }

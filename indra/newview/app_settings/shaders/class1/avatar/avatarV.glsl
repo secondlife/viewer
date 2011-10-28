@@ -32,6 +32,7 @@ ATTRIBUTE vec2 texcoord0;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+uniform vec4 color;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
@@ -61,8 +62,8 @@ void main()
 	
 	calcAtmospherics(pos.xyz);
 
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0,0,0,0));
-	vertex_color = color; 
+	vec4 col = calcLighting(pos.xyz, norm, color, vec4(0,0,0,0));
+	vertex_color = col; 
 
 }
 

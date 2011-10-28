@@ -27,6 +27,7 @@
 VARYING vec3 vary_AdditiveColor;
 VARYING float vary_AtmosAttenuation;
 
+vec3 additive_color;
 vec3 atmos_attenuation;
 vec3 sunlit_color;
 vec3 amblit_color;
@@ -43,7 +44,7 @@ vec3 getAmblitColor()
 
 vec3 getAdditiveColor()
 {
-	return vary_AdditiveColor;
+	return additive_color;
 }
 vec3 getAtmosAttenuation()
 {
@@ -72,6 +73,7 @@ void setAmblitColor(vec3 v)
 
 void setAdditiveColor(vec3 v)
 {
+	additive_color = v;
 	vary_AdditiveColor = v;
 }
 

@@ -37,6 +37,8 @@ vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
 void calcAtmospherics(vec3 inPositionEye);
 
+uniform vec4 color;
+
 uniform vec4 gWindDir;		
 uniform vec4 gSinWaveParams; 
 uniform vec4 gGravity;		
@@ -125,8 +127,8 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 	
-	vec4 color = calcLighting(pos.xyz, norm, vec4(1,1,1,1), vec4(0.0));			
-	vertex_color = color; 
+	vec4 col = calcLighting(pos.xyz, norm, color, vec4(0.0));			
+	vertex_color = col; 
 					
 	gl_Position = projection_matrix * pos;
 }
