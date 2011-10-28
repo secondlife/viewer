@@ -24,7 +24,7 @@
         follow="all"
         width="380"
         height="0"
-        visible="true"
+        visible="false"
         filename="panel_nearby_chat.xml"
         name="nearby_chat" />
     <panel width="380" 
