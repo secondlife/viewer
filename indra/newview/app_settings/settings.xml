@@ -192,6 +192,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AudioMusicFadeIn</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade in time in seconds for music streams</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
+    <key>AudioMusicFadeOut</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade out time in seconds for music streams</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>5.0</real>
+    </map>
     <key>AudioLevelAmbient</key>
     <map>
       <key>Comment</key>

@@ -37,8 +37,211 @@
 #include "llvoiceclient.h"
 #include "llviewermedia.h"
 #include "llprogressview.h"
+#include "llcallbacklist.h"
 
 /////////////////////////////////////////////////////////
+
+LLViewerAudio::LLViewerAudio() :
+	mDone(true),
+	mFadeState(FADE_IDLE),
+	mFadeTime(),
+    mIdleListnerActive(false)
+{
+}
+
+LLViewerAudio::~LLViewerAudio()
+{
+}
+
+void LLViewerAudio::registerIdleListener()
+{
+	if(mIdleListnerActive==false)
+	{
+		mIdleListnerActive = true;
+		doOnIdleRepeating(boost::bind(boost::bind(&LLViewerAudio::onIdleUpdate, this)));
+	}
+
+}
+
+void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
+{
+	llinfos << "DBG streamURI: " << streamURI << llendl;
+	llinfos << "DBG mNextStreamURI: " << mNextStreamURI << llendl;
+	if (mFadeState == FADE_OUT) {llinfos << "DBG mFadeState: FADE_OUT " << llendl;}
+	if (mFadeState == FADE_IN) {llinfos << "DBG mFadeState: FADE_IN " << llendl;}
+	if (mFadeState == FADE_IDLE) {llinfos << "DBG mFadeState: FADE_IDLE " << llendl;}
+
+	// Old and new stream are identical
+	if (mNextStreamURI == streamURI)
+	{
+		return;
+	}
+
+	// Record the URI we are going to be switching to	
+	mNextStreamURI = streamURI;
+
+	if (mFadeState == FADE_IDLE)
+	{
+		// If a stream is playing fade it out first
+		if (!gAudiop->getInternetStreamURL().empty())
+		{
+			mFadeState = FADE_OUT;
+llinfos << "DBG new mFadeState: OUT" << llendl;
+		}
+		// Otherwise the new stream can be faded in
+		else
+		{
+			mFadeState = FADE_IN;
+llinfos << "DBG new mFadeState: IN" << llendl;
+
+			gAudiop->startInternetStream(mNextStreamURI);
+			startFading();
+			registerIdleListener();
+			return;
+		}
+	}
+
+	if (mFadeState == FADE_OUT)
+	{
+		startFading();
+		registerIdleListener();
+		return;
+	}
+
+	if (mFadeState == FADE_IN)
+	{
+		registerIdleListener();
+		return;
+	}
+}
+
+// We want onIdleUpdate callback to keep firing whilst we are fading out. Once we have completed the fade
+// out, we switch the stream and start a fade in, and we don't care about idle updates anymore.
+// A return of false from onIdleUpdate means it will be called again next idle update.
+// A return of true means we have finished with it and the callback will be deleted.
+bool LLViewerAudio::onIdleUpdate()
+{
+	if (mDone)
+	{
+		if (mFadeState == FADE_OUT) {llinfos << "DBG mFadeState: FADE_OUT " << llendl;}
+		if (mFadeState == FADE_IN) {llinfos << "DBG mFadeState: FADE_IN " << llendl;}
+		if (mFadeState == FADE_IDLE) {llinfos << "DBG mFadeState: FADE_IDLE " << llendl;}
+
+		//  This should be a rare or never occurring state.
+		if (mFadeState == FADE_IDLE)
+		{
+			deregisterIdleListener();
+			return true; // Stop calling onIdleUpdate
+		}
+
+		// we have finished the current fade operation
+		if (mFadeState == FADE_OUT)
+		{
+			// Clear URI
+			gAudiop->startInternetStream(LLStringUtil::null);
+			gAudiop->stopInternetStream();
+				
+			if (!mNextStreamURI.empty())
+			{
+				mFadeState = FADE_IN;
+llinfos << "DBG new mFadeState: IN" << llendl;
+				gAudiop->startInternetStream(mNextStreamURI);
+				startFading();
+				return false;
+			}
+			else
+			{
+				mFadeState = FADE_IDLE;
+llinfos << "DBG new mFadeState: IDLE" << llendl;
+				deregisterIdleListener();
+				return true; // Stop calling onIdleUpdate
+			}
+		}
+		else if (mFadeState == FADE_IN)
+		{
+			if (mNextStreamURI != gAudiop->getInternetStreamURL())
+			{
+				mFadeState = FADE_OUT;
+				startFading();
+				return false;
+llinfos << "DBG new mFadeState: OUT" << llendl;
+			}
+			else
+			{
+				mFadeState = FADE_IDLE;
+llinfos << "DBG new mFadeState: IDLE" << llendl;
+				deregisterIdleListener();
+				return true; // Stop calling onIdleUpdate
+			}
+		}
+	}
+
+	return false;
+}
+
+void LLViewerAudio::stopInternetStreamWithAutoFade()
+{
+llinfos << "DBG stopping stream" << llendl;
+	mFadeState = FADE_IDLE;
+llinfos << "DBG new mFadeState: IDLE" << llendl;
+	mNextStreamURI = LLStringUtil::null;
+	mDone = true;
+llinfos << "DBG mDone: true" << llendl;
+
+	gAudiop->startInternetStream(LLStringUtil::null);
+	gAudiop->stopInternetStream();
+}
+
+void LLViewerAudio::startFading()
+{
+llinfos << "DBG startFading" << llendl;
+
+	if(mDone)
+	{
+		// The fade state here should only be one of FADE_IN or FADE_OUT, but, in case it is not,
+		// rather than check for both states assume a fade in and check for the fade out case.
+		mFadeTime = llmax(0.0f, gSavedSettings.getF32("AudioMusicFadeIn"));
+		if (LLViewerAudio::getInstance()->getFadeState() == LLViewerAudio::FADE_OUT)
+		{
+			mFadeTime = llmax(0.0f, gSavedSettings.getF32("AudioMusicFadeOut"));
+		}
+		stream_fade_timer.reset();
+		stream_fade_timer.setTimerExpirySec(mFadeTime);
+		mDone = false;
+llinfos << "DBG mDone: false" << llendl;
+	}
+}
+
+F32 LLViewerAudio::getFadeVolume()
+{
+	F32 fade_volume = 1.0f;
+
+	if (stream_fade_timer.hasExpired())
+	{
+		mDone = true;
+		// If we have been fading out set volume to 0 until the next fade state occurs to prevent
+		// an audio transient.
+		if (LLViewerAudio::getInstance()->getFadeState() == LLViewerAudio::FADE_OUT)
+		{
+			fade_volume = 0.0f;
+		}
+	}
+
+	if (!mDone)
+	{
+		// Calculate how far we are into the fade time
+		fade_volume = stream_fade_timer.getElapsedTimeF32() / mFadeTime;
+		
+		if (LLViewerAudio::getInstance()->getFadeState() == LLViewerAudio::FADE_OUT)
+		{
+			// If we are not fading in then we are fading out, so invert the fade
+			// direction; start loud and move towards zero volume.
+			fade_volume = 1.0f - fade_volume;
+		}
+	}
+
+	return fade_volume;
+}
 
 void init_audio() 
 {
@@ -145,9 +348,11 @@ void audio_update_volume(bool force_update)
 	{		
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
 		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
-		music_volume = mute_volume * master_volume * music_volume;
-		gAudiop->setInternetStreamGain ( music_muted || progress_view_visible ? 0.f : music_volume );
-	
+		F32 fade_volume = LLViewerAudio::getInstance()->getFadeVolume();
+llinfos << "DBG fade_volume:" << fade_volume << llendl;
+
+		music_volume = mute_volume * master_volume * music_volume * fade_volume;
+		gAudiop->setInternetStreamGain (music_muted ? 0.f : music_volume);
 	}
 
 	// Streaming Media
