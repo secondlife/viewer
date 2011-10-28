@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_inventory_add">
+	<menu label="Передать" name="upload">
+		<menu_item_call label="Изображение (L$[COST])..." name="Upload Image"/>
+		<menu_item_call label="Звук (L$[COST])..." name="Upload Sound"/>
+		<menu_item_call label="Анимация (L$[COST])..." name="Upload Animation"/>
+		<menu_item_call label="Модель..." name="Upload Model"/>
+		<menu_item_call label="Мастер моделирования..." name="Upload Model Wizard"/>
+		<menu_item_call label="Все сразу (L$[COST] за файл)..." name="Bulk Upload"/>
+		<menu_item_call label="Установить разрешения на передачу по умолчанию" name="perm prefs"/>
+	</menu>
+	<menu_item_call label="Новая папка" name="New Folder"/>
+	<menu_item_call label="Новый скрипт" name="New Script"/>
+	<menu_item_call label="Новая заметка" name="New Note"/>
+	<menu_item_call label="Новый жест" name="New Gesture"/>
+	<menu label="Новая одежда" name="New Clothes">
+		<menu_item_call label="Новая рубашка" name="New Shirt"/>
+		<menu_item_call label="Новые брюки" name="New Pants"/>
+		<menu_item_call label="Новая обувь" name="New Shoes"/>
+		<menu_item_call label="Новые носки" name="New Socks"/>
+		<menu_item_call label="Новый пиджак" name="New Jacket"/>
+		<menu_item_call label="Новая юбка" name="New Skirt"/>
+		<menu_item_call label="Новые перчатки" name="New Gloves"/>
+		<menu_item_call label="Новая майка" name="New Undershirt"/>
+		<menu_item_call label="Новые трусы" name="New Underpants"/>
+		<menu_item_call label="Новая альфа-маска" name="New Alpha"/>
+		<menu_item_call label="Новое тату" name="New Tattoo"/>
+		<menu_item_call label="Новая физика" name="New Physics"/>
+	</menu>
+	<menu label="Новые части тела" name="New Body Parts">
+		<menu_item_call label="Новая фигура" name="New Shape"/>
+		<menu_item_call label="Новая кожа" name="New Skin"/>
+		<menu_item_call label="Новые волосы" name="New Hair"/>
+		<menu_item_call label="Новые глаза" name="New Eyes"/>
+	</menu>
+</menu>

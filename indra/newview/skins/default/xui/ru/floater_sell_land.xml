@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sell land" title="ПРОДАЖА ЗЕМЛИ">
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="info_parcel_label">
+				Участок:
+			</text>
+			<text name="info_parcel">
+				НАЗВАНИЕ УЧАСТКА
+			</text>
+			<text name="info_size_label">
+				Размер:
+			</text>
+			<text name="info_size">
+				[AREA] м²
+			</text>
+			<text name="info_action">
+				Чтобы продать этот участок:
+			</text>
+			<text name="price_label">
+				1. Назначьте цену:
+			</text>
+			<text name="price_text">
+				Установите устраивающую вас цену.
+			</text>
+			<text name="price_ld">
+				L$
+			</text>
+			<line_editor name="price">
+				0
+			</line_editor>
+			<text name="price_per_m">
+				(L$[PER_METER] за м²)
+			</text>
+			<text name="sell_to_label">
+				2. Продажа земли:
+			</text>
+			<text name="sell_to_text">
+				Укажите, кому будете продавать землю.
+			</text>
+			<combo_box name="sell_to">
+				<combo_box.item label="- выберите -" name="--selectone--"/>
+				<combo_box.item label="Все" name="Anyone"/>
+				<combo_box.item label="Конкретному жителю:" name="Specificuser:"/>
+			</combo_box>
+			<button label="Выбрать" name="sell_to_select_agent"/>
+			<text name="sell_objects_label">
+				3. Продать объекты вместе с землей?
+			</text>
+			<text name="sell_objects_text">
+				Перемещаемые объекты хозяина этой земли изменят владельца?
+			</text>
+			<radio_group name="sell_objects">
+				<radio_item label="Нет, сохранить владение объектами" name="no"/>
+				<radio_item label="Да, продать объекты вместе с землей" name="yes"/>
+			</radio_group>
+			<button label="Показать объекты" name="show_objects"/>
+			<text name="nag_message_label">
+				ПОМНИТЕ: продажи нельзя отменить.
+			</text>
+			<button label="Выставить землю на продажу" name="sell_btn"/>
+			<button label="Отмена" name="cancel_btn"/>
+		</panel>
+	</scroll_container>
+</floater>

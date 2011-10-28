@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_sound_devices" title="Audiogeräte">
+<floater name="floater_sound_devices" title="SOUNDGERÄTE">
 	<text name="voice_label">
 		Voice-Chat
 	</text>

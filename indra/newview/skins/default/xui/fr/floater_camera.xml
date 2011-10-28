@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater">
+<floater name="camera_floater" title="AFFICHER">
 	<floater.string name="rotate_tooltip">
 		Faire tourner la caméra autour du point central
 	</floater.string>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="contents" title="КУПИТЬ КОПИЮ ОБЪЕКТА">
+	<floater.string name="title_buy_text">
+		Купить
+	</floater.string>
+	<floater.string name="title_buy_copy_text">
+		Купить копию
+	</floater.string>
+	<floater.string name="no_copy_text">
+		(не копируется)
+	</floater.string>
+	<floater.string name="no_modify_text">
+		(не изменяется)
+	</floater.string>
+	<floater.string name="no_transfer_text">
+		(не передается)
+	</floater.string>
+	<text name="contents_text">
+		Содержимое:
+	</text>
+	<text name="buy_text">
+		Купить за L$[AMOUNT] у пользователя:
+	</text>
+	<text name="buy_name_text">
+		[NAME]?
+	</text>
+	<button label="Купить" label_selected="Купить" name="buy_btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_btn"/>
+</floater>

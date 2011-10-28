@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_avatar">
+	<string name="Subtitle">
+		[AGE]
+	</string>
+	<string name="Details">
+		[SL_PROFILE]
+	</string>
+	<text name="user_subtitle" value="11 ay, 3 günlük"/>
+	<text name="user_details">
+		Second Life içerisindeki tanımım bu, harika olduğunu düşünüyorum. Ama nedense tanımım gerçekten çok uzun çünkü çok konuşmayı seviyorum.
+	</text>
+	<slider name="volume_slider" tool_tip="Ses düzeyi" value="0.5"/>
+	<button label="Arkadaş Ekle" name="add_friend_btn"/>
+	<button label="Aİ" name="im_btn"/>
+	<button label="Profil" name="view_profile_btn"/>
+	<panel name="moderator_panel">
+		<button label="Sesi Devre Dışı Bırak" name="disable_voice"/>
+		<button label="Sesi Etkinleştir" name="enable_voice"/>
+	</panel>
+</floater>

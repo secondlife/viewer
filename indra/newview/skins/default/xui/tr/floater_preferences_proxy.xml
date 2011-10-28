@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Proxy Settings Floater" title="Proxy Ayarları">
+	<check_box initial_value="false" label="Web sayfaları için HTTP Proxy kullan" name="web_proxy_enabled"/>
+	<text name="http_proxy_label">
+		HTTP Proxy:
+	</text>
+	<line_editor name="web_proxy_editor" tool_tip="Kullanmak istediğiniz HTTP proxy&apos;nin DNS adı veya IP adresi."/>
+	<spinner label="Port numarası:" name="web_proxy_port" tool_tip="Kullanmak istediğiniz HTTP proxy&apos;nin portu."/>
+	<check_box label="UDP trafiği için SOCKS 5 Proxy kullan" name="socks_proxy_enabled"/>
+	<text name="socks5_proxy_label">
+		SOCKS 5 Proxy:
+	</text>
+	<line_editor name="socks_proxy_editor" tool_tip="Kullanmak istediğiniz SOCKS 5 proxy&apos;nin DNS adı veya IP adresi."/>
+	<spinner label="Port numarası:" name="socks_proxy_port" tool_tip="Kullanmak istediğiniz SOCKS 5 proxy&apos;nin portu."/>
+	<text name="socks_auth_label">
+		SOCKS Kimlik Doğrulama:
+	</text>
+	<radio_group name="socks5_auth_type">
+		<radio_item label="Kimlik Doğrulama Yok" name="Socks5NoAuth" tool_tip="Socks5 proxy&apos;si kimlik doğrulama gerektirmiyor." value="Hiçbiri"/>
+		<radio_item label="Kullanıcı Adı/Parola" name="Socks5UserPass" tool_tip="Socks5 proxy&apos;si kullanıcı adı/parola doğrulaması gerektiriyor." value="UserPass"/>
+	</radio_group>
+	<text name="socks5_username_label">
+		Kullanıcı Adı:
+	</text>
+	<text name="socks5_password_label">
+		Parola:
+	</text>
+	<line_editor name="socks5_username" tool_tip="SOCKS 5 sunucunuzda kimlik doğrulaması yapmak için kullanılan kullanıcı adı"/>
+	<line_editor name="socks5_password" tool_tip="SOCKS 5 sunucunuzda kimlik doğrulaması yapmak için kullanılan parola"/>
+	<text name="other_proxy_label">
+		Diğer HTTP trafiği proxy&apos;si:
+	</text>
+	<radio_group name="other_http_proxy_type">
+		<radio_item label="Proxy kullanılmasın" name="OtherNoProxy" tool_tip="Web dışı HTTP trafiği herhangi bir proxy&apos;ye gönderilmez." value="Hiçbiri"/>
+		<radio_item label="HTTP Proxy&apos;si kullan" name="OtherHTTPProxy" tool_tip="Web dışı HTTP trafiği yapılandırılmış web proxy&apos;si üzerinden gönderilir." value="Web"/>
+		<radio_item label="SOCKS 5 Proxy&apos;si kullan" name="OtherSocksProxy" tool_tip="Web dışı HTTP trafiği yapılandırılmış Socks 5 proxy&apos;si üzerinden gönderilir." value="Socks"/>
+	</radio_group>
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+</floater>

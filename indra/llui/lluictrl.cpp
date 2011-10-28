@@ -992,6 +992,16 @@ void LLUICtrl::setTransparencyType(ETypeTransparency type)
 	mTransparencyType = type;
 }
 
+boost::signals2::connection LLUICtrl::setCommitCallback(const CommitCallbackParam& cb)
+{
+	return setCommitCallback(initCommitCallback(cb));
+}
+
+boost::signals2::connection LLUICtrl::setValidateCallback(const EnableCallbackParam& cb)
+{
+	return setValidateCallback(initEnableCallback(cb));
+}
+
 boost::signals2::connection LLUICtrl::setCommitCallback( const commit_signal_t::slot_type& cb ) 
 { 
 	if (!mCommitSignal) mCommitSignal = new commit_signal_t();
@@ -1044,4 +1054,10 @@ boost::signals2::connection LLUICtrl::setDoubleClickCallback( const mouse_signal
 { 
 	if (!mDoubleClickSignal) mDoubleClickSignal = new mouse_signal_t();
 	return mDoubleClickSignal->connect(cb); 
+}
+
+void LLUICtrl::addInfo(LLSD & info)
+{
+	LLView::addInfo(info);
+	info["value"] = getValue();
 }

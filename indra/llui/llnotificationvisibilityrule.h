@@ -59,7 +59,7 @@ struct LLNotificationVisibilityRule
 		{}
 	};
 
-	struct Rule : public LLInitParam::Choice<Rule>
+	struct Rule : public LLInitParam::ChoiceBlock<Rule>
 	{
 		Alternative<Filter>		show;
 		Alternative<Filter>		hide;

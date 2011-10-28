@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="avatar_list_item">
+	<string name="FormatSeconds">
+		[COUNT] с
+	</string>
+	<string name="FormatMinutes">
+		[COUNT] мин
+	</string>
+	<string name="FormatHours">
+		[COUNT] ч
+	</string>
+	<string name="FormatDays">
+		[COUNT] д
+	</string>
+	<string name="FormatWeeks">
+		[COUNT] нед
+	</string>
+	<string name="FormatMonths">
+		[COUNT] мес
+	</string>
+	<string name="FormatYears">
+		[COUNT] г
+	</string>
+	<text name="avatar_name" value="(загрузка)"/>
+	<text name="last_interaction" value="0 с"/>
+	<icon name="permission_edit_theirs_icon" tool_tip="Вы можете изменять объекты этого друга"/>
+	<icon name="permission_edit_mine_icon" tool_tip="Этот друг может изменять, удалять или брать ваши объекты"/>
+	<icon name="permission_map_icon" tool_tip="Этот друг может видеть вас на карте"/>
+	<icon name="permission_online_icon" tool_tip="Этот друг может видеть ваш статус в сети"/>
+	<button name="profile_btn" tool_tip="Смотреть профиль"/>
+</panel>

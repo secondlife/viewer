@@ -32,6 +32,7 @@
 #include "llappviewer.h"
 #include "llbutton.h"
 #include "llinventorypanel.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llsidepanelinventory.h"
 #include "llviewercontrol.h"
@@ -58,8 +59,6 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 // virtual
 BOOL LLPanelMarketplaceInbox::postBuild()
 {
-	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceInbox::handleLoginComplete, this));
-
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
 	
 	return TRUE;
@@ -67,17 +66,11 @@ BOOL LLPanelMarketplaceInbox::postBuild()
 
 void LLPanelMarketplaceInbox::onSelectionChange()
 {
-	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		
 	sidepanel_inventory->updateVerbs();
 }
 
-
-void LLPanelMarketplaceInbox::handleLoginComplete()
-{
-	// Set us up as the class to drive the badge value for the sidebar_inventory button
-	LLSideTray::getInstance()->setTabButtonBadgeDriver("sidebar_inventory", this);
-}
 
 LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 {
@@ -113,9 +106,11 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 
 void LLPanelMarketplaceInbox::onFocusReceived()
 {
-	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-
-	sidepanel_inventory->clearSelections(true, false, true);
+	LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	if (sidepanel_inventory)
+	{
+		sidepanel_inventory->clearSelections(true, false, true);
+	}
 
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
@@ -186,9 +181,10 @@ std::string LLPanelMarketplaceInbox::getBadgeString() const
 {
 	std::string item_count_str("");
 
+	LLPanel *inventory_panel = LLFloaterSidePanelContainer::getPanel("inventory");
+
 	// If the inbox is visible, and the side panel is collapsed or expanded and not the inventory panel
-	if (getParent()->getVisible() &&
-		(LLSideTray::getInstance()->getCollapsed() || !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory")))
+	if (getParent()->getVisible() && inventory_panel && !inventory_panel->isInVisibleChain())
 	{
 		U32 item_count = getFreshItemCount();
 

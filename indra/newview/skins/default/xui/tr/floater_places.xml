@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_places" title="YERLER">
+	<panel label="Yerler" name="main_panel"/>
+</floater>

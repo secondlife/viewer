@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Login Menu">
+	<menu label="Я" name="File">
+		<menu_item_call label="Настройки..." name="Preferences..."/>
+		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
+	</menu>
+	<menu label="Справка" name="Help">
+		<menu_item_call label="Справка [SECOND_LIFE]" name="Second Life Help"/>
+		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
+	</menu>
+	<menu_item_check label="Показать меню отладки" name="Show Debug Menu"/>
+	<menu label="Отладка" name="Debug">
+		<menu_item_call label="Настройки отладки" name="Debug Settings"/>
+		<menu_item_call label="Настройки интерфейса/цвета" name="UI/Color Settings"/>
+		<menu_item_call label="Просмотр XUI" name="UI Preview Tool"/>
+		<menu label="Тест UI" name="UI Tests"/>
+		<menu_item_call label="Задать размер окна..." name="Set Window Size..."/>
+		<menu_item_call label="Показать лицензионное соглашение" name="TOS"/>
+		<menu_item_call label="Показать сообщение об ошибке" name="Critical"/>
+		<menu_item_call label="Проверка медиабраузера" name="Web Browser Test"/>
+		<menu_item_call label="Тест отладки плавающего окна с веб-контентом" name="Web Content Floater Debug Test"/>
+		<menu_item_check label="Выбор сетки" name="Show Grid Picker"/>
+		<menu_item_call label="Консоль уведомлений" name="Show Notifications Console"/>
+	</menu>
+</menu_bar>

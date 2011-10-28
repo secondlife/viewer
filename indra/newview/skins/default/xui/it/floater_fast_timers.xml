@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="fast_timers">
+	<string name="pause">
+		Pausa
+	</string>
+	<string name="run">
+		Correre
+	</string>
+	<button label="Pausa" name="pause_btn"/>
+</floater>

@@ -217,19 +217,19 @@ ou divisé.
 				Facteur Bonus objets : [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Utilisation des primitives :
+				Capacité de la région :
 			</text>
 			<text name="objects_available">
 				[COUNT] sur [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:">
-				Prims max. sur la parcelle :
+				Capacité de la parcelle :
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims sur la parcelle :
+				Impact sur la parcelle :
 			</text>
 			<text name="total_objects_text">
 				[COUNT]

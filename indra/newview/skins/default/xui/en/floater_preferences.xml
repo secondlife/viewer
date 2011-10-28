@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- open_centered="true"
+ open_positioning="centered"
  default_tab_group="1"
  height="460"
  layout="topleft"
  name="Preferences"
  help_topic="preferences"
+ save_rect="true"
  single_instance="true"
  title="PREFERENCES"
  width="658">

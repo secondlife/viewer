@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="outgoing call" title="ARIYOR">
+	<floater.string name="lifetime">
+		5
+	</floater.string>
+	<floater.string name="localchat">
+		Yakındaki Sesli Sohbet
+	</floater.string>
+	<floater.string name="anonymous">
+		anonim
+	</floater.string>
+	<floater.string name="VoiceInviteP2P">
+		arıyor.
+	</floater.string>
+	<floater.string name="VoiceInviteAdHoc">
+		bir Sesli Sohbet aramasına bir konferans araması ile katıldı.
+	</floater.string>
+	<text name="connecting">
+		[CALLEE_NAME] bağlanıyor
+	</text>
+	<text name="calling">
+		[CALLEE_NAME] aranıyor
+	</text>
+	<text name="noanswer">
+		Cevap Yok.  Lütfen daha sonra tekrar deneyin.
+	</text>
+	<text name="nearby">
+		[VOICE_CHANNEL_NAME] ile bağlantınız kesildi.  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_other">
+		Aramanız bitti.  [RECONNECT_NEARBY]
+	</text>
+	<text name="nearby_P2P_by_agent">
+		Aramayı bitirdiniz.  [RECONNECT_NEARBY]
+	</text>
+	<text name="leaving">
+		[CURRENT_CHAT] bırakılıyor.
+	</text>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+</floater>

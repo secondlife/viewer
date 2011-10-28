@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<context_menu name="Outfit">
-	<menu_item_call label="Indossa - Sostituisci vestiario attuale" name="wear_replace"/>
-	<menu_item_call label="Indossa - Aggiungi al vestiario attuale" name="wear_add"/>
-	<menu_item_call label="Togli - Rimuovi dal vestiario attuale" name="take_off"/>
-	<menu_item_call label="Modifica vestiario" name="edit"/>
-	<menu_item_call label="Cambia nome del vestiario" name="rename"/>
-	<menu_item_call label="Elimina vestito" name="delete"/>
-</context_menu>

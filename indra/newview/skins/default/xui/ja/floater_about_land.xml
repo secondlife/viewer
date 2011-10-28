@@ -214,19 +214,19 @@
 				オブジェクトボーナス: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				プリム使用状況：
+				リージョン（地域）の許容数：
 			</text>
 			<text name="objects_available">
 				[MAX] の内 [COUNT] （[AVAILABLE] 利用可能）
 			</text>
 			<text name="Primitives parcel supports:">
-				区画でサポートされるプリム数：
+				区画の許容数：
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				区画上のプリム数：
+				区画の負荷：
 			</text>
 			<text name="total_objects_text">
 				[COUNT]

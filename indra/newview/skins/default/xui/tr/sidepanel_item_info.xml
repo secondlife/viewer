@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="item properties" title="Öğe Profili">
+	<panel.string name="unknown">
+		(bilinmiyor)
+	</panel.string>
+	<panel.string name="public">
+		(kamuya açık)
+	</panel.string>
+	<panel.string name="you_can">
+		Şunu yapabilirsiniz:
+	</panel.string>
+	<panel.string name="owner_can">
+		Sahip şunu yapabilir:
+	</panel.string>
+	<panel.string name="acquiredDate">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</panel.string>
+	<panel.string name="origin_inventory">
+		(Envanter)
+	</panel.string>
+	<panel.string name="origin_inworld">
+		(SL Dünyası)
+	</panel.string>
+	<text name="title" value="Öğe Profili"/>
+	<text name="origin" value="(Envanter)"/>
+	<scroll_container name="item_profile_scroll">
+		<panel label="" name="item_profile">
+			<text name="LabelItemNameTitle">
+				Ad:
+			</text>
+			<text name="LabelItemDescTitle">
+				Açıklama:
+			</text>
+			<text name="LabelCreatorTitle">
+				Oluşturan:
+			</text>
+			<text name="LabelOwnerTitle">
+				Sahip:
+			</text>
+			<text name="LabelAcquiredTitle">
+				Alınan:
+			</text>
+			<panel name="perms_inv">
+				<text name="perm_modify">
+					Şunu yapabilirsiniz:
+				</text>
+				<check_box label="Değiştir" name="CheckOwnerModify"/>
+				<check_box label="Kopyala" name="CheckOwnerCopy"/>
+				<check_box label="Aktar" name="CheckOwnerTransfer"/>
+				<text name="AnyoneLabel">
+					Herkes:
+				</text>
+				<check_box label="Kopyala" name="CheckEveryoneCopy"/>
+				<text name="GroupLabel">
+					Grup:
+				</text>
+				<check_box label="Paylaş" name="CheckShareWithGroup" tool_tip="Ayarlanan grubun tüm üyelerinin, bu nesne için değiştirme izinlerinizi paylaşmasına izin verir. Rol kısıtlamalarını etkinleştirmek için Devretme yapmalısınız."/>
+				<text name="NextOwnerLabel">
+					Sonraki sahip:
+				</text>
+				<check_box label="Değiştir" name="CheckNextOwnerModify"/>
+				<check_box label="Kopyala" name="CheckNextOwnerCopy"/>
+				<check_box label="Aktar" name="CheckNextOwnerTransfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+			</panel>
+			<check_box label="Satılık" name="CheckPurchase"/>
+			<combo_box name="combobox sale copy">
+				<combo_box.item label="Kopyala" name="Copy"/>
+				<combo_box.item label="Orijinal" name="Original"/>
+			</combo_box>
+			<spinner label="Fiyat: L$" name="Edit Cost"/>
+		</panel>
+	</scroll_container>
+	<panel name="button_panel">
+		<button label="İptal" name="cancel_btn"/>
+	</panel>
+</panel>

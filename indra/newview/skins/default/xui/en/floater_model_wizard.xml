@@ -199,7 +199,7 @@
 			 height="10"
 			 layout="topleft"
 			 left="10"
-			 name="Cache location"
+			 name="Model types"
 			 width="320">
 				Second Life supports COLLADA (.dae) files
 			</text>

@@ -28,11 +28,10 @@
 #define LL_LLPANELMARKETPLACEINBOX_H
 
 #include "llpanel.h"
-#include "llsidetray.h"
 
 class LLInventoryPanel;
 
-class LLPanelMarketplaceInbox : public LLPanel, public LLSideTrayTabBadgeDriver
+class LLPanelMarketplaceInbox : public LLPanel
 {
 public:
 
@@ -61,7 +60,6 @@ public:
 	std::string getBadgeString() const;
 
 private:
-	void handleLoginComplete();
 
 	void onSelectionChange();
 

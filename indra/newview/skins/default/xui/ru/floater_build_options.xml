@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="build options floater" title="НАСТРОЙКИ СЕТКИ">
+	<floater.string name="grid_screen_text">
+		Экран
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Локальная
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Мир
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Точка отсчета
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Присоединение
+	</floater.string>
+	<text name="grid_mode_label" tool_tip="Прозрачность сетки">
+		Режим
+	</text>
+	<combo_box name="combobox grid mode" tool_tip="Выберите тип линейки сетки для размещения объекта">
+		<combo_box.item label="Всемирная" name="World"/>
+		<combo_box.item label="Локальная сетка" name="Local"/>
+		<combo_box.item label="Координатная сетка" name="Reference"/>
+	</combo_box>
+	<spinner label="Единицы (метры)" name="GridResolution"/>
+	<spinner label="Пространство (метры)" name="GridDrawSize"/>
+	<check_box label="Привязывать к субъячейкам" name="GridSubUnit"/>
+	<check_box label="Показывать плоскость пересечения" name="GridCrossSection"/>
+	<text name="grid_opacity_label" tool_tip="Прозрачность сетки">
+		Прозрачность:
+	</text>
+</floater>

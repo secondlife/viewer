@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_media">
+	<string name="media_item_count_format">
+		(%d ortamı ögesi)
+	</string>
+	<string name="empty_item_text">
+		&lt;boş&gt;
+	</string>
+	<string name="parcel_media_name">
+		Parsel Akış Ortamı
+	</string>
+	<string name="parcel_audio_name">
+		Parsel Akış Sesi
+	</string>
+	<string name="playing_suffix">
+		(oynatılıyor)
+	</string>
+	<panel name="minimized_controls">
+		<button label="Tümünü Durdur" name="all_nearby_media_disable_btn" tool_tip="Tüm yakın ortamları kapat"/>
+		<button label="Tümünü Başlat" name="all_nearby_media_enable_btn" tool_tip="Tüm yakın ortamları aç"/>
+		<button name="open_prefs_btn" tool_tip="Ortam tercihlerini getirir"/>
+		<button label="Daha Fazla &gt;&gt;" label_selected="&lt;&lt; Daha Az" name="more_btn" tool_tip="Gelişmiş Kontroller"/>
+	</panel>
+	<panel name="nearby_media_panel">
+		<text name="nearby_media_title">
+			Yakındaki Ortamlar
+		</text>
+		<text name="show_text">
+			Göster :
+		</text>
+		<combo_box name="show_combo">
+			<combo_box.item label="Tümü" name="All"/>
+			<combo_box.item label="Bu Parseldeki" name="WithinParcel"/>
+			<combo_box.item label="Bu Parselin Dışında" name="OutsideParcel"/>
+			<combo_box.item label="Diğer Avatarlarda" name="OnOthers"/>
+		</combo_box>
+		<scroll_list name="media_list">
+			<scroll_list.columns label="Yakınlık" name="media_proximity"/>
+			<scroll_list.columns label="Görünür" name="media_visibility"/>
+			<scroll_list.columns label="Sınıf" name="media_class"/>
+			<scroll_list.columns label="Ad" name="media_name"/>
+			<scroll_list.columns label="Hata ayıkla" name="media_debug"/>
+		</scroll_list>
+		<panel name="media_controls_panel">
+			<layout_stack name="media_controls">
+				<layout_panel name="stop">
+					<button name="stop_btn" tool_tip="Seçilen ortamı durdur"/>
+				</layout_panel>
+				<layout_panel name="play">
+					<button name="play_btn" tool_tip="Seçilen ortamı oynat"/>
+				</layout_panel>
+				<layout_panel name="pause">
+					<button name="pause_btn" tool_tip="Seçilen ortamı duraklat"/>
+				</layout_panel>
+				<layout_panel name="volume_slider_ctrl">
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Seçilen ortamı için ses düzeyi"/>
+				</layout_panel>
+				<layout_panel name="mute">
+					<button name="mute_btn" tool_tip="Seçilen ortamda ses sustur"/>
+				</layout_panel>
+				<layout_panel name="zoom">
+					<button name="zoom_btn" tool_tip="Seçilen ortama yakınlaştır"/>
+				</layout_panel>
+				<layout_panel name="unzoom">
+					<button name="unzoom_btn" tool_tip="Seçilen ortamdan uzaklaştır"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>

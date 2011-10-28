@@ -31,6 +31,7 @@
 #include "llnotificationsutil.h"
 #include "lltabcontainer.h"
 
+#include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llagentwearables.h"
@@ -40,7 +41,6 @@
 #include "llpanelwearing.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "llviewerfoldertype.h"
 
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
@@ -222,7 +222,7 @@ void LLPanelOutfitsInventory::onSave()
 //static
 LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
 {
-	return dynamic_cast<LLPanelOutfitsInventory*>(LLSideTray::getInstance()->getPanel("panel_outfits_inventory"));
+	return dynamic_cast<LLPanelOutfitsInventory*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfits_inventory"));
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -319,8 +319,7 @@ void LLPanelOutfitsInventory::onWearablesLoading()
 // static
 LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
 {
-	static LLSidepanelAppearance* panel_appearance =
-		dynamic_cast<LLSidepanelAppearance*>
-		(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	LLSidepanelAppearance* panel_appearance =
+		dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	return panel_appearance;
 }

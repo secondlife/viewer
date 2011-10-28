@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_target_profile">
+	<string name="status_online">
+		Онлайн
+	</string>
+	<string name="status_offline">
+		Оффлайн
+	</string>
+	<text name="display_name_label" value="Экранное имя:"/>
+	<text name="solo_username_label" value="Имя пользователя:"/>
+	<text name="status" value="Онлайн"/>
+	<text name="user_name_small" value="Взгляни-ка, друг, какое длиннющее имя"/>
+	<button name="copy_to_clipboard" tool_tip="Копировать в буфер обмена"/>
+	<text name="user_label" value="Имя пользователя:"/>
+	<tab_container name="tabs">
+		<panel label="ПРОФИЛЬ" name="panel_profile"/>
+		<panel label="ПОДБОРКА" name="panel_picks"/>
+		<panel label="ЗАМЕТКИ И ДОСТУП" name="panel_notes"/>
+	</tab_container>
+</panel>

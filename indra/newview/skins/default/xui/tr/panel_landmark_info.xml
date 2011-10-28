@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="landmark_info">
+	<string name="title_create_landmark" value="Yer İmi Oluştur"/>
+	<string name="title_edit_landmark" value="Yer İmini Düzenle"/>
+	<string name="title_landmark" value="Yer İmi"/>
+	<string name="not_available" value="(G/D)"/>
+	<string name="unknown" value="(bilinmiyor)"/>
+	<string name="public" value="(kamuya açık)"/>
+	<string name="server_update_text">
+		Sunucu güncelleştirmesi olmadan yer bilgisi mevcut olmaz.
+	</string>
+	<string name="server_error_text">
+		Bu konum hakkında şu anda bilgi mevcut değil, lütfen daha sonra tekrar deneyin.
+	</string>
+	<string name="server_forbidden_text">
+		Erişim kısıtlamaları nedeniyle bu konum hakkında bilgiye erişilemiyor.  Lütfen parsel sahibi nezdinde izinlerinizi kontrol edin.
+	</string>
+	<string name="acquired_date">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</string>
+	<button name="back_btn" tool_tip="Geri"/>
+	<text name="title" value="Profili Yerleştir"/>
+	<scroll_container name="place_scroll">
+		<panel name="scrolling_panel">
+			<text name="region_title" value="Örnek Bölge"/>
+			<text name="parcel_title" value="Örnek Parsel, Uzun Ad (145, 228, 26)"/>
+			<expandable_text name="description" value="Du waltz die spritz"/>
+			<text name="maturity_value" value="bilinmiyor"/>
+			<panel name="landmark_info_panel">
+				<text name="owner_label" value="Sahip:"/>
+				<text name="creator_label" value="Oluşturan:"/>
+				<text name="created_label" value="Oluşturuldu:"/>
+			</panel>
+			<panel name="landmark_edit_panel">
+				<text name="title_label" value="Başlık:"/>
+				<text name="notes_label" value="Notlarım:"/>
+				<text name="folder_label" value="Yer imi konumu:"/>
+			</panel>
+		</panel>
+	</scroll_container>
+</panel>

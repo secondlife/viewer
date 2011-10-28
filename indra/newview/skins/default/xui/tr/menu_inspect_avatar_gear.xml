@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="Profili Göster" name="view_profile"/>
+	<menu_item_call label="Arkadaş Ekle" name="add_friend"/>
+	<menu_item_call label="Aİ" name="im"/>
+	<menu_item_call label="Ara" name="call"/>
+	<menu_item_call label="Işınla" name="teleport"/>
+	<menu_item_call label="Gruba Davet Et" name="invite_to_group"/>
+	<menu_item_call label="Engelle" name="block"/>
+	<menu_item_call label="Engellemeyi Kaldır" name="unblock"/>
+	<menu_item_call label="Raporla" name="report"/>
+	<menu_item_call label="Dondur" name="freeze"/>
+	<menu_item_call label="Çıkar" name="eject"/>
+	<menu_item_call label="Çıkar" name="kick"/>
+	<menu_item_call label="CSR" name="csr"/>
+	<menu_item_call label="Dokularda Hata Ayıkla" name="debug"/>
+	<menu_item_call label="Haritada Bul" name="find_on_map"/>
+	<menu_item_call label="Yakınlaştır" name="zoom_in"/>
+	<menu_item_call label="Öde" name="pay"/>
+	<menu_item_call label="Paylaş" name="share"/>
+</toggleable_menu>

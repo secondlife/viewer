@@ -26,7 +26,6 @@
 #include "linden_common.h"
 #include <apr_file_io.h>
 #include "llapr.h"
-#include "llscopedvolatileaprpool.h"
 #include "llprocesslauncher.h"
 #include "llupdateinstaller.h"
 #include "lldir.h" 
@@ -46,8 +45,7 @@ namespace {
 	{
 		std::string scriptFile = gDirUtilp->getBaseFileName(path);
 		std::string newPath = gDirUtilp->getExpandedFilename(LL_PATH_TEMP, scriptFile);
-		LLScopedVolatileAPRPool pool;
-		apr_status_t status = apr_file_copy(path.c_str(), newPath.c_str(), APR_FILE_SOURCE_PERMS, pool);
+		apr_status_t status = apr_file_copy(path.c_str(), newPath.c_str(), APR_FILE_SOURCE_PERMS, gAPRPoolp);
 		if(status != APR_SUCCESS) throw RelocateError();
 		
 		return newPath;

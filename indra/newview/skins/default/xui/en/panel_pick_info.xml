@@ -117,7 +117,7 @@
     </scroll_container>
     <panel
      follows="left|right|bottom"
-     height="35"
+     height="23"
      layout="topleft"
      top_pad="5"
      left="8"

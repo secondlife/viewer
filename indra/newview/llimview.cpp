@@ -46,7 +46,6 @@
 #include "llagentui.h"
 #include "llappviewer.h"
 #include "llavatariconctrl.h"
-#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchat.h"
 #include "llimfloater.h"
@@ -61,6 +60,7 @@
 #include "llnearbychat.h"
 #include "llspeakers.h" //for LLIMSpeakerMgr
 #include "lltextbox.h"
+#include "lltoolbarview.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 
@@ -1675,26 +1675,47 @@ LLCallDialog::~LLCallDialog()
 	LLUI::removePopup(this);
 }
 
-void LLCallDialog::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
-}
-
 BOOL LLCallDialog::postBuild()
 {
-	if (!LLDockableFloater::postBuild())
+	if (!LLDockableFloater::postBuild() || !gToolBarView)
 		return FALSE;
-
-	// dock the dialog to the Speak Button, where other sys messages appear
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_panel");
-
-	setDockControl(new LLDockControl(
-		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP,
-		boost::bind(&LLCallDialog::getAllowedRect, this, _1)));
-
+	
+	dockToToolbarButton("speak");
+	
 	return TRUE;
 }
+
+void LLCallDialog::dockToToolbarButton(const std::string& toolbarButtonName)
+{
+	LLDockControl::DocAt dock_pos = getDockControlPos(toolbarButtonName);
+	LLView *anchor_panel = gToolBarView->findChildView(toolbarButtonName);
+
+	setUseTongue(anchor_panel);
+
+	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(dock_pos), dock_pos));
+}
+
+LLDockControl::DocAt LLCallDialog::getDockControlPos(const std::string& toolbarButtonName)
+{
+	LLCommandId command_id(toolbarButtonName);
+	S32 toolbar_loc = gToolBarView->hasCommand(command_id);
+	
+	LLDockControl::DocAt doc_at = LLDockControl::TOP;
+	
+	switch (toolbar_loc)
+	{
+		case LLToolBarView::TOOLBAR_LEFT:
+			doc_at = LLDockControl::RIGHT;
+			break;
+			
+		case LLToolBarView::TOOLBAR_RIGHT:
+			doc_at = LLDockControl::LEFT;
+			break;
+	}
+	
+	return doc_at;
+}
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLOutgoingCallDialog
@@ -2449,8 +2470,10 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
+		
+		LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+		LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
 
-		LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
 		if(nearby_chat)
 		{
 			nearby_chat->addMessage(chat);

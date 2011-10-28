@@ -41,7 +41,6 @@
 
 #include "llagent.h"
 #include "llbutton.h"
-#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
