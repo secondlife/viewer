@@ -39,6 +39,7 @@
 #include "llavataractions.h" 
 #include "llfloateropenobject.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderview.h"
 #include "llfriendcard.h"
@@ -59,7 +60,6 @@
 #include "llpreviewtexture.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
 #include "llviewerfoldertype.h"
@@ -1185,7 +1185,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		std::string buffer;
 		asset_id.toString(buffer);
 
-		gViewerWindow->mWindow->copyTextToClipboard(utf8str_to_wstring(buffer));
+		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(buffer));
 		return;
 	}
 	else if ("copy" == action)
@@ -1376,16 +1376,17 @@ std::string LLItemBridge::getLabelSuffix() const
 	LLInventoryItem* item = getItem();
 	if(item)
 	{
-		// it's a bit confusing to put nocopy/nomod/etc on calling cards.
+		// Any type can have the link suffix...
+		BOOL broken_link = LLAssetType::lookupIsLinkType(item->getType());
+		if (broken_link) return BROKEN_LINK;
+
+		BOOL link = item->getIsLinkType();
+		if (link) return LINK;
+
+		// ...but it's a bit confusing to put nocopy/nomod/etc suffixes on calling cards.
 		if(LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
 		{
-			BOOL broken_link = LLAssetType::lookupIsLinkType(item->getType());
-			if (broken_link) return BROKEN_LINK;
-
-			BOOL link = item->getIsLinkType();
-			if (link) return LINK;
-
 			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
 			if (!copy)
 			{
@@ -3851,7 +3852,7 @@ void LLLandmarkBridge::performAction(LLInventoryModel* model, std::string action
 			key["type"] = "landmark";
 			key["id"] = item->getUUID();
 
-			LLSideTray::getInstance()->showPanel("panel_places", key);
+			LLFloaterSidePanelContainer::showPanel("places", key);
 		}
 	}
 	else
@@ -4780,7 +4781,7 @@ void remove_inventory_category_from_avatar( LLInventoryCategory* category )
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
 		// switching to outfit editor should automagically save any currently edited wearable
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	remove_inventory_category_from_avatar_step2(TRUE, category->getUUID() );

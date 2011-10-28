@@ -213,19 +213,19 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Plus de objetos en la región: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso de primitivas:
+				Capacidad de la región:
 			</text>
 			<text name="objects_available">
 				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:">
-				Prims que admite la parcela:
+				Capacidad del terreno de la parcela:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims en la parcela:
+				Impacto en el terreno de la parcela:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]

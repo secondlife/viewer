@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Add Wearable Gear Menu">
+	<menu_item_check label="En Sonunculara Göre Sırala" name="sort_by_most_recent"/>
+	<menu_item_check label="Ada Göre Sırala" name="sort_by_name"/>
+	<menu_item_check label="Türe Göre Sırala" name="sort_by_type"/>
+</toggleable_menu>

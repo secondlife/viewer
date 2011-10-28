@@ -46,7 +46,7 @@ void LLMainLoopRepeater::start(void)
 {
 	if(mQueue != 0) return;
 
-	mQueue = new LLThreadSafeQueue<LLSD>(1024);
+	mQueue = new LLThreadSafeQueue<LLSD>(gAPRPoolp, 1024);
 	mMainLoopConnection = LLEventPumps::instance().
 		obtain("mainloop").listen(LLEventPump::inventName(), boost::bind(&LLMainLoopRepeater::onMainLoop, this, _1));
 	mRepeaterConnection = LLEventPumps::instance().

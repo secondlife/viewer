@@ -1488,7 +1488,8 @@ void LLViewerMedia::setOpenIDCookie()
 			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
 			headers);
 
-		doOnetimeEarlyHTTPRequests();
+		// FUI: No longer perform the user_status query
+		//doOnetimeEarlyHTTPRequests();
 	}
 }
 

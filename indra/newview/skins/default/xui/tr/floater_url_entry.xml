@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="url_entry">
+	<text name="media_label">
+		Ortam URL&apos;si:
+	</text>
+	<button label="Tamam" name="ok_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+	<button label="Temizle" name="clear_btn"/>
+	<text name="loading_label">
+		Yükleniyor...
+	</text>
+</floater>

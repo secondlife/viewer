@@ -531,7 +531,7 @@ LLCurl::Multi::Multi()
 	mThreaded = LLCurl::sMultiThreaded && LLThread::currentID() == sMainThreadID;
 	if (mThreaded)
 	{
-		mSignal = new LLCondition();
+		mSignal = new LLCondition(NULL);
 	}
 	else
 	{
@@ -1189,14 +1189,14 @@ void LLCurl::initClass(bool multi_threaded)
 
 	check_curl_code(code);
 	
-	Easy::sHandleMutex = new LLMutex();
-	Easy::sMultiMutex = new LLMutex();
+	Easy::sHandleMutex = new LLMutex(NULL);
+	Easy::sMultiMutex = new LLMutex(NULL);
 
 #if SAFE_SSL
 	S32 mutex_count = CRYPTO_num_locks();
 	for (S32 i=0; i<mutex_count; i++)
 	{
-		sSSLMutex.push_back(new LLMutex);
+		sSSLMutex.push_back(new LLMutex(NULL));
 	}
 	CRYPTO_set_id_callback(&LLCurl::ssl_thread_id);
 	CRYPTO_set_locking_callback(&LLCurl::ssl_locking_callback);

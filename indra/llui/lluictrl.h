@@ -76,14 +76,14 @@ public:
 		Optional<enable_callback_t> function;
 	};
 		
-	struct EnableControls : public LLInitParam::Choice<EnableControls>
+	struct EnableControls : public LLInitParam::ChoiceBlock<EnableControls>
 	{
 		Alternative<std::string> enabled;
 		Alternative<std::string> disabled;
 		
 		EnableControls();
 	};	
-	struct ControlVisibility : public LLInitParam::Choice<ControlVisibility>
+	struct ControlVisibility : public LLInitParam::ChoiceBlock<ControlVisibility>
 	{
 		Alternative<std::string> visible;
 		Alternative<std::string> invisible;
@@ -235,6 +235,9 @@ public:
 	// topic then put in help_topic_out
 	bool                    findHelpTopic(std::string& help_topic_out);
 
+	boost::signals2::connection setCommitCallback(const CommitCallbackParam& cb);
+	boost::signals2::connection setValidateCallback(const EnableCallbackParam& cb);
+
 	boost::signals2::connection setCommitCallback( const commit_signal_t::slot_type& cb );
 	boost::signals2::connection setValidateCallback( const enable_signal_t::slot_type& cb );
 
@@ -301,7 +304,9 @@ protected:
 
 	static F32 sActiveControlTransparency;
 	static F32 sInactiveControlTransparency;
-
+	
+	virtual void addInfo(LLSD & info);
+	
 private:
 
 	BOOL			mIsChrome;

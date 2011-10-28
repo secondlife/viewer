@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="object_weights" title="AVANÇADO">
+	<floater.string name="nothing_selected" value="--"/>
+	<text name="selected_text" value="SELECIONADO"/>
+	<text name="objects" value="--"/>
+	<text name="objects_label" value="Objetos"/>
+	<text name="prims" value="--"/>
+	<text name="prims_label" value="Prims"/>
+	<text name="weights_of_selected_text" value="PESOS DOS SELECIONADOS"/>
+	<text name="download" value="--"/>
+	<text name="download_label" value="Baixar"/>
+	<text name="physics" value="--"/>
+	<text name="physics_label" value="Físico"/>
+	<text name="server" value="--"/>
+	<text name="server_label" value="Servidor"/>
+	<text name="display" value="--"/>
+	<text name="display_label" value="Visualização"/>
+	<text name="land_impacts_text" value="IMPACTOS NO TERRENO"/>
+	<text name="selected" value="--"/>
+	<text name="selected_label" value="Selecionado"/>
+	<text name="rezzed_on_land" value="--"/>
+	<text name="rezzed_on_land_label" value="Resolução no terreno"/>
+	<text name="remaining_capacity" value="--"/>
+	<text name="remaining_capacity_label" value="Capacidade restante"/>
+	<text name="total_capacity" value="--"/>
+	<text name="total_capacity_label" value="Capacidade total"/>
+	<text name="help_SLURL" value="[secondlife:///app/help/object_weights What is all this?...]"/>
+</floater>

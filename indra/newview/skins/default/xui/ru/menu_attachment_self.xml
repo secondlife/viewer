@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Attachment Pie">
+	<menu_item_call label="Коснуться" name="Attachment Object Touch"/>
+	<menu_item_call label="Изменить" name="Edit..."/>
+	<menu_item_call label="Отсоединить" name="Detach"/>
+	<menu_item_call label="Сесть" name="Sit Down Here"/>
+	<menu_item_call label="Встать" name="Stand Up"/>
+	<menu_item_call label="Мой внешний вид" name="Change Outfit"/>
+	<menu_item_call label="Изменить костюм" name="Edit Outfit"/>
+	<menu_item_call label="Изменить фигуру" name="Edit My Shape"/>
+	<menu_item_call label="Мои друзья" name="Friends..."/>
+	<menu_item_call label="Мои группы" name="Groups..."/>
+	<menu_item_call label="Мой профиль" name="Profile..."/>
+	<menu_item_call label="Отладка текстур" name="Debug..."/>
+	<menu_item_call label="Бросить" name="Drop"/>
+</context_menu>

@@ -37,9 +37,9 @@
 #include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "llavatarlist.h"
-#include "llbottomtray.h"
 #include "lldraghandle.h"
 #include "llimfloater.h"
+#include "llimview.h"
 #include "llfloaterreg.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
@@ -115,9 +115,6 @@ LLCallFloater::LLCallFloater(const LLSD& key)
 	LLVoiceClient::instance().addObserver(this);
 	LLTransientFloaterMgr::getInstance()->addControlView(this);
 
-	// force docked state since this floater doesn't save it between recreations
-	setDocked(true);
-
 	// update the agent's name if display name setting change
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
 	LLViewerDisplayName::addNameChangedCallback(boost::bind(&LLCallFloater::updateAgentModeratorState, this));
@@ -145,7 +142,6 @@ LLCallFloater::~LLCallFloater()
 // virtual
 BOOL LLCallFloater::postBuild()
 {
-	LLTransientDockableFloater::postBuild();
 	mAvatarList = getChild<LLAvatarList>("speakers_list");
 	mAvatarListRefreshConnection = mAvatarList->setRefreshCompleteCallback(boost::bind(&LLCallFloater::onAvatarListRefreshed, this));
 
@@ -154,20 +150,10 @@ BOOL LLCallFloater::postBuild()
 	mNonAvatarCaller = findChild<LLNonAvatarCaller>("non_avatar_caller");
 	mNonAvatarCaller->setVisible(FALSE);
 
-	LLView *anchor_panel = LLBottomTray::getInstance()->getChild<LLView>("speak_flyout_btn");
-
-	setDockControl(new LLDockControl(
-		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP));
-
 	initAgentData();
 
 	connectToChannel(LLVoiceChannel::getCurrentVoiceChannel());
 
-	setIsChrome(true);
-	//chrome="true" hides floater caption 
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(TRUE);
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 	
 	updateSession();
@@ -204,13 +190,13 @@ void LLCallFloater::draw()
 	if (mParticipants)
 		mParticipants->updateRecentSpeakersOrder();
 
-	LLTransientDockableFloater::draw();
+	LLFloater::draw();
 }
 
 // virtual
 void LLCallFloater::setFocus( BOOL b )
 {
-	LLTransientDockableFloater::setFocus(b);
+	LLFloater::setFocus(b);
 
 	// Force using active floater transparency (STORM-730).
 	// We have to override setFocus() for LLCallFloater because selecting an item

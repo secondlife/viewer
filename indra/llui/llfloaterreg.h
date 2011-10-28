@@ -87,6 +87,7 @@ public:
 
 	// Helpers
 	static LLFloater* getLastFloaterInGroup(const std::string& name);
+	static LLFloater* getLastFloaterCascading();
 	
 	// Find / get (create) / remove / destroy
 	static LLFloater* findInstance(const std::string& name, const LLSD& key = LLSD());
@@ -123,12 +124,7 @@ public:
 	static void registerControlVariables();
 
 	// Callback wrappers
-	static void initUICtrlToFloaterVisibilityControl(LLUICtrl* ctrl, const LLSD& sdname);
-	static void showFloaterInstance(const LLSD& sdname);
-	static void hideFloaterInstance(const LLSD& sdname);
-	static void toggleFloaterInstance(const LLSD& sdname);
-	static bool floaterInstanceVisible(const LLSD& sdname);
-	static bool floaterInstanceMinimized(const LLSD& sdname);
+	static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
 	
 	// Typed find / get / show
 	template <class T>
@@ -151,6 +147,7 @@ public:
 
 	static void blockShowFloaters(bool value) { sBlockShowFloaters = value;}
 	
+	static U32 getVisibleFloaterInstanceCount();
 };
 
 #endif

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Map" title="MİNİ-HARİTA">
+	<floater.string name="ToolTipMsg">
+		[REGION](Haritayı açmak için çift tıkla, yatay hareket için shift çek)
+	</floater.string>
+	<floater.string name="AltToolTipMsg">
+		[REGION](Işınlamak için çift tıkla, yatay hareket için shift çek)
+	</floater.string>
+	<floater.string name="mini_map_caption">
+		Mini-harita
+	</floater.string>
+	<text label="K" name="floater_map_north">
+		K
+	</text>
+	<text label="E" name="floater_map_east">
+		E
+	</text>
+	<text label="B" name="floater_map_west">
+		B
+	</text>
+	<text label="G" name="floater_map_south">
+		G
+	</text>
+	<text label="GD" name="floater_map_southeast">
+		GD
+	</text>
+	<text label="KD" name="floater_map_northeast">
+		KD
+	</text>
+	<text label="GB" name="floater_map_southwest">
+		GB
+	</text>
+	<text label="KB" name="floater_map_northwest">
+		KB
+	</text>
+</floater>

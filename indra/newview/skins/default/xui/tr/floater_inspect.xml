@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="inspect" title="NESNELERİ İNCELE">
+	<floater.string name="timeStamp">
+		[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
+	</floater.string>
+	<scroll_list name="object_list" tool_tip="SL dünyasında vurgulamak için bu listedeki bir nesneyi seçin">
+		<scroll_list.columns label="Nesne Adı" name="object_name"/>
+		<scroll_list.columns label="Sahip Adı" name="owner_name"/>
+		<scroll_list.columns label="Oluşturanın Adı" name="creator_name"/>
+		<scroll_list.columns label="Oluşturma Tarihi" name="creation_date"/>
+	</scroll_list>
+	<button label="Sahip Profiline Bak..." name="button owner" tool_tip="Vurgulanan nesnenin sahibinin profiline bak"/>
+	<button label="Oluşturan Profiline Bak..." name="button creator" tool_tip="Vurgulanan nesneyi ilk oluşturanın profiline bak"/>
+</floater>

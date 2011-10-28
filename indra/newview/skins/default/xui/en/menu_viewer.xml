@@ -8,8 +8,166 @@
      label="Me"
      name="Me"
      tear_off="true">
+      <menu_item_call
+           label="Dashboard..."
+           name="Manage My Account">
+        <menu_item_call.on_click
+         function="PromptShowURL"
+         name="ManageMyAccount_url"
+         parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
+      </menu_item_call>
+      <menu_item_call
+       label="Profile..."
+       name="Profile">
+        <menu_item_call.on_click
+         function="ShowAgentProfile"
+         parameter="agent" />
+      </menu_item_call>
+      <menu_item_call
+       label="Appearance..."
+       name="ChangeOutfit">
+        <menu_item_call.on_click
+         function="CustomizeAvatar" />
+        <menu_item_call.on_enable
+         function="Edit.EnableCustomizeAvatar" />
+      </menu_item_call>
+      <menu_item_check
+         label="Inventory..."
+         name="Inventory"
+         shortcut="control|I"
+		     visible="true">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="inventory" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="inventory" />
+      </menu_item_check>
+      <menu_item_call
+       label="New Inventory Window"
+       name="NewInventoryWindow"
+       shortcut="control|shift|I"
+       visible="false">
+        <menu_item_call.on_click
+         function="Inventory.NewWindow"
+         parameter="" />
+      </menu_item_call>
+      <menu_item_check
+       label="Gestures..."
+       name="Gestures"
+       shortcut="control|G">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="gestures" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="gestures" />
+      </menu_item_check>
+      <menu_item_check
+       label="Voice..."
+       name="ShowVoice"
+       visibility_control="VoiceMorphingEnabled">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         Parameter="voice_effect" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="voice_effect" />
+      </menu_item_check>
+
+      <menu
+       create_jump_keys="true"
+       label="Movement"
+       name="Movement"
+       tear_off="true">
         <menu_item_call
-         label="Preferences"
+         label="Sit Down"
+         layout="topleft"
+         shortcut="alt|shift|S"
+         name="Sit Down Here">
+          <menu_item_call.on_click
+           function="Self.SitDown"
+           parameter="" />
+          <menu_item_call.on_enable
+           function="Self.EnableSitDown" />
+        </menu_item_call>
+        <menu_item_check
+         label="Fly"
+         name="Fly"
+         shortcut="Home">
+          <menu_item_check.on_check
+           function="Agent.getFlying" />
+          <menu_item_check.on_click
+           function="Agent.toggleFlying" />
+          <menu_item_check.on_enable
+           function="Agent.enableFlying" />
+        </menu_item_check>
+        <menu_item_check
+         label="Always Run"
+         name="Always Run"
+         shortcut="control|R">
+          <menu_item_check.on_check
+           function="World.CheckAlwaysRun" />
+          <menu_item_check.on_click
+           function="World.AlwaysRun" />
+        </menu_item_check>
+        <menu_item_call
+         label="Stop Animating Me"
+         name="Stop Animating My Avatar">
+          <menu_item_call.on_click
+           function="Tools.StopAllAnimations" />
+        </menu_item_call>
+      </menu>
+
+      <menu
+       create_jump_keys="true"
+       label="Status"
+       name="Status"
+       tear_off="true">
+        <menu_item_call
+         label="Away"
+         name="Set Away">
+          <menu_item_call.on_click
+           function="World.SetAway" />
+        </menu_item_call>
+        <menu_item_call
+         label="Busy"
+         name="Set Busy">
+          <menu_item_call.on_click
+           function="World.SetBusy"/>
+        </menu_item_call>
+      </menu>
+
+      <menu_item_call
+       label="Request Admin Status"
+       name="Request Admin Options"
+       shortcut="control|alt|G"
+       visible="false">
+        <menu_item_call.on_click
+         function="Advanced.RequestAdminStatus" />
+      </menu_item_call>
+      <menu_item_call
+       label="Leave Admin Status"
+       name="Leave Admin Options"
+       shortcut="control|alt|shift|G"
+       visible="false">
+        <menu_item_call.on_click
+         function="Advanced.LeaveAdminStatus" />
+      </menu_item_call>
+
+      <menu_item_separator/>
+
+      <menu_item_call
+         label="Buy L$"
+         name="Buy and Sell L$">
+        <menu_item_call.on_click
+         function="BuyCurrency" />
+      </menu_item_call>
+
+      <menu_item_separator/>
+
+      <menu_item_call
+         label="Preferences..."
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
@@ -17,160 +175,20 @@
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
-             label="My Dashboard"
-             name="Manage My Account">
-                <menu_item_call.on_click
-                 function="PromptShowURL"
-                 name="ManageMyAccount_url"
-                 parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
-      </menu_item_call>
-        <menu_item_call
-         label="Buy L$"
-         name="Buy and Sell L$">
+         label="Toolbar buttons..."
+         name="Toolbars"
+         shortcut="control|T">
             <menu_item_call.on_click
-             function="BuyCurrency" />
-        </menu_item_call>
-
-        <menu_item_separator/>
-
-        <menu_item_call
-         label="My Profile"
-         name="Profile">
-            <menu_item_call.on_click
-             function="ShowAgentProfile"
-             parameter="agent" />
-        </menu_item_call>
-        <menu_item_call
-         label="My Appearance"
-         name="ChangeOutfit">
-            <menu_item_call.on_click
-             function="CustomizeAvatar" />
-            <menu_item_call.on_enable
-             function="Edit.EnableCustomizeAvatar" />
-        </menu_item_call>
-        <menu_item_check
-         label="My Inventory"
-         name="Inventory"
-         shortcut="control|shift|I"
-		 visible="false">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="inventory" />
-            <menu_item_check.on_click
              function="Floater.Toggle"
-             parameter="inventory" />
-        </menu_item_check>
-        <menu_item_check
-         label="My Inventory"
-         name="ShowSidetrayInventory"
-         shortcut="control|I"
-		 visible="true">
-            <menu_item_check.on_check
-             function="SidetrayPanelVisible"
-             parameter="sidepanel_inventory" />
-            <menu_item_check.on_click
-             function="ShowSidetrayPanel"
-             parameter="sidepanel_inventory" />
-        </menu_item_check>
-        <menu_item_check
-         label="My Gestures"
-         name="Gestures"
-         shortcut="control|G">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="gestures" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="gestures" />
-        </menu_item_check>
-        <menu_item_check
-         label="My Voice"
-         name="ShowVoice"
-         visibility_control="VoiceMorphingEnabled">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             Parameter="voice_effect" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="voice_effect" />
-        </menu_item_check>
-		<menu
-		 create_jump_keys="true"
-		 label="Movement"
-		 name="Movement"
-		 tear_off="true">
-            <menu_item_call
-             label="Sit Down"
-             layout="topleft"
-		     shortcut="alt|shift|S"
-             name="Sit Down Here">
-                <menu_item_call.on_click
-                 function="Self.SitDown"
-                 parameter="" />
-                <menu_item_call.on_enable
-                 function="Self.EnableSitDown" />
-            </menu_item_call>
-            <menu_item_check
-             label="Fly"
-             name="Fly"
-             shortcut="Home">
-                <menu_item_check.on_check
-                 function="Agent.getFlying" />
-                <menu_item_check.on_click
-                 function="Agent.toggleFlying" />
-                <menu_item_check.on_enable
-                 function="Agent.enableFlying" />
-            </menu_item_check>
-            <menu_item_check
-             label="Always Run"
-             name="Always Run"
-             shortcut="control|R">
-                <menu_item_check.on_check
-                 function="World.CheckAlwaysRun" />
-                <menu_item_check.on_click
-                 function="World.AlwaysRun" />
-            </menu_item_check>
-            <menu_item_call
-             label="Stop Animating Me"
-             name="Stop Animating My Avatar">
-                 <menu_item_call.on_click
-                  function="Tools.StopAllAnimations" />
-            </menu_item_call>
-		</menu>
-        <menu
-         create_jump_keys="true"
-         label="My Status"
-         name="Status"
-         tear_off="true">
-            <menu_item_call
-             label="Away"
-             name="Set Away">
-                <menu_item_call.on_click
-                 function="World.SetAway" />
-            </menu_item_call>
-            <menu_item_call
-             label="Busy"
-             name="Set Busy">
-                <menu_item_call.on_click
-                 function="World.SetBusy"/>
-            </menu_item_call>
-        </menu>
-        <menu_item_call
-         label="Request Admin Status"
-         name="Request Admin Options"
-         shortcut="control|alt|G"
-		 visible="false">
-            <menu_item_call.on_click
-             function="Advanced.RequestAdminStatus" />
+             parameter="toybox" />
         </menu_item_call>
-        <menu_item_call
-         label="Leave Admin Status"
-         name="Leave Admin Options"
-         shortcut="control|alt|shift|G"
-		 visible="false">
-            <menu_item_call.on_click
-             function="Advanced.LeaveAdminStatus" />
-        </menu_item_call>
+         <menu_item_call
+         label="Hide all controls"
+         name="Hide UI"
+         shortcut="control|shift|U">
+           <menu_item_call.on_click
+            function="View.ToggleUI" />
+         </menu_item_call>
 
         <menu_item_separator/>
 
@@ -219,10 +237,10 @@
          use_mac_ctrl="true">
             <menu_item_check.on_check
              function="Floater.Visible"
-             parameter="nearby_chat" />
+             parameter="chat_bar" />
             <menu_item_check.on_click
              function="Floater.Toggle"
-             parameter="nearby_chat" />
+             parameter="chat_bar" />
         </menu_item_check>
         <menu_item_call
          label="Nearby People"
@@ -249,7 +267,7 @@
      name="World"
      tear_off="true">
             <menu_item_check
-         label="Mini-Map"
+         label="Mini-map"
          name="Mini-Map"
          shortcut="control|shift|M">
             <menu_item_check.on_check
@@ -1136,14 +1154,6 @@
              function="ShowHelp"
              parameter="f1_help" />
         </menu_item_call>
-        <menu_item_check
-         label="Enable Hints"
-         name="Enable Hints">
-          <on_check
-            control="EnableUIHints"/>
-          <on_click
-            function="ToggleUIHints"/>
-        </menu_item_check>
 <!--        <menu_item_call
          label="Tutorial"
          name="Tutorial">
@@ -2435,7 +2445,7 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="raycast" />
         </menu_item_check>
-        <menu_item_check
+		<menu_item_check
          label="Render Complexity"
          name="rendercomplexity">
           <menu_item_check.on_check

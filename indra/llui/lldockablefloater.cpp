@@ -82,7 +82,7 @@ BOOL LLDockableFloater::postBuild()
 		mForceDocking = true;
 	}
 
-	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
+	mDockTongue = LLUI::getUIImage("Flyout_Pointer");
 	LLFloater::setDocked(true);
 	return LLView::postBuild();
 }
@@ -162,9 +162,14 @@ void LLDockableFloater::setVisible(BOOL visible)
 
 void LLDockableFloater::setMinimized(BOOL minimize)
 {
-	if(minimize)
+	if(minimize && isDocked())
 	{
+		// minimizing a docked floater just hides it
 		setVisible(FALSE);
+	}
+	else
+	{
+		LLFloater::setMinimized(minimize);
 	}
 }
 
@@ -234,8 +239,21 @@ void LLDockableFloater::setDockControl(LLDockControl* dockControl)
 	setDocked(isDocked());
 }
 
-const LLUIImagePtr& LLDockableFloater::getDockTongue()
+const LLUIImagePtr& LLDockableFloater::getDockTongue(LLDockControl::DocAt dock_side)
 {
+	switch(dock_side)
+	{
+	case LLDockControl::LEFT:
+		mDockTongue = LLUI::getUIImage("Flyout_Left");
+		break;
+	case LLDockControl::RIGHT:
+		mDockTongue = LLUI::getUIImage("Flyout_Right");
+		break;
+	default:
+		mDockTongue = LLUI::getUIImage("Flyout_Pointer");
+		break;
+	}
+
 	return mDockTongue;
 }
 

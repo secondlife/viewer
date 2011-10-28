@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="NearBy Chat Menu">
-	<menu_item_call label="近くの人を表示する..." name="nearby_people"/>
-	<menu_item_check label="ブロックされた文字を表示" name="muted_text"/>
-	<menu_item_check label="バディアイコンを表示" name="show_buddy_icons"/>
-	<menu_item_check label="名前を表示" name="show_names"/>
-	<menu_item_check label="アイコンと名前を表示" name="show_icons_and_names"/>
-	<menu_item_call label="文字の大きさ" name="font_size"/>
-</menu>

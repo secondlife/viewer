@@ -61,6 +61,7 @@
 #include "llfloaterlandholdings.h"
 #include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
@@ -73,7 +74,6 @@
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llstartup.h"
 #include "llsky.h"
 #include "llslurl.h"
@@ -1192,9 +1192,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
 						if ("inventory_handler" == from_name)
 						{
-							//we have to filter inventory_handler messages to avoid notification displaying
-							LLSideTray::getInstance()->showPanel("panel_places",
-																 LLSD().with("type", "landmark").with("id", item->getUUID()));
+							LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id", item->getUUID()));
 						}
 						else if("group_offer" == from_name)
 						{
@@ -1203,7 +1201,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 							LLSD args;
 							args["type"] = "landmark";
 							args["id"] = obj_id;
-							LLSideTray::getInstance()->showPanel("panel_places", args);
+							LLFloaterSidePanelContainer::showPanel("places", args);
 
 							continue;
 						}
@@ -1809,8 +1807,11 @@ void LLOfferInfo::initRespondFunctionMap()
 
 void inventory_offer_handler(LLOfferInfo* info)
 {
-	//If muted, don't even go through the messaging stuff.  Just curtail the offer here.
-	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName))
+	// If muted, don't even go through the messaging stuff.  Just curtail the offer here.
+	// Passing in a null UUID handles the case of where you have muted one of your own objects by_name.
+	// The solution for STORM-1297 seems to handle the cases where the object is owned by someone else.
+	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName) ||
+		LLMuteList::getInstance()->isMuted(LLUUID::null, info->mFromName))
 	{
 		info->forceResponse(IOR_MUTE);
 		return;
@@ -2190,7 +2191,7 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 	// Treat like a system message and put in chat history.
 	chat.mText = av_name.getCompleteName() + ": " + message;
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 	if(nearby_chat)
 	{
 		nearby_chat->addMessage(chat);
@@ -2752,7 +2753,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
-			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
 				chat.mOwnerID = from_id;
@@ -2836,8 +2837,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			else
 			{
 				LLVector3 pos, look_at;
-				U64 region_handle;
-				U8 region_access;
+				U64 region_handle(0);
+				U8 region_access(0);
 				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
 				std::string region_access_str = LLStringUtil::null;
 				std::string region_access_icn = LLStringUtil::null;
@@ -3131,7 +3132,7 @@ protected:
 
 	void handleFailure()
 	{
-		LLTranslate::TranslationReceiver::handleFailure();
+		llwarns << "translation failed for mesg " << m_origMesg << " toLang " << m_toLang << " fromLang " << m_fromLang << llendl;
 		m_chat.mText += " (?)";
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
@@ -6801,7 +6802,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -6935,7 +6936,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);

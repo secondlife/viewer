@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="instant_message" name="panel_group_notify">
+	<string name="message_max_lines_count" value="7"/>
+	<string name="subject_font" value="SANSSERIF_BIG"/>
+	<string name="date_font" value="SANSSERIF"/>
+	<panel label="başlık" name="header">
+		<text name="title" value="Gönderici Adı / Grup Adı"/>
+	</panel>
+	<text_editor name="message" value="ileti"/>
+	<text name="attachment" value="Aksesuar"/>
+	<button label="Tamam" name="btn_ok"/>
+</panel>

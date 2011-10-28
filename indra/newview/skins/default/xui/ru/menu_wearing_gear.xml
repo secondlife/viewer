@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Wearing">
+	<menu_item_call label="Изменить костюм" name="edit"/>
+	<menu_item_call label="Снять" name="takeoff"/>
+	<menu_item_call label="Копировать список костюмов в буфер обмена" name="copy"/>
+</toggleable_menu>

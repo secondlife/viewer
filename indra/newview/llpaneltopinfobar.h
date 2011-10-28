@@ -148,7 +148,7 @@ private:
 	void setParcelInfoText(const std::string& new_text);
 
 	/**
-	 *  Implementation of LLDestroyClass<LLSideTray>
+	 *  Implementation of LLDestroyClass<T>
 	 */
 	static void destroyClass()
 	{

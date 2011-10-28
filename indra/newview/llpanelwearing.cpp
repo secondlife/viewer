@@ -31,11 +31,11 @@
 #include "lltoggleablemenu.h"
 
 #include "llappearancemgr.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llmenubutton.h"
-#include "llsidetray.h"
 #include "llviewermenu.h"
 #include "llwearableitemslist.h"
 #include "llsdserialize.h"
@@ -44,7 +44,7 @@
 // Context menu and Gear menu helper.
 static void edit_outfit()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 }
 
 //////////////////////////////////////////////////////////////////////////

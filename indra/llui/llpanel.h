@@ -96,9 +96,6 @@ public:
 		Params();
 	};
 
-	// valid children for LLPanel are stored in this registry
-	typedef LLDefaultChildRegistry child_registry_t;
-
 protected:
 	friend class LLUICtrlFactory;
 	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8

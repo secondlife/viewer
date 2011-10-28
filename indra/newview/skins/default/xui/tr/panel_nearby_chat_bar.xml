@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="chat_bar">
+	<line_editor label="Sohbet etmek için buraya tıklayın." name="chat_box" tool_tip="Söylemek için Enter, bağırmak için Ctrl+Enter yapın"/>
+	<button name="show_nearby_chat" tool_tip="yakın sohbet günlüğünü gösterir/gizler"/>
+</panel>

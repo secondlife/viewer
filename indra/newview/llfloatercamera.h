@@ -27,7 +27,7 @@
 #ifndef LLFLOATERCAMERA_H
 #define LLFLOATERCAMERA_H
 
-#include "lltransientdockablefloater.h"
+#include "llfloater.h"
 #include "lliconctrl.h"
 #include "lltextbox.h"
 #include "llflatlistview.h"
@@ -45,8 +45,7 @@ enum ECameraControlMode
 	CAMERA_CTRL_MODE_PRESETS
 };
 
-class LLFloaterCamera
-	:	public LLTransientDockableFloater
+class LLFloaterCamera : public LLFloater
 {
 	friend class LLFloaterReg;
 	

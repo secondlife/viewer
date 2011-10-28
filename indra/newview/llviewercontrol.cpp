@@ -541,15 +541,9 @@ bool toggle_show_navigation_panel(const LLSD& newvalue)
 {
 	bool value = newvalue.asBoolean();
 
-	LLNavigationBar::getInstance()->showNavigationPanel(value);
+	LLNavigationBar::getInstance()->setVisible(value);
 	gSavedSettings.setBOOL("ShowMiniLocationPanel", !value);
 
-	return true;
-}
-
-bool toggle_show_favorites_panel(const LLSD& newvalue)
-{
-	LLNavigationBar::getInstance()->showFavoritesPanel(newvalue.asBoolean());
 	return true;
 }
 
@@ -736,7 +730,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("AgentPause")->getSignal()->connect(boost::bind(&toggle_agent_pause, _2));
 	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
-	gSavedSettings.getControl("ShowNavbarFavoritesPanel")->getSignal()->connect(boost::bind(&toggle_show_favorites_panel, _2));
 	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
 	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(boost::bind(&toggle_updater_service_active, _2));

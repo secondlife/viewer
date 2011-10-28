@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview lsl text" title="KOMUT DOSYASI: DÖNDÜRME KOMUT DOSYASI">
+	<floater.string name="Title">
+		KOMUT DOSYASI: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Açıklama:
+	</text>
+</floater>

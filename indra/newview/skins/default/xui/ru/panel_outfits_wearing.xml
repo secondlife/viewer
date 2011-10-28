@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Wearing">
+	<panel name="bottom_panel">
+		<menu_button name="options_gear_btn" tool_tip="Показать дополнительные параметры"/>
+	</panel>
+</panel>

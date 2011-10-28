@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Arazi ve L$" name="land_money_tab">
+	<panel.string name="help_text">
+		Kullanılan Toplam Arazi, Toplam Katkı&apos;dan daha az veya buna eşit oluncaya kadar bir uyarı görünür.
+	</panel.string>
+	<panel.string name="cant_view_group_land_text">
+		Grupların sahip olduğu araziyi görme izniniz yok
+	</panel.string>
+	<panel.string name="epmty_view_group_land_text">
+		Giriş yok
+	</panel.string>
+	<panel.string name="cant_view_group_accounting_text">
+		Grubun muhasebe bilgilerini görme izniniz yok.
+	</panel.string>
+	<panel.string name="loading_txt">
+		Yükleniyor...
+	</panel.string>
+	<panel.string name="land_contrib_error">
+		Arazi katkınız ayarlanamıyor
+	</panel.string>
+	<panel name="layout_panel_landmoney">
+		<scroll_list name="group_parcel_list">
+			<scroll_list.columns label="Parsel" name="name"/>
+			<scroll_list.columns label="Bölge" name="location"/>
+			<scroll_list.columns label="Tür" name="type"/>
+			<scroll_list.columns label="Alan" name="area"/>
+			<scroll_list.columns label="Saklı" name="hidden"/>
+		</scroll_list>
+		<text name="total_contributed_land_label">
+			Toplam katkı:
+		</text>
+		<text name="total_contributed_land_value">
+			[AREA] m²
+		</text>
+		<button label="Harita" label_selected="Harita" name="map_button"/>
+		<text name="total_land_in_use_label">
+			Kullanılan toplam arazi:
+		</text>
+		<text name="total_land_in_use_value">
+			[AREA] m²
+		</text>
+		<text name="land_available_label">
+			Kullanılabilir arazi:
+		</text>
+		<text name="land_available_value">
+			[AREA] m²
+		</text>
+		<text name="your_contribution_label">
+			Katkınız:
+		</text>
+		<text name="your_contribution_units">
+			m²
+		</text>
+		<text name="your_contribution_max_value">
+			([AMOUNT] maks)
+		</text>
+		<text name="group_over_limit_text">
+			Kullanılan alanı desteklemek için daha fazla arazi kredisi lazım
+		</text>
+		<text name="group_money_heading">
+			Grup L$
+		</text>
+	</panel>
+	<tab_container name="group_money_tab_container">
+		<panel label="PLANLAMA" name="group_money_planning_tab">
+			<text_editor name="group_money_planning_text">
+				Yükleniyor...
+			</text_editor>
+		</panel>
+		<panel label="AYRINTILAR" name="group_money_details_tab">
+			<text_editor name="group_money_details_text">
+				Yükleniyor...
+			</text_editor>
+			<button name="earlier_details_button" tool_tip="Geri"/>
+			<button name="later_details_button" tool_tip="Sonraki"/>
+		</panel>
+		<panel label="SATIŞLAR" name="group_money_sales_tab">
+			<text_editor name="group_money_sales_text">
+				Yükleniyor...
+			</text_editor>
+			<button name="earlier_sales_button" tool_tip="Geri"/>
+			<button name="later_sales_button" tool_tip="Sonraki"/>
+		</panel>
+	</tab_container>
+</panel>

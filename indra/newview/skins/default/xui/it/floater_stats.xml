@@ -10,8 +10,8 @@
 			</stat_view>
 			<stat_view label="Avanzata" name="advanced">
 				<stat_view label="Render" name="render">
-					<stat_bar label="KTris disegnate" name="ktrisframe"/>
-					<stat_bar label="KTris disegnate" name="ktrissec"/>
+					<stat_bar label="KTris disegnato per fotogramma" name="ktrisframe"/>
+					<stat_bar label="KTris disegnato per secondo" name="ktrissec"/>
 					<stat_bar label="Totale oggetti" name="objs"/>
 					<stat_bar label="Nuovi oggetti" name="newobjs"/>
 				</stat_view>
@@ -32,7 +32,7 @@
 					<stat_bar label="Layer" name="layerskbitstat"/>
 					<stat_bar label="Effettivi in ingresso" name="actualinkbitstat"/>
 					<stat_bar label="Effettivi in uscita" name="actualoutkbitstat"/>
-					<stat_bar label="Operazioni pendenti VFS" name="vfspendingoperations"/>
+					<stat_bar label="Operazioni VFS in sospeso" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulatore" name="sim">
@@ -43,18 +43,6 @@
 					<stat_bar label="Oggetti pinzati" name="physicspinnedtasks"/>
 					<stat_bar label="Oggetti a basso LOD" name="physicslodtasks"/>
 					<stat_bar label="Memoria allocata" name="physicsmemoryallocated"/>
-					<stat_bar label="Aggiornamenti agenti al sec" name="simagentups"/>
-					<stat_bar label="Avatar principali" name="simmainagents"/>
-					<stat_bar label="Avatar secondari" name="simchildagents"/>
-					<stat_bar label="Oggetti" name="simobjects"/>
-					<stat_bar label="Oggetti attivi" name="simactiveobjects"/>
-					<stat_bar label="Script attivi" name="simactivescripts"/>
-					<stat_bar label="Eventi di script" name="simscripteps"/>
-					<stat_bar label="Pacchetti in ingresso" name="siminpps"/>
-					<stat_bar label="Pacchetti in uscita" name="simoutpps"/>
-					<stat_bar label="Download in attesa" name="simpendingdownloads"/>
-					<stat_bar label="Caricamenti in attesa" name="simpendinguploads"/>
-					<stat_bar label="Numero totale byte non confermati (Unacked)" name="simtotalunackedbytes"/>
 				</stat_view>
 				<stat_view label="Tempo (ms)" name="simperf">
 					<stat_bar label="Tempo totale Frame" name="simframemsec"/>
@@ -64,6 +52,14 @@
 					<stat_bar label="Tempo avatar" name="simagentmsec"/>
 					<stat_bar label="Tempo immagini" name="simimagesmsec"/>
 					<stat_bar label="Tempo script" name="simscriptmsec"/>
+					<stat_bar label="Tempo libero" name="simsparemsec"/>
+					<stat_view label="Dettagli tempo (ms)" name="timedetails">
+						<stat_bar label="Passaggio fisica" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Aggiorna forme fisica" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Altro fisica" name="simsimphysicsothermsec"/>
+						<stat_bar label="Tempo pausa" name="simsleepmsec"/>
+						<stat_bar label="IO pompa" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

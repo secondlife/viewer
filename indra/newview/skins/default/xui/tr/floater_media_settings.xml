@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="media_settings" title="ORTAM AYARLARI">
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+	<button label="Uygula" label_selected="Uygula" name="Apply"/>
+</floater>

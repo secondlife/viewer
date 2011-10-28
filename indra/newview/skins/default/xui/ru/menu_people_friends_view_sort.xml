@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_check label="Сортировать по имени" name="sort_name"/>
+	<menu_item_check label="Сортировать по статусу" name="sort_status"/>
+	<menu_item_check label="Показывать значки" name="view_icons"/>
+	<menu_item_check label="Показывать разрешенные действия" name="view_permissions"/>
+	<menu_item_call label="Показать черный список" name="show_blocked_list"/>
+</toggleable_menu>

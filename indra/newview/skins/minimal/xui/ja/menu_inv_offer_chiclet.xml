@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="InvOfferChiclet Menu">
-	<menu_item_call label="閉じる" name="Close"/>
-</menu>
