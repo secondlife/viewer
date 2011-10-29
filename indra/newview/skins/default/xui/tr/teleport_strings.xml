@@ -20,6 +20,10 @@ Hala ışınlanamıyorsanız, sorunu çözmek için lütfen çıkış yapıp otu
 			Üzgünüz fakat sistem ışınlama bağlantısını tamamlayamadı.
 Bir dakika sonra tekrar deneyin.
 		</message>
+		<message name="NoHelpIslandTP">
+You cannot teleport back to Welcome Island.
+Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
+		</message>
 		<message name="noaccess_tport">
 			Üzgünüz, bu ışınlanma hedef konumuna erişim hakkına sahip değilsiniz.
 		</message>

@@ -20,6 +20,10 @@
 			抱歉，不過系統無法完成瞬間傳送的聯接。
 請稍後再試。
 		</message>
+		<message name="NoHelpIslandTP">
+		您不能瞬间转移回“援助岛”。
+去“公共援助岛”重复您的教程。
+		</message>
 		<message name="noaccess_tport">
 			抱歉，你並沒有權限進入要瞬間傳送的目的地。
 		</message>
