@@ -36,7 +36,7 @@
    height="16"
    left="8"
    name="object_owner_label"
-   width="55"
+   width="65"
    top_pad="12">
      Owner:
   </text>

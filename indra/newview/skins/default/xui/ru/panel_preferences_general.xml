@@ -5,7 +5,7 @@
 	</text>
 	<combo_box name="language_combobox">
 		<combo_box.item label="Стандартная настройка системы" name="System Default Language"/>
-		<combo_box.item label="Английский" name="English"/>
+		<combo_box.item label="English - Английский" name="English"/>
 		<combo_box.item label="Dansk – датский (бета-версия)" name="Danish"/>
 		<combo_box.item label="Deutsch – немецкий (бета-версия)" name="Deutsch(German)"/>
 		<combo_box.item label="Español – испанский (бета-версия)" name="Spanish"/>
@@ -13,10 +13,10 @@
 		<combo_box.item label="Italiano – итальянский (бета-версия)" name="Italian"/>
 		<combo_box.item label="Polski – польский (бета-версия)" name="Polish"/>
 		<combo_box.item label="Português – португальский (бета-версия)" name="Portugese"/>
-		<combo_box.item label="Русский - бета-версия" name="Russian"/>
-		<combo_box.item label="Türkçe (турецкий) - бета-версия" name="Turkish"/>
+		<combo_box.item label="Русский (бета-версия)" name="Russian"/>
+		<combo_box.item label="Türkçe - турецкий (бета-версия)" name="Turkish"/>
 		<combo_box.item label="日本語 – японский (бета-версия)" name="(Japanese)"/>
-		<combo_box.item label="正體 (китайский, традиционное письмо) - бета-версия" name="Traditional Chinese"/>
+		<combo_box.item label="正體中文 - китайский, традиционное письмо (бета-версия)" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Требуется перезапуск)
