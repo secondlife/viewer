@@ -323,7 +323,11 @@ private:
 		LLQtWebKit::getInstance()->enablePlugins( mPluginsEnabled );
 
 		// turn on/off Javascript based on what host app tells us
+#if LLQTWEBKIT_API_VERSION >= 11
 		LLQtWebKit::getInstance()->enableJavaScript( mJavascriptEnabled );
+#else
+		LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
+#endif
 
 		std::stringstream str;
 		str << "Cookies enabled = " << mCookiesEnabled << ", plugins enabled = " << mPluginsEnabled << ", Javascript enabled = " << mJavascriptEnabled;
@@ -374,7 +378,14 @@ private:
 		url << "%22%3E%3C/body%3E%3C/html%3E";
 		
 		//lldebugs << "data url is: " << url.str() << llendl;
-					
+
+		// loading overlay debug screen follows media debugging flag from client for now.
+		LLQtWebKit::getInstance()->enableLoadingOverlay(mBrowserWindowId, mEnableMediaPluginDebugging);
+
+		str.clear();
+		str << "Loading overlay enabled = " << mEnableMediaPluginDebugging << " for mBrowserWindowId = " << mBrowserWindowId;
+		postDebugMessage( str.str() );
+
 		LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, url.str() );
 //		LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
 
@@ -1210,7 +1221,6 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			{
 				mEnableMediaPluginDebugging = message_in.getValueBoolean( "enable" );
 			}
-
 			else
 			if(message_name == "js_enable_object")
 			{
