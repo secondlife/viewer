@@ -25,12 +25,11 @@
  * $/LicenseInfo$
  * @endcond
  */
-
 #include "llqtwebkit.h"
-
 #include "linden_common.h"
 #include "indra_constants.h" // for indra keyboard codes
 
+#include "lltimer.h"
 #include "llgl.h"
 
 #include "llplugininstance.h"
@@ -117,15 +116,19 @@ private:
 	F32 mBackgroundG;
 	F32 mBackgroundB;
 	std::string mTarget;
-	
+	LLTimer mElapsedTime;
+		
 	VolumeCatcher mVolumeCatcher;
 
 	void postDebugMessage( const std::string& msg )
 	{
 		if ( mEnableMediaPluginDebugging )
 		{
+			std::stringstream str;
+			str << "@Media Msg> " << "[" << (double)mElapsedTime.getElapsedTimeF32()  << "] -- " << msg;
+
 			LLPluginMessage debug_message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "debug_message");
-			debug_message.setValue("message_text", "Media> " + msg);
+			debug_message.setValue("message_text", str.str());
 			debug_message.setValue("message_level", "info");
 			sendMessage(debug_message);
 		}
@@ -594,6 +597,10 @@ private:
 		// These could be passed through as well, but aren't really needed.
 //		message.setValue("uri", event.getEventUri());
 //		message.setValueBoolean("dead", (event.getIntValue() != 0))
+
+		// debug spam
+		postDebugMessage( "Sending cookie_set message from plugin: " + event.getStringValue() );
+
 		sendMessage(message);
 	}
 
@@ -874,6 +881,8 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mPluginsEnabled = true;		// default to on
 	mEnableMediaPluginDebugging = false;
 	mUserAgent = "LLPluginMedia Web Browser";
+
+	mElapsedTime.reset();
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -1343,6 +1352,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "set_cookies")
 			{
 				LLQtWebKit::getInstance()->setCookies(message_in.getValue("cookies"));
+
+				// debug spam
+				postDebugMessage( "Plugin setting cookie: " + message_in.getValue("cookies") );
 			}
 			else if(message_name == "proxy_setup")
 			{
