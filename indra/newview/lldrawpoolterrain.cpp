@@ -198,7 +198,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 		return;
 	}
 	// Render simplified land if video card can't do sufficient multitexturing
-	if (!LLGLSLShader::sNoFixedFunction || !gGLManager.mHasARBEnvCombine || (gGLManager.mNumTextureUnits < 2))
+	if (!gGLManager.mHasARBEnvCombine || (gGLManager.mNumTextureUnits < 2))
 	{
 		renderSimple(); // Render without multitexture
 		return;
@@ -223,11 +223,16 @@ void LLDrawPoolTerrain::render(S32 pass)
 	{
 		gPipeline.enableLightsStatic();
 
-		if (sDetailMode == 0){
+		if (sDetailMode == 0)
+		{
 			renderSimple();
-		} else if (gGLManager.mNumTextureUnits < 4){
+		} 
+		else if (gGLManager.mNumTextureUnits < 4)
+		{
 			renderFull2TU();
-		} else {
+		} 
+		else 
+		{
 			renderFull4TU();
 		}
 	}
