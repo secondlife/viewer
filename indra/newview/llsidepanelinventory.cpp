@@ -113,21 +113,13 @@ public:
 			switch (added_category_type)
 			{
 				case LLFolderType::FT_INBOX:
+					mSidepanelInventory->enableInbox(true);
 					mSidepanelInventory->observeInboxModifications(added_category->getUUID());
 					break;
 				case LLFolderType::FT_OUTBOX:
+					mSidepanelInventory->enableOutbox(true);
 					mSidepanelInventory->observeOutboxModifications(added_category->getUUID());
 					break;
-				case LLFolderType::FT_NONE:
-					// HACK until sim update to properly create folder with system type
-					if (added_category->getName() == "Received Items")
-					{
-						mSidepanelInventory->observeInboxModifications(added_category->getUUID());
-					}
-					else if (added_category->getName() == "Merchant Outbox")
-					{
-						mSidepanelInventory->observeOutboxModifications(added_category->getUUID());
-					}
 				default:
 					break;
 			}
@@ -288,7 +280,6 @@ BOOL LLSidepanelInventory::postBuild()
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
 	gSavedSettings.getControl("InventoryDisplayOutbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayOutboxChanged));
 
-	updateInboxOutbox();
 	// Update the verbs buttons state.
 	updateVerbs();
 
@@ -316,20 +307,20 @@ void LLSidepanelInventory::updateInboxOutbox()
 	// Set up observer for inbox changes, if we have an inbox already
 	if (!inbox_id.isNull())
 	{
-		observeInboxModifications(inbox_id);
-
 		// Enable the display of the inbox if it exists
 		enableInbox(true);
+
+		observeInboxModifications(inbox_id);
 	}
 	
 #if ENABLE_MERCHANT_OUTBOX_PANEL
 	// Set up observer for outbox changes, if we have an outbox already
 	if (!outbox_id.isNull())
 	{
-		observeOutboxModifications(outbox_id);
-
 		// Enable the display of the outbox if it exists
 		enableOutbox(true);
+
+		observeOutboxModifications(outbox_id);
 	}
 #endif
 }
