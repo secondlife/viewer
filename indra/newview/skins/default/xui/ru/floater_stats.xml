@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Statistics" title="СТАТИСТИКА">
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view label="Базовая" name="basic">
+				<stat_bar label="Кадров/с" name="fps"/>
+				<stat_bar label="Ширина канала" name="bandwidth"/>
+				<stat_bar label="Потери пакетов" name="packet_loss"/>
+				<stat_bar label="Пинг" name="ping"/>
+			</stat_view>
+			<stat_view label="Дополнительно" name="advanced">
+				<stat_view label="Отрисовка" name="render">
+					<stat_bar label="Треугольников на кадр" name="ktrisframe"/>
+					<stat_bar label="Треугольников в секунду" name="ktrissec"/>
+					<stat_bar label="Всего объектов" name="objs"/>
+					<stat_bar label="Новых объектов" name="newobjs"/>
+				</stat_view>
+				<stat_view label="Текстура" name="texture">
+					<stat_bar label="Количество" name="numimagesstat"/>
+					<stat_bar label="Необраб. изображений" name="numrawimagesstat"/>
+					<stat_bar label="Память GL" name="gltexmemstat"/>
+					<stat_bar label="Форматированная память" name="formattedmemstat"/>
+					<stat_bar label="Неформатированная память" name="rawmemstat"/>
+					<stat_bar label="Ограничение памяти" name="glboundmemstat"/>
+				</stat_view>
+				<stat_view label="Сеть" name="network">
+					<stat_bar label="Входящие пакеты" name="packetsinstat"/>
+					<stat_bar label="Исходящие пакеты" name="packetsoutstat"/>
+					<stat_bar label="Объекты" name="objectkbitstat"/>
+					<stat_bar label="Текстура" name="texturekbitstat"/>
+					<stat_bar label="Актив" name="assetkbitstat"/>
+					<stat_bar label="Слои" name="layerskbitstat"/>
+					<stat_bar label="Действительный ввод" name="actualinkbitstat"/>
+					<stat_bar label="Действительный вывод" name="actualoutkbitstat"/>
+					<stat_bar label="Ожидающие операции VFS" name="vfspendingoperations"/>
+				</stat_view>
+			</stat_view>
+			<stat_view label="Симулятор" name="sim">
+				<stat_bar label="Замедление времени" name="simtimedilation"/>
+				<stat_bar label="Симуляция: кадров/с" name="simfps"/>
+				<stat_bar label="Физика: кадров/с" name="simphysicsfps"/>
+				<stat_view label="Физические данные" name="physicsdetail">
+					<stat_bar label="Закрепленные объекты" name="physicspinnedtasks"/>
+					<stat_bar label="Объекты с низкой детализацией" name="physicslodtasks"/>
+					<stat_bar label="Выделенная память" name="physicsmemoryallocated"/>
+				</stat_view>
+				<stat_bar label="Обновлений агента/с" name="simagentups"/>
+				<stat_bar label="Основные агенты" name="simmainagents"/>
+				<stat_bar label="Дочерние агенты" name="simchildagents"/>
+				<stat_bar label="Объекты" name="simobjects"/>
+				<stat_bar label="Активные объекты" name="simactiveobjects"/>
+				<stat_bar label="Активные скрипты" name="simactivescripts"/>
+				<stat_bar label="События скрипта" name="simscripteps"/>
+				<stat_bar label="Входящие пакеты" name="siminpps"/>
+				<stat_bar label="Исходящие пакеты" name="simoutpps"/>
+				<stat_bar label="Отложенные загрузки" name="simpendingdownloads"/>
+				<stat_bar label="Отложенные передачи" name="simpendinguploads"/>
+				<stat_bar label="Общий нераспакованный объем (байт)" name="simtotalunackedbytes"/>
+				<stat_view label="Время (мс)" name="simperf">
+					<stat_bar label="Общее время кадра" name="simframemsec"/>
+					<stat_bar label="Чистое время" name="simnetmsec"/>
+					<stat_bar label="Время на физику" name="simsimphysicsmsec"/>
+					<stat_bar label="Время на симуляцию" name="simsimothermsec"/>
+					<stat_bar label="Время на клиент" name="simagentmsec"/>
+					<stat_bar label="Время на изображения" name="simimagesmsec"/>
+					<stat_bar label="Время на скрипт" name="simscriptmsec"/>
+					<stat_bar label="Резервное время" name="simsparemsec"/>
+					<stat_view label="Данные времени (мс)" name="timedetails">
+						<stat_bar label="Шаг физики" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Обновить физ. формы" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Физика - прочее" name="simsimphysicsothermsec"/>
+						<stat_bar label="Время сна" name="simsleepmsec"/>
+						<stat_bar label="Ввод/вывод" name="simpumpiomsec"/>
+					</stat_view>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

@@ -161,18 +161,7 @@ public:
 		Optional<bool>			user_resize,
 								auto_resize;
 
-		Params()
-		:	expanded_min_dim("expanded_min_dim", 0),
-			min_dim("min_dim", 0),
-			max_dim("max_dim", 0),
-			user_resize("user_resize", true),
-			auto_resize("auto_resize", true)
-		{
-			addSynonym(min_dim, "min_width");
-			addSynonym(min_dim, "min_height");
-			addSynonym(max_dim, "max_width");
-			addSynonym(max_dim, "max_height");
-		}
+		Params();
 	};
 
 	~LLLayoutPanel();

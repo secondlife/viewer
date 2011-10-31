@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Teleport History Gear Context Menu">
+	<menu_item_call label="Открыть все папки" name="Expand all folders"/>
+	<menu_item_call label="Закрыть все папки" name="Collapse all folders"/>
+	<menu_item_call label="Очистить историю телепортаций" name="Clear Teleport History"/>
+</toggleable_menu>

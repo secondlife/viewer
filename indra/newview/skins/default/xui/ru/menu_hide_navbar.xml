@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="hide_navbar_menu">
+	<menu_item_check label="Показать панель навигации и избранного" name="ShowNavbarNavigationPanel"/>
+	<menu_item_check label="Показать панель избранного" name="ShowNavbarFavoritesPanel"/>
+	<menu_item_check label="Показать мини-панель местоположения" name="ShowMiniLocationPanel"/>
+</menu>

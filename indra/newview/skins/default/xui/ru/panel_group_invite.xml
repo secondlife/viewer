@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Пригласить участника" name="invite_panel">
+	<panel.string name="confirm_invite_owner_str">
+		Вы уверены, что хотите пригласить новых владельцев? Это действие нельзя отменить.
+	</panel.string>
+	<panel.string name="loading">
+		(загрузка…)
+	</panel.string>
+	<panel.string name="already_in_group">
+		Несколько выбранных жителей уже состоят в группе. Им приглашения не были отправлены.
+	</panel.string>
+	<text name="help_text">
+		Можно выбрать несколько жителей для приглашения в группу. Чтобы начать, щелкните «Выбрать жителей».
+	</text>
+	<button label="Выбрать жителей" name="add_button"/>
+	<name_list name="invitee_list" tool_tip="Чтобы выбрать несколько жителей, нажмите и удерживайте клавишу CTRL, а затем щелкните их имена"/>
+	<button label="Удалить выбранных из списка" name="remove_button" tool_tip="Удаление выбранных жителей из списка приглашенных"/>
+	<text name="role_text">
+		Выберите назначаемую им роль:
+	</text>
+	<combo_box name="role_name" tool_tip="Выберите в списке роли, которые вы можете назначать участникам"/>
+	<button label="Отправить приглашения" name="ok_button"/>
+	<button label="Отмена" name="cancel_button"/>
+	<string name="GroupInvitation">
+		Групповое приглашение
+	</string>
+</panel>

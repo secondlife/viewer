@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="fast_timers">
+	<string name="pause">
+		Duraklat
+	</string>
+	<string name="run">
+		Koş
+	</string>
+	<button label="Duraklat" name="pause_btn"/>
+</floater>

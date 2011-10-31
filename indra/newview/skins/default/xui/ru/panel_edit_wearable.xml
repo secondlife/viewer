@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Можно надеть" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		Изменение фигуры
+	</string>
+	<string name="edit_skin_title">
+		Изменение кожи
+	</string>
+	<string name="edit_hair_title">
+		Изменение волос
+	</string>
+	<string name="edit_eyes_title">
+		Изменение глаз
+	</string>
+	<string name="edit_shirt_title">
+		Изменение рубашки
+	</string>
+	<string name="edit_pants_title">
+		Изменение брюк
+	</string>
+	<string name="edit_shoes_title">
+		Изменение обуви
+	</string>
+	<string name="edit_socks_title">
+		Изменение носков
+	</string>
+	<string name="edit_jacket_title">
+		Изменение пиджака
+	</string>
+	<string name="edit_skirt_title">
+		Изменение юбки
+	</string>
+	<string name="edit_gloves_title">
+		Изменение перчаток
+	</string>
+	<string name="edit_undershirt_title">
+		Изменение майки
+	</string>
+	<string name="edit_underpants_title">
+		Изменение трусов
+	</string>
+	<string name="edit_alpha_title">
+		Изменение альфа-маски
+	</string>
+	<string name="edit_tattoo_title">
+		Изменение тату
+	</string>
+	<string name="edit_physics_title">
+		Изменение физики
+	</string>
+	<string name="shape_desc_text">
+		Фигура:
+	</string>
+	<string name="skin_desc_text">
+		Кожа:
+	</string>
+	<string name="hair_desc_text">
+		Волосы:
+	</string>
+	<string name="eyes_desc_text">
+		Глаза:
+	</string>
+	<string name="shirt_desc_text">
+		Рубашка:
+	</string>
+	<string name="pants_desc_text">
+		Брюки:
+	</string>
+	<string name="shoes_desc_text">
+		Обувь:
+	</string>
+	<string name="socks_desc_text">
+		Носки:
+	</string>
+	<string name="jacket_desc_text">
+		Пиджак:
+	</string>
+	<string name="skirt_desc_text">
+		Юбка:
+	</string>
+	<string name="gloves_desc_text">
+		Перчатки:
+	</string>
+	<string name="undershirt_desc_text">
+		Майка:
+	</string>
+	<string name="underpants_desc_text">
+		Трусы:
+	</string>
+	<string name="alpha_desc_text">
+		Альфа-маска:
+	</string>
+	<string name="tattoo_desc_text">
+		Тату:
+	</string>
+	<string name="physics_desc_text">
+		Физика:
+	</string>
+	<labeled_back_button label="Сохранить" name="back_btn" tool_tip="Вернуться к изменению костюма"/>
+	<text name="edit_wearable_title" value="Изменение фигуры"/>
+	<panel label="Рубашка" name="wearable_type_panel">
+		<text name="description_text" value="Фигура:"/>
+		<radio_group name="sex_radio">
+			<radio_item label="" name="sex_male" tool_tip="Мужчина" value="1"/>
+			<radio_item label="" name="sex_female" tool_tip="Женщина" value="0"/>
+		</radio_group>
+		<icon name="male_icon" tool_tip="Мужчина"/>
+		<icon name="female_icon" tool_tip="Женщина"/>
+	</panel>
+	<panel name="button_panel">
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="Сохранить как" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Отменить изменения" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

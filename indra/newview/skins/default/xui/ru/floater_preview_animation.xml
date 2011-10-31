@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_anim">
+	<floater.string name="Title">
+		Анимация: [NAME]
+	</floater.string>
+	<text name="desc txt">
+		Описание:
+	</text>
+	<button label="Проиграть для всех" label_selected="Стоп" name="Anim play btn" tool_tip="Проигрывание этой анимации могут видеть другие участники"/>
+	<button label="Проиграть для себя" label_selected="Стоп" name="Anim audition btn" tool_tip="Проигрывание этой анимации можете видеть только вы"/>
+</floater>

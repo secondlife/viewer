@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Genel" name="Media Settings General">
+	<text name="home_label">
+		Ana Sayfa:
+	</text>
+	<text name="home_fails_whitelist_label">
+		(Bu sayfa belirtilen izin verilenler listesinden geçmez)
+	</text>
+	<line_editor name="home_url" tool_tip="Bu ortam kaynağının ana sayfası"/>
+	<text name="preview_label">
+		Önizleme
+	</text>
+	<text name="current_url_label">
+		Mevcut Sayfa:
+	</text>
+	<text name="current_url" tool_tip="Bu ortam kaynağının şu anki sayfası" value=""/>
+	<button label="Sıfırla" name="current_url_reset_btn"/>
+	<check_box initial_value="false" label="Otomatik Tekrarla" name="auto_loop"/>
+	<check_box initial_value="false" label="İlk Tıklama Etkileşimleri" name="first_click_interact"/>
+	<check_box initial_value="false" label="Otomatik Zumla" name="auto_zoom"/>
+	<check_box initial_value="false" label="Ortamı Otomatik Oynat" name="auto_play"/>
+	<text name="media_setting_note">
+		Not: Sakinler bu ayarı geçersiz kılabilir
+	</text>
+	<check_box initial_value="false" label="Nesne Yüzünde Ortamı Otomatik Ölçekle" name="auto_scale"/>
+	<text name="size_label">
+		Büyüklük:
+	</text>
+	<text name="X_label">
+		X
+	</text>
+</panel>

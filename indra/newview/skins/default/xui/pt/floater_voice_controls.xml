@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Controles de voz">
+<floater name="floater_voice_controls" title="CONTROLES DE VOZ">
 	<string name="title_nearby">
-		VOZ LOCAL
+		Voz próxima
 	</string>
 	<string name="title_group">
 		Ligação de grupo com [GROUP]

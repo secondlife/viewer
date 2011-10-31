@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="menu_gear_default">
+	<menu_item_call label="Mevcut Dış Görünümü Değiştir" name="wear"/>
+	<menu_item_call label="Mevcut Dış Görünümden Kaldır" name="remove"/>
+	<menu_item_call label="Yeniden Adlandır" name="rename"/>
+	<menu_item_call label="Bağlantıyı Kaldır" name="remove_link"/>
+	<menu_item_call label="Dış Görünümü Sil" name="delete"/>
+</menu>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="price_for_listing" title="SERİ İLAN YAYINLA">
+	<text name="explanation_text">
+		İlanınız yayınlandığı günden itibaren bir hafta boyunca yayında kalacaktır.
+
+İlanınızın seri ilanlar listesindeki yeri, ne kadar ödeme yapmayı seçtiğinize bağlıdır.
+
+En çok ücret ödenen ilanlar listenin tepesinde yer alır ve aramalarda daha yukarı sırada görünür.
+	</text>
+	<text name="price_text">
+		İlan Ücreti:
+	</text>
+	<text name="price_symbol">
+		L$
+	</text>
+	<button label="Tamam" name="set_price_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+</floater>

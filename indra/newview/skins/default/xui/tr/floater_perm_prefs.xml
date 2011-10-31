@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perm prefs" title="VARSAYILAN KARŞIYA YÜKLEME İZİNLERİ">
+	<panel label="İzinler" name="permissions">
+		<check_box label="Grupla paylaş" name="share_with_group"/>
+		<check_box label="Herkese kopyalama izni ver" name="everyone_copy"/>
+		<text name="NextOwnerLabel">
+			Sonraki sahip şunu yapabilir:
+		</text>
+		<check_box label="Değiştir" name="next_owner_modify"/>
+		<check_box label="Kopyala" name="next_owner_copy"/>
+		<check_box initial_value="true" label="Tekrar sat/Ver" name="next_owner_transfer"/>
+	</panel>
+	<button label="Tamam" label_selected="Tamam" name="ok"/>
+	<button label="İptal" label_selected="İptal" name="cancel"/>
+</floater>

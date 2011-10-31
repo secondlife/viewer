@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear Outfit">
+	<menu_item_call label="Надеть – Заменить текущий костюм" name="wear"/>
+	<menu_item_call label="Надеть – Добавить к текущему костюму" name="wear_add"/>
+	<menu_item_call label="Снять – Убрать из текущего костюма" name="take_off"/>
+	<menu label="Новая одежда" name="New Clothes">
+		<menu_item_call label="Новая рубашка" name="New Shirt"/>
+		<menu_item_call label="Новые брюки" name="New Pants"/>
+		<menu_item_call label="Новая обувь" name="New Shoes"/>
+		<menu_item_call label="Новые носки" name="New Socks"/>
+		<menu_item_call label="Новый пиджак" name="New Jacket"/>
+		<menu_item_call label="Новая юбка" name="New Skirt"/>
+		<menu_item_call label="Новые перчатки" name="New Gloves"/>
+		<menu_item_call label="Новая майка" name="New Undershirt"/>
+		<menu_item_call label="Новые трусы" name="New Underpants"/>
+		<menu_item_call label="Новая альфа-маска" name="New Alpha"/>
+		<menu_item_call label="Новая физика" name="New Physics"/>
+		<menu_item_call label="Новое тату" name="New Tattoo"/>
+	</menu>
+	<menu label="Новые части тела" name="New Body Parts">
+		<menu_item_call label="Новая фигура" name="New Shape"/>
+		<menu_item_call label="Новая кожа" name="New Skin"/>
+		<menu_item_call label="Новые волосы" name="New Hair"/>
+		<menu_item_call label="Новые глаза" name="New Eyes"/>
+	</menu>
+	<menu_item_call label="Переименовать костюм" name="rename"/>
+	<menu_item_call label="Удалить костюм" name="delete_outfit"/>
+</toggleable_menu>

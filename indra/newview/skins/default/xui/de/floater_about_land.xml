@@ -214,19 +214,19 @@ werden.
 				Objektbonusfaktor in Region: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Prim-Verwendung:
+				Regionskapazität:
 			</text>
 			<text name="objects_available">
 				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
 			</text>
 			<text name="Primitives parcel supports:">
-				Von Parzelle unterstützte Prims:
+				Parzellenlandkapazität:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims auf Parzelle:
+				Parzellenlandauswirkung:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]

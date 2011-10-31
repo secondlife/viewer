@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="MemLeak" title="ИМИТАЦИЯ УТЕЧКИ ПАМЯТИ">
+	<spinner label="Скорость утечки (байтов за кадр):" name="leak_speed"/>
+	<spinner label="Максимальная утечка памяти (Мб):" name="max_leak"/>
+	<text name="total_leaked_label">
+		Текущая утечка памяти: [SIZE] КБ
+	</text>
+	<text name="note_label_1">
+		[NOTE1]
+	</text>
+	<text name="note_label_2">
+		[NOTE2]
+	</text>
+	<button label="Старт" name="start_btn"/>
+	<button label="Стоп" name="stop_btn"/>
+	<button label="Освободить" name="release_btn"/>
+	<button label="Закрыть" name="close_btn"/>
+</floater>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_people" title="ЛЮДИ">
+	<panel_container name="main_panel">
+		<panel label="Профиль группы" name="panel_group_info_sidetray"/>
+		<panel label="Черный список жителей и объектов" name="panel_block_list_sidetray"/>
+	</panel_container>
+</floater>

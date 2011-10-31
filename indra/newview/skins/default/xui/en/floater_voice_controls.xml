@@ -4,6 +4,7 @@
  can_resize="true"
  can_minimize="true"
  can_close="true"
+ chrome="true"
  height="205"
  layout="topleft"
  min_height="124"
@@ -18,19 +19,19 @@
  width="282">
     <string
      name="title_nearby">
-        Nearby voice
+        VOICE SETTINGS
     </string>
     <string
      name="title_group">
-        Group call with [GROUP]
+        GROUP CALL WITH [GROUP]
     </string>
     <string
      name="title_adhoc">
-        Conference call
+        CONFERENCE CALL
     </string>
     <string
      name="title_peer_2_peer">
-        Call with [NAME]
+        CALL WITH [NAME]
     </string>
     <string
      name="no_one_near">
@@ -51,6 +52,7 @@
          user_resize="false"
          auto_resize="false"
          layout="topleft"
+         min_height="20"
          height="20"
          name="my_panel">
             <avatar_icon
@@ -132,6 +134,7 @@
           height="132"
           name="callers_panel"
           user_resize="false" 
+          auto_resize="true"
           width="280">
         <avatar_list
          follows="all"

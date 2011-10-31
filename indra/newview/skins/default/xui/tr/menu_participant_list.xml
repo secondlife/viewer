@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Participant List Context Menu">
+	<menu_item_check label="Ada Göre Sırala" name="SortByName"/>
+	<menu_item_check label="Son Konuşanlara Göre Sırala" name="SortByRecentSpeakers"/>
+	<menu_item_call label="Profili Göster" name="View Profile"/>
+	<menu_item_call label="Arkadaş Ekle" name="Add Friend"/>
+	<menu_item_call label="Aİ" name="IM"/>
+	<menu_item_call label="Ara" name="Call"/>
+	<menu_item_call label="Paylaş" name="Share"/>
+	<menu_item_call label="Öde" name="Pay"/>
+	<menu_item_check label="Kişi Simgelerini Göster" name="View Icons"/>
+	<menu_item_check label="Sesi Engelle" name="Block/Unblock"/>
+	<menu_item_check label="Metni Engelle" name="MuteText"/>
+	<context_menu label="Moderatör Seçenekleri" name="Moderator Options">
+		<menu_item_check label="Metin sohbetine izin ver" name="AllowTextChat"/>
+		<menu_item_call label="Bu katılımcıyı engelle" name="ModerateVoiceMuteSelected"/>
+		<menu_item_call label="Bu katılımcının engellemesini kaldır" name="ModerateVoiceUnMuteSelected"/>
+		<menu_item_call label="Herkesi engelle" name="ModerateVoiceMute"/>
+		<menu_item_call label="Herkesin engellemesini kaldır" name="ModerateVoiceUnmute"/>
+	</context_menu>
+</context_menu>

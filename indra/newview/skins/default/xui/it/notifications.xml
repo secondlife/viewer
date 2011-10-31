@@ -1915,6 +1915,12 @@ Trasferisci gli elementi nell&apos;inventario?
 		Confermi di voler uscire?
 		<usetemplate ignoretext="Conferma prima di uscire" name="okcancelignore" notext="Non uscire" yestext="Esci"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Passare ai pulsanti e alle barre strumenti predefinite? 
+    
+Questa azione non può essere ripristinata
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Conferma prima di cancellare gli elementi" name="okcancelignore" notext="Annulla" yestext="OK"/>
@@ -2997,10 +3003,6 @@ Clicca e trascina dovunque nel mondo per ruotare la visuale
 			<button name="cancel" text="Annulla"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Per cambiare la modalità è necessario uscire e riavviare.
-		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		La creazione e la modifica degli annunci sono disponibili solo in modalità Avanzata. Uscire e cambiare la modalità? Sulla schermata di accesso si può selezionare la modalità.
 		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
@@ -3044,6 +3046,10 @@ Clicca e trascina dovunque nel mondo per ruotare la visuale
 	<notification label="" name="NoSearch">
 		La ricerca è disponibile solo in modalità Avanzata. Eseguire il logout e cambiare la modalità?
 		<usetemplate name="okcancelbuttons" notext="Non uscire" yestext="Esci"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Questa azione cancellerà tutte le voci di menu e i pulsanti. Per visualizzarli nuovamente cliccare ancora [SHORTCUT].
+		<usetemplate ignoretext="Conferma prima di nascondere l&apos;interfaccia" name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Non sembra che tu abbia i requisiti hardware adeguati per [APP_NAME]. [APP_NAME] richiede una scheda grafica OpenGL con supporto multitexture. Se ne hai una in dotazione, accertati di avere i driver, i service pack e i patch più recenti per la scheda grafica e per il sistema operativo.

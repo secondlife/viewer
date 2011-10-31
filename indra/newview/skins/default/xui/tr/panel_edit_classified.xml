@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="İlanı Düzenle" name="panel_edit_classified">
+	<panel.string name="location_notice">
+		(kaydedildikten sonra güncelleştirilir)
+	</panel.string>
+	<string name="publish_label">
+		Yayınla
+	</string>
+	<string name="save_label">
+		Kaydet
+	</string>
+	<text name="title">
+		İlanı Düzenle
+	</text>
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<panel name="snapshot_panel">
+				<icon label="" name="edit_icon" tool_tip="Bir görüntü seçmek için tıklayın"/>
+			</panel>
+			<text name="Name:">
+				Başlık:
+			</text>
+			<text name="description_label">
+				Açıklama:
+			</text>
+			<text name="location_label">
+				Konum:
+			</text>
+			<text name="classified_location">
+				yükleniyor...
+			</text>
+			<button label="Geçerli Konuma Ayarla" name="set_to_curr_location_btn"/>
+			<text name="category_label" value="Kategori:"/>
+			<text name="content_type_label" value="İçerik türü:"/>
+			<icons_combo_box label="Genel İçerik" name="content_type">
+				<icons_combo_box.item label="Orta Seviyede İçerik" name="mature_ci" value="Orta Seviyede"/>
+				<icons_combo_box.item label="Genel İçerik" name="pg_ci" value="PG"/>
+			</icons_combo_box>
+			<check_box label="Her hafta otomatik yenile" name="auto_renew"/>
+			<text name="price_for_listing_label" value="İlan ücreti:"/>
+			<spinner label="L$" name="price_for_listing" tool_tip="İlan ücreti." value="50"/>
+		</panel>
+	</scroll_container>
+	<panel label="bottom_panel" name="bottom_panel">
+		<layout_stack name="bottom_panel_ls">
+			<layout_panel name="save_changes_btn_lp">
+				<button label="[LABEL]" name="save_changes_btn"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="İptal" name="cancel_btn"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

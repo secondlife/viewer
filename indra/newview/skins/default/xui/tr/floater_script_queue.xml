@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="queue" title="İLERLEMEYİ SIFIRLA">
+	<floater.string name="Starting">
+		[COUNT] öğe için [START] başlatılıyor.
+	</floater.string>
+	<floater.string name="Done">
+		Tamamlandı.
+	</floater.string>
+	<floater.string name="Resetting">
+		Sıfırlanıyor
+	</floater.string>
+	<floater.string name="Running">
+		Çalışıyor
+	</floater.string>
+	<floater.string name="NotRunning">
+		Çalışmıyor
+	</floater.string>
+	<button label="Kapat" label_selected="Kapat" name="close"/>
+</floater>

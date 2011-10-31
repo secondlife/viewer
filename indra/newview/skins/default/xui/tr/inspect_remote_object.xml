@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_remote_object">
+	<text name="object_name">
+		Çok Uzun Test Nesne Adı Aman Tanrım bu gerçekten o kadar uzun bir nesne adı ki bu kadar uzun olduğuna inanmıyorum.
+	</text>
+	<text name="object_owner_label">
+		Sahip:
+	</text>
+	<text name="object_owner">
+		Uzunavataradı Farukkalaycigillerdendegil
+	</text>
+	<text name="object_slurl">
+		http://slurl.com/Ahern/50/50/50
+	</text>
+	<button label="Harita" name="map_btn"/>
+	<button label="Engelle" name="block_btn"/>
+	<button label="Kapat" name="close_btn"/>
+</floater>
