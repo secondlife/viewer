@@ -530,9 +530,11 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 		}
 		llerrs << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
 	}
-	if(mImageList.erase(image) != 1) 
+
+	S32 count = mImageList.erase(image) ;
+	if(count != 1) 
 	{
-		llerrs << "Error happens when remove image from mImageList!" << llendl ;
+		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
 	}
       
 	image->setInImageList(FALSE) ;
@@ -1053,6 +1055,13 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 		// Treat any card with < 32 MB (shudder) as having 32 MB
 		//  - it's going to be swapping constantly regardless
 		S32 max_vram = gGLManager.mVRAM;
+
+		if(gGLManager.mIsATI)
+		{
+			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
+			max_vram *= 0.75f;  
+		}
+
 		max_vram = llmax(max_vram, getMinVideoRamSetting());
 		max_texmem = max_vram;
 		if (!get_recommended)
@@ -1060,10 +1069,19 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 	}
 	else
 	{
-		if (get_recommended)
-			max_texmem = 128;
-		else
+		if (!get_recommended)
+		{
 			max_texmem = 512;
+		}
+		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
+		{
+			max_texmem = 512;
+		}
+		else
+		{
+			max_texmem = 128;
+		}
+
 		llwarns << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << llendl;
 	}
 
