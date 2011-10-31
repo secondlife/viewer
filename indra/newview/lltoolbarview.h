@@ -39,6 +39,19 @@ class LLUICtrlFactory;
 class LLToolBarView : public LLUICtrl
 {
 public:
+	typedef enum
+	{
+		TOOLBAR_NONE = 0,
+		TOOLBAR_LEFT,
+		TOOLBAR_RIGHT,
+		TOOLBAR_BOTTOM,
+
+		TOOLBAR_COUNT,
+
+		TOOLBAR_FIRST = TOOLBAR_LEFT,
+		TOOLBAR_LAST = TOOLBAR_BOTTOM,
+	} EToolBarLocation;
+
 	// Xui structure of the toolbar panel
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params> {};
 
@@ -52,6 +65,7 @@ public:
 	{
 		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
 		Multiple<LLCommandId::Params>	commands;
+
 		Toolbar();
 	};
 	struct ToolbarSet : public LLInitParam::Block<ToolbarSet>
@@ -59,6 +73,7 @@ public:
 		Optional<Toolbar>	left_toolbar,
 							right_toolbar,
 							bottom_toolbar;
+
 		ToolbarSet();
 	};
 
@@ -66,9 +81,16 @@ public:
 	virtual ~LLToolBarView();
 	virtual BOOL postBuild();
 	virtual void draw();
+
 	// Toolbar view interface with the rest of the world
-	// Checks if the commandId is being used somewhere in one of the toolbars
-	bool hasCommand(const LLCommandId& commandId) const;
+	// Checks if the commandId is being used somewhere in one of the toolbars, returns EToolBarLocation
+	S32 hasCommand(const LLCommandId& commandId) const;
+	S32 addCommand(const LLCommandId& commandId, EToolBarLocation toolbar, int rank = LLToolBar::RANK_NONE);
+	S32 removeCommand(const LLCommandId& commandId, int& rank);	// Sets the rank the removed command was at, RANK_NONE if not found
+	S32 enableCommand(const LLCommandId& commandId, bool enabled);
+	S32 stopCommandInProgress(const LLCommandId& commandId);
+	S32 flashCommand(const LLCommandId& commandId, bool flash);
+
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
 	
@@ -76,10 +98,10 @@ public:
 
 	static bool loadDefaultToolbars();
 	
-	static void startDragTool(S32 x, S32 y, LLToolBarButton* button);
+	static void startDragTool(S32 x, S32 y, LLToolBarButton* toolbarButton);
 	static BOOL handleDragTool(S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);
 	static BOOL handleDropTool(void* cargo_data, S32 x, S32 y, LLToolBar* toolbar);
-	static void resetDragTool(LLToolBarButton* button);
+	static void resetDragTool(LLToolBarButton* toolbarButton);
 
 	bool isModified() const;
 	
@@ -91,13 +113,14 @@ protected:
 
 private:
 	void	saveToolbars() const;
-	bool	addCommand(const LLCommandId& commandId, LLToolBar*	toolbar);
+	bool	addCommandInternal(const LLCommandId& commandId, LLToolBar*	toolbar);
 	void	addToToolset(command_id_list_t& command_list, Toolbar& toolbar) const;
 
+	static void	onToolBarButtonAdded(LLView* button);
+	static void onToolBarButtonRemoved(LLView* button);
+
 	// Pointers to the toolbars handled by the toolbar view
-	LLToolBar*	mToolbarLeft;
-	LLToolBar*	mToolbarRight;
-	LLToolBar*	mToolbarBottom;
+	LLToolBar*  mToolbars[TOOLBAR_COUNT];
 	bool		mToolbarsLoaded;
 	
 	bool				mDragStarted;

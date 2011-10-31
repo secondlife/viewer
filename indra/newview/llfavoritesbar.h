@@ -130,7 +130,7 @@ private:
 	 * inserts an item identified by insertedItemId BEFORE an item identified by beforeItemId.
 	 * this function assumes that an item identified by insertedItemId doesn't exist in items array.
 	 */
-	void insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem);
+	void insertItem(LLInventoryModel::item_array_t& items, const LLUUID& dest_item_id, LLViewerInventoryItem* insertedItem, bool insert_before);
 
 	// finds an item by it's UUID in the items array
 	LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
