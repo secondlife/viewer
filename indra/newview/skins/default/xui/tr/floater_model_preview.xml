@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Model Preview" title="Modeli Karşıya Yükle">
-	<string name="status_idle">
-		Boşta
-	</string>
+<floater name="Model Preview" title="MODELİ KARŞIYA YÜKLE">
+	<string name="status_idle"/>
 	<string name="status_parse_error">
-		Dae ayrıştırma sorunu - ayrıntılar için günlüğe bakın.
+		Hata: Tarih ayrıştırma sorunu - ayrıntılar için günlüğe bakın.
 	</string>
 	<string name="status_reading_file">
 		Yükleniyor...
@@ -51,6 +49,9 @@
 	<string name="mesh_status_missing_lod">
 		Gereken ayrıntı seviyesi eksik.
 	</string>
+	<string name="mesh_status_invalid_material_list">
+		Ayrıntı seviyesi malzemeleri, referans modelin bir alt kümesi değil.
+	</string>
 	<string name="layer_all">
 		Tümü
 	</string>
@@ -63,188 +64,211 @@
 	<string name="tbd">
 		ileride belirlenecektir
 	</string>
-	<text name="name_label">
-		Ad:
-	</text>
+	<panel name="left_panel">
+		<panel name="model_name_representation_panel">
+			<text name="name_label">
+				Model adı:
+			</text>
+			<text name="model_category_label">
+				Bu modelin temsil ettiği...
+			</text>
+			<combo_box name="model_category_combo">
+				<combo_item label="Birini Seçin..." name="Choose one"/>
+				<combo_item label="Avatar şekli" name="Avatar shape"/>
+				<combo_item label="Avatar aksesuarı" name="Avatar attachment"/>
+				<combo_item label="Hareket eden nesne (araç, hayvan)" name="Moving object (vehicle, animal)"/>
+				<combo_item label="Bina Bileşeni" name="Building Component"/>
+				<combo_item label="Büyük, hareketsiz, vs." name="Large, non moving etc"/>
+				<combo_item label="Daha küçük, hareketsiz, vs." name="Smaller, non-moving etc"/>
+				<combo_item label="Bunlardan herhangi biri değil" name="Not really any of these"/>
+			</combo_box>
+		</panel>
+		<tab_container name="import_tab">
+			<panel label="Ayrıntı Seviyesi" name="lod_panel" title="Ayrıntı Seviyesi">
+				<text initial_value="Kaynak" name="source" value="Kaynak"/>
+				<text initial_value="Üçgenler" name="triangles" value="Üçgenler"/>
+				<text initial_value="Köşeler" name="vertices" value="Köşeler"/>
+				<text initial_value="Yüksek" name="high_label" value="Yüksek"/>
+				<button label="Gözat..." name="lod_browse_high"/>
+				<text initial_value="0" name="high_triangles" value="0"/>
+				<text initial_value="0" name="high_vertices" value="0"/>
+				<text initial_value="Orta" name="medium_label" value="Orta"/>
+				<button label="Gözat..." name="lod_browse_medium"/>
+				<text initial_value="0" name="medium_triangles" value="0"/>
+				<text initial_value="0" name="medium_vertices" value="0"/>
+				<text initial_value="Düşük" name="low_label" value="Düşük"/>
+				<button label="Gözat..." name="lod_browse_low"/>
+				<text initial_value="0" name="low_triangles" value="0"/>
+				<text initial_value="0" name="low_vertices" value="0"/>
+				<text initial_value="En Düşük" name="lowest_label" value="En Düşük"/>
+				<button label="Gözat..." name="lod_browse_lowest"/>
+				<text initial_value="0" name="lowest_triangles" value="0"/>
+				<text initial_value="0" name="lowest_vertices" value="0"/>
+				<check_box label="Normalleri Oluştur" name="gen_normals"/>
+				<text initial_value="Kıvrım Açısı:" name="crease_label" value="Kıvrım Açısı:"/>
+				<spinner name="crease_angle" value="75"/>
+			</panel>
+			<panel label="Fizik" name="physics_panel">
+				<panel name="physics geometry">
+					<text name="first_step_name">
+						1. Adım: Ayrıntı Seviyesi
+					</text>
+					<combo_box name="physics_lod_combo" tool_tip="Fizik şekli için kullanılacak ayrıntı">
+						<combo_item name="choose_one">
+							Birini seçin...
+						</combo_item>
+						<combo_item name="physics_high">
+							Yüksek
+						</combo_item>
+						<combo_item name="physics_medium">
+							Orta
+						</combo_item>
+						<combo_item name="physics_low">
+							Düşük
+						</combo_item>
+						<combo_item name="physics_lowest">
+							En Düşük
+						</combo_item>
+						<combo_item name="load_from_file">
+							Dosyadan
+						</combo_item>
+					</combo_box>
+					<button label="Gözat..." name="physics_browse"/>
+				</panel>
+				<panel name="physics analysis">
+					<text name="method_label">
+						2. Adım: Çözümle
+					</text>
+					<text name="analysis_method_label">
+						Yöntem:
+					</text>
+					<text name="quality_label">
+						Kalite:
+					</text>
+					<text name="smooth_method_label">
+						Düzeltme:
+					</text>
+					<check_box label="Delikleri Kapat" name="Close Holes (Slow)"/>
+					<button label="Çözümle" name="Decompose"/>
+					<button label="İptal" name="decompose_cancel"/>
+				</panel>
+				<panel name="physics simplification">
+					<text name="second_step_label">
+						3. Adım: Basitleştir
+					</text>
+					<text name="simp_method_header">
+						Yöntem:
+					</text>
+					<text name="pass_method_header">
+						Geçişler:
+					</text>
+					<text name="Detail Scale label">
+						Ayrıntı ölçeği:
+					</text>
+					<text name="Retain%_label">
+						Koru:
+					</text>
+					<combo_box name="Combine Quality" value="1"/>
+					<button label="Basitleştir" name="Simplify"/>
+					<button label="İptal" name="simplify_cancel"/>
+				</panel>
+				<panel name="physics info">
+					<text name="results_text">
+						Sonuçlar:
+					</text>
+					<text name="physics_triangles">
+						Üçgenler: [TRIANGLES],
+					</text>
+					<text name="physics_points">
+						Köşeler: [POINTS],
+					</text>
+					<text name="physics_hulls">
+						Gövdeler: [HULLS]
+					</text>
+				</panel>
+			</panel>
+			<panel label="Karşıya yükleme seçenekleri" name="modifiers_panel">
+				<text name="scale_label">
+					Ölçek (1=ölçekleme yok):
+				</text>
+				<spinner name="import_scale" value="1.0"/>
+				<text name="dimensions_label">
+					Boyutlar:
+				</text>
+				<text name="import_dimensions">
+					[X] X [Y] X [Z]
+				</text>
+				<check_box label="Dokuları dahil et" name="upload_textures"/>
+				<text name="include_label">
+					Sadece avatar modelleri için:
+				</text>
+				<check_box label="Dış katman ağırlığını dahil et" name="upload_skin"/>
+				<check_box label="Eklem konumlarını dahil et" name="upload_joints"/>
+				<text name="pelvis_offset_label">
+					Z kayması (avatarı kaldırmak veya indirmek için):
+				</text>
+				<spinner name="pelvis_offset" value="0.0"/>
+			</panel>
+		</tab_container>
+		<panel name="weights_and_warning_panel">
+			<button label="Ağırlıkları ve ücreti hesapla" name="calculate_btn" tool_tip="Ağırlıkları ve ücreti hesapla"/>
+			<button label="İptal" name="cancel_btn"/>
+			<button label="Karşıya Yükle" name="ok_btn" tool_tip="Simülatöre karşıya yükle"/>
+			<button label="Ayarları temizle ve formu sıfırla" name="reset_btn"/>
+			<text name="upload_fee">
+				Karşıya yükleme ücreti: L$ [FEE]
+			</text>
+			<text name="prim_weight">
+				Arazi etkisi [EQ]
+			</text>
+			<text name="download_weight">
+				Karşıdan Yükle: [ST]
+			</text>
+			<text name="physics_weight">
+				Fizik: [PH]
+			</text>
+			<text name="server_weight">
+				Sunucu: [SIM]
+			</text>
+			<text name="warning_title">
+				NOT:
+			</text>
+			<text name="warning_message">
+				Örgü modellerini karşıya yüklemeye hakkınız yok. Nasıl onaylanacağınızı [[VURL] öğrenin].
+			</text>
+			<text name="status">
+				[STATUS]
+			</text>
+		</panel>
+	</panel>
 	<text name="lod_label">
 		Önizleme:
 	</text>
-	<combo_box name="preview_lod_combo" tool_tip="Önizleme işlemesinde görülecek ayrıntı seviyesi">
-		<combo_item name="high">
-			Ayrıntı Seviyesi: Yüksek
-		</combo_item>
-		<combo_item name="medium">
-			Ayrıntı Seviyesi: Orta
-		</combo_item>
-		<combo_item name="low">
-			Ayrıntı Seviyesi: Düşük
-		</combo_item>
-		<combo_item name="lowest">
-			Ayrıntı Seviyesi: En Düşük
-		</combo_item>
-	</combo_box>
-	<text name="warning_title">
-		UYARI:
-	</text>
-	<text name="warning_message">
-		Bu modelin Second Life sunucularına nihai karşıya yüklemesini tamamlayamayacaksınız. Örgü modellerinin karşıya yüklenmesi için etkinleştirmenin [[VURL] nasıl yapılacağını öğrenin].
-	</text>
-	<text name="weights_text">
-		Karşıdan Yükle:
-Fizik:
-Sunucu:
-
-Prim eşdeğerleri:
-	</text>
-	<text name="weights">
-		[ST]
-[PH]
-[SIM]
-
-[EQ]
-	</text>
-	<tab_container name="import_tab">
-		<panel label="Ayrıntı Seviyesi" name="lod_panel">
-			<text name="lod_table_header">
-				Ayrıntı Seviyesini Seç:
-			</text>
-			<text name="high_label" value="Yüksek"/>
-			<text name="high_triangles" value="0"/>
-			<text name="high_vertices" value="0"/>
-			<text name="medium_label" value="Orta"/>
-			<text name="medium_triangles" value="0"/>
-			<text name="medium_vertices" value="0"/>
-			<text name="low_label" value="Düşük"/>
-			<text name="low_triangles" value="0"/>
-			<text name="low_vertices" value="0"/>
-			<text name="lowest_label" value="En Düşük"/>
-			<text name="lowest_triangles" value="0"/>
-			<text name="lowest_vertices" value="0"/>
-			<text name="lod_table_footer">
-				Ayrıntı Seviyesi: [DETAIL]
-			</text>
-			<radio_group name="lod_file_or_limit" value="lod_from_file">
-				<radio_item label="Dosyadan yükle" name="lod_from_file"/>
-				<radio_item label="Otomatik oluştur" name="lod_auto_generate"/>
-				<radio_item label="Hiçbiri" name="lod_none"/>
-			</radio_group>
-			<button label="Gözat..." name="lod_browse"/>
-			<combo_box name="lod_mode">
-				<combo_item name="triangle_limit">
-					Üçgen Limiti
-				</combo_item>
-				<combo_item name="error_threshold">
-					Hata Eşiği
-				</combo_item>
-			</combo_box>
-			<text name="build_operator_text">
-				İnşa İşleci:
-			</text>
-			<text name="queue_mode_text">
-				Kuyruk Modu:
-			</text>
-			<combo_box name="build_operator">
-				<combo_item name="edge_collapse">
-					Kenar Bütünleştirme
-				</combo_item>
-				<combo_item name="half_edge_collapse">
-					Yarım Kenar Bütünleştirme
-				</combo_item>
-			</combo_box>
-			<combo_box name="queue_mode">
-				<combo_item name="greedy">
-					Açgözlü
-				</combo_item>
-				<combo_item name="lazy">
-					Tembel
-				</combo_item>
-				<combo_item name="independent">
-					Bağımsız
-				</combo_item>
-			</combo_box>
-			<text name="border_mode_text">
-				Sınır Modu:
-			</text>
-			<text name="share_tolderance_text">
-				Paylaşma Toleransı:
-			</text>
-			<combo_box name="border_mode">
-				<combo_item name="border_unlock">
-					Kilidi Kaldır
-				</combo_item>
-				<combo_item name="border_lock">
-					Kilitle
-				</combo_item>
-			</combo_box>
-			<text name="crease_label">
-				Kıvrım Açısı:
-			</text>
-			<spinner name="crease_angle" value="75"/>
-		</panel>
-		<panel label="Fizik" name="physics_panel">
-			<panel name="physics geometry">
-				<radio_group name="physics_load_radio" value="physics_load_from_file">
-					<radio_item label="Dosya:" name="physics_load_from_file"/>
-					<radio_item label="Ayrıntı Seviyesini Kullan:" name="physics_use_lod"/>
-				</radio_group>
-				<combo_box name="physics_lod_combo" tool_tip="Fizik şekli için kullanılacak ayrıntı seviyesi">
-					<combo_item name="physics_lowest">
-						En Düşük
-					</combo_item>
-					<combo_item name="physics_low">
-						Düşük
-					</combo_item>
-					<combo_item name="physics_medium">
-						Orta
-					</combo_item>
-					<combo_item name="physics_high">
-						Yüksek
-					</combo_item>
-				</combo_box>
-				<button label="Gözat..." name="physics_browse"/>
-			</panel>
-			<panel name="physics analysis">
-				<slider label="Düzeltme:" name="Smooth"/>
-				<check_box label="Delikleri Kapa (yavaş)" name="Close Holes (Slow)"/>
-				<button label="Çözümle" name="Decompose"/>
-				<button label="İptal" name="decompose_cancel"/>
-			</panel>
-			<panel name="physics simplification">
-				<slider label="Geçişler:" name="Combine Quality"/>
-				<slider label="Ayrıntı Ölçeği:" name="Detail Scale"/>
-				<slider label="Koru:" name="Retain%"/>
-				<button label="Basitleştir" name="Simplify"/>
-				<button label="İptal" name="simplify_cancel"/>
-			</panel>
-			<panel name="physics info">
-				<slider label="Önizleme Yayılımı:" name="physics_explode"/>
-				<text name="physics_triangles">
-					Üçgenler: [TRIANGLES]
-				</text>
-				<text name="physics_points">
-					Köşeler: [POINTS]
-				</text>
-				<text name="physics_hulls">
-					Gövdeler: [HULLS]
-				</text>
-			</panel>
-		</panel>
-		<panel label="Değiştiriciler" name="modifiers_panel">
-			<spinner name="import_scale" value="1.0"/>
-			<text name="import_dimensions">
-				[X] x [Y] x [Z] m
-			</text>
-			<check_box label="Dokular" name="upload_textures"/>
-			<check_box label="Dış katman ağırlığı" name="upload_skin"/>
-			<check_box label="Eklem konumları" name="upload_joints"/>
-			<spinner name="pelvis_offset" value="0.0"/>
-		</panel>
-	</tab_container>
-	<text name="upload_fee">
-		Karşıya yükleme ücreti: L$ [FEE]
-	</text>
-	<button label="Varsayılanlara ayarla" name="reset_btn" tool_tip="Varsayılanlara ayarla"/>
-	<button label="Ağırlıkları ve ücreti hesapla" name="calculate_btn" tool_tip="Ağırlıkları ve ücreti hesapla"/>
-	<button label="Karşıya Yükle" name="ok_btn" tool_tip="Simülatöre karşıya yükle"/>
-	<button label="İptal" name="cancel_btn"/>
+	<panel name="right_panel">
+		<combo_box name="preview_lod_combo" tool_tip="Önizleme işlemesinde görülecek ayrıntı seviyesi">
+			<combo_item name="high">
+				Yüksek
+			</combo_item>
+			<combo_item name="medium">
+				Orta
+			</combo_item>
+			<combo_item name="low">
+				Düşük
+			</combo_item>
+			<combo_item name="lowest">
+				En Düşük
+			</combo_item>
+		</combo_box>
+		<text name="label_display">
+			Ekran...
+		</text>
+		<check_box label="Kenarlar" name="show_edges"/>
+		<check_box label="Fizik" name="show_physics"/>
+		<check_box label="Dokular" name="show_textures"/>
+		<check_box label="Dış katman ağırlıkları" name="show_skin_weight"/>
+		<check_box label="Eklemler" name="show_joint_positions"/>
+		<text name="physics_explode_label">
+			Önizleme Yayılımı:
+		</text>
+	</panel>
 </floater>

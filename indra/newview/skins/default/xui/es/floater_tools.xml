@@ -25,10 +25,10 @@
 		Pulsa y arrastra para seleccionar el terreno.
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] objetos ( [PRIM_COUNT] prims[PE_STRING] ) seleccionados
+		[OBJ_COUNT] objetos seleccionados, impacto en el terreno [LAND_IMPACT]
 	</floater.string>
-	<floater.string name="status_selectprimequiv">
-		, [SEL_WEIGHT] equivalentes en prim
+	<floater.string name="status_remaining_capacity">
+		Capacidad restante [LAND_CAPACITY].
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="Visión"/>
 	<button label="" label_selected="" name="button move" tool_tip="Mover"/>
@@ -105,8 +105,8 @@
 	<text name="selection_empty">
 		No está seleccionado nada.
 	</text>
-	<text name="selection_weight">
-		Peso de física [PHYS_WEIGHT], Coste de renderizado [DISP_WEIGHT].
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Más información]
 	</text>
 	<tab_container name="Object Info Tabs" tab_max_width="62" tab_min_width="30" width="288">
 		<panel label="General" name="General">
@@ -319,7 +319,6 @@
 				Tipo de unión
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="(ninguna)" name="None"/>
 				<combo_box.item label="Esfera" name="Sphere"/>
 				<combo_box.item label="Toroide" name="Torus"/>
 				<combo_box.item label="Plano" name="Plane"/>

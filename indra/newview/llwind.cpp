@@ -46,16 +46,12 @@
 #include "llworld.h"
 
 
-const F32 CLOUD_DIVERGENCE_COEF = 0.5f; 
-
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
 LLWind::LLWind()
-:	mSize(16),
-	mCloudDensityp(NULL)
+:	mSize(16)
 {
 	init();
 }
@@ -65,8 +61,6 @@ LLWind::~LLWind()
 {
 	delete [] mVelX;
 	delete [] mVelY;
-	delete [] mCloudVelX;
-	delete [] mCloudVelY;
 }
 
 
@@ -77,31 +71,23 @@ LLWind::~LLWind()
 
 void LLWind::init()
 {
+	LL_DEBUGS("Wind") << "initializing wind size: "<< mSize << LL_ENDL;
+	
 	// Initialize vector data
 	mVelX = new F32[mSize*mSize];
 	mVelY = new F32[mSize*mSize];
-
-	mCloudVelX = new F32[mSize*mSize];
-	mCloudVelY = new F32[mSize*mSize];
 
 	S32 i;
 	for (i = 0; i < mSize*mSize; i++)
 	{
 		mVelX[i] = 0.5f;
 		mVelY[i] = 0.5f;
-		mCloudVelX[i] = 0.0f;
-		mCloudVelY[i] = 0.0f;
 	}
 }
 
 
 void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
 {
-	if (!mCloudDensityp)
-	{
-		return;
-	}
-
 	LLPatchHeader  patch_header;
 	S32 buffer[16*16];
 
@@ -122,22 +108,15 @@ void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
 	decode_patch(bitpack, buffer);
 	decompress_patch(mVelY, buffer, &patch_header);
 
-
-
 	S32 i, j, k;
-	// HACK -- mCloudVelXY is the same as mVelXY, except we add a divergence
-	// that is proportional to the gradient of the cloud density 
-	// ==> this helps to clump clouds together
-	// NOTE ASSUMPTION: cloud density has the same dimensions as the wind field
-	// This needs to be fixed... causes discrepency at region boundaries
 
 	for (j=1; j<mSize-1; j++)
 	{
 		for (i=1; i<mSize-1; i++)
 		{
 			k = i + j * mSize;
-			*(mCloudVelX + k) = *(mVelX + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + 1) - *(mCloudDensityp + k - 1));
-			*(mCloudVelY + k) = *(mVelY + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + mSize) - *(mCloudDensityp + k - mSize));
+			*(mVelX + k) = *(mVelX + k);
+			*(mVelY + k) = *(mVelY + k);
 		}
 	}
 
@@ -145,29 +124,29 @@ void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
 	for (j=1; j<mSize-1; j++)
 	{
 		k = i + j * mSize;
-		*(mCloudVelX + k) = *(mVelX + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k) - *(mCloudDensityp + k - 2));
-		*(mCloudVelY + k) = *(mVelY + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + mSize) - *(mCloudDensityp + k - mSize));
+		*(mVelX + k) = *(mVelX + k);
+		*(mVelY + k) = *(mVelY + k);
 	}
 	i = 0;
 	for (j=1; j<mSize-1; j++)
 	{
 		k = i + j * mSize;
-		*(mCloudVelX + k) = *(mVelX + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + 2) - *(mCloudDensityp + k));
-		*(mCloudVelY + k) = *(mVelY + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + mSize) - *(mCloudDensityp + k + mSize));
+		*(mVelX + k) = *(mVelX + k);
+		*(mVelY + k) = *(mVelY + k);
 	}
 	j = mSize - 1;
 	for (i=1; i<mSize-1; i++)
 	{
 		k = i + j * mSize;
-		*(mCloudVelX + k) = *(mVelX + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + 1) - *(mCloudDensityp + k - 1));
-		*(mCloudVelY + k) = *(mVelY + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k) - *(mCloudDensityp + k - 2*mSize));
+		*(mVelX + k) = *(mVelX + k);
+		*(mVelY + k) = *(mVelY + k);
 	}
 	j = 0;
 	for (i=1; i<mSize-1; i++)
 	{
 		k = i + j * mSize;
-		*(mCloudVelX + k) = *(mVelX + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + 1) - *(mCloudDensityp + k -1));
-		*(mCloudVelY + k) = *(mVelY + k) + CLOUD_DIVERGENCE_COEF * (*(mCloudDensityp + k + 2*mSize) - *(mCloudDensityp + k));
+		*(mVelX + k) = *(mVelX + k);
+		*(mVelY + k) = *(mVelY + k);
 	}
 }
 
@@ -278,74 +257,6 @@ LLVector3 LLWind::getVelocity(const LLVector3 &pos_region)
 
 	r_val.mV[VZ] = 0.f;
 	return r_val * WIND_SCALE_HACK;
-}
-
-
-LLVector3 LLWind::getCloudVelocity(const LLVector3 &pos_region)
-{
-	llassert(mSize == 16);
-	// Resolves value of wind at a location relative to SW corner of region
-	//  
-	// Returns wind magnitude in X,Y components of vector3
-	LLVector3 r_val;
-	F32 dx,dy;
-	S32 k;
-
-	LLVector3 pos_clamped_region(pos_region);
-	
-	F32 region_width_meters = LLWorld::getInstance()->getRegionWidthInMeters();
-
-	if (pos_clamped_region.mV[VX] < 0.f)
-	{
-		pos_clamped_region.mV[VX] = 0.f;
-	}
-	else if (pos_clamped_region.mV[VX] >= region_width_meters)
-	{
-		pos_clamped_region.mV[VX] = (F32) fmod(pos_clamped_region.mV[VX], region_width_meters);
-	}
-
-	if (pos_clamped_region.mV[VY] < 0.f)
-	{
-		pos_clamped_region.mV[VY] = 0.f;
-	}
-	else if (pos_clamped_region.mV[VY] >= region_width_meters)
-	{
-		pos_clamped_region.mV[VY] = (F32) fmod(pos_clamped_region.mV[VY], region_width_meters);
-	}
-	
-	
-	S32 i = llfloor(pos_clamped_region.mV[VX] * mSize / region_width_meters);
-	S32 j = llfloor(pos_clamped_region.mV[VY] * mSize / region_width_meters);
-	k = i + j*mSize;
-	dx = ((pos_clamped_region.mV[VX] * mSize / region_width_meters) - (F32) i);
-	dy = ((pos_clamped_region.mV[VY] * mSize / region_width_meters) - (F32) j);
-
-	if ((i < mSize-1) && (j < mSize-1))
-	{
-		//  Interior points, no edges
-		r_val.mV[VX] =  mCloudVelX[k]*(1.0f - dx)*(1.0f - dy) + 
-						mCloudVelX[k + 1]*dx*(1.0f - dy) + 
-						mCloudVelX[k + mSize]*dy*(1.0f - dx) + 
-						mCloudVelX[k + mSize + 1]*dx*dy;
-		r_val.mV[VY] =  mCloudVelY[k]*(1.0f - dx)*(1.0f - dy) + 
-						mCloudVelY[k + 1]*dx*(1.0f - dy) + 
-						mCloudVelY[k + mSize]*dy*(1.0f - dx) + 
-						mCloudVelY[k + mSize + 1]*dx*dy;
-	}
-	else 
-	{
-		r_val.mV[VX] = mCloudVelX[k];
-		r_val.mV[VY] = mCloudVelY[k];
-	}
-
-	r_val.mV[VZ] = 0.f;
-	return r_val * WIND_SCALE_HACK;
-}
-
-
-void LLWind::setCloudDensityPointer(F32 *densityp)
-{
-	mCloudDensityp = densityp;
 }
 
 void LLWind::setOriginGlobal(const LLVector3d &origin_global)

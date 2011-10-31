@@ -1909,6 +1909,12 @@ Envanter öğesi/öğeleri taşınsın mı?
 		Çıkmak istediğinize emin misiniz?
 		<usetemplate ignoretext="Çıkmadan önce doğrulama iste" name="okcancelignore" notext="Çıkma" yestext="Çık"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Varsayılan düğmelerinizi ve araç çubuklarınızı geri yüklemek istediğinize emin misiniz? 
+    
+Bu eylemi geri alamazsınız.
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Öğeleri silmeden önce doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
@@ -2995,10 +3001,6 @@ Görünümünüzü döndürmek için dünya üzerindeki herhangi bir yeri tıkla
 			<button name="cancel" text="İptal Et"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Mod değiştirme, uygulamadan çıkıp yeniden başlatmanızı gerektiriyor.
-		<usetemplate name="okcancelbuttons" notext="Çıkma" yestext="Çık"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		İlan oluşturma ve düzenleme sadece Gelişmiş modda kullanılabilir. Uygulamadan çıkıp, mod değiştirmek ister misiniz? Mod seçici oturum açma ekranında bulunabilir.
 		<usetemplate name="okcancelbuttons" notext="Çıkma" yestext="Çık"/>
@@ -3042,6 +3044,10 @@ Görünümünüzü döndürmek için dünya üzerindeki herhangi bir yeri tıkla
 	<notification label="" name="NoSearch">
 		Arama sadece Gelişmiş modda kullanılabilir. Oturumunuzu kapatıp, mod değiştirmek ister misiniz?
 		<usetemplate name="okcancelbuttons" notext="Çıkma" yestext="Çık"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Bu eylem tüm menü öğelerini ve düğmelerini gizler. Bunları geri almak için [SHORTCUT] üzerine tekrar tıklayın.
+		<usetemplate ignoretext="KA&apos;ni gizlemeden önce onayla" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] uygulaması için gerekli donanım gereksinimlerine sahip olmadığınız görünüyor. [APP_NAME] çoklu doku desteği sunan bir OpenGL grafik kartı gerektiriyor. Eğer grafik kartınız bu özellikteyse, grafik kartınızın en son sürücülerine ve işletim sisteminiz için gerekli Service Pack ve yamalara sahip olup olmadığınızı kontrol etmeyi deneyebilirsiniz.

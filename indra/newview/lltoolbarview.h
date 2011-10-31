@@ -98,6 +98,7 @@ private:
 	LLToolBar*	mToolbarLeft;
 	LLToolBar*	mToolbarRight;
 	LLToolBar*	mToolbarBottom;
+	bool		mToolbarsLoaded;
 	
 	bool				mDragStarted;
 	LLToolBarButton*	mDragToolbarButton;

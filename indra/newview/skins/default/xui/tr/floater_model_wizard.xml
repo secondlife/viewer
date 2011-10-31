@@ -6,26 +6,20 @@
 	<button label="2. Optimize et" name="optimize_btn"/>
 	<button label="1. Dosya Seç" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="choose_file_header_panel">
-			<text name="choose_file_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Model dosyasını seçin
 			</text>
 		</panel>
-		<panel name="choose_file_content_panel">
+		<panel name="content">
 			<text name="advanced_users_text">
 				Gelişmiş kullanıcılar: Eğer 3B içerik oluşturma araçlarını kullanmayı biliyorsanız, Gelişmiş Karşıya Yükleyiciyi kullanmak isteyebilirsiniz.
 			</text>
 			<button label="Gelişmişe geç" name="switch_to_advanced"/>
-			<text name="choose_model_file_label">
+			<text name="Cache location">
 				Karşıya yüklenecek model dosyasını seçin
 			</text>
 			<button label="Gözat..." label_selected="Gözat..." name="browse"/>
-			<text name="support_collada_text">
-				Second Life, COLLADA (.dae) dosyalarını destekler
-			</text>
-			<text name="dimensions_label">
-				Boyutlar (metre):
-			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
@@ -38,18 +32,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="optimize_header_panel">
-			<text name="optimize_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Modeli optimize et
 			</text>
 		</panel>
-		<text name="optimize_hint">
+		<text name="description">
 			Modeli performans için optimize ettik. İstiyorsanız daha da ayarlayabilirsiniz.
 		</text>
-		<panel name="optimize_content_panel">
-			<text name="generating_lod_label">
-				Ayrıntı Seviyesi Oluşturuluyor
-			</text>
+		<panel name="content">
 			<text name="high_detail_text">
 				Ayrıntı Seviyesi Oluştur: Yüksek
 			</text>
@@ -64,123 +55,64 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="optimize_performance_text">
-				Performans
-			</text>
-			<text name="optimize_faster_rendering_text">
-				Daha hızlı işleme
-Daha az ayrıntı
-Daha düşük prim ağırlığı
-			</text>
-			<text name="optimize_accuracy_text">
-				Hassasiyet
-			</text>
-			<text name="optimize_slower_rendering_text">
-				Daha yavaş işleme
-Daha çok ayrıntı
-Daha yüksek prim ağırlığı
-			</text>
-			<text name="accuracy_slider_mark1">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark2">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark3">
-				&apos;
-			</text>
 			<button label="Geometri hesaplarını tekrar yap" name="recalculate_geometry_btn"/>
-			<text name="geometry_preview_label">
+			<text name="lod_label">
 				Geometri önizleme
 			</text>
 			<combo_box name="preview_lod_combo" tool_tip="Önizleme işlemesinde görülecek ayrıntı seviyesi">
-				<combo_item name="preview_lod_high">
+				<combo_item name="high">
 					Çok ayrıntı
 				</combo_item>
-				<combo_item name="preview_lod_medium">
+				<combo_item name="medium">
 					Orta düzey ayrıntı
 				</combo_item>
-				<combo_item name="preview_lod_low">
+				<combo_item name="low">
 					Az ayrıntı
 				</combo_item>
-				<combo_item name="preview_lod_lowest">
+				<combo_item name="lowest">
 					En az ayrıntı
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="physics_header_panel">
-			<text name="physics_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Fizik ayarlarını yap
 			</text>
 		</panel>
-		<text name="physics_hint">
+		<text name="description">
 			Modelin dış gövdesi için bir şekil oluşturacağız. Modelinizin amacına uygun olarak şeklin ayrıntı seviyesini belirleyin.
 		</text>
-		<panel name="physics_content_panel">
-			<text name="physics_performance_text">
-				Performans
-			</text>
-			<text name="physics_faster_rendering_text">
-				Daha hızlı işleme
-Daha az ayrıntı
-Daha düşük prim ağırlığı
-			</text>
-			<text name="physics_accuracy_text">
-				Hassasiyet
-			</text>
-			<text name="physics_slower_dendering_text">
-				Daha yavaş işleme
-Daha çok ayrıntı
-Daha yüksek prim ağırlığı
-			</text>
-			<text name="physics_example_1">
-				Örnekler:
-Hareketli nesneler
-Uçan nesneler
-Araçlar
-			</text>
-			<text name="physics_example_2">
-				Örnekler:
-Küçük statik nesneler
-Daha az ayrıntılı nesneler
-Basit eşyalar
-			</text>
-			<text name="physics_example_3">
-				Örnekler:
-Statik nesneler
-Ayrıntılı nesneler
-Binalar
-			</text>
+		<panel name="content">
 			<button label="Fizik hesaplarını tekrar yap" name="recalculate_physics_btn"/>
 			<button label="Tekrar hesaplanıyor..." name="recalculating_physics_btn"/>
-			<text name="physics_preview_label">
+			<text name="lod_label">
 				Fizik önizleme
 			</text>
 			<combo_box name="preview_lod_combo2" tool_tip="Önizleme işlemesinde görülecek ayrıntı seviyesi">
-				<combo_item name="preview_lod2_high">
+				<combo_item name="high">
 					Çok ayrıntı
 				</combo_item>
-				<combo_item name="preview_lod2_medium">
+				<combo_item name="medium">
 					Orta düzey ayrıntı
 				</combo_item>
-				<combo_item name="preview_lod2_low">
+				<combo_item name="low">
 					Az ayrıntı
 				</combo_item>
-				<combo_item name="preview_lod2_lowest">
+				<combo_item name="lowest">
 					En az ayrıntı
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="review_header_panel">
-			<text name="review_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				İncele
 			</text>
 		</panel>
-		<panel name="review_content_panel">
+		<panel name="content">
 			<text name="review_prim_equiv">
 				Parsele/bölgeye etkisi: [EQUIV] prim eşdeğerleri
 			</text>
@@ -193,8 +125,8 @@ Binalar
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="upload_header_panel">
-			<text name="upload_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Karşıya yükleme bitti
 			</text>
 		</panel>

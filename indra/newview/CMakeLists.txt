@@ -241,6 +241,7 @@ set(viewer_SOURCE_FILES
     llfloatertopobjects.cpp
     llfloatertos.cpp
     llfloatertoybox.cpp
+    llfloatertranslationsettings.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
@@ -807,6 +808,7 @@ set(viewer_HEADER_FILES
     llfloatertopobjects.h
     llfloatertos.h
     llfloatertoybox.h
+    llfloatertranslationsettings.h
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
@@ -1987,10 +1989,17 @@ if (LL_TESTS)
     llmediadataclient.cpp
     lllogininstance.cpp
     llremoteparcelrequest.cpp
+    lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
     llworldmap.cpp
     llworldmipmap.cpp
+  )
+
+  set_source_files_properties(
+    lltranslate.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
   )
 
   ##################################################

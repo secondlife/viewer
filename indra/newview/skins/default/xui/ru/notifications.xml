@@ -1909,6 +1909,12 @@ http://secondlife.com/download.
 		Выйти из программы?
 		<usetemplate ignoretext="Подтверждать перед выходом" name="okcancelignore" notext="Не выходить" yestext="Выйти"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Вы действительно хотите восстановить принятые по умолчанию кнопки и панели инструментов? 
+    
+Это действие нельзя отменить.
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Подтверждать перед удалением предметов" name="okcancelignore" notext="Отмена" yestext="OK"/>
@@ -2995,10 +3001,6 @@ http://secondlife.com/download.
 			<button name="cancel" text="Отмена"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Для смены режима требуется выйти из программы и перезапустить ее.
-		<usetemplate name="okcancelbuttons" notext="Не выходить" yestext="Выйти"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		Создание и редактирование рекламы доступно только в расширенном режиме. Выйти из программы и сменить режим? Меню смены режима находится на экране входа.
 		<usetemplate name="okcancelbuttons" notext="Не выходить" yestext="Выйти"/>
@@ -3042,6 +3044,10 @@ http://secondlife.com/download.
 	<notification label="" name="NoSearch">
 		Поиск доступен только в расширенном режиме. Выйти из программы и сменить режим?
 		<usetemplate name="okcancelbuttons" notext="Не выходить" yestext="Выход"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Это действие приведет к скрытию всех меню и кнопок. Чтобы вернуть их, щелкните [SHORTCUT] снова.
+		<usetemplate ignoretext="Подтверждать перед скрытием интерфейса" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		По-видимому, ваше оборудование не удовлетворяет требованиям [APP_NAME]. Для работы [APP_NAME] необходима графическая карта OpenGL с поддержкой мультитекстур. Если у вас есть такая карта, убедитесь, что установлены новейшие версии драйверов для нее и пакеты обновлений и исправления для операционной системы.

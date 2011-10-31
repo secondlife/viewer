@@ -11,10 +11,12 @@
 		<combo_box.item label="Español (İspanyolca) - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Fransızca) - Beta" name="French"/>
 		<combo_box.item label="Italiano (İtalyanca) - Beta" name="Italian"/>
-		<combo_box.item label="Nederlands (Felemekçe) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Lehçe) - Beta" name="Polish"/>
 		<combo_box.item label="Português (Portekizce) - Beta" name="Portugese"/>
+		<combo_box.item label="Русский (Rusça) - Beta" name="Russian"/>
+		<combo_box.item label="Türkçe (Türkçe) - Beta" name="Turkish"/>
 		<combo_box.item label="日本語 (Japonca) - Beta" name="(Japanese)"/>
+		<combo_box.item label="正體 (Geleneksel Çince) - Beta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Yeniden başlatma gerekir)

@@ -25,10 +25,10 @@
 		Щелкните и переместите для выделения земли
 	</floater.string>
 	<floater.string name="status_selectcount">
-		Выбрано объектов: [OBJ_COUNT] (примитивов: [PRIM_COUNT] [PE_STRING])
+		Выбрано объектов: [OBJ_COUNT], влияние на землю [LAND_IMPACT]
 	</floater.string>
-	<floater.string name="status_selectprimequiv">
-		, в примитивах: [SEL_WEIGHT]
+	<floater.string name="status_remaining_capacity">
+		Остаток емкости [LAND_CAPACITY].
 	</floater.string>
 	<button name="button focus" tool_tip="Отчетливость"/>
 	<button name="button move" tool_tip="Переместить"/>
@@ -107,8 +107,8 @@
 	<text name="selection_empty">
 		Ничего не выбрано.
 	</text>
-	<text name="selection_weight">
-		Вес физических параметров [PHYS_WEIGHT], стоимость прорисовки [DISP_WEIGHT].
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Дополнительная информация]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Общие" name="General">
@@ -321,7 +321,6 @@
 				Тип стыковки
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="(нет)" name="None"/>
 				<combo_box.item label="По сфере" name="Sphere"/>
 				<combo_box.item label="По тору" name="Torus"/>
 				<combo_box.item label="По плоскости" name="Plane"/>
