@@ -1381,29 +1381,42 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 	mhRC = 0;
 	if (wglCreateContextAttribsARB)
-	{ //attempt to create a non-compatibility profile context
+	{ //attempt to create a specific versioned context
 		S32 attribs[] = 
-		{
+		{ //start at 4.2
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 0,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
 			WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
 			WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
 			0
 		};
 
-		mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
-
-		if (!mhRC)
+		bool done = false;
+		while (!done)
 		{
-			attribs[1] = 3;
-			attribs[3] = 3;
-
 			mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
-		}
 
-		if (mhRC)
-		{ //success, disable fixed function calls
-			LLGLSLShader::sNoFixedFunction = true;
+			if (!mhRC)
+			{
+				if (attribs[3] > 0)
+				{ //decrement minor version
+					attribs[3]--;
+				}
+				else if (attribs[1] > 3)
+				{ //decrement major version and start minor version over at 3
+					attribs[1]--;
+					attribs[3] = 3;
+				}
+				else
+				{ //we reached 3.0 and still failed, bail out
+					done = true;
+				}
+			}
+			else
+			{
+				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << " context." << llendl;
+				done = true;
+			}
 		}
 	}
 
