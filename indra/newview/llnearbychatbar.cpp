@@ -403,8 +403,16 @@ void LLNearbyChatBar::setMinimized(BOOL b)
 {
 	if (b != LLFloater::isMinimized())
 	{
+		LLView* nearby_chat = getChildView("nearby_chat");
+
+		static bool is_visible = nearby_chat->getVisible();
+		if (b)
+		{
+			is_visible = nearby_chat->getVisible();
+		}
+
+		nearby_chat->setVisible(b ? false : is_visible);
 		LLFloater::setMinimized(b);
-		getChildView("nearby_chat")->setVisible(!b);
 	}
 }
 
