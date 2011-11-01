@@ -30,7 +30,7 @@
 	<spinner label="Время отображения всплывающих сообщений чата:" name="nearby_toasts_lifetime"/>
 	<spinner label="Время затухания всплывающих сообщений чата:" name="nearby_toasts_fadingtime"/>
 	<text name="translate_chb_label">
-		Использовать машинный перевод во время общения (используется Google)
+		Использовать машинный перевод во время общения
 	</text>
 	<text name="translate_language_text">
 		Переводить чат на:

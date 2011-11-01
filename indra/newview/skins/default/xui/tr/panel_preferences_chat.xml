@@ -30,7 +30,7 @@
 	<spinner label="Yakındaki sohbet iletilerinin vurgulanma süresi:" name="nearby_toasts_lifetime"/>
 	<spinner label="Yakındaki sohbet iletilerinin sönme süresi:" name="nearby_toasts_fadingtime"/>
 	<text name="translate_chb_label">
-		Sohbet ederken makine çevirisi kullanılsın (Google tarafından desteklenir)
+		Sohbet ederken makine çevirisi kullanılsın
 	</text>
 	<text name="translate_language_text">
 		Sohbeti şu dile çevir:
