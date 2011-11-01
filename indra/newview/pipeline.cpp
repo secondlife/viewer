@@ -6405,6 +6405,10 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		bool multisample = RenderFSAASamples > 1;
 
+#if LL_DARWIN //force FXAA to off on OSX (SH-2620)
+		multisample = false;
+#endif
+
 		if (multisample)
 		{
 			//bake out texture2D with RGBL for FXAA shader
