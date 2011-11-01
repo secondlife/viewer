@@ -26,7 +26,7 @@
 
 VARYING vec3 vary_SunlitColor;
 VARYING vec3 vary_AdditiveColor;
-VARYING float vary_AtmosAttenuation;
+VARYING vec3 vary_AtmosAttenuation;
 
 vec3 getSunlitColor()
 {

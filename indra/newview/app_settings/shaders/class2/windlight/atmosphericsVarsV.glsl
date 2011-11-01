@@ -25,7 +25,7 @@
  
 
 VARYING vec3 vary_AdditiveColor;
-VARYING float vary_AtmosAttenuation;
+VARYING vec3 vary_AtmosAttenuation;
 
 vec3 additive_color;
 vec3 atmos_attenuation;
@@ -80,5 +80,5 @@ void setAdditiveColor(vec3 v)
 void setAtmosAttenuation(vec3 v)
 {
 	atmos_attenuation = v;
-	vary_AtmosAttenuation = v.r;
+	vary_AtmosAttenuation = v;
 }
