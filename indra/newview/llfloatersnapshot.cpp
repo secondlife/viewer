@@ -2138,7 +2138,7 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 					}
 				}
 #endif
-				previewp->setMaxImageSize(getWidthSpinner(view)->getMaxValue()) ;
+				previewp->setMaxImageSize((S32) getWidthSpinner(view)->getMaxValue()) ;
 				
 				// Check image size changes the value of height and width
 				if(checkImageSize(previewp, w, h, w != curw, previewp->getMaxImageSize())
