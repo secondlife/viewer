@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_snapshot_local"
+ width="490">
+    <icon
+     follows="top|left"
+     height="32"
+     image_name="Snapshot_Download"
+     layout="topleft"
+     left="12"
+     mouse_opaque="true"
+     name="title_icon"
+     top="3"
+     width="32" />
+    <text
+     follows="top|left|right"
+     font="SansSerif"
+     height="20"
+     layout="topleft"
+     left_pad="12"
+     length="1"
+     name="title"
+     right="-10"
+     text_color="white"
+     type="string"
+     top_delta="8">
+        Save to My Computer
+    </text>
+    <view_border 
+     bevel_style="in"
+     follows="left|top|right" 
+     height="1"
+     left="10"
+     layout="topleft"
+     name="hr"
+     right="-10"
+     top_pad="5"
+     />
+    <combo_box
+     follows="left|top|right"
+     height="23"
+     label="Resolution"
+     layout="topleft"
+     left_delta="0"
+     name="local_size_combo"
+     right="-10"
+     top_pad="10">
+        <combo_box.item
+         label="Current Window"
+         name="CurrentWindow"
+         value="[i0,i0]" />
+        <combo_box.item
+         label="320x240"
+         name="320x240"
+         value="[i320,i240]" />
+        <combo_box.item
+         label="640x480"
+         name="640x480"
+         value="[i640,i480]" />
+        <combo_box.item
+         label="800x600"
+         name="800x600"
+         value="[i800,i600]" />
+        <combo_box.item
+         label="1024x768"
+         name="1024x768"
+         value="[i1024,i768]" />
+        <combo_box.item
+         label="1280x1024"
+         name="1280x1024"
+         value="[i1280,i1024]" />
+        <combo_box.item
+         label="1600x1200"
+         name="1600x1200"
+         value="[i1600,i1200]" />
+        <combo_box.item
+         label="Custom"
+         name="Custom"
+         value="[i-1,i-1]" />
+    </combo_box>
+    <spinner
+     allow_text_entry="false"
+     decimal_digits="0"
+     follows="left|top"
+     height="20"
+     increment="32"
+     label="Width"
+     label_width="40"
+     layout="topleft"
+     left="10"
+     max_val="6016"
+     min_val="32"
+     name="local_snapshot_width"
+     top_pad="10"
+     width="95" />
+    <spinner
+     allow_text_entry="false"
+     decimal_digits="0"
+     follows="left|top"
+     height="20"
+     increment="32"
+     label="Height"
+     label_width="40"
+     layout="topleft"
+     left_pad="5"
+     max_val="6016"
+     min_val="32"
+     name="local_snapshot_height"
+     top_delta="0"
+     width="95" />
+    <check_box
+     bottom_delta="20"
+     follows="left|top"
+     label="Constrain proportions"
+     layout="topleft"
+     left="10"
+     name="local_keep_aspect_check" />
+    <combo_box
+     follows="left|top"
+     height="23"
+     label="Format"
+     layout="topleft"
+     left_delta="0"
+     name="local_format_combo"
+     top_pad="10"
+     width="120">
+        <combo_box.item
+         label="PNG (Lossless)"
+         name="PNG" />
+        <combo_box.item
+         label="JPEG"
+         name="JPEG" />
+        <combo_box.item
+         label="BMP (Lossless)"
+         name="BMP" />
+    </combo_box>
+    <slider
+     decimal_digits="0"
+     follows="left|top"
+     height="15"
+     increment="1"
+     initial_value="75"
+     label="Image quality"
+     label_width="80"
+     layout="topleft"
+     left="10"
+     max_val="100"
+     name="image_quality_slider"
+     top_pad="7"
+     width="200" />
+    <text
+     type="string"
+     follows="left|top"
+     font="SansSerifSmall"
+     length="1"
+     height="14"
+     layout="topleft"
+     left_pad="-5"
+     halign="left"
+     name="image_quality_level"
+     top_delta="0"
+     width="60">
+       ([QLVL])
+    </text>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     right="-10"
+     top="350"
+     width="100">
+      <button.commit_callback
+       function="Local.Cancel" />
+    </button>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Save"
+     layout="topleft"
+     left_delta="-106"
+     name="save_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+       function="Local.Save" />
+    </button>
+</panel>

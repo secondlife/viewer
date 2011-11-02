@@ -1,28 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<floater
- legacy_header_height="18"
- can_minimize="false"
- can_resize="true"
+<panel
  height="380"
  layout="topleft"
- min_height="380"
- min_width="490"
- name="Postcard"
- help_topic="postcard"
- title="EMAIL SNAPSHOT"
+ name="panel_postcard_message"
  width="490">
-    <floater.string
-     name="default_subject">
-        Postcard from [SECOND_LIFE].
-    </floater.string>
-    <floater.string
-     name="default_message">
-        Check this out!
-    </floater.string>
-    <floater.string
-     name="upload_message">
-        Sending...
-    </floater.string>
     <text
      type="string"
      length="1"
@@ -31,18 +12,19 @@
      font="SansSerif"
      layout="topleft"
      left="12"
-     name="to_label">
+     name="to_label"
+     top="10">
         Recipient&apos;s Email:
     </text>
     <line_editor
      control_name="LastPostcardRecipient"
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      layout="topleft"
      left_delta="148"
      name="to_form"
-     top_delta="-4"
-     width="150" />
+     right="-10"
+     top_delta="-4" />
     <text
      type="string"
      length="1"
@@ -55,13 +37,13 @@
         Your Email:
     </text>
     <line_editor
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      layout="topleft"
      left_delta="148"
      name="from_form"
-     top_delta="-4"
-     width="150" />
+     right="-10"
+     top_delta="-4" />
     <text
      type="string"
      length="1"
@@ -74,14 +56,14 @@
         Your Name:
     </text>
     <line_editor
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      layout="topleft"
      left_delta="148"
      max_length_bytes="100"
      name="name_form"
-     top_delta="-4"
-     width="150" />
+     right="-10"
+     top_delta="-4" />
     <text
      type="string"
      length="1"
@@ -94,15 +76,15 @@
         Subject:
     </text>
     <line_editor
-     follows="left|top"
+     follows="left|top|right"
      height="20"
      label="Type your subject here."
      layout="topleft"
      left_delta="148"
      max_length_bytes="100"
      name="subject_form"
-     top_delta="-4"
-     width="150" />
+     right="-10"
+     top_delta="-4" />
     <text
      type="string"
      length="1"
@@ -123,9 +105,9 @@
      left_delta="0"
      max_length="700"
      name="msg_form"
-     word_wrap="true" 
+     right="-10"
      top_pad="10"
-     width="420">
+     word_wrap="true">
         Type your message here.
     </text_editor>
     <button
@@ -136,7 +118,10 @@
      name="cancel_btn"
      right="-10"
      top="350"
-     width="100" />
+     width="100">
+      <button.commit_callback
+       function="Postcard.Cancel" />
+    </button>
     <button
      follows="right|bottom"
      height="23"
@@ -145,5 +130,8 @@
      left_delta="-106"
      name="send_btn"
      top_delta="0"
-     width="100" />
-</floater>
+     width="100">
+      <button.commit_callback
+       function="Postcard.Send" />
+    </button>
+</panel>

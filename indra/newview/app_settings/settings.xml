@@ -4667,6 +4667,17 @@
       <string>0.0.0</string>
     </map>
   
+    <key>LastSnapshotToProfileHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>The height of the last profile snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>768</integer>
+    </map>
     <key>LastSnapshotToEmailHeight</key>
     <map>
       <key>Comment</key>
@@ -4677,6 +4688,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>768</integer>
+    </map>
+    <key>LastSnapshotToProfileWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>The width of the last profile snapshot, in px</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>1024</integer>
     </map>
     <key>LastSnapshotToEmailWidth</key>
     <map>
@@ -4732,17 +4754,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>512</integer>
-    </map>
-    <key>LastSnapshotType</key>
-    <map>
-      <key>Comment</key>
-      <string>Select this as next type of snapshot to take (0 = postcard, 1 = texture, 2 = local image)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>LeftClickShowMenu</key>
     <map>
@@ -10601,6 +10612,17 @@
     <map>
       <key>Comment</key>
       <string>Take next local snapshot at this resolution</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>SnapshotProfileLastResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Take next profile snapshot at this resolution</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
