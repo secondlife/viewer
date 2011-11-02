@@ -1716,7 +1716,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNavigateSuspended(false),
 	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false),
-	mTrustedBrowser(false)
+	mTrustedBrowser(false),
+	mZoomFactor(1.0)
 { 
 
 	// Set up the mute list observer if it hasn't been set up already.
@@ -2299,6 +2300,17 @@ void LLViewerMediaImpl::clearCache()
 	else
 	{
 		mClearCache = true;
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::setPageZoomFactor( double factor )
+{
+	if(mMediaSource && factor != mZoomFactor)
+	{
+		mZoomFactor = factor;
+		mMediaSource->set_page_zoom_factor( factor );
 	}
 }
 
