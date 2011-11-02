@@ -78,7 +78,10 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
+//prep#
 #include "LLPathingLib.h"
+#include "llnavmeshstation.h"
+
 class LLBuildNavMesh  : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -88,20 +91,46 @@ class LLBuildNavMesh  : public view_listener_t
 	}
 };
 
-class LLFileUploadNavMesh  : public view_listener_t
+class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		llinfos<<"ok"<<llendl;
 		LLPathingLib::initSystem();
-		if (LLPathingLib::getInstance() == NULL)
+		
+		if ( LLPathingLib::getInstance() == NULL )
 		{ 
-			llinfos<<"ick"<<llendl;
+			llinfos<<"No implementation of pathing library."<<llendl;
 		}
 		else
-		{
-			llinfos<<"ok2"<<llendl;
+		{		
 			LLPathingLib::getInstance()->testNavMeshGenerationWithLocalAsset();
+			LLSD data;
+			LLPLResult result = LLPathingLib::getInstance()->getNavMeshAsLLSD( data );
+			if ( result == LLPL_OK )
+			{				
+				std::string capability = "NavMeshUpload";
+				std::string url = gAgent.getRegion()->getCapability( capability );
+				if ( !url.empty() )
+				{
+					llinfos<< typeid(*this).name() <<"setNavMeshUploadURL "<< url <<llendl;					
+					//Populate the required paramters that are required to store in the dictionary
+					data["agent_id"]  = gAgent.getID();
+					data["object_id"] = "prepFIXME";
+					data["region_id"] = gAgent.getRegion()->getRegionID();
+					data["sim_host"]  = "prepFIXME";
+					data["sim_port"]  = "prepFIXME";						
+					LLNavMeshStation::getInstance()->setNavMeshUploadURL( url );
+					LLNavMeshStation::getInstance()->postNavMeshToServer( data, getObserverHandle() );
+				}				
+				else
+				{
+					llinfos<<"region contained no capability of type ["<<capability<<"]"<<llendl;
+				}
+			}
+			else
+			{
+				llinfos<<"ok4"<<llendl;
+			}
 		}
 		
 		return true;
