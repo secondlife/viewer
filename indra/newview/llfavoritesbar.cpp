@@ -1016,7 +1016,9 @@ void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
 	LLMenuItemCallGL::Params item_params;
 	item_params.name("open_my_landmarks");
 	item_params.label(translated ? label_transl: label_untrans);
-	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", LLSD()));
+	LLSD key;
+	key["type"] = "open_landmark_tab";
+	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", key));
 	LLMenuItemCallGL* menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
 	fitLabelWidth(menu_item);
