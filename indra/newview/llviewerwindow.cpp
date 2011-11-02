@@ -1789,17 +1789,13 @@ void LLViewerWindow::initBase()
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
 	// Create the toolbar view
-	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
-	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
-	{
-		// Get a pointer to the toolbar view holder
-		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
-		// Load the toolbar view from file 
-		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
-		gToolBarView->setShape(panel_holder->getLocalRect());
-		// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
-		gToolBarView->setVisible(FALSE);
-	}
+	// Get a pointer to the toolbar view holder
+	LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
+	// Load the toolbar view from file 
+	gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+	gToolBarView->setShape(panel_holder->getLocalRect());
+	// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
+	gToolBarView->setVisible(FALSE);
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");

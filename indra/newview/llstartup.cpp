@@ -190,6 +190,7 @@
 #include "lllogin.h"
 #include "llevents.h"
 #include "llstartuplistener.h"
+#include "lltoolbarview.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -2091,7 +2092,12 @@ void login_show()
 #else
 	BOOL bUseDebugLogin = TRUE;
 #endif
-
+	// Hide the toolbars: may happen to come back here if login fails after login agent but before login in region
+	if (gToolBarView)
+	{
+		gToolBarView->setVisible(FALSE);
+	}
+	
 	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
 						bUseDebugLogin || gSavedSettings.getBOOL("SecondLifeEnterprise"),
 						login_callback, NULL );

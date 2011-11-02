@@ -37,8 +37,7 @@ class LLChatHistory;
 class LLNearbyChat: public LLPanel
 {
 public:
-	LLNearbyChat();
-	~LLNearbyChat();
+	LLNearbyChat(const Params& p = LLPanel::getDefaultParams());
 
 	BOOL	postBuild			();
 
@@ -63,13 +62,14 @@ public:
 	void loadHistory();
 
 	static LLNearbyChat* getInstance();
+	void removeScreenChat();
 
 private:
 
 	void	getAllowedRect		(LLRect& rect);
 
 	void	onNearbySpeakers	();
-	
+
 
 private:
 	LLHandle<LLView>	mPopupMenuHandle;
