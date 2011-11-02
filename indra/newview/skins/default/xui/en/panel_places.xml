@@ -202,7 +202,7 @@ background_visible="true"
 					</layout_panel>
 					
 					<layout_panel
-					follows="bottom|left|right"
+					follows="bottom|right"
 					height="23"
 					layout="bottomleft"
 					left_pad="0"
@@ -212,7 +212,7 @@ background_visible="true"
 				    auto_resize="true"
 					width="24">
 						<menu_button
-				         follows="bottom|left|right"
+				         follows="bottom|right"
 				         height="23"
 						 image_disabled="ComboButton_UpOff"
 						 image_unselected="ComboButton_UpOff"
