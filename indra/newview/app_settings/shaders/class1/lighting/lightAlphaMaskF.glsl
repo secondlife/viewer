@@ -28,7 +28,6 @@ out vec4 gl_FragColor;
 #endif
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
 
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
@@ -40,7 +39,7 @@ void default_lighting()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
-	if (color.a < minimum_alpha || color.a > maximum_alpha)
+	if (color.a < minimum_alpha)
 	{
 		discard;
 	}

@@ -28,7 +28,6 @@ out vec4 gl_FragColor;
 #endif
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
 
 uniform sampler2D diffuseMap;
 
@@ -39,7 +38,7 @@ void main()
 {
 	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a;
 
-	if (alpha < minimum_alpha || alpha > maximum_alpha)
+	if (alpha < minimum_alpha)
 	{
 		discard;
 	}

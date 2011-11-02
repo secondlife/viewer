@@ -1009,6 +1009,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 	llassert(mReservedUniforms.size() == LLShaderMgr::GLOW_DELTA+1);
 
+
+	mReservedUniforms.push_back("minimum_alpha");
+
 	mReservedUniforms.push_back("shadow_matrix");
 	mReservedUniforms.push_back("env_mat");
 	mReservedUniforms.push_back("shadow_clip");

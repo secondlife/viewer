@@ -576,7 +576,7 @@ void LLDrawPoolAvatar::beginImpostor()
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gImpostorProgram.bind();
-		gImpostorProgram.setAlphaRange(0.01f, 1.f);
+		gImpostorProgram.setMinimumAlpha(0.01f);
 	}
 
 	gPipeline.enableLightsFullbright(LLColor4(1,1,1,1));
@@ -608,7 +608,7 @@ void LLDrawPoolAvatar::beginRigid()
 		if (sVertexProgram != NULL)
 		{	//eyeballs render with the specular shader
 			sVertexProgram->bind();
-			sVertexProgram->setAlphaRange(0.2f, 1.f);
+			sVertexProgram->setMinimumAlpha(0.2f);
 		}
 	}
 	else
@@ -641,7 +641,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 
 	sVertexProgram->bind();
-	sVertexProgram->setAlphaRange(0.01f, 1.f);
+	sVertexProgram->setMinimumAlpha(0.01f);
 }
 
 void LLDrawPoolAvatar::endDeferredImpostor()
@@ -659,7 +659,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 				
 	sVertexProgram->bind();
-	sVertexProgram->setAlphaRange(0.2f, 1.f);
+	sVertexProgram->setMinimumAlpha(0.2f);
 }
 
 void LLDrawPoolAvatar::endDeferredRigid()
@@ -716,7 +716,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		sVertexProgram->setAlphaRange(0.2f, 1.f);
+		sVertexProgram->setMinimumAlpha(0.2f);
 	}
 }
 
@@ -1014,7 +1014,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 	sRenderingSkinned = TRUE;
 
 	sVertexProgram->bind();
-	sVertexProgram->setAlphaRange(0.2f, 1.f);
+	sVertexProgram->setMinimumAlpha(0.2f);
 	
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gGL.getTexUnit(0)->activate();

@@ -30,7 +30,6 @@ out vec4 gl_FragData[3];
 VARYING vec3 vary_normal;
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
@@ -39,7 +38,7 @@ void main()
 {
 	vec4 col = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
-	if (col.a < minimum_alpha || col.a > maximum_alpha)
+	if (col.a < minimum_alpha)
 	{
 		discard;
 	}

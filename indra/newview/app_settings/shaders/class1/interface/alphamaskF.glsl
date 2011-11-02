@@ -30,7 +30,6 @@ out vec4 gl_FragColor;
 uniform sampler2D diffuseMap;
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
 
 VARYING vec2 vary_texcoord0;
 VARYING vec4 vertex_color;
@@ -38,7 +37,7 @@ VARYING vec4 vertex_color;
 void main() 
 {
 	vec4 col = vertex_color*texture2D(diffuseMap, vary_texcoord0.xy);
-	if (col.a < minimum_alpha || col.a > maximum_alpha)
+	if (col.a < minimum_alpha)
 	{
 		discard;
 	}

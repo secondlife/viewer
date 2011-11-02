@@ -75,7 +75,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 	if (gPipeline.canUseVertexShaders())
 	{
 		shader->bind();
-		shader->setAlphaRange(0.5f, 1.f);
+		shader->setMinimumAlpha(0.5f);
 		gGL.diffuseColor4f(1,1,1,1);
 	}
 	else
@@ -144,7 +144,7 @@ void LLDrawPoolTree::beginDeferredPass(S32 pass)
 		
 	shader = &gDeferredTreeProgram;
 	shader->bind();
-	shader->setAlphaRange(0.5f, 1.f);
+	shader->setMinimumAlpha(0.5f);
 }
 
 void LLDrawPoolTree::renderDeferred(S32 pass)
@@ -170,7 +170,7 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
 
 	gDeferredTreeShadowProgram.bind();
-	gDeferredTreeShadowProgram.setAlphaRange(0.5f, 1.f);
+	gDeferredTreeShadowProgram.setMinimumAlpha(0.5f);
 }
 
 void LLDrawPoolTree::renderShadow(S32 pass)

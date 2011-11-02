@@ -1009,9 +1009,8 @@ void LLGLSLShader::vertexAttrib4fv(U32 index, GLfloat* v)
 	}
 }
 
-void LLGLSLShader::setAlphaRange(F32 minimum, F32 maximum)
+void LLGLSLShader::setMinimumAlpha(F32 minimum)
 {
 	gGL.flush();
-	uniform1f("minimum_alpha", minimum);
-	uniform1f("maximum_alpha", maximum);
+	uniform1f(LLShaderMgr::MINIMUM_ALPHA, minimum);
 }

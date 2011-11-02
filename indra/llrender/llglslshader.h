@@ -108,7 +108,7 @@ public:
 	void uniformMatrix3fv(const std::string& uniform, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix4fv(const std::string& uniform, U32 count, GLboolean transpose, const GLfloat *v);
 
-	void setAlphaRange(F32 minimum, F32 maximum);
+	void setMinimumAlpha(F32 minimum);
 
 	void vertexAttrib4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 	void vertexAttrib4fv(U32 index, GLfloat* v);

@@ -28,7 +28,6 @@ out vec4 gl_FragColor;
 #endif
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
 
 vec4 diffuseLookup(vec2 texcoord);
 
@@ -42,7 +41,7 @@ void fullbright_lighting_water()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 
-	if (color.a < minimum_alpha || color.a > maximum_alpha)
+	if (color.a < minimum_alpha)
 	{
 		discard;
 	}

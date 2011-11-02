@@ -269,7 +269,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 	if (mVertexShaderLevel > 0)
 	{
 		simple_shader->bind();
-		simple_shader->setAlphaRange(0.5f, 1.f);
+		simple_shader->setMinimumAlpha(0.5f);
 	}
 	else 
 	{
@@ -325,7 +325,7 @@ void LLDrawPoolGrass::renderDeferred(S32 pass)
 	{
 		LLFastTimer t(FTM_RENDER_GRASS_DEFERRED);
 		gDeferredNonIndexedDiffuseAlphaMaskProgram.bind();
-		gDeferredNonIndexedDiffuseAlphaMaskProgram.setAlphaRange(0.5f, 1.f);
+		gDeferredNonIndexedDiffuseAlphaMaskProgram.setMinimumAlpha(0.5f);
 		//render grass
 		LLRenderPass::renderTexture(LLRenderPass::PASS_GRASS, getVertexDataMask());
 	}			
