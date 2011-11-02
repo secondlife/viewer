@@ -115,10 +115,10 @@ class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
 					llinfos<< typeid(*this).name() <<"setNavMeshUploadURL "<< url <<llendl;					
 					//Populate the required paramters that are required to store in the dictionary
 					data["agent_id"]  = gAgent.getID();
-					data["object_id"] = "prepFIXME";
+					data["object_id"] = "prepFIXME#IsThisReallyNeeded?";
 					data["region_id"] = gAgent.getRegion()->getRegionID();
-					data["sim_host"]  = "prepFIXME";
-					data["sim_port"]  = "prepFIXME";						
+					data["sim_host"]  = gAgent.getRegion()->getHost().getString();
+					data["sim_port"]  = (S32)gAgent.getRegion()->getHost().getPort();
 					LLNavMeshStation::getInstance()->setNavMeshUploadURL( url );
 					LLNavMeshStation::getInstance()->postNavMeshToServer( data, getObserverHandle() );
 				}				
