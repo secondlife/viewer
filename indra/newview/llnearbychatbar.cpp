@@ -408,7 +408,7 @@ void LLNearbyChatBar::setMinimized(BOOL b)
 	{
 		nearby_chat->removeScreenChat();
 	}
-	LLFloater::setMinimized(b);
+		LLFloater::setMinimized(b);
 }
 
 void LLNearbyChatBar::onChatBoxCommit()

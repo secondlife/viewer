@@ -1199,7 +1199,9 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
 	if (mRestoreOverflowMenu && menu && !menu->getVisible())
 	{
+		menu->resetScrollPositionOnShow(false);
 		showDropDownMenu();
+		menu->resetScrollPositionOnShow(true);
 	}
 }
 

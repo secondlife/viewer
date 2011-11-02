@@ -516,6 +516,9 @@ public:
 
 	static class LLMenuHolderGL* sMenuContainer;
 	
+	void resetScrollPositionOnShow(bool reset_scroll_pos) { mResetScrollPositionOnShow = reset_scroll_pos; }
+	bool isScrollPositionOnShowReset() { return mResetScrollPositionOnShow; }
+
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
@@ -565,6 +568,7 @@ private:
 	KEY				mJumpKey;
 	BOOL			mCreateJumpKeys;
 	S32				mShortcutPad;
+	bool			mResetScrollPositionOnShow;
 }; // end class LLMenuGL
 
 
