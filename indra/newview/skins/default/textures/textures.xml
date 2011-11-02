@@ -39,7 +39,7 @@ with the same filename but different name
   <texture name="Accordion_Over" file_name="containers/Accordion_Over.png" preload="false" />
   <texture name="Accordion_Selected" file_name="containers/Accordion_Selected.png" preload="false" />
 
-<texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
+  <texture name="Activate_Checkmark" file_name="taskpanel/Activate_Checkmark.png" preload="false" />
 
   <texture name="AddItem_Disabled" file_name="icons/AddItem_Disabled.png" preload="false" />
   <texture name="AddItem_Off" file_name="icons/AddItem_Off.png" preload="false" />
@@ -47,9 +47,6 @@ with the same filename but different name
 
   <texture name="Arrow_Left_Off" file_name="navbar/Arrow_Left_Off.png" preload="true" />
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true" />
-
-<!--
--->
 
   <texture name="Arrow_Small_Up" file_name="widgets/Arrow_Small_Up.png" preload="true" />
   <texture name="Arrow_Small_Left" file_name="widgets/Arrow_Small_Left.png" preload="true" />
