@@ -2450,44 +2450,58 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::updateJavascriptObject()
 {
+	static LLFrameTimer timer ;
+
 	if ( mMediaSource )
 	{
 		// flag to expose this information to internal browser or not.
 		bool enable = gSavedSettings.getBOOL("BrowserEnableJSObject");
+
+		if(!enable)
+		{
+			return ; //no need to go further.
+		}
+
+		if(timer.getElapsedTimeF32() < 1.0f)
+		{
+			return ; //do not update more than once per second.
+		}
+		timer.reset() ;
+
 		mMediaSource->jsEnableObject( enable );
 
 		// these values are only menaingful after login so don't set them before
 		bool logged_in = LLLoginInstance::getInstance()->authSuccess();
 		if ( logged_in )
 		{
-		// current location within a region
-		LLVector3 agent_pos = gAgent.getPositionAgent();
-		double x = agent_pos.mV[ VX ];
-		double y = agent_pos.mV[ VY ];
-		double z = agent_pos.mV[ VZ ];
-		mMediaSource->jsAgentLocationEvent( x, y, z );
+			// current location within a region
+			LLVector3 agent_pos = gAgent.getPositionAgent();
+			double x = agent_pos.mV[ VX ];
+			double y = agent_pos.mV[ VY ];
+			double z = agent_pos.mV[ VZ ];
+			mMediaSource->jsAgentLocationEvent( x, y, z );
 
-		// current location within the grid
-		LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
-		double global_x = agent_pos_global.mdV[ VX ];
-		double global_y = agent_pos_global.mdV[ VY ];
-		double global_z = agent_pos_global.mdV[ VZ ];
-		mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
+			// current location within the grid
+			LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
+			double global_x = agent_pos_global.mdV[ VX ];
+			double global_y = agent_pos_global.mdV[ VY ];
+			double global_z = agent_pos_global.mdV[ VZ ];
+			mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
 
-		// current agent orientation
-		double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
-		double angle = rotation * RAD_TO_DEG;
-		if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
-		mMediaSource->jsAgentOrientationEvent( angle );
+			// current agent orientation
+			double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+			double angle = rotation * RAD_TO_DEG;
+			if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
+			mMediaSource->jsAgentOrientationEvent( angle );
 
-		// current region agent is in
-		std::string region_name("");
-		LLViewerRegion* region = gAgent.getRegion();
-		if ( region )
-		{
-			region_name = region->getName();
-		};
-		mMediaSource->jsAgentRegionEvent( region_name );
+			// current region agent is in
+			std::string region_name("");
+			LLViewerRegion* region = gAgent.getRegion();
+			if ( region )
+			{
+				region_name = region->getName();
+			};
+			mMediaSource->jsAgentRegionEvent( region_name );
 		}
 
 		// language code the viewer is set to
