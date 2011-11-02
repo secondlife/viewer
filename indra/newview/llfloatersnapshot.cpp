@@ -1283,7 +1283,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 {
 	LLSnapshotLivePreview* previewp = getPreviewView(floaterp);
 
-	bool advanced = gSavedSettings.getBOOL("AdvanceSnapshot");
+	BOOL advanced = gSavedSettings.getBOOL("AdvanceSnapshot");
 
 	// Show/hide advanced options.
 	LLPanel* advanced_options_panel = floaterp->getChild<LLPanel>("advanced_options_panel");
