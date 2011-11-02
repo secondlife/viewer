@@ -23,8 +23,12 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 modelview_projection_matrix;
+
+ATTRIBUTE vec3 position;
+
 void main()
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 }
 

@@ -2558,7 +2558,7 @@ void LLVOAvatarSelf::deleteScratchTextures()
 			LLImageGL::decTextureCounter(tex_size, 1, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
 			total_tex_size -= tex_size ;
 		}
-		if( sScratchTexNames.checkData( GL_LUMINANCE_ALPHA ) )
+		if( sScratchTexNames.checkData( LLRender::sGLCoreProfile ? GL_RG : GL_LUMINANCE_ALPHA ) )
 		{
 			LLImageGL::decTextureCounter(tex_size, 2, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
 			total_tex_size -= 2 * tex_size ;
@@ -2598,89 +2598,6 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		LLImageGL::sGlobalTextureMemoryInBytes -= sScratchTexBytes;
 		sScratchTexBytes = 0;
 	}
-}
-
-BOOL LLVOAvatarSelf::bindScratchTexture( LLGLenum format )
-{
-	U32 texture_bytes = 0;
-	S32 components = 0; 
-	GLuint gl_name = getScratchTexName( format, components, &texture_bytes );
-	if( gl_name )
-	{
-		gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
-		stop_glerror();
-
-		F32* last_bind_time = sScratchTexLastBindTime.getIfThere( format );
-		if( last_bind_time )
-		{
-			if( *last_bind_time != LLImageGL::sLastFrameTime )
-			{
-				*last_bind_time = LLImageGL::sLastFrameTime;
-				LLImageGL::updateBoundTexMem(texture_bytes, components, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
-			}
-		}
-		else
-		{
-			LLImageGL::updateBoundTexMem(texture_bytes, components, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
-			sScratchTexLastBindTime.addData( format, new F32(LLImageGL::sLastFrameTime) );
-		}
-		return TRUE;
-	}
-	return FALSE;
-}
-
-LLGLuint LLVOAvatarSelf::getScratchTexName( LLGLenum format, S32& components, U32* texture_bytes )
-{	
-	GLenum internal_format;
-	switch( format )
-	{
-		case GL_LUMINANCE:			components = 1; internal_format = GL_LUMINANCE8;		break;
-		case GL_ALPHA:				components = 1; internal_format = GL_ALPHA8;			break;
-		case GL_LUMINANCE_ALPHA:	components = 2; internal_format = GL_LUMINANCE8_ALPHA8;	break;
-		case GL_RGB:				components = 3; internal_format = GL_RGB8;				break;
-		case GL_RGBA:				components = 4; internal_format = GL_RGBA8;				break;
-		default:	llassert(0);	components = 4; internal_format = GL_RGBA8;				break;
-	}
-
-	*texture_bytes = components * SCRATCH_TEX_WIDTH * SCRATCH_TEX_HEIGHT;
-	
-	if( sScratchTexNames.checkData( format ) )
-	{
-		return *( sScratchTexNames.getData( format ) );
-	}
-
-	LLGLSUIDefault gls_ui;
-
-	U32 name = 0;
-	LLImageGL::generateTextures(1, &name );
-	stop_glerror();
-
-	gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, name);
-	stop_glerror();
-
-	LLImageGL::setManualImage(
-		GL_TEXTURE_2D, 0, internal_format, 
-		SCRATCH_TEX_WIDTH, SCRATCH_TEX_HEIGHT,
-		format, GL_UNSIGNED_BYTE, NULL );
-	stop_glerror();
-
-	gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
-	gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-	stop_glerror();
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	stop_glerror();
-
-	sScratchTexNames.addData( format, new LLGLuint( name ) );
-
-	sScratchTexBytes += *texture_bytes;
-	LLImageGL::sGlobalTextureMemoryInBytes += *texture_bytes;
-
-	if(gAuditTexture)
-	{
-		LLImageGL::incTextureCounter(SCRATCH_TEX_WIDTH * SCRATCH_TEX_HEIGHT, components, LLViewerTexture::AVATAR_SCRATCH_TEX) ;
-	}
-	return name;
 }
 
 // static 

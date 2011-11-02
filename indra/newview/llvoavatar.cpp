@@ -2117,8 +2117,8 @@ void LLVOAvatar::updateMeshData()
 			}
 			else
 			{
-				if (buff->getRequestedIndices() == num_indices &&
-					buff->getRequestedVerts() == num_vertices)
+				if (buff->getNumIndices() == num_indices &&
+					buff->getNumVerts() == num_vertices)
 				{
 					terse_update = true;
 				}
@@ -2142,7 +2142,7 @@ void LLVOAvatar::updateMeshData()
 			}
 
 			stop_glerror();
-			buff->setBuffer(0);
+			buff->flush();
 
 			if(!f_num)
 			{
@@ -4135,7 +4135,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			LLVertexBuffer* vb = mDrawable->getFace(0)->getVertexBuffer();
 			if (vb)
 			{
-				vb->setBuffer(0);
+				vb->flush();
 			}
 		}
 	}

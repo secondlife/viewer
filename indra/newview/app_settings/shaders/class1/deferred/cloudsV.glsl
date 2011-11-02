@@ -22,17 +22,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 modelview_projection_matrix;
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
 //////////////////////////////////////////////////////////////////////////
 // The vertex shader for creating the atmospheric sky
 ///////////////////////////////////////////////////////////////////////////////
 
 // Output parameters
-varying vec4 vary_CloudColorSun;
-varying vec4 vary_CloudColorAmbient;
-varying float vary_CloudDensity;
+VARYING vec4 vary_CloudColorSun;
+VARYING vec4 vary_CloudColorAmbient;
+VARYING float vary_CloudDensity;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_texcoord3;
 
 // Inputs
 uniform vec3 camPosLocal;
@@ -59,12 +67,12 @@ void main()
 {
 
 	// World / view / projection
-	gl_Position = ftransform();
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	vary_texcoord0 = texcoord0;
 
 	// Get relative position
-	vec3 P = gl_Vertex.xyz - camPosLocal.xyz + vec3(0,50,0);
+	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
 	// Set altitude
 	if (P.y > 0.)
@@ -160,17 +168,17 @@ void main()
 
 
 	// Texture coords
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_TexCoord[0].xy -= 0.5;
-	gl_TexCoord[0].xy /= cloud_scale.x;
-	gl_TexCoord[0].xy += 0.5;
+	vary_texcoord0 = texcoord0;
+	vary_texcoord0.xy -= 0.5;
+	vary_texcoord0.xy /= cloud_scale.x;
+	vary_texcoord0.xy += 0.5;
 
-	gl_TexCoord[1] = gl_TexCoord[0];
-	gl_TexCoord[1].x += lightnorm.x * 0.0125;
-	gl_TexCoord[1].y += lightnorm.z * 0.0125;
+	vary_texcoord1 = vary_texcoord0;
+	vary_texcoord1.x += lightnorm.x * 0.0125;
+	vary_texcoord1.y += lightnorm.z * 0.0125;
 
-	gl_TexCoord[2] = gl_TexCoord[0] * 16.;
-	gl_TexCoord[3] = gl_TexCoord[1] * 16.;
+	vary_texcoord2 = vary_texcoord0 * 16.;
+	vary_texcoord3 = vary_texcoord1 * 16.;
 
 	// Combine these to minimize register use
 	vary_CloudColorAmbient += oHazeColorBelowCloud;

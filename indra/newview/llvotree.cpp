@@ -858,7 +858,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 			slices /= 2; 
 		}
 
-		mReferenceBuffer->setBuffer(0);
+		mReferenceBuffer->flush();
 		llassert(vertex_count == max_vertices);
 		llassert(index_count == max_indices);
 	}
@@ -882,7 +882,7 @@ void LLVOTree::updateMesh()
 	
 	// Translate to tree base  HACK - adjustment in Z plants tree underground
 	const LLVector3 &pos_agent = getPositionAgent();
-	//glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+	//gGL.translatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 	LLMatrix4 trans_mat;
 	trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 	trans_mat *= matrix;
@@ -940,8 +940,8 @@ void LLVOTree::updateMesh()
 
 	genBranchPipeline(vertices, normals, tex_coords, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
-	mReferenceBuffer->setBuffer(0);
-	buff->setBuffer(0);
+	mReferenceBuffer->flush();
+	buff->flush();
 }
 
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 
@@ -1158,7 +1158,8 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 				scale_mat.mMatrix[2][2] = scale*length;
 				scale_mat *= matrix;
 
-				glLoadMatrixf((F32*) scale_mat.mMatrix);
+				gGL.loadMatrix((F32*) scale_mat.mMatrix);
+				gGL.syncMatrices();
  				glDrawElements(GL_TRIANGLES, sLODIndexCount[trunk_LOD], GL_UNSIGNED_SHORT, indicesp + sLODIndexOffset[trunk_LOD]);
 				gPipeline.addTrianglesDrawn(LEAF_INDICES);
 				stop_glerror();
@@ -1208,7 +1209,8 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 				scale_mat *= matrix;
 
 			
-				glLoadMatrixf((F32*) scale_mat.mMatrix);
+				gGL.loadMatrix((F32*) scale_mat.mMatrix);
+				gGL.syncMatrices();
 				glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
 				gPipeline.addTrianglesDrawn(LEAF_INDICES);							
 				stop_glerror();
@@ -1229,19 +1231,20 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 
 		scale_mat *= matrix;
 	
-		glMatrixMode(GL_TEXTURE);
-		glTranslatef(0.0, -0.5, 0.0);
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.translatef(0.0, -0.5, 0.0);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 					
-		glLoadMatrixf((F32*) scale_mat.mMatrix);
+		gGL.loadMatrix((F32*) scale_mat.mMatrix);
+		gGL.syncMatrices();
 		glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
 		gPipeline.addTrianglesDrawn(LEAF_INDICES);
 		stop_glerror();
 		ret += LEAF_INDICES;
 
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 
 	return ret;
