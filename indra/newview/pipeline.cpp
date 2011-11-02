@@ -8149,10 +8149,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	{
 		LLFastTimer ftm(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
-		gDeferredShadowAlphaMaskProgram.setAlphaRange(0.6f, 1.f);
+		gDeferredShadowAlphaMaskProgram.setAlphaRange(0.598f, 1.f);
 		renderObjects(LLRenderPass::PASS_ALPHA_SHADOW, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR, TRUE);
 		gDeferredTreeShadowProgram.bind();
-		gDeferredTreeShadowProgram.setAlphaRange(0.6f, 1.f);
+		gDeferredTreeShadowProgram.setAlphaRange(0.598f, 1.f);
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
 	}
 
