@@ -383,8 +383,11 @@ private:
 		//lldebugs << "data url is: " << url.str() << llendl;
 
 		// loading overlay debug screen follows media debugging flag from client for now.
+#if LLQTWEBKIT_API_VERSION >= 16
 		LLQtWebKit::getInstance()->enableLoadingOverlay(mBrowserWindowId, mEnableMediaPluginDebugging);
-
+#else
+		llwarns << "Ignoring enableLoadingOverlay() call (llqtwebkit version is too old)." << llendl;
+#endif
 		str.clear();
 		str << "Loading overlay enabled = " << mEnableMediaPluginDebugging << " for mBrowserWindowId = " << mBrowserWindowId;
 		postDebugMessage( str.str() );
