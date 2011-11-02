@@ -38,7 +38,7 @@ vec3 atmosAffectDirectionalLight(float lightIntensity)
 
 vec3 atmosGetDiffuseSunlightColor()
 {
-	return sunlight_color.rgb;
+	return sunlight_color_copy.rgb;
 }
 
 vec3 scaleDownLight(vec3 light)
