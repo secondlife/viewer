@@ -249,10 +249,23 @@ LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
 	, mFresh(false)
 {
 #if SUPPORTING_FRESH_ITEM_COUNT
-	computeFreshness();
-
 	initBadgeParams(p.new_badge());
 #endif
+}
+
+BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+{
+	BOOL retval = LLFolderViewItem::addToFolder(folder, root);
+
+#if SUPPORTING_FRESH_ITEM_COUNT
+	// Compute freshness if our parent is the root folder for the inbox
+	if (mParentFolder == mRoot)
+	{
+		computeFreshness();
+	}
+#endif
+	
+	return retval;
 }
 
 BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
@@ -310,14 +323,5 @@ void LLInboxFolderViewItem::deFreshify()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
-void LLInboxFolderViewItem::setCreationDate(time_t creation_date_utc)
-{
-	mCreationDate = creation_date_utc; 
-
-	if (mParentFolder == mRoot)
-	{
-		computeFreshness();
-	}
-}
 
 // eof
