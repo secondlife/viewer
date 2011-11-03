@@ -86,7 +86,7 @@
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-LLRect LLFloaterSnapshot::sThumbnailPlaceholderRect;
+LLUICtrl* LLFloaterSnapshot::sThumbnailPlaceholder = NULL;
 LLSnapshotFloaterView* gSnapshotFloaterView = NULL;
 
 const F32 AUTO_SNAPSHOT_TIME_DELAY = 1.f;
@@ -1063,10 +1063,18 @@ void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& meta
 class LLFloaterSnapshot::Impl
 {
 public:
+	typedef enum e_status
+	{
+		STATUS_READY,
+		STATUS_WORKING,
+		STATUS_FINISHED
+	} EStatus;
+
 	Impl()
 	:	mAvatarPauseHandles(),
 		mLastToolset(NULL),
-		mAspectRatioCheckOff(false)
+		mAspectRatioCheckOff(false),
+		mStatus(STATUS_READY)
 	{
 	}
 	~Impl()
@@ -1114,6 +1122,8 @@ public:
 	static void updateControls(LLFloaterSnapshot* floater);
 	static void updateLayout(LLFloaterSnapshot* floater);
 	static void updateResolutionTextEntry(LLFloaterSnapshot* floater);
+	static void setStatus(EStatus status, bool ok = true, const std::string& msg = LLStringUtil::null);
+	EStatus getStatus() const { return mStatus; }
 
 private:
 	static LLSnapshotLivePreview::ESnapshotType getTypeIndex(const std::string& id);
@@ -1122,6 +1132,9 @@ private:
 	static void comboSetCustom(LLFloaterSnapshot *floater, const std::string& comboname);
 	static void checkAutoSnapshot(LLSnapshotLivePreview* floater, BOOL update_thumbnail = FALSE);
 	static void checkAspectRatio(LLFloaterSnapshot *view, S32 index) ;
+	static void setWorking(LLFloaterSnapshot* floater, bool working);
+	static void setFinished(LLFloaterSnapshot* floater, bool finished, bool ok = true, const std::string& msg = LLStringUtil::null);
+
 
 public:
 	std::vector<LLAnimPauseRequest> mAvatarPauseHandles;
@@ -1129,6 +1142,7 @@ public:
 	LLToolset*	mLastToolset;
 	LLHandle<LLView> mPreviewHandle;
 	bool mAspectRatioCheckOff ;
+	EStatus mStatus;
 };
 
 // static
@@ -1576,6 +1590,29 @@ void LLFloaterSnapshot::Impl::updateResolutionTextEntry(LLFloaterSnapshot* float
 }
 
 // static
+void LLFloaterSnapshot::Impl::setStatus(EStatus status, bool ok, const std::string& msg)
+{
+	LLFloaterSnapshot* floater = LLFloaterSnapshot::getInstance();
+	switch (status)
+	{
+	case STATUS_READY:
+		setWorking(floater, false);
+		setFinished(floater, false);
+		break;
+	case STATUS_WORKING:
+		setWorking(floater, true);
+		setFinished(floater, false);
+		break;
+	case STATUS_FINISHED:
+		setWorking(floater, false);
+		setFinished(floater, true, ok, msg);
+		break;
+	}
+
+	floater->impl.mStatus = status;
+}
+
+// static
 void LLFloaterSnapshot::Impl::checkAutoSnapshot(LLSnapshotLivePreview* previewp, BOOL update_thumbnail)
 {
 	if (previewp)
@@ -1768,6 +1805,44 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	}
 
 	return ;
+}
+
+// static
+void LLFloaterSnapshot::Impl::setWorking(LLFloaterSnapshot* floater, bool working)
+{
+	LLUICtrl* working_lbl = floater->getChild<LLUICtrl>("working_lbl");
+	working_lbl->setVisible(working);
+	floater->getChild<LLUICtrl>("working_indicator")->setVisible(working);
+
+	if (working)
+	{
+		const std::string panel_name = getActivePanel(floater, false)->getName();
+		const std::string prefix = panel_name.substr(std::string("panel_snapshot_").size());
+		std::string progress_text = floater->getString(prefix + "_" + "progress_str");
+		working_lbl->setValue(progress_text);
+	}
+
+	// All controls should be disable while posting.
+	floater->setCtrlsEnabled(!working);
+	LLPanelSnapshot* active_panel = getActivePanel(floater);
+	if (active_panel)
+	{
+		active_panel->setCtrlsEnabled(!working);
+	}
+}
+
+// static
+void LLFloaterSnapshot::Impl::setFinished(LLFloaterSnapshot* floater, bool finished, bool ok, const std::string& msg)
+{
+	floater->getChild<LLUICtrl>("succeeded_panel")->setVisible(finished && ok);
+	floater->getChild<LLUICtrl>("failed_panel")->setVisible(finished && !ok);
+
+	if (finished)
+	{
+		LLUICtrl* finished_lbl = floater->getChild<LLUICtrl>(ok ? "succeeded_lbl" : "failed_lbl");
+		std::string result_text = floater->getString(msg + "_" + (ok ? "succeeded_str" : "failed_str"));
+		finished_lbl->setValue(result_text);
+	}
 }
 
 static std::string lastSnapshotWidthName(S32 shot_type)
@@ -2167,14 +2242,16 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 // static
 void LLFloaterSnapshot::Impl::onSnapshotUploadFinished(LLSideTrayPanelContainer* panel_container, bool status)
 {
-	panel_container->openPanel("panel_post_result", LLSD().with("post-result", status).with("post-type", "profile"));
+	panel_container->openPreviousPanel();
+	setStatus(STATUS_FINISHED, status, "profile");
 }
 
 
 // static
 void LLFloaterSnapshot::Impl::onSendingPostcardFinished(LLSideTrayPanelContainer* panel_container, bool status)
 {
-	panel_container->openPanel("panel_post_result", LLSD().with("post-result", status).with("post-type", "postcard"));
+	panel_container->openPreviousPanel();
+	setStatus(STATUS_FINISHED, status, "postcard");
 }
 
 ///----------------------------------------------------------------------------
@@ -2265,8 +2342,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, panel_container, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, panel_container, _1));
 
-	// remember preview rect
-	sThumbnailPlaceholderRect = getChild<LLUICtrl>("thumbnail_placeholder")->getRect();
+	sThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
 	// create preview window
 	LLRect full_screen_rect = getRootView()->getRect();
@@ -2307,18 +2383,32 @@ void LLFloaterSnapshot::draw()
 	{		
 		if(previewp->getThumbnailImage())
 		{
-			LLRect& thumbnail_rect = sThumbnailPlaceholderRect;
+			bool working = impl.getStatus() == Impl::STATUS_WORKING;
+			const LLRect& thumbnail_rect = getThumbnailPlaceholderRect();
 			S32 offset_x = thumbnail_rect.mLeft + (thumbnail_rect.getWidth() - previewp->getThumbnailWidth()) / 2 ;
 			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
 
 			glMatrixMode(GL_MODELVIEW);
 			// Apply floater transparency to the texture unless the floater is focused.
 			F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
+			LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
 			gl_draw_scaled_image(offset_x, offset_y, 
 					previewp->getThumbnailWidth(), previewp->getThumbnailHeight(), 
-					previewp->getThumbnailImage(), LLColor4::white % alpha);
+					previewp->getThumbnailImage(), color % alpha);
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
+
+			if (working)
+			{
+				gGL.pushUIMatrix();
+				{
+					const LLRect& r = getThumbnailPlaceholderRect();
+					//gGL.translateUI((F32) r.mLeft, (F32) r.mBottom, 0.f);
+					LLUI::translate((F32) r.mLeft, (F32) r.mBottom);
+					sThumbnailPlaceholder->draw();
+				}
+				gGL.popUIMatrix();
+			}
 		}
 	}
 }
@@ -2377,6 +2467,24 @@ S32 LLFloaterSnapshot::notify(const LLSD& info)
 		return 1;
 	}
 
+	if (info.has("set-ready"))
+	{
+		impl.setStatus(Impl::STATUS_READY);
+		return 1;
+	}
+
+	if (info.has("set-working"))
+	{
+		impl.setStatus(Impl::STATUS_WORKING);
+		return 1;
+	}
+
+	if (info.has("set-finished"))
+	{
+		LLSD data = info["set-finished"];
+		impl.setStatus(Impl::STATUS_FINISHED, data["ok"].asBoolean(), data["msg"].asString());
+		return 1;
+	}
 	return 0;
 }
 
@@ -2425,7 +2533,6 @@ void LLFloaterSnapshot::saveTexture()
 	}
 
 	previewp->saveTexture();
-	instance->postSave();
 }
 
 // static
@@ -2447,7 +2554,6 @@ void LLFloaterSnapshot::saveLocal()
 	}
 
 	previewp->saveLocal();
-	instance->postSave();
 }
 
 // static
@@ -2483,6 +2589,7 @@ void LLFloaterSnapshot::postSave()
 	}
 
 	instance->impl.updateControls(instance);
+	instance->impl.setStatus(Impl::STATUS_WORKING);
 }
 
 // static

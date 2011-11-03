@@ -392,8 +392,6 @@ set(viewer_SOURCE_FILES
     llpanelplaceprofile.cpp
     llpanelplaces.cpp
     llpanelplacestab.cpp
-    llpanelpostprogress.cpp
-    llpanelpostresult.cpp
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
     llpanelprofileview.cpp

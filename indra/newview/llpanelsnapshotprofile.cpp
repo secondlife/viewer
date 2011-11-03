@@ -62,7 +62,6 @@ private:
 	void updateCustomResControls(); ///< Enable/disable custom resolution controls (spinners and checkbox)
 
 	void onSend();
-	void onCancel();
 	void onResolutionComboCommit(LLUICtrl* ctrl);
 	void onCustomResolutionCommit(LLUICtrl* ctrl);
 	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
@@ -73,7 +72,7 @@ static LLRegisterPanelClassWrapper<LLPanelSnapshotProfile> panel_class("llpanels
 LLPanelSnapshotProfile::LLPanelSnapshotProfile()
 {
 	mCommitCallbackRegistrar.add("PostToProfile.Send",		boost::bind(&LLPanelSnapshotProfile::onSend,		this));
-	mCommitCallbackRegistrar.add("PostToProfile.Cancel",	boost::bind(&LLPanelSnapshotProfile::onCancel,	this));
+	mCommitCallbackRegistrar.add("PostToProfile.Cancel",	boost::bind(&LLPanelSnapshotProfile::cancel,		this));
 }
 
 // virtual
@@ -83,13 +82,15 @@ BOOL LLPanelSnapshotProfile::postBuild()
 	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotProfile::onCustomResolutionCommit, this, _1));
 	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotProfile::onCustomResolutionCommit, this, _1));
 	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshotProfile::onKeepAspectRatioCommit, this, _1));
-	return TRUE;
+
+	return LLPanelSnapshot::postBuild();
 }
 
 // virtual
 void LLPanelSnapshotProfile::onOpen(const LLSD& key)
 {
 	updateCustomResControls();
+	LLPanelSnapshot::onOpen(key);
 }
 
 // virtual
@@ -119,22 +120,6 @@ void LLPanelSnapshotProfile::onSend()
 
 	LLWebProfile::uploadImage(LLFloaterSnapshot::getImageData(), caption, add_location);
 	LLFloaterSnapshot::postSave();
-
-	// Switch to upload progress display.
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPanel("panel_post_progress", LLSD().with("post-type", "profile"));
-	}
-}
-
-void LLPanelSnapshotProfile::onCancel()
-{
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPreviousPanel();
-	}
 }
 
 void LLPanelSnapshotProfile::onResolutionComboCommit(LLUICtrl* ctrl)

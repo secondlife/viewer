@@ -17,6 +17,54 @@
      name="unknown">
         unknown
     </floater.string>
+    <string
+     name="postcard_progress_str">
+        Sending Email
+    </string>
+    <string
+     name="profile_progress_str">
+        Posting
+    </string>
+    <string
+     name="inventory_progress_str">
+        Saving to Inventory
+    </string>
+    <string
+     name="local_progress_str">
+        Saving to Computer
+    </string>
+ 	<string
+ 	 name="profile_succeeded_str">
+ 	    Your Profile Feed has been updated!
+ 	</string>
+ 	<string
+ 	 name="postcard_succeeded_str">
+ 	    Email Sent!
+ 	</string>
+ 	<string
+ 	 name="inventory_succeeded_str">
+ 	    Saved to Inventory!
+ 	</string>
+ 	<string
+ 	 name="local_succeeded_str">
+ 	    Saved to Computer!
+ 	</string>
+ 	<string
+ 	 name="profile_failed_str">
+ 	    Failed to update your Profile Feed.
+ 	</string>
+ 	<string
+ 	 name="postcard_failed_str">
+ 	    Failed to send email.
+ 	</string>
+ 	<string
+ 	 name="inventory_failed_str">
+ 	    Failed to save to inventory.
+ 	</string>
+ 	<string
+ 	 name="local_failed_str">
+ 	    Failed to save to computer.
+ 	</string>
    <view_border 
     bevel_style="in"
     follows="left|top" 
@@ -65,8 +113,34 @@
     name="thumbnail_placeholder"
     top="50"
     follows="left|top"
-    left="10"
-    />
+    left="10">
+      <loading_indicator
+       follows="left|top"
+       height="48"
+       layout="topleft"
+       name="working_indicator"
+       left="101"
+       top="46"
+       visible="false"
+       width="48" />
+      <text
+       follows="left|top|right"
+       font="SansSerifBold"
+       height="14"
+       layout="topleft"
+       left="5"
+       length="1"
+       halign="center"
+       name="working_lbl"
+       right="-5"
+       top="98"
+       translate="false"
+       type="string"
+       visible="false"
+       width="130">
+          Working
+      </text>
+  </ui_ctrl>
   <view_border 
    bevel_style="in" 
    height="21"
@@ -146,18 +220,6 @@
        layout="topleft"
        name="panel_snapshot_local"
        filename="panel_snapshot_local.xml" />
-      <panel
-       class="llpanelpostprogress"
-       follows="all"
-       layout="topleft"
-       name="panel_post_progress"
-       filename="panel_post_progress.xml" />
-      <panel
-       class="llpanelpostresult"
-       follows="all"
-       layout="topleft"
-       name="panel_post_result"
-       filename="panel_post_result.xml" />
     </panel_container>
     <panel
      height="295"

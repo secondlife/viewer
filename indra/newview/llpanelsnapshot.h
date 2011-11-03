@@ -37,6 +37,9 @@ class LLSideTrayPanelContainer;
 class LLPanelSnapshot: public LLPanel
 {
 public:
+	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
+
 	virtual std::string getWidthSpinnerName() const = 0;
 	virtual std::string getHeightSpinnerName() const = 0;
 	virtual std::string getAspectRatioCBName() const = 0;
@@ -48,11 +51,13 @@ public:
 	virtual LLSpinCtrl* getHeightSpinner();
 	virtual void enableAspectRatioCheckbox(BOOL enable);
 	virtual LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
-	virtual void updateControls(const LLSD& info) {} ///< Update controls from saved settings
+	virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
 
 protected:
 	LLSideTrayPanelContainer* getParentContainer();
 	void updateImageQualityLevel();
+	void goBack(); ///< Switch to the default (Snapshot Options) panel
+	void cancel();
 };
 
 #endif // LL_LLPANELSNAPSHOT_H

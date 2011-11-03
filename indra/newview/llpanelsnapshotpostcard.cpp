@@ -76,7 +76,6 @@ private:
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onTabButtonPress(S32 btn_idx);
 	void onSend();
-	void onCancel();
 
 	bool mHasFirstMsgFocus;
 };
@@ -87,7 +86,7 @@ LLPanelSnapshotPostcard::LLPanelSnapshotPostcard()
 :	mHasFirstMsgFocus(false)
 {
 	mCommitCallbackRegistrar.add("Postcard.Send",		boost::bind(&LLPanelSnapshotPostcard::onSend,	this));
-	mCommitCallbackRegistrar.add("Postcard.Cancel",		boost::bind(&LLPanelSnapshotPostcard::onCancel,	this));
+	mCommitCallbackRegistrar.add("Postcard.Cancel",		boost::bind(&LLPanelSnapshotPostcard::cancel,	this));
 	mCommitCallbackRegistrar.add("Postcard.Message",	boost::bind(&LLPanelSnapshotPostcard::onTabButtonPress,	this, 0));
 	mCommitCallbackRegistrar.add("Postcard.Settings",	boost::bind(&LLPanelSnapshotPostcard::onTabButtonPress,	this, 1));
 
@@ -118,9 +117,7 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 
 	getChild<LLButton>("message_btn")->setToggleState(TRUE);
 
-	updateControls(LLSD());
-
-	return TRUE;
+	return LLPanelSnapshot::postBuild();
 }
 
 // virtual
@@ -128,6 +125,7 @@ void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
 	gSavedSettings.setS32("SnapshotFormat", getImageFormat());
 	updateCustomResControls();
+	LLPanelSnapshot::onOpen(key);
 }
 
 // virtual
@@ -212,17 +210,11 @@ void LLPanelSnapshotPostcard::sendPostcard()
 	postcard["subject"] = subject;
 	postcard["msg"] = getChild<LLUICtrl>("msg_form")->getValue().asString();
 	LLPostCard::send(LLFloaterSnapshot::getImageData(), postcard);
-	LLFloaterSnapshot::postSave();
 
 	// Give user feedback of the event.
 	gViewerWindow->playSnapshotAnimAndSound();
 
-	// Switch to upload progress display.
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPanel("panel_post_progress", LLSD().with("post-type", "postcard"));
-	}
+	LLFloaterSnapshot::postSave();
 }
 
 void LLPanelSnapshotPostcard::onMsgFormFocusRecieved()
@@ -324,13 +316,4 @@ void LLPanelSnapshotPostcard::onSend()
 
 	// Send postcard.
 	sendPostcard();
-}
-
-void LLPanelSnapshotPostcard::onCancel()
-{
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPreviousPanel();
-	}
 }

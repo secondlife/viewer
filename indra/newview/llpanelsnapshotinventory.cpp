@@ -60,7 +60,6 @@ private:
 	void onCustomResolutionCommit(LLUICtrl* ctrl);
 	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 	void onSend();
-	void onCancel();
 };
 
 static LLRegisterPanelClassWrapper<LLPanelSnapshotInventory> panel_class("llpanelsnapshotinventory");
@@ -68,7 +67,7 @@ static LLRegisterPanelClassWrapper<LLPanelSnapshotInventory> panel_class("llpane
 LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 {
 	mCommitCallbackRegistrar.add("Inventory.Save",		boost::bind(&LLPanelSnapshotInventory::onSend,		this));
-	mCommitCallbackRegistrar.add("Inventory.Cancel",	boost::bind(&LLPanelSnapshotInventory::onCancel,	this));
+	mCommitCallbackRegistrar.add("Inventory.Cancel",	boost::bind(&LLPanelSnapshotInventory::cancel,		this));
 }
 
 // virtual
@@ -78,7 +77,7 @@ BOOL LLPanelSnapshotInventory::postBuild()
 	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onCustomResolutionCommit, this, _1));
 	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onCustomResolutionCommit, this, _1));
 	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onKeepAspectRatioCommit, this, _1));
-	return TRUE;
+	return LLPanelSnapshot::postBuild();
 }
 
 // virtual
@@ -88,6 +87,7 @@ void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 	getChild<LLComboBox>(getImageSizeComboName())->selectNthItem(0); // FIXME? has no effect
 #endif
 	updateCustomResControls();
+	LLPanelSnapshot::onOpen(key);
 }
 
 void LLPanelSnapshotInventory::updateCustomResControls()
@@ -132,21 +132,6 @@ void LLPanelSnapshotInventory::onKeepAspectRatioCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotInventory::onSend()
 {
-	// Switch to upload progress display.
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPanel("panel_post_progress", LLSD().with("post-type", "inventory"));
-	}
-
 	LLFloaterSnapshot::saveTexture();
-}
-
-void LLPanelSnapshotInventory::onCancel()
-{
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPreviousPanel();
-	}
+	LLFloaterSnapshot::postSave();
 }

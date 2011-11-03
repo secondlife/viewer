@@ -35,6 +35,19 @@
 // newview
 #include "llsidetraypanelcontainer.h"
 
+// virtual
+BOOL LLPanelSnapshot::postBuild()
+{
+	updateControls(LLSD());
+	return TRUE;
+}
+
+// virtual
+void LLPanelSnapshot::onOpen(const LLSD& key)
+{
+	setCtrlsEnabled(true);
+}
+
 LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 {
 	return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
@@ -106,4 +119,19 @@ void LLPanelSnapshot::updateImageQualityLevel()
 	}
 
 	getChild<LLTextBox>("image_quality_level")->setTextArg("[QLVL]", quality_lvl);
+}
+
+void LLPanelSnapshot::goBack()
+{
+	LLSideTrayPanelContainer* parent = getParentContainer();
+	if (parent)
+	{
+		parent->openPreviousPanel();
+	}
+}
+
+void LLPanelSnapshot::cancel()
+{
+	goBack();
+	LLFloaterSnapshot::getInstance()->notify(LLSD().with("set-ready", true));
 }

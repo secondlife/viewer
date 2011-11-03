@@ -64,7 +64,6 @@ private:
 	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onSend();
-	void onCancel();
 };
 
 static LLRegisterPanelClassWrapper<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal");
@@ -72,7 +71,7 @@ static LLRegisterPanelClassWrapper<LLPanelSnapshotLocal> panel_class("llpanelsna
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
 	mCommitCallbackRegistrar.add("Local.Save",		boost::bind(&LLPanelSnapshotLocal::onSend,		this));
-	mCommitCallbackRegistrar.add("Local.Cancel",	boost::bind(&LLPanelSnapshotLocal::onCancel,	this));
+	mCommitCallbackRegistrar.add("Local.Cancel",	boost::bind(&LLPanelSnapshotLocal::cancel,		this));
 }
 
 // virtual
@@ -85,15 +84,14 @@ BOOL LLPanelSnapshotLocal::postBuild()
 	getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onQualitySliderCommit, this, _1));
 	getChild<LLUICtrl>("local_format_combo")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onFormatComboCommit, this, _1));
 
-	updateControls(LLSD());
-
-	return TRUE;
+	return LLPanelSnapshot::postBuild();
 }
 
 // virtual
 void LLPanelSnapshotLocal::onOpen(const LLSD& key)
 {
 	updateCustomResControls();
+	LLPanelSnapshot::onOpen(key);
 }
 
 // virtual
@@ -195,15 +193,11 @@ void LLPanelSnapshotLocal::onQualitySliderCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotLocal::onSend()
 {
-	LLFloaterSnapshot::saveLocal();
-	onCancel();
-}
+	LLFloaterSnapshot* floater = LLFloaterSnapshot::getInstance();
 
-void LLPanelSnapshotLocal::onCancel()
-{
-	LLSideTrayPanelContainer* parent = getParentContainer();
-	if (parent)
-	{
-		parent->openPreviousPanel();
-	}
+	floater->notify(LLSD().with("set-working", true));
+	LLFloaterSnapshot::saveLocal();
+	LLFloaterSnapshot::postSave();
+	goBack();
+	floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
 }
