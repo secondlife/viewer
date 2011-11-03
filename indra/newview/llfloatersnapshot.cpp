@@ -1089,7 +1089,6 @@ public:
 	static void onClickMore(void* data) ;
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
-	static void onClickKeepOpenCheck(LLUICtrl *ctrl, void* data);
 #if 0
 	static void onClickKeepAspectCheck(LLUICtrl *ctrl, void* data);
 #endif
@@ -1426,26 +1425,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	enableAspectRatioCheckbox(floater, shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !floater->impl.mAspectRatioCheckOff);
 	floater->getChildView("layer_types")->setEnabled(shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
 
-#if 0
-	BOOL is_advance = gSavedSettings.getBOOL("AdvanceSnapshot");
-	BOOL is_local = shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL;
-	BOOL show_slider = (shot_type == LLSnapshotLivePreview::SNAPSHOT_POSTCARD ||
-						shot_type == LLSnapshotLivePreview::SNAPSHOT_WEB ||
-					   (is_local && shot_format == LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG));
-
-	floater->getChildView("layer_types")->setVisible(				is_advance);
-	floater->getChildView("layer_type_label")->setVisible(		is_advance);
-	floater->getChildView("snapshot_width")->setVisible(			is_advance);
-	floater->getChildView("snapshot_height")->setVisible(			is_advance);
-	floater->getChildView("keep_aspect_check")->setVisible(		is_advance);
-	floater->getChildView("ui_check")->setVisible(				is_advance);
-	floater->getChildView("hud_check")->setVisible(				is_advance);
-	floater->getChildView("keep_open_check")->setVisible(			is_advance);
-	floater->getChildView("freeze_frame_check")->setVisible(		is_advance);
-	floater->getChildView("auto_snapshot_check")->setVisible(		is_advance);
-	floater->getChildView("image_quality_slider")->setVisible(	is_advance && show_slider);
-#endif
-
 	LLPanelSnapshot* active_panel = getActivePanel(floater);
 	if (active_panel)
 	{
@@ -1691,13 +1670,6 @@ void LLFloaterSnapshot::Impl::onClickHUDCheck(LLUICtrl *ctrl, void* data)
 		checkAutoSnapshot(getPreviewView(view), TRUE);
 		updateControls(view);
 	}
-}
-
-// static
-void LLFloaterSnapshot::Impl::onClickKeepOpenCheck(LLUICtrl* ctrl, void* data)
-{
-	LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
-	gSavedSettings.setBOOL( "CloseSnapshotOnKeep", !check->get() );
 }
 
 #if 0
@@ -2307,9 +2279,6 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	childSetCommitCallback("hud_check", Impl::onClickHUDCheck, this);
 	getChild<LLUICtrl>("hud_check")->setValue(gSavedSettings.getBOOL("RenderHUDInSnapshot"));
-
-	childSetCommitCallback("keep_open_check", Impl::onClickKeepOpenCheck, this);
-	getChild<LLUICtrl>("keep_open_check")->setValue(!gSavedSettings.getBOOL("CloseSnapshotOnKeep"));
 
 #if 0
 	childSetCommitCallback("keep_aspect_check", Impl::onClickKeepAspectCheck, this);

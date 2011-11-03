@@ -296,13 +296,6 @@
          width="180"
          name="hud_check" />
         <check_box
-         label="Keep open after saving"
-         layout="topleft"
-         left="10"
-         top_pad="8"
-         width="180"
-         name="keep_open_check" />
-        <check_box
          label="Freeze frame (fullscreen)"
          layout="topleft"
          left="10"
