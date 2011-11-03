@@ -127,6 +127,7 @@ void LLPanelSnapshot::goBack()
 	if (parent)
 	{
 		parent->openPreviousPanel();
+		parent->getCurrentPanel()->onOpen(LLSD());
 	}
 }
 

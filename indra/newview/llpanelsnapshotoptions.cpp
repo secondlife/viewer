@@ -26,6 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "lleconomy.h"
 #include "llpanel.h"
 #include "llsidetraypanelcontainer.h"
 
@@ -41,6 +42,7 @@ class LLPanelSnapshotOptions
 
 public:
 	LLPanelSnapshotOptions();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
 	void openPanel(const std::string& panel_name);
@@ -60,6 +62,13 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
 }
 
+// virtual
+void LLPanelSnapshotOptions::onOpen(const LLSD& key)
+{
+	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d", upload_cost));
+}
+
 void LLPanelSnapshotOptions::openPanel(const std::string& panel_name)
 {
 	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
@@ -70,6 +79,7 @@ void LLPanelSnapshotOptions::openPanel(const std::string& panel_name)
 	}
 
 	parent->openPanel(panel_name);
+	parent->getCurrentPanel()->onOpen(LLSD());
 	LLFloaterSnapshot::postPanelSwitch();
 }
 

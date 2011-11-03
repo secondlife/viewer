@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llcombobox.h"
+#include "lleconomy.h"
 #include "llsidetraypanelcontainer.h"
 #include "llspinctrl.h"
 
@@ -86,6 +87,7 @@ void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 #if 0
 	getChild<LLComboBox>(getImageSizeComboName())->selectNthItem(0); // FIXME? has no effect
 #endif
+	getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
 	updateCustomResControls();
 	LLPanelSnapshot::onOpen(key);
 }

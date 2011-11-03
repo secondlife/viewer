@@ -1105,8 +1105,8 @@ public:
 	static void onCommitCustomResolution(LLUICtrl *ctrl, void* data);
 #endif
 	static void applyCustomResolution(LLFloaterSnapshot* view, S32 w, S32 h);
-	static void onSnapshotUploadFinished(LLSideTrayPanelContainer* panel_container, bool status);
-	static void onSendingPostcardFinished(LLSideTrayPanelContainer* panel_container, bool status);
+	static void onSnapshotUploadFinished(bool status);
+	static void onSendingPostcardFinished(bool status);
 	static void resetSnapshotSizeOnUI(LLFloaterSnapshot *view, S32 width, S32 height) ;
 	static BOOL checkImageSize(LLSnapshotLivePreview* previewp, S32& width, S32& height, BOOL isWidthChanged, S32 max_value);
 
@@ -1505,10 +1505,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		LLResMgr::getInstance()->getIntegerString(bytes_string, (previewp->getDataSize()) >> 10 );
 	}
 
-	// FIXME: move this to the panel code
-	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-	floater->getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d",upload_cost));
-
 	// Update displayed image resolution.
 	LLTextBox* image_res_tb = floater->getChild<LLTextBox>("image_res_text");
 	image_res_tb->setVisible(got_snap);
@@ -1842,6 +1838,10 @@ void LLFloaterSnapshot::Impl::setFinished(LLFloaterSnapshot* floater, bool finis
 		LLUICtrl* finished_lbl = floater->getChild<LLUICtrl>(ok ? "succeeded_lbl" : "failed_lbl");
 		std::string result_text = floater->getString(msg + "_" + (ok ? "succeeded_str" : "failed_str"));
 		finished_lbl->setValue(result_text);
+
+		LLSideTrayPanelContainer* panel_container = floater->getChild<LLSideTrayPanelContainer>("panel_container");
+		panel_container->openPreviousPanel();
+		panel_container->getCurrentPanel()->onOpen(LLSD());
 	}
 }
 
@@ -2240,17 +2240,15 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 }
 
 // static
-void LLFloaterSnapshot::Impl::onSnapshotUploadFinished(LLSideTrayPanelContainer* panel_container, bool status)
+void LLFloaterSnapshot::Impl::onSnapshotUploadFinished(bool status)
 {
-	panel_container->openPreviousPanel();
 	setStatus(STATUS_FINISHED, status, "profile");
 }
 
 
 // static
-void LLFloaterSnapshot::Impl::onSendingPostcardFinished(LLSideTrayPanelContainer* panel_container, bool status)
+void LLFloaterSnapshot::Impl::onSendingPostcardFinished(bool status)
 {
-	panel_container->openPreviousPanel();
 	setStatus(STATUS_FINISHED, status, "postcard");
 }
 
@@ -2338,9 +2336,8 @@ BOOL LLFloaterSnapshot::postBuild()
 	childSetCommitCallback("texture_size_combo", Impl::onCommitResolution, this);
 	childSetCommitCallback("local_size_combo", Impl::onCommitResolution, this);
 
-	LLSideTrayPanelContainer* panel_container = getChild<LLSideTrayPanelContainer>("panel_container");
-	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, panel_container, _1));
-	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, panel_container, _1));
+	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
+	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
 
 	sThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 
@@ -2398,15 +2395,13 @@ void LLFloaterSnapshot::draw()
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
 
+			// Draw progress indicators on top of the preview.
 			if (working)
 			{
 				gGL.pushUIMatrix();
-				{
-					const LLRect& r = getThumbnailPlaceholderRect();
-					//gGL.translateUI((F32) r.mLeft, (F32) r.mBottom, 0.f);
-					LLUI::translate((F32) r.mLeft, (F32) r.mBottom);
-					sThumbnailPlaceholder->draw();
-				}
+				const LLRect& r = getThumbnailPlaceholderRect();
+				LLUI::translate((F32) r.mLeft, (F32) r.mBottom);
+				sThumbnailPlaceholder->draw();
 				gGL.popUIMatrix();
 			}
 		}
@@ -2424,6 +2419,9 @@ void LLFloaterSnapshot::onOpen(const LLSD& key)
 	gSnapshotFloaterView->setEnabled(TRUE);
 	gSnapshotFloaterView->setVisible(TRUE);
 	gSnapshotFloaterView->adjustToFitScreen(this, FALSE);
+
+	// Initialize default tab.
+	getChild<LLSideTrayPanelContainer>("panel_container")->getCurrentPanel()->onOpen(LLSD());
 }
 
 void LLFloaterSnapshot::onClose(bool app_quitting)
