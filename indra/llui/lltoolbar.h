@@ -63,6 +63,7 @@ public:
 
 	BOOL handleMouseDown(S32 x, S32 y, MASK mask);
 	BOOL handleHover(S32 x, S32 y, MASK mask);
+
 	void reshape(S32 width, S32 height, BOOL called_from_parent = true);
 	void setEnabled(BOOL enabled);
 	void setCommandId(const LLCommandId& id) { mId = id; }
@@ -233,6 +234,7 @@ private:
 	void resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth);
 	BOOL isSettingChecked(const LLSD& userdata);
 	void onSettingEnable(const LLSD& userdata);
+	void onRemoveSelectedCommand();
 
 private:
 	// static layout state
@@ -269,6 +271,8 @@ private:
 	LLLayoutStack*					mCenteringStack;
 	LLPanel*						mButtonPanel;
 	LLHandle<class LLContextMenu>	mPopupMenuHandle;
+
+	LLToolBarButton*				mRightMouseTargetButton;
 
 	bool							mNeedsLayout;
 	bool							mModified;
