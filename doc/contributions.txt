@@ -582,6 +582,7 @@ Jonathan Yap
 	STORM-1639
 	STORM-910
 	STORM-1642
+	STORM-1679
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
