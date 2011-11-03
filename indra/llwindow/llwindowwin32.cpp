@@ -1416,6 +1416,11 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			{
 				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << " context." << llendl;
 				done = true;
+
+				if (LLRender::sGLCoreProfile)
+				{
+					LLGLSLShader::sNoFixedFunction = true;
+				}
 			}
 		}
 	}

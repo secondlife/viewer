@@ -1116,7 +1116,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 	U32* scratch = NULL;
 	if (LLRender::sGLCoreProfile)
 	{
-		if (intformat == GL_ALPHA8 && pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
+		if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
 		{ //GL_ALPHA is deprecated, convert to RGBA
 			use_scratch = true;
 			scratch = new U32[width*height];
@@ -1133,7 +1133,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 			intformat = GL_RGBA8;
 		}
 
-		if (intformat == GL_LUMINANCE8_ALPHA8 && pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
+		if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
 		{ //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
 			use_scratch = true;
 			scratch = new U32[width*height];
@@ -1153,7 +1153,7 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 			intformat = GL_RGBA8;
 		}
 
-		if (intformat == GL_LUMINANCE8 && pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE) 
+		if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE) 
 		{ //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
 			use_scratch = true;
 			scratch = new U32[width*height];
