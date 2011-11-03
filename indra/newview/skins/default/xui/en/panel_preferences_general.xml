@@ -92,7 +92,7 @@
          value="ja" />
         <combo_box.item
          enabled="true"
-         label="正體 (Traditional Chinese) - Beta"
+         label="正體中文 (Traditional Chinese) - Beta"
          name="Traditional Chinese"
          value="zh" />
     </combo_box>

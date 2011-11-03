@@ -2,7 +2,7 @@
 <panel
  background_opaque="true"
  background_visible="true"
- bg_opaque_color="MouseGray"
+ bg_opaque_color="DkGray"
  chrome="true"
  follows="top|right"
  height="19"
@@ -39,10 +39,7 @@
     width="160"
     top="1"
     follows="right|top" 
-    name="balance_bg" 
-    bg_visible="true"
-    background_opaque="true" 
-    bg_opaque_image="bevel_background">
+    name="balance_bg">
     <text
      halign="center"
      font="SansSerifSmall"
