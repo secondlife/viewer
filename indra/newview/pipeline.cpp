@@ -443,7 +443,7 @@ void LLPipeline::init()
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
-	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseVAO");
+	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
 	sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
@@ -6136,7 +6136,7 @@ void LLPipeline::resetVertexBuffers()
 	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
-	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseVAO");
+	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
 	LLVertexBuffer::sPreferStreamDraw = gSavedSettings.getBOOL("RenderPreferStreamDraw");
 	LLVertexBuffer::sEnableVBOs = gSavedSettings.getBOOL("RenderVBOEnable");
 	LLVertexBuffer::sDisableVBOMapping = LLVertexBuffer::sEnableVBOs && gSavedSettings.getBOOL("RenderVBOMappingDisable") ;
@@ -6487,7 +6487,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			}
 				
 			LLGLDisable blend(GL_BLEND);
-			bindDeferredShader(*shader);
+
 
 			if (dof_enabled)
 			{
@@ -6595,41 +6595,102 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				blur_constant /= 1000.f; //convert to meters for shader
 				F32 magnification = focal_length/(subject_distance-focal_length);
 
+				mDeferredLight.bindTarget();
+				shader = &gDeferredCoFProgram;
+
+				bindDeferredShader(*shader);
+
+				S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+				if (channel > -1)
+				{
+					mScreen.bindTexture(0, channel);
+				}
+
+				if (multisample)
+				{ //bloom has already been added, bind black
+					channel = shader->enableTexture(LLShaderMgr::DEFERRED_BLOOM);
+					if (channel > -1)
+					{
+						gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sBlackImagep);
+					}
+				}
+				
 				shader->uniform1f(LLShaderMgr::DOF_FOCAL_DISTANCE, -subject_distance/1000.f);
 				shader->uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
 				shader->uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f/LLDrawable::sCurPixelAngle));
 				shader->uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
-			}
 
-			S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
-			if (channel > -1)
-			{
-				mScreen.bindTexture(0, channel);
-			}
+				gGL.begin(LLRender::TRIANGLE_STRIP);
+				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+				gGL.vertex2f(-1,-1);
+		
+				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+				gGL.vertex2f(-1,3);
+		
+				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+				gGL.vertex2f(3,-1);
+		
+				gGL.end();
 
-			if (multisample)
-			{ //bloom has already been added, bind black
-				channel = shader->enableTexture(LLShaderMgr::DEFERRED_BLOOM);
+				unbindDeferredShader(*shader);
+				mDeferredLight.flush();
+
+
+				shader = &gDeferredPostProgram;
+				bindDeferredShader(*shader);
+				channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredLight.getUsage());
 				if (channel > -1)
 				{
-					gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sBlackImagep);
+					mDeferredLight.bindTexture(0, channel);
 				}
+
+				gGL.begin(LLRender::TRIANGLE_STRIP);
+				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+				gGL.vertex2f(-1,-1);
+		
+				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+				gGL.vertex2f(-1,3);
+		
+				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+				gGL.vertex2f(3,-1);
+		
+				gGL.end();
+
+				unbindDeferredShader(*shader);
 			}
+			else
+			{
+				bindDeferredShader(*shader);
 
-	
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-			gGL.vertex2f(-1,-1);
-		
-			gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-			gGL.vertex2f(-1,3);
-		
-			gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-			gGL.vertex2f(3,-1);
-		
-			gGL.end();
+				S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+				if (channel > -1)
+				{
+					mScreen.bindTexture(0, channel);
+				}
 
-			unbindDeferredShader(*shader);
+				if (multisample)
+				{ //bloom has already been added, bind black
+					channel = shader->enableTexture(LLShaderMgr::DEFERRED_BLOOM);
+					if (channel > -1)
+					{
+						gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sBlackImagep);
+					}
+				}
+				
+				gGL.begin(LLRender::TRIANGLE_STRIP);
+				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+				gGL.vertex2f(-1,-1);
+		
+				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+				gGL.vertex2f(-1,3);
+		
+				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+				gGL.vertex2f(3,-1);
+		
+				gGL.end();
+
+				unbindDeferredShader(*shader);
+			}
 		}
 	}
 	else

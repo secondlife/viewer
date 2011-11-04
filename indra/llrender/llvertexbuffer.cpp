@@ -938,7 +938,7 @@ void LLVertexBuffer::releaseIndices()
 	{
 		sStreamIBOPool.release(mGLIndices, mMappedIndexData, mIndicesSize);
 	}
-	else if (mUsage == GL_DYNAMIC_DRAW_ARB)
+	else
 	{
 		sDynamicIBOPool.release(mGLIndices, mMappedIndexData, mIndicesSize);
 	}
@@ -1122,6 +1122,8 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 	}
 }
 
+static LLFastTimer::DeclareTimer FTM_SETUP_VERTEX_ARRAY("Setup VAO");
+
 void LLVertexBuffer::setupVertexArray()
 {
 	if (!mGLArray)
@@ -1129,6 +1131,7 @@ void LLVertexBuffer::setupVertexArray()
 		return;
 	}
 
+	LLFastTimer t(FTM_SETUP_VERTEX_ARRAY);
 #if GL_ARB_vertex_array_object
 	glBindVertexArray(mGLArray);
 #endif
@@ -1200,6 +1203,9 @@ void LLVertexBuffer::setupVertexArray()
 			glDisableVertexAttribArrayARB(i);
 		}
 	}
+
+	//draw a dummy triangle to set index array pointer
+	//glDrawElements(GL_TRIANGLES, 0, GL_UNSIGNED_SHORT, NULL);
 
 	unbind();
 }
@@ -1843,14 +1849,18 @@ bool LLVertexBuffer::getClothWeightStrider(LLStrider<LLVector4>& strider, S32 in
 
 //----------------------------------------------------------------------------
 
+static LLFastTimer::DeclareTimer FTM_BIND_GL_ARRAY("Bind Array");
 bool LLVertexBuffer::bindGLArray()
 {
 	if (mGLArray && sGLRenderArray != mGLArray)
 	{
+		{
+			LLFastTimer t(FTM_BIND_GL_ARRAY);
 #if GL_ARB_vertex_array_object
-		glBindVertexArray(mGLArray);
+			glBindVertexArray(mGLArray);
 #endif
-		sGLRenderArray = mGLArray;
+			sGLRenderArray = mGLArray;
+		}
 
 		//really shouldn't be necessary, but some drivers don't properly restore the
 		//state of GL_ELEMENT_ARRAY_BUFFER_BINDING
@@ -1862,6 +1872,8 @@ bool LLVertexBuffer::bindGLArray()
 	return false;
 }
 
+static LLFastTimer::DeclareTimer FTM_BIND_GL_BUFFER("Bind Buffer");
+
 bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 {
 	bindGLArray();
@@ -1870,6 +1882,7 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 
 	if (useVBOs() && (force_bind || (mGLBuffer && (mGLBuffer != sGLRenderBuffer || !sVBOActive))))
 	{
+		LLFastTimer t(FTM_BIND_GL_BUFFER);
 		/*if (sMapped)
 		{
 			llerrs << "VBO bound while another VBO mapped!" << llendl;
@@ -1891,6 +1904,8 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 	return ret;
 }
 
+static LLFastTimer::DeclareTimer FTM_BIND_GL_INDICES("Bind Indices");
+
 bool LLVertexBuffer::bindGLIndices(bool force_bind)
 {
 	bindGLArray();
@@ -1898,6 +1913,7 @@ bool LLVertexBuffer::bindGLIndices(bool force_bind)
 	bool ret = false;
 	if (useVBOs() && (force_bind || (mGLIndices && (mGLIndices != sGLRenderIndices || !sIBOActive))))
 	{
+		LLFastTimer t(FTM_BIND_GL_INDICES);
 		/*if (sMapped)
 		{
 			llerrs << "VBO bound while another VBO mapped!" << llendl;
