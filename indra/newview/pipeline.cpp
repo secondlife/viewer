@@ -745,8 +745,8 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			mFXAABuffer.release();
 		}
 		
-		if (shadow_detail > 0 || ssao)
-		{ //only need mDeferredLight for shadows OR ssao
+		if (shadow_detail > 0 || ssao || RenderDepthOfField)
+		{ //only need mDeferredLight for shadows OR ssao OR dof
 			if (!mDeferredLight.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 		}
 		else

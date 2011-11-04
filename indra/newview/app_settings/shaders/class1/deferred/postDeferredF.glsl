@@ -73,7 +73,7 @@ void main()
 		{
 			while (sc > 0.5)
 			{
-				int its = int(max(1.0,(sc*3.7)));
+				int its = int(max(1.0,(sc*3.7*0.5)));
 				for (int i=0; i<its; ++i)
 				{
 					float ang = sc+i*2*PI/its; // sc is added for rotary perturbance
@@ -82,7 +82,7 @@ void main()
 					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
 					dofSample(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
 				}
-				sc -= 1.0;
+				sc -= 2.0;
 			}
 		}
 		
