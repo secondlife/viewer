@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
-		<accordion_tab name="tab_favorites" title="Sık Kullanılanlar çubuğu"/>
+		<accordion_tab name="tab_favorites" title="Favoriler çubuğu"/>
 		<accordion_tab name="tab_landmarks" title="Yer İmlerim"/>
 		<accordion_tab name="tab_inventory" title="Envanterim"/>
 		<accordion_tab name="tab_library" title="Kütüphane"/>

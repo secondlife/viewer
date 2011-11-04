@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="toolbox floater" short_title="İNŞA ARAÇLARI">
+<floater name="toolbox floater" short_title="İNŞA ET ARAÇLARI">
 	<floater.string name="status_rotate">
 		Nesneyi döndürmek için renkli bantları sürükleyin
 	</floater.string>
