@@ -33,6 +33,7 @@ uniform sampler2DRect diffuseRect;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
+uniform float max_cof;
 
 VARYING vec2 vary_fragcoord;
 
@@ -40,7 +41,7 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 {
 	vec4 s = texture2DRect(diffuseRect, tc);
 
-	float sc = s.a*10.0;
+	float sc = s.a*max_cof;
 
 	if (sc > min_sc) //sampled pixel is more "out of focus" than current sample radius
 	{
@@ -64,7 +65,7 @@ void main()
 	{ 
 		float w = 1.0;
 		
-		float sc = diff.a*10.0;
+		float sc = diff.a*max_cof;
 				
 		float PI = 3.14159265358979323846264;
 

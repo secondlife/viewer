@@ -39,6 +39,7 @@ uniform float focal_distance;
 uniform float blur_constant;
 uniform float tan_pixel_angle;
 uniform float magnification;
+uniform float max_cof;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -78,7 +79,7 @@ void main()
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	
 	float sc = calc_cof(depth);
-	sc = min(abs(sc), 10.0);
+	sc = min(abs(sc), max_cof);
 	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
 	gl_FragColor.rgb = diff.rgb + bloom.rgb;

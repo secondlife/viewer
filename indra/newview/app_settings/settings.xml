@@ -1392,6 +1392,18 @@
     <real>0.5</real>
   </map>
 
+  <key>CameraMaxCoF</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum camera circle of confusion for DoF effect</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10.0</real>
+  </map>
+
   <key>CameraFNumber</key>
   <map>
     <key>Comment</key>

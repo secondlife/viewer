@@ -185,6 +185,7 @@ LLVector3 LLPipeline::RenderShadowSplitExponent;
 F32 LLPipeline::RenderShadowErrorCutoff;
 F32 LLPipeline::RenderShadowFOVCutoff;
 BOOL LLPipeline::CameraOffset;
+F32 LLPipeline::CameraMaxCoF;
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
@@ -926,6 +927,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderShadowErrorCutoff = gSavedSettings.getF32("RenderShadowErrorCutoff");
 	RenderShadowFOVCutoff = gSavedSettings.getF32("RenderShadowFOVCutoff");
 	CameraOffset = gSavedSettings.getBOOL("CameraOffset");
+	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 }
 
 void LLPipeline::releaseGLBuffers()
@@ -6461,7 +6463,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			shader->uniform2f(LLShaderMgr::FXAA_RCP_SCREEN_RES, 1.f/width*scale_x, 1.f/height*scale_y);
 			shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT, -0.5f/width*scale_x, -0.5f/height*scale_y, 0.5f/width*scale_x, 0.5f/height*scale_y);
 			shader->uniform4f(LLShaderMgr::FXAA_RCP_FRAME_OPT2, -2.f/width*scale_x, -2.f/height*scale_y, 2.f/width*scale_x, 2.f/height*scale_y);
-
+			
 			gGL.begin(LLRender::TRIANGLE_STRIP);
 			gGL.vertex2f(-1,-1);
 			gGL.vertex2f(-1,3);
@@ -6620,6 +6622,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 					shader->uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
 					shader->uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f/LLDrawable::sCurPixelAngle));
 					shader->uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
+					shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 
 					gGL.begin(LLRender::TRIANGLE_STRIP);
 					gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -6650,6 +6653,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 						mDeferredLight.bindTexture(0, channel);
 					}
 
+					shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
+
 					gGL.begin(LLRender::TRIANGLE_STRIP);
 					gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 					gGL.vertex2f(-1,-1);
@@ -6676,6 +6681,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 					{
 						mScreen.bindTexture(0, channel);
 					}
+
+					shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 
 					gGL.begin(LLRender::TRIANGLE_STRIP);
 					gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);

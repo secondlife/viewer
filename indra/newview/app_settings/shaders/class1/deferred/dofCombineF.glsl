@@ -35,6 +35,8 @@ uniform sampler2DRect lightMap;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
+uniform float max_cof;
+
 VARYING vec2 vary_fragcoord;
 
 void main() 
@@ -45,5 +47,6 @@ void main()
 	
 	vec4 diff = texture2DRect(lightMap, vary_fragcoord.xy);
 
-	gl_FragColor = mix(diff, dof, diff.a);
+	float a = min(diff.a * max_cof*0.125, 1.0);
+	gl_FragColor = mix(diff, dof, a);
 }
