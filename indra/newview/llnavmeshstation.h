@@ -46,7 +46,7 @@ protected:
 	LLRootHandle<LLNavMeshObserver> mObserverHandle;	
 };
 //===============================================================================
-class LLNavMeshStation : public LLSingleton<LLNavMeshStation>, LLNavMeshObserver
+class LLNavMeshStation : public LLSingleton<LLNavMeshStation>
 {
 public:
 	//Ctor

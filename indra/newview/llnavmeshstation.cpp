@@ -52,8 +52,22 @@ public:
 	}
 	
 	void result( const LLSD& content )
-	{
-		content;
+	{		
+		llinfos<<"Content received"<<llendl;
+		//TODO# some sanity checking
+		if ( content.has("error") )
+		{
+			llwarns	<< "Error on fetched data"<< llendl;
+		}
+		else 
+		{
+			LLNavMeshObserver* pObserver = mObserverHandle.get();
+			if ( pObserver )
+			{
+				llinfos<<"Do something immensely important w/content"<<llendl;
+				//pObserver->execute();
+			}
+		}	
 	}
 	
 private:

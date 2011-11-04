@@ -90,9 +90,10 @@ class LLBuildNavMesh  : public view_listener_t
 		return result;
 	}
 };
-
+//prep#
 class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
 {
+	
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLPathingLib::initSystem();
@@ -115,7 +116,8 @@ class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
 					llinfos<< typeid(*this).name() <<"setNavMeshUploadURL "<< url <<llendl;					
 					//Populate the required paramters that are required to store in the dictionary
 					data["agent_id"]  = gAgent.getID();
-					data["object_id"] = "prepFIXME#IsThisReallyNeeded?";
+					LLUUID object_id;
+					data["object_id"] = object_id; //"prepFIXME#IsThisReallyNeeded?";
 					data["region_id"] = gAgent.getRegion()->getRegionID();
 					data["sim_host"]  = gAgent.getRegion()->getHost().getString();
 					data["sim_port"]  = (S32)gAgent.getRegion()->getHost().getPort();
