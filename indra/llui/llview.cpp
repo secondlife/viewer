@@ -225,9 +225,11 @@ BOOL LLView::getUseBoundingRect() const
 }
 
 // virtual
-std::string LLView::getName() const
+const std::string& LLView::getName() const
 {
-	return mName.empty() ? std::string("(no name)") : mName;
+	static std::string no_name("(no name)");
+
+	return mName.empty() ? no_name : mName;
 }
 
 void LLView::sendChildToFront(LLView* child)

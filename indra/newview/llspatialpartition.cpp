@@ -1617,6 +1617,13 @@ static LLFastTimer::DeclareTimer FTM_SET_OCCLUSION_STATE("Occlusion State");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_EARLY_FAIL("Occlusion Early Fail");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_ALLOCATE("Allocate");
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_BUILD("Build");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_BEGIN_QUERY("Begin Query");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_END_QUERY("End Query");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_SET_BUFFER("Set Buffer");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_DRAW_WATER("Draw Water");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_DRAW("Draw");
+
+
 
 void LLSpatialGroup::doOcclusion(LLCamera* camera)
 {
@@ -1635,6 +1642,19 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		{
 			if (!isOcclusionState(QUERY_PENDING) || isOcclusionState(DISCARD_QUERY))
 			{
+				bool check = true;
+
+				if (isOcclusionState(QUERY_PENDING))
+				{
+					GLuint available = 0;
+					glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					if (available == GL_FALSE)
+					{
+						check = false;
+					}
+				}
+
+				if (check)
 				{ //no query pending, or previous query to be discarded
 					LLFastTimer t(FTM_RENDER_OCCLUSION);
 
@@ -1671,12 +1691,21 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 
 					{
 						LLFastTimer t(FTM_PUSH_OCCLUSION_VERTS);
-						glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+						
+						{
+							LLFastTimer t(FTM_OCCLUSION_BEGIN_QUERY);
+							glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+						}
 					
-						mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						{
+							LLFastTimer t(FTM_OCCLUSION_SET_BUFFER);
+							mOcclusionVerts->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						}
 
 						if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
 						{
+							LLFastTimer t(FTM_OCCLUSION_DRAW_WATER);
+
 							LLGLSquashToFarClip squash(glh_get_current_projection(), 1);
 							if (camera->getOrigin().isExactlyZero())
 							{ //origin is invalid, draw entire box
@@ -1690,6 +1719,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 						}
 						else
 						{
+							LLFastTimer t(FTM_OCCLUSION_DRAW);
 							if (camera->getOrigin().isExactlyZero())
 							{ //origin is invalid, draw entire box
 								mOcclusionVerts->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
@@ -1701,7 +1731,11 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 							}
 						}
 
-						glEndQueryARB(mode);
+
+						{
+							LLFastTimer t(FTM_OCCLUSION_END_QUERY);
+							glEndQueryARB(mode);
+						}
 					}
 				}
 
