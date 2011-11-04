@@ -2027,7 +2027,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 #endif
 				}
 			}
-			if (move_is_into_outbox && !move_is_from_outbox)
+			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
 				dropFolderToOutbox(inv_cat);
 			}
