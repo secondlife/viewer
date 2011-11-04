@@ -6595,68 +6595,102 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				blur_constant /= 1000.f; //convert to meters for shader
 				F32 magnification = focal_length/(subject_distance-focal_length);
 
-				mDeferredLight.bindTarget();
-				shader = &gDeferredCoFProgram;
+				{ //build diffuse+bloom+CoF
+					mDeferredLight.bindTarget();
+					shader = &gDeferredCoFProgram;
 
-				bindDeferredShader(*shader);
+					bindDeferredShader(*shader);
 
-				S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
-				if (channel > -1)
-				{
-					mScreen.bindTexture(0, channel);
-				}
-
-				if (multisample)
-				{ //bloom has already been added, bind black
-					channel = shader->enableTexture(LLShaderMgr::DEFERRED_BLOOM);
+					S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
 					if (channel > -1)
 					{
-						gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sBlackImagep);
+						mScreen.bindTexture(0, channel);
 					}
-				}
+
+					if (multisample)
+					{ //bloom has already been added, bind black
+						channel = shader->enableTexture(LLShaderMgr::DEFERRED_BLOOM);
+						if (channel > -1)
+						{
+							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sBlackImagep);
+						}
+					}
 				
-				shader->uniform1f(LLShaderMgr::DOF_FOCAL_DISTANCE, -subject_distance/1000.f);
-				shader->uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
-				shader->uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f/LLDrawable::sCurPixelAngle));
-				shader->uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
+					shader->uniform1f(LLShaderMgr::DOF_FOCAL_DISTANCE, -subject_distance/1000.f);
+					shader->uniform1f(LLShaderMgr::DOF_BLUR_CONSTANT, blur_constant);
+					shader->uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f/LLDrawable::sCurPixelAngle));
+					shader->uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
 
-				gGL.begin(LLRender::TRIANGLE_STRIP);
-				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-				gGL.vertex2f(-1,-1);
+					gGL.begin(LLRender::TRIANGLE_STRIP);
+					gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+					gGL.vertex2f(-1,-1);
 		
-				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-				gGL.vertex2f(-1,3);
+					gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+					gGL.vertex2f(-1,3);
 		
-				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-				gGL.vertex2f(3,-1);
+					gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+					gGL.vertex2f(3,-1);
 		
-				gGL.end();
+					gGL.end();
 
-				unbindDeferredShader(*shader);
-				mDeferredLight.flush();
-
-
-				shader = &gDeferredPostProgram;
-				bindDeferredShader(*shader);
-				channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredLight.getUsage());
-				if (channel > -1)
-				{
-					mDeferredLight.bindTexture(0, channel);
+					unbindDeferredShader(*shader);
+					mDeferredLight.flush();
 				}
 
-				gGL.begin(LLRender::TRIANGLE_STRIP);
-				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-				gGL.vertex2f(-1,-1);
-		
-				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-				gGL.vertex2f(-1,3);
-		
-				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-				gGL.vertex2f(3,-1);
-		
-				gGL.end();
+				{ //perform DoF sampling at half-res (preserve alpha channel)
+					mScreen.bindTarget();
+					glViewport(0,0,mScreen.getWidth()/2, mScreen.getHeight()/2);
+					gGL.setColorMask(true, false);
 
-				unbindDeferredShader(*shader);
+					shader = &gDeferredPostProgram;
+					bindDeferredShader(*shader);
+					S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredLight.getUsage());
+					if (channel > -1)
+					{
+						mDeferredLight.bindTexture(0, channel);
+					}
+
+					gGL.begin(LLRender::TRIANGLE_STRIP);
+					gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+					gGL.vertex2f(-1,-1);
+		
+					gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+					gGL.vertex2f(-1,3);
+		
+					gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+					gGL.vertex2f(3,-1);
+		
+					gGL.end();
+
+					unbindDeferredShader(*shader);
+					mScreen.flush();
+					gGL.setColorMask(true, true);
+				}
+
+				{ //combine result based on alpha
+					shader = &gDeferredDoFCombineProgram;
+					bindDeferredShader(*shader);
+					glViewport(0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
+					S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+					if (channel > -1)
+					{
+						mScreen.bindTexture(0, channel);
+					}
+
+					gGL.begin(LLRender::TRIANGLE_STRIP);
+					gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+					gGL.vertex2f(-1,-1);
+		
+					gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+					gGL.vertex2f(-1,3);
+		
+					gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+					gGL.vertex2f(3,-1);
+		
+					gGL.end();
+
+					unbindDeferredShader(*shader);
+				}
 			}
 			else
 			{

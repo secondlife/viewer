@@ -187,6 +187,7 @@ LLGLSLShader			gDeferredFullbrightProgram;
 LLGLSLShader			gDeferredEmissiveProgram;
 LLGLSLShader			gDeferredPostProgram;
 LLGLSLShader			gDeferredCoFProgram;
+LLGLSLShader			gDeferredDoFCombineProgram;
 LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
 LLGLSLShader			gDeferredWLSkyProgram;
@@ -1015,6 +1016,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarEyesProgram.unload();
 		gDeferredPostProgram.unload();		
 		gDeferredCoFProgram.unload();		
+		gDeferredDoFCombineProgram.unload();
 		gFXAAProgram.unload();
 		gDeferredWaterProgram.unload();
 		gDeferredWLSkyProgram.unload();
@@ -1435,6 +1437,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredCoFProgram.mShaderFiles.push_back(make_pair("deferred/cofF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredCoFProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredCoFProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredDoFCombineProgram.mName = "Deferred DoFCombine Shader";
+		gDeferredDoFCombineProgram.mShaderFiles.clear();
+		gDeferredDoFCombineProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredDoFCombineProgram.mShaderFiles.push_back(make_pair("deferred/dofCombineF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredDoFCombineProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredDoFCombineProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

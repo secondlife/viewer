@@ -1,5 +1,5 @@
 /** 
- * @file postDeferredF.glsl
+ * @file dofCombineF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -30,63 +30,20 @@ out vec4 gl_FragColor;
 #endif
 
 uniform sampler2DRect diffuseRect;
+uniform sampler2DRect lightMap;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
 VARYING vec2 vary_fragcoord;
 
-void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
-{
-	vec4 s = texture2DRect(diffuseRect, tc);
-
-	float sc = s.a*10.0;
-
-	if (sc > min_sc) //sampled pixel is more "out of focus" than current sample radius
-	{
-		float wg = 0.25;
-		
-		// de-weight dull areas to make highlights 'pop'
-		wg += s.r+s.g+s.b;
-	
-		diff += wg*s;
-		
-		w += wg;
-	}
-}
-
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
 	
-	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
+	vec4 dof = texture2DRect(diffuseRect, vary_fragcoord.xy*0.5);
 	
-	{ 
-		float w = 1.0;
-		
-		float sc = diff.a*10.0;
-				
-		float PI = 3.14159265358979323846264;
+	vec4 diff = texture2DRect(lightMap, vary_fragcoord.xy);
 
-		// sample quite uniformly spaced points within a circle, for a circular 'bokeh'		
-		{
-			while (sc > 0.5)
-			{
-				int its = int(max(1.0,(sc*3.7)));
-				for (int i=0; i<its; ++i)
-				{
-					float ang = sc+i*2*PI/its; // sc is added for rotary perturbance
-					float samp_x = sc*sin(ang);
-					float samp_y = sc*cos(ang);
-					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
-					dofSample(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
-				}
-				sc -= 1.0;
-			}
-		}
-		
-		diff /= w;
-	}
-		
-	gl_FragColor = diff;
+	gl_FragColor = mix(diff, dof, diff.a);
 }
