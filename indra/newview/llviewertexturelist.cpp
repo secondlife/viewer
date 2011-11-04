@@ -1059,7 +1059,7 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 		if(gGLManager.mIsATI)
 		{
 			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
-			max_vram *= 0.75f;  
+			max_vram = (S32)(max_vram * 0.75f);  
 		}
 
 		max_vram = llmax(max_vram, getMinVideoRamSetting());
