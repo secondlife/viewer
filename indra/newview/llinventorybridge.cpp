@@ -3544,10 +3544,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		// because they must contain only links to wearable items.
 		accept = !(move_is_into_current_outfit || move_is_into_outfit);
 
-		if(drop)
+		if(accept && drop)
 		{
-			copy_inventory_from_notecard(LLToolDragAndDrop::getInstance()->getObjectID(),
-										 LLToolDragAndDrop::getInstance()->getSourceID(), inv_item);
+			copy_inventory_from_notecard(mUUID,  // Drop to the chosen destination folder
+										 LLToolDragAndDrop::getInstance()->getObjectID(),
+										 LLToolDragAndDrop::getInstance()->getSourceID(),
+										 inv_item);
 		}
 	}
 	else if(LLToolDragAndDrop::SOURCE_LIBRARY == source)

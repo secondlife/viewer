@@ -599,7 +599,11 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	if (tool_dad->getSource() == LLToolDragAndDrop::SOURCE_NOTECARD)
 	{
 		viewer_item->setType(LLAssetType::AT_LANDMARK);
-		copy_inventory_from_notecard(tool_dad->getObjectID(), tool_dad->getSourceID(), viewer_item.get(), gInventoryCallbacks.registerCB(cb));
+		copy_inventory_from_notecard(favorites_id,
+									 tool_dad->getObjectID(),
+									 tool_dad->getSourceID(),
+									 viewer_item.get(),
+									 gInventoryCallbacks.registerCB(cb));
 	}
 	else
 	{
