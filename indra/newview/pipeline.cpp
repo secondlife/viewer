@@ -656,6 +656,7 @@ void LLPipeline::allocatePhysicsBuffer()
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
+	refreshCachedSettings();
 	U32 samples = gGLManager.getNumFBOFSAASamples(RenderFSAASamples);
 
 	//try to allocate screen buffers at requested resolution and samples
