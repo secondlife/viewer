@@ -116,13 +116,8 @@ LLPostCard::result_callback_t LLPostCard::mResultCallback;
 // static
 void LLPostCard::send(LLPointer<LLImageFormatted> image, const LLSD& postcard_data)
 {
-#if 0
-	static LLTransactionID transaction_id;
-	static LLAssetID asset_id;
-#else
 	LLTransactionID transaction_id;
 	LLAssetID asset_id;
-#endif
 
 	transaction_id.generate();
 	asset_id = transaction_id.makeAssetID(gAgent.getSecureSessionID());

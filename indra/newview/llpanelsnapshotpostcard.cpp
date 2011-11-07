@@ -75,6 +75,7 @@ private:
 	void onSend();
 
 	bool mHasFirstMsgFocus;
+	std::string mAgentEmail;
 };
 
 static LLRegisterPanelClassWrapper<LLPanelSnapshotPostcard> panel_class("llpanelsnapshotpostcard");
@@ -94,8 +95,6 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 {
 	// pick up the user's up-to-date email address
 	gAgent.sendAgentUserInfoRequest();
-
-	getChildView("from_form")->setEnabled(FALSE);
 
 	std::string name_string;
 	LLAgentUI::buildFullname(name_string);
@@ -128,12 +127,9 @@ S32 LLPanelSnapshotPostcard::notify(const LLSD& info)
 		return 0;
 	}
 
-	LLUICtrl* from_input = getChild<LLUICtrl>("from_form");
-	const std::string& text = from_input->getValue().asString();
-	if (text.empty())
+	if (mAgentEmail.empty())
 	{
-		// there's no text in this field yet, pre-populate
-		from_input->setValue(info["agent-email"]);
+		mAgentEmail = info["agent-email"].asString();
 	}
 
 	return 1;
@@ -176,14 +172,13 @@ bool LLPanelSnapshotPostcard::missingSubjMsgAlertCallback(const LLSD& notificati
 
 void LLPanelSnapshotPostcard::sendPostcard()
 {
-	std::string from(getChild<LLUICtrl>("from_form")->getValue().asString());
 	std::string to(getChild<LLUICtrl>("to_form")->getValue().asString());
 	std::string subject(getChild<LLUICtrl>("subject_form")->getValue().asString());
 
 	LLSD postcard = LLSD::emptyMap();
 	postcard["pos-global"] = LLFloaterSnapshot::getPosTakenGlobal().getValue();
 	postcard["to"] = to;
-	postcard["from"] = from;
+	postcard["from"] = mAgentEmail;
 	postcard["name"] = getChild<LLUICtrl>("name_form")->getValue().asString();
 	postcard["subject"] = subject;
 	postcard["msg"] = getChild<LLUICtrl>("msg_form")->getValue().asString();
@@ -246,7 +241,6 @@ void LLPanelSnapshotPostcard::onTabButtonPress(S32 btn_idx)
 void LLPanelSnapshotPostcard::onSend()
 {
 	// Validate input.
-	std::string from(getChild<LLUICtrl>("from_form")->getValue().asString());
 	std::string to(getChild<LLUICtrl>("to_form")->getValue().asString());
 
 	boost::regex email_format("[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(,[ \t]*[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*");
@@ -257,7 +251,7 @@ void LLPanelSnapshotPostcard::onSend()
 		return;
 	}
 
-	if (from.empty() || !boost::regex_match(from, email_format))
+	if (mAgentEmail.empty() || !boost::regex_match(mAgentEmail, email_format))
 	{
 		LLNotificationsUtil::add("PromptSelfEmail");
 		return;

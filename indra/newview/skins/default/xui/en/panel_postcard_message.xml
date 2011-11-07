@@ -10,18 +10,20 @@
      bottom="35"
      follows="top|left"
      font="SansSerif"
+     height="16"
      layout="topleft"
      left="12"
      name="to_label"
-     top="10">
-        Recipient&apos;s Email:
+     top="10"
+     width="60">
+        To:
     </text>
     <line_editor
      control_name="LastPostcardRecipient"
      follows="left|top|right"
      height="20"
      layout="topleft"
-     left_delta="148"
+     left_pad="10"
      name="to_form"
      right="-10"
      top_delta="-4" />
@@ -31,35 +33,18 @@
      bottom_delta="23"
      follows="top|left"
      font="SansSerif"
+     height="16"
      layout="topleft"
      left="12"
-     name="from_label">
-        Your Email:
+     name="name_label"
+     width="60">
+        From:
     </text>
     <line_editor
      follows="left|top|right"
      height="20"
      layout="topleft"
-     left_delta="148"
-     name="from_form"
-     right="-10"
-     top_delta="-4" />
-    <text
-     type="string"
-     length="1"
-     bottom_delta="23"
-     follows="top|left"
-     font="SansSerif"
-     layout="topleft"
-     left="12"
-     name="name_label">
-        Your Name:
-    </text>
-    <line_editor
-     follows="left|top|right"
-     height="20"
-     layout="topleft"
-     left_delta="148"
+     left_pad="10"
      max_length_bytes="100"
      name="name_form"
      right="-10"
@@ -70,9 +55,11 @@
      bottom_delta="23"
      follows="top|left"
      font="SansSerif"
+     height="16"
      layout="topleft"
      left="12"
-     name="subject_label">
+     name="subject_label"
+     width="60">
         Subject:
     </text>
     <line_editor
@@ -80,7 +67,7 @@
      height="20"
      label="Type your subject here."
      layout="topleft"
-     left_delta="148"
+     left_pad="10"
      max_length_bytes="100"
      name="subject_form"
      right="-10"
@@ -89,11 +76,12 @@
      type="string"
      length="1"
      bottom_delta="23"
-     follows="top|left"
+     follows="top|left|right"
      font="SansSerif"
      layout="topleft"
      left="12"
-     name="msg_label">
+     name="msg_label"
+     right="-10">
         Message:
     </text>
     <text_editor
