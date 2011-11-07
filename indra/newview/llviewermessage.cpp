@@ -1256,14 +1256,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
 			!from_name.empty(); // don't open if it's not from anyone.
-		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
-		if(active_panel)
-		{
-			LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
-			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			active_panel->setSelection(obj_id, TAKE_FOCUS_NO);
-			gFocusMgr.setKeyboardFocus(focus_ctrl);
-		}
+		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
 	}
 }
 

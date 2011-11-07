@@ -1128,19 +1128,71 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	{
 		// Make sure the floater is not minimized (STORM-438).
 		if (active_inv_floaterp && active_inv_floaterp->isMinimized())
+		{
 			active_inv_floaterp->setMinimized(FALSE);
+		}
+	}	
+	else if (auto_open)
+	{
+		floater_inventory->openFloater();
 
-		return res;
+		res = sidepanel_inventory->getActivePanel();
 	}
-		
-	// C. If no panels are open and we don't want to force open a panel, then just abort out.
-	if (!auto_open) return NULL;
-	
-	// D. Open the inventory side panel floater and use that.
-	floater_inventory->openFloater();
-	return sidepanel_inventory->getActivePanel();
 
-	return NULL;
+	return res;
+}
+
+//static
+void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id)
+{
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
+
+	if (active_panel)
+	{
+		LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
+		
+		LLViewerInventoryItem * item = gInventory.getItem(obj_id);
+		
+		bool item_in_inbox = false;
+		bool item_in_outbox = false;
+		
+		if (item)
+		{
+			LLViewerInventoryCategory * cat = gInventory.getCategory(item->getParentUUID());
+			
+			if (cat)
+			{
+				item_in_inbox = (LLFolderType::FT_INBOX == cat->getPreferredType());
+				item_in_outbox = (LLFolderType::FT_OUTBOX == cat->getPreferredType());
+			}
+		}
+		
+		if (item_in_inbox || item_in_outbox)
+		{
+			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			LLInventoryPanel * inventory_panel = NULL;
+			
+			if (item_in_inbox)
+			{
+				sidepanel_inventory->openInbox();
+				inventory_panel = sidepanel_inventory->getInboxPanel();
+			}
+			else
+			{
+				sidepanel_inventory->openOutbox();
+				inventory_panel = sidepanel_inventory->getOutboxPanel();
+			}
+
+			if (inventory_panel)
+			{
+				inventory_panel->setSelection(obj_id, TAKE_FOCUS_YES);
+			}
+		}
+		else
+		{
+			active_panel->setSelection(obj_id, TAKE_FOCUS_YES);
+		}
+	}
 }
 
 void LLInventoryPanel::addHideFolderType(LLFolderType::EType folder_type)
