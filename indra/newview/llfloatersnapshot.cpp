@@ -2451,7 +2451,8 @@ void LLFloaterSnapshot::preUpdate()
 	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
 	if (instance)
 	{
-		instance->getChildView("refresh_icon")->setVisible(TRUE); // indicate refresh
+		// Disable the send/post/save buttons until snapshot is ready.
+		Impl::updateControls(instance);
 	}
 }
 
@@ -2462,7 +2463,8 @@ void LLFloaterSnapshot::postUpdate()
 	LLFloaterSnapshot* instance = LLFloaterReg::findTypedInstance<LLFloaterSnapshot>("snapshot");
 	if (instance)
 	{
-		instance->getChildView("refresh_icon")->setVisible(FALSE);
+		// Enable the send/post/save buttons.
+		Impl::updateControls(instance);
 	}
 }
 

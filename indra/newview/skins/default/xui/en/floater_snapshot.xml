@@ -84,7 +84,6 @@
     mouse_opaque="true"
     name="refresh_icon"
     top_delta="3"
-    visible="false"
     width="36" />
    <button
     follows="left|top"
