@@ -1105,12 +1105,12 @@ public:
 	static LLSpinCtrl* getWidthSpinner(LLFloaterSnapshot* floater);
 	static LLSpinCtrl* getHeightSpinner(LLFloaterSnapshot* floater);
 	static void enableAspectRatioCheckbox(LLFloaterSnapshot* floater, BOOL enable);
+	static void setAspectRatioCheckboxValue(LLFloaterSnapshot* floater, BOOL checked);
 
 	static LLSnapshotLivePreview* getPreviewView(LLFloaterSnapshot *floater);
 	static void setResolution(LLFloaterSnapshot* floater, const std::string& comboname);
 	static void updateControls(LLFloaterSnapshot* floater);
 	static void updateLayout(LLFloaterSnapshot* floater);
-	static void updateResolutionTextEntry(LLFloaterSnapshot* floater);
 	static void setStatus(EStatus status, bool ok = true, const std::string& msg = LLStringUtil::null);
 	EStatus getStatus() const { return mStatus; }
 
@@ -1201,6 +1201,16 @@ void LLFloaterSnapshot::Impl::enableAspectRatioCheckbox(LLFloaterSnapshot* float
 	if (active_panel)
 	{
 		active_panel->enableAspectRatioCheckbox(enable);
+	}
+}
+
+// static
+void LLFloaterSnapshot::Impl::setAspectRatioCheckboxValue(LLFloaterSnapshot* floater, BOOL checked)
+{
+	LLPanelSnapshot* active_panel = getActivePanel(floater);
+	if (active_panel)
+	{
+		active_panel->getChild<LLUICtrl>(active_panel->getAspectRatioCBName())->setValue(checked);
 	}
 }
 
@@ -1361,7 +1371,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));
 
 	// *TODO: Separate settings for Web images from postcards
-	enableAspectRatioCheckbox(floater, shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !floater->impl.mAspectRatioCheckOff);
+	enableAspectRatioCheckbox(floater, !floater->impl.mAspectRatioCheckOff);
+	setAspectRatioCheckboxValue(floater, gSavedSettings.getBOOL("KeepAspectForSnapshot"));
 	floater->getChildView("layer_types")->setEnabled(shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
 
 	LLPanelSnapshot* active_panel = getActivePanel(floater);
@@ -1463,8 +1474,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		break;
 	}
 
-	updateResolutionTextEntry(floater);
-
 	if (previewp)
 	{
 		lldebugs << "Setting snapshot type (" << shot_type << "), format (" << shot_format << ")" << llendl;
@@ -1479,24 +1488,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		LLSD info;
 		info["have-snapshot"] = got_snap;
 		current_panel->updateControls(info);
-	}
-}
-
-// static
-void LLFloaterSnapshot::Impl::updateResolutionTextEntry(LLFloaterSnapshot* floater)
-{
-	LLSpinCtrl* width_spinner = getWidthSpinner(floater);
-	LLSpinCtrl* height_spinner = getHeightSpinner(floater);
-
-	if(getActiveSnapshotType(floater) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
-	{
-		width_spinner->setAllowEdit(FALSE);
-		height_spinner->setAllowEdit(FALSE);
-	}
-	else
-	{
-		width_spinner->setAllowEdit(TRUE);
-		height_spinner->setAllowEdit(TRUE);
 	}
 }
 
@@ -1685,16 +1676,11 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	else if(-1 == index) //custom
 	{
 		view->impl.mAspectRatioCheckOff = false ;
-#if 0
-		//if(LLSnapshotLivePreview::SNAPSHOT_TEXTURE != gSavedSettings.getS32("LastSnapshotType"))
-#endif
-		{
-			enableAspectRatioCheckbox(view, TRUE);
+		enableAspectRatioCheckbox(view, TRUE);
 
-			if(previewp)
-			{
-				previewp->mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
-			}
+		if(previewp)
+		{
+			previewp->mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 		}
 	}
 	else
@@ -1816,23 +1802,24 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		{
 			// load last custom value
 #if 1
+			S32 new_width = 0, new_height = 0;
 			LLPanelSnapshot* spanel = getActivePanel(view);
 			if (spanel)
 			{
 				lldebugs << "Loading typed res from panel " << spanel->getName() << llendl;
-				width = spanel->getTypedPreviewWidth();
-				height = spanel->getTypedPreviewWidth();
+				new_width = spanel->getTypedPreviewWidth();
+				new_height = spanel->getTypedPreviewHeight();
 			}
 			else
 			{
 				const S32 shot_type = getActiveSnapshotType(view);
 				lldebugs << "Loading saved res for shot_type " << shot_type << llendl;
-				width = gSavedSettings.getS32(lastSnapshotWidthName(shot_type));
-				height = gSavedSettings.getS32(lastSnapshotHeightName(shot_type));
+				new_width = gSavedSettings.getS32(lastSnapshotWidthName(shot_type));
+				new_height = gSavedSettings.getS32(lastSnapshotHeightName(shot_type));
 			}
 
-			llassert(width > 0 && height > 0);
-			previewp->setSize(width, height);
+			llassert(new_width > 0 && new_height > 0);
+			previewp->setSize(new_width, new_height);
 #else
 			LLPanelSnapshot* spanel = getActivePanel(view);
 			if (spanel)
@@ -2204,7 +2191,7 @@ BOOL LLFloaterSnapshot::postBuild()
 #if 0
 	childSetCommitCallback("keep_aspect_check", Impl::onClickKeepAspectCheck, this);
 #endif
-	impl.enableAspectRatioCheckbox(this, gSavedSettings.getBOOL("KeepAspectForSnapshot"));
+	impl.setAspectRatioCheckboxValue(this, gSavedSettings.getBOOL("KeepAspectForSnapshot"));
 
 	childSetCommitCallback("layer_types", Impl::onCommitLayerTypes, this);
 	getChild<LLUICtrl>("layer_types")->setValue("colors");

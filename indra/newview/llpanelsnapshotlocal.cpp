@@ -56,12 +56,7 @@ private:
 	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
 	/*virtual*/ void updateControls(const LLSD& info);
 
-	void updateCustomResControls(); ///< Show/hide custom resolution controls (spinners and checkbox)
-
 	void onFormatComboCommit(LLUICtrl* ctrl);
-	void onResolutionComboCommit(LLUICtrl* ctrl);
-	void onCustomResolutionCommit(LLUICtrl* ctrl);
-	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onSend();
 };
@@ -77,10 +72,6 @@ LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 // virtual
 BOOL LLPanelSnapshotLocal::postBuild()
 {
-	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onResolutionComboCommit, this, _1));
-	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onCustomResolutionCommit, this, _1));
-	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onCustomResolutionCommit, this, _1));
-	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onKeepAspectRatioCommit, this, _1));
 	getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onQualitySliderCommit, this, _1));
 	getChild<LLUICtrl>("local_format_combo")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onFormatComboCommit, this, _1));
 
@@ -90,7 +81,6 @@ BOOL LLPanelSnapshotLocal::postBuild()
 // virtual
 void LLPanelSnapshotLocal::onOpen(const LLSD& key)
 {
-	updateCustomResControls();
 	LLPanelSnapshot::onOpen(key);
 }
 
@@ -135,45 +125,10 @@ void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 	getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
 }
 
-void LLPanelSnapshotLocal::updateCustomResControls()
-{
-	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
-	S32 selected_idx = combo->getFirstSelectedIndex();
-	bool enable = selected_idx == 0 || selected_idx == (combo->getItemCount() - 1); // Current Window or Custom selected
-
-	getChild<LLUICtrl>(getWidthSpinnerName())->setEnabled(enable);
-	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(enable);
-	getChild<LLUICtrl>(getHeightSpinnerName())->setEnabled(enable);
-	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(enable);
-	getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);
-}
-
 void LLPanelSnapshotLocal::onFormatComboCommit(LLUICtrl* ctrl)
 {
 	// will call updateControls()
 	LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
-}
-
-void LLPanelSnapshotLocal::onResolutionComboCommit(LLUICtrl* ctrl)
-{
-	updateCustomResControls();
-
-	LLSD info;
-	info["combo-res-change"]["control-name"] = ctrl->getName();
-	LLFloaterSnapshot::getInstance()->notify(info);
-}
-
-void LLPanelSnapshotLocal::onCustomResolutionCommit(LLUICtrl* ctrl)
-{
-	LLSD info;
-	info["w"] = getChild<LLUICtrl>(getWidthSpinnerName())->getValue().asInteger();
-	info["h"] = getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("custom-res-change", info));
-}
-
-void LLPanelSnapshotLocal::onKeepAspectRatioCommit(LLUICtrl* ctrl)
-{
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
 }
 
 void LLPanelSnapshotLocal::onQualitySliderCommit(LLUICtrl* ctrl)

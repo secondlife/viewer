@@ -55,9 +55,15 @@ public:
 
 protected:
 	LLSideTrayPanelContainer* getParentContainer();
+	virtual void updateCustomResControls();
 	void updateImageQualityLevel();
 	void goBack(); ///< Switch to the default (Snapshot Options) panel
 	void cancel();
+
+	// common UI callbacks
+	void onCustomResolutionCommit();
+	void onResolutionComboCommit(LLUICtrl* ctrl);
+	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 };
 
 #endif // LL_LLPANELSNAPSHOT_H

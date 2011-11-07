@@ -49,17 +49,13 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 private:
-	void updateCustomResControls(); ///< Show/hide custom resolution controls (spinners and checkbox)
-
+	/*virtual*/ void updateCustomResControls(); ///< Show/hide custom resolution controls (spinners and checkbox)
 	/*virtual*/ std::string getWidthSpinnerName() const		{ return "inventory_snapshot_width"; }
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "inventory_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
 	/*virtual*/ void updateControls(const LLSD& info);
 
-	void onResolutionComboCommit(LLUICtrl* ctrl);
-	void onCustomResolutionCommit(LLUICtrl* ctrl);
-	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 	void onSend();
 };
 
@@ -74,33 +70,29 @@ LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 // virtual
 BOOL LLPanelSnapshotInventory::postBuild()
 {
-	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onResolutionComboCommit, this, _1));
-	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onCustomResolutionCommit, this, _1));
-	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onCustomResolutionCommit, this, _1));
-	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshotInventory::onKeepAspectRatioCommit, this, _1));
 	return LLPanelSnapshot::postBuild();
 }
 
 // virtual
 void LLPanelSnapshotInventory::onOpen(const LLSD& key)
 {
-#if 0
-	getChild<LLComboBox>(getImageSizeComboName())->selectNthItem(0); // FIXME? has no effect
-#endif
 	getChild<LLUICtrl>("hint_lbl")->setTextArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
-	updateCustomResControls();
 	LLPanelSnapshot::onOpen(key);
 }
 
+// virtual
 void LLPanelSnapshotInventory::updateCustomResControls()
 {
 	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
 	S32 selected_idx = combo->getFirstSelectedIndex();
-	bool show = selected_idx == 0 || selected_idx == (combo->getItemCount() - 1); // Current Window or Custom selected
+	const bool show = selected_idx == (combo->getItemCount() - 1); // Custom selected
 
 	getChild<LLUICtrl>(getWidthSpinnerName())->setVisible(show);
 	getChild<LLUICtrl>(getHeightSpinnerName())->setVisible(show);
 	getChild<LLUICtrl>(getAspectRatioCBName())->setVisible(show);
+
+	// enable controls if possible
+	LLPanelSnapshot::updateCustomResControls();
 }
 
 // virtual
@@ -108,28 +100,6 @@ void LLPanelSnapshotInventory::updateControls(const LLSD& info)
 {
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
 	getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
-}
-
-void LLPanelSnapshotInventory::onResolutionComboCommit(LLUICtrl* ctrl)
-{
-	updateCustomResControls();
-
-	LLSD info;
-	info["combo-res-change"]["control-name"] = ctrl->getName();
-	LLFloaterSnapshot::getInstance()->notify(info);
-}
-
-void LLPanelSnapshotInventory::onCustomResolutionCommit(LLUICtrl* ctrl)
-{
-	LLSD info;
-	info["w"] = getChild<LLUICtrl>(getWidthSpinnerName())->getValue().asInteger();;
-	info["h"] = getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();;
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("custom-res-change", info));
-}
-
-void LLPanelSnapshotInventory::onKeepAspectRatioCommit(LLUICtrl* ctrl)
-{
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
 }
 
 void LLPanelSnapshotInventory::onSend()

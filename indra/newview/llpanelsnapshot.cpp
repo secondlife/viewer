@@ -28,6 +28,7 @@
 #include "llpanelsnapshot.h"
 
 // libs
+#include "llcombobox.h"
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "lltrans.h"
@@ -39,6 +40,11 @@
 // virtual
 BOOL LLPanelSnapshot::postBuild()
 {
+	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onResolutionComboCommit, this, _1));
+	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
+	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onCustomResolutionCommit, this));
+	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshot::onKeepAspectRatioCommit, this, _1));
+
 	updateControls(LLSD());
 	return TRUE;
 }
@@ -59,6 +65,8 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
 	{
 		LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
 	}
+
+	updateCustomResControls();
 }
 
 LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
@@ -101,6 +109,20 @@ LLSideTrayPanelContainer* LLPanelSnapshot::getParentContainer()
 	}
 
 	return parent;
+}
+
+// virtual
+void LLPanelSnapshot::updateCustomResControls()
+{
+	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
+	S32 selected_idx = combo->getFirstSelectedIndex();
+	const bool enable = selected_idx == (combo->getItemCount() - 1); // Current Window or Custom selected
+
+	getChild<LLUICtrl>(getWidthSpinnerName())->setEnabled(enable);
+	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(enable);
+	getChild<LLUICtrl>(getHeightSpinnerName())->setEnabled(enable);
+	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(enable);
+	enableAspectRatioCheckbox(enable);
 }
 
 void LLPanelSnapshot::updateImageQualityLevel()
@@ -148,4 +170,26 @@ void LLPanelSnapshot::cancel()
 {
 	goBack();
 	LLFloaterSnapshot::getInstance()->notify(LLSD().with("set-ready", true));
+}
+
+void LLPanelSnapshot::onCustomResolutionCommit()
+{
+	LLSD info;
+	info["w"] = getChild<LLUICtrl>(getWidthSpinnerName())->getValue().asInteger();
+	info["h"] = getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
+	LLFloaterSnapshot::getInstance()->notify(LLSD().with("custom-res-change", info));
+}
+
+void LLPanelSnapshot::onResolutionComboCommit(LLUICtrl* ctrl)
+{
+	updateCustomResControls();
+
+	LLSD info;
+	info["combo-res-change"]["control-name"] = ctrl->getName();
+	LLFloaterSnapshot::getInstance()->notify(info);
+}
+
+void LLPanelSnapshot::onKeepAspectRatioCommit(LLUICtrl* ctrl)
+{
+	LLFloaterSnapshot::getInstance()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
 }

@@ -65,15 +65,11 @@ private:
 	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG; }
 	/*virtual*/ void updateControls(const LLSD& info);
 
-	void updateCustomResControls(); ///< Enable/disable custom resolution controls (spinners and checkbox)
 	bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
 	void sendPostcard();
 
 	void onMsgFormFocusRecieved();
 	void onFormatComboCommit(LLUICtrl* ctrl);
-	void onResolutionComboCommit(LLUICtrl* ctrl);
-	void onCustomResolutionCommit(LLUICtrl* ctrl);
-	void onKeepAspectRatioCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
 	void onTabButtonPress(S32 btn_idx);
 	void onSend();
@@ -110,10 +106,6 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 
 	getChild<LLUICtrl>("to_form")->setFocus(TRUE);
 
-	getChild<LLUICtrl>(getImageSizeComboName())->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onResolutionComboCommit, this, _1));
-	getChild<LLUICtrl>(getWidthSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onCustomResolutionCommit, this, _1));
-	getChild<LLUICtrl>(getHeightSpinnerName())->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onCustomResolutionCommit, this, _1));
-	getChild<LLUICtrl>(getAspectRatioCBName())->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onKeepAspectRatioCommit, this, _1));
 	getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotPostcard::onQualitySliderCommit, this, _1));
 
 	getChild<LLButton>("message_btn")->setToggleState(TRUE);
@@ -124,7 +116,6 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 // virtual
 void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
-	updateCustomResControls();
 	LLPanelSnapshot::onOpen(key);
 }
 
@@ -156,19 +147,6 @@ void LLPanelSnapshotPostcard::updateControls(const LLSD& info)
 
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
 	getChild<LLUICtrl>("send_btn")->setEnabled(have_snapshot);
-}
-
-void LLPanelSnapshotPostcard::updateCustomResControls()
-{
-	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
-	S32 selected_idx = combo->getFirstSelectedIndex();
-	bool enable = selected_idx == 0 || selected_idx == (combo->getItemCount() - 1); // Current Window or Custom selected
-
-	getChild<LLUICtrl>(getWidthSpinnerName())->setEnabled(enable);
-	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(enable);
-	getChild<LLUICtrl>(getHeightSpinnerName())->setEnabled(enable);
-	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(enable);
-	getChild<LLUICtrl>(getAspectRatioCBName())->setEnabled(enable);
 }
 
 bool LLPanelSnapshotPostcard::missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response)
@@ -233,28 +211,6 @@ void LLPanelSnapshotPostcard::onFormatComboCommit(LLUICtrl* ctrl)
 	LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
 }
 
-void LLPanelSnapshotPostcard::onResolutionComboCommit(LLUICtrl* ctrl)
-{
-	updateCustomResControls();
-
-	LLSD info;
-	info["combo-res-change"]["control-name"] = ctrl->getName();
-	LLFloaterSnapshot::getInstance()->notify(info);
-}
-
-void LLPanelSnapshotPostcard::onCustomResolutionCommit(LLUICtrl* ctrl)
-{
-	LLSD info;
-	info["w"] = getChild<LLUICtrl>(getWidthSpinnerName())->getValue().asInteger();
-	info["h"] = getChild<LLUICtrl>(getHeightSpinnerName())->getValue().asInteger();
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("custom-res-change", info));
-}
-
-void LLPanelSnapshotPostcard::onKeepAspectRatioCommit(LLUICtrl* ctrl)
-{
-	LLFloaterSnapshot::getInstance()->notify(LLSD().with("keep-aspect-change", ctrl->getValue().asBoolean()));
-}
-
 void LLPanelSnapshotPostcard::onQualitySliderCommit(LLUICtrl* ctrl)
 {
 	updateImageQualityLevel();
@@ -268,14 +224,14 @@ void LLPanelSnapshotPostcard::onQualitySliderCommit(LLUICtrl* ctrl)
 
 void LLPanelSnapshotPostcard::onTabButtonPress(S32 btn_idx)
 {
-	static LLButton* sButtons[2] = {
+	LLButton* buttons[2] = {
 			getChild<LLButton>("message_btn"),
 			getChild<LLButton>("settings_btn"),
 	};
 
 	// Switch between Message and Settings tabs.
-	LLButton* clicked_btn = sButtons[btn_idx];
-	LLButton* other_btn = sButtons[!btn_idx];
+	LLButton* clicked_btn = buttons[btn_idx];
+	LLButton* other_btn = buttons[!btn_idx];
 	LLSideTrayPanelContainer* container =
 		getChild<LLSideTrayPanelContainer>("postcard_panel_container");
 
