@@ -25,7 +25,6 @@
  
  
 VARYING vec3 vary_PositionEye;
-VARYING float fog_depth;
 
 vec3 getPositionEye()
 {
@@ -35,5 +34,4 @@ vec3 getPositionEye()
 void setPositionEye(vec3 v)
 {
 	vary_PositionEye = v;
-	fog_depth = v.z;
 }
