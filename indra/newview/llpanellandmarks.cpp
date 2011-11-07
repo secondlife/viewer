@@ -1399,10 +1399,6 @@ static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::strin
 		inventory_list->restoreFolderState();
 	}
 
-	// Open the immediate children of the root folder, since those
-	// are invisible in the UI and thus must always be open.
-	inventory_list->getRootFolder()->openTopLevelFolders();
-
 	if (inventory_list->getFilterSubString().empty() && string.empty())
 	{
 		// current filter and new filter empty, do nothing

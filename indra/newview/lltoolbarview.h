@@ -94,9 +94,13 @@ public:
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
 	
+	// Clears all buttons off the toolbars
+	bool clearToolbars();
+	
 	void setToolBarsVisible(bool visible);
 
 	static bool loadDefaultToolbars();
+	static bool clearAllToolbars();
 	
 	static void startDragTool(S32 x, S32 y, LLToolBarButton* toolbarButton);
 	static BOOL handleDragTool(S32 x, S32 y, const LLUUID& uuid, LLAssetType::EType type);

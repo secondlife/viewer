@@ -3,9 +3,15 @@
       layout="topleft"
       name="Toolbars Popup"
       visible="false">
+  <menu_item_call label="Remove this button"
+                  layout="topleft"
+                  name="Remove button">
+    <menu_item_call.on_click function="Toolbars.RemoveSelectedCommand" />
+  </menu_item_call>
+  <menu_item_separator layout="topleft" />
   <menu_item_call label="Toolbar buttons..."
                   layout="topleft"
-                  name="Chose Buttons">
+                  name="Choose Buttons">
     <menu_item_call.on_click function="Floater.Show"
                              parameter="toybox" />
   </menu_item_call>
