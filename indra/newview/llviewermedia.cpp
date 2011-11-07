@@ -68,7 +68,6 @@
 #include "llwindow.h"
 
 
-#include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 
 #include <boost/bind.hpp>	// for SkinFolder listener
@@ -3353,7 +3352,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			{
 				// This close request is directed at another instance
 				pass_through = false;
-				LLFloaterMediaBrowser::closeRequest(uuid);
 				LLFloaterWebContent::closeRequest(uuid);
 			}
 		}
@@ -3373,7 +3371,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			{
 				// This request is directed at another instance
 				pass_through = false;
-				LLFloaterMediaBrowser::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
 				LLFloaterWebContent::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
 			}
 		}
