@@ -128,13 +128,16 @@
      width="120">
         <combo_box.item
          label="PNG (Lossless)"
-         name="PNG" />
+         name="PNG"
+         value="PNG" />
         <combo_box.item
          label="JPEG"
-         name="JPEG" />
+         name="JPEG"
+         value="JPEG" />
         <combo_box.item
          label="BMP (Lossless)"
-         name="BMP" />
+         name="BMP"
+         value="BMP" />
     </combo_box>
     <slider
      decimal_digits="0"

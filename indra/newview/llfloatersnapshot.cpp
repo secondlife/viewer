@@ -849,18 +849,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 			// delete any existing image
 			previewp->mFormattedImage = NULL;
 			// now create the new one of the appropriate format.
-			// note: postcards and web hardcoded to use jpeg always.
-			LLFloaterSnapshot::ESnapshotFormat format;
-
-			if (previewp->getSnapshotType() == SNAPSHOT_POSTCARD ||
-				previewp->getSnapshotType() == SNAPSHOT_WEB)
-			{
-				format = LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
-			}
-			else
-			{
-				format = previewp->getSnapshotFormat();
-			}
+			LLFloaterSnapshot::ESnapshotFormat format = previewp->getSnapshotFormat();
 			lldebugs << "Encoding new image of format " << format << llendl;
 
 			switch(format)
@@ -1062,6 +1051,7 @@ void LLSnapshotLivePreview::regionNameCallback(LLImageJPEG* snapshot, LLSD& meta
 
 class LLFloaterSnapshot::Impl
 {
+	LOG_CLASS(LLFloaterSnapshot::Impl);
 public:
 	typedef enum e_status
 	{
@@ -1125,8 +1115,6 @@ public:
 	EStatus getStatus() const { return mStatus; }
 
 private:
-	static LLSnapshotLivePreview::ESnapshotType getTypeIndex(const std::string& id);
-	static LLSD getTypeName(LLSnapshotLivePreview::ESnapshotType index);
 	static LLViewerWindow::ESnapshotType getLayerType(LLFloaterSnapshot* floater);
 	static void comboSetCustom(LLFloaterSnapshot *floater, const std::string& comboname);
 	static void checkAutoSnapshot(LLSnapshotLivePreview* floater, BOOL update_thumbnail = FALSE);
@@ -1188,7 +1176,8 @@ LLSnapshotLivePreview::ESnapshotType LLFloaterSnapshot::Impl::getActiveSnapshotT
 LLFloaterSnapshot::ESnapshotFormat LLFloaterSnapshot::Impl::getImageFormat(LLFloaterSnapshot* floater)
 {
 	LLPanelSnapshot* active_panel = getActivePanel(floater);
-	return active_panel ? active_panel->getImageFormat() : LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
+	// FIXME: if the default is not PNG, profile uploads may fail.
+	return active_panel ? active_panel->getImageFormat() : LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG;
 }
 
 // static
@@ -1220,54 +1209,6 @@ LLSnapshotLivePreview* LLFloaterSnapshot::Impl::getPreviewView(LLFloaterSnapshot
 {
 	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)floater->impl.mPreviewHandle.get();
 	return previewp;
-}
-
-// static
-LLSnapshotLivePreview::ESnapshotType LLFloaterSnapshot::Impl::getTypeIndex(const std::string& id)
-{
-	LLSnapshotLivePreview::ESnapshotType index = LLSnapshotLivePreview::SNAPSHOT_POSTCARD;
-
-	if (id == "postcard")
-	{
-		index = LLSnapshotLivePreview::SNAPSHOT_POSTCARD;
-	}
-	else if (id == "texture")
-	{
-		index = LLSnapshotLivePreview::SNAPSHOT_TEXTURE;
-	}
-	else if (id == "local")
-	{
-		index = LLSnapshotLivePreview::SNAPSHOT_LOCAL;
-	}
-	else if (id == "share_to_web")
-	{
-		index = LLSnapshotLivePreview::SNAPSHOT_WEB;
-	}
-
-	return index;
-}
-
-// static
-LLSD LLFloaterSnapshot::Impl::getTypeName(LLSnapshotLivePreview::ESnapshotType index)
-{
-	std::string id;
-	switch (index)
-	{
-		case LLSnapshotLivePreview::SNAPSHOT_WEB:
-			id = "share_to_web";
-			break;
-		case LLSnapshotLivePreview::SNAPSHOT_POSTCARD:
-			id = "postcard";
-			break;
-		case LLSnapshotLivePreview::SNAPSHOT_TEXTURE:
-			id = "texture";
-			break;
-		case LLSnapshotLivePreview::SNAPSHOT_LOCAL:
-		default:
-			id = "local";
-			break;
-	}
-	return LLSD(id);
 }
 
 // static
@@ -1417,9 +1358,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	floater->getChild<LLComboBox>("postcard_size_combo")->selectNthItem(gSavedSettings.getS32("SnapshotPostcardLastResolution"));
 	floater->getChild<LLComboBox>("texture_size_combo")->selectNthItem(gSavedSettings.getS32("SnapshotTextureLastResolution"));
 	floater->getChild<LLComboBox>("local_size_combo")->selectNthItem(gSavedSettings.getS32("SnapshotLocalLastResolution"));
-#if 0
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));
-#endif
 
 	// *TODO: Separate settings for Web images from postcards
 	enableAspectRatioCheckbox(floater, shot_type != LLSnapshotLivePreview::SNAPSHOT_TEXTURE && !floater->impl.mAspectRatioCheckOff);
@@ -1489,11 +1428,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	image_res_tb->setVisible(got_snap);
 	if (got_snap)
 	{
-#if 1
 		LLPointer<LLImageRaw> img = previewp->getEncodedImage();
-#else
-		LLPointer<LLImageFormatted> fimg = previewp->getFormattedImage();
-#endif
 		image_res_tb->setTextArg("[WIDTH]", llformat("%d", img->getWidth()));
 		image_res_tb->setTextArg("[HEIGHT]", llformat("%d", img->getHeight()));
 	}
@@ -1532,6 +1467,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 
 	if (previewp)
 	{
+		lldebugs << "Setting snapshot type (" << shot_type << "), format (" << shot_format << ")" << llendl;
 		previewp->setSnapshotType(shot_type);
 		previewp->setSnapshotFormat(shot_format);
 		previewp->setSnapshotBufferType(layer_type);
@@ -2005,20 +1941,6 @@ void LLFloaterSnapshot::Impl::onCommitSnapshotType(LLUICtrl* ctrl, void* data)
 }
 #endif
 
-#if 0
-//static.
-void LLFloaterSnapshot::Impl::onCommitSnapshotFormat(LLUICtrl* ctrl, void* data)
-{
-	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
-	if (view)
-	{
-		gSavedSettings.setS32("SnapshotFormat", getFormatIndex(view));
-		getPreviewView(view)->updateSnapshot(TRUE);
-		updateControls(view);
-	}
-}
-#endif
-
 // Sets the named size combo to "custom" mode.
 // static
 void LLFloaterSnapshot::Impl::comboSetCustom(LLFloaterSnapshot* floater, const std::string& comboname)
@@ -2262,7 +2184,6 @@ BOOL LLFloaterSnapshot::postBuild()
 
 #if 0
 	childSetCommitCallback("snapshot_type_radio", Impl::onCommitSnapshotType, this);
-	childSetCommitCallback("local_format_combo", Impl::onCommitSnapshotFormat, this);
 #endif
 	
 	childSetAction("new_snapshot_btn", Impl::onClickNewSnapshot, this);

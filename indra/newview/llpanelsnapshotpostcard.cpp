@@ -62,6 +62,7 @@ private:
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "postcard_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "postcard_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "postcard_size_combo"; }
+	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG; }
 	/*virtual*/ void updateControls(const LLSD& info);
 
 	void updateCustomResControls(); ///< Enable/disable custom resolution controls (spinners and checkbox)
@@ -123,7 +124,6 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 // virtual
 void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
-	gSavedSettings.setS32("SnapshotFormat", getImageFormat());
 	updateCustomResControls();
 	LLPanelSnapshot::onOpen(key);
 }

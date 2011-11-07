@@ -100,7 +100,7 @@ LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
 	LLFloaterSnapshot::ESnapshotFormat fmt = LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG;
 
 	LLComboBox* local_format_combo = getChild<LLComboBox>("local_format_combo");
-	const std::string id  = local_format_combo->getSelectedItemLabel();
+	const std::string id  = local_format_combo->getValue().asString();
 	if (id == "PNG")
 	{
 		fmt = LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG;
@@ -150,10 +150,6 @@ void LLPanelSnapshotLocal::updateCustomResControls()
 
 void LLPanelSnapshotLocal::onFormatComboCommit(LLUICtrl* ctrl)
 {
-#if 0 // redundant?
-	gSavedSettings.setS32("SnapshotFormat", ctrl->getValue().asInteger());
-#endif
-
 	// will call updateControls()
 	LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
 }

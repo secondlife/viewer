@@ -31,6 +31,7 @@
 // libs
 #include "llbufferstream.h"
 #include "llhttpclient.h"
+#include "llimagepng.h"
 #include "llplugincookiestore.h"
 
 // newview
@@ -219,7 +220,12 @@ void LLWebProfile::setAuthCookie(const std::string& cookie)
 // static
 void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, const std::string& url)
 {
-	// *TODO: make sure it's a jpeg?
+	if (dynamic_cast<LLImagePNG*>(image.get()) == 0)
+	{
+		llwarns << "Image to upload is not a PNG" << llendl;
+		llassert(dynamic_cast<LLImagePNG*>(image.get()) != 0);
+		return;
+	}
 
 	const std::string boundary = "----------------------------0123abcdefab";
 
@@ -259,8 +265,8 @@ void LLWebProfile::post(LLPointer<LLImageFormatted> image, const LLSD& config, c
 			<< config["success_action_redirect"].asString() << "\r\n";
 
 	body	<< "--" << boundary << "\r\n"
-			<< "Content-Disposition: form-data; name=\"file\"; filename=\"snapshot.jpg\"\r\n"
-			<< "Content-Type: image/jpeg\r\n\r\n";
+			<< "Content-Disposition: form-data; name=\"file\"; filename=\"snapshot.png\"\r\n"
+			<< "Content-Type: image/png\r\n\r\n";
 
 	// Insert the image data.
 	// *FIX: Treating this as a string will probably screw it up ...
@@ -293,5 +299,7 @@ void LLWebProfile::reportImageUploadStatus(bool ok)
 // static
 std::string LLWebProfile::getAuthCookie()
 {
-	return sAuthCookie;
+	// This is needed to test image uploads on Linux viewer built with OpenSSL 1.0.0 (0.9.8 works fine).
+	const char* debug_cookie = getenv("LL_SNAPSHOT_COOKIE");
+	return debug_cookie ? debug_cookie : sAuthCookie;
 }

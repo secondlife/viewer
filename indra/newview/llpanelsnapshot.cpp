@@ -34,6 +34,7 @@
 
 // newview
 #include "llsidetraypanelcontainer.h"
+#include "llviewercontrol.h" // gSavedSettings
 
 // virtual
 BOOL LLPanelSnapshot::postBuild()
@@ -45,7 +46,19 @@ BOOL LLPanelSnapshot::postBuild()
 // virtual
 void LLPanelSnapshot::onOpen(const LLSD& key)
 {
+	S32 old_format = gSavedSettings.getS32("SnapshotFormat");
+	S32 new_format = (S32) getImageFormat();
+
+	gSavedSettings.setS32("SnapshotFormat", new_format);
 	setCtrlsEnabled(true);
+
+	// Switching panels will likely change image format.
+	// Not updating preview right away may lead to errors,
+	// e.g. attempt to send a large BMP image by email.
+	if (old_format != new_format)
+	{
+		LLFloaterSnapshot::getInstance()->notify(LLSD().with("image-format-change", true));
+	}
 }
 
 LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
