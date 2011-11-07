@@ -12,13 +12,14 @@
    height="38"
    image_overlay="Snapshot_Profile"
    image_overlay_alignment="left"
+   image_top_pad="-2"
    imgoverlay_label_space="10"
    label="Post to My Profile Feed"
    layout="topleft"
    left="10"
    name="save_to_profile_btn"
-   pad_left="5"
-   right="-5"
+   pad_left="10"
+   right="-10"
    top="5">
     <button.commit_callback
      function="Snapshot.SaveToProfile" />
@@ -30,13 +31,14 @@
    height="38"
    image_overlay="Snapshot_Email"
    image_overlay_alignment="left"
+   image_top_pad="-2"
    imgoverlay_label_space="10"
    label="Email"
    layout="topleft"
    left_delta="0"
    name="save_to_email_btn"
-   pad_left="5"
-   right="-5"
+   pad_left="10"
+   right="-10"
    top_pad="10">
     <button.commit_callback
      function="Snapshot.SaveToEmail" />
@@ -48,13 +50,14 @@
    height="38"
    image_overlay="Snapshot_Inventory"
    image_overlay_alignment="left"
+   image_top_pad="-2"
    imgoverlay_label_space="10"
    label="Save to My Inventory (L$[AMOUNT])"
    layout="topleft"
    left_delta="0"
    name="save_to_inventory_btn"
-   pad_left="5"
-   right="-5"
+   pad_left="10"
+   right="-10"
    top_pad="10">
     <button.commit_callback
      function="Snapshot.SaveToInventory" />
@@ -66,13 +69,14 @@
    height="38"
    image_overlay="Snapshot_Download"
    image_overlay_alignment="left"
+   image_top_pad="-2"
    imgoverlay_label_space="10"
    label="Save to My Computer"
    layout="topleft"
    left_delta="0"
    name="save_to_computer_btn"
-   pad_left="5"
-   right="-5"
+   pad_left="10"
+   right="-10"
    top_pad="10">
     <button.commit_callback
      function="Snapshot.SaveToComputer" />
