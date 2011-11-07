@@ -47,6 +47,6 @@ void main()
 	
 	vec4 diff = texture2DRect(lightMap, vary_fragcoord.xy);
 
-	float a = min(diff.a * max_cof*0.125, 1.0);
+	float a = min(diff.a * max_cof*0.333, 1.0);
 	gl_FragColor = mix(diff, dof, a);
 }
