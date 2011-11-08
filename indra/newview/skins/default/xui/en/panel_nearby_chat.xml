@@ -11,7 +11,7 @@
              control_name="TranslateChat"
              enabled="true"
              height="16"
-             label="Translate chat (powered by Google)"
+             label="Translate chat"
              layout="topleft"
              left="5"
              name="translate_chat_checkbox"
