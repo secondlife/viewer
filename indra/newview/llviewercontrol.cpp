@@ -118,12 +118,6 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
-	// Changing shader also changes the terrain detail to high, reflect that change here
-	if (newvalue.asBoolean())
-	{
-		// shaders enabled, set terrain detail to high
-		gSavedSettings.setS32("RenderTerrainDetail", 1);
-	}
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
@@ -183,21 +177,6 @@ static bool handleReleaseGLBufferChanged(const LLSD& newvalue)
 	{
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();
-	}
-	return true;
-}
-
-static bool handleFSAASamplesChanged(const LLSD& newvalue)
-{
-	if (gPipeline.isInit())
-	{
-		gPipeline.releaseGLBuffers();
-		gPipeline.createGLBuffers();
-
-		if (LLPipeline::sRenderDeferred)
-		{
-			LLViewerShaderMgr::instance()->setShaders();
-		}
 	}
 	return true;
 }
@@ -403,6 +382,7 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 	LLRenderTarget::sUseFBO = newvalue.asBoolean();
 	if (gPipeline.isInit())
 	{
+		LLPipeline::refreshCachedSettings();
 		gPipeline.updateRenderDeferred();
 		gPipeline.releaseGLBuffers();
 		gPipeline.createGLBuffers();
@@ -588,21 +568,21 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("OctreeMaxNodeCapacity")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("OctreeAlphaDistanceFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("OctreeAttachmentSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
-	gSavedSettings.getControl("RenderMaxTextureIndex")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
+	gSavedSettings.getControl("RenderMaxTextureIndex")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderUseTriStrips")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAnimateTrees")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("VertexShaderEnable")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleFSAASamplesChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
 	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("EnableRippleWater")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGlowResolutionPow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderAvatarCloth")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("WindLightUseAtmosShaders")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
@@ -633,7 +613,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDeferred")->getSignal()->connect(boost::bind(&handleRenderDeferredChanged, _2));
 	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("RenderDeferredGI")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _2));
 	gSavedSettings.getControl("AuditTexture")->getSignal()->connect(boost::bind(&handleAuditTextureChanged, _2));
@@ -658,6 +637,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("MuteAmbient")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("MuteUI")->getSignal()->connect(boost::bind(&handleAudioVolumeChanged, _2));
 	gSavedSettings.getControl("RenderVBOEnable")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
+	gSavedSettings.getControl("RenderUseVAO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderVBOMappingDisable")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderUseStreamVBO")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("RenderPreferStreamDraw")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));

@@ -68,7 +68,7 @@ public:
 	virtual void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const
 							{ *screen_x = local_x; *screen_y = local_y;	}
 
-	virtual std::string getName() const	{ return mName; }
+	virtual const std::string& getName() const	{ return mName; }
 
 	// New virtual functions
 	virtual LLViewerObject*	getEditingObject()		{ return NULL; }

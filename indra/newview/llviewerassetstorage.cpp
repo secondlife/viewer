@@ -116,7 +116,7 @@ void LLViewerAssetStorage::storeAssetData(
 	F64 timeout)
 {
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	llinfos << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
+	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy) " << tid << ":" << LLAssetType::lookup(asset_type)
 			<< " ASSET_ID: " << asset_id << llendl;
 	
 	if (mUpstreamHost.isOk())
@@ -248,9 +248,9 @@ void LLViewerAssetStorage::storeAssetData(
 	}
 	
 	LLAssetID asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-	llinfos << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
+	LL_DEBUGS("AssetStorage") << "LLViewerAssetStorage::storeAssetData (legacy)" << asset_id << ":" << LLAssetType::lookup(asset_type) << llendl;
 
-	llinfos << "ASSET_ID: " << asset_id << llendl;
+	LL_DEBUGS("AssetStorage") << "ASSET_ID: " << asset_id << llendl;
 
 	S32 size = 0;
 	LLFILE* fp = LLFile::fopen(filename, "rb");
@@ -369,7 +369,7 @@ void LLViewerAssetStorage::_queueDataRequest(
 			tpvf.setAsset(uuid, atype);
 			tpvf.setCallback(downloadCompleteCallback, req);
 
-			llinfos << "Starting transfer for " << uuid << llendl;
+			LL_DEBUGS("AssetStorage") << "Starting transfer for " << uuid << llendl;
 			LLTransferTargetChannel *ttcp = gTransferManager.getTargetChannel(mUpstreamHost, LLTCT_ASSET);
 			ttcp->requestTransfer(spa, tpvf, 100.f + (is_priority ? 1.f : 0.f));
 

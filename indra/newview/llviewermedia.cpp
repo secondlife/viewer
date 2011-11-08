@@ -782,6 +782,12 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 }
 
 static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE("Update Media");
+static LLFastTimer::DeclareTimer FTM_MEDIA_SPARE_IDLE("Spare Idle");
+static LLFastTimer::DeclareTimer FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
+static LLFastTimer::DeclareTimer FTM_MEDIA_SORT("Sort");
+static LLFastTimer::DeclareTimer FTM_MEDIA_SORT2("Sort 2");
+static LLFastTimer::DeclareTimer FTM_MEDIA_MISC("Misc");
+
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // static
@@ -806,21 +812,28 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
 
-	for(; iter != end;)
 	{
-		LLViewerMediaImpl* pimpl = *iter++;
-		pimpl->update();
-		pimpl->calculateInterest();
+		LLFastTimer t(FTM_MEDIA_UPDATE_INTEREST);
+		for(; iter != end;)
+		{
+			LLViewerMediaImpl* pimpl = *iter++;
+			pimpl->update();
+			pimpl->calculateInterest();
+		}
 	}
 	
 	// Let the spare media source actually launch
 	if(sSpareBrowserMediaSource)
 	{
+		LLFastTimer t(FTM_MEDIA_SPARE_IDLE);
 		sSpareBrowserMediaSource->idle();
 	}
 		
-	// Sort the static instance list using our interest criteria
-	sViewerMediaImplList.sort(priorityComparitor);
+	{
+		LLFastTimer t(FTM_MEDIA_SORT);
+		// Sort the static instance list using our interest criteria
+		sViewerMediaImplList.sort(priorityComparitor);
+	}
 
 	// Go through the list again and adjust according to priority.
 	iter = sViewerMediaImplList.begin();
@@ -848,147 +861,150 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// max_instances must be set high enough to allow the various instances used in the UI (for the help browser, search, etc.) to be loaded.
 	// If max_normal + max_low is less than max_instances, things will tend to get unloaded instead of being set to slideshow.
 	
-	for(; iter != end; iter++)
 	{
-		LLViewerMediaImpl* pimpl = *iter;
+		LLFastTimer t(FTM_MEDIA_MISC);
+		for(; iter != end; iter++)
+		{
+			LLViewerMediaImpl* pimpl = *iter;
 		
-		LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+			LLPluginClassMedia::EPriority new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 
-		if(pimpl->isForcedUnloaded() || (impl_count_total >= (int)max_instances))
-		{
-			// Never load muted or failed impls.
-			// Hard limit on the number of instances that will be loaded at one time
-			new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
-		}
-		else if(!pimpl->getVisible())
-		{
-			new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
-		}
-		else if(pimpl->hasFocus())
-		{
-			new_priority = LLPluginClassMedia::PRIORITY_HIGH;
-			impl_count_interest_normal++;	// count this against the count of "normal" instances for priority purposes
-		}
-		else if(pimpl->getUsedInUI())
-		{
-			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
-			impl_count_interest_normal++;
-		}
-		else if(pimpl->isParcelMedia())
-		{
-			new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
-			impl_count_interest_normal++;
-		}
-		else
-		{
-			// Look at interest and CPU usage for instances that aren't in any of the above states.
-			
-			// Heuristic -- if the media texture's approximate screen area is less than 1/4 of the native area of the texture,
-			// turn it down to low instead of normal.  This may downsample for plugins that support it.
-			bool media_is_small = false;
-			F64 approximate_interest = pimpl->getApproximateTextureInterest();
-			if(approximate_interest == 0.0f)
+			if(pimpl->isForcedUnloaded() || (impl_count_total >= (int)max_instances))
 			{
-				// this media has no current size, which probably means it's not loaded.
-				media_is_small = true;
+				// Never load muted or failed impls.
+				// Hard limit on the number of instances that will be loaded at one time
+				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
 			}
-			else if(pimpl->getInterest() < (approximate_interest / 4))
+			else if(!pimpl->getVisible())
 			{
-				media_is_small = true;
-			}
-			
-			if(pimpl->getInterest() == 0.0f)
-			{
-				// This media is completely invisible, due to being outside the view frustrum or out of range.
 				new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
 			}
-			else if(check_cpu_usage && (total_cpu > max_cpu))
+			else if(pimpl->hasFocus())
 			{
-				// Higher priority plugins have already used up the CPU budget.  Set remaining ones to slideshow priority.
-				new_priority = LLPluginClassMedia::PRIORITY_SLIDESHOW;
+				new_priority = LLPluginClassMedia::PRIORITY_HIGH;
+				impl_count_interest_normal++;	// count this against the count of "normal" instances for priority purposes
 			}
-			else if((impl_count_interest_normal < (int)max_normal) && !media_is_small)
+			else if(pimpl->getUsedInUI())
 			{
-				// Up to max_normal inworld get normal priority
 				new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
 				impl_count_interest_normal++;
 			}
-			else if (impl_count_interest_low + impl_count_interest_normal < (int)max_low + (int)max_normal)
+			else if(pimpl->isParcelMedia())
 			{
-				// The next max_low inworld get turned down
-				new_priority = LLPluginClassMedia::PRIORITY_LOW;
-				impl_count_interest_low++;
-				
-				// Set the low priority size for downsampling to approximately the size the texture is displayed at.
-				{
-					F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
-					
-					pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
-				}
+				new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+				impl_count_interest_normal++;
 			}
 			else
 			{
-				// Any additional impls (up to max_instances) get very infrequent time
-				new_priority = LLPluginClassMedia::PRIORITY_SLIDESHOW;
-			}
-		}
-		
-		if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
-		{
-			// This is a loadable inworld impl -- the last one in the list in this class defines the lowest loadable interest.
-			lowest_interest_loadable = pimpl;
+				// Look at interest and CPU usage for instances that aren't in any of the above states.
 			
-			impl_count_total++;
-		}
-
-		// Overrides if the window is minimized or we lost focus (taking care
-		// not to accidentally "raise" the priority either)
-		if (!gViewerWindow->getActive() /* viewer window minimized? */ 
-			&& new_priority > LLPluginClassMedia::PRIORITY_HIDDEN)
-		{
-			new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
-		}
-		else if (!gFocusMgr.getAppHasFocus() /* viewer window lost focus? */
-				 && new_priority > LLPluginClassMedia::PRIORITY_LOW)
-		{
-			new_priority = LLPluginClassMedia::PRIORITY_LOW;
-		}
-		
-		if(!inworld_media_enabled)
-		{
-			// If inworld media is locked out, force all inworld media to stay unloaded.
-			if(!pimpl->getUsedInUI())
-			{
-				new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
+				// Heuristic -- if the media texture's approximate screen area is less than 1/4 of the native area of the texture,
+				// turn it down to low instead of normal.  This may downsample for plugins that support it.
+				bool media_is_small = false;
+				F64 approximate_interest = pimpl->getApproximateTextureInterest();
+				if(approximate_interest == 0.0f)
+				{
+					// this media has no current size, which probably means it's not loaded.
+					media_is_small = true;
+				}
+				else if(pimpl->getInterest() < (approximate_interest / 4))
+				{
+					media_is_small = true;
+				}
+			
+				if(pimpl->getInterest() == 0.0f)
+				{
+					// This media is completely invisible, due to being outside the view frustrum or out of range.
+					new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
+				}
+				else if(check_cpu_usage && (total_cpu > max_cpu))
+				{
+					// Higher priority plugins have already used up the CPU budget.  Set remaining ones to slideshow priority.
+					new_priority = LLPluginClassMedia::PRIORITY_SLIDESHOW;
+				}
+				else if((impl_count_interest_normal < (int)max_normal) && !media_is_small)
+				{
+					// Up to max_normal inworld get normal priority
+					new_priority = LLPluginClassMedia::PRIORITY_NORMAL;
+					impl_count_interest_normal++;
+				}
+				else if (impl_count_interest_low + impl_count_interest_normal < (int)max_low + (int)max_normal)
+				{
+					// The next max_low inworld get turned down
+					new_priority = LLPluginClassMedia::PRIORITY_LOW;
+					impl_count_interest_low++;
+				
+					// Set the low priority size for downsampling to approximately the size the texture is displayed at.
+					{
+						F32 approximate_interest_dimension = (F32) sqrt(pimpl->getInterest());
+					
+						pimpl->setLowPrioritySizeLimit(llround(approximate_interest_dimension));
+					}
+				}
+				else
+				{
+					// Any additional impls (up to max_instances) get very infrequent time
+					new_priority = LLPluginClassMedia::PRIORITY_SLIDESHOW;
+				}
 			}
-		}
-		// update the audio stream here as well
-		if( !inworld_audio_enabled)
-		{
-			if(LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
+		
+			if(!pimpl->getUsedInUI() && (new_priority != LLPluginClassMedia::PRIORITY_UNLOADED))
 			{
-				gAudiop->stopInternetStream();
+				// This is a loadable inworld impl -- the last one in the list in this class defines the lowest loadable interest.
+				lowest_interest_loadable = pimpl;
+			
+				impl_count_total++;
 			}
-		}
-		pimpl->setPriority(new_priority);
-		
-		if(pimpl->getUsedInUI())
-		{
-			// Any impls used in the UI should not be in the proximity list.
-			pimpl->mProximity = -1;
-		}
-		else
-		{
-			proximity_order.push_back(pimpl);
-		}
 
-		total_cpu += pimpl->getCPUUsage();
+			// Overrides if the window is minimized or we lost focus (taking care
+			// not to accidentally "raise" the priority either)
+			if (!gViewerWindow->getActive() /* viewer window minimized? */ 
+				&& new_priority > LLPluginClassMedia::PRIORITY_HIDDEN)
+			{
+				new_priority = LLPluginClassMedia::PRIORITY_HIDDEN;
+			}
+			else if (!gFocusMgr.getAppHasFocus() /* viewer window lost focus? */
+					 && new_priority > LLPluginClassMedia::PRIORITY_LOW)
+			{
+				new_priority = LLPluginClassMedia::PRIORITY_LOW;
+			}
 		
-		if (!pimpl->getUsedInUI() && pimpl->hasMedia())
-		{
-			sAnyMediaShowing = true;
-		}
+			if(!inworld_media_enabled)
+			{
+				// If inworld media is locked out, force all inworld media to stay unloaded.
+				if(!pimpl->getUsedInUI())
+				{
+					new_priority = LLPluginClassMedia::PRIORITY_UNLOADED;
+				}
+			}
+			// update the audio stream here as well
+			if( !inworld_audio_enabled)
+			{
+				if(LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
+				{
+					gAudiop->stopInternetStream();
+				}
+			}
+			pimpl->setPriority(new_priority);
+		
+			if(pimpl->getUsedInUI())
+			{
+				// Any impls used in the UI should not be in the proximity list.
+				pimpl->mProximity = -1;
+			}
+			else
+			{
+				proximity_order.push_back(pimpl);
+			}
 
+			total_cpu += pimpl->getCPUUsage();
+		
+			if (!pimpl->getUsedInUI() && pimpl->hasMedia())
+			{
+				sAnyMediaShowing = true;
+			}
+
+		}
 	}
 
 	// Re-calculate this every time.
@@ -1014,6 +1030,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	}
 	else
 	{
+		LLFastTimer t(FTM_MEDIA_SORT2);
 		// Use a distance-based sort for proximity values.  
 		std::stable_sort(proximity_order.begin(), proximity_order.end(), proximity_comparitor);
 	}
@@ -2506,7 +2523,7 @@ void LLViewerMediaImpl::updateJavascriptObject()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-std::string LLViewerMediaImpl::getName() const 
+const std::string& LLViewerMediaImpl::getName() const 
 { 
 	if (mMediaSource)
 	{
@@ -2768,8 +2785,14 @@ bool LLViewerMediaImpl::canNavigateBack()
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
+static LLFastTimer::DeclareTimer FTM_MEDIA_DO_UPDATE("Do Update");
+static LLFastTimer::DeclareTimer FTM_MEDIA_GET_DATA("Get Data");
+static LLFastTimer::DeclareTimer FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
+
+
 void LLViewerMediaImpl::update()
 {
+	LLFastTimer t(FTM_MEDIA_DO_UPDATE);
 	if(mMediaSource == NULL)
 	{
 		if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
@@ -2869,20 +2892,27 @@ void LLViewerMediaImpl::update()
 			if(width > 0 && height > 0)
 			{
 
-				U8* data = mMediaSource->getBitsData();
+				U8* data = NULL;
+				{
+					LLFastTimer t(FTM_MEDIA_GET_DATA);
+					data = mMediaSource->getBitsData();
+				}
 
 				// Offset the pixels pointer to match x_pos and y_pos
 				data += ( x_pos * mMediaSource->getTextureDepth() * mMediaSource->getBitsWidth() );
 				data += ( y_pos * mMediaSource->getTextureDepth() );
 				
-				placeholder_image->setSubImage(
-						data, 
-						mMediaSource->getBitsWidth(), 
-						mMediaSource->getBitsHeight(),
-						x_pos, 
-						y_pos, 
-						width, 
-						height);
+				{
+					LLFastTimer t(FTM_MEDIA_SET_SUBIMAGE);
+					placeholder_image->setSubImage(
+							data, 
+							mMediaSource->getBitsWidth(), 
+							mMediaSource->getBitsHeight(),
+							x_pos, 
+							y_pos, 
+							width, 
+							height);
+				}
 
 			}
 			
@@ -3455,8 +3485,11 @@ BOOL LLViewerMediaImpl::isUpdated()
 	return mIsUpdated ;
 }
 
+static LLFastTimer::DeclareTimer FTM_MEDIA_CALCULATE_INTEREST("Calculate Interest");
+
 void LLViewerMediaImpl::calculateInterest()
 {
+	LLFastTimer t(FTM_MEDIA_CALCULATE_INTEREST);
 	LLViewerMediaTexture* texture = LLViewerTextureManager::findMediaTexture( mTextureId );
 	
 	if(texture != NULL)
