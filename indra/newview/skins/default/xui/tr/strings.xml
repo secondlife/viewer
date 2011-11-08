@@ -584,7 +584,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		sim durumu
 	</string>
 	<string name="favorite">
-		sık kullanılan
+		favori
 	</string>
 	<string name="symbolic link">
 		bağlantı
@@ -1205,7 +1205,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin.
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Bir yer imini sık kullanılanlarınıza eklemek için buraya sürükleyin.
+		Bir yer imini favorilerinize eklemek için buraya sürükleyin.
 	</string>
 	<string name="InventoryNoTexture">
 		Envanterinizde bu dokunun kopyası yok
@@ -1380,10 +1380,10 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Mimikler
 	</string>
 	<string name="InvFolder Favorite">
-		Sık Kullanılanlarım
+		Favorilerim
 	</string>
 	<string name="InvFolder favorite">
-		Sık Kullanılanlarım
+		Favorilerim
 	</string>
 	<string name="InvFolder Current Outfit">
 		Mevcut Dış Görünüm
@@ -1985,10 +1985,10 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		(yayınlandıktan sonra güncelleştirilir)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Herhangi bir Favori veya İlan oluşturmadınız. Bir Favori veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
+		Herhangi bir Seçme veya İlan oluşturmadınız. Bir Seçme veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Kullanıcının herhangi bir favorisi veya ilanı yok
+		Kullanıcının herhangi bir seçmesi veya ilanı yok
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Yükleniyor...
@@ -4165,7 +4165,7 @@ Kötüye Kullanımı Bildirme
 		Konuşma Mimikleri
 	</string>
 	<string name="Common Gestures">
-		Sık Kullanılan Mimikler
+		Favori Mimikler
 	</string>
 	<string name="Male - Excuse me">
 		Erkek - Afedersiniz
@@ -4798,7 +4798,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Pusula
 	</string>
 	<string name="Command_Destinations_Label">
-		Hedef Konumlar
+		Hedef Konum
 	</string>
 	<string name="Command_Gestures_Label">
 		Mimikler
@@ -4825,7 +4825,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Kişiler
 	</string>
 	<string name="Command_Picks_Label">
-		Favoriler
+		Seçmeler
 	</string>
 	<string name="Command_Places_Label">
 		Yerler
@@ -4897,7 +4897,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Arkadaşlar, gruplar ve yakındaki kişiler
 	</string>
 	<string name="Command_Picks_Tooltip">
-		Profilinizde sık kullanılan olarak gösterilecek yerler
+		Profilinizde favori olarak gösterilecek yerler
 	</string>
 	<string name="Command_Places_Tooltip">
 		Kaydettiğiniz yerler
