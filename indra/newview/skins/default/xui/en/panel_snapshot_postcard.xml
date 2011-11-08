@@ -26,17 +26,17 @@
     </string>
     <icon
      follows="top|left"
-     height="24"
+     height="18"
      image_name="Snapshot_Email"
      layout="topleft"
      left="12"
      mouse_opaque="true"
      name="title_icon"
      top="5"
-     width="24" />
+     width="18" />
     <text
      follows="top|left|right"
-     font="SansSerif"
+     font="SansSerifBold"
      height="20"
      layout="topleft"
      left_pad="12"
@@ -45,7 +45,7 @@
      right="-10"
      text_color="white"
      type="string"
-     top_delta="6">
+     top_delta="3">
         Email
     </text>
     <button

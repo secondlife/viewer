@@ -6,17 +6,17 @@
  width="490">
     <icon
      follows="top|left"
-     height="32"
+     height="18"
      image_name="Snapshot_Profile"
      layout="topleft"
      left="12"
      mouse_opaque="true"
      name="title_icon"
-     top="3"
-     width="32" />
+     top="5"
+     width="18" />
     <text
      follows="top|left|right"
-     font="SansSerif"
+     font="SansSerifBold"
      height="20"
      layout="topleft"
      left_pad="12"
@@ -25,7 +25,7 @@
      right="-10"
      text_color="white"
      type="string"
-     top_delta="8">
+     top_delta="4">
         Post to My Profile Feed
     </text>
     <view_border 
