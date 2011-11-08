@@ -422,7 +422,7 @@ void LLWorldMapView::draw()
 				// Draw something whenever we have enough info
 				if (overlayimage->hasGLTexture())
 				{
-					gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO);
+					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);	
 					gGL.getTexUnit(0)->bind(overlayimage);
 					gGL.color4f(1.f, 1.f, 1.f, 1.f);
 					gGL.begin(LLRender::QUADS);
