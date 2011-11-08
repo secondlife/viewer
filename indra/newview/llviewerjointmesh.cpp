@@ -766,7 +766,7 @@ BOOL LLViewerJointMesh::updateLOD(F32 pixel_area, BOOL activate)
 }
 
 // static
-void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
+void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
 {
 	LLStrider<LLVector3> o_vertices;
 	LLStrider<LLVector3> o_normals;
@@ -832,50 +832,6 @@ static F64 sUpdateGeometryRunAvgOn[10];
 static U32 sUpdateGeometryRunCount			= 0 ;
 static U32 sUpdateGeometryCalls				= 0 ;
 static U32 sUpdateGeometryLastProcessor		= 0 ;
-static BOOL sVectorizePerfTest 				= FALSE;
-static U32 sVectorizeProcessor 				= 0;
-
-//static
-void (*LLViewerJointMesh::sUpdateGeometryFunc)(LLFace* face, LLPolyMesh* mesh);
-
-//static
-void LLViewerJointMesh::updateVectorize()
-{
-	sVectorizePerfTest = gSavedSettings.getBOOL("VectorizePerfTest");
-	sVectorizeProcessor = gSavedSettings.getU32("VectorizeProcessor");
-	BOOL vectorizeEnable = gSavedSettings.getBOOL("VectorizeEnable");
-	BOOL vectorizeSkin = gSavedSettings.getBOOL("VectorizeSkin");
-
-	std::string vp;
-	switch(sVectorizeProcessor)
-	{
-		case 2: vp = "SSE2"; break;					// *TODO: replace the magic #s
-		case 1: vp = "SSE"; break;
-		default: vp = "COMPILER DEFAULT"; break;
-	}
-	LL_INFOS("AppInit") << "Vectorization         : " << ( vectorizeEnable ? "ENABLED" : "DISABLED" ) << LL_ENDL ;
-	LL_INFOS("AppInit") << "Vector Processor      : " << vp << LL_ENDL ;
-	LL_INFOS("AppInit") << "Vectorized Skinning   : " << ( vectorizeSkin ? "ENABLED" : "DISABLED" ) << LL_ENDL ;
-	if(vectorizeEnable && vectorizeSkin)
-	{
-		switch(sVectorizeProcessor)
-		{
-			case 2:
-				sUpdateGeometryFunc = &updateGeometrySSE2;
-				break;
-			case 1:
-				sUpdateGeometryFunc = &updateGeometrySSE;
-				break;
-			default:
-				sUpdateGeometryFunc = &updateGeometryVectorized;
-				break;
-		}
-	}
-	else
-	{
-		sUpdateGeometryFunc = &updateGeometryOriginal;
-	}
-}
 
 void LLViewerJointMesh::updateJointGeometry()
 {
@@ -889,129 +845,8 @@ void LLViewerJointMesh::updateJointGeometry()
 		return;
 	}
 
-	if (!sVectorizePerfTest)
-	{
-		// Once we've measured performance, just run the specified
-		// code version.
-		if(sUpdateGeometryFunc == updateGeometryOriginal)
-			uploadJointMatrices();
-		sUpdateGeometryFunc(mFace, mMesh);
-	}
-	else
-	{
-		// At startup, measure the amount of time in skinning and choose
-		// the fastest one.
-		LLTimer ug_timer ;
-		
-		if (sUpdateGeometryCallPointer)
-		{
-			if(sUpdateGeometryFunc == updateGeometryOriginal)
-				uploadJointMatrices();
-			// call accelerated version for this processor
-			sUpdateGeometryFunc(mFace, mMesh);
-		}
-		else
-		{
-			uploadJointMatrices();
-			updateGeometryOriginal(mFace, mMesh);
-		}
-	
-		sUpdateGeometryElapsedTime += ug_timer.getElapsedTimeF64();
-		++sUpdateGeometryCalls;
-		if(0 != (sUpdateGeometryCalls & UPDATE_GEOMETRY_CALL_OVERFLOW))
-		{
-			F64 time_since_app_start = ug_timer.getElapsedSeconds();
-			if(sUpdateGeometryGlobalTime == 0.0 
-				|| sUpdateGeometryLastProcessor != sVectorizeProcessor)
-			{
-				sUpdateGeometryGlobalTime		= time_since_app_start;
-				sUpdateGeometryElapsedTime		= 0;
-				sUpdateGeometryCalls			= 0;
-				sUpdateGeometryRunCount			= 0;
-				sUpdateGeometryLastProcessor	= sVectorizeProcessor;
-				sUpdateGeometryCallPointer		= false;
-				return;
-			}
-			F64 percent_time_in_function = 
-				( sUpdateGeometryElapsedTime * 100.0 ) / ( time_since_app_start - sUpdateGeometryGlobalTime ) ;
-			sUpdateGeometryGlobalTime = time_since_app_start;
-			if (!sUpdateGeometryCallPointer)
-			{
-				// First set of run data is with vectorization off.
-				sUpdateGeometryCallPointer = true;
-				llinfos << "profile (avg of " << sUpdateGeometryCalls << " samples) = "
-					<< "vectorize off " << percent_time_in_function
-					<< "% of time with "
-					<< (sUpdateGeometryElapsedTime / (F64)sUpdateGeometryCalls)
-					<< " seconds per call "
-					<< llendl;
-				sUpdateGeometryRunAvgOff[sUpdateGeometryRunCount] = percent_time_in_function;
-				sUpdateGeometryElapsedTimeOff += sUpdateGeometryElapsedTime;
-				sUpdateGeometryCalls = 0;
-			}
-			else
-			{
-				// Second set of run data is with vectorization on.
-				sUpdateGeometryCallPointer = false;
-				llinfos << "profile (avg of " << sUpdateGeometryCalls << " samples) = "
-					<< "VEC on " << percent_time_in_function
-					<< "% of time with "
-					<< (sUpdateGeometryElapsedTime / (F64)sUpdateGeometryCalls)
-					<< " seconds per call "
-					<< llendl;
-				sUpdateGeometryRunAvgOn[sUpdateGeometryRunCount] = percent_time_in_function ;
-				sUpdateGeometryElapsedTimeOn += sUpdateGeometryElapsedTime;
-
-				sUpdateGeometryCalls = 0;
-				sUpdateGeometryRunCount++;
-				F64 a = 0.0, b = 0.0;
-				for(U32 i = 0; i<sUpdateGeometryRunCount; i++)
-				{
-					a += sUpdateGeometryRunAvgOff[i];
-					b += sUpdateGeometryRunAvgOn[i];
-				}
-				a /= sUpdateGeometryRunCount;
-				b /= sUpdateGeometryRunCount;
-				F64 perf_boost = ( sUpdateGeometryElapsedTimeOff - sUpdateGeometryElapsedTimeOn ) / sUpdateGeometryElapsedTimeOn;
-				llinfos << "run averages (" << (F64)sUpdateGeometryRunCount
-					<< "/10) vectorize off " << a
-					<< "% : vectorize type " << sVectorizeProcessor
-					<< " " << b
-					<< "% : performance boost " 
-					<< perf_boost * 100.0
-					<< "%"
-					<< llendl ;
-				if(sUpdateGeometryRunCount == 10)
-				{
-					// In case user runs test again, force reset of data on
-					// next run.
-					sUpdateGeometryGlobalTime = 0.0;
-
-					// We have data now on which version is faster.  Switch to that
-					// code and save the data for next run.
-					gSavedSettings.setBOOL("VectorizePerfTest", FALSE);
-
-					if (perf_boost > 0.0)
-					{
-						llinfos << "Vectorization improves avatar skinning performance, "
-							<< "keeping on for future runs."
-							<< llendl;
-						gSavedSettings.setBOOL("VectorizeSkin", TRUE);
-					}
-					else
-					{
-						// SIMD decreases performance, fall back to original code
-						llinfos << "Vectorization decreases avatar skinning performance, "
-							<< "switching back to original code."
-							<< llendl;
-
-						gSavedSettings.setBOOL("VectorizeSkin", FALSE);
-					}
-				}
-			}
-			sUpdateGeometryElapsedTime = 0.0f;
-		}
-	}
+	uploadJointMatrices();
+	updateGeometry(mFace, mMesh);
 }
 
 void LLViewerJointMesh::dump()
