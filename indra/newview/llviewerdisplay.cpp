@@ -1341,17 +1341,17 @@ void render_ui_3d()
 
 	// Debugging stuff goes before the UI.
 
-	// Coordinate axes
-	if (gSavedSettings.getBOOL("ShowAxes"))
-	{
-		draw_axes();
-	}
-
 	stop_glerror();
 	
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gUIProgram.bind();
+	}
+
+	// Coordinate axes
+	if (gSavedSettings.getBOOL("ShowAxes"))
+	{
+		draw_axes();
 	}
 
 	gViewerWindow->renderSelections(FALSE, FALSE, TRUE); // Non HUD call in render_hud_elements
