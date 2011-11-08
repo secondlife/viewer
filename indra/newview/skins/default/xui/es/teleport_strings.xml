@@ -19,6 +19,10 @@ Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 			Lo sentimos, pero el sistema no ha podido completar el teleporte.
 Vuelva a intentarlo en un momento.
 		</message>
+		<message name="NoHelpIslandTP">
+		No puede teleportarse de vuelta a la Welcome Island (&apos;Isla de Ayuda&apos;).
+Vaya a la &apos;Welcome Island Public&apos; (&apos;Isla Pública de Ayuda&apos;) para repetir el tutorial.
+		</message>
 		<message name="noaccess_tport">
 			Lo sentimos, pero no tienes acceso al destino de este teleporte.
 		</message>

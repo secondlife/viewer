@@ -20,6 +20,10 @@ If you still cannot teleport, please log out and log back in to resolve the prob
 			Sorry, but system was unable to complete the teleport connection.
 Try again in a moment.
 		</message>
+		<message name="NoHelpIslandTP">
+You cannot teleport back to Welcome Island.
+Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
+		</message>
 		<message name="noaccess_tport">
 			Sorry, you do not have access to that teleport destination.
 		</message>

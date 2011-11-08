@@ -18,6 +18,10 @@ Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 		<message name="timeout_tport">
 			Desculpe, não foi possível para o sistema executar o teletransporte. Tente novamente dentro de alguns instantes.
 		</message>
+		<message name="NoHelpIslandTP">
+		Você não pode se tele-transportar de volta à Ilha de Welcome.
+Vá para a Ilha de Welcome Pública para repetir este tutorial.
+		</message>
 		<message name="noaccess_tport">
 			Desculpe, você não tem acesso ao destino deste teletransporte.
 		</message>
