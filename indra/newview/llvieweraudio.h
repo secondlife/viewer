@@ -59,7 +59,7 @@ public:
 	void startInternetStreamWithAutoFade(std::string streamURI);
 	void stopInternetStreamWithAutoFade();
 	
-	bool LLViewerAudio::onIdleUpdate();
+	bool onIdleUpdate();
 
 	EFadeState getFadeState() { return mFadeState; }
 	bool isDone() { return mDone; };
