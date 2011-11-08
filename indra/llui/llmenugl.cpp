@@ -1686,7 +1686,8 @@ LLMenuGL::LLMenuGL(const LLMenuGL::Params& p)
 	mSpilloverMenu(NULL),
 	mJumpKey(p.jump_key),
 	mCreateJumpKeys(p.create_jump_keys),
-	mNeedsArrange(FALSE), 
+	mNeedsArrange(FALSE),
+	mResetScrollPositionOnShow(true),
 	mShortcutPad(p.shortcut_pad)
 {
 	typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -3043,7 +3044,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	S32 mouse_x, mouse_y;
 
 	// Resetting scrolling position
-	if (menu->isScrollable())
+	if (menu->isScrollable() && menu->isScrollPositionOnShowReset())
 	{
 		menu->mFirstVisibleItem = NULL;
 	}

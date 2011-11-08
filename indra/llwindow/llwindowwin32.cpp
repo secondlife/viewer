@@ -2360,6 +2360,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				return 0;
 			}
 
+		case WM_GETMINMAXINFO:
+			{
+				LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
+				min_max->ptMinTrackSize.x = 1024;
+				min_max->ptMinTrackSize.y = 768;
+				return 0;
+			}
+
 		case WM_SIZE:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SIZE");

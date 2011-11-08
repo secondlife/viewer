@@ -51,7 +51,6 @@ public:
 		Optional<std::string>	start_url;
 		
 		Optional<bool>			border_visible,
-								ignore_ui_scale,
 								hide_loading,
 								decouple_texture_size,
 								trusted_content,
@@ -125,9 +124,6 @@ public:
 		bool getFrequentUpdates() { return mFrequentUpdates; };
 		void setFrequentUpdates( bool frequentUpdatesIn ) {  mFrequentUpdates = frequentUpdatesIn; };
 
-		void setIgnoreUIScale(bool ignore) { mIgnoreUIScale = ignore; }
-		bool getIgnoreUIScale() { return mIgnoreUIScale; }
-
 		void setAlwaysRefresh(bool refresh) { mAlwaysRefresh = refresh; }
 		bool getAlwaysRefresh() { return mAlwaysRefresh; }
 		
@@ -181,28 +177,29 @@ public:
 		const S32 mTextureDepthBytes;
 		LLUUID mMediaTextureID;
 		LLViewBorder* mBorder;
-		bool mFrequentUpdates;
-		bool mForceUpdate;
-		bool mTrusted;
-		std::string mHomePageUrl;
-		std::string mHomePageMimeType;
-		std::string mCurrentNavUrl;
-		std::string mErrorPageURL;
-		std::string mTarget;
-		bool mIgnoreUIScale;
-		bool mAlwaysRefresh;
+		bool	mFrequentUpdates,
+				mForceUpdate,
+				mTrusted,
+				mAlwaysRefresh,
+				mTakeFocusOnClick,
+				mStretchToFill,
+				mMaintainAspectRatio,
+				mHideLoading,
+				mHidingInitialLoad,
+				mClearCache,
+				mHoverTextChanged,
+				mDecoupleTextureSize;
+
+		std::string mHomePageUrl,
+					mHomePageMimeType,
+					mCurrentNavUrl,
+					mErrorPageURL,
+					mTarget;
 		viewer_media_t mMediaSource;
-		bool mTakeFocusOnClick;
-		bool mStretchToFill;
-		bool mMaintainAspectRatio;
-		bool mHideLoading;
-		bool mHidingInitialLoad;
-		bool mDecoupleTextureSize;
-		S32 mTextureWidth;
-		S32 mTextureHeight;
-		bool mClearCache;
+		S32 mTextureWidth,
+			mTextureHeight;
+
 		class LLWindowShade* mWindowShade;
-		bool mHoverTextChanged;
 		LLContextMenu* mContextMenu;
 };
 

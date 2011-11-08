@@ -23,6 +23,5 @@
     right="-1" 
     top="1"
     bottom="-1" 
-    ignore_ui_scale="false"
     name="browser"/>
 </floater>

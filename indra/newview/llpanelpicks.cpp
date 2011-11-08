@@ -130,11 +130,11 @@ public:
 
 	void createPick()
 	{
-		LLSD params;
-		params["id"] = gAgent.getID();
-		params["open_tab_name"] = "panel_picks";
-		params["show_tab_panel"] = "create_pick";
-		LLFloaterSidePanelContainer::showPanel("my_profile", params);
+		// open the new pick panel on the Picks floater
+		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
+
+		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
+		picks->createNewPick();
 	}
 
 	void editPick(LLPickData* pick_info)
@@ -247,12 +247,11 @@ public:
 
 	void createClassified()
 	{
-		// open the new classified panel on the Me > Picks sidetray
-		LLSD params;
-		params["id"] = gAgent.getID();
-		params["open_tab_name"] = "panel_picks";
-		params["show_tab_panel"] = "create_classified";
-		LLFloaterSidePanelContainer::showPanel("my_profile", params);
+		// open the new classified panel on the Picks floater
+		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
+
+		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
+		picks->createNewClassified();
 	}
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
