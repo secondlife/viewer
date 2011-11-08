@@ -403,11 +403,9 @@ bool LLAppViewerWin32::initHardwareTest()
 	//
 	if (FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
-		BOOL vram_only = !gSavedSettings.getBOOL("ProbeHardwareOnStartup");
-
 		// per DEV-11631 - disable hardware probing for everything
 		// but vram.
-		vram_only = TRUE;
+		BOOL vram_only = TRUE;
 
 		LLSplashScreen::update(LLTrans::getString("StartupDetectingHardware"));
 
