@@ -495,8 +495,9 @@ class WindowsManifest(ViewerManifest):
         # tag:"crash-logger" here as a cue to the exporter
         self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
                   dst="win_crash_logger.exe")
-        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
-                  dst="updater.exe")
+# For CHOP-397, windows updater no longer used.
+#        self.path(src='../win_updater/%s/windows-updater.exe' % self.args['configuration'],
+#                  dst="updater.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
@@ -573,10 +574,10 @@ class WindowsManifest(ViewerManifest):
                 grid_vars_template = """
                 OutFile "%(installer_file)s"
                 !define INSTFLAGS "%(flags)s"
-                !define INSTNAME   "SecondLifeViewer2"
-                !define SHORTCUT   "Second Life Viewer 2"
+                !define INSTNAME   "SecondLifeViewer"
+                !define SHORTCUT   "Second Life Viewer"
                 !define URLNAME   "secondlife"
-                Caption "Second Life ${VERSION}"
+                Caption "Second Life"
                 """
             else:
                 # beta grid viewer
@@ -804,7 +805,7 @@ class DarwinManifest(ViewerManifest):
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
-        channel_standin = 'Second Life Viewer 2'  # hah, our default channel is not usable on its own
+        channel_standin = 'Second Life Viewer'  # hah, our default channel is not usable on its own
         if not self.default_channel():
             channel_standin = self.channel()
 
