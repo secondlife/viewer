@@ -1363,6 +1363,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				{
 					LLFastTimer t(FTM_BUMP_SOURCE_GEN_NORMAL);
 					gPipeline.mScreen.bindTarget();
+					
 					LLGLDepthTest depth(GL_FALSE);
 					LLGLDisable cull(GL_CULL_FACE);
 					LLGLDisable blend(GL_BLEND);
@@ -1377,22 +1378,57 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 
 					gGL.getTexUnit(0)->bind(bump);
 					
-					gGL.begin(LLRender::TRIANGLE_STRIP);
+					S32 width = bump->getWidth();
+					S32 height = bump->getHeight();
 
-					gGL.texCoord2f(0, 0);
-					gGL.vertex2f(0, 0);
-					gGL.texCoord2f(0, 1);
-					gGL.vertex2f(0, v.mV[1]);
-					gGL.texCoord2f(1, 0);
-					gGL.vertex2f(v.mV[0], 0);
-					gGL.texCoord2f(1, 1);
-					gGL.vertex2f(v.mV[0], v.mV[1]);
+					S32 screen_width = gPipeline.mScreen.getWidth();
+					S32 screen_height = gPipeline.mScreen.getHeight();
 
-					gGL.end();
+					glViewport(0, 0, screen_width, screen_height);
 
-					gGL.flush();
+					for (S32 left = 0; left < width; left += screen_width)
+					{
+						S32 right = left + screen_width;
+						right = llmin(right, width);
+						
+						F32 left_tc = (F32) left/ width;
+						F32 right_tc = (F32) right/width;
 
-					glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, bump->getWidth(), bump->getHeight());
+						for (S32 bottom = 0; bottom < height; bottom += screen_height)
+						{
+							S32 top = bottom+screen_height;
+							top = llmin(top, height);
+
+							F32 bottom_tc = (F32) bottom/height;
+							F32 top_tc = (F32)(bottom+screen_height)/height;
+							top_tc = llmin(top_tc, 1.f);
+
+							F32 screen_right = (F32) (right-left)/screen_width;
+							F32 screen_top = (F32) (top-bottom)/screen_height;
+
+							gGL.begin(LLRender::TRIANGLE_STRIP);
+							gGL.texCoord2f(left_tc, bottom_tc);
+							gGL.vertex2f(0, 0);
+
+							gGL.texCoord2f(left_tc, top_tc);
+							gGL.vertex2f(0, screen_top);
+
+							gGL.texCoord2f(right_tc, bottom_tc);
+							gGL.vertex2f(screen_right, 0);
+
+							gGL.texCoord2f(right_tc, top_tc);
+							gGL.vertex2f(screen_right, screen_top);
+
+							gGL.end();
+
+							gGL.flush();
+
+							S32 w = right-left;
+							S32 h = top-bottom;
+
+							glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, 0, 0, w, h);
+						}
+					}
 
 					glGenerateMipmap(GL_TEXTURE_2D);
 
