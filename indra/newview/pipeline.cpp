@@ -4250,8 +4250,16 @@ void LLPipeline::renderDebug()
 
 	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
 
+	
 	if (!hud_only && !mDebugBlips.empty())
 	{ //render debug blips
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+
+		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep, true);
+
 		glPointSize(8.f);
 		LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
 
