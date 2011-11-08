@@ -547,6 +547,10 @@ with the same filename but different name
   <texture name="Unknown_Icon" file_name="icons/unknown_icon.png" preload="true" />
 
   <texture name="Snapshot_Off" file_name="bottomtray/Snapshot_Off.png" preload="true" scale.left="4" scale.top="19" scale.right="22" scale.bottom="4" />
+  <texture name="Snapshot_Download" file_name="snapshot_download.png" preload="false" />
+  <texture name="Snapshot_Email" file_name="snapshot_email.png" preload="false" />
+  <texture name="Snapshot_Inventory" file_name="toolbar_icons/inventory.png" preload="false" />
+  <texture name="Snapshot_Profile" file_name="toolbar_icons/profile.png" preload="false" />
 
   <texture name="startup_logo"  file_name="windows/startup_logo.png" preload="true" />
 

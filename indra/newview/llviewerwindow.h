@@ -324,7 +324,7 @@ public:
 	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type) ;
 	BOOL			isSnapshotLocSet() const { return ! sSnapshotDir.empty(); }
 	void			resetSnapshotLoc() const { sSnapshotDir.clear(); }
-	BOOL		    saveImageNumbered(LLImageFormatted *image);
+	BOOL		    saveImageNumbered(LLImageFormatted *image, bool force_picker = false);
 
 	// Reset the directory where snapshots are saved.
 	// Client will open directory picker on next snapshot save.

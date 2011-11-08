@@ -4020,10 +4020,11 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
+BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picker)
 {
 	if (!image)
 	{
+		llwarns << "No image to save" << llendl;
 		return FALSE;
 	}
 
@@ -4043,7 +4044,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
 		pick_type = LLFilePicker::FFSAVE_ALL; // ???
 	
 	// Get a base file location if needed.
-	if ( ! isSnapshotLocSet())		
+	if (force_picker || !isSnapshotLocSet())
 	{
 		std::string proposed_name( sSnapshotBaseName );
 
@@ -4083,6 +4084,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
 	}
 	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
 
+	llinfos << "Saving snapshot to " << filepath << llendl;
 	return image->save(filepath);
 }
 
