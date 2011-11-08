@@ -20,7 +20,7 @@
 	<check_box label="Метка времени в каждой строке журнала чата" name="show_timestamps_check_im"/>
 	<check_box label="Метка времени в имени файла журнала." name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
-		Размещение журналов:
+		Папка журналов:
 	</text>
 	<button label="Обзор" label_selected="Обзор" name="log_path_button"/>
 	<button label="Черный список" name="block_list"/>

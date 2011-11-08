@@ -13,7 +13,7 @@
   open_positioning="centered"
   save_rect="true"
   single_instance="true"
-  title="CUSTOMIZE TOOLBARS"
+  title="TOOLBAR BUTTONS"
   width="650">
   <text
     follows="left|top"

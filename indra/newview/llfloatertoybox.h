@@ -52,6 +52,8 @@ public:
 protected:
 	void onBtnRestoreDefaults();
 
+	void onToolBarButtonEnter(LLView* button);
+
 public:
 	LLToolBar *	mToolBar;
 };

@@ -42,10 +42,10 @@
 			<combo_box.item label="Солнце/луна + осветители" name="2"/>
 		</combo_box>
 		<text name="reflection_label">
-			Отражения от воды:
+			Вода отражает:
 		</text>
 		<combo_box name="Reflections">
-			<combo_box.item label="Минимальные" name="0"/>
+			<combo_box.item label="Минимум" name="0"/>
 			<combo_box.item label="Ландшафт и деревья" name="1"/>
 			<combo_box.item label="Все статичные объекты" name="2"/>
 			<combo_box.item label="Все аватары и объекты" name="3"/>
@@ -99,16 +99,16 @@
 		<check_box initial_value="истина" label="Аппаратная отрисовка" name="AvatarVertexProgram"/>
 		<check_box initial_value="истина" label="Одежда аватара" name="AvatarCloth"/>
 		<text name="TerrainDetailText">
-			Детализация ландшафта:
+			Ландшафт:
 		</text>
 		<radio_group name="TerrainDetailRadio">
-			<radio_item label="Низко" name="0"/>
-			<radio_item label="Высоко" name="2"/>
+			<radio_item label="Грубо" name="0"/>
+			<radio_item label="Детально" name="2"/>
 		</radio_group>
 		--&gt;
 	</panel>
 	<button label="Применить" label_selected="Применить" name="Apply"/>
 	<button label="Сброс" name="Defaults"/>
 	<button label="Дополнительно" name="Advanced"/>
-	<button label="Аппаратные" label_selected="Аппаратные" name="GraphicsHardwareButton"/>
+	<button label="Аппаратура" label_selected="Аппаратура" name="GraphicsHardwareButton"/>
 </panel>

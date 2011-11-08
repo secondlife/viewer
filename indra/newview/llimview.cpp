@@ -1679,12 +1679,43 @@ BOOL LLCallDialog::postBuild()
 {
 	if (!LLDockableFloater::postBuild() || !gToolBarView)
 		return FALSE;
-
-	LLView *anchor_panel = gToolBarView->findChildView("speak");
-	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(), LLDockControl::TOP));
-
+	
+	dockToToolbarButton("speak");
+	
 	return TRUE;
 }
+
+void LLCallDialog::dockToToolbarButton(const std::string& toolbarButtonName)
+{
+	LLDockControl::DocAt dock_pos = getDockControlPos(toolbarButtonName);
+	LLView *anchor_panel = gToolBarView->findChildView(toolbarButtonName);
+
+	setUseTongue(anchor_panel);
+
+	setDockControl(new LLDockControl(anchor_panel, this, getDockTongue(dock_pos), dock_pos));
+}
+
+LLDockControl::DocAt LLCallDialog::getDockControlPos(const std::string& toolbarButtonName)
+{
+	LLCommandId command_id(toolbarButtonName);
+	S32 toolbar_loc = gToolBarView->hasCommand(command_id);
+	
+	LLDockControl::DocAt doc_at = LLDockControl::TOP;
+	
+	switch (toolbar_loc)
+	{
+		case LLToolBarView::TOOLBAR_LEFT:
+			doc_at = LLDockControl::RIGHT;
+			break;
+			
+		case LLToolBarView::TOOLBAR_RIGHT:
+			doc_at = LLDockControl::LEFT;
+			break;
+	}
+	
+	return doc_at;
+}
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLOutgoingCallDialog

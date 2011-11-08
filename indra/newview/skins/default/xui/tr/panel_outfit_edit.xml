@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray Outfit Edit panel -->
 <panel name="outfit_edit">
-	<string name="No Outfit" value="Kıyafet Yok"/>
+	<string name="No Outfit" value="Dış Görünüm Yok"/>
 	<string name="unsaved_changes" value="Kaydedilmemiş Değişiklikler"/>
 	<string name="now_editing" value="Şimdi Düzenleniyor"/>
 	<panel.string name="not_available">
@@ -20,7 +20,7 @@
 	<panel name="header_panel">
 		<panel name="outfit_name_and_status">
 			<text name="status" value="Şimdi düzenleniyor..."/>
-			<text name="curr_outfit_name" value="[Mevcut Kıyafet]"/>
+			<text name="curr_outfit_name" value="[Mevcut Dış Görünüm]"/>
 		</panel>
 	</panel>
 	<layout_stack name="im_panels">

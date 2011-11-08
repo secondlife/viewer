@@ -3,7 +3,7 @@
       layout="topleft"
       name="Toolbars Popup"
       visible="false">
-  <menu_item_call label="Choose buttons..."
+  <menu_item_call label="Toolbar buttons..."
                   layout="topleft"
                   name="Chose Buttons">
     <menu_item_call.on_click function="Floater.Show"
