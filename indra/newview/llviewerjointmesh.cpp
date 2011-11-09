@@ -820,19 +820,6 @@ void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
 	buffer->flush();
 }
 
-const U32 UPDATE_GEOMETRY_CALL_MASK			= 0x1FFF; // 8K samples before overflow
-const U32 UPDATE_GEOMETRY_CALL_OVERFLOW		= ~UPDATE_GEOMETRY_CALL_MASK;
-static bool sUpdateGeometryCallPointer		= false;
-static F64 sUpdateGeometryGlobalTime		= 0.0 ;
-static F64 sUpdateGeometryElapsedTime		= 0.0 ;
-static F64 sUpdateGeometryElapsedTimeOff	= 0.0 ;
-static F64 sUpdateGeometryElapsedTimeOn		= 0.0 ;
-static F64 sUpdateGeometryRunAvgOff[10];
-static F64 sUpdateGeometryRunAvgOn[10];
-static U32 sUpdateGeometryRunCount			= 0 ;
-static U32 sUpdateGeometryCalls				= 0 ;
-static U32 sUpdateGeometryLastProcessor		= 0 ;
-
 void LLViewerJointMesh::updateJointGeometry()
 {
 	if (!(mValid
