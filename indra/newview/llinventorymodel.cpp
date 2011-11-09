@@ -2528,9 +2528,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryCategory> tfolder = new LLViewerInventoryCategory(gAgent.getID());
 		tfolder->unpackMessage(msg, _PREHASH_FolderData, i);
-		//llinfos << "unpaked folder '" << tfolder->getName() << "' ("
-		//		<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
-		//		<< llendl;
+		llinfos << "unpacked folder '" << tfolder->getName() << "' ("
+				<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
+				<< llendl;
 		if(tfolder->getUUID().notNull())
 		{
 			folders.push_back(tfolder);
@@ -2570,8 +2570,8 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 		titem->unpackMessage(msg, _PREHASH_ItemData, i);
-		//llinfos << "unpaked item '" << titem->getName() << "' in "
-		//		<< titem->getParentUUID() << llendl;
+		llinfos << "unpaked item '" << titem->getName() << "' in "
+				<< titem->getParentUUID() << llendl;
 		U32 callback_id;
 		msg->getU32Fast(_PREHASH_ItemData, _PREHASH_CallbackID, callback_id);
 		if(titem->getUUID().notNull())

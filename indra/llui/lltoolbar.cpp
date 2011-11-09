@@ -109,6 +109,7 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mPadBetween(p.pad_between),
 	mMinGirth(p.min_girth),
 	mPopupMenuHandle(),
+	mRightMouseTargetButton(NULL),
 	mStartDragItemCallback(NULL),
 	mHandleDragItemCallback(NULL),
 	mHandleDropCallback(NULL),
@@ -139,6 +140,7 @@ void LLToolBar::createContextMenu()
 
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
 		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
+		commit_reg.add("Toolbars.RemoveSelectedCommand", boost::bind(&LLToolBar::onRemoveSelectedCommand, this));
 
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_reg;
 		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
@@ -397,6 +399,20 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	if (handle_it_here)
 	{
+		// Determine which button the mouse was over during the click in case the context menu action
+		// is intended to affect the button.
+		BOOST_FOREACH(LLToolBarButton* button, mButtons)
+		{
+			LLRect button_rect;
+			button->localRectToOtherView(button->getLocalRect(), &button_rect, this);
+
+			if (button_rect.pointInRect(x, y))
+			{
+				mRightMouseTargetButton = button;
+				break;
+			}
+		}
+
 		createContextMenu();
 
 		LLContextMenu * menu = (LLContextMenu *) mPopupMenuHandle.get();
@@ -443,6 +459,18 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 	else if (setting_name == "icons_only")
 	{
 		setButtonType(BTNTYPE_ICONS_ONLY);
+	}
+}
+
+void LLToolBar::onRemoveSelectedCommand()
+{
+	llassert(!mReadOnly);
+
+	if (mRightMouseTargetButton)
+	{
+		removeCommand(mRightMouseTargetButton->getCommandId());
+
+		mRightMouseTargetButton = NULL;
 	}
 }
 
@@ -524,11 +552,11 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 			S32 mid_point = (button_rect.mRight + button_rect.mLeft) / 2;
 			if (button_panel_x < mid_point)
 			{
-		mDragx = button_rect.mLeft - mPadLeft;
-		mDragy = button_rect.mTop + mPadTop;
-	}
-	else
-	{
+				mDragx = button_rect.mLeft - mPadLeft;
+				mDragy = button_rect.mTop + mPadTop;
+			}
+			else
+			{
 				rank++;
 				mDragx = button_rect.mRight + mPadRight - 1;
 				mDragy = button_rect.mTop + mPadTop;
@@ -555,12 +583,12 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	{
 		// We hit passed the end of the list so put the insertion point at the end
 		if (orientation == LLLayoutStack::HORIZONTAL)
-	{
+		{
 			mDragx = button_rect.mRight + mPadRight;
 			mDragy = button_rect.mTop + mPadTop;
-	}
-	else
-	{
+		}
+		else
+		{
 			mDragx = button_rect.mLeft - mPadLeft;
 			mDragy = button_rect.mBottom - mPadBottom;
 		}
@@ -836,6 +864,7 @@ void LLToolBar::createButtons()
 	}
 	mButtons.clear();
 	mButtonMap.clear();
+	mRightMouseTargetButton = NULL;
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{

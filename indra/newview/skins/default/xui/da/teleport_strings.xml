@@ -20,6 +20,10 @@ Hvis du stadig ikke kan teleporte, prøv venligst at logge ud og ligge ind for a
 			Beklager, systemet kunne ikke fuldføre teleport forbindelse.
 Prøv igen om lidt.
 		</message>
+		<message name="NoHelpIslandTP">
+		Du kan ikke teleportere tilbage til Welcome Island.
+Gå til &apos;Welcome Island Puclic&apos; for at prøve tutorial igen.
+		</message>
 		<message name="noaccess_tport">
 			Beklager, du har ikke adgang til denne teleport destination.
 		</message>

@@ -59,9 +59,9 @@
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
-#include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llfloatersnapshot.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
@@ -6470,7 +6470,7 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
 	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, email);
-	LLFloaterPostcard::updateUserInfo(email);
+	LLFloaterSnapshot::setAgentEmail(email);
 }
 
 
