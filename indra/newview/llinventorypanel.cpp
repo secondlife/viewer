@@ -1152,27 +1152,34 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 		LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
 		
 		LLViewerInventoryItem * item = gInventory.getItem(obj_id);
+		LLViewerInventoryCategory * cat = gInventory.getCategory(obj_id);
 		
-		bool item_in_inbox = false;
-		bool item_in_outbox = false;
+		bool in_inbox = false;
+		bool in_outbox = false;
+		
+		LLViewerInventoryCategory * parent_cat = NULL;
 		
 		if (item)
 		{
-			LLViewerInventoryCategory * cat = gInventory.getCategory(item->getParentUUID());
-			
-			if (cat)
-			{
-				item_in_inbox = (LLFolderType::FT_INBOX == cat->getPreferredType());
-				item_in_outbox = (LLFolderType::FT_OUTBOX == cat->getPreferredType());
-			}
+			parent_cat = gInventory.getCategory(item->getParentUUID());
+		}
+		else if (cat)
+		{
+			parent_cat = gInventory.getCategory(cat->getParentUUID());
 		}
 		
-		if (item_in_inbox || item_in_outbox)
+		if (parent_cat)
+		{
+			in_inbox = (LLFolderType::FT_INBOX == parent_cat->getPreferredType());
+			in_outbox = (LLFolderType::FT_OUTBOX == parent_cat->getPreferredType());
+		}
+		
+		if (in_inbox || in_outbox)
 		{
 			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 			LLInventoryPanel * inventory_panel = NULL;
 			
-			if (item_in_inbox)
+			if (in_inbox)
 			{
 				sidepanel_inventory->openInbox();
 				inventory_panel = sidepanel_inventory->getInboxPanel();
