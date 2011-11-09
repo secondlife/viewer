@@ -269,7 +269,7 @@ public:
 			params["classified_name"] = c_info->name;
 			params["classified_desc"] = c_info->description;
 			params["from_search"] = true;
-			LLFloaterSidePanelContainer::showPanel("people", "panel_profile_view", params);
+			LLFloaterSidePanelContainer::showPanel("picks", params);
 		}
 		else if (mRequestVerb == "edit")
 		{
