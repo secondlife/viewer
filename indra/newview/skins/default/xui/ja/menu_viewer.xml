@@ -1,29 +1,30 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="ミー" name="Me">
-		<menu_item_call label="環境設定" name="Preferences"/>
-		<menu_item_call label="マイアカウント" name="Manage My Account">
+		<menu_item_call label="マイアカウント..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
-		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
-		<menu_item_call label="プロフィール" name="Profile"/>
-		<menu_item_call label="容姿" name="ChangeOutfit"/>
-		<menu_item_check label="持ち物" name="Inventory"/>
-		<menu_item_check label="持ち物" name="ShowSidetrayInventory"/>
-		<menu_item_check label="ジェスチャー" name="Gestures"/>
-		<menu_item_check label="マイボイス" name="ShowVoice"/>
+		<menu_item_call label="プロフィール..." name="Profile"/>
+		<menu_item_call label="容姿..." name="ChangeOutfit"/>
+		<menu_item_check label="持ち物..." name="Inventory"/>
+		<menu_item_check label="ジェスチャー..." name="Gestures"/>
+		<menu_item_check label="ボイス..." name="ShowVoice"/>
 		<menu label="ムーブメント" name="Movement">
 			<menu_item_call label="座る" name="Sit Down Here"/>
 			<menu_item_check label="飛ぶ" name="Fly"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
 			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
 		</menu>
-		<menu label="ログイン状態" name="Status">
+		<menu label="ログイン" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="管理者権限のリクエスト" name="Request Admin Options"/>
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
+		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
+		<menu_item_call label="環境設定..." name="Preferences"/>
+		<menu_item_call label="ツールバー..." name="Toolbars"/>
+		<menu_item_call label="全てのコントロールを非表示にする" name="Hide UI"/>
 		<menu_item_call label="[APP_NAME] を終了" name="Quit"/>
 	</menu>
 	<menu label="コミュニケーション" name="Communicate">
@@ -145,7 +146,6 @@
 	</menu>
 	<menu label="ヘルプ" name="Help">
 		<menu_item_call label="[SECOND_LIFE] ヘルプ" name="Second Life Help"/>
-		<menu_item_check label="ヒントを有効にする" name="Enable Hints"/>
 		<menu_item_call label="嫌がらせを報告する" name="Report Abuse"/>
 		<menu_item_call label="バグを報告する" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] について" name="About Second Life"/>
@@ -161,7 +161,7 @@
 		<menu label="パフォーマンスツール" name="Performance Tools">
 			<menu_item_call label="ラグ計測器" name="Lag Meter"/>
 			<menu_item_check label="統計バー" name="Statistics Bar"/>
-			<menu_item_check label="アバターのレンダリングコストを表示する" name="Avatar Rendering Cost"/>
+			<menu_item_check label="アバターの描画ウェイトを表示" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="ハイライトと目に見えるもの" name="Highlighting and Visibility">
 			<menu_item_check label="チージービーコン" name="Cheesy Beacon"/>
@@ -289,6 +289,7 @@
 			<menu_item_check label="光" name="Lights"/>
 			<menu_item_check label="骨組みの衝突判定" name="Collision Skeleton"/>
 			<menu_item_check label="レイキャスト" name="Raycast"/>
+			<menu_item_check label="描画の詳細度" name="rendercomplexity"/>
 			<menu_item_check label="スカルプト" name="Sculpt"/>
 		</menu>
 		<menu label="レンダリング" name="Rendering">

@@ -17,12 +17,9 @@
 	</panel.string>
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="Щелкните для обновления вашего баланса L$" value="L$20"/>
-		<button label="КУПИТЬ L$" name="buyL" tool_tip="Щелкните для покупки L$"/>
+		<button label="Купить L$" name="buyL" tool_tip="Щелкните для покупки L$"/>
+		<button label="Торговый центр" name="goShop" tool_tip="Открыть торговый центр Second Life"/>
 	</panel>
-	<combo_box name="mode_combo" tool_tip="Выберите режим. Основной – для быстрого и простого ознакомления с игрой, а также общения. Расширенный – для доступа к более широким возможностям.">
-		<combo_box.item label="Основной режим" name="Basic"/>
-		<combo_box.item label="Расширенный режим" name="Advanced"/>
-	</combo_box>
 	<text name="TimeText" tool_tip="Текущее время (тихоокеанское)">
 		00:00 (тихоокеанское время)
 	</text>

@@ -10,8 +10,8 @@
 			</stat_view>
 			<stat_view label="Дополнительно" name="advanced">
 				<stat_view label="Отрисовка" name="render">
-					<stat_bar label="Треугольников за секунду" name="ktrisframe"/>
-					<stat_bar label="Треугольников за секунду" name="ktrissec"/>
+					<stat_bar label="Треугольников на кадр" name="ktrisframe"/>
+					<stat_bar label="Треугольников в секунду" name="ktrissec"/>
 					<stat_bar label="Всего объектов" name="objs"/>
 					<stat_bar label="Новых объектов" name="newobjs"/>
 				</stat_view>
@@ -32,7 +32,7 @@
 					<stat_bar label="Слои" name="layerskbitstat"/>
 					<stat_bar label="Действительный ввод" name="actualinkbitstat"/>
 					<stat_bar label="Действительный вывод" name="actualoutkbitstat"/>
-					<stat_bar label="Ожидающие оп-ции VFS" name="vfspendingoperations"/>
+					<stat_bar label="Ожидающие операции VFS" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Симулятор" name="sim">
@@ -64,6 +64,14 @@
 					<stat_bar label="Время на клиент" name="simagentmsec"/>
 					<stat_bar label="Время на изображения" name="simimagesmsec"/>
 					<stat_bar label="Время на скрипт" name="simscriptmsec"/>
+					<stat_bar label="Резервное время" name="simsparemsec"/>
+					<stat_view label="Данные времени (мс)" name="timedetails">
+						<stat_bar label="Шаг физики" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Обновить физ. формы" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Физика - прочее" name="simsimphysicsothermsec"/>
+						<stat_bar label="Время сна" name="simsleepmsec"/>
+						<stat_bar label="Ввод/вывод" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

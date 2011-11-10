@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Ben" name="Me">
-		<menu_item_call label="Tercihler" name="Preferences"/>
-		<menu_item_call label="Kontrol Panelim" name="Manage My Account"/>
-		<menu_item_call label="L$ Satın Al" name="Buy and Sell L$"/>
-		<menu_item_call label="Profilim" name="Profile"/>
-		<menu_item_call label="Görünümüm" name="ChangeOutfit"/>
-		<menu_item_check label="Envanterim" name="Inventory"/>
-		<menu_item_check label="Envanterim" name="ShowSidetrayInventory"/>
-		<menu_item_check label="Mimiklerim" name="Gestures"/>
-		<menu_item_check label="Sesim" name="ShowVoice"/>
+		<menu_item_call label="Kontrol Paneli..." name="Manage My Account"/>
+		<menu_item_call label="Profil..." name="Profile"/>
+		<menu_item_call label="Görünüm..." name="ChangeOutfit"/>
+		<menu_item_check label="Envanter..." name="Inventory"/>
+		<menu_item_check label="Mimikler..." name="Gestures"/>
+		<menu_item_check label="Ses..." name="ShowVoice"/>
 		<menu label="Hareket" name="Movement">
 			<menu_item_call label="Otur" name="Sit Down Here"/>
 			<menu_item_check label="Uç" name="Fly"/>
 			<menu_item_check label="Daima Koş" name="Always Run"/>
 			<menu_item_call label="Beni Anime Etmeyi Durdur" name="Stop Animating My Avatar"/>
 		</menu>
-		<menu label="Durumum" name="Status">
+		<menu label="Durum" name="Status">
 			<menu_item_call label="Uzakta" name="Set Away"/>
 			<menu_item_call label="Meşgul" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="Yönetici Durumu Talep Et" name="Request Admin Options"/>
 		<menu_item_call label="Yönetici Durumundan Ayrıl" name="Leave Admin Options"/>
+		<menu_item_call label="L$ Satın Al" name="Buy and Sell L$"/>
+		<menu_item_call label="Tercihler..." name="Preferences"/>
+		<menu_item_call label="Araç çubukları..." name="Toolbars"/>
+		<menu_item_call label="Tüm denetimleri sakla" name="Hide UI"/>
 		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
 	</menu>
 	<menu label="İletişim Kur" name="Communicate">
@@ -32,7 +33,7 @@
 		<menu_item_check label="Yakındaki Ses" name="Nearby Voice"/>
 	</menu>
 	<menu label="Dünya" name="World">
-		<menu_item_check label="Mini-Harita" name="Mini-Map"/>
+		<menu_item_check label="Mini-harita" name="Mini-Map"/>
 		<menu_item_check label="Dünya Haritası" name="World Map"/>
 		<menu_item_check label="Ara" name="Search"/>
 		<menu_item_call label="Anlık Görüntü" name="Take Snapshot"/>
@@ -144,7 +145,6 @@
 	</menu>
 	<menu label="Yardım" name="Help">
 		<menu_item_call label="[SECOND_LIFE] Yardımı" name="Second Life Help"/>
-		<menu_item_check label="İpuçlarını Etkinleştir" name="Enable Hints"/>
 		<menu_item_call label="Kötüye Kullanımı Bildir" name="Report Abuse"/>
 		<menu_item_call label="Hata Bildir" name="Report Bug"/>
 		<menu_item_call label="[APP_NAME] Hakkında" name="About Second Life"/>
@@ -160,7 +160,7 @@
 		<menu label="Performans Araçları" name="Performance Tools">
 			<menu_item_call label="Gecikme Ölçer" name="Lag Meter"/>
 			<menu_item_check label="İstatistik Çubuğu" name="Statistics Bar"/>
-			<menu_item_check label="Avatar İşlemi Maaliyetini Göster" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Avatarlar İçin Çizim Ağırlığını Göster" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Vurgulama ve Görünürlük" name="Highlighting and Visibility">
 			<menu_item_check label="Yanıp Sönen İşaret" name="Cheesy Beacon"/>
@@ -288,6 +288,7 @@
 			<menu_item_check label="Işıklar" name="Lights"/>
 			<menu_item_check label="Çarpışma İskeleti" name="Collision Skeleton"/>
 			<menu_item_check label="Işın Yayını" name="Raycast"/>
+			<menu_item_check label="İşleme Karmaşıklığı" name="rendercomplexity"/>
 			<menu_item_check label="Şekillendir" name="Sculpt"/>
 		</menu>
 		<menu label="İşleme" name="Rendering">

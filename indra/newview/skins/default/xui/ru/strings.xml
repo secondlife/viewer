@@ -1273,6 +1273,9 @@ support@secondlife.com.
 	<string name="Marketplace Error Internal Import">
 		Ошибка. Эта вещь создает проблему.  Повторите попытку позже.
 	</string>
+	<string name="Open landmarks">
+		Открыть закладки
+	</string>
 	<string name="no_transfer" value="(не передается)"/>
 	<string name="no_modify" value="(не изменяется)"/>
 	<string name="no_copy" value="(не копируется)"/>
@@ -4248,8 +4251,8 @@ support@secondlife.com.
 	<string name="Female - Wow">
 		Женщина – ух ты!
 	</string>
-	<string name="/bow1">
-		/поклон1
+	<string name="/bow">
+		/поклон
 	</string>
 	<string name="/clap">
 		/хлопнуть
@@ -4771,5 +4774,173 @@ support@secondlife.com.
 	</string>
 	<string name="ParticleHiding">
 		Частицы скрыты
+	</string>
+	<string name="Command_AboutLand_Label">
+		О земле
+	</string>
+	<string name="Command_Appearance_Label">
+		Внешность
+	</string>
+	<string name="Command_Avatar_Label">
+		Аватар
+	</string>
+	<string name="Command_Build_Label">
+		Строительство
+	</string>
+	<string name="Command_Chat_Label">
+		Чат
+	</string>
+	<string name="Command_Compass_Label">
+		Компас
+	</string>
+	<string name="Command_Destinations_Label">
+		Места
+	</string>
+	<string name="Command_Gestures_Label">
+		Жесты
+	</string>
+	<string name="Command_HowTo_Label">
+		Инструкции
+	</string>
+	<string name="Command_Inventory_Label">
+		Инвентарь
+	</string>
+	<string name="Command_Map_Label">
+		Карта
+	</string>
+	<string name="Command_Marketplace_Label">
+		Торговый центр
+	</string>
+	<string name="Command_MiniMap_Label">
+		Миникарта
+	</string>
+	<string name="Command_Move_Label">
+		Переместить
+	</string>
+	<string name="Command_People_Label">
+		Люди
+	</string>
+	<string name="Command_Picks_Label">
+		Подборка
+	</string>
+	<string name="Command_Places_Label">
+		Места
+	</string>
+	<string name="Command_Preferences_Label">
+		Настройки
+	</string>
+	<string name="Command_Profile_Label">
+		Профиль
+	</string>
+	<string name="Command_Search_Label">
+		Поиск
+	</string>
+	<string name="Command_Snapshot_Label">
+		Снимок
+	</string>
+	<string name="Command_Speak_Label">
+		Говорить
+	</string>
+	<string name="Command_View_Label">
+		Вид
+	</string>
+	<string name="Command_Voice_Label">
+		Голоса собеседников
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Информация о посещаемой вами земле
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Сменить аватар
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Выберите весь аватар
+	</string>
+	<string name="Command_Build_Tooltip">
+		Построение объектов и формирование ландшафта
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Обменивайтесь текстовыми репликами с людьми вокруг вас
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Компас
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		Интересные места
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Жесты для аватара
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Выполнение типичных задач
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Просмотр и использование вашего имущества
+	</string>
+	<string name="Command_Map_Tooltip">
+		Карта мира
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Покупки
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Показать людей поблизости
+	</string>
+	<string name="Command_Move_Tooltip">
+		Перемещение аватара
+	</string>
+	<string name="Command_People_Tooltip">
+		Друзья, группы и люди поблизости
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Места, которые будут показаны в вашем профиле как избранное
+	</string>
+	<string name="Command_Places_Tooltip">
+		Сохраненные вами места
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Настройки
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Редактирование или просмотр вашего профиля
+	</string>
+	<string name="Command_Search_Tooltip">
+		Поиск мест, событий, людей
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Сделать снимок
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Говорите с людьми вокруг вас с помощью микрофона
+	</string>
+	<string name="Command_View_Tooltip">
+		Изменение угла камеры
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Люди около вас с оспособностью говорить
+	</string>
+	<string name="Retain%">
+		Остаток%
+	</string>
+	<string name="Detail">
+		Детализация
+	</string>
+	<string name="Better Detail">
+		Более детально
+	</string>
+	<string name="Surface">
+		Поверхность
+	</string>
+	<string name="Solid">
+		Сплошной
+	</string>
+	<string name="Wrap">
+		Оболочка
+	</string>
+	<string name="Preview">
+		Предварительный просмотр
+	</string>
+	<string name="Normal">
+		Нормальный
 	</string>
 </strings>
