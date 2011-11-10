@@ -150,7 +150,7 @@ public:
 		params["snapshot_id"] = pick_info->snapshot_id;
 		params["pick_name"] = pick_info->name;
 		params["pick_desc"] = pick_info->desc;
-		LLFloaterSidePanelContainer::showPanel("my_profile", params);
+		LLFloaterSidePanelContainer::showPanel("picks", params);
 	}
 	
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
