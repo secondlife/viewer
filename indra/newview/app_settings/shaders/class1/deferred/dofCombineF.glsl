@@ -36,6 +36,7 @@ uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
 uniform float max_cof;
+uniform float res_scale;
 
 VARYING vec2 vary_fragcoord;
 
@@ -43,10 +44,24 @@ void main()
 {
 	vec2 tc = vary_fragcoord.xy;
 	
-	vec4 dof = texture2DRect(diffuseRect, vary_fragcoord.xy*0.5);
+	vec4 dof = texture2DRect(diffuseRect, vary_fragcoord.xy*res_scale);
 	
 	vec4 diff = texture2DRect(lightMap, vary_fragcoord.xy);
 
-	float a = min(diff.a * max_cof*0.333, 1.0);
+	float a = min(diff.a * max_cof*res_scale*res_scale, 1.0);
+
+	if (a > 0.25 && a < 0.75)
+	{ //help out the transition a bit
+		float sc = a/res_scale;
+		
+		vec4 col;
+		col = texture2DRect(lightMap, vary_fragcoord.xy+vec2(sc,sc));
+		col += texture2DRect(lightMap, vary_fragcoord.xy+vec2(-sc,sc));
+		col += texture2DRect(lightMap, vary_fragcoord.xy+vec2(sc,-sc));
+		col += texture2DRect(lightMap, vary_fragcoord.xy+vec2(-sc,-sc));
+		
+		diff = mix(diff, col*0.25, a);
+	}
+
 	gl_FragColor = mix(diff, dof, a);
 }

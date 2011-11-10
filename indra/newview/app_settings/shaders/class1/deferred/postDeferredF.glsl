@@ -34,6 +34,7 @@ uniform sampler2DRect diffuseRect;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform float max_cof;
+uniform float res_scale;
 
 VARYING vec2 vary_fragcoord;
 

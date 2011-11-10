@@ -8017,7 +8017,19 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
+  <key>CameraDoFResScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to scale down depth of field resolution.  Valid range is 0.25 (quarter res) to 1.0 (full res)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.7</real>
+  </map>
+
   <key>RenderSpotLightsInNondeferred</key>
   <map>
     <key>Comment</key>

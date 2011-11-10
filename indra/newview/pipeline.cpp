@@ -186,6 +186,7 @@ F32 LLPipeline::RenderShadowErrorCutoff;
 F32 LLPipeline::RenderShadowFOVCutoff;
 BOOL LLPipeline::CameraOffset;
 F32 LLPipeline::CameraMaxCoF;
+F32 LLPipeline::CameraDoFResScale;
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
@@ -929,6 +930,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderShadowFOVCutoff = gSavedSettings.getF32("RenderShadowFOVCutoff");
 	CameraOffset = gSavedSettings.getBOOL("CameraOffset");
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
+	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 }
 
 void LLPipeline::releaseGLBuffers()
@@ -6549,6 +6551,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				shader->uniform1f(LLShaderMgr::DOF_TAN_PIXEL_ANGLE, tanf(1.f/LLDrawable::sCurPixelAngle));
 				shader->uniform1f(LLShaderMgr::DOF_MAGNIFICATION, magnification);
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
+				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -6568,7 +6571,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			{ //perform DoF sampling at half-res (preserve alpha channel)
 				mScreen.bindTarget();
-				glViewport(0,0,mScreen.getWidth()/2, mScreen.getHeight()/2);
+				glViewport(0,0,mScreen.getWidth()*CameraDoFResScale, mScreen.getHeight()*CameraDoFResScale);
 				gGL.setColorMask(true, false);
 
 				shader = &gDeferredPostProgram;
@@ -6580,6 +6583,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
+				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -6611,9 +6615,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				if (channel > -1)
 				{
 					mScreen.bindTexture(0, channel);
+					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
+				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
 
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);

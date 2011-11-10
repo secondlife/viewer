@@ -1046,6 +1046,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("tan_pixel_angle");
 	mReservedUniforms.push_back("magnification");
 	mReservedUniforms.push_back("max_cof");
+	mReservedUniforms.push_back("res_scale");
 
 	mReservedUniforms.push_back("depthMap");
 	mReservedUniforms.push_back("shadowMap0");

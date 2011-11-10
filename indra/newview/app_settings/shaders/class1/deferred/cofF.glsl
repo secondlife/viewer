@@ -83,5 +83,5 @@ void main()
 	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
 	gl_FragColor.rgb = diff.rgb + bloom.rgb;
-	gl_FragColor.a = sc/10.f;
+	gl_FragColor.a = sc/max_cof;
 }
