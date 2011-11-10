@@ -134,7 +134,10 @@ public:
 		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
 
 		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
-		picks->createNewPick();
+		if (picks)
+		{
+			picks->createNewPick();
+		}
 	}
 
 	void editPick(LLPickData* pick_info)
@@ -251,7 +254,10 @@ public:
 		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
 
 		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
-		picks->createNewClassified();
+		if (picks)
+		{
+			picks->createNewClassified();
+		}
 	}
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
@@ -269,7 +275,7 @@ public:
 			params["classified_name"] = c_info->name;
 			params["classified_desc"] = c_info->description;
 			params["from_search"] = true;
-			LLFloaterSidePanelContainer::showPanel("people", "panel_profile_view", params);
+			LLFloaterSidePanelContainer::showPanel("picks", params);
 		}
 		else if (mRequestVerb == "edit")
 		{

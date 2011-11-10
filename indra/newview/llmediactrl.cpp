@@ -57,7 +57,6 @@
 #include "llcheckboxctrl.h"
 #include "llnotifications.h"
 #include "lllineeditor.h"
-#include "llfloatermediabrowser.h"
 #include "llfloaterwebcontent.h"
 #include "llwindowshade.h"
 
@@ -1082,26 +1081,6 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 {
 	if (response["open"])
 	{
-		// name of default floater to open
-		std::string floater_name = "media_browser";
-
-		// look for parent floater name
-		if ( gFloaterView )
-		{
-			if ( gFloaterView->getParentFloater(this) )
-			{
-				floater_name = gFloaterView->getParentFloater(this)->getInstanceName();
-			}
-			else
-			{
-				lldebugs << "No gFloaterView->getParentFloater(this) for onPopuup()" << llendl;
-			};
-		}
-		else
-		{
-			lldebugs << "No gFloaterView for onPopuup()" << llendl;
-		};
-
 		LLWeb::loadURL(notification["payload"]["url"], notification["payload"]["target"], notification["payload"]["uuid"]);
 	}
 	else
