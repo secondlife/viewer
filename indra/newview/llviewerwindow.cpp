@@ -737,37 +737,6 @@ public:
 			}
 		}				
 
-		//temporary hack to give feedback on mesh upload progress
-		if (!gMeshRepo.mUploads.empty())
-		{
-			for (std::vector<LLMeshUploadThread*>::iterator iter = gMeshRepo.mUploads.begin(); 
-				iter != gMeshRepo.mUploads.end(); ++iter)
-			{
-				LLMeshUploadThread* thread = *iter;
-
-				addText(xpos, ypos, llformat("Mesh Uploads: %d", 
-								thread->mPendingUploads));
-				ypos += y_inc;
-			}
-		}
-
-		if (!gMeshRepo.mPendingRequests.empty() ||
-			!gMeshRepo.mThread->mHeaderReqQ.empty() ||
-			!gMeshRepo.mThread->mLODReqQ.empty())
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-			S32 pending = (S32) gMeshRepo.mPendingRequests.size();
-			S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
-			S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
-
-			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
-												pending,
-												LLMeshRepoThread::sActiveHeaderRequests, header,
-												LLMeshRepoThread::sActiveLODRequests, lod));
-
-			ypos += y_inc;
-		}
-		
 		if (gSavedSettings.getBOOL("DebugShowTextureInfo"))
 		{
 			LLViewerObject* objectp = NULL ;
