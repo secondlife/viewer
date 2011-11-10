@@ -31,6 +31,7 @@
 #include "llhandle.h"
 //===============================================================================
 class LLCurlRequest;
+class LLMessageSystem;
 //===============================================================================
 class LLNavMeshObserver
 {
@@ -46,6 +47,21 @@ protected:
 	LLRootHandle<LLNavMeshObserver> mObserverHandle;	
 };
 //===============================================================================
+//prep#TODO# determine if a name change is needed?
+class LLNavMeshDownloadObserver
+{
+public:
+	//Ctor
+	LLNavMeshDownloadObserver() { mObserverHandle.bind(this); }
+	//Dtor
+	virtual ~LLNavMeshDownloadObserver() {}
+	//Accessor for the observers handle
+	const LLHandle<LLNavMeshDownloadObserver>& getObserverHandle() const { return mObserverHandle; }
+
+protected:
+	LLRootHandle<LLNavMeshDownloadObserver> mObserverHandle;	
+};
+//===============================================================================
 class LLNavMeshStation : public LLSingleton<LLNavMeshStation>
 {
 public:
@@ -55,6 +71,12 @@ public:
 	bool postNavMeshToServer( LLSD& data, const LLHandle<LLNavMeshObserver>& observerHandle );
 	//Setter for the navmesh upload url
 	void setNavMeshUploadURL( std::string& url ) { mNavMeshUploadURL = url; }
+	//Setter for the navmesh download url
+	void setNavMeshDownloadURL( std::string& url ) { mNavMeshDownloadURL = url; }
+	//Callback to handle the requested src data for this regions navmesh src
+	static void processNavMeshSrc( LLMessageSystem* msg, void** );
+	//Initiate download of the navmesh source from the server
+	void downloadNavMeshSrc( const LLHandle<LLNavMeshDownloadObserver>& observerHandle );
 
 protected:	
 	//Curl object to facilitate posts to server
@@ -63,6 +85,8 @@ protected:
 	S32				mMeshUploadTimeOut ; 
 	//URL used for uploading viewer generated navmesh
 	std::string		mNavMeshUploadURL;
+	//URL used for download the src data for a navmesh
+	std::string		mNavMeshDownloadURL;
 
 };
 //===============================================================================

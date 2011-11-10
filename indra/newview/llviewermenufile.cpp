@@ -78,7 +78,6 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
-//prep#
 #include "LLPathingLib.h"
 #include "llnavmeshstation.h"
 
@@ -90,7 +89,7 @@ class LLBuildNavMesh  : public view_listener_t
 		return result;
 	}
 };
-//prep#
+//prep#TODO#remove if not needed for ship
 class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
 {
 	
@@ -136,6 +135,40 @@ class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
 		}
 		
 		return true;
+	}
+};
+
+
+class LLPathingTools  : public view_listener_t, LLNavMeshDownloadObserver
+{
+	
+	bool handleEvent(const LLSD& userdata)
+	{
+		//make sure we have a pathing system
+		LLPathingLib::initSystem();
+		
+		if ( LLPathingLib::getInstance() == NULL )
+		{ 
+			llinfos<<"No implementation of pathing library."<<llendl;
+		}
+		else
+		{		
+			//make sure the region is essentially enabled for navmesh support
+			std::string capability = "RetrieveNavMeshSrc";
+			std::string url = gAgent.getRegion()->getCapability( capability );
+			if ( !url.empty() )
+			{
+				llinfos<<"Region has required caps of type ["<<capability<<"]"<<llendl;
+				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
+				LLNavMeshStation::getInstance()->downloadNavMeshSrc( getObserverHandle() );				
+			}				
+			else
+			{
+				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
+			}
+		}
+		
+	return true;
 	}
 };
 
@@ -1346,6 +1379,7 @@ void init_menu_file()
 	view_listener_t::addMenu(new LLMeshUploadVisible(), "File.VisibleUploadModel");
 
 	//prep#
-	view_listener_t::addCommit(new LLFileUploadNavMesh(), "File.UploadNavMesh");
+	//view_listener_t::addCommit(new LLFileUploadNavMesh(), "File.UploadNavMesh");
+	view_listener_t::addCommit(new LLPathingTools(), "PathingTools.RetrieveSrc");
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }
