@@ -372,10 +372,6 @@ void LLViewerShaderMgr::setShaders()
 			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
 		}
 	}
-	else if (gGLManager.mGLVersion < 2.f)
-	{ //NEVER use shaders on a pre 2.0 context
-		gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
-	}
 	
 	//setup preprocessor definitions
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
