@@ -267,10 +267,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 	if (gSky.mVOSkyp->getMoon().getDraw() && face->getGeomCount())
 	{
-		if (gPipeline.canUseVertexShaders())
-		{
-			gHighlightProgram.bind();
-		}
 		// *NOTE: even though we already bound this texture above for the
 		// stars register combiners, we bind again here for defensive reasons,
 		// since LLImageGL::bind detects that it's a noop, and optimizes it out.
@@ -284,7 +280,14 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 			
 		color.mV[3] = llclamp(a, 0.f, 1.f);
 		
+		if (gPipeline.canUseVertexShaders())
+		{
+			gHighlightProgram.bind();
+			gHighlightProgram.uniform4fv(LLShaderMgr::HIGHLIGHT_COLOR, 1, color.mV);
+		}
+
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
+		
 		face->renderIndexed();
 
 		if (gPipeline.canUseVertexShaders())
