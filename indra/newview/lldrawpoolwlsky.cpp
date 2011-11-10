@@ -283,7 +283,6 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 		if (gPipeline.canUseVertexShaders())
 		{
 			gHighlightProgram.bind();
-			gHighlightProgram.uniform4fv(LLShaderMgr::HIGHLIGHT_COLOR, 1, color.mV);
 		}
 
 		LLFacePool::LLOverrideFaceColor color_override(this, color);

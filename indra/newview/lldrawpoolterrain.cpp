@@ -246,7 +246,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 			sShader->unbind();
 			sShader = &gHighlightProgram;
 			sShader->bind();
-			sShader->uniform4f(LLShaderMgr::HIGHLIGHT_COLOR, 1,1,1,1);
+			gGL.diffuseColor4f(1,1,1,1);
 			LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
 			glPolygonOffset(-1.0f, -1.0f);
 			renderOwnership();

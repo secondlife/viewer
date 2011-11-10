@@ -3583,7 +3583,7 @@ void LLPipeline::renderHighlights()
 	if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
 	{
 		gHighlightProgram.bind();
-		gHighlightProgram.uniform4f(LLShaderMgr::HIGHLIGHT_COLOR,1,1,1,0.5f);
+		gGL.diffuseColor4f(1,1,1,0.5f);
 	}
 	
 	if (hasRenderDebugFeatureMask(RENDER_DEBUG_FEATURE_SELECTED))
@@ -3613,10 +3613,7 @@ void LLPipeline::renderHighlights()
 	{
 		// Paint 'em red!
 		color.setVec(1.f, 0.f, 0.f, 0.5f);
-		if ((LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_INTERFACE) > 0))
-		{
-			gHighlightProgram.uniform4f(LLShaderMgr::HIGHLIGHT_COLOR,1,0,0,0.5f);
-		}
+		
 		int count = mHighlightFaces.size();
 		for (S32 i = 0; i < count; i++)
 		{

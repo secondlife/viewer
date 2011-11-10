@@ -27,12 +27,12 @@
 out vec4 gl_FragColor;
 #endif
 
-uniform vec4 highlight_color;
+uniform vec4 color;
 uniform sampler2D diffuseMap;
 
 VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	gl_FragColor = highlight_color*texture2D(diffuseMap, vary_texcoord0.xy);
+	gl_FragColor = color*texture2D(diffuseMap, vary_texcoord0.xy);
 }
