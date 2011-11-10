@@ -6524,7 +6524,7 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* vis
 	return cost;
 }
 
-U32 LLObjectSelection::getSelectedObjectTriangleCount()
+U32 LLObjectSelection::getSelectedObjectTriangleCount(S32* vcount)
 {
 	U32 count = 0;
 	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
@@ -6534,7 +6534,7 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount()
 		
 		if (object)
 		{
-			count += object->getTriangleCount();
+			count += object->getTriangleCount(vcount);
 		}
 	}
 

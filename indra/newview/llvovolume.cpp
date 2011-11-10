@@ -3266,13 +3266,13 @@ void LLVOVolume::updateRenderComplexity()
 	mRenderComplexity_current = 0;
 }
 
-U32 LLVOVolume::getTriangleCount() const
+U32 LLVOVolume::getTriangleCount(S32* vcount) const
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
 	if (volume)
 	{
-		count = volume->getNumTriangles();
+		count = volume->getNumTriangles(vcount);
 	}
 
 	return count;
