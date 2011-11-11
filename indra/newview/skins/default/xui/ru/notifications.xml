@@ -979,7 +979,7 @@
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Удалить жителя [NAME] из вашего списка друзей?
+		Удалить жителя &lt;nolink&gt;[NAME]&lt;/nolink&gt; из вашего списка друзей?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -2119,10 +2119,10 @@ http://secondlife.com/download.
 		Раздел: [SUBJECT], сообщение: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] в сети
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; в сети
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] не в сети
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; не в сети
 	</notification>
 	<notification name="AddSelfFriend">
 		Вы лучше всех, но нельзя добавить в друзья себя самого.
@@ -2518,10 +2518,10 @@ http://secondlife.com/download.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] принял(а) ваше предложение дружить.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; принял(а) ваше предложение дружить.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] отклонил(а) ваше предложение дружить.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; отклонил(а) ваше предложение дружить.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Предложение дружить принято.
