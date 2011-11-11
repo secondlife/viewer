@@ -1251,7 +1251,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 
 	// Show/hide advanced options.
 	LLPanel* advanced_options_panel = floaterp->getChild<LLPanel>("advanced_options_panel");
-	floaterp->getChild<LLButton>("advanced_options_btn")->setToggleState(advanced);
+	floaterp->getChild<LLButton>("advanced_options_btn")->setImageOverlay(advanced ? "TabIcon_Open_Off" : "TabIcon_Close_Off");
 	if (advanced != advanced_options_panel->getVisible())
 	{
 		S32 panel_width = advanced_options_panel->getRect().getWidth();
