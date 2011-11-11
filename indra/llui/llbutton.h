@@ -132,6 +132,7 @@ public:
 		Optional<LLBadge::Params>	badge;
 
 		Optional<bool>				handle_right_mouse;
+		Optional<bool>				click_on_drag_and_drop;
 
 		Optional<S32>				button_flash_count;
 		Optional<F32>				button_flash_rate;
@@ -159,6 +160,11 @@ public:
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
+	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+									  EDragAndDropType cargo_type,
+									  void* cargo_data,
+									  EAcceptance* accept,
+									  std::string& tooltip_msg);
 	virtual void	draw();
 	/*virtual*/ BOOL postBuild();
 
@@ -376,6 +382,7 @@ protected:
 	LLFrameTimer				mFlashingTimer;
 
 	bool						mHandleRightMouse;
+	bool						mClickOnDragAndDrop;
 };
 
 // Build time optimization, generate once in .cpp file

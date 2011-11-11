@@ -1025,85 +1025,51 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
+		LLButton::Params& p = (mCustomIconCtrlUsed ? custom_btn_params : normal_btn_params);
+		
+		p.rect(btn_rect);
+		p.font(mFont);
+		p.font_halign = mFontHalign;
+		p.label(trimmed_label);
+		p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
+		if (indent)
+		{
+			p.pad_left(indent);
+		}
+		p.pad_bottom( mLabelPadBottom );
+		p.scale_image(true);
+		p.tab_stop(false);
+		p.label_shadow(false);
+		p.follows.flags = FOLLOWS_LEFT;
+		p.click_on_drag_and_drop(true);
+		
 		if (mIsVertical)
 		{
-			LLButton::Params& p = (mCustomIconCtrlUsed)?
-					custom_btn_params:normal_btn_params;
-
 			p.name(std::string("vert tab button"));
-			p.rect(btn_rect);
-			p.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
-			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
-			p.font(mFont);
-			p.label(trimmed_label);
 			p.image_unselected(mMiddleTabParams.tab_left_image_unselected);
 			p.image_selected(mMiddleTabParams.tab_left_image_selected);
-			p.scale_image(true);
-			p.font_halign = mFontHalign;
-			p.pad_bottom( mLabelPadBottom );
-			p.tab_stop(false);
-			p.label_shadow(false);
-			if (indent)
-			{
-				p.pad_left(indent);
-			}
-			
-			
-			if(mCustomIconCtrlUsed)
-			{
-				btn = LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
-				
-			}
-			else
-			{
-				btn = LLUICtrlFactory::create<LLButton>(p);
-			}
+			p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
 		}
 		else
 		{
-			LLButton::Params& p = (mCustomIconCtrlUsed)?
-					custom_btn_params:normal_btn_params;
 			p.name(std::string(child->getName()) + " tab");
-			p.rect(btn_rect);
-			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
-			p.font(mFont);
-			p.label(trimmed_label);
 			p.visible(false);
-			p.scale_image(true);
 			p.image_unselected(tab_img);
 			p.image_selected(tab_selected_img);
-			p.tab_stop(false);
-			p.label_shadow(false);
+			p.follows.flags = p.follows.flags() | (getTabPosition() == TOP ? FOLLOWS_TOP : FOLLOWS_BOTTOM);
 			// Try to squeeze in a bit more text
 			p.pad_left( mLabelPadLeft );
 			p.pad_right(2);
-			p.pad_bottom( mLabelPadBottom );
-			p.font_halign = mFontHalign;
-			p.follows.flags = FOLLOWS_LEFT;
-			p.follows.flags = FOLLOWS_LEFT;
-	
-			if (indent)
-			{
-				p.pad_left(indent);
-			}
-
-			if( getTabPosition() == TOP )
-			{
-				p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
-			}
-			else
-			{
-				p.follows.flags = p.follows.flags() | FOLLOWS_BOTTOM;
-			}
-
-			if(mCustomIconCtrlUsed)
-			{
-				btn = LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
-			}
-			else
-			{
-				btn = LLUICtrlFactory::create<LLButton>(p);
-			}
+		}
+		
+		// *TODO : It seems wrong not to use p in both cases considering the way p is initialized
+		if (mCustomIconCtrlUsed)
+		{
+			btn = LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
+		}
+		else
+		{
+			btn = LLUICtrlFactory::create<LLButton>(p);
 		}
 	}
 	
