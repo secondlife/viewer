@@ -671,10 +671,11 @@ namespace LLInitParam
 		self_t& operator =(const self_t& other)
 		{
 			mValue = other.mValue;
+			static_cast<NAME_VALUE_LOOKUP&>(*this) = other;
 			return *this;
 		}
 
-	private:
+	protected:
 		T mValue;
 	};
 
@@ -741,7 +742,10 @@ namespace LLInitParam
 
 		self_t& operator =(const self_t& other)
 		{
-			*(static_cast<T*>(this)) = other;
+			static_cast<T&>(*this) = other;
+			static_cast<NAME_VALUE_LOOKUP&>(*this) = other;
+			mValidatedVersion = other.mValidatedVersion;
+			mValidated = other.mValidated;
 			return *this;
 		}
 	protected:
@@ -875,24 +879,17 @@ namespace LLInitParam
 
 		self_t& operator =(typename const name_value_lookup_t::name_t& name)
 		{
-			if (name_value_lookup_t::getValueFromName(name, getValue()))
-			{
-				setValueName(name);
-				setProvided();
-			}
-
-			return *this;
+			return static_cast<self_t&>(param_value_t::operator =(name));
 		}
 
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
-			setValue(val);
 			param_value_t::clearValueName();
+			setValue(val);
 			setProvided(flag_as_provided);
 		}
 
 	protected:
-
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
@@ -1024,17 +1021,6 @@ namespace LLInitParam
 			// next call to isProvided() will update provision status based on validity
 			param_value_t::mValidatedVersion = -1;
 			setProvided(flag_as_provided);
-		}
-
-		self_t& operator =(typename const name_value_lookup_t::name_t& name)
-		{
-			if (name_value_lookup_t::getValueFromName(name, getValue()))
-			{
-				setValueName(name);
-				setProvided();
-			}
-
-			return *this;
 		}
 
 		// propagate changed status up to enclosing block
@@ -1239,6 +1225,12 @@ namespace LLInitParam
 		}
 
 	protected:
+		self_t& operator=(const self_t& other)
+		{
+			mValues = other.mValues;
+			return *this;
+		}
+
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
@@ -1432,6 +1424,11 @@ namespace LLInitParam
 		}
 
 	protected:
+		self_t& operator=(const self_t& other)
+		{
+			mValues = other.mValues;
+			return *this;
+		}
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
@@ -1540,6 +1537,8 @@ namespace LLInitParam
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
+			using super_t::param_value_t::operator =;
+
 			explicit Alternative(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
 				mOriginalValue(val)
@@ -1565,7 +1564,7 @@ namespace LLInitParam
 				super_t::set(val);
 			}
 
-			void operator=(value_assignment_t val)
+			void operator =(value_assignment_t val)
 			{
 				super_t::set(val);
 			}
@@ -1657,7 +1656,7 @@ namespace LLInitParam
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			using super_t::operator();
-			using super_t::operator=;
+			using super_t::param_value_t::operator =;
 
 			explicit Optional(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1)
@@ -1665,7 +1664,7 @@ namespace LLInitParam
 				//#pragma message("Parsing LLInitParam::Block::Optional")
 			}
 
-			Optional& operator=(value_assignment_t val)
+			Optional& operator =(value_assignment_t val)
 			{
 				set(val);
 				return *this;
@@ -1687,14 +1686,14 @@ namespace LLInitParam
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			using super_t::operator();
-			using super_t::operator=;
+			using super_t::param_value_t::operator =;
 
 			// mandatory parameters require a name to be parseable
 			explicit Mandatory(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, &validate, 1, 1)
 			{}
 
-			Mandatory& operator=(value_assignment_t val)
+			Mandatory& operator =(value_assignment_t val)
 			{
 				set(val);
 				return *this;
@@ -1729,7 +1728,7 @@ namespace LLInitParam
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, container_t(), &validate, RANGE::minCount, RANGE::maxCount)
 			{}
 
-			Multiple& operator=(value_assignment_t val)
+			Multiple& operator =(value_assignment_t val)
 			{
 				set(val);
 				return *this;
