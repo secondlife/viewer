@@ -82,6 +82,9 @@ public:
 	// parent panels failed to work (picks related code was in my profile panel)
 	void setProfilePanel(LLPanelProfile* profile_panel);
 
+	void createNewPick();
+	void createNewClassified();
+
 protected:
 	/*virtual*/void updateButtons();
 
@@ -114,9 +117,6 @@ private:
 	void onClickMenuEdit();
 
 	bool onEnableMenuItem(const LLSD& user_data);
-
-	void createNewPick();
-	void createNewClassified();
 
 	void openPickInfo();
 	void openClassifiedInfo();

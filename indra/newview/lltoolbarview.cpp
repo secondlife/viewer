@@ -315,6 +315,19 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	return true;
 }
 
+bool LLToolBarView::clearToolbars()
+{
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		if (mToolbars[i])
+		{
+			mToolbars[i]->clearCommandsList();
+		}
+	}
+
+	return true;
+}
+
 //static
 bool LLToolBarView::loadDefaultToolbars()
 {
@@ -323,6 +336,23 @@ bool LLToolBarView::loadDefaultToolbars()
 	if (gToolBarView)
 	{
 		retval = gToolBarView->loadToolbars(true);
+		if (retval)
+		{
+			gToolBarView->saveToolbars();
+		}
+	}
+
+	return retval;
+}
+
+//static
+bool LLToolBarView::clearAllToolbars()
+{
+	bool retval = false;
+
+	if (gToolBarView)
+	{
+		retval = gToolBarView->clearToolbars();
 		if (retval)
 		{
 			gToolBarView->saveToolbars();

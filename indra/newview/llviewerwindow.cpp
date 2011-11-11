@@ -1789,17 +1789,13 @@ void LLViewerWindow::initBase()
 	mLoginPanelHolder = main_view->getChild<LLView>("login_panel_holder")->getHandle();
 
 	// Create the toolbar view
-	// *TODO: Eventually, suppress the existence of this debug setting and turn toolbar FUI on permanently
-	if (gSavedSettings.getBOOL("DebugToolbarFUI"))
-	{
-		// Get a pointer to the toolbar view holder
-		LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
-		// Load the toolbar view from file 
-		gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
-		gToolBarView->setShape(panel_holder->getLocalRect());
-		// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
-		gToolBarView->setVisible(FALSE);
-	}
+	// Get a pointer to the toolbar view holder
+	LLPanel* panel_holder = main_view->getChild<LLPanel>("toolbar_view_holder");
+	// Load the toolbar view from file 
+	gToolBarView = LLUICtrlFactory::getInstance()->createFromFile<LLToolBarView>("panel_toolbar_view.xml", panel_holder, LLDefaultChildRegistry::instance());
+	gToolBarView->setShape(panel_holder->getLocalRect());
+	// Hide the toolbars for the moment: we'll make them visible after logging in world (see LLViewerWindow::initWorldUI())
+	gToolBarView->setVisible(FALSE);
 
 	// Constrain floaters to inside the menu and status bar regions.
 	gFloaterView = main_view->getChild<LLFloaterView>("Floater View");
@@ -4020,10 +4016,11 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 }
 
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
+BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picker)
 {
 	if (!image)
 	{
+		llwarns << "No image to save" << llendl;
 		return FALSE;
 	}
 
@@ -4043,7 +4040,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
 		pick_type = LLFilePicker::FFSAVE_ALL; // ???
 	
 	// Get a base file location if needed.
-	if ( ! isSnapshotLocSet())		
+	if (force_picker || !isSnapshotLocSet())
 	{
 		std::string proposed_name( sSnapshotBaseName );
 
@@ -4083,6 +4080,7 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image)
 	}
 	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
 
+	llinfos << "Saving snapshot to " << filepath << llendl;
 	return image->save(filepath);
 }
 

@@ -62,6 +62,13 @@ void LLSideTrayPanelContainer::onOpen(const LLSD& key)
 	getCurrentPanel()->onOpen(key);
 }
 
+void LLSideTrayPanelContainer::openPanel(const std::string& panel_name, const LLSD& key)
+{
+	LLSD combined_key = key;
+	combined_key[PARAM_SUB_PANEL_NAME] = panel_name;
+	onOpen(combined_key);
+}
+
 void LLSideTrayPanelContainer::openPreviousPanel()
 {
 	if(!mDefaultPanelName.empty())

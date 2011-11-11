@@ -708,6 +708,8 @@ void LLScreenChannel::showToastsTop()
 //--------------------------------------------------------------------------
 void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 {
+	LLScreenChannelBase::updateRect();
+
 	LLRect toast_rect;
 	LLToast::Params p;
 	p.lifetime_secs = timer;
@@ -730,13 +732,10 @@ void LLScreenChannel::createStartUpToast(S32 notif_num, F32 timer)
 	text_box->setValue(text);
 	text_box->setVisible(TRUE);
 
-	S32 old_height = text_box->getRect().getHeight();
 	text_box->reshapeToFitText();
 	text_box->setOrigin(text_box->getRect().mLeft, (wrapper_panel->getRect().getHeight() - text_box->getRect().getHeight())/2);
-	S32 new_height = text_box->getRect().getHeight();
-	S32 height_delta = new_height - old_height;
 
-	toast_rect.setLeftTopAndSize(0, toast_rect.getHeight() + height_delta +gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());
+	toast_rect.setLeftTopAndSize(0, getRect().getHeight() - gSavedSettings.getS32("ToastGap"), getRect().getWidth(), toast_rect.getHeight());
 	mStartUpToastPanel->setRect(toast_rect);
 
 	addChild(mStartUpToastPanel);

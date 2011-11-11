@@ -30,7 +30,7 @@
 	<spinner label="Nearby chat toasts life time:" name="nearby_toasts_lifetime"/>
 	<spinner label="Nearby chat toasts fading time:" name="nearby_toasts_fadingtime"/>
 	<text name="translate_chb_label">
-		聊天時使用機器自動進行翻譯（由 Google 所提供）
+		聊天時使用機器自動進行翻譯
 	</text>
 	<text name="translate_language_text">
 		聊天翻譯為：
