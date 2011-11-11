@@ -671,6 +671,7 @@ namespace LLInitParam
 		self_t& operator =(const self_t& other)
 		{
 			mValue = other.mValue;
+			return *this;
 		}
 
 	private:
@@ -741,6 +742,7 @@ namespace LLInitParam
 		self_t& operator =(const self_t& other)
 		{
 			*(static_cast<T*>(this)) = other;
+			return *this;
 		}
 	protected:
 		mutable S32 	mValidatedVersion;
