@@ -979,7 +979,7 @@ Etkin grubunuz adına arazi satın almak için gerekli izne sahip değilsiniz.
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		[NAME] adlı kişiyi Arkadaş Listenizden çıkarmak istiyor musunuz?
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; adlı kişiyi Arkadaş Listenizden çıkarmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -2119,10 +2119,10 @@ Bu adımda web tarayıcınızın başlatılacağına dikkat edin.
 		Konu: [SUBJECT], İleti: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] Çevrimiçi
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; Çevrimiçi
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] Çevrimdışı
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; Çevrimdışı
 	</notification>
 	<notification name="AddSelfFriend">
 		Çok iyi biri olduğunuza eminiz fakat kendinizi arkadaş olarak ekleyemezsiniz.
@@ -2518,10 +2518,10 @@ Lütfen biraz sonra tekrar deneyin.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] arkadaşlık teklifinizi kabul etti.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; arkadaşlık teklifinizi kabul etti.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] arkadaşlık teklifinizi reddetti.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; arkadaşlık teklifinizi reddetti.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Arkadaşlık teklifi kabul edildi.
