@@ -1741,8 +1741,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				std::string music_url = music_url_raw;
 				LLStringUtil::trim(music_url);
 
-				const std::string& stream_url = gAudiop->getInternetStreamURL();
-
 				// If there is a new music URL and it's valid, play it.
 				if (music_url.size() > 12)
 				{
