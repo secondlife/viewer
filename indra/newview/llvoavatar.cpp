@@ -8335,7 +8335,7 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 void LLVOAvatar::idleUpdateRenderCost()
 {
 	static const U32 ARC_BODY_PART_COST = 200;
-	static const U32 ARC_LIMIT = 40000;
+	static const U32 ARC_LIMIT = 20000;
 
 	static std::set<LLUUID> all_textures;
 
