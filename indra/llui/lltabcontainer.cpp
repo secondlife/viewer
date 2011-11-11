@@ -214,6 +214,7 @@ LLTabContainer::Params::Params()
 	middle_tab("middle_tab"),
 	last_tab("last_tab"),
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
+	open_tabs_on_drag_and_drop("open_tabs_on_drag_and_drop", false),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
 	font_halign("halign")
@@ -250,6 +251,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mMiddleTabParams(p.middle_tab),
 	mLastTabParams(p.last_tab),
 	mCustomIconCtrlUsed(p.use_custom_icon_ctrl),
+	mOpenTabsOnDragAndDrop(p.open_tabs_on_drag_and_drop),
 	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
 	mUseTabEllipses(p.use_ellipses)
 {
@@ -812,49 +814,61 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 {
 	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
 
-	if( !getTabsHidden()
-		&& mDragAndDropDelayTimer.getStarted() 
-		&& mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME )
+	if(mOpenTabsOnDragAndDrop && !getTabsHidden())
 	{
-		if (has_scroll_arrows)
+		// In that case, we'll open the hovered tab while dragging and dropping items.
+		// This allows for drilling through tabs.
+		if (mDragAndDropDelayTimer.getStarted())
 		{
-			if (mJumpPrevArrowBtn && mJumpPrevArrowBtn->getRect().pointInRect(x, y))
+			if (mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME)
 			{
-				S32	local_x	= x	- mJumpPrevArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mJumpPrevArrowBtn->getRect().mBottom;
-				mJumpPrevArrowBtn->handleHover(local_x,	local_y, mask);
-			}
-			if (mJumpNextArrowBtn && mJumpNextArrowBtn->getRect().pointInRect(x, y))
-			{
-				S32	local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
-				mJumpNextArrowBtn->handleHover(local_x,	local_y, mask);
-			}
-			if (mPrevArrowBtn->getRect().pointInRect(x,	y))
-			{
-				S32	local_x	= x	- mPrevArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mPrevArrowBtn->getRect().mBottom;
-				mPrevArrowBtn->handleHover(local_x,	local_y, mask);
-			}
-			else if	(mNextArrowBtn->getRect().pointInRect(x, y))
-			{
-				S32	local_x	= x	- mNextArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mNextArrowBtn->getRect().mBottom;
-				mNextArrowBtn->handleHover(local_x, local_y, mask);
-			}
-		}
+				if (has_scroll_arrows)
+				{
+					if (mJumpPrevArrowBtn && mJumpPrevArrowBtn->getRect().pointInRect(x, y))
+					{
+						S32	local_x	= x	- mJumpPrevArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mJumpPrevArrowBtn->getRect().mBottom;
+						mJumpPrevArrowBtn->handleHover(local_x,	local_y, mask);
+					}
+					if (mJumpNextArrowBtn && mJumpNextArrowBtn->getRect().pointInRect(x, y))
+					{
+						S32	local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
+						mJumpNextArrowBtn->handleHover(local_x,	local_y, mask);
+					}
+					if (mPrevArrowBtn->getRect().pointInRect(x,	y))
+					{
+						S32	local_x	= x	- mPrevArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mPrevArrowBtn->getRect().mBottom;
+						mPrevArrowBtn->handleHover(local_x,	local_y, mask);
+					}
+					else if	(mNextArrowBtn->getRect().pointInRect(x, y))
+					{
+						S32	local_x	= x	- mNextArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mNextArrowBtn->getRect().mBottom;
+						mNextArrowBtn->handleHover(local_x, local_y, mask);
+					}
+				}
 
-		for(tuple_list_t::iterator iter	= mTabList.begin();	iter !=	 mTabList.end(); ++iter)
-		{
-			LLTabTuple*	tuple =	*iter;
-			tuple->mButton->setVisible(	TRUE );
-			S32	local_x	= x	- tuple->mButton->getRect().mLeft;
-			S32	local_y	= y	- tuple->mButton->getRect().mBottom;
-			if (tuple->mButton->pointInView(local_x, local_y) &&  tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
-			{
-				tuple->mButton->onCommit();
+				for(tuple_list_t::iterator iter	= mTabList.begin();	iter !=	 mTabList.end(); ++iter)
+				{
+					LLTabTuple*	tuple =	*iter;
+					tuple->mButton->setVisible(	TRUE );
+					S32	local_x	= x	- tuple->mButton->getRect().mLeft;
+					S32	local_y	= y	- tuple->mButton->getRect().mBottom;
+					if (tuple->mButton->pointInView(local_x, local_y) &&  tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
+					{
+						tuple->mButton->onCommit();
+					}
+				}
+				// Stop the timer whether successful or not. Don't let it run forever.
 				mDragAndDropDelayTimer.stop();
 			}
+		}
+		else 
+		{
+			// Start a timer so we don't open tabs as soon as we hover on them
+			mDragAndDropDelayTimer.start();
 		}
 	}
 
@@ -1041,7 +1055,6 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 		p.tab_stop(false);
 		p.label_shadow(false);
 		p.follows.flags = FOLLOWS_LEFT;
-		p.click_on_drag_and_drop(true);
 		
 		if (mIsVertical)
 		{
@@ -1246,6 +1259,10 @@ void LLTabContainer::enableTabButton(S32 which, BOOL enable)
 	{
 		mTabList[which]->mButton->setEnabled(enable);
 	}
+	// Stop the DaD timer as it might run forever
+	// enableTabButton() is typically called on refresh and draw when anything changed
+	// in the tab container so it's a good time to reset that.
+	mDragAndDropDelayTimer.stop();
 }
 
 void LLTabContainer::deleteAllTabs()

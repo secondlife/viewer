@@ -104,7 +104,6 @@ LLButton::Params::Params()
 	use_draw_context_alpha("use_draw_context_alpha", true),
 	badge("badge"),
 	handle_right_mouse("handle_right_mouse"),
-	click_on_drag_and_drop("click_on_drag_and_drop", false),
 	held_down_delay("held_down_delay"),
 	button_flash_count("button_flash_count"),
 	button_flash_rate("button_flash_rate")
@@ -172,7 +171,6 @@ LLButton::LLButton(const LLButton::Params& p)
 	mHeldDownSignal(NULL),
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
 	mHandleRightMouse(p.handle_right_mouse),
-	mClickOnDragAndDrop(p.click_on_drag_and_drop),		// if true, hovering on button while dragging -> click
 	mButtonFlashCount(p.button_flash_count),
 	mButtonFlashRate(p.button_flash_rate)
 {
@@ -1236,35 +1234,8 @@ void LLButton::resetMouseDownTimer()
 	mMouseDownTimer.reset();
 }
 
-
 BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	// just treat a double click as a second click
 	return handleMouseDown(x, y, mask);
-}
-
-// virtual
-BOOL LLButton::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop, EDragAndDropType type, void* cargo_data, EAcceptance *accept, std::string	&tooltip)
-{
-	const F32 CLICK_ON_DAD_DELAY_TIME = 0.5f;
-	if (mClickOnDragAndDrop)
-	{
-		// In that case, though the button doesn't really handles drops, it'll "click" if hovering on it
-		// while dragging something. That allows for instance drilling into tabbed containers.
-		// Note: we use the same timer as mouse down just as convenience and to avoid duplication.
-		if (mMouseDownTimer.getStarted())
-		{
-			if (mMouseDownTimer.getElapsedTimeF32() > CLICK_ON_DAD_DELAY_TIME )
-			{
-				onCommit();
-				mMouseDownTimer.stop();
-			}
-		}
-		else 
-		{
-			mMouseDownTimer.start();
-		}
-	}
-	// The true DaD effect is handled at the View level if any.
-	return LLView::handleDragAndDrop(x,	y, mask, drop, type, cargo_data,  accept, tooltip);
 }
