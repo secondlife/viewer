@@ -111,6 +111,8 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
 	  mCursorHidden(FALSE),
 	  mBusyCount(0),
 	  mIsMouseClipping(FALSE),
+	  mMinWindowWidth(1024),		// just a sanity check - actual minimum size is stored in settings.xml
+	  mMinWindowHeight(768),
 	  mSwapMethod(SWAP_METHOD_UNDEFINED),
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),
@@ -177,6 +179,13 @@ void *LLWindow::getMediaWindow()
 {
 	// Default to returning the platform window.
 	return getPlatformWindow();
+}
+
+// virtual
+void LLWindow::setMinSize(U32 min_width, U32 min_height)
+{
+	mMinWindowWidth = min_width;
+	mMinWindowHeight = min_height;
 }
 
 //virtual
