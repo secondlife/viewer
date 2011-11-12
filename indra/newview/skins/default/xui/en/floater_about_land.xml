@@ -1322,15 +1322,22 @@ Only large parcels can be listed in search.
              name="check group scripts"
              top_delta="0"
              width="70" />
- 
-            <check_box
+          <panel
+            bevel_style="none"
+            border="true"
+            top="146"
+            bottom="146"
+            follows="left|bottom|right"
+            left="20"
+            right="-20"/>
+          <check_box
              height="16"
              label="Safe (no damage)"
              layout="topleft"
              left="18"
              name="check safe"
              tool_tip="If checked, sets the land to Safe, disabling damage combat. If cleared, damage combat is enabled."
-             top_pad="20"
+             top="130"
              width="200" />
             <check_box
              height="16"
@@ -1339,7 +1346,7 @@ Only large parcels can be listed in search.
              left_pad="35"
              name="PushRestrictCheck"
              tool_tip="Prevents scripts from pushing. Checking this option may be useful for preventing disruptive behavior on your land."
-             top_delta="0"
+             top="130"
              width="119" />
             <check_box
              height="16"
@@ -1348,12 +1355,14 @@ Only large parcels can be listed in search.
              left="18"
              name="ShowDirectoryCheck"
              tool_tip="Let people see this parcel in search results"
+             top="150"
              width="430" />
             <combo_box
              enabled="false"
              height="23"
              layout="topleft"
              left="20"
+             top="194"
              name="land category with adult"
              visible="false"
              width="140">
@@ -1419,6 +1428,7 @@ Only large parcels can be listed in search.
              height="23"
              layout="topleft"
              left="20"
+             top="194"
              name="land category"
              visible="false"
              width="140">
@@ -1481,7 +1491,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="18"
              name="MatureCheck"
-             top="167"
+             top="170"
              label_text.valign="center" 
              label_text.v_pad="-1" 
              tool_tip=" "
@@ -1517,7 +1527,7 @@ Only large parcels can be listed in search.
              height="16"
              layout="topleft"
              left="274"
-             top="160"
+             top="166"
              name="allow_label5"
              width="278">
               and chat with avatars on this parcel
@@ -1528,7 +1538,7 @@ Only large parcels can be listed in search.
              follows="top"
              layout="topleft"
              left="253"
-             top="146"
+             top="150"
              name="SeeAvatarsCheck"
              tool_tip="Allows avatars on other parcels to see and chat with avatars on this parcel, and you to see and chat with them."
              width="120" />
