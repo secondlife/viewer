@@ -679,6 +679,8 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 			releaseScreenBuffers();
 		}
 
+		samples = 0;
+
 		//reduce resolution
 		while (resY > 0 && resX > 0)
 		{
@@ -6253,8 +6255,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	U32 res_mod = RenderResolutionDivisor;
 
 	LLVector2 tc1(0,0);
-	LLVector2 tc2((F32) gViewerWindow->getWorldViewWidthRaw()*2,
-				  (F32) gViewerWindow->getWorldViewHeightRaw()*2);
+	LLVector2 tc2((F32) mScreen.getWidth()*2,
+				  (F32) mScreen.getHeight()*2);
 
 	if (res_mod > 1)
 	{
@@ -6403,8 +6405,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
-	tc2.setVec((F32) gViewerWindow->getWorldViewWidthRaw(),
-			(F32) gViewerWindow->getWorldViewHeightRaw());
+	tc2.setVec((F32) mScreen.getWidth(),
+			(F32) mScreen.getHeight());
 
 	gGL.flush();
 	
@@ -6418,7 +6420,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 							RenderDepthOfField;
 
 
-		bool multisample = RenderFSAASamples > 1;
+		bool multisample = RenderFSAASamples > 1 && mFXAABuffer.isComplete();
 
 #if LL_DARWIN //force FXAA to off on OSX (SH-2620)
 		multisample = false;
@@ -6606,11 +6608,20 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				if (multisample)
 				{
 					mDeferredLight.bindTarget();
+					glViewport(0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
+				}
+				else
+				{
+					gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+					gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+					gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+					gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+					glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 				}
 
 				shader = &gDeferredDoFCombineProgram;
 				bindDeferredShader(*shader);
-				glViewport(0, 0, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
+				
 				S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
 				if (channel > -1)
 				{
