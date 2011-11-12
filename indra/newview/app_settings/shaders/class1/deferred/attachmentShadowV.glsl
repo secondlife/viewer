@@ -31,15 +31,12 @@ ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
 
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
 	//transform vertex
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
 	mat4 mat = getObjectSkinnedTransform();
 	
 	mat = modelview_matrix * mat;

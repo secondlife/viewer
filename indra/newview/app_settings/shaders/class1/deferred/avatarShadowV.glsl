@@ -32,12 +32,9 @@ ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 post_pos;
-VARYING vec2 vary_texcoord0;
 
 void main()
 {
-	vary_texcoord0 = texcoord0;
-				
 	vec4 pos;
 	vec3 norm;
 	
