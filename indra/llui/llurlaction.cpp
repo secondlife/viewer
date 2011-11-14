@@ -33,28 +33,28 @@
 #include "llurlregistry.h"
 
 // global state for the callback functions
-void (*LLUrlAction::sOpenURLCallback) (const std::string& url) = NULL;
-void (*LLUrlAction::sOpenURLInternalCallback) (const std::string& url) = NULL;
-void (*LLUrlAction::sOpenURLExternalCallback) (const std::string& url) = NULL;
-bool (*LLUrlAction::sExecuteSLURLCallback) (const std::string& url) = NULL;
+LLUrlAction::url_callback_t 		LLUrlAction::sOpenURLCallback;
+LLUrlAction::url_callback_t 		LLUrlAction::sOpenURLInternalCallback;
+LLUrlAction::url_callback_t 		LLUrlAction::sOpenURLExternalCallback;
+LLUrlAction::execute_url_callback_t LLUrlAction::sExecuteSLURLCallback;
 
 
-void LLUrlAction::setOpenURLCallback(void (*cb) (const std::string& url))
+void LLUrlAction::setOpenURLCallback(url_callback_t cb)
 {
 	sOpenURLCallback = cb;
 }
 
-void LLUrlAction::setOpenURLInternalCallback(void (*cb) (const std::string& url))
+void LLUrlAction::setOpenURLInternalCallback(url_callback_t cb)
 {
 	sOpenURLInternalCallback = cb;
 }
 
-void LLUrlAction::setOpenURLExternalCallback(void (*cb) (const std::string& url))
+void LLUrlAction::setOpenURLExternalCallback(url_callback_t cb)
 {
 	sOpenURLExternalCallback = cb;
 }
 
-void LLUrlAction::setExecuteSLURLCallback(bool (*cb) (const std::string& url))
+void LLUrlAction::setExecuteSLURLCallback(execute_url_callback_t cb)
 {
 	sExecuteSLURLCallback = cb;
 }
@@ -63,7 +63,7 @@ void LLUrlAction::openURL(std::string url)
 {
 	if (sOpenURLCallback)
 	{
-		(*sOpenURLCallback)(url);
+		sOpenURLCallback(url);
 	}
 }
 
@@ -71,7 +71,7 @@ void LLUrlAction::openURLInternal(std::string url)
 {
 	if (sOpenURLInternalCallback)
 	{
-		(*sOpenURLInternalCallback)(url);
+		sOpenURLInternalCallback(url);
 	}
 }
 
@@ -79,7 +79,7 @@ void LLUrlAction::openURLExternal(std::string url)
 {
 	if (sOpenURLExternalCallback)
 	{
-		(*sOpenURLExternalCallback)(url);
+		sOpenURLExternalCallback(url);
 	}
 }
 
@@ -87,18 +87,18 @@ void LLUrlAction::executeSLURL(std::string url)
 {
 	if (sExecuteSLURLCallback)
 	{
-		(*sExecuteSLURLCallback)(url);
+		sExecuteSLURLCallback(url);
 	}
 }
 
 void LLUrlAction::clickAction(std::string url)
 {
 	// Try to handle as SLURL first, then http Url
-	if ( (sExecuteSLURLCallback) && !(*sExecuteSLURLCallback)(url) )
+	if ( (sExecuteSLURLCallback) && !sExecuteSLURLCallback(url) )
 	{
 		if (sOpenURLCallback)
 		{
-			(*sOpenURLCallback)(url);
+			sOpenURLCallback(url);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /** 
- * @file llfloatermediabrowser.h
+ * @file llfloaterhelpbrowser.h
  * @brief HTML Help floater - uses embedded web browser control
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$

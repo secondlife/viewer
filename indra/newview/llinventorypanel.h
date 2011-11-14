@@ -175,6 +175,8 @@ public:
 	// Find whichever inventory panel is active / on top.
 	// "Auto_open" determines if we open an inventory panel if none are open.
 	static LLInventoryPanel *getActiveInventoryPanel(BOOL auto_open = TRUE);
+	
+	static void openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id);
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
