@@ -65,35 +65,6 @@
  	 name="local_failed_str">
  	    Failed to save to computer.
  	</string>
-   <view_border 
-    bevel_style="in"
-    follows="left|top" 
-    height="21"
-    left="10"
-    layout="topleft"
-    name="img_info_border"
-    top="22"
-    width="50"
-   />
-   <icon
-    follows="top|left"
-    height="18"
-    image_name="Snapshot_Off"
-    layout="topleft"
-    left_delta="-5"
-    mouse_opaque="true"
-    name="refresh_icon"
-    top_delta="3"
-    width="36" />
-   <button
-    follows="left|top"
-    height="22"
-    image_overlay="Refresh_Off"
-    layout="topleft"
-    left_delta="31"
-    name="new_snapshot_btn"
-    top_delta="-3"
-    width="23" />
     <button
      follows="left|top"
      height="23"
@@ -102,7 +73,7 @@
      left="236"
      name="advanced_options_btn"
      tool_tip="Advanced options"
-     top_delta="0"
+     top="25"
      width="23" />
   <ui_ctrl 
     height="160"
@@ -137,6 +108,34 @@
        visible="false"
        width="130">
           Working
+      </text>
+      <button
+       follows="left|top"
+       height="22"
+       image_overlay="Refresh_Off"
+       layout="topleft"
+       left="20"
+       name="new_snapshot_btn"
+       bottom="-20"
+       visible="false"
+       width="22" />
+      <text
+       follows="left|top"
+       font="SansSerifBold"
+       halign="left"
+       height="18"
+       layout="topleft"
+       left_pad="10"
+       length="1"
+       name="refresh_lbl"
+       right="-5"
+       text_color="red"
+       top_delta="0"
+       translate="false"
+       type="string"
+       visible="false"
+       width="130">
+          Refresh to save.
       </text>
   </ui_ctrl>
   <view_border 

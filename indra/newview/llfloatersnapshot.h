@@ -71,6 +71,7 @@ public:
 
 private:
 	static LLUICtrl* sThumbnailPlaceholder;
+	LLUICtrl *mRefreshBtn, *mRefreshLabel;
 
 	class Impl;
 	Impl& impl;
