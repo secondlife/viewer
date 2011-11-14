@@ -38,8 +38,16 @@ std::string getMarketplaceBaseURL()
 
 	if (!LLGridManager::getInstance()->isInProductionGrid())
 	{
-		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
+		std::string gridLabel = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
+		
+		if (gridLabel == "damballah")
+		{
+			url = "https://marketplace.secondlife-staging.com/";
+		}
+		else
+		{
+			url = llformat("https://marketplace.%s.lindenlab.com/", gridLabel.c_str());
+		}
 	}
 
 	url += "api/1/users/";
@@ -67,7 +75,7 @@ std::string getMarketplaceURL_UserStatus()
 }
 
 
-static bool gMarketplaceSyncEnabled = false;
+static bool gMarketplaceSyncEnabled = true;
 
 bool getMarketplaceSyncEnabled()
 {
