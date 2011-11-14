@@ -2138,7 +2138,15 @@ void LLVOAvatar::updateMeshData()
 
 			for(S32 k = j ; k < part_index ; k++)
 			{
-				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update);
+				bool rigid = false;
+				if (k == MESH_ID_EYEBALL_LEFT ||
+					k == MESH_ID_EYEBALL_RIGHT)
+				{ //eyeballs can't have terse updates since they're never rendered with
+					//the hardware skinning shader
+					rigid = true;
+				}
+				
+				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
 			}
 
 			stop_glerror();
