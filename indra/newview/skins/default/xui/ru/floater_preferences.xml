@@ -11,7 +11,7 @@
 		<panel label="Уведомления" name="msgs"/>
 		<panel label="Цвета" name="colors"/>
 		<panel label="Приватность" name="im"/>
-		<panel label="Настройка" name="input"/>
-		<panel label="Расширенный" name="advanced1"/>
+		<panel label="Конфигурация" name="input"/>
+		<panel label="Дополнительно" name="advanced1"/>
 	</tab_container>
 </floater>

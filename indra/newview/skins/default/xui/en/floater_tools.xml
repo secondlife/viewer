@@ -791,6 +791,7 @@
      tab_min_width="40"
      tab_position="top"
      tab_height="25"
+     open_tabs_on_drag_and_drop="true"
      top="173"
      width="295">
 	

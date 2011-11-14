@@ -93,7 +93,7 @@ public:
 
 	// Loads the toolbars from the existing user or default settings
 	bool loadToolbars(bool force_default = false);	// return false if load fails
-
+	
 	// Clears all buttons off the toolbars
 	bool clearToolbars();
 	

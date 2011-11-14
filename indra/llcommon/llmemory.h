@@ -394,12 +394,12 @@ public:
 	LLPrivateMemoryPool* newPool(S32 type) ;
 	void deletePool(LLPrivateMemoryPool* pool) ;
 
-private:
-	static LLPrivateMemoryPoolManager* sInstance ;
-	std::vector<LLPrivateMemoryPool*> mPoolList ;
-	BOOL mPrivatePoolEnabled;
+private:	
+	std::vector<LLPrivateMemoryPool*> mPoolList ;	
 	U32  mMaxPrivatePoolSize;
 
+	static LLPrivateMemoryPoolManager* sInstance ;
+	static BOOL sPrivatePoolEnabled;
 	static std::vector<LLPrivateMemoryPool*> sDanglingPoolList ;
 public:
 	//debug and statistics info.

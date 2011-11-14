@@ -1239,6 +1239,14 @@ void LLPluginClassMedia::focus(bool focused)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::set_page_zoom_factor( double factor )
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "set_page_zoom_factor");
+
+	message.setValueReal("factor", factor);
+	sendMessage(message);
+}
+
 void LLPluginClassMedia::clear_cache()
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "clear_cache");

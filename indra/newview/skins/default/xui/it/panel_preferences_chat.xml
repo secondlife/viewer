@@ -29,9 +29,9 @@
 	<check_box label="Chat IM" name="EnableIMChatPopups" tool_tip="Seleziona per vedere una finestra popup quando arriva un messaggio IM"/>
 	<spinner label="Durata chat vicine:" name="nearby_toasts_lifetime"/>
 	<spinner label="Durata dissolvenza chat vicine:" name="nearby_toasts_fadingtime"/>
-	<check_box label="Use machine translation while chatting (powered by Google)" name="translate_chat_checkbox"/>
+	<check_box label="Use machine translation while chatting" name="translate_chat_checkbox"/>
 	<text name="translate_chb_label">
-		Usa la traduzione meccanica durante le chat (tecnologia Google)
+		Usa la traduzione meccanica durante le chat
 	</text>
 	<text name="translate_language_text" width="110">
 		Traduci chat in:

@@ -42,6 +42,7 @@
 #include "llpumpio.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"
+#include "llproxy.h"
 
 LLPumpIO* gServicePump;
 BOOL gBreak = false;
@@ -427,4 +428,10 @@ bool LLCrashLogger::init()
 	}
 	
 	return true;
+}
+
+// For cleanup code common to all platforms.
+void LLCrashLogger::commonCleanup()
+{
+	LLProxy::cleanupClass();
 }

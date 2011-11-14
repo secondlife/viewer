@@ -56,7 +56,7 @@
 			<menu_item_check label="Parsel Özellikleri" name="Parcel Properties"/>
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_call label="Ana Konuma Işınlan" name="Teleport Home"/>
+		<menu_item_call label="Ana Konuma Işınla" name="Teleport Home"/>
 		<menu_item_call label="Ana Konumu Burası Olarak Seç" name="Set Home to Here"/>
 		<menu label="Güneş" name="Environment Settings">
 			<menu_item_call label="Gün Doğumu" name="Sunrise"/>

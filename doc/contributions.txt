@@ -480,6 +480,7 @@ Ima Mechanique
 	OPEN-50
 	OPEN-61
 	OPEN-76
+	STORM-959
 	STORM-1175
 Imnotgoing Sideways
 Inma Rau
@@ -581,6 +582,10 @@ Jonathan Yap
 	STORM-1639
 	STORM-910
 	STORM-1642
+	STORM-1105
+	STORM-1222
+	STORM-1659
+	STORM-1674
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -654,6 +659,8 @@ Lilly Zenovka
 Lizzy Macarthur
 Luban Yiyuan
 Luc Starsider
+Luminous Luminos
+	STORM-959
 Lunita Savira
 Maccus McCullough
 maciek marksman

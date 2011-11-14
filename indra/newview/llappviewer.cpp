@@ -847,9 +847,9 @@ bool LLAppViewer::init()
 	LLWeb::initClass();			  // do this after LLUI
 	
 	// Provide the text fields with callbacks for opening Urls
-	LLUrlAction::setOpenURLCallback(&LLWeb::loadURL);
-	LLUrlAction::setOpenURLInternalCallback(&LLWeb::loadURLInternal);
-	LLUrlAction::setOpenURLExternalCallback(&LLWeb::loadURLExternal);
+	LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
+	LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null));
+	LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
 	// Let code in llui access the viewer help floater
@@ -1970,6 +1970,8 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
+	LLImage::initClass();
+
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
 
@@ -1979,8 +1981,7 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
 													sImageDecodeThread,
 													enable_threads && true,
-													app_metrics_qa_mode);
-	LLImage::initClass();
+													app_metrics_qa_mode);	
 
 	if (LLFastTimer::sLog || LLFastTimer::sMetricLog)
 	{
@@ -2825,48 +2826,15 @@ void LLAppViewer::initUpdater()
 
 void LLAppViewer::checkForCrash(void)
 {
-    
 #if LL_SEND_CRASH_REPORTS
 	if (gLastExecEvent == LAST_EXEC_FROZE)
     {
-        llinfos << "Last execution froze, requesting to send crash report." << llendl;
-        //
-        // Pop up a freeze or crash warning dialog
-        //
-        S32 choice;
-	const S32 cb = gCrashSettings.getS32("CrashSubmitBehavior");
-        if(cb == CRASH_BEHAVIOR_ASK)
-        {
-            std::ostringstream msg;
-			msg << LLTrans::getString("MBFrozenCrashed");
-			std::string alert = LLTrans::getString("APP_NAME") + " " + LLTrans::getString("MBAlert");
-            choice = OSMessageBox(msg.str(),
-                                  alert,
-                                  OSMB_YESNO);
-        } 
-        else if(cb == CRASH_BEHAVIOR_NEVER_SEND)
-        {
-            choice = OSBTN_NO;
-        }
-        else
-        {
-            choice = OSBTN_YES;
-        }
-
-        if (OSBTN_YES == choice)
-        {
-            llinfos << "Sending crash report." << llendl;
+        llinfos << "Last execution froze, sending a crash report." << llendl;
             
-            bool report_freeze = true;
-            handleCrashReporting(report_freeze);
-        }
-        else
-        {
-            llinfos << "Not sending crash report." << llendl;
-        }
+		bool report_freeze = true;
+		handleCrashReporting(report_freeze);
     }
 #endif // LL_SEND_CRASH_REPORTS    
-    
 }
 
 //
@@ -2892,10 +2860,22 @@ bool LLAppViewer::initWindow()
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
+
+	// clamp to minimum window size
+	U32 min_window_width=gSavedSettings.getU32("MinWindowWidth");
+	U32 window_width=gSavedSettings.getU32("WindowWidth");
+	if ( window_width < min_window_width )
+		window_width=min_window_width;
+
+	U32 min_window_height=gSavedSettings.getU32("MinWindowHeight");
+	U32 window_height=gSavedSettings.getU32("WindowHeight");
+	if ( window_height < min_window_height )
+		window_height=min_window_height;
+
 	gViewerWindow = new LLViewerWindow(gWindowTitle, 
 		VIEWER_WINDOW_CLASSNAME,
 		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
-		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
+		window_width, window_height,
 		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
 
 	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
@@ -3116,6 +3096,8 @@ void LLAppViewer::handleViewerCrash()
 	llinfos << "Handle viewer crash entry." << llendl;
 
 	llinfos << "Last render pool type: " << LLPipeline::sCurRenderPoolType << llendl ;
+
+	LLMemory::logMemoryInfo(true) ;
 
 	//print out recorded call stacks if there are any.
 	LLError::LLCallStacks::print();

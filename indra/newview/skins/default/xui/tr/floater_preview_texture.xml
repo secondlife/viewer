@@ -34,7 +34,7 @@
 		<combo_item name="16:10">
 			16:10
 		</combo_item>
-		<combo_item name="16:9" tool_tip="Profil favorileri">
+		<combo_item name="16:9" tool_tip="Profil seçmeleri">
 			16:9
 		</combo_item>
 		<combo_item name="2:1">

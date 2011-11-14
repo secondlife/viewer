@@ -12,13 +12,20 @@
      tab_stop="false"
      width="25" />
     <chiclet_im_group.speaker
-     auto_update="true"
-     draw_border="false"
-     height="25"
-     left="25"
-     name="speaker"
-     visible="false"
-     width="20" />
+      image_mute="Parcel_VoiceNo_Light"
+      image_off="VoicePTT_Off_Dark"
+      image_on="VoicePTT_On_Dark"
+      image_level_1="VoicePTT_Lvl1_Dark"
+      image_level_2="VoicePTT_Lvl2_Dark"
+      image_level_3="VoicePTT_Lvl3_Dark"
+      auto_update="true"
+      draw_border="false"
+      height="24"
+      left="25"
+      bottom="1"      
+      name="speaker"
+      visible="false"
+      width="20" />
     <chiclet_im_group.group_icon
      bottom="3"
      default_icon="Generic_Group"

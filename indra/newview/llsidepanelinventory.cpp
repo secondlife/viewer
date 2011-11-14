@@ -450,6 +450,24 @@ void LLSidepanelInventory::enableOutbox(bool enabled)
 	}
 }
 
+void LLSidepanelInventory::openInbox()
+{
+	if (mInboxEnabled)
+	{
+		getChild<LLButton>(INBOX_BUTTON_NAME)->setToggleState(true);
+		onToggleInboxBtn();
+	}
+}
+
+void LLSidepanelInventory::openOutbox()
+{
+	if (mOutboxEnabled)
+	{
+		getChild<LLButton>(OUTBOX_BUTTON_NAME)->setToggleState(true);
+		onToggleOutboxBtn();
+	}
+}
+
 void LLSidepanelInventory::onInboxChanged(const LLUUID& inbox_id)
 {
 	// Trigger a load of the entire inbox so we always know the contents and their creation dates for sorting

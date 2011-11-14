@@ -33,11 +33,33 @@
 #include "llappviewer.h"
 #include "llaudioengine.h"  // for gAudiop
 #include "llcallbacklist.h"
+#include "llparcel.h"
+#include "llaudioengine.h"  // for gAudiop
+#include "llurldispatcher.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
+#include "llviewerregion.h"
+#include "llwebprofile.h"
+#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
+#include "llfilepicker.h"
+#include "llnotifications.h"
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llfilepicker.h"
 #include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
+#include "llnotificationsutil.h"
+#include "lluuid.h"
+#include "llkeyboard.h"
+#include "llmutelist.h"
+#include "llpanelprofile.h"
+#include "llappviewer.h"
+#include "lllogininstance.h" 
+//#include "llfirstuse.h"
+#include "llviewernetwork.h"
+#include "llwindow.h"
+
+
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfocusmgr.h"
 #include "llkeyboard.h"
@@ -317,6 +339,10 @@ public:
 		std::string cookie = content["set-cookie"].asString();
 
 		LLViewerMedia::getCookieStore()->setCookiesFromHost(cookie, mHost);
+
+		// Set cookie for snapshot publishing.
+		std::string auth_cookie = cookie.substr(0, cookie.find(";")); // strip path
+		LLWebProfile::setAuthCookie(auth_cookie);
 	}
 
 	 void completedRaw(
@@ -1475,6 +1501,8 @@ void LLViewerMedia::setOpenIDCookie()
 		std::string profile_url = getProfileURL("");
 		LLURL raw_profile_url( profile_url.c_str() );
 
+		LL_DEBUGS("MediaAuth") << "Requesting " << profile_url << llendl;
+		LL_DEBUGS("MediaAuth") << "sOpenIDCookie = [" << sOpenIDCookie << "]" << llendl;
 		LLHTTPClient::get(profile_url,  
 			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
 			headers);
@@ -1707,7 +1735,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNavigateSuspended(false),
 	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false),
-	mTrustedBrowser(false)
+	mTrustedBrowser(false),
+	mZoomFactor(1.0)
 { 
 
 	// Set up the mute list observer if it hasn't been set up already.
@@ -2293,6 +2322,17 @@ void LLViewerMediaImpl::clearCache()
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::setPageZoomFactor( double factor )
+{
+	if(mMediaSource && factor != mZoomFactor)
+	{
+		mZoomFactor = factor;
+		mMediaSource->set_page_zoom_factor( factor );
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {
@@ -2441,44 +2481,58 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::updateJavascriptObject()
 {
+	static LLFrameTimer timer ;
+
 	if ( mMediaSource )
 	{
 		// flag to expose this information to internal browser or not.
 		bool enable = gSavedSettings.getBOOL("BrowserEnableJSObject");
+
+		if(!enable)
+		{
+			return ; //no need to go further.
+		}
+
+		if(timer.getElapsedTimeF32() < 1.0f)
+		{
+			return ; //do not update more than once per second.
+		}
+		timer.reset() ;
+
 		mMediaSource->jsEnableObject( enable );
 
 		// these values are only menaingful after login so don't set them before
 		bool logged_in = LLLoginInstance::getInstance()->authSuccess();
 		if ( logged_in )
 		{
-		// current location within a region
-		LLVector3 agent_pos = gAgent.getPositionAgent();
-		double x = agent_pos.mV[ VX ];
-		double y = agent_pos.mV[ VY ];
-		double z = agent_pos.mV[ VZ ];
-		mMediaSource->jsAgentLocationEvent( x, y, z );
+			// current location within a region
+			LLVector3 agent_pos = gAgent.getPositionAgent();
+			double x = agent_pos.mV[ VX ];
+			double y = agent_pos.mV[ VY ];
+			double z = agent_pos.mV[ VZ ];
+			mMediaSource->jsAgentLocationEvent( x, y, z );
 
-		// current location within the grid
-		LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
-		double global_x = agent_pos_global.mdV[ VX ];
-		double global_y = agent_pos_global.mdV[ VY ];
-		double global_z = agent_pos_global.mdV[ VZ ];
-		mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
+			// current location within the grid
+			LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
+			double global_x = agent_pos_global.mdV[ VX ];
+			double global_y = agent_pos_global.mdV[ VY ];
+			double global_z = agent_pos_global.mdV[ VZ ];
+			mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
 
-		// current agent orientation
-		double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
-		double angle = rotation * RAD_TO_DEG;
-		if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
-		mMediaSource->jsAgentOrientationEvent( angle );
+			// current agent orientation
+			double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+			double angle = rotation * RAD_TO_DEG;
+			if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
+			mMediaSource->jsAgentOrientationEvent( angle );
 
-		// current region agent is in
-		std::string region_name("");
-		LLViewerRegion* region = gAgent.getRegion();
-		if ( region )
-		{
-			region_name = region->getName();
-		};
-		mMediaSource->jsAgentRegionEvent( region_name );
+			// current region agent is in
+			std::string region_name("");
+			LLViewerRegion* region = gAgent.getRegion();
+			if ( region )
+			{
+				region_name = region->getName();
+			};
+			mMediaSource->jsAgentRegionEvent( region_name );
 		}
 
 		// language code the viewer is set to
@@ -3332,7 +3386,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			{
 				// This close request is directed at another instance
 				pass_through = false;
-				LLFloaterMediaBrowser::closeRequest(uuid);
 				LLFloaterWebContent::closeRequest(uuid);
 			}
 		}
@@ -3352,7 +3405,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			{
 				// This request is directed at another instance
 				pass_through = false;
-				LLFloaterMediaBrowser::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
 				LLFloaterWebContent::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
 			}
 		}
