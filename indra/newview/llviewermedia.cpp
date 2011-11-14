@@ -33,37 +33,14 @@
 #include "llappviewer.h"
 #include "llaudioengine.h"  // for gAudiop
 #include "llcallbacklist.h"
-#include "llparcel.h"
-#include "llaudioengine.h"  // for gAudiop
-#include "llurldispatcher.h"
-#include "llvoavatar.h"
-#include "llvoavatarself.h"
-#include "llviewerregion.h"
-#include "llwebprofile.h"
-#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
-#include "llfilepicker.h"
-#include "llnotifications.h"
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
 #include "llfilepicker.h"
-#include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
-#include "llnotificationsutil.h"
-#include "lluuid.h"
-#include "llkeyboard.h"
-#include "llmutelist.h"
-#include "llpanelprofile.h"
-#include "llappviewer.h"
-#include "lllogininstance.h" 
-//#include "llfirstuse.h"
-#include "llviewernetwork.h"
-#include "llwindow.h"
-
-
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfocusmgr.h"
 #include "llkeyboard.h"
-#include "lllogininstance.h" 
+#include "lllogininstance.h"
 #include "llmarketplacefunctions.h"
 #include "llmediaentry.h"
 #include "llmimetypes.h"
@@ -77,8 +54,9 @@
 #include "llurldispatcher.h"
 #include "lluuid.h"
 #include "llversioninfo.h"
-#include "llviewercontrol.h"
 #include "llviewermediafocus.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -88,6 +66,7 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llvovolume.h"
+#include "llwebprofile.h"
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llwindow.h"
 
