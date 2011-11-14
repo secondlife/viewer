@@ -438,7 +438,7 @@ Tilbyd venskab til [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Ønsker du at fjerne [NAME] fra din venneliste?
+		Ønsker du at fjerne &lt;nolink&gt;[NAME]&lt;/nolink&gt; fra din venneliste?
 	</notification>
 	<notification name="ConfirmItemDeleteHasLinks">
 		Mindst en af genstandene har lænkede genstande der peger på den. Hvis du sletter denne genstand, vil lænkninger ikke virke mere.  Det anbefales kraftigt at fjerne lænkninger først.
@@ -1023,10 +1023,10 @@ Henvis til dette fra en hjemmeside for at give andre nem adgang til denne lokati
 		Erstattet manglende tøj/kropsdele med standard.
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] er logget på
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; er logget på
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] er logget af
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; er logget af
 	</notification>
 	<notification name="AddSelfFriend">
 		Selvom du nok er meget sød, kan du ikke tilføje dig selv som ven.
@@ -1404,10 +1404,10 @@ Prøv igen om lidt.
 (Som udgangspunkt, vil du være i stand til at se den andens online status)
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] accepterede dit tilbud om venskab.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; accepterede dit tilbud om venskab.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] afviste dit tilbud om venskab.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; afviste dit tilbud om venskab.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Tilbud om venskab accepteret.

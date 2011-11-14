@@ -72,6 +72,7 @@ public:
 	BOOL canShare() const;
 	BOOL canListOnMarketplace() const;
 	BOOL canListOnMarketplaceNow() const;
+	bool isSystemFolder() const; // true if is a "System" folder
 
 	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
