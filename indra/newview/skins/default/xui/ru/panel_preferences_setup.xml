@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Настройка" name="Input panel">
+<panel label="Конфигурация" name="Input panel">
 	<text name="Network:">
 		Сеть:
 	</text>
 	<text name="Maximum bandwidth">
-		Максимальная ширина канала
+		Макс. ширина канала
 	</text>
 	<text name="text_box2">
 		Кбит/с
@@ -32,5 +32,5 @@
 	<text name="Proxy Settings:">
 		Настройки прокси-сервера:
 	</text>
-	<button label="Задать настройки прокси" label_selected="Обзор" name="set_proxy"/>
+	<button label="Задать настройки" label_selected="Обзор" name="set_proxy"/>
 </panel>

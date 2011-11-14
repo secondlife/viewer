@@ -26,50 +26,49 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llviewermedia.h"
+
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llviewermedia.h"
-#include "llviewermediafocus.h"
-#include "llmimetypes.h"
-#include "llmediaentry.h"
-#include "llversioninfo.h"
-#include "llviewercontrol.h"
-#include "llviewertexture.h"
-#include "llviewerparcelmedia.h"
-#include "llviewerparcelmgr.h"
-#include "llviewertexturelist.h"
-#include "llvovolume.h"
-#include "llpluginclassmedia.h"
-#include "llplugincookiestore.h"
-#include "llviewerwindow.h"
-#include "llfocusmgr.h"
-#include "llcallbacklist.h"
-#include "llparcel.h"
+#include "llappviewer.h"
 #include "llaudioengine.h"  // for gAudiop
-#include "llurldispatcher.h"
-#include "llvoavatar.h"
-#include "llvoavatarself.h"
-#include "llviewerregion.h"
-#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
-#include "llfilepicker.h"
-#include "llnotifications.h"
+#include "llcallbacklist.h"
 #include "lldir.h"
 #include "lldiriterator.h"
 #include "llevent.h"		// LLSimpleListener
-#include "llnotificationsutil.h"
-#include "lluuid.h"
-#include "llkeyboard.h"
-#include "llmutelist.h"
-#include "llpanelprofile.h"
-#include "llappviewer.h"
-#include "lllogininstance.h" 
-//#include "llfirstuse.h"
-#include "llviewernetwork.h"
-#include "llwindow.h"
-
-
-#include "llfloatermediabrowser.h"	// for handling window close requests and geometry change requests in media browser windows.
+#include "llfilepicker.h"
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
+#include "llfocusmgr.h"
+#include "llkeyboard.h"
+#include "lllogininstance.h"
+#include "llmarketplacefunctions.h"
+#include "llmediaentry.h"
+#include "llmimetypes.h"
+#include "llmutelist.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
+#include "llpanelprofile.h"
+#include "llparcel.h"
+#include "llpluginclassmedia.h"
+#include "llplugincookiestore.h"
+#include "llurldispatcher.h"
+#include "lluuid.h"
+#include "llversioninfo.h"
+#include "llviewermediafocus.h"
+#include "llviewercontrol.h"
+#include "llviewernetwork.h"
+#include "llviewerparcelmedia.h"
+#include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
+#include "llviewertexture.h"
+#include "llviewertexturelist.h"
+#include "llviewerwindow.h"
+#include "llvoavatar.h"
+#include "llvoavatarself.h"
+#include "llvovolume.h"
+#include "llwebprofile.h"
+#include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
+#include "llwindow.h"
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -319,6 +318,10 @@ public:
 		std::string cookie = content["set-cookie"].asString();
 
 		LLViewerMedia::getCookieStore()->setCookiesFromHost(cookie, mHost);
+
+		// Set cookie for snapshot publishing.
+		std::string auth_cookie = cookie.substr(0, cookie.find(";")); // strip path
+		LLWebProfile::setAuthCookie(auth_cookie);
 	}
 
 	 void completedRaw(
@@ -1394,14 +1397,20 @@ public:
 #if ENABLE_INVENTORY_DISPLAY_OUTBOX
 			gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
 #endif
+
+			setMarketplaceSyncEnabled(true);
 		}
 		else if (status == 401)
 		{
 			// API is available for use but OpenID authorization failed
 			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
+
+			setMarketplaceSyncEnabled(false);
 		}
 		else
 		{
+			setMarketplaceSyncEnabled(false);
+
 			// API in unavailable
 			llinfos << "Marketplace API is unavailable -- Inbox may be disabled, status = " << status << ", reason = " << reason << llendl;
 		}
@@ -1411,20 +1420,7 @@ public:
 
 void doOnetimeEarlyHTTPRequests()
 {
-	std::string url = "https://marketplace.secondlife.com/";
-
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-		url = llformat("https://marketplace.%s.lindenlab.com/", utf8str_tolower(gridLabel).c_str());
-
-		// TEMP for Jim's pdp
-		//url = "http://pdp24.lindenlab.com:3000/";
-	}
-	
-	url += "api/1/users/";
-	url += gAgent.getID().getString();
-	url += "/user_status";
+	std::string url = getMarketplaceURL_UserStatus();
 
 	llinfos << "http get: " << url << llendl;
 	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), LLViewerMedia::getHeaders());
@@ -1484,6 +1480,8 @@ void LLViewerMedia::setOpenIDCookie()
 		std::string profile_url = getProfileURL("");
 		LLURL raw_profile_url( profile_url.c_str() );
 
+		LL_DEBUGS("MediaAuth") << "Requesting " << profile_url << llendl;
+		LL_DEBUGS("MediaAuth") << "sOpenIDCookie = [" << sOpenIDCookie << "]" << llendl;
 		LLHTTPClient::get(profile_url,  
 			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
 			headers);
@@ -1716,7 +1714,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 	mNavigateSuspended(false),
 	mNavigateSuspendedDeferred(false),
 	mIsUpdated(false),
-	mTrustedBrowser(false)
+	mTrustedBrowser(false),
+	mZoomFactor(1.0)
 { 
 
 	// Set up the mute list observer if it hasn't been set up already.
@@ -2302,6 +2301,17 @@ void LLViewerMediaImpl::clearCache()
 	}
 }
 
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::setPageZoomFactor( double factor )
+{
+	if(mMediaSource && factor != mZoomFactor)
+	{
+		mZoomFactor = factor;
+		mMediaSource->set_page_zoom_factor( factor );
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::mouseDown(S32 x, S32 y, MASK mask, S32 button)
 {
@@ -2450,44 +2460,58 @@ BOOL LLViewerMediaImpl::handleMouseUp(S32 x, S32 y, MASK mask)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::updateJavascriptObject()
 {
+	static LLFrameTimer timer ;
+
 	if ( mMediaSource )
 	{
 		// flag to expose this information to internal browser or not.
 		bool enable = gSavedSettings.getBOOL("BrowserEnableJSObject");
+
+		if(!enable)
+		{
+			return ; //no need to go further.
+		}
+
+		if(timer.getElapsedTimeF32() < 1.0f)
+		{
+			return ; //do not update more than once per second.
+		}
+		timer.reset() ;
+
 		mMediaSource->jsEnableObject( enable );
 
 		// these values are only menaingful after login so don't set them before
 		bool logged_in = LLLoginInstance::getInstance()->authSuccess();
 		if ( logged_in )
 		{
-		// current location within a region
-		LLVector3 agent_pos = gAgent.getPositionAgent();
-		double x = agent_pos.mV[ VX ];
-		double y = agent_pos.mV[ VY ];
-		double z = agent_pos.mV[ VZ ];
-		mMediaSource->jsAgentLocationEvent( x, y, z );
+			// current location within a region
+			LLVector3 agent_pos = gAgent.getPositionAgent();
+			double x = agent_pos.mV[ VX ];
+			double y = agent_pos.mV[ VY ];
+			double z = agent_pos.mV[ VZ ];
+			mMediaSource->jsAgentLocationEvent( x, y, z );
 
-		// current location within the grid
-		LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
-		double global_x = agent_pos_global.mdV[ VX ];
-		double global_y = agent_pos_global.mdV[ VY ];
-		double global_z = agent_pos_global.mdV[ VZ ];
-		mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
+			// current location within the grid
+			LLVector3d agent_pos_global = gAgent.getLastPositionGlobal();
+			double global_x = agent_pos_global.mdV[ VX ];
+			double global_y = agent_pos_global.mdV[ VY ];
+			double global_z = agent_pos_global.mdV[ VZ ];
+			mMediaSource->jsAgentGlobalLocationEvent( global_x, global_y, global_z );
 
-		// current agent orientation
-		double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
-		double angle = rotation * RAD_TO_DEG;
-		if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
-		mMediaSource->jsAgentOrientationEvent( angle );
+			// current agent orientation
+			double rotation = atan2( gAgent.getAtAxis().mV[VX], gAgent.getAtAxis().mV[VY] );
+			double angle = rotation * RAD_TO_DEG;
+			if ( angle < 0.0f ) angle = 360.0f + angle;	// TODO: has to be a better way to get orientation!
+			mMediaSource->jsAgentOrientationEvent( angle );
 
-		// current region agent is in
-		std::string region_name("");
-		LLViewerRegion* region = gAgent.getRegion();
-		if ( region )
-		{
-			region_name = region->getName();
-		};
-		mMediaSource->jsAgentRegionEvent( region_name );
+			// current region agent is in
+			std::string region_name("");
+			LLViewerRegion* region = gAgent.getRegion();
+			if ( region )
+			{
+				region_name = region->getName();
+			};
+			mMediaSource->jsAgentRegionEvent( region_name );
 		}
 
 		// language code the viewer is set to
@@ -3341,7 +3365,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			{
 				// This close request is directed at another instance
 				pass_through = false;
-				LLFloaterMediaBrowser::closeRequest(uuid);
 				LLFloaterWebContent::closeRequest(uuid);
 			}
 		}
@@ -3361,7 +3384,6 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			{
 				// This request is directed at another instance
 				pass_through = false;
-				LLFloaterMediaBrowser::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
 				LLFloaterWebContent::geometryChanged(uuid, plugin->getGeometryX(), plugin->getGeometryY(), plugin->getGeometryWidth(), plugin->getGeometryHeight());
 			}
 		}

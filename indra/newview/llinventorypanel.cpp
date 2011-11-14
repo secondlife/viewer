@@ -618,22 +618,41 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 
 LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
 {
-	LLFolderViewFolder::Params params;
+	// Create the folder ui widget, unless it's an empty system folder that should be hidden
+	// Note : we still let the code create a listener for it (in case something shows up in it)
+	// but we simply skip creating the ui ctrl and adding it.
+	// *TODO : Need to be verified: if the listener is triggered and something added, will the code
+	// crash (because it's assuming, wrongly, that the uictrl exists)?
 
-	params.name = bridge->getDisplayName();
-	params.icon = bridge->getIcon();
-	params.icon_open = bridge->getOpenIcon();
-
-	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-	{
-		params.icon_overlay = LLUI::getUIImage("Inv_Link");
-	}
+	bool is_system_folder = bridge->isSystemFolder();
+	bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(bridge->getPreferredType());
+	bool is_empty = (mInventory->categoryHasChildren(bridge->getUUID()) != LLInventoryModel::CHILDREN_YES);
 	
-	params.root = mFolderRoot;
-	params.listener = bridge;
-	params.tool_tip = params.name;
+	if (!is_system_folder || !is_empty || !is_hidden_if_empty)
+	{
+		LLFolderViewFolder::Params params;
 
-	return LLUICtrlFactory::create<LLFolderViewFolder>(params);
+		params.name = bridge->getDisplayName();
+		params.icon = bridge->getIcon();
+		params.icon_open = bridge->getOpenIcon();
+
+		if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+		{
+			params.icon_overlay = LLUI::getUIImage("Inv_Link");
+		}
+	
+		params.root = mFolderRoot;
+		params.listener = bridge;
+		params.tool_tip = params.name;
+
+		return LLUICtrlFactory::create<LLFolderViewFolder>(params);
+	}
+	else 
+	{
+		// It's an empty system folder that should be hidden -> return NULL
+		return NULL;
+	}
+
 }
 
 LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
@@ -697,7 +716,10 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
   				if (new_listener)
   				{
 					LLFolderViewFolder* folderp = createFolderViewFolder(new_listener);
-  					folderp->setItemSortOrder(mFolderRoot->getSortOrder());
+					if (folderp)
+					{
+						folderp->setItemSortOrder(mFolderRoot->getSortOrder());
+					}
   					itemp = folderp;
   				}
   			}
@@ -1128,19 +1150,78 @@ LLInventoryPanel* LLInventoryPanel::getActiveInventoryPanel(BOOL auto_open)
 	{
 		// Make sure the floater is not minimized (STORM-438).
 		if (active_inv_floaterp && active_inv_floaterp->isMinimized())
+		{
 			active_inv_floaterp->setMinimized(FALSE);
+		}
+	}	
+	else if (auto_open)
+	{
+		floater_inventory->openFloater();
 
-		return res;
+		res = sidepanel_inventory->getActivePanel();
 	}
-		
-	// C. If no panels are open and we don't want to force open a panel, then just abort out.
-	if (!auto_open) return NULL;
-	
-	// D. Open the inventory side panel floater and use that.
-	floater_inventory->openFloater();
-	return sidepanel_inventory->getActivePanel();
 
-	return NULL;
+	return res;
+}
+
+//static
+void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const LLUUID& obj_id)
+{
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
+
+	if (active_panel)
+	{
+		LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
+		
+		LLViewerInventoryItem * item = gInventory.getItem(obj_id);
+		LLViewerInventoryCategory * cat = gInventory.getCategory(obj_id);
+		
+		bool in_inbox = false;
+		bool in_outbox = false;
+		
+		LLViewerInventoryCategory * parent_cat = NULL;
+		
+		if (item)
+		{
+			parent_cat = gInventory.getCategory(item->getParentUUID());
+		}
+		else if (cat)
+		{
+			parent_cat = gInventory.getCategory(cat->getParentUUID());
+		}
+		
+		if (parent_cat)
+		{
+			in_inbox = (LLFolderType::FT_INBOX == parent_cat->getPreferredType());
+			in_outbox = (LLFolderType::FT_OUTBOX == parent_cat->getPreferredType());
+		}
+		
+		if (in_inbox || in_outbox)
+		{
+			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+			LLInventoryPanel * inventory_panel = NULL;
+			
+			if (in_inbox)
+			{
+				sidepanel_inventory->openInbox();
+				inventory_panel = sidepanel_inventory->getInboxPanel();
+			}
+			else
+			{
+				sidepanel_inventory->openOutbox();
+				inventory_panel = sidepanel_inventory->getOutboxPanel();
+			}
+
+			if (inventory_panel)
+			{
+				inventory_panel->setSelection(obj_id, TAKE_FOCUS_YES);
+			}
+		}
+		else
+		{
+			active_panel->setSelection(obj_id, TAKE_FOCUS_YES);
+		}
+	}
 }
 
 void LLInventoryPanel::addHideFolderType(LLFolderType::EType folder_type)

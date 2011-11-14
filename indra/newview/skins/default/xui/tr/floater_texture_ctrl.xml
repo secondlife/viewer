@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="texture picker" title="FAVORİ: DOKU">
+<floater name="texture picker" title="SEÇME: DOKU">
 	<floater.string name="choose_picture">
 		Bir resim seçmek için tıklayın
 	</floater.string>
 	<floater.string name="pick title">
-		Favori:
+		Seçme:
 	</floater.string>
 	<text name="Multiple">
 		Birden çok doku

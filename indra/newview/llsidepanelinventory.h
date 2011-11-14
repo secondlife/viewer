@@ -58,6 +58,9 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
+	LLInventoryPanel* getInboxPanel() const { return mInventoryPanelInbox; }
+	LLInventoryPanel* getOutboxPanel() const { return mInventoryPanelOutbox; }
+
 	LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
 	BOOL isMainInventoryPanelActive() const;
 
@@ -76,6 +79,9 @@ public:
 
 	void enableInbox(bool enabled);
 	void enableOutbox(bool enabled);
+	
+	void openInbox();
+	void openOutbox();
 	
 	bool isInboxEnabled() const { return mInboxEnabled; }
 	bool isOutboxEnabled() const { return mOutboxEnabled; }

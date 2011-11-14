@@ -195,6 +195,20 @@ BOOL LLInvFVBridge::isLink() const
 	return mIsLink;
 }
 
+// Is a "System" folder
+// System folders are predefined named folders that have a specific preferred type
+// e.g. "Textures" which has an FT_TEXTURE preferred type.
+// Those are folders used to route incoming items in the current (soon to be obsolete) inventory
+// asset routing.
+// If a folder uses the same name as a predefined folder but is not of the same preferred type
+// or if it has a preferred type but a different name, it will not be considered a system folder.
+// *TODO: Test that logic in all languages
+bool LLInvFVBridge::isSystemFolder() const
+{
+	LLFolderType::EType preferred_type = getPreferredType();
+	return (preferred_type == LLFolderType::FT_NONE ? false : LLViewerFolderType::lookupTypeFromNewCategoryName(getDisplayName()) == preferred_type);
+}
+
 /*virtual*/
 /**
  * @brief Adds this item into clipboard storage
@@ -2027,7 +2041,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 #endif
 				}
 			}
-			if (move_is_into_outbox && !move_is_from_outbox)
+			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
 				dropFolderToOutbox(inv_cat);
 			}
@@ -3544,10 +3558,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		// because they must contain only links to wearable items.
 		accept = !(move_is_into_current_outfit || move_is_into_outfit);
 
-		if(drop)
+		if(accept && drop)
 		{
-			copy_inventory_from_notecard(LLToolDragAndDrop::getInstance()->getObjectID(),
-										 LLToolDragAndDrop::getInstance()->getSourceID(), inv_item);
+			copy_inventory_from_notecard(mUUID,  // Drop to the chosen destination folder
+										 LLToolDragAndDrop::getInstance()->getObjectID(),
+										 LLToolDragAndDrop::getInstance()->getSourceID(),
+										 inv_item);
 		}
 	}
 	else if(LLToolDragAndDrop::SOURCE_LIBRARY == source)

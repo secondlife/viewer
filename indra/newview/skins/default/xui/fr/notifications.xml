@@ -980,7 +980,7 @@ Proposer à [NAME] de devenir votre ami(e) ?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Voulez-vous supprimer [NAME] de votre liste d&apos;amis ?
+		Voulez-vous supprimer &lt;nolink&gt;[NAME]&lt;/nolink&gt; de votre liste d&apos;amis ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -2119,10 +2119,10 @@ Cette opération lancera votre navigateur Web.
 		Sujet : [SUBJECT], Message : [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] est en ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est en ligne
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] est hors ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est hors ligne
 	</notification>
 	<notification name="AddSelfFriend">
 		Même si vous êtes extrêmement sympathique, vous ne pouvez pas devenir ami avec vous-même.
@@ -2518,10 +2518,10 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] a accepté votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a accepté votre amitié.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] a refusé votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a refusé votre amitié.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Amitié acceptée.

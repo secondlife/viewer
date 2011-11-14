@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="310"
+ layout="topleft"
+ name="floater_translation_settings"
+ help_topic="translation_settings"
+ save_rect="true"
+ title="CHAT TRANSLATION SETTINGS"
+ width="485">
+
+ <string name="bing_api_key_not_verified">Bing appID not verified. Please try again.</string>
+ <string name="google_api_key_not_verified">Google API key not verified. Please try again.</string>
+
+ <string name="bing_api_key_verified">Bing appID verified.</string>
+ <string name="google_api_key_verified">Google API key verified.</string>
+
+ <check_box
+  height="16"     
+  label="Enable machine translation while chatting"
+  layout="topleft"
+  left="10"
+  name="translate_chat_checkbox"
+  top="30"
+  width="20" />
+ <text
+  height="20"
+  follows="left|top"
+  layout="topleft"
+  left="40"
+  name="translate_language_label"
+  top_pad="20"
+  width="130">
+  Translate chat into: 
+ </text>
+ <combo_box
+  allow_text_entry="true"
+  follows="left|top"
+  height="23"
+  left_pad="10"
+  max_chars="135"
+  mouse_opaque="true"
+  name="translate_language_combo"
+  top_delta="-5"
+  width="190">
+  <combo_box.item
+   label="System Default"
+   name="System Default Language"
+   value="default" />
+  <combo_box.item
+   label="English"
+   name="English"
+   value="en" />
+  <!-- After "System Default" and "English", please keep the rest of these combo_box.items in alphabetical order by the first character in the string. -->
+  <combo_box.item
+   label="Dansk (Danish)"
+   name="Danish"
+   value="da" />
+  <combo_box.item
+   label="Deutsch (German)"
+   name="German"
+   value="de" />
+  <combo_box.item
+   label="Español (Spanish)"
+   name="Spanish"
+   value="es" />
+  <combo_box.item
+   label="Français (French)"
+   name="French"
+   value="fr" />
+  <combo_box.item
+   label="Italiano (Italian)"
+   name="Italian"
+   value="it" />
+  <combo_box.item
+   label="Magyar (Hungarian)"
+   name="Hungarian"
+   value="hu" />
+  <combo_box.item
+   label="Nederlands (Dutch)"
+   name="Dutch"
+   value="nl" />
+  <combo_box.item
+   label="Polski (Polish)"
+   name="Polish"
+   value="pl" />
+  <combo_box.item
+   label="Português (Portuguese)"
+   name="Portugese"
+   value="pt" />
+  <combo_box.item
+   label="Русский (Russian)"
+   name="Russian"
+   value="ru" />
+  <combo_box.item
+   label="Türkçe (Turkish)"
+   name="Turkish"
+   value="tr" />
+  <combo_box.item
+   label="Українська (Ukrainian)"
+   name="Ukrainian"
+   value="uk" />
+  <combo_box.item
+   label="中文 (正體) (Chinese)"
+   name="Chinese"
+   value="zh" />
+  <combo_box.item
+   label="日本語 (Japanese)"
+   name="Japanese"
+   value="ja" />
+  <combo_box.item
+   label="한국어 (Korean)"
+   name="Korean"
+   value="ko" />
+ </combo_box>
+
+ <text
+  follows="top|left|right"
+  height="15"
+  layout="topleft"
+  left="40"
+  name="tip"
+  top_pad="20"
+  width="330"
+  wrap="true">
+  Choose translation service:
+ </text>
+
+ <radio_group
+  follows="top|left"
+  height="80"
+  layout="topleft"
+  left_delta="10"
+  name="translation_service_rg"
+  top_pad="20"
+  width="320">
+  <radio_item
+   initial_value="bing"
+   label="Bing Translator"
+   layout="topleft"
+   name="bing" />
+  <radio_item
+   initial_value="google"
+   label="Google Translate"
+   layout="topleft"
+   name="google"
+   top_pad="55" />
+ </radio_group>
+
+ <text
+  type="string"
+  length="1"
+  follows="top|right"
+  height="20"
+  layout="topleft"
+  left="70"
+  name="bing_api_key_label"
+  top_pad="-55"
+  width="85">
+  Bing [http://www.bing.com/developers/createapp.aspx AppID]:
+  </text>
+ <line_editor
+  default_text="Enter Bing AppID and click &quot;Verify&quot;"
+  follows="top|left"
+  height="20"
+  layout="topleft"
+  left_pad="10"
+  max_length_chars="50"
+  top_delta="-4"
+  name="bing_api_key"
+  width="210" />
+ <button
+  follows="left|top"
+  height="23"
+  label="Verify"
+  layout="topleft"
+  left_pad="10"
+  name="verify_bing_api_key_btn"
+  top_delta="-2"
+  width="90" />	
+
+ <text
+  follows="top|right"
+  height="20"
+  layout="topleft"
+  left="70"
+  length="1"
+  name="google_api_key_label"
+  top_pad="50"
+  type="string"
+  width="85">
+  Google [http://code.google.com/apis/language/translate/v2/getting_started.html#auth API key]:
+ </text>
+ <line_editor
+  default_text="Enter Google API key and click &quot;Verify&quot;"
+  follows="top|left"
+  height="20"
+  layout="topleft"
+  left_pad="10"
+  max_length_chars="50"
+  top_delta="-4"
+  name="google_api_key"
+  width="210" />
+ <button
+  follows="left|top"
+  height="23"
+  label="Verify"
+  layout="topleft"
+  left_pad="10"
+  name="verify_google_api_key_btn"
+  top_delta="-2"
+  width="90" />	
+
+ <text
+  follows="top|right"
+  height="20"
+  layout="topleft"
+  left="185"
+  length="1"
+  name="google_links_text"
+  top_delta="-23"
+  type="string"
+  width="100">
+  [http://code.google.com/apis/language/translate/v2/pricing.html Pricing] | [https://code.google.com/apis/console Stats] 
+ </text>
+
+ <button
+  follows="left|top"
+  height="23"
+  label="OK"
+  layout="topleft"
+  right="-120"
+  name="ok_btn"
+  top="-30"
+  width="100" />
+ <button
+  follows="left|top"
+  height="23"
+  label="Cancel"
+  layout="topleft"
+  left_pad="10"
+  name="cancel_btn"
+  width="100" />	
+</floater>

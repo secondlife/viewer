@@ -113,7 +113,7 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mRequestResult(0),
 	mWestSouth(),
 	mEastNorth(),
-	mSelectedDwell(0.f),
+	mSelectedDwell(DWELL_NAN),
 	mAgentParcelSequenceID(-1),
 	mHoverRequestResult(0),
 	mHoverWestSouth(),
@@ -233,7 +233,7 @@ void LLViewerParcelMgr::getDisplayInfo(S32* area_out, S32* claim_out,
 	S32 price = 0;
 	S32 rent = 0;
 	BOOL for_sale = FALSE;
-	F32 dwell = 0.f;
+	F32 dwell = DWELL_NAN;
 
 	if (mSelected)
 	{
@@ -579,7 +579,7 @@ void LLViewerParcelMgr::deselectLand()
 		mCurrentParcel->mBanList.clear();
 		//mCurrentParcel->mRenterList.reset();
 
-		mSelectedDwell = 0.f;
+		mSelectedDwell = DWELL_NAN;
 
 		// invalidate parcel selection so that existing users of this selection can clean up
 		mCurrentParcelSelection->setParcel(NULL);
@@ -1663,7 +1663,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			LLViewerParcelMgr::getInstance()->requestParcelMediaURLFilter();
 
 			// Request dwell for this land, if it's not public land.
-			LLViewerParcelMgr::getInstance()->mSelectedDwell = 0.f;
+			LLViewerParcelMgr::getInstance()->mSelectedDwell = DWELL_NAN;
 			if (0 != local_id)
 			{
 				LLViewerParcelMgr::getInstance()->sendParcelDwellRequest();

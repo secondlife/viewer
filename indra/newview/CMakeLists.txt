@@ -207,7 +207,6 @@ set(viewer_SOURCE_FILES
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermap.cpp
-    llfloatermediabrowser.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
@@ -219,7 +218,6 @@ set(viewer_SOURCE_FILES
     llfloateropenobject.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
-    llfloaterpostcard.cpp
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
     llfloaterproperties.cpp
@@ -241,6 +239,7 @@ set(viewer_SOURCE_FILES
     llfloatertopobjects.cpp
     llfloatertos.cpp
     llfloatertoybox.cpp
+    llfloatertranslationsettings.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
@@ -314,6 +313,7 @@ set(viewer_SOURCE_FILES
     llmaniprotate.cpp
     llmanipscale.cpp
     llmaniptranslate.cpp
+    llmarketplacefunctions.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
@@ -395,6 +395,12 @@ set(viewer_SOURCE_FILES
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
     llpanelprofileview.cpp
+    llpanelsnapshot.cpp
+    llpanelsnapshotinventory.cpp
+    llpanelsnapshotlocal.cpp
+    llpanelsnapshotoptions.cpp
+    llpanelsnapshotpostcard.cpp
+    llpanelsnapshotprofile.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
     llpanelvoiceeffect.cpp
@@ -413,6 +419,7 @@ set(viewer_SOURCE_FILES
     llpopupview.cpp
     llpolymesh.cpp
     llpolymorph.cpp
+    llpostcard.cpp
     llpreview.cpp
     llpreviewanim.cpp
     llpreviewgesture.cpp
@@ -602,6 +609,7 @@ set(viewer_SOURCE_FILES
     llwearablelist.cpp
     llwearabletype.cpp
     llweb.cpp
+    llwebprofile.cpp
     llwebsharing.cpp
     llwind.cpp
     llwindowlistener.cpp
@@ -773,7 +781,6 @@ set(viewer_HEADER_FILES
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
-    llfloatermediabrowser.h
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
@@ -785,7 +792,6 @@ set(viewer_HEADER_FILES
     llfloateropenobject.h
     llfloaterpay.h
     llfloaterperms.h
-    llfloaterpostcard.h
     llfloaterpostprocess.h
     llfloaterpreference.h
     llfloaterproperties.h
@@ -807,6 +813,7 @@ set(viewer_HEADER_FILES
     llfloatertopobjects.h
     llfloatertos.h
     llfloatertoybox.h
+    llfloatertranslationsettings.h
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
@@ -880,6 +887,7 @@ set(viewer_HEADER_FILES
     llmaniprotate.h
     llmanipscale.h
     llmaniptranslate.h
+    llmarketplacefunctions.h
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
@@ -955,6 +963,7 @@ set(viewer_HEADER_FILES
     llpanelprimmediacontrols.h
     llpanelprofile.h
     llpanelprofileview.h
+    llpanelsnapshot.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
     llpanelvoicedevicesettings.h
@@ -973,6 +982,7 @@ set(viewer_HEADER_FILES
     llpolymesh.h
     llpolymorph.h
     llpopupview.h
+    llpostcard.h
     llpreview.h
     llpreviewanim.h
     llpreviewgesture.h
@@ -1162,6 +1172,7 @@ set(viewer_HEADER_FILES
     llwearablelist.h
     llwearabletype.h
     llweb.h
+    llwebprofile.h
     llwebsharing.h
     llwind.h
     llwindowlistener.h
@@ -1987,10 +1998,17 @@ if (LL_TESTS)
     llmediadataclient.cpp
     lllogininstance.cpp
     llremoteparcelrequest.cpp
+    lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
     llworldmap.cpp
     llworldmipmap.cpp
+  )
+
+  set_source_files_properties(
+    lltranslate.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
   )
 
   ##################################################

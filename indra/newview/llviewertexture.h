@@ -267,6 +267,7 @@ private:
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 	virtual void switchToCachedImage();
 	
+	static bool isMemoryForTextureLow() ;
 protected:
 	LLUUID mID;
 	S32 mBoostLevel;				// enum describing priority level

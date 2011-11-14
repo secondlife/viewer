@@ -2183,6 +2183,8 @@ Returns a string with the requested data about the region
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
+    <string name="Neck">Neck</string>
+    <string name="Avatar Center">Avatar Center</string>
 	<string name="Invalid Attachment">Invalid Attachment Point</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
@@ -3529,6 +3531,10 @@ Try enclosing path to the editor with double quotes.
  <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
  <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
 
+ <!--  Machine translation of chat messahes -->
+ <string name="TranslationFailed">Translation failed: [REASON]</string>
+ <string name="TranslationResponseParseError">Error parsing translation response.</string>
+
   <!-- Key names begin -->
   <string name="Esc">Esc</string>
   <string name="Space">Space</string>
@@ -3718,4 +3724,12 @@ Try enclosing path to the editor with double quotes.
   <string name="Wrap">Wrap</string>
   <string name="Preview">Preview</string>
   <string name="Normal">Normal</string>
+
+  <!-- Snapshot image quality levels -->
+  <string name="snapshot_quality_very_low">Very Low</string>
+  <string name="snapshot_quality_low">Low</string>
+  <string name="snapshot_quality_medium">Medium</string>
+  <string name="snapshot_quality_high">High</string>
+  <string name="snapshot_quality_very_high">Very High</string>
+
   </strings>

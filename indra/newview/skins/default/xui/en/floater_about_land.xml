@@ -487,7 +487,7 @@
              name="DwellText"
              top_delta="0"
              width="186">
-                0
+                Loading...
             </text>
 
             <button
@@ -1208,7 +1208,7 @@ Only large parcels can be listed in search.
             </panel.string>
             <panel.string
              name="see_avs_text">
-                 See and chat with residents on this parcel
+                    Avatars on other parcels can see
             </panel.string>
             <text
              type="string"
@@ -1223,30 +1223,33 @@ Only large parcels can be listed in search.
              width="278">
                 Allow other Residents to:
             </text>
-            <check_box
+          <text
+           type="string"
+           length="1"
+           follows="left|top"
+           height="16"
+           layout="topleft"
+           left="20"
+           name="allow_label0"
+           width="150">
+            Fly:
+          </text>
+
+          <check_box
              height="16"
-             label="Edit Terrain"
-             layout="topleft"
-             left="14"
-             name="edit land check"
-             tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
-             top_pad="4"
-             width="147i" />
-            <check_box
-             height="16"
-             label="Fly"
+             label="Everyone"
              layout="topleft"
              name="check fly"
              tool_tip="If checked, Residents can fly on your land. If unchecked, they can only fly into and over your land."
-             left_pad="4"
-             width="150" />
+             left_pad="2"
+             width="130" />
             <text
              type="string"
              length="1"
              follows="left|top"
              height="16"
              layout="topleft"
-             left="14"
+             left="20"
              name="allow_label2"
              width="150">
                 Build:
@@ -1271,7 +1274,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="14"
+             left="20"
              name="allow_label3"
              width="150">
                 Object Entry:
@@ -1298,7 +1301,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="14"
+             left="20"
              name="allow_label4"
              width="150">
                 Run Scripts:
@@ -1319,49 +1322,47 @@ Only large parcels can be listed in search.
              name="check group scripts"
              top_delta="0"
              width="70" />
-           <text
-             type="string"
-             text_color="white"
-             length="1"
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left="10"
-             name="land_options_label"
-             width="278">
-                Land Options:
-            </text>
-            <check_box
+          <panel
+            bevel_style="none"
+            border="true"
+            top="146"
+            bottom="146"
+            follows="left|bottom|right"
+            left="20"
+            right="-20"/>
+          <check_box
              height="16"
              label="Safe (no damage)"
              layout="topleft"
-             left="14"
+             left="18"
              name="check safe"
              tool_tip="If checked, sets the land to Safe, disabling damage combat. If cleared, damage combat is enabled."
-             top_pad="5"
+             top="130"
              width="200" />
             <check_box
              height="16"
              label="No Pushing"
              layout="topleft"
-             left_pad="5"
+             left_pad="35"
              name="PushRestrictCheck"
              tool_tip="Prevents scripts from pushing. Checking this option may be useful for preventing disruptive behavior on your land."
-             top_delta="0"
+             top="130"
              width="119" />
             <check_box
              height="16"
              label="Show Place in Search (L$30/week)"
              layout="topleft"
-             left="14"
+             left="18"
              name="ShowDirectoryCheck"
              tool_tip="Let people see this parcel in search results"
+             top="150"
              width="430" />
             <combo_box
              enabled="false"
              height="23"
              layout="topleft"
-             left="30"
+             left="20"
+             top="194"
              name="land category with adult"
              visible="false"
              width="140">
@@ -1426,7 +1427,8 @@ Only large parcels can be listed in search.
              enabled="false"
              height="23"
              layout="topleft"
-             left="30"
+             left="20"
+             top="194"
              name="land category"
              visible="false"
              width="140">
@@ -1487,11 +1489,11 @@ Only large parcels can be listed in search.
              height="16"
              label="Moderate Content"
              layout="topleft"
-             left="14"
+             left="18"
              name="MatureCheck"
-             top="177"
+             top="170"
              label_text.valign="center" 
-             label_text.v_pad="-5" 
+             label_text.v_pad="-1" 
              tool_tip=" "
              width="200" />
             <text
@@ -1500,18 +1502,19 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="10"
+             left="20"
              name="Snapshot:"
              text_color="white"
-             top="220"
+             top="225"
              width="200">
                 Snapshot:
             </text>
             <texture_picker
              follows="left|top"
+             top_pad="0"
              height="150"
              layout="topleft"
-             left="14"
+             left="20"
              name="snapshot_ctrl"
              fallback_image="default_land_picture.j2c" 
              tool_tip="Click to choose a picture"
@@ -1520,23 +1523,24 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
-             text_color="white"
+             text_color="LtGray"
              height="16"
              layout="topleft"
-             left="230"
-             top="174"
+             left="274"
+             top="166"
              name="allow_label5"
              width="278">
-              Allow Residents on other parcels to:
+              and chat with avatars on this parcel
             </text>
             <check_box
              height="16"
              label="See Avatars"
              follows="top"
              layout="topleft"
-             left="230"
+             left="253"
+             top="150"
              name="SeeAvatarsCheck"
-             tool_tip="Allows residents on other parcels to see and chat with residents on this parcel, and you to see and chat with them."
+             tool_tip="Allows avatars on other parcels to see and chat with avatars on this parcel, and you to see and chat with them."
              width="120" />
             <text
              type="string"
@@ -1544,8 +1548,8 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="230"
-             top="230"
+             left="255"
+             top="282"
              text_color="white"
              name="landing_point"
              word_wrap="true"
@@ -1554,12 +1558,13 @@ Only large parcels can be listed in search.
             </text>
             <button
              follows="right|top"
+             top_pad="0"
              height="23"
              label="Set"
              label_selected="Set"
              layout="topleft"
              name="Set"
-             left="230"
+             left="255"
              tool_tip="Sets the landing point where visitors arrive. Sets to your avatar&apos;s location inside this parcel."
              width="50" />
             <button
@@ -1579,7 +1584,7 @@ Only large parcels can be listed in search.
              follows="left|top"
              height="16"
              layout="topleft"
-             left="230"
+             left="255"
              top_pad="10"
              name="Teleport Routing: "
              width="200">
@@ -1589,7 +1594,7 @@ Only large parcels can be listed in search.
              height="23"
              layout="topleft"
              name="landing type"
-             top_pad="3"
+             top_pad="0"
              tool_tip="Teleport Routing -- select how to handle teleports onto your land"
              width="120">
                 <combo_box.item
