@@ -125,7 +125,7 @@
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-10"
+     right="-32"
      top="350"
      width="100">
       <button.commit_callback
