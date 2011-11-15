@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="Landmarks">
 	<accordion name="landmarks_accordion">
-		<accordion_tab name="tab_favorites" title="Панель «Избранное»"/>
+		<accordion_tab name="tab_favorites" title="Избранное"/>
 		<accordion_tab name="tab_landmarks" title="Мои закладки"/>
 		<accordion_tab name="tab_inventory" title="Мой инвентарь"/>
 		<accordion_tab name="tab_library" title="Библиотека"/>
