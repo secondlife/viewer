@@ -380,7 +380,6 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 	{
 		mThumbnailUpToDate = FALSE ;
 	}
-	setThumbnailImageSize();
 }
 
 void LLSnapshotLivePreview::setSnapshotQuality(S32 quality)
@@ -723,25 +722,19 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 		resetThumbnailImage() ;
 	}		
 
-	LLPointer<LLImageRaw> raw = NULL ;
-	S32 w , h ;
-	w = get_lower_power_two(mThumbnailWidth, 512) * 2 ;
-	h = get_lower_power_two(mThumbnailHeight, 512) * 2 ;
-
+	LLPointer<LLImageRaw> raw = new LLImageRaw;
+	if(!gViewerWindow->thumbnailSnapshot(raw,
+							mThumbnailWidth, mThumbnailHeight,
+							gSavedSettings.getBOOL("RenderUIInSnapshot"),
+							FALSE,
+							mSnapshotBufferType) )								
 	{
-		raw = new LLImageRaw ;
-		if(!gViewerWindow->thumbnailSnapshot(raw,
-								w, h,
-								gSavedSettings.getBOOL("RenderUIInSnapshot"),
-								FALSE,
-								mSnapshotBufferType) )								
-		{
-			raw = NULL ;
-		}
+		raw = NULL ;
 	}
 
 	if(raw)
 	{
+		raw->expandToPowerOfTwo();
 		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE); 		
 		mThumbnailUpToDate = TRUE ;
 	}
@@ -791,6 +784,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	}
 
 	// time to produce a snapshot
+	previewp->setThumbnailImageSize();
 
 	lldebugs << "producing snapshot" << llendl;
 	if (!previewp->mPreviewImage)
