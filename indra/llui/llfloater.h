@@ -537,6 +537,7 @@ public:
 private:
 	void hiddenFloaterClosed(LLFloater* floater);
 
+	LLRect				mLastSnapRect;
 	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
