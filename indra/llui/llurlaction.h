@@ -29,6 +29,7 @@
 #define LL_LLURLACTION_H
 
 #include <string>
+#include <boost/function.hpp>
 
 ///
 /// The LLUrlAction class provides a number of static functions that
@@ -77,17 +78,21 @@ public:
 	static void showProfile(std::string url);
 
 	/// specify the callbacks to enable this class's functionality
-	static void	setOpenURLCallback(void (*cb) (const std::string& url));
-	static void	setOpenURLInternalCallback(void (*cb) (const std::string& url));
-	static void	setOpenURLExternalCallback(void (*cb) (const std::string& url));
-	static void	setExecuteSLURLCallback(bool (*cb) (const std::string& url));
+	typedef boost::function<void (const std::string&)> url_callback_t;
+	typedef boost::function<bool(const std::string& url)> execute_url_callback_t;
+
+	static void	setOpenURLCallback(url_callback_t cb);
+	static void	setOpenURLInternalCallback(url_callback_t cb);
+	static void	setOpenURLExternalCallback(url_callback_t cb);
+	static void	setExecuteSLURLCallback(execute_url_callback_t cb);
 
 private:
 	// callbacks for operations we can perform on Urls
-	static void (*sOpenURLCallback) (const std::string& url);
-	static void (*sOpenURLInternalCallback) (const std::string& url);
-	static void (*sOpenURLExternalCallback) (const std::string& url);
-	static bool (*sExecuteSLURLCallback) (const std::string& url);
+	static url_callback_t sOpenURLCallback;
+	static url_callback_t sOpenURLInternalCallback;
+	static url_callback_t sOpenURLExternalCallback;
+
+	static execute_url_callback_t sExecuteSLURLCallback;
 };
 
 #endif

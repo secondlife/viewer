@@ -22,6 +22,7 @@
       draw_border="false"
       height="24"
       left="25"
+      bottom="1"      
       name="speaker"
       visible="false"
       width="20" />
