@@ -20,6 +20,6 @@
 	</text>
 	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Измените значение, используя ползунок"/>
 	<text name="wait_text">
-		Ожидайте
+		Подождите
 	</text>
 </panel>

@@ -86,21 +86,21 @@
 				|
 			</text>
 			<text name="WL12am">
-				12öö
+				12
 			</text>
 			<text name="WL6am">
-				6öö
+				6
 			</text>
 			<text name="WL12pmHash">
-				12ös
+				24
 			</text>
 			<text name="WL6pm">
-				6ös
+				18
 			</text>
 			<text name="WL12am2">
-				12öö
+				12
 			</text>
-			<time name="WLDayTime" value="6:00 ÖÖ"/>
+			<time name="WLDayTime" value="6:00"/>
 			<text name="WLEastAngleText">
 				Doğu Açısı
 			</text>

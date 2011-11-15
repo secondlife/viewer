@@ -968,6 +968,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_SCULPTED;
 	}
+	else if ("wind vectors" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
+	}
 	else
 	{
 		return 0;
@@ -980,6 +984,8 @@ class LLAdvancedToggleInfoDisplay : public view_listener_t
 	{
 		U32 info_display = info_display_from_string( userdata.asString() );
 
+		LL_INFOS("ViewerMenu") << "toggle " << userdata.asString() << LL_ENDL;
+		
 		if ( info_display != 0 )
 		{
 			LLPipeline::toggleRenderDebug( (void*)info_display );
@@ -996,6 +1002,8 @@ class LLAdvancedCheckInfoDisplay : public view_listener_t
 	{
 		U32 info_display = info_display_from_string( userdata.asString() );
 		bool new_value = false;
+
+		LL_INFOS("ViewerMenu") << "check " << userdata.asString() << LL_ENDL;
 
 		if ( info_display != 0 )
 		{
@@ -1027,26 +1035,6 @@ class LLAdvancedCheckRandomizeFramerate : public view_listener_t
 	{
 		bool new_value = gRandomizeFramerate;
 		return new_value;
-	}
-};
-
-void run_vectorize_perf_test(void *)
-{
-	gSavedSettings.setBOOL("VectorizePerfTest", TRUE);
-}
-
-
-////////////////////////////////
-// RUN Vectorized Perform Test//
-////////////////////////////////
-
-
-class LLAdvancedVectorizePerfTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		run_vectorize_perf_test(NULL);
-		return true;
 	}
 };
 
@@ -7962,6 +7950,9 @@ void initialize_menus()
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
@@ -8106,7 +8097,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
 	view_listener_t::addMenu(new LLAdvancedCheckPeriodicSlowFrame(), "Advanced.CheckPeriodicSlowFrame");
-	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
@@ -8336,6 +8326,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
 
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));

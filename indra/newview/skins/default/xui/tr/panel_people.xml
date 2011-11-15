@@ -3,7 +3,7 @@
 <panel label="Kişiler" name="people_panel">
 	<string name="no_recent_people" value="Yakın zamanlı kişi yok. Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/search/people Arayı] veya [secondlife:///app/worldmap Dünya Haritasını] deneyin."/>
 	<string name="no_filtered_recent_people" value="Aradığınızı bulamadınız mı? [secondlife:///app/search/people/[SEARCH_TERM] Ara] deneyin."/>
-	<string name="no_one_near" value="Yakında kimse yok. Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/search/people Arayı] veya [secondlife:///app/worldmap Dünya Haritasını] deneyin."/>
+	<string name="no_one_near" value="Yakında kimse yok. Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/search/people Arayın] veya [secondlife:///app/worldmap Dünya Haritasını] deneyin."/>
 	<string name="no_one_filtered_near" value="Aradığınızı bulamadınız mı? [secondlife:///app/search/people/[SEARCH_TERM] Ara] deneyin."/>
 	<string name="no_friends_online" value="Çevrimiçi arkadaş yok"/>
 	<string name="no_friends" value="Arkadaş yok"/>

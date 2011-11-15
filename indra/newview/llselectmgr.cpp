@@ -89,6 +89,7 @@
 #include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "pipeline.h"
+#include "llviewershadermgr.h"
 
 #include "llglheaders.h"
 
@@ -4837,7 +4838,7 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
 
-extern LLGLdouble	gGLModelView[16];
+extern F32	gGLModelView[16];
 
 void LLSelectMgr::updateSilhouettes()
 {
@@ -5133,20 +5134,20 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		F32 cur_zoom = gAgentCamera.mHUDCurZoom;
 
 		// set up transform to encompass bounding box of HUD
-		glMatrixMode(GL_PROJECTION);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.pushMatrix();
-		glLoadIdentity();
+		gGL.loadIdentity();
 		F32 depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-		glOrtho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
+		gGL.ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
 		gGL.pushUIMatrix();
 		gGL.loadUIIdentity();
-		glLoadIdentity();
-		glLoadMatrixf(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
-		glTranslatef(-hud_bbox.getCenterLocal().mV[VX] + (depth *0.5f), 0.f, 0.f);
-		glScalef(cur_zoom, cur_zoom, cur_zoom);
+		gGL.loadIdentity();
+		gGL.loadMatrix(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
+		gGL.translatef(-hud_bbox.getCenterLocal().mV[VX] + (depth *0.5f), 0.f, 0.f);
+		gGL.scalef(cur_zoom, cur_zoom, cur_zoom);
 	}
 	if (mSelectedObjects->getNumNodes())
 	{
@@ -5239,10 +5240,10 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 
 	if (isAgentAvatarValid() && for_hud)
 	{
-		glMatrixMode(GL_PROJECTION);
+		gGL.matrixMode(LLRender::MM_PROJECTION);
 		gGL.popMatrix();
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.popMatrix();
 		gGL.popUIMatrix();
 		stop_glerror();
@@ -5566,12 +5567,11 @@ void pushWireframe(LLDrawable* drawable)
 			{
 				LLVertexBuffer::unbind();
 				gGL.pushMatrix();
-				glMultMatrixf((F32*) vobj->getRelativeXform().mMatrix);
+				gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
 				for (S32 i = 0; i < rigged_volume->getNumVolumeFaces(); ++i)
 				{
 					const LLVolumeFace& face = rigged_volume->getVolumeFace(i);
-					glVertexPointer(3, GL_FLOAT, 16, face.mPositions);
-					glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+					LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
 				}
 				gGL.popMatrix();
 			}
@@ -5584,7 +5584,7 @@ void pushWireframe(LLDrawable* drawable)
 			LLFace* face = drawable->getFace(i);
 			if (face->verify())
 			{
-				pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+				pushVerts(face, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
 			}
 		}
 	}
@@ -5604,22 +5604,29 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 		return;
 	}
 
-	glMatrixMode(GL_MODELVIEW);
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{
+		gHighlightProgram.bind();
+	}
+
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 	
 	BOOL is_hud_object = objectp->isHUDAttachment();
 
 	if (drawable->isActive())
 	{
-		glLoadMatrixd(gGLModelView);
-		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
+		gGL.loadMatrix(gGLModelView);
+		gGL.multMatrix((F32*) objectp->getRenderMatrix().mMatrix);
 	}
 	else if (!is_hud_object)
 	{
-		glLoadIdentity();
-		glMultMatrixd(gGLModelView);
+		gGL.loadIdentity();
+		gGL.multMatrix(gGLModelView);
 		LLVector3 trans = objectp->getRegion()->getOriginAgent();		
-		glTranslatef(trans.mV[0], trans.mV[1], trans.mV[2]);		
+		gGL.translatef(trans.mV[0], trans.mV[1], trans.mV[2]);		
 	}
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -5627,26 +5634,35 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	if (LLSelectMgr::sRenderHiddenSelections) // && gFloaterTools && gFloaterTools->getVisible())
 	{
 		gGL.blendFunc(LLRender::BF_SOURCE_COLOR, LLRender::BF_ONE);
-		LLGLEnable fog(GL_FOG);
-		glFogi(GL_FOG_MODE, GL_LINEAR);
-		float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
-		LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
-		glFogf(GL_FOG_START, d);
-		glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
-		glFogfv(GL_FOG_COLOR, fogCol.mV);
-
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		if (shader)
 		{
-			glColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+			gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
 			pushWireframe(drawable);
+		}
+		else
+		{
+			LLGLEnable fog(GL_FOG);
+			glFogi(GL_FOG_MODE, GL_LINEAR);
+			float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
+			LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+			glFogf(GL_FOG_START, d);
+			glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
+			glFogfv(GL_FOG_COLOR, fogCol.mV);
+
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+			{
+				gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
+				pushWireframe(drawable);
+			}
 		}
 	}
 
 	gGL.flush();
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	glColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	gGL.diffuseColor4f(color.mV[VRED]*2, color.mV[VGREEN]*2, color.mV[VBLUE]*2, LLSelectMgr::sHighlightAlpha*2);
+	
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);
@@ -5654,6 +5670,11 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	gGL.popMatrix();
+
+	if (shader)
+	{
+		shader->bind();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -5692,21 +5713,21 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		return;
 	}
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
 	gGL.loadUIIdentity();
 
 	if (!is_hud_object)
 	{
-		glLoadIdentity();
-		glMultMatrixd(gGLModelView);
+		gGL.loadIdentity();
+		gGL.multMatrix(gGLModelView);
 	}
 	
 	
 	if (drawable->isActive())
 	{
-		glMultMatrixf((F32*) objectp->getRenderMatrix().mMatrix);
+		gGL.multMatrix((F32*) objectp->getRenderMatrix().mMatrix);
 	}
 
 	LLVolume *volume = objectp->getVolume();
@@ -6503,7 +6524,7 @@ F32 LLObjectSelection::getSelectedObjectStreamingCost(S32* total_bytes, S32* vis
 	return cost;
 }
 
-U32 LLObjectSelection::getSelectedObjectTriangleCount()
+U32 LLObjectSelection::getSelectedObjectTriangleCount(S32* vcount)
 {
 	U32 count = 0;
 	for (list_t::iterator iter = mList.begin(); iter != mList.end(); ++iter)
@@ -6513,7 +6534,7 @@ U32 LLObjectSelection::getSelectedObjectTriangleCount()
 		
 		if (object)
 		{
-			count += object->getTriangleCount();
+			count += object->getTriangleCount(vcount);
 		}
 	}
 

@@ -5,7 +5,7 @@
 	</text>
 	<combo_box name="language_combobox">
 		<combo_box.item label="Sistem varsayılanı" name="System Default Language"/>
-		<combo_box.item label="İngilizce" name="English"/>
+		<combo_box.item label="English (İngilizce)" name="English"/>
 		<combo_box.item label="Dansk (Danca) - Beta" name="Danish"/>
 		<combo_box.item label="Deutsch (Almanca) - Beta" name="Deutsch(German)"/>
 		<combo_box.item label="Español (İspanyolca) - Beta" name="Spanish"/>
@@ -14,9 +14,9 @@
 		<combo_box.item label="Polski (Lehçe) - Beta" name="Polish"/>
 		<combo_box.item label="Português (Portekizce) - Beta" name="Portugese"/>
 		<combo_box.item label="Русский (Rusça) - Beta" name="Russian"/>
-		<combo_box.item label="Türkçe (Türkçe) - Beta" name="Turkish"/>
+		<combo_box.item label="Türkçe - Beta" name="Turkish"/>
 		<combo_box.item label="日本語 (Japonca) - Beta" name="(Japanese)"/>
-		<combo_box.item label="正體 (Geleneksel Çince) - Beta" name="Traditional Chinese"/>
+		<combo_box.item label="正體中文 (Geleneksel Çince) - Beta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Yeniden başlatma gerekir)

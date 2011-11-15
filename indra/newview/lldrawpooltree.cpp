@@ -65,17 +65,18 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 		
 	if (LLPipeline::sUnderWaterRender)
 	{
-		shader = &gObjectAlphaMaskNonIndexedWaterProgram;
+		shader = &gTreeWaterProgram;
 	}
 	else
 	{
-		shader = &gObjectAlphaMaskNonIndexedProgram;
+		shader = &gTreeProgram;
 	}
 
 	if (gPipeline.canUseVertexShaders())
 	{
 		shader->bind();
-		shader->setAlphaRange(0.5f, 1.f);
+		shader->setMinimumAlpha(0.5f);
+		gGL.diffuseColor4f(1,1,1,1);
 	}
 	else
 	{
@@ -112,8 +113,8 @@ void LLDrawPoolTree::render(S32 pass)
 			if(buff)
 			{
 				buff->setBuffer(LLDrawPoolTree::VERTEX_DATA_MASK);
-				buff->drawRange(LLRender::TRIANGLES, 0, buff->getRequestedVerts()-1, buff->getRequestedIndices(), 0); 
-				gPipeline.addTrianglesDrawn(buff->getRequestedIndices());
+				buff->drawRange(LLRender::TRIANGLES, 0, buff->getNumVerts()-1, buff->getNumIndices(), 0); 
+				gPipeline.addTrianglesDrawn(buff->getNumIndices());
 			}
 		}
 	}
@@ -141,9 +142,9 @@ void LLDrawPoolTree::beginDeferredPass(S32 pass)
 {
 	LLFastTimer t(FTM_RENDER_TREES);
 		
-	shader = &gDeferredNonIndexedDiffuseAlphaMaskProgram;
+	shader = &gDeferredTreeProgram;
 	shader->bind();
-	shader->setAlphaRange(0.5f, 1.f);
+	shader->setMinimumAlpha(0.5f);
 }
 
 void LLDrawPoolTree::renderDeferred(S32 pass)
@@ -168,8 +169,8 @@ void LLDrawPoolTree::beginShadowPass(S32 pass)
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
 
-	gDeferredShadowAlphaMaskProgram.bind();
-	gDeferredShadowAlphaMaskProgram.setAlphaRange(0.5f, 1.f);
+	gDeferredTreeShadowProgram.bind();
+	gDeferredTreeShadowProgram.setMinimumAlpha(0.5f);
 }
 
 void LLDrawPoolTree::renderShadow(S32 pass)
@@ -183,6 +184,7 @@ void LLDrawPoolTree::endShadowPass(S32 pass)
 	
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredSpotShadowOffset"),
 						gSavedSettings.getF32("RenderDeferredSpotShadowBias"));
+	gDeferredTreeShadowProgram.unbind();
 }
 
 
@@ -195,7 +197,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 		
 	U32 indices_drawn = 0;
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
 		 iter != mDrawFace.end(); iter++)
@@ -226,8 +228,8 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			}
 			
 			gGLLastMatrix = NULL;
-			glLoadMatrixd(gGLModelView);
-			//glPushMatrix();
+			gGL.loadMatrix(gGLModelView);
+			//gGL.pushMatrix();
 			F32 mat[16];
 			for (U32 i = 0; i < 16; i++)
 				mat[i] = (F32) gGLModelView[i];
@@ -236,7 +238,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 			
 			// Translate to tree base  HACK - adjustment in Z plants tree underground
 			const LLVector3 &pos_agent = treep->getPositionAgent();
-			//glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+			//gGL.translatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 			LLMatrix4 trans_mat;
 			trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 			trans_mat *= matrix;
@@ -307,7 +309,7 @@ void LLDrawPoolTree::renderTree(BOOL selecting)
 				indices_drawn += treep->drawBranchPipeline(scale_mat, indicesp, trunk_LOD, stop_depth, treep->mDepth, treep->mTrunkDepth, 1.0, treep->mTwist, droop, treep->mBranches, alpha);
 			}
 			
-			//glPopMatrix();
+			//gGL.popMatrix();
 		}
 	}
 }

@@ -384,6 +384,9 @@ void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
 	// Render the LLSD from getInfo() as a format_map_t
 	LLStringUtil::format_map_t args;
 
+	// allow the "Release Notes" URL label to be localized
+	args["ReleaseNotes"] = LLTrans::getString("ReleaseNotes");
+
 	for (LLSD::map_const_iterator ii(info.beginMap()), iend(info.endMap());
 		 ii != iend; ++ii)
 	{

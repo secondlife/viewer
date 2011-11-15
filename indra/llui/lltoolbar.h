@@ -71,6 +71,7 @@ public:
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
 
 	void onMouseEnter(S32 x, S32 y, MASK mask);
+	void onMouseLeave(S32 x, S32 y, MASK mask);
 	void onMouseCaptureLost();
 
 	void onCommit();
@@ -120,6 +121,8 @@ namespace LLToolBarEnums
 		SIDE_RIGHT,
 		SIDE_TOP,
 	};
+
+	LLLayoutStack::ELayoutOrientation getOrientation(SideType sideType);
 }
 
 // NOTE: This needs to occur before Param block declaration for proper compilation.
@@ -142,6 +145,7 @@ namespace LLInitParam
 class LLToolBar
 :	public LLUICtrl
 {
+	friend class LLToolBarButton;
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
@@ -187,6 +191,7 @@ public:
 	bool hasCommand(const LLCommandId& commandId) const;
 	bool enableCommand(const LLCommandId& commandId, bool enabled);
 	bool stopCommandInProgress(const LLCommandId& commandId);
+	bool flashCommand(const LLCommandId& commandId, bool flash);
 
 	void setStartDragCallback(tool_startdrag_callback_t cb)   { mStartDragItemCallback  = cb; }
 	void setHandleDragCallback(tool_handledrag_callback_t cb) { mHandleDragItemCallback = cb; }
@@ -195,6 +200,15 @@ public:
 
 	LLToolBarButton* createButton(const LLCommandId& id);
 
+	typedef boost::signals2::signal<void (LLView* button)> button_signal_t;
+	boost::signals2::connection setButtonAddCallback(const button_signal_t::slot_type& cb);
+	boost::signals2::connection setButtonEnterCallback(const button_signal_t::slot_type& cb);
+	boost::signals2::connection setButtonLeaveCallback(const button_signal_t::slot_type& cb);
+	boost::signals2::connection setButtonRemoveCallback(const button_signal_t::slot_type& cb);
+
+	void setTooltipButtonSuffix(const std::string& suffix) { mButtonTooltipSuffix = suffix; }
+
+	LLToolBarEnums::SideType getSideType() const { return mSideType; }
 	bool hasButtons() const { return !mButtons.empty(); }
 	bool isModified() const { return mModified; }
 
@@ -254,7 +268,14 @@ private:
 
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 
-	LLHandle<class LLContextMenu>			mPopupMenuHandle;
+	LLHandle<class LLContextMenu>	mPopupMenuHandle;
+
+	button_signal_t*				mButtonAddSignal;
+	button_signal_t*				mButtonEnterSignal;
+	button_signal_t*				mButtonLeaveSignal;
+	button_signal_t*				mButtonRemoveSignal;
+
+	std::string						mButtonTooltipSuffix;
 };
 
 

@@ -4,13 +4,13 @@
 		устройство не выбрано
 	</floater.string>
 	<check_box label="Включить джойстик:" name="enable_joystick"/>
-	<spinner label="Наложение по оси X" name="JoystickAxis1"/>
-	<spinner label="Наложение по оси Y" name="JoystickAxis2"/>
-	<spinner label="Наложение по оси Z" name="JoystickAxis0"/>
-	<spinner label="Наложение уклонов" name="JoystickAxis4"/>
-	<spinner label="Наложение сгибов" name="JoystickAxis5"/>
-	<spinner label="Наложение вращения" name="JoystickAxis3"/>
-	<spinner label="Наложение масштабирования" name="JoystickAxis6"/>
+	<spinner label="Наложение по X" name="JoystickAxis1"/>
+	<spinner label="Наложение по Y" name="JoystickAxis2"/>
+	<spinner label="Наложение по Z" name="JoystickAxis0"/>
+	<spinner label="Н. уклонов" name="JoystickAxis4"/>
+	<spinner label="Н. сгибов" name="JoystickAxis5"/>
+	<spinner label="Н. вращения" name="JoystickAxis3"/>
+	<spinner label="Н. масштабир." name="JoystickAxis6"/>
 	<check_box label="Масштабирование" name="ZoomDirect"/>
 	<check_box label="3D курсор" name="Cursor3D"/>
 	<check_box label="Автоуровень" name="AutoLeveling"/>
@@ -18,7 +18,7 @@
 		Режимы управления:
 	</text>
 	<check_box label="Аватар" name="JoystickAvatarEnabled"/>
-	<check_box label="Строительство" name="JoystickBuildEnabled"/>
+	<check_box label="Стройка" name="JoystickBuildEnabled"/>
 	<check_box label="Камера" name="JoystickFlycamEnabled"/>
 	<stat_view label="Монитор джойстика" name="axis_view">
 		<stat_bar label="Ось 0" name="axis0"/>
@@ -56,13 +56,13 @@
 		Невидимая зона по Z
 	</text>
 	<text name="PitchDeadZone">
-		Невидимая зона уклона
+		Невид. зона уклона
 	</text>
 	<text name="YawDeadZone">
-		Невидимая зона сгиба
+		Невид. зона сгиба
 	</text>
 	<text name="RollDeadZone">
-		Невидимая зона вращения
+		Невид. зона вращения
 	</text>
 	<text name="Feathering">
 		Размывка краев
@@ -71,7 +71,7 @@
 		Масштаб
 	</text>
 	<text name="ZoomDeadZone">
-		Невидимая зона при масштабировании
+		Невид. зона масшт.
 	</text>
 	<button label="Стандартные значения SpaceNavigator" name="SpaceNavigatorDefaults"/>
 	<button label="OK" label_selected="OK" name="ok_btn"/>

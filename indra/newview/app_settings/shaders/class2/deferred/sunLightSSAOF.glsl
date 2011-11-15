@@ -22,9 +22,11 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 //class 2 -- shadows and SSAO
 
@@ -46,8 +48,8 @@ uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform float ssao_factor_inv;
 
-varying vec2 vary_fragcoord;
-varying vec4 vary_light;
+VARYING vec2 vary_fragcoord;
+uniform vec3 sun_dir;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -184,10 +186,10 @@ void main()
 	}*/
 	
 	float shadow = 1.0;
-	float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
+	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
 
 	vec3 shadow_pos = pos.xyz + displace*norm;
-	vec3 offset = vary_light.xyz * (1.0-dp_directional_light);
+	vec3 offset = sun_dir.xyz * (1.0-dp_directional_light);
 	
 	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
 	

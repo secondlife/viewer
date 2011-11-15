@@ -22,39 +22,47 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 projection_matrix;
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec4 clothing; 
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
 void calcAtmospherics(vec3 inPositionEye);
 
-attribute vec4 clothing; //4
+uniform vec4 color;
 
-attribute vec4 gWindDir;		//7
-attribute vec4 gSinWaveParams; //3
-attribute vec4 gGravity;		//5
+uniform vec4 gWindDir;		
+uniform vec4 gSinWaveParams; 
+uniform vec4 gGravity;		
 
 const vec4 gMinMaxConstants = vec4(1.0, 0.166666, 0.0083143, .00018542);	 // #minimax-generated coefficients
 const vec4 gPiConstants	= vec4(0.159154943, 6.28318530, 3.141592653, 1.5707963); //	# {1/2PI, 2PI, PI, PI/2}
 
 void main()
 {
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	vary_texcoord0 = texcoord0;
 		
 	vec4 pos;
 	mat4 trans = getSkinnedTransform();
 		
 	vec3 norm;
-	norm.x = dot(trans[0].xyz, gl_Normal);
-	norm.y = dot(trans[1].xyz, gl_Normal);
-	norm.z = dot(trans[2].xyz, gl_Normal);
+	norm.x = dot(trans[0].xyz, normal);
+	norm.y = dot(trans[1].xyz, normal);
+	norm.z = dot(trans[2].xyz, normal);
 	norm = normalize(norm);
 		
 	//wind
 	vec4 windEffect;
 	windEffect = vec4(dot(norm, gWindDir.xyz));	
-	pos.x = dot(trans[2].xyz, gl_Vertex.xyz);
+	pos.x = dot(trans[2].xyz, position.xyz);
 	windEffect.xyz = pos.x * vec3(0.015, 0.015, 0.015)
 						+ windEffect.xyz;
 	windEffect.w = windEffect.w * 2.0 + 1.0;				// move wind offset value to [-1, 3]
@@ -101,7 +109,7 @@ void main()
 	sinWave.xyz = max(sinWave.xyz, vec3(-1.0, -1.0, -1.0));	// clamp to underlying body shape
 	offsetPos = clothing * sinWave.x;						// multiply wind effect times clothing displacement
 	temp2 = gWindDir*sinWave.z + vec4(norm,0);				// calculate normal offset due to wind oscillation
-	offsetPos = vec4(1.0,1.0,1.0,0.0)*offsetPos+gl_Vertex;	// add to offset vertex position, and zero out effect from w
+	offsetPos = vec4(1.0,1.0,1.0,0.0)*offsetPos+vec4(position.xyz, 1.0);	// add to offset vertex position, and zero out effect from w
 	norm += temp2.xyz*2.0;									// add sin wave effect on normals (exaggerated)
 	
 	//add "backlighting" effect
@@ -119,12 +127,8 @@ void main()
 
 	calcAtmospherics(pos.xyz);
 	
-	vec4 color = calcLighting(pos.xyz, norm, gl_Color, vec4(0.0));			
-	gl_FrontColor = color; 
+	vec4 col = calcLighting(pos.xyz, norm, color, vec4(0.0));			
+	vertex_color = col; 
 					
-	gl_Position = gl_ProjectionMatrix * pos;
-	
-	
-	gl_TexCoord[2] = vec4(pos.xyz, 1.0);
-
+	gl_Position = projection_matrix * pos;
 }
