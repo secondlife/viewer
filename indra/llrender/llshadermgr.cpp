@@ -618,7 +618,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		//backwards compatibility with legacy texture lookup syntax
 		text[count++] = strdup("#define textureCube texture\n");
 		text[count++] = strdup("#define texture2DLod textureLod\n");
-		text[count++] = strdup("#define	shadow2D texture\n");
+		text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
 	}
 
 	//copy preprocessor definitions into buffer
