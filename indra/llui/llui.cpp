@@ -955,10 +955,12 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 		if( render_center )
 		{
 			gGL.color4fv(center_color.mV);
+			gGL.diffuseColor4fv(center_color.mV);
 			gl_deep_circle( radius, width, steps );
 		}
 		else
 		{
+			gGL.diffuseColor4fv(side_color.mV);
 			gl_washer_2d(radius, radius - width, steps, side_color, side_color);
 			gGL.translateUI(0.f, 0.f, width);
 			gl_washer_2d(radius - width, radius, steps, side_color, side_color);
