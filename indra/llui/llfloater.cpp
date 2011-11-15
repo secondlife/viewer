@@ -2185,9 +2185,6 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			continue;
 		}
 
-		// Make if follow the edge it is closest to
-		U32 follow_flags = 0x0;
-
 		if (!floaterp->isMinimized())
 		{
 			LLRect r = floaterp->getRect();
