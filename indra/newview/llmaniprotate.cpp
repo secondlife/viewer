@@ -53,6 +53,7 @@
 #include "llviewercamera.h"
 #include "llviewerobject.h"
 #include "llviewerobject.h"
+#include "llviewershadermgr.h"
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "pipeline.h"
@@ -113,7 +114,7 @@ void LLManipRotate::handleSelect()
 void LLManipRotate::render()
 {
 	LLGLSUIDefault gls_ui;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 	LLGLDepthTest gls_depth(GL_TRUE);
 	LLGLEnable gl_blend(GL_BLEND);
 	LLGLEnable gls_alpha_test(GL_ALPHA_TEST);
@@ -147,6 +148,7 @@ void LLManipRotate::render()
 
 	gGL.pushMatrix();
 	{
+		
 		// are we in the middle of a constrained drag?
 		if (mManipPart >= LL_ROT_X && mManipPart <= LL_ROT_Z)
 		{
@@ -154,6 +156,11 @@ void LLManipRotate::render()
 		}
 		else
 		{
+			if (LLGLSLShader::sNoFixedFunction)
+			{
+				gDebugProgram.bind();
+			}
+
 			LLGLEnable cull_face(GL_CULL_FACE);
 			LLGLDepthTest gls_depth(GL_FALSE);
 			gGL.pushMatrix();
@@ -190,20 +197,27 @@ void LLManipRotate::render()
 				{
 					color.setVec( 0.7f, 0.7f, 0.7f, 0.6f );
 				}
+				gGL.diffuseColor4fv(color.mV);
 				gl_washer_2d(mRadiusMeters + width_meters, mRadiusMeters, CIRCLE_STEPS, color, color);
 
 
 				if (mManipPart == LL_NO_PART)
 				{
 					gGL.color4f( 0.7f, 0.7f, 0.7f, 0.3f );
+					gGL.diffuseColor4f(0.7f, 0.7f, 0.7f, 0.3f);
 					gl_circle_2d( 0, 0,  mRadiusMeters, CIRCLE_STEPS, TRUE );
 				}
 				
 				gGL.flush();
 			}
 			gGL.popMatrix();
-		}
 
+			if (LLGLSLShader::sNoFixedFunction)
+			{
+				gUIProgram.bind();
+			}
+		}
+		
 		gGL.translatef( center.mV[VX], center.mV[VY], center.mV[VZ] );
 
 		LLQuaternion rot;
@@ -218,6 +232,11 @@ void LLManipRotate::render()
 		grid_rotation.getAngleAxis(&angle_radians, &x, &y, &z);
 		gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gDebugProgram.bind();
+		}
 
 		if (mManipPart == LL_ROT_Z)
 		{
@@ -270,6 +289,7 @@ void LLManipRotate::render()
 			// First pass: centers. Second pass: sides.
 			for( S32 i=0; i<2; i++ )
 			{
+				
 				gGL.pushMatrix();
 				{
 					if (mHighlightedPart == LL_ROT_Z)
@@ -286,7 +306,7 @@ void LLManipRotate::render()
 					}
 				}
 				gGL.popMatrix();
-
+				
 				gGL.pushMatrix();
 				{
 					gGL.rotatef( 90.f, 1.f, 0.f, 0.f );
@@ -328,11 +348,20 @@ void LLManipRotate::render()
 				{
 					mManipulatorScales = lerp(mManipulatorScales, LLVector4(1.f, 1.f, 1.f, SELECTED_MANIPULATOR_SCALE), LLCriticalDamp::getInterpolant(MANIPULATOR_SCALE_HALF_LIFE));
 				}
+				
 			}
+			
 		}
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+		
 	}
 	gGL.popMatrix();
 	gGL.popMatrix();
+	
 
 	LLVector3 euler_angles;
 	LLQuaternion object_rot = first_object->getRotationEdit();
