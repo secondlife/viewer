@@ -83,6 +83,70 @@
     top="50"
     follows="left|top"
     left="10">
+      <panel
+       background_visible="true"
+       bg_alpha_color="0.9 1 0.9 1"
+       follows="left|top"
+       font="SansSerifLarge"
+       halign="center"
+       height="20"
+       layout="topleft"
+       left="0"
+       length="1"
+       name="succeeded_panel"
+       right="-1"
+       top="0"
+       type="string"
+       visible="false">
+          <text
+           follows="all"
+           font="SansSerif"
+           halign="center"
+           height="18"
+           layout="topleft"
+           left="1"
+           length="1"
+           name="succeeded_lbl"
+           right="-1"
+           text_color="0.2 0.5 0.2 1"
+           top="4"
+           translate="false"
+           type="string">
+              Succeeded
+          </text>
+      </panel>
+      <panel
+       background_visible="true"
+       bg_alpha_color="1 0.9 0.9 1"
+       follows="left|top"
+       font="SansSerifLarge"
+       halign="center"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       length="1"
+       name="failed_panel"
+       right="-1"
+       top="0"
+       type="string"
+       visible="false">
+          <text
+           follows="all"
+           font="SansSerif"
+           halign="center"
+           height="18"
+           layout="topleft"
+           left="1"
+           length="1"
+           name="failed_lbl"
+           right="-1"
+           text_color="0.5 0.2 0.2 1"
+           top="4"
+           translate="false"
+           type="string">
+              Failed
+          </text>
+      </panel>
       <loading_indicator
        follows="left|top"
        height="48"
