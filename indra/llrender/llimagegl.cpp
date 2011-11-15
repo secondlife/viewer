@@ -1853,7 +1853,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 		upperhalftotal += sample[i];
 	}
 
-	if (midrangetotal > length/16 || // lots of midrange, or
+	if (midrangetotal > length/48 || // lots of midrange, or
 	    (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
 	    (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
 	{
