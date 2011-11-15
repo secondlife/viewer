@@ -657,7 +657,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 void LLDrawPoolAvatar::beginDeferredRigid()
 {
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
-				
+	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->bind();
 	sVertexProgram->setMinimumAlpha(0.2f);
 }
@@ -665,6 +665,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 void LLDrawPoolAvatar::endDeferredRigid()
 {
 	sShaderLevel = mVertexShaderLevel;
+	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->unbind();
 	gGL.getTexUnit(0)->activate();
 }
