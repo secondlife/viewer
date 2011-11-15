@@ -87,8 +87,8 @@
     <text_editor
      type="string"
      length="1"
-     follows="left|top|right|bottom"
-     height="140"
+     follows="left|top|right"
+     height="60"
      layout="topleft"
      left_delta="0"
      max_length="700"

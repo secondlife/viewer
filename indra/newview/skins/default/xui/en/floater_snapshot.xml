@@ -5,7 +5,7 @@
  can_minimize="true"
  can_close="true"
  follows="left|top"
- height="600"
+ height="500"
  layout="topleft"
  name="Snapshot"
  help_topic="snapshot"
@@ -242,7 +242,7 @@
    </text>
     <panel_container
      follows="left|top"
-     height="360"
+     height="260"
      layout="topleft"
      left="0"
      name="panel_container"
