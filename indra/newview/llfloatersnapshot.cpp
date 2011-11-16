@@ -997,13 +997,7 @@ void LLSnapshotLivePreview::saveTexture()
 
 BOOL LLSnapshotLivePreview::saveLocal()
 {
-	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage, true);
-
-	// Relinquish image memory. Save button will be disabled as a side-effect.
-	lldebugs << "resetting formatted image after saving to disk" << llendl;
-	mFormattedImage = NULL;
-	mDataSize = 0;
-	updateSnapshot(FALSE, FALSE);
+	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
 
 	if(success)
 	{
@@ -2465,7 +2459,7 @@ void LLFloaterSnapshot::saveTexture()
 }
 
 // static
-void LLFloaterSnapshot::saveLocal()
+BOOL LLFloaterSnapshot::saveLocal()
 {
 	lldebugs << "saveLocal" << llendl;
 	// FIXME: duplicated code
@@ -2473,16 +2467,16 @@ void LLFloaterSnapshot::saveLocal()
 	if (!instance)
 	{
 		llassert(instance != NULL);
-		return;
+		return FALSE;
 	}
 	LLSnapshotLivePreview* previewp = Impl::getPreviewView(instance);
 	if (!previewp)
 	{
 		llassert(previewp != NULL);
-		return;
+		return FALSE;
 	}
 
-	previewp->saveLocal();
+	return previewp->saveLocal();
 }
 
 // static
