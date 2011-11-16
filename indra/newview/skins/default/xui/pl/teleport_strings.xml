@@ -19,6 +19,10 @@ Jeśli nadal nie możesz się teleportować wyloguj się i ponownie zaloguj.
 		<message name="timeout_tport">
 			Przepraszamy, ale nie udało się przeprowadzić teleportacji. Spróbuj jeszcze raz.
 		</message>
+		<message name="NoHelpIslandTP">
+		Brak możliwości ponownej teleportacji do Welcome Island.
+Odwiedź &apos;Welcome Island Public&apos; by powtórzyć szkolenie.
+		</message>
 		<message name="noaccess_tport">
 			Przepraszamy, ale nie masz dostępu do miejsca docelowego.
 		</message>
