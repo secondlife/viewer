@@ -1165,7 +1165,9 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 
 BOOL LLPipeline::canUseAntiAliasing() const
 {
-	return TRUE;
+	// We can use anti-aliasing if the GL manager can support some multisampling
+	BOOL can_fsaa = (gGLManager.getNumFBOFSAASamples(2) > 1);
+	return can_fsaa;
 }
 
 void LLPipeline::unloadShaders()

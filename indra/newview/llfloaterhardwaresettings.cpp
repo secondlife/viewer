@@ -34,7 +34,9 @@
 #include "llviewercontrol.h"
 #include "llviewertexturelist.h"
 #include "llfeaturemanager.h"
+#include "llspinctrl.h"
 #include "llstartup.h"
+#include "lltextbox.h"
 #include "pipeline.h"
 
 // Linden library includes
@@ -98,18 +100,40 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 	}
 
 	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
-	getChildView("gamma")->setEnabled(!gPipeline.canUseWindLightShaders());
+	LLSpinCtrl* gamma_ctrl = getChild<LLSpinCtrl>("gamma");
+	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("fsaa")->setEnabled(gPipeline.canUseAntiAliasing());
-	getChildView("antialiasing restart")->setVisible(!gSavedSettings.getBOOL("RenderDeferred"));
 
-	/* Enable to reset fsaa value to disabled when feature is not available.
-	if (!gPipeline.canUseAntiAliasing())
+	// anti-aliasing
 	{
-		getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer) 0);
+		LLUICtrl* fsaa_ctrl = getChild<LLUICtrl>("fsaa");
+		LLTextBox* fsaa_text = getChild<LLTextBox>("antialiasing label");
+		LLView* fsaa_restart = getChildView("antialiasing restart");
+		
+		// Enable or disable the control, the "Antialiasing:" label and the restart warning
+		// based on code support for the feature on the current hardware.
+
+		if (gPipeline.canUseAntiAliasing())
+		{
+			fsaa_ctrl->setEnabled(TRUE);
+			
+			// borrow the text color from the gamma control for consistency
+			fsaa_text->setColor(gamma_ctrl->getEnabledTextColor());
+
+			fsaa_restart->setVisible(!gSavedSettings.getBOOL("RenderDeferred"));
+		}
+		else
+		{
+			fsaa_ctrl->setEnabled(FALSE);
+			fsaa_ctrl->setValue((LLSD::Integer) 0);
+			
+			// borrow the text color from the gamma control for consistency
+			fsaa_text->setColor(gamma_ctrl->getDisabledTextColor());
+			
+			fsaa_restart->setVisible(FALSE);
+		}
 	}
-	*/
 }
 
 //============================================================================
