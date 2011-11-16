@@ -1838,7 +1838,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	// this to be an intentional effect and don't treat as a mask.
 
 	U32 midrangetotal = 0;
-	for (U32 i = 4; i < 11; i++)
+	for (U32 i = 2; i < 13; i++)
 	{
 		midrangetotal += sample[i];
 	}
