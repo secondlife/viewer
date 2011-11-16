@@ -1951,6 +1951,12 @@ void LLFloater::setCanDrag(BOOL can_drag)
 	}
 }
 
+bool LLFloater::getCanDrag()
+{
+	return mDragHandle->getEnabled();
+}
+
+
 void LLFloater::updateTitleButtons()
 {
 	static LLUICachedControl<S32> floater_close_box_size ("UIFloaterCloseBoxSize", 0);
@@ -2181,7 +2187,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLFloater* floaterp = (LLFloater*)viewp;
 		if (floaterp->isDependent())
 		{
-			// dependents use same follow flags as their "dependee"
+			// dependents are moved with their "dependee"
 			continue;
 		}
 
@@ -2209,7 +2215,11 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 				translate_y = new_top - old_top;
 			}
 
-			floaterp->translate(translate_x, translate_y);
+			// don't reposition immovable floaters
+			if (floaterp->getCanDrag())
+			{
+				floaterp->translate(translate_x, translate_y);
+			}
 			BOOST_FOREACH(LLHandle<LLFloater> dependent_floater, floaterp->mDependents)
 			{
 				if (dependent_floater.get())
