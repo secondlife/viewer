@@ -1726,7 +1726,7 @@ void LLFloaterSnapshot::Impl::setWorking(LLFloaterSnapshot* floater, bool workin
 	LLPanelSnapshot* active_panel = getActivePanel(floater);
 	if (active_panel)
 	{
-		active_panel->setCtrlsEnabled(!working);
+		active_panel->enableControls(!working);
 	}
 }
 

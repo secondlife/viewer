@@ -74,6 +74,16 @@ LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 	return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
 }
 
+void LLPanelSnapshot::enableControls(BOOL enable)
+{
+	setCtrlsEnabled(enable);
+	if (enable)
+	{
+		// Make sure only relevant controls are enabled/shown.
+		updateCustomResControls();
+	}
+}
+
 LLSpinCtrl* LLPanelSnapshot::getWidthSpinner()
 {
 	return getChild<LLSpinCtrl>(getWidthSpinnerName());
