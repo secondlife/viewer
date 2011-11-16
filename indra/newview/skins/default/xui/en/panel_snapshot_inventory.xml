@@ -118,7 +118,8 @@
      label="Constrain proportions"
      layout="topleft"
      left="10"
-     name="inventory_keep_aspect_check" />
+     name="inventory_keep_aspect_check"
+     visible="false" />
     <button
      follows="right|bottom"
      height="23"

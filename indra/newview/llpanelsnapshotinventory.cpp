@@ -70,6 +70,7 @@ LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 // virtual
 BOOL LLPanelSnapshotInventory::postBuild()
 {
+	getChild<LLUICtrl>(getAspectRatioCBName())->setVisible(FALSE); // we don't keep aspect ratio for inventory textures
 	return LLPanelSnapshot::postBuild();
 }
 
@@ -89,10 +90,10 @@ void LLPanelSnapshotInventory::updateCustomResControls()
 
 	getChild<LLUICtrl>(getWidthSpinnerName())->setVisible(show);
 	getChild<LLUICtrl>(getHeightSpinnerName())->setVisible(show);
-	getChild<LLUICtrl>(getAspectRatioCBName())->setVisible(show);
 
-	// enable controls if possible
-	LLPanelSnapshot::updateCustomResControls();
+	// Editing gets often enable elsewhere in common snapshot panel code. Override that.
+	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
+	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
 }
 
 // virtual
