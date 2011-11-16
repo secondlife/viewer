@@ -150,7 +150,6 @@ public:
 	void printGLInfoString();
 	void getGLInfo(LLSD& info);
 
-	U32 getNumFBOFSAASamples(U32 desired_samples = 32);
 	// In ALL CAPS
 	std::string mGLVendor;
 	std::string mGLVendorShort;

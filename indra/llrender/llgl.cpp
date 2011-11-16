@@ -835,14 +835,6 @@ std::string LLGLManager::getRawGLString()
 	return gl_string;
 }
 
-U32 LLGLManager::getNumFBOFSAASamples(U32 samples)
-{
-	samples = llmin(samples, (U32) mMaxColorTextureSamples);
-	samples = llmin(samples, (U32) mMaxDepthTextureSamples);
-	samples = llmin(samples, (U32) 4);
-	return samples;
-}
-
 void LLGLManager::shutdownGL()
 {
 	if (mInited)

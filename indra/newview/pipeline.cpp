@@ -658,7 +658,7 @@ void LLPipeline::allocatePhysicsBuffer()
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	refreshCachedSettings();
-	U32 samples = gGLManager.getNumFBOFSAASamples(RenderFSAASamples);
+	U32 samples = RenderFSAASamples;
 
 	//try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
@@ -1165,9 +1165,7 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 
 BOOL LLPipeline::canUseAntiAliasing() const
 {
-	// We can use anti-aliasing if the GL manager can support some multisampling
-	BOOL can_fsaa = (gGLManager.getNumFBOFSAASamples(2) > 1);
-	return can_fsaa;
+	return TRUE;
 }
 
 void LLPipeline::unloadShaders()
