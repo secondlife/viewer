@@ -2306,8 +2306,11 @@ void LLFloaterSnapshot::draw()
 			// if (impl.getStatus() == Impl::STATUS_FINISHED)
 			{
 				LLRect result_lbl_rect = mSucceessLblPanel->getRect();
-				result_lbl_rect.setLeftTopAndSize(local_offset_x, local_offset_y + thumbnail_h, thumbnail_w - 1, result_lbl_rect.getHeight());
+				const S32 result_lbl_h = result_lbl_rect.getHeight();
+				result_lbl_rect.setLeftTopAndSize(local_offset_x, local_offset_y + thumbnail_h, thumbnail_w - 1, result_lbl_h);
+				mSucceessLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
 				mSucceessLblPanel->setRect(result_lbl_rect);
+				mFailureLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
 				mFailureLblPanel->setRect(result_lbl_rect);
 			}
 
