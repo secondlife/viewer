@@ -5717,7 +5717,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
 	if (shader)
-	{
+	{ //switch to "solid color" program for SH-2690 -- works around driver bug causing bad triangles when rendering silhouettes
 		gSolidColorProgram.bind();
 	}
 

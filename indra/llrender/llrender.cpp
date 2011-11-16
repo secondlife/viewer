@@ -1888,7 +1888,7 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 { 
 	//the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
 	if (mCount > 2048)
-	{
+	{ //break when buffer gets reasonably full to keep GL command buffers happy and avoid overflow below
 		switch (mMode)
 		{
 			case LLRender::POINTS: flush(); break;
