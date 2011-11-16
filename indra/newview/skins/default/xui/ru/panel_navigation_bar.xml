@@ -12,7 +12,7 @@
 		<layout_panel name="favorites_layout_panel">
 			<favorites_bar name="favorite" tool_tip="Перетаскивайте сюда закладки, чтобы было удобнее переходить в любимые места в Second Life!">
 				<label name="favorites_bar_label" tool_tip="Перетаскивайте сюда закладки, чтобы было удобнее переходить в любимые места в Second Life!">
-					Панель «Избранное»
+					Избранное
 				</label>
 				<more_button name="&gt;&gt;" tool_tip="Показать больше избранного">
 					Больше ▼

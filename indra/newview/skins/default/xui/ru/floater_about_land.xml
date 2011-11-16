@@ -141,16 +141,16 @@
 		</panel>
 		<panel label="СОГЛАШЕНИЕ" name="land_covenant_panel">
 			<panel.string name="can_resell">
-				Приобретенная в этом регионе земля может быть перепродана.
+				Купленная в этом регионе земля может быть перепродана.
 			</panel.string>
 			<panel.string name="can_not_resell">
-				Приобретенная в этом регионе земля не может быть перепродана.
+				Купленная в этом регионе земля не может быть перепродана.
 			</panel.string>
 			<panel.string name="can_change">
-				Приобретенная в этом регионе земля может быть объединена или разделена.
+				Купленная в этом регионе земля может быть объединена или разделена.
 			</panel.string>
 			<panel.string name="can_not_change">
-				Приобретенная в этом регионе земля не может быть объединена или разделена.
+				Купленная в этом регионе земля не может быть объединена или разделена.
 			</panel.string>
 			<text name="estate_section_lbl">
 				Землевладение:
@@ -270,7 +270,7 @@
 			<name_list name="owner list">
 				<name_list.columns label="Тип" name="type"/>
 				<name_list.columns label="Название" name="name"/>
-				<name_list.columns label="Количество" name="count"/>
+				<name_list.columns label="Кол-во" name="count"/>
 				<name_list.columns label="Последний объект" name="mostrecent"/>
 			</name_list>
 		</panel>
@@ -286,10 +286,10 @@
 				Этот параметр недоступен, потому что вы не можете изменять его на этом участке.
 			</panel.string>
 			<panel.string name="mature_check_mature">
-				Moderate-контент
+				Умеренный контент
 			</panel.string>
 			<panel.string name="mature_check_adult">
-				Содержимое для взрослых
+				Контент для взрослых
 			</panel.string>
 			<panel.string name="mature_check_mature_tooltip">
 				Информация или содержимое вашего участка расценивается как moderate.
@@ -366,7 +366,7 @@
 				<combo_box.item label="Аренда" name="item13"/>
 				<combo_box.item label="Другое" name="item12"/>
 			</combo_box>
-			<check_box label="Moderate-контент" name="MatureCheck" tool_tip=" "/>
+			<check_box label="Умеренный контент" name="MatureCheck" tool_tip=" "/>
 			<text name="Snapshot:">
 				Снимок:
 			</text>
@@ -374,7 +374,7 @@
 			<text name="allow_label5">
 				Позволить жителям с других участков:
 			</text>
-			<check_box label="Видеть аватары" name="SeeAvatarsCheck" tool_tip="Жители с других участков могут видеть жителей этого участка и общаться с ними в чате (вы также сможете видеть жителей с других участков и общаться с ними)."/>
+			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Жители с других участков могут видеть жителей этого участка и общаться с ними в чате (вы также сможете видеть жителей с других участков и общаться с ними)."/>
 			<text name="landing_point">
 				В точку телепортации: [LANDING]
 			</text>
@@ -395,7 +395,7 @@
 			</text>
 			<combo_box name="media type" tool_tip="Укажите, чем является ссылка – видео, веб-страница или другое медиа"/>
 			<text name="at URL:">
-				Домашняя страница:
+				Дом. страница:
 			</text>
 			<button label="Задать" name="set_media_url"/>
 			<text name="Description:">
@@ -403,7 +403,7 @@
 			</text>
 			<line_editor name="url_description" tool_tip="Текст, показываемый рядом с кнопкой проигрывания/загрузки"/>
 			<text name="Media texture:">
-				Заменяемая текстура:
+				Замена текстуры:
 			</text>
 			<texture_picker name="media texture" tool_tip="Щелкните для выбора изображения"/>
 			<text name="replace_texture_help">
@@ -416,7 +416,7 @@
 			<spinner name="media_size_width" tool_tip="Размер отображения веб-медиа, по умолчанию – 0."/>
 			<spinner name="media_size_height" tool_tip="Размер отображения веб-медиа, по умолчанию – 0."/>
 			<text name="pixels">
-				пикселей
+				пикс.
 			</text>
 			<text name="Options:">
 				Опции:
@@ -425,7 +425,7 @@
 		</panel>
 		<panel label="ЗВУК" name="land_audio_panel">
 			<text name="MusicURL:">
-				URL-адрес для музыки:
+				URL музыки:
 			</text>
 			<text name="Sound:">
 				Звук:
@@ -448,18 +448,18 @@
 				(Определено на землевладении)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Разрешить публичный доступ ([MATURITY]) (Примечание. Снятие приведет к созданию линий запрета)
+				Разрешить общий доступ ([MATURITY]) (Снятие приведет к созданию линий запрета)
 			</panel.string>
 			<panel.string name="estate_override">
-				Часть этих параметров установлены на уровне землевладения
+				Часть этих параметров установлена на уровне землевладения
 			</panel.string>
 			<text name="Limit access to this parcel to:">
 				Доступ на этот участок
 			</text>
 			<text name="Only Allow">
-				Ограничить жителям доступ проверкой:
+				Разрешить доступ только жителям, у которых:
 			</text>
-			<check_box label="Информация об оплате в файле [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Банить нераспознанных жителей."/>
+			<check_box label="Записана информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Банить нераспознанных жителей."/>
 			<check_box label="Проверка возраста [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Банить жителей, не прошедших проверку возраста. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 			<check_box label="Разрешить доступ группе: [GROUP]" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>
 			<check_box label="Продать доступ:" name="PassCheck" tool_tip="Разрешить временный доступ к участку."/>

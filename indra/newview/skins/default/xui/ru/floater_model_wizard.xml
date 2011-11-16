@@ -13,7 +13,7 @@
 		</panel>
 		<panel name="content">
 			<text name="advanced_users_text">
-				Пользователям, работающим в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
+				Пользователям в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
 			</text>
 			<button label="Перейти в расширенный режим" name="switch_to_advanced"/>
 			<text name="Cache location">
@@ -78,17 +78,17 @@
 	<panel name="physics_panel">
 		<panel name="header_panel">
 			<text name="header_text">
-				Настроить физические параметры
+				Настроить физику
 			</text>
 		</panel>
 		<text name="description">
 			Мы создадим форму для внешнего каркаса модели. Настройте уровень детализации формы в соответствии с целями, для которых предназначена модель.
 		</text>
 		<panel name="content">
-			<button label="Пересчитать физические данные" name="recalculate_physics_btn"/>
+			<button label="Пересчитать физику" name="recalculate_physics_btn"/>
 			<button label="Пересчет..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
-				Просмотр физических данных
+				Просмотр физики
 			</text>
 			<combo_box name="preview_lod_combo2" tool_tip="Уровень детализации при предварительном просмотре">
 				<combo_item name="high">
