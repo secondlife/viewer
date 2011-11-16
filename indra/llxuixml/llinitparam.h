@@ -572,13 +572,19 @@ namespace LLInitParam
 		static bool equals(const BaseBlock::Lazy<T>& a, const BaseBlock::Lazy<T>& b) { return !a.empty() || !b.empty(); }
 	};
 
-		class Param
+	class Param
 	{
 	public:
 		void setProvided(bool is_provided = true)
 		{
 			mIsProvided = is_provided;
 			enclosingBlock().paramChanged(*this, is_provided);
+		}
+
+		Param& operator =(const Param& other)
+		{
+			setProvided(other.mIsProvided);
+			return *this;
 		}
 	protected:
 
@@ -671,7 +677,7 @@ namespace LLInitParam
 		self_t& operator =(const self_t& other)
 		{
 			mValue = other.mValue;
-			static_cast<NAME_VALUE_LOOKUP&>(*this) = other;
+			NAME_VALUE_LOOKUP::operator =(other);
 			return *this;
 		}
 
@@ -742,8 +748,8 @@ namespace LLInitParam
 
 		self_t& operator =(const self_t& other)
 		{
-			static_cast<T&>(*this) = other;
-			static_cast<NAME_VALUE_LOOKUP&>(*this) = other;
+			T::operator = (other);
+			NAME_VALUE_LOOKUP::operator =(other);
 			mValidatedVersion = other.mValidatedVersion;
 			mValidated = other.mValidated;
 			return *this;
@@ -752,6 +758,54 @@ namespace LLInitParam
 		mutable S32 	mValidatedVersion;
 		mutable bool 	mValidated; // lazy validation flag
 	};
+
+	template<typename NAME_VALUE_LOOKUP>
+	class ParamValue<std::string, NAME_VALUE_LOOKUP, false>
+	: public NAME_VALUE_LOOKUP
+	{
+	public:
+		typedef const std::string&	value_assignment_t;
+		typedef ParamValue<std::string, NAME_VALUE_LOOKUP, false>	self_t;
+
+		ParamValue(): mValue() {}
+		ParamValue(value_assignment_t other) : mValue(other) {}
+
+		void setValue(value_assignment_t val)
+		{
+			if (NAME_VALUE_LOOKUP::getValueFromName(val, mValue))
+			{
+				setValueName(val);
+			}
+			else
+			{
+				mValue = val;
+			}
+		}
+
+		value_assignment_t getValue() const
+		{
+			return mValue;
+		}
+
+		std::string& getValue()
+		{
+			return mValue;
+		}
+
+		operator value_assignment_t() const
+		{
+			return mValue;
+		}
+
+		value_assignment_t operator()() const
+		{
+			return mValue;
+		}
+
+	protected:
+		std::string mValue;
+	};
+
 
 	template<typename T, typename NAME_VALUE_LOOKUP = TypeValues<T> >
 	struct ParamIterator
@@ -775,6 +829,8 @@ namespace LLInitParam
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>		self_t;
 		typedef NAME_VALUE_LOOKUP															name_value_lookup_t;
 		typedef ParamValue<T, NAME_VALUE_LOOKUP>											param_value_t;
+
+		using param_value_t::operator();
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr)
@@ -877,16 +933,16 @@ namespace LLInitParam
 			}
 		}
 
-		self_t& operator =(typename const name_value_lookup_t::name_t& name)
-		{
-			return static_cast<self_t&>(param_value_t::operator =(name));
-		}
-
 		void set(value_assignment_t val, bool flag_as_provided = true)
 		{
 			param_value_t::clearValueName();
 			setValue(val);
 			setProvided(flag_as_provided);
+		}
+
+		self_t& operator =(const typename NAME_VALUE_LOOKUP::name_t& name)
+		{
+			return static_cast<self_t&>(param_value_t::operator =(name));
 		}
 
 	protected:
@@ -918,6 +974,8 @@ namespace LLInitParam
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
 		typedef NAME_VALUE_LOOKUP								name_value_lookup_t;
 		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
+
+		using param_value_t::operator();
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
@@ -1021,6 +1079,11 @@ namespace LLInitParam
 			// next call to isProvided() will update provision status based on validity
 			param_value_t::mValidatedVersion = -1;
 			setProvided(flag_as_provided);
+		}
+
+		self_t& operator =(const typename NAME_VALUE_LOOKUP::name_t& name)
+		{
+			return static_cast<self_t&>(param_value_t::operator =(name));
 		}
 
 		// propagate changed status up to enclosing block
@@ -1189,7 +1252,9 @@ namespace LLInitParam
 
 		void add(const value_t& item)
 		{
-			mValues.push_back(param_value_t(item));
+			param_value_t param_value;
+			param_value.setValue(item);
+			mValues.push_back(param_value);
 			setProvided();
 		}
 
@@ -1537,7 +1602,7 @@ namespace LLInitParam
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
-			using super_t::param_value_t::operator =;
+			using super_t::operator =;
 
 			explicit Alternative(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
@@ -1656,8 +1721,8 @@ namespace LLInitParam
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			using super_t::operator();
-			using super_t::param_value_t::operator =;
-
+			using super_t::operator =;
+			
 			explicit Optional(const char* name = "", value_assignment_t val = defaultValue<T>())
 			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1)
 			{
@@ -1686,7 +1751,7 @@ namespace LLInitParam
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			using super_t::operator();
-			using super_t::param_value_t::operator =;
+			using super_t::operator =;
 
 			// mandatory parameters require a name to be parseable
 			explicit Mandatory(const char* name = "", value_assignment_t val = defaultValue<T>())

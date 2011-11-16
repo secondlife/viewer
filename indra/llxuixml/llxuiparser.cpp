@@ -61,8 +61,6 @@ const S32 LINE_NUMBER_HERE = 0;
 
 struct MaxOccursValues : public LLInitParam::TypeValuesHelper<U32, MaxOccursValues>
 {
-	using TypeValuesHelper<U32, MaxOccursValues>::operator =;
-	typedef std::string name_t;
 	static void declareValues()
 	{
 		declare("unbounded", U32_MAX);
@@ -73,11 +71,11 @@ struct Occurs : public LLInitParam::Block<Occurs>
 {
 	Optional<U32>					minOccurs;
 	Optional<U32, MaxOccursValues>	maxOccurs;
-	Multiple<U32, AnyAmount, MaxOccursValues> foo;
 
 	Occurs()
 	:	minOccurs("minOccurs", 0),
 		maxOccurs("maxOccurs", U32_MAX)
+
 	{}
 };
 
