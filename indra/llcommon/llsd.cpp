@@ -732,10 +732,10 @@ const LLSD& LLSD::Impl::undef()
 void LLSD::Impl::dumpStats() const
 {
 	S32 type_counts[LLSD::TypeLLSDNumTypes + 1];
-	memset(&type_counts, 0, LLSD::TypeLLSDNumTypes * sizeof(S32));
+	memset(&type_counts, 0, sizeof(type_counts));
 
 	S32 share_counts[LLSD::TypeLLSDNumTypes + 1];
-	memset(&share_counts, 0, LLSD::TypeLLSDNumTypes * sizeof(S32));
+	memset(&share_counts, 0, sizeof(share_counts));
 
 	// Add info from all the values this object has
 	calcStats(type_counts, share_counts);
@@ -753,11 +753,15 @@ void LLSD::Impl::dumpStats() const
 
 
 void LLSD::Impl::calcStats(S32 type_counts[], S32 share_counts[]) const
-{ 
-	type_counts[(S32) type()]++;	
-	if (shared())
+{
+	S32 type = S32(type());
+	if (0 <= type && type < LLSD::TypeLLSDNumTypes)
 	{
-		share_counts[(S32) type()]++;
+		type_counts[type]++;	
+		if (shared())
+		{
+			share_counts[type]++;
+		}
 	}
 }
 
