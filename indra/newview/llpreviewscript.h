@@ -98,6 +98,8 @@ public:
 	static void		onClickForward(void* userdata);
 	static void		onBtnInsertSample(void*);
 	static void		onBtnInsertFunction(LLUICtrl*, void*);
+	static void		onBtnLoadFromFile(void*);
+	static void		onBtnSaveToFile(void*);
 
 	virtual bool	hasAccelerators() const { return true; }
 

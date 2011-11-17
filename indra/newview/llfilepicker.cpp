@@ -58,6 +58,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
+#define SCRIPT_FILTER L"Script files (*.lsl; *.txt)\0*.lsl;*.txt\0"
 #endif
 
 //
@@ -211,6 +212,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_MODEL:
 		mOFN.lpstrFilter = MODEL_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_SCRIPT:
+		mOFN.lpstrFilter = SCRIPT_FILTER \
 			L"\0";
 		break;
 	default:
@@ -495,6 +500,16 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 		mOFN.lpstrDefExt = L"j2c";
 		mOFN.lpstrFilter =
 			L"Compressed Images (*.j2c)\0*.j2c\0" \
+			L"\0";
+		break;
+	case FFSAVE_SCRIPT:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.lsl", FILENAME_BUFFER_SIZE);
+		}
+		mOFN.lpstrDefExt = L"txt";
+		mOFN.lpstrFilter = 
+			L"LSL Files (*.lsl; *.txt)\0*.lsl;*.txt\0"
 			L"\0";
 		break;
 	default:

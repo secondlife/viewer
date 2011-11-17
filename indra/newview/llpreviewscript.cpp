@@ -35,6 +35,7 @@
 #include "llcombobox.h"
 #include "lldir.h"
 #include "llexternaleditor.h"
+#include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
@@ -89,15 +90,15 @@
 const std::string HELLO_LSL =
 	"default\n"
 	"{\n"
-	"    state_entry()\n"
-    "    {\n"
-    "        llSay(0, \"Hello, Avatar!\");\n"
-    "    }\n"
+	"\tstate_entry()\n"
+    "\t{\n"
+    "\t\tllOwnerSay(\"Hello, Avatar!\");\n"
+    "\t}\n"
 	"\n"
-	"    touch_start(integer total_number)\n"
-	"    {\n"
-	"        llSay(0, \"Touched.\");\n"
-	"    }\n"
+	"\ttouch_start(integer total_number)\n"
+	"\t{\n"
+	"\t\tllSay(llDetectedKey(0), \"Touched.\");\n"
+	"\t}\n"
 	"}\n";
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
@@ -503,6 +504,14 @@ void LLScriptEdCore::initMenu()
 
 	menuItem = getChild<LLMenuItemCallGL>("Keyword Help...");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnDynamicHelp, this));
+
+	menuItem = getChild<LLMenuItemCallGL>("LoadFromFile");
+	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnLoadFromFile, this));
+//	menuItem->setEnabledCallback(NULL);
+
+	menuItem = getChild<LLMenuItemCallGL>("SaveToFile");
+	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnSaveToFile, this));
+	menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::hasChanged, this));
 }
 
 void LLScriptEdCore::setScriptText(const std::string& text, BOOL is_valid)
@@ -1095,6 +1104,59 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 
 	return FALSE;
 }
+
+void LLScriptEdCore::onBtnLoadFromFile( void* data )
+{
+
+	LLScriptEdCore* self = (LLScriptEdCore*) data;
+	
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getOpenFile( LLFilePicker::FFLOAD_SCRIPT ) )
+	{
+		return;
+	}
+
+	std::string filename = file_picker.getFirstFile();
+
+	std::ifstream fin(filename.c_str());
+
+	std::string line;
+	std::string linetotal;
+	self->mEditor->clear();
+	while (!fin.eof())
+	{ 
+		getline(fin,line);
+		line=line+"\n";
+		self->mEditor->insertText(line);
+
+	}
+	fin.close();
+}
+
+void LLScriptEdCore::onBtnSaveToFile( void* userdata )
+{
+
+	LLViewerStats::getInstance()->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
+
+	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+
+	if( self->mSaveCallback )
+	{
+		LLFilePicker& file_picker = LLFilePicker::instance();
+		if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT ) )
+		{
+			return;
+		}
+
+		std::string filename = file_picker.getFirstFile();
+		std::string scriptText=self->mEditor->getText();
+		std::ofstream fout(filename.c_str());
+		fout<<(scriptText);
+		fout.close();
+		self->mSaveCallback( self->mUserdata, FALSE );
+	}
+}
+
 
 /// ---------------------------------------------------------------------------
 /// LLScriptEdContainer

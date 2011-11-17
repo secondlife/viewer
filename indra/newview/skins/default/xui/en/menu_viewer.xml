@@ -1101,7 +1101,20 @@
             <menu_item_call.on_visible
             function="File.VisibleUploadModel"/>
             </menu_item_call>
-	   <menu_item_call
+          <menu_item_call
+           label="Script (L$ 0)..."
+           layout="topleft"
+           name="Upload Script">
+            <menu_item_call.on_click
+             function="File.UploadScript"
+             parameter="" />
+            <menu_item_call.on_enable
+             function="File.EnableUploadScript" />
+            <!--menu_item_call.on_visible
+             function="Upload.CalculateCosts"
+             parameter="Upload Script" /-->
+          </menu_item_call>
+          <menu_item_call
              label="Bulk (L$[COST] per file)..."
              layout="topleft"
              name="Bulk Upload">
