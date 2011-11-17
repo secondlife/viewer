@@ -33,7 +33,7 @@
 #include <boost/unordered_map.hpp>
 #include <list>
 
-//#include "llerror.h"
+#include "llerror.h"
 #include "v4color.h"
 #include "llstring.h"
 #include "stdtypes.h"

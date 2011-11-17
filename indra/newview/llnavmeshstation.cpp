@@ -105,14 +105,13 @@ public:
 		if ( content.has("error") )
 		{
 			llwarns	<< "Error on fetched data"<< llendl;
+			llinfos<<"LLsd buffer on error"<<ll_pretty_print_sd(content)<<llendl;
 		}
 		else 
 		{
 			LLNavMeshDownloadObserver* pObserver = mObserverHandle.get();
 			if ( pObserver )
 			{
-				llinfos<<"Do something immensely important w/content"<<llendl;
-				llinfos<<"LLsd buffer"<<ll_pretty_print_sd(content)<<llendl;
 				
 				if ( content.has("navmesh_data") )
 				{
@@ -125,7 +124,7 @@ public:
 				}
 			}
 		}	
-	}
+}	
 	
 private:
 	//Observer handle
