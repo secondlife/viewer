@@ -1,4 +1,4 @@
-version 30
+version 31
 // The version number above should be implemented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -291,7 +291,7 @@ list TexUnit8orLess
 RenderDeferredSSAO			0	0
 
 list ATI
-RenderDeferredSSAO			0	0
+RenderDeferredSSAO			1	0
 
 list Intel
 RenderAnisotropic			1	0
