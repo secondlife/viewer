@@ -964,7 +964,7 @@ std::string		LLSD::typeString(Type type)
 		"Array"
 	};
 
-	if (0 <= type < (sizeof(sTypeNameArray)/sizeof(sTypeNameArray[0])))
+	if (0 <= type && type < (sizeof(sTypeNameArray)/sizeof(sTypeNameArray[0])))
 	{
 		return sTypeNameArray[type];
 	}
