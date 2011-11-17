@@ -130,24 +130,9 @@ void LLDrawPoolTerrain::beginRenderPass( S32 pass )
 	LLFastTimer t(FTM_RENDER_TERRAIN);
 	LLFacePool::beginRenderPass(pass);
 
-	if (sDetailMode > 0)
-	{
-		sShader = LLPipeline::sUnderWaterRender ? 
-						&gTerrainWaterProgram :
-						&gTerrainProgram;
-	}
-	else
-	{
-		if (LLPipeline::sUnderWaterRender)
-		{
-			sShader = &gObjectSimpleNonIndexedTexGenWaterProgram;
-		}
-		else
-		{
-			sShader = &gObjectSimpleNonIndexedTexGenProgram;
-		}
-	}
-					
+	sShader = LLPipeline::sUnderWaterRender ? 
+					&gTerrainWaterProgram :
+					&gTerrainProgram;	
 
 	if (mVertexShaderLevel > 1 && sShader->mShaderLevel > 0)
 	{
@@ -210,14 +195,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 	{
 		gPipeline.enableLightsDynamic();
 
-		if (sDetailMode > 0)
-		{
-			renderFullShader();
-		}
-		else
-		{
-			renderSimple();
-		}
+		renderFullShader();
 	}
 	else
 	{
