@@ -234,6 +234,7 @@ public:
 	void			setCanTearOff(BOOL can_tear_off);
 	virtual void	setCanResize(BOOL can_resize);
 	void			setCanDrag(BOOL can_drag);
+	bool			getCanDrag();
 	void			setHost(LLMultiFloater* host);
 	BOOL			isResizable() const				{ return mResizable; }
 	void			setResizeLimits( S32 min_width, S32 min_height );
