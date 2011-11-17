@@ -145,8 +145,15 @@ class LLPathingTools  : public view_listener_t, LLNavMeshDownloadObserver
 	bool handleEvent(const LLSD& userdata)
 	{
 		//make sure we have a pathing system
-		LLPathingLib::initSystem();
-		
+		if ( !LLPathingLib::getInstance() )
+		{
+			LLPathingLib::initSystem();
+		}
+		//prep# test remove
+		//LLSD content;
+		//LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( content );
+		//return true;
+		//prep# end test
 		if ( LLPathingLib::getInstance() == NULL )
 		{ 
 			llinfos<<"No implementation of pathing library."<<llendl;

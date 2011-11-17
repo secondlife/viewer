@@ -30,6 +30,7 @@
 #include "LLPathingLib.h"//prep# fixme
 #include "llagent.h"
 #include "llviewerregion.h"
+#include "llsdutil.h"
 //===============================================================================
 LLNavMeshStation::LLNavMeshStation()
 {
@@ -111,7 +112,17 @@ public:
 			if ( pObserver )
 			{
 				llinfos<<"Do something immensely important w/content"<<llendl;
-			    LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( content );
+				llinfos<<"LLsd buffer"<<ll_pretty_print_sd(content)<<llendl;
+				
+				if ( content.has("navmesh_data") )
+				{
+					LLSD::Binary& stuff = content["navmesh_data"].asBinary();
+					LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( stuff );
+				}
+				else
+				{
+					llwarns<<"no mesh data "<<llendl;
+				}
 			}
 		}	
 	}
@@ -152,30 +163,16 @@ bool LLNavMeshStation::postNavMeshToServer( LLSD& data, const LLHandle<LLNavMesh
 //===============================================================================
 void LLNavMeshStation::downloadNavMeshSrc( const LLHandle<LLNavMeshDownloadObserver>& observerHandle ) 
 {	
-	mCurlRequest = new LLCurlRequest();
-
 	if ( mNavMeshDownloadURL.empty() )
 	{
 		llinfos << "Unable to upload navmesh because of missing URL" << llendl;
 	}
 	else
-	{
-		LLCurlRequest::headers_t headers;
+	{		
 		LLSD data;
 		data["agent_id"]  = gAgent.getID();
 		data["region_id"] = gAgent.getRegion()->getRegionID();
-		mCurlRequest->post( mNavMeshDownloadURL, headers, data,
-							new LLNavMeshDownloadResponder( observerHandle ) );
-		do
-		{
-			mCurlRequest->process();
-			//sleep for 10ms to prevent eating a whole core
-			apr_sleep(10000);
-		} while ( mCurlRequest->getQueued() > 0 );
+		LLHTTPClient::post(mNavMeshDownloadURL, data, new LLNavMeshDownloadResponder( observerHandle ) );
 	}
-
-	delete mCurlRequest;
-
-	mCurlRequest = NULL;
 }
 //===============================================================================

@@ -104,7 +104,8 @@
 #include "lltoolpie.h"
 #include "llcurl.h"
 #include "llnotifications.h"
-
+//prep#
+#include "LLPathingLib.h"
 
 void check_stack_depth(S32 stack_depth)
 {
@@ -3785,6 +3786,12 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 		LLVertexBuffer::unbind();
 	
+		//prep#
+		if ( LLPathingLib::getInstance() )
+		{
+			LLPathingLib::getInstance()->renderNavMesh();
+		}
+
 		if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
 		{
 			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
