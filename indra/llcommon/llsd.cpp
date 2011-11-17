@@ -754,13 +754,13 @@ void LLSD::Impl::dumpStats() const
 
 void LLSD::Impl::calcStats(S32 type_counts[], S32 share_counts[]) const
 {
-	S32 type = S32(type());
-	if (0 <= type && type < LLSD::TypeLLSDNumTypes)
+	S32 tp = S32(type());
+	if (0 <= tp && tp < LLSD::TypeLLSDNumTypes)
 	{
-		type_counts[type]++;	
+		type_counts[tp]++;	
 		if (shared())
 		{
-			share_counts[type]++;
+			share_counts[tp]++;
 		}
 	}
 }
