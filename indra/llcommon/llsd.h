@@ -80,8 +80,72 @@
 	
 	An array is a sequence of zero or more LLSD values.
 	
+	Thread Safety
+
+	In general, these LLSD classes offer *less* safety than STL container
+	classes.  Implementations prior to this one were unsafe even when
+	completely unrelated LLSD trees were in two threads due to reference
+	sharing of special 'undefined' values that participated in the reference
+	counting mechanism.
+
+	The dereference-before-refcount and aggressive tree sharing also make
+	it impractical to share an LLSD across threads.  A strategy of passing
+	ownership or a copy to another thread is still difficult due to a lack
+	of a cloning interface but it can be done with some care.
+
+	One way of transferring ownership is as follows:
+
+		void method(const LLSD input) {
+		...
+		LLSD * xfer_tree = new LLSD();
+		{
+			// Top-level values
+			(* xfer_tree)['label'] = "Some text";
+			(* xfer_tree)['mode'] = APP_MODE_CONSTANT;
+
+			// There will be a second-level
+			LLSD subtree(LLSD::emptyMap());
+			(* xfer_tree)['subtree'] = subtree;
+
+			// Do *not* copy from LLSD objects via LLSD
+			// intermediaries.  Only use plain-old-data
+			// types as intermediaries to prevent reference
+			// sharing.
+			subtree['value1'] = input['value1'].asInteger();
+			subtree['value2'] = input['value2'].asString();
+
+			// Close scope and drop 'subtree's reference.
+			// Only xfer_tree has a reference to the second
+			// level data.
+		}
+		...
+		// Transfer the LLSD pointer to another thread.  Ownership
+		// transfers, this thread no longer has a reference to any
+		// part of the xfer_tree and there's nothing to free or
+		// release here.  Receiving thread does need to delete the
+		// pointer when it is done with the LLSD.  Transfer
+		// mechanism must perform correct data ordering operations
+		// as dictated by architecture.
+		other_thread.sendMessageAndPointer("Take This", xfer_tree);
+		xfer_tree = NULL;
+
+
+	Avoid this pattern which provides half of a race condition:
+	
+		void method(const LLSD input) {
+		...
+		LLSD xfer_tree(LLSD::emptyMap());
+		xfer_tree['label'] = "Some text";
+		xfer_tree['mode'] = APP_MODE_CONSTANT;
+		...
+		other_thread.sendMessageAndPointer("Take This", xfer_tree);
+
+	
 	@nosubgrouping
 */
+
+// Normally undefined, used for diagnostics
+//#define LLSD_DEBUG_INFO	1
 
 class LL_COMMON_API LLSD
 {
@@ -266,7 +330,7 @@ public:
 	/** @name Type Testing */
 	//@{
 		enum Type {
-			TypeUndefined,
+			TypeUndefined = 0,
 			TypeBoolean,
 			TypeInteger,
 			TypeReal,
@@ -276,7 +340,10 @@ public:
 			TypeURI,
 			TypeBinary,
 			TypeMap,
-			TypeArray
+			TypeArray,
+			TypeLLSDTypeEnd,
+			TypeLLSDTypeBegin = TypeUndefined,
+			TypeLLSDNumTypes = (TypeLLSDTypeEnd - TypeLLSDTypeBegin)
 		};
 		
 		Type type() const;
@@ -338,6 +405,17 @@ private:
 		/// Returns Notation version of llsd -- only to be called from debugger
 		static const char *dump(const LLSD &llsd);
 	//@}
+
+public:
+	void			dumpStats() const;					// Output information on object and usage
+	void			calcStats(S32 type_counts[], S32 share_counts[]) const;		// Calculate the number of LLSD objects used by this value
+
+	static std::string		typeString(Type type);		// Return human-readable type as a string
+
+#ifdef LLSD_DEBUG_INFO
+	static S32		sLLSDAllocationCount;		// Number of LLSD objects ever created
+	static S32		sLLSDNetObjects;			// Number of LLSD objects that exist
+#endif
 };
 
 struct llsd_select_bool : public std::unary_function<LLSD, LLSD::Boolean>
