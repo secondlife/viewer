@@ -5713,6 +5713,14 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 		return;
 	}
 
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (shader)
+	{ //switch to "solid color" program for SH-2690 -- works around driver bug causing bad triangles when rendering silhouettes
+		gSolidColorProgram.bind();
+	}
+
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
@@ -5835,6 +5843,11 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 	}
 	gGL.popMatrix();
 	gGL.popUIMatrix();
+
+	if (shader)
+	{
+		shader->bind();
+	}
 }
 
 //

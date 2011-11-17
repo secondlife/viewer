@@ -1035,6 +1035,8 @@ void LLVOSurfacePatch::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newM
 {
 	LLVector3 posAgent = getPositionAgent();
 	LLVector3 scale = getScale();
+	//make z-axis scale at least 1 to avoid shadow artifacts on totally flat land
+	scale.mV[VZ] = llmax(scale.mV[VZ], 1.f);
 	newMin.load3( (posAgent-scale*0.5f).mV); // Changing to 2.f makes the culling a -little- better, but still wrong
 	newMax.load3( (posAgent+scale*0.5f).mV);
 	LLVector4a pos;

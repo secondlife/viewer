@@ -1887,6 +1887,17 @@ void LLRender::flush()
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 { 
 	//the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
+	if (mCount > 2048)
+	{ //break when buffer gets reasonably full to keep GL command buffers happy and avoid overflow below
+		switch (mMode)
+		{
+			case LLRender::POINTS: flush(); break;
+			case LLRender::TRIANGLES: if (mCount%3==0) flush(); break;
+			case LLRender::QUADS: if(mCount%4 == 0) flush(); break; 
+			case LLRender::LINES: if (mCount%2 == 0) flush(); break;
+		}
+	}
+			
 	if (mCount > 4094)
 	{
 	//	llwarns << "GL immediate mode overflow.  Some geometry not drawn." << llendl;
