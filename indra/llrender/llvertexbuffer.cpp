@@ -511,6 +511,25 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 				llerrs << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << llendl;
 			}
 		}
+
+		LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+		if (shader && shader->mFeatures.mIndexedTextureChannels > 1)
+		{
+			LLStrider<LLVector4a> v;
+			//hack to get non-const reference
+			LLVertexBuffer* vb = (LLVertexBuffer*) this;
+			vb->getVertexStrider(v);
+
+			for (U32 i = start; i < end; i++)
+			{
+				S32 idx = (S32) (v[i][3]+0.25f);
+				if (idx < 0 || idx >= shader->mFeatures.mIndexedTextureChannels)
+				{
+					llerrs << "Bad texture index found in vertex data stream." << llendl;
+				}
+			}
+		}
 	}
 }
 

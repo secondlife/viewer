@@ -1658,6 +1658,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		while(dst < end);
 
 		F32 index = (F32) (mTextureIndex < 255 ? mTextureIndex : 0);
+
+		llassert(index <= LLGLSLShader::sIndexedTextureChannels-1);
 		F32 *index_dst = (F32*) vertices;
 		F32 *index_end = (F32*) end;
 
