@@ -87,14 +87,6 @@ class LLFileEnableUpload : public view_listener_t
 	}
 };
 
-class LLFileEnableUploadScript : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		return true;
-	}
-};
-
 class LLFileEnableUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -395,20 +387,6 @@ class LLFileUploadAnim : public view_listener_t
 		{
 			LLFloaterReg::showInstance("upload_anim", LLSD(filename));
 		}
-		return true;
-	}
-};
-
-class LLFileUploadScript : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_SCRIPT);
-		if (!filename.empty())
-		{
-			LLFloaterReg::showInstance("upload_script", LLSD(filename));
-		}
-
 		return true;
 	}
 };
