@@ -36,6 +36,7 @@
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
+#include "llviewerfoldertype.h"
 
 // linden library includes
 #include "lltrans.h"
@@ -117,7 +118,17 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 
 	const LLFolderViewEventListener* listener = folder->getListener();
 	const LLUUID folder_id = listener->getUUID();
-
+	
+	const LLInvFVBridge *bridge = dynamic_cast<const LLInvFVBridge *>(folder->getListener());
+	bool is_system_folder = bridge->isSystemFolder();
+	bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(listener->getPreferredType());
+	bool is_empty = (gInventory.categoryHasChildren(folder_id) != LLInventoryModel::CHILDREN_YES);
+	
+	if (is_system_folder && is_empty && is_hidden_if_empty)
+	{
+		return false;
+	}
+		
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory

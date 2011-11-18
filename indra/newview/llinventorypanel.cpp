@@ -618,41 +618,22 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 
 LLFolderViewFolder * LLInventoryPanel::createFolderViewFolder(LLInvFVBridge * bridge)
 {
-	// Create the folder ui widget, unless it's an empty system folder that should be hidden
-	// Note : we still let the code create a listener for it (in case something shows up in it)
-	// but we simply skip creating the ui ctrl and adding it.
-	// *TODO : Need to be verified: if the listener is triggered and something added, will the code
-	// crash (because it's assuming, wrongly, that the uictrl exists)?
+	LLFolderViewFolder::Params params;
 
-	bool is_system_folder = bridge->isSystemFolder();
-	bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(bridge->getPreferredType());
-	bool is_empty = (mInventory->categoryHasChildren(bridge->getUUID()) != LLInventoryModel::CHILDREN_YES);
-	
-	if (!is_system_folder || !is_empty || !is_hidden_if_empty)
+	params.name = bridge->getDisplayName();
+	params.icon = bridge->getIcon();
+	params.icon_open = bridge->getOpenIcon();
+
+	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
 	{
-		LLFolderViewFolder::Params params;
-
-		params.name = bridge->getDisplayName();
-		params.icon = bridge->getIcon();
-		params.icon_open = bridge->getOpenIcon();
-
-		if (mShowItemLinkOverlays) // if false, then links show up just like normal items
-		{
-			params.icon_overlay = LLUI::getUIImage("Inv_Link");
-		}
+		params.icon_overlay = LLUI::getUIImage("Inv_Link");
+	}
 	
-		params.root = mFolderRoot;
-		params.listener = bridge;
-		params.tool_tip = params.name;
+	params.root = mFolderRoot;
+	params.listener = bridge;
+	params.tool_tip = params.name;
 
-		return LLUICtrlFactory::create<LLFolderViewFolder>(params);
-	}
-	else 
-	{
-		// It's an empty system folder that should be hidden -> return NULL
-		return NULL;
-	}
-
+	return LLUICtrlFactory::create<LLFolderViewFolder>(params);
 }
 
 LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
