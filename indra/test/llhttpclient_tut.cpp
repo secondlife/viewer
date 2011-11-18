@@ -36,11 +36,11 @@
 // These are too slow on Windows to actually include in the build. JC
 #if !LL_WINDOWS
 
-#include "llapr.h"
 #include "lltut.h"
 #include "llhttpclient.h"
 #include "llformat.h"
 #include "llpipeutil.h"
+#include "llproxy.h"
 #include "llpumpio.h"
 
 #include "llsdhttpserver.h"
@@ -89,6 +89,7 @@ namespace tut
 			LLCurl::initClass(false);
 			mServerPump = new LLPumpIO(mPool);
 			mClientPump = new LLPumpIO(mPool);
+
 			LLHTTPClient::setPump(*mClientPump);
 		}
 		
@@ -96,6 +97,8 @@ namespace tut
 		{
 			delete mServerPump;
 			delete mClientPump;
+			LLProxy::cleanupClass();
+			apr_pool_destroy(mPool);
 		}
 
 		void setupTheServer()

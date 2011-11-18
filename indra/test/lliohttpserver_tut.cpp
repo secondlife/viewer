@@ -76,14 +76,12 @@ namespace tut
 		HTTPServiceTestData()
 			: mResponse(NULL)
 		{
-			apr_pool_create(&mPool, NULL);
 			LLHTTPStandardServices::useServices();
 			LLHTTPRegistrar::buildAllServices(mRoot);
 			mRoot.addNode("/delayed/echo", new DelayedEcho(this));
 			mRoot.addNode("/wire/hello", new LLHTTPNodeForPipe<WireHello>);
 		}
 		
-		apr_pool_t* mPool;
 		LLHTTPNode mRoot;
 		LLHTTPNode::ResponsePtr mResponse;
 		LLSD mResult;
@@ -106,8 +104,11 @@ namespace tut
 			LLPipeStringInjector* injector = new LLPipeStringInjector(httpRequest);
 			LLPipeStringExtractor* extractor = new LLPipeStringExtractor();
 			
+			apr_pool_t* pool;
+			apr_pool_create(&pool, NULL);
+
 			LLPumpIO* pump;
-			pump = new LLPumpIO(mPool);
+			pump = new LLPumpIO(pool);
 
 			LLPumpIO::chain_t chain;
 			LLSD context;
@@ -130,6 +131,7 @@ namespace tut
 
 			chain.clear();
 			delete pump;
+			apr_pool_destroy(pool);
 
 			if(mResponse.notNull() && timeout)
 			{

@@ -838,6 +838,7 @@ namespace tut
 		{
 			mChain.clear();
 			delete mPump;
+			apr_pool_destroy(mPool);
 		}
 	};
 	typedef test_group<PumpAndChainTestData>	PumpAndChainTestGroup;
@@ -908,9 +909,8 @@ namespace tut
 		
 		pipe_and_pump_fitness()
 		{
-			apr_pool_create(&mPool, NULL);
-
 			LLFrameTimer::updateFrameTime();
+			apr_pool_create(&mPool, NULL);
 			mPump = new LLPumpIO(mPool);
 			mSocket = LLSocket::create(
 				mPool,
@@ -922,6 +922,7 @@ namespace tut
 		{
 			mSocket.reset();
 			delete mPump;
+			apr_pool_destroy(mPool);
 		}
 
 	protected:
@@ -1248,13 +1249,14 @@ namespace tut
 			}
 		};
 
+		apr_pool_t* mPool;
 		LLPumpIO* mPump;
 		LLPumpIO::chain_t mChain;
 		LLSimpleRPCClient* mClient;
 		LLSD mResponse;
-		apr_pool_t* mPool;
 
 		rpc_server_data() :
+			mPool(NULL),
 			mPump(NULL),
 			mClient(NULL)
 		{
@@ -1274,6 +1276,8 @@ namespace tut
 			mChain.clear();
 			delete mPump;
 			mPump = NULL;
+			apr_pool_destroy(mPool);
+			mPool = NULL;
 		}
 		void pump_loop(const LLSD& request)
 		{
