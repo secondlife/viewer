@@ -945,6 +945,12 @@ namespace LLInitParam
 			return static_cast<self_t&>(param_value_t::operator =(name));
 		}
 
+		self_t& operator =(value_assignment_t val)
+		{
+			set(val);
+			return *this;
+		}
+
 	protected:
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
@@ -1084,6 +1090,12 @@ namespace LLInitParam
 		self_t& operator =(const typename NAME_VALUE_LOOKUP::name_t& name)
 		{
 			return static_cast<self_t&>(param_value_t::operator =(name));
+		}
+
+		self_t& operator =(value_assignment_t val)
+		{
+			set(val);
+			return *this;
 		}
 
 		// propagate changed status up to enclosing block
@@ -1290,12 +1302,6 @@ namespace LLInitParam
 		}
 
 	protected:
-		self_t& operator=(const self_t& other)
-		{
-			mValues = other.mValues;
-			return *this;
-		}
-
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
@@ -1489,11 +1495,6 @@ namespace LLInitParam
 		}
 
 	protected:
-		self_t& operator=(const self_t& other)
-		{
-			mValues = other.mValues;
-			return *this;
-		}
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
