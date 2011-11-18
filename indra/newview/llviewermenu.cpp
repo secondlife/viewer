@@ -3122,7 +3122,7 @@ void handle_avatar_eject(const LLSD& avatar_id)
 
 bool my_profile_visible()
 {
-	LLFloater* floaterp = LLFloaterReg::findInstance("profile", LLSD().with("id", gAgent.getID()));
+	LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
 	return floaterp && floaterp->isInVisibleChain();
 }
 
