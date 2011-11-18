@@ -1048,13 +1048,10 @@ void LLPanelPicks::createPickInfoPanel()
 
 void LLPanelPicks::createClassifiedInfoPanel()
 {
-	if(!mPanelClassifiedInfo)
-	{
-		mPanelClassifiedInfo = LLPanelClassifiedInfo::create();
-		mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedInfo));
-		mPanelClassifiedInfo->setEditClassifiedCallback(boost::bind(&LLPanelPicks::onPanelClassifiedEdit, this));
-		mPanelClassifiedInfo->setVisible(FALSE);
-	}
+	mPanelClassifiedInfo = LLPanelClassifiedInfo::create();
+	mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedInfo));
+	mPanelClassifiedInfo->setEditClassifiedCallback(boost::bind(&LLPanelPicks::onPanelClassifiedEdit, this));
+	mPanelClassifiedInfo->setVisible(FALSE);
 }
 
 void LLPanelPicks::createClassifiedEditPanel(LLPanelClassifiedEdit** panel)
