@@ -1642,19 +1642,6 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 		{
 			if (!isOcclusionState(QUERY_PENDING) || isOcclusionState(DISCARD_QUERY))
 			{
-				bool check = true;
-
-				if (isOcclusionState(QUERY_PENDING))
-				{
-					GLuint available = 0;
-					glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
-					if (available == GL_FALSE)
-					{
-						check = false;
-					}
-				}
-
-				if (check)
 				{ //no query pending, or previous query to be discarded
 					LLFastTimer t(FTM_RENDER_OCCLUSION);
 

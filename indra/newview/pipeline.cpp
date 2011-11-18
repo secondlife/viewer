@@ -8737,378 +8737,393 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	// convenience array of 4 near clip plane distances
 	F32 dist[] = { near_clip, mSunClipPlanes.mV[0], mSunClipPlanes.mV[1], mSunClipPlanes.mV[2], mSunClipPlanes.mV[3] };
 	
-	for (S32 j = 0; j < 4; j++)
+
+	if (mSunDiffuse == LLColor4::black)
+	{ //sun diffuse is totally black, shadows don't matter
+		LLGLDepthTest depth(GL_TRUE);
+
+		for (S32 j = 0; j < 4; j++)
+		{
+			mShadow[j].bindTarget();
+			mShadow[j].clear();
+			mShadow[j].flush();
+		}
+	}
+	else
 	{
-		if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA))
+		for (S32 j = 0; j < 4; j++)
 		{
-			mShadowFrustPoints[j].clear();
-		}
+			if (!hasRenderDebugMask(RENDER_DEBUG_SHADOW_FRUSTA))
+			{
+				mShadowFrustPoints[j].clear();
+			}
 
-		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+j;
+			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+j;
 
-		//restore render matrices
-		glh_set_current_modelview(saved_view);
-		glh_set_current_projection(saved_proj);
+			//restore render matrices
+			glh_set_current_modelview(saved_view);
+			glh_set_current_projection(saved_proj);
 
-		LLVector3 eye = camera.getOrigin();
+			LLVector3 eye = camera.getOrigin();
 
-		//camera used for shadow cull/render
-		LLCamera shadow_cam;
+			//camera used for shadow cull/render
+			LLCamera shadow_cam;
 		
-		//create world space camera frustum for this split
-		shadow_cam = camera;
-		shadow_cam.setFar(16.f);
+			//create world space camera frustum for this split
+			shadow_cam = camera;
+			shadow_cam.setFar(16.f);
 	
-		LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
+			LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
 
-		LLVector3* frust = shadow_cam.mAgentFrustum;
+			LLVector3* frust = shadow_cam.mAgentFrustum;
 
-		LLVector3 pn = shadow_cam.getAtAxis();
+			LLVector3 pn = shadow_cam.getAtAxis();
 		
-		LLVector3 min, max;
+			LLVector3 min, max;
 
-		//construct 8 corners of split frustum section
-		for (U32 i = 0; i < 4; i++)
-		{
-			LLVector3 delta = frust[i+4]-eye;
-			delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
-			delta.normVec();
-			F32 dp = delta*pn;
-			frust[i] = eye + (delta*dist[j]*0.95f)/dp;
-			frust[i+4] = eye + (delta*dist[j+1]*1.05f)/dp;
-		}
+			//construct 8 corners of split frustum section
+			for (U32 i = 0; i < 4; i++)
+			{
+				LLVector3 delta = frust[i+4]-eye;
+				delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
+				delta.normVec();
+				F32 dp = delta*pn;
+				frust[i] = eye + (delta*dist[j]*0.95f)/dp;
+				frust[i+4] = eye + (delta*dist[j+1]*1.05f)/dp;
+			}
 						
-		shadow_cam.calcAgentFrustumPlanes(frust);
-		shadow_cam.mFrustumCornerDist = 0.f;
+			shadow_cam.calcAgentFrustumPlanes(frust);
+			shadow_cam.mFrustumCornerDist = 0.f;
 		
-		if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
-		{
-			mShadowCamera[j] = shadow_cam;
-		}
-
-		std::vector<LLVector3> fp;
-
-		if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir))
-		{
-			//no possible shadow receivers
 			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 			{
-				mShadowExtents[j][0] = LLVector3();
-				mShadowExtents[j][1] = LLVector3();
-				mShadowCamera[j+4] = shadow_cam;
+				mShadowCamera[j] = shadow_cam;
 			}
 
-			mShadow[j].bindTarget();
+			std::vector<LLVector3> fp;
+
+			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir))
 			{
-				LLGLDepthTest depth(GL_TRUE);
-				mShadow[j].clear();
-			}
-			mShadow[j].flush();
-
-			mShadowError.mV[j] = 0.f;
-			mShadowFOV.mV[j] = 0.f;
-
-			continue;
-		}
-
-		if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
-		{
-			mShadowExtents[j][0] = min;
-			mShadowExtents[j][1] = max;
-			mShadowFrustPoints[j] = fp;
-		}
-				
-
-		//find a good origin for shadow projection
-		LLVector3 origin;
-
-		//get a temporary view projection
-		view[j] = look(camera.getOrigin(), lightDir, -up);
-
-		std::vector<LLVector3> wpf;
-
-		for (U32 i = 0; i < fp.size(); i++)
-		{
-			glh::vec3f p = glh::vec3f(fp[i].mV);
-			view[j].mult_matrix_vec(p);
-			wpf.push_back(LLVector3(p.v));
-		}
-
-		min = wpf[0];
-		max = wpf[0];
-
-		for (U32 i = 0; i < fp.size(); ++i)
-		{ //get AABB in camera space
-			update_min_max(min, max, wpf[i]);
-		}
-
-		// Construct a perspective transform with perspective along y-axis that contains
-		// points in wpf
-		//Known:
-		// - far clip plane
-		// - near clip plane
-		// - points in frustum
-		//Find:
-		// - origin
-
-		//get some "interesting" points of reference
-		LLVector3 center = (min+max)*0.5f;
-		LLVector3 size = (max-min)*0.5f;
-		LLVector3 near_center = center;
-		near_center.mV[1] += size.mV[1]*2.f;
-		
-		
-		//put all points in wpf in quadrant 0, reletive to center of min/max
-		//get the best fit line using least squares
-		F32 bfm = 0.f;
-		F32 bfb = 0.f;
-
-		for (U32 i = 0; i < wpf.size(); ++i)
-		{
-			wpf[i] -= center;
-			wpf[i].mV[0] = fabsf(wpf[i].mV[0]);
-			wpf[i].mV[2] = fabsf(wpf[i].mV[2]);
-		}
-
-		if (!wpf.empty())
-		{ 
-			F32 sx = 0.f;
-			F32 sx2 = 0.f;
-			F32 sy = 0.f;
-			F32 sxy = 0.f;
-			
-			for (U32 i = 0; i < wpf.size(); ++i)
-			{		
-				sx += wpf[i].mV[0];
-				sx2 += wpf[i].mV[0]*wpf[i].mV[0];
-				sy += wpf[i].mV[1];
-				sxy += wpf[i].mV[0]*wpf[i].mV[1]; 
-			}
-
-			bfm = (sy*sx-wpf.size()*sxy)/(sx*sx-wpf.size()*sx2);
-			bfb = (sx*sxy-sy*sx2)/(sx*sx-bfm*sx2);
-		}
-		
-		{
-			// best fit line is y=bfm*x+bfb
-		
-			//find point that is furthest to the right of line
-			F32 off_x = -1.f;
-			LLVector3 lp;
-
-			for (U32 i = 0; i < wpf.size(); ++i)
-			{
-				//y = bfm*x+bfb
-				//x = (y-bfb)/bfm
-				F32 lx = (wpf[i].mV[1]-bfb)/bfm;
-
-				lx = wpf[i].mV[0]-lx;
-				
-				if (off_x < lx)
+				//no possible shadow receivers
+				if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 				{
-					off_x = lx;
-					lp = wpf[i];
+					mShadowExtents[j][0] = LLVector3();
+					mShadowExtents[j][1] = LLVector3();
+					mShadowCamera[j+4] = shadow_cam;
 				}
+
+				mShadow[j].bindTarget();
+				{
+					LLGLDepthTest depth(GL_TRUE);
+					mShadow[j].clear();
+				}
+				mShadow[j].flush();
+
+				mShadowError.mV[j] = 0.f;
+				mShadowFOV.mV[j] = 0.f;
+
+				continue;
 			}
 
-			//get line with slope bfm through lp
-			// bfb = y-bfm*x
-			bfb = lp.mV[1]-bfm*lp.mV[0];
+			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+			{
+				mShadowExtents[j][0] = min;
+				mShadowExtents[j][1] = max;
+				mShadowFrustPoints[j] = fp;
+			}
+				
 
-			//calculate error
-			mShadowError.mV[j] = 0.f;
+			//find a good origin for shadow projection
+			LLVector3 origin;
+
+			//get a temporary view projection
+			view[j] = look(camera.getOrigin(), lightDir, -up);
+
+			std::vector<LLVector3> wpf;
+
+			for (U32 i = 0; i < fp.size(); i++)
+			{
+				glh::vec3f p = glh::vec3f(fp[i].mV);
+				view[j].mult_matrix_vec(p);
+				wpf.push_back(LLVector3(p.v));
+			}
+
+			min = wpf[0];
+			max = wpf[0];
+
+			for (U32 i = 0; i < fp.size(); ++i)
+			{ //get AABB in camera space
+				update_min_max(min, max, wpf[i]);
+			}
+
+			// Construct a perspective transform with perspective along y-axis that contains
+			// points in wpf
+			//Known:
+			// - far clip plane
+			// - near clip plane
+			// - points in frustum
+			//Find:
+			// - origin
+
+			//get some "interesting" points of reference
+			LLVector3 center = (min+max)*0.5f;
+			LLVector3 size = (max-min)*0.5f;
+			LLVector3 near_center = center;
+			near_center.mV[1] += size.mV[1]*2.f;
+		
+		
+			//put all points in wpf in quadrant 0, reletive to center of min/max
+			//get the best fit line using least squares
+			F32 bfm = 0.f;
+			F32 bfb = 0.f;
 
 			for (U32 i = 0; i < wpf.size(); ++i)
 			{
-				F32 lx = (wpf[i].mV[1]-bfb)/bfm;
-				mShadowError.mV[j] += fabsf(wpf[i].mV[0]-lx);
+				wpf[i] -= center;
+				wpf[i].mV[0] = fabsf(wpf[i].mV[0]);
+				wpf[i].mV[2] = fabsf(wpf[i].mV[2]);
 			}
 
-			mShadowError.mV[j] /= wpf.size();
-			mShadowError.mV[j] /= size.mV[0];
+			if (!wpf.empty())
+			{ 
+				F32 sx = 0.f;
+				F32 sx2 = 0.f;
+				F32 sy = 0.f;
+				F32 sxy = 0.f;
+			
+				for (U32 i = 0; i < wpf.size(); ++i)
+				{		
+					sx += wpf[i].mV[0];
+					sx2 += wpf[i].mV[0]*wpf[i].mV[0];
+					sy += wpf[i].mV[1];
+					sxy += wpf[i].mV[0]*wpf[i].mV[1]; 
+				}
 
-			if (mShadowError.mV[j] > RenderShadowErrorCutoff)
-			{ //just use ortho projection
-				mShadowFOV.mV[j] = -1.f;
-				origin.clearVec();
-				proj[j] = gl_ortho(min.mV[0], max.mV[0],
-									min.mV[1], max.mV[1],
-									-max.mV[2], -min.mV[2]);
+				bfm = (sy*sx-wpf.size()*sxy)/(sx*sx-wpf.size()*sx2);
+				bfb = (sx*sxy-sy*sx2)/(sx*sx-bfm*sx2);
 			}
-			else
+		
 			{
-				//origin is where line x = 0;
-				origin.setVec(0,bfb,0);
-
-				F32 fovz = 1.f;
-				F32 fovx = 1.f;
-				
-				LLVector3 zp;
-				LLVector3 xp;
+				// best fit line is y=bfm*x+bfb
+		
+				//find point that is furthest to the right of line
+				F32 off_x = -1.f;
+				LLVector3 lp;
 
 				for (U32 i = 0; i < wpf.size(); ++i)
 				{
-					LLVector3 atz = wpf[i]-origin;
-					atz.mV[0] = 0.f;
-					atz.normVec();
-					if (fovz > -atz.mV[1])
+					//y = bfm*x+bfb
+					//x = (y-bfb)/bfm
+					F32 lx = (wpf[i].mV[1]-bfb)/bfm;
+
+					lx = wpf[i].mV[0]-lx;
+				
+					if (off_x < lx)
 					{
-						zp = wpf[i];
-						fovz = -atz.mV[1];
-					}
-					
-					LLVector3 atx = wpf[i]-origin;
-					atx.mV[2] = 0.f;
-					atx.normVec();
-					if (fovx > -atx.mV[1])
-					{
-						fovx = -atx.mV[1];
-						xp = wpf[i];
+						off_x = lx;
+						lp = wpf[i];
 					}
 				}
 
-				fovx = acos(fovx);
-				fovz = acos(fovz);
+				//get line with slope bfm through lp
+				// bfb = y-bfm*x
+				bfb = lp.mV[1]-bfm*lp.mV[0];
 
-				F32 cutoff = llmin((F32) RenderShadowFOVCutoff, 1.4f);
-				
-				mShadowFOV.mV[j] = fovx;
-				
-				if (fovx < cutoff && fovz > cutoff)
+				//calculate error
+				mShadowError.mV[j] = 0.f;
+
+				for (U32 i = 0; i < wpf.size(); ++i)
 				{
-					//x is a good fit, but z is too big, move away from zp enough so that fovz matches cutoff
-					F32 d = zp.mV[2]/tan(cutoff);
-					F32 ny = zp.mV[1] + fabsf(d);
+					F32 lx = (wpf[i].mV[1]-bfb)/bfm;
+					mShadowError.mV[j] += fabsf(wpf[i].mV[0]-lx);
+				}
 
-					origin.mV[1] = ny;
+				mShadowError.mV[j] /= wpf.size();
+				mShadowError.mV[j] /= size.mV[0];
 
-					fovz = 1.f;
-					fovx = 1.f;
+				if (mShadowError.mV[j] > RenderShadowErrorCutoff)
+				{ //just use ortho projection
+					mShadowFOV.mV[j] = -1.f;
+					origin.clearVec();
+					proj[j] = gl_ortho(min.mV[0], max.mV[0],
+										min.mV[1], max.mV[1],
+										-max.mV[2], -min.mV[2]);
+				}
+				else
+				{
+					//origin is where line x = 0;
+					origin.setVec(0,bfb,0);
+
+					F32 fovz = 1.f;
+					F32 fovx = 1.f;
+				
+					LLVector3 zp;
+					LLVector3 xp;
 
 					for (U32 i = 0; i < wpf.size(); ++i)
 					{
 						LLVector3 atz = wpf[i]-origin;
 						atz.mV[0] = 0.f;
 						atz.normVec();
-						fovz = llmin(fovz, -atz.mV[1]);
-
+						if (fovz > -atz.mV[1])
+						{
+							zp = wpf[i];
+							fovz = -atz.mV[1];
+						}
+					
 						LLVector3 atx = wpf[i]-origin;
 						atx.mV[2] = 0.f;
 						atx.normVec();
-						fovx = llmin(fovx, -atx.mV[1]);
+						if (fovx > -atx.mV[1])
+						{
+							fovx = -atx.mV[1];
+							xp = wpf[i];
+						}
 					}
 
 					fovx = acos(fovx);
 					fovz = acos(fovz);
 
-					mShadowFOV.mV[j] = cutoff;
-				}
-
+					F32 cutoff = llmin((F32) RenderShadowFOVCutoff, 1.4f);
 				
-				origin += center;
-			
-				F32 ynear = -(max.mV[1]-origin.mV[1]);
-				F32 yfar = -(min.mV[1]-origin.mV[1]);
+					mShadowFOV.mV[j] = fovx;
 				
-				if (ynear < 0.1f) //keep a sensible near clip plane
-				{
-					F32 diff = 0.1f-ynear;
-					origin.mV[1] += diff;
-					ynear += diff;
-					yfar += diff;
-				}
-								
-				if (fovx > cutoff)
-				{ //just use ortho projection
-					origin.clearVec();
-					mShadowError.mV[j] = -1.f;
-					proj[j] = gl_ortho(min.mV[0], max.mV[0],
-							min.mV[1], max.mV[1],
-							-max.mV[2], -min.mV[2]);
-				}
-				else
-				{
-					//get perspective projection
-					view[j] = view[j].inverse();
-
-					glh::vec3f origin_agent(origin.mV);
-					
-					//translate view to origin
-					view[j].mult_matrix_vec(origin_agent);
-
-					eye = LLVector3(origin_agent.v);
-
-					if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+					if (fovx < cutoff && fovz > cutoff)
 					{
-						mShadowFrustOrigin[j] = eye;
+						//x is a good fit, but z is too big, move away from zp enough so that fovz matches cutoff
+						F32 d = zp.mV[2]/tan(cutoff);
+						F32 ny = zp.mV[1] + fabsf(d);
+
+						origin.mV[1] = ny;
+
+						fovz = 1.f;
+						fovx = 1.f;
+
+						for (U32 i = 0; i < wpf.size(); ++i)
+						{
+							LLVector3 atz = wpf[i]-origin;
+							atz.mV[0] = 0.f;
+							atz.normVec();
+							fovz = llmin(fovz, -atz.mV[1]);
+
+							LLVector3 atx = wpf[i]-origin;
+							atx.mV[2] = 0.f;
+							atx.normVec();
+							fovx = llmin(fovx, -atx.mV[1]);
+						}
+
+						fovx = acos(fovx);
+						fovz = acos(fovz);
+
+						mShadowFOV.mV[j] = cutoff;
 					}
+
 				
-					view[j] = look(LLVector3(origin_agent.v), lightDir, -up);
+					origin += center;
+			
+					F32 ynear = -(max.mV[1]-origin.mV[1]);
+					F32 yfar = -(min.mV[1]-origin.mV[1]);
+				
+					if (ynear < 0.1f) //keep a sensible near clip plane
+					{
+						F32 diff = 0.1f-ynear;
+						origin.mV[1] += diff;
+						ynear += diff;
+						yfar += diff;
+					}
+								
+					if (fovx > cutoff)
+					{ //just use ortho projection
+						origin.clearVec();
+						mShadowError.mV[j] = -1.f;
+						proj[j] = gl_ortho(min.mV[0], max.mV[0],
+								min.mV[1], max.mV[1],
+								-max.mV[2], -min.mV[2]);
+					}
+					else
+					{
+						//get perspective projection
+						view[j] = view[j].inverse();
 
-					F32 fx = 1.f/tanf(fovx);
-					F32 fz = 1.f/tanf(fovz);
+						glh::vec3f origin_agent(origin.mV);
+					
+						//translate view to origin
+						view[j].mult_matrix_vec(origin_agent);
 
-					proj[j] = glh::matrix4f(-fx, 0, 0, 0,
-											0, (yfar+ynear)/(ynear-yfar), 0, (2.f*yfar*ynear)/(ynear-yfar),
-											0, 0, -fz, 0,
-											0, -1.f, 0, 0);
+						eye = LLVector3(origin_agent.v);
+
+						if (!hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+						{
+							mShadowFrustOrigin[j] = eye;
+						}
+				
+						view[j] = look(LLVector3(origin_agent.v), lightDir, -up);
+
+						F32 fx = 1.f/tanf(fovx);
+						F32 fz = 1.f/tanf(fovz);
+
+						proj[j] = glh::matrix4f(-fx, 0, 0, 0,
+												0, (yfar+ynear)/(ynear-yfar), 0, (2.f*yfar*ynear)/(ynear-yfar),
+												0, 0, -fz, 0,
+												0, -1.f, 0, 0);
+					}
 				}
 			}
-		}
 
-		//shadow_cam.setFar(128.f);
-		shadow_cam.setOriginAndLookAt(eye, up, center);
+			//shadow_cam.setFar(128.f);
+			shadow_cam.setOriginAndLookAt(eye, up, center);
 
-		shadow_cam.setOrigin(0,0,0);
+			shadow_cam.setOrigin(0,0,0);
 
-		glh_set_current_modelview(view[j]);
-		glh_set_current_projection(proj[j]);
+			glh_set_current_modelview(view[j]);
+			glh_set_current_projection(proj[j]);
 
-		LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
+			LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
 
-		//shadow_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
-		shadow_cam.getAgentPlane(LLCamera::AGENT_PLANE_NEAR).set(shadow_near_clip);
+			//shadow_cam.ignoreAgentFrustumPlane(LLCamera::AGENT_PLANE_NEAR);
+			shadow_cam.getAgentPlane(LLCamera::AGENT_PLANE_NEAR).set(shadow_near_clip);
 
-		//translate and scale to from [-1, 1] to [0, 1]
-		glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
-						0.f, 0.5f, 0.f, 0.5f,
-						0.f, 0.f, 0.5f, 0.5f,
-						0.f, 0.f, 0.f, 1.f);
+			//translate and scale to from [-1, 1] to [0, 1]
+			glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
+							0.f, 0.5f, 0.f, 0.5f,
+							0.f, 0.f, 0.5f, 0.5f,
+							0.f, 0.f, 0.f, 1.f);
 
-		glh_set_current_modelview(view[j]);
-		glh_set_current_projection(proj[j]);
+			glh_set_current_modelview(view[j]);
+			glh_set_current_projection(proj[j]);
 
-		for (U32 i = 0; i < 16; i++)
-		{
-			gGLLastModelView[i] = mShadowModelview[j].m[i];
-			gGLLastProjection[i] = mShadowProjection[j].m[i];
-		}
+			for (U32 i = 0; i < 16; i++)
+			{
+				gGLLastModelView[i] = mShadowModelview[j].m[i];
+				gGLLastProjection[i] = mShadowProjection[j].m[i];
+			}
 
-		mShadowModelview[j] = view[j];
-		mShadowProjection[j] = proj[j];
+			mShadowModelview[j] = view[j];
+			mShadowProjection[j] = proj[j];
 
 	
-		mSunShadowMatrix[j] = trans*proj[j]*view[j]*inv_view;
+			mSunShadowMatrix[j] = trans*proj[j]*view[j]*inv_view;
 		
-		stop_glerror();
+			stop_glerror();
 
-		mShadow[j].bindTarget();
-		mShadow[j].getViewport(gGLViewport);
-		mShadow[j].clear();
+			mShadow[j].bindTarget();
+			mShadow[j].getViewport(gGLViewport);
+			mShadow[j].clear();
 		
-		{
-			static LLCullResult result[4];
+			{
+				static LLCullResult result[4];
 
-			//LLGLEnable enable(GL_DEPTH_CLAMP_NV);
-			renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE);
-		}
+				//LLGLEnable enable(GL_DEPTH_CLAMP_NV);
+				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE);
+			}
 
-		mShadow[j].flush();
+			mShadow[j].flush();
  
-		if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
-		{
-			LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
-			mShadowCamera[j+4] = shadow_cam;
+			if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
+			{
+				LLViewerCamera::updateFrustumPlanes(shadow_cam, FALSE, FALSE, TRUE);
+				mShadowCamera[j+4] = shadow_cam;
+			}
 		}
 	}
 
