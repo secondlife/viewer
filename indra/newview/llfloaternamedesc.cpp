@@ -213,7 +213,7 @@ BOOL LLFloaterSoundPreview::postBuild()
 LLFloaterScriptPreview::LLFloaterScriptPreview(const LLSD& filename )
 	: LLFloaterNameDesc(filename)
 {
-	mIsAudio = TRUE;
+	mIsText = TRUE;
 }
 
 BOOL LLFloaterScriptPreview::postBuild()
