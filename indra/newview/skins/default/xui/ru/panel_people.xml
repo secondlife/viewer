@@ -64,13 +64,13 @@
 	<panel name="button_bar">
 		<layout_stack name="bottom_bar_ls">
 			<layout_panel name="view_profile_btn_lp">
-				<button label="Профиль" name="view_profile_btn" tool_tip="Показывает изображение, группы и прочую информацию о жителе"/>
+				<button label="Профиль" name="view_profile_btn" tool_tip="Показать изображение, группы и прочую информацию о жителе"/>
 			</layout_panel>
 			<layout_panel name="im_btn_lp">
 				<button label="IM" name="im_btn" tool_tip="Начать сеанс IM"/>
 			</layout_panel>
 			<layout_panel name="call_btn_lp">
-				<button label="Позвонить" name="call_btn" tool_tip="Позвонить этому жителю"/>
+				<button label="Звонок" name="call_btn" tool_tip="Позвонить этому жителю"/>
 			</layout_panel>
 			<layout_panel name="share_btn_lp">
 				<button label="Поделиться" name="share_btn" tool_tip="Поделиться объектом из инвентаря"/>
@@ -81,13 +81,13 @@
 		</layout_stack>
 		<layout_stack name="bottom_bar_ls1">
 			<layout_panel name="group_info_btn_lp">
-				<button label="Профиль группы" name="group_info_btn" tool_tip="Показывает информацию о группе"/>
+				<button label="Профиль группы" name="group_info_btn" tool_tip="Показать информацию о группе"/>
 			</layout_panel>
 			<layout_panel name="chat_btn_lp">
-				<button label="Групповой чат" name="chat_btn" tool_tip="Открывает сеанс чата"/>
+				<button label="Групповой чат" name="chat_btn" tool_tip="Открыть сеанс чата"/>
 			</layout_panel>
 			<layout_panel name="group_call_btn_lp">
-				<button label="Звонок группе" name="group_call_btn" tool_tip="Звонок этой группе"/>
+				<button label="Звонок группе" name="group_call_btn" tool_tip="Позвонить этой группе"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

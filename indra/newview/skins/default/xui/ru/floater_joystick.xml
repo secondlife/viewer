@@ -3,7 +3,7 @@
 	<floater.string name="NoDevice">
 		устройство не выбрано
 	</floater.string>
-	<check_box label="Включить джойстик:" name="enable_joystick"/>
+	<check_box label="Вкл. джойстик:" name="enable_joystick"/>
 	<spinner label="Наложение по X" name="JoystickAxis1"/>
 	<spinner label="Наложение по Y" name="JoystickAxis2"/>
 	<spinner label="Наложение по Z" name="JoystickAxis0"/>

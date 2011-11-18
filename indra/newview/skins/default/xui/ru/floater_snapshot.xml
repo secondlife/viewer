@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Snapshot" title="ПРОСМОТР СНИМКА">
 	<floater.string name="unknown">
-		неизвестен
+		неизвестно
 	</floater.string>
 	<radio_group label="Тип снимка" name="snapshot_type_radio">
 		<radio_item label="Электронная почта" name="postcard"/>
