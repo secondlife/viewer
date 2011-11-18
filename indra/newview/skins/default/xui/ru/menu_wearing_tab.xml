@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Wearing">
+	<menu_item_call label="Снять" name="take_off"/>
+	<menu_item_call label="Отсоединить" name="detach"/>
+	<menu_item_call label="Изменить костюм" name="edit"/>
+</context_menu>

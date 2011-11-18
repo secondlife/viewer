@@ -480,6 +480,7 @@ Ima Mechanique
 	OPEN-50
 	OPEN-61
 	OPEN-76
+	STORM-959
 	STORM-1175
 Imnotgoing Sideways
 Inma Rau
@@ -576,9 +577,17 @@ Jonathan Yap
 	STORM-1572
 	STORM-1574
 	STORM-1579
+	STORM-1638
+	STORM-976
 	STORM-1639
+	STORM-910
+	STORM-1642
+	STORM-1105
+	STORM-1222
+	STORM-1659
+	STORM-1674
 Kadah Coba
-    STORM-1060
+	STORM-1060
 Jondan Lundquist
 Josef Munster
 Josette Windlow
@@ -650,6 +659,8 @@ Lilly Zenovka
 Lizzy Macarthur
 Luban Yiyuan
 Luc Starsider
+Luminous Luminos
+	STORM-959
 Lunita Savira
 Maccus McCullough
 maciek marksman
@@ -1136,6 +1147,7 @@ Vector Hastings
 	VWR-8726
 Veritas Raymaker
 Vex Streeter
+	STORM-1642
 Viaticus Speculaas
 Vick Forcella
 Villain Baroque

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_group_plus">
+	<menu_item_check label="Сортировать по недавно говорившим" name="sort_by_recent_speakers"/>
+	<menu_item_check label="Сортировать по имени" name="sort_name"/>
+	<menu_item_check label="Сортировать по расстоянию" name="sort_distance"/>
+	<menu_item_check label="Показывать значки участников" name="view_icons"/>
+	<menu_item_check label="Смотреть карту" name="view_map"/>
+	<menu_item_call label="Показать черный список жителей и объектов" name="show_blocked_list"/>
+</toggleable_menu>

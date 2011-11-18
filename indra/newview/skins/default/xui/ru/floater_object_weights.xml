@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="object_weights" title="ДОПОЛНИТЕЛЬНО">
+	<floater.string name="nothing_selected" value="--"/>
+	<text name="selected_text" value="ВЫБРАНО"/>
+	<text name="objects" value="--"/>
+	<text name="objects_label" value="Объекты"/>
+	<text name="prims" value="--"/>
+	<text name="prims_label" value="Примитивы"/>
+	<text name="weights_of_selected_text" value="ВЕС ВЫБРАННОГО"/>
+	<text name="download" value="--"/>
+	<text name="download_label" value="Загрузить"/>
+	<text name="physics" value="--"/>
+	<text name="physics_label" value="Физика"/>
+	<text name="server" value="--"/>
+	<text name="server_label" value="Сервер"/>
+	<text name="display" value="--"/>
+	<text name="display_label" value="Показать"/>
+	<text name="land_impacts_text" value="ВОЗДЕЙСТВИЕ НА ЗЕМЛЮ"/>
+	<text name="selected" value="--"/>
+	<text name="selected_label" value="Выбрано"/>
+	<text name="rezzed_on_land" value="--"/>
+	<text name="rezzed_on_land_label" value="Выложено на землю"/>
+	<text name="remaining_capacity" value="--"/>
+	<text name="remaining_capacity_label" value="Остаток емкости"/>
+	<text name="total_capacity" value="--"/>
+	<text name="total_capacity_label" value="Общая емкость"/>
+	<text name="help_SLURL" value="[secondlife:///app/help/object_weights Что это такое?...]"/>
+</floater>

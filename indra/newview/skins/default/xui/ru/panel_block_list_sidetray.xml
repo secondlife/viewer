@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="block_list_panel">
+	<text name="title_text">
+		Черный список
+	</text>
+	<scroll_list name="blocked" tool_tip="Список заблокированных жителей"/>
+	<button label="Заблокировать жителя" name="Block resident..." tool_tip="Выберите жителя для блокировки"/>
+	<button label="Блокировать объект по имени" name="Block object by name..." tool_tip="Выберите объект для блокировки по имени"/>
+	<button label="Разблокировать" name="Unblock" tool_tip="Удалить объект или жителя из списка заблокированных"/>
+</panel>

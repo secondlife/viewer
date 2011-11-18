@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="sell land" title="ARAZİ SAT">
+	<scroll_container name="profile_scroll">
+		<panel name="scroll_content_panel">
+			<text name="info_parcel_label">
+				Parsel:
+			</text>
+			<text name="info_parcel">
+				PARSEL ADI
+			</text>
+			<text name="info_size_label">
+				Büyüklük:
+			</text>
+			<text name="info_size">
+				[AREA] m²
+			</text>
+			<text name="info_action">
+				Bu parseli satmak için:
+			</text>
+			<text name="price_label">
+				1. Fiyat belirle:
+			</text>
+			<text name="price_text">
+				Uygun bir fiyat seçin.
+			</text>
+			<text name="price_ld">
+				L$
+			</text>
+			<line_editor name="price">
+				0
+			</line_editor>
+			<text name="price_per_m">
+				(L$[PER_METER] / m²)
+			</text>
+			<text name="sell_to_label">
+				2. Araziyi şuna satın:
+			</text>
+			<text name="sell_to_text">
+				Herkese mi, yoksa belirli bir alıcıya mı satacağınızı seçin.
+			</text>
+			<combo_box name="sell_to">
+				<combo_box.item label="- Birini seç -" name="--selectone--"/>
+				<combo_box.item label="Herkes" name="Anyone"/>
+				<combo_box.item label="Belirli kişi:" name="Specificuser:"/>
+			</combo_box>
+			<button label="Seç" name="sell_to_select_agent"/>
+			<text name="sell_objects_label">
+				3. Nesneler araziyle birlikte mi satılacak?
+			</text>
+			<text name="sell_objects_text">
+				Arazi sahibinin parsel üzerindeki devredilebilir nesnelerinin mülkiyeti değişecektir.
+			</text>
+			<radio_group name="sell_objects">
+				<radio_item label="Hayır, nesnelerin mülkiyetini koru" name="no"/>
+				<radio_item label="Evet, nesneleri araziyle birlikte sat" name="yes"/>
+			</radio_group>
+			<button label="Nesneleri Göster" name="show_objects"/>
+			<text name="nag_message_label">
+				UNUTMAYIN: Tüm satışlar kesindir.
+			</text>
+			<button label="Araziyi Satışa Çıkar" name="sell_btn"/>
+			<button label="İptal" name="cancel_btn"/>
+		</panel>
+	</scroll_container>
+</floater>

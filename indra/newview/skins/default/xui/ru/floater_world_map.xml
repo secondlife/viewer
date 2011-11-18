@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="worldmap" title="КАРТА МИРА">
+	<panel name="layout_panel_1">
+		<text name="events_label">
+			Обозначения
+		</text>
+	</panel>
+	<panel name="layout_panel_2">
+		<button name="Show My Location" tool_tip="Центрировать карту на позиции моего аватара"/>
+		<text name="me_label">
+			Я
+		</text>
+		<text name="person_label">
+			Люди
+		</text>
+		<text name="infohub_label">
+			Инфохаб
+		</text>
+		<text name="land_sale_label">
+			Продажа земли
+		</text>
+		<text name="auction_label">
+			с аукциона
+		</text>
+		<text name="by_owner_label">
+			владельцем
+		</text>
+		<button name="Go Home" tool_tip="Телепортация домой"/>
+		<text name="Home_label">
+			Дом
+		</text>
+		<text name="events_label">
+			События:
+		</text>
+		<text name="pg_label">
+			Общие
+		</text>
+		<check_box initial_value="истина" name="events_mature_chk"/>
+		<text name="events_mature_label">
+			Умеренные
+		</text>
+		<text name="events_adult_label">
+			Для взрослых
+		</text>
+	</panel>
+	<panel name="layout_panel_3">
+		<text name="find_on_map_label">
+			Найти на карте
+		</text>
+	</panel>
+	<panel name="layout_panel_4">
+		<combo_box label="Друзья онлайн" name="friend combo" tool_tip="Показать друзей на карте">
+			<combo_box.item label="Мои друзья онлайн" name="item1"/>
+		</combo_box>
+		<combo_box label="Мои закладки" name="landmark combo" tool_tip="Показать на карте мои закладки">
+			<combo_box.item label="Мои закладки" name="item1"/>
+		</combo_box>
+		<search_editor label="Название региона" name="location" tool_tip="Введите название региона"/>
+		<button label="Поиск" name="DoSearch" tool_tip="Поиск региона"/>
+		<button name="Clear" tool_tip="Очистить отслеживание и сбросить карту до стандартного вида"/>
+		<text name="events_label">
+			Место:
+		</text>
+		<button label="Телепортация" name="Teleport" tool_tip="Телепортация в выбранное место"/>
+		<button label="Копировать URL SL" name="copy_slurl" tool_tip="Копировать текущее место в виде URL-адреса SL для использования в интернете."/>
+		<button label="Показать выбранное" name="Show Destination" tool_tip="Центрировать карту на выбранном месте"/>
+	</panel>
+	<panel name="layout_panel_5">
+		<text name="zoom_label">
+			Увеличение
+		</text>
+	</panel>
+</floater>

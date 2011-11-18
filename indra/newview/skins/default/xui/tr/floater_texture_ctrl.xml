@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="texture picker" title="SEÇME: DOKU">
+	<floater.string name="choose_picture">
+		Bir resim seçmek için tıklayın
+	</floater.string>
+	<floater.string name="pick title">
+		Seçme:
+	</floater.string>
+	<text name="Multiple">
+		Birden çok doku
+	</text>
+	<text name="unknown">
+		Büyüklük: [DIMENSIONS]
+	</text>
+	<button label="Varsayılan" label_selected="Varsayılan" name="Default"/>
+	<button label="Hiçbiri" label_selected="Hiçbiri" name="None"/>
+	<button label="Boş" label_selected="Boş" name="Blank"/>
+	<check_box initial_value="true" label="Şimdi uygula" name="apply_immediate_check"/>
+	<filter_editor label="Dokuları Filtrele" name="inventory search editor"/>
+	<check_box initial_value="false" label="Klasörleri göster" name="show_folders_check"/>
+	<button label="Tamam" label_selected="Tamam" name="Select"/>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+</floater>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Уведомления" name="notices_tab">
+	<panel.string name="help_text">
+		Уведомления позволяют отправлять сообщения и вложенные объекты.
+Уведомления получают только участники групп с ролями, которые дают право на получение уведомлений.
+Вы можете отключить получение уведомлений на вкладке «Общие».
+	</panel.string>
+	<panel.string name="no_notices_text">
+		Нет старых уведомлений
+	</panel.string>
+	<text name="lbl2">
+		Уведомления хранятся 14 дней.
+Максимум 200 уведомлений ежедневно
+	</text>
+	<scroll_list name="notice_list">
+		<scroll_list.columns label="Тема" name="subject"/>
+		<scroll_list.columns label="От кого" name="from"/>
+		<scroll_list.columns label="Дата" name="date"/>
+	</scroll_list>
+	<text name="notice_list_none_found">
+		Не найдено
+	</text>
+	<button label="Новое уведомление" name="create_new_notice" tool_tip="Создать уведомление"/>
+	<button name="refresh_notices" tool_tip="Обновить список уведомлений"/>
+	<panel label="Создать уведомление" name="panel_create_new_notice">
+		<text name="lbl">
+			Создать уведомление
+		</text>
+		<text name="lbl3">
+			Тема:
+		</text>
+		<text name="lbl4">
+			Сообщение:
+		</text>
+		<text name="lbl5">
+			Вложение:
+		</text>
+		<text name="string">
+			Перетащите сюда предмет, чтобы вложить его:
+		</text>
+		<button label="Инвентарь" name="open_inventory" tool_tip="Открыть инвентарь"/>
+		<button name="remove_attachment" tool_tip="Удалить вложение из уведомления"/>
+		<button label="Послать" label_selected="Послать" name="send_notice"/>
+		<group_drop_target name="drop_target" tool_tip="Перетащите из инвентаря на эту панель предмет, чтобы отправить его вместе с сообщением. У вас должно быть разрешение на копирование и передачу этого предмета."/>
+	</panel>
+	<panel label="Смотреть старые уведомления" name="panel_view_past_notice">
+		<text name="lbl">
+			Архивные уведомления
+		</text>
+		<text name="lbl2">
+			Чтобы послать новое уведомление, нажмите кнопку +
+		</text>
+		<text name="lbl3">
+			Тема:
+		</text>
+		<text name="lbl4">
+			Сообщение:
+		</text>
+		<button label="Открыть вложение" name="open_attachment"/>
+	</panel>
+</panel>

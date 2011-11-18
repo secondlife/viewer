@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Коммуникация" name="im">
+	<panel.string name="log_in_to_change">
+		войти для редактирования
+	</panel.string>
+	<button label="Очистить журнал" name="clear_cache" tool_tip="Удалить картинку при входе, последнее местоположение, журнал телепортаций, кэш веб-документов и текстур"/>
+	<text name="cache_size_label_l">
+		(Места, картинки, страницы, журнал поиска)
+	</text>
+	<check_box label="Показывать меня в результатах поиска" name="online_searchresults"/>
+	<check_box label="Только друзья и группы видят, когда я на связи" name="online_visibility"/>
+	<check_box label="Только друзья и группы могут звонить мне и отправлять IM" name="voice_call_friends_only_check"/>
+	<check_box label="Отключать микрофон по окончании разговора" name="auto_disengage_mic_check"/>
+	<check_box label="Показывать любимые закладки при входе (в меню «Место старта»)" name="favorites_on_login_check"/>
+	<text name="Logs:">
+		Журналы чатов:
+	</text>
+	<check_box label="Хранить журналы чата на компьютере" name="log_nearby_chat"/>
+	<check_box label="Хранить журналы IM на компьютере" name="log_instant_messages"/>
+	<check_box label="Метка времени в каждой строке журнала чата" name="show_timestamps_check_im"/>
+	<check_box label="Метка времени в имени файла журнала." name="logfile_name_datestamp"/>
+	<text name="log_path_desc">
+		Папка журналов:
+	</text>
+	<button label="Обзор" label_selected="Обзор" name="log_path_button"/>
+	<button label="Черный список" name="block_list"/>
+	<text name="block_list_label">
+		(Люди и (или) объекты, заблокированные вами)
+	</text>
+</panel>

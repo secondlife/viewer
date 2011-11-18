@@ -60,13 +60,9 @@ static const S32 RESIZE_BAR_THICKNESS = 3;
 
 static LLRegisterPanelClassWrapper<LLNearbyChat> t_panel_nearby_chat("panel_nearby_chat");
 
-LLNearbyChat::LLNearbyChat() 
-	: LLPanel()
-	,mChatHistory(NULL)
-{
-}
-
-LLNearbyChat::~LLNearbyChat()
+LLNearbyChat::LLNearbyChat(const LLNearbyChat::Params& p) 
+:	LLPanel(p),
+	mChatHistory(NULL)
 {
 }
 
@@ -178,15 +174,20 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
+void LLNearbyChat::removeScreenChat()
+{
+	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	if(chat_channel)
+	{
+		chat_channel->removeToastsFromChannel();
+	}
+}
+
 void	LLNearbyChat::setVisible(BOOL visible)
 {
 	if(visible)
 	{
-		LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
-		if(chat_channel)
-		{
-			chat_channel->removeToastsFromChannel();
-		}
+		removeScreenChat();
 	}
 
 	LLPanel::setVisible(visible);
@@ -214,9 +215,10 @@ void LLNearbyChat::updateChatHistoryStyle()
 //static 
 void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
-	//LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
-	//if(nearby_chat)
-	//	nearby_chat->updateChatHistoryStyle();
+	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
+	if(nearby_chat)
+		nearby_chat->updateChatHistoryStyle();
 }
 
 bool isWordsName(const std::string& name)

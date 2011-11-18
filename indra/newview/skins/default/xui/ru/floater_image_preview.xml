@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Image Preview">
+	<text name="name_label">
+		Название:
+	</text>
+	<text name="description_label">
+		Описание:
+	</text>
+	<text name="preview_label">
+		Показать изображение как:
+	</text>
+	<combo_box label="Тип одежды" name="clothing_type_combo">
+		<item label="Изображение" name="Image" value="Изображение"/>
+		<item label="Волосы" name="Hair" value="Волосы"/>
+		<item label="Женская голова" name="FemaleHead" value="Женская голова"/>
+		<item label="Верхняя часть тела женщины" name="FemaleUpperBody" value="Верхняя часть тела женщины"/>
+		<item label="Нижняя часть тела женщины" name="FemaleLowerBody" value="Нижняя часть тела женщины"/>
+		<item label="Мужская голова" name="MaleHead" value="Мужская голова"/>
+		<item label="Верхняя часть тела мужчины" name="MaleUpperBody" value="Верхняя часть тела мужчины"/>
+		<item label="Нижняя часть тела мужчины" name="MaleLowerBody" value="Нижняя часть тела мужчины"/>
+		<item label="Юбка" name="Skirt" value="Юбка"/>
+		<item label="Скульптурный примитив" name="SculptedPrim" value="Скульптурный примитив"/>
+	</combo_box>
+	<text name="bad_image_text">
+		Невозможно прочитать изображение.
+Попробуйте сохранить изображение как 24-битный TGA-файл (Targa).
+	</text>
+	<check_box label="Использовать сжатие без потерь" name="lossless_check"/>
+	<button label="Отмена" name="cancel_btn"/>
+	<button label="Передать (L$[AMOUNT])" name="ok_btn"/>
+</floater>

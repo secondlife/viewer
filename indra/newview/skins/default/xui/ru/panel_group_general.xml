@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Общие" name="general_tab">
+	<panel.string name="help_text">
+		Вкладка «Общие» содержит общие сведения о данной группе, список участников, общие настройки группы и параметры участников.
+Чтобы получить справку, наведите курсор мыши на параметр.
+	</panel.string>
+	<panel.string name="group_info_unchanged">
+		Общая информация о группе изменена
+	</panel.string>
+	<panel.string name="incomplete_member_data_str">
+		Получение данных участника
+	</panel.string>
+	<panel name="group_info_top">
+		<texture_picker label="" name="insignia" tool_tip="Щелкните для выбора изображения"/>
+		<text name="prepend_founded_by">
+			Основатель:
+		</text>
+		<text name="join_cost_text">
+			Бесплатно
+		</text>
+		<button label="ПРИСОЕДИНИТЬСЯ!" name="btn_join"/>
+	</panel>
+	<text_editor name="charter">
+		Устав группы
+	</text_editor>
+	<name_list name="visible_members">
+		<name_list.columns label="Участник" name="name"/>
+		<name_list.columns label="Титул" name="title"/>
+		<name_list.columns label="Статус" name="status"/>
+	</name_list>
+	<text name="my_group_settngs_label">
+		Я
+	</text>
+	<text name="active_title_label">
+		Титул:
+	</text>
+	<combo_box name="active_title" tool_tip="Установить титул, который будет показан вместе с вашим именем, когда эта группа активна."/>
+	<check_box label="Получать уведомления от группы" name="receive_notices" tool_tip="Включите, если хотите получать уведомления от этой группы.  Снимите этот флажок, если группа шлет вам нежелательные сообщения."/>
+	<check_box label="Показывать в моем профиле" name="list_groups_in_profile" tool_tip="Включите, если хотите, чтобы группа отображалась в вашем профиле"/>
+	<panel name="preferences_container">
+		<text name="group_settngs_label">
+			Группа
+		</text>
+		<check_box label="Открытая регистрация" name="open_enrollement" tool_tip="Устанавливается, если в этой группе можно зарегистрироваться без приглашения."/>
+		<check_box label="Платная регистрация" name="check_enrollment_fee" tool_tip="Устанавливается, если в этой группе требуется оплата за вступление."/>
+		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Новые участники должны будут оплатить взнос, если регистрация платная."/>
+		<combo_box name="group_mature_check" tool_tip="Устанавливает, содержит ли группа информацию категории умеренной дозволенности">
+			<combo_item name="select_mature">
+				- Выберите рейтинг зрелости -
+			</combo_item>
+			<combo_box.item label="Умеренный контент" name="mature"/>
+			<combo_box.item label="Общий контент" name="pg"/>
+		</combo_box>
+		<check_box initial_value="истина" label="Показать в поиске" name="show_in_group_list" tool_tip="Позволить людям видеть эту группу в результатах поиска"/>
+	</panel>
+</panel>

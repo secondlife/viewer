@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_shape_panel">
+	<string name="meters">
+		м
+	</string>
+	<string name="feet">
+		футов
+	</string>
+	<string name="height">
+		Рост:
+	</string>
+	<panel label="Рубашка" name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="shape_body_tab" title="Тело"/>
+			<accordion_tab name="shape_head_tab" title="Голова"/>
+			<accordion_tab name="shape_eyes_tab" title="Глаза"/>
+			<accordion_tab name="shape_ears_tab" title="Уши"/>
+			<accordion_tab name="shape_nose_tab" title="Нос"/>
+			<accordion_tab name="shape_mouth_tab" title="Рот"/>
+			<accordion_tab name="shape_chin_tab" title="Подбородок"/>
+			<accordion_tab name="shape_torso_tab" title="Торс"/>
+			<accordion_tab name="shape_legs_tab" title="Ноги"/>
+		</accordion>
+	</panel>
+</panel>

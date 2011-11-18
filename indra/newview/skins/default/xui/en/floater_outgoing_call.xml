@@ -8,6 +8,7 @@
  layout="topleft"
  name="outgoing call"
  help_topic="outgoing_call"
+ save_dock_state="true"
  title="CALLING"
  width="410">
     <floater.string

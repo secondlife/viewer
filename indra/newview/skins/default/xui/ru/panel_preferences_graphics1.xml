@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Графика" name="Display panel">
+	<text name="QualitySpeed">
+		Качество и скорость:
+	</text>
+	<text name="FasterText">
+		Быстрее
+	</text>
+	<text name="BetterText">
+		Качественней
+	</text>
+	<text name="ShadersPrefText">
+		Низко
+	</text>
+	<text name="ShadersPrefText2">
+		Средне
+	</text>
+	<text name="ShadersPrefText3">
+		Высоко
+	</text>
+	<text name="ShadersPrefText4">
+		Ультра
+	</text>
+	<panel label="Выбор графики" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Шейдеры:
+		</text>
+		<check_box initial_value="истина" label="Прозрачность воды" name="TransparentWater"/>
+		<check_box initial_value="истина" label="Рельефность и сияние" name="BumpShiny"/>
+		<check_box initial_value="истина" label="Локальный свет" name="LocalLights"/>
+		<check_box initial_value="истина" label="Базовые шейдеры" name="BasicShaders" tool_tip="Отключение этого параметра может предотвратить зависание некоторых видеокарт"/>
+		<check_box initial_value="истина" label="Атмосферные шейдеры" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="истина" label="Освещение и тени" name="UseLightShaders"/>
+		<check_box initial_value="истина" label="Объемный свет" name="UseSSAO"/>
+		<check_box initial_value="истина" label="Глубина поля" name="UseDoF"/>
+		<text name="shadows_label">
+			Тени:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Нет" name="0"/>
+			<combo_box.item label="Солнце/луна" name="1"/>
+			<combo_box.item label="Солнце/луна + осветители" name="2"/>
+		</combo_box>
+		<text name="reflection_label">
+			Вода отражает:
+		</text>
+		<combo_box name="Reflections">
+			<combo_box.item label="Минимум" name="0"/>
+			<combo_box.item label="Ландшафт и деревья" name="1"/>
+			<combo_box.item label="Все статичные объекты" name="2"/>
+			<combo_box.item label="Все аватары и объекты" name="3"/>
+			<combo_box.item label="Все" name="4"/>
+		</combo_box>
+		<slider label="Физика аватара:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Низко
+		</text>
+		<slider label="Дальность отрисовки:" name="DrawDistance"/>
+		<text name="DrawDistanceMeterText2">
+			м
+		</text>
+		<slider label="Макс. количество частиц:" name="MaxParticleCount"/>
+		<slider label="Макс. количество 3D-аватаров:" name="MaxNumberAvatarDrawn"/>
+		<slider label="Качество постобработки:" name="RenderPostProcess"/>
+		<text name="MeshDetailText">
+			Детализация меша:
+		</text>
+		<slider label="Объекты:" name="ObjectMeshDetail"/>
+		<slider label="Гибкие примитивы:" name="FlexibleMeshDetail"/>
+		<slider label="Деревья:" name="TreeMeshDetail"/>
+		<slider label="Аватары:" name="AvatarMeshDetail"/>
+		<slider label="Ландшафт:" name="TerrainMeshDetail"/>
+		<slider label="Небо:" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Низко
+		</text>
+		<text name="ObjectMeshDetailText">
+			Низко
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Низко
+		</text>
+		<text name="TreeMeshDetailText">
+			Низко
+		</text>
+		<text name="AvatarMeshDetailText">
+			Низко
+		</text>
+		<text name="TerrainMeshDetailText">
+			Низко
+		</text>
+		<text name="SkyMeshDetailText">
+			Низко
+		</text>
+		<text name="AvatarRenderingText">
+			Отрисовка аватара:
+		</text>
+		<check_box initial_value="истина" label="Плоские аватары" name="AvatarImpostors"/>
+		<check_box initial_value="истина" label="Аппаратная отрисовка" name="AvatarVertexProgram"/>
+		<check_box initial_value="истина" label="Одежда аватара" name="AvatarCloth"/>
+		<text name="TerrainDetailText">
+			Ландшафт:
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Грубо" name="0"/>
+			<radio_item label="Детально" name="2"/>
+		</radio_group>
+		--&gt;
+	</panel>
+	<button label="Применить" label_selected="Применить" name="Apply"/>
+	<button label="Сброс" name="Defaults"/>
+	<button label="Дополнительно" name="Advanced"/>
+	<button label="Аппаратура" label_selected="Аппаратура" name="GraphicsHardwareButton"/>
+</panel>

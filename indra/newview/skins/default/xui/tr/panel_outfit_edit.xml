@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel name="outfit_edit">
+	<string name="No Outfit" value="Dış Görünüm Yok"/>
+	<string name="unsaved_changes" value="Kaydedilmemiş Değişiklikler"/>
+	<string name="now_editing" value="Şimdi Düzenleniyor"/>
+	<panel.string name="not_available">
+		(G/D)
+	</panel.string>
+	<panel.string name="unknown">
+		(bilinmiyor)
+	</panel.string>
+	<string name="Filter.All" value="Tümü"/>
+	<string name="Filter.Clothes/Body" value="Giysiler/Gövde"/>
+	<string name="Filter.Objects" value="Nesneler"/>
+	<string name="Filter.Clothing" value="Giysiler"/>
+	<string name="Filter.Bodyparts" value="Vücut bölümleri"/>
+	<string name="replace_body_part" value="Mevcut şeklinizi değiştirmek için tıklayın"/>
+	<text name="title" value="Dış Görünümü Düzenle"/>
+	<panel name="header_panel">
+		<panel name="outfit_name_and_status">
+			<text name="status" value="Şimdi düzenleniyor..."/>
+			<text name="curr_outfit_name" value="[Mevcut Dış Görünüm]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel name="outfit_wearables_panel">
+			<layout_stack name="filter_panels">
+				<layout_panel name="add_button_and_combobox">
+					<button label="Daha Fazla Ekle..." name="show_add_wearables_btn" tool_tip="Aç/Kapa"/>
+				</layout_panel>
+				<layout_panel name="filter_panel">
+					<filter_editor label="Giyilebilirler Envanterini Filtrele" name="look_item_filter"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<button label="Ögeyi Giy" name="plus_btn"/>
+		</layout_panel>
+	</layout_stack>
+	<panel name="no_add_wearables_button_bar">
+		<button name="shop_btn_1" tool_tip="SL Pazarını Ziyaret Et. Ayrıca giymekte olduğunuz bir şeyi de seçebilir ve buraya tıklayarak benzer şeylere bakabilirsiniz"/>
+	</panel>
+	<panel name="add_wearables_button_bar">
+		<button name="shop_btn_2" tool_tip="SL Pazarını Ziyaret Et. Ayrıca giymekte olduğunuz bir şeyi de seçebilir ve buraya tıklayarak benzer şeylere bakabilirsiniz"/>
+	</panel>
+	<panel name="save_revert_button_bar">
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Kaydet" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Değişiklikleri Geri Al" name="revert_btn" tool_tip="Son kaydedilen versiyona dön"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

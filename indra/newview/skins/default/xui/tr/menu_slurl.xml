@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="URL Hakkında" name="about_url"/>
+	<menu_item_call label="URL&apos;ye Işınla" name="teleport_to_url"/>
+	<menu_item_call label="Harita" name="show_on_map"/>
+</menu>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Звуки" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		среднюю кнопку мыши
+	</panel.string>
+	<slider label="Общая громкость" name="System Volume"/>
+	<check_box initial_value="истина" name="mute_when_minimized"/>
+	<text name="mute_chb_label">
+		Заглушать, когда свернуто
+	</text>
+	<slider label="Кнопки" name="UI Volume"/>
+	<slider label="Окружение" name="Wind Volume"/>
+	<slider label="Звуковые эффекты" name="SFX Volume"/>
+	<slider label="Потоковая музыка" name="Music Volume"/>
+	<check_box label="Включено" name="enable_music"/>
+	<slider label="Медиа" name="Media Volume"/>
+	<check_box label="Включено" name="enable_media"/>
+	<slider label="Голосовой чат" name="Voice Volume"/>
+	<check_box label="Включено" name="enable_voice_check"/>
+	<check_box label="Разрешить автовоспроизведение медиа" name="media_auto_play_btn" tool_tip="Установка флажка позволит вам автоматически воспроизводить медиа" value="истина"/>
+	<check_box label="Воспроизводить медиа, присоединенные к другому аватару" name="media_show_on_others_btn" tool_tip="Снятие флажка скроет медиа, присоединенные к другому аватару" value="истина"/>
+	<check_box label="Сопровождать жесты звуками" name="gesture_audio_play_btn" tool_tip="Установите флажок, чтобы слышать звуки при жестах" value="истина"/>
+	<text name="voice_chat_settings">
+		Настройки голосового чата
+	</text>
+	<text name="Listen from">
+		Слушать с:
+	</text>
+	<radio_group name="ear_location">
+		<radio_item label="Камеры" name="0"/>
+		<radio_item label="Аватара" name="1"/>
+	</radio_group>
+	<check_box label="Губы аватара двигаются при разговоре" name="enable_lip_sync"/>
+	<check_box label="Включать/выключать микрофон, когда я нажимаю:" name="push_to_talk_toggle_check" tool_tip="В режиме переключения ОДНОКРАТНОЕ нажатие и отпускание данной клавиши включает/выключает микрофон. Если режим переключения отключен, то микрофон передает голос, только когда клавиша нажата."/>
+	<line_editor label="Триггер Push-to-Speak" name="modifier_combo"/>
+	<button label="Задать клавишу" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Сброс на среднюю кнопку мыши"/>
+	<button label="Устройства ввода-вывода" name="device_settings_btn"/>
+	<panel label="Настройки устройства" name="device_settings_panel"/>
+</panel>

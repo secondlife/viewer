@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Preferences" title="НАСТРОЙКИ">
+	<button label="ОК" label_selected="ОК" name="OK"/>
+	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+	<tab_container name="pref core">
+		<panel label="Общие" name="general"/>
+		<panel label="Графика" name="display"/>
+		<panel label="Звук и медиа" name="audio"/>
+		<panel label="Чат" name="chat"/>
+		<panel label="Движение и обзор" name="move"/>
+		<panel label="Уведомления" name="msgs"/>
+		<panel label="Цвета" name="colors"/>
+		<panel label="Приватность" name="im"/>
+		<panel label="Конфигурация" name="input"/>
+		<panel label="Дополнительно" name="advanced1"/>
+	</tab_container>
+</floater>

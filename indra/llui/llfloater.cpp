@@ -165,6 +165,7 @@ LLFloater::Params::Params()
 :	title("title"),
 	short_title("short_title"),
 	single_instance("single_instance", false),
+	reuse_instance("reuse_instance", false),
 	can_resize("can_resize", false),
 	can_minimize("can_minimize", true),
 	can_close("can_close", true),
@@ -174,6 +175,7 @@ LLFloater::Params::Params()
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
+	show_title("show_title", true),
 	open_positioning("open_positioning", LLFloaterEnums::OPEN_POSITIONING_NONE),
 	specified_left("specified_left"),
 	specified_bottom("specified_bottom"),
@@ -238,6 +240,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mTitle(p.title),
 	mShortTitle(p.short_title),
 	mSingleInstance(p.single_instance),
+	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
 	mKey(key),
 	mCanTearOff(p.can_tear_off),
 	mCanMinimize(p.can_minimize),
@@ -538,7 +541,6 @@ LLFloater::~LLFloater()
 		delete mResizeHandle[i];
 	}
 
-	storeRectControl();
 	setVisible(false); // We're not visible if we're destroyed
 	storeVisibilityControl();
 	storeDockStateControl();
@@ -683,7 +685,12 @@ void LLFloater::openFloater(const LLSD& key)
 	}
 	else
 	{
-		applyControlsAndPosition(LLFloaterReg::getLastFloaterCascading());
+		LLFloater* floater_to_stack = LLFloaterReg::getLastFloaterInGroup(mInstanceName);
+		if (!floater_to_stack)
+		{
+			floater_to_stack = LLFloaterReg::getLastFloaterCascading();
+		}
+		applyControlsAndPosition(floater_to_stack);
 		setMinimized(FALSE);
 		setVisibleAndFrontmost(mAutoFocus);
 	}
@@ -776,12 +783,19 @@ void LLFloater::closeFloater(bool app_quitting)
 			else
 			{
 				setVisible(FALSE);
+				if (!mReuseInstance)
+				{
+					destroy();
+				}
 			}
 		}
 		else
 		{
 			setVisible(FALSE); // hide before destroying (so handleVisibilityChange() gets called)
-			destroy();
+			if (!mReuseInstance)
+			{
+				destroy();
+			}
 		}
 	}
 }
@@ -861,9 +875,16 @@ bool LLFloater::applyRectControl()
 {
 	bool saved_rect = false;
 
-	// If we have a saved rect, use it
-	if (mRectControl.size() > 1)
+	LLFloater* last_in_group = LLFloaterReg::getLastFloaterInGroup(mInstanceName);
+	if (last_in_group && last_in_group != this)
 	{
+		// other floaters in our group, position ourselves relative to them and don't save the rect
+		mRectControl.clear();
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP;
+	}
+	else if (mRectControl.size() > 1)
+	{
+		// If we have a saved rect, use it
 		const LLRect& rect = getControlGroup()->getRect(mRectControl);
 		saved_rect = rect.notEmpty();
 		if (saved_rect)
@@ -912,8 +933,9 @@ void LLFloater::applyPositioning(LLFloater* other)
 		}
 		break;
 
+	case LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP:
 	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
-		if (other != NULL)
+		if (other != NULL && other != this)
 		{
 			stackWith(*other);
 		}
@@ -1048,9 +1070,10 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	const LLRect old_rect = getRect();
 	LLView::handleReshape(new_rect, by_user);
 
-	if (by_user)
+	if (by_user && !isMinimized())
 	{
 		storeRectControl();
+		mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_NONE;
 	}
 
 	// if not minimized, adjust all snapped dependents to new shape
@@ -1142,10 +1165,6 @@ void LLFloater::setMinimized(BOOL minimize)
 			mButtonsEnabled[BUTTON_RESTORE] = TRUE;
 		}
 
-		if (mDragHandle)
-		{
-			mDragHandle->setVisible(TRUE);
-		}
 		setBorderVisible(TRUE);
 
 		for(handle_set_iter_t dependent_it = mDependents.begin();
@@ -1296,17 +1315,7 @@ void LLFloater::setIsChrome(BOOL is_chrome)
 		mButtons[BUTTON_CLOSE]->setToolTip(LLStringExplicit(getButtonTooltip(Params(), BUTTON_CLOSE, is_chrome)));
 	}
 	
-	// no titles displayed on "chrome" floaters
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(!is_chrome);
-	
 	LLPanel::setIsChrome(is_chrome);
-}
-
-void LLFloater::setTitleVisible(bool visible)
-{
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(visible);
 }
 
 // Change the draw style to account for the foreground state.
@@ -1396,7 +1405,10 @@ void LLFloater::moveResizeHandlesToFront()
 
 BOOL LLFloater::isFrontmost()
 {
-	return gFloaterView && gFloaterView->getFrontmost() == this && getVisible();
+	LLFloaterView* floater_view = getParentByType<LLFloaterView>();
+	return getVisible()
+			&& (floater_view 
+				&& floater_view->getFrontmost() == this);
 }
 
 void LLFloater::addDependentFloater(LLFloater* floaterp, BOOL reposition)
@@ -1469,6 +1481,7 @@ BOOL LLFloater::handleMouseDown(S32 x, S32 y, MASK mask)
 		if(offerClickToButton(x, y, mask, BUTTON_CLOSE)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_RESTORE)) return TRUE;
 		if(offerClickToButton(x, y, mask, BUTTON_TEAR_OFF)) return TRUE;
+		if(offerClickToButton(x, y, mask, BUTTON_DOCK)) return TRUE;
 
 		// Otherwise pass to drag handle for movement
 		return mDragHandle->handleMouseDown(x, y, mask);
@@ -1574,6 +1587,13 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 	{
 		mDocked = docked;
 		mButtonsEnabled[BUTTON_DOCK] = !mDocked;
+
+		if (mDocked)
+		{
+			setMinimized(FALSE);
+			mOpenPositioning = LLFloaterEnums::OPEN_POSITIONING_NONE;
+		}
+
 		updateTitleButtons();
 
 		storeDockStateControl();
@@ -1812,7 +1832,7 @@ void LLFloater::draw()
 		{
 			drawChild(mButtons[i]);
 		}
-		drawChild(mDragHandle);
+		drawChild(mDragHandle, 0, 0, TRUE);
 	}
 	else
 	{
@@ -2963,6 +2983,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mHeaderHeight = p.header_height;
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
+	mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
 
 	mOpenPositioning = p.open_positioning;
 	mSpecifiedLeft = p.specified_left;
@@ -2990,6 +3011,11 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	if (p.close_callback.isProvided())
 	{
 		setCloseCallback(initCommitCallback(p.close_callback));
+	}
+
+	if (mDragHandle)
+	{
+		mDragHandle->setTitleVisible(p.show_title);
 	}
 }
 
@@ -3239,7 +3265,6 @@ void LLFloater::stackWith(LLFloater& other)
 
 	next_rect.setLeftTopAndSize(next_rect.mLeft, next_rect.mTop, getRect().getWidth(), getRect().getHeight());
 	
-	mRectControl.clear(); // don't save rect of stacked floaters
 	setShape(next_rect);
 }
 

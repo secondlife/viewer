@@ -10,8 +10,8 @@
 			</stat_view>
 			<stat_view label="Erweitert" name="advanced">
 				<stat_view label="Darstellung" name="render">
-					<stat_bar label="Gezeichnete KTris" name="ktrisframe"/>
-					<stat_bar label="Gezeichnete KTris" name="ktrissec"/>
+					<stat_bar label="Pro Frame gezeichnete KTris" name="ktrisframe"/>
+					<stat_bar label="Pro Sek. gezeichnete KTris" name="ktrissec"/>
 					<stat_bar label="Objektanzahl" name="objs"/>
 					<stat_bar label="Neue Objekte" name="newobjs"/>
 				</stat_view>
@@ -32,7 +32,7 @@
 					<stat_bar label="Ebenen" name="layerskbitstat"/>
 					<stat_bar label="Tatsächlicher Eingang" name="actualinkbitstat"/>
 					<stat_bar label="Tatsächlicher Ausgang" name="actualoutkbitstat"/>
-					<stat_bar label="VFS Ausstehende Ops" name="vfspendingoperations"/>
+					<stat_bar label="Ausstehende Vorgänge im VFS" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulator" name="sim">
@@ -64,6 +64,14 @@
 					<stat_bar label="Agent-Zeit" name="simagentmsec"/>
 					<stat_bar label="Bilder-Zeit" name="simimagesmsec"/>
 					<stat_bar label="Skript-Zeit" name="simscriptmsec"/>
+					<stat_bar label="Verbleib. Zeit" name="simsparemsec"/>
+					<stat_view label="Zeitdetails (ms)" name="timedetails">
+						<stat_bar label="Physik-Schritt" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Phys. Formen aktualisieren" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Physik – andere" name="simsimphysicsothermsec"/>
+						<stat_bar label="Schlafzeit" name="simsleepmsec"/>
+						<stat_bar label="Pump IO" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

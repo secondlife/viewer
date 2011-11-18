@@ -10,8 +10,8 @@
 			</stat_view>
 			<stat_view label="アドバンス" name="advanced">
 				<stat_view label="描画" name="render">
-					<stat_bar label="KTris 描画" name="ktrisframe"/>
-					<stat_bar label="KTris 描画" name="ktrissec"/>
+					<stat_bar label="フレームごとの KTris 描画" name="ktrisframe"/>
+					<stat_bar label="秒ごとの KTris 描画" name="ktrissec"/>
 					<stat_bar label="オブジェクト合計" name="objs"/>
 					<stat_bar label="新規オブジェクト" name="newobjs"/>
 				</stat_view>
@@ -64,6 +64,14 @@
 					<stat_bar label="エージェント時間" name="simagentmsec"/>
 					<stat_bar label="イメージ時間" name="simimagesmsec"/>
 					<stat_bar label="スクリプト時間" name="simscriptmsec"/>
+					<stat_bar label="余暇" name="simsparemsec"/>
+					<stat_view label="時間の詳細（ms）" name="timedetails">
+						<stat_bar label="物理効果の単位" name="simsimphysicsstepmsec"/>
+						<stat_bar label="物理形状を更新" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="他の物理効果" name="simsimphysicsothermsec"/>
+						<stat_bar label="スリープ時間" name="simsleepmsec"/>
+						<stat_bar label="ポンプ I/O" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

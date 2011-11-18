@@ -565,7 +565,7 @@ protected:
 private:
 
 	template <typename METHOD, typename XDATA>
-	LLView* childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra);
+	LLView* childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block = true);
 
 	template <typename METHOD, typename CHARTYPE>
 	LLView* childrenHandleCharEvent(const std::string& desc, const METHOD& method,

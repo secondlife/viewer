@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="Popup">
+	<menu_item_call label="Yakına Zumla" name="Zoom Close"/>
+	<menu_item_call label="Orta Zumla" name="Zoom Medium"/>
+	<menu_item_call label="Uzağa Zumla" name="Zoom Far"/>
+	<menu_item_call label="Varsayılan Yakınlaştırma" name="Zoom Default"/>
+	<menu_item_check label="Haritayı Dönder" name="Rotate Map"/>
+	<menu_item_check label="Otomatik Ortala" name="Auto Center"/>
+	<menu_item_call label="İzlemeyi Durdur" name="Stop Tracking"/>
+	<menu_item_call label="Dünya Haritası" name="World Map"/>
+</menu>

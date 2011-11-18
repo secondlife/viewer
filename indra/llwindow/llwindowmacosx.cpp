@@ -2545,8 +2545,8 @@ OSStatus LLWindowMacOSX::eventHandler (EventHandlerCallRef myHandler, EventRef e
 			{
 				// This is where we would constrain move/resize to a particular screen
 
-				const S32 MIN_WIDTH  = 320;
-				const S32 MIN_HEIGHT = 240;
+				const S32 MIN_WIDTH  = 1024;
+				const S32 MIN_HEIGHT = 768;
 				
 				Rect currentBounds;
 				Rect previousBounds;

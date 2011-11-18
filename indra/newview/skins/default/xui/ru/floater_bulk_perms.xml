@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floaterbulkperms" title="ИЗМЕНИТЬ РАЗРЕШЕНИЯ НА ИСПОЛЬЗОВАНИЕ КОНТЕНТА">
+	<floater.string name="nothing_to_modify_text">
+		В выбранной области нет контента, который можно изменять.
+	</floater.string>
+	<floater.string name="status_text">
+		Задание разрешений для [NAME]
+	</floater.string>
+	<floater.string name="start_text">
+		Создание запроса на изменение разрешений...
+	</floater.string>
+	<floater.string name="done_text">
+		Выполненные запросы на изменение разрешений.
+	</floater.string>
+	<icon name="icon_animation" tool_tip="Анимация"/>
+	<icon name="icon_bodypart" tool_tip="Части тела"/>
+	<icon name="icon_clothing" tool_tip="Одежда"/>
+	<icon name="icon_gesture" tool_tip="Жесты"/>
+	<icon name="icon_notecard" tool_tip="Заметки"/>
+	<icon name="icon_object" tool_tip="Объекты"/>
+	<icon name="icon_script" tool_tip="Скрипты"/>
+	<icon name="icon_sound" tool_tip="Звуки"/>
+	<icon name="icon_texture" tool_tip="Текстуры"/>
+	<button label="√ Все" name="check_all"/>
+	<button label="Очистить" label_selected="Нет" name="check_none"/>
+	<text name="newperms">
+		Новые разрешения на контент
+	</text>
+	<text name="GroupLabel">
+		Группа:
+	</text>
+	<check_box label="Поделиться" name="share_with_group"/>
+	<text name="AnyoneLabel">
+		Все:
+	</text>
+	<check_box label="Копировать" name="everyone_copy"/>
+	<text name="NextOwnerLabel">
+		Следующий владелец:
+	</text>
+	<check_box label="Изменять" name="next_owner_modify"/>
+	<check_box label="Копировать" name="next_owner_copy"/>
+	<check_box initial_value="истина" label="Передать" name="next_owner_transfer" tool_tip="Следующий владелец может отдать или перепродать объект"/>
+	<button label="ОК" name="apply"/>
+	<button label="Отмена" name="close"/>
+</floater>

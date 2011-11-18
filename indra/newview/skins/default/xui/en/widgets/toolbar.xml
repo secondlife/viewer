@@ -30,6 +30,8 @@
                         image_overlay_alignment="left"
                         use_ellipses="true"
                         auto_resize="true"
+                        button_flash_count="99999"
+                        button_flash_rate="1.0"
                         flash_color="EmphasisColor"/>
   <button_icon pad_left="10"
                pad_right="10"
@@ -49,5 +51,7 @@
                chrome="true"
                use_ellipses="true"
                auto_resize="true"
+               button_flash_count="99999"
+               button_flash_rate="1.0"
                flash_color="EmphasisColor"/>
 </toolbar>

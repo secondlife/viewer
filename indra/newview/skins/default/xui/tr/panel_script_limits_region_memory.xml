@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="BÖLGE BELLEĞİ" name="script_limits_region_memory_panel">
+	<text name="script_memory">
+		Parsel Komut Dosyası Belleği
+	</text>
+	<text name="loading_text">
+		Yükleniyor...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Büyüklük (kb)" name="size"/>
+		<scroll_list.columns label="URL&apos;ler" name="urls"/>
+		<scroll_list.columns label="Nesne Adı" name="name"/>
+		<scroll_list.columns label="Nesne Sahibi" name="owner"/>
+		<scroll_list.columns label="Parsel" name="parcel"/>
+		<scroll_list.columns label="Konum" name="location"/>
+	</scroll_list>
+	<button label="Listeyi Yenile" name="refresh_list_btn"/>
+	<button label="Vurgula" name="highlight_btn"/>
+	<button label="İade Et" name="return_btn"/>
+</panel>

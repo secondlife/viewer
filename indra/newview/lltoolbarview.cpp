@@ -29,18 +29,29 @@
 
 #include "lltoolbarview.h"
 
-#include "lldir.h"
-#include "llxmlnode.h"
-#include "lltoolbar.h"
+#include "llappviewer.h"
 #include "llbutton.h"
-#include "lltooldraganddrop.h"
 #include "llclipboard.h"
+#include "lldir.h"
+#include "lldockablefloater.h"
+#include "lldockcontrol.h"
+#include "llimview.h"
+#include "lltransientfloatermgr.h"
+#include "lltoolbar.h"
+#include "lltooldraganddrop.h"
+#include "llxmlnode.h"
+
+#include "llagent.h"  // HACK for destinations guide on startup
+#include "llfloaterreg.h"  // HACK for destinations guide on startup
+#include "llviewercontrol.h"  // HACK for destinations guide on startup
 
 #include <boost/foreach.hpp>
 
 LLToolBarView* gToolBarView = NULL;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
+
+void handleLoginToolbarSetup();
 
 bool isToolDragged()
 {
@@ -61,10 +72,14 @@ LLToolBarView::ToolbarSet::ToolbarSet()
 
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
-	mToolbarLeft(NULL),
-	mToolbarRight(NULL),
-	mToolbarBottom(NULL)
+	mDragStarted(false),
+	mDragToolbarButton(NULL),
+	mToolbarsLoaded(false)
 {
+	for (S32 i = 0; i < TOOLBAR_COUNT; i++)
+	{
+		mToolbars[i] = NULL;
+	}
 }
 
 void LLToolBarView::initFromParams(const LLToolBarView::Params& p)
@@ -80,44 +95,100 @@ LLToolBarView::~LLToolBarView()
 
 BOOL LLToolBarView::postBuild()
 {
-	mToolbarLeft   = getChild<LLToolBar>("toolbar_left");
-	mToolbarRight  = getChild<LLToolBar>("toolbar_right");
-	mToolbarBottom = getChild<LLToolBar>("toolbar_bottom");
+	mToolbars[TOOLBAR_LEFT]   = getChild<LLToolBar>("toolbar_left");
+	mToolbars[TOOLBAR_RIGHT]  = getChild<LLToolBar>("toolbar_right");
+	mToolbars[TOOLBAR_BOTTOM] = getChild<LLToolBar>("toolbar_bottom");
 
-	mToolbarLeft->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
-	mToolbarLeft->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
-	mToolbarLeft->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
-	
-	mToolbarRight->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
-	mToolbarRight->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
-	mToolbarRight->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
-	
-	mToolbarBottom->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
-	mToolbarBottom->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
-	mToolbarBottom->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+	for (int i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		mToolbars[i]->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
+		mToolbars[i]->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
+		mToolbars[i]->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+		mToolbars[i]->setButtonAddCallback(boost::bind(LLToolBarView::onToolBarButtonAdded,_1));
+		mToolbars[i]->setButtonRemoveCallback(boost::bind(LLToolBarView::onToolBarButtonRemoved,_1));
+	}
+
+	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&handleLoginToolbarSetup));
 	
 	return TRUE;
 }
 
-bool LLToolBarView::hasCommand(const LLCommandId& commandId) const
+S32 LLToolBarView::hasCommand(const LLCommandId& commandId) const
 {
-	bool has_command = false;
-	if (mToolbarLeft && !has_command)
+	S32 command_location = TOOLBAR_NONE;
+
+	for (S32 loc = TOOLBAR_FIRST; loc <= TOOLBAR_LAST; loc++)
 	{
-		has_command = mToolbarLeft->hasCommand(commandId);
+		if (mToolbars[loc]->hasCommand(commandId))
+		{
+			command_location = loc;
+			break;
+		}
 	}
-	if (mToolbarRight && !has_command)
-	{
-		has_command = mToolbarRight->hasCommand(commandId);
-	}
-	if (mToolbarBottom && !has_command)
-	{
-		has_command = mToolbarBottom->hasCommand(commandId);
-	}
-	return has_command;
+
+	return command_location;
 }
 
-bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
+S32 LLToolBarView::addCommand(const LLCommandId& commandId, EToolBarLocation toolbar, int rank)
+{
+	int old_rank;
+	removeCommand(commandId, old_rank);
+
+	S32 command_location = mToolbars[toolbar]->addCommand(commandId, rank);
+
+	return command_location;
+}
+
+S32 LLToolBarView::removeCommand(const LLCommandId& commandId, int& rank)
+{
+	S32 command_location = hasCommand(commandId);
+	rank = LLToolBar::RANK_NONE;
+
+	if (command_location != TOOLBAR_NONE)
+	{
+		rank = mToolbars[command_location]->removeCommand(commandId);
+	}
+
+	return command_location;
+}
+
+S32 LLToolBarView::enableCommand(const LLCommandId& commandId, bool enabled)
+{
+	S32 command_location = hasCommand(commandId);
+
+	if (command_location != TOOLBAR_NONE)
+	{
+		mToolbars[command_location]->enableCommand(commandId, enabled);
+	}
+
+	return command_location;
+}
+
+S32 LLToolBarView::stopCommandInProgress(const LLCommandId& commandId)
+{
+	S32 command_location = hasCommand(commandId);
+
+	if (command_location != TOOLBAR_NONE)
+	{
+		mToolbars[command_location]->stopCommandInProgress(commandId);
+	}
+
+	return command_location;
+}
+
+S32 LLToolBarView::flashCommand(const LLCommandId& commandId, bool flash)
+{
+	S32 command_location = hasCommand(commandId);
+
+	if (command_location != TOOLBAR_NONE)
+	{
+		mToolbars[command_location]->flashCommand(commandId, flash);
+	}
+
+	return command_location;
+}
+
+bool LLToolBarView::addCommandInternal(const LLCommandId& command, LLToolBar* toolbar)
 {
 	LLCommandManager& mgr = LLCommandManager::instance();
 	if (mgr.getCommand(command))
@@ -126,7 +197,7 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 	}
 	else 
 	{
-		llwarns	<< "Toolbars creation : the command " << command.name() << " cannot be found in the command manager" << llendl;
+		llwarns	<< "Toolbars creation : the command with id " << command.uuid().asString() << " cannot be found in the command manager" << llendl;
 		return false;
 	}
 	return true;
@@ -135,6 +206,7 @@ bool LLToolBarView::addCommand(const LLCommandId& command, LLToolBar* toolbar)
 bool LLToolBarView::loadToolbars(bool force_default)
 {
 	LLToolBarView::ToolbarSet toolbar_set;
+	bool err = false;
 	
 	// Load the toolbars.xml file
 	std::string toolbar_file = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
@@ -152,74 +224,107 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
 	{
 		llwarns << "Unable to load toolbars from file: " << toolbar_file << llendl;
-		return false;
+		err = true;
 	}
-	if(!root->hasName("toolbars"))
+	
+	if (!err && !root->hasName("toolbars"))
 	{
 		llwarns << toolbar_file << " is not a valid toolbars definition file" << llendl;
-		return false;
+		err = true;
 	}
 	
 	// Parse the toolbar settings
 	LLXUIParser parser;
-	parser.readXUI(root, toolbar_set, toolbar_file);
-	if (!toolbar_set.validateBlock())
+	if (!err)
 	{
-		llerrs << "Unable to validate toolbars from file: " << toolbar_file << llendl;
+	parser.readXUI(root, toolbar_set, toolbar_file);
+	}
+	if (!err && !toolbar_set.validateBlock())
+	{
+		llwarns << "Unable to validate toolbars from file: " << toolbar_file << llendl;
+		err = true;
+	}
+	
+	if (err)
+	{
+		if (force_default)
+		{
+			llerrs << "Unable to load toolbars from default file : " << toolbar_file << llendl;
 		return false;
+	}
+		// Try to load the default toolbars
+		return loadToolbars(true);
 	}
 	
 	// Clear the toolbars now before adding the loaded commands and settings
-	if (mToolbarLeft)
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
 	{
-		mToolbarLeft->clearCommandsList();
-	}
-	if (mToolbarRight)
-	{
-		mToolbarRight->clearCommandsList();
-	}
-	if (mToolbarBottom)
-	{
-		mToolbarBottom->clearCommandsList();
+		if (mToolbars[i])
+		{
+			mToolbars[i]->clearCommandsList();
+		}
 	}
 	
 	// Add commands to each toolbar
-	if (toolbar_set.left_toolbar.isProvided() && mToolbarLeft)
+	if (toolbar_set.left_toolbar.isProvided() && mToolbars[TOOLBAR_LEFT])
 	{
 		if (toolbar_set.left_toolbar.button_display_mode.isProvided())
 		{
 			LLToolBarEnums::ButtonType button_type = toolbar_set.left_toolbar.button_display_mode;
-			mToolbarLeft->setButtonType(button_type);
+			mToolbars[TOOLBAR_LEFT]->setButtonType(button_type);
 		}
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.left_toolbar.commands)
+		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.left_toolbar.commands)
 		{
-			addCommand(LLCommandId(command),mToolbarLeft);
+			if (addCommandInternal(LLCommandId(command_params), mToolbars[TOOLBAR_LEFT]))
+			{
+				llwarns << "Error adding command '" << command_params.name() << "' to left toolbar." << llendl;
+			}
 		}
 	}
-	if (toolbar_set.right_toolbar.isProvided() && mToolbarRight)
+	if (toolbar_set.right_toolbar.isProvided() && mToolbars[TOOLBAR_RIGHT])
 	{
 		if (toolbar_set.right_toolbar.button_display_mode.isProvided())
 		{
 			LLToolBarEnums::ButtonType button_type = toolbar_set.right_toolbar.button_display_mode;
-			mToolbarRight->setButtonType(button_type);
+			mToolbars[TOOLBAR_RIGHT]->setButtonType(button_type);
 		}
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.right_toolbar.commands)
+		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.right_toolbar.commands)
 		{
-			addCommand(LLCommandId(command),mToolbarRight);
+			if (addCommandInternal(LLCommandId(command_params), mToolbars[TOOLBAR_RIGHT]))
+			{
+				llwarns << "Error adding command '" << command_params.name() << "' to right toolbar." << llendl;
+			}
 		}
 	}
-	if (toolbar_set.bottom_toolbar.isProvided() && mToolbarBottom)
+	if (toolbar_set.bottom_toolbar.isProvided() && mToolbars[TOOLBAR_BOTTOM])
 	{
 		if (toolbar_set.bottom_toolbar.button_display_mode.isProvided())
 		{
 			LLToolBarEnums::ButtonType button_type = toolbar_set.bottom_toolbar.button_display_mode;
-			mToolbarBottom->setButtonType(button_type);
+			mToolbars[TOOLBAR_BOTTOM]->setButtonType(button_type);
 		}
-		BOOST_FOREACH(LLCommandId::Params& command, toolbar_set.bottom_toolbar.commands)
+		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.bottom_toolbar.commands)
 		{
-			addCommand(LLCommandId(command),mToolbarBottom);
+			if (addCommandInternal(LLCommandId(command_params), mToolbars[TOOLBAR_BOTTOM]))
+			{
+				llwarns << "Error adding command '" << command_params.name() << "' to bottom toolbar." << llendl;
+			}
 		}
 	}
+	mToolbarsLoaded = true;
+	return true;
+}
+
+bool LLToolBarView::clearToolbars()
+{
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		if (mToolbars[i])
+		{
+			mToolbars[i]->clearCommandsList();
+		}
+	}
+
 	return true;
 }
 
@@ -231,6 +336,27 @@ bool LLToolBarView::loadDefaultToolbars()
 	if (gToolBarView)
 	{
 		retval = gToolBarView->loadToolbars(true);
+		if (retval)
+		{
+			gToolBarView->saveToolbars();
+		}
+	}
+
+	return retval;
+}
+
+//static
+bool LLToolBarView::clearAllToolbars()
+{
+	bool retval = false;
+
+	if (gToolBarView)
+	{
+		retval = gToolBarView->clearToolbars();
+		if (retval)
+		{
+			gToolBarView->saveToolbars();
+		}
 	}
 
 	return retval;
@@ -238,22 +364,25 @@ bool LLToolBarView::loadDefaultToolbars()
 
 void LLToolBarView::saveToolbars() const
 {
+	if (!mToolbarsLoaded)
+		return;
+	
 	// Build the parameter tree from the toolbar data
 	LLToolBarView::ToolbarSet toolbar_set;
-	if (mToolbarLeft)
+	if (mToolbars[TOOLBAR_LEFT])
 	{
-		toolbar_set.left_toolbar.button_display_mode = mToolbarLeft->getButtonType();
-		addToToolset(mToolbarLeft->getCommandsList(),toolbar_set.left_toolbar);
+		toolbar_set.left_toolbar.button_display_mode = mToolbars[TOOLBAR_LEFT]->getButtonType();
+		addToToolset(mToolbars[TOOLBAR_LEFT]->getCommandsList(), toolbar_set.left_toolbar);
 	}
-	if (mToolbarRight)
+	if (mToolbars[TOOLBAR_RIGHT])
 	{
-		toolbar_set.right_toolbar.button_display_mode = mToolbarRight->getButtonType();
-		addToToolset(mToolbarRight->getCommandsList(),toolbar_set.right_toolbar);
+		toolbar_set.right_toolbar.button_display_mode = mToolbars[TOOLBAR_RIGHT]->getButtonType();
+		addToToolset(mToolbars[TOOLBAR_RIGHT]->getCommandsList(), toolbar_set.right_toolbar);
 	}
-	if (mToolbarBottom)
+	if (mToolbars[TOOLBAR_BOTTOM])
 	{
-		toolbar_set.bottom_toolbar.button_display_mode = mToolbarBottom->getButtonType();
-		addToToolset(mToolbarBottom->getCommandsList(),toolbar_set.bottom_toolbar);
+		toolbar_set.bottom_toolbar.button_display_mode = mToolbars[TOOLBAR_BOTTOM]->getButtonType();
+		addToToolset(mToolbars[TOOLBAR_BOTTOM]->getCommandsList(), toolbar_set.bottom_toolbar);
 	}
 	
 	// Serialize the parameter tree
@@ -278,45 +407,138 @@ void LLToolBarView::saveToolbars() const
 // Enumerate the commands in command_list and add them as Params to the toolbar
 void LLToolBarView::addToToolset(command_id_list_t& command_list, Toolbar& toolbar) const
 {
+	LLCommandManager& mgr = LLCommandManager::instance();
+
 	for (command_id_list_t::const_iterator it = command_list.begin();
 		 it != command_list.end();
 		 ++it)
 	{
-		LLCommandId::Params command;
-		command.name = it->name();		
-		toolbar.commands.add(command);
+		LLCommand* command = mgr.getCommand(*it);
+		if (command)
+		{
+			LLCommandId::Params command_name_param;
+			command_name_param.name = command->name();
+			toolbar.commands.add(command_name_param);
+		}
+	}
+}
+
+void LLToolBarView::onToolBarButtonAdded(LLView* button)
+{
+	llassert(button);
+	
+	if (button->getName() == "speak")
+	{
+		// Add the "Speak" button as a control view in LLTransientFloaterMgr
+		// to prevent hiding the transient IM floater upon pressing "Speak".
+		LLTransientFloaterMgr::getInstance()->addControlView(button);
+		
+		// Redock incoming and/or outgoing call windows, if applicable
+		
+		LLFloater* incoming_floater = LLFloaterReg::getLastFloaterInGroup("incoming_call");
+		LLFloater* outgoing_floater = LLFloaterReg::getLastFloaterInGroup("outgoing_call");
+		
+		if (incoming_floater && incoming_floater->isShown())
+		{
+			LLCallDialog* incoming = dynamic_cast<LLCallDialog *>(incoming_floater);
+			llassert(incoming);
+			
+			LLDockControl* dock_control = incoming->getDockControl();
+			if (dock_control->getDock() == NULL)
+			{
+				incoming->dockToToolbarButton("speak");
+			}
+		}
+		
+		if (outgoing_floater && outgoing_floater->isShown())
+		{
+			LLCallDialog* outgoing = dynamic_cast<LLCallDialog *>(outgoing_floater);
+			llassert(outgoing);
+			
+			LLDockControl* dock_control = outgoing->getDockControl();
+			if (dock_control->getDock() == NULL)
+			{
+				outgoing->dockToToolbarButton("speak");
+			}
+		}
+	}
+	else if (button->getName() == "voice")
+	{
+		// Add the "Voice controls" button as a control view in LLTransientFloaterMgr
+		// to prevent hiding the transient IM floater upon pressing "Voice controls".
+		LLTransientFloaterMgr::getInstance()->addControlView(button);
+	}
+}
+
+void LLToolBarView::onToolBarButtonRemoved(LLView* button)
+{
+	llassert(button);
+
+	if (button->getName() == "speak")
+	{
+		LLTransientFloaterMgr::getInstance()->removeControlView(button);
+		
+		// Undock incoming and/or outgoing call windows
+		
+		LLFloater* incoming_floater = LLFloaterReg::getLastFloaterInGroup("incoming_call");
+		LLFloater* outgoing_floater = LLFloaterReg::getLastFloaterInGroup("outgoing_call");
+		
+		if (incoming_floater && incoming_floater->isShown())
+		{
+			LLDockableFloater* incoming = dynamic_cast<LLDockableFloater *>(incoming_floater);
+			llassert(incoming);
+
+			LLDockControl* dock_control = incoming->getDockControl();
+			dock_control->setDock(NULL);
+		}
+		
+		if (outgoing_floater && outgoing_floater->isShown())
+		{
+			LLDockableFloater* outgoing = dynamic_cast<LLDockableFloater *>(outgoing_floater);
+			llassert(outgoing);
+
+			LLDockControl* dock_control = outgoing->getDockControl();
+			dock_control->setDock(NULL);
+		}
+	}
+	else if (button->getName() == "voice")
+	{
+		LLTransientFloaterMgr::getInstance()->removeControlView(button);
 	}
 }
 
 void LLToolBarView::draw()
 {
-	//LLPanel* sizer_left = getChild<LLPanel>("sizer_left");
+	LLRect toolbar_rects[TOOLBAR_COUNT];
 	
-	LLRect bottom_rect, left_rect, right_rect;
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		if (mToolbars[i])
+		{
+			LLLayoutStack::ELayoutOrientation orientation = LLToolBarEnums::getOrientation(mToolbars[i]->getSideType());
 
-	if (mToolbarBottom) 
-	{
-		mToolbarBottom->getParent()->reshape(mToolbarBottom->getParent()->getRect().getWidth(), mToolbarBottom->getRect().getHeight());
-		mToolbarBottom->localRectToOtherView(mToolbarBottom->getLocalRect(), &bottom_rect, this);
-	}
-	if (mToolbarLeft)   
-	{
-		mToolbarLeft->getParent()->reshape(mToolbarLeft->getRect().getWidth(), mToolbarLeft->getParent()->getRect().getHeight());
-		mToolbarLeft->localRectToOtherView(mToolbarLeft->getLocalRect(), &left_rect, this);
-	}
-	if (mToolbarRight)  
-	{
-		mToolbarRight->getParent()->reshape(mToolbarRight->getRect().getWidth(), mToolbarRight->getParent()->getRect().getHeight());
-		mToolbarRight->localRectToOtherView(mToolbarRight->getLocalRect(), &right_rect, this);
+			if (orientation == LLLayoutStack::HORIZONTAL)
+			{
+				mToolbars[i]->getParent()->reshape(mToolbars[i]->getParent()->getRect().getWidth(), mToolbars[i]->getRect().getHeight());
+			}
+			else
+			{
+				mToolbars[i]->getParent()->reshape(mToolbars[i]->getRect().getWidth(), mToolbars[i]->getParent()->getRect().getHeight());
+			}
+
+			mToolbars[i]->localRectToOtherView(mToolbars[i]->getLocalRect(), &toolbar_rects[i], this);
+		}
 	}
 	
 	// Draw drop zones if drop of a tool is active
 	if (isToolDragged())
 	{
 		LLColor4 drop_color = LLUIColorTable::instance().getColor( "ToolbarDropZoneColor" );
-		gl_rect_2d(bottom_rect, drop_color, TRUE);
-		gl_rect_2d(left_rect, drop_color, TRUE);
-		gl_rect_2d(right_rect, drop_color, TRUE);
+
+		for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+		{
+			gl_rect_2d(toolbar_rects[i], drop_color, TRUE);
+		}
 	}
 	
 	LLUICtrl::draw();
@@ -328,13 +550,11 @@ void LLToolBarView::draw()
 // ----------------------------------------
 
 
-void LLToolBarView::startDragTool( S32 x, S32 y, const LLUUID& uuid)
+void LLToolBarView::startDragTool(S32 x, S32 y, LLToolBarButton* toolbarButton)
 {
+	resetDragTool(toolbarButton);
+
 	// Flag the tool dragging but don't start it yet
-	gToolBarView->mDragStarted = false;
-	gToolBarView->mDragCommand = LLCommandId::null;
-	gToolBarView->mDragRank = LLToolBar::RANK_NONE;
-	gToolBarView->mDragToolbar = NULL;
 	LLToolDragAndDrop::getInstance()->setDragStart( x, y );
 }
 
@@ -355,30 +575,10 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
-			
-			// Second, check if the command is present in one of the 3 toolbars
-			// If it is, store the command, the toolbar and the rank in the toolbar and
-			// set a callback on end drag so that we reinsert the command if no drop happened
-			/*
-			gToolBarView->mDragCommand = LLCommandId(uuid);
-			if ((gToolBarView->mDragRank = gToolBarView->mToolbarLeft->removeCommand(gToolBarView->mDragCommand)) != LLToolBar::RANK_NONE)
-			{
-				gToolBarView->mDragToolbar = gToolBarView->mToolbarLeft;
-			}
-			else if ((gToolBarView->mDragRank = gToolBarView->mToolbarRight->removeCommand(gToolBarView->mDragCommand)) != LLToolBar::RANK_NONE)
-			{
-				gToolBarView->mDragToolbar = gToolBarView->mToolbarRight;
-			}
-			else if ((gToolBarView->mDragRank = gToolBarView->mToolbarBottom->removeCommand(gToolBarView->mDragCommand)) != LLToolBar::RANK_NONE)
-			{
-				gToolBarView->mDragToolbar = gToolBarView->mToolbarBottom;
-			}
-			if (gToolBarView->mDragRank != LLToolBar::RANK_NONE)
-			{
-				llinfos << "Merov debug: rank of dragged tool = " << gToolBarView->mDragRank << llendl;
-				LLToolDragAndDrop::getInstance()->setEndDragCallback(boost::bind(&LLToolBarView::onEndDrag, gToolBarView));
-			}
-			 */
+
+			// Second, stop the command if it is in progress and requires stopping!
+			LLCommandId command_id = LLCommandId(uuid);
+			gToolBarView->stopCommandInProgress(command_id);
 
 			gToolBarView->mDragStarted = true;
 			return TRUE;
@@ -407,86 +607,86 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		LLCommand* command = mgr.getCommand(command_id);
 		if (command)
 		{
-			// Convert the (x,y) position in rank in toolbar
-			int new_rank = LLToolBar::RANK_NONE;
-			if (!toolbar->isReadOnly())
-			{
-				new_rank = toolbar->getRankFromPosition(x,y);
-			}
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
-			int old_rank = LLToolBar::RANK_NONE;
+			S32 old_toolbar_loc = gToolBarView->hasCommand(command_id);
 			LLToolBar* old_toolbar = NULL;
-			int rank;
-			if ((rank = gToolBarView->mToolbarLeft->removeCommand(command_id)) != LLToolBar::RANK_NONE)
+
+			if (old_toolbar_loc != TOOLBAR_NONE)
 			{
-				old_rank = rank;
-				old_toolbar = gToolBarView->mToolbarLeft;
+				llassert(gToolBarView->mDragToolbarButton);
+				old_toolbar = gToolBarView->mDragToolbarButton->getParentByType<LLToolBar>();
+				if (old_toolbar->isReadOnly() && toolbar->isReadOnly())
+				{
+					// do nothing
+				}
+				else
+				{
+					int old_rank = LLToolBar::RANK_NONE;
+					gToolBarView->removeCommand(command_id, old_rank);
+				}
 			}
-			if ((rank = gToolBarView->mToolbarRight->removeCommand(command_id)) != LLToolBar::RANK_NONE)
-			{
-				old_rank = rank;
-				old_toolbar = gToolBarView->mToolbarRight;
-			}
-			if ((rank = gToolBarView->mToolbarBottom->removeCommand(command_id)) != LLToolBar::RANK_NONE)
-			{
-				old_rank = rank;
-				old_toolbar = gToolBarView->mToolbarBottom;
-			}
-			// Now insert it in the toolbar at the detected rank
+
+			// Convert the (x,y) position in rank in toolbar
 			if (!toolbar->isReadOnly())
 			{
-				if ((old_toolbar == toolbar) && (old_rank != LLToolBar::RANK_NONE) && (old_rank < new_rank))
-				{
-					// If we just removed the command from the same toolbar, we need to consider that it might
-					// change the target rank.
-					new_rank -= 1;
-				}
-				toolbar->addCommand(command->id(),new_rank);
+				int new_rank = toolbar->getRankFromPosition(x,y);
+				toolbar->addCommand(command_id, new_rank);
 			}
+			
+			// Save the new toolbars configuration
+			gToolBarView->saveToolbars();
 		}
 		else
 		{
 			llwarns << "Command couldn't be found in command manager" << llendl;
 		}
 	}
-	stopDragTool();
+
+	resetDragTool(NULL);
 	return handled;
 }
 
-void LLToolBarView::stopDragTool()
+void LLToolBarView::resetDragTool(LLToolBarButton* toolbarButton)
 {
 	// Clear the saved command, toolbar and rank
 	gToolBarView->mDragStarted = false;
-	gToolBarView->mDragCommand = LLCommandId::null;
-	gToolBarView->mDragRank = LLToolBar::RANK_NONE;
-	gToolBarView->mDragToolbar = NULL;
-}
-
-void LLToolBarView::onEndDrag()
-{
-	// If there's a saved command, reinsert it in the saved toolbar
-	if (gToolBarView->mDragRank != LLToolBar::RANK_NONE)
-	{
-		gToolBarView->mDragToolbar->addCommand(gToolBarView->mDragCommand,gToolBarView->mDragRank);
-	}
-	stopDragTool();
+	gToolBarView->mDragToolbarButton = toolbarButton;
 }
 
 void LLToolBarView::setToolBarsVisible(bool visible)
 {
-	mToolbarBottom->getParent()->setVisible(visible);
-	mToolbarLeft->getParent()->setVisible(visible);
-	mToolbarRight->getParent()->setVisible(visible);
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		mToolbars[i]->getParent()->setVisible(visible);
+	}
 }
 
 bool LLToolBarView::isModified() const
 {
 	bool modified = false;
 
-	modified |= mToolbarBottom->isModified();
-	modified |= mToolbarLeft->isModified();
-	modified |= mToolbarRight->isModified();
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		modified |= mToolbars[i]->isModified();
+	}
 
 	return modified;
 }
+
+
+//
+// HACK to bring up destinations guide at startup
+//
+
+void handleLoginToolbarSetup()
+{
+	// Open the destinations guide by default on first login, per Rhett
+	if (gSavedPerAccountSettings.getBOOL("DisplayDestinationsOnInitialRun") || gAgent.isFirstLogin())
+	{
+		LLFloaterReg::showInstance("destinations");
+
+		gSavedPerAccountSettings.setBOOL("DisplayDestinationsOnInitialRun", FALSE);
+	}
+}
+

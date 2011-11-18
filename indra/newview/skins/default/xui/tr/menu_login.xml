@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu_bar name="Login Menu">
+	<menu label="Ben" name="File">
+		<menu_item_call label="Tercihler..." name="Preferences..."/>
+		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
+	</menu>
+	<menu label="Yardım" name="Help">
+		<menu_item_call label="[SECOND_LIFE] Yardımı" name="Second Life Help"/>
+		<menu_item_call label="[APP_NAME] Hakkında" name="About Second Life"/>
+	</menu>
+	<menu_item_check label="Hata Ayıklama Menüsünü Göster" name="Show Debug Menu"/>
+	<menu label="Hata ayıkla" name="Debug">
+		<menu_item_call label="Hata Ayıklama Ayarlarını Göster" name="Debug Settings"/>
+		<menu_item_call label="KA/Renk Ayarları" name="UI/Color Settings"/>
+		<menu_item_call label="XKA Önizleme Aracı" name="UI Preview Tool"/>
+		<menu label="KA Testleri" name="UI Tests"/>
+		<menu_item_call label="Pencere Büyüklüğünü Ayarla..." name="Set Window Size..."/>
+		<menu_item_call label="Hizmet Şartlarını Göster" name="TOS"/>
+		<menu_item_call label="Kritik İletiyi Göster" name="Critical"/>
+		<menu_item_call label="Ortam Tarayıcı Testi" name="Web Browser Test"/>
+		<menu_item_call label="Web İçeriği Gezdiricisi Hata Ayıklama Testi" name="Web Content Floater Debug Test"/>
+		<menu_item_check label="Izgara Seçiciyi Göster" name="Show Grid Picker"/>
+		<menu_item_call label="Bildirimler Konsolunu Göster" name="Show Notifications Console"/>
+	</menu>
+</menu_bar>

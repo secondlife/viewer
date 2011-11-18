@@ -43,6 +43,15 @@
          function="Floater.Toggle"
          parameter="inventory" />
       </menu_item_check>
+      <menu_item_call
+       label="New Inventory Window"
+       name="NewInventoryWindow"
+       shortcut="control|shift|I"
+       visible="false">
+        <menu_item_call.on_click
+         function="Inventory.NewWindow"
+         parameter="" />
+      </menu_item_call>
       <menu_item_check
        label="Gestures..."
        name="Gestures"
@@ -166,7 +175,7 @@
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
-         label="Toolbars..."
+         label="Toolbar buttons..."
          name="Toolbars"
          shortcut="control|T">
             <menu_item_call.on_click
@@ -529,13 +538,13 @@
    
 	    <menu
 	     create_jump_keys="true"
-	     label="Enviroment Editor"
-	     name="Enviroment Editor"
+	     label="Environment Editor"
+	     name="Environment Editor"
 	     tear_off="true">
 	     	
 	     	<menu_item_call
-	     	 label="Enviroment Settings..."
-	     	 name="Enviroment Settings">
+	     	 label="Environment Settings..."
+	     	 name="Environment Settings">
 	     	 	<menu_item_call.on_click
 	     	 	 function="World.EnvSettings"
                  parameter="editor"/>
@@ -2437,6 +2446,16 @@
            parameter="raycast" />
         </menu_item_check>
 		<menu_item_check
+         label="Wind Vectors"
+         name="Wind Vectors">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="wind vectors" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="wind vectors" />
+        </menu_item_check>
+        <menu_item_check
          label="Render Complexity"
          name="rendercomplexity">
           <menu_item_check.on_check

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_target_profile">
+	<string name="status_online">
+		Çevrimiçi
+	</string>
+	<string name="status_offline">
+		Çevrimdışı
+	</string>
+	<text name="display_name_label" value="Ekran Adı:"/>
+	<text name="solo_username_label" value="Kullanıcı Adı:"/>
+	<text name="status" value="Çevrimiçi"/>
+	<text name="user_name_small" value="Bak arkadaşım bu çok uzun bir ad"/>
+	<button name="copy_to_clipboard" tool_tip="Panoya Kopyala"/>
+	<text name="user_label" value="Kullanıcı Adı:"/>
+	<tab_container name="tabs">
+		<panel label="PROFİL" name="panel_profile"/>
+		<panel label="SEÇMELER" name="panel_picks"/>
+		<panel label="NOTLAR &amp; GİZLİLİK" name="panel_notes"/>
+	</tab_container>
+</panel>

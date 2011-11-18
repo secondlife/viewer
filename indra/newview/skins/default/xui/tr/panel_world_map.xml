@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="world_map">
+	<panel.string name="Loading">
+		Yükleniyor...
+	</panel.string>
+	<panel.string name="InvalidLocation">
+		Geçersiz Konum
+	</panel.string>
+	<panel.string name="world_map_north">
+		K
+	</panel.string>
+	<panel.string name="world_map_east">
+		D
+	</panel.string>
+	<panel.string name="world_map_west">
+		B
+	</panel.string>
+	<panel.string name="world_map_south">
+		G
+	</panel.string>
+	<panel.string name="world_map_southeast">
+		GD
+	</panel.string>
+	<panel.string name="world_map_northeast">
+		KD
+	</panel.string>
+	<panel.string name="world_map_southwest">
+		GB
+	</panel.string>
+	<panel.string name="world_map_northwest">
+		KB
+	</panel.string>
+	<panel.string name="world_map_person">
+		1 kişi
+	</panel.string>
+	<panel.string name="world_map_people">
+		[NUMBER] kişi
+	</panel.string>
+	<text label="K" name="floater_map_north">
+		K
+	</text>
+	<text label="D" name="floater_map_east">
+		D
+	</text>
+	<text label="B" name="floater_map_west">
+		B
+	</text>
+	<text label="G" name="floater_map_south">
+		G
+	</text>
+	<text label="GD" name="floater_map_southeast">
+		GD
+	</text>
+	<text label="KD" name="floater_map_northeast">
+		KD
+	</text>
+	<text label="GB" name="floater_map_southwest">
+		GB
+	</text>
+	<text label="KB" name="floater_map_northwest">
+		KB
+	</text>
+</panel>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_media">
+	<string name="media_item_count_format">
+		(%ld предметов с медиа)
+	</string>
+	<string name="empty_item_text">
+		&lt;пусто&gt;
+	</string>
+	<string name="parcel_media_name">
+		Потоковое видео на участке
+	</string>
+	<string name="parcel_audio_name">
+		Потоковый звук на участке
+	</string>
+	<string name="playing_suffix">
+		(проигрывается)
+	</string>
+	<panel name="minimized_controls">
+		<button label="Выключить все" name="all_nearby_media_disable_btn" tool_tip="Выключить все ближайшее медиа"/>
+		<button label="Включить все" name="all_nearby_media_enable_btn" tool_tip="Включить все ближайшее медиа"/>
+		<button name="open_prefs_btn" tool_tip="Открыть настройки медиа"/>
+		<button label="Больше &gt;&gt;" label_selected="&lt;&lt; Меньше" name="more_btn" tool_tip="Дополнительное управление"/>
+	</panel>
+	<panel name="nearby_media_panel">
+		<text name="nearby_media_title">
+			Ближайшее медиа
+		</text>
+		<text name="show_text">
+			Показать:
+		</text>
+		<combo_box name="show_combo">
+			<combo_box.item label="Все" name="All"/>
+			<combo_box.item label="На этом участке" name="WithinParcel"/>
+			<combo_box.item label="За пределами этого участка" name="OutsideParcel"/>
+			<combo_box.item label="На других аватарах" name="OnOthers"/>
+		</combo_box>
+		<scroll_list name="media_list">
+			<scroll_list.columns label="Расстояние" name="media_proximity"/>
+			<scroll_list.columns label="Видимость" name="media_visibility"/>
+			<scroll_list.columns label="Класс" name="media_class"/>
+			<scroll_list.columns label="Название" name="media_name"/>
+			<scroll_list.columns label="Отладка" name="media_debug"/>
+		</scroll_list>
+		<panel name="media_controls_panel">
+			<layout_stack name="media_controls">
+				<layout_panel name="stop">
+					<button name="stop_btn" tool_tip="Остановить выбранное медиа"/>
+				</layout_panel>
+				<layout_panel name="play">
+					<button name="play_btn" tool_tip="Проиграть выбранное медиа"/>
+				</layout_panel>
+				<layout_panel name="pause">
+					<button name="pause_btn" tool_tip="Приостановить выбранное медиа"/>
+				</layout_panel>
+				<layout_panel name="volume_slider_ctrl">
+					<slider_bar initial_value="0.5" name="volume_slider" tool_tip="Громкость звука выбранного медиа"/>
+				</layout_panel>
+				<layout_panel name="mute">
+					<button name="mute_btn" tool_tip="Заглушить выбранное медиа"/>
+				</layout_panel>
+				<layout_panel name="zoom">
+					<button name="zoom_btn" tool_tip="Приблизить камеру к выбранному медиа"/>
+				</layout_panel>
+				<layout_panel name="unzoom">
+					<button name="unzoom_btn" tool_tip="Отдалить камеру от выбранного медиа"/>
+				</layout_panel>
+			</layout_stack>
+		</panel>
+	</panel>
+</panel>

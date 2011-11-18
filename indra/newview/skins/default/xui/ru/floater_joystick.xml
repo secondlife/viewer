@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="КОНФИГУРАЦИЯ ДЖОЙСТИКА">
+	<floater.string name="NoDevice">
+		устройство не выбрано
+	</floater.string>
+	<check_box label="Вкл. джойстик:" name="enable_joystick"/>
+	<spinner label="Наложение по X" name="JoystickAxis1"/>
+	<spinner label="Наложение по Y" name="JoystickAxis2"/>
+	<spinner label="Наложение по Z" name="JoystickAxis0"/>
+	<spinner label="Н. уклонов" name="JoystickAxis4"/>
+	<spinner label="Н. сгибов" name="JoystickAxis5"/>
+	<spinner label="Н. вращения" name="JoystickAxis3"/>
+	<spinner label="Н. масштабир." name="JoystickAxis6"/>
+	<check_box label="Масштабирование" name="ZoomDirect"/>
+	<check_box label="3D курсор" name="Cursor3D"/>
+	<check_box label="Автоуровень" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Режимы управления:
+	</text>
+	<check_box label="Аватар" name="JoystickAvatarEnabled"/>
+	<check_box label="Стройка" name="JoystickBuildEnabled"/>
+	<check_box label="Камера" name="JoystickFlycamEnabled"/>
+	<stat_view label="Монитор джойстика" name="axis_view">
+		<stat_bar label="Ось 0" name="axis0"/>
+		<stat_bar label="Ось 1" name="axis1"/>
+		<stat_bar label="Ось 2" name="axis2"/>
+		<stat_bar label="Ось 3" name="axis3"/>
+		<stat_bar label="Ось 4" name="axis4"/>
+		<stat_bar label="Ось 5" name="axis5"/>
+	</stat_view>
+	<text name="XScale">
+		Масштаб по X
+	</text>
+	<text name="YScale">
+		Масштаб по Y
+	</text>
+	<text name="ZScale">
+		Масштаб по Z
+	</text>
+	<text name="PitchScale">
+		Масштаб уклона
+	</text>
+	<text name="YawScale">
+		Масштаб сгиба
+	</text>
+	<text name="RollScale">
+		Масштаб вращения
+	</text>
+	<text name="XDeadZone">
+		Невидимая зона по X
+	</text>
+	<text name="YDeadZone">
+		Невидимая зона по Y
+	</text>
+	<text name="ZDeadZone">
+		Невидимая зона по Z
+	</text>
+	<text name="PitchDeadZone">
+		Невид. зона уклона
+	</text>
+	<text name="YawDeadZone">
+		Невид. зона сгиба
+	</text>
+	<text name="RollDeadZone">
+		Невид. зона вращения
+	</text>
+	<text name="Feathering">
+		Размывка краев
+	</text>
+	<text name="ZoomScale2">
+		Масштаб
+	</text>
+	<text name="ZoomDeadZone">
+		Невид. зона масшт.
+	</text>
+	<button label="Стандартные значения SpaceNavigator" name="SpaceNavigatorDefaults"/>
+	<button label="OK" label_selected="OK" name="ok_btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_btn"/>
+</floater>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_ladmark_gear">
+	<menu_item_call label="Телепорт" name="teleport"/>
+	<menu_item_call label="Подробнее" name="more_info"/>
+	<menu_item_call label="Показать на карте" name="show_on_map"/>
+	<menu_item_call label="Добавить закладку" name="add_landmark"/>
+	<menu_item_call label="Добавить папку" name="add_folder"/>
+	<menu_item_call label="Восстановить вещь" name="restore_item"/>
+	<menu_item_call label="Вырезать" name="cut"/>
+	<menu_item_call label="Копировать закладку" name="copy_landmark"/>
+	<menu_item_call label="Копировать URL SL" name="copy_slurl"/>
+	<menu_item_call label="Вставить" name="paste"/>
+	<menu_item_call label="Переименовать" name="rename"/>
+	<menu_item_call label="Удалить" name="delete"/>
+	<menu_item_call label="Развернуть все папки" name="expand_all"/>
+	<menu_item_call label="Свернуть все папки" name="collapse_all"/>
+	<menu_item_check label="Сортировать по дате" name="sort_by_date"/>
+	<menu_item_call label="Создать подборку" name="create_pick"/>
+</toggleable_menu>

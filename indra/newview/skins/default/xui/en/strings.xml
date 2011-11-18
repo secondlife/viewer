@@ -2028,7 +2028,7 @@ Returns a string with the requested data about the region
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
-	<string name="InventoryInboxNoItems">Items purchased through the marketplace will be delivered here.</string>
+	<string name="InventoryInboxNoItems">When you purchase or otherwise receive an item, it will appear here so you can drag it to a folder in your inventory, or delete it if you do not wish to keep it.</string>
 	<string name="MarketplaceURL">http://marketplace.[DOMAIN_NAME]</string>
 	<string name="MarketplaceURL_CreateStore">http://marketplace.[DOMAIN_NAME]/create_store</string>
 	<string name="MarketplaceURL_LearnMore">http://marketplace.[DOMAIN_NAME]/learn_more</string>
@@ -2183,6 +2183,8 @@ Returns a string with the requested data about the region
 	<string name="Stomach">Stomach</string>
 	<string name="Left Pec">Left Pec</string>
 	<string name="Right Pec">Right Pec</string>
+    <string name="Neck">Neck</string>
+    <string name="Avatar Center">Avatar Center</string>
 	<string name="Invalid Attachment">Invalid Attachment Point</string>
 
   <!-- Avatar age computation, see LLDateUtil::ageFromDate -->
@@ -3529,6 +3531,10 @@ Try enclosing path to the editor with double quotes.
  <string name="ExternalEditorCommandParseError">Error parsing the external editor command.</string>
  <string name="ExternalEditorFailedToRun">External editor failed to run.</string>
 
+ <!--  Machine translation of chat messahes -->
+ <string name="TranslationFailed">Translation failed: [REASON]</string>
+ <string name="TranslationResponseParseError">Error parsing translation response.</string>
+
   <!-- Key names begin -->
   <string name="Esc">Esc</string>
   <string name="Space">Space</string>
@@ -3678,7 +3684,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
   <string name="Command_View_Label">View</string>
-  <string name="Command_Voice_Label">Nearby voice</string>
+  <string name="Command_Voice_Label">Voice settings</string>
 
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
@@ -3703,7 +3709,11 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
-  <string name="Command_Voice_Tooltip">People nearby with voice capability</string>
+  <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
+
+  <string name="Toolbar_Bottom_Tooltip">currently in your bottom toolbar</string>
+  <string name="Toolbar_Left_Tooltip"  >currently in your left toolbar</string>
+  <string name="Toolbar_Right_Tooltip" >currently in your right toolbar</string>
 
  <!-- Mesh UI terms -->
   <string name="Retain%">Retain%</string>
@@ -3714,4 +3724,12 @@ Try enclosing path to the editor with double quotes.
   <string name="Wrap">Wrap</string>
   <string name="Preview">Preview</string>
   <string name="Normal">Normal</string>
+
+  <!-- Snapshot image quality levels -->
+  <string name="snapshot_quality_very_low">Very Low</string>
+  <string name="snapshot_quality_low">Low</string>
+  <string name="snapshot_quality_medium">Medium</string>
+  <string name="snapshot_quality_high">High</string>
+  <string name="snapshot_quality_very_high">Very High</string>
+
   </strings>

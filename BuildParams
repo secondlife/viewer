@@ -190,4 +190,10 @@ simon_viewer-dev-private.public_build = false
 simon_viewer-dev-private.email_status_this_is_os = false
 
 
+# ========================================
+# Vir
+# ========================================
+vir-project-1.viewer_channel = "Second Life Release"
+vir-project-1.login_channel = "Second Life Release"
+
 # eof

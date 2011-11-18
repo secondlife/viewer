@@ -50,10 +50,12 @@ public:
 		std::string& tooltip_msg);
 
 protected:
+	void onBtnClearAll();
 	void onBtnRestoreDefaults();
 
+	void onToolBarButtonEnter(LLView* button);
+
 public:
-	LLButton *	mBtnRestoreDefaults;
 	LLToolBar *	mToolBar;
 };
 

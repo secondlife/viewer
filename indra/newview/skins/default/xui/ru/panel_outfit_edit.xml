@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray Outfit Edit panel -->
+<panel name="outfit_edit">
+	<string name="No Outfit" value="Нет костюма"/>
+	<string name="unsaved_changes" value="Несохраненные изменения"/>
+	<string name="now_editing" value="Сейчас редактируется"/>
+	<panel.string name="not_available">
+		(нет)
+	</panel.string>
+	<panel.string name="unknown">
+		(неизвестно)
+	</panel.string>
+	<string name="Filter.All" value="Все"/>
+	<string name="Filter.Clothes/Body" value="Одежда/тело"/>
+	<string name="Filter.Objects" value="Объекты"/>
+	<string name="Filter.Clothing" value="Одежда"/>
+	<string name="Filter.Bodyparts" value="Части тела"/>
+	<string name="replace_body_part" value="Щелкните для замены текущей фигуры"/>
+	<text name="title" value="Изменить костюм"/>
+	<panel name="header_panel">
+		<panel name="outfit_name_and_status">
+			<text name="status" value="Сейчас редактируется…"/>
+			<text name="curr_outfit_name" value="[Текущий костюм]"/>
+		</panel>
+	</panel>
+	<layout_stack name="im_panels">
+		<layout_panel name="outfit_wearables_panel">
+			<layout_stack name="filter_panels">
+				<layout_panel name="add_button_and_combobox">
+					<button label="Добавить…" name="show_add_wearables_btn" tool_tip="Открыть/закрыть"/>
+				</layout_panel>
+				<layout_panel name="filter_panel">
+					<filter_editor label="Фильтр для носимого инвентаря" name="look_item_filter"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="add_wearables_panel">
+			<button label="Носимая вещь" name="plus_btn"/>
+		</layout_panel>
+	</layout_stack>
+	<panel name="no_add_wearables_button_bar">
+		<button name="shop_btn_1" tool_tip="Посетите магазин Second Life. Также можно выбрать предмет надетой одежды и щелкнуть здесь, чтобы найти что-то похожее"/>
+	</panel>
+	<panel name="add_wearables_button_bar">
+		<button name="shop_btn_2" tool_tip="Посетите магазин Second Life. Также можно выбрать предмет надетой одежды и щелкнуть здесь, чтобы найти что-то похожее"/>
+	</panel>
+	<panel name="save_revert_button_bar">
+		<layout_stack name="button_bar_ls">
+			<layout_panel name="save_btn_lp">
+				<button label="Сохранить" name="save_btn"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Отменить изменения" name="revert_btn" tool_tip="Вернуться к последней сохраненной версии"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

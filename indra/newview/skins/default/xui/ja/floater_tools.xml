@@ -25,10 +25,10 @@
 		土地をクリックし、ドラッグして選択
 	</floater.string>
 	<floater.string name="status_selectcount">
-		[OBJ_COUNT] 個のオブジェクト（[PRIM_COUNT] 個のプリム [PE_STRING]）が選択されています
+		選択されているオブジェクトは [OBJ_COUNT] 個、土地の負荷は [LAND_IMPACT]
 	</floater.string>
-	<floater.string name="status_selectprimequiv">
-		, [SEL_WEIGHT] プリム換算値
+	<floater.string name="status_remaining_capacity">
+		残りの許容数 [LAND_CAPACITY]。
 	</floater.string>
 	<button label="" label_selected="" name="button focus" tool_tip="フォーカス"/>
 	<button label="" label_selected="" name="button move" tool_tip="動かす"/>
@@ -105,8 +105,8 @@
 	<text name="selection_empty">
 		何も選択されていません。
 	</text>
-	<text name="selection_weight">
-		物理演算ウェイト [PHYS_WEIGHT]、レンダリングコスト [DISP_WEIGHT]。
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights 詳細]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="一般" name="General">
@@ -325,7 +325,6 @@
 				縫い目のタイプ
 			</text>
 			<combo_box name="sculpt type control">
-				<combo_box.item label="（なし）" name="None"/>
 				<combo_box.item label="球体" name="Sphere"/>
 				<combo_box.item label="トーラス" name="Torus"/>
 				<combo_box.item label="平面" name="Plane"/>

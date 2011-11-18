@@ -190,6 +190,7 @@
 #include "lllogin.h"
 #include "llevents.h"
 #include "llstartuplistener.h"
+#include "lltoolbarview.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -366,7 +367,9 @@ bool idle_startup()
 		//
 		// Initialize stuff that doesn't need data from simulators
 		//
-
+		std::string lastGPU = gSavedSettings.getString("LastGPUString");
+		std::string thisGPU = LLFeatureManager::getInstance()->getGPUString();
+		
 		if (LLFeatureManager::getInstance()->isSafe())
 		{
 			LLNotificationsUtil::add("DisplaySetToSafe");
@@ -374,12 +377,14 @@ bool idle_startup()
 		else if ((gSavedSettings.getS32("LastFeatureVersion") < LLFeatureManager::getInstance()->getVersion()) &&
 				 (gSavedSettings.getS32("LastFeatureVersion") != 0))
 		{
-			LLNotificationsUtil::add("DisplaySetToRecommended");
+			LLNotificationsUtil::add("DisplaySetToRecommendedFeatureChange");
 		}
-		else if ((gSavedSettings.getS32("LastGPUClass") != LLFeatureManager::getInstance()->getGPUClass()) &&
-				 (gSavedSettings.getS32("LastGPUClass") != -1))
+		else if ( ! lastGPU.empty() && (lastGPU != thisGPU))
 		{
-			LLNotificationsUtil::add("DisplaySetToRecommended");
+			LLSD subs;
+			subs["LAST_GPU"] = lastGPU;
+			subs["THIS_GPU"] = thisGPU;
+			LLNotificationsUtil::add("DisplaySetToRecommendedGPUChange", subs);
 		}
 		else if (!gViewerWindow->getInitAlert().empty())
 		{
@@ -395,7 +400,7 @@ bool idle_startup()
 		LLStartUp::startLLProxy();
 
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
-		gSavedSettings.setS32("LastGPUClass", LLFeatureManager::getInstance()->getGPUClass());
+		gSavedSettings.setString("LastGPUString", thisGPU);
 
 		// load dynamic GPU/feature tables from website (S3)
 		LLFeatureManager::getInstance()->fetchHTTPTables();
@@ -2029,7 +2034,7 @@ bool idle_startup()
 		show_debug_menus(); // Debug menu visiblity and First Use trigger
 		
 		// If we've got a startup URL, dispatch it
-		LLStartUp::dispatchURL();
+		//LLStartUp::dispatchURL();
 
 		// Retrieve information about the land data
 		// (just accessing this the first time will fetch it,
@@ -2087,7 +2092,12 @@ void login_show()
 #else
 	BOOL bUseDebugLogin = TRUE;
 #endif
-
+	// Hide the toolbars: may happen to come back here if login fails after login agent but before login in region
+	if (gToolBarView)
+	{
+		gToolBarView->setVisible(FALSE);
+	}
+	
 	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(),
 						bUseDebugLogin || gSavedSettings.getBOOL("SecondLifeEnterprise"),
 						login_callback, NULL );
@@ -2684,12 +2694,12 @@ void LLStartUp::cleanupNameCache()
 bool LLStartUp::dispatchURL()
 {
 	// ok, if we've gotten this far and have a startup URL
-        if (!getStartSLURL().isValid())
+    if (!getStartSLURL().isValid())
 	{
 	  return false;
 	}
-        if(getStartSLURL().getType() != LLSLURL::APP)
-	  {
+    if(getStartSLURL().getType() != LLSLURL::APP)
+	{
 	    
 		// If we started with a location, but we're already
 		// at that location, don't pop dialogs open.

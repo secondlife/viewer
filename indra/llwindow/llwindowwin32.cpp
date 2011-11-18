@@ -1031,6 +1031,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		mhInstance,
 		NULL);
 
+	LL_INFOS("Window") << "window is created." << llendl ;
+
 	//-----------------------------------------------------------------------
 	// Create GL drawing context
 	//-----------------------------------------------------------------------
@@ -1119,6 +1121,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
+
+	LL_INFOS("Window") << "Drawing context is created." << llendl ;
 
 	gGLManager.initWGL();
 
@@ -1256,7 +1260,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			LL_INFOS("Window") << "Choosing pixel formats: " << num_formats << " pixel formats returned" << LL_ENDL;
 		}
 
-		
+		LL_INFOS("Window") << "pixel formats done." << llendl ;
 
 		S32 swap_method = 0;
 		S32 cur_format = num_formats-1;
@@ -1305,6 +1309,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			NULL,
 			mhInstance,
 			NULL);
+
+		LL_INFOS("Window") << "recreate window done." << llendl ;
 
 		if (!(mhDC = GetDC(mWindowHandle)))
 		{
@@ -2351,6 +2357,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				window_imp->convertCoords(window_coord, &gl_coord);
 				MASK mask = gKeyboard->currentMask(TRUE);
 				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				return 0;
+			}
+
+		case WM_GETMINMAXINFO:
+			{
+				LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
+				min_max->ptMinTrackSize.x = 1024;
+				min_max->ptMinTrackSize.y = 768;
 				return 0;
 			}
 

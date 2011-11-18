@@ -39,10 +39,10 @@
 
 LLFloaterToybox::LLFloaterToybox(const LLSD& key)
 	: LLFloater(key)
-	, mBtnRestoreDefaults(NULL)
 	, mToolBar(NULL)
 {
 	mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", boost::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
+	mCommitCallbackRegistrar.add("Toybox.ClearAll", boost::bind(&LLFloaterToybox::onBtnClearAll, this));
 }
 
 LLFloaterToybox::~LLFloaterToybox()
@@ -59,20 +59,20 @@ bool compare_localized_command_labels(LLCommand * cmd1, LLCommand * cmd2)
 
 BOOL LLFloaterToybox::postBuild()
 {	
-	mBtnRestoreDefaults = getChild<LLButton>("btn_restore_defaults");
 	mToolBar = getChild<LLToolBar>("toybox_toolbar");
+
 	mToolBar->setStartDragCallback(boost::bind(LLToolBarView::startDragTool,_1,_2,_3));
 	mToolBar->setHandleDragCallback(boost::bind(LLToolBarView::handleDragTool,_1,_2,_3,_4));
 	mToolBar->setHandleDropCallback(boost::bind(LLToolBarView::handleDropTool,_1,_2,_3,_4));
+	mToolBar->setButtonEnterCallback(boost::bind(&LLFloaterToybox::onToolBarButtonEnter,this,_1));
 	
-	LLCommandManager& cmdMgr = LLCommandManager::instance();
-
 	//
 	// Sort commands by localized labels so they will appear alphabetized in all languages
 	//
 
 	std::list<LLCommand *> alphabetized_commands;
 
+	LLCommandManager& cmdMgr = LLCommandManager::instance();
 	for (U32 i = 0; i < cmdMgr.commandCount(); i++)
 	{
 		LLCommand * command = cmdMgr.getCommand(i);
@@ -107,8 +107,8 @@ void LLFloaterToybox::draw()
 	{
 		const LLCommandId& id = *it;
 
-		const bool commandOnToolbar = gToolBarView->hasCommand(id);
-		mToolBar->enableCommand(id, !commandOnToolbar);
+		const bool command_not_present = (gToolBarView->hasCommand(id) == LLToolBarView::TOOLBAR_NONE);
+		mToolBar->enableCommand(id, command_not_present);
 	}
 
 	LLFloater::draw();
@@ -122,13 +122,33 @@ static bool finish_restore_toybox(const LLSD& notification, const LLSD& response
 	{
 		LLToolBarView::loadDefaultToolbars();
 	}
+
 	return false;
 }
+
+static bool finish_clear_all_toybox(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		LLToolBarView::clearAllToolbars();
+	}
+
+	return false;
+}
+
 static LLNotificationFunctorRegistration finish_restore_toybox_reg("ConfirmRestoreToybox", finish_restore_toybox);
+static LLNotificationFunctorRegistration finish_clear_all_toybox_reg("ConfirmClearAllToybox", finish_clear_all_toybox);
 
 void LLFloaterToybox::onBtnRestoreDefaults()
 {
 	LLNotificationsUtil::add("ConfirmRestoreToybox");
+}
+
+void LLFloaterToybox::onBtnClearAll()
+{
+	LLNotificationsUtil::add("ConfirmClearAllToybox");
 }
 
 BOOL LLFloaterToybox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -140,6 +160,31 @@ BOOL LLFloaterToybox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	S32 local_x = x - mToolBar->getRect().mLeft;
 	S32 local_y = y - mToolBar->getRect().mBottom;
 	return mToolBar->handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+}
+
+void LLFloaterToybox::onToolBarButtonEnter(LLView* button)
+{
+	std::string suffix = "";
+
+	LLCommandId commandId(button->getName());
+	LLCommand* command = LLCommandManager::instance().getCommand(commandId);
+
+	if (command)
+	{
+		S32 command_loc = gToolBarView->hasCommand(commandId);
+
+		switch(command_loc)
+		{
+		case LLToolBarView::TOOLBAR_BOTTOM:	suffix = LLTrans::getString("Toolbar_Bottom_Tooltip");	break;
+		case LLToolBarView::TOOLBAR_LEFT:	suffix = LLTrans::getString("Toolbar_Left_Tooltip");	break;
+		case LLToolBarView::TOOLBAR_RIGHT:	suffix = LLTrans::getString("Toolbar_Right_Tooltip");	break;
+
+		default:
+			break;
+		}
+	}
+
+	mToolBar->setTooltipButtonSuffix(suffix);
 }
 
 
