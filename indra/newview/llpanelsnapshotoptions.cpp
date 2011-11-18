@@ -37,14 +37,18 @@
  */
 class LLPanelSnapshotOptions
 :	public LLPanel
+,	public LLEconomyObserver
 {
 	LOG_CLASS(LLPanelSnapshotOptions);
 
 public:
 	LLPanelSnapshotOptions();
+	~LLPanelSnapshotOptions();
 	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void onEconomyDataChange() { updateUploadCost(); }
 
 private:
+	void updateUploadCost();
 	void openPanel(const std::string& panel_name);
 	void onSaveToProfile();
 	void onSaveToEmail();
@@ -60,10 +64,22 @@ LLPanelSnapshotOptions::LLPanelSnapshotOptions()
 	mCommitCallbackRegistrar.add("Snapshot.SaveToEmail",		boost::bind(&LLPanelSnapshotOptions::onSaveToEmail,		this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToInventory",	boost::bind(&LLPanelSnapshotOptions::onSaveToInventory,	this));
 	mCommitCallbackRegistrar.add("Snapshot.SaveToComputer",		boost::bind(&LLPanelSnapshotOptions::onSaveToComputer,	this));
+
+	LLGlobalEconomy::Singleton::getInstance()->addObserver(this);
+}
+
+LLPanelSnapshotOptions::~LLPanelSnapshotOptions()
+{
+	LLGlobalEconomy::Singleton::getInstance()->removeObserver(this);
 }
 
 // virtual
 void LLPanelSnapshotOptions::onOpen(const LLSD& key)
+{
+	updateUploadCost();
+}
+
+void LLPanelSnapshotOptions::updateUploadCost()
 {
 	S32 upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
 	getChild<LLUICtrl>("save_to_inventory_btn")->setLabelArg("[AMOUNT]", llformat("%d", upload_cost));
