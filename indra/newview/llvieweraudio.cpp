@@ -65,12 +65,6 @@ void LLViewerAudio::registerIdleListener()
 
 void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 {
-/*	llinfos << "DBG streamURI: " << streamURI << llendl;
-	llinfos << "DBG mNextStreamURI: " << mNextStreamURI << llendl;
-	if (mFadeState == FADE_OUT) {llinfos << "DBG mFadeState: FADE_OUT " << llendl;}
-	if (mFadeState == FADE_IN) {llinfos << "DBG mFadeState: FADE_IN " << llendl;}
-	if (mFadeState == FADE_IDLE) {llinfos << "DBG mFadeState: FADE_IDLE " << llendl;}
-*/
 	// Old and new stream are identical
 	if (mNextStreamURI == streamURI)
 	{
@@ -86,14 +80,11 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 		if (!gAudiop->getInternetStreamURL().empty())
 		{
 			mFadeState = FADE_OUT;
-//llinfos << "DBG new mFadeState: OUT" << llendl;
 		}
 		// Otherwise the new stream can be faded in
 		else
 		{
 			mFadeState = FADE_IN;
-//llinfos << "DBG new mFadeState: IN" << llendl;
-
 			gAudiop->startInternetStream(mNextStreamURI);
 			startFading();
 			registerIdleListener();
@@ -123,10 +114,6 @@ bool LLViewerAudio::onIdleUpdate()
 {
 	if (mDone)
 	{
-/*		if (mFadeState == FADE_OUT) {llinfos << "DBG mFadeState: FADE_OUT " << llendl;}
-		if (mFadeState == FADE_IN) {llinfos << "DBG mFadeState: FADE_IN " << llendl;}
-		if (mFadeState == FADE_IDLE) {llinfos << "DBG mFadeState: FADE_IDLE " << llendl;}
-*/
 		//  This should be a rare or never occurring state.
 		if (mFadeState == FADE_IDLE)
 		{
@@ -144,7 +131,6 @@ bool LLViewerAudio::onIdleUpdate()
 			if (!mNextStreamURI.empty())
 			{
 				mFadeState = FADE_IN;
-//llinfos << "DBG new mFadeState: IN" << llendl;
 				gAudiop->startInternetStream(mNextStreamURI);
 				startFading();
 				return false;
@@ -152,7 +138,6 @@ bool LLViewerAudio::onIdleUpdate()
 			else
 			{
 				mFadeState = FADE_IDLE;
-//llinfos << "DBG new mFadeState: IDLE" << llendl;
 				deregisterIdleListener();
 				return true; // Stop calling onIdleUpdate
 			}
@@ -164,12 +149,10 @@ bool LLViewerAudio::onIdleUpdate()
 				mFadeState = FADE_OUT;
 				startFading();
 				return false;
-//llinfos << "DBG new mFadeState: OUT" << llendl;
 			}
 			else
 			{
 				mFadeState = FADE_IDLE;
-//llinfos << "DBG new mFadeState: IDLE" << llendl;
 				deregisterIdleListener();
 				return true; // Stop calling onIdleUpdate
 			}
@@ -181,12 +164,9 @@ bool LLViewerAudio::onIdleUpdate()
 
 void LLViewerAudio::stopInternetStreamWithAutoFade()
 {
-//llinfos << "DBG stopping stream" << llendl;
 	mFadeState = FADE_IDLE;
-//llinfos << "DBG new mFadeState: IDLE" << llendl;
 	mNextStreamURI = LLStringUtil::null;
 	mDone = true;
-//llinfos << "DBG mDone: true" << llendl;
 
 	gAudiop->startInternetStream(LLStringUtil::null);
 	gAudiop->stopInternetStream();
@@ -194,8 +174,6 @@ void LLViewerAudio::stopInternetStreamWithAutoFade()
 
 void LLViewerAudio::startFading()
 {
-//llinfos << "DBG startFading" << llendl;
-
 	if(mDone)
 	{
 		// The fade state here should only be one of FADE_IN or FADE_OUT, but, in case it is not,
@@ -208,7 +186,6 @@ void LLViewerAudio::startFading()
 		stream_fade_timer.reset();
 		stream_fade_timer.setTimerExpirySec(mFadeTime);
 		mDone = false;
-//llinfos << "DBG mDone: false" << llendl;
 	}
 }
 
@@ -349,7 +326,6 @@ void audio_update_volume(bool force_update)
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
 		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
 		F32 fade_volume = LLViewerAudio::getInstance()->getFadeVolume();
-//llinfos << "DBG fade_volume:" << fade_volume << llendl;
 
 		music_volume = mute_volume * master_volume * music_volume * fade_volume;
 		gAudiop->setInternetStreamGain (music_muted ? 0.f : music_volume);
