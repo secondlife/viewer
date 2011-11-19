@@ -57,7 +57,8 @@ public:
 		FILTERTYPE_CATEGORY = 0x1 << 1,	// search by folder type
 		FILTERTYPE_UUID	= 0x1 << 2,		// find the object with UUID and any links to it
 		FILTERTYPE_DATE = 0x1 << 3,		// search by date range
-		FILTERTYPE_WEARABLE = 0x1 << 4	// search by wearable type
+		FILTERTYPE_WEARABLE = 0x1 << 4,	// search by wearable type
+		FILTERTYPE_EMPTYFOLDERS = 0x1 << 5	// pass if folder is not a system folder to be hidden if empty
 	};
 
 	enum EFilterLink
@@ -88,6 +89,7 @@ public:
 	void 				setFilterCategoryTypes(U64 types);
 	void 				setFilterUUID(const LLUUID &object_id);
 	void				setFilterWearableTypes(U64 types);
+	void				setFilterEmptySystemFolders();
 	void				updateFilterTypes(U64 types, U64& current_types);
 
 	void 				setFilterSubString(const std::string& string);

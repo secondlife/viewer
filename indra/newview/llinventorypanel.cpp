@@ -240,6 +240,12 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
 	getFilter()->setFilterCategoryTypes(getFilter()->getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_OUTBOX));
 
+	// set the filter for the empty folder if the debug setting is on
+	if (gSavedSettings.getBOOL("DebugHideEmptySystemFolders"))
+	{
+		getFilter()->setFilterEmptySystemFolders();
+	}
+	
 	// Initialize base class params.
 	LLPanel::initFromParams(params);
 }

@@ -30,7 +30,6 @@
 #include "lldictionary.h"
 #include "llmemory.h"
 #include "llvisualparam.h"
-#include "llviewercontrol.h"
 
 static const std::string empty_string;
 
@@ -267,7 +266,7 @@ BOOL LLViewerFolderType::lookupIsQuietType(LLFolderType::EType folder_type)
 bool LLViewerFolderType::lookupIsHiddenIfEmpty(LLFolderType::EType folder_type)
 {
 	const ViewerFolderEntry *entry = LLViewerFolderDictionary::getInstance()->lookup(folder_type);
-	if (gSavedSettings.getBOOL("DebugHideEmptySystemFolders") && entry)
+	if (entry)
 	{
 		return entry->mHideIfEmpty;
 	}
