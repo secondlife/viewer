@@ -167,6 +167,23 @@ LLPanelProfile::ChildStack::ChildStack()
 {
 }
 
+LLPanelProfile::ChildStack::~ChildStack()
+{
+	while (mStack.size() != 0)
+	{
+		view_list_t& top = mStack.back();
+		for (view_list_t::const_iterator it = top.begin(); it != top.end(); ++it)
+		{
+			LLView* viewp = *it;
+			if (viewp)
+			{
+				delete viewp;
+			}
+		}
+		mStack.pop_back();
+	}
+}
+
 void LLPanelProfile::ChildStack::setParent(LLPanel* parent)
 {
 	llassert_always(parent != NULL);
