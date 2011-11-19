@@ -148,6 +148,13 @@ public:
 
 	virtual void dumpStats() const;
 	virtual void calcStats(S32 type_counts[], S32 share_counts[]) const;
+	// Container subclasses contain LLSD objects, rather than directly
+	// containing Impl objects. This helper forwards through LLSD.
+	void calcStats(const LLSD& llsd, S32 type_counts[], S32 share_counts[]) const
+	{
+		safe(llsd.impl).calcStats(type_counts, share_counts);
+	}
+
 
 	static const LLSD& undef();
 	
@@ -459,7 +466,7 @@ namespace
 		while (iter != endMap())
 		{
 			//std::cout << "  " << (*iter).first << ": " << (*iter).second << std::endl;
-			(*iter).second.calcStats(type_counts, share_counts);
+			Impl::calcStats((*iter).second, type_counts, share_counts);
 			iter++;
 		}
 
@@ -606,7 +613,7 @@ namespace
 		LLSD::array_const_iterator iter = beginArray();
 		while (iter != endArray())
 		{	// Add values for all items held in the array
-			(*iter).calcStats(type_counts, share_counts);
+			Impl::calcStats((*iter), type_counts, share_counts);
 			iter++;
 		}
 
@@ -802,7 +809,7 @@ void LLSD::clear()						{ Impl::assignUndefined(impl); }
 
 LLSD::Type LLSD::type() const			{ return safe(impl).type(); }
 
-// Scaler Constructors
+// Scalar Constructors
 LLSD::LLSD(Boolean v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
 LLSD::LLSD(Integer v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
 LLSD::LLSD(Real v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
@@ -894,8 +901,10 @@ LLSD&		LLSD::operator[](Integer i)
 const LLSD& LLSD::operator[](Integer i) const
 										{ return safe(impl).ref(i); }
 
+#ifdef LLSD_DEBUG_INFO
 U32 LLSD::allocationCount()				{ return Impl::sAllocationCount; }
 U32 LLSD::outstandingCount()			{ return Impl::sOutstandingCount; }
+#endif
 
 static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 {
@@ -947,9 +956,9 @@ LLSD::array_const_iterator	LLSD::endArray() const	{ return safe(impl).endArray()
 
 
 // Diagnostic dump of contents in an LLSD object
+#ifdef LLSD_DEBUG_INFO
 void LLSD::dumpStats()	const						{ safe(impl).dumpStats();	}
-void LLSD::calcStats(S32 type_counts[], S32 share_counts[]) const
-													{ safe(impl).calcStats(type_counts, share_counts);	}
+#endif
 
 // static
 std::string		LLSD::typeString(Type type)

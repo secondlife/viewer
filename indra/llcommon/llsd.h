@@ -387,13 +387,20 @@ public:
 		class Impl;
 private:
 		Impl* impl;
+		friend class LLSD::Impl;
 	//@}
 	
 	/** @name Unit Testing Interface */
 	//@{
 public:
+#ifdef LLSD_DEBUG_INFO
+		/// @warn THESE COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
+		/// ENVIRONMENT.
+		///
+		/// These counts track LLSD::Impl (hidden) objects.
 		static U32 allocationCount();	///< how many Impls have been made
 		static U32 outstandingCount();	///< how many Impls are still alive
+#endif
 	//@}
 
 private:
@@ -407,12 +414,17 @@ private:
 	//@}
 
 public:
+#ifdef LLSD_DEBUG_INFO
 	void			dumpStats() const;					// Output information on object and usage
-	void			calcStats(S32 type_counts[], S32 share_counts[]) const;		// Calculate the number of LLSD objects used by this value
+#endif
 
 	static std::string		typeString(Type type);		// Return human-readable type as a string
 
 #ifdef LLSD_DEBUG_INFO
+	/// @warn THESE COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
+	/// ENVIRONMENT.
+	///
+	/// These counts track LLSD (public) objects.
 	static S32		sLLSDAllocationCount;		// Number of LLSD objects ever created
 	static S32		sLLSDNetObjects;			// Number of LLSD objects that exist
 #endif
