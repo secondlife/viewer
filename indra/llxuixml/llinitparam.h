@@ -583,7 +583,8 @@ namespace LLInitParam
 
 		Param& operator =(const Param& other)
 		{
-			setProvided(other.mIsProvided);
+			mIsProvided = other.mIsProvided;
+			// don't change mEnclosingblockoffset
 			return *this;
 		}
 	protected:
@@ -674,13 +675,6 @@ namespace LLInitParam
 			return *this;
 		}
 
-		self_t& operator =(const self_t& other)
-		{
-			mValue = other.mValue;
-			NAME_VALUE_LOOKUP::operator =(other);
-			return *this;
-		}
-
 	protected:
 		T mValue;
 	};
@@ -746,14 +740,6 @@ namespace LLInitParam
 			return *this;
 		}
 
-		self_t& operator =(const self_t& other)
-		{
-			T::operator = (other);
-			NAME_VALUE_LOOKUP::operator =(other);
-			mValidatedVersion = other.mValidatedVersion;
-			mValidated = other.mValidated;
-			return *this;
-		}
 	protected:
 		mutable S32 	mValidatedVersion;
 		mutable bool 	mValidated; // lazy validation flag
@@ -945,13 +931,15 @@ namespace LLInitParam
 			return static_cast<self_t&>(param_value_t::operator =(name));
 		}
 
-		self_t& operator =(value_assignment_t val)
+	protected:
+
+		self_t& operator =(const self_t& other)
 		{
-			set(val);
+			param_value_t::operator =(other);
+			Param::operator =(other);
 			return *this;
 		}
 
-	protected:
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
 			const self_t& src_typed_param = static_cast<const self_t&>(src);
@@ -1092,12 +1080,6 @@ namespace LLInitParam
 			return static_cast<self_t&>(param_value_t::operator =(name));
 		}
 
-		self_t& operator =(value_assignment_t val)
-		{
-			set(val);
-			return *this;
-		}
-
 		// propagate changed status up to enclosing block
 		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
@@ -1116,6 +1098,13 @@ namespace LLInitParam
 		}
 
 	protected:
+
+		self_t& operator =(const self_t& other)
+		{
+			param_value_t::operator =(other);
+			Param::operator =(other);
+			return *this;
+		}
 
 		static bool mergeWith(Param& dst, const Param& src, bool overwrite)
 		{
