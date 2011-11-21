@@ -4896,11 +4896,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					registerFace(group, facep, LLRenderPass::PASS_ALPHA_SHADOW);
-				}
 			}
 			else if (gPipeline.canUseVertexShaders()
 				&& group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD 
