@@ -995,38 +995,38 @@ void LLFloaterModelPreview::onPhysicsBrowse(LLUICtrl* ctrl, void* userdata)
 //static
 void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 {
-	S32 num_modes = 4;
-	S32 which_mode = 3;
-	static S32 previous_mode = which_mode;
+	S32 num_lods = 4;
+	S32 which_mode;
 
 	LLCtrlSelectionInterface* iface = sInstance->childGetSelectionInterface("physics_lod_combo");
 	if (iface)
 	{
 		which_mode = iface->getFirstSelectedIndex();
 	}
+	else
+	{
+		llwarns << "no iface" << llendl;
+		return;
+	}
+
+	if (which_mode <= 0)
+	{
+		llwarns << "which_mode out of range, " << which_mode << llendl;
+	}
 
 	S32 file_mode = iface->getItemCount() - 1;
-	bool file_browse = which_mode == file_mode;
-	bool lod_to_file = file_browse && (previous_mode != file_mode);
-	bool file_to_lod = !file_browse && (previous_mode == file_mode);
-
-	if (!lod_to_file)
+	if (which_mode < file_mode)
 	{
-		which_mode = num_modes - which_mode;
-		sInstance->mModelPreview->setPhysicsFromLOD(which_mode);
+		S32 which_lod = num_lods - which_mode;
+		sInstance->mModelPreview->setPhysicsFromLOD(which_lod);
 	}
 
-	if (lod_to_file || file_to_lod)
+	LLModelPreview *model_preview = sInstance->mModelPreview;
+	if (model_preview)
 	{
-		LLModelPreview *model_preview = sInstance->mModelPreview;
-		if (model_preview)
-		{
-			model_preview->refresh();
-			model_preview->updateStatusMessages();
-		}
+		model_preview->refresh();
+		model_preview->updateStatusMessages();
 	}
-
-	previous_mode = which_mode;
 }
 
 //static 
