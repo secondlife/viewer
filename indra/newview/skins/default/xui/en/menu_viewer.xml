@@ -533,6 +533,14 @@
                  function="World.EnvSettings"
                  parameter="midnight" />
             </menu_item_call>
+            <menu_item_separator/>
+            <menu_item_call
+             label="Use Region Settings"
+             name="Use Region Settings">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="region" />
+            </menu_item_call>
         </menu>
 	    
    
