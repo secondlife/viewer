@@ -14,12 +14,12 @@
   <left_toolbar
     button_display_mode="icons_only">
     <command name="avatar"/>
-    <command name="snapshot"/>
     <command name="appearance"/>
     <command name="inventory"/>
     <command name="search"/>
     <command name="places"/>
     <command name="voice"/>
     <command name="minimap"/>
+    <command name="snapshot"/>
   </left_toolbar>
 </toolbars>
