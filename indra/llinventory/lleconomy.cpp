@@ -48,6 +48,31 @@ LLGlobalEconomy::LLGlobalEconomy()
 LLGlobalEconomy::~LLGlobalEconomy()
 { }
 
+void LLGlobalEconomy::addObserver(LLEconomyObserver* observer)
+{
+	mObservers.push_back(observer);
+}
+
+void LLGlobalEconomy::removeObserver(LLEconomyObserver* observer)
+{
+	std::list<LLEconomyObserver*>::iterator it =
+		std::find(mObservers.begin(), mObservers.end(), observer);
+	if (it != mObservers.end())
+	{
+		mObservers.erase(it);
+	}
+}
+
+void LLGlobalEconomy::notifyObservers()
+{
+	for (std::list<LLEconomyObserver*>::iterator it = mObservers.begin();
+		it != mObservers.end();
+		++it)
+	{
+		(*it)->onEconomyDataChange();
+	}
+}
+
 // static
 void LLGlobalEconomy::processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data)
 {
@@ -88,6 +113,8 @@ void LLGlobalEconomy::processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* 
 	econ_data->setTeleportPriceExponent(f);
 	msg->getS32Fast(_PREHASH_Info, _PREHASH_PriceGroupCreate, i);
 	econ_data->setPriceGroupCreate(i);
+
+	econ_data->notifyObservers();
 }
 
 S32	LLGlobalEconomy::calculateTeleportCost(F32 distance) const

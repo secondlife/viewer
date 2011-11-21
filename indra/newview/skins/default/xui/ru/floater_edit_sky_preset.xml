@@ -19,7 +19,7 @@
 		Чтобы изменить настройку, задайте ее параметры с помощью элементов управления и нажмите кнопку «Сохранить».
 	</text>
 	<text name="label">
-		Название настройки:
+		Имя настройки:
 	</text>
 	<text name="note">
 		Примечание. Если изменить имя настройки, будет создана новая настройка, а изменения в существующей не будут сохранены.
@@ -58,7 +58,7 @@
 			<text name="SunGlowText">
 				Сияние солнца
 			</text>
-			<slider label="Отчетливость" name="WLGlowB"/>
+			<slider label="Фокус" name="WLGlowB"/>
 			<slider label="Размер" name="WLGlowR"/>
 			<text name="WLStarText">
 				Яркость звезд
@@ -102,7 +102,7 @@
 			</text>
 			<time name="WLDayTime" value="6:00"/>
 			<text name="WLEastAngleText">
-				Смещение относительно востока
+				Смещение отн. востока
 			</text>
 		</panel>
 		<panel label="ОБЛАКА" name="Clouds">
@@ -122,7 +122,7 @@
 				Размеры
 			</text>
 			<text name="WLCloudDetailText">
-				Детализация (положение/плотность)
+				Детали (положение/плотность)
 			</text>
 			<slider label="X" name="WLCloudDetailX"/>
 			<slider label="Y" name="WLCloudDetailY"/>

@@ -118,14 +118,15 @@
      label="Constrain proportions"
      layout="topleft"
      left="10"
-     name="inventory_keep_aspect_check" />
+     name="inventory_keep_aspect_check"
+     visible="false" />
     <button
      follows="right|bottom"
      height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-10"
+     right="-32"
      top="350"
      width="100">
       <button.commit_callback

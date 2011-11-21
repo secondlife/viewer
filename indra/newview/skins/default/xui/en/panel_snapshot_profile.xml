@@ -119,7 +119,7 @@
     </text>
     <text_editor
      follows="all"
-     height="170"
+     height="160"
      layout="topleft"
      left_delta="0"
      length="1"
@@ -144,7 +144,7 @@
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-10"
+     right="-32"
      top="350"
      width="100">
       <button.commit_callback
