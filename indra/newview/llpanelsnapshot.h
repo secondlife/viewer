@@ -44,6 +44,7 @@ public:
 	virtual std::string getHeightSpinnerName() const = 0;
 	virtual std::string getAspectRatioCBName() const = 0;
 	virtual std::string getImageSizeComboName() const = 0;
+	virtual std::string getImageSizePanelName() const = 0;
 
 	virtual S32 getTypedPreviewWidth() const;
 	virtual S32 getTypedPreviewHeight() const;
