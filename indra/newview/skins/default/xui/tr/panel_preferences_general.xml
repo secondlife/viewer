@@ -22,7 +22,7 @@
 		(Yeniden başlatma gerekir)
 	</text>
 	<text name="maturity_desired_prompt">
-		Seviyelendirdiğim şu içeriğe erişim istiyorum:
+		Seviyelndrl. içeriğe erişim istiyorum::
 	</text>
 	<combo_box name="maturity_desired_combobox">
 		<combo_box.item label="Genel, Orta, Yetişkin" name="Desired_Adult"/>

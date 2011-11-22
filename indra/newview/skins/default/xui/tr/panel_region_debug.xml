@@ -21,14 +21,14 @@
 	</line_editor>
 	<button label="Seç" name="choose_avatar_btn"/>
 	<text name="options_text_lbl">
-		Seçenekler:
+		Seçenklr.:
 	</text>
 	<check_box label="Komut dosyaları ile" name="return_scripts" tool_tip="Sadece komut dosyaları olan nesneler iade edilsin"/>
 	<check_box label="Başkasına ait arazi üzerinde" name="return_other_land" tool_tip="Sadece başkasına ait arazi üzerinde olan nesneler iade edilsin"/>
 	<check_box label="Bu gayrimenkulu oluşturan bölgelerin tümünde" name="return_estate_wide" tool_tip="Bu gayrimenkulu oluşturan bölgelerin tümündeki nesneler iade edilsin"/>
 	<button label="İade Et" name="return_btn"/>
 	<button label="En Çok Çarpışanlar..." name="top_colliders_btn" tool_tip="En çok potansiyel çarpışma yaşayan nesnelerin listesi"/>
-	<button label="En Çok Komut Dosyası Çalıştıranlar..." name="top_scripts_btn" tool_tip="Komut dosyalarını çalıştırırken en çok zaman harcayan nesnelerin listesi"/>
+	<button label="En Çok Komut Dsy. Çalştr...." name="top_scripts_btn" tool_tip="Komut dosyalarını çalıştırırken en çok zaman harcayan nesnelerin listesi"/>
 	<button label="Bölgeyi Yeniden Başlat" name="restart_btn" tool_tip="2 dakikalık bir geri sayımdan sonra bölgeyi yeniden başlat"/>
 	<button label="Yeniden Başlatmayı Ertele" name="cancel_restart_btn" tool_tip="Bölgenin yeniden başlatılmasını 1 saat ertele"/>
 </panel>
