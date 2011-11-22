@@ -67,7 +67,7 @@
 			<button label="Hedefin *Herhangi Bir* Arazideki Komut Dosyalı Nesnelerini Sil" label_selected="Hedefin *Herhangi Bir* Arazideki Komut Dosyalı Nesnelerini Sil" name="Delete Target&apos;s Scripted Objects On *Any* Land" tool_tip="Bu bölgede hedefe ait olan tüm komut dosyalı nesneleri silin. (kopya yok) nesneler geri döndürülür."/>
 			<button label="Hedefin *TÜM* Nesnelerini Sil" label_selected="Hedefin *TÜM* Nesnelerini Sil" name="Delete *ALL* Of Target&apos;s Objects" tool_tip="Bu bölgede hedefe ait olan tüm nesneleri silin. (kopya yok) nesneler geri döndürülür."/>
 			<button label="En Çok Çarpışanlar" label_selected="En Çok Çarpışanlar" name="Get Top Colliders" tool_tip="En dar fazda geri aramaları yaşayan nesnelerin listesini alır"/>
-			<button label="En Çok Komut Dosyası Çalıştıranlar" label_selected="En Çok Komut Dosyası Çalıştıranlar" name="Get Top Scripts" tool_tip="Komut dosyalarını çalıştırırken en çok zaman harcayan nesnelerin listesini alır"/>
+			<button label="En Çok Komut Dsy. Çalştr." label_selected="En Çok Komut Dsy. Çalştr." name="Get Top Scripts" tool_tip="Komut dosyalarını çalıştırırken en çok zaman harcayan nesnelerin listesini alır"/>
 			<button label="Komut dosyaları özeti" label_selected="Komut dosyaları özeti" name="Scripts digest" tool_tip="Tüm komut dosyalarının ve her birinin ne kadar kullanıldığının listesini alır"/>
 		</panel>
 		<panel label="Talep" name="request">

@@ -24,7 +24,7 @@ Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/worldmap Dünya
 	<tab_container name="tabs">
 		<panel label="YAKIN" name="nearby_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="nearby_view_sort_btn" tool_tip="Seçenekler"/>
+				<menu_button name="nearby_view_sort_btn" tool_tip="Seçenklr."/>
 				<button name="add_friend_btn" tool_tip="Seçilen Sakini arkadaş listene ekle"/>
 			</panel>
 		</panel>
@@ -49,14 +49,14 @@ Birlikte takılacak kişiler mi arıyorsunuz? [secondlife:///app/worldmap Dünya
 		</panel>
 		<panel label="GRUPLARIM" name="groups_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="groups_viewsort_btn" tool_tip="Seçenekler"/>
+				<menu_button name="groups_viewsort_btn" tool_tip="Seçenklr."/>
 				<button name="plus_btn" tool_tip="Gruba katıl/yeni grup oluştur"/>
 				<button name="activate_btn" tool_tip="Seçilen grubu etkinleştir"/>
 			</panel>
 		</panel>
 		<panel label="SON" name="recent_panel">
 			<panel label="bottom_panel" name="bottom_panel">
-				<menu_button name="recent_viewsort_btn" tool_tip="Seçenekler"/>
+				<menu_button name="recent_viewsort_btn" tool_tip="Seçenklr."/>
 				<button name="add_friend_btn" tool_tip="Seçilen Sakini arkadaş listene ekle"/>
 			</panel>
 		</panel>

@@ -2270,7 +2270,7 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Details" text="Ayrıntılar"/>
+			<button name="Details" text="Ayrıntl"/>
 			<button name="Cancel" text="İptal"/>
 		</form>
 	</notification>

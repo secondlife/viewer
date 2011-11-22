@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Débugger" name="Debug">
+<panel label="Débogage" name="Debug">
 	<text name="region_text_lbl">
 		Région :
 	</text>
