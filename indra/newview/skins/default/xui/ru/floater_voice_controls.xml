@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="УПРАВЛЕНИЕ ГОЛОСОМ">
 	<string name="title_nearby">
-		Голоса собеседников
+		Настройки голоса
 	</string>
 	<string name="title_group">
 		Звонок группе [GROUP]

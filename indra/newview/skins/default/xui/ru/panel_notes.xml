@@ -21,7 +21,7 @@
 					<button label="IM" name="im" tool_tip="Начать сеанс IM"/>
 				</layout_panel>
 				<layout_panel name="call_btn_lp">
-					<button label="Позвонить" name="call" tool_tip="Позвонить этому жителю"/>
+					<button label="Звонок" name="call" tool_tip="Позвонить этому жителю"/>
 				</layout_panel>
 				<layout_panel name="show_on_map_btn_lp">
 					<button label="Карта" name="show_on_map_btn" tool_tip="Показать жителя на карте"/>

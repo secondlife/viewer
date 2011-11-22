@@ -52,6 +52,7 @@ public:
 	virtual void enableAspectRatioCheckbox(BOOL enable);
 	virtual LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
 	virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
+	void enableControls(BOOL enable);
 
 protected:
 	LLSideTrayPanelContainer* getParentContainer();
