@@ -173,22 +173,29 @@
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-10"
+     right="-32"
      top="350"
      width="100">
       <button.commit_callback
        function="Local.Cancel" />
     </button>
-    <button
+    <flyout_button
      follows="right|bottom"
      height="23"
      label="Save"
      layout="topleft"
      left_delta="-106"
      name="save_btn"
+     tool_tip="Save image to a file"
      top_delta="0"
      width="100">
-      <button.commit_callback
-       function="Local.Save" />
-    </button>
+        <flyout_button.item
+         label="Save"
+         name="save_item"
+         value="save" />
+        <flyout_button.item
+         label="Save As..."
+         name="saveas_item"
+         value="save as" />
+    </flyout_button>
 </panel>

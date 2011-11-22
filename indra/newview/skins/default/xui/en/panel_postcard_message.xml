@@ -87,8 +87,8 @@
     <text_editor
      type="string"
      length="1"
-     follows="left|top|right|bottom"
-     height="140"
+     follows="left|top|right"
+     height="60"
      layout="topleft"
      left_delta="0"
      max_length="700"
@@ -104,7 +104,7 @@
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-10"
+     right="-32"
      top="350"
      width="100">
       <button.commit_callback
