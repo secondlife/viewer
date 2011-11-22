@@ -70,7 +70,8 @@ public:
 		GENERATING_VERTEX_BUFFERS,
 		GENERATING_LOD,
 		DONE,
-		ERROR_PARSING //basically loading failed
+		ERROR_PARSING, //basically loading failed
+		ERROR_MATERIALS,
 	} eLoadState;
 
 	U32 mState;
