@@ -174,14 +174,17 @@ void LLViewerAudio::stopInternetStreamWithAutoFade()
 
 void LLViewerAudio::startFading()
 {
+	const F32 AUDIO_MUSIC_FADE_IN_TIME = 3.0;
+	const F32 AUDIO_MUSIC_FADE_OUT_TIME = 2.0;
+
 	if(mDone)
 	{
 		// The fade state here should only be one of FADE_IN or FADE_OUT, but, in case it is not,
 		// rather than check for both states assume a fade in and check for the fade out case.
-		mFadeTime = llmax(0.0f, gSavedSettings.getF32("AudioMusicFadeIn"));
+		mFadeTime = AUDIO_MUSIC_FADE_IN_TIME;
 		if (LLViewerAudio::getInstance()->getFadeState() == LLViewerAudio::FADE_OUT)
 		{
-			mFadeTime = llmax(0.0f, gSavedSettings.getF32("AudioMusicFadeOut"));
+			mFadeTime = AUDIO_MUSIC_FADE_OUT_TIME;
 		}
 		stream_fade_timer.reset();
 		stream_fade_timer.setTimerExpirySec(mFadeTime);
