@@ -28,7 +28,6 @@
 #define LL_VIEWERAUDIO_H
 
 #include "llframetimer.h"
-#include "llthread.h"
 #include "llsingleton.h"
 
 // comment out to turn off wind

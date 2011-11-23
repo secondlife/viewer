@@ -1727,7 +1727,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	else
 	{
 		// Check for video
-		LLViewerParcelMedia::update( parcel );
+		LLViewerParcelMedia::update(parcel);
 
 		// Then check for music.  Do this last, as there may be a delay waiting for
 		// the stream fading thread to finish.
