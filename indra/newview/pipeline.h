@@ -359,7 +359,6 @@ public:
 	static BOOL getRenderHighlights(void* data);
 
 	static void updateRenderDeferred();
-	static void refreshRenderDeferred();
 	static void refreshCachedSettings();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
