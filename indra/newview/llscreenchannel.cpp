@@ -53,13 +53,22 @@ LLFastTimer::DeclareTimer FTM_GET_CHANNEL_RECT("Calculate Notification Channel R
 LLRect LLScreenChannelBase::getChannelRect()
 {
 	LLFastTimer _(FTM_GET_CHANNEL_RECT);
+
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+	}
+	
+	if (mChicletRegion == NULL)
+	{
+		mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+	}
+	
 	LLRect channel_rect;
 	LLRect chiclet_rect;
-	LLView* floater_snap_region = gViewerWindow->getRootView()->getChildView("floater_snap_region");
-	floater_snap_region->localRectToScreen(floater_snap_region->getLocalRect(), &channel_rect);
 
-	LLView* chiclet_region = gViewerWindow->getRootView()->getChildView("chiclet_container");
-	chiclet_region->localRectToScreen(chiclet_region->getLocalRect(), &chiclet_rect);
+	mFloaterSnapRegion->localRectToScreen(mFloaterSnapRegion->getLocalRect(), &channel_rect);
+	mChicletRegion->localRectToScreen(mChicletRegion->getLocalRect(), &chiclet_rect);
 
 	channel_rect.mTop = chiclet_rect.mBottom;
 	return channel_rect;
@@ -81,12 +90,29 @@ LLScreenChannelBase::LLScreenChannelBase(const Params& p)
 	mShowToasts(true),
 	mID(p.id),
 	mDisplayToastsAlways(p.display_toasts_always),
-	mChannelAlignment(p.channel_align)
-{	
+	mChannelAlignment(p.channel_align),
+	mFloaterSnapRegion(NULL),
+	mChicletRegion(NULL)
+{
 	mID = p.id;
 
 	setMouseOpaque( false );
 	setVisible(FALSE);
+}
+
+BOOL LLScreenChannelBase::postBuild()
+{
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+	}
+	
+	if (mChicletRegion == NULL)
+	{
+		mChicletRegion = gViewerWindow->getRootView()->getChildView("chiclet_container");
+	}
+	
+	return TRUE;
 }
 
 void LLScreenChannelBase::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -473,12 +499,10 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 //--------------------------------------------------------------------------
 void LLScreenChannel::redrawToasts()
 {
-	LLView* floater_snap_region = gViewerWindow->getRootView()->getChildView("floater_snap_region");
-
 	if (!getParent())
 	{
 		// connect to floater snap region just to get resize events, we don't care about being a proper widget 
-		floater_snap_region->addChild(this);
+		mFloaterSnapRegion->addChild(this);
 		setFollows(FOLLOWS_ALL);
 	}
 
