@@ -54,6 +54,7 @@ private:
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "local_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "local_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "local_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const	{ return "local_image_size_lp"; }
 	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
 	/*virtual*/ void updateControls(const LLSD& info);
 

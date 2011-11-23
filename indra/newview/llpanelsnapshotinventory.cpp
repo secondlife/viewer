@@ -54,6 +54,7 @@ private:
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "inventory_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "inventory_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "texture_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const	{ return LLStringUtil::null; }
 	/*virtual*/ void updateControls(const LLSD& info);
 
 	void onSend();
@@ -70,6 +71,8 @@ LLPanelSnapshotInventory::LLPanelSnapshotInventory()
 // virtual
 BOOL LLPanelSnapshotInventory::postBuild()
 {
+	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
+	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
 	getChild<LLUICtrl>(getAspectRatioCBName())->setVisible(FALSE); // we don't keep aspect ratio for inventory textures
 	return LLPanelSnapshot::postBuild();
 }
@@ -90,10 +93,6 @@ void LLPanelSnapshotInventory::updateCustomResControls()
 
 	getChild<LLUICtrl>(getWidthSpinnerName())->setVisible(show);
 	getChild<LLUICtrl>(getHeightSpinnerName())->setVisible(show);
-
-	// Editing gets often enable elsewhere in common snapshot panel code. Override that.
-	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(FALSE);
-	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(FALSE);
 }
 
 // virtual
