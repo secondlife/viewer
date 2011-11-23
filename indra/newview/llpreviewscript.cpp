@@ -507,11 +507,11 @@ void LLScriptEdCore::initMenu()
 
 	menuItem = getChild<LLMenuItemCallGL>("LoadFromFile");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnLoadFromFile, this));
-//	menuItem->setEnabledCallback(NULL);
+	menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::enableLoadFromFileMenu, this));
 
 	menuItem = getChild<LLMenuItemCallGL>("SaveToFile");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnSaveToFile, this));
-	menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::hasChanged, this));
+	menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::enableSaveToFileMenu, this));
 }
 
 void LLScriptEdCore::setScriptText(const std::string& text, BOOL is_valid)
@@ -1107,9 +1107,17 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 
 void LLScriptEdCore::onBtnLoadFromFile( void* data )
 {
-
 	LLScriptEdCore* self = (LLScriptEdCore*) data;
-	
+/*
+	if( self->isDirty())
+	{
+		llwarns << "Script has unsaved changes, loading from disc aborted." << llendl;
+		LLStringBase<char>::format_map_t args;
+		args["[REASON]"] = std::string("Existing script has unsaved changes. You must save this script before loading from disc.");
+		gViewerWindow->alertXml("LoadDiskScriptFailReason", args);		
+		return;
+	}
+*/
 	LLFilePicker& file_picker = LLFilePicker::instance();
 	if( !file_picker.getOpenFile( LLFilePicker::FFLOAD_SCRIPT ) )
 	{
@@ -1121,16 +1129,27 @@ void LLScriptEdCore::onBtnLoadFromFile( void* data )
 	std::ifstream fin(filename.c_str());
 
 	std::string line;
+	std::string text;
 	std::string linetotal;
-	self->mEditor->clear();
 	while (!fin.eof())
 	{ 
 		getline(fin,line);
-		line=line+"\n";
-		self->mEditor->insertText(line);
-
+		text += line;
+		if (!fin.eof())
+		{
+			text += "\n";
+		}
 	}
 	fin.close();
+
+	// Only replace the script if there is something to replace with.
+	if (text.length() > 0)
+	{
+		self->mEditor->selectAll();
+		LLWString script(utf8str_to_wstring(text));
+		LLWStringUtil::replaceTabsWithSpaces(script, self->mEditor->spacesPerTab());
+		self->mEditor->insertText(script);
+	}
 }
 
 void LLScriptEdCore::onBtnSaveToFile( void* userdata )
@@ -1157,6 +1176,27 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 	}
 }
 
+bool LLScriptEdCore::canLoadOrSaveToFile( void* userdata )
+{
+	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+	return self->mEditor->canLoadOrSaveToFile();
+}
+
+// static
+bool LLScriptEdCore::enableSaveToFileMenu(void* userdata)
+{
+	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
+	if (!self || !self->mEditor) return FALSE;
+	return self->mEditor->canLoadOrSaveToFile();
+}
+
+// static 
+bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
+{
+	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
+	if (!self || !self->mEditor) return FALSE;
+	return self->mEditor->canLoadOrSaveToFile();
+}
 
 /// ---------------------------------------------------------------------------
 /// LLScriptEdContainer
