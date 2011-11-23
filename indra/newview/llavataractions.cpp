@@ -302,23 +302,24 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids)
 	make_ui_sound("UISndStartIM");
 }
 
-static const LLRect& get_preferred_profile_rect(const LLUUID& avatar_id)
-{
-	if (avatar_id == gAgentID)
-	{
-		return LLRect::null; // no preference
-	}
-
-	// Preferred size for all residents' profiles except our own,
-	// for which saved_rect will be used.
-	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
-	return profile_rect;
-}
-
 static const char* get_profile_floater_name(const LLUUID& avatar_id)
 {
 	// Use different floater XML for our profile to be able to save its rect.
 	return avatar_id == gAgentID ? "my_profile" : "profile";
+}
+
+static const LLRect& get_preferred_profile_rect(const LLUUID& avatar_id)
+{
+	if (avatar_id == gAgentID &&
+		LLFloaterReg::getInstance(get_profile_floater_name(avatar_id))->hasSavedRect())
+	{
+		return LLRect::null; // no preference, use saved rect
+	}
+
+	// Preferred size for all residents' profiles
+	// and default size for our own profile.
+	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
+	return profile_rect;
 }
 
 static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
