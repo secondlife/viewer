@@ -7976,6 +7976,11 @@ void initialize_menus()
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
+	commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+	commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
+	enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
 	// File menu
 	init_menu_file();
