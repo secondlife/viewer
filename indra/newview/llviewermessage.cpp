@@ -2452,6 +2452,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 
 			// The group notice packet does not have an AgentID.  Obtain one from the name cache.
+			// If last name is "Resident" strip it out so the cache name lookup works.
+			U32 index = original_name.find(" Resident");
+			if (index != std::string::npos)
+			{
+				original_name = original_name.substr(0, index);
+			}
 			std::string legacy_name = gCacheName->buildLegacyName(original_name);
 			LLUUID agent_id;
 			gCacheName->getUUID(legacy_name, agent_id);
