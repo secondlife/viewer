@@ -1069,14 +1069,11 @@ void LLPanelPicks::createClassifiedEditPanel(LLPanelClassifiedEdit** panel)
 
 void LLPanelPicks::createPickEditPanel()
 {
-	if(!mPanelPickEdit)
-	{
-		mPanelPickEdit = LLPanelPickEdit::create();
-		mPanelPickEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
-		mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickSave, this, mPanelPickEdit));
-		mPanelPickEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
-		mPanelPickEdit->setVisible(FALSE);
-	}
+	mPanelPickEdit = LLPanelPickEdit::create();
+	mPanelPickEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
+	mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickSave, this, mPanelPickEdit));
+	mPanelPickEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
+	mPanelPickEdit->setVisible(FALSE);
 }
 
 // void LLPanelPicks::openPickEditPanel(LLPickItem* pick)
