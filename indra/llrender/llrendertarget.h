@@ -64,6 +64,7 @@ class LLRenderTarget
 public:
 	//whether or not to use FBO implementation
 	static bool sUseFBO; 
+	static U32 sBytesAllocated;
 
 	LLRenderTarget();
 	~LLRenderTarget();
@@ -147,7 +148,6 @@ protected:
 	bool mUseDepth;
 	bool mRenderDepth;
 	LLTexUnit::eTextureType mUsage;
-	U32 mSamples;
 	
 	static LLRenderTarget* sBoundTarget;
 };

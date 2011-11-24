@@ -68,6 +68,12 @@ extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
 
+// GL_ARB_vertex_array_object
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
+
 // GL_ARB_sync
 extern PFNGLFENCESYNCPROC				glFenceSync;
 extern PFNGLISSYNCPROC					glIsSync;
@@ -310,6 +316,12 @@ extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
 extern PFNGLDRAWRANGEELEMENTSPROC 	glDrawRangeElements;
 #endif // LL_LINUX_NV_GL_HEADERS
 
+// GL_ARB_vertex_array_object
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
+
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
 extern PFNGLDELETEBUFFERSARBPROC	glDeleteBuffersARB;
@@ -531,6 +543,9 @@ extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 #include "GL/glext.h"
 #include "GL/glh_extensions.h"
 
+// WGL_ARB_create_context
+extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
+extern PFNGLGETSTRINGIPROC glGetStringi;
 
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERARBPROC		glBindBufferARB;
@@ -544,6 +559,12 @@ extern PFNGLMAPBUFFERARBPROC		glMapBufferARB;
 extern PFNGLUNMAPBUFFERARBPROC		glUnmapBufferARB;
 extern PFNGLGETBUFFERPARAMETERIVARBPROC	glGetBufferParameterivARB;
 extern PFNGLGETBUFFERPOINTERVARBPROC	glGetBufferPointervARB;
+
+// GL_ARB_vertex_array_object
+extern PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+extern PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+extern PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+extern PFNGLISVERTEXARRAYPROC glIsVertexArray;
 
 // GL_ARB_sync
 extern PFNGLFENCESYNCPROC				glFenceSync;
@@ -735,6 +756,12 @@ extern PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample;
 extern PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv;
 extern PFNGLSAMPLEMASKIPROC glSampleMaski;
 
+//GL_ARB_debug_output
+extern PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB;
+extern PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB;
+extern PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB;
+extern PFNGLGETDEBUGMESSAGELOGARBPROC glGetDebugMessageLogARB;
+
 #elif LL_DARWIN
 //----------------------------------------------------------------------------
 // LL_DARWIN
@@ -897,6 +924,31 @@ extern GLboolean glUnmapBufferARB (GLenum);
 extern void glGetBufferParameterivARB (GLenum, GLenum, GLint *);
 extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #endif /* GL_GLEXT_FUNCTION_POINTERS */
+#endif
+
+#ifndef GL_ARB_texture_rg
+#define GL_RG                             0x8227
+#define GL_RG_INTEGER                     0x8228
+#define GL_R8                             0x8229
+#define GL_R16                            0x822A
+#define GL_RG8                            0x822B
+#define GL_RG16                           0x822C
+#define GL_R16F                           0x822D
+#define GL_R32F                           0x822E
+#define GL_RG16F                          0x822F
+#define GL_RG32F                          0x8230
+#define GL_R8I                            0x8231
+#define GL_R8UI                           0x8232
+#define GL_R16I                           0x8233
+#define GL_R16UI                          0x8234
+#define GL_R32I                           0x8235
+#define GL_R32UI                          0x8236
+#define GL_RG8I                           0x8237
+#define GL_RG8UI                          0x8238
+#define GL_RG16I                          0x8239
+#define GL_RG16UI                         0x823A
+#define GL_RG32I                          0x823B
+#define GL_RG32UI                         0x823C
 #endif
 
 // May be needed for DARWIN...

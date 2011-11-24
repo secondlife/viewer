@@ -452,9 +452,9 @@ void LLSnapshotLivePreview::draw()
 		// calculate UV scale
 		F32 uv_width = mImageScaled[mCurImageIndex] ? 1.f : llmin((F32)mWidth[mCurImageIndex] / (F32)mViewerImage[mCurImageIndex]->getWidth(), 1.f);
 		F32 uv_height = mImageScaled[mCurImageIndex] ? 1.f : llmin((F32)mHeight[mCurImageIndex] / (F32)mViewerImage[mCurImageIndex]->getHeight(), 1.f);
-		glPushMatrix();
+		gGL.pushMatrix();
 		{
-			glTranslatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
+			gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
 			gGL.begin(LLRender::QUADS);
 			{
 				gGL.texCoord2f(uv_width, uv_height);
@@ -471,7 +471,7 @@ void LLSnapshotLivePreview::draw()
 			}
 			gGL.end();
 		}
-		glPopMatrix();
+		gGL.popMatrix();
 
 		gGL.color4f(1.f, 1.f, 1.f, mFlashAlpha);
 		gl_rect_2d(getRect());
@@ -587,11 +587,11 @@ void LLSnapshotLivePreview::draw()
 			BOOL rescale = !mImageScaled[old_image_index] && mViewerImage[mCurImageIndex].notNull();
 			F32 uv_width = rescale ? llmin((F32)mWidth[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getWidth(), 1.f) : 1.f;
 			F32 uv_height = rescale ? llmin((F32)mHeight[old_image_index] / (F32)mViewerImage[mCurImageIndex]->getHeight(), 1.f) : 1.f;
-			glPushMatrix();
+			gGL.pushMatrix();
 			{
 				LLRect& rect = mImageRect[old_image_index];
-				glTranslatef((F32)rect.mLeft, (F32)rect.mBottom - llround(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
-				glRotatef(-45.f * fall_interp, 0.f, 0.f, 1.f);
+				gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom - llround(getRect().getHeight() * 2.f * (fall_interp * fall_interp)), 0.f);
+				gGL.rotatef(-45.f * fall_interp, 0.f, 0.f, 1.f);
 				gGL.begin(LLRender::QUADS);
 				{
 					gGL.texCoord2f(uv_width, uv_height);
@@ -608,7 +608,7 @@ void LLSnapshotLivePreview::draw()
 				}
 				gGL.end();
 			}
-			glPopMatrix();
+			gGL.popMatrix();
 		}
 	}
 }
@@ -2286,7 +2286,7 @@ void LLFloaterSnapshot::draw()
 			S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
 			S32 offset_y = thumbnail_rect.mBottom + local_offset_y;
 
-			glMatrixMode(GL_MODELVIEW);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			// Apply floater transparency to the texture unless the floater is focused.
 			F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 			LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;

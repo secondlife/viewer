@@ -22,23 +22,29 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
+uniform mat4 texture_matrix0;
 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec4 vertex_color;
 
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
 	//transform vertex
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	
 	mat4 mat = getObjectSkinnedTransform();
 	
-	mat = gl_ModelViewMatrix * mat;
-	vec3 pos = (mat*gl_Vertex).xyz;
+	mat = modelview_matrix * mat;
+	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
-	gl_FrontColor = gl_Color;
+	vertex_color = diffuse_color;
 	
-	vec4 p = gl_ProjectionMatrix * vec4(pos, 1.0);
+	vec4 p = projection_matrix * vec4(pos, 1.0);
 	p.z = max(p.z, -p.w+0.01);
 	gl_Position = p;
 }

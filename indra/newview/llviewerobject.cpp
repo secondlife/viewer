@@ -3224,7 +3224,7 @@ F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscal
 	return 0.f;
 }
 
-U32 LLViewerObject::getTriangleCount()
+U32 LLViewerObject::getTriangleCount(S32* vcount) const
 {
 	return 0;
 }

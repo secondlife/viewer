@@ -2117,8 +2117,8 @@ void LLVOAvatar::updateMeshData()
 			}
 			else
 			{
-				if (buff->getRequestedIndices() == num_indices &&
-					buff->getRequestedVerts() == num_vertices)
+				if (buff->getNumIndices() == num_indices &&
+					buff->getNumVerts() == num_vertices)
 				{
 					terse_update = true;
 				}
@@ -2138,11 +2138,19 @@ void LLVOAvatar::updateMeshData()
 
 			for(S32 k = j ; k < part_index ; k++)
 			{
-				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update);
+				bool rigid = false;
+				if (k == MESH_ID_EYEBALL_LEFT ||
+					k == MESH_ID_EYEBALL_RIGHT)
+				{ //eyeballs can't have terse updates since they're never rendered with
+					//the hardware skinning shader
+					rigid = true;
+				}
+				
+				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
 			}
 
 			stop_glerror();
-			buff->setBuffer(0);
+			buff->flush();
 
 			if(!f_num)
 			{
@@ -4135,7 +4143,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			LLVertexBuffer* vb = mDrawable->getFace(0)->getVertexBuffer();
 			if (vb)
 			{
-				vb->setBuffer(0);
+				vb->flush();
 			}
 		}
 	}

@@ -24,57 +24,61 @@
  */
  
 
+VARYING vec3 vary_AdditiveColor;
+VARYING vec3 vary_AtmosAttenuation;
 
-varying vec3 vary_PositionEye;
+vec3 additive_color;
+vec3 atmos_attenuation;
+vec3 sunlit_color;
+vec3 amblit_color;
+vec3 position_eye;
 
-varying vec3 vary_SunlitColor;
-varying vec3 vary_AmblitColor;
-varying vec3 vary_AdditiveColor;
-varying vec3 vary_AtmosAttenuation;
-
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
 vec3 getSunlitColor()
 {
-	return vary_SunlitColor;
+	return sunlit_color;
 }
 vec3 getAmblitColor()
 {
-	return vary_AmblitColor;
+	return amblit_color;
 }
+
 vec3 getAdditiveColor()
 {
-	return vary_AdditiveColor;
+	return additive_color;
 }
 vec3 getAtmosAttenuation()
 {
-	return vary_AtmosAttenuation;
+	return atmos_attenuation;
 }
 
+vec3 getPositionEye()
+{
+	return position_eye;
+}
 
 void setPositionEye(vec3 v)
 {
-	vary_PositionEye = v;
+	position_eye = v;
 }
 
 void setSunlitColor(vec3 v)
 {
-	vary_SunlitColor = v;
+	sunlit_color  = v;
 }
 
 void setAmblitColor(vec3 v)
 {
-	vary_AmblitColor = v;
+	amblit_color = v;
 }
 
 void setAdditiveColor(vec3 v)
 {
+	additive_color = v;
 	vary_AdditiveColor = v;
 }
 
 void setAtmosAttenuation(vec3 v)
 {
+	atmos_attenuation = v;
 	vary_AtmosAttenuation = v;
 }

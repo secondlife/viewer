@@ -35,7 +35,7 @@
      height="12"
      layout="topleft"
      left="10"
-     name="Antialiasing:"
+     name="antialiasing label"
      top_pad="7"
      width="188">
         Antialiasing:

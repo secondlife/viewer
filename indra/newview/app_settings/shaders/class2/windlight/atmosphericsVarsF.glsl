@@ -24,25 +24,17 @@
  */
  
 
+VARYING vec3 vary_SunlitColor;
+VARYING vec3 vary_AdditiveColor;
+VARYING vec3 vary_AtmosAttenuation;
 
-varying vec3 vary_PositionEye;
-
-varying vec3 vary_SunlitColor;
-varying vec3 vary_AmblitColor;
-varying vec3 vary_AdditiveColor;
-varying vec3 vary_AtmosAttenuation;
-
-vec3 getPositionEye()
-{
-	return vary_PositionEye;
-}
 vec3 getSunlitColor()
 {
-	return vary_SunlitColor;
+	return vec3(0,0,0);
 }
 vec3 getAmblitColor()
 {
-	return vary_AmblitColor;
+	return vec3(0,0,0);
 }
 vec3 getAdditiveColor()
 {
@@ -50,5 +42,5 @@ vec3 getAdditiveColor()
 }
 vec3 getAtmosAttenuation()
 {
-	return vary_AtmosAttenuation;
+	return vec3(vary_AtmosAttenuation);
 }
