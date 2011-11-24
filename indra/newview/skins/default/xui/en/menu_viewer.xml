@@ -170,7 +170,7 @@
          function="BuyCurrency" />
       </menu_item_call>
       <menu_item_call
-           label="Accout dashboard..."
+           label="Account dashboard..."
            name="Manage My Account">
         <menu_item_call.on_click
          function="PromptShowURL"
@@ -434,24 +434,6 @@
            label="Show"
            name="LandShow"
            tear_off="true">
-         <menu_item_check
-         label="Move Controls"
-         name="Movement Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="moveview" />
-            <menu_item_check.on_click
-             function="World.Toggle.MovementControls" />
-        </menu_item_check>
-        <menu_item_check
-         label="View Controls"
-         name="Camera Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="camera" />
-            <menu_item_check.on_click
-             function="World.Toggle.CameraControls" />
-        </menu_item_check>
           <menu_item_check
              label="Ban Lines"
              name="Ban Lines">

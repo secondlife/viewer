@@ -7803,24 +7803,6 @@ class LLWorldPostProcess : public view_listener_t
 	}
 };
 
-class LLWorldToggleMovementControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("moveview");
-		return true;
-	}
-};
-
-class LLWorldToggleCameraControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("camera");
-		return true;
-	}
-};
-
 void handle_flush_name_caches()
 {
 	// Toggle display names on and off to flush
@@ -8043,9 +8025,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-
-	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
-	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
