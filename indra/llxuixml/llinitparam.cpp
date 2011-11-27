@@ -478,6 +478,7 @@ namespace LLInitParam
 			if (merge_func)
 			{
 				Param* paramp = getParamFromHandle((*it)->mParamHandle);
+				llassert(paramp->mEnclosingBlockOffset == (*it)->mParamHandle);
 				some_param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}

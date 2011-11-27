@@ -196,7 +196,7 @@ public:
 
 	virtual S32	notifyParent(const LLSD& info);
 
-	LLHandle<LLToast> getHandle() { mHandle.bind(this); return mHandle; }
+	LLHandle<LLToast> getHandle() const { return getDerivedHandle<LLToast>(); }
 
 protected:
 	void updateTransparency();
@@ -215,7 +215,7 @@ private:
 	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
 
-	LLRootHandle<LLToast>	mHandle;
+	//LLRootHandle<LLToast>	mHandle;
 		
 	LLPanel* mWrapperPanel;
 

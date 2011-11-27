@@ -111,7 +111,6 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 
 LLMultiFloater* LLFloater::sHostp = NULL;
 BOOL			LLFloater::sQuitting = FALSE; // Flag to prevent storing visibility controls while quitting
-LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
 
@@ -268,7 +267,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
-	mHandle.bind(this);
 //	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 
 	// Clicks stop here.
@@ -322,9 +320,6 @@ void LLFloater::initFloater(const Params& p)
 
 	// Floaters are created in the invisible state	
 	setVisible(FALSE);
-
-	// add self to handle->floater map
-	sFloaterMap[mHandle] = this;
 
 	if (!getParent())
 	{
@@ -531,8 +526,6 @@ LLFloater::~LLFloater()
 	// created with rect control rather than an LLRect) are restored in their
 	// correct, non-minimized positions.
 	setMinimized( FALSE );
-
-	sFloaterMap.erase(mHandle);
 
 	delete mDragHandle;
 	for (S32 i = 0; i < 4; i++) 
@@ -1038,7 +1031,9 @@ BOOL LLFloater::canSnapTo(const LLView* other_view)
 	if (other_view != getParent())
 	{
 		const LLFloater* other_floaterp = dynamic_cast<const LLFloater*>(other_view);		
-		if (other_floaterp && other_floaterp->getSnapTarget() == getHandle() && mDependents.find(other_floaterp->getHandle()) != mDependents.end())
+		if (other_floaterp 
+			&& other_floaterp->getSnapTarget() == getHandle() 
+			&& mDependents.find(other_floaterp->getHandle()) != mDependents.end())
 		{
 			// this is a dependent that is already snapped to us, so don't snap back to it
 			return FALSE;
@@ -1677,18 +1672,17 @@ void LLFloater::onClickHelp( LLFloater* self )
 LLFloater* LLFloater::getClosableFloaterFromFocus()
 {
 	LLFloater* focused_floater = NULL;
-
-	handle_map_iter_t iter;
-	for(iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
+	LLInstanceTracker<LLFloater>::instance_iter it = beginInstances();
+	LLInstanceTracker<LLFloater>::instance_iter end_it = endInstances();
+	for (; it != end_it; ++it)
 	{
-		focused_floater = iter->second;
-		if (focused_floater->hasFocus())
+		if (it->hasFocus())
 		{
 			break;
 		}
 	}
 
-	if (iter == sFloaterMap.end())
+	if (it == endInstances())
 	{
 		// nothing found, return
 		return NULL;
