@@ -46,16 +46,16 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 		</panel>
 		<panel label="Katkıda Bulunanlar" name="credits_panel">
 			<text name="linden_intro">
-				Second Life, Lindens&apos;lar tarafından geliştirilmiştir:
+				Second Life, Linden&apos;lar tarafından geliştirilmiştir:
 			</text>
 			<text name="contrib_intro">
-				açık kaynak kod katkısında bulunanlar:
+				Açık kaynak kod katkısında bulunanlar:
 			</text>
 			<text_editor name="contrib_names">
 				Geçici Ad çalıştırma sırasında değiştirilir
 			</text_editor>
 			<text name="trans_intro">
-				çevirileri yapanlar:
+				Çevirileri yapanlar:
 			</text>
 			<text_editor name="trans_names">
 				Geçici Ad çalıştırma sırasında değiştirilir

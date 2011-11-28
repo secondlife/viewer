@@ -6,11 +6,11 @@
 	<text name="Cache:">
 		Önbellek:
 	</text>
-	<spinner label="Önbellek büyüklüğü (64 - 9984 MB)" name="cachesizespinner"/>
+	<spinner label="Önbellek boyutu (64-9984 MB)" name="cachesizespinner"/>
 	<text name="text_box5">
 		MB
 	</text>
-	<button label="Önbelleği Temizle" label_selected="Önbelleği Temizle" name="clear_cache"/>
+	<button label="Önbelleği Sil" label_selected="Önbelleği Sil" name="clear_cache"/>
 	<text name="Cache location">
 		Önbellek konumu:
 	</text>

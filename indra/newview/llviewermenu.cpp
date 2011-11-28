@@ -7701,7 +7701,14 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else
 		{
-			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
+			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
+			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
+			bool use_fixed_sky = false;
+			bool use_region_settings = true;
+			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
+					    envmgr.getSkyPresetName(),
+					    envmgr.getDayCycleName(),
+					    use_fixed_sky, use_region_settings);
 		}
 
 		return true;
