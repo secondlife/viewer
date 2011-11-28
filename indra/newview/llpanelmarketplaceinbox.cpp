@@ -151,6 +151,20 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 					fresh_item_count++;
 				}
 			}
+
+			LLFolderViewFolder::items_t::const_iterator items_it = inbox_folder->getItemsBegin();
+			LLFolderViewFolder::items_t::const_iterator items_end = inbox_folder->getItemsEnd();
+
+			for (; items_it != items_end; ++items_it)
+			{
+				const LLFolderViewItem * item_view = *items_it;
+				const LLInboxFolderViewItem * inbox_item_view = dynamic_cast<const LLInboxFolderViewItem*>(item_view);
+
+				if (inbox_item_view && inbox_item_view->isFresh())
+				{
+					fresh_item_count++;
+				}
+			}
 		}
 	}
 
@@ -171,6 +185,7 @@ U32 LLPanelMarketplaceInbox::getTotalItemCount() const
 		if (inbox_folder)
 		{
 			item_count += inbox_folder->getFoldersCount();
+			item_count += inbox_folder->getItemsCount();
 		}
 	}
 	

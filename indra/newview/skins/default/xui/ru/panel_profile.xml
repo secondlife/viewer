@@ -53,10 +53,10 @@
 					<button label="IM" name="im" tool_tip="Начать сеанс IM"/>
 				</layout_panel>
 				<layout_panel name="call_btn_lp">
-					<button label="Позвонить" name="call" tool_tip="Позвонить этому жителю"/>
+					<button label="Звонок" name="call" tool_tip="Позвонить этому жителю"/>
 				</layout_panel>
 				<layout_panel name="chat_btn_lp">
-					<button label="Телепортироваться" name="teleport" tool_tip="Предложить телепортацию"/>
+					<button label="Телепортация" name="teleport" tool_tip="Предложить телепортацию"/>
 				</layout_panel>
 				<layout_panel name="overflow_btn_lp">
 					<menu_button label="▼" name="overflow_btn" tool_tip="Заплатить жителю или поделиться с ним вещами"/>

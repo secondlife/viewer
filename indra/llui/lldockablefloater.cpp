@@ -82,7 +82,7 @@ BOOL LLDockableFloater::postBuild()
 		mForceDocking = true;
 	}
 
-	mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
+	mDockTongue = LLUI::getUIImage("Flyout_Pointer");
 	LLFloater::setDocked(true);
 	return LLView::postBuild();
 }
@@ -244,13 +244,13 @@ const LLUIImagePtr& LLDockableFloater::getDockTongue(LLDockControl::DocAt dock_s
 	switch(dock_side)
 	{
 	case LLDockControl::LEFT:
-		mDockTongue = LLUI::getUIImage("windows/Flyout_Left.png");
+		mDockTongue = LLUI::getUIImage("Flyout_Left");
 		break;
 	case LLDockControl::RIGHT:
-		mDockTongue = LLUI::getUIImage("windows/Flyout_Right.png");
+		mDockTongue = LLUI::getUIImage("Flyout_Right");
 		break;
 	default:
-		mDockTongue = LLUI::getUIImage("windows/Flyout_Pointer.png");
+		mDockTongue = LLUI::getUIImage("Flyout_Pointer");
 		break;
 	}
 

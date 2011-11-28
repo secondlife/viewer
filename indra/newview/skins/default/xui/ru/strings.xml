@@ -872,7 +872,7 @@ support@secondlife.com.
 		Новое сопоставление элементов управления
 	</string>
 	<string name="AnimateYourAvatar">
-		Анимация аватара
+		Анимировать ваш аватар
 	</string>
 	<string name="AttachToYourAvatar">
 		Прикрепить к аватару
@@ -899,10 +899,10 @@ support@secondlife.com.
 		Нет подключения
 	</string>
 	<string name="SIM_ACCESS_PG">
-		Общая
+		Общий
 	</string>
 	<string name="SIM_ACCESS_MATURE">
-		Умеренная
+		Умеренный
 	</string>
 	<string name="SIM_ACCESS_ADULT">
 		Для взрослых
@@ -1073,7 +1073,7 @@ support@secondlife.com.
 		Тату не надето
 	</string>
 	<string name="physics_not_worn">
-		Физические данные не учитываются
+		Физика не учитывается
 	</string>
 	<string name="invalid_not_worn">
 		ошибка
@@ -1124,7 +1124,7 @@ support@secondlife.com.
 		Создать тату
 	</string>
 	<string name="create_new_physics">
-		Создать физические данные
+		Создать физику
 	</string>
 	<string name="create_new_invalid">
 		ошибка
@@ -1437,7 +1437,7 @@ support@secondlife.com.
 		Резина
 	</string>
 	<string name="Light">
-		Освещение
+		Светлый
 	</string>
 	<string name="KBShift">
 		SHIFT
@@ -1617,7 +1617,7 @@ support@secondlife.com.
 		Есть информация о платежах
 	</string>
 	<string name="PaymentInfoOnFile">
-		Есть информация в файле о платежах
+		Есть зарегистрир. информация о платежах
 	</string>
 	<string name="NoPaymentInfoOnFile">
 		Нет информации о платежах
@@ -2340,13 +2340,13 @@ support@secondlife.com.
 		Не удается получить описание формата пикселей
 	</string>
 	<string name="MBTrueColorWindow">
-		Для работы [APP_NAME] необходим режим True Color (32 разряда).
-Задайте в настройках дисплея 32-разрядный режим цвета.
+		Для работы [APP_NAME] необходим режим True Color (32 бита).
+Задайте в настройках дисплея 32-битный режим цвета.
 	</string>
 	<string name="MBAlpha">
-		Не удается запустить [APP_NAME] из-за отсутствия доступа к 8-разрядному альфа-каналу.  Обычно эта проблема возникает из-за неполадок с драйвером видеокарты.
+		Не удается запустить [APP_NAME] из-за отсутствия доступа к 8-битному альфа-каналу.  Обычно эта проблема возникает из-за неполадок с драйвером видеокарты.
 Установите новые драйверы видеокарты.
-Также задайте для монитора 32-разрядный режим True Color (Панель управления &gt; Экран &gt; Параметры).
+Также задайте для монитора 32-битный режим True Color (Панель управления &gt; Экран &gt; Параметры).
 Если это сообщение продолжает отображаться, обратитесь на сайт [SUPPORT_SITE].
 	</string>
 	<string name="MBPixelFmtSetErr">
@@ -2363,7 +2363,7 @@ support@secondlife.com.
 Если это сообщение продолжает отображаться, обратитесь на сайт [SUPPORT_SITE].
 	</string>
 	<string name="5 O&apos;Clock Shadow">
-		Легкие сумерки
+		Жидкие
 	</string>
 	<string name="All White">
 		Полностью белые
@@ -2381,10 +2381,10 @@ support@secondlife.com.
 		Прикреплено
 	</string>
 	<string name="Attached Earlobes">
-		Примыкающие мочки
+		Приросшие мочки
 	</string>
 	<string name="Back Fringe">
-		Черная челка
+		Затылок
 	</string>
 	<string name="Baggy">
 		С мешками
@@ -2417,7 +2417,7 @@ support@secondlife.com.
 		Большая голова
 	</string>
 	<string name="Big Pectorals">
-		Большие грудные мышцы
+		Выпуклая грудь
 	</string>
 	<string name="Big Spikes">
 		Большие «шипы»
@@ -2603,7 +2603,7 @@ support@secondlife.com.
 		Кустистые брови
 	</string>
 	<string name="Bushy Hair">
-		Вьющиеся волосы
+		Пышные
 	</string>
 	<string name="Butt Size">
 		Размер зада
@@ -2636,7 +2636,7 @@ support@secondlife.com.
 		Ямка на подбородке
 	</string>
 	<string name="Chin Curtains">
-		Борода в стиле Линкольна
+		Шкиперская бородка
 	</string>
 	<string name="Chin Depth">
 		Толщина подбородка
@@ -2654,10 +2654,10 @@ support@secondlife.com.
 		Переход от подбородка к шее
 	</string>
 	<string name="Clear">
-		Очистить
+		Чистый
 	</string>
 	<string name="Cleft">
-		Щелкой
+		Ямка
 	</string>
 	<string name="Close Set Eyes">
 		Близко посаженные
@@ -2711,7 +2711,7 @@ support@secondlife.com.
 		Темнее
 	</string>
 	<string name="Deep">
-		Глубокий
+		Глубоко
 	</string>
 	<string name="Default Heels">
 		Стандартные каблуки
@@ -2726,7 +2726,7 @@ support@secondlife.com.
 		Вниз
 	</string>
 	<string name="Duffle Bag">
-		Сумка из плотной ткани
+		Больше
 	</string>
 	<string name="Ear Angle">
 		Оттопыренность ушей
@@ -2756,7 +2756,7 @@ support@secondlife.com.
 		Открытость глаз
 	</string>
 	<string name="Eye Pop">
-		Взмах ресницами
+		Вытаращить глаз
 	</string>
 	<string name="Eye Size">
 		Размер глаз
@@ -2774,7 +2774,7 @@ support@secondlife.com.
 		Высота бровей
 	</string>
 	<string name="Eyebrow Points">
-		Точки бровей
+		Кончики бровей
 	</string>
 	<string name="Eyebrow Size">
 		Размер бровей
@@ -2792,10 +2792,10 @@ support@secondlife.com.
 		Выпученные глаза
 	</string>
 	<string name="Face Shear">
-		Овал лица
+		Перекос лица
 	</string>
 	<string name="Facial Definition">
-		Описание лица
+		Черты лица
 	</string>
 	<string name="Far Set Eyes">
 		Широко расставленные глаза
@@ -2816,7 +2816,7 @@ support@secondlife.com.
 		С манжетами
 	</string>
 	<string name="Flat">
-		Плоский
+		Плоские
 	</string>
 	<string name="Flat Butt">
 		Плоский зад
@@ -2903,7 +2903,7 @@ support@secondlife.com.
 		Размер кисти
 	</string>
 	<string name="Handlebars">
-		Рули
+		Длинные усы
 	</string>
 	<string name="Head Length">
 		Длина головы
@@ -2924,10 +2924,10 @@ support@secondlife.com.
 		Форма каблука
 	</string>
 	<string name="Height">
-		Высота
+		Рост
 	</string>
 	<string name="High">
-		высокий
+		Высокие
 	</string>
 	<string name="High Heels">
 		Высокий каблук
@@ -2939,7 +2939,7 @@ support@secondlife.com.
 		Высокая платформа
 	</string>
 	<string name="High and Tight">
-		Высокое и плотное
+		Высокий и плотный
 	</string>
 	<string name="Higher">
 		Выше
@@ -2951,13 +2951,13 @@ support@secondlife.com.
 		Ширина бедер
 	</string>
 	<string name="In">
-		Внутри
+		Внутрь
 	</string>
 	<string name="In Shdw Color">
 		Цвет внутренних теней
 	</string>
 	<string name="In Shdw Opacity">
-		Прозрачность внутренних теней
+		Прозрачность внутр. теней
 	</string>
 	<string name="Inner Eye Corner">
 		Внутренние уголки глаз
@@ -2990,13 +2990,13 @@ support@secondlife.com.
 		Щеки
 	</string>
 	<string name="Knee Angle">
-		Угол коленей
+		Угол колен
 	</string>
 	<string name="Knock Kneed">
-		Ровность ног
+		Колченогие
 	</string>
 	<string name="Large">
-		Большие
+		Больше
 	</string>
 	<string name="Large Hands">
 		Большие кисти
@@ -3029,7 +3029,7 @@ support@secondlife.com.
 		Меньше притяжения
 	</string>
 	<string name="Less Love">
-		Меньше любви
+		Меньше
 	</string>
 	<string name="Less Muscles">
 		Меньше мышц
@@ -3044,7 +3044,7 @@ support@secondlife.com.
 		Меньше округлости
 	</string>
 	<string name="Less Saddle">
-		Меньше седлообразности
+		Меньше
 	</string>
 	<string name="Less Square">
 		Меньше угловатости
@@ -3053,16 +3053,16 @@ support@secondlife.com.
 		Меньше объема
 	</string>
 	<string name="Less soul">
-		Меньше энергичности
+		Меньше
 	</string>
 	<string name="Lighter">
 		Светлее
 	</string>
 	<string name="Lip Cleft">
-		Зазор между губ
+		Ямка между губ
 	</string>
 	<string name="Lip Cleft Depth">
-		Глубина зазора
+		Глубина ямки
 	</string>
 	<string name="Lip Fullness">
 		Полнота губ
@@ -3128,28 +3128,28 @@ support@secondlife.com.
 		Отложения на талии
 	</string>
 	<string name="Low">
-		Низкое
+		Низкие
 	</string>
 	<string name="Low Heels">
 		Низкий каблук
 	</string>
 	<string name="Low Jaw">
-		Низкая челюсть
+		Челюсть низко
 	</string>
 	<string name="Low Platforms">
 		Низкая платформа
 	</string>
 	<string name="Low and Loose">
-		Низкое и свободное
+		Низкий и свободный
 	</string>
 	<string name="Lower">
 		Ниже
 	</string>
 	<string name="Lower Bridge">
-		Ниже переносицу
+		Спинка носа
 	</string>
 	<string name="Lower Cheeks">
-		Ниже щеки
+		Щеки ниже
 	</string>
 	<string name="Male">
 		Мужчина
@@ -3185,7 +3185,7 @@ support@secondlife.com.
 		Больше помады
 	</string>
 	<string name="More Love">
-		Больше любви
+		Больше
 	</string>
 	<string name="More Lower Lip">
 		Больше нижняя губа
@@ -3194,7 +3194,7 @@ support@secondlife.com.
 		Больше мышц
 	</string>
 	<string name="More Muscular">
-		Более мускулистое
+		Больше мышц
 	</string>
 	<string name="More Rosy">
 		Больше румянца
@@ -3203,7 +3203,7 @@ support@secondlife.com.
 		Больше округлости
 	</string>
 	<string name="More Saddle">
-		Более седлообразно
+		Больше
 	</string>
 	<string name="More Sloped">
 		Более наклонный
@@ -3218,10 +3218,10 @@ support@secondlife.com.
 		Более вертикальный
 	</string>
 	<string name="More Volume">
-		Больший объем
+		Больше объема
 	</string>
 	<string name="More soul">
-		Больше духа
+		Больше
 	</string>
 	<string name="Moustache">
 		Усы
@@ -3251,7 +3251,7 @@ support@secondlife.com.
 		Узко
 	</string>
 	<string name="Narrow Back">
-		Узкая спина
+		Узко сзади
 	</string>
 	<string name="Narrow Front">
 		Узкий перед
@@ -3260,7 +3260,7 @@ support@secondlife.com.
 		Узкие губы
 	</string>
 	<string name="Natural">
-		Естественно
+		Естественный
 	</string>
 	<string name="Neck Length">
 		Длина шеи
@@ -3356,13 +3356,13 @@ support@secondlife.com.
 		Оранжевый
 	</string>
 	<string name="Out">
-		Снаружи
+		Наружу
 	</string>
 	<string name="Out Shdw Color">
 		Цвет внешних теней
 	</string>
 	<string name="Out Shdw Opacity">
-		Прозрачность внешних теней
+		Прозрачность внеш. теней
 	</string>
 	<string name="Outer Eye Corner">
 		Внешние уголки глаз
@@ -3377,7 +3377,7 @@ support@secondlife.com.
 		Глубокий прикус
 	</string>
 	<string name="Package">
-		Пакет
+		Гульфик
 	</string>
 	<string name="Painted Nails">
 		Покрашенные
@@ -3386,7 +3386,7 @@ support@secondlife.com.
 		Бледный
 	</string>
 	<string name="Pants Crotch">
-		Мотня
+		Шаг
 	</string>
 	<string name="Pants Fit">
 		Облегающие брюки
@@ -3404,13 +3404,13 @@ support@secondlife.com.
 		Пробор
 	</string>
 	<string name="Part Bangs">
-		Челки с пробором
+		Челка с пробором
 	</string>
 	<string name="Pectorals">
 		Грудные мышцы
 	</string>
 	<string name="Pigment">
-		Пигмент
+		Пигментация
 	</string>
 	<string name="Pigtails">
 		Хвосты по бокам
@@ -3428,7 +3428,7 @@ support@secondlife.com.
 		Ширина платформы
 	</string>
 	<string name="Pointy">
-		Острый
+		Острые
 	</string>
 	<string name="Pointy Heels">
 		Острый каблук
@@ -3440,13 +3440,13 @@ support@secondlife.com.
 		Пышная юбка
 	</string>
 	<string name="Pop Left Eye">
-		Хлопнуть левым глазом
+		Левый глаз
 	</string>
 	<string name="Pop Right Eye">
-		Хлопнуть правым глазом
+		Правый глаз
 	</string>
 	<string name="Puffy">
-		Припухшие
+		Пухлые
 	</string>
 	<string name="Puffy Eyelids">
 		Припухлость век
@@ -3473,13 +3473,13 @@ support@secondlife.com.
 		Румянец
 	</string>
 	<string name="Ruddy">
-		Румяное
+		Румяный
 	</string>
 	<string name="Rumpled Hair">
 		Взъерошенные
 	</string>
 	<string name="Saddle Bags">
-		Седельные сумки
+		Галифе
 	</string>
 	<string name="Scrawny Leg">
 		Сухопарая нога
@@ -3488,25 +3488,25 @@ support@secondlife.com.
 		Разделить
 	</string>
 	<string name="Shallow">
-		Мелкий
+		Мелко
 	</string>
 	<string name="Shear Back">
-		Очертание спины
+		Скос сзади
 	</string>
 	<string name="Shear Face">
-		Овал лица
+		Перекос лица
 	</string>
 	<string name="Shear Front">
-		Очертание спереди
+		Скос спереди
 	</string>
 	<string name="Shear Left Up">
-		Очертание левой верхней части
+		Скос влево вверх
 	</string>
 	<string name="Shear Right Up">
-		Очертание правой верхней части
+		Скос вправо вверх
 	</string>
 	<string name="Sheared Back">
-		Уменьшенная спина
+		Уменьшено сзади
 	</string>
 	<string name="Sheared Front">
 		Уменьшено спереди
@@ -3533,7 +3533,7 @@ support@secondlife.com.
 		Высота обуви
 	</string>
 	<string name="Short">
-		Короче
+		Ниже
 	</string>
 	<string name="Short Arms">
 		Короткие руки
@@ -3608,7 +3608,7 @@ support@secondlife.com.
 		Разрез: справа
 	</string>
 	<string name="Small">
-		Маленький
+		Меньше
 	</string>
 	<string name="Small Hands">
 		Маленькие кисти
@@ -3620,13 +3620,13 @@ support@secondlife.com.
 		Гладко
 	</string>
 	<string name="Smooth Hair">
-		Приглаженные волосы
+		Приглаженные
 	</string>
 	<string name="Socks Length">
 		Длина носков
 	</string>
 	<string name="Soulpatch">
-		Бородка под губой
+		Эспаньолка
 	</string>
 	<string name="Sparse">
 		Жидкие
@@ -3662,13 +3662,13 @@ support@secondlife.com.
 		Зачесанные вперед
 	</string>
 	<string name="Tall">
-		Высокие
+		Выше
 	</string>
 	<string name="Taper Back">
-		Градуировка сзади
+		Конус сзади
 	</string>
 	<string name="Taper Front">
-		Градуировка спереди
+		Конус спереди
 	</string>
 	<string name="Thick Heels">
 		Широкий каблук
@@ -3737,16 +3737,16 @@ support@secondlife.com.
 		Неестественный
 	</string>
 	<string name="Upper Bridge">
-		Переносицу выше
+		Переносица
 	</string>
 	<string name="Upper Cheeks">
 		Щеки выше
 	</string>
 	<string name="Upper Chin Cleft">
-		Ямку на подбородке выше
+		Ямка на подбородке выше
 	</string>
 	<string name="Upper Eyelid Fold">
-		Складку века выше
+		Складка верхнего века
 	</string>
 	<string name="Upturned">
 		Вверх
@@ -3758,7 +3758,7 @@ support@secondlife.com.
 		Высота талии
 	</string>
 	<string name="Well-Fed">
-		Упитанное
+		Упитанные
 	</string>
 	<string name="White Hair">
 		Белые волосы
@@ -3767,7 +3767,7 @@ support@secondlife.com.
 		Широко
 	</string>
 	<string name="Wide Back">
-		Широкая спина
+		Широко сзади
 	</string>
 	<string name="Wide Front">
 		Широкий перед
@@ -4252,7 +4252,7 @@ support@secondlife.com.
 		Женщина – ух ты!
 	</string>
 	<string name="/bow">
-		/поклон
+		/поклониться
 	</string>
 	<string name="/clap">
 		/хлопнуть
@@ -4794,7 +4794,7 @@ support@secondlife.com.
 		Компас
 	</string>
 	<string name="Command_Destinations_Label">
-		Места
+		Пункты
 	</string>
 	<string name="Command_Gestures_Label">
 		Жесты
@@ -4845,16 +4845,16 @@ support@secondlife.com.
 		Вид
 	</string>
 	<string name="Command_Voice_Label">
-		Голоса собеседников
+		Настройки голоса
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Информация о посещаемой вами земле
 	</string>
 	<string name="Command_Appearance_Tooltip">
-		Сменить аватар
+		Изменить аватар
 	</string>
 	<string name="Command_Avatar_Tooltip">
-		Выберите весь аватар
+		Выбор аватара
 	</string>
 	<string name="Command_Build_Tooltip">
 		Построение объектов и формирование ландшафта
@@ -4917,7 +4917,7 @@ support@secondlife.com.
 		Изменение угла камеры
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Люди около вас с оспособностью говорить
+		Громкость звонков и голосов окружающих вас людей
 	</string>
 	<string name="Retain%">
 		Остаток%

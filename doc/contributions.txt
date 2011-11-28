@@ -170,6 +170,7 @@ Ansariel Hiller
 	STORM-1101
 	VWR-25480
 	VWR-26150
+	STORM-1685
 Aralara Rajal
 Ardy Lay
 	STORM-859
@@ -582,6 +583,12 @@ Jonathan Yap
 	STORM-1639
 	STORM-910
 	STORM-1642
+	STORM-1105
+	STORM-1679
+	STORM-1222
+	STORM-1659
+	STORM-1674
+	STORM-1685
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -1111,6 +1118,7 @@ Tofu Buzzard
 	STORM-546
 	VWR-24509
 	SH-2477
+	STORM-1684
 Tony Kembia
 Torben Trautman
 TouchaHoney Perhaps

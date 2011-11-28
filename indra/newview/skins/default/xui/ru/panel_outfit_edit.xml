@@ -2,7 +2,7 @@
 <!-- Side tray Outfit Edit panel -->
 <panel name="outfit_edit">
 	<string name="No Outfit" value="Нет костюма"/>
-	<string name="unsaved_changes" value="Не сохраненные изменения"/>
+	<string name="unsaved_changes" value="Несохраненные изменения"/>
 	<string name="now_editing" value="Сейчас редактируется"/>
 	<panel.string name="not_available">
 		(нет)
@@ -35,7 +35,7 @@
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="add_wearables_panel">
-			<button label="Вещь, которая носится" name="plus_btn"/>
+			<button label="Носимая вещь" name="plus_btn"/>
 		</layout_panel>
 	</layout_stack>
 	<panel name="no_add_wearables_button_bar">

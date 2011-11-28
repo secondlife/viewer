@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="ИНСТРУМЕНТЫ ДЛЯ СТРОИТЕЛЬСТВА">
 	<floater.string name="status_rotate">
-		Перемещайте цветные полосы для вращения объекта
+		Перетягивайте цветные полосы для вращения объекта
 	</floater.string>
 	<floater.string name="status_scale">
-		Щелкните и переместите для растяжения выбранной стороны
+		Щелкните и перетащите для растяжения выбранной стороны
 	</floater.string>
 	<floater.string name="status_move">
-		Переместите для перемещения, переместите с одновременным нажатием клавиши Shift для копирования
+		Перемещение: перетащить, копирование: перетащить при нажатой клавише Shift
 	</floater.string>
 	<floater.string name="status_modifyland">
 		Щелкните и удерживайте для изменения земли
 	</floater.string>
 	<floater.string name="status_camera">
-		Щелкните и переместите для перемещения камеры
+		Щелкните и перетащите для перемещения камеры
 	</floater.string>
 	<floater.string name="status_grab">
-		Переместите для перемещения, нажмите клавишу Ctrl для подъема, нажмите клавиши Ctrl+Shift для вращения
+		Перемещение: перетащить, подъем: нажать Ctrl, вращение: нажать Ctrl+Shift
 	</floater.string>
 	<floater.string name="status_place">
 		Щелкните для создания
 	</floater.string>
 	<floater.string name="status_selectland">
-		Щелкните и переместите для выделения земли
+		Щелкните и перетащите для выделения земли
 	</floater.string>
 	<floater.string name="status_selectcount">
 		Выбрано объектов: [OBJ_COUNT], влияние на землю [LAND_IMPACT]
@@ -30,13 +30,13 @@
 	<floater.string name="status_remaining_capacity">
 		Остаток емкости [LAND_CAPACITY].
 	</floater.string>
-	<button name="button focus" tool_tip="Отчетливость"/>
+	<button name="button focus" tool_tip="Фокус"/>
 	<button name="button move" tool_tip="Переместить"/>
 	<button name="button edit" tool_tip="Изменить"/>
 	<button name="button create" tool_tip="Создать"/>
 	<button name="button land" tool_tip="Земля"/>
 	<text name="text status">
-		Переместите для перемещения, переместите с одновременным нажатием клавиши Shift для копирования
+		Перемещение: перетащить, копирование: перетащить при нажатой клавише Shift
 	</text>
 	<radio_group name="focus_radio_group">
 		<radio_item label="Увеличение" name="radio zoom"/>
@@ -52,14 +52,14 @@
 	<radio_group name="edit_radio_group">
 		<radio_item label="Переместить" name="radio position"/>
 		<radio_item label="Вращение (Ctrl)" name="radio rotate"/>
-		<radio_item label="Растягивание (Ctrl+Shift)" name="radio stretch"/>
+		<radio_item label="Растяжка (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Выбор грани" name="radio select face"/>
 	</radio_group>
 	<check_box label="Редактировать объединенные" name="checkbox edit linked parts"/>
 	<button label="Объединить" name="link_btn"/>
 	<button label="Разъединить" name="unlink_btn"/>
-	<text label="Растягивать в обе стороны" name="checkbox uniform label">
-		Растягивать в обе стороны
+	<text label="Растяжка обеих сторон" name="checkbox uniform label">
+		Растяжка обеих сторон
 	</text>
 	<check_box initial_value="истина" label="Растягивать текстуры" name="checkbox stretch textures"/>
 	<check_box initial_value="истина" label="Привязка" name="checkbox snap to grid"/>
@@ -79,9 +79,9 @@
 	<button name="ToolRing" tool_tip="Кольцо"/>
 	<button name="ToolTree" tool_tip="Дерево"/>
 	<button name="ToolGrass" tool_tip="Трава"/>
-	<check_box label="Оставить инструмент выбранным" name="checkbox sticky"/>
-	<check_box label="Копировать выделенное" name="checkbox copy selection"/>
-	<check_box initial_value="истина" label="Центрировать копию" name="checkbox copy centers"/>
+	<check_box label="Держать инструмент" name="checkbox sticky"/>
+	<check_box label="Копировать выдел." name="checkbox copy selection"/>
+	<check_box initial_value="истина" label="Центрир. копию" name="checkbox copy centers"/>
 	<check_box label="Повернуть копию" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
 		<radio_item label="Выбрать землю" name="radio select land"/>
@@ -105,7 +105,7 @@
 	<slider_bar initial_value="0.00" name="slider force"/>
 	<button label="Применить" label_selected="Применить" name="button apply to selection" tool_tip="Изменить выбранную землю"/>
 	<text name="selection_empty">
-		Ничего не выбрано.
+		Не выбрано.
 	</text>
 	<text name="remaining_capacity">
 		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Дополнительная информация]
@@ -168,7 +168,7 @@
 			<check_box label="Поделиться" name="checkbox share with group" tool_tip="Позволить всем участникам выбранной группы получить установленные вам права на этот объект. Для включения ролевых ограничений необходимо произвести сделку."/>
 			<button label="Сделка" label_selected="Сделка" name="button deed" tool_tip="В результате сделки объект передается группе, при этом права на него будут соответствовать правам следующего владельца. Переданный группе объект может передаваться должностным лицом группы."/>
 			<text name="label click action">
-				Действие по щелчку:
+				По щелчку:
 			</text>
 			<combo_box name="clickaction">
 				<combo_box.item label="Коснуться (по умолчанию)" name="Touch/grab(default)"/>
@@ -185,7 +185,7 @@
 				<combo_box.item label="Оригинал" name="Original"/>
 			</combo_box>
 			<spinner label="Цена: L$" name="Edit Cost"/>
-			<check_box label="Показать в результатах поиска" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
+			<check_box label="Показать в поиске" name="search_check" tool_tip="Показывать объект в результатах поиска"/>
 			<panel name="perms_build">
 				<text name="perm_modify">
 					Этот объект можно изменять
@@ -349,9 +349,9 @@
 			<spinner label="Парусность" name="FlexFriction"/>
 			<spinner label="Ветер" name="FlexWind"/>
 			<spinner label="Упругость" name="FlexTension"/>
-			<spinner label="Действие по X" name="FlexForceX"/>
-			<spinner label="Действие по Y" name="FlexForceY"/>
-			<spinner label="Действие по Z" name="FlexForceZ"/>
+			<spinner label="X-действие" name="FlexForceX"/>
+			<spinner label="Y-действие" name="FlexForceY"/>
+			<spinner label="Z-действие" name="FlexForceZ"/>
 			<check_box label="Свет" name="Light Checkbox Ctrl" tool_tip="Объект будет излучать свет"/>
 			<color_swatch name="colorswatch" tool_tip="Щелкните для выбора цвета"/>
 			<texture_picker label="" name="light texture control" tool_tip="Щелкните для выбора проецируемого изображения (действует только с включенной отложенной отрисовкой)"/>
@@ -362,7 +362,7 @@
 			<spinner label="Ослабление" name="Light Falloff"/>
 			<spinner label="Окружение" name="Light Ambiance"/>
 			<text name="label physicsshapetype">
-				Тип физической формы:
+				Тип физич. формы:
 			</text>
 			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="Выберите тип физической формы"/>
 			<combo_box name="material">
@@ -394,7 +394,7 @@
 			<text name="glow label">
 				Свечение
 			</text>
-			<check_box label="Собственная яркость" name="checkbox fullbright"/>
+			<check_box label="Собств. яркость" name="checkbox fullbright"/>
 			<text name="tex gen">
 				Наложение
 			</text>
@@ -476,7 +476,7 @@
 			Площадь: [AREA] м²
 		</text>
 		<button label="О земле" label_selected="О земле" name="button about land"/>
-		<check_box label="Показать владельцев" name="checkbox show owners" tool_tip="Цвет участка в зависимости от типа владения:  зеленый = ваша земля голубой = земля вашей группы красный = чужая земля желтый = для продажи фиолетовый = для аукциона серый = общая"/>
+		<check_box label="Показать владельцев" name="checkbox show owners" tool_tip="Цвет участка в зависимости от типа владения: зеленый = ваша земля; голубой = земля вашей группы; красный = чужая земля; желтый = для продажи; фиолетовый = для аукциона; серый = общая"/>
 		<text name="label_parcel_modify">
 			Изменение участка
 		</text>

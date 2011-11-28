@@ -1641,8 +1641,8 @@ void LLTextureCache::purgeTextures(bool validate)
 		{
 			purge_count++;
 	 		LL_DEBUGS("TextureCache") << "PURGING: " << filename << LL_ENDL;
-			removeEntry(idx, entries[idx], filename) ;
 			cache_size -= entries[idx].mBodySize;
+			removeEntry(idx, entries[idx], filename) ;			
 		}
 	}
 
@@ -1879,13 +1879,12 @@ void LLTextureCache::removeEntry(S32 idx, Entry& entry, std::string& filename)
 			  file_maybe_exists = false;
 		  }
 		}
+		mTexturesSizeTotal -= entry.mBodySize;
 
 		entry.mImageSize = -1;
 		entry.mBodySize = 0;
 		mHeaderIDMap.erase(entry.mID);
-		mTexturesSizeMap.erase(entry.mID);
-
-		mTexturesSizeTotal -= entry.mBodySize;
+		mTexturesSizeMap.erase(entry.mID);		
 		mFreeList.insert(idx);	
 	}
 

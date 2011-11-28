@@ -433,7 +433,6 @@ BOOL LLPanelLandGeneral::postBuild()
 
 	
 	mTextDwell = getChild<LLTextBox>("DwellText");
-
 	
 	mBtnBuyLand = getChild<LLButton>("Buy Land...");
 	mBtnBuyLand->setClickedCallback(onClickBuyLand, (void*)&BUY_PERSONAL_LAND);
@@ -696,20 +695,26 @@ void LLPanelLandGeneral::refresh()
 		S32 area;
 		S32 claim_price;
 		S32 rent_price;
-		F32 dwell;
+		F32 dwell = DWELL_NAN;
 		LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
 								 &claim_price,
 								 &rent_price,
 								 &for_sale,
 								 &dwell);
-
 		// Area
 		LLUIString price = getString("area_size_text");
 		price.setArg("[AREA]", llformat("%d",area));    
 		mTextPriceLabel->setText(getString("area_text"));
 		mTextPrice->setText(price.getString());
 
-		mTextDwell->setText(llformat("%.0f", dwell));
+		if (dwell == DWELL_NAN)
+		{
+			mTextDwell->setText(LLTrans::getString("LoadingData"));
+		}
+		else
+		{
+			mTextDwell->setText(llformat("%.0f", dwell));
+		}
 
 		if (for_sale)
 		{

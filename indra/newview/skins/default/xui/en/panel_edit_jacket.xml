@@ -32,7 +32,7 @@
         name="Upper Fabric"
         tool_tip="Click to choose a picture"
         top="10"
-        width="74" >
+        width="75" >
          <texture_picker.commit_callback
              function="TexturePicker.Commit" />
        </texture_picker>

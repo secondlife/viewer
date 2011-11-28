@@ -42,6 +42,7 @@ LLFloaterToybox::LLFloaterToybox(const LLSD& key)
 	, mToolBar(NULL)
 {
 	mCommitCallbackRegistrar.add("Toybox.RestoreDefaults", boost::bind(&LLFloaterToybox::onBtnRestoreDefaults, this));
+	mCommitCallbackRegistrar.add("Toybox.ClearAll", boost::bind(&LLFloaterToybox::onBtnClearAll, this));
 }
 
 LLFloaterToybox::~LLFloaterToybox()
@@ -121,13 +122,33 @@ static bool finish_restore_toybox(const LLSD& notification, const LLSD& response
 	{
 		LLToolBarView::loadDefaultToolbars();
 	}
+
 	return false;
 }
+
+static bool finish_clear_all_toybox(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+	if (option == 0)
+	{
+		LLToolBarView::clearAllToolbars();
+	}
+
+	return false;
+}
+
 static LLNotificationFunctorRegistration finish_restore_toybox_reg("ConfirmRestoreToybox", finish_restore_toybox);
+static LLNotificationFunctorRegistration finish_clear_all_toybox_reg("ConfirmClearAllToybox", finish_clear_all_toybox);
 
 void LLFloaterToybox::onBtnRestoreDefaults()
 {
 	LLNotificationsUtil::add("ConfirmRestoreToybox");
+}
+
+void LLFloaterToybox::onBtnClearAll()
+{
+	LLNotificationsUtil::add("ConfirmClearAllToybox");
 }
 
 BOOL LLFloaterToybox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,

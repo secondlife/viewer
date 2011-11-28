@@ -9,7 +9,7 @@
 		<scroll_list.columns label="Тип" name="type"/>
 		<scroll_list.columns label="Площадь" name="area"/>
 	</scroll_list>
-	<button label="Телепортация" label_selected="Телепортация" name="Teleport" tool_tip="Телепортироваться в центр этой земли."/>
+	<button label="Телепорт" label_selected="Телепорт" name="Teleport" tool_tip="Телепортироваться в центр этой земли."/>
 	<button label="Карта" label_selected="Карта" name="Show on Map" tool_tip="Показать эту землю на карте мира."/>
 	<text name="contrib_label">
 		Ваши вложения в группы:

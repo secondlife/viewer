@@ -98,7 +98,7 @@
 			<text name="SunGlowText">
 				Сияние солнца
 			</text>
-			<slider label="Отчетливость" name="WLGlowB"/>
+			<slider label="Фокус" name="WLGlowB"/>
 			<slider label="Размер" name="WLGlowR"/>
 			<text name="SceneGammaText">
 				Гамма-коррекция сцены

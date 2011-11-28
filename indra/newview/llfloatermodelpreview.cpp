@@ -497,6 +497,11 @@ BOOL LLFloaterModelPreview::postBuild()
 	{
 		validate_url = "http://secondlife.com/my/account/mesh.php";
 	}
+	else if (current_grid == "damballah")
+	{
+		// Staging grid has its own naming scheme.
+		validate_url = "http://secondlife-staging.com/my/account/mesh.php";
+	}
 	else
 	{
 		validate_url = llformat("http://secondlife.%s.lindenlab.com/my/account/mesh.php",current_grid.c_str());
@@ -745,6 +750,11 @@ void LLFloaterModelPreview::draw()
 
 	if (!mModelPreview->mLoading)
 	{
+		if ( mModelPreview->getLoadState() == LLModelLoader::ERROR_MATERIALS )
+		{
+			childSetTextArg("status", "[STATUS]", getString("status_material_mismatch"));
+		}
+		else
 		if ( mModelPreview->getLoadState() > LLModelLoader::ERROR_PARSING )
 		{		
 			childSetTextArg("status", "[STATUS]", getString(LLModel::getStatusString(mModelPreview->getLoadState() - LLModelLoader::ERROR_PARSING)));
@@ -3305,7 +3315,7 @@ void LLModelPreview::rebuildUploadData()
 	F32 max_scale = 0.f;
 
 	//reorder materials to match mBaseModel
-	for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+	for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
 	{
 		if (mBaseModel.size() == mModel[i].size())
 		{
@@ -3317,6 +3327,7 @@ void LLModelPreview::rebuildUploadData()
 				
 				if ( !mModel[i][j]->matchMaterialOrder(mBaseModel[j], refFaceCnt, modelFaceCnt ) )
 				{
+					setLoadState( LLModelLoader::ERROR_MATERIALS );
 					mFMP->childDisable( "calculate_btn" );
 				}
 			}
@@ -4368,11 +4379,6 @@ void LLModelPreview::updateStatusMessages()
 		{
 			skinAndRigOk = false;
 		}	
-		else
-		if ( !isLegacyRigValid() )
-		{
-			mFMP->childDisable("calculate_btn");
-		}
 	}
 	
 	if(upload_ok && mModelLoader)
@@ -5103,6 +5109,8 @@ BOOL LLModelPreview::render()
 
 	if (!mModel[mPreviewLOD].empty())
 	{
+		mFMP->childEnable("reset_btn");
+
 		bool regen = mVertexBuffer[mPreviewLOD].empty();
 		if (!regen)
 		{
@@ -5115,7 +5123,7 @@ BOOL LLModelPreview::render()
 		}
 
 		//make sure material lists all match
-		for (U32 i = 0; i < LLModel::NUM_LODS; i++)
+		for (U32 i = 0; i < LLModel::NUM_LODS-1; i++)
 		{
 			if (mBaseModel.size() == mModel[i].size())
 			{
@@ -5616,6 +5624,7 @@ void LLFloaterModelPreview::onReset(void* user_data)
 	assert_main_thread();
 
 	LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) user_data;
+	fmp->childDisable("reset_btn");
 	LLModelPreview* mp = fmp->mModelPreview;
 	std::string filename = mp->mLODFile[3]; 
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_shape_panel">
 	<string name="meters">
-		метров
+		м
 	</string>
 	<string name="feet">
 		футов
