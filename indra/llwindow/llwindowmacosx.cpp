@@ -1254,7 +1254,7 @@ BOOL LLWindowMacOSX::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowMacOSX::setSize(const LLCoordScreen size)
+BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
