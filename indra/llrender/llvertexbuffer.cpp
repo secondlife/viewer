@@ -84,7 +84,7 @@ public:
 #endif
 	}
 
-	~LLGLSyncFence()
+	virtual ~LLGLSyncFence()
 	{
 #ifdef GL_ARB_sync
 		if (mSync)
