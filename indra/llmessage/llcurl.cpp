@@ -797,9 +797,10 @@ void LLCurl::Multi::removeEasy(Easy* easy)
 
 //------------------------------------------------------------
 //LLCurlThread
-LLCurlThread::CurlRequest::CurlRequest(handle_t handle, LLCurl::Multi* multi) :
+LLCurlThread::CurlRequest::CurlRequest(handle_t handle, LLCurl::Multi* multi, LLCurlThread* curl_thread) :
 	LLQueuedThread::QueuedRequest(handle, LLQueuedThread::PRIORITY_NORMAL, FLAG_AUTO_COMPLETE),
-	mMulti(multi)
+	mMulti(multi),
+	mCurlThread(curl_thread)
 {	
 }
 
@@ -807,7 +808,7 @@ LLCurlThread::CurlRequest::~CurlRequest()
 {	
 	if(mMulti)
 	{
-		delete mMulti ;
+		mCurlThread->deleteMulti(mMulti) ;
 		mMulti = NULL ;
 	}
 }
@@ -817,7 +818,7 @@ bool LLCurlThread::CurlRequest::processRequest()
 	bool completed = true ;
 	if(mMulti)
 	{
-		completed = mMulti->doPerform() ;
+		completed = mCurlThread->doMultiPerform(mMulti) ;
 		setPriority(LLQueuedThread::PRIORITY_LOW) ;
 	}
 
@@ -826,7 +827,7 @@ bool LLCurlThread::CurlRequest::processRequest()
 
 void LLCurlThread::CurlRequest::finishRequest(bool completed)
 {
-	delete mMulti ;
+	mCurlThread->deleteMulti(mMulti) ;
 	mMulti = NULL ;
 }
 	
@@ -849,7 +850,7 @@ void LLCurlThread::addMulti(LLCurl::Multi* multi)
 {
 	multi->mHandle = generateHandle() ;
 
-	CurlRequest* req = new CurlRequest(multi->mHandle, multi) ;
+	CurlRequest* req = new CurlRequest(multi->mHandle, multi, this) ;
 
 	if (!addRequest(req))
 	{
@@ -857,11 +858,22 @@ void LLCurlThread::addMulti(LLCurl::Multi* multi)
 	}
 }
 	
-void LLCurlThread::deleteMulti(LLCurl::Multi* multi)
+void LLCurlThread::killMulti(LLCurl::Multi* multi)
 {
 	multi->markDead() ;
 }
 
+//private
+bool LLCurlThread::doMultiPerform(LLCurl::Multi* multi) 
+{
+	return multi->doPerform() ;
+}
+
+//private
+void LLCurlThread::deleteMulti(LLCurl::Multi* multi) 
+{
+	delete multi ;
+}
 //------------------------------------------------------------
 
 //static
@@ -886,7 +898,7 @@ LLCurlRequest::~LLCurlRequest()
 	//stop all Multi handle background threads
 	for (curlmulti_set_t::iterator iter = mMultiSet.begin(); iter != mMultiSet.end(); ++iter)
 	{
-		LLCurl::getCurlThread()->deleteMulti(*iter) ;
+		LLCurl::getCurlThread()->killMulti(*iter) ;
 	}
 	mMultiSet.clear() ;
 }
@@ -1023,7 +1035,7 @@ S32 LLCurlRequest::process()
 		if (multi != mActiveMulti && tres == 0 && multi->mQueued == 0)
 		{
 			mMultiSet.erase(curiter);
-			LLCurl::getCurlThread()->deleteMulti(multi);
+			LLCurl::getCurlThread()->killMulti(multi);
 		}
 	}
 	mProcessing = FALSE;
@@ -1069,7 +1081,7 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 
 LLCurlEasyRequest::~LLCurlEasyRequest()
 {
-	LLCurl::getCurlThread()->deleteMulti(mMulti) ;
+	LLCurl::getCurlThread()->killMulti(mMulti) ;
 }
 	
 void LLCurlEasyRequest::setopt(CURLoption option, S32 value)

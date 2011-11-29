@@ -328,7 +328,7 @@ public:
 		virtual ~CurlRequest(); // use deleteRequest()
 		
 	public:
-		CurlRequest(handle_t handle, LLCurl::Multi* multi);
+		CurlRequest(handle_t handle, LLCurl::Multi* multi, LLCurlThread* curl_thread);
 
 		/*virtual*/ bool processRequest();
 		/*virtual*/ void finishRequest(bool completed);
@@ -336,8 +336,10 @@ public:
 	private:
 		// input
 		LLCurl::Multi* mMulti;
+		LLCurlThread*  mCurlThread;
 	};
-	
+	friend class CurlRequest;
+
 public:
 	LLCurlThread(bool threaded = true) ;
 	virtual ~LLCurlThread() ;
@@ -345,6 +347,10 @@ public:
 	S32 update(U32 max_time_ms);
 
 	void addMulti(LLCurl::Multi* multi) ;
+	void killMulti(LLCurl::Multi* multi) ;
+
+private:
+	bool doMultiPerform(LLCurl::Multi* multi) ;
 	void deleteMulti(LLCurl::Multi* multi) ;
 } ;
 
