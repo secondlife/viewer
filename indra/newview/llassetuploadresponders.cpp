@@ -295,6 +295,11 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();
+	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+	if (floater_snapshot)
+	{
+		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
+	}
 	
 	std::string reason = content["state"];
 	// deal with L$ errors

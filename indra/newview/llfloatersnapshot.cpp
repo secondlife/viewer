@@ -380,7 +380,6 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 	{
 		mThumbnailUpToDate = FALSE ;
 	}
-	setThumbnailImageSize();
 }
 
 void LLSnapshotLivePreview::setSnapshotQuality(S32 quality)
@@ -723,25 +722,19 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 		resetThumbnailImage() ;
 	}		
 
-	LLPointer<LLImageRaw> raw = NULL ;
-	S32 w , h ;
-	w = get_lower_power_two(mThumbnailWidth, 512) * 2 ;
-	h = get_lower_power_two(mThumbnailHeight, 512) * 2 ;
-
+	LLPointer<LLImageRaw> raw = new LLImageRaw;
+	if(!gViewerWindow->thumbnailSnapshot(raw,
+							mThumbnailWidth, mThumbnailHeight,
+							gSavedSettings.getBOOL("RenderUIInSnapshot"),
+							FALSE,
+							mSnapshotBufferType) )								
 	{
-		raw = new LLImageRaw ;
-		if(!gViewerWindow->thumbnailSnapshot(raw,
-								w, h,
-								gSavedSettings.getBOOL("RenderUIInSnapshot"),
-								FALSE,
-								mSnapshotBufferType) )								
-		{
-			raw = NULL ;
-		}
+		raw = NULL ;
 	}
 
 	if(raw)
 	{
+		raw->expandToPowerOfTwo();
 		mThumbnailImage = LLViewerTextureManager::getLocalTexture(raw.get(), FALSE); 		
 		mThumbnailUpToDate = TRUE ;
 	}
@@ -791,6 +784,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	}
 
 	// time to produce a snapshot
+	previewp->setThumbnailImageSize();
 
 	lldebugs << "producing snapshot" << llendl;
 	if (!previewp->mPreviewImage)
@@ -1003,13 +997,7 @@ void LLSnapshotLivePreview::saveTexture()
 
 BOOL LLSnapshotLivePreview::saveLocal()
 {
-	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage, true);
-
-	// Relinquish image memory. Save button will be disabled as a side-effect.
-	lldebugs << "resetting formatted image after saving to disk" << llendl;
-	mFormattedImage = NULL;
-	mDataSize = 0;
-	updateSnapshot(FALSE, FALSE);
+	BOOL success = gViewerWindow->saveImageNumbered(mFormattedImage);
 
 	if(success)
 	{
@@ -1064,6 +1052,7 @@ public:
 	:	mAvatarPauseHandles(),
 		mLastToolset(NULL),
 		mAspectRatioCheckOff(false),
+		mNeedRefresh(false),
 		mStatus(STATUS_READY)
 	{
 	}
@@ -1083,7 +1072,6 @@ public:
 	static void onClickKeepAspectCheck(LLUICtrl *ctrl, void* data);
 #endif
 	static void applyKeepAspectCheck(LLFloaterSnapshot* view, BOOL checked);
-	static void onCommitResolution(LLUICtrl* ctrl, void* data) { updateResolution(ctrl, data); }
 	static void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
 	static void onCommitFreezeFrame(LLUICtrl* ctrl, void* data);
 	static void onCommitLayerTypes(LLUICtrl* ctrl, void*data);
@@ -1113,6 +1101,7 @@ public:
 	static void updateLayout(LLFloaterSnapshot* floater);
 	static void setStatus(EStatus status, bool ok = true, const std::string& msg = LLStringUtil::null);
 	EStatus getStatus() const { return mStatus; }
+	static void setNeedRefresh(LLFloaterSnapshot* floater, bool need);
 
 private:
 	static LLViewerWindow::ESnapshotType getLayerType(LLFloaterSnapshot* floater);
@@ -1129,6 +1118,7 @@ public:
 	LLToolset*	mLastToolset;
 	LLHandle<LLView> mPreviewHandle;
 	bool mAspectRatioCheckOff ;
+	bool mNeedRefresh;
 	EStatus mStatus;
 };
 
@@ -1251,7 +1241,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 
 	// Show/hide advanced options.
 	LLPanel* advanced_options_panel = floaterp->getChild<LLPanel>("advanced_options_panel");
-	floaterp->getChild<LLButton>("advanced_options_btn")->setToggleState(advanced);
+	floaterp->getChild<LLButton>("advanced_options_btn")->setImageOverlay(advanced ? "TabIcon_Open_Off" : "TabIcon_Close_Off");
 	if (advanced != advanced_options_panel->getVisible())
 	{
 		S32 panel_width = advanced_options_panel->getRect().getWidth();
@@ -1347,6 +1337,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 // No other methods should be changing any of the controls directly except for helpers called by this method.
 // The basic pattern for programmatically changing the GUI settings is to first set the
 // appropriate saved settings and then call this method to sync the GUI with them.
+// FIXME: The above comment seems obsolete now.
 // static
 void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 {
@@ -1515,6 +1506,15 @@ void LLFloaterSnapshot::Impl::setStatus(EStatus status, bool ok, const std::stri
 }
 
 // static
+void LLFloaterSnapshot::Impl::setNeedRefresh(LLFloaterSnapshot* floater, bool need)
+{
+	if (!floater) return;
+
+	floater->mRefreshLabel->setVisible(need);
+	floater->impl.mNeedRefresh = need;
+}
+
+// static
 void LLFloaterSnapshot::Impl::checkAutoSnapshot(LLSnapshotLivePreview* previewp, BOOL update_thumbnail)
 {
 	if (previewp)
@@ -1531,6 +1531,7 @@ void LLFloaterSnapshot::Impl::onClickNewSnapshot(void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (previewp && view)
 	{
+		view->impl.setStatus(Impl::STATUS_READY);
 		previewp->updateSnapshot(TRUE);
 	}
 }
@@ -1556,6 +1557,7 @@ void LLFloaterSnapshot::Impl::onClickMore(void* data)
 	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
 	if (view)
 	{
+		view->impl.setStatus(Impl::STATUS_READY);
 		gSavedSettings.setBOOL("AdvanceSnapshot", !visible);
 #if 0
 		view->translate( 0, view->getUIWinHeightShort() - view->getUIWinHeightLong() );
@@ -1697,6 +1699,7 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshot *view, S32 inde
 	return ;
 }
 
+// Show/hide upload progress indicators.
 // static
 void LLFloaterSnapshot::Impl::setWorking(LLFloaterSnapshot* floater, bool working)
 {
@@ -1712,20 +1715,21 @@ void LLFloaterSnapshot::Impl::setWorking(LLFloaterSnapshot* floater, bool workin
 		working_lbl->setValue(progress_text);
 	}
 
-	// All controls should be disable while posting.
+	// All controls should be disabled while posting.
 	floater->setCtrlsEnabled(!working);
 	LLPanelSnapshot* active_panel = getActivePanel(floater);
 	if (active_panel)
 	{
-		active_panel->setCtrlsEnabled(!working);
+		active_panel->enableControls(!working);
 	}
 }
 
+// Show/hide upload status message.
 // static
 void LLFloaterSnapshot::Impl::setFinished(LLFloaterSnapshot* floater, bool finished, bool ok, const std::string& msg)
 {
-	floater->getChild<LLUICtrl>("succeeded_panel")->setVisible(finished && ok);
-	floater->getChild<LLUICtrl>("failed_panel")->setVisible(finished && !ok);
+	floater->mSucceessLblPanel->setVisible(finished && ok);
+	floater->mFailureLblPanel->setVisible(finished && !ok);
 
 	if (finished)
 	{
@@ -1869,6 +1873,7 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			if(do_update)
 			{
 				updateControls(view);
+				setNeedRefresh(view, true);
 			}
 		}
 	}
@@ -1911,6 +1916,7 @@ void LLFloaterSnapshot::Impl::onImageFormatChange(LLFloaterSnapshot* view)
 		gSavedSettings.setS32("SnapshotFormat", getImageFormat(view));
 		getPreviewView(view)->updateSnapshot(TRUE);
 		updateControls(view);
+		setNeedRefresh(view, false); // we're refreshing
 	}
 }
 
@@ -2060,6 +2066,8 @@ void LLFloaterSnapshot::Impl::onCommitCustomResolution(LLUICtrl *ctrl, void* dat
 // static
 void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32 w, S32 h)
 {
+	bool need_refresh = false;
+
 	lldebugs << "applyCustomResolution(" << w << ", " << h << ")" << llendl;
 	if (view)
 	{
@@ -2110,6 +2118,7 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 				comboSetCustom(view, "postcard_size_combo");
 				comboSetCustom(view, "texture_size_combo");
 				comboSetCustom(view, "local_size_combo");
+				need_refresh = true;
 			}
 		}
 
@@ -2117,6 +2126,10 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshot* view, S32
 		gSavedSettings.setS32(lastSnapshotHeightName(getActiveSnapshotType(view)), h);
 
 		updateControls(view);
+		if (need_refresh)
+		{
+			setNeedRefresh(view, true); // need to do this after updateControls()
+		}
 	}
 }
 
@@ -2140,6 +2153,10 @@ void LLFloaterSnapshot::Impl::onSendingPostcardFinished(bool status)
 // Default constructor
 LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
 	: LLFloater(key),
+	  mRefreshBtn(NULL),
+	  mRefreshLabel(NULL),
+	  mSucceessLblPanel(NULL),
+	  mFailureLblPanel(NULL),
 	  impl (*(new Impl))
 {
 }
@@ -2173,7 +2190,11 @@ BOOL LLFloaterSnapshot::postBuild()
 	childSetCommitCallback("snapshot_type_radio", Impl::onCommitSnapshotType, this);
 #endif
 	
+	mRefreshBtn = getChild<LLUICtrl>("new_snapshot_btn");
 	childSetAction("new_snapshot_btn", Impl::onClickNewSnapshot, this);
+	mRefreshLabel = getChild<LLUICtrl>("refresh_lbl");
+	mSucceessLblPanel = getChild<LLUICtrl>("succeeded_panel");
+	mFailureLblPanel = getChild<LLUICtrl>("failed_panel");
 
 	childSetAction("advanced_options_btn", Impl::onClickMore, this);
 
@@ -2207,11 +2228,6 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
 	childSetCommitCallback("auto_snapshot_check", Impl::onClickAutoSnap, this);
-
-	childSetCommitCallback("profile_size_combo", Impl::onCommitResolution, this);
-	childSetCommitCallback("postcard_size_combo", Impl::onCommitResolution, this);
-	childSetCommitCallback("texture_size_combo", Impl::onCommitResolution, this);
-	childSetCommitCallback("local_size_combo", Impl::onCommitResolution, this);
 
 	LLWebProfile::setImageUploadResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSnapshotUploadFinished, _1));
 	LLPostCard::setPostResultCallback(boost::bind(&LLFloaterSnapshot::Impl::onSendingPostcardFinished, _1));
@@ -2259,28 +2275,63 @@ void LLFloaterSnapshot::draw()
 		{
 			bool working = impl.getStatus() == Impl::STATUS_WORKING;
 			const LLRect& thumbnail_rect = getThumbnailPlaceholderRect();
-			S32 offset_x = thumbnail_rect.mLeft + (thumbnail_rect.getWidth() - previewp->getThumbnailWidth()) / 2 ;
-			S32 offset_y = thumbnail_rect.mBottom + (thumbnail_rect.getHeight() - previewp->getThumbnailHeight()) / 2 ;
+			const S32 thumbnail_w = previewp->getThumbnailWidth();
+			const S32 thumbnail_h = previewp->getThumbnailHeight();
+
+			// calc preview offset within the preview rect
+			const S32 local_offset_x = (thumbnail_rect.getWidth() - thumbnail_w) / 2 ;
+			const S32 local_offset_y = (thumbnail_rect.getHeight() - thumbnail_h) / 2 ; // preview y pos within the preview rect
+
+			// calc preview offset within the floater rect
+			S32 offset_x = thumbnail_rect.mLeft + local_offset_x;
+			S32 offset_y = thumbnail_rect.mBottom + local_offset_y;
 
 			glMatrixMode(GL_MODELVIEW);
 			// Apply floater transparency to the texture unless the floater is focused.
 			F32 alpha = getTransparencyType() == TT_ACTIVE ? 1.0f : getCurrentTransparency();
 			LLColor4 color = working ? LLColor4::grey4 : LLColor4::white;
 			gl_draw_scaled_image(offset_x, offset_y, 
-					previewp->getThumbnailWidth(), previewp->getThumbnailHeight(), 
+					thumbnail_w, thumbnail_h,
 					previewp->getThumbnailImage(), color % alpha);
 
 			previewp->drawPreviewRect(offset_x, offset_y) ;
 
-			// Draw progress indicators on top of the preview.
-			if (working)
+			// Draw some controls on top of the preview thumbnail.
+			static const S32 PADDING = 5;
+			static const S32 REFRESH_LBL_BG_HEIGHT = 32;
+
+			// Reshape and position the posting result message panels at the top of the thumbnail.
+			// Do this regardless of current posting status (finished or not) to avoid flicker
+			// when the result message is displayed for the first time.
+			// if (impl.getStatus() == Impl::STATUS_FINISHED)
 			{
-				gGL.pushUIMatrix();
-				const LLRect& r = getThumbnailPlaceholderRect();
-				LLUI::translate((F32) r.mLeft, (F32) r.mBottom);
-				sThumbnailPlaceholder->draw();
-				gGL.popUIMatrix();
+				LLRect result_lbl_rect = mSucceessLblPanel->getRect();
+				const S32 result_lbl_h = result_lbl_rect.getHeight();
+				result_lbl_rect.setLeftTopAndSize(local_offset_x, local_offset_y + thumbnail_h, thumbnail_w - 1, result_lbl_h);
+				mSucceessLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
+				mSucceessLblPanel->setRect(result_lbl_rect);
+				mFailureLblPanel->reshape(result_lbl_rect.getWidth(), result_lbl_h);
+				mFailureLblPanel->setRect(result_lbl_rect);
 			}
+
+			// Position the refresh button in the bottom left corner of the thumbnail.
+			mRefreshBtn->setOrigin(local_offset_x + PADDING, local_offset_y + PADDING);
+
+			if (impl.mNeedRefresh)
+			{
+				// Place the refresh hint text to the right of the refresh button.
+				const LLRect& refresh_btn_rect = mRefreshBtn->getRect();
+				mRefreshLabel->setOrigin(refresh_btn_rect.mLeft + refresh_btn_rect.getWidth() + PADDING, refresh_btn_rect.mBottom);
+
+				// Draw the refresh hint background.
+				LLRect refresh_label_bg_rect(offset_x, offset_y + REFRESH_LBL_BG_HEIGHT, offset_x + thumbnail_w - 1, offset_y);
+				gl_rect_2d(refresh_label_bg_rect, LLColor4::white % 0.9f, TRUE);
+			}
+
+			gGL.pushUIMatrix();
+			LLUI::translate((F32) thumbnail_rect.mLeft, (F32) thumbnail_rect.mBottom);
+			sThumbnailPlaceholder->draw();
+			gGL.popUIMatrix();
 		}
 	}
 }
@@ -2411,7 +2462,7 @@ void LLFloaterSnapshot::saveTexture()
 }
 
 // static
-void LLFloaterSnapshot::saveLocal()
+BOOL LLFloaterSnapshot::saveLocal()
 {
 	lldebugs << "saveLocal" << llendl;
 	// FIXME: duplicated code
@@ -2419,16 +2470,16 @@ void LLFloaterSnapshot::saveLocal()
 	if (!instance)
 	{
 		llassert(instance != NULL);
-		return;
+		return FALSE;
 	}
 	LLSnapshotLivePreview* previewp = Impl::getPreviewView(instance);
 	if (!previewp)
 	{
 		llassert(previewp != NULL);
-		return;
+		return FALSE;
 	}
 
-	previewp->saveLocal();
+	return previewp->saveLocal();
 }
 
 // static
@@ -2440,6 +2491,9 @@ void LLFloaterSnapshot::preUpdate()
 	{
 		// Disable the send/post/save buttons until snapshot is ready.
 		Impl::updateControls(instance);
+
+		// Force hiding the "Refresh to save" hint because we know we've just started refresh.
+		Impl::setNeedRefresh(instance, false);
 	}
 }
 
@@ -2452,6 +2506,16 @@ void LLFloaterSnapshot::postUpdate()
 	{
 		// Enable the send/post/save buttons.
 		Impl::updateControls(instance);
+
+		// We've just done refresh.
+		Impl::setNeedRefresh(instance, false);
+
+		// The refresh button is initially hidden. We show it after the first update,
+		// i.e. when preview appears.
+		if (!instance->mRefreshBtn->getVisible())
+		{
+			instance->mRefreshBtn->setVisible(true);
+		}
 	}
 }
 
@@ -2474,6 +2538,9 @@ void LLFloaterSnapshot::postPanelSwitch()
 {
 	LLFloaterSnapshot* instance = getInstance();
 	instance->impl.updateControls(instance);
+
+	// Remove the success/failure indicator whenever user presses a snapshot option button.
+	instance->impl.setStatus(Impl::STATUS_READY);
 }
 
 // static
