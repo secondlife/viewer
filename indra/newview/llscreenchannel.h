@@ -69,6 +69,8 @@ public:
 	};
 
 	LLScreenChannelBase(const Params&);
+	
+	BOOL postBuild();
 
 	void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
@@ -123,7 +125,7 @@ protected:
 
 	// Channel's flags
 	bool		mControlHovering;
-	LLToast*		mHoveredToast;
+	LLToast*	mHoveredToast;
 	bool		mCanStoreToasts;
 	bool		mDisplayToastsAlways;
 	// controls whether a channel shows toasts or not
@@ -137,6 +139,9 @@ protected:
 
 	// channel's ID
 	LLUUID	mID;
+	
+	LLView*	mFloaterSnapRegion;
+	LLView* mChicletRegion;
 };
 
 

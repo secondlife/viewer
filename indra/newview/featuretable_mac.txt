@@ -1,4 +1,4 @@
-version 31
+version 32
 // The version number above should be implemented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -67,7 +67,7 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WatchdogDisabled				1	1
-RenderUseStreamVBO			1	0
+RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
 

@@ -71,9 +71,14 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 };
 
 LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
-	: LLFloater(key),
-	mChatBox(NULL)
-{	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+:	LLFloater(key),
+	mChatBox(NULL),
+	mNearbyChat(NULL),
+	mOutputMonitor(NULL),
+	mSpeakerMgr(NULL),
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
+{
+	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -95,6 +100,7 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
+	mNearbyChat = getChildView("nearby_chat");
 
 	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
 	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
@@ -105,8 +111,6 @@ BOOL LLNearbyChatBar::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
-	mExpandedHeight = COLLAPSED_HEIGHT + EXPANDED_HEIGHT;
-
 	enableResizeCtrls(true, true, false);
 
 	return TRUE;
@@ -116,8 +120,7 @@ bool LLNearbyChatBar::applyRectControl()
 {
 	bool rect_controlled = LLFloater::applyRectControl();
 
-	LLView* nearby_chat = getChildView("nearby_chat");	
-	if (!nearby_chat->getVisible())
+	if (!mNearbyChat->getVisible())
 	{
 		reshape(getRect().getWidth(), getMinHeight());
 		enableResizeCtrls(true, true, false);
