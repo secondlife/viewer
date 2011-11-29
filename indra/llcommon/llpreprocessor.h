@@ -151,6 +151,7 @@
 
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
+#pragma warning (disable : 4018) // '<' : signed/unsigned mismatch	
 #endif	//	LL_MSVC
 
 #if LL_WINDOWS

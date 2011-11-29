@@ -63,9 +63,6 @@ extern BOOL gDebugWindowProc;
 
 const S32 MAX_NUM_RESOLUTIONS = 200;
 
-const S32 MIN_WINDOW_WIDTH = 1024;
-const S32 MIN_WINDOW_HEIGHT = 768;
-
 // static variable for ATI mouse cursor crash work-around:
 static bool ATIbug = false; 
 
@@ -181,6 +178,20 @@ Display* LLWindowSDL::get_SDL_Display(void)
 		return gWindowImplementation->mSDL_Display;
 	}
 	return NULL;
+}
+
+void LLWindowSDL::setXWindowMinSize()
+{
+	// Set the minimum size limits for X11 window
+	// so the window manager doesn't allow resizing below those limits.
+	XSizeHints* hints = XAllocSizeHints();
+	hints->flags |= PMinSize;
+	hints->min_width = mMinWindowWidth;
+	hints->min_height = mMinWindowHeight;
+
+	XSetWMNormalHints(mSDL_Display, mSDL_XWindowID, hints);
+
+	XFree(hints);
 }
 #endif // LL_X11
 
@@ -741,6 +752,8 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 			mSDL_XWindowID = info.info.x11.wmwindow;
 			Lock_Display = info.info.x11.lock_func;
 			Unlock_Display = info.info.x11.unlock_func;
+
+			setXWindowMinSize();
 		}
 		else
 		{
@@ -966,7 +979,7 @@ BOOL LLWindowSDL::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowSDL::setSize(const LLCoordScreen size)
+BOOL LLWindowSDL::setSizeImpl(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
@@ -1850,8 +1863,8 @@ void LLWindowSDL::gatherInput()
 		llinfos << "Handling a resize event: " << event.resize.w <<
 			"x" << event.resize.h << llendl;
 
-		S32 width = llmax(event.resize.w, MIN_WINDOW_WIDTH);
-		S32 height = llmax(event.resize.h, MIN_WINDOW_HEIGHT);
+		S32 width = llmax(event.resize.w, (S32)mMinWindowWidth);
+		S32 height = llmax(event.resize.h, (S32)mMinWindowHeight);
 
 		// *FIX: I'm not sure this is necessary!
 		mWindow = SDL_SetVideoMode(width, height, 32, mSDLFlags);
@@ -1868,6 +1881,12 @@ void LLWindowSDL::gatherInput()
                 break;
 		}
 		
+#if LL_X11
+		// The minimum size limits should be reset after
+		// each successful SDL_SetVideoMode() call.
+		setXWindowMinSize();
+#endif
+
 		mCallbacks->handleResize(this, width, height);
                 break;
             }

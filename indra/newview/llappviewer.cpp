@@ -2861,22 +2861,20 @@ bool LLAppViewer::initWindow()
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 
-	// clamp to minimum window size
-	U32 min_window_width=gSavedSettings.getU32("MinWindowWidth");
-	U32 window_width=gSavedSettings.getU32("WindowWidth");
-	if ( window_width < min_window_width )
-		window_width=min_window_width;
+	LLViewerWindow::Params window_params;
+	window_params
+		.title(gWindowTitle)
+		.name(VIEWER_WINDOW_CLASSNAME)
+		.x(gSavedSettings.getS32("WindowX"))
+		.y(gSavedSettings.getS32("WindowY"))
+		.width(gSavedSettings.getU32("WindowWidth"))
+		.height(gSavedSettings.getU32("WindowHeight"))
+		.min_width(gSavedSettings.getU32("MinWindowWidth"))
+		.min_height(gSavedSettings.getU32("MinWindowHeight"))
+		.fullscreen(gSavedSettings.getBOOL("WindowFullScreen"))
+		.ignore_pixel_depth(ignorePixelDepth);
 
-	U32 min_window_height=gSavedSettings.getU32("MinWindowHeight");
-	U32 window_height=gSavedSettings.getU32("WindowHeight");
-	if ( window_height < min_window_height )
-		window_height=min_window_height;
-
-	gViewerWindow = new LLViewerWindow(gWindowTitle, 
-		VIEWER_WINDOW_CLASSNAME,
-		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
-		window_width, window_height,
-		gSavedSettings.getBOOL("WindowFullScreen"), ignorePixelDepth);
+	gViewerWindow = new LLViewerWindow(window_params);
 
 	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
 

@@ -41,7 +41,7 @@ class LLPluginClassMedia : public LLPluginProcessParentOwner
 	LOG_CLASS(LLPluginClassMedia);
 public:
 	LLPluginClassMedia(LLPluginClassMediaOwner *owner);
-	~LLPluginClassMedia();
+	virtual ~LLPluginClassMedia();
 
 	// local initialization, called by the media manager when creating a source
 	bool init(const std::string &launcher_filename, 

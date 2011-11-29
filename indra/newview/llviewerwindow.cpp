@@ -838,6 +838,20 @@ void LLViewerWindow::updateDebugText()
 // LLViewerWindow
 //
 
+LLViewerWindow::Params::Params()
+:	title("title"),
+	name("name"),
+	x("x"),
+	y("y"),
+	width("width"),
+	height("height"),
+	min_width("min_width"),
+	min_height("min_height"),
+	fullscreen("fullscreen", false),
+	ignore_pixel_depth("ignore_pixel_depth", false)
+{}
+
+
 BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
 	const char* buttonname = "";
@@ -1531,18 +1545,13 @@ std::string LLViewerWindow::translateString(const char* tag,
 //
 // Classes
 //
-LLViewerWindow::LLViewerWindow(
-	const std::string& title, const std::string& name,
-	S32 x, S32 y,
-	S32 width, S32 height,
-	BOOL fullscreen, BOOL ignore_pixel_depth) // fullscreen is no longer used
-	:
-	mWindow(NULL),
+LLViewerWindow::LLViewerWindow(const Params& p)
+:	mWindow(NULL),
 	mActive(true),
 	mUIVisible(true),
-	mWindowRectRaw(0, height, width, 0),
-	mWindowRectScaled(0, height, width, 0),
-	mWorldViewRectRaw(0, height, width, 0),
+	mWindowRectRaw(0, p.height, p.width, 0),
+	mWindowRectScaled(0, p.height, p.width, 0),
+	mWorldViewRectRaw(0, p.height, p.width, 0),
 	mLeftMouseDown(FALSE),
 	mMiddleMouseDown(FALSE),
 	mRightMouseDown(FALSE),
@@ -1578,12 +1587,12 @@ LLViewerWindow::LLViewerWindow(
 
 	// create window
 	mWindow = LLWindowManager::createWindow(this,
-		title, name, x, y, width, height, 0,
-		fullscreen, 
+		p.title, p.name, p.x, p.y, p.width, p.height, 0,
+		p.fullscreen, 
 		gHeadlessClient,
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gHeadlessClient,
-		ignore_pixel_depth,
+		p.ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
 	if (NULL == mWindow)
@@ -1610,10 +1619,11 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
 	}
 
+	mWindow->setMinSize(p.min_width, p.min_height);
 	LLCoordScreen scr;
     mWindow->getSize(&scr);
 
-    if(fullscreen && ( scr.mX!=width || scr.mY!=height))
+    if(p.fullscreen && ( scr.mX!=p.width || scr.mY!=p.height))
     {
 		llwarns << "Fullscreen has forced us in to a different resolution now using "<<scr.mX<<" x "<<scr.mY<<llendl;
 		gSavedSettings.setS32("FullScreenWidth",scr.mX);
@@ -2157,21 +2167,11 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		BOOL maximized = mWindow->getMaximized();
 		gSavedSettings.setBOOL("WindowMaximized", maximized);
 
-		LLCoordScreen window_size;
-		if (!maximized
-			&& mWindow->getSize(&window_size))
+		if (!maximized)
 		{
 			U32 min_window_width=gSavedSettings.getU32("MinWindowWidth");
-			if ( window_size.mX < min_window_width )
-				window_size.mX=min_window_width;
-			gSavedSettings.setU32("WindowWidth", window_size.mX);
-
 			U32 min_window_height=gSavedSettings.getU32("MinWindowHeight");
-			if ( window_size.mY < min_window_height )
-				window_size.mY=min_window_height;
-			gSavedSettings.setU32("WindowHeight", window_size.mY);
-
-			// tell the OS specific window code about min windoow size
+			// tell the OS specific window code about min window size
 			mWindow->setMinSize(min_window_width, min_window_height);
 		}
 
@@ -4099,25 +4099,18 @@ void LLViewerWindow::resetSnapshotLoc()
 	sSnapshotDir.clear();
 }
 
-static S32 BORDERHEIGHT = 0;
-static S32 BORDERWIDTH = 0;
-
 // static
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
-	LLCoordScreen size;
+	LLCoordWindow size;
 	gViewerWindow->getWindow()->getSize(&size);
-	if (  (size.mX != new_width + BORDERWIDTH)
-		||(size.mY != new_height + BORDERHEIGHT))
+	if ( size.mX != new_width
+		|| size.mY != new_height)
 	{
-		// use actual display dimensions, not virtual UI dimensions
-		S32 x = gViewerWindow->getWindowWidthRaw();
-		S32 y = gViewerWindow->getWindowHeightRaw();
-		BORDERWIDTH = size.mX - x;
-		BORDERHEIGHT = size.mY- y;
-		LLCoordScreen new_size(new_width + BORDERWIDTH, 
-							   new_height + BORDERHEIGHT);
-		gViewerWindow->getWindow()->setSize(new_size);
+		LLCoordWindow new_size(new_width, new_height);
+		LLCoordScreen screen_size;
+		gViewerWindow->getWindow()->convertCoords(new_size, &screen_size);
+		gViewerWindow->getWindow()->setSize(screen_size);
 	}
 }
 

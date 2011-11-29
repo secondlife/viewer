@@ -3266,7 +3266,7 @@ void LLVOVolume::updateRenderComplexity()
 	mRenderComplexity_current = 0;
 }
 
-U32 LLVOVolume::getTriangleCount() const
+U32 LLVOVolume::getTriangleCount()
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();

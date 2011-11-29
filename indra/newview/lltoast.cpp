@@ -419,25 +419,22 @@ void LLToast::onToastMouseLeave()
 	S32 x, y;
 	LLUI::getMousePositionScreen(&x, &y);
 
-	if( !panel_rc.pointInRect(x, y) && !button_rc.pointInRect(x, y))
+	mOnToastHoverSignal(this, MOUSE_LEAVE);
+
+	updateTransparency();
+
+	//toasts fading is management by Screen Channel
+
+	if(mHideBtn && mHideBtn->getEnabled())
 	{
-		mOnToastHoverSignal(this, MOUSE_LEAVE);
-
-		updateTransparency();
-
-		//toasts fading is management by Screen Channel
-
-		if(mHideBtn && mHideBtn->getEnabled())
+		if( mHideBtnPressed )
 		{
-			if( mHideBtnPressed )
-			{
-				mHideBtnPressed = false;
-				return;
-			}
-			mHideBtn->setVisible(FALSE);		
+			mHideBtnPressed = false;
+			return;
 		}
-		mToastMouseLeaveSignal(this, getValue());
+		mHideBtn->setVisible(FALSE);
 	}
+	mToastMouseLeaveSignal(this, getValue());
 }
 
 void LLToast::setBackgroundOpaque(BOOL b)
@@ -499,7 +496,31 @@ bool LLToast::isHovered()
 {
 	S32 x, y;
 	LLUI::getMousePositionScreen(&x, &y);
-	return mWrapperPanel->calcScreenRect().pointInRect(x, y);
+
+	if (!mWrapperPanel->calcScreenRect().pointInRect(x, y))
+	{
+		// mouse is not over this toast
+		return false;
+	}
+
+	bool is_overlapped_by_other_floater = false;
+
+	const child_list_t* child_list = gFloaterView->getChildList();
+
+	// find this toast in gFloaterView child list to check whether any floater
+	// with higher Z-order is visible under the mouse pointer overlapping this toast
+	child_list_const_reverse_iter_t r_iter = std::find(child_list->rbegin(), child_list->rend(), this);
+	if (r_iter != child_list->rend())
+	{
+		// skip this toast and proceed to views above in Z-order
+		for (++r_iter; r_iter != child_list->rend(); ++r_iter)
+		{
+			LLView* view = *r_iter;
+			is_overlapped_by_other_floater = view->isInVisibleChain() && view->calcScreenRect().pointInRect(x, y);
+			if (is_overlapped_by_other_floater) break;
+		}
+	}
+	return !is_overlapped_by_other_floater;
 }
 
 //--------------------------------------------------------------------------

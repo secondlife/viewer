@@ -5,6 +5,7 @@
  default_tab_group="1"
  follows="all"
  height="350"
+ help_topic="floater_im_box"
  layout="topleft"
  name="panel_im"
  can_dock="false"

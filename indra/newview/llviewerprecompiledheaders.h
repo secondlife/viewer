@@ -124,4 +124,7 @@
 // Library includes from llmessage project
 #include "llcachename.h"
 
+// Library includes from llxuixml
+#include "llinitparam.h"
+
 #endif

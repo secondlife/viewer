@@ -89,6 +89,12 @@ private:
 	 */
 	S32 getChicletPanelShrinkHeadroom() const;
 
+	/**
+	 * function adjusts Chiclet bar width to prevent overlapping with Mini-Location bar
+	 * EXP-1463
+	 */
+	void fitWithTopInfoBar();
+
 protected:
 	LLChicletBar(const LLSD& key = LLSD());
 
