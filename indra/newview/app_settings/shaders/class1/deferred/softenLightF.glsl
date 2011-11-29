@@ -35,7 +35,6 @@ uniform sampler2DRect positionMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
-uniform sampler2D	  noiseMap;
 uniform samplerCube environmentMap;
 uniform sampler2D	  lightFunc;
 
@@ -60,9 +59,7 @@ uniform vec4 distance_multiplier;
 uniform vec4 max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
-uniform vec3 env_mat[3];
-//uniform mat4 shadow_matrix[3];
-//uniform vec4 shadow_clip;
+uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
@@ -279,8 +276,7 @@ void main()
 	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec3 norm = texture2DRect(normalMap, tc).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
-	//vec3 nz = texture2D(noiseMap, vary_fragcoord.xy/128.0).xyz;
-	
+		
 	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 	
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
@@ -309,6 +305,10 @@ void main()
 			vec3 spec_contrib = dumbshiny * spec.rgb;
 			bloom = dot(spec_contrib, spec_contrib);
 			col += spec_contrib;
+
+			//add environmentmap
+			vec3 env_vec = env_mat * refnormpersp;
+			col += textureCube(environmentMap, env_vec).rgb * max(spec.a-diffuse.a-0.2, 0.0); 
 		}
 	
 		col = atmosLighting(col);

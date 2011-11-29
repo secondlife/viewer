@@ -348,6 +348,7 @@ public:
 	void matrixMode(U32 mode);	
 
 	const glh::matrix4f& getModelviewMatrix();
+	const glh::matrix4f& getProjectionMatrix();
 
 	void syncMatrices();
 	void syncLightState();

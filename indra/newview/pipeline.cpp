@@ -7108,13 +7108,12 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 			cube_map->enable(channel);
 			cube_map->bind();
 			F32* m = gGLModelView;
-
-			
+						
 			F32 mat[] = { m[0], m[1], m[2],
 						  m[4], m[5], m[6],
 						  m[8], m[9], m[10] };
 		
-			shader.uniform3fv(LLShaderMgr::DEFERRED_ENV_MAT, 3, mat);
+			shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
 		}
 	}
 
