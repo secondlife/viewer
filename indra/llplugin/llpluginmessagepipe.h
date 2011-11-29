@@ -86,6 +86,7 @@ protected:
 	std::string mInput;
 	LLMutex mOutputMutex;
 	std::string mOutput;
+	std::string::size_type mOutputStartIndex;
 
 	LLPluginMessagePipeOwner *mOwner;
 	LLSocket::ptr_t mSocket;
