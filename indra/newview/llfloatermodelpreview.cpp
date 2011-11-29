@@ -26,6 +26,10 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#if LL_MSVC
+#pragma warning (disable : 4263)
+#pragma warning (disable : 4264)
+#endif
 #include "dae.h"
 //#include "dom.h"
 #include "dom/domAsset.h"
@@ -47,6 +51,10 @@
 #include "dom/domScale.h"
 #include "dom/domTranslate.h"
 #include "dom/domVisual_scene.h"
+#if LL_MSVC
+#pragma warning (default : 4263)
+#pragma warning (default : 4264)
+#endif
 
 #include "llfloatermodelpreview.h"
 
