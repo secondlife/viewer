@@ -470,7 +470,7 @@ void LLNearbyChatHandler::initChannel()
 
 
 
-void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not really const, see hack below changing chat_msg.mText
+void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 									  const LLSD &args)
 {
 	if(chat_msg.mMuted == TRUE)
@@ -479,27 +479,9 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not 
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
 
-	// Handle irc styled messages for toast panel
-	// HACK ALERT - changes mText, stripping out IRC style "/me" prefixes
-	LLChat& tmp_chat = const_cast<LLChat&>(chat_msg);
-	std::string original_message = tmp_chat.mText;			// Save un-modified version of chat text
-	if (tmp_chat.mChatStyle == CHAT_STYLE_IRC)
-	{
-		if(!tmp_chat.mFromName.empty())
-			tmp_chat.mText = tmp_chat.mFromName + tmp_chat.mText.substr(3);
-		else
-			tmp_chat.mText = tmp_chat.mText.substr(3);
-	}
-
 	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
 
 	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
-
-	{
-		//sometimes its usefull to have no name at all...
-		//if(tmp_chat.mFromName.empty() && tmp_chat.mFromID!= LLUUID::null)
-		//	tmp_chat.mFromName = tmp_chat.mFromID.asString();
-	}
 
 	// Build notification data 
 	LLSD notification;
@@ -543,7 +525,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not 
 
 			LLViewerChat::getChatColor(chat_msg,txt_color);
 
-			LLFloaterScriptDebug::addScriptLine(original_message,		// Send full message with "/me" style prefix
+			LLFloaterScriptDebug::addScriptLine(chat_msg.mText,
 												chat_msg.mFromName,
 												txt_color,
 												chat_msg.mFromID);
@@ -597,6 +579,21 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not 
 
 	if(channel)
 	{
+		// Handle IRC styled messages.
+		std::string toast_msg;
+		if (chat_msg.mChatStyle == CHAT_STYLE_IRC)
+		{
+			if (!chat_msg.mFromName.empty())
+			{
+				toast_msg += chat_msg.mFromName;
+			}
+			toast_msg += chat_msg.mText.substr(3);
+		}
+		else
+		{
+			toast_msg = chat_msg.mText;
+		}
+
 		// Add a nearby chat toast.
 		LLUUID id;
 		id.generate();
@@ -608,6 +605,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,		// WARNING - not 
 		notification["text_color"] = r_color_name;
 		notification["color_alpha"] = r_color_alpha;
 		notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
+		notification["message"] = toast_msg;
 		channel->addNotification(notification);	
 	}
 }
