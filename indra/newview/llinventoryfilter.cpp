@@ -217,6 +217,8 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 			bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(listener->getPreferredType());
 			if (is_hidden_if_empty)
 			{
+				// Force the fetching of those folders so they are hidden iff they really are empty...
+				gInventory.fetchDescendentsOf(object_id);
 				return FALSE;
 			}
 		}
