@@ -382,19 +382,11 @@ bool LLXMLRPCTransaction::Impl::process()
 			// continue onward
 		}
 	}
-	
-	//const F32 MAX_PROCESSING_TIME = 0.05f;
-	//LLTimer timer;
-
-	mCurlRequest->perform();
-
-	/*while (mCurlRequest->perform() > 0)
+		
+	if(!mCurlRequest->wait())
 	{
-		if (timer.getElapsedTimeF32() >= MAX_PROCESSING_TIME)
-		{
-			return false;
-		}
-	}*/
+		return false ;
+	}
 
 	while(1)
 	{

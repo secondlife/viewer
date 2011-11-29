@@ -693,7 +693,7 @@ bool LLXMLNode::parseFile(const std::string& filename, LLXMLNodePtr& node, LLXML
 	LLFILE* fp = LLFile::fopen(filename, "rb");		/* Flawfinder: ignore */
 	if (fp == NULL)
 	{
-		node = new LLXMLNode();
+		node = NULL ;
 		return false;
 	}
 	fseek(fp, 0, SEEK_END);
@@ -746,7 +746,7 @@ bool LLXMLNode::parseBuffer(
 	{
 		llwarns << "Parse failure - wrong number of top-level nodes xml."
 				<< llendl;
-		node = new LLXMLNode();
+		node = NULL ;
 		return false;
 	}
 
@@ -805,7 +805,7 @@ bool LLXMLNode::parseStream(
 	{
 		llwarns << "Parse failure - wrong number of top-level nodes xml."
 				<< llendl;
-		node = new LLXMLNode();
+		node = NULL;
 		return false;
 	}
 
@@ -1206,7 +1206,7 @@ bool LLXMLNode::getChild(const LLStringTableEntry* name, LLXMLNodePtr& node, BOO
 	{
 		return mDefault->getChild(name, node, FALSE);
 	}
-	node = new LLXMLNode();
+	node = NULL;
 	return false;
 }
 
@@ -1277,7 +1277,7 @@ bool LLXMLNode::getAttribute(const LLStringTableEntry* name, LLXMLNodePtr& node,
 	{
 		return mDefault->getAttribute(name, node, FALSE);
 	}
-	node = new LLXMLNode();
+	
 	return false;
 }
 
