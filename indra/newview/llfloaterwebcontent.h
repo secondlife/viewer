@@ -43,6 +43,7 @@ class LLFloaterWebContent :
 	public LLInstanceTracker<LLFloaterWebContent, std::string>
 {
 public:
+	typedef LLInstanceTracker<LLFloaterWebContent, std::string> instance_tracker_t;
     LOG_CLASS(LLFloaterWebContent);
 
 	struct _Params : public LLInitParam::Block<_Params>
