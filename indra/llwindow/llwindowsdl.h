@@ -140,6 +140,7 @@ public:
 #if LL_X11
 	static Window get_SDL_XWindowID(void);
 	static Display* get_SDL_Display(void);
+	void setXWindowMinSize();
 #endif // LL_X11	
 
 protected:
