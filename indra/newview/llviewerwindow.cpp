@@ -4107,7 +4107,6 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	if ( size.mX != new_width
 		|| size.mY != new_height)
 	{
-		S32 x = 0;
 		LLCoordWindow new_size(new_width, new_height);
 		LLCoordScreen screen_size;
 		gViewerWindow->getWindow()->convertCoords(new_size, &screen_size);
