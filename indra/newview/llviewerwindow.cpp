@@ -4745,6 +4745,9 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 {
 	LLFontGL::destroyAllGL();
 	// Initialize with possibly different zoom factor
+
+	LLFontManager::initClass();
+
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
