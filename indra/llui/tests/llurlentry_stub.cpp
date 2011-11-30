@@ -105,8 +105,6 @@ LLStyle::Params::Params()
 
 namespace LLInitParam
 {
-	BaseBlock::BaseBlock() {}
-	BaseBlock::~BaseBlock() {}
 	Param::Param(BaseBlock* enclosing_block)
 	:	mIsProvided(false)
 	{
@@ -114,7 +112,6 @@ namespace LLInitParam
 		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
 		mEnclosingBlockOffset = (U16)(my_addr - block_addr);
 	}
-	void BaseBlock::paramChanged(const Param& last_param, bool user_provided) {}
 
 	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name){}
 	void BaseBlock::addSynonym(Param& param, const std::string& synonym) {}

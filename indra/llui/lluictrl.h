@@ -223,7 +223,7 @@ public:
 	BOOL	focusLastItem(BOOL prefer_text_fields = FALSE);
 
 	// Non Virtuals
-	LLHandle<LLUICtrl> getUICtrlHandle() const { return mUICtrlHandle; }
+	LLHandle<LLUICtrl> getHandle() const { return getDerivedHandle<LLUICtrl>(); }
 	BOOL			getIsChrome() const;
 	
 	void			setTabStop( BOOL b );
@@ -313,7 +313,6 @@ private:
 	BOOL			mRequestsFront;
 	BOOL			mTabStop;
 	BOOL			mTentative;
-	LLRootHandle<LLUICtrl> mUICtrlHandle;
 
 	ETypeTransparency mTransparencyType;
 
