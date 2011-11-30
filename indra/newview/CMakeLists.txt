@@ -216,6 +216,7 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
+    llfloateroutbox.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
@@ -789,6 +790,7 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloaterobjectweights.h
     llfloateropenobject.h
+    llfloateroutbox.h
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpostprocess.h
