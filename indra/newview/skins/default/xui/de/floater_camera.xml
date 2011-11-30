@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Kamera nach oben, unten, links und rechts bewegen
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Kameramodi
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Kreisen - Zoomen - Schwenken
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Ansichten
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Objekt ansehen
 	</floater.string>

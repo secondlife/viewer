@@ -433,26 +433,6 @@ void LLFloaterCamera::setMode(ECameraControlMode mode)
 	updateState();
 }
 
-void LLFloaterCamera::setModeTitle(const ECameraControlMode mode)
-{
-	std::string title; 
-	switch(mode)
-	{
-	case CAMERA_CTRL_MODE_MODES:
-		title = getString("camera_modes_title");
-		break;
-	case CAMERA_CTRL_MODE_PAN:
-		title = getString("pan_mode_title");
-		break;
-	case CAMERA_CTRL_MODE_PRESETS:
-		title = getString("presets_mode_title");
-		break;
-	default:
-		break;
-	}
-	setTitle(title);
-}
-
 void LLFloaterCamera::switchMode(ECameraControlMode mode)
 {
 	setMode(mode);
@@ -532,7 +512,6 @@ void LLFloaterCamera::updateState()
 	{
 		iter->second->setToggleState(iter->first == mCurrMode);
 	}
-	setModeTitle(mCurrMode);
 }
 
 void LLFloaterCamera::updateItemsSelection()
