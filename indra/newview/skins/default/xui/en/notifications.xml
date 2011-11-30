@@ -6939,7 +6939,7 @@ With the following Residents:
 	<usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Ok"/>
+     yestext="OK"/>
   </notification>
   
   <notification
@@ -7135,7 +7135,7 @@ Mute everyone?
     <usetemplate
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
-     yestext="Ok"
+     yestext="OK"
      notext="Cancel">
       <unique/>
     </usetemplate>
