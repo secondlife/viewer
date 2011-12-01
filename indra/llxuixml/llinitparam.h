@@ -598,7 +598,7 @@ namespace LLInitParam
 		}
 
 	private:
-		friend BaseBlock;
+		friend class BaseBlock;
 
 		U32		mEnclosingBlockOffset:31;
 		U32		mIsProvided:1;
@@ -736,7 +736,7 @@ namespace LLInitParam
 
 		self_t& operator =(const typename NAME_VALUE_LOOKUP::name_t& name)
 		{
-			if (NAME_VALUE_LOOKUP::getValueFromName(name, mValue))
+			if (NAME_VALUE_LOOKUP::getValueFromName(name, *this))
 			{
 				setValueName(name);
 			}
@@ -817,7 +817,7 @@ namespace LLInitParam
 	public:
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>		self_t;
 		typedef ParamValue<T, NAME_VALUE_LOOKUP>											param_value_t;
-		typedef param_value_t::value_assignment_t											value_assignment_t;
+		typedef typename param_value_t::value_assignment_t				value_assignment_t;
 		typedef NAME_VALUE_LOOKUP															name_value_lookup_t;
 
 		using param_value_t::operator();
@@ -1261,7 +1261,7 @@ namespace LLInitParam
 			setProvided();
 		}
 
-		void add(typename const name_value_lookup_t::name_t& name)
+		void add(const typename name_value_lookup_t::name_t& name)
 		{
 			value_t value;
 
@@ -1447,7 +1447,7 @@ namespace LLInitParam
 			setProvided();
 		}
 
-		void add(typename const name_value_lookup_t::name_t& name)
+		void add(const typename name_value_lookup_t::name_t& name)
 		{
 			value_t value;
 
