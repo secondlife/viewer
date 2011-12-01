@@ -530,6 +530,11 @@ void LLToolBarView::draw()
 		}
 	}
 	
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		mToolbars[i]->getParent()->setVisible(mToolbars[i]->hasButtons() || isToolDragged());
+	}
+
 	// Draw drop zones if drop of a tool is active
 	if (isToolDragged())
 	{
