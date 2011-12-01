@@ -72,13 +72,6 @@ LLDebugView::~LLDebugView()
 	gTextureCategoryView = NULL;
 }
 
-BOOL LLDebugView::postBuild()
-{
-	mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
-	
-	return TRUE;
-}
-
 void LLDebugView::init()
 {
 	LLRect r;
@@ -157,6 +150,11 @@ void LLDebugView::init()
 
 void LLDebugView::draw()
 {
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
+	}
+
 	LLRect debug_rect;
 	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
 
