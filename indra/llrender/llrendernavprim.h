@@ -1,5 +1,5 @@
 /** 
- * @file llrendersegment.h
+ * @file LLRenderNavPrim.h
  * @brief 
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLRENDERSEGMENT_H
-#define LL_LLRENDERSEGMENT_H
+#ifndef LL_RENDER_NAVPRIM_H
+#define LL_RENDER_NAVPRIM_H
 
 #include "llmath.h"
 #include "v3math.h"
@@ -36,7 +36,7 @@
 #include "llgl.h"
 
 
-class LLRenderSegment
+class LLRenderNavPrim
 {
 public:
 	void renderSegment( const LLVector3& start, const LLVector3& end, int color );
@@ -45,6 +45,6 @@ public:
 private:
 };
 
-extern LLRenderSegment gSegment;
+extern LLRenderNavPrim gRenderNav;
 
 #endif

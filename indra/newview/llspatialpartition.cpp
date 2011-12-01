@@ -48,7 +48,6 @@
 #include "llvolumemgr.h"
 #include "lltextureatlas.h"
 #include "llglslshader.h"
-#include "llrendersegment.h"
 #include "llagent.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
@@ -3995,12 +3994,7 @@ public:
 				renderAgentTarget(avatar);
 			}
 
-			//prep#
-			//LLVector3 pos = gAgent.getPositionGlobal();
-			//LLVector3d vel = gAgent.getVelocity();
-			//gSegment.renderSegment( pos, pos+vel, 0 );
-
-			
+					
 			if (gDebugGL)
 			{
 				for (U32 i = 0; i < drawable->getNumFaces(); ++i)

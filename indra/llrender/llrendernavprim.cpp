@@ -1,5 +1,5 @@
 /** 
- * @file llrendersegment.cpp
+ * @file LLRenderNavPrim.cpp
  * @brief 
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -24,18 +24,16 @@
  * $/LicenseInfo$
  */
 
-//	Sphere creates a set of display lists that can then be called to create 
-//	a lit sphere at different LOD levels.  You only need one instance of sphere 
-//	per viewer - then call the appropriate list.  
 
 #include "linden_common.h"
-#include "llrendersegment.h"
+#include "llrendernavprim.h"
 #include "llerror.h"
 #include "llglheaders.h"
 
-LLRenderSegment gSegment;
 //=============================================================================
-void LLRenderSegment::renderSegment( const LLVector3& start, const LLVector3& end, int color )
+LLRenderNavPrim gRenderNav;
+//=============================================================================
+void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color )
 {	
 	
 	LLColor4 colorA( color );	
@@ -51,7 +49,7 @@ void LLRenderSegment::renderSegment( const LLVector3& start, const LLVector3& en
 	glLineWidth(1.0f);	
 }
 //=============================================================================
-void LLRenderSegment::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color )
+void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color )
 {
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
