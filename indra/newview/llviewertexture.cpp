@@ -2269,6 +2269,7 @@ void LLViewerFetchedTexture::unpauseLoadedCallbacks(const LLLoadedCallbackEntry:
 		}
 	}
 	mPauseLoadedCallBacks = FALSE ;
+	mLastCallBackActiveTime = sCurrentTime ;
 	if(need_raw)
 	{
 		mSaveRawImage = TRUE ;
@@ -2310,6 +2311,11 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 {
 	static const F32 MAX_INACTIVE_TIME = 120.f ; //seconds
 
+	if(mPauseLoadedCallBacks)
+	{
+		destroyRawImage();
+		return false; //paused
+	}
 	if (mNeedsCreateTexture)
 	{
 		return false;
@@ -2337,12 +2343,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 
 		// Remove ourself from the global list of textures with callbacks
 		gTextureList.mCallbackList.erase(this);
-	}
-	if(mPauseLoadedCallBacks)
-	{
-		destroyRawImage();
-		return res; //paused
-	}
+	}	
 
 	S32 gl_discard = getDiscardLevel();
 
@@ -2604,7 +2605,11 @@ bool LLViewerFetchedTexture::needsToSaveRawImage()
 
 void LLViewerFetchedTexture::destroyRawImage()
 {	
-	if (mAuxRawImage.notNull()) sAuxCount--;
+	if (mAuxRawImage.notNull())
+	{
+		sAuxCount--;
+		mAuxRawImage = NULL;
+	}
 
 	if (mRawImage.notNull()) 
 	{
@@ -2618,12 +2623,12 @@ void LLViewerFetchedTexture::destroyRawImage()
 			}		
 			setCachedRawImage() ;
 		}
+		
+		mRawImage = NULL;
+	
+		mIsRawImageValid = FALSE;
+		mRawDiscardLevel = INVALID_DISCARD_LEVEL;
 	}
-
-	mRawImage = NULL;
-	mAuxRawImage = NULL;
-	mIsRawImageValid = FALSE;
-	mRawDiscardLevel = INVALID_DISCARD_LEVEL;
 }
 
 //use the mCachedRawImage to (re)generate the gl texture.
