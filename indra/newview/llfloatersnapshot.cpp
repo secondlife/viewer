@@ -1416,7 +1416,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	BOOL got_snap = previewp && previewp->getSnapshotUpToDate();
 
 	// *TODO: Separate maximum size for Web images from postcards
-	//lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
+	lldebugs << "Is snapshot up-to-date? " << got_snap << llendl;
 
 	LLLocale locale(LLLocale::USER_LOCALE);
 	std::string bytes_string;
@@ -1872,6 +1872,7 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			getPreviewView(view)->updateSnapshot(FALSE, TRUE);
 			if(do_update)
 			{
+				lldebugs << "Will update controls" << llendl;
 				updateControls(view);
 				setNeedRefresh(view, true);
 			}
@@ -2427,6 +2428,7 @@ void LLFloaterSnapshot::update()
 	{
 		changed |= LLSnapshotLivePreview::onIdle(*iter);
 	}
+	lldebugs << "changed: " << changed << llendl;
 	if(changed)
 	{
 		inst->impl.updateControls(inst);
