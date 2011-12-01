@@ -36,19 +36,36 @@
 LLRenderSegment gSegment;
 //=============================================================================
 void LLRenderSegment::renderSegment( const LLVector3& start, const LLVector3& end, int color )
-{
-	LLColor4 colorA =  LLColor4::yellow;
-
-	gGL.color4fv( colorA.mV );
+{	
+	
+	LLColor4 colorA( color );	
+	glLineWidth(1.5f);	
+	gGL.color3fv( colorA.mV );
 
 	gGL.begin(LLRender::LINES);
 	{
 		gGL.vertex3fv( start.mV );
-
 		gGL.vertex3fv( end.mV );
 	}
-
+	gGL.end();	
+	glLineWidth(1.0f);	
+}
+//=============================================================================
+void LLRenderSegment::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color )
+{
+	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glLineWidth(1.5f);	
+	LLColor4 colorA( color );
+	gGL.color4fv( colorA.mV );	
+	gGL.begin(LLRender::TRIANGLES);
+	{
+		gGL.vertex3fv( a.mV );
+		gGL.vertex3fv( b.mV );
+		gGL.vertex3fv( c.mV );
+	}
 	gGL.end();
-	
+
+	glLineWidth(1.f);
 }
 //=============================================================================

@@ -74,12 +74,11 @@
 #include "lluuid.h"
 #include "llvorbisencode.h"
 #include "message.h"
+#include "llpathinglib.h"
+#include "llnavmeshstation.h"
 
 // system libraries
 #include <boost/tokenizer.hpp>
-
-#include "LLPathingLib.h"
-#include "llnavmeshstation.h"
 
 class LLBuildNavMesh  : public view_listener_t
 {
@@ -89,56 +88,29 @@ class LLBuildNavMesh  : public view_listener_t
 		return result;
 	}
 };
-//prep#TODO#remove if not needed for ship
-class LLFileUploadNavMesh  : public view_listener_t, LLNavMeshObserver
+class LLNavMeshRenderingToggle : public view_listener_t
 {
-	
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLPathingLib::initSystem();
-		
-		if ( LLPathingLib::getInstance() == NULL )
-		{ 
-			llinfos<<"No implementation of pathing library."<<llendl;
+		if ( LLPathingLib::getInstance() )
+		{
+			LLPathingLib::getInstance()->toggleRenderNavMeshState( );
 		}
-		else
-		{		
-			LLPathingLib::getInstance()->testNavMeshGenerationWithLocalAsset();
-			LLSD data;
-			LLPLResult result = LLPathingLib::getInstance()->getNavMeshAsLLSD( data );
-			if ( result == LLPL_OK )
-			{				
-				std::string capability = "NavMeshUpload";
-				std::string url = gAgent.getRegion()->getCapability( capability );
-				if ( !url.empty() )
-				{
-					llinfos<< typeid(*this).name() <<"setNavMeshUploadURL "<< url <<llendl;					
-					//Populate the required paramters that are required to store in the dictionary
-					data["agent_id"]  = gAgent.getID();
-					LLUUID object_id;
-					data["object_id"] = object_id; //"prepFIXME#IsThisReallyNeeded?";
-					data["region_id"] = gAgent.getRegion()->getRegionID();
-					data["sim_host"]  = gAgent.getRegion()->getHost().getString();
-					data["sim_port"]  = (S32)gAgent.getRegion()->getHost().getPort();
-					LLNavMeshStation::getInstance()->setNavMeshUploadURL( url );
-					LLNavMeshStation::getInstance()->postNavMeshToServer( data, getObserverHandle() );
-				}				
-				else
-				{
-					llinfos<<"region contained no capability of type ["<<capability<<"]"<<llendl;
-				}
-			}
-			else
-			{
-				llinfos<<"ok4"<<llendl;
-			}
-		}
-		
 		return true;
 	}
 };
-
-
+class LLNavMeshShapeRenderingToggle : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		if ( LLPathingLib::getInstance() )
+		{
+			LLPathingLib::getInstance()->toggleRenderNavMeshandShapesState( );
+		}
+		return true;
+	}
+};
+//prep#
 class LLPathingTools  : public view_listener_t, LLNavMeshDownloadObserver
 {
 	
@@ -173,8 +145,7 @@ class LLPathingTools  : public view_listener_t, LLNavMeshDownloadObserver
 			{
 				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
 			}
-		}
-		
+		}		
 	return true;
 	}
 };
@@ -1386,7 +1357,8 @@ void init_menu_file()
 	view_listener_t::addMenu(new LLMeshUploadVisible(), "File.VisibleUploadModel");
 
 	//prep#
-	//view_listener_t::addCommit(new LLFileUploadNavMesh(), "File.UploadNavMesh");
 	view_listener_t::addCommit(new LLPathingTools(), "PathingTools.RetrieveSrc");
+	view_listener_t::addCommit(new LLNavMeshRenderingToggle(), "PathingTools.ToggleNavMeshView");
+		view_listener_t::addCommit(new LLNavMeshShapeRenderingToggle(), "PathingTools.ToggleNavMeshShapeView");
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }

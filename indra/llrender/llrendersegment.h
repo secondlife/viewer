@@ -40,6 +40,7 @@ class LLRenderSegment
 {
 public:
 	void renderSegment( const LLVector3& start, const LLVector3& end, int color );
+	void renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color );
 
 private:
 };
