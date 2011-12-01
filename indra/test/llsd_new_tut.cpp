@@ -25,6 +25,7 @@
  * $/LicenseInfo$
  */
 
+#define LLSD_DEBUG_INFO
 #include <tut/tut.hpp>
 #include "linden_common.h"
 #include "lltut.h"
@@ -52,11 +53,11 @@ namespace tut
 	private:
 		U32	mOutstandingAtStart;
 	public:
-		SDCleanupCheck() : mOutstandingAtStart(LLSD::outstandingCount()) { }
+		SDCleanupCheck() : mOutstandingAtStart(llsd::outstandingCount()) { }
 		~SDCleanupCheck()
 		{
 			ensure_equals("SDCleanupCheck",
-				LLSD::outstandingCount(), mOutstandingAtStart);
+				llsd::outstandingCount(), mOutstandingAtStart);
 		}
 	};
 
@@ -70,12 +71,12 @@ namespace tut
 		SDAllocationCheck(const std::string& message, int expectedAllocations)
 			: mMessage(message),
 			mExpectedAllocations(expectedAllocations),
-			mAllocationAtStart(LLSD::allocationCount())
+			mAllocationAtStart(llsd::allocationCount())
 			{ }
 		~SDAllocationCheck()
 		{
 			ensure_equals(mMessage + " SDAllocationCheck",
-				LLSD::allocationCount() - mAllocationAtStart,
+				llsd::allocationCount() - mAllocationAtStart,
 				mExpectedAllocations);
 		}
 	};
@@ -751,6 +752,42 @@ namespace tut
 			LLSD v = 45;
 			LLSD w = v;
 			w = "nice day";
+		}
+
+		{
+			SDAllocationCheck check("shared values test for threaded work", 9);
+
+			//U32 start_llsd_count = llsd::outstandingCount();
+
+			LLSD m = LLSD::emptyMap();
+
+			m["one"] = 1;
+			m["two"] = 2;
+			m["one_copy"] = m["one"];			// 3 (m, "one" and "two")
+
+			m["undef_one"] = LLSD();
+			m["undef_two"] = LLSD();
+			m["undef_one_copy"] = m["undef_one"];
+
+			{	// Ensure first_array gets freed to avoid counting it
+				LLSD first_array = LLSD::emptyArray();
+				first_array.append(1.0f);
+				first_array.append(2.0f);			
+				first_array.append(3.0f);			// 7
+
+				m["array"] = first_array;
+				m["array_clone"] = first_array;
+				m["array_copy"] = m["array"];		// 7
+			}
+
+			m["string_one"] = "string one value";
+			m["string_two"] = "string two value";
+			m["string_one_copy"] = m["string_one"];		// 9
+
+			//U32 llsd_object_count = llsd::outstandingCount();
+			//std::cout << "Using " << (llsd_object_count - start_llsd_count) << " LLSD objects" << std::endl;
+
+			//m.dumpStats();
 		}
 
 		{
