@@ -95,7 +95,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			// don't show toast if Nearby Chat is opened
 			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 			LLNearbyChatBar* nearby_chat_bar = LLNearbyChatBar::getInstance();
-			if (nearby_chat_bar->getVisible() && nearby_chat->getVisible())
+			if (!nearby_chat_bar->isMinimized() && nearby_chat_bar->getVisible() && nearby_chat->getVisible())
 			{
 				return false;
 			}

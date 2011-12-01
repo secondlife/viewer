@@ -9,14 +9,6 @@
      name="Me"
      tear_off="true">
       <menu_item_call
-           label="Dashboard..."
-           name="Manage My Account">
-        <menu_item_call.on_click
-         function="PromptShowURL"
-         name="ManageMyAccount_url"
-         parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
-      </menu_item_call>
-      <menu_item_call
        label="Profile..."
        name="Profile">
         <menu_item_call.on_click
@@ -31,6 +23,14 @@
         <menu_item_call.on_enable
          function="Edit.EnableCustomizeAvatar" />
       </menu_item_call>
+      <menu_item_call
+       label="Choose an avatar..."
+       name="Avatar Picker">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="avatar" />
+      </menu_item_call>
+      <menu_item_separator/>
       <menu_item_check
          label="Inventory..."
          name="Inventory"
@@ -52,29 +52,28 @@
          function="Inventory.NewWindow"
          parameter="" />
       </menu_item_call>
-      <menu_item_check
-       label="Gestures..."
-       name="Gestures"
-       shortcut="control|G">
-        <menu_item_check.on_check
-         function="Floater.Visible"
-         parameter="gestures" />
-        <menu_item_check.on_click
-         function="Floater.Toggle"
-         parameter="gestures" />
-      </menu_item_check>
-      <menu_item_check
-       label="Voice..."
-       name="ShowVoice"
-       visibility_control="VoiceMorphingEnabled">
-        <menu_item_check.on_check
-         function="Floater.Visible"
-         Parameter="voice_effect" />
-        <menu_item_check.on_click
-         function="Floater.Toggle"
-         parameter="voice_effect" />
-      </menu_item_check>
-
+      <menu_item_call
+       label="Places..."
+       name="Places">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="places" />
+      </menu_item_call>
+      <menu_item_call
+       label="Picks..."
+       name="Picks">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="picks" />
+      </menu_item_call>
+      <menu_item_separator/>
+      <menu_item_call
+       label="Camera Controls..."
+       name="Camera Controls">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="camera" />
+      </menu_item_call>
       <menu
        create_jump_keys="true"
        label="Movement"
@@ -116,6 +115,13 @@
          name="Stop Animating My Avatar">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
+        </menu_item_call>
+        <menu_item_call
+         label="Walk / run / fly..."
+         name="Stop Animating My Avatar">
+          <menu_item_call.on_click
+           function="Floater.ToggleOrBringToFront"
+           parameter="moveview" />
         </menu_item_call>
       </menu>
 
@@ -163,6 +169,14 @@
         <menu_item_call.on_click
          function="BuyCurrency" />
       </menu_item_call>
+      <menu_item_call
+           label="Account dashboard..."
+           name="Manage My Account">
+        <menu_item_call.on_click
+         function="PromptShowURL"
+         name="ManageMyAccount_url"
+         parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
+      </menu_item_call>
 
       <menu_item_separator/>
 
@@ -205,25 +219,6 @@
      label="Communicate"
      name="Communicate"
      tear_off="true">
-        <menu_item_call
-         label="My Friends"
-         name="My Friends"
-         shortcut="control|shift|F">
-            <menu_item_call.on_click
-             function="SideTray.PanelPeopleTab"
-             parameter="friends_panel" />
-            </menu_item_call>
-        <menu_item_call
-         label="My Groups"
-         name="My Groups"
-         shortcut="control|shift|G">
-            <menu_item_call.on_click
-             function="SideTray.PanelPeopleTab"
-             parameter="groups_panel" />
-        </menu_item_call>
-
-        <menu_item_separator/>
-
         <!--menu_item_call
          label="Chat"
          name="Chat">
@@ -231,7 +226,7 @@
              function="World.Chat" />
         </menu_item_call-->
         <menu_item_check
-         label="Nearby Chat"
+         label="Chat..."
          name="Nearby Chat"
          shortcut="control|H"
          use_mac_ctrl="true">
@@ -242,16 +237,21 @@
              function="Floater.Toggle"
              parameter="chat_bar" />
         </menu_item_check>
-        <menu_item_call
-         label="Nearby People"
-         name="Active Speakers"
-         shortcut="control|shift|A">
-            <menu_item_call.on_click
-             function="SideTray.PanelPeopleTab"
-             parameter="nearby_panel" />
-            </menu_item_call>
         <menu_item_check
-         label="Nearby Voice"
+         label="Speak"
+         name="Speak">
+            <menu_item_check.on_check
+             function="Agent.IsMicrophoneOn"
+             parameter="speak" />
+            <menu_item_check.on_enable
+             function="Agent.IsActionAllowed"
+             parameter="speak" />
+            <menu_item_check.on_click
+             function="Agent.ToggleMicrophone"
+             parameter="speak" />
+        </menu_item_check>
+        <menu_item_check
+         label="Voice settings..."
          name="Nearby Voice">
             <menu_item_check.on_check
              function="Floater.Visible"
@@ -260,12 +260,86 @@
              function="Floater.Toggle"
              parameter="voice_controls" />
         </menu_item_check>
+        <menu_item_check
+         label="Voice morphing..."
+         name="ShowVoice"
+         visibility_control="VoiceMorphingEnabled">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="voice_effect" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="voice_effect" />
+        </menu_item_check>
+        <menu_item_check
+         label="Gestures..."
+         name="Gestures"
+         shortcut="control|G">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="gestures" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="gestures" />
+        </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_call
+         label="Friends"
+         name="My Friends"
+         shortcut="control|shift|F">
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="friends_panel" />
+            </menu_item_call>
+        <menu_item_call
+         label="Groups"
+         name="My Groups"
+         shortcut="control|shift|G">
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="groups_panel" />
+        </menu_item_call>
+        <menu_item_call
+         label="Nearby people"
+         name="Active Speakers"
+         shortcut="control|shift|A">
+            <menu_item_call.on_click
+              function="SideTray.PanelPeopleTab"
+              parameter="nearby_panel" />
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
      label="World"
      name="World"
      tear_off="true">
+        <menu_item_call
+         label="Landmark This Place"
+         name="Create Landmark Here">
+            <menu_item_call.on_click
+             function="World.CreateLandmark" />
+            <menu_item_call.on_enable
+             function="World.EnableCreateLandmark" />
+        </menu_item_call>
+        <menu_item_call
+         label="Destinations..."
+         name="Destinations">
+            <menu_item_call.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="destinations" />
+        </menu_item_call>
+        <menu_item_check
+         label="World map"
+         name="World Map"
+         shortcut="control|M"
+         use_mac_ctrl="true">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="world_map" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="world_map" />
+        </menu_item_check>
             <menu_item_check
          label="Mini-map"
          name="Mini-Map"
@@ -276,18 +350,6 @@
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="mini_map" />
-        </menu_item_check>
-         <menu_item_check
-         label="World Map"
-         name="World Map"
-         shortcut="control|M"
-         use_mac_ctrl="true">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="world_map" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="world_map" />
         </menu_item_check>
         <menu_item_check
         label="Search"
@@ -300,6 +362,25 @@
              function="Floater.Toggle"
              parameter="search" />
             </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_call
+         label="Teleport home"
+         name="Teleport Home"
+         shortcut="control|shift|H">
+        <menu_item_call.on_click
+         function="World.TeleportHome" />
+        <menu_item_call.on_enable
+         function="World.EnableTeleportHome" />
+        </menu_item_call>
+            <menu_item_call
+             label="Set home to here"
+             name="Set Home to Here">
+                <menu_item_call.on_click
+                 function="World.SetHomeLocation" />
+                <menu_item_call.on_enable
+                 function="World.EnableSetHomeLocation" />
+            </menu_item_call>
+        <menu_item_separator/>
         <menu_item_call
          label="Snapshot"
          name="Take Snapshot"
@@ -308,82 +389,51 @@
              function="Floater.Show"
              parameter="snapshot" />
         </menu_item_call>
-      <menu_item_call
-             label="Landmark This Place"
-             name="Create Landmark Here">
-                <menu_item_call.on_click
-                 function="World.CreateLandmark" />
-                <menu_item_call.on_enable
-                 function="World.EnableCreateLandmark" />
-            </menu_item_call>
-      <menu
-           create_jump_keys="true"
-           label="Place Profile"
-           name="Land"
-           tear_off="true">
+        <menu_item_separator/>
         <menu_item_call
-         label="Place Profile"
+         label="Place profile"
          layout="topleft"
          name="Place Profile">
             <menu_item_call.on_click
              function="World.PlaceProfile" />
         </menu_item_call>
         <menu_item_call
-         label="About Land"
+         label="About land"
          name="About Land">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="about_land" />
         </menu_item_call>
         <menu_item_call
-         label="Region/Estate"
+         label="Region / Estate"
          name="Region/Estate">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="region_info" />
         </menu_item_call>
-        </menu>
+        <menu_item_call
+         label="My land holdings..."
+         name="My Land">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="land_holdings" />
+        </menu_item_call>
+        <menu_item_call
+         label="Buy this land"
+         name="Buy Land">
+            <menu_item_call.on_click
+             function="Land.Buy" />
+            <menu_item_call.on_enable
+             function="World.EnableBuyLand" />
+            </menu_item_call>
 
         <menu_item_separator/>
 
-        <menu_item_call
-             label="Buy This Land"
-             name="Buy Land">
-                <menu_item_call.on_click
-                 function="Land.Buy" />
-                <menu_item_call.on_enable
-                 function="World.EnableBuyLand" />
-            </menu_item_call>
-        <menu_item_call
-             label="My Land"
-             name="My Land">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="land_holdings" />
-        </menu_item_call>
         <menu
            create_jump_keys="true"
            label="Show"
            name="LandShow"
            tear_off="true">
-         <menu_item_check
-         label="Move Controls"
-         name="Movement Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="moveview" />
-            <menu_item_check.on_click
-             function="World.Toggle.MovementControls" />
-        </menu_item_check>
-        <menu_item_check
-         label="View Controls"
-         name="Camera Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="camera" />
-            <menu_item_check.on_click
-             function="World.Toggle.CameraControls" />
-        </menu_item_check>
           <menu_item_check
              label="Ban Lines"
              name="Ban Lines">
@@ -456,24 +506,6 @@
         </menu>
 
         <menu_item_separator/>
-
-	    <menu_item_call
-	     label="Teleport Home"
-	     name="Teleport Home"
-	     shortcut="control|shift|H">
-		<menu_item_call.on_click
-		 function="World.TeleportHome" />
-		<menu_item_call.on_enable
-		 function="World.EnableTeleportHome" />
-	    </menu_item_call>
-            <menu_item_call
-             label="Set Home to Here"
-             name="Set Home to Here">
-                <menu_item_call.on_click
-                 function="World.SetHomeLocation" />
-                <menu_item_call.on_enable
-                 function="World.EnableSetHomeLocation" />
-            </menu_item_call>
     <!--    <menu_item_check
          label="Show Navigation Bar"
          name="ShowNavbarNavigationPanel">
@@ -495,8 +527,6 @@
              parameter="ShowNavbarFavoritesPanel" />
         </menu_item_check>
         <menu_item_separator/>-->
-
-        <menu_item_separator/>
 
         <menu
          create_jump_keys="true"
@@ -1154,6 +1184,13 @@
      label="Help"
      name="Help"
      tear_off="true">
+        <menu_item_call
+         label="How to..."
+         name="How To">
+            <menu_item_call.on_click
+             function="Help.ToggleHowTo"
+             parameter="" />
+        </menu_item_call>
         <menu_item_call
          label="[SECOND_LIFE] Help"
          name="Second Life Help"

@@ -3674,7 +3674,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
-  <string name="Command_Move_Label">Move</string>
+  <string name="Command_Move_Label">Walk / run / fly</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
@@ -3683,7 +3683,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
-  <string name="Command_View_Label">View</string>
+  <string name="Command_View_Label">Camera controls</string>
   <string name="Command_Voice_Label">Voice settings</string>
 
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>

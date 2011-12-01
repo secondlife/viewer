@@ -15,7 +15,7 @@
  help_topic="avatar"
  save_rect="true"
  save_visibility="true"
- title="AVATAR PICKER"
+ title="CHOOSE AN AVATAR"
  width="700">
     <web_browser
       top="25"

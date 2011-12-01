@@ -30,15 +30,9 @@
 #include "llpanel.h"
 #include "llpanelprofile.h"
 
-class LLAvatarName;
-class LLPanelMyProfileEdit;
-class LLPanelProfile;
-class LLIconCtrl;
-
 /**
-* Panel for displaying Agent's profile, it consists of two sub panels - Profile
-* and Picks. 
-* LLPanelMe allows user to edit his profile and picks.
+* Panel for displaying Agent's Picks and Classifieds panel.
+* LLPanelMe allows user to edit his picks and classifieds.
 */
 class LLPanelMe : public LLPanelProfile
 {
@@ -51,60 +45,6 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
-
-private:
-
-	void buildEditPanel();
-
-	void onEditProfileClicked();
-
-	LLPanelMyProfileEdit *  mEditPanel;
-
-};
-
-class LLPanelMyProfileEdit : public LLPanelMyProfile
-{
-	LOG_CLASS(LLPanelMyProfileEdit);
-
-public:
-
-	LLPanelMyProfileEdit();
-
-	/*virtual*/void processProperties(void* data, EAvatarProcessorType type);
-	
-	/*virtual*/BOOL postBuild();
-
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(const LLSD& key);
-
-	void onAvatarNameChanged();
-
-protected:	
-
-	/*virtual*/void resetData();
-
-	void processProfileProperties(const LLAvatarData* avatar_data);
-	void onNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-
-private:
-	void initTexturePickerMouseEvents();
-	void onTexturePickerMouseEnter(LLUICtrl* ctrl);
-	void onTexturePickerMouseLeave(LLUICtrl* ctrl);
-	void onClickSetName();
-	void onAvatarNameCache(const LLUUID& id, const LLAvatarName& av_name);
-
-	/**
-	 * Enabled/disables controls to prevent overwriting edited data upon receiving
-	 * current data from server.
-	 */
-	void enableEditing(bool enable);
-
-
-
-private:
-	// map TexturePicker name => Edit Icon pointer should be visible while hovering Texture Picker
-	typedef std::map<std::string, LLIconCtrl*> texture_edit_icon_map_t;
-	texture_edit_icon_map_t mTextureEditIconMap;
 };
 
 #endif // LL_LLPANELMEPROFILE_H

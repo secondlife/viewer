@@ -31,11 +31,18 @@
 #include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
-
+#if LL_MSVC
+#pragma warning (disable : 4263)
+#pragma warning (disable : 4264)
+#endif
 #include "dae.h"
 #include "dae/daeErrorHandler.h"
 #include "dom/domConstants.h"
 #include "dom/domMesh.h"
+#if LL_MSVC
+#pragma warning (default : 4263)
+#pragma warning (default : 4264)
+#endif
 
 #ifdef LL_STANDALONE
 # include <zlib.h>

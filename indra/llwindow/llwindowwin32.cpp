@@ -862,7 +862,7 @@ BOOL LLWindowWin32::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowWin32::setSize(const LLCoordScreen size)
+BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 {
 	LLCoordScreen position;
 
@@ -2410,8 +2410,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_GETMINMAXINFO:
 			{
 				LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
-				min_max->ptMinTrackSize.x = 1024;
-				min_max->ptMinTrackSize.y = 768;
+				min_max->ptMinTrackSize.x = window_imp->mMinWindowWidth;
+				min_max->ptMinTrackSize.y = window_imp->mMinWindowHeight;
 				return 0;
 			}
 

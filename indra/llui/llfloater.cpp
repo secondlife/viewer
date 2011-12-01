@@ -58,6 +58,8 @@
 #include "llhelp.h"
 #include "llmultifloater.h"
 #include "llsdutil.h"
+#include <boost/foreach.hpp>
+
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
@@ -111,7 +113,6 @@ LLFloater::click_callback LLFloater::sButtonCallbacks[BUTTON_COUNT] =
 
 LLMultiFloater* LLFloater::sHostp = NULL;
 BOOL			LLFloater::sQuitting = FALSE; // Flag to prevent storing visibility controls while quitting
-LLFloater::handle_map_t	LLFloater::sFloaterMap;
 
 LLFloaterView* gFloaterView = NULL;
 
@@ -268,7 +269,6 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
-	mHandle.bind(this);
 //	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 
 	// Clicks stop here.
@@ -322,9 +322,6 @@ void LLFloater::initFloater(const Params& p)
 
 	// Floaters are created in the invisible state	
 	setVisible(FALSE);
-
-	// add self to handle->floater map
-	sFloaterMap[mHandle] = this;
 
 	if (!getParent())
 	{
@@ -531,8 +528,6 @@ LLFloater::~LLFloater()
 	// created with rect control rather than an LLRect) are restored in their
 	// correct, non-minimized positions.
 	setMinimized( FALSE );
-
-	sFloaterMap.erase(mHandle);
 
 	delete mDragHandle;
 	for (S32 i = 0; i < 4; i++) 
@@ -1038,7 +1033,9 @@ BOOL LLFloater::canSnapTo(const LLView* other_view)
 	if (other_view != getParent())
 	{
 		const LLFloater* other_floaterp = dynamic_cast<const LLFloater*>(other_view);		
-		if (other_floaterp && other_floaterp->getSnapTarget() == getHandle() && mDependents.find(other_floaterp->getHandle()) != mDependents.end())
+		if (other_floaterp 
+			&& other_floaterp->getSnapTarget() == getHandle() 
+			&& mDependents.find(other_floaterp->getHandle()) != mDependents.end())
 		{
 			// this is a dependent that is already snapped to us, so don't snap back to it
 			return FALSE;
@@ -1677,18 +1674,17 @@ void LLFloater::onClickHelp( LLFloater* self )
 LLFloater* LLFloater::getClosableFloaterFromFocus()
 {
 	LLFloater* focused_floater = NULL;
-
-	handle_map_iter_t iter;
-	for(iter = sFloaterMap.begin(); iter != sFloaterMap.end(); ++iter)
+	LLInstanceTracker<LLFloater>::instance_iter it = beginInstances();
+	LLInstanceTracker<LLFloater>::instance_iter end_it = endInstances();
+	for (; it != end_it; ++it)
 	{
-		focused_floater = iter->second;
-		if (focused_floater->hasFocus())
+		if (it->hasFocus())
 		{
 			break;
 		}
 	}
 
-	if (iter == sFloaterMap.end())
+	if (it == endInstances())
 	{
 		// nothing found, return
 		return NULL;
@@ -1949,6 +1945,12 @@ void LLFloater::setCanDrag(BOOL can_drag)
 	}
 }
 
+bool LLFloater::getCanDrag()
+{
+	return mDragHandle->getEnabled();
+}
+
+
 void LLFloater::updateTitleButtons()
 {
 	static LLUICachedControl<S32> floater_close_box_size ("UIFloaterCloseBoxSize", 0);
@@ -2163,8 +2165,15 @@ LLFloaterView::LLFloaterView (const Params& p)
 // By default, adjust vertical.
 void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	S32 old_width = getRect().getWidth();
-	S32 old_height = getRect().getHeight();
+	S32 old_right = mLastSnapRect.mRight;
+	S32 old_top = mLastSnapRect.mTop;
+
+	LLView::reshape(width, height, called_from_parent);
+
+	S32 new_right = getSnapRect().mRight;
+	S32 new_top = getSnapRect().mTop;
+
+	mLastSnapRect = getSnapRect();
 
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{
@@ -2172,66 +2181,48 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLFloater* floaterp = (LLFloater*)viewp;
 		if (floaterp->isDependent())
 		{
-			// dependents use same follow flags as their "dependee"
+			// dependents are moved with their "dependee"
 			continue;
 		}
 
-		// Make if follow the edge it is closest to
-		U32 follow_flags = 0x0;
-
-		if (floaterp->isMinimized())
-		{
-			follow_flags |= (FOLLOWS_LEFT | FOLLOWS_TOP);
-		}
-		else
+		if (!floaterp->isMinimized())
 		{
 			LLRect r = floaterp->getRect();
 
 			// Compute absolute distance from each edge of screen
 			S32 left_offset = llabs(r.mLeft - 0);
-			S32 right_offset = llabs(old_width - r.mRight);
+			S32 right_offset = llabs(old_right - r.mRight);
 
-			S32 top_offset = llabs(old_height - r.mTop);
+			S32 top_offset = llabs(old_top - r.mTop);
 			S32 bottom_offset = llabs(r.mBottom - 0);
 
+			S32 translate_x = 0;
+			S32 translate_y = 0;
 
-			if (left_offset < right_offset)
+			if (left_offset > right_offset)
 			{
-				follow_flags |= FOLLOWS_LEFT;
-			}
-			else
-			{
-				follow_flags |= FOLLOWS_RIGHT;
+				translate_x = new_right - old_right;
 			}
 
-			// "No vertical adjustment" usually means that the bottom of the view
-			// has been pushed up or down.  Hence we want the floaters to follow
-			// the top.
 			if (top_offset < bottom_offset)
 			{
-				follow_flags |= FOLLOWS_TOP;
+				translate_y = new_top - old_top;
 			}
-			else
+
+			// don't reposition immovable floaters
+			if (floaterp->getCanDrag())
 			{
-				follow_flags |= FOLLOWS_BOTTOM;
+				floaterp->translate(translate_x, translate_y);
 			}
-		}
-
-		floaterp->setFollows(follow_flags);
-
-		//RN: all dependent floaters copy follow behavior of "parent"
-		for(LLFloater::handle_set_iter_t dependent_it = floaterp->mDependents.begin();
-			dependent_it != floaterp->mDependents.end(); ++dependent_it)
-		{
-			LLFloater* dependent_floaterp = dependent_it->get();
-			if (dependent_floaterp)
+			BOOST_FOREACH(LLHandle<LLFloater> dependent_floater, floaterp->mDependents)
 			{
-				dependent_floaterp->setFollows(follow_flags);
+				if (dependent_floater.get())
+				{
+					dependent_floater.get()->translate(translate_x, translate_y);
+				}
 			}
 		}
 	}
-
-	LLView::reshape(width, height, called_from_parent);
 }
 
 
@@ -2631,6 +2622,12 @@ void LLFloaterView::shiftFloaters(S32 x_offset, S32 y_offset)
 
 void LLFloaterView::refresh()
 {
+	LLRect snap_rect = getSnapRect();
+	if (snap_rect != mLastSnapRect)
+	{
+		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
+	}
+
 	// Constrain children to be entirely on the screen
 	for ( child_list_const_iter_t child_it = getChildList()->begin(); child_it != getChildList()->end(); ++child_it)
 	{

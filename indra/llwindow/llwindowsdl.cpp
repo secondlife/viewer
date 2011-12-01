@@ -63,9 +63,6 @@ extern BOOL gDebugWindowProc;
 
 const S32 MAX_NUM_RESOLUTIONS = 200;
 
-const S32 MIN_WINDOW_WIDTH = 1024;
-const S32 MIN_WINDOW_HEIGHT = 768;
-
 // static variable for ATI mouse cursor crash work-around:
 static bool ATIbug = false; 
 
@@ -966,7 +963,7 @@ BOOL LLWindowSDL::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowSDL::setSize(const LLCoordScreen size)
+BOOL LLWindowSDL::setSizeImpl(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
@@ -1034,6 +1031,25 @@ BOOL LLWindowSDL::isCursorHidden()
 void LLWindowSDL::setMouseClipping( BOOL b )
 {
     //SDL_WM_GrabInput(b ? SDL_GRAB_ON : SDL_GRAB_OFF);
+}
+
+// virtual
+void LLWindowSDL::setMinSize(U32 min_width, U32 min_height)
+{
+	LLWindow::setMinSize(min_width, min_height);
+
+#if LL_X11
+	// Set the minimum size limits for X11 window
+	// so the window manager doesn't allow resizing below those limits.
+	XSizeHints* hints = XAllocSizeHints();
+	hints->flags |= PMinSize;
+	hints->min_width = mMinWindowWidth;
+	hints->min_height = mMinWindowHeight;
+
+	XSetWMNormalHints(mSDL_Display, mSDL_XWindowID, hints);
+
+	XFree(hints);
+#endif
 }
 
 BOOL LLWindowSDL::setCursorPosition(const LLCoordWindow position)
@@ -1849,8 +1865,8 @@ void LLWindowSDL::gatherInput()
 		llinfos << "Handling a resize event: " << event.resize.w <<
 			"x" << event.resize.h << llendl;
 
-		S32 width = llmax(event.resize.w, MIN_WINDOW_WIDTH);
-		S32 height = llmax(event.resize.h, MIN_WINDOW_HEIGHT);
+		S32 width = llmax(event.resize.w, (S32)mMinWindowWidth);
+		S32 height = llmax(event.resize.h, (S32)mMinWindowHeight);
 
 		// *FIX: I'm not sure this is necessary!
 		mWindow = SDL_SetVideoMode(width, height, 32, mSDLFlags);
@@ -1866,7 +1882,7 @@ void LLWindowSDL::gatherInput()
     			}
                 break;
 		}
-		
+
 		mCallbacks->handleResize(this, width, height);
                 break;
             }

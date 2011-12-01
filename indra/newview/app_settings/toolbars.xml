@@ -20,5 +20,6 @@
     <command name="places"/>
     <command name="voice"/>
     <command name="minimap"/>
+    <command name="snapshot"/>
   </left_toolbar>
 </toolbars>
