@@ -764,7 +764,7 @@ namespace LLInitParam
 		{
 			if (NAME_VALUE_LOOKUP::getValueFromName(val, mValue))
 			{
-				setValueName(val);
+				NAME_VALUE_LOOKUP::setValueName(val);
 			}
 			else
 			{

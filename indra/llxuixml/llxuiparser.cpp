@@ -129,7 +129,7 @@ struct Any : public LLInitParam::Block<Any, Occurs>
 
 struct All : public LLInitParam::Block<All, Occurs>
 {
-	Multiple<Lazy<Element>> elements;
+	Multiple< Lazy<Element> > elements;
 
 	All()
 	:	elements("element")
@@ -140,11 +140,11 @@ struct All : public LLInitParam::Block<All, Occurs>
 
 struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 {
-	Alternative<Lazy<Element>>	element;
-	Alternative<Lazy<Group>>	group;
-	Alternative<Lazy<Choice>>	choice;
-	Alternative<Lazy<Sequence>>	sequence;
-	Alternative<Lazy<Any>>		any;
+	Alternative< Lazy<Element> >	element;
+	Alternative< Lazy<Group> >		group;
+	Alternative< Lazy<Choice> >		choice;
+	Alternative< Lazy<Sequence> >	sequence;
+	Alternative< Lazy<Any> >		any;
 
 	Choice()
 	:	element("element"),
@@ -158,11 +158,11 @@ struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 
 struct Sequence : public LLInitParam::ChoiceBlock<Sequence, Occurs>
 {
-	Alternative<Lazy<Element>>	element;
-	Alternative<Lazy<Group>>	group;
-	Alternative<Lazy<Choice>>	choice;
-	Alternative<Lazy<Sequence>>	sequence;
-	Alternative<Lazy<Any>>		any;
+	Alternative< Lazy<Element> >	element;
+	Alternative< Lazy<Group> >		group;
+	Alternative< Lazy<Choice> >		choice;
+	Alternative< Lazy<Sequence> >	sequence;
+	Alternative< Lazy<Any> >		any;
 };
 
 struct GroupContents : public LLInitParam::ChoiceBlock<GroupContents, Occurs>
@@ -247,7 +247,7 @@ struct ComplexType : public LLInitParam::Block<ComplexType, ComplexTypeContents>
 	Optional<bool>					mixed;
 
 	Multiple<Attribute>				attribute;
-	Multiple<Lazy<Element>>			elements;
+	Multiple< Lazy<Element> >			elements;
 
 	ComplexType()
 	:	name("name"),
