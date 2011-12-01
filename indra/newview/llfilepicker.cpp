@@ -1197,7 +1197,12 @@ static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
 	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
 	return filtername;
 }
-
+ 
+static std::string add_script_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_mime_filter_to_gtkchooser(picker,  "text/plain",
+							LLTrans::getString("script_files") + " (*.lsl)");
+}
 
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
@@ -1263,6 +1268,10 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 				 LLTrans::getString("compressed_image_files") + " (*.j2c)");
 			suggest_ext = ".j2c";
 			break;
+		case FFSAVE_SCRIPT:
+			caption += add_script_filter_to_gtkchooser(picker);
+			suggest_ext = ".lsl";
+			break;
 		default:;
 			break;
 		}
@@ -1327,6 +1336,9 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 			break;
 		case FFLOAD_IMAGE:
 			filtername = add_imageload_filter_to_gtkchooser(picker);
+			break;
+		case FFLOAD_SCRIPT:
+			filtername = add_script_filter_to_gtkchooser(picker);
 			break;
 		default:;
 			break;
