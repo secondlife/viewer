@@ -25,6 +25,7 @@
  * $/LicenseInfo$
  */
 
+#define LLSD_DEBUG_INFO
 #include <tut/tut.hpp>
 #include "linden_common.h"
 #include "lltut.h"
@@ -39,11 +40,11 @@ namespace tut
 	private:
 		U32	mOutstandingAtStart;
 	public:
-		SDCleanupCheck() : mOutstandingAtStart(LLSD::outstandingCount()) { }
+		SDCleanupCheck() : mOutstandingAtStart(llsd::outstandingCount()) { }
 		~SDCleanupCheck()
 		{
 			ensure_equals("SDCleanupCheck",
-				LLSD::outstandingCount(), mOutstandingAtStart);
+				llsd::outstandingCount(), mOutstandingAtStart);
 		}
 	};
 
@@ -57,12 +58,12 @@ namespace tut
 		SDAllocationCheck(const std::string& message, int expectedAllocations)
 			: mMessage(message),
 			mExpectedAllocations(expectedAllocations),
-			mAllocationAtStart(LLSD::allocationCount())
+			mAllocationAtStart(llsd::allocationCount())
 			{ }
 		~SDAllocationCheck()
 		{
 			ensure_equals(mMessage + " SDAllocationCheck",
-				LLSD::allocationCount() - mAllocationAtStart,
+				llsd::allocationCount() - mAllocationAtStart,
 				mExpectedAllocations);
 		}
 	};
@@ -746,7 +747,7 @@ namespace tut
 		{
 			SDAllocationCheck check("shared values test for threaded work", 9);
 
-			//U32 start_llsd_count = LLSD::outstandingCount();
+			//U32 start_llsd_count = llsd::outstandingCount();
 
 			LLSD m = LLSD::emptyMap();
 
@@ -773,7 +774,7 @@ namespace tut
 			m["string_two"] = "string two value";
 			m["string_one_copy"] = m["string_one"];		// 9
 
-			//U32 llsd_object_count = LLSD::outstandingCount();
+			//U32 llsd_object_count = llsd::outstandingCount();
 			//std::cout << "Using " << (llsd_object_count - start_llsd_count) << " LLSD objects" << std::endl;
 
 			//m.dumpStats();

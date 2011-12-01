@@ -389,19 +389,6 @@ private:
 		Impl* impl;
 		friend class LLSD::Impl;
 	//@}
-	
-	/** @name Unit Testing Interface */
-	//@{
-public:
-#ifdef LLSD_DEBUG_INFO
-		/// @warn THESE COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
-		/// ENVIRONMENT.
-		///
-		/// These counts track LLSD::Impl (hidden) objects.
-		static U32 allocationCount();	///< how many Impls have been made
-		static U32 outstandingCount();	///< how many Impls are still alive
-#endif
-	//@}
 
 private:
 	/** @name Debugging Interface */
@@ -474,6 +461,23 @@ struct llsd_select_string : public std::unary_function<LLSD, LLSD::String>
 };
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
+
+namespace llsd
+{
+
+/** @name Unit Testing Interface */
+//@{
+#ifdef LLSD_DEBUG_INFO
+	/// @warn THESE COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
+	/// ENVIRONMENT.
+	///
+	/// These counts track LLSD::Impl (hidden) objects.
+	LL_COMMON_API U32 allocationCount();	///< how many Impls have been made
+	LL_COMMON_API U32 outstandingCount();	///< how many Impls are still alive
+#endif
+//@}
+
+} // namespace llsd
 
 /** QUESTIONS & TO DOS
 	- Would Binary be more convenient as unsigned char* buffer semantics?

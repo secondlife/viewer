@@ -91,7 +91,7 @@ protected:
 	bool shared() const							{ return (mUseCount > 1) && (mUseCount != STATIC_USAGE_COUNT); }
 	
 	U32 mUseCount;
-	
+
 public:
 	static void reset(Impl*& var, Impl* impl);
 		///< safely set var to refer to the new impl (possibly shared)
@@ -901,11 +901,6 @@ LLSD&		LLSD::operator[](Integer i)
 const LLSD& LLSD::operator[](Integer i) const
 										{ return safe(impl).ref(i); }
 
-#ifdef LLSD_DEBUG_INFO
-U32 LLSD::allocationCount()				{ return Impl::sAllocationCount; }
-U32 LLSD::outstandingCount()			{ return Impl::sOutstandingCount; }
-#endif
-
 static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 {
 	// sStorage is used to hold the string representation of the llsd last
@@ -954,6 +949,13 @@ LLSD::array_iterator		LLSD::endArray()		{ return makeArray(impl).endArray(); }
 LLSD::array_const_iterator	LLSD::beginArray() const{ return safe(impl).beginArray(); }
 LLSD::array_const_iterator	LLSD::endArray() const	{ return safe(impl).endArray(); }
 
+namespace llsd
+{
+
+U32 allocationCount()								{ return LLSD::Impl::sAllocationCount; }
+U32 outstandingCount()								{ return LLSD::Impl::sOutstandingCount; }
+
+} // namespace llsd
 
 // Diagnostic dump of contents in an LLSD object
 #ifdef LLSD_DEBUG_INFO
