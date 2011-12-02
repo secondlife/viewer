@@ -316,7 +316,6 @@ set(viewer_SOURCE_FILES
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
-    llmenucommands.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -870,7 +869,6 @@ set(viewer_HEADER_FILES
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
-    llmenucommands.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h

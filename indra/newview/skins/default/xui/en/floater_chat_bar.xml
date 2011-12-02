@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  open_positioning="specified"
- specified_left="320"
+ specified_left="10"
  specified_bottom="10"
  height="60"
  layout="topleft"
@@ -17,17 +17,17 @@
  can_resize="true"
  default_tab_group="1"
  name="chat_bar"
- width="380">
+ width="300">
     <panel
         top="20"
         class="panel_nearby_chat"
         follow="all"
-        width="380"
+        width="300"
         height="0"
         visible="false"
         filename="panel_nearby_chat.xml"
         name="nearby_chat" />
-    <panel width="380" 
+    <panel width="300" 
            height="31" 
            left="0" 
            bottom="-1" 
@@ -48,7 +48,7 @@
         text_pad_right="25"
         tool_tip="Press Enter to say, Ctrl+Enter to shout"
         top="2"
-        width="335" />
+        width="255" />
       <output_monitor
         auto_update="true"
         follows="right"

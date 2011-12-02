@@ -61,7 +61,6 @@
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 
-#include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
