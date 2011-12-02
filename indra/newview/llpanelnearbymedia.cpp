@@ -808,14 +808,26 @@ bool LLPanelNearByMedia::setDisabled(const LLUUID &row_id, bool disabled)
 {
 	if (row_id == PARCEL_AUDIO_LIST_ITEM_UUID)
 	{
-		if (disabled) onClickParcelAudioStop();
-		else onClickParcelAudioPlay();
+		if (disabled)
+		{
+			onClickParcelAudioStop();
+		}
+		else
+		{
+			onClickParcelAudioPlay();
+		}
 		return true;
 	}
 	else if (row_id == PARCEL_MEDIA_LIST_ITEM_UUID)
 	{
-		if (disabled) onClickDisableParcelMedia();
-		else onClickEnableParcelMedia();
+		if (disabled)
+		{
+			onClickDisableParcelMedia();
+		}
+		else
+		{
+			onClickEnableParcelMedia();
+		}
 		return true;
 	}
 	else {

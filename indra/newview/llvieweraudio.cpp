@@ -74,11 +74,13 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 	// Record the URI we are going to be switching to	
 	mNextStreamURI = streamURI;
 
-	if (mFadeState == FADE_IDLE)
+	switch (mFadeState)
 	{
+		case FADE_IDLE:
 		// If a stream is playing fade it out first
 		if (!gAudiop->getInternetStreamURL().empty())
 		{
+			// The order of these tests is important, state FADE_OUT will be processed below
 			mFadeState = FADE_OUT;
 		}
 		// Otherwise the new stream can be faded in
@@ -88,21 +90,21 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 			gAudiop->startInternetStream(mNextStreamURI);
 			startFading();
 			registerIdleListener();
-			return;
+			break;
 		}
-	}
 
-	if (mFadeState == FADE_OUT)
-	{
-		startFading();
-		registerIdleListener();
-		return;
-	}
+		case FADE_OUT:
+			startFading();
+			registerIdleListener();
+			break;
 
-	if (mFadeState == FADE_IN)
-	{
-		registerIdleListener();
-		return;
+		case FADE_IN:
+			registerIdleListener();
+			break;
+
+		default:
+			llwarns << "Unknown fading state: " << mFadeState << llendl;
+			break;
 	}
 }
 
@@ -112,13 +114,15 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 // A return of true means we have finished with it and the callback will be deleted.
 bool LLViewerAudio::onIdleUpdate()
 {
+	bool fadeIsFinished = false;
+
 	if (mDone)
 	{
 		//  This should be a rare or never occurring state.
 		if (mFadeState == FADE_IDLE)
 		{
 			deregisterIdleListener();
-			return true; // Stop calling onIdleUpdate
+			fadeIsFinished = true; // Stop calling onIdleUpdate
 		}
 
 		// we have finished the current fade operation
@@ -133,13 +137,12 @@ bool LLViewerAudio::onIdleUpdate()
 				mFadeState = FADE_IN;
 				gAudiop->startInternetStream(mNextStreamURI);
 				startFading();
-				return false;
 			}
 			else
 			{
 				mFadeState = FADE_IDLE;
 				deregisterIdleListener();
-				return true; // Stop calling onIdleUpdate
+				fadeIsFinished = true; // Stop calling onIdleUpdate
 			}
 		}
 		else if (mFadeState == FADE_IN)
@@ -148,18 +151,17 @@ bool LLViewerAudio::onIdleUpdate()
 			{
 				mFadeState = FADE_OUT;
 				startFading();
-				return false;
 			}
 			else
 			{
 				mFadeState = FADE_IDLE;
 				deregisterIdleListener();
-				return true; // Stop calling onIdleUpdate
+				fadeIsFinished = true; // Stop calling onIdleUpdate
 			}
 		}
 	}
 
-	return false;
+	return fadeIsFinished;
 }
 
 void LLViewerAudio::stopInternetStreamWithAutoFade()
@@ -174,8 +176,10 @@ void LLViewerAudio::stopInternetStreamWithAutoFade()
 
 void LLViewerAudio::startFading()
 {
-	const F32 AUDIO_MUSIC_FADE_IN_TIME = 3.0;
-	const F32 AUDIO_MUSIC_FADE_OUT_TIME = 2.0;
+	const F32 AUDIO_MUSIC_FADE_IN_TIME = 3.0f;
+	const F32 AUDIO_MUSIC_FADE_OUT_TIME = 2.0f;
+	// This minimum fade time prevents divide by zero and negative times
+	const F32 AUDIO_MUSIC_MINIMUM_FADE_TIME = 0.01f;
 
 	if(mDone)
 	{
@@ -186,6 +190,10 @@ void LLViewerAudio::startFading()
 		{
 			mFadeTime = AUDIO_MUSIC_FADE_OUT_TIME;
 		}
+
+		// Prevent invalid fade time
+		mFadeTime = llmax(mFadeTime, AUDIO_MUSIC_MINIMUM_FADE_TIME);
+
 		stream_fade_timer.reset();
 		stream_fade_timer.setTimerExpirySec(mFadeTime);
 		mDone = false;
