@@ -1230,7 +1230,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d7743d42de9a5e48809dedf4b64e53e4</string>
+              <string>270db8568a0c4bab266d98e1a820aec4</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/245988/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20111201.tar.bz2</string>
             </map>
