@@ -193,20 +193,22 @@ BOOL LLWindow::setSize(LLCoordScreen size)
 
 
 // virtual
-void LLWindow::setMinSize(U32 min_width, U32 min_height)
+void LLWindow::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
 {
 	mMinWindowWidth = min_width;
 	mMinWindowHeight = min_height;
 
-	LLCoordScreen cur_size;
-	if (!getMaximized() && getSize(&cur_size))
+	if (enforce_immediately)
 	{
-		if (cur_size.mX < mMinWindowWidth || cur_size.mY < mMinWindowHeight)
+		LLCoordScreen cur_size;
+		if (!getMaximized() && getSize(&cur_size))
 		{
-			setSizeImpl(LLCoordScreen(llmin(cur_size.mX, mMinWindowWidth), llmin(cur_size.mY, mMinWindowHeight)));
+			if (cur_size.mX < mMinWindowWidth || cur_size.mY < mMinWindowHeight)
+			{
+				setSizeImpl(LLCoordScreen(llmin(cur_size.mX, mMinWindowWidth), llmin(cur_size.mY, mMinWindowHeight)));
+			}
 		}
 	}
-
 }
 
 //virtual

@@ -1597,7 +1597,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
 	}
 
-	mWindow->setMinSize(p.min_width, p.min_height);
+	const bool do_not_enforce = false;
+	mWindow->setMinSize(p.min_width, p.min_height, do_not_enforce);  // root view not set 
 	LLCoordScreen scr;
     mWindow->getSize(&scr);
 
