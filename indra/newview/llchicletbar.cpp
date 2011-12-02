@@ -353,6 +353,8 @@ void LLChicletBar::fitWithTopInfoBar()
 	if (top_info_bar.getVisible())
 	{
 		S32 delta = top_info_bar.calcScreenRect().mRight - calcScreenRect().mLeft;
+		if (delta < 0 && rect.mLeft < llabs(delta))
+			delta = -rect.mLeft;
 		rect.setLeftTopAndSize(rect.mLeft + delta, rect.mTop, rect.getWidth(), rect.getHeight());
 		width = rect.getWidth() - delta;
 	}
