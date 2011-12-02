@@ -120,7 +120,7 @@ public:
 	/** Start lifetime/fading timer */
 	virtual void startTimer();
 
-	bool isHovered();
+	bool isHovered() { return mIsHovered; }
 
 	// Operating with toasts
 	// insert a panel to a toast
@@ -202,10 +202,7 @@ protected:
 	void updateTransparency();
 
 private:
-
-	void onToastMouseEnter();
-
-	void onToastMouseLeave();
+	void updateHoveredState();
 
 	void expire();
 
@@ -236,6 +233,7 @@ private:
 	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 	bool		mIsTip;
 	bool		mIsFading;
+	bool		mIsHovered;
 
 	commit_signal_t mToastMouseEnterSignal;
 	commit_signal_t mToastMouseLeaveSignal;
