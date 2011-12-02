@@ -2309,18 +2309,18 @@ void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::s
 
 bool LLViewerFetchedTexture::doLoadedCallbacks()
 {
-	static const F32 MAX_INACTIVE_TIME = 120.f ; //seconds
+	static const F32 MAX_INACTIVE_TIME = 900.f ; //seconds
 
-	if(mPauseLoadedCallBacks)
-	{
-		destroyRawImage();
-		return false; //paused
-	}
 	if (mNeedsCreateTexture)
 	{
 		return false;
 	}
-	if(sCurrentTime - mLastCallBackActiveTime > MAX_INACTIVE_TIME)
+	if(mPauseLoadedCallBacks)
+	{
+		destroyRawImage();
+		return false; //paused
+	}	
+	if(sCurrentTime - mLastCallBackActiveTime > MAX_INACTIVE_TIME && !mIsFetching)
 	{
 		clearCallbackEntryList() ; //remove all callbacks.
 		return false ;
@@ -2343,6 +2343,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 
 		// Remove ourself from the global list of textures with callbacks
 		gTextureList.mCallbackList.erase(this);
+		return false ;
 	}	
 
 	S32 gl_discard = getDiscardLevel();
