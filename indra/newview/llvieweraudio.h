@@ -63,6 +63,9 @@ public:
 	EFadeState getFadeState() { return mFadeState; }
 	bool isDone() { return mDone; };
 	F32 getFadeVolume();
+	bool getForcedTeleportFade() { return mForcedTeleportFade; };
+	void setForcedTeleportFade(bool fade) { mForcedTeleportFade = fade;} ;
+	void setNextStreamURI(std::string stream) { mNextStreamURI = stream; } ;
 
 private:
 
@@ -72,10 +75,14 @@ private:
 	EFadeState mFadeState;
 	LLFrameTimer stream_fade_timer;
 	bool mIdleListnerActive;
+	bool mForcedTeleportFade;
+	boost::signals2::connection	mTeleportFailedConnection;
 
 	void registerIdleListener();
 	void deregisterIdleListener() { mIdleListnerActive = false; };
 	void startFading();
+	void onTeleportFailed();
+
 };
 
 #endif //LL_VIEWER_H

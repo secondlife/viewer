@@ -38,6 +38,9 @@
 #include "llviewermedia.h"
 #include "llprogressview.h"
 #include "llcallbacklist.h"
+#include "llstartup.h"
+#include "llviewerparcelmgr.h"
+#include "llparcel.h"
 
 /////////////////////////////////////////////////////////
 
@@ -45,12 +48,16 @@ LLViewerAudio::LLViewerAudio() :
 	mDone(true),
 	mFadeState(FADE_IDLE),
 	mFadeTime(),
-    mIdleListnerActive(false)
+    mIdleListnerActive(false),
+	mForcedTeleportFade(false)
 {
+	mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFailedCallback(boost::bind(&LLViewerAudio::onTeleportFailed, this));
 }
 
 LLViewerAudio::~LLViewerAudio()
 {
+	mTeleportFailedConnection.disconnect();
 }
 
 void LLViewerAudio::registerIdleListener()
@@ -108,13 +115,20 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 	}
 }
 
-// We want onIdleUpdate callback to keep firing whilst we are fading out. Once we have completed the fade
-// out, we switch the stream and start a fade in, and we don't care about idle updates anymore.
 // A return of false from onIdleUpdate means it will be called again next idle update.
 // A return of true means we have finished with it and the callback will be deleted.
 bool LLViewerAudio::onIdleUpdate()
 {
 	bool fadeIsFinished = false;
+
+	// There is a delay in the login sequence between when the parcel information has
+	// arrived and the music stream is started and when the audio system is called to set
+	// initial volume levels.  This code extends the fade time so you hear a full fade in.
+	if ((LLStartUp::getStartupState() < STATE_STARTED))
+	{
+		stream_fade_timer.reset();
+		stream_fade_timer.setTimerExpirySec(mFadeTime);
+	}
 
 	if (mDone)
 	{
@@ -231,6 +245,18 @@ F32 LLViewerAudio::getFadeVolume()
 	return fade_volume;
 }
 
+void LLViewerAudio::onTeleportFailed()
+{
+	if (gAudiop)
+	{
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		if (parcel)
+		{
+			mNextStreamURI = parcel->getMusicURL();
+		}
+	}
+}
+
 void init_audio() 
 {
 	if (!gAudiop) 
@@ -333,7 +359,19 @@ void audio_update_volume(bool force_update)
 
 	// Streaming Music
 	if (gAudiop) 
-	{		
+	{
+		if (progress_view_visible  && !LLViewerAudio::getInstance()->getForcedTeleportFade())
+		{
+			LLViewerAudio::getInstance()->setForcedTeleportFade(true);
+			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
+			LLViewerAudio::getInstance()->setNextStreamURI(LLStringUtil::null);
+		}
+
+		if (!progress_view_visible && LLViewerAudio::getInstance()->getForcedTeleportFade() == true)
+		{
+			LLViewerAudio::getInstance()->setForcedTeleportFade(false);
+		}
+
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
 		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
 		F32 fade_volume = LLViewerAudio::getInstance()->getFadeVolume();
