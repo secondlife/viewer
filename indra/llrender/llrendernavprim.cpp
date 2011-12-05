@@ -29,11 +29,11 @@
 #include "llrendernavprim.h"
 #include "llerror.h"
 #include "llglheaders.h"
-
+#include "llvertexbuffer.h"
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
-void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color )
+void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color ) const
 {	
 	
 	LLColor4 colorA( color );	
@@ -49,13 +49,13 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 	glLineWidth(1.0f);	
 }
 //=============================================================================
-void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color )
+void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
 {
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glLineWidth(1.5f);	
 	LLColor4 colorA( color );
-	gGL.color4fv( colorA.mV );	
+	gGL.color4fv( colorA.mV );		
 	gGL.begin(LLRender::TRIANGLES);
 	{
 		gGL.vertex3fv( a.mV );
@@ -65,5 +65,11 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	gGL.end();
 
 	glLineWidth(1.f);
+}
+//=============================================================================
+void LLRenderNavPrim::renderNavMeshVB( const LLVertexBuffer* pVBO, int vertCnt ) const
+{
+	//pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
+	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
 }
 //=============================================================================
