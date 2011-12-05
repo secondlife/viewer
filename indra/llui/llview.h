@@ -97,7 +97,11 @@ private:
 	static std::vector<LLViewDrawContext*> sDrawContextStack;
 };
 
-class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
+class LLView 
+:	public LLMouseHandler,			// handles mouse events
+	public LLFocusableElement,		// handles keyboard events
+	public LLMortician,				// lazy deletion
+	public LLHandleProvider<LLView>	// passes out weak references to self
 {
 public:
 	struct Follows : public LLInitParam::ChoiceBlock<Follows>
@@ -306,8 +310,6 @@ public:
 	void			popVisible()				{ setVisible(mLastVisible); }
 	BOOL			getLastVisible()	const	{ return mLastVisible; }
 
-	LLHandle<LLView>	getHandle()				{ mHandle.bind(this); return mHandle; }
-
 	U32			getFollows() const				{ return mReshapeFlags; }
 	BOOL		followsLeft() const				{ return mReshapeFlags & FOLLOWS_LEFT; }
 	BOOL		followsRight() const			{ return mReshapeFlags & FOLLOWS_RIGHT; }
@@ -431,7 +433,7 @@ public:
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 
-	/*virtual*/ std::string	getName() const;
+	/*virtual*/ const std::string& getName() const;
 	/*virtual*/ void	onMouseCaptureLost();
 	/*virtual*/ BOOL	hasMouseCapture();
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
@@ -606,7 +608,6 @@ private:
 	BOOL		mIsFocusRoot;
 	BOOL		mUseBoundingRect; // hit test against bounding rectangle that includes all child elements
 
-	LLRootHandle<LLView> mHandle;
 	BOOL		mLastVisible;
 
 	S32			mNextInsertionOrdinal;

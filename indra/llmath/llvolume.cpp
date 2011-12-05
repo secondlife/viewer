@@ -4305,15 +4305,25 @@ S32 LLVolume::getNumTriangleIndices() const
 }
 
 
-S32 LLVolume::getNumTriangles() const
+S32 LLVolume::getNumTriangles(S32* vcount) const
 {
 	U32 triangle_count = 0;
+	U32 vertex_count = 0;
 
 	for (S32 i = 0; i < getNumVolumeFaces(); ++i)
 	{
-		triangle_count += getVolumeFace(i).mNumIndices/3;
+		const LLVolumeFace& face = getVolumeFace(i);
+		triangle_count += face.mNumIndices/3;
+
+		vertex_count += face.mNumVertices;
 	}
 
+
+	if (vcount)
+	{
+		*vcount = vertex_count;
+	}
+	
 	return triangle_count;
 }
 

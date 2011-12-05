@@ -72,10 +72,10 @@
 		</panel>
 		<panel label="Запрос" name="request">
 			<text name="Destination:">
-				Место назначения:
+				Пункт назначения:
 			</text>
 			<combo_box name="destination">
-				<combo_box.item label="назначенное" name="item1"/>
+				<combo_box.item label="назначенный" name="item1"/>
 				<combo_box.item label="текущий регион" name="item2"/>
 			</combo_box>
 			<text name="Request:">

@@ -83,7 +83,7 @@ namespace LLInitParam
 }
 
 
-class LLFloater : public LLPanel
+class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 {
 	friend class LLFloaterView;
 	friend class LLFloaterReg;
@@ -283,7 +283,7 @@ public:
 	void			clearSnapTarget() { mSnappedTo.markDead(); }
 	LLHandle<LLFloater>	getSnapTarget() const { return mSnappedTo; }
 
-	LLHandle<LLFloater> getHandle() const { return mHandle; }
+	LLHandle<LLFloater> getHandle() const { return getDerivedHandle<LLFloater>(); }
 	const LLSD& 	getKey() { return mKey; }
 	virtual bool	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 	
@@ -461,16 +461,9 @@ private:
 	typedef void(*click_callback)(LLFloater*);
 	static click_callback sButtonCallbacks[BUTTON_COUNT];
 
-	typedef std::map<LLHandle<LLFloater>, LLFloater*> handle_map_t;
-	typedef std::map<LLHandle<LLFloater>, LLFloater*>::iterator handle_map_iter_t;
-	static handle_map_t	sFloaterMap;
-
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
-
-//	LLFloaterNotificationContext* mNotificationContext;
-	LLRootHandle<LLFloater>		mHandle;	
 };
 
 

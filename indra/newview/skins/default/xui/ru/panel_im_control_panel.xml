@@ -17,7 +17,7 @@
 			<button label="Заплатить" name="pay_btn"/>
 		</layout_panel>
 		<layout_panel name="call_btn_panel">
-			<button label="Позвонить" name="call_btn"/>
+			<button label="Звонок" name="call_btn"/>
 		</layout_panel>
 		<layout_panel name="end_call_btn_panel">
 			<button label="Завершить звонок" name="end_call_btn"/>

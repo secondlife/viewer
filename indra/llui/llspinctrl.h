@@ -96,6 +96,9 @@ public:
 
 	void			onUpBtn(const LLSD& data);
 	void			onDownBtn(const LLSD& data);
+	
+	const LLColor4&	getEnabledTextColor() const	{ return mTextEnabledColor.get(); }
+	const LLColor4&	getDisabledTextColor() const { return mTextDisabledColor.get(); }
 
 private:
 	void			updateLabelColor();

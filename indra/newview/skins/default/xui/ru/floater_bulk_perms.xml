@@ -24,7 +24,7 @@
 	<button label="√ Все" name="check_all"/>
 	<button label="Очистить" label_selected="Нет" name="check_none"/>
 	<text name="newperms">
-		Новые разрешения на использование контента
+		Новые разрешения на контент
 	</text>
 	<text name="GroupLabel">
 		Группа:

@@ -75,10 +75,6 @@ set(llmath_HEADER_FILES
     llvector4a.h
     llvector4a.inl
     llvector4logical.h
-    llv4math.h
-    llv4matrix3.h
-    llv4matrix4.h
-    llv4vector3.h
     llvolume.h
     llvolumemgr.h
     llvolumeoctree.h

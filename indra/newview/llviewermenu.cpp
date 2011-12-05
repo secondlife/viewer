@@ -76,7 +76,6 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
-#include "llmenucommands.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
@@ -1035,26 +1034,6 @@ class LLAdvancedCheckRandomizeFramerate : public view_listener_t
 	{
 		bool new_value = gRandomizeFramerate;
 		return new_value;
-	}
-};
-
-void run_vectorize_perf_test(void *)
-{
-	gSavedSettings.setBOOL("VectorizePerfTest", TRUE);
-}
-
-
-////////////////////////////////
-// RUN Vectorized Perform Test//
-////////////////////////////////
-
-
-class LLAdvancedVectorizePerfTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		run_vectorize_perf_test(NULL);
-		return true;
 	}
 };
 
@@ -7701,7 +7680,14 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else
 		{
-			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
+			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
+			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
+			bool use_fixed_sky = false;
+			bool use_region_settings = true;
+			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
+					    envmgr.getSkyPresetName(),
+					    envmgr.getDayCycleName(),
+					    use_fixed_sky, use_region_settings);
 		}
 
 		return true;
@@ -8005,7 +7991,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// World menu
-	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
 	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
@@ -8101,7 +8086,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
 	view_listener_t::addMenu(new LLAdvancedCheckPeriodicSlowFrame(), "Advanced.CheckPeriodicSlowFrame");
-	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");

@@ -219,12 +219,6 @@
      label="Communicate"
      name="Communicate"
      tear_off="true">
-        <!--menu_item_call
-         label="Chat"
-         name="Chat">
-            <menu_item_call.on_click
-             function="World.Chat" />
-        </menu_item_call-->
         <menu_item_check
          label="Chat..."
          name="Nearby Chat"
@@ -562,6 +556,14 @@
                 <menu_item_call.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
+            </menu_item_call>
+            <menu_item_separator/>
+            <menu_item_call
+             label="Use Region Settings"
+             name="Use Region Settings">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="region" />
             </menu_item_call>
         </menu>
 	    
@@ -2606,19 +2608,6 @@
             <menu_item_check.on_enable
                  function="Advanced.EnableRenderDeferredOptions" />
           </menu_item_check>
-          <menu_item_check
-                   label="   Global Illumination (experimental)"
-                   name="Global Illumination">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderDeferredGI" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderDeferredGI" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderDeferredOptions" />
-          </menu_item_check>
-
           <menu_item_separator />
 
           <menu_item_check

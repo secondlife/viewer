@@ -37,7 +37,7 @@
 		</text>
 		<check_box initial_value="истина" name="events_mature_chk"/>
 		<text name="events_mature_label">
-			Умеренный
+			Умеренные
 		</text>
 		<text name="events_adult_label">
 			Для взрослых
@@ -62,7 +62,7 @@
 			Место:
 		</text>
 		<button label="Телепортация" name="Teleport" tool_tip="Телепортация в выбранное место"/>
-		<button label="Копировать URL-адрес SL" name="copy_slurl" tool_tip="Копировать текущее место в виде URL-адреса SL для использования в Интернете."/>
+		<button label="Копировать URL SL" name="copy_slurl" tool_tip="Копировать текущее место в виде URL-адреса SL для использования в интернете."/>
 		<button label="Показать выбранное" name="Show Destination" tool_tip="Центрировать карту на выбранном месте"/>
 	</panel>
 	<panel name="layout_panel_5">

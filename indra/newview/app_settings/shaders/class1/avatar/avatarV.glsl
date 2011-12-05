@@ -22,8 +22,17 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 projection_matrix;
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+
+uniform vec4 color;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getSkinnedTransform();
@@ -31,32 +40,30 @@ void calcAtmospherics(vec3 inPositionEye);
 
 void main()
 {
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	vary_texcoord0 = texcoord0;
 				
 	vec4 pos;
 	vec3 norm;
 	
+	vec4 pos_in = vec4(position.xyz, 1.0);
+
 	mat4 trans = getSkinnedTransform();
-	pos.x = dot(trans[0], gl_Vertex);
-	pos.y = dot(trans[1], gl_Vertex);
-	pos.z = dot(trans[2], gl_Vertex);
+	pos.x = dot(trans[0], pos_in);
+	pos.y = dot(trans[1], pos_in);
+	pos.z = dot(trans[2], pos_in);
 	pos.w = 1.0;
 	
-	norm.x = dot(trans[0].xyz, gl_Normal);
-	norm.y = dot(trans[1].xyz, gl_Normal);
-	norm.z = dot(trans[2].xyz, gl_Normal);
+	norm.x = dot(trans[0].xyz, normal);
+	norm.y = dot(trans[1].xyz, normal);
+	norm.z = dot(trans[2].xyz, normal);
 	norm = normalize(norm);
 		
-	gl_Position = gl_ProjectionMatrix * pos;
+	gl_Position = projection_matrix * pos;
 	
-	//gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-	
-	gl_FogFragCoord = length(pos.xyz);
-
 	calcAtmospherics(pos.xyz);
 
-	vec4 color = calcLighting(pos.xyz, norm, gl_Color, vec4(0,0,0,0));
-	gl_FrontColor = color; 
+	vec4 col = calcLighting(pos.xyz, norm, color, vec4(0,0,0,0));
+	vertex_color = col; 
 
 }
 

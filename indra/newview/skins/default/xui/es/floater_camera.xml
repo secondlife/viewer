@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Mover la cámara arriba y abajo, izquierda y derecha
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Modos de cámara
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Orbital - Zoom - Panorámica
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Vistas predefinidas
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Centrar el objeto
 	</floater.string>

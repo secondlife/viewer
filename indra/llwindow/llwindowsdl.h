@@ -76,6 +76,7 @@ public:
 	/*virtual*/ void captureMouse();
 	/*virtual*/ void releaseMouse();
 	/*virtual*/ void setMouseClipping( BOOL b );
+	/*virtual*/	void setMinSize(U32 min_width, U32 min_height);
 
 	/*virtual*/ BOOL isClipboardTextAvailable();
 	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst);
@@ -140,7 +141,6 @@ public:
 #if LL_X11
 	static Window get_SDL_XWindowID(void);
 	static Display* get_SDL_Display(void);
-	void setXWindowMinSize();
 #endif // LL_X11	
 
 protected:

@@ -17,9 +17,9 @@
 	<check_box label="Activé" name="enable_media"/>
 	<slider label="Chat vocal" name="Voice Volume"/>
 	<check_box label="Activé" name="enable_voice_check"/>
-	<check_box label="Autoriser la lecture automatique du média" name="media_auto_play_btn" tool_tip="Cochez pour autoriser la lecture automatique du média" value="true"/>
-	<check_box label="Lecture du média aux autres avatars" name="media_show_on_others_btn" tool_tip="Décochez pour masquer le média aux autres avatars près de vous" value="true"/>
-	<check_box label="Lire les sons des gestes" name="gesture_audio_play_btn" tool_tip="Cochez cette case pour entendre les sons associés aux gestes." value="true"/>
+	<check_box label="Autoriser la lecture automatique du média" name="media_auto_play_btn" tool_tip="Cocher pour autoriser la lecture automatique du média." value="true"/>
+	<check_box label="Lire le média attaché aux autres avatars" name="media_show_on_others_btn" tool_tip="Décocher pour masquer le média attaché aux autres avatars près de vous." value="true"/>
+	<check_box label="Lire les sons des gestes" name="gesture_audio_play_btn" tool_tip="Cocher cette case pour entendre les sons associés aux gestes." value="true"/>
 	<text name="voice_chat_settings">
 		Paramètres du chat vocal
 	</text>

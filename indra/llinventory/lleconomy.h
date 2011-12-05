@@ -31,6 +31,16 @@
 class LLMessageSystem;
 class LLVector3;
 
+/**
+ * Register an observer to be notified of economy data updates coming from server.
+ */
+class LLEconomyObserver
+{
+public:
+	virtual ~LLEconomyObserver() {}
+	virtual void onEconomyDataChange() = 0;
+};
+
 class LLGlobalEconomy
 {
 public:
@@ -45,6 +55,10 @@ public:
 	void initSingleton() { }
 
 	virtual void print();
+
+	void	addObserver(LLEconomyObserver* observer);
+	void	removeObserver(LLEconomyObserver* observer);
+	void	notifyObservers();
 
 	static void processEconomyData(LLMessageSystem *msg, LLGlobalEconomy* econ_data);
 
@@ -89,6 +103,8 @@ private:
 	S32		mTeleportMinPrice;
 	F32		mTeleportPriceExponent;
 	S32     mPriceGroupCreate;
+
+	std::list<LLEconomyObserver*> mObservers;
 };
 
 

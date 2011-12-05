@@ -167,7 +167,7 @@ LLFloater* LLFloaterWebContent::create( Params p)
 //static
 void LLFloaterWebContent::closeRequest(const std::string &uuid)
 {
-	LLFloaterWebContent* floaterp = getInstance(uuid);
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
 	if (floaterp)
 	{
 		floaterp->closeFloater(false);
@@ -177,7 +177,7 @@ void LLFloaterWebContent::closeRequest(const std::string &uuid)
 //static
 void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
 {
-	LLFloaterWebContent* floaterp = getInstance(uuid);
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
 	if (floaterp)
 	{
 		floaterp->geometryChanged(x, y, width, height);

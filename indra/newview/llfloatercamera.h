@@ -102,9 +102,6 @@ private:
 	/* sets a new mode preserving previous one and updates ui*/
 	void setMode(ECameraControlMode mode);
 
-	/** set title appropriate to passed mode */
-	void setModeTitle(const ECameraControlMode mode);
-
 	/* updates the state (UI) according to the current mode */
 	void updateState();
 

@@ -23,14 +23,16 @@
  * $/LicenseInfo$
  */
  
+uniform mat4 modelview_projection_matrix;
 
+ATTRIBUTE vec3 position;
 
 // SKY ////////////////////////////////////////////////////////////////////////
 // The vertex shader for creating the atmospheric sky
 ///////////////////////////////////////////////////////////////////////////////
 
 // Output parameters
-varying vec4 vary_HazeColor;
+VARYING vec4 vary_HazeColor;
 
 // Inputs
 uniform vec3 camPosLocal;
@@ -57,12 +59,11 @@ void main()
 {
 
 	// World / view / projection
-	gl_Position = ftransform();
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
 	// Get relative position
-	vec3 P = gl_Vertex.xyz - camPosLocal.xyz + vec3(0,50,0);
-	//vec3 P = gl_Vertex.xyz + vec3(0,50,0);
+	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
+	//vec3 P = position.xyz + vec3(0,50,0);
 
 	// Set altitude
 	if (P.y > 0.)

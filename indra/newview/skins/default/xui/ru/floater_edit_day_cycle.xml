@@ -16,25 +16,25 @@
 		-Выбор настройки-
 	</string>
 	<text name="label">
-		Название настройки:
+		Имя настройки:
 	</text>
 	<text name="note">
 		Примечание. Если изменить имя настройки, будет создана новая настройка, а изменения в существующей не будут сохранены.
 	</text>
 	<text name="hint_item1">
-		- Чтобы изменить определенные настройки неба и времени, выберите соответствующую вкладку.
+		- Для изменения настроек неба и времени выберите соответствующую вкладку.
 	</text>
 	<text name="hint_item2">
-		- Чтобы задать время переходов, вабирайте и перетаскивайте вкладки.
+		- Чтобы задать время переходов, перетаскивайте вкладки.
 	</text>
 	<text name="hint_item3">
-		- Используйте скребок для предварительного просмотра суточного цикла.
+		- Скребок служит для просмотра суточного цикла.
 	</text>
 	<panel name="day_cycle_slider_panel">
 		<multi_slider initial_value="0" name="WLTimeSlider"/>
 		<multi_slider initial_value="0" name="WLDayCycleKeys"/>
-		<button label="Добавить отметку" label_selected="Добавить отметку" name="WLAddKey"/>
-		<button label="Удалить отметку" label_selected="Удалить отметку" name="WLDeleteKey"/>
+		<button label="+ отметку" label_selected="+ отметку" name="WLAddKey"/>
+		<button label="- отметку" label_selected="- отметку" name="WLDeleteKey"/>
 		<text name="WL12am">
 			12 ночи
 		</text>
@@ -91,14 +91,14 @@
 		</text>
 	</panel>
 	<text name="WLCurKeyPresetText">
-		Настройка неба:
+		Небо:
 	</text>
-	<combo_box label="Стандартная" name="WLSkyPresets"/>
+	<combo_box label="Стандарт" name="WLSkyPresets"/>
 	<text name="WLCurKeyTimeText">
 		Время:
 	</text>
 	<time name="time" value="6:00"/>
-	<check_box label="Установить в качестве нового суточного цикла" name="make_default_cb"/>
+	<check_box label="Установить как новый суточный цикл" name="make_default_cb"/>
 	<button label="Сохранить" name="save"/>
 	<button label="Отмена" name="cancel"/>
 </floater>

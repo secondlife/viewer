@@ -658,7 +658,7 @@ LLViewerInventoryItem * LLFolderViewItem::getInventoryItem(void)
 	return gInventory.getItem(getListener()->getUUID());
 }
 
-std::string LLFolderViewItem::getName( void ) const
+const std::string& LLFolderViewItem::getName( void ) const
 {
 	if(mListener)
 	{

@@ -3266,13 +3266,13 @@ void LLVOVolume::updateRenderComplexity()
 	mRenderComplexity_current = 0;
 }
 
-U32 LLVOVolume::getTriangleCount()
+U32 LLVOVolume::getTriangleCount(S32* vcount) const
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
 	if (volume)
 	{
-		count = volume->getNumTriangles();
+		count = volume->getNumTriangles(vcount);
 	}
 
 	return count;
@@ -3976,8 +3976,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 	}
 	
-	U8 glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
-
 	if (idx >= 0 && 
 		draw_vec[idx]->mVertexBuffer == facep->getVertexBuffer() &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
@@ -3986,7 +3984,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
 		draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
-		draw_vec[idx]->mGlowColor.mV[3] == glow &&
 		draw_vec[idx]->mFullbright == fullbright &&
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
@@ -4018,7 +4015,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
-		draw_info->mGlowColor.setVec(0,0,0,glow);
 		if (type == LLRenderPass::PASS_ALPHA)
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
@@ -4117,6 +4113,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	U32 cur_total = 0;
+
+	bool emissive = false;
 
 	//get all the faces into a list
 	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
@@ -4330,6 +4328,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				}
 			}
 
+
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{
 				facep->clearVertexBuffer();
@@ -4342,6 +4341,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				const LLTextureEntry* te = facep->getTextureEntry();
 				LLViewerTexture* tex = facep->getTexture();
+
+				if (te->getGlow() >= 1.f/255.f)
+				{
+					emissive = true;
+				}
 
 				if (facep->isState(LLFace::TEXTURE_ANIM))
 				{
@@ -4459,6 +4463,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 
+	if (emissive)
+	{ //emissive faces are present, include emissive byte to preserve batching
+		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
+		alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
+		bump_mask = bump_mask | LLVertexBuffer::MAP_EMISSIVE;
+		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_EMISSIVE;
+	}
+
 	bool batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
 	if (batch_textures)
@@ -4551,7 +4563,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		
 		for (std::set<LLVertexBuffer*>::iterator iter = mapped_buffers.begin(); iter != mapped_buffers.end(); ++iter)
 		{
-			(*iter)->setBuffer(0);
+			(*iter)->flush();
 		}
 
 		// don't forget alpha
@@ -4559,7 +4571,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		   !group->mVertexBuffer.isNull() && 
 		   group->mVertexBuffer->isLocked())
 		{
-			group->mVertexBuffer->setBuffer(0);
+			group->mVertexBuffer->flush();
 		}
 
 		//if not all buffers are unmapped
@@ -4575,7 +4587,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					LLVertexBuffer* buff = face->getVertexBuffer();
 					if (face && buff && buff->isLocked())
 					{
-						buff->setBuffer(0) ;
+						buff->flush();
 					}
 				}
 			} 
@@ -4601,10 +4613,6 @@ struct CompareBatchBreakerModified
 		else if (lte->getFullbright() != rte->getFullbright())
 		{
 			return lte->getFullbright() < rte->getFullbright();
-		}
-		else  if (lte->getGlow() != rte->getGlow())
-		{
-			return lte->getGlow() < rte->getGlow();
 		}
 		else
 		{
@@ -4644,7 +4652,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		buffer_index = -1;
 	}
 
-	S32 texture_index_channels = gGLManager.mNumTextureImageUnits-1; //always reserve one for shiny for now just for simplicity
+	S32 texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity
 	
 	if (gGLManager.mGLVersion < 3.1f)
 	{
@@ -4658,6 +4666,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	texture_index_channels = llmin(texture_index_channels, (S32) gSavedSettings.getU32("RenderMaxTextureIndex"));
 	
+	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
+	texture_index_channels = llmin(texture_index_channels, 16);
 
 	while (face_iter != faces.end())
 	{
@@ -4985,7 +4995,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			++face_iter;
 		}
 
-		buffer->setBuffer(0);
+		buffer->flush();
 	}
 
 	group->mBufferMap[mask].clear();

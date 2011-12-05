@@ -105,6 +105,7 @@ void LLFastTimerView::onPause()
 	if (!LLFastTimer::sPauseHistory)
 	{
 		mScrollIndex = 0;
+		LLFastTimer::sResetHistory = true;
 		getChild<LLButton>("pause_btn")->setLabel(getString("pause"));
 	}
 	else
@@ -591,6 +592,7 @@ void LLFastTimerView::draw()
 			{
 				mAvgCountTotal = ticks;
 				mMaxCountTotal = ticks;
+				LLFastTimer::sResetHistory = false;
 			}
 		}
 
@@ -1125,10 +1127,10 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 	LLPointer<LLImageRaw> scratch = new LLImageRaw(1024, 512, 3);
 
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-0.05, 1.05, -0.05, 1.05, -1.0, 1.0);
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.loadIdentity();
+	gGL.ortho(-0.05f, 1.05f, -0.05f, 1.05f, -1.0f, 1.0f);
 
 	//render charts
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1367,7 +1369,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 	buffer.flush();
 
 	gGL.popMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 }
 

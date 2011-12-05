@@ -1392,6 +1392,18 @@
     <real>0.5</real>
   </map>
 
+  <key>CameraMaxCoF</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum camera circle of confusion for DoF effect</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10.0</real>
+  </map>
+
   <key>CameraFNumber</key>
   <map>
     <key>Comment</key>
@@ -1543,17 +1555,6 @@
     <map>
       <key>Comment</key>
       <string>Show timestamps in chat</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ChatVisible</key>
-    <map>
-      <key>Comment</key>
-      <string>Chat bar is visible</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3119,17 +3120,6 @@
     <map>
       <key>Comment</key>
       <string>Allow first person perspective and mouse control of camera</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>EnableRippleWater</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use ripple water shader or not</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7807,7 +7797,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>6</integer>
+    <integer>16</integer>
   </map>
     <key>RenderDebugTextureBind</key>
     <map>
@@ -7879,151 +7869,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-
-  <key>RenderGIRange</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance to cut off GI effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>96</real>
-  </map>
-
-  <key>RenderGILuminance</key>
-  <map>
-    <key>Comment</key>
-    <string>Luminance factor of global illumination contribution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.075</real>
-  </map>
   
-  <key>RenderGIBrightness</key>
-  <map>
-    <key>Comment</key>
-    <string>Brightness factor of global illumination contribution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.3</real>
-  </map>
-
-  <key>RenderGINoise</key>
-  <map>
-    <key>Comment</key>
-    <string>Noise of position sampling for GI photon mapping.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.7</real>
-  </map>
-
-  <key>RenderGIAttenuation</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance attenuation factor for indirect lighting.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.1</real>
-  </map>
-
-  <key>RenderGIBlurBrightness</key>
-  <map>
-    <key>Comment</key>
-    <string>Brightness factor of global illumination blur effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.025</real>
-  </map>
-
-  <key>RenderGIBlurEdgeWeight</key>
-  <map>
-    <key>Comment</key>
-    <string>Edge weight for GI soften filter (sharpness).</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.8</real>
-  </map>
-
-  <key>RenderGIBlurIncrement</key>
-  <map>
-    <key>Comment</key>
-    <string>Increment of scale for each pass of global illumination blur effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.8</real>
-  </map>
-
-  <key>RenderLuminanceScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Luminance value scalar for darkening effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
-
-  <key>RenderSunLuminanceScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Sun Luminance value scalar for darkening effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
-
-  <key>RenderSunLuminanceOffset</key>
-  <map>
-    <key>Comment</key>
-    <string>Sun Luminance value offset for darkening effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0</real>
-  </map>
-
-  <key>RenderLuminanceDetail</key>
-  <map>
-    <key>Comment</key>
-    <string>Mipmap level to use for luminance</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>16.0</real>
-   </map>
-
   <key>RenderMinimumLODTriangleCount</key>
   <map>
     <key>Comment</key>
@@ -8160,7 +8006,19 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
+  <key>CameraDoFResScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to scale down depth of field resolution.  Valid range is 0.25 (quarter res) to 1.0 (full res)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.7</real>
+  </map>
+
   <key>RenderSpotLightsInNondeferred</key>
   <map>
     <key>Comment</key>
@@ -8344,18 +8202,6 @@
     <integer>0</integer>
   </map>
 
-  <key>RenderDeferredGI</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable GI in deferred renderer.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-
   <key>RenderDeferredSun</key>
   <map>
     <key>Comment</key>
@@ -8499,92 +8345,6 @@
     <real>0</real>
   </map>
 
-  <key>RenderGIAmbiance</key>
-  <map>
-    <key>Comment</key>
-    <string>Ambiance factor of global illumination contribution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-
-  <key>RenderGIMinRenderSize</key>
-  <map>
-    <key>Comment</key>
-    <string>Minimum size of objects to put into GI source map.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-
-  <key>RenderGIBlurColorCurve</key>
-  <map>
-    <key>Comment</key>
-    <string>Color curve for GI softening kernel</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Vector3</string>
-    <key>Value</key>
-    <array>
-      <real>1.0</real>
-      <real>0.6</real>
-      <real>0.02</real>
-    </array>
-  </map>
-
-  <key>RenderGIBlurPasses</key>
-  <map>
-    <key>Comment</key>
-    <string>Scale of GI softening kernel.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>4</real>
-  </map>
-
-  <key>RenderGIBlurSize</key>
-  <map>
-    <key>Comment</key>
-    <string>Scale of GI softening kernel.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>4.0</real>
-  </map>
-  <key>RenderGIBlurSamples</key>
-  <map>
-    <key>Comment</key>
-    <string>Number of samples to take for each pass of GI blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>16</real>
-  </map>
-  <key>RenderGIBlurDistFactor</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance scaler for GI blur.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.0</real>
-  </map>
-
   <key>RenderDynamicLOD</key>
     <map>
       <key>Comment</key>
@@ -8627,7 +8387,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderAutoMaskAlphaDeferred</key>
     <map>
@@ -8683,6 +8443,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>RenderGLCoreProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Don't use a compatibility profile OpenGL context.  Requires restart.  Basic shaders MUST be enabled.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RenderGlow</key>
     <map>
@@ -9287,6 +9058,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderUseVAO</key>
+    <map>
+      <key>Comment</key>
+      <string>Use GL Vertex Array Objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderVBOMappingDisable</key>
     <map>
       <key>Comment</key>
@@ -9296,7 +9078,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
   <key>RenderUseStreamVBO</key>
   <map>
@@ -12432,50 +12214,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>VectorizeEnable</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable general vector operations and data alignment.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>VectorizePerfTest</key>
-    <map>
-      <key>Comment</key>
-      <string>Test SSE/vectorization performance and choose fastest version.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>VectorizeProcessor</key>
-    <map>
-      <key>Comment</key>
-      <string>0=Compiler Default, 1=SSE, 2=SSE2, autodetected</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>VectorizeSkin</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable vector operations for avatar skinning.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>VelocityInterpolate</key>
     <map>
       <key>Comment</key>
@@ -12927,10 +12665,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>WindowFullScreen</key>
+    <key>FullScreen</key>
     <map>
       <key>Comment</key>
-      <string>SL viewer window full screen</string>
+      <string>run a fullscreen session</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

@@ -22,14 +22,21 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
+
 uniform sampler2D texture0;
 uniform sampler2D texture1;
 
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+
 void main() 
 {
-	float tex0 = texture2D(texture0, gl_TexCoord[0].xy).a;
-	float tex1 = texture2D(texture1, gl_TexCoord[1].xy).a;
+	float tex0 = texture2D(texture0, vary_texcoord0.xy).a;
+	float tex1 = texture2D(texture1, vary_texcoord1.xy).a;
 
 	gl_FragColor = vec4(tex0+(1.0-tex1)-0.5);
 }

@@ -74,6 +74,16 @@ LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 	return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
 }
 
+void LLPanelSnapshot::enableControls(BOOL enable)
+{
+	setCtrlsEnabled(enable);
+	if (enable)
+	{
+		// Make sure only relevant controls are enabled/shown.
+		updateCustomResControls();
+	}
+}
+
 LLSpinCtrl* LLPanelSnapshot::getWidthSpinner()
 {
 	return getChild<LLSpinCtrl>(getWidthSpinnerName());
@@ -114,15 +124,11 @@ LLSideTrayPanelContainer* LLPanelSnapshot::getParentContainer()
 // virtual
 void LLPanelSnapshot::updateCustomResControls()
 {
+	// Only show width/height spinners and the aspect ratio checkbox
+	// when a custom resolution is chosen.
 	LLComboBox* combo = getChild<LLComboBox>(getImageSizeComboName());
-	S32 selected_idx = combo->getFirstSelectedIndex();
-	const bool enable = selected_idx == (combo->getItemCount() - 1); // Current Window or Custom selected
-
-	getChild<LLUICtrl>(getWidthSpinnerName())->setEnabled(enable);
-	getChild<LLSpinCtrl>(getWidthSpinnerName())->setAllowEdit(enable);
-	getChild<LLUICtrl>(getHeightSpinnerName())->setEnabled(enable);
-	getChild<LLSpinCtrl>(getHeightSpinnerName())->setAllowEdit(enable);
-	enableAspectRatioCheckbox(enable);
+	const bool show = combo->getFirstSelectedIndex() == (combo->getItemCount() - 1);
+	getChild<LLUICtrl>(getImageSizePanelName())->setVisible(show);
 }
 
 void LLPanelSnapshot::updateImageQualityLevel()

@@ -22,10 +22,12 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-
 
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
@@ -37,10 +39,15 @@ uniform vec2 delta;
 uniform vec3 kern[4];
 uniform float kern_scale;
 
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
+
+vec3 getKern(int i)
+{
+	return kern[i];
+}
 
 vec4 getPosition(vec2 pos_screen)
 {
@@ -66,35 +73,38 @@ void main()
 	vec2 dlt = kern_scale * delta / (1.0+norm.xy*norm.xy);
 	dlt /= max(-pos.z*dist_factor, 1.0);
 	
-	vec2 defined_weight = kern[0].xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
+	vec2 defined_weight = getKern(0).xy; // special case the first (centre) sample's weight in the blur; we have to sample it anyway so we get it for 'free'
 	vec4 col = defined_weight.xyxx * ccol;
 
 	// relax tolerance according to distance to avoid speckling artifacts, as angles and distances are a lot more abrupt within a small screen area at larger distances
 	float pointplanedist_tolerance_pow2 = pos.z*pos.z*0.00005;
 
 	// perturb sampling origin slightly in screen-space to hide edge-ghosting artifacts where smoothing radius is quite large
-	tc += ( (mod(tc.x+tc.y,2) - 0.5) * kern[1].z * dlt * 0.5 );
+	float tc_mod = 0.5*(tc.x + tc.y); // mod(tc.x+tc.y,2)
+	tc_mod -= floor(tc_mod);
+	tc_mod *= 2.0;
+	tc += ( (tc_mod - 0.5) * getKern(1).z * dlt * 0.5 );
 
 	for (int i = 1; i < 4; i++)
 	{
-		vec2 samptc = tc + kern[i].z*dlt;
+		vec2 samptc = tc + getKern(i).z*dlt;
 	        vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= pointplanedist_tolerance_pow2)
 		{
-			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
-			defined_weight += kern[i].xy;
+			col += texture2DRect(lightMap, samptc)*getKern(i).xyxx;
+			defined_weight += getKern(i).xy;
 		}
 	}
 	for (int i = 1; i < 4; i++)
 	{
-		vec2 samptc = tc - kern[i].z*dlt;
+		vec2 samptc = tc - getKern(i).z*dlt;
 	        vec3 samppos = getPosition(samptc).xyz; 
 		float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
 		if (d*d <= pointplanedist_tolerance_pow2)
 		{
-			col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
-			defined_weight += kern[i].xy;
+			col += texture2DRect(lightMap, samptc)*getKern(i).xyxx;
+			defined_weight += getKern(i).xy;
 		}
 	}
 

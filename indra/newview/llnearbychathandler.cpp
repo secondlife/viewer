@@ -63,7 +63,8 @@ public:
 	typedef std::vector<LLHandle<LLToast> > toast_vec_t;
 	typedef std::list<LLHandle<LLToast> > toast_list_t;
 
-	LLNearbyChatScreenChannel(const Params& p):LLScreenChannelBase(p)
+	LLNearbyChatScreenChannel(const Params& p)
+		: LLScreenChannelBase(p)
 	{
 		mStopProcessing = false;
 
@@ -384,7 +385,7 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 
 	S32 channel_bottom = channel_rect.mBottom;
 
-	S32		bottom = channel_bottom + 10;
+	S32		bottom = channel_bottom + 80;
 	S32		margin = gSavedSettings.getS32("ToastGap");
 
 	//sort active toasts

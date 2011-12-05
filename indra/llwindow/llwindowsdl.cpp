@@ -179,20 +179,6 @@ Display* LLWindowSDL::get_SDL_Display(void)
 	}
 	return NULL;
 }
-
-void LLWindowSDL::setXWindowMinSize()
-{
-	// Set the minimum size limits for X11 window
-	// so the window manager doesn't allow resizing below those limits.
-	XSizeHints* hints = XAllocSizeHints();
-	hints->flags |= PMinSize;
-	hints->min_width = mMinWindowWidth;
-	hints->min_height = mMinWindowHeight;
-
-	XSetWMNormalHints(mSDL_Display, mSDL_XWindowID, hints);
-
-	XFree(hints);
-}
 #endif // LL_X11
 
 
@@ -752,8 +738,6 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 			mSDL_XWindowID = info.info.x11.wmwindow;
 			Lock_Display = info.info.x11.lock_func;
 			Unlock_Display = info.info.x11.unlock_func;
-
-			setXWindowMinSize();
 		}
 		else
 		{
@@ -1001,7 +985,6 @@ void LLWindowSDL::swapBuffers()
 {
 	if (mWindow)
 	{	
-		glFinish();
 		SDL_GL_SwapBuffers();
 	}
 }
@@ -1048,6 +1031,25 @@ BOOL LLWindowSDL::isCursorHidden()
 void LLWindowSDL::setMouseClipping( BOOL b )
 {
     //SDL_WM_GrabInput(b ? SDL_GRAB_ON : SDL_GRAB_OFF);
+}
+
+// virtual
+void LLWindowSDL::setMinSize(U32 min_width, U32 min_height)
+{
+	LLWindow::setMinSize(min_width, min_height);
+
+#if LL_X11
+	// Set the minimum size limits for X11 window
+	// so the window manager doesn't allow resizing below those limits.
+	XSizeHints* hints = XAllocSizeHints();
+	hints->flags |= PMinSize;
+	hints->min_width = mMinWindowWidth;
+	hints->min_height = mMinWindowHeight;
+
+	XSetWMNormalHints(mSDL_Display, mSDL_XWindowID, hints);
+
+	XFree(hints);
+#endif
 }
 
 BOOL LLWindowSDL::setCursorPosition(const LLCoordWindow position)
@@ -1880,12 +1882,6 @@ void LLWindowSDL::gatherInput()
     			}
                 break;
 		}
-		
-#if LL_X11
-		// The minimum size limits should be reset after
-		// each successful SDL_SetVideoMode() call.
-		setXWindowMinSize();
-#endif
 
 		mCallbacks->handleResize(this, width, height);
                 break;
