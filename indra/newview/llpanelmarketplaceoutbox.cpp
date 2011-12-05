@@ -303,53 +303,50 @@ void LLPanelMarketplaceOutbox::onImportGetComplete(U32 status, const LLSD& conte
 		}
 	}
 	
-	return;
-	
-	
-	
-	const LLSD& errors_list = content["errors"];
 
-	if (errors_list.size() == 0)
-	{
-		LLNotificationsUtil::add("OutboxUploadComplete", LLSD::emptyMap(), LLSD::emptyMap());
-	}
-	else
-	{
-		LLNotificationsUtil::add("OutboxUploadHadErrors", LLSD::emptyMap(), LLSD::emptyMap());
-	}
+	//const LLSD& errors_list = content["errors"];
 
-	llinfos << "Marketplace upload llsd:" << llendl;
-	llinfos << ll_pretty_print_sd(content) << llendl;
-	llinfos << llendl;
+	//if (errors_list.size() == 0)
+	//{
+	//	LLNotificationsUtil::add("OutboxUploadComplete", LLSD::emptyMap(), LLSD::emptyMap());
+	//}
+	//else
+	//{
+	//	LLNotificationsUtil::add("OutboxUploadHadErrors", LLSD::emptyMap(), LLSD::emptyMap());
+	//}
 
-	const LLSD& imported_list = content["imported"];
-	LLSD::array_const_iterator it = imported_list.beginArray();
-	for ( ; it != imported_list.endArray(); ++it)
-	{
-		LLUUID imported_folder = (*it).asUUID();
-		llinfos << "Successfully uploaded folder " << imported_folder.asString() << " to marketplace." << llendl;
-	}
+	//llinfos << "Marketplace upload llsd:" << llendl;
+	//llinfos << ll_pretty_print_sd(content) << llendl;
+	//llinfos << llendl;
 
-	for (it = errors_list.beginArray(); it != errors_list.endArray(); ++it)
-	{
-		const LLSD& item_error_map = (*it);
+	//const LLSD& imported_list = content["imported"];
+	//LLSD::array_const_iterator it = imported_list.beginArray();
+	//for ( ; it != imported_list.endArray(); ++it)
+	//{
+	//	LLUUID imported_folder = (*it).asUUID();
+	//	llinfos << "Successfully uploaded folder " << imported_folder.asString() << " to marketplace." << llendl;
+	//}
 
-		LLUUID error_folder = item_error_map["folder_id"].asUUID();
-		const std::string& error_string = item_error_map["identifier"].asString();
-		LLUUID error_item = item_error_map["item_id"].asUUID();
-		const std::string& error_item_name = item_error_map["item_name"].asString();
-		const std::string& error_message = item_error_map["message"].asString();
+	//for (it = errors_list.beginArray(); it != errors_list.endArray(); ++it)
+	//{
+	//	const LLSD& item_error_map = (*it);
 
-		llinfos << "Error item " << error_folder.asString() << ", " << error_string << ", "
-				<< error_item.asString() << ", " << error_item_name << ", " << error_message << llendl;
-		
-		LLFolderViewFolder * item_folder = mInventoryPanel->getRootFolder()->getFolderByID(error_folder);
-		LLOutboxFolderViewFolder * outbox_item_folder = dynamic_cast<LLOutboxFolderViewFolder *>(item_folder);
+	//	LLUUID error_folder = item_error_map["folder_id"].asUUID();
+	//	const std::string& error_string = item_error_map["identifier"].asString();
+	//	LLUUID error_item = item_error_map["item_id"].asUUID();
+	//	const std::string& error_item_name = item_error_map["item_name"].asString();
+	//	const std::string& error_message = item_error_map["message"].asString();
 
-		llassert(outbox_item_folder);
+	//	llinfos << "Error item " << error_folder.asString() << ", " << error_string << ", "
+	//			<< error_item.asString() << ", " << error_item_name << ", " << error_message << llendl;
+	//	
+	//	LLFolderViewFolder * item_folder = mInventoryPanel->getRootFolder()->getFolderByID(error_folder);
+	//	LLOutboxFolderViewFolder * outbox_item_folder = dynamic_cast<LLOutboxFolderViewFolder *>(item_folder);
 
-		outbox_item_folder->setErrorString(error_string);
-	}
+	//	llassert(outbox_item_folder);
+
+	//	outbox_item_folder->setErrorString(error_string);
+	//}
 }
 
 void LLPanelMarketplaceOutbox::updateImportButtonStatus()
