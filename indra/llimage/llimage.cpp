@@ -195,7 +195,7 @@ U8* LLImageBase::allocateData(S32 size)
 		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
-			llwarns << "allocate image data: " << size << llendl;
+			llwarns << "Failed to allocate image data size [" << size << "]" << llendl;
 			size = 0 ;
 			mWidth = mHeight = 0 ;
 			mBadBufferAllocation = true ;

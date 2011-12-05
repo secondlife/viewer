@@ -55,8 +55,6 @@ public:
 	LLDebugView(const Params&);
 	~LLDebugView();
 
-	BOOL postBuild();
-	
 	void init();
 	void draw();
 	
