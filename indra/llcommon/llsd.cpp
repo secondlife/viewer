@@ -24,6 +24,9 @@
  * $/LicenseInfo$
  */
 
+// Must turn on conditional declarations in header file so definitions end up
+// with proper linkage.
+#define LLSD_DEBUG_INFO
 #include "linden_common.h"
 #include "llsd.h"
 
