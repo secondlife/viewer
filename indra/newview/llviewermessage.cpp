@@ -3638,6 +3638,9 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gCacheName->setUpstream(sim);
 */
 
+	// Make sure we're standing
+	gAgent.standUp();
+
 	// now, use the circuit info to tell simulator about us!
 	LL_INFOS("Messaging") << "process_teleport_finish() Enabling "
 			<< sim_host << " with code " << msg->mOurCircuitCode << LL_ENDL;
