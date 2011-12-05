@@ -417,9 +417,13 @@ const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
 
+static LLFastTimer::DeclareTimer FTM_TEXTURE_MEMORY_CHECK("Memory Check");
+
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
+	LLFastTimer t(FTM_TEXTURE_MEMORY_CHECK);
+
 	const static S32 MIN_FREE_TEXTURE_MEMORY = 5 ; //MB
 	const static S32 MIN_FREE_MAIN_MEMORy = 100 ; //MB
 
@@ -459,6 +463,9 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	return low_mem ;
 }
 
+static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE_MEDIA("Media");
+static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE_TEST("Test");
+
 //static
 void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity)
 {
@@ -467,9 +474,14 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 	if (tester)
 	{
+		LLFastTimer t(FTM_TEXTURE_UPDATE_TEST);
 		tester->update() ;
 	}
-	LLViewerMediaTexture::updateClass() ;
+
+	{
+		LLFastTimer t(FTM_TEXTURE_UPDATE_MEDIA);
+		LLViewerMediaTexture::updateClass() ;
+	}
 
 	sBoundTextureMemoryInBytes = LLImageGL::sBoundTextureMemoryInBytes;//in bytes
 	sTotalTextureMemoryInBytes = LLImageGL::sGlobalTextureMemoryInBytes;//in bytes
