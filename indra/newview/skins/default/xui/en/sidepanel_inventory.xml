@@ -205,7 +205,7 @@
                          label=""
                          tool_tip="Push to my Marketplace Storefront"
                          is_toggle="false"
-                         name="outbox_sync_btn"
+                         name="outbox_import_btn"
                          follows="top|right"
                          tab_stop="false"
                          halign="center"
@@ -216,7 +216,7 @@
                          enabled="false" />
                      <loading_indicator
                         follows="top|right"
-                        name="outbox_sync_indicator"
+                        name="outbox_import_indicator"
                         top="6"
                         left="-50"
                         height="23"

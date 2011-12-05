@@ -30,11 +30,20 @@
 
 
 std::string getMarketplaceURL_InventoryImport();
-std::string getMarketplaceURL_UserStatus();
 
-bool getMarketplaceSyncEnabled();
-void setMarketplaceSyncEnabled(bool syncEnabled);
+bool getMarketplaceImportEnabled();
+void setMarketplaceImportEnabled(bool syncEnabled);
 
+namespace MarketplaceErrorCodes
+{
+	enum eCodes
+	{
+		IMPORT_DONE = 200,
+		IMPORT_PROCESSING = 202,
+		IMPORT_DONE_WITH_ERRORS = 409,
+		IMPORT_JOB_FAILED = 410,
+	};
+}
 
 #endif // LL_LLMARKETPLACEFUNCTIONS_H
 

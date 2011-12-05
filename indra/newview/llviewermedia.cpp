@@ -1386,64 +1386,6 @@ void LLViewerMedia::removeCookie(const std::string &name, const std::string &dom
 }
 
 
-// This is defined in two files but I don't want to create a dependence between this and llsidepanelinventory
-// just to be able to temporarily disable the outbox.
-#define ENABLE_INVENTORY_DISPLAY_OUTBOX		1	// keep in sync with ENABLE_MERCHANT_OUTBOX_PANEL, ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
-
-class LLInventoryUserStatusResponder : public LLHTTPClient::Responder
-{
-public:
-	LLInventoryUserStatusResponder()
-		: LLCurl::Responder()
-	{
-	}
-
-	void completed(U32 status, const std::string& reason, const LLSD& content)
-	{
-		if (isGoodStatus(status))
-		{
-			std::string merchantStatus = content[gAgent.getID().getString()].asString();
-			llinfos << "Marketplace merchant status: " << merchantStatus << llendl;
-
-			// Save the merchant status before turning on the display
-			gSavedSettings.setString("InventoryMarketplaceUserStatus", merchantStatus);
-
-			// Complete success
-			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
-
-#if ENABLE_INVENTORY_DISPLAY_OUTBOX
-			gSavedSettings.setBOOL("InventoryDisplayOutbox", true);
-#endif
-
-			setMarketplaceSyncEnabled(true);
-		}
-		else if (status == 401)
-		{
-			// API is available for use but OpenID authorization failed
-			gSavedSettings.setBOOL("InventoryDisplayInbox", true);
-
-			setMarketplaceSyncEnabled(false);
-		}
-		else
-		{
-			setMarketplaceSyncEnabled(false);
-
-			// API in unavailable
-			llinfos << "Marketplace API is unavailable -- Inbox may be disabled, status = " << status << ", reason = " << reason << llendl;
-		}
-	}
-};
-
-
-void doOnetimeEarlyHTTPRequests()
-{
-	std::string url = getMarketplaceURL_UserStatus();
-
-	llinfos << "http get: " << url << llendl;
-	LLHTTPClient::get(url, new LLInventoryUserStatusResponder(), LLViewerMedia::getHeaders());
-}
-
-
 LLSD LLViewerMedia::getHeaders()
 {
 	LLSD headers = LLSD::emptyMap();
@@ -1502,9 +1444,6 @@ void LLViewerMedia::setOpenIDCookie()
 		LLHTTPClient::get(profile_url,  
 			new LLViewerMediaWebProfileResponder(raw_profile_url.getAuthority()),
 			headers);
-
-		// FUI: No longer perform the user_status query
-		//doOnetimeEarlyHTTPRequests();
 	}
 }
 

@@ -50,8 +50,9 @@ std::string getMarketplaceBaseURL()
 		}
 	}
 
-	url += "api/1/users/";
+	url += "api/1/";
 	url += gAgent.getID().getString();
+	url += "/inventory";
 
 	return url;
 }
@@ -60,29 +61,20 @@ std::string getMarketplaceURL_InventoryImport()
 {
 	std::string url = getMarketplaceBaseURL();
 
-	url += "/inventory_import";
-
-	return url;
-}
-
-std::string getMarketplaceURL_UserStatus()
-{
-	std::string url = getMarketplaceBaseURL();
-
-	url += "/user_status";
+	url += "/import";
 
 	return url;
 }
 
 
-static bool gMarketplaceSyncEnabled = true;
+static bool gMarketplaceImportEnabled = true;
 
-bool getMarketplaceSyncEnabled()
+bool getMarketplaceImportEnabled()
 {
-	return gMarketplaceSyncEnabled;
+	return gMarketplaceImportEnabled;
 }
 
-void setMarketplaceSyncEnabled(bool syncEnabled)
+void setMarketplaceImportEnabled(bool importEnabled)
 {
-	gMarketplaceSyncEnabled = syncEnabled;
+	gMarketplaceImportEnabled = importEnabled;
 }

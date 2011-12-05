@@ -213,9 +213,9 @@ Save changes to current clothing/body part?
 
   <notification
    icon="alertmodal.tga"
-   name="OutboxUploadComplete"
+   name="OutboxImportComplete"
    type="alertmodal">
-Marketplace upload complete.
+Marketplace import complete.
         <usetemplate
          name="okbutton"
          yestext="Hooray!"/>
@@ -223,12 +223,22 @@ Marketplace upload complete.
 
   <notification
    icon="alertmodal.tga"
-   name="OutboxUploadHadErrors"
+   name="OutboxImportHadErrors"
    type="alertmodal">
-Marketplace upload completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
+Marketplace import completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
         <usetemplate
          name="okbutton"
          yestext="Boo!"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="OutboxImportFailed"
+   type="alertmodal">
+Marketplace import failed!  Please try again later.  Thanks.
+        <usetemplate
+         name="okbutton"
+         yestext="Rats!"/>
   </notification>
 
     
