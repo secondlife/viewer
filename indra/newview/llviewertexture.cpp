@@ -420,8 +420,17 @@ F32 texmem_middle_bound_scale = 0.925f;
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
-	const static S32 MIN_FREE_TEXTURE_MEMORY = 5 ; //MB
-	const static S32 MIN_FREE_MAIN_MEMORy = 100 ; //MB
+	const F32 WAIT_TIME = 1.0f ; //second
+	static LLFrameTimer timer ;
+
+	if(timer.getElapsedTimeF32() < WAIT_TIME) //call this once per second.
+	{
+		return false;
+	}
+	timer.reset() ;
+
+	const S32 MIN_FREE_TEXTURE_MEMORY = 5 ; //MB
+	const S32 MIN_FREE_MAIN_MEMORy = 100 ; //MB	
 
 	bool low_mem = false ;
 	if (gGLManager.mHasATIMemInfo)
@@ -432,6 +441,15 @@ bool LLViewerTexture::isMemoryForTextureLow()
 		if(meminfo[0] / 1024 < MIN_FREE_TEXTURE_MEMORY)
 		{
 			low_mem = true ;
+		}
+
+		if(!low_mem) //check main memory, only works for windows.
+		{
+			LLMemory::updateMemoryInfo() ;
+			if(LLMemory::getAvailableMemKB() / 1024 < MIN_FREE_MAIN_MEMORy)
+			{
+				low_mem = true ;
+			}
 		}
 	}
 #if 0  //ignore nVidia cards
@@ -445,16 +463,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 			low_mem = true ;
 		}
 	}
-#endif
-
-	if(!low_mem) //check main memory, only works for windows.
-	{
-		LLMemory::updateMemoryInfo() ;
-		if(LLMemory::getAvailableMemKB() / 1024 < MIN_FREE_MAIN_MEMORy)
-		{
-			low_mem = true ;
-		}
-	}
+#endif	
 
 	return low_mem ;
 }
