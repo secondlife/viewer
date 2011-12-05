@@ -109,7 +109,7 @@ void LLQueuedThread::shutdown()
 
 // MAIN THREAD
 // virtual
-S32 LLQueuedThread::update(U32 max_time_ms)
+S32 LLQueuedThread::update(F32 max_time_ms)
 {
 	if (!mStarted)
 	{
@@ -122,7 +122,7 @@ S32 LLQueuedThread::update(U32 max_time_ms)
 	return updateQueue(max_time_ms);
 }
 
-S32 LLQueuedThread::updateQueue(U32 max_time_ms)
+S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 {
 	F64 max_time = (F64)max_time_ms * .001;
 	LLTimer timer;

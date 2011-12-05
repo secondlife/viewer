@@ -837,7 +837,7 @@ LLCurlThread::~LLCurlThread()
 {
 }
 
-S32 LLCurlThread::update(U32 max_time_ms)
+S32 LLCurlThread::update(F32 max_time_ms)
 {	
 	return LLQueuedThread::update(max_time_ms);
 }
