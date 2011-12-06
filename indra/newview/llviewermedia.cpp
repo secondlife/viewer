@@ -67,7 +67,7 @@
 //#include "llfirstuse.h"
 #include "llviewernetwork.h"
 #include "llwindow.h"
-
+#include "llvieweraudio.h"
 
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 
@@ -986,7 +986,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			{
 				if(LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
 				{
-					gAudiop->stopInternetStream();
+					LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 				}
 			}
 			pimpl->setPriority(new_priority);
@@ -1090,13 +1090,24 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			gAudiop && 
 			LLViewerMedia::hasParcelAudio())
 		{
-			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+			if (LLAudioEngine::AUDIO_PAUSED == gAudiop->isInternetStreamPlaying())
+			{
+				// 'false' means unpause
+				gAudiop->pauseInternetStream(false);
+			}
+			else
+			{
+				LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
+			}
 		}
 	}
 	else {
 		// This actually unloads the impl, as opposed to "stop"ping the media
 		LLViewerParcelMedia::stop();
-		if (gAudiop) gAudiop->stopInternetStream();
+		if (gAudiop)
+		{
+			LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
+		}
 	}
 }
 
