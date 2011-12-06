@@ -52,7 +52,7 @@ std::string getMarketplaceBaseURL()
 
 	url += "api/1/";
 	url += gAgent.getID().getString();
-	url += "/inventory";
+	url += "/inventory/";
 
 	return url;
 }
@@ -61,7 +61,7 @@ std::string getMarketplaceURL_InventoryImport()
 {
 	std::string url = getMarketplaceBaseURL();
 
-	url += "/import";
+	url += "import/";
 
 	return url;
 }

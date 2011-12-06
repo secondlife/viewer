@@ -140,6 +140,11 @@ LLInventoryPanel * LLPanelMarketplaceOutbox::setupInventoryPanel()
 	// Hide the placeholder text
 	outbox_inventory_placeholder->setVisible(FALSE);
 	
+	// Establish marketplace cookies for http client
+	establishMarketplaceSessionCookie();
+	
+	updateImportButtonStatus();
+	
 	return mInventoryPanel;
 }
 
@@ -195,6 +200,28 @@ void timeDelay(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
 	gTimeDelayDebugFunc = "";
 }
 
+std::string gImportPollingFunc = "";
+
+void importPoll(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
+{
+	waitForEventOn(self, "mainloop");
+	
+	while (outboxPanel->isImportInProgress())
+	{
+		LLTimer delayTimer;
+		delayTimer.reset();
+		delayTimer.setTimerExpirySec(5.0f);
+		
+		while (!delayTimer.hasExpired())
+		{
+			waitForEventOn(self, "mainloop");
+		}
+		
+		//outboxPanel->
+	}
+	
+	gImportPollingFunc = "";
+}
 
 class LLInventoryImportPostResponder : public LLHTTPClient::Responder
 {
@@ -207,16 +234,16 @@ public:
 	
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "inventory/import post status: " << status << ", reason: " << reason << llendl;
+		llinfos << "*** Marketplace *** " << "inventory/import post status: " << status << ", reason: " << reason << llendl;
 		
 		if (isGoodStatus(status))
 		{
 			// Complete success
-			llinfos << "success" << llendl;
+			llinfos << "*** Marketplace *** " << "success" << llendl;
 		}	
 		else
 		{
-			llwarns << "failed" << llendl;
+			llwarns << "*** Marketplace *** " << "failed" << llendl;
 		}
 		
 		mOutboxPanel->onImportPostComplete(status, content);
@@ -229,64 +256,119 @@ private:
 class LLInventoryImportGetResponder : public LLHTTPClient::Responder
 {
 public:
-	LLInventoryImportGetResponder(LLPanelMarketplaceOutbox * outboxPanel)
+	LLInventoryImportGetResponder(LLPanelMarketplaceOutbox * outboxPanel, bool ignoreResults)
 		: LLCurl::Responder()
+		, mIgnoreResults(ignoreResults)
 		, mOutboxPanel(outboxPanel)
 	{
 	}
 
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
-		llinfos << "inventory/import get status: " << status << ", reason: " << reason << llendl;
+		llinfos << "*** Marketplace *** " << "inventory/import get status: " << status << ", reason: " << reason << llendl;
 		
 		if (isGoodStatus(status))
 		{
 			// Complete success
-			llinfos << "success" << llendl;
+			llinfos << "*** Marketplace *** " << "success" << llendl;
 		}	
 		else
 		{
-			llwarns << "failed" << llendl;
+			llwarns << "*** Marketplace *** " << "failed" << llendl;
 		}
 
-		mOutboxPanel->onImportGetComplete(status, content);
+		mOutboxPanel->onImportGetComplete(status, content, mIgnoreResults);
 	}
 
 private:
+	bool						mIgnoreResults;
 	LLPanelMarketplaceOutbox *	mOutboxPanel;
 };
 
-void LLPanelMarketplaceOutbox::onImportButtonClicked()
+void LLPanelMarketplaceOutbox::importPostTrigger()
 {
-	// Get the import animation going
 	mImportInProgress = true;
 	mImportFrameTimer = 0;
-
-	updateImportButtonStatus();
-
+	
 	// Make the url for the inventory import request
 	std::string url = getMarketplaceURL_InventoryImport();
-
-	llinfos << "http post:  " << url << llendl;
-	LLHTTPClient::post(url, LLSD(), new LLInventoryImportPostResponder(this), LLViewerMedia::getHeaders());
-
+	
+	LLSD headers = LLViewerMedia::getHeaders();
+	headers["Connection"] = "Keep-Alive";
+	
+	llinfos << "*** Marketplace *** " << "http post:  " << url << llendl;
+	llinfos << "*** Marketplace *** " << "headers: " << ll_pretty_print_sd(headers) << llendl;
+	
+	LLHTTPClient::post(url, LLSD(), new LLInventoryImportPostResponder(this), headers);
+	
 	// Set a timer (for testing only)
     //gTimeDelayDebugFunc = LLCoros::instance().launch("LLPanelMarketplaceOutbox timeDelay", boost::bind(&timeDelay, _1, this));
 }
 
-void LLPanelMarketplaceOutbox::onImportPostComplete(U32 status, const LLSD& content)
+void LLPanelMarketplaceOutbox::importGetTrigger()
 {
-	llinfos << "onImportPostComplete status = " << status << llendl;
-	llinfos << "onImportPostComplete content = " << content.asString() << llendl;
+	mImportGetPending = true;
+	
+	std::string url = getMarketplaceURL_InventoryImport();
+	LLSD headers = LLViewerMedia::getHeaders();
+	
+	llinfos << "*** Marketplace *** " << "http get:  " << url << llendl;
+	llinfos << "*** Marketplace *** " << "headers: " << ll_pretty_print_sd(headers) << llendl;
+	
+	const bool do_not_ignore_results = false;
+	
+	LLHTTPClient::get(url, new LLInventoryImportGetResponder(this, do_not_ignore_results), headers);
 }
 
-void LLPanelMarketplaceOutbox::onImportGetComplete(U32 status, const LLSD& content)
+void LLPanelMarketplaceOutbox::establishMarketplaceSessionCookie()
 {
+	mImportInProgress = true;
+	mImportGetPending = true;
+	
+	std::string url = getMarketplaceURL_InventoryImport();
+	LLSD headers = LLViewerMedia::getHeaders();
+	
+	const bool ignore_results = true;
+	
+	LLHTTPClient::get(url, new LLInventoryImportGetResponder(this, ignore_results), headers);
+}
+
+void LLPanelMarketplaceOutbox::onImportPostComplete(U32 status, const LLSD& content)
+{
+	llinfos << "*** Marketplace *** " << "status = " << status << llendl;
+	llinfos << "*** Marketplace *** " << "content = " << ll_pretty_print_sd(content) << llendl;
+
+	mImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
+	updateImportButtonStatus();
+	
+	if (!mImportInProgress)
+	{
+		char status_string[16];
+		sprintf(status_string, "%d", status);
+
+		LLSD subs;
+		subs["ERROR_CODE"] = status_string;
+
+		LLNotificationsUtil::add("OutboxImportFailed", subs, LLSD::emptyMap());
+	}
+
+	// The POST request returns the IMPORT_DONE code on success
+	//if (status == MarketplaceErrorCodes::IMPORT_DONE)
+	//{
+	//	gImportPollingFunc = LLCoros::instance().launch("LLPanelMarketplaceOutbox importPoll", boost::bind(&importPoll, _1, this));
+	//}
+}
+
+void LLPanelMarketplaceOutbox::onImportGetComplete(U32 status, const LLSD& content, bool ignoreResults)
+{
+	llinfos << "*** Marketplace *** " << "status = " << status << llendl;
+	llinfos << "*** Marketplace *** " << "content = " << ll_pretty_print_sd(content) << llendl;
+
 	mImportGetPending = false;	
 	mImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
 	updateImportButtonStatus();
 	
-	if (!mImportInProgress)
+	if (!mImportInProgress && !ignoreResults)
 	{
 		if (status == MarketplaceErrorCodes::IMPORT_DONE)
 		{
@@ -298,55 +380,16 @@ void LLPanelMarketplaceOutbox::onImportGetComplete(U32 status, const LLSD& conte
 		}
 		else
 		{
-			llassert(status == MarketplaceErrorCodes::IMPORT_JOB_FAILED);
+			char status_string[16];
+			sprintf(status_string, "%d", status);
+			
+			LLSD subs;
+			subs["ERROR_CODE"] = status_string;
+			
+			//llassert(status == MarketplaceErrorCodes::IMPORT_JOB_FAILED);
 			LLNotificationsUtil::add("OutboxImportFailed", LLSD::emptyMap(), LLSD::emptyMap());
 		}
 	}
-	
-
-	//const LLSD& errors_list = content["errors"];
-
-	//if (errors_list.size() == 0)
-	//{
-	//	LLNotificationsUtil::add("OutboxUploadComplete", LLSD::emptyMap(), LLSD::emptyMap());
-	//}
-	//else
-	//{
-	//	LLNotificationsUtil::add("OutboxUploadHadErrors", LLSD::emptyMap(), LLSD::emptyMap());
-	//}
-
-	//llinfos << "Marketplace upload llsd:" << llendl;
-	//llinfos << ll_pretty_print_sd(content) << llendl;
-	//llinfos << llendl;
-
-	//const LLSD& imported_list = content["imported"];
-	//LLSD::array_const_iterator it = imported_list.beginArray();
-	//for ( ; it != imported_list.endArray(); ++it)
-	//{
-	//	LLUUID imported_folder = (*it).asUUID();
-	//	llinfos << "Successfully uploaded folder " << imported_folder.asString() << " to marketplace." << llendl;
-	//}
-
-	//for (it = errors_list.beginArray(); it != errors_list.endArray(); ++it)
-	//{
-	//	const LLSD& item_error_map = (*it);
-
-	//	LLUUID error_folder = item_error_map["folder_id"].asUUID();
-	//	const std::string& error_string = item_error_map["identifier"].asString();
-	//	LLUUID error_item = item_error_map["item_id"].asUUID();
-	//	const std::string& error_item_name = item_error_map["item_name"].asString();
-	//	const std::string& error_message = item_error_map["message"].asString();
-
-	//	llinfos << "Error item " << error_folder.asString() << ", " << error_string << ", "
-	//			<< error_item.asString() << ", " << error_item_name << ", " << error_message << llendl;
-	//	
-	//	LLFolderViewFolder * item_folder = mInventoryPanel->getRootFolder()->getFolderByID(error_folder);
-	//	LLOutboxFolderViewFolder * outbox_item_folder = dynamic_cast<LLOutboxFolderViewFolder *>(item_folder);
-
-	//	llassert(outbox_item_folder);
-
-	//	outbox_item_folder->setErrorString(error_string);
-	//}
 }
 
 void LLPanelMarketplaceOutbox::updateImportButtonStatus()
@@ -380,10 +423,19 @@ U32 LLPanelMarketplaceOutbox::getTotalItemCount() const
 		if (outbox_folder)
 		{
 			item_count += outbox_folder->getFoldersCount();
+			item_count += outbox_folder->getItemsCount();
 		}
 	}
 
 	return item_count;
+}
+
+void LLPanelMarketplaceOutbox::onImportButtonClicked()
+{
+	importPostTrigger();
+	
+	// Get the import animation going
+	updateImportButtonStatus();
 }
 
 void LLPanelMarketplaceOutbox::draw()
@@ -414,15 +466,9 @@ void LLPanelMarketplaceOutbox::draw()
 		
 		if ((mImportFrameTimer % 50 == 0) && !mImportGetPending)
 		{
-			mImportGetPending = true;
-
-			std::string url = getMarketplaceURL_InventoryImport();
-			
-			llinfos << "http get:  " << url << llendl;
-			LLHTTPClient::get(url, new LLInventoryImportGetResponder(this), LLViewerMedia::getHeaders());
+			importGetTrigger();
 		}
 	}
-
 	
 	LLPanel::draw();
 }

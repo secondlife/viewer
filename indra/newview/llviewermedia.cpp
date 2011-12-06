@@ -1390,6 +1390,7 @@ LLSD LLViewerMedia::getHeaders()
 {
 	LLSD headers = LLSD::emptyMap();
 	headers["Accept"] = "*/*";
+	headers["Content-Type"] = "application/xml";
 	headers["Cookie"] = sOpenIDCookie;
 	headers["User-Agent"] = getCurrentUserAgent();
 

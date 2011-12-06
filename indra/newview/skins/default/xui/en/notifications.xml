@@ -235,7 +235,7 @@ Marketplace import completed with errors!  Please correct the problems in your o
    icon="alertmodal.tga"
    name="OutboxImportFailed"
    type="alertmodal">
-Marketplace import failed!  Please try again later.  Thanks.
+Marketplace import failed with error [ERROR_CODE]!  Please try again later.  Thanks.
         <usetemplate
          name="okbutton"
          yestext="Rats!"/>
