@@ -401,20 +401,8 @@ private:
 	//@}
 
 public:
-#ifdef LLSD_DEBUG_INFO
-	void			dumpStats() const;					// Output information on object and usage
-#endif
 
 	static std::string		typeString(Type type);		// Return human-readable type as a string
-
-#ifdef LLSD_DEBUG_INFO
-	/// @warn THESE COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
-	/// ENVIRONMENT.
-	///
-	/// These counts track LLSD (public) objects.
-	static S32		sLLSDAllocationCount;		// Number of LLSD objects ever created
-	static S32		sLLSDNetObjects;			// Number of LLSD objects that exist
-#endif
 };
 
 struct llsd_select_bool : public std::unary_function<LLSD, LLSD::Boolean>
@@ -465,15 +453,21 @@ LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
 namespace llsd
 {
 
+#ifdef LLSD_DEBUG_INFO
 /** @name Unit Testing Interface */
 //@{
-#ifdef LLSD_DEBUG_INFO
-	/// @warn THESE COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
+	LL_COMMON_API void dumpStats(const LLSD&);	///< Output information on object and usage
+
+	/// @warn THE FOLLOWING COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
 	/// ENVIRONMENT.
 	///
 	/// These counts track LLSD::Impl (hidden) objects.
 	LL_COMMON_API U32 allocationCount();	///< how many Impls have been made
 	LL_COMMON_API U32 outstandingCount();	///< how many Impls are still alive
+
+	/// These counts track LLSD (public) objects.
+	LL_COMMON_API extern S32 sLLSDAllocationCount;	///< Number of LLSD objects ever created
+	LL_COMMON_API extern S32 sLLSDNetObjects;		///< Number of LLSD objects that exist
 #endif
 //@}
 

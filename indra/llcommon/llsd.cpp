@@ -54,23 +54,17 @@ namespace
 using namespace LLSDUnnamedNamespace;
 #endif
 
-
-// Normally undefined
-#ifdef LLSD_DEBUG_INFO
+namespace llsd
+{
 
 // statics
-S32	LLSD::sLLSDAllocationCount = 0;
-S32 LLSD::sLLSDNetObjects = 0;
+S32	sLLSDAllocationCount = 0;
+S32 sLLSDNetObjects = 0;
 
-#define	ALLOC_LLSD_OBJECT			{ sLLSDNetObjects++;	sLLSDAllocationCount++;		}
-#define	FREE_LLSD_OBJECT			{ sLLSDNetObjects--;								}
+} // namespace llsd
 
-#else
-
-#define	ALLOC_LLSD_OBJECT
-#define	FREE_LLSD_OBJECT
-
-#endif
+#define	ALLOC_LLSD_OBJECT			{ llsd::sLLSDNetObjects++;	llsd::sLLSDAllocationCount++;	}
+#define	FREE_LLSD_OBJECT			{ llsd::sLLSDNetObjects--;									}
 
 class LLSD::Impl
 	/**< This class is the abstract base class of the implementation of LLSD
@@ -158,6 +152,8 @@ public:
 		safe(llsd.impl).calcStats(type_counts, share_counts);
 	}
 
+	static const Impl& getImpl(const LLSD& llsd)	{ return safe(llsd.impl); }
+	static Impl& getImpl(LLSD& llsd)				{ return safe(llsd.impl); }
 
 	static const LLSD& undef();
 	
@@ -452,10 +448,8 @@ namespace
 	{
 		std::cout << "Map size: " << mData.size() << std::endl;
 
-		#ifdef LLSD_DEBUG_INFO
-		std::cout << "LLSD Net Objects: " << LLSD::sLLSDNetObjects << std::endl;
-		std::cout << "LLSD allocations: " << LLSD::sLLSDAllocationCount << std::endl;
-		#endif
+		std::cout << "LLSD Net Objects: " << llsd::sLLSDNetObjects << std::endl;
+		std::cout << "LLSD allocations: " << llsd::sLLSDAllocationCount << std::endl;
 
 		std::cout << "LLSD::Impl Net Objects: " << sOutstandingCount << std::endl;
 		std::cout << "LLSD::Impl allocations: " << sAllocationCount << std::endl;
@@ -958,12 +952,10 @@ namespace llsd
 U32 allocationCount()								{ return LLSD::Impl::sAllocationCount; }
 U32 outstandingCount()								{ return LLSD::Impl::sOutstandingCount; }
 
-} // namespace llsd
-
 // Diagnostic dump of contents in an LLSD object
-#ifdef LLSD_DEBUG_INFO
-void LLSD::dumpStats()	const						{ safe(impl).dumpStats();	}
-#endif
+void dumpStats(const LLSD& llsd)					{ LLSD::Impl::getImpl(llsd).dumpStats(); }
+
+} // namespace llsd
 
 // static
 std::string		LLSD::typeString(Type type)
@@ -982,7 +974,7 @@ std::string		LLSD::typeString(Type type)
 		"Array"
 	};
 
-	if (0 <= type && type < (sizeof(sTypeNameArray)/sizeof(sTypeNameArray[0])))
+	if (0 <= type && type < LL_ARRAY_SIZE(sTypeNameArray))
 	{
 		return sTypeNameArray[type];
 	}
