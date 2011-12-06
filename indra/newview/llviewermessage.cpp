@@ -2464,7 +2464,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			if (agent_id.isNull())
 			{
-				LL_WARNS("Messaging") << "buildLegacyName returned null" << LL_ENDL;			
+				LL_WARNS("Messaging") << "buildLegacyName returned null while processing " << original_name << LL_ENDL;
 			}
 			else if (LLMuteList::getInstance()->isMuted(agent_id))
 			{
