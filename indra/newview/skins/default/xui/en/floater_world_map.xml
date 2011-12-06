@@ -468,7 +468,7 @@
      left="3"
      top_pad="7"
      mouse_opaque="true"
-     name="region_icon"
+     name="location_icon"
      width="16" />
     <search_editor
      follows="top|right"

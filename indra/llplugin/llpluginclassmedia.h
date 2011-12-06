@@ -270,7 +270,7 @@ public:
 	std::string	getHoverText() const { return mHoverText; };
 	std::string	getHoverLink() const { return mHoverLink; };
 	
-	std::string getMediaName() const { return mMediaName; };
+	const std::string& getMediaName() const { return mMediaName; };
 	std::string getMediaDescription() const { return mMediaDescription; };
 
 	// Crash the plugin.  If you use this outside of a testbed, you will be punished.

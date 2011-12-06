@@ -53,7 +53,7 @@ Daha küçük bir alan seçmeyi deneyin.
 		Arazi alma bilgileri çekilirken hata oluştu.
 	</floater.string>
 	<floater.string name="buying_will">
-		Bu arazinin satın alınması sonucu:
+		Arazinin satın alınması sonucu:
 	</floater.string>
 	<floater.string name="buying_for_group">
 		Bu arazinin grup için satın alınması sonucu:
@@ -185,7 +185,7 @@ Daha küçük bir alan seçmeyi deneyin.
 nesnelerle satılır
 	</text>
 	<text name="info_action">
-		Bu arazinin satın alınması sonucu:
+		Arazinin satın alınması sonucu:
 	</text>
 	<text name="error_message">
 		Bir şeyler yolunda değil.

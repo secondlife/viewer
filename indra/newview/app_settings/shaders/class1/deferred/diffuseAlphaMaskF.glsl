@@ -1,5 +1,5 @@
 /** 
- * @file diffuseF.glsl
+ * @file diffuseAlphaMaskF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,20 +22,24 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragData[3];
+#endif
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
 
 uniform sampler2D diffuseMap;
 
-varying vec3 vary_normal;
+VARYING vec3 vary_normal;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec4 col = gl_Color * texture2D(diffuseMap, gl_TexCoord[0].xy) * gl_Color;
+	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy) * vertex_color;
 	
-	if (col.a < minimum_alpha || col.a > maximum_alpha)
+	if (col.a < minimum_alpha)
 	{
 		discard;
 	}

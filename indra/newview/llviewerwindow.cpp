@@ -489,6 +489,7 @@ public:
 			{
 				F32 cost = 0.f;
 				S32 count = 0;
+				S32 vcount = 0;
 				S32 object_count = 0;
 				S32 total_bytes = 0;
 				S32 visible_bytes = 0;
@@ -510,7 +511,9 @@ public:
 								S32 bytes = 0;	
 								S32 visible = 0;
 								cost += object->getStreamingCost(&bytes, &visible);
-								count += object->getTriangleCount();
+								S32 vt = 0;
+								count += object->getTriangleCount(&vt);
+								vcount += vt;
 								total_bytes += bytes;
 								visible_bytes += visible;
 							}
@@ -521,20 +524,20 @@ public:
 				{
 					label = "Selection";
 					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost(&total_bytes, &visible_bytes);
-					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount();
+					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount(&vcount);
 					object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 				}
 					
 				addText(xpos,ypos, llformat("%s streaming cost: %.1f", label, cost));
 				ypos += y_inc;
 
-				addText(xpos, ypos, llformat("    %.3f KTris, %.1f/%.1f KB, %d objects",
-										count/1000.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
+				addText(xpos, ypos, llformat("    %.3f KTris, %.3f KVerts, %.1f/%.1f KB, %d objects",
+										count/1000.f, vcount/1000.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
 				ypos += y_inc;
 			
 			}
 
-			addText(xpos, ypos, llformat("%d MB Vertex Data", LLVertexBuffer::sAllocatedBytes/(1024*1024)));
+			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024)));
 			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
@@ -737,37 +740,6 @@ public:
 			}
 		}				
 
-		//temporary hack to give feedback on mesh upload progress
-		if (!gMeshRepo.mUploads.empty())
-		{
-			for (std::vector<LLMeshUploadThread*>::iterator iter = gMeshRepo.mUploads.begin(); 
-				iter != gMeshRepo.mUploads.end(); ++iter)
-			{
-				LLMeshUploadThread* thread = *iter;
-
-				addText(xpos, ypos, llformat("Mesh Uploads: %d", 
-								thread->mPendingUploads));
-				ypos += y_inc;
-			}
-		}
-
-		if (!gMeshRepo.mPendingRequests.empty() ||
-			!gMeshRepo.mThread->mHeaderReqQ.empty() ||
-			!gMeshRepo.mThread->mLODReqQ.empty())
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-			S32 pending = (S32) gMeshRepo.mPendingRequests.size();
-			S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
-			S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
-
-			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
-												pending,
-												LLMeshRepoThread::sActiveHeaderRequests, header,
-												LLMeshRepoThread::sActiveLODRequests, lod));
-
-			ypos += y_inc;
-		}
-		
 		if (gSavedSettings.getBOOL("DebugShowTextureInfo"))
 		{
 			LLViewerObject* objectp = NULL ;
@@ -1586,6 +1558,12 @@ LLViewerWindow::LLViewerWindow(
 		ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
+	if (!LLViewerShaderMgr::sInitialized)
+	{ //immediately initialize shaders
+		LLViewerShaderMgr::sInitialized = TRUE;
+		LLViewerShaderMgr::instance()->setShaders();
+	}
+
 	if (NULL == mWindow)
 	{
 		LLSplashScreen::update(LLTrans::getString("StartupRequireDriverUpdate"));
@@ -1722,32 +1700,30 @@ LLViewerWindow::LLViewerWindow(
 void LLViewerWindow::initGLDefaults()
 {
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
-	F32 ambient[4] = {0.f,0.f,0.f,0.f };
-	F32 diffuse[4] = {1.f,1.f,1.f,1.f };
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-	
+	if (!LLGLSLShader::sNoFixedFunction)
+	{ //initialize fixed function state
+		glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+
+		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,LLColor4::black.mV);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,LLColor4::white.mV);
+
+		// lights for objects
+		glShadeModel( GL_SMOOTH );
+
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	}
+
 	glPixelStorei(GL_PACK_ALIGNMENT,1);
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
-	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-
-	// lights for objects
-	glShadeModel( GL_SMOOTH );
-
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-	
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-
+	gGL.setAmbientLightColor(LLColor4::black);
+		
 	glCullFace(GL_BACK);
 
 	// RN: Need this for translation and stretch manip.
-	gCone.prerender();
 	gBox.prerender();
-	gSphere.prerender();
-	gCylinder.prerender();
 }
 
 struct MainPanel : public LLPanel
@@ -2252,6 +2228,10 @@ void LLViewerWindow::drawDebugText()
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
@@ -2261,6 +2241,10 @@ void LLViewerWindow::drawDebugText()
 	gGL.popMatrix();
 
 	gGL.flush();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
 }
 
 void LLViewerWindow::draw()
@@ -2275,9 +2259,9 @@ void LLViewerWindow::draw()
 
 	LLUI::setLineWidth(1.f);
 	// Reset any left-over transforms
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	
-	glLoadIdentity();
+	gGL.loadIdentity();
 
 	//S32 screen_x, screen_y;
 
@@ -2292,7 +2276,7 @@ void LLViewerWindow::draw()
 		// draw timecode block
 		std::string text;
 
-		glLoadIdentity();
+		gGL.loadIdentity();
 
 		microsecondsToTimecodeString(gFrameTime,text);
 		const LLFontGL* font = LLFontGL::getFontSansSerif();
@@ -2328,10 +2312,10 @@ void LLViewerWindow::draw()
 			int pos_y = sub_region / llceil(zoom_factor);
 			int pos_x = sub_region - (pos_y*llceil(zoom_factor));
 			// offset for this tile
-			glTranslatef((F32)getWindowWidthScaled() * -(F32)pos_x, 
+			gGL.translatef((F32)getWindowWidthScaled() * -(F32)pos_x, 
 						(F32)getWindowHeightScaled() * -(F32)pos_y, 
 						0.f);
-			glScalef(zoom_factor, zoom_factor, 1.f);
+			gGL.scalef(zoom_factor, zoom_factor, 1.f);
 			LLUI::sGLScaleFactor *= zoom_factor;
 		}
 
@@ -2360,7 +2344,7 @@ void LLViewerWindow::draw()
 			S32 screen_x, screen_y;
 			top_ctrl->localPointToScreen(0, 0, &screen_x, &screen_y);
 
-			glMatrixMode(GL_MODELVIEW);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			LLUI::translate( (F32) screen_x, (F32) screen_y, 0.f);
 			top_ctrl->draw();	
@@ -3420,17 +3404,17 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 
 			// set up transform to encompass bounding box of HUD
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
+			gGL.matrixMode(LLRender::MM_PROJECTION);
+			gGL.pushMatrix();
+			gGL.loadIdentity();
 			F32 depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-			glOrtho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
+			gGL.ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
 			
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-			glLoadMatrixf(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
-			glTranslatef(-hud_bbox.getCenterLocal().mV[VX] + (depth *0.5f), 0.f, 0.f);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
+			gGL.pushMatrix();
+			gGL.loadIdentity();
+			gGL.loadMatrix(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
+			gGL.translatef(-hud_bbox.getCenterLocal().mV[VX] + (depth *0.5f), 0.f, 0.f);
 		}
 
 		// Render light for editing
@@ -3440,12 +3424,12 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			LLGLEnable gls_blend(GL_BLEND);
 			LLGLEnable gls_cull(GL_CULL_FACE);
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
+			gGL.pushMatrix();
 			if (selection->getSelectType() == SELECT_TYPE_HUD)
 			{
 				F32 zoom = gAgentCamera.mHUDCurZoom;
-				glScalef(zoom, zoom, zoom);
+				gGL.scalef(zoom, zoom, zoom);
 			}
 
 			struct f : public LLSelectedObjectFunctor
@@ -3456,33 +3440,33 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					if (drawable && drawable->isLight())
 					{
 						LLVOVolume* vovolume = drawable->getVOVolume();
-						glPushMatrix();
+						gGL.pushMatrix();
 
 						LLVector3 center = drawable->getPositionAgent();
-						glTranslatef(center[0], center[1], center[2]);
+						gGL.translatef(center[0], center[1], center[2]);
 						F32 scale = vovolume->getLightRadius();
-						glScalef(scale, scale, scale);
+						gGL.scalef(scale, scale, scale);
 
 						LLColor4 color(vovolume->getLightColor(), .5f);
-						glColor4fv(color.mV);
+						gGL.color4fv(color.mV);
 					
-						F32 pixel_area = 100000.f;
+						//F32 pixel_area = 100000.f;
 						// Render Outside
-						gSphere.render(pixel_area);
+						gSphere.render();
 
 						// Render Inside
 						glCullFace(GL_FRONT);
-						gSphere.render(pixel_area);
+						gSphere.render();
 						glCullFace(GL_BACK);
 					
-						glPopMatrix();
+						gGL.popMatrix();
 					}
 					return true;
 				}
 			} func;
 			LLSelectMgr::getInstance()->getSelection()->applyToObjects(&func);
 			
-			glPopMatrix();
+			gGL.popMatrix();
 		}				
 		
 		// NOTE: The average position for the axis arrows of the selected objects should
@@ -3545,11 +3529,11 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			}
 			if (selection->getSelectType() == SELECT_TYPE_HUD && selection->getObjectCount())
 			{
-				glMatrixMode(GL_PROJECTION);
-				glPopMatrix();
+				gGL.matrixMode(LLRender::MM_PROJECTION);
+				gGL.popMatrix();
 
-				glMatrixMode(GL_MODELVIEW);
-				glPopMatrix();
+				gGL.matrixMode(LLRender::MM_MODELVIEW);
+				gGL.popMatrix();
 				stop_glerror();
 			}
 		}
@@ -4665,10 +4649,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 			gPipeline.destroyGL();
 		}
 		
-		gCone.cleanupGL();
 		gBox.cleanupGL();
-		gSphere.cleanupGL();
-		gCylinder.cleanupGL();
 		
 		if(gPostProcess)
 		{

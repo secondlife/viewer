@@ -189,16 +189,16 @@ void LLInboxFolderViewFolder::draw()
 
 void LLInboxFolderViewFolder::selectItem()
 {
-	LLFolderViewFolder::selectItem();
-
 	deFreshify();
+
+	LLFolderViewFolder::selectItem();
 }
 
 void LLInboxFolderViewFolder::toggleOpen()
 {
-	LLFolderViewFolder::toggleOpen();
-
 	deFreshify();
+
+	LLFolderViewFolder::toggleOpen();
 }
 
 void LLInboxFolderViewFolder::computeFreshness()
@@ -270,7 +270,9 @@ BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView
 
 BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return TRUE;
+	deFreshify();
+	
+	return LLFolderViewItem::handleDoubleClick(x, y, mask);
 }
 
 // virtual
@@ -290,9 +292,9 @@ void LLInboxFolderViewItem::draw()
 
 void LLInboxFolderViewItem::selectItem()
 {
-	LLFolderViewItem::selectItem();
-
 	deFreshify();
+
+	LLFolderViewItem::selectItem();
 }
 
 void LLInboxFolderViewItem::computeFreshness()

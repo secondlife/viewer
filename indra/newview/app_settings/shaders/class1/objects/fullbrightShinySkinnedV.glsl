@@ -22,6 +22,19 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 texture_matrix0;
+uniform mat4 texture_matrix1;
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec2 texcoord0;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
+VARYING vec3 vary_texcoord1;
 
 
 void calcAtmospherics(vec3 inPositionEye);
@@ -31,24 +44,24 @@ void main()
 {
 	mat4 mat = getObjectSkinnedTransform();
 	
-	mat = gl_ModelViewMatrix * mat;
-	vec3 pos = (mat*gl_Vertex).xyz;
+	mat = modelview_matrix * mat;
+	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
-	vec4 norm = gl_Vertex;
-	norm.xyz += gl_Normal.xyz;
+	vec4 norm = vec4(position.xyz, 1.0);
+	norm.xyz += normal.xyz;
 	norm.xyz = (mat*norm).xyz;
 	norm.xyz = normalize(norm.xyz-pos.xyz);
 		
 	vec3 ref = reflect(pos.xyz, -norm.xyz);
 
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-	gl_TexCoord[1] = gl_TextureMatrix[1]*vec4(ref,1.0);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	vary_texcoord1 = (texture_matrix1*vec4(ref,1.0)).xyz;
 
 	calcAtmospherics(pos.xyz);
 
-	gl_FrontColor = gl_Color;
+	vertex_color = diffuse_color;
 	
-	gl_Position = gl_ProjectionMatrix*vec4(pos, 1.0);
+	gl_Position = projection_matrix*vec4(pos, 1.0);
 	
-	gl_FogFragCoord = pos.z;
+	
 }
