@@ -48,9 +48,14 @@
 #include "llfolderview.h"
 #include "llinventoryfunctions.h"
 
+
+// Turn this on to get a bunch of console output for marketplace API calls, headers and status
+#define DEBUG_MARKETPLACE_HTTP_API	0
+
+
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
-static std::string sMarketplaceCookie;
+static std::string sMarketplaceCookie = "";
 
 const LLPanelMarketplaceOutbox::Params& LLPanelMarketplaceOutbox::getDefaultParams() 
 { 
@@ -236,6 +241,7 @@ public:
 	
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
+#if DEBUG_MARKETPLACE_HTTP_API
 		llinfos << "*** Marketplace *** " << "inventory/import post status: " << status << ", reason: " << reason << llendl;
 		
 		if (isGoodStatus(status))
@@ -247,6 +253,7 @@ public:
 		{
 			llwarns << "*** Marketplace *** " << "failed" << llendl;
 		}
+#endif // DEBUG_MARKETPLACE_HTTP_API
 		
 		mOutboxPanel->onImportPostComplete(status, content);
 	}
@@ -269,13 +276,16 @@ public:
 	{
 		std::string cookie = content["set-cookie"].asString();
 		
+#if DEBUG_MARKETPLACE_HTTP_API
 		llinfos << "*** Marketplace *** " << "inventory/import headers set-cookie: " << cookie << llendl;
+#endif // DEBUG_MARKETPLACE_HTTP_API
 		
 		sMarketplaceCookie = cookie;
 	}
 
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
+#if DEBUG_MARKETPLACE_HTTP_API
 		llinfos << "*** Marketplace *** " << "inventory/import get status: " << status << ", reason: " << reason << llendl;
 		
 		if (isGoodStatus(status))
@@ -287,6 +297,7 @@ public:
 		{
 			llwarns << "*** Marketplace *** " << "failed" << llendl;
 		}
+#endif // DEBUG_MARKETPLACE_HTTP_API
 
 		mOutboxPanel->onImportGetComplete(status, content, mIgnoreResults);
 	}
@@ -308,8 +319,10 @@ void LLPanelMarketplaceOutbox::importPostTrigger()
 	headers["Connection"] = "Keep-Alive";
 	headers["Cookie"] = sMarketplaceCookie;
 	
+#if DEBUG_MARKETPLACE_HTTP_API
 	llinfos << "*** Marketplace *** " << "http post:  " << url << llendl;
 	llinfos << "*** Marketplace *** " << "headers: " << ll_pretty_print_sd(headers) << llendl;
+#endif // DEBUG_MARKETPLACE_HTTP_API
 	
 	LLHTTPClient::post(url, LLSD(), new LLInventoryImportPostResponder(this), headers);
 	
@@ -325,8 +338,10 @@ void LLPanelMarketplaceOutbox::importGetTrigger()
 	LLSD headers = LLViewerMedia::getHeaders();
 	headers["Cookie"] = sMarketplaceCookie;
 	
+#if DEBUG_MARKETPLACE_HTTP_API
 	llinfos << "*** Marketplace *** " << "http get:  " << url << llendl;
 	llinfos << "*** Marketplace *** " << "headers: " << ll_pretty_print_sd(headers) << llendl;
+#endif // DEBUG_MARKETPLACE_HTTP_API
 	
 	const bool do_not_ignore_results = false;
 	
@@ -348,8 +363,10 @@ void LLPanelMarketplaceOutbox::establishMarketplaceSessionCookie()
 
 void LLPanelMarketplaceOutbox::onImportPostComplete(U32 status, const LLSD& content)
 {
+#if DEBUG_MARKETPLACE_HTTP_API
 	llinfos << "*** Marketplace *** " << "status = " << status << llendl;
 	llinfos << "*** Marketplace *** " << "content = " << ll_pretty_print_sd(content) << llendl;
+#endif // DEBUG_MARKETPLACE_HTTP_API
 
 	mImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
 	updateImportButtonStatus();
@@ -374,8 +391,10 @@ void LLPanelMarketplaceOutbox::onImportPostComplete(U32 status, const LLSD& cont
 
 void LLPanelMarketplaceOutbox::onImportGetComplete(U32 status, const LLSD& content, bool ignoreResults)
 {
+#if DEBUG_MARKETPLACE_HTTP_API
 	llinfos << "*** Marketplace *** " << "status = " << status << llendl;
 	llinfos << "*** Marketplace *** " << "content = " << ll_pretty_print_sd(content) << llendl;
+#endif // DEBUG_MARKETPLACE_HTTP_API
 
 	mImportGetPending = false;	
 	mImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
