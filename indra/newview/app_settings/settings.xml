@@ -13424,10 +13424,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-     <key>WebProfileRect</key>
+     <key>WebProfileFloaterRect</key>
     <map>
       <key>Comment</key>
-      <string>Web profile dimensions</string>
+      <string>Web profile floater dimensions</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13435,8 +13435,8 @@
       <key>Value</key>
       <array>
         <integer>0</integer>
-        <integer>650</integer>
-        <integer>490</integer>
+        <integer>730</integer>
+        <integer>485</integer>
         <integer>0</integer>
         </array>
         </map>

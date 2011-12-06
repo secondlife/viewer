@@ -128,39 +128,7 @@ bool LLFloaterWebContent::matchesKey(const LLSD& key)
 //static
 LLFloater* LLFloaterWebContent::create( Params p)
 {
-	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
-
-	if (!p.id.isProvided())
-	{
-		p.id = LLUUID::generateNewID().asString();
-	}
-
-	if(p.target().empty() || p.target() == "_blank")
-	{
-		p.target = p.id();
-	}
-
-	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
-	if(browser_window_limit != 0)
-	{
-		// showInstance will open a new window.  Figure out how many web browsers are already open,
-		// and close the least recently opened one if this will put us over the limit.
-
-		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
-		lldebugs << "total instance count is " << instances.size() << llendl;
-
-		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
-		{
-			lldebugs << "    " << (*iter)->getKey()["target"] << llendl;
-		}
-
-		if(instances.size() >= (size_t)browser_window_limit)
-		{
-			// Destroy the least recently opened instance
-			(*instances.begin())->closeFloater();
-		}
-	}
-
+	preCreate(p);
 	return new LLFloaterWebContent(p);
 }
 
@@ -209,6 +177,43 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 	LLRect new_rect;
 	getParent()->screenRectToLocal(geom, &new_rect);
 	setShape(new_rect);	
+}
+
+// static
+void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
+{
+	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
+
+	if (!p.id.isProvided())
+	{
+		p.id = LLUUID::generateNewID().asString();
+	}
+
+	if(p.target().empty() || p.target() == "_blank")
+	{
+		p.target = p.id();
+	}
+
+	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
+	if(browser_window_limit != 0)
+	{
+		// showInstance will open a new window.  Figure out how many web browsers are already open,
+		// and close the least recently opened one if this will put us over the limit.
+
+		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
+		lldebugs << "total instance count is " << instances.size() << llendl;
+
+		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
+		{
+			lldebugs << "    " << (*iter)->getKey()["target"] << llendl;
+		}
+
+		if(instances.size() >= (size_t)browser_window_limit)
+		{
+			// Destroy the least recently opened instance
+			(*instances.begin())->closeFloater();
+		}
+	}
 }
 
 void LLFloaterWebContent::open_media(const Params& p)
