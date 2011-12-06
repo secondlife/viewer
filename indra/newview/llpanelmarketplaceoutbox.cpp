@@ -50,6 +50,8 @@
 
 static LLRegisterPanelClassWrapper<LLPanelMarketplaceOutbox> t_panel_marketplace_outbox("panel_marketplace_outbox");
 
+static std::string sMarketplaceCookie;
+
 const LLPanelMarketplaceOutbox::Params& LLPanelMarketplaceOutbox::getDefaultParams() 
 { 
 	return LLUICtrlFactory::getDefaultParams<LLPanelMarketplaceOutbox>(); 
@@ -263,6 +265,15 @@ public:
 	{
 	}
 
+	void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+	{
+		std::string cookie = content["set-cookie"].asString();
+		
+		llinfos << "*** Marketplace *** " << "inventory/import headers set-cookie: " << cookie << llendl;
+		
+		sMarketplaceCookie = cookie;
+	}
+
 	void completed(U32 status, const std::string& reason, const LLSD& content)
 	{
 		llinfos << "*** Marketplace *** " << "inventory/import get status: " << status << ", reason: " << reason << llendl;
@@ -295,6 +306,7 @@ void LLPanelMarketplaceOutbox::importPostTrigger()
 	
 	LLSD headers = LLViewerMedia::getHeaders();
 	headers["Connection"] = "Keep-Alive";
+	headers["Cookie"] = sMarketplaceCookie;
 	
 	llinfos << "*** Marketplace *** " << "http post:  " << url << llendl;
 	llinfos << "*** Marketplace *** " << "headers: " << ll_pretty_print_sd(headers) << llendl;
@@ -311,6 +323,7 @@ void LLPanelMarketplaceOutbox::importGetTrigger()
 	
 	std::string url = getMarketplaceURL_InventoryImport();
 	LLSD headers = LLViewerMedia::getHeaders();
+	headers["Cookie"] = sMarketplaceCookie;
 	
 	llinfos << "*** Marketplace *** " << "http get:  " << url << llendl;
 	llinfos << "*** Marketplace *** " << "headers: " << ll_pretty_print_sd(headers) << llendl;
