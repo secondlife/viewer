@@ -59,10 +59,6 @@ public:
 	U32 getTotalItemCount() const;
 
 	bool isOutboxEmpty() const;
-	bool isImportInProgress() const;
-
-	void onImportPostComplete(U32 status, const LLSD& content);
-	void onImportGetComplete(U32 status, const LLSD& content, bool ignoreResults);
 
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
@@ -78,18 +74,14 @@ protected:
 	void onFocusReceived();
 	void onSelectionChange();
 	
-	void importPostTrigger();
-	void importGetTrigger();
-	void establishMarketplaceSessionCookie();
-
+	void importReportResults(U32 status, const LLSD& content);
+	void importStatusChanged(bool inProgress);
+	
 private:
 	LLInventoryPanel *		mInventoryPanel;
 
 	LLButton *				mImportButton;
-	U32						mImportFrameTimer;
-	bool					mImportGetPending;
 	LLLoadingIndicator *	mImportIndicator;
-	bool					mImportInProgress;
 	
 	LLButton *				mOutboxButton;
 };

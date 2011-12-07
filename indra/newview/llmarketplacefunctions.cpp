@@ -29,52 +29,312 @@
 #include "llmarketplacefunctions.h"
 
 #include "llagent.h"
+#include "llhttpclient.h"
+#include "llviewermedia.h"
 #include "llviewernetwork.h"
 
 
-std::string getMarketplaceBaseURL()
-{
-	std::string url = "https://marketplace.secondlife.com/";
+//
+// Helpers
+//
 
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		std::string gridLabel = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
+namespace LLMarketplaceImport
+{
+	// Basic interface for this namespace
+
+	bool inProgress();
+	bool resultPending();
+	U32 getResultStatus();
+	const LLSD& getResults();
+
+	void establishMarketplaceSessionCookie();
+	void pollStatus();
+	void triggerImport();
+	
+	// Internal state variables
+
+	static std::string sMarketplaceCookie = "";
+	static bool sImportInProgress = false;
+	static bool sImportGetPending = false;
+	static U32 sImportResultStatus = 0;
+	static LLSD sImportResults = LLSD::emptyMap();
 		
-		if (gridLabel == "damballah")
+	
+	// Internal helper functions
+	
+	std::string getBaseURL()
+	{
+		std::string url = "https://marketplace.secondlife.com/";
+
+		if (!LLGridManager::getInstance()->isInProductionGrid())
 		{
-			url = "https://marketplace.secondlife-staging.com/";
+			std::string gridLabel = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
+			
+			if (gridLabel == "damballah")
+			{
+				url = "https://marketplace.secondlife-staging.com/";
+			}
+			else
+			{
+				url = llformat("https://marketplace.%s.lindenlab.com/", gridLabel.c_str());
+			}
 		}
-		else
-		{
-			url = llformat("https://marketplace.%s.lindenlab.com/", gridLabel.c_str());
-		}
+
+		url += "api/1/";
+		url += gAgent.getID().getString();
+		url += "/inventory/";
+
+		return url;
 	}
 
-	url += "api/1/";
-	url += gAgent.getID().getString();
-	url += "/inventory/";
+	std::string getInventoryImportURL()
+	{
+		std::string url = getBaseURL();
 
-	return url;
+		url += "import/";
+
+		return url;
+	}
+	
+	// Responders
+	
+	class LLImportPostResponder : public LLHTTPClient::Responder
+	{
+	public:
+		LLImportPostResponder() : LLCurl::Responder() {}
+		
+		void completed(U32 status, const std::string& reason, const LLSD& content)
+		{
+			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
+			sImportResultStatus = status;
+		}
+	};
+	
+	class LLImportGetResponder : public LLHTTPClient::Responder
+	{
+	public:
+		LLImportGetResponder() : LLCurl::Responder() {}
+		
+		void completedHeader(U32 status, const std::string& reason, const LLSD& content)
+		{
+			sMarketplaceCookie = content["set-cookie"].asString();
+		}
+		
+		void completed(U32 status, const std::string& reason, const LLSD& content)
+		{
+			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
+			sImportGetPending = false;
+			sImportResultStatus = status;
+			sImportResults = content;
+		}
+	};
+	
+	// Coroutine testing
+/*
+	std::string gTimeDelayDebugFunc = "";
+	
+	void timeDelay(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
+	{
+		waitForEventOn(self, "mainloop");
+		
+		LLTimer delayTimer;
+		delayTimer.reset();
+		delayTimer.setTimerExpirySec(5.0f);
+		
+		while (!delayTimer.hasExpired())
+		{
+			waitForEventOn(self, "mainloop");
+		}
+		
+		outboxPanel->onImportPostComplete(MarketplaceErrorCodes::IMPORT_DONE, LLSD::emptyMap());
+		
+		gTimeDelayDebugFunc = "";
+	}
+	
+	std::string gImportPollingFunc = "";
+	
+	void importPoll(LLCoros::self& self, LLPanelMarketplaceOutbox* outboxPanel)
+	{
+		waitForEventOn(self, "mainloop");
+		
+		while (outboxPanel->isImportInProgress())
+		{
+			LLTimer delayTimer;
+			delayTimer.reset();
+			delayTimer.setTimerExpirySec(5.0f);
+			
+			while (!delayTimer.hasExpired())
+			{
+				waitForEventOn(self, "mainloop");
+			}
+			
+			//outboxPanel->
+		}
+		
+		gImportPollingFunc = "";
+	}
+	
+*/	
+	
+	// Basic API
+
+	bool inProgress()
+	{
+		return sImportInProgress;
+	}
+	
+	bool resultPending()
+	{
+		return sImportGetPending;
+	}
+	
+	U32 getResultStatus()
+	{
+		return sImportResultStatus;
+	}
+	
+	const LLSD& getResults()
+	{
+		return sImportResults;
+	}
+	
+	void establishMarketplaceSessionCookie()
+	{
+		sImportInProgress = true;
+		sImportGetPending = true;
+		
+		std::string url = getInventoryImportURL();
+		
+		LLHTTPClient::get(url, new LLImportGetResponder(), LLViewerMedia::getHeaders());
+	}
+	
+	void pollStatus()
+	{
+		sImportGetPending = true;
+
+		std::string url = getInventoryImportURL();
+
+		// Make the headers for the post
+		LLSD headers = LLSD::emptyMap();
+		headers["Accept"] = "*/*";
+		headers["Cookie"] = sMarketplaceCookie;
+		headers["Content-Type"] = "application/xml";
+		headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
+		
+		LLHTTPClient::get(url, new LLImportGetResponder(), headers);
+	}
+	
+	void triggerImport()
+	{
+		sImportInProgress = true;		
+		sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
+		sImportResults = LLSD::emptyMap();
+
+		std::string url = getInventoryImportURL();
+		
+		// Make the headers for the post
+		LLSD headers = LLSD::emptyMap();
+		headers["Accept"] = "*/*";
+		headers["Connection"] = "Keep-Alive";
+		headers["Cookie"] = sMarketplaceCookie;
+		headers["Content-Type"] = "application/xml";
+		headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
+		
+		LLHTTPClient::post(url, LLSD(), new LLImportPostResponder(), headers);
+		
+		// Set a timer (for testing only)
+		//gTimeDelayDebugFunc = LLCoros::instance().launch("LLPanelMarketplaceOutbox timeDelay", boost::bind(&timeDelay, _1, this));
+	}
 }
 
-std::string getMarketplaceURL_InventoryImport()
+
+//
+// Interface class
+//
+
+
+//static
+void LLMarketplaceInventoryImporter::update()
 {
-	std::string url = getMarketplaceBaseURL();
-
-	url += "import/";
-
-	return url;
+	if (instanceExists())
+	{
+		LLMarketplaceInventoryImporter::instance().updateImport();
+	}
 }
 
-
-static bool gMarketplaceImportEnabled = true;
-
-bool getMarketplaceImportEnabled()
+LLMarketplaceInventoryImporter::LLMarketplaceInventoryImporter()
+	: mImportInProgress(false)
+	, mInitialized(false)
+	, mStatusChangedSignal(NULL)
+	, mStatusReportSignal(NULL)
 {
-	return gMarketplaceImportEnabled;
 }
 
-void setMarketplaceImportEnabled(bool importEnabled)
+void LLMarketplaceInventoryImporter::initialize()
 {
-	gMarketplaceImportEnabled = importEnabled;
+	if (!mInitialized)
+	{
+		LLMarketplaceImport::establishMarketplaceSessionCookie();
+	}
 }
+
+boost::signals2::connection LLMarketplaceInventoryImporter::setStatusChangedCallback(const status_changed_signal_t::slot_type& cb)
+{
+	if (mStatusChangedSignal == NULL)
+	{
+		mStatusChangedSignal = new status_changed_signal_t();
+	}
+
+	return mStatusChangedSignal->connect(cb);
+}
+
+boost::signals2::connection LLMarketplaceInventoryImporter::setStatusReportCallback(const status_report_signal_t::slot_type& cb)
+{
+	if (mStatusReportSignal == NULL)
+	{
+		mStatusReportSignal = new status_report_signal_t();
+	}
+
+	return mStatusReportSignal->connect(cb);
+}
+
+bool LLMarketplaceInventoryImporter::triggerImport()
+{
+	LLMarketplaceImport::triggerImport();
+	
+	return LLMarketplaceImport::inProgress();
+}
+
+void LLMarketplaceInventoryImporter::updateImport()
+{
+	const bool in_progress = LLMarketplaceImport::inProgress();
+	
+	if (in_progress && !LLMarketplaceImport::resultPending())
+	{
+		LLMarketplaceImport::pollStatus();
+	}	
+	
+	if (mImportInProgress != in_progress)
+	{
+		mImportInProgress = in_progress;
+		
+		if (mStatusChangedSignal)
+		{
+			(*mStatusChangedSignal)(mImportInProgress);
+		}
+		
+		// If we are no longer in progress, report results
+		if (!mImportInProgress && mStatusReportSignal)
+		{
+			if (mInitialized)
+			{
+				(*mStatusReportSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
+			}
+			else
+			{
+				mInitialized = true;
+			}
+		}
+	}
+}
+

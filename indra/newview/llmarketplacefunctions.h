@@ -29,14 +29,16 @@
 #define LL_LLMARKETPLACEFUNCTIONS_H
 
 
-std::string getMarketplaceURL_InventoryImport();
+#include <llsd.h>
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
-bool getMarketplaceImportEnabled();
-void setMarketplaceImportEnabled(bool syncEnabled);
+#include "llsingleton.h"
+
 
 namespace MarketplaceErrorCodes
 {
-	enum eCodes
+	enum eCode
 	{
 		IMPORT_DONE = 200,
 		IMPORT_PROCESSING = 202,
@@ -45,7 +47,38 @@ namespace MarketplaceErrorCodes
 	};
 }
 
+
+class LLMarketplaceInventoryImporter
+	: public LLSingleton<LLMarketplaceInventoryImporter>
+{
+public:
+	static void update();
+	
+	LLMarketplaceInventoryImporter();
+	
+	void initialize();
+
+	typedef boost::signals2::signal<void (bool)> status_changed_signal_t;
+	typedef boost::signals2::signal<void (U32, const LLSD&)> status_report_signal_t;
+
+	boost::signals2::connection setStatusChangedCallback(const status_changed_signal_t::slot_type& cb);
+	boost::signals2::connection setStatusReportCallback(const status_report_signal_t::slot_type& cb);
+	
+	bool triggerImport();
+	bool isImportInProgress() const { return mImportInProgress; }
+	
+protected:
+	void updateImport();
+	
+private:
+	bool mImportInProgress;
+	bool mInitialized;
+	
+	status_changed_signal_t *	mStatusChangedSignal;
+	status_report_signal_t *	mStatusReportSignal;
+};
+
+
+
 #endif // LL_LLMARKETPLACEFUNCTIONS_H
-
-
 
