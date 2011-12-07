@@ -6,7 +6,6 @@
  legacy_header_height="18"
  can_minimize="true"
  can_close="true"
- follows="bottom"
  height="164"
  layout="topleft"
  name="camera_floater"

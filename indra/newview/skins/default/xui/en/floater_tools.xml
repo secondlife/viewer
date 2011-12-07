@@ -2,7 +2,6 @@
 <floater
  open_positioning="cascading"
  legacy_header_height="18"
- follows="left|top|right"
  height="580"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"

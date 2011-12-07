@@ -156,6 +156,8 @@ public:
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
+
+		Ignored					follows;
 		
 		Params();
 	};

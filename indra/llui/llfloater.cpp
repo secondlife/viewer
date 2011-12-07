@@ -195,7 +195,8 @@ LLFloater::Params::Params()
 	dock_pressed_image("dock_pressed_image"),
 	help_pressed_image("help_pressed_image"),
 	open_callback("open_callback"),
-	close_callback("close_callback")
+	close_callback("close_callback"),
+	follows("follows")
 {
 	changeDefault(visible, false);
 }
@@ -2964,6 +2965,9 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 
 	 // control_name, tab_stop, focus_lost_callback, initial_value, rect, enabled, visible
 	LLPanel::initFromParams(p);
+
+	// override any follows flags
+	setFollows(FOLLOWS_NONE);
 
 	mTitle = p.title;
 	mShortTitle = p.short_title;
