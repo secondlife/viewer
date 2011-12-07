@@ -12685,7 +12685,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>600</integer>
+      <integer>0</integer>
     </map>
     <key>WindowHeight</key>
     <map>
@@ -12718,7 +12718,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>960</integer>
+      <integer>0</integer>
     </map>
     <key>WindowWidth</key>
     <map>
