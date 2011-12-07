@@ -625,6 +625,14 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 								result = false;
 							}
 						}
+						else if (filter == FFLOAD_SCRIPT)
+						{
+							if (fileInfo.filetype != 'LSL ' &&
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("lsl"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)) )
+							{
+								result = false;
+							}
+						}
 						
 						if (fileInfo.extension)
 						{
@@ -769,6 +777,12 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 			type = '\?\?\?\?';
 			creator = 'prvw';
 			extension = CFSTR(".j2c");
+			break;
+		
+		case FFSAVE_SCRIPT:
+			type = 'LSL ';
+			creator = '\?\?\?\?';
+			extension = CFSTR(".lsl");
 			break;
 		
 		case FFSAVE_ALL:
