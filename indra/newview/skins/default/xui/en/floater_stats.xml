@@ -2,7 +2,6 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- follows="top|right"
  height="400"
  layout="topleft"
  name="Statistics"
