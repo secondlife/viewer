@@ -57,7 +57,7 @@
      mouse_opaque="false"
      name="estate_name_text"
      top_delta="0"
-     width="150">
+     width="350">
         mainland
     </text>
     <text
@@ -79,7 +79,7 @@
      mouse_opaque="false"
      name="estate_owner_text"
      top_delta="0"
-     width="150">
+     width="350">
         (none)
     </text>
     <text

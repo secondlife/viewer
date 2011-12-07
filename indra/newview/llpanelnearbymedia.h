@@ -115,7 +115,6 @@ private:
 	void onClickParcelMediaPause();
 	void onClickParcelAudioPlay();
 	void onClickParcelAudioStop();
-	void onClickParcelAudioStart();
 	void onClickParcelAudioPause();
 	void onCheckAutoPlay();
 	void onAdvancedButtonClick();	

@@ -291,6 +291,7 @@ S32 getElementSize(const LLSD& llsd)
 	case LLSD::TypeMap:
 	case LLSD::TypeArray:
 	case LLSD::TypeUndefined:
+	default:                        // TypeLLSDTypeEnd, TypeLLSDNumTypes, etc.
 		return 0;
 	}
 	return 0;
