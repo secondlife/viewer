@@ -3644,13 +3644,37 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
 	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
 	
+
+	{
+		//prep#
+		enableLightsFullbright(LLColor4(1,1,1,1));
+
+		if ( LLPathingLib::getInstance() ) 
+		{	
+		   
+			bool exclusiveDraw = false;
+			if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
+			{
+				LLPathingLib::getInstance()->renderNavMesh();
+				exclusiveDraw = true;
+			}
+			if ( LLPathingLib::getInstance()->getRenderNavMeshandShapesState() )
+			{
+				//LLPathingLib::getInstance()->renderNavMeshShapesVBO();
+				exclusiveDraw = true;
+			}
+
+			if ( exclusiveDraw ) { return; }
+		}		
+	}
+		
 	//////////////////////////////////////////////
 	//
 	// Actually render all of the geometry
 	//
 	//	
 	stop_glerror();
-	
+
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderDrawPools");
 
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
@@ -3784,20 +3808,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		renderDebug();
 
 		LLVertexBuffer::unbind();
-	
-		//prep#
-		if ( LLPathingLib::getInstance() ) 
-		{		
-			if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
-			{
-				LLPathingLib::getInstance()->renderNavMesh();
-			}
-			if ( LLPathingLib::getInstance()->getRenderNavMeshandShapesState() )
-			{
-				LLPathingLib::getInstance()->renderNavMeshandShapes();
-			}
-		}
-
+			
 		if (!LLPipeline::sReflectionRender && !LLPipeline::sRenderDeferred)
 		{
 			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))

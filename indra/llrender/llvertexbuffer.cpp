@@ -411,7 +411,8 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 		llerrs << "Bad vertex buffer draw range: [" << first << ", " << first+count << "]" << llendl;
 	}
 
-	if (mGLBuffer != sGLRenderBuffer || useVBOs() != sVBOActive)
+	BOOL uvb = useVBOs();
+	if (mGLBuffer != sGLRenderBuffer || uvb != sVBOActive)
 	{
 		llerrs << "Wrong vertex buffer bound." << llendl;
 	}

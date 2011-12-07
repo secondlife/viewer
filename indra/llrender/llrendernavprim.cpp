@@ -51,25 +51,27 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 //=============================================================================
 void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
 {
-	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_NONE, GL_FILL);
+	LLGLDisable cull(GL_CULL_FACE);
+	LLGLEnable lighting( GL_LIGHTING );
+	//glEnable(GL_POLYGON_STIPPLE);
 	glLineWidth(1.5f);	
-	LLColor4 colorA( color );
+	LLColor4 colorA( color );	
 	gGL.color4fv( colorA.mV );		
+
 	gGL.begin(LLRender::TRIANGLES);
 	{
 		gGL.vertex3fv( a.mV );
 		gGL.vertex3fv( b.mV );
 		gGL.vertex3fv( c.mV );
 	}
-	gGL.end();
-
-	glLineWidth(1.f);
+	gGL.end();	
+	gGL.flush();
 }
 //=============================================================================
-void LLRenderNavPrim::renderNavMeshVB( const LLVertexBuffer* pVBO, int vertCnt ) const
+void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 {
-	//pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
+	//pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
 }
 //=============================================================================
