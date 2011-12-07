@@ -53,10 +53,11 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 {
 	glPolygonMode(GL_NONE, GL_FILL);
 	LLGLDisable cull(GL_CULL_FACE);
-	LLGLEnable lighting( GL_LIGHTING );
+	//LLGLEnable lighting( GL_LIGHTING );
 	//glEnable(GL_POLYGON_STIPPLE);
 	glLineWidth(1.5f);	
 	LLColor4 colorA( color );	
+	colorA*=2.0f;
 	gGL.color4fv( colorA.mV );		
 
 	gGL.begin(LLRender::TRIANGLES);
