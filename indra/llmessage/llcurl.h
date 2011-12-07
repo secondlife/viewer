@@ -344,7 +344,7 @@ public:
 	LLCurlThread(bool threaded = true) ;
 	virtual ~LLCurlThread() ;
 
-	S32 update(U32 max_time_ms);
+	S32 update(F32 max_time_ms);
 
 	void addMulti(LLCurl::Multi* multi) ;
 	void killMulti(LLCurl::Multi* multi) ;

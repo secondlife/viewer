@@ -28,6 +28,10 @@
 
 #include "llspatialpartition.h"
 
+#include "llappviewer.h"
+#include "lltexturecache.h"
+#include "lltexturefetch.h"
+#include "llimageworker.h"
 #include "llviewerwindow.h"
 #include "llviewerobjectlist.h"
 #include "llvovolume.h"
@@ -1221,6 +1225,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 	{
 		mOcclusionQuery[i] = 0;
+		mOcclusionIssued[i] = 0;
 		mOcclusionState[i] = parent ? SG_STATE_INHERIT_MASK & parent->mOcclusionState[i] : 0;
 		mVisible[i] = 0;
 	}
@@ -1543,6 +1548,8 @@ BOOL LLSpatialGroup::rebound()
 }
 
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_WAIT("Wait");
+
 void LLSpatialGroup::checkOcclusion()
 {
 	if (LLPipeline::sUseOcclusion > 1)
@@ -1560,6 +1567,22 @@ void LLSpatialGroup::checkOcclusion()
 			if (mOcclusionQuery[LLViewerCamera::sCurCameraID])
 			{
 				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+
+				if (mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
+				{ //query was issued last frame, wait until it's available
+					S32 max_loop = 1024;
+					LLFastTimer t(FTM_OCCLUSION_WAIT);
+					while (!available && max_loop-- > 0)
+					{
+						F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
+						//do some usefu work while we wait
+						LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
+						LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
+						LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
+						
+						glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+					}
+				}
 			}
 			else
 			{
@@ -1679,6 +1702,9 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 					{
 						LLFastTimer t(FTM_PUSH_OCCLUSION_VERTS);
 						
+						//store which frame this query was issued on
+						mOcclusionIssued[LLViewerCamera::sCurCameraID] = gFrameCount;
+
 						{
 							LLFastTimer t(FTM_OCCLUSION_BEGIN_QUERY);
 							glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
