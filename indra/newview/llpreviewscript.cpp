@@ -90,15 +90,15 @@
 const std::string HELLO_LSL =
 	"default\n"
 	"{\n"
-	"	state_entry()\n"
-    "	{\n"
-    "		llOwnerSay(\"Hello, Avatar!\");\n"
-    "	}\n"
+	"    state_entry()\n"
+    "    {\n"
+    "        llSay(0, \"Hello, Avatar!\");\n"
+    "    }\n"
 	"\n"
-	"	touch_start(integer total_number)\n"
-	"	{\n"
-	"		llSay(llDetectedKey(0), \"Touched.\");\n"
-	"	}\n"
+	"    touch_start(integer total_number)\n"
+	"    {\n"
+	"        llSay(0, \"Touched.\");\n"
+	"    }\n"
 	"}\n";
 const std::string HELP_LSL_PORTAL_TOPIC = "LSL_Portal";
 
