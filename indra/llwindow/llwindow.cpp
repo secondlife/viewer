@@ -111,8 +111,8 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
 	  mCursorHidden(FALSE),
 	  mBusyCount(0),
 	  mIsMouseClipping(FALSE),
-	  mMinWindowWidth(S32_MAX),		// just a sanity check - actual minimum size is stored in settings.xml
-	  mMinWindowHeight(S32_MAX),
+	  mMinWindowWidth(0),
+	  mMinWindowHeight(0),
 	  mSwapMethod(SWAP_METHOD_UNDEFINED),
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),

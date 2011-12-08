@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- follows="all"
  height="400"
  can_resize="true"
  help_topic="event_details"

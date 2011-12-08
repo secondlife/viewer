@@ -76,7 +76,7 @@ public:
 	/*virtual*/ void captureMouse();
 	/*virtual*/ void releaseMouse();
 	/*virtual*/ void setMouseClipping( BOOL b );
-	/*virtual*/	void setMinSize(U32 min_width, U32 min_height);
+	/*virtual*/	void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
 
 	/*virtual*/ BOOL isClipboardTextAvailable();
 	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst);

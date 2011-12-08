@@ -2140,7 +2140,6 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		sendShapeToSim();
 
 		// store new settings for the mode we are in, regardless
-		// Only save size if not maximized
 		BOOL maximized = mWindow->getMaximized();
 		gSavedSettings.setBOOL("WindowMaximized", maximized);
 
@@ -2150,6 +2149,10 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			U32 min_window_height=gSavedSettings.getU32("MinWindowHeight");
 			// tell the OS specific window code about min window size
 			mWindow->setMinSize(min_window_width, min_window_height);
+
+			// Only save size if not maximized
+			gSavedSettings.setU32("WindowWidth", mWindowRectRaw.getWidth());
+			gSavedSettings.setU32("WindowHeight", mWindowRectRaw.getHeight());
 		}
 
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);

@@ -7,7 +7,6 @@
  can_dock="false"
  can_minimize="true"
  can_close="true"
- follows="bottom"
  height="110"
  layout="topleft"
  name="move_floater"

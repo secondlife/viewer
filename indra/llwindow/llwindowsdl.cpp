@@ -1034,9 +1034,9 @@ void LLWindowSDL::setMouseClipping( BOOL b )
 }
 
 // virtual
-void LLWindowSDL::setMinSize(U32 min_width, U32 min_height)
+void LLWindowSDL::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
 {
-	LLWindow::setMinSize(min_width, min_height);
+	LLWindow::setMinSize(min_width, min_height, enforce_immediately);
 
 #if LL_X11
 	// Set the minimum size limits for X11 window

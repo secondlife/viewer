@@ -129,6 +129,7 @@ private:
 	
 	bool				mDragStarted;
 	LLToolBarButton*	mDragToolbarButton;
+	bool				mShowToolbars;
 };
 
 extern LLToolBarView* gToolBarView;

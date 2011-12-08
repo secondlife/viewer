@@ -90,6 +90,7 @@ protected:
 	void onEnterAddress();
 	void onPopExternal();
 
+	static void preCreate(Params& p);
 	void open_media(const Params& );
 	void set_current_url(const std::string& url);
 

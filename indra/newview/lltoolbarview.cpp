@@ -73,6 +73,7 @@ LLToolBarView::ToolbarSet::ToolbarSet()
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
 	mDragStarted(false),
+	mShowToolbars(true),
 	mDragToolbarButton(NULL),
 	mToolbarsLoaded(false)
 {
@@ -532,7 +533,9 @@ void LLToolBarView::draw()
 	
 	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
 	{
-		mToolbars[i]->getParent()->setVisible(mToolbars[i]->hasButtons() || isToolDragged());
+		mToolbars[i]->getParent()->setVisible(mShowToolbars 
+											&& (mToolbars[i]->hasButtons() 
+											|| isToolDragged()));
 	}
 
 	// Draw drop zones if drop of a tool is active
@@ -661,10 +664,7 @@ void LLToolBarView::resetDragTool(LLToolBarButton* toolbarButton)
 
 void LLToolBarView::setToolBarsVisible(bool visible)
 {
-	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
-	{
-		mToolbars[i]->getParent()->setVisible(visible);
-	}
+	mShowToolbars = visible;
 }
 
 bool LLToolBarView::isModified() const
