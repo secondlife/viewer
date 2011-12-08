@@ -42,7 +42,7 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 {
 	vec4 s = texture2DRect(diffuseRect, tc);
 
-	float sc = s.a*max_cof;
+	float sc = abs(s.a*2.0-1.0)*max_cof;
 
 	if (sc > min_sc) //sampled pixel is more "out of focus" than current sample radius
 	{
@@ -57,6 +57,20 @@ void dofSample(inout vec4 diff, inout float w, float min_sc, vec2 tc)
 	}
 }
 
+void dofSampleNear(inout vec4 diff, inout float w, float min_sc, vec2 tc)
+{
+	vec4 s = texture2DRect(diffuseRect, tc);
+
+	float wg = 0.25;
+
+	// de-weight dull areas to make highlights 'pop'
+	wg += s.r+s.g+s.b;
+
+	diff += wg*s;
+		
+	w += wg;
+}
+
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
@@ -66,12 +80,30 @@ void main()
 	{ 
 		float w = 1.0;
 		
-		float sc = diff.a*max_cof;
-				
+		float sc = (diff.a*2.0-1.0)*max_cof;
+			
 		float PI = 3.14159265358979323846264;
 
 		// sample quite uniformly spaced points within a circle, for a circular 'bokeh'		
+		if (sc > 0.5)
 		{
+			while (sc > 0.5)
+			{
+				int its = int(max(1.0,(sc*3.7)));
+				for (int i=0; i<its; ++i)
+				{
+					float ang = sc+i*2*PI/its; // sc is added for rotary perturbance
+					float samp_x = sc*sin(ang);
+					float samp_y = sc*cos(ang);
+					// you could test sample coords against an interesting non-circular aperture shape here, if desired.
+					dofSampleNear(diff, w, sc, vary_fragcoord.xy + vec2(samp_x,samp_y));
+				}
+				sc -= 1.0;
+			}
+		}
+		else if (sc < -0.5)
+		{
+			sc = abs(sc);
 			while (sc > 0.5)
 			{
 				int its = int(max(1.0,(sc*3.7)));
@@ -86,7 +118,7 @@ void main()
 				sc -= 1.0;
 			}
 		}
-		
+
 		diff /= w;
 	}
 		
