@@ -41,7 +41,7 @@
 class LLPluginProcessParentOwner
 {
 public:
-	~LLPluginProcessParentOwner();
+	virtual ~LLPluginProcessParentOwner();
 	virtual void receivePluginMessage(const LLPluginMessage &message) = 0;
 	virtual bool receivePluginMessageEarly(const LLPluginMessage &message) {return false;};
 	// This will only be called when the plugin has died unexpectedly 

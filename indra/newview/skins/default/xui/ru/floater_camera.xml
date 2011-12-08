@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Переместить камеру вверх, вниз, влево или вправо
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Режимы камеры
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Вращение, приближение, сдвиг
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Стандартные настройки
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Смотреть на объект
 	</floater.string>

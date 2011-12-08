@@ -992,7 +992,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Möchten Sie [NAME] aus Ihrer Freundesliste entfernen?
+		Möchten Sie &lt;nolink&gt;[NAME]&lt;/nolink&gt; aus Ihrer Freundesliste entfernen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -2134,10 +2134,10 @@ Hierzu wird Ihr Webbrowser geöffnet.
 		Betreff: [SUBJECT], Nachricht: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] ist online
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ist online
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] ist offline
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ist offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Obwohl Sie ein sehr netter Mensch sind, können Sie sich nicht selbst als Freund hinzufügen.
@@ -2532,10 +2532,10 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] hat Ihr Freundschaftsangebot akzeptiert.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; hat Ihr Freundschaftsangebot akzeptiert.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] hat Ihr Freundschaftsangebot abgelehnt.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; hat Ihr Freundschaftsangebot abgelehnt.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Ihr Freundschaftsangebot wurde angeommen.

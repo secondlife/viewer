@@ -63,9 +63,6 @@ S32 LLUIImage::getHeight() const
 
 namespace LLInitParam
 {
-	BaseBlock::BaseBlock() {}
-	BaseBlock::~BaseBlock() {}
-
 	BlockDescriptor::BlockDescriptor() {}
 	ParamDescriptor::ParamDescriptor(param_handle_t p, 
 						merge_func_t merge_func, 
@@ -76,8 +73,6 @@ namespace LLInitParam
 						S32 min_count,
 						S32 max_count){}
 	ParamDescriptor::~ParamDescriptor() {}
-
-	void BaseBlock::paramChanged(const Param& last_param, bool user_provided) {}
 
 	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name){}
 	param_handle_t BaseBlock::getHandleFromParam(const Param* param) const {return 0;}

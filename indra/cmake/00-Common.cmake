@@ -46,7 +46,7 @@ if (WINDOWS)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd /MP -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD /MP /Ob2 -D_SECURE_STL=0"
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD /MP /Ob0 -D_SECURE_STL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
       "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /O2 /Zi /MD /MP /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
@@ -62,7 +62,7 @@ if (WINDOWS)
       /D_UNICODE 
       /GS
       /TP
-      /W2
+      /W3
       /c
       /Zc:forScope
       /nologo

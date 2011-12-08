@@ -411,7 +411,7 @@ public:
 	// Return (yes/no/maybe) child status of category children.
 	EHasChildren categoryHasChildren(const LLUUID& cat_id) const;
 
-	// Returns true iff category version is known and theoretical
+	// Returns true if category version is known and theoretical
 	// descendents == actual descendents.
 	bool isCategoryComplete(const LLUUID& cat_id) const;
 	

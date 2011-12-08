@@ -1897,7 +1897,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	
 	if(plugin_basename.empty())
 	{
-		LL_WARNS("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
+		LL_WARNS_ONCE("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
 	}
 	else
 	{
@@ -1923,11 +1923,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		llstat s;
 		if(LLFile::stat(launcher_name, &s))
 		{
-			LL_WARNS("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
+			LL_WARNS_ONCE("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
 		}
 		else if(LLFile::stat(plugin_name, &s))
 		{
-			LL_WARNS("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
+			LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
 		}
 		else
 		{

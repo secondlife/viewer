@@ -1,8 +1,8 @@
 /** 
- * @file llmenucommands.h
- * @brief Implementations of menu commands.
+ * @file llfloaterwebprofile.h
+ * @brief Avatar profile floater.
  *
- * $LicenseInfo:firstyear=2003&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,14 +24,36 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLMENUCOMMANDS_H
-#define LL_LLMENUCOMMANDS_H
+#ifndef LL_LLFLOATERWEBPROFILE_H
+#define LL_LLFLOATERWEBPROFILE_H
 
-class LLUUID;
+#include "llfloaterwebcontent.h"
+#include "llviewermediaobserver.h"
 
-void handle_mouselook(void*);
-void handle_chat(void*);
-void handle_return_key(void*);
-void handle_slash_key(void*);
+#include <string>
 
-#endif
+class LLMediaCtrl;
+
+/**
+ * Displays avatar profile web page.
+ */
+class LLFloaterWebProfile
+:	public LLFloaterWebContent
+{
+	LOG_CLASS(LLFloaterWebProfile);
+public:
+	typedef LLFloaterWebContent::Params Params;
+
+	LLFloaterWebProfile(const Params& key);
+
+	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
+
+	static LLFloater* create(const LLSD& key);
+
+private:
+	void applyPreferredRect();
+};
+
+#endif  // LL_LLFLOATERWEBPROFILE_H
+
