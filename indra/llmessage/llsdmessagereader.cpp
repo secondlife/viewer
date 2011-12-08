@@ -294,7 +294,7 @@ S32 getElementSize(const LLSD& llsd)
 	default:                        // TypeLLSDTypeEnd, TypeLLSDNumTypes, etc.
 		return 0;
 	}
-	return 0;
+	//return 0;
 }
 
 //virtual 
