@@ -3646,21 +3646,21 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	
 
 	{
-		//prep#
-		enableLightsFullbright(LLColor4(1,1,1,1));
-
+		
 		if ( LLPathingLib::getInstance() ) 
 		{	
-		   
+			//prep#
+			enableLightsFullbright(LLColor4(1,1,1,1));
+  
 			bool exclusiveDraw = false;
 			if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
 			{
 				LLPathingLib::getInstance()->renderNavMesh();
 				exclusiveDraw = true;
 			}
-			if ( LLPathingLib::getInstance()->getRenderNavMeshandShapesState() )
+			if ( LLPathingLib::getInstance()->getRenderShapeState() )
 			{
-				//LLPathingLib::getInstance()->renderNavMeshShapesVBO();
+				LLPathingLib::getInstance()->renderNavMeshShapesVBO();
 				exclusiveDraw = true;
 			}
 
@@ -8142,6 +8142,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				gGL.setColorMask(true, false);
 
 				renderGeom(camera);
+
 			}
 
 			LLPipeline::sUnderWaterRender = FALSE;

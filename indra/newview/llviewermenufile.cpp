@@ -105,7 +105,7 @@ class LLNavMeshShapeRenderingToggle : public view_listener_t
 	{
 		if ( LLPathingLib::getInstance() )
 		{
-			LLPathingLib::getInstance()->toggleRenderNavMeshandShapesState( );
+			LLPathingLib::getInstance()->toggleRenderShapeState( );
 		}
 		return true;
 	}

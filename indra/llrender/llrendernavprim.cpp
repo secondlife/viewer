@@ -72,7 +72,15 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 {
-	//pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR );
+	glPolygonMode(GL_NONE, GL_FILL);
+	LLGLDisable cull(GL_CULL_FACE);
+	glColor3f ( 1.0f, 0.0f, 0.0f ) ;
+	glDisable( GL_COLOR_MATERIAL );
+	
+	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
+	gGL.flush();
+	glEnable( GL_COLOR_MATERIAL );
+
 }
 //=============================================================================
