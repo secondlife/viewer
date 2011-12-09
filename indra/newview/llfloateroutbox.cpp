@@ -83,7 +83,6 @@ LLFloaterOutbox::LLFloaterOutbox(const LLSD& key)
 	, mOutboxId(LLUUID::null)
 	, mOutboxInventoryPanel(NULL)
 	, mOutboxItemCount(0)
-	, mInventoryDisablePanel(NULL)
 	, mInventoryFolderCountText(NULL)
 	, mInventoryImportInProgress(NULL)
 	, mInventoryPlaceholder(NULL)
@@ -110,7 +109,6 @@ LLFloaterOutbox::~LLFloaterOutbox()
 
 BOOL LLFloaterOutbox::postBuild()
 {
-	mInventoryDisablePanel = getChild<LLView>("outbox_inventory_disable_panel");
 	mInventoryFolderCountText = getChild<LLTextBox>("outbox_folder_count");
 	mInventoryImportInProgress = getChild<LLView>("import_progress_indicator");
 	mInventoryPlaceholder = getChild<LLView>("outbox_inventory_placeholder_panel");
@@ -136,21 +134,24 @@ void LLFloaterOutbox::onOpen(const LLSD& key)
 	//
 	// Look for an outbox and set up the inventory API
 	//
-
-	const bool do_not_create_folder = false;
-	const bool do_not_find_in_library = false;
 	
-	const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
-	
-	if (outbox_id.isNull())
+	if (mOutboxId.isNull())
 	{
-		// Observe category creation to catch outbox creation
-		mCategoryAddedObserver = new LLOutboxAddedObserver(this);
-		gInventory.addObserver(mCategoryAddedObserver);
-	}
-	else
-	{
-		setupOutbox(outbox_id);
+		const bool do_not_create_folder = false;
+		const bool do_not_find_in_library = false;
+		
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, do_not_create_folder, do_not_find_in_library);
+		
+		if (outbox_id.isNull())
+		{
+			// Observe category creation to catch outbox creation
+			mCategoryAddedObserver = new LLOutboxAddedObserver(this);
+			gInventory.addObserver(mCategoryAddedObserver);
+		}
+		else
+		{
+			setupOutbox(outbox_id);
+		}
 	}
 	
 	updateView();
@@ -164,10 +165,11 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	mOutboxId = outboxId;
 	
 	// No longer need to observe new category creation
-	if (mCategoryAddedObserver != NULL)
+	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
 	{
 		gInventory.removeObserver(mCategoryAddedObserver);
-	}	
+		delete mCategoryAddedObserver;
+	}
 	
 	// Create observer for outbox modifications
 	mCategoriesObserver = new LLInventoryCategoriesObserver();
@@ -286,6 +288,8 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFloaterOutbox::onImportButtonClicked()
 {
+	mOutboxInventoryPanel->clearSelection();
+
 	LLMarketplaceInventoryImporter::instance().triggerImport();
 }
 
@@ -355,13 +359,11 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 	{
 		mImportButton->setEnabled(false);
 		
-		mInventoryDisablePanel->setVisible(true);
 		mInventoryImportInProgress->setVisible(true);
 	}
 	else
 	{
 		mInventoryImportInProgress->setVisible(false);
-		mInventoryDisablePanel->setVisible(false);
 
 		mImportButton->setEnabled(mOutboxItemCount > 0);
 	}

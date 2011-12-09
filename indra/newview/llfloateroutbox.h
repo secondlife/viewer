@@ -79,7 +79,6 @@ private:
 	LLInventoryPanel *	mOutboxInventoryPanel;
 	U32					mOutboxItemCount;
 	
-	LLView *				mInventoryDisablePanel;
 	LLTextBox *				mInventoryFolderCountText;
 	LLView *				mInventoryImportInProgress;
 	LLView *				mInventoryPlaceholder;

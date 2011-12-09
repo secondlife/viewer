@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	  background_visible="true"
 	  follows="all"
 	  height="570"
 	  label="Things"
@@ -30,7 +29,7 @@
               width="330">
              <layout_panel
                  name="main_inventory_layout_panel"
-								 layout="topleft"
+                 layout="topleft"
                  min_dim="150"
                  width="330"
                  follows="bottom|left|right"
@@ -48,41 +47,18 @@
                       height="300"
                       width="330" />
              </layout_panel>
-					   <layout_panel
+			 <layout_panel
                  width="330"
-								 layout="topleft"
-                 auto_resize="true"
-                 user_resize="false"
-                 follows="bottom|left|right"
-                 name="inbox_outbox_layout_panel"
-                 visible="false"
-                 min_dim="35"
-                 max_dim="235"
-                 expanded_min_dim="125"
-                 height="235">
-							 <layout_stack
-										follows="left|right|top|bottom"
-										layout="topleft"
-										left="0"
-										top="0"
-										orientation="vertical"
-										name="inbox_outbox_layout_stack"
-                    open_time_constant="0.02"
-                    close_time_constant="0.02"
-										height="235"
-										width="330">
-								 <layout_panel
-                 width="330"
-								 layout="topleft"
+				 layout="topleft"
                  auto_resize="true"
                  user_resize="false"
                  follows="left|right|top"
                  name="inbox_layout_panel"
                  visible="false"
                  min_dim="35"
-                 max_dim="200"
+                 max_dim="235"
                  expanded_min_dim="90"
-                 height="200">
+                 height="235">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -91,13 +67,13 @@
                       class="panel_marketplace_inbox"
                       top="0"
                       label=""
-                      height="200"
+                      height="235"
                       width="330">
                      <string name="InboxLabelWithArg">Received items ([NUM])</string>
                      <string name="InboxLabelNoArg">Received items</string>
                      <button
                         label="Received items"
-												font="SansSerifMedium"
+						font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
                         width="308"
@@ -129,7 +105,7 @@
                      <panel
                         follows="all"
                         left="10"
-                        bottom="200"
+                        bottom="235"
                         width="308"
                         top="35"
                         bg_opaque_color="InventoryBackgroundColor"
@@ -145,7 +121,7 @@
 							top="0"
 							left="0"
 							width="308"
-							height="165"
+							height="200"
 							wrap="true"
 							halign="center">
 							Purchases from the marketplace will be delivered here.
@@ -153,8 +129,6 @@
                     </panel>
                  </panel>
              </layout_panel>
-			 </layout_stack>
-			 </layout_panel>
          </layout_stack>
 		<panel
 		     follows="bottom|left|right"
@@ -275,8 +249,7 @@
 			</layout_stack>
 		</panel>
 	</panel>
-
-<panel
+	<panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"
@@ -289,8 +262,7 @@
 		 visible="false"
 		 width="330">
 	</panel>
-
-<panel
+	<panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"

@@ -6,7 +6,7 @@
  height="440"
  help_topic="floater_merchant_outbox"
  min_width="300"
- min_height="100"
+ min_height="200"
  name="floater_merchant_outbox"
  save_rect="true"
  save_visibility="true"
@@ -31,8 +31,6 @@
         width="313"
         top="0"
         bg_opaque_color="InventoryBackgroundColor"
-        background_visible="true"
-        background_opaque="true"
         >
 		<panel
 			name="outbox_inventory_placeholder_panel"
@@ -43,8 +41,6 @@
 			width="308"
 			height="400"
 			bg_opaque_color="InventoryBackgroundColor"
-			background_visible="true"
-			background_opaque="true"
 			>
 			<text
 				name="outbox_inventory_placeholder_title"
@@ -80,8 +76,6 @@
         width="313"
         top="405"
         bg_opaque_color="InventoryBackgroundColor"
-        background_visible="true"
-        background_opaque="true"
         >
 		<text
 			name="outbox_folder_count"
@@ -110,18 +104,6 @@
 			 width="200"
 			 enabled="false" />
     </panel>
-	<panel
-		name="outbox_inventory_disable_panel"
-        follows="all"
-        left="0"
-        bottom="440"
-        width="333"
-        top="0"
-        bg_opaque_color="White_50"
-        background_visible="true"
-        background_opaque="true"
-		visible="false"
-        />
 	<layout_stack name="import_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
 		<layout_panel />
 		<layout_panel height="45" auto_resize="false">

@@ -31,7 +31,7 @@
 
 class LLButton;
 class LLFolderViewItem;
-class LLInboxOutboxAddedObserver;
+class LLInboxAddedObserver;
 class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
@@ -47,10 +47,10 @@ public:
 	virtual ~LLSidepanelInventory();
 
 private:
-	void updateInboxOutbox();
+	void updateInbox();
 	
 public:
-	void observeInboxOutboxCreation();
+	void observeInboxCreation();
 	void observeInboxModifications(const LLUUID& inboxID);
 
 	/*virtual*/ BOOL postBuild();
@@ -63,7 +63,7 @@ public:
 	BOOL isMainInventoryPanelActive() const;
 
 	void clearSelections(bool clearMain, bool clearInbox);
-	std::set<LLUUID> getInboxOrOutboxSelectionList();
+	std::set<LLUUID> getInboxSelectionList();
 
 	void showItemInfoPanel();
 	void showTaskInfoPanel();
@@ -93,8 +93,6 @@ protected:
 	bool canWearSelected(); // check whether selected items can be worn
 
 	void onInboxChanged(const LLUUID& inbox_id);
-
-	bool manageInboxOutboxPanels(LLButton * pressedButton, LLLayoutPanel * pressedPanel);
 
 	//
 	// UI Elements
@@ -127,8 +125,8 @@ private:
 
 	bool						mInboxEnabled;
 
-	LLInventoryCategoriesObserver* 			mCategoriesObserver;
-	LLInboxOutboxAddedObserver*				mInboxOutboxAddedObserver;
+	LLInventoryCategoriesObserver* 	mCategoriesObserver;
+	LLInboxAddedObserver*			mInboxAddedObserver;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H
