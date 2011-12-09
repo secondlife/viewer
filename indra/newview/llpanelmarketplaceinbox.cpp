@@ -109,7 +109,7 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 	LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (sidepanel_inventory)
 	{
-		sidepanel_inventory->clearSelections(true, false, true);
+		sidepanel_inventory->clearSelections(true, false);
 	}
 
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());

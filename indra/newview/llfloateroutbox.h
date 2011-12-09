@@ -81,7 +81,7 @@ private:
 	
 	LLView *				mInventoryDisablePanel;
 	LLTextBox *				mInventoryFolderCountText;
-	LLLoadingIndicator *	mInventoryImportInProgress;
+	LLView *				mInventoryImportInProgress;
 	LLView *				mInventoryPlaceholder;
 	LLTextBox *				mInventoryText;
 	LLTextBox *				mInventoryTitle;

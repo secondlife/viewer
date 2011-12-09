@@ -32,7 +32,6 @@
 #include "llfolderview.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
-#include "llloadingindicator.h"
 #include "llmarketplacefunctions.h"
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
@@ -96,15 +95,24 @@ LLFloaterOutbox::LLFloaterOutbox(const LLSD& key)
 
 LLFloaterOutbox::~LLFloaterOutbox()
 {
-//	delete mCategoriesObserver;
-//	delete mCategoryAddedObserver;
+	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
+	{
+		gInventory.removeObserver(mCategoriesObserver);
+	}
+	delete mCategoriesObserver;
+	
+	if (mCategoryAddedObserver && gInventory.containsObserver(mCategoryAddedObserver))
+	{
+		gInventory.removeObserver(mCategoryAddedObserver);
+	}
+	delete mCategoryAddedObserver;
 }
 
 BOOL LLFloaterOutbox::postBuild()
 {
 	mInventoryDisablePanel = getChild<LLView>("outbox_inventory_disable_panel");
 	mInventoryFolderCountText = getChild<LLTextBox>("outbox_folder_count");
-	mInventoryImportInProgress = getChild<LLLoadingIndicator>("import_progress_indicator");
+	mInventoryImportInProgress = getChild<LLView>("import_progress_indicator");
 	mInventoryPlaceholder = getChild<LLView>("outbox_inventory_placeholder_panel");
 	mInventoryText = mInventoryPlaceholder->getChild<LLTextBox>("outbox_inventory_placeholder_text");
 	mInventoryTitle = mInventoryPlaceholder->getChild<LLTextBox>("outbox_inventory_placeholder_title");
@@ -264,6 +272,11 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										std::string& tooltip_msg)
 {
 	// Pass drag and drop to this floater to the outbox inventory control
+	
+	if (LLMarketplaceInventoryImporter::getInstance()->isImportInProgress())
+	{
+		return FALSE;
+	}
 
 	S32 local_x = x - mOutboxInventoryPanel->getRect().mLeft;
 	S32 local_y = y - mOutboxInventoryPanel->getRect().mBottom;
@@ -317,11 +330,11 @@ void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
 {
 	if (status == MarketplaceErrorCodes::IMPORT_DONE)
 	{
-		LLNotificationsUtil::add("OutboxImportComplete", LLSD::emptyMap(), LLSD::emptyMap());
+		LLNotificationsUtil::add("OutboxImportComplete");
 	}
 	else if (status == MarketplaceErrorCodes::IMPORT_DONE_WITH_ERRORS)
 	{
-		LLNotificationsUtil::add("OutboxImportHadErrors", LLSD::emptyMap(), LLSD::emptyMap());
+		LLNotificationsUtil::add("OutboxImportHadErrors");
 	}
 	else
 	{
@@ -329,10 +342,10 @@ void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
 		sprintf(status_string, "%d", status);
 		
 		LLSD subs;
-		subs["ERROR_CODE"] = status_string;
+		subs["[ERROR_CODE]"] = status_string;
 		
 		//llassert(status == MarketplaceErrorCodes::IMPORT_JOB_FAILED);
-		LLNotificationsUtil::add("OutboxImportFailed", LLSD::emptyMap(), LLSD::emptyMap());
+		LLNotificationsUtil::add("OutboxImportFailed", subs);
 	}
 }
 
@@ -343,19 +356,14 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 		mImportButton->setEnabled(false);
 		
 		mInventoryDisablePanel->setVisible(true);
-
 		mInventoryImportInProgress->setVisible(true);
-		mInventoryImportInProgress->reset();
-		mInventoryImportInProgress->start();
 	}
 	else
 	{
-		mImportButton->setEnabled(mOutboxItemCount > 0);
-		
+		mInventoryImportInProgress->setVisible(false);
 		mInventoryDisablePanel->setVisible(false);
 
-		mInventoryImportInProgress->stop();
-		mInventoryImportInProgress->setVisible(false);
+		mImportButton->setEnabled(mOutboxItemCount > 0);
 	}
 }
 

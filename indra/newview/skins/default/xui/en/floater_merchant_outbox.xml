@@ -6,7 +6,7 @@
  height="440"
  help_topic="floater_merchant_outbox"
  min_width="300"
- min_height="240"
+ min_height="100"
  name="floater_merchant_outbox"
  save_rect="true"
  save_visibility="true"
@@ -49,7 +49,7 @@
 			<text
 				name="outbox_inventory_placeholder_title"
 				type="string"
-				follows="all"
+				follows="top|left|right"
 				layout="topleft"
 				top="10"
 				left="0"
@@ -63,7 +63,7 @@
 			<text
 				name="outbox_inventory_placeholder_text"
 				type="string"
-				follows="all"
+				follows="top|left|right"
 				layout="topleft"
 				top="35"
 				left="0"
@@ -73,27 +73,6 @@
 				halign="left" />
 		</panel>
     </panel>
-	<panel
-		name="outbox_inventory_disable_panel"
-        follows="all"
-        left="0"
-        bottom="440"
-        width="333"
-        top="0"
-        bg_opaque_color="White_50"
-        background_visible="true"
-        background_opaque="true"
-		visible="false"
-        />
-	<loading_indicator
-		 follows="all"
-		 height="65"
-		 layout="topleft"
-		 left="140"
-		 name="import_progress_indicator"
-		 top="180"
-		 visible="false"
-		 width="45" />
 	<panel
         follows="bottom|left|right"
         left="10"
@@ -116,7 +95,7 @@
 			wrap="true"
 			halign="left"
 			valign="baseline"
-			font="SansSerifBold" />
+			font="SansSerif" />
 		<button
 			 label="Send to Marketplace"
 			 tool_tip="Push to my Marketplace Storefront"
@@ -131,5 +110,36 @@
 			 width="200"
 			 enabled="false" />
     </panel>
+	<panel
+		name="outbox_inventory_disable_panel"
+        follows="all"
+        left="0"
+        bottom="440"
+        width="333"
+        top="0"
+        bg_opaque_color="White_50"
+        background_visible="true"
+        background_opaque="true"
+		visible="false"
+        />
+	<layout_stack name="import_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
+		<layout_panel />
+		<layout_panel height="45" auto_resize="false">
+			<layout_stack orientation="horizontal" left="0" height="45" top="0" width="333" follows="all">
+				<layout_panel width="0" />
+				<layout_panel width="45" auto_resize="false">
+					<loading_indicator
+						 height="45"
+						 layout="topleft"
+						 left="0"
+						 top="0"
+						 width="45"
+						 />
+				</layout_panel>
+				<layout_panel width="0" />
+			</layout_stack>
+		 </layout_panel>
+		 <layout_panel />
+	</layout_stack>
  </panel>
 </floater>

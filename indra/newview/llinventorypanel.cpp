@@ -1157,7 +1157,6 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 		LLViewerInventoryCategory * cat = gInventory.getCategory(obj_id);
 		
 		bool in_inbox = false;
-		bool in_outbox = false;
 		
 		LLViewerInventoryCategory * parent_cat = NULL;
 		
@@ -1173,10 +1172,9 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 		if (parent_cat)
 		{
 			in_inbox = (LLFolderType::FT_INBOX == parent_cat->getPreferredType());
-			in_outbox = (LLFolderType::FT_OUTBOX == parent_cat->getPreferredType());
 		}
 		
-		if (in_inbox || in_outbox)
+		if (in_inbox)
 		{
 			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 			LLInventoryPanel * inventory_panel = NULL;
@@ -1185,11 +1183,6 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 			{
 				sidepanel_inventory->openInbox();
 				inventory_panel = sidepanel_inventory->getInboxPanel();
-			}
-			else
-			{
-				sidepanel_inventory->openOutbox();
-				inventory_panel = sidepanel_inventory->getOutboxPanel();
 			}
 
 			if (inventory_panel)

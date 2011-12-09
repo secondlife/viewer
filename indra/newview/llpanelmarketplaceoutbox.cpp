@@ -84,6 +84,8 @@ BOOL LLPanelMarketplaceOutbox::postBuild()
 	return TRUE;
 }
 
+// DO WE NEED THIS FILE AT ALL?
+
 void LLPanelMarketplaceOutbox::handleLoginComplete()
 {
 	mImportButton = getChild<LLButton>("outbox_import_btn");
@@ -100,7 +102,7 @@ void LLPanelMarketplaceOutbox::onFocusReceived()
 	LLSidepanelInventory * sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (sidepanel_inventory)
 	{
-		sidepanel_inventory->clearSelections(true, true, false);
+		sidepanel_inventory->clearSelections(true, true);
 	}
 }
 

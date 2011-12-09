@@ -71,7 +71,7 @@
 #include "llwearablelist.h"
 
 // Marketplace outbox current disabled
-#define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1	// keep in sync with ENABLE_MERCHANT_OUTBOX_PANEL
+#define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
