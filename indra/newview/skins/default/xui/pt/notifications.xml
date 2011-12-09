@@ -973,7 +973,7 @@ Oferecer amizade para [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Remover [NAME] da sua lista de amigos?
+		Remover &lt;nolink&gt;[NAME]&lt;/nolink&gt; da sua lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Remover"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -2109,10 +2109,10 @@ Isso abrirá o seu navegador.
 		Assunto: [SUBJECT], Mensagem: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] está online
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está online
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] está offline
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Você é o máximo! Mesmo assim, não dá para adicionar a si mesmo(a) como amigo(a).
@@ -2501,10 +2501,10 @@ Cada um pode ver o status do outro (definição padrão).
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] aceitou seu convite de amizade.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; aceitou seu convite de amizade.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] recusou seu convite de amizade
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; recusou seu convite de amizade
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Oferta de amizada aceita.

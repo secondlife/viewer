@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Déplacer la caméra vers le haut et le bas, la gauche et la droite
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Modes
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Rotation - Zoom - Panoramique
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Préréglages
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Voir l&apos;objet
 	</floater.string>

@@ -11,7 +11,7 @@
   save_rect="true"
   reuse_instance="true"
   title="PLACES"
-  min_height="230"
+  min_height="440"
   min_width="333"
   width="333">
     <panel

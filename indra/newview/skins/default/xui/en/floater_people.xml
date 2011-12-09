@@ -26,10 +26,6 @@
         name="panel_people"
         filename="panel_people.xml"/>
       <panel
-        class="panel_profile_view"
-        name="panel_profile_view"
-        filename="panel_profile_view.xml"/>
-      <panel
         class="panel_group_info_sidetray"
         name="panel_group_info_sidetray"
         filename="panel_group_info_sidetray.xml"
