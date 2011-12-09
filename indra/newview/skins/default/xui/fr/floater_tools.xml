@@ -106,7 +106,7 @@
 		Aucune sélection effectuée.
 	</text>
 	<text name="remaining_capacity">
-		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights More info]
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Plus d'infos]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Général" name="General">
