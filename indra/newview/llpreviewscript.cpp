@@ -1108,19 +1108,12 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 void LLScriptEdCore::onBtnLoadFromFile( void* data )
 {
 	LLScriptEdCore* self = (LLScriptEdCore*) data;
-/*
-	if( self->isDirty())
-	{
-		llwarns << "Script has unsaved changes, loading from disc aborted." << llendl;
-		LLStringBase<char>::format_map_t args;
-		args["[REASON]"] = std::string("Existing script has unsaved changes. You must save this script before loading from disc.");
-		gViewerWindow->alertXml("LoadDiskScriptFailReason", args);		
-		return;
-	}
-*/
+
+	// TODO Maybe add a dialogue warning here if the current file has unsaved changes.
 	LLFilePicker& file_picker = LLFilePicker::instance();
 	if( !file_picker.getOpenFile( LLFilePicker::FFLOAD_SCRIPT ) )
 	{
+		//File picking cancelled by user, so nothing to do.
 		return;
 	}
 
@@ -1147,7 +1140,6 @@ void LLScriptEdCore::onBtnLoadFromFile( void* data )
 	{
 		self->mEditor->selectAll();
 		LLWString script(utf8str_to_wstring(text));
-		LLWStringUtil::replaceTabsWithSpaces(script, self->mEditor->spacesPerTab());
 		self->mEditor->insertText(script);
 	}
 }
@@ -1164,6 +1156,7 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 		LLFilePicker& file_picker = LLFilePicker::instance();
 		if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT ) )
 		{
+			//File picking cancelled by user, so nothing to do.
 			return;
 		}
 

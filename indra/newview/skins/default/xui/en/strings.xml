@@ -88,7 +88,7 @@ We are very sorry for the inconvenience.</string>
 Logins are currently restricted to employees only.
 Check www.secondlife.com/status for updates.</string>
 	<string name="LoginFailedPremiumOnly">Second Life logins are temporarily restricted in order to make sure that those in-world have the best possible experience.
-	 	
+
 People with free accounts will not be able to access Second Life during this time, to make room for those who have paid for Second Life.</string>
 	<string name="LoginFailedComputerProhibited">Second Life cannot be accessed from this computer.
 If you feel this is an error, please contact
@@ -168,7 +168,7 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxWorn">You are wearing one or more of these objects. Remove them from your avatar and try moving them again.</string>
 	<string name="TooltipOutboxFolderLevels">This folder has too many levels of subfolders. Rearrange the interior folders to a maximum of 4 levels deep (Root Folder contains A contains B contains C).</string>
 	<string name="TooltipOutboxTooManyObjects">This folder contains more than 200 objects. Box some of the items to reduce the object count.</string>
-	
+
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
@@ -188,7 +188,7 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
 	<string name="TooltipMapUrl">Click to view this location on a map</string>
 	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
-	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />	
+	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
 
 	<!-- text for SLURL labels -->
 	<string name="SLurlLabelTeleport">Teleport to</string>
@@ -427,7 +427,7 @@ Please try logging in again in a minute.</string>
 	<string name="compressed_image_files">Compressed Images</string>
 	<string name="load_files">Load Files</string>
 	<string name="choose_the_directory">Choose Directory</string>
-  <string name="script_files">Scripts</string>
+	<string name="script_files">Scripts</string>
 
   <!-- LSL Usage Hover Tips -->
   <!-- NOTE: For now these are set as translate="false", until DEV-40761 is implemented (to internationalize the rest of tooltips in the same window).
@@ -1951,7 +1951,7 @@ Returns a string with the requested data about the region
   <string name="physics">Physics</string>
   <string name="invalid">invalid</string>
   <string name="none">none</string>
-  
+
   <!-- Not Worn Wearable Types -->
 	<string name="shirt_not_worn">Shirt not worn</string>
 	<string name="pants_not_worn">Pants not worn</string>
@@ -1988,7 +1988,7 @@ Returns a string with the requested data about the region
 
   <!-- Wearable List-->
   <string name="NewWearable">New [WEARABLE_ITEM]</string>
-  
+
 	<!-- LLGroupNotify -->
 	<!-- used in the construction of a Group Notice blue dialog box, buttons, tooltip etc. Seems to be no longer utilized by code in Viewer 2.0 -->
 	<string name="next">Next</string>
@@ -2314,7 +2314,7 @@ Returns a string with the requested data about the region
 	<string name="ScriptLimitsRequestWrongRegion">Error: script information is only available in your current region</string>
 	<string name="ScriptLimitsRequestWaiting">Retrieving information...</string>
 	<string name="ScriptLimitsRequestDontOwnParcel">You do not have permission to examine this parcel</string>
-	
+
 	<string name="SITTING_ON">Sitting On</string>
 	<string name="ATTACH_CHEST">Chest</string>
 	<string name="ATTACH_HEAD">Head</string>
@@ -2354,7 +2354,7 @@ Returns a string with the requested data about the region
 	<string name="ATTACH_HUD_BOTTOM_LEFT">HUD Bottom Left</string>
 	<string name="ATTACH_HUD_BOTTOM">HUD Bottom</string>
 	<string name="ATTACH_HUD_BOTTOM_RIGHT">HUD Bottom Right</string>
-			
+
 	<!-- script editor -->
 	<string name="CursorPos">Line [LINE], Column [COLUMN]</string>
 
@@ -2367,7 +2367,7 @@ Returns a string with the requested data about the region
 
 	<!-- panel contents -->
 	<string name="PanelContentsTooltip">Content of object</string>
-	<string name="PanelContentsNewScript">New Script</string>	
+	<string name="PanelContentsNewScript">New Script</string>
 
   <!-- panel preferences general -->
   <string name="BusyModeResponseDefault">The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
@@ -2397,7 +2397,7 @@ Returns a string with the requested data about the region
 	<!-- panel classified -->
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
-  
+
   <!-- panel picks -->
   <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
   <string name="NoAvatarPicksClassifiedsText">User has no picks or classifieds</string>
@@ -3274,7 +3274,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     You have blocked this Resident. Sending a message will automatically unblock them.
   </string>
   <!--Some times string name is getting from the body of server response.
-  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3115 issue 'generic' is passed into the gIMMgr::showSessionStartError as a string name.
   Also there are some other places where "generic" is used.
   So, let add string with name="generic" with the same value as "generic_request_error" -->
@@ -3300,7 +3300,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     You are not a session moderator.
   </string>
   <!--Some times string name is getting from the body of server response.
-  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3562 issue 'muted' is passed into the gIMMgr::showSessionStartError as a string name.
   So, let add string with name="muted" with the same value as "muted_error" -->
   <string name="muted">
@@ -3313,12 +3313,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Unable to add users to chat session with [RECIPIENT].
   </string>
   <!--Some times string name is getting from the body of server response.
-  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3562 issue 'message' is passed into the gIMMgr::showSessionStartError as a string name.
   So, let add string with name="message" with the same value as "message_session_event" -->
   <string name="message">
     Unable to send your message to the chat session with [RECIPIENT].
-  </string>  
+  </string>
   <string name="message_session_event">
     Unable to send your message to the chat session with [RECIPIENT].
   </string>
@@ -3326,7 +3326,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
     Error while moderating.
   </string>
   <!--Some times string name is getting from the body of server response.
-  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post. 
+  For ex.: from gIMMgr::showSessionStartError in the LLViewerChatterBoxSessionStartReply::post.
   In case of the EXT-3459 issue 'removed' is passed into the gIMMgr::showSessionStartError as a string name.
   So, let add string with name="removed" with the same value as "removed_from_group" -->
   <string name="removed">
@@ -3347,9 +3347,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="session_initialization_timed_out_error">
 		The session initialization is timed out
 	</string>
-  
+
   <string name="Home position set.">Home position set.</string>
-  
+
   <string name="voice_morphing_url">http://secondlife.com/landing/voicemorphing</string>
 
   <!-- Financial operations strings -->
@@ -3367,20 +3367,20 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="to join a group">to join a group</string>
   <string name="to upload">to upload</string>
   <string name="to publish a classified ad">to publish a classified ad</string>
-  
+
   <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
   <string name="this_costs">This costs L$ [AMOUNT]</string>
   <string name="buying_selected_land">Buying selected land for L$ [AMOUNT]</string>
   <string name="this_object_costs">This object costs L$ [AMOUNT]</string>
-  
+
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
   <string name="group_role_owners">Owners</string>
   <string name="group_member_status_online">Online</string>
 
   <string name="uploading_abuse_report">Uploading...
-  
+
 Abuse Report</string>
 
   <!-- names for new inventory items-->
@@ -3474,23 +3474,23 @@ Abuse Report</string>
 
   <!-- birth date format shared by avatar inspector and profile panels -->
   <string name="AvatarBirthDateFormat">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]</string>
-  
+
   <string name="DefaultMimeType">none/none</string>
   <string name="texture_load_dimensions_error">Can't load images larger than [WIDTH]*[HEIGHT]</string>
 
   <!-- language specific white-space characters, delimiters, spacers, item separation symbols -->
   <string name="sentences_separator" value=" "></string>
   <string name="words_separator" value=", "/>
-  
+
   <string name="server_is_down">
 	Despite our best efforts, something unexpected has gone wrong.
 
-	Please check status.secondlifegrid.net to see if there is a known problem with the service.  
+	Please check status.secondlifegrid.net to see if there is a known problem with the service.
         If you continue to experience problems, please check your network and firewall setup.
   </string>
 
-  <!-- overriding datetime formating. 
-	didn't translate if this is not needed for current localization 
+  <!-- overriding datetime formating.
+	didn't translate if this is not needed for current localization
   -->
   <string name="dateTimeWeekdaysNames">Sunday:Monday:Tuesday:Wednesday:Thursday:Friday:Saturday</string>
   <string name="dateTimeWeekdaysShortNames">Sun:Mon:Tue:Wed:Thu:Fri:Sat</string>
@@ -3523,7 +3523,7 @@ Abuse Report</string>
   <string name="DeleteItem">Delete selected item?</string>
 
   <string name="EmptyOutfitText">There are no items in this outfit</string>
- 
+
  <!-- External editor status codes -->
  <string name="ExternalEditorNotSet">Select an editor using the ExternalEditor setting.</string>
  <string name="ExternalEditorNotFound">Cannot find the external editor you specified.
