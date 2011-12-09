@@ -926,7 +926,7 @@ U32 LLSidepanelInventory::getSelectedCount()
 	{
 		selection_list = mInventoryPanelInbox->getRootFolder()->getSelectionList();
 
-	count += selection_list.size();
+		count += selection_list.size();
 	}
 
 	if ((count == 0) && mOutboxEnabled && (mInventoryPanelOutbox != NULL))

@@ -31,7 +31,15 @@
 #include "llfloater.h"
 #include "llfoldertype.h"
 
+
+class LLButton;
+class LLInventoryCategoriesObserver;
+class LLInventoryCategoryAddedObserver;
 class LLInventoryPanel;
+class LLLoadingIndicator;
+class LLTextBox;
+class LLView;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterOutbox
@@ -42,15 +50,43 @@ class LLFloaterOutbox : public LLFloater
 public:
 	LLFloaterOutbox(const LLSD& key);
 	~LLFloaterOutbox();
+	
+	void setupOutbox(const LLUUID& outboxId);
 
+	// virtuals
 	BOOL postBuild();
+	void onOpen(const LLSD& key);
+	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+						   EDragAndDropType cargo_type,
+						   void* cargo_data,
+						   EAcceptance* accept,
+						   std::string& tooltip_msg);
 
-	// Inherited functionality
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ void onClose(bool app_quitting);
+protected:
+	void importReportResults(U32 status, const LLSD& content);
+	void importStatusChanged(bool inProgress);
+	
+	void onImportButtonClicked();
+	void onOutboxChanged();
+	
+	void updateView();
 
 private:
-	LLInventoryPanel* mPanelOutboxInventory;
+	LLInventoryCategoriesObserver *		mCategoriesObserver;
+	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
+
+	LLUUID				mOutboxId;
+	LLInventoryPanel *	mOutboxInventoryPanel;
+	U32					mOutboxItemCount;
+	
+	LLView *				mInventoryDisablePanel;
+	LLTextBox *				mInventoryFolderCountText;
+	LLLoadingIndicator *	mInventoryImportInProgress;
+	LLView *				mInventoryPlaceholder;
+	LLTextBox *				mInventoryText;
+	LLTextBox *				mInventoryTitle;
+	
+	LLButton *		mImportButton;
 };
 
 #endif // LL_LLFLOATEROUTBOX_H

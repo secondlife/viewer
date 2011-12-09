@@ -55,6 +55,7 @@ namespace LLMarketplaceImport
 
 	static std::string sMarketplaceCookie = "";
 	static bool sImportInProgress = false;
+	static bool sImportPostPending = false;
 	static bool sImportGetPending = false;
 	static U32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
@@ -106,6 +107,7 @@ namespace LLMarketplaceImport
 		void completed(U32 status, const std::string& reason, const LLSD& content)
 		{
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
+			sImportPostPending = false;
 			sImportResultStatus = status;
 		}
 	};
@@ -185,7 +187,7 @@ namespace LLMarketplaceImport
 	
 	bool resultPending()
 	{
-		return sImportGetPending;
+		return (sImportPostPending || sImportGetPending);
 	}
 	
 	U32 getResultStatus()
@@ -226,7 +228,8 @@ namespace LLMarketplaceImport
 	
 	void triggerImport()
 	{
-		sImportInProgress = true;		
+		sImportInProgress = true;
+		sImportPostPending = true;
 		sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
 		sImportResults = LLSD::emptyMap();
 

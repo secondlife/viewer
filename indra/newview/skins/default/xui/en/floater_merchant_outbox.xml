@@ -3,90 +3,33 @@
  open_positioning="cascading"
  can_close="true"
  can_resize="true"
- height="400"
+ height="440"
  help_topic="floater_merchant_outbox"
- min_width="333"
- min_height="440"
+ min_width="300"
+ min_height="240"
  name="floater_merchant_outbox"
  save_rect="true"
  save_visibility="true"
  reuse_instance="true"
  title="MERCHANT OUTBOX"
  width="333" >
+ <string name="OutboxFolderCount0">0 folders</string>
+ <string name="OutboxFolderCount1">1 folder</string>
+ <string name="OutboxFolderCountN">[NUM] folders</string>
  <panel
       follows="all"
       layout="topleft"
       left="0"
-      name="marketplace_outbox"
-      class="panel_marketplace_outbox"
       top="0"
       label=""
-      height="400"
-      width="330">
-     <string name="OutboxLabelWithArg">Merchant outbox ([NUM])</string>
-     <string name="OutboxLabelNoArg">Merchant outbox</string>
-     <button
-        label="Merchant outbox"
-        font="SansSerifMedium"
-        name="outbox_btn"
-        height="35"
-        width="308"
-        image_unselected="MarketplaceBtn_Off"
-        image_selected="MarketplaceBtn_Selected"
-        halign="left"
-        handle_right_mouse="false"
-        follows="top|left|right"
-        is_toggle="true"
-        tab_stop="false"
-        pad_left="35"
-        top="0"
-        left="10" />
-     <button
-         image_unselected="OutboxPush_Off"
-         image_selected="OutboxPush_Selected"
-         image_hover_selected="OutboxPush_Selected_Over"
-         image_hover_unselected="OutboxPush_Over"
-         image_disabled_selected="OutboxPush_Selected_Disabled"
-         image_disabled="OutboxPush_Disabled"
-         image_pressed="OutboxPush_Press"
-         image_pressed_selected="OutboxPush_Selected_Press"
-         label=""
-         tool_tip="Push to my Marketplace Storefront"
-         is_toggle="false"
-         name="outbox_sync_btn"
-         follows="top|right"
-         tab_stop="false"
-         halign="center"
-         top="6"
-         left="-50"
-         height="23"
-         width="32"
-         enabled="false" />
-     <loading_indicator
-        follows="top|right"
-        name="outbox_sync_indicator"
-        top="6"
-        left="-50"
-        height="23"
-        width="32"
-        images_per_sec="1.15"
-        tab_stop="false"
-        visible="false">
-         <images>
-             <image name="OutboxPush_Progress_1"/>
-             <image name="OutboxPush_Progress_2"/>
-             <image name="OutboxPush_Progress_3"/>
-             <image name="OutboxPush_Progress_4"/>
-             <image name="OutboxPush_Progress_5"/>
-             <image name="OutboxPush_Progress_6"/>
-         </images>
-     </loading_indicator>
+      height="440"
+      width="333">
      <panel
         follows="all"
         left="10"
         bottom="400"
-        width="308"
-        top="35"
+        width="313"
+        top="0"
         bg_opaque_color="InventoryBackgroundColor"
         background_visible="true"
         background_opaque="true"
@@ -98,7 +41,7 @@
 			top="0"
 			left="0"
 			width="308"
-			height="365"
+			height="400"
 			bg_opaque_color="InventoryBackgroundColor"
 			background_visible="true"
 			background_opaque="true"
@@ -129,6 +72,64 @@
 				wrap="true"
 				halign="left" />
 		</panel>
+    </panel>
+	<panel
+		name="outbox_inventory_disable_panel"
+        follows="all"
+        left="0"
+        bottom="440"
+        width="333"
+        top="0"
+        bg_opaque_color="White_50"
+        background_visible="true"
+        background_opaque="true"
+		visible="false"
+        />
+	<loading_indicator
+		 follows="all"
+		 height="65"
+		 layout="topleft"
+		 left="140"
+		 name="import_progress_indicator"
+		 top="180"
+		 visible="false"
+		 width="45" />
+	<panel
+        follows="bottom|left|right"
+        left="10"
+        bottom="435"
+        width="313"
+        top="405"
+        bg_opaque_color="InventoryBackgroundColor"
+        background_visible="true"
+        background_opaque="true"
+        >
+		<text
+			name="outbox_folder_count"
+			type="string"
+			follows="all"
+			layout="topleft"
+			top="7"
+			left="5"
+			width="100"
+			height="20"
+			wrap="true"
+			halign="left"
+			valign="baseline"
+			font="SansSerifBold" />
+		<button
+			 label="Send to Marketplace"
+			 tool_tip="Push to my Marketplace Storefront"
+			 is_toggle="false"
+			 name="outbox_import_btn"
+			 follows="bottom|right"
+			 tab_stop="false"
+			 halign="center"
+			 top="3"
+			 left="110"
+			 height="25"
+			 width="200"
+			 enabled="false" />
     </panel>
  </panel>
 </floater>
