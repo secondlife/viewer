@@ -48,6 +48,7 @@
 #include "llrootview.h"
 #include "llviewerchat.h"
 #include "llnearbychat.h"
+#include "lltranslate.h"
 
 #include "llresizehandle.h"
 
@@ -112,6 +113,12 @@ BOOL LLNearbyChatBar::postBuild()
 	return TRUE;
 }
 
+// virtual
+void LLNearbyChatBar::onOpen(const LLSD& key)
+{
+	enableTranslationCheckbox(LLTranslate::isTranslationConfigured());
+}
+
 bool LLNearbyChatBar::applyRectControl()
 {
 	bool rect_controlled = LLFloater::applyRectControl();
@@ -154,6 +161,11 @@ void LLNearbyChatBar::showHistory()
 	{
 		onToggleNearbyChatPanel();
 	}
+}
+
+void LLNearbyChatBar::enableTranslationCheckbox(BOOL enable)
+{
+	getChild<LLUICtrl>("translate_chat_checkbox")->setEnabled(enable);
 }
 
 void LLNearbyChatBar::draw()
