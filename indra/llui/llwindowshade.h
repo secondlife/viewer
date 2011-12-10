@@ -48,6 +48,8 @@ public:
 	void show();
 	/*virtual*/ void draw();
 	void hide();
+	
+	bool isShown() const;
 
 private:
 	friend class LLUICtrlFactory;

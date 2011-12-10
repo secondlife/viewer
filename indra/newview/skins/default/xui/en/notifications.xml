@@ -212,33 +212,44 @@ Save changes to current clothing/body part?
     </notification>
 
   <notification
-   icon="alertmodal.tga"
+   icon="OutboxStatus_Success"
    name="OutboxImportComplete"
-   type="alertmodal">
-Marketplace import complete.
+   type="outbox">
+Success
+
+All folders were successfully sent to the Marketplace.
+
         <usetemplate
          name="okbutton"
-         yestext="Hooray!"/>
+         yestext="OK"/>
   </notification>
 
   <notification
-   icon="alertmodal.tga"
+   icon="OutboxStatus_Warning"
    name="OutboxImportHadErrors"
-   type="alertmodal">
-Marketplace import completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
+   type="outbox">
+Some folders did not transfer
+
+Errors occurred when some folders were sent to the Marketplace.  Those folders are still in your Merchant Outbox.  See the error log for more information.
+
         <usetemplate
          name="okbutton"
-         yestext="Boo!"/>
+         yestext="OK"/>
   </notification>
 
   <notification
-   icon="alertmodal.tga"
+   icon="OutboxStatus_Error"
    name="OutboxImportFailed"
-   type="alertmodal">
-Marketplace import failed with error [ERROR_CODE]!  Please try again later.  Thanks.
+   type="outbox">
+Transfer failed
+
+No folders were sent to the Marketplace because of a system or network error.  Try again later.
+
+Error [ERROR_CODE]
+
         <usetemplate
          name="okbutton"
-         yestext="Rats!"/>
+         yestext="OK"/>
   </notification>
 
     

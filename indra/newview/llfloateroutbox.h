@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 #include "llfoldertype.h"
+#include "llnotificationptr.h"
 
 
 class LLButton;
@@ -37,8 +38,10 @@ class LLInventoryCategoriesObserver;
 class LLInventoryCategoryAddedObserver;
 class LLInventoryPanel;
 class LLLoadingIndicator;
+class LLNotification;
 class LLTextBox;
 class LLView;
+class LLWindowShade;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,12 +58,15 @@ public:
 
 	// virtuals
 	BOOL postBuild();
+	void onClose(bool app_quitting);
 	void onOpen(const LLSD& key);
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 						   EDragAndDropType cargo_type,
 						   void* cargo_data,
 						   EAcceptance* accept,
 						   std::string& tooltip_msg);
+	
+	void showNotification(LLNotificationPtr notify);
 
 protected:
 	void importReportResults(U32 status, const LLSD& content);
@@ -86,6 +92,8 @@ private:
 	LLTextBox *				mInventoryTitle;
 	
 	LLButton *		mImportButton;
+	
+	LLWindowShade *	mWindowShade;
 };
 
 #endif // LL_LLFLOATEROUTBOX_H

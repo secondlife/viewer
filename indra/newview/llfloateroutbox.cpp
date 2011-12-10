@@ -33,11 +33,32 @@
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llmarketplacefunctions.h"
+#include "llnotificationhandler.h"
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "lltransientfloatermgr.h"
 #include "lltrans.h"
 #include "llviewernetwork.h"
+#include "llwindowshade.h"
+
+
+///----------------------------------------------------------------------------
+/// LLOutboxNotification class
+///----------------------------------------------------------------------------
+
+bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLSD& notify)
+{
+	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+
+	if (notification)
+	{
+		LLFloaterOutbox* outbox_floater = LLFloaterReg::getTypedInstance<LLFloaterOutbox>("outbox");
+
+		outbox_floater->showNotification(notification);
+	}
+
+	return false;
+}
 
 
 ///----------------------------------------------------------------------------
@@ -89,6 +110,7 @@ LLFloaterOutbox::LLFloaterOutbox(const LLSD& key)
 	, mInventoryText(NULL)
 	, mInventoryTitle(NULL)
 	, mImportButton(NULL)
+	, mWindowShade(NULL)
 {
 }
 
@@ -119,6 +141,16 @@ BOOL LLFloaterOutbox::postBuild()
 	mImportButton->setCommitCallback(boost::bind(&LLFloaterOutbox::onImportButtonClicked, this));
 
 	return TRUE;
+}
+
+void LLFloaterOutbox::onClose(bool app_quitting)
+{
+	if (mWindowShade)
+	{
+		delete mWindowShade;
+
+		mWindowShade = NULL;
+	}
 }
 
 void LLFloaterOutbox::onOpen(const LLSD& key)
@@ -275,7 +307,8 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 {
 	// Pass drag and drop to this floater to the outbox inventory control
 	
-	if (LLMarketplaceInventoryImporter::getInstance()->isImportInProgress())
+	if (LLMarketplaceInventoryImporter::getInstance()->isImportInProgress() || 
+		(mWindowShade && mWindowShade->isShown()))
 	{
 		return FALSE;
 	}
@@ -367,5 +400,31 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 
 		mImportButton->setEnabled(mOutboxItemCount > 0);
 	}
+}
+
+void LLFloaterOutbox::showNotification(LLNotificationPtr notify)
+{
+	if (mWindowShade)
+	{
+		delete mWindowShade;
+	}
+	
+	LLRect floater_rect = getLocalRect();
+	floater_rect.mTop -= getHeaderHeight();
+	floater_rect.stretch(-5, 0);
+	
+	LLWindowShade::Params params;
+	params.name = "notification_shade";
+	params.rect = floater_rect;
+	params.follows.flags = FOLLOWS_ALL;
+	params.notification = notify;
+	params.modal = true;
+	params.can_close = false;
+	params.text_color = LLColor4::white;
+	
+	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
+	
+	addChild(mWindowShade);
+	mWindowShade->show();
 }
 

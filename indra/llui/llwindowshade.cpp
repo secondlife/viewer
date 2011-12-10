@@ -297,6 +297,11 @@ void LLWindowShade::hide()
 	setMouseOpaque(false);
 }
 
+bool LLWindowShade::isShown() const
+{
+	return getChildRef<LLLayoutPanel>("notification_area").getVisible();
+}
+
 void LLWindowShade::onCloseNotification()
 {
 	LLNotifications::instance().cancel(mNotification);
