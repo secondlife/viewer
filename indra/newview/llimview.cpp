@@ -2450,7 +2450,7 @@ void LLIMMgr::addMessage(
 			llwarns << "Leaving IM session from initiating muted resident " << from << llendl;
 			if(!gIMMgr->leaveSession(new_session_id))
 			{
-				llwarns << "Session " << new_session_id << " does not exist." << llendl;
+				llinfos << "Session " << new_session_id << " does not exist." << llendl;
 			}
 			return;
 		}
@@ -2673,6 +2673,9 @@ void LLIMMgr::inviteToSession(
 
 	BOOL ad_hoc_invite = FALSE;
 	BOOL voice_invite = FALSE;
+	bool is_linden = LLMuteList::getInstance()->isLinden(caller_name);
+
+
 	if(type == IM_SESSION_P2P_INVITE)
 	{
 		//P2P is different...they only have voice invitations
@@ -2715,15 +2718,15 @@ void LLIMMgr::inviteToSession(
 	if (voice_invite &&
 		"VoiceInviteQuestionDefault" == question_type &&
 		LLMuteList::getInstance()->isMuted(caller_id) &&
-		!LLMuteList::getInstance()->isLinden(caller_name))
+		!is_linden)
 	{
-		llwarns << "Rejecting voice call from initiating muted resident " << caller_name << llendl;
+		llinfos << "Rejecting voice call from initiating muted resident " << caller_name << llendl;
 		LLIncomingCallDialog::processCallResponse(1, payload);
 		return;
 	}
 
 	//ignore invites from muted residents
-	if (LLMuteList::getInstance()->isMuted(caller_id))
+	if (LLMuteList::getInstance()->isMuted(caller_id) && !is_linden)
 	{
 		return;
 	}
