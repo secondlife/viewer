@@ -10367,39 +10367,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>  
-    <key>SnapshotLocalLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next local snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>SnapshotProfileLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next profile snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>SnapshotPostcardLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next postcard snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SnapshotQuality</key>
     <map>
       <key>Comment</key>
@@ -10432,17 +10399,6 @@
       <string>String</string>
       <key>Value</key>
       <string>http://photos.apps.staging.avatarsunited.com/viewer_config</string>
-    </map>
-    <key>SnapshotTextureLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next texture snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>SpeedTest</key>
     <map>

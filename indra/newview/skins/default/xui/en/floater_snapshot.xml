@@ -34,7 +34,7 @@
     </string>
  	<string
  	 name="profile_succeeded_str">
- 	    Profile feed updated!
+ 	    Image uploaded
  	</string>
  	<string
  	 name="postcard_succeeded_str">
@@ -50,7 +50,7 @@
  	</string>
  	<string
  	 name="profile_failed_str">
- 	    Failed to update your Profile Feed.
+ 	    Failed to upload image to your Profile Feed.
  	</string>
  	<string
  	 name="postcard_failed_str">
