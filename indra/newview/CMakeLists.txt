@@ -13,6 +13,7 @@ include(EXPAT)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
+include(Havok)
 include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
@@ -23,6 +24,7 @@ include(LLImageJ2COJ)
 include(LLInventory)
 include(LLMath)
 include(LLMessage)
+include(LLPathingLib)
 include(LLPlugin)
 include(LLPrimitive)
 include(LLRender)
@@ -52,6 +54,7 @@ include_directories(
     ${LLCHARACTER_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCONVEXDECOMP_INCLUDE_DIRS}
+    ${LLPATHING_INCLUDE_DIRS}
     ${FMOD_INCLUDE_DIR}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLKDU_INCLUDE_DIRS}
@@ -1739,6 +1742,8 @@ endif (WINDOWS)
 # To work around this, higher level modules should be listed before the modules
 # that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
+    ${LLPATHING_LIBRARIES}
+    ${HK_LIBRARIES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
