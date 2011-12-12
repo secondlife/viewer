@@ -2714,20 +2714,15 @@ void LLIMMgr::inviteToSession(
 	payload["session_uri"] = session_uri;
 	payload["notify_box_type"] = notify_box_type;
 	payload["question_type"] = question_type;
-	
-	if (voice_invite &&
-		"VoiceInviteQuestionDefault" == question_type &&
-		LLMuteList::getInstance()->isMuted(caller_id) &&
-		!is_linden)
-	{
-		llinfos << "Rejecting voice call from initiating muted resident " << caller_name << llendl;
-		LLIncomingCallDialog::processCallResponse(1, payload);
-		return;
-	}
 
 	//ignore invites from muted residents
 	if (LLMuteList::getInstance()->isMuted(caller_id) && !is_linden)
 	{
+		if (voice_invite && "VoiceInviteQuestionDefault" == question_type)
+		{
+			llinfos << "Rejecting voice call from initiating muted resident " << caller_name << llendl;
+			LLIncomingCallDialog::processCallResponse(1, payload);
+		}
 		return;
 	}
 
