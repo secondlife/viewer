@@ -37,7 +37,8 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<LLUIImage*>			bg_image;
-		Optional<LLUIColor>				text_color;
+		Optional<LLUIColor>				text_color,
+										shade_color;
 		Optional<bool>					modal,
 										can_close;
 

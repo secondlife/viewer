@@ -43,6 +43,7 @@ LLWindowShade::Params::Params()
 :	bg_image("bg_image"),
 	modal("modal", false),
 	text_color("text_color"),
+	shade_color("shade_color"),
 	can_close("can_close", true)
 {
 	changeDefault(mouse_opaque, false);
@@ -90,7 +91,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	panel_p.name = "background_area";
 	panel_p.mouse_opaque = false;
 	panel_p.background_visible = false;
-	panel_p.bg_alpha_color = LLColor4(0.f, 0.f, 0.f, 0.2f);
+	panel_p.bg_alpha_color = params.shade_color;
 	LLLayoutPanel* dummy_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
 	stackp->addChild(dummy_panel);
 
