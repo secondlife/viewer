@@ -35,6 +35,7 @@
 // newview includes
 #include "llchiclet.h"
 #include "llimfloater.h" // for LLIMFloater
+#include "llpaneltopinfobar.h"
 #include "llsyswellwindow.h"
 
 namespace
@@ -180,6 +181,9 @@ BOOL LLChicletBar::postBuild()
 
 	showWellButton("im_well", !LLIMWellWindow::getInstance()->isWindowEmpty());
 	showWellButton("notification_well", !LLNotificationWellWindow::getInstance()->isWindowEmpty());
+
+	LLPanelTopInfoBar::instance().setResizeCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
+	LLPanelTopInfoBar::instance().setVisibleCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
 
 	return TRUE;
 }
@@ -337,4 +341,34 @@ S32 LLChicletBar::getChicletPanelShrinkHeadroom() const
 	S32 shrink_headroom = cur_width - min_width;
 	llassert(shrink_headroom >= 0); // the panel cannot get narrower than the minimum
 	return shrink_headroom;
+}
+
+void LLChicletBar::fitWithTopInfoBar()
+{
+	LLPanelTopInfoBar& top_info_bar = LLPanelTopInfoBar::instance();
+
+	LLRect rect = getRect();
+	S32 width = rect.getWidth();
+
+	if (top_info_bar.getVisible())
+	{
+		S32 delta = top_info_bar.calcScreenRect().mRight - calcScreenRect().mLeft;
+		if (delta < 0 && rect.mLeft < llabs(delta))
+			delta = -rect.mLeft;
+		rect.setLeftTopAndSize(rect.mLeft + delta, rect.mTop, rect.getWidth(), rect.getHeight());
+		width = rect.getWidth() - delta;
+	}
+	else
+	{
+		LLView* parent = getParent();
+		if (parent)
+		{
+			LLRect parent_rect = parent->getRect();
+			rect.setLeftTopAndSize(0, rect.mTop, rect.getWidth(), rect.getHeight());
+			width = parent_rect.getWidth();
+		}
+	}
+
+	setRect(rect);
+	LLPanel::reshape(width, rect.getHeight(), false);
 }

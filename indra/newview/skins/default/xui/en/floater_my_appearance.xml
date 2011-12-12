@@ -12,7 +12,7 @@
   single_instance="true"
   reuse_instance="true"
   title="APPEARANCE"
-  min_height="260"
+  min_height="440"
   min_width="333"
   width="333">
     <panel

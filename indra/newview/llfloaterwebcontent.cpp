@@ -142,6 +142,60 @@ bool LLFloaterWebContent::matchesKey(const LLSD& key)
 //static
 LLFloater* LLFloaterWebContent::create( Params p)
 {
+	preCreate(p);
+	return new LLFloaterWebContent(p);
+}
+
+//static
+void LLFloaterWebContent::closeRequest(const std::string &uuid)
+{
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
+	if (floaterp)
+	{
+		floaterp->closeFloater(false);
+	}
+}
+
+//static
+void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
+{
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
+	if (floaterp)
+	{
+		floaterp->geometryChanged(x, y, width, height);
+	}
+}
+
+void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
+{
+	// Make sure the layout of the browser control is updated, so this calculation is correct.
+	LLLayoutStack::updateClass();
+
+	// TODO: need to adjust size and constrain position to make sure floaters aren't moved outside the window view, etc.
+	LLCoordWindow window_size;
+	getWindow()->getSize(&window_size);
+
+	// Adjust width and height for the size of the chrome on the web Browser window.
+	LLRect browser_rect;
+	mWebBrowser->localRectToOtherView(mWebBrowser->getLocalRect(), &browser_rect, this);
+
+	S32 requested_browser_bottom = window_size.mY - (y + height);
+	LLRect geom;
+	geom.setOriginAndSize(x - browser_rect.mLeft, 
+						requested_browser_bottom - browser_rect.mBottom, 
+						width + getRect().getWidth() - browser_rect.getWidth(), 
+						height + getRect().getHeight() - browser_rect.getHeight());
+
+	lldebugs << "geometry change: " << geom << llendl;
+	
+	LLRect new_rect;
+	getParent()->screenRectToLocal(geom, &new_rect);
+	setShape(new_rect);	
+}
+
+// static
+void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
+{
 	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
 
 	if (!p.id.isProvided())
@@ -174,55 +228,6 @@ LLFloater* LLFloaterWebContent::create( Params p)
 			(*instances.begin())->closeFloater();
 		}
 	}
-
-	return new LLFloaterWebContent(p);
-}
-
-//static
-void LLFloaterWebContent::closeRequest(const std::string &uuid)
-{
-	LLFloaterWebContent* floaterp = getInstance(uuid);
-	if (floaterp)
-	{
-		floaterp->closeFloater(false);
-	}
-}
-
-//static
-void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
-{
-	LLFloaterWebContent* floaterp = getInstance(uuid);
-	if (floaterp)
-	{
-		floaterp->geometryChanged(x, y, width, height);
-	}
-}
-
-void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
-{
-	// Make sure the layout of the browser control is updated, so this calculation is correct.
-	LLLayoutStack::updateClass();
-
-	// TODO: need to adjust size and constrain position to make sure floaters aren't moved outside the window view, etc.
-	LLCoordWindow window_size;
-	getWindow()->getSize(&window_size);
-
-	// Adjust width and height for the size of the chrome on the web Browser window.
-	LLRect browser_rect;
-	mWebBrowser->localRectToOtherView(mWebBrowser->getLocalRect(), &browser_rect, this);
-
-	S32 requested_browser_bottom = window_size.mY - (y + height);
-	LLRect geom;
-	geom.setOriginAndSize(x - browser_rect.mLeft, 
-						requested_browser_bottom - browser_rect.mBottom, 
-						width + getRect().getWidth() - browser_rect.getWidth(), 
-						height + getRect().getHeight() - browser_rect.getHeight());
-
-	lldebugs << "geometry change: " << geom << llendl;
-	
-	LLRect new_rect;
-	getParent()->screenRectToLocal(geom, &new_rect);
-	setShape(new_rect);	
 }
 
 void LLFloaterWebContent::open_media(const Params& p)

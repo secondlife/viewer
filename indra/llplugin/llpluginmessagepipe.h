@@ -40,7 +40,7 @@ class LLPluginMessagePipeOwner
 	LOG_CLASS(LLPluginMessagePipeOwner);
 public:
 	LLPluginMessagePipeOwner();
-	~LLPluginMessagePipeOwner();
+	virtual ~LLPluginMessagePipeOwner();
 
 	// called with incoming messages
 	virtual void receiveMessageRaw(const std::string &message) = 0;

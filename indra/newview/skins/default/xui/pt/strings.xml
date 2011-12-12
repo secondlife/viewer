@@ -547,6 +547,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="mesh">
 		mesh
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Edição Aparência)
+	</string>
 	<string name="AvatarAway">
 		Distante
 	</string>

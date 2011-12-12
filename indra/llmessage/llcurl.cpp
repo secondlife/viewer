@@ -585,30 +585,37 @@ void LLCurl::Multi::unlock()
 
 void LLCurl::Multi::markDead()
 {
-	LLMutexLock lock(mDeletionMutexp) ;
-	
+	if(mDeletionMutexp)
+	{
+		mDeletionMutexp->lock() ;
+	}
+
 	mDead = TRUE ;
+
+	if(mDeletionMutexp)
+	{
+		mDeletionMutexp->unlock() ;
+	}
 }
 
 void LLCurl::Multi::setState(LLCurl::Multi::ePerformState state)
 {
-	LLMutexLock lock(mMutexp) ;
-
+	lock() ;
 	mState = state ;
 	if(mState == STATE_READY)
 	{
 		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_NORMAL) ;
 	}
+	unlock() ;
 }
 
 LLCurl::Multi::ePerformState LLCurl::Multi::getState()
 {
 	ePerformState state ;
 
-	{
-		LLMutexLock lock(mMutexp) ;
-		state = mState ;
-	}
+	lock() ;
+	state = mState ;
+	unlock() ;
 
 	return state ;
 }
@@ -628,15 +635,13 @@ bool LLCurl::Multi::waitToComplete()
 
 	bool completed ;
 
+	lock() ;
+	completed = (STATE_COMPLETED == mState) ;
+	if(!completed)
 	{
-		LLMutexLock lock(mMutexp) ;
-
-		completed = (STATE_COMPLETED == mState) ;
-		if(!completed)
-		{
-			LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_URGENT) ;
-		}
+		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_URGENT) ;
 	}
+	unlock() ;
 
 	return completed;
 }
@@ -650,8 +655,10 @@ CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 //return true if dead
 bool LLCurl::Multi::doPerform()
 {
-	LLMutexLock lock(mDeletionMutexp) ;
-	
+	if(mDeletionMutexp)
+	{
+		mDeletionMutexp->lock() ;
+	}
 	bool dead = mDead ;
 
 	if(mDead)
@@ -668,8 +675,6 @@ bool LLCurl::Multi::doPerform()
 				call_count < MULTI_PERFORM_CALL_REPEAT;
 				call_count++)
 		{
-			LLMutexLock lock(mMutexp) ;
-
 			CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
 			if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
 			{
@@ -681,6 +686,11 @@ bool LLCurl::Multi::doPerform()
 
 		mQueued = q;	
 		setState(STATE_COMPLETED) ;
+	}
+
+	if(mDeletionMutexp)
+	{
+		mDeletionMutexp->unlock() ;
 	}
 
 	return dead ;
@@ -754,8 +764,6 @@ LLCurl::Easy* LLCurl::Multi::allocEasy()
 
 bool LLCurl::Multi::addEasy(Easy* easy)
 {
-	LLMutexLock lock(mMutexp) ;
-
 	CURLMcode mcode = curl_multi_add_handle(mCurlMultiHandle, easy->getCurlHandle());
 	check_curl_multi_code(mcode);
 	//if (mcode != CURLM_OK)
@@ -768,8 +776,6 @@ bool LLCurl::Multi::addEasy(Easy* easy)
 
 void LLCurl::Multi::easyFree(Easy* easy)
 {
-	LLMutexLock lock(mMutexp) ;
-
 	mEasyActiveList.erase(easy);
 	mEasyActiveMap.erase(easy->getCurlHandle());
 	if (mEasyFreeList.size() < EASY_HANDLE_POOL_SIZE)
@@ -785,8 +791,6 @@ void LLCurl::Multi::easyFree(Easy* easy)
 
 void LLCurl::Multi::removeEasy(Easy* easy)
 {
-	LLMutexLock lock(mMutexp) ;
-
 	check_curl_multi_code(curl_multi_remove_handle(mCurlMultiHandle, easy->getCurlHandle()));
 	easyFree(easy);
 }

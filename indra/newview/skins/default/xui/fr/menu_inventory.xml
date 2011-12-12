@@ -71,7 +71,7 @@
 	<menu_item_call label="Jouer dans Second Life" name="Animation Play"/>
 	<menu_item_call label="Jouer localement" name="Animation Audition"/>
 	<menu_item_call label="Envoyer un message instantané" name="Send Instant Message"/>
-	<menu_item_call label="Offrir de téléporter..." name="Offer Teleport..."/>
+	<menu_item_call label="Proposer une téléportation..." name="Offer Teleport..."/>
 	<menu_item_call label="Démarrer le chat conférence" name="Conference Chat"/>
 	<menu_item_call label="Activer" name="Activate"/>
 	<menu_item_call label="Désactiver" name="Deactivate"/>

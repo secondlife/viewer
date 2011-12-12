@@ -13,10 +13,10 @@
 	</layout_stack>
 	<layout_stack name="media_controls">
 		<layout_panel name="back">
-			<button name="back_btn" tool_tip="Naviguer en arrière"/>
+			<button name="back_btn" tool_tip="Précédente"/>
 		</layout_panel>
 		<layout_panel name="fwd">
-			<button name="fwd_btn" tool_tip="Naviguer vers l&apos;avant"/>
+			<button name="fwd_btn" tool_tip="Suivante"/>
 		</layout_panel>
 		<layout_panel name="home">
 			<button name="home_btn" tool_tip="Page d&apos;accueil"/>
@@ -34,7 +34,7 @@
 			<button name="play_btn" tool_tip="Lire le média"/>
 		</layout_panel>
 		<layout_panel name="pause">
-			<button name="pause_btn" tool_tip="Pauser le média"/>
+			<button name="pause_btn" tool_tip="Mettre le média sur pause"/>
 		</layout_panel>
 		<layout_panel name="media_address">
 			<line_editor name="media_address_url" tool_tip="URL du média"/>
@@ -48,7 +48,7 @@
 			</layout_stack>
 		</layout_panel>
 		<layout_panel name="media_play_position">
-			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Progrès de la lecture du film"/>
+			<slider_bar initial_value="0.5" name="media_play_slider" tool_tip="Progression de la lecture du film"/>
 		</layout_panel>
 		<layout_panel name="skip_back">
 			<button name="skip_back_btn" tool_tip="Reculer"/>

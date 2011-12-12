@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Muovi la telecamera su e giù e a sinistra e destra
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Modalità della fotocamera
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Ruota visuale - Ingrandisci - Panoramica
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Visuali predefinite
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Vedi oggetto
 	</floater.string>

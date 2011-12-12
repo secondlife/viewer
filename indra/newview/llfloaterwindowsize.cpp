@@ -58,33 +58,12 @@ bool extractWindowSizeFromString(const std::string& instr, U32 *width, U32 *heig
 }
 
 
-///----------------------------------------------------------------------------
-/// Class LLFloaterWindowSize
-///----------------------------------------------------------------------------
-class LLFloaterWindowSize
-:	public LLFloater
-{
-	friend class LLFloaterReg;
-private:
-	LLFloaterWindowSize(const LLSD& key);
-	virtual ~LLFloaterWindowSize();
-
-public:
-	/*virtual*/ BOOL postBuild();
-	void initWindowSizeControls();
-	void onClickSet();
-	void onClickCancel();
-};
-
-
 LLFloaterWindowSize::LLFloaterWindowSize(const LLSD& key) 
 :	LLFloater(key)
-{
-}
+{}
 
 LLFloaterWindowSize::~LLFloaterWindowSize()
-{
-}
+{}
 
 BOOL LLFloaterWindowSize::postBuild()
 {
@@ -144,14 +123,4 @@ void LLFloaterWindowSize::onClickSet()
 void LLFloaterWindowSize::onClickCancel()
 {
 	closeFloater();
-}
-
-///----------------------------------------------------------------------------
-/// LLFloaterWindowSizeUtil
-///----------------------------------------------------------------------------
-void LLFloaterWindowSizeUtil::registerFloater()
-{
-	LLFloaterReg::add("window_size", "floater_window_size.xml",
-		&LLFloaterReg::build<LLFloaterWindowSize>);
-
 }

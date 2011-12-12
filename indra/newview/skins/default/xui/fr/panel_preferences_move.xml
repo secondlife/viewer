@@ -24,16 +24,16 @@
 		Clic simple sur le terrain :
 	</text>
 	<combo_box name="single_click_action_combo">
-		<combo_box.item label="Pas d&apos;action" name="0"/>
-		<combo_box.item label="Bouger vers le point cliqué" name="1"/>
+		<combo_box.item label="Aucune action" name="0"/>
+		<combo_box.item label="Déplacement vers le clic" name="1"/>
 	</combo_box>
 	<text name="double_click_action_lbl">
 		Double-clic sur le terrain :
 	</text>
 	<combo_box name="double_click_action_combo">
-		<combo_box.item label="Pas d&apos;action" name="0"/>
-		<combo_box.item label="Bouger vers le point cliqué" name="1"/>
-		<combo_box.item label="Téléporter vers le point cliqué" name="2"/>
+		<combo_box.item label="Aucune action" name="0"/>
+		<combo_box.item label="Déplacement vers le double clic" name="1"/>
+		<combo_box.item label="Téléportation vers le double clic" name="2"/>
 	</combo_box>
 	<button label="Autres accessoires" name="joystick_setup_button"/>
 </panel>

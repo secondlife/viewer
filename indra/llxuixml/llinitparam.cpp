@@ -40,7 +40,7 @@ namespace LLInitParam
 	{
 		const U8* my_addr = reinterpret_cast<const U8*>(this);
 		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
-		mEnclosingBlockOffset = 0x7FFFffff & ((U32)(my_addr - block_addr));
+		mEnclosingBlockOffset = 0x7FFFffff & (U32)(my_addr - block_addr);
 	}
 
 	//
@@ -116,16 +116,6 @@ namespace LLInitParam
 	:	mMaxParamOffset(0),
 		mInitializationState(UNINITIALIZED),
 		mCurrentBlockPtr(NULL)
-	{}
-
-	//
-	// BaseBlock
-	//
-	BaseBlock::BaseBlock()
-	:	mChangeVersion(0)
-	{}
-
-	BaseBlock::~BaseBlock()
 	{}
 
 	// called by each derived class in least to most derived order
@@ -427,14 +417,6 @@ namespace LLInitParam
 		}
 	}
 
-	void BaseBlock::paramChanged(const Param& changed_param, bool user_provided)
-	{ 
-		if (user_provided)
-		{
-			mChangeVersion++;
-		}
-	}
-
 	const std::string& BaseBlock::getParamName(const BlockDescriptor& block_data, const Param* paramp) const
 	{
 		param_handle_t handle = getHandleFromParam(paramp);
@@ -478,6 +460,7 @@ namespace LLInitParam
 			if (merge_func)
 			{
 				Param* paramp = getParamFromHandle((*it)->mParamHandle);
+				llassert(paramp->mEnclosingBlockOffset == (*it)->mParamHandle);
 				some_param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}

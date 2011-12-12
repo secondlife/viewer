@@ -72,7 +72,8 @@ public:
 	virtual BOOL getSize(LLCoordScreen *size) = 0;
 	virtual BOOL getSize(LLCoordWindow *size) = 0;
 	virtual BOOL setPosition(LLCoordScreen position) = 0;
-	virtual BOOL setSize(LLCoordScreen size) = 0;
+	BOOL setSize(LLCoordScreen size);
+	virtual void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
 	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) = 0;
 	virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
@@ -170,6 +171,8 @@ protected:
 	// Defaults to true
 	virtual BOOL canDelete();
 
+	virtual BOOL setSizeImpl(LLCoordScreen size) = 0;
+
 protected:
 	LLWindowCallbacks*	mCallbacks;
 
@@ -190,6 +193,8 @@ protected:
 	BOOL		mHideCursorPermanent;
 	U32			mFlags;
 	U16			mHighSurrogate;
+	S32			mMinWindowWidth;
+	S32			mMinWindowHeight;
 
  	// Handle a UTF-16 encoding unit received from keyboard.
  	// Converting the series of UTF-16 encoding units to UTF-32 data,

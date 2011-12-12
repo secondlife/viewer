@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Poruszaj kamerą w dół/górę oraz w prawo/lewo
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Ustawienia
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		W prawo lub w lewo
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Ustaw widok
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Zobacz obiekt
 	</floater.string>

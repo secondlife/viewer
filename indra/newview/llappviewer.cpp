@@ -2833,11 +2833,21 @@ bool LLAppViewer::initWindow()
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
-	gViewerWindow = new LLViewerWindow(gWindowTitle, 
-		VIEWER_WINDOW_CLASSNAME,
-		gSavedSettings.getS32("WindowX"), gSavedSettings.getS32("WindowY"),
-		gSavedSettings.getS32("WindowWidth"), gSavedSettings.getS32("WindowHeight"),
-		gSavedSettings.getBOOL("FullScreen"), ignorePixelDepth);
+
+	LLViewerWindow::Params window_params;
+	window_params
+		.title(gWindowTitle)
+		.name(VIEWER_WINDOW_CLASSNAME)
+		.x(gSavedSettings.getS32("WindowX"))
+		.y(gSavedSettings.getS32("WindowY"))
+		.width(gSavedSettings.getU32("WindowWidth"))
+		.height(gSavedSettings.getU32("WindowHeight"))
+		.min_width(gSavedSettings.getU32("MinWindowWidth"))
+		.min_height(gSavedSettings.getU32("MinWindowHeight"))
+		.fullscreen(gSavedSettings.getBOOL("FullScreen"))
+		.ignore_pixel_depth(ignorePixelDepth);
+
+	gViewerWindow = new LLViewerWindow(window_params);
 
 	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
 

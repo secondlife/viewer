@@ -7,7 +7,6 @@
  help_topic="voice_effects"
  title="VOICE MORPHING"
  background_visible="true"
- follows="all"
  label="Places"
  layout="topleft"
  min_height="360"
