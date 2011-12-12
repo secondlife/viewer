@@ -34,6 +34,10 @@
 #include <boost/signals2.hpp>
 
 #include "llsingleton.h"
+#include "llstring.h"
+
+
+LLStringUtil::format_map_t getMarketplaceStringSubstitutions();
 
 
 namespace MarketplaceErrorCodes

@@ -30,6 +30,7 @@
 
 #include "llagent.h"
 #include "llhttpclient.h"
+#include "lltrans.h"
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 
@@ -37,6 +38,59 @@
 //
 // Helpers
 //
+
+static std::string getMarketplaceDomain()
+{
+	std::string domain = "secondlife.com";
+	
+	if (!LLGridManager::getInstance()->isInProductionGrid())
+	{
+		const std::string& grid_label = LLGridManager::getInstance()->getGridLabel();
+		const std::string& grid_label_lower = utf8str_tolower(grid_label);
+		
+		if (grid_label_lower == "damballah")
+		{
+			domain = "secondlife-staging.com";
+		}
+		else
+		{
+			domain = llformat("%s.lindenlab.com", grid_label_lower.c_str());
+		}
+	}
+	
+	return domain;
+}
+
+static std::string getMarketplaceURL(const std::string& urlStringName)
+{
+	LLStringUtil::format_map_t domain_arg;
+	domain_arg["[MARKETPLACE_DOMAIN_NAME]"] = getMarketplaceDomain();
+	
+	std::string marketplace_url = LLTrans::getString(urlStringName, domain_arg);
+	
+	return marketplace_url;
+}
+
+LLStringUtil::format_map_t getMarketplaceStringSubstitutions()
+{
+	std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
+	std::string marketplace_url_create = getMarketplaceURL("MarketplaceURL_CreateStore");
+	std::string marketplace_url_dashboard = getMarketplaceURL("MarketplaceURL_Dashboard");
+	std::string marketplace_url_info = getMarketplaceURL("MarketplaceURL_LearnMore");
+	
+	LLStringUtil::format_map_t agent_map;
+	agent_map["[AGENT_ID]"] = gAgent.getID().getString();
+	
+	LLStringUtil::format(marketplace_url_dashboard, agent_map);
+	
+	LLStringUtil::format_map_t marketplace_sub_map;
+	marketplace_sub_map["[MARKETPLACE_URL]"] = marketplace_url;
+	marketplace_sub_map["[MARKETPLACE_CREATE_STORE_URL]"] = marketplace_url_create;
+	marketplace_sub_map["[MARKETPLACE_LEARN_MORE_URL]"] = marketplace_url_info;
+	marketplace_sub_map["[MARKETPLACE_DASHBOARD_URL]"] = marketplace_url_dashboard;
+	
+	return marketplace_sub_map;
+}
 
 namespace LLMarketplaceImport
 {
@@ -60,42 +114,6 @@ namespace LLMarketplaceImport
 	static U32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
 		
-	
-	// Internal helper functions
-	
-	std::string getBaseURL()
-	{
-		std::string url = "https://marketplace.secondlife.com/";
-
-		if (!LLGridManager::getInstance()->isInProductionGrid())
-		{
-			std::string gridLabel = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
-			
-			if (gridLabel == "damballah")
-			{
-				url = "https://marketplace.secondlife-staging.com/";
-			}
-			else
-			{
-				url = llformat("https://marketplace.%s.lindenlab.com/", gridLabel.c_str());
-			}
-		}
-
-		url += "api/1/";
-		url += gAgent.getID().getString();
-		url += "/inventory/";
-
-		return url;
-	}
-
-	std::string getInventoryImportURL()
-	{
-		std::string url = getBaseURL();
-
-		url += "import/";
-
-		return url;
-	}
 	
 	// Responders
 	
@@ -198,6 +216,17 @@ namespace LLMarketplaceImport
 	const LLSD& getResults()
 	{
 		return sImportResults;
+	}
+	
+	static std::string getInventoryImportURL()
+	{
+		std::string url = getMarketplaceURL("MarketplaceURL");
+		
+		url += "api/1/";
+		url += gAgent.getID().getString();
+		url += "/inventory/import/";
+		
+		return url;
 	}
 	
 	void establishMarketplaceSessionCookie()

@@ -30,6 +30,7 @@
 
 #include "llfloaterreg.h"
 #include "llfolderview.h"
+#include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "llmarketplacefunctions.h"
@@ -139,6 +140,8 @@ BOOL LLFloaterOutbox::postBuild()
 	
 	mImportButton = getChild<LLButton>("outbox_import_btn");
 	mImportButton->setCommitCallback(boost::bind(&LLFloaterOutbox::onImportButtonClicked, this));
+	
+	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterOutbox::onFocusReceived, this));
 
 	return TRUE;
 }
@@ -187,10 +190,30 @@ void LLFloaterOutbox::onOpen(const LLSD& key)
 	}
 	
 	updateView();
+	
+	//
+	// Trigger fetch of outbox contents
+	//
+	
+	fetchOutboxContents();
+}
+
+void LLFloaterOutbox::onFocusReceived()
+{
+	fetchOutboxContents();
+}
+
+void LLFloaterOutbox::fetchOutboxContents()
+{
+	if (mOutboxId.notNull())
+	{
+		LLInventoryModelBackgroundFetch::instance().start(mOutboxId);
+	}
 }
 
 void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
-{	
+{
+	llassert(outboxId.notNull());
 	llassert(mOutboxId.isNull());
 	llassert(mCategoriesObserver == NULL);
 	
@@ -228,15 +251,47 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	mOutboxInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
 	mOutboxInventoryPanel->getFilter()->markDefault();
 	
-	// Set selection callback for proper update of inventory status buttons
-	//mOutboxInventoryPanel->setSelectCallback(boost::bind(&LLPanelMarketplaceOutbox::onSelectionChange, this));
+	fetchOutboxContents();
+}
+
+void LLFloaterOutbox::updateItemCount()
+{
+	S32 item_count = 0;
+
+	if (mOutboxId.notNull())
+	{
+		LLInventoryModel::cat_array_t * cats;
+		LLInventoryModel::item_array_t * items;
+		gInventory.getDirectDescendentsOf(mOutboxId, cats, items);
+
+		item_count = cats->count() + items->count();
+	}
 	
-	// Set up the note to display when the outbox is empty
-	mOutboxInventoryPanel->getFilter()->setEmptyLookupMessage("InventoryOutboxNoItems");
+	mOutboxItemCount = item_count;
+
+	switch (mOutboxItemCount)
+	{
+		case 0:	mInventoryFolderCountText->setText(getString("OutboxFolderCount0"));	break;
+		case 1:	mInventoryFolderCountText->setText(getString("OutboxFolderCount1"));	break;
+		default:
+		{
+			std::string item_count_str = llformat("%d", mOutboxItemCount);
+			
+			LLStringUtil::format_map_t args;
+			args["[NUM]"] = item_count_str;
+			
+			mInventoryFolderCountText->setText(getString("OutboxFolderCountN", args));
+			break;
+		}
+	}
+	
+	mImportButton->setEnabled(mOutboxItemCount > 0);
 }
 
 void LLFloaterOutbox::updateView()
 {
+	updateItemCount();
+
 	if (mOutboxItemCount > 0)
 	{
 		mOutboxInventoryPanel->setVisible(TRUE);
@@ -251,44 +306,17 @@ void LLFloaterOutbox::updateView()
 		std::string outbox_title;
 		std::string outbox_tooltip;
 		
+		LLStringUtil::format_map_t subs = getMarketplaceStringSubstitutions();
+		
 		if (mOutboxId.notNull())
 		{
-			outbox_text = LLTrans::getString("InventoryOutboxNoItems");
+			outbox_text = LLTrans::getString("InventoryOutboxNoItems", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxNoItemsTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxNoItemsTooltip");
 		}
 		else
 		{
-			//
-			// The string to become a merchant contains 3 URL's which need the domain name patched in.
-			//
-			
-			std::string domain = "secondlife.com";
-			
-			if (!LLGridManager::getInstance()->isInProductionGrid())
-			{
-				std::string gridLabel = LLGridManager::getInstance()->getGridLabel();
-				domain = llformat("%s.lindenlab.com", utf8str_tolower(gridLabel).c_str());
-			}
-			
-			LLStringUtil::format_map_t domain_arg;
-			domain_arg["[DOMAIN_NAME]"] = domain;
-			
-			std::string marketplace_url = LLTrans::getString("MarketplaceURL", domain_arg);
-			std::string marketplace_url_create = LLTrans::getString("MarketplaceURL_CreateStore", domain_arg);
-			std::string marketplace_url_info = LLTrans::getString("MarketplaceURL_LearnMore", domain_arg);
-			
-			LLStringUtil::format_map_t args1, args2, args3;
-			args1["[MARKETPLACE_URL]"] = marketplace_url;
-			args2["[LEARN_MORE_URL]"] = marketplace_url_info;
-			args3["[CREATE_STORE_URL]"] = marketplace_url_create;
-			
-			// NOTE: This is dumb, ridiculous and very finicky.  The order of these is very important
-			//       to have these three string substitutions work properly.
-			outbox_text = LLTrans::getString("InventoryOutboxNotMerchant", args1);
-			LLStringUtil::format(outbox_text, args2);
-			LLStringUtil::format(outbox_text, args3);
-			
+			outbox_text = LLTrans::getString("InventoryOutboxNotMerchant", subs);
 			outbox_title = LLTrans::getString("InventoryOutboxNotMerchantTitle");
 			outbox_tooltip = LLTrans::getString("InventoryOutboxNotMerchantTooltip");
 		}
@@ -306,7 +334,7 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										std::string& tooltip_msg)
 {
 	// Pass drag and drop to this floater to the outbox inventory control
-	
+
 	if (LLMarketplaceInventoryImporter::getInstance()->isImportInProgress() || 
 		(mWindowShade && mWindowShade->isShown()))
 	{
@@ -329,37 +357,8 @@ void LLFloaterOutbox::onImportButtonClicked()
 void LLFloaterOutbox::onOutboxChanged()
 {
 	llassert(!mOutboxId.isNull());
-	
-	U32 item_count = 0;
-	
-	const LLFolderViewFolder * outbox_folder = mOutboxInventoryPanel->getRootFolder();
-	
-	if (outbox_folder)
-	{
-		item_count += outbox_folder->getFoldersCount();
-		item_count += outbox_folder->getItemsCount();
-	}
-	
-	mOutboxItemCount = item_count;
 
-	switch (mOutboxItemCount)
-	{
-		case 0:	mInventoryFolderCountText->setText(getString("OutboxFolderCount0"));	break;
-		case 1:	mInventoryFolderCountText->setText(getString("OutboxFolderCount1"));	break;
-		default:
-		{
-			std::string item_count_str = llformat("%d", mOutboxItemCount);
-			
-			LLStringUtil::format_map_t args;
-			args["[NUM]"] = item_count_str;
-
-			mInventoryFolderCountText->setText(getString("OutboxFolderCountN", args));
-			break;
-		}
-	}
-
-	mImportButton->setEnabled(mOutboxItemCount > 0);
-
+	fetchOutboxContents();
 	updateView();
 }
 
@@ -384,6 +383,8 @@ void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
 		//llassert(status == MarketplaceErrorCodes::IMPORT_JOB_FAILED);
 		LLNotificationsUtil::add("OutboxImportFailed", subs);
 	}
+	
+	updateView();
 }
 
 void LLFloaterOutbox::importStatusChanged(bool inProgress)

@@ -58,8 +58,6 @@ public:
 
 	// virtuals
 	BOOL postBuild();
-	void onClose(bool app_quitting);
-	void onOpen(const LLSD& key);
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 						   EDragAndDropType cargo_type,
 						   void* cargo_data,
@@ -69,12 +67,20 @@ public:
 	void showNotification(LLNotificationPtr notify);
 
 protected:
+	void fetchOutboxContents();
+
 	void importReportResults(U32 status, const LLSD& content);
 	void importStatusChanged(bool inProgress);
 	
+	void onClose(bool app_quitting);
+	void onOpen(const LLSD& key);
+
+	void onFocusReceived();
+
 	void onImportButtonClicked();
 	void onOutboxChanged();
 	
+	void updateItemCount();
 	void updateView();
 
 private:
