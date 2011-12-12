@@ -2403,15 +2403,6 @@ void LLIMMgr::addMessage(
 	bool link_name) // If this is true, then we insert the name and link it to a profile
 {
 	LLUUID other_participant_id = target_id;
-
-	// don't process muted IMs
-	if (LLMuteList::getInstance()->isMuted(
-			other_participant_id,
-			LLMute::flagTextChat) && !LLMuteList::getInstance()->isLinden(from))
-	{
-		return;
-	}
-
 	LLUUID new_session_id = session_id;
 	if (new_session_id.isNull())
 	{
@@ -2452,10 +2443,25 @@ void LLIMMgr::addMessage(
 			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
 		}
 
+		// Logically it would make more sense to reject the session sooner, in another area of the
+		// code, but the session has to be established inside the server before it can be left.
+		if (LLMuteList::getInstance()->isMuted(other_participant_id) && !LLMuteList::getInstance()->isLinden(from))
+		{
+			llwarns << "Leaving IM session from initiating muted resident " << from << llendl;
+			if(!gIMMgr->leaveSession(new_session_id))
+			{
+				llwarns << "Session " << new_session_id << " does not exist." << llendl;
+			}
+			return;
+		}
+
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
+	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat))
+	{
+		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
+	}
 }
 
 void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& message_name, const LLSD& args)
@@ -2661,12 +2667,6 @@ void LLIMMgr::inviteToSession(
 	const std::string& session_handle,
 	const std::string& session_uri)
 {
-	//ignore invites from muted residents
-	if (LLMuteList::getInstance()->isMuted(caller_id))
-	{
-		return;
-	}
-
 	std::string notify_box_type;
 	// voice invite question is different from default only for group call (EXT-7118)
 	std::string question_type = "VoiceInviteQuestionDefault";
@@ -2712,6 +2712,22 @@ void LLIMMgr::inviteToSession(
 	payload["notify_box_type"] = notify_box_type;
 	payload["question_type"] = question_type;
 	
+	if (voice_invite &&
+		"VoiceInviteQuestionDefault" == question_type &&
+		LLMuteList::getInstance()->isMuted(caller_id) &&
+		!LLMuteList::getInstance()->isLinden(caller_name))
+	{
+		llwarns << "Rejecting voice call from initiating muted resident " << caller_name << llendl;
+		LLIncomingCallDialog::processCallResponse(1, payload);
+		return;
+	}
+
+	//ignore invites from muted residents
+	if (LLMuteList::getInstance()->isMuted(caller_id))
+	{
+		return;
+	}
+
 	LLVoiceChannel* channelp = LLVoiceChannel::getChannelByID(session_id);
 	if (channelp && channelp->callStarted())
 	{
@@ -3234,7 +3250,7 @@ public:
 			chat.mFromID = from_id;
 			chat.mFromName = name;
 
-			if (!is_linden && (is_busy || is_muted))
+			if (!is_linden && is_busy)
 			{
 				return;
 			}
@@ -3265,6 +3281,11 @@ public:
 				message_params["region_id"].asUUID(),
 				ll_vector3_from_sd(message_params["position"]),
 				true);
+
+			if (LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat))
+			{
+				return;
+			}
 
 			//K now we want to accept the invitation
 			std::string url = gAgent.getRegion()->getCapability(
