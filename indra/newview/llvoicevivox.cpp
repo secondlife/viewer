@@ -7019,7 +7019,6 @@ void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
-	parser = NULL;
 	parser = XML_ParserCreate(NULL);
 	
 	reset();

@@ -56,19 +56,6 @@ uniform float shadow_bias;
 
 uniform mat4 inv_proj;
 
-vec4 getPosition(vec2 pos_screen)
-{
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
-	vec2 sc = pos_screen.xy*2.0;
-	sc /= screen_res;
-	sc -= vec2(1.0,1.0);
-	vec4 ndc = vec4(sc.x, sc.y, 2.0*depth-1.0, 1.0);
-	vec4 pos = inv_proj * ndc;
-	pos.xyz /= pos.w;
-	pos.w = 1.0;
-	return pos;
-}
-
 float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl)
 {
 	stc.xyz /= stc.w;

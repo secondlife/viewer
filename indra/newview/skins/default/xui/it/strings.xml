@@ -592,6 +592,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="mesh">
 		reticolo
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Modifica Aspetto)
+	</string>
 	<string name="AvatarAway">
 		Assente
 	</string>

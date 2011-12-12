@@ -99,6 +99,12 @@ protected:
 	LLIconCtrl*		mSecureLockIcon;
 	LLTextBox*		mStatusBarText;
 	LLProgressBar*	mStatusBarProgress;
+
+	LLView*			mBtnBack;
+	LLView*			mBtnForward;
+	LLView*			mBtnReload;
+	LLView*			mBtnStop;
+
 	std::string		mCurrentURL;
 	std::string		mUUID;
 	bool			mShowPageTitle;

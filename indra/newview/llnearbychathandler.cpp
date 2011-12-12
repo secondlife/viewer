@@ -366,12 +366,15 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	if(mStopProcessing || isHovering())
 		return;
 
-	LLView* floater_snap_region = gViewerWindow->getRootView()->getChildView("floater_snap_region");
-
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = gViewerWindow->getRootView()->getChildView("floater_snap_region");
+	}
+	
 	if (!getParent())
 	{
 		// connect to floater snap region just to get resize events, we don't care about being a proper widget 
-		floater_snap_region->addChild(this);
+		mFloaterSnapRegion->addChild(this);
 		setFollows(FOLLOWS_ALL);
 	}
 
@@ -379,7 +382,7 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 	updateRect();
 
 	LLRect channel_rect;
-	floater_snap_region->localRectToOtherView(floater_snap_region->getLocalRect(), &channel_rect, gFloaterView);
+	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &channel_rect, gFloaterView);
 	channel_rect.mLeft += 10;
 	channel_rect.mRight = channel_rect.mLeft + 300;
 

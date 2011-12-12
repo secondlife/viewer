@@ -170,6 +170,7 @@ LLURLRequest::~LLURLRequest()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	delete mDetail;
+	mDetail = NULL ;
 }
 
 void LLURLRequest::setURL(const std::string& url)
@@ -344,7 +345,10 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
 		{
 			LLFastTimer t(FTM_URL_PERFORM);
-			mDetail->mCurlRequest->perform();
+			if(!mDetail->mCurlRequest->wait())
+			{
+				return status ;
+			}
 		}
 
 		while(1)

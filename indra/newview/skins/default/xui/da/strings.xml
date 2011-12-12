@@ -560,6 +560,9 @@ Prøv venligst om lidt igen.
 	<string name="mesh">
 		mesh
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Redigering Udseende)
+	</string>
 	<string name="AvatarAway">
 		Væk
 	</string>
