@@ -1810,7 +1810,7 @@
       <key>llpathinglib</key>
       <map>
         <key>license</key>
-     <string>llpathinglib</string>
+        <string>llpathinglib</string>
         <key>license_file</key>
         <string>LICENSES/llpathinglib.txt</string>
         <key>name</key>
@@ -1822,9 +1822,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7cc6478529a05410375bf9f26876f275</string>
+              <string>ce6c326d37c99a10a13a4de806205466</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/246536/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20111209.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/246580/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20111212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
