@@ -55,8 +55,22 @@ LLDebugView* gDebugView = NULL;
 static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
-:	LLView(p)
+:	LLView(p),
+	mFastTimerView(NULL),
+	mMemoryView(NULL),
+	mDebugConsolep(NULL),
+	mFloaterSnapRegion(NULL)
 {}
+
+LLDebugView::~LLDebugView()
+{
+	// These have already been deleted.  Fix the globals appropriately.
+	gDebugView = NULL;
+	gTextureView = NULL;
+	gSceneView = NULL;
+	gTextureSizeView = NULL;
+	gTextureCategoryView = NULL;
+}
 
 void LLDebugView::init()
 {
@@ -109,8 +123,6 @@ void LLDebugView::init()
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
 
-	
-
 
 	if(gAuditTexture)
 	{
@@ -136,22 +148,15 @@ void LLDebugView::init()
 	}
 }
 
-
-LLDebugView::~LLDebugView()
-{
-	// These have already been deleted.  Fix the globals appropriately.
-	gDebugView = NULL;
-	gTextureView = NULL;
-	gSceneView = NULL;
-	gTextureSizeView = NULL;
-	gTextureCategoryView = NULL;
-}
-
 void LLDebugView::draw()
 {
-	LLView* floater_snap_region = getRootView()->getChildView("floater_snap_region");
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
+	}
+
 	LLRect debug_rect;
-	floater_snap_region->localRectToOtherView(floater_snap_region->getLocalRect(), &debug_rect, getParent());
+	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
 
 	setShape(debug_rect);
 	LLView::draw();

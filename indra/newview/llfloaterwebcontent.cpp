@@ -55,6 +55,15 @@ LLFloaterWebContent::_Params::_Params()
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
 	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
+	mWebBrowser(NULL),
+	mAddressCombo(NULL),
+	mSecureLockIcon(NULL),
+	mStatusBarText(NULL),
+	mStatusBarProgress(NULL),
+	mBtnBack(NULL),
+	mBtnForward(NULL),
+	mBtnReload(NULL),
+	mBtnStop(NULL),
 	mUUID(params.id()),
 	mShowPageTitle(params.show_page_title)
 {
@@ -74,11 +83,16 @@ BOOL LLFloaterWebContent::postBuild()
 	mStatusBarText     = getChild< LLTextBox >( "statusbartext" );
 	mStatusBarProgress = getChild<LLProgressBar>("statusbarprogress" );
 
+	mBtnBack           = getChildView( "back" );
+	mBtnForward        = getChildView( "forward" );
+	mBtnReload         = getChildView( "reload" );
+	mBtnStop           = getChildView( "stop" );
+
 	// observe browser events
 	mWebBrowser->addObserver( this );
 
 	// these buttons are always enabled
-	getChildView("reload")->setEnabled( true );
+	mBtnReload->setEnabled( true );
 	getChildView("popexternal")->setEnabled( true );
 
 	// cache image for secure browsing
@@ -281,8 +295,8 @@ void LLFloaterWebContent::onClose(bool app_quitting)
 void LLFloaterWebContent::draw()
 {
 	// this is asynchronous so we need to keep checking
-	getChildView( "back" )->setEnabled( mWebBrowser->canNavigateBack() );
-	getChildView( "forward" )->setEnabled( mWebBrowser->canNavigateForward() );
+	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() );
+	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() );
 
 	LLFloater::draw();
 }
@@ -302,12 +316,12 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
 	{
 		// flags are sent with this event
-		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
-		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
+		mBtnBack->setEnabled( self->getHistoryBackAvailable() );
+		mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
 
 		// toggle visibility of these buttons based on browser state
-		getChildView("reload")->setVisible( false );
-		getChildView("stop")->setVisible( true );
+		mBtnReload->setVisible( false );
+		mBtnStop->setVisible( true );
 
 		// turn "on" progress bar now we're about to start loading
 		mStatusBarProgress->setVisible( true );
@@ -315,12 +329,12 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
 		// flags are sent with this event
-		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
-		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
+		mBtnBack->setEnabled( self->getHistoryBackAvailable() );
+		mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
 
 		// toggle visibility of these buttons based on browser state
-		getChildView("reload")->setVisible( true );
-		getChildView("stop")->setVisible( false );
+		mBtnReload->setVisible( true );
+		mBtnStop->setVisible( false );
 
 		// turn "off" progress bar now we're loaded
 		mStatusBarProgress->setVisible( false );
@@ -426,8 +440,8 @@ void LLFloaterWebContent::onClickStop()
 	// still should happen when we catch the navigate complete event
 	// but sometimes (don't know why) that event isn't sent from Qt
 	// and we ghetto a point where the stop button stays active.
-	getChildView("reload")->setVisible( true );
-	getChildView("stop")->setVisible( false );
+	mBtnReload->setVisible( true );
+	mBtnStop->setVisible( false );
 }
 
 void LLFloaterWebContent::onEnterAddress()

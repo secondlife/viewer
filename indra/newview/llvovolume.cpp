@@ -4624,6 +4624,19 @@ struct CompareBatchBreakerModified
 
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort, BOOL batch_textures)
 {
+	U32 buffer_usage = group->mBufferUsage;
+	
+#if LL_DARWIN
+	// HACK from Leslie:
+	// Disable VBO usage for alpha on Mac OS X because it kills the framerate
+	// due to implicit calls to glTexSubImage that are beyond our control.
+	// (this works because the only calls here that sort by distance are alpha)
+	if (distance_sort)
+	{
+		buffer_usage = 0x0;
+	}
+#endif
+	
 	//calculate maximum number of vertices to store in a single buffer
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
@@ -4805,17 +4818,15 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 						
 		if (!buffer)
 		{ //create new buffer if needed
-			buffer = createVertexBuffer(mask, 
-											group->mBufferUsage);
+			buffer = createVertexBuffer(mask, buffer_usage);
 			buffer->allocateBuffer(geom_count, index_count, TRUE);
 		}
 		else 
 		{ //resize pre-existing buffer
-			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage ||
+			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != buffer_usage ||
 				buffer->getTypeMask() != mask)
 			{
-				buffer = createVertexBuffer(mask, 
-											group->mBufferUsage);
+				buffer = createVertexBuffer(mask, buffer_usage);
 				buffer->allocateBuffer(geom_count, index_count, TRUE);
 			}
 			else
@@ -4895,11 +4906,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				else
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
-				}
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					registerFace(group, facep, LLRenderPass::PASS_ALPHA_SHADOW);
 				}
 			}
 			else if (gPipeline.canUseVertexShaders()

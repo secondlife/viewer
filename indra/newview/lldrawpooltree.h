@@ -68,9 +68,6 @@ public:
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	static S32 sDiffTex;
-
-private:
-	void renderTree(BOOL selecting = FALSE);
 };
 
 #endif // LL_LLDRAWPOOLTREE_H

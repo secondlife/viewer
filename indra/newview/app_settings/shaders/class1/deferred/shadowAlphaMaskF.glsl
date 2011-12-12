@@ -37,7 +37,7 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * vertex_color.a;
+	float alpha = diffuseLookup(vary_texcoord0.xy).a * vertex_color.a;
 
 	if (alpha < minimum_alpha)
 	{
