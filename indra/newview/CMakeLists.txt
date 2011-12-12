@@ -327,6 +327,7 @@ set(viewer_SOURCE_FILES
     llnameeditor.cpp
     llnamelistctrl.cpp
     llnavigationbar.cpp
+    llnavmeshstation.cpp
     llnearbychat.cpp
     llnearbychatbar.cpp
     llnearbychathandler.cpp
@@ -893,6 +894,7 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
+    llnavmeshstation.h
     llnearbychat.h
     llnearbychatbar.h
     llnearbychathandler.h
