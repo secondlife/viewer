@@ -36,7 +36,6 @@ class LLWindowShade : public LLUICtrl
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
-		Mandatory<LLNotificationPtr>	notification;
 		Optional<LLUIImage*>			bg_image;
 		Optional<LLUIColor>				text_color;
 		Optional<bool>					modal,
@@ -45,11 +44,16 @@ public:
 		Params();
 	};
 
-	void show();
+	void show(LLNotificationPtr);
 	/*virtual*/ void draw();
 	void hide();
+	void setBackgroundImage(LLUIImage* image);
+	void setTextColor(LLColor4 color);
+	void setCanClose(bool can_close);
 
 private:
+	void displayLatestNotification();
+	LLNotificationPtr getCurrentNotification();
 	friend class LLUICtrlFactory;
 
 	LLWindowShade(const Params& p);
@@ -60,7 +64,7 @@ private:
 	void onEnterNotificationText(LLUICtrl* ctrl, const std::string& name);
 	void onClickIgnore(LLUICtrl* ctrl);
 
-	LLNotificationPtr	mNotification;
+	std::vector<LLNotificationPtr>	mNotifications;
 	LLSD				mNotificationResponse;
 	bool				mModal;
 	S32					mFormHeight;
