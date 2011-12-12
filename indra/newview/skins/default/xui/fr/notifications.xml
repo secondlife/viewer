@@ -3046,8 +3046,8 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<notification label="" name="ConfirmHideUI">
-		Cette action cachera tous les objets des menus et boutons. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
-		<usetemplate ignoretext="Confimer avant de cacher l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
+		Cette action masquera tous les boutons et articles de menu. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
+		<usetemplate ignoretext="Confirmer avant de masquer l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Vous semblez ne pas avoir le matériel requis pour utiliser [APP_NAME]. [APP_NAME] requiert une carte graphique OpenGL avec une prise en charge du multitexturing. Si vous avez une telle carte, assurez-vous que vous avez aussi les pilotes les plus récents pour la carte, ainsi que les service packs et les patchs pour votre système d&apos;exploitation.

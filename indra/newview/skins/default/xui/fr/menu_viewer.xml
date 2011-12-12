@@ -24,7 +24,7 @@
 		<menu_item_call label="Acheter des L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Préférences..." name="Preferences"/>
 		<menu_item_call label="Barres d&apos;outils..." name="Toolbars"/>
-		<menu_item_call label="Cacher tous les contrôles" name="Hide UI"/>
+		<menu_item_call label="Masquer tous les contrôles" name="Hide UI"/>
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Communiquer" name="Communicate">
