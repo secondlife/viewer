@@ -1810,7 +1810,7 @@
       <key>llpathinglib</key>
       <map>
         <key>license</key>
-        <string>llpathinglib</string>
+     <string>llpathinglib</string>
         <key>license_file</key>
         <string>LICENSES/llpathinglib.txt</string>
         <key>name</key>
