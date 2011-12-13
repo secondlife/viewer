@@ -6944,6 +6944,26 @@ With the following Residents:
   
   <notification
    icon="notifytip.tga"
+   name="ShareFolderConfirmation"
+   type="alertmodal">
+Only one folder at a time can be shared.
+
+Are you sure you want to share the following items:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+With the following Residents:
+
+[RESIDENTS]
+  <tag>confirm</tag>
+	<usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Ok"/>
+  </notification>
+  
+  <notification
+   icon="notifytip.tga"
    name="ItemsShared"
    type="notifytip">
 Items successfully shared.
