@@ -69,6 +69,9 @@
 #include "llwebprofile.h"
 #include "llwebsharing.h"	// For LLWebSharing::setOpenIDCookie(), *TODO: find a better way to do this!
 #include "llwindow.h"
+#include "llvieweraudio.h"
+
+#include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
@@ -985,7 +988,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			{
 				if(LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
 				{
-					gAudiop->stopInternetStream();
+					LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 				}
 			}
 			pimpl->setPriority(new_priority);
@@ -1089,13 +1092,24 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			gAudiop && 
 			LLViewerMedia::hasParcelAudio())
 		{
-			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+			if (LLAudioEngine::AUDIO_PAUSED == gAudiop->isInternetStreamPlaying())
+			{
+				// 'false' means unpause
+				gAudiop->pauseInternetStream(false);
+			}
+			else
+			{
+				LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
+			}
 		}
 	}
 	else {
 		// This actually unloads the impl, as opposed to "stop"ping the media
 		LLViewerParcelMedia::stop();
-		if (gAudiop) gAudiop->stopInternetStream();
+		if (gAudiop)
+		{
+			LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
+		}
 	}
 }
 
@@ -1887,7 +1901,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		}
 	}
 	
-	LL_WARNS("Plugin") << "plugin intialization failed for mime type: " << media_type << LL_ENDL;
+	LL_WARNS_ONCE("Plugin") << "plugin intialization failed for mime type: " << media_type << LL_ENDL;
 	LLSD args;
 	args["MIME_TYPE"] = media_type;
 	LLNotificationsUtil::add("NoPlugin", args);

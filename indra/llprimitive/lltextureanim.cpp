@@ -168,8 +168,8 @@ void LLTextureAnim::unpackTAMessage(LLDataPacker &dp)
 
 	mMode = data[0];
 	mFace = data[1];
-	mSizeX = llmax((U8)1, data[2]);
-	mSizeY = llmax((U8)1, data[3]);
+	mSizeX = data[2];
+	mSizeY = data[3];
 	htonmemcpy(&mStart, data + 4, MVT_F32, sizeof(F32));
 	htonmemcpy(&mLength, data + 8, MVT_F32, sizeof(F32));
 	htonmemcpy(&mRate, data + 12, MVT_F32, sizeof(F32));

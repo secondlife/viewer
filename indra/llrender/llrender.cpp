@@ -1444,6 +1444,11 @@ const glh::matrix4f& LLRender::getModelviewMatrix()
 	return mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 }
 
+const glh::matrix4f& LLRender::getProjectionMatrix()
+{
+	return mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
+}
+
 void LLRender::translateUI(F32 x, F32 y, F32 z)
 {
 	if (mUIOffset.empty())

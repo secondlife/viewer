@@ -1381,6 +1381,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
 	if( !file.isOpen() )
 	{
 		LL_WARNS("ReadXUI") << "Unable to open file " << filename << LL_ENDL;
+		XML_ParserFree( mParser );
 		return false;
 	}
 

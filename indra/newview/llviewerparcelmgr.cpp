@@ -67,6 +67,7 @@
 #include "llworld.h"
 #include "roles_constants.h"
 #include "llweb.h"
+#include "llvieweraudio.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
 
@@ -1727,7 +1728,10 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	}
 	else
 	{
-		// look for music.
+		// Check for video
+		LLViewerParcelMedia::update(parcel);
+
+		// Then check for music
 		if (gAudiop)
 		{
 			if (parcel)
@@ -1738,46 +1742,34 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				std::string music_url = music_url_raw;
 				LLStringUtil::trim(music_url);
 
-				// On entering a new parcel, stop the last stream if the
-				// new parcel has a different music url.  (Empty URL counts
-				// as different.)
-				const std::string& stream_url = gAudiop->getInternetStreamURL();
-
-				if (music_url.empty() || music_url != stream_url)
+				// If there is a new music URL and it's valid, play it.
+				if (music_url.size() > 12)
 				{
-					// URL is different from one currently playing.
-					gAudiop->stopInternetStream();
-
-					// If there is a new music URL and it's valid, play it.
-					if (music_url.size() > 12)
+					if (music_url.substr(0,7) == "http://")
 					{
-						if (music_url.substr(0,7) == "http://")
-						{
-							optionally_start_music(music_url);
-						}
-						else
-						{
-							llinfos << "Stopping parcel music (invalid audio stream URL)" << llendl;
-							// clears the URL 
-							gAudiop->startInternetStream(LLStringUtil::null); 
-						}
+						optionally_start_music(music_url);
 					}
-					else if (!gAudiop->getInternetStreamURL().empty())
+					else
 					{
-						llinfos << "Stopping parcel music (parcel stream URL is empty)" << llendl;
-						gAudiop->startInternetStream(LLStringUtil::null);
+						llinfos << "Stopping parcel music (invalid audio stream URL)" << llendl;
+						// clears the URL 
+						// null value causes fade out
+						LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 					}
+				}
+				else if (!gAudiop->getInternetStreamURL().empty())
+				{
+					llinfos << "Stopping parcel music (parcel stream URL is empty)" << llendl;
+					// null value causes fade out
+					LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 				}
 			}
 			else
 			{
 				// Public land has no music
-				gAudiop->stopInternetStream();
+				LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 			}
 		}//if gAudiop
-
-		// now check for video
-		LLViewerParcelMedia::update( parcel );
 	};
 }
 
@@ -1796,7 +1788,11 @@ void optionally_start_music(const std::string& music_url)
 			 gSavedSettings.getBOOL("MediaTentativeAutoPlay")))
 		{
 			llinfos << "Starting parcel music " << music_url << llendl;
-			gAudiop->startInternetStream(music_url);
+			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(music_url);
+		}
+		else
+		{
+			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 		}
 	}
 }

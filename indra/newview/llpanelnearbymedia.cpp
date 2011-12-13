@@ -52,6 +52,7 @@
 #include "llvovolume.h"
 #include "llstatusbar.h"
 #include "llsdutil.h"
+#include "llvieweraudio.h"
 
 #include "llfloaterreg.h"
 #include "llfloaterpreference.h" // for the gear icon
@@ -807,14 +808,26 @@ bool LLPanelNearByMedia::setDisabled(const LLUUID &row_id, bool disabled)
 {
 	if (row_id == PARCEL_AUDIO_LIST_ITEM_UUID)
 	{
-		if (disabled) onClickParcelAudioStop();
-		else onClickParcelAudioStart();
+		if (disabled)
+		{
+			onClickParcelAudioStop();
+		}
+		else
+		{
+			onClickParcelAudioPlay();
+		}
 		return true;
 	}
 	else if (row_id == PARCEL_MEDIA_LIST_ITEM_UUID)
 	{
-		if (disabled) onClickDisableParcelMedia();
-		else onClickEnableParcelMedia();
+		if (disabled)
+		{
+			onClickDisableParcelMedia();
+		}
+		else
+		{
+			onClickEnableParcelMedia();
+		}
 		return true;
 	}
 	else {
@@ -857,24 +870,11 @@ void LLPanelNearByMedia::onClickParcelMediaPause()
 	LLViewerParcelMedia::pause();
 }
 
-void LLPanelNearByMedia::onClickParcelAudioStart()
-{
-	// User *explicitly* started the internet stream, so keep the stream
-	// playing and updated as they cross to other parcels etc.
-	mParcelAudioAutoStart = true;
-		
-	if (!gAudiop)
-		return;
-	
-	gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
-}
-
 void LLPanelNearByMedia::onClickParcelAudioPlay()
 {
 	// User *explicitly* started the internet stream, so keep the stream
 	// playing and updated as they cross to other parcels etc.
 	mParcelAudioAutoStart = true;
-
 	if (!gAudiop)
 		return;
 
@@ -883,8 +883,9 @@ void LLPanelNearByMedia::onClickParcelAudioPlay()
 		// 'false' means unpause
 		gAudiop->pauseInternetStream(false);
 	}
-	else {
-		gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+	else
+	{
+		LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
 	}
 }
 
@@ -894,11 +895,10 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 	// re-start audio when i.e. they move to another parcel, until
 	// they explicitly start it again.
 	mParcelAudioAutoStart = false;
-
 	if (!gAudiop)
 		return;
 
-	gAudiop->stopInternetStream();
+	LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 }
 
 void LLPanelNearByMedia::onClickParcelAudioPause()
