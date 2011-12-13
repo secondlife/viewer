@@ -595,32 +595,49 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 
 void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder)
 {
-	if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+	// Collapse links directly to items/folders
+	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
+	LLViewerInventoryCategory * linked_category = viewer_inv_item->getLinkedCategory();
+	if (linked_category != NULL)
 	{
-		// when moving item directly into outbox create folder with that name
-		if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
-		{
-			dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_item->getName());
-			gInventory.notifyObservers();
-		}
-
-		copy_inventory_item(
-			gAgent.getID(),
-			inv_item->getPermissions().getOwner(),
-			inv_item->getUUID(),
-			dest_folder,
-			inv_item->getName(),
-			LLPointer<LLInventoryCallback>(NULL));
+		copy_folder_to_outbox(linked_category, dest_folder, top_level_folder);
 	}
 	else
-	{	
-		LLSD args;
-		args["ITEM_NAME"] = inv_item->getName();
-		LLSD payload;
-		payload["item_id"] = inv_item->getUUID();
-		payload["dest_folder_id"] = dest_folder;
-		payload["top_level_folder"] = top_level_folder;
-		LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&move_to_outbox_cb, _1, _2));
+	{
+		LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+		if (linked_item != NULL)
+		{
+			inv_item = (LLInventoryItem *) linked_item;
+		}
+		
+		// Check for copy permissions
+		if (inv_item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID(), gAgent.getGroupID()))
+		{
+			// when moving item directly into outbox create folder with that name
+			if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
+			{
+				dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_item->getName());
+				gInventory.notifyObservers();
+			}
+			
+			copy_inventory_item(
+								gAgent.getID(),
+								inv_item->getPermissions().getOwner(),
+								inv_item->getUUID(),
+								dest_folder,
+								inv_item->getName(),
+								LLPointer<LLInventoryCallback>(NULL));
+		}
+		else
+		{	
+			LLSD args;
+			args["ITEM_NAME"] = inv_item->getName();
+			LLSD payload;
+			payload["item_id"] = inv_item->getUUID();
+			payload["dest_folder_id"] = dest_folder;
+			payload["top_level_folder"] = top_level_folder;
+			LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&move_to_outbox_cb, _1, _2));
+		}
 	}
 }
 

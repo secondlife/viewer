@@ -72,6 +72,7 @@
 
 // Marketplace outbox current disabled
 #define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
+#define BLOCK_WORN_ITEMS_IN_OUTBOX 0
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
 typedef std::list<two_uuids_t> two_uuids_list_t;
@@ -1101,6 +1102,8 @@ BOOL LLInvFVBridge::canListOnMarketplace() const
 BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 {
 #if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
+
+#if BLOCK_WORN_ITEMS_IN_OUTBOX
 	if (get_is_item_worn(mUUID))
 	{
 		return FALSE;
@@ -1112,6 +1115,7 @@ BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 	{
 		return FALSE;
 	}
+#endif // BLOCK_WORN_ITEMS_IN_OUTBOX
 
 	return TRUE;
 #else
@@ -1787,19 +1791,32 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 
 static BOOL can_move_to_outbox(LLInventoryItem* inv_item, std::string& tooltip_msg)
 {
-	bool worn = get_is_item_worn(inv_item->getUUID());
+	// Collapse links directly to items/folders
+	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
+	LLViewerInventoryItem * linked_item = viewer_inv_item->getLinkedItem();
+	if (linked_item != NULL)
+	{
+		inv_item = linked_item;
+	}
+	
 	bool allow_transfer = inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
 
 	if (!allow_transfer)
 	{
 		tooltip_msg = LLTrans::getString("TooltipOutboxNoTransfer");
+		return false;
 	}
-	else if(worn)
+
+#if BLOCK_WORN_ITEMS_IN_OUTBOX
+	bool worn = get_is_item_worn(inv_item->getUUID());
+	if (worn)
 	{
 		tooltip_msg = LLTrans::getString("TooltipOutboxWorn");
+		return false;
 	}
-	
-	return !worn && allow_transfer;
+#endif
+
+	return true;
 }
 
 
