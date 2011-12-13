@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llglheaders.h"
 #include "llvertexbuffer.h"
+
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
@@ -51,11 +52,9 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 //=============================================================================
 void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
 {
-	glPolygonMode(GL_NONE, GL_FILL);
+	glLineWidth(1.5f);		
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLDisable cull(GL_CULL_FACE);
-	//LLGLEnable lighting( GL_LIGHTING );
-	//glEnable(GL_POLYGON_STIPPLE);
-	glLineWidth(1.5f);	
 	LLColor4 colorA( color );	
 	colorA*=2.0f;
 	gGL.color4fv( colorA.mV );		
@@ -71,16 +70,42 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
-{
-	glPolygonMode(GL_NONE, GL_FILL);
+{	/*
 	LLGLDisable cull(GL_CULL_FACE);
-	glColor3f ( 1.0f, 0.0f, 0.0f ) ;
-	glDisable( GL_COLOR_MATERIAL );
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glLineWidth(1.f);
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	LLColor4 colorA( 255);	
+	colorA*=2.0f;
+	gGL.color4fv( colorA.mV );		
 	
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
-	gGL.flush();
-	glEnable( GL_COLOR_MATERIAL );
+	*/
 
+	//2
+	//gGL.setSceneBlendType(LLRender::BT_REPLACE);
+	//glEnable(GL_COLOR_MATERIAL);
+	//glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT );
+	//glShadeModel( GL_FLAT );
+	//F32 ambient[4] = {1.f,0.f,1.f,1.f };
+	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	//LLColor4 colorA( 255.0f );	
+	//colorA*=2.0f;
+	//gGL.color4fv( colorA.mV );	
+	glLineWidth(1.5f);		
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+	LLGLDisable cull(GL_CULL_FACE);
+	LLColor4 colorA( 4278190335 );	
+	colorA*=2.0f;
+	gGL.color4fv( colorA.mV );		
+
+	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
+	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
+	//gGL.flush();
+
+
+	
 }
 //=============================================================================
