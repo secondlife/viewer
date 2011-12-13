@@ -418,14 +418,14 @@ void LLFloaterOutbox::showNotification(LLNotificationPtr notify)
 	params.name = "notification_shade";
 	params.rect = floater_rect;
 	params.follows.flags = FOLLOWS_ALL;
-	params.notification = notify;
 	params.modal = true;
 	params.can_close = false;
+	params.shade_color = LLColor4::white % 0.25f;
 	params.text_color = LLColor4::white;
 	
 	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
 	
 	addChild(mWindowShade);
-	mWindowShade->show();
+	mWindowShade->show(notify);
 }
 

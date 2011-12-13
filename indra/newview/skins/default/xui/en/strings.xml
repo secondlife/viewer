@@ -2029,7 +2029,7 @@ Returns a string with the requested data about the region
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">When you purchase or otherwise receive an item, it will appear here so you can drag it to a folder in your inventory, or delete it if you do not wish to keep it.</string>
-	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]</string>
+	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
 	<string name="MarketplaceURL_CreateStore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/create_store</string>
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/[AGENT_ID]/store/dashboard</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
