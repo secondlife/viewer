@@ -617,7 +617,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	// Don't allow items to be pasted directly into the COF or the inbox
+	// Don't allow items to be pasted directly into the COF or the inbox/outbox
 	if (!isCOFFolder() && !isInboxFolder() && !isOutboxFolder())
 	{
 		items.push_back(std::string("Paste"));
@@ -2892,6 +2892,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else if(isOutboxFolder())
 	{
+		mItems.push_back(std::string("Rename"));
 		mItems.push_back(std::string("Delete"));
 	}
 	else if(isAgentInventory()) // do not allow creating in library
@@ -3741,29 +3742,29 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menuentry_vec_t items;
 	menuentry_vec_t disabled_items;
 
-	if(isItemInTrash())
-	{
-		addTrashContextMenuOptions(items, disabled_items);
-	}	
-	else if(isOutboxFolder())
+	if (isOutboxFolder())
 	{
 		items.push_back(std::string("Delete"));
 	}
 	else
 	{
-		items.push_back(std::string("Share"));
-		if (!canShare())
+		if (isItemInTrash())
 		{
-			disabled_items.push_back(std::string("Share"));
+			addTrashContextMenuOptions(items, disabled_items);
+		}	
+		else
+		{
+			items.push_back(std::string("Share"));
+			if (!canShare())
+			{
+				disabled_items.push_back(std::string("Share"));
+			}
+			items.push_back(std::string("Sound Open"));
+			items.push_back(std::string("Properties"));
+
+			getClipboardEntries(true, items, disabled_items, flags);
 		}
-		items.push_back(std::string("Sound Open"));
-		items.push_back(std::string("Properties"));
 
-		getClipboardEntries(true, items, disabled_items, flags);
-	}
-
-	if (!isOutboxFolder())
-	{
 		items.push_back(std::string("Sound Separator"));
 		items.push_back(std::string("Sound Play"));
 	}
@@ -3799,29 +3800,29 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menuentry_vec_t disabled_items;
 
 	lldebugs << "LLLandmarkBridge::buildContextMenu()" << llendl;
-	if(isItemInTrash())
-	{
-		addTrashContextMenuOptions(items, disabled_items);
-	}	
-	else if(isOutboxFolder())
+	if(isOutboxFolder())
 	{
 		items.push_back(std::string("Delete"));
 	}
 	else
 	{
-		items.push_back(std::string("Share"));
-		if (!canShare())
+		if(isItemInTrash())
 		{
-			disabled_items.push_back(std::string("Share"));
+			addTrashContextMenuOptions(items, disabled_items);
+		}	
+		else
+		{
+			items.push_back(std::string("Share"));
+			if (!canShare())
+			{
+				disabled_items.push_back(std::string("Share"));
+			}
+			items.push_back(std::string("Landmark Open"));
+			items.push_back(std::string("Properties"));
+
+			getClipboardEntries(true, items, disabled_items, flags);
 		}
-		items.push_back(std::string("Landmark Open"));
-		items.push_back(std::string("Properties"));
 
-		getClipboardEntries(true, items, disabled_items, flags);
-	}
-
-	if (!isOutboxFolder())
-	{
 		items.push_back(std::string("Landmark Separator"));
 		items.push_back(std::string("About Landmark"));
 	}
@@ -4354,36 +4355,35 @@ void LLAnimationBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	menuentry_vec_t disabled_items;
 
 	lldebugs << "LLAnimationBridge::buildContextMenu()" << llendl;
-	if(isItemInTrash())
-	{
-		addTrashContextMenuOptions(items, disabled_items);
-	}	
-	else if(isOutboxFolder())
+	if(isOutboxFolder())
 	{
 		items.push_back(std::string("Delete"));
 	}
 	else
 	{
-		items.push_back(std::string("Share"));
-		if (!canShare())
+		if(isItemInTrash())
 		{
-			disabled_items.push_back(std::string("Share"));
+			addTrashContextMenuOptions(items, disabled_items);
+		}	
+		else
+		{
+			items.push_back(std::string("Share"));
+			if (!canShare())
+			{
+				disabled_items.push_back(std::string("Share"));
+			}
+			items.push_back(std::string("Animation Open"));
+			items.push_back(std::string("Properties"));
+
+			getClipboardEntries(true, items, disabled_items, flags);
 		}
-		items.push_back(std::string("Animation Open"));
-		items.push_back(std::string("Properties"));
 
-		getClipboardEntries(true, items, disabled_items, flags);
-	}
-
-	if (!isOutboxFolder())
-	{
 		items.push_back(std::string("Animation Separator"));
 		items.push_back(std::string("Animation Play"));
 		items.push_back(std::string("Animation Audition"));
 	}
 
 	hide_context_entries(menu, items, disabled_items);
-
 }
 
 // virtual
@@ -5376,7 +5376,6 @@ void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 		getClipboardEntries(true, items, disabled_items, flags);
 	}
-
 
 	hide_context_entries(menu, items, disabled_items);
 }
