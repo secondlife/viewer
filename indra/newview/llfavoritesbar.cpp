@@ -599,7 +599,11 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	if (tool_dad->getSource() == LLToolDragAndDrop::SOURCE_NOTECARD)
 	{
 		viewer_item->setType(LLAssetType::AT_LANDMARK);
-		copy_inventory_from_notecard(tool_dad->getObjectID(), tool_dad->getSourceID(), viewer_item.get(), gInventoryCallbacks.registerCB(cb));
+		copy_inventory_from_notecard(favorites_id,
+									 tool_dad->getObjectID(),
+									 tool_dad->getSourceID(),
+									 viewer_item.get(),
+									 gInventoryCallbacks.registerCB(cb));
 	}
 	else
 	{
@@ -1016,7 +1020,9 @@ void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
 	LLMenuItemCallGL::Params item_params;
 	item_params.name("open_my_landmarks");
 	item_params.label(translated ? label_transl: label_untrans);
-	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", LLSD()));
+	LLSD key;
+	key["type"] = "open_landmark_tab";
+	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", key));
 	LLMenuItemCallGL* menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
 	fitLabelWidth(menu_item);
@@ -1197,7 +1203,9 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
 	if (mRestoreOverflowMenu && menu && !menu->getVisible())
 	{
+		menu->resetScrollPositionOnShow(false);
 		showDropDownMenu();
+		menu->resetScrollPositionOnShow(true);
 	}
 }
 

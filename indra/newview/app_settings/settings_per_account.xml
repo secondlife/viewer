@@ -36,7 +36,7 @@
     <key>DisplayDestinationsOnInitialRun</key>
         <map>
         <key>Comment</key>
-          <string>Display the destinations guide when a user first launches FUI.</string>
+          <string>Display the destinations guide when a user first launches Second Life.</string>
         <key>Persist</key>
           <integer>1</integer>
         <key>Type</key>

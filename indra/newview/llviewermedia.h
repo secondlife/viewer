@@ -250,6 +250,7 @@ public:
 	std::string getMediaEntryURL() { return mMediaEntryURL; }
 	void setHomeURL(const std::string& home_url, const std::string& mime_type = LLStringUtil::null) { mHomeURL = home_url; mHomeMimeType = mime_type;};
 	void clearCache();
+	void setPageZoomFactor( double factor );
 	std::string getMimeType() { return mMimeType; }
 	void scaleMouse(S32 *mouse_x, S32 *mouse_y);
 	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
@@ -317,7 +318,7 @@ public:
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; };
 	/*virtual*/ BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; };
 	/*virtual*/ BOOL	handleMiddleMouseUp(S32 x, S32 y, MASK mask) {return FALSE; };
-	/*virtual*/ std::string getName() const;
+	/*virtual*/ const std::string& getName() const;
 
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {};
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const {};
@@ -416,6 +417,7 @@ private:
 private:
 	// a single media url with some data and an impl.
 	LLPluginClassMedia* mMediaSource;
+	F64		mZoomFactor;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
 	std::string mMediaURL;			// The last media url set with NavigateTo

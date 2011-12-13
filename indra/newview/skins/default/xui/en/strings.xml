@@ -3724,4 +3724,12 @@ Try enclosing path to the editor with double quotes.
   <string name="Wrap">Wrap</string>
   <string name="Preview">Preview</string>
   <string name="Normal">Normal</string>
+
+  <!-- Snapshot image quality levels -->
+  <string name="snapshot_quality_very_low">Very Low</string>
+  <string name="snapshot_quality_low">Low</string>
+  <string name="snapshot_quality_medium">Medium</string>
+  <string name="snapshot_quality_high">High</string>
+  <string name="snapshot_quality_very_high">Very High</string>
+
   </strings>

@@ -189,7 +189,7 @@ Bu Yetenek &apos;[ROLE_NAME]&apos; rolüne eklensin mi?
 		<usetemplate ignoretext="Aksesuarları çıkarmadan önce doğrulama iste" name="okcancelignore" notext="Hayır" yestext="Evet"/>
 	</notification>
 	<notification name="JoinGroupCanAfford">
-		Bu gruba katılmanın maliyeti: [COST] L$.
+		Bu gruba katılmanın maliyeti: L$ [COST].
 Devam etmek istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Katıl"/>
 	</notification>
@@ -199,33 +199,33 @@ Devam etmek istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal Et" yestext="Katıl"/>
 	</notification>
 	<notification name="JoinGroupCannotAfford">
-		Bu gruba katılmanın maliyeti: [COST] L$.
+		Bu gruba katılmanın maliyeti: L$ [COST].
 Bu gruba katılmak için yeterli L$&apos;na sahip değilsiniz.
 	</notification>
 	<notification name="CreateGroupCost">
-		Bu grubu oluşturmanın maliyeti: 100 L$.
+		Bu grubu oluşturmanın maliyeti: L$ 100.
 Grupların birden fazla üyeye sahip olması gereklidir, aksi takdirde grup kalıcı olarak silinir.
 Lütfen 48 saat içinde diğer üyeleri davet edin.
-		<usetemplate canceltext="İptal" name="okcancelbuttons" notext="İptal" yestext="100 L$ ödeyerek grubu oluştur"/>
+		<usetemplate canceltext="İptal" name="okcancelbuttons" notext="İptal" yestext="L$ 100 ödeyerek grubu oluştur"/>
 	</notification>
 	<notification name="LandBuyPass">
-		[COST] L$ ödeyerek (&apos;[PARCEL_NAME]&apos;) arazisine [TIME] saat süreyle girebilirsiniz.  Giriş hakkı satın almak istiyor musunuz?
+		L$ [COST] ödeyerek (&apos;[PARCEL_NAME]&apos;) arazisine [TIME] saat süreyle girebilirsiniz.  Giriş hakkı satın almak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="SalePriceRestriction">
-		Herhangi birine satış yaparken satış fiyatı 0 L$&apos;ndan daha yüksek bir değere ayarlanmalıdır.
-0 L$ fiyatla satış yapıyorsanız lütfen satışın yapılacağı kişiyi seçin.
+		Herhangi birine satış yaparken satış fiyatı L$ 0&apos;dan daha yüksek bir değere ayarlanmalıdır.
+L$ 0 fiyatla satış yapıyorsanız lütfen satışın yapılacağı kişiyi seçin.
 	</notification>
 	<notification name="ConfirmLandSaleChange">
 		Seçili [LAND_SIZE] m² arazi satışa çıkarılmak üzere ayarlanıyor.
-Satış fiyatınız [SALE_PRICE] L$ olacak ve [NAME] için satışa açık olacaktır.
+Satış fiyatınız L$ [SALE_PRICE] olacak ve [NAME] için satışa açık olacaktır.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="ConfirmLandSaleToAnyoneChange">
 		DİKKAT: &apos;Herkes için satışa açık&apos; seçeneğinin tıklanması, arazinizi tüm [SECOND_LIFE] topluluğuna açık hale getirir, bu bölgede bulunmayanlar da buna dahildir.
 
 Seçili [LAND_SIZE] m² arazi satışa çıkarılmak üzere ayarlanıyor.
-Satış fiyatınız [SALE_PRICE] L$ olacak ve [NAME] için satışa açık olacaktır.
+Satış fiyatınız L$ [SALE_PRICE] olacak ve [NAME] için satışa açık olacaktır.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
@@ -365,7 +365,7 @@ Devam etmek istediğinize emin misiniz?
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="DeleteAvatarPick">
-		Favori &lt;nolink&gt;[PICK]&lt;/nolink&gt; silinsin mi?
+		Seçme &lt;nolink&gt;[PICK]&lt;/nolink&gt; silinsin mi?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="DeleteOutfits">
@@ -1008,7 +1008,7 @@ bu simdeki TÜM ARAZİLERDEN SİLMEK istediğinize emin misiniz?
 		İlanınız için bir ad belirtmelisiniz.
 	</notification>
 	<notification name="MinClassifiedPrice">
-		Listeleme için ödenmesi gereken tutar en az [MIN_PRICE] L$ olmalıdır.
+		Listeleme için ödenmesi gereken tutar en az L$ [MIN_PRICE] olmalıdır.
 
 Lütfen daha yüksek bir tutar girin.
 	</notification>
@@ -1586,7 +1586,7 @@ Lütfen daha sonra tekrar deneyin.
 	</notification>
 	<notification name="TeleportToPick">
 		[PICK] konumuna ışınlanılsın mı?
-		<usetemplate ignoretext="Favori sekmesindeki bir konuma ışınlanma istediğimde doğrulama iste" name="okcancelignore" notext="İptal Et" yestext="Işınla"/>
+		<usetemplate ignoretext="Seçme sekmesindeki bir konuma ışınlanma istediğimde doğrulama iste" name="okcancelignore" notext="İptal Et" yestext="Işınla"/>
 	</notification>
 	<notification name="TeleportToClassified">
 		[CLASSIFIED] konumuna ışınlanılsın mı?
@@ -1766,7 +1766,7 @@ Erişkinlik Seviyesi tercihinizi şimdi yükseltmek ve araziye girebilmek için 
 	<notification name="PublishClassified">
 		Hatırla: İlan ücretleri iade edilmez.
 
-Şimdi [AMOUNT] L$ ödeyerek bu ilanı yayınlamak istiyor musunuz?
+Şimdi L$ [AMOUNT] ödeyerek bu ilanı yayınlamak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="SetClassifiedMature">
@@ -1810,7 +1810,7 @@ Lütfen sadece bir nesne seçin ve tekrar deneyin.
 Lütfen sadece bir nesne seçin ve tekrar deneyin.
 	</notification>
 	<notification name="BuyOriginal">
-		Özgün nesne [OWNER] kullanıcısından [PRICE] L$ karşılığında satın alınsın mı?
+		Özgün nesne [OWNER] kullanıcısından L$ [PRICE] karşılığında satın alınsın mı?
 Nesnenin sahibi siz olacaksınız.
 Şu işlemleri yapabileceksiniz:
  Değiştirme: [MODIFYPERM]
@@ -1819,7 +1819,7 @@ Nesnenin sahibi siz olacaksınız.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="BuyOriginalNoOwner">
-		Özgün nesne PRICE] L$ karşılığında satın alınsın mı?
+		Özgün nesne L$ [PRICE] karşılığında satın alınsın mı?
 Nesnenin sahibi siz olacaksınız.
 Şu işlemleri yapabileceksiniz:
  Değiştirme: [MODIFYPERM]
@@ -1828,7 +1828,7 @@ Nesnenin sahibi siz olacaksınız.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="BuyCopy">
-		Bir kopyası [OWNER] kullanıcısından [PRICE] L$ karşılığında satın alınsın mı?
+		Bir kopyası [OWNER] kullanıcısından L$ [PRICE] karşılığında satın alınsın mı?
 Nesne envanterinize kopyalanacak.
 Şu işlemleri yapabileceksiniz:
  Değiştirme: [MODIFYPERM]
@@ -1837,7 +1837,7 @@ Nesne envanterinize kopyalanacak.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="BuyCopyNoOwner">
-		Bir kopyası [PRICE] L$ karşılığında satın alınsın mı?
+		Bir kopyası L$ [PRICE] karşılığında satın alınsın mı?
 Nesne envanterinize kopyalanacak.
 Şu işlemleri yapabileceksiniz:
  Değiştirme: [MODIFYPERM]
@@ -1846,12 +1846,12 @@ Nesne envanterinize kopyalanacak.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="BuyContents">
-		İçerik [OWNER] kullanıcısından [PRICE] L$ karşılığında satın alınsın mı?
+		İçerik [OWNER] kullanıcısından L$ [PRICE] karşılığında satın alınsın mı?
 İçerik envanterinize kopyalanacak.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="BuyContentsNoOwner">
-		İçerik [PRICE] L$ karşılığında satın alınsın mı?
+		İçerik L$ [PRICE] karşılığında satın alınsın mı?
 İçerik envanterinize kopyalanacak.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
@@ -1875,7 +1875,7 @@ Lütfen parolanızı yeniden girin ve Tamam&apos;ı tıklatın.
 	</notification>
 	<notification name="SetPickLocation">
 		Not:
-Bu favorinin konumunu güncellediniz fakat diğer detaylar özgün değerlerini koruyacak.
+Bu seçmenin konumunu güncellediniz fakat diğer detaylar özgün değerlerini koruyacak.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="MoveInventoryFromObject">
@@ -2132,7 +2132,7 @@ Bu adımda web tarayıcınızın başlatılacağına dikkat edin.
 (Yaklaşık 5 dakika sürecektir.)
 	</notification>
 	<notification name="UploadPayment">
-		Karşıya yüklemek için [AMOUNT] L$ ödediniz.
+		Karşıya yüklemek için L$ [AMOUNT] ödediniz.
 	</notification>
 	<notification name="UploadWebSnapshotDone">
 		Web sitesinde yer alan anlık görüntülerin karşıya yüklenmesi tamamlandı.
@@ -2270,7 +2270,7 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Details" text="Ayrıntılar"/>
+			<button name="Details" text="Ayrıntl"/>
 			<button name="Cancel" text="İptal"/>
 		</form>
 	</notification>
@@ -2479,7 +2479,7 @@ Lütfen biraz sonra tekrar deneyin.
 
 [MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
 		<form name="form">
-			<button name="Teleport" text="Işınlan"/>
+			<button name="Teleport" text="Işınla"/>
 			<button name="Cancel" text="İptal"/>
 		</form>
 	</notification>
@@ -3014,7 +3014,7 @@ Görünümünüzü döndürmek için dünya üzerindeki herhangi bir yeri tıkla
 		<usetemplate name="okcancelbuttons" notext="Çıkma" yestext="Çık"/>
 	</notification>
 	<notification label="" name="NoPicks">
-		Favorileri oluşturma ve düzenleme sadece Gelişmiş modda kullanılabilir. Uygulamadan çıkıp, mod değiştirmek ister misiniz? Mod seçici oturum açma ekranında bulunabilir.
+		Seçmeleri oluşturma ve düzenleme sadece Gelişmiş modda kullanılabilir. Uygulamadan çıkıp, mod değiştirmek ister misiniz? Mod seçici oturum açma ekranında bulunabilir.
 		<usetemplate name="okcancelbuttons" notext="Çıkma" yestext="Çık"/>
 	</notification>
 	<notification label="" name="NoWorldMap">

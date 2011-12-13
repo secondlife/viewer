@@ -1,6 +1,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; secondlife setup.nsi
-;; Copyright 2004-2010, Linden Research, Inc.
+;; Copyright 2004-2011, Linden Research, Inc.
+;;
+;; This library is free software; you can redistribute it and/or
+;; modify it under the terms of the GNU Lesser General Public
+;; License as published by the Free Software Foundation;
+;; version 2.1 of the License only.
+;;
+;; This library is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; Lesser General Public License for more details.
+;;
+;; You should have received a copy of the GNU Lesser General Public
+;; License along with this library; if not, write to the Free Software
+;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+;;
+;; Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 ;;
 ;; NSIS Unicode 2.38.1 or higher required
 ;; http://www.scratchpaper.com/
@@ -99,6 +115,7 @@ Var COMMANDLINE         ; command line passed to this installer, set in .onInit
 Var SHORTCUT_LANG_PARAM ; "--set InstallLanguage de", passes language to viewer
 Var SKIP_DIALOGS        ; set from command line in  .onInit. autoinstall 
                         ; GUI and the defaults.
+Var DO_UNINSTALL_V2     ; If non-null, path to a previous Viewer 2 installation that will be uninstalled.
 
 ;;; Function definitions should go before file includes, because calls to
 ;;; DLLs like LangDLL trigger an implicit file include, so if that call is at
@@ -293,19 +310,171 @@ Function CheckNetworkConnection
     Return
 FunctionEnd
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Delete files in Documents and Settings\<user>\SecondLife\cache
-; Delete files in Documents and Settings\All Users\SecondLife\cache
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Function RemoveCacheFiles
+; Function CheckWillUninstallV2               
 ;
-;; Delete files in Documents and Settings\<user>\SecondLife
+; If we are being called through auto-update, we need to uninstall any
+; existing V2 installation. Otherwise, we wind up with
+; SecondLifeViewer2 and SecondLifeViewer installations existing side
+; by side no indication which to use.
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function CheckWillUninstallV2
+
+  StrCpy $DO_UNINSTALL_V2 ""
+
+  StrCmp $SKIP_DIALOGS "true" 0 CHECKV2_DONE
+  StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" CHECKV2_DONE ; don't uninstall our own install dir.
+  IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" CHECKV2_FOUND CHECKV2_DONE
+
+CHECKV2_FOUND:
+  StrCpy $DO_UNINSTALL_V2 "true"
+
+CHECKV2_DONE:
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Save user files to temp location
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function PreserveUserFiles
+
+Push $0
+Push $1
+Push $2
+
+    RMDir /r "$TEMP\SecondLifeSettingsBackup"
+    CreateDirectory "$TEMP\SecondLifeSettingsBackup"
+    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+
+  LOOP:
+    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+    StrCmp $1 "" DONE               ; no more users
+
+    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+
+    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+    ExpandEnvStrings $2 $2
+
+    CreateDirectory "$TEMP\SecondLifeSettingsBackup\$0"
+    CopyFiles /SILENT "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\$0"
+
+  CONTINUE:
+    IntOp $0 $0 + 1
+    Goto LOOP
+  DONE:
+
+Pop $2
+Pop $1
+Pop $0
+
+; Copy files in Documents and Settings\All Users\SecondLife
+Push $0
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+    StrCmp $0 "" +2
+    CreateDirectory "$TEMP\SecondLifeSettingsBackup\AllUsers\"
+    CopyFiles /SILENT "$2\Application Data\SecondLife\*" "$TEMP\SecondLifeSettingsBackup\AllUsers\"
+Pop $0
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Restore user files from temp location
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function RestoreUserFiles
+
+Push $0
+Push $1
+Push $2
+
+    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+
+  LOOP:
+    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+    StrCmp $1 "" DONE               ; no more users
+
+    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+
+    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+    ExpandEnvStrings $2 $2
+
+    CreateDirectory "$2\Application Data\SecondLife\"
+    CopyFiles /SILENT "$TEMP\SecondLifeSettingsBackup\$0\*" "$2\Application Data\SecondLife\" 
+
+  CONTINUE:
+    IntOp $0 $0 + 1
+    Goto LOOP
+  DONE:
+
+Pop $2
+Pop $1
+Pop $0
+
+; Copy files in Documents and Settings\All Users\SecondLife
+Push $0
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+    StrCmp $0 "" +2
+    CreateDirectory "$2\Application Data\SecondLife\"
+    CopyFiles /SILENT "$TEMP\SecondLifeSettingsBackup\AllUsers\*" "$2\Application Data\SecondLife\" 
+Pop $0
+
+FunctionEnd
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Remove temp dirs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Function RemoveTempUserFiles
+
+Push $0
+Push $1
+Push $2
+
+    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+
+  LOOP:
+    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
+    StrCmp $1 "" DONE               ; no more users
+
+    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
+    StrCmp $2 "" CONTINUE 0         ; "ProfileImagePath" value is missing
+
+    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
+    ExpandEnvStrings $2 $2
+
+    RMDir /r "$TEMP\SecondLifeSettingsBackup\$0\*"
+
+  CONTINUE:
+    IntOp $0 $0 + 1
+    Goto LOOP
+  DONE:
+
+Pop $2
+Pop $1
+Pop $0
+
+; Copy files in Documents and Settings\All Users\SecondLife
+Push $0
+    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+    StrCmp $0 "" +2
+    RMDir /r "$TEMP\SecondLifeSettingsBackup\AllUsers\*"
+Pop $0
+
+FunctionEnd
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Clobber user files - TEST ONLY
+; This is here for testing, generally not desirable to call it.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Function ClobberUserFilesTESTONLY
+
 ;Push $0
 ;Push $1
 ;Push $2
-;  DetailPrint $(RemoveCacheFilesDP)
 ;
-;  StrCpy $0 0 ; Index number used to iterate via EnumRegKey
+;    StrCpy $0 0 ; Index number used to iterate via EnumRegKey
 ;
 ;  LOOP:
 ;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
@@ -317,28 +486,23 @@ FunctionEnd
 ;    ; Required since ProfileImagePath is of type REG_EXPAND_SZ
 ;    ExpandEnvStrings $2 $2
 ;
-;	; When explicitly uninstalling, everything goes away
-;    RMDir /r "$2\Application Data\SecondLife\cache"
+;    RMDir /r "$2\Application Data\SecondLife\"
 ;
 ;  CONTINUE:
 ;    IntOp $0 $0 + 1
 ;    Goto LOOP
 ;  DONE:
+;
 ;Pop $2
 ;Pop $1
 ;Pop $0
 ;
-;; Delete files in Documents and Settings\All Users\SecondLife
+;; Copy files in Documents and Settings\All Users\SecondLife
 ;Push $0
-;  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-;  StrCmp $0 "" +2
-;  RMDir /r "$0\SecondLife\cache"
+;    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
+;    StrCmp $0 "" +2
+;    RMDir /r "$2\Application Data\SecondLife\"
 ;Pop $0
-;
-;; Delete filse in C:\Windows\Application Data\SecondLife
-;; If the user is running on a pre-NT system, Application Data lives here instead of
-;; in Documents and Settings.
-;RMDir /r "$WINDIR\Application Data\SecondLife\cache"
 ;
 ;FunctionEnd
 
@@ -412,17 +576,15 @@ Push $2
     ; Required since ProfileImagePath is of type REG_EXPAND_SZ
     ExpandEnvStrings $2 $2
 
-	; If uninstalling a normal install remove everything
-	; Otherwise (preview/dmz etc) just remove cache
-    StrCmp $INSTFLAGS "" RM_ALL RM_CACHE
-      RM_ALL:
-        RMDir /r "$2\Application Data\SecondLife"
-      RM_CACHE:
-        # Local Settings directory is the cache, there is no "cache" subdir
-        RMDir /r "$2\Local Settings\Application Data\SecondLife"
-        # Vista version of the same
-        RMDir /r "$2\AppData\Local\SecondLife"
-        Delete "$2\Application Data\SecondLife\user_settings\settings_windlight.xml"
+        ; Remove all cache and settings files but leave any other .txt files to preserve the chat logs
+;    RMDir /r "$2\Application Data\SecondLife\logs"
+    RMDir /r "$2\Application Data\SecondLife\browser_profile"
+    RMDir /r "$2\Application Data\SecondLife\user_settings"
+    Delete  "$2\Application Data\SecondLife\*.xml"
+    Delete  "$2\Application Data\SecondLife\*.bmp"
+    Delete  "$2\Application Data\SecondLife\search_history.txt"
+    Delete  "$2\Application Data\SecondLife\plugin_cookies.txt"
+    Delete  "$2\Application Data\SecondLife\typed_locations.txt"
 
   CONTINUE:
     IntOp $0 $0 + 1
@@ -440,7 +602,7 @@ Push $0
   RMDir /r "$0\SecondLife"
 Pop $0
 
-; Delete filse in C:\Windows\Application Data\SecondLife
+; Delete files in C:\Windows\Application Data\SecondLife
 ; If the user is running on a pre-NT system, Application Data lives here instead of
 ; in Documents and Settings.
 RMDir /r "$WINDIR\Application Data\SecondLife"
@@ -768,12 +930,16 @@ Call CheckIfAdministrator		; Make sure the user can install/uninstall
 Call CheckIfAlreadyCurrent		; Make sure that we haven't already installed this version
 Call CloseSecondLife			; Make sure we're not running
 Call CheckNetworkConnection		; ping secondlife.com
+Call CheckWillUninstallV2               ; See if a V2 install exists and will be removed.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
+  Call PreserveUserFiles
+PRESERVE_DONE:
+
 ;;; Don't remove cache files during a regular install, removing the inventory cache on upgrades results in lots of damage to the servers.
 ;Call RemoveCacheFiles			; Installing over removes potentially corrupted
 								; VFS and cache files.
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Need to clean out shader files from previous installs to fix DEV-5663
 Call RemoveOldShaders
@@ -853,6 +1019,16 @@ WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" ""
 
 ; write out uninstaller
 WriteUninstaller "$INSTDIR\uninst.exe"
+
+; Uninstall existing "Second Life Viewer 2" install if needed.
+StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
+  ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\SecondLifeViewer2'
+  Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" ; with _? option above, uninst.exe will be left behind.
+  RMDir "$PROGRAMFILES\SecondLifeViewer2" ; will remove only if empty.
+
+  Call RestoreUserFiles
+  Call RemoveTempUserFiles
+REMOVE_SLV2_DONE:
 
 ; end of default section
 SectionEnd

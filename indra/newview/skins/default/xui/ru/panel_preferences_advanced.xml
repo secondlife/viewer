@@ -17,7 +17,7 @@
 	<button label="Обзор" label_selected="Обзор" name="set_cache"/>
 	<button label="Расположение по умолчанию" label_selected="Расположение по умолчанию" name="default_cache_location"/>
 	<text name="UI Size:">
-		Размер интерфейса:
+		Интерфейс:
 	</text>
 	<check_box label="Показывать ошибки скрипта в:" name="show_script_errors"/>
 	<radio_group name="show_location">

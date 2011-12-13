@@ -82,6 +82,7 @@ static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
 static const std::string LANDMARK_INFO_TYPE			= "landmark";
 static const std::string REMOTE_PLACE_INFO_TYPE		= "remote_place";
 static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
+static const std::string LANDMARK_TAB_INFO_TYPE     = "open_landmark_tab";
 
 // Support for secondlife:///app/parcel/{UUID}/about SLapps
 class LLParcelHandler : public LLCommandHandler
@@ -365,83 +366,104 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 	if (key.size() != 0)
 	{
-		mFilterEditor->clear();
-		onFilterEdit("", false);
-
-		mPlaceInfoType = key["type"].asString();
-		mPosGlobal.setZero();
-		mItem = NULL;
-		isLandmarkEditModeOn = false;
-		togglePlaceInfoPanel(TRUE);
-
-		if (mPlaceInfoType == AGENT_INFO_TYPE)
+		std::string key_type = key["type"].asString();
+		if (key_type == LANDMARK_TAB_INFO_TYPE)
 		{
-			mPlaceProfile->setInfoType(LLPanelPlaceInfo::AGENT);
+			// Small hack: We need to toggle twice. The first toggle moves from the Landmark 
+			// or Teleport History info panel to the Landmark or Teleport History list panel.
+			// For this first toggle, the mPlaceInfoType should be the one previously used so 
+			// that the state can be corretly set.
+			// The second toggle forces the list to be set to Landmark.
+			// This avoids extracting and duplicating all the state logic from togglePlaceInfoPanel() 
+			// here or some specific private method
+			togglePlaceInfoPanel(FALSE);
+			mPlaceInfoType = key_type;
+			togglePlaceInfoPanel(FALSE);
+			// Update the active tab
+			onTabSelected();
+			// Update the buttons at the bottom of the panel
+			updateVerbs();
 		}
-		else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
+		else
 		{
-			mLandmarkInfo->setInfoType(LLPanelPlaceInfo::CREATE_LANDMARK);
+			mFilterEditor->clear();
+			onFilterEdit("", false);
 
-			if (key.has("x") && key.has("y") && key.has("z"))
+			mPlaceInfoType = key_type;
+			mPosGlobal.setZero();
+			mItem = NULL;
+			isLandmarkEditModeOn = false;
+			togglePlaceInfoPanel(TRUE);
+
+			if (mPlaceInfoType == AGENT_INFO_TYPE)
 			{
-				mPosGlobal = LLVector3d(key["x"].asReal(),
-										key["y"].asReal(),
-										key["z"].asReal());
+				mPlaceProfile->setInfoType(LLPanelPlaceInfo::AGENT);
 			}
-			else
+			else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
 			{
-				mPosGlobal = gAgent.getPositionGlobal();
+				mLandmarkInfo->setInfoType(LLPanelPlaceInfo::CREATE_LANDMARK);
+
+				if (key.has("x") && key.has("y") && key.has("z"))
+				{
+					mPosGlobal = LLVector3d(key["x"].asReal(),
+											key["y"].asReal(),
+											key["z"].asReal());
+				}
+				else
+				{
+					mPosGlobal = gAgent.getPositionGlobal();
+				}
+
+				mLandmarkInfo->displayParcelInfo(LLUUID(), mPosGlobal);
+
+				mSaveBtn->setEnabled(FALSE);
 			}
-
-			mLandmarkInfo->displayParcelInfo(LLUUID(), mPosGlobal);
-
-			mSaveBtn->setEnabled(FALSE);
-		}
-		else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
-		{
-			mLandmarkInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
-
-			LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
-			if (!item)
-				return;
-
-			setItem(item);
-		}
-		else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
-		{
-			if (key.has("id"))
+			else if (mPlaceInfoType == LANDMARK_INFO_TYPE)
 			{
-				LLUUID parcel_id = key["id"].asUUID();
-				mPlaceProfile->setParcelID(parcel_id);
+				mLandmarkInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
 
-				// query the server to get the global 3D position of this
-				// parcel - we need this for teleport/mapping functions.
-				mRemoteParcelObserver->setParcelID(parcel_id);
+				LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
+				if (!item)
+					return;
+
+				setItem(item);
 			}
-			else
+			else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 			{
-				mPosGlobal = LLVector3d(key["x"].asReal(),
-										key["y"].asReal(),
-										key["z"].asReal());
+				if (key.has("id"))
+				{
+					LLUUID parcel_id = key["id"].asUUID();
+					mPlaceProfile->setParcelID(parcel_id);
+
+					// query the server to get the global 3D position of this
+					// parcel - we need this for teleport/mapping functions.
+					mRemoteParcelObserver->setParcelID(parcel_id);
+				}
+				else
+				{
+					mPosGlobal = LLVector3d(key["x"].asReal(),
+											key["y"].asReal(),
+											key["z"].asReal());
+					mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
+				}
+
+				mPlaceProfile->setInfoType(LLPanelPlaceInfo::PLACE);
+			}
+			else if (mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
+			{
+				S32 index = key["id"].asInteger();
+
+				const LLTeleportHistoryStorage::slurl_list_t& hist_items =
+							LLTeleportHistoryStorage::getInstance()->getItems();
+
+				mPosGlobal = hist_items[index].mGlobalPos;
+
+				mPlaceProfile->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
 				mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 			}
 
-			mPlaceProfile->setInfoType(LLPanelPlaceInfo::PLACE);
+			updateVerbs();
 		}
-		else if (mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
-		{
-			S32 index = key["id"].asInteger();
-
-			const LLTeleportHistoryStorage::slurl_list_t& hist_items =
-						LLTeleportHistoryStorage::getInstance()->getItems();
-
-			mPosGlobal = hist_items[index].mGlobalPos;
-
-			mPlaceProfile->setInfoType(LLPanelPlaceInfo::TELEPORT_HISTORY);
-			mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
-		}
-
-		updateVerbs();
 	}
 
 	LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
@@ -942,7 +964,8 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		}
 	}
 	else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE ||
-			 mPlaceInfoType == LANDMARK_INFO_TYPE)
+			 mPlaceInfoType == LANDMARK_INFO_TYPE ||
+			 mPlaceInfoType == LANDMARK_TAB_INFO_TYPE)
 	{
 		mLandmarkInfo->setVisible(visible);
 
@@ -960,13 +983,15 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		{
 			LLLandmarksPanel* landmarks_panel =
 					dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName("Landmarks"));
-			if (landmarks_panel && mItem.notNull())
+			if (landmarks_panel)
 			{
 				// If a landmark info is being closed we open the landmarks tab
 				// and set this landmark selected.
 				mTabContainer->selectTabPanel(landmarks_panel);
-
-				landmarks_panel->setItemSelected(mItem->getUUID(), TRUE);
+				if (mItem.notNull())
+				{
+					landmarks_panel->setItemSelected(mItem->getUUID(), TRUE);
+				}
 			}
 		}
 	}
@@ -1163,7 +1188,8 @@ LLPanelPlaceInfo* LLPanelPlaces::getCurrentInfoPanel()
 		return mPlaceProfile;
 	}
 	else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE ||
-			 mPlaceInfoType == LANDMARK_INFO_TYPE)
+			 mPlaceInfoType == LANDMARK_INFO_TYPE ||
+			 mPlaceInfoType == LANDMARK_TAB_INFO_TYPE)
 	{
 		return mLandmarkInfo;
 	}

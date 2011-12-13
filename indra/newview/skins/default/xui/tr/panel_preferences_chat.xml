@@ -16,9 +16,9 @@
 		Aİ&apos;leri şurada göster:
 	</text>
 	<text name="requires_restart_label">
-		(yeniden başlatma gerektirir)
+		(tekrar başlatma gerekir)
 	</text>
-	<radio_group name="chat_window" tool_tip="Anlık İletilerinizi ayrı gezdiricilerde veya birden çok sekmeye sahip tek bir gezdiricide gösterin (Yeniden başlatma gerektirir)">
+	<radio_group name="chat_window" tool_tip="Anlık İletileri ayrı gezdiricilerde veya çoklu sekmelere sahip tek bir gezdiricide gösterin (tekrar başlatma gerekir)">
 		<radio_item label="Ayrı Pencereler" name="radio" value="0"/>
 		<radio_item label="Sekmeler" name="radio2" value="1"/>
 	</radio_group>
@@ -30,7 +30,7 @@
 	<spinner label="Yakındaki sohbet iletilerinin vurgulanma süresi:" name="nearby_toasts_lifetime"/>
 	<spinner label="Yakındaki sohbet iletilerinin sönme süresi:" name="nearby_toasts_fadingtime"/>
 	<text name="translate_chb_label">
-		Sohbet ederken makine çevirisi kullanılsın (Google tarafından desteklenir)
+		Sohbet ederken makine çevirisi kullanılsın
 	</text>
 	<text name="translate_language_text">
 		Sohbeti şu dile çevir:

@@ -56,7 +56,7 @@
 			<menu_item_check label="Parsel Özellikleri" name="Parcel Properties"/>
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_call label="Ana Konuma Işınlan" name="Teleport Home"/>
+		<menu_item_call label="Ana Konuma Işınla" name="Teleport Home"/>
 		<menu_item_call label="Ana Konumu Burası Olarak Seç" name="Set Home to Here"/>
 		<menu label="Güneş" name="Environment Settings">
 			<menu_item_call label="Gün Doğumu" name="Sunrise"/>
@@ -93,7 +93,7 @@
 			<menu_item_call label="Arazi Aracı" name="Land"/>
 		</menu>
 		<menu_item_call label="Bağla" name="Link"/>
-		<menu_item_call label="Bağlantıyı Kopar" name="Unlink"/>
+		<menu_item_call label="Bağlnty. Kopar" name="Unlink"/>
 		<menu_item_check label="Bağlantılı Parçaları Düzenle" name="Edit Linked Parts"/>
 		<menu label="Bağlantılı Parçaları Seç" name="Select Linked Parts">
 			<menu_item_call label="Sonraki Parçayı Seç" name="Select Next Part"/>
@@ -118,7 +118,7 @@
 			<menu_item_call label="Komut Dosyalarını Çalışıyor Olarak Ayarla" name="Set Scripts to Running"/>
 			<menu_item_call label="Komut Dosyalarını Çalışmıyor Olarak Ayarla" name="Set Scripts to Not Running"/>
 		</menu>
-		<menu label="Seçenekler" name="Options">
+		<menu label="Seçenklr." name="Options">
 			<menu_item_check label="Gelişmiş İzinleri Göster" name="DebugPermissions"/>
 			<menu_item_check label="Sadece Nesnelerimi Seç" name="Select Only My Objects"/>
 			<menu_item_check label="Sadece Hareket Ettirilebilir Nesneleri Seç" name="Select Only Movable Objects"/>

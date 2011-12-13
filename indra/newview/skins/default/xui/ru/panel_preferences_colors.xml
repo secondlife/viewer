@@ -35,9 +35,9 @@
 		Цвет фона тегов имен (также для чата в пузырьках):
 	</text>
 	<color_swatch name="background" tool_tip="Выберите цвет для тегов имен"/>
-	<slider label="Прозрачность:" name="bubble_chat_opacity" tool_tip="Задайте прозрачность тегов имен"/>
+	<slider label="Видимость:" name="bubble_chat_opacity" tool_tip="Задайте непрозрачность тегов имен"/>
 	<text name="floater_opacity">
-		Прозрачность окон:
+		Непрозрачность окон:
 	</text>
 	<slider label="Активные:" name="active"/>
 	<slider label="Неактивные:" name="inactive"/>

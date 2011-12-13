@@ -91,6 +91,8 @@ private:
 	LLSD*					mCurWriteSD;
 };
 
+
+extern LLFastTimer::DeclareTimer FTM_SD_PARAM_ADAPTOR;
 template<typename T>
 class LLSDParamAdapter : public T
 {
@@ -98,8 +100,11 @@ public:
 	LLSDParamAdapter() {}
 	LLSDParamAdapter(const LLSD& sd)
 	{
+		LLFastTimer _(FTM_SD_PARAM_ADAPTOR);
 		LLParamSDParser parser;
-		parser.readSD(sd, *this);
+		// don't spam for implicit parsing of LLSD, as we want to allow arbitrary freeform data and ignore most of it
+		bool parse_silently = true;
+		parser.readSD(sd, *this, parse_silently);
 	}
 
 	operator LLSD() const

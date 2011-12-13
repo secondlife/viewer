@@ -18,7 +18,7 @@
 			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
 		</combo_box>
 		<text name="sky_dayc_settings_title">
-			Gökyüzü / Gün Döngüsü
+			Gökyüzü/Gün Dön.
 		</text>
 		<radio_group name="sky_dayc_settings_radio_group">
 			<radio_item label="Sabit gökyüzü" name="my_sky_settings"/>

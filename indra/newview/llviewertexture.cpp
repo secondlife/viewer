@@ -417,6 +417,48 @@ const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
 
+//static 
+bool LLViewerTexture::isMemoryForTextureLow()
+{
+	const static S32 MIN_FREE_TEXTURE_MEMORY = 5 ; //MB
+	const static S32 MIN_FREE_MAIN_MEMORy = 100 ; //MB
+
+	bool low_mem = false ;
+	if (gGLManager.mHasATIMemInfo)
+	{
+		S32 meminfo[4];
+		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
+
+		if(meminfo[0] / 1024 < MIN_FREE_TEXTURE_MEMORY)
+		{
+			low_mem = true ;
+		}
+	}
+#if 0  //ignore nVidia cards
+	else if (gGLManager.mHasNVXMemInfo)
+	{
+		S32 free_memory;
+		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
+		
+		if(free_memory / 1024 < MIN_FREE_TEXTURE_MEMORY)
+		{
+			low_mem = true ;
+		}
+	}
+#endif
+
+	if(!low_mem) //check main memory, only works for windows.
+	{
+		LLMemory::updateMemoryInfo() ;
+		if(LLMemory::getAvailableMemKB() / 1024 < MIN_FREE_MAIN_MEMORy)
+		{
+			low_mem = true ;
+		}
+	}
+
+	return low_mem ;
+}
+
 //static
 void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity)
 {
@@ -448,6 +490,11 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 			sDesiredDiscardBias += discard_bias_delta;
 			sEvaluationTimer.reset();
 		}
+	}
+	else if(sEvaluationTimer.getElapsedTimeF32() > discard_delta_time && isMemoryForTextureLow())
+	{
+		sDesiredDiscardBias += discard_bias_delta;
+		sEvaluationTimer.reset();
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
 			 BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) < sMaxBoundTextureMemInMegaBytes * texmem_lower_bound_scale &&

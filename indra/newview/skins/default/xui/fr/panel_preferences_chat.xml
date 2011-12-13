@@ -31,7 +31,7 @@
 	<spinner label="Disparition progressive du popup Chat près de moi :" name="nearby_toasts_fadingtime"/>
 	<check_box name="translate_chat_checkbox"/>
 	<text name="translate_chb_label">
-		Utiliser la traduction automatique lors des chats (fournie par Google)
+		Utiliser la traduction automatique lors des chats
 	</text>
 	<text name="translate_language_text">
 		Traduire le chat en :

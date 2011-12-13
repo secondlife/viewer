@@ -22,14 +22,23 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif 
 
-uniform sampler2D diffuseMap;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
-void default_lighting_water() 
+vec3 atmosLighting(vec3 light);
+vec4 applyWaterFog(vec4 color);
+
+void default_lighting_water()
 {
-	vec4 color = gl_Color * texture2D(diffuseMap, gl_TexCoord[0].xy);
-	gl_FragColor = color;
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
+
+	color.rgb = atmosLighting(color.rgb);
+
+	gl_FragColor = applyWaterFog(color);
 }
 

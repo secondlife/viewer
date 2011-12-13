@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
  
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
-
-varying vec4 post_pos;
+VARYING vec4 post_pos;
 
 void main() 
 {

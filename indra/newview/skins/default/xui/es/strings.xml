@@ -3841,6 +3841,9 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="inventory_item_offered-im">
 		Ofrecido el item del inventario
 	</string>
+	<string name="share_alert">
+		Arrastra los ítems desde el invenbtario hasta aquí
+	</string>
 	<string name="no_session_message">
 		(La sesión de MI no existe)
 	</string>

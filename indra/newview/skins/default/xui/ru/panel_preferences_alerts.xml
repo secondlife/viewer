@@ -3,7 +3,7 @@
 	<text name="tell_me_label">
 		Сообщать мне:
 	</text>
-	<check_box label="о тратах и доходах" name="notify_money_change_checkbox"/>
+	<check_box label="о расходах и доходах" name="notify_money_change_checkbox"/>
 	<check_box label="о входе и выходе моих друзей" name="friends_online_notify_checkbox"/>
 	<text name="show_label">
 		Всегда показывать:

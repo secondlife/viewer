@@ -1821,6 +1821,7 @@ void LLPrivateMemoryPool::LLChunkHashElement::remove(LLPrivateMemoryPool::LLMemo
 //class LLPrivateMemoryPoolManager
 //--------------------------------------------------------------------
 LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::sInstance = NULL ;
+BOOL LLPrivateMemoryPoolManager::sPrivatePoolEnabled = FALSE ;
 std::vector<LLPrivateMemoryPool*> LLPrivateMemoryPoolManager::sDanglingPoolList ;
 
 LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled, U32 max_pool_size) 
@@ -1832,7 +1833,7 @@ LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled, U32 max_poo
 		mPoolList[i] = NULL ;
 	}
 
-	mPrivatePoolEnabled = enabled ;
+	sPrivatePoolEnabled = enabled ;
 
 	const U32 MAX_POOL_SIZE = 256 * 1024 * 1024 ; //256 MB
 	mMaxPrivatePoolSize = llmax(max_pool_size, MAX_POOL_SIZE) ;
@@ -1917,7 +1918,7 @@ void LLPrivateMemoryPoolManager::destroyClass()
 
 LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(S32 type) 
 {
-	if(!mPrivatePoolEnabled)
+	if(!sPrivatePoolEnabled)
 	{
 		return NULL ;
 	}
@@ -2015,7 +2016,11 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	}
 	else
 	{
-		if(!sInstance) //the private memory manager is destroyed, try the dangling list
+		if(!sPrivatePoolEnabled)
+		{
+			free(addr) ; //private pool is disabled.
+		}
+		else if(!sInstance) //the private memory manager is destroyed, try the dangling list
 		{
 			for(S32 i = 0 ; i < sDanglingPoolList.size(); i++)
 			{
@@ -2036,12 +2041,13 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 					addr = NULL ;
 					break ;
 				}
-			}
+			}		
+			llassert_always(!addr) ; //addr should be release before hitting here!
 		}
-
-		llassert_always(!addr) ; //addr should be release before hitting here!
-
-		free(addr) ;
+		else
+		{
+			llerrs << "private pool is used before initialized.!" << llendl ;
+		}
 	}	
 }
 

@@ -1624,7 +1624,7 @@ LLNotificationPtr LLNotifications::find(LLUUID uuid)
 	LLNotificationSet::iterator it=mItems.find(target);
 	if (it == mItems.end())
 	{
-		llwarns << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << llendl;
+		LL_DEBUGS("Notifications") << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << llendl;
 		return LLNotificationPtr((LLNotification*)NULL);
 	}
 	else

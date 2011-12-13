@@ -23,7 +23,7 @@
 	</combo_box>
 	<text name="bad_image_text">
 		Невозможно прочитать изображение.
-Попробуйте сохранить изображение как 24-разрядный TGA-файл (Targa).
+Попробуйте сохранить изображение как 24-битный TGA-файл (Targa).
 	</text>
 	<check_box label="Использовать сжатие без потерь" name="lossless_check"/>
 	<button label="Отмена" name="cancel_btn"/>

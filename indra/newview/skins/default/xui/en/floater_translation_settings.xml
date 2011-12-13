@@ -4,7 +4,7 @@
  height="310"
  layout="topleft"
  name="floater_translation_settings"
- help_topic="environment_editor_floater"
+ help_topic="translation_settings"
  save_rect="true"
  title="CHAT TRANSLATION SETTINGS"
  width="485">

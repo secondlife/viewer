@@ -14,7 +14,7 @@
 	<text name="user_label" value="Kullanıcı Adı:"/>
 	<tab_container name="tabs">
 		<panel label="PROFİL" name="panel_profile"/>
-		<panel label="FAVORİLER" name="panel_picks"/>
+		<panel label="SEÇMELER" name="panel_picks"/>
 		<panel label="NOTLAR &amp; GİZLİLİK" name="panel_notes"/>
 	</tab_container>
 </panel>

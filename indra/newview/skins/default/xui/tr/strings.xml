@@ -584,7 +584,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		sim durumu
 	</string>
 	<string name="favorite">
-		sık kullanılan
+		favori
 	</string>
 	<string name="symbolic link">
 		bağlantı
@@ -1205,7 +1205,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Aradığınızı bulamadınız mı? [secondlife:///app/search/places/[SEARCH_TERM] Arama] ile bulmayı deneyin.
 	</string>
 	<string name="FavoritesNoMatchingItems">
-		Bir yer imini sık kullanılanlarınıza eklemek için buraya sürükleyin.
+		Bir yer imini favorilerinize eklemek için buraya sürükleyin.
 	</string>
 	<string name="InventoryNoTexture">
 		Envanterinizde bu dokunun kopyası yok
@@ -1380,10 +1380,10 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Mimikler
 	</string>
 	<string name="InvFolder Favorite">
-		Sık Kullanılanlarım
+		Favorilerim
 	</string>
 	<string name="InvFolder favorite">
-		Sık Kullanılanlarım
+		Favorilerim
 	</string>
 	<string name="InvFolder Current Outfit">
 		Mevcut Dış Görünüm
@@ -1985,10 +1985,10 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		(yayınlandıktan sonra güncelleştirilir)
 	</string>
 	<string name="NoPicksClassifiedsText">
-		Herhangi bir Favori veya İlan oluşturmadınız. Bir Favori veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
+		Herhangi bir Seçme veya İlan oluşturmadınız. Bir Seçme veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
 	</string>
 	<string name="NoAvatarPicksClassifiedsText">
-		Kullanıcının herhangi bir favorisi veya ilanı yok
+		Kullanıcının herhangi bir seçmesi veya ilanı yok
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Yükleniyor...
@@ -2160,7 +2160,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Aşağı
 	</string>
 	<string name="Any Category">
-		Herhangi Bir Kategori
+		Herh. Bir Kategori
 	</string>
 	<string name="Shopping">
 		Alışveriş
@@ -2190,7 +2190,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Kişisel
 	</string>
 	<string name="None">
-		Hiçbiri
+		Renksiz
 	</string>
 	<string name="Linden Location">
 		Linden Konumu
@@ -2390,7 +2390,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Arka Perçem
 	</string>
 	<string name="Baggy">
-		Lüleler
+		Torbalı
 	</string>
 	<string name="Bangs">
 		Kahküller
@@ -2480,7 +2480,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Geniş
 	</string>
 	<string name="Brow Size">
-		Kaş Büyüklüğü
+		Alın Genişliği
 	</string>
 	<string name="Bug Eyes">
 		Patlak Gözlü
@@ -2777,7 +2777,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kaş Yüksekliği
 	</string>
 	<string name="Eyebrow Points">
-		Kaş Noktaları
+		Kaş Yapısı
 	</string>
 	<string name="Eyebrow Size">
 		Kaş Büyüklüğü
@@ -2846,13 +2846,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Ön Perçem
 	</string>
 	<string name="Full Back">
-		Saçlar Arkada
+		Arkası Düz
 	</string>
 	<string name="Full Eyeliner">
 		Çift Taraflı Göz Kalemi
 	</string>
 	<string name="Full Front">
-		Saçlar Önde
+		Önü Düz
 	</string>
 	<string name="Full Hair Sides">
 		Saçlar Yanda
@@ -2936,13 +2936,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Yüksek Topuklar
 	</string>
 	<string name="High Jaw">
-		Yüksek Çene Ucu
+		Ayrık
 	</string>
 	<string name="High Platforms">
-		Yüksek Topuklu Ayakkabılar
+		Yüksek Topuklu
 	</string>
 	<string name="High and Tight">
-		Tepede Bırakılmış Saç
+		Düşük
 	</string>
 	<string name="Higher">
 		Daha Yüksek
@@ -2954,7 +2954,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kalça Genişliği
 	</string>
 	<string name="In">
-		İç
+		İçeri
 	</string>
 	<string name="In Shdw Color">
 		İç Gölge Rengi
@@ -2978,19 +2978,19 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Ceket Kırışıklıkları
 	</string>
 	<string name="Jaw Angle">
-		Çene Ucu Açısı
+		Çenenin Boyuna Uzaklığı
 	</string>
 	<string name="Jaw Jut">
-		Çene Ucu Çıkıntısı
+		Alt Çene Uzunluğu
 	</string>
 	<string name="Jaw Shape">
-		Çene Ucu Şekli
+		Çene Kemiği Genişliği
 	</string>
 	<string name="Join">
-		Birleştir
+		Birleşik
 	</string>
 	<string name="Jowls">
-		Gıdıklar
+		Avurtlar
 	</string>
 	<string name="Knee Angle">
 		Diz Açısı
@@ -3029,7 +3029,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Az Dolgun
 	</string>
 	<string name="Less Gravity">
-		Daha Az Yerçekimi
+		Dik Göğüs
 	</string>
 	<string name="Less Love">
 		Daha İnce Bel
@@ -3047,7 +3047,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Az Yuvarlak
 	</string>
 	<string name="Less Saddle">
-		Daha Dar Kalça
+		Basensiz
 	</string>
 	<string name="Less Square">
 		Daha Az Küt
@@ -3098,7 +3098,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Uzun Kafa
 	</string>
 	<string name="Long Hips">
-		Geniş Kalçalar
+		Yüksek kalça
 	</string>
 	<string name="Long Legs">
 		Uzun Bacaklar
@@ -3107,7 +3107,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Uzun Boyun
 	</string>
 	<string name="Long Pigtails">
-		Uzun Saç Örgüleri
+		Yandan Uzun Kuyruk
 	</string>
 	<string name="Long Ponytail">
 		Uzun Atkuyruğu
@@ -3137,13 +3137,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Alçak Topuklar
 	</string>
 	<string name="Low Jaw">
-		Düşük Çene Ucu
+		Bitişik
 	</string>
 	<string name="Low Platforms">
 		Alçak Topuklu
 	</string>
 	<string name="Low and Loose">
-		Serbest At Kuyruğu
+		Yüksek
 	</string>
 	<string name="Lower">
 		Daha Alçak
@@ -3182,7 +3182,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Dolgun
 	</string>
 	<string name="More Gravity">
-		Daha Çok Yerçekimi
+		Sarkık Göğüs
 	</string>
 	<string name="More Lipstick">
 		Daha Çok Ruj
@@ -3191,7 +3191,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Kalın Bel
 	</string>
 	<string name="More Lower Lip">
-		Daha Çok Alt Dudak
+		Daha Dolgun Alt Dudak
 	</string>
 	<string name="More Muscles">
 		Daha Çok Kas
@@ -3206,7 +3206,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Yuvarlak
 	</string>
 	<string name="More Saddle">
-		Daha Geniş Kalça
+		Basenli
 	</string>
 	<string name="More Sloped">
 		Daha Eğimli
@@ -3215,7 +3215,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Küt
 	</string>
 	<string name="More Upper Lip">
-		Daha Çok Üst Dudak
+		Daha Dolgun Üst Dudak
 	</string>
 	<string name="More Vertical">
 		Daha Dikey
@@ -3260,7 +3260,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Önü Dar
 	</string>
 	<string name="Narrow Lips">
-		İnce Dudaklar
+		Küçük Dudaklar
 	</string>
 	<string name="Natural">
 		Doğal
@@ -3359,7 +3359,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Turuncu
 	</string>
 	<string name="Out">
-		Dış
+		Dışarı
 	</string>
 	<string name="Out Shdw Color">
 		Dış Gölge Rengi
@@ -3377,7 +3377,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dış Gölge
 	</string>
 	<string name="Overbite">
-		Üst Dişler Önde
+		Öne Doğru
 	</string>
 	<string name="Package">
 		Apış Arası Şişkinliği
@@ -3416,7 +3416,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Pigment
 	</string>
 	<string name="Pigtails">
-		Saç Örgüleri
+		Yan Kuyruklar
 	</string>
 	<string name="Pink">
 		Pembe
@@ -3431,7 +3431,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Topuk Genişliği
 	</string>
 	<string name="Pointy">
-		Sivri
+		Dar
 	</string>
 	<string name="Pointy Heels">
 		Sivri Topuklar
@@ -3482,25 +3482,25 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dağınık Saç
 	</string>
 	<string name="Saddle Bags">
-		Kalça Kalınlığı
+		Basen Genişliği
 	</string>
 	<string name="Scrawny Leg">
 		Sıska Bacak
 	</string>
 	<string name="Separate">
-		Ayrı
+		Ayrık
 	</string>
 	<string name="Shallow">
 		Sığ
 	</string>
 	<string name="Shear Back">
-		Arkayı Dikey Kaydır
+		Arka Dolgunluğu
 	</string>
 	<string name="Shear Face">
 		Yüzü Dikey Kaydır
 	</string>
 	<string name="Shear Front">
-		Önü Dikey Kaydır
+		Ön Dolgunluğu
 	</string>
 	<string name="Shear Left Up">
 		Solu Yukarı Kaydır
@@ -3509,10 +3509,10 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Sağı Yukarı Kaydır
 	</string>
 	<string name="Sheared Back">
-		Arkası Dikey Kaydırılmış
+		Arkası Dolgun
 	</string>
 	<string name="Sheared Front">
-		Önü Dikey Kaydırılmış
+		Önü Dolgun
 	</string>
 	<string name="Shift Left">
 		Sola Kaydır
@@ -3548,7 +3548,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kısa Boyun
 	</string>
 	<string name="Short Pigtails">
-		Kısa Atkuyrukları
+		Yandan Kısa Kuyruk
 	</string>
 	<string name="Short Ponytail">
 		Kısa Atkuyruğu
@@ -3560,7 +3560,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kısa Gövde
 	</string>
 	<string name="Short hips">
-		Dar kalçalar
+		Düşük kalça
 	</string>
 	<string name="Shoulders">
 		Omuzlar
@@ -3638,7 +3638,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dikleştirilmiş Saç
 	</string>
 	<string name="Square">
-		Kare
+		Geniş
 	</string>
 	<string name="Square Toe">
 		Küt Burunlu
@@ -3680,7 +3680,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kalın Boyun
 	</string>
 	<string name="Thick Toe">
-		Kalın kabu Burnu
+		Kalın Ayak Ucu
 	</string>
 	<string name="Thin">
 		İnce
@@ -3695,7 +3695,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		İnce Burun
 	</string>
 	<string name="Tight Chin">
-		Dar Çene
+		Çift Çene
 	</string>
 	<string name="Tight Cuffs">
 		Dar Paçalar
@@ -3710,7 +3710,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dar Etek
 	</string>
 	<string name="Tight Sleeves">
-		Dar Kollar
+		Dar Kollu
 	</string>
 	<string name="Toe Shape">
 		Ayakkabu Burnu Şekli
@@ -3728,13 +3728,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Sıska Gövde
 	</string>
 	<string name="Unattached">
-		Bağımsız
+		Ayrık
 	</string>
 	<string name="Uncreased">
 		Buruşuk olmayan
 	</string>
 	<string name="Underbite">
-		Alt Dişler Önde
+		Geriye Doğru
 	</string>
 	<string name="Unnatural">
 		Doğal Olmayan
@@ -3770,7 +3770,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Geniş
 	</string>
 	<string name="Wide Back">
-		Geniş Sırt
+		Geniş Arka
 	</string>
 	<string name="Wide Front">
 		Geniş Ön
@@ -4165,7 +4165,7 @@ Kötüye Kullanımı Bildirme
 		Konuşma Mimikleri
 	</string>
 	<string name="Common Gestures">
-		Sık Kullanılan Mimikler
+		Favori Mimikler
 	</string>
 	<string name="Male - Excuse me">
 		Erkek - Afedersiniz
@@ -4798,7 +4798,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Pusula
 	</string>
 	<string name="Command_Destinations_Label">
-		Hedef Konumlar
+		Hedef Konum
 	</string>
 	<string name="Command_Gestures_Label">
 		Mimikler
@@ -4825,7 +4825,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Kişiler
 	</string>
 	<string name="Command_Picks_Label">
-		Favoriler
+		Seçmeler
 	</string>
 	<string name="Command_Places_Label">
 		Yerler
@@ -4897,7 +4897,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Arkadaşlar, gruplar ve yakındaki kişiler
 	</string>
 	<string name="Command_Picks_Tooltip">
-		Profilinizde sık kullanılan olarak gösterilecek yerler
+		Profilinizde favori olarak gösterilecek yerler
 	</string>
 	<string name="Command_Places_Tooltip">
 		Kaydettiğiniz yerler

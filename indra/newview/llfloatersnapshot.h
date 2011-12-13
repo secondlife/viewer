@@ -27,11 +27,15 @@
 #ifndef LL_LLFLOATERSNAPSHOT_H
 #define LL_LLFLOATERSNAPSHOT_H
 
+#include "llimage.h"
 #include "llfloater.h"
 
+class LLSpinCtrl;
 
 class LLFloaterSnapshot : public LLFloater
 {
+	LOG_CLASS(LLFloaterSnapshot);
+
 public:
 	typedef enum e_snapshot_format
 	{
@@ -47,20 +51,31 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ S32 notify(const LLSD& info);
 	
 	static void update();
-	
-	static S32  getUIWinHeightLong()  {return sUIWinHeightLong ;}
-	static S32  getUIWinHeightShort() {return sUIWinHeightShort ;}
-	static S32  getUIWinWidth()       {return sUIWinWidth ;}
+
+	// TODO: create a snapshot model instead
+	static LLFloaterSnapshot* getInstance();
+	static void saveTexture();
+	static BOOL saveLocal();
+	static void preUpdate();
+	static void postUpdate();
+	static void postSave();
+	static void postPanelSwitch();
+	static LLPointer<LLImageFormatted> getImageData();
+	static const LLVector3d& getPosTakenGlobal();
+	static void setAgentEmail(const std::string& email);
+
+	static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
 
 private:
+	static LLUICtrl* sThumbnailPlaceholder;
+	LLUICtrl *mRefreshBtn, *mRefreshLabel;
+	LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
+
 	class Impl;
 	Impl& impl;
-
-	static S32    sUIWinHeightLong ;
-	static S32    sUIWinHeightShort ;
-	static S32    sUIWinWidth ;
 };
 
 class LLSnapshotFloaterView : public LLFloaterView

@@ -7,7 +7,7 @@
 		bilinmiyor
 	</text>
 	<spinner label="Su Yüksekliği" name="water_height_spin"/>
-	<spinner label="Yüzey Yükseltme Limiti" name="terrain_raise_spin"/>
+	<spinner label="Yüzey Yükslt. Limiti" name="terrain_raise_spin"/>
 	<spinner label="Yüzey Alçatma Limiti" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
 		Yüzey Dokuları (512x512, 24 bit .tga dosyalar gerektirir)

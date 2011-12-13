@@ -1,4 +1,3 @@
-
 # -*- cmake -*-
 
 # cmake_minimum_required should appear before any
@@ -69,6 +68,9 @@ if (VIEWER)
   add_subdirectory(${LIBS_OPEN_PREFIX}llui)
   add_subdirectory(${LIBS_OPEN_PREFIX}llxuixml)
   add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
+
+  # Legacy C++ tests. Build always, run if LL_TESTS is true.
+  add_subdirectory(${VIEWER_PREFIX}test)
 
   # viewer media plugins
   add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)

@@ -12,9 +12,9 @@
 		<layout_panel name="favorites_layout_panel">
 			<favorites_bar name="favorite" tool_tip="Second Life içerisinde sık kullandığınız yerlere hızla erişmek için Yer İmlerini buraya sürükleyin!">
 				<label name="favorites_bar_label" tool_tip="Second Life içerisinde sık kullandığınız yerlere hızla erişmek için Yer İmlerini buraya sürükleyin!">
-					Sık Kullanılanlar Çubuğu
+					Favoriler Çubuğu
 				</label>
-				<more_button name="&gt;&gt;" tool_tip="Sık Kullanılanlarımdan daha çok göster">
+				<more_button name="&gt;&gt;" tool_tip="Favorilerimden daha çok göster">
 					Daha Fazla ▼
 				</more_button>
 			</favorites_bar>

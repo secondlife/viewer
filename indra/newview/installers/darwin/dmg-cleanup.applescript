@@ -19,7 +19,7 @@ tell application "Finder"
 	set current view of foo to icon view
 	set toolbar visible of foo to false
 	set statusbar visible of foo to false
-	set the bounds of foo to {100, 100, 600, 399}
+	set the bounds of foo to {100, 100, 600, 449}
 	
 	-- set the position of front window to {100, 100}
 	-- get {name, position} of every item of front window
