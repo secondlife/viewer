@@ -579,7 +579,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("#define ATTRIBUTE attribute\n");
 		text[count++] = strdup("#define VARYING varying\n");
 	}
-	else if (version < 3.f)
+	else if (version < 3.3f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");
