@@ -47,6 +47,7 @@
 #include "llviewerwindow.h"
 #include "llrootview.h"
 #include "llviewerchat.h"
+#include "llnearbychat.h"
 
 #include "llresizehandle.h"
 
@@ -70,9 +71,14 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 };
 
 LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
-	: LLFloater(key),
-	mChatBox(NULL)
-{	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+:	LLFloater(key),
+	mChatBox(NULL),
+	mNearbyChat(NULL),
+	mOutputMonitor(NULL),
+	mSpeakerMgr(NULL),
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
+{
+	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -94,6 +100,7 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
+	mNearbyChat = getChildView("nearby_chat");
 
 	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
 	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
@@ -104,8 +111,6 @@ BOOL LLNearbyChatBar::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
-	mExpandedHeight = COLLAPSED_HEIGHT + EXPANDED_HEIGHT;
-
 	enableResizeCtrls(true, true, false);
 
 	return TRUE;
@@ -115,8 +120,7 @@ bool LLNearbyChatBar::applyRectControl()
 {
 	bool rect_controlled = LLFloater::applyRectControl();
 
-	LLView* nearby_chat = getChildView("nearby_chat");	
-	if (!nearby_chat->getVisible())
+	if (!mNearbyChat->getVisible())
 	{
 		reshape(getRect().getWidth(), getMinHeight());
 		enableResizeCtrls(true, true, false);
@@ -147,12 +151,12 @@ LLNearbyChatBar* LLNearbyChatBar::getInstance()
 
 void LLNearbyChatBar::showHistory()
 {
+	openFloater();
+
 	if (!getChildView("nearby_chat")->getVisible())
 	{
 		onToggleNearbyChatPanel();
 	}
-	
-	openFloater();
 }
 
 void LLNearbyChatBar::draw()
@@ -379,7 +383,10 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 
 	if (nearby_chat->getVisible())
 	{
-		mExpandedHeight = getRect().getHeight();
+		if (!isMinimized())
+		{
+			mExpandedHeight = getRect().getHeight();
+		}
 		setResizeLimits(getMinWidth(), COLLAPSED_HEIGHT);
 		nearby_chat->setVisible(FALSE);
 		reshape(getRect().getWidth(), COLLAPSED_HEIGHT);
@@ -394,6 +401,17 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 		enableResizeCtrls(true);
 		storeRectControl();
 	}
+}
+
+void LLNearbyChatBar::setMinimized(BOOL b)
+{
+	LLNearbyChat* nearby_chat = getChild<LLNearbyChat>("nearby_chat");
+	// when unminimizing with nearby chat visible, go ahead and kill off screen chats
+	if (!b && nearby_chat->getVisible())
+	{
+		nearby_chat->removeScreenChat();
+	}
+		LLFloater::setMinimized(b);
 }
 
 void LLNearbyChatBar::onChatBoxCommit()

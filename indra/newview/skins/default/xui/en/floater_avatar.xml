@@ -15,12 +15,12 @@
  help_topic="avatar"
  save_rect="true"
  save_visibility="true"
- title="AVATAR PICKER"
- width="635">
+ title="CHOOSE AN AVATAR"
+ width="700">
     <web_browser
       top="25"
       height="200"
-      width="635"
+      width="700"
       follows="all"
       name="avatar_picker_contents"
       trusted_content="true"/>

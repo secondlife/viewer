@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_sound_devices" title="Ses Aygıtları">
+<floater name="floater_sound_devices" title="SES CİHAZLARI">
 	<text name="voice_label">
 		Sesli Sohbet
 	</text>

@@ -1209,7 +1209,23 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
+const LLUUID get_folder_by_itemtype(const LLInventoryItem *src)
+{
+	LLUUID retval = LLUUID::null;
+	
+	if (src)
+	{
+		retval = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(src->getType()));
+	}
+	
+	return retval;
+}
+
+void copy_inventory_from_notecard(const LLUUID& destination_id,
+								  const LLUUID& object_id,
+								  const LLUUID& notecard_inv_id,
+								  const LLInventoryItem *src,
+								  U32 callback_id)
 {
 	if (NULL == src)
 	{
@@ -1255,7 +1271,7 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
     body["notecard-id"] = notecard_inv_id;
     body["object-id"] = object_id;
     body["item-id"] = src->getUUID();
-	body["folder-id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(src->getType()));
+	body["folder-id"] = destination_id;
     body["callback-id"] = (LLSD::Integer)callback_id;
 
     request["message"] = "CopyInventoryFromNotecard";

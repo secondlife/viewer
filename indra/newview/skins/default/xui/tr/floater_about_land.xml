@@ -102,7 +102,7 @@
 			<text name="For Sale: Price L$[PRICE].">
 				Fiyat: L$[PRICE] (L$[PRICE_PER_SQM]/m²)
 			</text>
-			<button label="Arazi Sat" name="Sell Land..."/>
+			<button label="Araziyi Sat" name="Sell Land..."/>
 			<text name="For sale to">
 				Şu Alıcıya Satılık: [BUYER]
 			</text>
@@ -212,19 +212,19 @@
 				Bölge Nesne Bonusu Faktörü: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				İlkel Kullanım:
+				Bölge kapasitesi:
 			</text>
 			<text name="objects_available">
 				[COUNT] / [MAX] ([AVAILABLE]) uygun
 			</text>
 			<text name="Primitives parcel supports:">
-				Prim parsel desteği:
+				Parsel arazi kapasitesi:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Parseldeki prims:
+				Parsel arazi etkisi:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
@@ -307,7 +307,7 @@ Sadece büyük parseller aramada görünür.
 				İtme Yok (Bölge Geçersiz Kılma)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Bu parseldeki sakinleri gör ve onlarla sohbet et
+				Parseldeki sakinleri gör ve onlarla sohbet et
 			</panel.string>
 			<text name="allow_label">
 				Sakinlere şunun için izin ver:
@@ -336,7 +336,7 @@ Sadece büyük parseller aramada görünür.
 			<check_box label="İtme Yok" name="PushRestrictCheck" tool_tip="Komut dosyalarının itmesini önler Bu seçeneğin işaretlenmesi arazinizdeki bozucu davranışları önlemeye yardımcı olabilir."/>
 			<check_box label="Konumu Arama sonuçlarında göster (L$30/hafta)" name="ShowDirectoryCheck" tool_tip="Arama sonuçlarında bu parsel görünsün"/>
 			<combo_box name="land category with adult">
-				<combo_box.item label="Herhangi Bir Kategori" name="item0"/>
+				<combo_box.item label="Herh. Bir Kategori" name="item0"/>
 				<combo_box.item label="Linden Konumu" name="item1"/>
 				<combo_box.item label="Yetişkin" name="item2"/>
 				<combo_box.item label="Sanat ve Kültür" name="item3"/>
@@ -352,7 +352,7 @@ Sadece büyük parseller aramada görünür.
 				<combo_box.item label="Diğer" name="item12"/>
 			</combo_box>
 			<combo_box name="land category">
-				<combo_box.item label="Herhangi Bir Kategori" name="item0"/>
+				<combo_box.item label="Herh. Bir Kategori" name="item0"/>
 				<combo_box.item label="Linden Konumu" name="item1"/>
 				<combo_box.item label="Sanat ve Kültür" name="item3"/>
 				<combo_box.item label="İş" name="item4"/>
@@ -372,7 +372,7 @@ Sadece büyük parseller aramada görünür.
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Bir resim seçmek için tıklayın"/>
 			<text name="allow_label5">
-				Diğer parsellerdeki Sakinlere şunun için izin verin:
+				Diğer parsel Sakinlerine şunun için izin verin:
 			</text>
 			<check_box label="Avatarları Gör" name="SeeAvatarsCheck" tool_tip="Diğer parsellerdeki sakinlerin bu parseldeki sakinleri görmesine ve onlarla sohbet etmesine, sizin de onları görüp, onlarla sohbet etmenize imkan tanır."/>
 			<text name="landing_point">
@@ -419,7 +419,7 @@ Sadece büyük parseller aramada görünür.
 				piksel
 			</text>
 			<text name="Options:">
-				Seçenekler:
+				Seçenklr.:
 			</text>
 			<check_box label="Döngü" name="media_loop" tool_tip="Ortamı döngüsel olarak oynat.  Ortamın oynatılması bittiğinde baştan tekrar başlayacaktır."/>
 		</panel>
@@ -448,7 +448,7 @@ Sadece büyük parseller aramada görünür.
 				(Gayrimenkul tarafından tanımlanır)
 			</panel.string>
 			<panel.string name="allow_public_access">
-				Kamusal Erişime İzin Ver ([MATURITY]) (Not: Bunun işaretinin kaldırılması yasaklama çizgileri oluşturacaktır)
+				Kamusal Erişime İzin Ver ([MATURITY]) (Not: İşaret kaldırılırsa yasaklama çizgileri oluşur)
 			</panel.string>
 			<panel.string name="estate_override">
 				Bu seçeneklerden biri veya daha fazlası gayrimenkul düzeyinde ayarlanır
@@ -462,7 +462,7 @@ Sadece büyük parseller aramada görünür.
 			<check_box label="Dosyadaki ödeme bilgileri [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Tanınmayan Sakinleri Yasakla."/>
 			<check_box label="Yaş doğrulama [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Yaşını doğrulamayan Sakinleri yasakla Daha fazla bilgi için [SUPPORT_SITE] adresini ziyaret edin."/>
 			<check_box label="Grup Erişimine İzin Ver: [GROUP]" name="GroupCheck" tool_tip="Genel sekmesinde grup ayarla."/>
-			<check_box label="Geçiş haklarını şuna sat:" name="PassCheck" tool_tip="Bu parsele geçici erişim verir"/>
+			<check_box label="Geçiş haklr. şuna sat:" name="PassCheck" tool_tip="Bu parsele geçici erişim verir"/>
 			<combo_box name="pass_combo">
 				<combo_box.item label="Herkes" name="Anyone"/>
 				<combo_box.item label="Grup" name="Group"/>

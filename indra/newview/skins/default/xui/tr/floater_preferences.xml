@@ -7,7 +7,7 @@
 		<panel label="Grafikler" name="display"/>
 		<panel label="Ses ve Ortamlar" name="audio"/>
 		<panel label="Sohbet" name="chat"/>
-		<panel label="Hareketler ve Görünümler" name="move"/>
+		<panel label="Hareket ve Görünümler" name="move"/>
 		<panel label="Bildirimler" name="msgs"/>
 		<panel label="Renkler" name="colors"/>
 		<panel label="Gizlilik" name="im"/>

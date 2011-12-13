@@ -42,7 +42,6 @@ public:
 	LLNavMeshUploadResponder( const LLHandle<LLNavMeshObserver>& observer_handle )
 	:  mObserverHandle( observer_handle )
 	{
-		LLNavMeshObserver* pObserver = mObserverHandle.get();		
 	}
 
 	void clearPendingRequests ( void )
@@ -85,7 +84,6 @@ public:
 	LLNavMeshDownloadResponder( const LLHandle<LLNavMeshDownloadObserver>& observer_handle )
 	:  mObserverHandle( observer_handle )
 	{
-		LLNavMeshDownloadObserver* pObserver = mObserverHandle.get();		
 	}
 
 	void clearPendingRequests ( void )

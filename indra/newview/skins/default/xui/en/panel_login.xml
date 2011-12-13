@@ -22,17 +22,17 @@ top="600"
 <!-- *NOTE: Custom resize logic for login_html in llpanellogin.cpp -->
 <web_browser
   tab_stop="false" 
-trusted_content="true" 
-bg_opaque_color="Black"
-border_visible="false"
-bottom="600"
-follows="all"
-left="0"
-name="login_html"
-start_url=""
-top="0"
-height="600"
-     width="980" />
+  trusted_content="true" 
+  bg_opaque_color="Black"
+  border_visible="false"
+  bottom="600"
+  follows="all"
+  left="0"
+  name="login_html"
+  start_url=""
+  top="0"
+  height="600"
+  width="980"/>
 <layout_stack
 follows="left|bottom|right"
 name="login_widgets"

@@ -58,7 +58,7 @@ public:
 	/*virtual*/ BOOL getSize(LLCoordScreen *size);
 	/*virtual*/ BOOL getSize(LLCoordWindow *size);
 	/*virtual*/ BOOL setPosition(LLCoordScreen position);
-	/*virtual*/ BOOL setSize(LLCoordScreen size);
+	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
 	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL);
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
@@ -67,7 +67,7 @@ public:
 	/*virtual*/ void showCursorFromMouseMove();
 	/*virtual*/ void hideCursorUntilMouseMove();
 	/*virtual*/ BOOL isCursorHidden();
-	/*virtual*/ void setCursor(ECursorType cursor);
+	/*virtual*/ void updateCursor();
 	/*virtual*/ ECursorType getCursor() const;
 	/*virtual*/ void captureMouse();
 	/*virtual*/ void releaseMouse();

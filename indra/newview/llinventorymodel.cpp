@@ -2528,9 +2528,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryCategory> tfolder = new LLViewerInventoryCategory(gAgent.getID());
 		tfolder->unpackMessage(msg, _PREHASH_FolderData, i);
-		//llinfos << "unpaked folder '" << tfolder->getName() << "' ("
-		//		<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
-		//		<< llendl;
+		llinfos << "unpacked folder '" << tfolder->getName() << "' ("
+				<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
+				<< llendl;
 		if(tfolder->getUUID().notNull())
 		{
 			folders.push_back(tfolder);
@@ -2570,8 +2570,8 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 		titem->unpackMessage(msg, _PREHASH_ItemData, i);
-		//llinfos << "unpaked item '" << titem->getName() << "' in "
-		//		<< titem->getParentUUID() << llendl;
+		llinfos << "unpaked item '" << titem->getName() << "' in "
+				<< titem->getParentUUID() << llendl;
 		U32 callback_id;
 		msg->getU32Fast(_PREHASH_ItemData, _PREHASH_CallbackID, callback_id);
 		if(titem->getUUID().notNull())
@@ -2879,40 +2879,62 @@ BOOL LLInventoryModel::getIsFirstTimeInViewer2()
 	return sFirstTimeInViewer2;
 }
 
-static LLInventoryModel::item_array_t::iterator find_item_iter_by_uuid(LLInventoryModel::item_array_t& items, const LLUUID& id)
+LLInventoryModel::item_array_t::iterator LLInventoryModel::findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
 {
-	LLInventoryModel::item_array_t::iterator result = items.end();
+	LLInventoryModel::item_array_t::iterator curr_item = items.begin();
 
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	while (curr_item != items.end())
 	{
-		if ((*i)->getUUID() == id)
+		if ((*curr_item)->getUUID() == id)
 		{
-			result = i;
 			break;
 		}
+		++curr_item;
 	}
 
-	return result;
+	return curr_item;
 }
 
 // static
 // * @param[in, out] items - vector with items to be updated. It should be sorted in a right way
 // * before calling this method.
 // * @param src_item_id - LLUUID of inventory item to be moved in new position
-// * @param dest_item_id - LLUUID of inventory item before which source item should be placed.
-void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& src_item_id, const LLUUID& dest_item_id)
+// * @param dest_item_id - LLUUID of inventory item before (or after) which source item should 
+// * be placed.
+// * @param insert_before - bool indicating if src_item_id should be placed before or after 
+// * dest_item_id. Default is true.
+void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& src_item_id, const LLUUID& dest_item_id, bool insert_before)
 {
-	LLInventoryModel::item_array_t::iterator it_src = find_item_iter_by_uuid(items, src_item_id);
-	LLInventoryModel::item_array_t::iterator it_dest = find_item_iter_by_uuid(items, dest_item_id);
+	LLInventoryModel::item_array_t::iterator it_src = findItemIterByUUID(items, src_item_id);
+	LLInventoryModel::item_array_t::iterator it_dest = findItemIterByUUID(items, dest_item_id);
 
-	if (it_src == items.end() || it_dest == items.end()) return;
+	// If one of the passed UUID is not in the item list, bail out
+	if ((it_src == items.end()) || (it_dest == items.end())) 
+		return;
 
+	// Erase the source element from the list, keep a copy before erasing.
 	LLViewerInventoryItem* src_item = *it_src;
 	items.erase(it_src);
 	
-	// target iterator can not be valid because the container was changed, so update it.
-	it_dest = find_item_iter_by_uuid(items, dest_item_id);
-	items.insert(it_dest, src_item);
+	// Note: Target iterator is not valid anymore because the container was changed, so update it.
+	it_dest = findItemIterByUUID(items, dest_item_id);
+	
+	// Go to the next element if one wishes to insert after the dest element
+	if (!insert_before)
+	{
+		++it_dest;
+	}
+	
+	// Reinsert the source item in the right place
+	if (it_dest != items.end())
+	{
+		items.insert(it_dest, src_item);
+	}
+	else 
+	{
+		// Append to the list if it_dest reached the end
+		items.push_back(src_item);
+	}
 }
 
 //* @param[in] items vector of items in order to be saved.

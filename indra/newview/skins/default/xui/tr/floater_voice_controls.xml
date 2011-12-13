@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Ses Denetimleri">
+<floater name="floater_voice_controls" title="SES DENETİMLERİ">
 	<string name="title_nearby">
-		YAKINDAKİ SES
+		Yakındaki ses
 	</string>
 	<string name="title_group">
-		[GROUP] ile Grup Araması
+		[GROUP] ile grup araması
 	</string>
 	<string name="title_adhoc">
-		Konferans Araması
+		Konferans araması
 	</string>
 	<string name="title_peer_2_peer">
 		[NAME] ile arama

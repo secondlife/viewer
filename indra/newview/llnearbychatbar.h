@@ -60,6 +60,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 	void showHistory();
+	/*virtual*/void setMinimized(BOOL b);
 
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
@@ -83,9 +84,10 @@ protected:
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
-	LLLineEditor*		mChatBox;
-	LLOutputMonitorCtrl* mOutputMonitor;
-	LLLocalSpeakerMgr*  mSpeakerMgr;
+	LLLineEditor*			mChatBox;
+	LLView*					mNearbyChat;
+	LLOutputMonitorCtrl*	mOutputMonitor;
+	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
 };

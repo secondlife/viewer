@@ -589,22 +589,22 @@ void LLWorld::updateVisibilities()
 {
 	F32 cur_far_clip = LLViewerCamera::getInstance()->getFar();
 
-	LLViewerCamera::getInstance()->setFar(mLandFarClip);
-
-	F32 diagonal_squared = F_SQRT2 * F_SQRT2 * mWidth * mWidth;
-	// Go through the culled list and check for visible regions
+	// Go through the culled list and check for visible regions (region is visible if land is visible)
 	for (region_list_t::iterator iter = mCulledRegionList.begin();
 		 iter != mCulledRegionList.end(); )
 	{
 		region_list_t::iterator curiter = iter++;
 		LLViewerRegion* regionp = *curiter;
-		F32 height = regionp->getLand().getMaxZ() - regionp->getLand().getMinZ();
-		F32 radius = 0.5f*(F32) sqrt(height * height + diagonal_squared);
-		if (!regionp->getLand().hasZData()
-			|| LLViewerCamera::getInstance()->sphereInFrustum(regionp->getCenterAgent(), radius))
+		
+		LLSpatialPartition* part = regionp->getSpatialPartition(LLViewerRegion::PARTITION_TERRAIN);
+		if (part)
 		{
-			mCulledRegionList.erase(curiter);
-			mVisibleRegionList.push_back(regionp);
+			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
+			if (LLViewerCamera::getInstance()->AABBInFrustum(group->mBounds[0], group->mBounds[1]))
+			{
+				mCulledRegionList.erase(curiter);
+				mVisibleRegionList.push_back(regionp);
+			}
 		}
 	}
 	
@@ -619,17 +619,20 @@ void LLWorld::updateVisibilities()
 			continue;
 		}
 
-		F32 height = regionp->getLand().getMaxZ() - regionp->getLand().getMinZ();
-		F32 radius = 0.5f*(F32) sqrt(height * height + diagonal_squared);
-		if (LLViewerCamera::getInstance()->sphereInFrustum(regionp->getCenterAgent(), radius))
+		LLSpatialPartition* part = regionp->getSpatialPartition(LLViewerRegion::PARTITION_TERRAIN);
+		if (part)
 		{
-			regionp->calculateCameraDistance();
-			regionp->getLand().updatePatchVisibilities(gAgent);
-		}
-		else
-		{
-			mVisibleRegionList.erase(curiter);
-			mCulledRegionList.push_back(regionp);
+			LLSpatialGroup* group = (LLSpatialGroup*) part->mOctree->getListener(0);
+			if (LLViewerCamera::getInstance()->AABBInFrustum(group->mBounds[0], group->mBounds[1]))
+			{
+				regionp->calculateCameraDistance();
+				regionp->getLand().updatePatchVisibilities(gAgent);
+			}
+			else
+			{
+				mVisibleRegionList.erase(curiter);
+				mCulledRegionList.push_back(regionp);
+			}
 		}
 	}
 
@@ -815,14 +818,11 @@ void LLWorld::updateWaterObjects()
 	max_x = (S32)region_x + range;
 	max_y = (S32)region_y + range;
 
-	F32 height = 0.f;
-	
 	for (region_list_t::iterator iter = mRegionList.begin();
 		 iter != mRegionList.end(); ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		LLVOWater* waterp = regionp->getLand().getWaterObj();
-		height += regionp->getWaterHeight();
 		if (waterp)
 		{
 			gObjectList.updateActive(waterp);
@@ -839,6 +839,7 @@ void LLWorld::updateWaterObjects()
 
 	// Now, get a list of the holes
 	S32 x, y;
+	F32 water_height = gAgent.getRegion()->getWaterHeight() + 256.f;
 	for (x = min_x; x <= max_x; x += rwidth)
 	{
 		for (y = min_y; y <= max_y; y += rwidth)
@@ -850,7 +851,7 @@ void LLWorld::updateWaterObjects()
 				waterp->setUseTexture(FALSE);
 				waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
 													 y + rwidth/2,
-													 256.f+DEFAULT_WATER_HEIGHT));
+													 water_height));
 				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
 				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
@@ -907,8 +908,7 @@ void LLWorld::updateWaterObjects()
 		}
 
 		waterp->setRegion(gAgent.getRegion());
-		LLVector3d water_pos(water_center_x, water_center_y, 
-			DEFAULT_WATER_HEIGHT+256.f);
+		LLVector3d water_pos(water_center_x, water_center_y, water_height) ;
 		LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
 
 		//stretch out to horizon

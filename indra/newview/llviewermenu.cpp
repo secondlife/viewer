@@ -76,7 +76,6 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
-#include "llmenucommands.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
@@ -968,6 +967,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_SCULPTED;
 	}
+	else if ("wind vectors" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
+	}
 	else
 	{
 		return 0;
@@ -980,6 +983,8 @@ class LLAdvancedToggleInfoDisplay : public view_listener_t
 	{
 		U32 info_display = info_display_from_string( userdata.asString() );
 
+		LL_INFOS("ViewerMenu") << "toggle " << userdata.asString() << LL_ENDL;
+		
 		if ( info_display != 0 )
 		{
 			LLPipeline::toggleRenderDebug( (void*)info_display );
@@ -996,6 +1001,8 @@ class LLAdvancedCheckInfoDisplay : public view_listener_t
 	{
 		U32 info_display = info_display_from_string( userdata.asString() );
 		bool new_value = false;
+
+		LL_INFOS("ViewerMenu") << "check " << userdata.asString() << LL_ENDL;
 
 		if ( info_display != 0 )
 		{
@@ -1027,26 +1034,6 @@ class LLAdvancedCheckRandomizeFramerate : public view_listener_t
 	{
 		bool new_value = gRandomizeFramerate;
 		return new_value;
-	}
-};
-
-void run_vectorize_perf_test(void *)
-{
-	gSavedSettings.setBOOL("VectorizePerfTest", TRUE);
-}
-
-
-////////////////////////////////
-// RUN Vectorized Perform Test//
-////////////////////////////////
-
-
-class LLAdvancedVectorizePerfTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		run_vectorize_perf_test(NULL);
-		return true;
 	}
 };
 
@@ -3114,7 +3101,7 @@ void handle_avatar_eject(const LLSD& avatar_id)
 
 bool my_profile_visible()
 {
-	LLFloater* floaterp = LLFloaterReg::findInstance("profile", LLSD().with("id", gAgent.getID()));
+	LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
 	return floaterp && floaterp->isInVisibleChain();
 }
 
@@ -7693,7 +7680,14 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else
 		{
-			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
+			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
+			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
+			bool use_fixed_sky = false;
+			bool use_region_settings = true;
+			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
+					    envmgr.getSkyPresetName(),
+					    envmgr.getDayCycleName(),
+					    use_fixed_sky, use_region_settings);
 		}
 
 		return true;
@@ -7791,24 +7785,6 @@ class LLWorldPostProcess : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterReg::showInstance("env_post_process");
-		return true;
-	}
-};
-
-class LLWorldToggleMovementControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("moveview");
-		return true;
-	}
-};
-
-class LLWorldToggleCameraControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("camera");
 		return true;
 	}
 };
@@ -7962,9 +7938,17 @@ void initialize_menus()
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
+	commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+	commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
+	enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
 	// File menu
 	init_menu_file();
@@ -8007,7 +7991,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// World menu
-	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
 	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
@@ -8027,9 +8010,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-
-	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
-	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -8106,7 +8086,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
 	view_listener_t::addMenu(new LLAdvancedCheckPeriodicSlowFrame(), "Advanced.CheckPeriodicSlowFrame");
-	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
@@ -8336,6 +8315,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLCheckControl(), "CheckControl");
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
 
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));

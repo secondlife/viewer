@@ -363,7 +363,10 @@ void move_inventory_item(
 	const std::string& new_name,
 	LLPointer<LLInventoryCallback> cb);
 
-void copy_inventory_from_notecard(const LLUUID& object_id,
+const LLUUID get_folder_by_itemtype(const LLInventoryItem *src);
+
+void copy_inventory_from_notecard(const LLUUID& destination_id,
+								  const LLUUID& object_id,
 								  const LLUUID& notecard_inv_id,
 								  const LLInventoryItem *src,
 								  U32 callback_id = 0);

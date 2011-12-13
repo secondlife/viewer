@@ -724,13 +724,13 @@
 		Телепортация сейчас заблокирована. Повторите попытку позже.  Если все равно не удается телепортироваться, выйдите из программы и войдите снова, чтобы устранить проблему.
 	</notification>
 	<notification name="nolandmark_tport">
-		Системе не удалось определить место назначения закладки.
+		Системе не удалось определить пункт назначения закладки.
 	</notification>
 	<notification name="timeout_tport">
 		Системе не удалось выполнить подключение телепорта.  Повторите попытку позже.
 	</notification>
 	<notification name="noaccess_tport">
-		У вас нет доступа к точке назначения этого телепорта.
+		У вас нет доступа в пункт назначения этого телепорта.
 	</notification>
 	<notification name="missing_attach_tport">
 		Ваши присоединения еще не доставлены. Подождите несколько секунд либо выйдите из программы и войдите снова, прежде чем повторить попытку телепортации.
@@ -745,7 +745,7 @@
 		Системе не удалось своевременно выполнить ваше пересечение границы. Повторите попытку через несколько минут.
 	</notification>
 	<notification name="no_host">
-		Не удалось найти точку назначения телепорта. Возможно, место назначения временно недоступно или уже не существует. Повторите попытку через несколько минут.
+		Не удалось найти точку назначения телепорта. Возможно, пункт назначения временно недоступен или уже не существует. Повторите попытку через несколько минут.
 	</notification>
 	<notification name="no_inventory_host">
 		Система инвентаря сейчас недоступна.
@@ -979,7 +979,7 @@
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Удалить жителя [NAME] из вашего списка друзей?
+		Удалить жителя &lt;nolink&gt;[NAME]&lt;/nolink&gt; из вашего списка друзей?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1909,6 +1909,12 @@ http://secondlife.com/download.
 		Выйти из программы?
 		<usetemplate ignoretext="Подтверждать перед выходом" name="okcancelignore" notext="Не выходить" yestext="Выйти"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Вы действительно хотите восстановить принятые по умолчанию кнопки и панели инструментов? 
+    
+Это действие нельзя отменить.
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Подтверждать перед удалением предметов" name="okcancelignore" notext="Отмена" yestext="OK"/>
@@ -2113,10 +2119,10 @@ http://secondlife.com/download.
 		Раздел: [SUBJECT], сообщение: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] в сети
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; в сети
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] не в сети
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; не в сети
 	</notification>
 	<notification name="AddSelfFriend">
 		Вы лучше всех, но нельзя добавить в друзья себя самого.
@@ -2375,7 +2381,7 @@ http://secondlife.com/download.
 		Не найден регион назначения.
 	</notification>
 	<notification name="NotAllowedInDest">
-		Вам не разрешен доступ к месту назначения.
+		Вам не разрешен доступ в пункт назначения.
 	</notification>
 	<notification name="RegionParcelBan">
 		Нельзя пересечь границу региона по пути на забаненный участок. Выберите другой путь.
@@ -2384,7 +2390,7 @@ http://secondlife.com/download.
 		Вы перенаправлены на телехаб.
 	</notification>
 	<notification name="CouldntTPCloser">
-		Не удалось телепортироваться ближе к месту назначения.
+		Не удалось телепортироваться ближе к пункту назначения.
 	</notification>
 	<notification name="TPCancelled">
 		Телепортация отменена.
@@ -2512,10 +2518,10 @@ http://secondlife.com/download.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] принял(а) ваше предложение дружить.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; принял(а) ваше предложение дружить.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] отклонил(а) ваше предложение дружить.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; отклонил(а) ваше предложение дружить.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Предложение дружить принято.
@@ -2898,7 +2904,7 @@ http://secondlife.com/download.
 При скрытии кнопки «Говорить» голосовая функция отключается.
 	</notification>
 	<notification label="Исследование мира" name="HintDestinationGuide">
-		Путеводитель по местам назначения содержит тысячи новых мест, в которых вы можете побывать. Выберите место и нажмите кнопку «Телепортация», чтобы начать исследование.
+		Путеводитель по пунктам назначения содержит тысячи новых мест, в которых вы можете побывать. Выберите место и нажмите кнопку «Телепортация», чтобы начать исследование.
 	</notification>
 	<notification label="Боковая панель" name="HintSidePanel">
 		Быстрый доступ к вашему инвентарю, костюмам, профилю и многому другому открывается на боковой панели.
@@ -2995,10 +3001,6 @@ http://secondlife.com/download.
 			<button name="cancel" text="Отмена"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Для смены режима требуется выйти из программы и перезапустить ее.
-		<usetemplate name="okcancelbuttons" notext="Не выходить" yestext="Выйти"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		Создание и редактирование рекламы доступно только в расширенном режиме. Выйти из программы и сменить режим? Меню смены режима находится на экране входа.
 		<usetemplate name="okcancelbuttons" notext="Не выходить" yestext="Выйти"/>
@@ -3042,6 +3044,10 @@ http://secondlife.com/download.
 	<notification label="" name="NoSearch">
 		Поиск доступен только в расширенном режиме. Выйти из программы и сменить режим?
 		<usetemplate name="okcancelbuttons" notext="Не выходить" yestext="Выход"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Это действие приведет к скрытию всех меню и кнопок. Чтобы вернуть их, щелкните [SHORTCUT] снова.
+		<usetemplate ignoretext="Подтверждать перед скрытием интерфейса" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		По-видимому, ваше оборудование не удовлетворяет требованиям [APP_NAME]. Для работы [APP_NAME] необходима графическая карта OpenGL с поддержкой мультитекстур. Если у вас есть такая карта, убедитесь, что установлены новейшие версии драйверов для нее и пакеты обновлений и исправления для операционной системы.

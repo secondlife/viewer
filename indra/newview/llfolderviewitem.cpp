@@ -658,7 +658,7 @@ LLViewerInventoryItem * LLFolderViewItem::getInventoryItem(void)
 	return gInventory.getItem(getListener()->getUUID());
 }
 
-std::string LLFolderViewItem::getName( void ) const
+const std::string& LLFolderViewItem::getName( void ) const
 {
 	if(mListener)
 	{
@@ -1173,8 +1173,8 @@ BOOL LLFolderViewFolder::addToFolder(LLFolderViewFolder* folder, LLFolderView* r
 	return folder->addFolder(this);
 }
 
-// Finds width and height of this object and it's children.  Also
-// makes sure that this view and it's children are the right size.
+// Finds width and height of this object and its children. Also
+// makes sure that this view and its children are the right size.
 S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 {
 	// sort before laying out contents

@@ -40,8 +40,7 @@ public:
 							LLVertexBuffer::MAP_TEXCOORD0 |
 							LLVertexBuffer::MAP_TEXCOORD1 |
 							LLVertexBuffer::MAP_TEXCOORD2 |
-							LLVertexBuffer::MAP_TEXCOORD3 |
-							LLVertexBuffer::MAP_COLOR
+							LLVertexBuffer::MAP_TEXCOORD3
 	};
 
 	virtual U32 getVertexDataMask();

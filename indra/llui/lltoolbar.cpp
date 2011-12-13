@@ -109,9 +109,14 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 	mPadBetween(p.pad_between),
 	mMinGirth(p.min_girth),
 	mPopupMenuHandle(),
+	mRightMouseTargetButton(NULL),
 	mStartDragItemCallback(NULL),
 	mHandleDragItemCallback(NULL),
 	mHandleDropCallback(NULL),
+	mButtonAddSignal(NULL),
+	mButtonEnterSignal(NULL),
+	mButtonLeaveSignal(NULL),
+	mButtonRemoveSignal(NULL),
 	mDragAndDropTarget(false)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
@@ -121,6 +126,10 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 LLToolBar::~LLToolBar()
 {
 	delete mPopupMenuHandle.get();
+	delete mButtonAddSignal;
+	delete mButtonEnterSignal;
+	delete mButtonLeaveSignal;
+	delete mButtonRemoveSignal;
 }
 
 void LLToolBar::createContextMenu()
@@ -131,6 +140,7 @@ void LLToolBar::createContextMenu()
 
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
 		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
+		commit_reg.add("Toolbars.RemoveSelectedCommand", boost::bind(&LLToolBar::onRemoveSelectedCommand, this));
 
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_reg;
 		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
@@ -212,7 +222,6 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 	mButtonPanel->addChild(button);
 	mButtonMap.insert(std::make_pair(commandId.uuid(), button));
 
-
 	// Insert the command and button in the right place in their respective lists
 	if ((rank >= mButtonCommands.size()) || (rank == RANK_NONE))
 	{
@@ -238,6 +247,14 @@ bool LLToolBar::addCommand(const LLCommandId& commandId, int rank)
 
 	mNeedsLayout = true;
 
+	updateLayoutAsNeeded();
+
+
+	if (mButtonAddSignal)
+	{
+		(*mButtonAddSignal)(button);
+	}
+
 	return true;
 }
 
@@ -262,6 +279,11 @@ int LLToolBar::removeCommand(const LLCommandId& commandId)
 		++it_button;
 		++it_command;
 		++rank;
+	}
+	
+	if (mButtonRemoveSignal)
+	{
+		(*mButtonRemoveSignal)(*it_button);
 	}
 	
 	// Delete the button and erase the command and button records
@@ -352,6 +374,23 @@ bool LLToolBar::stopCommandInProgress(const LLCommandId& commandId)
 	return (command_button != NULL);
 }
 
+bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash)
+{
+	LLButton * command_button = NULL;
+
+	if (commandId != LLCommandId::null)
+	{
+		command_id_map::iterator it = mButtonMap.find(commandId.uuid());
+		if (it != mButtonMap.end())
+		{
+			command_button = it->second;
+			command_button->setFlashing(flash ? TRUE : FALSE);
+		}
+	}
+
+	return (command_button != NULL);
+}
+
 BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	LLRect button_panel_rect;
@@ -360,6 +399,20 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 	if (handle_it_here)
 	{
+		// Determine which button the mouse was over during the click in case the context menu action
+		// is intended to affect the button.
+		BOOST_FOREACH(LLToolBarButton* button, mButtons)
+		{
+			LLRect button_rect;
+			button->localRectToOtherView(button->getLocalRect(), &button_rect, this);
+
+			if (button_rect.pointInRect(x, y))
+			{
+				mRightMouseTargetButton = button;
+				break;
+			}
+		}
+
 		createContextMenu();
 
 		LLContextMenu * menu = (LLContextMenu *) mPopupMenuHandle.get();
@@ -406,6 +459,18 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 	else if (setting_name == "icons_only")
 	{
 		setButtonType(BTNTYPE_ICONS_ONLY);
+	}
+}
+
+void LLToolBar::onRemoveSelectedCommand()
+{
+	llassert(!mReadOnly);
+
+	if (mRightMouseTargetButton)
+	{
+		removeCommand(mRightMouseTargetButton->getCommandId());
+
+		mRightMouseTargetButton = NULL;
 	}
 }
 
@@ -487,11 +552,11 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 			S32 mid_point = (button_rect.mRight + button_rect.mLeft) / 2;
 			if (button_panel_x < mid_point)
 			{
-		mDragx = button_rect.mLeft - mPadLeft;
-		mDragy = button_rect.mTop + mPadTop;
-	}
-	else
-	{
+				mDragx = button_rect.mLeft - mPadLeft;
+				mDragy = button_rect.mTop + mPadTop;
+			}
+			else
+			{
 				rank++;
 				mDragx = button_rect.mRight + mPadRight - 1;
 				mDragy = button_rect.mTop + mPadTop;
@@ -518,12 +583,12 @@ int LLToolBar::getRankFromPosition(S32 x, S32 y)
 	{
 		// We hit passed the end of the list so put the insertion point at the end
 		if (orientation == LLLayoutStack::HORIZONTAL)
-	{
+		{
 			mDragx = button_rect.mRight + mPadRight;
 			mDragy = button_rect.mTop + mPadTop;
-	}
-	else
-	{
+		}
+		else
+		{
 			mDragx = button_rect.mLeft - mPadLeft;
 			mDragy = button_rect.mBottom - mPadBottom;
 		}
@@ -705,6 +770,12 @@ void LLToolBar::updateLayoutAsNeeded()
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
 
+	if (!mButtons.empty())
+	{
+		mButtonPanel->setVisible(TRUE);
+		mButtonPanel->setMouseOpaque(TRUE);
+	}
+
 	// don't clear flag until after we've resized ourselves, to avoid laying out every frame
 	mNeedsLayout = false;
 }
@@ -790,10 +861,16 @@ void LLToolBar::createButtons()
 {
 	BOOST_FOREACH(LLToolBarButton* button, mButtons)
 	{
+		if (mButtonRemoveSignal)
+		{
+			(*mButtonRemoveSignal)(button);
+		}
+		
 		delete button;
 	}
 	mButtons.clear();
 	mButtonMap.clear();
+	mRightMouseTargetButton = NULL;
 	
 	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
 	{
@@ -801,6 +878,11 @@ void LLToolBar::createButtons()
 		mButtons.push_back(button);
 		mButtonPanel->addChild(button);
 		mButtonMap.insert(std::make_pair(command_id.uuid(), button));
+		
+		if (mButtonAddSignal)
+		{
+			(*mButtonAddSignal)(button);
+		}
 	}
 	mNeedsLayout = true;
 }
@@ -870,8 +952,7 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 			button->setCommitCallback(executeParam);
 		}
 
-
-
+		// Set up "is running" query callback
 		const std::string& isRunningFunction = commandp->isRunningFunctionName();
 		if (isRunningFunction.length() > 0)
 		{
@@ -896,6 +977,36 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 	button->setCommandId(id);
 
 	return button;
+}
+
+boost::signals2::connection connectSignal(LLToolBar::button_signal_t*& signal, const LLToolBar::button_signal_t::slot_type& cb)
+{
+	if (!signal)
+	{
+		signal = new LLToolBar::button_signal_t();
+	}
+
+	return signal->connect(cb);
+}
+
+boost::signals2::connection LLToolBar::setButtonAddCallback(const button_signal_t::slot_type& cb)
+{
+	return connectSignal(mButtonAddSignal, cb);
+}
+
+boost::signals2::connection LLToolBar::setButtonEnterCallback(const button_signal_t::slot_type& cb)
+{
+	return connectSignal(mButtonEnterSignal, cb);
+}
+
+boost::signals2::connection LLToolBar::setButtonLeaveCallback(const button_signal_t::slot_type& cb)
+{
+	return connectSignal(mButtonLeaveSignal, cb);
+}
+
+boost::signals2::connection LLToolBar::setButtonRemoveCallback(const button_signal_t::slot_type& cb)
+{
+	return connectSignal(mButtonRemoveSignal, cb);
 }
 
 BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
@@ -969,8 +1080,6 @@ LLToolBarButton::LLToolBarButton(const Params& p)
 	mOriginalImageOverlayColor(p.image_overlay_color),
 	mOriginalImageOverlaySelectedColor(p.image_overlay_selected_color)
 {
-	mButtonFlashRate = 0.0;
-	mButtonFlashCount = 0;
 }
 
 LLToolBarButton::~LLToolBarButton()
@@ -1012,6 +1121,7 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	{
 		handled = LLButton::handleHover(x, y, mask);
 	}
+
 	return handled;
 }
 
@@ -1024,6 +1134,23 @@ void LLToolBarButton::onMouseEnter(S32 x, S32 y, MASK mask)
 	{
 		mNeedsHighlight = TRUE;
 	}
+
+	LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
+	if (parent_toolbar && parent_toolbar->mButtonEnterSignal)
+	{
+		(*(parent_toolbar->mButtonEnterSignal))(this);
+	}
+}
+
+void LLToolBarButton::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	LLButton::onMouseLeave(x, y, mask);
+	
+	LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
+	if (parent_toolbar && parent_toolbar->mButtonLeaveSignal)
+	{
+		(*(parent_toolbar->mButtonLeaveSignal))(this);
+	}	
 }
 
 void LLToolBarButton::onMouseCaptureLost()
@@ -1072,25 +1199,25 @@ void LLToolBarButton::setEnabled(BOOL enabled)
 	}
 }
 
-
 const std::string LLToolBarButton::getToolTip() const	
 { 
 	std::string tooltip;
+
 	if (labelIsTruncated() || getCurrentLabel().empty())
 	{
-		return LLTrans::getString(LLCommandManager::instance().getCommand(mId)->labelRef()) + " -- " + LLView::getToolTip();
+		tooltip = LLTrans::getString(LLCommandManager::instance().getCommand(mId)->labelRef()) + " -- " + LLView::getToolTip();
 	}
 	else
 	{
-		return LLView::getToolTip();
+		tooltip = LLView::getToolTip();
 	}
+
+	LLToolBar* parent_toolbar = getParentByType<LLToolBar>();
+	if (parent_toolbar && parent_toolbar->mButtonTooltipSuffix.length() > 0)
+	{
+		tooltip = tooltip + "\n(" + parent_toolbar->mButtonTooltipSuffix + ")";
+	}
+
+	return tooltip;
 }
-
-
-
-
-
-
-
-
 

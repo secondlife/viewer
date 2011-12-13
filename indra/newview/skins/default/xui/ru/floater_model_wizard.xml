@@ -6,26 +6,20 @@
 	<button label="2. Оптимизировать" name="optimize_btn"/>
 	<button label="1. Выбрать файл" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="choose_file_header_panel">
-			<text name="choose_file_header_text">
-				Выберите файл
+		<panel name="header_panel">
+			<text name="header_text">
+				Выберите файл модели
 			</text>
 		</panel>
-		<panel name="choose_file_content_panel">
+		<panel name="content">
 			<text name="advanced_users_text">
-				Пользователям, работающим в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
+				Пользователям в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
 			</text>
 			<button label="Перейти в расширенный режим" name="switch_to_advanced"/>
-			<text name="choose_model_file_label">
+			<text name="Cache location">
 				Выберите файл модели для передачи
 			</text>
 			<button label="Обзор..." label_selected="Обзор..." name="browse"/>
-			<text name="support_collada_text">
-				В Second Life поддерживаются файлы COLLADA (﻿DAE)
-			</text>
-			<text name="dimensions_label">
-				Размеры (в метрах):
-			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
@@ -38,18 +32,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="optimize_header_panel">
-			<text name="optimize_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Оптимизировать модель
 			</text>
 		</panel>
-		<text name="optimize_hint">
+		<text name="description">
 			Мы оптимизировали модель для повышения быстродействия. По желанию можно выполнить дополнительную настройку.
 		</text>
-		<panel name="optimize_content_panel">
-			<text name="generating_lod_label">
-				Создается уровень детализации
-			</text>
+		<panel name="content">
 			<text name="high_detail_text">
 				Создать уровень детализации: высокий
 			</text>
@@ -64,123 +55,64 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="optimize_performance_text">
-				Быстродействие
-			</text>
-			<text name="optimize_faster_rendering_text">
-				Ускорить прорисовку
-Меньше деталей
-Уменьшить вес примитива
-			</text>
-			<text name="optimize_accuracy_text">
-				Точность
-			</text>
-			<text name="optimize_slower_rendering_text">
-				Замедлить прорисовку
-Больше деталей
-Повысить вес примитива
-			</text>
-			<text name="accuracy_slider_mark1">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark2">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark3">
-				&apos;
-			</text>
 			<button label="Пересчитать геометрию" name="recalculate_geometry_btn"/>
-			<text name="geometry_preview_label">
+			<text name="lod_label">
 				Просмотр геометрии
 			</text>
 			<combo_box name="preview_lod_combo" tool_tip="Детализация при предварительном просмотре">
-				<combo_item name="preview_lod_high">
+				<combo_item name="high">
 					Детально
 				</combo_item>
-				<combo_item name="preview_lod_medium">
+				<combo_item name="medium">
 					Средняя детализация
 				</combo_item>
-				<combo_item name="preview_lod_low">
+				<combo_item name="low">
 					Мало деталей
 				</combo_item>
-				<combo_item name="preview_lod_lowest">
+				<combo_item name="lowest">
 					Минимум деталей
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="physics_header_panel">
-			<text name="physics_header_text">
-				Настроить физические параметры
+		<panel name="header_panel">
+			<text name="header_text">
+				Настроить физику
 			</text>
 		</panel>
-		<text name="physics_hint">
+		<text name="description">
 			Мы создадим форму для внешнего каркаса модели. Настройте уровень детализации формы в соответствии с целями, для которых предназначена модель.
 		</text>
-		<panel name="physics_content_panel">
-			<text name="physics_performance_text">
-				Быстродействие
-			</text>
-			<text name="physics_faster_rendering_text">
-				Ускорить прорисовку
-Меньше деталей
-Уменьшить вес примитива
-			</text>
-			<text name="physics_accuracy_text">
-				Точность
-			</text>
-			<text name="physics_slower_dendering_text">
-				Замедлить прорисовку
-Больше деталей
-Повысить вес примитива
-			</text>
-			<text name="physics_example_1">
-				Примеры:
-подвижные объекты;
-летающие объекты;
-транспорт.
-			</text>
-			<text name="physics_example_2">
-				Примеры:
-небольшие неподвижные объекты;
-простые объекты;
-простая мебель.
-			</text>
-			<text name="physics_example_3">
-				Примеры:
-неподвижные объекты;
-сложные объекты;
-здания.
-			</text>
-			<button label="Пересчитать физические данные" name="recalculate_physics_btn"/>
+		<panel name="content">
+			<button label="Пересчитать физику" name="recalculate_physics_btn"/>
 			<button label="Пересчет..." name="recalculating_physics_btn"/>
-			<text name="physics_preview_label">
-				Просмотр физических данных
+			<text name="lod_label">
+				Просмотр физики
 			</text>
-			<combo_box name="preview_lod_combo2" tool_tip="Детализация при предварительном просмотре">
-				<combo_item name="preview_lod2_high">
+			<combo_box name="preview_lod_combo2" tool_tip="Уровень детализации при предварительном просмотре">
+				<combo_item name="high">
 					Детально
 				</combo_item>
-				<combo_item name="preview_lod2_medium">
+				<combo_item name="medium">
 					Средняя детализация
 				</combo_item>
-				<combo_item name="preview_lod2_low">
+				<combo_item name="low">
 					Мало деталей
 				</combo_item>
-				<combo_item name="preview_lod2_lowest">
+				<combo_item name="lowest">
 					Минимум деталей
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="review_header_panel">
-			<text name="review_header_text">
-				Пересмотреть
+		<panel name="header_panel">
+			<text name="header_text">
+				Просмотр
 			</text>
 		</panel>
-		<panel name="review_content_panel">
+		<panel name="content">
 			<text name="review_prim_equiv">
 				Воздействие на участок/регион: эквивалент в примитивах: [EQUIV]
 			</text>
@@ -193,8 +125,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="upload_header_panel">
-			<text name="upload_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Передача завершена
 			</text>
 		</panel>

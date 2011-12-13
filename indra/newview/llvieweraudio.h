@@ -27,6 +27,9 @@
 #ifndef LL_VIEWERAUDIO_H
 #define LL_VIEWERAUDIO_H
 
+#include "llframetimer.h"
+#include "llsingleton.h"
+
 // comment out to turn off wind
 #define kAUDIO_ENABLE_WIND 
 //#define kAUDIO_ENABLE_WATER 1	// comment out to turn off water
@@ -37,5 +40,49 @@ void init_audio();
 void audio_update_volume(bool force_update = true);
 void audio_update_listener();
 void audio_update_wind(bool force_update = true);
+
+class LLViewerAudio : public LLSingleton<LLViewerAudio>
+{
+public:
+
+	enum EFadeState
+	{
+		FADE_IDLE,
+		FADE_IN,
+		FADE_OUT,
+	};
+
+	LLViewerAudio();
+	virtual ~LLViewerAudio();
+	
+	void startInternetStreamWithAutoFade(std::string streamURI);
+	void stopInternetStreamWithAutoFade();
+	
+	bool onIdleUpdate();
+
+	EFadeState getFadeState() { return mFadeState; }
+	bool isDone() { return mDone; };
+	F32 getFadeVolume();
+	bool getForcedTeleportFade() { return mForcedTeleportFade; };
+	void setForcedTeleportFade(bool fade) { mForcedTeleportFade = fade;} ;
+	void setNextStreamURI(std::string stream) { mNextStreamURI = stream; } ;
+
+private:
+
+	bool mDone;
+	F32 mFadeTime;
+	std::string mNextStreamURI;
+	EFadeState mFadeState;
+	LLFrameTimer stream_fade_timer;
+	bool mIdleListnerActive;
+	bool mForcedTeleportFade;
+	boost::signals2::connection	mTeleportFailedConnection;
+
+	void registerIdleListener();
+	void deregisterIdleListener() { mIdleListnerActive = false; };
+	void startFading();
+	void onTeleportFailed();
+
+};
 
 #endif //LL_VIEWER_H

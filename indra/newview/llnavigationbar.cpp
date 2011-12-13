@@ -54,7 +54,6 @@
 #include "llworldmapmessage.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
-#include "llfloatermediabrowser.h"
 #include "llweb.h"
 #include "llhints.h"
 
@@ -318,7 +317,7 @@ BOOL LLNavigationBar::postBuild()
 	LLTeleportHistory::getInstance()->setHistoryChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
 
-	LLHints::registerHintTarget("nav_bar", LLView::getHandle());
+	LLHints::registerHintTarget("nav_bar", getHandle());
 
 	return TRUE;
 }

@@ -443,17 +443,17 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			{
 				setLandingTab(dest);
 			}
-			/*
-			 * the condition dest == NULL can be satisfied not only in the case
-			 * of dragging to the right from the last tab of the favbar. there is a
-			 * small gap between each tab. if the user drags something exactly there
-			 * then mLandingTab will be set to NULL and the dragged item will be pushed
-			 * to the end of the favorites bar. this is incorrect behavior. that's why
-			 * we need an additional check which excludes the case described previously
-			 * making sure that the mouse pointer is beyond the last tab.
-			 */
-			else if (mLastTab && x >= mLastTab->getRect().mRight)
+			else if (mLastTab && (x >= mLastTab->getRect().mRight))
 			{
+				/*
+				 * the condition dest == NULL can be satisfied not only in the case
+				 * of dragging to the right from the last tab of the favbar. there is a
+				 * small gap between each tab. if the user drags something exactly there
+				 * then mLandingTab will be set to NULL and the dragged item will be pushed
+				 * to the end of the favorites bar. this is incorrect behavior. that's why
+				 * we need an additional check which excludes the case described previously
+				 * making sure that the mouse pointer is beyond the last tab.
+				 */
 				setLandingTab(NULL);
 			}
 
@@ -467,7 +467,6 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 				if (drop)
 				{
 					handleExistingFavoriteDragAndDrop(x, y);
-					showDragMarker(FALSE);
 				}
 			}
 			else
@@ -490,7 +489,6 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 						setLandingTab(NULL);
 					}
 					handleNewFavoriteDragAndDrop(item, favorites_id, x, y);
-					showDragMarker(FALSE);
 				}
 			}
 		}
@@ -504,20 +502,29 @@ BOOL LLFavoritesBarCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 {
+	// Identify the button hovered and the side to drop
 	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+	bool insert_before = true;	
+	if (!dest)
+	{
+		insert_before = false;
+		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+	}
 
-	// there is no need to handle if an item was dragged onto itself
+	// There is no need to handle if an item was dragged onto itself
 	if (dest && dest->getLandmarkId() == mDragItemId)
 	{
 		return;
 	}
 
+	// Insert the dragged item in the right place
 	if (dest)
 	{
-		LLInventoryModel::updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId());
+		LLInventoryModel::updateItemsOrder(mItems, mDragItemId, dest->getLandmarkId(), insert_before);
 	}
 	else
 	{
+		// This can happen when the item list is empty
 		mItems.push_back(gInventory.getItem(mDragItemId));
 	}
 
@@ -534,22 +541,35 @@ void LLFavoritesBarCtrl::handleExistingFavoriteDragAndDrop(S32 x, S32 y)
 
 void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, const LLUUID& favorites_id, S32 x, S32 y)
 {
-	LLFavoriteLandmarkButton* dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
-
-	// there is no need to handle if an item was dragged onto itself
+	// Identify the button hovered and the side to drop
+	LLFavoriteLandmarkButton* dest = NULL;
+	bool insert_before = true;
+	if (!mItems.empty())
+	{
+		dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLandingTab);
+		if (!dest)
+		{
+			insert_before = false;
+			dest = dynamic_cast<LLFavoriteLandmarkButton*>(mLastTab);
+		}
+	}
+	
+	// There is no need to handle if an item was dragged onto itself
 	if (dest && dest->getLandmarkId() == mDragItemId)
 	{
 		return;
 	}
-
+	
 	LLPointer<LLViewerInventoryItem> viewer_item = new LLViewerInventoryItem(item);
 
+	// Insert the dragged item in the right place
 	if (dest)
 	{
-		insertBeforeItem(mItems, dest->getLandmarkId(), viewer_item);
+		insertItem(mItems, dest->getLandmarkId(), viewer_item, insert_before);
 	}
 	else
 	{
+		// This can happen when the item list is empty
 		mItems.push_back(viewer_item);
 	}
 
@@ -579,7 +599,11 @@ void LLFavoritesBarCtrl::handleNewFavoriteDragAndDrop(LLInventoryItem *item, con
 	if (tool_dad->getSource() == LLToolDragAndDrop::SOURCE_NOTECARD)
 	{
 		viewer_item->setType(LLAssetType::AT_LANDMARK);
-		copy_inventory_from_notecard(tool_dad->getObjectID(), tool_dad->getSourceID(), viewer_item.get(), gInventoryCallbacks.registerCB(cb));
+		copy_inventory_from_notecard(favorites_id,
+									 tool_dad->getObjectID(),
+									 tool_dad->getSourceID(),
+									 viewer_item.get(),
+									 gInventoryCallbacks.registerCB(cb));
 	}
 	else
 	{
@@ -642,7 +666,7 @@ void LLFavoritesBarCtrl::draw()
 		{
 			// mouse pointer hovers over an existing tab
 			LLRect rect = mLandingTab->getRect();
-			mImageDragIndication->draw(rect.mLeft - w/2, rect.getHeight(), w, h);
+			mImageDragIndication->draw(rect.mLeft, rect.getHeight(), w, h);
 		}
 		else if (mLastTab)
 		{
@@ -650,6 +674,8 @@ void LLFavoritesBarCtrl::draw()
 			LLRect rect = mLastTab->getRect();
 			mImageDragIndication->draw(rect.mRight, rect.getHeight(), w, h);
 		}
+		// Once drawn, mark this false so we won't draw it again (unless we hit the favorite bar again)
+		mShowDragMarker = FALSE;
 	}
 }
 
@@ -721,7 +747,7 @@ void LLFavoritesBarCtrl::updateButtons()
 	if (first_changed_item_index <= mItems.count())
 	{
 		// Rebuild the buttons only
-		// child_list_t is a linked list, so safe to erase from the middle if we pre-incrament the iterator
+		// child_list_t is a linked list, so safe to erase from the middle if we pre-increment the iterator
 
 		while (child_it != childs->end())
 		{
@@ -810,9 +836,9 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 
 	/**
 	 * WORKAROUND:
-	 * there are some problem with displaying of fonts in buttons. 
-	 * Empty space (or ...) is displaying instead of last symbols, even though the width of the button is enough.
-	 * Problem will gone, if we  stretch out the button. For that reason I have to put additional  20 pixels.
+	 * There are some problem with displaying of fonts in buttons. 
+	 * Empty space or ellipsis might be displayed instead of last symbols, even though the width of the button is enough.
+	 * The problem disappears if we pad the button with 20 pixels.
 	 */
 	int required_width = mFont->getWidth(item->getName()) + 20;
 	int width = required_width > def_button_width? def_button_width : required_width;
@@ -840,7 +866,6 @@ LLButton* LLFavoritesBarCtrl::createButton(const LLPointer<LLViewerInventoryItem
 	fav_btn->setRect(butt_rect);
 	// change only left and save bottom
 	fav_btn->setFont(mFont);
-	fav_btn->setName(item->getName());
 	fav_btn->setLabel(item->getName());
 	fav_btn->setToolTip(item->getName());
 	fav_btn->setCommitCallback(boost::bind(&LLFavoritesBarCtrl::onButtonClick, this, item->getUUID()));
@@ -995,7 +1020,9 @@ void LLFavoritesBarCtrl::addOpenLandmarksMenuItem(LLToggleableMenu* menu)
 	LLMenuItemCallGL::Params item_params;
 	item_params.name("open_my_landmarks");
 	item_params.label(translated ? label_transl: label_untrans);
-	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", LLSD()));
+	LLSD key;
+	key["type"] = "open_landmark_tab";
+	item_params.on_click.function(boost::bind(&LLFloaterSidePanelContainer::showPanel, "places", key));
 	LLMenuItemCallGL* menu_item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
 	fitLabelWidth(menu_item);
@@ -1176,7 +1203,9 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	LLToggleableMenu* menu = (LLToggleableMenu*) mOverflowMenuHandle.get();
 	if (mRestoreOverflowMenu && menu && !menu->getVisible())
 	{
+		menu->resetScrollPositionOnShow(false);
 		showDropDownMenu();
+		menu->resetScrollPositionOnShow(true);
 	}
 }
 
@@ -1298,25 +1327,24 @@ BOOL LLFavoritesBarCtrl::handleHover(S32 x, S32 y, MASK mask)
 
 LLUICtrl* LLFavoritesBarCtrl::findChildByLocalCoords(S32 x, S32 y)
 {
-	LLUICtrl* ctrl = 0;
-	S32 screenX, screenY;
+	LLUICtrl* ctrl = NULL;
 	const child_list_t* list = getChildList();
 
-	localPointToScreen(x, y, &screenX, &screenY);
-
-	// look for a child which contains the point (screenX, screenY) in it's rectangle
 	for (child_list_const_iter_t i = list->begin(); i != list->end(); ++i)
 	{
-		LLRect rect;
-		localRectToScreen((*i)->getRect(), &rect);
-
-		if (rect.pointInRect(screenX, screenY))
+		// Look only for children that are favorite buttons
+		if ((*i)->getName() == "favorites_bar_btn")
 		{
-			ctrl = dynamic_cast<LLUICtrl*>(*i);
-			break;
+			LLRect rect = (*i)->getRect();
+			// We consider a button hit if the cursor is left of the right side
+			// This makes the hit a bit less finicky than hitting directly on the button itself
+			if (x <= rect.mRight)
+			{
+				ctrl = dynamic_cast<LLUICtrl*>(*i);
+				break;
+			}
 		}
 	}
-
 	return ctrl;
 }
 
@@ -1337,29 +1365,28 @@ BOOL LLFavoritesBarCtrl::needToSaveItemsOrder(const LLInventoryModel::item_array
 	return result;
 }
 
-LLInventoryModel::item_array_t::iterator LLFavoritesBarCtrl::findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
+void LLFavoritesBarCtrl::insertItem(LLInventoryModel::item_array_t& items, const LLUUID& dest_item_id, LLViewerInventoryItem* insertedItem, bool insert_before)
 {
-	LLInventoryModel::item_array_t::iterator result = items.end();
+	// Get the iterator to the destination item
+	LLInventoryModel::item_array_t::iterator it_dest = LLInventoryModel::findItemIterByUUID(items, dest_item_id);
+	if (it_dest == items.end())
+		return;
 
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	// Go to the next element if one wishes to insert after the dest element
+	if (!insert_before)
 	{
-		if ((*i)->getUUID() == id)
-		{
-			result = i;
-			break;
-		}
+		++it_dest;
 	}
-
-	return result;
-}
-
-void LLFavoritesBarCtrl::insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem)
-{
-	LLViewerInventoryItem* beforeItem = gInventory.getItem(beforeItemId);
-	llassert(beforeItem);
-	if (beforeItem)
+	
+	// Insert the source item in the right place
+	if (it_dest != items.end())
 	{
-		items.insert(findItemByUUID(items, beforeItem->getUUID()), insertedItem);
+		items.insert(it_dest, insertedItem);
+	}
+	else 
+	{
+		// Append to the list if it_dest reached the end
+		items.push_back(insertedItem);
 	}
 }
 

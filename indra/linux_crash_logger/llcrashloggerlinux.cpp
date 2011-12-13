@@ -133,6 +133,12 @@ bool LLCrashLoggerLinux::mainLoop()
 	return true;
 }
 
+bool LLCrashLoggerLinux::cleanup()
+{
+	commonCleanup();
+	return true;
+}
+
 void LLCrashLoggerLinux::updateApplication(const std::string& message)
 {
 	LLCrashLogger::updateApplication(message);

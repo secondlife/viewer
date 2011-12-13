@@ -31,10 +31,10 @@
 	<text label="Дозволенность" name="access_text">
 		Категория:
 	</text>
-	<icons_combo_box label="Умеренная" name="access_combo">
+	<icons_combo_box label="Умеренный" name="access_combo">
 		<icons_combo_box.item label="Для взрослых" name="Adult" value="42"/>
-		<icons_combo_box.item label="Умеренная" name="Mature" value="21"/>
-		<icons_combo_box.item label="Общая" name="PG" value="13"/>
+		<icons_combo_box.item label="Умеренный" name="Mature" value="21"/>
+		<icons_combo_box.item label="Общий" name="PG" value="13"/>
 	</icons_combo_box>
 	<button label="Применить" name="apply_btn"/>
 	<button label="Телепортировать домой одного жителя..." name="kick_btn"/>

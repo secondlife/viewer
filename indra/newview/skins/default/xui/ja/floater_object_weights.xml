@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="object_weights" title="詳しい設定">
+	<floater.string name="nothing_selected" value="--"/>
+	<text name="selected_text" value="選択済"/>
+	<text name="objects" value="--"/>
+	<text name="objects_label" value="オブジェクト"/>
+	<text name="prims" value="--"/>
+	<text name="prims_label" value="プリム"/>
+	<text name="weights_of_selected_text" value="選択済み項目のウエイト"/>
+	<text name="download" value="--"/>
+	<text name="download_label" value="ダウンロード"/>
+	<text name="physics" value="--"/>
+	<text name="physics_label" value="物理効果"/>
+	<text name="server" value="--"/>
+	<text name="server_label" value="サーバー"/>
+	<text name="display" value="--"/>
+	<text name="display_label" value="ディスプレイ"/>
+	<text name="land_impacts_text" value="土地の負荷"/>
+	<text name="selected" value="--"/>
+	<text name="selected_label" value="選択済"/>
+	<text name="rezzed_on_land" value="--"/>
+	<text name="rezzed_on_land_label" value="土地に Rez 済み"/>
+	<text name="remaining_capacity" value="--"/>
+	<text name="remaining_capacity_label" value="残りの許容数"/>
+	<text name="total_capacity" value="--"/>
+	<text name="total_capacity_label" value="許容合計"/>
+	<text name="help_SLURL" value="[secondlife:///app/help/object_weights オブジェクトのウェイトとは？]"/>
+</floater>

@@ -332,11 +332,16 @@ protected:
 	//--------------------------------------------------------------------
 public:
 	// Changes items order by insertion of the item identified by src_item_id
-	// before the item identified by dest_item_id. Both items must exist in items array.
-	// Sorting is stored after method is finished. Only src_item_id is moved before dest_item_id.
+	// before (or after) the item identified by dest_item_id. Both items must exist in items array.
+	// Sorting is stored after method is finished. Only src_item_id is moved before (or after) dest_item_id.
+	// The parameter "insert_before" controls on which side of dest_item_id src_item_id gets rensinserted.
 	static void updateItemsOrder(LLInventoryModel::item_array_t& items, 
 								 const LLUUID& src_item_id, 
-								 const LLUUID& dest_item_id);
+								 const LLUUID& dest_item_id,
+								 bool insert_before = true);
+	// Gets an iterator on an item vector knowing only the item UUID.
+	// Returns end() of the vector if not found.
+	static LLInventoryModel::item_array_t::iterator findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
 
 	// Saves current order of the passed items using inventory item sort field.
 	// Resets 'items' sort fields and saves them on server.
@@ -406,7 +411,7 @@ public:
 	// Return (yes/no/maybe) child status of category children.
 	EHasChildren categoryHasChildren(const LLUUID& cat_id) const;
 
-	// Returns true iff category version is known and theoretical
+	// Returns true if category version is known and theoretical
 	// descendents == actual descendents.
 	bool isCategoryComplete(const LLUUID& cat_id) const;
 	

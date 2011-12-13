@@ -25,12 +25,11 @@
  * $/LicenseInfo$
  * @endcond
  */
-
 #include "llqtwebkit.h"
-
 #include "linden_common.h"
 #include "indra_constants.h" // for indra keyboard codes
 
+#include "lltimer.h"
 #include "llgl.h"
 
 #include "llplugininstance.h"
@@ -117,15 +116,19 @@ private:
 	F32 mBackgroundG;
 	F32 mBackgroundB;
 	std::string mTarget;
-	
+	LLTimer mElapsedTime;
+		
 	VolumeCatcher mVolumeCatcher;
 
 	void postDebugMessage( const std::string& msg )
 	{
 		if ( mEnableMediaPluginDebugging )
 		{
+			std::stringstream str;
+			str << "@Media Msg> " << "[" << (double)mElapsedTime.getElapsedTimeF32()  << "] -- " << msg;
+
 			LLPluginMessage debug_message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "debug_message");
-			debug_message.setValue("message_text", "Media> " + msg);
+			debug_message.setValue("message_text", str.str());
 			debug_message.setValue("message_level", "info");
 			sendMessage(debug_message);
 		}
@@ -323,7 +326,11 @@ private:
 		LLQtWebKit::getInstance()->enablePlugins( mPluginsEnabled );
 
 		// turn on/off Javascript based on what host app tells us
+#if LLQTWEBKIT_API_VERSION >= 11
+		LLQtWebKit::getInstance()->enableJavaScript( mJavascriptEnabled );
+#else
 		LLQtWebKit::getInstance()->enableJavascript( mJavascriptEnabled );
+#endif
 
 		std::stringstream str;
 		str << "Cookies enabled = " << mCookiesEnabled << ", plugins enabled = " << mPluginsEnabled << ", Javascript enabled = " << mJavascriptEnabled;
@@ -346,7 +353,7 @@ private:
 		// append details to agent string
 		LLQtWebKit::getInstance()->setBrowserAgentId( mUserAgent );
 		postDebugMessage( "Updating user agent with " + mUserAgent );
-		
+
 #if !LL_QTWEBKIT_USES_PIXMAPS
 		// don't flip bitmap
 		LLQtWebKit::getInstance()->flipWindow( mBrowserWindowId, true );
@@ -374,7 +381,17 @@ private:
 		url << "%22%3E%3C/body%3E%3C/html%3E";
 		
 		//lldebugs << "data url is: " << url.str() << llendl;
-					
+
+		// always display loading overlay now
+#if LLQTWEBKIT_API_VERSION >= 16
+		LLQtWebKit::getInstance()->enableLoadingOverlay(mBrowserWindowId, true);
+#else
+		llwarns << "Ignoring enableLoadingOverlay() call (llqtwebkit version is too old)." << llendl;
+#endif
+		str.clear();
+		str << "Loading overlay enabled = " << mEnableMediaPluginDebugging << " for mBrowserWindowId = " << mBrowserWindowId;
+		postDebugMessage( str.str() );
+
 		LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, url.str() );
 //		LLQtWebKit::getInstance()->navigateTo( mBrowserWindowId, "about:blank" );
 
@@ -583,6 +600,10 @@ private:
 		// These could be passed through as well, but aren't really needed.
 //		message.setValue("uri", event.getEventUri());
 //		message.setValueBoolean("dead", (event.getIntValue() != 0))
+
+		// debug spam
+		postDebugMessage( "Sending cookie_set message from plugin: " + event.getStringValue() );
+
 		sendMessage(message);
 	}
 
@@ -863,6 +884,8 @@ MediaPluginWebKit::MediaPluginWebKit(LLPluginInstance::sendMessageFunction host_
 	mPluginsEnabled = true;		// default to on
 	mEnableMediaPluginDebugging = false;
 	mUserAgent = "LLPluginMedia Web Browser";
+
+	mElapsedTime.reset();
 }
 
 MediaPluginWebKit::~MediaPluginWebKit()
@@ -1210,7 +1233,6 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			{
 				mEnableMediaPluginDebugging = message_in.getValueBoolean( "enable" );
 			}
-
 			else
 			if(message_name == "js_enable_object")
 			{
@@ -1298,6 +1320,15 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 					mFirstFocus = false;
 				}
 			}
+			else if(message_name == "set_page_zoom_factor")
+			{
+#if LLQTWEBKIT_API_VERSION >= 15
+				F32 factor = message_in.getValueReal("factor");
+				LLQtWebKit::getInstance()->setPageZoomFactor(factor);
+#else
+				llwarns << "Ignoring setPageZoomFactor message (llqtwebkit version is too old)." << llendl;
+#endif
+			}
 			else if(message_name == "clear_cache")
 			{
 				LLQtWebKit::getInstance()->clearCache();
@@ -1324,6 +1355,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "set_cookies")
 			{
 				LLQtWebKit::getInstance()->setCookies(message_in.getValue("cookies"));
+
+				// debug spam
+				postDebugMessage( "Plugin setting cookie: " + message_in.getValue("cookies") );
 			}
 			else if(message_name == "proxy_setup")
 			{

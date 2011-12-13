@@ -51,7 +51,7 @@
 			<combo_box.item label="Tüm avatarlar ve nesneler" name="3"/>
 			<combo_box.item label="Her şey" name="4"/>
 		</combo_box>
-		<slider label="Avatarın Fiziksel Özellikleri:" name="AvatarPhysicsDetail"/>
+		<slider label="Avatar Fzk. Özlk.:" name="AvatarPhysicsDetail"/>
 		<text name="AvatarPhysicsDetailText">
 			Düşük
 		</text>
@@ -60,7 +60,7 @@
 			m
 		</text>
 		<slider label="Maks. parçacık sayısı:" name="MaxParticleCount"/>
-		<slider label="Düşük grafik özellikli olmayan maks. avatar sayısı:" name="MaxNumberAvatarDrawn"/>
+		<slider label="Düşük gr. özl. olmayan mks. avatar:" name="MaxNumberAvatarDrawn"/>
 		<slider label="Son işleme kalitesi:" name="RenderPostProcess"/>
 		<text name="MeshDetailText">
 			Örgü detayı:

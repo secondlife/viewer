@@ -65,7 +65,7 @@
 	<check_box label="tüm animasyonlar bitinceye kadar" name="wait_anim_check"/>
 	<check_box label="saniye olarak zaman:" name="wait_time_check"/>
 	<text name="help_label">
-		Bekleme adımlar eklemediğiniz sürece tüm adımlar aynı anda gerçekleşir.
+		Bekleme adımları eklemediğiniz sürece tüm adımlar aynı anda gerçekleşir.
 	</text>
 	<check_box label="Etkin" name="active_check" tool_tip="Etkin mimikleri tetiklemek için tetikleme fazları için sohbet gerçekleştirebilir veya kısayol tuşlarına basabilirsiniz.  Bir anahtar bağlama ihtilafı olduğunda mimikler genellikle inaktif hale geçer."/>
 	<button label="Önizleme" name="preview_btn"/>

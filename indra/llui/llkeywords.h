@@ -41,23 +41,44 @@ typedef LLPointer<LLTextSegment> LLTextSegmentPtr;
 class LLKeywordToken
 {
 public:
-	enum TOKEN_TYPE { WORD, LINE, TWO_SIDED_DELIMITER, ONE_SIDED_DELIMITER };
+	/** 
+	 * @brief Types of tokens/delimters being parsed.
+	 *
+	 * @desc Tokens/delimiters that need to be identified/highlighted. All are terminated if an EOF is encountered.
+	 * - WORD are keywords in the normal sense, i.e. constants, events, etc.
+	 * - LINE are for entire lines (currently only flow control labels use this).
+	 * - ONE_SIDED_DELIMITER are for open-ended delimiters which are terminated by EOL.
+	 * - TWO_SIDED_DELIMITER are for delimiters that end with a different delimiter than they open with.
+	 * - DOUBLE_QUOTATION_MARKS are for delimiting areas using the same delimiter to open and close.
+	 */
+	enum TOKEN_TYPE
+	{
+		WORD,
+		LINE,
+		TWO_SIDED_DELIMITER,
+		ONE_SIDED_DELIMITER,
+		DOUBLE_QUOTATION_MARKS
+	};
 
-	LLKeywordToken( TOKEN_TYPE type, const LLColor3& color, const LLWString& token, const LLWString& tool_tip ) 
+	LLKeywordToken( TOKEN_TYPE type, const LLColor3& color, const LLWString& token, const LLWString& tool_tip, const LLWString& delimiter  ) 
 		:
 		mType( type ),
 		mToken( token ),
 		mColor( color ),
-		mToolTip( tool_tip )
+		mToolTip( tool_tip ),
+		mDelimiter( delimiter )		// right delimiter
 	{
 	}
 
-	S32					getLength() const		{ return mToken.size(); }
+	S32					getLengthHead() const	{ return mToken.size(); }
+	S32					getLengthTail() const	{ return mDelimiter.size(); }
 	BOOL				isHead(const llwchar* s) const;
+	BOOL				isTail(const llwchar* s) const;
 	const LLWString&	getToken() const		{ return mToken; }
 	const LLColor3&		getColor() const		{ return mColor; }
 	TOKEN_TYPE			getType()  const		{ return mType; }
 	const LLWString&	getToolTip() const		{ return mToolTip; }
+	const LLWString&	getDelimiter() const	{ return mDelimiter; }
 
 #ifdef _DEBUG
 	void		dump();
@@ -68,6 +89,7 @@ private:
 	LLWString	mToken;
 	LLColor3	mColor;
 	LLWString	mToolTip;
+	LLWString	mDelimiter;
 };
 
 class LLKeywords
@@ -85,7 +107,8 @@ public:
 	void addToken(LLKeywordToken::TOKEN_TYPE type,
 					const std::string& key,
 					const LLColor3& color,
-					const std::string& tool_tip = LLStringUtil::null);
+					const std::string& tool_tip = LLStringUtil::null,
+					const std::string& delimiter = LLStringUtil::null);
 	
 	// This class is here as a performance optimization.
 	// The word token map used to be defined as std::map<LLWString, LLKeywordToken*>.

@@ -267,7 +267,7 @@ public:
 
 	// This method returns the actual name of the thing being
 	// viewed. This method will ask the viewed object itself.
-	std::string getName( void ) const;
+	const std::string& getName( void ) const;
 
 	const std::string& getSearchableLabel( void ) const;
 
@@ -556,6 +556,10 @@ public:
 	folders_t::const_iterator getFoldersBegin() const { return mFolders.begin(); }
 	folders_t::const_iterator getFoldersEnd() const { return mFolders.end(); }
 	folders_t::size_type getFoldersCount() const { return mFolders.size(); }
+
+	items_t::const_iterator getItemsBegin() const { return mItems.begin(); }
+	items_t::const_iterator getItemsEnd() const { return mItems.end(); }
+	items_t::size_type getItemsCount() const { return mItems.size(); }
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

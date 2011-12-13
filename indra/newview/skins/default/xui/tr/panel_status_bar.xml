@@ -17,12 +17,9 @@
 	</panel.string>
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="L$ bakiyenizi yenilemek için buraya tıklayın" value="L$20"/>
-		<button label="L$ SATIN AL" name="buyL" tool_tip="Daha fazla L$ satın almak için tıklayın"/>
+		<button label="L$ Satın Al" name="buyL" tool_tip="Daha fazla L$ satın almak için tıklayın"/>
+		<button label="Alışveriş yap" name="goShop" tool_tip="Second Life Pazaryeri Aç"/>
 	</panel>
-	<combo_box name="mode_combo" tool_tip="Modunuzu seçin. Hızlı ve kolay keşif yapmak ile sohbet etmek için Temel seçimini yapın. Daha fazla özelliğe erişmek için Gelişmiş seçimini yapın.">
-		<combo_box.item label="Temel Mod" name="Basic"/>
-		<combo_box.item label="Gelişmiş Mod" name="Advanced"/>
-	</combo_box>
 	<text name="TimeText" tool_tip="Geçerli zaman (Pasifik)">
 		24:00 AM PST
 	</text>

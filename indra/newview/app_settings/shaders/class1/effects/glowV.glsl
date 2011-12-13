@@ -23,20 +23,28 @@
  * $/LicenseInfo$
  */
  
+uniform mat4 modelview_projection_matrix;
 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
 uniform vec2 glowDelta;
 
+VARYING vec4 vary_texcoord0;
+VARYING vec4 vary_texcoord1;
+VARYING vec4 vary_texcoord2;
+VARYING vec4 vary_texcoord3;
+
 void main() 
 {
-	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+	gl_Position = modelview_projection_matrix * vec4(position, 1.0);
 	
-	gl_TexCoord[0].xy = gl_MultiTexCoord0.xy + glowDelta*(-3.5);
-	gl_TexCoord[1].xy = gl_MultiTexCoord0.xy + glowDelta*(-2.5);
-	gl_TexCoord[2].xy = gl_MultiTexCoord0.xy + glowDelta*(-1.5);
-	gl_TexCoord[3].xy = gl_MultiTexCoord0.xy + glowDelta*(-0.5);
-	gl_TexCoord[0].zw = gl_MultiTexCoord0.xy + glowDelta*(0.5);
-	gl_TexCoord[1].zw = gl_MultiTexCoord0.xy + glowDelta*(1.5);
-	gl_TexCoord[2].zw = gl_MultiTexCoord0.xy + glowDelta*(2.5);
-	gl_TexCoord[3].zw = gl_MultiTexCoord0.xy + glowDelta*(3.5);
+	vary_texcoord0.xy = texcoord0 + glowDelta*(-3.5);
+	vary_texcoord1.xy = texcoord0 + glowDelta*(-2.5);
+	vary_texcoord2.xy = texcoord0 + glowDelta*(-1.5);
+	vary_texcoord3.xy = texcoord0 + glowDelta*(-0.5);
+	vary_texcoord0.zw = texcoord0 + glowDelta*(0.5);
+	vary_texcoord1.zw = texcoord0 + glowDelta*(1.5);
+	vary_texcoord2.zw = texcoord0 + glowDelta*(2.5);
+	vary_texcoord3.zw = texcoord0 + glowDelta*(3.5);
 }

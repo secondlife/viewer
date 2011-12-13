@@ -2369,7 +2369,7 @@ Would you be my friend?
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
-Do you want to remove [NAME] from your Friends List?
+Do you want to remove &lt;nolink&gt;[NAME]&lt;/nolink&gt; from your Friends List?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -4636,7 +4636,21 @@ Are you sure you want to quit?
    name="ConfirmRestoreToybox"
    type="alertmodal">
     <unique/>
-Are you sure you want to restore your default buttons and toolbars? 
+This action will restore your default buttons and toolbars.
+
+You cannot undo this action.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearAllToybox"
+   type="alertmodal">
+    <unique/>
+This action will return all buttons to the toolbox and your toolbars will be empty.
     
 You cannot undo this action.
     <usetemplate
@@ -4644,7 +4658,7 @@ You cannot undo this action.
      notext="Cancel"
      yestext="OK"/>
   </notification>
-  
+
   <notification
    icon="alertmodal.tga"
    name="DeleteItems"
@@ -5147,7 +5161,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOnline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Online
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
   </notification>
 
   <notification
@@ -5155,7 +5169,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOffline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Offline
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
   </notification>
 
   <notification
@@ -6157,7 +6171,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="FriendshipAccepted"
    type="offer">
     <tag>friendship</tag>
-[NAME] accepted your friendship offer.
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
   </notification>
 
   <notification
@@ -6166,7 +6180,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    persist="true"
    type="notify">
     <tag>friendship</tag>
-[NAME] declined your friendship offer.
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; declined your friendship offer.
   </notification>
   
     <notification
@@ -6925,7 +6939,7 @@ With the following Residents:
 	<usetemplate
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Ok"/>
+     yestext="OK"/>
   </notification>
   
   <notification
@@ -7121,7 +7135,7 @@ Mute everyone?
     <usetemplate
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
-     yestext="Ok"
+     yestext="OK"
      notext="Cancel">
       <unique/>
     </usetemplate>

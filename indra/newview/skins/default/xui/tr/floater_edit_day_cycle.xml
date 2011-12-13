@@ -22,10 +22,10 @@
 		Not: Ön ayarınızın adını değiştirirseniz, yeni bir ön ayar oluşturursunuz ve mevcut ön ayar değişmez.
 	</text>
 	<text name="hint_item1">
-		- Belirli gökyüzü ayarlarını ve zamanı düzenlemek için bir sekmeye tıklayın.
+		- Birine tıklayarak gökyüzü ayarlarını/zamanı düzenleyin.
 	</text>
 	<text name="hint_item2">
-		- Geçiş sürelerini ayarlamak için sekmelere tıklayın ve bunları sürükleyin.
+		- Sekmelere tıklayıp sürükleyerek geçiş sürlrn. ayarlayın.
 	</text>
 	<text name="hint_item3">
 		- Gün döngünüzü önizlemek için fırçayı kullanın.
@@ -36,31 +36,31 @@
 		<button label="Anahtar Ekle" label_selected="Anahtar Ekle" name="WLAddKey"/>
 		<button label="Anahtarı Sil" label_selected="Anahtarı Sil" name="WLDeleteKey"/>
 		<text name="WL12am">
-			12öö
+			12
 		</text>
 		<text name="WL3am">
-			3öö
+			3
 		</text>
 		<text name="WL6am">
-			6öö
+			6
 		</text>
 		<text name="WL9amHash">
-			9öö
+			9
 		</text>
 		<text name="WL12pmHash">
-			12ös
+			24
 		</text>
 		<text name="WL3pm">
-			3ös
+			15
 		</text>
 		<text name="WL6pm">
-			6ös
+			18
 		</text>
 		<text name="WL9pm">
-			9ös
+			21
 		</text>
 		<text name="WL12am2">
-			12öö
+			12
 		</text>
 		<text name="WL12amHash">
 			|
@@ -97,7 +97,7 @@
 	<text name="WLCurKeyTimeText">
 		Zaman:
 	</text>
-	<time name="time" value="6:00 ÖÖ"/>
+	<time name="time" value="6:00"/>
 	<check_box label="Bunu yeni gün döngüm yap" name="make_default_cb"/>
 	<button label="Kaydet" name="save"/>
 	<button label="İptal" name="cancel"/>

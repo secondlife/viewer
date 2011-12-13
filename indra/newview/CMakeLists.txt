@@ -210,7 +210,6 @@ set(viewer_SOURCE_FILES
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermap.cpp
-    llfloatermediabrowser.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
@@ -222,7 +221,6 @@ set(viewer_SOURCE_FILES
     llfloateropenobject.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
-    llfloaterpostcard.cpp
     llfloaterpostprocess.cpp
     llfloaterpreference.cpp
     llfloaterproperties.cpp
@@ -244,10 +242,12 @@ set(viewer_SOURCE_FILES
     llfloatertopobjects.cpp
     llfloatertos.cpp
     llfloatertoybox.cpp
+    llfloatertranslationsettings.cpp
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
     llfloaterwebcontent.cpp
+    llfloaterwebprofile.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
@@ -320,7 +320,6 @@ set(viewer_SOURCE_FILES
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
-    llmenucommands.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -398,7 +397,12 @@ set(viewer_SOURCE_FILES
     llpanelplacestab.cpp
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
-    llpanelprofileview.cpp
+    llpanelsnapshot.cpp
+    llpanelsnapshotinventory.cpp
+    llpanelsnapshotlocal.cpp
+    llpanelsnapshotoptions.cpp
+    llpanelsnapshotpostcard.cpp
+    llpanelsnapshotprofile.cpp
     llpanelteleporthistory.cpp
     llpaneltiptoast.cpp
     llpanelvoiceeffect.cpp
@@ -417,6 +421,7 @@ set(viewer_SOURCE_FILES
     llpopupview.cpp
     llpolymesh.cpp
     llpolymorph.cpp
+    llpostcard.cpp
     llpreview.cpp
     llpreviewanim.cpp
     llpreviewgesture.cpp
@@ -543,9 +548,6 @@ set(viewer_SOURCE_FILES
     llviewerjoint.cpp
     llviewerjointattachment.cpp
     llviewerjointmesh.cpp
-    llviewerjointmesh_sse.cpp
-    llviewerjointmesh_sse2.cpp
-    llviewerjointmesh_vec.cpp
     llviewerjoystick.cpp
     llviewerkeyboard.cpp
     llviewerlayer.cpp
@@ -593,7 +595,6 @@ set(viewer_SOURCE_FILES
     llvopartgroup.cpp
     llvosky.cpp
     llvosurfacepatch.cpp
-    llvotextbubble.cpp
     llvotree.cpp
     llvovolume.cpp
     llvowater.cpp
@@ -606,6 +607,7 @@ set(viewer_SOURCE_FILES
     llwearablelist.cpp
     llwearabletype.cpp
     llweb.cpp
+    llwebprofile.cpp
     llwebsharing.cpp
     llwind.cpp
     llwindowlistener.cpp
@@ -627,20 +629,6 @@ set(viewer_SOURCE_FILES
 
 set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
     "The name of the viewer executable to create.")
-
-if (LINUX)
-  # We can't set these flags for Darwin, because they get passed to
-  # the PPC compiler.  Ugh.
-
-  set_source_files_properties(
-      llviewerjointmesh_sse.cpp
-      PROPERTIES COMPILE_FLAGS "-msse -mfpmath=sse"
-      )
-  set_source_files_properties(
-      llviewerjointmesh_sse2.cpp
-      PROPERTIES COMPILE_FLAGS "-msse2 -mfpmath=sse"
-      )
-endif (LINUX)
 
 set(viewer_HEADER_FILES
     CMakeLists.txt
@@ -777,7 +765,6 @@ set(viewer_HEADER_FILES
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
-    llfloatermediabrowser.h
     llfloatermediasettings.h
     llfloatermemleak.h
     llfloatermodelpreview.h
@@ -789,7 +776,6 @@ set(viewer_HEADER_FILES
     llfloateropenobject.h
     llfloaterpay.h
     llfloaterperms.h
-    llfloaterpostcard.h
     llfloaterpostprocess.h
     llfloaterpreference.h
     llfloaterproperties.h
@@ -811,10 +797,12 @@ set(viewer_HEADER_FILES
     llfloatertopobjects.h
     llfloatertos.h
     llfloatertoybox.h
+    llfloatertranslationsettings.h
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
     llfloaterwebcontent.h
+    llfloaterwebprofile.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
@@ -887,7 +875,6 @@ set(viewer_HEADER_FILES
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
-    llmenucommands.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h
@@ -959,7 +946,7 @@ set(viewer_HEADER_FILES
     llpanelplacestab.h
     llpanelprimmediacontrols.h
     llpanelprofile.h
-    llpanelprofileview.h
+    llpanelsnapshot.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
     llpanelvoicedevicesettings.h
@@ -978,6 +965,7 @@ set(viewer_HEADER_FILES
     llpolymesh.h
     llpolymorph.h
     llpopupview.h
+    llpostcard.h
     llpreview.h
     llpreviewanim.h
     llpreviewgesture.h
@@ -1153,7 +1141,6 @@ set(viewer_HEADER_FILES
     llvopartgroup.h
     llvosky.h
     llvosurfacepatch.h
-    llvotextbubble.h
     llvotree.h
     llvotreenew.h
     llvovolume.h
@@ -1167,6 +1154,7 @@ set(viewer_HEADER_FILES
     llwearablelist.h
     llwearabletype.h
     llweb.h
+    llwebprofile.h
     llwebsharing.h
     llwind.h
     llwindowlistener.h
@@ -1994,10 +1982,17 @@ if (LL_TESTS)
     llmediadataclient.cpp
     lllogininstance.cpp
     llremoteparcelrequest.cpp
+    lltranslate.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
     llworldmap.cpp
     llworldmipmap.cpp
+  )
+
+  set_source_files_properties(
+    lltranslate.cpp
+    PROPERTIES
+    LL_TEST_ADDITIONAL_LIBRARIES "${JSONCPP_LIBRARIES}"
   )
 
   ##################################################

@@ -118,6 +118,6 @@
 		<button label="Aç" name="open_btn"/>
 		<button label="Öde" name="pay_btn"/>
 		<button label="Satın Al" name="buy_btn"/>
-		<button label="Ayrıntılar" name="details_btn"/>
+		<button label="Ayrıntl" name="details_btn"/>
 	</panel>
 </panel>

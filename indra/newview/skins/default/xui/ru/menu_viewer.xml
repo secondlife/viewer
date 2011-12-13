@@ -1,27 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Я" name="Me">
-		<menu_item_call label="Настройки" name="Preferences"/>
-		<menu_item_call label="Моя информационная панель" name="Manage My Account"/>
-		<menu_item_call label="Купить L$" name="Buy and Sell L$"/>
-		<menu_item_call label="Мой профиль" name="Profile"/>
-		<menu_item_call label="Мой внешний вид" name="ChangeOutfit"/>
-		<menu_item_check label="Мой инвентарь" name="Inventory"/>
-		<menu_item_check label="Мой инвентарь" name="ShowSidetrayInventory"/>
-		<menu_item_check label="Мои жесты" name="Gestures"/>
-		<menu_item_check label="Мой голос" name="ShowVoice"/>
+		<menu_item_call label="Информационная панель..." name="Manage My Account"/>
+		<menu_item_call label="Профиль…" name="Profile"/>
+		<menu_item_call label="Внешность..." name="ChangeOutfit"/>
+		<menu_item_check label="Инвентарь..." name="Inventory"/>
+		<menu_item_check label="Жесты..." name="Gestures"/>
+		<menu_item_check label="Голос..." name="ShowVoice"/>
 		<menu label="Движение" name="Movement">
 			<menu_item_call label="Сесть" name="Sit Down Here"/>
 			<menu_item_check label="Полет" name="Fly"/>
 			<menu_item_check label="Всегда бегать" name="Always Run"/>
 			<menu_item_call label="Остановить анимацию" name="Stop Animating My Avatar"/>
 		</menu>
-		<menu label="Мой статус" name="Status">
+		<menu label="Статус" name="Status">
 			<menu_item_call label="Нет на месте" name="Set Away"/>
 			<menu_item_call label="Не беспокоить" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="Запрос статуса администратора" name="Request Admin Options"/>
 		<menu_item_call label="Выход из статуса администратора" name="Leave Admin Options"/>
+		<menu_item_call label="Купить L$" name="Buy and Sell L$"/>
+		<menu_item_call label="Настройки..." name="Preferences"/>
+		<menu_item_call label="Панели инструментов..." name="Toolbars"/>
+		<menu_item_call label="Скрыть все элементы управления" name="Hide UI"/>
 		<menu_item_call label="Выход из [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Общение" name="Communicate">
@@ -32,7 +33,7 @@
 		<menu_item_check label="Голоса собеседников" name="Nearby Voice"/>
 	</menu>
 	<menu label="Мир" name="World">
-		<menu_item_check label="Мини-карта" name="Mini-Map"/>
+		<menu_item_check label="Миникарта" name="Mini-Map"/>
 		<menu_item_check label="Карта мира" name="World Map"/>
 		<menu_item_check label="Поиск" name="Search"/>
 		<menu_item_call label="Снимок" name="Take Snapshot"/>
@@ -53,7 +54,7 @@
 			<menu_item_check label="Владельцы земли" name="Land Owners"/>
 			<menu_item_check label="Координаты" name="Coordinates"/>
 			<menu_item_check label="Свойства участка" name="Parcel Properties"/>
-			<menu_item_check label="Дополнительное меню" name="Show Advanced Menu"/>
+			<menu_item_check label="Меню «Дополнительно»" name="Show Advanced Menu"/>
 		</menu>
 		<menu_item_call label="Телепортироваться домой" name="Teleport Home"/>
 		<menu_item_call label="Установить дом здесь" name="Set Home to Here"/>
@@ -144,7 +145,6 @@
 	</menu>
 	<menu label="Справка" name="Help">
 		<menu_item_call label="Справка по [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_check label="Включить подсказки" name="Enable Hints"/>
 		<menu_item_call label="Жалоба" name="Report Abuse"/>
 		<menu_item_call label="Сообщить об ошибке" name="Report Bug"/>
 		<menu_item_call label="О [APP_NAME]" name="About Second Life"/>
@@ -160,7 +160,7 @@
 		<menu label="Производительность" name="Performance Tools">
 			<menu_item_call label="Запаздывание" name="Lag Meter"/>
 			<menu_item_check label="Статистика" name="Statistics Bar"/>
-			<menu_item_check label="Стоимость отрисовки аватара" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Показать вес отрисовки для аватаров" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Подсветка и видимость" name="Highlighting and Visibility">
 			<menu_item_check label="Мигающий маяк" name="Cheesy Beacon"/>
@@ -203,7 +203,7 @@
 			<menu_item_check label="Поиск" name="Search"/>
 			<menu_item_call label="Освободить клавиши" name="Release Keys"/>
 			<menu_item_call label="Сбросить размер интерфейса" name="Set UI Size to Default"/>
-			<menu_item_check label="Показать дополнительное меню – устаревшее сочетание клавиш" name="Show Advanced Menu - legacy shortcut"/>
+			<menu_item_check label="Показать меню «Дополнительно» - старое сочетание клавиш" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Закрыть окно" name="Close Window"/>
 			<menu_item_call label="Закрыть все окна" name="Close All Windows"/>
 			<menu_item_call label="Сохранить снимок на диске" name="Snapshot to Disk"/>
@@ -288,6 +288,7 @@
 			<menu_item_check label="Освещение" name="Lights"/>
 			<menu_item_check label="Каркас столкновений" name="Collision Skeleton"/>
 			<menu_item_check label="Лучи" name="Raycast"/>
+			<menu_item_check label="Сложность визуализации" name="rendercomplexity"/>
 			<menu_item_check label="Лепка" name="Sculpt"/>
 		</menu>
 		<menu label="Визуализация" name="Rendering">

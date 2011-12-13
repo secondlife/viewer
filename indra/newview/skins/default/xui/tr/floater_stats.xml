@@ -10,8 +10,8 @@
 			</stat_view>
 			<stat_view label="Gelişmiş" name="advanced">
 				<stat_view label="İşle" name="render">
-					<stat_bar label="Çizilen Üçgenler" name="ktrisframe"/>
-					<stat_bar label="Çizilen Üçgenler" name="ktrissec"/>
+					<stat_bar label="Çerçeve Başına Çizilen Üçgenler" name="ktrisframe"/>
+					<stat_bar label="Saniyede Bir Çizilen Üçgenler" name="ktrissec"/>
 					<stat_bar label="Toplam Nesne" name="objs"/>
 					<stat_bar label="Yeni Nesne" name="newobjs"/>
 				</stat_view>
@@ -64,6 +64,14 @@
 					<stat_bar label="Aracı Süresi" name="simagentmsec"/>
 					<stat_bar label="Görüntü Süresi" name="simimagesmsec"/>
 					<stat_bar label="Komut Dosyası Süresi" name="simscriptmsec"/>
+					<stat_bar label="Yedek Zaman" name="simsparemsec"/>
+					<stat_view label="Zaman Ayrıntıları (ms)" name="timedetails">
+						<stat_bar label="Fizik Adımı" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Fizik Şekillerini Güncelle" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Fizik Diğer" name="simsimphysicsothermsec"/>
+						<stat_bar label="Uyku Zamanı" name="simsleepmsec"/>
+						<stat_bar label="Pompa Giriş Çıkış" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

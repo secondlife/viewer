@@ -78,6 +78,8 @@ void on_new_single_inventory_upload_complete(
 	const LLSD& server_response,
 	S32 upload_price)
 {
+	bool success = false;
+
 	if ( upload_price > 0 )
 	{
 		// this upload costed us L$, update our balance
@@ -152,6 +154,7 @@ void on_new_single_inventory_upload_complete(
 
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
+		success = true;
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
@@ -175,6 +178,13 @@ void on_new_single_inventory_upload_complete(
 
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();	
+
+	// Let the Snapshot floater know we have finished uploading a snapshot to inventory.
+	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+	if (asset_type == LLAssetType::AT_TEXTURE && floater_snapshot)
+	{
+		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+	}
 }
 
 LLAssetUploadResponder::LLAssetUploadResponder(const LLSD &post_data,
@@ -285,6 +295,11 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();
+	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+	if (floater_snapshot)
+	{
+		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
+	}
 	
 	std::string reason = content["state"];
 	// deal with L$ errors

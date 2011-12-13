@@ -2518,7 +2518,11 @@ BOOL LLTextSegment::handleDoubleClick(S32 x, S32 y, MASK mask) { return FALSE; }
 BOOL LLTextSegment::handleHover(S32 x, S32 y, MASK mask) { return FALSE; }
 BOOL LLTextSegment::handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; }
 BOOL LLTextSegment::handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; }
-std::string	LLTextSegment::getName() const { return ""; }
+const std::string&	LLTextSegment::getName() const 
+{
+	static std::string empty_string("");
+	return empty_string; 
+}
 void LLTextSegment::onMouseCaptureLost() {}
 void LLTextSegment::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {}
 void LLTextSegment::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const {}

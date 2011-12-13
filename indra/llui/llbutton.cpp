@@ -115,7 +115,7 @@ LLButton::Params::Params()
 
 LLButton::LLButton(const LLButton::Params& p)
 :	LLUICtrl(p),
-	LLBadgeOwner(LLView::getHandle()),
+	LLBadgeOwner(getHandle()),
 	mMouseDownFrame(0),
 	mMouseHeldDownCount(0),
 	mBorderEnabled( FALSE ),
@@ -1233,7 +1233,6 @@ void LLButton::resetMouseDownTimer()
 	mMouseDownTimer.stop();
 	mMouseDownTimer.reset();
 }
-
 
 BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
 {

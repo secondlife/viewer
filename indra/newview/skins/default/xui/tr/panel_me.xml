@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Profilim" name="panel_me">
-	<tab_container name="tabs">
-		<panel label="PROFİLİM" name="panel_profile"/>
-		<panel label="FAVORİLERİM" name="panel_picks"/>
-	</tab_container>
+	<panel label="SEÇMELERİM" name="panel_picks"/>
 </panel>

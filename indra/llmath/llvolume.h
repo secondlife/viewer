@@ -990,7 +990,7 @@ public:
 	S32 getNumTriangleIndices() const;
 	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
 
-	S32 getNumTriangles() const;
+	S32 getNumTriangles(S32* vcount = NULL) const;
 
 	void generateSilhouetteVertices(std::vector<LLVector3> &vertices, 
 									std::vector<LLVector3> &normals, 

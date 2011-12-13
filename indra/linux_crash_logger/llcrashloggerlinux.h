@@ -39,6 +39,7 @@ public:
 	virtual bool mainLoop();
 	virtual void updateApplication(const std::string& = LLStringUtil::null);
 	virtual void gatherPlatformSpecificFiles();
+	virtual bool cleanup();
 };
 
 #endif

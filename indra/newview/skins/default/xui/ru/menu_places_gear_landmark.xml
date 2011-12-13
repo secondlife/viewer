@@ -8,7 +8,7 @@
 	<menu_item_call label="Восстановить вещь" name="restore_item"/>
 	<menu_item_call label="Вырезать" name="cut"/>
 	<menu_item_call label="Копировать закладку" name="copy_landmark"/>
-	<menu_item_call label="Копировать URL-адрес SL" name="copy_slurl"/>
+	<menu_item_call label="Копировать URL SL" name="copy_slurl"/>
 	<menu_item_call label="Вставить" name="paste"/>
 	<menu_item_call label="Переименовать" name="rename"/>
 	<menu_item_call label="Удалить" name="delete"/>

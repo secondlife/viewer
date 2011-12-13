@@ -41,6 +41,7 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
+#include "llglslshader.h"
 
 // System includes
 #include <commdlg.h>
@@ -861,7 +862,7 @@ BOOL LLWindowWin32::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowWin32::setSize(const LLCoordScreen size)
+BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 {
 	LLCoordScreen position;
 
@@ -1031,6 +1032,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		mhInstance,
 		NULL);
 
+	LL_INFOS("Window") << "window is created." << llendl ;
+
 	//-----------------------------------------------------------------------
 	// Create GL drawing context
 	//-----------------------------------------------------------------------
@@ -1120,8 +1123,10 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	gGLManager.initWGL();
+	LL_INFOS("Window") << "Drawing context is created." << llendl ;
 
+	gGLManager.initWGL();
+	
 	if (wglChoosePixelFormatARB)
 	{
 		// OK, at this point, use the ARB wglChoosePixelFormatsARB function to see if we
@@ -1256,7 +1261,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			LL_INFOS("Window") << "Choosing pixel formats: " << num_formats << " pixel formats returned" << LL_ENDL;
 		}
 
-		
+		LL_INFOS("Window") << "pixel formats done." << llendl ;
 
 		S32 swap_method = 0;
 		S32 cur_format = num_formats-1;
@@ -1305,6 +1310,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			NULL,
 			mhInstance,
 			NULL);
+
+		LL_INFOS("Window") << "recreate window done." << llendl ;
 
 		if (!(mhDC = GetDC(mWindowHandle)))
 		{
@@ -1378,7 +1385,53 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	if (!(mhRC = wglCreateContext(mhDC)))
+	mhRC = 0;
+	if (wglCreateContextAttribsARB)
+	{ //attempt to create a specific versioned context
+		S32 attribs[] = 
+		{ //start at 4.2
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+			WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+			WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
+			0
+		};
+
+		bool done = false;
+		while (!done)
+		{
+			mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+
+			if (!mhRC)
+			{
+				if (attribs[3] > 0)
+				{ //decrement minor version
+					attribs[3]--;
+				}
+				else if (attribs[1] > 3)
+				{ //decrement major version and start minor version over at 3
+					attribs[1]--;
+					attribs[3] = 3;
+				}
+				else
+				{ //we reached 3.0 and still failed, bail out
+					done = true;
+				}
+			}
+			else
+			{
+				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << " context." << llendl;
+				done = true;
+
+				if (LLRender::sGLCoreProfile)
+				{
+					LLGLSLShader::sNoFixedFunction = true;
+				}
+			}
+		}
+	}
+
+	if (!mhRC && !(mhRC = wglCreateContext(mhDC)))
 	{
 		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
@@ -1398,7 +1451,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
-
+	
 	// Disable vertical sync for swap
 	if (disable_vsync && wglSwapIntervalEXT)
 	{
@@ -1614,18 +1667,18 @@ void LLWindowWin32::initCursors()
 
 
 
-void LLWindowWin32::setCursor(ECursorType cursor)
+void LLWindowWin32::updateCursor()
 {
-	if (cursor == UI_CURSOR_ARROW
+	if (mNextCursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
-		cursor = UI_CURSOR_WORKING;
+		mNextCursor = UI_CURSOR_WORKING;
 	}
 
-	if( mCurrentCursor != cursor )
+	if( mCurrentCursor != mNextCursor )
 	{
-		mCurrentCursor = cursor;
-		SetCursor( mCursor[cursor] );
+		mCurrentCursor = mNextCursor;
+		SetCursor( mCursor[mNextCursor] );
 	}
 }
 
@@ -1706,6 +1759,8 @@ void LLWindowWin32::gatherInput()
 	}
 
 	mInputProcessingPaused = FALSE;
+
+	updateCursor();
 
 	// clear this once we've processed all mouse messages that might have occurred after
 	// we slammed the mouse position
@@ -2354,6 +2409,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				return 0;
 			}
 
+		case WM_GETMINMAXINFO:
+			{
+				LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
+				min_max->ptMinTrackSize.x = window_imp->mMinWindowWidth;
+				min_max->ptMinTrackSize.y = window_imp->mMinWindowHeight;
+				return 0;
+			}
+
 		case WM_SIZE:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_SIZE");
@@ -2896,7 +2959,6 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
-	glFinish();
 	SwapBuffers(mhDC);
 }
 
