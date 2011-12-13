@@ -248,7 +248,7 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	mOutboxInventoryPanel->setShape(inventory_placeholder_rect);
 	
 	// Set the sort order newest to oldest
-	mOutboxInventoryPanel->setSortOrder(LLInventoryFilter::SO_DATE);	
+	mOutboxInventoryPanel->setSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME);	
 	mOutboxInventoryPanel->getFilter()->markDefault();
 	
 	fetchOutboxContents();
@@ -340,19 +340,25 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EAcceptance* accept,
 										std::string& tooltip_msg)
 {
-	// Pass drag and drop to this floater to the outbox inventory control
-
 	if ((mOutboxInventoryPanel == NULL) ||
 		(mWindowShade && mWindowShade->isShown()) ||
 		LLMarketplaceInventoryImporter::getInstance()->isImportInProgress())
 	{
 		return FALSE;
 	}
-
-	S32 local_x = x - mOutboxInventoryPanel->getRect().mLeft;
-	S32 local_y = y - mOutboxInventoryPanel->getRect().mBottom;
-
-	return mOutboxInventoryPanel->handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	
+	BOOL handled = (childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL);
+	
+	// Pass drag and drop to this floater to the outbox inventory control if no other children handle it
+	if (!handled)
+	{
+		S32 local_x = x - mOutboxInventoryPanel->getRect().mLeft;
+		S32 local_y = y - mOutboxInventoryPanel->getRect().mBottom;
+		
+		handled = mOutboxInventoryPanel->handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	}
+	
+	return handled;
 }
 
 void LLFloaterOutbox::onImportButtonClicked()

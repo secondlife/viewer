@@ -588,7 +588,6 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 				parent = next_parent;
 			}
 		}
-
 	}
 }
 
@@ -620,8 +619,7 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 				gInventory.notifyObservers();
 			}
 			
-			copy_inventory_item(
-								gAgent.getID(),
+			copy_inventory_item(gAgent.getID(),
 								inv_item->getPermissions().getOwner(),
 								inv_item->getUUID(),
 								dest_folder,
@@ -639,6 +637,23 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 			LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&move_to_outbox_cb, _1, _2));
 		}
 	}
+}
+
+void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder)
+{
+	// when moving item directly into outbox create folder with that name
+	if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
+	{
+		dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_item->getName());
+		gInventory.notifyObservers();
+	}
+	
+	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
+
+	change_item_parent(&gInventory,
+					   viewer_inv_item,
+					   dest_folder,
+					   false);
 }
 
 void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder)
