@@ -76,7 +76,6 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
-#include "llmenucommands.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
@@ -3102,7 +3101,7 @@ void handle_avatar_eject(const LLSD& avatar_id)
 
 bool my_profile_visible()
 {
-	LLFloater* floaterp = LLFloaterReg::findInstance("profile", LLSD().with("id", gAgent.getID()));
+	LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
 	return floaterp && floaterp->isInVisibleChain();
 }
 
@@ -7790,24 +7789,6 @@ class LLWorldPostProcess : public view_listener_t
 	}
 };
 
-class LLWorldToggleMovementControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("moveview");
-		return true;
-	}
-};
-
-class LLWorldToggleCameraControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("camera");
-		return true;
-	}
-};
-
 void handle_flush_name_caches()
 {
 	// Toggle display names on and off to flush
@@ -7963,6 +7944,11 @@ void initialize_menus()
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
+	commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+	commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
+	enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
 	// File menu
 	init_menu_file();
@@ -8005,7 +7991,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// World menu
-	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
 	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
@@ -8025,9 +8010,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-
-	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
-	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");

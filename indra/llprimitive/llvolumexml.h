@@ -34,11 +34,11 @@
 class LLVolumeXml
 {
 public:
-	static LLXMLNode* exportProfileParams(const LLProfileParams* params);
+	static LLPointer<LLXMLNode> exportProfileParams(const LLProfileParams* params);
 
-	static LLXMLNode* exportPathParams(const LLPathParams* params);
+	static LLPointer<LLXMLNode> exportPathParams(const LLPathParams* params);
 
-	static LLXMLNode* exportVolumeParams(const LLVolumeParams* params);
+	static LLPointer<LLXMLNode> exportVolumeParams(const LLVolumeParams* params);
 };
 
 #endif // LL_LLVOLUMEXML_H

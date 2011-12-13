@@ -251,6 +251,8 @@ private:
 	 */
 	void adjustParticipant(const LLUUID& speaker_id);
 
+	bool isHovered();
+
 	LLSpeakerMgr*		mSpeakerMgr;
 	LLAvatarList*		mAvatarList;
 

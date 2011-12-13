@@ -63,9 +63,6 @@ extern BOOL gDebugWindowProc;
 
 const S32 MAX_NUM_RESOLUTIONS = 200;
 
-const S32 MIN_WINDOW_WIDTH = 1024;
-const S32 MIN_WINDOW_HEIGHT = 768;
-
 // static variable for ATI mouse cursor crash work-around:
 static bool ATIbug = false; 
 
@@ -966,7 +963,7 @@ BOOL LLWindowSDL::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowSDL::setSize(const LLCoordScreen size)
+BOOL LLWindowSDL::setSizeImpl(const LLCoordScreen size)
 {
 	if(mWindow)
 	{
@@ -1034,6 +1031,25 @@ BOOL LLWindowSDL::isCursorHidden()
 void LLWindowSDL::setMouseClipping( BOOL b )
 {
     //SDL_WM_GrabInput(b ? SDL_GRAB_ON : SDL_GRAB_OFF);
+}
+
+// virtual
+void LLWindowSDL::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
+{
+	LLWindow::setMinSize(min_width, min_height, enforce_immediately);
+
+#if LL_X11
+	// Set the minimum size limits for X11 window
+	// so the window manager doesn't allow resizing below those limits.
+	XSizeHints* hints = XAllocSizeHints();
+	hints->flags |= PMinSize;
+	hints->min_width = mMinWindowWidth;
+	hints->min_height = mMinWindowHeight;
+
+	XSetWMNormalHints(mSDL_Display, mSDL_XWindowID, hints);
+
+	XFree(hints);
+#endif
 }
 
 BOOL LLWindowSDL::setCursorPosition(const LLCoordWindow position)
@@ -1849,8 +1865,8 @@ void LLWindowSDL::gatherInput()
 		llinfos << "Handling a resize event: " << event.resize.w <<
 			"x" << event.resize.h << llendl;
 
-		S32 width = llmax(event.resize.w, MIN_WINDOW_WIDTH);
-		S32 height = llmax(event.resize.h, MIN_WINDOW_HEIGHT);
+		S32 width = llmax(event.resize.w, (S32)mMinWindowWidth);
+		S32 height = llmax(event.resize.h, (S32)mMinWindowHeight);
 
 		// *FIX: I'm not sure this is necessary!
 		mWindow = SDL_SetVideoMode(width, height, 32, mSDLFlags);
@@ -1866,7 +1882,7 @@ void LLWindowSDL::gatherInput()
     			}
                 break;
 		}
-		
+
 		mCallbacks->handleResize(this, width, height);
                 break;
             }
@@ -1920,6 +1936,8 @@ void LLWindowSDL::gatherInput()
 		break;
         }
     }
+	
+	updateCursor();
 
 #if LL_X11
     // This is a good time to stop flashing the icon if our mFlashTimer has
@@ -2006,7 +2024,7 @@ static SDL_Cursor *makeSDLCursorFromBMP(const char *filename, int hotx, int hoty
 	return sdlcursor;
 }
 
-void LLWindowSDL::setCursor(ECursorType cursor)
+void LLWindowSDL::updateCursor()
 {
 	if (ATIbug) {
 		// cursor-updating is very flaky when this bug is
@@ -2014,11 +2032,11 @@ void LLWindowSDL::setCursor(ECursorType cursor)
 		return;
 	}
 
-	if (mCurrentCursor != cursor)
+	if (mCurrentCursor != mNextCursor)
 	{
-		if (cursor < UI_CURSOR_COUNT)
+		if (mNextCursor < UI_CURSOR_COUNT)
 		{
-			SDL_Cursor *sdlcursor = mSDLCursors[cursor];
+			SDL_Cursor *sdlcursor = mSDLCursors[mNextCursor];
 			// Try to default to the arrow for any cursors that
 			// did not load correctly.
 			if (!sdlcursor && mSDLCursors[UI_CURSOR_ARROW])
@@ -2026,9 +2044,9 @@ void LLWindowSDL::setCursor(ECursorType cursor)
 			if (sdlcursor)
 				SDL_SetCursor(sdlcursor);
 		} else {
-			llwarns << "Tried to set invalid cursor number " << cursor << llendl;
+			llwarns << "Tried to set invalid cursor number " << mNextCursor << llendl;
 		}
-		mCurrentCursor = cursor;
+		mCurrentCursor = mNextCursor;
 	}
 }
 

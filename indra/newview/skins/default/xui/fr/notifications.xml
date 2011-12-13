@@ -980,7 +980,7 @@ Proposer à [NAME] de devenir votre ami(e) ?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Voulez-vous supprimer [NAME] de votre liste d&apos;amis ?
+		Voulez-vous supprimer &lt;nolink&gt;[NAME]&lt;/nolink&gt; de votre liste d&apos;amis ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -2119,10 +2119,10 @@ Cette opération lancera votre navigateur Web.
 		Sujet : [SUBJECT], Message : [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] est en ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est en ligne
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] est hors ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est hors ligne
 	</notification>
 	<notification name="AddSelfFriend">
 		Même si vous êtes extrêmement sympathique, vous ne pouvez pas devenir ami avec vous-même.
@@ -2518,10 +2518,10 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] a accepté votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a accepté votre amitié.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] a refusé votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a refusé votre amitié.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Amitié acceptée.
@@ -3046,8 +3046,8 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<notification label="" name="ConfirmHideUI">
-		Cette action cachera tous les objets des menus et boutons. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
-		<usetemplate ignoretext="Confimer avant de cacher l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
+		Cette action masquera tous les boutons et articles de menu. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
+		<usetemplate ignoretext="Confirmer avant de masquer l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Vous semblez ne pas avoir le matériel requis pour utiliser [APP_NAME]. [APP_NAME] requiert une carte graphique OpenGL avec une prise en charge du multitexturing. Si vous avez une telle carte, assurez-vous que vous avez aussi les pilotes les plus récents pour la carte, ainsi que les service packs et les patchs pour votre système d&apos;exploitation.

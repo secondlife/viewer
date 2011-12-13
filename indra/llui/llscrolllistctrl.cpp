@@ -175,6 +175,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mBorder(NULL),
 	mSortCallback(NULL),
 	mPopupMenu(NULL),
+	mCommentTextView(NULL),
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mTotalColumnPadding(0),
@@ -476,7 +477,12 @@ void LLScrollListCtrl::updateLayout()
 		getRect().getWidth() - 2 * mBorderThickness,
 		getRect().getHeight() - (2 * mBorderThickness ) - heading_size );
 
-	getChildView("comment_text")->setShape(mItemListRect);
+	if (mCommentTextView == NULL)
+	{
+		mCommentTextView = getChildView("comment_text");
+	}
+
+	mCommentTextView->setShape(mItemListRect);
 
 	// how many lines of content in a single "page"
 	S32 page_lines =  getLinesPerPage();

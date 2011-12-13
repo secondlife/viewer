@@ -105,6 +105,7 @@ void LLFastTimerView::onPause()
 	if (!LLFastTimer::sPauseHistory)
 	{
 		mScrollIndex = 0;
+		LLFastTimer::sResetHistory = true;
 		getChild<LLButton>("pause_btn")->setLabel(getString("pause"));
 	}
 	else
@@ -591,6 +592,7 @@ void LLFastTimerView::draw()
 			{
 				mAvgCountTotal = ticks;
 				mMaxCountTotal = ticks;
+				LLFastTimer::sResetHistory = false;
 			}
 		}
 

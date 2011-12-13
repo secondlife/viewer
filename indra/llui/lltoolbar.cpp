@@ -770,6 +770,12 @@ void LLToolBar::updateLayoutAsNeeded()
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
 
+	if (!mButtons.empty())
+	{
+		mButtonPanel->setVisible(TRUE);
+		mButtonPanel->setMouseOpaque(TRUE);
+	}
+
 	// don't clear flag until after we've resized ourselves, to avoid laying out every frame
 	mNeedsLayout = false;
 }
