@@ -3461,7 +3461,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
-				copy_item_to_outbox(inv_item, outbox_id, LLUUID::null);
+				copy_item_to_outbox(inv_item, mUUID, LLUUID::null);
 			}
 			// NORMAL or TRASH folder
 			// (move the item, restamp if into trash)
