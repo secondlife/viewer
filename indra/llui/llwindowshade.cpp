@@ -384,3 +384,4 @@ LLNotificationPtr LLWindowShade::getCurrentNotification()
 	}
 	return mNotifications.back();
 }
+
