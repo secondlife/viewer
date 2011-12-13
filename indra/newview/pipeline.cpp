@@ -7452,8 +7452,7 @@ void LLPipeline::renderDeferredLighting()
 					F32 s = volume->getLightRadius()*1.5f;
 
 					LLColor3 col = volume->getLightColor();
-					col *= volume->getLightIntensity();
-
+					
 					if (col.magVecSquared() < 0.001f)
 					{
 						continue;
@@ -7566,8 +7565,7 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredSpotLightProgram, drawablep);
 					
 					LLColor3 col = volume->getLightColor();
-					col *= volume->getLightIntensity();
-
+					
 					//vertex positions are encoded so the 3 bits of their vertex index 
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
@@ -7676,8 +7674,7 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
 					LLColor3 col = volume->getLightColor();
-					col *= volume->getLightIntensity();
-
+					
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
