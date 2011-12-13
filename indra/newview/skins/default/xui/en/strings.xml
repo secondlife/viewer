@@ -2042,6 +2042,7 @@ Returns a string with the requested data about the region
 	The Second Life Marketplace offers more than one million virtual products for sale, all of them created by Residents like you.  You too can create items and sell them on the Marketplace.  Creating a store is easy and free of charge.
 	
 	[[MARKETPLACE_URL] Visit the Marketplace]
+
 	[[MARKETPLACE_LEARN_MORE_URL] Learn more about creating a store]
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">Your outbox is empty.</string>

@@ -269,22 +269,25 @@ void LLFloaterOutbox::updateItemCount()
 	
 	mOutboxItemCount = item_count;
 
-	switch (mOutboxItemCount)
+	if (mOutboxInventoryPanel)
 	{
-		case 0:	mInventoryFolderCountText->setText(getString("OutboxFolderCount0"));	break;
-		case 1:	mInventoryFolderCountText->setText(getString("OutboxFolderCount1"));	break;
-		default:
+		switch (mOutboxItemCount)
 		{
-			std::string item_count_str = llformat("%d", mOutboxItemCount);
-			
-			LLStringUtil::format_map_t args;
-			args["[NUM]"] = item_count_str;
-			
-			mInventoryFolderCountText->setText(getString("OutboxFolderCountN", args));
-			break;
+			case 0:	mInventoryFolderCountText->setText(getString("OutboxFolderCount0"));	break;
+			case 1:	mInventoryFolderCountText->setText(getString("OutboxFolderCount1"));	break;
+			default:
+			{
+				std::string item_count_str = llformat("%d", mOutboxItemCount);
+				
+				LLStringUtil::format_map_t args;
+				args["[NUM]"] = item_count_str;
+				
+				mInventoryFolderCountText->setText(getString("OutboxFolderCountN", args));
+				break;
+			}
 		}
 	}
-	
+
 	mImportButton->setEnabled(mOutboxItemCount > 0);
 }
 
@@ -299,7 +302,11 @@ void LLFloaterOutbox::updateView()
 	}
 	else
 	{
-		mOutboxInventoryPanel->setVisible(FALSE);
+		if (mOutboxInventoryPanel)
+		{
+			mOutboxInventoryPanel->setVisible(FALSE);
+		}
+
 		mInventoryPlaceholder->setVisible(TRUE);
 
 		std::string outbox_text;
@@ -335,8 +342,9 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 {
 	// Pass drag and drop to this floater to the outbox inventory control
 
-	if (LLMarketplaceInventoryImporter::getInstance()->isImportInProgress() || 
-		(mWindowShade && mWindowShade->isShown()))
+	if ((mOutboxInventoryPanel == NULL) ||
+		(mWindowShade && mWindowShade->isShown()) ||
+		LLMarketplaceInventoryImporter::getInstance()->isImportInProgress())
 	{
 		return FALSE;
 	}
