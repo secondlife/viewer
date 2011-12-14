@@ -113,11 +113,11 @@
              label="Image quality"
              label_width="80"
              layout="topleft"
-             left="10"
+             left="0"
              max_val="100"
              name="image_quality_slider"
              top_pad="7"
-             width="200" />
+             width="190" />
             <text
              type="string"
              follows="left|top"
