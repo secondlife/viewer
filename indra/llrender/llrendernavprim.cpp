@@ -56,7 +56,7 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLDisable cull(GL_CULL_FACE);
 	LLColor4 colorA( color );	
-	//colorA*=2.0f;
+	colorA*=1.5f;
 	gGL.color4fv( colorA.mV );		
 
 	gGL.begin(LLRender::TRIANGLES);
@@ -75,7 +75,7 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	glLineWidth(1.5f);		
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLDisable cull(GL_CULL_FACE);
-	gGL.color4fv( LLColor4::white.mV );		
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
+	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
 }
 //=============================================================================
