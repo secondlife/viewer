@@ -1798,9 +1798,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>534c5217692bef44a60a3cf26ccb08d9</string>
+              <string>728e281fd74d505dc2d34796904c2fc9</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok-source_Windows-vs2010/rev/245961/arch/CYGWIN/installer/havok_source-2011.2-windows-20111130.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/246757/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20111214.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
