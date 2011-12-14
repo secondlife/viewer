@@ -9,4 +9,19 @@
  save_rect="true"
  title="Pathfinding"
  width="490">
+  <text
+ height="30"
+ word_wrap="true"
+ use_ellipses="true"
+ type="string"
+ text_color="LabelSelectedDisabledColor"
+ length="1"
+ follows="left|top"
+ layout="topleft"
+ left="8"
+ name="text status"
+ top_pad="3"
+ width="285">
+    Show overlays:
+  </text>
 </floater>
