@@ -32,6 +32,7 @@ class LLRotation;
 
 #include <assert.h>
 #include "llpreprocessor.h"
+#include "llmemory.h"
 
 ///////////////////////////////////
 // FIRST TIME USERS PLEASE READ
@@ -90,6 +91,7 @@ public:
 	
 	LLVector4a()
 	{ //DO NOT INITIALIZE -- The overhead is completely unnecessary
+		ll_assert_aligned(this,16);
 	}
 	
 	LLVector4a(F32 x, F32 y, F32 z, F32 w = 0.f)

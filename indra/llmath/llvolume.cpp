@@ -95,17 +95,6 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 extern BOOL gDebugGL;
 
-void assert_aligned(void* ptr, uintptr_t alignment)
-{
-#if 0
-	uintptr_t t = (uintptr_t) ptr;
-	if (t%alignment != 0)
-	{
-		llerrs << "Alignment check failed." << llendl;
-	}
-#endif
-}
-
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -6894,14 +6883,14 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 	if (num_verts)
 	{
 		mPositions = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		assert_aligned(mPositions, 16);
+		ll_assert_aligned(mPositions, 16);
 		mNormals = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		assert_aligned(mNormals, 16);
+		ll_assert_aligned(mNormals, 16);
 
 		//pad texture coordinate block end to allow for QWORD reads
 		S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
 		mTexCoords = (LLVector2*) ll_aligned_malloc_16(size);
-		assert_aligned(mTexCoords, 16);
+		ll_assert_aligned(mTexCoords, 16);
 	}
 	else
 	{
@@ -7027,11 +7016,11 @@ void LLVolumeFace::appendFace(const LLVolumeFace& face, LLMatrix4& mat_in, LLMat
 
 	//allocate new buffer space
 	mPositions = (LLVector4a*) realloc(mPositions, new_count*sizeof(LLVector4a));
-	assert_aligned(mPositions, 16);
+	ll_assert_aligned(mPositions, 16);
 	mNormals = (LLVector4a*) realloc(mNormals, new_count*sizeof(LLVector4a));
-	assert_aligned(mNormals, 16);
+	ll_assert_aligned(mNormals, 16);
 	mTexCoords = (LLVector2*) realloc(mTexCoords, (new_count*sizeof(LLVector2)+0xF) & ~0xF);
-	assert_aligned(mTexCoords, 16);
+	ll_assert_aligned(mTexCoords, 16);
 	
 	mNumVertices = new_count;
 

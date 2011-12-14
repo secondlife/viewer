@@ -512,4 +512,13 @@ void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
 
 // LLSingleton moved to llsingleton.h
 
+#define CHECK_ALIGNMENT
+
+#ifdef CHECK_ALIGNMENT
+#define ll_assert_aligned(ptr,alignment) llassert((reinterpret_cast<uintptr_t>(ptr))%(alignment) == 0)
+#else
+#define ll_assert_aligned(ptr,alignment)
+#endif
+
+
 #endif

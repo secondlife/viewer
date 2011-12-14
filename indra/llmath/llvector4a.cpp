@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+#include "llmemory.h"
 #include "llmath.h"
 #include "llquantize.h"
 
@@ -189,6 +190,8 @@ void LLVector4a::quantize16( const LLVector4a& low, const LLVector4a& high )
 		LLVector4a oneOverDelta;
 		{
 			static LL_ALIGN_16( const F32 F_TWO_4A[4] ) = { 2.f, 2.f, 2.f, 2.f };
+			ll_assert_aligned(F_TWO_4A,16);
+			
 			LLVector4a two; two.load4a( F_TWO_4A );
 
 			// Here we use _mm_rcp_ps plus one round of newton-raphson
