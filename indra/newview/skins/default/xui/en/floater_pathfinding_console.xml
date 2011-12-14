@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ open_positioning="cascading"
+ can_tear_off="false"
+ height="420"
+ layout="topleft"
+ name="floater_pathfinding"
+ help_topic="floater_pathfinding"
+ save_rect="true"
+ title="Pathfinding"
+ width="490">
+</floater>
