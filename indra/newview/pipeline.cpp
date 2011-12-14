@@ -3618,7 +3618,36 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	}
 
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:ForceVBO");
-	
+	//Render navmesh geometry
+	{
+		if ( LLPathingLib::getInstance() ) 
+		{	
+			//prep#
+			glClearColor(0,0,0,0);
+			glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
+			glShadeModel(GL_SMOOTH);                        // Enable Smooth Shading
+			glClearColor(0.0f, 0.0f, 0.0f, 0.5f);                   // Black Background
+			glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
+			glDepthFunc(GL_LEQUAL);                         
+			GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
+			glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+			
+			bool exclusiveDraw = false;
+			if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
+			{
+				LLPathingLib::getInstance()->renderNavMesh();
+				exclusiveDraw = true;
+			}
+			if ( LLPathingLib::getInstance()->getRenderShapeState() )
+			{
+				LLPathingLib::getInstance()->renderNavMeshShapesVBO();
+				exclusiveDraw = true;
+			}
+
+			if ( exclusiveDraw ) { return; }
+		}		
+	}	
+
 	// Initialize lots of GL state to "safe" values
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
@@ -3644,29 +3673,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sDefaultImagep);
 	LLViewerFetchedTexture::sDefaultImagep->setAddressMode(LLTexUnit::TAM_WRAP);
 	
-
-	{
-		
-		if ( LLPathingLib::getInstance() ) 
-		{	
-			//prep#
-			enableLightsFullbright(LLColor4(1,1,1,1));
-  
-			bool exclusiveDraw = false;
-			if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
-			{
-				LLPathingLib::getInstance()->renderNavMesh();
-				exclusiveDraw = true;
-			}
-			if ( LLPathingLib::getInstance()->getRenderShapeState() )
-			{
-				LLPathingLib::getInstance()->renderNavMeshShapesVBO();
-				exclusiveDraw = true;
-			}
-
-			if ( exclusiveDraw ) { return; }
-		}		
-	}
 		
 	//////////////////////////////////////////////
 	//
