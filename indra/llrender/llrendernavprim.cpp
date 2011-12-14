@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llglheaders.h"
 #include "llvertexbuffer.h"
+
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
@@ -76,6 +77,5 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	LLGLDisable cull(GL_CULL_FACE);
 	gGL.color4fv( LLColor4::white.mV );		
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
-	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
 }
 //=============================================================================

@@ -3627,6 +3627,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			glEnable(GL_TEXTURE_2D);                        // Enable Texture Mapping
 			glShadeModel(GL_SMOOTH);                        // Enable Smooth Shading
 			glClearColor(0.0f, 0.0f, 0.0f, 0.5f);                   // Black Background
+			glClearDepth(1.0f);                         // Depth Buffer Setup
 			glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
 			glDepthFunc(GL_LEQUAL);                         
 			GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
@@ -3652,7 +3653,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
-
+	
 	LLGLSPipeline gls_pipeline;
 	LLGLEnable multisample(gSavedSettings.getU32("RenderFSAASamples") > 0 ? GL_MULTISAMPLE_ARB : 0);
 
