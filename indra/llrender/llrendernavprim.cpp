@@ -30,12 +30,12 @@
 #include "llerror.h"
 #include "llglheaders.h"
 #include "llvertexbuffer.h"
+
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
 void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color ) const
-{	
-	
+{		
 	LLColor4 colorA( color );	
 	glLineWidth(1.5f);	
 	gGL.color3fv( colorA.mV );
@@ -46,18 +46,17 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 		gGL.vertex3fv( end.mV );
 	}
 	gGL.end();	
+
 	glLineWidth(1.0f);	
 }
 //=============================================================================
 void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
 {
-	glPolygonMode(GL_NONE, GL_FILL);
+	glLineWidth(1.5f);		
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLDisable cull(GL_CULL_FACE);
-	//LLGLEnable lighting( GL_LIGHTING );
-	//glEnable(GL_POLYGON_STIPPLE);
-	glLineWidth(1.5f);	
 	LLColor4 colorA( color );	
-	colorA*=2.0f;
+	colorA*=1.5f;
 	gGL.color4fv( colorA.mV );		
 
 	gGL.begin(LLRender::TRIANGLES);
@@ -67,20 +66,16 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 		gGL.vertex3fv( c.mV );
 	}
 	gGL.end();	
+	
 	gGL.flush();
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 {
-	glPolygonMode(GL_NONE, GL_FILL);
-	LLGLDisable cull(GL_CULL_FACE);
-	glColor3f ( 1.0f, 0.0f, 0.0f ) ;
-	glDisable( GL_COLOR_MATERIAL );
-	
-	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR );
+	glLineWidth(1.5f);		
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+	LLGLDisable cull(GL_CULL_FACE);	
+	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
-	gGL.flush();
-	glEnable( GL_COLOR_MATERIAL );
-
 }
 //=============================================================================
