@@ -306,8 +306,6 @@ protected:
 
 	void dropToFavorites(LLInventoryItem* inv_item);
 	void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
-	void dropToOutbox(LLInventoryItem* inv_item);
-	void dropFolderToOutbox(LLInventoryCategory* inv_cat);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options

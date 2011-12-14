@@ -30,6 +30,7 @@
 
 #include "llfloaterreg.h"
 #include "llfolderview.h"
+#include "llinventorybridge.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
@@ -348,23 +349,34 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		return FALSE;
 	}
 	
-	BOOL handled = (childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL);
+	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+	BOOL handled = (handled_view != NULL);
 	
-	// Pass drag and drop to this floater to the outbox inventory control if no other children handle it
+	// Pass all drag and drop for this floater to the outbox inventory control
 	if (!handled || (*accept == ACCEPT_NO))
 	{
-		S32 local_x;
-		S32 local_y;
+		// Always assume we are going to move the drag and drop operation to the outbox root folder
+		bool move_to_root = true;
 		
-		LLFolderView * outbox_root_folder = mOutboxInventoryPanel->getRootFolder();
-		localPointToOtherView(x, y, &local_x, &local_y, outbox_root_folder);
+		// If the inventory panel is visible, then only override it to the outbox root if we're outside the inventory panel
+		// (otherwise the inventory panel itself will handle the drag and drop operation, without any override)
+		if (mOutboxInventoryPanel->getVisible())
+		{
+			S32 inv_x, inv_y;
+			localPointToOtherView(x, y, &inv_x, &inv_y, mOutboxInventoryPanel);
+			
+			const LLRect& inv_rect = mOutboxInventoryPanel->getRect();
+
+			move_to_root = !inv_rect.pointInRect(inv_x, inv_y);
+		}
 		
-		const LLRect& outbox_rect = outbox_root_folder->getRect();
-
-		local_x = llclamp(local_x, outbox_rect.mLeft + 1, outbox_rect.mRight - 1);
-		local_y = llclamp(local_y, outbox_rect.mBottom + 1, outbox_rect.mTop - 1);
-
-		handled = outbox_root_folder->LLFolderViewFolder::handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		// Handle the drag and drop directly to the root of the outbox
+		if (move_to_root)
+		{
+			LLFolderView * root_folder = mOutboxInventoryPanel->getRootFolder();
+			
+			handled = root_folder->handleDragAndDropToRoot(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
 	}
 	
 	return handled;

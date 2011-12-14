@@ -1820,14 +1820,6 @@ static BOOL can_move_to_outbox(LLInventoryItem* inv_item, std::string& tooltip_m
 }
 
 
-
-void LLFolderBridge::dropFolderToOutbox(LLInventoryCategory* inv_cat)
-{
-	copy_folder_to_outbox(inv_cat, getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false), inv_cat->getUUID());	
-}
-
-
-
 int get_folder_levels(LLInventoryCategory* inv_cat)
 {
 	LLInventoryModel::cat_array_t* cats;
@@ -2046,7 +2038,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
-				dropFolderToOutbox(inv_cat);
+				copy_folder_to_outbox(inv_cat, mUUID, inv_cat->getUUID());
 			}
 			else
 			{

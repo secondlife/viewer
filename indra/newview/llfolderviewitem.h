@@ -547,6 +547,11 @@ public:
 		void* cargo_data,
 		EAcceptance* accept,
 		std::string& tooltip_msg);
+	BOOL handleDragAndDropToRoot(MASK mask, BOOL drop,
+								 EDragAndDropType cargo_type,
+								 void* cargo_data,
+								 EAcceptance* accept,
+								 std::string& tooltip_msg);
 	virtual void draw();
 
 	time_t getCreationDate() const;
