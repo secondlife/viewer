@@ -333,8 +333,7 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 	{
 		S32 old_image_index = mCurImageIndex;
 		mCurImageIndex = (mCurImageIndex + 1) % 2; 
-		setWidth(mWidth[old_image_index]);
-		setHeight(mHeight[old_image_index]);
+		setSize(mWidth[old_image_index], mHeight[old_image_index]);
 		mFallAnimTimer.start();		
 	}
 	mSnapshotUpToDate = FALSE; 		
@@ -1447,7 +1446,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 
 	if (previewp)
 	{
-		lldebugs << "Setting snapshot type (" << shot_type << "), format (" << shot_format << ")" << llendl;
 		previewp->setSnapshotType(shot_type);
 		previewp->setSnapshotFormat(shot_format);
 		previewp->setSnapshotBufferType(layer_type);
@@ -1460,6 +1458,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		info["have-snapshot"] = got_snap;
 		current_panel->updateControls(info);
 	}
+	lldebugs << "finished updating controls" << llendl;
 }
 
 // static
@@ -1696,6 +1695,7 @@ void LLFloaterSnapshot::Impl::setFinished(LLFloaterSnapshot* floater, bool finis
 	}
 }
 
+// Apply a new resolution selected from the given combobox.
 // static
 void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
 {
@@ -1864,11 +1864,11 @@ BOOL LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S3
 		//change another value proportionally
 		if(isWidthChanged)
 		{
-			height = (S32)(width / aspect_ratio) ;
+			height = llround(width / aspect_ratio) ;
 		}
 		else
 		{
-			width = (S32)(height * aspect_ratio) ;
+			width = llround(height * aspect_ratio) ;
 		}
 
 		//bound w/h by the max_value
