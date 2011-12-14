@@ -74,7 +74,7 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 {
 	glLineWidth(1.5f);		
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-	LLGLDisable cull(GL_CULL_FACE);
+	LLGLDisable cull(GL_CULL_FACE);	
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
 }
