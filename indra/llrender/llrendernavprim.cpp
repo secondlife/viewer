@@ -30,6 +30,7 @@
 #include "llerror.h"
 #include "llglheaders.h"
 #include "llvertexbuffer.h"
+#include "llglslshader.h"
 
 //=============================================================================
 LLRenderNavPrim gRenderNav;
@@ -58,16 +59,16 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	LLColor4 colorA( color );	
 	colorA*=1.5f;
 	gGL.color4fv( colorA.mV );		
-
+	LLGLSLShader::sNoFixedFunction = false;
 	gGL.begin(LLRender::TRIANGLES);
 	{
 		gGL.vertex3fv( a.mV );
 		gGL.vertex3fv( b.mV );
 		gGL.vertex3fv( c.mV );
 	}
-	gGL.end();	
-	
+	gGL.end();		
 	gGL.flush();
+	LLGLSLShader::sNoFixedFunction = true;
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
@@ -75,7 +76,9 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	glLineWidth(1.5f);		
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLDisable cull(GL_CULL_FACE);	
+	LLGLSLShader::sNoFixedFunction = false;
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
+	LLGLSLShader::sNoFixedFunction = true;
 }
 //=============================================================================
