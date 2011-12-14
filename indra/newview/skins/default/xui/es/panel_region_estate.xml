@@ -10,7 +10,7 @@
 		(desconocido)
 	</text>
 	<text name="owner_text">
-		Propietario del Estado:
+		Propietario del estado:
 	</text>
 	<text name="estate_owner">
 		(desconocido)
@@ -39,7 +39,7 @@
 	</string>
 	<button label="?" name="abuse_email_address_help"/>
 	<button label="Aplicar" name="apply_btn"/>
-	<button label="Expulsar a un Residente del Estado..." name="kick_user_from_estate_btn"/>
+	<button label="Expulsar a un Residente del estado..." name="kick_user_from_estate_btn"/>
 	<button label="Enviar un mensaje al estado..." name="message_estate_btn"/>
 	<text name="estate_manager_label">
 		Administradores del estado:
