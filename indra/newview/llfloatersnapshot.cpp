@@ -832,7 +832,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 				previewp->mPreviewImage->getHeight(),
 				previewp->mPreviewImage->getComponents());
 		
-			scaled->biasedScaleToPowerOfTwo(512);
+			scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 			previewp->setImageScaled(TRUE);
 			if (formatted->encode(scaled, 0.f))
 			{
@@ -959,7 +959,7 @@ void LLSnapshotLivePreview::saveTexture()
 												  mPreviewImage->getHeight(),
 												  mPreviewImage->getComponents());
 	
-	scaled->biasedScaleToPowerOfTwo(512);
+	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 	lldebugs << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << llendl;
 
 	if (formatted->encode(scaled, 0.0f))
@@ -1738,6 +1738,13 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 				lldebugs << "Loading typed res from panel " << spanel->getName() << llendl;
 				new_width = spanel->getTypedPreviewWidth();
 				new_height = spanel->getTypedPreviewHeight();
+
+				// Limit custom size for inventory snapshots to 512x512 px.
+				if (getActiveSnapshotType(view) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+				{
+					new_width = llmin(new_width, MAX_TEXTURE_SIZE);
+					new_height = llmin(new_height, MAX_TEXTURE_SIZE);
+				}
 			}
 			else
 			{
