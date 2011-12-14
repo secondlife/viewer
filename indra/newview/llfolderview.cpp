@@ -1945,9 +1945,9 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	if (!handled)
 	{
 		if (getListener()->getUUID().notNull())
-	{
-		handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	}
+		{
+			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
 		else
 		{
 			if (!mFolders.empty())

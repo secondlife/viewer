@@ -159,14 +159,6 @@ void LLFloaterOutbox::onClose(bool app_quitting)
 void LLFloaterOutbox::onOpen(const LLSD& key)
 {
 	//
-	// Initialize the marketplace import API
-	//
-
-	LLMarketplaceInventoryImporter::getInstance()->initialize();
-	LLMarketplaceInventoryImporter::getInstance()->setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
-	LLMarketplaceInventoryImporter::getInstance()->setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
-	
-	//
 	// Look for an outbox and set up the inventory API
 	//
 	
@@ -224,6 +216,7 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	{
 		gInventory.removeObserver(mCategoryAddedObserver);
 		delete mCategoryAddedObserver;
+		mCategoryAddedObserver = NULL;
 	}
 	
 	// Create observer for outbox modifications
@@ -252,6 +245,14 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	mOutboxInventoryPanel->getFilter()->markDefault();
 	
 	fetchOutboxContents();
+	
+	//
+	// Initialize the marketplace import API
+	//
+	
+	LLMarketplaceInventoryImporter::getInstance()->initialize();
+	LLMarketplaceInventoryImporter::getInstance()->setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
+	LLMarketplaceInventoryImporter::getInstance()->setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
 }
 
 void LLFloaterOutbox::updateItemCount()
@@ -350,12 +351,20 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	BOOL handled = (childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL);
 	
 	// Pass drag and drop to this floater to the outbox inventory control if no other children handle it
-	if (!handled)
+	if (!handled || (*accept == ACCEPT_NO))
 	{
-		S32 local_x = x - mOutboxInventoryPanel->getRect().mLeft;
-		S32 local_y = y - mOutboxInventoryPanel->getRect().mBottom;
+		S32 local_x;
+		S32 local_y;
 		
-		handled = mOutboxInventoryPanel->handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		LLFolderView * outbox_root_folder = mOutboxInventoryPanel->getRootFolder();
+		localPointToOtherView(x, y, &local_x, &local_y, outbox_root_folder);
+		
+		const LLRect& outbox_rect = outbox_root_folder->getRect();
+
+		local_x = llclamp(local_x, outbox_rect.mLeft + 1, outbox_rect.mRight - 1);
+		local_y = llclamp(local_y, outbox_rect.mBottom + 1, outbox_rect.mTop - 1);
+
+		handled = outbox_root_folder->LLFolderViewFolder::handleDragAndDrop(local_x, local_y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	}
 	
 	return handled;
@@ -371,6 +380,11 @@ void LLFloaterOutbox::onImportButtonClicked()
 void LLFloaterOutbox::onOutboxChanged()
 {
 	llassert(!mOutboxId.isNull());
+	
+	if (mOutboxInventoryPanel)
+	{
+		mOutboxInventoryPanel->requestSort();
+	}
 
 	fetchOutboxContents();
 	updateView();
