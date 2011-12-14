@@ -77,6 +77,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
+#include "llpathinglib.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 
@@ -880,7 +881,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		}
 		
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
-		
+		bool exclusiveDraw = false;
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
@@ -893,9 +894,51 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 			else
 			{
-				gPipeline.renderGeom(*LLViewerCamera::getInstance(), TRUE);
+				//Render any navmesh geometry	
+				if ( LLPathingLib::getInstance() ) 
+				{	
+					//prep#								
+					if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
+					{
+						glClearColor(0,0,0,0);
+						glEnable(GL_TEXTURE_2D);                       
+						glShadeModel(GL_SMOOTH);                       
+						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          
+						glClearDepth(1.0f);								
+						glEnable(GL_DEPTH_TEST);                        
+						glDepthFunc(GL_LEQUAL);                         
+						GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
+						glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+	
+						LLPathingLib::getInstance()->renderNavMesh();
+						exclusiveDraw = true;
+					}
+
+					if ( LLPathingLib::getInstance()->getRenderShapeState() )
+					{
+						glClearColor(0,0,0,0);
+						glEnable(GL_TEXTURE_2D);                       
+						glShadeModel(GL_SMOOTH);                       
+						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          
+						glClearDepth(1.0f);								
+						glEnable(GL_DEPTH_TEST);                        
+						glDepthFunc(GL_LEQUAL);                         
+						GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
+						glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);	
+						LLGLSUIDefault texture_state;
+						LLGLDepthTest gls_depth(GL_TRUE);
+						gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
+						LLPathingLib::getInstance()->renderNavMeshShapesVBO();
+						exclusiveDraw = true;
+					}				
+				}			
 			}
 			
+			if ( !exclusiveDraw )
+			{
+				gPipeline.renderGeom(*LLViewerCamera::getInstance(), TRUE);
+			}
+
 			gGL.setColorMask(true, true);
 
 			//store this frame's modelview matrix for use
