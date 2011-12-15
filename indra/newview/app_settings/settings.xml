@@ -4260,16 +4260,38 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
-    <key>InventoryMarketplaceUserStatus</key>
+    <key>InventoryOutboxMaxFolderCount</key>
     <map>
       <key>Comment</key>
-      <string>Marketplace user status.</string>
+      <string>Maximum number of subfolders allowed in a listing in the merchant outbox.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string />
+      <integer>20</integer>
+    </map>
+    <key>InventoryOutboxMaxFolderDepth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of nested levels of subfolders allowed in a listing in the merchant outbox.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>InventoryOutboxMaxItemCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of items allowed in a listing in the merchant outbox.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>200</integer>
     </map>
     <key>InventorySortOrder</key>
     <map>

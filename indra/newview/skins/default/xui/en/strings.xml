@@ -165,8 +165,10 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred to another user.</string>
+	<string name="TooltipOutboxNotInInventory">You can only transfer objects in your inventory to your merchant outbox.</string>
 	<string name="TooltipOutboxWorn">You are wearing one or more of these objects. Remove them from your avatar and try moving them again.</string>
 	<string name="TooltipOutboxFolderLevels">This folder has too many levels of subfolders. Rearrange the interior folders to a maximum of 4 levels deep (Root Folder contains A contains B contains C).</string>
+	<string name="TooltipOutboxTooManyFolders">This folder has too many subfolders. Reorganize the interior to a maximum of 20 folders.</string>
 	<string name="TooltipOutboxTooManyObjects">This folder contains more than 200 objects. Box some of the items to reduce the object count.</string>
 	
 	<!-- tooltips for Urls -->

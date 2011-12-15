@@ -238,6 +238,9 @@ public:
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
+	
+	// Get first descendant of the child object under the specified parent
+	const LLViewerInventoryCategory *getFirstDescendantOf(const LLUUID& master_parent_id, const LLUUID& obj_id) const;
 
 	// Get the object by id. Returns NULL if not found.
 	//   NOTE: Use the pointer returned for read operations - do

@@ -217,6 +217,38 @@ const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(cons
 	return NULL;
 }
 
+//
+// Search up the parent chain until we get to the specified parent, then return the first child category under it
+//
+const LLViewerInventoryCategory* LLInventoryModel::getFirstDescendantOf(const LLUUID& master_parent_id, const LLUUID& obj_id) const
+{
+	if (master_parent_id == obj_id)
+	{
+		return NULL;
+	}
+
+	const LLViewerInventoryCategory* current_cat = getCategory(obj_id);
+
+	if (current_cat == NULL)
+	{
+		current_cat = getCategory(getObject(obj_id)->getParentUUID());
+	}
+	
+	while (current_cat != NULL)
+	{
+		const LLUUID& current_parent_id = current_cat->getParentUUID();
+		
+		if (current_parent_id == master_parent_id)
+		{
+			return current_cat;
+		}
+		
+		current_cat = getCategory(current_parent_id);
+	}
+
+	return NULL;
+}
+
 // Get the object by id. Returns NULL if not found.
 LLInventoryObject* LLInventoryModel::getObject(const LLUUID& id) const
 {
