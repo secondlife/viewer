@@ -2039,18 +2039,18 @@ Returns a string with the requested data about the region
 	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace.</string>
 	<string name="InventoryOutboxNotMerchantTooltip">Become a merchant!</string>
 	<string name="InventoryOutboxNotMerchant">
-	The Second Life Marketplace offers more than one million virtual products for sale, all of them created by Residents like you.  You too can create items and sell them on the Marketplace.  Creating a store is easy and free of charge.
-	
-	[[MARKETPLACE_URL] Visit the Marketplace]
+The Second Life Marketplace offers more than one million virtual products for sale, all of them created by Residents like you.  You too can create items and sell them on the Marketplace.  Creating a store is easy and free of charge.
 
-	[[MARKETPLACE_LEARN_MORE_URL] Learn more about creating a store]
+[[MARKETPLACE_URL] Visit the Marketplace]
+
+[[MARKETPLACE_LEARN_MORE_URL] Learn more about creating a store]
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">Your outbox is empty.</string>
 	<string name="InventoryOutboxNoItemsTooltip">Drag and drop items here to prepare them for sale on the Marketplace</string>
 	<string name="InventoryOutboxNoItems">
-	Drag folders to this area.  When you are ready to send them to the Marketplace for sale, click the "Send to Marketplace" button below.
-	
-	[[MARKETPLACE_DASHBOARD_URL] Go to your Merchant Dashboard]
+Drag folders to this area.  When you are ready to send them to the Marketplace for sale, click the "Send to Marketplace" button below.
+
+[[MARKETPLACE_DASHBOARD_URL] Go to your Merchant Dashboard]
 	</string>
 
 	<string name="Marketplace Error None">No errors</string>
