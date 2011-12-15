@@ -1950,9 +1950,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		}
 		if (move_is_into_outbox)
 		{
-			int nested_folder_levels = (get_folder_path_length(outbox_id, mUUID) - 1) + get_folder_levels(inv_cat);
+			int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
 			
-			if (nested_folder_levels >= gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
+			if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
 			{
 				tooltip_msg = LLTrans::getString("TooltipOutboxFolderLevels");
 				is_movable = FALSE;
@@ -1962,7 +1962,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
 				int existing_item_count = 0;
-				int existing_folder_count = 0;
+				int existing_folder_count = 1;  // +1 for this folder being dragged now
 				
 				if (master_folder != NULL)
 				{
@@ -1971,25 +1971,25 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 
 					gInventory.collectDescendents(master_folder->getUUID(), existing_categories, existing_items, FALSE);
 					
-					existing_item_count = existing_items.count();
-					existing_folder_count = existing_categories.count();
+					existing_item_count += existing_items.count();
+					existing_folder_count += existing_categories.count();
 				}
 
 				const int nested_folder_count = existing_folder_count + descendent_categories.count();
 				const int nested_item_count = existing_item_count + descendent_items.count();
 				
-				if (nested_folder_count >= gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
+				if (nested_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
 				{
 					tooltip_msg = LLTrans::getString("TooltipOutboxTooManyFolders");
 					is_movable = FALSE;
 				}
-				else if (nested_item_count >= gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+				else if (nested_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
 				{
 					tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects");
 					is_movable = FALSE;
 				}
 				
-				if (is_movable == TRUE);
+				if (is_movable == TRUE)
 				{
 					for (S32 i=0; i < descendent_items.count(); ++i)
 					{
@@ -3456,7 +3456,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
-				int existing_item_count = 0;
+				int existing_item_count = 1; // +1 for this item being dragged now
 				
 				if (master_folder != NULL)
 				{
@@ -3465,10 +3465,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 					
 					gInventory.collectDescendents(master_folder->getUUID(), existing_categories, existing_items, FALSE);
 					
-					existing_item_count = existing_items.count();
+					existing_item_count += existing_items.count();
 				}
 				
-				if (existing_item_count >= gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
+				if (existing_item_count > gSavedSettings.getU32("InventoryOutboxMaxItemCount"))
 				{
 					tooltip_msg = LLTrans::getString("TooltipOutboxTooManyObjects");
 					accept = FALSE;
