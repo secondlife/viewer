@@ -598,7 +598,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 	pos = getEditableIndex(pos, true);
 
-	segment_set_t::iterator seg_iter = getSegIterContaining(pos);
+	segment_set_t::iterator seg_iter = getEditableSegIterContaining(pos);
 
 	LLTextSegmentPtr default_segment;
 
@@ -1510,8 +1510,37 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 	}
 }
 
+LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32 index)
+{
+	segment_set_t::iterator it = getSegIterContaining(index);
+	if (it == mSegments.end()) return it;
+
+	if (!(*it)->canEdit() 
+		&& index == (*it)->getStart() 
+		&& it != mSegments.begin())
+	{
+		it--;
+	}
+	return it;
+}
+
+LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaining(S32 index) const
+{
+	segment_set_t::const_iterator it = getSegIterContaining(index);
+	if (it == mSegments.end()) return it;
+
+	if (!(*it)->canEdit() 
+		&& index == (*it)->getStart() 
+		&& it != mSegments.begin())
+	{
+		it--;
+	}
+	return it;
+}
+
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
+
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
 	if (index > getLength()) { return mSegments.end(); }
