@@ -220,6 +220,7 @@ set(viewer_SOURCE_FILES
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloaterpathfindingconsole.cpp
+    llfloaterpathfindinglinksets.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
@@ -776,6 +777,7 @@ set(viewer_HEADER_FILES
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloaterpathfindingconsole.h
+    llfloaterpathfindinglinksets.h
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpostprocess.h
