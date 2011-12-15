@@ -96,7 +96,7 @@
 		</menu>
 		<menu_item_call label="Link" name="Link"/>
 		<menu_item_call label="Desconectar links" name="Unlink"/>
-		<menu_item_check label="Edit Linked Parts" name="Edit Linked Parts"/>
+		<menu_item_check label="Editar partes linkadas" name="Edit Linked Parts"/>
 		<menu label="Selecionar partes conectadas" name="Select Linked Parts">
 			<menu_item_call label="Selecionar próxima parte" name="Select Next Part"/>
 			<menu_item_call label="Selecionar parte anterior" name="Select Previous Part"/>
@@ -110,7 +110,7 @@
 			<menu_item_call label="Pegar" name="Menu Object Take"/>
 			<menu_item_call label="Pegar uma cópia" name="Take Copy"/>
 			<menu_item_call label="Salvar no meu inventário" name="Save Object Back to My Inventory"/>
-			<menu_item_call label="Save Back to Object Contents" name="Save Object Back to Object Contents"/>
+			<menu_item_call label="Salvar objeto de volta aos conteúdos do objeto" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="Devolver objeto" name="Return Object back to Owner"/>
 		</menu>
 		<menu label="Scripts" name="Scripts">
@@ -166,7 +166,7 @@
 		</menu>
 		<menu label="Realces e visibilidade" name="Highlighting and Visibility">
 			<menu_item_check label="Efeito baliza piscando" name="Cheesy Beacon"/>
-			<menu_item_check label="Hide Particles" name="Hide Particles"/>
+			<menu_item_check label="Esconder partículas" name="Hide Particles"/>
 			<menu_item_check label="Ocultar seleções" name="Hide Selected"/>
 			<menu_item_check label="Realçar transparentes" name="Highlight Transparent"/>
 			<menu_item_check label="Mostrar anexos HUD" name="Show HUD Attachments"/>
@@ -184,7 +184,7 @@
 			<menu_item_check label="Volume" name="Volume"/>
 			<menu_item_check label="Grama" name="Grass"/>
 			<menu_item_check label="Nuvens" name="Clouds"/>
-			<menu_item_check label="Particles" name="Particles"/>
+			<menu_item_check label="Partículas" name="Particles"/>
 			<menu_item_check label="Elevação" name="Bump"/>
 		</menu>
 		<menu label="Recursos de renderização" name="Rendering Features">
