@@ -372,12 +372,12 @@ public:
 		V4_COUNT = 10
 	} eV4Index;
 
-	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
-	LLVector4a mObjectExtents[2]; // extents (min, max) of objects in this node
-	LLVector4a mObjectBounds[2]; // bounding box (center, size) of objects in this node
-	LLVector4a mViewAngle;
-	LLVector4a mLastUpdateViewAngle;
+	LL_ALIGN_16(LLVector4a mBounds[2]); // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
+	LL_ALIGN_16(LLVector4a mObjectExtents[2]); // extents (min, max) of objects in this node
+	LL_ALIGN_16(LLVector4a mObjectBounds[2]); // bounding box (center, size) of objects in this node
+	LL_ALIGN_16(LLVector4a mViewAngle);
+	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 		
 private:
 	U32                     mCurUpdatingTime ;

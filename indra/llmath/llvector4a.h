@@ -47,6 +47,7 @@ class LLRotation;
 // LLVector3/LLVector4. 
 /////////////////////////////////
 
+LL_ALIGN_PREFIX(16)
 class LLVector4a
 {
 public:
@@ -315,7 +316,7 @@ public:
 
 private:
 	LLQuad mQ;
-};
+} LL_ALIGN_POSTFIX(16);
 
 inline void update_min_max(LLVector4a& min, LLVector4a& max, const LLVector4a& p)
 {
