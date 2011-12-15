@@ -140,6 +140,7 @@
 			<menu_item_call label="Animation ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modèle..." name="Upload Model"/>
 			<menu_item_call label="Lot ([COST] L$ par fichier)..." name="Bulk Upload"/>
+			<menu_item_call label="Définir les droits de chargement par défaut" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Annuler" name="Undo"/>
 		<menu_item_call label="Refaire" name="Redo"/>
