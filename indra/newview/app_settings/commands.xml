@@ -146,7 +146,7 @@
            is_running_parameters="people"
            />
   <command name="pathfinding_console"
-           available_in_toybox="true"
+           available_in_toybox="false"
            icon="Command_Pathfinding_Icon"
            label_ref="Command_Pathfinding_Label"
            tooltip_ref="Command_Pathfinding_Tooltip"
@@ -156,7 +156,7 @@
            is_running_parameters="pathfinding_console"
            />
   <command name="pathfinding_linksets"
-           available_in_toybox="true"
+           available_in_toybox="false"
            icon="Command_PF_Linksets_Icon"
            label_ref="Command_PF_Linksets_Label"
            tooltip_ref="Command_PF_Linksets_Tooltip"
