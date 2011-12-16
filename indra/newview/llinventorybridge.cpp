@@ -2933,10 +2933,15 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	{
 		mItems.push_back(std::string("Rename"));
 		mItems.push_back(std::string("Delete"));
+		
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			mDisabledItems.push_back(std::string("Rename"));
+		}
 	}
 	else if(isAgentInventory()) // do not allow creating in library
 	{
-		LLViewerInventoryCategory *cat =  getCategory();
+		LLViewerInventoryCategory *cat = getCategory();
 		// BAP removed protected check to re-enable standard ops in untyped folders.
 		// Not sure what the right thing is to do here.
 		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
