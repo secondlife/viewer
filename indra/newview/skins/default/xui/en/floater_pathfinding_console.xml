@@ -264,7 +264,7 @@ to see the path between them.
       height="21"
       label="Linksets..."
       layout="topleft"
-      name="linksets"
+      name="view_and_edit_linksets"
       width="96"/>
   <text
       height="25"

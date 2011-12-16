@@ -27,8 +27,10 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterpathfindingconsole.h"
+#include "llfloaterpathfindinglinksets.h"
 
 #include "llsd.h"
+#include "llbutton.h"
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
@@ -36,6 +38,11 @@
 
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
+	LLButton *linksetBtn = getChild<LLButton>("view_and_edit_linksets");
+	llassert(linksetBtn != NULL);
+
+	linksetBtn->setClickedCallback(boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
+		
 	return LLFloater::postBuild();
 }
 
@@ -46,4 +53,9 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& seed)
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 {
+}
+
+void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
+{
+	LLFloaterPathfindingLinksets::openLinksetsEditor();
 }

@@ -27,8 +27,9 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterpathfindinglinksets.h"
-
 #include "llsd.h"
+#include "llfloater.h"
+#include "llfloaterreg.h"
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingLinksets
@@ -37,6 +38,11 @@
 BOOL LLFloaterPathfindingLinksets::postBuild()
 {
 	return LLFloater::postBuild();
+}
+
+void LLFloaterPathfindingLinksets::openLinksetsEditor()
+{
+	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_linksets");
 }
 
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& seed)

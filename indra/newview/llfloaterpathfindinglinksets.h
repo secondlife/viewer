@@ -40,6 +40,13 @@ class LLFloaterPathfindingLinksets
 public:
 	virtual BOOL postBuild();
 
+	static void openLinksetsEditor();
+
+	struct Params : public LLInitParam::Block<Params, LLFloater::Params>
+	{
+		Params();
+	};
+
 protected:
 
 private:

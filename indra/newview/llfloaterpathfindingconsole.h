@@ -48,7 +48,7 @@ private:
 	LLFloaterPathfindingConsole(const LLSD& seed);
 	virtual ~LLFloaterPathfindingConsole();
 		
-	void onVisibilityChange(const LLSD& visible);
+	void onViewEditLinksetClicked();
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H
