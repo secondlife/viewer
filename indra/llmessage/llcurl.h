@@ -253,6 +253,7 @@ private:
 
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
+	static LLMutex*        sHandleMutexp ;
 };
 
 class LLCurl::Multi
@@ -316,6 +317,7 @@ private:
 	BOOL mDead ;
 	LLMutex* mMutexp ;
 	LLMutex* mDeletionMutexp ;
+	LLMutex* mEasyMutexp ;
 };
 
 class LLCurlThread : public LLQueuedThread
