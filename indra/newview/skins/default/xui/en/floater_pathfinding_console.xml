@@ -155,7 +155,21 @@ to see the path between them.
       min_val="0.2"
       name="beacon_width"
       top_pad="7"
-      width="180" />
+      width="145" />
+  <text
+      height="14"
+      word_wrap="false"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      top_pad="-14"
+      left="382"
+      width="208">
+    m
+  </text>
   <text
       height="14"
       word_wrap="true"
@@ -183,7 +197,45 @@ to see the path between them.
 	height="14"
 	width="30"
 	name="DisplayOverlayOnFixed"/>
+    <radio_item
+	label="B"
+	height="14"
+	width="30"
+	layout="topleft"
+	top="4"
+	left="50"
+	name="DisplayOverlayOnFixed"/>
+    <radio_item
+	label="C"
+	height="14"
+	width="30"
+	layout="topleft"
+	top="4"
+	left="100"
+	name="DisplayOverlayOnFixed"/>
+    <radio_item
+	label="D"
+	height="14"
+	width="30"
+	layout="topleft"
+	top="4"
+	left="150"
+	name="DisplayOverlayOnFixed"/>
   </radio_group>
+  <text
+      height="14"
+      word_wrap="true"
+      use_ellipses="false"
+      type="string"
+      text_color="DrYellow"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      left="240"
+      top_pad="10"
+      width="208">
+    Result: No path found.
+  </text>
   <view_border
       bevel_style="none"
       follows="top|left"
