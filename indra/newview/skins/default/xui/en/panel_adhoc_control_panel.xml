@@ -58,7 +58,7 @@
              label="Call"
              name="call_btn"
              width="130"
-             top="5" />
+             top="0" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -75,7 +75,7 @@
              height="20"
              label="Leave Call"
              name="end_call_btn"
-             top="5"/>
+             top="0"/>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -92,7 +92,7 @@
              height="20"
              label="Voice Controls"
              name="voice_ctrls_btn"
-             top="5"
+             top="0"
              use_ellipses="true" />
         </layout_panel>
     </layout_stack>
