@@ -86,6 +86,8 @@ public:
 	EAcceptance getLastAccept() { return mLastAccept; }
 
 	boost::signals2::connection setEndDragCallback( const enddrag_signal_t::slot_type& cb ) { return mEndDragSignal.connect(cb); }
+	
+	uuid_vec_t::size_type getCargoIDsCount() const { return mCargoIDs.size(); }
 
 protected:
 	enum EDropTarget

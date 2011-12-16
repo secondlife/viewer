@@ -60,6 +60,7 @@
 #include "llpreviewtexture.h"
 #include "llselectmgr.h"
 #include "llsidepanelappearance.h"
+#include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "llviewerassettype.h"
 #include "llviewerfoldertype.h"
@@ -1962,7 +1963,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
 				int existing_item_count = 0;
-				int existing_folder_count = 1;  // +1 for this folder being dragged now
+				int existing_folder_count = LLToolDragAndDrop::instance().getCargoIDsCount();
 				
 				if (master_folder != NULL)
 				{
@@ -3461,7 +3462,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
-				int existing_item_count = 1; // +1 for this item being dragged now
+				int existing_item_count = LLToolDragAndDrop::instance().getCargoIDsCount();
 				
 				if (master_folder != NULL)
 				{
