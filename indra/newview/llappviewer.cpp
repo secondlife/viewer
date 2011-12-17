@@ -76,6 +76,7 @@
 //#include "llfirstuse.h"
 #include "llrender.h"
 #include "llteleporthistory.h"
+#include "lltoast.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
 #include "llvector4a.h"
@@ -4052,6 +4053,7 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
+	LLNotificationsUI::LLToast::updateClass();
 	LLCriticalDamp::updateInterpolants();
 	LLMortician::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
