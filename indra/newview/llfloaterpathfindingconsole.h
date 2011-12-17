@@ -29,6 +29,7 @@
 #define LL_LLFLOATERPATHFINDINGCONSOLE_H
 
 #include "llfloater.h"
+#include "llnavmeshstation.h"
 
 class LLSD;
 class LLCheckBoxCtrl;
@@ -49,6 +50,8 @@ private:
 	LLFloaterPathfindingConsole(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingConsole();
 
+	virtual void onOpen(const LLSD& pKey);
+
 	void onShowNavmeshToggle();
 	void onShowExcludeVolumesToggle();
 	void onShowPathToggle();
@@ -59,6 +62,8 @@ private:
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
 	LLCheckBoxCtrl *mShowPathCheckBox;
 	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
+
+	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

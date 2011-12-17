@@ -959,23 +959,6 @@
         <menu_item_separator/>
 
         <menu
-            create_jump_keys="true"
-            label="Pathing Tools"
-            name="Pathing Tools"
-            tear_off="true"
-            visible="true">
-          <menu_item_call
-              label="Retrieve Navigation Mesh Src"
-              name="Show Pathing Tools">
-            <menu_item_call.on_click
-                function="PathingTools.RetrieveSrc" />
-          </menu_item_call>
-
-        </menu>
-
-        <menu_item_separator/>
-
-        <menu
          create_jump_keys="true"
          label="Options"
          name="Options"
