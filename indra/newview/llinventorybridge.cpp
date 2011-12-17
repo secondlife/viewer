@@ -2108,7 +2108,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	{
 		if (move_is_into_outbox)
 		{
-			tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNoTransferLibrary");
+			tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
 		}
 		else
