@@ -31,6 +31,7 @@
 #include "llfloater.h"
 
 class LLSD;
+class LLCheckBoxCtrl;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -45,10 +46,19 @@ protected:
 private:
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
-	LLFloaterPathfindingConsole(const LLSD& seed);
+	LLFloaterPathfindingConsole(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingConsole();
-		
+
+	void onShowNavmeshToggle();
+	void onShowExcludeVolumesToggle();
+	void onShowPathToggle();
+	void onShowWaterPlaneToggle();
 	void onViewEditLinksetClicked();
+
+	LLCheckBoxCtrl *mShowNavmeshCheckBox;
+	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
+	LLCheckBoxCtrl *mShowPathCheckBox;
+	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

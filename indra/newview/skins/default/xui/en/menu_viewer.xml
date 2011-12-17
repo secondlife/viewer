@@ -971,19 +971,6 @@
                 function="PathingTools.RetrieveSrc" />
           </menu_item_call>
 
-          <menu_item_call
-              label="Toggle Navigation Mesh Display"
-              name="Toggle Navigation Mesh View">
-            <menu_item_call.on_click
-                function="PathingTools.ToggleNavMeshView" />
-          </menu_item_call>
-
-          <menu_item_call
-              label="Toggle Navigation Mesh Shape Display"
-              name="Toggle Navigation Mesh Shape View">
-            <menu_item_call.on_click
-                function="PathingTools.ToggleNavMeshShapeView" />
-          </menu_item_call>
         </menu>
 
         <menu_item_separator/>

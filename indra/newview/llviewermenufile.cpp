@@ -80,36 +80,6 @@
 // system libraries
 #include <boost/tokenizer.hpp>
 
-class LLBuildNavMesh  : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool result = true;
-		return result;
-	}
-};
-class LLNavMeshRenderingToggle : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if ( LLPathingLib::getInstance() )
-		{
-			LLPathingLib::getInstance()->toggleRenderNavMeshState( );
-		}
-		return true;
-	}
-};
-class LLNavMeshShapeRenderingToggle : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if ( LLPathingLib::getInstance() )
-		{
-			LLPathingLib::getInstance()->toggleRenderShapeState( );
-		}
-		return true;
-	}
-};
 //prep#
 class LLPathingTools  : public view_listener_t, LLNavMeshDownloadObserver
 {
@@ -1342,7 +1312,5 @@ void init_menu_file()
 
 	//prep#
 	view_listener_t::addCommit(new LLPathingTools(), "PathingTools.RetrieveSrc");
-	view_listener_t::addCommit(new LLNavMeshRenderingToggle(), "PathingTools.ToggleNavMeshView");
-		view_listener_t::addCommit(new LLNavMeshShapeRenderingToggle(), "PathingTools.ToggleNavMeshShapeView");
 	// "File.SaveTexture" moved to llpanelmaininventory so that it can be properly handled.
 }

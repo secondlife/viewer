@@ -28,7 +28,7 @@
       label="Navmesh"
       layout="topleft"
       left="20"
-      name="DisplayNavmeshOverlay"
+      name="show_navmesh_overlay"
       top_pad="5"
       width="90" />
   <check_box
@@ -36,7 +36,7 @@
       label="Exclusion volumes"
       layout="topleft"
       left="20"
-      name="DisplayExclusionVolumes"
+      name="show_exclusion_volumes"
       top_pad="0"
       width="90" />
   <check_box
@@ -44,7 +44,7 @@
       label="Path"
       layout="topleft"
       left="20"
-      name="DisplayPath"
+      name="show_path"
       top_pad="0"
       width="90" />
   <check_box
@@ -52,7 +52,7 @@
       label="Water plane"
       layout="topleft"
       left="20"
-      name="DisplayWaterPlane"
+      name="show_water_plane"
       top_pad="0"
       width="90" />
   <text
