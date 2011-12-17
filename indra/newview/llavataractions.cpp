@@ -680,12 +680,29 @@ namespace action_give_inventory
 		std::string items;
 		build_items_string(inventory_selected_uuids, items);
 
+		int folders_count = 0;
+		std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin();
+
+		//traverse through selected inventory items and count folders among them
+		for ( ; it != inventory_selected_uuids.end() && folders_count <=1 ; ++it)
+		{
+			LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+			if (NULL != inv_cat)
+			{
+				folders_count++;
+			}
+		}
+
+		// EXP-1599
+		// In case of sharing multiple folders, make the confirmation
+		// dialog contain a warning that only one folder can be shared at a time.
+		std::string notification = (folders_count > 1) ? "ShareFolderConfirmation" : "ShareItemsConfirmation";
 		LLSD substitutions;
 		substitutions["RESIDENTS"] = residents;
 		substitutions["ITEMS"] = items;
 		LLShareInfo::instance().mAvatarNames = avatar_names;
 		LLShareInfo::instance().mAvatarUuids = avatar_uuids;
-		LLNotificationsUtil::add("ShareItemsConfirmation", substitutions, LLSD(), &give_inventory_cb);
+		LLNotificationsUtil::add(notification, substitutions, LLSD(), &give_inventory_cb);
 	}
 }
 

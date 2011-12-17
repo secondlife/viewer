@@ -1161,6 +1161,7 @@
          enabled="false"
          label="Undo"
          name="Undo"
+         allow_key_repeat="true"
          shortcut="control|Z">
             <on_click
              function="Edit.Undo"
@@ -1172,6 +1173,7 @@
          enabled="false"
          label="Redo"
          name="Redo"
+         allow_key_repeat="true"
          shortcut="control|Y">
             <on_click
              function="Edit.Redo"
