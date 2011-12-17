@@ -328,6 +328,19 @@ BOOL LLCOFWearables::postBuild()
 	return LLPanel::postBuild();
 }
 
+void LLCOFWearables::setAttachmentsTitle()
+{
+	if (mAttachmentsTab)
+	{
+		U32 free_slots = MAX_AGENT_ATTACHMENTS - mAttachments->size();
+
+		LLStringUtil::format_map_t args_attachments;
+		args_attachments["[COUNT]"] = llformat ("%d", free_slots);
+		std::string attachments_title = LLTrans::getString("Attachments remain", args_attachments);
+		mAttachmentsTab->setTitle(attachments_title);
+	}
+}
+
 void LLCOFWearables::onSelectionChange(LLFlatListView* selected_list)
 {
 	if (!selected_list) return;
@@ -490,6 +503,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 	{
 		mAttachments->sort();
 		mAttachments->notify(REARRANGE); //notifying the parent about the list's size change (cause items were added with rearrange=false)
+		setAttachmentsTitle();
 	}
 	else
 	{
