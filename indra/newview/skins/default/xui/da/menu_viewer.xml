@@ -121,6 +121,7 @@
 			<menu_item_call label="Model..." name="Upload Model"/>
 			<menu_item_call label="Model Wizard..." name="Upload Model Wizard"/>
 			<menu_item_call label="Mange (L$[COST] pr. fil)..." name="Bulk Upload"/>
+			<menu_item_call label="Sæt standardværdier for upload rettigheder" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Fortyd" name="Undo"/>
 		<menu_item_call label="Gendan" name="Redo"/>

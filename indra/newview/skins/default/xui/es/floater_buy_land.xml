@@ -160,7 +160,7 @@ para cubrir esta parcela.
 		Podrá o no unirse o dividirse.
 	</text>
 	<text name="covenant_text">
-		Debes aceptar el Contrato del Estado:
+		Debes aceptar el Contrato del estado:
 	</text>
 	<text left="470" name="covenant_timestamp_text"/>
 	<text_editor name="covenant_editor">
