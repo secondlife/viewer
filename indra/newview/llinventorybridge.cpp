@@ -1087,6 +1087,12 @@ BOOL LLInvFVBridge::canListOnMarketplace() const
 	{
 		return FALSE;
 	}
+	
+	const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+	if (outbox_id.isNull())
+	{
+		return FALSE;
+	}
 
 	LLViewerInventoryItem * item = model->getItem(mUUID);
 	if (item && !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
