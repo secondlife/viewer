@@ -612,13 +612,7 @@ void LLCurl::Multi::setState(LLCurl::Multi::ePerformState state)
 
 LLCurl::Multi::ePerformState LLCurl::Multi::getState()
 {
-	ePerformState state ;
-
-	lock() ;
-	state = mState ;
-	unlock() ;
-
-	return state ;
+	return mState;
 }
 	
 bool LLCurl::Multi::isCompleted() 
@@ -636,14 +630,12 @@ bool LLCurl::Multi::waitToComplete()
 
 	bool completed ;
 
-	lock() ;
 	completed = (STATE_COMPLETED == mState) ;
 	if(!completed)
 	{
 		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_URGENT) ;
 	}
-	unlock() ;
-
+	
 	return completed;
 }
 
