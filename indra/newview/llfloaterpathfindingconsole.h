@@ -33,11 +33,18 @@
 
 class LLSD;
 class LLCheckBoxCtrl;
+class LLRadioGroup;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
 {
 	friend class LLFloaterReg;
+
+	typedef enum
+	{
+		kRenderOverlayOnFixedPhysicsGeometry  = 0,
+		kRenderOverlayOnAllRenderableGeometry = 1
+	} ERegionOverlayDisplay;
 
 public:
 	virtual BOOL postBuild();
@@ -56,12 +63,16 @@ private:
 	void onShowExcludeVolumesToggle();
 	void onShowPathToggle();
 	void onShowWaterPlaneToggle();
+	void onRegionOverlayDisplaySwitch();
 	void onViewEditLinksetClicked();
+
+	ERegionOverlayDisplay getRegionOverlayDisplay() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
 	LLCheckBoxCtrl *mShowPathCheckBox;
 	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
+	LLRadioGroup   *mRegionOverlayDisplayRadioGroup;
 
 	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
 };

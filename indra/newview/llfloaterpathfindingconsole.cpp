@@ -33,6 +33,7 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "llradiogroup.h"
 #include "llnavmeshstation.h"
 #include "llviewerregion.h"
 
@@ -62,6 +63,10 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mShowWaterPlaneCheckBox != NULL);
 	mShowWaterPlaneCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWaterPlaneToggle, this));
 
+	mRegionOverlayDisplayRadioGroup = findChild<LLRadioGroup>("region_overlay_display");
+	llassert(mRegionOverlayDisplayRadioGroup != NULL);
+	mRegionOverlayDisplayRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch, this));
+
 	return LLFloater::postBuild();
 }
 
@@ -71,6 +76,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowExcludeVolumesCheckBox(NULL),
 	mShowPathCheckBox(NULL),
 	mShowWaterPlaneCheckBox(NULL),
+	mRegionOverlayDisplayRadioGroup(NULL),
 	mNavmeshDownloadObserver()
 {
 }
@@ -150,8 +156,8 @@ void LLFloaterPathfindingConsole::onShowPathToggle()
 	BOOL checkBoxValue = mShowPathCheckBox->get();
 
 	llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowPathCheckBox->getLabel() << "' to "
-			<< (checkBoxValue ? "ON" : "OFF") << llendl;
+		<< mShowPathCheckBox->getLabel() << "' to "
+		<< (checkBoxValue ? "ON" : "OFF") << llendl;
 }
 
 void LLFloaterPathfindingConsole::onShowWaterPlaneToggle()
@@ -159,11 +165,50 @@ void LLFloaterPathfindingConsole::onShowWaterPlaneToggle()
 	BOOL checkBoxValue = mShowWaterPlaneCheckBox->get();
 
 	llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowWaterPlaneCheckBox->getLabel() << "' to "
-			<< (checkBoxValue ? "ON" : "OFF") << llendl;
+		<< mShowWaterPlaneCheckBox->getLabel() << "' to "
+		<< (checkBoxValue ? "ON" : "OFF") << llendl;
+}
+
+void LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch()
+{
+	switch (getRegionOverlayDisplay())
+	{
+	case kRenderOverlayOnFixedPhysicsGeometry :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mRegionOverlayDisplayRadioGroup->getName() << "' to RenderOverlayOnFixedPhysicsGeometry"
+			<< llendl;
+		break;
+	case kRenderOverlayOnAllRenderableGeometry :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mRegionOverlayDisplayRadioGroup->getName() << "' to RenderOverlayOnAllRenderableGeometry"
+			<< llendl;
+		break;
+	default :
+		llassert(0);
+		break;
+	}
 }
 
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
+}
+
+LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const
+{
+	ERegionOverlayDisplay regionOverlayDisplay;
+	switch (mRegionOverlayDisplayRadioGroup->getSelectedIndex())
+	{
+	case 0 :
+		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
+		break;
+	case 1:
+		regionOverlayDisplay = kRenderOverlayOnAllRenderableGeometry;
+		break;
+	default :
+		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
+		break;
+	}
+
+	return regionOverlayDisplay;
 }

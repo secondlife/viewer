@@ -6,7 +6,9 @@
     layout="topleft"
     name="floater_pathfinding"
     help_topic="floater_pathfinding"
+    reuse_instance="true"
     save_rect="true"
+    single_instance="true"
     title="Pathfinding"
     width="833">
   <text
@@ -71,21 +73,24 @@
   <radio_group
       follows="top|left"
       height="45"
+      value="0"
       layout="topleft"
       left_delta="8"
-      name="region_settings_radio_group"
+      name="region_overlay_display"
       top_delta="17"
       width="200">
     <radio_item
-	label="Fixed physics geometry"
-	layout="topleft"
-	height="14"
-	name="DisplayOverlayOnFixed"/>
+        label="Fixed physics geometry"
+        layout="topleft"
+        height="14"
+        name="display_overlay_on_fixed"
+        value="0"/>
     <radio_item
-	label="All renderable geometry"
-	layout="topleft"
-	height="14"
-	name="DisplayOverlayOnAll"/>
+        label="All renderable geometry"
+        layout="topleft"
+        height="14"
+        name="display_overlay_on_all"
+        value="1"/>
   </radio_group>
   <view_border
       bevel_style="none"
@@ -121,15 +126,15 @@ to see the path between them.
       top_delta="33"
       width="200">
     <radio_item
-	label="Choose start point"
-	layout="topleft"
-	height="14"
-	name="DisplayOverlayOnFixed"/>
+        label="Choose start point"
+        layout="topleft"
+        height="14"
+        name="DisplayOverlayOnFixed"/>
     <radio_item
-	label="Choose end point"
-	layout="topleft"
-	height="14"
-	name="DisplayOverlayOnAll"/>
+        label="Choose end point"
+        layout="topleft"
+        height="14"
+        name="DisplayOverlayOnAll"/>
   </radio_group>
   <text
       height="14"
@@ -193,34 +198,34 @@ to see the path between them.
       top_delta="20"
       width="200">
     <radio_item
-	label="A"
-	height="14"
-	width="30"
-	name="DisplayOverlayOnFixed"/>
+        label="A"
+        height="14"
+        width="30"
+        name="DisplayOverlayOnFixed"/>
     <radio_item
-	label="B"
-	height="14"
-	width="30"
-	layout="topleft"
-	top="4"
-	left="50"
-	name="DisplayOverlayOnFixed"/>
+        label="B"
+        height="14"
+        width="30"
+        layout="topleft"
+        top="4"
+        left="50"
+        name="DisplayOverlayOnFixed"/>
     <radio_item
-	label="C"
-	height="14"
-	width="30"
-	layout="topleft"
-	top="4"
-	left="100"
-	name="DisplayOverlayOnFixed"/>
+        label="C"
+        height="14"
+        width="30"
+        layout="topleft"
+        top="4"
+        left="100"
+        name="DisplayOverlayOnFixed"/>
     <radio_item
-	label="D"
-	height="14"
-	width="30"
-	layout="topleft"
-	top="4"
-	left="150"
-	name="DisplayOverlayOnFixed"/>
+        label="D"
+        height="14"
+        width="30"
+        layout="topleft"
+        top="4"
+        left="150"
+        name="DisplayOverlayOnFixed"/>
   </radio_group>
   <text
       height="14"
