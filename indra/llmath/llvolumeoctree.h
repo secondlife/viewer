@@ -73,6 +73,16 @@ class LLVolumeOctreeListener : public LLOctreeListener<LLVolumeTriangle>
 {
 public:
 	
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle>* node);
 	~LLVolumeOctreeListener();
 	
@@ -99,8 +109,8 @@ public:
 	
 
 public:
-	LLVector4a mBounds[2]; // bounding box (center, size) of this node and all its children (tight fit to objects)
-	LLVector4a mExtents[2]; // extents (min, max) of this node and all its children
+	LL_ALIGN_16(LLVector4a mBounds[2]); // bounding box (center, size) of this node and all its children (tight fit to objects)
+	LL_ALIGN_16(LLVector4a mExtents[2]); // extents (min, max) of this node and all its children
 };
 
 class LLOctreeTriangleRayIntersect : public LLOctreeTraveler<LLVolumeTriangle>

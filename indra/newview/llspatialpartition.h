@@ -68,6 +68,16 @@ protected:
 	~LLDrawInfo();	
 	
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 
 	LLDrawInfo(const LLDrawInfo& rhs)
 	{
@@ -106,7 +116,7 @@ public:
 	F32 mPartSize;
 	F32 mVSize;
 	LLSpatialGroup* mGroup;
-	LLFace* mFace; //associated face
+	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
 
@@ -181,7 +191,7 @@ public:
 	};
 };
 
-LL_ALIGN_PREFIX(64)
+LL_ALIGN_PREFIX(16)
 class LLSpatialGroup : public LLOctreeListener<LLDrawable>
 {
 	friend class LLSpatialPartition;
@@ -191,6 +201,16 @@ public:
 	LLSpatialGroup(const LLSpatialGroup& rhs)
 	{
 		*this = rhs;
+	}
+
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
 	}
 
 	const LLSpatialGroup& operator=(const LLSpatialGroup& rhs)

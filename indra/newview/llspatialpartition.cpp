@@ -1196,7 +1196,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	mCurUpdatingSlotp(NULL),
 	mCurUpdatingTexture (NULL)
 {
-	ll_assert_aligned(this,64);
+	ll_assert_aligned(this,16);
 	
 	sNodeCount++;
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);

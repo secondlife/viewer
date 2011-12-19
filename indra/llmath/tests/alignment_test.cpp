@@ -34,10 +34,21 @@
 #include "../llsimdmath.h"
 #include "../llvector4a.h"
 
+void* operator new(size_t size)
+{
+	return ll_aligned_malloc_16(size);
+}
+
+void operator delete(void *p)
+{
+	ll_aligned_free_16(p);
+}
+
 namespace tut
 {
 
 #define is_aligned(ptr,alignment) ((reinterpret_cast<uintptr_t>(ptr))%(alignment)==0)
+#define is_aligned_relative(ptr,base_ptr,alignment) ((reinterpret_cast<uintptr_t>(ptr)-reinterpret_cast<uintptr_t>(base_ptr))%(alignment)==0)
 
 struct alignment_test {};
 
@@ -51,38 +62,40 @@ class MyVector4a
 	LLQuad mQ;
 } LL_ALIGN_POSTFIX(16);
 
-LL_ALIGN_PREFIX(64)
-class MyBigBlob
+// Verify that aligned allocators perform as advertised.
+template<> template<>
+void alignment_test_object_t::test<1>()
 {
-public:
-	~MyBigBlob() {}
-private:
-	LLQuad mQ[4];
-} LL_ALIGN_POSTFIX(64);
+	const int num_tests = 7;
+	void *align_ptr;
+	for (int i=0; i<num_tests; i++)
+	{
+		align_ptr = ll_aligned_malloc_16(sizeof(MyVector4a));
+		ensure("ll_aligned_malloc_16 failed", is_aligned(align_ptr,16));
+		ll_aligned_free_16(align_ptr);
+
+		align_ptr = ll_aligned_malloc_32(sizeof(MyVector4a));
+		ensure("ll_aligned_malloc_32 failed", is_aligned(align_ptr,32));
+		ll_aligned_free_32(align_ptr);
+	}
+}
 
 // In-place allocation of objects and arrays.
 template<> template<>
-void alignment_test_object_t::test<1>()
+void alignment_test_object_t::test<2>()
 {
 	ensure("LLAlignment reality is broken: ", (1==1));
 
 	MyVector4a vec1;
 	ensure("LLAlignment vec1 unaligned", is_aligned(&vec1,16));
 	
-	MyBigBlob bb1;
-	ensure("LLAlignment bb1 unaligned", is_aligned(&bb1,64));
-		   
-
 	MyVector4a veca[12];
 	ensure("LLAlignment veca unaligned", is_aligned(veca,16));
-
-	MyBigBlob bba[12];
-	ensure("LLAlignment bba unaligned", is_aligned(bba,64));
 }
 
 // Heap allocation of objects and arrays.
 template<> template<>
-void alignment_test_object_t::test<2>()
+void alignment_test_object_t::test<3>()
 {
 	const int ARR_SIZE = 7;
 	for(int i=0; i<ARR_SIZE; i++)
@@ -93,35 +106,12 @@ void alignment_test_object_t::test<2>()
 	}
 
 	MyVector4a *veca = new MyVector4a[ARR_SIZE];
+	ensure("LLAligment veca base", is_aligned(veca,16));
 	for(int i=0; i<ARR_SIZE; i++)
 	{
-		ensure("LLAlignment veca unaligned", is_aligned(&veca[i],16));
+		std::cout << "veca[" << i << "]" << std::endl;
+		ensure("LLAlignment veca member unaligned", is_aligned(&veca[i],16));
 	}
-
-	for(int i=0; i<ARR_SIZE; i++)
-	{
-		void *aligned_addr = _aligned_malloc(sizeof(MyBigBlob),64);
-		MyBigBlob *bbp = new(aligned_addr) MyBigBlob;
-		ensure("LLAlignment bbp unaligned", is_aligned(bbp,64));
-		bbp->~MyBigBlob();
-		_aligned_free(aligned_addr);
-	}
-
-	ensure("LLAlignment big blob size",sizeof(MyBigBlob)==64);
-	void *aligned_addr = _aligned_malloc(ARR_SIZE*sizeof(MyBigBlob),64);
-	MyBigBlob *bba = new(aligned_addr) MyBigBlob[ARR_SIZE];
-	std::cout << "aligned_addr " << aligned_addr << std::endl;
-	std::cout << "bba " << bba << std::endl;
-	for(int i=0; i<ARR_SIZE; i++)
-	{
-		std::cout << "bba test " << i << std::endl;
-		ensure("LLAlignment bba unaligned", is_aligned(&bba[i],64));
-	}
-	for(int i=0; i<ARR_SIZE; i++)
-	{
-		bba[i].~MyBigBlob();
-	}
-	_aligned_free(aligned_addr);
 }
 
 }

@@ -27,7 +27,7 @@
 #define LLMEMORY_H
 
 #include "llmemtype.h"
-#if LL_DEBUG
+#if !LL_USE_TCMALLOC
 inline void* ll_aligned_malloc( size_t size, int align )
 {
 	void* mem = malloc( size + (align - 1) + sizeof(void*) );
@@ -94,7 +94,8 @@ inline void ll_aligned_free_32(void *p)
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
 }
-#else // LL_DEBUG
+
+#else // USE_TCMALLOC
 // ll_aligned_foo are noops now that we use tcmalloc everywhere (tcmalloc aligns automatically at appropriate intervals)
 #define ll_aligned_malloc( size, align ) malloc(size)
 #define ll_aligned_free( ptr ) free(ptr)
@@ -514,8 +515,10 @@ void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
 
 #define CHECK_ALIGNMENT
 
+LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
+
 #ifdef CHECK_ALIGNMENT
-#define ll_assert_aligned(ptr,alignment) llassert((reinterpret_cast<uintptr_t>(ptr))%(alignment) == 0)
+#define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(reinterpret_cast<uintptr_t>(ptr),((U32)alignment))
 #else
 #define ll_assert_aligned(ptr,alignment)
 #endif
