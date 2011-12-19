@@ -136,7 +136,7 @@
            is_running_parameters="moveview"
            />
   <command name="outbox"
-           available_in_toybox="true"
+           available_in_toybox="false"
            icon="Command_Outbox_Icon"
            label_ref="Command_Outbox_Label"
            tooltip_ref="Command_Outbox_Tooltip"
