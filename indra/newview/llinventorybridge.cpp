@@ -1102,26 +1102,33 @@ BOOL LLInvFVBridge::canListOnMarketplace() const
 
 BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 {
+	BOOL can_list = FALSE;
+	
 #if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
 
-#if BLOCK_WORN_ITEMS_IN_OUTBOX
-	if (get_is_item_worn(mUUID))
+	const LLInventoryObject* obj = getInventoryObject();
+
+	if (obj)
 	{
-		return FALSE;
+		// Get outbox id
+		const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+		LLFolderViewItem * outbox_itemp = mRoot->getItemByID(outbox_id);
+
+		if (outbox_itemp)
+		{
+			MASK mask = 0x0;
+			BOOL drop = FALSE;
+			EDragAndDropType cargo_type = LLViewerAssetType::lookupDragAndDropType(obj->getActualType());
+			void * cargo_data = (void *) obj;
+			std::string tooltip_msg;
+			
+			can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+		}
 	}
 
-	// Loop through all items worn by avatar and check to see if they are descendants
-	// of the item we are trying to list on the marketplace
-	if (get_is_parent_to_worn_item(mUUID))
-	{
-		return FALSE;
-	}
-#endif // BLOCK_WORN_ITEMS_IN_OUTBOX
-
-	return TRUE;
-#else
-	return FALSE;
 #endif
+
+	return can_list;
 }
 
 
