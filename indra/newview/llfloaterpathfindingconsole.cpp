@@ -35,6 +35,8 @@
 #include "llcheckboxctrl.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
+#include "lllineeditor.h"
+#include "lltextvalidate.h"
 #include "llnavmeshstation.h"
 #include "llviewerregion.h"
 
@@ -80,7 +82,27 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mCharacterTypeRadioGroup = findChild<LLRadioGroup>("character_type");
 	llassert(mCharacterTypeRadioGroup  != NULL);
-	mCharacterTypeRadioGroup ->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+
+	mTerrainMaterialA = findChild<LLLineEditor>("terrain_material_a");
+	llassert(mTerrainMaterialA != NULL);
+	mTerrainMaterialA->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialASet, this));
+	mTerrainMaterialA->setPrevalidate(LLTextValidate::validateFloat);
+
+	mTerrainMaterialB = findChild<LLLineEditor>("terrain_material_b");
+	llassert(mTerrainMaterialB != NULL);
+	mTerrainMaterialB->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialBSet, this));
+	mTerrainMaterialB->setPrevalidate(LLTextValidate::validateFloat);
+
+	mTerrainMaterialC = findChild<LLLineEditor>("terrain_material_c");
+	llassert(mTerrainMaterialC != NULL);
+	mTerrainMaterialC->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialCSet, this));
+	mTerrainMaterialC->setPrevalidate(LLTextValidate::validateFloat);
+
+	mTerrainMaterialD = findChild<LLLineEditor>("terrain_material_d");
+	llassert(mTerrainMaterialD != NULL);
+	mTerrainMaterialD->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialDSet, this));
+	mTerrainMaterialD->setPrevalidate(LLTextValidate::validateFloat);
 
 	return LLFloater::postBuild();
 }
@@ -95,6 +117,10 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathSelectionRadioGroup(NULL),
 	mCharacterWidthSlider(NULL),
 	mCharacterTypeRadioGroup(NULL),
+	mTerrainMaterialA(NULL),
+	mTerrainMaterialB(NULL),
+	mTerrainMaterialC(NULL),
+	mTerrainMaterialD(NULL),
 	mNavmeshDownloadObserver()
 {
 }
@@ -285,6 +311,34 @@ void LLFloaterPathfindingConsole::onRefreshNavmeshClicked()
 	llwarns << "functionality has not yet been implemented to handle refreshing of the navmesh" << llendl;
 }
 
+void LLFloaterPathfindingConsole::onTerrainMaterialASet()
+{
+	F32 terrainMaterial = getTerrainMaterialA();
+	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialA->getName()
+		<< "' to value (" << terrainMaterial << ")" << llendl;
+}
+
+void LLFloaterPathfindingConsole::onTerrainMaterialBSet()
+{
+	F32 terrainMaterial = getTerrainMaterialB();
+	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialB->getName()
+		<< "' to value (" << terrainMaterial << ")" << llendl;
+}
+
+void LLFloaterPathfindingConsole::onTerrainMaterialCSet()
+{
+	F32 terrainMaterial = getTerrainMaterialC();
+	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialC->getName()
+		<< "' to value (" << terrainMaterial << ")" << llendl;
+}
+
+void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
+{
+	F32 terrainMaterial = getTerrainMaterialD();
+	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialD->getName()
+		<< "' to value (" << terrainMaterial << ")" << llendl;
+}
+
 LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const
 {
 	ERegionOverlayDisplay regionOverlayDisplay;
@@ -355,4 +409,24 @@ LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getChar
 	}
 
 	return characterType;
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialA() const
+{
+	return mTerrainMaterialA->getValue().asReal();
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
+{
+	return mTerrainMaterialB->getValue().asReal();
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
+{
+	return mTerrainMaterialC->getValue().asReal();
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
+{
+	return mTerrainMaterialD->getValue().asReal();
 }

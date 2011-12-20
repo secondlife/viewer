@@ -35,6 +35,7 @@ class LLSD;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
 class LLSliderCtrl;
+class LLLineEditor;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -86,11 +87,19 @@ private:
 	void onViewEditLinksetClicked();
 	void onRebuildNavmeshClicked();
 	void onRefreshNavmeshClicked();
+	void onTerrainMaterialASet();
+	void onTerrainMaterialBSet();
+	void onTerrainMaterialCSet();
+	void onTerrainMaterialDSet();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
 	EPathSelectionState   getPathSelectionState() const;
 	F32                   getCharacterWidth() const;
 	ECharacterType        getCharacterType() const;
+	F32                   getTerrainMaterialA() const;
+	F32                   getTerrainMaterialB() const;
+	F32                   getTerrainMaterialC() const;
+	F32                   getTerrainMaterialD() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
@@ -100,6 +109,10 @@ private:
 	LLRadioGroup   *mPathSelectionRadioGroup;
 	LLSliderCtrl   *mCharacterWidthSlider;
 	LLRadioGroup   *mCharacterTypeRadioGroup;
+	LLLineEditor   *mTerrainMaterialA;
+	LLLineEditor   *mTerrainMaterialB;
+	LLLineEditor   *mTerrainMaterialC;
+	LLLineEditor   *mTerrainMaterialD;
 
 	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
 };
