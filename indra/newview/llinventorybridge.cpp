@@ -53,6 +53,7 @@
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventorypanel.h"
+#include "llmarketplacefunctions.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llpreviewanim.h"
@@ -1129,6 +1130,15 @@ BOOL LLInvFVBridge::canListOnMarketplaceNow() const
 			std::string tooltip_msg;
 			
 			can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+		}
+	}
+
+	// Do not allow listing while import is in progress
+	if (LLMarketplaceInventoryImporter::instanceExists())
+	{
+		if (LLMarketplaceInventoryImporter::instance().isImportInProgress())
+		{
+			can_list = FALSE;
 		}
 	}
 
