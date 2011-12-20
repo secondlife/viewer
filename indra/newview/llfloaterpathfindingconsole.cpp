@@ -47,6 +47,8 @@
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
 	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
+	childSetAction("rebuild_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRebuildNavmeshClicked, this));
+	childSetAction("refresh_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRefreshNavmeshClicked, this));
 
 	mShowNavmeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh_overlay");
 	llassert(mShowNavmeshCheckBox != NULL);
@@ -271,6 +273,16 @@ void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
+}
+
+void LLFloaterPathfindingConsole::onRebuildNavmeshClicked()
+{
+	llwarns << "functionality has not yet been implemented to handle rebuilding of the navmesh" << llendl;
+}
+
+void LLFloaterPathfindingConsole::onRefreshNavmeshClicked()
+{
+	llwarns << "functionality has not yet been implemented to handle refreshing of the navmesh" << llendl;
 }
 
 LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const

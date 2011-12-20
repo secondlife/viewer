@@ -97,7 +97,7 @@
       follows="top|left"
       height="203"
       layout="topleft"
-      name="horiz_separator"
+      name="horiz_separator_1"
       top="15"
       left="228"
       width="0"/>
@@ -254,7 +254,7 @@ to see the path between them.
       follows="top|left"
       height="203"
       layout="topleft"
-      name="horiz_separator"
+      name="horiz_separator_2"
       top="15"
       left="456"
       width="0"/>
@@ -299,7 +299,7 @@ to objects or terrain:
       height="22"
       label="Rebuild navmesh"
       layout="topleft"
-      name="linksets"
+      name="rebuild_navmesh"
       top_pad="14"
       width="149"/>
   <text
@@ -322,7 +322,7 @@ of the mesh:
       height="21"
       label="Refresh"
       layout="topleft"
-      name="refresh"
+      name="refresh_navmesh"
       top_pad="9"
       width="95"/>
   <view_border
@@ -330,7 +330,7 @@ of the mesh:
       follows="top|left"
       height="203"
       layout="topleft"
-      name="horiz_separator"
+      name="horiz_separator_3"
       top="15"
       left="667"
       width="0"/>

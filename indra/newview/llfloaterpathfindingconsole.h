@@ -84,6 +84,8 @@ private:
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onViewEditLinksetClicked();
+	void onRebuildNavmeshClicked();
+	void onRefreshNavmeshClicked();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
 	EPathSelectionState   getPathSelectionState() const;
