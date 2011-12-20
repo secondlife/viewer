@@ -203,8 +203,8 @@ Save changes to current clothing/body part?
    icon="alertmodal.tga"
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
-        You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
-        [ITEM_NAME]
+You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
+[ITEM_NAME]
         <usetemplate
          name="okcancelbuttons"
          notext="No"

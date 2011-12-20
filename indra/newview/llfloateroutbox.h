@@ -64,7 +64,7 @@ public:
 						   EAcceptance* accept,
 						   std::string& tooltip_msg);
 	
-	void showNotification(LLNotificationPtr notify);
+	void showNotification(const LLSD& notify);
 
 protected:
 	void fetchOutboxContents();

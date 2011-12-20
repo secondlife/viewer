@@ -36,12 +36,15 @@
 #include "llinventorypanel.h"
 #include "llmarketplacefunctions.h"
 #include "llnotificationhandler.h"
+#include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
 #include "lltextbox.h"
 #include "lltransientfloatermgr.h"
 #include "lltrans.h"
 #include "llviewernetwork.h"
 #include "llwindowshade.h"
+
+#define USE_WINDOWSHADE_DIALOGS	0
 
 
 ///----------------------------------------------------------------------------
@@ -50,14 +53,9 @@
 
 bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLSD& notify)
 {
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if (notification)
-	{
-		LLFloaterOutbox* outbox_floater = LLFloaterReg::getTypedInstance<LLFloaterOutbox>("outbox");
-
-		outbox_floater->showNotification(notification);
-	}
+	LLFloaterOutbox* outbox_floater = LLFloaterReg::getTypedInstance<LLFloaterOutbox>("outbox");
+	
+	outbox_floater->showNotification(notify);
 
 	return false;
 }
@@ -413,6 +411,7 @@ void LLFloaterOutbox::onOutboxChanged()
 	}
 
 	fetchOutboxContents();
+
 	updateView();
 }
 
@@ -464,8 +463,19 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 	}
 }
 
-void LLFloaterOutbox::showNotification(LLNotificationPtr notify)
+void LLFloaterOutbox::showNotification(const LLSD& notify)
 {
+	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
+	
+	if (!notification)
+	{
+		llerrs << "Unable to find outbox notification!" << notify.asString() << llendl;
+		
+		return;
+	}
+
+#if USE_WINDOWSHADE_DIALOGS
+
 	if (mWindowShade)
 	{
 		delete mWindowShade;
@@ -487,6 +497,18 @@ void LLFloaterOutbox::showNotification(LLNotificationPtr notify)
 	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
 	
 	addChild(mWindowShade);
-	mWindowShade->show(notify);
+	mWindowShade->show(notification);
+	
+#else
+	
+	LLNotificationsUI::LLEventHandler * handler =
+		LLNotificationsUI::LLNotificationManager::instance().getHandlerForNotification("alertmodal");
+	
+	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler *>(handler);
+	llassert(sys_handler);
+	
+	sys_handler->processNotification(notify);
+	
+#endif
 }
 
