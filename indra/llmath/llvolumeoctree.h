@@ -37,6 +37,16 @@
 class LLVolumeTriangle : public LLRefCount
 {
 public:
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+
 	LLVolumeTriangle()
 	{
 		
@@ -58,7 +68,7 @@ public:
 	
 	}
 
-	LLVector4a mPositionGroup;
+	LL_ALIGN_16(LLVector4a mPositionGroup);
 
 	const LLVector4a* mV[3];
 	U16 mIndex[3];
