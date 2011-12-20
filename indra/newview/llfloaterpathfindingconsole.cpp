@@ -42,6 +42,18 @@
 
 #include "llpathinglib.h"
 
+#define XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY 1
+#define XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY 2
+
+#define XUI_PATH_SELECT_NONE 0
+#define XUI_PATH_SELECT_START_POINT 1
+#define XUI_PATH_SELECT_END_POINT 2
+
+#define XUI_CHARACTER_TYPE_A 1
+#define XUI_CHARACTER_TYPE_B 2
+#define XUI_CHARACTER_TYPE_C 3
+#define XUI_CHARACTER_TYPE_D 4
+
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
 //---------------------------------------------------------------------------
@@ -105,6 +117,191 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mTerrainMaterialD->setPrevalidate(LLTextValidate::validateFloat);
 
 	return LLFloater::postBuild();
+}
+
+LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const
+{
+	ERegionOverlayDisplay regionOverlayDisplay;
+	switch (mRegionOverlayDisplayRadioGroup->getValue().asInteger())
+	{
+	case XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY :
+		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
+		break;
+	case XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY :
+		regionOverlayDisplay = kRenderOverlayOnAllRenderableGeometry;
+		break;
+	default :
+		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
+		llassert(0);
+		break;
+	}
+
+	return regionOverlayDisplay;
+}
+
+void LLFloaterPathfindingConsole::setRegionOverlayDisplay(ERegionOverlayDisplay regionOverlayDisplay)
+{
+	LLSD radioGroupValue;
+
+	switch (regionOverlayDisplay)
+	{
+	case kRenderOverlayOnFixedPhysicsGeometry :
+		radioGroupValue = XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY;
+		break;
+	case kRenderOverlayOnAllRenderableGeometry :
+		radioGroupValue = XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY;
+		break;
+	default :
+		radioGroupValue = XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY;
+		llassert(0);
+		break;
+	}
+
+	mRegionOverlayDisplayRadioGroup->setValue(radioGroupValue);
+}
+
+LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::getPathSelectionState() const
+{
+	EPathSelectionState pathSelectionState;
+
+	switch (mPathSelectionRadioGroup->getValue().asInteger())
+	{
+	case XUI_PATH_SELECT_START_POINT :
+		pathSelectionState = kPathSelectStartPoint;
+		break;
+	case XUI_PATH_SELECT_END_POINT :
+		pathSelectionState = kPathSelectEndPoint;
+		break;
+	default :
+		pathSelectionState = kPathSelectNone;
+		break;
+	}
+
+	return pathSelectionState;
+}
+
+void LLFloaterPathfindingConsole::setPathSelectionState(EPathSelectionState pathSelectionState)
+{
+	LLSD radioGroupValue;
+
+	switch (pathSelectionState)
+	{
+	case kPathSelectStartPoint :
+		radioGroupValue = XUI_PATH_SELECT_START_POINT;
+		break;
+	case kPathSelectEndPoint :
+		radioGroupValue = XUI_PATH_SELECT_END_POINT;
+		break;
+	default :
+		radioGroupValue = XUI_PATH_SELECT_NONE;
+		break;
+	}
+
+	mPathSelectionRadioGroup->setValue(radioGroupValue);
+}
+
+F32 LLFloaterPathfindingConsole::getCharacterWidth() const
+{
+	return mCharacterWidthSlider->getValueF32();
+}
+
+void LLFloaterPathfindingConsole::setCharacterWidth(F32 characterWidth)
+{
+	mCharacterWidthSlider->setValue(LLSD(characterWidth));
+}
+
+LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getCharacterType() const
+{
+	ECharacterType characterType;
+
+	switch (mCharacterTypeRadioGroup->getValue().asInteger())
+	{
+	case XUI_CHARACTER_TYPE_A :
+		characterType = kCharacterTypeA;
+		break;
+	case XUI_CHARACTER_TYPE_B :
+		characterType = kCharacterTypeB;
+		break;
+	case XUI_CHARACTER_TYPE_C :
+		characterType = kCharacterTypeC;
+		break;
+	case XUI_CHARACTER_TYPE_D :
+		characterType = kCharacterTypeD;
+		break;
+	default :
+		characterType = kCharacterTypeA;
+		llassert(0);
+		break;
+	}
+
+	return characterType;
+}
+
+void LLFloaterPathfindingConsole::setCharacterType(ECharacterType characterType)
+{
+	LLSD radioGroupValue;
+
+	switch (characterType)
+	{
+	case kCharacterTypeA :
+		radioGroupValue = XUI_CHARACTER_TYPE_A;
+		break;
+	case kCharacterTypeB :
+		radioGroupValue = XUI_CHARACTER_TYPE_B;
+		break;
+	case kCharacterTypeC :
+		radioGroupValue = XUI_CHARACTER_TYPE_C;
+		break;
+	case kCharacterTypeD :
+		radioGroupValue = XUI_CHARACTER_TYPE_D;
+		break;
+	default :
+		radioGroupValue = XUI_CHARACTER_TYPE_A;
+		llassert(0);
+		break;
+	}
+
+	mCharacterTypeRadioGroup->setValue(radioGroupValue);
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialA() const
+{
+	return mTerrainMaterialA->getValue().asReal();
+}
+
+void LLFloaterPathfindingConsole::setTerrainMaterialA(F32 terrainMaterial)
+{
+	mTerrainMaterialA->setValue(LLSD(terrainMaterial));
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
+{
+	return mTerrainMaterialB->getValue().asReal();
+}
+
+void LLFloaterPathfindingConsole::setTerrainMaterialB(F32 terrainMaterial)
+{
+	mTerrainMaterialB->setValue(LLSD(terrainMaterial));
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
+{
+	return mTerrainMaterialC->getValue().asReal();
+}
+
+void LLFloaterPathfindingConsole::setTerrainMaterialC(F32 terrainMaterial)
+{
+	mTerrainMaterialC->setValue(LLSD(terrainMaterial));
+}
+
+F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
+{
+	return mTerrainMaterialD->getValue().asReal();
+}
+
+void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 terrainMaterial)
+{
+	mTerrainMaterialD->setValue(LLSD(terrainMaterial));
 }
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
@@ -337,96 +534,4 @@ void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
 	F32 terrainMaterial = getTerrainMaterialD();
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialD->getName()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
-}
-
-LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const
-{
-	ERegionOverlayDisplay regionOverlayDisplay;
-	switch (mRegionOverlayDisplayRadioGroup->getValue().asInteger())
-	{
-	case 1 :
-		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
-		break;
-	case 2:
-		regionOverlayDisplay = kRenderOverlayOnAllRenderableGeometry;
-		break;
-	default :
-		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
-		llassert(0);
-		break;
-	}
-
-	return regionOverlayDisplay;
-}
-
-LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::getPathSelectionState() const
-{
-	EPathSelectionState pathSelectionState;
-
-	switch (mPathSelectionRadioGroup->getValue().asInteger())
-	{
-	case 1 :
-		pathSelectionState = kPathSelectStartPoint;
-		break;
-	case 2:
-		pathSelectionState = kPathSelectEndPoint;
-		break;
-	default :
-		pathSelectionState = kPathSelectNone;
-		break;
-	}
-
-	return pathSelectionState;
-}
-
-F32 LLFloaterPathfindingConsole::getCharacterWidth() const
-{
-	return mCharacterWidthSlider->getValueF32();
-}
-
-LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getCharacterType() const
-{
-	ECharacterType characterType;
-
-	switch (mCharacterTypeRadioGroup->getValue().asInteger())
-	{
-	case 1 :
-		characterType = kCharacterTypeA;
-		break;
-	case 2 :
-		characterType = kCharacterTypeB;
-		break;
-	case 3 :
-		characterType = kCharacterTypeC;
-		break;
-	case 4 :
-		characterType = kCharacterTypeD;
-		break;
-	default :
-		characterType = kCharacterTypeA;
-		llassert(0);
-		break;
-	}
-
-	return characterType;
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialA() const
-{
-	return mTerrainMaterialA->getValue().asReal();
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
-{
-	return mTerrainMaterialB->getValue().asReal();
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
-{
-	return mTerrainMaterialC->getValue().asReal();
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
-{
-	return mTerrainMaterialD->getValue().asReal();
 }

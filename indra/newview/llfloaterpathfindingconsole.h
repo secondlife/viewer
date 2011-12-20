@@ -42,6 +42,7 @@ class LLFloaterPathfindingConsole
 {
 	friend class LLFloaterReg;
 
+public:
 	typedef enum
 	{
 		kRenderOverlayOnFixedPhysicsGeometry  = 0,
@@ -63,8 +64,31 @@ class LLFloaterPathfindingConsole
 		kCharacterTypeD = 3
 	} ECharacterType;
 
-public:
 	virtual BOOL postBuild();
+
+	ERegionOverlayDisplay getRegionOverlayDisplay() const;
+	void                  setRegionOverlayDisplay(ERegionOverlayDisplay regionOverlayDisplay);
+
+	EPathSelectionState   getPathSelectionState() const;
+	void                  setPathSelectionState(EPathSelectionState pathSelectionState);
+
+	F32                   getCharacterWidth() const;
+	void                  setCharacterWidth(F32 characterWidth);
+
+	ECharacterType        getCharacterType() const;
+	void                  setCharacterType(ECharacterType characterType);
+
+	F32                   getTerrainMaterialA() const;
+	void                  setTerrainMaterialA(F32 terrainMaterial);
+
+	F32                   getTerrainMaterialB() const;
+	void                  setTerrainMaterialB(F32 terrainMaterial);
+
+	F32                   getTerrainMaterialC() const;
+	void                  setTerrainMaterialC(F32 terrainMaterial);
+
+	F32                   getTerrainMaterialD() const;
+	void                  setTerrainMaterialD(F32 terrainMaterial);
 
 protected:
 
@@ -91,15 +115,6 @@ private:
 	void onTerrainMaterialBSet();
 	void onTerrainMaterialCSet();
 	void onTerrainMaterialDSet();
-
-	ERegionOverlayDisplay getRegionOverlayDisplay() const;
-	EPathSelectionState   getPathSelectionState() const;
-	F32                   getCharacterWidth() const;
-	ECharacterType        getCharacterType() const;
-	F32                   getTerrainMaterialA() const;
-	F32                   getTerrainMaterialB() const;
-	F32                   getTerrainMaterialC() const;
-	F32                   getTerrainMaterialD() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
