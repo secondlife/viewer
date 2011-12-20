@@ -34,6 +34,7 @@
 class LLSD;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
+class LLSliderCtrl;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -72,10 +73,12 @@ private:
 	void onShowWaterPlaneToggle();
 	void onRegionOverlayDisplaySwitch();
 	void onPathSelectionSwitch();
+	void onCharacterWidthSet();
 	void onViewEditLinksetClicked();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
-	EPathSelectionState getPathSelectionState() const;
+	EPathSelectionState   getPathSelectionState() const;
+	F32                   getCharacterWidth() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
@@ -83,6 +86,7 @@ private:
 	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
 	LLRadioGroup   *mRegionOverlayDisplayRadioGroup;
 	LLRadioGroup   *mPathSelectionRadioGroup;
+	LLSliderCtrl   *mCharacterWidthSlider;
 
 	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
 };

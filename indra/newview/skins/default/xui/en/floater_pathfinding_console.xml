@@ -154,16 +154,15 @@ to see the path between them.
     Character width
   </text>
   <slider
-      control_name="DebugBeaconLineWidth"
       decimal_digits="1"
       height="14"
-      increment="0.01"
-      initial_value="0"
+      increment="0.1"
       layout="topleft"
       max_val="2"
       min_val="0.2"
-      name="beacon_width"
+      name="character_width"
       top_pad="7"
+      value="1"
       width="145" />
   <text
       height="14"

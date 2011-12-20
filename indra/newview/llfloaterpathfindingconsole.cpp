@@ -34,6 +34,7 @@
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llradiogroup.h"
+#include "llsliderctrl.h"
 #include "llnavmeshstation.h"
 #include "llviewerregion.h"
 
@@ -71,6 +72,10 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mPathSelectionRadioGroup  != NULL);
 	mPathSelectionRadioGroup ->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onPathSelectionSwitch, this));
 
+	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
+	llassert(mCharacterWidthSlider != NULL);
+	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
+
 	return LLFloater::postBuild();
 }
 
@@ -82,6 +87,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowWaterPlaneCheckBox(NULL),
 	mRegionOverlayDisplayRadioGroup(NULL),
 	mPathSelectionRadioGroup(NULL),
+	mCharacterWidthSlider(NULL),
 	mNavmeshDownloadObserver()
 {
 }
@@ -219,6 +225,13 @@ void LLFloaterPathfindingConsole::onPathSelectionSwitch()
 	}
 }
 
+void LLFloaterPathfindingConsole::onCharacterWidthSet()
+{
+	F32 characterWidth = getCharacterWidth();
+	llwarns << "functionality has not yet been implemented to set " << mCharacterWidthSlider->getName()
+		<< " to the value (" << characterWidth << ")" << llendl;
+}
+
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
@@ -261,4 +274,9 @@ LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::ge
 	}
 
 	return pathSelectionState;
+}
+
+F32 LLFloaterPathfindingConsole::getCharacterWidth() const
+{
+	return mCharacterWidthSlider->getValueF32();
 }
