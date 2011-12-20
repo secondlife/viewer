@@ -5230,6 +5230,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	BOOL is_dest_group = FALSE;
     S32 amount = 0;
     std::string item_description;
+	BOOL success = FALSE;
 
     msg->getS32("TransactionInfo", "TransactionType", transaction_type);
     msg->getUUID("TransactionInfo", "SourceID", source_id);
@@ -5238,6 +5239,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
     msg->getS32("TransactionInfo", "Amount", amount);
     msg->getString("TransactionInfo", "ItemDescription", item_description);
+	msg->getBOOL("MoneyData", "TransactionSuccess", success);
     LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
 		<< " dest " << dest_id
 		<< " type " << transaction_type
@@ -5299,28 +5301,32 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars", args);
+				message = success ? LLTrans::getString("you_paid_ldollars", args) :
+									LLTrans::getString("you_paid_failure_ldollars", args);
 			}
 			else
 			{
 				// transaction fee to the system, eg, to create a group
-				message = LLTrans::getString("you_paid_ldollars_no_name", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_name", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_name", args);
 			}
 		}
 		else
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars_no_reason", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_reason", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
 			}
 			else
 			{
 				// no target, no reason, you just paid money
-				message = LLTrans::getString("you_paid_ldollars_no_info", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_info", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_info", args);
 			}
 		}
 		final_args["MESSAGE"] = message;
-		notification = "PaymentSent";
+		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
 	else {
 		// ...someone paid you
