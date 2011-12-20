@@ -65,6 +65,7 @@ class LLFloaterPathfindingConsole
 
 public:
 	virtual BOOL postBuild();
+	BOOL allowAllRenderables();
 
 protected:
 

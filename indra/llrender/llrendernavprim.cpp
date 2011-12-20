@@ -36,7 +36,8 @@
 LLRenderNavPrim gRenderNav;
 //=============================================================================
 void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color ) const
-{		
+{	
+	LLGLSLShader::sNoFixedFunction = false;
 	LLColor4 colorA( color );	
 	glLineWidth(1.5f);	
 	gGL.color3fv( colorA.mV );
@@ -48,6 +49,8 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 	}
 	gGL.end();	
 
+	gGL.flush();
+	LLGLSLShader::sNoFixedFunction = true;
 	glLineWidth(1.0f);	
 }
 //=============================================================================

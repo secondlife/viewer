@@ -430,3 +430,7 @@ F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
 {
 	return mTerrainMaterialD->getValue().asReal();
 }
+BOOL LLFloaterPathfindingConsole::allowAllRenderables()
+{
+	return getRegionOverlayDisplay() == kRenderOverlayOnAllRenderableGeometry ? true : false;
+}
