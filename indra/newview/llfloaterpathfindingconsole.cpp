@@ -76,6 +76,10 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mCharacterWidthSlider != NULL);
 	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
 
+	mCharacterTypeRadioGroup = findChild<LLRadioGroup>("character_type");
+	llassert(mCharacterTypeRadioGroup  != NULL);
+	mCharacterTypeRadioGroup ->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+
 	return LLFloater::postBuild();
 }
 
@@ -88,6 +92,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mRegionOverlayDisplayRadioGroup(NULL),
 	mPathSelectionRadioGroup(NULL),
 	mCharacterWidthSlider(NULL),
+	mCharacterTypeRadioGroup(NULL),
 	mNavmeshDownloadObserver()
 {
 }
@@ -228,8 +233,39 @@ void LLFloaterPathfindingConsole::onPathSelectionSwitch()
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
 	F32 characterWidth = getCharacterWidth();
-	llwarns << "functionality has not yet been implemented to set " << mCharacterWidthSlider->getName()
-		<< " to the value (" << characterWidth << ")" << llendl;
+	llwarns << "functionality has not yet been implemented to set '" << mCharacterWidthSlider->getName()
+		<< "' to the value (" << characterWidth << ")" << llendl;
+}
+
+void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
+{
+	switch (getCharacterType())
+	{
+	case kCharacterTypeA :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeA"
+			<< llendl;
+		break;
+	case kCharacterTypeB :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeB"
+			<< llendl;
+		break;
+	case kCharacterTypeC :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeC"
+			<< llendl;
+		break;
+	case kCharacterTypeD :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeD"
+			<< llendl;
+		break;
+	default :
+		llassert(0);
+		break;
+	}
+
 }
 
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
@@ -242,14 +278,15 @@ LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::
 	ERegionOverlayDisplay regionOverlayDisplay;
 	switch (mRegionOverlayDisplayRadioGroup->getValue().asInteger())
 	{
-	case 0 :
+	case 1 :
 		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
 		break;
-	case 1:
+	case 2:
 		regionOverlayDisplay = kRenderOverlayOnAllRenderableGeometry;
 		break;
 	default :
 		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
+		llassert(0);
 		break;
 	}
 
@@ -279,4 +316,31 @@ LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::ge
 F32 LLFloaterPathfindingConsole::getCharacterWidth() const
 {
 	return mCharacterWidthSlider->getValueF32();
+}
+
+LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getCharacterType() const
+{
+	ECharacterType characterType;
+
+	switch (mCharacterTypeRadioGroup->getValue().asInteger())
+	{
+	case 1 :
+		characterType = kCharacterTypeA;
+		break;
+	case 2 :
+		characterType = kCharacterTypeB;
+		break;
+	case 3 :
+		characterType = kCharacterTypeC;
+		break;
+	case 4 :
+		characterType = kCharacterTypeD;
+		break;
+	default :
+		characterType = kCharacterTypeA;
+		llassert(0);
+		break;
+	}
+
+	return characterType;
 }

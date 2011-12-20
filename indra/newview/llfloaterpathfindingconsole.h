@@ -54,6 +54,14 @@ class LLFloaterPathfindingConsole
 		kPathSelectEndPoint   = 2
 	} EPathSelectionState;
 
+	typedef enum
+	{
+		kCharacterTypeA = 0,
+		kCharacterTypeB = 1,
+		kCharacterTypeC = 2,
+		kCharacterTypeD = 3
+	} ECharacterType;
+
 public:
 	virtual BOOL postBuild();
 
@@ -74,11 +82,13 @@ private:
 	void onRegionOverlayDisplaySwitch();
 	void onPathSelectionSwitch();
 	void onCharacterWidthSet();
+	void onCharacterTypeSwitch();
 	void onViewEditLinksetClicked();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
 	EPathSelectionState   getPathSelectionState() const;
 	F32                   getCharacterWidth() const;
+	ECharacterType        getCharacterType() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
@@ -87,6 +97,7 @@ private:
 	LLRadioGroup   *mRegionOverlayDisplayRadioGroup;
 	LLRadioGroup   *mPathSelectionRadioGroup;
 	LLSliderCtrl   *mCharacterWidthSlider;
+	LLRadioGroup   *mCharacterTypeRadioGroup;
 
 	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
 };

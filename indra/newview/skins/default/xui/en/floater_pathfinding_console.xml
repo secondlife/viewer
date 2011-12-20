@@ -73,7 +73,7 @@
   <radio_group
       follows="top|left"
       height="45"
-      value="0"
+      value="1"
       layout="topleft"
       left_delta="8"
       name="region_overlay_display"
@@ -84,13 +84,13 @@
         layout="topleft"
         height="14"
         name="display_overlay_on_fixed"
-        value="0"/>
+        value="1"/>
     <radio_item
         label="All renderable geometry"
         layout="topleft"
         height="14"
         name="display_overlay_on_all"
-        value="1"/>
+        value="2"/>
   </radio_group>
   <view_border
       bevel_style="none"
@@ -197,14 +197,16 @@ to see the path between them.
       height="20"
       layout="topleft"
       left_delta="0"
-      name="region_settings_radio_group"
+      name="character_type"
       top_delta="20"
+      value="1"
       width="200">
     <radio_item
         label="A"
         height="14"
         width="30"
-        name="DisplayOverlayOnFixed"/>
+	value="1"
+        name="character_type_a"/>
     <radio_item
         label="B"
         height="14"
@@ -212,7 +214,8 @@ to see the path between them.
         layout="topleft"
         top="4"
         left="50"
-        name="DisplayOverlayOnFixed"/>
+	value="2"
+        name="character_type_b"/>
     <radio_item
         label="C"
         height="14"
@@ -220,7 +223,8 @@ to see the path between them.
         layout="topleft"
         top="4"
         left="100"
-        name="DisplayOverlayOnFixed"/>
+	value="3"
+        name="character_type_c"/>
     <radio_item
         label="D"
         height="14"
@@ -228,7 +232,8 @@ to see the path between them.
         layout="topleft"
         top="4"
         left="150"
-        name="DisplayOverlayOnFixed"/>
+	value="4"
+        name="character_type_d"/>
   </radio_group>
   <text
       height="14"
