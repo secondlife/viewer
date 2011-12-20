@@ -118,23 +118,27 @@ Click on two points
 to see the path between them.
   </text>
   <radio_group
+      allow_deselect="true"
       follows="top|left"
       height="45"
       layout="topleft"
       left_delta="0"
-      name="region_settings_radio_group"
+      name="path_selection"
       top_delta="33"
+      value="0"
       width="200">
     <radio_item
         label="Choose start point"
         layout="topleft"
         height="14"
-        name="DisplayOverlayOnFixed"/>
+        name="choose_path_start_point"
+        value="1"/>
     <radio_item
         label="Choose end point"
         layout="topleft"
         height="14"
-        name="DisplayOverlayOnAll"/>
+        name="choose_path_end_point"
+        value="2"/>
   </radio_group>
   <text
       height="14"

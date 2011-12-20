@@ -46,6 +46,13 @@ class LLFloaterPathfindingConsole
 		kRenderOverlayOnAllRenderableGeometry = 1
 	} ERegionOverlayDisplay;
 
+	typedef enum
+	{
+		kPathSelectNone       = 0,
+		kPathSelectStartPoint = 1,
+		kPathSelectEndPoint   = 2
+	} EPathSelectionState;
+
 public:
 	virtual BOOL postBuild();
 
@@ -64,15 +71,18 @@ private:
 	void onShowPathToggle();
 	void onShowWaterPlaneToggle();
 	void onRegionOverlayDisplaySwitch();
+	void onPathSelectionSwitch();
 	void onViewEditLinksetClicked();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
+	EPathSelectionState getPathSelectionState() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
 	LLCheckBoxCtrl *mShowPathCheckBox;
 	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
 	LLRadioGroup   *mRegionOverlayDisplayRadioGroup;
+	LLRadioGroup   *mPathSelectionRadioGroup;
 
 	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
 };
