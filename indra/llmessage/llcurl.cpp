@@ -603,11 +603,12 @@ void LLCurl::Multi::setState(LLCurl::Multi::ePerformState state)
 {
 	lock() ;
 	mState = state ;
+	unlock() ;
+
 	if(mState == STATE_READY)
 	{
 		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_NORMAL) ;
-	}
-	unlock() ;
+	}	
 }
 
 LLCurl::Multi::ePerformState LLCurl::Multi::getState()
@@ -628,9 +629,7 @@ bool LLCurl::Multi::waitToComplete()
 		return true ;
 	}
 
-	bool completed ;
-
-	completed = (STATE_COMPLETED == mState) ;
+	bool completed = (STATE_COMPLETED == mState) ;
 	if(!completed)
 	{
 		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_URGENT) ;
@@ -641,6 +640,8 @@ bool LLCurl::Multi::waitToComplete()
 
 CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 {
+	LLMutexLock lock(mMutexp) ;
+
 	CURLMsg* curlmsg = curl_multi_info_read(mCurlMultiHandle, msgs_in_queue);
 	return curlmsg;
 }
@@ -706,10 +707,19 @@ S32 LLCurl::Multi::process()
 		if (msg->msg == CURLMSG_DONE)
 		{
 			U32 response = 0;
-			easy_active_map_t::iterator iter = mEasyActiveMap.find(msg->easy_handle);
-			if (iter != mEasyActiveMap.end())
+			Easy* easy = NULL ;
+
 			{
-				Easy* easy = iter->second;
+				LLMutexLock lock(mEasyMutexp) ;
+				easy_active_map_t::iterator iter = mEasyActiveMap.find(msg->easy_handle);
+				if (iter != mEasyActiveMap.end())
+				{
+					easy = iter->second;
+				}
+			}
+
+			if(easy)
+			{
 				response = easy->report(msg->data.result);
 				removeEasy(easy);
 			}
@@ -770,20 +780,31 @@ bool LLCurl::Multi::addEasy(Easy* easy)
 
 void LLCurl::Multi::easyFree(Easy* easy)
 {
-	mEasyMutexp->lock() ;
+	if(mEasyMutexp)
+	{
+		mEasyMutexp->lock() ;
+	}
+
 	mEasyActiveList.erase(easy);
 	mEasyActiveMap.erase(easy->getCurlHandle());
 
 	if (mEasyFreeList.size() < EASY_HANDLE_POOL_SIZE)
 	{		
 		mEasyFreeList.insert(easy);
-		mEasyMutexp->unlock() ;
+		
+		if(mEasyMutexp)
+		{
+			mEasyMutexp->unlock() ;
+		}
 
 		easy->resetState();
 	}
 	else
 	{
-		mEasyMutexp->unlock() ;
+		if(mEasyMutexp)
+		{
+			mEasyMutexp->unlock() ;
+		}
 		delete easy;
 	}
 }
