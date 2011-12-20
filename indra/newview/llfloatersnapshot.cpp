@@ -333,8 +333,7 @@ void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail
 	{
 		S32 old_image_index = mCurImageIndex;
 		mCurImageIndex = (mCurImageIndex + 1) % 2; 
-		setWidth(mWidth[old_image_index]);
-		setHeight(mHeight[old_image_index]);
+		setSize(mWidth[old_image_index], mHeight[old_image_index]);
 		mFallAnimTimer.start();		
 	}
 	mSnapshotUpToDate = FALSE; 		
@@ -833,7 +832,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 				previewp->mPreviewImage->getHeight(),
 				previewp->mPreviewImage->getComponents());
 		
-			scaled->biasedScaleToPowerOfTwo(512);
+			scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 			previewp->setImageScaled(TRUE);
 			if (formatted->encode(scaled, 0.f))
 			{
@@ -960,7 +959,7 @@ void LLSnapshotLivePreview::saveTexture()
 												  mPreviewImage->getHeight(),
 												  mPreviewImage->getComponents());
 	
-	scaled->biasedScaleToPowerOfTwo(512);
+	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
 	lldebugs << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << llendl;
 
 	if (formatted->encode(scaled, 0.0f))
@@ -1447,7 +1446,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 
 	if (previewp)
 	{
-		lldebugs << "Setting snapshot type (" << shot_type << "), format (" << shot_format << ")" << llendl;
 		previewp->setSnapshotType(shot_type);
 		previewp->setSnapshotFormat(shot_format);
 		previewp->setSnapshotBufferType(layer_type);
@@ -1460,6 +1458,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		info["have-snapshot"] = got_snap;
 		current_panel->updateControls(info);
 	}
+	lldebugs << "finished updating controls" << llendl;
 }
 
 // static
@@ -1696,6 +1695,7 @@ void LLFloaterSnapshot::Impl::setFinished(LLFloaterSnapshot* floater, bool finis
 	}
 }
 
+// Apply a new resolution selected from the given combobox.
 // static
 void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
 {
@@ -1738,6 +1738,13 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 				lldebugs << "Loading typed res from panel " << spanel->getName() << llendl;
 				new_width = spanel->getTypedPreviewWidth();
 				new_height = spanel->getTypedPreviewHeight();
+
+				// Limit custom size for inventory snapshots to 512x512 px.
+				if (getActiveSnapshotType(view) == LLSnapshotLivePreview::SNAPSHOT_TEXTURE)
+				{
+					new_width = llmin(new_width, MAX_TEXTURE_SIZE);
+					new_height = llmin(new_height, MAX_TEXTURE_SIZE);
+				}
 			}
 			else
 			{
@@ -1864,11 +1871,11 @@ BOOL LLFloaterSnapshot::Impl::checkImageSize(LLSnapshotLivePreview* previewp, S3
 		//change another value proportionally
 		if(isWidthChanged)
 		{
-			height = (S32)(width / aspect_ratio) ;
+			height = llround(width / aspect_ratio) ;
 		}
 		else
 		{
-			width = (S32)(height * aspect_ratio) ;
+			width = llround(height * aspect_ratio) ;
 		}
 
 		//bound w/h by the max_value
