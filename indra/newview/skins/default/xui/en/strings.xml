@@ -164,12 +164,13 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
-	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred to another user.</string>
-	<string name="TooltipOutboxNotInInventory">You can only transfer objects in your inventory to your merchant outbox.</string>
-	<string name="TooltipOutboxWorn">You are wearing one or more of these objects. Remove them from your avatar and try moving them again.</string>
-	<string name="TooltipOutboxFolderLevels">This folder has too many levels of subfolders. Rearrange the interior folders to a maximum of 4 levels deep (Root Folder contains A contains B contains C).</string>
-	<string name="TooltipOutboxTooManyFolders">This folder has too many subfolders. Reorganize the interior to a maximum of 20 folders.</string>
-	<string name="TooltipOutboxTooManyObjects">This folder contains more than 200 objects. Box some of the items to reduce the object count.</string>
+
+	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred.</string>
+	<string name="TooltipOutboxNotInInventory">Your merchant outbox can only accept items directly from your inventory</string>
+	<string name="TooltipOutboxWorn">You can not put items you are wearing into your merchant outbox</string>
+	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds 3</string>
+	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds 20</string>
+	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds 200</string>
 	
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
@@ -2032,33 +2033,25 @@ Returns a string with the requested data about the region
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">When you purchase or otherwise receive an item, it will appear here so you can drag it to a folder in your inventory, or delete it if you do not wish to keep it.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
-	<string name="MarketplaceURL_CreateStore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/create_store</string>
-	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/[AGENT_ID]/store/dashboard</string>
+	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4</string>
+	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
 	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
-	<string name="InventoryOutboxCreationErrorTitle">Your Merchant Outbox is not properly configured</string>
-	<string name="InventoryOutboxCreationErrorTooltip">Merchant Outbox configuration error</string>
-	<string name="InventoryOutboxCreationError">Please contact Customer Service to correct the problem.</string>
 	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace.</string>
-	<string name="InventoryOutboxNotMerchantTooltip">Become a merchant!</string>
+	<string name="InventoryOutboxNotMerchantTooltip"></string>
 	<string name="InventoryOutboxNotMerchant">
-The Second Life Marketplace offers more than one million virtual products for sale, all of them created by Residents like you.  You too can create items and sell them on the Marketplace.  Creating a store is easy and free of charge.
-
-[[MARKETPLACE_URL] Visit the Marketplace]
-
-[[MARKETPLACE_LEARN_MORE_URL] Learn more about creating a store]
+If you'd like to become a merchant, you'll need to [[MARKETPLACE_CREATE_STORE_URL] create a Marketplace store].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">Your outbox is empty.</string>
-	<string name="InventoryOutboxNoItemsTooltip">Drag and drop items here to prepare them for sale on the Marketplace</string>
+	<string name="InventoryOutboxNoItemsTooltip"></string>
 	<string name="InventoryOutboxNoItems">
-Drag folders to this area.  When you are ready to send them to the Marketplace for sale, click the "Send to Marketplace" button below.
-
-[[MARKETPLACE_DASHBOARD_URL] Go to your Merchant Dashboard]
+Drag folders to this area and click "Send to Marketplace" to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
 
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
 	<string name="Marketplace Error Empty Folder">Error: This folder has no contents.</string>
-	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, login to the marketplace website and reduce your unassociated item count.</string>
+	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, log in to the marketplace website and reduce your unassociated item count.</string>
+
 	<string name="Marketplace Error Object Limit">Error: This item contains too many objects.  Fix this error by placing objects together in boxes to reduce the total count to less than 200.</string>
 	<string name="Marketplace Error Folder Depth">Error: This item contains too many levels of nested folders.  Reorganize it to a maximum of 3 levels of nested folders.</string>
 	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>

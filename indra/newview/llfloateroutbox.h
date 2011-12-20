@@ -80,24 +80,27 @@ protected:
 	void onImportButtonClicked();
 	void onOutboxChanged();
 	
-	void updateItemCount();
+	void setStatusString(const std::string& statusString);
+	
+	void updateFolderCount();
 	void updateView();
 
 private:
 	LLInventoryCategoriesObserver *		mCategoriesObserver;
 	LLInventoryCategoryAddedObserver *	mCategoryAddedObserver;
-
+	
+	bool			mImportBusy;
+	LLButton *		mImportButton;
+	
+	LLTextBox *		mInventoryFolderCountText;
+	LLView *		mInventoryImportInProgress;
+	LLView *		mInventoryPlaceholder;
+	LLTextBox *		mInventoryText;
+	LLTextBox *		mInventoryTitle;
+	
 	LLUUID				mOutboxId;
 	LLInventoryPanel *	mOutboxInventoryPanel;
 	U32					mOutboxItemCount;
-	
-	LLTextBox *				mInventoryFolderCountText;
-	LLView *				mInventoryImportInProgress;
-	LLView *				mInventoryPlaceholder;
-	LLTextBox *				mInventoryText;
-	LLTextBox *				mInventoryTitle;
-	
-	LLButton *		mImportButton;
 	
 	LLWindowShade *	mWindowShade;
 };

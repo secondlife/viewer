@@ -103,15 +103,16 @@ LLFloaterOutbox::LLFloaterOutbox(const LLSD& key)
 	: LLFloater(key)
 	, mCategoriesObserver(NULL)
 	, mCategoryAddedObserver(NULL)
-	, mOutboxId(LLUUID::null)
-	, mOutboxInventoryPanel(NULL)
-	, mOutboxItemCount(0)
+	, mImportBusy(false)
+	, mImportButton(NULL)
 	, mInventoryFolderCountText(NULL)
 	, mInventoryImportInProgress(NULL)
 	, mInventoryPlaceholder(NULL)
 	, mInventoryText(NULL)
 	, mInventoryTitle(NULL)
-	, mImportButton(NULL)
+	, mOutboxId(LLUUID::null)
+	, mOutboxInventoryPanel(NULL)
+	, mOutboxItemCount(0)
 	, mWindowShade(NULL)
 {
 }
@@ -251,12 +252,22 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	// Initialize the marketplace import API
 	//
 	
+	mImportBusy = true;
+	setStatusString(getString("OutboxInitializing"));
+
 	LLMarketplaceInventoryImporter::getInstance()->initialize();
 	LLMarketplaceInventoryImporter::getInstance()->setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
 	LLMarketplaceInventoryImporter::getInstance()->setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
 }
 
-void LLFloaterOutbox::updateItemCount()
+void LLFloaterOutbox::setStatusString(const std::string& statusString)
+{
+	llassert(mInventoryFolderCountText != NULL);
+
+	mInventoryFolderCountText->setText(statusString);
+}
+
+void LLFloaterOutbox::updateFolderCount()
 {
 	S32 item_count = 0;
 
@@ -275,8 +286,8 @@ void LLFloaterOutbox::updateItemCount()
 	{
 		switch (mOutboxItemCount)
 		{
-			case 0:	mInventoryFolderCountText->setText(getString("OutboxFolderCount0"));	break;
-			case 1:	mInventoryFolderCountText->setText(getString("OutboxFolderCount1"));	break;
+			case 0:	setStatusString(getString("OutboxFolderCount0"));	break;
+			case 1:	setStatusString(getString("OutboxFolderCount1"));	break;
 			default:
 			{
 				std::string item_count_str = llformat("%d", mOutboxItemCount);
@@ -284,7 +295,7 @@ void LLFloaterOutbox::updateItemCount()
 				LLStringUtil::format_map_t args;
 				args["[NUM]"] = item_count_str;
 				
-				mInventoryFolderCountText->setText(getString("OutboxFolderCountN", args));
+				setStatusString(getString("OutboxFolderCountN", args));
 				break;
 			}
 		}
@@ -295,7 +306,10 @@ void LLFloaterOutbox::updateItemCount()
 
 void LLFloaterOutbox::updateView()
 {
-	updateItemCount();
+	if (!mImportBusy)
+	{
+		updateFolderCount();
+	}
 
 	if (mOutboxItemCount > 0)
 	{
@@ -431,15 +445,22 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 {
 	if (inProgress)
 	{
-		mImportButton->setEnabled(false);
+		if (!mImportBusy)
+		{
+			setStatusString(getString("OutboxImporting"));
+		}
 		
+		mImportBusy = true;
+		mImportButton->setEnabled(false);
 		mInventoryImportInProgress->setVisible(true);
 	}
 	else
 	{
+		mImportBusy = false;
+		mImportButton->setEnabled(mOutboxItemCount > 0);
 		mInventoryImportInProgress->setVisible(false);
 
-		mImportButton->setEnabled(mOutboxItemCount > 0);
+		updateView();
 	}
 }
 

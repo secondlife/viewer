@@ -16,6 +16,8 @@
  <string name="OutboxFolderCount0">0 folders</string>
  <string name="OutboxFolderCount1">1 folder</string>
  <string name="OutboxFolderCountN">[NUM] folders</string>
+ <string name="OutboxImporting">Sending items...</string>
+ <string name="OutboxInitializing">Initializing...</string>
  <panel
       follows="all"
       layout="topleft"
@@ -82,13 +84,13 @@
 			type="string"
 			follows="all"
 			layout="topleft"
-			top="7"
+			top="10"
 			left="5"
-			width="100"
+			width="150"
 			height="20"
 			wrap="true"
 			halign="left"
-			valign="baseline"
+			valign="bottom"
 			font="SansSerif" />
 		<button
 			 label="Send to Marketplace"
@@ -99,9 +101,9 @@
 			 tab_stop="false"
 			 halign="center"
 			 top="3"
-			 left="110"
+			 left="160"
 			 height="25"
-			 width="200"
+			 width="150"
 			 enabled="false" />
     </panel>
 	<layout_stack name="import_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
