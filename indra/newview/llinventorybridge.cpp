@@ -1918,9 +1918,9 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		BOOL is_movable = TRUE;
 		if (LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
 			is_movable = FALSE;
-		if (move_is_into_outfit)
+		else if (move_is_into_outfit)
 			is_movable = FALSE;
-		if (mUUID == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE))
+		else if (mUUID == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE))
 			is_movable = FALSE;
 		LLInventoryModel::cat_array_t descendent_categories;
 		LLInventoryModel::item_array_t descendent_items;
@@ -1935,7 +1935,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				break;
 			}
 		}
-		if (move_is_into_trash)
+		if (is_movable && move_is_into_trash)
 		{
 			for (S32 i=0; i < descendent_items.count(); ++i)
 			{
@@ -1947,7 +1947,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
-		if (move_is_into_landmarks)
+		if (is_movable && move_is_into_landmarks)
 		{
 			for (S32 i=0; i < descendent_items.count(); ++i)
 			{
@@ -1962,7 +1962,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 		}
-		if (move_is_into_outbox)
+		if (is_movable && move_is_into_outbox)
 		{
 			int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
 			
@@ -1976,7 +1976,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
 				int existing_item_count = 0;
-				int existing_folder_count = LLToolDragAndDrop::instance().getCargoIDsCount();
+				int existing_folder_count = 1 + LLToolDragAndDrop::instance().getCargoIDsCount();  // +1 for master folder
 				
 				if (master_folder != NULL)
 				{
