@@ -43,6 +43,7 @@ class LLFloaterPathfindingConsole
 {
 	friend class LLFloaterReg;
 
+public:
 	typedef enum
 	{
 		kRenderOverlayOnFixedPhysicsGeometry  = 0,
@@ -64,12 +65,33 @@ class LLFloaterPathfindingConsole
 		kCharacterTypeD = 3
 	} ECharacterType;
 
-public:
 	virtual BOOL postBuild();
 	//Accessor to determine whether renderables are allowed
 	BOOL allowAllRenderables() const;
 	//Populates a data packet that is forwarded onto the LLPathingSystem
 	void providePathingData( const LLVector3& point1, const LLVector3& point2 );
+
+	EPathSelectionState   getPathSelectionState() const;
+	void                  setPathSelectionState(EPathSelectionState pPathSelectionState);
+
+	F32                   getCharacterWidth() const;
+	void                  setCharacterWidth(F32 pCharacterWidth);
+
+	ECharacterType        getCharacterType() const;
+	void                  setCharacterType(ECharacterType pCharacterType);
+
+	F32                   getTerrainMaterialA() const;
+	void                  setTerrainMaterialA(F32 pTerrainMaterial);
+
+	F32                   getTerrainMaterialB() const;
+	void                  setTerrainMaterialB(F32 pTerrainMaterial);
+
+	F32                   getTerrainMaterialC() const;
+	void                  setTerrainMaterialC(F32 pTerrainMaterial);
+
+	F32                   getTerrainMaterialD() const;
+	void                  setTerrainMaterialD(F32 pTerrainMaterial);
+
 protected:
 
 private:
@@ -95,15 +117,6 @@ private:
 	void onTerrainMaterialBSet();
 	void onTerrainMaterialCSet();
 	void onTerrainMaterialDSet();
-
-	ERegionOverlayDisplay getRegionOverlayDisplay() const;
-	EPathSelectionState   getPathSelectionState() const;
-	F32                   getCharacterWidth() const;
-	ECharacterType        getCharacterType() const;
-	F32                   getTerrainMaterialA() const;
-	F32                   getTerrainMaterialB() const;
-	F32                   getTerrainMaterialC() const;
-	F32                   getTerrainMaterialD() const;
 
 	LLCheckBoxCtrl *mShowNavmeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
