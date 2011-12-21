@@ -41,14 +41,15 @@ extern const LLVector4a LL_V4A_EPSILON = reinterpret_cast<const LLVector4a&> ( F
 
 /*static */void LLVector4a::memcpyNonAliased16(F32* __restrict dst, const F32* __restrict src, size_t bytes)
 {
-	memcpy((void*)dst,(const void*)src,bytes);
-#if 0
+//	memcpy((void*)dst,(const void*)src,bytes);
+#if 1
 	assert(src != NULL);
 	assert(dst != NULL);
 	assert(bytes > 0);
 	assert((bytes % sizeof(F32))== 0); 
 	ll_assert_aligned(src,16);
 	ll_assert_aligned(dst,16);
+	assert(bytes%16==0);
 
 	F32* end = dst + (bytes / sizeof(F32) );
 

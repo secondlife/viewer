@@ -46,7 +46,7 @@ inline void ll_aligned_free( void* ptr )
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
 #if defined(LL_WINDOWS)
-	return _mm_malloc(size, 16);
+	return _aligned_malloc(size, 16);
 #elif defined(LL_DARWIN)
 	return malloc(size); // default osx malloc is 16 byte aligned.
 #else
@@ -58,10 +58,21 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 #endif
 }
 
+inline void* ll_aligned_realloc_16(void* ptr, size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
+{
+#if defined(LL_WINDOWS)
+	return _aligned_realloc(ptr, size, 16);
+#elif defined(LL_DARWIN)
+	return realloc(ptr,size); // default osx malloc is 16 byte aligned.
+#else
+	return realloc(ptr,size); // FIXME not guaranteed to be aligned.
+#endif
+}
+
 inline void ll_aligned_free_16(void *p)
 {
 #if defined(LL_WINDOWS)
-	_mm_free(p);
+	_aligned_free(p);
 #elif defined(LL_DARWIN)
 	return free(p);
 #else
