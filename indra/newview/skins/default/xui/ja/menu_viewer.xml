@@ -140,6 +140,7 @@
 			<menu_item_call label="アニメーション（L$[COST]）..." name="Upload Animation"/>
 			<menu_item_call label="モデル" name="Upload Model"/>
 			<menu_item_call label="一括 （ファイルにつきL$[COST]）..." name="Bulk Upload"/>
+			<menu_item_call label="デフォルトのアップロード権限を設定" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="元に戻す" name="Undo"/>
 		<menu_item_call label="やり直し" name="Redo"/>

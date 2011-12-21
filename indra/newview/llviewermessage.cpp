@@ -2235,6 +2235,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	{
         name = LLTrans::getString("Unnamed");
 	}
+
+	// Preserve the unaltered name for use in group notice mute checking.
+	std::string original_name = name;
+
 	// IDEVO convert new-style "Resident" names for display
 	name = clean_name_from_im(name, dialog);
 
@@ -2438,6 +2442,26 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				|| (binary_bucket[binary_bucket_size - 1] != '\0') )
 			{
 				LL_WARNS("Messaging") << "Malformed group notice binary bucket" << LL_ENDL;
+				break;
+			}
+
+			// The group notice packet does not have an AgentID.  Obtain one from the name cache.
+			// If last name is "Resident" strip it out so the cache name lookup works.
+			U32 index = original_name.find(" Resident");
+			if (index != std::string::npos)
+			{
+				original_name = original_name.substr(0, index);
+			}
+			std::string legacy_name = gCacheName->buildLegacyName(original_name);
+			LLUUID agent_id;
+			gCacheName->getUUID(legacy_name, agent_id);
+
+			if (agent_id.isNull())
+			{
+				LL_WARNS("Messaging") << "buildLegacyName returned null while processing " << original_name << LL_ENDL;
+			}
+			else if (LLMuteList::getInstance()->isMuted(agent_id))
+			{
 				break;
 			}
 
@@ -5206,6 +5230,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	BOOL is_dest_group = FALSE;
     S32 amount = 0;
     std::string item_description;
+	BOOL success = FALSE;
 
     msg->getS32("TransactionInfo", "TransactionType", transaction_type);
     msg->getUUID("TransactionInfo", "SourceID", source_id);
@@ -5214,6 +5239,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
     msg->getS32("TransactionInfo", "Amount", amount);
     msg->getString("TransactionInfo", "ItemDescription", item_description);
+	msg->getBOOL("MoneyData", "TransactionSuccess", success);
     LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
 		<< " dest " << dest_id
 		<< " type " << transaction_type
@@ -5275,28 +5301,32 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars", args);
+				message = success ? LLTrans::getString("you_paid_ldollars", args) :
+									LLTrans::getString("you_paid_failure_ldollars", args);
 			}
 			else
 			{
 				// transaction fee to the system, eg, to create a group
-				message = LLTrans::getString("you_paid_ldollars_no_name", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_name", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_name", args);
 			}
 		}
 		else
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars_no_reason", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_reason", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
 			}
 			else
 			{
 				// no target, no reason, you just paid money
-				message = LLTrans::getString("you_paid_ldollars_no_info", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_info", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_info", args);
 			}
 		}
 		final_args["MESSAGE"] = message;
-		notification = "PaymentSent";
+		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
 	else {
 		// ...someone paid you
