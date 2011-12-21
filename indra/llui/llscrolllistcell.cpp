@@ -29,6 +29,8 @@
 
 #include "llscrolllistcell.h"
 
+#include "lltrans.h"
+
 #include "llcheckboxctrl.h"
 #include "llui.h"	// LLUIImage
 #include "lluictrlfactory.h"
@@ -428,7 +430,13 @@ LLScrollListDate::LLScrollListDate( const LLScrollListCell::Params& p)
 void LLScrollListDate::setValue(const LLSD& value)
 {
 	mDate = value.asDate();
-	LLScrollListText::setValue(mDate.asRFC1123());
+
+	std::string date_str = LLTrans::getString("ScrollListCellDateFormat");
+	LLSD substitution;
+	substitution["datetime"] = mDate.secondsSinceEpoch();
+	LLStringUtil::format(date_str, substitution);
+
+	LLScrollListText::setValue(date_str);
 }
 
 const LLSD LLScrollListDate::getValue() const
