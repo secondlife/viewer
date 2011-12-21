@@ -12,6 +12,7 @@
 // Precompiled header
 #include "linden_common.h"
 // associated header
+#define WIN32_LEAN_AND_MEAN
 #include "llprocesslauncher.h"
 // STL headers
 #include <vector>
@@ -22,6 +23,10 @@
 #include "apr_file_io.h"
 // other Linden headers
 #include "../test/lltut.h"
+
+#if defined(LL_WINDOWS)
+#define sleep _sleep
+#endif
 
 class APR
 {
