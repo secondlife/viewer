@@ -68,28 +68,28 @@ public:
 	BOOL allowAllRenderables();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
-	void                  setRegionOverlayDisplay(ERegionOverlayDisplay regionOverlayDisplay);
+	void                  setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay);
 
 	EPathSelectionState   getPathSelectionState() const;
-	void                  setPathSelectionState(EPathSelectionState pathSelectionState);
+	void                  setPathSelectionState(EPathSelectionState pPathSelectionState);
 
 	F32                   getCharacterWidth() const;
-	void                  setCharacterWidth(F32 characterWidth);
+	void                  setCharacterWidth(F32 pCharacterWidth);
 
 	ECharacterType        getCharacterType() const;
-	void                  setCharacterType(ECharacterType characterType);
+	void                  setCharacterType(ECharacterType pCharacterType);
 
 	F32                   getTerrainMaterialA() const;
-	void                  setTerrainMaterialA(F32 terrainMaterial);
+	void                  setTerrainMaterialA(F32 pTerrainMaterial);
 
 	F32                   getTerrainMaterialB() const;
-	void                  setTerrainMaterialB(F32 terrainMaterial);
+	void                  setTerrainMaterialB(F32 pTerrainMaterial);
 
 	F32                   getTerrainMaterialC() const;
-	void                  setTerrainMaterialC(F32 terrainMaterial);
+	void                  setTerrainMaterialC(F32 pTerrainMaterial);
 
 	F32                   getTerrainMaterialD() const;
-	void                  setTerrainMaterialD(F32 terrainMaterial);
+	void                  setTerrainMaterialD(F32 pTerrainMaterial);
 
 protected:
 

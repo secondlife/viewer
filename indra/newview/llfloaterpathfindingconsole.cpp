@@ -139,11 +139,11 @@ LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::
 	return regionOverlayDisplay;
 }
 
-void LLFloaterPathfindingConsole::setRegionOverlayDisplay(ERegionOverlayDisplay regionOverlayDisplay)
+void LLFloaterPathfindingConsole::setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay)
 {
 	LLSD radioGroupValue;
 
-	switch (regionOverlayDisplay)
+	switch (pRegionOverlayDisplay)
 	{
 	case kRenderOverlayOnFixedPhysicsGeometry :
 		radioGroupValue = XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY;
@@ -180,11 +180,11 @@ LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::ge
 	return pathSelectionState;
 }
 
-void LLFloaterPathfindingConsole::setPathSelectionState(EPathSelectionState pathSelectionState)
+void LLFloaterPathfindingConsole::setPathSelectionState(EPathSelectionState pPathSelectionState)
 {
 	LLSD radioGroupValue;
 
-	switch (pathSelectionState)
+	switch (pPathSelectionState)
 	{
 	case kPathSelectStartPoint :
 		radioGroupValue = XUI_PATH_SELECT_START_POINT;
@@ -205,9 +205,9 @@ F32 LLFloaterPathfindingConsole::getCharacterWidth() const
 	return mCharacterWidthSlider->getValueF32();
 }
 
-void LLFloaterPathfindingConsole::setCharacterWidth(F32 characterWidth)
+void LLFloaterPathfindingConsole::setCharacterWidth(F32 pCharacterWidth)
 {
-	mCharacterWidthSlider->setValue(LLSD(characterWidth));
+	mCharacterWidthSlider->setValue(LLSD(pCharacterWidth));
 }
 
 LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getCharacterType() const
@@ -237,11 +237,11 @@ LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getChar
 	return characterType;
 }
 
-void LLFloaterPathfindingConsole::setCharacterType(ECharacterType characterType)
+void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType)
 {
 	LLSD radioGroupValue;
 
-	switch (characterType)
+	switch (pCharacterType)
 	{
 	case kCharacterTypeA :
 		radioGroupValue = XUI_CHARACTER_TYPE_A;
@@ -269,9 +269,9 @@ F32 LLFloaterPathfindingConsole::getTerrainMaterialA() const
 	return mTerrainMaterialA->getValue().asReal();
 }
 
-void LLFloaterPathfindingConsole::setTerrainMaterialA(F32 terrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialA(F32 pTerrainMaterial)
 {
-	mTerrainMaterialA->setValue(LLSD(terrainMaterial));
+	mTerrainMaterialA->setValue(LLSD(pTerrainMaterial));
 }
 
 F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
@@ -279,9 +279,9 @@ F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
 	return mTerrainMaterialB->getValue().asReal();
 }
 
-void LLFloaterPathfindingConsole::setTerrainMaterialB(F32 terrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialB(F32 pTerrainMaterial)
 {
-	mTerrainMaterialB->setValue(LLSD(terrainMaterial));
+	mTerrainMaterialB->setValue(LLSD(pTerrainMaterial));
 }
 
 F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
@@ -289,9 +289,9 @@ F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
 	return mTerrainMaterialC->getValue().asReal();
 }
 
-void LLFloaterPathfindingConsole::setTerrainMaterialC(F32 terrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialC(F32 pTerrainMaterial)
 {
-	mTerrainMaterialC->setValue(LLSD(terrainMaterial));
+	mTerrainMaterialC->setValue(LLSD(pTerrainMaterial));
 }
 
 F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
@@ -299,9 +299,9 @@ F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
 	return mTerrainMaterialD->getValue().asReal();
 }
 
-void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 terrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 pTerrainMaterial)
 {
-	mTerrainMaterialD->setValue(LLSD(terrainMaterial));
+	mTerrainMaterialD->setValue(LLSD(pTerrainMaterial));
 }
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
@@ -535,6 +535,7 @@ void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialD->getName()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
 }
+
 BOOL LLFloaterPathfindingConsole::allowAllRenderables()
 {
 	return getRegionOverlayDisplay() == kRenderOverlayOnAllRenderableGeometry ? true : false;
