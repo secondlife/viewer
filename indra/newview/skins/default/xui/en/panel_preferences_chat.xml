@@ -211,9 +211,20 @@
    layout="topleft"
    left="30"
    name="ok_btn"
-   top="-40"
+   top="-50"
    width="170">
    <button.commit_callback
     function="Pref.TranslationSettings" />
+  </button>
+  <button
+   follows="top|left"
+   height="23"
+   layout="topleft"
+   top_pad="-23"
+   left_pad="5"
+   name="ac_showgui"
+   commit_callback.function="Pref.ShowAC"
+   label="AutoCorrect Settings"
+   width="150">
   </button>
 </panel>
