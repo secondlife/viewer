@@ -65,6 +65,7 @@ public:
 	} ECharacterType;
 
 	virtual BOOL postBuild();
+	BOOL allowAllRenderables();
 
 	ERegionOverlayDisplay getRegionOverlayDisplay() const;
 	void                  setRegionOverlayDisplay(ERegionOverlayDisplay regionOverlayDisplay);

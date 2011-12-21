@@ -78,6 +78,8 @@
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 #include "llpathinglib.h"
+#include "llfloaterpathfindingconsole.h"
+#include "llfloaterreg.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 
@@ -882,6 +884,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
 		bool exclusiveDraw = false;
+		BOOL allowRenderables = false;
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
@@ -897,32 +900,28 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				//Render any navmesh geometry	
 				if ( LLPathingLib::getInstance() ) 
 				{	
-					//prep#								
+					//Determine if we can should overlay the navmesh ontop of the scenes typical renderables
+					LLFloaterPathfindingConsole* pFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
+					if ( pFloater && pFloater->allowAllRenderables() )
+					{
+						allowRenderables = true;
+					}
+					//Navmesh
 					if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
 					{
-						glClearColor(0,0,0,0);
-						glEnable(GL_TEXTURE_2D);                       
-						glShadeModel(GL_SMOOTH);                       
 						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          
-						glClearDepth(1.0f);								
+												
 						glEnable(GL_DEPTH_TEST);                        
-						glDepthFunc(GL_LEQUAL);                         
-						GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
-						glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
-	
+						gGL.setSceneBlendType( LLRender::BT_ALPHA );
+						gGL.setAmbientLightColor( LLColor4::white );
 						LLPathingLib::getInstance()->renderNavMesh();
 						exclusiveDraw = true;
 					}
-
+					//physics/exclusion shapes
 					if ( LLPathingLib::getInstance()->getRenderShapeState() )
 					{
-						glClearColor(0,0,0,0);
-						glEnable(GL_TEXTURE_2D);                       
-						glShadeModel(GL_SMOOTH);                       
-						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          
-						glClearDepth(1.0f);								
 						glEnable(GL_DEPTH_TEST);                        
-						glDepthFunc(GL_LEQUAL);                         
+						gGL.setSceneBlendType( LLRender::BT_REPLACE );      
 						GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
 						glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);	
 						LLGLSUIDefault texture_state;
@@ -934,7 +933,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				}			
 			}
 			
-			if ( !exclusiveDraw )
+			if ( !exclusiveDraw || allowRenderables )					
 			{
 				gPipeline.renderGeom(*LLViewerCamera::getInstance(), TRUE);
 			}

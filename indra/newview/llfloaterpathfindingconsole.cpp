@@ -535,3 +535,7 @@ void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialD->getName()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
 }
+BOOL LLFloaterPathfindingConsole::allowAllRenderables()
+{
+	return getRegionOverlayDisplay() == kRenderOverlayOnAllRenderableGeometry ? true : false;
+}
