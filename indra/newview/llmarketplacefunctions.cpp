@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llhttpclient.h"
 #include "lltrans.h"
+#include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 
@@ -108,12 +109,13 @@ namespace LLMarketplaceImport
 	// Internal state variables
 
 	static std::string sMarketplaceCookie = "";
+	static LLSD sImportId = LLSD::emptyMap();
 	static bool sImportInProgress = false;
 	static bool sImportPostPending = false;
 	static bool sImportGetPending = false;
 	static U32 sImportResultStatus = 0;
 	static LLSD sImportResults = LLSD::emptyMap();
-		
+
 	
 	// Responders
 	
@@ -124,9 +126,17 @@ namespace LLMarketplaceImport
 		
 		void completed(U32 status, const std::string& reason, const LLSD& content)
 		{
+			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+			{
+				llinfos << " SLM POST status: " << status << llendl;
+				llinfos << " SLM POST reason: " << reason << llendl;
+				llinfos << " SLM POST content: " << content.asString() << llendl;
+			}
+
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
 			sImportPostPending = false;
 			sImportResultStatus = status;
+			sImportId = content;
 		}
 	};
 	
@@ -142,6 +152,13 @@ namespace LLMarketplaceImport
 		
 		void completed(U32 status, const std::string& reason, const LLSD& content)
 		{
+			if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+			{
+				llinfos << " SLM GET status: " << status << llendl;
+				llinfos << " SLM GET reason: " << reason << llendl;
+				llinfos << " SLM GET content: " << content.asString() << llendl;
+			}
+
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_PROCESSING);
 			sImportGetPending = false;
 			sImportResultStatus = status;
@@ -236,6 +253,11 @@ namespace LLMarketplaceImport
 		
 		std::string url = getInventoryImportURL();
 		
+		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+		{
+			llinfos << " SLM GET: " << url << llendl;
+		}
+
 		LLHTTPClient::get(url, new LLImportGetResponder(), LLViewerMedia::getHeaders());
 	}
 	
@@ -245,18 +267,26 @@ namespace LLMarketplaceImport
 
 		std::string url = getInventoryImportURL();
 
+		url += sImportId.asString();
+
 		// Make the headers for the post
 		LLSD headers = LLSD::emptyMap();
 		headers["Accept"] = "*/*";
 		headers["Cookie"] = sMarketplaceCookie;
-		headers["Content-Type"] = "application/xml";
+		headers["Content-Type"] = "application/llsd+xml";
 		headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
 		
+		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+		{
+			llinfos << " SLM GET: " << url << llendl;
+		}
+
 		LLHTTPClient::get(url, new LLImportGetResponder(), headers);
 	}
 	
 	void triggerImport()
 	{
+		sImportId = LLSD::emptyMap();
 		sImportInProgress = true;
 		sImportPostPending = true;
 		sImportResultStatus = MarketplaceErrorCodes::IMPORT_PROCESSING;
@@ -272,6 +302,11 @@ namespace LLMarketplaceImport
 		headers["Content-Type"] = "application/xml";
 		headers["User-Agent"] = LLViewerMedia::getCurrentUserAgent();
 		
+		if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+		{
+			llinfos << " SLM POST: " << url << llendl;
+		}
+
 		LLHTTPClient::post(url, LLSD(), new LLImportPostResponder(), headers);
 		
 		// Set a timer (for testing only)

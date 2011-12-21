@@ -16,7 +16,7 @@
  <string name="OutboxFolderCount0">0 folders</string>
  <string name="OutboxFolderCount1">1 folder</string>
  <string name="OutboxFolderCountN">[NUM] folders</string>
- <string name="OutboxImporting">Sending items...</string>
+ <string name="OutboxImporting">Sending folders...</string>
  <string name="OutboxInitializing">Initializing...</string>
  <panel
       follows="all"
