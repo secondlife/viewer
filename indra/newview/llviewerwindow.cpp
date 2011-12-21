@@ -202,6 +202,8 @@
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
+#include "llpathinglib.h"
+#include "llfloaterpathfindingconsole.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -833,6 +835,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
+				
 	// only send mouse clicks to UI if UI is visible
 	if(gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{	
@@ -946,13 +949,37 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		}
 	}
 
+
+	//Determine if we have a pathing system and subsequently provide any mouse input
+	if ( LLPathingLib::getInstance() && mLeftMouseDown == down )
+	{
+		LLVector3 dv		= mouseDirectionGlobal(x,y);
+		LLVector3 mousePos	= LLViewerCamera::getInstance()->getOrigin();
+		LLVector3 rayStart	= mousePos;
+		LLVector3 rayEnd	= mousePos + dv * 150;
+	
+		//Determine if alt is being held in conjunction with a lmb click, if alt is being held
+		//then do not provide any input to the pathingLib console
+		MASK currentKeyMask = gKeyboard->currentMask(TRUE);
+		if ( !(currentKeyMask & MASK_ALT) )
+		{
+			LLFloaterPathfindingConsole* pFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
+			if ( pFloater )
+			{
+				//The floater takes care of determining what stage - essentially where the data goes into the pathing packet(start or end)
+				pFloater->providePathingData( rayStart, rayEnd );
+				return TRUE;
+			}
+		}
+	}
+
 	// Do not allow tool manager to handle mouseclicks if we have disconnected	
 	if(!gDisconnected && LLToolMgr::getInstance()->getCurrentTool()->handleAnyMouseClick( x, y, mask, clicktype, down ) )
 	{
 		return TRUE;
 	}
 	
-
+	
 	// If we got this far on a down-click, it wasn't handled.
 	// Up-clicks, though, are always handled as far as the OS is concerned.
 	BOOL default_rtn = !down;

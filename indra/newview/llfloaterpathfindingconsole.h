@@ -30,6 +30,7 @@
 
 #include "llfloater.h"
 #include "llnavmeshstation.h"
+#include "llpathinglib.h"
 
 class LLSD;
 class LLCheckBoxCtrl;
@@ -65,8 +66,10 @@ class LLFloaterPathfindingConsole
 
 public:
 	virtual BOOL postBuild();
-	BOOL allowAllRenderables();
-
+	//Accessor to determine whether renderables are allowed
+	BOOL allowAllRenderables() const;
+	//Populates a data packet that is forwarded onto the LLPathingSystem
+	void providePathingData( const LLVector3& point1, const LLVector3& point2 );
 protected:
 
 private:
@@ -116,6 +119,9 @@ private:
 	LLLineEditor   *mTerrainMaterialD;
 
 	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
+
+	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
+	LLPathingLib::PathingPacket		mPathData;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

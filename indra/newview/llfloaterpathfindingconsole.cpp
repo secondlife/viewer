@@ -430,7 +430,36 @@ F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
 {
 	return mTerrainMaterialD->getValue().asReal();
 }
-BOOL LLFloaterPathfindingConsole::allowAllRenderables()
+
+BOOL LLFloaterPathfindingConsole::allowAllRenderables() const
 {
 	return getRegionOverlayDisplay() == kRenderOverlayOnAllRenderableGeometry ? true : false;
+}
+
+void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, const LLVector3& point2 )
+{
+	switch (getPathSelectionState())
+	{
+	case kPathSelectNone :
+		llwarns << "not yet been implemented to toggle '"
+			<< mPathSelectionRadioGroup->getName() << "' to PathSelectNone"
+			<< llendl;
+		break;
+
+	case kPathSelectStartPoint :
+		mPathData.mStartPointA	= point1;
+		mPathData.mEndPointA	= point2;
+		break;
+
+	case kPathSelectEndPoint :
+		mPathData.mStartPointB	= point1;
+		mPathData.mEndPointB	= point2;		
+		//prep#TODO# possibly consider an alternate behavior - perhaps add a "path" button to submit the data.
+		LLPathingLib::getInstance()->generatePath( mPathData );
+		break;
+
+	default :
+		llassert(0);
+		break;
+	}	
 }
