@@ -71,26 +71,29 @@ public:
 	//Populates a data packet that is forwarded onto the LLPathingSystem
 	void providePathingData( const LLVector3& point1, const LLVector3& point2 );
 
-	EPathSelectionState   getPathSelectionState() const;
-	void                  setPathSelectionState(EPathSelectionState pPathSelectionState);
+	ERegionOverlayDisplay getRegionOverlayDisplay() const;
+    void                  setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay);
 
-	F32                   getCharacterWidth() const;
-	void                  setCharacterWidth(F32 pCharacterWidth);
+    EPathSelectionState   getPathSelectionState() const;
+    void                  setPathSelectionState(EPathSelectionState pPathSelectionState);
 
-	ECharacterType        getCharacterType() const;
-	void                  setCharacterType(ECharacterType pCharacterType);
+    F32                   getCharacterWidth() const;
+    void                  setCharacterWidth(F32 pCharacterWidth);
 
-	F32                   getTerrainMaterialA() const;
-	void                  setTerrainMaterialA(F32 pTerrainMaterial);
+    ECharacterType        getCharacterType() const;
+    void                  setCharacterType(ECharacterType pCharacterType);
 
-	F32                   getTerrainMaterialB() const;
-	void                  setTerrainMaterialB(F32 pTerrainMaterial);
+    F32                   getTerrainMaterialA() const;
+    void                  setTerrainMaterialA(F32 pTerrainMaterial);
 
-	F32                   getTerrainMaterialC() const;
-	void                  setTerrainMaterialC(F32 pTerrainMaterial);
+    F32                   getTerrainMaterialB() const;
+    void                  setTerrainMaterialB(F32 pTerrainMaterial);
 
-	F32                   getTerrainMaterialD() const;
-	void                  setTerrainMaterialD(F32 pTerrainMaterial);
+    F32                   getTerrainMaterialC() const;
+    void                  setTerrainMaterialC(F32 pTerrainMaterial);
+
+    F32                   getTerrainMaterialD() const;
+    void                  setTerrainMaterialD(F32 pTerrainMaterial);
 
 protected:
 
