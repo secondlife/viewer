@@ -27,6 +27,9 @@
 
 #if defined(LL_WINDOWS)
 #define sleep _sleep
+#define EOL "\r\n"
+#else
+#define EOL "\n"
 #endif
 
 class APR
@@ -99,15 +102,15 @@ namespace tut
 
         // Write it.
         const char script[] =
-            "import sys\n"
-            "import time\n"
-            "\n"
-            "time.sleep(2)\n"
-            "print >>sys.stdout, \"stdout after wait\"\n"
-            "sys.stdout.flush()\n"
-            "time.sleep(2)\n"
-            "print >>sys.stderr, \"stderr after wait\"\n"
-            "sys.stderr.flush()\n"
+            "import sys" EOL
+            "import time" EOL
+            EOL
+            "time.sleep(2)" EOL
+            "print >>sys.stdout, \"stdout after wait\"" EOL
+            "sys.stdout.flush()" EOL
+            "time.sleep(2)" EOL
+            "print >>sys.stderr, \"stderr after wait\"" EOL
+            "sys.stderr.flush()" EOL
             ;
         apr_size_t len(sizeof(script)-1);
         aprchk(apr_file_write(fp, script, &len));
@@ -159,7 +162,7 @@ namespace tut
                     outfiles.erase(outfiles.begin() + i);
                     continue;
                 }
-                if (rv == EWOULDBLOCK)
+                if (rv == EWOULDBLOCK || rv == EAGAIN)
                 {
 //                  std::cout << "(waiting; apr_file_gets(" << iterfiles[i].first << ") => " << rv << ": " << apr.strerror(rv) << ")\n";
                     ++history.back().tries;
@@ -210,12 +213,12 @@ namespace tut
         // waiting, proving the non-blocking nature of these pipes.
         ensure("blocking I/O on child pipe (0)", history[0].tries);
         ensure_equals(history[0].which, "out");
-        ensure_equals(history[0].what,  "stdout after wait\n");
+        ensure_equals(history[0].what,  "stdout after wait" EOL);
         ensure("blocking I/O on child pipe (1)", history[1].tries);
         ensure_equals(history[1].which, "out");
         ensure_equals(history[1].what,  "*eof*");
         ensure_equals(history[2].which, "err");
-        ensure_equals(history[2].what,  "stderr after wait\n");
+        ensure_equals(history[2].what,  "stderr after wait" EOL);
         ensure_equals(history[3].which, "err");
         ensure_equals(history[3].what,  "*eof*");
     }
