@@ -22,14 +22,17 @@
 #include "llapr.h"
 #include "apr_thread_proc.h"
 #include "apr_file_io.h"
+#include <boost/foreach.hpp>
 // other Linden headers
 #include "../test/lltut.h"
+#include "stringize.h"
 
 #if defined(LL_WINDOWS)
 #define sleep _sleep
 #define EOL "\r\n"
 #else
 #define EOL "\n"
+#include <sys/wait.h>
 #endif
 
 class APR
@@ -57,6 +60,10 @@ public:
     apr_pool_t *pool;
 };
 
+#define ensure_equals_(left, right) \
+        ensure_equals(STRINGIZE(#left << " != " << #right), (left), (right))
+#define aprchk(expr) aprchk_(#expr, (expr))
+
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
@@ -64,9 +71,10 @@ namespace tut
 {
     struct llprocesslauncher_data
     {
-        void aprchk(apr_status_t rv)
+        void aprchk_(const char* call, apr_status_t rv)
         {
-            ensure_equals(apr.strerror(rv), rv, APR_SUCCESS);
+            ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr.strerror(rv)),
+                          rv, APR_SUCCESS);
         }
 
         APR apr;
@@ -82,6 +90,91 @@ namespace tut
         std::string which;
         std::string what;
     };
+
+#define tabent(symbol) { symbol, #symbol }
+    static struct ReasonCode
+    {
+        int code;
+        const char* name;
+    } reasons[] =
+    {
+        tabent(APR_OC_REASON_DEATH),
+        tabent(APR_OC_REASON_UNWRITABLE),
+        tabent(APR_OC_REASON_RESTART),
+        tabent(APR_OC_REASON_UNREGISTER),
+        tabent(APR_OC_REASON_LOST),
+        tabent(APR_OC_REASON_RUNNING)
+    };
+#undef tabent
+
+    struct WaitInfo
+    {
+        WaitInfo(apr_proc_t* child_):
+            child(child_),
+            rv(-1),                 // we haven't yet called apr_proc_wait()
+            rc(0),
+            why(apr_exit_why_e(0))
+        {}
+        apr_proc_t* child;          // which subprocess
+        apr_status_t rv;            // return from apr_proc_wait()
+        int rc;                     // child's exit code
+        apr_exit_why_e why;         // APR_PROC_EXIT, APR_PROC_SIGNAL, APR_PROC_SIGNAL_CORE
+    };
+
+    void child_status_callback(int reason, void* data, int status)
+    {
+        std::string reason_str;
+        BOOST_FOREACH(const ReasonCode& rcp, reasons)
+        {
+            if (reason == rcp.code)
+            {
+                reason_str = rcp.name;
+                break;
+            }
+        }
+        if (reason_str.empty())
+        {
+            reason_str = STRINGIZE("unknown reason " << reason);
+        }
+        std::cout << "child_status_callback(" << reason_str << ")\n";
+
+        if (reason == APR_OC_REASON_DEATH || reason == APR_OC_REASON_LOST)
+        {
+            // Somewhat oddly, APR requires that you explicitly unregister
+            // even when it already knows the child has terminated.
+            apr_proc_other_child_unregister(data);
+
+            WaitInfo* wi(static_cast<WaitInfo*>(data));
+            wi->rv = apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT);
+            if (wi->rv == ECHILD)
+            {
+                std::cout << "apr_proc_wait() got ECHILD during child_status_callback("
+                          << reason_str << ")\n";
+                // So -- is this why we have a 'status' param?
+                wi->rv = APR_CHILD_DONE; // pretend this call worked; fake results
+#if defined(LL_WINDOWS)
+                wi->why = APR_PROC_EXIT;
+                wi->rc  = status;         // correct??
+#else  // Posix
+                if (WIFEXITED(status))
+                {
+                    wi->why = APR_PROC_EXIT;
+                    wi->rc  = WEXITSTATUS(status);
+                }
+                else if (WIFSIGNALED(status))
+                {
+                    wi->why = APR_PROC_SIGNAL;
+                    wi->rc  = WTERMSIG(status);
+                }
+                else                // uh, shouldn't happen?
+                {
+                    wi->why = APR_PROC_EXIT;
+                    wi->rc  = status; // someone else will have to decode
+                }
+#endif // Posix
+            }
+        }
+    }
 
     template<> template<>
     void object::test<1>()
@@ -106,10 +199,10 @@ namespace tut
             "import time" EOL
             EOL
             "time.sleep(2)" EOL
-            "print >>sys.stdout, \"stdout after wait\"" EOL
+            "print >>sys.stdout, 'stdout after wait'" EOL
             "sys.stdout.flush()" EOL
             "time.sleep(2)" EOL
-            "print >>sys.stderr, \"stderr after wait\"" EOL
+            "print >>sys.stderr, 'stderr after wait'" EOL
             "sys.stderr.flush()" EOL
             ;
         apr_size_t len(sizeof(script)-1);
@@ -122,6 +215,7 @@ namespace tut
         std::vector<Item> history;
         history.push_back(Item());
 
+        // Run the child process.
         apr_procattr_t *procattr = NULL;
         aprchk(apr_procattr_create(&procattr, apr.pool));
         aprchk(apr_procattr_io_set(procattr, APR_CHILD_BLOCK, APR_CHILD_BLOCK, APR_CHILD_BLOCK));
@@ -134,11 +228,23 @@ namespace tut
         argv.push_back(NULL);
 
         aprchk(apr_proc_create(&child, argv[0],
-                               static_cast<const char* const*>(&argv[0]),
+                               &argv[0],
                                NULL, // if we wanted to pass explicit environment
                                procattr,
                                apr.pool));
 
+        // We do not want this child process to outlive our APR pool. On
+        // destruction of the pool, forcibly kill the process. Tell APR to try
+        // SIGTERM and wait 3 seconds. If that didn't work, use SIGKILL.
+        apr_pool_note_subprocess(apr.pool, &child, APR_KILL_AFTER_TIMEOUT);
+
+        // arrange to call child_status_callback()
+        WaitInfo wi(&child);
+        apr_proc_other_child_register(&child, child_status_callback, &wi, child.in, apr.pool);
+
+        // Monitor two different output pipes. Because one will be closed
+        // before the other, keep them in a vector so we can drop whichever of
+        // them is closed first.
         typedef std::pair<std::string, apr_file_t*> DescFile;
         typedef std::vector<DescFile> DescFileVec;
         DescFileVec outfiles;
@@ -168,7 +274,7 @@ namespace tut
                     ++history.back().tries;
                     continue;
                 }
-                ensure_equals(rv, APR_SUCCESS);
+                aprchk_("apr_file_gets(buf, sizeof(buf), iterfiles[i].second)", rv);
                 // Is it even possible to get APR_SUCCESS but read 0 bytes?
                 // Hope not, but defend against that anyway.
                 if (buf[0])
@@ -186,24 +292,33 @@ namespace tut
                     }
                 }
             }
+            // Do this once per tick, as we expect the viewer will
+            apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
             sleep(1);
         }
         apr_file_close(child.in);
         apr_file_close(child.out);
         apr_file_close(child.err);
 
-        int rc = 0;
-        apr_exit_why_e why;
-        apr_status_t rv;
-        while (! APR_STATUS_IS_CHILD_DONE(rv = apr_proc_wait(&child, &rc, &why, APR_NOWAIT)))
+        // Okay, we've broken the loop because our pipes are all closed. If we
+        // haven't yet called wait, give the callback one more chance. This
+        // models the fact that unlike this small test program, the viewer
+        // will still be running.
+        if (wi.rv == -1)
         {
-//          std::cout << "child not done (" << rv << "): " << apr.strerror(rv) << '\n';
-            sleep(0.5);
+            std::cout << "last gasp apr_proc_other_child_refresh_all()\n";
+            apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
+        }
+
+        if (wi.rv == -1)
+        {
+            std::cout << "child_status_callback() wasn't called\n";
+            wi.rv = apr_proc_wait(wi.child, &wi.rc, &wi.why, APR_NOWAIT);
         }
 //      std::cout << "child done: rv = " << rv << " (" << apr.strerror(rv) << "), why = " << why << ", rc = " << rc << '\n';
-        ensure_equals(rv, APR_CHILD_DONE);
-        ensure_equals(why, APR_PROC_EXIT);
-        ensure_equals(rc, 0);
+        ensure_equals_(wi.rv, APR_CHILD_DONE);
+        ensure_equals_(wi.why, APR_PROC_EXIT);
+        ensure_equals_(wi.rc, 0);
 
         // Remove temp script file
         aprchk(apr_file_remove(tempname, apr.pool));
@@ -212,14 +327,14 @@ namespace tut
         // obtained expected output -- and that we duly got control while
         // waiting, proving the non-blocking nature of these pipes.
         ensure("blocking I/O on child pipe (0)", history[0].tries);
-        ensure_equals(history[0].which, "out");
-        ensure_equals(history[0].what,  "stdout after wait" EOL);
+        ensure_equals_(history[0].which, "out");
+        ensure_equals_(history[0].what,  "stdout after wait" EOL);
         ensure("blocking I/O on child pipe (1)", history[1].tries);
-        ensure_equals(history[1].which, "out");
-        ensure_equals(history[1].what,  "*eof*");
-        ensure_equals(history[2].which, "err");
-        ensure_equals(history[2].what,  "stderr after wait" EOL);
-        ensure_equals(history[3].which, "err");
-        ensure_equals(history[3].what,  "*eof*");
+        ensure_equals_(history[1].which, "out");
+        ensure_equals_(history[1].what,  "*eof*");
+        ensure_equals_(history[2].which, "err");
+        ensure_equals_(history[2].what,  "stderr after wait" EOL);
+        ensure_equals_(history[3].which, "err");
+        ensure_equals_(history[3].what,  "*eof*");
     }
 } // namespace tut
