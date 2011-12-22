@@ -71,10 +71,10 @@ namespace tut
 {
     struct llprocesslauncher_data
     {
-        void aprchk_(const char* call, apr_status_t rv)
+        void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
         {
             ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr.strerror(rv)),
-                          rv, APR_SUCCESS);
+                          rv, expected);
         }
 
         APR apr;
@@ -123,6 +123,7 @@ namespace tut
 
     void child_status_callback(int reason, void* data, int status)
     {
+/*==========================================================================*|
         std::string reason_str;
         BOOST_FOREACH(const ReasonCode& rcp, reasons)
         {
@@ -137,6 +138,7 @@ namespace tut
             reason_str = STRINGIZE("unknown reason " << reason);
         }
         std::cout << "child_status_callback(" << reason_str << ")\n";
+|*==========================================================================*/
 
         if (reason == APR_OC_REASON_DEATH || reason == APR_OC_REASON_LOST)
         {
@@ -145,34 +147,33 @@ namespace tut
             apr_proc_other_child_unregister(data);
 
             WaitInfo* wi(static_cast<WaitInfo*>(data));
-            wi->rv = apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT);
-            if (wi->rv == ECHILD)
-            {
-                std::cout << "apr_proc_wait() got ECHILD during child_status_callback("
-                          << reason_str << ")\n";
-                // So -- is this why we have a 'status' param?
-                wi->rv = APR_CHILD_DONE; // pretend this call worked; fake results
+            // It's just wrong to call apr_proc_wait() here. The only way APR
+            // knows to call us with APR_OC_REASON_DEATH is that it's already
+            // reaped this child process, so calling wait() will only produce
+            // "huh?" from the OS. We must rely on the status param passed in,
+            // which unfortunately comes straight from the OS wait() call.
+//          wi->rv = apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT);
+            wi->rv = APR_CHILD_DONE; // fake apr_proc_wait() results
 #if defined(LL_WINDOWS)
-                wi->why = APR_PROC_EXIT;
-                wi->rc  = status;         // correct??
+            wi->why = APR_PROC_EXIT;
+            wi->rc  = status;         // no encoding on Windows (no signals)
 #else  // Posix
-                if (WIFEXITED(status))
-                {
-                    wi->why = APR_PROC_EXIT;
-                    wi->rc  = WEXITSTATUS(status);
-                }
-                else if (WIFSIGNALED(status))
-                {
-                    wi->why = APR_PROC_SIGNAL;
-                    wi->rc  = WTERMSIG(status);
-                }
-                else                // uh, shouldn't happen?
-                {
-                    wi->why = APR_PROC_EXIT;
-                    wi->rc  = status; // someone else will have to decode
-                }
-#endif // Posix
+            if (WIFEXITED(status))
+            {
+                wi->why = APR_PROC_EXIT;
+                wi->rc  = WEXITSTATUS(status);
             }
+            else if (WIFSIGNALED(status))
+            {
+                wi->why = APR_PROC_SIGNAL;
+                wi->rc  = WTERMSIG(status);
+            }
+            else                    // uh, shouldn't happen?
+            {
+                wi->why = APR_PROC_EXIT;
+                wi->rc  = status;   // someone else will have to decode
+            }
+#endif // Posix
         }
     }
 
@@ -316,7 +317,7 @@ namespace tut
             wi.rv = apr_proc_wait(wi.child, &wi.rc, &wi.why, APR_NOWAIT);
         }
 //      std::cout << "child done: rv = " << rv << " (" << apr.strerror(rv) << "), why = " << why << ", rc = " << rc << '\n';
-        ensure_equals_(wi.rv, APR_CHILD_DONE);
+        aprchk_("apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT)", wi.rv, APR_CHILD_DONE);
         ensure_equals_(wi.why, APR_PROC_EXIT);
         ensure_equals_(wi.rc, 0);
 
