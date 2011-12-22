@@ -91,6 +91,7 @@ namespace tut
         std::string what;
     };
 
+/*==========================================================================*|
 #define tabent(symbol) { symbol, #symbol }
     static struct ReasonCode
     {
@@ -106,6 +107,7 @@ namespace tut
         tabent(APR_OC_REASON_RUNNING)
     };
 #undef tabent
+|*==========================================================================*/
 
     struct WaitInfo
     {
