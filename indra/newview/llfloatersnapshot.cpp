@@ -2052,6 +2052,13 @@ BOOL LLFloaterSnapshot::postBuild()
 	gFloaterView->removeChild(this);
 	gSnapshotFloaterView->addChild(this);
 
+	// Pre-select "Current Window" resolution.
+	getChild<LLComboBox>("profile_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("postcard_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("texture_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("local_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("local_format_combo")->selectNthItem(0);
+
 	impl.mPreviewHandle = previewp->getHandle();
 	impl.updateControls(this);
 	impl.updateLayout(this);
