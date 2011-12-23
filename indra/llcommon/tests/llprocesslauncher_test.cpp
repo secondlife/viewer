@@ -246,6 +246,11 @@ namespace tut
         WaitInfo wi(&child);
         apr_proc_other_child_register(&child, child_status_callback, &wi, child.in, apr.pool);
 
+        // TODO:
+        // Stuff child.in until it (would) block to verify EWOULDBLOCK/EAGAIN.
+        // Have child script clear it later, then write one more line to prove
+        // that it gets through.
+
         // Monitor two different output pipes. Because one will be closed
         // before the other, keep them in a list so we can drop whichever of
         // them is closed first.
@@ -276,9 +281,9 @@ namespace tut
                 if (APR_STATUS_IS_EOF(rv))
                 {
 //                  std::cout << "(EOF on " << dfli->first << ")\n";
-                    history.back().which = dfli->first;
-                    history.back().what  = "*eof*";
-                    history.push_back(Item());
+//                  history.back().which = dfli->first;
+//                  history.back().what  = "*eof*";
+//                  history.push_back(Item());
                     outfiles.erase(dfli);
                     continue;
                 }
@@ -340,15 +345,45 @@ namespace tut
         // Beyond merely executing all the above successfully, verify that we
         // obtained expected output -- and that we duly got control while
         // waiting, proving the non-blocking nature of these pipes.
-        ensure("blocking I/O on child pipe (0)", history[0].tries);
-        ensure_equals_(history[0].which, "out");
-        ensure_equals_(history[0].what,  "stdout after wait" EOL);
-        ensure("blocking I/O on child pipe (1)", history[1].tries);
-        ensure_equals_(history[1].which, "out");
-        ensure_equals_(history[1].what,  "*eof*");
-        ensure_equals_(history[2].which, "err");
-        ensure_equals_(history[2].what,  "stderr after wait" EOL);
-        ensure_equals_(history[3].which, "err");
-        ensure_equals_(history[3].what,  "*eof*");
+        try
+        {
+            unsigned i = 0;
+            ensure("blocking I/O on child pipe (0)", history[i].tries);
+            ensure_equals_(history[i].which, "out");
+            ensure_equals_(history[i].what,  "stdout after wait" EOL);
+//          ++i;
+//          ensure_equals_(history[i].which, "out");
+//          ensure_equals_(history[i].what,  "*eof*");
+            ++i;
+            ensure("blocking I/O on child pipe (1)", history[i].tries);
+            ensure_equals_(history[i].which, "err");
+            ensure_equals_(history[i].what,  "stderr after wait" EOL);
+//          ++i;
+//          ensure_equals_(history[i].which, "err");
+//          ensure_equals_(history[i].what,  "*eof*");
+        }
+        catch (const failure&)
+        {
+            std::cout << "History:\n";
+            BOOST_FOREACH(const Item& item, history)
+            {
+                std::string what(item.what);
+                if ((! what.empty()) && what[what.length() - 1] == '\n')
+                {
+                    what.erase(what.length() - 1);
+                    if ((! what.empty()) && what[what.length() - 1] == '\r')
+                    {
+                        what.erase(what.length() - 1);
+                        what.append("\\r");
+                    }
+                    what.append("\\n");
+                }
+                std::cout << "  " << item.which << ": '" << what << "' ("
+                          << item.tries << " tries)\n";
+            }
+            std::cout << std::flush;
+            // re-raise same error; just want to enrich the output
+            throw;
+        }
     }
 } // namespace tut
