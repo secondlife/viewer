@@ -1428,7 +1428,7 @@ Version [VERSION]
 		<usetemplate ignoretext="Confirmer avant de rendre les objets à leurs propriétaires" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Vous êtes actuellement membre du groupe [GROUP].
+		Vous êtes actuellement membre du groupe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Quitter le groupe ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
