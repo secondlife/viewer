@@ -16,6 +16,7 @@
 #include "llprocesslauncher.h"
 // STL headers
 #include <vector>
+#include <list>
 // std headers
 #include <errno.h>
 // external library headers
@@ -28,7 +29,7 @@
 #include "stringize.h"
 
 #if defined(LL_WINDOWS)
-#define sleep _sleep
+#define sleep(secs) _sleep((secs) * 1000)
 #define EOL "\r\n"
 #else
 #define EOL "\n"
@@ -246,44 +247,54 @@ namespace tut
         apr_proc_other_child_register(&child, child_status_callback, &wi, child.in, apr.pool);
 
         // Monitor two different output pipes. Because one will be closed
-        // before the other, keep them in a vector so we can drop whichever of
+        // before the other, keep them in a list so we can drop whichever of
         // them is closed first.
         typedef std::pair<std::string, apr_file_t*> DescFile;
-        typedef std::vector<DescFile> DescFileVec;
-        DescFileVec outfiles;
+        typedef std::list<DescFile> DescFileList;
+        DescFileList outfiles;
         outfiles.push_back(DescFile("out", child.out));
         outfiles.push_back(DescFile("err", child.err));
 
         while (! outfiles.empty())
         {
-            DescFileVec iterfiles(outfiles);
-            for (size_t i = 0; i < iterfiles.size(); ++i)
+            // This peculiar for loop is designed to let us erase(dfli). With
+            // a list, that invalidates only dfli itself -- but even so, we
+            // lose the ability to increment it for the next item. So at the
+            // top of every loop, while dfli is still valid, increment
+            // dflnext. Then before the next iteration, set dfli to dflnext.
+            for (DescFileList::iterator
+                     dfli(outfiles.begin()), dflnext(outfiles.begin()), dflend(outfiles.end());
+                 dfli != dflend; dfli = dflnext)
             {
+                // Only valid to increment dflnext once we're sure it's not
+                // already at dflend.
+                ++dflnext;
+
                 char buf[4096];
 
-                apr_status_t rv = apr_file_gets(buf, sizeof(buf), iterfiles[i].second);
+                apr_status_t rv = apr_file_gets(buf, sizeof(buf), dfli->second);
                 if (APR_STATUS_IS_EOF(rv))
                 {
-//                  std::cout << "(EOF on " << iterfiles[i].first << ")\n";
-                    history.back().which = iterfiles[i].first;
+//                  std::cout << "(EOF on " << dfli->first << ")\n";
+                    history.back().which = dfli->first;
                     history.back().what  = "*eof*";
                     history.push_back(Item());
-                    outfiles.erase(outfiles.begin() + i);
+                    outfiles.erase(dfli);
                     continue;
                 }
                 if (rv == EWOULDBLOCK || rv == EAGAIN)
                 {
-//                  std::cout << "(waiting; apr_file_gets(" << iterfiles[i].first << ") => " << rv << ": " << apr.strerror(rv) << ")\n";
+//                  std::cout << "(waiting; apr_file_gets(" << dfli->first << ") => " << rv << ": " << apr.strerror(rv) << ")\n";
                     ++history.back().tries;
                     continue;
                 }
-                aprchk_("apr_file_gets(buf, sizeof(buf), iterfiles[i].second)", rv);
+                aprchk_("apr_file_gets(buf, sizeof(buf), dfli->second)", rv);
                 // Is it even possible to get APR_SUCCESS but read 0 bytes?
                 // Hope not, but defend against that anyway.
                 if (buf[0])
                 {
-//                  std::cout << iterfiles[i].first << ": " << buf;
-                    history.back().which = iterfiles[i].first;
+//                  std::cout << dfli->first << ": " << buf;
+                    history.back().which = dfli->first;
                     history.back().what.append(buf);
                     if (buf[strlen(buf) - 1] == '\n')
                         history.push_back(Item());
@@ -297,7 +308,7 @@ namespace tut
             }
             // Do this once per tick, as we expect the viewer will
             apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
-            sleep(1);
+            sleep(0.5);
         }
         apr_file_close(child.in);
         apr_file_close(child.out);
@@ -315,7 +326,7 @@ namespace tut
 
         if (wi.rv == -1)
         {
-            std::cout << "child_status_callback() wasn't called\n";
+            std::cout << "child_status_callback(APR_OC_REASON_DEATH) wasn't called" << std::endl;
             wi.rv = apr_proc_wait(wi.child, &wi.rc, &wi.why, APR_NOWAIT);
         }
 //      std::cout << "child done: rv = " << rv << " (" << apr.strerror(rv) << "), why = " << why << ", rc = " << rc << '\n';
