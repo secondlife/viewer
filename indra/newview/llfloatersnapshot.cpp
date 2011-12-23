@@ -1490,6 +1490,12 @@ void LLFloaterSnapshot::Impl::setNeedRefresh(LLFloaterSnapshot* floater, bool ne
 {
 	if (!floater) return;
 
+	// Don't display the "Refresh to save" message if we're in auto-refresh mode.
+	if (gSavedSettings.getBOOL("AutoSnapshot"))
+	{
+		need = false;
+	}
+
 	floater->mRefreshLabel->setVisible(need);
 	floater->impl.mNeedRefresh = need;
 }
