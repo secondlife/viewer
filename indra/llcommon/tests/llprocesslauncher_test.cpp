@@ -313,7 +313,7 @@ namespace tut
             }
             // Do this once per tick, as we expect the viewer will
             apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
-            sleep(0.5);
+            sleep(1);
         }
         apr_file_close(child.in);
         apr_file_close(child.out);
