@@ -502,6 +502,14 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"Compressed Images (*.j2c)\0*.j2c\0" \
 			L"\0";
 		break;
+	case FFSAVE_SCRIPT:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.lsl", FILENAME_BUFFER_SIZE);
+		}
+		mOFN.lpstrDefExt = L"txt";
+		mOFN.lpstrFilter = L"LSL Files (*.lsl)\0*.lsl\0" L"\0";
+		break;
 	default:
 		return FALSE;
 	}
