@@ -92,6 +92,11 @@ protected:
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
+private:
+
+	// Saves visibility of chat history panel
+	// if save_visibility="true"
+	void saveChatHistoryVisibility();
 };
 
 #endif
