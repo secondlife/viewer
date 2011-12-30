@@ -1058,7 +1058,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
 			item = *item_it;
-			if(item->isRemovable())
+			if (item && item->isRemovable())
 			{
 				items.push_back(item);
 			}
