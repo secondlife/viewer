@@ -219,11 +219,15 @@ namespace boost
 
 std::set<CURL*> LLCurl::Easy::sFreeHandles;
 std::set<CURL*> LLCurl::Easy::sActiveHandles;
+LLMutex* LLCurl::Easy::sHandleMutexp = NULL ;
 
 //static
 CURL* LLCurl::Easy::allocEasyHandle()
 {
 	CURL* ret = NULL;
+
+	LLMutexLock lock(sHandleMutexp) ;
+
 	if (sFreeHandles.empty())
 	{
 		ret = curl_easy_init();
@@ -251,6 +255,7 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 		llerrs << "handle cannot be NULL!" << llendl;
 	}
 
+	LLMutexLock lock(sHandleMutexp) ;
 	if (sActiveHandles.find(handle) != sActiveHandles.end())
 	{
 		sActiveHandles.erase(handle);
@@ -512,20 +517,21 @@ void LLCurl::Easy::prepRequest(const std::string& url,
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
+LLMutex* LLCurl::Multi::sMultiInitMutexp = NULL ;
 LLCurl::Multi::Multi()
 	: mQueued(0),
 	  mErrorCount(0),
 	  mState(STATE_READY),
 	  mDead(FALSE),
 	  mMutexp(NULL),
-	  mDeletionMutexp(NULL)
+	  mDeletionMutexp(NULL),
+	  mEasyMutexp(NULL)
 {
-	mCurlMultiHandle = curl_multi_init();
+	mCurlMultiHandle = initMulti();
 	if (!mCurlMultiHandle)
 	{
 		llwarns << "curl_multi_init() returned NULL! Easy handles: " << gCurlEasyCount << " Multi handles: " << gCurlMultiCount << llendl;
-		mCurlMultiHandle = curl_multi_init();
+		mCurlMultiHandle = initMulti();
 	}
 	
 	llassert_always(mCurlMultiHandle);	
@@ -534,6 +540,7 @@ LLCurl::Multi::Multi()
 	{
 		mMutexp = new LLMutex(NULL) ;
 		mDeletionMutexp = new LLMutex(NULL) ;
+		mEasyMutexp = new LLMutex(NULL) ;
 	}
 	LLCurl::getCurlThread()->addMulti(this) ;
 
@@ -563,8 +570,17 @@ LLCurl::Multi::~Multi()
 	mMutexp = NULL ;
 	delete mDeletionMutexp ;
 	mDeletionMutexp = NULL ;
+	delete mEasyMutexp ;
+	mEasyMutexp = NULL ;
 
 	--gCurlMultiCount;
+}
+
+CURLM* LLCurl::Multi::initMulti()
+{
+	LLMutexLock lock(sMultiInitMutexp) ;
+
+	return curl_multi_init() ;
 }
 
 void LLCurl::Multi::lock()
@@ -585,39 +601,26 @@ void LLCurl::Multi::unlock()
 
 void LLCurl::Multi::markDead()
 {
-	if(mDeletionMutexp)
-	{
-		mDeletionMutexp->lock() ;
-	}
-
+	LLMutexLock lock(mDeletionMutexp) ;
+	
 	mDead = TRUE ;
-
-	if(mDeletionMutexp)
-	{
-		mDeletionMutexp->unlock() ;
-	}
 }
 
 void LLCurl::Multi::setState(LLCurl::Multi::ePerformState state)
 {
 	lock() ;
 	mState = state ;
+	unlock() ;
+
 	if(mState == STATE_READY)
 	{
 		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_NORMAL) ;
-	}
-	unlock() ;
+	}	
 }
 
 LLCurl::Multi::ePerformState LLCurl::Multi::getState()
 {
-	ePerformState state ;
-
-	lock() ;
-	state = mState ;
-	unlock() ;
-
-	return state ;
+	return mState;
 }
 	
 bool LLCurl::Multi::isCompleted() 
@@ -633,21 +636,19 @@ bool LLCurl::Multi::waitToComplete()
 		return true ;
 	}
 
-	bool completed ;
-
-	lock() ;
-	completed = (STATE_COMPLETED == mState) ;
+	bool completed = (STATE_COMPLETED == mState) ;
 	if(!completed)
 	{
 		LLCurl::getCurlThread()->setPriority(mHandle, LLQueuedThread::PRIORITY_URGENT) ;
 	}
-	unlock() ;
-
+	
 	return completed;
 }
 
 CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 {
+	LLMutexLock lock(mMutexp) ;
+
 	CURLMsg* curlmsg = curl_multi_info_read(mCurlMultiHandle, msgs_in_queue);
 	return curlmsg;
 }
@@ -655,10 +656,8 @@ CURLMsg* LLCurl::Multi::info_read(S32* msgs_in_queue)
 //return true if dead
 bool LLCurl::Multi::doPerform()
 {
-	if(mDeletionMutexp)
-	{
-		mDeletionMutexp->lock() ;
-	}
+	LLMutexLock lock(mDeletionMutexp) ;
+	
 	bool dead = mDead ;
 
 	if(mDead)
@@ -675,6 +674,7 @@ bool LLCurl::Multi::doPerform()
 				call_count < MULTI_PERFORM_CALL_REPEAT;
 				call_count++)
 		{
+			LLMutexLock lock(mMutexp) ;
 			CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
 			if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
 			{
@@ -686,11 +686,6 @@ bool LLCurl::Multi::doPerform()
 
 		mQueued = q;	
 		setState(STATE_COMPLETED) ;
-	}
-
-	if(mDeletionMutexp)
-	{
-		mDeletionMutexp->unlock() ;
 	}
 
 	return dead ;
@@ -715,10 +710,19 @@ S32 LLCurl::Multi::process()
 		if (msg->msg == CURLMSG_DONE)
 		{
 			U32 response = 0;
-			easy_active_map_t::iterator iter = mEasyActiveMap.find(msg->easy_handle);
-			if (iter != mEasyActiveMap.end())
+			Easy* easy = NULL ;
+
 			{
-				Easy* easy = iter->second;
+				LLMutexLock lock(mEasyMutexp) ;
+				easy_active_map_t::iterator iter = mEasyActiveMap.find(msg->easy_handle);
+				if (iter != mEasyActiveMap.end())
+				{
+					easy = iter->second;
+				}
+			}
+
+			if(easy)
+			{
 				response = easy->report(msg->data.result);
 				removeEasy(easy);
 			}
@@ -743,19 +747,21 @@ S32 LLCurl::Multi::process()
 
 LLCurl::Easy* LLCurl::Multi::allocEasy()
 {
-	Easy* easy = 0;
+	Easy* easy = 0;	
 
 	if (mEasyFreeList.empty())
-	{
+	{		
 		easy = Easy::getEasy();
 	}
 	else
 	{
+		LLMutexLock lock(mEasyMutexp) ;
 		easy = *(mEasyFreeList.begin());
 		mEasyFreeList.erase(easy);
 	}
 	if (easy)
 	{
+		LLMutexLock lock(mEasyMutexp) ;
 		mEasyActiveList.insert(easy);
 		mEasyActiveMap[easy->getCurlHandle()] = easy;
 	}
@@ -764,6 +770,7 @@ LLCurl::Easy* LLCurl::Multi::allocEasy()
 
 bool LLCurl::Multi::addEasy(Easy* easy)
 {
+	LLMutexLock lock(mMutexp) ;
 	CURLMcode mcode = curl_multi_add_handle(mCurlMultiHandle, easy->getCurlHandle());
 	check_curl_multi_code(mcode);
 	//if (mcode != CURLM_OK)
@@ -776,22 +783,41 @@ bool LLCurl::Multi::addEasy(Easy* easy)
 
 void LLCurl::Multi::easyFree(Easy* easy)
 {
+	if(mEasyMutexp)
+	{
+		mEasyMutexp->lock() ;
+	}
+
 	mEasyActiveList.erase(easy);
 	mEasyActiveMap.erase(easy->getCurlHandle());
+
 	if (mEasyFreeList.size() < EASY_HANDLE_POOL_SIZE)
-	{
-		easy->resetState();
+	{		
 		mEasyFreeList.insert(easy);
+		
+		if(mEasyMutexp)
+		{
+			mEasyMutexp->unlock() ;
+		}
+
+		easy->resetState();
 	}
 	else
 	{
+		if(mEasyMutexp)
+		{
+			mEasyMutexp->unlock() ;
+		}
 		delete easy;
 	}
 }
 
 void LLCurl::Multi::removeEasy(Easy* easy)
 {
-	check_curl_multi_code(curl_multi_remove_handle(mCurlMultiHandle, easy->getCurlHandle()));
+	{
+		LLMutexLock lock(mMutexp) ;
+		check_curl_multi_code(curl_multi_remove_handle(mCurlMultiHandle, easy->getCurlHandle()));
+	}
 	easyFree(easy);
 }
 
@@ -834,11 +860,17 @@ void LLCurlThread::CurlRequest::finishRequest(bool completed)
 LLCurlThread::LLCurlThread(bool threaded) :
 	LLQueuedThread("curlthread", threaded)
 {
+	if(!LLCurl::Multi::sMultiInitMutexp)
+	{
+		LLCurl::Multi::sMultiInitMutexp = new LLMutex(NULL) ;
+	}
 }
 	
 //virtual 
 LLCurlThread::~LLCurlThread() 
 {
+	delete LLCurl::Multi::sMultiInitMutexp ;
+	LLCurl::Multi::sMultiInitMutexp = NULL ;
 }
 
 S32 LLCurlThread::update(U32 max_time_ms)
@@ -1290,6 +1322,10 @@ void LLCurl::initClass(bool multi_threaded)
 #endif
 
 	sCurlThread = new LLCurlThread(multi_threaded) ;
+	if(multi_threaded)
+	{
+		Easy::sHandleMutexp = new LLMutex(NULL) ;
+	}
 }
 
 void LLCurl::cleanupClass()
@@ -1318,6 +1354,9 @@ void LLCurl::cleanupClass()
 	}
 
 	Easy::sFreeHandles.clear();
+
+	delete Easy::sHandleMutexp ;
+	Easy::sHandleMutexp = NULL ;
 
 	llassert(Easy::sActiveHandles.empty());
 }

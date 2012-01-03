@@ -27,7 +27,7 @@
 #ifndef LL_LLTOAST_H
 #define LL_LLTOAST_H
 
-
+#include "llinstancetracker.h"
 #include "llpanel.h"
 #include "llmodaldialog.h"
 #include "lleventtimer.h"
@@ -69,7 +69,7 @@ private :
  * Represents toast pop-up.
  * This is a parent view for all toast panels.
  */
-class LLToast : public LLModalDialog
+class LLToast : public LLModalDialog, public LLInstanceTracker<LLToast>
 {
 	friend class LLToastLifeTimer;
 public:
@@ -102,6 +102,8 @@ public:
 
 		Params();
 	};
+	
+	static void updateClass();
 
 	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();
@@ -221,7 +223,7 @@ private:
 
 	F32			mToastLifetime; // in seconds
 	F32			mToastFadingTime; // in seconds
-
+	
 	LLPanel*		mPanel;
 	LLButton*		mHideBtn;
 

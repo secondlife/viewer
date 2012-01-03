@@ -140,7 +140,9 @@ LLToast::LLToast(const LLToast::Params& p)
 
 	// init callbacks if present
 	if(!p.on_delete_toast().empty())
+	{
 		mOnDeleteToastSignal.connect(p.on_delete_toast());
+	}
 }
 
 void LLToast::reshape(S32 width, S32 height, BOOL called_from_parent)
@@ -236,7 +238,9 @@ void LLToast::setCanFade(bool can_fade)
 { 
 	mCanFade = can_fade; 
 	if(!mCanFade)
+	{
 		mTimer->stop();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -328,55 +332,6 @@ void LLToast::draw()
 			drawChild(mHideBtn);
 		}
 	}
-
-	updateHoveredState();
-
-	LLToastLifeTimer* timer = getTimer();
-	if (!timer)
-	{
-		return;
-	}
-
-	// Started timer means the mouse had left the toast previously.
-	// If toast is hovered in the current frame we should handle
-	// a mouse enter event.
-	if(timer->getStarted() && mIsHovered)
-	{
-		mOnToastHoverSignal(this, MOUSE_ENTER);
-
-		updateTransparency();
-
-		//toasts fading is management by Screen Channel
-
-		sendChildToFront(mHideBtn);
-		if(mHideBtn && mHideBtn->getEnabled())
-		{
-			mHideBtn->setVisible(TRUE);
-		}
-		mToastMouseEnterSignal(this, getValue());
-	}
-	// Stopped timer means the mouse had entered the toast previously.
-	// If the toast is not hovered in the current frame we should handle
-	// a mouse leave event.
-	else if(!timer->getStarted() && !mIsHovered)
-	{
-		mOnToastHoverSignal(this, MOUSE_LEAVE);
-
-		updateTransparency();
-
-		//toasts fading is management by Screen Channel
-
-		if(mHideBtn && mHideBtn->getEnabled())
-		{
-			if( mHideBtnPressed )
-			{
-				mHideBtnPressed = false;
-				return;
-			}
-			mHideBtn->setVisible(FALSE);
-		}
-		mToastMouseLeaveSignal(this, getValue());
-	}
 }
 
 //--------------------------------------------------------------------------
@@ -440,28 +395,80 @@ void LLToast::updateHoveredState()
 	{
 		// mouse is not over this toast
 		mIsHovered = false;
-		return;
+	}
+	else
+	{
+		bool is_overlapped_by_other_floater = false;
+
+		const child_list_t* child_list = gFloaterView->getChildList();
+
+		// find this toast in gFloaterView child list to check whether any floater
+		// with higher Z-order is visible under the mouse pointer overlapping this toast
+		child_list_const_reverse_iter_t r_iter = std::find(child_list->rbegin(), child_list->rend(), this);
+		if (r_iter != child_list->rend())
+		{
+			// skip this toast and proceed to views above in Z-order
+			for (++r_iter; r_iter != child_list->rend(); ++r_iter)
+			{
+				LLView* view = *r_iter;
+				is_overlapped_by_other_floater = view->isInVisibleChain() && view->calcScreenRect().pointInRect(x, y);
+				if (is_overlapped_by_other_floater)
+				{
+					break;
+				}
+			}
+		}
+
+		mIsHovered = !is_overlapped_by_other_floater;
 	}
 
-	bool is_overlapped_by_other_floater = false;
-
-	const child_list_t* child_list = gFloaterView->getChildList();
-
-	// find this toast in gFloaterView child list to check whether any floater
-	// with higher Z-order is visible under the mouse pointer overlapping this toast
-	child_list_const_reverse_iter_t r_iter = std::find(child_list->rbegin(), child_list->rend(), this);
-	if (r_iter != child_list->rend())
-	{
-		// skip this toast and proceed to views above in Z-order
-		for (++r_iter; r_iter != child_list->rend(); ++r_iter)
+	LLToastLifeTimer* timer = getTimer();
+	
+	if (timer)
+	{	
+		// Started timer means the mouse had left the toast previously.
+		// If toast is hovered in the current frame we should handle
+		// a mouse enter event.
+		if(timer->getStarted() && mIsHovered)
 		{
-			LLView* view = *r_iter;
-			is_overlapped_by_other_floater = view->isInVisibleChain() && view->calcScreenRect().pointInRect(x, y);
-			if (is_overlapped_by_other_floater) break;
+			mOnToastHoverSignal(this, MOUSE_ENTER);
+			
+			updateTransparency();
+			
+			//toasts fading is management by Screen Channel
+			
+			sendChildToFront(mHideBtn);
+			if(mHideBtn && mHideBtn->getEnabled())
+			{
+				mHideBtn->setVisible(TRUE);
+			}
+			
+			mToastMouseEnterSignal(this, getValue());
+		}
+		// Stopped timer means the mouse had entered the toast previously.
+		// If the toast is not hovered in the current frame we should handle
+		// a mouse leave event.
+		else if(!timer->getStarted() && !mIsHovered)
+		{
+			mOnToastHoverSignal(this, MOUSE_LEAVE);
+			
+			updateTransparency();
+			
+			//toasts fading is management by Screen Channel
+			
+			if(mHideBtn && mHideBtn->getEnabled())
+			{
+				if( mHideBtnPressed )
+				{
+					mHideBtnPressed = false;
+					return;
+				}
+				mHideBtn->setVisible(FALSE);
+			}
+			
+			mToastMouseLeaveSignal(this, getValue());
 		}
 	}
-
-	mIsHovered = !is_overlapped_by_other_floater;
 }
 
 void LLToast::setBackgroundOpaque(BOOL b)
@@ -552,4 +559,15 @@ S32	LLToast::notifyParent(const LLSD& info)
 	}
 
 	return LLModalDialog::notifyParent(info);
+}
+
+//static
+void LLToast::updateClass()
+{
+	for (LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(); iter != LLInstanceTracker<LLToast>::endInstances(); ) 
+	{
+		LLToast& toast = *iter++;
+		
+		toast.updateHoveredState();
+	}
 }
