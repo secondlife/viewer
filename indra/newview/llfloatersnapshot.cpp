@@ -1977,7 +1977,7 @@ LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
 // Destroys the object
 LLFloaterSnapshot::~LLFloaterSnapshot()
 {
-	delete impl.mPreviewHandle.get();
+	if (impl.mPreviewHandle.get()) impl.mPreviewHandle.get()->die();
 
 	//unfreeze everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
