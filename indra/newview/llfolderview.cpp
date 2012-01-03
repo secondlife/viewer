@@ -299,7 +299,7 @@ LLFolderView::~LLFolderView( void )
 	mAutoOpenItems.removeAllNodes();
 	gIdleCallbacks.deleteFunction(idle, this);
 
-	delete mPopupMenuHandle.get();
+	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 
 	mAutoOpenItems.removeAllNodes();
 	clearSelection();
@@ -1969,7 +1969,7 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 void LLFolderView::deleteAllChildren()
 {
 	closeRenamer();
-	delete mPopupMenuHandle.get();
+	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 	mPopupMenuHandle = LLHandle<LLView>();
 	mScrollContainer = NULL;
 	mRenameItem = NULL;
