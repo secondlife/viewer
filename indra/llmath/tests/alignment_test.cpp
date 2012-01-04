@@ -73,7 +73,7 @@ void alignment_test_object_t::test<1>()
 		align_ptr = ll_aligned_malloc_16(sizeof(MyVector4a));
 		ensure("ll_aligned_malloc_16 failed", is_aligned(align_ptr,16));
 
-		align_ptr = ll_aligned_realloc_16(2*sizeof(MyVector4a));
+		align_ptr = ll_aligned_realloc_16(align_ptr,2*sizeof(MyVector4a));
 		ensure("ll_aligned_realloc_16 failed", is_aligned(align_ptr,16));
 
 		ll_aligned_free_16(align_ptr);
