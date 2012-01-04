@@ -84,6 +84,7 @@ public:
 	}
 
 	// Copy words 16-byte blocks from src to dst. Source and destination must not overlap. 
+	// Source and dest must be 16-byte aligned and size must be multiple of 16.
 	static void memcpyNonAliased16(F32* __restrict dst, const F32* __restrict src, size_t bytes);
 
 	////////////////////////////////////

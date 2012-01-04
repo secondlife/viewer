@@ -83,7 +83,7 @@ inline void ll_aligned_free_16(void *p)
 inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
 {
 #if defined(LL_WINDOWS)
-	return _mm_malloc(size, 32);
+	return _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
 	return ll_aligned_malloc( size, 32 );
 #else
@@ -98,7 +98,7 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 inline void ll_aligned_free_32(void *p)
 {
 #if defined(LL_WINDOWS)
-	_mm_free(p);
+	_aligned_free(p);
 #elif defined(LL_DARWIN)
 	ll_aligned_free( p );
 #else
@@ -107,10 +107,12 @@ inline void ll_aligned_free_32(void *p)
 }
 
 #else // USE_TCMALLOC
-// ll_aligned_foo are noops now that we use tcmalloc everywhere (tcmalloc aligns automatically at appropriate intervals)
+// ll_aligned_foo are noops now that we use tcmalloc everywhere
+// (tcmalloc aligns automatically at appropriate intervals)
 #define ll_aligned_malloc( size, align ) malloc(size)
 #define ll_aligned_free( ptr ) free(ptr)
 #define ll_aligned_malloc_16 malloc
+#define ll_aligned_realloc_16 realloc
 #define ll_aligned_free_16 free
 #define ll_aligned_malloc_32 malloc
 #define ll_aligned_free_32 free
@@ -524,11 +526,9 @@ void  LLPrivateMemoryPoolTester::operator delete[](void* addr)
 
 // LLSingleton moved to llsingleton.h
 
-#define CHECK_ALIGNMENT
-
 LL_COMMON_API void ll_assert_aligned_func(uintptr_t ptr,U32 alignment);
 
-#ifdef CHECK_ALIGNMENT
+#ifdef SHOW_ASSERT
 #define ll_assert_aligned(ptr,alignment) ll_assert_aligned_func(reinterpret_cast<uintptr_t>(ptr),((U32)alignment))
 #else
 #define ll_assert_aligned(ptr,alignment)

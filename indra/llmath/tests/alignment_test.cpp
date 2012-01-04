@@ -72,6 +72,10 @@ void alignment_test_object_t::test<1>()
 	{
 		align_ptr = ll_aligned_malloc_16(sizeof(MyVector4a));
 		ensure("ll_aligned_malloc_16 failed", is_aligned(align_ptr,16));
+
+		align_ptr = ll_aligned_realloc_16(2*sizeof(MyVector4a));
+		ensure("ll_aligned_realloc_16 failed", is_aligned(align_ptr,16));
+
 		ll_aligned_free_16(align_ptr);
 
 		align_ptr = ll_aligned_malloc_32(sizeof(MyVector4a));
@@ -84,8 +88,6 @@ void alignment_test_object_t::test<1>()
 template<> template<>
 void alignment_test_object_t::test<2>()
 {
-	ensure("LLAlignment reality is broken: ", (1==1));
-
 	MyVector4a vec1;
 	ensure("LLAlignment vec1 unaligned", is_aligned(&vec1,16));
 	
