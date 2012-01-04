@@ -1154,18 +1154,15 @@ void LLScriptEdCore::onBtnSaveToFile( void* userdata )
 	if( self->mSaveCallback )
 	{
 		LLFilePicker& file_picker = LLFilePicker::instance();
-		if( !file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT ) )
+		if( file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT ) )
 		{
-			//File picking cancelled by user, so nothing to do.
-			return;
+			std::string filename = file_picker.getFirstFile();
+			std::string scriptText=self->mEditor->getText();
+			std::ofstream fout(filename.c_str());
+			fout<<(scriptText);
+			fout.close();
+			self->mSaveCallback( self->mUserdata, FALSE );
 		}
-
-		std::string filename = file_picker.getFirstFile();
-		std::string scriptText=self->mEditor->getText();
-		std::ofstream fout(filename.c_str());
-		fout<<(scriptText);
-		fout.close();
-		self->mSaveCallback( self->mUserdata, FALSE );
 	}
 }
 
@@ -1187,8 +1184,7 @@ bool LLScriptEdCore::enableSaveToFileMenu(void* userdata)
 bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
 {
 	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
-	if (!self || !self->mEditor) return FALSE;
-	return self->mEditor->canLoadOrSaveToFile();
+	return (self && self->mEditor) ? self->mEditor->canLoadOrSaveToFile() : FALSE;
 }
 
 /// ---------------------------------------------------------------------------
