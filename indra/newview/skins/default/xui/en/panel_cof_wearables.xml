@@ -37,6 +37,7 @@
              top="0"
              width="311" />
         </accordion_tab>
+         <!-- The Attachments title is overwritten by the definition of "Attachments remain" in strings.xml -->
         <accordion_tab
          layout="topleft"
          name="tab_attachments"

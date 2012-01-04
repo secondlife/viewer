@@ -253,6 +253,7 @@ private:
 
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
+	static LLMutex*        sHandleMutexp ;
 };
 
 class LLCurl::Multi
@@ -298,6 +299,7 @@ public:
 	S32 mQueued;
 	S32 mErrorCount;
 	
+	static CURLM* initMulti() ;
 private:
 	void easyFree(LLCurl::Easy*);
 	
@@ -316,6 +318,9 @@ private:
 	BOOL mDead ;
 	LLMutex* mMutexp ;
 	LLMutex* mDeletionMutexp ;
+	LLMutex* mEasyMutexp ;
+
+	static LLMutex* sMultiInitMutexp ;
 };
 
 class LLCurlThread : public LLQueuedThread

@@ -159,6 +159,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	LLTransientDockableFloater::setVisible(visible);
 
 	// update notification channel state	
+	initChannel(); // make sure the channel still exists
 	if(mChannel)
 	{
 		mChannel->updateShowToastsState();
@@ -598,6 +599,13 @@ LLIMWellWindow* LLIMWellWindow::getInstance(const LLSD& key /*= LLSD()*/)
 	return LLFloaterReg::getTypedInstance<LLIMWellWindow>("im_well_window", key);
 }
 
+
+// static
+LLIMWellWindow* LLIMWellWindow::findInstance(const LLSD& key /*= LLSD()*/)
+{
+	return LLFloaterReg::findTypedInstance<LLIMWellWindow>("im_well_window", key);
+}
+
 BOOL LLIMWellWindow::postBuild()
 {
 	BOOL rv = LLSysWellWindow::postBuild();
@@ -751,7 +759,10 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& notification_id)
 {
 	if (mMessageList->removeItemByValue(notification_id))
 	{
-		mSysWellChiclet->updateWidget(isWindowEmpty());
+		if (mSysWellChiclet)
+		{
+			mSysWellChiclet->updateWidget(isWindowEmpty());
+		}
 	}
 	else
 	{
