@@ -186,6 +186,12 @@
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
+// Uncomment the following define to enable hijaking of the LandStatReply message to test the pathfinding linkset floater.
+// For development purposes only until the pathfinding linksets service is built on the server-side.
+//#define XXX_STINSON_PATHFINDING_HIJAK_XXX
+#ifdef XXX_STINSON_PATHFINDING_HIJAK_XXX
+#include "llfloaterpathfindinglinksets.h"
+#endif // XXX_STINSON_PATHFINDING_HIJAK_XXX
 
 #include "lllogin.h"
 #include "llevents.h"
@@ -2480,7 +2486,11 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("ParcelObjectOwnersReply", LLPanelLandObjects::processParcelObjectOwnersReply);
 
 	msg->setHandlerFunc("InitiateDownload", process_initiate_download);
+#ifdef XXX_STINSON_PATHFINDING_HIJAK_XXX
+	msg->setHandlerFunc("LandStatReply", LLFloaterPathfindingLinksets::handleLandStatReply); // XXX stinson
+#else // XXX_STINSON_PATHFINDING_HIJAK_XXX
 	msg->setHandlerFunc("LandStatReply", LLFloaterTopObjects::handle_land_reply);
+#endif // XXX_STINSON_PATHFINDING_HIJAK_XXX
 	msg->setHandlerFunc("GenericMessage", process_generic_message);
 
 	msg->setHandlerFuncFast(_PREHASH_FeatureDisabled, process_feature_disabled_message);

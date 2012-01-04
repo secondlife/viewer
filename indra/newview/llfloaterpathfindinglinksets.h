@@ -31,6 +31,9 @@
 #include "llfloater.h"
 
 class LLSD;
+class LLUICtrl;
+class LLMessageSystem;
+class LLScrollListCtrl;
 
 class LLFloaterPathfindingLinksets
 :	public LLFloater
@@ -39,23 +42,36 @@ class LLFloaterPathfindingLinksets
 
 public:
 	virtual BOOL postBuild();
+	virtual void onOpen(const LLSD& pKey);
 
 	static void openLinksetsEditor();
-
-	struct Params : public LLInitParam::Block<Params, LLFloater::Params>
-	{
-		Params();
-	};
+	static void handleLandStatReply(LLMessageSystem *pMsg, void **pData);
 
 protected:
 
 private:
+	LLScrollListCtrl *mLinksetsScrollList;
+	LLUICtrl         *mLinksetsStatus;
+
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
-	LLFloaterPathfindingLinksets(const LLSD& seed);
+	LLFloaterPathfindingLinksets(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingLinksets();
-		
-	void onVisibilityChange(const LLSD& visible);
+
+	void sendLandStatRequest();
+	void handleLandStatReply(LLMessageSystem *pMsg);
+
+	void onLinksetsSelectionChange();
+	void onRefreshLinksetsClicked();
+	void onSelectAllLinksetsClicked();
+	void onSelectNoneLinksetsClicked();
+
+	void clearLinksetsList();
+	void selectAllLinksets();
+	void selectNoneLinksets();
+
+	void updateLinksetsStatus();
+	void updateLinksetsStatusForFetch();
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H
