@@ -557,8 +557,9 @@ void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, c
 		break;
 
 	case kPathSelectEndPoint :
-		mPathData.mStartPointB	= point1;
-		mPathData.mEndPointB	= point2;		
+		mPathData.mStartPointB		= point1;
+		mPathData.mEndPointB		= point2;		
+		mPathData.mCharacterWidth	= getCharacterWidth();
 		//prep#TODO# possibly consider an alternate behavior - perhaps add a "path" button to submit the data.
 		LLPathingLib::getInstance()->generatePath( mPathData );
 		break;
