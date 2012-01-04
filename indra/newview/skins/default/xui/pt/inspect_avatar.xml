@@ -5,10 +5,10 @@
 -->
 <floater name="inspect_avatar">
 	<string name="Subtitle">
-		[IDADE]
+		[AGE]
 	</string>
 	<string name="Details">
-		[PERFIL_SL]
+		[SL_PROFILE]
 	</string>
 	<text name="user_details">
 		This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot

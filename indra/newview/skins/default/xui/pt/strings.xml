@@ -3886,16 +3886,16 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
-		You pagou L$[AMOUNT] por [REASON] a [NAME].
+		Você pagou L$[AMOUNT] por [REASON] a [NAME].
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Você acaba de pagar L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		You pagou L$[AMOUNT] a [NAME].
+		Você pagou L$[AMOUNT] a [NAME].
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		You pagou L$[AMOUNT] por [REASON].
+		Você pagou L$[AMOUNT] por [REASON].
 	</string>
 	<string name="for item">
 		por [ITEM]
