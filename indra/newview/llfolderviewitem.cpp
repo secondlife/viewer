@@ -2285,7 +2285,7 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 
 	if (!handled)
 	{
-		handleDragAndDropToRoot(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 
 		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderViewFolder" << llendl;
 	}
@@ -2293,12 +2293,12 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 	return TRUE;
 }
 
-BOOL LLFolderViewFolder::handleDragAndDropToRoot(MASK mask,
-												 BOOL drop,
-												 EDragAndDropType cargo_type,
-												 void* cargo_data,
-												 EAcceptance* accept,
-												 std::string& tooltip_msg)
+BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
+													   BOOL drop,
+													   EDragAndDropType cargo_type,
+													   void* cargo_data,
+													   EAcceptance* accept,
+													   std::string& tooltip_msg)
 {
 	BOOL accepted = mListener && mListener->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
 	

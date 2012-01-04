@@ -387,7 +387,7 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 		{
 			LLFolderView * root_folder = mOutboxInventoryPanel->getRootFolder();
 			
-			handled = root_folder->handleDragAndDropToRoot(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
 	}
 	

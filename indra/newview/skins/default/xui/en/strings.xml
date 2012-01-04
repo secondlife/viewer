@@ -172,6 +172,9 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds 20</string>
 	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds 200</string>
 	
+	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
+	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
+	
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>

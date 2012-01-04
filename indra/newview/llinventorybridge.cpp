@@ -1926,23 +1926,47 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		//
 
 		BOOL is_movable = TRUE;
-		if (LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
+
+		if (is_movable && (mUUID == cat_id))
+		{
 			is_movable = FALSE;
-		else if (move_is_into_outfit)
+			tooltip_msg = LLTrans::getString("TooltipDragOntoSelf");
+		}
+		if (is_movable && (model->isObjectDescendentOf(mUUID, cat_id)))
+		{
 			is_movable = FALSE;
-		else if (mUUID == gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE))
+			tooltip_msg = LLTrans::getString("TooltipDragOntoOwnChild");
+		}
+		if (is_movable && LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
+		{
 			is_movable = FALSE;
+			// tooltip?
+		}
+		if (is_movable && move_is_into_outfit)
+		{
+			is_movable = FALSE;
+			// tooltip?
+		}
+		if (is_movable && (mUUID == model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE)))
+		{
+			is_movable = FALSE;
+			// tooltip?
+		}
+		
 		LLInventoryModel::cat_array_t descendent_categories;
 		LLInventoryModel::item_array_t descendent_items;
-		gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
-		for (S32 i=0; i < descendent_categories.count(); ++i)
+		if (is_movable)
 		{
-			LLInventoryCategory* category = descendent_categories[i];
-			if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+			model->collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
+			for (S32 i=0; i < descendent_categories.count(); ++i)
 			{
-				// Can't move "special folders" (e.g. Textures Folder).
-				is_movable = FALSE;
-				break;
+				LLInventoryCategory* category = descendent_categories[i];
+				if(LLFolderType::lookupIsProtectedType(category->getPreferredType()))
+				{
+					// Can't move "special folders" (e.g. Textures Folder).
+					is_movable = FALSE;
+					break;
+				}
 			}
 		}
 		if (is_movable && move_is_into_trash)
@@ -1974,7 +1998,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		}
 		if (is_movable && move_is_into_outbox)
 		{
-			int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
+			const int nested_folder_levels = get_folder_path_length(outbox_id, mUUID) + get_folder_levels(inv_cat);
 			
 			if (nested_folder_levels > gSavedSettings.getU32("InventoryOutboxMaxFolderDepth"))
 			{
@@ -1983,23 +2007,56 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else
 			{
-				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
-				
+				int dragged_folder_count = descendent_categories.count();
 				int existing_item_count = 0;
-				int existing_folder_count = 1 + LLToolDragAndDrop::instance().getCargoIDsCount();  // +1 for master folder
+				int existing_folder_count = 0;
+				
+				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
 				if (master_folder != NULL)
 				{
+					if (model->isObjectDescendentOf(cat_id, master_folder->getUUID()))
+					{
+						// Don't use count because we're already inside the same category anyway
+						dragged_folder_count = 0;
+					}
+					else
+					{
+						existing_folder_count = 1; // Include the master folder in the count!
+
+						// If we're in the drop operation as opposed to the drag without drop, we are doing a
+						// single category at a time so don't block based on the total amount of cargo data items
+						if (drop)
+						{
+							dragged_folder_count += 1;
+						}
+						else
+						{
+							// NOTE: The cargo id's count is a total of categories AND items but we err on the side of
+							//       prevention rather than letting too many folders into the hierarchy of the outbox,
+							//       when we're dragging the item to a new parent
+							dragged_folder_count += LLToolDragAndDrop::instance().getCargoIDsCount();
+						}
+					}
+					
+					// Tally the total number of categories and items inside the master folder
+
 					LLInventoryModel::cat_array_t existing_categories;
 					LLInventoryModel::item_array_t existing_items;
 
-					gInventory.collectDescendents(master_folder->getUUID(), existing_categories, existing_items, FALSE);
+					model->collectDescendents(master_folder->getUUID(), existing_categories, existing_items, FALSE);
 					
-					existing_item_count += existing_items.count();
 					existing_folder_count += existing_categories.count();
+					existing_item_count += existing_items.count();
+				}
+				else
+				{
+					// Assume a single category is being dragged to the outbox since we evaluate one at a time
+					// when not putting them under a parent item.
+					dragged_folder_count += 1;
 				}
 
-				const int nested_folder_count = existing_folder_count + descendent_categories.count();
+				const int nested_folder_count = existing_folder_count + dragged_folder_count;
 				const int nested_item_count = existing_item_count + descendent_items.count();
 				
 				if (nested_folder_count > gSavedSettings.getU32("InventoryOutboxMaxFolderCount"))
@@ -2031,10 +2088,8 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		// 
 		//--------------------------------------------------------------------------------
 
-		accept = is_movable
-			&& (mUUID != cat_id)								// Can't move a folder into itself
-			&& (mUUID != inv_cat->getParentUUID())				// Avoid moves that would change nothing
-			&& !(model->isObjectDescendentOf(mUUID, cat_id));	// Avoid circularity
+		accept = is_movable;
+
 		if (accept && drop)
 		{
 			// Look for any gestures and deactivate them
@@ -2066,7 +2121,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 						// Recursively create links in target outfit.
 						LLInventoryModel::cat_array_t cats;
 						LLInventoryModel::item_array_t items;
-						gInventory.collectDescendents(cat_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
+						model->collectDescendents(cat_id, cats, items, LLInventoryModel::EXCLUDE_TRASH);
 						LLAppearanceMgr::instance().linkAll(mUUID,items,NULL);
 					}
 				}
@@ -2100,7 +2155,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else
 			{
-				if (gInventory.isObjectDescendentOf(cat_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false)))
+				if (model->isObjectDescendentOf(cat_id, model->findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false)))
 				{
 					set_dad_inbox_object(cat_id);
 				}

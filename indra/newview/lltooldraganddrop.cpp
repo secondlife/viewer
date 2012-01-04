@@ -626,6 +626,8 @@ BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 void LLToolDragAndDrop::handleDeselect()
 {
 	mToolTipMsg.clear();
+
+	LLToolTipMgr::instance().blockToolTips();
 }
 
 // protected
