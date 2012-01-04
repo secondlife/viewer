@@ -153,6 +153,7 @@ public:
 	~LLIMWellWindow();
 
 	static LLIMWellWindow* getInstance(const LLSD& key = LLSD());
+	static LLIMWellWindow* findInstance(const LLSD& key = LLSD());
 	static void initClass() { getInstance(); }
 
 	/*virtual*/ BOOL postBuild();

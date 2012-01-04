@@ -304,6 +304,18 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		S32 next_bitmap_num = fgi->mBitmapNum;
 		if (next_bitmap_num != bitmap_num)
 		{
+			// Actually draw the queued glyphs before switching their texture;
+			// otherwise the queued glyphs will be taken from wrong textures.
+			if (glyph_count > 0)
+			{
+				gGL.begin(LLRender::QUADS);
+				{
+					gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+				}
+				gGL.end();
+				glyph_count = 0;
+			}
+
 			bitmap_num = next_bitmap_num;
 			LLImageGL *font_image = font_bitmap_cache->getImageGL(bitmap_num);
 			gGL.getTexUnit(0)->bind(font_image);

@@ -91,6 +91,8 @@ public:
 	 */
 	void selectClothing(LLWearableType::EType clothing_type);
 
+	void setAttachmentsTitle();
+
 protected:
 
 	void populateAttachmentsAndBodypartsLists(const LLInventoryModel::item_array_t& cof_items);
