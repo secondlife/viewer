@@ -250,6 +250,12 @@ LLIMWellChiclet::LLIMWellChiclet(const Params& p)
 
 LLIMWellChiclet::~LLIMWellChiclet()
 {
+	LLIMWellWindow* im_well_window = LLIMWellWindow::findInstance();
+	if (im_well_window)
+	{
+		im_well_window->setSysWellChiclet(NULL);
+	}
+
 	LLIMMgr::getInstance()->removeSessionObserver(this);
 }
 

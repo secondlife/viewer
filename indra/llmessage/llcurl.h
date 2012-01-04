@@ -299,6 +299,7 @@ public:
 	S32 mQueued;
 	S32 mErrorCount;
 	
+	static CURLM* initMulti() ;
 private:
 	void easyFree(LLCurl::Easy*);
 	
@@ -318,6 +319,8 @@ private:
 	LLMutex* mMutexp ;
 	LLMutex* mDeletionMutexp ;
 	LLMutex* mEasyMutexp ;
+
+	static LLMutex* sMultiInitMutexp ;
 };
 
 class LLCurlThread : public LLQueuedThread
