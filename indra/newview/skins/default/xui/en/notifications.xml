@@ -5537,6 +5537,15 @@ Please select at least one type of content to search (General, Moderate, or Adul
 [MESSAGE]
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="PaymentFailure"
+   persist="true"
+   type="notify">
+    <tag>funds</tag>
+[MESSAGE]
+  </notification>
+
    <!-- EventNotification couldn't be persist since server decide is it necessary to notify 
    user about subscribed event via LLEventNotifier-->
   <notification

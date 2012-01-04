@@ -1722,7 +1722,17 @@
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
-
+            <menu_item_call
+             enabled="false"
+             label="Release Keys"
+             name="Release Keys">
+                <menu_item_call.on_click
+                 function="Tools.ReleaseKeys"
+                 parameter="" />
+                <menu_item_call.on_enable
+                 function="Tools.EnableReleaseKeys"
+                 parameter="" />
+            </menu_item_call>
         <menu_item_separator/>
 
         <menu
@@ -1752,17 +1762,7 @@
              function="Floater.Toggle"
              parameter="search" />
             </menu_item_check>
-            <menu_item_call
-             enabled="false"
-             label="Release Keys"
-             name="Release Keys">
-                <menu_item_call.on_click
-                 function="Tools.ReleaseKeys"
-                 parameter="" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableReleaseKeys"
-                 parameter="" />
-            </menu_item_call>
+
             <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
             <menu_item_check
                label="Show Advanced Menu - legacy shortcut"

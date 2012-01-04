@@ -2142,6 +2142,7 @@ Drag folders to this area and click "Send to Marketplace" to list them for sale 
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>
+    <string name="Attachments remain">Attachments ([COUNT] slots remain)</string>
 
 	<!-- inventory FVBridge -->
 	<!--  This is used in llpanelinventory.cpp when constructing a context menu for an item for Sale  -->
@@ -3367,6 +3368,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
+  <string name="you_paid_failure_ldollars">You failed to pay [NAME] L$[AMOUNT] [REASON].</string>
+  <string name="you_paid_failure_ldollars_no_info">You failed to pay L$[AMOUNT].</string>
+  <string name="you_paid_failure_ldollars_no_reason">You failed to pay [NAME] L$[AMOUNT].</string>
+  <string name="you_paid_failure_ldollars_no_name">You failed to pay L$[AMOUNT] [REASON].</string>
   <string name="for item">for [ITEM]</string>
   <string name="for a parcel of land">for a parcel of land</string>
   <string name="for a land access pass">for a land access pass</string>
