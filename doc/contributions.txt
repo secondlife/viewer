@@ -606,6 +606,7 @@ Jonathan Yap
 	STORM-653
 	STORM-1737
 	STORM-1733
+	STORM-1790
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -1257,6 +1258,7 @@ Zi Ree
 	VWR-1140
 	VWR-24017
 	VWR-25588
+	STORM-1790
 Zipherius Turas
 	VWR-76
 	VWR-77
