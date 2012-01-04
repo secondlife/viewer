@@ -111,14 +111,7 @@ BOOL LLNearbyChatBar::postBuild()
 
 	gSavedSettings.declareBOOL("nearbychat_history_visibility", mNearbyChat->getVisible(), "Visibility state of nearby chat history", TRUE);
 
-	// If mVisibilityControl is not empty it means that the visibility state of floater is saved between sessions,
-	// i.e. save_visibility="true" for this floater.
-	// So if we need to restore visibility state of floater we also need to restore visibility state of nearby chat history.
-	if (!mVisibilityControl.empty())
-	{
-		// restore visibility of nearby chat history
-		mNearbyChat->setVisible(gSavedSettings.getBOOL("nearbychat_history_visibility"));
-	}
+	mNearbyChat->setVisible(gSavedSettings.getBOOL("nearbychat_history_visibility"));
 
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
@@ -150,18 +143,6 @@ bool LLNearbyChatBar::applyRectControl()
 	}
 	
 	return rect_controlled;
-}
-
-void LLNearbyChatBar::saveChatHistoryVisibility()
-{
-	// save visibility state of nearby chat history panel if
-	// visibility of nearby chat floater is saved, i.e. save_visisbility="true"
-	// (if save_visisbility="true", mVisibilityControl == "floater_vis_chat_bar")
-	if (mVisibilityControl.size() > 1)
-	{
-		// save visibility of nearby chat history
-		gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
-	}
 }
 
 void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
@@ -437,7 +418,7 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 		storeRectControl();
 	}
 
-	saveChatHistoryVisibility();
+	gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
 }
 
 void LLNearbyChatBar::setMinimized(BOOL b)
