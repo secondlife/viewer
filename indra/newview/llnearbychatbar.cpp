@@ -109,6 +109,10 @@ BOOL LLNearbyChatBar::postBuild()
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
 
+	gSavedSettings.declareBOOL("nearbychat_history_visibility", mNearbyChat->getVisible(), "Visibility state of nearby chat history", TRUE);
+
+	mNearbyChat->setVisible(gSavedSettings.getBOOL("nearbychat_history_visibility"));
+
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
@@ -413,6 +417,8 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 		enableResizeCtrls(true);
 		storeRectControl();
 	}
+
+	gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
 }
 
 void LLNearbyChatBar::setMinimized(BOOL b)

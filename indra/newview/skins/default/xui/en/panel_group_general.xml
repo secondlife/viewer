@@ -225,13 +225,22 @@ Hover your mouse over the options for more help.
          height="23"
          increment="1"
          label_width="15"
-         label="L$"
          layout="topleft"
          max_val="99999"
          left="30"
          name="spin_enrollment_fee"
          tool_tip="New members must pay this fee to join the group when Enrollment Fee is checked."
-         width="170" />
+         width="150" />
+        <text
+         follows="left|top"
+         type="string"
+         height="16"
+         left_pad="2"
+         name="currency_label"
+         top_delta="5"
+         width="18">
+         L$
+        </text>
         <combo_box
          follows="left|top"
          height="23"

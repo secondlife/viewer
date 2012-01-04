@@ -1443,7 +1443,7 @@ Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
 		<usetemplate ignoretext="Bestätigen, bevor Objekte an Ihre Eigentümer zurückgegeben werden" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Sie sind Mitglied der Gruppe [GROUP].
+		Sie sind Mitglied der Gruppe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>

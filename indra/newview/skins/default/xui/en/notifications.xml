@@ -3430,7 +3430,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group [GROUP].
+You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Leave Group?
     <tag>group</tag>
     <tag>confirm</tag>

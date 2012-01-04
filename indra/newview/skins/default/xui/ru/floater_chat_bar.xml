@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="chat_bar" title="ЛОКАЛЬНЫЙ ЧАТ">
-	<panel>
+	<panel name="bottom_panel">
 		<line_editor label="Щелкните здесь для общения." name="chat_box" tool_tip="Нажмите Enter, чтобы сказать, Ctrl+Enter, чтобы прокричать"/>
 		<button name="show_nearby_chat" tool_tip="Показать/скрыть лог локального чата"/>
 	</panel>

@@ -1385,7 +1385,7 @@ W celu instalacji aktualizacji musi zostać wykonany restart [APP_NAME].
 		<usetemplate ignoretext="Potwierdź zanim zwrócisz obiekty do ich właścicieli" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Jesteś członkiem grupy [GROUP].
+		Jesteś członkiem grupy &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Chcesz opuścić grupę?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>

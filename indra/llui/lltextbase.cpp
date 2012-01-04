@@ -1513,6 +1513,8 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32 index)
 {
 	segment_set_t::iterator it = getSegIterContaining(index);
+	segment_set_t::iterator orig_it = it;
+
 	if (it == mSegments.end()) return it;
 
 	if (!(*it)->canEdit() 
@@ -1520,13 +1522,18 @@ LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32
 		&& it != mSegments.begin())
 	{
 		it--;
+		if ((*it)->canEdit())
+		{
+			return it;
+		}
 	}
-	return it;
+	return orig_it;
 }
 
 LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaining(S32 index) const
 {
 	segment_set_t::const_iterator it = getSegIterContaining(index);
+	segment_set_t::const_iterator orig_it = it;
 	if (it == mSegments.end()) return it;
 
 	if (!(*it)->canEdit() 
@@ -1534,8 +1541,12 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
 		&& it != mSegments.begin())
 	{
 		it--;
+		if ((*it)->canEdit())
+		{
+			return it;
+		}
 	}
-	return it;
+	return orig_it;
 }
 
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)

@@ -121,6 +121,7 @@ LLView::Params::Params()
 
 LLView::LLView(const LLView::Params& p)
 :	mVisible(p.visible),
+	mInDraw(false),
 	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
@@ -281,6 +282,8 @@ void LLView::moveChildToBackOfTabGroup(LLUICtrl* child)
 // virtual
 bool LLView::addChild(LLView* child, S32 tab_group)
 {
+	llassert_always(mInDraw == false);
+
 	if (!child)
 	{
 		return false;
@@ -330,6 +333,7 @@ bool LLView::addChildInBack(LLView* child, S32 tab_group)
 // remove the specified child from the view, and set it's parent to NULL.
 void LLView::removeChild(LLView* child)
 {
+	llassert_always(mInDraw == false);
 	//llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
 	if (child->mParentView == this) 
 	{
@@ -1081,6 +1085,7 @@ void LLView::draw()
 
 void LLView::drawChildren()
 {
+	mInDraw = true;
 	if (!mChildList.empty())
 	{
 		LLView* rootp = LLUI::getRootView();		
@@ -1124,6 +1129,7 @@ void LLView::drawChildren()
 		}
 		--sDepth;
 	}
+	mInDraw = false;
 }
 
 void LLView::dirtyRect()

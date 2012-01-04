@@ -1490,6 +1490,12 @@ void LLFloaterSnapshot::Impl::setNeedRefresh(LLFloaterSnapshot* floater, bool ne
 {
 	if (!floater) return;
 
+	// Don't display the "Refresh to save" message if we're in auto-refresh mode.
+	if (gSavedSettings.getBOOL("AutoSnapshot"))
+	{
+		need = false;
+	}
+
 	floater->mRefreshLabel->setVisible(need);
 	floater->impl.mNeedRefresh = need;
 }
@@ -1977,7 +1983,7 @@ LLFloaterSnapshot::LLFloaterSnapshot(const LLSD& key)
 // Destroys the object
 LLFloaterSnapshot::~LLFloaterSnapshot()
 {
-	delete impl.mPreviewHandle.get();
+	if (impl.mPreviewHandle.get()) impl.mPreviewHandle.get()->die();
 
 	//unfreeze everything else
 	gSavedSettings.setBOOL("FreezeTime", FALSE);
@@ -2045,6 +2051,13 @@ BOOL LLFloaterSnapshot::postBuild()
 	//move snapshot floater to special purpose snapshotfloaterview
 	gFloaterView->removeChild(this);
 	gSnapshotFloaterView->addChild(this);
+
+	// Pre-select "Current Window" resolution.
+	getChild<LLComboBox>("profile_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("postcard_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("texture_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("local_size_combo")->selectNthItem(0);
+	getChild<LLComboBox>("local_format_combo")->selectNthItem(0);
 
 	impl.mPreviewHandle = previewp->getHandle();
 	impl.updateControls(this);

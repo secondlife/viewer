@@ -70,7 +70,7 @@
      pad_bottom="2"
      tool_tip="Click to buy more L$"
      top="0"
-     width="55" />
+     width="80" />
     <button
      halign="left"
      font="SansSerifSmall"
@@ -87,7 +87,6 @@
      left_pad="0"
      label_shadow="true"
      name="goShop"
-     pad_right="0"
      pad_bottom="2"
      tool_tip="Open Second Life Marketplace"
      top="0"
