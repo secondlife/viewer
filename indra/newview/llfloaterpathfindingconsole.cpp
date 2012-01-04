@@ -32,7 +32,6 @@
 #include "llsd.h"
 #include "llagent.h"
 #include "llbutton.h"
-#include "llcheckboxctrl.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lllineeditor.h"

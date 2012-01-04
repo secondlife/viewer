@@ -885,6 +885,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
 		bool exclusiveDraw = false;
 		BOOL allowRenderables = false;
+		BOOL allowPathToBeDrawn = false;
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
@@ -905,6 +906,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					if ( pFloater && pFloater->allowAllRenderables() )
 					{
 						allowRenderables = true;
+					}
+					//Determine if we should also draw a user supplied path on top of the scene
+					if ( pFloater && pFloater->getShowPathToggle() )
+					{
+						allowPathToBeDrawn = true;
 					}
 					//Navmesh
 					if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
@@ -929,7 +935,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 						gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
 						LLPathingLib::getInstance()->renderNavMeshShapesVBO();
 						exclusiveDraw = true;
-					}				
+					}	
+					//User designated path
+					if ( allowPathToBeDrawn )
+					{
+						LLPathingLib::getInstance()->renderPath();
+					}
 				}			
 			}
 			
