@@ -1822,9 +1822,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27710304cfeea6f172eb89b61f51a5c4</string>
+              <string>62aa406dffd2e34d8469476dee3f2c50</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247206/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120104.tar.bz2</string>
+              <string>'http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247247/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120105.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
