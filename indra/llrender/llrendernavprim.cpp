@@ -85,20 +85,18 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 {
+	LLGLSUIDefault gls_ui;
 	glLineWidth(1.5f);		
 	LLGLSLShader::sNoFixedFunction = false;
 
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-	LLGLEnable cull( GL_CULL_FACE );	
-	
+	LLGLEnable cull( GL_CULL_FACE );		
 	//pass 1 filled
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
-	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-	//static GLubyte red[]= { 255.0f, 0.0f, 0.0f, 255.0f };
-	//glColor4ubv( red );										
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );		
 	//pass 2 outlined
-	//pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
+	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
 	LLGLSLShader::sNoFixedFunction = true;
 	glLineWidth(1.0f);		
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
