@@ -6,9 +6,14 @@
     layout="topleft"
     name="floater_pathfinding_linksets"
     help_topic="floater_pathfinding_linksets"
+    reuse_instance="true"
     save_rect="true"
+    single_instance="true"
     title="Pathfinding linksets"
     width="950">
+  <floater.string name="linksets_fetching">Finking pathfinding linksets ...</floater.string>
+  <floater.string name="linksets_none_found">No pathfinding linksets</floater.string>
+  <floater.string name="linksets_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
   <text
       height="13"
       word_wrap="false"
@@ -107,7 +112,7 @@
       top="11"
       left="851"
       width="73"/>
-  <name_list
+  <scroll_list
       column_padding="0"
       draw_heading="true"
       follows="all"
@@ -115,54 +120,54 @@
       layout="topleft"
       left="18"
       top="48"
-      name="owner list"
-      name_column="name"
+      multi_select="true"
+      name="pathfinding_linksets"
       width="910">
-    <name_list.columns
-	label="Name (root prim)"
-	name="name"
-	width="152" />
-    <name_list.columns
-	label="Description (root prim)"
-	name="description"
-	width="191" />
-    <name_list.columns
-	label="Land impact"
-	name="land_impact"
-	width="85" />
-    <name_list.columns
-	label="Dist from you"
-	name="dist_from_you"
-	width="87" />
-    <name_list.columns
-	label="Fixed"
-	name="fixed"
-	width="63" />
-    <name_list.columns
-	label="Walkable"
-	name="walkable"
-	width="73" />
-    <name_list.columns
-	label="Phantom"
-	name="phantom"
-	width="74" />
-    <name_list.columns
-	label="A %"
-	name="a_percent"
-	width="41" />
-    <name_list.columns
-	label="B %"
-	name="b_percent"
-	width="41" />
-    <name_list.columns
-	label="C %"
-	name="c_percent"
-	width="41" />
-    <name_list.columns
-	label="D %"
-	name="d_percent"
-	width="41" />
-  </name_list>
+    <scroll_list.columns
+        label="Name (root prim)"
+        name="name"
+        width="152" />
+    <scroll_list.columns
+        label="Description (root prim)"
+        name="description"
+        width="191" />
+    <scroll_list.columns
+        label="Land impact"
+        name="land_impact"
+        width="85" />
+    <scroll_list.columns
+        label="Dist from you"
+        name="dist_from_you"
+        width="87" />
+    <scroll_list.columns
+        label="Fixed"
+        name="fixed"
+        width="63" />
+    <scroll_list.columns
+        label="Walkable"
+        name="walkable"
+        width="73" />
+    <scroll_list.columns
+        label="Phantom"
+        name="phantom"
+        width="74" />
+    <scroll_list.columns
+        label="A %"
+        name="a_percent"
+        width="41" />
+    <scroll_list.columns
+        label="B %"
+        name="b_percent"
+        width="41" />
+    <scroll_list.columns
+        label="C %"
+        name="c_percent"
+        width="41" />
+    <scroll_list.columns
+        label="D %"
+        name="d_percent"
+        width="41" />
+  </scroll_list>
   <text
       height="13"
       word_wrap="false"
@@ -172,16 +177,17 @@
       length="1"
       follows="left|top"
       layout="topleft"
+      name="linksets_status"
       top="200"
       width="500">
-    0 linsets selected out of 2
+    Linksets:
   </text>
   <button
       follows="right|top"
       height="21"
       label="Refresh list"
       layout="topleft"
-      name="linksets"
+      name="refresh_linksets_list"
       top="200"
       left="568"
       width="115"/>
@@ -190,7 +196,7 @@
       height="21"
       label="Select all"
       layout="topleft"
-      name="linksets"
+      name="select_all_linksets"
       top="200"
       left="690"
       width="115"/>
@@ -199,7 +205,7 @@
       height="21"
       label="Select none"
       layout="topleft"
-      name="linksets"
+      name="select_none_linksets"
       top="200"
       left="812"
       width="115"/>
