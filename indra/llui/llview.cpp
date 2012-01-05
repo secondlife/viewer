@@ -282,7 +282,8 @@ void LLView::moveChildToBackOfTabGroup(LLUICtrl* child)
 // virtual
 bool LLView::addChild(LLView* child, S32 tab_group)
 {
-	llassert_always(mInDraw == false);
+	// NOTE: Changed this to not crash in release mode
+	llassert(mInDraw == false);
 
 	if (!child)
 	{
