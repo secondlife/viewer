@@ -690,7 +690,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoadedInitialized(FALSE),
 	mSupportsAlphaLayers(FALSE),
 	mLoadedCallbacksPaused(FALSE),
-	mHasPelvisOffset( FALSE )
+	mHasPelvisOffset( FALSE ),
+	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar"))
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -6493,10 +6494,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 
 BOOL LLVOAvatar::isFullyLoaded() const
 {
-	if (gSavedSettings.getBOOL("RenderUnloadedAvatar"))
-		return TRUE;
-	else
-		return mFullyLoaded;
+	return (mRenderUnloadedAvatar || mFullyLoaded);
 }
 
 bool LLVOAvatar::isTooComplex() const

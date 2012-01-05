@@ -67,7 +67,7 @@
 //#include "llfirstuse.h"
 #include "llviewernetwork.h"
 #include "llwindow.h"
-
+#include "llvieweraudio.h"
 
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 
@@ -986,7 +986,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 			{
 				if(LLViewerMedia::isParcelAudioPlaying() && gAudiop && LLViewerMedia::hasParcelAudio())
 				{
-					gAudiop->stopInternetStream();
+					LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
 				}
 			}
 			pimpl->setPriority(new_priority);
@@ -1090,13 +1090,24 @@ void LLViewerMedia::setAllMediaEnabled(bool val)
 			gAudiop && 
 			LLViewerMedia::hasParcelAudio())
 		{
-			gAudiop->startInternetStream(LLViewerMedia::getParcelAudioURL());
+			if (LLAudioEngine::AUDIO_PAUSED == gAudiop->isInternetStreamPlaying())
+			{
+				// 'false' means unpause
+				gAudiop->pauseInternetStream(false);
+			}
+			else
+			{
+				LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLViewerMedia::getParcelAudioURL());
+			}
 		}
 	}
 	else {
 		// This actually unloads the impl, as opposed to "stop"ping the media
 		LLViewerParcelMedia::stop();
-		if (gAudiop) gAudiop->stopInternetStream();
+		if (gAudiop)
+		{
+			LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
+		}
 	}
 }
 
@@ -1886,7 +1897,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 	
 	if(plugin_basename.empty())
 	{
-		LL_WARNS("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
+		LL_WARNS_ONCE("Media") << "Couldn't find plugin for media type " << media_type << LL_ENDL;
 	}
 	else
 	{
@@ -1912,11 +1923,11 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		llstat s;
 		if(LLFile::stat(launcher_name, &s))
 		{
-			LL_WARNS("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
+			LL_WARNS_ONCE("Media") << "Couldn't find launcher at " << launcher_name << LL_ENDL;
 		}
 		else if(LLFile::stat(plugin_name, &s))
 		{
-			LL_WARNS("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
+			LL_WARNS_ONCE("Media") << "Couldn't find plugin at " << plugin_name << LL_ENDL;
 		}
 		else
 		{

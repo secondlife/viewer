@@ -83,7 +83,7 @@ namespace LLInitParam
 }
 
 
-class LLFloater : public LLPanel
+class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 {
 	friend class LLFloaterView;
 	friend class LLFloaterReg;
@@ -156,6 +156,8 @@ public:
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
+
+		Ignored					follows;
 		
 		Params();
 	};
@@ -234,6 +236,7 @@ public:
 	void			setCanTearOff(BOOL can_tear_off);
 	virtual void	setCanResize(BOOL can_resize);
 	void			setCanDrag(BOOL can_drag);
+	bool			getCanDrag();
 	void			setHost(LLMultiFloater* host);
 	BOOL			isResizable() const				{ return mResizable; }
 	void			setResizeLimits( S32 min_width, S32 min_height );
@@ -282,7 +285,7 @@ public:
 	void			clearSnapTarget() { mSnappedTo.markDead(); }
 	LLHandle<LLFloater>	getSnapTarget() const { return mSnappedTo; }
 
-	LLHandle<LLFloater> getHandle() const { return mHandle; }
+	LLHandle<LLFloater> getHandle() const { return getDerivedHandle<LLFloater>(); }
 	const LLSD& 	getKey() { return mKey; }
 	virtual bool	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 	
@@ -460,16 +463,9 @@ private:
 	typedef void(*click_callback)(LLFloater*);
 	static click_callback sButtonCallbacks[BUTTON_COUNT];
 
-	typedef std::map<LLHandle<LLFloater>, LLFloater*> handle_map_t;
-	typedef std::map<LLHandle<LLFloater>, LLFloater*>::iterator handle_map_iter_t;
-	static handle_map_t	sFloaterMap;
-
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
-
-//	LLFloaterNotificationContext* mNotificationContext;
-	LLRootHandle<LLFloater>		mHandle;	
 };
 
 
@@ -537,6 +533,7 @@ public:
 private:
 	void hiddenFloaterClosed(LLFloater* floater);
 
+	LLRect				mLastSnapRect;
 	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;

@@ -27,7 +27,7 @@
 #ifndef LL_LLTOAST_H
 #define LL_LLTOAST_H
 
-
+#include "llinstancetracker.h"
 #include "llpanel.h"
 #include "llmodaldialog.h"
 #include "lleventtimer.h"
@@ -69,7 +69,7 @@ private :
  * Represents toast pop-up.
  * This is a parent view for all toast panels.
  */
-class LLToast : public LLModalDialog
+class LLToast : public LLModalDialog, public LLInstanceTracker<LLToast>
 {
 	friend class LLToastLifeTimer;
 public:
@@ -102,6 +102,8 @@ public:
 
 		Params();
 	};
+	
+	static void updateClass();
 
 	LLToast(const LLToast::Params& p);
 	virtual ~LLToast();
@@ -120,7 +122,7 @@ public:
 	/** Start lifetime/fading timer */
 	virtual void startTimer();
 
-	bool isHovered();
+	bool isHovered() { return mIsHovered; }
 
 	// Operating with toasts
 	// insert a panel to a toast
@@ -196,16 +198,13 @@ public:
 
 	virtual S32	notifyParent(const LLSD& info);
 
-	LLHandle<LLToast> getHandle() { mHandle.bind(this); return mHandle; }
+	LLHandle<LLToast> getHandle() const { return getDerivedHandle<LLToast>(); }
 
 protected:
 	void updateTransparency();
 
 private:
-
-	void onToastMouseEnter();
-
-	void onToastMouseLeave();
+	void updateHoveredState();
 
 	void expire();
 
@@ -215,7 +214,7 @@ private:
 	LLUUID				mSessionID;
 	LLNotificationPtr	mNotification;
 
-	LLRootHandle<LLToast>	mHandle;
+	//LLRootHandle<LLToast>	mHandle;
 		
 	LLPanel* mWrapperPanel;
 
@@ -224,7 +223,7 @@ private:
 
 	F32			mToastLifetime; // in seconds
 	F32			mToastFadingTime; // in seconds
-
+	
 	LLPanel*		mPanel;
 	LLButton*		mHideBtn;
 
@@ -236,6 +235,7 @@ private:
 	bool		mIsHidden;  // this flag is TRUE when a toast has faded or was hidden with (x) button (EXT-1849)
 	bool		mIsTip;
 	bool		mIsFading;
+	bool		mIsHovered;
 
 	commit_signal_t mToastMouseEnterSignal;
 	commit_signal_t mToastMouseLeaveSignal;

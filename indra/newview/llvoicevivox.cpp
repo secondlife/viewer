@@ -61,7 +61,6 @@
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 
-#include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
@@ -7020,7 +7019,6 @@ void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
-	parser = NULL;
 	parser = XML_ParserCreate(NULL);
 	
 	reset();

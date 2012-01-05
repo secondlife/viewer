@@ -43,6 +43,7 @@ class LLFloaterWebContent :
 	public LLInstanceTracker<LLFloaterWebContent, std::string>
 {
 public:
+	typedef LLInstanceTracker<LLFloaterWebContent, std::string> instance_tracker_t;
     LOG_CLASS(LLFloaterWebContent);
 
 	struct _Params : public LLInitParam::Block<_Params>
@@ -89,6 +90,7 @@ protected:
 	void onEnterAddress();
 	void onPopExternal();
 
+	static void preCreate(Params& p);
 	void open_media(const Params& );
 	void set_current_url(const std::string& url);
 
@@ -97,6 +99,12 @@ protected:
 	LLIconCtrl*		mSecureLockIcon;
 	LLTextBox*		mStatusBarText;
 	LLProgressBar*	mStatusBarProgress;
+
+	LLView*			mBtnBack;
+	LLView*			mBtnForward;
+	LLView*			mBtnReload;
+	LLView*			mBtnStop;
+
 	std::string		mCurrentURL;
 	std::string		mUUID;
 	bool			mShowPageTitle;

@@ -114,6 +114,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mTextTime(NULL),
 	mSGBandwidth(NULL),
 	mSGPacketLoss(NULL),
+	mBtnStats(NULL),
 	mBtnVolume(NULL),
 	mBoxBalance(NULL),
 	mBalance(0),
@@ -173,6 +174,8 @@ BOOL LLStatusBar::postBuild()
 
 	mBoxBalance = getChild<LLTextBox>("balance");
 	mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
+	
+	mBtnStats = getChildView("stat_btn");
 
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
@@ -288,7 +291,7 @@ void LLStatusBar::refresh()
 
 	mSGBandwidth->setVisible(net_stats_visible);
 	mSGPacketLoss->setVisible(net_stats_visible);
-	getChildView("stat_btn")->setEnabled(net_stats_visible);
+	mBtnStats->setEnabled(net_stats_visible);
 
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();

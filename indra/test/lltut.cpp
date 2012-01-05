@@ -34,6 +34,7 @@
 #include "llformat.h"
 #include "llsd.h"
 #include "lluri.h"
+#include "stringize.h"
 
 namespace tut
 {
@@ -144,6 +145,10 @@ namespace tut
 				}
 				return;
 			}
+			default:
+				// should never get here, but compiler produces warning if we
+				// don't cover this case, and at Linden warnings are fatal.
+				throw failure(STRINGIZE("invalid type field " << actual.type()));
 		}
 	}
 

@@ -862,7 +862,7 @@ BOOL LLWindowWin32::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowWin32::setSize(const LLCoordScreen size)
+BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 {
 	LLCoordScreen position;
 
@@ -1667,18 +1667,18 @@ void LLWindowWin32::initCursors()
 
 
 
-void LLWindowWin32::setCursor(ECursorType cursor)
+void LLWindowWin32::updateCursor()
 {
-	if (cursor == UI_CURSOR_ARROW
+	if (mNextCursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
-		cursor = UI_CURSOR_WORKING;
+		mNextCursor = UI_CURSOR_WORKING;
 	}
 
-	if( mCurrentCursor != cursor )
+	if( mCurrentCursor != mNextCursor )
 	{
-		mCurrentCursor = cursor;
-		SetCursor( mCursor[cursor] );
+		mCurrentCursor = mNextCursor;
+		SetCursor( mCursor[mNextCursor] );
 	}
 }
 
@@ -1759,6 +1759,8 @@ void LLWindowWin32::gatherInput()
 	}
 
 	mInputProcessingPaused = FALSE;
+
+	updateCursor();
 
 	// clear this once we've processed all mouse messages that might have occurred after
 	// we slammed the mouse position
@@ -2410,8 +2412,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_GETMINMAXINFO:
 			{
 				LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
-				min_max->ptMinTrackSize.x = 1024;
-				min_max->ptMinTrackSize.y = 768;
+				min_max->ptMinTrackSize.x = window_imp->mMinWindowWidth;
+				min_max->ptMinTrackSize.y = window_imp->mMinWindowHeight;
 				return 0;
 			}
 

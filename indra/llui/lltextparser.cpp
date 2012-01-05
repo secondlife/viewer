@@ -46,8 +46,6 @@ LLTextParser::LLTextParser()
 {}
 
 
-// Moved triggerAlerts() to llfloaterchat.cpp to break llui/llaudio library dependency.
-
 S32 LLTextParser::findPattern(const std::string &text, LLSD highlight)
 {
 	if (!highlight.has("pattern")) return -1;

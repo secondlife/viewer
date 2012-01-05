@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Flyt kamera op og ned, til venstre og højre
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Kamera valg
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Kredsløb zoom panorering
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Forvalg
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Se objekt
 	</floater.string>

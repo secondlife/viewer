@@ -59,28 +59,24 @@ const char* NO_VALUE_MARKER = "no_value";
 
 const S32 LINE_NUMBER_HERE = 0;
 
-struct MaxOccur : public LLInitParam::ChoiceBlock<MaxOccur>
+struct MaxOccursValues : public LLInitParam::TypeValuesHelper<U32, MaxOccursValues>
 {
-	Alternative<int> count;
-	Alternative<std::string> unbounded;
-
-	MaxOccur()
-	:	unbounded("", "unbounded")
-	{}
+	static void declareValues()
+	{
+		declare("unbounded", U32_MAX);
+	}
 };
 
 struct Occurs : public LLInitParam::Block<Occurs>
 {
-	Optional<S32>	minOccurs;
-	Optional<MaxOccur>	maxOccurs;
+	Optional<U32>					minOccurs;
+	Optional<U32, MaxOccursValues>	maxOccurs;
 
 	Occurs()
-	:	minOccurs("minOccurs"),
-		maxOccurs("maxOccurs")
-	{
-		minOccurs = 0;
-		maxOccurs.unbounded.choose();
-	}
+	:	minOccurs("minOccurs", 0),
+		maxOccurs("maxOccurs", U32_MAX)
+
+	{}
 };
 
 
@@ -103,18 +99,15 @@ namespace LLInitParam
 	};
 }
 
-struct Name : public LLInitParam::Block<Name>
-{
-	Mandatory<std::string> name;
-
-	Name()
-	:	name("name")
-	{}
-};
+struct Element;
+struct Group;
+struct Choice;
+struct Sequence;
+struct Any;
 
 struct Attribute : public LLInitParam::Block<Attribute>
 {
-	Mandatory<Name>			name;
+	Mandatory<std::string>	name;
 	Mandatory<std::string>	type;
 	Mandatory<EUse>			use;
 	
@@ -122,41 +115,170 @@ struct Attribute : public LLInitParam::Block<Attribute>
 	:	name("name"),
 		type("type"),
 		use("use")
-	{
-	}
-};
-
-struct ComplexType : public LLInitParam::Block<ComplexType>
-{
-	Multiple<Attribute>			attribute;
-	//Multiple<struct Element>	elements;
-	Optional<bool>				mixed;
-
-	ComplexType()
-	:	attribute("xs:attribute"),
-		//elements("xs:element"),
-		mixed("mixed")
-	{
-		mixed = true;
-	}
-};
-
-struct Element : public LLInitParam::Block<Element, Occurs>
-{
-	Mandatory<ComplexType>	complexType;
-	Mandatory<Name>			name;
-
-	Element()
-	:	complexType("xs:complexType")
 	{}
 };
 
-struct Elements : public LLInitParam::Block<Elements, Occurs>
+struct Any : public LLInitParam::Block<Any, Occurs>
 {
-	Multiple<Element> elements;
+	Optional<std::string> _namespace;
 
-	Elements()
-	:	elements("xs:element")
+	Any()
+	:	_namespace("namespace")
+	{}
+};
+
+struct All : public LLInitParam::Block<All, Occurs>
+{
+	Multiple< Lazy<Element> > elements;
+
+	All()
+	:	elements("element")
+	{
+		maxOccurs = 1;
+	}
+};
+
+struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
+{
+	Alternative< Lazy<Element> >	element;
+	Alternative< Lazy<Group> >		group;
+	Alternative< Lazy<Choice> >		choice;
+	Alternative< Lazy<Sequence> >	sequence;
+	Alternative< Lazy<Any> >		any;
+
+	Choice()
+	:	element("element"),
+		group("group"),
+		choice("choice"),
+		sequence("sequence"),
+		any("any")
+	{}
+
+};
+
+struct Sequence : public LLInitParam::ChoiceBlock<Sequence, Occurs>
+{
+	Alternative< Lazy<Element> >	element;
+	Alternative< Lazy<Group> >		group;
+	Alternative< Lazy<Choice> >		choice;
+	Alternative< Lazy<Sequence> >	sequence;
+	Alternative< Lazy<Any> >		any;
+};
+
+struct GroupContents : public LLInitParam::ChoiceBlock<GroupContents, Occurs>
+{
+	Alternative<All>		all;
+	Alternative<Choice>		choice;
+	Alternative<Sequence>	sequence;
+
+	GroupContents()
+	:	all("all"),
+		choice("choice"),
+		sequence("sequence")
+	{}
+};
+
+struct Group : public LLInitParam::Block<Group, GroupContents>
+{
+	Optional<std::string>	name,
+							ref;
+
+	Group()
+	:	name("name"),
+		ref("ref")
+	{}
+};
+
+struct Restriction : public LLInitParam::Block<Restriction>
+{
+};
+
+struct Extension : public LLInitParam::Block<Extension>
+{
+};
+
+struct SimpleContent : public LLInitParam::ChoiceBlock<SimpleContent>
+{
+	Alternative<Restriction> restriction;
+	Alternative<Extension> extension;
+
+	SimpleContent()
+	:	restriction("restriction"),
+		extension("extension")
+	{}
+};
+
+struct SimpleType : public LLInitParam::Block<SimpleType>
+{
+	// TODO
+};
+
+struct ComplexContent : public LLInitParam::Block<ComplexContent, SimpleContent>
+{
+	Optional<bool> mixed;
+
+	ComplexContent()
+	:	mixed("mixed", true)
+	{}
+};
+
+struct ComplexTypeContents : public LLInitParam::ChoiceBlock<ComplexTypeContents>
+{
+	Alternative<SimpleContent>	simple_content;
+	Alternative<ComplexContent> complex_content;
+	Alternative<Group>			group;
+	Alternative<All>			all;
+	Alternative<Choice>			choice;
+	Alternative<Sequence>		sequence;
+
+	ComplexTypeContents()
+	:	simple_content("simpleContent"),
+		complex_content("complexContent"),
+		group("group"),
+		all("all"),
+		choice("choice"),
+		sequence("sequence")
+	{}
+};
+
+struct ComplexType : public LLInitParam::Block<ComplexType, ComplexTypeContents>
+{
+	Optional<std::string>			name;
+	Optional<bool>					mixed;
+
+	Multiple<Attribute>				attribute;
+	Multiple< Lazy<Element> >			elements;
+
+	ComplexType()
+	:	name("name"),
+		attribute("xs:attribute"),
+		elements("xs:element"),
+		mixed("mixed")
+	{
+	}
+};
+
+struct ElementContents : public LLInitParam::ChoiceBlock<ElementContents, Occurs>
+{
+	Alternative<SimpleType>		simpleType;
+	Alternative<ComplexType>	complexType;
+
+	ElementContents()
+	:	simpleType("simpleType"),
+		complexType("complexType")
+	{}
+};
+
+struct Element : public LLInitParam::Block<Element, ElementContents>
+{
+	Optional<std::string>	name,
+							ref,
+							type;
+
+	Element()
+	:	name("xs:name"),
+		ref("xs:ref"),
+		type("xs:type")
 	{}
 };
 
@@ -164,28 +286,32 @@ struct Schema : public LLInitParam::Block<Schema>
 {
 private:
 	Mandatory<std::string>	targetNamespace,
-							xmlns;
+							xmlns,
+							xs;
 
 public:
 	Optional<std::string>	attributeFormDefault,
-							elementFormDefault,
-							xs;
+							elementFormDefault;
 
-	Optional<Elements>		elements;
+	Mandatory<Element>		root_element;
 	
 	void setNameSpace(const std::string& ns) {targetNamespace = ns; xmlns = ns;}
 
-	Schema()
+	Schema(const std::string& ns = LLStringUtil::null)
 	:	attributeFormDefault("attributeFormDefault"),
 		elementFormDefault("elementFormDefault"),
 		xs("xmlns:xs"),
 		targetNamespace("targetNamespace"),
 		xmlns("xmlns"),
-		elements("xs:choice")
+		root_element("xs:element")
 	{
 		attributeFormDefault = "unqualified";
 		elementFormDefault = "qualified";
 		xs = "http://www.w3.org/2001/XMLSchema";
+		if (!ns.empty())
+		{
+			setNameSpace(ns);
+		};
 	}
 
 };
@@ -214,22 +340,30 @@ LLXSDWriter::LLXSDWriter()
 
 void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, const LLInitParam::BaseBlock& block, const std::string& xml_namespace)
 {
+	Schema schema(xml_namespace);
+
+	schema.root_element.name = type_name;
+	Choice& choice = schema.root_element.complexType.choice;
+
+	choice.minOccurs = 0;
+	choice.maxOccurs = "unbounded";
+
 	mSchemaNode = node;
-	node->setName("xs:schema");
-	node->createChild("attributeFormDefault", true)->setStringValue("unqualified");
-	node->createChild("elementFormDefault", true)->setStringValue("qualified");
-	node->createChild("targetNamespace", true)->setStringValue(xml_namespace);
-	node->createChild("xmlns:xs", true)->setStringValue("http://www.w3.org/2001/XMLSchema");
-	node->createChild("xmlns", true)->setStringValue(xml_namespace);
+	//node->setName("xs:schema");
+	//node->createChild("attributeFormDefault", true)->setStringValue("unqualified");
+	//node->createChild("elementFormDefault", true)->setStringValue("qualified");
+	//node->createChild("targetNamespace", true)->setStringValue(xml_namespace);
+	//node->createChild("xmlns:xs", true)->setStringValue("http://www.w3.org/2001/XMLSchema");
+	//node->createChild("xmlns", true)->setStringValue(xml_namespace);
 
-	node = node->createChild("xs:complexType", false);
-	node->createChild("name", true)->setStringValue(type_name);
-	node->createChild("mixed", true)->setStringValue("true");
+	//node = node->createChild("xs:complexType", false);
+	//node->createChild("name", true)->setStringValue(type_name);
+	//node->createChild("mixed", true)->setStringValue("true");
 
-	mAttributeNode = node;
-	mElementNode = node->createChild("xs:choice", false);
-	mElementNode->createChild("minOccurs", true)->setStringValue("0");
-	mElementNode->createChild("maxOccurs", true)->setStringValue("unbounded");
+	//mAttributeNode = node;
+	//mElementNode = node->createChild("xs:choice", false);
+	//mElementNode->createChild("minOccurs", true)->setStringValue("0");
+	//mElementNode->createChild("maxOccurs", true)->setStringValue("unbounded");
 	block.inspectBlock(*this);
 
 	// duplicate element choices
@@ -1247,6 +1381,7 @@ bool LLSimpleXUIParser::readXUI(const std::string& filename, LLInitParam::BaseBl
 	if( !file.isOpen() )
 	{
 		LL_WARNS("ReadXUI") << "Unable to open file " << filename << LL_ENDL;
+		XML_ParserFree( mParser );
 		return false;
 	}
 
