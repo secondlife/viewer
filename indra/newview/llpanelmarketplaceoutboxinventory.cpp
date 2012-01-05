@@ -67,37 +67,6 @@ void LLOutboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& par
 	
 	LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
 	
-	// leslie -- temporary HACK to work around sim not creating outbox with proper system folder type
-	if (root_id.isNull())
-	{
-		std::string start_folder_name(params.start_folder());
-		
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		
-		gInventory.getDirectDescendentsOf(gInventory.getRootFolderID(), cats, items);
-		
-		if (cats)
-		{
-			for (LLInventoryModel::cat_array_t::const_iterator cat_it = cats->begin(); cat_it != cats->end(); ++cat_it)
-			{
-				LLInventoryCategory* cat = *cat_it;
-				
-				if (cat->getName() == start_folder_name)
-				{
-					root_id = cat->getUUID();
-					break;
-				}
-			}
-		}
-		
-		if (root_id == LLUUID::null)
-		{
-			llwarns << "No category found that matches outbox inventory panel start_folder: " << start_folder_name << llendl;
-		}
-	}
-	// leslie -- end temporary HACK
-	
 	if (root_id == LLUUID::null)
 	{
 		llwarns << "Outbox inventory panel has no root folder!" << llendl;

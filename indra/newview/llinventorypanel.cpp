@@ -132,6 +132,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mAcceptsDragAndDrop(p.accepts_drag_and_drop),
 	mAllowMultiSelect(p.allow_multi_select),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
+	mShowEmptyMessage(p.show_empty_message),
 	mShowLoadStatus(p.show_load_status),
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL)
@@ -617,6 +618,7 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	p.listener =  bridge;
 	p.use_label_suffix = useLabelSuffix;
 	p.allow_multiselect = mAllowMultiSelect;
+	p.show_empty_message = mShowEmptyMessage;
 	p.show_load_status = mShowLoadStatus;
 
 	return LLUICtrlFactory::create<LLFolderView>(p);
