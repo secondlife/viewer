@@ -915,24 +915,15 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					//Navmesh
 					if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
 					{
-						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          
-												
+						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          												
 						glEnable(GL_DEPTH_TEST);                        
-						gGL.setSceneBlendType( LLRender::BT_ALPHA );
 						gGL.setAmbientLightColor( LLColor4::white );
 						LLPathingLib::getInstance()->renderNavMesh( allowRenderables );
 						exclusiveDraw = true;
 					}
 					//physics/exclusion shapes
 					if ( LLPathingLib::getInstance()->getRenderShapeState() )
-					{
-						glEnable(GL_DEPTH_TEST);                        
-						gGL.setSceneBlendType( LLRender::BT_REPLACE );      
-						GLfloat LightAmbient[]= { 0.5f, 0.5f, 0.5f, 1.0f };     
-						glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);	
-						LLGLSUIDefault texture_state;
-						LLGLDepthTest gls_depth(GL_TRUE);
-						gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
+					{						
 						LLPathingLib::getInstance()->renderNavMeshShapesVBO();
 						exclusiveDraw = true;
 					}	

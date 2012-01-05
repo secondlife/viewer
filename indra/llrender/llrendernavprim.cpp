@@ -67,7 +67,7 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	}
 	LLGLDisable cull(GL_CULL_FACE);
 	LLColor4 colorA( color );	
-	colorA*=1.5f;
+	colorA*=1.25f;
 	gGL.color4fv( colorA.mV );		
 	LLGLSLShader::sNoFixedFunction = false;
 	gGL.begin(LLRender::TRIANGLES);
@@ -86,11 +86,22 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 {
 	glLineWidth(1.5f);		
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-	LLGLDisable cull(GL_CULL_FACE);	
 	LLGLSLShader::sNoFixedFunction = false;
-	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX  );
-	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );
+
+	LLGLEnable depth(GL_DEPTH_TEST);        
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+	LLGLEnable cull( GL_CULL_FACE );	
+	
+	//pass 1 filled
+	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
+	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
+	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+	//static GLubyte red[]= { 255.0f, 0.0f, 0.0f, 255.0f };
+	//glColor4ubv( red );										
+	//pass 2 outlined
+	//pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
 	LLGLSLShader::sNoFixedFunction = true;
+	glLineWidth(1.0f);		
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 }
 //=============================================================================
