@@ -88,7 +88,6 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	glLineWidth(1.5f);		
 	LLGLSLShader::sNoFixedFunction = false;
 
-	LLGLEnable depth(GL_DEPTH_TEST);        
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLEnable cull( GL_CULL_FACE );	
 	
