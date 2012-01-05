@@ -47,50 +47,6 @@ static LLDefaultChildRegistry::Register<LLOutboxFolderViewFolder> r2("outbox_fol
 
 
 //
-// Marketplace errors
-//
-
-enum
-{
-	MKTERR_NONE = 0,
-
-	MKTERR_NOT_MERCHANT,
-	MKTERR_FOLDER_EMPTY,
-	MKTERR_UNASSOCIATED_PRODUCTS,
-	MKTERR_OBJECT_LIMIT,
-	MKTERR_FOLDER_DEPTH,
-	MKTERR_UNSELLABLE_ITEM,
-	MKTERR_INTERNAL_IMPORT,
-
-	MKTERR_COUNT
-};
-
-static const std::string MARKETPLACE_ERROR_STRINGS[MKTERR_COUNT] =
-{
-	"NO_ERROR",
-	"NOT_MERCHANT_ERROR",
-	"FOLDER_EMPTY_ERROR",
-	"UNASSOCIATED_PRODUCTS_ERROR",
-	"OBJECT_LIMIT_ERROR",
-	"FOLDER_DEPTH_ERROR",
-	"UNSELLABLE_ITEM_FOUND",
-	"INTERNAL_IMPORT_ERROR",
-};
-
-static const std::string MARKETPLACE_ERROR_NAMES[MKTERR_COUNT] =
-{
-	"Marketplace Error None",
-	"Marketplace Error Not Merchant",
-	"Marketplace Error Empty Folder",
-	"Marketplace Error Unassociated Products",
-	"Marketplace Error Object Limit",
-	"Marketplace Error Folder Depth",
-	"Marketplace Error Unsellable Item",
-	"Marketplace Error Internal Import",
-};
-
-
-//
 // LLOutboxInventoryPanel Implementation
 //
 
@@ -206,62 +162,17 @@ LLFolderViewItem * LLOutboxInventoryPanel::createFolderViewItem(LLInvFVBridge * 
 
 LLOutboxFolderViewFolder::LLOutboxFolderViewFolder(const Params& p)
 	: LLFolderViewFolder(p)
-	, LLBadgeOwner(getHandle())
-	, mError(0)
 {
-	initBadgeParams(p.error_badge());
-}
-
-LLOutboxFolderViewFolder::~LLOutboxFolderViewFolder()
-{
-}
-
-// virtual
-void LLOutboxFolderViewFolder::draw()
-{
-	if (!badgeHasParent())
-	{
-		addBadgeToParentPanel();
-	}
-	
-	setBadgeVisibility(hasError());
-
-	LLFolderViewFolder::draw();
-}
-
-void LLOutboxFolderViewFolder::setErrorString(const std::string& errorString)
-{
-	S32 error_code = MKTERR_NONE;
-
-	for (S32 i = 1; i < MKTERR_COUNT; ++i)
-	{
-		if (MARKETPLACE_ERROR_STRINGS[i] == errorString)
-		{
-			error_code = i;
-			break;
-		}
-	}
-
-	setError(error_code);
-}
-
-void LLOutboxFolderViewFolder::setError(S32 errorCode)
-{
-	mError = errorCode;
-
-	if (hasError())
-	{
-		setToolTip(LLTrans::getString(MARKETPLACE_ERROR_NAMES[mError]));
-	}
-	else
-	{
-		setToolTip(LLStringExplicit(""));
-	}
 }
 
 //
 // LLOutboxFolderViewItem Implementation
 //
+
+LLOutboxFolderViewItem::LLOutboxFolderViewItem(const Params& p)
+	: LLFolderViewItem(p)
+{
+}
 
 BOOL LLOutboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
