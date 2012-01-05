@@ -47,7 +47,7 @@ endif (WINDOWS)
 # Apparently buggy - LL_USE_TCMALLOC never gets set. Fix when we have time to test the
 # corresponding source code.
 if (USE_TCMALLOC)
-  set(TCMALLOC_FLAG -ULL_USE_TCMALLOC=1)
+  set(TCMALLOC_FLAG -ULL_USE_TCMALLOC) # was -ULL_USE_TCMALLOC=1 which makes no sense.
 else (USE_TCMALLOC)
   set(TCMALLOC_FLAG -ULL_USE_TCMALLOC)
 endif (USE_TCMALLOC)
