@@ -31,9 +31,9 @@
 #include "llfloater.h"
 #include "llnavmeshstation.h"
 #include "llpathinglib.h"
+#include "llcheckboxctrl.h"
 
 class LLSD;
-class LLCheckBoxCtrl;
 class LLRadioGroup;
 class LLSliderCtrl;
 class LLLineEditor;
@@ -94,6 +94,8 @@ public:
 
     F32                   getTerrainMaterialD() const;
     void                  setTerrainMaterialD(F32 pTerrainMaterial);
+
+	BOOL				  getShowPathToggle() const {return mShowPathCheckBox->get(); }
 
 protected:
 
