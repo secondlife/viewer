@@ -6,6 +6,7 @@
   <menu_item_call
    label="Undo"
    name="Undo"
+   allow_key_repeat="true"
    shortcut="control|Z">
     <menu_item_call.on_click
      function="Edit.Undo" />
@@ -15,6 +16,7 @@
   <menu_item_call
    label="Redo"
    name="Redo"
+   allow_key_repeat="true"
    shortcut="control|Y">
     <menu_item_call.on_click
      function="Edit.Redo" />
@@ -43,6 +45,7 @@
   <menu_item_call
    label="Paste"
    name="Paste"
+   allow_key_repeat="true"
    shortcut="control|V">
     <menu_item_call.on_click
      function="Edit.Paste" />

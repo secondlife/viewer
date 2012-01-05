@@ -95,6 +95,12 @@ bool LLGoogleTranslationHandler::parseResponse(
 	return parseTranslation(root, translation, detected_lang);
 }
 
+// virtual
+bool LLGoogleTranslationHandler::isConfigured() const
+{
+	return !getAPIKey().empty();
+}
+
 // static
 void LLGoogleTranslationHandler::parseErrorResponse(
 	const Json::Value& root,
@@ -218,6 +224,12 @@ bool LLBingTranslationHandler::parseResponse(
 	return true;
 }
 
+// virtual
+bool LLBingTranslationHandler::isConfigured() const
+{
+	return !getAPIKey().empty();
+}
+
 // static
 std::string LLBingTranslationHandler::getAPIKey()
 {
@@ -329,6 +341,12 @@ std::string LLTranslate::getTranslateLanguage()
 	}
 	language = language.substr(0,2);
 	return language;
+}
+
+// static
+bool LLTranslate::isTranslationConfigured()
+{
+	return getPreferredHandler().isConfigured();
 }
 
 // static

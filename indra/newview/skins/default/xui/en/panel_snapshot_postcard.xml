@@ -16,14 +16,6 @@
      name="upload_message">
         Sending...
     </string>
-    <string
-     name="default_subject">
-        Postcard from [SECOND_LIFE].
-    </string>
-    <string
-     name="default_message">
-        Check this out!
-    </string>
     <icon
      follows="top|left"
      height="18"

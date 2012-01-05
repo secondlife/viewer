@@ -1044,21 +1044,14 @@ bool LLAppViewer::init()
 
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
-	//EXT-7013 - On windows for some locale (Japanese) standard 
-	//datetime formatting functions didn't support some parameters such as "weekday".
-	//Names for days and months localized in xml are also useful for Polish locale(STORM-107).
-	std::string language = gSavedSettings.getString("Language");
-	if(language == "ja" || language == "pl")
-	{
-		LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
-		LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
-		LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
-		LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
-		LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
+	LLStringOps::setupWeekDaysNames(LLTrans::getString("dateTimeWeekdaysNames"));
+	LLStringOps::setupWeekDaysShortNames(LLTrans::getString("dateTimeWeekdaysShortNames"));
+	LLStringOps::setupMonthNames(LLTrans::getString("dateTimeMonthNames"));
+	LLStringOps::setupMonthShortNames(LLTrans::getString("dateTimeMonthShortNames"));
+	LLStringOps::setupDayFormat(LLTrans::getString("dateTimeDayFormat"));
 
-		LLStringOps::sAM = LLTrans::getString("dateTimeAM");
-		LLStringOps::sPM = LLTrans::getString("dateTimePM");
-	}
+	LLStringOps::sAM = LLTrans::getString("dateTimeAM");
+	LLStringOps::sPM = LLTrans::getString("dateTimePM");
 
 	LLAgentLanguage::init();
 

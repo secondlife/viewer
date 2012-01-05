@@ -947,8 +947,13 @@ LLMenuItemBranchGL::LLMenuItemBranchGL(const LLMenuItemBranchGL::Params& p)
 
 LLMenuItemBranchGL::~LLMenuItemBranchGL()
 {
-	delete mBranchHandle.get();
+	if (mBranchHandle.get())
+	{
+		mBranchHandle.get()->die();
+	}
 }
+
+
 
 // virtual
 LLView* LLMenuItemBranchGL::getChildView(const std::string& name, BOOL recurse) const

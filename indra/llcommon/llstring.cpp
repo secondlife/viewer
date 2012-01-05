@@ -1122,6 +1122,11 @@ bool LLStringUtil::formatDatetime(std::string& replacement, std::string token,
 		struct tm * gmt = gmtime (&loc_seconds);
 		replacement = LLStringOps::sMonthList[gmt->tm_mon];
 	}
+	else if(LLStringOps::sMonthShortList.size() == 12 && code == "%b")
+	{
+		struct tm * gmt = gmtime (&loc_seconds);
+		replacement = LLStringOps::sMonthShortList[gmt->tm_mon];
+	}
 	else if( !LLStringOps::sDayFormat.empty() && code == "%d" )
 	{
 		struct tm * gmt = gmtime (&loc_seconds);
