@@ -1505,12 +1505,15 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
+    if (USE_TCMALLOC)
+      set(TCMALLOC_INCLUDE_FLAGS  "/INCLUDE:__tcmalloc")
+    else (USE_TCMALLOC)
+      set(TCMALLOC_INCLUDE_FLAGS)
+    endif (USE_TCMALLOC)
+  
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        # *TODO -reenable this once we get server usage sorted out
-        #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
-#        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc"
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_INCLUDE_FLAGS}"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
         LINK_FLAGS_RELEASE ""
         )
@@ -1765,7 +1768,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${CRYPTO_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${LLCONVEXDECOMP_LIBRARY}
-#    ${TCMALLOC_LIBRARIES}
+    ${TCMALLOC_LIBRARIES}
     )
 
 if (USE_KDU)
