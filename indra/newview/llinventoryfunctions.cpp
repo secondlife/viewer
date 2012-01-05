@@ -530,6 +530,11 @@ void show_item_original(const LLUUID& item_uuid)
 	}
 }
 
+void open_outbox()
+{
+	LLFloaterReg::showInstance("outbox");
+}
+
 void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -588,6 +593,8 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 				parent = next_parent;
 			}
 		}
+		
+		open_outbox();
 	}
 }
 
@@ -625,6 +632,8 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 								dest_folder,
 								inv_item->getName(),
 								LLPointer<LLInventoryCallback>(NULL));
+
+			open_outbox();
 		}
 		else
 		{	
@@ -682,11 +691,7 @@ void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_fold
 		copy_folder_to_outbox(category, new_folder_id, top_level_folder);
 	}
 
-	// delete the folder if we have emptied it
-	//if (cat_array->empty() && item_array->empty())
-	//{
-	//	remove_category(inventory_model, inv_cat->getUUID());
-	//}
+	open_outbox();
 }
 
 ///----------------------------------------------------------------------------

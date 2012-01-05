@@ -648,7 +648,6 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 // are set as enabled.
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show, 
-						  const menuentry_vec_t &disabled_entries,
-						  BOOL append = FALSE);
+						  const menuentry_vec_t &disabled_entries);
 
 #endif // LL_LLINVENTORYBRIDGE_H

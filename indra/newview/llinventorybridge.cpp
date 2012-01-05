@@ -465,14 +465,13 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show,
-						  const menuentry_vec_t &disabled_entries,
-						  BOOL append) // If append is TRUE, then new enabled entries 
+						  const menuentry_vec_t &disabled_entries) // If append is TRUE, then new enabled entries 
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
 	// For removing double separators or leading separator.  Start at true so that
 	// if the first element is a separator, it will not be shown.
-	BOOL is_previous_entry_separator = TRUE;
+	bool is_previous_entry_separator = true;
 
 	for (LLView::child_list_t::const_iterator itor = list->begin(); 
 		 itor != list->end(); 
@@ -496,6 +495,7 @@ void hide_context_entries(LLMenuGL& menu,
 			if (*itor2 == name)
 			{
 				found = true;
+				break;
 			}
 		}
 
@@ -503,9 +503,8 @@ void hide_context_entries(LLMenuGL& menu,
 		// between two separators).
 		if (found)
 		{
-			const BOOL is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(menu_item) != NULL);
-			if (is_entry_separator && is_previous_entry_separator)
-				found = false;
+			const bool is_entry_separator = (dynamic_cast<LLMenuItemSeparatorGL *>(menu_item) != NULL);
+			found = !(is_entry_separator && is_previous_entry_separator);
 			is_previous_entry_separator = is_entry_separator;
 		}
 		
@@ -523,15 +522,13 @@ void hide_context_entries(LLMenuGL& menu,
 			// A bit of a hack so we can remember that some UI element explicitly set this to be visible
 			// so that some other UI element from multi-select doesn't later set this invisible.
 			menu_item->pushVisible(TRUE);
-			if (append)
-			{
-				menu_item->setEnabled(TRUE);
-			}
+
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
 				{
 					menu_item->setEnabled(FALSE);
+					break;
 				}
 			}
 		}
@@ -2946,7 +2943,7 @@ void LLFolderBridge::folderOptionsMenu()
 	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
 	if (menup)
 	{
-		hide_context_entries(*menup, mItems, mDisabledItems, TRUE);
+		hide_context_entries(*menup, mItems, mDisabledItems);
 
 		// Reposition the menu, in case we're adding items to an existing menu.
 		menup->needsArrange();
@@ -3025,11 +3022,14 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		// Not sure what the right thing is to do here.
 		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
-			if (!isInboxFolder() && !isOutboxFolder()) // don't allow creation in inbox
+			if (!isInboxFolder() && !isOutboxFolder()) // don't allow creation in inbox or outbox
 			{
 				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
+				{
 					mItems.push_back(std::string("New Folder"));
+				}
+
 				mItems.push_back(std::string("New Script"));
 				mItems.push_back(std::string("New Note"));
 				mItems.push_back(std::string("New Gesture"));
