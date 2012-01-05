@@ -88,6 +88,7 @@ set(llcommon_SOURCE_FILES
     llsingleton.cpp
     llstat.cpp
     llstacktrace.cpp
+    llstreamqueue.cpp
     llstreamtools.cpp
     llstring.cpp
     llstringtable.cpp
@@ -221,6 +222,7 @@ set(llcommon_HEADER_FILES
     llstat.h
     llstatenums.h
     llstl.h
+    llstreamqueue.h
     llstreamtools.h
     llstrider.h
     llstring.h
@@ -327,6 +329,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocesslauncher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)
