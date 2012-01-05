@@ -35,7 +35,7 @@
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
-void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color ) const
+void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color,bool overlayMode  ) const
 {	
 	LLGLSLShader::sNoFixedFunction = false;
 	LLColor4 colorA( color );	
@@ -54,10 +54,17 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 	glLineWidth(1.0f);	
 }
 //=============================================================================
-void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
+void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color,bool overlayMode  ) const
 {
-	glLineWidth(1.5f);		
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+	glLineWidth(1.5f);	
+	if ( overlayMode )
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+	}
+	else
+	{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+	}
 	LLGLDisable cull(GL_CULL_FACE);
 	LLColor4 colorA( color );	
 	colorA*=1.5f;
@@ -71,6 +78,8 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	}
 	gGL.end();		
 	gGL.flush();
+	glLineWidth(1.0f);	
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	LLGLSLShader::sNoFixedFunction = true;
 }
 //=============================================================================

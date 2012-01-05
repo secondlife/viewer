@@ -920,7 +920,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 						glEnable(GL_DEPTH_TEST);                        
 						gGL.setSceneBlendType( LLRender::BT_ALPHA );
 						gGL.setAmbientLightColor( LLColor4::white );
-						LLPathingLib::getInstance()->renderNavMesh();
+						LLPathingLib::getInstance()->renderNavMesh( allowRenderables );
 						exclusiveDraw = true;
 					}
 					//physics/exclusion shapes
