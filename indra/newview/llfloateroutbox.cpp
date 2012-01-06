@@ -280,6 +280,14 @@ void LLFloaterOutbox::updateFolderCount()
 	
 	mOutboxItemCount = item_count;
 
+	if (!mImportBusy)
+	{
+		updateFolderCountStatus();
+	}
+}
+
+void LLFloaterOutbox::updateFolderCountStatus()
+{
 	if (mOutboxInventoryPanel)
 	{
 		switch (mOutboxItemCount)
@@ -304,10 +312,7 @@ void LLFloaterOutbox::updateFolderCount()
 
 void LLFloaterOutbox::updateView()
 {
-	if (!mImportBusy)
-	{
-		updateFolderCount();
-	}
+	updateFolderCount();
 
 	if (mOutboxItemCount > 0)
 	{

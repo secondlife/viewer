@@ -83,6 +83,7 @@ protected:
 	void setStatusString(const std::string& statusString);
 	
 	void updateFolderCount();
+	void updateFolderCountStatus();
 	void updateView();
 
 private:
