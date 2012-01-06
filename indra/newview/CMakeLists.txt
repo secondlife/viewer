@@ -1505,15 +1505,9 @@ set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
 if (WINDOWS)
-    if (USE_TCMALLOC)
-      set(TCMALLOC_INCLUDE_FLAGS  "/INCLUDE:__tcmalloc")
-    else (USE_TCMALLOC)
-      set(TCMALLOC_INCLUDE_FLAGS)
-    endif (USE_TCMALLOC)
-  
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_INCLUDE_FLAGS}"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
         LINK_FLAGS_RELEASE ""
         )

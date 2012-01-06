@@ -14,8 +14,10 @@ else (STANDALONE)
        set(TCMALLOC_LIBRARIES 
          debug libtcmalloc_minimal-debug
          optimized libtcmalloc_minimal)
+       set(TCMALLOC_LINK_FLAGS  "/INCLUDE:__tcmalloc")
     else (USE_TCMALLOC)
       set(TCMALLOC_LIBRARIES)
+      set(TCMALLOC_LINK_FLAGS)
     endif (USE_TCMALLOC)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
@@ -44,13 +46,13 @@ if (WINDOWS)
    set(USE_GOOGLE_PERFTOOLS ON)
 endif (WINDOWS)
 
-# Apparently buggy - LL_USE_TCMALLOC never gets set. Fix when we have time to test the
-# corresponding source code.
-if (USE_TCMALLOC)
-  set(TCMALLOC_FLAG -ULL_USE_TCMALLOC) # was -ULL_USE_TCMALLOC=1 which makes no sense.
-else (USE_TCMALLOC)
-  set(TCMALLOC_FLAG -ULL_USE_TCMALLOC)
-endif (USE_TCMALLOC)
+if (USE_GOOGLE_PERFTOOLS)
+  if (USE_TCMALLOC)
+    set(TCMALLOC_FLAG -DLL_USE_TCMALLOC=1)
+  else (USE_TCMALLOC)
+    set(TCMALLOC_FLAG -ULL_USE_TCMALLOC)
+  endif (USE_TCMALLOC)
+endif (USE_GOOGLE_PERFTOOLS)
 
 if (USE_GOOGLE_PERFTOOLS)
   include_directories(${GOOGLE_PERFTOOLS_INCLUDE_DIR})
