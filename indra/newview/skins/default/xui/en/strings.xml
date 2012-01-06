@@ -2272,7 +2272,7 @@ Returns a string with the requested data about the region
 	<string name="NextStipendDay"       value="The next stipend day is " />
 	<string name="GroupPlanningDate">[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc]</string>
 	<string name="GroupIndividualShare" value="                      Group       Individual Share" />
-	<string name="GroupColumn"          value="Group" />
+	<string name="GroupColumn"          value="                      Group" />
 	<string name="Balance">Balance</string>
 	<string name="Credits">Credits</string>
 	<string name="Debits">Debits</string>
