@@ -74,6 +74,7 @@
 
 // Marketplace outbox current disabled
 #define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
+#define ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU 0
 #define BLOCK_WORN_ITEMS_IN_OUTBOX 1
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
@@ -128,6 +129,11 @@ bool isRemoveAction(const std::string& action)
 bool isMarketplaceCopyAction(const std::string& action)
 {
 	return (("copy_to_outbox" == action) || ("move_to_outbox" == action));
+}
+
+bool isMarketplaceSendAction(const std::string& action)
+{
+	return ("send_to_marketplace" == action);
 }
 
 // +=================================================+
@@ -657,7 +663,7 @@ void LLInvFVBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}	
 	else if(isOutboxFolder())
 	{
-		items.push_back(std::string("Delete"));
+		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
 	else
 	{
@@ -732,6 +738,32 @@ void LLInvFVBridge::addOpenRightClickMenuOption(menuentry_vec_t &items)
 		items.push_back(std::string("Open Original"));
 	else
 		items.push_back(std::string("Open"));
+}
+
+void LLInvFVBridge::addOutboxContextMenuOptions(U32 flags,
+												menuentry_vec_t &items,
+												menuentry_vec_t &disabled_items)
+{
+	items.push_back(std::string("Rename"));
+	items.push_back(std::string("Delete"));
+	
+	if ((flags & FIRST_SELECTED_ITEM) == 0)
+	{
+		disabled_items.push_back(std::string("Rename"));
+	}
+	
+#if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
+	if (isOutboxFolderDirectParent())
+	{
+		items.push_back(std::string("Marketplace Separator"));
+		items.push_back(std::string("Marketplace Send"));
+		
+		if ((flags & FIRST_SELECTED_ITEM) == 0)
+		{
+			disabled_items.push_back(std::string("Marketplace Send"));
+		}
+	}
+#endif // ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 }
 
 // *TODO: remove this
@@ -852,6 +884,22 @@ BOOL LLInvFVBridge::isOutboxFolder() const
 	}
 
 	return gInventory.isObjectDescendentOf(mUUID, outbox_id);
+}
+
+BOOL LLInvFVBridge::isOutboxFolderDirectParent() const
+{
+	BOOL outbox_is_parent = FALSE;
+	
+	const LLInventoryCategory *cat = gInventory.getCategory(mUUID);
+
+	if (cat)
+	{
+		const LLUUID outbox_id = getOutboxFolder();
+		
+		outbox_is_parent = (outbox_id.notNull() && (outbox_id == cat->getParentUUID()));
+	}
+	
+	return outbox_is_parent;
 }
 
 const LLUUID LLInvFVBridge::getOutboxFolder() const
@@ -2585,6 +2633,17 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
 		copy_folder_to_outbox(cat, outbox_id, cat->getUUID());
 	}
+#if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
+	else if (isMarketplaceSendAction(action))
+	{
+		llinfos << "Send to marketplace action!" << llendl;
+
+		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
+		if (!cat) return;
+		
+		send_to_marketplace(cat);
+	}
+#endif // ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 }
 
 void LLFolderBridge::openItem()
@@ -3007,13 +3066,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else if(isOutboxFolder())
 	{
-		mItems.push_back(std::string("Rename"));
-		mItems.push_back(std::string("Delete"));
-		
-		if ((flags & FIRST_SELECTED_ITEM) == 0)
-		{
-			mDisabledItems.push_back(std::string("Rename"));
-		}
+		addOutboxContextMenuOptions(flags, mItems, mDisabledItems);
 	}
 	else if(isAgentInventory()) // do not allow creating in library
 	{
@@ -3840,7 +3893,7 @@ void LLTextureBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}	
 	else if(isOutboxFolder())
 	{
-		items.push_back(std::string("Delete"));
+		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
 	else
 	{
@@ -3916,7 +3969,7 @@ void LLSoundBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 	if (isOutboxFolder())
 	{
-		items.push_back(std::string("Delete"));
+		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
 	else
 	{
@@ -3974,7 +4027,7 @@ void LLLandmarkBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	lldebugs << "LLLandmarkBridge::buildContextMenu()" << llendl;
 	if(isOutboxFolder())
 	{
-		items.push_back(std::string("Delete"));
+		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
 	else
 	{
@@ -5540,7 +5593,7 @@ void LLMeshBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 	}
 	else if(isOutboxFolder())
 	{
-		items.push_back(std::string("Delete"));
+		addOutboxContextMenuOptions(flags, items, disabled_items);
 	}
 	else
 	{
