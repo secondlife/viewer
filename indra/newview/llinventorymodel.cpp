@@ -377,14 +377,67 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 	return rv;
 }
 
+class LLCreateInventoryCategoryResponder : public LLHTTPClient::Responder
+{
+public:
+	LLCreateInventoryCategoryResponder(LLInventoryModel* model, 
+									   void (*callback)(const LLSD&, void*),
+									   void* user_data) :
+										mModel(model),
+										mCallback(callback), 
+										mData(user_data) 
+	{
+	}
+	
+	virtual void error(U32 status, const std::string& reason)
+	{
+		LL_WARNS("InvAPI") << "CreateInventoryCategory failed.   status = " << status << ", reasion = \"" << reason << "\"" << LL_ENDL;
+	}
+	
+	virtual void result(const LLSD& content)
+	{
+		//Server has created folder.
+		
+		LLUUID category_id = content["folder_id"].asUUID();
+		
+		
+		// Add the category to the internal representation
+		LLPointer<LLViewerInventoryCategory> cat =
+		new LLViewerInventoryCategory( category_id, 
+									  content["parent_id"].asUUID(),
+									  (LLFolderType::EType)content["type"].asInteger(),
+									  content["name"].asString(), 
+									  gAgent.getID() );
+		cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL);
+		cat->setDescendentCount(0);
+		LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+		mModel->accountForUpdate(update);
+		mModel->updateCategory(cat);
+		
+		if (mCallback && mData)
+		{
+			mCallback(content, mData);
+		}
+		
+	}
+	
+private:
+	void (*mCallback)(const LLSD&, void*);
+	void* mData;
+	LLInventoryModel* mModel;
+};
+
 // Convenience function to create a new category. You could call
 // updateCategory() with a newly generated UUID category, but this
 // version will take care of details like what the name should be
 // based on preferred type. Returns the UUID of the new category.
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLFolderType::EType preferred_type,
-										   const std::string& pname)
+										   const std::string& pname,
+										   void (*callback)(const LLSD&, void*),	//Default to NULL
+										   void* user_data)							//Default to NULL
 {
+	
 	LLUUID id;
 	if(!isInventoryUsable())
 	{
@@ -407,6 +460,35 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	else
 	{
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
+	}
+	
+	if ( callback && user_data )  //callback required for acked message.
+	{
+		LLViewerRegion* viewer_region = gAgent.getRegion();
+		std::string url;
+		if ( viewer_region )
+			url = viewer_region->getCapability("CreateInventoryCategory");
+		
+		if (!url.empty())
+		{
+			//Let's use the new capability.
+			
+			LLSD request, body;
+			body["folder_id"] = id;
+			body["parent_id"] = parent_id;
+			body["type"] = (LLSD::Integer) preferred_type;
+			body["name"] = name;
+			
+			request["message"] = "CreateInventoryCategory";
+			request["payload"] = body;
+			
+	//		viewer_region->getCapAPI().post(request);
+			LLHTTPClient::post(
+							   url,
+							   body,
+							   new LLCreateInventoryCategoryResponder(this, callback, user_data) );
+			return LLUUID::null;
+		}
 	}
 
 	// Add the category to the internal representation
@@ -1087,7 +1169,6 @@ void LLInventoryModel::notifyObservers()
 		 iter != mObservers.end(); )
 	{
 		LLInventoryObserver* observer = *iter;
-		
 		observer->changed(mModifyMask);
 
 		// safe way to increment since changed may delete entries! (@!##%@!@&*!)
@@ -2574,7 +2655,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 				<< titem->getParentUUID() << llendl;
 		U32 callback_id;
 		msg->getU32Fast(_PREHASH_ItemData, _PREHASH_CallbackID, callback_id);
-		if(titem->getUUID().notNull())
+		if(titem->getUUID().notNull() ) // && callback_id.notNull() )
 		{
 			items.push_back(titem);
 			cblist.push_back(InventoryCallbackInfo(callback_id, titem->getUUID()));
