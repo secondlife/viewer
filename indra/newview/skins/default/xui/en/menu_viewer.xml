@@ -3367,6 +3367,57 @@
              function="ToggleControl"
              parameter="ShowConsoleWindow" />
         </menu_item_check>
+        <menu
+         create_jump_keys="true"
+         label="Set Logging Level"
+         name="Set Logging Level"
+         tear_off="true">
+          <menu_item_check
+            label="Debug">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="0" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="0" />
+          </menu_item_check>
+          <menu_item_check
+            label="Info">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="1" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="1" />
+          </menu_item_check>
+          <menu_item_check
+            label="Warning">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="2" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="2" />
+          </menu_item_check>
+          <menu_item_check
+            label="Error">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="3" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="3" />
+          </menu_item_check>
+          <menu_item_check
+            label="None">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="4" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="4" />
+          </menu_item_check>
+       </menu>
 
         <menu_item_separator/>
 
