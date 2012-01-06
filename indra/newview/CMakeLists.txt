@@ -13,7 +13,6 @@ include(EXPAT)
 include(FMOD)
 include(OPENAL)
 include(FindOpenGL)
-include(Havok)
 include(JsonCpp)
 include(LLAudio)
 include(LLCharacter)
@@ -1735,7 +1734,6 @@ endif (WINDOWS)
 # that they depend upon. -brad
 target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPATHING_LIBRARIES}
-    ${HK_LIBRARIES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
