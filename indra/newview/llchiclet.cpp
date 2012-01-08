@@ -302,6 +302,13 @@ void LLIMWellChiclet::createMenu()
 
 void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 {
+	// The singleton class LLChicletBar instance might be already deleted
+	// so don't create a new one.
+	if (!LLChicletBar::instanceExists())
+	{
+		return;
+	}
+
 	const LLUUID& session_id = session_data["session_id"];
 	const S32 counter = LLChicletBar::getInstance()->getTotalUnreadIMCount();
 	const bool im_not_visible = !LLFloaterReg::instanceVisible("im_container")
