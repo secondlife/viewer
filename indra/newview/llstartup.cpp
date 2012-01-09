@@ -2032,7 +2032,7 @@ bool idle_startup()
 		const F32 wearables_time = wearables_timer.getElapsedTimeF32();
 		const F32 MAX_WEARABLES_TIME = 10.f;
 
-		if (!gAgent.isGenderChosen())
+		if (!gAgent.isGenderChosen() && isAgentAvatarValid())
 		{
 			// No point in waiting for clothing, we don't even
 			// know what gender we are.  Pop a dialog to ask and
@@ -2549,6 +2549,12 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	{
 		lldebugs << "female" << llendl;
 		gender = SEX_FEMALE;
+	}
+
+	if (!isAgentAvatarValid())
+	{
+		llwarns << "Trying to load an initial outfit for an invalid agent avatar" << llendl;
+		return;
 	}
 
 	gAgentAvatarp->setSex(gender);

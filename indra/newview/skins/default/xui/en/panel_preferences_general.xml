@@ -420,7 +420,7 @@
      follows="left|top"
      height="29"
      layout="topleft"
-     left="50"
+     left="30"
      name="busy_response"
      width="470"
      word_wrap="true">
