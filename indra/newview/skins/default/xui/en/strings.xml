@@ -18,7 +18,7 @@
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
 	<string name="StartupInitializingVFS">Initializing VFS...</string>
-  <string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
+	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
@@ -35,9 +35,9 @@
 	<string name="LoginAttempt">Previous login attempt failed. Logging in, attempt [NUMBER]</string>
 	<string name="LoginPrecaching">Loading world...</string>
 	<string name="LoginInitializingBrowser">Initializing embedded web browser...</string>
-  <string name="LoginInitializingMultimedia">Initializing multimedia...</string>
-  <string name="LoginInitializingFonts">Loading fonts...</string>
-  <string name="LoginVerifyingCache">Verifying cache files (can take 60-90 seconds)...</string>
+	<string name="LoginInitializingMultimedia">Initializing multimedia...</string>
+	<string name="LoginInitializingFonts">Loading fonts...</string>
+	<string name="LoginVerifyingCache">Verifying cache files (can take 60-90 seconds)...</string>
 	<string name="LoginProcessingResponse">Processing response...</string>
 	<string name="LoginInitializingWorld">Initializing world...</string>
 	<string name="LoginDecodingImages">Decoding images...</string>
@@ -49,12 +49,12 @@
 	<string name="LoginWaitingForRegionHandshake">Waiting for region handshake...</string>
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
-        <string name="InvalidCertificate">The server returned an invalid or corrupt certificate. Please contact the Grid administrator.</string>
-        <string name="CertInvalidHostname">An invalid hostname was used to access the server, please check your SLURL or Grid hostname.</string>
-        <string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.</string>
-        <string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
-        <string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
-        <string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.</string>
+	<string name="InvalidCertificate">The server returned an invalid or corrupt certificate. Please contact the Grid administrator.</string>
+	<string name="CertInvalidHostname">An invalid hostname was used to access the server, please check your SLURL or Grid hostname.</string>
+	<string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.</string>
+	<string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
+	<string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
+	<string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.</string>
 
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
@@ -165,6 +165,7 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
 
+	<string name="TooltipOutboxDragToWorld">You can not rez items in your merchant outbox</string>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred.</string>
 	<string name="TooltipOutboxNotInInventory">Your merchant outbox can only accept items directly from your inventory</string>
 	<string name="TooltipOutboxWorn">You can not put items you are wearing into your merchant outbox</string>
