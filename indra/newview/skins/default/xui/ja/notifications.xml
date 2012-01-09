@@ -1467,7 +1467,7 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		<usetemplate ignoretext="オブジェクトを所有者に返却する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		現在あなたは [GROUP] のメンバーです。
+		現在あなたは &lt;nolink&gt;[GROUP]&lt;/nolink&gt; のメンバーです。
 このグループを抜けますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>

@@ -98,24 +98,25 @@ class LLCustomButtonIconCtrl : public LLButton
 {
 public:
 	struct Params
-	: public LLInitParam::Block<Params, LLButton::Params>
+	:	public LLInitParam::Block<Params, LLButton::Params>
 	{
 		// LEFT, RIGHT, TOP, BOTTOM paddings of LLIconCtrl in this class has same value
 		Optional<S32>					icon_ctrl_pad;
 
-		Params():
-		icon_ctrl_pad("icon_ctrl_pad", 1)
+		Params()
+		:	icon_ctrl_pad("icon_ctrl_pad", 1)
 		{}
 	};
 
 protected:
 	friend class LLUICtrlFactory;
-	LLCustomButtonIconCtrl(const Params& p):
-		LLButton(p),
+
+	LLCustomButtonIconCtrl(const Params& p)
+	:	LLButton(p),
 		mIcon(NULL),
 		mIconAlignment(LLFontGL::HCENTER),
 		mIconCtrlPad(p.icon_ctrl_pad)
-		{}
+	{}
 
 public:
 

@@ -35,6 +35,7 @@
 #include "llcombobox.h"
 #include "lldir.h"
 #include "llexternaleditor.h"
+#include "llfilepicker.h"
 #include "llfloaterreg.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
@@ -503,6 +504,14 @@ void LLScriptEdCore::initMenu()
 
 	menuItem = getChild<LLMenuItemCallGL>("Keyword Help...");
 	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnDynamicHelp, this));
+
+	menuItem = getChild<LLMenuItemCallGL>("LoadFromFile");
+	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnLoadFromFile, this));
+	menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::enableLoadFromFileMenu, this));
+
+	menuItem = getChild<LLMenuItemCallGL>("SaveToFile");
+	menuItem->setClickCallback(boost::bind(&LLScriptEdCore::onBtnSaveToFile, this));
+	menuItem->setEnableCallback(boost::bind(&LLScriptEdCore::enableSaveToFileMenu, this));
 }
 
 void LLScriptEdCore::setScriptText(const std::string& text, BOOL is_valid)
@@ -1094,6 +1103,88 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 	}
 
 	return FALSE;
+}
+
+void LLScriptEdCore::onBtnLoadFromFile( void* data )
+{
+	LLScriptEdCore* self = (LLScriptEdCore*) data;
+
+	// TODO Maybe add a dialogue warning here if the current file has unsaved changes.
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if( !file_picker.getOpenFile( LLFilePicker::FFLOAD_SCRIPT ) )
+	{
+		//File picking cancelled by user, so nothing to do.
+		return;
+	}
+
+	std::string filename = file_picker.getFirstFile();
+
+	std::ifstream fin(filename.c_str());
+
+	std::string line;
+	std::string text;
+	std::string linetotal;
+	while (!fin.eof())
+	{ 
+		getline(fin,line);
+		text += line;
+		if (!fin.eof())
+		{
+			text += "\n";
+		}
+	}
+	fin.close();
+
+	// Only replace the script if there is something to replace with.
+	if (text.length() > 0)
+	{
+		self->mEditor->selectAll();
+		LLWString script(utf8str_to_wstring(text));
+		self->mEditor->insertText(script);
+	}
+}
+
+void LLScriptEdCore::onBtnSaveToFile( void* userdata )
+{
+
+	LLViewerStats::getInstance()->incStat( LLViewerStats::ST_LSL_SAVE_COUNT );
+
+	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+
+	if( self->mSaveCallback )
+	{
+		LLFilePicker& file_picker = LLFilePicker::instance();
+		if( file_picker.getSaveFile( LLFilePicker::FFSAVE_SCRIPT ) )
+		{
+			std::string filename = file_picker.getFirstFile();
+			std::string scriptText=self->mEditor->getText();
+			std::ofstream fout(filename.c_str());
+			fout<<(scriptText);
+			fout.close();
+			self->mSaveCallback( self->mUserdata, FALSE );
+		}
+	}
+}
+
+bool LLScriptEdCore::canLoadOrSaveToFile( void* userdata )
+{
+	LLScriptEdCore* self = (LLScriptEdCore*) userdata;
+	return self->mEditor->canLoadOrSaveToFile();
+}
+
+// static
+bool LLScriptEdCore::enableSaveToFileMenu(void* userdata)
+{
+	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
+	if (!self || !self->mEditor) return FALSE;
+	return self->mEditor->canLoadOrSaveToFile();
+}
+
+// static 
+bool LLScriptEdCore::enableLoadFromFileMenu(void* userdata)
+{
+	LLScriptEdCore* self = (LLScriptEdCore*)userdata;
+	return (self && self->mEditor) ? self->mEditor->canLoadOrSaveToFile() : FALSE;
 }
 
 /// ---------------------------------------------------------------------------

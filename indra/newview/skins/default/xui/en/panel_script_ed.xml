@@ -54,12 +54,22 @@
              label="Save"
              layout="topleft"
              name="Save" />
-            <menu_item_separator
-             layout="topleft" />
-            <menu_item_call
-             label="Revert All Changes"
-             layout="topleft"
-             name="Revert All Changes" />
+          <menu_item_separator
+           layout="topleft" />
+          <menu_item_call
+           label="Revert All Changes"
+           layout="topleft"
+           name="Revert All Changes" />
+          <menu_item_separator
+           layout="topleft" />
+          <menu_item_call
+           label="Load from file..."
+           layout="topleft"
+           name="LoadFromFile" />
+          <menu_item_call
+           label="Save to file..."
+           layout="topleft"
+           name="SaveToFile" />
         </menu>
         <menu
          top="0"
