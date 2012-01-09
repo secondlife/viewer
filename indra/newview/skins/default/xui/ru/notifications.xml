@@ -1431,7 +1431,7 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Подтверждать перед возвратом объектов владельцам" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Вы являетесь участником группы [GROUP].
+		Вы являетесь участником группы &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Хотите покинуть группу?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
