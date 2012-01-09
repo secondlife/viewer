@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="chat_bar" title="CHAT IN DER NÄHE">
-	<panel>
+	<panel name="bottom_panel">
 		<line_editor label="Zum Chatten hier klicken." name="chat_box" tool_tip="Eingabetaste zum Sprechen, Strg+Eingabe zum Rufen"/>
 		<button name="show_nearby_chat" tool_tip="Chatprotokoll in der Nähe ein-/ausblenden"/>
 	</panel>

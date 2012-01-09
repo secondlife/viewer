@@ -2203,6 +2203,30 @@ class LLAdvancedEnableToggleHackedGodmode : public view_listener_t
 //// Advanced menu
 ////-------------------------------------------------------------------
 
+
+//////////////////
+// DEVELOP MENU //
+//////////////////
+
+class LLDevelopCheckLoggingLevel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		U32 level = userdata.asInteger();
+		return (static_cast<LLError::ELevel>(level) == LLError::getDefaultLevel());
+	}
+};
+
+class LLDevelopSetLoggingLevel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		U32 level = userdata.asInteger();
+		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
+		return true;
+	}
+};
+
 //////////////////
 // ADMIN MENU   //
 //////////////////
@@ -8195,6 +8219,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 
+	// Develop >Set logging level
+	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
+	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

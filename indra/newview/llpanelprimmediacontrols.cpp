@@ -1351,7 +1351,6 @@ void LLPanelPrimMediaControls::showNotification(LLNotificationPtr notify)
 	LLWindowShade::Params params;
 	params.rect = mMediaRegion->getLocalRect();
 	params.follows.flags = FOLLOWS_ALL;
-	params.notification = notify;
 
 	//HACK: don't hardcode this
 	if (notify->getIcon() == "Popup_Caution")
@@ -1369,7 +1368,7 @@ void LLPanelPrimMediaControls::showNotification(LLNotificationPtr notify)
 	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
 
 	mMediaRegion->addChild(mWindowShade);
-	mWindowShade->show();
+	mWindowShade->show(notify);
 }
 
 void LLPanelPrimMediaControls::hideNotification()

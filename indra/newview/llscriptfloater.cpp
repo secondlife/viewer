@@ -408,9 +408,16 @@ void LLScriptFloaterManager::onRemoveNotification(const LLUUID& notification_id)
 	}
 
 	// remove related chiclet
-	LLChicletBar::getInstance()->getChicletPanel()->removeChiclet(notification_id);
+	if (LLChicletBar::instanceExists())
+	{
+		LLChicletBar::getInstance()->getChicletPanel()->removeChiclet(notification_id);
+	}
 
-	LLIMWellWindow::getInstance()->removeObjectRow(notification_id);
+	LLIMWellWindow* im_well_window = LLIMWellWindow::findInstance();
+	if (im_well_window)
+	{
+		im_well_window->removeObjectRow(notification_id);
+	}
 
 	mNotifications.erase(notification_id);
 

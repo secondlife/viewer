@@ -3409,7 +3409,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group [GROUP].
+You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Leave Group?
     <tag>group</tag>
     <tag>confirm</tag>
@@ -6949,6 +6949,26 @@ With the following Residents:
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="ShareFolderConfirmation"
+   type="alertmodal">
+Only one folder at a time can be shared.
+
+Are you sure you want to share the following items:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+With the following Residents:
+
+[RESIDENTS]
+  <tag>confirm</tag>
+	<usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Ok"/>
   </notification>
   
   <notification
