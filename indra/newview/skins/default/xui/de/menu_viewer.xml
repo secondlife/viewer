@@ -19,8 +19,6 @@
 			<menu_item_call label="Abwesend" name="Set Away"/>
 			<menu_item_call label="Beschäftigt" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Admin-Status anfordern" name="Request Admin Options"/>
-		<menu_item_call label="Admin-Status verlassen" name="Leave Admin Options"/>
 		<menu_item_call label="L$ kaufen" name="Buy and Sell L$"/>
 		<menu_item_call label="Einstellungen..." name="Preferences"/>
 		<menu_item_call label="Symbolleisten..." name="Toolbars"/>
@@ -40,11 +38,10 @@
 		<menu_item_check label="Suchen" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Landmarke für diesen Ort setzen" name="Create Landmark Here"/>
-		<menu label="Ortsprofil" name="Land">
-			<menu_item_call label="Ortsprofil" name="Place Profile"/>
-			<menu_item_call label="Land-Info" name="About Land"/>
-			<menu_item_call label="Region/Grundbesitz" name="Region/Estate"/>
-		</menu>
+		<menu_item_separator/>
+		<menu_item_call label="Ortsprofil" name="Place Profile"/>
+		<menu_item_call label="Land-Info" name="About Land"/>
+		<menu_item_call label="Region/Grundbesitz" name="Region/Estate"/>
 		<menu_item_call label="Dieses Land kaufen" name="Buy Land"/>
 		<menu_item_call label="Mein Land" name="My Land"/>
 		<menu label="Anzeigen" name="LandShow">
@@ -60,14 +57,14 @@
 		</menu>
 		<menu_item_call label="Teleport nach Hause" name="Teleport Home"/>
 		<menu_item_call label="Hier als Zuhause wählen" name="Set Home to Here"/>
-		<menu label="Sonne" name="Environment Settings">
+		<menu label="Sonne" name="Sun">
 			<menu_item_call label="Sonnenaufgang" name="Sunrise"/>
 			<menu_item_call label="Mittag" name="Noon"/>
 			<menu_item_call label="Sonnenuntergang" name="Sunset"/>
 			<menu_item_call label="Mitternacht" name="Midnight"/>
 		</menu>
 		<menu label="Umgebungs-Editor" name="Enviroment Editor">
-			<menu_item_call label="Umgebungseinstellungen..." name="Enviroment Settings"/>
+			<menu_item_call label="Umgebungseinstellungen..." name="Environment Settings"/>
 			<menu label="Wasser-Voreinstellungen" name="Water Presets">
 				<menu_item_call label="Neue Voreinstellung..." name="new_water_preset"/>
 				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_water_preset"/>
@@ -173,22 +170,22 @@
 			<menu_item_check label="Fadenkreuz für Mouselook anzeigen" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Darstellungstypen" name="Rendering Types">
-			<menu_item_check label="Einfach" name="Simple"/>
-			<menu_item_check label="Alpha" name="Alpha"/>
-			<menu_item_check label="Baum" name="Tree"/>
-			<menu_item_check label="Avatare" name="Character"/>
-			<menu_item_check label="Flächenpatch" name="Surface Patch"/>
-			<menu_item_check label="Himmel" name="Sky"/>
-			<menu_item_check label="Wasser" name="Water"/>
-			<menu_item_check label="Boden" name="Ground"/>
-			<menu_item_check label="Volumen" name="Volume"/>
-			<menu_item_check label="Gras" name="Grass"/>
-			<menu_item_check label="Wolken" name="Clouds"/>
-			<menu_item_check label="Partikel" name="Particles"/>
-			<menu_item_check label="Unebenheiten" name="Bump"/>
+			<menu_item_check label="Einfach" name="Rendering Type Simple"/>
+			<menu_item_check label="Alpha" name="Rendering Type Alpha"/>
+			<menu_item_check label="Baum" name="Rendering Type Tree"/>
+			<menu_item_check label="Avatare" name="Rendering Type Character"/>
+			<menu_item_check label="Flächenpatch" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="Himmel" name="Rendering Type Sky"/>
+			<menu_item_check label="Wasser" name="Rendering Type Water"/>
+			<menu_item_check label="Boden" name="Rendering Type Ground"/>
+			<menu_item_check label="Volumen" name="Rendering Type Volume"/>
+			<menu_item_check label="Gras" name="Rendering Type Grass"/>
+			<menu_item_check label="Wolken" name="Rendering Type Clouds"/>
+			<menu_item_check label="Partikel" name="Rendering Type Particles"/>
+			<menu_item_check label="Unebenheiten" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="Rendering-Eigenschaften" name="Rendering Features">
-			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="UI" name="ToggleUI"/>
 			<menu_item_check label="Ausgewählt" name="Selected"/>
 			<menu_item_check label="Farblich hervorgehoben" name="Highlighted"/>
 			<menu_item_check label="Dynamische Texturen" name="Dynamic Textures"/>
@@ -201,10 +198,7 @@
 		<menu_item_call label="Gruppen-Cache löschen" name="ClearGroupCache"/>
 		<menu_item_check label="Weiche Mausbewegung" name="Mouse Smoothing"/>
 		<menu label="Tastaturkürzel" name="Shortcuts">
-			<menu_item_call label="Bild ([COST] L$)..." name="Upload Image"/>
-			<menu_item_check label="Suchen" name="Search"/>
 			<menu_item_call label="Tasten freigeben" name="Release Keys"/>
-			<menu_item_call label="UI-Größe auf Standard setzen" name="Set UI Size to Default"/>
 			<menu_item_check label="Erweitert-Menü anzeigen - veraltetet" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Fenster schließen" name="Close Window"/>
 			<menu_item_call label="Alle Fenster schließen" name="Close All Windows"/>
@@ -213,13 +207,6 @@
 			<menu_item_check label="Joystick-Flycam" name="Joystick Flycam"/>
 			<menu_item_call label="Ansicht zurücksetzen" name="Reset View"/>
 			<menu_item_call label="Letzten Chatter ansehen" name="Look at Last Chatter"/>
-			<menu label="Bauwerkzeug auswählen" name="Select Tool">
-				<menu_item_call label="Fokus-Werkzeug" name="Focus"/>
-				<menu_item_call label="Werkzeug „Bewegen“" name="Move"/>
-				<menu_item_call label="Bearbeiten" name="Edit"/>
-				<menu_item_call label="Werkzeug „Erstellen&quot;" name="Create"/>
-				<menu_item_call label="Land-Werkzeug" name="Land"/>
-			</menu>
 			<menu_item_call label="Hineinzoomen" name="Zoom In"/>
 			<menu_item_call label="Zoom-Standard" name="Zoom Default"/>
 			<menu_item_call label="Wegzoomen" name="Zoom Out"/>
@@ -333,9 +320,8 @@
 			<menu_item_call label="Aufnahme starten" name="Start Record"/>
 			<menu_item_call label="Aufnahme stoppen" name="Stop Record"/>
 		</menu>
-		<menu label="Welt" name="World">
+		<menu label="Welt" name="DevelopWorld">
 			<menu_item_check label="Sonnen-Override für Sim" name="Sim Sun Override"/>
-			<menu_item_check label="Pulsierender Strahl" name="Cheesy Beacon"/>
 			<menu_item_check label="Festgelegtes Wetter" name="Fixed Weather"/>
 			<menu_item_call label="Regionsobjekt-Cache ausgeben" name="Dump Region Object Cache"/>
 		</menu>
@@ -367,11 +353,11 @@
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Geladene Textur nehmen" name="Grab Baked Texture">
-				<menu_item_call label="Iris" name="Iris"/>
-				<menu_item_call label="Kopf" name="Head"/>
-				<menu_item_call label="Oberkörper" name="Upper Body"/>
-				<menu_item_call label="Unterkörper" name="Lower Body"/>
-				<menu_item_call label="Rock" name="Skirt"/>
+				<menu_item_call label="Iris" name="Grab Iris"/>
+				<menu_item_call label="Kopf" name="Grab Head"/>
+				<menu_item_call label="Oberkörper" name="Grab Upper Body"/>
+				<menu_item_call label="Unterkörper" name="Grab Lower Body"/>
+				<menu_item_call label="Rock" name="Grab Skirt"/>
 			</menu>
 			<menu label="Avatar-Tests" name="Character Tests">
 				<menu_item_call label="Aussehen als XML speichern" name="Appearance To XML"/>
@@ -406,8 +392,8 @@
 		<menu_item_check label="Admin-Menü anzeigen" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="Kopie nehmen" name="Take Copy"/>
+		<menu label="Object" name="AdminObject">
+			<menu_item_call label="Kopie nehmen" name="Admin Take Copy"/>
 			<menu_item_call label="Besitzer zu mir zwingen" name="Force Owner To Me"/>
 			<menu_item_call label="Erlaubnis des Besitzers erzwingen" name="Force Owner Permissive"/>
 			<menu_item_call label="Löschen" name="Delete"/>
@@ -443,7 +429,7 @@
 			<menu_item_call label="Physik" name="Physics"/>
 			<menu_item_call label="Alle Kleider" name="All Clothes"/>
 		</menu>
-		<menu label="Hilfe" name="Help">
+		<menu label="Hilfe" name="DeprecatedHelp">
 			<menu_item_call label="Offizielles Linden-Blog" name="Official Linden Blog"/>
 			<menu_item_call label="Scripting-Portal" name="Scripting Portal"/>
 			<menu label="Fehlermeldungen" name="Bug Reporting">
