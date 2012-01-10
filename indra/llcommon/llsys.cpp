@@ -1364,11 +1364,21 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;
 
-	do
+	while ((bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE, src)) > 0)
 	{
-		bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE,src);
-		gzwrite(dst, buffer, bytes);
-	} while(feof(src) == 0);
+		if (gzwrite(dst, buffer, bytes) <= 0)
+		{
+			llwarns << "gzwrite failed: " << gzerror(dst, NULL) << llendl;
+			goto err;
+		}
+	}
+
+	if (ferror(src))
+	{
+		llwarns << "Error reading " << srcfile << llendl;
+		goto err;
+	}
+
 	gzclose(dst);
 	dst = NULL;
 #if LL_WINDOWS
