@@ -36,6 +36,9 @@
 #include "llviewerregion.h"
 #include "llhttpclient.h"
 #include "lltextbase.h"
+#include "lluuid.h"
+#include "llviewerobject.h"
+#include "llviewerobjectlist.h"
 
 //---------------------------------------------------------------------------
 // NavmeshDataGetResponder
@@ -168,7 +171,7 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmes
 	for (LLSD::map_const_iterator itemsIter = pNavmeshData.beginMap();
 		itemsIter != pNavmeshData.endMap(); ++itemsIter)
 	{
-		const std::string& uuid = itemsIter->first;
+		LLUUID uuid(itemsIter->first);
 		const LLSD& itemData = itemsIter->second;
 
 		const LLSD::String& itemName = itemData.get("name").asString();
@@ -182,9 +185,16 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmes
 		LLSD::Real itemC = itemData.get("C").asReal();
 		LLSD::Real itemD = itemData.get("D").asReal();
 
-		F32 location_x = 50.0f, location_y = 50.0f, location_z = 50.0f; // XXX stinson: use real location later
-		LLVector3 itemLocation(location_x, location_y, location_z);
-		F32 itemDistance = dist_vec(avatarPosition, itemLocation);
+		// XXX stinson: get a better way to get all objects locations in the region as the
+		// following calculation only returns objects of which the viewer is aware.
+		LLViewerObject *viewerObject = gObjectList.findObject(uuid);
+		bool hasDistance = (viewerObject != NULL);
+		F32 itemDistance = -999.0f;
+		if (hasDistance)
+		{
+			const LLVector3& itemLocation = viewerObject->getPositionAgent();
+			itemDistance = dist_vec(avatarPosition, itemLocation);
+		}
 
 		LLSD columns;
 
@@ -197,11 +207,18 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmes
 		columns[1]["font"] = "SANSSERIF";
 
 		columns[2]["column"] = "land_impact";
-		columns[2]["value"] = llformat("%1d m", itemLandImpact);
+		columns[2]["value"] = llformat("%1d", itemLandImpact);
 		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "dist_from_you";
-		columns[3]["value"] = llformat("%1.0f m", itemDistance);
+		if (hasDistance)
+		{
+			columns[3]["value"] = llformat("%1.0f m", itemDistance);
+		}
+		else
+		{
+			columns[3]["value"] = "--";
+		}
 		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "is_fixed";
