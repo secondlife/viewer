@@ -33,7 +33,6 @@
 class LLSD;
 class LLTextBase;
 class LLScrollListCtrl;
-class NavmeshDataGetResponder;
 
 class LLFloaterPathfindingLinksets
 :	public LLFloater
@@ -41,18 +40,32 @@ class LLFloaterPathfindingLinksets
 	friend class LLFloaterReg;
 	friend class NavmeshDataGetResponder;
 
+	typedef enum
+	{
+		kFetchInitial,
+		kFetchStarting,
+		kFetchInProgress,
+		kFetchInProgress_MultiRequested,
+		kFetchReceived,
+		kFetchError,
+		kFetchComplete
+	} EFetchState;
+
 public:
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 
 	static void openLinksetsEditor();
 
+	EFetchState getFetchState() const;
+	BOOL        isFetchInProgress() const;
+
 protected:
 
 private:
+	EFetchState             mFetchState;
 	LLScrollListCtrl        *mLinksetsScrollList;
 	LLTextBase              *mLinksetsStatus;
-	NavmeshDataGetResponder *mNavmeshDataGetResponder;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
@@ -62,7 +75,8 @@ private:
 	void sendNavmeshDataGetRequest();
 	void handleNavmeshDataGetReply(const LLSD& pNavmeshData);
 	void handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
-	void clearNavmeshDataResponder();
+
+	void setFetchState(EFetchState pFetchState);
 
 	void onLinksetsSelectionChange();
 	void onRefreshLinksetsClicked();
@@ -73,10 +87,7 @@ private:
 	void selectAllLinksets();
 	void selectNoneLinksets();
 
-	void updateLinksetsStatus();
-	void updateLinksetsStatusForFetch();
-	void updateLinksetsStatusForFetchInProgress();
-	void updateLinksetsStatusForFetchError();
+	void updateLinksetsStatusMessage();
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

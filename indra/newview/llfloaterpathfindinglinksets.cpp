@@ -75,7 +75,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mLinksetsStatus = findChild<LLTextBase>("linksets_status");
 	llassert(mLinksetsStatus != NULL);
 
-	updateLinksetsStatus();
+	setFetchState(kFetchInitial);
 
 	return LLFloater::postBuild();
 }
@@ -90,27 +90,54 @@ void LLFloaterPathfindingLinksets::openLinksetsEditor()
 	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_linksets");
 }
 
+LLFloaterPathfindingLinksets::EFetchState LLFloaterPathfindingLinksets::getFetchState() const
+{
+	return mFetchState;
+}
+
+BOOL LLFloaterPathfindingLinksets::isFetchInProgress() const
+{
+	BOOL retVal;
+	switch (getFetchState())
+	{
+	case kFetchStarting :
+	case kFetchInProgress :
+	case kFetchInProgress_MultiRequested :
+	case kFetchReceived :
+		retVal = true;
+		break;
+	default :
+		retVal = false;
+		break;
+	}
+
+	return retVal;
+}
+
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	: LLFloater(pSeed),
+	mFetchState(kFetchInitial),
 	mLinksetsScrollList(NULL),
-	mLinksetsStatus(NULL),
-	mNavmeshDataGetResponder(NULL)
+	mLinksetsStatus(NULL)
 {
 }
 
 LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 {
-	clearNavmeshDataResponder();
 }
 
 void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 {
-	if (mNavmeshDataGetResponder != NULL)
+	if (isFetchInProgress())
 	{
-		updateLinksetsStatusForFetchInProgress();
+		if (getFetchState() == kFetchInProgress)
+		{
+			setFetchState(kFetchInProgress_MultiRequested);
+		}
 	}
 	else
 	{
+		setFetchState(kFetchStarting);
 		clearLinksetsList();
 
 		LLViewerRegion* region = gAgent.getRegion();
@@ -119,13 +146,13 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 			std::string navmeshDataURL = region->getCapability("ObjectNavmesh");
 			if (navmeshDataURL.empty())
 			{
-				llinfos << "cannot query navmesh data from current region '" << region->getName() << "'" << llendl;
+				setFetchState(kFetchComplete);
+				llwarns << "cannot query navmesh data from current region '" << region->getName() << "'" << llendl;
 			}
 			else
 			{
-				updateLinksetsStatusForFetch();
-				mNavmeshDataGetResponder = new NavmeshDataGetResponder(navmeshDataURL, this);
-				LLHTTPClient::get(navmeshDataURL, mNavmeshDataGetResponder);
+				setFetchState(kFetchInProgress);
+				LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
 			}
 		}
 	}
@@ -133,7 +160,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 
 void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmeshData)
 {
-	clearNavmeshDataResponder();
+	setFetchState(kFetchReceived);
 	clearLinksetsList();
 
 	const LLVector3& avatarPosition = gAgent.getPositionAgent();
@@ -212,25 +239,25 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmes
 		mLinksetsScrollList->addElement(element);
 	}
 
-	updateLinksetsStatus();
+	setFetchState(kFetchComplete);
 }
 
 void LLFloaterPathfindingLinksets::handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason)
 {
-	clearNavmeshDataResponder();
+	setFetchState(kFetchError);
 	clearLinksetsList();
-	updateLinksetsStatusForFetchError();
 	llwarns << "Error fetching navmesh data from URL '" << pURL << "' because " << pErrorReason << llendl;
 }
 
-void LLFloaterPathfindingLinksets::clearNavmeshDataResponder()
+void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)
 {
-	mNavmeshDataGetResponder = NULL;
+	mFetchState = pFetchState;
+	updateLinksetsStatusMessage();
 }
 
 void LLFloaterPathfindingLinksets::onLinksetsSelectionChange()
 {
-	updateLinksetsStatus();
+	updateLinksetsStatusMessage();
 }
 
 void LLFloaterPathfindingLinksets::onRefreshLinksetsClicked()
@@ -251,7 +278,7 @@ void LLFloaterPathfindingLinksets::onSelectNoneLinksetsClicked()
 void LLFloaterPathfindingLinksets::clearLinksetsList()
 {
 	mLinksetsScrollList->deleteAllItems();
-	updateLinksetsStatus();
+	updateLinksetsStatusMessage();
 }
 
 void LLFloaterPathfindingLinksets::selectAllLinksets()
@@ -264,51 +291,61 @@ void LLFloaterPathfindingLinksets::selectNoneLinksets()
 	mLinksetsScrollList->deselectAllItems();
 }
 
-void LLFloaterPathfindingLinksets::updateLinksetsStatus()
+void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 {
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+
 	std::string statusText("");
-
-	if (mLinksetsScrollList->isEmpty())
-	{
-		statusText = getString("linksets_none_found");
-	}
-	else
-	{
-		S32 numItems = mLinksetsScrollList->getItemCount();
-		S32 numSelectedItems = mLinksetsScrollList->getNumSelected();
-
-		LLLocale locale(LLStringUtil::getLocale());
-		std::string numItemsString;
-		LLResMgr::getInstance()->getIntegerString(numItemsString, numItems);
-
-		std::string numSelectedItemsString;
-		LLResMgr::getInstance()->getIntegerString(numSelectedItemsString, numSelectedItems);
-
-		LLStringUtil::format_map_t string_args;
-		string_args["[NUM_SELECTED]"] = numSelectedItemsString;
-		string_args["[NUM_TOTAL]"] = numItemsString;
-		statusText = getString("linksets_available", string_args);
-	}
-
-	mLinksetsStatus->setText((LLStringExplicit)statusText);
-}
-
-void LLFloaterPathfindingLinksets::updateLinksetsStatusForFetch()
-{
-	mLinksetsStatus->setText((LLStringExplicit)getString("linksets_fetching"));
-}
-
-void LLFloaterPathfindingLinksets::updateLinksetsStatusForFetchInProgress()
-{
-	mLinksetsStatus->setText((LLStringExplicit)getString("linksets_fetching_inprogress"));
-}
-
-void LLFloaterPathfindingLinksets::updateLinksetsStatusForFetchError()
-{
-	LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
 	LLStyle::Params styleParams;
-	styleParams.color = warningColor;
-	mLinksetsStatus->setText((LLStringExplicit)getString("linksets_fetching_error"), styleParams);
+
+	switch (getFetchState())
+	{
+	case kFetchStarting :
+		statusText = getString("linksets_fetching_starting");
+		break;
+	case kFetchInProgress :
+		statusText = getString("linksets_fetching_inprogress");
+		break;
+	case kFetchInProgress_MultiRequested :
+		statusText = getString("linksets_fetching_inprogress_multi_request");
+		break;
+	case kFetchReceived :
+		statusText = getString("linksets_fetching_received");
+		break;
+	case kFetchError :
+		statusText = getString("linksets_fetching_error");
+		styleParams.color = warningColor;
+		break;
+	case kFetchComplete :
+		if (mLinksetsScrollList->isEmpty())
+		{
+			statusText = getString("linksets_fetching_done_none_found");
+		}
+		else
+		{
+			S32 numItems = mLinksetsScrollList->getItemCount();
+			S32 numSelectedItems = mLinksetsScrollList->getNumSelected();
+
+			LLLocale locale(LLStringUtil::getLocale());
+			std::string numItemsString;
+			LLResMgr::getInstance()->getIntegerString(numItemsString, numItems);
+
+			std::string numSelectedItemsString;
+			LLResMgr::getInstance()->getIntegerString(numSelectedItemsString, numSelectedItems);
+
+			LLStringUtil::format_map_t string_args;
+			string_args["[NUM_SELECTED]"] = numSelectedItemsString;
+			string_args["[NUM_TOTAL]"] = numItemsString;
+			statusText = getString("linksets_fetching_done_available", string_args);
+		}
+		break;
+	case kFetchInitial:
+	default:
+		statusText = getString("linksets_fetching_initial");
+		break;
+	}
+
+	mLinksetsStatus->setText((LLStringExplicit)statusText, styleParams);
 }
 
 NavmeshDataGetResponder::NavmeshDataGetResponder(const std::string& pNavmeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
