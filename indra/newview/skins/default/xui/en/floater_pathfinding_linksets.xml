@@ -11,9 +11,17 @@
     single_instance="true"
     title="Pathfinding linksets"
     width="950">
-  <floater.string name="linksets_fetching">Finking pathfinding linksets ...</floater.string>
+  <floater.string name="linksets_fetching">Querying for pathfinding linksets ...</floater.string>
+  <floater.string name="linksets_fetching_inprogress">Querying for pathfinding linksets (already in progress) ...</floater.string>
+  <floater.string name="linksets_fetching_error">Error detected while querying for pathfinding linksets</floater.string>
   <floater.string name="linksets_none_found">No pathfinding linksets</floater.string>
   <floater.string name="linksets_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
+  <floater.string name="linkset_is_fixed">Fixed</floater.string>
+  <floater.string name="linkset_is_not_fixed">Not fixed</floater.string>
+  <floater.string name="linkset_is_walkable">Walkable</floater.string>
+  <floater.string name="linkset_is_not_walkable">--</floater.string>
+  <floater.string name="linkset_is_phantom">Phantom</floater.string>
+  <floater.string name="linkset_is_not_phantom">--</floater.string>
   <text
       height="13"
       word_wrap="false"
@@ -141,15 +149,15 @@
         width="87" />
     <scroll_list.columns
         label="Fixed"
-        name="fixed"
+        name="is_fixed"
         width="63" />
     <scroll_list.columns
         label="Walkable"
-        name="walkable"
+        name="is_walkable"
         width="73" />
     <scroll_list.columns
         label="Phantom"
-        name="phantom"
+        name="is_phantom"
         width="74" />
     <scroll_list.columns
         label="A %"

@@ -31,35 +31,38 @@
 #include "llfloater.h"
 
 class LLSD;
-class LLUICtrl;
-class LLMessageSystem;
+class LLTextBase;
 class LLScrollListCtrl;
+class NavmeshDataGetResponder;
 
 class LLFloaterPathfindingLinksets
 :	public LLFloater
 {
 	friend class LLFloaterReg;
+	friend class NavmeshDataGetResponder;
 
 public:
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 
 	static void openLinksetsEditor();
-	static void handleLandStatReply(LLMessageSystem *pMsg, void **pData);
 
 protected:
 
 private:
-	LLScrollListCtrl *mLinksetsScrollList;
-	LLUICtrl         *mLinksetsStatus;
+	LLScrollListCtrl        *mLinksetsScrollList;
+	LLTextBase              *mLinksetsStatus;
+	NavmeshDataGetResponder *mNavmeshDataGetResponder;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterPathfindingLinksets(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingLinksets();
 
-	void sendLandStatRequest();
-	void handleLandStatReply(LLMessageSystem *pMsg);
+	void sendNavmeshDataGetRequest();
+	void handleNavmeshDataGetReply(const LLSD& pNavmeshData);
+	void handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
+	void clearNavmeshDataResponder();
 
 	void onLinksetsSelectionChange();
 	void onRefreshLinksetsClicked();
@@ -72,6 +75,8 @@ private:
 
 	void updateLinksetsStatus();
 	void updateLinksetsStatusForFetch();
+	void updateLinksetsStatusForFetchInProgress();
+	void updateLinksetsStatusForFetchError();
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H
