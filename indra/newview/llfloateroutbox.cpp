@@ -438,7 +438,6 @@ void LLFloaterOutbox::importReportResults(U32 status, const LLSD& content)
 		LLSD subs;
 		subs["[ERROR_CODE]"] = status_string;
 		
-		//llassert(status == MarketplaceErrorCodes::IMPORT_JOB_FAILED);
 		LLNotificationsUtil::add("OutboxImportFailed", subs);
 	}
 	

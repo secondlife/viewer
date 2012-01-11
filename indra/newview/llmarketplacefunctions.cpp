@@ -133,6 +133,17 @@ namespace LLMarketplaceImport
 				llinfos << " SLM POST content: " << content.asString() << llendl;
 			}
 
+			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
+				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR))
+			{
+				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
+				{
+					llinfos << " SLM POST clearing marketplace cookie due to authentication failure" << llendl;
+				}
+
+				sMarketplaceCookie.clear();
+			}
+
 			sImportInProgress = (status == MarketplaceErrorCodes::IMPORT_DONE);
 			sImportPostPending = false;
 			sImportResultStatus = status;
@@ -330,16 +341,6 @@ LLMarketplaceInventoryImporter::LLMarketplaceInventoryImporter()
 {
 }
 
-void LLMarketplaceInventoryImporter::initialize()
-{
-	llassert(!mInitialized);
-	
-	if (!LLMarketplaceImport::hasSessionCookie())
-	{
-		LLMarketplaceImport::establishMarketplaceSessionCookie();
-	}
-}
-
 boost::signals2::connection LLMarketplaceInventoryImporter::setInitializationErrorCallback(const status_report_signal_t::slot_type& cb)
 {
 	if (mErrorInitSignal == NULL)
@@ -370,17 +371,32 @@ boost::signals2::connection LLMarketplaceInventoryImporter::setStatusReportCallb
 	return mStatusReportSignal->connect(cb);
 }
 
+void LLMarketplaceInventoryImporter::initialize()
+{
+	llassert(!mInitialized);
+
+	if (!LLMarketplaceImport::hasSessionCookie())
+	{
+		LLMarketplaceImport::establishMarketplaceSessionCookie();
+	}
+}
+
+void LLMarketplaceInventoryImporter::reinitializeAndTriggerImport()
+{
+	mInitialized = false;
+
+	initialize();
+
+	mAutoTriggerImport = true;
+}
+
 bool LLMarketplaceInventoryImporter::triggerImport()
 {
 	const bool import_triggered = LLMarketplaceImport::triggerImport();
 	
 	if (!import_triggered)
 	{
-		mInitialized = false;
-
-		initialize();
-		
-		mAutoTriggerImport = true;
+		reinitializeAndTriggerImport();
 	}
 	
 	return import_triggered;
@@ -396,23 +412,14 @@ void LLMarketplaceInventoryImporter::updateImport()
 		
 		if (!polling_status)
 		{
-			mInitialized = false;
-			
-			initialize();
-			
-			mAutoTriggerImport = true;
+			reinitializeAndTriggerImport();
 		}
 	}	
 	
 	if (mImportInProgress != in_progress)
 	{
 		mImportInProgress = in_progress;
-		
-		if (mStatusChangedSignal)
-		{
-			(*mStatusChangedSignal)(mImportInProgress);
-		}
-		
+
 		// If we are no longer in progress
 		if (!mImportInProgress)
 		{
@@ -436,7 +443,7 @@ void LLMarketplaceInventoryImporter::updateImport()
 					{
 						mAutoTriggerImport = false;
 
-						triggerImport();
+						mImportInProgress = triggerImport();
 					}
 				}
 				else if (mErrorInitSignal)
@@ -444,6 +451,12 @@ void LLMarketplaceInventoryImporter::updateImport()
 					(*mErrorInitSignal)(LLMarketplaceImport::getResultStatus(), LLMarketplaceImport::getResults());
 				}
 			}
+		}
+
+		// Make sure we trigger the status change with the final state (in case of auto trigger after initialize)
+		if (mStatusChangedSignal)
+		{
+			(*mStatusChangedSignal)(mImportInProgress);
 		}
 	}
 }

@@ -46,6 +46,7 @@ namespace MarketplaceErrorCodes
 	{
 		IMPORT_DONE = 200,
 		IMPORT_PROCESSING = 202,
+		IMPORT_REDIRECT = 302,
 		IMPORT_AUTHENTICATION_ERROR = 401,
 		IMPORT_DONE_WITH_ERRORS = 409,
 		IMPORT_JOB_FAILED = 410,
@@ -61,8 +62,6 @@ public:
 	
 	LLMarketplaceInventoryImporter();
 	
-	void initialize();
-
 	typedef boost::signals2::signal<void (bool)> status_changed_signal_t;
 	typedef boost::signals2::signal<void (U32, const LLSD&)> status_report_signal_t;
 
@@ -70,10 +69,12 @@ public:
 	boost::signals2::connection setStatusChangedCallback(const status_changed_signal_t::slot_type& cb);
 	boost::signals2::connection setStatusReportCallback(const status_report_signal_t::slot_type& cb);
 	
+	void initialize();
 	bool triggerImport();
 	bool isImportInProgress() const { return mImportInProgress; }
 	
 protected:
+	void reinitializeAndTriggerImport();
 	void updateImport();
 	
 private:
