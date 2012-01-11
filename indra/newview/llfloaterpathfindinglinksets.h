@@ -132,8 +132,8 @@ public:
 	{
 		kFetchInitial,
 		kFetchStarting,
-		kFetchInProgress,
-		kFetchInProgress_MultiRequested,
+		kFetchRequestSent,
+		kFetchRequestSent_MultiRequested,
 		kFetchReceived,
 		kFetchError,
 		kFetchComplete

@@ -390,8 +390,8 @@ BOOL LLFloaterPathfindingLinksets::isFetchInProgress() const
 	switch (getFetchState())
 	{
 	case kFetchStarting :
-	case kFetchInProgress :
-	case kFetchInProgress_MultiRequested :
+	case kFetchRequestSent :
+	case kFetchRequestSent_MultiRequested :
 	case kFetchReceived :
 		retVal = true;
 		break;
@@ -420,9 +420,9 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 {
 	if (isFetchInProgress())
 	{
-		if (getFetchState() == kFetchInProgress)
+		if (getFetchState() == kFetchRequestSent)
 		{
-			setFetchState(kFetchInProgress_MultiRequested);
+			setFetchState(kFetchRequestSent_MultiRequested);
 		}
 	}
 	else
@@ -441,7 +441,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 			}
 			else
 			{
-				setFetchState(kFetchInProgress);
+				setFetchState(kFetchRequestSent);
 				LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
 			}
 		}
@@ -581,10 +581,10 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 	case kFetchStarting :
 		statusText = getString("linksets_fetching_starting");
 		break;
-	case kFetchInProgress :
+	case kFetchRequestSent :
 		statusText = getString("linksets_fetching_inprogress");
 		break;
-	case kFetchInProgress_MultiRequested :
+	case kFetchRequestSent_MultiRequested :
 		statusText = getString("linksets_fetching_inprogress_multi_request");
 		break;
 	case kFetchReceived :
