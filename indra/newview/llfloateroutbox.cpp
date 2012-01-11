@@ -250,12 +250,12 @@ void LLFloaterOutbox::setupOutbox(const LLUUID& outboxId)
 	// Initialize the marketplace import API
 	//
 	
-	mImportBusy = true;
-	setStatusString(getString("OutboxInitializing"));
-
-	LLMarketplaceInventoryImporter::getInstance()->initialize();
-	LLMarketplaceInventoryImporter::getInstance()->setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
-	LLMarketplaceInventoryImporter::getInstance()->setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
+	LLMarketplaceInventoryImporter& importer = LLMarketplaceInventoryImporter::instance();
+	
+	importer.setInitializationErrorCallback(boost::bind(&LLFloaterOutbox::initializationReportError, this, _1, _2));
+	importer.setStatusChangedCallback(boost::bind(&LLFloaterOutbox::importStatusChanged, this, _1));
+	importer.setStatusReportCallback(boost::bind(&LLFloaterOutbox::importReportResults, this, _1, _2));
+	importer.initialize();
 }
 
 void LLFloaterOutbox::setStatusString(const std::string& statusString)
@@ -403,7 +403,7 @@ void LLFloaterOutbox::onImportButtonClicked()
 {
 	mOutboxInventoryPanel->clearSelection();
 
-	LLMarketplaceInventoryImporter::instance().triggerImport();
+	mImportBusy = LLMarketplaceInventoryImporter::instance().triggerImport();
 }
 
 void LLFloaterOutbox::onOutboxChanged()
@@ -449,9 +449,13 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 {
 	if (inProgress)
 	{
-		if (!mImportBusy)
+		if (mImportBusy)
 		{
 			setStatusString(getString("OutboxImporting"));
+		}
+		else
+		{
+			setStatusString(getString("OutboxInitializing"));
 		}
 		
 		mImportBusy = true;
@@ -463,9 +467,25 @@ void LLFloaterOutbox::importStatusChanged(bool inProgress)
 		mImportBusy = false;
 		mImportButton->setEnabled(mOutboxItemCount > 0);
 		mInventoryImportInProgress->setVisible(false);
-
-		updateView();
 	}
+	
+	updateView();
+}
+
+void LLFloaterOutbox::initializationReportError(U32 status, const LLSD& content)
+{
+	if (status != MarketplaceErrorCodes::IMPORT_DONE)
+	{
+		char status_string[16];
+		sprintf(status_string, "%d", status);
+		
+		LLSD subs;
+		subs["[ERROR_CODE]"] = status_string;
+		
+		LLNotificationsUtil::add("OutboxInitFailed", subs);
+	}
+	
+	updateView();
 }
 
 void LLFloaterOutbox::showNotification(const LLSD& notify)

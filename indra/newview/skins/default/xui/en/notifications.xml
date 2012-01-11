@@ -252,6 +252,20 @@ Error [ERROR_CODE]
          yestext="OK"/>
   </notification>
 
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxInitFailed"
+   type="outbox">
+Marketplace initialization failed
+
+Initialization with the Marketplace failed because of a system or network error.  Try again later.
+
+Error [ERROR_CODE]
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
     
 
     <notification
