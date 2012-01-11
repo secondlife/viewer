@@ -71,6 +71,7 @@ public:
 
 	// virtual
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	void openItem();
 };
 
 

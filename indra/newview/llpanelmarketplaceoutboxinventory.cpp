@@ -148,4 +148,9 @@ BOOL LLOutboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+void LLOutboxFolderViewItem::openItem()
+{
+	// Intentionally do nothing to block attaching items from the outbox
+}
+
 // eof
