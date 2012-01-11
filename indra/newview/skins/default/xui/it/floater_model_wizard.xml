@@ -20,6 +20,9 @@
 				Scegli il file del modello da caricare
 			</text>
 			<button label="Sfoglia..." label_selected="Sfoglia..." name="browse"/>
+			<text name="Model types">
+				Second Life supporta file COLLADA (.dae)
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>

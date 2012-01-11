@@ -15,7 +15,7 @@
 		Браузер:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Использовать мой браузер (IE, Firefox, Safari)" name="external" tool_tip="Будет использоваться браузер, заданный в системе по умолчанию. Не рекомендуется, если [APP_NAME] работает в полноэкранном режиме." value="1"/>
+		<radio_item label="Использовать мой браузер (IE, Firefox, Safari)" name="external" tool_tip="Будет использоваться браузер, заданный в системе по умолчанию. Не рекомендуется, если [APP_NAME] работает в полноэкранном режиме." value="true"/>
 		<radio_item label="Использовать встроенный браузер" name="internal" tool_tip="Для просмотра справки, ссылок на веб-страницы и т. д. будет использоваться встроенный браузер. Этот браузер открывается как новое окно в [APP_NAME]." value=""/>
 	</radio_group>
 	<check_box initial_value="истина" label="Разрешить плагины" name="browser_plugins_enabled"/>

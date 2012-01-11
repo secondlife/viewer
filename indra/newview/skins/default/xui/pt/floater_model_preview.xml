@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Erro: Problema ao analisar .dae - consulte log para obter detalhes.
 	</string>
+	<string name="status_material_mismatch">
+		Erro: o material do modelo não é um subconjunto do modelo de referência.
+	</string>
 	<string name="status_reading_file">
 		Carregando...
 	</string>

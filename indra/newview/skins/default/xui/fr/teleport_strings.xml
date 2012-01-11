@@ -21,8 +21,8 @@ Si vous ne parvenez toujours pas à être téléporté, déconnectez-vous puis r
 Veuillez réessayer dans un moment.
 		</message>
 		<message name="NoHelpIslandTP">
-		Vous ne pouvez pas retourner sur Welcome Island.
-Pour répéter le didacticiel, veuillez aller sur Welcome Island Public.
+			Vous ne pouvez pas vous téléporter à nouveau vers Welcome Island.
+Pour recommencer le didacticiel, accédez à Welcome Island Public.
 		</message>
 		<message name="noaccess_tport">
 			Désolé, vous n&apos;avez pas accès à cette destination.

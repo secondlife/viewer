@@ -4,7 +4,7 @@
 		Filtragem:
 	</text>
 	<check_box label="Filtragem Anisotrópica (mais lento quando habilitada)" name="ani"/>
-	<text name="Antialiasing:">
+	<text name="antialiasing label">
 		Suavização:
 	</text>
 	<combo_box label="Suavização" name="fsaa" width="94">

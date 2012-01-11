@@ -20,6 +20,9 @@
 				Hochzuladende Modelldatei auswählen
 			</text>
 			<button label="Durchsuchen..." label_selected="Durchsuchen..." name="browse"/>
+			<text name="Model types">
+				Second Life unterstützt COLLADA-Dateien (.dae).
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
