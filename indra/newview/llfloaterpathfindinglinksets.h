@@ -28,11 +28,98 @@
 #ifndef LL_LLFLOATERPATHFINDINGLINKSETS_H
 #define LL_LLFLOATERPATHFINDINGLINKSETS_H
 
+#include "llsd.h"
+#include "v3math.h"
 #include "llfloater.h"
+#include "lluuid.h"
 
-class LLSD;
 class LLTextBase;
 class LLScrollListCtrl;
+
+class PathfindingLinkset
+{
+public:
+	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavmeshItem);
+	PathfindingLinkset(const PathfindingLinkset& pOther);
+	virtual ~PathfindingLinkset();
+
+	PathfindingLinkset& operator = (const PathfindingLinkset& pOther);
+
+	const LLUUID&      getUUID() const;
+	const std::string& getName() const;
+	const std::string& getDescription() const;
+	U32                getLandImpact() const;
+	const LLVector3&   getPositionAgent() const;
+
+	BOOL               isFixed() const;
+	void               setFixed(BOOL pIsFixed);
+
+	BOOL               isWalkable() const;
+	void               setWalkable(BOOL pIsWalkable);
+
+	BOOL               isPhantom() const;
+	void               setPhantom(BOOL pIsPhantom);
+
+	F32                getA() const;
+	void               setA(F32 pA);
+
+	F32                getB() const;
+	void               setB(F32 pB);
+
+	F32                getC() const;
+	void               setC(F32 pC);
+
+	F32                getD() const;
+	void               setD(F32 pD);
+
+protected:
+
+private:
+	LLUUID      mUUID;
+	std::string mName;
+	std::string mDescription;
+	U32         mLandImpact;
+	LLVector3   mLocation;
+	BOOL        mIsFixed;
+	BOOL        mIsWalkable;
+	BOOL        mIsPhantom;
+	F32         mA;
+	F32         mB;
+	F32         mC;
+	F32         mD;
+};
+
+class PathfindingLinksets
+{
+public:
+	typedef std::map<std::string, PathfindingLinkset> PathfindingLinksetMap;
+
+	PathfindingLinksets();
+	PathfindingLinksets(const LLSD& pNavmeshData);
+	PathfindingLinksets(const PathfindingLinksets& pOther);
+	virtual ~PathfindingLinksets();
+
+	void parseNavmeshData(const LLSD& pNavmeshData);
+	void clearLinksets();
+
+	const PathfindingLinksetMap& getAllLinksets() const;
+	const PathfindingLinksetMap& getFilteredLinksets();
+
+	BOOL isFilterActive() const;
+	void setNameFilter(const std::string& pNameFilter);
+	void clearFilters();
+
+protected:
+
+private:
+	PathfindingLinksetMap mAllLinksets;
+	PathfindingLinksetMap mFilteredLinksets;
+
+	bool        mIsFilterDirty;
+	std::string mNameFilter;
+
+	void applyFilters();
+};
 
 class LLFloaterPathfindingLinksets
 :	public LLFloater
@@ -40,6 +127,7 @@ class LLFloaterPathfindingLinksets
 	friend class LLFloaterReg;
 	friend class NavmeshDataGetResponder;
 
+public:
 	typedef enum
 	{
 		kFetchInitial,
@@ -51,7 +139,6 @@ class LLFloaterPathfindingLinksets
 		kFetchComplete
 	} EFetchState;
 
-public:
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 
@@ -63,9 +150,10 @@ public:
 protected:
 
 private:
-	EFetchState             mFetchState;
-	LLScrollListCtrl        *mLinksetsScrollList;
-	LLTextBase              *mLinksetsStatus;
+	PathfindingLinksets mPathfindingLinksets;
+	EFetchState         mFetchState;
+	LLScrollListCtrl    *mLinksetsScrollList;
+	LLTextBase          *mLinksetsStatus;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
