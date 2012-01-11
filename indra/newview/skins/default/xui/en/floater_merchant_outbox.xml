@@ -9,7 +9,7 @@
  min_height="200"
  name="floater_merchant_outbox"
  save_rect="true"
- save_visibility="true"
+ save_visibility="false"
  reuse_instance="true"
  title="MERCHANT OUTBOX"
  width="333" >
