@@ -122,6 +122,8 @@ public:
 
 	// Mostly for debugging printout purposes.
 	const std::string& getSearchableLabel() { return mSearchableLabel; }
+	
+	BOOL isLoading() const { return mIsLoading; }
 
 private:
 	BOOL						mIsSelected;

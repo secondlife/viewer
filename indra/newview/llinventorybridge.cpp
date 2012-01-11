@@ -1088,108 +1088,132 @@ void LLInvFVBridge::purgeItem(LLInventoryModel *model, const LLUUID &uuid)
 	}
 }
 
-BOOL LLInvFVBridge::canShare() const
+bool LLInvFVBridge::canShare() const
 {
-	if (!isAgentInventory()) return FALSE;
+	bool can_share = false;
 
-	const LLInventoryModel* model = getInventoryModel();
-	if (!model) return FALSE;
-
-	const LLViewerInventoryItem *item = model->getItem(mUUID);
-	if (item)
+	if (isAgentInventory())
 	{
-		if (!LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item)) 
-			return FALSE;
-		return (BOOL)LLGiveInventory::isInventoryGiveAcceptable(item);
+		const LLInventoryModel* model = getInventoryModel();
+		if (model)
+		{
+			const LLViewerInventoryItem *item = model->getItem(mUUID);
+			if (item)
+			{
+				if (LLInventoryCollectFunctor::itemTransferCommonlyAllowed(item)) 
+				{
+					can_share = LLGiveInventory::isInventoryGiveAcceptable(item);
+				}
+			}
+			else
+			{
+				// Categories can be given.
+				can_share = (model->getCategory(mUUID) != NULL);
+			}
+		}
 	}
 
-	// Categories can be given.
-	if (model->getCategory(mUUID)) return TRUE;
-
-	return FALSE;
+	return can_share;
 }
 
-BOOL LLInvFVBridge::canListOnMarketplace() const
+bool LLInvFVBridge::canListOnMarketplace() const
 {
 #if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
+
 	LLInventoryModel * model = getInventoryModel();
+
 	const LLViewerInventoryCategory * cat = model->getCategory(mUUID);
 	if (cat && LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (!isAgentInventory())
 	{
-		return FALSE;
+		return false;
 	}
 	
 	if (getOutboxFolder().isNull())
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (isInboxFolder() || isOutboxFolder())
 	{
-		return FALSE;
+		return false;
 	}
 	
 	const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
 	if (outbox_id.isNull())
 	{
-		return FALSE;
+		return false;
 	}
 
 	LLViewerInventoryItem * item = model->getItem(mUUID);
 	if (item && !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
 	{
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
+
 #else
-	return FALSE;
+	return false;
 #endif
 }
 
-BOOL LLInvFVBridge::canListOnMarketplaceNow() const
+bool LLInvFVBridge::canListOnMarketplaceNow() const
 {
-	BOOL can_list = FALSE;
-	
 #if ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU
-
-	const LLInventoryObject* obj = getInventoryObject();
-
-	if (obj)
-	{
-		// Get outbox id
-		const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-		LLFolderViewItem * outbox_itemp = mRoot->getItemByID(outbox_id);
-
-		if (outbox_itemp)
-		{
-			MASK mask = 0x0;
-			BOOL drop = FALSE;
-			EDragAndDropType cargo_type = LLViewerAssetType::lookupDragAndDropType(obj->getActualType());
-			void * cargo_data = (void *) obj;
-			std::string tooltip_msg;
-			
-			can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
-		}
-	}
+	
+	bool can_list = true;
 
 	// Do not allow listing while import is in progress
 	if (LLMarketplaceInventoryImporter::instanceExists())
 	{
-		if (LLMarketplaceInventoryImporter::instance().isImportInProgress())
+		can_list = !LLMarketplaceInventoryImporter::instance().isImportInProgress();
+	}
+	
+	const LLInventoryObject* obj = getInventoryObject();
+
+	if (obj && can_list)
+	{
+		const LLUUID& object_id = obj->getLinkedUUID();
+		can_list = object_id.notNull();
+
+		if (can_list)
 		{
-			can_list = FALSE;
+			LLFolderViewFolder * object_folderp = mRoot->getFolderByID(object_id);
+			if (object_folderp)
+			{
+				can_list = !object_folderp->isLoading();
+			}
+		}
+		
+		if (can_list)
+		{
+			// Get outbox id
+			const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+			LLFolderViewItem * outbox_itemp = mRoot->getItemByID(outbox_id);
+
+			if (outbox_itemp)
+			{
+				MASK mask = 0x0;
+				BOOL drop = FALSE;
+				EDragAndDropType cargo_type = LLViewerAssetType::lookupDragAndDropType(obj->getActualType());
+				void * cargo_data = (void *) obj;
+				std::string tooltip_msg;
+				
+				can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+			}
 		}
 	}
-
-#endif
-
+	
 	return can_list;
+
+#else
+	return false;
+#endif
 }
 
 
