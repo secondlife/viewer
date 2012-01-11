@@ -855,6 +855,54 @@
           </map>
         </map>
       </map>
+      <key>havok</key>
+      <map>
+        <key>license</key>
+        <string>havok-ares</string>
+        <key>license_file</key>
+        <string>LICENSES/havok.txt</string>
+        <key>name</key>
+        <string>havok</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>286741271be3dc3473af3044ad6d002e</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok/rev/224189/arch/Darwin/installer/havok-0.1-darwin-20110316.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1b6c85fc7705779cd2c2b02f7437fb24</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok/rev/224189/arch/Linux/installer/havok-0.1-linux-20110316.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>534c5217692bef44a60a3cf26ccb08d9</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok-source_Windows-vs2010/rev/245961/arch/CYGWIN/installer/havok_source-2011.2-windows-20111130.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>jpeglib</key>
       <map>
         <key>license</key>
@@ -1185,6 +1233,30 @@
               <string>b859e7e3bb03ebb467f0309f46422995</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/238958/arch/CYGWIN/installer/llconvexdecompositionstub-0.3-windows-20110819.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
+      <key>llpathinglib</key>
+      <map>
+        <key>license</key>
+        <string>llpathinglib</string>
+        <key>license_file</key>
+        <string>LICENSES/llpathinglib.txt</string>
+        <key>name</key>
+        <string>llpathinglib</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>2c71cf8f3b91bd65f48ecfaf8a99f713</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247417/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120110.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1753,78 +1825,6 @@
               <string>5852192646681817fc3c3a8c95e91c1e</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-zlib/rev/220983/arch/CYGWIN/installer/zlib-1.2.5-windows-20110211.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>havok</key>
-      <map>
-        <key>license</key>
-        <string>havok-ares</string>
-        <key>license_file</key>
-        <string>LICENSES/havok.txt</string>
-        <key>name</key>
-        <string>havok</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>286741271be3dc3473af3044ad6d002e</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok/rev/224189/arch/Darwin/installer/havok-0.1-darwin-20110316.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1b6c85fc7705779cd2c2b02f7437fb24</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok/rev/224189/arch/Linux/installer/havok-0.1-linux-20110316.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>534c5217692bef44a60a3cf26ccb08d9</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok-source_Windows-vs2010/rev/245961/arch/CYGWIN/installer/havok_source-2011.2-windows-20111130.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>llpathinglib</key>
-      <map>
-        <key>license</key>
-        <string>llpathinglib</string>
-        <key>license_file</key>
-        <string>LICENSES/llpathinglib.txt</string>
-        <key>name</key>
-        <string>llpathinglib</string>
-        <key>platforms</key>
-        <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>59aad7ca249a01db807eea62a862baba</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247312/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120106.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
