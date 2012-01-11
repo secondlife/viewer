@@ -43,6 +43,7 @@ public:
 	~LLNearbyChatBar() {}
 
 	virtual BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	static LLNearbyChatBar* getInstance();
 
@@ -60,6 +61,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 	void showHistory();
+	void enableTranslationCheckbox(BOOL enable);
 	/*virtual*/void setMinimized(BOOL b);
 
 protected:

@@ -1432,7 +1432,7 @@ Per installare l&apos;aggiornamento è necessario riavviare [APP_NAME].
 		<usetemplate ignoretext="Conferma prima di restituire gli oggetti ai relativi proprietari" name="okcancelignore" notext="Annulla" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Sei attualmente un membro del gruppo [GROUP].
+		Sei attualmente un membro del gruppo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Vuoi lasciare il gruppo?
 		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="OK"/>
 	</notification>
