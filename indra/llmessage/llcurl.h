@@ -43,6 +43,7 @@
 #include "llsd.h"
 #include "llthread.h"
 #include "llqueuedthread.h"
+#include "llframetimer.h"
 
 class LLMutex;
 class LLCurlThread;
@@ -182,11 +183,20 @@ public:
 	static unsigned long ssl_thread_id(void);
 
 	static LLCurlThread* getCurlThread() { return sCurlThread ;}
+
+	static CURLM* newMultiHandle() ;
+	static CURLMcode deleteMultiHandle(CURLM* handle) ;
+	static CURL*  newEasyHandle() ;
+	static void   deleteEasyHandle(CURL* handle) ;
+
 private:
 	static std::string sCAPath;
 	static std::string sCAFile;
 	static const unsigned int MAX_REDIRECTS;
 	static LLCurlThread* sCurlThread;
+
+	static LLMutex* sHandleMutexp ;
+	static S32      sTotalHandles ;
 };
 
 class LLCurl::Easy
@@ -277,7 +287,7 @@ public:
 		STATE_COMPLETED=2
 	} ePerformState;
 
-	Multi();	
+	Multi(F32 idle_time_out = 0.f);	
 
 	LLCurl::Easy* allocEasy();
 	bool addEasy(LLCurl::Easy* easy);	
@@ -288,7 +298,10 @@ public:
 
 	void setState(ePerformState state) ;
 	ePerformState getState() ;
+	
 	bool isCompleted() ;
+	bool isValid() {return mCurlMultiHandle != NULL ;}
+	bool isDead() {return mDead;}
 
 	bool waitToComplete() ;
 
@@ -299,9 +312,9 @@ public:
 	S32 mQueued;
 	S32 mErrorCount;
 	
-	static CURLM* initMulti() ;
 private:
 	void easyFree(LLCurl::Easy*);
+	void cleanup() ;
 	
 	CURLM* mCurlMultiHandle;
 
@@ -319,8 +332,8 @@ private:
 	LLMutex* mMutexp ;
 	LLMutex* mDeletionMutexp ;
 	LLMutex* mEasyMutexp ;
-
-	static LLMutex* sMultiInitMutexp ;
+	LLFrameTimer mIdleTimer ;
+	F32 mIdleTimeOut;
 };
 
 class LLCurlThread : public LLQueuedThread
@@ -414,6 +427,7 @@ public:
 	std::string getErrorString();
 	bool isCompleted() {return mMulti->isCompleted() ;}
 	bool wait() { return mMulti->waitToComplete(); }
+	bool isValid() {return mMulti && mMulti->isValid(); }
 
 	LLCurl::Easy* getEasy() const { return mEasy; }
 

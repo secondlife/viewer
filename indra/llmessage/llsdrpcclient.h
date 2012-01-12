@@ -239,6 +239,8 @@ public:
 	LLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
+		llerrs << "Can not call this." << llendl ;
+
 		lldebugs << "LLSDRPCClientFactory::build" << llendl;
 		LLIOPipe::ptr_t service(new Client);
 		chain.push_back(service);
@@ -282,6 +284,7 @@ public:
 	LLXMLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
+		llerrs << "who calls this?" << llendl ;
 		lldebugs << "LLXMLSDRPCClientFactory::build" << llendl;
 		LLIOPipe::ptr_t service(new Client);
 		chain.push_back(service);

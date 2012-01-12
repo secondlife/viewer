@@ -113,7 +113,7 @@ public:
 	 * expire. Pass in 0.0f to never expire.
 	 * @return Returns true if anything was added to the pump.
 	 */
-	bool addChain(const chain_t& chain, F32 timeout);
+	bool addChain(const chain_t& chain, F32 timeout, bool has_curl_request = false);
 	
 	/** 
 	 * @brief Struct to associate a pipe with it's buffer io indexes.
@@ -356,12 +356,13 @@ protected:
 
 		// basic member data
 		bool mInit;
+		bool mEOS;
+		bool mHasCurlRequest;
 		S32 mLock;
 		LLFrameTimer mTimer;
 		links_t::iterator mHead;
 		links_t mChainLinks;
-		LLIOPipe::buffer_ptr_t mData;
-		bool mEOS;
+		LLIOPipe::buffer_ptr_t mData;		
 		LLSD mContext;
 
 		// tracking inside the pump
@@ -402,7 +403,7 @@ protected:
 protected:
 	void initialize(apr_pool_t* pool);
 	void cleanup();
-
+	current_chain_t removeRunningChain(current_chain_t& chain) ;
 	/** 
 	 * @brief Given the internal state of the chains, rebuild the pollset
 	 * @see setConditional()
@@ -428,6 +429,9 @@ protected:
 	 * @return Retuns true if someone handled the error
 	 */
 	bool handleChainError(LLChainInfo& chain, LLIOPipe::EStatus error);
+
+	//if the chain is expired, remove it
+	bool isChainExpired(LLChainInfo& chain) ;
 
 public:
 	/** 
