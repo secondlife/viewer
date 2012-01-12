@@ -1175,8 +1175,9 @@ bool LLInvFVBridge::canListOnMarketplaceNow() const
 	}
 	
 	const LLInventoryObject* obj = getInventoryObject();
+	can_list &= (obj != NULL);
 
-	if (obj && can_list)
+	if (can_list)
 	{
 		const LLUUID& object_id = obj->getLinkedUUID();
 		can_list = object_id.notNull();
