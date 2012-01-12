@@ -62,7 +62,7 @@
       left_delta="93"
       top="11"
       max_length_bytes="10"
-      name="estate"
+      name="filter_by_name"
       width="115" />
   <text
       height="13"
@@ -87,7 +87,7 @@
       left_delta="131"
       top="11"
       max_length_bytes="10"
-      name="estate"
+      name="filter_by_description"
       width="115" />
   <check_box
       height="19"
@@ -95,7 +95,7 @@
       layout="topleft"
       left="591"
       top="14"
-      name="DisplayNavmeshOverlay"
+      name="filter_by_fixed"
       width="90" />
   <check_box
       height="19"
@@ -103,14 +103,14 @@
       layout="topleft"
       left="671"
       top="14"
-      name="DisplayNavmeshOverlay"
+      name="filter_by_walkable"
       width="90" />
   <button
       follows="right|top"
       height="21"
       label="Apply"
       layout="topleft"
-      name="linksets"
+      name="apply_filters"
       top="11"
       left="769"
       width="73"/>
@@ -119,7 +119,7 @@
       height="21"
       label="Clear"
       layout="topleft"
-      name="linksets"
+      name="clear_filters"
       top="11"
       left="851"
       width="73"/>

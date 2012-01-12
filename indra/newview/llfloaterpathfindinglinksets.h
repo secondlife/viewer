@@ -35,6 +35,8 @@
 
 class LLTextBase;
 class LLScrollListCtrl;
+class LLLineEditor;
+class LLCheckBoxCtrl;
 
 class PathfindingLinkset
 {
@@ -89,6 +91,28 @@ private:
 	F32         mD;
 };
 
+class FilterString
+{
+public:
+	FilterString();
+	FilterString(const std::string& pFilter);
+	FilterString(const FilterString& pOther);
+	virtual ~FilterString();
+
+	const std::string& get() const;
+	bool               set(const std::string& pFilter);
+	void               clear();
+
+	bool isActive() const;
+	bool doesMatch(const std::string& pTestString) const;
+
+protected:
+
+private:
+	std::string mFilter;
+	std::string mUpperFilter;
+};
+
 class PathfindingLinksets
 {
 public:
@@ -105,9 +129,16 @@ public:
 	const PathfindingLinksetMap& getAllLinksets() const;
 	const PathfindingLinksetMap& getFilteredLinksets();
 
-	BOOL isFilterActive() const;
-	void setNameFilter(const std::string& pNameFilter);
-	void clearFilters();
+	BOOL               isFiltersActive() const;
+	void               setNameFilter(const std::string& pNameFilter);
+	const std::string& getNameFilter() const;
+	void               setDescriptionFilter(const std::string& pDescriptionFilter);
+	const std::string& getDescriptionFilter() const;
+	void               setFixedFilter(BOOL pFixedFilter);
+	BOOL               isFixedFilter() const;
+	void               setWalkableFilter(BOOL pWalkableFilter);
+	BOOL               isWalkableFilter() const;
+	void               clearFilters();
 
 protected:
 
@@ -115,10 +146,14 @@ private:
 	PathfindingLinksetMap mAllLinksets;
 	PathfindingLinksetMap mFilteredLinksets;
 
-	bool        mIsFilterDirty;
-	std::string mNameFilter;
+	bool         mIsFiltersDirty;
+	FilterString mNameFilter;
+	FilterString mDescriptionFilter;
+	BOOL         mIsFixedFilter;
+	BOOL         mIsWalkableFilter;
 
 	void applyFilters();
+	BOOL doesMatchFilters(const PathfindingLinkset& pLinkset) const;
 };
 
 class LLFloaterPathfindingLinksets
@@ -154,6 +189,10 @@ private:
 	EFetchState         mFetchState;
 	LLScrollListCtrl    *mLinksetsScrollList;
 	LLTextBase          *mLinksetsStatus;
+	LLLineEditor        *mFilterByName;
+	LLLineEditor        *mFilterByDescription;
+	LLCheckBoxCtrl      *mFilterByFixed;
+	LLCheckBoxCtrl      *mFilterByWalkable;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
@@ -163,15 +202,19 @@ private:
 	void sendNavmeshDataGetRequest();
 	void handleNavmeshDataGetReply(const LLSD& pNavmeshData);
 	void handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
-
 	void setFetchState(EFetchState pFetchState);
 
+	void onApplyFiltersClicked();
+	void onClearFiltersClicked();
 	void onLinksetsSelectionChange();
 	void onRefreshLinksetsClicked();
 	void onSelectAllLinksetsClicked();
 	void onSelectNoneLinksetsClicked();
 
-	void clearLinksetsList();
+	void applyFilters();
+	void clearFilters();
+
+	void updateLinksetsList();
 	void selectAllLinksets();
 	void selectNoneLinksets();
 
