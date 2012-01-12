@@ -13,7 +13,7 @@
  reuse_instance="true"
  title="MERCHANT OUTBOX"
  width="333" >
- <string name="OutboxFolderCount0">0 folders</string>
+ <string name="OutboxFolderCount0"></string>
  <string name="OutboxFolderCount1">1 folder</string>
  <string name="OutboxFolderCountN">[NUM] folders</string>
  <string name="OutboxImporting">Sending folders...</string>
