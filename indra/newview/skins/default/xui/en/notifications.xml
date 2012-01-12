@@ -207,6 +207,7 @@ You don't have permission to copy this item to the Merchant Outbox. You can move
 
 [ITEM_NAME]
         <usetemplate
+         canceltext="Cancel"
          name="yesnocancelbuttons"
          notext="Don't move item"
          yestext="Move item"/>
