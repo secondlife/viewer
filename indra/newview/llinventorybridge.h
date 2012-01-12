@@ -69,9 +69,9 @@ public:
 									   U32 flags = 0x00);
 	virtual ~LLInvFVBridge() {}
 
-	BOOL canShare() const;
-	BOOL canListOnMarketplace() const;
-	BOOL canListOnMarketplaceNow() const;
+	bool canShare() const;
+	bool canListOnMarketplace() const;
+	bool canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
