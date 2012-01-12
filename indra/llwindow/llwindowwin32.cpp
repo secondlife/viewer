@@ -1083,6 +1083,37 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
+	// (EXP-1765) dump pixel data to see if there is a pattern that leads to unreproducible crash
+	LL_INFOS("Window") << "--- begin pixel format dump ---" << llendl ;
+	LL_INFOS("Window") << "pixel_format is " << pixel_format << llendl ;
+	LL_INFOS("Window") << "pfd.nSize:            " << pfd.nSize << llendl ;
+	LL_INFOS("Window") << "pfd.nVersion:         " << pfd.nVersion << llendl ;
+	LL_INFOS("Window") << "pfd.dwFlags:          0x" << std::hex << pfd.dwFlags << std::dec << llendl ;
+	LL_INFOS("Window") << "pfd.iPixelType:       " << (int)pfd.iPixelType << llendl ;
+	LL_INFOS("Window") << "pfd.cColorBits:       " << (int)pfd.cColorBits << llendl ;
+	LL_INFOS("Window") << "pfd.cRedBits:         " << (int)pfd.cRedBits << llendl ;
+	LL_INFOS("Window") << "pfd.cRedShift:        " << (int)pfd.cRedShift << llendl ;
+	LL_INFOS("Window") << "pfd.cGreenBits:       " << (int)pfd.cGreenBits << llendl ;
+	LL_INFOS("Window") << "pfd.cGreenShift:      " << (int)pfd.cGreenShift << llendl ;
+	LL_INFOS("Window") << "pfd.cBlueBits:        " << (int)pfd.cBlueBits << llendl ;
+	LL_INFOS("Window") << "pfd.cBlueShift:       " << (int)pfd.cBlueShift << llendl ;
+	LL_INFOS("Window") << "pfd.cAlphaBits:       " << (int)pfd.cAlphaBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAlphaShift:      " << (int)pfd.cAlphaShift << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumBits:       " << (int)pfd.cAccumBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumRedBits:    " << (int)pfd.cAccumRedBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumGreenBits:  " << (int)pfd.cAccumGreenBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumBlueBits:   " << (int)pfd.cAccumBlueBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumAlphaBits:  " << (int)pfd.cAccumAlphaBits << llendl ;
+	LL_INFOS("Window") << "pfd.cDepthBits:       " << (int)pfd.cDepthBits << llendl ;
+	LL_INFOS("Window") << "pfd.cStencilBits:     " << (int)pfd.cStencilBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAuxBuffers:      " << (int)pfd.cAuxBuffers << llendl ;
+	LL_INFOS("Window") << "pfd.iLayerType:       " << (int)pfd.iLayerType << llendl ;
+	LL_INFOS("Window") << "pfd.bReserved:        " << (int)pfd.bReserved << llendl ;
+	LL_INFOS("Window") << "pfd.dwLayerMask:      " << pfd.dwLayerMask << llendl ;
+	LL_INFOS("Window") << "pfd.dwVisibleMask:    " << pfd.dwVisibleMask << llendl ;
+	LL_INFOS("Window") << "pfd.dwDamageMask:     " << pfd.dwDamageMask << llendl ;
+	LL_INFOS("Window") << "--- end pixel format dump ---" << llendl ;
+
 	if (pfd.cColorBits < 32)
 	{
 		close();
