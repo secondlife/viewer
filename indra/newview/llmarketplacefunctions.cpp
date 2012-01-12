@@ -72,23 +72,21 @@ static std::string getMarketplaceURL(const std::string& urlStringName)
 	return marketplace_url;
 }
 
-LLStringUtil::format_map_t getMarketplaceStringSubstitutions()
+LLSD getMarketplaceStringSubstitutions()
 {
 	std::string marketplace_url = getMarketplaceURL("MarketplaceURL");
 	std::string marketplace_url_create = getMarketplaceURL("MarketplaceURL_CreateStore");
 	std::string marketplace_url_dashboard = getMarketplaceURL("MarketplaceURL_Dashboard");
+	std::string marketplace_url_imports = getMarketplaceURL("MarketplaceURL_Imports");
 	std::string marketplace_url_info = getMarketplaceURL("MarketplaceURL_LearnMore");
 	
-	LLStringUtil::format_map_t agent_map;
-	agent_map["[AGENT_ID]"] = gAgent.getID().getString();
-	
-	LLStringUtil::format(marketplace_url_dashboard, agent_map);
-	
-	LLStringUtil::format_map_t marketplace_sub_map;
+	LLSD marketplace_sub_map;
+
 	marketplace_sub_map["[MARKETPLACE_URL]"] = marketplace_url;
 	marketplace_sub_map["[MARKETPLACE_CREATE_STORE_URL]"] = marketplace_url_create;
 	marketplace_sub_map["[MARKETPLACE_LEARN_MORE_URL]"] = marketplace_url_info;
 	marketplace_sub_map["[MARKETPLACE_DASHBOARD_URL]"] = marketplace_url_dashboard;
+	marketplace_sub_map["[MARKETPLACE_IMPORTS_URL]"] = marketplace_url_imports;
 	
 	return marketplace_sub_map;
 }

@@ -232,7 +232,8 @@ Some folders did not transfer
 
 Errors occurred when some folders were sent to the Marketplace.  Those folders are still in your Merchant Outbox.
 
-See the error log for more information.
+See the [[MARKETPLACE_IMPORTS_URL] error log] for more information.
+
         <usetemplate
          name="okbutton"
          yestext="OK"/>

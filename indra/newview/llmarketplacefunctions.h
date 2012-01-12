@@ -37,7 +37,7 @@
 #include "llstring.h"
 
 
-LLStringUtil::format_map_t getMarketplaceStringSubstitutions();
+LLSD getMarketplaceStringSubstitutions();
 
 
 namespace MarketplaceErrorCodes
