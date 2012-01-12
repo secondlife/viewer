@@ -50,6 +50,8 @@ namespace tut
     {
         set_test_name("empty LLStreamQueue");
         ensure_equals("brand-new LLStreamQueue isn't empty",
+                      strq.size(), 0);
+        ensure_equals("brand-new LLStreamQueue returns data",
                       strq.asSource().read(&buffer[0], buffer.size()), 0);
         strq.asSink().close();
         ensure_equals("closed empty LLStreamQueue not at EOF",
@@ -62,18 +64,22 @@ namespace tut
         set_test_name("one internal block, one buffer");
         LLStreamQueue::Sink sink(strq.asSink());
         ensure_equals("write(\"\")", sink.write("", 0), 0);
-        ensure_equals("0 write should leave LLStreamQueue empty",
+        ensure_equals("0 write should leave LLStreamQueue empty (size())",
+                      strq.size(), 0);
+        ensure_equals("0 write should leave LLStreamQueue empty (peek())",
                       strq.peek(&buffer[0], buffer.size()), 0);
         // The meaning of "atomic" is that it must be smaller than our buffer.
         std::string atomic("atomic");
         ensure("test data exceeds buffer", atomic.length() < buffer.size());
         ensure_equals(STRINGIZE("write(\"" << atomic << "\")"),
                       sink.write(&atomic[0], atomic.length()), atomic.length());
+        ensure_equals("size() after write()", strq.size(), atomic.length());
         size_t peeklen(strq.peek(&buffer[0], buffer.size()));
         ensure_equals(STRINGIZE("peek(\"" << atomic << "\")"),
                       peeklen, atomic.length());
         ensure_equals(STRINGIZE("peek(\"" << atomic << "\") result"),
                       std::string(buffer.begin(), buffer.begin() + peeklen), atomic);
+        ensure_equals("size() after peek()", strq.size(), atomic.length());
         // peek() should not consume. Use a different buffer to prove it isn't
         // just leftover data from the first peek().
         std::vector<char> again(buffer.size());
@@ -90,6 +96,7 @@ namespace tut
         ensure_equals(STRINGIZE("read(\"" << atomic << "\") result"),
                       std::string(third.begin(), third.begin() + readlen), atomic);
         ensure_equals("peek() after read()", strq.peek(&buffer[0], buffer.size()), 0);
+        ensure_equals("size() after read()", strq.size(), 0);
     }
 
     template<> template<>
@@ -107,6 +114,7 @@ namespace tut
                       std::string(buffer.begin(), buffer.begin() + peeklen), lovecraft);
         std::streamsize skip1(4);
         ensure_equals(STRINGIZE("skip(" << skip1 << ")"), strq.skip(skip1), skip1);
+        ensure_equals("size() after skip()", strq.size(), lovecraft.length() - skip1);
         size_t readlen(strq.read(&buffer[0], buffer.size()));
         ensure_equals(STRINGIZE("read(\"" << lovecraft.substr(skip1) << "\")"),
                       readlen, lovecraft.length() - skip1);
@@ -121,15 +129,20 @@ namespace tut
     {
         set_test_name("skip() multiple blocks");
         std::string blocks[] = { "books of ", "H.P. ", "Lovecraft" };
-        std::streamsize skip(blocks[0].length() + blocks[1].length() + 4);
+        std::streamsize total(blocks[0].length() + blocks[1].length() + blocks[2].length());
+        std::streamsize leave(5);   // len("craft") above
+        std::streamsize skip(total - leave);
+        std::streamsize written(0);
         BOOST_FOREACH(const std::string& block, blocks)
         {
-            strq.write(&block[0], block.length());
+            written += strq.write(&block[0], block.length());
+            ensure_equals("size() after write()", strq.size(), written);
         }
         std::streamsize skiplen(strq.skip(skip));
         ensure_equals(STRINGIZE("skip(" << skip << ")"), skiplen, skip);
+        ensure_equals("size() after skip()", strq.size(), leave);
         size_t readlen(strq.read(&buffer[0], buffer.size()));
-        ensure_equals("read(\"craft\")", readlen, 5);
+        ensure_equals("read(\"craft\")", readlen, leave);
         ensure_equals("read(\"craft\") result",
                       std::string(buffer.begin(), buffer.begin() + readlen), "craft");
     }
@@ -162,14 +175,21 @@ namespace tut
             strq.write(&block[0], block.length());
         }
         strq.close();
+        // We've already verified what strq.size() should be at this point;
+        // see above test named "skip() multiple blocks"
+        std::streamsize chksize(strq.size());
         std::streamsize readlen(strq.read(&buffer[0], buffer.size()));
         ensure_equals("read() 0", readlen, buffer.size());
         ensure_equals("read() 0 result", std::string(buffer.begin(), buffer.end()), "abcdefghij");
+        chksize -= readlen;
+        ensure_equals("size() after read() 0", strq.size(), chksize);
         readlen = strq.read(&buffer[0], buffer.size());
         ensure_equals("read() 1", readlen, buffer.size());
         ensure_equals("read() 1 result", std::string(buffer.begin(), buffer.end()), "klmnopqrst");
+        chksize -= readlen;
+        ensure_equals("size() after read() 1", strq.size(), chksize);
         readlen = strq.read(&buffer[0], buffer.size());
-        ensure_equals("read() 2", readlen, 6);
+        ensure_equals("read() 2", readlen, chksize);
         ensure_equals("read() 2 result",
                       std::string(buffer.begin(), buffer.begin() + readlen), "uvwxyz");
         ensure_equals("read() 3", strq.read(&buffer[0], buffer.size()), -1);

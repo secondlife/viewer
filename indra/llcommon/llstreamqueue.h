@@ -53,6 +53,7 @@ class LLGenericStreamQueue
 {
 public:
     LLGenericStreamQueue():
+        mSize(0),
         mClosed(false)
     {}
 
@@ -134,6 +135,7 @@ public:
         // we want this to scale to large data volumes, better to allocate
         // individual pieces.
         mBuffer.push_back(string(s, n));
+        mSize += n;
         return n;
     }
 
@@ -167,10 +169,17 @@ public:
     /// at EOF we simply skip 0 characters.
     std::streamsize skip(std::streamsize n);
 
+    /// How many characters do we currently have buffered?
+    std::streamsize size() const
+    {
+        return mSize;
+    }
+
 private:
     typedef std::basic_string<Ch> string;
     typedef std::list<string> BufferList;
     BufferList mBuffer;
+    std::streamsize mSize;
     bool mClosed;
 };
 
@@ -212,12 +221,14 @@ std::streamsize LLGenericStreamQueue<Ch>::skip(std::streamsize n)
         std::streamsize chunk(bli->length());
         typename BufferList::iterator zap(bli++);
         mBuffer.erase(zap);
+        mSize   -= chunk;
         toskip  -= chunk;
         skipped += chunk;
     }
     if (bli != blend && toskip)
     {
         bli->erase(bli->begin(), bli->begin() + toskip);
+        mSize   -= toskip;
         skipped += toskip;
     }
     return skipped;
