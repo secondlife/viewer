@@ -370,6 +370,7 @@ public:
 private:
 	bool doMultiPerform(LLCurl::Multi* multi) ;
 	void deleteMulti(LLCurl::Multi* multi) ;
+	void cleanupMulti(LLCurl::Multi* multi) ;
 } ;
 
 namespace boost
