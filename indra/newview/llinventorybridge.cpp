@@ -1323,7 +1323,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		if (!itemp) return;
 
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
-		copy_item_to_outbox(itemp, outbox_id, LLUUID::null);
+		copy_item_to_outbox(itemp, outbox_id, LLUUID::null, LLToolDragAndDrop::getOperationId());
 	}
 }
 
@@ -2221,7 +2221,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else if (move_is_into_outbox && !move_is_from_outbox)
 			{
-				copy_folder_to_outbox(inv_cat, mUUID, cat_id);
+				copy_folder_to_outbox(inv_cat, mUUID, cat_id, LLToolDragAndDrop::getOperationId());
 			}
 			else
 			{
@@ -2655,7 +2655,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		if (!cat) return;
 
 		const LLUUID outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
-		copy_folder_to_outbox(cat, outbox_id, cat->getUUID());
+		copy_folder_to_outbox(cat, outbox_id, cat->getUUID(), LLToolDragAndDrop::getOperationId());
 	}
 #if ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU
 	else if (isMarketplaceSendAction(action))
@@ -3694,7 +3694,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 				}
 				else
 				{
-					copy_item_to_outbox(inv_item, mUUID, LLUUID::null);
+					copy_item_to_outbox(inv_item, mUUID, LLUUID::null, LLToolDragAndDrop::getOperationId());
 				}
 			}
 			// NORMAL or TRASH folder

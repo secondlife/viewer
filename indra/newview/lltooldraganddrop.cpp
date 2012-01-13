@@ -282,6 +282,8 @@ void LLCategoryDropDescendentsObserver::done()
 }
 */
 
+S32 LLToolDragAndDrop::sOperationId = 0;
+
 LLToolDragAndDrop::DragAndDropEntry::DragAndDropEntry(dragOrDrop3dImpl f_none,
 													  dragOrDrop3dImpl f_self,
 													  dragOrDrop3dImpl f_avatar,
@@ -643,6 +645,12 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	LLViewerInventoryCategory* cat;
 
 	mToolTipMsg.clear();
+
+	// Increment the operation id for every drop
+	if (drop)
+	{
+		sOperationId++;
+	}
 
 	if (top_view)
 	{

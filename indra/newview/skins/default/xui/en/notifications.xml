@@ -203,14 +203,11 @@ Save changes to current clothing/body part?
    icon="alertmodal.tga"
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
-You don't have permission to copy this item to the Merchant Outbox. You can move it or leave it behind.
-
-[ITEM_NAME]
+You don't have permission to copy one or more of these items to the Merchant Outbox.  You can move them or leave them behind.
         <usetemplate
-         canceltext="Cancel"
-         name="yesnocancelbuttons"
-         notext="Don't move item"
-         yestext="Move item"/>
+         name="okcancelbuttons"
+         notext="Don't move item(s)"
+         yestext="Move item(s)"/>
     </notification>
 
   <notification
