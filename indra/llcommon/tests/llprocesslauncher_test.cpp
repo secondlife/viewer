@@ -18,14 +18,14 @@
 #include <vector>
 #include <list>
 // std headers
-#include <errno.h>
 // external library headers
 #include "llapr.h"
 #include "apr_thread_proc.h"
-#include "apr_file_io.h"
 #include <boost/foreach.hpp>
 // other Linden headers
 #include "../test/lltut.h"
+#include "../test/manageapr.h"
+#include "../test/namedtempfile.h"
 #include "stringize.h"
 
 #if defined(LL_WINDOWS)
@@ -36,30 +36,8 @@
 #include <sys/wait.h>
 #endif
 
-class APR
-{
-public:
-    APR():
-        pool(NULL)
-    {
-        apr_initialize();
-        apr_pool_create(&pool, NULL);
-    }
-
-    ~APR()
-    {
-        apr_terminate();
-    }
-
-    std::string strerror(apr_status_t rv)
-    {
-        char errbuf[256];
-        apr_strerror(rv, errbuf, sizeof(errbuf));
-        return errbuf;
-    }
-
-    apr_pool_t *pool;
-};
+// static instance of this manages APR init/cleanup
+static ManageAPR manager;
 
 #define ensure_equals_(left, right) \
         ensure_equals(STRINGIZE(#left << " != " << #right), (left), (right))
@@ -74,11 +52,11 @@ namespace tut
     {
         void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
         {
-            ensure_equals(STRINGIZE(call << " => " << rv << ": " << apr.strerror(rv)),
+            ensure_equals(STRINGIZE(call << " => " << rv << ": " << manager.strerror(rv)),
                           rv, expected);
         }
 
-        APR apr;
+        LLAPRPool pool;
     };
     typedef test_group<llprocesslauncher_data> llprocesslauncher_group;
     typedef llprocesslauncher_group::object object;
@@ -186,19 +164,7 @@ namespace tut
         set_test_name("raw APR nonblocking I/O");
 
         // Create a script file in a temporary place.
-        const char* tempdir = NULL;
-        aprchk(apr_temp_dir_get(&tempdir, apr.pool));
-
-        // Construct a temp filename template in that directory.
-        char *tempname = NULL;
-        aprchk(apr_filepath_merge(&tempname, tempdir, "testXXXXXX", 0, apr.pool));
-
-        // Create a temp file from that template.
-        apr_file_t* fp = NULL;
-        aprchk(apr_file_mktemp(&fp, tempname, APR_CREATE | APR_WRITE | APR_EXCL, apr.pool));
-
-        // Write it.
-        const char script[] =
+        NamedTempFile script("py",
             "import sys" EOL
             "import time" EOL
             EOL
@@ -208,10 +174,7 @@ namespace tut
             "time.sleep(2)" EOL
             "print >>sys.stderr, 'stderr after wait'" EOL
             "sys.stderr.flush()" EOL
-            ;
-        apr_size_t len(sizeof(script)-1);
-        aprchk(apr_file_write(fp, script, &len));
-        aprchk(apr_file_close(fp));
+            );
 
         // Arrange to track the history of our interaction with child: what we
         // fetched, which pipe it came from, how many tries it took before we
@@ -221,30 +184,33 @@ namespace tut
 
         // Run the child process.
         apr_procattr_t *procattr = NULL;
-        aprchk(apr_procattr_create(&procattr, apr.pool));
+        aprchk(apr_procattr_create(&procattr, pool.getAPRPool()));
         aprchk(apr_procattr_io_set(procattr, APR_CHILD_BLOCK, APR_CHILD_BLOCK, APR_CHILD_BLOCK));
         aprchk(apr_procattr_cmdtype_set(procattr, APR_PROGRAM_PATH));
 
         std::vector<const char*> argv;
         apr_proc_t child;
         argv.push_back("python");
-        argv.push_back(tempname);
+        // Have to have a named copy of this std::string so its c_str() value
+        // will persist.
+        std::string scriptname(script.getName());
+        argv.push_back(scriptname.c_str());
         argv.push_back(NULL);
 
         aprchk(apr_proc_create(&child, argv[0],
                                &argv[0],
                                NULL, // if we wanted to pass explicit environment
                                procattr,
-                               apr.pool));
+                               pool.getAPRPool()));
 
         // We do not want this child process to outlive our APR pool. On
         // destruction of the pool, forcibly kill the process. Tell APR to try
         // SIGTERM and wait 3 seconds. If that didn't work, use SIGKILL.
-        apr_pool_note_subprocess(apr.pool, &child, APR_KILL_AFTER_TIMEOUT);
+        apr_pool_note_subprocess(pool.getAPRPool(), &child, APR_KILL_AFTER_TIMEOUT);
 
         // arrange to call child_status_callback()
         WaitInfo wi(&child);
-        apr_proc_other_child_register(&child, child_status_callback, &wi, child.in, apr.pool);
+        apr_proc_other_child_register(&child, child_status_callback, &wi, child.in, pool.getAPRPool());
 
         // TODO:
         // Stuff child.in until it (would) block to verify EWOULDBLOCK/EAGAIN.
@@ -289,7 +255,7 @@ namespace tut
                 }
                 if (rv == EWOULDBLOCK || rv == EAGAIN)
                 {
-//                  std::cout << "(waiting; apr_file_gets(" << dfli->first << ") => " << rv << ": " << apr.strerror(rv) << ")\n";
+//                  std::cout << "(waiting; apr_file_gets(" << dfli->first << ") => " << rv << ": " << manager.strerror(rv) << ")\n";
                     ++history.back().tries;
                     continue;
                 }
@@ -334,13 +300,10 @@ namespace tut
             std::cout << "child_status_callback(APR_OC_REASON_DEATH) wasn't called" << std::endl;
             wi.rv = apr_proc_wait(wi.child, &wi.rc, &wi.why, APR_NOWAIT);
         }
-//      std::cout << "child done: rv = " << rv << " (" << apr.strerror(rv) << "), why = " << why << ", rc = " << rc << '\n';
+//      std::cout << "child done: rv = " << rv << " (" << manager.strerror(rv) << "), why = " << why << ", rc = " << rc << '\n';
         aprchk_("apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT)", wi.rv, APR_CHILD_DONE);
         ensure_equals_(wi.why, APR_PROC_EXIT);
         ensure_equals_(wi.rc, 0);
-
-        // Remove temp script file
-        aprchk(apr_file_remove(tempname, apr.pool));
 
         // Beyond merely executing all the above successfully, verify that we
         // obtained expected output -- and that we duly got control while
