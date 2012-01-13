@@ -1062,7 +1062,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 	// We don't do time zone corrections of the calculated number of seconds
 	// because we don't have a full time stamp, only a date.
-	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%A %b %d, %Y", start_date);
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 	LLStringUtil::format (time_str, substitution);
 
 	if ( interval_days != mImplementationp->mIntervalLength || 
@@ -1217,7 +1217,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 
 		// We don't do time zone corrections of the calculated number of seconds
 		// because we don't have a full time stamp, only a date.
-		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%A %b %d, %Y", start_date);
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 		LLStringUtil::format (time_str, substitution);
 
 		text = time_str + "\n\n";
@@ -1447,7 +1447,8 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 
 		text.append(time_str);
 		text.append(".\n\n");
-		text.append(llformat("%-24s %6d L$\n\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
+		text.append(llformat("%-23sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
+		text.append(1, '\n');
 	}
 
 	// [DEV-29503] Hide the individual info since
