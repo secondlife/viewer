@@ -1254,9 +1254,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b6813875c5b72a38b4038697ce132fa</string>
+              <string>760a7e956f6ed540d3b655dafc57788a</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247455/arch/Linux/installer/llpathinglibrary-0.1-linux-20120111.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247477/arch/Linux/installer/llpathinglibrary-0.1-linux-20120111.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1266,9 +1266,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2678d6cc52245f1fc82e2e5759cfe855</string>
+              <string>28be1280ceab6255726a8104b6615cdb</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247455/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120111.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/247477/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120111.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

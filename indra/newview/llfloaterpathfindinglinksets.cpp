@@ -42,7 +42,7 @@
 #include "llhttpclient.h"
 #include "lluuid.h"
 
-#define XXX_STINSON_USE_FAKE_DATA
+//#define XXX_STINSON_USE_FAKE_DATA
 #ifdef XXX_STINSON_USE_FAKE_DATA
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
