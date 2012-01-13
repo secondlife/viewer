@@ -43,6 +43,10 @@
 #include "lluuid.h"
 
 #define XXX_STINSON_USE_FAKE_DATA
+#ifdef XXX_STINSON_USE_FAKE_DATA
+#include "llviewerobject.h"
+#include "llviewerobjectlist.h"
+#endif // XXX_STINSON_USE_FAKE_DATA
 
 //---------------------------------------------------------------------------
 // NavmeshDataGetResponder
@@ -606,7 +610,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 #ifdef XXX_STINSON_USE_FAKE_DATA
 	LLSD allData;
 
-	const std::string firstUUID("37198314751");
+	const std::string firstUUID(gObjectList.getObject(0)->getID().asString());
 	LLSD firstData;
 	firstData["name"] = "Curabitur malesuada";
 	firstData["description"] = "Accusam nominavi contentiones per ad";
@@ -621,7 +625,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 firstLocation(135.0f, 57.0f, 2.0f);
 	firstData["position"] = firstLocation.getValue();
 
-	const std::string secondUUID("5467227");
+	const std::string secondUUID(gObjectList.getObject(1)->getID().asString());
 	LLSD secondData;
 	secondData["name"] = "At tota";
 	secondData["description"] = "His ad placerat tincidun";
@@ -636,7 +640,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 secondLocation(15.0f, 157.0f, 22.0f);
 	secondData["position"] = secondLocation.getValue();
 
-	const std::string thirdUUID("897234");
+	const std::string thirdUUID(gObjectList.getObject(2)->getID().asString());
 	LLSD thirdData;
 	thirdData["name"] = "No soleat";
 	thirdData["description"] = "";
@@ -651,7 +655,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 thirdLocation(577.0f, 14.0f, -14.5f);
 	thirdData["position"] = thirdLocation.getValue();
 
-	const std::string fourthUUID("498792");
+	const std::string fourthUUID(gObjectList.getObject(3)->getID().asString());
 	LLSD fourthData;
 	fourthData["name"] = "Paulo tritani bonorum";
 	fourthData["description"] = "Vis verear impetus";
@@ -666,7 +670,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 fourthLocation(215.0f, 57.0f, 5.0f);
 	fourthData["position"] = fourthLocation.getValue();
 
-	const std::string fifthUUID("5996732");
+	const std::string fifthUUID(gObjectList.getObject(4)->getID().asString());
 	LLSD fifthData;
 	fifthData["name"] = "Curabitur malesuada";
 	fifthData["description"] = "Reque possit philosophia";
@@ -681,7 +685,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 fifthLocation(135.0f, 57.0f, 2.0f);
 	fifthData["position"] = fifthLocation.getValue();
 
-	const std::string sixthUUID("03217522");
+	const std::string sixthUUID(gObjectList.getObject(5)->getID().asString());
 	LLSD sixthData;
 	sixthData["name"] = "At tota";
 	sixthData["description"] = "Usu no aliquid dignissim";
@@ -696,7 +700,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 sixthLocation(315.0f, 57.0f, 12.0f);
 	sixthData["position"] = sixthLocation.getValue();
 
-	const std::string seventhUUID("7844327");
+	const std::string seventhUUID(gObjectList.getObject(6)->getID().asString());
 	LLSD seventhData;
 	seventhData["name"] = "No soleat";
 	seventhData["description"] = "honestatis";
@@ -711,7 +715,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	LLVector3 seventhLocation(7.0f, 0.0f, 0.0f);
 	seventhData["position"] = seventhLocation.getValue();
 
-	const std::string eigthUUID("2478739685");
+	const std::string eigthUUID(gObjectList.getObject(7)->getID().asString());
 	LLSD eigthData;
 	eigthData["name"] = "Sea te aliquam";
 	eigthData["description"] = "";
@@ -843,6 +847,20 @@ void LLFloaterPathfindingLinksets::clearFilters()
 
 void LLFloaterPathfindingLinksets::updateLinksetsList()
 {
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	int numSelectedItems = selectedItems.size();
+	uuid_vec_t selectedUUIDs;
+	if (numSelectedItems > 0)
+	{
+		selectedUUIDs.reserve(selectedItems.size());
+		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
+			itemIter != selectedItems.end(); ++itemIter)
+		{
+			const LLScrollListItem *listItem = *itemIter;
+			selectedUUIDs.push_back(listItem->getUUID());
+		}
+	}
+
 	mLinksetsScrollList->deleteAllItems();
 	updateLinksetsStatusMessage();
 
@@ -907,6 +925,7 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 		mLinksetsScrollList->addElement(element);
 	}
 
+	mLinksetsScrollList->selectMultiple(selectedUUIDs);
 	updateLinksetsStatusMessage();
 }
 
