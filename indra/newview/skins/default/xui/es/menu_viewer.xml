@@ -19,8 +19,6 @@
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Solicitar estatus de Administrador" name="Request Admin Options"/>
-		<menu_item_call label="Dejar el estatus de Administrador" name="Leave Admin Options"/>
 		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Preferencias..." name="Preferences"/>
 		<menu_item_call label="Barras de herramientas..." name="Toolbars"/>
@@ -40,11 +38,10 @@
 		<menu_item_check label="Buscar" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
-		<menu label="Perfil del lugar" name="Land">
-			<menu_item_call label="Perfil del lugar" name="Place Profile"/>
-			<menu_item_call label="Acerca del terreno" name="About Land"/>
-			<menu_item_call label="Región/Estado" name="Region/Estate"/>
-		</menu>
+		<menu_item_separator/>
+		<menu_item_call label="Perfil del lugar" name="Place Profile"/>
+		<menu_item_call label="Acerca del terreno" name="About Land"/>
+		<menu_item_call label="Región/Estado" name="Region/Estate"/>
 		<menu_item_call label="Comprar este terreno" name="Buy Land"/>
 		<menu_item_call label="Mi terreno" name="My Land"/>
 		<menu label="Mostrar" name="LandShow">
@@ -60,14 +57,14 @@
 		</menu>
 		<menu_item_call label="Teleportar a la Base" name="Teleport Home"/>
 		<menu_item_call label="Fijar mi Base aquí" name="Set Home to Here"/>
-		<menu label="Sol" name="Environment Settings">
+		<menu label="Sol" name="Sun">
 			<menu_item_call label="Amanecer" name="Sunrise"/>
 			<menu_item_call label="Mediodía" name="Noon"/>
 			<menu_item_call label="Atardecer" name="Sunset"/>
 			<menu_item_call label="Medianoche" name="Midnight"/>
 		</menu>
 		<menu label="Editor de entorno" name="Enviroment Editor">
-			<menu_item_call label="Configuración de entorno..." name="Enviroment Settings"/>
+			<menu_item_call label="Configuración de entorno..." name="Environment Settings"/>
 			<menu label="Agua predefinida" name="Water Presets">
 				<menu_item_call label="Nuevo predefinido..." name="new_water_preset"/>
 				<menu_item_call label="Editar predefinido..." name="edit_water_preset"/>
@@ -173,22 +170,22 @@
 			<menu_item_check label="Mostrar el Punto de Mira en la vista subjetiva" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Objetos representados" name="Rendering Types">
-			<menu_item_check label="Simple" name="Simple"/>
-			<menu_item_check label="Alfa" name="Alpha"/>
-			<menu_item_check label="Árbol" name="Tree"/>
-			<menu_item_check label="Avatares" name="Character"/>
-			<menu_item_check label="Parche de superficie" name="Surface Patch"/>
-			<menu_item_check label="Cielo" name="Sky"/>
-			<menu_item_check label="Agua" name="Water"/>
-			<menu_item_check label="Terreno" name="Ground"/>
-			<menu_item_check label="volumen" name="Volume"/>
-			<menu_item_check label="Hierba" name="Grass"/>
-			<menu_item_check label="Nubes" name="Clouds"/>
-			<menu_item_check label="Partículas" name="Particles"/>
-			<menu_item_check label="Efectos de relieve" name="Bump"/>
+			<menu_item_check label="Simple" name="Rendering Type Simple"/>
+			<menu_item_check label="Alfa" name="Rendering Type Alpha"/>
+			<menu_item_check label="Árbol" name="Rendering Type Tree"/>
+			<menu_item_check label="Avatares" name="Rendering Type Character"/>
+			<menu_item_check label="Parche de superficie" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="Cielo" name="Rendering Type Sky"/>
+			<menu_item_check label="Agua" name="Rendering Type Water"/>
+			<menu_item_check label="Terreno" name="Rendering Type Ground"/>
+			<menu_item_check label="volumen" name="Rendering Type Volume"/>
+			<menu_item_check label="Hierba" name="Rendering Type Grass"/>
+			<menu_item_check label="Nubes" name="Rendering Type Clouds"/>
+			<menu_item_check label="Partículas" name="Rendering Type Particles"/>
+			<menu_item_check label="Efectos de relieve" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="Rasgos renderizados" name="Rendering Features">
-			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="UI" name="ToggleUI"/>
 			<menu_item_check label="Seleccionado" name="Selected"/>
 			<menu_item_check label="Realzados" name="Highlighted"/>
 			<menu_item_check label="Texturas dinámicas" name="Dynamic Textures"/>
@@ -200,10 +197,7 @@
 		<menu_item_call label="Vaciar la caché de grupo" name="ClearGroupCache"/>
 		<menu_item_check label="Vista subjetiva suavizada" name="Mouse Smoothing"/>
 		<menu label="Atajos de teclado" name="Shortcuts">
-			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
-			<menu_item_check label="Buscar" name="Search"/>
 			<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
-			<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
 			<menu_item_check label="Mostrar el menú Avanzado - acceso directo antiguo" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Cerrar la ventana" name="Close Window"/>
 			<menu_item_call label="Cerrar todas las ventanas" name="Close All Windows"/>
@@ -212,13 +206,6 @@
 			<menu_item_check label="Flycam del joystick" name="Joystick Flycam"/>
 			<menu_item_call label="Volver a la vista por defecto" name="Reset View"/>
 			<menu_item_call label="Mirar al último que habló" name="Look at Last Chatter"/>
-			<menu label="Seleccionar la herramienta de construcción" name="Select Tool">
-				<menu_item_call label="Herramienta Visión" name="Focus"/>
-				<menu_item_call label="Herramienta Mover" name="Move"/>
-				<menu_item_call label="Herramienta Editar" name="Edit"/>
-				<menu_item_call label="Herramienta Crear" name="Create"/>
-				<menu_item_call label="Herramienta Terreno" name="Land"/>
-			</menu>
 			<menu_item_call label="Acercar el zoom" name="Zoom In"/>
 			<menu_item_call label="Zoom por defecto" name="Zoom Default"/>
 			<menu_item_call label="Alejar el zoom" name="Zoom Out"/>
@@ -296,9 +283,8 @@
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
 		</menu>
 		<menu_item_call label="Bumps, Pushes &amp; Hits" name="Bumps, Pushes &amp;amp; Hits"/>
-		<menu label="World" name="World">
+		<menu label="World" name="DevelopWorld">
 			<menu_item_check label="Region Sun Override" name="Sim Sun Override"/>
-			<menu_item_check label="Beacon flashing effect" name="Cheesy Beacon"/>
 			<menu_item_check label="Fixed Weather" name="Fixed Weather"/>
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
@@ -320,11 +306,11 @@
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
-				<menu_item_call label="Iris" name="Iris"/>
-				<menu_item_call label="Head" name="Head"/>
-				<menu_item_call label="Upper Body" name="Upper Body"/>
-				<menu_item_call label="Lower Body" name="Lower Body"/>
-				<menu_item_call label="Skirt" name="Skirt"/>
+				<menu_item_call label="Iris" name="Grab Iris"/>
+				<menu_item_call label="Head" name="Grab Head"/>
+				<menu_item_call label="Upper Body" name="Grab Upper Body"/>
+				<menu_item_call label="Lower Body" name="Grab Lower Body"/>
+				<menu_item_call label="GrabSkirt" name="Grab Skirt"/>
 			</menu>
 			<menu label="Character Tests" name="Character Tests">
 				<menu_item_call label="Toggle Character Geometry" name="Toggle Character Geometry"/>
@@ -346,8 +332,8 @@
 		<menu_item_check label="Show Admin Menu" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="Coger una copia" name="Take Copy"/>
+		<menu label="Object" name="AdminObject">
+			<menu_item_call label="Coger una copia" name="Admin Take Copy"/>
 			<menu_item_call label="Force Owner To Me" name="Force Owner To Me"/>
 			<menu_item_call label="Force Owner Permissive" name="Force Owner Permissive"/>
 			<menu_item_call label="Eliminar" name="Delete"/>
