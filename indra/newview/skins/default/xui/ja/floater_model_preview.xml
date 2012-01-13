@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		エラー：Dae に問題が見つかりました - 詳細についてはログをご参照ください。
 	</string>
+	<string name="status_material_mismatch">
+		エラー：モデルの材料は参考モデルのサブセットではありません。
+	</string>
 	<string name="status_reading_file">
 		ローディング...
 	</string>

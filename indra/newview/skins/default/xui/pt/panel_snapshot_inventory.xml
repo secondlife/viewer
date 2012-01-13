@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_inventory">
+	<text name="title">
+		Salvar no meu inventário
+	</text>
+	<text name="hint_lbl">
+		Salvar uma imagem em seu inventário custa L$[UPLOAD_COST]. Para salvar sua imagem como uma textura, selecione um dos formatos quadrados.
+	</text>
+	<combo_box label="Resolução" name="texture_size_combo">
+		<combo_box.item label="Janela atual" name="CurrentWindow"/>
+		<combo_box.item label="Pequeno (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Médio (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Customizado" name="Custom"/>
+	</combo_box>
+	<spinner label="Largura" name="inventory_snapshot_width"/>
+	<spinner label="Altura" name="inventory_snapshot_height"/>
+	<check_box label="Limitar proporções" name="inventory_keep_aspect_check"/>
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Salvar" name="save_btn"/>
+</panel>

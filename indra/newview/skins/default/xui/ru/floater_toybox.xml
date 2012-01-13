@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Toybox" title="НАСТРОИТЬ ПАНЕЛИ ИНСТРУМЕНТОВ">
+<floater name="Toybox" title="КНОПКИ ПАНЕЛИ ИНСТРУМЕНТОВ">
 	<text name="toybox label 1">
 		Добавьте или удалите кнопки, перетягивая их на панели инструментов или с них.
 	</text>
 	<text name="toybox label 2">
 		Кнопки будут отображены в исходном виде или в виде значков, в зависимости от настроек каждой панели инструментов.
 	</text>
+	<button label="Очистить все панели" label_selected="Очистить все панели" name="btn_clear_all"/>
 	<button label="Вернуть стандартные" label_selected="Вернуть стандартные" name="btn_restore_defaults"/>
 </floater>
