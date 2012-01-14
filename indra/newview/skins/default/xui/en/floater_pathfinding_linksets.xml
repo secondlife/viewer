@@ -246,14 +246,14 @@
       height="19"
       label="Fixed"
       layout="topleft"
-      name="DisplayNavmeshOverlay"
+      name="edit_fixed_value"
       top_pad="10"
       width="90" />
   <check_box
       height="19"
       label="Walkable"
       layout="topleft"
-      name="DisplayNavmeshOverlay"
+      name="edit_walkable_value"
       top_pad="5"
       left="38"
       width="90" />
@@ -292,7 +292,7 @@
       layout="topleft"
       left_delta="14"
       max_length_bytes="10"
-      name="estate"
+      name="edit_a_value"
       width="45" />
   <text
       height="13"
@@ -316,7 +316,7 @@
       layout="topleft"
       left_delta="14"
       max_length_bytes="10"
-      name="estate"
+      name="edit_b_value"
       width="45" />
   <text
       height="13"
@@ -340,7 +340,7 @@
       layout="topleft"
       left_delta="14"
       max_length_bytes="10"
-      name="estate"
+      name="edit_c_value"
       width="45" />
   <text
       height="13"
@@ -364,13 +364,13 @@
       layout="topleft"
       left_delta="14"
       max_length_bytes="10"
-      name="estate"
+      name="edit_d_value"
       width="45" />
   <check_box
       height="19"
       label="Phantom"
       layout="topleft"
-      name="DisplayNavmeshOverlay"
+      name="edit_phantom_value"
       top="271"
       left="559"
       width="90" />
@@ -379,7 +379,7 @@
       height="21"
       label="Apply changes"
       layout="topleft"
-      name="linksets"
+      name="apply_edit_values"
       top="270"
       left="735"
       width="134"/>

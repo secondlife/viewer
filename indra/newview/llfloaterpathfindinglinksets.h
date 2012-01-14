@@ -37,6 +37,7 @@ class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
 class LLCheckBoxCtrl;
+class LLButton;
 
 class PathfindingLinkset
 {
@@ -193,6 +194,14 @@ private:
 	LLLineEditor        *mFilterByDescription;
 	LLCheckBoxCtrl      *mFilterByFixed;
 	LLCheckBoxCtrl      *mFilterByWalkable;
+	LLCheckBoxCtrl      *mEditFixed;
+	LLCheckBoxCtrl      *mEditWalkable;
+	LLCheckBoxCtrl      *mEditPhantom;
+	LLLineEditor        *mEditA;
+	LLLineEditor        *mEditB;
+	LLLineEditor        *mEditC;
+	LLLineEditor        *mEditD;
+	LLButton            *mApplyEdits;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
@@ -210,6 +219,7 @@ private:
 	void onRefreshLinksetsClicked();
 	void onSelectAllLinksetsClicked();
 	void onSelectNoneLinksetsClicked();
+	void onApplyChangesClicked();
 
 	void applyFilters();
 	void clearFilters();
@@ -219,6 +229,9 @@ private:
 	void selectNoneLinksets();
 
 	void updateLinksetsStatusMessage();
+
+	void updateEditFields();
+	void applyEditFields();
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

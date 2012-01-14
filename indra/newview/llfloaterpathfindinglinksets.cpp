@@ -30,6 +30,7 @@
 #include "llfloaterpathfindinglinksets.h"
 #include "llsd.h"
 #include "v3math.h"
+#include "lltextvalidate.h"
 #include "llagent.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
@@ -37,6 +38,7 @@
 #include "lllineeditor.h"
 #include "llscrolllistctrl.h"
 #include "llcheckboxctrl.h"
+#include "llbutton.h"
 #include "llresmgr.h"
 #include "llviewerregion.h"
 #include "llhttpclient.h"
@@ -549,6 +551,36 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	llassert(mFilterByWalkable != NULL);
 	mFilterByWalkable->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
 
+	mEditFixed = findChild<LLCheckBoxCtrl>("edit_fixed_value");
+	llassert(mEditFixed != NULL);
+
+	mEditWalkable = findChild<LLCheckBoxCtrl>("edit_walkable_value");
+	llassert(mEditWalkable != NULL);
+
+	mEditPhantom = findChild<LLCheckBoxCtrl>("edit_phantom_value");
+	llassert(mEditPhantom != NULL);
+
+	mEditA = findChild<LLLineEditor>("edit_a_value");
+	llassert(mEditA != NULL);
+	mEditA->setPrevalidate(LLTextValidate::validateFloat);
+
+	mEditB = findChild<LLLineEditor>("edit_b_value");
+	llassert(mEditB != NULL);
+	mEditB->setPrevalidate(LLTextValidate::validateFloat);
+
+	mEditC = findChild<LLLineEditor>("edit_c_value");
+	llassert(mEditC != NULL);
+	mEditC->setPrevalidate(LLTextValidate::validateFloat);
+
+	mEditD = findChild<LLLineEditor>("edit_d_value");
+	llassert(mEditD != NULL);
+	mEditD->setPrevalidate(LLTextValidate::validateFloat);
+
+	mApplyEdits = findChild<LLButton>("apply_edit_values");
+	llassert(mApplyEdits != NULL);
+	mApplyEdits->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyChangesClicked, this));
+	mApplyEdits->setEnabled(false);
+
 	setFetchState(kFetchInitial);
 
 	return LLFloater::postBuild();
@@ -597,7 +629,14 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mFilterByName(NULL),
 	mFilterByDescription(NULL),
 	mFilterByFixed(NULL),
-	mFilterByWalkable(NULL)
+	mFilterByWalkable(NULL),
+	mEditFixed(NULL),
+	mEditWalkable(NULL),
+	mEditA(NULL),
+	mEditB(NULL),
+	mEditC(NULL),
+	mEditD(NULL),
+	mApplyEdits(NULL)
 {
 }
 
@@ -809,6 +848,7 @@ void LLFloaterPathfindingLinksets::onClearFiltersClicked()
 void LLFloaterPathfindingLinksets::onLinksetsSelectionChange()
 {
 	updateLinksetsStatusMessage();
+	updateEditFields();
 }
 
 void LLFloaterPathfindingLinksets::onRefreshLinksetsClicked()
@@ -824,6 +864,11 @@ void LLFloaterPathfindingLinksets::onSelectAllLinksetsClicked()
 void LLFloaterPathfindingLinksets::onSelectNoneLinksetsClicked()
 {
 	selectNoneLinksets();
+}
+
+void LLFloaterPathfindingLinksets::onApplyChangesClicked()
+{
+	applyEditFields();
 }
 
 void LLFloaterPathfindingLinksets::applyFilters()
@@ -996,6 +1041,83 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 	mLinksetsStatus->setText((LLStringExplicit)statusText, styleParams);
 }
 
+void LLFloaterPathfindingLinksets::updateEditFields()
+{
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	if (selectedItems.empty())
+	{
+		mEditFixed->clear();
+		mEditWalkable->clear();
+		mEditPhantom->clear();
+		mEditA->clear();
+		mEditB->clear();
+		mEditC->clear();
+		mEditD->clear();
+
+		mApplyEdits->setEnabled(false);
+	}
+	else
+	{
+		LLScrollListItem *firstItem = selectedItems.front();
+
+		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
+		PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(firstItem->getUUID().asString());
+		const PathfindingLinkset &linkset(linksetIter->second);
+
+		mEditFixed->set(linkset.isFixed());
+		mEditWalkable->set(linkset.isWalkable());
+		mEditPhantom->set(linkset.isPhantom());
+		mEditA->setValue(LLSD(linkset.getA()));
+		mEditB->setValue(LLSD(linkset.getB()));
+		mEditC->setValue(LLSD(linkset.getC()));
+		mEditD->setValue(LLSD(linkset.getD()));
+
+		mApplyEdits->setEnabled(true);
+	}
+}
+
+void LLFloaterPathfindingLinksets::applyEditFields()
+{
+	BOOL isFixedBool = mEditFixed->getValue();
+	BOOL isWalkableBool = mEditWalkable->getValue();
+	BOOL isPhantomBool = mEditPhantom->getValue();
+	const std::string &aString = mEditA->getText();
+	const std::string &bString = mEditB->getText();
+	const std::string &cString = mEditC->getText();
+	const std::string &dString = mEditD->getText();
+	F32 aValue = (F32)atof(aString.c_str());
+	F32 bValue = (F32)atof(bString.c_str());
+	F32 cValue = (F32)atof(cString.c_str());
+	F32 dValue = (F32)atof(dString.c_str());
+
+	LLSD isFixed = (bool)isFixedBool;
+	LLSD isWalkable = (bool)isWalkableBool;
+	LLSD isPhantom = (bool)isPhantomBool;
+	LLSD a = aValue;
+	LLSD b = bValue;
+	LLSD c = cValue;
+	LLSD d = dValue;
+
+	LLSD applyData;
+	applyData["fixed"] = isFixed;
+	applyData["walkable"] = isWalkable;
+	applyData["phantom"] = isPhantom;
+	applyData["a"] = a;
+	applyData["b"] = b;
+	applyData["c"] = c;
+	applyData["d"] = d;
+
+	llinfos << "Apply changes:" << llendl;
+	llinfos << "      isFixed:    " << isFixed << llendl;
+	llinfos << "      isWalkable: " << isWalkable << llendl;
+	llinfos << "      isPhantom:  " << isPhantom << llendl;
+	llinfos << "      a:          " << a << llendl;
+	llinfos << "      b:          " << b << llendl;
+	llinfos << "      c:          " << c << llendl;
+	llinfos << "      d:          " << d << llendl;
+	llinfos << "      applyData:  " << applyData << llendl;
+}
+
 //---------------------------------------------------------------------------
 // NavmeshDataGetResponder
 //---------------------------------------------------------------------------
@@ -1020,4 +1142,3 @@ void NavmeshDataGetResponder::error(U32 status, const std::string& reason)
 {
 	mLinksetsFloater->handleNavmeshDataGetError(mNavmeshDataGetURL, reason);
 }
-
