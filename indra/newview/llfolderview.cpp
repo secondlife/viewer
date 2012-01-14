@@ -349,10 +349,6 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	{
 		mFolders.insert(mFolders.begin(), folder);
 	}
-	if (folder->numSelected())
-	{
-		recursiveIncrementNumDescendantsSelected(folder->numSelected());
-	}
 	folder->setShowLoadStatus(mShowLoadStatus);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
@@ -692,26 +688,6 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 	mSignalSelectCallback = SIGNAL_KEYBOARD_FOCUS;
 	
 	return rv;
-}
-
-void LLFolderView::extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items)
-{
-	// now store resulting selection
-	if (mAllowMultiSelect)
-	{
-		LLFolderViewItem *cur_selection = getCurSelectedItem();
-		LLFolderViewFolder::extendSelection(selection, cur_selection, items);
-		for (S32 i = 0; i < items.count(); i++)
-		{
-			addToSelectionList(items[i]);
-		}
-	}
-	else
-	{
-		setSelection(selection, FALSE, FALSE);
-	}
-
-	mSignalSelectCallback = SIGNAL_KEYBOARD_FOCUS;
 }
 
 static LLFastTimer::DeclareTimer FTM_SANITIZE_SELECTION("Sanitize Selection");
