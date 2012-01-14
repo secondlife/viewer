@@ -499,7 +499,7 @@ BOOL LLFolderViewItem::setSelection(LLFolderViewItem* selection, BOOL openitem, 
 
 BOOL LLFolderViewItem::changeSelection(LLFolderViewItem* selection, BOOL selected)
 {
-	if (selection == this && mIsSelected != selected)
+	if (selection == this)
 	{
 		if (mIsSelected)
 		{
@@ -521,11 +521,14 @@ void LLFolderViewItem::deselectItem(void)
 
 void LLFolderViewItem::selectItem(void)
 {
-	if (mListener)
+	if (mIsSelected == FALSE)
 	{
-		mListener->selectItem();
+		if (mListener)
+		{
+			mListener->selectItem();
+		}
+		mIsSelected = TRUE;
 	}
-	mIsSelected = TRUE;
 }
 
 BOOL LLFolderViewItem::isMovable()
