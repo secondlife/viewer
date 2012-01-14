@@ -66,6 +66,8 @@ public:
 	
 	void showNotification(const LLSD& notify);
 
+	void onMouseLeave(S32 x, S32 y, MASK mask);
+
 protected:
 	void fetchOutboxContents();
 
@@ -103,6 +105,7 @@ private:
 	LLUUID				mOutboxId;
 	LLInventoryPanel *	mOutboxInventoryPanel;
 	U32					mOutboxItemCount;
+	LLPanel *			mOutboxTopLevelDropZone;
 	
 	LLWindowShade *	mWindowShade;
 };

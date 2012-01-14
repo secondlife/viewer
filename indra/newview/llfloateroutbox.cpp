@@ -111,6 +111,7 @@ LLFloaterOutbox::LLFloaterOutbox(const LLSD& key)
 	, mOutboxId(LLUUID::null)
 	, mOutboxInventoryPanel(NULL)
 	, mOutboxItemCount(0)
+	, mOutboxTopLevelDropZone(NULL)
 	, mWindowShade(NULL)
 {
 }
@@ -140,7 +141,9 @@ BOOL LLFloaterOutbox::postBuild()
 	
 	mImportButton = getChild<LLButton>("outbox_import_btn");
 	mImportButton->setCommitCallback(boost::bind(&LLFloaterOutbox::onImportButtonClicked, this));
-	
+
+	mOutboxTopLevelDropZone = getChild<LLPanel>("outbox_generic_drag_target");
+
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLFloaterOutbox::onFocusReceived, this));
 
 	return TRUE;
@@ -353,6 +356,11 @@ void LLFloaterOutbox::updateView()
 	}
 }
 
+bool isAccepted(EAcceptance accept)
+{
+	return (accept >= ACCEPT_YES_COPY_SINGLE);
+}
+
 BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										EDragAndDropType cargo_type,
 										void* cargo_data,
@@ -370,7 +378,7 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	BOOL handled = (handled_view != NULL);
 	
 	// Pass all drag and drop for this floater to the outbox inventory control
-	if (!handled || (*accept == ACCEPT_NO))
+	if (!handled || !isAccepted(*accept))
 	{
 		// Always assume we are going to move the drag and drop operation to the outbox root folder
 		bool move_to_root = true;
@@ -394,9 +402,31 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 			
 			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
+
+		if (mOutboxTopLevelDropZone)
+		{
+			mOutboxTopLevelDropZone->setBackgroundVisible(handled && !drop && isAccepted(*accept));
+		}
+	}
+	else
+	{
+		if (mOutboxTopLevelDropZone)
+		{
+			mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
+		}
 	}
 	
 	return handled;
+}
+
+void LLFloaterOutbox::onMouseLeave(S32 x, S32 y, MASK mask)
+{
+	if (mOutboxTopLevelDropZone)
+	{
+		mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
+	}
+
+	LLFloater::onMouseLeave(x, y, mask);
 }
 
 void LLFloaterOutbox::onImportButtonClicked()
