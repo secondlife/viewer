@@ -204,11 +204,23 @@ Save changes to current clothing/body part?
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
 You don't have permission to copy one or more of these items to the Merchant Outbox.  You can move them or leave them behind.
-        <usetemplate
-         name="okcancelbuttons"
-         notext="Don't move item(s)"
-         yestext="Move item(s)"/>
-    </notification>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Don't move item(s)"
+     yestext="Move item(s)"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Success"
+   name="OutboxFolderCreated"
+   type="outbox">
+A new folder has been created for each item you have transferred into the top level of your Merchant Outbox.
+
+    <usetemplate
+     ignoretext="A new folder was created in the Merchant Outbox"
+     name="okignore"
+     yestext="OK"/>
+  </notification>
 
   <notification
    icon="OutboxStatus_Success"

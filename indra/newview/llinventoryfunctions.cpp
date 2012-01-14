@@ -532,9 +532,37 @@ void show_item_original(const LLUUID& item_uuid)
 	}
 }
 
+
+static S32 create_folder_in_outbox_operation_id = -1;
+static S32 move_to_outbox_operation_id = -1;
+static std::list<LLSD> move_to_outbox_payloads;
+
 void open_outbox()
 {
 	LLFloaterReg::showInstance("outbox");
+}
+
+void folder_created_in_outbox_cb(const LLSD& notification, const LLSD& response)
+{
+	create_folder_in_outbox_operation_id = -1;
+}
+
+LLUUID create_folder_in_outbox_for_item(LLInventoryItem* item, const LLUUID& destFolderId, S32 operation_id)
+{
+	llassert(item);
+	llassert(destFolderId.notNull());
+
+	LLUUID created_folder_id = gInventory.createNewCategory(destFolderId, LLFolderType::FT_NONE, item->getName());
+	gInventory.notifyObservers();
+
+	if (create_folder_in_outbox_operation_id != operation_id)
+	{
+		LLNotificationsUtil::add("OutboxFolderCreated", LLSD(), LLSD(), boost::bind(&folder_created_in_outbox_cb, _1, _2));
+
+		create_folder_in_outbox_operation_id = operation_id;
+	}
+
+	return created_folder_id;
 }
 
 void move_to_outbox_cb_action(const LLSD& payload)
@@ -547,8 +575,8 @@ void move_to_outbox_cb_action(const LLSD& payload)
 		// when moving item directly into outbox create folder with that name
 		if (dest_folder_id == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 		{
-			dest_folder_id = gInventory.createNewCategory(dest_folder_id,  LLFolderType::FT_NONE, viitem->getName());
-			gInventory.notifyObservers();
+			S32 operation_id = payload["operation_id"].asInteger();
+			dest_folder_id = create_folder_in_outbox_for_item(viitem, dest_folder_id, operation_id);
 		}
 
 		LLUUID parent = viitem->getParentUUID();
@@ -597,9 +625,6 @@ void move_to_outbox_cb_action(const LLSD& payload)
 	}
 }
 
-static S32 move_to_outbox_operation_id = -1;
-static std::list<LLSD> move_to_outbox_payloads;
-
 void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 {
 	const S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -617,7 +642,6 @@ void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
 	move_to_outbox_operation_id = -1;
 	move_to_outbox_payloads.clear();
 }
-
 
 void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder, S32 operation_id)
 {
@@ -642,8 +666,7 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 			// when moving item directly into outbox create folder with that name
 			if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 			{
-				dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_item->getName());
-				gInventory.notifyObservers();
+				dest_folder = create_folder_in_outbox_for_item(inv_item, dest_folder, operation_id);
 			}
 			
 			copy_inventory_item(gAgent.getID(),
@@ -664,6 +687,7 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 			payload["item_id"] = inv_item->getUUID();
 			payload["dest_folder_id"] = dest_folder;
 			payload["top_level_folder"] = top_level_folder;
+			payload["operation_id"] = operation_id;
 
 			if (move_to_outbox_operation_id != operation_id)
 			{
@@ -678,13 +702,12 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 	}
 }
 
-void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder)
+void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 operation_id)
 {
 	// when moving item directly into outbox create folder with that name
 	if (dest_folder == gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false))
 	{
-		dest_folder = gInventory.createNewCategory(dest_folder, LLFolderType::FT_NONE, inv_item->getName());
-		gInventory.notifyObservers();
+		dest_folder = create_folder_in_outbox_for_item(inv_item, dest_folder, operation_id);
 	}
 	
 	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;

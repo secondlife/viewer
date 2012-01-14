@@ -3690,7 +3690,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				if (move_is_from_outbox)
 				{
-					move_item_within_outbox(inv_item, mUUID);
+					move_item_within_outbox(inv_item, mUUID, LLToolDragAndDrop::getOperationId());
 				}
 				else
 				{
