@@ -116,9 +116,9 @@ F32 LLLayoutPanel::getVisibleAmount() const
 
 S32 LLLayoutPanel::getLayoutDim() const
 {
-	return llround((mOrientation == LLLayoutStack::HORIZONTAL)
+	return llround((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
 					? getRect().getWidth()
-					: getRect().getHeight());
+					: getRect().getHeight()));
 }
  
 S32 LLLayoutPanel::getVisibleDim() const
@@ -132,9 +132,9 @@ S32 LLLayoutPanel::getVisibleDim() const
 void LLLayoutPanel::setOrientation( LLLayoutStack::ELayoutOrientation orientation )
 {
 	mOrientation = orientation;
-	S32 layout_dim = llround((mOrientation == LLLayoutStack::HORIZONTAL)
+	S32 layout_dim = llround((F32)((mOrientation == LLLayoutStack::HORIZONTAL)
 		? getRect().getWidth()
-		: getRect().getHeight());
+		: getRect().getHeight()));
 
 	if (mMinDim == -1)
 	{
