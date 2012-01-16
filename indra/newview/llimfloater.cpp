@@ -385,9 +385,6 @@ void LLIMFloater::onSlide()
 
 	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getParent()->getVisible());
 	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getParent()->getVisible());
-
-	LLLayoutStack* stack = getChild<LLLayoutStack>("im_panels");
-	if (stack) stack->setAnimate(true);
 }
 
 //static

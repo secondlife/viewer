@@ -20,14 +20,12 @@
          layout="topleft"
          min_width="10"
          name="panel1"
-         user_resize="false"
          width="150" />
         <layout_panel
          height="768"
          layout="topleft"
          min_width="640"
          name="panel2"
-         user_resize="false"
          width="640">
             <layout_stack
              follows="left|right|top|bottom"
@@ -121,7 +119,6 @@
          layout="topleft"
          min_width="10"
          name="panel6"
-         user_resize="false"
          width="150" />
     </layout_stack>
     <button

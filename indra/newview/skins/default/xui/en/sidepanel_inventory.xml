@@ -34,7 +34,6 @@
                  min_dim="150"
                  width="330"
                  follows="bottom|left|right"
-                 user_resize="false"
                  height="300">
                  <panel
                       class="panel_main_inventory"
@@ -52,12 +51,10 @@
                  width="330"
 								 layout="topleft"
                  auto_resize="true"
-                 user_resize="false"
                  follows="bottom|left|right"
                  name="inbox_outbox_layout_panel"
                  visible="false"
                  min_dim="35"
-                 max_dim="235"
                  expanded_min_dim="125"
                  height="235">
 							 <layout_stack
@@ -75,13 +72,11 @@
                  width="330"
 								 layout="topleft"
                  auto_resize="true"
-                 user_resize="false"
                  follows="left|right|top"
                  name="inbox_layout_panel"
                  visible="false"
                  min_dim="35"
-                 max_dim="200"
-                 expanded_min_dim="90"
+
                  height="200">
                  <panel
                       follows="all"
@@ -157,12 +152,10 @@
                  width="330"
                  layout="topleft"
                  auto_resize="true"
-                 user_resize="false"
                  follows="all"
                  name="outbox_layout_panel"
                  visible="false"
                  min_dim="35"
-                 max_dim="200"
                  expanded_min_dim="90"
                  height="200">
                  <panel
@@ -312,7 +305,6 @@
                      left="0"			
                      mouse_opaque="false"
                      name="info_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="101">
                     <button
@@ -334,7 +326,6 @@
                      left_pad="1"			
                      mouse_opaque="false"
                      name="share_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="100">
                     <button
@@ -356,7 +347,6 @@
                      left_pad="1"			
                      mouse_opaque="false"
                      name="shop_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="100">
                     <button
