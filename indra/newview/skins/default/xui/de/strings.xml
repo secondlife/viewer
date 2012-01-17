@@ -1214,7 +1214,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
 	<string name="InventoryInboxNoItems">
-		Objekte, die auf dem Marktplatz gekauft wurden, werden hierher geliefert.
+		Wenn Sie einen Artikel kaufen oder anderweitig erhalten, erscheint er hier, damit Sie ihn in einen Ordner in Ihrem Inventar ziehen bzw. löschen können, wenn Sie ihn nicht behalten möchten.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1412,6 +1412,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="no_attachments">
 		Keine Anhänge getragen
 	</string>
+	<string name="Attachments remain">
+		Anhänge (noch [COUNT] Positionen frei)
+	</string>
 	<string name="Buy">
 		Kaufen
 	</string>
@@ -1537,6 +1540,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Right Pec">
 		Rechts
+	</string>
+	<string name="Neck">
+		Hals
+	</string>
+	<string name="Avatar Center">
+		Avatar-Mitte
 	</string>
 	<string name="Invalid Attachment">
 		Ungültige Stelle für Anhang
@@ -4030,6 +4039,18 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="you_paid_ldollars_no_name">
 		Sie haben [REASON] [AMOUNT] L$ bezahlt.
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Sie haben [NAME] [AMOUNT] L$ [REASON] nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Sie haben [AMOUNT] L$ nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Sie haben [NAME] [AMOUNT] L$ nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Sie haben [AMOUNT] L$ [REASON] nicht bezahlt.
+	</string>
 	<string name="for item">
 		für [ITEM]
 	</string>
@@ -4440,6 +4461,12 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="ExternalEditorFailedToRun">
 		Externer Editor konnte nicht ausgeführt werden.
 	</string>
+	<string name="TranslationFailed">
+		Übersetzung fehlgeschlagen: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Fehler beim Parsen der Übersetzungsantwort.
+	</string>
 	<string name="Esc">
 		Esc
 	</string>
@@ -4810,7 +4837,7 @@ Setzen Sie den Editorpfad in Anführungszeichen
 		Minikarte
 	</string>
 	<string name="Command_Move_Label">
-		Bewegen
+		Gehen / Rennen / Fliegen
 	</string>
 	<string name="Command_People_Label">
 		Leute
@@ -4837,10 +4864,10 @@ Setzen Sie den Editorpfad in Anführungszeichen
 		Sprechen
 	</string>
 	<string name="Command_View_Label">
-		Ansicht
+		Kamerasteuerungen
 	</string>
 	<string name="Command_Voice_Label">
-		Stimme in der Nähe
+		Voice-Einstellungen
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Informationen zu dem von Ihnen besuchten Land
@@ -4912,7 +4939,16 @@ Setzen Sie den Editorpfad in Anführungszeichen
 		Kamerawinkel ändern
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Leute in der Nähe mit Sprechfähigkeit
+		Lautstärkeregler für Anrufe und Leute in Ihrer Nähe in SL
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		gegenwärtig in der unteren Symbolleiste
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		gegenwärtig in der linken Symbolleiste
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		gegenwärtig in der rechten Symbolleiste
 	</string>
 	<string name="Retain%">
 		% zurückbehalten
@@ -4937,5 +4973,20 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Sehr niedrig
+	</string>
+	<string name="snapshot_quality_low">
+		Niedrig
+	</string>
+	<string name="snapshot_quality_medium">
+		Mittel
+	</string>
+	<string name="snapshot_quality_high">
+		Hoch
+	</string>
+	<string name="snapshot_quality_very_high">
+		Sehr hoch
 	</string>
 </strings>

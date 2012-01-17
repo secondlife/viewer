@@ -57,7 +57,7 @@ float getDepth(vec2 pos_screen)
 
 float calc_cof(float depth)
 {
-	float sc = abs(depth-focal_distance)/-depth*blur_constant;
+	float sc = (depth-focal_distance)/-depth*blur_constant;
 		
 	sc /= magnification;
 	
@@ -79,9 +79,10 @@ void main()
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	
 	float sc = calc_cof(depth);
-	sc = min(abs(sc), max_cof);
+	sc = min(sc, max_cof);
+	sc = max(sc, -max_cof);
 	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
 	gl_FragColor.rgb = diff.rgb + bloom.rgb;
-	gl_FragColor.a = sc/max_cof;
+	gl_FragColor.a = sc/max_cof*0.5+0.5;
 }

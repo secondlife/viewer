@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_local">
+	<text name="title">
+		コンピューターに保存
+	</text>
+	<combo_box label="解像度" name="local_size_combo">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="320x240" name="320x240"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="1280x1024" name="1280x1024"/>
+		<combo_box.item label="1600x1200" name="1600x1200"/>
+		<combo_box.item label="カスタム" name="Custom"/>
+	</combo_box>
+	<layout_stack name="local_image_params_ls">
+		<layout_panel name="local_image_size_lp">
+			<spinner label="幅" name="local_snapshot_width"/>
+			<spinner label="高さ" name="local_snapshot_height"/>
+			<check_box label="縦横比の固定" name="local_keep_aspect_check"/>
+		</layout_panel>
+		<layout_panel name="local_image_format_quality_lp">
+			<combo_box label="書式" name="local_format_combo">
+				<combo_box.item label="PNG（可逆圧縮）" name="PNG"/>
+				<combo_box.item label="JPEG" name="JPEG"/>
+				<combo_box.item label="BMP（可逆圧縮）" name="BMP"/>
+			</combo_box>
+			<slider label="画質" name="image_quality_slider"/>
+			<text name="image_quality_level">
+				([QLVL])
+			</text>
+		</layout_panel>
+	</layout_stack>
+	<button label="取り消し" name="cancel_btn"/>
+	<flyout_button label="保存" name="save_btn" tool_tip="画像をファイルに保存">
+		<flyout_button.item label="保存" name="save_item"/>
+		<flyout_button.item label="別名で保存..." name="saveas_item"/>
+	</flyout_button>
+</panel>

@@ -20,6 +20,9 @@
 				Karşıya yüklenecek model dosyasını seçin
 			</text>
 			<button label="Gözat..." label_selected="Gözat..." name="browse"/>
+			<text name="Model types">
+				Second Life, COLLADA (.dae) dosyalarını destekler
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>

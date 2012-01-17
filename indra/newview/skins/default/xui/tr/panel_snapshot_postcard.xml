@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		SECOND_LIFE]&apos;dan posta kartı.
+	</string>
+	<string name="default_message">
+		Buna bakın!
+	</string>
+	<string name="upload_message">
+		Gönderiyor...
+	</string>
+	<text name="title">
+		E-posta
+	</text>
+	<button label="İleti" name="message_btn"/>
+	<button label="Ayarlar" name="settings_btn"/>
+</panel>

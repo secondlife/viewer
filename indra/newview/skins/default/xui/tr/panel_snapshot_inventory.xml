@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_inventory">
+	<text name="title">
+		Envanterime Kaydet
+	</text>
+	<text name="hint_lbl">
+		Bir görüntüyü envanterinize kaydetmenin maliyeti L$[UPLOAD_COST] olur. Görüntünüzü bir doku olarak kaydetmek için kare formatlardan birini seçin.
+	</text>
+	<combo_box label="Çözünürlük" name="texture_size_combo">
+		<combo_box.item label="Mevcut Pencere" name="CurrentWindow"/>
+		<combo_box.item label="Küçük (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Orta (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Büyük (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Özel" name="Custom"/>
+	</combo_box>
+	<spinner label="Genişlik" name="inventory_snapshot_width"/>
+	<spinner label="Yükseklik" name="inventory_snapshot_height"/>
+	<check_box label="Oranları koru" name="inventory_keep_aspect_check"/>
+	<button label="İptal" name="cancel_btn"/>
+	<button label="Kaydet" name="save_btn"/>
+</panel>

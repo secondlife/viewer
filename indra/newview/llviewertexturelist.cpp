@@ -534,6 +534,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	S32 count = mImageList.erase(image) ;
 	if(count != 1) 
 	{
+		llinfos << image->getID() << llendl ;
 		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
 	}
       
@@ -919,6 +920,8 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		image_list.push_back(imagep);
 		imagep->setInImageList(FALSE) ;
 	}
+
+	llassert_always(image_list.size() == mImageList.size()) ;
 	mImageList.clear();
 	for (std::vector<LLPointer<LLViewerFetchedTexture> >::iterator iter = image_list.begin();
 		 iter != image_list.end(); ++iter)

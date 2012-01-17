@@ -1036,51 +1036,48 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 	llassert( (bump_code == BE_BRIGHTNESS) || (bump_code == BE_DARKNESS) );
 
 	LLViewerTexture* bump = NULL;
-	const F32 BRIGHTNESS_DARKNESS_PIXEL_AREA_THRESHOLD = 1000;
-	if( src_image->getMaxVirtualSize() > BRIGHTNESS_DARKNESS_PIXEL_AREA_THRESHOLD )
+	
+	bump_image_map_t* entries_list = NULL;
+	void (*callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
+
+	switch( bump_code )
 	{
-		bump_image_map_t* entries_list = NULL;
-		void (*callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata ) = NULL;
+	case BE_BRIGHTNESS:
+		entries_list = &mBrightnessEntries;
+		callback_func = LLBumpImageList::onSourceBrightnessLoaded;
+		break;
+	case BE_DARKNESS:
+		entries_list = &mDarknessEntries;
+		callback_func = LLBumpImageList::onSourceDarknessLoaded;
+		break;
+	default:
+		llassert(0);
+		return NULL;
+	}
 
-		switch( bump_code )
+	bump_image_map_t::iterator iter = entries_list->find(src_image->getID());
+	if (iter != entries_list->end() && iter->second.notNull())
+	{
+		bump = iter->second;
+	}
+	else
+	{
+		LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
+		raw->clear(0x77, 0x77, 0xFF, 0xFF);
+
+		(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+		bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
+	}
+
+	if (!src_image->hasCallbacks())
+	{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
+		if (src_image->getWidth() != bump->getWidth() ||
+			src_image->getHeight() != bump->getHeight())// ||
+			//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
 		{
-		case BE_BRIGHTNESS:
-			entries_list = &mBrightnessEntries;
-			callback_func = LLBumpImageList::onSourceBrightnessLoaded;
-			break;
-		case BE_DARKNESS:
-			entries_list = &mDarknessEntries;
-			callback_func = LLBumpImageList::onSourceDarknessLoaded;
-			break;
-		default:
-			llassert(0);
-			return NULL;
-		}
-
-		bump_image_map_t::iterator iter = entries_list->find(src_image->getID());
-		if (iter != entries_list->end() && iter->second.notNull())
-		{
-			bump = iter->second;
-		}
-		else
-		{
-			LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
-			raw->clear(0x77, 0x77, 0xFF, 0xFF);
-
-			(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
-			bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
-		}
-
-		if (!src_image->hasCallbacks())
-		{ //if image has no callbacks but resolutions don't match, trigger raw image loaded callback again
-			if (src_image->getWidth() != bump->getWidth() ||
-				src_image->getHeight() != bump->getHeight())// ||
-				//(LLPipeline::sRenderDeferred && bump->getComponents() != 4))
-			{
-				src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
-				src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
-				src_image->forceToSaveRawImage(0) ;
-			}
+			src_image->setBoostLevel(LLViewerTexture::BOOST_BUMP) ;
+			src_image->setLoadedCallback( callback_func, 0, TRUE, FALSE, new LLUUID(src_image->getID()), NULL );
+			src_image->forceToSaveRawImage(0) ;
 		}
 	}
 

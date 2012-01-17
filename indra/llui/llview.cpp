@@ -282,9 +282,6 @@ void LLView::moveChildToBackOfTabGroup(LLUICtrl* child)
 // virtual
 bool LLView::addChild(LLView* child, S32 tab_group)
 {
-	// NOTE: Changed this to not crash in release mode
-	llassert(mInDraw == false);
-
 	if (!child)
 	{
 		return false;
@@ -334,10 +331,11 @@ bool LLView::addChildInBack(LLView* child, S32 tab_group)
 // remove the specified child from the view, and set it's parent to NULL.
 void LLView::removeChild(LLView* child)
 {
-	llassert_always(mInDraw == false);
 	//llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
 	if (child->mParentView == this) 
 	{
+		// if we are removing an item we are currently iterating over, that would be bad
+		llassert(child->mInDraw == false);
 		mChildList.remove( child );
 		child->mParentView = NULL;
 		if (child->isCtrl())
@@ -1086,7 +1084,6 @@ void LLView::draw()
 
 void LLView::drawChildren()
 {
-	mInDraw = true;
 	if (!mChildList.empty())
 	{
 		LLView* rootp = LLUI::getRootView();		
@@ -1105,7 +1102,10 @@ void LLView::drawChildren()
 					LLUI::pushMatrix();
 					{
 						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
+						// flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
+						viewp->mInDraw = true;
 						viewp->draw();
+						viewp->mInDraw = false;
 
 						if (sDebugRects)
 						{
@@ -1125,7 +1125,6 @@ void LLView::drawChildren()
 		}
 		--sDepth;
 	}
-	mInDraw = false;
 }
 
 void LLView::dirtyRect()
