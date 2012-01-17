@@ -1153,9 +1153,17 @@ bool LLInvFVBridge::canListOnMarketplace() const
 	}
 
 	LLViewerInventoryItem * item = model->getItem(mUUID);
-	if (item && !item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+	if (item)
 	{
-		return false;
+		if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+		{
+			return false;
+		}
+		
+		if (LLAssetType::AT_CALLINGCARD == item->getType())
+		{
+			return false;
+		}
 	}
 
 	return true;
@@ -1897,7 +1905,6 @@ static BOOL can_move_to_outbox(LLInventoryItem* inv_item, std::string& tooltip_m
 	}
 	
 	bool allow_transfer = inv_item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID());
-
 	if (!allow_transfer)
 	{
 		tooltip_msg = LLTrans::getString("TooltipOutboxNoTransfer");
@@ -1912,6 +1919,13 @@ static BOOL can_move_to_outbox(LLInventoryItem* inv_item, std::string& tooltip_m
 		return false;
 	}
 #endif
+	
+	bool calling_card = (LLAssetType::AT_CALLINGCARD == inv_item->getType());
+	if (calling_card)
+	{
+		tooltip_msg = LLTrans::getString("TooltipOutboxCallingCard");
+		return false;
+	}
 	
 	return true;
 }

@@ -169,6 +169,7 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred.</string>
 	<string name="TooltipOutboxNotInInventory">Your merchant outbox can only accept items directly from your inventory</string>
 	<string name="TooltipOutboxWorn">You can not put items you are wearing into your merchant outbox</string>
+	<string name="TooltipOutboxCallingCard">You can not put calling cards into your merchant outbox</string>
 	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds 3</string>
 	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds 20</string>
 	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds 200</string>
