@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_inventory">
+	<text name="title">
+		Guardar en mi inventario
+	</text>
+	<text name="hint_lbl">
+		Guardar una imagen en el inventario cuesta [UPLOAD_COST] L$. Para guardar una imagen como una textura, selecciona uno de los formatos cuadrados.
+	</text>
+	<combo_box label="Resolución" name="texture_size_combo">
+		<combo_box.item label="Ventana actual" name="CurrentWindow"/>
+		<combo_box.item label="Pequeña (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Mediana (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Grande (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Personalizado" name="Custom"/>
+	</combo_box>
+	<spinner label="Ancho" name="inventory_snapshot_width"/>
+	<spinner label="Altura" name="inventory_snapshot_height"/>
+	<check_box label="Mantener las proporciones" name="inventory_keep_aspect_check"/>
+	<button label="Cancelar" name="cancel_btn"/>
+	<button label="Guardar" name="save_btn"/>
+</panel>

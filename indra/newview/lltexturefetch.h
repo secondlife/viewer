@@ -55,7 +55,7 @@ public:
 
 	class TFRequest;
 	
-	/*virtual*/ S32 update(U32 max_time_ms);	
+	/*virtual*/ S32 update(F32 max_time_ms);	
 	void shutDownTextureCacheThread() ; //called in the main thread after the TextureCacheThread shuts down.
 	void shutDownImageDecodeThread() ;  //called in the main thread after the ImageDecodeThread shuts down.
 

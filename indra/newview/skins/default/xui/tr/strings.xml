@@ -1211,7 +1211,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Envanterinizde bu dokunun kopyası yok
 	</string>
 	<string name="InventoryInboxNoItems">
-		Pazaryeri üzerinden satın alınan öğeler buraya teslim edilir.
+		Bir öğeyi satın aldığınızda veya başka bir şekilde edindiğinizde burada görünür; bunu envanterinizdeki bir klasöre sürükleyebilir veya tutmak istemiyorsanız silebilirsiniz.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1409,6 +1409,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="no_attachments">
 		Giyilen aksesuar yok
 	</string>
+	<string name="Attachments remain">
+		Aksesuarlar ([COUNT] yuva mevcut)
+	</string>
 	<string name="Buy">
 		Satın Al
 	</string>
@@ -1534,6 +1537,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="Right Pec">
 		Sağ Göğüs
+	</string>
+	<string name="Neck">
+		Boyun
+	</string>
+	<string name="Avatar Center">
+		Avatar Merkezi
 	</string>
 	<string name="Invalid Attachment">
 		Geçersiz Aksesuar Noktası
@@ -4027,6 +4036,18 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="you_paid_ldollars_no_name">
 		[REASON] L$[AMOUNT] ödediniz.
 	</string>
+	<string name="you_paid_failure_ldollars">
+		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		[NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		[REASON] L$[AMOUNT] ödeyemediniz.
+	</string>
 	<string name="for item">
 		[ITEM] için.
 	</string>
@@ -4437,6 +4458,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="ExternalEditorFailedToRun">
 		Harici düzenleyici çalışmadı.
 	</string>
+	<string name="TranslationFailed">
+		Çeviri başarılamadı: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Çeviri yanıtı ayrıştırılırken hata meydana geldi.
+	</string>
 	<string name="Esc">
 		Esc
 	</string>
@@ -4819,7 +4846,7 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Mini-harita
 	</string>
 	<string name="Command_Move_Label">
-		Hareket Et
+		Yürü / koş / uç
 	</string>
 	<string name="Command_People_Label">
 		Kişiler
@@ -4846,10 +4873,10 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Konuş
 	</string>
 	<string name="Command_View_Label">
-		Görünüm
+		Kamera denetimleri
 	</string>
 	<string name="Command_Voice_Label">
-		Yakındaki ses
+		Ses ayarları
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Ziyaret ettiğiniz araziyle ilgili bilgi
@@ -4921,7 +4948,16 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Kamera açısını değiştirmek
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Ses imkanına sahip yakındaki kişiler
+		Aramalar ve 	SL dünyası içinde size yakın kişiler için ses denetimleri
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		şu anda alt araç çubuğunuzda
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		şu anda sol araç çubuğunuzda
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		şu anda sağ araç çubuğunuzda
 	</string>
 	<string name="Retain%">
 		Koru %
@@ -4946,5 +4982,20 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Çok Düşük
+	</string>
+	<string name="snapshot_quality_low">
+		Düşük
+	</string>
+	<string name="snapshot_quality_medium">
+		Orta
+	</string>
+	<string name="snapshot_quality_high">
+		Yüksek
+	</string>
+	<string name="snapshot_quality_very_high">
+		Çok Yüksek
 	</string>
 </strings>

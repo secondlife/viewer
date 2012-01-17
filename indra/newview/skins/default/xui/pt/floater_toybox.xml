@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Toybox" title="PERSONALIZAR BARRAS DE FERRAMENTA">
+<floater name="Toybox" title="BOTÕES DA BARRA DE FERRAMENTAS">
 	<text name="toybox label 1">
 		Adicione ou remova botões arrastando-os para dentro ou para fora das barras de ferramentas.
 	</text>
 	<text name="toybox label 2">
 		Os botões aparecerão como mostrado ou somente como ícone, dependendo das configurações de cada barra de ferramentas.
 	</text>
+	<button label="Limpar todas as barras de ferramentas" label_selected="Limpar todas as barras de ferramentas" name="btn_clear_all"/>
 	<button label="Restaurar padrão" label_selected="Restaurar padrão" name="btn_restore_defaults"/>
 </floater>

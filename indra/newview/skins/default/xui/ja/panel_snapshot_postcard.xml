@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		[SECOND_LIFE] からのポストカードです。
+	</string>
+	<string name="default_message">
+		ぜひご覧ください！
+	</string>
+	<string name="upload_message">
+		送信中...
+	</string>
+	<text name="title">
+		メール
+	</text>
+	<button label="メッセージ" name="message_btn"/>
+	<button label="設定" name="settings_btn"/>
+</panel>

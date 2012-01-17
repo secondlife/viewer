@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_local">
+	<text name="title">
+		Enregistrer sur mon ordinateur
+	</text>
+	<combo_box label="Résolution" name="local_size_combo">
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="320 x 240" name="320x240"/>
+		<combo_box.item label="640 x 480" name="640x480"/>
+		<combo_box.item label="800 x 600" name="800x600"/>
+		<combo_box.item label="1 024 x 768" name="1024x768"/>
+		<combo_box.item label="1 280 x 1 024" name="1280x1024"/>
+		<combo_box.item label="1 600 x 1 200" name="1600x1200"/>
+		<combo_box.item label="Personnalisée" name="Custom"/>
+	</combo_box>
+	<layout_stack name="local_image_params_ls">
+		<layout_panel name="local_image_size_lp">
+			<spinner label="Largeur" name="local_snapshot_width"/>
+			<spinner label="Hauteur" name="local_snapshot_height"/>
+			<check_box label="Conserver les proportions" name="local_keep_aspect_check"/>
+		</layout_panel>
+		<layout_panel name="local_image_format_quality_lp">
+			<combo_box label="Format" name="local_format_combo">
+				<combo_box.item label="PNG (sans perte)" name="PNG"/>
+				<combo_box.item label="JPEG" name="JPEG"/>
+				<combo_box.item label="BMP (sans perte)" name="BMP"/>
+			</combo_box>
+			<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
+			<text name="image_quality_level">
+				([QLVL])
+			</text>
+		</layout_panel>
+	</layout_stack>
+	<button label="Annuler" name="cancel_btn"/>
+	<flyout_button label="Enregistrer" name="save_btn" tool_tip="Enregistrer l&apos;image dans un fichier.">
+		<flyout_button.item label="Enregistrer" name="save_item"/>
+		<flyout_button.item label="Enregistrer sous..." name="saveas_item"/>
+	</flyout_button>
+</panel>
