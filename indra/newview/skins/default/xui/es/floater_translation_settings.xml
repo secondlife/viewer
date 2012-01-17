@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_translation_settings" title="CONFIGURACIÓN DE LA TRADUCCIÓN DEL CHAT">
+	<string name="bing_api_key_not_verified">
+		appID de Bing no se ha confirmado. Vuelve a intentarlo.
+	</string>
+	<string name="google_api_key_not_verified">
+		La clave de API de Google no se ha confirmado. Vuelve a intentarlo.
+	</string>
+	<string name="bing_api_key_verified">
+		appID de Bing se ha confirmado.
+	</string>
+	<string name="google_api_key_verified">
+		La clave de API de Google se ha confirmado.
+	</string>
+	<check_box label="Activar la traducción automática durante el chat" name="translate_chat_checkbox"/>
+	<text name="translate_language_label">
+		Traducir el chat al:
+	</text>
+	<combo_box name="translate_language_combo">
+		<combo_box.item label="Predeterminado del sistema" name="System Default Language"/>
+		<combo_box.item label="Inglés" name="English"/>
+		<combo_box.item label="Dansk (danés)" name="Danish"/>
+		<combo_box.item label="Deutsch (alemán)" name="German"/>
+		<combo_box.item label="Español (español)" name="Spanish"/>
+		<combo_box.item label="Français (francés)" name="French"/>
+		<combo_box.item label="Italiano (italiano)" name="Italian"/>
+		<combo_box.item label="Magyar (húngaro)" name="Hungarian"/>
+		<combo_box.item label="Nederlands (neerlandés)" name="Dutch"/>
+		<combo_box.item label="Polski (polaco)" name="Polish"/>
+		<combo_box.item label="Português (portugués)" name="Portugese"/>
+		<combo_box.item label="Русский (ruso)" name="Russian"/>
+		<combo_box.item label="Türkçe (turco)" name="Turkish"/>
+		<combo_box.item label="Українська (ucraniano)" name="Ukrainian"/>
+		<combo_box.item label="中文 (正體) (Chino)" name="Chinese"/>
+		<combo_box.item label="日本語 (japonés)" name="Japanese"/>
+		<combo_box.item label="한국어 (coreano)" name="Korean"/>
+	</combo_box>
+	<text name="tip">
+		Elige el servicio de traducción:
+	</text>
+	<radio_group name="translation_service_rg">
+		<radio_item initial_value="bing" label="Bing Translator" name="bing"/>
+		<radio_item initial_value="google" label="Traductor de Google" name="google"/>
+	</radio_group>
+	<text name="bing_api_key_label">
+		[http://www.bing.com/developers/createapp.aspx AppID] de Bing:
+	</text>
+	<button label="Verificar" name="verify_bing_api_key_btn"/>
+	<text name="google_api_key_label">
+		[http://code.google.com/apis/language/translate/v2/getting_started.html#auth Clave de API] de Google:
+	</text>
+	<button label="Verificar" name="verify_google_api_key_btn"/>
+	<text name="google_links_text">
+		[http://code.google.com/apis/language/translate/v2/pricing.html Precios] | [https://code.google.com/apis/console Estadísticas]
+	</text>
+	<button label="OK" name="ok_btn"/>
+	<button label="Cancelar" name="cancel_btn"/>
+</floater>

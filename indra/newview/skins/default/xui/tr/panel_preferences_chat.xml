@@ -29,29 +29,5 @@
 	<check_box label="Aİ Sohbetleri" name="EnableIMChatPopups" tool_tip="Bir anlık ileti geldiğinde açılır pencereleri görmek için işaretle"/>
 	<spinner label="Yakındaki sohbet iletilerinin vurgulanma süresi:" name="nearby_toasts_lifetime"/>
 	<spinner label="Yakındaki sohbet iletilerinin sönme süresi:" name="nearby_toasts_fadingtime"/>
-	<text name="translate_chb_label">
-		Sohbet ederken makine çevirisi kullanılsın
-	</text>
-	<text name="translate_language_text">
-		Sohbeti şu dile çevir:
-	</text>
-	<combo_box name="translate_language_combobox">
-		<combo_box.item label="Sistem Varsayılanı" name="System Default Language"/>
-		<combo_box.item label="İngilizce" name="English"/>
-		<combo_box.item label="Dansk (Danca)" name="Danish"/>
-		<combo_box.item label="Deutsch (Almanca)" name="German"/>
-		<combo_box.item label="Español (İspanyolca)" name="Spanish"/>
-		<combo_box.item label="Français (Fransızca)" name="French"/>
-		<combo_box.item label="Italiano (İtalyanca)" name="Italian"/>
-		<combo_box.item label="Magyar (Macarca)" name="Hungarian"/>
-		<combo_box.item label="Nederlands (Flemenkçe)" name="Dutch"/>
-		<combo_box.item label="Polski (Lehçe)" name="Polish"/>
-		<combo_box.item label="Português (Portekizce)" name="Portugese"/>
-		<combo_box.item label="Русский (Rusça)" name="Russian"/>
-		<combo_box.item label="Türkçe (Türkçe)" name="Turkish"/>
-		<combo_box.item label="Українська (Ukraynaca)" name="Ukrainian"/>
-		<combo_box.item label="中文 (正體) (Çince)" name="Chinese"/>
-		<combo_box.item label="日本語 (Japonca)" name="Japanese"/>
-		<combo_box.item label="한국어 (Korece)" name="Korean"/>
-	</combo_box>
+	<button label="Sohbet Çevirisi Ayarları" name="ok_btn"/>
 </panel>

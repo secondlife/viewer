@@ -1211,7 +1211,7 @@ support@secondlife.com.
 		В вашем инвентаре нет копии этой текстуры
 	</string>
 	<string name="InventoryInboxNoItems">
-		Покупки из торгового центра будут доставлены сюда.
+		Если вы купите или как-то иначе получите предмет, он появится здесь. Его можно будет перетащить в папку вашего инвентаря или удалить, если он больше не нужен.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1409,6 +1409,9 @@ support@secondlife.com.
 	<string name="no_attachments">
 		Нет прикрепленных объектов
 	</string>
+	<string name="Attachments remain">
+		Присоединения (осталось гнезд: [COUNT])
+	</string>
 	<string name="Buy">
 		Купить
 	</string>
@@ -1534,6 +1537,12 @@ support@secondlife.com.
 	</string>
 	<string name="Right Pec">
 		Правая грудь
+	</string>
+	<string name="Neck">
+		Шея
+	</string>
+	<string name="Avatar Center">
+		Центр аватара
 	</string>
 	<string name="Invalid Attachment">
 		Неверная точка присоединения
@@ -4024,6 +4033,18 @@ support@secondlife.com.
 	<string name="you_paid_ldollars_no_name">
 		Вы заплатили L$[AMOUNT] за [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]: [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Вы не смогли заплатить L$[AMOUNT]
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Вы не смогли заплатить L$[AMOUNT]: [REASON].
+	</string>
 	<string name="for item">
 		за [ITEM]
 	</string>
@@ -4433,6 +4454,12 @@ support@secondlife.com.
 	<string name="ExternalEditorFailedToRun">
 		Не удалось запустить внешний редактор.
 	</string>
+	<string name="TranslationFailed">
+		Ошибка телепортации: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Ошибка при анализе ответа переводчика.
+	</string>
 	<string name="Esc">
 		ESC
 	</string>
@@ -4815,7 +4842,7 @@ support@secondlife.com.
 		Миникарта
 	</string>
 	<string name="Command_Move_Label">
-		Переместить
+		Ходьба / бег / полет
 	</string>
 	<string name="Command_People_Label">
 		Люди
@@ -4842,7 +4869,7 @@ support@secondlife.com.
 		Говорить
 	</string>
 	<string name="Command_View_Label">
-		Вид
+		Управление камерой
 	</string>
 	<string name="Command_Voice_Label">
 		Настройки голоса
@@ -4917,7 +4944,16 @@ support@secondlife.com.
 		Изменение угла камеры
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Громкость звонков и голосов окружающих вас людей
+		Регулировка громкости вызовов и разговоров с людьми около вас
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		сейчас на нижней панели инструментов
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		сейчас на левой панели инструментов
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		сейчас на правой панели инструментов
 	</string>
 	<string name="Retain%">
 		Остаток%
@@ -4942,5 +4978,20 @@ support@secondlife.com.
 	</string>
 	<string name="Normal">
 		Нормальный
+	</string>
+	<string name="snapshot_quality_very_low">
+		Очень низкий
+	</string>
+	<string name="snapshot_quality_low">
+		Низкий
+	</string>
+	<string name="snapshot_quality_medium">
+		Средний
+	</string>
+	<string name="snapshot_quality_high">
+		Высокий
+	</string>
+	<string name="snapshot_quality_very_high">
+		Очень высокий
 	</string>
 </strings>

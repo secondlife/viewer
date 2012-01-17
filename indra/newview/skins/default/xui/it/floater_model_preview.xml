@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Errore: Errore elaborazione Dae - vedere il registro per informazioni dettagliate.
 	</string>
+	<string name="status_material_mismatch">
+		Errore: il materiale del modello non è un sottoinsieme del modello di riferimento.
+	</string>
 	<string name="status_reading_file">
 		Caricamento in corso...
 	</string>

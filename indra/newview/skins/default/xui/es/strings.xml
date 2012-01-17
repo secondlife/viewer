@@ -1199,7 +1199,7 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		No tienes en tu inventario una copia de esta textura
 	</string>
 	<string name="InventoryInboxNoItems">
-		Aquí se entregarán los objetos comprados en el mercado.
+		Cuando compres un objeto o lo recibas por otra vía, aparecerá aquí, para que puedas arrastrarlo a una carpeta de tu inventario o eliminarlo si no deseas conservarlo.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1391,6 +1391,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="no_attachments">
 		No tienes puestos anexos
 	</string>
+	<string name="Attachments remain">
+		Anexos (quedan [COUNT] ranuras)
+	</string>
 	<string name="Buy">
 		Comprar
 	</string>
@@ -1516,6 +1519,12 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	</string>
 	<string name="Right Pec">
 		Pecho derecho
+	</string>
+	<string name="Neck">
+		Cuello
+	</string>
+	<string name="Avatar Center">
+		Centro del avatar
 	</string>
 	<string name="Invalid Attachment">
 		Punto de colocación no válido
@@ -3943,6 +3952,18 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	<string name="you_paid_ldollars_no_name">
 		Has pagado [AMOUNT] L$ por [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		No has pagado a [NAME] [AMOUNT] L$ [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		No has pagado [AMOUNT] L$.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		No has pagado a [NAME] [AMOUNT] L$.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		No has pagado [AMOUNT] L$ [REASON].
+	</string>
 	<string name="for item">
 		para [ITEM]
 	</string>
@@ -4353,6 +4374,12 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="ExternalEditorFailedToRun">
 		Error al ejecutar el editor externo.
 	</string>
+	<string name="TranslationFailed">
+		Error al traducir: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Error al analizar la respuesta de la traducción.
+	</string>
 	<string name="Esc">
 		Esc
 	</string>
@@ -4723,7 +4750,7 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 		Minimapa
 	</string>
 	<string name="Command_Move_Label">
-		Moverme
+		Caminar / Correr / Volar
 	</string>
 	<string name="Command_People_Label">
 		Gente
@@ -4750,10 +4777,10 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 		Hablar
 	</string>
 	<string name="Command_View_Label">
-		Visión
+		Controles de la cámara
 	</string>
 	<string name="Command_Voice_Label">
-		Chat de voz
+		Configuración de voz
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Información sobre el terreno que vas a visitar
@@ -4825,7 +4852,16 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 		Cambiando el ángulo de la cámara
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Personas próximas con capacidad de voz
+		Controles de volumen para las llamadas y la gente que se encuentre cerca de ti en el mundo virtual
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		actualmente en tu barra de herramientas inferior
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		actualmente en tu barra de herramientas izquierda
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		actualmente en tu barra de herramientas derecha
 	</string>
 	<string name="Retain%">
 		% retención
@@ -4850,5 +4886,20 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Muy bajo
+	</string>
+	<string name="snapshot_quality_low">
+		Bajo
+	</string>
+	<string name="snapshot_quality_medium">
+		Medio
+	</string>
+	<string name="snapshot_quality_high">
+		Alto
+	</string>
+	<string name="snapshot_quality_very_high">
+		Muy alto
 	</string>
 </strings>
