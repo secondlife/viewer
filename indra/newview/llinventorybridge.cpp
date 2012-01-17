@@ -529,14 +529,17 @@ void hide_context_entries(LLMenuGL& menu,
 			// so that some other UI element from multi-select doesn't later set this invisible.
 			menu_item->pushVisible(TRUE);
 
+			BOOL enabled = TRUE;
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
 				{
-					menu_item->setEnabled(FALSE);
+					enabled = FALSE;
 					break;
 				}
 			}
+
+			menu_item->setEnabled(enabled);
 		}
 	}
 }
