@@ -306,9 +306,6 @@ Sadece büyük parseller aramada görünür.
 			<panel.string name="push_restrict_region_text">
 				İtme Yok (Bölge Geçersiz Kılma)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Parseldeki sakinleri gör ve onlarla sohbet et
-			</panel.string>
 			<text name="allow_label">
 				Sakinlere şunun için izin ver:
 			</text>
@@ -372,7 +369,7 @@ Sadece büyük parseller aramada görünür.
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Bir resim seçmek için tıklayın"/>
 			<text name="allow_label5">
-				Diğer parsel Sakinlerine şunun için izin verin:
+				Diğer parsel Sakinlerine şunun için izin verin: Parseldeki sakinleri gör ve onlarla sohbet et
 			</text>
 			<check_box label="Avatarları Gör" name="SeeAvatarsCheck" tool_tip="Diğer parsellerdeki sakinlerin bu parseldeki sakinleri görmesine ve onlarla sohbet etmesine, sizin de onları görüp, onlarla sohbet etmenize imkan tanır."/>
 			<text name="landing_point">

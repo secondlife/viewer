@@ -308,9 +308,6 @@ Apenas lotes maiores podem ser listados na busca.
 			<panel.string name="push_restrict_region_text">
 				Proibido empurrar (regulamento da região)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Veja e bata papo com os residentes deste terreno
-			</panel.string>
 			<text name="allow_label">
 				Autorizar outros residentes a:
 			</text>
@@ -374,7 +371,7 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clique para escolher uma imagem"/>
 			<text name="allow_label5">
-				Permitir que residentes de outros terrenos:
+				Permitir que residentes de outros terrenos: Veja e bata papo com os residentes deste terreno
 			</text>
 			<check_box label="Ver avatares" name="SeeAvatarsCheck" tool_tip="Permite que residentes de outros terrenos vejam e conversem com os residentes deste terreno e vice-versa."/>
 			<text name="landing_point">

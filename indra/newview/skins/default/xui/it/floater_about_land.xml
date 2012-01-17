@@ -313,9 +313,6 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			<panel.string name="push_restrict_region_text">
 				Nessuna spinta (Impostazione regionale)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Vedi i residenti in questo lotto e chatta con loro
-			</panel.string>
 			<text name="allow_label">
 				Permetti ad altri residenti di:
 			</text>
@@ -379,7 +376,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
 			<text name="allow_label5">
-				Permetti ai residenti in altri lotti di:
+				Permetti ai residenti in altri lotti di: Vedi i residenti in questo lotto e chatta con loro
 			</text>
 			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ai residenti in altri lotti di vedere i residenti in questo lotto e chattare con loro, e ti consente di vederli e chattare con loro."/>
 			<text name="landing_point">

@@ -312,9 +312,6 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			<panel.string name="push_restrict_region_text">
 				Pas de bousculades (les règles de la région priment)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Voir et chatter avec les résidents sur cette parcelle
-			</panel.string>
 			<text name="allow_label">
 				Autoriser les autres résidents à :
 			</text>
@@ -378,7 +375,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
 			<text name="allow_label5">
-				Autoriser les résidents sur les autres parcelles à :
+				Autoriser les résidents sur les autres parcelles à : Voir et chatter avec les résidents sur cette parcelle
 			</text>
 			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux résidents présents sur d&apos;autres parcelles de voir et chatter avec les résidents présents sur cette parcelle et vous permettre de les voir et de chatter avec eux."/>
 			<text name="landing_point">

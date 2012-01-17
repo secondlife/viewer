@@ -308,9 +308,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			<panel.string name="push_restrict_region_text">
 				Sin &apos;empujones&apos; (prevalece lo marcado en la región)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Ver a los residentes de esta parcela y chatear con ellos
-			</panel.string>
 			<text name="allow_label">
 				Permitir a otros Residentes:
 			</text>
@@ -374,7 +371,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
 			<text name="allow_label5">
-				Permitir a los residentes de otras parcelas:
+				Permitir a los residentes de otras parcelas: Ver a los residentes de esta parcela y chatear con ellos
 			</text>
 			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los residentes de otras parcelas vean a los residentes de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
 			<text name="landing_point">
