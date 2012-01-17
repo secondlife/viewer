@@ -132,11 +132,12 @@ namespace LLMarketplaceImport
 			}
 
 			if ((status == MarketplaceErrorCodes::IMPORT_REDIRECT) ||
-				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR))
+				(status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM POST clearing marketplace cookie due to authentication failure" << llendl;
+					llinfos << " SLM POST clearing marketplace cookie due to authentication failure or timeout" << llendl;
 				}
 
 				sMarketplaceCookie.clear();
@@ -173,11 +174,12 @@ namespace LLMarketplaceImport
 				llinfos << " SLM GET content: " << content.asString() << llendl;
 			}
 			
-			if (status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR)
+			if ((status == MarketplaceErrorCodes::IMPORT_AUTHENTICATION_ERROR) ||
+				(status == MarketplaceErrorCodes::IMPORT_JOB_TIMEOUT))
 			{
 				if (gSavedSettings.getBOOL("InventoryOutboxLogging"))
 				{
-					llinfos << " SLM GET clearing marketplace cookie due to authentication failure" << llendl;
+					llinfos << " SLM GET clearing marketplace cookie due to authentication failure or timeout" << llendl;
 				}
 
 				sMarketplaceCookie.clear();
