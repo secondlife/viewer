@@ -25,7 +25,8 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
+// Precompiled header
+#include "llviewerprecompiledheaders.h"
 
 #include "llmarketplacenotifications.h"
 #include "llnotificationsutil.h"
