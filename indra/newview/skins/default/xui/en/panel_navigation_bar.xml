@@ -141,7 +141,6 @@
            max_width="5"
            min_width="5"
            name="nav_bar_resize_handle_panel"
-           user_resize="false"
            width="5">
              <icon
                follows="top|right"

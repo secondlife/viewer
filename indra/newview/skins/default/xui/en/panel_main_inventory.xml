@@ -119,7 +119,6 @@
        height="25"
        layout="topleft"
        name="options_gear_btn_panel"
-       user_resize="false"
        width="32">
           <menu_button
            follows="bottom|left"
@@ -140,7 +139,6 @@
        height="25"
        layout="topleft"
        name="add_btn_panel"
-       user_resize="false"
        width="32">
           <button
            follows="bottom|left"
@@ -161,7 +159,6 @@
        height="25"
        layout="topleft"
        name="dummy_panel"
-       user_resize="false"
        width="212">
           <icon
            follows="bottom|left|right"
@@ -178,7 +175,6 @@
        height="25"
        layout="topleft"
        name="trash_btn_panel"
-       user_resize="false"
        width="31">
           <dnd_button
            follows="bottom|left"

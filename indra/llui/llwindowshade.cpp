@@ -176,12 +176,12 @@ void LLWindowShade::draw()
 	{
 		hide();
 	}
-	else if (notification_area->getCollapseFactor() < 0.01f)
+	else if (notification_area->getVisibleAmount() < 0.01f)
 	{
 		displayLatestNotification();
 	}
 
-	if (!notification_area->getVisible() && (notification_area->getCollapseFactor() < 0.001f))
+	if (!notification_area->getVisible() && (notification_area->getVisibleAmount() < 0.001f))
 	{
 		getChildRef<LLLayoutPanel>("background_area").setBackgroundVisible(false);
 		setMouseOpaque(false);

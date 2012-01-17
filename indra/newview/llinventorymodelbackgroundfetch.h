@@ -60,10 +60,10 @@ public:
 	bool inventoryFetchInProgress() const;
 
     void findLostItems();	
+	void incrFetchCount(S16 fetching);
 protected:
-	void incrBulkFetch(S16 fetching);
 	bool isBulkFetchProcessingComplete() const;
-	void bulkFetch(std::string url);
+	void bulkFetch();
 
 	void backgroundFetch();
 	static void backgroundFetchCB(void*); // background fetch idle function
@@ -77,7 +77,7 @@ private:
 	BOOL mAllFoldersFetched;
 
 	BOOL mBackgroundFetchActive;
-	S16 mBulkFetchCount;
+	S16 mFetchCount;
 	BOOL mTimelyFetchPending;
 	S32 mNumFetchRetries;
 
@@ -87,11 +87,11 @@ private:
 
 	struct FetchQueueInfo
 	{
-		FetchQueueInfo(const LLUUID& id, BOOL recursive) :
-			mCatUUID(id), mRecursive(recursive)
-		{
-		}
-		LLUUID mCatUUID;
+		FetchQueueInfo(const LLUUID& id, BOOL recursive, bool is_category = true) :
+			mUUID(id), mRecursive(recursive), mIsCategory(is_category)
+		{}
+		LLUUID mUUID;
+		bool mIsCategory;
 		BOOL mRecursive;
 	};
 	typedef std::deque<FetchQueueInfo> fetch_queue_t;
