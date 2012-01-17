@@ -73,11 +73,6 @@ void LLProcessLauncher::addArgument(const std::string &arg)
 	mLaunchArguments.push_back(arg);
 }
 
-void LLProcessLauncher::addArgument(const char *arg)
-{
-	mLaunchArguments.push_back(std::string(arg));
-}
-
 #if LL_WINDOWS
 
 int LLProcessLauncher::launch(void)
@@ -262,12 +257,19 @@ int LLProcessLauncher::launch(void)
 	if(id == 0)
 	{
 		// child process
-		
 		::execv(mExecutable.c_str(), (char * const *)fake_argv);
-		
+
 		// If we reach this point, the exec failed.
-		// Use _exit() instead of exit() per the vfork man page.
-		_exit(0);
+        LL_WARNS("LLProcessLauncher") << "failed to launch: ";
+        for (const char * const * ai = fake_argv; *ai; ++ai)
+        {
+            LL_CONT << *ai << ' ';
+        }
+        LL_CONT << LL_ENDL;
+		// Use _exit() instead of exit() per the vfork man page. Exit with a
+		// distinctive rc: someday soon we'll be able to retrieve it, and it
+		// would be nice to be able to tell that the child process failed!
+		_exit(249);
 	}
 
 	// parent process

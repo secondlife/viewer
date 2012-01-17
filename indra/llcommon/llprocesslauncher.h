@@ -28,6 +28,7 @@
 #define LL_LLPROCESSLAUNCHER_H
 
 #if LL_WINDOWS
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 
@@ -51,7 +52,6 @@ public:
 
 	void clearArguments();
 	void addArgument(const std::string &arg);
-	void addArgument(const char *arg);
 		
 	int launch(void);
 	bool isRunning(void);
@@ -66,10 +66,12 @@ public:
 	void orphan(void);	
 	
 	// This needs to be called periodically on Mac/Linux to clean up zombie processes.
+	// (However, as of 2012-01-12 there are no such calls in the viewer code base. :-P )
 	static void reap(void);
 	
 	// Accessors for platform-specific process ID
 #if LL_WINDOWS
+	// (Windows flavor unused as of 2012-01-12)
 	HANDLE getProcessHandle() { return mProcessHandle; };
 #else
 	pid_t getProcessID() { return mProcessID; };

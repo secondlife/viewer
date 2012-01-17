@@ -81,7 +81,7 @@ int ll_install_update(std::string const & script,
 	LLProcessLauncher launcher;
 	launcher.setExecutable(actualScriptPath);
 	launcher.addArgument(updatePath);
-	launcher.addArgument(ll_install_failed_marker_path().c_str());
+	launcher.addArgument(ll_install_failed_marker_path());
 	launcher.addArgument(boost::lexical_cast<std::string>(required));
 	int result = launcher.launch();
 	launcher.orphan();
