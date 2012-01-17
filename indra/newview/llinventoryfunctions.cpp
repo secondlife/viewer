@@ -533,18 +533,12 @@ void show_item_original(const LLUUID& item_uuid)
 }
 
 
-static S32 create_folder_in_outbox_operation_id = -1;
 static S32 move_to_outbox_operation_id = -1;
 static std::list<LLSD> move_to_outbox_payloads;
 
 void open_outbox()
 {
 	LLFloaterReg::showInstance("outbox");
-}
-
-void folder_created_in_outbox_cb(const LLSD& notification, const LLSD& response)
-{
-	create_folder_in_outbox_operation_id = -1;
 }
 
 LLUUID create_folder_in_outbox_for_item(LLInventoryItem* item, const LLUUID& destFolderId, S32 operation_id)
@@ -555,12 +549,7 @@ LLUUID create_folder_in_outbox_for_item(LLInventoryItem* item, const LLUUID& des
 	LLUUID created_folder_id = gInventory.createNewCategory(destFolderId, LLFolderType::FT_NONE, item->getName());
 	gInventory.notifyObservers();
 
-	if (create_folder_in_outbox_operation_id != operation_id)
-	{
-		LLNotificationsUtil::add("OutboxFolderCreated", LLSD(), LLSD(), boost::bind(&folder_created_in_outbox_cb, _1, _2));
-
-		create_folder_in_outbox_operation_id = operation_id;
-	}
+	LLNotificationsUtil::add("OutboxFolderCreated");
 
 	return created_folder_id;
 }

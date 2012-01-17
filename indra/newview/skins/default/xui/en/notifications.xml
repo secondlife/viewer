@@ -214,6 +214,7 @@ You don't have permission to copy one or more of these items to the Merchant Out
    icon="OutboxStatus_Success"
    name="OutboxFolderCreated"
    type="outbox">
+    <unique/>
 A new folder has been created for each item you have transferred into the top level of your Merchant Outbox.
 
     <usetemplate

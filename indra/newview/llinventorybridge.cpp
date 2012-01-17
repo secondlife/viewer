@@ -2244,7 +2244,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	{
 		if (move_is_into_outbox)
 		{
-			tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
+			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
 		}
 		else
@@ -2256,7 +2256,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	{
 		if (move_is_into_outbox)
 		{
-			tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
+			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
 		}
 		else
@@ -3765,7 +3765,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
 		else if (move_is_into_outbox)
 		{
-			tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
+			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
 		}
 		
@@ -3796,7 +3796,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	{
 		if (move_is_into_outbox)
 		{
-			tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
+			tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 			accept = FALSE;
 		}
 		else
@@ -3823,7 +3823,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 
 			if (move_is_into_outbox)
 			{
-				tooltip_msg = tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
+				tooltip_msg = LLTrans::getString("TooltipOutboxNotInInventory");
 				accept = FALSE;
 			}
 			else if (move_is_into_current_outfit || move_is_into_outfit)
