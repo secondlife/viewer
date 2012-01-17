@@ -172,6 +172,7 @@ LLFolderView::Params::Params()
 	title("title"),
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
+	show_empty_message("show_empty_message", true),
 	show_load_status("show_load_status", true),
 	use_ellipses("use_ellipses", false)
 {
@@ -185,6 +186,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mScrollContainer( NULL ),
 	mPopupMenuHandle(),
 	mAllowMultiSelect(p.allow_multiselect),
+	mShowEmptyMessage(p.show_empty_message),
 	mShowFolderHierarchy(FALSE),
 	mSourceID(p.task_id),
 	mRenameItem( NULL ),
@@ -908,7 +910,7 @@ void LLFolderView::draw()
 		mStatusText.clear();
 		mStatusTextBox->setVisible( FALSE );
 	}
-	else
+	else if (mShowEmptyMessage)
 	{
 		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
@@ -942,7 +944,6 @@ void LLFolderView::draw()
 			// See EXT-7564, EXT-7047.
 			arrangeFromRoot();
 		}
-		
 	}
 
 	// skip over LLFolderViewFolder::draw since we don't want the folder icon, label, 
@@ -1921,9 +1922,9 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	if (!handled)
 	{
 		if (getListener()->getUUID().notNull())
-	{
-		handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	}
+		{
+			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
+		}
 		else
 		{
 			if (!mFolders.empty())

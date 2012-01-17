@@ -371,6 +371,11 @@ void LLWindowShade::setTextColor(LLColor4 color)
 	getChild<LLTextBox>("notification_text")->setColor(color);
 }
 
+bool LLWindowShade::isShown() const
+{
+	return getChildRef<LLLayoutPanel>("notification_area").getVisible();
+}
+
 void LLWindowShade::setCanClose(bool can_close)
 {
 	getChildView("close_panel")->setVisible(can_close);

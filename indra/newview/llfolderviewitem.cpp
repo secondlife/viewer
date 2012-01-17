@@ -2351,37 +2351,47 @@ BOOL LLFolderViewFolder::handleDragAndDrop(S32 x, S32 y, MASK mask,
 										   EAcceptance* accept,
 										   std::string& tooltip_msg)
 {
-	LLFolderView* root_view = getRoot();
-
 	BOOL handled = FALSE;
-	if(mIsOpen)
+
+	if (mIsOpen)
 	{
-		handled = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type,
-			cargo_data, accept, tooltip_msg) != NULL;
+		handled = (childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg) != NULL);
 	}
 
 	if (!handled)
 	{
-		BOOL accepted = mListener && mListener->dragOrDrop(mask, drop,cargo_type,cargo_data, tooltip_msg);
-
-		if (accepted) 
-		{
-			mDragAndDropTarget = TRUE;
-			*accept = ACCEPT_YES_MULTI;
-		}
-		else 
-		{
-			*accept = ACCEPT_NO;
-		}
-
-		if (!drop && accepted)
-		{
-			root_view->autoOpenTest(this);
-		}
+		handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 
 		lldebugst(LLERR_USER_INPUT) << "dragAndDrop handled by LLFolderViewFolder" << llendl;
 	}
 
+	return TRUE;
+}
+
+BOOL LLFolderViewFolder::handleDragAndDropToThisFolder(MASK mask,
+													   BOOL drop,
+													   EDragAndDropType cargo_type,
+													   void* cargo_data,
+													   EAcceptance* accept,
+													   std::string& tooltip_msg)
+{
+	BOOL accepted = mListener && mListener->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+	
+	if (accepted) 
+	{
+		mDragAndDropTarget = TRUE;
+		*accept = ACCEPT_YES_MULTI;
+	}
+	else 
+	{
+		*accept = ACCEPT_NO;
+	}
+	
+	if (!drop && accepted)
+	{
+		getRoot()->autoOpenTest(this);
+	}
+	
 	return TRUE;
 }
 

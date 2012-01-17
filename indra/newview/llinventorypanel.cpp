@@ -132,6 +132,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mAcceptsDragAndDrop(p.accepts_drag_and_drop),
 	mAllowMultiSelect(p.allow_multi_select),
 	mShowItemLinkOverlays(p.show_item_link_overlays),
+	mShowEmptyMessage(p.show_empty_message),
 	mShowLoadStatus(p.show_load_status),
 	mViewsInitialized(false),
 	mInvFVBridgeBuilder(NULL)
@@ -617,6 +618,7 @@ LLFolderView * LLInventoryPanel::createFolderView(LLInvFVBridge * bridge, bool u
 	p.listener =  bridge;
 	p.use_label_suffix = useLabelSuffix;
 	p.allow_multiselect = mAllowMultiSelect;
+	p.show_empty_message = mShowEmptyMessage;
 	p.show_load_status = mShowLoadStatus;
 
 	return LLUICtrlFactory::create<LLFolderView>(p);
@@ -1157,7 +1159,6 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 		LLViewerInventoryCategory * cat = gInventory.getCategory(obj_id);
 		
 		bool in_inbox = false;
-		bool in_outbox = false;
 		
 		LLViewerInventoryCategory * parent_cat = NULL;
 		
@@ -1173,10 +1174,9 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 		if (parent_cat)
 		{
 			in_inbox = (LLFolderType::FT_INBOX == parent_cat->getPreferredType());
-			in_outbox = (LLFolderType::FT_OUTBOX == parent_cat->getPreferredType());
 		}
 		
-		if (in_inbox || in_outbox)
+		if (in_inbox)
 		{
 			LLSidepanelInventory * sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 			LLInventoryPanel * inventory_panel = NULL;
@@ -1185,11 +1185,6 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 			{
 				sidepanel_inventory->openInbox();
 				inventory_panel = sidepanel_inventory->getInboxPanel();
-			}
-			else
-			{
-				sidepanel_inventory->openOutbox();
-				inventory_panel = sidepanel_inventory->getOutboxPanel();
 			}
 
 			if (inventory_panel)
