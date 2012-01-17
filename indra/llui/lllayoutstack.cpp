@@ -156,7 +156,10 @@ void LLLayoutPanel::setVisible( BOOL visible )
 	if (visible != getVisible())
 	{
 		LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
-		stackp->mNeedsLayout = true;
+		if (stackp)
+		{
+			stackp->mNeedsLayout = true;
+		}
 	}
 	LLPanel::setVisible(visible);
 }
