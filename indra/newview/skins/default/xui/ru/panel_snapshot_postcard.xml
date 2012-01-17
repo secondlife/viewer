@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		Открытка из [SECOND_LIFE].
+	</string>
+	<string name="default_message">
+		Побывай здесь!
+	</string>
+	<string name="upload_message">
+		Отправка...
+	</string>
+	<text name="title">
+		Электронное письмо
+	</text>
+	<button label="Сообщение" name="message_btn"/>
+	<button label="Настройки" name="settings_btn"/>
+</panel>

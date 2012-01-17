@@ -4,8 +4,8 @@
 		Filtreleme:
 	</text>
 	<check_box label="Anisotropik Filtreleme (etkinken daha yavaş)" name="ani"/>
-	<text name="Antialiasing:">
-		Antialiasing:
+	<text name="antialiasing label">
+		Düzgünleştirme:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa">
 		<combo_box.item label="Devre dışı" name="FSAADisabled"/>

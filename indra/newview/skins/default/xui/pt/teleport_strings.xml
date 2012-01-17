@@ -19,8 +19,8 @@ Se você continuar a receber esta mensagem, por favor consulte o [SUPPORT_SITE].
 			Desculpe, não foi possível para o sistema executar o teletransporte. Tente novamente dentro de alguns instantes.
 		</message>
 		<message name="NoHelpIslandTP">
-		Você não pode se tele-transportar de volta à Ilha de Welcome.
-Vá para a Ilha de Welcome Pública para repetir este tutorial.
+			Não é possível se teletransportar de volta à Ilha Welcome.
+Vá para a &apos;Ilha Welcome Pública&apos; para repetir o tutorial.
 		</message>
 		<message name="noaccess_tport">
 			Desculpe, você não tem acesso ao destino deste teletransporte.

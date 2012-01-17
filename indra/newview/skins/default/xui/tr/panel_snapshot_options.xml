@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_options">
+	<button label="Profil Akışımda Yayınla" name="save_to_profile_btn"/>
+	<button label="E-posta" name="save_to_email_btn"/>
+	<button label="Envanterime Kaydet (L$[AMOUNT])" name="save_to_inventory_btn"/>
+	<button label="Bilgisayarıma Kaydet" name="save_to_computer_btn"/>
+</panel>
