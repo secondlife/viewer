@@ -309,9 +309,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<panel.string name="push_restrict_region_text">
 				Kein Stoßen (regional)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Auf dieser Parzelle Einwohner sehen und mit ihnen chatten
-			</panel.string>
 			<text name="allow_label">
 				Anderen Einwohnern gestatten:
 			</text>
@@ -375,7 +372,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<text name="allow_label5">
-				Einwohnern auf anderen Parzellen Folgendes gestatten:
+				Einwohnern auf anderen Parzellen Folgendes gestatten: Auf dieser Parzelle Einwohner sehen und mit ihnen chatten
 			</text>
 			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Einwohnern auf anderen Parzellen, Einwohner auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Einwohner auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
 			<text name="landing_point">

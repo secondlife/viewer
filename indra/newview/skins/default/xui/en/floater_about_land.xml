@@ -1206,10 +1206,6 @@ Only large parcels can be listed in search.
              name="push_restrict_region_text">
                 No Pushing (Region Override)
             </panel.string>
-            <panel.string
-             name="see_avs_text">
-                    Avatars on other parcels can see
-            </panel.string>
             <text
              type="string"
              length="1"
@@ -1524,24 +1520,24 @@ Only large parcels can be listed in search.
              length="1"
              follows="left|top"
              text_color="LtGray"
-             height="16"
+             height="32"
              layout="topleft"
              left="274"
-             top="166"
+             top="150"
              name="allow_label5"
-             width="278">
-              and chat with avatars on this parcel
+             width="205"
+             wrap="true">
+              Avatars on other parcels can see and chat with avatars on this parcel
             </text>
             <check_box
              height="16"
-             label="See Avatars"
              follows="top"
              layout="topleft"
              left="253"
              top="150"
              name="SeeAvatarsCheck"
              tool_tip="Allows avatars on other parcels to see and chat with avatars on this parcel, and you to see and chat with them."
-             width="120" />
+             width="10" />
             <text
              type="string"
              length="1"

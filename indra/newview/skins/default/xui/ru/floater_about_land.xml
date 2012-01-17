@@ -306,9 +306,6 @@
 			<panel.string name="push_restrict_region_text">
 				Не толкать (настройки региона)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Видеть жителей этого участка и общаться с ними в чате
-			</panel.string>
 			<text name="allow_label">
 				Позволить другим жителям:
 			</text>
@@ -372,7 +369,7 @@
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Щелкните для выбора изображения"/>
 			<text name="allow_label5">
-				Позволить жителям с других участков:
+				Позволить жителям с других участков: Видеть жителей этого участка и общаться с ними в чате
 			</text>
 			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Жители с других участков могут видеть жителей этого участка и общаться с ними в чате (вы также сможете видеть жителей с других участков и общаться с ними)."/>
 			<text name="landing_point">

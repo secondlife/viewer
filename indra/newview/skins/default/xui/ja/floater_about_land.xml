@@ -310,9 +310,6 @@
 			<panel.string name="push_restrict_region_text">
 				プッシュ禁止 （地域設定優先）
 			</panel.string>
-			<panel.string name="see_avs_text">
-				この区画にいる住人と会ってチャットする
-			</panel.string>
 			<text name="allow_label">
 				他の住人への許可：
 			</text>
@@ -376,7 +373,7 @@
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
 			<text name="allow_label5">
-				他の区画にいる住人への許可：
+				他の区画にいる住人への許可： この区画にいる住人と会ってチャットする
 			</text>
 			<check_box label="アバターを表示" name="SeeAvatarsCheck" tool_tip="他の区画の住人が、この区画にいる住人に会ってチャットすることを許可し、あなたもそれら住人に会ってチャットできるようにします。"/>
 			<text name="landing_point">
