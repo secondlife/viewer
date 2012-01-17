@@ -58,6 +58,7 @@
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
+#include "llmarketplacenotifications.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
 #include "llpanelmaininventory.h"
@@ -533,9 +534,6 @@ void show_item_original(const LLUUID& item_uuid)
 }
 
 
-static S32 move_to_outbox_operation_id = -1;
-static std::list<LLSD> move_to_outbox_payloads;
-
 void open_outbox()
 {
 	LLFloaterReg::showInstance("outbox");
@@ -614,24 +612,6 @@ void move_to_outbox_cb_action(const LLSD& payload)
 	}
 }
 
-void move_to_outbox_cb(const LLSD& notification, const LLSD& response)
-{
-	const S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-
-	if (option == 0)
-	{
-		llassert(move_to_outbox_payloads.size() > 0);
-
-		BOOST_FOREACH(const LLSD& payload, move_to_outbox_payloads)
-		{
-			move_to_outbox_cb_action(payload);
-		}
-	}
-
-	move_to_outbox_operation_id = -1;
-	move_to_outbox_payloads.clear();
-}
-
 void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder, S32 operation_id)
 {
 	// Collapse links directly to items/folders
@@ -668,25 +648,14 @@ void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LL
 			open_outbox();
 		}
 		else
-		{	
-			LLSD args;
-			args["ITEM_NAME"] = inv_item->getName();
-
+		{
 			LLSD payload;
 			payload["item_id"] = inv_item->getUUID();
 			payload["dest_folder_id"] = dest_folder;
 			payload["top_level_folder"] = top_level_folder;
 			payload["operation_id"] = operation_id;
-
-			if (move_to_outbox_operation_id != operation_id)
-			{
-				LLNotificationsUtil::add("ConfirmNoCopyToOutbox", args, payload, boost::bind(&move_to_outbox_cb, _1, _2));
-				
-				move_to_outbox_operation_id = operation_id;
-				move_to_outbox_payloads.clear();
-			}
-
-			move_to_outbox_payloads.push_back(payload);
+			
+			LLMarketplaceInventoryNotifications::addNoCopyNotification(payload, move_to_outbox_cb_action);
 		}
 	}
 }

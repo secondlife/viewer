@@ -316,6 +316,7 @@ set(viewer_SOURCE_FILES
     llmanipscale.cpp
     llmaniptranslate.cpp
     llmarketplacefunctions.cpp
+    llmarketplacenotifications.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
@@ -871,6 +872,7 @@ set(viewer_HEADER_FILES
     llmanipscale.h
     llmaniptranslate.h
     llmarketplacefunctions.h
+    llmarketplacenotifications.h
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
