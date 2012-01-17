@@ -59,6 +59,16 @@ public:
 
     std::string getName() const { return mPath; }
 
+    void peep()
+    {
+        std::cout << "File '" << mPath << "' contains:\n";
+        std::ifstream reader(mPath.c_str());
+        std::string line;
+        while (std::getline(reader, line))
+            std::cout << line << '\n';
+        std::cout << "---\n";
+    }
+
 private:
     void createFile(const std::string& pfx, const Streamer& func)
     {
@@ -94,16 +104,6 @@ private:
         ll_apr_assert_status(apr_file_write(fp, data.c_str(), &writelen));
         ll_apr_assert_status(apr_file_close(fp));
         llassert_always(writelen == data.length());
-    }
-
-    void peep()
-    {
-        std::cout << "File '" << mPath << "' contains:\n";
-        std::ifstream reader(mPath.c_str());
-        std::string line;
-        while (std::getline(reader, line))
-            std::cout << line << '\n';
-        std::cout << "---\n";
     }
 
     std::string mPath;
