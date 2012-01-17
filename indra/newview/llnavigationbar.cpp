@@ -317,7 +317,7 @@ BOOL LLNavigationBar::postBuild()
 	LLTeleportHistory::getInstance()->setHistoryChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
 
-	LLHints::registerHintTarget("nav_bar", LLView::getHandle());
+	LLHints::registerHintTarget("nav_bar", getHandle());
 
 	return TRUE;
 }

@@ -7,8 +7,8 @@
     <command name="destinations"/>
     <command name="people"/>
     <command name="profile"/>
-    <command name="view"/>
     <command name="move"/>
+    <command name="view"/>
     <command name="howto"/>
   </bottom_toolbar>
   <left_toolbar
@@ -20,5 +20,6 @@
     <command name="places"/>
     <command name="voice"/>
     <command name="minimap"/>
+    <command name="snapshot"/>
   </left_toolbar>
 </toolbars>

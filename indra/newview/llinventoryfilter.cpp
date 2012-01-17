@@ -36,6 +36,7 @@
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
+#include "llviewerfoldertype.h"
 
 // linden library includes
 #include "lltrans.h"
@@ -117,7 +118,7 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 
 	const LLFolderViewEventListener* listener = folder->getListener();
 	const LLUUID folder_id = listener->getUUID();
-
+	
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory
@@ -206,6 +207,23 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_EMPTYFOLDERS
+	// Pass if this item is a folder and is not a system folder that should be hidden
+	if (filterTypes & FILTERTYPE_EMPTYFOLDERS)
+	{
+		if (object_type == LLInventoryType::IT_CATEGORY)
+		{
+			bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(listener->getPreferredType());
+			if (is_hidden_if_empty)
+			{
+				// Force the fetching of those folders so they are hidden iff they really are empty...
+				gInventory.fetchDescendentsOf(object_id);
+				return FALSE;
+			}
+		}
+	}
+	
 	return TRUE;
 }
 
@@ -341,6 +359,11 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 {
 	updateFilterTypes(types, mFilterOps.mFilterWearableTypes);
 	mFilterOps.mFilterTypes |= FILTERTYPE_WEARABLE;
+}
+
+void LLInventoryFilter::setFilterEmptySystemFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)

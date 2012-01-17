@@ -24,7 +24,7 @@
 		<menu_item_call label="Acheter des L$" name="Buy and Sell L$"/>
 		<menu_item_call label="Préférences..." name="Preferences"/>
 		<menu_item_call label="Barres d&apos;outils..." name="Toolbars"/>
-		<menu_item_call label="Cacher tous les contrôles" name="Hide UI"/>
+		<menu_item_call label="Masquer tous les contrôles" name="Hide UI"/>
 		<menu_item_call label="Quitter [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Communiquer" name="Communicate">
@@ -319,7 +319,7 @@
 			<menu_item_check label="Pauser l&apos;avatar" name="AgentPause"/>
 			<menu_item_call label="Activer le journal des messages" name="Enable Message Log"/>
 			<menu_item_call label="Désactiver le journal des messages" name="Disable Message Log"/>
-			<menu_item_check label="Velocity Interpolate Objects" name="Velocity Interpolate Objects"/>
+			<menu_item_check label="Objets d&apos;interpolation de vitesse" name="Velocity Interpolate Objects"/>
 			<menu_item_check label="Interpolation ping des positions des objets" name="Ping Interpolate Object Positions"/>
 			<menu_item_call label="Abandonner un paquet" name="Drop a Packet"/>
 		</menu>
@@ -336,7 +336,7 @@
 			<menu_item_check label="Ignorer les paramètres du soleil de la sim" name="Sim Sun Override"/>
 			<menu_item_check label="Balise animée" name="Cheesy Beacon"/>
 			<menu_item_check label="Météo fixe" name="Fixed Weather"/>
-			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
+			<menu_item_call label="Vidage de cache d&apos;objet de la région" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interface" name="UI">
 			<menu_item_call label="Test du navigateur de médias" name="Web Browser Test"/>

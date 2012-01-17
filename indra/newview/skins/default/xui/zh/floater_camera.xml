@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Move Camera Up and Down, Left and Right
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		攝影機模式
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		環繞縮放平移
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		預設視角
-	</floater.string>
 	<floater.string name="free_mode_title">
 		視角物件
 	</floater.string>

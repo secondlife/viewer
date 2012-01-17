@@ -28,17 +28,18 @@
 #define LLHANDLE_H
 
 #include "llpointer.h"
+#include <boost/type_traits/is_convertible.hpp>
+#include <boost/utility/enable_if.hpp>
 
-template <typename T>
 class LLTombStone : public LLRefCount
 {
 public:
-	LLTombStone(T* target = NULL) : mTarget(target) {}
+	LLTombStone(void* target = NULL) : mTarget(target) {}
 
-	void setTarget(T* target) { mTarget = target; }
-	T* getTarget() const { return mTarget; }
+	void setTarget(void* target) { mTarget = target; }
+	void* getTarget() const { return mTarget; }
 private:
-	T* mTarget;
+	mutable void* mTarget;
 };
 
 //	LLHandles are used to refer to objects whose lifetime you do not control or influence.  
@@ -53,13 +54,15 @@ private:
 template <typename T>
 class LLHandle
 {
+	template <typename U> friend class LLHandle;
+	template <typename U> friend class LLHandleProvider;
 public:
 	LLHandle() : mTombStone(getDefaultTombStone()) {}
-	const LLHandle<T>& operator =(const LLHandle<T>& other)  
-	{ 
-		mTombStone = other.mTombStone;
-		return *this; 
-	}
+
+	template<typename U>
+	LLHandle(const LLHandle<U>& other, typename boost::enable_if< typename boost::is_convertible<U*, T*> >::type* dummy = 0)
+	: mTombStone(other.mTombStone)
+	{}
 
 	bool isDead() const 
 	{ 
@@ -73,7 +76,7 @@ public:
 
 	T* get() const
 	{
-		return mTombStone->getTarget();
+		return reinterpret_cast<T*>(mTombStone->getTarget());
 	}
 
 	friend bool operator== (const LLHandle<T>& lhs, const LLHandle<T>& rhs)
@@ -94,12 +97,13 @@ public:
 	}
 
 protected:
-	LLPointer<LLTombStone<T> > mTombStone;
+	LLPointer<LLTombStone> mTombStone;
 
 private:
-	static LLPointer<LLTombStone<T> >& getDefaultTombStone()
+	typedef T* pointer_t;
+	static LLPointer<LLTombStone>& getDefaultTombStone()
 	{
-		static LLPointer<LLTombStone<T> > sDefaultTombStone = new LLTombStone<T>;
+		static LLPointer<LLTombStone> sDefaultTombStone = new LLTombStone;
 		return sDefaultTombStone;
 	}
 };
@@ -108,23 +112,26 @@ template <typename T>
 class LLRootHandle : public LLHandle<T>
 {
 public:
+	typedef LLRootHandle<T> self_t;
+	typedef LLHandle<T> base_t;
+
 	LLRootHandle(T* object) { bind(object); }
 	LLRootHandle() {};
 	~LLRootHandle() { unbind(); }
 
-	// this is redundant, since a LLRootHandle *is* an LLHandle
-	LLHandle<T> getHandle() { return LLHandle<T>(*this); }
+	// this is redundant, since an LLRootHandle *is* an LLHandle
+	//LLHandle<T> getHandle() { return LLHandle<T>(*this); }
 
 	void bind(T* object) 
 	{ 
 		// unbind existing tombstone
 		if (LLHandle<T>::mTombStone.notNull())
 		{
-			if (LLHandle<T>::mTombStone->getTarget() == object) return;
+			if (LLHandle<T>::mTombStone->getTarget() == (void*)object) return;
 			LLHandle<T>::mTombStone->setTarget(NULL);
 		}
 		// tombstone reference counted, so no paired delete
-		LLHandle<T>::mTombStone = new LLTombStone<T>(object);
+		LLHandle<T>::mTombStone = new LLTombStone((void*)object);
 	}
 
 	void unbind() 
@@ -142,6 +149,15 @@ private:
 template <typename T>
 class LLHandleProvider
 {
+public:
+	LLHandle<T> getHandle() const
+	{ 
+		// perform lazy binding to avoid small tombstone allocations for handle
+		// providers whose handles are never referenced
+		mHandle.bind(static_cast<T*>(const_cast<LLHandleProvider<T>* >(this))); 
+		return mHandle; 
+	}
+
 protected:
 	typedef LLHandle<T> handle_type_t;
 	LLHandleProvider() 
@@ -149,16 +165,17 @@ protected:
 		// provided here to enforce T deriving from LLHandleProvider<T>
 	} 
 
-	LLHandle<T> getHandle() 
-	{ 
-		// perform lazy binding to avoid small tombstone allocations for handle
-		// providers whose handles are never referenced
-		mHandle.bind(static_cast<T*>(this)); 
-		return mHandle; 
+	template <typename U>
+	LLHandle<U> getDerivedHandle(typename boost::enable_if< typename boost::is_convertible<U*, T*> >::type* dummy = 0) const
+	{
+		LLHandle<U> downcast_handle;
+		downcast_handle.mTombStone = getHandle().mTombStone;
+		return downcast_handle;
 	}
 
+
 private:
-	LLRootHandle<T> mHandle;
+	mutable LLRootHandle<T> mHandle;
 };
 
 #endif

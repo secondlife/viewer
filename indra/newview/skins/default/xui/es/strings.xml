@@ -586,6 +586,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="mesh">
 		red
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Edición de Apariencia)
+	</string>
 	<string name="AvatarAway">
 		Ausente
 	</string>

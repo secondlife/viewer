@@ -3,7 +3,7 @@
 	<layout_stack name="nvp_stack">
 		<layout_panel name="navigation_layout_panel">
 			<panel name="navigation_panel">
-				<pull_button name="back_btn" tool_tip="Volver a lo localización anterior"/>
+				<pull_button name="back_btn" tool_tip="Volver a la localización anterior"/>
 				<pull_button name="forward_btn" tool_tip="Ir una localización adelante"/>
 				<button name="home_btn" tool_tip="Teleportar a mi Base"/>
 				<location_input label="Lugar" name="location_combo"/>

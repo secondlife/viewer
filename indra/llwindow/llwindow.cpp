@@ -108,9 +108,12 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
 	  mSupportedResolutions(NULL),
 	  mNumSupportedResolutions(0),
 	  mCurrentCursor(UI_CURSOR_ARROW),
+	  mNextCursor(UI_CURSOR_ARROW),
 	  mCursorHidden(FALSE),
 	  mBusyCount(0),
 	  mIsMouseClipping(FALSE),
+	  mMinWindowWidth(0),
+	  mMinWindowHeight(0),
 	  mSwapMethod(SWAP_METHOD_UNDEFINED),
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),
@@ -177,6 +180,36 @@ void *LLWindow::getMediaWindow()
 {
 	// Default to returning the platform window.
 	return getPlatformWindow();
+}
+
+BOOL LLWindow::setSize(LLCoordScreen size)
+{
+	if (!getMaximized())
+	{
+		size.mX = llmin(size.mX, mMinWindowWidth);
+		size.mY = llmin(size.mY, mMinWindowHeight);
+	}
+	return setSizeImpl(size);
+}
+
+
+// virtual
+void LLWindow::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
+{
+	mMinWindowWidth = min_width;
+	mMinWindowHeight = min_height;
+
+	if (enforce_immediately)
+	{
+		LLCoordScreen cur_size;
+		if (!getMaximized() && getSize(&cur_size))
+		{
+			if (cur_size.mX < mMinWindowWidth || cur_size.mY < mMinWindowHeight)
+			{
+				setSizeImpl(LLCoordScreen(llmin(cur_size.mX, mMinWindowWidth), llmin(cur_size.mY, mMinWindowHeight)));
+			}
+		}
+	}
 }
 
 //virtual

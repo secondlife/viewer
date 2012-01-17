@@ -9,15 +9,6 @@
 	<floater.string name="move_tooltip">
 		Kamerayı Yukarı ve Aşağı, Sola ve Sağa Hareket Ettir
 	</floater.string>
-	<floater.string name="camera_modes_title">
-		Kamera modları
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Yörünge - Yakınlş. - Kamerayı Çvr.
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Ön Ayarlı Görünümler
-	</floater.string>
 	<floater.string name="free_mode_title">
 		Nesneyi Göster
 	</floater.string>

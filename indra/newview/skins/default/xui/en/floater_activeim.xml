@@ -6,7 +6,6 @@
 	title="ACTIVE IM"
 	height="22"
 	width="320"
-	follows="right|bottom"
 	background_visible="true"
 	can_close="true"
 	can_dock="true"

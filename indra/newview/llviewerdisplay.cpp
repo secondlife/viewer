@@ -230,7 +230,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		glClear(GL_COLOR_BUFFER_BIT);
 		gViewerWindow->getWindow()->swapBuffers();
 		LLPipeline::refreshCachedSettings();
-		LLPipeline::refreshRenderDeferred();
 		gPipeline.resizeScreenTexture();
 		gResizeScreenTexture = FALSE;
 		gWindowResized = FALSE;
@@ -616,9 +615,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		//Increment drawable frame counter
 		LLDrawable::incrementVisible();
-
-		LLPipeline::refreshCachedSettings();
-		LLPipeline::refreshRenderDeferred();
 
 		LLSpatialGroup::sNoDelete = TRUE;
 		LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
