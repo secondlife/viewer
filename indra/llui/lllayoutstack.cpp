@@ -314,6 +314,8 @@ void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL au
 	{
 		panel->mAutoResize = auto_resize;
 	}
+
+	mNeedsLayout = true;
 }
 
 void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_resize)
@@ -324,6 +326,8 @@ void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_
 	{
 		panel->mUserResize = user_resize;
 	}
+
+	mNeedsLayout = true;
 }
 
 
