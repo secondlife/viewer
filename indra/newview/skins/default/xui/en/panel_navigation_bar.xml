@@ -54,8 +54,6 @@
     width="800"
     height="2"/>
 	 <layout_stack
-       use_border="true"
-       bevel_style="none"
        follows="all"
        height="34"
        layout="topleft"
