@@ -122,9 +122,9 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	llassert(pNavmeshItem.get("landimpact").asInteger() >= 0);
 	mLandImpact = pNavmeshItem.get("landimpact").asInteger();
 
-	llassert(pNavmeshItem.has("fixed"));
-	llassert(pNavmeshItem.get("fixed").isBoolean());
-	mIsFixed = pNavmeshItem.get("fixed").asBoolean();
+	llassert(pNavmeshItem.has("permanent"));
+	llassert(pNavmeshItem.get("permanent").isBoolean());
+	mIsFixed = pNavmeshItem.get("permanent").asBoolean();
 
 	llassert(pNavmeshItem.has("walkable"));
 	llassert(pNavmeshItem.get("walkable").isBoolean());
@@ -136,19 +136,19 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 
 	llassert(pNavmeshItem.has("A"));
 	llassert(pNavmeshItem.get("A").isReal());
-	mA = pNavmeshItem.get("A").asReal();
+	mA = pNavmeshItem.get("A").asReal() * 100.0f;
 
 	llassert(pNavmeshItem.has("B"));
 	llassert(pNavmeshItem.get("B").isReal());
-	mB = pNavmeshItem.get("B").asReal();
+	mB = pNavmeshItem.get("B").asReal() * 100.0f;
 
 	llassert(pNavmeshItem.has("C"));
 	llassert(pNavmeshItem.get("C").isReal());
-	mC = pNavmeshItem.get("C").asReal();
+	mC = pNavmeshItem.get("C").asReal() * 100.0f;
 
 	llassert(pNavmeshItem.has("D"));
 	llassert(pNavmeshItem.get("D").isReal());
-	mD = pNavmeshItem.get("D").asReal();
+	mD = pNavmeshItem.get("D").asReal() * 100.0f;
 
 	llassert(pNavmeshItem.has("position"));
 	llassert(pNavmeshItem.get("position").isArray());
@@ -699,9 +699,9 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	firstData["fixed"] = bool(false);
 	firstData["walkable"] = bool(false);
 	firstData["phantom"] = bool(false);
-	firstData["A"] = F32(37.5f);
-	firstData["B"] = F32(7.8f);
-	firstData["C"] = F32(98.6f);
+	firstData["A"] = F32(0.375f);
+	firstData["B"] = F32(0.078f);
+	firstData["C"] = F32(0.986f);
 	firstData["D"] = F32(0.0f);
 	LLVector3 firstLocation(135.0f, 57.0f, 2.0f);
 	firstData["position"] = firstLocation.getValue();
@@ -714,10 +714,10 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	secondData["fixed"] = bool(false);
 	secondData["walkable"] = bool(false);
 	secondData["phantom"] = bool(true);
-	secondData["A"] = F32(30.5f);
-	secondData["B"] = F32(70.8f);
-	secondData["C"] = F32(100.0f);
-	secondData["D"] = F32(0.1f);
+	secondData["A"] = F32(0.305f);
+	secondData["B"] = F32(0.708f);
+	secondData["C"] = F32(1.0f);
+	secondData["D"] = F32(0.001f);
 	LLVector3 secondLocation(15.0f, 157.0f, 22.0f);
 	secondData["position"] = secondLocation.getValue();
 
@@ -729,10 +729,10 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	thirdData["fixed"] = bool(false);
 	thirdData["walkable"] = bool(true);
 	thirdData["phantom"] = bool(false);
-	thirdData["A"] = F32(58.5f);
-	thirdData["B"] = F32(8.0f);
-	thirdData["C"] = F32(2.0f);
-	thirdData["D"] = F32(15.5f);
+	thirdData["A"] = F32(0.585f);
+	thirdData["B"] = F32(0.08f);
+	thirdData["C"] = F32(0.02f);
+	thirdData["D"] = F32(0.155f);
 	LLVector3 thirdLocation(577.0f, 14.0f, -14.5f);
 	thirdData["position"] = thirdLocation.getValue();
 
@@ -744,8 +744,8 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	fourthData["fixed"] = bool(false);
 	fourthData["walkable"] = bool(true);
 	fourthData["phantom"] = bool(true);
-	fourthData["A"] = F32(100.0f);
-	fourthData["B"] = F32(100.0f);
+	fourthData["A"] = F32(1.0f);
+	fourthData["B"] = F32(1.0f);
 	fourthData["C"] = F32(0.0f);
 	fourthData["D"] = F32(0.0f);
 	LLVector3 fourthLocation(215.0f, 57.0f, 5.0f);
@@ -759,9 +759,9 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	fifthData["fixed"] = bool(true);
 	fifthData["walkable"] = bool(false);
 	fifthData["phantom"] = bool(false);
-	fifthData["A"] = F32(37.5f);
-	fifthData["B"] = F32(7.8f);
-	fifthData["C"] = F32(98.6f);
+	fifthData["A"] = F32(0.375f);
+	fifthData["B"] = F32(0.078f);
+	fifthData["C"] = F32(0.986f);
 	fifthData["D"] = F32(0.0f);
 	LLVector3 fifthLocation(135.0f, 57.0f, 2.0f);
 	fifthData["position"] = fifthLocation.getValue();
@@ -776,8 +776,8 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	sixthData["phantom"] = bool(true);
 	sixthData["A"] = F32(0.0f);
 	sixthData["B"] = F32(0.0f);
-	sixthData["C"] = F32(100.0f);
-	sixthData["D"] = F32(0.1f);
+	sixthData["C"] = F32(1.0f);
+	sixthData["D"] = F32(0.001f);
 	LLVector3 sixthLocation(315.0f, 57.0f, 12.0f);
 	sixthData["position"] = sixthLocation.getValue();
 
@@ -789,10 +789,10 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	seventhData["fixed"] = bool(true);
 	seventhData["walkable"] = bool(true);
 	seventhData["phantom"] = bool(false);
-	seventhData["A"] = F32(55.4f);
-	seventhData["B"] = F32(27.12f);
-	seventhData["C"] = F32(32.5f);
-	seventhData["D"] = F32(15.5f);
+	seventhData["A"] = F32(0.554f);
+	seventhData["B"] = F32(0.2712f);
+	seventhData["C"] = F32(0.325f);
+	seventhData["D"] = F32(0.155f);
 	LLVector3 seventhLocation(7.0f, 0.0f, 0.0f);
 	seventhData["position"] = seventhLocation.getValue();
 
@@ -804,10 +804,10 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 	eigthData["fixed"] = bool(true);
 	eigthData["walkable"] = bool(true);
 	eigthData["phantom"] = bool(true);
-	eigthData["A"] = F32(10.0f);
-	eigthData["B"] = F32(10.0f);
-	eigthData["C"] = F32(50.0f);
-	eigthData["D"] = F32(60.0f);
+	eigthData["A"] = F32(0.1f);
+	eigthData["B"] = F32(0.1f);
+	eigthData["C"] = F32(0.5f);
+	eigthData["D"] = F32(0.6f);
 	LLVector3 eigthLocation(25.0f, 7.0f, 5.0f);
 	eigthData["position"] = eigthLocation.getValue();
 
@@ -1189,10 +1189,10 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 		LLSD isFixed = (bool)isFixedBool;
 		LLSD isWalkable = (bool)isWalkableBool;
 		LLSD isPhantom = (bool)isPhantomBool;
-		LLSD a = aValue;
-		LLSD b = bValue;
-		LLSD c = cValue;
-		LLSD d = dValue;
+		LLSD a = aValue / 100.0f;
+		LLSD b = bValue / 100.0f;
+		LLSD c = cValue / 100.0f;
+		LLSD d = dValue / 100.0f;
 
 		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
 
@@ -1206,49 +1206,38 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 			const PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(uuid.asString());
 			const PathfindingLinkset &linkset = linksetIter->second;
 
-			llinfos << "Item changes:" << llendl;
-			llinfos << "      UUID:       " << uuid << llendl;
 			LLSD itemData;
 			if (linkset.isFixed() != isFixedBool)
 			{
-				itemData["fixed"] = isFixed;
-				llinfos << "      isFixed:    " << isFixed << llendl;
+				itemData["permanent"] = isFixed;
 			}
 			if (linkset.isWalkable() != isWalkableBool)
 			{
 				itemData["walkable"] = isWalkable;
-				llinfos << "      isWalkable: " << isWalkable << llendl;
 			}
 			if (linkset.isPhantom() != isPhantomBool)
 			{
 				itemData["phantom"] = isPhantom;
-				llinfos << "      isPhantom:  " << isPhantom << llendl;
 			}
 			if (linkset.getA() != aValue)
 			{
-				itemData["a"] = a;
-				llinfos << "      a:          " << a << llendl;
+				itemData["A"] = a;
 			}
 			if (linkset.getB() != bValue)
 			{
-				itemData["b"] = b;
-				llinfos << "      b:          " << b << llendl;
+				itemData["B"] = b;
 			}
 			if (linkset.getC() != cValue)
 			{
-				itemData["c"] = c;
-				llinfos << "      c:          " << c << llendl;
+				itemData["C"] = c;
 			}
 			if (linkset.getD() != dValue)
 			{
-				itemData["d"] = d;
-				llinfos << "      d:          " << d << llendl;
+				itemData["D"] = d;
 			}
 
-			llinfos << "      itemData:   " << itemData << llendl;
 			editData[uuid.asString()] = itemData;
 		}
-		llinfos << "All Data: " << editData << llendl;
 		if (editData.isUndefined())
 		{
 			llwarns << "No PUT data specified" << llendl;
