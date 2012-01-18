@@ -328,7 +328,8 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llprocesslauncher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llprocesslauncher "" "${test_libs}"
+                          "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/setpython.py")
   LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
