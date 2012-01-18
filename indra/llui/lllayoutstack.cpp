@@ -167,6 +167,11 @@ void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= 
 	if (!mIgnoreReshape && !mAutoResize)
 	{
 		mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
+		LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
+		if (stackp)
+		{
+			stackp->mNeedsLayout = true;
+		}
 	}
 	LLPanel::reshape(width, height, called_from_parent);
 }
