@@ -39,8 +39,6 @@
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
 
-static const F32 MAX_FRACTIONAL_VALUE = 0.99999f;
-
 void LLLayoutStack::OrientationNames::declareValues()
 {
 	declare("horizontal", HORIZONTAL);
@@ -328,6 +326,7 @@ void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_
 	}
 
 	mNeedsLayout = true;
+	updateFractionalSizes();
 }
 
 
@@ -527,8 +526,8 @@ void LLLayoutStack::updateFractionalSizes()
 		if (panelp->mAutoResize)
 		{
 			F32 panel_resizable_dim = llmax(0.f, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
-			panelp->mFractionalSize = llmin(MAX_FRACTIONAL_VALUE, (panel_resizable_dim == 0.f)
-																	? (1.f - MAX_FRACTIONAL_VALUE)
+			panelp->mFractionalSize = llmin(1.f, (panel_resizable_dim == 0.f)
+																	? 0.f
 																	: panel_resizable_dim / total_resizable_dim);
 			total_fractional_size += panelp->mFractionalSize;
 			// check for NaNs
@@ -714,7 +713,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 				F32 fractional_adjustment_factor = total_auto_resize_headroom / updated_auto_resize_headroom;
 				F32 new_fractional_size = llclamp(panelp->mFractionalSize * fractional_adjustment_factor,
 													0.f,
-													MAX_FRACTIONAL_VALUE);
+													1.f);
 				F32 fraction_delta = (new_fractional_size - panelp->mFractionalSize);
 				fraction_given_up -= fraction_delta;
 				fraction_remaining -= panelp->mFractionalSize;
@@ -731,7 +730,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			{	// freeze new size as fraction
 				F32 new_fractional_size = (updated_auto_resize_headroom == 0.f)
 					? 1.f
-					: llmin(MAX_FRACTIONAL_VALUE, ((F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom));
+					: llmin(1.f, ((F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom));
 				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
 				panelp->mFractionalSize = new_fractional_size;
@@ -747,11 +746,20 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		case NEXT_PANEL:
 			if (panelp->mAutoResize)
 			{
-				F32 new_fractional_size = (F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
-												/ updated_auto_resize_headroom;
-				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
-				panelp->mFractionalSize = new_fractional_size;
+				if (fraction_given_up != 0.f)
+				{
+					panelp->mFractionalSize += fraction_given_up;
+					fraction_given_up = 0.f;
+				}
+				else
+				{
+					F32 new_fractional_size = llmin(1.f, 
+													(F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
+														/ updated_auto_resize_headroom);
+					fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
+					panelp->mFractionalSize = new_fractional_size;
+				}
 			}
 			else
 			{
@@ -788,9 +796,9 @@ void LLLayoutStack::updateResizeBarLimits()
 		}
 
 		// toggle resize bars based on panel visibility, resizability, etc
-		if (visible_panelp->mUserResize 
-			&& previous_visible_panelp 
-			&& previous_visible_panelp->mUserResize)
+		if (previous_visible_panelp 
+			&& (visible_panelp->mUserResize 
+				|| previous_visible_panelp->mUserResize))
 		{
 			visible_panelp->mResizeBar->setVisible(TRUE);
 			visible_panelp->mResizeBar->setResizeLimits(visible_panelp->getRelevantMinDim(), 
