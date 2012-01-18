@@ -201,6 +201,7 @@ LLLayoutStack::Params::Params()
 	clip("clip", true),
 	open_time_constant("open_time_constant", 0.02f),
 	close_time_constant("close_time_constant", 0.03f),
+	resize_bar_overlap("resize_bar_overlap", 1),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
 {}
 
@@ -213,7 +214,8 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mNeedsLayout(true),
 	mClip(p.clip),
 	mOpenTimeConstant(p.open_time_constant),
-	mCloseTimeConstant(p.close_time_constant)
+	mCloseTimeConstant(p.close_time_constant),
+	mResizeBarOverlap(p.resize_bar_overlap)
 {}
 
 LLLayoutStack::~LLLayoutStack()
@@ -409,21 +411,20 @@ void LLLayoutStack::updateLayout()
 		panelp->setShape(panel_rect);
 		panelp->setIgnoreReshape(false);
 
-		static LLUICachedControl<S32> resize_bar_overlap ("UIResizeBarOverlap", 0);
 		LLRect resize_bar_rect(panel_rect);
 
 		F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
 		if (mOrientation == HORIZONTAL)
 		{
-			resize_bar_rect.mLeft = panel_rect.mRight - resize_bar_overlap;
-			resize_bar_rect.mRight = panel_rect.mRight + panel_spacing + resize_bar_overlap;
+			resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
+			resize_bar_rect.mRight = panel_rect.mRight + panel_spacing + mResizeBarOverlap;
 
 			cur_pos += panel_visible_dim + panel_spacing;
 		}
 		else //VERTICAL
 		{
-			resize_bar_rect.mTop = panel_rect.mBottom + resize_bar_overlap;
-			resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing - resize_bar_overlap;
+			resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
+			resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing - mResizeBarOverlap;
 
 			cur_pos -= panel_visible_dim + panel_spacing;
 		}

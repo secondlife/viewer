@@ -11378,17 +11378,6 @@
       <key>Value</key>
       <real>3</real>
     </map>
-    <key>UIResizeBarOverlap</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of UI resize bar overlap</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>1</real>
-    </map>
     <key>UIScaleFactor</key>
     <map>
       <key>Comment</key>
