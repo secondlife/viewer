@@ -71,8 +71,6 @@ static const char * const INBOX_BUTTON_NAME = "inbox_btn";
 static const char * const INBOX_LAYOUT_PANEL_NAME = "inbox_layout_panel";
 static const char * const MAIN_INVENTORY_LAYOUT_PANEL_NAME = "main_inventory_layout_panel";
 
-static const char * const INBOX_INVENTORY_PANEL = "inventory_inbox";
-
 static const char * const INVENTORY_LAYOUT_STACK_NAME = "inventory_layout_stack";
 
 static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
@@ -289,33 +287,43 @@ void LLSidepanelInventory::observeInboxCreation()
 void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 {
 	//
-	// Track inbox folder changes
+	// Silently do nothing if we already have an inbox inventory panel set up
+	// (this can happen multiple times on the initial session that creates the inbox)
 	//
-	
-	if (inboxID.isNull())
+
+	if (mInventoryPanelInbox != NULL)
 	{
-		llwarns << "Attempting to track modifications to non-existant inbox" << llendl;
 		return;
 	}
-	
+
+	//
+	// Track inbox folder changes
+	//
+
+	if (inboxID.isNull())
+	{
+		llwarns << "Attempting to track modifications to non-existent inbox" << llendl;
+		return;
+	}
+
 	if (mCategoriesObserver == NULL)
 	{
 		mCategoriesObserver = new LLInventoryCategoriesObserver();
 		gInventory.addObserver(mCategoriesObserver);
 	}
-	
+
 	mCategoriesObserver->addCategory(inboxID, boost::bind(&LLSidepanelInventory::onInboxChanged, this, inboxID));
-	
+
 	//
 	// Trigger a load for the entire contents of the Inbox
 	//
-	
+
 	LLInventoryModelBackgroundFetch::instance().start(inboxID);
-	
+
 	//
 	// Set up the inbox inventory view
 	//
-	
+
 	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
 	mInventoryPanelInbox = inbox->setupInventoryPanel();
 }
