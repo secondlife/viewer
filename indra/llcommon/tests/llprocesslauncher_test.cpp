@@ -12,7 +12,6 @@
 // Precompiled header
 #include "linden_common.h"
 // associated header
-#define WIN32_LEAN_AND_MEAN
 #include "llprocesslauncher.h"
 // STL headers
 #include <vector>
@@ -24,8 +23,8 @@
 #include "apr_thread_proc.h"
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp>
+//#include <boost/lambda/lambda.hpp>
+//#include <boost/lambda/bind.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/manageapr.h"
@@ -40,14 +39,161 @@
 #include <sys/wait.h>
 #endif
 
-namespace lambda = boost::lambda;
+//namespace lambda = boost::lambda;
 
 // static instance of this manages APR init/cleanup
 static ManageAPR manager;
 
+/*****************************************************************************
+*   Helpers
+*****************************************************************************/
+
 #define ensure_equals_(left, right) \
         ensure_equals(STRINGIZE(#left << " != " << #right), (left), (right))
+
 #define aprchk(expr) aprchk_(#expr, (expr))
+static void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
+{
+    tut::ensure_equals(STRINGIZE(call << " => " << rv << ": " << manager.strerror(rv)),
+                       rv, expected);
+}
+
+/**
+ * Read specified file using std::getline(). It is assumed to be an error if
+ * the file is empty: don't use this function if that's an acceptable case.
+ * Last line will not end with '\n'; this is to facilitate the usual case of
+ * string compares with a single line of output.
+ * @param pathname The file to read.
+ * @param desc Optional description of the file for error message;
+ * defaults to "in <pathname>"
+ */
+static std::string readfile(const std::string& pathname, const std::string& desc="")
+{
+    std::string use_desc(desc);
+    if (use_desc.empty())
+    {
+        use_desc = STRINGIZE("in " << pathname);
+    }
+    std::ifstream inf(pathname.c_str());
+    std::string output;
+    tut::ensure(STRINGIZE("No output " << use_desc), std::getline(inf, output));
+    std::string more;
+    while (std::getline(inf, more))
+    {
+        output += '\n' + more;
+    }
+    return output;
+}
+
+/**
+ * Construct an LLProcessLauncher to run a Python script.
+ */
+struct PythonProcessLauncher
+{
+    /**
+     * @param desc Arbitrary description for error messages
+     * @param script Python script, any form acceptable to NamedTempFile,
+     * typically either a std::string or an expression of the form
+     * (lambda::_1 << "script content with " << variable_data)
+     */
+    template <typename CONTENT>
+    PythonProcessLauncher(const std::string& desc, const CONTENT& script):
+        mDesc(desc),
+        mScript("py", script)
+    {
+        const char* PYTHON(getenv("PYTHON"));
+        tut::ensure("Set $PYTHON to the Python interpreter", PYTHON);
+
+        mPy.setExecutable(PYTHON);
+        mPy.addArgument(mScript.getName());
+    }
+
+    /// Run Python script and wait for it to complete.
+    void run()
+    {
+        tut::ensure_equals(STRINGIZE("Couldn't launch " << mDesc << " script"),
+                           mPy.launch(), 0);
+        // One of the irritating things about LLProcessLauncher is that
+        // there's no API to wait for the child to terminate -- but given
+        // its use in our graphics-intensive interactive viewer, it's
+        // understandable.
+        while (mPy.isRunning())
+        {
+            sleep(1);
+        }
+    }
+
+    /**
+     * Run a Python script using LLProcessLauncher, expecting that it will
+     * write to the file passed as its sys.argv[1]. Retrieve that output.
+     *
+     * Until January 2012, LLProcessLauncher provided distressingly few
+     * mechanisms for a child process to communicate back to its caller --
+     * not even its return code. We've introduced a convention by which we
+     * create an empty temp file, pass the name of that file to our child
+     * as sys.argv[1] and expect the script to write its output to that
+     * file. This function implements the C++ (parent process) side of
+     * that convention.
+     */
+    std::string run_read()
+    {
+        NamedTempFile out("out", ""); // placeholder
+        // pass name of this temporary file to the script
+        mPy.addArgument(out.getName());
+        run();
+        // assuming the script wrote to that file, read it
+        return readfile(out.getName(), STRINGIZE("from " << mDesc << " script"));
+    }
+
+    LLProcessLauncher mPy;
+    std::string mDesc;
+    NamedTempFile mScript;
+};
+
+/// convenience function for PythonProcessLauncher::run()
+template <typename CONTENT>
+static void python(const std::string& desc, const CONTENT& script)
+{
+    PythonProcessLauncher py(desc, script);
+    py.run();
+}
+
+/// convenience function for PythonProcessLauncher::run_read()
+template <typename CONTENT>
+static std::string python_out(const std::string& desc, const CONTENT& script)
+{
+    PythonProcessLauncher py(desc, script);
+    return py.run_read();
+}
+
+/// Create a temporary directory and clean it up later.
+class NamedTempDir: public boost::noncopyable
+{
+public:
+    // Use python() function to create a temp directory: I've found
+    // nothing in either Boost.Filesystem or APR quite like Python's
+    // tempfile.mkdtemp().
+    // Special extra bonus: on Mac, mkdtemp() reports a pathname
+    // starting with /var/folders/something, whereas that's really a
+    // symlink to /private/var/folders/something. Have to use
+    // realpath() to compare properly.
+    NamedTempDir():
+        mPath(python_out("mkdtemp()",
+                         "import os.path, sys, tempfile\n"
+                         "with open(sys.argv[1], 'w') as f:\n"
+                         "    f.write(os.path.realpath(tempfile.mkdtemp()))\n"))
+    {}
+
+    ~NamedTempDir()
+    {
+        aprchk(apr_dir_remove(mPath.c_str(), gAPRPoolp));
+    }
+
+    std::string getName() const { return mPath; }
+
+private:
+    std::string mPath;
+};
 
 /*****************************************************************************
 *   TUT
@@ -56,122 +202,6 @@ namespace tut
 {
     struct llprocesslauncher_data
     {
-        void aprchk_(const char* call, apr_status_t rv, apr_status_t expected=APR_SUCCESS)
-        {
-            ensure_equals(STRINGIZE(call << " => " << rv << ": " << manager.strerror(rv)),
-                          rv, expected);
-        }
-
-        /**
-         * Run a Python script using LLProcessLauncher.
-         * @param desc Arbitrary description for error messages
-         * @param script Python script, any form acceptable to NamedTempFile,
-         * typically either a std::string or an expression of the form
-         * (lambda::_1 << "script content with " << variable_data)
-         * @param arg If specified, will be passed to script as its
-         * sys.argv[1]
-         * @param tweak "Do something" to LLProcessLauncher object before
-         * calling its launch() method. This program is to test
-         * LLProcessLauncher, but many such tests are "just like" this
-         * python() function but for one or two extra method calls before
-         * launch(). This avoids us having to clone & edit this function for
-         * such tests.
-         */
-        template <typename CONTENT>
-        void python(const std::string& desc, const CONTENT& script, const std::string& arg="",
-                    const boost::function<void (LLProcessLauncher&)> tweak=lambda::_1)
-        {
-            const char* PYTHON(getenv("PYTHON"));
-            ensure("Set $PYTHON to the Python interpreter", PYTHON);
-
-            NamedTempFile scriptfile("py", script);
-            LLProcessLauncher py;
-            py.setExecutable(PYTHON);
-            py.addArgument(scriptfile.getName());
-            if (! arg.empty())
-            {
-                py.addArgument(arg);
-            }
-            tweak(py);
-            ensure_equals(STRINGIZE("Couldn't launch " << desc << " script"), py.launch(), 0);
-            // One of the irritating things about LLProcessLauncher is that
-            // there's no API to wait for the child to terminate -- but given
-            // its use in our graphics-intensive interactive viewer, it's
-            // understandable.
-            while (py.isRunning())
-            {
-                sleep(1);
-            }
-        }
-
-        /**
-         * Run a Python script using LLProcessLauncher, expecting that it will
-         * write to the file passed as its sys.argv[1]. Retrieve that output.
-         *
-         * Until January 2012, LLProcessLauncher provided distressingly few
-         * mechanisms for a child process to communicate back to its caller --
-         * not even its return code. We've introduced a convention by which we
-         * create an empty temp file, pass the name of that file to our child
-         * as sys.argv[1] and expect the script to write its output to that
-         * file. This function implements the C++ (parent process) side of
-         * that convention.
-         *
-         * @param desc as for python()
-         * @param script as for python()
-         * @param tweak as for python()
-         */
-        template <typename CONTENT>
-        std::string python_out(const std::string& desc, const CONTENT& script,
-                               const boost::function<void (LLProcessLauncher&)> tweak=lambda::_1)
-        {
-            NamedTempFile out("out", ""); // placeholder
-            // pass name of this temporary file to the script
-            python(desc, script, out.getName(), tweak);
-            // assuming the script wrote a line to that file, read it
-            std::string output;
-            {
-                std::ifstream inf(out.getName().c_str());
-                ensure(STRINGIZE("No output from " << desc << " script"),
-                       std::getline(inf, output));
-                std::string more;
-                while (std::getline(inf, more))
-                {
-                    output += '\n' + more;
-                }
-            } // important to close inf BEFORE removing NamedTempFile
-            return output;
-        }
-
-        class NamedTempDir
-        {
-        public:
-            // Use python() function to create a temp directory: I've found
-            // nothing in either Boost.Filesystem or APR quite like Python's
-            // tempfile.mkdtemp().
-            // Special extra bonus: on Mac, mkdtemp() reports a pathname
-            // starting with /var/folders/something, whereas that's really a
-            // symlink to /private/var/folders/something. Have to use
-            // realpath() to compare properly.
-            NamedTempDir(llprocesslauncher_data* ths):
-                mThis(ths),
-                mPath(ths->python_out("mkdtemp()",
-                                      "import os.path, sys, tempfile\n"
-                                      "with open(sys.argv[1], 'w') as f:\n"
-                                      "    f.write(os.path.realpath(tempfile.mkdtemp()))\n"))
-            {}
-
-            ~NamedTempDir()
-            {
-                mThis->aprchk(apr_dir_remove(mPath.c_str(), gAPRPoolp));
-            }
-
-            std::string getName() const { return mPath; }
-
-        private:
-            llprocesslauncher_data* mThis;
-            std::string mPath;
-        };
-
         LLAPRPool pool;
     };
     typedef test_group<llprocesslauncher_data> llprocesslauncher_group;
@@ -484,15 +514,13 @@ namespace tut
         // We want to test setWorkingDirectory(). But what directory is
         // guaranteed to exist on every machine, under every OS? Have to
         // create one.
-        NamedTempDir tempdir(this);
-        std::string cwd(python_out("getcwd()",
-                                   "import os, sys\n"
-                                   "with open(sys.argv[1], 'w') as f:\n"
-                                   "    f.write(os.getcwd())\n",
-                                   // Before LLProcessLauncher::launch(), call setWorkingDirectory()
-                                   lambda::bind(&LLProcessLauncher::setWorkingDirectory,
-                                                lambda::_1,
-                                                tempdir.getName())));
-        ensure_equals("os.getcwd()", cwd, tempdir.getName());
+        NamedTempDir tempdir;
+        PythonProcessLauncher py("getcwd()",
+                                 "import os, sys\n"
+                                 "with open(sys.argv[1], 'w') as f:\n"
+                                 "    f.write(os.getcwd())\n");
+        // Before running, call setWorkingDirectory()
+        py.mPy.setWorkingDirectory(tempdir.getName());
+        ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
     }
 } // namespace tut
