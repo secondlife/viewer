@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_inventory">
+	<text name="title">
+		Enregistrer dans mon inventaire
+	</text>
+	<text name="hint_lbl">
+		L&apos;enregistrement d&apos;une image dans votre inventaire coûte [UPLOAD_COST] L$. Pour enregistrer votre image sous forme de texture, sélectionnez l&apos;un des formats carrés.
+	</text>
+	<combo_box label="Résolution" name="texture_size_combo">
+		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
+		<combo_box.item label="Petite (128 x 128)" name="Small(128x128)"/>
+		<combo_box.item label="Moyenne (256 x 256)" name="Medium(256x256)"/>
+		<combo_box.item label="Grande (512 x 512)" name="Large(512x512)"/>
+		<combo_box.item label="Personnalisée" name="Custom"/>
+	</combo_box>
+	<spinner label="Largeur" name="inventory_snapshot_width"/>
+	<spinner label="Hauteur" name="inventory_snapshot_height"/>
+	<check_box label="Conserver les proportions" name="inventory_keep_aspect_check"/>
+	<button label="Annuler" name="cancel_btn"/>
+	<button label="Enregistrer" name="save_btn"/>
+</panel>

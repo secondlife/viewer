@@ -20,8 +20,8 @@ Si sigues recibiendo este mensaje, por favor, acude al [SUPPORT_SITE].
 Vuelva a intentarlo en un momento.
 		</message>
 		<message name="NoHelpIslandTP">
-		No puede teleportarse de vuelta a la Welcome Island (&apos;Isla de Ayuda&apos;).
-Vaya a la &apos;Welcome Island Public&apos; (&apos;Isla Pública de Ayuda&apos;) para repetir el tutorial.
+			No te puedes volver a teleportar a la isla de bienvenida.
+Para repetir el tutorial, visita la isla de bienvenida pública.
 		</message>
 		<message name="noaccess_tport">
 			Lo sentimos, pero no tienes acceso al destino de este teleporte.

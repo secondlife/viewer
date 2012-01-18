@@ -15,7 +15,7 @@
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usar meu navegador (IE, Firefox, Safari)" name="external" tool_tip="Use o navegador incluso para consultar a ajuda, abrir links da web, etc. Uso em tela inteira não recomendado." value="1"/>
+		<radio_item label="Usar meu navegador (IE, Firefox, Safari)" name="external" tool_tip="Use o navegador incluso para consultar a ajuda, abrir links da web, etc. Uso em tela inteira não recomendado." value="true"/>
 		<radio_item label="Usar navegador incluso" name="internal" tool_tip="Use este navegador para consultar a ajuda, abrir links da web, etc. As janelas abrem dentro do [APP_NAME]." value=""/>
 	</radio_group>
 	<check_box initial_value="true" label="Habilitar plugins" name="browser_plugins_enabled"/>

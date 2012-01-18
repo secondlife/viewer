@@ -20,6 +20,9 @@
 				Choisir un fichier de modèle à charger
 			</text>
 			<button label="Parcourir..." label_selected="Parcourir..." name="browse"/>
+			<text name="Model types">
+				Second Life prend en charge les fichiers COLLADA (.dae).
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>

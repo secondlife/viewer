@@ -107,10 +107,13 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 			{
 				return FALSE;
 			}
-			
-			if (!shader->attachObject("lighting/sumLightsSpecularV.glsl"))
+		
+			if (!features->isAlphaLighting)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/sumLightsSpecularV.glsl"))
+				{
+					return FALSE;
+				}
 			}
 			
 			if (!shader->attachObject("lighting/lightSpecularV.glsl"))
@@ -125,9 +128,12 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				return FALSE;
 			}
 			
-			if (!shader->attachObject("lighting/sumLightsV.glsl"))
+			if (!features->isAlphaLighting)
 			{
-				return FALSE;
+				if (!shader->attachObject("lighting/sumLightsV.glsl"))
+				{
+					return FALSE;
+				}
 			}
 			
 			if (!shader->attachObject("lighting/lightV.glsl"))
@@ -296,7 +302,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 				}
 				shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 			}
-		}		
+		}
 	}
 	
 	// NOTE order of shader object attaching is VERY IMPORTANT!!!
@@ -579,7 +585,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("#define ATTRIBUTE attribute\n");
 		text[count++] = strdup("#define VARYING varying\n");
 	}
-	else if (version < 3.f)
+	else if (version < 3.3f)
 	{
 		//set version to 1.20
 		text[count++] = strdup("#version 120\n");

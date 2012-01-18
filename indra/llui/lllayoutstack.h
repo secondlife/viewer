@@ -60,6 +60,7 @@ public:
 								clip;
 		Optional<F32>			open_time_constant,
 								close_time_constant;
+		Optional<S32>			resize_bar_overlap;
 
 		Params();
 	};
@@ -122,9 +123,10 @@ private:
 	bool mAnimatedThisFrame;
 	bool mAnimate;
 	bool mClip;
-	F32 mOpenTimeConstant;
-	F32 mCloseTimeConstant;
+	F32  mOpenTimeConstant;
+	F32  mCloseTimeConstant;
 	bool mNeedsLayout;
+	S32  mResizeBarOverlap;
 }; // end class LLLayoutStack
 
 
