@@ -417,14 +417,14 @@ void LLLayoutStack::updateLayout()
 		if (mOrientation == HORIZONTAL)
 		{
 			resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
-			resize_bar_rect.mRight = panel_rect.mRight + panel_spacing + mResizeBarOverlap;
+			resize_bar_rect.mRight = panel_rect.mRight + (S32)(llround(panel_spacing)) + mResizeBarOverlap;
 
 			cur_pos += panel_visible_dim + panel_spacing;
 		}
 		else //VERTICAL
 		{
 			resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
-			resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing - mResizeBarOverlap;
+			resize_bar_rect.mBottom = panel_rect.mBottom - (S32)(llround(panel_spacing)) - mResizeBarOverlap;
 
 			cur_pos -= panel_visible_dim + panel_spacing;
 		}
