@@ -23,6 +23,8 @@
 #include "apr_thread_proc.h"
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
+#include <boost/algorithm/string/find_iterator.hpp>
+#include <boost/algorithm/string/finder.hpp>
 //#include <boost/lambda/lambda.hpp>
 //#include <boost/lambda/bind.hpp>
 // other Linden headers
@@ -513,7 +515,7 @@ namespace tut
         set_test_name("setWorkingDirectory()");
         // We want to test setWorkingDirectory(). But what directory is
         // guaranteed to exist on every machine, under every OS? Have to
-        // create one.
+        // create one. Naturally, ensure we clean it up when done.
         NamedTempDir tempdir;
         PythonProcessLauncher py("getcwd()",
                                  "import os, sys\n"
@@ -522,5 +524,81 @@ namespace tut
         // Before running, call setWorkingDirectory()
         py.mPy.setWorkingDirectory(tempdir.getName());
         ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
+    }
+
+    template<> template<>
+    void object::test<4>()
+    {
+        set_test_name("clearArguments()");
+        PythonProcessLauncher py("args",
+                                 "import sys\n"
+                                 // note nonstandard output-file arg!
+                                 "with open(sys.argv[3], 'w') as f:\n"
+                                 "    for arg in sys.argv[1:]:\n"
+                                 "        print >>f, arg\n");
+        // We expect that PythonProcessLauncher has already called
+        // addArgument() with the name of its own NamedTempFile. But let's
+        // change it up.
+        py.mPy.clearArguments();
+        // re-add script pathname
+        py.mPy.addArgument(py.mScript.getName()); // sys.argv[0]
+        py.mPy.addArgument("first arg");          // sys.argv[1]
+        py.mPy.addArgument("second arg");         // sys.argv[2]
+        // run_read() calls addArgument() one more time, hence [3]
+        std::string output(py.run_read());
+        boost::split_iterator<std::string::const_iterator>
+            li(output, boost::first_finder("\n")), lend;
+        ensure("didn't get first arg", li != lend);
+        std::string arg(li->begin(), li->end());
+        ensure_equals(arg, "first arg");
+        ++li;
+        ensure("didn't get second arg", li != lend);
+        arg.assign(li->begin(), li->end());
+        ensure_equals(arg, "second arg");
+        ++li;
+        ensure("didn't get output filename?!", li != lend);
+        arg.assign(li->begin(), li->end());
+        ensure("output filename empty?!", ! arg.empty());
+        ++li;
+        ensure("too many args", li == lend);
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("kill()");
+        PythonProcessLauncher py("kill()",
+                                 "import sys, time\n"
+                                 "with open(sys.argv[1], 'w') as f:\n"
+                                 "    f.write('ok')\n"
+                                 "# now sleep; expect caller to kill\n"
+                                 "time.sleep(120)\n"
+                                 "# if caller hasn't managed to kill by now, bad\n"
+                                 "with open(sys.argv[1], 'w') as f:\n"
+                                 "    f.write('bad')\n");
+        NamedTempFile out("out", "not started");
+        py.mPy.addArgument(out.getName());
+        ensure_equals("couldn't launch kill() script", py.mPy.launch(), 0);
+        // Wait for the script to wake up and do its first write
+        int i = 0, timeout = 60;
+        for ( ; i < timeout; ++i)
+        {
+            sleep(1);
+            if (readfile(out.getName(), "from kill() script") == "ok")
+                break;
+        }
+        // If we broke this loop because of the counter, something's wrong
+        ensure("script never started", i < timeout);
+        // script has performed its first write and should now be sleeping.
+        py.mPy.kill();
+        // wait for the script to terminate... one way or another.
+        while (py.mPy.isRunning())
+        {
+            sleep(1);
+        }
+        // If kill() failed, the script would have woken up on its own and
+        // overwritten the file with 'bad'. But if kill() succeeded, it should
+        // not have had that chance.
+        ensure_equals("kill() script output", readfile(out.getName()), "ok");
     }
 } // namespace tut
