@@ -16,8 +16,9 @@
 #include "apr_file_io.h"
 #include <string>
 #include <boost/function.hpp>
-#include "boost/lambda/lambda.hpp"
-#include "boost/lambda/bind.hpp"
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
+#include <boost/noncopyable.hpp>
 #include <iostream>
 #include <sstream>
 
@@ -25,7 +26,7 @@
  * Create a text file with specified content "somewhere in the
  * filesystem," cleaning up when it goes out of scope.
  */
-class NamedTempFile
+class NamedTempFile: public boost::noncopyable
 {
 public:
     NamedTempFile(const std::string& pfx, const std::string& content, apr_pool_t* pool=gAPRPoolp):
