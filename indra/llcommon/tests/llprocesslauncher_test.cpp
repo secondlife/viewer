@@ -181,6 +181,7 @@ public:
     // realpath() to compare properly.
     NamedTempDir():
         mPath(python_out("mkdtemp()",
+                         "from __future__ import with_statement\n"
                          "import os.path, sys, tempfile\n"
                          "with open(sys.argv[1], 'w') as f:\n"
                          "    f.write(os.path.realpath(tempfile.mkdtemp()))\n"))
@@ -518,6 +519,7 @@ namespace tut
         // create one. Naturally, ensure we clean it up when done.
         NamedTempDir tempdir;
         PythonProcessLauncher py("getcwd()",
+                                 "from __future__ import with_statement\n"
                                  "import os, sys\n"
                                  "with open(sys.argv[1], 'w') as f:\n"
                                  "    f.write(os.getcwd())\n");
@@ -531,6 +533,7 @@ namespace tut
     {
         set_test_name("clearArguments()");
         PythonProcessLauncher py("args",
+                                 "from __future__ import with_statement\n"
                                  "import sys\n"
                                  // note nonstandard output-file arg!
                                  "with open(sys.argv[3], 'w') as f:\n"
@@ -568,6 +571,7 @@ namespace tut
     {
         set_test_name("explicit kill()");
         PythonProcessLauncher py("kill()",
+                                 "from __future__ import with_statement\n"
                                  "import sys, time\n"
                                  "with open(sys.argv[1], 'w') as f:\n"
                                  "    f.write('ok')\n"
@@ -610,6 +614,7 @@ namespace tut
         LLProcessLauncher::ll_pid_t pid(0);
         {
             PythonProcessLauncher py("kill()",
+                                     "from __future__ import with_statement\n"
                                      "import sys, time\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ok')\n"
@@ -655,6 +660,7 @@ namespace tut
         LLProcessLauncher::ll_pid_t pid(0);
         {
             PythonProcessLauncher py("orphan()",
+                                     "from __future__ import with_statement\n"
                                      "import sys, time\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ok')\n"
