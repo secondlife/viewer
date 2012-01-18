@@ -36,6 +36,7 @@
 #include "llfloaterreg.h"
 #include "lltextbase.h"
 #include "lllineeditor.h"
+#include "llscrolllistitem.h"
 #include "llscrolllistctrl.h"
 #include "llcheckboxctrl.h"
 #include "llbutton.h"
@@ -67,6 +68,26 @@ private:
 	NavmeshDataGetResponder(const NavmeshDataGetResponder& pOther);
 
 	std::string                  mNavmeshDataGetURL;
+	LLFloaterPathfindingLinksets *mLinksetsFloater;
+};
+
+//---------------------------------------------------------------------------
+// NavmeshDataPutResponder
+//---------------------------------------------------------------------------
+
+class NavmeshDataPutResponder : public LLHTTPClient::Responder
+{
+public:
+	NavmeshDataPutResponder(const std::string& pNavmeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	virtual ~NavmeshDataPutResponder();
+
+	virtual void result(const LLSD& pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
+
+private:
+	NavmeshDataPutResponder(const NavmeshDataPutResponder& pOther);
+
+	std::string                  mNavmeshDataPutURL;
 	LLFloaterPathfindingLinksets *mLinksetsFloater;
 };
 
@@ -815,23 +836,32 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 		mPathfindingLinksets.clearLinksets();
 		updateLinksetsList();
 
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region != NULL)
+		std::string navmeshDataURL = this->getCapabilityURL();
+		if (navmeshDataURL.empty())
 		{
-			std::string navmeshDataURL = region->getCapability("ObjectNavmesh");
-			if (navmeshDataURL.empty())
-			{
-				setFetchState(kFetchComplete);
-				llwarns << "cannot query navmesh data from current region '" << region->getName() << "'" << llendl;
-			}
-			else
-			{
-				setFetchState(kFetchRequestSent);
-				LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
-			}
+			setFetchState(kFetchComplete);
+			llwarns << "cannot query navmesh data from current region '" << getRegionName() << "'" << llendl;
+		}
+		else
+		{
+			setFetchState(kFetchRequestSent);
+			LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
 		}
 	}
 #endif
+}
+
+void LLFloaterPathfindingLinksets::sendNavmeshDataPutRequest(const LLSD& pPostData)
+{
+	std::string navmeshDataURL = this->getCapabilityURL();
+	if (navmeshDataURL.empty())
+	{
+		llwarns << "cannot put navmesh data for current region '" << getRegionName() << "'" << llendl;
+	}
+	else
+	{
+		LLHTTPClient::put(navmeshDataURL, pPostData, new NavmeshDataPutResponder(navmeshDataURL, this));
+	}
 }
 
 void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmeshData)
@@ -848,6 +878,48 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetError(const std::string& 
 	mPathfindingLinksets.clearLinksets();
 	updateLinksetsList();
 	llwarns << "Error fetching navmesh data from URL '" << pURL << "' because " << pErrorReason << llendl;
+}
+
+void LLFloaterPathfindingLinksets::handleNavmeshDataPutReply(const LLSD& pModifiedData)
+{
+	setFetchState(kFetchReceived);
+	mPathfindingLinksets.parseNavmeshData(pModifiedData);
+	updateLinksetsList();
+	setFetchState(kFetchComplete);
+}
+
+void LLFloaterPathfindingLinksets::handleNavmeshDataPutError(const std::string& pURL, const std::string& pErrorReason)
+{
+	setFetchState(kFetchError);
+	mPathfindingLinksets.clearLinksets();
+	updateLinksetsList();
+	llwarns << "Error putting navmesh data to URL '" << pURL << "' because " << pErrorReason << llendl;
+}
+
+std::string LLFloaterPathfindingLinksets::getRegionName() const
+{
+	std::string regionName("");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		regionName = region->getName();
+	}
+
+	return regionName;
+}
+
+std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
+{
+	std::string navmeshDataURL("");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		navmeshDataURL = region->getCapability("ObjectNavmesh");
+	}
+
+	return navmeshDataURL;
 }
 
 void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)
@@ -1099,44 +1171,93 @@ void LLFloaterPathfindingLinksets::updateEditFields()
 
 void LLFloaterPathfindingLinksets::applyEditFields()
 {
-	BOOL isFixedBool = mEditFixed->getValue();
-	BOOL isWalkableBool = mEditWalkable->getValue();
-	BOOL isPhantomBool = mEditPhantom->getValue();
-	const std::string &aString = mEditA->getText();
-	const std::string &bString = mEditB->getText();
-	const std::string &cString = mEditC->getText();
-	const std::string &dString = mEditD->getText();
-	F32 aValue = (F32)atof(aString.c_str());
-	F32 bValue = (F32)atof(bString.c_str());
-	F32 cValue = (F32)atof(cString.c_str());
-	F32 dValue = (F32)atof(dString.c_str());
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	if (!selectedItems.empty())
+	{
+		BOOL isFixedBool = mEditFixed->getValue();
+		BOOL isWalkableBool = mEditWalkable->getValue();
+		BOOL isPhantomBool = mEditPhantom->getValue();
+		const std::string &aString = mEditA->getText();
+		const std::string &bString = mEditB->getText();
+		const std::string &cString = mEditC->getText();
+		const std::string &dString = mEditD->getText();
+		F32 aValue = (F32)atof(aString.c_str());
+		F32 bValue = (F32)atof(bString.c_str());
+		F32 cValue = (F32)atof(cString.c_str());
+		F32 dValue = (F32)atof(dString.c_str());
 
-	LLSD isFixed = (bool)isFixedBool;
-	LLSD isWalkable = (bool)isWalkableBool;
-	LLSD isPhantom = (bool)isPhantomBool;
-	LLSD a = aValue;
-	LLSD b = bValue;
-	LLSD c = cValue;
-	LLSD d = dValue;
+		LLSD isFixed = (bool)isFixedBool;
+		LLSD isWalkable = (bool)isWalkableBool;
+		LLSD isPhantom = (bool)isPhantomBool;
+		LLSD a = aValue;
+		LLSD b = bValue;
+		LLSD c = cValue;
+		LLSD d = dValue;
 
-	LLSD applyData;
-	applyData["fixed"] = isFixed;
-	applyData["walkable"] = isWalkable;
-	applyData["phantom"] = isPhantom;
-	applyData["a"] = a;
-	applyData["b"] = b;
-	applyData["c"] = c;
-	applyData["d"] = d;
+		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
 
-	llinfos << "Apply changes:" << llendl;
-	llinfos << "      isFixed:    " << isFixed << llendl;
-	llinfos << "      isWalkable: " << isWalkable << llendl;
-	llinfos << "      isPhantom:  " << isPhantom << llendl;
-	llinfos << "      a:          " << a << llendl;
-	llinfos << "      b:          " << b << llendl;
-	llinfos << "      c:          " << c << llendl;
-	llinfos << "      d:          " << d << llendl;
-	llinfos << "      applyData:  " << applyData << llendl;
+		LLSD editData;
+		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
+			itemIter != selectedItems.end(); ++itemIter)
+		{
+			const LLScrollListItem *listItem = *itemIter;
+			LLUUID uuid = listItem->getUUID();
+
+			const PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(uuid.asString());
+			const PathfindingLinkset &linkset = linksetIter->second;
+
+			llinfos << "Item changes:" << llendl;
+			llinfos << "      UUID:       " << uuid << llendl;
+			LLSD itemData;
+			if (linkset.isFixed() != isFixedBool)
+			{
+				itemData["fixed"] = isFixed;
+				llinfos << "      isFixed:    " << isFixed << llendl;
+			}
+			if (linkset.isWalkable() != isWalkableBool)
+			{
+				itemData["walkable"] = isWalkable;
+				llinfos << "      isWalkable: " << isWalkable << llendl;
+			}
+			if (linkset.isPhantom() != isPhantomBool)
+			{
+				itemData["phantom"] = isPhantom;
+				llinfos << "      isPhantom:  " << isPhantom << llendl;
+			}
+			if (linkset.getA() != aValue)
+			{
+				itemData["a"] = a;
+				llinfos << "      a:          " << a << llendl;
+			}
+			if (linkset.getB() != bValue)
+			{
+				itemData["b"] = b;
+				llinfos << "      b:          " << b << llendl;
+			}
+			if (linkset.getC() != cValue)
+			{
+				itemData["c"] = c;
+				llinfos << "      c:          " << c << llendl;
+			}
+			if (linkset.getD() != dValue)
+			{
+				itemData["d"] = d;
+				llinfos << "      d:          " << d << llendl;
+			}
+
+			llinfos << "      itemData:   " << itemData << llendl;
+			editData[uuid.asString()] = itemData;
+		}
+		llinfos << "All Data: " << editData << llendl;
+		if (editData.isUndefined())
+		{
+			llwarns << "No PUT data specified" << llendl;
+		}
+		else
+		{
+			sendNavmeshDataPutRequest(editData);
+		}
+	}
 }
 
 void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
@@ -1179,4 +1300,29 @@ void NavmeshDataGetResponder::result(const LLSD& pContent)
 void NavmeshDataGetResponder::error(U32 status, const std::string& reason)
 {
 	mLinksetsFloater->handleNavmeshDataGetError(mNavmeshDataGetURL, reason);
+}
+
+//---------------------------------------------------------------------------
+// NavmeshDataPutResponder
+//---------------------------------------------------------------------------
+
+NavmeshDataPutResponder::NavmeshDataPutResponder(const std::string& pNavmeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+	: mNavmeshDataPutURL(pNavmeshDataPutURL),
+	mLinksetsFloater(pLinksetsFloater)
+{
+}
+
+NavmeshDataPutResponder::~NavmeshDataPutResponder()
+{
+	mLinksetsFloater = NULL;
+}
+
+void NavmeshDataPutResponder::result(const LLSD& pContent)
+{
+	mLinksetsFloater->handleNavmeshDataPutReply(pContent);
+}
+
+void NavmeshDataPutResponder::error(U32 status, const std::string& reason)
+{
+	mLinksetsFloater->handleNavmeshDataPutError(mNavmeshDataPutURL, reason);
 }

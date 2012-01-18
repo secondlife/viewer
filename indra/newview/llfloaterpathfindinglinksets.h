@@ -162,6 +162,7 @@ class LLFloaterPathfindingLinksets
 {
 	friend class LLFloaterReg;
 	friend class NavmeshDataGetResponder;
+	friend class NavmeshDataPutResponder;
 
 public:
 	typedef enum
@@ -214,8 +215,15 @@ private:
 	virtual ~LLFloaterPathfindingLinksets();
 
 	void sendNavmeshDataGetRequest();
+	void sendNavmeshDataPutRequest(const LLSD& pPostData);
 	void handleNavmeshDataGetReply(const LLSD& pNavmeshData);
 	void handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
+	void handleNavmeshDataPutReply(const LLSD& pModifiedData);
+	void handleNavmeshDataPutError(const std::string& pURL, const std::string& pErrorReason);
+
+	std::string getRegionName() const;
+	std::string getCapabilityURL() const;
+
 	void setFetchState(EFetchState pFetchState);
 
 	void onApplyFiltersClicked();
