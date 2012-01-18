@@ -560,6 +560,21 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditPhantom = findChild<LLCheckBoxCtrl>("edit_phantom_value");
 	llassert(mEditPhantom != NULL);
 
+	mLabelWalkabilityCoefficients = findChild<LLTextBase>("walkability_coefficients_label");
+	llassert(mLabelWalkabilityCoefficients != NULL);
+
+	mLabelEditA = findChild<LLTextBase>("edit_a_label");
+	llassert(mLabelEditA != NULL);
+
+	mLabelEditB = findChild<LLTextBase>("edit_b_label");
+	llassert(mLabelEditB != NULL);
+
+	mLabelEditC = findChild<LLTextBase>("edit_c_label");
+	llassert(mLabelEditC != NULL);
+
+	mLabelEditD = findChild<LLTextBase>("edit_d_label");
+	llassert(mLabelEditD != NULL);
+
 	mEditA = findChild<LLLineEditor>("edit_a_value");
 	llassert(mEditA != NULL);
 	mEditA->setPrevalidate(LLTextValidate::validateFloat);
@@ -579,8 +594,8 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mApplyEdits = findChild<LLButton>("apply_edit_values");
 	llassert(mApplyEdits != NULL);
 	mApplyEdits->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyChangesClicked, this));
-	mApplyEdits->setEnabled(false);
 
+	setEnableEditFields(false);
 	setFetchState(kFetchInitial);
 
 	return LLFloater::postBuild();
@@ -632,6 +647,12 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mFilterByWalkable(NULL),
 	mEditFixed(NULL),
 	mEditWalkable(NULL),
+	mEditPhantom(NULL),
+	mLabelWalkabilityCoefficients(NULL),
+	mLabelEditA(NULL),
+	mLabelEditB(NULL),
+	mLabelEditC(NULL),
+	mLabelEditD(NULL),
 	mEditA(NULL),
 	mEditB(NULL),
 	mEditC(NULL),
@@ -1054,7 +1075,7 @@ void LLFloaterPathfindingLinksets::updateEditFields()
 		mEditC->clear();
 		mEditD->clear();
 
-		mApplyEdits->setEnabled(false);
+		setEnableEditFields(false);
 	}
 	else
 	{
@@ -1072,7 +1093,7 @@ void LLFloaterPathfindingLinksets::updateEditFields()
 		mEditC->setValue(LLSD(linkset.getC()));
 		mEditD->setValue(LLSD(linkset.getD()));
 
-		mApplyEdits->setEnabled(true);
+		setEnableEditFields(true);
 	}
 }
 
@@ -1116,6 +1137,23 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 	llinfos << "      c:          " << c << llendl;
 	llinfos << "      d:          " << d << llendl;
 	llinfos << "      applyData:  " << applyData << llendl;
+}
+
+void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
+{
+	mEditFixed->setEnabled(pEnabled);
+	mEditWalkable->setEnabled(pEnabled);
+	mEditPhantom->setEnabled(pEnabled);
+	mLabelWalkabilityCoefficients->setEnabled(pEnabled);
+	mLabelEditA->setEnabled(pEnabled);
+	mLabelEditB->setEnabled(pEnabled);
+	mLabelEditC->setEnabled(pEnabled);
+	mLabelEditD->setEnabled(pEnabled);
+	mEditA->setEnabled(pEnabled);
+	mEditB->setEnabled(pEnabled);
+	mEditC->setEnabled(pEnabled);
+	mEditD->setEnabled(pEnabled);
+	mApplyEdits->setEnabled(pEnabled);
 }
 
 //---------------------------------------------------------------------------

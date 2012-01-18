@@ -197,6 +197,11 @@ private:
 	LLCheckBoxCtrl      *mEditFixed;
 	LLCheckBoxCtrl      *mEditWalkable;
 	LLCheckBoxCtrl      *mEditPhantom;
+	LLTextBase          *mLabelWalkabilityCoefficients;
+	LLTextBase          *mLabelEditA;
+	LLTextBase          *mLabelEditB;
+	LLTextBase          *mLabelEditC;
+	LLTextBase          *mLabelEditD;
 	LLLineEditor        *mEditA;
 	LLLineEditor        *mEditB;
 	LLLineEditor        *mEditC;
@@ -232,6 +237,7 @@ private:
 
 	void updateEditFields();
 	void applyEditFields();
+	void setEnableEditFields(BOOL pEnabled);
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H
