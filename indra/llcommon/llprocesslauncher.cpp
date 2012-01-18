@@ -143,18 +143,25 @@ int LLProcessLauncher::launch(void)
 
 bool LLProcessLauncher::isRunning(void)
 {
-	if(mProcessHandle != 0)		
-	{
-		DWORD waitresult = WaitForSingleObject(mProcessHandle, 0);
-		if(waitresult == WAIT_OBJECT_0)
-		{
-			// the process has completed.
-			mProcessHandle = 0;
-		}			
-	}
-
+	mProcessHandle = isRunning(mProcessHandle);
 	return (mProcessHandle != 0);
 }
+
+LLProcessLauncher::ll_pid_t LLProcessLauncher::isRunning(ll_pid_t handle)
+{
+	if (! handle)
+		return 0;
+
+	DWORD waitresult = WaitForSingleObject(handle, 0);
+	if(waitresult == WAIT_OBJECT_0)
+	{
+		// the process has completed.
+		return 0;
+	}
+
+	return handle;
+}
+
 bool LLProcessLauncher::kill(void)
 {
 	bool result = true;
@@ -293,17 +300,23 @@ int LLProcessLauncher::launch(void)
 
 bool LLProcessLauncher::isRunning(void)
 {
-	if(mProcessID != 0)
-	{
-		// Check whether the process has exited, and reap it if it has.
-		if(reap_pid(mProcessID))
-		{
-			// the process has exited.
-			mProcessID = 0;
-		}
-	}
-	
+	mProcessID = isRunning(mProcessID);
 	return (mProcessID != 0);
+}
+
+LLProcessLauncher::ll_pid_t LLProcessLauncher::isRunning(ll_pid_t pid)
+{
+    if (! pid)
+        return 0;
+
+    // Check whether the process has exited, and reap it if it has.
+    if(reap_pid(pid))
+    {
+        // the process has exited.
+        return 0;
+    }
+
+    return pid;
 }
 
 bool LLProcessLauncher::kill(void)

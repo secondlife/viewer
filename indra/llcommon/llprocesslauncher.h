@@ -54,6 +54,8 @@ public:
 	void addArgument(const std::string &arg);
 		
 	int launch(void);
+	// isRunning isn't const because, if child isn't running, it clears stored
+	// process ID
 	bool isRunning(void);
 	
 	// Attempt to kill the process -- returns true if the process is no longer running when it returns.
@@ -72,10 +74,23 @@ public:
 	// Accessors for platform-specific process ID
 #if LL_WINDOWS
 	// (Windows flavor unused as of 2012-01-12)
-	HANDLE getProcessHandle() { return mProcessHandle; };
+	typedef HANDLE ll_pid_t;
+	HANDLE getProcessHandle() const { return mProcessHandle; }
+	ll_pid_t getProcessID() const { return mProcessHandle; }
 #else
-	pid_t getProcessID() { return mProcessID; };
+	typedef pid_t ll_pid_t;
+	ll_pid_t getProcessID() const { return mProcessID; };
 #endif	
+	/**
+	 * Test if a process (ll_pid_t obtained from getProcessID()) is still
+	 * running. Return is same nonzero ll_pid_t value if still running, else
+	 * zero, so you can test it like a bool. But if you want to update a
+	 * stored variable as a side effect, you can write code like this:
+	 * @code
+	 * childpid = LLProcessLauncher::isRunning(childpid);
+	 * @endcode
+	 */
+	static ll_pid_t isRunning(ll_pid_t);
 	
 private:
 	std::string mExecutable;
