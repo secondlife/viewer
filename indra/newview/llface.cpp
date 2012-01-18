@@ -1131,7 +1131,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		updateRebuildFlags();
 	}
 
-	bool map_range = gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange;
+
+	//don't use map range (generates many redundant unmap calls)
+	bool map_range = false; //gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange;
 
 	if (mVertexBuffer.notNull())
 	{
@@ -1920,6 +1922,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		mTexExtents[0][1] *= et ;
 		mTexExtents[1][1] *= et ;
 	}
+
 
 	mLastVertexBuffer = mVertexBuffer;
 	mLastGeomCount = mGeomCount;

@@ -4806,17 +4806,20 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	
 		//create/delete/resize vertex buffer if needed
 		LLVertexBuffer* buffer = NULL;
-		LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
+
+		{ //try to find a buffer to reuse
+			LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
 		
-		if (found_iter != group->mBufferMap[mask].end())
-		{
-			if ((U32) buffer_index < found_iter->second.size())
+			if (found_iter != group->mBufferMap[mask].end())
 			{
-				buffer = found_iter->second[buffer_index];
+				if ((U32) buffer_index < found_iter->second.size())
+				{
+					buffer = found_iter->second[buffer_index];
+				}
 			}
 		}
 						
-		if (!buffer)
+		if (!buffer || !buffer->isWriteable())
 		{ //create new buffer if needed
 			buffer = createVertexBuffer(mask, buffer_usage);
 			buffer->allocateBuffer(geom_count, index_count, TRUE);

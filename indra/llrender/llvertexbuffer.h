@@ -254,6 +254,7 @@ public:
 	volatile U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
+	BOOL isWriteable() const				{ return (sDisableVBOMapping || mMappable || mUsage == GL_STREAM_DRAW_ARB) ? TRUE : FALSE; }
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
@@ -284,6 +285,7 @@ protected:
 	BOOL	mIndexLocked;			// if TRUE, index buffer is being or has been written to in client memory
 	BOOL	mFinal;			// if TRUE, buffer can not be mapped again
 	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
+	mutable BOOL	mMappable;     // if TRUE, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;

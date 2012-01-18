@@ -1285,7 +1285,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		face->setGeomIndex(0);
 		face->setIndicesIndex(0);
 		
-		if (buffer.isNull() || buffer->getTypeMask() != data_mask)
+		if (buffer.isNull() || buffer->getTypeMask() != data_mask || !buffer->isWriteable())
 		{ //make a new buffer
 			if (sShaderLevel > 0)
 			{
