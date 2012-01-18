@@ -45,12 +45,6 @@
 #include "llhttpclient.h"
 #include "lluuid.h"
 
-//#define XXX_STINSON_USE_FAKE_DATA
-#ifdef XXX_STINSON_USE_FAKE_DATA
-#include "llviewerobject.h"
-#include "llviewerobjectlist.h"
-#endif // XXX_STINSON_USE_FAKE_DATA
-
 //---------------------------------------------------------------------------
 // NavmeshDataGetResponder
 //---------------------------------------------------------------------------
@@ -688,141 +682,6 @@ LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 
 void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 {
-#ifdef XXX_STINSON_USE_FAKE_DATA
-	LLSD allData;
-
-	const std::string firstUUID(gObjectList.getObject(0)->getID().asString());
-	LLSD firstData;
-	firstData["name"] = "Curabitur malesuada";
-	firstData["description"] = "Accusam nominavi contentiones per ad";
-	firstData["landimpact"] = S32(57);
-	firstData["fixed"] = bool(false);
-	firstData["walkable"] = bool(false);
-	firstData["phantom"] = bool(false);
-	firstData["A"] = F32(0.375f);
-	firstData["B"] = F32(0.078f);
-	firstData["C"] = F32(0.986f);
-	firstData["D"] = F32(0.0f);
-	LLVector3 firstLocation(135.0f, 57.0f, 2.0f);
-	firstData["position"] = firstLocation.getValue();
-
-	const std::string secondUUID(gObjectList.getObject(1)->getID().asString());
-	LLSD secondData;
-	secondData["name"] = "At tota";
-	secondData["description"] = "His ad placerat tincidun";
-	secondData["landimpact"] = S32(2);
-	secondData["fixed"] = bool(false);
-	secondData["walkable"] = bool(false);
-	secondData["phantom"] = bool(true);
-	secondData["A"] = F32(0.305f);
-	secondData["B"] = F32(0.708f);
-	secondData["C"] = F32(1.0f);
-	secondData["D"] = F32(0.001f);
-	LLVector3 secondLocation(15.0f, 157.0f, 22.0f);
-	secondData["position"] = secondLocation.getValue();
-
-	const std::string thirdUUID(gObjectList.getObject(2)->getID().asString());
-	LLSD thirdData;
-	thirdData["name"] = "No soleat";
-	thirdData["description"] = "";
-	thirdData["landimpact"] = S32(200);
-	thirdData["fixed"] = bool(false);
-	thirdData["walkable"] = bool(true);
-	thirdData["phantom"] = bool(false);
-	thirdData["A"] = F32(0.585f);
-	thirdData["B"] = F32(0.08f);
-	thirdData["C"] = F32(0.02f);
-	thirdData["D"] = F32(0.155f);
-	LLVector3 thirdLocation(577.0f, 14.0f, -14.5f);
-	thirdData["position"] = thirdLocation.getValue();
-
-	const std::string fourthUUID(gObjectList.getObject(3)->getID().asString());
-	LLSD fourthData;
-	fourthData["name"] = "Paulo tritani bonorum";
-	fourthData["description"] = "Vis verear impetus";
-	fourthData["landimpact"] = S32(56);
-	fourthData["fixed"] = bool(false);
-	fourthData["walkable"] = bool(true);
-	fourthData["phantom"] = bool(true);
-	fourthData["A"] = F32(1.0f);
-	fourthData["B"] = F32(1.0f);
-	fourthData["C"] = F32(0.0f);
-	fourthData["D"] = F32(0.0f);
-	LLVector3 fourthLocation(215.0f, 57.0f, 5.0f);
-	fourthData["position"] = fourthLocation.getValue();
-
-	const std::string fifthUUID(gObjectList.getObject(4)->getID().asString());
-	LLSD fifthData;
-	fifthData["name"] = "Curabitur malesuada";
-	fifthData["description"] = "Reque possit philosophia";
-	fifthData["landimpact"] = S32(20);
-	fifthData["fixed"] = bool(true);
-	fifthData["walkable"] = bool(false);
-	fifthData["phantom"] = bool(false);
-	fifthData["A"] = F32(0.375f);
-	fifthData["B"] = F32(0.078f);
-	fifthData["C"] = F32(0.986f);
-	fifthData["D"] = F32(0.0f);
-	LLVector3 fifthLocation(135.0f, 57.0f, 2.0f);
-	fifthData["position"] = fifthLocation.getValue();
-
-	const std::string sixthUUID(gObjectList.getObject(5)->getID().asString());
-	LLSD sixthData;
-	sixthData["name"] = "At tota";
-	sixthData["description"] = "Usu no aliquid dignissim";
-	sixthData["landimpact"] = S32(257);
-	sixthData["fixed"] = bool(true);
-	sixthData["walkable"] = bool(false);
-	sixthData["phantom"] = bool(true);
-	sixthData["A"] = F32(0.0f);
-	sixthData["B"] = F32(0.0f);
-	sixthData["C"] = F32(1.0f);
-	sixthData["D"] = F32(0.001f);
-	LLVector3 sixthLocation(315.0f, 57.0f, 12.0f);
-	sixthData["position"] = sixthLocation.getValue();
-
-	const std::string seventhUUID(gObjectList.getObject(6)->getID().asString());
-	LLSD seventhData;
-	seventhData["name"] = "No soleat";
-	seventhData["description"] = "honestatis";
-	seventhData["landimpact"] = S32(25);
-	seventhData["fixed"] = bool(true);
-	seventhData["walkable"] = bool(true);
-	seventhData["phantom"] = bool(false);
-	seventhData["A"] = F32(0.554f);
-	seventhData["B"] = F32(0.2712f);
-	seventhData["C"] = F32(0.325f);
-	seventhData["D"] = F32(0.155f);
-	LLVector3 seventhLocation(7.0f, 0.0f, 0.0f);
-	seventhData["position"] = seventhLocation.getValue();
-
-	const std::string eigthUUID(gObjectList.getObject(7)->getID().asString());
-	LLSD eigthData;
-	eigthData["name"] = "Sea te aliquam";
-	eigthData["description"] = "";
-	eigthData["landimpact"] = S32(17);
-	eigthData["fixed"] = bool(true);
-	eigthData["walkable"] = bool(true);
-	eigthData["phantom"] = bool(true);
-	eigthData["A"] = F32(0.1f);
-	eigthData["B"] = F32(0.1f);
-	eigthData["C"] = F32(0.5f);
-	eigthData["D"] = F32(0.6f);
-	LLVector3 eigthLocation(25.0f, 7.0f, 5.0f);
-	eigthData["position"] = eigthLocation.getValue();
-
-	allData[firstUUID] = firstData;
-	allData[secondUUID] = secondData;
-	allData[thirdUUID] = thirdData;
-	allData[fourthUUID] = fourthData;
-	allData[fifthUUID] = fifthData;
-	allData[sixthUUID] = sixthData;
-	allData[seventhUUID] = seventhData;
-	allData[eigthUUID] = eigthData;
-
-	handleNavmeshDataGetReply(allData);
-
-#else // XXX_STINSON_USE_FAKE_DATA
 	if (isFetchInProgress())
 	{
 		if (getFetchState() == kFetchRequestSent)
@@ -848,7 +707,6 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 			LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
 		}
 	}
-#endif
 }
 
 void LLFloaterPathfindingLinksets::sendNavmeshDataPutRequest(const LLSD& pPostData)
