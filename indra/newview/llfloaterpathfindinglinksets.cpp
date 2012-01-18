@@ -1094,8 +1094,12 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 				itemData["D"] = d;
 			}
 
-			editData[uuid.asString()] = itemData;
+			if (!itemData.isUndefined())
+			{
+				editData[uuid.asString()] = itemData;
+			}
 		}
+
 		if (editData.isUndefined())
 		{
 			llwarns << "No PUT data specified" << llendl;
