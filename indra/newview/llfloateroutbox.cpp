@@ -419,6 +419,16 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	return handled;
 }
 
+BOOL LLFloaterOutbox::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (mOutboxTopLevelDropZone)
+	{
+		mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
+	}
+
+	return LLFloater::handleHover(x, y, mask);
+}
+
 void LLFloaterOutbox::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	if (mOutboxTopLevelDropZone)

@@ -66,6 +66,7 @@ public:
 	
 	void showNotification(const LLSD& notify);
 
+	BOOL handleHover(S32 x, S32 y, MASK mask);
 	void onMouseLeave(S32 x, S32 y, MASK mask);
 
 protected:
