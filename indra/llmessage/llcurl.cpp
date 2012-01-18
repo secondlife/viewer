@@ -1036,7 +1036,12 @@ LLCurl::Easy* LLCurlRequest::allocEasy()
 	{
 		addMulti();
 	}
-	llassert_always(mActiveMulti);
+	if(!mActiveMulti)
+	{
+		return NULL ;
+	}
+
+	//llassert_always(mActiveMulti);
 	++mActiveRequestCount;
 	LLCurl::Easy* easy = mActiveMulti->allocEasy();
 	return easy;
