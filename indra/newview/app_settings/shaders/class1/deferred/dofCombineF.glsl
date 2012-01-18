@@ -48,7 +48,7 @@ void main()
 	
 	vec4 diff = texture2DRect(lightMap, vary_fragcoord.xy);
 
-	float a = min(diff.a * max_cof*res_scale*res_scale, 1.0);
+	float a = min(abs(diff.a*2.0-1.0) * max_cof*res_scale*res_scale, 1.0);
 
 	if (a > 0.25 && a < 0.75)
 	{ //help out the transition a bit

@@ -4,7 +4,7 @@
 		Фильтрация:
 	</text>
 	<check_box label="Анизотропная фильтрация (медленнее, если включено)" name="ani"/>
-	<text name="Antialiasing:">
+	<text name="antialiasing label">
 		Сглаживание:
 	</text>
 	<combo_box label="Сглаживание" name="fsaa">

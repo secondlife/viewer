@@ -15,7 +15,7 @@
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Tarayıcımı kullan (IE, Firefox, Safari)" name="external" tool_tip="Yardım, web bağlantıları vs. için sistemin varsayılan web tarayıcısını kullanın. Tam ekran çalıştırılıyorsa tavsiye edilmez." value="1"/>
+		<radio_item label="Tarayıcımı kullan (IE, Firefox, Safari)" name="external" tool_tip="Yardım, web bağlantıları vs. için sistemin varsayılan web tarayıcısını kullanın. Tam ekran çalıştırılıyorsa tavsiye edilmez." value="true"/>
 		<radio_item label="Yerleşik tarayıcıyı kullan" name="internal" tool_tip="Yardım, web bağlantıları vs. için dahili web tarayıcısını kullanın. Bu tarayıcı [APP_NAME] içerisinde yeni bir pencere olarak açılır." value=""/>
 	</radio_group>
 	<check_box initial_value="true" label="Eklentileri etkinleştir" name="browser_plugins_enabled"/>

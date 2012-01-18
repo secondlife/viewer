@@ -16,7 +16,7 @@
 		<combo_box.item label="Русский (бета-версия)" name="Russian"/>
 		<combo_box.item label="Türkçe - турецкий (бета-версия)" name="Turkish"/>
 		<combo_box.item label="日本語 – японский (бета-версия)" name="(Japanese)"/>
-		<combo_box.item label="正體中文 - китайский, традиционное письмо (бета-версия)" name="Traditional Chinese"/>
+		<combo_box.item label="китайский, традиционное письмо - бета-версия" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Требуется перезапуск)

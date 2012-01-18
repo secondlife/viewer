@@ -20,6 +20,9 @@
 				アップロードするモデルファイルの選択
 			</text>
 			<button label="参照" label_selected="参照" name="browse"/>
+			<text name="Model types">
+				Second Life は COLLADA (.dae) ファイルをサポートします。
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>

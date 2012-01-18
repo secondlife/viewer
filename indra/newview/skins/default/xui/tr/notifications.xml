@@ -1110,8 +1110,13 @@ Arazinin satış bedeli sahibine geri ödenmez. Devredilen bir parsel satılırs
 	<notification name="DisplaySetToSafe">
 		Güvenli seçeneği seçtiğiniz için görüntüleme ayarları güvenli düzeye ayarlandı.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Görüntüleme ayarları sistem yapılandırmanız için önerilen düzeye ayarlandı.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Grafik kartınız değiştiği için görüntü ayarları tavsiye edilen seviyelere ayarlandı
+önceki: &apos;[LAST_GPU]&apos;
+sonraki: &apos;[THIS_GPU]&apos;
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		İşleme alt sistemindeki bir değişiklik nedeniyle görüntü ayarları tavsiye edilen seviyelere ayarlandı.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1910,7 +1915,13 @@ Envanter öğesi/öğeleri taşınsın mı?
 		<usetemplate ignoretext="Çıkmadan önce doğrulama iste" name="okcancelignore" notext="Çıkma" yestext="Çık"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Varsayılan düğmelerinizi ve araç çubuklarınızı geri yüklemek istediğinize emin misiniz? 
+		Bu eylem, varsayılan düğmelerinizi ve araç çubuklarınızı geri yükleyecek.
+
+Bu eylemi geri alamazsınız.
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Bu eylem ile tüm düğmeler araç kutusuna döner ve araç çubuklarınız boş olur.
     
 Bu eylemi geri alamazsınız.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
@@ -2119,10 +2130,10 @@ Bu adımda web tarayıcınızın başlatılacağına dikkat edin.
 		Konu: [SUBJECT], İleti: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; Çevrimiçi
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; çevrimiçi
 	</notification>
 	<notification name="FriendOffline">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; Çevrimdışı
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; çevrimdışı
 	</notification>
 	<notification name="AddSelfFriend">
 		Çok iyi biri olduğunuza eminiz fakat kendinizi arkadaş olarak ekleyemezsiniz.
@@ -2236,14 +2247,16 @@ Lütfen tek bir nesne seçin.
 		Arama kartınız reddedildi.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Ekranınızın sağ tarafındaki Yerler panelini açıp Yer İmleri sekmesini seçerek &apos;[NAME]&apos; gibi konumlara ışınlanabilirsiniz.
-Seçmek için herhangi bir yer iminin üzerini tıklatın ve ardından panelin en altındaki &apos;Işınla&apos; düğmesini tıklatın.
-(Yer iminin üzerini çift tıklatabilir veya sağ tıklayıp &apos;Işınla&apos;yı seçebilirsiniz.)
+		&apos;[NAME]&apos; gibi konumlara ışınlanmak için &quot;Yerler&quot; düğmesine tıklayın,
+    sonra açılan pencerede Yer İmleri sekmesini seçin. Herhangi bir
+    yer iminin üzerine tıklayarak bunu seçin ve ardından pencerenin en altındaki &apos;Işınla&apos; düğmesine tıklayın.
+    (Ayrıca yer imine çift tıklayabilir veya sağ tıklayarak
+    &apos;Işınla&apos; seçimini yapabilirsiniz.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Ekranınızın sağ tarafındaki İnsanlar panelini açarak  &apos;[NAME]&apos; gibi Sakinler ile iletişim kurabilirsiniz.
-Sakini listeden seçin ve  panelin altındaki &apos;Aİ&quot; düğmesini tıklatın.
-(Listede adlarını çift tıklatarak veya sağ tıklatıp &quot;Aİ&quot;yi seçerek de bunu yapabilirsiniz.)
+		&apos;[NAME]&apos; gibi sakinlerle bağlantıya geçmek için &quot;Kişiler&quot; düğmesine tıklayın, açılan pencereden bir Sakin seçin ve sonra
+    pencerenin altında &apos;Anlık İleti&quot; üzerine tıklayın.
+    (Listede adlarına çift tıklayarak veya sağ tıklayıp &quot;Anlık İleti&quot;yi seçerek de bunu yapabilirsiniz.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Sunucunun sınırları dışındaki arazi seçilemez.
@@ -2262,6 +2275,9 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">

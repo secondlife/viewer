@@ -26,31 +26,14 @@
                   background_visible="true">
       <text follows="top|left|right" halign="center" text_color="white">flex</text>
     </layout_panel>
-    <layout_panel name="fixed"
-                auto_resize="false"
+    <layout_panel name="flex"
+                  auto_resize="true"
                   user_resize="true"
-                height="50"
+                  bg_alpha_color="blue"
+                  height="11"
                   min_height="0"
-                bg_alpha_color="green"
-                background_visible="true">
-      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
-    </layout_panel>
-    <layout_panel name="fixed"
-                auto_resize="false"
-                  user_resize="true"
-                height="50"
-                  min_height="0"
-                bg_alpha_color="green"
-                background_visible="true">
-      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
-    </layout_panel>
-    <layout_panel name="fixed"
-                auto_resize="false"
-                  user_resize="true"
-                height="50"
-                bg_alpha_color="green"
-                background_visible="true">
-      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
     </layout_panel>
   </layout_stack>
   <layout_stack name="test_stack"

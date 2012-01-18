@@ -675,6 +675,10 @@ bool LLCurl::Multi::doPerform()
 				call_count++)
 		{
 			LLMutexLock lock(mMutexp) ;
+
+			//WARNING: curl_multi_perform will block for many hundreds of milliseconds
+			// NEVER call this from the main thread, and NEVER allow the main thread to 
+			// wait on a mutex held by this thread while curl_multi_perform is executing
 			CURLMcode code = curl_multi_perform(mCurlMultiHandle, &q);
 			if (CURLM_CALL_MULTI_PERFORM != code || q == 0)
 			{
@@ -873,7 +877,7 @@ LLCurlThread::~LLCurlThread()
 	LLCurl::Multi::sMultiInitMutexp = NULL ;
 }
 
-S32 LLCurlThread::update(U32 max_time_ms)
+S32 LLCurlThread::update(F32 max_time_ms)
 {	
 	return LLQueuedThread::update(max_time_ms);
 }

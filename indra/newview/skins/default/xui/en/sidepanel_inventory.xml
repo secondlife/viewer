@@ -30,6 +30,8 @@
              <layout_panel
                  name="main_inventory_layout_panel"
                  layout="topleft"
+                 auto_resize="true"
+                 user_resize="true"
                  min_dim="150"
                  width="330"
                  follows="bottom|left|right"
@@ -48,8 +50,9 @@
              </layout_panel>
 			 <layout_panel
                  width="330"
-		 layout="topleft"
+                 layout="topleft"
                  auto_resize="true"
+                 user_resize="true"
                  follows="left|right|top"
                  name="inbox_layout_panel"
                  visible="false"

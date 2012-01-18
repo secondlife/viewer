@@ -1205,7 +1205,7 @@ Prova ad accedere nuovamente tra un minuto.
 		Non hai una copia di questa texture nel tuo inventario
 	</string>
 	<string name="InventoryInboxNoItems">
-		Gli elementi acquistati attraverso il mercato verranno consegnati qui
+		Quando acquisti o ricevi un oggetto, verrà visualizzato qui per permetterti di trascinarlo in una cartella dell&apos;inventario o di cancellarlo se non desideri mantenerlo.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]/learn_more
@@ -1397,6 +1397,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="no_attachments">
 		Nessun allegato indossato
 	</string>
+	<string name="Attachments remain">
+		Allegati ([COUNT] spazi restanti)
+	</string>
 	<string name="Buy">
 		Acquista
 	</string>
@@ -1522,6 +1525,12 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="Right Pec">
 		Petto destro
+	</string>
+	<string name="Neck">
+		Collo
+	</string>
+	<string name="Avatar Center">
+		Centro avatar
 	</string>
 	<string name="Invalid Attachment">
 		Punto di collegamento non valido
@@ -3940,6 +3949,18 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="you_paid_ldollars_no_name">
 		Hai pagato L$ [AMOUNT] [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Non hai pagato [NAME] L$[AMOUNT] [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Non hai pagato L$ [AMOUNT].
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Non hai pagato [NAME] L$[AMOUNT].
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Non hai pagato L$ [AMOUNT] [REASON].
+	</string>
 	<string name="for item">
 		per [ITEM]
 	</string>
@@ -4350,6 +4371,12 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="ExternalEditorFailedToRun">
 		L&apos;editor esterno non è stato avviato.
 	</string>
+	<string name="TranslationFailed">
+		Traduzione non riuscita: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Errore di elaborazione della risposta della traduzione.
+	</string>
 	<string name="Esc">
 		Esc
 	</string>
@@ -4720,7 +4747,7 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 		Mini mappa
 	</string>
 	<string name="Command_Move_Label">
-		Movimento
+		Cammina / corri / vola
 	</string>
 	<string name="Command_People_Label">
 		Persone
@@ -4747,10 +4774,10 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 		Parla
 	</string>
 	<string name="Command_View_Label">
-		Visuale
+		Controlli fotocamera
 	</string>
 	<string name="Command_Voice_Label">
-		Voce vicina
+		Impostazioni voce
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Informazioni sul terreno che visiti
@@ -4822,7 +4849,16 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 		Modifica angolo fotocamera
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Persona vicine con funzioni voce
+		I controlli per il volume per le chiamate e per le persone nelle vicinanze nel mondo virtuale
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		attualmente nella barra degli strumenti in basso
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		attualmente nella barra degli strumenti a sinistra
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		attualmente nella barra degli strumenti a destra
 	</string>
 	<string name="Retain%">
 		Mantieni%
@@ -4847,5 +4883,20 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Normal">
 		Normale
+	</string>
+	<string name="snapshot_quality_very_low">
+		Molto basso
+	</string>
+	<string name="snapshot_quality_low">
+		Basso
+	</string>
+	<string name="snapshot_quality_medium">
+		Medio
+	</string>
+	<string name="snapshot_quality_high">
+		Alto
+	</string>
+	<string name="snapshot_quality_very_high">
+		Molto alto
 	</string>
 </strings>

@@ -39,8 +39,6 @@
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
 static LLLayoutStack::LayoutStackRegistry::Register<LLLayoutPanel> register_layout_panel("layout_panel");
 
-static const F32 MAX_FRACTIONAL_VALUE = 0.99999f;
-
 void LLLayoutStack::OrientationNames::declareValues()
 {
 	declare("horizontal", HORIZONTAL);
@@ -169,6 +167,11 @@ void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= 
 	if (!mIgnoreReshape && !mAutoResize)
 	{
 		mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
+		LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
+		if (stackp)
+		{
+			stackp->mNeedsLayout = true;
+		}
 	}
 	LLPanel::reshape(width, height, called_from_parent);
 }
@@ -198,6 +201,7 @@ LLLayoutStack::Params::Params()
 	clip("clip", true),
 	open_time_constant("open_time_constant", 0.02f),
 	close_time_constant("close_time_constant", 0.03f),
+	resize_bar_overlap("resize_bar_overlap", 1),
 	border_size("border_size", LLCachedControl<S32>(*LLUI::sSettingGroups["config"], "UIResizeBarHeight", 0))
 {}
 
@@ -210,7 +214,8 @@ LLLayoutStack::LLLayoutStack(const LLLayoutStack::Params& p)
 	mNeedsLayout(true),
 	mClip(p.clip),
 	mOpenTimeConstant(p.open_time_constant),
-	mCloseTimeConstant(p.close_time_constant)
+	mCloseTimeConstant(p.close_time_constant),
+	mResizeBarOverlap(p.resize_bar_overlap)
 {}
 
 LLLayoutStack::~LLLayoutStack()
@@ -314,6 +319,8 @@ void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL au
 	{
 		panel->mAutoResize = auto_resize;
 	}
+
+	mNeedsLayout = true;
 }
 
 void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_resize)
@@ -324,6 +331,9 @@ void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_
 	{
 		panel->mUserResize = user_resize;
 	}
+
+	mNeedsLayout = true;
+	updateFractionalSizes();
 }
 
 
@@ -401,21 +411,20 @@ void LLLayoutStack::updateLayout()
 		panelp->setShape(panel_rect);
 		panelp->setIgnoreReshape(false);
 
-		static LLUICachedControl<S32> resize_bar_overlap ("UIResizeBarOverlap", 0);
 		LLRect resize_bar_rect(panel_rect);
 
 		F32 panel_spacing = (F32)mPanelSpacing * panelp->getVisibleAmount();
 		if (mOrientation == HORIZONTAL)
 		{
-			resize_bar_rect.mLeft = panel_rect.mRight - resize_bar_overlap;
-			resize_bar_rect.mRight = panel_rect.mRight + panel_spacing + resize_bar_overlap;
+			resize_bar_rect.mLeft = panel_rect.mRight - mResizeBarOverlap;
+			resize_bar_rect.mRight = panel_rect.mRight + panel_spacing + mResizeBarOverlap;
 
 			cur_pos += panel_visible_dim + panel_spacing;
 		}
 		else //VERTICAL
 		{
-			resize_bar_rect.mTop = panel_rect.mBottom + resize_bar_overlap;
-			resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing - resize_bar_overlap;
+			resize_bar_rect.mTop = panel_rect.mBottom + mResizeBarOverlap;
+			resize_bar_rect.mBottom = panel_rect.mBottom - panel_spacing - mResizeBarOverlap;
 
 			cur_pos -= panel_visible_dim + panel_spacing;
 		}
@@ -523,8 +532,8 @@ void LLLayoutStack::updateFractionalSizes()
 		if (panelp->mAutoResize)
 		{
 			F32 panel_resizable_dim = llmax(0.f, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
-			panelp->mFractionalSize = llmin(MAX_FRACTIONAL_VALUE, (panel_resizable_dim == 0.f)
-																	? (1.f - MAX_FRACTIONAL_VALUE)
+			panelp->mFractionalSize = llmin(1.f, (panel_resizable_dim == 0.f)
+																	? 0.f
 																	: panel_resizable_dim / total_resizable_dim);
 			total_fractional_size += panelp->mFractionalSize;
 			// check for NaNs
@@ -710,7 +719,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 				F32 fractional_adjustment_factor = total_auto_resize_headroom / updated_auto_resize_headroom;
 				F32 new_fractional_size = llclamp(panelp->mFractionalSize * fractional_adjustment_factor,
 													0.f,
-													MAX_FRACTIONAL_VALUE);
+													1.f);
 				F32 fraction_delta = (new_fractional_size - panelp->mFractionalSize);
 				fraction_given_up -= fraction_delta;
 				fraction_remaining -= panelp->mFractionalSize;
@@ -727,7 +736,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			{	// freeze new size as fraction
 				F32 new_fractional_size = (updated_auto_resize_headroom == 0.f)
 					? 1.f
-					: llmin(MAX_FRACTIONAL_VALUE, ((F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom));
+					: llmin(1.f, ((F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom));
 				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
 				panelp->mFractionalSize = new_fractional_size;
@@ -743,11 +752,20 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		case NEXT_PANEL:
 			if (panelp->mAutoResize)
 			{
-				F32 new_fractional_size = (F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
-												/ updated_auto_resize_headroom;
-				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
-				panelp->mFractionalSize = new_fractional_size;
+				if (fraction_given_up != 0.f)
+				{
+					panelp->mFractionalSize += fraction_given_up;
+					fraction_given_up = 0.f;
+				}
+				else
+				{
+					F32 new_fractional_size = llmin(1.f, 
+													(F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
+														/ updated_auto_resize_headroom);
+					fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
+					panelp->mFractionalSize = new_fractional_size;
+				}
 			}
 			else
 			{
@@ -784,9 +802,9 @@ void LLLayoutStack::updateResizeBarLimits()
 		}
 
 		// toggle resize bars based on panel visibility, resizability, etc
-		if (visible_panelp->mUserResize 
-			&& previous_visible_panelp 
-			&& previous_visible_panelp->mUserResize)
+		if (previous_visible_panelp 
+			&& (visible_panelp->mUserResize 
+				|| previous_visible_panelp->mUserResize))
 		{
 			visible_panelp->mResizeBar->setVisible(TRUE);
 			visible_panelp->mResizeBar->setResizeLimits(visible_panelp->getRelevantMinDim(), 
