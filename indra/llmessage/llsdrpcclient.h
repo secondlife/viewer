@@ -239,12 +239,17 @@ public:
 	LLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
-		llerrs << "Can not call this." << llendl ;
-
 		lldebugs << "LLSDRPCClientFactory::build" << llendl;
-		LLIOPipe::ptr_t service(new Client);
-		chain.push_back(service);
 		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		if(!http->isValid())
+		{
+			llwarns << "Creating LLURLRequest failed." << llendl ;
+			delete http;
+			return false;
+		}
+
+		LLIOPipe::ptr_t service(new Client);
+		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
 		http->addHeader("Content-Type: text/llsd");
 		if(mURL.empty())
@@ -284,11 +289,17 @@ public:
 	LLXMLSDRPCClientFactory(const std::string& fixed_url) : mURL(fixed_url) {}
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
-		llerrs << "who calls this?" << llendl ;
 		lldebugs << "LLXMLSDRPCClientFactory::build" << llendl;
-		LLIOPipe::ptr_t service(new Client);
-		chain.push_back(service);
+
 		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		if(!http->isValid())
+		{
+			llwarns << "Creating LLURLRequest failed." << llendl ;
+			delete http;
+			return false ;
+		}
+		LLIOPipe::ptr_t service(new Client);
+		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
 		http->addHeader("Content-Type: text/xml");
 		if(mURL.empty())
