@@ -1047,6 +1047,7 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libuuid.so.16")
             self.path("libuuid.so.16.0.22")
             self.path("libSDL-1.2.so.0.11.3")
+            self.path("libSDL-1.2.so.0")
             self.path("libdirectfb-1.4.so.5.0.4")
             self.path("libfusion-1.4.so.5.0.4")
             self.path("libdirect-1.4.so.5.0.4")

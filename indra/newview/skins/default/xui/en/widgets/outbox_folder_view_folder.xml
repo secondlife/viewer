@@ -6,14 +6,4 @@
   item_top_pad="4"
   selection_image="Rounded_Square"
   >
-  <error_badge 
-    label=" " 
-    label_offset_horiz="-1"
-    location="right" 
-    padding_horiz="12.5" 
-    padding_vert="2"
-    location_offset_hcenter="-23"
-    image="Error_Tag_Background"
-    image_color="Black"
-    />
 </outbox_folder_view_folder>

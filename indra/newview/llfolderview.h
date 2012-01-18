@@ -75,6 +75,7 @@ public:
 		Optional<std::string>   title;
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
+								show_empty_message,
 								show_load_status,
 								use_ellipses;
 
@@ -281,6 +282,7 @@ protected:
 	selected_items_t				mSelectedItems;
 	BOOL							mKeyboardSelection;
 	BOOL							mAllowMultiSelect;
+	BOOL							mShowEmptyMessage;
 	BOOL							mShowFolderHierarchy;
 	LLUUID							mSourceID;
 

@@ -694,6 +694,14 @@
 		 parameter="move_to_outbox" />
 	</menu_item_call>
 	<menu_item_call
+	 label="Send to Marketplace"
+	 layout="topleft"
+	 name="Marketplace Send">
+		<menu_item_call.on_click
+		 function="Inventory.DoToSelected"
+		 parameter="send_to_marketplace" />
+	</menu_item_call>
+	<menu_item_call
      label="--no options--"
      layout="topleft"
      name="--no options--" />
