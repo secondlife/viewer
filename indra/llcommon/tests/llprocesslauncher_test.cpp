@@ -566,7 +566,7 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
-        set_test_name("kill()");
+        set_test_name("explicit kill()");
         PythonProcessLauncher py("kill()",
                                  "import sys, time\n"
                                  "with open(sys.argv[1], 'w') as f:\n"
@@ -600,5 +600,113 @@ namespace tut
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
         ensure_equals("kill() script output", readfile(out.getName()), "ok");
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("implicit kill()");
+        NamedTempFile out("out", "not started");
+        LLProcessLauncher::ll_pid_t pid(0);
+        {
+            PythonProcessLauncher py("kill()",
+                                     "import sys, time\n"
+                                     "with open(sys.argv[1], 'w') as f:\n"
+                                     "    f.write('ok')\n"
+                                     "# now sleep; expect caller to kill\n"
+                                     "time.sleep(120)\n"
+                                     "# if caller hasn't managed to kill by now, bad\n"
+                                     "with open(sys.argv[1], 'w') as f:\n"
+                                     "    f.write('bad')\n");
+            py.mPy.addArgument(out.getName());
+            ensure_equals("couldn't launch kill() script", py.mPy.launch(), 0);
+            // Capture ll_pid_t for later
+            pid = py.mPy.getProcessID();
+            // Wait for the script to wake up and do its first write
+            int i = 0, timeout = 60;
+            for ( ; i < timeout; ++i)
+            {
+                sleep(1);
+                if (readfile(out.getName(), "from kill() script") == "ok")
+                    break;
+            }
+            // If we broke this loop because of the counter, something's wrong
+            ensure("script never started", i < timeout);
+            // Script has performed its first write and should now be sleeping.
+            // Destroy the LLProcessLauncher, which should kill the child.
+        }
+        // wait for the script to terminate... one way or another.
+        while (LLProcessLauncher::isRunning(pid))
+        {
+            sleep(1);
+        }
+        // If kill() failed, the script would have woken up on its own and
+        // overwritten the file with 'bad'. But if kill() succeeded, it should
+        // not have had that chance.
+        ensure_equals("kill() script output", readfile(out.getName()), "ok");
+    }
+
+    template<> template<>
+    void object::test<7>()
+    {
+        set_test_name("orphan()");
+        NamedTempFile from("from", "not started");
+        NamedTempFile to("to", "");
+        LLProcessLauncher::ll_pid_t pid(0);
+        {
+            PythonProcessLauncher py("orphan()",
+                                     "import sys, time\n"
+                                     "with open(sys.argv[1], 'w') as f:\n"
+                                     "    f.write('ok')\n"
+                                     "# wait for 'go' from test program\n"
+                                     "for i in xrange(60):\n"
+                                     "    time.sleep(1)\n"
+                                     "    with open(sys.argv[2]) as f:\n"
+                                     "        go = f.read()\n"
+                                     "    if go == 'go':\n"
+                                     "        break\n"
+                                     "else:\n"
+                                     "    with open(sys.argv[1], 'w') as f:\n"
+                                     "        f.write('never saw go')\n"
+                                     "    sys.exit(1)\n"
+                                     "# okay, saw 'go', write 'ack'\n"
+                                     "with open(sys.argv[1], 'w') as f:\n"
+                                     "    f.write('ack')\n");
+            py.mPy.addArgument(from.getName());
+            py.mPy.addArgument(to.getName());
+            ensure_equals("couldn't launch kill() script", py.mPy.launch(), 0);
+            // Capture ll_pid_t for later
+            pid = py.mPy.getProcessID();
+            // Wait for the script to wake up and do its first write
+            int i = 0, timeout = 60;
+            for ( ; i < timeout; ++i)
+            {
+                sleep(1);
+                if (readfile(from.getName(), "from orphan() script") == "ok")
+                    break;
+            }
+            // If we broke this loop because of the counter, something's wrong
+            ensure("script never started", i < timeout);
+            // Script has performed its first write and should now be waiting
+            // for us. Orphan it.
+            py.mPy.orphan();
+            // Now destroy the LLProcessLauncher, which should NOT kill the child!
+        }
+        // If the destructor killed the child anyway, give it time to die
+        sleep(2);
+        // How do we know it's not terminated? By making it respond to
+        // a specific stimulus in a specific way.
+        {
+            std::ofstream outf(to.getName().c_str());
+            outf << "go";
+        } // flush and close.
+        // now wait for the script to terminate... one way or another.
+        while (LLProcessLauncher::isRunning(pid))
+        {
+            sleep(1);
+        }
+        // If the LLProcessLauncher destructor implicitly called kill(), the
+        // script could not have written 'ack' as we expect.
+        ensure_equals("orphan() script output", readfile(from.getName()), "ack");
     }
 } // namespace tut
