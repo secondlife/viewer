@@ -329,7 +329,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 		break;
 	}
 	mFont->render(mText.getWString(), 0, 
-					start_x, 2.f,
+					start_x, 0.f,
 					display_color,
 					mFontAlignment,
 					LLFontGL::BOTTOM, 

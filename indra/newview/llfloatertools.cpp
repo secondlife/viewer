@@ -1144,7 +1144,7 @@ void LLFloaterTools::updateLandImpacts()
 	childSetTextArg("remaining_capacity", "[CAPACITY_STRING]", remaining_capacity_str);
 
 	// Update land impacts info in the weights floater
-	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::findTypedInstance<LLFloaterObjectWeights>("object_weights");
 	if(object_weights_floater)
 	{
 		object_weights_floater->updateLandImpacts(parcel);
@@ -1153,6 +1153,8 @@ void LLFloaterTools::updateLandImpacts()
 
 void LLFloaterTools::getMediaState()
 {
+	if (!LLFloaterMediaSettings::instanceExists()) return;
+
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
 	LLViewerObject* first_object = selected_objects->getFirstObject();
 	LLTextBox* media_info = getChild<LLTextBox>("media_info");
@@ -1233,6 +1235,7 @@ void LLFloaterTools::getMediaState()
 			return false;
 		}
 	} func;
+	
 	
 	// check if all faces have media(or, all dont have media)
 	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, bool_has_media );
