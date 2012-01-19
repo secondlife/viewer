@@ -133,10 +133,15 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 		navigateHome();
 	}
 		
-	// FIXME: How do we create a bevel now?
-//	LLRect border_rect( 0, getRect().getHeight() + 2, getRect().getWidth() + 2, 0 );
-//	mBorder = new LLViewBorder( std::string("web control border"), border_rect, LLViewBorder::BEVEL_IN );
-//	addChild( mBorder );
+	LLWindowShade::Params params;
+	params.name = "notification_shade";
+	params.rect = getLocalRect();
+	params.follows.flags = FOLLOWS_ALL;
+	params.modal = true;
+
+	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
+
+	addChild(mWindowShade);
 }
 
 LLMediaCtrl::~LLMediaCtrl()
@@ -1092,39 +1097,28 @@ void LLMediaCtrl::onPopup(const LLSD& notification, const LLSD& response)
 
 void LLMediaCtrl::showNotification(LLNotificationPtr notify)
 {
-	delete mWindowShade;
+	LLWindowShade* shade = getChild<LLWindowShade>("notification_shade");
 
-	LLWindowShade::Params params;
-	params.name = "notification_shade";
-	params.rect = getLocalRect();
-	params.follows.flags = FOLLOWS_ALL;
-	params.notification = notify;
-	params.modal = true;
-	//HACK: don't hardcode this
 	if (notify->getIcon() == "Popup_Caution")
 	{
-		params.bg_image.name = "Yellow_Gradient";
-		params.text_color = LLColor4::black;
+		shade->setBackgroundImage(LLUI::getUIImage("Yellow_Gradient"));
+		shade->setTextColor(LLColor4::black);
+		shade->setCanClose(true);
 	}
-	else
-	//HACK: another one since XUI doesn't support what we need right now
-	if (notify->getName() == "AuthRequest")
+	else if (notify->getName() == "AuthRequest")
 	{
-		params.bg_image.name = "Yellow_Gradient";
-		params.text_color = LLColor4::black;
-		params.can_close = false;
+		shade->setBackgroundImage(LLUI::getUIImage("Yellow_Gradient"));
+		shade->setTextColor(LLColor4::black);
+		shade->setCanClose(false);
 	}
 	else
 	{
 		//HACK: make this a property of the notification itself, "cancellable"
-		params.can_close = false;
-		params.text_color.control = "LabelTextColor";
+		shade->setCanClose(false);
+		shade->setTextColor(LLUIColorTable::instance().getColor("LabelTextColor"));
 	}
 
-	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
-
-	addChild(mWindowShade);
-	mWindowShade->show();
+	mWindowShade->show(notify);
 }
 
 void LLMediaCtrl::hideNotification()

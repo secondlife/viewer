@@ -186,8 +186,8 @@ BOOL LLWindow::setSize(LLCoordScreen size)
 {
 	if (!getMaximized())
 	{
-		size.mX = llmin(size.mX, mMinWindowWidth);
-		size.mY = llmin(size.mY, mMinWindowHeight);
+		size.mX = llmax(size.mX, mMinWindowWidth);
+		size.mY = llmax(size.mY, mMinWindowHeight);
 	}
 	return setSizeImpl(size);
 }

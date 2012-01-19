@@ -119,6 +119,7 @@
 			<menu_item_call label="dźwięk (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="animację (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="zbiór plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
+			<menu_item_call label="Ustaw domyślne pozwolenia ładowania" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Cofnij" name="Undo"/>
 		<menu_item_call label="Ponów" name="Redo"/>

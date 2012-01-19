@@ -1431,7 +1431,7 @@ Güncellemeyi kurmak için [APP_NAME] uygulamasını yeniden başlatmalısınız
 		<usetemplate ignoretext="Nesneleri sahiplerine iade etmeden önce doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Şu anda [GROUP] grubunun bir üyesisiniz.
+		Şu anda &lt;nolink&gt;[GROUP]&lt;/nolink&gt; grubunun bir üyesisiniz.
 Gruptan ayrılmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>

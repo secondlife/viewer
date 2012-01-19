@@ -1150,6 +1150,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnableButtonFlashing</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow UI to flash buttons to get your attention</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ButtonHPad</key>
     <map>
       <key>Comment</key>

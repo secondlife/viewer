@@ -360,7 +360,9 @@ public:
 	// name based on type, pass in a NULL to the 'name' parameter.
 	LLUUID createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
-							 const std::string& name);
+							 const std::string& name,
+							 void (*callback)(const LLSD&, void*) = NULL,
+							 void* user_data = NULL );
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods

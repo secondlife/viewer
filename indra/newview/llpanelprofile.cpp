@@ -177,7 +177,7 @@ LLPanelProfile::ChildStack::~ChildStack()
 			LLView* viewp = *it;
 			if (viewp)
 			{
-				delete viewp;
+				viewp->die();
 			}
 		}
 		mStack.pop_back();

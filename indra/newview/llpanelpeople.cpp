@@ -526,11 +526,11 @@ LLPanelPeople::~LLPanelPeople()
 		LLVoiceClient::getInstance()->removeObserver(this);
 	}
 
-	delete mGroupPlusMenuHandle.get();
-	delete mNearbyViewSortMenuHandle.get();
-	delete mFriendsViewSortMenuHandle.get();
-	delete mGroupsViewSortMenuHandle.get();
-	delete mRecentViewSortMenuHandle.get();
+	if (mGroupPlusMenuHandle.get()) mGroupPlusMenuHandle.get()->die();
+	if (mNearbyViewSortMenuHandle.get()) mNearbyViewSortMenuHandle.get()->die();
+	if (mNearbyViewSortMenuHandle.get()) mNearbyViewSortMenuHandle.get()->die();
+	if (mGroupsViewSortMenuHandle.get()) mGroupsViewSortMenuHandle.get()->die();
+	if (mRecentViewSortMenuHandle.get()) mRecentViewSortMenuHandle.get()->die();
 
 }
 
