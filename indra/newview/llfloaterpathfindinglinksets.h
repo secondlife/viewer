@@ -124,7 +124,8 @@ public:
 	PathfindingLinksets(const PathfindingLinksets& pOther);
 	virtual ~PathfindingLinksets();
 
-	void parseNavMeshData(const LLSD& pNavMeshData);
+	void setNavMeshData(const LLSD& pNavMeshData);
+	void updateNavMeshData(const LLSD& pNavMeshData);
 	void clearLinksets();
 
 	const PathfindingLinksetMap& getAllLinksets() const;

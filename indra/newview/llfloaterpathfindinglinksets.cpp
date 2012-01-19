@@ -383,7 +383,7 @@ PathfindingLinksets::PathfindingLinksets(const LLSD& pNavMeshData)
 	mIsFixedFilter(false),
 	mIsWalkableFilter(false)
 {
-	parseNavMeshData(pNavMeshData);
+	setNavMeshData(pNavMeshData);
 }
 
 PathfindingLinksets::PathfindingLinksets(const PathfindingLinksets& pOther)
@@ -402,18 +402,41 @@ PathfindingLinksets::~PathfindingLinksets()
 	clearLinksets();
 }
 
-void PathfindingLinksets::parseNavMeshData(const LLSD& pNavMeshData)
+void PathfindingLinksets::setNavMeshData(const LLSD& pNavMeshData)
 {
 	clearLinksets();
 
-	for (LLSD::map_const_iterator linksetIter = pNavMeshData.beginMap();
-		linksetIter != pNavMeshData.endMap(); ++linksetIter)
+	for (LLSD::map_const_iterator navMeshDataIter = pNavMeshData.beginMap();
+		navMeshDataIter != pNavMeshData.endMap(); ++navMeshDataIter)
 	{
-		const std::string& uuid(linksetIter->first);
-		const LLSD& linksetData = linksetIter->second;
+		const std::string& uuid(navMeshDataIter->first);
+		const LLSD& linksetData = navMeshDataIter->second;
 		PathfindingLinkset linkset(uuid, linksetData);
 
 		mAllLinksets.insert(std::pair<std::string, PathfindingLinkset>(uuid, linkset));
+	}
+
+	mIsFiltersDirty = true;
+}
+
+void PathfindingLinksets::updateNavMeshData(const LLSD& pNavMeshData)
+{
+	for (LLSD::map_const_iterator navMeshDataIter = pNavMeshData.beginMap();
+		navMeshDataIter != pNavMeshData.endMap(); ++navMeshDataIter)
+	{
+		const std::string& uuid(navMeshDataIter->first);
+		const LLSD& linksetData = navMeshDataIter->second;
+		PathfindingLinkset linkset(uuid, linksetData);
+
+		PathfindingLinksetMap::iterator linksetIter = mAllLinksets.find(uuid);
+		if (linksetIter == mAllLinksets.end())
+		{
+			mAllLinksets.insert(std::pair<std::string, PathfindingLinkset>(uuid, linkset));
+		}
+		else
+		{
+			linksetIter->second = linkset;
+		}
 	}
 
 	mIsFiltersDirty = true;
@@ -725,7 +748,7 @@ void LLFloaterPathfindingLinksets::sendNavMeshDataPutRequest(const LLSD& pPostDa
 void LLFloaterPathfindingLinksets::handleNavMeshDataGetReply(const LLSD& pNavMeshData)
 {
 	setFetchState(kFetchReceived);
-	mPathfindingLinksets.parseNavMeshData(pNavMeshData);
+	mPathfindingLinksets.setNavMeshData(pNavMeshData);
 	updateLinksetsList();
 	setFetchState(kFetchComplete);
 }
@@ -741,7 +764,7 @@ void LLFloaterPathfindingLinksets::handleNavMeshDataGetError(const std::string& 
 void LLFloaterPathfindingLinksets::handleNavMeshDataPutReply(const LLSD& pModifiedData)
 {
 	setFetchState(kFetchReceived);
-	mPathfindingLinksets.parseNavMeshData(pModifiedData);
+	mPathfindingLinksets.updateNavMeshData(pModifiedData);
 	updateLinksetsList();
 	setFetchState(kFetchComplete);
 }
