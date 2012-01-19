@@ -769,15 +769,31 @@ std::string LLFloaterPathfindingLinksets::getRegionName() const
 
 std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
 {
+#ifdef XXX_STINSON_REGION_CAP_RENAME
 	std::string navmeshDataURL("");
 
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region != NULL)
 	{
-		navmeshDataURL = region->getCapability("ObjectNavmesh");
+		navmeshDataURL = region->getCapability("ObjectNavMeshProperties");
+		if (navmeshDataURL.empty())
+		{
+			navmeshDataURL = region->getCapability("ObjectNavmesh");
+		}
 	}
 
 	return navmeshDataURL;
+#else // XXX_STINSON_REGION_CAP_RENAME
+	std::string navmeshDataURL("");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		navmeshDataURL = region->getCapability("ObjectNavMeshProperties");
+	}
+
+	return navmeshDataURL;
+#endif // XXX_STINSON_REGION_CAP_RENAME
 }
 
 void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)

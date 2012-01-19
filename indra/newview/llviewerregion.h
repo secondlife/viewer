@@ -44,6 +44,9 @@
 #include "m4math.h"					// LLMatrix4
 #include "llhttpclient.h"
 
+// This definition is a reminder to remove the extra call to check for both capability names for the ObjectNavMeshProperties service
+#define XXX_STINSON_REGION_CAP_RENAME
+
 // Surface id's
 #define LAND  1
 #define WATER 2
