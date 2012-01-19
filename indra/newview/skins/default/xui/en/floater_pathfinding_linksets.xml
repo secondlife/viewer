@@ -295,7 +295,7 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
+      max_length_chars="3"
       name="edit_a_value"
       width="45" />
   <text
@@ -321,7 +321,7 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
+      max_length_chars="3"
       name="edit_b_value"
       width="45" />
   <text
@@ -347,7 +347,7 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
+      max_length_chars="3"
       name="edit_c_value"
       width="45" />
   <text
@@ -373,7 +373,7 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
+      max_length_chars="3"
       name="edit_d_value"
       width="45" />
   <check_box

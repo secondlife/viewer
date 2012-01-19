@@ -98,10 +98,10 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	mIsFixed(false),
 	mIsWalkable(false),
 	mIsPhantom(false),
-	mA(0.0f),
-	mB(0.0f),
-	mC(0.0f),
-	mD(0.0f)
+	mA(0),
+	mB(0),
+	mC(0),
+	mD(0)
 {
 	llassert(pNavmeshItem.has("name"));
 	llassert(pNavmeshItem.get("name").isString());
@@ -130,19 +130,19 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 
 	llassert(pNavmeshItem.has("A"));
 	llassert(pNavmeshItem.get("A").isReal());
-	mA = pNavmeshItem.get("A").asReal() * 100.0f;
+	mA = llround(pNavmeshItem.get("A").asReal() * 100.0f);
 
 	llassert(pNavmeshItem.has("B"));
 	llassert(pNavmeshItem.get("B").isReal());
-	mB = pNavmeshItem.get("B").asReal() * 100.0f;
+	mB = llround(pNavmeshItem.get("B").asReal() * 100.0f);
 
 	llassert(pNavmeshItem.has("C"));
 	llassert(pNavmeshItem.get("C").isReal());
-	mC = pNavmeshItem.get("C").asReal() * 100.0f;
+	mC = llround(pNavmeshItem.get("C").asReal() * 100.0f);
 
 	llassert(pNavmeshItem.has("D"));
 	llassert(pNavmeshItem.get("D").isReal());
-	mD = pNavmeshItem.get("D").asReal() * 100.0f;
+	mD = llround(pNavmeshItem.get("D").asReal() * 100.0f);
 
 	llassert(pNavmeshItem.has("position"));
 	llassert(pNavmeshItem.get("position").isArray());
@@ -242,42 +242,42 @@ void PathfindingLinkset::setPhantom(BOOL pIsPhantom)
 	mIsPhantom = pIsPhantom;
 }
 
-F32 PathfindingLinkset::getA() const
+S32 PathfindingLinkset::getA() const
 {
 	return mA;
 }
 
-void PathfindingLinkset::setA(F32 pA)
+void PathfindingLinkset::setA(S32 pA)
 {
 	mA = pA;
 }
 
-F32 PathfindingLinkset::getB() const
+S32 PathfindingLinkset::getB() const
 {
 	return mB;
 }
 
-void PathfindingLinkset::setB(F32 pB)
+void PathfindingLinkset::setB(S32 pB)
 {
 	mB = pB;
 }
 
-F32 PathfindingLinkset::getC() const
+S32 PathfindingLinkset::getC() const
 {
 	return mC;
 }
 
-void PathfindingLinkset::setC(F32 pC)
+void PathfindingLinkset::setC(S32 pC)
 {
 	mC = pC;
 }
 
-F32 PathfindingLinkset::getD() const
+S32 PathfindingLinkset::getD() const
 {
 	return mD;
 }
 
-void PathfindingLinkset::setD(F32 pD)
+void PathfindingLinkset::setD(S32 pD)
 {
 	mD = pD;
 }
@@ -592,19 +592,19 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 	mEditA = findChild<LLLineEditor>("edit_a_value");
 	llassert(mEditA != NULL);
-	mEditA->setPrevalidate(LLTextValidate::validateFloat);
+	mEditA->setPrevalidate(LLTextValidate::validatePositiveS32);
 
 	mEditB = findChild<LLLineEditor>("edit_b_value");
 	llassert(mEditB != NULL);
-	mEditB->setPrevalidate(LLTextValidate::validateFloat);
+	mEditB->setPrevalidate(LLTextValidate::validatePositiveS32);
 
 	mEditC = findChild<LLLineEditor>("edit_c_value");
 	llassert(mEditC != NULL);
-	mEditC->setPrevalidate(LLTextValidate::validateFloat);
+	mEditC->setPrevalidate(LLTextValidate::validatePositiveS32);
 
 	mEditD = findChild<LLLineEditor>("edit_d_value");
 	llassert(mEditD != NULL);
-	mEditD->setPrevalidate(LLTextValidate::validateFloat);
+	mEditD->setPrevalidate(LLTextValidate::validatePositiveS32);
 
 	mApplyEdits = findChild<LLButton>("apply_edit_values");
 	llassert(mApplyEdits != NULL);
@@ -899,19 +899,19 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 		columns[6]["font"] = "SANSSERIF";
 
 		columns[7]["column"] = "a_percent";
-		columns[7]["value"] = llformat("%2.0f", linkset.getA());
+		columns[7]["value"] = llformat("%3d", linkset.getA());
 		columns[7]["font"] = "SANSSERIF";
 
 		columns[8]["column"] = "b_percent";
-		columns[8]["value"] = llformat("%2.0f", linkset.getB());
+		columns[8]["value"] = llformat("%3d", linkset.getB());
 		columns[8]["font"] = "SANSSERIF";
 
 		columns[9]["column"] = "c_percent";
-		columns[9]["value"] = llformat("%2.0f", linkset.getC());
+		columns[9]["value"] = llformat("%3d", linkset.getC());
 		columns[9]["font"] = "SANSSERIF";
 
 		columns[10]["column"] = "d_percent";
-		columns[10]["value"] = llformat("%2.0f", linkset.getD());
+		columns[10]["value"] = llformat("%3d", linkset.getD());
 		columns[10]["font"] = "SANSSERIF";
 
 		LLSD element;
@@ -1039,18 +1039,18 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 		const std::string &bString = mEditB->getText();
 		const std::string &cString = mEditC->getText();
 		const std::string &dString = mEditD->getText();
-		F32 aValue = (F32)atof(aString.c_str());
-		F32 bValue = (F32)atof(bString.c_str());
-		F32 cValue = (F32)atof(cString.c_str());
-		F32 dValue = (F32)atof(dString.c_str());
+		S32 aValue = static_cast<S32>(atoi(aString.c_str()));
+		S32 bValue = static_cast<S32>(atoi(bString.c_str()));
+		S32 cValue = static_cast<S32>(atoi(cString.c_str()));
+		S32 dValue = static_cast<S32>(atoi(dString.c_str()));
 
 		LLSD isFixed = (bool)isFixedBool;
 		LLSD isWalkable = (bool)isWalkableBool;
 		LLSD isPhantom = (bool)isPhantomBool;
-		LLSD a = aValue / 100.0f;
-		LLSD b = bValue / 100.0f;
-		LLSD c = cValue / 100.0f;
-		LLSD d = dValue / 100.0f;
+		LLSD a = static_cast<F32>(aValue) / 100.0f;
+		LLSD b = static_cast<F32>(bValue) / 100.0f;
+		LLSD c = static_cast<F32>(cValue) / 100.0f;
+		LLSD d = static_cast<F32>(dValue) / 100.0f;
 
 		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
 

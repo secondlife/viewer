@@ -63,17 +63,17 @@ public:
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
 
-	F32                getA() const;
-	void               setA(F32 pA);
+	S32                getA() const;
+	void               setA(S32 pA);
 
-	F32                getB() const;
-	void               setB(F32 pB);
+	S32                getB() const;
+	void               setB(S32 pB);
 
-	F32                getC() const;
-	void               setC(F32 pC);
+	S32                getC() const;
+	void               setC(S32 pC);
 
-	F32                getD() const;
-	void               setD(F32 pD);
+	S32                getD() const;
+	void               setD(S32 pD);
 
 protected:
 
@@ -86,10 +86,10 @@ private:
 	BOOL        mIsFixed;
 	BOOL        mIsWalkable;
 	BOOL        mIsPhantom;
-	F32         mA;
-	F32         mB;
-	F32         mC;
-	F32         mD;
+	S32         mA;
+	S32         mB;
+	S32         mC;
+	S32         mD;
 };
 
 class FilterString
