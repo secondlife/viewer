@@ -471,7 +471,7 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show,
-						  const menuentry_vec_t &disabled_entries) // If append is TRUE, then new enabled entries 
+						  const menuentry_vec_t &disabled_entries)
 {
 	const LLView::child_list_t *list = menu.getChildList();
 
@@ -492,7 +492,6 @@ void hide_context_entries(LLMenuGL& menu,
 		{
 			hide_context_entries(*branchp->getBranch(), entries_to_show, disabled_entries);
 		}
-
 
 		bool found = false;
 		menuentry_vec_t::const_iterator itor2;
@@ -529,7 +528,7 @@ void hide_context_entries(LLMenuGL& menu,
 			// so that some other UI element from multi-select doesn't later set this invisible.
 			menu_item->pushVisible(TRUE);
 
-			BOOL enabled = TRUE;
+			BOOL enabled = menu_item->getEnabled();
 			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
 			{
 				if (*itor2 == name)
