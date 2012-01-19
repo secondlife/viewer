@@ -218,13 +218,13 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	switch (valign)
 	{
 	case TOP:
-		cur_y -= mFontFreetype->getAscenderHeight();
+		cur_y -= getAscenderHeight();
 		break;
 	case BOTTOM:
-		cur_y += mFontFreetype->getDescenderHeight();
+		cur_y += getDescenderHeight();
 		break;
 	case VCENTER:
-		cur_y -= (mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight()) / 2.f;
+		cur_y -= (getAscenderHeight() - getDescenderHeight()) / 2.f;
 		break;
 	case BASELINE:
 		// Baseline, do nothing.
@@ -390,12 +390,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	//FIXME: add underline as glyph?
 	if (style_to_add & UNDERLINE)
 	{
-		F32 descender = mFontFreetype->getDescenderHeight();
+		F32 descender = (F32)llfloor(mFontFreetype->getDescenderHeight());
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.begin(LLRender::LINES);
-		gGL.vertex2f(start_x, cur_y - (descender));
-		gGL.vertex2f(cur_x, cur_y - (descender));
+		gGL.vertex2f(start_x, cur_y - descender);
+		gGL.vertex2f(cur_x, cur_y - descender);
 		gGL.end();
 	}
 
@@ -446,17 +446,17 @@ S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y
 // font metrics - override for LLFontFreetype that returns units of virtual pixels
 F32 LLFontGL::getLineHeight() const
 { 
-	return (F32)llround(mFontFreetype->getLineHeight() / sScaleY); 
+	return (F32)llceil(mFontFreetype->getLineHeight() / sScaleY); 
 }
 
 F32 LLFontGL::getAscenderHeight() const
 { 
-	return (F32)llround(mFontFreetype->getAscenderHeight() / sScaleY); 
+	return (F32)llceil(mFontFreetype->getAscenderHeight() / sScaleY); 
 }
 
 F32 LLFontGL::getDescenderHeight() const
 { 
-	return (F32)llround(mFontFreetype->getDescenderHeight() / sScaleY); 
+	return (F32)llceil(mFontFreetype->getDescenderHeight() / sScaleY); 
 }
 
 S32 LLFontGL::getWidth(const std::string& utf8text) const

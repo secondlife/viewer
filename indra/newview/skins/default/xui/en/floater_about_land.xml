@@ -192,7 +192,7 @@
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="18"
              layout="topleft"
              left_pad="2"
              valign="center" 

@@ -749,7 +749,10 @@ LLPanelGroupMembersSubTab::LLPanelGroupMembersSubTab()
 
 LLPanelGroupMembersSubTab::~LLPanelGroupMembersSubTab()
 {
-	gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
+	if (mMembersList)
+	{
+		gSavedSettings.setString("GroupMembersSortOrder", mMembersList->getSortColumnName());
+	}
 }
 
 BOOL LLPanelGroupMembersSubTab::postBuildSubTab(LLView* root)
