@@ -1254,7 +1254,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>76cac9c6be702db7402623a405f7e59c</string>
+              <string>9cfcb4c93f77d0f5e7541b57b0feaeef</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248048/arch/Linux/installer/llpathinglibrary-0.1-linux-20120119.tar.bz2</string>
             </map>
