@@ -107,7 +107,7 @@ private:
 
 	virtual void onOpen(const LLSD& pKey);
 
-	void onShowNavmeshToggle();
+	void onShowNavMeshToggle();
 	void onShowExcludeVolumesToggle();
 	void onShowPathToggle();
 	void onShowWaterPlaneToggle();
@@ -116,14 +116,14 @@ private:
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onViewEditLinksetClicked();
-	void onRebuildNavmeshClicked();
-	void onRefreshNavmeshClicked();
+	void onRebuildNavMeshClicked();
+	void onRefreshNavMeshClicked();
 	void onTerrainMaterialASet();
 	void onTerrainMaterialBSet();
 	void onTerrainMaterialCSet();
 	void onTerrainMaterialDSet();
 
-	LLCheckBoxCtrl *mShowNavmeshCheckBox;
+	LLCheckBoxCtrl *mShowNavMeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
 	LLCheckBoxCtrl *mShowPathCheckBox;
 	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
@@ -136,7 +136,7 @@ private:
 	LLLineEditor   *mTerrainMaterialC;
 	LLLineEditor   *mTerrainMaterialD;
 
-	LLNavMeshDownloadObserver mNavmeshDownloadObserver;
+	LLNavMeshDownloadObserver mNavMeshDownloadObserver;
 
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;

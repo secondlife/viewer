@@ -1233,7 +1233,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	mWindow->showCursorFromMouseMove();
 
-	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME
+		&& !gDisconnected)
 	{
 		gAgent.clearAFK();
 	}

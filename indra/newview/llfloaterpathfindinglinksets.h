@@ -35,11 +35,14 @@
 
 class LLTextBase;
 class LLScrollListCtrl;
+class LLLineEditor;
+class LLCheckBoxCtrl;
+class LLButton;
 
 class PathfindingLinkset
 {
 public:
-	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavmeshItem);
+	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavMeshItem);
 	PathfindingLinkset(const PathfindingLinkset& pOther);
 	virtual ~PathfindingLinkset();
 
@@ -60,17 +63,17 @@ public:
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
 
-	F32                getA() const;
-	void               setA(F32 pA);
+	S32                getA() const;
+	void               setA(S32 pA);
 
-	F32                getB() const;
-	void               setB(F32 pB);
+	S32                getB() const;
+	void               setB(S32 pB);
 
-	F32                getC() const;
-	void               setC(F32 pC);
+	S32                getC() const;
+	void               setC(S32 pC);
 
-	F32                getD() const;
-	void               setD(F32 pD);
+	S32                getD() const;
+	void               setD(S32 pD);
 
 protected:
 
@@ -83,10 +86,32 @@ private:
 	BOOL        mIsFixed;
 	BOOL        mIsWalkable;
 	BOOL        mIsPhantom;
-	F32         mA;
-	F32         mB;
-	F32         mC;
-	F32         mD;
+	S32         mA;
+	S32         mB;
+	S32         mC;
+	S32         mD;
+};
+
+class FilterString
+{
+public:
+	FilterString();
+	FilterString(const std::string& pFilter);
+	FilterString(const FilterString& pOther);
+	virtual ~FilterString();
+
+	const std::string& get() const;
+	bool               set(const std::string& pFilter);
+	void               clear();
+
+	bool isActive() const;
+	bool doesMatch(const std::string& pTestString) const;
+
+protected:
+
+private:
+	std::string mFilter;
+	std::string mUpperFilter;
 };
 
 class PathfindingLinksets
@@ -95,19 +120,26 @@ public:
 	typedef std::map<std::string, PathfindingLinkset> PathfindingLinksetMap;
 
 	PathfindingLinksets();
-	PathfindingLinksets(const LLSD& pNavmeshData);
+	PathfindingLinksets(const LLSD& pNavMeshData);
 	PathfindingLinksets(const PathfindingLinksets& pOther);
 	virtual ~PathfindingLinksets();
 
-	void parseNavmeshData(const LLSD& pNavmeshData);
+	void parseNavMeshData(const LLSD& pNavMeshData);
 	void clearLinksets();
 
 	const PathfindingLinksetMap& getAllLinksets() const;
 	const PathfindingLinksetMap& getFilteredLinksets();
 
-	BOOL isFilterActive() const;
-	void setNameFilter(const std::string& pNameFilter);
-	void clearFilters();
+	BOOL               isFiltersActive() const;
+	void               setNameFilter(const std::string& pNameFilter);
+	const std::string& getNameFilter() const;
+	void               setDescriptionFilter(const std::string& pDescriptionFilter);
+	const std::string& getDescriptionFilter() const;
+	void               setFixedFilter(BOOL pFixedFilter);
+	BOOL               isFixedFilter() const;
+	void               setWalkableFilter(BOOL pWalkableFilter);
+	BOOL               isWalkableFilter() const;
+	void               clearFilters();
 
 protected:
 
@@ -115,25 +147,30 @@ private:
 	PathfindingLinksetMap mAllLinksets;
 	PathfindingLinksetMap mFilteredLinksets;
 
-	bool        mIsFilterDirty;
-	std::string mNameFilter;
+	bool         mIsFiltersDirty;
+	FilterString mNameFilter;
+	FilterString mDescriptionFilter;
+	BOOL         mIsFixedFilter;
+	BOOL         mIsWalkableFilter;
 
 	void applyFilters();
+	BOOL doesMatchFilters(const PathfindingLinkset& pLinkset) const;
 };
 
 class LLFloaterPathfindingLinksets
 :	public LLFloater
 {
 	friend class LLFloaterReg;
-	friend class NavmeshDataGetResponder;
+	friend class NavMeshDataGetResponder;
+	friend class NavMeshDataPutResponder;
 
 public:
 	typedef enum
 	{
 		kFetchInitial,
 		kFetchStarting,
-		kFetchInProgress,
-		kFetchInProgress_MultiRequested,
+		kFetchRequestSent,
+		kFetchRequestSent_MultiRequested,
 		kFetchReceived,
 		kFetchError,
 		kFetchComplete
@@ -154,28 +191,61 @@ private:
 	EFetchState         mFetchState;
 	LLScrollListCtrl    *mLinksetsScrollList;
 	LLTextBase          *mLinksetsStatus;
+	LLLineEditor        *mFilterByName;
+	LLLineEditor        *mFilterByDescription;
+	LLCheckBoxCtrl      *mFilterByFixed;
+	LLCheckBoxCtrl      *mFilterByWalkable;
+	LLCheckBoxCtrl      *mEditFixed;
+	LLCheckBoxCtrl      *mEditWalkable;
+	LLCheckBoxCtrl      *mEditPhantom;
+	LLTextBase          *mLabelWalkabilityCoefficients;
+	LLTextBase          *mLabelEditA;
+	LLTextBase          *mLabelEditB;
+	LLTextBase          *mLabelEditC;
+	LLTextBase          *mLabelEditD;
+	LLLineEditor        *mEditA;
+	LLLineEditor        *mEditB;
+	LLLineEditor        *mEditC;
+	LLLineEditor        *mEditD;
+	LLButton            *mApplyEdits;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterPathfindingLinksets(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingLinksets();
 
-	void sendNavmeshDataGetRequest();
-	void handleNavmeshDataGetReply(const LLSD& pNavmeshData);
-	void handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
+	void sendNavMeshDataGetRequest();
+	void sendNavMeshDataPutRequest(const LLSD& pPostData);
+	void handleNavMeshDataGetReply(const LLSD& pNavMeshData);
+	void handleNavMeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
+	void handleNavMeshDataPutReply(const LLSD& pModifiedData);
+	void handleNavMeshDataPutError(const std::string& pURL, const std::string& pErrorReason);
+
+	std::string getRegionName() const;
+	std::string getCapabilityURL() const;
 
 	void setFetchState(EFetchState pFetchState);
 
+	void onApplyFiltersClicked();
+	void onClearFiltersClicked();
 	void onLinksetsSelectionChange();
 	void onRefreshLinksetsClicked();
 	void onSelectAllLinksetsClicked();
 	void onSelectNoneLinksetsClicked();
+	void onApplyChangesClicked();
 
-	void clearLinksetsList();
+	void applyFilters();
+	void clearFilters();
+
+	void updateLinksetsList();
 	void selectAllLinksets();
 	void selectNoneLinksets();
 
 	void updateLinksetsStatusMessage();
+
+	void updateEditFields();
+	void applyEditFields();
+	void setEnableEditFields(BOOL pEnabled);
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

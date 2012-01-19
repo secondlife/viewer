@@ -16,3 +16,8 @@ set(LLPATHING_LIBRARIES
     debug     ${LL_PATHING_DEBUG_LIB}
     optimized ${LL_PATHING_RELEASE_LIB}
 )
+
+if (LINUX)
+    list(INSERT LLPATHING_LIBRARIES 0 -Wl,--start-group)
+    list(APPEND LLPATHING_LIBRARIES -Wl,--end-group)
+endif (LINUX)

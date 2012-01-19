@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="SES DENETİMLERİ">
 	<string name="title_nearby">
-		Yakındaki ses
+		SES AYARLARI
 	</string>
 	<string name="title_group">
-		[GROUP] ile grup araması
+		[GROUP] İLE GRUP ARAMASI
 	</string>
 	<string name="title_adhoc">
-		Konferans araması
+		KONFERANS ARAMASI
 	</string>
 	<string name="title_peer_2_peer">
-		[NAME] ile arama
+		[NAME] İLE ARAMA
 	</string>
 	<string name="no_one_near">
 		Yakındaki kimsede ses etkin değil

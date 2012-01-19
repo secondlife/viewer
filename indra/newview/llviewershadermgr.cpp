@@ -1103,11 +1103,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	{
 		gDeferredSkinnedAlphaProgram.mName = "Deferred Skinned Alpha Shader";
 		gDeferredSkinnedAlphaProgram.mFeatures.hasObjectSkinning = true;
-		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasGamma = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasAtmospherics = true;
+		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = true;
+		gDeferredSkinnedAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredSkinnedAlphaProgram.mFeatures.disableTextureIndex = true;
 		gDeferredSkinnedAlphaProgram.mShaderFiles.clear();
 		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
@@ -1235,6 +1236,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAlphaProgram.mFeatures.hasGamma = true;
 		gDeferredAlphaProgram.mFeatures.hasAtmospherics = true;
 		gDeferredAlphaProgram.mFeatures.hasLighting = true;
+		gDeferredAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredAlphaProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
 		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
 		{
@@ -1398,6 +1400,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.mFeatures.hasGamma = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasAtmospherics = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
+		gDeferredAvatarAlphaProgram.mFeatures.isAlphaLighting = true;
 		gDeferredAvatarAlphaProgram.mFeatures.disableTextureIndex = true;
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
 		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaV.glsl", GL_VERTEX_SHADER_ARB));

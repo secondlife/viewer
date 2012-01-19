@@ -62,7 +62,7 @@
       left_delta="93"
       top="11"
       max_length_bytes="10"
-      name="estate"
+      name="filter_by_name"
       width="115" />
   <text
       height="13"
@@ -87,7 +87,7 @@
       left_delta="131"
       top="11"
       max_length_bytes="10"
-      name="estate"
+      name="filter_by_description"
       width="115" />
   <check_box
       height="19"
@@ -95,7 +95,7 @@
       layout="topleft"
       left="591"
       top="14"
-      name="DisplayNavmeshOverlay"
+      name="filter_by_fixed"
       width="90" />
   <check_box
       height="19"
@@ -103,14 +103,14 @@
       layout="topleft"
       left="671"
       top="14"
-      name="DisplayNavmeshOverlay"
+      name="filter_by_walkable"
       width="90" />
   <button
       follows="right|top"
       height="21"
       label="Apply"
       layout="topleft"
-      name="linksets"
+      name="apply_filters"
       top="11"
       left="769"
       width="73"/>
@@ -119,7 +119,7 @@
       height="21"
       label="Clear"
       layout="topleft"
-      name="linksets"
+      name="clear_filters"
       top="11"
       left="851"
       width="73"/>
@@ -246,14 +246,14 @@
       height="19"
       label="Fixed"
       layout="topleft"
-      name="DisplayNavmeshOverlay"
+      name="edit_fixed_value"
       top_pad="10"
       width="90" />
   <check_box
       height="19"
       label="Walkable"
       layout="topleft"
-      name="DisplayNavmeshOverlay"
+      name="edit_walkable_value"
       top_pad="5"
       left="38"
       width="90" />
@@ -263,6 +263,8 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      name="walkability_coefficients_label"
       length="1"
       follows="left|top"
       layout="topleft"
@@ -277,6 +279,8 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      name="edit_a_label"
       length="1"
       follows="left|top"
       layout="topleft"
@@ -291,8 +295,8 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
-      name="estate"
+      max_length_chars="3"
+      name="edit_a_value"
       width="45" />
   <text
       height="13"
@@ -300,6 +304,8 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      name="edit_b_label"
       length="1"
       follows="left|top"
       layout="topleft"
@@ -315,8 +321,8 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
-      name="estate"
+      max_length_chars="3"
+      name="edit_b_value"
       width="45" />
   <text
       height="13"
@@ -324,6 +330,8 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      name="edit_c_label"
       length="1"
       follows="left|top"
       layout="topleft"
@@ -339,8 +347,8 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
-      name="estate"
+      max_length_chars="3"
+      name="edit_c_value"
       width="45" />
   <text
       height="13"
@@ -348,6 +356,8 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      name="edit_d_label"
       length="1"
       follows="left|top"
       layout="topleft"
@@ -363,14 +373,14 @@
       height="20"
       layout="topleft"
       left_delta="14"
-      max_length_bytes="10"
-      name="estate"
+      max_length_chars="3"
+      name="edit_d_value"
       width="45" />
   <check_box
       height="19"
       label="Phantom"
       layout="topleft"
-      name="DisplayNavmeshOverlay"
+      name="edit_phantom_value"
       top="271"
       left="559"
       width="90" />
@@ -379,7 +389,7 @@
       height="21"
       label="Apply changes"
       layout="topleft"
-      name="linksets"
+      name="apply_edit_values"
       top="270"
       left="735"
       width="134"/>

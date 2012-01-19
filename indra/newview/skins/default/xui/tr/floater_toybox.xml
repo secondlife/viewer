@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Toybox" title="ARAÇ ÇUBUKLARINI ÖZELLEŞTİR">
+<floater name="Toybox" title="ARAÇ ÇUBUĞU DÜĞMELERİ">
 	<text name="toybox label 1">
 		Düğmeleri araç çubuklarına veya araç çubuklarından sürükleyerek ekleyin ya da kaldırın.
 	</text>
 	<text name="toybox label 2">
 		Her bir araç çubuğunun ayarına göre düğmeler gösterilir veya sadece simgeleri yer alır.
 	</text>
+	<button label="Tüm araç çubuklarını temizle" label_selected="Tüm araç çubuklarını temizle" name="btn_clear_all"/>
 	<button label="Varsayılanları geri yükle" label_selected="Varsayılanları geri yükle" name="btn_restore_defaults"/>
 </floater>

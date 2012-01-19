@@ -30,33 +30,58 @@
 #include "llfloaterpathfindinglinksets.h"
 #include "llsd.h"
 #include "v3math.h"
+#include "lltextvalidate.h"
 #include "llagent.h"
 #include "llfloater.h"
 #include "llfloaterreg.h"
+#include "lltextbase.h"
+#include "lllineeditor.h"
+#include "llscrolllistitem.h"
 #include "llscrolllistctrl.h"
+#include "llcheckboxctrl.h"
+#include "llbutton.h"
 #include "llresmgr.h"
 #include "llviewerregion.h"
 #include "llhttpclient.h"
-#include "lltextbase.h"
 #include "lluuid.h"
 
 //---------------------------------------------------------------------------
-// NavmeshDataGetResponder
+// NavMeshDataGetResponder
 //---------------------------------------------------------------------------
 
-class NavmeshDataGetResponder : public LLHTTPClient::Responder
+class NavMeshDataGetResponder : public LLHTTPClient::Responder
 {
 public:
-	NavmeshDataGetResponder(const std::string& pNavmeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
-	virtual ~NavmeshDataGetResponder();
+	NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	virtual ~NavMeshDataGetResponder();
 
 	virtual void result(const LLSD& pContent);
 	virtual void error(U32 pStatus, const std::string& pReason);
 
 private:
-	NavmeshDataGetResponder(const NavmeshDataGetResponder& pOther);
+	NavMeshDataGetResponder(const NavMeshDataGetResponder& pOther);
 
-	std::string                  mNavmeshDataGetURL;
+	std::string                  mNavMeshDataGetURL;
+	LLFloaterPathfindingLinksets *mLinksetsFloater;
+};
+
+//---------------------------------------------------------------------------
+// NavMeshDataPutResponder
+//---------------------------------------------------------------------------
+
+class NavMeshDataPutResponder : public LLHTTPClient::Responder
+{
+public:
+	NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	virtual ~NavMeshDataPutResponder();
+
+	virtual void result(const LLSD& pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
+
+private:
+	NavMeshDataPutResponder(const NavMeshDataPutResponder& pOther);
+
+	std::string                  mNavMeshDataPutURL;
 	LLFloaterPathfindingLinksets *mLinksetsFloater;
 };
 
@@ -64,7 +89,7 @@ private:
 // PathfindingLinkset
 //---------------------------------------------------------------------------
 
-PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNavmeshItem)
+PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNavMeshItem)
 	: mUUID(pUUID),
 	mName(),
 	mDescription(),
@@ -73,55 +98,55 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	mIsFixed(false),
 	mIsWalkable(false),
 	mIsPhantom(false),
-	mA(0.0f),
-	mB(0.0f),
-	mC(0.0f),
-	mD(0.0f)
+	mA(0),
+	mB(0),
+	mC(0),
+	mD(0)
 {
-	llassert(pNavmeshItem.has("name"));
-	llassert(pNavmeshItem.get("name").isString());
-	mName = pNavmeshItem.get("name").asString();
+	llassert(pNavMeshItem.has("name"));
+	llassert(pNavMeshItem.get("name").isString());
+	mName = pNavMeshItem.get("name").asString();
 
-	llassert(pNavmeshItem.has("description"));
-	llassert(pNavmeshItem.get("description").isString());
-	mDescription = pNavmeshItem.get("description").asString();
+	llassert(pNavMeshItem.has("description"));
+	llassert(pNavMeshItem.get("description").isString());
+	mDescription = pNavMeshItem.get("description").asString();
 
-	llassert(pNavmeshItem.has("landimpact"));
-	llassert(pNavmeshItem.get("landimpact").isInteger());
-	llassert(pNavmeshItem.get("landimpact").asInteger() >= 0);
-	mLandImpact = pNavmeshItem.get("landimpact").asInteger();
+	llassert(pNavMeshItem.has("landimpact"));
+	llassert(pNavMeshItem.get("landimpact").isInteger());
+	llassert(pNavMeshItem.get("landimpact").asInteger() >= 0);
+	mLandImpact = pNavMeshItem.get("landimpact").asInteger();
 
-	llassert(pNavmeshItem.has("fixed"));
-	llassert(pNavmeshItem.get("fixed").isBoolean());
-	mIsFixed = pNavmeshItem.get("fixed").asBoolean();
+	llassert(pNavMeshItem.has("permanent"));
+	llassert(pNavMeshItem.get("permanent").isBoolean());
+	mIsFixed = pNavMeshItem.get("permanent").asBoolean();
 
-	llassert(pNavmeshItem.has("walkable"));
-	llassert(pNavmeshItem.get("walkable").isBoolean());
-	mIsWalkable = pNavmeshItem.get("walkable").asBoolean();
+	llassert(pNavMeshItem.has("walkable"));
+	llassert(pNavMeshItem.get("walkable").isBoolean());
+	mIsWalkable = pNavMeshItem.get("walkable").asBoolean();
 
-	llassert(pNavmeshItem.has("phantom"));
-	//llassert(pNavmeshItem.get("phantom").isBoolean()); XXX stinson 01/10/2012: this should be a boolean but is not
-	mIsPhantom = pNavmeshItem.get("phantom").asBoolean();
+	llassert(pNavMeshItem.has("phantom"));
+	//llassert(pNavMeshItem.get("phantom").isBoolean()); XXX stinson 01/10/2012: this should be a boolean but is not
+	mIsPhantom = pNavMeshItem.get("phantom").asBoolean();
 
-	llassert(pNavmeshItem.has("A"));
-	llassert(pNavmeshItem.get("A").isReal());
-	mA = pNavmeshItem.get("A").asReal();
+	llassert(pNavMeshItem.has("A"));
+	llassert(pNavMeshItem.get("A").isReal());
+	mA = llround(pNavMeshItem.get("A").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("B"));
-	llassert(pNavmeshItem.get("B").isReal());
-	mB = pNavmeshItem.get("B").asReal();
+	llassert(pNavMeshItem.has("B"));
+	llassert(pNavMeshItem.get("B").isReal());
+	mB = llround(pNavMeshItem.get("B").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("C"));
-	llassert(pNavmeshItem.get("C").isReal());
-	mC = pNavmeshItem.get("C").asReal();
+	llassert(pNavMeshItem.has("C"));
+	llassert(pNavMeshItem.get("C").isReal());
+	mC = llround(pNavMeshItem.get("C").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("D"));
-	llassert(pNavmeshItem.get("D").isReal());
-	mD = pNavmeshItem.get("D").asReal();
+	llassert(pNavMeshItem.has("D"));
+	llassert(pNavMeshItem.get("D").isReal());
+	mD = llround(pNavMeshItem.get("D").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("position"));
-	llassert(pNavmeshItem.get("position").isArray());
-	mLocation.setValue(pNavmeshItem.get("position"));
+	llassert(pNavMeshItem.has("position"));
+	llassert(pNavMeshItem.get("position").isArray());
+	mLocation.setValue(pNavMeshItem.get("position"));
 }
 
 PathfindingLinkset::PathfindingLinkset(const PathfindingLinkset& pOther)
@@ -217,44 +242,121 @@ void PathfindingLinkset::setPhantom(BOOL pIsPhantom)
 	mIsPhantom = pIsPhantom;
 }
 
-F32 PathfindingLinkset::getA() const
+S32 PathfindingLinkset::getA() const
 {
 	return mA;
 }
 
-void PathfindingLinkset::setA(F32 pA)
+void PathfindingLinkset::setA(S32 pA)
 {
 	mA = pA;
 }
 
-F32 PathfindingLinkset::getB() const
+S32 PathfindingLinkset::getB() const
 {
 	return mB;
 }
 
-void PathfindingLinkset::setB(F32 pB)
+void PathfindingLinkset::setB(S32 pB)
 {
 	mB = pB;
 }
 
-F32 PathfindingLinkset::getC() const
+S32 PathfindingLinkset::getC() const
 {
 	return mC;
 }
 
-void PathfindingLinkset::setC(F32 pC)
+void PathfindingLinkset::setC(S32 pC)
 {
 	mC = pC;
 }
 
-F32 PathfindingLinkset::getD() const
+S32 PathfindingLinkset::getD() const
 {
 	return mD;
 }
 
-void PathfindingLinkset::setD(F32 pD)
+void PathfindingLinkset::setD(S32 pD)
 {
 	mD = pD;
+}
+
+//---------------------------------------------------------------------------
+// FilterString
+//---------------------------------------------------------------------------
+
+FilterString::FilterString()
+	: mFilter(),
+	mUpperFilter()
+{
+}
+
+FilterString::FilterString(const std::string& pFilter)
+	: mFilter(pFilter),
+	mUpperFilter()
+{
+	LLStringUtil::trim(mFilter);
+	mUpperFilter = mFilter;
+	if (!mUpperFilter.empty())
+	{
+		LLStringUtil::toUpper(mUpperFilter);
+	}
+}
+
+FilterString::FilterString(const FilterString& pOther)
+	: mFilter(pOther.mFilter),
+	mUpperFilter(pOther.mUpperFilter)
+{
+}
+
+FilterString::~FilterString()
+{
+}
+
+const std::string& FilterString::get() const
+{
+	return mFilter;
+}
+
+bool FilterString::set(const std::string& pFilter)
+{
+	std::string newFilter(pFilter);
+	LLStringUtil::trim(newFilter);
+	bool didFilterChange = (mFilter.compare(newFilter) != 0);
+	if (didFilterChange)
+	{
+		mFilter = newFilter;
+		mUpperFilter = newFilter;
+		LLStringUtil::toUpper(mUpperFilter);
+	}
+
+	return didFilterChange;
+}
+
+void FilterString::clear()
+{
+	mFilter.clear();
+	mUpperFilter.clear();
+}
+
+bool FilterString::isActive() const
+{
+	return !mFilter.empty();
+}
+
+bool FilterString::doesMatch(const std::string& pTestString) const
+{
+	bool doesMatch = true;
+
+	if (isActive())
+	{
+		std::string upperTestString(pTestString);
+		LLStringUtil::toUpper(upperTestString);
+		doesMatch = (upperTestString.find(mUpperFilter) != std::string::npos);
+	}
+
+	return doesMatch;
 }
 
 //---------------------------------------------------------------------------
@@ -264,25 +366,34 @@ void PathfindingLinkset::setD(F32 pD)
 PathfindingLinksets::PathfindingLinksets()
 	: mAllLinksets(),
 	mFilteredLinksets(),
-	mIsFilterDirty(false),
-	mNameFilter()
+	mIsFiltersDirty(false),
+	mNameFilter(),
+	mDescriptionFilter(),
+	mIsFixedFilter(false),
+	mIsWalkableFilter(false)
 {
 }
 
-PathfindingLinksets::PathfindingLinksets(const LLSD& pNavmeshData)
+PathfindingLinksets::PathfindingLinksets(const LLSD& pNavMeshData)
 	: mAllLinksets(),
 	mFilteredLinksets(),
-	mIsFilterDirty(false),
-	mNameFilter()
+	mIsFiltersDirty(false),
+	mNameFilter(),
+	mDescriptionFilter(),
+	mIsFixedFilter(false),
+	mIsWalkableFilter(false)
 {
-	parseNavmeshData(pNavmeshData);
+	parseNavMeshData(pNavMeshData);
 }
 
 PathfindingLinksets::PathfindingLinksets(const PathfindingLinksets& pOther)
 	: mAllLinksets(pOther.mAllLinksets),
 	mFilteredLinksets(pOther.mFilteredLinksets),
-	mIsFilterDirty(pOther.mIsFilterDirty),
-	mNameFilter(pOther.mNameFilter)
+	mIsFiltersDirty(pOther.mIsFiltersDirty),
+	mNameFilter(pOther.mNameFilter),
+	mDescriptionFilter(pOther.mDescriptionFilter),
+	mIsFixedFilter(pOther.mIsFixedFilter),
+	mIsWalkableFilter(pOther.mIsWalkableFilter)
 {
 }
 
@@ -291,12 +402,12 @@ PathfindingLinksets::~PathfindingLinksets()
 	clearLinksets();
 }
 
-void PathfindingLinksets::parseNavmeshData(const LLSD& pNavmeshData)
+void PathfindingLinksets::parseNavMeshData(const LLSD& pNavMeshData)
 {
 	clearLinksets();
 
-	for (LLSD::map_const_iterator linksetIter = pNavmeshData.beginMap();
-		linksetIter != pNavmeshData.endMap(); ++linksetIter)
+	for (LLSD::map_const_iterator linksetIter = pNavMeshData.beginMap();
+		linksetIter != pNavMeshData.endMap(); ++linksetIter)
 	{
 		const std::string& uuid(linksetIter->first);
 		const LLSD& linksetData = linksetIter->second;
@@ -305,14 +416,14 @@ void PathfindingLinksets::parseNavmeshData(const LLSD& pNavmeshData)
 		mAllLinksets.insert(std::pair<std::string, PathfindingLinkset>(uuid, linkset));
 	}
 
-	mIsFilterDirty = true;
+	mIsFiltersDirty = true;
 }
 
 void PathfindingLinksets::clearLinksets()
 {
 	mAllLinksets.clear();
 	mFilteredLinksets.clear();
-	mIsFilterDirty = false;
+	mIsFiltersDirty = false;
 }
 
 const PathfindingLinksets::PathfindingLinksetMap& PathfindingLinksets::getAllLinksets() const
@@ -322,28 +433,97 @@ const PathfindingLinksets::PathfindingLinksetMap& PathfindingLinksets::getAllLin
 
 const PathfindingLinksets::PathfindingLinksetMap& PathfindingLinksets::getFilteredLinksets()
 {
-#if 0
-	if (!isFilterActive())
+	if (!isFiltersActive())
 	{
 		return mAllLinksets;
 	}
 	else
 	{
-		if (mIsFilterDirty)
-		{
-			mFilteredLinksets.clear();
-			for (PathfindingLinksetMap::const_iterator linksetIter = mAllLinksets.begin();
-				linksetIter != mAllLinksets.end(); ++linksetIter)
-			{
-
-			}
-			mIsFilterDirty = false;
-		}
+		applyFilters();
 		return mFilteredLinksets;
 	}
-#else
-	return mAllLinksets;
-#endif
+}
+
+BOOL PathfindingLinksets::isFiltersActive() const
+{
+	return (mNameFilter.isActive() || mDescriptionFilter.isActive() || mIsFixedFilter || mIsWalkableFilter);
+}
+
+void PathfindingLinksets::setNameFilter(const std::string& pNameFilter)
+{
+	mIsFiltersDirty = (mNameFilter.set(pNameFilter) || mIsFiltersDirty);
+}
+
+const std::string& PathfindingLinksets::getNameFilter() const
+{
+	return mNameFilter.get();
+}
+
+void PathfindingLinksets::setDescriptionFilter(const std::string& pDescriptionFilter)
+{
+	mIsFiltersDirty = (mDescriptionFilter.set(pDescriptionFilter) || mIsFiltersDirty);
+}
+
+const std::string& PathfindingLinksets::getDescriptionFilter() const
+{
+	return mDescriptionFilter.get();
+}
+
+void PathfindingLinksets::setFixedFilter(BOOL pFixedFilter)
+{
+	mIsFiltersDirty = (mIsFiltersDirty || (mIsFixedFilter == pFixedFilter));
+	mIsFixedFilter = pFixedFilter;
+}
+
+BOOL PathfindingLinksets::isFixedFilter() const
+{
+	return mIsFixedFilter;
+}
+
+void PathfindingLinksets::setWalkableFilter(BOOL pWalkableFilter)
+{
+	mIsFiltersDirty = (mIsFiltersDirty || (mIsWalkableFilter == pWalkableFilter));
+	mIsWalkableFilter = pWalkableFilter;
+}
+
+BOOL PathfindingLinksets::isWalkableFilter() const
+{
+	return mIsWalkableFilter;
+}
+
+void PathfindingLinksets::clearFilters()
+{
+	mNameFilter.clear();
+	mDescriptionFilter.clear();
+	mIsFixedFilter = false;
+	mIsWalkableFilter = false;
+	mIsFiltersDirty = false;
+}
+
+void PathfindingLinksets::applyFilters()
+{
+	mFilteredLinksets.clear();
+
+	for (PathfindingLinksetMap::const_iterator linksetIter = mAllLinksets.begin();
+		linksetIter != mAllLinksets.end(); ++linksetIter)
+	{
+		const std::string& uuid(linksetIter->first);
+		const PathfindingLinkset& linkset(linksetIter->second);
+		if (doesMatchFilters(linkset))
+		{
+			mFilteredLinksets.insert(std::pair<std::string, PathfindingLinkset>(uuid, linkset));
+		}
+	}
+
+	mIsFiltersDirty = false;
+}
+
+BOOL PathfindingLinksets::doesMatchFilters(const PathfindingLinkset& pLinkset) const
+{
+	return ((!mIsFixedFilter || pLinkset.isFixed()) &&
+			(!mIsWalkableFilter || pLinkset.isWalkable()) &&
+			(!mNameFilter.isActive() || mNameFilter.doesMatch(pLinkset.getName())) &&
+			(!mDescriptionFilter.isActive() || mDescriptionFilter.doesMatch(pLinkset.getDescription())));
 }
 
 //---------------------------------------------------------------------------
@@ -352,6 +532,8 @@ const PathfindingLinksets::PathfindingLinksetMap& PathfindingLinksets::getFilter
 
 BOOL LLFloaterPathfindingLinksets::postBuild()
 {
+	childSetAction("apply_filters", boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
+	childSetAction("clear_filters", boost::bind(&LLFloaterPathfindingLinksets::onClearFiltersClicked, this));
 	childSetAction("refresh_linksets_list", boost::bind(&LLFloaterPathfindingLinksets::onRefreshLinksetsClicked, this));
 	childSetAction("select_all_linksets", boost::bind(&LLFloaterPathfindingLinksets::onSelectAllLinksetsClicked, this));
 	childSetAction("select_none_linksets", boost::bind(&LLFloaterPathfindingLinksets::onSelectNoneLinksetsClicked, this));
@@ -364,6 +546,71 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mLinksetsStatus = findChild<LLTextBase>("linksets_status");
 	llassert(mLinksetsStatus != NULL);
 
+	mFilterByName = findChild<LLLineEditor>("filter_by_name");
+	llassert(mFilterByName != NULL);
+	mFilterByName->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
+	mFilterByName->setSelectAllonFocusReceived(true);
+	mFilterByName->setCommitOnFocusLost(true);
+
+	mFilterByDescription = findChild<LLLineEditor>("filter_by_description");
+	llassert(mFilterByDescription != NULL);
+	mFilterByDescription->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
+	mFilterByDescription->setSelectAllonFocusReceived(true);
+	mFilterByDescription->setCommitOnFocusLost(true);
+
+	mFilterByFixed = findChild<LLCheckBoxCtrl>("filter_by_fixed");
+	llassert(mFilterByFixed != NULL);
+	mFilterByFixed->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
+
+	mFilterByWalkable = findChild<LLCheckBoxCtrl>("filter_by_walkable");
+	llassert(mFilterByWalkable != NULL);
+	mFilterByWalkable->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
+
+	mEditFixed = findChild<LLCheckBoxCtrl>("edit_fixed_value");
+	llassert(mEditFixed != NULL);
+
+	mEditWalkable = findChild<LLCheckBoxCtrl>("edit_walkable_value");
+	llassert(mEditWalkable != NULL);
+
+	mEditPhantom = findChild<LLCheckBoxCtrl>("edit_phantom_value");
+	llassert(mEditPhantom != NULL);
+
+	mLabelWalkabilityCoefficients = findChild<LLTextBase>("walkability_coefficients_label");
+	llassert(mLabelWalkabilityCoefficients != NULL);
+
+	mLabelEditA = findChild<LLTextBase>("edit_a_label");
+	llassert(mLabelEditA != NULL);
+
+	mLabelEditB = findChild<LLTextBase>("edit_b_label");
+	llassert(mLabelEditB != NULL);
+
+	mLabelEditC = findChild<LLTextBase>("edit_c_label");
+	llassert(mLabelEditC != NULL);
+
+	mLabelEditD = findChild<LLTextBase>("edit_d_label");
+	llassert(mLabelEditD != NULL);
+
+	mEditA = findChild<LLLineEditor>("edit_a_value");
+	llassert(mEditA != NULL);
+	mEditA->setPrevalidate(LLTextValidate::validatePositiveS32);
+
+	mEditB = findChild<LLLineEditor>("edit_b_value");
+	llassert(mEditB != NULL);
+	mEditB->setPrevalidate(LLTextValidate::validatePositiveS32);
+
+	mEditC = findChild<LLLineEditor>("edit_c_value");
+	llassert(mEditC != NULL);
+	mEditC->setPrevalidate(LLTextValidate::validatePositiveS32);
+
+	mEditD = findChild<LLLineEditor>("edit_d_value");
+	llassert(mEditD != NULL);
+	mEditD->setPrevalidate(LLTextValidate::validatePositiveS32);
+
+	mApplyEdits = findChild<LLButton>("apply_edit_values");
+	llassert(mApplyEdits != NULL);
+	mApplyEdits->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyChangesClicked, this));
+
+	setEnableEditFields(false);
 	setFetchState(kFetchInitial);
 
 	return LLFloater::postBuild();
@@ -371,7 +618,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 void LLFloaterPathfindingLinksets::onOpen(const LLSD& pKey)
 {
-	sendNavmeshDataGetRequest();
+	sendNavMeshDataGetRequest();
 }
 
 void LLFloaterPathfindingLinksets::openLinksetsEditor()
@@ -390,8 +637,8 @@ BOOL LLFloaterPathfindingLinksets::isFetchInProgress() const
 	switch (getFetchState())
 	{
 	case kFetchStarting :
-	case kFetchInProgress :
-	case kFetchInProgress_MultiRequested :
+	case kFetchRequestSent :
+	case kFetchRequestSent_MultiRequested :
 	case kFetchReceived :
 		retVal = true;
 		break;
@@ -408,7 +655,24 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mPathfindingLinksets(),
 	mFetchState(kFetchInitial),
 	mLinksetsScrollList(NULL),
-	mLinksetsStatus(NULL)
+	mLinksetsStatus(NULL),
+	mFilterByName(NULL),
+	mFilterByDescription(NULL),
+	mFilterByFixed(NULL),
+	mFilterByWalkable(NULL),
+	mEditFixed(NULL),
+	mEditWalkable(NULL),
+	mEditPhantom(NULL),
+	mLabelWalkabilityCoefficients(NULL),
+	mLabelEditA(NULL),
+	mLabelEditB(NULL),
+	mLabelEditC(NULL),
+	mLabelEditD(NULL),
+	mEditA(NULL),
+	mEditB(NULL),
+	mEditC(NULL),
+	mEditD(NULL),
+	mApplyEdits(NULL)
 {
 }
 
@@ -416,44 +680,201 @@ LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 {
 }
 
-void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
+void LLFloaterPathfindingLinksets::sendNavMeshDataGetRequest()
 {
 	if (isFetchInProgress())
 	{
-		if (getFetchState() == kFetchInProgress)
+		if (getFetchState() == kFetchRequestSent)
 		{
-			setFetchState(kFetchInProgress_MultiRequested);
+			setFetchState(kFetchRequestSent_MultiRequested);
 		}
 	}
 	else
 	{
 		setFetchState(kFetchStarting);
-		clearLinksetsList();
+		mPathfindingLinksets.clearLinksets();
+		updateLinksetsList();
 
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region != NULL)
+		std::string navMeshDataURL = getCapabilityURL();
+		if (navMeshDataURL.empty())
 		{
-			std::string navmeshDataURL = region->getCapability("ObjectNavmesh");
-			if (navmeshDataURL.empty())
-			{
-				setFetchState(kFetchComplete);
-				llwarns << "cannot query navmesh data from current region '" << region->getName() << "'" << llendl;
-			}
-			else
-			{
-				setFetchState(kFetchInProgress);
-				LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
-			}
+			setFetchState(kFetchComplete);
+			llwarns << "cannot query object navmesh properties from current region '" << getRegionName() << "'" << llendl;
+		}
+		else
+		{
+			setFetchState(kFetchRequestSent);
+			LLHTTPClient::get(navMeshDataURL, new NavMeshDataGetResponder(navMeshDataURL, this));
 		}
 	}
 }
 
-void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmeshData)
+void LLFloaterPathfindingLinksets::sendNavMeshDataPutRequest(const LLSD& pPostData)
+{
+	std::string navMeshDataURL = getCapabilityURL();
+	if (navMeshDataURL.empty())
+	{
+		llwarns << "cannot put object navmesh properties for current region '" << getRegionName() << "'" << llendl;
+	}
+	else
+	{
+		LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, this));
+	}
+}
+
+void LLFloaterPathfindingLinksets::handleNavMeshDataGetReply(const LLSD& pNavMeshData)
 {
 	setFetchState(kFetchReceived);
-	clearLinksetsList();
+	mPathfindingLinksets.parseNavMeshData(pNavMeshData);
+	updateLinksetsList();
+	setFetchState(kFetchComplete);
+}
 
-	mPathfindingLinksets.parseNavmeshData(pNavmeshData);
+void LLFloaterPathfindingLinksets::handleNavMeshDataGetError(const std::string& pURL, const std::string& pErrorReason)
+{
+	setFetchState(kFetchError);
+	mPathfindingLinksets.clearLinksets();
+	updateLinksetsList();
+	llwarns << "Error fetching object navmesh properties from URL '" << pURL << "' because " << pErrorReason << llendl;
+}
+
+void LLFloaterPathfindingLinksets::handleNavMeshDataPutReply(const LLSD& pModifiedData)
+{
+	setFetchState(kFetchReceived);
+	mPathfindingLinksets.parseNavMeshData(pModifiedData);
+	updateLinksetsList();
+	setFetchState(kFetchComplete);
+}
+
+void LLFloaterPathfindingLinksets::handleNavMeshDataPutError(const std::string& pURL, const std::string& pErrorReason)
+{
+	setFetchState(kFetchError);
+	mPathfindingLinksets.clearLinksets();
+	updateLinksetsList();
+	llwarns << "Error putting object navmesh properties to URL '" << pURL << "' because " << pErrorReason << llendl;
+}
+
+std::string LLFloaterPathfindingLinksets::getRegionName() const
+{
+	std::string regionName("");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		regionName = region->getName();
+	}
+
+	return regionName;
+}
+
+std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
+{
+#ifdef XXX_STINSON_REGION_CAP_RENAME
+	std::string navMeshDataURL("");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		navMeshDataURL = region->getCapability("ObjectNavMeshProperties");
+		if (navMeshDataURL.empty())
+		{
+			navMeshDataURL = region->getCapability("ObjectNavmesh");
+		}
+	}
+
+	return navMeshDataURL;
+#else // XXX_STINSON_REGION_CAP_RENAME
+	std::string navMeshDataURL("");
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		navMeshDataURL = region->getCapability("ObjectNavMeshProperties");
+	}
+
+	return navMeshDataURL;
+#endif // XXX_STINSON_REGION_CAP_RENAME
+}
+
+void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)
+{
+	mFetchState = pFetchState;
+	updateLinksetsStatusMessage();
+}
+
+void LLFloaterPathfindingLinksets::onApplyFiltersClicked()
+{
+	applyFilters();
+}
+
+void LLFloaterPathfindingLinksets::onClearFiltersClicked()
+{
+	clearFilters();
+}
+
+void LLFloaterPathfindingLinksets::onLinksetsSelectionChange()
+{
+	updateLinksetsStatusMessage();
+	updateEditFields();
+}
+
+void LLFloaterPathfindingLinksets::onRefreshLinksetsClicked()
+{
+	sendNavMeshDataGetRequest();
+}
+
+void LLFloaterPathfindingLinksets::onSelectAllLinksetsClicked()
+{
+	selectAllLinksets();
+}
+
+void LLFloaterPathfindingLinksets::onSelectNoneLinksetsClicked()
+{
+	selectNoneLinksets();
+}
+
+void LLFloaterPathfindingLinksets::onApplyChangesClicked()
+{
+	applyEditFields();
+}
+
+void LLFloaterPathfindingLinksets::applyFilters()
+{
+	mPathfindingLinksets.setNameFilter(mFilterByName->getText());
+	mPathfindingLinksets.setDescriptionFilter(mFilterByDescription->getText());
+	mPathfindingLinksets.setFixedFilter(mFilterByFixed->get());
+	mPathfindingLinksets.setWalkableFilter(mFilterByWalkable->get());
+	updateLinksetsList();
+}
+
+void LLFloaterPathfindingLinksets::clearFilters()
+{
+	mPathfindingLinksets.clearFilters();
+	mFilterByName->setText(LLStringExplicit(mPathfindingLinksets.getNameFilter()));
+	mFilterByDescription->setText(LLStringExplicit(mPathfindingLinksets.getDescriptionFilter()));
+	mFilterByFixed->set(mPathfindingLinksets.isFixedFilter());
+	mFilterByWalkable->set(mPathfindingLinksets.isWalkableFilter());
+	updateLinksetsList();
+}
+
+void LLFloaterPathfindingLinksets::updateLinksetsList()
+{
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	int numSelectedItems = selectedItems.size();
+	uuid_vec_t selectedUUIDs;
+	if (numSelectedItems > 0)
+	{
+		selectedUUIDs.reserve(selectedItems.size());
+		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
+			itemIter != selectedItems.end(); ++itemIter)
+		{
+			const LLScrollListItem *listItem = *itemIter;
+			selectedUUIDs.push_back(listItem->getUUID());
+		}
+	}
+
+	mLinksetsScrollList->deleteAllItems();
+	updateLinksetsStatusMessage();
 
 	const LLVector3& avatarPosition = gAgent.getPositionAgent();
 	const PathfindingLinksets::PathfindingLinksetMap& linksetMap = mPathfindingLinksets.getFilteredLinksets();
@@ -494,19 +915,19 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmes
 		columns[6]["font"] = "SANSSERIF";
 
 		columns[7]["column"] = "a_percent";
-		columns[7]["value"] = llformat("%2.0f", linkset.getA());
+		columns[7]["value"] = llformat("%3d", linkset.getA());
 		columns[7]["font"] = "SANSSERIF";
 
 		columns[8]["column"] = "b_percent";
-		columns[8]["value"] = llformat("%2.0f", linkset.getB());
+		columns[8]["value"] = llformat("%3d", linkset.getB());
 		columns[8]["font"] = "SANSSERIF";
 
 		columns[9]["column"] = "c_percent";
-		columns[9]["value"] = llformat("%2.0f", linkset.getC());
+		columns[9]["value"] = llformat("%3d", linkset.getC());
 		columns[9]["font"] = "SANSSERIF";
 
 		columns[10]["column"] = "d_percent";
-		columns[10]["value"] = llformat("%2.0f", linkset.getD());
+		columns[10]["value"] = llformat("%3d", linkset.getD());
 		columns[10]["font"] = "SANSSERIF";
 
 		LLSD element;
@@ -516,46 +937,7 @@ void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmes
 		mLinksetsScrollList->addElement(element);
 	}
 
-	setFetchState(kFetchComplete);
-}
-
-void LLFloaterPathfindingLinksets::handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason)
-{
-	setFetchState(kFetchError);
-	clearLinksetsList();
-	llwarns << "Error fetching navmesh data from URL '" << pURL << "' because " << pErrorReason << llendl;
-}
-
-void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)
-{
-	mFetchState = pFetchState;
-	updateLinksetsStatusMessage();
-}
-
-void LLFloaterPathfindingLinksets::onLinksetsSelectionChange()
-{
-	updateLinksetsStatusMessage();
-}
-
-void LLFloaterPathfindingLinksets::onRefreshLinksetsClicked()
-{
-	sendNavmeshDataGetRequest();
-}
-
-void LLFloaterPathfindingLinksets::onSelectAllLinksetsClicked()
-{
-	selectAllLinksets();
-}
-
-void LLFloaterPathfindingLinksets::onSelectNoneLinksetsClicked()
-{
-	selectNoneLinksets();
-}
-
-void LLFloaterPathfindingLinksets::clearLinksetsList()
-{
-	mPathfindingLinksets.clearLinksets();
-	mLinksetsScrollList->deleteAllItems();
+	mLinksetsScrollList->selectMultiple(selectedUUIDs);
 	updateLinksetsStatusMessage();
 }
 
@@ -581,10 +963,10 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 	case kFetchStarting :
 		statusText = getString("linksets_fetching_starting");
 		break;
-	case kFetchInProgress :
+	case kFetchRequestSent :
 		statusText = getString("linksets_fetching_inprogress");
 		break;
-	case kFetchInProgress_MultiRequested :
+	case kFetchRequestSent_MultiRequested :
 		statusText = getString("linksets_fetching_inprogress_multi_request");
 		break;
 	case kFetchReceived :
@@ -626,23 +1008,188 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 	mLinksetsStatus->setText((LLStringExplicit)statusText, styleParams);
 }
 
-NavmeshDataGetResponder::NavmeshDataGetResponder(const std::string& pNavmeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
-	: mNavmeshDataGetURL(pNavmeshDataGetURL),
+void LLFloaterPathfindingLinksets::updateEditFields()
+{
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	if (selectedItems.empty())
+	{
+		mEditFixed->clear();
+		mEditWalkable->clear();
+		mEditPhantom->clear();
+		mEditA->clear();
+		mEditB->clear();
+		mEditC->clear();
+		mEditD->clear();
+
+		setEnableEditFields(false);
+	}
+	else
+	{
+		LLScrollListItem *firstItem = selectedItems.front();
+
+		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
+		PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(firstItem->getUUID().asString());
+		const PathfindingLinkset &linkset(linksetIter->second);
+
+		mEditFixed->set(linkset.isFixed());
+		mEditWalkable->set(linkset.isWalkable());
+		mEditPhantom->set(linkset.isPhantom());
+		mEditA->setValue(LLSD(linkset.getA()));
+		mEditB->setValue(LLSD(linkset.getB()));
+		mEditC->setValue(LLSD(linkset.getC()));
+		mEditD->setValue(LLSD(linkset.getD()));
+
+		setEnableEditFields(true);
+	}
+}
+
+void LLFloaterPathfindingLinksets::applyEditFields()
+{
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	if (!selectedItems.empty())
+	{
+		BOOL isFixedBool = mEditFixed->getValue();
+		BOOL isWalkableBool = mEditWalkable->getValue();
+		BOOL isPhantomBool = mEditPhantom->getValue();
+		const std::string &aString = mEditA->getText();
+		const std::string &bString = mEditB->getText();
+		const std::string &cString = mEditC->getText();
+		const std::string &dString = mEditD->getText();
+		S32 aValue = static_cast<S32>(atoi(aString.c_str()));
+		S32 bValue = static_cast<S32>(atoi(bString.c_str()));
+		S32 cValue = static_cast<S32>(atoi(cString.c_str()));
+		S32 dValue = static_cast<S32>(atoi(dString.c_str()));
+
+		LLSD isFixed = (bool)isFixedBool;
+		LLSD isWalkable = (bool)isWalkableBool;
+		LLSD isPhantom = (bool)isPhantomBool;
+		LLSD a = static_cast<F32>(aValue) / 100.0f;
+		LLSD b = static_cast<F32>(bValue) / 100.0f;
+		LLSD c = static_cast<F32>(cValue) / 100.0f;
+		LLSD d = static_cast<F32>(dValue) / 100.0f;
+
+		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
+
+		LLSD editData;
+		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
+			itemIter != selectedItems.end(); ++itemIter)
+		{
+			const LLScrollListItem *listItem = *itemIter;
+			LLUUID uuid = listItem->getUUID();
+
+			const PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(uuid.asString());
+			const PathfindingLinkset &linkset = linksetIter->second;
+
+			LLSD itemData;
+			if (linkset.isFixed() != isFixedBool)
+			{
+				itemData["permanent"] = isFixed;
+			}
+			if (linkset.isWalkable() != isWalkableBool)
+			{
+				itemData["walkable"] = isWalkable;
+			}
+			if (linkset.isPhantom() != isPhantomBool)
+			{
+				itemData["phantom"] = isPhantom;
+			}
+			if (linkset.getA() != aValue)
+			{
+				itemData["A"] = a;
+			}
+			if (linkset.getB() != bValue)
+			{
+				itemData["B"] = b;
+			}
+			if (linkset.getC() != cValue)
+			{
+				itemData["C"] = c;
+			}
+			if (linkset.getD() != dValue)
+			{
+				itemData["D"] = d;
+			}
+
+			if (!itemData.isUndefined())
+			{
+				editData[uuid.asString()] = itemData;
+			}
+		}
+
+		if (editData.isUndefined())
+		{
+			llwarns << "No PUT data specified" << llendl;
+		}
+		else
+		{
+			sendNavMeshDataPutRequest(editData);
+		}
+	}
+}
+
+void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
+{
+	mEditFixed->setEnabled(pEnabled);
+	mEditWalkable->setEnabled(pEnabled);
+	mEditPhantom->setEnabled(pEnabled);
+	mLabelWalkabilityCoefficients->setEnabled(pEnabled);
+	mLabelEditA->setEnabled(pEnabled);
+	mLabelEditB->setEnabled(pEnabled);
+	mLabelEditC->setEnabled(pEnabled);
+	mLabelEditD->setEnabled(pEnabled);
+	mEditA->setEnabled(pEnabled);
+	mEditB->setEnabled(pEnabled);
+	mEditC->setEnabled(pEnabled);
+	mEditD->setEnabled(pEnabled);
+	mApplyEdits->setEnabled(pEnabled);
+}
+
+//---------------------------------------------------------------------------
+// NavMeshDataGetResponder
+//---------------------------------------------------------------------------
+
+NavMeshDataGetResponder::NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+	: mNavMeshDataGetURL(pNavMeshDataGetURL),
 	mLinksetsFloater(pLinksetsFloater)
 {
 }
 
-NavmeshDataGetResponder::~NavmeshDataGetResponder()
+NavMeshDataGetResponder::~NavMeshDataGetResponder()
 {
 	mLinksetsFloater = NULL;
 }
 
-void NavmeshDataGetResponder::result(const LLSD& pContent)
+void NavMeshDataGetResponder::result(const LLSD& pContent)
 {
-	mLinksetsFloater->handleNavmeshDataGetReply(pContent);
+	mLinksetsFloater->handleNavMeshDataGetReply(pContent);
 }
 
-void NavmeshDataGetResponder::error(U32 status, const std::string& reason)
+void NavMeshDataGetResponder::error(U32 status, const std::string& reason)
 {
-	mLinksetsFloater->handleNavmeshDataGetError(mNavmeshDataGetURL, reason);
+	mLinksetsFloater->handleNavMeshDataGetError(mNavMeshDataGetURL, reason);
+}
+
+//---------------------------------------------------------------------------
+// NavMeshDataPutResponder
+//---------------------------------------------------------------------------
+
+NavMeshDataPutResponder::NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+	: mNavMeshDataPutURL(pNavMeshDataPutURL),
+	mLinksetsFloater(pLinksetsFloater)
+{
+}
+
+NavMeshDataPutResponder::~NavMeshDataPutResponder()
+{
+	mLinksetsFloater = NULL;
+}
+
+void NavMeshDataPutResponder::result(const LLSD& pContent)
+{
+	mLinksetsFloater->handleNavMeshDataPutReply(pContent);
+}
+
+void NavMeshDataPutResponder::error(U32 status, const std::string& reason)
+{
+	mLinksetsFloater->handleNavMeshDataPutError(mNavMeshDataPutURL, reason);
 }

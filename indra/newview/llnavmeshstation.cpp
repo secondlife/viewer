@@ -50,7 +50,7 @@ public:
 	
 	void error( U32 statusNum, const std::string& reason )
 	{
-		statusNum;
+		//statusNum;
 		llwarns	<< "Transport error "<<reason<<llendl;			
 	}
 	
@@ -92,7 +92,7 @@ public:
 	
 	void error( U32 statusNum, const std::string& reason )
 	{
-		statusNum;
+		//statusNum;
 		llwarns	<< "Transport error "<<reason<<llendl;			
 	}
 	
@@ -113,7 +113,7 @@ public:
 				
 				if ( content.has("navmesh_data") )
 				{
-					LLSD::Binary& stuff = content["navmesh_data"].asBinary();
+					const LLSD::Binary& stuff = content["navmesh_data"].asBinary();
 					LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( stuff );
 				}
 				else

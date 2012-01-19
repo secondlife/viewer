@@ -78,7 +78,7 @@ public:
 	handle_t decodeImage(LLImageFormatted* image,
 						 U32 priority, S32 discard, BOOL needs_aux,
 						 Responder* responder);
-	S32 update(U32 max_time_ms);
+	S32 update(F32 max_time_ms);
 
 	// Used by unit tests to check the consistency of the thread instance
 	S32 tut_size();

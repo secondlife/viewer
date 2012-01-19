@@ -21,8 +21,8 @@ Hala ışınlanamıyorsanız, sorunu çözmek için lütfen çıkış yapıp otu
 Bir dakika sonra tekrar deneyin.
 		</message>
 		<message name="NoHelpIslandTP">
-You cannot teleport back to Welcome Island.
-Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
+			Karşılama Ada&apos;sına geri ışınlanamazsınız.
+Öğreticiyi tekrarlamak için &apos;Karşılama Ada&apos;sı Kamusal Alanı&apos;na gidin.
 		</message>
 		<message name="noaccess_tport">
 			Üzgünüz, bu ışınlanma hedef konumuna erişim hakkına sahip değilsiniz.

@@ -1110,8 +1110,13 @@
 	<notification name="DisplaySetToSafe">
 		Установлен безопасный уровень настроек отображения, так как указан параметр -safe.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Установлен рекомендуемый уровень настроек отображения в соответствии с вашей системной конфигурацией.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Установлен рекомендуемый уровень настроек отображения, так как графическая карта изменена:
+с «[LAST_GPU]»
+на «[THIS_GPU]»
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		Установлен рекомендуемый уровень настроек отображения, так как подсистема визуализации изменена.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1910,7 +1915,13 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Подтверждать перед выходом" name="okcancelignore" notext="Не выходить" yestext="Выйти"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Вы действительно хотите восстановить принятые по умолчанию кнопки и панели инструментов? 
+		Это действие приведет к восстановлению стандартных кнопок и панелей инструментов.
+
+Это действие нельзя отменить.
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Это действие возвращает все кнопки в инструментарий, а панели инструментов становятся пустыми.
     
 Это действие нельзя отменить.
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -2236,14 +2247,16 @@ http://secondlife.com/download.
 		Ваша визитка отклонена.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Вы можете телепортироваться в такие места, как «[NAME]», открыв панель «Места» в правой части экрана и выбрав вкладку «Закладки».
-Щелкните любую закладку, чтобы выбрать ее, а затем нажмите кнопку «Телепортация» внизу панели.
-(Также можно дважды щелкнуть закладку или щелкнуть ее правой кнопкой мыши и выбрать команду «Телепортация».)
+		Для телепортации в другое место, например «[NAME]», нажмите кнопку «Места»,
+    затем в открывшемся окне выберите вкладку «Закладки». Щелкните любую
+    закладку, чтобы выбрать ее, а затем нажмите кнопку «Телепортация» внизу окна.
+    (Также можно дважды щелкнуть закладку или щелкнуть ее правой кнопкой мыши и
+    выбрать команду «Телепортация».)
 	</notification>
 	<notification name="TeleportToPerson">
-		Вы можете общаться с такими жителями, как «[NAME]», открыв панель «Люди» в правой части экрана.
-Выберите в списке нужного жителя, а затем нажмите кнопку «IM» внизу панели.
-(Также можно дважды щелкнуть имя жителя в списке или щелкнуть ее правой кнопкой мыши и выбрать команду «IM».)
+		Чтобы обратиться к жителю, например «[NAME]», нажмите кнопку «Люди», выберите жителя в появившемся окне и нажмите кнопку
+    «IM» внизу окна.
+    (Также можно дважды щелкнуть имя жителя в списке или щелкнуть его правой кнопкой мыши и выбрать команду «IM».)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Нельзя выбрать землю с обеих сторон границы между серверами.
@@ -2262,6 +2275,9 @@ http://secondlife.com/download.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2798,7 +2814,7 @@ http://secondlife.com/download.
 Со следующими жителями:
 
 [RESIDENTS]
-		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="ОК"/>
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="ItemsShared">
 		Предметы успешно розданы.
@@ -2888,7 +2904,7 @@ http://secondlife.com/download.
 позже, даже после того, как вы покинули разговор.
 
 Заглушить всех?
-		<usetemplate ignoretext="Подтверждать перед заглушением всех участников группового разговора" name="okcancelignore" notext="Отмена" yestext="ОК"/>
+		<usetemplate ignoretext="Подтверждать перед заглушением всех участников группового разговора" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification label="Чат" name="HintChat">
 		Чтобы присоединиться к чату, введите слова в поле чата ниже.
