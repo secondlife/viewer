@@ -695,7 +695,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 		mPathfindingLinksets.clearLinksets();
 		updateLinksetsList();
 
-		std::string navmeshDataURL = this->getCapabilityURL();
+		std::string navmeshDataURL = getCapabilityURL();
 		if (navmeshDataURL.empty())
 		{
 			setFetchState(kFetchComplete);
@@ -711,7 +711,7 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 
 void LLFloaterPathfindingLinksets::sendNavmeshDataPutRequest(const LLSD& pPostData)
 {
-	std::string navmeshDataURL = this->getCapabilityURL();
+	std::string navmeshDataURL = getCapabilityURL();
 	if (navmeshDataURL.empty())
 	{
 		llwarns << "cannot put navmesh data for current region '" << getRegionName() << "'" << llendl;
