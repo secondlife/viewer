@@ -104,6 +104,7 @@
 #include "lltoolpie.h"
 #include "llcurl.h"
 #include "llnotifications.h"
+#include "llpathinglib.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -6212,7 +6213,11 @@ void LLPipeline::resetVertexBuffers()
 
 	gSky.resetVertexBuffers();
 
-		LLVertexBuffer::cleanupClass();
+	if ( LLPathingLib::getInstance() )
+	{
+		LLPathingLib::getInstance()->cleanupVBOManger();
+	}
+	LLVertexBuffer::cleanupClass();
 
 	//delete all name pool caches
 	LLGLNamePool::cleanupPools();

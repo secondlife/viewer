@@ -1,6 +1,6 @@
 /** 
  * @file LLRenderNavPrim.cpp
- * @brief 
+ * @brief Renderable primitives used by the pathing library
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -35,7 +35,7 @@
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
-void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color,bool overlayMode  ) const
+void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color, bool overlayMode  ) const
 {	
 	LLGLSLShader::sNoFixedFunction = false;
 	LLColor4 colorA( color );	
@@ -54,7 +54,7 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 	glLineWidth(1.0f);	
 }
 //=============================================================================
-void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color,bool overlayMode  ) const
+void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color, bool overlayMode ) const
 {
 	glLineWidth(1.5f);	
 	if ( overlayMode )
@@ -99,5 +99,18 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	LLGLSLShader::sNoFixedFunction = true;
 	glLineWidth(1.0f);		
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+}
+//=============================================================================
+void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, int color ) const
+{	
+	for (int k=0; k<3; k++)
+	{
+		LLVector3 star, pt1, pt2;
+		star = LLVector3( 0.0f,0.0f,0.0f);
+		star[k] = 0.5f;
+		pt1 =  center + star;
+		pt2 =  center - star;	
+		renderSegment( pt1, pt2, color, false );
+	}
 }
 //=============================================================================
