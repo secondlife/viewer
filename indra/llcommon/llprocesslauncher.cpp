@@ -92,7 +92,7 @@ static std::string quote(const std::string& str)
         {
             result.append("\\");
         }
-        result.append(*ci);
+        result.push_back(*ci);
     }
     return result + "\"";
 }
