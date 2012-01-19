@@ -166,13 +166,18 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size)
 		//make a new buffer
 		glGenBuffersARB(1, &name);
 		glBindBufferARB(mType, name);
-		glBufferDataARB(mType, size, 0, mUsage);
 		LLVertexBuffer::sAllocatedBytes += size;
 
 		if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB)
 		{
+			glBufferDataARB(mType, size, 0, mUsage);
 			ret = (U8*) ll_aligned_malloc_16(size);
 		}
+		else
+		{ //always use a true hint of static draw when allocating non-client-backed buffers
+			glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
+		}
+
 		glBindBufferARB(mType, 0);
 	}
 	else
@@ -794,9 +799,17 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 
 	if (mUsage && mUsage != GL_STREAM_DRAW_ARB)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
-		mUsage = GL_DYNAMIC_DRAW_ARB;
+		if (sDisableVBOMapping)
+		{ //always use stream draw if VBO mapping is disabled
+			mUsage = GL_STREAM_DRAW_ARB;
+		}
+		else
+		{
+			mUsage = GL_DYNAMIC_DRAW_ARB;
+		}
 	}
-		
+	
+
 	if (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping)
 	{
 		mMappable = TRUE;
