@@ -75,6 +75,28 @@ void LLProcessLauncher::addArgument(const std::string &arg)
 
 #if LL_WINDOWS
 
+static std::string quote(const std::string& str)
+{
+    std::string::size_type len(str.length());
+    // If the string is already quoted, assume user knows what s/he's doing.
+    if (len >= 2 && str[0] == '"' && str[len-1] == '"')
+    {
+        return str;
+    }
+
+    // Not already quoted: do it.
+    std::string result("\"");
+    for (std::string::const_iterator ci(str.begin()), cend(str.end()); ci != cend; ++ci)
+    {
+        if (*ci == '"')
+        {
+            result.append("\\");
+        }
+        result.append(*ci);
+    }
+    return result + "\"";
+}
+
 int LLProcessLauncher::launch(void)
 {
 	// If there was already a process associated with this object, kill it.
@@ -87,11 +109,11 @@ int LLProcessLauncher::launch(void)
 	STARTUPINFOA sinfo;
 	memset(&sinfo, 0, sizeof(sinfo));
 	
-	std::string args = mExecutable;
+	std::string args = quote(mExecutable);
 	for(int i = 0; i < (int)mLaunchArguments.size(); i++)
 	{
 		args += " ";
-		args += mLaunchArguments[i];
+		args += quote(mLaunchArguments[i]);
 	}
 	
 	// So retarded.  Windows requires that the second parameter to CreateProcessA be a writable (non-const) string...
