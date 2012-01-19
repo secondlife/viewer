@@ -46,42 +46,42 @@
 #include "lluuid.h"
 
 //---------------------------------------------------------------------------
-// NavmeshDataGetResponder
+// NavMeshDataGetResponder
 //---------------------------------------------------------------------------
 
-class NavmeshDataGetResponder : public LLHTTPClient::Responder
+class NavMeshDataGetResponder : public LLHTTPClient::Responder
 {
 public:
-	NavmeshDataGetResponder(const std::string& pNavmeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
-	virtual ~NavmeshDataGetResponder();
+	NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	virtual ~NavMeshDataGetResponder();
 
 	virtual void result(const LLSD& pContent);
 	virtual void error(U32 pStatus, const std::string& pReason);
 
 private:
-	NavmeshDataGetResponder(const NavmeshDataGetResponder& pOther);
+	NavMeshDataGetResponder(const NavMeshDataGetResponder& pOther);
 
-	std::string                  mNavmeshDataGetURL;
+	std::string                  mNavMeshDataGetURL;
 	LLFloaterPathfindingLinksets *mLinksetsFloater;
 };
 
 //---------------------------------------------------------------------------
-// NavmeshDataPutResponder
+// NavMeshDataPutResponder
 //---------------------------------------------------------------------------
 
-class NavmeshDataPutResponder : public LLHTTPClient::Responder
+class NavMeshDataPutResponder : public LLHTTPClient::Responder
 {
 public:
-	NavmeshDataPutResponder(const std::string& pNavmeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
-	virtual ~NavmeshDataPutResponder();
+	NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	virtual ~NavMeshDataPutResponder();
 
 	virtual void result(const LLSD& pContent);
 	virtual void error(U32 pStatus, const std::string& pReason);
 
 private:
-	NavmeshDataPutResponder(const NavmeshDataPutResponder& pOther);
+	NavMeshDataPutResponder(const NavMeshDataPutResponder& pOther);
 
-	std::string                  mNavmeshDataPutURL;
+	std::string                  mNavMeshDataPutURL;
 	LLFloaterPathfindingLinksets *mLinksetsFloater;
 };
 
@@ -89,7 +89,7 @@ private:
 // PathfindingLinkset
 //---------------------------------------------------------------------------
 
-PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNavmeshItem)
+PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNavMeshItem)
 	: mUUID(pUUID),
 	mName(),
 	mDescription(),
@@ -103,50 +103,50 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	mC(0),
 	mD(0)
 {
-	llassert(pNavmeshItem.has("name"));
-	llassert(pNavmeshItem.get("name").isString());
-	mName = pNavmeshItem.get("name").asString();
+	llassert(pNavMeshItem.has("name"));
+	llassert(pNavMeshItem.get("name").isString());
+	mName = pNavMeshItem.get("name").asString();
 
-	llassert(pNavmeshItem.has("description"));
-	llassert(pNavmeshItem.get("description").isString());
-	mDescription = pNavmeshItem.get("description").asString();
+	llassert(pNavMeshItem.has("description"));
+	llassert(pNavMeshItem.get("description").isString());
+	mDescription = pNavMeshItem.get("description").asString();
 
-	llassert(pNavmeshItem.has("landimpact"));
-	llassert(pNavmeshItem.get("landimpact").isInteger());
-	llassert(pNavmeshItem.get("landimpact").asInteger() >= 0);
-	mLandImpact = pNavmeshItem.get("landimpact").asInteger();
+	llassert(pNavMeshItem.has("landimpact"));
+	llassert(pNavMeshItem.get("landimpact").isInteger());
+	llassert(pNavMeshItem.get("landimpact").asInteger() >= 0);
+	mLandImpact = pNavMeshItem.get("landimpact").asInteger();
 
-	llassert(pNavmeshItem.has("permanent"));
-	llassert(pNavmeshItem.get("permanent").isBoolean());
-	mIsFixed = pNavmeshItem.get("permanent").asBoolean();
+	llassert(pNavMeshItem.has("permanent"));
+	llassert(pNavMeshItem.get("permanent").isBoolean());
+	mIsFixed = pNavMeshItem.get("permanent").asBoolean();
 
-	llassert(pNavmeshItem.has("walkable"));
-	llassert(pNavmeshItem.get("walkable").isBoolean());
-	mIsWalkable = pNavmeshItem.get("walkable").asBoolean();
+	llassert(pNavMeshItem.has("walkable"));
+	llassert(pNavMeshItem.get("walkable").isBoolean());
+	mIsWalkable = pNavMeshItem.get("walkable").asBoolean();
 
-	llassert(pNavmeshItem.has("phantom"));
-	//llassert(pNavmeshItem.get("phantom").isBoolean()); XXX stinson 01/10/2012: this should be a boolean but is not
-	mIsPhantom = pNavmeshItem.get("phantom").asBoolean();
+	llassert(pNavMeshItem.has("phantom"));
+	//llassert(pNavMeshItem.get("phantom").isBoolean()); XXX stinson 01/10/2012: this should be a boolean but is not
+	mIsPhantom = pNavMeshItem.get("phantom").asBoolean();
 
-	llassert(pNavmeshItem.has("A"));
-	llassert(pNavmeshItem.get("A").isReal());
-	mA = llround(pNavmeshItem.get("A").asReal() * 100.0f);
+	llassert(pNavMeshItem.has("A"));
+	llassert(pNavMeshItem.get("A").isReal());
+	mA = llround(pNavMeshItem.get("A").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("B"));
-	llassert(pNavmeshItem.get("B").isReal());
-	mB = llround(pNavmeshItem.get("B").asReal() * 100.0f);
+	llassert(pNavMeshItem.has("B"));
+	llassert(pNavMeshItem.get("B").isReal());
+	mB = llround(pNavMeshItem.get("B").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("C"));
-	llassert(pNavmeshItem.get("C").isReal());
-	mC = llround(pNavmeshItem.get("C").asReal() * 100.0f);
+	llassert(pNavMeshItem.has("C"));
+	llassert(pNavMeshItem.get("C").isReal());
+	mC = llround(pNavMeshItem.get("C").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("D"));
-	llassert(pNavmeshItem.get("D").isReal());
-	mD = llround(pNavmeshItem.get("D").asReal() * 100.0f);
+	llassert(pNavMeshItem.has("D"));
+	llassert(pNavMeshItem.get("D").isReal());
+	mD = llround(pNavMeshItem.get("D").asReal() * 100.0f);
 
-	llassert(pNavmeshItem.has("position"));
-	llassert(pNavmeshItem.get("position").isArray());
-	mLocation.setValue(pNavmeshItem.get("position"));
+	llassert(pNavMeshItem.has("position"));
+	llassert(pNavMeshItem.get("position").isArray());
+	mLocation.setValue(pNavMeshItem.get("position"));
 }
 
 PathfindingLinkset::PathfindingLinkset(const PathfindingLinkset& pOther)
@@ -374,7 +374,7 @@ PathfindingLinksets::PathfindingLinksets()
 {
 }
 
-PathfindingLinksets::PathfindingLinksets(const LLSD& pNavmeshData)
+PathfindingLinksets::PathfindingLinksets(const LLSD& pNavMeshData)
 	: mAllLinksets(),
 	mFilteredLinksets(),
 	mIsFiltersDirty(false),
@@ -383,7 +383,7 @@ PathfindingLinksets::PathfindingLinksets(const LLSD& pNavmeshData)
 	mIsFixedFilter(false),
 	mIsWalkableFilter(false)
 {
-	parseNavmeshData(pNavmeshData);
+	parseNavMeshData(pNavMeshData);
 }
 
 PathfindingLinksets::PathfindingLinksets(const PathfindingLinksets& pOther)
@@ -402,12 +402,12 @@ PathfindingLinksets::~PathfindingLinksets()
 	clearLinksets();
 }
 
-void PathfindingLinksets::parseNavmeshData(const LLSD& pNavmeshData)
+void PathfindingLinksets::parseNavMeshData(const LLSD& pNavMeshData)
 {
 	clearLinksets();
 
-	for (LLSD::map_const_iterator linksetIter = pNavmeshData.beginMap();
-		linksetIter != pNavmeshData.endMap(); ++linksetIter)
+	for (LLSD::map_const_iterator linksetIter = pNavMeshData.beginMap();
+		linksetIter != pNavMeshData.endMap(); ++linksetIter)
 	{
 		const std::string& uuid(linksetIter->first);
 		const LLSD& linksetData = linksetIter->second;
@@ -618,7 +618,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 void LLFloaterPathfindingLinksets::onOpen(const LLSD& pKey)
 {
-	sendNavmeshDataGetRequest();
+	sendNavMeshDataGetRequest();
 }
 
 void LLFloaterPathfindingLinksets::openLinksetsEditor()
@@ -680,7 +680,7 @@ LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 {
 }
 
-void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
+void LLFloaterPathfindingLinksets::sendNavMeshDataGetRequest()
 {
 	if (isFetchInProgress())
 	{
@@ -695,63 +695,63 @@ void LLFloaterPathfindingLinksets::sendNavmeshDataGetRequest()
 		mPathfindingLinksets.clearLinksets();
 		updateLinksetsList();
 
-		std::string navmeshDataURL = getCapabilityURL();
-		if (navmeshDataURL.empty())
+		std::string navMeshDataURL = getCapabilityURL();
+		if (navMeshDataURL.empty())
 		{
 			setFetchState(kFetchComplete);
-			llwarns << "cannot query navmesh data from current region '" << getRegionName() << "'" << llendl;
+			llwarns << "cannot query object navmesh properties from current region '" << getRegionName() << "'" << llendl;
 		}
 		else
 		{
 			setFetchState(kFetchRequestSent);
-			LLHTTPClient::get(navmeshDataURL, new NavmeshDataGetResponder(navmeshDataURL, this));
+			LLHTTPClient::get(navMeshDataURL, new NavMeshDataGetResponder(navMeshDataURL, this));
 		}
 	}
 }
 
-void LLFloaterPathfindingLinksets::sendNavmeshDataPutRequest(const LLSD& pPostData)
+void LLFloaterPathfindingLinksets::sendNavMeshDataPutRequest(const LLSD& pPostData)
 {
-	std::string navmeshDataURL = getCapabilityURL();
-	if (navmeshDataURL.empty())
+	std::string navMeshDataURL = getCapabilityURL();
+	if (navMeshDataURL.empty())
 	{
-		llwarns << "cannot put navmesh data for current region '" << getRegionName() << "'" << llendl;
+		llwarns << "cannot put object navmesh properties for current region '" << getRegionName() << "'" << llendl;
 	}
 	else
 	{
-		LLHTTPClient::put(navmeshDataURL, pPostData, new NavmeshDataPutResponder(navmeshDataURL, this));
+		LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, this));
 	}
 }
 
-void LLFloaterPathfindingLinksets::handleNavmeshDataGetReply(const LLSD& pNavmeshData)
+void LLFloaterPathfindingLinksets::handleNavMeshDataGetReply(const LLSD& pNavMeshData)
 {
 	setFetchState(kFetchReceived);
-	mPathfindingLinksets.parseNavmeshData(pNavmeshData);
+	mPathfindingLinksets.parseNavMeshData(pNavMeshData);
 	updateLinksetsList();
 	setFetchState(kFetchComplete);
 }
 
-void LLFloaterPathfindingLinksets::handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason)
+void LLFloaterPathfindingLinksets::handleNavMeshDataGetError(const std::string& pURL, const std::string& pErrorReason)
 {
 	setFetchState(kFetchError);
 	mPathfindingLinksets.clearLinksets();
 	updateLinksetsList();
-	llwarns << "Error fetching navmesh data from URL '" << pURL << "' because " << pErrorReason << llendl;
+	llwarns << "Error fetching object navmesh properties from URL '" << pURL << "' because " << pErrorReason << llendl;
 }
 
-void LLFloaterPathfindingLinksets::handleNavmeshDataPutReply(const LLSD& pModifiedData)
+void LLFloaterPathfindingLinksets::handleNavMeshDataPutReply(const LLSD& pModifiedData)
 {
 	setFetchState(kFetchReceived);
-	mPathfindingLinksets.parseNavmeshData(pModifiedData);
+	mPathfindingLinksets.parseNavMeshData(pModifiedData);
 	updateLinksetsList();
 	setFetchState(kFetchComplete);
 }
 
-void LLFloaterPathfindingLinksets::handleNavmeshDataPutError(const std::string& pURL, const std::string& pErrorReason)
+void LLFloaterPathfindingLinksets::handleNavMeshDataPutError(const std::string& pURL, const std::string& pErrorReason)
 {
 	setFetchState(kFetchError);
 	mPathfindingLinksets.clearLinksets();
 	updateLinksetsList();
-	llwarns << "Error putting navmesh data to URL '" << pURL << "' because " << pErrorReason << llendl;
+	llwarns << "Error putting object navmesh properties to URL '" << pURL << "' because " << pErrorReason << llendl;
 }
 
 std::string LLFloaterPathfindingLinksets::getRegionName() const
@@ -770,29 +770,29 @@ std::string LLFloaterPathfindingLinksets::getRegionName() const
 std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
 {
 #ifdef XXX_STINSON_REGION_CAP_RENAME
-	std::string navmeshDataURL("");
+	std::string navMeshDataURL("");
 
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region != NULL)
 	{
-		navmeshDataURL = region->getCapability("ObjectNavMeshProperties");
-		if (navmeshDataURL.empty())
+		navMeshDataURL = region->getCapability("ObjectNavMeshProperties");
+		if (navMeshDataURL.empty())
 		{
-			navmeshDataURL = region->getCapability("ObjectNavmesh");
+			navMeshDataURL = region->getCapability("ObjectNavmesh");
 		}
 	}
 
-	return navmeshDataURL;
+	return navMeshDataURL;
 #else // XXX_STINSON_REGION_CAP_RENAME
-	std::string navmeshDataURL("");
+	std::string navMeshDataURL("");
 
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region != NULL)
 	{
-		navmeshDataURL = region->getCapability("ObjectNavMeshProperties");
+		navMeshDataURL = region->getCapability("ObjectNavMeshProperties");
 	}
 
-	return navmeshDataURL;
+	return navMeshDataURL;
 #endif // XXX_STINSON_REGION_CAP_RENAME
 }
 
@@ -820,7 +820,7 @@ void LLFloaterPathfindingLinksets::onLinksetsSelectionChange()
 
 void LLFloaterPathfindingLinksets::onRefreshLinksetsClicked()
 {
-	sendNavmeshDataGetRequest();
+	sendNavMeshDataGetRequest();
 }
 
 void LLFloaterPathfindingLinksets::onSelectAllLinksetsClicked()
@@ -1122,7 +1122,7 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 		}
 		else
 		{
-			sendNavmeshDataPutRequest(editData);
+			sendNavMeshDataPutRequest(editData);
 		}
 	}
 }
@@ -1145,51 +1145,51 @@ void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
 }
 
 //---------------------------------------------------------------------------
-// NavmeshDataGetResponder
+// NavMeshDataGetResponder
 //---------------------------------------------------------------------------
 
-NavmeshDataGetResponder::NavmeshDataGetResponder(const std::string& pNavmeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
-	: mNavmeshDataGetURL(pNavmeshDataGetURL),
+NavMeshDataGetResponder::NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+	: mNavMeshDataGetURL(pNavMeshDataGetURL),
 	mLinksetsFloater(pLinksetsFloater)
 {
 }
 
-NavmeshDataGetResponder::~NavmeshDataGetResponder()
+NavMeshDataGetResponder::~NavMeshDataGetResponder()
 {
 	mLinksetsFloater = NULL;
 }
 
-void NavmeshDataGetResponder::result(const LLSD& pContent)
+void NavMeshDataGetResponder::result(const LLSD& pContent)
 {
-	mLinksetsFloater->handleNavmeshDataGetReply(pContent);
+	mLinksetsFloater->handleNavMeshDataGetReply(pContent);
 }
 
-void NavmeshDataGetResponder::error(U32 status, const std::string& reason)
+void NavMeshDataGetResponder::error(U32 status, const std::string& reason)
 {
-	mLinksetsFloater->handleNavmeshDataGetError(mNavmeshDataGetURL, reason);
+	mLinksetsFloater->handleNavMeshDataGetError(mNavMeshDataGetURL, reason);
 }
 
 //---------------------------------------------------------------------------
-// NavmeshDataPutResponder
+// NavMeshDataPutResponder
 //---------------------------------------------------------------------------
 
-NavmeshDataPutResponder::NavmeshDataPutResponder(const std::string& pNavmeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
-	: mNavmeshDataPutURL(pNavmeshDataPutURL),
+NavMeshDataPutResponder::NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+	: mNavMeshDataPutURL(pNavMeshDataPutURL),
 	mLinksetsFloater(pLinksetsFloater)
 {
 }
 
-NavmeshDataPutResponder::~NavmeshDataPutResponder()
+NavMeshDataPutResponder::~NavMeshDataPutResponder()
 {
 	mLinksetsFloater = NULL;
 }
 
-void NavmeshDataPutResponder::result(const LLSD& pContent)
+void NavMeshDataPutResponder::result(const LLSD& pContent)
 {
-	mLinksetsFloater->handleNavmeshDataPutReply(pContent);
+	mLinksetsFloater->handleNavMeshDataPutReply(pContent);
 }
 
-void NavmeshDataPutResponder::error(U32 status, const std::string& reason)
+void NavMeshDataPutResponder::error(U32 status, const std::string& reason)
 {
-	mLinksetsFloater->handleNavmeshDataPutError(mNavmeshDataPutURL, reason);
+	mLinksetsFloater->handleNavMeshDataPutError(mNavMeshDataPutURL, reason);
 }

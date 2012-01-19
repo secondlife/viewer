@@ -60,12 +60,12 @@
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
 	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
-	childSetAction("rebuild_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRebuildNavmeshClicked, this));
-	childSetAction("refresh_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRefreshNavmeshClicked, this));
+	childSetAction("rebuild_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRebuildNavMeshClicked, this));
+	childSetAction("refresh_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRefreshNavMeshClicked, this));
 
-	mShowNavmeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh_overlay");
-	llassert(mShowNavmeshCheckBox != NULL);
-	mShowNavmeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavmeshToggle, this));
+	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh_overlay");
+	llassert(mShowNavMeshCheckBox != NULL);
+	mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavMeshToggle, this));
 
 	mShowExcludeVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_exclusion_volumes");
 	llassert(mShowExcludeVolumesCheckBox != NULL);
@@ -305,7 +305,7 @@ void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 pTerrainMaterial)
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
-	mShowNavmeshCheckBox(NULL),
+	mShowNavMeshCheckBox(NULL),
 	mShowExcludeVolumesCheckBox(NULL),
 	mShowPathCheckBox(NULL),
 	mShowWaterPlaneCheckBox(NULL),
@@ -317,7 +317,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mTerrainMaterialB(NULL),
 	mTerrainMaterialC(NULL),
 	mTerrainMaterialD(NULL),
-	mNavmeshDownloadObserver()
+	mNavMeshDownloadObserver()
 {
 }
 
@@ -350,7 +350,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		{
 			llinfos<<"Region has required caps of type ["<<capability<<"]"<<llendl;
 			LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
-			LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavmeshDownloadObserver.getObserverHandle() );				
+			LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver.getObserverHandle() );				
 		}				
 		else
 		{
@@ -359,9 +359,9 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	}		
 }
 
-void LLFloaterPathfindingConsole::onShowNavmeshToggle()
+void LLFloaterPathfindingConsole::onShowNavMeshToggle()
 {
-	BOOL checkBoxValue = mShowNavmeshCheckBox->get();
+	BOOL checkBoxValue = mShowNavMeshCheckBox->get();
 
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if (llPathingLibInstance != NULL)
@@ -370,7 +370,7 @@ void LLFloaterPathfindingConsole::onShowNavmeshToggle()
 	}
 	else
 	{
-		mShowNavmeshCheckBox->set(FALSE);
+		mShowNavMeshCheckBox->set(FALSE);
 		llwarns << "cannot find LLPathingLib instance" << llendl;
 	}
 }
@@ -497,12 +497,12 @@ void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
 }
 
-void LLFloaterPathfindingConsole::onRebuildNavmeshClicked()
+void LLFloaterPathfindingConsole::onRebuildNavMeshClicked()
 {
 	llwarns << "functionality has not yet been implemented to handle rebuilding of the navmesh" << llendl;
 }
 
-void LLFloaterPathfindingConsole::onRefreshNavmeshClicked()
+void LLFloaterPathfindingConsole::onRefreshNavMeshClicked()
 {
 	llwarns << "functionality has not yet been implemented to handle refreshing of the navmesh" << llendl;
 }

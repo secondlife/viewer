@@ -42,7 +42,7 @@ class LLButton;
 class PathfindingLinkset
 {
 public:
-	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavmeshItem);
+	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavMeshItem);
 	PathfindingLinkset(const PathfindingLinkset& pOther);
 	virtual ~PathfindingLinkset();
 
@@ -120,11 +120,11 @@ public:
 	typedef std::map<std::string, PathfindingLinkset> PathfindingLinksetMap;
 
 	PathfindingLinksets();
-	PathfindingLinksets(const LLSD& pNavmeshData);
+	PathfindingLinksets(const LLSD& pNavMeshData);
 	PathfindingLinksets(const PathfindingLinksets& pOther);
 	virtual ~PathfindingLinksets();
 
-	void parseNavmeshData(const LLSD& pNavmeshData);
+	void parseNavMeshData(const LLSD& pNavMeshData);
 	void clearLinksets();
 
 	const PathfindingLinksetMap& getAllLinksets() const;
@@ -161,8 +161,8 @@ class LLFloaterPathfindingLinksets
 :	public LLFloater
 {
 	friend class LLFloaterReg;
-	friend class NavmeshDataGetResponder;
-	friend class NavmeshDataPutResponder;
+	friend class NavMeshDataGetResponder;
+	friend class NavMeshDataPutResponder;
 
 public:
 	typedef enum
@@ -214,12 +214,12 @@ private:
 	LLFloaterPathfindingLinksets(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingLinksets();
 
-	void sendNavmeshDataGetRequest();
-	void sendNavmeshDataPutRequest(const LLSD& pPostData);
-	void handleNavmeshDataGetReply(const LLSD& pNavmeshData);
-	void handleNavmeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
-	void handleNavmeshDataPutReply(const LLSD& pModifiedData);
-	void handleNavmeshDataPutError(const std::string& pURL, const std::string& pErrorReason);
+	void sendNavMeshDataGetRequest();
+	void sendNavMeshDataPutRequest(const LLSD& pPostData);
+	void handleNavMeshDataGetReply(const LLSD& pNavMeshData);
+	void handleNavMeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
+	void handleNavMeshDataPutReply(const LLSD& pModifiedData);
+	void handleNavMeshDataPutError(const std::string& pURL, const std::string& pErrorReason);
 
 	std::string getRegionName() const;
 	std::string getCapabilityURL() const;

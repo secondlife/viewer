@@ -912,7 +912,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					{
 						allowPathToBeDrawn = true;
 					}
-					//Navmesh
+					//NavMesh
 					if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
 					{
 						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          												
