@@ -969,7 +969,6 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 			{
 				//The floater takes care of determining what stage - essentially where the data goes into the pathing packet(start or end)
 				pFloater->providePathingData( rayStart, rayEnd );
-				return TRUE;
 			}
 		}
 	}
