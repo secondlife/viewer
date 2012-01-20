@@ -36,8 +36,8 @@
       layout="topleft"
       left="20"
       top="16"
-      width="90">
-    Filter list by:
+      width="67">
+    Filter by:
   </text>
   <text
       height="13"
@@ -48,10 +48,10 @@
       length="1"
       follows="left|top"
       layout="topleft"
-      left="109"
+      left="87"
       top="16"
-      width="94">
-    Portion of name
+      width="62">
+    Name
   </text>
   <line_editor
       border_style="line"
@@ -59,11 +59,11 @@
       follows="top|left"
       height="20"
       layout="topleft"
-      left_delta="93"
+      left_delta="62"
       top="11"
       max_length_bytes="10"
       name="filter_by_name"
-      width="115" />
+      width="105" />
   <text
       height="13"
       word_wrap="false"
@@ -73,10 +73,10 @@
       length="1"
       follows="left|top"
       layout="topleft"
-      left="336"
+      left="273"
       top="16"
-      width="132">
-    Portion of description
+      width="88">
+    Description
   </text>
   <line_editor
       border_style="line"
@@ -84,26 +84,37 @@
       follows="top|left"
       height="20"
       layout="topleft"
-      left_delta="131"
+      left_delta="88"
       top="11"
       max_length_bytes="10"
       name="filter_by_description"
-      width="115" />
+      width="106" />
   <check_box
       height="19"
-      label="Fixed"
+      initial_value="1"
+      label="Walkable"
       layout="topleft"
-      left="591"
+      left="481"
       top="14"
-      name="filter_by_fixed"
+      name="filter_by_walkable"
       width="90" />
   <check_box
       height="19"
-      label="Walkable"
+      initial_value="1"
+      label="Obstacle"
       layout="topleft"
-      left="671"
+      left="577"
       top="14"
-      name="filter_by_walkable"
+      name="filter_by_obstacle"
+      width="90" />
+  <check_box
+      height="19"
+      initial_value="1"
+      label="Ignored"
+      layout="topleft"
+      left="674"
+      top="14"
+      name="filter_by_ignored"
       width="90" />
   <button
       follows="right|top"
@@ -242,21 +253,34 @@
       width="910">
     Select row(s) to edit attributes of linkset(s).  If a linkset is deleted or returned to inventory, attributes assigned to it will be lost.
   </text>
-  <check_box
-      height="19"
-      label="Fixed"
+  <radio_group
+      follows="top|left"
+      height="55"
+      value="1"
       layout="topleft"
-      name="edit_fixed_value"
-      top_pad="10"
-      width="90" />
-  <check_box
-      height="19"
-      label="Walkable"
-      layout="topleft"
-      name="edit_walkable_value"
-      top_pad="5"
-      left="38"
-      width="90" />
+      left_delta="0"
+      name="edit_path_state"
+      top_delta="21"
+      width="138">
+    <radio_item
+        label="Walkable"
+        layout="topleft"
+        height="13"
+        name="edit_pathing_state_walkable"
+        value="1"/>
+    <radio_item
+        label="Obstacle"
+        layout="topleft"
+        height="13"
+        name="edit_pathing_state_obstacle"
+        value="2"/>
+    <radio_item
+        label="Ignored"
+        layout="topleft"
+        height="13"
+        name="edit_pathing_state_ignored"
+        value="3"/>
+  </radio_group>
   <text
       height="13"
       word_wrap="false"

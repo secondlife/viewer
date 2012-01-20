@@ -37,11 +37,19 @@ class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
 class LLCheckBoxCtrl;
+class LLRadioGroup;
 class LLButton;
 
 class PathfindingLinkset
 {
 public:
+	typedef enum
+	{
+		kWalkable,
+		kObstacle,
+		kIgnored
+	} EPathState;
+
 	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavMeshItem);
 	PathfindingLinkset(const PathfindingLinkset& pOther);
 	virtual ~PathfindingLinkset();
@@ -54,11 +62,13 @@ public:
 	U32                getLandImpact() const;
 	const LLVector3&   getPositionAgent() const;
 
-	BOOL               isFixed() const;
-	void               setFixed(BOOL pIsFixed);
+	EPathState         getPathState() const;
+	void               setPathState(EPathState pPathState);
+	static BOOL        isPermanent(EPathState pPathState);
+	static BOOL        isWalkable(EPathState pPathState);
 
+	BOOL               isPermanent() const;
 	BOOL               isWalkable() const;
-	void               setWalkable(BOOL pIsWalkable);
 
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
@@ -83,7 +93,7 @@ private:
 	std::string mDescription;
 	U32         mLandImpact;
 	LLVector3   mLocation;
-	BOOL        mIsFixed;
+	BOOL        mIsPermanent;
 	BOOL        mIsWalkable;
 	BOOL        mIsPhantom;
 	S32         mA;
@@ -136,10 +146,12 @@ public:
 	const std::string& getNameFilter() const;
 	void               setDescriptionFilter(const std::string& pDescriptionFilter);
 	const std::string& getDescriptionFilter() const;
-	void               setFixedFilter(BOOL pFixedFilter);
-	BOOL               isFixedFilter() const;
 	void               setWalkableFilter(BOOL pWalkableFilter);
 	BOOL               isWalkableFilter() const;
+	void               setObstacleFilter(BOOL pObstacleFilter);
+	BOOL               isObstacleFilter() const;
+	void               setIgnoredFilter(BOOL pIgnoredFilter);
+	BOOL               isIgnoredFilter() const;
 	void               clearFilters();
 
 protected:
@@ -151,8 +163,9 @@ private:
 	bool         mIsFiltersDirty;
 	FilterString mNameFilter;
 	FilterString mDescriptionFilter;
-	BOOL         mIsFixedFilter;
 	BOOL         mIsWalkableFilter;
+	BOOL         mIsObstacleFilter;
+	BOOL         mIsIgnoredFilter;
 
 	void applyFilters();
 	BOOL doesMatchFilters(const PathfindingLinkset& pLinkset) const;
@@ -194,11 +207,10 @@ private:
 	LLTextBase          *mLinksetsStatus;
 	LLLineEditor        *mFilterByName;
 	LLLineEditor        *mFilterByDescription;
-	LLCheckBoxCtrl      *mFilterByFixed;
 	LLCheckBoxCtrl      *mFilterByWalkable;
-	LLCheckBoxCtrl      *mEditFixed;
-	LLCheckBoxCtrl      *mEditWalkable;
-	LLCheckBoxCtrl      *mEditPhantom;
+	LLCheckBoxCtrl      *mFilterByObstacle;
+	LLCheckBoxCtrl      *mFilterByIgnored;
+	LLRadioGroup        *mEditPathState;
 	LLTextBase          *mLabelWalkabilityCoefficients;
 	LLTextBase          *mLabelEditA;
 	LLTextBase          *mLabelEditB;
@@ -208,6 +220,7 @@ private:
 	LLLineEditor        *mEditB;
 	LLLineEditor        *mEditC;
 	LLLineEditor        *mEditD;
+	LLCheckBoxCtrl      *mEditPhantom;
 	LLButton            *mApplyEdits;
 
 	// Does its own instance management, so clients not allowed
@@ -247,6 +260,9 @@ private:
 	void updateEditFields();
 	void applyEditFields();
 	void setEnableEditFields(BOOL pEnabled);
+
+	PathfindingLinkset::EPathState getPathState() const;
+	void                           setPathState(PathfindingLinkset::EPathState pPathState);
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

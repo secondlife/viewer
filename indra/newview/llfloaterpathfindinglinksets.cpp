@@ -39,11 +39,16 @@
 #include "llscrolllistitem.h"
 #include "llscrolllistctrl.h"
 #include "llcheckboxctrl.h"
+#include "llradiogroup.h"
 #include "llbutton.h"
 #include "llresmgr.h"
 #include "llviewerregion.h"
 #include "llhttpclient.h"
 #include "lluuid.h"
+
+#define XUI_PATH_STATE_WALKABLE 1
+#define XUI_PATH_STATE_OBSTACLE 2
+#define XUI_PATH_STATE_IGNORED 3
 
 //---------------------------------------------------------------------------
 // NavMeshDataGetResponder
@@ -95,7 +100,7 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(),
-	mIsFixed(false),
+	mIsPermanent(false),
 	mIsWalkable(false),
 	mIsPhantom(false),
 	mA(0),
@@ -118,7 +123,7 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 
 	llassert(pNavMeshItem.has("permanent"));
 	llassert(pNavMeshItem.get("permanent").isBoolean());
-	mIsFixed = pNavMeshItem.get("permanent").asBoolean();
+	mIsPermanent = pNavMeshItem.get("permanent").asBoolean();
 
 	llassert(pNavMeshItem.has("walkable"));
 	llassert(pNavMeshItem.get("walkable").isBoolean());
@@ -155,7 +160,7 @@ PathfindingLinkset::PathfindingLinkset(const PathfindingLinkset& pOther)
 	mDescription(pOther.mDescription),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
-	mIsFixed(pOther.mIsFixed),
+	mIsPermanent(pOther.mIsPermanent),
 	mIsWalkable(pOther.mIsWalkable),
 	mIsPhantom(pOther.mIsPhantom),
 	mA(pOther.mA),
@@ -176,7 +181,7 @@ PathfindingLinkset& PathfindingLinkset::operator =(const PathfindingLinkset& pOt
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
-	mIsFixed = pOther.mIsFixed;
+	mIsPermanent = pOther.mIsPermanent;
 	mIsWalkable = pOther.mIsWalkable;
 	mIsPhantom = pOther.mIsPhantom;
 	mA = pOther.mA;
@@ -212,24 +217,69 @@ const LLVector3& PathfindingLinkset::getPositionAgent() const
 	return mLocation;
 }
 
-BOOL PathfindingLinkset::isFixed() const
+PathfindingLinkset::EPathState PathfindingLinkset::getPathState() const
 {
-	return mIsFixed;
+	return (mIsPermanent ? (mIsWalkable ? kWalkable : kObstacle) : kIgnored);
 }
 
-void PathfindingLinkset::setFixed(BOOL pIsFixed)
+void PathfindingLinkset::setPathState(EPathState pPathState)
 {
-	mIsFixed = pIsFixed;
+	mIsPermanent = isPermanent(pPathState);
+	mIsWalkable = isWalkable(pPathState);
+}
+
+BOOL PathfindingLinkset::isPermanent(EPathState pPathState)
+{
+	BOOL retVal;
+
+	switch (pPathState)
+	{
+	case kWalkable :
+	case kObstacle :
+		retVal = true;
+		break;
+	case kIgnored :
+		retVal = false;
+		break;
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
+}
+
+BOOL PathfindingLinkset::isWalkable(EPathState pPathState)
+{
+	BOOL retVal;
+
+	switch (pPathState)
+	{
+	case kWalkable :
+		retVal = true;
+		break;
+	case kObstacle :
+	case kIgnored :
+		retVal = false;
+		break;
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
+}
+
+BOOL PathfindingLinkset::isPermanent() const
+{
+	return mIsPermanent;
 }
 
 BOOL PathfindingLinkset::isWalkable() const
 {
 	return mIsWalkable;
-}
-
-void PathfindingLinkset::setWalkable(BOOL pIsWalkable)
-{
-	mIsWalkable = pIsWalkable;
 }
 
 BOOL PathfindingLinkset::isPhantom() const
@@ -369,8 +419,9 @@ PathfindingLinksets::PathfindingLinksets()
 	mIsFiltersDirty(false),
 	mNameFilter(),
 	mDescriptionFilter(),
-	mIsFixedFilter(false),
-	mIsWalkableFilter(false)
+	mIsWalkableFilter(true),
+	mIsObstacleFilter(true),
+	mIsIgnoredFilter(true)
 {
 }
 
@@ -380,8 +431,9 @@ PathfindingLinksets::PathfindingLinksets(const LLSD& pNavMeshData)
 	mIsFiltersDirty(false),
 	mNameFilter(),
 	mDescriptionFilter(),
-	mIsFixedFilter(false),
-	mIsWalkableFilter(false)
+	mIsWalkableFilter(true),
+	mIsObstacleFilter(true),
+	mIsIgnoredFilter(true)
 {
 	setNavMeshData(pNavMeshData);
 }
@@ -392,8 +444,9 @@ PathfindingLinksets::PathfindingLinksets(const PathfindingLinksets& pOther)
 	mIsFiltersDirty(pOther.mIsFiltersDirty),
 	mNameFilter(pOther.mNameFilter),
 	mDescriptionFilter(pOther.mDescriptionFilter),
-	mIsFixedFilter(pOther.mIsFixedFilter),
-	mIsWalkableFilter(pOther.mIsWalkableFilter)
+	mIsWalkableFilter(pOther.mIsWalkableFilter),
+	mIsObstacleFilter(pOther.mIsObstacleFilter),
+	mIsIgnoredFilter(pOther.mIsIgnoredFilter)
 {
 }
 
@@ -469,7 +522,7 @@ const PathfindingLinksets::PathfindingLinksetMap& PathfindingLinksets::getFilter
 
 BOOL PathfindingLinksets::isFiltersActive() const
 {
-	return (mNameFilter.isActive() || mDescriptionFilter.isActive() || mIsFixedFilter || mIsWalkableFilter);
+	return (mNameFilter.isActive() || mDescriptionFilter.isActive() || !mIsWalkableFilter || !mIsIgnoredFilter || !mIsIgnoredFilter);
 }
 
 void PathfindingLinksets::setNameFilter(const std::string& pNameFilter)
@@ -492,17 +545,6 @@ const std::string& PathfindingLinksets::getDescriptionFilter() const
 	return mDescriptionFilter.get();
 }
 
-void PathfindingLinksets::setFixedFilter(BOOL pFixedFilter)
-{
-	mIsFiltersDirty = (mIsFiltersDirty || (mIsFixedFilter == pFixedFilter));
-	mIsFixedFilter = pFixedFilter;
-}
-
-BOOL PathfindingLinksets::isFixedFilter() const
-{
-	return mIsFixedFilter;
-}
-
 void PathfindingLinksets::setWalkableFilter(BOOL pWalkableFilter)
 {
 	mIsFiltersDirty = (mIsFiltersDirty || (mIsWalkableFilter == pWalkableFilter));
@@ -514,12 +556,35 @@ BOOL PathfindingLinksets::isWalkableFilter() const
 	return mIsWalkableFilter;
 }
 
+void PathfindingLinksets::setObstacleFilter(BOOL pObstacleFilter)
+{
+	mIsFiltersDirty = (mIsFiltersDirty || (mIsObstacleFilter == pObstacleFilter));
+	mIsObstacleFilter = pObstacleFilter;
+}
+
+BOOL PathfindingLinksets::isObstacleFilter() const
+{
+	return mIsObstacleFilter;
+}
+
+void PathfindingLinksets::setIgnoredFilter(BOOL pIgnoredFilter)
+{
+	mIsFiltersDirty = (mIsFiltersDirty || (mIsIgnoredFilter == pIgnoredFilter));
+	mIsIgnoredFilter = pIgnoredFilter;
+}
+
+BOOL PathfindingLinksets::isIgnoredFilter() const
+{
+	return mIsIgnoredFilter;
+}
+
 void PathfindingLinksets::clearFilters()
 {
 	mNameFilter.clear();
 	mDescriptionFilter.clear();
-	mIsFixedFilter = false;
-	mIsWalkableFilter = false;
+	mIsWalkableFilter = true;
+	mIsObstacleFilter = true;
+	mIsIgnoredFilter = true;
 	mIsFiltersDirty = false;
 }
 
@@ -543,8 +608,9 @@ void PathfindingLinksets::applyFilters()
 
 BOOL PathfindingLinksets::doesMatchFilters(const PathfindingLinkset& pLinkset) const
 {
-	return ((!mIsFixedFilter || pLinkset.isFixed()) &&
-			(!mIsWalkableFilter || pLinkset.isWalkable()) &&
+	return (((mIsWalkableFilter && (pLinkset.getPathState() == PathfindingLinkset::kWalkable)) ||
+			 (mIsObstacleFilter && (pLinkset.getPathState() == PathfindingLinkset::kObstacle)) ||
+			 (mIsIgnoredFilter && (pLinkset.getPathState() == PathfindingLinkset::kIgnored))) &&
 			(!mNameFilter.isActive() || mNameFilter.doesMatch(pLinkset.getName())) &&
 			(!mDescriptionFilter.isActive() || mDescriptionFilter.doesMatch(pLinkset.getDescription())));
 }
@@ -581,22 +647,20 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mFilterByDescription->setSelectAllonFocusReceived(true);
 	mFilterByDescription->setCommitOnFocusLost(true);
 
-	mFilterByFixed = findChild<LLCheckBoxCtrl>("filter_by_fixed");
-	llassert(mFilterByFixed != NULL);
-	mFilterByFixed->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
-
 	mFilterByWalkable = findChild<LLCheckBoxCtrl>("filter_by_walkable");
 	llassert(mFilterByWalkable != NULL);
 	mFilterByWalkable->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
 
-	mEditFixed = findChild<LLCheckBoxCtrl>("edit_fixed_value");
-	llassert(mEditFixed != NULL);
+	mFilterByObstacle = findChild<LLCheckBoxCtrl>("filter_by_obstacle");
+	llassert(mFilterByObstacle != NULL);
+	mFilterByObstacle->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
 
-	mEditWalkable = findChild<LLCheckBoxCtrl>("edit_walkable_value");
-	llassert(mEditWalkable != NULL);
+	mFilterByIgnored = findChild<LLCheckBoxCtrl>("filter_by_ignored");
+	llassert(mFilterByIgnored != NULL);
+	mFilterByIgnored->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyFiltersClicked, this));
 
-	mEditPhantom = findChild<LLCheckBoxCtrl>("edit_phantom_value");
-	llassert(mEditPhantom != NULL);
+	mEditPathState = findChild<LLRadioGroup>("edit_path_state");
+	llassert(mEditPathState != NULL);
 
 	mLabelWalkabilityCoefficients = findChild<LLTextBase>("walkability_coefficients_label");
 	llassert(mLabelWalkabilityCoefficients != NULL);
@@ -628,6 +692,9 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditD = findChild<LLLineEditor>("edit_d_value");
 	llassert(mEditD != NULL);
 	mEditD->setPrevalidate(LLTextValidate::validatePositiveS32);
+
+	mEditPhantom = findChild<LLCheckBoxCtrl>("edit_phantom_value");
+	llassert(mEditPhantom != NULL);
 
 	mApplyEdits = findChild<LLButton>("apply_edit_values");
 	llassert(mApplyEdits != NULL);
@@ -681,11 +748,10 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mLinksetsStatus(NULL),
 	mFilterByName(NULL),
 	mFilterByDescription(NULL),
-	mFilterByFixed(NULL),
 	mFilterByWalkable(NULL),
-	mEditFixed(NULL),
-	mEditWalkable(NULL),
-	mEditPhantom(NULL),
+	mFilterByObstacle(NULL),
+	mFilterByIgnored(NULL),
+	mEditPathState(NULL),
 	mLabelWalkabilityCoefficients(NULL),
 	mLabelEditA(NULL),
 	mLabelEditB(NULL),
@@ -695,6 +761,7 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mEditB(NULL),
 	mEditC(NULL),
 	mEditD(NULL),
+	mEditPhantom(NULL),
 	mApplyEdits(NULL)
 {
 }
@@ -865,8 +932,9 @@ void LLFloaterPathfindingLinksets::applyFilters()
 {
 	mPathfindingLinksets.setNameFilter(mFilterByName->getText());
 	mPathfindingLinksets.setDescriptionFilter(mFilterByDescription->getText());
-	mPathfindingLinksets.setFixedFilter(mFilterByFixed->get());
 	mPathfindingLinksets.setWalkableFilter(mFilterByWalkable->get());
+	mPathfindingLinksets.setObstacleFilter(mFilterByObstacle->get());
+	mPathfindingLinksets.setIgnoredFilter(mFilterByIgnored->get());
 	updateLinksetsList();
 }
 
@@ -875,8 +943,9 @@ void LLFloaterPathfindingLinksets::clearFilters()
 	mPathfindingLinksets.clearFilters();
 	mFilterByName->setText(LLStringExplicit(mPathfindingLinksets.getNameFilter()));
 	mFilterByDescription->setText(LLStringExplicit(mPathfindingLinksets.getDescriptionFilter()));
-	mFilterByFixed->set(mPathfindingLinksets.isFixedFilter());
 	mFilterByWalkable->set(mPathfindingLinksets.isWalkableFilter());
+	mFilterByObstacle->set(mPathfindingLinksets.isObstacleFilter());
+	mFilterByIgnored->set(mPathfindingLinksets.isIgnoredFilter());
 	updateLinksetsList();
 }
 
@@ -926,7 +995,7 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "is_fixed";
-		columns[4]["value"] = getString(linkset.isFixed() ? "linkset_is_fixed" : "linkset_is_not_fixed");
+		columns[4]["value"] = getString(linkset.isPermanent() ? "linkset_is_fixed" : "linkset_is_not_fixed");
 		columns[4]["font"] = "SANSSERIF";
 
 		columns[5]["column"] = "is_walkable";
@@ -1036,13 +1105,12 @@ void LLFloaterPathfindingLinksets::updateEditFields()
 	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
 	if (selectedItems.empty())
 	{
-		mEditFixed->clear();
-		mEditWalkable->clear();
-		mEditPhantom->clear();
+		mEditPathState->clear();
 		mEditA->clear();
 		mEditB->clear();
 		mEditC->clear();
 		mEditD->clear();
+		mEditPhantom->clear();
 
 		setEnableEditFields(false);
 	}
@@ -1054,13 +1122,12 @@ void LLFloaterPathfindingLinksets::updateEditFields()
 		PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(firstItem->getUUID().asString());
 		const PathfindingLinkset &linkset(linksetIter->second);
 
-		mEditFixed->set(linkset.isFixed());
-		mEditWalkable->set(linkset.isWalkable());
-		mEditPhantom->set(linkset.isPhantom());
+		setPathState(linkset.getPathState());
 		mEditA->setValue(LLSD(linkset.getA()));
 		mEditB->setValue(LLSD(linkset.getB()));
 		mEditC->setValue(LLSD(linkset.getC()));
 		mEditD->setValue(LLSD(linkset.getD()));
+		mEditPhantom->set(linkset.isPhantom());
 
 		setEnableEditFields(true);
 	}
@@ -1071,9 +1138,9 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
 	if (!selectedItems.empty())
 	{
-		BOOL isFixedBool = mEditFixed->getValue();
-		BOOL isWalkableBool = mEditWalkable->getValue();
-		BOOL isPhantomBool = mEditPhantom->getValue();
+		PathfindingLinkset::EPathState pathState = getPathState();
+		BOOL isPermanentBool = PathfindingLinkset::isPermanent(pathState);
+		BOOL isWalkableBool = PathfindingLinkset::isWalkable(pathState);
 		const std::string &aString = mEditA->getText();
 		const std::string &bString = mEditB->getText();
 		const std::string &cString = mEditC->getText();
@@ -1082,14 +1149,15 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 		S32 bValue = static_cast<S32>(atoi(bString.c_str()));
 		S32 cValue = static_cast<S32>(atoi(cString.c_str()));
 		S32 dValue = static_cast<S32>(atoi(dString.c_str()));
+		BOOL isPhantomBool = mEditPhantom->getValue();
 
-		LLSD isFixed = (bool)isFixedBool;
+		LLSD isPermanent = (bool)isPermanentBool;
 		LLSD isWalkable = (bool)isWalkableBool;
-		LLSD isPhantom = (bool)isPhantomBool;
 		LLSD a = static_cast<F32>(aValue) / 100.0f;
 		LLSD b = static_cast<F32>(bValue) / 100.0f;
 		LLSD c = static_cast<F32>(cValue) / 100.0f;
 		LLSD d = static_cast<F32>(dValue) / 100.0f;
+		LLSD isPhantom = (bool)isPhantomBool;
 
 		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
 
@@ -1104,17 +1172,10 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 			const PathfindingLinkset &linkset = linksetIter->second;
 
 			LLSD itemData;
-			if (linkset.isFixed() != isFixedBool)
+			if (linkset.getPathState() != pathState)
 			{
-				itemData["permanent"] = isFixed;
-			}
-			if (linkset.isWalkable() != isWalkableBool)
-			{
+				itemData["permanent"] = isPermanent;
 				itemData["walkable"] = isWalkable;
-			}
-			if (linkset.isPhantom() != isPhantomBool)
-			{
-				itemData["phantom"] = isPhantom;
 			}
 			if (linkset.getA() != aValue)
 			{
@@ -1131,6 +1192,10 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 			if (linkset.getD() != dValue)
 			{
 				itemData["D"] = d;
+			}
+			if (linkset.isPhantom() != isPhantomBool)
+			{
+				itemData["phantom"] = isPhantom;
 			}
 
 			if (!itemData.isUndefined())
@@ -1152,9 +1217,7 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 
 void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
 {
-	mEditFixed->setEnabled(pEnabled);
-	mEditWalkable->setEnabled(pEnabled);
-	mEditPhantom->setEnabled(pEnabled);
+	mEditPathState->setEnabled(pEnabled);
 	mLabelWalkabilityCoefficients->setEnabled(pEnabled);
 	mLabelEditA->setEnabled(pEnabled);
 	mLabelEditB->setEnabled(pEnabled);
@@ -1164,7 +1227,56 @@ void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
 	mEditB->setEnabled(pEnabled);
 	mEditC->setEnabled(pEnabled);
 	mEditD->setEnabled(pEnabled);
+	mEditPhantom->setEnabled(pEnabled);
 	mApplyEdits->setEnabled(pEnabled);
+}
+
+PathfindingLinkset::EPathState LLFloaterPathfindingLinksets::getPathState() const
+{
+	PathfindingLinkset::EPathState pathState;
+	
+	switch (mEditPathState->getValue().asInteger())
+	{
+	case XUI_PATH_STATE_WALKABLE :
+		pathState = PathfindingLinkset::kWalkable;
+		break;
+	case XUI_PATH_STATE_OBSTACLE :
+		pathState = PathfindingLinkset::kObstacle;
+		break;
+	case XUI_PATH_STATE_IGNORED :
+		pathState = PathfindingLinkset::kIgnored;
+		break;
+	default :
+		pathState = PathfindingLinkset::kIgnored;
+		llassert(0);
+		break;
+	}
+
+	return pathState;
+}
+
+void LLFloaterPathfindingLinksets::setPathState(PathfindingLinkset::EPathState pPathState)
+{
+	LLSD radioGroupValue;
+
+	switch (pPathState)
+	{
+	case PathfindingLinkset::kWalkable :
+		radioGroupValue = XUI_PATH_STATE_WALKABLE;
+		break;
+	case PathfindingLinkset::kObstacle :
+		radioGroupValue = XUI_PATH_STATE_OBSTACLE;
+		break;
+	case PathfindingLinkset::kIgnored :
+		radioGroupValue = XUI_PATH_STATE_IGNORED;
+		break;
+	default :
+		radioGroupValue = XUI_PATH_STATE_IGNORED;
+		llassert(0);
+		break;
+	}
+
+	mEditPathState->setValue(radioGroupValue);
 }
 
 //---------------------------------------------------------------------------
