@@ -2463,7 +2463,7 @@ void LLIMMgr::addMessage(
 	{
 		if (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL)
 		{
-			show_messages = false;
+			show_message = false;
 		}
 	}
 
