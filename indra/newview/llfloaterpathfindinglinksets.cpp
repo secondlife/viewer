@@ -624,6 +624,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	llassert(mLinksetsScrollList != NULL);
 	mLinksetsScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onLinksetsSelectionChange, this));
 	mLinksetsScrollList->setCommitOnSelectionChange(true);
+	mLinksetsScrollList->sortByColumnIndex(0, true);
 
 	mLinksetsStatus = findChild<LLTextBase>("linksets_status");
 	llassert(mLinksetsStatus != NULL);
