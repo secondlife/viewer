@@ -515,7 +515,7 @@ const PathfindingLinksets::PathfindingLinksetMap& PathfindingLinksets::getFilter
 
 BOOL PathfindingLinksets::isFiltersActive() const
 {
-	return (mNameFilter.isActive() || mDescriptionFilter.isActive() || !mIsWalkableFilter || !mIsIgnoredFilter || !mIsIgnoredFilter);
+	return (mNameFilter.isActive() || mDescriptionFilter.isActive() || !mIsWalkableFilter || !mIsObstacleFilter || !mIsIgnoredFilter);
 }
 
 void PathfindingLinksets::setNameFilter(const std::string& pNameFilter)
