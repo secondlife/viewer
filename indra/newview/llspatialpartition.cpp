@@ -1187,6 +1187,8 @@ void LLSpatialGroup::clearOcclusionState(U32 state, S32 mode)
 
 LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) :
 	mState(0),
+	mGeometryBytes(0),
+	mSurfaceArea(0.f),
 	mBuilt(0.f),
 	mOctreeNode(node),
 	mSpatialPartition(part),
@@ -1412,6 +1414,17 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 		}
 	}
 	
+	//clean up avatar attachment stats
+	LLSpatialBridge* bridge = mSpatialPartition->asBridge();
+	if (bridge)
+	{
+		if (bridge->mAvatar.notNull())
+		{
+			bridge->mAvatar->mAttachmentGeometryBytes -= mGeometryBytes;
+			bridge->mAvatar->mAttachmentSurfaceArea -= mSurfaceArea;
+		}
+	}
+
 	clearDrawMap();
 	mVertexBuffer = NULL;
 	mBufferMap.clear();
@@ -1767,7 +1780,7 @@ void LLSpatialGroup::doOcclusion(LLCamera* camera)
 //==============================================
 
 LLSpatialPartition::LLSpatialPartition(U32 data_mask, BOOL render_by_group, U32 buffer_usage)
-: mRenderByGroup(render_by_group)
+: mRenderByGroup(render_by_group), mBridge(NULL)
 {
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 	mOcclusionEnabled = TRUE;

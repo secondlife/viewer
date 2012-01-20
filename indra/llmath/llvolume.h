@@ -963,6 +963,7 @@ public:
 	S32	getNumFaces() const;
 	S32 getNumVolumeFaces() const							{ return mVolumeFaces.size(); }
 	F32 getDetail() const									{ return mDetail; }
+	F32 getSurfaceArea() const								{ return mSurfaceArea; }
 	const LLVolumeParams& getParams() const					{ return mParams; }
 	LLVolumeParams getCopyOfParams() const					{ return mParams; }
 	const LLProfile& getProfile() const						{ return *mProfilep; }
@@ -1065,6 +1066,7 @@ public:
 	BOOL mUnique;
 	F32 mDetail;
 	S32 mSculptLevel;
+	F32 mSurfaceArea; //unscaled surface area
 	BOOL mIsMeshAssetLoaded;
 	
 	LLVolumeParams mParams;

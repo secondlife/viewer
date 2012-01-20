@@ -947,6 +947,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_COMPOSITION;
 	}
+	else if ("attachment bytes" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES;
+	}
 	else if ("glow" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_GLOW;

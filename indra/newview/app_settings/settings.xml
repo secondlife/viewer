@@ -9024,6 +9024,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderAutoMuteByteLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum bytes of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAutoMuteSurfaceAreaLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>RenderUseShaderLOD</key>
     <map>
       <key>Comment</key>
