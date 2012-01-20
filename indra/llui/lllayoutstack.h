@@ -157,11 +157,11 @@ public:
 	void setVisible(BOOL visible);
 
 	S32 getLayoutDim() const;
-	S32 getMinDim() const { return mMinDim; }
-	void setMinDim(S32 value) { mMinDim = value; if (!mExpandedMinDimSpecified) mExpandedMinDim = value; }
+	S32 getMinDim() const { return (mMinDim >= 0 || mAutoResize) ? llmax(0, mMinDim) : getLayoutDim(); }
+	void setMinDim(S32 value) { mMinDim = value; }
 
-	S32 getExpandedMinDim() const { return mExpandedMinDim; }
-	void setExpandedMinDim(S32 value) { mExpandedMinDim = value; mExpandedMinDimSpecified = true; }
+	S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : mMinDim; }
+	void setExpandedMinDim(S32 value) { mExpandedMinDim = value; }
 	
 	S32 getRelevantMinDim() const
 	{
@@ -169,7 +169,7 @@ public:
 		
 		if (!mCollapsed)
 		{
-			min_dim = mExpandedMinDim;
+			min_dim = getExpandedMinDim();
 		}
 		
 		return min_dim;
@@ -187,9 +187,7 @@ public:
 protected:
 	LLLayoutPanel(const Params& p);
 	
-	bool	mExpandedMinDimSpecified;
 	S32		mExpandedMinDim;
-	
 	S32		mMinDim;
 	bool	mAutoResize;
 	bool	mUserResize;
