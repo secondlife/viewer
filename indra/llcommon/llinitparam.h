@@ -2057,8 +2057,8 @@ namespace LLInitParam
 		
 
 		// block param interface
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
+		LL_COMMON_API bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
+		LL_COMMON_API void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
 			//TODO: implement LLSD params as schema type Any

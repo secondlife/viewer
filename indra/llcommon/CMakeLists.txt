@@ -82,6 +82,7 @@ set(llcommon_SOURCE_FILES
     llrefcount.cpp
     llrun.cpp
     llsd.cpp
+    llsdparam.cpp
     llsdserialize.cpp
     llsdserialize_xml.cpp
     llsdutil.cpp
@@ -211,6 +212,7 @@ set(llcommon_HEADER_FILES
     llrefcount.h
     llsafehandle.h
     llsd.h
+    llsdparam.h
     llsdserialize.h
     llsdserialize_xml.h
     llsdutil.h

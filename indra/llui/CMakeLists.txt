@@ -81,7 +81,6 @@ set(llui_SOURCE_FILES
     llscrolllistcolumn.cpp
     llscrolllistctrl.cpp
     llscrolllistitem.cpp
-    llsdparam.cpp
     llsearcheditor.cpp
     llslider.cpp
     llsliderctrl.cpp
@@ -190,7 +189,6 @@ set(llui_HEADER_FILES
     llscrolllistcolumn.h
     llscrolllistctrl.h
     llscrolllistitem.h
-    llsdparam.h
     llsliderctrl.h
     llslider.h
     llspinctrl.h
