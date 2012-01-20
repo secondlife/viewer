@@ -2458,8 +2458,14 @@ void LLIMMgr::addMessage(
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	bool show_message = gSavedSettings.getBOOL("VoiceCallsFriendsOnly") &&
-		LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL ? false : true;
+	bool show_message = true;
+	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly"))
+	{
+		if (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL)
+		{
+			show_messages = false;
+		}
+	}
 
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && show_message)
 	{
