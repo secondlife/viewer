@@ -131,7 +131,7 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	mPathState = getPathState(isPermanent, isWalkable);
 
 	llassert(pNavMeshItem.has("phantom"));
-	//llassert(pNavMeshItem.get("phantom").isBoolean()); XXX stinson 01/10/2012: this should be a boolean but is not
+	llassert(pNavMeshItem.get("phantom").isBoolean());
 	mIsPhantom = pNavMeshItem.get("phantom").asBoolean();
 
 	llassert(pNavMeshItem.has("A"));
@@ -865,21 +865,6 @@ std::string LLFloaterPathfindingLinksets::getRegionName() const
 
 std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
 {
-#ifdef XXX_STINSON_REGION_CAP_RENAME
-	std::string navMeshDataURL("");
-
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region != NULL)
-	{
-		navMeshDataURL = region->getCapability("ObjectNavMeshProperties");
-		if (navMeshDataURL.empty())
-		{
-			navMeshDataURL = region->getCapability("ObjectNavmesh");
-		}
-	}
-
-	return navMeshDataURL;
-#else // XXX_STINSON_REGION_CAP_RENAME
 	std::string navMeshDataURL("");
 
 	LLViewerRegion* region = gAgent.getRegion();
@@ -889,7 +874,6 @@ std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
 	}
 
 	return navMeshDataURL;
-#endif // XXX_STINSON_REGION_CAP_RENAME
 }
 
 void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)

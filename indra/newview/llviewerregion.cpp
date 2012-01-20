@@ -1522,9 +1522,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("MeshUploadFlag");	
 	capabilityNames.append("NavMeshUpload");
 	capabilityNames.append("NewFileAgentInventory");
-#ifdef XXX_STINSON_REGION_CAP_RENAME
-	capabilityNames.append("ObjectNavmesh");
-#endif // XXX_STINSON_REGION_CAP_RENAME
 	capabilityNames.append("ObjectNavMeshProperties");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelMediaURLFilterList");
