@@ -1199,7 +1199,9 @@ void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_f
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
-	if (mAutoOpenItems.check() == item || mAutoOpenItems.getDepth() >= (U32)AUTO_OPEN_STACK_DEPTH)
+	if ((mAutoOpenItems.check() == item) || 
+		(mAutoOpenItems.getDepth() >= (U32)AUTO_OPEN_STACK_DEPTH) ||
+		item->isOpen())
 	{
 		return;
 	}

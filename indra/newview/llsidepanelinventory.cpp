@@ -371,7 +371,7 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	const bool inbox_expanded = inboxButton->getToggleState();
 	
 	// Enable user_resize on main inventory panel only when inbox is expanded
-	inv_stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL_NAME, inbox_expanded);
+	//inv_stack->setPanelUserResize(MAIN_INVENTORY_LAYOUT_PANEL_NAME, inbox_expanded);
 	
 	// Expand/collapse the indicated panel
 	inv_stack->collapsePanel(inboxPanel, !inbox_expanded);

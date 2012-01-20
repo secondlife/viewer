@@ -376,44 +376,37 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 	BOOL handled = (handled_view != NULL);
+
+	// Determine if the mouse is inside the inventory panel itself or just within the floater
+	bool pointInInventoryPanel = false;
+	bool pointInInventoryPanelChild = false;
+	LLFolderView * root_folder = mOutboxInventoryPanel->getRootFolder();
+	if (mOutboxInventoryPanel->getVisible())
+	{
+		S32 inv_x, inv_y;
+		localPointToOtherView(x, y, &inv_x, &inv_y, mOutboxInventoryPanel);
+
+		pointInInventoryPanel = mOutboxInventoryPanel->getRect().pointInRect(inv_x, inv_y);
+
+		LLView * inventory_panel_child_at_point = mOutboxInventoryPanel->childFromPoint(inv_x, inv_y, true);
+		pointInInventoryPanelChild = (inventory_panel_child_at_point != root_folder);
+	}
 	
 	// Pass all drag and drop for this floater to the outbox inventory control
 	if (!handled || !isAccepted(*accept))
 	{
-		// Always assume we are going to move the drag and drop operation to the outbox root folder
-		bool move_to_root = true;
-		
-		// If the inventory panel is visible, then only override it to the outbox root if we're outside the inventory panel
+		// Handle the drag and drop directly to the root of the outbox if we're not in the inventory panel
 		// (otherwise the inventory panel itself will handle the drag and drop operation, without any override)
-		if (mOutboxInventoryPanel->getVisible())
+		if (!pointInInventoryPanel)
 		{
-			S32 inv_x, inv_y;
-			localPointToOtherView(x, y, &inv_x, &inv_y, mOutboxInventoryPanel);
-			
-			const LLRect& inv_rect = mOutboxInventoryPanel->getRect();
-
-			move_to_root = !inv_rect.pointInRect(inv_x, inv_y);
-		}
-		
-		// Handle the drag and drop directly to the root of the outbox
-		if (move_to_root)
-		{
-			LLFolderView * root_folder = mOutboxInventoryPanel->getRootFolder();
-			
 			handled = root_folder->handleDragAndDropToThisFolder(mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
 
-		if (mOutboxTopLevelDropZone)
-		{
-			mOutboxTopLevelDropZone->setBackgroundVisible(handled && !drop && isAccepted(*accept));
-		}
+		mOutboxTopLevelDropZone->setBackgroundVisible(handled && !drop && isAccepted(*accept));
 	}
 	else
 	{
-		if (mOutboxTopLevelDropZone)
-		{
-			mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
-		}
+		mOutboxTopLevelDropZone->setBackgroundVisible(!pointInInventoryPanelChild);
 	}
 	
 	return handled;
@@ -421,20 +414,14 @@ BOOL LLFloaterOutbox::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 BOOL LLFloaterOutbox::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mOutboxTopLevelDropZone)
-	{
-		mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
-	}
+	mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
 
 	return LLFloater::handleHover(x, y, mask);
 }
 
 void LLFloaterOutbox::onMouseLeave(S32 x, S32 y, MASK mask)
 {
-	if (mOutboxTopLevelDropZone)
-	{
-		mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
-	}
+	mOutboxTopLevelDropZone->setBackgroundVisible(FALSE);
 
 	LLFloater::onMouseLeave(x, y, mask);
 }
