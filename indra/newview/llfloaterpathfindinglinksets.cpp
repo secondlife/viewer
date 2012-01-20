@@ -656,6 +656,15 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditPathState = findChild<LLRadioGroup>("edit_path_state");
 	llassert(mEditPathState != NULL);
 
+	mEditPathStateWalkable = findChild<LLUICtrl>("edit_pathing_state_walkable");
+	llassert(mEditPathStateWalkable != NULL);
+
+	mEditPathStateObstacle = findChild<LLUICtrl>("edit_pathing_state_obstacle");
+	llassert(mEditPathStateObstacle != NULL);
+
+	mEditPathStateIgnored = findChild<LLUICtrl>("edit_pathing_state_ignored");
+	llassert(mEditPathStateIgnored != NULL);
+
 	mLabelWalkabilityCoefficients = findChild<LLTextBase>("walkability_coefficients_label");
 	llassert(mLabelWalkabilityCoefficients != NULL);
 
@@ -746,6 +755,9 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mFilterByObstacle(NULL),
 	mFilterByIgnored(NULL),
 	mEditPathState(NULL),
+	mEditPathStateWalkable(NULL),
+	mEditPathStateObstacle(NULL),
+	mEditPathStateIgnored(NULL),
 	mLabelWalkabilityCoefficients(NULL),
 	mLabelEditA(NULL),
 	mLabelEditB(NULL),
@@ -1223,6 +1235,9 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 void LLFloaterPathfindingLinksets::setEnableEditFields(BOOL pEnabled)
 {
 	mEditPathState->setEnabled(pEnabled);
+	mEditPathStateWalkable->setEnabled(pEnabled);
+	mEditPathStateObstacle->setEnabled(pEnabled);
+	mEditPathStateIgnored->setEnabled(pEnabled);
 	mLabelWalkabilityCoefficients->setEnabled(pEnabled);
 	mLabelEditA->setEnabled(pEnabled);
 	mLabelEditB->setEnabled(pEnabled);

@@ -208,6 +208,9 @@ private:
 	LLCheckBoxCtrl      *mFilterByObstacle;
 	LLCheckBoxCtrl      *mFilterByIgnored;
 	LLRadioGroup        *mEditPathState;
+	LLUICtrl            *mEditPathStateWalkable;
+	LLUICtrl            *mEditPathStateObstacle;
+	LLUICtrl            *mEditPathStateIgnored;
 	LLTextBase          *mLabelWalkabilityCoefficients;
 	LLTextBase          *mLabelEditA;
 	LLTextBase          *mLabelEditB;
