@@ -40,11 +40,13 @@ class LLRenderNavPrim
 {
 public:
 	//Draw a line
-	void renderSegment( const LLVector3& start, const LLVector3& end, int color,bool overlayMode  ) const;
+	void renderSegment( const LLVector3& start, const LLVector3& end, int color, bool overlayMode  ) const;
 	//Draw simple tri
-	void renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color,bool overlayMode  ) const;
+	void renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color, bool overlayMode ) const;
 	//Draw the contents of vertex buffer
-	void renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt  );
+	void renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt );
+	//Draw a star
+	void renderStar( const LLVector3& center, const float scale, int color ) const;
 
 private:
 };
