@@ -88,9 +88,6 @@ public:
 	void collapsePanel(LLPanel* panel, BOOL collapsed = TRUE);
 	S32 getNumPanels() { return mPanels.size(); }
 
-	void updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize);
-	void setPanelUserResize(const std::string& panel_name, BOOL user_resize);
-	
 	void updateLayout();
 
 	S32 getPanelSpacing() const { return mPanelSpacing; }
@@ -187,10 +184,11 @@ public:
 protected:
 	LLLayoutPanel(const Params& p);
 	
+	const bool	mAutoResize;
+	const bool	mUserResize;
+
 	S32		mExpandedMinDim;
 	S32		mMinDim;
-	bool	mAutoResize;
-	bool	mUserResize;
 	bool	mCollapsed;
 	F32		mVisibleAmt;
 	F32		mCollapseAmt;

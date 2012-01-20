@@ -27,6 +27,7 @@
          min_width="95"
          mouse_opaque="false"
          name="chiclet_list_panel"
+         auto_resize="true"
          top="0"
          width="189">
       <chiclet_panel

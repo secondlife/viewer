@@ -63,7 +63,7 @@ LLLayoutPanel::Params::Params()
 
 LLLayoutPanel::LLLayoutPanel(const Params& p)	
 :	LLPanel(p),
-	mExpandedMinDim(p.min_dim),
+	mExpandedMinDim(p.expanded_min_dim.isProvided() ? p.expanded_min_dim : p.min_dim),
  	mMinDim(p.min_dim), 
  	mAutoResize(p.auto_resize),
  	mUserResize(p.user_resize),
@@ -76,12 +76,6 @@ LLLayoutPanel::LLLayoutPanel(const Params& p)
 	mIgnoreReshape(false),
 	mOrientation(LLLayoutStack::HORIZONTAL)
 {
-	// Set the expanded min dim if it is provided, otherwise it gets the p.min_dim value
-	if (p.expanded_min_dim.isProvided())
-	{
-		mExpandedMinDim = p.expanded_min_dim();
-	}
-	
 	// panels initialized as hidden should not start out partially visible
 	if (!getVisible())
 	{
@@ -155,7 +149,7 @@ void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= 
 {
 	if (width == getRect().getWidth() && height == getRect().getHeight()) return;
 
-	if (!mIgnoreReshape && !mAutoResize)
+	if (!mIgnoreReshape && mAutoResize == false)
 	{
 		mTargetDim = (mOrientation == LLLayoutStack::HORIZONTAL) ? width : height;
 		LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
@@ -302,32 +296,6 @@ void LLLayoutStack::collapsePanel(LLPanel* panel, BOOL collapsed)
 	mNeedsLayout = true;
 }
 
-void LLLayoutStack::updatePanelAutoResize(const std::string& panel_name, BOOL auto_resize)
-{
-	LLLayoutPanel* panel = findEmbeddedPanelByName(panel_name);
-	
-	if (panel)
-	{
-		panel->mAutoResize = auto_resize;
-	}
-
-	mNeedsLayout = true;
-}
-
-void LLLayoutStack::setPanelUserResize(const std::string& panel_name, BOOL user_resize)
-{
-	LLLayoutPanel* panel = findEmbeddedPanelByName(panel_name);
-
-	if (panel)
-	{
-		panel->mUserResize = user_resize;
-	}
-
-	mNeedsLayout = true;
-	updateFractionalSizes();
-}
-
-
 static LLFastTimer::DeclareTimer FTM_UPDATE_LAYOUT("Update LayoutStacks");
 
 void LLLayoutStack::updateLayout()
@@ -369,7 +337,7 @@ void LLLayoutStack::updateLayout()
 	{	// give space proportionally to visible auto resize panels
 		BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
 		{
-			if (panelp->mAutoResize == TRUE)
+			if (panelp->mAutoResize)
 			{
 				F32 fraction_to_distribute = (panelp->mFractionalSize * panelp->getAutoResizeFactor()) / (total_visible_fraction);
 				S32 delta = llround((F32)space_to_distribute * fraction_to_distribute);

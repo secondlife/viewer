@@ -212,8 +212,6 @@ void LLChicletBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		// Firstly, update layout stack to ensure we deal with correct panel sizes.
 		{
-			// Set chiclet panel to be autoresized by default.
-			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
 			// Force the updating of layout to reset panels collapse factor.
 			mToolbarStack->updateLayout();
 		}
