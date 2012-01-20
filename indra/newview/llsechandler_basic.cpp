@@ -1360,7 +1360,11 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		// (even though this file isn't really secure.  Perhaps in the future
 		// it may be, however.
 		LLFile::remove(tmp_filename);
-		throw LLProtectedDataException("Error writing Protected Data Store");
+
+		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
+		// Decided throwing an exception here was overkill until we figure out why this happens
+		//throw LLProtectedDataException("Error writing Protected Data Store");
+		llinfos << "LLProtectedDataException(Error writing Protected Data Store)" << llendl;
 	}
 
 	// move the temporary file to the specified file location.
@@ -1369,7 +1373,11 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	   (LLFile::rename(tmp_filename, mProtectedDataFilename)))
 	{
 		LLFile::remove(tmp_filename);
-		throw LLProtectedDataException("Could not overwrite protected data store");
+
+		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
+		// Decided throwing an exception here was overkill until we figure out why this happens
+		//throw LLProtectedDataException("Could not overwrite protected data store");
+		llinfos << "LLProtectedDataException(Could not overwrite protected data store)" << llendl;
 	}
 }
 		
