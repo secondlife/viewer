@@ -21,8 +21,8 @@
 もう少し後でやり直してください。
 		</message>
 		<message name="NoHelpIslandTP">
-		Welcome Islandには戻ることができません。
-「Welcome Island Public」に行き、
+			ウェルカムアイランドにテレポートで戻ることはできません。
+「Welcome Island Public」に行き再度チュートリアルを行ってください。
 		</message>
 		<message name="noaccess_tport">
 			残念ながら、そのテレポート目的地へのアクセスがありません。

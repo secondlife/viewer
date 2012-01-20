@@ -64,7 +64,7 @@ public:
 	~LLURLRequestDetail();
 	std::string mURL;
 	LLCurlEasyRequest* mCurlRequest;
-	LLBufferArray* mResponseBuffer;
+	LLIOPipe::buffer_ptr_t mResponseBuffer;
 	LLChannelDescriptors mChannels;
 	U8* mLastRead;
 	U32 mBodyLimit;
@@ -75,7 +75,6 @@ public:
 
 LLURLRequestDetail::LLURLRequestDetail() :
 	mCurlRequest(NULL),
-	mResponseBuffer(NULL),
 	mLastRead(NULL),
 	mBodyLimit(0),
 	mByteAccumulator(0),
@@ -90,7 +89,6 @@ LLURLRequestDetail::~LLURLRequestDetail()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	delete mCurlRequest;
-	mResponseBuffer = NULL;
 	mLastRead = NULL;
 }
 
@@ -326,7 +324,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 
 		// *FIX: bit of a hack, but it should work. The configure and
 		// callback method expect this information to be ready.
-		mDetail->mResponseBuffer = buffer.get();
+		mDetail->mResponseBuffer = buffer;
 		mDetail->mChannels = channels;
 		if(!configure())
 		{

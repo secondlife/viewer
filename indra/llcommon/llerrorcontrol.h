@@ -75,6 +75,7 @@ namespace LLError
 	
 	LL_COMMON_API void setPrintLocation(bool);
 	LL_COMMON_API void setDefaultLevel(LLError::ELevel);
+	LL_COMMON_API ELevel getDefaultLevel();
 	LL_COMMON_API void setFunctionLevel(const std::string& function_name, LLError::ELevel);
 	LL_COMMON_API void setClassLevel(const std::string& class_name, LLError::ELevel);
 	LL_COMMON_API void setFileLevel(const std::string& file_name, LLError::ELevel);

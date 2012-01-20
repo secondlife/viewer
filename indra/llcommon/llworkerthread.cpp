@@ -81,7 +81,7 @@ void LLWorkerThread::clearDeleteList()
 }
 
 // virtual
-S32 LLWorkerThread::update(U32 max_time_ms)
+S32 LLWorkerThread::update(F32 max_time_ms)
 {
 	S32 res = LLQueuedThread::update(max_time_ms);
 	// Delete scheduled workers

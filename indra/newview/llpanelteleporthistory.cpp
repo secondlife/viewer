@@ -388,7 +388,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
 	LLTeleportHistoryFlatItemStorage::instance().purge();
-	delete mGearMenuHandle.get();
+	if (mGearMenuHandle.get()) mGearMenuHandle.get()->die();
 	mTeleportHistoryChangedConnection.disconnect();
 }
 

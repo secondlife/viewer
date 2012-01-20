@@ -9,6 +9,7 @@
  single_instance="true"
  title="NEARBY CHAT"
  save_rect="true"
+ save_visibility="true"
  can_close="true"
  can_minimize="true"
  help_topic="chat_bar"
@@ -30,6 +31,7 @@
     <panel width="300" 
            height="31" 
            left="0" 
+           name="bottom_panel"
            bottom="-1" 
            follows="left|right|bottom" 
            tab_group="1">

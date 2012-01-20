@@ -1418,7 +1418,7 @@ We must restart [APP_NAME] to install the update.
 		<usetemplate ignoretext="在我退回物件給它們的擁有者前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		你目前是 [GROUP] 群組的成員。
+		你目前是 &lt;nolink&gt;[GROUP]&lt;/nolink&gt; 群組的成員。
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
