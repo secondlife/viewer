@@ -1681,6 +1681,8 @@ LLFloater* LLFloater::getClosableFloaterFromFocus()
 	{
 		if (it->hasFocus())
 		{
+			LLFloater& floater = *it;
+			focused_floater = &floater;
 			break;
 		}
 	}
