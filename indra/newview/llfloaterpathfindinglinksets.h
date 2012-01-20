@@ -64,11 +64,9 @@ public:
 
 	EPathState         getPathState() const;
 	void               setPathState(EPathState pPathState);
+	static EPathState  getPathState(bool pIsPermanent, bool pIsWalkable);
 	static BOOL        isPermanent(EPathState pPathState);
 	static BOOL        isWalkable(EPathState pPathState);
-
-	BOOL               isPermanent() const;
-	BOOL               isWalkable() const;
 
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
@@ -93,8 +91,7 @@ private:
 	std::string mDescription;
 	U32         mLandImpact;
 	LLVector3   mLocation;
-	BOOL        mIsPermanent;
-	BOOL        mIsWalkable;
+	EPathState  mPathState;
 	BOOL        mIsPhantom;
 	S32         mA;
 	S32         mB;

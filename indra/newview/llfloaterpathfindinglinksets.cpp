@@ -100,8 +100,7 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(),
-	mIsPermanent(false),
-	mIsWalkable(false),
+	mPathState(kIgnored),
 	mIsPhantom(false),
 	mA(0),
 	mB(0),
@@ -123,11 +122,13 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 
 	llassert(pNavMeshItem.has("permanent"));
 	llassert(pNavMeshItem.get("permanent").isBoolean());
-	mIsPermanent = pNavMeshItem.get("permanent").asBoolean();
+	bool isPermanent = pNavMeshItem.get("permanent").asBoolean();
 
 	llassert(pNavMeshItem.has("walkable"));
 	llassert(pNavMeshItem.get("walkable").isBoolean());
-	mIsWalkable = pNavMeshItem.get("walkable").asBoolean();
+	bool isWalkable = pNavMeshItem.get("walkable").asBoolean();
+
+	mPathState = getPathState(isPermanent, isWalkable);
 
 	llassert(pNavMeshItem.has("phantom"));
 	//llassert(pNavMeshItem.get("phantom").isBoolean()); XXX stinson 01/10/2012: this should be a boolean but is not
@@ -160,8 +161,7 @@ PathfindingLinkset::PathfindingLinkset(const PathfindingLinkset& pOther)
 	mDescription(pOther.mDescription),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
-	mIsPermanent(pOther.mIsPermanent),
-	mIsWalkable(pOther.mIsWalkable),
+	mPathState(pOther.mPathState),
 	mIsPhantom(pOther.mIsPhantom),
 	mA(pOther.mA),
 	mB(pOther.mB),
@@ -181,8 +181,7 @@ PathfindingLinkset& PathfindingLinkset::operator =(const PathfindingLinkset& pOt
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
-	mIsPermanent = pOther.mIsPermanent;
-	mIsWalkable = pOther.mIsWalkable;
+	mPathState = pOther.mPathState;
 	mIsPhantom = pOther.mIsPhantom;
 	mA = pOther.mA;
 	mB = pOther.mB;
@@ -219,13 +218,17 @@ const LLVector3& PathfindingLinkset::getPositionAgent() const
 
 PathfindingLinkset::EPathState PathfindingLinkset::getPathState() const
 {
-	return (mIsPermanent ? (mIsWalkable ? kWalkable : kObstacle) : kIgnored);
+	return mPathState;
 }
 
 void PathfindingLinkset::setPathState(EPathState pPathState)
 {
-	mIsPermanent = isPermanent(pPathState);
-	mIsWalkable = isWalkable(pPathState);
+	mPathState = pPathState;
+}
+
+PathfindingLinkset::EPathState PathfindingLinkset::getPathState(bool pIsPermanent, bool pIsWalkable)
+{
+	return (pIsPermanent ? (pIsWalkable ? kWalkable : kObstacle) : kIgnored);
 }
 
 BOOL PathfindingLinkset::isPermanent(EPathState pPathState)
@@ -270,16 +273,6 @@ BOOL PathfindingLinkset::isWalkable(EPathState pPathState)
 	}
 
 	return retVal;
-}
-
-BOOL PathfindingLinkset::isPermanent() const
-{
-	return mIsPermanent;
-}
-
-BOOL PathfindingLinkset::isWalkable() const
-{
-	return mIsWalkable;
 }
 
 BOOL PathfindingLinkset::isPhantom() const
@@ -994,33 +987,44 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 		columns[3]["value"] = llformat("%1.0f m", dist_vec(avatarPosition, linkset.getPositionAgent()));
 		columns[3]["font"] = "SANSSERIF";
 
-		columns[4]["column"] = "is_fixed";
-		columns[4]["value"] = getString(linkset.isPermanent() ? "linkset_is_fixed" : "linkset_is_not_fixed");
+		columns[4]["column"] = "path_state";
+		switch (linkset.getPathState())
+		{
+		case PathfindingLinkset::kWalkable :
+			columns[4]["value"] = getString("linkset_path_state_walkable");
+			break;
+		case PathfindingLinkset::kObstacle :
+			columns[4]["value"] = getString("linkset_path_state_obstacle");
+			break;
+		case PathfindingLinkset::kIgnored :
+			columns[4]["value"] = getString("linkset_path_state_ignored");
+			break;
+		default :
+			columns[4]["value"] = getString("linkset_path_state_ignored");
+			llassert(0);
+			break;
+		}
 		columns[4]["font"] = "SANSSERIF";
 
-		columns[5]["column"] = "is_walkable";
-		columns[5]["value"] = getString(linkset.isWalkable() ? "linkset_is_walkable" : "linkset_is_not_walkable");
+		columns[5]["column"] = "is_phantom";
+		columns[5]["value"] = getString(linkset.isPhantom() ? "linkset_is_phantom" : "linkset_is_not_phantom");
 		columns[5]["font"] = "SANSSERIF";
 
-		columns[6]["column"] = "is_phantom";
-		columns[6]["value"] = getString(linkset.isPhantom() ? "linkset_is_phantom" : "linkset_is_not_phantom");
+		columns[6]["column"] = "a_percent";
+		columns[6]["value"] = llformat("%3d", linkset.getA());
 		columns[6]["font"] = "SANSSERIF";
 
-		columns[7]["column"] = "a_percent";
-		columns[7]["value"] = llformat("%3d", linkset.getA());
+		columns[7]["column"] = "b_percent";
+		columns[7]["value"] = llformat("%3d", linkset.getB());
 		columns[7]["font"] = "SANSSERIF";
 
-		columns[8]["column"] = "b_percent";
-		columns[8]["value"] = llformat("%3d", linkset.getB());
+		columns[8]["column"] = "c_percent";
+		columns[8]["value"] = llformat("%3d", linkset.getC());
 		columns[8]["font"] = "SANSSERIF";
 
-		columns[9]["column"] = "c_percent";
-		columns[9]["value"] = llformat("%3d", linkset.getC());
+		columns[9]["column"] = "d_percent";
+		columns[9]["value"] = llformat("%3d", linkset.getD());
 		columns[9]["font"] = "SANSSERIF";
-
-		columns[10]["column"] = "d_percent";
-		columns[10]["value"] = llformat("%3d", linkset.getD());
-		columns[10]["font"] = "SANSSERIF";
 
 		LLSD element;
 		element["id"] = linkset.getUUID().asString();

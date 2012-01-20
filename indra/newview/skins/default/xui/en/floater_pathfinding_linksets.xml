@@ -19,10 +19,9 @@
   <floater.string name="linksets_fetching_error">Error detected while querying for pathfinding linksets</floater.string>
   <floater.string name="linksets_fetching_done_none_found">No pathfinding linksets</floater.string>
   <floater.string name="linksets_fetching_done_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
-  <floater.string name="linkset_is_fixed">Fixed</floater.string>
-  <floater.string name="linkset_is_not_fixed">Not fixed</floater.string>
-  <floater.string name="linkset_is_walkable">Walkable</floater.string>
-  <floater.string name="linkset_is_not_walkable">--</floater.string>
+  <floater.string name="linkset_path_state_walkable">Walkable</floater.string>
+  <floater.string name="linkset_path_state_obstacle">Obstacle</floater.string>
+  <floater.string name="linkset_path_state_ignored">Ignored</floater.string>
   <floater.string name="linkset_is_phantom">Phantom</floater.string>
   <floater.string name="linkset_is_not_phantom">--</floater.string>
   <text
@@ -162,13 +161,9 @@
         name="dist_from_you"
         width="87" />
     <scroll_list.columns
-        label="Fixed"
-        name="is_fixed"
-        width="63" />
-    <scroll_list.columns
-        label="Walkable"
-        name="is_walkable"
-        width="73" />
+        label="State"
+        name="path_state"
+        width="136" />
     <scroll_list.columns
         label="Phantom"
         name="is_phantom"
