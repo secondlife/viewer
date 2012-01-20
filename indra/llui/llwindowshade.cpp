@@ -160,7 +160,7 @@ void LLWindowShade::draw()
 
 	notification_area->reshape(notification_area->getRect().getWidth(), 
 		llclamp(message_rect.getHeight() + 15, 
-				llmin(mFormHeight, MAX_NOTIFICATION_AREA_HEIGHT),
+				llmax(mFormHeight, MIN_NOTIFICATION_AREA_HEIGHT),
 				MAX_NOTIFICATION_AREA_HEIGHT));
 
 	LLUICtrl::draw();
