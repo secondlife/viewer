@@ -40,7 +40,7 @@ typedef U32 uint32_t;
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include "llprocesslauncher.h"
+#include "llprocess.h"
 #endif
 
 #include "boost/range.hpp"
@@ -1557,14 +1557,15 @@ namespace tut
             }
 
 #else  // LL_DARWIN, LL_LINUX
-            LLProcessLauncher py;
-            py.setExecutable(PYTHON);
-            py.addArgument(scriptfile.getName());
-            ensure_equals(STRINGIZE("Couldn't launch " << desc << " script"), py.launch(), 0);
+            LLSD params;
+            params["executable"] = PYTHON;
+            params["args"].append(scriptfile.getName());
+            LLProcessPtr py(LLProcess::create(params));
+            ensure(STRINGIZE("Couldn't launch " << desc << " script"), py);
             // Implementing timeout would mean messing with alarm() and
             // catching SIGALRM... later maybe...
             int status(0);
-            if (waitpid(py.getProcessID(), &status, 0) == -1)
+            if (waitpid(py->getProcessID(), &status, 0) == -1)
             {
                 int waitpid_errno(errno);
                 ensure_equals(STRINGIZE("Couldn't retrieve rc from " << desc << " script: "

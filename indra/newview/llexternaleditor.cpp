@@ -29,6 +29,9 @@
 
 #include "lltrans.h"
 #include "llui.h"
+#include "llprocess.h"
+#include "llsdutil.h"
+#include <boost/foreach.hpp>
 
 // static
 const std::string LLExternalEditor::sFilenameMarker = "%s";
@@ -45,19 +48,8 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 		return EC_NOT_SPECIFIED;
 	}
 
-	// Add the filename marker if missing.
-	if (cmd.find(sFilenameMarker) == std::string::npos)
-	{
-		cmd += " \"" + sFilenameMarker + "\"";
-		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
-	}
-
 	string_vec_t tokens;
-	if (tokenize(tokens, cmd) < 2) // 2 = bin + at least one arg (%s)
-	{
-		llwarns << "Error parsing editor command" << llendl;
-		return EC_PARSE_ERROR;
-	}
+	tokenize(tokens, cmd);
 
 	// Check executable for existence.
 	std::string bin_path = tokens[0];
@@ -68,51 +60,60 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	}
 
 	// Save command.
-	mProcess.setExecutable(bin_path);
-	mArgs.clear();
+	mProcessParams["executable"] = bin_path;
+	mProcessParams["args"].clear();
 	for (size_t i = 1; i < tokens.size(); ++i)
 	{
-		if (i > 1) mArgs += " ";
-		mArgs += "\"" + tokens[i] + "\"";
+		mProcessParams["args"].append(tokens[i]);
 	}
-	llinfos << "Setting command [" << bin_path << " " << mArgs << "]" << llendl;
+
+	// Add the filename marker if missing.
+	if (cmd.find(sFilenameMarker) == std::string::npos)
+	{
+		mProcessParams["args"].append(sFilenameMarker);
+		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
+	}
+
+	llinfos << "Setting command [" << bin_path;
+	BOOST_FOREACH(const std::string& arg, llsd::inArray(mProcessParams["args"]))
+	{
+		llcont << " \"" << arg << "\"";
+	}
+	llcont << "]" << llendl;
 
 	return EC_SUCCESS;
 }
 
 LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 {
-	std::string args = mArgs;
-	if (mProcess.getExecutable().empty() || args.empty())
+	if (mProcessParams["executable"].asString().empty() || ! mProcessParams["args"].size())
 	{
 		llwarns << "Editor command not set" << llendl;
 		return EC_NOT_SPECIFIED;
 	}
 
+	// Copy params block so we can replace sFilenameMarker
+	LLSD params(mProcessParams);
+
 	// Substitute the filename marker in the command with the actual passed file name.
-	LLStringUtil::replaceString(args, sFilenameMarker, file_path);
-
-	// Split command into separate tokens.
-	string_vec_t tokens;
-	tokenize(tokens, args);
-
-	// Set process arguments taken from the command.
-	mProcess.clearArguments();
-	for (string_vec_t::const_iterator arg_it = tokens.begin(); arg_it != tokens.end(); ++arg_it)
+	LLSD& args(params["args"]);
+	for (LLSD::array_iterator ai(args.beginArray()), aend(args.endArray()); ai != aend; ++ai)
 	{
-		mProcess.addArgument(*arg_it);
+		std::string sarg(*ai);
+		LLStringUtil::replaceString(sarg, sFilenameMarker, file_path);
+		*ai = sarg;
 	}
 
 	// Run the editor.
-	llinfos << "Running editor command [" << mProcess.getExecutable() + " " + args << "]" << llendl;
-	int result = mProcess.launch();
-	if (result == 0)
+	llinfos << "Running editor command [" << params["executable"];
+	BOOST_FOREACH(const std::string& arg, llsd::inArray(params["args"]))
 	{
-		// Prevent killing the process in destructor (will add it to the zombies list).
-		mProcess.orphan();
+		llcont << " \"" << arg << "\"";
 	}
-
-	return result == 0 ? EC_SUCCESS : EC_FAILED_TO_RUN;
+	llcont << "]" << llendl;
+	// Prevent killing the process in destructor.
+	params["autokill"] = false;
+	return LLProcess::create(params) ? EC_SUCCESS : EC_FAILED_TO_RUN;
 }
 
 // static
