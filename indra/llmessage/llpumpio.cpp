@@ -207,6 +207,7 @@ bool LLPumpIO::addChain(const chain_t& chain, F32 timeout, bool has_curl_request
 	info.mHasCurlRequest = has_curl_request;
 	info.setTimeoutSeconds(timeout);
 	info.mData = LLIOPipe::buffer_ptr_t(new LLBufferArray);
+	info.mData->setThreaded(has_curl_request);
 	LLLinkInfo link;
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 	lldebugs << "LLPumpIO::addChain() " << chain[0] << " '"
