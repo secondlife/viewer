@@ -519,7 +519,6 @@ void hide_context_entries(LLMenuGL& menu,
 			{
 				menu_item->setVisible(FALSE);
 			}
-			menu_item->setEnabled(FALSE);
 		}
 		else
 		{
@@ -528,14 +527,10 @@ void hide_context_entries(LLMenuGL& menu,
 			// so that some other UI element from multi-select doesn't later set this invisible.
 			menu_item->pushVisible(TRUE);
 
-			BOOL enabled = menu_item->getEnabled();
-			for (itor2 = disabled_entries.begin(); itor2 != disabled_entries.end(); ++itor2)
+			bool enabled = (menu_item->getEnabled() == TRUE);
+			for (itor2 = disabled_entries.begin(); enabled && (itor2 != disabled_entries.end()); ++itor2)
 			{
-				if (*itor2 == name)
-				{
-					enabled = FALSE;
-					break;
-				}
+				enabled &= (*itor2 != name);
 			}
 
 			menu_item->setEnabled(enabled);
@@ -613,12 +608,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 					copyable = inv_item->getPermissions().allowCopyBy(gAgent.getID());
 				}
 
-				const std::string merchant_action = ((copyable == true) ? "Merchant Copy" : "Merchant Move");
-				items.push_back(merchant_action);
-
+				items.push_back(std::string("Merchant Copy"));
 				if (!canListOnMarketplaceNow())
 				{
-					disabled_items.push_back(merchant_action);
+					disabled_items.push_back(std::string("Merchant Copy"));
 				}
 			}
 		}
