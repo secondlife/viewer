@@ -41,6 +41,7 @@ if(WINDOWS)
         libeay32.dll
         libcollada14dom22-d.dll
         glod.dll    
+        libhunspell.dll
         )
 
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -53,6 +54,7 @@ if(WINDOWS)
         libeay32.dll
         libcollada14dom22.dll
         glod.dll
+        libhunspell.dll
         )
 
     if(USE_GOOGLE_PERFTOOLS)
@@ -215,6 +217,7 @@ elseif(DARWIN)
     libllqtwebkit.dylib
     libminizip.a
         libndofdev.dylib
+        libhunspell-1.3.dylib
         libexception_handler.dylib
     libcollada14dom.dylib
        )
