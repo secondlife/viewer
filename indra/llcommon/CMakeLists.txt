@@ -61,6 +61,7 @@ set(llcommon_SOURCE_FILES
     llformat.cpp
     llframetimer.cpp
     llheartbeat.cpp
+    llinitparam.cpp
     llinstancetracker.cpp
     llliveappconfig.cpp
     lllivefile.cpp
@@ -173,6 +174,7 @@ set(llcommon_HEADER_FILES
     llheartbeat.h
     llhttpstatuscodes.h
     llindexedqueue.h
+    llinitparam.h
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h
@@ -204,6 +206,7 @@ set(llcommon_HEADER_FILES
     llqueuedthread.h
     llrand.h
     llrefcount.h
+    llregistry.h
     llrun.h
     llrefcount.h
     llsafehandle.h
