@@ -147,23 +147,23 @@
     <scroll_list.columns
         label="Name (root prim)"
         name="name"
-        width="152" />
+        width="173" />
     <scroll_list.columns
         label="Description (root prim)"
         name="description"
-        width="191" />
+        width="212" />
     <scroll_list.columns
         label="Land impact"
         name="land_impact"
-        width="85" />
+        width="95" />
     <scroll_list.columns
         label="Dist from you"
         name="dist_from_you"
-        width="87" />
+        width="97" />
     <scroll_list.columns
         label="State"
         name="path_state"
-        width="136" />
+        width="74" />
     <scroll_list.columns
         label="Phantom"
         name="is_phantom"
