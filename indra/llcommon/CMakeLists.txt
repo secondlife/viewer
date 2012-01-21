@@ -75,7 +75,7 @@ set(llcommon_SOURCE_FILES
     llmortician.cpp
     lloptioninterface.cpp
     llptrto.cpp 
-    llprocesslauncher.cpp
+    llprocess.cpp
     llprocessor.cpp
     llqueuedthread.cpp
     llrand.cpp
@@ -90,6 +90,7 @@ set(llcommon_SOURCE_FILES
     llsingleton.cpp
     llstat.cpp
     llstacktrace.cpp
+    llstreamqueue.cpp
     llstreamtools.cpp
     llstring.cpp
     llstringtable.cpp
@@ -199,7 +200,7 @@ set(llcommon_HEADER_FILES
     llpointer.h
     llpreprocessor.h
     llpriqueuemap.h
-    llprocesslauncher.h
+    llprocess.h
     llprocessor.h
     llptrskiplist.h
     llptrskipmap.h
@@ -226,6 +227,7 @@ set(llcommon_HEADER_FILES
     llstat.h
     llstatenums.h
     llstl.h
+    llstreamqueue.h
     llstreamtools.h
     llstrider.h
     llstring.h
@@ -331,6 +333,9 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}"
+                          "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/setpython.py")
+  LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)
