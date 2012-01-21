@@ -27,6 +27,8 @@
 #ifndef LL_LLPROCESS_H
 #define LL_LLPROCESS_H
 
+#include "llinitparam.h"
+#include "llsdparam.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -34,8 +36,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-
-class LLSD;
 
 class LLProcess;
 /// LLProcess instances are created on the heap by static factory methods and
@@ -50,17 +50,38 @@ class LL_COMMON_API LLProcess: public boost::noncopyable
 {
 	LOG_CLASS(LLProcess);
 public:
+	/// Param block definition
+	struct Params: public LLInitParam::Block<Params>
+	{
+		Params():
+			executable("executable"),
+			args("args"),
+			cwd("cwd"),
+			autokill("autokill", true)
+		{}
+
+		/// pathname of executable
+		Mandatory<std::string> executable;
+		/// zero or more additional command-line arguments
+		Multiple<std::string> args;
+		/// current working directory, if need it changed
+		Optional<std::string> cwd;
+		/// implicitly kill process on destruction of LLProcess object
+		Optional<bool> autokill;
+	};
 
 	/**
-	 * Factory accepting LLSD::Map.
+	 * Factory accepting either plain LLSD::Map or Params block.
 	 * MAY RETURN DEFAULT-CONSTRUCTED LLProcessPtr if params invalid!
+	 *
+	 * Redundant with Params definition above?
 	 *
 	 * executable (required, string):				executable pathname
 	 * args		  (optional, string array):			extra command-line arguments
 	 * cwd		  (optional, string, dft no chdir): change to this directory before executing
 	 * autokill	  (optional, bool, dft true):		implicit kill() on ~LLProcess
 	 */
-	static LLProcessPtr create(const LLSD& params);
+	static LLProcessPtr create(const LLSDParamAdapter<Params>& params);
 	virtual ~LLProcess();
 
 	// isRunning isn't const because, if child isn't running, it clears stored
@@ -96,8 +117,8 @@ public:
 	
 private:
 	/// constructor is private: use create() instead
-	LLProcess(const LLSD& params);
-	void launch(const LLSD& params);
+	LLProcess(const LLSDParamAdapter<Params>& params);
+	void launch(const LLSDParamAdapter<Params>& params);
 
 	id mProcessID;
 	bool mAutokill;

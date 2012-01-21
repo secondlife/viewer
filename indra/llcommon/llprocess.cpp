@@ -26,7 +26,6 @@
 
 #include "linden_common.h"
 #include "llprocess.h"
-#include "llsd.h"
 #include "llsdserialize.h"
 #include "stringize.h"
 
@@ -41,7 +40,7 @@ struct LLProcessError: public std::runtime_error
 	LLProcessError(const std::string& msg): std::runtime_error(msg) {}
 };
 
-LLProcessPtr LLProcess::create(const LLSD& params)
+LLProcessPtr LLProcess::create(const LLSDParamAdapter<Params>& params)
 {
 	try
 	{
@@ -54,16 +53,13 @@ LLProcessPtr LLProcess::create(const LLSD& params)
 	}
 }
 
-LLProcess::LLProcess(const LLSD& params):
+LLProcess::LLProcess(const LLSDParamAdapter<Params>& params):
 	mProcessID(0),
-	mAutokill(params["autokill"].asBoolean())
+	mAutokill(params.autokill)
 {
-	// nonstandard default bool value
-	if (! params.has("autokill"))
-		mAutokill = true;
-	if (! params.has("executable"))
+	if (! params.validateBlock(true))
 	{
-		throw LLProcessError(STRINGIZE("not launched: missing 'executable'\n"
+		throw LLProcessError(STRINGIZE("not launched: failed parameter validation\n"
 									   << LLSDNotationStreamer(params)));
 	}
 
@@ -108,14 +104,14 @@ static std::string quote(const std::string& str)
 	return result + "\"";
 }
 
-void LLProcess::launch(const LLSD& params)
+void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 {
 	PROCESS_INFORMATION pinfo;
 	STARTUPINFOA sinfo;
 	memset(&sinfo, 0, sizeof(sinfo));
 	
-	std::string args = quote(params["executable"]);
-	BOOST_FOREACH(const std::string& arg, llsd::inArray(params["args"]))
+	std::string args = quote(params.executable);
+	BOOST_FOREACH(const std::string& arg, params.args)
 	{
 		args += " ";
 		args += quote(arg);
@@ -128,7 +124,7 @@ void LLProcess::launch(const LLSD& params)
 
 	// Convert wrapper to a real std::string so we can use c_str(); but use a
 	// named variable instead of a temporary so c_str() pointer remains valid.
-	std::string cwd(params["cwd"]);
+	std::string cwd(params.cwd);
 	const char * working_directory = 0;
 	if (! cwd.empty())
 		working_directory = cwd.c_str();
@@ -212,7 +208,7 @@ static bool reap_pid(pid_t pid)
 	return false;
 }
 
-void LLProcess::launch(const LLSD& params)
+void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 {
 	// flush all buffers before the child inherits them
 	::fflush(NULL);
@@ -222,7 +218,7 @@ void LLProcess::launch(const LLSD& params)
 	{
 		// child process
 
-		std::string cwd(params["cwd"]);
+		std::string cwd(params.cwd);
 		if (! cwd.empty())
 		{
 			// change to the desired child working directory
@@ -239,12 +235,11 @@ void LLProcess::launch(const LLSD& params)
 		std::vector<const char*> fake_argv;
 
 		// add the executable path
-		std::string executable(params["executable"]);
+		std::string executable(params.executable);
 		fake_argv.push_back(executable.c_str());
 
 		// and any arguments
-		const LLSD& params_args(params["args"]);
-		std::vector<std::string> args(params_args.beginArray(), params_args.endArray());
+		std::vector<std::string> args(params.args.begin(), params.args.end());
 		BOOST_FOREACH(const std::string& arg, args)
 		{
 			fake_argv.push_back(arg.c_str());
