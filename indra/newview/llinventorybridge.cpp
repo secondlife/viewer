@@ -519,6 +519,8 @@ void hide_context_entries(LLMenuGL& menu,
 			{
 				menu_item->setVisible(FALSE);
 			}
+
+			menu_item->setEnabled(FALSE);
 		}
 		else
 		{
@@ -600,13 +602,6 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (canListOnMarketplace())
 			{
 				items.push_back(std::string("Marketplace Separator"));
-
-				bool copyable = true;
-				LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
-				if (inv_item)
-				{
-					copyable = inv_item->getPermissions().allowCopyBy(gAgent.getID());
-				}
 
 				items.push_back(std::string("Merchant Copy"));
 				if (!canListOnMarketplaceNow())
@@ -1138,12 +1133,6 @@ bool LLInvFVBridge::canListOnMarketplace() const
 		return false;
 	}
 	
-	const LLUUID & outbox_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
-	if (outbox_id.isNull())
-	{
-		return false;
-	}
-
 	LLViewerInventoryItem * item = model->getItem(mUUID);
 	if (item)
 	{
@@ -2415,7 +2404,6 @@ public:
 		delete this;
 	}
 
-
 protected:
 	LLUUID mCatID;
 	bool mCopyItems;
@@ -2945,12 +2933,38 @@ void LLFolderBridge::staticFolderOptionsMenu()
 	LLFolderBridge* selfp = sSelf.get();
 	if (selfp)
 	{
-		selfp->folderOptionsMenu();
+		selfp->folderOptionsMenuAfterFetch();
 	}
 }
 
-void LLFolderBridge::folderOptionsMenu()
+void LLFolderBridge::folderOptionsMenuAfterFetch()
 {
+	const U32 flags = mContextMenuFlags;
+
+	mItems.clear();
+	mDisabledItems.clear();
+	mContextMenuFlags = 0x0;
+
+	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
+	if (!menup) return;
+
+	// Reset the menu
+	{
+		const LLView::child_list_t *list = menup->getChildList();
+
+		LLView::child_list_t::const_iterator menu_itor;
+		for (menu_itor = list->begin(); menu_itor != list->end(); ++menu_itor)
+		{
+			(*menu_itor)->setVisible(FALSE);
+			(*menu_itor)->pushVisible(TRUE);
+			(*menu_itor)->setEnabled(TRUE);
+		}
+	}
+
+	// Build basic menu back up
+	buildContextMenuBaseOptions(*menup, flags);
+
+	// Build folder specific options back up
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 
@@ -3032,15 +3046,12 @@ void LLFolderBridge::folderOptionsMenu()
 		}
 		mItems.push_back(std::string("Outfit Separator"));
 	}
-	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
-	if (menup)
-	{
-		hide_context_entries(*menup, mItems, mDisabledItems);
 
-		// Reposition the menu, in case we're adding items to an existing menu.
-		menup->needsArrange();
-		menup->arrangeAndClear();
-	}
+	hide_context_entries(*menup, mItems, mDisabledItems);
+
+	// Reposition the menu, in case we're adding items to an existing menu.
+	menup->needsArrange();
+	menup->arrangeAndClear();
 }
 
 BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
@@ -3055,17 +3066,11 @@ BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 	return ((item_array.count() > 0) ? TRUE : FALSE );
 }
 
-// Flags unused
-void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+void LLFolderBridge::buildContextMenuBaseOptions(LLMenuGL& menu, U32 flags)
 {
-	mItems.clear();
-	mDisabledItems.clear();
-
-	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
-
-//	menuentry_vec_t disabled_items;
 	LLInventoryModel* model = getInventoryModel();
-	if(!model) return;
+	llassert(model != NULL);
+
 	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	const LLUUID lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 
@@ -3186,6 +3191,21 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			mDisabledItems.push_back(std::string("Share"));
 		}
 	}
+}
+
+// Flags unused
+void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	mItems.clear();
+	mDisabledItems.clear();
+	mContextMenuFlags = flags;
+
+	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
+
+	LLInventoryModel* model = getInventoryModel();
+	if(!model) return;
+
+	buildContextMenuBaseOptions(menu, flags);
 
 	hide_context_entries(menu, mItems, mDisabledItems);
 

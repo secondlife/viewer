@@ -235,7 +235,8 @@ public:
 				   const LLUUID& uuid) :
 		LLInvFVBridge(inventory, root, uuid),
 		mCallingCards(FALSE),
-		mWearables(FALSE)
+		mWearables(FALSE),
+		mContextMenuFlags(0x0)
 	{}
 		
 	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg);
@@ -282,6 +283,8 @@ public:
 	LLHandle<LLFolderBridge> getHandle() { mHandle.bind(this); return mHandle; }
 
 protected:
+	void buildContextMenuBaseOptions(LLMenuGL& menu, U32 flags);
+
 	//--------------------------------------------------------------------
 	// Menu callbacks
 	//--------------------------------------------------------------------
@@ -317,7 +320,7 @@ protected:
 public:
 	static LLHandle<LLFolderBridge> sSelf;
 	static void staticFolderOptionsMenu();
-	void folderOptionsMenu();
+	void folderOptionsMenuAfterFetch();
 
 private:
 	BOOL				mCallingCards;
@@ -325,6 +328,7 @@ private:
 	LLHandle<LLView>	mMenu;
 	menuentry_vec_t		mItems;
 	menuentry_vec_t		mDisabledItems;
+	U32					mContextMenuFlags;
 	LLRootHandle<LLFolderBridge> mHandle;
 };
 
