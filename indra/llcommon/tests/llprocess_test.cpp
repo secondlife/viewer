@@ -107,8 +107,8 @@ struct PythonProcessLauncher
         const char* PYTHON(getenv("PYTHON"));
         tut::ensure("Set $PYTHON to the Python interpreter", PYTHON);
 
-        mParams["executable"] = PYTHON;
-        mParams["args"].append(mScript.getName());
+        mParams.executable = PYTHON;
+        mParams.args.add(mScript.getName());
     }
 
     /// Run Python script and wait for it to complete.
@@ -142,13 +142,13 @@ struct PythonProcessLauncher
     {
         NamedTempFile out("out", ""); // placeholder
         // pass name of this temporary file to the script
-        mParams["args"].append(out.getName());
+        mParams.args.add(out.getName());
         run();
         // assuming the script wrote to that file, read it
         return readfile(out.getName(), STRINGIZE("from " << mDesc << " script"));
     }
 
-    LLSD mParams;
+    LLProcess::Params mParams;
     LLProcessPtr mPy;
     std::string mDesc;
     NamedTempFile mScript;
@@ -515,7 +515,7 @@ namespace tut
                                  "with open(sys.argv[1], 'w') as f:\n"
                                  "    f.write(os.getcwd())\n");
         // Before running, call setWorkingDirectory()
-        py.mParams["cwd"] = tempdir.getName();
+        py.mParams.cwd = tempdir.getName();
         ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
     }
 
@@ -531,9 +531,9 @@ namespace tut
                                  "    for arg in sys.argv[1:]:\n"
                                  "        print >>f, arg\n");
         // We expect that PythonProcessLauncher has already appended
-        // its own NamedTempFile to mParams["args"] (sys.argv[0]).
-        py.mParams["args"].append("first arg");          // sys.argv[1]
-        py.mParams["args"].append("second arg");         // sys.argv[2]
+        // its own NamedTempFile to mParams.args (sys.argv[0]).
+        py.mParams.args.add("first arg");          // sys.argv[1]
+        py.mParams.args.add("second arg");         // sys.argv[2]
         // run_read() appends() one more argument, hence [3]
         std::string output(py.run_read());
         boost::split_iterator<std::string::const_iterator>
@@ -568,7 +568,7 @@ namespace tut
                                  "with open(sys.argv[1], 'w') as f:\n"
                                  "    f.write('bad')\n");
         NamedTempFile out("out", "not started");
-        py.mParams["args"].append(out.getName());
+        py.mParams.args.add(out.getName());
         py.mPy = LLProcess::create(py.mParams);
         ensure("couldn't launch kill() script", py.mPy);
         // Wait for the script to wake up and do its first write
@@ -611,7 +611,7 @@ namespace tut
                                      "# if caller hasn't managed to kill by now, bad\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('bad')\n");
-            py.mParams["args"].append(out.getName());
+            py.mParams.args.add(out.getName());
             py.mPy = LLProcess::create(py.mParams);
             ensure("couldn't launch kill() script", py.mPy);
             // Capture id for later
@@ -667,9 +667,9 @@ namespace tut
                                      "# okay, saw 'go', write 'ack'\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ack')\n");
-            py.mParams["args"].append(from.getName());
-            py.mParams["args"].append(to.getName());
-            py.mParams["autokill"] = false;
+            py.mParams.args.add(from.getName());
+            py.mParams.args.add(to.getName());
+            py.mParams.autokill = false;
             py.mPy = LLProcess::create(py.mParams);
             ensure("couldn't launch kill() script", py.mPy);
             // Capture id for later

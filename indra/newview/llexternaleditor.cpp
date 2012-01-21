@@ -60,22 +60,22 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 	}
 
 	// Save command.
-	mProcessParams["executable"] = bin_path;
-	mProcessParams["args"].clear();
+	mProcessParams = LLProcess::Params();
+	mProcessParams.executable = bin_path;
 	for (size_t i = 1; i < tokens.size(); ++i)
 	{
-		mProcessParams["args"].append(tokens[i]);
+		mProcessParams.args.add(tokens[i]);
 	}
 
 	// Add the filename marker if missing.
 	if (cmd.find(sFilenameMarker) == std::string::npos)
 	{
-		mProcessParams["args"].append(sFilenameMarker);
+		mProcessParams.args.add(sFilenameMarker);
 		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
 	}
 
 	llinfos << "Setting command [" << bin_path;
-	BOOST_FOREACH(const std::string& arg, llsd::inArray(mProcessParams["args"]))
+	BOOST_FOREACH(const std::string& arg, mProcessParams.args)
 	{
 		llcont << " \"" << arg << "\"";
 	}
@@ -86,33 +86,36 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 
 LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 {
-	if (mProcessParams["executable"].asString().empty() || ! mProcessParams["args"].size())
+	// LLInitParams type wrappers don't seem to have empty() or size()
+	// methods; try determining emptiness by comparing begin/end iterators.
+	if (std::string(mProcessParams.executable).empty() ||
+	    (mProcessParams.args.begin() == mProcessParams.args.end()))
 	{
 		llwarns << "Editor command not set" << llendl;
 		return EC_NOT_SPECIFIED;
 	}
 
 	// Copy params block so we can replace sFilenameMarker
-	LLSD params(mProcessParams);
+	LLProcess::Params params;
+	params.executable = mProcessParams.executable;
 
 	// Substitute the filename marker in the command with the actual passed file name.
-	LLSD& args(params["args"]);
-	for (LLSD::array_iterator ai(args.beginArray()), aend(args.endArray()); ai != aend; ++ai)
+	BOOST_FOREACH(const std::string& arg, mProcessParams.args)
 	{
-		std::string sarg(*ai);
-		LLStringUtil::replaceString(sarg, sFilenameMarker, file_path);
-		*ai = sarg;
+		std::string fixed(arg);
+		LLStringUtil::replaceString(fixed, sFilenameMarker, file_path);
+		params.args.add(fixed);
 	}
 
 	// Run the editor.
-	llinfos << "Running editor command [" << params["executable"];
-	BOOST_FOREACH(const std::string& arg, llsd::inArray(params["args"]))
+	llinfos << "Running editor command [" << std::string(params.executable);
+	BOOST_FOREACH(const std::string& arg, params.args)
 	{
 		llcont << " \"" << arg << "\"";
 	}
 	llcont << "]" << llendl;
 	// Prevent killing the process in destructor.
-	params["autokill"] = false;
+	params.autokill = false;
 	return LLProcess::create(params) ? EC_SUCCESS : EC_FAILED_TO_RUN;
 }
 

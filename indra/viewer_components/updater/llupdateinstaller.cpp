@@ -78,12 +78,12 @@ int ll_install_update(std::string const & script,
 	llinfos << "UpdateInstaller: installing " << updatePath << " using " <<
 		actualScriptPath << LL_ENDL;
 	
-	LLSD params;
-	params["executable"] = actualScriptPath;
-	params["args"].append(updatePath);
-	params["args"].append(ll_install_failed_marker_path());
-	params["args"].append(boost::lexical_cast<std::string>(required));
-	params["autokill"] = false;
+	LLProcess::Params params;
+	params.executable = actualScriptPath;
+	params.args.add(updatePath);
+	params.args.add(ll_install_failed_marker_path());
+	params.args.add(boost::lexical_cast<std::string>(required));
+	params.autokill = false;
 	return LLProcess::create(params)? 0 : -1;
 }
 

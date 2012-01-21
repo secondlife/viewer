@@ -140,27 +140,27 @@ private:
 	};
 	EState mState;
 	void setState(EState state);
-	
+
 	bool pluginLockedUp();
 	bool pluginLockedUpOrQuit();
 
 	bool accept();
-		
+
 	LLSocket::ptr_t mListenSocket;
 	LLSocket::ptr_t mSocket;
 	U32 mBoundPort;
 
-	LLSD mProcessParams;
+	LLProcess::Params mProcessParams;
 	LLProcessPtr mProcess;
-	
+
 	std::string mPluginFile;
 	std::string mPluginDir;
 
 	LLPluginProcessParentOwner *mOwner;
-	
+
 	typedef std::map<std::string, LLPluginSharedMemory*> sharedMemoryRegionsType;
 	sharedMemoryRegionsType mSharedMemoryRegions;
-	
+
 	LLSD mMessageClassVersions;
 	std::string mPluginVersionString;
 	

@@ -1557,9 +1557,9 @@ namespace tut
             }
 
 #else  // LL_DARWIN, LL_LINUX
-            LLSD params;
-            params["executable"] = PYTHON;
-            params["args"].append(scriptfile.getName());
+            LLProcess::Params params;
+            params.executable = PYTHON;
+            params.args.add(scriptfile.getName());
             LLProcessPtr py(LLProcess::create(params));
             ensure(STRINGIZE("Couldn't launch " << desc << " script"), py);
             // Implementing timeout would mean messing with alarm() and

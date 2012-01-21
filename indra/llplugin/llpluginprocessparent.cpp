@@ -163,8 +163,8 @@ void LLPluginProcessParent::errorState(void)
 
 void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_dir, const std::string &plugin_filename, bool debug)
 {	
-	mProcessParams["executable"] = launcher_filename;
-	mProcessParams["cwd"] = plugin_dir;
+	mProcessParams.executable = launcher_filename;
+	mProcessParams.cwd = plugin_dir;
 	mPluginFile = plugin_filename;
 	mPluginDir = plugin_dir;
 	mCPUUsage = 0.0f;
@@ -375,7 +375,7 @@ void LLPluginProcessParent::idle(void)
 				// Launch the plugin process.
 				
 				// Only argument to the launcher is the port number we're listening on
-				mProcessParams["args"].append(stringize(mBoundPort));
+				mProcessParams.args.add(stringize(mBoundPort));
 				if (! (mProcess = LLProcess::create(mProcessParams)))
 				{
 					errorState();
@@ -390,17 +390,17 @@ void LLPluginProcessParent::idle(void)
 						// The command we're constructing would look like this on the command line:
 						// osascript -e 'tell application "Terminal"' -e 'set win to do script "gdb -pid 12345"' -e 'do script "continue" in win' -e 'end tell'
 
-						LLSD params;
-						params["executable"] = "/usr/bin/osascript";
-						params["args"].append("-e");
-						params["args"].append("tell application \"Terminal\"");
-						params["args"].append("-e");
-						params["args"].append(STRINGIZE("set win to do script \"gdb -pid "
-														<< mProcess->getProcessID() << "\""));
-						params["args"].append("-e");
-						params["args"].append("do script \"continue\" in win");
-						params["args"].append("-e");
-						params["args"].append("end tell");
+						LLProcess::Params params;
+						params.executable = "/usr/bin/osascript";
+						params.args.add("-e");
+						params.args.add("tell application \"Terminal\"");
+						params.args.add("-e");
+						params.args.add(STRINGIZE("set win to do script \"gdb -pid "
+												  << mProcess->getProcessID() << "\""));
+						params.args.add("-e");
+						params.args.add("do script \"continue\" in win");
+						params.args.add("-e");
+						params.args.add("end tell");
 						mDebugger = LLProcess::create(params);
 
 						#endif
