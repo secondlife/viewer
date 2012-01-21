@@ -178,28 +178,32 @@ class LLFloaterPathfindingLinksets
 public:
 	typedef enum
 	{
-		kFetchInitial,
-		kFetchStarting,
-		kFetchRequestSent,
-		kFetchRequestSent_MultiRequested,
-		kFetchReceived,
-		kFetchError,
-		kFetchComplete
-	} EFetchState;
+		kMessagingInitial,
+		kMessagingFetchStarting,
+		kMessagingFetchRequestSent,
+		kMessagingFetchRequestSent_MultiRequested,
+		kMessagingFetchReceived,
+		kMessagingFetchError,
+		kMessagingModifyStarting,
+		kMessagingModifyRequestSent,
+		kMessagingModifyReceived,
+		kMessagingModifyError,
+		kMessagingComplete
+	} EMessagingState;
 
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 
 	static void openLinksetsEditor();
 
-	EFetchState getFetchState() const;
-	BOOL        isFetchInProgress() const;
+	EMessagingState getMessagingState() const;
+	BOOL            isMessagingInProgress() const;
 
 protected:
 
 private:
 	PathfindingLinksets mPathfindingLinksets;
-	EFetchState         mFetchState;
+	EMessagingState     mMessagingState;
 	LLScrollListCtrl    *mLinksetsScrollList;
 	LLTextBase          *mLinksetsStatus;
 	LLLineEditor        *mFilterByName;
@@ -238,7 +242,7 @@ private:
 	std::string getRegionName() const;
 	std::string getCapabilityURL() const;
 
-	void setFetchState(EFetchState pFetchState);
+	void setMessagingState(EMessagingState pMessagingState);
 
 	void onApplyFiltersClicked();
 	void onClearFiltersClicked();

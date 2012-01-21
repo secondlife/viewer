@@ -704,7 +704,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mApplyEdits->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onApplyChangesClicked, this));
 
 	setEnableEditFields(false);
-	setFetchState(kFetchInitial);
+	setMessagingState(kMessagingInitial);
 
 	return LLFloater::postBuild();
 }
@@ -719,20 +719,23 @@ void LLFloaterPathfindingLinksets::openLinksetsEditor()
 	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_linksets");
 }
 
-LLFloaterPathfindingLinksets::EFetchState LLFloaterPathfindingLinksets::getFetchState() const
+LLFloaterPathfindingLinksets::EMessagingState LLFloaterPathfindingLinksets::getMessagingState() const
 {
-	return mFetchState;
+	return mMessagingState;
 }
 
-BOOL LLFloaterPathfindingLinksets::isFetchInProgress() const
+BOOL LLFloaterPathfindingLinksets::isMessagingInProgress() const
 {
 	BOOL retVal;
-	switch (getFetchState())
+	switch (getMessagingState())
 	{
-	case kFetchStarting :
-	case kFetchRequestSent :
-	case kFetchRequestSent_MultiRequested :
-	case kFetchReceived :
+	case kMessagingFetchStarting :
+	case kMessagingFetchRequestSent :
+	case kMessagingFetchRequestSent_MultiRequested :
+	case kMessagingFetchReceived :
+	case kMessagingModifyStarting :
+	case kMessagingModifyRequestSent :
+	case kMessagingModifyReceived :
 		retVal = true;
 		break;
 	default :
@@ -746,7 +749,7 @@ BOOL LLFloaterPathfindingLinksets::isFetchInProgress() const
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mPathfindingLinksets(),
-	mFetchState(kFetchInitial),
+	mMessagingState(kMessagingInitial),
 	mLinksetsScrollList(NULL),
 	mLinksetsStatus(NULL),
 	mFilterByName(NULL),
@@ -778,28 +781,28 @@ LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 
 void LLFloaterPathfindingLinksets::sendNavMeshDataGetRequest()
 {
-	if (isFetchInProgress())
+	if (isMessagingInProgress())
 	{
-		if (getFetchState() == kFetchRequestSent)
+		if (getMessagingState() == kMessagingFetchRequestSent)
 		{
-			setFetchState(kFetchRequestSent_MultiRequested);
+			setMessagingState(kMessagingFetchRequestSent_MultiRequested);
 		}
 	}
 	else
 	{
-		setFetchState(kFetchStarting);
+		setMessagingState(kMessagingFetchStarting);
 		mPathfindingLinksets.clearLinksets();
 		updateLinksetsList();
 
 		std::string navMeshDataURL = getCapabilityURL();
 		if (navMeshDataURL.empty())
 		{
-			setFetchState(kFetchComplete);
+			setMessagingState(kMessagingComplete);
 			llwarns << "cannot query object navmesh properties from current region '" << getRegionName() << "'" << llendl;
 		}
 		else
 		{
-			setFetchState(kFetchRequestSent);
+			setMessagingState(kMessagingFetchRequestSent);
 			LLHTTPClient::get(navMeshDataURL, new NavMeshDataGetResponder(navMeshDataURL, this));
 		}
 	}
@@ -807,28 +810,31 @@ void LLFloaterPathfindingLinksets::sendNavMeshDataGetRequest()
 
 void LLFloaterPathfindingLinksets::sendNavMeshDataPutRequest(const LLSD& pPostData)
 {
-	std::string navMeshDataURL = getCapabilityURL();
-	if (navMeshDataURL.empty())
+	if (!isMessagingInProgress())
 	{
-		llwarns << "cannot put object navmesh properties for current region '" << getRegionName() << "'" << llendl;
-	}
-	else
-	{
-		LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, this));
+		std::string navMeshDataURL = getCapabilityURL();
+		if (navMeshDataURL.empty())
+		{
+			llwarns << "cannot put object navmesh properties for current region '" << getRegionName() << "'" << llendl;
+		}
+		else
+		{
+			LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, this));
+		}
 	}
 }
 
 void LLFloaterPathfindingLinksets::handleNavMeshDataGetReply(const LLSD& pNavMeshData)
 {
-	setFetchState(kFetchReceived);
+	setMessagingState(kMessagingFetchReceived);
 	mPathfindingLinksets.setNavMeshData(pNavMeshData);
 	updateLinksetsList();
-	setFetchState(kFetchComplete);
+	setMessagingState(kMessagingComplete);
 }
 
 void LLFloaterPathfindingLinksets::handleNavMeshDataGetError(const std::string& pURL, const std::string& pErrorReason)
 {
-	setFetchState(kFetchError);
+	setMessagingState(kMessagingFetchError);
 	mPathfindingLinksets.clearLinksets();
 	updateLinksetsList();
 	llwarns << "Error fetching object navmesh properties from URL '" << pURL << "' because " << pErrorReason << llendl;
@@ -836,17 +842,15 @@ void LLFloaterPathfindingLinksets::handleNavMeshDataGetError(const std::string& 
 
 void LLFloaterPathfindingLinksets::handleNavMeshDataPutReply(const LLSD& pModifiedData)
 {
-	setFetchState(kFetchReceived);
+	setMessagingState(kMessagingModifyReceived);
 	mPathfindingLinksets.updateNavMeshData(pModifiedData);
 	updateLinksetsList();
-	setFetchState(kFetchComplete);
+	setMessagingState(kMessagingComplete);
 }
 
 void LLFloaterPathfindingLinksets::handleNavMeshDataPutError(const std::string& pURL, const std::string& pErrorReason)
 {
-	setFetchState(kFetchError);
-	mPathfindingLinksets.clearLinksets();
-	updateLinksetsList();
+	setMessagingState(kMessagingModifyError);
 	llwarns << "Error putting object navmesh properties to URL '" << pURL << "' because " << pErrorReason << llendl;
 }
 
@@ -876,9 +880,9 @@ std::string LLFloaterPathfindingLinksets::getCapabilityURL() const
 	return navMeshDataURL;
 }
 
-void LLFloaterPathfindingLinksets::setFetchState(EFetchState pFetchState)
+void LLFloaterPathfindingLinksets::setMessagingState(EMessagingState pMessagingState)
 {
-	mFetchState = pFetchState;
+	mMessagingState = pMessagingState;
 	updateLinksetsStatusMessage();
 }
 
@@ -1051,28 +1055,44 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 	std::string statusText("");
 	LLStyle::Params styleParams;
 
-	switch (getFetchState())
+	switch (getMessagingState())
 	{
-	case kFetchStarting :
-		statusText = getString("linksets_fetching_starting");
+	case kMessagingInitial:
+		statusText = getString("linksets_messaging_initial");
 		break;
-	case kFetchRequestSent :
-		statusText = getString("linksets_fetching_inprogress");
+	case kMessagingFetchStarting :
+		statusText = getString("linksets_messaging_fetch_starting");
 		break;
-	case kFetchRequestSent_MultiRequested :
-		statusText = getString("linksets_fetching_inprogress_multi_request");
+	case kMessagingFetchRequestSent :
+		statusText = getString("linksets_messaging_fetch_inprogress");
 		break;
-	case kFetchReceived :
-		statusText = getString("linksets_fetching_received");
+	case kMessagingFetchRequestSent_MultiRequested :
+		statusText = getString("linksets_messaging_fetch_inprogress_multi_request");
 		break;
-	case kFetchError :
-		statusText = getString("linksets_fetching_error");
+	case kMessagingFetchReceived :
+		statusText = getString("linksets_messaging_fetch_received");
+		break;
+	case kMessagingFetchError :
+		statusText = getString("linksets_messaging_fetch_error");
 		styleParams.color = warningColor;
 		break;
-	case kFetchComplete :
+	case kMessagingModifyStarting :
+		statusText = getString("linksets_messaging_modify_starting");
+		break;
+	case kMessagingModifyRequestSent :
+		statusText = getString("linksets_messaging_modify_inprogress");
+		break;
+	case kMessagingModifyReceived :
+		statusText = getString("linksets_messaging_modify_received");
+		break;
+	case kMessagingModifyError :
+		statusText = getString("linksets_messaging_modify_error");
+		styleParams.color = warningColor;
+		break;
+	case kMessagingComplete :
 		if (mLinksetsScrollList->isEmpty())
 		{
-			statusText = getString("linksets_fetching_done_none_found");
+			statusText = getString("linksets_messaging_complete_none_found");
 		}
 		else
 		{
@@ -1089,12 +1109,12 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 			LLStringUtil::format_map_t string_args;
 			string_args["[NUM_SELECTED]"] = numSelectedItemsString;
 			string_args["[NUM_TOTAL]"] = numItemsString;
-			statusText = getString("linksets_fetching_done_available", string_args);
+			statusText = getString("linksets_messaging_complete_available", string_args);
 		}
 		break;
-	case kFetchInitial:
 	default:
-		statusText = getString("linksets_fetching_initial");
+		statusText = getString("linksets_messaging_initial");
+		llassert(0);
 		break;
 	}
 
