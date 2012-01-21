@@ -1654,11 +1654,7 @@ BOOL LLItemBridge::isItemCopyable() const
 			return FALSE;
 		}
 
-		// All items can be copied in god mode since you can
-		// at least paste-as-link the item, though you 
-		// still may not be able paste the item.
-		return TRUE;
-		// return (item->getPermissions().allowCopyBy(gAgent.getID()));
+		return item->getPermissions().allowCopyBy(gAgent.getID()) || gSavedSettings.getBOOL("InventoryLinking");
 	}
 	return FALSE;
 }
@@ -1771,12 +1767,8 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	if (gSavedSettings.getBOOL("InventoryLinking"))
-	{
-		// Can copy folders to paste-as-link, but not for straight paste.
-		return TRUE;
-	}
-	return FALSE;
+	// Can copy folders to paste-as-link, but not for straight paste.
+	return gSavedSettings.getBOOL("InventoryLinking");
 }
 
 BOOL LLFolderBridge::copyToClipboard() const
