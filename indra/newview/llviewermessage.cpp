@@ -135,6 +135,7 @@ extern BOOL gDebugClicks;
 
 // function prototypes
 bool check_offer_throttle(const std::string& from_name, bool check_only);
+bool check_asset_previewable(const LLAssetType::EType asset_type);
 static void process_money_balance_reply_extended(LLMessageSystem* msg);
 
 //inventory offer throttle globals
@@ -1147,7 +1148,18 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 		}
 	}
 }
- 
+
+// Return "true" if we have a preview method for that asset type, "false" otherwise
+bool check_asset_previewable(const LLAssetType::EType asset_type)
+{
+	return	(asset_type == LLAssetType::AT_NOTECARD)  || 
+			(asset_type == LLAssetType::AT_LANDMARK)  ||
+			(asset_type == LLAssetType::AT_TEXTURE)   ||
+			(asset_type == LLAssetType::AT_ANIMATION) ||
+			(asset_type == LLAssetType::AT_SCRIPT)    ||
+			(asset_type == LLAssetType::AT_SOUND);
+}
+
 void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_name)
 {
 	for (uuid_vec_t::const_iterator obj_iter = objects.begin();
@@ -1171,7 +1183,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 
 		// Either an inventory item or a category.
 		const LLInventoryItem* item = dynamic_cast<const LLInventoryItem*>(obj);
-		if (item)
+		if (item && check_asset_previewable(asset_type))
 		{
 			////////////////////////////////////////////////////////////////////////////////
 			// Special handling for various types.
@@ -1246,6 +1258,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLFloaterReg::showInstance("preview_sound", LLSD(obj_id), take_focus);
 						break;
 					default:
+						LL_DEBUGS("Messaging") << "No preview method for previewable asset type : " << LLAssetType::lookupHumanReadable(asset_type)  << LL_ENDL;
 						break;
 				}
 			}
