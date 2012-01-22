@@ -77,7 +77,7 @@ LLProcess::~LLProcess()
 
 bool LLProcess::isRunning(void)
 {
-	mProcessID = isRunning(mProcessID);
+	mProcessID = isRunning(mProcessID, mDesc);
 	return (mProcessID != 0);
 }
 
@@ -190,20 +190,23 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 		throw LLProcessError(WindowsErrorString("CreateProcessA"));
 	}
 
-	// Now associate the new child process with our Job Object -- unless
-	// autokill is false, i.e. caller asserts the child should persist.
-	if (params.autokill)
-	{
-		LLJob::instance().assignProcess(params.executable, pinfo.hProcess);
-	}
-
 	// foo = pinfo.dwProcessId; // get your pid here if you want to use it later on
 	// CloseHandle(pinfo.hProcess); // stops leaks - nothing else
 	mProcessID = pinfo.hProcess;
 	CloseHandle(pinfo.hThread); // stops leaks - nothing else
+
+	mDesc = STRINGIZE('"' << std::string(params.executable) << "\" (" << pinfo.dwProcessId << ')');
+	LL_INFOS("LLProcess") << "Launched " << params << " (" << pinfo.dwProcessId << ")" << LL_ENDL;
+
+	// Now associate the new child process with our Job Object -- unless
+	// autokill is false, i.e. caller asserts the child should persist.
+	if (params.autokill)
+	{
+		LLJob::instance().assignProcess(mDesc, mProcessID);
+	}
 }
 
-LLProcess::id LLProcess::isRunning(id handle)
+LLProcess::id LLProcess::isRunning(id handle, const std::string& desc)
 {
 	if (! handle)
 		return 0;
@@ -212,6 +215,10 @@ LLProcess::id LLProcess::isRunning(id handle)
 	if(waitresult == WAIT_OBJECT_0)
 	{
 		// the process has completed.
+		if (! desc.empty())
+		{
+			LL_INFOS("LLProcess") << desc << " terminated" << LL_ENDL;
+		}
 		return 0;
 	}
 
@@ -223,6 +230,7 @@ bool LLProcess::kill(void)
 	if (! mProcessID)
 		return false;
 
+	LL_INFOS("LLProcess") << "killing " << mDesc << LL_ENDL;
 	TerminateProcess(mProcessID, 0);
 	return ! isRunning();
 }
@@ -369,9 +377,12 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 
 	// parent process
 	mProcessID = child;
+
+	mDesc = STRINGIZE('"' << std::string(params.executable) << "\" (" << mProcessID << ')');
+	LL_INFOS("LLProcess") << "Launched " << params << " (" << mProcessID << ")" << LL_ENDL;
 }
 
-LLProcess::id LLProcess::isRunning(id pid)
+LLProcess::id LLProcess::isRunning(id pid, const std::string& desc)
 {
 	if (! pid)
 		return 0;
@@ -380,6 +391,10 @@ LLProcess::id LLProcess::isRunning(id pid)
 	if(reap_pid(pid))
 	{
 		// the process has exited.
+		if (! desc.empty())
+		{
+			LL_INFOS("LLProcess") << desc << " terminated" << LL_ENDL;
+		}
 		return 0;
 	}
 
@@ -393,6 +408,7 @@ bool LLProcess::kill(void)
 
 	// Try to kill the process. We'll do approximately the same thing whether
 	// the kill returns an error or not, so we ignore the result.
+	LL_INFOS("LLProcess") << "killing " << mDesc << LL_ENDL;
 	(void)::kill(mProcessID, SIGTERM);
 
 	// This will have the side-effect of reaping the zombie if the process has exited.

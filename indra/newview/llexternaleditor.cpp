@@ -102,9 +102,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 		params.args.add(fixed);
 	}
 
-	// Run the editor.
-	llinfos << "Running editor command [" << params << "]" << llendl;
-	// Prevent killing the process in destructor.
+	// Run the editor. Prevent killing the process in destructor.
 	params.autokill = false;
 	return LLProcess::create(params) ? EC_SUCCESS : EC_FAILED_TO_RUN;
 }

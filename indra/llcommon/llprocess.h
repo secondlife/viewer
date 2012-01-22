@@ -97,7 +97,7 @@ public:
 	typedef HANDLE id;
 #else
 	typedef pid_t  id;
-#endif	
+#endif
 	/// Get platform-specific process ID
 	id getProcessID() const { return mProcessID; };
 
@@ -114,13 +114,14 @@ public:
 	 * functionality should be added as nonstatic members operating on
 	 * mProcessID.
 	 */
-	static id isRunning(id);
-	
+	static id isRunning(id, const std::string& desc="");
+
 private:
 	/// constructor is private: use create() instead
 	LLProcess(const LLSDParamAdapter<Params>& params);
 	void launch(const LLSDParamAdapter<Params>& params);
 
+	std::string mDesc;
 	id mProcessID;
 	bool mAutokill;
 };
