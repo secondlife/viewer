@@ -138,6 +138,7 @@ public:
 	}
 
 private:
+	friend class LLSingleton<LLJob>;
 	LLJob():
 		mJob(0)
 	{
