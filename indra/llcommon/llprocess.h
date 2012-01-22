@@ -31,6 +31,7 @@
 #include "llsdparam.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
+#include <iosfwd>                   // std::ostream
 
 #if LL_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -123,5 +124,8 @@ private:
 	id mProcessID;
 	bool mAutokill;
 };
+
+/// for logging
+LL_COMMON_API std::ostream& operator<<(std::ostream&, const LLProcess::Params&);
 
 #endif // LL_LLPROCESS_H

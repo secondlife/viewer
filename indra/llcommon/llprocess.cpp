@@ -81,6 +81,21 @@ bool LLProcess::isRunning(void)
 	return (mProcessID != 0);
 }
 
+std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
+{
+	std::string cwd(params.cwd);
+	if (! cwd.empty())
+	{
+		out << "cd '" << cwd << "': ";
+	}
+	out << '"' << std::string(params.executable) << '"';
+	BOOST_FOREACH(const std::string& arg, params.args)
+	{
+		out << " \"" << arg << '"';
+	}
+	return out;
+}
+
 /*****************************************************************************
 *   Windows specific
 *****************************************************************************/

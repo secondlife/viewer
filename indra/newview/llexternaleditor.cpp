@@ -74,12 +74,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 		llinfos << "Adding the filename marker (" << sFilenameMarker << ")" << llendl;
 	}
 
-	llinfos << "Setting command [" << bin_path;
-	BOOST_FOREACH(const std::string& arg, mProcessParams.args)
-	{
-		llcont << " \"" << arg << "\"";
-	}
-	llcont << "]" << llendl;
+	llinfos << "Setting command [" << mProcessParams << "]" << llendl;
 
 	return EC_SUCCESS;
 }
@@ -108,12 +103,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 	}
 
 	// Run the editor.
-	llinfos << "Running editor command [" << std::string(params.executable);
-	BOOST_FOREACH(const std::string& arg, params.args)
-	{
-		llcont << " \"" << arg << "\"";
-	}
-	llcont << "]" << llendl;
+	llinfos << "Running editor command [" << params << "]" << llendl;
 	// Prevent killing the process in destructor.
 	params.autokill = false;
 	return LLProcess::create(params) ? EC_SUCCESS : EC_FAILED_TO_RUN;
