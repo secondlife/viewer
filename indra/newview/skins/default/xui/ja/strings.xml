@@ -1214,7 +1214,7 @@ support@secondlife.com にお問い合わせください。
 		「持ち物」内にこのテクスチャのコピーがありません
 	</string>
 	<string name="InventoryInboxNoItems">
-		マーケットプレイスで購入した商品はここに配達されます。
+		購入するなどして取得したアイテムや商品はここに表示され、持ち物のフォルダにドラッグして移動することもできれば、要らなくなった場合には削除することができます。
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1412,6 +1412,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="no_attachments">
 		着用しているアタッチメントはありません
 	</string>
+	<string name="Attachments remain">
+		アタッチメント（残りのスロット数：[COUNT]）
+	</string>
 	<string name="Buy">
 		買う
 	</string>
@@ -1537,6 +1540,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Right Pec">
 		右胸筋
+	</string>
+	<string name="Neck">
+		首
+	</string>
+	<string name="Avatar Center">
+		アバターの中央
 	</string>
 	<string name="Invalid Attachment">
 		装着先が正しくありません
@@ -4030,6 +4039,18 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="you_paid_ldollars_no_name">
 		L$ [AMOUNT] を支払いました：[REASON]
 	</string>
+	<string name="you_paid_failure_ldollars">
+		[NAME] に [REASON] の代金 L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		[NAME] に L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		[REASON] の 代金 L$ [AMOUNT] を支払えませんでした。
+	</string>
 	<string name="for item">
 		[ITEM] 向け
 	</string>
@@ -4440,6 +4461,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="ExternalEditorFailedToRun">
 		外部エディターを実行できませんでした。
 	</string>
+	<string name="TranslationFailed">
+		翻訳できませんでした：[REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		翻訳の応答にエラーが発生しました。
+	</string>
 	<string name="Esc">
 		Esc
 	</string>
@@ -4810,7 +4837,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ミニマップ
 	</string>
 	<string name="Command_Move_Label">
-		移動
+		歩行 / 走行 / 飛行
 	</string>
 	<string name="Command_People_Label">
 		人
@@ -4837,10 +4864,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		話す
 	</string>
 	<string name="Command_View_Label">
-		視界
+		カメラコントロール
 	</string>
 	<string name="Command_Voice_Label">
-		近くのボイス
+		ボイス設定
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		訪問先に関する情報
@@ -4912,7 +4939,16 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		カメラの角度を変更
 	</string>
 	<string name="Command_Voice_Tooltip">
-		ボイスチャット機能を持つ近くの人
+		インワールドでのコールや近くにいる人の音量調整
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		現在、下のツールバーにあります
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		現在、左のツールバーにあります
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		現在、右のツールバーにあります
 	</string>
 	<string name="Retain%">
 		維持率
@@ -4937,5 +4973,20 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Normal">
 		普通
+	</string>
+	<string name="snapshot_quality_very_low">
+		非常に低い
+	</string>
+	<string name="snapshot_quality_low">
+		低
+	</string>
+	<string name="snapshot_quality_medium">
+		中
+	</string>
+	<string name="snapshot_quality_high">
+		高
+	</string>
+	<string name="snapshot_quality_very_high">
+		非常に高い
 	</string>
 </strings>

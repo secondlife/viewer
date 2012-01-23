@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_postcard_settings">
+	<combo_box label="解像度" name="postcard_size_combo">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="カスタム" name="Custom"/>
+	</combo_box>
+	<layout_stack name="postcard_image_params_ls">
+		<layout_panel name="postcard_image_size_lp">
+			<spinner label="幅" name="postcard_snapshot_width"/>
+			<spinner label="高さ" name="postcard_snapshot_height"/>
+			<check_box label="縦横比の固定" name="postcard_keep_aspect_check"/>
+		</layout_panel>
+		<layout_panel name="postcard_image_format_quality_lp">
+			<slider label="画質" name="image_quality_slider"/>
+			<text name="image_quality_level">
+				([QLVL])
+			</text>
+		</layout_panel>
+	</layout_stack>
+</panel>

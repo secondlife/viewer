@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_translation_settings" title="НАСТРОЙКИ ПЕРЕВОДА ЧАТА">
+	<string name="bing_api_key_not_verified">
+		Bing appID не подтвержден. Повторите попытку.
+	</string>
+	<string name="google_api_key_not_verified">
+		Ключ Google API не подтвержден. Повторите попытку.
+	</string>
+	<string name="bing_api_key_verified">
+		Bing appID подтвержден.
+	</string>
+	<string name="google_api_key_verified">
+		Ключ Google API подтвержден.
+	</string>
+	<check_box label="Включить машинный перевод при чате" name="translate_chat_checkbox"/>
+	<text name="translate_language_label">
+		Переводить чат на:
+	</text>
+	<combo_box name="translate_language_combo">
+		<combo_box.item label="язык системы" name="System Default Language"/>
+		<combo_box.item label="английский" name="English"/>
+		<combo_box.item label="датский" name="Danish"/>
+		<combo_box.item label="немецкий" name="German"/>
+		<combo_box.item label="испанский" name="Spanish"/>
+		<combo_box.item label="французский" name="French"/>
+		<combo_box.item label="итальянский" name="Italian"/>
+		<combo_box.item label="венгерский" name="Hungarian"/>
+		<combo_box.item label="нидерландский" name="Dutch"/>
+		<combo_box.item label="польский" name="Polish"/>
+		<combo_box.item label="португальский" name="Portugese"/>
+		<combo_box.item label="русский" name="Russian"/>
+		<combo_box.item label="турецкий" name="Turkish"/>
+		<combo_box.item label="украинский" name="Ukrainian"/>
+		<combo_box.item label="китайский" name="Chinese"/>
+		<combo_box.item label="японский" name="Japanese"/>
+		<combo_box.item label="корейский" name="Korean"/>
+	</combo_box>
+	<text name="tip">
+		Выберите сервис перевода:
+	</text>
+	<radio_group name="translation_service_rg">
+		<radio_item initial_value="bing" label="Bing Translator" name="bing"/>
+		<radio_item initial_value="google" label="Google Translate" name="google"/>
+	</radio_group>
+	<text name="bing_api_key_label">
+		Bing [http://www.bing.com/developers/createapp.aspx AppID]:
+	</text>
+	<button label="Подтвердить" name="verify_bing_api_key_btn"/>
+	<text name="google_api_key_label">
+		Google [http://code.google.com/apis/language/translate/v2/getting_started.html#auth Ключ API]:
+	</text>
+	<button label="Подтвердить" name="verify_google_api_key_btn"/>
+	<text name="google_links_text">
+		[http://code.google.com/apis/language/translate/v2/pricing.html Цены] | [https://code.google.com/apis/console Статистика]
+	</text>
+	<button label="OK" name="ok_btn"/>
+	<button label="Отмена" name="cancel_btn"/>
+</floater>

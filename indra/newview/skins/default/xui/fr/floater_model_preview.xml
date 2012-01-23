@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Erreur : Problème d&apos;analyse de fichier .dae ; reportez-vous au journal pour plus de détails.
 	</string>
+	<string name="status_material_mismatch">
+		Erreur : le matériau du modèle ne correspond pas à un sous-ensemble du modèle de référence.
+	</string>
 	<string name="status_reading_file">
 		Chargement...
 	</string>
@@ -137,7 +140,7 @@
 				</panel>
 				<panel name="physics analysis">
 					<text name="method_label">
-						Étape 2 : Analyse
+						Étape 2 : Analyser
 					</text>
 					<text name="analysis_method_label">
 						Moyen :

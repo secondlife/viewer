@@ -15,7 +15,7 @@
 		Web:
 	</text>
 	<radio_group name="use_external_browser">
-		<radio_item label="Usa il mio browser (IE, Firefox, Safari)" name="external" tool_tip="Utilizza il browser Web predefinito di sistema per l&apos;aiuto, per i link Web e così via. Sconsigliato durante l&apos;esecuzione a tutto schermo." value="1"/>
+		<radio_item label="Usa il mio browser (IE, Firefox, Safari)" name="external" tool_tip="Utilizza il browser Web predefinito di sistema per l&apos;aiuto, per i link Web e così via. Sconsigliato durante l&apos;esecuzione a tutto schermo." value="true"/>
 		<radio_item label="Utilizza il browser Web integrato" name="internal" tool_tip="Utilizza il browser Web integrato per l&apos;aiuto, per i link Web e così via. Questo browser si apre in una nuova finestra in [APP_NAME]." value=""/>
 	</radio_group>
 	<check_box initial_value="true" label="Abilita plugin" name="browser_plugins_enabled"/>

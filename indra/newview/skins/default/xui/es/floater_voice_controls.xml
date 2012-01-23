@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="CONTROLES DE LA VOZ">
 	<string name="title_nearby">
-		Chat de voz
+		CONFIGURACIÓN DE VOZ
 	</string>
 	<string name="title_group">
-		Multiconferencia de voz con [GROUP]
+		MULTICONFERENCIA DE VOZ CON [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Multiconferencia de voz
+		MULTICONFERENCIA DE VOZ
 	</string>
 	<string name="title_peer_2_peer">
-		Llamada: [NAME]
+		LLAMADA A [NAME]
 	</string>
 	<string name="no_one_near">
 		Nadie cercano tiene activada la voz

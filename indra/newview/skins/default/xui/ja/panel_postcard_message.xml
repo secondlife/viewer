@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_postcard_message">
+	<text name="to_label">
+		終：
+	</text>
+	<text name="name_label">
+		始：
+	</text>
+	<text name="subject_label">
+		件名：
+	</text>
+	<line_editor label="件名をここに入力してください。" name="subject_form"/>
+	<text name="msg_label">
+		メッセージ：
+	</text>
+	<text_editor name="msg_form">
+		メッセージをここに入力してください。
+	</text_editor>
+	<button label="取り消し" name="cancel_btn"/>
+	<button label="送信" name="send_btn"/>
+</panel>

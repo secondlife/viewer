@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_profile">
+	<text name="title">
+		プロフィールフィードに投稿する
+	</text>
+	<combo_box label="解像度" name="profile_size_combo">
+		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>
+		<combo_box.item label="640x480" name="640x480"/>
+		<combo_box.item label="800x600" name="800x600"/>
+		<combo_box.item label="1024x768" name="1024x768"/>
+		<combo_box.item label="カスタム" name="Custom"/>
+	</combo_box>
+	<layout_stack name="profile_image_params_ls">
+		<layout_panel name="profile_image_size_lp">
+			<spinner label="幅" name="profile_snapshot_width"/>
+			<spinner label="高さ" name="profile_snapshot_height"/>
+			<check_box label="縦横比の固定" name="profile_keep_aspect_check"/>
+		</layout_panel>
+		<layout_panel name="profile_image_metadata_lp">
+			<text name="caption_label">
+				キャプション：
+			</text>
+			<check_box initial_value="true" label="場所を含む" name="add_location_cb"/>
+		</layout_panel>
+	</layout_stack>
+	<button label="取り消し" name="cancel_btn"/>
+	<button label="投稿" name="post_btn"/>
+</panel>

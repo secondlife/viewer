@@ -1114,8 +1114,13 @@ El precio de compra del terreno no se le devolverá al propietario. Si se vende 
 	<notification name="DisplaySetToSafe">
 		Las configuraciones que se muestran se han fijado en los niveles guardados, pues especificaste la opción de guardarlos.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Las configuraciones que se muestran se han fijado en los niveles recomendados para la configuración de tu sistema.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		La configuración de pantalla se ha establecido en los niveles recomendados porque tu tarjeta de gráficos ha cambiado
+de &apos;[LAST_GPU]&apos;
+a &apos;[THIS_GPU]&apos;
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		La configuración de pantalla se ha establecido en los niveles recomendados a causa de un cambio en el subsistema de renderizado.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1920,7 +1925,13 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		¿Estás seguro de que quieres restaurar los botones y barras de herramientas predeterminados? 
+		Esta acción restaurará los botones y barras de herramientas predeterminados.
+
+Esta acción no se puede deshacer.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Esta acción volverá a colocar todos los botones a la caja de herramientas y las barras de herramientas aparecerán vacías.
     
 Esta acción no se puede deshacer.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -2244,14 +2255,16 @@ Por favor, selecciona un sólo objeto.
 		Se ha rehusado tu tarjeta de visita.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Puedes teleportarte a lugares como &apos;[NAME]&apos; abriendo el panel Lugares -a la derecha de tu pantalla- y seleccionando la sección Hitos.
-Pulsa en un hito para seleccionarlo, y, luego, pulsa &apos;Teleportar&apos; en la parte inferior del panel.
-(También puedes pulsar dos veces en el hito o pulsarlo con el botón derecho del ratón y elegir &apos;Teleportar&apos;.)
+		Para teleportarte a lugares como &apos;[NAME]&apos;, pulsa el botón &quot;Lugares&quot;,
+    y selecciona la pestaña Hitos en la ventana que se abre. Pulsa en un
+    hito para seleccionarlo y luego pulsa &apos;Teleportar&apos; en la parte inferior de la ventana.
+    (También puedes pulsar dos veces en el hito o pulsarlo con el botón derecho del ratón y
+    elegir &apos;Teleportar&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Puedes contactar con un Residente como &apos;[NAME]&apos; abriendo el panel Gente en el lado derecho de tu pantalla.
-Elige al Residente de la lista y pulsa &apos;MI&apos; en la parte inferior del panel.
-(También puedes pulsar dos veces en su nombre o pulsarlo con el botón derecho y elegir &apos;MI&apos;).
+		Para ponerte en contacto con Residentes como &apos;[NAME]&apos;, pulsa el botón &quot;Gente&quot;, selecciona un Residente en la ventana que se abre y después pulsa en &apos;MI&apos; en
+    la parte inferior de la ventana.
+    (También puedes pulsar dos veces en su nombre o pulsarlo con el botón derecho y elegir &apos;MI&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		No puedes seleccionar un terreno que cruce las fronteras entre servidores.
@@ -2270,6 +2283,9 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2526,10 +2542,10 @@ Por favor, vuelve a intentarlo en unos momentos.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ha aceptado tu oferta de amistad.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ha aceptado tu ofrecimiento de amistad.
 	</notification>
 	<notification name="FriendshipDeclined">
-		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ha rehusado tu oferta de amistad.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ha rechazado tu ofrecimiento de amistad.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Aceptado el ofrecimiento de amistad.
