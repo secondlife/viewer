@@ -123,6 +123,22 @@ BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+// virtual
+BOOL LLGroupList::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLView::handleDoubleClick(x, y, mask);
+	// Handle double click only for the selected item in the list, skip clicks on empty space.
+	if (handled)
+	{
+		if (mDoubleClickSignal)
+		{
+			(*mDoubleClickSignal)(this, x, y, mask);
+		}
+	}
+
+	return handled;
+}
+
 void LLGroupList::setNameFilter(const std::string& filter)
 {
 	std::string filter_upper = filter;
