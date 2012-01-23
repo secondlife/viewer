@@ -1955,36 +1955,18 @@ Only large parcels can be listed in search.
 			 name="access_estate_defined">
 				(Defined by the Estate)
 			</panel.string>
-      <panel.string
-       name="allow_public_access">
-        Allow Public Access ([MATURITY]) (Note: Unchecking this will create ban lines)
-      </panel.string>
             <panel.string
              name="estate_override">
                 One or more of these options is set at the estate level
             </panel.string>
-            <text
-             type="string"
-             length="1"
-             follows="left|top"
-             height="16"
-             layout="topleft"
-             left="10"
-             name="Limit access to this parcel to:"
-             text_color="White"
-             top="10"
-             width="400">
-                Access To This Parcel
-            </text>
             <check_box
              follows="top|left"
              height="16"
              layout="topleft"
-             left_delta="0"
+             left="8"
              name="public_access"
-             top_pad="5"
-             label_text.valign="center"
-             label_text.v_pad="-2" 
+             label="Allow Public Access (Unchecking this will create ban lines)"
+             top_pad="10" 
              width="278" />
             <text
              type="string"
@@ -1994,28 +1976,28 @@ Only large parcels can be listed in search.
              layout="topleft"
              left_delta="20"
              name="Only Allow"
-             top="49"
+             top="30"
              width="325">
-                Restrict Access to Residents verified by:
+                Allow access only to Residents who:
             </text>
             <check_box
              follows="top|left"
              height="16"
-             label="Payment Information on File [ESTATE_PAYMENT_LIMIT]"
+             label="Have payment Information on File [ESTATE_PAYMENT_LIMIT]"
              layout="topleft"
              left_delta="0"
              name="limit_payment"
-             tool_tip="Ban unidentified Residents."
+             tool_tip="Residents must have payment information on file to access this parcel.  See the [SUPPORT_SITE] for more information."
              top_pad="4"
              width="278" />
             <check_box
              follows="top|left"
              height="16"
-             label="Age Verification [ESTATE_AGE_LIMIT]"
+             label="Have been age-verified [ESTATE_AGE_LIMIT]"
              layout="topleft"
              left_delta="0"
              name="limit_age_verified"
-             tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."
+             tool_tip="Residents must be age verified to access this parcel. See the [SUPPORT_SITE] for more information."
              top_pad="4"
              width="278" />
             <check_box
@@ -2025,7 +2007,7 @@ Only large parcels can be listed in search.
              left="8"
              name="GroupCheck"
              tool_tip="Set group in the General tab."
-             top="109"
+             top="89"
              width="278" />
             <check_box
              enabled="false"
