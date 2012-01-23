@@ -35,7 +35,7 @@
 #include "llfloaterpreference.h"
 
 #include "message.h"
-
+#include "llautocorrectfloater.h"
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llcheckboxctrl.h"
@@ -354,6 +354,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	gSavedSettings.getControl("NameTagShowUsernames")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("NameTagShowFriends")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 	gSavedSettings.getControl("UseDisplayNames")->getCommitSignal()->connect(boost::bind(&handleDisplayNamesOptionChanged,  _2));
+	
+	mCommitCallbackRegistrar.add("Pref.ShowAC", boost::bind(&AutoCorrectFloater::showFloater));
 
 	LLAvatarPropertiesProcessor::getInstance()->addObserver( gAgent.getID(), this );
 }
