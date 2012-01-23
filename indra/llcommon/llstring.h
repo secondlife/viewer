@@ -307,7 +307,7 @@ public:
 	 * quote it, escape any embedded double-quote with the escape string (default
 	 * backslash).
 	 */
-	string_type quote(const string_type& str, const string_type& escape="\\");
+	static string_type quote(const string_type& str, const string_type& escape="\\");
 
 	/**
 	 * @brief Unsafe way to make ascii characters. You should probably
