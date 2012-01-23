@@ -1253,15 +1253,16 @@ namespace LLInitParam
 			return mValues.back();
 		}
 
-		void add(const value_t& item)
+		self_t& add(const value_t& item)
 		{
 			param_value_t param_value;
 			param_value.setValue(item);
 			mValues.push_back(param_value);
 			setProvided();
+			return *this;
 		}
 
-		void add(const typename name_value_lookup_t::name_t& name)
+		self_t& add(const typename name_value_lookup_t::name_t& name)
 		{
 			value_t value;
 
@@ -1271,6 +1272,8 @@ namespace LLInitParam
 				add(value);
 				mValues.back().setValueName(name);
 			}
+
+			return *this;
 		}
 
 		// implicit conversion
@@ -1441,13 +1444,14 @@ namespace LLInitParam
 			return mValues.back();
 		}
 
-		void add(const value_t& item)
+		self_t& add(const value_t& item)
 		{
 			mValues.push_back(item);
 			setProvided();
+			return *this;
 		}
 
-		void add(const typename name_value_lookup_t::name_t& name)
+		self_t& add(const typename name_value_lookup_t::name_t& name)
 		{
 			value_t value;
 
@@ -1457,6 +1461,7 @@ namespace LLInitParam
 				add(value);
 				mValues.back().setValueName(name);
 			}
+			return *this;
 		}
 
 		// implicit conversion
