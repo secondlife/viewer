@@ -81,10 +81,7 @@ LLExternalEditor::EErrorCode LLExternalEditor::setCommand(const std::string& env
 
 LLExternalEditor::EErrorCode LLExternalEditor::run(const std::string& file_path)
 {
-	// LLInitParams type wrappers don't seem to have empty() or size()
-	// methods; try determining emptiness by comparing begin/end iterators.
-	if (std::string(mProcessParams.executable).empty() ||
-	    (mProcessParams.args.begin() == mProcessParams.args.end()))
+	if (std::string(mProcessParams.executable).empty() || mProcessParams.args.empty())
 	{
 		llwarns << "Editor command not set" << llendl;
 		return EC_NOT_SPECIFIED;
