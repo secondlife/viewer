@@ -237,40 +237,41 @@ private:
 	static std::string sLocale;
 
 public:
-	typedef typename std::basic_string<T>::size_type size_type;
+	typedef std::basic_string<T> string_type;
+	typedef typename string_type::size_type size_type;
 	
 public:
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Static Utility functions that operate on std::strings
 
-	static const std::basic_string<T> null;
+	static const string_type null;
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
-	LL_COMMON_API static void getTokens(const std::basic_string<T>& instr, std::vector<std::basic_string<T> >& tokens, const std::basic_string<T>& delims);
-	LL_COMMON_API static void formatNumber(std::basic_string<T>& numStr, std::basic_string<T> decimals);
-	LL_COMMON_API static bool formatDatetime(std::basic_string<T>& replacement, std::basic_string<T> token, std::basic_string<T> param, S32 secFromEpoch);
-	LL_COMMON_API static S32 format(std::basic_string<T>& s, const format_map_t& substitutions);
-	LL_COMMON_API static S32 format(std::basic_string<T>& s, const LLSD& substitutions);
-	LL_COMMON_API static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const format_map_t& substitutions);
-	LL_COMMON_API static bool simpleReplacement(std::basic_string<T>& replacement, std::basic_string<T> token, const LLSD& substitutions);
+	LL_COMMON_API static void getTokens(const string_type& instr, std::vector<string_type >& tokens, const string_type& delims);
+	LL_COMMON_API static void formatNumber(string_type& numStr, string_type decimals);
+	LL_COMMON_API static bool formatDatetime(string_type& replacement, string_type token, string_type param, S32 secFromEpoch);
+	LL_COMMON_API static S32 format(string_type& s, const format_map_t& substitutions);
+	LL_COMMON_API static S32 format(string_type& s, const LLSD& substitutions);
+	LL_COMMON_API static bool simpleReplacement(string_type& replacement, string_type token, const format_map_t& substitutions);
+	LL_COMMON_API static bool simpleReplacement(string_type& replacement, string_type token, const LLSD& substitutions);
 	LL_COMMON_API static void setLocale (std::string inLocale);
 	LL_COMMON_API static std::string getLocale (void);
 	
-	static bool isValidIndex(const std::basic_string<T>& string, size_type i)
+	static bool isValidIndex(const string_type& string, size_type i)
 	{
 		return !string.empty() && (0 <= i) && (i <= string.size());
 	}
 
-	static void	trimHead(std::basic_string<T>& string);
-	static void	trimTail(std::basic_string<T>& string);
-	static void	trim(std::basic_string<T>& string)	{ trimHead(string); trimTail(string); }
-	static void truncate(std::basic_string<T>& string, size_type count);
+	static void	trimHead(string_type& string);
+	static void	trimTail(string_type& string);
+	static void	trim(string_type& string)	{ trimHead(string); trimTail(string); }
+	static void truncate(string_type& string, size_type count);
 
-	static void	toUpper(std::basic_string<T>& string);
-	static void	toLower(std::basic_string<T>& string);
+	static void	toUpper(string_type& string);
+	static void	toLower(string_type& string);
 	
 	// True if this is the head of s.
-	static BOOL	isHead( const std::basic_string<T>& string, const T* s ); 
+	static BOOL	isHead( const string_type& string, const T* s ); 
 
 	/**
 	 * @brief Returns true if string starts with substr
@@ -278,8 +279,8 @@ public:
 	 * If etither string or substr are empty, this method returns false.
 	 */
 	static bool startsWith(
-		const std::basic_string<T>& string,
-		const std::basic_string<T>& substr);
+		const string_type& string,
+		const string_type& substr);
 
 	/**
 	 * @brief Returns true if string ends in substr
@@ -287,19 +288,26 @@ public:
 	 * If etither string or substr are empty, this method returns false.
 	 */
 	static bool endsWith(
-		const std::basic_string<T>& string,
-		const std::basic_string<T>& substr);
+		const string_type& string,
+		const string_type& substr);
 
-	static void	addCRLF(std::basic_string<T>& string);
-	static void	removeCRLF(std::basic_string<T>& string);
+	static void	addCRLF(string_type& string);
+	static void	removeCRLF(string_type& string);
 
-	static void	replaceTabsWithSpaces( std::basic_string<T>& string, size_type spaces_per_tab );
-	static void	replaceNonstandardASCII( std::basic_string<T>& string, T replacement );
-	static void	replaceChar( std::basic_string<T>& string, T target, T replacement );
-	static void replaceString( std::basic_string<T>& string, std::basic_string<T> target, std::basic_string<T> replacement );
+	static void	replaceTabsWithSpaces( string_type& string, size_type spaces_per_tab );
+	static void	replaceNonstandardASCII( string_type& string, T replacement );
+	static void	replaceChar( string_type& string, T target, T replacement );
+	static void replaceString( string_type& string, string_type target, string_type replacement );
 	
-	static BOOL	containsNonprintable(const std::basic_string<T>& string);
-	static void	stripNonprintable(std::basic_string<T>& string);
+	static BOOL	containsNonprintable(const string_type& string);
+	static void	stripNonprintable(string_type& string);
+
+	/**
+	 * Double-quote an argument string, unless it's already double-quoted. If we
+	 * quote it, escape any embedded double-quote with the escape string (default
+	 * backslash).
+	 */
+	string_type quote(const string_type& str, const string_type& escape="\\");
 
 	/**
 	 * @brief Unsafe way to make ascii characters. You should probably
@@ -308,18 +316,18 @@ public:
 	 * The 2 and 4 byte std::string probably work, so LLWStringUtil::_makeASCII
 	 * should work.
 	 */
-	static void _makeASCII(std::basic_string<T>& string);
+	static void _makeASCII(string_type& string);
 
 	// Conversion to other data types
-	static BOOL	convertToBOOL(const std::basic_string<T>& string, BOOL& value);
-	static BOOL	convertToU8(const std::basic_string<T>& string, U8& value);
-	static BOOL	convertToS8(const std::basic_string<T>& string, S8& value);
-	static BOOL	convertToS16(const std::basic_string<T>& string, S16& value);
-	static BOOL	convertToU16(const std::basic_string<T>& string, U16& value);
-	static BOOL	convertToU32(const std::basic_string<T>& string, U32& value);
-	static BOOL	convertToS32(const std::basic_string<T>& string, S32& value);
-	static BOOL	convertToF32(const std::basic_string<T>& string, F32& value);
-	static BOOL	convertToF64(const std::basic_string<T>& string, F64& value);
+	static BOOL	convertToBOOL(const string_type& string, BOOL& value);
+	static BOOL	convertToU8(const string_type& string, U8& value);
+	static BOOL	convertToS8(const string_type& string, S8& value);
+	static BOOL	convertToS16(const string_type& string, S16& value);
+	static BOOL	convertToU16(const string_type& string, U16& value);
+	static BOOL	convertToU32(const string_type& string, U32& value);
+	static BOOL	convertToS32(const string_type& string, S32& value);
+	static BOOL	convertToF32(const string_type& string, F32& value);
+	static BOOL	convertToF64(const string_type& string, F64& value);
 
 	/////////////////////////////////////////////////////////////////////////////////////////
 	// Utility functions for working with char*'s and strings
@@ -327,24 +335,24 @@ public:
 	// Like strcmp but also handles empty strings. Uses
 	// current locale.
 	static S32		compareStrings(const T* lhs, const T* rhs);
-	static S32		compareStrings(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs);
+	static S32		compareStrings(const string_type& lhs, const string_type& rhs);
 	
 	// case insensitive version of above. Uses current locale on
 	// Win32, and falls back to a non-locale aware comparison on
 	// Linux.
 	static S32		compareInsensitive(const T* lhs, const T* rhs);
-	static S32		compareInsensitive(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs);
+	static S32		compareInsensitive(const string_type& lhs, const string_type& rhs);
 
 	// Case sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static S32		compareDict(const std::basic_string<T>& a, const std::basic_string<T>& b);
+	static S32		compareDict(const string_type& a, const string_type& b);
 
 	// Case *in*sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static S32		compareDictInsensitive(const std::basic_string<T>& a, const std::basic_string<T>& b);
+	static S32		compareDictInsensitive(const string_type& a, const string_type& b);
 
 	// Puts compareDict() in a form appropriate for LL container classes to use for sorting.
-	static BOOL		precedesDict( const std::basic_string<T>& a, const std::basic_string<T>& b );
+	static BOOL		precedesDict( const string_type& a, const string_type& b );
 
 	// A replacement for strncpy.
 	// If the dst buffer is dst_size bytes long or more, ensures that dst is null terminated and holds
@@ -352,7 +360,7 @@ public:
 	static void		copy(T* dst, const T* src, size_type dst_size);
 	
 	// Copies src into dst at a given offset.  
-	static void		copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset);
+	static void		copyInto(string_type& dst, const string_type& src, size_type offset);
 	
 	static bool		isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
 
@@ -362,7 +370,7 @@ public:
 #endif
 
 private:
-	LL_COMMON_API static size_type getSubstitution(const std::basic_string<T>& instr, size_type& start, std::vector<std::basic_string<T> >& tokens);
+	LL_COMMON_API static size_type getSubstitution(const string_type& instr, size_type& start, std::vector<string_type >& tokens);
 };
 
 template<class T> const std::basic_string<T> LLStringUtilBase<T>::null;
@@ -669,7 +677,7 @@ S32 LLStringUtilBase<T>::compareStrings(const T* lhs, const T* rhs)
 
 //static 
 template<class T> 
-S32 LLStringUtilBase<T>::compareStrings(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs)
+S32 LLStringUtilBase<T>::compareStrings(const string_type& lhs, const string_type& rhs)
 {
 	return LLStringOps::collate(lhs.c_str(), rhs.c_str());
 }
@@ -695,8 +703,8 @@ S32 LLStringUtilBase<T>::compareInsensitive(const T* lhs, const T* rhs )
 	}
 	else
 	{
-		std::basic_string<T> lhs_string(lhs);
-		std::basic_string<T> rhs_string(rhs);
+		string_type lhs_string(lhs);
+		string_type rhs_string(rhs);
 		LLStringUtilBase<T>::toUpper(lhs_string);
 		LLStringUtilBase<T>::toUpper(rhs_string);
 		result = LLStringOps::collate(lhs_string.c_str(), rhs_string.c_str());
@@ -706,10 +714,10 @@ S32 LLStringUtilBase<T>::compareInsensitive(const T* lhs, const T* rhs )
 
 //static 
 template<class T> 
-S32 LLStringUtilBase<T>::compareInsensitive(const std::basic_string<T>& lhs, const std::basic_string<T>& rhs)
+S32 LLStringUtilBase<T>::compareInsensitive(const string_type& lhs, const string_type& rhs)
 {
-	std::basic_string<T> lhs_string(lhs);
-	std::basic_string<T> rhs_string(rhs);
+	string_type lhs_string(lhs);
+	string_type rhs_string(rhs);
 	LLStringUtilBase<T>::toUpper(lhs_string);
 	LLStringUtilBase<T>::toUpper(rhs_string);
 	return LLStringOps::collate(lhs_string.c_str(), rhs_string.c_str());
@@ -720,7 +728,7 @@ S32 LLStringUtilBase<T>::compareInsensitive(const std::basic_string<T>& lhs, con
 
 //static 
 template<class T>
-S32 LLStringUtilBase<T>::compareDict(const std::basic_string<T>& astr, const std::basic_string<T>& bstr)
+S32 LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
@@ -761,7 +769,7 @@ S32 LLStringUtilBase<T>::compareDict(const std::basic_string<T>& astr, const std
 
 // static
 template<class T>
-S32 LLStringUtilBase<T>::compareDictInsensitive(const std::basic_string<T>& astr, const std::basic_string<T>& bstr)
+S32 LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
@@ -796,7 +804,7 @@ S32 LLStringUtilBase<T>::compareDictInsensitive(const std::basic_string<T>& astr
 // Puts compareDict() in a form appropriate for LL container classes to use for sorting.
 // static 
 template<class T> 
-BOOL LLStringUtilBase<T>::precedesDict( const std::basic_string<T>& a, const std::basic_string<T>& b )
+BOOL LLStringUtilBase<T>::precedesDict( const string_type& a, const string_type& b )
 {
 	if( a.size() && b.size() )
 	{
@@ -810,7 +818,7 @@ BOOL LLStringUtilBase<T>::precedesDict( const std::basic_string<T>& a, const std
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::toUpper(std::basic_string<T>& string)	
+void LLStringUtilBase<T>::toUpper(string_type& string)	
 { 
 	if( !string.empty() )
 	{ 
@@ -824,7 +832,7 @@ void LLStringUtilBase<T>::toUpper(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::toLower(std::basic_string<T>& string)
+void LLStringUtilBase<T>::toLower(string_type& string)
 { 
 	if( !string.empty() )
 	{ 
@@ -838,7 +846,7 @@ void LLStringUtilBase<T>::toLower(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::trimHead(std::basic_string<T>& string)
+void LLStringUtilBase<T>::trimHead(string_type& string)
 {			
 	if( !string.empty() )
 	{
@@ -853,7 +861,7 @@ void LLStringUtilBase<T>::trimHead(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::trimTail(std::basic_string<T>& string)
+void LLStringUtilBase<T>::trimTail(string_type& string)
 {			
 	if( string.size() )
 	{
@@ -872,7 +880,7 @@ void LLStringUtilBase<T>::trimTail(std::basic_string<T>& string)
 // Replace line feeds with carriage return-line feed pairs.
 //static
 template<class T>
-void LLStringUtilBase<T>::addCRLF(std::basic_string<T>& string)
+void LLStringUtilBase<T>::addCRLF(string_type& string)
 {
 	const T LF = 10;
 	const T CR = 13;
@@ -914,7 +922,7 @@ void LLStringUtilBase<T>::addCRLF(std::basic_string<T>& string)
 // Remove all carriage returns
 //static
 template<class T> 
-void LLStringUtilBase<T>::removeCRLF(std::basic_string<T>& string)
+void LLStringUtilBase<T>::removeCRLF(string_type& string)
 {
 	const T CR = 13;
 
@@ -935,10 +943,10 @@ void LLStringUtilBase<T>::removeCRLF(std::basic_string<T>& string)
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceChar( std::basic_string<T>& string, T target, T replacement )
+void LLStringUtilBase<T>::replaceChar( string_type& string, T target, T replacement )
 {
 	size_type found_pos = 0;
-	while( (found_pos = string.find(target, found_pos)) != std::basic_string<T>::npos ) 
+	while( (found_pos = string.find(target, found_pos)) != string_type::npos ) 
 	{
 		string[found_pos] = replacement;
 		found_pos++; // avoid infinite defeat if target == replacement
@@ -947,10 +955,10 @@ void LLStringUtilBase<T>::replaceChar( std::basic_string<T>& string, T target, T
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceString( std::basic_string<T>& string, std::basic_string<T> target, std::basic_string<T> replacement )
+void LLStringUtilBase<T>::replaceString( string_type& string, string_type target, string_type replacement )
 {
 	size_type found_pos = 0;
-	while( (found_pos = string.find(target, found_pos)) != std::basic_string<T>::npos )
+	while( (found_pos = string.find(target, found_pos)) != string_type::npos )
 	{
 		string.replace( found_pos, target.length(), replacement );
 		found_pos += replacement.length(); // avoid infinite defeat if replacement contains target
@@ -959,7 +967,7 @@ void LLStringUtilBase<T>::replaceString( std::basic_string<T>& string, std::basi
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceNonstandardASCII( std::basic_string<T>& string, T replacement )
+void LLStringUtilBase<T>::replaceNonstandardASCII( string_type& string, T replacement )
 {
 	const char LF = 10;
 	const S8 MIN = 32;
@@ -979,12 +987,12 @@ void LLStringUtilBase<T>::replaceNonstandardASCII( std::basic_string<T>& string,
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::replaceTabsWithSpaces( std::basic_string<T>& str, size_type spaces_per_tab )
+void LLStringUtilBase<T>::replaceTabsWithSpaces( string_type& str, size_type spaces_per_tab )
 {
 	const T TAB = '\t';
 	const T SPACE = ' ';
 
-	std::basic_string<T> out_str;
+	string_type out_str;
 	// Replace tabs with spaces
 	for (size_type i = 0; i < str.length(); i++)
 	{
@@ -1003,7 +1011,7 @@ void LLStringUtilBase<T>::replaceTabsWithSpaces( std::basic_string<T>& str, size
 
 //static
 template<class T> 
-BOOL LLStringUtilBase<T>::containsNonprintable(const std::basic_string<T>& string)
+BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 {
 	const char MIN = 32;
 	BOOL rv = FALSE;
@@ -1020,7 +1028,7 @@ BOOL LLStringUtilBase<T>::containsNonprintable(const std::basic_string<T>& strin
 
 //static
 template<class T> 
-void LLStringUtilBase<T>::stripNonprintable(std::basic_string<T>& string)
+void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 {
 	const char MIN = 32;
 	size_type j = 0;
@@ -1051,8 +1059,33 @@ void LLStringUtilBase<T>::stripNonprintable(std::basic_string<T>& string)
 	delete []c_string;
 }
 
+template<class T>
+std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str, const string_type& escape)
+{
+	size_type len(str.length());
+	// If the string is already quoted, assume user knows what s/he's doing.
+	if (len >= 2 && str[0] == '"' && str[len-1] == '"')
+	{
+		return str;
+	}
+
+	// Not already quoted: do it.
+	string_type result;
+	result.push_back('"');
+	for (typename string_type::const_iterator ci(str.begin()), cend(str.end()); ci != cend; ++ci)
+	{
+		if (*ci == '"')
+		{
+			result.append(escape);
+		}
+		result.push_back(*ci);
+	}
+	result.push_back('"');
+	return result;
+}
+
 template<class T> 
-void LLStringUtilBase<T>::_makeASCII(std::basic_string<T>& string)
+void LLStringUtilBase<T>::_makeASCII(string_type& string)
 {
 	// Replace non-ASCII chars with LL_UNKNOWN_CHAR
 	for (size_type i = 0; i < string.length(); i++)
@@ -1082,7 +1115,7 @@ void LLStringUtilBase<T>::copy( T* dst, const T* src, size_type dst_size )
 
 // static
 template<class T> 
-void LLStringUtilBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_string<T>& src, size_type offset)
+void LLStringUtilBase<T>::copyInto(string_type& dst, const string_type& src, size_type offset)
 {
 	if ( offset == dst.length() )
 	{
@@ -1092,7 +1125,7 @@ void LLStringUtilBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_s
 	}
 	else
 	{
-		std::basic_string<T> tail = dst.substr(offset);
+		string_type tail = dst.substr(offset);
 
 		dst = dst.substr(0, offset);
 		dst += src;
@@ -1103,7 +1136,7 @@ void LLStringUtilBase<T>::copyInto(std::basic_string<T>& dst, const std::basic_s
 // True if this is the head of s.
 //static
 template<class T> 
-BOOL LLStringUtilBase<T>::isHead( const std::basic_string<T>& string, const T* s ) 
+BOOL LLStringUtilBase<T>::isHead( const string_type& string, const T* s ) 
 { 
 	if( string.empty() )
 	{
@@ -1119,8 +1152,8 @@ BOOL LLStringUtilBase<T>::isHead( const std::basic_string<T>& string, const T* s
 // static
 template<class T> 
 bool LLStringUtilBase<T>::startsWith(
-	const std::basic_string<T>& string,
-	const std::basic_string<T>& substr)
+	const string_type& string,
+	const string_type& substr)
 {
 	if(string.empty() || (substr.empty())) return false;
 	if(0 == string.find(substr)) return true;
@@ -1130,8 +1163,8 @@ bool LLStringUtilBase<T>::startsWith(
 // static
 template<class T> 
 bool LLStringUtilBase<T>::endsWith(
-	const std::basic_string<T>& string,
-	const std::basic_string<T>& substr)
+	const string_type& string,
+	const string_type& substr)
 {
 	if(string.empty() || (substr.empty())) return false;
 	std::string::size_type idx = string.rfind(substr);
@@ -1141,14 +1174,14 @@ bool LLStringUtilBase<T>::endsWith(
 
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToBOOL(const std::basic_string<T>& string, BOOL& value)
+BOOL LLStringUtilBase<T>::convertToBOOL(const string_type& string, BOOL& value)
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	if( 
 		(temp == "1") || 
@@ -1178,7 +1211,7 @@ BOOL LLStringUtilBase<T>::convertToBOOL(const std::basic_string<T>& string, BOOL
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToU8(const std::basic_string<T>& string, U8& value) 
+BOOL LLStringUtilBase<T>::convertToU8(const string_type& string, U8& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1191,7 +1224,7 @@ BOOL LLStringUtilBase<T>::convertToU8(const std::basic_string<T>& string, U8& va
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToS8(const std::basic_string<T>& string, S8& value) 
+BOOL LLStringUtilBase<T>::convertToS8(const string_type& string, S8& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1204,7 +1237,7 @@ BOOL LLStringUtilBase<T>::convertToS8(const std::basic_string<T>& string, S8& va
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToS16(const std::basic_string<T>& string, S16& value) 
+BOOL LLStringUtilBase<T>::convertToS16(const string_type& string, S16& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1217,7 +1250,7 @@ BOOL LLStringUtilBase<T>::convertToS16(const std::basic_string<T>& string, S16& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToU16(const std::basic_string<T>& string, U16& value) 
+BOOL LLStringUtilBase<T>::convertToU16(const string_type& string, U16& value) 
 {
 	S32 value32 = 0;
 	BOOL success = convertToS32(string, value32);
@@ -1230,17 +1263,17 @@ BOOL LLStringUtilBase<T>::convertToU16(const std::basic_string<T>& string, U16& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToU32(const std::basic_string<T>& string, U32& value) 
+BOOL LLStringUtilBase<T>::convertToU32(const string_type& string, U32& value) 
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	U32 v;
-	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
+	std::basic_istringstream<T> i_stream((string_type)temp);
 	if(i_stream >> v)
 	{
 		value = v;
@@ -1250,17 +1283,17 @@ BOOL LLStringUtilBase<T>::convertToU32(const std::basic_string<T>& string, U32& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToS32(const std::basic_string<T>& string, S32& value) 
+BOOL LLStringUtilBase<T>::convertToS32(const string_type& string, S32& value) 
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	S32 v;
-	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
+	std::basic_istringstream<T> i_stream((string_type)temp);
 	if(i_stream >> v)
 	{
 		//TODO: figure out overflow and underflow reporting here
@@ -1277,7 +1310,7 @@ BOOL LLStringUtilBase<T>::convertToS32(const std::basic_string<T>& string, S32& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToF32(const std::basic_string<T>& string, F32& value) 
+BOOL LLStringUtilBase<T>::convertToF32(const string_type& string, F32& value) 
 {
 	F64 value64 = 0.0;
 	BOOL success = convertToF64(string, value64);
@@ -1290,17 +1323,17 @@ BOOL LLStringUtilBase<T>::convertToF32(const std::basic_string<T>& string, F32& 
 }
 
 template<class T> 
-BOOL LLStringUtilBase<T>::convertToF64(const std::basic_string<T>& string, F64& value)
+BOOL LLStringUtilBase<T>::convertToF64(const string_type& string, F64& value)
 {
 	if( string.empty() )
 	{
 		return FALSE;
 	}
 
-	std::basic_string<T> temp( string );
+	string_type temp( string );
 	trim(temp);
 	F64 v;
-	std::basic_istringstream<T> i_stream((std::basic_string<T>)temp);
+	std::basic_istringstream<T> i_stream((string_type)temp);
 	if(i_stream >> v)
 	{
 		//TODO: figure out overflow and underflow reporting here
@@ -1317,7 +1350,7 @@ BOOL LLStringUtilBase<T>::convertToF64(const std::basic_string<T>& string, F64& 
 }
 
 template<class T> 
-void LLStringUtilBase<T>::truncate(std::basic_string<T>& string, size_type count)
+void LLStringUtilBase<T>::truncate(string_type& string, size_type count)
 {
 	size_type cur_size = string.size();
 	string.resize(count < cur_size ? count : cur_size);

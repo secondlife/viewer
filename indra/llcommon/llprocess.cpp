@@ -28,6 +28,7 @@
 #include "llprocess.h"
 #include "llsdserialize.h"
 #include "llsingleton.h"
+#include "llstring.h"
 #include "stringize.h"
 
 #include <boost/foreach.hpp>
@@ -102,7 +103,6 @@ std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 #if LL_WINDOWS
 
 static std::string WindowsErrorString(const std::string& operation);
-static std::string quote(const std::string&);
 
 /**
  * Wrap a Windows Job Object for use in managing child-process lifespan.
@@ -157,6 +157,10 @@ private:
 		if (! SetInformationJobObject(mJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
 		{
 			LL_WARNS("LLProcess") << WindowsErrorString("SetInformationJobObject()") << LL_ENDL;
+			// This Job Object is useless to us
+			CloseHandle(mJob);
+			// prevent assignProcess() from trying to use it
+			mJob = 0;
 		}
 	}
 
@@ -168,11 +172,17 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 	PROCESS_INFORMATION pinfo;
 	STARTUPINFOA sinfo = { sizeof(sinfo) };
 
-	std::string args = quote(params.executable);
+	// LLProcess::create()'s caller passes a Unix-style array of strings for
+	// command-line arguments. Our caller can and should expect that these will be
+	// passed to the child process as individual arguments, regardless of content
+	// (e.g. embedded spaces). But because Windows invokes any child process with
+	// a single command-line string, this means we must quote each argument behind
+	// the scenes.
+	std::string args = LLStringUtil::quote(params.executable);
 	BOOST_FOREACH(const std::string& arg, params.args)
 	{
 		args += " ";
-		args += quote(arg);
+		args += LLStringUtil::quote(arg);
 	}
 
 	// So retarded.  Windows requires that the second parameter to
@@ -234,39 +244,6 @@ bool LLProcess::kill(void)
 	LL_INFOS("LLProcess") << "killing " << mDesc << LL_ENDL;
 	TerminateProcess(mProcessID, 0);
 	return ! isRunning();
-}
-
-/**
- * Double-quote an argument string, unless it's already double-quoted. If we
- * quote it, escape any embedded double-quote with backslash.
- *
- * LLProcess::create()'s caller passes a Unix-style array of strings for
- * command-line arguments. Our caller can and should expect that these will be
- * passed to the child process as individual arguments, regardless of content
- * (e.g. embedded spaces). But because Windows invokes any child process with
- * a single command-line string, this means we must quote each argument behind
- * the scenes.
- */
-static std::string quote(const std::string& str)
-{
-	std::string::size_type len(str.length());
-	// If the string is already quoted, assume user knows what s/he's doing.
-	if (len >= 2 && str[0] == '"' && str[len-1] == '"')
-	{
-		return str;
-	}
-
-	// Not already quoted: do it.
-	std::string result("\"");
-	for (std::string::const_iterator ci(str.begin()), cend(str.end()); ci != cend; ++ci)
-	{
-		if (*ci == '"')
-		{
-			result.append("\\");
-		}
-		result.push_back(*ci);
-	}
-	return result + "\"";
 }
 
 /// GetLastError()/FormatMessage() boilerplate
