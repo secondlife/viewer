@@ -2923,127 +2923,11 @@ void LLFolderBridge::pasteLinkFromClipboard()
 void LLFolderBridge::staticFolderOptionsMenu()
 {
 	LLFolderBridge* selfp = sSelf.get();
-	if (selfp)
+
+	if (selfp && selfp->mRoot)
 	{
-		selfp->folderOptionsMenuAfterFetch();
+		selfp->mRoot->updateMenu();
 	}
-}
-
-void LLFolderBridge::folderOptionsMenuAfterFetch()
-{
-	const U32 flags = mContextMenuFlags;
-
-	mItems.clear();
-	mDisabledItems.clear();
-	mContextMenuFlags = 0x0;
-
-	LLMenuGL* menup = dynamic_cast<LLMenuGL*>(mMenu.get());
-	if (!menup) return;
-
-	// Reset the menu
-	{
-		const LLView::child_list_t *list = menup->getChildList();
-
-		LLView::child_list_t::const_iterator menu_itor;
-		for (menu_itor = list->begin(); menu_itor != list->end(); ++menu_itor)
-		{
-			(*menu_itor)->setVisible(FALSE);
-			(*menu_itor)->pushVisible(TRUE);
-			(*menu_itor)->setEnabled(TRUE);
-		}
-	}
-
-	// Build basic menu back up
-	buildContextMenuBaseOptions(*menup, flags);
-
-	// Build folder specific options back up
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return;
-
-	const LLInventoryCategory* category = model->getCategory(mUUID);
-	if(!category) return;
-
-	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if (trash_id == mUUID) return;
-	if (isItemInTrash()) return;
-	if (!isAgentInventory()) return;
-	if (isOutboxFolder()) return;
-
-	LLFolderType::EType type = category->getPreferredType();
-	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
-	// BAP change once we're no longer treating regular categories as ensembles.
-	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
-							  LLFolderType::lookupIsEnsembleType(type));
-
-	// Only enable calling-card related options for non-system folders.
-	if (!is_system_folder)
-	{
-		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
-		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
-		{
-			mItems.push_back(std::string("Calling Card Separator"));
-			mItems.push_back(std::string("Conference Chat Folder"));
-			mItems.push_back(std::string("IM All Contacts In Folder"));
-		}
-	}
-
-	if (!isItemRemovable())
-	{
-		mDisabledItems.push_back(std::string("Delete"));
-	}
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	if (LLFolderType::lookupIsProtectedType(type))
-	{
-		mItems.push_back(std::string("Delete System Folder"));
-	}
-#endif
-
-	// wearables related functionality for folders.
-	//is_wearable
-	LLFindWearables is_wearable;
-	LLIsType is_object( LLAssetType::AT_OBJECT );
-	LLIsType is_gesture( LLAssetType::AT_GESTURE );
-
-	if (mWearables ||
-		checkFolderForContentsOfType(model, is_wearable)  ||
-		checkFolderForContentsOfType(model, is_object) ||
-		checkFolderForContentsOfType(model, is_gesture) )
-	{
-		mItems.push_back(std::string("Folder Wearables Separator"));
-
-		// Only enable add/replace outfit for non-system folders.
-		if (!is_system_folder)
-		{
-			// Adding an outfit onto another (versus replacing) doesn't make sense.
-			if (type != LLFolderType::FT_OUTFIT)
-			{
-				mItems.push_back(std::string("Add To Outfit"));
-			}
-
-			mItems.push_back(std::string("Replace Outfit"));
-		}
-		if (is_ensemble)
-		{
-			mItems.push_back(std::string("Wear As Ensemble"));
-		}
-		mItems.push_back(std::string("Remove From Outfit"));
-		if (!LLAppearanceMgr::getCanRemoveFromCOF(mUUID))
-		{
-			mDisabledItems.push_back(std::string("Remove From Outfit"));
-		}
-		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
-		{
-			mDisabledItems.push_back(std::string("Replace Outfit"));
-		}
-		mItems.push_back(std::string("Outfit Separator"));
-	}
-
-	hide_context_entries(*menup, mItems, mDisabledItems);
-
-	// Reposition the menu, in case we're adding items to an existing menu.
-	menup->needsArrange();
-	menup->arrangeAndClear();
 }
 
 BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInventoryCollectFunctor& is_type)
@@ -3058,7 +2942,7 @@ BOOL LLFolderBridge::checkFolderForContentsOfType(LLInventoryModel* model, LLInv
 	return ((item_array.count() > 0) ? TRUE : FALSE );
 }
 
-void LLFolderBridge::buildContextMenuBaseOptions(LLMenuGL& menu, U32 flags)
+void LLFolderBridge::buildContextMenuBaseOptions(U32 flags)
 {
 	LLInventoryModel* model = getInventoryModel();
 	llassert(model != NULL);
@@ -3078,10 +2962,6 @@ void LLFolderBridge::buildContextMenuBaseOptions(LLMenuGL& menu, U32 flags)
 		mDisabledItems.push_back(std::string("New Clothes"));
 		mDisabledItems.push_back(std::string("New Body Parts"));
 	}
-
-	// clear out old menu and folder pointers
-	mMenu.markDead();
-	sSelf.markDead();
 
 	if(trash_id == mUUID)
 	{
@@ -3185,45 +3065,134 @@ void LLFolderBridge::buildContextMenuBaseOptions(LLMenuGL& menu, U32 flags)
 	}
 }
 
+void LLFolderBridge::buildContextMenuFolderOptions(U32 flags)
+{
+	// Build folder specific options back up
+	LLInventoryModel* model = getInventoryModel();
+	if(!model) return;
+
+	const LLInventoryCategory* category = model->getCategory(mUUID);
+	if(!category) return;
+
+	const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
+	if (trash_id == mUUID) return;
+	if (isItemInTrash()) return;
+	if (!isAgentInventory()) return;
+	if (isOutboxFolder()) return;
+
+	LLFolderType::EType type = category->getPreferredType();
+	const bool is_system_folder = LLFolderType::lookupIsProtectedType(type);
+	// BAP change once we're no longer treating regular categories as ensembles.
+	const bool is_ensemble = (type == LLFolderType::FT_NONE ||
+		LLFolderType::lookupIsEnsembleType(type));
+
+	// Only enable calling-card related options for non-system folders.
+	if (!is_system_folder)
+	{
+		LLIsType is_callingcard(LLAssetType::AT_CALLINGCARD);
+		if (mCallingCards || checkFolderForContentsOfType(model, is_callingcard))
+		{
+			mItems.push_back(std::string("Calling Card Separator"));
+			mItems.push_back(std::string("Conference Chat Folder"));
+			mItems.push_back(std::string("IM All Contacts In Folder"));
+		}
+	}
+
+	if (!isItemRemovable())
+	{
+		mDisabledItems.push_back(std::string("Delete"));
+	}
+
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	if (LLFolderType::lookupIsProtectedType(type))
+	{
+		mItems.push_back(std::string("Delete System Folder"));
+	}
+#endif
+
+	// wearables related functionality for folders.
+	//is_wearable
+	LLFindWearables is_wearable;
+	LLIsType is_object( LLAssetType::AT_OBJECT );
+	LLIsType is_gesture( LLAssetType::AT_GESTURE );
+
+	if (mWearables ||
+		checkFolderForContentsOfType(model, is_wearable)  ||
+		checkFolderForContentsOfType(model, is_object) ||
+		checkFolderForContentsOfType(model, is_gesture) )
+	{
+		mItems.push_back(std::string("Folder Wearables Separator"));
+
+		// Only enable add/replace outfit for non-system folders.
+		if (!is_system_folder)
+		{
+			// Adding an outfit onto another (versus replacing) doesn't make sense.
+			if (type != LLFolderType::FT_OUTFIT)
+			{
+				mItems.push_back(std::string("Add To Outfit"));
+			}
+
+			mItems.push_back(std::string("Replace Outfit"));
+		}
+		if (is_ensemble)
+		{
+			mItems.push_back(std::string("Wear As Ensemble"));
+		}
+		mItems.push_back(std::string("Remove From Outfit"));
+		if (!LLAppearanceMgr::getCanRemoveFromCOF(mUUID))
+		{
+			mDisabledItems.push_back(std::string("Remove From Outfit"));
+		}
+		if (!LLAppearanceMgr::instance().getCanReplaceCOF(mUUID))
+		{
+			mDisabledItems.push_back(std::string("Replace Outfit"));
+		}
+		mItems.push_back(std::string("Outfit Separator"));
+	}
+}
+
 // Flags unused
 void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 {
+	sSelf.markDead();
+
 	mItems.clear();
 	mDisabledItems.clear();
-	mContextMenuFlags = flags;
 
 	lldebugs << "LLFolderBridge::buildContextMenu()" << llendl;
 
 	LLInventoryModel* model = getInventoryModel();
 	if(!model) return;
 
-	buildContextMenuBaseOptions(menu, flags);
+	buildContextMenuBaseOptions(flags);
+
+	// Add menu items that are dependent on the contents of the folder.
+	LLViewerInventoryCategory* category = (LLViewerInventoryCategory *) model->getCategory(mUUID);
+	if (category)
+	{
+		uuid_vec_t folders;
+		folders.push_back(category->getUUID());
+
+		sSelf = getHandle();
+		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
+		fetch->startFetch();
+		inc_busy_count();
+		if (fetch->isFinished())
+		{
+			buildContextMenuFolderOptions(flags);
+		}
+		else
+		{
+			// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
+			gInventory.addObserver(fetch);
+		}
+	}
 
 	hide_context_entries(menu, mItems, mDisabledItems);
 
-	// Add menu items that are dependent on the contents of the folder.
-	uuid_vec_t folders;
-	LLViewerInventoryCategory* category = (LLViewerInventoryCategory*)model->getCategory(mUUID);
-	if (category)
-	{
-		folders.push_back(category->getUUID());
-	}
-
-	mMenu = menu.getHandle();
-	sSelf = getHandle();
-	LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
-	fetch->startFetch();
-	inc_busy_count();
-	if(fetch->isFinished())
-	{
-		// everything is already here - call done.
-		fetch->done();
-	}
-	else
-	{
-		// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
-		gInventory.addObserver(fetch);
-	}
+	// Reposition the menu, in case we're adding items to an existing menu.
+	menu.needsArrange();
+	menu.arrangeAndClear();
 }
 
 BOOL LLFolderBridge::hasChildren() const
