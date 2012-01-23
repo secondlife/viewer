@@ -63,7 +63,16 @@ public:
 
 		/// pathname of executable
 		Mandatory<std::string> executable;
-		/// zero or more additional command-line arguments
+		/**
+		 * zero or more additional command-line arguments. Arguments are
+		 * passed through as exactly as we can manage, whitespace and all.
+		 * @note On Windows we manage this by implicitly double-quoting each
+		 * argument while assembling the command line. BUT if a given argument
+		 * is already double-quoted, we don't double-quote it again. Try to
+		 * avoid making use of this, though, as on Mac and Linux explicitly
+		 * double-quoted args will be passed to the child process including
+		 * the double quotes.
+		 */
 		Multiple<std::string> args;
 		/// current working directory, if need it changed
 		Optional<std::string> cwd;
