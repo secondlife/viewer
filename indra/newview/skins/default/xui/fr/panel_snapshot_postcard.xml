@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		Carte postale de [SECOND_LIFE].
+	</string>
+	<string name="default_message">
+		Ouvrez-moi !
+	</string>
+	<string name="upload_message">
+		Envoi en cours...
+	</string>
+	<text name="title">
+		Envoyer par e-mail
+	</text>
+	<button label="Message" name="message_btn"/>
+	<button label="Paramètres" name="settings_btn"/>
+</panel>

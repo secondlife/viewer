@@ -4,7 +4,7 @@
 		Filtrado:
 	</text>
 	<check_box label="Filtrado anisotrópico (más lento si se activa)" name="ani"/>
-	<text name="Antialiasing:">
+	<text name="antialiasing label">
 		Antialiasing:
 	</text>
 	<combo_box label="Antialiasing" name="fsaa" width="94">

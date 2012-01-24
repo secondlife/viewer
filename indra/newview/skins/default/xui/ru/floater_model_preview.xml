@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Ошибка. Проблема при анализе файла DAE – см. подробности в журнале.
 	</string>
+	<string name="status_material_mismatch">
+		Ошибка. Материал модели не входит в эталонную модель.
+	</string>
 	<string name="status_reading_file">
 		Загрузка...
 	</string>
@@ -137,7 +140,7 @@
 				</panel>
 				<panel name="physics analysis">
 					<text name="method_label">
-						Шаг 2. Анализ
+						2 этап. Анализ
 					</text>
 					<text name="analysis_method_label">
 						Метод:

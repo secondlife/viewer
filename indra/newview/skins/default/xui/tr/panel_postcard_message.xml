@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_postcard_message">
+	<text name="to_label">
+		Kime:
+	</text>
+	<text name="name_label">
+		Kimden:
+	</text>
+	<text name="subject_label">
+		Konu:
+	</text>
+	<line_editor label="Konunuzu buraya yazın." name="subject_form"/>
+	<text name="msg_label">
+		İleti:
+	</text>
+	<text_editor name="msg_form">
+		İletinizi buraya yazın.
+	</text_editor>
+	<button label="İptal" name="cancel_btn"/>
+	<button label="Gönder" name="send_btn"/>
+</panel>

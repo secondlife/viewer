@@ -191,13 +191,12 @@ public:
 		return min_dim;
 	}
 
+	F32 getCollapseFactor();
 	void setOrientation(LLLayoutStack::ELayoutOrientation orientation) { mOrientation = orientation; }
 
 protected:
 	LLLayoutPanel(const Params& p);
 	
-	F32 getCollapseFactor();
-
 	bool	mExpandedMinDimSpecified;
 	S32		mExpandedMinDim;
 	

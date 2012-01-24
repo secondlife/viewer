@@ -16,7 +16,7 @@
 		<combo_box.item label="Русский （ロシア語） - ベータ" name="Russian"/>
 		<combo_box.item label="Türkçe （トルコ語） - ベータ" name="Turkish"/>
 		<combo_box.item label="日本語 – ベータ" name="(Japanese)"/>
-		<combo_box.item label="正體中文 （中国語 - 繁体字） - ベータ" name="Traditional Chinese"/>
+		<combo_box.item label="正體中文（簡体字中国語）- ベータ版" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		（再起動後に反映）

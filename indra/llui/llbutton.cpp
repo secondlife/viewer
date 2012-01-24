@@ -589,15 +589,23 @@ void LLButton::getOverlayImageSize(S32& overlay_width, S32& overlay_height)
 // virtual
 void LLButton::draw()
 {
+	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 	bool flash = FALSE;
 
-	if( mFlashing )
+	if( mFlashing)
 	{
-		F32 elapsed = mFlashingTimer.getElapsedTimeF32();
-		S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
-		// flash on or off?
-		flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
+		if ( sEnableButtonFlashing)
+		{
+			F32 elapsed = mFlashingTimer.getElapsedTimeF32();
+			S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
+			// flash on or off?
+			flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
+		}
+		else
+		{ // otherwise just highlight button in flash color
+			flash = true;
+		}
 	}
 
 	bool pressed_by_keyboard = FALSE;

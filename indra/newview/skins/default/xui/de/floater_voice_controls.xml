@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="SPRACHSTEUERUNGEN">
 	<string name="title_nearby">
-		Stimme in der Nähe
+		VOICE-EINSTELLUNGEN
 	</string>
 	<string name="title_group">
-		Gruppengespräch mit [GROUP]
+		GRUPPENGESPRÄCH MIT [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Konferenzgespräch
+		KONFERENZGESPRÄCH
 	</string>
 	<string name="title_peer_2_peer">
-		Gespräch mit [NAME]
+		GESPRÄCH MIT [NAME]
 	</string>
 	<string name="no_one_near">
 		Es ist niemand in der Nähe, der Voice aktiviert hat.

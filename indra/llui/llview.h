@@ -612,6 +612,8 @@ private:
 
 	S32			mNextInsertionOrdinal;
 
+	bool		mInDraw;
+
 	static LLWindow* sWindow;	// All root views must know about their window.
 
 	typedef std::map<std::string, LLView*> default_widget_map_t;
