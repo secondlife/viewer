@@ -13,9 +13,10 @@
     width="833">
   <floater.string name="navmesh_fetch_initial"></floater.string>
   <floater.string name="navmesh_fetch_inprogress">Downloading the navmesh ...</floater.string>
-  <floater.string name="navmesh_fetch_complete">Navmesh received.</floater.string>
-  <floater.string name="navmesh_region_not_enabled">Pathfinding is not enabled for this region</floater.string>
-  <floater.string name="navmesh_library_not_implemented">Cannot find pathing library implementation</floater.string>
+  <floater.string name="navmesh_fetch_complete_available">Navmesh received.</floater.string>
+  <floater.string name="navmesh_fetch_complete_none">No navmesh for region.</floater.string>
+  <floater.string name="navmesh_region_not_enabled">Pathfinding is not enabled for this region.</floater.string>
+  <floater.string name="navmesh_library_not_implemented">Cannot find pathing library implementation.</floater.string>
   <text
       height="13"
       word_wrap="true"

@@ -307,6 +307,18 @@ void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 pTerrainMaterial)
 	mTerrainMaterialD->setValue(LLSD(pTerrainMaterial));
 }
 
+void LLFloaterPathfindingConsole::setHasNavMeshReceived()
+{
+	std::string str = getString("navmesh_fetch_complete_available");
+	mPathfindingStatus->setText((LLStringExplicit)str);
+}
+
+void LLFloaterPathfindingConsole::setHasNoNavMesh()
+{
+	std::string str = getString("navmesh_fetch_complete_none");
+	mPathfindingStatus->setText((LLStringExplicit)str);
+}
+
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mShowNavMeshCheckBox(NULL),
@@ -324,6 +336,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mTerrainMaterialD(NULL),
 	mNavMeshDownloadObserver()
 {
+	mNavMeshDownloadObserver.setPathfindingConsole(this);
 }
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()

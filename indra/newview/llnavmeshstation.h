@@ -31,6 +31,7 @@
 #include "llhandle.h"
 //===============================================================================
 class LLCurlRequest;
+class LLFloaterPathfindingConsole;
 //===============================================================================
 class LLNavMeshObserver
 {
@@ -51,14 +52,19 @@ class LLNavMeshDownloadObserver
 {
 public:
 	//Ctor
-	LLNavMeshDownloadObserver() { mObserverHandle.bind(this); }
+	LLNavMeshDownloadObserver()
+		: mPathfindingConsole(NULL)
+	{ mObserverHandle.bind(this); }
 	//Dtor
 	virtual ~LLNavMeshDownloadObserver() {}
 	//Accessor for the observers handle
 	const LLHandle<LLNavMeshDownloadObserver>& getObserverHandle() const { return mObserverHandle; }
+	LLFloaterPathfindingConsole *getPathfindingConsole() {return mPathfindingConsole;}
+	void                        setPathfindingConsole(LLFloaterPathfindingConsole *pPathfindingConsole) {mPathfindingConsole = pPathfindingConsole;}
 
 protected:
 	LLRootHandle<LLNavMeshDownloadObserver> mObserverHandle;	
+	LLFloaterPathfindingConsole *mPathfindingConsole;
 };
 //===============================================================================
 class LLNavMeshStation : public LLSingleton<LLNavMeshStation>

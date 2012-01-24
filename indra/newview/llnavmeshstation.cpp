@@ -31,10 +31,13 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llsdutil.h"
+#include "llfloaterpathfindingconsole.h"
+
 //===============================================================================
 LLNavMeshStation::LLNavMeshStation()
 {
 }
+
 //===============================================================================
 class LLNavMeshUploadResponder : public LLCurl::Responder
 {
@@ -98,7 +101,6 @@ public:
 	
 	void result( const LLSD& content )
 	{		
-		llinfos<<"Content received"<<llendl;
 		//TODO# some sanity checking
 		if ( content.has("error") )
 		{
@@ -115,10 +117,12 @@ public:
 				{
 					const LLSD::Binary& stuff = content["navmesh_data"].asBinary();
 					LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( stuff );
+					pObserver->getPathfindingConsole()->setHasNavMeshReceived();
 				}
 				else
 				{
 					llwarns<<"no mesh data "<<llendl;
+					pObserver->getPathfindingConsole()->setHasNoNavMesh();
 				}
 			}
 		}	

@@ -98,6 +98,9 @@ public:
 
 	BOOL				  getShowPathToggle() const {return mShowPathCheckBox->get(); }
 
+	void setHasNavMeshReceived();
+	void setHasNoNavMesh();
+
 protected:
 
 private:
