@@ -35,6 +35,7 @@
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lllineeditor.h"
+#include "lltextbase.h"
 #include "lltextvalidate.h"
 #include "llnavmeshstation.h"
 #include "llviewerregion.h"
@@ -94,6 +95,9 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mCharacterTypeRadioGroup = findChild<LLRadioGroup>("character_type");
 	llassert(mCharacterTypeRadioGroup  != NULL);
 	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+
+	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
+	llassert(mPathfindingStatus != NULL);
 
 	mTerrainMaterialA = findChild<LLLineEditor>("terrain_material_a");
 	llassert(mTerrainMaterialA != NULL);
@@ -313,6 +317,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathSelectionRadioGroup(NULL),
 	mCharacterWidthSlider(NULL),
 	mCharacterTypeRadioGroup(NULL),
+	mPathfindingStatus(NULL),
 	mTerrainMaterialA(NULL),
 	mTerrainMaterialB(NULL),
 	mTerrainMaterialC(NULL),
@@ -339,7 +344,11 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	//prep# end test
 	if ( LLPathingLib::getInstance() == NULL )
 	{ 
-		llinfos<<"No implementation of pathing library."<<llendl;
+		std::string str = getString("navmesh_library_not_implemented");
+		LLStyle::Params styleParams;
+		styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+		mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
+		llwarns <<"Errror: cannout find pathing library implementation."<<llendl;
 	}
 	else
 	{		
@@ -348,12 +357,17 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		std::string url = gAgent.getRegion()->getCapability( capability );
 		if ( !url.empty() )
 		{
-			llinfos<<"Region has required caps of type ["<<capability<<"]"<<llendl;
+			std::string str = getString("navmesh_fetch_inprogress");
+			mPathfindingStatus->setText((LLStringExplicit)str);
 			LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
 			LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver.getObserverHandle() );				
 		}				
 		else
 		{
+			std::string str = getString("navmesh_region_not_enabled");
+			LLStyle::Params styleParams;
+			styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+			mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
 			llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
 		}
 	}		

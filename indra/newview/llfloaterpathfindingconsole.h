@@ -37,6 +37,7 @@ class LLSD;
 class LLRadioGroup;
 class LLSliderCtrl;
 class LLLineEditor;
+class LLTextBase;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -131,6 +132,7 @@ private:
 	LLRadioGroup   *mPathSelectionRadioGroup;
 	LLSliderCtrl   *mCharacterWidthSlider;
 	LLRadioGroup   *mCharacterTypeRadioGroup;
+	LLTextBase     *mPathfindingStatus;
 	LLLineEditor   *mTerrainMaterialA;
 	LLLineEditor   *mTerrainMaterialB;
 	LLLineEditor   *mTerrainMaterialC;
