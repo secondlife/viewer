@@ -169,6 +169,10 @@ oz_project-4.build_debug_release_separately = true
 oz_project-4.codeticket_add_context = false
 oz_project-4.email = oz@lindenlab.com
 
+oz_project-7.build_debug_release_separately = true
+oz_project-7.codeticket_add_context = false
+oz_project-7.email = sldev@catznip.com
+
 # =================================================================
 # asset delivery 2010 projects
 # =================================================================
