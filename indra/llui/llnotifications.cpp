@@ -1412,7 +1412,7 @@ void addPathIfExists(const std::string& new_path, std::vector<std::string>& path
 
 bool LLNotifications::loadTemplates()
 {
-	llinfos << "Reading notifications template" << llcont;
+	llinfos << "Reading notifications template" << llendl;
 	std::vector<std::string> search_paths;
 	
 	std::string skin_relative_path = gDirUtilp->getDirDelimiter() + LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + "notifications.xml";
