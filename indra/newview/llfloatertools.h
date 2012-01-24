@@ -33,6 +33,7 @@
 
 class LLButton;
 class LLCheckBoxCtrl;
+class LLComboBox;
 class LLPanelPermissions;
 class LLPanelObject;
 class LLPanelVolume;
@@ -140,6 +141,7 @@ public:
 
 	LLCheckBoxCtrl*	mCheckSnapToGrid;
 	LLButton*		mBtnGridOptions;
+	LLComboBox*		mComboGridMode;
 	LLCheckBoxCtrl*	mCheckStretchUniform;
 	LLCheckBoxCtrl*	mCheckStretchTexture;
 

@@ -423,7 +423,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 		: 0;
 	if (mLabelWidthDirty)
 	{
-		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mSearchableLabel); 
+		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix); 
 		mLabelWidthDirty = false;
 	}
 
