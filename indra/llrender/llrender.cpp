@@ -997,7 +997,7 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 		const glh::matrix4f& mat = gGL.getModelviewMatrix();
 		mat.mult_matrix_dir(dir);
 
-		mSpotDirection.set(direction);
+		mSpotDirection.set(dir.v);
 	}
 }
 
