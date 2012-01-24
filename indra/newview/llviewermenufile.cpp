@@ -528,20 +528,20 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
 			LLPointer<LLImageFormatted> formatted;
-			switch(LLFloaterSnapshot::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat")))
+			LLFloaterSnapshot::ESnapshotFormat fmt = (LLFloaterSnapshot::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+			switch (fmt)
 			{
 			case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
 				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
 				break;
+			default:
+				llwarns << "Unknown local snapshot format: " << fmt << llendl;
 			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
 				formatted = new LLImagePNG;
 				break;
 			case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
 				formatted = new LLImageBMP;
 				break;
-			default:
-				llwarns << "Unknown Local Snapshot format" << llendl;
-				return true;
 			}
 			formatted->enableOverSize() ;
 			formatted->encode(raw, 0);
