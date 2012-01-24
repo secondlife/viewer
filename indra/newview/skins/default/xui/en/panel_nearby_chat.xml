@@ -7,7 +7,7 @@
  name="nearby_chat"
  width="320">
   <layout_stack
-   follows="left|top|right"
+   follows="all"
    height="295"
    layout="topleft"
    left="0"
