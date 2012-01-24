@@ -390,7 +390,8 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
 			if ( !url.empty() )
 			{
-				llinfos<<"Region has required caps of type ["<<capability<<"]"<<llendl;
+				std::string str = getString("navmesh_fetch_inprogress");
+				mPathfindingStatus->setText((LLStringExplicit)str);
 				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
 				int dir = shift[i];
 				LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver[mCurrentMDO].getObserverHandle(), dir );				
