@@ -22,6 +22,7 @@ or specifying its path in the "Editor Path" field.</string>
      layout="topleft"
      left="0"
      mouse_opaque="false"
+     default_tab_group="1"
      name="main_panel"
      right="750"
      top="0">
@@ -196,6 +197,7 @@ or specifying its path in the "Editor Path" field.</string>
          left="10"
          name="name_list"
          right="-10"
+         tab_group="1"
          search_column="1"
          top="80">
             <scroll_list.columns

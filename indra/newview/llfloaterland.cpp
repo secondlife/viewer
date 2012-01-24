@@ -2025,7 +2025,6 @@ void LLPanelLandOptions::refresh()
 		}
 
 		mSeeAvatarsCtrl->set(parcel->getSeeAVs());
-		mSeeAvatarsCtrl->setLabel(getString("see_avs_text"));
 		mSeeAvatarsCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 

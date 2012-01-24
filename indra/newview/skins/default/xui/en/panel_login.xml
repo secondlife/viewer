@@ -48,7 +48,6 @@ name="login"
 layout="topleft"
 width="705"
 min_width="705"
-user_resize="false"
 height="80">
 <text
 follows="left|bottom"
@@ -165,7 +164,6 @@ follows="right|bottom"
 name="links"
 width="205"
 min_width="205"
-user_resize="false"
 height="80">
    <text
 follows="right|bottom"
