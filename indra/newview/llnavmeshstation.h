@@ -31,7 +31,6 @@
 #include "llhandle.h"
 //===============================================================================
 class LLCurlRequest;
-class LLMessageSystem;
 //===============================================================================
 class LLNavMeshObserver
 {
@@ -73,8 +72,6 @@ public:
 	void setNavMeshUploadURL( std::string& url ) { mNavMeshUploadURL = url; }
 	//Setter for the navmesh download url
 	void setNavMeshDownloadURL( std::string& url ) { mNavMeshDownloadURL = url; }
-	//Callback to handle the requested src data for this regions navmesh src
-	static void processNavMeshSrc( LLMessageSystem* msg, void** );
 	//Initiate download of the navmesh source from the server
 	void downloadNavMeshSrc( const LLHandle<LLNavMeshDownloadObserver>& observerHandle );
 
