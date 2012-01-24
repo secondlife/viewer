@@ -1796,7 +1796,10 @@ void LLViewerRegion::getNeighboringRegions( std::vector<LLViewerRegion*>& unique
 {
 	mImpl->mLandp->getNeighboringRegions( uniqueRegions );
 }
-
+void LLViewerRegion::getNeighboringRegionsStatus( std::vector<S32>& regions )
+{
+	mImpl->mLandp->getNeighboringRegionsStatus( regions );
+}
 void LLViewerRegion::showReleaseNotes()
 {
 	std::string url = this->getCapability("ServerReleaseNotes");

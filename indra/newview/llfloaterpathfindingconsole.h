@@ -141,7 +141,8 @@ private:
 	LLLineEditor   *mTerrainMaterialC;
 	LLLineEditor   *mTerrainMaterialD;
 
-	LLNavMeshDownloadObserver mNavMeshDownloadObserver;
+	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
+	int							mCurrentMDO;
 
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;

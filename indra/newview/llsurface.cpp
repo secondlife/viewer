@@ -346,6 +346,19 @@ void LLSurface::getNeighboringRegions( std::vector<LLViewerRegion*>& uniqueRegio
 	}	
 }
 
+
+void LLSurface::getNeighboringRegionsStatus( std::vector<S32>& regions )
+{
+	S32 i;
+	for (i = 0; i < 8; i++)
+	{
+		if ( mNeighbors[i] != NULL )
+		{
+			regions.push_back( i );
+		}
+	}	
+}
+
 void LLSurface::connectNeighbor(LLSurface *neighborp, U32 direction)
 {
 	S32 i;

@@ -54,6 +54,8 @@
 #define XUI_CHARACTER_TYPE_C 3
 #define XUI_CHARACTER_TYPE_D 4
 
+const int CURRENT_REGION = 99;
+const int MAX_OBSERVERS = 10;
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
 //---------------------------------------------------------------------------
@@ -333,10 +335,12 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mTerrainMaterialA(NULL),
 	mTerrainMaterialB(NULL),
 	mTerrainMaterialC(NULL),
-	mTerrainMaterialD(NULL),
-	mNavMeshDownloadObserver()
+	mTerrainMaterialD(NULL)
 {
-	mNavMeshDownloadObserver.setPathfindingConsole(this);
+	for (int i=0;i<MAX_OBSERVERS;++i)
+	{
+		mNavMeshDownloadObserver[i].setPathfindingConsole(this);
+	}
 }
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
@@ -365,23 +369,41 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	}
 	else
 	{		
+		mCurrentMDO = 0;
 		//make sure the region is essentially enabled for navmesh support
 		std::string capability = "RetrieveNavMeshSrc";
-		std::string url = gAgent.getRegion()->getCapability( capability );
-		if ( !url.empty() )
+
+		//prep# neighboring navmesh support proto
+		LLViewerRegion* pCurrentRegion = gAgent.getRegion();
+		std::vector<LLViewerRegion*> regions;
+		regions.push_back( pCurrentRegion );
+		//pCurrentRegion->getNeighboringRegions( regions );
+
+		std::vector<int> shift;
+		shift.push_back( CURRENT_REGION );
+		//pCurrentRegion->getNeighboringRegionsStatus( shift );
+
+		int regionCnt = regions.size();
+		for ( int i=0; i<regionCnt; ++i )
 		{
-			std::string str = getString("navmesh_fetch_inprogress");
-			mPathfindingStatus->setText((LLStringExplicit)str);
-			LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
-			LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver.getObserverHandle() );				
-		}				
-		else
-		{
-			std::string str = getString("navmesh_region_not_enabled");
-			LLStyle::Params styleParams;
-			styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
-			mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
-			llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
+			std::string url = regions[i]->getCapability( capability );
+
+			if ( !url.empty() )
+			{
+				llinfos<<"Region has required caps of type ["<<capability<<"]"<<llendl;
+				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
+				int dir = shift[i];
+				LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver[mCurrentMDO].getObserverHandle(), dir );				
+				++mCurrentMDO;
+			}				
+			else
+			{
+				std::string str = getString("navmesh_region_not_enabled");
+				LLStyle::Params styleParams;
+				styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+				mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
+				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
+			}
 		}
 	}		
 }
