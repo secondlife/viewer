@@ -197,6 +197,8 @@ private:
 
 	static LLMutex* sHandleMutexp ;
 	static S32      sTotalHandles ;
+public:
+	static bool     sNotQuitting;
 };
 
 class LLCurl::Easy
