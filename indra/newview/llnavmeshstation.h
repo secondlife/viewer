@@ -37,14 +37,19 @@ class LLNavMeshObserver
 {
 public:
 	//Ctor
-	LLNavMeshObserver() { mObserverHandle.bind(this); }
+	LLNavMeshObserver()
+		: mPathfindingConsole(NULL)
+	{ mObserverHandle.bind(this); }
 	//Dtor
 	virtual ~LLNavMeshObserver() {}
 	//Accessor for the observers handle
 	const LLHandle<LLNavMeshObserver>& getObserverHandle() const { return mObserverHandle; }
+	LLFloaterPathfindingConsole *getPathfindingConsole() {return mPathfindingConsole;}
+	void                        setPathfindingConsole(LLFloaterPathfindingConsole *pPathfindingConsole) {mPathfindingConsole = pPathfindingConsole;}
 
 protected:
 	LLRootHandle<LLNavMeshObserver> mObserverHandle;	
+	LLFloaterPathfindingConsole     *mPathfindingConsole;
 };
 //===============================================================================
 class LLNavMeshDownloadObserver

@@ -31,6 +31,8 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llsdutil.h"
+#include "llfloaterpathfindingconsole.h"
+
 //===============================================================================
 LLNavMeshStation::LLNavMeshStation()
 {
@@ -69,10 +71,12 @@ public:
 				{
 					const LLSD::Binary& stuff = content["navmesh_data"].asBinary();
 					LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( stuff, mDir );
+					pObserver->getPathfindingConsole()->setHasNavMeshReceived();
 				}
 				else
 				{
 					llwarns<<"no mesh data "<<llendl;
+					pObserver->getPathfindingConsole()->setHasNoNavMesh();
 				}
 			}
 		}	
