@@ -205,14 +205,13 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	rec.mGLName = name;
 	rec.mClientData = buffer;
 
-	sBytesPooled += size;
-	
 	if (!LLVertexBuffer::sDisableVBOMapping && mUsage == GL_DYNAMIC_DRAW_ARB)
 	{
 		glDeleteBuffersARB(1, &rec.mGLName);
 	}
 	else
 	{
+		sBytesPooled += size;
 		mFreeList[i].push_back(rec);
 	}
 }
