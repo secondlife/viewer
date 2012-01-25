@@ -218,6 +218,7 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
+    llfloateroutbox.cpp
     llfloaterpathfindingconsole.cpp
     llfloaterpathfindinglinksets.cpp
     llfloaterpay.cpp
@@ -318,6 +319,8 @@ set(viewer_SOURCE_FILES
     llmaniprotate.cpp
     llmanipscale.cpp
     llmaniptranslate.cpp
+    llmarketplacefunctions.cpp
+    llmarketplacenotifications.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
@@ -375,7 +378,6 @@ set(viewer_SOURCE_FILES
     llpanelmaininventory.cpp
     llpanelmarketplaceinbox.cpp
     llpanelmarketplaceinboxinventory.cpp
-    llpanelmarketplaceoutbox.cpp
     llpanelmarketplaceoutboxinventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
@@ -775,6 +777,7 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloaterobjectweights.h
     llfloateropenobject.h
+    llfloateroutbox.h
     llfloaterpathfindingconsole.h
     llfloaterpathfindinglinksets.h
     llfloaterpay.h
@@ -875,6 +878,8 @@ set(viewer_HEADER_FILES
     llmaniprotate.h
     llmanipscale.h
     llmaniptranslate.h
+    llmarketplacefunctions.h
+    llmarketplacenotifications.h
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
@@ -926,7 +931,6 @@ set(viewer_HEADER_FILES
     llpanelmaininventory.h
     llpanelmarketplaceinbox.h
     llpanelmarketplaceinboxinventory.h
-    llpanelmarketplaceoutbox.h
     llpanelmarketplaceoutboxinventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
@@ -1518,8 +1522,8 @@ if (WINDOWS)
         # *TODO -reenable this once we get server usage sorted out
         #LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:\"__tcmalloc\""
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS /INCLUDE:__tcmalloc "
-  		LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-  		LINK_FLAGS_RELEASE "/FORCE:MULTIPLE"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE"
         )
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(

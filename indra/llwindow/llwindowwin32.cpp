@@ -1747,7 +1747,7 @@ void LLWindowWin32::gatherInput()
 
 	LLMemType m1(LLMemType::MTYPE_GATHER_INPUT);
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && msg_count < MAX_MESSAGE_PER_UPDATE)
+	while ((msg_count < MAX_MESSAGE_PER_UPDATE) && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		mCallbacks->handlePingWatchdog(this, "Main:TranslateGatherInput");
 		TranslateMessage(&msg);

@@ -83,6 +83,7 @@
 #include "llfloaternotificationsconsole.h"
 #include "llfloaterobjectweights.h"
 #include "llfloateropenobject.h"
+#include "llfloateroutbox.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
@@ -240,6 +241,7 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("object_weights", "floater_object_weights.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterObjectWeights>);
 	LLFloaterReg::add("openobject", "floater_openobject.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOpenObject>);
+	LLFloaterReg::add("outbox", "floater_merchant_outbox.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterOutbox>);
 	LLFloaterReg::add("outgoing_call", "floater_outgoing_call.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLOutgoingCallDialog>);
 	LLFloaterPayUtil::registerFloater();
 
