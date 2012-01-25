@@ -91,6 +91,7 @@ std::string LLCurl::sCAFile;
 LLCurlThread* LLCurl::sCurlThread = NULL ;
 LLMutex* LLCurl::sHandleMutexp = NULL ;
 S32      LLCurl::sTotalHandles = 0 ;
+bool     LLCurl::sNotQuitting = true;
 
 void check_curl_code(CURLcode code)
 {
@@ -319,6 +320,14 @@ LLCurl::Easy::~Easy()
 	--gCurlEasyCount;
 	curl_slist_free_all(mHeaders);
 	for_each(mStrings.begin(), mStrings.end(), DeletePointerArray());
+
+	if (mResponder && LLCurl::sNotQuitting) //aborted
+	{	
+		std::string reason("Request timeout, aborted.") ;
+		mResponder->completedRaw(408, //HTTP_REQUEST_TIME_OUT, timeout, abort
+			reason, mChannels, mOutput);		
+	}
+	mResponder = NULL;
 }
 
 void LLCurl::Easy::resetState()
@@ -1462,6 +1471,8 @@ void LLCurl::initClass(bool multi_threaded)
 
 void LLCurl::cleanupClass()
 {
+	sNotQuitting = false; //set quitting
+
 	//shut down curl thread
 	while(1)
 	{
