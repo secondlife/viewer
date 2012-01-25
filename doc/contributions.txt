@@ -595,6 +595,7 @@ Jonathan Yap
 	STORM-1719
 	STORM-1712
 	STORM-1728
+	STORM-1804
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -630,6 +631,7 @@ Kitty Barnett
 	STORM-1001
 	STORM-1175
     VWR-24217
+	STORM-1804
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
