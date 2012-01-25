@@ -55,10 +55,10 @@ if(WINDOWS)
         glod.dll
         )
 
-    if(USE_GOOGLE_PERFTOOLS)
+    if(USE_TCMALLOC)
       set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
-    endif(USE_GOOGLE_PERFTOOLS)
+    endif(USE_TCMALLOC)
 
     if (FMOD)
       set(debug_files ${debug_files} fmod.dll)
