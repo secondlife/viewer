@@ -855,54 +855,6 @@
           </map>
         </map>
       </map>
-      <key>havok</key>
-      <map>
-        <key>license</key>
-        <string>havok-ares</string>
-        <key>license_file</key>
-        <string>LICENSES/havok.txt</string>
-        <key>name</key>
-        <string>havok</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>286741271be3dc3473af3044ad6d002e</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok/rev/224189/arch/Darwin/installer/havok-0.1-darwin-20110316.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1b6c85fc7705779cd2c2b02f7437fb24</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok/rev/224189/arch/Linux/installer/havok-0.1-linux-20110316.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>534c5217692bef44a60a3cf26ccb08d9</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-havok-source_Windows-vs2010/rev/245961/arch/CYGWIN/installer/havok_source-2011.2-windows-20111130.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
       <key>jpeglib</key>
       <map>
         <key>license</key>
@@ -1143,36 +1095,24 @@
           </map>
         </map>
       </map>
-      <key>llconvexdecomposition</key>
+      <key>llphysicsextensions</key>
       <map>
         <key>license</key>
-        <string>llconvexdecomposition</string>
+        <string>llphysicsextensions</string>
         <key>license_file</key>
-        <string>on_file</string>
+        <string>LICENSES/llphysicsextensions.txt</string>
         <key>name</key>
-        <string>llconvexdecomposition</string>
+        <string>llphysicsextensions</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>362654a472ef7368d4c803ae3fb89d95</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/238959/arch/Darwin/installer/llconvexdecomposition-0.1-darwin-20110819.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c7801d899daec5338fbe95053255b7e7</string>
+              <string>c863c80eb41b330f978a8440a7c16c1b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/238959/arch/Linux/installer/llconvexdecomposition-0.1-linux-20110819.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248410/arch/Linux/installer/llphysicsextensions-0.1-linux-20120125.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1182,93 +1122,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6ecf2f85f03c5ae87fe45769566a5660</string>
+              <string>7f61547aa706e28504b2bab532f065d9</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-llconvexdecomposition/rev/238959/arch/CYGWIN/installer/llconvexdecomposition-0.1-windows-20110819.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>llconvexdecompositionstub</key>
-      <map>
-        <key>license</key>
-        <string>lgpl</string>
-        <key>license_file</key>
-        <string>LICENSES/LLConvexDecompositionStubLicense.txt</string>
-        <key>name</key>
-        <string>llconvexdecompositionstub</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a5f53e09f67271fd50f1131ffdda9d27</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/238958/arch/Darwin/installer/llconvexdecompositionstub-0.3-darwin-20110819.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>0006a964f1497f55a5f181b7042d2d22</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/238958/arch/Linux/installer/llconvexdecompositionstub-0.3-linux-20110819.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b859e7e3bb03ebb467f0309f46422995</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llconvexdecompositionstub/rev/238958/arch/CYGWIN/installer/llconvexdecompositionstub-0.3-windows-20110819.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-      </map>
-      <key>llpathinglib</key>
-      <map>
-        <key>license</key>
-        <string>llpathinglib</string>
-        <key>license_file</key>
-        <string>LICENSES/llpathinglib.txt</string>
-        <key>name</key>
-        <string>llpathinglib</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2acaf6db01ba22e12b8e3a66fb4d647b</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248387/arch/Linux/installer/llpathinglibrary-0.1-linux-20120125.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ff8541aecfcb301d6dcb5f8a59f83a91</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248387/arch/CYGWIN/installer/llpathinglibrary-0.1-windows-20120125.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248410/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120125.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
