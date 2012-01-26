@@ -760,6 +760,7 @@ void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, 
 	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(speaker_id);
 	if (speakerp.isNull())
 	{
+		LL_WARNS("Speakers") << "Speaker " << speaker_id << " not found" << llendl;
 		return;
 	}
 	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mParent.mAvatarList->getItemByValue(speaker_id));
