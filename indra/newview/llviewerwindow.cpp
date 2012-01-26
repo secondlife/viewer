@@ -203,7 +203,7 @@
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
-#include "llpathinglib.h"
+#include "llphysicsextensions.h"
 #include "llfloaterpathfindingconsole.h"
 
 #if LL_WINDOWS

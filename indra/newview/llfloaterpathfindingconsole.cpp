@@ -40,7 +40,7 @@
 #include "llnavmeshstation.h"
 #include "llviewerregion.h"
 
-#include "llpathinglib.h"
+#include "llphysicsextensions.h"
 
 #define XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY 1
 #define XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY 2

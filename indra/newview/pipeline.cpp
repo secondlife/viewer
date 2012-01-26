@@ -104,7 +104,7 @@
 #include "lltoolpie.h"
 #include "llcurl.h"
 #include "llnotifications.h"
-#include "llpathinglib.h"
+#include "llphysicsextensions.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02

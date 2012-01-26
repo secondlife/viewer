@@ -27,7 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llnavmeshstation.h"
 #include "llcurl.h"
-#include "llpathinglib.h"
+#include "llphysicsextensions.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llsdutil.h"

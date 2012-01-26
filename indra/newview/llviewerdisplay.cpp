@@ -77,7 +77,7 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
-#include "llpathinglib.h"
+#include "llphysicsextensions.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterreg.h"
 

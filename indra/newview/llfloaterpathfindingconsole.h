@@ -30,7 +30,7 @@
 
 #include "llfloater.h"
 #include "llnavmeshstation.h"
-#include "llpathinglib.h"
+#include "llphysicsextensions.h"
 #include "llcheckboxctrl.h"
 
 class LLSD;
