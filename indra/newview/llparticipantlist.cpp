@@ -390,7 +390,10 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 		{
 			const LLPointer<LLSpeaker>& speakerp = *it;
 
-			update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
+			if (speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
+			{
+				update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
+			}
 		}
 	}
 }
