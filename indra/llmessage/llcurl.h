@@ -163,7 +163,7 @@ public:
 	/**
 	 * @ brief Initialize LLCurl class
 	 */
-	static void initClass(bool multi_threaded = false);
+	static void initClass(F32 curl_reuest_timeout = 120.f, S32 max_number_handles = 256, bool multi_threaded = false);
 
 	/**
 	 * @ brief Cleanup LLCurl class
@@ -197,8 +197,10 @@ private:
 
 	static LLMutex* sHandleMutexp ;
 	static S32      sTotalHandles ;
+	static S32      sMaxHandles;
 public:
 	static bool     sNotQuitting;
+	static F32      sCurlRequestTimeOut;	
 };
 
 class LLCurl::Easy

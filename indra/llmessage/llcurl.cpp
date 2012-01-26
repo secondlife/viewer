@@ -75,9 +75,6 @@ static const S32 MULTI_PERFORM_CALL_REPEAT	= 5;
 static const S32 CURL_REQUEST_TIMEOUT = 30; // seconds per operation
 static const S32 MAX_ACTIVE_REQUEST_COUNT = 100;
 
-static const F32 DEFAULT_MULTI_IDLE_TIME = 120.0f ; //seconds
-static const S32 MAX_NUM_OF_HANDLES = 256 ; //max number of handles, (multi handles and easy handles combined).
-
 // DEBUG //
 S32 gCurlEasyCount = 0;
 S32 gCurlMultiCount = 0;
@@ -92,6 +89,8 @@ LLCurlThread* LLCurl::sCurlThread = NULL ;
 LLMutex* LLCurl::sHandleMutexp = NULL ;
 S32      LLCurl::sTotalHandles = 0 ;
 bool     LLCurl::sNotQuitting = true;
+F32      LLCurl::sCurlRequestTimeOut = 120.f; //seonds
+S32      LLCurl::sMaxHandles = 256; //max number of handles, (multi handles and easy handles combined).
 
 void check_curl_code(CURLcode code)
 {
@@ -573,9 +572,9 @@ LLCurl::Multi::Multi(F32 idle_time_out)
 		LLCurl::getCurlThread()->addMulti(this) ;
 
 		mIdleTimeOut = idle_time_out ;
-		if(mIdleTimeOut < DEFAULT_MULTI_IDLE_TIME)
+		if(mIdleTimeOut < LLCurl::sCurlRequestTimeOut)
 		{
-			mIdleTimeOut = DEFAULT_MULTI_IDLE_TIME ;
+			mIdleTimeOut = LLCurl::sCurlRequestTimeOut ;
 		}
 
 		++gCurlMultiCount;
@@ -1442,8 +1441,11 @@ unsigned long LLCurl::ssl_thread_id(void)
 }
 #endif
 
-void LLCurl::initClass(bool multi_threaded)
+void LLCurl::initClass(F32 curl_reuest_timeout, S32 max_number_handles, bool multi_threaded)
 {
+	sCurlRequestTimeOut = curl_reuest_timeout ; //seconds
+	sMaxHandles = max_number_handles ; //max number of handles, (multi handles and easy handles combined).
+
 	// Do not change this "unless you are familiar with and mean to control 
 	// internal operations of libcurl"
 	// - http://curl.haxx.se/libcurl/c/curl_global_init.html
@@ -1512,7 +1514,7 @@ CURLM* LLCurl::newMultiHandle()
 {
 	LLMutexLock lock(sHandleMutexp) ;
 
-	if(sTotalHandles + 1 > MAX_NUM_OF_HANDLES)
+	if(sTotalHandles + 1 > sMaxHandles)
 	{
 		llwarns << "no more handles available." << llendl ;
 		return NULL ; //failed
@@ -1545,7 +1547,7 @@ CURL*  LLCurl::newEasyHandle()
 {
 	LLMutexLock lock(sHandleMutexp) ;
 
-	if(sTotalHandles + 1 > MAX_NUM_OF_HANDLES)
+	if(sTotalHandles + 1 > sMaxHandles)
 	{
 		llwarns << "no more handles available." << llendl ;
 		return NULL ; //failed
