@@ -62,6 +62,7 @@ class MyVector4a
 	LLQuad mQ;
 } LL_ALIGN_POSTFIX(16);
 
+
 // Verify that aligned allocators perform as advertised.
 template<> template<>
 void alignment_test_object_t::test<1>()
