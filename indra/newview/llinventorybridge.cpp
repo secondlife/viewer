@@ -1324,8 +1324,7 @@ void LLItemBridge::selectItem()
 	LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 	if(item && !item->isFinished())
 	{
-		item->fetchFromServer();
-		//LLInventoryModelBackgroundFetch::instance().start(item->getUUID(), false);
+		LLInventoryModelBackgroundFetch::instance().start(item->getUUID(), false);
 	}
 }
 
