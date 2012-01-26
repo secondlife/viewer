@@ -55,9 +55,14 @@ class LLVBOPool
 {
 public:
 	static U32 sBytesPooled;
+	
+	LLVBOPool(U32 vboUsage, U32 vboType)
+		: mUsage(vboUsage)
+		, mType(vboType)
+	{}
 
-	U32 mUsage;
-	U32 mType;
+	const U32 mUsage;
+	const U32 mType;
 
 	//size MUST be a power of 2
 	volatile U8* allocate(U32& name, U32 size);
@@ -103,6 +108,7 @@ public:
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
+		: mUsage(rhs.mUsage)
 	{
 		*this = rhs;
 	}
@@ -201,7 +207,7 @@ protected:
 	void 	destroyGLIndices();
 	void	updateNumVerts(S32 nverts);
 	void	updateNumIndices(S32 nindices); 
-	virtual BOOL	useVBOs() const;
+	bool	useVBOs() const;
 	void	unmapBuffer();
 		
 public:
@@ -274,18 +280,24 @@ protected:
 	S32		mSize;
 	S32		mIndicesSize;
 	U32		mTypeMask;
-	S32		mUsage;			// GL usage
+
+	const S32		mUsage;			// GL usage
+	
 	U32		mGLBuffer;		// GL VBO handle
 	U32		mGLIndices;		// GL IBO handle
 	U32		mGLArray;		// GL VAO handle
 	
 	volatile U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	volatile U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
-	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
-	BOOL	mIndexLocked;			// if TRUE, index buffer is being or has been written to in client memory
-	BOOL	mFinal;			// if TRUE, buffer can not be mapped again
-	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
-	mutable BOOL	mMappable;     // if TRUE, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
+
+	U32		mMappedDataUsingVBOs : 1;
+	U32		mMappedIndexDataUsingVBOs : 1;
+	U32		mVertexLocked : 1;			// if TRUE, vertex buffer is being or has been written to in client memory
+	U32		mIndexLocked : 1;			// if TRUE, index buffer is being or has been written to in client memory
+	U32		mFinal : 1;			// if TRUE, buffer can not be mapped again
+	U32		mEmpty : 1;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
+	
+	mutable bool	mMappable;     // if TRUE, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;
@@ -296,6 +308,7 @@ protected:
 	void placeFence() const;
 	void waitFence() const;
 
+	static S32 determineUsage(S32 usage);
 
 private:
 	static LLPrivateMemoryPool* sPrivatePoolp ;
