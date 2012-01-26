@@ -65,19 +65,19 @@ U32 LLVertexBuffer::sSetCount = 0;
 S32 LLVertexBuffer::sCount = 0;
 S32 LLVertexBuffer::sGLCount = 0;
 S32 LLVertexBuffer::sMappedCount = 0;
-BOOL LLVertexBuffer::sDisableVBOMapping = FALSE;
-BOOL LLVertexBuffer::sEnableVBOs = TRUE;
+bool LLVertexBuffer::sDisableVBOMapping = false;
+bool LLVertexBuffer::sEnableVBOs = true;
 U32 LLVertexBuffer::sGLRenderBuffer = 0;
 U32 LLVertexBuffer::sGLRenderArray = 0;
 U32 LLVertexBuffer::sGLRenderIndices = 0;
 U32 LLVertexBuffer::sLastMask = 0;
-BOOL LLVertexBuffer::sVBOActive = FALSE;
-BOOL LLVertexBuffer::sIBOActive = FALSE;
+bool LLVertexBuffer::sVBOActive = false;
+bool LLVertexBuffer::sIBOActive = false;
 U32 LLVertexBuffer::sAllocatedBytes = 0;
-BOOL LLVertexBuffer::sMapped = FALSE;
-BOOL LLVertexBuffer::sUseStreamDraw = TRUE;
-BOOL LLVertexBuffer::sUseVAO = FALSE;
-BOOL LLVertexBuffer::sPreferStreamDraw = FALSE;
+bool LLVertexBuffer::sMapped = false;
+bool LLVertexBuffer::sUseStreamDraw = true;
+bool LLVertexBuffer::sUseVAO = false;
+bool LLVertexBuffer::sPreferStreamDraw = false;
 
 const U32 FENCE_WAIT_TIME_NANOSECONDS = 10000;  //1 ms
 
@@ -707,18 +707,18 @@ void LLVertexBuffer::unbind()
 #endif
 		sGLRenderArray = 0;
 		sGLRenderIndices = 0;
-		sIBOActive = FALSE;
+		sIBOActive = false;
 	}
 
 	if (sVBOActive)
 	{
 		glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		sVBOActive = FALSE;
+		sVBOActive = false;
 	}
 	if (sIBOActive)
 	{
 		glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-		sIBOActive = FALSE;
+		sIBOActive = false;
 	}
 
 	sGLRenderBuffer = 0;
@@ -1443,7 +1443,7 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 				log_glerror();
 
 				//check the availability of memory
-				LLMemory::logMemoryInfo(TRUE) ; 
+				LLMemory::logMemoryInfo(true) ; 
 			
 				if(mMappable)
 				{			
@@ -1621,7 +1621,7 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 		if (!mMappedIndexData)
 		{
 			log_glerror();
-			LLMemory::logMemoryInfo(TRUE) ;
+			LLMemory::logMemoryInfo(true) ;
 
 			if(mMappable)
 			{
@@ -1956,7 +1956,7 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 		glBindBufferARB(GL_ARRAY_BUFFER_ARB, mGLBuffer);
 		sGLRenderBuffer = mGLBuffer;
 		sBindCount++;
-		sVBOActive = TRUE;
+		sVBOActive = true;
 
 		if (mGLArray)
 		{
@@ -1988,7 +1988,7 @@ bool LLVertexBuffer::bindGLIndices(bool force_bind)
 		sGLRenderIndices = mGLIndices;
 		stop_glerror();
 		sBindCount++;
-		sIBOActive = TRUE;
+		sIBOActive = true;
 		ret = true;
 	}
 
@@ -2101,7 +2101,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 #endif
 			sGLRenderArray = 0;
 			sGLRenderIndices = 0;
-			sIBOActive = FALSE;
+			sIBOActive = false;
 		}
 
 		if (mGLBuffer)
@@ -2110,7 +2110,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 				sBindCount++;
-				sVBOActive = FALSE;
+				sVBOActive = false;
 				setup = true; // ... or a VBO is deactivated
 			}
 			if (sGLRenderBuffer != mGLBuffer)
@@ -2125,7 +2125,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 				sBindCount++;
-				sIBOActive = FALSE;
+				sIBOActive = false;
 			}
 			
 			sGLRenderIndices = mGLIndices;

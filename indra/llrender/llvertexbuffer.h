@@ -124,9 +124,9 @@ public:
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
 
-	static BOOL	sUseStreamDraw;
-	static BOOL sUseVAO;
-	static BOOL	sPreferStreamDraw;
+	static bool	sUseStreamDraw;
+	static bool sUseVAO;
+	static bool	sPreferStreamDraw;
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
@@ -245,8 +245,8 @@ public:
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	
 
-	BOOL isEmpty() const					{ return mEmpty; }
-	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
+	bool isEmpty() const					{ return mEmpty; }
+	bool isLocked() const					{ return mVertexLocked || mIndexLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	
@@ -260,7 +260,7 @@ public:
 	volatile U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
-	BOOL isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? TRUE : FALSE; }
+	bool isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? true : false; }
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
@@ -292,12 +292,12 @@ protected:
 
 	U32		mMappedDataUsingVBOs : 1;
 	U32		mMappedIndexDataUsingVBOs : 1;
-	U32		mVertexLocked : 1;			// if TRUE, vertex buffer is being or has been written to in client memory
-	U32		mIndexLocked : 1;			// if TRUE, index buffer is being or has been written to in client memory
-	U32		mFinal : 1;			// if TRUE, buffer can not be mapped again
-	U32		mEmpty : 1;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
+	U32		mVertexLocked : 1;			// if true, vertex buffer is being or has been written to in client memory
+	U32		mIndexLocked : 1;			// if true, index buffer is being or has been written to in client memory
+	U32		mFinal : 1;			// if true, buffer can not be mapped again
+	U32		mEmpty : 1;			// if true, client buffer is empty (or NULL). Old values have been discarded.	
 	
-	mutable bool	mMappable;     // if TRUE, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
+	mutable bool	mMappable;     // if true, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;
@@ -317,18 +317,18 @@ public:
 	static S32 sCount;
 	static S32 sGLCount;
 	static S32 sMappedCount;
-	static BOOL sMapped;
+	static bool sMapped;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
-	static BOOL sDisableVBOMapping; //disable glMapBufferARB
-	static BOOL sEnableVBOs;
+	static bool sDisableVBOMapping; //disable glMapBufferARB
+	static bool sEnableVBOs;
 	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
 	static U32 sGLRenderArray;
 	static U32 sGLRenderIndices;
-	static BOOL sVBOActive;
-	static BOOL sIBOActive;
+	static bool sVBOActive;
+	static bool sIBOActive;
 	static U32 sLastMask;
 	static U32 sAllocatedBytes;
 	static U32 sBindCount;
