@@ -75,10 +75,6 @@ public:
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
 
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	BOOL               isWalkabilityCoefficientsF32() const;
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-
 	S32                getA() const;
 	void               setA(S32 pA);
 
@@ -91,9 +87,14 @@ public:
 	S32                getD() const;
 	void               setD(S32 pD);
 
+	LLSD               getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
+
 protected:
 
 private:
+	static const S32 MIN_WALKABILITY_VALUE;
+	static const S32 MAX_WALKABILITY_VALUE;
+
 	LLUUID      mUUID;
 	std::string mName;
 	std::string mDescription;

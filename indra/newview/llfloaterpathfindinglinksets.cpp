@@ -94,6 +94,9 @@ private:
 // PathfindingLinkset
 //---------------------------------------------------------------------------
 
+const S32 PathfindingLinkset::MIN_WALKABILITY_VALUE(0);
+const S32 PathfindingLinkset::MAX_WALKABILITY_VALUE(100);
+
 PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNavMeshItem)
 	: mUUID(pUUID),
 	mName(),
@@ -105,10 +108,10 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mIsWalkabilityCoefficientsF32(false),
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	mA(0),
-	mB(0),
-	mC(0),
-	mD(0)
+	mA(MIN_WALKABILITY_VALUE),
+	mB(MIN_WALKABILITY_VALUE),
+	mC(MIN_WALKABILITY_VALUE),
+	mD(MIN_WALKABILITY_VALUE)
 {
 	llassert(pNavMeshItem.has("name"));
 	llassert(pNavMeshItem.get("name").isString());
@@ -162,50 +165,50 @@ PathfindingLinkset::PathfindingLinkset(const std::string &pUUID, const LLSD& pNa
 		// New server-side storage will be integer
 		llassert(pNavMeshItem.get("A").isInteger());
 		mA = pNavMeshItem.get("A").asInteger();
-		llassert(mA >= 0);
-		llassert(mA <= 100);
+		llassert(mA >= MIN_WALKABILITY_VALUE);
+		llassert(mA <= MAX_WALKABILITY_VALUE);
 
 		llassert(pNavMeshItem.has("B"));
 		llassert(pNavMeshItem.get("B").isInteger());
 		mB = pNavMeshItem.get("B").asInteger();
-		llassert(mB >= 0);
-		llassert(mB <= 100);
+		llassert(mB >= MIN_WALKABILITY_VALUE);
+		llassert(mB <= MAX_WALKABILITY_VALUE);
 
 		llassert(pNavMeshItem.has("C"));
 		llassert(pNavMeshItem.get("C").isInteger());
 		mC = pNavMeshItem.get("C").asInteger();
-		llassert(mC >= 0);
-		llassert(mC <= 100);
+		llassert(mC >= MIN_WALKABILITY_VALUE);
+		llassert(mC <= MAX_WALKABILITY_VALUE);
 
 		llassert(pNavMeshItem.has("D"));
 		llassert(pNavMeshItem.get("D").isInteger());
 		mD = pNavMeshItem.get("D").asInteger();
-		llassert(mD >= 0);
-		llassert(mD <= 100);
+		llassert(mD >= MIN_WALKABILITY_VALUE);
+		llassert(mD <= MAX_WALKABILITY_VALUE);
 	}
 #else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	llassert(pNavMeshItem.get("A").isInteger());
 	mA = pNavMeshItem.get("A").asInteger();
-	llassert(mA >= 0);
-	llassert(mA <= 100);
+	llassert(mA >= MIN_WALKABILITY_VALUE);
+	llassert(mA <= MAX_WALKABILITY_VALUE);
 
 	llassert(pNavMeshItem.has("B"));
 	llassert(pNavMeshItem.get("B").isInteger());
 	mB = pNavMeshItem.get("B").asInteger();
-	llassert(mB >= 0);
-	llassert(mB <= 100);
+	llassert(mB >= MIN_WALKABILITY_VALUE);
+	llassert(mB <= MAX_WALKABILITY_VALUE);
 
 	llassert(pNavMeshItem.has("C"));
 	llassert(pNavMeshItem.get("C").isInteger());
 	mC = pNavMeshItem.get("C").asInteger();
-	llassert(mC >= 0);
-	llassert(mC <= 100);
+	llassert(mC >= MIN_WALKABILITY_VALUE);
+	llassert(mC <= MAX_WALKABILITY_VALUE);
 
 	llassert(pNavMeshItem.has("D"));
 	llassert(pNavMeshItem.get("D").isInteger());
 	mD = pNavMeshItem.get("D").asInteger();
-	llassert(mD >= 0);
-	llassert(mD <= 100);
+	llassert(mD >= MIN_WALKABILITY_VALUE);
+	llassert(mD <= MAX_WALKABILITY_VALUE);
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 
 	llassert(pNavMeshItem.has("position"));
@@ -349,13 +352,6 @@ void PathfindingLinkset::setPhantom(BOOL pIsPhantom)
 	mIsPhantom = pIsPhantom;
 }
 
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-BOOL PathfindingLinkset::isWalkabilityCoefficientsF32() const
-{
-	return mIsWalkabilityCoefficientsF32;
-}
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-
 S32 PathfindingLinkset::getA() const
 {
 	return mA;
@@ -394,6 +390,80 @@ S32 PathfindingLinkset::getD() const
 void PathfindingLinkset::setD(S32 pD)
 {
 	mD = pD;
+}
+
+LLSD PathfindingLinkset::getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const
+{
+	LLSD itemData;
+
+	if (mPathState != pPathState)
+	{
+		itemData["permanent"] = static_cast<bool>(PathfindingLinkset::isPermanent(pPathState));
+		itemData["walkable"] = static_cast<bool>(PathfindingLinkset::isWalkable(pPathState));
+	}
+#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+	if (mIsWalkabilityCoefficientsF32)
+	{
+		if (mA != pA)
+		{
+			itemData["A"] = llclamp(static_cast<F32>(pA) / 100.0f, 0.0f, 1.0f);
+		}
+		if (mB != pB)
+		{
+			itemData["B"] = llclamp(static_cast<F32>(pB) / 100.0f, 0.0f, 1.0f);
+		}
+		if (mC != pC)
+		{
+			itemData["C"] = llclamp(static_cast<F32>(pC) / 100.0f, 0.0f, 1.0f);
+		}
+		if (mD != pD)
+		{
+			itemData["D"] = llclamp(static_cast<F32>(pD) / 100.0f, 0.0f, 1.0f);
+		}
+	}
+	else
+	{
+		if (mA != pA)
+		{
+			itemData["A"] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		}
+		if (mB != pB)
+		{
+			itemData["B"] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		}
+		if (mC != pC)
+		{
+			itemData["C"] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		}
+		if (mD != pD)
+		{
+			itemData["D"] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		}
+	}
+#else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+	if (mA != pA)
+	{
+		itemData["A"] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+	}
+	if (mB != pB)
+	{
+		itemData["B"] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+	}
+	if (mC != pC)
+	{
+		itemData["C"] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+	}
+	if (mD != pD)
+	{
+		itemData["D"] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+	}
+#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+	if (mIsPhantom != pIsPhantom)
+	{
+		itemData["phantom"] = static_cast<bool>(pIsPhantom);
+	}
+
+	return itemData;
 }
 
 //---------------------------------------------------------------------------
@@ -1231,8 +1301,6 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 	if (!selectedItems.empty())
 	{
 		PathfindingLinkset::EPathState pathState = getPathState();
-		BOOL isPermanentBool = PathfindingLinkset::isPermanent(pathState);
-		BOOL isWalkableBool = PathfindingLinkset::isWalkable(pathState);
 		const std::string &aString = mEditA->getText();
 		const std::string &bString = mEditB->getText();
 		const std::string &cString = mEditC->getText();
@@ -1241,26 +1309,7 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 		S32 bValue = static_cast<S32>(atoi(bString.c_str()));
 		S32 cValue = static_cast<S32>(atoi(cString.c_str()));
 		S32 dValue = static_cast<S32>(atoi(dString.c_str()));
-		BOOL isPhantomBool = mEditPhantom->getValue();
-
-		LLSD isPermanent = (bool)isPermanentBool;
-		LLSD isWalkable = (bool)isWalkableBool;
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-		LLSD aReal = static_cast<F32>(aValue) / 100.0f;
-		LLSD bReal = static_cast<F32>(bValue) / 100.0f;
-		LLSD cReal = static_cast<F32>(cValue) / 100.0f;
-		LLSD dReal = static_cast<F32>(dValue) / 100.0f;
-		LLSD aInteger = aValue;
-		LLSD bInteger = bValue;
-		LLSD cInteger = cValue;
-		LLSD dInteger = dValue;
-#else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-		LLSD a = aValue;
-		LLSD b = bValue;
-		LLSD c = cValue;
-		LLSD d = dValue;
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-		LLSD isPhantom = (bool)isPhantomBool;
+		BOOL isPhantom = mEditPhantom->getValue();
 
 		const PathfindingLinksets::PathfindingLinksetMap &linksetsMap = mPathfindingLinksets.getAllLinksets();
 
@@ -1274,73 +1323,7 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 			const PathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(uuid.asString());
 			const PathfindingLinkset &linkset = linksetIter->second;
 
-			LLSD itemData;
-			if (linkset.getPathState() != pathState)
-			{
-				itemData["permanent"] = isPermanent;
-				itemData["walkable"] = isWalkable;
-			}
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-			if (linkset.isWalkabilityCoefficientsF32())
-			{
-				if (linkset.getA() != aValue)
-				{
-					itemData["A"] = aReal;
-				}
-				if (linkset.getB() != bValue)
-				{
-					itemData["B"] = bReal;
-				}
-				if (linkset.getC() != cValue)
-				{
-					itemData["C"] = cReal;
-				}
-				if (linkset.getD() != dValue)
-				{
-					itemData["D"] = dReal;
-				}
-			}
-			else
-			{
-				if (linkset.getA() != aValue)
-				{
-					itemData["A"] = aInteger;
-				}
-				if (linkset.getB() != bValue)
-				{
-					itemData["B"] = bInteger;
-				}
-				if (linkset.getC() != cValue)
-				{
-					itemData["C"] = cInteger;
-				}
-				if (linkset.getD() != dValue)
-				{
-					itemData["D"] = dInteger;
-				}
-			}
-#else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-			if (linkset.getA() != aValue)
-			{
-				itemData["A"] = a;
-			}
-			if (linkset.getB() != bValue)
-			{
-				itemData["B"] = b;
-			}
-			if (linkset.getC() != cValue)
-			{
-				itemData["C"] = c;
-			}
-			if (linkset.getD() != dValue)
-			{
-				itemData["D"] = d;
-			}
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-			if (linkset.isPhantom() != isPhantomBool)
-			{
-				itemData["phantom"] = isPhantom;
-			}
+			LLSD itemData = linkset.getAlteredFields(pathState, aValue, bValue, cValue, dValue, isPhantom);
 
 			if (!itemData.isUndefined())
 			{
