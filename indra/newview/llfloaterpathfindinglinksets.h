@@ -33,6 +33,10 @@
 #include "llfloater.h"
 #include "lluuid.h"
 
+// This is a reminder to remove the code regarding the changing of the data type for the
+// walkability coefficients from F32 to S32 representing the percentage from 0-100.
+#define XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+
 class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
@@ -71,6 +75,10 @@ public:
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
 
+#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+	BOOL               isWalkabilityCoefficientsF32() const;
+#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+
 	S32                getA() const;
 	void               setA(S32 pA);
 
@@ -93,6 +101,9 @@ private:
 	LLVector3   mLocation;
 	EPathState  mPathState;
 	BOOL        mIsPhantom;
+#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+	BOOL        mIsWalkabilityCoefficientsF32;
+#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	S32         mA;
 	S32         mB;
 	S32         mC;
