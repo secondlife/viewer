@@ -4939,6 +4939,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				fullbright = TRUE;
 			}
 
+			if (hud_group)
+			{ //all hud attachments are fullbright
+				fullbright = TRUE;
+			}
+
 			const LLTextureEntry* te = facep->getTextureEntry();
 			tex = facep->getTexture();
 
@@ -4964,7 +4969,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 			}
 			else if (gPipeline.canUseVertexShaders()
-				&& group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD 
 				&& LLPipeline::sRenderBump 
 				&& te->getShiny())
 			{ //shiny
@@ -5029,9 +5033,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 				}
 				
-				//not sure why this is here -- shiny HUD attachments maybe?  -- davep 5/11/2010
-				if (!is_alpha && te->getShiny() && LLPipeline::sRenderBump)
-				{
+				
+				if (!gPipeline.canUseVertexShaders() && 
+					!is_alpha && 
+					te->getShiny() && 
+					LLPipeline::sRenderBump)
+				{ //shiny as an extra pass when shaders are disabled
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
 			}
