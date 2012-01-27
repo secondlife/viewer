@@ -103,6 +103,7 @@ Aleric Inglewood
 	STORM-163
 	STORM-955
 	STORM-960
+	STORM-1793
 Ales Beaumont
 	VWR-9352
 	SNOW-240
@@ -610,6 +611,7 @@ Jonathan Yap
 	STORM-1788
 	STORM-1799
 	STORM-1796
+	STORM-1793
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -1239,6 +1241,8 @@ WolfPup Lowenhar
 	VWR-20741
 	VWR-20933
 Wundur Primbee
+Xellessanova Zenith
+	STORM-1793
 Xiki Luik
 xstorm Radek
 YongYong Francois
