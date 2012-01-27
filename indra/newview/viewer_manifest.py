@@ -1057,9 +1057,15 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             self.path("libfontconfig.so.1.4.4")
-            self.path("libtcmalloc.so", "libtcmalloc.so") #formerly called google perf tools
-            self.path("libtcmalloc.so.0", "libtcmalloc.so.0") #formerly called google perf tools
-            self.path("libtcmalloc.so.0.1.0", "libtcmalloc.so.0.1.0") #formerly called google perf tools
+            try:
+                self.path("libtcmalloc.so", "libtcmalloc.so") #formerly called google perf tools
+                self.path("libtcmalloc.so.0", "libtcmalloc.so.0") #formerly called google perf tools
+                self.path("libtcmalloc.so.0.1.0", "libtcmalloc.so.0.1.0") #formerly called google perf tools
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
+    
             try:
                     self.path("libfmod-3.75.so")
                     pass
