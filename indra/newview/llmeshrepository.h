@@ -35,7 +35,7 @@
 
 #define LLCONVEXDECOMPINTER_STATIC 1
 
-#include "llconvexdecomposition.h"
+#include "LLConvexDecomposition.h"
 #include "lluploadfloaterobservers.h"
 
 class LLVOVolume;
