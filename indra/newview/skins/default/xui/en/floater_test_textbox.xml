@@ -8,18 +8,7 @@
  help_topic="floater_test_textbox"
  translate="false"
  width="800">
-    <text
-     type="string"
-     length="1"
-     height="90"
-     layout="topleft"
-     left="10"
-     valign="bottom"
-     clip="true"
-     top_pad="30"
-     width="300">
-___</text>
-  <!--<text
+ <text
     clip_partial="true"
     top_pad="10"
     left="10"
@@ -150,7 +139,7 @@ ___</text>
     The 华文细黑 brown fox ヒラキjumped over the lazy dog.
   </text>
   
---><!-- next column --><!--
+<!-- next column -->
   <text_editor
  height="50"
  follows="top|left|bottom"
@@ -247,5 +236,5 @@ with
 multiple lines
 and too many lines
 to actually fit
-  </text>-->
+  </text>
 </floater>

@@ -215,16 +215,17 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	cur_y = ((F32)y * sScaleY) + origin.mV[VY];
 
 	// Offset y by vertical alignment.
+	// use unscaled font metrics here
 	switch (valign)
 	{
 	case TOP:
-		cur_y -= getAscenderHeight();
+		cur_y -= mFontFreetype->getAscenderHeight();
 		break;
 	case BOTTOM:
-		cur_y += getDescenderHeight();
+		cur_y += mFontFreetype->getDescenderHeight();
 		break;
 	case VCENTER:
-		cur_y -= (getAscenderHeight() - getDescenderHeight()) / 2.f;
+		cur_y -= (mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight()) / 2.f;
 		break;
 	case BASELINE:
 		// Baseline, do nothing.
