@@ -1065,6 +1065,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
+	LL_INFOS("Window") << "Device context retrieved." << llendl ;
+
 	if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
 	{
 		close();
@@ -1072,6 +1074,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
+
+	LL_INFOS("Window") << "Pixel format chosen." << llendl ;
 
 	// Verify what pixel format we actually received.
 	if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
