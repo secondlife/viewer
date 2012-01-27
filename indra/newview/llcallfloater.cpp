@@ -188,7 +188,7 @@ void LLCallFloater::draw()
 
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipants)
-		mParticipants->updateRecentSpeakersOrder();
+		mParticipants->update();
 
 	LLFloater::draw();
 }

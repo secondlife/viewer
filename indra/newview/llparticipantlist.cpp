@@ -469,12 +469,12 @@ void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t c
 	mValidateSpeakerCallback = cb;
 }
 
-void LLParticipantList::updateRecentSpeakersOrder()
+void LLParticipantList::update()
 {
+	mSpeakerMgr->update(true);
+
 	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder() && !isHovered())
 	{
-		// Need to update speakers to sort list correctly
-		mSpeakerMgr->update(true);
 		// Resort avatar list
 		sort();
 	}
