@@ -161,7 +161,7 @@ protected:
 									 BOOL restamp);
 	void removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*>& batch);
 protected:
-	LLHandle<LLPanel> mInventoryPanel;
+	LLHandle<LLInventoryPanel> mInventoryPanel;
 	LLFolderView* mRoot;
 	const LLUUID mUUID;	// item id
 	LLInventoryType::EType mInvType;
