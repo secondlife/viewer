@@ -219,10 +219,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	switch (valign)
 	{
 	case TOP:
-		cur_y -= mFontFreetype->getAscenderHeight();
+		cur_y -= llceil(mFontFreetype->getAscenderHeight());
 		break;
 	case BOTTOM:
-		cur_y += mFontFreetype->getDescenderHeight();
+		cur_y += llceil(mFontFreetype->getDescenderHeight());
 		break;
 	case VCENTER:
 		cur_y -= (mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight()) / 2.f;
