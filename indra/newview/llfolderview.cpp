@@ -388,7 +388,7 @@ void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 
-// This view grows and shinks to enclose all of its children items and folders.
+// This view grows and shrinks to enclose all of its children items and folders.
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
 {
 	if (getListener()->getUUID().notNull())
@@ -527,15 +527,15 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
-	width = llmax(mMinWidth, scroll_rect.getWidth());
+	width  = llmax(mMinWidth, scroll_rect.getWidth());
 	height = llmax(mRunningHeight, scroll_rect.getHeight());
 
-	// restrict width with scroll container's width
-	if (mUseEllipses)
+	// Restrict width within scroll container's width
+	if (mUseEllipses && mScrollContainer)
+	{
 		width = scroll_rect.getWidth();
-
+	}
 	LLView::reshape(width, height, called_from_parent);
-
 	mReshapeSignal(mSelectedItems, FALSE);
 }
 
