@@ -778,19 +778,19 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 		columns[5]["font"] = "SANSSERIF";
 
 		columns[6]["column"] = "a_percent";
-		columns[6]["value"] = llformat("%3d", linkset.getA());
+		columns[6]["value"] = llformat("%3d", linkset.getWalkabilityCoefficientA());
 		columns[6]["font"] = "SANSSERIF";
 
 		columns[7]["column"] = "b_percent";
-		columns[7]["value"] = llformat("%3d", linkset.getB());
+		columns[7]["value"] = llformat("%3d", linkset.getWalkabilityCoefficientB());
 		columns[7]["font"] = "SANSSERIF";
 
 		columns[8]["column"] = "c_percent";
-		columns[8]["value"] = llformat("%3d", linkset.getC());
+		columns[8]["value"] = llformat("%3d", linkset.getWalkabilityCoefficientC());
 		columns[8]["font"] = "SANSSERIF";
 
 		columns[9]["column"] = "d_percent";
-		columns[9]["value"] = llformat("%3d", linkset.getD());
+		columns[9]["value"] = llformat("%3d", linkset.getWalkabilityCoefficientD());
 		columns[9]["font"] = "SANSSERIF";
 
 		LLSD element;
@@ -910,10 +910,10 @@ void LLFloaterPathfindingLinksets::updateEditFields()
 		const LLPathfindingLinkset &linkset(linksetIter->second);
 
 		setPathState(linkset.getPathState());
-		mEditA->setValue(LLSD(linkset.getA()));
-		mEditB->setValue(LLSD(linkset.getB()));
-		mEditC->setValue(LLSD(linkset.getC()));
-		mEditD->setValue(LLSD(linkset.getD()));
+		mEditA->setValue(LLSD(linkset.getWalkabilityCoefficientA()));
+		mEditB->setValue(LLSD(linkset.getWalkabilityCoefficientB()));
+		mEditC->setValue(LLSD(linkset.getWalkabilityCoefficientC()));
+		mEditD->setValue(LLSD(linkset.getWalkabilityCoefficientD()));
 		mEditPhantom->set(linkset.isPhantom());
 
 		setEnableEditFields(true);

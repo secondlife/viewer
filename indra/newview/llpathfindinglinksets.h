@@ -67,17 +67,17 @@ public:
 	BOOL               isPhantom() const;
 	void               setPhantom(BOOL pIsPhantom);
 
-	S32                getA() const;
-	void               setA(S32 pA);
+	S32                getWalkabilityCoefficientA() const;
+	void               setWalkabilityCoefficientA(S32 pA);
 
-	S32                getB() const;
-	void               setB(S32 pB);
+	S32                getWalkabilityCoefficientB() const;
+	void               setWalkabilityCoefficientB(S32 pB);
 
-	S32                getC() const;
-	void               setC(S32 pC);
+	S32                getWalkabilityCoefficientC() const;
+	void               setWalkabilityCoefficientC(S32 pC);
 
-	S32                getD() const;
-	void               setD(S32 pD);
+	S32                getWalkabilityCoefficientD() const;
+	void               setWalkabilityCoefficientD(S32 pD);
 
 	LLSD               getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
 
@@ -97,10 +97,10 @@ private:
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	BOOL        mIsWalkabilityCoefficientsF32;
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	S32         mA;
-	S32         mB;
-	S32         mC;
-	S32         mD;
+	S32         mWalkabilityCoefficientA;
+	S32         mWalkabilityCoefficientB;
+	S32         mWalkabilityCoefficientC;
+	S32         mWalkabilityCoefficientD;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H
