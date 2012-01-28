@@ -87,12 +87,12 @@ std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 	std::string cwd(params.cwd);
 	if (! cwd.empty())
 	{
-		out << "cd '" << cwd << "': ";
+		out << "cd " << LLStringUtil::quote(cwd) << ": ";
 	}
-	out << '"' << std::string(params.executable) << '"';
+	out << LLStringUtil::quote(params.executable);
 	BOOST_FOREACH(const std::string& arg, params.args)
 	{
-		out << " \"" << arg << '"';
+		out << ' ' << LLStringUtil::quote(arg);
 	}
 	return out;
 }
@@ -132,8 +132,8 @@ public:
 
 		if (! AssignProcessToJobObject(mJob, hProcess))
 		{
-			LL_WARNS("LLProcess") << WindowsErrorString(STRINGIZE("AssignProcessToJobObject(\""
-																  << prog << "\")")) << LL_ENDL;
+			LL_WARNS("LLProcess") << WindowsErrorString(STRINGIZE("AssignProcessToJobObject("
+																  << prog << ")")) << LL_ENDL;
 		}
 	}
 
@@ -206,7 +206,7 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 	mProcessID = pinfo.hProcess;
 	CloseHandle(pinfo.hThread); // stops leaks - nothing else
 
-	mDesc = STRINGIZE('"' << std::string(params.executable) << "\" (" << pinfo.dwProcessId << ')');
+	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << pinfo.dwProcessId << ')');
 	LL_INFOS("LLProcess") << "Launched " << params << " (" << pinfo.dwProcessId << ")" << LL_ENDL;
 
 	// Now associate the new child process with our Job Object -- unless
@@ -356,7 +356,7 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 	// parent process
 	mProcessID = child;
 
-	mDesc = STRINGIZE('"' << std::string(params.executable) << "\" (" << mProcessID << ')');
+	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << mProcessID << ')');
 	LL_INFOS("LLProcess") << "Launched " << params << " (" << mProcessID << ")" << LL_ENDL;
 }
 

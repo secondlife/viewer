@@ -303,11 +303,17 @@ public:
 	static void	stripNonprintable(string_type& string);
 
 	/**
-	 * Double-quote an argument string, unless it's already double-quoted. If we
-	 * quote it, escape any embedded double-quote with the escape string (default
+	 * Double-quote an argument string if needed, unless it's already
+	 * double-quoted. Decide whether it's needed based on the presence of any
+	 * character in @a triggers (default space or double-quote). If we quote
+	 * it, escape any embedded double-quote with the @a escape string (default
 	 * backslash).
+	 *
+	 * Passing triggers="" means always quote, unless it's already double-quoted.
 	 */
-	static string_type quote(const string_type& str, const string_type& escape="\\");
+	static string_type quote(const string_type& str,
+							 const string_type& triggers=" \"",
+							 const string_type& escape="\\");
 
 	/**
 	 * @brief Unsafe way to make ascii characters. You should probably
@@ -1060,7 +1066,9 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 }
 
 template<class T>
-std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str, const string_type& escape)
+std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str,
+												const string_type& triggers,
+												const string_type& escape)
 {
 	size_type len(str.length());
 	// If the string is already quoted, assume user knows what s/he's doing.
@@ -1069,7 +1077,15 @@ std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str, const st
 		return str;
 	}
 
-	// Not already quoted: do it.
+	// Not already quoted: do we need to? triggers.empty() is a special case
+	// meaning "always quote."
+	if ((! triggers.empty()) && str.find_first_of(triggers) == string_type::npos)
+	{
+		// no trigger characters, don't bother quoting
+		return str;
+	}
+
+	// For whatever reason, we must quote this string.
 	string_type result;
 	result.push_back('"');
 	for (typename string_type::const_iterator ci(str.begin()), cend(str.end()); ci != cend; ++ci)
