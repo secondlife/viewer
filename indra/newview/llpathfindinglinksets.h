@@ -28,13 +28,14 @@
 #ifndef LL_LLPATHFINDINGLINKSETS_H
 #define LL_LLPATHFINDINGLINKSETS_H
 
-#include "llsd.h"
 #include "v3math.h"
 #include "lluuid.h"
 
 // This is a reminder to remove the code regarding the changing of the data type for the
 // walkability coefficients from F32 to S32 representing the percentage from 0-100.
 #define XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+
+class LLSD;
 
 class LLPathfindingLinkset
 {
@@ -52,34 +53,35 @@ public:
 
 	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
-	const LLUUID&      getUUID() const;
-	const std::string& getName() const;
-	const std::string& getDescription() const;
-	U32                getLandImpact() const;
-	const LLVector3&   getPositionAgent() const;
+	inline const LLUUID&      getUUID() const                     {return mUUID;};
+	inline const std::string& getName() const                     {return mName;};
+	inline const std::string& getDescription() const              {return mDescription;};
+	inline U32                getLandImpact() const               {return mLandImpact;};
+	inline const LLVector3&   getLocation() const                 {return mLocation;};
 
-	EPathState         getPathState() const;
-	void               setPathState(EPathState pPathState);
-	static EPathState  getPathState(bool pIsPermanent, bool pIsWalkable);
-	static BOOL        isPermanent(EPathState pPathState);
-	static BOOL        isWalkable(EPathState pPathState);
+	inline EPathState         getPathState() const                {return mPathState;};
+	inline void               setPathState(EPathState pPathState) {mPathState = pPathState;};
 
-	BOOL               isPhantom() const;
-	void               setPhantom(BOOL pIsPhantom);
+	static EPathState         getPathState(bool pIsPermanent, bool pIsWalkable);
+	static BOOL               isPermanent(EPathState pPathState);
+	static BOOL               isWalkable(EPathState pPathState);
 
-	S32                getWalkabilityCoefficientA() const;
-	void               setWalkabilityCoefficientA(S32 pA);
+	inline BOOL               isPhantom() const                   {return mIsPhantom;};
+	inline void               setPhantom(BOOL pIsPhantom)         {mIsPhantom = pIsPhantom;};
 
-	S32                getWalkabilityCoefficientB() const;
-	void               setWalkabilityCoefficientB(S32 pB);
+	inline S32                getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
+	void                      setWalkabilityCoefficientA(S32 pA);
 
-	S32                getWalkabilityCoefficientC() const;
-	void               setWalkabilityCoefficientC(S32 pC);
+	inline S32                getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
+	void                      setWalkabilityCoefficientB(S32 pB);
 
-	S32                getWalkabilityCoefficientD() const;
-	void               setWalkabilityCoefficientD(S32 pD);
+	inline S32                getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
+	void                      setWalkabilityCoefficientC(S32 pC);
 
-	LLSD               getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
+	inline S32                getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
+	void                      setWalkabilityCoefficientD(S32 pD);
+
+	LLSD                      getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
 
 protected:
 

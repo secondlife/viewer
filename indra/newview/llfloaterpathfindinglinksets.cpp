@@ -751,7 +751,7 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "dist_from_you";
-		columns[3]["value"] = llformat("%1.0f m", dist_vec(avatarPosition, linkset.getPositionAgent()));
+		columns[3]["value"] = llformat("%1.0f m", dist_vec(avatarPosition, linkset.getLocation()));
 		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "path_state";

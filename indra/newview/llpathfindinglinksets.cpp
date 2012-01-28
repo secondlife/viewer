@@ -199,40 +199,6 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	return *this;
 }
 
-const LLUUID& LLPathfindingLinkset::getUUID() const
-{
-	return mUUID;
-}
-
-const std::string& LLPathfindingLinkset::getName() const
-{
-	return mName;
-}
-
-const std::string& LLPathfindingLinkset::getDescription() const
-{
-	return mDescription;
-}
-
-U32 LLPathfindingLinkset::getLandImpact() const
-{
-	return mLandImpact;
-}
-
-const LLVector3& LLPathfindingLinkset::getPositionAgent() const
-{
-	return mLocation;
-}
-
-LLPathfindingLinkset::EPathState LLPathfindingLinkset::getPathState() const
-{
-	return mPathState;
-}
-
-void LLPathfindingLinkset::setPathState(EPathState pPathState)
-{
-	mPathState = pPathState;
-}
 
 LLPathfindingLinkset::EPathState LLPathfindingLinkset::getPathState(bool pIsPermanent, bool pIsWalkable)
 {
@@ -283,54 +249,24 @@ BOOL LLPathfindingLinkset::isWalkable(EPathState pPathState)
 	return retVal;
 }
 
-BOOL LLPathfindingLinkset::isPhantom() const
-{
-	return mIsPhantom;
-}
-
-void LLPathfindingLinkset::setPhantom(BOOL pIsPhantom)
-{
-	mIsPhantom = pIsPhantom;
-}
-
-S32 LLPathfindingLinkset::getWalkabilityCoefficientA() const
-{
-	return mWalkabilityCoefficientA;
-}
-
 void LLPathfindingLinkset::setWalkabilityCoefficientA(S32 pA)
 {
-	mWalkabilityCoefficientA = pA;
-}
-
-S32 LLPathfindingLinkset::getWalkabilityCoefficientB() const
-{
-	return mWalkabilityCoefficientB;
+	mWalkabilityCoefficientA = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 }
 
 void LLPathfindingLinkset::setWalkabilityCoefficientB(S32 pB)
 {
-	mWalkabilityCoefficientB = pB;
-}
-
-S32 LLPathfindingLinkset::getWalkabilityCoefficientC() const
-{
-	return mWalkabilityCoefficientC;
+	mWalkabilityCoefficientB = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 }
 
 void LLPathfindingLinkset::setWalkabilityCoefficientC(S32 pC)
 {
-	mWalkabilityCoefficientC = pC;
-}
-
-S32 LLPathfindingLinkset::getWalkabilityCoefficientD() const
-{
-	return mWalkabilityCoefficientD;
+	mWalkabilityCoefficientC = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 }
 
 void LLPathfindingLinkset::setWalkabilityCoefficientD(S32 pD)
 {
-	mWalkabilityCoefficientD = pD;
+	mWalkabilityCoefficientD = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 }
 
 LLSD LLPathfindingLinkset::getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const
