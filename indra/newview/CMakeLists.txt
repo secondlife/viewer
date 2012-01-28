@@ -415,6 +415,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
+    llpathfindinglinksets.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -963,6 +964,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
+    llpathfindinglinksets.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h

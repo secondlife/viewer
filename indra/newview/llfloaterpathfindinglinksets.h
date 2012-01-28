@@ -32,10 +32,7 @@
 #include "v3math.h"
 #include "llfloater.h"
 #include "lluuid.h"
-
-// This is a reminder to remove the code regarding the changing of the data type for the
-// walkability coefficients from F32 to S32 representing the percentage from 0-100.
-#define XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+#include "llpathfindinglinksets.h"
 
 class LLTextBase;
 class LLScrollListCtrl;
@@ -43,73 +40,6 @@ class LLLineEditor;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
 class LLButton;
-
-class PathfindingLinkset
-{
-public:
-	typedef enum
-	{
-		kWalkable,
-		kObstacle,
-		kIgnored
-	} EPathState;
-
-	PathfindingLinkset(const std::string &pUUID, const LLSD &pNavMeshItem);
-	PathfindingLinkset(const PathfindingLinkset& pOther);
-	virtual ~PathfindingLinkset();
-
-	PathfindingLinkset& operator = (const PathfindingLinkset& pOther);
-
-	const LLUUID&      getUUID() const;
-	const std::string& getName() const;
-	const std::string& getDescription() const;
-	U32                getLandImpact() const;
-	const LLVector3&   getPositionAgent() const;
-
-	EPathState         getPathState() const;
-	void               setPathState(EPathState pPathState);
-	static EPathState  getPathState(bool pIsPermanent, bool pIsWalkable);
-	static BOOL        isPermanent(EPathState pPathState);
-	static BOOL        isWalkable(EPathState pPathState);
-
-	BOOL               isPhantom() const;
-	void               setPhantom(BOOL pIsPhantom);
-
-	S32                getA() const;
-	void               setA(S32 pA);
-
-	S32                getB() const;
-	void               setB(S32 pB);
-
-	S32                getC() const;
-	void               setC(S32 pC);
-
-	S32                getD() const;
-	void               setD(S32 pD);
-
-	LLSD               getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
-
-protected:
-
-private:
-	static const S32 MIN_WALKABILITY_VALUE;
-	static const S32 MAX_WALKABILITY_VALUE;
-
-	LLUUID      mUUID;
-	std::string mName;
-	std::string mDescription;
-	U32         mLandImpact;
-	LLVector3   mLocation;
-	EPathState  mPathState;
-	BOOL        mIsPhantom;
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	BOOL        mIsWalkabilityCoefficientsF32;
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	S32         mA;
-	S32         mB;
-	S32         mC;
-	S32         mD;
-};
 
 class FilterString
 {
@@ -136,7 +66,7 @@ private:
 class PathfindingLinksets
 {
 public:
-	typedef std::map<std::string, PathfindingLinkset> PathfindingLinksetMap;
+	typedef std::map<std::string, LLPathfindingLinkset> PathfindingLinksetMap;
 
 	PathfindingLinksets();
 	PathfindingLinksets(const LLSD& pNavMeshData);
@@ -177,7 +107,7 @@ private:
 	BOOL         mIsIgnoredFilter;
 
 	void applyFilters();
-	BOOL doesMatchFilters(const PathfindingLinkset& pLinkset) const;
+	BOOL doesMatchFilters(const LLPathfindingLinkset& pLinkset) const;
 };
 
 class LLFloaterPathfindingLinksets
@@ -277,8 +207,8 @@ private:
 	void applyEditFields();
 	void setEnableEditFields(BOOL pEnabled);
 
-	PathfindingLinkset::EPathState getPathState() const;
-	void                           setPathState(PathfindingLinkset::EPathState pPathState);
+	LLPathfindingLinkset::EPathState getPathState() const;
+	void                             setPathState(LLPathfindingLinkset::EPathState pPathState);
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H
