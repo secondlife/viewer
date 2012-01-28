@@ -26,7 +26,7 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llpathfindinglinksets.h"
+#include "llpathfindinglinkset.h"
 #include "llsd.h"
 #include "v3math.h"
 #include "lluuid.h"

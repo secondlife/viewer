@@ -32,7 +32,8 @@
 #include "v3math.h"
 #include "llfloater.h"
 #include "lluuid.h"
-#include "llpathfindinglinksets.h"
+#include "llpathfindinglinkset.h"
+#include "llfilteredpathfindinglinksets.h"
 
 class LLTextBase;
 class LLScrollListCtrl;
@@ -40,75 +41,6 @@ class LLLineEditor;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
 class LLButton;
-
-class FilterString
-{
-public:
-	FilterString();
-	FilterString(const std::string& pFilter);
-	FilterString(const FilterString& pOther);
-	virtual ~FilterString();
-
-	const std::string& get() const;
-	bool               set(const std::string& pFilter);
-	void               clear();
-
-	bool isActive() const;
-	bool doesMatch(const std::string& pTestString) const;
-
-protected:
-
-private:
-	std::string mFilter;
-	std::string mUpperFilter;
-};
-
-class PathfindingLinksets
-{
-public:
-	typedef std::map<std::string, LLPathfindingLinkset> PathfindingLinksetMap;
-
-	PathfindingLinksets();
-	PathfindingLinksets(const LLSD& pNavMeshData);
-	PathfindingLinksets(const PathfindingLinksets& pOther);
-	virtual ~PathfindingLinksets();
-
-	void setNavMeshData(const LLSD& pNavMeshData);
-	void updateNavMeshData(const LLSD& pNavMeshData);
-	void clearLinksets();
-
-	const PathfindingLinksetMap& getAllLinksets() const;
-	const PathfindingLinksetMap& getFilteredLinksets();
-
-	BOOL               isFiltersActive() const;
-	void               setNameFilter(const std::string& pNameFilter);
-	const std::string& getNameFilter() const;
-	void               setDescriptionFilter(const std::string& pDescriptionFilter);
-	const std::string& getDescriptionFilter() const;
-	void               setWalkableFilter(BOOL pWalkableFilter);
-	BOOL               isWalkableFilter() const;
-	void               setObstacleFilter(BOOL pObstacleFilter);
-	BOOL               isObstacleFilter() const;
-	void               setIgnoredFilter(BOOL pIgnoredFilter);
-	BOOL               isIgnoredFilter() const;
-	void               clearFilters();
-
-protected:
-
-private:
-	PathfindingLinksetMap mAllLinksets;
-	PathfindingLinksetMap mFilteredLinksets;
-
-	bool         mIsFiltersDirty;
-	FilterString mNameFilter;
-	FilterString mDescriptionFilter;
-	BOOL         mIsWalkableFilter;
-	BOOL         mIsObstacleFilter;
-	BOOL         mIsIgnoredFilter;
-
-	void applyFilters();
-	BOOL doesMatchFilters(const LLPathfindingLinkset& pLinkset) const;
-};
 
 class LLFloaterPathfindingLinksets
 :	public LLFloater
@@ -144,30 +76,30 @@ public:
 protected:
 
 private:
-	PathfindingLinksets mPathfindingLinksets;
-	EMessagingState     mMessagingState;
-	LLScrollListCtrl    *mLinksetsScrollList;
-	LLTextBase          *mLinksetsStatus;
-	LLLineEditor        *mFilterByName;
-	LLLineEditor        *mFilterByDescription;
-	LLCheckBoxCtrl      *mFilterByWalkable;
-	LLCheckBoxCtrl      *mFilterByObstacle;
-	LLCheckBoxCtrl      *mFilterByIgnored;
-	LLRadioGroup        *mEditPathState;
-	LLUICtrl            *mEditPathStateWalkable;
-	LLUICtrl            *mEditPathStateObstacle;
-	LLUICtrl            *mEditPathStateIgnored;
-	LLTextBase          *mLabelWalkabilityCoefficients;
-	LLTextBase          *mLabelEditA;
-	LLTextBase          *mLabelEditB;
-	LLTextBase          *mLabelEditC;
-	LLTextBase          *mLabelEditD;
-	LLLineEditor        *mEditA;
-	LLLineEditor        *mEditB;
-	LLLineEditor        *mEditC;
-	LLLineEditor        *mEditD;
-	LLCheckBoxCtrl      *mEditPhantom;
-	LLButton            *mApplyEdits;
+	LLFilteredPathfindingLinksets mPathfindingLinksets;
+	EMessagingState               mMessagingState;
+	LLScrollListCtrl              *mLinksetsScrollList;
+	LLTextBase                    *mLinksetsStatus;
+	LLLineEditor                  *mFilterByName;
+	LLLineEditor                  *mFilterByDescription;
+	LLCheckBoxCtrl                *mFilterByWalkable;
+	LLCheckBoxCtrl                *mFilterByObstacle;
+	LLCheckBoxCtrl                *mFilterByIgnored;
+	LLRadioGroup                  *mEditPathState;
+	LLUICtrl                      *mEditPathStateWalkable;
+	LLUICtrl                      *mEditPathStateObstacle;
+	LLUICtrl                      *mEditPathStateIgnored;
+	LLTextBase                    *mLabelWalkabilityCoefficients;
+	LLTextBase                    *mLabelEditA;
+	LLTextBase                    *mLabelEditB;
+	LLTextBase                    *mLabelEditC;
+	LLTextBase                    *mLabelEditD;
+	LLLineEditor                  *mEditA;
+	LLLineEditor                  *mEditB;
+	LLLineEditor                  *mEditC;
+	LLLineEditor                  *mEditD;
+	LLCheckBoxCtrl                *mEditPhantom;
+	LLButton                      *mApplyEdits;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.

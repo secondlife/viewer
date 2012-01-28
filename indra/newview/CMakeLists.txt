@@ -162,6 +162,7 @@ set(viewer_SOURCE_FILES
     llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfilepicker.cpp
+    llfilteredpathfindinglinksets.cpp
     llfilteredwearablelist.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
@@ -415,7 +416,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
-    llpathfindinglinksets.cpp
+    llpathfindinglinkset.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -722,6 +723,7 @@ set(viewer_HEADER_FILES
     llfavoritesbar.h
     llfeaturemanager.h
     llfilepicker.h
+    llfilteredpathfindinglinksets.h
     llfilteredwearablelist.h
     llfirstuse.h
     llflexibleobject.h
@@ -964,7 +966,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
-    llpathfindinglinksets.h
+    llpathfindinglinkset.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h

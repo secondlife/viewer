@@ -1,5 +1,5 @@
 /** 
- * @file llpathfindinglinksets.h
+ * @file llpathfindinglinkset.h
  * @author William Todd Stinson
  * @brief Definition of a pathfinding linkset that contains various properties required for havok pathfinding.
  *
@@ -25,8 +25,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLPATHFINDINGLINKSETS_H
-#define LL_LLPATHFINDINGLINKSETS_H
+#ifndef LL_LLPATHFINDINGLINKSET_H
+#define LL_LLPATHFINDINGLINKSET_H
 
 #include "v3math.h"
 #include "lluuid.h"
@@ -105,4 +105,4 @@ private:
 	S32         mWalkabilityCoefficientD;
 };
 
-#endif // LL_LLFLOATERPATHFINDINGLINKSETS_H
+#endif // LL_LLPATHFINDINGLINKSET_H
