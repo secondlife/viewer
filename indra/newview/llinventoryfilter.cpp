@@ -108,6 +108,19 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 	return passed;
 }
 
+bool LLInventoryFilter::check(const LLInventoryItem* item)
+{
+	mSubStringMatchOffset = mFilterSubString.size() ? item->getName().find(mFilterSubString) : std::string::npos;
+
+	const bool passed_filtertype = checkAgainstFilterType(item);
+	const bool passed_permissions = checkAgainstPermissions(item);
+	const bool passed = (passed_filtertype &&
+						 passed_permissions &&
+						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
+
+	return passed;
+}
+
 bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 {
 	// we're showing all folders, overriding filter
@@ -227,6 +240,66 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 	return TRUE;
 }
 
+bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) const
+{
+	LLInventoryType::EType object_type = item->getInventoryType();
+	const LLUUID object_id = item->getUUID();
+
+	const U32 filterTypes = mFilterOps.mFilterTypes;
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_OBJECT
+	// Pass if this item's type is of the correct filter type
+	if (filterTypes & FILTERTYPE_OBJECT)
+	{
+		// If it has no type, pass it, unless it's a link.
+		if (object_type == LLInventoryType::IT_NONE)
+		{
+			if (item && item->getIsLinkType())
+			{
+				return false;
+			}
+		}
+		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+		{
+			return false;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_UUID
+	// Pass if this item is the target UUID or if it links to the target UUID
+	if (filterTypes & FILTERTYPE_UUID)
+	{
+		if (!item) return false;
+
+		if (item->getLinkedUUID() != mFilterOps.mFilterUUID)
+			return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_DATE
+	// Pass if this item is within the date range.
+	if (filterTypes & FILTERTYPE_DATE)
+	{
+		const U16 HOURS_TO_SECONDS = 3600;
+		time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
+		if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
+		{
+			earliest = mFilterOps.mMinDate;
+		}
+		else if (!mFilterOps.mHoursAgo)
+		{
+			earliest = 0;
+		}
+		if (item->getCreationDate() < earliest ||
+			item->getCreationDate() > mFilterOps.mMaxDate)
+			return false;
+	}
+
+	return true;
+}
+
 BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) const
 {
 	const LLFolderViewEventListener* listener = item->getListener();
@@ -241,6 +314,17 @@ BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) co
 		if (linked_item)
 			perm = linked_item->getPermissionMask();
 	}
+	return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
+}
+
+bool LLInventoryFilter::checkAgainstPermissions(const LLInventoryItem* item) const
+{
+	if (!item) return false;
+
+	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+	PermissionMask perm = new_item->getPermissionMask();
+	new_item = NULL;
+
 	return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
 }
 
