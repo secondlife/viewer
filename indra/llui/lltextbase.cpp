@@ -2395,8 +2395,8 @@ void LLTextBase::updateRects()
 		}
 
 		mTextBoundingRect.mTop += mVPad;
-		// subtract a pixel off the bottom to deal with rounding errors in measuring font height
-		mTextBoundingRect.mBottom -= 1;
+		//// subtract a pixel off the bottom to deal with rounding errors in measuring font height
+		//mTextBoundingRect.mBottom -= 1;
 
 		S32 delta_pos = -mTextBoundingRect.mBottom;
 		// move line segments to fit new document rect

@@ -67,7 +67,6 @@
      label_shadow="true"
      name="buyL"
      pad_right="0"
-     pad_bottom="2"
      tool_tip="Click to buy more L$"
      top="0"
      width="80" />
@@ -87,7 +86,6 @@
      left_pad="0"
      label_shadow="true"
      name="goShop"
-     pad_bottom="2"
      tool_tip="Open Second Life Marketplace"
      top="0"
      width="65" />
