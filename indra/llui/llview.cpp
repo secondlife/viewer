@@ -1093,6 +1093,11 @@ void LLView::drawChildren()
 		{
 			child_list_reverse_iter_t child = child_iter++;
 			LLView *viewp = *child;
+			
+			if (viewp == NULL)
+			{
+				continue;
+			}
 
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{

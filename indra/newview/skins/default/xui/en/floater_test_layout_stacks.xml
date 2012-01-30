@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="true"
+ can_close="true"
+ bevel_style="in"
+ height="300"
+ layout="topleft"
+ min_height="40"
+ min_width="420"
+ name="Test Floater"
+ title="LAYOUTSTACK TESTS"
+ width="420">
+  <layout_stack name="test_stack"
+              left="0"
+              top="0"
+              width="100"
+              height="250"
+              follows="left|top|bottom"
+              orientation="vertical">
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  min_height="0"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  min_height="0"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+  </layout_stack>
+  <layout_stack name="test_stack"
+              left_pad="5"
+              top="0"
+              width="100"
+              height="250"
+              follows="left|top|bottom"
+              orientation="vertical">
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="100"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  visible="false"
+                  bg_alpha_color="blue"
+                  height="100"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="fixed"
+                  auto_resize="false"
+                  user_resize="true"
+                  height="50"
+                  min_height="10"
+                  bg_alpha_color="green"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+    </layout_panel>
+    <layout_panel name="fixed"
+                auto_resize="false"
+                  user_resize="true"
+                height="50"
+                min_height="10"
+                bg_alpha_color="green"
+                background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="100"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="100"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="100"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="100"
+                  visible="true"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+  </layout_stack>
+  <layout_stack name="test_stack"
+               left_pad="5"
+               top="0"
+               width="100"
+               height="250"
+               follows="left|top|bottom"
+               orientation="vertical">
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  height="11"
+                  bg_alpha_color="blue"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="fixed"
+                auto_resize="false"
+                  user_resize="true"
+                height="50"
+                bg_alpha_color="green"
+                background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+  </layout_stack>
+  <layout_stack name="test_stack"
+               left_pad="5"
+               top="0"
+               width="100"
+               height="250"
+               follows="left|top|bottom"
+               orientation="vertical">
+    <layout_panel name="fixed"
+                auto_resize="false"
+                  user_resize="true"
+                height="50"
+                bg_alpha_color="green"
+                background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+    </layout_panel>
+    <layout_panel name="fixed"
+                auto_resize="false"
+                  user_resize="true"
+                height="50"
+                bg_alpha_color="green"
+                background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+    </layout_panel>
+    <layout_panel name="fixed"
+                auto_resize="false"
+                  user_resize="true"
+                height="50"
+                bg_alpha_color="green"
+                background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="black">fixed</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  min_height="0"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  min_height="0"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  min_height="0"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+  </layout_stack>
+</floater>

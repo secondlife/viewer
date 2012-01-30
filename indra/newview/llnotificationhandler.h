@@ -283,9 +283,17 @@ class LLBrowserNotification : public LLSingleton<LLBrowserNotification>
 {
 public:
 	virtual bool processNotification(const LLSD& notify);
-	
 };
-
+	
+/**
+ * Handler for outbox notifications
+ */
+class LLOutboxNotification : public LLSingleton<LLOutboxNotification>
+{
+public:
+	virtual bool processNotification(const LLSD& notify);
+};
+	
 class LLHandlerUtil
 {
 public:
