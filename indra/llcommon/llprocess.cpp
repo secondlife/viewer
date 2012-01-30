@@ -207,7 +207,26 @@ void LLProcess::launch(const LLSDOrParams& params)
 	const char * working_directory = 0;
 	if (! cwd.empty())
 		working_directory = cwd.c_str();
-	if( ! CreateProcessA( NULL, &args2[0], NULL, NULL, FALSE, 0, NULL, working_directory, &sinfo, &pinfo ) )
+
+	// It's important to pass CREATE_BREAKAWAY_FROM_JOB because Windows 7 et
+	// al. tend to implicitly launch new processes already bound to a job. From
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/ms681949%28v=vs.85%29.aspx :
+	// "The process must not already be assigned to a job; if it is, the
+	// function fails with ERROR_ACCESS_DENIED." ...
+	// "If the process is being monitored by the Program Compatibility
+	// Assistant (PCA), it is placed into a compatibility job. Therefore, the
+	// process must be created using CREATE_BREAKAWAY_FROM_JOB before it can
+	// be placed in another job."
+	if( ! CreateProcessA(NULL,      // lpApplicationName
+                         &args2[0], // lpCommandLine
+                         NULL,      // lpProcessAttributes
+                         NULL,      // lpThreadAttributes
+                         FALSE,     // bInheritHandles
+                         CREATE_BREAKAWAY_FROM_JOB, // dwCreationFlags
+                         NULL,      // lpEnvironment
+                         working_directory, // lpCurrentDirectory
+                         &sinfo,            // lpStartupInfo
+                         &pinfo ) )         // lpProcessInformation
 	{
 		throw LLProcessError(WindowsErrorString("CreateProcessA"));
 	}
@@ -225,7 +244,7 @@ void LLProcess::launch(const LLSDOrParams& params)
 	if (params.autokill)
 	{
 		LLJob::instance().assignProcess(mDesc, mProcessHandle);
-	}
+}
 }
 
 LLProcess::handle LLProcess::isRunning(handle h, const std::string& desc)
@@ -287,7 +306,7 @@ static std::string WindowsErrorString(const std::string& operation)
 }
 
 /*****************************************************************************
-*   Non-Windows specific
+*   Posix specific
 *****************************************************************************/
 #else // Mac and linux
 
@@ -444,4 +463,4 @@ void LLProcess::reap(void)
 }
 |*==========================================================================*/
 
-#endif
+#endif  // Posix
