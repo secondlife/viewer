@@ -32,7 +32,7 @@
 #include "v3math.h"
 #include "lltextvalidate.h"
 #include "llagent.h"
-#include "llfloater.h"
+#include "llhandle.h"
 #include "llfloaterreg.h"
 #include "lltextbase.h"
 #include "lllineeditor.h"
@@ -59,7 +59,8 @@
 class NavMeshDataGetResponder : public LLHTTPClient::Responder
 {
 public:
-	NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL,
+		const LLHandle<LLFloaterPathfindingLinksets> &pLinksetsHandle);
 	virtual ~NavMeshDataGetResponder();
 
 	virtual void result(const LLSD& pContent);
@@ -68,8 +69,8 @@ public:
 private:
 	NavMeshDataGetResponder(const NavMeshDataGetResponder& pOther);
 
-	std::string                  mNavMeshDataGetURL;
-	LLFloaterPathfindingLinksets *mLinksetsFloater;
+	std::string                            mNavMeshDataGetURL;
+	LLHandle<LLFloaterPathfindingLinksets> mLinksetsFloaterHandle;
 };
 
 //---------------------------------------------------------------------------
@@ -79,7 +80,8 @@ private:
 class NavMeshDataPutResponder : public LLHTTPClient::Responder
 {
 public:
-	NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater);
+	NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL,
+		const LLHandle<LLFloaterPathfindingLinksets> &pLinksetsHandle);
 	virtual ~NavMeshDataPutResponder();
 
 	virtual void result(const LLSD& pContent);
@@ -88,8 +90,8 @@ public:
 private:
 	NavMeshDataPutResponder(const NavMeshDataPutResponder& pOther);
 
-	std::string                  mNavMeshDataPutURL;
-	LLFloaterPathfindingLinksets *mLinksetsFloater;
+	std::string                            mNavMeshDataPutURL;
+	LLHandle<LLFloaterPathfindingLinksets> mLinksetsFloaterHandle;
 };
 
 //---------------------------------------------------------------------------
@@ -232,6 +234,7 @@ BOOL LLFloaterPathfindingLinksets::isMessagingInProgress() const
 
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	: LLFloater(pSeed),
+	mSelfHandle(),
 	mPathfindingLinksets(),
 	mMessagingState(kMessagingInitial),
 	mLinksetsScrollList(NULL),
@@ -257,6 +260,7 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mEditPhantom(NULL),
 	mApplyEdits(NULL)
 {
+	mSelfHandle.bind(this);
 }
 
 LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
@@ -287,7 +291,7 @@ void LLFloaterPathfindingLinksets::sendNavMeshDataGetRequest()
 		else
 		{
 			setMessagingState(kMessagingFetchRequestSent);
-			LLHTTPClient::get(navMeshDataURL, new NavMeshDataGetResponder(navMeshDataURL, this));
+			LLHTTPClient::get(navMeshDataURL, new NavMeshDataGetResponder(navMeshDataURL, mSelfHandle));
 		}
 	}
 }
@@ -303,7 +307,7 @@ void LLFloaterPathfindingLinksets::sendNavMeshDataPutRequest(const LLSD& pPostDa
 		}
 		else
 		{
-			LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, this));
+			LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, mSelfHandle));
 		}
 	}
 }
@@ -756,48 +760,64 @@ void LLFloaterPathfindingLinksets::setPathState(LLPathfindingLinkset::EPathState
 // NavMeshDataGetResponder
 //---------------------------------------------------------------------------
 
-NavMeshDataGetResponder::NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+NavMeshDataGetResponder::NavMeshDataGetResponder(const std::string& pNavMeshDataGetURL,
+	const LLHandle<LLFloaterPathfindingLinksets> &pLinksetsHandle)
 	: mNavMeshDataGetURL(pNavMeshDataGetURL),
-	mLinksetsFloater(pLinksetsFloater)
+	mLinksetsFloaterHandle(pLinksetsHandle)
 {
 }
 
 NavMeshDataGetResponder::~NavMeshDataGetResponder()
 {
-	mLinksetsFloater = NULL;
 }
 
 void NavMeshDataGetResponder::result(const LLSD& pContent)
 {
-	mLinksetsFloater->handleNavMeshDataGetReply(pContent);
+	LLFloaterPathfindingLinksets *linksetsFloater = mLinksetsFloaterHandle.get();
+	if (linksetsFloater != NULL)
+	{
+		linksetsFloater->handleNavMeshDataGetReply(pContent);
+	}
 }
 
 void NavMeshDataGetResponder::error(U32 status, const std::string& reason)
 {
-	mLinksetsFloater->handleNavMeshDataGetError(mNavMeshDataGetURL, reason);
+	LLFloaterPathfindingLinksets *linksetsFloater = mLinksetsFloaterHandle.get();
+	if (linksetsFloater != NULL)
+	{
+		linksetsFloater->handleNavMeshDataGetError(mNavMeshDataGetURL, reason);
+	}
 }
 
 //---------------------------------------------------------------------------
 // NavMeshDataPutResponder
 //---------------------------------------------------------------------------
 
-NavMeshDataPutResponder::NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL, LLFloaterPathfindingLinksets *pLinksetsFloater)
+NavMeshDataPutResponder::NavMeshDataPutResponder(const std::string& pNavMeshDataPutURL,
+	const LLHandle<LLFloaterPathfindingLinksets> &pLinksetsHandle)
 	: mNavMeshDataPutURL(pNavMeshDataPutURL),
-	mLinksetsFloater(pLinksetsFloater)
+	mLinksetsFloaterHandle(pLinksetsHandle)
 {
 }
 
 NavMeshDataPutResponder::~NavMeshDataPutResponder()
 {
-	mLinksetsFloater = NULL;
 }
 
 void NavMeshDataPutResponder::result(const LLSD& pContent)
 {
-	mLinksetsFloater->handleNavMeshDataPutReply(pContent);
+	LLFloaterPathfindingLinksets *linksetsFloater = mLinksetsFloaterHandle.get();
+	if (linksetsFloater != NULL)
+	{
+		linksetsFloater->handleNavMeshDataPutReply(pContent);
+	}
 }
 
 void NavMeshDataPutResponder::error(U32 status, const std::string& reason)
 {
-	mLinksetsFloater->handleNavMeshDataPutError(mNavMeshDataPutURL, reason);
+	LLFloaterPathfindingLinksets *linksetsFloater = mLinksetsFloaterHandle.get();
+	if (linksetsFloater != NULL)
+	{
+		linksetsFloater->handleNavMeshDataPutError(mNavMeshDataPutURL, reason);
+	}
 }

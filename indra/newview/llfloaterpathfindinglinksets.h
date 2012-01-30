@@ -28,13 +28,13 @@
 #ifndef LL_LLFLOATERPATHFINDINGLINKSETS_H
 #define LL_LLFLOATERPATHFINDINGLINKSETS_H
 
-#include "llsd.h"
-#include "v3math.h"
+#include "llhandle.h"
 #include "llfloater.h"
 #include "lluuid.h"
 #include "llpathfindinglinkset.h"
 #include "llfilteredpathfindinglinksets.h"
 
+class LLSD;
 class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
@@ -76,30 +76,31 @@ public:
 protected:
 
 private:
-	LLFilteredPathfindingLinksets mPathfindingLinksets;
-	EMessagingState               mMessagingState;
-	LLScrollListCtrl              *mLinksetsScrollList;
-	LLTextBase                    *mLinksetsStatus;
-	LLLineEditor                  *mFilterByName;
-	LLLineEditor                  *mFilterByDescription;
-	LLCheckBoxCtrl                *mFilterByWalkable;
-	LLCheckBoxCtrl                *mFilterByObstacle;
-	LLCheckBoxCtrl                *mFilterByIgnored;
-	LLRadioGroup                  *mEditPathState;
-	LLUICtrl                      *mEditPathStateWalkable;
-	LLUICtrl                      *mEditPathStateObstacle;
-	LLUICtrl                      *mEditPathStateIgnored;
-	LLTextBase                    *mLabelWalkabilityCoefficients;
-	LLTextBase                    *mLabelEditA;
-	LLTextBase                    *mLabelEditB;
-	LLTextBase                    *mLabelEditC;
-	LLTextBase                    *mLabelEditD;
-	LLLineEditor                  *mEditA;
-	LLLineEditor                  *mEditB;
-	LLLineEditor                  *mEditC;
-	LLLineEditor                  *mEditD;
-	LLCheckBoxCtrl                *mEditPhantom;
-	LLButton                      *mApplyEdits;
+	LLRootHandle<LLFloaterPathfindingLinksets> mSelfHandle;
+	LLFilteredPathfindingLinksets              mPathfindingLinksets;
+	EMessagingState                            mMessagingState;
+	LLScrollListCtrl                           *mLinksetsScrollList;
+	LLTextBase                                 *mLinksetsStatus;
+	LLLineEditor                               *mFilterByName;
+	LLLineEditor                               *mFilterByDescription;
+	LLCheckBoxCtrl                             *mFilterByWalkable;
+	LLCheckBoxCtrl                             *mFilterByObstacle;
+	LLCheckBoxCtrl                             *mFilterByIgnored;
+	LLRadioGroup                               *mEditPathState;
+	LLUICtrl                                   *mEditPathStateWalkable;
+	LLUICtrl                                   *mEditPathStateObstacle;
+	LLUICtrl                                   *mEditPathStateIgnored;
+	LLTextBase                                 *mLabelWalkabilityCoefficients;
+	LLTextBase                                 *mLabelEditA;
+	LLTextBase                                 *mLabelEditB;
+	LLTextBase                                 *mLabelEditC;
+	LLTextBase                                 *mLabelEditD;
+	LLLineEditor                               *mEditA;
+	LLLineEditor                               *mEditB;
+	LLLineEditor                               *mEditC;
+	LLLineEditor                               *mEditD;
+	LLCheckBoxCtrl                             *mEditPhantom;
+	LLButton                                   *mApplyEdits;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
