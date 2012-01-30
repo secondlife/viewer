@@ -261,11 +261,15 @@ static std::string WindowsErrorString(const std::string& operation)
 					   NULL)
 		!= 0) 
 	{
+        // convert from wide-char string to multi-byte string
 		char message[256];
 		wcstombs(message, error_str, sizeof(message));
 		message[sizeof(message)-1] = 0;
 		LocalFree(error_str);
-		return STRINGIZE(operation << " failed (" << result << "): " << message);
+		// convert to std::string to trim trailing whitespace
+		std::string mbsstr(message);
+		mbsstr.erase(mbsstr.find_last_not_of(" \t\r\n"));
+		return STRINGIZE(operation << " failed (" << result << "): " << mbsstr);
 	}
 	return STRINGIZE(operation << " failed (" << result
 					 << "), but FormatMessage() did not explain");
