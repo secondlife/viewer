@@ -42,7 +42,7 @@ struct LLProcessError: public std::runtime_error
 	LLProcessError(const std::string& msg): std::runtime_error(msg) {}
 };
 
-LLProcessPtr LLProcess::create(const LLSDParamAdapter<Params>& params)
+LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 {
 	try
 	{
@@ -55,8 +55,9 @@ LLProcessPtr LLProcess::create(const LLSDParamAdapter<Params>& params)
 	}
 }
 
-LLProcess::LLProcess(const LLSDParamAdapter<Params>& params):
+LLProcess::LLProcess(const LLSDOrParams& params):
 	mProcessID(0),
+	mProcessHandle(0),
 	mAutokill(params.autokill)
 {
 	if (! params.validateBlock(true))
@@ -78,8 +79,18 @@ LLProcess::~LLProcess()
 
 bool LLProcess::isRunning(void)
 {
-	mProcessID = isRunning(mProcessID, mDesc);
-	return (mProcessID != 0);
+	mProcessHandle = isRunning(mProcessHandle, mDesc);
+	return (mProcessHandle != 0);
+}
+
+LLProcess::id LLProcess::getProcessID() const
+{
+	return mProcessID;
+}
+
+LLProcess::handle LLProcess::getProcessHandle() const
+{
+	return mProcessHandle;
 }
 
 std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
@@ -122,7 +133,7 @@ static std::string WindowsErrorString(const std::string& operation);
 class LLJob: public LLSingleton<LLJob>
 {
 public:
-	void assignProcess(const std::string& prog, HANDLE hProcess)
+	void assignProcess(const std::string& prog, handle hProcess)
 	{
 		// If we never managed to initialize this Job Object, can't use it --
 		// but don't keep spamming the log, we already emitted warnings when
@@ -164,10 +175,10 @@ private:
 		}
 	}
 
-	HANDLE mJob;
+	handle mJob;
 };
 
-void LLProcess::launch(const LLSDParamAdapter<Params>& params)
+void LLProcess::launch(const LLSDOrParams& params)
 {
 	PROCESS_INFORMATION pinfo;
 	STARTUPINFOA sinfo = { sizeof(sinfo) };
@@ -201,28 +212,28 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 		throw LLProcessError(WindowsErrorString("CreateProcessA"));
 	}
 
-	// foo = pinfo.dwProcessId; // get your pid here if you want to use it later on
 	// CloseHandle(pinfo.hProcess); // stops leaks - nothing else
-	mProcessID = pinfo.hProcess;
+	mProcessID = pinfo.dwProcessId;
+	mProcessHandle = pinfo.hProcess;
 	CloseHandle(pinfo.hThread); // stops leaks - nothing else
 
-	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << pinfo.dwProcessId << ')');
-	LL_INFOS("LLProcess") << "Launched " << params << " (" << pinfo.dwProcessId << ")" << LL_ENDL;
+	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << mProcessID << ')');
+	LL_INFOS("LLProcess") << "Launched " << params << " (" << mProcessID << ")" << LL_ENDL;
 
 	// Now associate the new child process with our Job Object -- unless
 	// autokill is false, i.e. caller asserts the child should persist.
 	if (params.autokill)
 	{
-		LLJob::instance().assignProcess(mDesc, mProcessID);
+		LLJob::instance().assignProcess(mDesc, mProcessHandle);
 	}
 }
 
-LLProcess::id LLProcess::isRunning(id handle, const std::string& desc)
+LLProcess::handle LLProcess::isRunning(handle h, const std::string& desc)
 {
-	if (! handle)
+	if (! h)
 		return 0;
 
-	DWORD waitresult = WaitForSingleObject(handle, 0);
+	DWORD waitresult = WaitForSingleObject(h, 0);
 	if(waitresult == WAIT_OBJECT_0)
 	{
 		// the process has completed.
@@ -233,16 +244,16 @@ LLProcess::id LLProcess::isRunning(id handle, const std::string& desc)
 		return 0;
 	}
 
-	return handle;
+	return h;
 }
 
 bool LLProcess::kill(void)
 {
-	if (! mProcessID)
+	if (! mProcessHandle)
 		return false;
 
 	LL_INFOS("LLProcess") << "killing " << mDesc << LL_ENDL;
-	TerminateProcess(mProcessID, 0);
+	TerminateProcess(mProcessHandle, 0);
 	return ! isRunning();
 }
 
@@ -302,7 +313,7 @@ static bool reap_pid(pid_t pid)
 	return false;
 }
 
-void LLProcess::launch(const LLSDParamAdapter<Params>& params)
+void LLProcess::launch(const LLSDOrParams& params)
 {
 	// flush all buffers before the child inherits them
 	::fflush(NULL);
@@ -359,6 +370,7 @@ void LLProcess::launch(const LLSDParamAdapter<Params>& params)
 
 	// parent process
 	mProcessID = child;
+	mProcessHandle = child;
 
 	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << mProcessID << ')');
 	LL_INFOS("LLProcess") << "Launched " << params << " (" << mProcessID << ")" << LL_ENDL;

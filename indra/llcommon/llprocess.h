@@ -35,7 +35,7 @@
 
 #if LL_WINDOWS
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include <windows.h>                // HANDLE (eye roll)
 #endif
 
 class LLProcess;
@@ -79,6 +79,7 @@ public:
 		/// implicitly kill process on destruction of LLProcess object
 		Optional<bool> autokill;
 	};
+	typedef LLSDParamAdapter<Params> LLSDOrParams;
 
 	/**
 	 * Factory accepting either plain LLSD::Map or Params block.
@@ -91,7 +92,7 @@ public:
 	 * cwd		  (optional, string, dft no chdir): change to this directory before executing
 	 * autokill	  (optional, bool, dft true):		implicit kill() on ~LLProcess
 	 */
-	static LLProcessPtr create(const LLSDParamAdapter<Params>& params);
+	static LLProcessPtr create(const LLSDOrParams& params);
 	virtual ~LLProcess();
 
 	// isRunning isn't const because, if child isn't running, it clears stored
@@ -103,35 +104,46 @@ public:
 	bool kill(void);
 
 #if LL_WINDOWS
-	typedef HANDLE id;
+	typedef int id;                 ///< as returned by getProcessID()
+	typedef HANDLE handle;          ///< as returned by getProcessHandle()
 #else
-	typedef pid_t  id;
+	typedef pid_t id;
+	typedef pid_t handle;
 #endif
-	/// Get platform-specific process ID
-	id getProcessID() const { return mProcessID; };
+	/**
+	 * Get an int-like id value. This is primarily intended for a human reader
+	 * to differentiate processes.
+	 */
+	id getProcessID() const;
+	/**
+	 * Get a "handle" of a kind that you might pass to platform-specific API
+	 * functions to engage features not directly supported by LLProcess.
+	 */
+	handle getProcessHandle() const;
 
 	/**
-	 * Test if a process (id obtained from getProcessID()) is still
-	 * running. Return is same nonzero id value if still running, else
+	 * Test if a process (@c handle obtained from getProcessHandle()) is still
+	 * running. Return same nonzero @c handle value if still running, else
 	 * zero, so you can test it like a bool. But if you want to update a
 	 * stored variable as a side effect, you can write code like this:
 	 * @code
-	 * childpid = LLProcess::isRunning(childpid);
+	 * hchild = LLProcess::isRunning(hchild);
 	 * @endcode
 	 * @note This method is intended as a unit-test hook, not as the first of
-	 * a whole set of operations supported on freestanding @c id values. New
-	 * functionality should be added as nonstatic members operating on
-	 * mProcessID.
+	 * a whole set of operations supported on freestanding @c handle values.
+	 * New functionality should be added as nonstatic members operating on
+	 * the same data as getProcessHandle().
 	 */
-	static id isRunning(id, const std::string& desc="");
+	static handle isRunning(handle, const std::string& desc="");
 
 private:
 	/// constructor is private: use create() instead
-	LLProcess(const LLSDParamAdapter<Params>& params);
-	void launch(const LLSDParamAdapter<Params>& params);
+	LLProcess(const LLSDOrParams& params);
+	void launch(const LLSDOrParams& params);
 
 	std::string mDesc;
 	id mProcessID;
+	handle mProcessHandle;
 	bool mAutokill;
 };
 

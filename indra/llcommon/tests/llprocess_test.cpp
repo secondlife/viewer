@@ -599,7 +599,7 @@ namespace tut
     {
         set_test_name("implicit kill()");
         NamedTempFile out("out", "not started");
-        LLProcess::id pid(0);
+        LLProcess::handle phandle(0);
         {
             PythonProcessLauncher py("kill()",
                                      "from __future__ import with_statement\n"
@@ -614,8 +614,8 @@ namespace tut
             py.mParams.args.add(out.getName());
             py.mPy = LLProcess::create(py.mParams);
             ensure("couldn't launch kill() script", py.mPy);
-            // Capture id for later
-            pid = py.mPy->getProcessID();
+            // Capture handle for later
+            phandle = py.mPy->getProcessHandle();
             // Wait for the script to wake up and do its first write
             int i = 0, timeout = 60;
             for ( ; i < timeout; ++i)
@@ -630,7 +630,7 @@ namespace tut
             // Destroy the LLProcess, which should kill the child.
         }
         // wait for the script to terminate... one way or another.
-        while (LLProcess::isRunning(pid))
+        while (LLProcess::isRunning(phandle))
         {
             sleep(1);
         }
@@ -646,7 +646,7 @@ namespace tut
         set_test_name("autokill");
         NamedTempFile from("from", "not started");
         NamedTempFile to("to", "");
-        LLProcess::id pid(0);
+        LLProcess::handle phandle(0);
         {
             PythonProcessLauncher py("autokill",
                                      "from __future__ import with_statement\n"
@@ -672,8 +672,8 @@ namespace tut
             py.mParams.autokill = false;
             py.mPy = LLProcess::create(py.mParams);
             ensure("couldn't launch kill() script", py.mPy);
-            // Capture id for later
-            pid = py.mPy->getProcessID();
+            // Capture handle for later
+            phandle = py.mPy->getProcessHandle();
             // Wait for the script to wake up and do its first write
             int i = 0, timeout = 60;
             for ( ; i < timeout; ++i)
@@ -695,7 +695,7 @@ namespace tut
             outf << "go";
         } // flush and close.
         // now wait for the script to terminate... one way or another.
-        while (LLProcess::isRunning(pid))
+        while (LLProcess::isRunning(phandle))
         {
             sleep(1);
         }
