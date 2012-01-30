@@ -133,7 +133,7 @@ static std::string WindowsErrorString(const std::string& operation);
 class LLJob: public LLSingleton<LLJob>
 {
 public:
-	void assignProcess(const std::string& prog, handle hProcess)
+	void assignProcess(const std::string& prog, LLProcess::handle hProcess)
 	{
 		// If we never managed to initialize this Job Object, can't use it --
 		// but don't keep spamming the log, we already emitted warnings when
@@ -175,7 +175,7 @@ private:
 		}
 	}
 
-	handle mJob;
+	LLProcess::handle mJob;
 };
 
 void LLProcess::launch(const LLSDOrParams& params)
