@@ -160,7 +160,7 @@ void LLWindowShade::draw()
 
 	notification_area->reshape(notification_area->getRect().getWidth(), 
 		llclamp(message_rect.getHeight() + 15, 
-				llmin(mFormHeight, MAX_NOTIFICATION_AREA_HEIGHT),
+				llmax(mFormHeight, MIN_NOTIFICATION_AREA_HEIGHT),
 				MAX_NOTIFICATION_AREA_HEIGHT));
 
 	LLUICtrl::draw();
@@ -176,12 +176,12 @@ void LLWindowShade::draw()
 	{
 		hide();
 	}
-	else if (notification_area->getCollapseFactor() < 0.01f)
+	else if (notification_area->getVisibleAmount() < 0.01f)
 	{
 		displayLatestNotification();
 	}
 
-	if (!notification_area->getVisible() && (notification_area->getCollapseFactor() < 0.001f))
+	if (!notification_area->getVisible() && (notification_area->getVisibleAmount() < 0.001f))
 	{
 		getChildRef<LLLayoutPanel>("background_area").setBackgroundVisible(false);
 		setMouseOpaque(false);
@@ -369,6 +369,11 @@ void LLWindowShade::setBackgroundImage(LLUIImage* image)
 void LLWindowShade::setTextColor(LLColor4 color)
 {
 	getChild<LLTextBox>("notification_text")->setColor(color);
+}
+
+bool LLWindowShade::isShown() const
+{
+	return getChildRef<LLLayoutPanel>("notification_area").getVisible();
 }
 
 void LLWindowShade::setCanClose(bool can_close)

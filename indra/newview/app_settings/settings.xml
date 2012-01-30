@@ -4271,16 +4271,49 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
-    <key>InventoryMarketplaceUserStatus</key>
+	<key>InventoryOutboxLogging</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable debug output associated with the Merchant Outbox.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
+    <key>InventoryOutboxMaxFolderCount</key>
     <map>
       <key>Comment</key>
-      <string>Marketplace user status.</string>
+      <string>Maximum number of subfolders allowed in a listing in the merchant outbox.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string />
+      <integer>21</integer>
+    </map>
+    <key>InventoryOutboxMaxFolderDepth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of nested levels of subfolders allowed in a listing in the merchant outbox.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>InventoryOutboxMaxItemCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of items allowed in a listing in the merchant outbox.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>200</integer>
     </map>
     <key>InventorySortOrder</key>
     <map>
@@ -11366,17 +11399,6 @@
       <string>S32</string>
       <key>Value</key>
       <real>3</real>
-    </map>
-    <key>UIResizeBarOverlap</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of UI resize bar overlap</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>1</real>
     </map>
     <key>UIScaleFactor</key>
     <map>

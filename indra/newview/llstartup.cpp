@@ -804,9 +804,8 @@ bool idle_startup()
 #ifdef _WIN32
 		MSG msg;
 		while( PeekMessage( &msg, /*All hWnds owned by this thread */ NULL, WM_KEYFIRST, WM_KEYLAST, PM_REMOVE ) )
-		{
-			display_startup();
-		}
+		{ }
+		display_startup();
 #endif
 		timeout.reset();
 		return FALSE;

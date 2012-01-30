@@ -29,7 +29,9 @@
 
 #include "llpanel.h"
 
+class LLButton;
 class LLInventoryPanel;
+class LLUICtrl;
 
 class LLPanelMarketplaceInbox : public LLPanel
 {
@@ -66,9 +68,10 @@ private:
 	void onFocusReceived();
 
 private:
-	LLInventoryPanel* mInventoryPanel;
+	LLUICtrl *			mFreshCountCtrl;
+	LLButton *			mInboxButton;
+	LLInventoryPanel *	mInventoryPanel;
 };
 
 
 #endif //LL_LLPANELMARKETPLACEINBOX_H
-
