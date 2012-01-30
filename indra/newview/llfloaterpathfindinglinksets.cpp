@@ -372,6 +372,7 @@ void LLFloaterPathfindingLinksets::setMessagingState(EMessagingState pMessagingS
 {
 	mMessagingState = pMessagingState;
 	updateLinksetsStatusMessage();
+	updateEditFields();
 }
 
 void LLFloaterPathfindingLinksets::onApplyFiltersClicked()
@@ -524,6 +525,7 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 
 	mLinksetsScrollList->selectMultiple(selectedUUIDs);
 	updateLinksetsStatusMessage();
+	updateEditFields();
 }
 
 void LLFloaterPathfindingLinksets::selectAllLinksets()
