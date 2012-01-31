@@ -93,7 +93,7 @@ void main()
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density * 1.0 + haze_density * 0.25) * (density_multiplier * max_y);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 
 	// Calculate relative weights
 	temp1 = blue_density + haze_density;

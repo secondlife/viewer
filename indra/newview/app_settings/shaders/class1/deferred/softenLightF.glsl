@@ -159,7 +159,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 
 	//sunlight attenuation effect (hue and brightness) due to atmosphere
 	//this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density * 1.0 + vec4(haze_density) * 0.25) * (density_multiplier * max_y);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 		//I had thought blue_density and haze_density should have equal weighting,
 		//but attenuation due to haze_density tends to seem too strong
 
