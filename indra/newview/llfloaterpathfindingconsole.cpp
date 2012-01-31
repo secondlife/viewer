@@ -313,6 +313,12 @@ void LLFloaterPathfindingConsole::setHasNavMeshReceived()
 {
 	std::string str = getString("navmesh_fetch_complete_available");
 	mPathfindingStatus->setText((LLStringExplicit)str);
+	//check to see if all regions are done loading and they are then stitch the navmeshes together
+	--mNavMeshCnt;
+	if ( mNavMeshCnt == 0 )
+	{
+		//LLPathingLib::getInstance()->stitchNavMeshes();
+	}
 }
 
 void LLFloaterPathfindingConsole::setHasNoNavMesh()
@@ -335,7 +341,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mTerrainMaterialA(NULL),
 	mTerrainMaterialB(NULL),
 	mTerrainMaterialC(NULL),
-	mTerrainMaterialD(NULL)
+	mTerrainMaterialD(NULL),
+	mNavMeshCnt(0)
 {
 	for (int i=0;i<MAX_OBSERVERS;++i)
 	{
@@ -353,12 +360,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	if ( !LLPathingLib::getInstance() )
 	{
 		LLPathingLib::initSystem();
-	}
-	//prep# test remove
-	//LLSD content;
-	//LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( content );
-	//return true;
-	//prep# end test
+	}	
 	if ( LLPathingLib::getInstance() == NULL )
 	{ 
 		std::string str = getString("navmesh_library_not_implemented");
@@ -370,6 +372,8 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	else
 	{		
 		mCurrentMDO = 0;
+		mNavMeshCnt = 0;
+
 		//make sure the region is essentially enabled for navmesh support
 		std::string capability = "RetrieveNavMeshSrc";
 
@@ -383,7 +387,15 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		shift.push_back( CURRENT_REGION );
 		//pCurrentRegion->getNeighboringRegionsStatus( shift );
 
+		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
+		if ( shift.size() != regions.size() )
+		{
+			shift.clear();regions.clear();
+			regions.push_back( pCurrentRegion );
+			shift.push_back( CURRENT_REGION );				
+		}
 		int regionCnt = regions.size();
+		mNavMeshCnt = regionCnt;
 		for ( int i=0; i<regionCnt; ++i )
 		{
 			std::string url = regions[i]->getCapability( capability );
@@ -399,6 +411,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 			}				
 			else
 			{
+				--mNavMeshCnt;
 				std::string str = getString("navmesh_region_not_enabled");
 				LLStyle::Params styleParams;
 				styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
@@ -610,7 +623,6 @@ void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, c
 		mPathData.mStartPointB		= point1;
 		mPathData.mEndPointB		= point2;		
 		mPathData.mCharacterWidth	= getCharacterWidth();
-		//prep#TODO# possibly consider an alternate behavior - perhaps add a "path" button to submit the data.
 		LLPathingLib::getInstance()->generatePath( mPathData );
 		break;
 
