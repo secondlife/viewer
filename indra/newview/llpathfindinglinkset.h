@@ -47,7 +47,7 @@ public:
 		kIgnored
 	} EPathState;
 
-	LLPathfindingLinkset(const std::string &pUUID, const LLSD &pNavMeshItem);
+	LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetItem);
 	LLPathfindingLinkset(const LLPathfindingLinkset& pOther);
 	virtual ~LLPathfindingLinkset();
 
@@ -81,7 +81,7 @@ public:
 	inline S32                getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 	void                      setWalkabilityCoefficientD(S32 pD);
 
-	LLSD                      getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
+	LLSD                      encodeAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
 
 protected:
 

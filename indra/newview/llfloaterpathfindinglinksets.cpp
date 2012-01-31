@@ -672,7 +672,7 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 			const LLFilteredPathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(uuid.asString());
 			const LLPathfindingLinkset &linkset = linksetIter->second;
 
-			LLSD itemData = linkset.getAlteredFields(pathState, aValue, bValue, cValue, dValue, isPhantom);
+			LLSD itemData = linkset.encodeAlteredFields(pathState, aValue, bValue, cValue, dValue, isPhantom);
 
 			if (!itemData.isUndefined())
 			{

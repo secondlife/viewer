@@ -61,12 +61,12 @@ public:
 	typedef std::map<std::string, LLPathfindingLinkset> PathfindingLinksetMap;
 
 	LLFilteredPathfindingLinksets();
-	LLFilteredPathfindingLinksets(const LLSD& pNavMeshData);
+	LLFilteredPathfindingLinksets(const LLSD& pLinksetItems);
 	LLFilteredPathfindingLinksets(const LLFilteredPathfindingLinksets& pOther);
 	virtual ~LLFilteredPathfindingLinksets();
 
-	void                         setPathfindingLinksets(const LLSD& pNavMeshData);
-	void                         updatePathfindingLinksets(const LLSD& pNavMeshData);
+	void                         setPathfindingLinksets(const LLSD& pLinksetItems);
+	void                         updatePathfindingLinksets(const LLSD& pLinksetItems);
 	void                         clearPathfindingLinksets();
 
 	const PathfindingLinksetMap& getAllLinksets() const;
