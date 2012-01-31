@@ -466,6 +466,8 @@ Hiro Sommambulist
 	VWR-132
 	VWR-136
 	VWR-143
+Hitomi Tiponi
+	STORM-1741
 Holger Gilruth
 Horatio Freund
 Hoze Menges
@@ -603,6 +605,7 @@ Jonathan Yap
 	STORM-653
 	STORM-1737
 	STORM-1733
+	STORM-1741
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
