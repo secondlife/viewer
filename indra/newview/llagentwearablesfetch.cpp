@@ -111,6 +111,12 @@ void LLInitialWearablesFetch::add(InitialWearableData &data)
 
 void LLInitialWearablesFetch::processContents()
 {
+	if(!gAgentAvatarp) //no need to process wearables if the agent avatar is deleted.
+	{
+		delete this;
+		return ;
+	}
+
 	// Fetch the wearable items from the Current Outfit Folder
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;

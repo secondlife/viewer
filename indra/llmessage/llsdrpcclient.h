@@ -240,9 +240,16 @@ public:
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
 		lldebugs << "LLSDRPCClientFactory::build" << llendl;
-		LLIOPipe::ptr_t service(new Client);
-		chain.push_back(service);
 		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		if(!http->isValid())
+		{
+			llwarns << "Creating LLURLRequest failed." << llendl ;
+			delete http;
+			return false;
+		}
+
+		LLIOPipe::ptr_t service(new Client);
+		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
 		http->addHeader("Content-Type: text/llsd");
 		if(mURL.empty())
@@ -283,9 +290,16 @@ public:
 	virtual bool build(LLPumpIO::chain_t& chain, LLSD context) const
 	{
 		lldebugs << "LLXMLSDRPCClientFactory::build" << llendl;
-		LLIOPipe::ptr_t service(new Client);
-		chain.push_back(service);
+
 		LLURLRequest* http(new LLURLRequest(LLURLRequest::HTTP_POST));
+		if(!http->isValid())
+		{
+			llwarns << "Creating LLURLRequest failed." << llendl ;
+			delete http;
+			return false ;
+		}
+		LLIOPipe::ptr_t service(new Client);
+		chain.push_back(service);		
 		LLIOPipe::ptr_t http_pipe(http);
 		http->addHeader("Content-Type: text/xml");
 		if(mURL.empty())

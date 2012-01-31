@@ -232,7 +232,8 @@ LLSD LLHTTPAssetRequest::getFullDetails() const
 void LLHTTPAssetRequest::setupCurlHandle()
 {
 	// *NOTE: Similar code exists in mapserver/llcurlutil.cpp  JC
-	mCurlHandle = curl_easy_init();
+	mCurlHandle = LLCurl::newEasyHandle();
+	llassert_always(mCurlHandle != NULL) ;
 
 	// Apply proxy settings if configured to do so
 	LLProxy::getInstance()->applyProxySettings(mCurlHandle);
@@ -278,7 +279,7 @@ void LLHTTPAssetRequest::setupCurlHandle()
 
 void LLHTTPAssetRequest::cleanupCurlHandle()
 {
-	curl_easy_cleanup(mCurlHandle);
+	LLCurl::deleteEasyHandle(mCurlHandle);
 	if (mAssetStoragep)
 	{
 		// Terminating a request.  Thus upload or download is no longer pending.
@@ -429,12 +430,13 @@ void LLHTTPAssetStorage::_init(const std::string& web_host, const std::string& l
 
 	// curl_global_init moved to LLCurl::initClass()
 	
-	mCurlMultiHandle = curl_multi_init();
+	mCurlMultiHandle = LLCurl::newMultiHandle() ;
+	llassert_always(mCurlMultiHandle != NULL) ;
 }
 
 LLHTTPAssetStorage::~LLHTTPAssetStorage()
 {
-	curl_multi_cleanup(mCurlMultiHandle);
+	LLCurl::deleteMultiHandle(mCurlMultiHandle);
 	mCurlMultiHandle = NULL;
 	
 	// curl_global_cleanup moved to LLCurl::initClass()
