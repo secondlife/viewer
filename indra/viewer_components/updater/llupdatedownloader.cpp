@@ -39,7 +39,7 @@
 #include "llsdserialize.h"
 #include "llthread.h"
 #include "llupdaterservice.h"
-
+#include "llcurl.h"
 
 class LLUpdateDownloader::Implementation:
 	public LLThread
@@ -198,13 +198,19 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 
 LLUpdateDownloader::Implementation::~Implementation()
 {
-	if(isDownloading()) {
+	if(isDownloading()) 
+	{
 		cancel();
 		shutdown();
-	} else {
+	} 
+	else 
+	{
 		; // No op.
 	}
-	if(mCurl) curl_easy_cleanup(mCurl);
+	if(mCurl)
+	{
+		LLCurl::deleteEasyHandle(mCurl);
+	}
 }
 
 
@@ -406,9 +412,12 @@ void LLUpdateDownloader::Implementation::run(void)
 
 void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url, bool processHeader)
 {
-	if(mCurl == 0) {
-		mCurl = curl_easy_init();
-	} else {
+	if(mCurl == 0) 
+	{
+		mCurl = LLCurl::newEasyHandle();
+	} 
+	else 
+	{
 		curl_easy_reset(mCurl);
 	}
 	

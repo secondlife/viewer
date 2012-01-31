@@ -31,6 +31,7 @@
 
 #include "llbuffer.h"
 #include "llmemtype.h"
+#include "llthread.h"
 
 static const S32 DEFAULT_OUTPUT_SEGMENT_SIZE = 1024 * 4;
 
@@ -62,6 +63,7 @@ int LLBufferStreamBuf::underflow()
 		return EOF;
 	}
 
+	LLMutexLock lock(mBuffer->getMutex());
 	LLBufferArray::segment_iterator_t iter;
 	LLBufferArray::segment_iterator_t end = mBuffer->endSegment();
 	U8* last_pos = (U8*)gptr();
@@ -149,6 +151,7 @@ int LLBufferStreamBuf::overflow(int c)
 	// since we got here, we have a buffer, and we have a character to
 	// put on it.
 	LLBufferArray::segment_iterator_t it;
+	LLMutexLock lock(mBuffer->getMutex());
 	it = mBuffer->makeSegment(mChannels.out(), DEFAULT_OUTPUT_SEGMENT_SIZE);
 	if(it != mBuffer->endSegment())
 	{
@@ -210,6 +213,7 @@ int LLBufferStreamBuf::sync()
 
 	// *NOTE: I bet we could just --address if address is not NULL.
 	// Need to think about that.
+	LLMutexLock lock(mBuffer->getMutex());
 	address = mBuffer->seek(mChannels.out(), address, -1);
 	if(address)
 	{
@@ -273,6 +277,8 @@ streampos LLBufferStreamBuf::seekoff(
 			// NULL is fine
 			break;
 		}
+
+		LLMutexLock lock(mBuffer->getMutex());
 		address = mBuffer->seek(mChannels.in(), base_addr, off);
 		if(address)
 		{
@@ -304,6 +310,8 @@ streampos LLBufferStreamBuf::seekoff(
 			// NULL is fine
 			break;
 		}
+
+		LLMutexLock lock(mBuffer->getMutex());
 		address = mBuffer->seek(mChannels.out(), base_addr, off);
 		if(address)
 		{

@@ -31,6 +31,18 @@
 #include "v3math.h"
 #include "lluuid.h"
 
+#define LINKSET_NAME_FIELD          "name"
+#define LINKSET_DESCRIPTION_FIELD   "description"
+#define LINKSET_LAND_IMPACT_FIELD   "landimpact"
+#define LINKSET_PERMANENT_FIELD     "permanent"
+#define LINKSET_WALKABLE_FIELD      "walkable"
+#define LINKSET_PHANTOM_FIELD       "phantom"
+#define LINKSET_WALKABILITY_A_FIELD "A"
+#define LINKSET_WALKABILITY_B_FIELD "B"
+#define LINKSET_WALKABILITY_C_FIELD "C"
+#define LINKSET_WALKABILITY_D_FIELD "D"
+#define LINKSET_POSITION_FIELD      "position"
+
 //---------------------------------------------------------------------------
 // LLPathfindingLinkset
 //---------------------------------------------------------------------------
@@ -38,7 +50,7 @@
 const S32 LLPathfindingLinkset::MIN_WALKABILITY_VALUE(0);
 const S32 LLPathfindingLinkset::MAX_WALKABILITY_VALUE(100);
 
-LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD& pNavMeshItem)
+LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD& pLinksetItem)
 	: mUUID(pUUID),
 	mName(),
 	mDescription(),
@@ -54,107 +66,107 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mWalkabilityCoefficientC(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientD(MIN_WALKABILITY_VALUE)
 {
-	llassert(pNavMeshItem.has("name"));
-	llassert(pNavMeshItem.get("name").isString());
-	mName = pNavMeshItem.get("name").asString();
+	llassert(pLinksetItem.has(LINKSET_NAME_FIELD));
+	llassert(pLinksetItem.get(LINKSET_NAME_FIELD).isString());
+	mName = pLinksetItem.get(LINKSET_NAME_FIELD).asString();
 
-	llassert(pNavMeshItem.has("description"));
-	llassert(pNavMeshItem.get("description").isString());
-	mDescription = pNavMeshItem.get("description").asString();
+	llassert(pLinksetItem.has(LINKSET_DESCRIPTION_FIELD));
+	llassert(pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).isString());
+	mDescription = pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).asString();
 
-	llassert(pNavMeshItem.has("landimpact"));
-	llassert(pNavMeshItem.get("landimpact").isInteger());
-	llassert(pNavMeshItem.get("landimpact").asInteger() >= 0);
-	mLandImpact = pNavMeshItem.get("landimpact").asInteger();
+	llassert(pLinksetItem.has(LINKSET_LAND_IMPACT_FIELD));
+	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).isInteger());
+	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
+	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
 
-	llassert(pNavMeshItem.has("permanent"));
-	llassert(pNavMeshItem.get("permanent").isBoolean());
-	bool isPermanent = pNavMeshItem.get("permanent").asBoolean();
+	llassert(pLinksetItem.has(LINKSET_PERMANENT_FIELD));
+	llassert(pLinksetItem.get(LINKSET_PERMANENT_FIELD).isBoolean());
+	bool isPermanent = pLinksetItem.get(LINKSET_PERMANENT_FIELD).asBoolean();
 
-	llassert(pNavMeshItem.has("walkable"));
-	llassert(pNavMeshItem.get("walkable").isBoolean());
-	bool isWalkable = pNavMeshItem.get("walkable").asBoolean();
+	llassert(pLinksetItem.has(LINKSET_WALKABLE_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABLE_FIELD).isBoolean());
+	bool isWalkable = pLinksetItem.get(LINKSET_WALKABLE_FIELD).asBoolean();
 
 	mPathState = getPathState(isPermanent, isWalkable);
 
-	llassert(pNavMeshItem.has("phantom"));
-	llassert(pNavMeshItem.get("phantom").isBoolean());
-	mIsPhantom = pNavMeshItem.get("phantom").asBoolean();
+	llassert(pLinksetItem.has(LINKSET_PHANTOM_FIELD));
+	llassert(pLinksetItem.get(LINKSET_PHANTOM_FIELD).isBoolean());
+	mIsPhantom = pLinksetItem.get(LINKSET_PHANTOM_FIELD).asBoolean();
 
-	llassert(pNavMeshItem.has("A"));
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_A_FIELD));
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	mIsWalkabilityCoefficientsF32 = pNavMeshItem.get("A").isReal();
+	mIsWalkabilityCoefficientsF32 = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isReal();
 	if (mIsWalkabilityCoefficientsF32)
 	{
 		// Old server-side storage was real
-		mWalkabilityCoefficientA = llround(pNavMeshItem.get("A").asReal() * 100.0f);
+		mWalkabilityCoefficientA = llround(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asReal() * 100.0f);
 
-		llassert(pNavMeshItem.has("B"));
-		llassert(pNavMeshItem.get("B").isReal());
-		mWalkabilityCoefficientB = llround(pNavMeshItem.get("B").asReal() * 100.0f);
+		llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isReal());
+		mWalkabilityCoefficientB = llround(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asReal() * 100.0f);
 
-		llassert(pNavMeshItem.has("C"));
-		llassert(pNavMeshItem.get("C").isReal());
-		mWalkabilityCoefficientC = llround(pNavMeshItem.get("C").asReal() * 100.0f);
+		llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isReal());
+		mWalkabilityCoefficientC = llround(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asReal() * 100.0f);
 
-		llassert(pNavMeshItem.has("D"));
-		llassert(pNavMeshItem.get("D").isReal());
-		mWalkabilityCoefficientD = llround(pNavMeshItem.get("D").asReal() * 100.0f);
+		llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isReal());
+		mWalkabilityCoefficientD = llround(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asReal() * 100.0f);
 	}
 	else
 	{
 		// New server-side storage will be integer
-		llassert(pNavMeshItem.get("A").isInteger());
-		mWalkabilityCoefficientA = pNavMeshItem.get("A").asInteger();
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
+		mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
 		llassert(mWalkabilityCoefficientA >= MIN_WALKABILITY_VALUE);
 		llassert(mWalkabilityCoefficientA <= MAX_WALKABILITY_VALUE);
 
-		llassert(pNavMeshItem.has("B"));
-		llassert(pNavMeshItem.get("B").isInteger());
-		mWalkabilityCoefficientB = pNavMeshItem.get("B").asInteger();
+		llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isInteger());
+		mWalkabilityCoefficientB = pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asInteger();
 		llassert(mWalkabilityCoefficientB >= MIN_WALKABILITY_VALUE);
 		llassert(mWalkabilityCoefficientB <= MAX_WALKABILITY_VALUE);
 
-		llassert(pNavMeshItem.has("C"));
-		llassert(pNavMeshItem.get("C").isInteger());
-		mWalkabilityCoefficientC = pNavMeshItem.get("C").asInteger();
+		llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isInteger());
+		mWalkabilityCoefficientC = pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asInteger();
 		llassert(mWalkabilityCoefficientC >= MIN_WALKABILITY_VALUE);
 		llassert(mWalkabilityCoefficientC <= MAX_WALKABILITY_VALUE);
 
-		llassert(pNavMeshItem.has("D"));
-		llassert(pNavMeshItem.get("D").isInteger());
-		mWalkabilityCoefficientD = pNavMeshItem.get("D").asInteger();
+		llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
+		llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isInteger());
+		mWalkabilityCoefficientD = pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asInteger();
 		llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
 		llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
 	}
 #else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	llassert(pNavMeshItem.get("A").isInteger());
-	mWalkabilityCoefficientA = pNavMeshItem.get("A").asInteger();
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
+	mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
 	llassert(mWalkabilityCoefficientA >= MIN_WALKABILITY_VALUE);
 	llassert(mWalkabilityCoefficientA <= MAX_WALKABILITY_VALUE);
 
-	llassert(pNavMeshItem.has("B"));
-	llassert(pNavMeshItem.get("B").isInteger());
-	mWalkabilityCoefficientB = pNavMeshItem.get("B").asInteger();
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isInteger());
+	mWalkabilityCoefficientB = pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asInteger();
 	llassert(mWalkabilityCoefficientB >= MIN_WALKABILITY_VALUE);
 	llassert(mWalkabilityCoefficientB <= MAX_WALKABILITY_VALUE);
 
-	llassert(pNavMeshItem.has("C"));
-	llassert(pNavMeshItem.get("C").isInteger());
-	mWalkabilityCoefficientC = pNavMeshItem.get("C").asInteger();
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isInteger());
+	mWalkabilityCoefficientC = pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asInteger();
 	llassert(mWalkabilityCoefficientC >= MIN_WALKABILITY_VALUE);
 	llassert(mWalkabilityCoefficientC <= MAX_WALKABILITY_VALUE);
 
-	llassert(pNavMeshItem.has("D"));
-	llassert(pNavMeshItem.get("D").isInteger());
-	mWalkabilityCoefficientD = pNavMeshItem.get("D").asInteger();
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isInteger());
+	mWalkabilityCoefficientD = pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asInteger();
 	llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
 	llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 
-	llassert(pNavMeshItem.has("position"));
-	llassert(pNavMeshItem.get("position").isArray());
-	mLocation.setValue(pNavMeshItem.get("position"));
+	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
+	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());
+	mLocation.setValue(pLinksetItem.get(LINKSET_POSITION_FIELD));
 }
 
 LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
@@ -269,75 +281,75 @@ void LLPathfindingLinkset::setWalkabilityCoefficientD(S32 pD)
 	mWalkabilityCoefficientD = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 }
 
-LLSD LLPathfindingLinkset::getAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const
+LLSD LLPathfindingLinkset::encodeAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const
 {
 	LLSD itemData;
 
 	if (mPathState != pPathState)
 	{
-		itemData["permanent"] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pPathState));
-		itemData["walkable"] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pPathState));
+		itemData[LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pPathState));
+		itemData[LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pPathState));
 	}
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	if (mIsWalkabilityCoefficientsF32)
 	{
 		if (mWalkabilityCoefficientA != pA)
 		{
-			itemData["A"] = llclamp(static_cast<F32>(pA) / 100.0f, 0.0f, 1.0f);
+			itemData[LINKSET_WALKABILITY_A_FIELD] = llclamp(static_cast<F32>(pA) / 100.0f, 0.0f, 1.0f);
 		}
 		if (mWalkabilityCoefficientB != pB)
 		{
-			itemData["B"] = llclamp(static_cast<F32>(pB) / 100.0f, 0.0f, 1.0f);
+			itemData[LINKSET_WALKABILITY_B_FIELD] = llclamp(static_cast<F32>(pB) / 100.0f, 0.0f, 1.0f);
 		}
 		if (mWalkabilityCoefficientC != pC)
 		{
-			itemData["C"] = llclamp(static_cast<F32>(pC) / 100.0f, 0.0f, 1.0f);
+			itemData[LINKSET_WALKABILITY_C_FIELD] = llclamp(static_cast<F32>(pC) / 100.0f, 0.0f, 1.0f);
 		}
 		if (mWalkabilityCoefficientD != pD)
 		{
-			itemData["D"] = llclamp(static_cast<F32>(pD) / 100.0f, 0.0f, 1.0f);
+			itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(static_cast<F32>(pD) / 100.0f, 0.0f, 1.0f);
 		}
 	}
 	else
 	{
 		if (mWalkabilityCoefficientA != pA)
 		{
-			itemData["A"] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+			itemData[LINKSET_WALKABILITY_A_FIELD] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 		}
 		if (mWalkabilityCoefficientB != pB)
 		{
-			itemData["B"] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+			itemData[LINKSET_WALKABILITY_B_FIELD] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 		}
 		if (mWalkabilityCoefficientC != pC)
 		{
-			itemData["C"] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+			itemData[LINKSET_WALKABILITY_C_FIELD] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 		}
 		if (mWalkabilityCoefficientD != pD)
 		{
-			itemData["D"] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+			itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 		}
 	}
 #else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	if (mWalkabilityCoefficientA != pA)
 	{
-		itemData["A"] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		itemData[LINKSET_WALKABILITY_A_FIELD] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
 	if (mWalkabilityCoefficientB != pB)
 	{
-		itemData["B"] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		itemData[LINKSET_WALKABILITY_B_FIELD] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
 	if (mWalkabilityCoefficientC != pC)
 	{
-		itemData["C"] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		itemData[LINKSET_WALKABILITY_C_FIELD] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
 	if (mWalkabilityCoefficientD != pD)
 	{
-		itemData["D"] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
+		itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	if (mIsPhantom != pIsPhantom)
 	{
-		itemData["phantom"] = static_cast<bool>(pIsPhantom);
+		itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(pIsPhantom);
 	}
 
 	return itemData;

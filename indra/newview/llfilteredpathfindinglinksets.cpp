@@ -122,7 +122,7 @@ LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets()
 {
 }
 
-LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets(const LLSD& pNavMeshData)
+LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets(const LLSD& pLinksetItems)
 	: mAllLinksets(),
 	mFilteredLinksets(),
 	mIsFiltersDirty(false),
@@ -132,7 +132,7 @@ LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets(const LLSD& pNavMes
 	mIsObstacleFilter(true),
 	mIsIgnoredFilter(true)
 {
-	setPathfindingLinksets(pNavMeshData);
+	setPathfindingLinksets(pLinksetItems);
 }
 
 LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets(const LLFilteredPathfindingLinksets& pOther)
@@ -152,15 +152,15 @@ LLFilteredPathfindingLinksets::~LLFilteredPathfindingLinksets()
 	clearPathfindingLinksets();
 }
 
-void LLFilteredPathfindingLinksets::setPathfindingLinksets(const LLSD& pNavMeshData)
+void LLFilteredPathfindingLinksets::setPathfindingLinksets(const LLSD& pLinksetItems)
 {
 	clearPathfindingLinksets();
 
-	for (LLSD::map_const_iterator navMeshDataIter = pNavMeshData.beginMap();
-		navMeshDataIter != pNavMeshData.endMap(); ++navMeshDataIter)
+	for (LLSD::map_const_iterator linksetItemIter = pLinksetItems.beginMap();
+		linksetItemIter != pLinksetItems.endMap(); ++linksetItemIter)
 	{
-		const std::string& uuid(navMeshDataIter->first);
-		const LLSD& linksetData = navMeshDataIter->second;
+		const std::string& uuid(linksetItemIter->first);
+		const LLSD& linksetData = linksetItemIter->second;
 		LLPathfindingLinkset linkset(uuid, linksetData);
 
 		mAllLinksets.insert(std::pair<std::string, LLPathfindingLinkset>(uuid, linkset));
@@ -169,13 +169,13 @@ void LLFilteredPathfindingLinksets::setPathfindingLinksets(const LLSD& pNavMeshD
 	mIsFiltersDirty = true;
 }
 
-void LLFilteredPathfindingLinksets::updatePathfindingLinksets(const LLSD& pNavMeshData)
+void LLFilteredPathfindingLinksets::updatePathfindingLinksets(const LLSD& pLinksetItems)
 {
-	for (LLSD::map_const_iterator navMeshDataIter = pNavMeshData.beginMap();
-		navMeshDataIter != pNavMeshData.endMap(); ++navMeshDataIter)
+	for (LLSD::map_const_iterator linksetItemIter = pLinksetItems.beginMap();
+		linksetItemIter != pLinksetItems.endMap(); ++linksetItemIter)
 	{
-		const std::string& uuid(navMeshDataIter->first);
-		const LLSD& linksetData = navMeshDataIter->second;
+		const std::string& uuid(linksetItemIter->first);
+		const LLSD& linksetData = linksetItemIter->second;
 		LLPathfindingLinkset linkset(uuid, linksetData);
 
 		PathfindingLinksetMap::iterator linksetIter = mAllLinksets.find(uuid);

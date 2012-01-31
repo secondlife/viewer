@@ -372,6 +372,7 @@ void LLFloaterPathfindingLinksets::setMessagingState(EMessagingState pMessagingS
 {
 	mMessagingState = pMessagingState;
 	updateLinksetsStatusMessage();
+	updateEditFields();
 }
 
 void LLFloaterPathfindingLinksets::onApplyFiltersClicked()
@@ -524,6 +525,7 @@ void LLFloaterPathfindingLinksets::updateLinksetsList()
 
 	mLinksetsScrollList->selectMultiple(selectedUUIDs);
 	updateLinksetsStatusMessage();
+	updateEditFields();
 }
 
 void LLFloaterPathfindingLinksets::selectAllLinksets()
@@ -670,7 +672,7 @@ void LLFloaterPathfindingLinksets::applyEditFields()
 			const LLFilteredPathfindingLinksets::PathfindingLinksetMap::const_iterator linksetIter = linksetsMap.find(uuid.asString());
 			const LLPathfindingLinkset &linkset = linksetIter->second;
 
-			LLSD itemData = linkset.getAlteredFields(pathState, aValue, bValue, cValue, dValue, isPhantom);
+			LLSD itemData = linkset.encodeAlteredFields(pathState, aValue, bValue, cValue, dValue, isPhantom);
 
 			if (!itemData.isUndefined())
 			{
