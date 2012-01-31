@@ -196,7 +196,6 @@
 			name="stop"
 			mouse_opaque="false"
 			auto_resize="false"
-			user_resize="false"
 			layout="topleft"
 			top="0"
 			height="22"
@@ -224,7 +223,6 @@
 			name="play"
 			mouse_opaque="false"
 			auto_resize="false"
-			user_resize="false"
 			layout="topleft"
 			top="0"
 			height="22"
@@ -252,7 +250,6 @@
 			name="pause"
 			mouse_opaque="false"
 			auto_resize="false"
-			user_resize="false"
 			layout="topleft"
 			top="0"
 			min_width="22"
@@ -279,7 +276,6 @@
 			name="volume_slider_ctrl"
 			mouse_opaque="false"
 			auto_resize="true"
-			user_resize="false"
 			follows="left|right"
 			layout="topleft"
 			top="0"
@@ -304,7 +300,6 @@
 			name="mute"
 			mouse_opaque="false"
 			auto_resize="false"
-			user_resize="false"
 			layout="topleft"
 			top="0"
 			height="72"
@@ -333,7 +328,6 @@
 			name="zoom"
 			mouse_opaque="false"
 			auto_resize="false"
-			user_resize="false"
 			layout="topleft"
 			top="0"
 			height="28"
@@ -361,7 +355,6 @@
 			name="unzoom"
 			mouse_opaque="false"
 			auto_resize="false"
-			user_resize="false"
 			layout="topleft"
 			top="0"
 			min_width="21"
@@ -388,8 +381,7 @@
 		<layout_panel
 			name="right_bookend"
 			width="0"
-			mouse_opaque="false"
-			user_resize="false" />
+			mouse_opaque="false"/>
 	  </layout_stack>
 	</panel>
   </panel>

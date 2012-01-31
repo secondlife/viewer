@@ -20,8 +20,6 @@
 			<menu_item_call label="Væk" name="Set Away"/>
 			<menu_item_call label="Optaget" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Anmod om administrator status" name="Request Admin Options"/>
-		<menu_item_call label="Stop administrator status" name="Leave Admin Options"/>
 		<menu_item_call label="Afslut [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Kommunikér" name="Communicate">
@@ -36,11 +34,10 @@
 		<menu_item_check label="Søg" name="Search"/>
 		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Opret landemærke for dette sted" name="Create Landmark Here"/>
-		<menu label="Profil for sted" name="Land">
-			<menu_item_call label="Profil for sted" name="Place Profile"/>
-			<menu_item_call label="Om land" name="About Land"/>
-			<menu_item_call label="Region/Estate" name="Region/Estate"/>
-		</menu>
+		<menu_item_separator/>
+		<menu_item_call label="Profil for sted" name="Place Profile"/>
+		<menu_item_call label="Om land" name="About Land"/>
+		<menu_item_call label="Region/Estate" name="Region/Estate"/>
 		<menu_item_call label="Køb dette land" name="Buy Land"/>
 		<menu_item_call label="Mit land" name="My Land"/>
 		<menu label="Vis" name="LandShow">
@@ -56,7 +53,7 @@
 		</menu>
 		<menu_item_call label="Teleport hjem" name="Teleport Home"/>
 		<menu_item_call label="Sæt dette sted som &apos;Hjem&apos;" name="Set Home to Here"/>
-		<menu label="Sol" name="Environment Settings">
+		<menu label="Sol" name="Sun">
 			<menu_item_call label="Solopgang" name="Sunrise"/>
 			<menu_item_call label="Middag" name="Noon"/>
 			<menu_item_call label="Solnedgang" name="Sunset"/>
@@ -155,22 +152,22 @@
 			<menu_item_check label="Vis muse-sigte" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Gengivelsestyper" name="Rendering Types">
-			<menu_item_check label="Simpel" name="Simple"/>
-			<menu_item_check label="Alpha" name="Alpha"/>
-			<menu_item_check label="Træer" name="Tree"/>
-			<menu_item_check label="Avatarer" name="Character"/>
-			<menu_item_check label="Surface Patch" name="Surface Patch"/>
-			<menu_item_check label="Himmel" name="Sky"/>
-			<menu_item_check label="Vand" name="Water"/>
-			<menu_item_check label="Jord" name="Ground"/>
-			<menu_item_check label="Volume" name="Volume"/>
-			<menu_item_check label="Græs" name="Grass"/>
-			<menu_item_check label="Skyer" name="Clouds"/>
-			<menu_item_check label="Partikler" name="Particles"/>
-			<menu_item_check label="Bump" name="Bump"/>
+			<menu_item_check label="Simpel" name="Rendering Type Simple"/>
+			<menu_item_check label="Alpha" name="Rendering Type Alpha"/>
+			<menu_item_check label="Træer" name="Rendering Type Tree"/>
+			<menu_item_check label="Avatarer" name="Rendering Type Character"/>
+			<menu_item_check label="Surface Patch" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="Himmel" name="Rendering Type Sky"/>
+			<menu_item_check label="Vand" name="Rendering Type Water"/>
+			<menu_item_check label="Jord" name="Rendering Type Ground"/>
+			<menu_item_check label="Volume" name="Rendering Type Volume"/>
+			<menu_item_check label="Græs" name="Rendering Type Grass"/>
+			<menu_item_check label="Skyer" name="Rendering Type Clouds"/>
+			<menu_item_check label="Partikler" name="Rendering Type Particles"/>
+			<menu_item_check label="Bump" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="Gengivelsesegenskaber" name="Rendering Features">
-			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="UI" name="ToggleUI"/>
 			<menu_item_check label="Valgte" name="Selected"/>
 			<menu_item_check label="Fremhævede" name="Highlighted"/>
 			<menu_item_check label="Dynamiske teksturer" name="Dynamic Textures"/>
@@ -182,10 +179,7 @@
 		<menu_item_call label="Tøm gruppe cache" name="ClearGroupCache"/>
 		<menu_item_check label="Muse udjævning" name="Mouse Smoothing"/>
 		<menu label="Shortcuts" name="Shortcuts">
-			<menu_item_call label="Billede (L$[COST])..." name="Upload Image"/>
-			<menu_item_check label="Søg" name="Search"/>
 			<menu_item_call label="Frigør taster" name="Release Keys"/>
-			<menu_item_call label="Sæt UI størrelse til standard" name="Set UI Size to Default"/>
 			<menu_item_check label="Vis avanceret menu (gammel genvej)" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Luk vindue" name="Close Window"/>
 			<menu_item_call label="Luk alle vinduer" name="Close All Windows"/>
@@ -194,13 +188,6 @@
 			<menu_item_check label="&quot;Joystick Flycam&quot;" name="Joystick Flycam"/>
 			<menu_item_call label="Nulstil udsyn" name="Reset View"/>
 			<menu_item_call label="Se på den sidste der chattede" name="Look at Last Chatter"/>
-			<menu label="Vælg byggeværktøj" name="Select Tool">
-				<menu_item_call label="Fokuseringsværktøj" name="Focus"/>
-				<menu_item_call label="Flyt værktøj" name="Move"/>
-				<menu_item_call label="Redigeringsværktøj" name="Edit"/>
-				<menu_item_call label="Opret værktøj" name="Create"/>
-				<menu_item_call label="Land værktøj" name="Land"/>
-			</menu>
 			<menu_item_call label="Zoom ind" name="Zoom In"/>
 			<menu_item_call label="Zoom standard" name="Zoom Default"/>
 			<menu_item_call label="Zoom ud" name="Zoom Out"/>
@@ -276,9 +263,8 @@
 			<menu_item_call label="Mist en netværkspakke" name="Drop a Packet"/>
 		</menu>
 		<menu_item_call label="Stød, skub &amp; slag" name="Bumps, Pushes &amp;amp; Hits"/>
-		<menu label="Verden" name="World">
+		<menu label="Verden" name="DevelopWorld">
 			<menu_item_check label="Vælg anden sol end region" name="Sim Sun Override"/>
-			<menu_item_check label="Pejlelys blink effekt" name="Cheesy Beacon"/>
 			<menu_item_check label="Fast vejr" name="Fixed Weather"/>
 			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
 		</menu>
@@ -300,11 +286,11 @@
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
-				<menu_item_call label="Iris" name="Iris"/>
-				<menu_item_call label="Hovede" name="Head"/>
-				<menu_item_call label="Overkrop" name="Upper Body"/>
-				<menu_item_call label="Underkrop" name="Lower Body"/>
-				<menu_item_call label="Nederdel" name="Skirt"/>
+				<menu_item_call label="Iris" name="Grab Iris"/>
+				<menu_item_call label="Hovede" name="Grab Head"/>
+				<menu_item_call label="Overkrop" name="Grab Upper Body"/>
+				<menu_item_call label="Underkrop" name="Grab Lower Body"/>
+				<menu_item_call label="Nederdel" name="Grab Skirt"/>
 			</menu>
 			<menu label="Avatar tests" name="Character Tests">
 				<menu_item_call label="Skift avatar geometri" name="Toggle Character Geometry"/>
@@ -326,8 +312,8 @@
 		<menu_item_check label="Vis administrationsmenu" name="View Admin Options"/>
 	</menu>
 	<menu label="Administrér" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="Tag kopi" name="Take Copy"/>
+		<menu label="Object" name="AdminObject">
+			<menu_item_call label="Tag kopi" name="Admin Take Copy"/>
 			<menu_item_call label="Gennemtving ejer til mig" name="Force Owner To Me"/>
 			<menu_item_call label="Gennemtving ejer tolerance" name="Force Owner Permissive"/>
 			<menu_item_call label="Slet" name="Delete"/>

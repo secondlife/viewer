@@ -323,8 +323,8 @@ public:
 	virtual void run();
 
 	void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
-	bool fetchMeshHeader(const LLVolumeParams& mesh_params);
-	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
+	bool fetchMeshHeader(const LLVolumeParams& mesh_params, U32& count);
+	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, U32& count);
 	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
 	bool lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);

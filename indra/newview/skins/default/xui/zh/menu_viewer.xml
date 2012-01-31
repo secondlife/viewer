@@ -20,8 +20,6 @@
 			<menu_item_call label="離開" name="Set Away"/>
 			<menu_item_call label="忙碌" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="要求 Admin 狀態" name="Request Admin Options"/>
-		<menu_item_call label="離開 Admin 狀態" name="Leave Admin Options"/>
 		<menu_item_call label="結束退出 [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="溝通" name="Communicate">
@@ -36,11 +34,10 @@
 		<menu_item_check label="搜尋" name="Search"/>
 		<menu_item_call label="拍攝快照" name="Take Snapshot"/>
 		<menu_item_call label="將此處記下地標" name="Create Landmark Here"/>
-		<menu label="地點檔案" name="Land">
-			<menu_item_call label="地點檔案" name="Place Profile"/>
-			<menu_item_call label="關於土地" name="About Land"/>
-			<menu_item_call label="地區 / 領地" name="Region/Estate"/>
-		</menu>
+		<menu_item_separator/>
+		<menu_item_call label="地點檔案" name="Place Profile"/>
+		<menu_item_call label="關於土地" name="About Land"/>
+		<menu_item_call label="地區 / 領地" name="Region/Estate"/>
 		<menu_item_call label="購買這塊土地" name="Buy Land"/>
 		<menu_item_call label="我的土地" name="My Land"/>
 		<menu label="顯示" name="LandShow">
@@ -56,7 +53,7 @@
 		</menu>
 		<menu_item_call label="瞬間瞬間傳送回家" name="Teleport Home"/>
 		<menu_item_call label="設定家在此處" name="Set Home to Here"/>
-		<menu label="太陽" name="Environment Settings">
+		<menu label="太陽" name="Sun">
 			<menu_item_call label="日出" name="Sunrise"/>
 			<menu_item_call label="中午" name="Noon"/>
 			<menu_item_call label="日落" name="Sunset"/>
@@ -154,22 +151,22 @@
 			<menu_item_check label="顯示第一人稱視角準星" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Rendering Types" name="Rendering Types">
-			<menu_item_check label="簡單" name="Simple"/>
-			<menu_item_check label="半透明" name="Alpha"/>
-			<menu_item_check label="樹木" name="Tree"/>
-			<menu_item_check label="化身" name="Character"/>
-			<menu_item_check label="地表" name="SurfacePath"/>
-			<menu_item_check label="天空" name="Sky"/>
-			<menu_item_check label="水文" name="Water"/>
-			<menu_item_check label="地面" name="Ground"/>
-			<menu_item_check label="體積" name="Volume"/>
-			<menu_item_check label="草地" name="Grass"/>
-			<menu_item_check label="雲彩" name="Clouds"/>
-			<menu_item_check label="粒子效果" name="Particles"/>
-			<menu_item_check label="碰撞" name="Bump"/>
+			<menu_item_check label="簡單" name="Rendering Type Simple"/>
+			<menu_item_check label="半透明" name="Rendering Type Alpha"/>
+			<menu_item_check label="樹木" name="Rendering Type Tree"/>
+			<menu_item_check label="化身" name="Rendering Type Character"/>
+			<menu_item_check label="地表" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="天空" name="Rendering Type Sky"/>
+			<menu_item_check label="水文" name="Rendering Type Water"/>
+			<menu_item_check label="地面" name="Rendering Type Ground"/>
+			<menu_item_check label="體積" name="Rendering Type Volume"/>
+			<menu_item_check label="草地" name="Rendering Type Grass"/>
+			<menu_item_check label="雲彩" name="Rendering Type Clouds"/>
+			<menu_item_check label="粒子效果" name="Rendering Type Particles"/>
+			<menu_item_check label="碰撞" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="Rendering Features" name="Rendering Features">
-			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="UI" name="ToggleUI"/>
 			<menu_item_check label="Selected" name="Selected"/>
 			<menu_item_check label="Highlighted" name="Highlighted"/>
 			<menu_item_check label="Dynamic Textures" name="Dynamic Textures"/>
@@ -182,10 +179,7 @@
 		<menu_item_call label="清除群組快取資料" name="ClearGroupCache"/>
 		<menu_item_check label="滑鼠平滑移動" name="Mouse Smoothing"/>
 		<menu label="快速鍵" name="Shortcuts">
-			<menu_item_call label="圖像（L$[COST]）..." name="Upload Image"/>
-			<menu_item_check label="搜尋" name="Search"/>
 			<menu_item_call label="釋出按鍵" name="Release Keys"/>
-			<menu_item_call label="設定使用者界面大小至預設值" name="Set UI Size to Default"/>
 			<menu_item_check label="顯示進階選單 － 舊版捷徑" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="關閉視窗" name="Close Window"/>
 			<menu_item_call label="關閉全部視窗" name="Close All Windows"/>
@@ -194,13 +188,6 @@
 			<menu_item_check label="Joystick Flycam" name="Joystick Flycam"/>
 			<menu_item_call label="重設視角" name="Reset View"/>
 			<menu_item_call label="注視上一位聊天者" name="Look at Last Chatter"/>
-			<menu label="選擇建造工具" name="Select Tool">
-				<menu_item_call label="聚焦工具" name="Focus"/>
-				<menu_item_call label="移動工具" name="Move"/>
-				<menu_item_call label="編輯工具" name="Edit"/>
-				<menu_item_call label="創造工具" name="Create"/>
-				<menu_item_call label="土地工具" name="Land"/>
-			</menu>
 			<menu_item_call label="Zoom In" name="Zoom In"/>
 			<menu_item_call label="Zoom Default" name="Zoom Default"/>
 			<menu_item_call label="Zoom Out" name="Zoom Out"/>
@@ -306,9 +293,8 @@
 			<menu_item_call label="開始錄製" name="Start Record"/>
 			<menu_item_call label="停止錄製" name="Stop Record"/>
 		</menu>
-		<menu label="世界" name="World">
+		<menu label="世界" name="DevelopWorld">
 			<menu_item_check label="模擬器太陽設定覆蓋" name="Sim Sun Override"/>
-			<menu_item_check label="Cheesy Beacon" name="Cheesy Beacon"/>
 			<menu_item_check label="固定天氣" name="Fixed Weather"/>
 			<menu_item_call label="傾印地區物件快取" name="Dump Region Object Cache"/>
 		</menu>
@@ -340,11 +326,11 @@
 		</menu>
 		<menu label="化身" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
-				<menu_item_call label="Iris" name="Iris"/>
-				<menu_item_call label="頭部" name="Head"/>
-				<menu_item_call label="Upper Body" name="Upper Body"/>
-				<menu_item_call label="Lower Body" name="Lower Body"/>
-				<menu_item_call label="裙子" name="Skirt"/>
+				<menu_item_call label="Iris" name="Grab Iris"/>
+				<menu_item_call label="頭部" name="Grab Head"/>
+				<menu_item_call label="Upper Body" name="Grab Upper Body"/>
+				<menu_item_call label="Lower Body" name="Grab Lower Body"/>
+				<menu_item_call label="裙子" name="Grab Skirt"/>
 			</menu>
 			<menu label="Character Tests" name="Character Tests">
 				<menu_item_call label="Appearance To XML" name="Appearance To XML"/>
@@ -378,8 +364,8 @@
 		<menu_item_check label="Show Admin Menu" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="取得副本" name="Take Copy"/>
+		<menu label="Object" name="AdminObject">
+			<menu_item_call label="取得副本" name="Admin Take Copy"/>
 			<menu_item_call label="強制擁有者為我" name="Force Owner To Me"/>
 			<menu_item_call label="Force Owner Permissive" name="Force Owner Permissive"/>
 			<menu_item_call label="刪除" name="Delete"/>
@@ -415,7 +401,7 @@
 			<menu_item_call label="身體物理" name="Physics"/>
 			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</menu>
-		<menu label="幫助" name="Help">
+		<menu label="幫助" name="DeprecatedHelp">
 			<menu_item_call label="林登官方部落格" name="Official Linden Blog"/>
 			<menu_item_call label="Scripting Portal" name="Scripting Portal"/>
 			<menu label="臭蟲回報" name="Bug Reporting">
