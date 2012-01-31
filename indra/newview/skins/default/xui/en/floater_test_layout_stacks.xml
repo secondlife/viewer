@@ -32,6 +32,16 @@
                   bg_alpha_color="blue"
                   height="11"
                   min_height="0"
+                  visible="false"
+                  background_visible="true">
+      <text follows="top|left|right" halign="center" text_color="white">flex</text>
+    </layout_panel>
+    <layout_panel name="flex"
+                  auto_resize="true"
+                  user_resize="true"
+                  bg_alpha_color="blue"
+                  height="11"
+                  min_height="0"
                   background_visible="true">
       <text follows="top|left|right" halign="center" text_color="white">flex</text>
     </layout_panel>
@@ -51,7 +61,7 @@
                   background_visible="true">
       <text follows="top|left|right" halign="center" text_color="white">flex</text>
     </layout_panel>
-    <layout_panel name="flex"
+    <!--<layout_panel name="flex"
                   auto_resize="true"
                   user_resize="true"
                   visible="false"
@@ -59,7 +69,7 @@
                   height="100"
                   background_visible="true">
       <text follows="top|left|right" halign="center" text_color="white">flex</text>
-    </layout_panel>
+    </layout_panel>-->
     <layout_panel name="fixed"
                   auto_resize="false"
                   user_resize="true"

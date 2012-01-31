@@ -157,7 +157,7 @@ public:
 	S32 getMinDim() const { return (mMinDim >= 0 || mAutoResize) ? llmax(0, mMinDim) : getLayoutDim(); }
 	void setMinDim(S32 value) { mMinDim = value; }
 
-	S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : mMinDim; }
+	S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : getMinDim(); }
 	void setExpandedMinDim(S32 value) { mExpandedMinDim = value; }
 	
 	S32 getRelevantMinDim() const
