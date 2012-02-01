@@ -273,7 +273,7 @@ streampos LLBufferStreamBuf::seekoff(
 			// NULL is fine
 			break;
 		}
-		address = mBuffer->seek(mChannels.in(), base_addr, off);
+		address = (S32)mBuffer->seek(mChannels.in(), base_addr, off);
 		if(address)
 		{
 			LLBufferArray::segment_iterator_t iter;
@@ -304,7 +304,7 @@ streampos LLBufferStreamBuf::seekoff(
 			// NULL is fine
 			break;
 		}
-		address = mBuffer->seek(mChannels.out(), base_addr, off);
+		address = (S32)mBuffer->seek(mChannels.out(), base_addr, off);
 		if(address)
 		{
 			LLBufferArray::segment_iterator_t iter;

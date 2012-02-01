@@ -52,24 +52,12 @@
 #include <ctime>
 #include <iosfwd>
 
-// Work around Microsoft compiler warnings in STL headers
-#ifdef LL_WINDOWS
-#pragma warning (disable : 4702) // unreachable code
-#pragma warning (disable : 4244) // conversion from time_t to S32
-#endif	//	LL_WINDOWS
-
 // *TODO: Eliminate these, most library .cpp files don't need them.
 // Add them to llviewerprecompiledheaders.h if necessary.
-#include <list>
-#include <map>
-#include <vector>
-#include <string>
-
-#ifdef LL_WINDOWS
-// Reenable warnings we disabled above
-#pragma warning (3 : 4702) // unreachable code, we like level 3, not 4
-// moved msvc warnings to llpreprocessor.h  *TODO - delete this comment after merge conflicts are unlikely -brad
-#endif	//	LL_WINDOWS
+//#include <list>
+//#include <map>
+//#include <vector>
+//#include <string>
 
 // Linden only libs in alpha-order other than stdtypes.h
 // *NOTE: Please keep includes here to a minimum, see above.

@@ -83,7 +83,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
 {
     // max_yields is unused; just fiddle with it to avoid warnings.
     max_yields = 0;
-    ms_sleep(us / 1000);
+	ms_sleep((U32)(us / 1000));
     return 0;
 }
 #elif LL_LINUX || LL_SOLARIS || LL_DARWIN
