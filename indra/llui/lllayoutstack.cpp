@@ -129,7 +129,9 @@ void LLLayoutPanel::setOrientation( LLLayoutStack::ELayoutOrientation orientatio
 		? getRect().getWidth()
 		: getRect().getHeight()));
 
-	if (mAutoResize == FALSE && mMinDim == -1)
+	if (mAutoResize == FALSE 
+		&& mUserResize == TRUE 
+		&& mMinDim == -1 )
 	{
 		setMinDim(layout_dim);
 	}
