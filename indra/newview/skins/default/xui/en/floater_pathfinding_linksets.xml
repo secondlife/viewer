@@ -94,7 +94,7 @@
       width="106" />
   <check_box
       height="19"
-      initial_value="1"
+      initial_value="true"
       label="Walkable"
       layout="topleft"
       left="481"
@@ -103,7 +103,7 @@
       width="90" />
   <check_box
       height="19"
-      initial_value="1"
+      initial_value="true"
       label="Obstacle"
       layout="topleft"
       left="577"
@@ -112,7 +112,7 @@
       width="90" />
   <check_box
       height="19"
-      initial_value="1"
+      initial_value="true"
       label="Ignored"
       layout="topleft"
       left="674"
