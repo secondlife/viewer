@@ -225,7 +225,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		cur_y += llceil(mFontFreetype->getDescenderHeight());
 		break;
 	case VCENTER:
-		cur_y -= (mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight()) / 2.f;
+		cur_y -= llceil((llceil(mFontFreetype->getAscenderHeight()) - llceil(mFontFreetype->getDescenderHeight())) / 2.f);
 		break;
 	case BASELINE:
 		// Baseline, do nothing.
@@ -445,19 +445,9 @@ S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y
 }
 
 // font metrics - override for LLFontFreetype that returns units of virtual pixels
-F32 LLFontGL::getLineHeight() const
+S32 LLFontGL::getLineHeight() const
 { 
-	return (F32)llceil(mFontFreetype->getLineHeight() / sScaleY); 
-}
-
-F32 LLFontGL::getAscenderHeight() const
-{ 
-	return (F32)llceil(mFontFreetype->getAscenderHeight() / sScaleY); 
-}
-
-F32 LLFontGL::getDescenderHeight() const
-{ 
-	return (F32)llceil(mFontFreetype->getDescenderHeight() / sScaleY); 
+	return llceil(mFontFreetype->getAscenderHeight() / sScaleY) + llceil(mFontFreetype->getDescenderHeight() / sScaleY);
 }
 
 S32 LLFontGL::getWidth(const std::string& utf8text) const

@@ -1802,7 +1802,7 @@ void LLFloater::draw()
 				
 				const LLFontGL* font = LLFontGL::getFontSansSerif();
 				LLRect r = getRect();
-				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
+				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - font->getLineHeight() - 1, 
 					titlebar_focus_color % alpha, 0, TRUE);
 			}
 		}

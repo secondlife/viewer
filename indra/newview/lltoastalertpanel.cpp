@@ -70,7 +70,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		mLineEditor(NULL)
 {
 	const LLFontGL* font = LLFontGL::getFontSansSerif();
-	const S32 LINE_HEIGHT = llfloor(font->getLineHeight() + 0.99f);
+	const S32 LINE_HEIGHT = font->getLineHeight();
 	const S32 EDITOR_HEIGHT = 20;
 
 	LLNotificationFormPtr form = mNotification->getForm();
@@ -365,7 +365,7 @@ bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::
 	}
 
 	const LLFontGL* font =  mCheck->getFont();
-	const S32 LINE_HEIGHT = llfloor(font->getLineHeight() + 0.99f);
+	const S32 LINE_HEIGHT = font->getLineHeight();
 	
 	// Extend dialog for "check next time"
 	S32 max_msg_width = LLToastPanel::getRect().getWidth() - 2 * HPAD;

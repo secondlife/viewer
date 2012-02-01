@@ -7,7 +7,7 @@
  name="floater_test_toolbar"
  translate="false"
  width="500">
-  <toolbar name="test_toolbar_top"
+  <!--<toolbar name="test_toolbar_top"
            button_display_mode="icons_with_text"
            follows="left|right|top"
            height="50"
@@ -20,7 +20,7 @@
     <command name="avatar"/>
     <command name="build"/>
     <command name="chat"/>
-  </toolbar>
+  </toolbar>-->
   <toolbar name="test_toolbar_left"
            button_display_mode="icons_with_text"
            follows="left|bottom|top"
@@ -46,7 +46,7 @@
     <command name="build"/>
     <command name="chat"/>
   </toolbar>
-  <toolbar name="test_toolbar_bottom"
+  <!--<toolbar name="test_toolbar_bottom"
            button_display_mode="icons_with_text"
            follows="left|right|bottom"
            height="50"
@@ -58,5 +58,5 @@
     <command name="avatar"/>
     <command name="build"/>
     <command name="chat"/>
-  </toolbar>
+  </toolbar>-->
 </floater>

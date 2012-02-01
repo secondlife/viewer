@@ -2157,7 +2157,7 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 	{ 
 		// return default height rect in upper left
 		local_rect = content_window_rect;
-		local_rect.mBottom = local_rect.mTop - (S32)(mDefaultFont->getLineHeight());
+		local_rect.mBottom = local_rect.mTop - mDefaultFont->getLineHeight();
 		return local_rect;
 	}
 
@@ -2578,7 +2578,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 	mToken(NULL),
 	mEditor(editor)
 {
-	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
+	mFontHeight = mStyle->getFont()->getLineHeight();
 
 	LLUIImagePtr image = mStyle->getImage();
 	if (image.notNull())
@@ -2594,7 +2594,7 @@ LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 
 {
 	mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
-	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
+	mFontHeight = mStyle->getFont()->getLineHeight();
 }
 
 LLNormalTextSegment::~LLNormalTextSegment()
@@ -2962,11 +2962,11 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(S32 pos):LLTextSegment(pos,pos+1)
 {
 	LLStyleSP s( new LLStyle(LLStyle::Params().visible(true)));
 
-	mFontHeight = llceil(s->getFont()->getLineHeight());
+	mFontHeight = s->getFont()->getLineHeight();
 }
 LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
 {
-	mFontHeight = llceil(style->getFont()->getLineHeight());
+	mFontHeight = style->getFont()->getLineHeight();
 }
 LLLineBreakTextSegment::~LLLineBreakTextSegment()
 {
@@ -3003,7 +3003,7 @@ static const S32 IMAGE_HPAD = 3;
 bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
 	width = 0;
-	height = llceil(mStyle->getFont()->getLineHeight());;
+	height = mStyle->getFont()->getLineHeight();
 
 	LLUIImagePtr image = mStyle->getImage();
 	if( num_chars>0 && image.notNull())
