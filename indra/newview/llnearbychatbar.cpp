@@ -51,6 +51,7 @@
 #include "lltranslate.h"
 
 #include "llresizehandle.h"
+#include "llautocorrect.h"
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
@@ -87,6 +88,8 @@ BOOL LLNearbyChatBar::postBuild()
 {
 	mChatBox = getChild<LLLineEditor>("chat_box");
 
+	// *TODO Establish LineEditor with autocorrect callback
+//	mChatBox->setAutocorrectCallback(boost::bind(&AutoCorrect::autocorrectCallback));
 	mChatBox->setCommitCallback(boost::bind(&LLNearbyChatBar::onChatBoxCommit, this));
 	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
 	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));

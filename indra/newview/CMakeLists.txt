@@ -97,6 +97,8 @@ set(viewer_SOURCE_FILES
     llassetuploadresponders.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
+    llautocorrect.cpp
+    llautocorrectfloater.cpp
     llavataractions.cpp
     llavatariconctrl.cpp
     llavatarlist.cpp
@@ -653,6 +655,8 @@ set(viewer_HEADER_FILES
     llassetuploadresponders.h
     llattachmentsmgr.h
     llaudiosourcevo.h
+    llautocorrect.h
+    llautocorrectfloater.h
     llavataractions.h
     llavatariconctrl.h
     llavatarlist.h

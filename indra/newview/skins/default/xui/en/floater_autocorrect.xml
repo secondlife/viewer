@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater border="true" can_close="true" can_minimize="true" bottom="400" left="300" can_resize="false" height="430" width="400"
+ name="ac_floater" title="Autocorrect Settings">
+  <check_box bottom_delta="50" left_delta="5" height="16" width="100" enabled="true" follows="left|top"
+			font="SansSerifSmall" mouse_opaque="true" radio_style="false" label="Enable Autocorrect"
+			control_name="EnableAutoCorrect" name="ac_enable" tool_tip="You must have this check box enabled to use any of these settings,
+			it will search your writable text entry, and replace any of the search entries with their replacement"/>
+  <button bottom_delta="-2" left_delta="150" height="22" width="80" enabled="true" follows="left|top"
+			font="SansSerif" mouse_opaque="true" halign="center" scale_image="true"
+			name="ac_loadlist" label="Load List.." tool_tip="Click this to load a previously exported list from a file."/>
+  <view_border bottom_delta="10" left_delta="100" height="40" width="120" follows="left|top"
+			bevel_style="in" mouse_opaque="false" name="ac_notecard_target"/>
+  <text bottom_delta="-18" left_delta="0" height="16" width="120" follows="left|top" halign="center"
+      font="SansSerifSmall" mouse_opaque="true" name="ac_notecard"
+				><!--
+    Drop a Notecard here
+    to load from it.-->
+  </text>
+  <view_border bottom="70" left="2" height="0" width="396" follows="left|top"
+			bevel_style="none" border_thickness="1" mouse_opaque="false" name="divisor1"/>
+  <text top="-355" left_delta="0" height="16" width="400" follows="left|top" halign="center"
+			font="SansSerifSmall" mouse_opaque="true" name="ac_text1"
+			>List Name                                                         List Entries</text>
+  <scroll_list bottom_delta="280" left_delta="0" height="280" width="199" follows="left|top"
+			column_padding="0" draw_heading="true" multi_select="false"
+			name="ac_list_name" search_column="1">
+  </scroll_list>
+  <scroll_list top_delta="0" left_delta="199" height="180" width="198" follows="left|top"
+			column_padding="0" draw_heading="true" multi_select="false"
+			name="ac_list_entry" search_column="1">
+  </scroll_list>
+  <view_border bottom_delta="20" left_delta="10" height="16" width="180" follows="left|top"
+			bevel_style="in" mouse_opaque="false" name="ac_box1"/>
+  <text bottom_delta="0" left_delta="0" height="16" width="180" follows="left|top" halign="center"
+      font="SansSerifSmall" mouse_opaque="true" name="ac_text_name"
+				>List Name</text>
+  <text bottom_delta="20" left_delta="-2" height="16" width="40" follows="left|top" halign="center"
+			font="SansSerifSmall" mouse_opaque="true" name="ac_text2"
+			>Author:</text>
+  <view_border bottom_delta="-0" left_delta="42" height="16" width="140" follows="left|top"
+			bevel_style="in" mouse_opaque="false" name="ac_box2"/>
+  <text bottom_delta="0" left_delta="0" height="16" width="140" follows="left|top" halign="center"
+      font="SansSerifSmall" mouse_opaque="true" name="ac_text_author"
+				>Author Name</text>
+  <check_box bottom_delta="20" left_delta="-32" height="16" width="100" enabled="true" follows="left|top"
+			font="SansSerifSmall" mouse_opaque="true" radio_style="false" label="Enabled, priority:"
+			control_name="ac_enabled" name="ac_list_enabled" tool_tip="Whether or not you wish to use this particular list."/>
+  <spinner bottom_delta="-0" left_delta="120" height="16" width="50" follows="left|top"
+      decimal_digits="0" increment="1" min_val="0" max_val="10" mouse_opaque="true"
+      label="" label_width="0" name="ac_priority" tool_tip="This number determine what order your list will be used to replace words.  A higher priority means it will be used before lower priority lists."/>
+  <check_box bottom_delta="20" left_delta="-120" height="16" width="100" enabled="true" follows="left|top"
+			font="SansSerifSmall" mouse_opaque="true" radio_style="false" label="Show Notifications"
+			control_name="ac_list_show" name="ac_list_show" tool_tip="Having this enabled will make a notification pop up every time a word is replaced."/>
+  <check_box bottom_delta="20" left_delta="-0" height="16" width="100" enabled="true" follows="left|top"
+			font="SansSerifSmall" mouse_opaque="true" radio_style="false" label="Word Style"
+			control_name="ac_list_style" name="ac_list_style" tool_tip="Having this checked means the list is for full words that should be replaced, unchecked means that it will look within words contents as well."/>
+  <view_border bottom="405" left="201" height="40" width="0" follows="left|top"
+			bevel_style="none" border_thickness="1" mouse_opaque="false" name="divisor2"/>
+  <view_border bottom_delta="-0" left="2" height="0" width="396" follows="left|top"
+			bevel_style="none" border_thickness="1" mouse_opaque="false" name="divisor3"/>
+  <button bottom="400" left="5" height="22" width="90" enabled="true" follows="left|top"
+			font="SansSerif" mouse_opaque="true" halign="center" scale_image="true"
+			name="ac_deletelist" label="Delete List" tool_tip="This will delete the entire list of words and their replacements, it is not reversible."/>
+  <button bottom_delta="-0" left_delta="95" height="22" width="90" enabled="true" follows="left|top"
+			font="SansSerif" mouse_opaque="true" halign="center" scale_image="true"
+			name="ac_exportlist" label="Export List" tool_tip="This will save your current list to a file so you can share it with your friends or edit it."/>
+  <button bottom_delta="0" left_delta="110" height="22" width="90" enabled="true" follows="left|top"
+			font="SansSerif" mouse_opaque="true" halign="center" scale_image="true"
+			name="ac_addentry" label="Add Entry"/>
+  <button bottom_delta="0" left_delta="95" height="22" width="90" enabled="true" follows="left|top"
+			font="SansSerif" mouse_opaque="true" halign="center" scale_image="true"
+			name="ac_rementry" label="Remove Entry"/>
+  <text bottom_delta="25" left_delta="-240" height="16" width="170" follows="left|top" halign="center"
+			font="SansSerifSmall" mouse_opaque="true" name="ac_text3"
+			>Words automatically corrected:</text>
+  <view_border bottom_delta="-0" left_delta="180" height="16" width="70" follows="left|top"
+			bevel_style="in" mouse_opaque="false" name="ac_statsbox"/>
+  <text bottom_delta="0" left_delta="0" height="16" width="70" follows="left|top" halign="center"
+      font="SansSerifSmall" mouse_opaque="true" name="ac_stats"
+				>Count</text>
+
+
+</floater>

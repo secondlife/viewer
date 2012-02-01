@@ -31,6 +31,7 @@
 #include "llwidgetreg.h"
 
 // linden library includes
+#include "llautocorrect.h"
 #include "llcontrol.h"		// LLControlGroup
 #include "lldir.h"
 #include "lldiriterator.h"
@@ -106,6 +107,16 @@ public:
 	std::vector<LLPointer<LLUIImage> > mImageList;
 };
 TestImageProvider gTestImageProvider;
+
+// Mock Autocorrect
+AutoCorrect* AutoCorrect::getInstance()
+{
+	return NULL;
+}
+std::string AutoCorrect::replaceWord(std::string currentWord)
+{
+	return currentWord;
+}
 
 static std::string get_xui_dir()
 {

@@ -195,7 +195,6 @@ LLLineEditor::~LLLineEditor()
 	gFocusMgr.releaseFocusIfNeeded( this );
 }
 
-
 void LLLineEditor::onFocusReceived()
 {
 	gEditMenuHandler = this;
@@ -864,6 +863,13 @@ void LLLineEditor::addChar(const llwchar uni_char)
 	else
 	{
 		LLUI::reportBadKeystroke();
+	}
+
+// *TODO implement callback routine
+	if (!mReadOnly /*&& autocorrectCallbackRoutine != NULL */)
+	{
+		// call callback
+		// autotocorrectCallbackRoutine(mText&, mCursorPos&);
 	}
 
 	getWindow()->hideCursorUntilMouseMove();

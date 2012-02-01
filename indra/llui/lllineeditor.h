@@ -169,6 +169,10 @@ public:
 	virtual BOOL	setTextArg( const std::string& key, const LLStringExplicit& text );
 	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
 
+	// *TODO Make this work
+	typedef boost::function<void()> autocorrect_callback_t;
+	autocorrect_callback_t mAutocorrectCallback;
+	void			setAutocorrectCallback(autocorrect_callback_t cb) { mAutocorrectCallback = cb; }
 	void			setLabel(const LLStringExplicit &new_label) { mLabel = new_label; }
 	const std::string& 	getLabel()	{ return mLabel.getString(); }
 
