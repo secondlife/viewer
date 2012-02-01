@@ -22,7 +22,7 @@
 
 #include "lllineeditor.h"
 
-class AutoCorrect
+class AutoCorrect : public LLSingleton<AutoCorrect>
 {
 	AutoCorrect();
 	~AutoCorrect();
@@ -50,6 +50,7 @@ public:
 	void loadFromDisk();
 
 private:
+	friend class LLSingleton<AutoCorrect>;
 	void saveToDisk(LLSD newSettings);
 	LLSD getExampleLLSD();	
 	std::string getFileName();
