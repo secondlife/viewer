@@ -31,13 +31,13 @@
 #include "llfloater.h"
 #include "llnavmeshstation.h"
 #include "LLPathingLib.h"
-#include "llcheckboxctrl.h"
 
 class LLSD;
 class LLRadioGroup;
 class LLSliderCtrl;
 class LLLineEditor;
 class LLTextBase;
+class LLCheckBoxCtrl;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -67,8 +67,6 @@ public:
 	} ECharacterType;
 
 	virtual BOOL postBuild();
-	//Accessor to determine whether renderables are allowed
-	BOOL allowAllRenderables() const;
 	//Populates a data packet that is forwarded onto the LLPathingSystem
 	void providePathingData( const LLVector3& point1, const LLVector3& point2 );
 
@@ -95,8 +93,6 @@ public:
 
     F32                   getTerrainMaterialD() const;
     void                  setTerrainMaterialD(F32 pTerrainMaterial);
-
-	BOOL				  getShowPathToggle() const {return mShowPathCheckBox->get(); }
 
 	void setHasNavMeshReceived();
 	void setHasNoNavMesh();

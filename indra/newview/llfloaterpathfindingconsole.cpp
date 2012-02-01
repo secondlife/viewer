@@ -445,7 +445,7 @@ void LLFloaterPathfindingConsole::onShowExcludeVolumesToggle()
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if (llPathingLibInstance != NULL)
 	{
-		llPathingLibInstance->setRenderNavMeshandShapes(checkBoxValue);
+		llPathingLibInstance->setRenderShapes(checkBoxValue);
 	}
 	else
 	{
@@ -458,14 +458,32 @@ void LLFloaterPathfindingConsole::onShowPathToggle()
 {
 	BOOL checkBoxValue = mShowPathCheckBox->get();
 
-	llwarns << "functionality has not yet been implemented to toggle '"
-		<< mShowPathCheckBox->getLabel() << "' to "
-		<< (checkBoxValue ? "ON" : "OFF") << llendl;
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if (llPathingLibInstance != NULL)
+	{
+		llPathingLibInstance->setRenderPath(checkBoxValue);
+	}
+	else
+	{
+		mShowPathCheckBox->set(FALSE);
+		llwarns << "cannot find LLPathingLib instance" << llendl;
+	}
 }
 
 void LLFloaterPathfindingConsole::onShowWaterPlaneToggle()
 {
 	BOOL checkBoxValue = mShowWaterPlaneCheckBox->get();
+
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if (llPathingLibInstance != NULL)
+	{
+		llPathingLibInstance->setRenderWaterPlane(checkBoxValue);
+	}
+	else
+	{
+		mShowWaterPlaneCheckBox->set(FALSE);
+		llwarns << "cannot find LLPathingLib instance" << llendl;
+	}
 
 	llwarns << "functionality has not yet been implemented to toggle '"
 		<< mShowWaterPlaneCheckBox->getLabel() << "' to "
@@ -474,21 +492,27 @@ void LLFloaterPathfindingConsole::onShowWaterPlaneToggle()
 
 void LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch()
 {
-	switch (getRegionOverlayDisplay())
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if (llPathingLibInstance != NULL)
 	{
-	case kRenderOverlayOnFixedPhysicsGeometry :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mRegionOverlayDisplayRadioGroup->getName() << "' to RenderOverlayOnFixedPhysicsGeometry"
-			<< llendl;
-		break;
-	case kRenderOverlayOnAllRenderableGeometry :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mRegionOverlayDisplayRadioGroup->getName() << "' to RenderOverlayOnAllRenderableGeometry"
-			<< llendl;
-		break;
-	default :
-		llassert(0);
-		break;
+		switch (getRegionOverlayDisplay())
+		{
+		case kRenderOverlayOnFixedPhysicsGeometry :
+			llPathingLibInstance->setRenderOverlayMode(false);
+			break;
+		case kRenderOverlayOnAllRenderableGeometry :
+			llPathingLibInstance->setRenderOverlayMode(true);
+			break;
+		default :
+			llPathingLibInstance->setRenderOverlayMode(false);
+			llassert(0);
+			break;
+		}
+	}
+	else
+	{
+		this->setRegionOverlayDisplay(kRenderOverlayOnFixedPhysicsGeometry);
+		llwarns << "cannot find LLPathingLib instance" << llendl;
 	}
 }
 
@@ -598,11 +622,6 @@ void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
 }
 
-
-BOOL LLFloaterPathfindingConsole::allowAllRenderables() const
-{
-	return getRegionOverlayDisplay() == kRenderOverlayOnAllRenderableGeometry ? true : false;
-}
 
 void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, const LLVector3& point2 )
 {

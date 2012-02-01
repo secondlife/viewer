@@ -885,7 +885,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
 		bool exclusiveDraw = false;
 		BOOL allowRenderables = false;
-		BOOL allowPathToBeDrawn = false;
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
@@ -899,38 +898,31 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			else
 			{
 				//Render any navmesh geometry	
-				if ( LLPathingLib::getInstance() ) 
+				LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+				if ( llPathingLibInstance != NULL ) 
 				{	
 					//Determine if we can should overlay the navmesh ontop of the scenes typical renderables
-					LLFloaterPathfindingConsole* pFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
-					if ( pFloater && pFloater->allowAllRenderables() )
-					{
-						allowRenderables = true;
-					}
-					//Determine if we should also draw a user supplied path on top of the scene
-					if ( pFloater && pFloater->getShowPathToggle() )
-					{
-						allowPathToBeDrawn = true;
-					}
+					allowRenderables = llPathingLibInstance->getRenderOverlayMode();
+
 					//NavMesh
-					if ( LLPathingLib::getInstance()->getRenderNavMeshState() )
+					if ( llPathingLibInstance->getRenderNavMeshState() )
 					{
 						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          												
 						glEnable(GL_DEPTH_TEST);                        
 						gGL.setAmbientLightColor( LLColor4::white );
-						LLPathingLib::getInstance()->renderNavMesh( allowRenderables );
+						llPathingLibInstance->renderNavMesh();
 						exclusiveDraw = true;
 					}
 					//physics/exclusion shapes
-					if ( LLPathingLib::getInstance()->getRenderShapeState() )
+					if ( llPathingLibInstance->getRenderShapesState() )
 					{						
-						LLPathingLib::getInstance()->renderNavMeshShapesVBO();
+						llPathingLibInstance->renderNavMeshShapesVBO();
 						exclusiveDraw = true;
 					}	
 					//User designated path
-					if ( allowPathToBeDrawn )
+					if ( llPathingLibInstance->getRenderPathState() )
 					{
-						LLPathingLib::getInstance()->renderPath();
+						llPathingLibInstance->renderPath();
 					}
 				}			
 			}
