@@ -215,6 +215,13 @@ void LLToast::setFadingTime(S32 seconds)
 	mToastFadingTime = seconds;
 }
 
+void LLToast::closeToast()
+{
+	mOnDeleteToastSignal(this);
+
+	closeFloater();
+}
+
 S32 LLToast::getTopPad()
 {
 	if(mWrapperPanel)
