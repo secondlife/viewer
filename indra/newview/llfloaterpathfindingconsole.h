@@ -122,6 +122,7 @@ private:
 	void onTerrainMaterialBSet();
 	void onTerrainMaterialCSet();
 	void onTerrainMaterialDSet();
+	void generatePath();
 
 	LLCheckBoxCtrl *mShowNavMeshCheckBox;
 	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
@@ -143,6 +144,8 @@ private:
 
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;
+	bool mHasStartPoint;
+	bool mHasEndPoint;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

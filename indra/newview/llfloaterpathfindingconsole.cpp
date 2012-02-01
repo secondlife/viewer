@@ -342,7 +342,9 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mTerrainMaterialB(NULL),
 	mTerrainMaterialC(NULL),
 	mTerrainMaterialD(NULL),
-	mNavMeshCnt(0)
+	mNavMeshCnt(0),
+	mHasStartPoint(false),
+	mHasEndPoint(false)
 {
 	for (int i=0;i<MAX_OBSERVERS;++i)
 	{
@@ -521,19 +523,10 @@ void LLFloaterPathfindingConsole::onPathSelectionSwitch()
 	switch (getPathSelectionState())
 	{
 	case kPathSelectNone :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mPathSelectionRadioGroup->getName() << "' to PathSelectNone"
-			<< llendl;
 		break;
 	case kPathSelectStartPoint :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mPathSelectionRadioGroup->getName() << "' to PathSelectStartPoint"
-			<< llendl;
 		break;
 	case kPathSelectEndPoint :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mPathSelectionRadioGroup->getName() << "' to PathSelectEndPoint"
-			<< llendl;
 		break;
 	default :
 		llassert(0);
@@ -543,9 +536,7 @@ void LLFloaterPathfindingConsole::onPathSelectionSwitch()
 
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
-	F32 characterWidth = getCharacterWidth();
-	llwarns << "functionality has not yet been implemented to set '" << mCharacterWidthSlider->getName()
-		<< "' to the value (" << characterWidth << ")" << llendl;
+	generatePath();
 }
 
 void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
@@ -636,17 +627,28 @@ void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, c
 	case kPathSelectStartPoint :
 		mPathData.mStartPointA	= point1;
 		mPathData.mEndPointA	= point2;
+		mHasStartPoint = true;
 		break;
 
 	case kPathSelectEndPoint :
 		mPathData.mStartPointB		= point1;
 		mPathData.mEndPointB		= point2;		
-		mPathData.mCharacterWidth	= getCharacterWidth();
-		LLPathingLib::getInstance()->generatePath( mPathData );
+		mHasEndPoint = true;
 		break;
 
 	default :
 		llassert(0);
 		break;
-	}	
+	}
+
+	generatePath();
+}
+
+void LLFloaterPathfindingConsole::generatePath()
+{
+	if (mHasStartPoint && mHasEndPoint)
+	{
+		mPathData.mCharacterWidth = getCharacterWidth();
+		LLPathingLib::getInstance()->generatePath(mPathData);
+	}
 }
