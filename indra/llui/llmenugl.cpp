@@ -317,7 +317,7 @@ void LLMenuItemGL::setJumpKey(KEY key)
 // virtual 
 U32 LLMenuItemGL::getNominalHeight( void ) const 
 { 
-	return llround(mFont->getLineHeight()) + MENU_ITEM_PADDING; 
+	return mFont->getLineHeight() + MENU_ITEM_PADDING;
 }
 
 //virtual
