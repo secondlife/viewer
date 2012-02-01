@@ -151,7 +151,8 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mHighlightColor(p.highlight_color()),
 	mPreeditBgColor(p.preedit_bg_color()),
 	mGLFont(p.font),
-	mContextMenuHandle()
+	mContextMenuHandle(),
+	mAutocorrectCallback()
 {
 	llassert( mMaxLengthBytes > 0 );
 
@@ -866,10 +867,10 @@ void LLLineEditor::addChar(const llwchar uni_char)
 	}
 
 // *TODO implement callback routine
-	if (!mReadOnly /*&& autocorrectCallbackRoutine != NULL */)
+	if (!mReadOnly && mAutocorrectCallback != NULL)
 	{
 		// call callback
-		// autotocorrectCallbackRoutine(mText&, mCursorPos&);
+		// mAutotocorrectCallback(mText&, mCursorPos&);
 	}
 
 	getWindow()->hideCursorUntilMouseMove();
