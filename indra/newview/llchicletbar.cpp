@@ -42,28 +42,6 @@ namespace
 {
 	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
 
-	S32 get_panel_min_width(LLLayoutStack* stack, LLView* panel)
-	{
-		S32 minimal_width = 0;
-		llassert(stack);
-		if ( stack && panel && panel->getVisible() )
-		{
-			stack->getPanelMinSize(panel->getName(), &minimal_width);
-		}
-		return minimal_width;
-	}
-
-	S32 get_panel_max_width(LLLayoutStack* stack, LLPanel* panel)
-	{
-		S32 max_width = 0;
-		llassert(stack);
-		if ( stack && panel && panel->getVisible() )
-		{
-			stack->getPanelMaxSize(panel->getName(), &max_width);
-		}
-		return max_width;
-	}
-
 	S32 get_curr_width(LLUICtrl* ctrl)
 	{
 		S32 cur_width = 0;
@@ -234,15 +212,8 @@ void LLChicletBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		// Firstly, update layout stack to ensure we deal with correct panel sizes.
 		{
-			BOOL saved_anim = mToolbarStack->getAnimate();
-			// Set chiclet panel to be autoresized by default.
-			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
-			// Disable animation to prevent layout updating in several frames.
-			mToolbarStack->setAnimate(FALSE);
 			// Force the updating of layout to reset panels collapse factor.
 			mToolbarStack->updateLayout();
-			// Restore animate state.
-			mToolbarStack->setAnimate(saved_anim);
 		}
 
 		// chiclet bar is narrowed

@@ -457,7 +457,8 @@ void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, 
 	gGL.flush();
 	if (!source.mFBO || !mFBO)
 	{
-		llerrs << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		llwarns << "Cannot copy framebuffer contents for non FBO render targets." << llendl;
+		return;
 	}
 
 	

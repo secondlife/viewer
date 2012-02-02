@@ -114,6 +114,15 @@
      function="Object.EnableMute" />
   </menu_item_call>
   <menu_item_call
+   label="Unblock"
+   layout="topleft"
+   name="unblock">
+    <menu_item_call.on_click
+     function="Object.Mute" />
+    <menu_item_call.on_visible
+     function="Object.EnableUnmute" />
+  </menu_item_call>
+  <menu_item_call
     label="Zoom In"
     layout="topleft"
    name="zoom_in">

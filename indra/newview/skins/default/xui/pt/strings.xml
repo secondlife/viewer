@@ -1160,7 +1160,7 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Você não possui uma cópia desta textura no seu inventário
 	</string>
 	<string name="InventoryInboxNoItems">
-		Compras do marketplace serão entregues aqui.
+		Quando você comprar ou receber um item, ele aparecerá aqui para que você possa arrastá-lo para uma pasta em seu inventário ou excluí-lo caso não queira mantê-lo.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1352,6 +1352,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="no_attachments">
 		Nenhum anexo vestido
 	</string>
+	<string name="Attachments remain">
+		Anexos ([COUNT] slots permanecem)
+	</string>
 	<string name="Buy">
 		Comprar
 	</string>
@@ -1477,6 +1480,12 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="Right Pec">
 		Peitoral D
+	</string>
+	<string name="Neck">
+		Pescoço
+	</string>
+	<string name="Avatar Center">
+		Centro do avatar
 	</string>
 	<string name="Invalid Attachment">
 		Ponto de encaixe inválido
@@ -3897,6 +3906,18 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="you_paid_ldollars_no_name">
 		Você pagou L$[AMOUNT] por [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Você não pagou L$[AMOUNT] a [NAME] referentes a [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Você não pagou L$[AMOUNT].
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Você não pagou L$[AMOUNT] a [NAME].
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Você não pagou L$[AMOUNT] referentes a [REASON].
+	</string>
 	<string name="for item">
 		por [ITEM]
 	</string>
@@ -4307,6 +4328,12 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="ExternalEditorFailedToRun">
 		Falha de execução do editor externo.
 	</string>
+	<string name="TranslationFailed">
+		Falha na tradução: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Erro ao analisar resposta de tradução.
+	</string>
 	<string name="Esc">
 		Esc
 	</string>
@@ -4677,7 +4704,7 @@ Tente colocar o caminho do editor entre aspas.
 		Mini Mapa
 	</string>
 	<string name="Command_Move_Label">
-		Mover
+		Andar/correr/voar
 	</string>
 	<string name="Command_People_Label">
 		Pessoas
@@ -4704,10 +4731,10 @@ Tente colocar o caminho do editor entre aspas.
 		Falar
 	</string>
 	<string name="Command_View_Label">
-		Exibir
+		Controles da câmera
 	</string>
 	<string name="Command_Voice_Label">
-		Voz próxima
+		Configurações de voz
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Informações sobre o terreno que você está visitando
@@ -4779,7 +4806,16 @@ Tente colocar o caminho do editor entre aspas.
 		Alterar o ângulo da câmera
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Pessoas próximas com recursos de voz
+		Controles de volume das chamadas e pessoas próximas a você no mundo virtual
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		atualmente na sua barra de ferramentas inferior
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		atualmente na sua barra de ferramentas esquerda
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		atualmente na sua barra de ferramentas direita
 	</string>
 	<string name="Retain%">
 		Reter%
@@ -4804,5 +4840,20 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Muito baixo
+	</string>
+	<string name="snapshot_quality_low">
+		Baixo
+	</string>
+	<string name="snapshot_quality_medium">
+		Médio
+	</string>
+	<string name="snapshot_quality_high">
+		Alto
+	</string>
+	<string name="snapshot_quality_very_high">
+		Muito alto
 	</string>
 </strings>

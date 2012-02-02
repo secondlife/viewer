@@ -198,7 +198,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  height="154"
                  name="add_button_and_combobox"
                  width="311"
-                 user_resize="false"
                  visible="true">
 
             <!-- List containing items from the COF and Base outfit -->
@@ -271,8 +270,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                  height="30"
                  name="filter_panel"
                  width="311"
-                 visible="false"
-                 user_resize="false">
+                 visible="false">
 
                     <filter_editor
 		             background_image="TextField_Search_Off"
@@ -515,7 +513,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      left="0"			
                      mouse_opaque="false"
                      name="save_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="156">
         <button
@@ -550,7 +547,6 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                      left_pad="3"			
                      mouse_opaque="false"
                      name="revert_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="147">
         <button

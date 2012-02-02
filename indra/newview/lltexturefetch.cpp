@@ -2205,7 +2205,7 @@ void LLTextureFetch::commonUpdate()
 
 // MAIN THREAD
 //virtual
-S32 LLTextureFetch::update(U32 max_time_ms)
+S32 LLTextureFetch::update(F32 max_time_ms)
 {
 	static LLCachedControl<F32> band_width(gSavedSettings,"ThrottleBandwidthKBPS");
 

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_inventory">
+	<text name="title">
+		Сохранить в моем инвентаре
+	</text>
+	<text name="hint_lbl">
+		Сохранение изображения в инвентаре стоит L$[UPLOAD_COST]. Чтобы сохранить его как текстуру, выберите один из квадратных форматов.
+	</text>
+	<combo_box label="Размер" name="texture_size_combo">
+		<combo_box.item label="Текущее окно" name="CurrentWindow"/>
+		<combo_box.item label="Маленький (128x128)" name="Small(128x128)"/>
+		<combo_box.item label="Средний (256x256)" name="Medium(256x256)"/>
+		<combo_box.item label="Большой (512x512)" name="Large(512x512)"/>
+		<combo_box.item label="Задать" name="Custom"/>
+	</combo_box>
+	<spinner label="Ширина" name="inventory_snapshot_width"/>
+	<spinner label="Высота" name="inventory_snapshot_height"/>
+	<check_box label="Сохранять пропорции" name="inventory_keep_aspect_check"/>
+	<button label="Отмена" name="cancel_btn"/>
+	<button label="Сохранить" name="save_btn"/>
+</panel>

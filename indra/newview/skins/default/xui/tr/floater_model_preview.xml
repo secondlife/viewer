@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Hata: Tarih ayrıştırma sorunu - ayrıntılar için günlüğe bakın.
 	</string>
+	<string name="status_material_mismatch">
+		Hata: Modelin malzemesi, referans modelin bir alt kümesi değil.
+	</string>
 	<string name="status_reading_file">
 		Yükleniyor...
 	</string>

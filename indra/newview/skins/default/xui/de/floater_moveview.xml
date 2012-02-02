@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater" title="BEWEGEN">
+<floater name="move_floater" title="GEHEN / RENNEN / FLIEGEN">
 	<string name="walk_forward_tooltip">
 		Vorwärts gehen (Nach-oben-Pfeil oder W drücken)
 	</string>

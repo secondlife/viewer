@@ -48,6 +48,9 @@ public:
 	void show(LLNotificationPtr);
 	/*virtual*/ void draw();
 	void hide();
+	
+	bool isShown() const;
+
 	void setBackgroundImage(LLUIImage* image);
 	void setTextColor(LLColor4 color);
 	void setCanClose(bool can_close);
