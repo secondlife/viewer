@@ -943,7 +943,7 @@
             name="pathfinding_menu_item">
             <menu_item_call.on_click
                 function="Floater.ToggleOrBringToFront"
-                parameter="pathfinding_console" />
+                parameter="pathfinding_setup" />
         </menu_item_call>
 
         <menu_item_separator/>
