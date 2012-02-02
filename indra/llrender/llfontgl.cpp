@@ -115,23 +115,23 @@ static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
 {
-	F32 x = rect.mLeft;
+	F32 x = (F32)rect.mLeft;
 	F32 y = 0.f;
 
 	switch(valign)
 	{
 	case TOP:
-		y = rect.mTop;
+		y = (F32)rect.mTop;
 		break;
 	case VCENTER:
-		y = rect.getCenterY();
+		y = (F32)rect.getCenterY();
 		break;
 	case BASELINE:
 	case BOTTOM:
-		y = rect.mBottom;
+		y = (F32)rect.mBottom;
 		break;
 	default:
-		y = rect.mBottom;
+		y = (F32)rect.mBottom;
 		break;
 	}
 	return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, rect.getWidth(), right_x, use_ellipses);
@@ -251,7 +251,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	cur_render_y = cur_y;
 	cur_render_x = cur_x;
 
-	F32 start_x = llround(cur_x);
+	F32 start_x = (F32)llround(cur_x);
 
 	const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
@@ -335,10 +335,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				(fgi->mXBitmapOffset + fgi->mWidth) * inv_width,
 				(fgi->mYBitmapOffset - PAD_UVY) * inv_height);
 		// snap glyph origin to whole screen pixel
-		LLRectf screen_rect(llround(cur_render_x + (F32)fgi->mXBearing),
-				    llround(cur_render_y + (F32)fgi->mYBearing),
-				    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
-				    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
+		LLRectf screen_rect((F32)llround(cur_render_x + (F32)fgi->mXBearing),
+				    (F32)llround(cur_render_y + (F32)fgi->mYBearing),
+				    (F32)llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
+				    (F32)llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
 		
 		if (glyph_count >= GLYPH_BATCH_SIZE)
 		{
@@ -636,7 +636,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		}
 
 		// Round after kerning.
-		cur_x = llround(cur_x);
+		cur_x = (F32)llround(cur_x);
 		drawn_x = cur_x;
 	}
 
@@ -707,7 +707,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		}
 
 		// Round after kerning.
-		total_width = llround(total_width);
+		total_width = (F32)llround(total_width);
 	}
 
 	if (drawable_chars == 0)
@@ -790,7 +790,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 
 
 		// Round after kerning.
-		cur_x = llround(cur_x);
+		cur_x = (F32)llround(cur_x);
 	}
 
 	return llmin(max_chars, pos - begin_offset);

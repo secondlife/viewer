@@ -858,25 +858,25 @@ LLSD LLMatrix4::getValue() const
 
 void LLMatrix4::setValue(const LLSD& data) 
 {
-	mMatrix[0][0] = data[0].asReal();
-	mMatrix[0][1] = data[1].asReal();
-	mMatrix[0][2] = data[2].asReal();
-	mMatrix[0][3] = data[3].asReal();
+	mMatrix[0][0] = (F32)data[0].asReal();
+	mMatrix[0][1] = (F32)data[1].asReal();
+	mMatrix[0][2] = (F32)data[2].asReal();
+	mMatrix[0][3] = (F32)data[3].asReal();
 
-	mMatrix[1][0] = data[4].asReal();
-	mMatrix[1][1] = data[5].asReal();
-	mMatrix[1][2] = data[6].asReal();
-	mMatrix[1][3] = data[7].asReal();
+	mMatrix[1][0] = (F32)data[4].asReal();
+	mMatrix[1][1] = (F32)data[5].asReal();
+	mMatrix[1][2] = (F32)data[6].asReal();
+	mMatrix[1][3] = (F32)data[7].asReal();
 
-	mMatrix[2][0] = data[8].asReal();
-	mMatrix[2][1] = data[9].asReal();
-	mMatrix[2][2] = data[10].asReal();
-	mMatrix[2][3] = data[11].asReal();
+	mMatrix[2][0] = (F32)data[8].asReal();
+	mMatrix[2][1] = (F32)data[9].asReal();
+	mMatrix[2][2] = (F32)data[10].asReal();
+	mMatrix[2][3] = (F32)data[11].asReal();
 
-	mMatrix[3][0] = data[12].asReal();
-	mMatrix[3][1] = data[13].asReal();
-	mMatrix[3][2] = data[14].asReal();
-	mMatrix[3][3] = data[15].asReal();
+	mMatrix[3][0] = (F32)data[12].asReal();
+	mMatrix[3][1] = (F32)data[13].asReal();
+	mMatrix[3][2] = (F32)data[14].asReal();
+	mMatrix[3][3] = (F32)data[15].asReal();
 }
 
 

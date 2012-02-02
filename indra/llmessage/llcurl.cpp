@@ -428,9 +428,9 @@ size_t curlReadCallback(char* data, size_t size, size_t nmemb, void* user_data)
 	LLCurl::Easy* easy = (LLCurl::Easy*)user_data;
 	
 	S32 n = size * nmemb;
-	S32 startpos = easy->getInput().tellg();
+	S32 startpos = (S32)easy->getInput().tellg();
 	easy->getInput().seekg(0, std::ios::end);
-	S32 endpos = easy->getInput().tellg();
+	S32 endpos = (S32)easy->getInput().tellg();
 	easy->getInput().seekg(startpos, std::ios::beg);
 	S32 maxn = endpos - startpos;
 	n = llmin(n, maxn);

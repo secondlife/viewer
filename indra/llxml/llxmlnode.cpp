@@ -801,7 +801,7 @@ bool LLXMLNode::parseStream(
 	while(str.good())
 	{
 		str.read((char*)buffer, BUFSIZE);
-		int count = str.gcount();
+		int count = (int)str.gcount();
 		
 		if (XML_Parse(my_parser, (const char *)buffer, count, !str.good()) != XML_STATUS_OK)
 		{

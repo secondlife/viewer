@@ -405,7 +405,7 @@ U32 LLInventoryItem::getCRC32() const
 	//lldebugs << "7 crc: " << std::hex << crc << std::dec << llendl;
 	crc += mSaleInfo.getCRC32();
 	//lldebugs << "8 crc: " << std::hex << crc << std::dec << llendl;
-	crc += mCreationDate;
+	crc += (U32)mCreationDate;
 	//lldebugs << "9 crc: " << std::hex << crc << std::dec << llendl;
 	return crc;
 }
@@ -521,7 +521,7 @@ void LLInventoryItem::packMessage(LLMessageSystem* msg) const
 	mSaleInfo.packMessage(msg);
 	msg->addStringFast(_PREHASH_Name, mName);
 	msg->addStringFast(_PREHASH_Description, mDescription);
-	msg->addS32Fast(_PREHASH_CreationDate, mCreationDate);
+	msg->addS32Fast(_PREHASH_CreationDate, (S32)mCreationDate);
 	U32 crc = getCRC32();
 	msg->addU32Fast(_PREHASH_CRC, crc);
 }
