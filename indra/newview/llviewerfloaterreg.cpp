@@ -84,7 +84,7 @@
 #include "llfloaterobjectweights.h"
 #include "llfloateropenobject.h"
 #include "llfloateroutbox.h"
-#include "llfloaterpathfindingconsole.h"
+#include "llfloaterpathfindingsetup.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
 #include "llfloaterperms.h"

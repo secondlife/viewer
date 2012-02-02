@@ -1,5 +1,5 @@
 /** 
- * @file llfloaterpathfindingconsole.h
+ * @file llfloaterpathfindingsetup.h
  * @author William Todd Stinson
  * @brief "Pathfinding console" floater, allowing manipulation of the Havok AI pathfinding settings.
  *

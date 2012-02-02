@@ -26,7 +26,7 @@
 */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloaterpathfindingconsole.h"
+#include "llfloaterpathfindingsetup.h"
 #include "llfloaterpathfindinglinksets.h"
 
 #include "llsd.h"
