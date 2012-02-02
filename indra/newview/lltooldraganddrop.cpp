@@ -333,14 +333,15 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
-:	 LLTool(std::string("draganddrop"), NULL),
-	 mDragStartX(0),
-	 mDragStartY(0),
-	 mSource(SOURCE_AGENT),
-	 mCursor(UI_CURSOR_NO),
-	 mLastAccept(ACCEPT_NO),
-	 mDrop(FALSE),
-	 mCurItemIndex(0)
+:	LLTool(std::string("draganddrop"), NULL),
+	mCargoCount(0),
+	mDragStartX(0),
+	mDragStartY(0),
+	mSource(SOURCE_AGENT),
+	mCursor(UI_CURSOR_NO),
+	mLastAccept(ACCEPT_NO),
+	mDrop(FALSE),
+	mCurItemIndex(0)
 {
 
 }
