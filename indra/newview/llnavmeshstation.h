@@ -31,7 +31,7 @@
 #include "llhandle.h"
 //===============================================================================
 class LLCurlRequest;
-class LLFloaterPathfindingConsole;
+class LLFloaterPathfindingSetup;
 //===============================================================================
 class LLNavMeshObserver
 {
@@ -44,12 +44,12 @@ public:
 	virtual ~LLNavMeshObserver() {}
 	//Accessor for the observers handle
 	const LLHandle<LLNavMeshObserver>& getObserverHandle() const { return mObserverHandle; }
-	LLFloaterPathfindingConsole *getPathfindingConsole() {return mPathfindingConsole;}
-	void                        setPathfindingConsole(LLFloaterPathfindingConsole *pPathfindingConsole) {mPathfindingConsole = pPathfindingConsole;}
+	LLFloaterPathfindingSetup *getPathfindingConsole() {return mPathfindingConsole;}
+	void                        setPathfindingConsole(LLFloaterPathfindingSetup *pPathfindingConsole) {mPathfindingConsole = pPathfindingConsole;}
 
 protected:
 	LLRootHandle<LLNavMeshObserver> mObserverHandle;	
-	LLFloaterPathfindingConsole     *mPathfindingConsole;
+	LLFloaterPathfindingSetup     *mPathfindingConsole;
 };
 //===============================================================================
 class LLNavMeshDownloadObserver
@@ -61,12 +61,12 @@ public:
 	virtual ~LLNavMeshDownloadObserver() {}
 	//Accessor for the observers handle
 	const LLHandle<LLNavMeshDownloadObserver>& getObserverHandle() const { return mObserverHandle; }
-	LLFloaterPathfindingConsole *getPathfindingConsole() {return mPathfindingConsole;}
-	void                        setPathfindingConsole(LLFloaterPathfindingConsole *pPathfindingConsole) {mPathfindingConsole = pPathfindingConsole;}
+	LLFloaterPathfindingSetup *getPathfindingConsole() {return mPathfindingConsole;}
+	void                        setPathfindingConsole(LLFloaterPathfindingSetup *pPathfindingConsole) {mPathfindingConsole = pPathfindingConsole;}
 
 protected:
 	LLRootHandle<LLNavMeshDownloadObserver> mObserverHandle;	
-	LLFloaterPathfindingConsole *mPathfindingConsole;
+	LLFloaterPathfindingSetup *mPathfindingConsole;
 };
 //===============================================================================
 class LLNavMeshStation : public LLSingleton<LLNavMeshStation>

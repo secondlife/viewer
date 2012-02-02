@@ -25,8 +25,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPATHFINDINGCONSOLE_H
-#define LL_LLFLOATERPATHFINDINGCONSOLE_H
+#ifndef LL_LLFLOATERPATHFINDINGSETUP_H
+#define LL_LLFLOATERPATHFINDINGSETUP_H
 
 #include "llfloater.h"
 #include "llnavmeshstation.h"
@@ -39,7 +39,7 @@ class LLLineEditor;
 class LLTextBase;
 class LLCheckBoxCtrl;
 
-class LLFloaterPathfindingConsole
+class LLFloaterPathfindingSetup
 :	public LLFloater
 {
 	friend class LLFloaterReg;
@@ -102,8 +102,8 @@ protected:
 private:
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
-	LLFloaterPathfindingConsole(const LLSD& pSeed);
-	virtual ~LLFloaterPathfindingConsole();
+	LLFloaterPathfindingSetup(const LLSD& pSeed);
+	virtual ~LLFloaterPathfindingSetup();
 
 	virtual void onOpen(const LLSD& pKey);
 
@@ -148,4 +148,4 @@ private:
 	bool mHasEndPoint;
 };
 
-#endif // LL_LLFLOATERPATHFINDINGCONSOLE_H
+#endif // LL_LLFLOATERPATHFINDINGSETUP_H
