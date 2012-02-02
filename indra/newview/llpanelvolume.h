@@ -40,6 +40,7 @@ class LLButton;
 class LLViewerObject;
 class LLComboBox;
 class LLColorSwatchCtrl;
+class LLRadioGroup;
 
 class LLPanelVolume : public LLPanel
 {
@@ -84,6 +85,8 @@ protected:
 	void            sendPhysicsRestitution(LLUICtrl* ctrl, void* userdata);
 	void            sendPhysicsDensity(LLUICtrl* ctrl, void* userdata);
 
+	void            sendPathfindingType();
+
 /*
 	LLTextBox*		mLabelSelectSingleMessage;
 	// Light
@@ -118,6 +121,8 @@ protected:
 	LLSpinCtrl*     mSpinPhysicsFriction;
 	LLSpinCtrl*     mSpinPhysicsDensity;
 	LLSpinCtrl*     mSpinPhysicsRestitution;
+
+	LLRadioGroup*   mPathfindingType;
 };
 
 #endif

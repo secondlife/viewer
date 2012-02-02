@@ -68,6 +68,7 @@
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
+#include "llradiogroup.h"
 
 #include "lldrawpool.h"
 #include "lluictrlfactory.h"
@@ -158,6 +159,14 @@ BOOL	LLPanelVolume::postBuild()
 		mSpinPhysicsRestitution->setCommitCallback(boost::bind(&LLPanelVolume::sendPhysicsRestitution, this, _1, mSpinPhysicsRestitution));
 	}
 
+	// Pathfinding Parameters
+	{
+		// Pathfinding state
+		mPathfindingType = findChild<LLRadioGroup>("edit_pathfinding_state");
+		llassert(mPathfindingType != NULL);
+		mPathfindingType->setCommitCallback(boost::bind(&LLPanelVolume::sendPathfindingType, this));
+	}
+
 	std::map<std::string, std::string> material_name_map;
 	material_name_map["Stone"]= LLTrans::getString("Stone");
 	material_name_map["Metal"]= LLTrans::getString("Metal");	
@@ -194,7 +203,8 @@ BOOL	LLPanelVolume::postBuild()
 
 LLPanelVolume::LLPanelVolume()
 	: LLPanel(),
-	  mComboMaterialItemCount(0)
+	  mComboMaterialItemCount(0),
+	  mPathfindingType(NULL)
 {
 	setMouseOpaque(FALSE);
 
@@ -463,6 +473,8 @@ void LLPanelVolume::getState( )
 	mSpinPhysicsRestitution->set(objectp->getPhysicsRestitution());
 	mSpinPhysicsRestitution->setEnabled(editable);
 
+	mPathfindingType->setEnabled(editable);
+
 	// update the physics shape combo to include allowed physics shapes
 	mComboPhysicsShapeType->removeall();
 	mComboPhysicsShapeType->add(getString("None"), LLSD(1));
@@ -546,6 +558,8 @@ void LLPanelVolume::refresh()
 	getChildView("Physics Friction")->setVisible(enable_mesh);
 	getChildView("Physics Density")->setVisible(enable_mesh);
 	getChildView("Physics Restitution")->setVisible(enable_mesh);
+
+	mPathfindingType->setVisible(enable_mesh);
 	
     /* TODO: add/remove individual physics shape types as per the PhysicsShapeTypes simulator features */
 }
@@ -599,6 +613,8 @@ void LLPanelVolume::clearCtrls()
 	mSpinPhysicsFriction->setEnabled(FALSE);
 	mSpinPhysicsDensity->setEnabled(FALSE);
 	mSpinPhysicsRestitution->setEnabled(FALSE);
+
+	mPathfindingType->setEnabled(FALSE);
 
 	mComboMaterial->setEnabled( FALSE );
 }
@@ -683,6 +699,12 @@ void LLPanelVolume::sendPhysicsDensity(LLUICtrl* ctrl, void* userdata)
 {
 	F32 val = ctrl->getValue().asReal();
 	LLSelectMgr::getInstance()->selectionSetDensity(val);
+}
+
+void LLPanelVolume::sendPathfindingType()
+{
+	S32 val = mPathfindingType->getValue().asInteger();
+	llwarns << "functionality to set '" << mPathfindingType->getName() << "' to value " << val << " has not been implemented." << llendl;
 }
 
 void LLPanelVolume::refreshCost()
