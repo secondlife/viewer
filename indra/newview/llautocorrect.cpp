@@ -337,7 +337,7 @@ std::string AutoCorrect::replaceWord(std::string currentWord)
 						args["REPLACEMENT"]=replacement;
 						LLNotificationsUtil::add("AutoReplace",args);
 					}
-					llinfos << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
+					lldebugs << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
 					return replacement;
 				}
 			}
@@ -361,7 +361,6 @@ std::string AutoCorrect::replaceWords(std::string words)
 		for (; loc_it != loc_end; ++loc_it)
 		{
 			const std::string& location = (*loc_it).first;
-			//llinfos << "location is "<<location.c_str() << " word is "<<currentWord.c_str()<<llendl;
 			const LLSD& loc_map = (*loc_it).second;
 			if((loc_map["data"].has(currentWord))&&(loc_map["enabled"].asBoolean()))
 			{
@@ -376,7 +375,7 @@ std::string AutoCorrect::replaceWords(std::string words)
 					args["REPLACEMENT"]=replacement;
 					LLNotificationsUtil::add("AutoReplace",args);
 				}
-				llinfos << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
+				ldebugs << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
 				int wordStart = words.find(currentWord);
 				words.replace(wordStart,currentWord.length(),replacement);
 				return replaceWords(words);//lol recursion!
