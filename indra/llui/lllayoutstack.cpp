@@ -325,7 +325,7 @@ void LLLayoutStack::updateLayout()
 			panelp->mTargetDim = panelp->getRelevantMinDim();
 		}
 		space_to_distribute -= panelp->getVisibleDim() + llround((F32)mPanelSpacing * panelp->getVisibleAmount());
-		total_visible_fraction += panelp->mFractionalSize * panelp->getVisibleAmount();
+		total_visible_fraction += panelp->mFractionalSize * panelp->getAutoResizeFactor();
 	}
 
 	llassert(total_visible_fraction < 1.05f);
