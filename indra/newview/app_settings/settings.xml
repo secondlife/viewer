@@ -346,17 +346,17 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  <key>AutoCorrectCount</key>
-  <map>
-    <key>Comment</key>
-    <string>How many words have been auto replaced.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>S32</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
+    <key>AutoCorrect</key>
+    <map>
+      <key>Comment</key>
+      <string>Replaces common spelling mistakes with correct word</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
@@ -2807,17 +2807,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>EnableAutoCorrect</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables or disables the autocorrect function</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>EnableGroupChatPopups</key>
     <map>

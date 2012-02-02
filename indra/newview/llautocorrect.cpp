@@ -41,8 +41,8 @@ AutoCorrect::~AutoCorrect()
 
 void AutoCorrect::autocorrectCallback(LLUIString& inputText, S32& cursorPos)
 {
-	static LLCachedControl<bool> doAnything(gSavedSettings, "EnableAutoCorrect");
-	if(doAnything)
+	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
+	if(perform_autocorrect)
 	{
 		S32 wordStart = 0;
 		S32 wordEnd = cursorPos-1;
@@ -290,8 +290,8 @@ LLSD AutoCorrect::getAutoCorrectEntries(std::string listName)
 }
 std::string AutoCorrect::replaceWord(std::string currentWord)
 {
-	static LLCachedControl<bool> doAnything(gSavedSettings, "EnableAutoCorrect");
-	if(!(doAnything))return currentWord;
+	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
+	if(!(perform_autocorrect))return currentWord;
 	//loop through priorities
 	for(int currentPriority = 10;currentPriority>=0;currentPriority--)
 	{
@@ -337,7 +337,6 @@ std::string AutoCorrect::replaceWord(std::string currentWord)
 						args["REPLACEMENT"]=replacement;
 						LLNotificationsUtil::add("AutoReplace",args);
 					}
-					gSavedSettings.setS32("AutoCorrectCount",gSavedSettings.getS32("AutoCorrectCount")+1);
 					llinfos << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
 					return replacement;
 				}
@@ -348,8 +347,8 @@ std::string AutoCorrect::replaceWord(std::string currentWord)
 }
 std::string AutoCorrect::replaceWords(std::string words)
 {
-	static LLCachedControl<bool> doAnything(gSavedSettings, "EnableAutoCorrect");
-	if(!(doAnything))return words;
+	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
+	if(!(perform_autocorrect))return words;
 	//TODO update this function to use the "wordStyle" thing,
 	//but so far this function is never used, so later
 

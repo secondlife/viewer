@@ -130,8 +130,6 @@ void AutoCorrectFloater::updateItemsList()
 	childSetValue("ac_text_name",listName);
 	childSetValue("ac_text_author",listData["author"]);
 	childSetValue("ac_priority",listData["priority"]);
-	static LLCachedControl<S32> countAuto(gSavedSettings, "AutoCorrectCount");
-	childSetValue("ac_stats",(S32)countAuto);
 	
 	LLSD autoCorrects = listData["data"];
 	LLSD::map_const_iterator loc_it = autoCorrects.beginMap();
@@ -161,14 +159,11 @@ void AutoCorrectFloater::updateItemsList()
 void AutoCorrectFloater::updateNamesList()
 {
 	namesList->deleteAllItems();
-	static LLCachedControl<bool> enabledd(gSavedSettings, "EnableAutoCorrect");
-	if(!(enabledd))
+	if(!gSavedSettings, "AutoCorrect")
 	{
 		updateItemsList();
 		return;
 	}
-	static LLCachedControl<S32> countAuto(gSavedSettings, "AutoCorrectCount");
-	childSetValue("ac_stats",(S32)countAuto);
 	LLSD autoCorrects = AutoCorrect::getInstance()->getAutoCorrects();
 	LLSD::map_const_iterator loc_it = autoCorrects.beginMap();
 	LLSD::map_const_iterator loc_end = autoCorrects.endMap();
@@ -213,8 +208,7 @@ void AutoCorrectFloater::updateListControlsEnabled(BOOL selected)
 }
 void AutoCorrectFloater::updateEnabledStuff()
 {
-	static LLCachedControl<bool> enabledd(gSavedSettings, "EnableAutoCorrect");
-	if(!(enabledd))
+	if(!gSavedSettings, "AutoCorrect")
 	{
 		LLCheckBoxCtrl *enBox = getChild<LLCheckBoxCtrl>("ac_enable");
 		enBox->setDisabledColor(LLColor4::red);
@@ -234,7 +228,6 @@ void AutoCorrectFloater::updateEnabledStuff()
 }
 void AutoCorrectFloater::setData(void * data)
 {
-	//empanel = (LLPanel*)data;
 }
 void AutoCorrectFloater::onBoxCommitEnabled(LLUICtrl* caller, void* user_data)
 {
@@ -301,7 +294,7 @@ void AutoCorrectFloater::loadList(void* data)
 		LLSDSerialize::fromXMLDocument(blankllsd, file);
 	}
 	file.close();
-	gSavedSettings.setBOOL("EnableAutoCorrect",true);
+	gSavedSettings.setBOOL("AutoCorrect",true);
 	AutoCorrect::getInstance()->addCorrectionList(blankllsd);
 	if ( data )
 	{
