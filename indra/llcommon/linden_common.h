@@ -52,22 +52,11 @@
 #include <ctime>
 #include <iosfwd>
 
-// *TODO: Eliminate these, most library .cpp files don't need them.
-// Add them to llviewerprecompiledheaders.h if necessary.
-//#include <list>
-//#include <map>
-//#include <vector>
-//#include <string>
-
 // Linden only libs in alpha-order other than stdtypes.h
 // *NOTE: Please keep includes here to a minimum, see above.
 #include "stdtypes.h"
 #include "lldefs.h"
 #include "llerror.h"
-#include "llextendedstatus.h"
-// Don't do this, adds 15K lines of header code to every library file.
-//#include "llfasttimer.h"
 #include "llfile.h"
-#include "llformat.h"
 
 #endif

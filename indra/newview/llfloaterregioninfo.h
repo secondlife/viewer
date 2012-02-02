@@ -33,6 +33,7 @@
 #include "llfloater.h"
 #include "llhost.h"
 #include "llpanel.h"
+#include "llextendedstatus.h"
 
 #include "llenvmanager.h" // for LLEnvironmentSettings
 
