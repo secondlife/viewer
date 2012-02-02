@@ -9,7 +9,7 @@
     reuse_instance="true"
     save_rect="true"
     single_instance="true"
-    title="Pathfinding"
+    title="Pathfinding setup"
     width="833">
   <floater.string name="navmesh_fetch_initial"></floater.string>
   <floater.string name="navmesh_fetch_inprogress">Downloading the navmesh ...</floater.string>
