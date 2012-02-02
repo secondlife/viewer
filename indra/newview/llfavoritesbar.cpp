@@ -1118,7 +1118,7 @@ BOOL LLFavoritesBarCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 }
 void copy_slurl_to_clipboard_cb(std::string& slurl)
 {
-	gClipboard.copyFromString(utf8str_to_wstring(slurl));
+	LLClipboard::getInstance()->copyFromString(utf8str_to_wstring(slurl));
 
 	LLSD args;
 	args["SLURL"] = slurl;

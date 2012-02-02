@@ -31,10 +31,10 @@
 #include "llstring.h"
 #include "lluuid.h"
 #include "stdenums.h"
+#include "llsingleton.h"
 #include "llinventory.h"
 
-
-class LLClipboard
+class LLClipboard : public LLSingleton<LLClipboard>
 {
 public:
 	LLClipboard();
@@ -54,19 +54,12 @@ public:
 	BOOL		canPastePrimaryString() const;
 	const LLWString&	getPastePrimaryWString(LLUUID* source_id = NULL);	
 
-	// Support clipboard for object known only by their uuid and asset type
-	void		  setSourceObject(const LLUUID& source_id, LLAssetType::EType type);
-	const LLInventoryObject* getSourceObject() { return mSourceItem; }
+	// Support clipboard for object known only by their uuid
+	void		  setSourceObject(const LLUUID& source_id) { mSourceID = source_id; }
 	
 private:
 	LLUUID      mSourceID;
 	LLWString	mString;
-	LLInventoryObject* mSourceItem;
 };
-
-
-// Global singleton
-extern LLClipboard gClipboard;
-
 
 #endif  // LL_LLCLIPBOARD_H

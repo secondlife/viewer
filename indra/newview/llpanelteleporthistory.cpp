@@ -358,7 +358,7 @@ void LLTeleportHistoryPanel::ContextMenu::onInfo()
 //static
 void LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback(const std::string& slurl)
 {
-	gClipboard.copyFromString(utf8str_to_wstring(slurl));
+	LLClipboard::getInstance()->copyFromString(utf8str_to_wstring(slurl));
 }
 
 void LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard()

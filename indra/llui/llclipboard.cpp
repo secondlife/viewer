@@ -40,7 +40,6 @@ LLClipboard gClipboard;
 
 LLClipboard::LLClipboard()
 {
-	mSourceItem = NULL;
 }
 
 
@@ -134,9 +133,4 @@ const LLWString& LLClipboard::getPastePrimaryWString( LLUUID* source_id )
 BOOL LLClipboard::canPastePrimaryString() const
 {
 	return LLView::getWindow()->isPrimaryTextAvailable();
-}
-
-void LLClipboard::setSourceObject(const LLUUID& source_id, LLAssetType::EType type) 
-{
-	mSourceItem = new LLInventoryObject (source_id, LLUUID::null, type, "");
 }
