@@ -416,6 +416,8 @@ protected:
 
 	U32 mState;
 	U32 mOcclusionState[LLViewerCamera::NUM_CAMERAS];
+	U32 mOcclusionIssued[LLViewerCamera::NUM_CAMERAS];
+
 	S32 mLODHash;
 	static S32 sLODSeed;
 

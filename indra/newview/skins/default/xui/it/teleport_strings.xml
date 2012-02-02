@@ -19,8 +19,8 @@ Se si continua a visualizzare questo messaggio, consulta la pagina [SUPPORT_SITE
 			Spiacenti, il sistema non riesce a completare il teletrasporto. Riprova tra un attimo.
 		</message>
 		<message name="NoHelpIslandTP">
-		Non è possibile per te ritornare all&apos;Welcome Island.
-Vai alla &apos;Welcome Island Public&apos; per ripetere il tutorial.
+			Non puoi teleportarti nuovamente a Welcome Island.
+Per ripetere l&apos;esercitazione, visita &apos;Welcome Island Public&apos;.
 		</message>
 		<message name="noaccess_tport">
 			Spiacenti, ma non hai accesso nel luogo di destinazione richiesto.

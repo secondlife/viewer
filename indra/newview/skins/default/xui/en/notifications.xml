@@ -203,34 +203,80 @@ Save changes to current clothing/body part?
    icon="alertmodal.tga"
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
-        You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
-        [ITEM_NAME]
-        <usetemplate
-         name="okcancelbuttons"
-         notext="No"
-         yestext="Yes"/>
-    </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="OutboxUploadComplete"
-   type="alertmodal">
-Marketplace upload complete.
-        <usetemplate
-         name="okbutton"
-         yestext="Hooray!"/>
+You don't have permission to copy one or more of these items to the Merchant Outbox.  You can move them or leave them behind.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Don't move item(s)"
+     yestext="Move item(s)"/>
   </notification>
 
   <notification
-   icon="alertmodal.tga"
-   name="OutboxUploadHadErrors"
-   type="alertmodal">
-Marketplace upload completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
-        <usetemplate
-         name="okbutton"
-         yestext="Boo!"/>
+   icon="OutboxStatus_Success"
+   name="OutboxFolderCreated"
+   type="outbox">
+    <unique/>
+A new folder has been created for each item you have transferred into the top level of your Merchant Outbox.
+
+    <usetemplate
+     ignoretext="A new folder was created in the Merchant Outbox"
+     name="okignore"
+     yestext="OK"/>
   </notification>
 
+  <notification
+   icon="OutboxStatus_Success"
+   name="OutboxImportComplete"
+   type="outbox">
+Success
+
+All folders were successfully sent to the Marketplace.
+
+        <usetemplate
+         ignoretext="All folders sent to the Marketplace"
+         name="okignore"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Warning"
+   name="OutboxImportHadErrors"
+   type="outbox">
+Some folders did not transfer
+
+Errors occurred when some folders were sent to the Marketplace.  Those folders are still in your Merchant Outbox.
+
+See the [[MARKETPLACE_IMPORTS_URL] error log] for more information.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxImportFailed"
+   type="outbox">
+Transfer failed
+
+No folders were sent to the Marketplace because of a system or network error.  Try again later.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxInitFailed"
+   type="outbox">
+Marketplace initialization failed
+
+Initialization with the Marketplace failed because of a system or network error.  Try again later.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
     
 
     <notification

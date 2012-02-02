@@ -445,6 +445,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	// efficient - not only because writev() is better, but also
 	// because we won't have to do as much work to find the start
 	// address.
+	buffer->lock();
 	LLBufferArray::segment_iterator_t it;
 	LLBufferArray::segment_iterator_t end = buffer->endSegment();
 	LLSegment segment;
@@ -524,6 +525,8 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 		}
 
 	}
+	buffer->unlock();
+
 	PUMP_DEBUG;
 	if(done && eos)
 	{

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_options">
+	<button label="Publier sur le flux de mon profil" name="save_to_profile_btn"/>
+	<button label="Envoyer par e-mail" name="save_to_email_btn"/>
+	<button label="Enregistrer dans mon inventaire ([AMOUNT] L$)" name="save_to_inventory_btn"/>
+	<button label="Enregistrer sur mon ordinateur" name="save_to_computer_btn"/>
+</panel>

@@ -48,6 +48,8 @@ const LLPanelMarketplaceInbox::Params& LLPanelMarketplaceInbox::getDefaultParams
 // protected
 LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 	: LLPanel(p)
+	, mFreshCountCtrl(NULL)
+	, mInboxButton(NULL)
 	, mInventoryPanel(NULL)
 {
 }
@@ -60,6 +62,9 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 BOOL LLPanelMarketplaceInbox::postBuild()
 {
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
+
+	mFreshCountCtrl = getChild<LLUICtrl>("inbox_fresh_new_count");
+	mInboxButton = getChild<LLButton>("inbox_btn");
 	
 	return TRUE;
 }
@@ -109,7 +114,7 @@ void LLPanelMarketplaceInbox::onFocusReceived()
 	LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 	if (sidepanel_inventory)
 	{
-		sidepanel_inventory->clearSelections(true, false, true);
+		sidepanel_inventory->clearSelections(true, false);
 	}
 
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
@@ -216,7 +221,7 @@ void LLPanelMarketplaceInbox::draw()
 {
 	U32 item_count = getTotalItemCount();
 
-	LLView * fresh_new_count_view = getChildView("inbox_fresh_new_count");
+	llassert(mFreshCountCtrl != NULL);
 
 	if (item_count > 0)
 	{
@@ -224,26 +229,26 @@ void LLPanelMarketplaceInbox::draw()
 
 		LLStringUtil::format_map_t args;
 		args["[NUM]"] = item_count_str;
-		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelWithArg", args));
+		mInboxButton->setLabel(getString("InboxLabelWithArg", args));
 
 #if SUPPORTING_FRESH_ITEM_COUNT
 		// set green text to fresh item count
 		U32 fresh_item_count = getFreshItemCount();
-		fresh_new_count_view->setVisible((fresh_item_count > 0));
+		mFreshCountCtrl->setVisible((fresh_item_count > 0));
 
 		if (fresh_item_count > 0)
 		{
-			getChild<LLUICtrl>("inbox_fresh_new_count")->setTextArg("[NUM]", llformat("%d", fresh_item_count));
+			mFreshCountCtrl->setTextArg("[NUM]", llformat("%d", fresh_item_count));
 		}
 #else
-		fresh_new_count_view->setVisible(FALSE);
+		mFreshCountCtrl->setVisible(FALSE);
 #endif
 	}
 	else
 	{
-		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelNoArg"));
+		mInboxButton->setLabel(getString("InboxLabelNoArg"));
 
-		fresh_new_count_view->setVisible(FALSE);
+		mFreshCountCtrl->setVisible(FALSE);
 	}
 		
 	LLPanel::draw();

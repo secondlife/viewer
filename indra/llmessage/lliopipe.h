@@ -231,6 +231,8 @@ public:
 	 */
 	virtual ~LLIOPipe();
 
+	virtual bool isValid() ;
+
 protected:
 	/**
 	 * @brief Base Constructor.

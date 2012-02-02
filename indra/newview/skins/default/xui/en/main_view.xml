@@ -23,7 +23,6 @@
               left="0"
               top="0"
               width="1024"
-              user_resize="false"
               auto_resize="false"
               visible="true">
       <view mouse_opaque="false"
@@ -40,7 +39,6 @@
                   name="nav_bar_container"
                   tab_stop="false"
                   width="1024"
-                  user_resize="false"
                   visible="false"/>
     <layout_panel auto_resize="true"  
                   follows="all"

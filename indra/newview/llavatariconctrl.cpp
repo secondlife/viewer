@@ -75,6 +75,9 @@ void LLAvatarIconIDCache::load	()
 		LLUUID icon_id;
 		LLDate date;
 
+		if (line.length()<=uuid_len*2)
+			continue; // short line, bail out to prevent substr calls throwing exception.
+
 		std::string avatar_id_str = line.substr(0,uuid_len);
 		std::string icon_id_str = line.substr(uuid_len,uuid_len);
 		

@@ -282,6 +282,8 @@ void LLCategoryDropDescendentsObserver::done()
 }
 */
 
+S32 LLToolDragAndDrop::sOperationId = 0;
+
 LLToolDragAndDrop::DragAndDropEntry::DragAndDropEntry(dragOrDrop3dImpl f_none,
 													  dragOrDrop3dImpl f_self,
 													  dragOrDrop3dImpl f_avatar,
@@ -626,6 +628,8 @@ BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 void LLToolDragAndDrop::handleDeselect()
 {
 	mToolTipMsg.clear();
+
+	LLToolTipMgr::instance().blockToolTips();
 }
 
 // protected
@@ -641,6 +645,12 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	LLViewerInventoryCategory* cat;
 
 	mToolTipMsg.clear();
+
+	// Increment the operation id for every drop
+	if (drop)
+	{
+		sOperationId++;
+	}
 
 	if (top_view)
 	{
@@ -767,6 +777,21 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 	if (!handled)
 	{
+		// Disallow drag and drop to 3D from the outbox
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		if (outbox_id.notNull())
+		{
+			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
+			{
+				if (gInventory.isObjectDescendentOf(mCargoIDs[item_index], outbox_id))
+				{
+					*acceptance = ACCEPT_NO;
+					mToolTipMsg = LLTrans::getString("TooltipOutboxDragToWorld");
+					return;
+				}
+			}
+		}
+		
 		dragOrDrop3D( x, y, mask, drop, acceptance );
 	}
 }
@@ -865,7 +890,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 			(U32)mLastAccept,
 			(U32)callMemberFunction(*this, 
 									LLDragAndDropDictionary::instance().get(dad_type, target))
-			(hit_obj, hit_face, pick_info.mKeyMask, FALSE));
+				(hit_obj, hit_face, pick_info.mKeyMask, FALSE));
 	}
 
 	if (mDrop && ((U32)mLastAccept >= ACCEPT_YES_COPY_SINGLE))

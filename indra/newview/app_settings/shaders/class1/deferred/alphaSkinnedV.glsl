@@ -30,7 +30,6 @@ ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getObjectSkinnedTransform();
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -38,8 +37,6 @@ float calcDirectionalLight(vec3 n, vec3 l);
 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
-vec3 scaleUpLight(vec3 light);
 
 VARYING vec3 vary_position;
 VARYING vec3 vary_ambient;

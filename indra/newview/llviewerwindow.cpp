@@ -1206,7 +1206,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	mWindow->showCursorFromMouseMove();
 
-	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME
+		&& !gDisconnected)
 	{
 		gAgent.clearAFK();
 	}
@@ -1957,33 +1958,42 @@ void LLViewerWindow::shutdownViews()
 	// clean up warning logger
 	LLError::removeRecorder(RecordToChatConsole::getInstance());
 
+	llinfos << "Warning logger is cleaned." << llendl ;
+
 	delete mDebugText;
 	mDebugText = NULL;
 	
+	llinfos << "DebugText deleted." << llendl ;
+
 	// Cleanup global views
 	if (gMorphView)
 	{
 		gMorphView->setVisible(FALSE);
 	}
+	llinfos << "Global views cleaned." << llendl ;
 
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
-	
+	llinfos << "LLModalDialog shut down." << llendl; 
+
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	if (LLNavigationBar::instanceExists())
 	{
 		delete LLNavigationBar::getInstance();
 	}
+	llinfos << "LLNavigationBar destroyed." << llendl ;
 
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
+	llinfos << "menus destroyed." << llendl ;
 
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
+	llinfos << "RootView deleted." << llendl ;
 
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
