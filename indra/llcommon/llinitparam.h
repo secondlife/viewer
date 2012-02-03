@@ -205,7 +205,7 @@ namespace LLInitParam
 		mutable std::string	mValueName;
 	};
 
-	class Parser
+	class LL_COMMON_API Parser
 	{
 		LOG_CLASS(Parser);
 
@@ -301,7 +301,7 @@ namespace LLInitParam
 	class Param;
 
 	// various callbacks and constraints associated with an individual param
-	struct ParamDescriptor
+	struct LL_COMMON_API ParamDescriptor
 	{
 		struct UserData
 		{
@@ -341,7 +341,7 @@ namespace LLInitParam
 	typedef boost::shared_ptr<ParamDescriptor> ParamDescriptorPtr;
 
 	// each derived Block class keeps a static data structure maintaining offsets to various params
-	class BlockDescriptor
+	class LL_COMMON_API BlockDescriptor
 	{
 	public:
 		BlockDescriptor();
@@ -369,7 +369,7 @@ namespace LLInitParam
 		class BaseBlock*				mCurrentBlockPtr;		// pointer to block currently being constructed
 	};
 
-	class BaseBlock
+	class LL_COMMON_API BaseBlock
 	{
 	public:
 		//TODO: implement in terms of owned_ptr
@@ -566,7 +566,7 @@ namespace LLInitParam
 		static bool equals(const BaseBlock::Lazy<T>& a, const BaseBlock::Lazy<T>& b) { return !a.empty() || !b.empty(); }
 	};
 
-	class Param
+	class LL_COMMON_API Param
 	{
 	public:
 		void setProvided(bool is_provided = true)
@@ -2057,8 +2057,8 @@ namespace LLInitParam
 		
 
 		// block param interface
-		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
+		LL_COMMON_API bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
+		LL_COMMON_API void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
 			//TODO: implement LLSD params as schema type Any
