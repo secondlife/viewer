@@ -165,6 +165,16 @@
            is_running_function="Floater.IsOpen"
            is_running_parameters="pathfinding_setup"
            />
+  <command name="pathfinding_characters"
+           available_in_toybox="false"
+           icon="Command_PF_Characters_Icon"
+           label_ref="Command_PF_Characters_Label"
+           tooltip_ref="Command_PF_Characters_Tooltip"
+           execute_function="Floater.ToggleOrBringToFront"
+           execute_parameters="pathfinding_characters"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="pathfinding_characters"
+           />
   <command name="pathfinding_linksets"
            available_in_toybox="false"
            icon="Command_PF_Linksets_Icon"

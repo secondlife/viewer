@@ -218,6 +218,7 @@ set(viewer_SOURCE_FILES
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloateroutbox.cpp
+    llfloaterpathfindingcharacters.cpp
     llfloaterpathfindinglinksets.cpp
     llfloaterpathfindingsetup.cpp
     llfloaterpay.cpp
@@ -416,6 +417,7 @@ set(viewer_SOURCE_FILES
     llparcelselection.cpp
     llparticipantlist.cpp
     llpatchvertexarray.cpp
+    llpathfindingcharacter.cpp
     llpathfindinglinkset.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
@@ -779,6 +781,7 @@ set(viewer_HEADER_FILES
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloateroutbox.h
+    llfloaterpathfindingcharacters.h
     llfloaterpathfindinglinksets.h
     llfloaterpathfindingsetup.h
     llfloaterpay.h
@@ -966,6 +969,7 @@ set(viewer_HEADER_FILES
     llparcelselection.h
     llparticipantlist.h
     llpatchvertexarray.h
+    llpathfindingcharacter.h
     llpathfindinglinkset.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
