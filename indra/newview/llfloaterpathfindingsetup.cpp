@@ -619,9 +619,6 @@ void LLFloaterPathfindingSetup::providePathingData( const LLVector3& point1, con
 	switch (getPathSelectionState())
 	{
 	case kPathSelectNone :
-		llwarns << "not yet been implemented to toggle '"
-			<< mPathSelectionRadioGroup->getName() << "' to PathSelectNone"
-			<< llendl;
 		break;
 
 	case kPathSelectStartPoint :
