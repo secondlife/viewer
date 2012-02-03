@@ -1192,8 +1192,6 @@ void LLFloaterTools::updateLandImpacts()
 
 void LLFloaterTools::getMediaState()
 {
-	if (!LLFloaterMediaSettings::instanceExists()) return;
-
 	LLObjectSelectionHandle selected_objects =LLSelectMgr::getInstance()->getSelection();
 	LLViewerObject* first_object = selected_objects->getFirstObject();
 	LLTextBox* media_info = getChild<LLTextBox>("media_info");
