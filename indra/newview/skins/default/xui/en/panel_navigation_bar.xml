@@ -70,7 +70,7 @@
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="380"
+           min_width="310"
            name="navigation_layout_panel"
            width="480">
 	        <panel
@@ -148,15 +148,15 @@
 	         layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="450"
+           min_width="185"
            name="favorites_layout_panel"
-           width="500">
+           width="320">
            <icon
              follows="top|left"
              height="25"
              image_name="ChatBarHandle"
              layout="topleft"
-             left="-503"
+             left="-323"
              name="resize_handle"
              top="4"
              width="5" />
@@ -171,7 +171,7 @@
              name="favorite"
              image_drag_indication="Accordion_ArrowOpened_Off"
              tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-             width="496">
+             width="320">
             <label
              follows="left|top"
              height="13"
