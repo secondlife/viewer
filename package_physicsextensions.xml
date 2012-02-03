@@ -15,9 +15,11 @@
       <map>
         <key>common</key>
         <map>
+          <key>build_directory</key>
+          <string>stage</string>
           <key>configurations</key>
           <map>
-            <key>Default</key>
+            <key>Debug</key>
             <map>
               <key>build</key>
               <map>
@@ -28,13 +30,42 @@
                   <string>-c ../package_physicsextensions.sh</string>
                 </array>
               </map>
-              <key>configure</key>
+              <key>default</key>
+              <string>True</string>
+              <key>name</key>
+              <string>Debug</string>
+            </map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
               <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
               </map>
               <key>default</key>
               <string>True</string>
               <key>name</key>
-              <string>Default</string>
+              <string>Release</string>
+            </map>
+            <key>RelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>True</string>
+              <key>name</key>
+              <string>RelWithDebInfo</string>
             </map>
           </map>
           <key>name</key>
@@ -46,7 +77,7 @@
           <string>stage</string>
           <key>configurations</key>
           <map>
-            <key>common</key>
+            <key>Debug</key>
             <map>
               <key>build</key>
               <map>
@@ -65,7 +96,49 @@
                 <string>LICENSES</string>
               </array>
               <key>name</key>
-              <string>common</string>
+              <string>Debug</string>
+            </map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>true</string>
+              <key>manifest</key>
+              <array>
+                <string>include/</string>
+                <string>LICENSES</string>
+              </array>
+              <key>name</key>
+              <string>Release</string>
+            </map>
+            <key>RelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>true</string>
+              <key>manifest</key>
+              <array>
+                <string>include/</string>
+                <string>LICENSES</string>
+              </array>
+              <key>name</key>
+              <string>RelWithDebInfo</string>
             </map>
           </map>
           <key>name</key>
@@ -77,7 +150,7 @@
           <string>stage</string>
           <key>configurations</key>
           <map>
-            <key>common</key>
+            <key>Debug</key>
             <map>
               <key>build</key>
               <map>
@@ -96,7 +169,49 @@
                 <string>LICENSES</string>
               </array>
               <key>name</key>
-              <string>common</string>
+              <string>Debug</string>
+            </map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>true</string>
+              <key>manifest</key>
+              <array>
+                <string>include/</string>
+                <string>LICENSES</string>
+              </array>
+              <key>name</key>
+              <string>Release</string>
+            </map>
+            <key>RelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>true</string>
+              <key>manifest</key>
+              <array>
+                <string>include/</string>
+                <string>LICENSES</string>
+              </array>
+              <key>name</key>
+              <string>RelWithDebInfo</string>
             </map>
           </map>
           <key>name</key>
@@ -108,7 +223,7 @@
           <string>stage</string>
           <key>configurations</key>
           <map>
-            <key>common</key>
+            <key>Debug</key>
             <map>
               <key>build</key>
               <map>
@@ -127,7 +242,49 @@
                 <string>LICENSES</string>
               </array>
               <key>name</key>
-              <string>common</string>
+              <string>Debug</string>
+            </map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>true</string>
+              <key>manifest</key>
+              <array>
+                <string>include/</string>
+                <string>LICENSES</string>
+              </array>
+              <key>name</key>
+              <string>Release</string>
+            </map>
+            <key>RelWithDebInfo</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>bash</string>
+                <key>options</key>
+                <array>
+                  <string>-c ../package_physicsextensions.sh</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>true</string>
+              <key>manifest</key>
+              <array>
+                <string>include/</string>
+                <string>LICENSES</string>
+              </array>
+              <key>name</key>
+              <string>RelWithDebInfo</string>
             </map>
           </map>
           <key>name</key>
