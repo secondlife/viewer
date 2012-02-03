@@ -1308,6 +1308,7 @@ bool LLTextBase::isMisspelledWord(U32 pos) const
 void LLTextBase::onSpellCheckSettingsChange()
 {
 	// Recheck the spelling on every change
+	mMisspellRanges.clear();
 	mSpellCheckStart = mSpellCheckEnd = -1;
 }
 

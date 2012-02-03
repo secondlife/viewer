@@ -121,6 +121,7 @@ public:
 
 	void setCacheLocation(const LLStringExplicit& location);
 
+	void onClickDictMove(const std::string& from, const std::string& to);
 	void onClickSetCache();
 	void onClickResetCache();
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
@@ -160,6 +161,7 @@ public:
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	
+	void buildDictLists();
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 private:

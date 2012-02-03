@@ -186,7 +186,7 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 	}
 }
 
-void LLSpellChecker::setSecondaryDictionaries(std::list<std::string> dict_list)
+void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 {
 	if (!getUseSpellCheck())
 	{
@@ -194,11 +194,11 @@ void LLSpellChecker::setSecondaryDictionaries(std::list<std::string> dict_list)
 	}
 
 	// Check if we're only adding secondary dictionaries, or removing them
-	std::list<std::string> dict_add(llmax(dict_list.size(), mDictSecondary.size())), dict_rem(llmax(dict_list.size(), mDictSecondary.size()));
+	dict_list_t dict_add(llmax(dict_list.size(), mDictSecondary.size())), dict_rem(llmax(dict_list.size(), mDictSecondary.size()));
 	dict_list.sort();
 	mDictSecondary.sort();
-	std::list<std::string>::iterator end_added = std::set_difference(dict_list.begin(), dict_list.end(), mDictSecondary.begin(), mDictSecondary.end(), dict_add.begin());
-	std::list<std::string>::iterator end_removed = std::set_difference(mDictSecondary.begin(), mDictSecondary.end(), dict_list.begin(), dict_list.end(), dict_rem.begin());
+	dict_list_t::iterator end_added = std::set_difference(dict_list.begin(), dict_list.end(), mDictSecondary.begin(), mDictSecondary.end(), dict_add.begin());
+	dict_list_t::iterator end_removed = std::set_difference(mDictSecondary.begin(), mDictSecondary.end(), dict_list.begin(), dict_list.end(), dict_rem.begin());
 
 	if (end_removed != dict_rem.begin())		// We can't remove secondary dictionaries so we need to recreate the Hunspell instance
 	{
@@ -211,7 +211,7 @@ void LLSpellChecker::setSecondaryDictionaries(std::list<std::string> dict_list)
 	{
 		const std::string app_path = getDictionaryAppPath();
 		const std::string user_path = getDictionaryUserPath();
-		for (std::list<std::string>::const_iterator it_added = dict_add.begin(); it_added != end_added; ++it_added)
+		for (dict_list_t::const_iterator it_added = dict_add.begin(); it_added != end_added; ++it_added)
 		{
 			const LLSD dict_entry = getDictionaryData(*it_added);
 			if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
@@ -287,7 +287,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 			}
 		}
 
-		for (std::list<std::string>::const_iterator it = mDictSecondary.begin(); it != mDictSecondary.end(); ++it)
+		for (dict_list_t::const_iterator it = mDictSecondary.begin(); it != mDictSecondary.end(); ++it)
 		{
 			const LLSD dict_entry = getDictionaryData(*it);
 			if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
