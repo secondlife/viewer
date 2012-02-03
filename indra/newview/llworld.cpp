@@ -1193,12 +1193,17 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 		if( !pVOAvatar->isDead() &&
 			!pVOAvatar->isSelf() &&
 			!uuid.isNull() &&
-			dist_vec_squared(pos_global, relative_to) <= radius_squared &&
-			positions != NULL &&
-			avatar_ids != NULL)
-		{
-			positions->push_back(pos_global);
-			avatar_ids->push_back(uuid);
+			dist_vec_squared(pos_global, relative_to) <= radius_squared)
+			{
+				if(positions != NULL)
+				{
+					positions->push_back(pos_global);
+				}
+				if(avatar_ids !=NULL)
+				{
+					avatar_ids->push_back(uuid);
+				}
+			}
 		}
 	}
 	// region avatars added for situations where radius is greater than RenderFarClip
