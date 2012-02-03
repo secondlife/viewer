@@ -66,7 +66,7 @@ const S32	SCROLL_INCREMENT_ADD = 0;	// make space for typing
 const S32   SCROLL_INCREMENT_DEL = 4;	// make space for baskspacing
 const F32   AUTO_SCROLL_TIME = 0.05f;
 const F32	TRIPLE_CLICK_INTERVAL = 0.3f;	// delay between double and triple click. *TODO: make this equal to the double click interval?
-const F32	SPELLCHECK_DELAY = 0.5f;	// delay between the last keypress and showing spell checking feedback for the word the cursor is on
+const F32	SPELLCHECK_DELAY = 0.5f;	// delay between the last keypress and spell checking the word the cursor is on
 
 const std::string PASSWORD_ASTERISK( "\xE2\x80\xA2" ); // U+2022 BULLET
 
@@ -1158,9 +1158,8 @@ void LLLineEditor::cut()
 			LLUI::reportBadKeystroke();
 		}
 		else
-		if( mKeystrokeCallback )
 		{
-			mKeystrokeCallback( this );
+			onKeystroke();
 		}
 	}
 }
@@ -1294,9 +1293,8 @@ void LLLineEditor::pasteHelper(bool is_primary)
 				LLUI::reportBadKeystroke();
 			}
 			else
-			if( mKeystrokeCallback )
 			{
-				mKeystrokeCallback( this );
+				onKeystroke();
 			}
 		}
 	}
@@ -1549,10 +1547,7 @@ BOOL LLLineEditor::handleKeyHere(KEY key, MASK mask )
 			// Notify owner if requested
 			if (!need_to_rollback && handled)
 			{
-				if (mKeystrokeCallback)
-				{
-					mKeystrokeCallback(this);
-				}
+				onKeystroke();
 				if ( (!selection_modified) && (KEY_BACKSPACE == key) )
 				{
 					mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
@@ -1608,12 +1603,10 @@ BOOL LLLineEditor::handleUnicodeCharHere(llwchar uni_char)
 		// Notify owner if requested
 		if( !need_to_rollback && handled )
 		{
-			if( mKeystrokeCallback )
-			{
-				// HACK! The only usage of this callback doesn't do anything with the character.
-				// We'll have to do something about this if something ever changes! - Doug
-				mKeystrokeCallback( this );
-			}
+			// HACK! The only usage of this callback doesn't do anything with the character.
+			// We'll have to do something about this if something ever changes! - Doug
+			onKeystroke();
+
 			mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
 		}
 	}
@@ -1643,9 +1636,7 @@ void LLLineEditor::doDelete()
 
 			if (!prevalidateInput(text_to_delete))
 			{
-				if( mKeystrokeCallback )
-					mKeystrokeCallback( this );
-
+				onKeystroke();
 				return;
 			}
 			setCursor(getCursor() + 1);
@@ -1661,10 +1652,8 @@ void LLLineEditor::doDelete()
 		}
 		else
 		{
-			if( mKeystrokeCallback )
-			{
-				mKeystrokeCallback( this );
-			}
+			onKeystroke();
+
 			mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
 		}
 	}
@@ -2296,6 +2285,15 @@ void LLLineEditor::setSelectAllonFocusReceived(BOOL b)
 	mSelectAllonFocusReceived = b;
 }
 
+void LLLineEditor::onKeystroke()
+{
+	if (mKeystrokeCallback)
+	{
+		mKeystrokeCallback(this);
+	}
+
+	mSpellCheckStart = mSpellCheckEnd = -1;
+}
 
 void LLLineEditor::setKeystrokeCallback(callback_t callback, void* user_data)
 {
@@ -2418,10 +2416,8 @@ void LLLineEditor::updatePreedit(const LLWString &preedit_string,
 
 	// Update of the preedit should be caused by some key strokes.
 	mKeystrokeTimer.reset();
-	if( mKeystrokeCallback )
-	{
-		mKeystrokeCallback( this );
-	}
+	onKeystroke();
+
 	mSpellCheckTimer.setTimerExpirySec(SPELLCHECK_DELAY);
 }
 
@@ -2575,16 +2571,13 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 		S32 screen_x, screen_y;
 		localPointToScreen(x, y, &screen_x, &screen_y);
 
+		setCursorAtLocalPos(x);
 		if (hasSelection())
 		{
 			if ( (mCursorPos < llmin(mSelectionStart, mSelectionEnd)) || (mCursorPos > llmax(mSelectionStart, mSelectionEnd)) )
 				deselect();
 			else
 				setCursor(llmax(mSelectionStart, mSelectionEnd));
-		}
-		else
-		{
-			setCursorAtLocalPos(x);
 		}
 
 		bool use_spellcheck = getSpellCheck(), is_misspelled = false;
