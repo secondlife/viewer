@@ -1222,11 +1222,11 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 				// if this avatar doesn't already exist in the list, add it
 				if(uuid.notNull() && avatar_ids != NULL && std::find(avatar_ids->begin(), avatar_ids->end(), uuid) == avatar_ids->end())
 				{
-					if(positions != NULL)
+					if (positions != NULL)
 					{
 						positions->push_back(pos_global);
-						avatar_ids->push_back(uuid);
 					}
+					avatar_ids->push_back(uuid);
 				}
 			}
 		}
