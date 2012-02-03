@@ -78,6 +78,8 @@ class LLVOAvatar :
 	public LLCharacter,
 	public boost::signals2::trackable
 {
+	LOG_CLASS(LLVOAvatar);
+
 public:
 	friend class LLVOAvatarSelf;
 protected:
