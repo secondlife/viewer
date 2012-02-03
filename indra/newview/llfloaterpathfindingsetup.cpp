@@ -372,7 +372,9 @@ void LLFloaterPathfindingSetup::onOpen(const LLSD& pKey)
 		llwarns <<"Errror: cannout find pathing library implementation."<<llendl;
 	}
 	else
-	{		
+	{	
+		LLPathingLib::getInstance()->cleanupResidual();
+
 		mCurrentMDO = 0;
 		mNavMeshCnt = 0;
 
