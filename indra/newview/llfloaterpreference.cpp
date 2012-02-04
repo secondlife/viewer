@@ -741,7 +741,8 @@ void LLFloaterPreference::onClose(bool app_quitting)
 
 void LLFloaterPreference::onOpenHardwareSettings()
 {
-	LLFloaterReg::showInstance("prefs_hardware_settings");
+	LLFloater* floater = LLFloaterReg::showInstance("prefs_hardware_settings");
+	addDependentFloater(floater, FALSE);
 }
 // static 
 void LLFloaterPreference::onBtnOK()
