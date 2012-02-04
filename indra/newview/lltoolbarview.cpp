@@ -580,7 +580,6 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			uuid_vec_t cargo_ids;
 			types.push_back(DAD_WIDGET);
 			cargo_ids.push_back(uuid);
-			LLClipboard::getInstance()->setSourceObject(uuid);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);

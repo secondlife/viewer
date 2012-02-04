@@ -32,7 +32,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-#include "llinventoryclipboard.h"
+#include "llclipboard.h"
 
 #include "llagent.h"
 #include "llappearancemgr.h"
@@ -391,11 +391,11 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 	std::string command_name = command.asString();
 	if("paste" == command_name)
 	{
-		if(!LLInventoryClipboard::instance().hasContents())
+		if(!LLClipboard::getInstance()->hasContents())
 			return false;
 
 		LLDynamicArray<LLUUID> ids;
-		LLInventoryClipboard::instance().retrieve(ids);
+		LLClipboard::getInstance()->retrieve(ids);
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
@@ -496,21 +496,20 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		uuid_vec_t ids;
 		getSelectedIds(ids);
 		// make sure that clopboard is empty
-		LLInventoryClipboard::instance().reset();
+		LLClipboard::getInstance()->reset();
 		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
-				LLInventoryClipboard::instance().add(item->getUUID());
+				LLClipboard::getInstance()->add(item->getUUID());
 			}
 		}
 	}
 	else if ("paste" == command_name)
 	{
-		LLInventoryClipboard& clipbord = LLInventoryClipboard::instance();
 		LLDynamicArray<LLUUID> ids;
-		clipbord.retrieve(ids);
+		LLClipboard::getInstance()->retrieve(ids);
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);
@@ -530,7 +529,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 						gesture_dir->getUUID(), getString("copy_name", string_args), cb);
 			}
 		}
-		clipbord.reset();
+		LLClipboard::getInstance()->reset();
 	}
 	else if ("copy_uuid" == command_name)
 	{

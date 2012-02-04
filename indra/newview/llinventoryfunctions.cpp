@@ -54,7 +54,6 @@
 #include "lliconctrl.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
-#include "llinventoryclipboard.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"

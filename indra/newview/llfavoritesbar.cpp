@@ -39,7 +39,7 @@
 
 #include "llagent.h"
 #include "llclipboard.h"
-#include "llinventoryclipboard.h"
+#include "llclipboard.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llfloatersidepanelcontainer.h"
@@ -1187,7 +1187,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	}
 	else if (action == "copy")
 	{
-		LLInventoryClipboard::instance().store(mSelectedItemID);
+		LLClipboard::getInstance()->store(mSelectedItemID);
 	}
 	else if (action == "paste")
 	{
@@ -1211,13 +1211,13 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 
 BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
 {
-	if (!LLInventoryClipboard::instance().hasContents())
+	if (!LLClipboard::getInstance()->hasContents())
 	{
 		return FALSE;
 	}
 
 	LLDynamicArray<LLUUID> objects;
-	LLInventoryClipboard::instance().retrieve(objects);
+	LLClipboard::getInstance()->retrieve(objects);
 	S32 count = objects.count();
 	for(S32 i = 0; i < count; i++)
 	{
@@ -1246,7 +1246,7 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 	{
 		LLInventoryItem* item = NULL;
 		LLDynamicArray<LLUUID> objects;
-		LLInventoryClipboard::instance().retrieve(objects);
+		LLClipboard::getInstance()->retrieve(objects);
 		S32 count = objects.count();
 		LLUUID parent_id(mFavoriteFolderId);
 		for(S32 i = 0; i < count; i++)

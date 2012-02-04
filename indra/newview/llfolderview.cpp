@@ -30,7 +30,7 @@
 
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
-#include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
+#include "llclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -1293,7 +1293,7 @@ BOOL LLFolderView::canCopy() const
 void LLFolderView::copy()
 {
 	// *NOTE: total hack to clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::getInstance()->reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1334,7 +1334,7 @@ BOOL LLFolderView::canCut() const
 void LLFolderView::cut()
 {
 	// clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::getInstance()->reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -2111,7 +2111,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 
 	if ("copy" == action)
 	{	
-		LLInventoryClipboard::instance().reset();
+		LLClipboard::getInstance()->reset();
 	}
 
 	static const std::string change_folder_string = "change_folder_type_";
