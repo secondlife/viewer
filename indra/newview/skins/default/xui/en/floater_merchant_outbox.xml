@@ -99,7 +99,7 @@
             halign="center"
             font="SansSerifMedium"
             font_shadow="hard"
-            valign="bottom">
+            valign="top">
           Drag items here to create folders
         </text>
       </panel>
@@ -114,8 +114,8 @@
           height="20"
           wrap="true"
           halign="left"
-          valign="bottom"
-          font="SansSerif" />
+          valign="center"
+          font="SansSerif"/>
       <button
           label="Send to Marketplace"
           tool_tip="Push to my Marketplace Storefront"
