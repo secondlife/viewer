@@ -318,7 +318,7 @@ public:
 	
 private:
 	void easyFree(LLCurl::Easy*);
-	void cleanup() ;
+	void cleanup(bool deleted = false) ;
 	
 	CURLM* mCurlMultiHandle;
 

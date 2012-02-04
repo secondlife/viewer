@@ -583,10 +583,10 @@ LLCurl::Multi::Multi(F32 idle_time_out)
 
 LLCurl::Multi::~Multi()
 {
-	cleanup() ;	
+	cleanup(true) ;	
 }
 
-void LLCurl::Multi::cleanup()
+void LLCurl::Multi::cleanup(bool deleted)
 {
 	if(!mCurlMultiHandle)
 	{
@@ -599,6 +599,11 @@ void LLCurl::Multi::cleanup()
 	{
 		Easy* easy = *iter;
 		check_curl_multi_code(curl_multi_remove_handle(mCurlMultiHandle, easy->getCurlHandle()));
+
+		if(deleted)
+		{
+			easy->mResponder = NULL ; //avoid triggering mResponder.
+		}
 		delete easy;
 	}
 	mEasyActiveList.clear();
