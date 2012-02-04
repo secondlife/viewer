@@ -185,9 +185,6 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	//gGL.translateUI(-pixel_offset_x, -pixel_offset_y, 0.f);
 
 	LLVector2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
-	// snap the text origin to a pixel grid to start with
-	origin.mV[VX] -= llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
-	origin.mV[VY] -= llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
 
 	// Depth translation, so that floating text appears 'inworld'
 	// and is correclty occluded.

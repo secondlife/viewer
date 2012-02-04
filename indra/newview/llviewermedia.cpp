@@ -1901,7 +1901,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		}
 	}
 	
-	LL_WARNS_ONCE("Plugin") << "plugin intialization failed for mime type: " << media_type << LL_ENDL;
+	LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
 	LLSD args;
 	args["MIME_TYPE"] = media_type;
 	LLNotificationsUtil::add("NoPlugin", args);
