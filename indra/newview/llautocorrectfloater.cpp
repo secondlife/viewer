@@ -159,7 +159,7 @@ void AutoCorrectFloater::updateItemsList()
 void AutoCorrectFloater::updateNamesList()
 {
 	namesList->deleteAllItems();
-	if(!gSavedSettings, "AutoCorrect")
+	if(!gSavedSettings.getBOOL("AutoCorrect"))
 	{
 		updateItemsList();
 		return;
@@ -208,7 +208,8 @@ void AutoCorrectFloater::updateListControlsEnabled(BOOL selected)
 }
 void AutoCorrectFloater::updateEnabledStuff()
 {
-	if(!gSavedSettings, "AutoCorrect")
+	BOOL autocorrect = gSavedSettings.getBOOL("AutoCorrect");
+	if(autocorrect)
 	{
 		LLCheckBoxCtrl *enBox = getChild<LLCheckBoxCtrl>("ac_enable");
 		enBox->setDisabledColor(LLColor4::red);
@@ -219,9 +220,9 @@ void AutoCorrectFloater::updateEnabledStuff()
 			LLUIColorTable::instance().getColor( "LabelTextColor" ));
 	}
 
-	childSetEnabled("ac_list_name",enabledd);
-	childSetEnabled("ac_list_entry",enabledd);
-	updateListControlsEnabled(enabledd);
+	childSetEnabled("ac_list_name", autocorrect);
+	childSetEnabled("ac_list_entry", autocorrect);
+	updateListControlsEnabled(autocorrect);
 	updateNamesList();
 	AutoCorrect::getInstance()->save();
 

@@ -375,7 +375,7 @@ std::string AutoCorrect::replaceWords(std::string words)
 					args["REPLACEMENT"]=replacement;
 					LLNotificationsUtil::add("AutoReplace",args);
 				}
-				ldebugs << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
+				lldebugs << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
 				int wordStart = words.find(currentWord);
 				words.replace(wordStart,currentWord.length(),replacement);
 				return replaceWords(words);//lol recursion!
