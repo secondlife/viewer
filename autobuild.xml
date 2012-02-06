@@ -1110,9 +1110,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06f6a620f3c8348de4f32dd903031ead</string>
+              <string>977d4abac62bb8fb5a8eab64fdc7c8a4</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248802/arch/Linux/installer/llphysicsextensions-0.1-linux-20120202.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/248943/arch/Linux/installer/llphysicsextensions-0.1-linux-20120206.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
