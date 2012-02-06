@@ -34,6 +34,12 @@ do
 	mkdir -p $dstIncludeDir
 	headers="$source/$project/*.h"
 	cp $headers "$dstIncludeDir"
+	headers="$source/$project/*.inl"
+	# not all projects have .inl files
+	files=$(ls $headers 2> /dev/null | wc -l)
+	if [ "$files" != "0" ] ; then
+	    cp $headers "$dstIncludeDir"
+	fi
 done
 	
 # Copy the license files into place for packaging
