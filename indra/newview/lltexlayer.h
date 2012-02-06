@@ -261,6 +261,8 @@ private:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLTexLayerSetBuffer : public LLViewerDynamicTexture
 {
+	LOG_CLASS(LLTexLayerSetBuffer);
+
 public:
 	LLTexLayerSetBuffer(LLTexLayerSet* const owner, S32 width, S32 height);
 	virtual ~LLTexLayerSetBuffer();

@@ -39,6 +39,7 @@
 #include <list>
 #include <vector>
 
+class LLMutex;
 /** 
  * @class LLChannelDescriptors
  * @brief A way simple interface to accesss channels inside a buffer
@@ -564,6 +565,29 @@ public:
 	 * @return Returns true on success.
 	 */
 	bool eraseSegment(const segment_iterator_t& iter);
+
+	/**
+	* @brief Lock the mutex if it exists
+	* This method locks mMutexp to make accessing LLBufferArray thread-safe
+	*/
+	void lock();
+
+	/**
+	* @brief Unlock the mutex if it exists
+	*/
+	void unlock();
+
+	/**
+	* @brief Return mMutexp
+	*/
+	LLMutex* getMutex();
+
+	/**
+	* @brief Set LLBufferArray to be shared across threads or not
+	* This method is to create mMutexp if is threaded.
+	* @param threaded Indicates this LLBufferArray instance is shared across threads if true.
+	*/
+	void setThreaded(bool threaded);
 	//@}
 
 protected:
@@ -595,6 +619,7 @@ protected:
 	S32 mNextBaseChannel;
 	buffer_list_t mBuffers;
 	segment_list_t mSegments;
+	LLMutex* mMutexp;
 };
 
 #endif // LL_LLBUFFER_H

@@ -268,6 +268,8 @@ struct LLFoundData
 	
 class LLWearableHoldingPattern
 {
+	LOG_CLASS(LLWearableHoldingPattern);
+
 public:
 	LLWearableHoldingPattern();
 	~LLWearableHoldingPattern();
@@ -436,6 +438,11 @@ void LLWearableHoldingPattern::checkMissingWearables()
 
 void LLWearableHoldingPattern::onAllComplete()
 {
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Agent wearables fetch complete");
+	}
+
 	if (!isMostRecent())
 	{
 		llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
@@ -2363,6 +2370,8 @@ void LLAppearanceMgr::autopopulateOutfits()
 // Handler for anything that's deferred until avatar de-clouds.
 void LLAppearanceMgr::onFirstFullyVisible()
 {
+	gAgentAvatarp->outputRezTiming("Avatar fully loaded");
+	gAgentAvatarp->reportAvatarRezTime();
 	gAgentAvatarp->debugAvatarVisible();
 
 	// The auto-populate is failing at the point of generating outfits

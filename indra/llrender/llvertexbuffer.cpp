@@ -204,14 +204,26 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	Record rec;
 	rec.mGLName = name;
 	rec.mClientData = buffer;
+<<<<<<< local
+=======
+
+	sBytesPooled += size;
+>>>>>>> other
 	
+<<<<<<< local
 	if (buffer == NULL)
+=======
+	if (!LLVertexBuffer::sDisableVBOMapping && mUsage == GL_DYNAMIC_DRAW_ARB)
+>>>>>>> other
 	{
 		glDeleteBuffersARB(1, &rec.mGLName);
 	}
 	else
 	{
+<<<<<<< local
 		sBytesPooled += size;
+=======
+>>>>>>> other
 		mFreeList[i].push_back(rec);
 	}
 }
@@ -547,7 +559,11 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
 {
 	validateRange(start, end, count, indices_offset);
+<<<<<<< local
 	mMappable = false;
+=======
+	mMappable = FALSE;
+>>>>>>> other
 	gGL.syncMatrices();
 
 	llassert(mNumVerts >= 0);
@@ -602,7 +618,11 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+<<<<<<< local
 	mMappable = false;
+=======
+	mMappable = FALSE;
+>>>>>>> other
 	gGL.syncMatrices();
 
 	llassert(mNumIndices >= 0);
@@ -648,7 +668,11 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+<<<<<<< local
 	mMappable = false;
+=======
+	mMappable = FALSE;
+>>>>>>> other
 	gGL.syncMatrices();
 	
 	llassert(mNumVerts >= 0);
@@ -822,6 +846,46 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 		mMappable = false;
 	}
 
+<<<<<<< local
+=======
+	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	{
+		mUsage = 0;
+	}
+	
+	if (mUsage == GL_DYNAMIC_DRAW_ARB && sPreferStreamDraw)
+	{
+		mUsage = GL_STREAM_DRAW_ARB;
+	}
+
+	if (mUsage == 0 && LLRender::sGLCoreProfile)
+	{ //MUST use VBOs for all rendering
+		mUsage = GL_STREAM_DRAW_ARB;
+	}
+
+	if (mUsage && mUsage != GL_STREAM_DRAW_ARB)
+	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
+		if (sDisableVBOMapping)
+		{ //always use stream draw if VBO mapping is disabled
+			mUsage = GL_STREAM_DRAW_ARB;
+		}
+		else
+		{
+			mUsage = GL_DYNAMIC_DRAW_ARB;
+		}
+	}
+	
+
+	if (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping)
+	{
+		mMappable = TRUE;
+	}
+	else
+	{
+		mMappable = FALSE;
+	}
+
+>>>>>>> other
 	//zero out offsets
 	for (U32 i = 0; i < TYPE_MAX; i++)
 	{
@@ -1072,7 +1136,11 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
+<<<<<<< local
 			FREE_MEM(sPrivatePoolp, (void*) mMappedData);
+=======
+			FREE_MEM(sPrivatePoolp, (void*) mMappedData) ;
+>>>>>>> other
 			mMappedData = NULL;
 			mEmpty = true;
 		}
@@ -1093,7 +1161,11 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
+<<<<<<< local
 			FREE_MEM(sPrivatePoolp, (void*) mMappedIndexData);
+=======
+			FREE_MEM(sPrivatePoolp, (void*) mMappedIndexData) ;
+>>>>>>> other
 			mMappedIndexData = NULL;
 			mEmpty = true;
 		}
