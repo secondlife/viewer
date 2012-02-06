@@ -13,6 +13,7 @@
 #define LL_MANAGEAPR_H
 
 #include "llapr.h"
+#include <boost/noncopyable.hpp>
 
 /**
  * Declare a static instance of this class for dead-simple ll_init_apr() at
@@ -21,7 +22,7 @@
  * instances of other classes that depend on APR already being initialized,
  * the indeterminate static-constructor-order problem rears its ugly head.
  */
-class ManageAPR
+class ManageAPR: public boost::noncopyable
 {
 public:
     ManageAPR()
