@@ -1190,19 +1190,18 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
 		LLVector3d pos_global = pVOAvatar->getPositionGlobal();
 		LLUUID uuid = pVOAvatar->getID();
-		if( !pVOAvatar->isDead() &&
-			!pVOAvatar->isSelf() &&
-			!uuid.isNull() &&
+		if( !pVOAvatar->isDead()
+			&& !pVOAvatar->isSelf()
+			&& !uuid.isNull() &&
 			dist_vec_squared(pos_global, relative_to) <= radius_squared)
+		{
+			if(positions != NULL)
 			{
-				if(positions != NULL)
-				{
-					positions->push_back(pos_global);
-				}
-				if(avatar_ids !=NULL)
-				{
-					avatar_ids->push_back(uuid);
-				}
+				positions->push_back(pos_global);
+			}
+			if(avatar_ids !=NULL)
+			{
+				avatar_ids->push_back(uuid);
 			}
 		}
 	}
