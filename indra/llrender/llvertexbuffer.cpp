@@ -204,26 +204,14 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	Record rec;
 	rec.mGLName = name;
 	rec.mClientData = buffer;
-<<<<<<< local
-=======
-
-	sBytesPooled += size;
->>>>>>> other
 	
-<<<<<<< local
 	if (buffer == NULL)
-=======
-	if (!LLVertexBuffer::sDisableVBOMapping && mUsage == GL_DYNAMIC_DRAW_ARB)
->>>>>>> other
 	{
 		glDeleteBuffersARB(1, &rec.mGLName);
 	}
 	else
 	{
-<<<<<<< local
 		sBytesPooled += size;
-=======
->>>>>>> other
 		mFreeList[i].push_back(rec);
 	}
 }
@@ -441,7 +429,7 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 
 	U32 count = pos.size();
 	llassert_always(norm.size() >= pos.size());
-	llassert_always(count > 0) ;
+	llassert_always(count > 0);
 
 	unbind();
 	
@@ -559,11 +547,7 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
 {
 	validateRange(start, end, count, indices_offset);
-<<<<<<< local
 	mMappable = false;
-=======
-	mMappable = FALSE;
->>>>>>> other
 	gGL.syncMatrices();
 
 	llassert(mNumVerts >= 0);
@@ -618,11 +602,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
-<<<<<<< local
 	mMappable = false;
-=======
-	mMappable = FALSE;
->>>>>>> other
 	gGL.syncMatrices();
 
 	llassert(mNumIndices >= 0);
@@ -668,11 +648,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
-<<<<<<< local
 	mMappable = false;
-=======
-	mMappable = FALSE;
->>>>>>> other
 	gGL.syncMatrices();
 	
 	llassert(mNumVerts >= 0);
@@ -764,8 +740,8 @@ void LLVertexBuffer::cleanupClass()
 
 	if(sPrivatePoolp)
 	{
-		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPrivatePoolp) ;
-		sPrivatePoolp = NULL ;
+		LLPrivateMemoryPoolManager::getInstance()->deletePool(sPrivatePoolp);
+		sPrivatePoolp = NULL;
 	}
 }
 
@@ -780,22 +756,22 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 		ret_usage = 0;
 	}
 	
-	if (usage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	if (ret_usage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
 	{
 		ret_usage = 0;
 	}
 	
-	if (usage == GL_DYNAMIC_DRAW_ARB && sPreferStreamDraw)
+	if (ret_usage == GL_DYNAMIC_DRAW_ARB && sPreferStreamDraw)
 	{
 		ret_usage = GL_STREAM_DRAW_ARB;
 	}
 	
-	if (usage == 0 && LLRender::sGLCoreProfile)
+	if (ret_usage == 0 && LLRender::sGLCoreProfile)
 	{ //MUST use VBOs for all rendering
 		ret_usage = GL_STREAM_DRAW_ARB;
 	}
 	
-	if (usage && usage != GL_STREAM_DRAW_ARB)
+	if (ret_usage && ret_usage != GL_STREAM_DRAW_ARB)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
 		if (sDisableVBOMapping)
 		{ //always use stream draw if VBO mapping is disabled
@@ -837,55 +813,8 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage) :
 {
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_CONSTRUCTOR);
 
-	if (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping)
-	{
-		mMappable = true;
-	}
-	else
-	{
-		mMappable = false;
-	}
+	mMappable = (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping);
 
-<<<<<<< local
-=======
-	if (mUsage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
-	{
-		mUsage = 0;
-	}
-	
-	if (mUsage == GL_DYNAMIC_DRAW_ARB && sPreferStreamDraw)
-	{
-		mUsage = GL_STREAM_DRAW_ARB;
-	}
-
-	if (mUsage == 0 && LLRender::sGLCoreProfile)
-	{ //MUST use VBOs for all rendering
-		mUsage = GL_STREAM_DRAW_ARB;
-	}
-
-	if (mUsage && mUsage != GL_STREAM_DRAW_ARB)
-	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
-		if (sDisableVBOMapping)
-		{ //always use stream draw if VBO mapping is disabled
-			mUsage = GL_STREAM_DRAW_ARB;
-		}
-		else
-		{
-			mUsage = GL_DYNAMIC_DRAW_ARB;
-		}
-	}
-	
-
-	if (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping)
-	{
-		mMappable = TRUE;
-	}
-	else
-	{
-		mMappable = FALSE;
-	}
-
->>>>>>> other
 	//zero out offsets
 	for (U32 i = 0; i < TYPE_MAX; i++)
 	{
@@ -963,7 +892,7 @@ LLVertexBuffer::~LLVertexBuffer()
 	
 	mFence = NULL;
 
-	llassert_always(!mMappedData && !mMappedIndexData) ;
+	llassert_always(!mMappedData && !mMappedIndexData);
 };
 
 void LLVertexBuffer::placeFence() const
@@ -1136,11 +1065,7 @@ void LLVertexBuffer::destroyGLBuffer()
 		}
 		else
 		{
-<<<<<<< local
 			FREE_MEM(sPrivatePoolp, (void*) mMappedData);
-=======
-			FREE_MEM(sPrivatePoolp, (void*) mMappedData) ;
->>>>>>> other
 			mMappedData = NULL;
 			mEmpty = true;
 		}
@@ -1161,11 +1086,7 @@ void LLVertexBuffer::destroyGLIndices()
 		}
 		else
 		{
-<<<<<<< local
 			FREE_MEM(sPrivatePoolp, (void*) mMappedIndexData);
-=======
-			FREE_MEM(sPrivatePoolp, (void*) mMappedIndexData) ;
->>>>>>> other
 			mMappedIndexData = NULL;
 			mEmpty = true;
 		}
@@ -1515,16 +1436,16 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 				log_glerror();
 
 				//check the availability of memory
-				LLMemory::logMemoryInfo(true) ; 
+				LLMemory::logMemoryInfo(true);
 			
 				if(mMappable)
 				{			
 					//--------------------
 					//print out more debug info before crash
-					llinfos << "vertex buffer size: (num verts : num indices) = " << getNumVerts() << " : " << getNumIndices() << llendl ;
-					GLint size ;
-					glGetBufferParameterivARB(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size) ;
-					llinfos << "GL_ARRAY_BUFFER_ARB size is " << size << llendl ;
+					llinfos << "vertex buffer size: (num verts : num indices) = " << getNumVerts() << " : " << getNumIndices() << llendl;
+					GLint size;
+					glGetBufferParameterivARB(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+					llinfos << "GL_ARRAY_BUFFER_ARB size is " << size << llendl;
 					//--------------------
 
 					GLint buff;
@@ -1539,7 +1460,7 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 				}
 				else
 				{
-					llerrs << "memory allocation for vertex data failed." << llendl ;
+					llerrs << "memory allocation for vertex data failed." << llendl;
 				}
 			}
 		}
@@ -1693,7 +1614,7 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 		if (!mMappedIndexData)
 		{
 			log_glerror();
-			LLMemory::logMemoryInfo(true) ;
+			LLMemory::logMemoryInfo(true);
 
 			if(mMappable)
 			{
@@ -1708,7 +1629,7 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 			}
 			else
 			{
-				llerrs << "memory allocation for Index data failed. " << llendl ;
+				llerrs << "memory allocation for Index data failed. " << llendl;
 			}
 		}
 	}
@@ -1739,10 +1660,10 @@ void LLVertexBuffer::unmapBuffer()
 	LLMemType mt2(LLMemType::MTYPE_VERTEX_UNMAP_BUFFER);
 	if (!useVBOs())
 	{
-		return ; //nothing to unmap
+		return; //nothing to unmap
 	}
 
-	bool updated_all = false ;
+	bool updated_all = false;
 
 	if (mMappedData && mVertexLocked)
 	{
@@ -1873,10 +1794,10 @@ void LLVertexBuffer::unmapBuffer()
 			glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
 			stop_glerror();
 
-			mMappedIndexData = NULL ;
+			mMappedIndexData = NULL;
 		}
 
-		mIndexLocked = false ;
+		mIndexLocked = false;
 		sMappedCount--;
 	}
 
