@@ -1,6 +1,6 @@
 /** 
- * @file llfloateranimpreview.h
- * @brief LLFloaterAnimPreview class definition
+ * @file llfloaterbvhpreview.h
+ * @brief LLFloaterBvhPreview class definition
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERANIMPREVIEW_H
-#define LL_LLFLOATERANIMPREVIEW_H
+#ifndef LL_LLFLOATERBVHPREVIEW_H
+#define LL_LLFLOATERBVHPREVIEW_H
 
 #include "llassettype.h"
 #include "llfloaternamedesc.h"
@@ -67,11 +67,11 @@ protected:
 	LLPointer<LLVOAvatar>			mDummyAvatar;
 };
 
-class LLFloaterAnimPreview : public LLFloaterNameDesc
+class LLFloaterBvhPreview : public LLFloaterNameDesc
 {
 public:
-	LLFloaterAnimPreview(const std::string& filename);
-	virtual ~LLFloaterAnimPreview();
+	LLFloaterBvhPreview(const std::string& filename);
+	virtual ~LLFloaterBvhPreview();
 	
 	BOOL postBuild();
 
@@ -128,4 +128,4 @@ protected:
 	std::map<std::string, LLUUID>	mIDList;
 };
 
-#endif  // LL_LLFLOATERANIMPREVIEW_H
+#endif  // LL_LLFLOATERBVHPREVIEW_H

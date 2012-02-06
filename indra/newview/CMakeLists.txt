@@ -166,7 +166,7 @@ set(viewer_SOURCE_FILES
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
-    llfloateranimpreview.cpp
+    llfloaterbvhpreview.cpp
     llfloaterauction.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
@@ -722,7 +722,7 @@ set(viewer_HEADER_FILES
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
-    llfloateranimpreview.h
+    llfloaterbvhpreview.h
     llfloaterauction.h
     llfloateravatar.h
     llfloateravatarpicker.h
