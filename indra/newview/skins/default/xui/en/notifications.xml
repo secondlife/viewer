@@ -6409,11 +6409,11 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Mute"
+       name="Client_Side_Mute"
        text="Block"/>
       <button
        index="-1"
-       name="Ignore"
+       name="Client_Side_Ignore"
        text="Ignore"/>
     </form>
   </notification>
@@ -6428,11 +6428,11 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Mute"
+       name="Client_Side_Mute"
        text="Block"/>
       <button
        index="-1"
-       name="Ignore"
+       name="Client_Side_Ignore"
        text="Ignore"/>
     </form>
   </notification>
