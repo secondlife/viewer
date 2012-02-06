@@ -1210,7 +1210,7 @@ Only large parcels can be listed in search.
              type="string"
              length="1"
              follows="left|top"
-             text_color="white"
+             text_color="White"
              height="16"
              layout="topleft"
              left="10"
@@ -1500,7 +1500,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="20"
              name="Snapshot:"
-             text_color="white"
+             text_color="White"
              top="225"
              width="200">
                 Snapshot:
@@ -1546,7 +1546,7 @@ Only large parcels can be listed in search.
              layout="topleft"
              left="255"
              top="282"
-             text_color="white"
+             text_color="White"
              name="landing_point"
              word_wrap="true"
              width="200">
@@ -1576,7 +1576,7 @@ Only large parcels can be listed in search.
             <text
              type="string"
              length="1"
-             text_color="white"
+             text_color="White"
              follows="left|top"
              height="16"
              layout="topleft"
