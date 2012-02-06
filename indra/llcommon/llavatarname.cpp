@@ -106,6 +106,11 @@ std::string LLAvatarName::getCompleteName() const
 
 std::string LLAvatarName::getLegacyName() const
 {
+	if (mLegacyFirstName.empty() && mLegacyLastName.empty()) // display names disabled?
+	{
+		return mDisplayName;
+	}
+
 	std::string name;
 	name.reserve( mLegacyFirstName.size() + 1 + mLegacyLastName.size() );
 	name = mLegacyFirstName;

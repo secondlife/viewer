@@ -2977,6 +2977,17 @@ bool LLIMMgr::isVoiceCall(const LLUUID& session_id)
 	return im_session->mStartedAsIMCall;
 }
 
+void LLIMMgr::addNotifiedNonFriendSessionID(const LLUUID& session_id)
+{
+	mNotifiedNonFriendSessions.insert(session_id);
+}
+
+bool LLIMMgr::isNonFriendSessionNotified(const LLUUID& session_id)
+{
+	return mNotifiedNonFriendSessions.end() != mNotifiedNonFriendSessions.find(session_id);
+
+}
+
 void LLIMMgr::noteOfflineUsers(
 	const LLUUID& session_id,
 	const LLDynamicArray<LLUUID>& ids)

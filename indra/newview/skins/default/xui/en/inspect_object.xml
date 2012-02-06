@@ -90,6 +90,7 @@ L$30,000
    follows="all"
    font="SansSerifSmall"
    height="13"
+   clip="false"
    name="object_media_url"
    width="207"
    left_pad="2"

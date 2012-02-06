@@ -922,7 +922,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	S32 image_top = getRect().getHeight();
 	S32 image_bottom = BTN_HEIGHT_SMALL;
 	S32 image_middle = (image_top + image_bottom) / 2;
-	S32 line_height = llround(LLFontGL::getFontSansSerifSmall()->getLineHeight());
+	S32 line_height = LLFontGL::getFontSansSerifSmall()->getLineHeight();
 
 	LLTextBox::Params tentative_label_p(p.multiselect_text);
 	tentative_label_p.name("Multiple");

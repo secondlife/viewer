@@ -2157,7 +2157,7 @@ LLRect LLTextBase::getLocalRectFromDocIndex(S32 pos) const
 	{ 
 		// return default height rect in upper left
 		local_rect = content_window_rect;
-		local_rect.mBottom = local_rect.mTop - (S32)(mDefaultFont->getLineHeight());
+		local_rect.mBottom = local_rect.mTop - mDefaultFont->getLineHeight();
 		return local_rect;
 	}
 
@@ -2395,10 +2395,21 @@ void LLTextBase::updateRects()
 		}
 
 		mTextBoundingRect.mTop += mVPad;
-		// subtract a pixel off the bottom to deal with rounding errors in measuring font height
-		mTextBoundingRect.mBottom -= 1;
 
-		S32 delta_pos = -mTextBoundingRect.mBottom;
+		S32 delta_pos = 0;
+		
+		switch(mVAlign)
+		{
+		case LLFontGL::TOP:
+			delta_pos = llmax(mVisibleTextRect.mTop - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
+			break;
+		case LLFontGL::VCENTER:
+			delta_pos = (llmax(mVisibleTextRect.mTop - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
+			break;
+		case LLFontGL::BOTTOM:
+			delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
+			break;
+		}
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
 		{
@@ -2408,8 +2419,9 @@ void LLTextBase::updateRects()
 	}
 
 	// update document container dimensions according to text contents
-	LLRect doc_rect = mTextBoundingRect;
+	LLRect doc_rect;
 	// use old mVisibleTextRect constraint document to width of viewable region
+	doc_rect.mBottom = llmin(mVisibleTextRect.mBottom,  mTextBoundingRect.mBottom);
 	doc_rect.mLeft = 0;
 
 	// allow horizontal scrolling?
@@ -2419,11 +2431,22 @@ void LLTextBase::updateRects()
 	doc_rect.mRight = mScroller 
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
+	doc_rect.mTop = llmax(mVisibleTextRect.mTop, mTextBoundingRect.mTop);
 
 	if (!mScroller)
 	{
 		// push doc rect to top of text widget
-		doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
+		switch(mVAlign)
+		{
+		case LLFontGL::TOP:
+			doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
+			break;
+		case LLFontGL::VCENTER:
+			doc_rect.translate(0, (mVisibleTextRect.getHeight() - doc_rect.mTop) / 2);
+		case LLFontGL::BOTTOM:
+		default:
+			break;
+		}
 	}
 
 	mDocumentView->setShape(doc_rect);
@@ -2444,9 +2467,27 @@ void LLTextBase::updateRects()
 	}
 
 	// update document container again, using new mVisibleTextRect (that has scrollbars enabled as needed)
+	doc_rect.mBottom = llmin(mVisibleTextRect.mBottom,  mTextBoundingRect.mBottom);
+	doc_rect.mLeft = 0;
 	doc_rect.mRight = mScroller 
 		? llmax(mVisibleTextRect.getWidth(), mTextBoundingRect.mRight)
 		: mVisibleTextRect.getWidth();
+	doc_rect.mTop = llmax(mVisibleTextRect.mTop, mTextBoundingRect.mTop);
+	if (!mScroller)
+	{
+		// push doc rect to top of text widget
+		switch(mVAlign)
+		{
+		case LLFontGL::TOP:
+			doc_rect.translate(0, mVisibleTextRect.getHeight() - doc_rect.mTop);
+			break;
+		case LLFontGL::VCENTER:
+			doc_rect.translate(0, (mVisibleTextRect.getHeight() - doc_rect.mTop) / 2);
+		case LLFontGL::BOTTOM:
+		default:
+			break;
+		}
+	}
 	mDocumentView->setShape(doc_rect);
 }
 
@@ -2578,7 +2619,7 @@ LLNormalTextSegment::LLNormalTextSegment( LLStyleConstSP style, S32 start, S32 e
 	mToken(NULL),
 	mEditor(editor)
 {
-	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
+	mFontHeight = mStyle->getFont()->getLineHeight();
 
 	LLUIImagePtr image = mStyle->getImage();
 	if (image.notNull())
@@ -2594,7 +2635,7 @@ LLNormalTextSegment::LLNormalTextSegment( const LLColor4& color, S32 start, S32 
 {
 	mStyle = new LLStyle(LLStyle::Params().visible(is_visible).color(color));
 
-	mFontHeight = llceil(mStyle->getFont()->getLineHeight());
+	mFontHeight = mStyle->getFont()->getLineHeight();
 }
 
 LLNormalTextSegment::~LLNormalTextSegment()
@@ -2962,11 +3003,11 @@ LLLineBreakTextSegment::LLLineBreakTextSegment(S32 pos):LLTextSegment(pos,pos+1)
 {
 	LLStyleSP s( new LLStyle(LLStyle::Params().visible(true)));
 
-	mFontHeight = llceil(s->getFont()->getLineHeight());
+	mFontHeight = s->getFont()->getLineHeight();
 }
 LLLineBreakTextSegment::LLLineBreakTextSegment(LLStyleConstSP style,S32 pos):LLTextSegment(pos,pos+1)
 {
-	mFontHeight = llceil(style->getFont()->getLineHeight());
+	mFontHeight = style->getFont()->getLineHeight();
 }
 LLLineBreakTextSegment::~LLLineBreakTextSegment()
 {
@@ -3003,7 +3044,7 @@ static const S32 IMAGE_HPAD = 3;
 bool LLImageTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32& height) const
 {
 	width = 0;
-	height = llceil(mStyle->getFont()->getLineHeight());;
+	height = mStyle->getFont()->getLineHeight();
 
 	LLUIImagePtr image = mStyle->getImage();
 	if( num_chars>0 && image.notNull())

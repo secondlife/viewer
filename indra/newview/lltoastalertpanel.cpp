@@ -69,8 +69,17 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		mLabel(notification->getName()),
 		mLineEditor(NULL)
 {
+	// EXP-1822
+	// save currently focused view, so that return focus to it
+	// on destroying this toast.
+	LLView* current_selection = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
+	if (current_selection)
+	{
+		mPreviouslyFocusedView = current_selection->getHandle();
+	}
+
 	const LLFontGL* font = LLFontGL::getFontSansSerif();
-	const S32 LINE_HEIGHT = llfloor(font->getLineHeight() + 0.99f);
+	const S32 LINE_HEIGHT = font->getLineHeight();
 	const S32 EDITOR_HEIGHT = 20;
 
 	LLNotificationFormPtr form = mNotification->getForm();
@@ -365,7 +374,7 @@ bool LLToastAlertPanel::setCheckBox( const std::string& check_title, const std::
 	}
 
 	const LLFontGL* font =  mCheck->getFont();
-	const S32 LINE_HEIGHT = llfloor(font->getLineHeight() + 0.99f);
+	const S32 LINE_HEIGHT = font->getLineHeight();
 	
 	// Extend dialog for "check next time"
 	S32 max_msg_width = LLToastPanel::getRect().getWidth() - 2 * HPAD;
@@ -408,6 +417,13 @@ LLToastAlertPanel::~LLToastAlertPanel()
 {
 	LLTransientFloaterMgr::instance().removeControlView(
 			LLTransientFloaterMgr::GLOBAL, this);
+
+	// EXP-1822
+	// return focus to the previously focused view
+	if (mPreviouslyFocusedView.get())
+	{
+		gFocusMgr.setKeyboardFocus(mPreviouslyFocusedView.get());
+	}
 }
 
 BOOL LLToastAlertPanel::hasTitleBar() const

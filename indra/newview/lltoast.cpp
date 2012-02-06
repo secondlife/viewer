@@ -215,6 +215,13 @@ void LLToast::setFadingTime(S32 seconds)
 	mToastFadingTime = seconds;
 }
 
+void LLToast::closeToast()
+{
+	mOnDeleteToastSignal(this);
+
+	closeFloater();
+}
+
 S32 LLToast::getTopPad()
 {
 	if(mWrapperPanel)
@@ -296,9 +303,7 @@ void LLToast::reshapeToPanel()
 	if(!panel)
 		return;
 
-	LLRect panel_rect = panel->getRect();
-
-	panel_rect.setLeftTopAndSize(0, panel_rect.getHeight(), panel_rect.getWidth(), panel_rect.getHeight());
+	LLRect panel_rect = panel->getLocalRect();
 	panel->setShape(panel_rect);
 	
 	LLRect toast_rect = getRect();

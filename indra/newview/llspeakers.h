@@ -208,6 +208,8 @@ private:
 
 class LLSpeakerMgr : public LLOldEvents::LLObservable
 {
+	LOG_CLASS(LLSpeakerMgr);
+
 public:
 	LLSpeakerMgr(LLVoiceChannel* channelp);
 	virtual ~LLSpeakerMgr();
@@ -271,6 +273,8 @@ protected:
 
 class LLIMSpeakerMgr : public LLSpeakerMgr
 {
+	LOG_CLASS(LLIMSpeakerMgr);
+
 public:
 	LLIMSpeakerMgr(LLVoiceChannel* channel);
 	
@@ -320,6 +324,8 @@ protected:
 
 class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeakerMgr>
 {
+	LOG_CLASS(LLActiveSpeakerMgr);
+
 public:
 	LLActiveSpeakerMgr();
 protected:
@@ -328,6 +334,7 @@ protected:
 
 class LLLocalSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLLocalSpeakerMgr>
 {
+	LOG_CLASS(LLLocalSpeakerMgr);
 public:
 	LLLocalSpeakerMgr();
 	~LLLocalSpeakerMgr ();

@@ -29,6 +29,7 @@
 
 #include "llstring.h"
 #include "lluuid.h"
+#include "llextendedstatus.h"
 
 class LLViewerObject;
 class LLMessageSystem;

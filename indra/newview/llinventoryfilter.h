@@ -32,6 +32,7 @@
 
 class LLFolderViewItem;
 class LLFolderViewFolder;
+class LLInventoryItem;
 
 class LLInventoryFilter
 {
@@ -115,9 +116,12 @@ public:
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
 	BOOL 				check(const LLFolderViewItem* item);
+	bool				check(const LLInventoryItem* item);
 	bool				checkFolder(const LLFolderViewFolder* folder);
 	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item) const;
+	bool 				checkAgainstFilterType(const LLInventoryItem* item) const;
 	BOOL 				checkAgainstPermissions(const LLFolderViewItem* item) const;
+	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	BOOL 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
 
 	std::string::size_type getStringMatchOffset() const;
