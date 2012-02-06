@@ -60,10 +60,10 @@ public:
 	U32 mType;
 
 	//size MUST be a power of 2
-	U8* allocate(U32& name, U32 size);
+	volatile U8* allocate(U32& name, U32 size);
 	
 	//size MUST be the size provided to allocate that returned the given name
-	void release(U32 name, U8* buffer, U32 size);
+	void release(U32 name, volatile U8* buffer, U32 size);
 	
 	//destroy all records in mFreeList
 	void cleanup();
@@ -72,7 +72,7 @@ public:
 	{
 	public:
 		U32 mGLName;
-		U8* mClientData;
+		volatile U8* mClientData;
 	};
 
 	typedef std::list<Record> record_list_t;
@@ -208,8 +208,8 @@ public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
 	// map for data access
-	U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
-	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
+	volatile U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
+	volatile U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
 
 	// set for rendering
 	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
@@ -244,16 +244,17 @@ public:
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	
-	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
-	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
+	volatile U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
+	volatile U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
 	S32 getSize() const;
 	S32 getIndicesSize() const				{ return mIndicesSize; }
-	U8* getMappedData() const				{ return mMappedData; }
-	U8* getMappedIndices() const			{ return mMappedIndexData; }
+	volatile U8* getMappedData() const				{ return mMappedData; }
+	volatile U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
+	BOOL isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? TRUE : FALSE; }
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
@@ -278,12 +279,13 @@ protected:
 	U32		mGLIndices;		// GL IBO handle
 	U32		mGLArray;		// GL VAO handle
 	
-	U8*		mMappedData;	// pointer to currently mapped data (NULL if unmapped)
-	U8*		mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
+	volatile U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
+	volatile U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
 	BOOL	mIndexLocked;			// if TRUE, index buffer is being or has been written to in client memory
 	BOOL	mFinal;			// if TRUE, buffer can not be mapped again
 	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
+	mutable BOOL	mMappable;     // if TRUE, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;
