@@ -467,7 +467,7 @@ void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
 		LLAgentUI::buildSLURL(slurl, false);
 		LLUIString location_str(slurl.getSLURLString());
 
-		LLClipboard::getInstance()->copyFromString(location_str);
+		LLClipboard::getInstance()->copyToClipboard(location_str,0,location_str.length());
 	}
 }
 

@@ -32,6 +32,7 @@
 #include "lluuid.h"
 #include "stdenums.h"
 #include "llsingleton.h"
+#include "llassettype.h"
 #include "llinventory.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,19 +53,11 @@ public:
 	   which is implicitly copied upon selection on platforms which expect this
 	   (i.e. X11/Linux). */
 
-	// Text strings management
-	void		copyFromSubstring(const LLWString &copy_from, S32 pos, S32 len, const LLUUID& source_id = LLUUID::null );
-	void		copyFromString(const LLWString &copy_from, const LLUUID& source_id = LLUUID::null );
-	BOOL		canPasteString() const;
-	const LLWString&	getPasteWString(LLUUID* source_id = NULL);
-
-	// Primary text string management (Linux gtk implementation)
-	void		copyFromPrimarySubstring(const LLWString &copy_from, S32 pos, S32 len, const LLUUID& source_id = LLUUID::null );
-	BOOL		canPastePrimaryString() const;
-	const LLWString&	getPastePrimaryWString(LLUUID* source_id = NULL);	
-
-	// Support clipboard for object known only by their uuid
-	//void		  setSourceObject(const LLUUID& source_id) { mSourceID = source_id; }
+	// Text strings and single item management
+	bool		copyToClipboard(const LLWString& src, S32 pos, S32 len, bool use_primary = false);
+	bool		copyToClipboard(const LLUUID& src, const LLAssetType::EType type = LLAssetType::AT_NONE);
+	bool		pasteFromClipboard(LLWString& dst, bool use_primary = false);
+	bool		isTextAvailable(bool use_primary = false) const;
 	
 	// Object list management
 	void add(const LLUUID& object);									// Adds to the current list of objects on the clipboard
@@ -78,11 +71,9 @@ public:
 	bool isCutMode() const { return mCutMode; }
 
 private:
-	// *TODO: To know if an asset ID can be serialized, check out LLAssetType::lookupIsAssetIDKnowable(EType asset_type)
 	LLDynamicArray<LLUUID> mObjects;
 	bool mCutMode;
-
-	LLWString	mString;
+	LLWString mString;
 };
 
 #endif  // LL_LLCLIPBOARD_H

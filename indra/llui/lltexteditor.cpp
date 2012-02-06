@@ -1332,7 +1332,7 @@ void LLTextEditor::cut()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	LLClipboard::getInstance()->copyFromSubstring( getWText(), left_pos, length, mSourceID );
+	LLClipboard::getInstance()->copyToClipboard( getWText(), left_pos, length);
 	deleteSelection( FALSE );
 
 	onKeyStroke();
@@ -1352,12 +1352,12 @@ void LLTextEditor::copy()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	LLClipboard::getInstance()->copyFromSubstring(getWText(), left_pos, length, mSourceID);
+	LLClipboard::getInstance()->copyToClipboard(getWText(), left_pos, length);
 }
 
 BOOL LLTextEditor::canPaste() const
 {
-	return !mReadOnly && LLClipboard::getInstance()->canPasteString();
+	return !mReadOnly && LLClipboard::getInstance()->isTextAvailable();
 }
 
 // paste from clipboard
@@ -1393,16 +1393,8 @@ void LLTextEditor::pasteHelper(bool is_primary)
 		return;
 	}
 
-	LLUUID source_id;
 	LLWString paste;
-	if (is_primary)
-	{
-		paste = LLClipboard::getInstance()->getPastePrimaryWString(&source_id);
-	}
-	else 
-	{
-		paste = LLClipboard::getInstance()->getPasteWString(&source_id);
-	}
+	LLClipboard::getInstance()->pasteFromClipboard(paste, is_primary);
 
 	if (paste.empty())
 	{
@@ -1475,12 +1467,12 @@ void LLTextEditor::copyPrimary()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	LLClipboard::getInstance()->copyFromPrimarySubstring(getWText(), left_pos, length, mSourceID);
+	LLClipboard::getInstance()->copyToClipboard(getWText(), left_pos, length, true);
 }
 
 BOOL LLTextEditor::canPastePrimary() const
 {
-	return !mReadOnly && LLClipboard::getInstance()->canPastePrimaryString();
+	return !mReadOnly && LLClipboard::getInstance()->isTextAvailable(true);
 }
 
 void LLTextEditor::updatePrimary()

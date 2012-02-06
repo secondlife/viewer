@@ -533,7 +533,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 	}
 	else if ("copy_uuid" == command_name)
 	{
-		LLClipboard::getInstance()->copyFromString(utf8str_to_wstring(mGestureList->getCurrentID().asString()), mGestureList->getCurrentID());
+		LLClipboard::getInstance()->copyToClipboard(mGestureList->getCurrentID(),LLAssetType::AT_GESTURE);
 	}
 }
 

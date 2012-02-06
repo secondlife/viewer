@@ -1047,7 +1047,7 @@ void LLLineEditor::cut()
 		// Prepare for possible rollback
 		LLLineEditorRollback rollback( this );
 
-		LLClipboard::getInstance()->copyFromSubstring( mText.getWString(), left_pos, length );
+		LLClipboard::getInstance()->copyToClipboard( mText.getWString(), left_pos, length );
 		deleteSelection();
 
 		// Validate new string and rollback the if needed.
@@ -1078,13 +1078,13 @@ void LLLineEditor::copy()
 	{
 		S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 		S32 length = llabs( mSelectionStart - mSelectionEnd );
-		LLClipboard::getInstance()->copyFromSubstring( mText.getWString(), left_pos, length );
+		LLClipboard::getInstance()->copyToClipboard( mText.getWString(), left_pos, length );
 	}
 }
 
 BOOL LLLineEditor::canPaste() const
 {
-	return !mReadOnly && LLClipboard::getInstance()->canPasteString(); 
+	return !mReadOnly && LLClipboard::getInstance()->isTextAvailable(); 
 }
 
 void LLLineEditor::paste()
@@ -1115,14 +1115,7 @@ void LLLineEditor::pasteHelper(bool is_primary)
 	if (can_paste_it)
 	{
 		LLWString paste;
-		if (is_primary)
-		{
-			paste = LLClipboard::getInstance()->getPastePrimaryWString();
-		}
-		else 
-		{
-			paste = LLClipboard::getInstance()->getPasteWString();
-		}
+		LLClipboard::getInstance()->pasteFromClipboard(paste, is_primary);
 
 		if (!paste.empty())
 		{
@@ -1209,13 +1202,13 @@ void LLLineEditor::copyPrimary()
 	{
 		S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 		S32 length = llabs( mSelectionStart - mSelectionEnd );
-		LLClipboard::getInstance()->copyFromPrimarySubstring( mText.getWString(), left_pos, length );
+		LLClipboard::getInstance()->copyToClipboard( mText.getWString(), left_pos, length, true);
 	}
 }
 
 BOOL LLLineEditor::canPastePrimary() const
 {
-	return !mReadOnly && LLClipboard::getInstance()->canPastePrimaryString(); 
+	return !mReadOnly && LLClipboard::getInstance()->isTextAvailable(true); 
 }
 
 void LLLineEditor::updatePrimary()

@@ -409,6 +409,9 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 
 	const LLUUID &agent_id = gAgent.getID();
 
+	// Merov : This should be suppressed for 2 reasons:
+	// 1. folders should be pastable
+	// 2. when pasting, we should paste what is authorized and let the rest not pasted
 	LLDynamicArray<LLUUID> objects;
 	LLClipboard::getInstance()->retrieve(objects);
 	S32 count = objects.count();

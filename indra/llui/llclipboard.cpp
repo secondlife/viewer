@@ -91,112 +91,62 @@ void LLClipboard::reset()
 	mCutMode = false;
 }
 
-// returns true if the clipboard has something pasteable in it.
+// Returns true if the LL Clipboard has pasteable items in it
 BOOL LLClipboard::hasContents() const
 {
 	return (mObjects.count() > 0);
 }
 
-
-void LLClipboard::copyFromSubstring(const LLWString &src, S32 pos, S32 len, const LLUUID& source_id )
+// Copy the input string to the LL and the system clipboard
+bool LLClipboard::copyToClipboard(const LLWString &src, S32 pos, S32 len, bool use_primary)
 {
 	reset();
-	if (source_id.notNull())
-	{
-		store(source_id);
-	}
 	mString = src.substr(pos, len);
-	llinfos << "Merov debug : copyFromSubstring, string = " << wstring_to_utf8str(mString) << ", uuid = " << (hasContents() ? mObjects[0] : LLUUID::null) << llendl;
-	LLView::getWindow()->copyTextToClipboard( mString );
+	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
 }
 
-void LLClipboard::copyFromString(const LLWString &src, const LLUUID& source_id )
+// Copy the input uuid to the LL clipboard
+// Convert the uuid to string and copy that string to the system clipboard if legit
+bool LLClipboard::copyToClipboard(const LLUUID& src, const LLAssetType::EType type)
 {
+	bool res = false;
 	reset();
-	if (source_id.notNull())
+	if (src.notNull())
 	{
-		store(source_id);
-	}
-	mString = src;
-	llinfos << "Merov debug : copyFromString, string = " << wstring_to_utf8str(mString) << ", uuid = " << (hasContents() ? mObjects[0] : LLUUID::null) << llendl;
-	LLView::getWindow()->copyTextToClipboard( mString );
-}
-
-const LLWString& LLClipboard::getPasteWString( LLUUID* source_id )
-{
-	if (hasContents())
-	{
-		LLWString temp_string;
-		LLView::getWindow()->pasteTextFromClipboard(temp_string);
-
-		if (temp_string != mString)
+		res = true;
+		if (LLAssetType::lookupIsAssetIDKnowable(type))
 		{
-			reset();
-			mString = temp_string;
+			LLWString source = utf8str_to_wstring(src.asString());
+			res = copyToClipboard(source, 0, source.size());
+		}
+		if (res)
+		{
+			store(src);
 		}
 	}
-	else
-	{
-		LLView::getWindow()->pasteTextFromClipboard(mString);
-	}
-
-	if (source_id)
-	{
-		*source_id = (hasContents() ? mObjects[0] : LLUUID::null);
-	}
-
-	llinfos << "Merov debug : getPasteWString, string = " << wstring_to_utf8str(mString) << ", uuid = " << (hasContents() ? mObjects[0] : LLUUID::null) << llendl;
-
-	return mString;
+	return res;
 }
 
-
-BOOL LLClipboard::canPasteString() const
+// Copy the System clipboard to the output string.
+// Manage the LL Clipboard / System clipboard consistency
+bool LLClipboard::pasteFromClipboard(LLWString &dst, bool use_primary)
 {
-	return LLView::getWindow()->isClipboardTextAvailable();
-}
-
-
-void LLClipboard::copyFromPrimarySubstring(const LLWString &src, S32 pos, S32 len, const LLUUID& source_id )
-{
-	reset();
-	if (source_id.notNull())
+	bool res = (use_primary ? LLView::getWindow()->pasteTextFromPrimary(dst) : LLView::getWindow()->pasteTextFromClipboard(dst));
+	if (res)
 	{
-		store(source_id);
-	}
-	mString = src.substr(pos, len);
-	LLView::getWindow()->copyTextToPrimary( mString );
-}
-
-
-const LLWString& LLClipboard::getPastePrimaryWString( LLUUID* source_id )
-{
-	if (hasContents())
-	{
-		LLWString temp_string;
-		LLView::getWindow()->pasteTextFromPrimary(temp_string);
-
-		if (temp_string != mString)
+		if (dst != mString)
 		{
+			// Invalidate the LL clipboard if the System had a different string in it (i.e. some copy/cut was done in some other app)
 			reset();
-			mString = temp_string;
 		}
+		mString = dst;
 	}
-	else
-	{
-		LLView::getWindow()->pasteTextFromPrimary(mString);
-	}
-
-	if (source_id)
-	{
-		*source_id = (hasContents() ? mObjects[0] : LLUUID::null);
-	}
-	
-	return mString;
+	return res;
 }
 
-
-BOOL LLClipboard::canPastePrimaryString() const
+// Return true if there's something on the System clipboard
+bool LLClipboard::isTextAvailable(bool use_primary) const
 {
-	return LLView::getWindow()->isPrimaryTextAvailable();
+	return (use_primary ? LLView::getWindow()->isPrimaryTextAvailable() : LLView::getWindow()->isClipboardTextAvailable());
 }
+
