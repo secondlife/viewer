@@ -163,11 +163,6 @@
               </map>
               <key>default</key>
               <string>true</string>
-              <key>manifest</key>
-              <array>
-                <string>include/</string>
-                <string>LICENSES</string>
-              </array>
               <key>name</key>
               <string>Debug</string>
             </map>
@@ -184,11 +179,6 @@
               </map>
               <key>default</key>
               <string>true</string>
-              <key>manifest</key>
-              <array>
-                <string>include/</string>
-                <string>LICENSES</string>
-              </array>
               <key>name</key>
               <string>Release</string>
             </map>
@@ -205,15 +195,15 @@
               </map>
               <key>default</key>
               <string>true</string>
-              <key>manifest</key>
-              <array>
-                <string>include/</string>
-                <string>LICENSES</string>
-              </array>
               <key>name</key>
               <string>RelWithDebInfo</string>
             </map>
           </map>
+          <key>manifest</key>
+          <array>
+            <string>include</string>
+            <string>LICENSES</string>
+          </array>
           <key>name</key>
           <string>linux</string>
         </map>
