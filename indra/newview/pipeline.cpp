@@ -1217,10 +1217,12 @@ void LLPipeline::restoreGL()
 
 BOOL LLPipeline::canUseVertexShaders()
 {
+	static const std::string vertex_shader_enable_feature_string = "VertexShaderEnable";
+
 	if (sDisableShaders ||
 		!gGLManager.mHasVertexShader ||
 		!gGLManager.mHasFragmentShader ||
-		!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable") ||
+		!LLFeatureManager::getInstance()->isFeatureAvailable(vertex_shader_enable_feature_string) ||
 		(assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return FALSE;
@@ -3765,6 +3767,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:ForceVBO");
 	
 	// Initialize lots of GL state to "safe" values
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.matrixMode(LLRender::MM_TEXTURE);
 	gGL.loadIdentity();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -5296,7 +5299,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			light_state->setConstantAttenuation(0.f);
 			if (sRenderDeferred)
 			{
-				light_state->setLinearAttenuation(light_radius*1.5f);
+				F32 size = light_radius*1.5f;
+				light_state->setLinearAttenuation(size*size);
 				light_state->setQuadraticAttenuation(light->getLightFalloff()*0.5f+1.f);
 			}
 			else
@@ -5318,7 +5322,8 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 				light_state->setSpotCutoff(90.f);
 				light_state->setSpotExponent(2.f);
 	
-				light_state->setSpecular(LLColor4::black);
+				const LLColor4 specular(0.f, 0.f, 0.f, 0.f);
+				light_state->setSpecular(specular);
 			}
 			else // omnidirectional (point) light
 			{
@@ -9419,7 +9424,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	assertInitialized();
 
-	BOOL muted = LLMuteList::getInstance()->isMuted(avatar->getID());
+	bool muted = avatar->isVisuallyMuted();		
 
 	pushRenderTypeMask();
 	
