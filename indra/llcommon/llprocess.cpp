@@ -501,11 +501,11 @@ static LLProcess::Status interpret_status(int status)
 	 */
 	if ((status & 0xFFFF0000) == 0xC0000000)
 	{
-		result.mState = KILLED;
+		result.mState = LLProcess::KILLED;
 	}
 	else
 	{
-		result.mState = EXITED;
+		result.mState = LLProcess::EXITED;
 	}
 	result.mData = status;
 
