@@ -30,7 +30,8 @@
 
 #include "llmemtype.h"
 
-#include "llwindowwin32.cpp" // *FIX: for setting gIconResource.
+#include "llwindowwin32.h" // *FIX: for setting gIconResource.
+#include "llgl.h"
 #include "res/resource.h" // *FIX: for setting gIconResource.
 
 #include <fcntl.h>		//_O_APPEND

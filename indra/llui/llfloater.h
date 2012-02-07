@@ -82,6 +82,9 @@ namespace LLInitParam
 	};
 }
 
+struct LL_COORD_FLOATER;
+
+typedef LLCoord<LL_COORD_FLOATER, F32> LLCoordFloater;
 
 class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 {

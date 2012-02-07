@@ -3328,7 +3328,7 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 
 			LLWinImm::setCompositionWindow( himc, &ime_form );
 
-			sWinIMEWindowPosition.set( win_pos.mX, win_pos.mY );
+			sWinIMEWindowPosition = win_pos;
 		}
 
 		LLWinImm::releaseContext(mWindowHandle, himc);

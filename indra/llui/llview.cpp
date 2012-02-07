@@ -1106,7 +1106,7 @@ void LLView::drawChildren()
 				{
 					LLUI::pushMatrix();
 					{
-						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
+						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom);
 						// flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
 						viewp->mInDraw = true;
 						viewp->draw();
@@ -1159,7 +1159,7 @@ void LLView::drawDebugRect()
 
 		if (getUseBoundingRect())
 		{
-			LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom, 0.f);
+			LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom);
 		}
 
 		LLRect debug_rect = getUseBoundingRect() ? mBoundingRect : mRect;
@@ -1231,7 +1231,7 @@ void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_dr
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			{
-				LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset, 0.f);
+				LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset);
 				childp->draw();
 			}
 			LLUI::popMatrix();

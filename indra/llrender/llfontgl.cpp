@@ -56,8 +56,9 @@ std::string LLFontGL::sAppDir;
 LLColor4 LLFontGL::sShadowColor(0.f, 0.f, 0.f, 1.f);
 LLFontRegistry* LLFontGL::sFontRegistry = NULL;
 
-LLCoordFont LLFontGL::sCurOrigin;
-std::vector<LLCoordFont> LLFontGL::sOriginStack;
+LLCoordGL LLFontGL::sCurOrigin;
+F32 LLFontGL::sCurDepth;
+std::vector<std::pair<LLCoordGL, F32> > LLFontGL::sOriginStack;
 
 const F32 EXT_X_BEARING = 1.f;
 const F32 EXT_Y_BEARING = 0.f;
@@ -67,20 +68,6 @@ const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 
 const F32 PAD_UVY = 0.5f; // half of vertical padding between glyphs in the glyph texture
 const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
-
-static F32 llfont_round_x(F32 x)
-{
-	//return llfloor((x-LLFontGL::sCurOrigin.mX)/LLFontGL::sScaleX+0.5f)*LLFontGL::sScaleX+LLFontGL::sCurOrigin.mX;
-	//return llfloor(x/LLFontGL::sScaleX+0.5f)*LLFontGL::sScaleY;
-	return x;
-}
-
-static F32 llfont_round_y(F32 y)
-{
-	//return llfloor((y-LLFontGL::sCurOrigin.mY)/LLFontGL::sScaleY+0.5f)*LLFontGL::sScaleY+LLFontGL::sCurOrigin.mY;
-	//return llfloor(y+0.5f);
-	return y;
-}
 
 LLFontGL::LLFontGL()
 {
@@ -177,18 +164,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	gGL.loadUIIdentity();
 	
-	//gGL.translateUI(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
-
-	// this code snaps the text origin to a pixel grid to start with
-	//F32 pixel_offset_x = llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
-	//F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
-	//gGL.translateUI(-pixel_offset_x, -pixel_offset_y, 0.f);
-
 	LLVector2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
 
-	// Depth translation, so that floating text appears 'inworld'
-	// and is correclty occluded.
-	gGL.translatef(0.f,0.f,sCurOrigin.mZ);
+	// Depth translation, so that floating text appears 'in-world'
+	// and is correctly occluded.
+	gGL.translatef(0.f,0.f,sCurDepth);
 
 	S32 chars_drawn = 0;
 	S32 i;
@@ -1134,22 +1114,22 @@ void LLFontGL::renderQuad(LLVector3* vertex_out, LLVector2* uv_out, LLColor4U* c
 {
 	S32 index = 0;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mRight), llfont_round_y(screen_rect.mTop), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mRight, screen_rect.mTop, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mLeft), llfont_round_y(screen_rect.mTop), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mLeft, screen_rect.mTop, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mLeft), llfont_round_y(screen_rect.mBottom), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mLeft, screen_rect.mBottom, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mBottom);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mRight), llfont_round_y(screen_rect.mBottom), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mRight, screen_rect.mBottom, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mBottom);
 	colors_out[index] = color;
 }

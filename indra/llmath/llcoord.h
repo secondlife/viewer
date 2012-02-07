@@ -27,79 +27,31 @@
 #define LL_LLCOORD_H
 
 // A two-dimensional pixel value
+template<typename COORD_FRAME, typename VALUE_TYPE>
 class LLCoord
 {
 public:
-	S32		mX;
-	S32		mY;
+	typedef LLCoord<COORD_FRAME, VALUE_TYPE> self_t;
+	VALUE_TYPE		mX;
+	VALUE_TYPE		mY;
 
 	LLCoord():	mX(0), mY(0)
 	{}
 	LLCoord(S32 x, S32 y): mX(x), mY(y)
 	{}
-	virtual ~LLCoord()
-	{}
 
-	virtual void set(S32 x, S32 y)		{ mX = x; mY = y; }
+	void set(S32 x, S32 y) { mX = x; mY = y;}
+	bool operator==(const self_t& other) const { return mX == other.mX && mY == other.mY; }
+	bool operator!=(const self_t& other) const { return !(*this == other); }
+
 };
 
+struct LL_COORD_TYPE_GL {};
+struct LL_COORD_TYPE_WINDOW {};
+struct LL_COORD_TYPE_SCREEN {};
 
-// GL coordinates start in the client region of a window,
-// with left, bottom = 0, 0
-class LLCoordGL : public LLCoord
-{
-public:
-	LLCoordGL() : LLCoord()
-	{}
-	LLCoordGL(S32 x, S32 y) : LLCoord(x, y)
-	{}
-	bool operator==(const LLCoordGL& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordGL& other) const { return !(*this == other); }
-};
-
-//bool operator ==(const LLCoordGL& a, const LLCoordGL& b);
-
-// Window coords include things like window borders,
-// menu regions, etc.
-class LLCoordWindow : public LLCoord
-{
-public:
-	LLCoordWindow() : LLCoord()
-	{}
-	LLCoordWindow(S32 x, S32 y) : LLCoord(x, y)
-	{}
-	bool operator==(const LLCoordWindow& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordWindow& other) const { return !(*this == other); }
-};
-
-
-// Screen coords start at left, top = 0, 0
-class LLCoordScreen : public LLCoord
-{
-public:
-	LLCoordScreen() : LLCoord()
-	{}
-	LLCoordScreen(S32 x, S32 y) : LLCoord(x, y)
-	{}
-	bool operator==(const LLCoordScreen& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordScreen& other) const { return !(*this == other); }
-};
-
-class LLCoordFont : public LLCoord
-{
-public:
-	F32 mZ;
-	
-	LLCoordFont() : LLCoord(), mZ(0.f)
-	{}
-	LLCoordFont(S32 x, S32 y, F32 z = 0) : LLCoord(x,y), mZ(z)
-	{}
-	
-	void set(S32 x, S32 y) { LLCoord::set(x,y); mZ = 0.f; }
-	void set(S32 x, S32 y, F32 z) { mX = x; mY = y; mZ = z; }
-	bool operator==(const LLCoordFont& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordFont& other) const { return !(*this == other); }
-};
-	
+typedef LLCoord<LL_COORD_TYPE_GL, S32> LLCoordGL;
+typedef LLCoord<LL_COORD_TYPE_WINDOW, S32> LLCoordWindow;
+typedef LLCoord<LL_COORD_TYPE_SCREEN, S32> LLCoordScreen;
 
 #endif

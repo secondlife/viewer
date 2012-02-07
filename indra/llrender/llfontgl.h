@@ -186,8 +186,9 @@ public:
 	static std::string getFontPathLocal();
 	static std::string getFontPathSystem();
 
-	static LLCoordFont sCurOrigin;
-	static std::vector<LLCoordFont> sOriginStack;
+	static LLCoordGL sCurOrigin;
+	static F32			sCurDepth;
+	static std::vector<std::pair<LLCoordGL, F32> > sOriginStack;
 
 	static LLColor4 sShadowColor;
 

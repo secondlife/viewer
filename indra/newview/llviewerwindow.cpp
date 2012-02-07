@@ -27,9 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerwindow.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
 
 // system library includes
 #include <stdio.h>
@@ -49,7 +46,6 @@
 #include "llviewquery.h"
 #include "llxmltree.h"
 #include "llslurl.h"
-//#include "llviewercamera.h"
 #include "llrender.h"
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
@@ -1538,14 +1534,14 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
+	mProgressView(NULL)
+{
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
 	// will, when we later need it, return the value of gKeyboard.
 	// boost::lambda::var() constructs such a functor on the fly.
-	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
-	mViewerWindowListener(new LLViewerWindowListener(this)),
-	mProgressView(NULL)
-{
+	mWindowListener.reset(new LLWindowListener(this, boost::lambda::var(gKeyboard)));
+	mViewerWindowListener.reset(new LLViewerWindowListener(this));
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
 
@@ -2362,7 +2358,7 @@ void LLViewerWindow::draw()
 
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
-			LLUI::translate( (F32) screen_x, (F32) screen_y, 0.f);
+			LLUI::translate( (F32) screen_x, (F32) screen_y);
 			top_ctrl->draw();	
 			LLUI::popMatrix();
 		}

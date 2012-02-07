@@ -3425,7 +3425,7 @@ void LLMenuHolderGL::draw()
 		
 		LLUI::pushMatrix();
 		{
-			LLUI::translate((F32)item_rect.mLeft, (F32)item_rect.mBottom, 0.f);
+			LLUI::translate((F32)item_rect.mLeft, (F32)item_rect.mBottom);
 			selecteditem->getMenu()->drawBackground(selecteditem, interpolant);
 			selecteditem->draw();
 		}
