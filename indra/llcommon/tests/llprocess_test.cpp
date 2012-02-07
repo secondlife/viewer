@@ -186,7 +186,7 @@ public:
                          "from __future__ import with_statement\n"
                          "import os.path, sys, tempfile\n"
                          "with open(sys.argv[1], 'w') as f:\n"
-                         "    f.write(os.path.realpath(tempfile.mkdtemp()))\n"))
+                         "    f.write(os.path.normcase(os.path.normpath(os.path.realpath(tempfile.mkdtemp()))))\n"))
     {}
 
     ~NamedTempDir()
@@ -513,7 +513,7 @@ namespace tut
                                  "from __future__ import with_statement\n"
                                  "import os, sys\n"
                                  "with open(sys.argv[1], 'w') as f:\n"
-                                 "    f.write(os.getcwd())\n");
+                                 "    f.write(os.path.normcase(os.path.normpath(os.getcwd())))\n");
         // Before running, call setWorkingDirectory()
         py.mParams.cwd = tempdir.getName();
         ensure_equals("os.getcwd()", py.run_read(), tempdir.getName());
