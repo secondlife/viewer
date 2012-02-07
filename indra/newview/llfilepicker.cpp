@@ -1203,7 +1203,7 @@ static std::string add_anim_filter_to_gtkchooser(GtkWindow *picker)
 	GtkFileFilter *gfilter = gtk_file_filter_new();
 	gtk_file_filter_add_pattern(gfilter, "*.bvh");
 	gtk_file_filter_add_pattern(gfilter, "*.anim");
-	std::string filtername = LLTrans::getString("animation_files") + " (*.bvh; *.anim)");
+	std::string filtername = LLTrans::getString("animation_files") + " (*.bvh; *.anim)";
 	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
 	return filtername;
 }
