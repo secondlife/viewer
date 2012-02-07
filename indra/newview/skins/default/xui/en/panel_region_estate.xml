@@ -134,26 +134,26 @@
      name="Only Allow"
      top_delta="-30"
      width="278">
-        Restrict Access to accounts verified by:
+        Allow access only to Residents who:
     </text>
     <check_box
      follows="top|left"
      height="16"
-     label="Payment Information on File"
+     label="Have payment information on file"
      layout="topleft"
      left_delta="0"
      name="limit_payment"
-     tool_tip="Ban unidentified Residents"
+     tool_tip="Residents must have payment information on file to access this estate.  See the [SUPPORT_SITE] for more information."
      top_pad="2"
      width="278" />
     <check_box
      follows="top|left"
      height="16"
-     label="Age Verification"
+     label="Have been age-verified"
      layout="topleft"
      left_delta="0"
      name="limit_age_verified"
-     tool_tip="Ban Residents who have not verified their age. See the [SUPPORT_SITE] for more information."
+     tool_tip="Residents must be age verified to access this estate. See the [SUPPORT_SITE] for more information."
      top_pad="2"
      width="278" />
 

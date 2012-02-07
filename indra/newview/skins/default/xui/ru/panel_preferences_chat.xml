@@ -29,29 +29,5 @@
 	<check_box label="Текстовые чаты" name="EnableIMChatPopups" tool_tip="Отображать всплывающие уведомления при получении IM-сообщений"/>
 	<spinner label="Время отображения всплывающих реплик:" name="nearby_toasts_lifetime"/>
 	<spinner label="Время затухания всплывающих реплик:" name="nearby_toasts_fadingtime"/>
-	<text name="translate_chb_label">
-		Использовать машинный перевод при общении
-	</text>
-	<text name="translate_language_text">
-		Переводить чат на:
-	</text>
-	<combo_box name="translate_language_combobox">
-		<combo_box.item label="Язык системы" name="System Default Language"/>
-		<combo_box.item label="English" name="English"/>
-		<combo_box.item label="Dansk" name="Danish"/>
-		<combo_box.item label="Deutsch" name="German"/>
-		<combo_box.item label="Español" name="Spanish"/>
-		<combo_box.item label="Français" name="French"/>
-		<combo_box.item label="Italiano" name="Italian"/>
-		<combo_box.item label="Magyar" name="Hungarian"/>
-		<combo_box.item label="Nederlands" name="Dutch"/>
-		<combo_box.item label="Polski" name="Polish"/>
-		<combo_box.item label="Português" name="Portugese"/>
-		<combo_box.item label="Русский" name="Russian"/>
-		<combo_box.item label="Türkçe" name="Turkish"/>
-		<combo_box.item label="Українська" name="Ukrainian"/>
-		<combo_box.item label="中文 (简体) (китайский)" name="Chinese"/>
-		<combo_box.item label="日本語 (Japanese)" name="Japanese"/>
-		<combo_box.item label="한국어 (Korean)" name="Korean"/>
-	</combo_box>
+	<button label="Настройки перевода чата" name="ok_btn"/>
 </panel>

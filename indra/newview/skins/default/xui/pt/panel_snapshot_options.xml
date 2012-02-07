@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_options">
+	<button label="Postar no feed do meu perfil" name="save_to_profile_btn"/>
+	<button label="E-mail" name="save_to_email_btn"/>
+	<button label="Salvar em Meu inventário (L$[AMOUNT])" name="save_to_inventory_btn"/>
+	<button label="Salvar no meu PC" name="save_to_computer_btn"/>
+</panel>

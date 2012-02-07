@@ -66,7 +66,7 @@ BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 LLShaderFeatures::LLShaderFeatures()
 : calculatesLighting(false), isShiny(false), isFullbright(false), hasWaterFog(false),
 hasTransport(false), hasSkinning(false), hasObjectSkinning(false), hasAtmospherics(false), isSpecular(false),
-hasGamma(false), hasLighting(false), calculatesAtmospherics(false), mIndexedTextureChannels(0), disableTextureIndex(false),
+hasGamma(false), hasLighting(false), isAlphaLighting(false), calculatesAtmospherics(false), mIndexedTextureChannels(0), disableTextureIndex(false),
 hasAlphaMask(false)
 {
 }

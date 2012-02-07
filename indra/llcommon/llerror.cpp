@@ -617,6 +617,12 @@ namespace LLError
 		s.defaultLevel = level;
 	}
 
+	ELevel getDefaultLevel()
+	{
+		Settings& s = Settings::get();
+		return s.defaultLevel;
+	}
+
 	void setFunctionLevel(const std::string& function_name, ELevel level)
 	{
 		Globals& g = Globals::get();

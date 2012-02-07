@@ -4,8 +4,8 @@
 		フィルタリング：
 	</text>
 	<check_box label="異方的フィルタリング（有効にすると速度が低下します）" name="ani"/>
-	<text name="Antialiasing:">
-		アンチエイリアシング:
+	<text name="antialiasing label">
+		アンチエイリアシング：
 	</text>
 	<combo_box label="アンチエイリアシング" name="fsaa">
 		<combo_box.item label="無効" name="FSAADisabled"/>

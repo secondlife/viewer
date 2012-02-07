@@ -271,6 +271,7 @@ private:
 	LLLayoutStack*					mCenteringStack;
 	LLPanel*						mButtonPanel;
 	LLHandle<class LLContextMenu>	mPopupMenuHandle;
+	LLHandle<class LLView>			mRemoveButtonHandle;
 
 	LLToolBarButton*				mRightMouseTargetButton;
 

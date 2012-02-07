@@ -92,7 +92,6 @@ background_visible="true"
 			left="0"			
 			mouse_opaque="false"
 			name="lp1"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="193">
 			
@@ -115,7 +114,6 @@ background_visible="true"
 					left="0"			
 					mouse_opaque="false"
 					name="teleport_btn_lp"
-				    user_resize="false" 
 				    auto_resize="true"
 					width="109">
 						<button
@@ -137,7 +135,6 @@ background_visible="true"
 					left_pad="3"
 					mouse_opaque="false"
 					name="chat_btn_lp"
-				    user_resize="false" 
 				    auto_resize="true"
 					width="86">
 						<button
@@ -161,7 +158,6 @@ background_visible="true"
 			left_pad="0"			
 			mouse_opaque="false"
 			name="lp2"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="116">
 			
@@ -185,7 +181,6 @@ background_visible="true"
 					left_pad="0"
 					mouse_opaque="false"
 					name="edit_btn_lp"
-				    user_resize="false" 
 				    auto_resize="true"
 					width="84">
 						<button
@@ -208,7 +203,6 @@ background_visible="true"
 					left_pad="0"
 					mouse_opaque="false"
 					name="overflow_btn_lp"
-				    user_resize="false" 
 				    auto_resize="true"
 					width="24">
 						<menu_button
@@ -246,7 +240,6 @@ background_visible="true"
 					left_pad="3"			
 					mouse_opaque="false"
 					name="profile_btn_lp"
-				    user_resize="false" 
 				    auto_resize="true"
 					width="102">
 						<button
@@ -283,7 +276,6 @@ background_visible="true"
 					mouse_opaque="false"
 					name="close_btn_lp"
 					top="0"
-				    user_resize="false" 
 				    auto_resize="true"
 					width="51">
 						<button
@@ -324,7 +316,6 @@ background_visible="true"
 			mouse_opaque="false"
 			name="save_btn_lp"
 			top="0"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="153">
 				<button
@@ -347,7 +338,6 @@ background_visible="true"
 			mouse_opaque="false"
 			name="cancel_btn_lp"
 			top="0"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="154">
 				<button

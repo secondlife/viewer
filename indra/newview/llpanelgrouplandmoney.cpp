@@ -1062,7 +1062,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 	// We don't do time zone corrections of the calculated number of seconds
 	// because we don't have a full time stamp, only a date.
-	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%A %b %d, %Y", start_date);
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 	LLStringUtil::format (time_str, substitution);
 
 	if ( interval_days != mImplementationp->mIntervalLength || 
@@ -1217,7 +1217,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 
 		// We don't do time zone corrections of the calculated number of seconds
 		// because we don't have a full time stamp, only a date.
-		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%A %b %d, %Y", start_date);
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 		LLStringUtil::format (time_str, substitution);
 
 		text = time_str + "\n\n";

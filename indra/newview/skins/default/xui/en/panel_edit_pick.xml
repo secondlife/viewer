@@ -201,7 +201,6 @@
 			  layout="topleft"
 			  left="0"
 			  name="layout_panel1"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="150">
 		        <button
@@ -221,7 +220,6 @@
 			  layout="topleft"
 			  left_pad="4"
 			  name="layout_panel2"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="146">
 		        <button
