@@ -37,6 +37,10 @@
 #if LL_WINDOWS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>                // HANDLE (eye roll)
+#elif LL_LINUX
+#if defined(Status)
+#undef Status
+#endif
 #endif
 
 class LLProcess;
