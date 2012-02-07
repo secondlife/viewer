@@ -1076,10 +1076,11 @@ void LLPipeline::createGLBuffers()
 
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
-		U32 res = (U32) gSavedSettings.getS32("RenderWaterRefResolution");
+		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
 			
 		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
-		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE);
+		//always use FBO for mWaterDis so it can be used for avatar texture bakes
+		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 	}
 
 	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
