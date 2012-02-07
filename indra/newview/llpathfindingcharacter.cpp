@@ -33,8 +33,8 @@
 
 #define CHARACTER_NAME_FIELD          "name"
 #define CHARACTER_DESCRIPTION_FIELD   "description"
-#define CHARACTER_OWNER_FIELD         "description"
-#define CHARACTER_CPU_TIME_FIELD      "landimpact"
+#define CHARACTER_OWNER_FIELD         "owner"
+#define CHARACTER_CPU_TIME_FIELD      "cpu_time"
 #define CHARACTER_POSITION_FIELD      "position"
 
 //---------------------------------------------------------------------------

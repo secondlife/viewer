@@ -57,7 +57,8 @@ public:
 		kMessagingFetchRequestSent_MultiRequested,
 		kMessagingFetchReceived,
 		kMessagingFetchError,
-		kMessagingComplete
+		kMessagingComplete,
+		kMessagingServiceNotAvailable
 	} EMessagingState;
 
 	virtual BOOL postBuild();

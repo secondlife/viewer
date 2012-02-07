@@ -1491,6 +1491,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 {
 	capabilityNames.append("AttachmentResources");
 	capabilityNames.append("AvatarPickerSearch");
+	capabilityNames.append("CharacterProperties");
 	capabilityNames.append("ChatSessionRequest");
 	capabilityNames.append("CopyInventoryFromNotecard");
 	capabilityNames.append("CreateInventoryCategory");

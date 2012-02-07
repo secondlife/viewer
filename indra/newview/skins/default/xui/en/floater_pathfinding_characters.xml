@@ -19,6 +19,7 @@
   <floater.string name="characters_messaging_fetch_error">Error detected while querying for pathfinding characters</floater.string>
   <floater.string name="characters_messaging_complete_none_found">No pathfinding characters</floater.string>
   <floater.string name="characters_messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL]</floater.string>
+  <floater.string name="characters_messaging_service_not_available">Required capability is not available in current region</floater.string>
   <scroll_list
       column_padding="0"
       draw_heading="true"
@@ -52,8 +53,8 @@
         width="64" />
   </scroll_list>
   <text
-      height="13"
-      word_wrap="false"
+      height="26"
+      word_wrap="true"
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
@@ -62,7 +63,7 @@
       layout="topleft"
       name="characters_status"
       top="161"
-      width="500">
+      width="240">
     Characters:
   </text>
   <button
@@ -113,7 +114,7 @@
       layout="topleft"
       name="actions_label"
       top_pad="12"
-      width="910">
+      width="242">
     Actions on selected characters:
   </text>
   <check_box

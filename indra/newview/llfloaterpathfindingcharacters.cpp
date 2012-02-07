@@ -187,7 +187,7 @@ void LLFloaterPathfindingCharacters::sendCharactersDataGetRequest()
 		std::string charactersDataURL = getCapabilityURL();
 		if (charactersDataURL.empty())
 		{
-			setMessagingState(kMessagingComplete);
+			setMessagingState(kMessagingServiceNotAvailable);
 			llwarns << "cannot query pathfinding characters from current region '" << getRegionName() << "'" << llendl;
 		}
 		else
@@ -235,7 +235,7 @@ std::string LLFloaterPathfindingCharacters::getCapabilityURL() const
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region != NULL)
 	{
-		charactersDataURL = region->getCapability("ObjectNavMeshProperties");
+		charactersDataURL = region->getCapability("CharacterProperties");
 	}
 
 	return charactersDataURL;
@@ -430,6 +430,10 @@ void LLFloaterPathfindingCharacters::updateCharactersStatusMessage()
 			string_args["[NUM_TOTAL]"] = numItemsString;
 			statusText = getString("characters_messaging_complete_available", string_args);
 		}
+		break;
+	case kMessagingServiceNotAvailable:
+		statusText = getString("characters_messaging_service_not_available");
+		styleParams.color = warningColor;
 		break;
 	default:
 		statusText = getString("characters_messaging_initial");
