@@ -630,7 +630,7 @@ namespace tut
             // Destroy the LLProcess, which should kill the child.
         }
         // wait for the script to terminate... one way or another.
-        while (LLProcess::isRunning(phandle))
+        while (LLProcess::isRunning(phandle, "kill() script"))
         {
             sleep(1);
         }
@@ -643,7 +643,7 @@ namespace tut
     template<> template<>
     void object::test<6>()
     {
-        set_test_name("autokill");
+        set_test_name("autokill=false");
         NamedTempFile from("from", "not started");
         NamedTempFile to("to", "");
         LLProcess::handle phandle(0);
@@ -695,7 +695,7 @@ namespace tut
             outf << "go";
         } // flush and close.
         // now wait for the script to terminate... one way or another.
-        while (LLProcess::isRunning(phandle))
+        while (LLProcess::isRunning(phandle, "autokill script"))
         {
             sleep(1);
         }

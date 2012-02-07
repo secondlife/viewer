@@ -29,6 +29,7 @@
 
 #include "llinitparam.h"
 #include "llsdparam.h"
+#include "apr_thread_proc.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/noncopyable.hpp>
 #include <iosfwd>                   // std::ostream
@@ -95,13 +96,52 @@ public:
 	static LLProcessPtr create(const LLSDOrParams& params);
 	virtual ~LLProcess();
 
-	// isRunning isn't const because, if child isn't running, it clears stored
-	// process ID
+	// isRunning() isn't const because, when child terminates, it sets stored
+	// Status
 	bool isRunning(void);
-	
+
+	/**
+	 * State of child process
+	 */
+	enum state
+	{
+		UNSTARTED,					///< initial value, invisible to consumer
+		RUNNING,					///< child process launched
+		EXITED,						///< child process terminated voluntarily
+		KILLED						///< child process terminated involuntarily
+	};
+
+	/**
+	 * Status info
+	 */
+	struct Status
+	{
+		Status():
+			mState(UNSTARTED),
+			mData(0)
+		{}
+
+		state mState;				///< @see state
+		/**
+		 * - for mState == EXITED: mData is exit() code
+		 * - for mState == KILLED: mData is signal number (Posix)
+		 * - otherwise: mData is undefined
+		 */
+		int mData;
+	};
+
+	/// Status query
+	Status getStatus();
+	/// English Status string query, for logging etc.
+	std::string getStatusString();
+	/// English Status string query for previously-captured Status
+	std::string getStatusString(const Status& status);
+	/// static English Status string query
+	static std::string getStatusString(const std::string& desc, const Status& status);
+
 	// Attempt to kill the process -- returns true if the process is no longer running when it returns.
 	// Note that even if this returns false, the process may exit some time after it's called.
-	bool kill(void);
+	bool kill(const std::string& who="");
 
 #if LL_WINDOWS
 	typedef int id;                 ///< as returned by getProcessID()
@@ -133,18 +173,28 @@ public:
 	 * a whole set of operations supported on freestanding @c handle values.
 	 * New functionality should be added as nonstatic members operating on
 	 * the same data as getProcessHandle().
+	 *
+	 * In particular, if child termination is detected by static isRunning()
+	 * rather than by nonstatic isRunning(), the LLProcess object won't be
+	 * aware of the child's changed status and may encounter OS errors trying
+	 * to obtain it. static isRunning() is only intended for after the
+	 * launching LLProcess object has been destroyed.
 	 */
 	static handle isRunning(handle, const std::string& desc="");
 
 private:
 	/// constructor is private: use create() instead
 	LLProcess(const LLSDOrParams& params);
-	void launch(const LLSDOrParams& params);
+	void autokill();
+	// Classic-C-style APR callback
+	static void status_callback(int reason, void* data, int status);
+	// Object-oriented callback
+	void handle_status(int reason, int status);
 
 	std::string mDesc;
-	id mProcessID;
-	handle mProcessHandle;
+	apr_proc_t mProcess;
 	bool mAutokill;
+	Status mStatus;
 };
 
 /// for logging
