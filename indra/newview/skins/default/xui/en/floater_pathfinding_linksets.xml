@@ -26,6 +26,7 @@
   <floater.string name="linksets_messaging_modify_error">Error detected while modifying for pathfinding linksets</floater.string>
   <floater.string name="linksets_messaging_complete_none_found">No pathfinding linksets</floater.string>
   <floater.string name="linksets_messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
+  <floater.string name="linksets_messaging_service_not_available">Required capability is not available in current region</floater.string>
   <floater.string name="linkset_path_state_walkable">Walkable</floater.string>
   <floater.string name="linkset_path_state_obstacle">Obstacle</floater.string>
   <floater.string name="linkset_path_state_ignored">Ignored</floater.string>

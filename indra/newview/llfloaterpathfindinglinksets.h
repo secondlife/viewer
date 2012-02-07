@@ -62,7 +62,8 @@ public:
 		kMessagingModifyRequestSent,
 		kMessagingModifyReceived,
 		kMessagingModifyError,
-		kMessagingComplete
+		kMessagingComplete,
+		kMessagingServiceNotAvailable
 	} EMessagingState;
 
 	virtual BOOL postBuild();

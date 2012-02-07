@@ -285,7 +285,7 @@ void LLFloaterPathfindingLinksets::sendNavMeshDataGetRequest()
 		std::string navMeshDataURL = getCapabilityURL();
 		if (navMeshDataURL.empty())
 		{
-			setMessagingState(kMessagingComplete);
+			setMessagingState(kMessagingServiceNotAvailable);
 			llwarns << "cannot query object navmesh properties from current region '" << getRegionName() << "'" << llendl;
 		}
 		else
@@ -300,13 +300,16 @@ void LLFloaterPathfindingLinksets::sendNavMeshDataPutRequest(const LLSD& pPostDa
 {
 	if (!isMessagingInProgress())
 	{
+		setMessagingState(kMessagingModifyStarting);
 		std::string navMeshDataURL = getCapabilityURL();
 		if (navMeshDataURL.empty())
 		{
+			setMessagingState(kMessagingServiceNotAvailable);
 			llwarns << "cannot put object navmesh properties for current region '" << getRegionName() << "'" << llendl;
 		}
 		else
 		{
+			setMessagingState(kMessagingModifyRequestSent);
 			LLHTTPClient::put(navMeshDataURL, pPostData, new NavMeshDataPutResponder(navMeshDataURL, mSelfHandle));
 		}
 	}
@@ -601,6 +604,10 @@ void LLFloaterPathfindingLinksets::updateLinksetsStatusMessage()
 			string_args["[NUM_TOTAL]"] = numItemsString;
 			statusText = getString("linksets_messaging_complete_available", string_args);
 		}
+		break;
+	case kMessagingServiceNotAvailable :
+		statusText = getString("linksets_messaging_service_not_available");
+		styleParams.color = warningColor;
 		break;
 	default:
 		statusText = getString("linksets_messaging_initial");
