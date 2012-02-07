@@ -2409,6 +2409,9 @@ void LLTextBase::updateRects()
 		case LLFontGL::BOTTOM:
 			delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
 			break;
+		case LLFontGL::BASELINE:
+			// do nothing
+			break;
 		}
 		// move line segments to fit new document rect
 		for (line_list_t::iterator it = mLineInfoList.begin(); it != mLineInfoList.end(); ++it)
