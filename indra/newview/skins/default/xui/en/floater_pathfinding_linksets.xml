@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
     open_positioning="cascading"
+    can_resize="true"
     can_tear_off="false"
     height="330"
+    width="950"
+    min_height="330"
+    min_width="950"
     layout="topleft"
     name="floater_pathfinding_linksets"
     help_topic="floater_pathfinding_linksets"
     reuse_instance="true"
-    save_rect="true"
+    save_rect="false"
     single_instance="true"
-    title="Pathfinding linksets"
-    width="950">
+    title="Pathfinding linksets">
   <floater.string name="linksets_messaging_initial"></floater.string>
   <floater.string name="linksets_messaging_fetch_starting">Building query for pathfinding linksets ...</floater.string>
   <floater.string name="linksets_messaging_fetch_inprogress">Querying for pathfinding linksets ...</floater.string>
@@ -59,7 +62,7 @@
   <line_editor
       border_style="line"
       border_thickness="1"
-      follows="top|left"
+      follows="left|top"
       height="20"
       layout="topleft"
       left_delta="62"
@@ -84,7 +87,7 @@
   <line_editor
       border_style="line"
       border_thickness="1"
-      follows="top|left"
+      follows="left|top"
       height="20"
       layout="topleft"
       left_delta="88"
@@ -94,6 +97,7 @@
       width="106" />
   <check_box
       height="19"
+      follows="left|top"
       initial_value="true"
       label="Walkable"
       layout="topleft"
@@ -103,6 +107,7 @@
       width="90" />
   <check_box
       height="19"
+      follows="left|top"
       initial_value="true"
       label="Obstacle"
       layout="topleft"
@@ -112,6 +117,7 @@
       width="90" />
   <check_box
       height="19"
+      follows="left|top"
       initial_value="true"
       label="Ignored"
       layout="topleft"
@@ -151,7 +157,7 @@
     <scroll_list.columns
         label="Name (root prim)"
         name="name"
-        width="173" />
+        dynamic_width="true" />
     <scroll_list.columns
         label="Description (root prim)"
         name="description"
@@ -196,7 +202,7 @@
       type="string"
       text_color="LabelTextColor"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       name="linksets_status"
       top="200"
@@ -204,7 +210,7 @@
     Linksets:
   </text>
   <button
-      follows="right|top"
+      follows="right|bottom"
       height="21"
       label="Refresh list"
       layout="topleft"
@@ -213,7 +219,7 @@
       left="568"
       width="115"/>
   <button
-      follows="right|top"
+      follows="right|bottom"
       height="21"
       label="Select all"
       layout="topleft"
@@ -222,7 +228,7 @@
       left="690"
       width="115"/>
   <button
-      follows="right|top"
+      follows="right|bottom"
       height="21"
       label="Select none"
       layout="topleft"
@@ -232,7 +238,7 @@
       width="115"/>
   <view_border
       bevel_style="none"
-      follows="top|left"
+      follows="left|bottom|right"
       height="0"
       layout="topleft"
       name="horiz_separator"
@@ -246,14 +252,14 @@
       type="string"
       text_color="LabelTextColor"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       top_pad="12"
       width="910">
     Select row(s) to edit attributes of linkset(s).  If a linkset is deleted or returned to inventory, attributes assigned to it will be lost.
   </text>
   <radio_group
-      follows="top|left"
+      follows="left|bottom"
       height="55"
       value="1"
       layout="topleft"
@@ -289,7 +295,7 @@
       text_readonly_color="LabelDisabledColor"
       name="walkability_coefficients_label"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       left="159"
       top="271"
@@ -305,7 +311,7 @@
       text_readonly_color="LabelDisabledColor"
       name="edit_a_label"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       top_pad="12"
       width="90">
@@ -314,7 +320,7 @@
   <line_editor
       border_style="line"
       border_thickness="1"
-      follows="top|left"
+      follows="left|bottom"
       height="20"
       layout="topleft"
       left_delta="14"
@@ -330,7 +336,7 @@
       text_readonly_color="LabelDisabledColor"
       name="edit_b_label"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       left="248"
       top_pad="-13"
@@ -340,7 +346,7 @@
   <line_editor
       border_style="line"
       border_thickness="1"
-      follows="top|left"
+      follows="left|bottom"
       height="20"
       layout="topleft"
       left_delta="14"
@@ -356,7 +362,7 @@
       text_readonly_color="LabelDisabledColor"
       name="edit_c_label"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       left="337"
       top_pad="-13"
@@ -366,7 +372,7 @@
   <line_editor
       border_style="line"
       border_thickness="1"
-      follows="top|left"
+      follows="left|bottom"
       height="20"
       layout="topleft"
       left_delta="14"
@@ -382,7 +388,7 @@
       text_readonly_color="LabelDisabledColor"
       name="edit_d_label"
       length="1"
-      follows="left|top"
+      follows="left|bottom"
       layout="topleft"
       left="426"
       top_pad="-13"
@@ -392,7 +398,7 @@
   <line_editor
       border_style="line"
       border_thickness="1"
-      follows="top|left"
+      follows="left|bottom"
       height="20"
       layout="topleft"
       left_delta="14"
@@ -400,6 +406,7 @@
       name="edit_d_value"
       width="45" />
   <check_box
+      follows="left|bottom"
       height="19"
       label="Phantom"
       layout="topleft"
@@ -408,7 +415,7 @@
       left="559"
       width="90" />
   <button
-      follows="right|top"
+      follows="right|bottom"
       height="21"
       label="Apply changes"
       layout="topleft"
