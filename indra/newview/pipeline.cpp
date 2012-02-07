@@ -6642,9 +6642,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				mDeferredLight.flush();
 			}
 
+			U32 dof_width = mScreen.getWidth()*CameraDoFResScale;
+			U32 dof_height = mScreen.getHeight()*CameraDoFResScale;
+			
 			{ //perform DoF sampling at half-res (preserve alpha channel)
 				mScreen.bindTarget();
-				glViewport(0,0,(GLsizei) (mScreen.getWidth()*CameraDoFResScale), (GLsizei) (mScreen.getHeight()*CameraDoFResScale));
+				glViewport(0,0, dof_width, dof_height);
 				gGL.setColorMask(true, false);
 
 				shader = &gDeferredPostProgram;
@@ -6657,7 +6660,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
-
+				
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 				gGL.vertex2f(-1,-1);
@@ -6702,6 +6705,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
+				shader->uniform1f(LLShaderMgr::DOF_WIDTH, dof_width-1);
+				shader->uniform1f(LLShaderMgr::DOF_HEIGHT, dof_height-1);
 
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);

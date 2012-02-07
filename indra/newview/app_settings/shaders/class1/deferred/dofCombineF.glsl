@@ -37,14 +37,24 @@ uniform vec2 screen_res;
 
 uniform float max_cof;
 uniform float res_scale;
+uniform float dof_width;
+uniform float dof_height;
 
 VARYING vec2 vary_fragcoord;
+
+vec4 dofSample(sampler2DRect tex, vec2 tc)
+{
+	tc.x = min(tc.x, dof_width);
+	tc.y = min(tc.y, dof_height);
+
+	return texture2DRect(tex, tc);
+}
 
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
 	
-	vec4 dof = texture2DRect(diffuseRect, vary_fragcoord.xy*res_scale);
+	vec4 dof = dofSample(diffuseRect, vary_fragcoord.xy*res_scale);
 	
 	vec4 diff = texture2DRect(lightMap, vary_fragcoord.xy);
 
