@@ -34,7 +34,8 @@
 #include "llview.h"
 #include "llwindow.h"
 
-LLClipboard::LLClipboard()
+LLClipboard::LLClipboard() :
+	mState(0)
 {
 	reset();
 }
@@ -46,6 +47,7 @@ LLClipboard::~LLClipboard()
 
 void LLClipboard::reset()
 {
+	mState++;
 	mObjects.reset();
 	mCutMode = false;
 	mString = LLWString();
@@ -74,6 +76,7 @@ bool LLClipboard::addToClipboard(const LLUUID& src, const LLAssetType::EType typ
 		if (res)
 		{
 			mObjects.put(src);
+			mState++;
 		}
 	}
 	return res;
@@ -126,6 +129,7 @@ bool LLClipboard::addToClipboard(const LLWString &src, S32 pos, S32 len, bool us
 	{
 		mString = mString + sep + src.substr(pos, len);
 	}
+	mState++;
 	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
 }
 

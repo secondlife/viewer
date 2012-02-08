@@ -47,6 +47,11 @@ class LLClipboard : public LLSingleton<LLClipboard>
 public:
 	LLClipboard();
 	~LLClipboard();
+	
+	// Clears the clipboard
+	void reset();
+	// Returns the state of the clipboard so client can know if it has been modified (comparing with tracked state)
+	int	getState() const { return mState; }
 
 	// Text strings management:
 	// ------------------------
@@ -61,8 +66,6 @@ public:
 	
 	// Object list management:
 	// -----------------------
-	// Clears the clipboard
-	void reset();
 	// Clears and adds one single object to the clipboard
 	bool copyToClipboard(const LLUUID& src, const LLAssetType::EType type = LLAssetType::AT_NONE);
 	// Adds one object to the current list of objects on the clipboard
@@ -74,12 +77,13 @@ public:
 	bool isOnClipboard(const LLUUID& object) const;					// True if the input object uuid is on the clipboard
 
 	bool isCutMode() const { return mCutMode; }
-	void setCutMode(bool mode) { mCutMode = mode; }
+	void setCutMode(bool mode) { mCutMode = mode; mState++; }
 
 private:
-	LLDynamicArray<LLUUID> mObjects;
-	LLWString mString;
+	LLDynamicArray<LLUUID> mObjects;	// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
+	LLWString mString;					// The text string. If mObjects is not empty, this string is reflecting them (UUIDs for the moment).
 	bool mCutMode;						// This is a convenience flag for the viewer. It has no influence on the cliboard management.
+	int mState;							// Incremented when the clipboard change so that interested parties can check its state.
 };
 
 #endif  // LL_LLCLIPBOARD_H

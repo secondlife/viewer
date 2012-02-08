@@ -39,6 +39,7 @@
 #include "llviewerfoldertype.h"
 
 // linden library includes
+#include "llclipboard.h"
 #include "lltrans.h"
 
 LLInventoryFilter::FilterOps::FilterOps() :
@@ -236,7 +237,18 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 			}
 		}
 	}
-	
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_CLIPBOARD
+	// Pass if this item is not on the clipboard
+	if (filterTypes & FILTERTYPE_CLIPBOARD)
+	{
+		if (LLClipboard::getInstance()->isCutMode() && LLClipboard::getInstance()->isOnClipboard(object_id))
+		{
+			return FALSE;
+		}
+	}
+		
 	return TRUE;
 }
 
@@ -448,6 +460,11 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 void LLInventoryFilter::setFilterEmptySystemFolders()
 {
 	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
+}
+
+void LLInventoryFilter::setFilterClipboard()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_CLIPBOARD;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)
