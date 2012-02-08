@@ -651,6 +651,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mIsDummy(FALSE),
 	mSpecialRenderMode(0),
+	mAttachmentGeometryBytes(0),
+	mAttachmentSurfaceArea(0.f),
 	mTurning(FALSE),
 	mPelvisToFoot(0.f),
 	mLastSkeletonSerialNum( 0 ),
@@ -3363,6 +3365,16 @@ void LLVOAvatar::slamPosition()
 	mRoot.updateWorldMatrixChildren();
 }
 
+bool LLVOAvatar::isVisuallyMuted()
+{
+	static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
+	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
+	
+	return LLMuteList::getInstance()->isMuted(getID()) ||
+			(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
+			(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f);
+}
+
 //------------------------------------------------------------------------
 // updateCharacter()
 // called on both your avatar and other avatars
@@ -3429,8 +3441,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
 
+		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (LLMuteList::getInstance()->isMuted(getID()))
+		if (isVisuallyMuted())
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
@@ -8332,6 +8345,11 @@ void LLVOAvatar::idleUpdateRenderCost()
 	static const U32 ARC_LIMIT = 20000;
 
 	static std::set<LLUUID> all_textures;
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
+	{ //set debug text to attachment geometry bytes here so render cost will override
+		setDebugText(llformat("%.1f KB, %.2f m^2", mAttachmentGeometryBytes/1024.f, mAttachmentSurfaceArea));
+	}
 
 	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{

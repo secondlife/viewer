@@ -3314,6 +3314,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 	}
 
 	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
+	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
 
 	gAgentAvatarp->updateMeshTextures();
 

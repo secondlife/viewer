@@ -425,6 +425,9 @@ public:
 	bridge_list_t mBridgeList;
 	buffer_map_t mBufferMap; //used by volume buffers to attempt to reuse vertex buffers
 
+	U32 mGeometryBytes; //used by volumes to track how many bytes of geometry data are in this node
+	F32 mSurfaceArea; //used by volumes to track estimated surface area of geometry in this node
+
 	F32 mBuilt;
 	OctreeNode* mOctreeNode;
 	LLSpatialPartition* mSpatialPartition;
@@ -494,8 +497,8 @@ public:
 	BOOL isVisible(const LLVector3& v);
 	bool isHUDPartition() ;
 	
-	virtual LLSpatialBridge* asBridge() { return NULL; }
-	virtual BOOL isBridge() { return asBridge() != NULL; }
+	LLSpatialBridge* asBridge() { return mBridge; }
+	BOOL isBridge() { return asBridge() != NULL; }
 
 	void renderPhysicsShapes();
 	void renderDebug();
@@ -507,6 +510,9 @@ public:
 
 public:
 	LLSpatialGroup::OctreeNode* mOctree;
+	LLSpatialBridge* mBridge; // NULL for non-LLSpatialBridge instances, otherwise, mBridge == this
+							// use a pointer instead of making "isBridge" and "asBridge" virtual so it's safe
+							// to call asBridge() from the destructor
 	BOOL mOcclusionEnabled; // if TRUE, occlusion culling is performed
 	BOOL mInfiniteFarClip; // if TRUE, frustum culling ignores far clip plane
 	U32 mBufferUsage;
@@ -531,8 +537,9 @@ public:
 	
 	LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask);
 	
-	virtual BOOL isSpatialBridge() const		{ return TRUE; }
+	void destroyTree();
 
+	virtual BOOL isSpatialBridge() const		{ return TRUE; }
 	virtual void updateSpatialExtents();
 	virtual void updateBinRadius();
 	virtual void setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* results = NULL, BOOL for_select = FALSE);
@@ -543,11 +550,12 @@ public:
 	virtual void shiftPos(const LLVector4a& vec);
 	virtual void cleanupReferences();
 	virtual LLSpatialPartition* asPartition()		{ return this; }
-	virtual LLSpatialBridge* asBridge()				{ return this; }
-	
+		
 	virtual LLCamera transformCamera(LLCamera& camera);
 	
 	LLDrawable* mDrawable;
+	LLPointer<LLVOAvatar> mAvatar;
+
 };
 
 class LLCullResult 
