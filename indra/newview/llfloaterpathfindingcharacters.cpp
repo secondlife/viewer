@@ -343,7 +343,22 @@ void LLFloaterPathfindingCharacters::onDeleteCharactersClicked()
 
 void LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked()
 {
-	llwarns << "functionality has not yet been implemented to teleport me tothe character" << llendl;
+	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
+	llassert(selectedItems.size() == 1);
+	if (selectedItems.size() == 1)
+	{
+		std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
+		const LLScrollListItem *selectedItem = selectedItemRef;
+		PathfindingCharacterMap::const_iterator characterIter = mPathfindingCharacters.find(selectedItem->getUUID().asString());
+		const LLPathfindingCharacter &character = characterIter->second;
+		LLVector3 characterLocation = character.getLocation();
+
+		LLViewerRegion* region = gAgent.getRegion();
+		if (region != NULL)
+		{
+			gAgent.teleportRequest(region->getHandle(), characterLocation, true);
+		}
+	}
 }
 
 void LLFloaterPathfindingCharacters::updateCharactersList()
@@ -487,11 +502,11 @@ void LLFloaterPathfindingCharacters::updateActionFields()
 void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 {
 	mLabelActions->setEnabled(pEnabled);
-	mShowBeaconCheckBox->setEnabled(pEnabled);
-	mTakeBtn->setEnabled(pEnabled);
-	mTakeCopyBtn->setEnabled(pEnabled);
-	mReturnBtn->setEnabled(pEnabled);
-	mDeleteBtn->setEnabled(pEnabled);
+	mShowBeaconCheckBox->setEnabled(false && pEnabled);
+	mTakeBtn->setEnabled(false && pEnabled);
+	mTakeCopyBtn->setEnabled(false && pEnabled);
+	mReturnBtn->setEnabled(false && pEnabled);
+	mDeleteBtn->setEnabled(false && pEnabled);
 	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
 }
 
