@@ -210,7 +210,7 @@ BOOL LLInvFVBridge::isLink() const
  */
 void LLInvFVBridge::cutToClipboard()
 {
-	if(isItemMovable())
+	if (isItemMovable() && isItemRemovable())
 	{
 		LLClipboard::getInstance()->cut(mUUID);
 	}
@@ -600,6 +600,12 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			if (!isItemCopyable())
 			{
 				disabled_items.push_back(std::string("Copy"));
+			}
+
+			items.push_back(std::string("Cut"));
+			if (!isItemMovable() || !isItemRemovable())
+			{
+				disabled_items.push_back(std::string("Cut"));
 			}
 
 			if (canListOnMarketplace())
@@ -1279,6 +1285,11 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 		asset_id.toString(buffer);
 
 		gViewerWindow->getWindow()->copyTextToClipboard(utf8str_to_wstring(buffer));
+		return;
+	}
+	else if ("cut" == action)
+	{
+		cutToClipboard();
 		return;
 	}
 	else if ("copy" == action)
@@ -2608,6 +2619,11 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 		modifyOutfit(TRUE);
 		return;
 	}
+	else if ("cut" == action)
+	{
+		cutToClipboard();
+		return;
+	}
 	else if ("copy" == action)
 	{
 		copyToClipboard();
@@ -2867,6 +2883,8 @@ void LLFolderBridge::pasteFromClipboard()
 				}
 			}
 		}
+		// Change mode to paste for next paste
+		LLClipboard::getInstance()->setCutMode(false);
 	}
 }
 
@@ -2920,6 +2938,8 @@ void LLFolderBridge::pasteLinkFromClipboard()
 					LLPointer<LLInventoryCallback>(NULL));
 			}
 		}
+		// Change mode to paste for next paste
+		LLClipboard::getInstance()->setCutMode(false);
 	}
 }
 

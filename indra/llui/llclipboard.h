@@ -69,6 +69,8 @@ public:
 	
 	BOOL hasContents() const;										// true if the clipboard has something pasteable in it
 	bool isCutMode() const { return mCutMode; }
+	void setCutMode(bool mode) { mCutMode = mode; }
+	bool isOnClipboard(const LLUUID& object) const;
 
 private:
 	LLDynamicArray<LLUUID> mObjects;

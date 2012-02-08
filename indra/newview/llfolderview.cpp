@@ -2108,8 +2108,7 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		removeSelectedItems();
 		return true;
 	}
-
-	if ("copy" == action)
+	if (("copy" == action) || ("cut" == action))
 	{	
 		LLClipboard::getInstance()->reset();
 	}

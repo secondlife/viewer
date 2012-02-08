@@ -40,6 +40,7 @@
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
+#include "llclipboard.h"
 #include "llfocusmgr.h"		// gFocusMgr
 #include "lltrans.h"
 
@@ -1002,7 +1003,13 @@ void LLFolderViewItem::draw()
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 	if (highlight_link) color = sLinkColor;
 	if (in_library) color = sLibraryColor;
-
+	
+	// Cut state rendering tweak (experimental)
+	if (LLClipboard::getInstance()->isCutMode() && LLClipboard::getInstance()->isOnClipboard(getListener()->getUUID()))
+	{
+		color.setAlpha(0.5);
+	}
+	
 	F32 right_x  = 0;
 	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);

@@ -97,6 +97,12 @@ BOOL LLClipboard::hasContents() const
 	return (mObjects.count() > 0);
 }
 
+// Returns true if the input uuid is in the list of clipboard objects
+bool LLClipboard::isOnClipboard(const LLUUID& object) const
+{
+	return (mObjects.find(object) != LLDynamicArray<LLUUID>::FAIL);
+}
+
 // Copy the input string to the LL and the system clipboard
 bool LLClipboard::copyToClipboard(const LLWString &src, S32 pos, S32 len, bool use_primary)
 {
