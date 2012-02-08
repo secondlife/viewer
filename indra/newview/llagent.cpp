@@ -171,7 +171,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 
 	if (param == "build")
 	{
-		retval = gAgent.canEditParcel();
+		retval = LLViewerParcelMgr::getInstance()->allowAgentBuild();
 	}
 	else if (param == "speak")
 	{
