@@ -436,3 +436,42 @@ BOOL LLWindowManager::isWindowValid(LLWindow *window)
 {
 	return sWindowList.find(window) != sWindowList.end();
 }
+
+//coordinate conversion utility funcs that forward to llwindow
+LLCoordCommon LL_COORD_TYPE_WINDOW::convertToCommon() const
+{
+	const LLCoordWindow& self = static_cast<const LLCoordWindow&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL out;
+	windowp->convertCoords(self, &out);
+	return out.convert();
+}
+
+void LL_COORD_TYPE_WINDOW::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordWindow& self = static_cast<LLCoordWindow&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL from_gl(from);
+	windowp->convertCoords(from_gl, &self);
+}
+
+LLCoordCommon LL_COORD_TYPE_SCREEN::convertToCommon() const
+{
+	const LLCoordScreen& self = static_cast<const LLCoordScreen&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL out;
+	windowp->convertCoords(self, &out);
+	return out.convert();
+}
+
+void LL_COORD_TYPE_SCREEN::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordScreen& self = static_cast<LLCoordScreen&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL from_gl(from);
+	windowp->convertCoords(from_gl, &self);
+}

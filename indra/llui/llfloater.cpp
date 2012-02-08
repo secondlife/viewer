@@ -926,7 +926,7 @@ void LLFloater::applyPositioning(LLFloater* other)
 			setOrigin(mSpecifiedLeft, mSpecifiedBottom);
 			const LLRect& snap_rect = gFloaterView->getSnapRect();
 			translate(snap_rect.mLeft, snap_rect.mBottom);
-			translateIntoRect(snap_rect, FALSE);
+			translateIntoRect(snap_rect);
 		}
 		break;
 
@@ -950,7 +950,7 @@ void LLFloater::applyPositioning(LLFloater* other)
 			setOrigin(horizontal_offset, vertical_offset - rect_height);
 
 			translate(snap_rect.mLeft, snap_rect.mBottom);
-			translateIntoRect(snap_rect, FALSE);
+			translateIntoRect(snap_rect);
 		}
 		break;
 
@@ -2644,6 +2644,8 @@ void LLFloaterView::refresh()
 	}
 }
 
+const S32 FLOATER_MIN_VISIBLE_PIXELS = 16;
+
 void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside)
 {
 	if (floater->getParent() != this)
@@ -2697,7 +2699,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ))
+	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
 	{
 		floater->clearSnapTarget();
 	}
@@ -3305,12 +3307,79 @@ bool LLCoordFloater::operator==(const LLCoordFloater& other) const
 LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
 {
 	const LLCoordFloater& self = static_cast<const LLCoordFloater&>(*this);
-	return LLCoordCommon(self.mX, self.mY);
+
+	LLRect snap_rect = gFloaterView->getSnapRect();
+	LLFloater* floaterp = mFloater.get();
+	S32 floater_width = floaterp ? floaterp->getRect().getWidth() : 0;
+	S32 floater_height = floaterp ? floaterp->getRect().getHeight() : 0;
+	LLCoordCommon out;
+	if (self.mX < -0.5f)
+	{
+		out.mX = llround(rescale(self.mX, -1.f, -0.5f, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft));
+	}
+	else if (self.mX > 0.5f)
+	{
+		out.mX = llround(rescale(self.mX, 0.5f, 1.f, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS));
+	}
+	else
+	{
+		out.mX = llround(rescale(self.mX, -0.5f, 0.5f, snap_rect.mLeft, snap_rect.mRight - floater_width));
+	}
+
+	if (self.mY < -0.5f)
+	{
+		out.mY = llround(rescale(self.mY, -1.f, -0.5f, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom));
+	}
+	else if (self.mY > 0.5f)
+	{
+		out.mY = llround(rescale(self.mY, 0.5f, 1.f, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS));
+	}
+	else
+	{
+		out.mY = llround(rescale(self.mY, -0.5f, 0.5f, snap_rect.mBottom, snap_rect.mTop - floater_height));
+	}
+
+	// return center point instead of lower left
+	out.mX += floater_width / 2;
+	out.mY += floater_height / 2;
+
+	return out;
 }
 
 void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
 {
 	LLCoordFloater& self = static_cast<LLCoordFloater&>(*this);
-	self.mX = from.mX;
-	self.mY = from.mY;
+	LLRect snap_rect = gFloaterView->getSnapRect();
+	LLFloater* floaterp = mFloater.get();
+	S32 floater_width = floaterp ? floaterp->getRect().getWidth() : 0;
+	S32 floater_height = floaterp ? floaterp->getRect().getHeight() : 0;
+
+	S32 from_x = from.mX - floater_width / 2;
+	S32 from_y = from.mY - floater_height / 2;
+
+	if (from_x < snap_rect.mLeft)
+	{
+		self.mX = rescale(from_x, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft, -1.f, -0.5f);
+	}
+	else if (from_x + floater_width > snap_rect.mRight)
+	{
+		self.mX = rescale(from_x, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+	}
+	else
+	{
+		self.mX = rescale(from_x, snap_rect.mLeft, snap_rect.mRight - floater_width, -0.5f, 0.5f);
+	}
+
+	if (from_y < snap_rect.mBottom)
+	{
+		self.mY = rescale(from_y, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom, -1.f, -0.5f);
+	}
+	else if (from_y + floater_height > snap_rect.mTop)
+	{
+		self.mY = rescale(from_y, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+	}
+	else
+	{
+		self.mY = rescale(from_y, snap_rect.mBottom, snap_rect.mTop - floater_height, -0.5f, 0.5f);
+	}
 }

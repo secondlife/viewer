@@ -26,9 +26,12 @@
 #ifndef LL_LLCOORD_H
 #define LL_LLCOORD_H
 
-struct LL_COORD_TYPE_COMMON 
+struct LLCoordCommon
 {
-	typedef S32 value_t;
+	LLCoordCommon(S32 x, S32 y) : mX(x), mY(y) {}
+	LLCoordCommon() : mX(0), mY(0) {}
+	S32 mX;
+	S32 mY;
 };
 
 // A two-dimensional pixel value
@@ -45,12 +48,12 @@ public:
 	LLCoord(S32 x, S32 y): mX(x), mY(y)
 	{}
 
-	LLCoord(const LLCoord<LL_COORD_TYPE_COMMON>& other)
+	LLCoord(const LLCoordCommon& other)
 	{
 		COORD_FRAME::convertFromCommon(other);
 	}
 
-	LLCoord<LL_COORD_TYPE_COMMON> convert() const
+	LLCoordCommon convert() const
 	{
 		return COORD_FRAME::convertToCommon();
 	}
@@ -60,8 +63,6 @@ public:
 	bool operator!=(const self_t& other) const { return !(*this == other); }
 
 };
-
-typedef LLCoord<LL_COORD_TYPE_COMMON> LLCoordCommon;
 
 struct LL_COORD_TYPE_GL 
 {
