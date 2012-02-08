@@ -268,6 +268,7 @@ void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagin
 
 void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
 {
+#if 0
 	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
 
 	LLSelectMgr::getInstance()->deselectAll();
@@ -296,6 +297,7 @@ void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
 			mSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
 		}
 	}
+#endif
 
 	updateCharactersStatusMessage();
 	updateActionFields();
