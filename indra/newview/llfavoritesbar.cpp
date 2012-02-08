@@ -1187,7 +1187,7 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	}
 	else if (action == "copy")
 	{
-		LLClipboard::getInstance()->store(mSelectedItemID);
+		LLClipboard::getInstance()->copyToClipboard(mSelectedItemID, LLAssetType::AT_LANDMARK);
 	}
 	else if (action == "paste")
 	{
@@ -1217,7 +1217,7 @@ BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
 	}
 
 	LLDynamicArray<LLUUID> objects;
-	LLClipboard::getInstance()->retrieve(objects);
+	LLClipboard::getInstance()->pasteFromClipboard(objects);
 	S32 count = objects.count();
 	for(S32 i = 0; i < count; i++)
 	{
@@ -1246,7 +1246,7 @@ void LLFavoritesBarCtrl::pastFromClipboard() const
 	{
 		LLInventoryItem* item = NULL;
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->retrieve(objects);
+		LLClipboard::getInstance()->pasteFromClipboard(objects);
 		S32 count = objects.count();
 		LLUUID parent_id(mFavoriteFolderId);
 		for(S32 i = 0; i < count; i++)

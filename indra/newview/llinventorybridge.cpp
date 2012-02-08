@@ -208,13 +208,27 @@ BOOL LLInvFVBridge::isLink() const
 /**
  * @brief Adds this item into clipboard storage
  */
-void LLInvFVBridge::cutToClipboard()
+BOOL LLInvFVBridge::cutToClipboard() const
 {
-	if (isItemMovable() && isItemRemovable())
+	LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
+	if (inv_item && isItemMovable() && isItemRemovable())
 	{
-		LLClipboard::getInstance()->cut(mUUID);
+		LLClipboard::getInstance()->setCutMode(true);
+		return LLClipboard::getInstance()->addToClipboard(mUUID,inv_item->getType());
 	}
+	return FALSE;
 }
+
+BOOL LLInvFVBridge::copyToClipboard() const
+{
+	LLViewerInventoryItem* inv_item = gInventory.getItem(mUUID);
+	if (inv_item && isItemCopyable())
+	{
+		return LLClipboard::getInstance()->addToClipboard(mUUID,inv_item->getType());
+	}
+	return FALSE;
+}
+
 // *TODO: make sure this does the right thing
 void LLInvFVBridge::showProperties()
 {
@@ -413,7 +427,7 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 	// 1. folders should be pastable
 	// 2. when pasting, we should paste what is authorized and let the rest not pasted
 	LLDynamicArray<LLUUID> objects;
-	LLClipboard::getInstance()->retrieve(objects);
+	LLClipboard::getInstance()->pasteFromClipboard(objects);
 	S32 count = objects.count();
 	for(S32 i = 0; i < count; i++)
 	{
@@ -451,7 +465,7 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 	}
 
 	LLDynamicArray<LLUUID> objects;
-	LLClipboard::getInstance()->retrieve(objects);
+	LLClipboard::getInstance()->pasteFromClipboard(objects);
 	S32 count = objects.count();
 	for(S32 i = 0; i < count; i++)
 	{
@@ -1673,16 +1687,6 @@ BOOL LLItemBridge::isItemCopyable() const
 	return FALSE;
 }
 
-BOOL LLItemBridge::copyToClipboard() const
-{
-	if(isItemCopyable())
-	{
-		LLClipboard::getInstance()->add(mUUID);
-		return TRUE;
-	}
-	return FALSE;
-}
-
 LLViewerInventoryItem* LLItemBridge::getItem() const
 {
 	LLViewerInventoryItem* item = NULL;
@@ -1785,16 +1789,6 @@ BOOL LLFolderBridge::isItemCopyable() const
 	return gSavedSettings.getBOOL("InventoryLinking");
 }
 
-BOOL LLFolderBridge::copyToClipboard() const
-{
-	if(isItemCopyable())
-	{
-		LLClipboard::getInstance()->add(mUUID);
-		return TRUE;
-	}
-	return FALSE;
-}
-
 BOOL LLFolderBridge::isClipboardPasteable() const
 {
 	if ( ! LLInvFVBridge::isClipboardPasteable() )
@@ -1810,7 +1804,7 @@ BOOL LLFolderBridge::isClipboardPasteable() const
 		}
 
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->retrieve(objects);
+		LLClipboard::getInstance()->pasteFromClipboard(objects);
 		const LLViewerInventoryCategory *current_cat = getCategory();
 
 		// Search for the direct descendent of current Friends subfolder among all pasted items,
@@ -1848,7 +1842,7 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 		const BOOL is_in_friend_folder = LLFriendCardsManager::instance().isCategoryInFriendFolder( current_cat );
 		const LLUUID &current_cat_id = current_cat->getUUID();
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->retrieve(objects);
+		LLClipboard::getInstance()->pasteFromClipboard(objects);
 		S32 count = objects.count();
 		for(S32 i = 0; i < count; i++)
 		{
@@ -2844,7 +2838,7 @@ void LLFolderBridge::pasteFromClipboard()
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->retrieve(objects);
+		LLClipboard::getInstance()->pasteFromClipboard(objects);
 		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
 			 iter != objects.end();
 			 ++iter)
@@ -2900,7 +2894,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->retrieve(objects);
+		LLClipboard::getInstance()->pasteFromClipboard(objects);
 		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
 			 iter != objects.end();
 			 ++iter)

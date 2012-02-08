@@ -105,8 +105,8 @@ public:
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
 	virtual void move(LLFolderViewEventListener* new_parent_bridge) {}
 	virtual BOOL isItemCopyable() const { return FALSE; }
-	virtual BOOL copyToClipboard() const { return FALSE; }
-	virtual void cutToClipboard();
+	virtual BOOL copyToClipboard() const;
+	virtual BOOL cutToClipboard() const;
 	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual void pasteFromClipboard() {}
@@ -211,7 +211,6 @@ public:
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
 	virtual BOOL isItemCopyable() const;
-	virtual BOOL copyToClipboard() const;
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
 
@@ -274,7 +273,6 @@ public:
 	virtual BOOL isItemCopyable() const;
 	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
-	virtual BOOL copyToClipboard() const;
 	
 	static void createWearable(LLFolderBridge* bridge, LLWearableType::EType type);
 

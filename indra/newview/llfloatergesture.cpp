@@ -395,7 +395,7 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 			return false;
 
 		LLDynamicArray<LLUUID> ids;
-		LLClipboard::getInstance()->retrieve(ids);
+		LLClipboard::getInstance()->pasteFromClipboard(ids);
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
@@ -490,26 +490,26 @@ void LLFloaterGesture::onActivateBtnClick()
 void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 {
 	std::string command_name  = command.asString();
-	// since we select this comman inventory item had  already arrived .
+	// Since we select this command, the inventory items must have already arrived
 	if("copy_gesture" == command_name)
 	{
 		uuid_vec_t ids;
 		getSelectedIds(ids);
-		// make sure that clopboard is empty
+		// Make sure the clipboard is empty
 		LLClipboard::getInstance()->reset();
 		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
-				LLClipboard::getInstance()->add(item->getUUID());
+				LLClipboard::getInstance()->addToClipboard(item->getUUID(),LLAssetType::AT_GESTURE);
 			}
 		}
 	}
 	else if ("paste" == command_name)
 	{
 		LLDynamicArray<LLUUID> ids;
-		LLClipboard::getInstance()->retrieve(ids);
+		LLClipboard::getInstance()->pasteFromClipboard(ids);
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);

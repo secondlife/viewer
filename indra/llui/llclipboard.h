@@ -48,34 +48,38 @@ public:
 	LLClipboard();
 	~LLClipboard();
 
-	/* We support two flavors of clipboard.  The default is the explicitly
-	   copy-and-pasted clipboard.  The second is the so-called 'primary' clipboard
-	   which is implicitly copied upon selection on platforms which expect this
-	   (i.e. X11/Linux). */
+	// Text strings management:
+	// ------------------------
+	// We support two flavors of text clipboards. The default is the explicitly
+	// copy-and-pasted clipboard. The second is the so-called 'primary' clipboard
+	// which is implicitly copied upon selection on platforms which expect this
+	// (i.e. X11/Linux, Mac).
+	bool copyToClipboard(const LLWString& src, S32 pos, S32 len, bool use_primary = false);
+	bool addToClipboard(const LLWString& src, S32 pos, S32 len, bool use_primary = false);
+	bool pasteFromClipboard(LLWString& dst, bool use_primary = false);
+	bool isTextAvailable(bool use_primary = false) const;
+	
+	// Object list management:
+	// -----------------------
+	// Clears the clipboard
+	void reset();
+	// Clears and adds one single object to the clipboard
+	bool copyToClipboard(const LLUUID& src, const LLAssetType::EType type = LLAssetType::AT_NONE);
+	// Adds one object to the current list of objects on the clipboard
+	bool addToClipboard(const LLUUID& src, const LLAssetType::EType type = LLAssetType::AT_NONE);
+	// Gets a copy of the objects on the clipboard
+	bool pasteFromClipboard(LLDynamicArray<LLUUID>& inventory_objects) const;
+	
+	bool hasContents() const;										// True if the clipboard has pasteable objects
+	bool isOnClipboard(const LLUUID& object) const;					// True if the input object uuid is on the clipboard
 
-	// Text strings and single item management
-	bool		copyToClipboard(const LLWString& src, S32 pos, S32 len, bool use_primary = false);
-	bool		copyToClipboard(const LLUUID& src, const LLAssetType::EType type = LLAssetType::AT_NONE);
-	bool		pasteFromClipboard(LLWString& dst, bool use_primary = false);
-	bool		isTextAvailable(bool use_primary = false) const;
-	
-	// Object list management
-	void add(const LLUUID& object);									// Adds to the current list of objects on the clipboard
-	void store(const LLUUID& object);								// Stores a single inventory object
-	void store(const LLDynamicArray<LLUUID>& inventory_objects);	// Stores an array of objects
-	void cut(const LLUUID& object);									// Adds to the current list of cut objects on the clipboard
-	void retrieve(LLDynamicArray<LLUUID>& inventory_objects) const;	// Gets a copy of the objects on the clipboard
-	void reset();													// Clears the clipboard
-	
-	BOOL hasContents() const;										// true if the clipboard has something pasteable in it
 	bool isCutMode() const { return mCutMode; }
 	void setCutMode(bool mode) { mCutMode = mode; }
-	bool isOnClipboard(const LLUUID& object) const;
 
 private:
 	LLDynamicArray<LLUUID> mObjects;
-	bool mCutMode;
 	LLWString mString;
+	bool mCutMode;						// This is a convenience flag for the viewer. It has no influence on the cliboard management.
 };
 
 #endif  // LL_LLCLIPBOARD_H

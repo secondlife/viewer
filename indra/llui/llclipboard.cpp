@@ -35,8 +35,8 @@
 #include "llwindow.h"
 
 LLClipboard::LLClipboard()
-: mCutMode(false)
 {
+	reset();
 }
 
 LLClipboard::~LLClipboard()
@@ -44,55 +44,59 @@ LLClipboard::~LLClipboard()
 	reset();
 }
 
-void LLClipboard::add(const LLUUID& object)
-{
-	mObjects.put(object);
-}
-
-void LLClipboard::store(const LLUUID& object)
-{
-	reset();
-	mObjects.put(object);
-}
-
-void LLClipboard::store(const LLDynamicArray<LLUUID>& inv_objects)
-{
-	reset();
-	S32 count = inv_objects.count();
-	for(S32 i = 0; i < count; i++)
-	{
-		mObjects.put(inv_objects[i]);
-	}
-}
-
-void LLClipboard::cut(const LLUUID& object)
-{
-	if(!mCutMode && !mObjects.empty())
-	{
-		//looks like there are some stored items, reset clipboard state
-		reset();
-	}
-	mCutMode = true;
-	add(object);
-}
-void LLClipboard::retrieve(LLDynamicArray<LLUUID>& inv_objects) const
-{
-	inv_objects.reset();
-	S32 count = mObjects.count();
-	for(S32 i = 0; i < count; i++)
-	{
-		inv_objects.put(mObjects[i]);
-	}
-}
-
 void LLClipboard::reset()
 {
 	mObjects.reset();
 	mCutMode = false;
+	mString = LLWString();
+}
+
+// Copy the input uuid to the LL clipboard
+bool LLClipboard::copyToClipboard(const LLUUID& src, const LLAssetType::EType type)
+{
+	reset();
+	return addToClipboard(src, type);
+}
+
+// Add the input uuid to the LL clipboard
+// Convert the uuid to string and concatenate that string to the system clipboard if legit
+bool LLClipboard::addToClipboard(const LLUUID& src, const LLAssetType::EType type)
+{
+	bool res = false;
+	if (src.notNull())
+	{
+		res = true;
+		if (LLAssetType::lookupIsAssetIDKnowable(type))
+		{
+			LLWString source = utf8str_to_wstring(src.asString());
+			res = addToClipboard(source, 0, source.size());
+		}
+		if (res)
+		{
+			mObjects.put(src);
+		}
+	}
+	return res;
+}
+
+bool LLClipboard::pasteFromClipboard(LLDynamicArray<LLUUID>& inv_objects) const
+{
+	bool res = false;
+	S32 count = mObjects.count();
+	if (count > 0)
+	{
+		res = true;
+		inv_objects.reset();
+		for (S32 i = 0; i < count; i++)
+		{
+			inv_objects.put(mObjects[i]);
+		}
+	}
+	return res;
 }
 
 // Returns true if the LL Clipboard has pasteable items in it
-BOOL LLClipboard::hasContents() const
+bool LLClipboard::hasContents() const
 {
 	return (mObjects.count() > 0);
 }
@@ -107,30 +111,22 @@ bool LLClipboard::isOnClipboard(const LLUUID& object) const
 bool LLClipboard::copyToClipboard(const LLWString &src, S32 pos, S32 len, bool use_primary)
 {
 	reset();
-	mString = src.substr(pos, len);
-	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
+	return addToClipboard(src, pos, len, use_primary);
 }
 
-// Copy the input uuid to the LL clipboard
-// Convert the uuid to string and copy that string to the system clipboard if legit
-bool LLClipboard::copyToClipboard(const LLUUID& src, const LLAssetType::EType type)
+// Concatenate the input string to the LL and the system clipboard
+bool LLClipboard::addToClipboard(const LLWString &src, S32 pos, S32 len, bool use_primary)
 {
-	bool res = false;
-	reset();
-	if (src.notNull())
+	const LLWString sep(utf8str_to_wstring(std::string(", ")));
+	if (mString.length() == 0)
 	{
-		res = true;
-		if (LLAssetType::lookupIsAssetIDKnowable(type))
-		{
-			LLWString source = utf8str_to_wstring(src.asString());
-			res = copyToClipboard(source, 0, source.size());
-		}
-		if (res)
-		{
-			store(src);
-		}
+		mString = src.substr(pos, len);
 	}
-	return res;
+	else
+	{
+		mString = mString + sep + src.substr(pos, len);
+	}
+	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
 }
 
 // Copy the System clipboard to the output string.
