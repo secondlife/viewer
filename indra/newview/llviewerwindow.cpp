@@ -4083,14 +4083,11 @@ void LLViewerWindow::resetSnapshotLoc()
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
 	LLCoordWindow size;
+	LLCoordWindow new_size(new_width, new_height);
 	gViewerWindow->getWindow()->getSize(&size);
-	if ( size.mX != new_width
-		|| size.mY != new_height)
+	if ( size != new_size )
 	{
-		LLCoordWindow new_size(new_width, new_height);
-		LLCoordScreen screen_size;
-		gViewerWindow->getWindow()->convertCoords(new_size, &screen_size);
-		gViewerWindow->getWindow()->setSize(screen_size);
+		gViewerWindow->getWindow()->setSize(new_size.convert());
 	}
 }
 

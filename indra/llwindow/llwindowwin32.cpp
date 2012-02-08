@@ -1545,24 +1545,16 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
 
 BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 {
-	LLCoordScreen screen_pos;
-
 	mMousePositionModified = TRUE;
 	if (!mWindowHandle)
 	{
 		return FALSE;
 	}
 
-	if (!convertCoords(position, &screen_pos))
-	{
-		return FALSE;
-	}
 
 	// Inform the application of the new mouse position (needed for per-frame
 	// hover/picking to function).
-	LLCoordGL gl_pos;
-	convertCoords(position, &gl_pos);
-	mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
+	mCallbacks->handleMouseMove(this, position.convert(), (MASK)0);
 	
 	// DEV-18951 VWR-8524 Camera moves wildly when alt-clicking.
 	// Because we have preemptively notified the application of the new
@@ -1572,24 +1564,23 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 	while (PeekMessage(&msg, NULL, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
 	{ }
 
-	return SetCursorPos(screen_pos.mX, screen_pos.mY);
+	LLCoordScreen screen_pos(position.convert());
+	return ::SetCursorPos(screen_pos.mX, screen_pos.mY);
 }
 
 BOOL LLWindowWin32::getCursorPosition(LLCoordWindow *position)
 {
 	POINT cursor_point;
-	LLCoordScreen screen_pos;
 
-	if (!mWindowHandle ||
-		!GetCursorPos(&cursor_point))
+	if (!mWindowHandle 
+		|| !GetCursorPos(&cursor_point)
+		|| !position)
 	{
 		return FALSE;
 	}
 
-	screen_pos.mX = cursor_point.x;
-	screen_pos.mY = cursor_point.y;
-
-	return convertCoords(screen_pos, position);
+	*position = LLCoordScreen(cursor_point.x, cursor_point.y).convert();
+	return TRUE;
 }
 
 void LLWindowWin32::hideCursor()
@@ -2167,15 +2158,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2197,15 +2188,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2230,15 +2221,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2265,15 +2256,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2294,15 +2285,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2329,15 +2320,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2358,15 +2349,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2438,9 +2429,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_MOUSEMOVE:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEMOVE");
-				window_imp->convertCoords(window_coord, &gl_coord);
 				MASK mask = gKeyboard->currentMask(TRUE);
-				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				window_imp->mCallbacks->handleMouseMove(window_imp, window_coord.convert(), mask);
 				return 0;
 			}
 
@@ -2568,6 +2558,44 @@ BOOL LLWindowWin32::convertCoords(LLCoordGL from, LLCoordWindow *to)
 	to->mY = client_height - from.mY - 1;
 
 	return TRUE;
+}
+
+LLCoordCommon LL_COORD_TYPE_WINDOW::convertToCommon() const
+{
+	const LLCoordWindow& self = static_cast<const LLCoordWindow&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL out;
+	windowp->convertCoords(self, &out);
+	return out.convert();
+}
+
+void LL_COORD_TYPE_WINDOW::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordWindow& self = static_cast<LLCoordWindow&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL from_gl(from);
+	windowp->convertCoords(from_gl, &self);
+}
+
+LLCoordCommon LL_COORD_TYPE_SCREEN::convertToCommon() const
+{
+	const LLCoordScreen& self = static_cast<const LLCoordScreen&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL out;
+	windowp->convertCoords(self, &out);
+	return out.convert();
+}
+
+void LL_COORD_TYPE_SCREEN::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordScreen& self = static_cast<LLCoordScreen&>(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL from_gl(from);
+	windowp->convertCoords(from_gl, &self);
 }
 
 BOOL LLWindowWin32::convertCoords(LLCoordWindow from, LLCoordGL* to)

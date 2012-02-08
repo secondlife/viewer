@@ -1736,10 +1736,7 @@ void LLUI::setMousePositionScreen(S32 x, S32 y)
 	screen_x = llround((F32)x * sGLScaleFactor.mV[VX]);
 	screen_y = llround((F32)y * sGLScaleFactor.mV[VY]);
 	
-	LLCoordWindow window_point;
-	LLView::getWindow()->convertCoords(LLCoordGL(screen_x, screen_y), &window_point);
-
-	LLView::getWindow()->setCursorPosition(window_point);
+	LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
 
 //static 
@@ -1747,8 +1744,7 @@ void LLUI::getMousePositionScreen(S32 *x, S32 *y)
 {
 	LLCoordWindow cursor_pos_window;
 	getWindow()->getCursorPosition(&cursor_pos_window);
-	LLCoordGL cursor_pos_gl;
-	getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+	LLCoordGL cursor_pos_gl(cursor_pos_window.convert());
 	*x = llround((F32)cursor_pos_gl.mX / sGLScaleFactor.mV[VX]);
 	*y = llround((F32)cursor_pos_gl.mY / sGLScaleFactor.mV[VX]);
 }

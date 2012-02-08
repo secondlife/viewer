@@ -270,6 +270,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
+	mPosition.setFloater(*this);
 //	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 
 	// Clicks stop here.
@@ -3271,3 +3272,45 @@ void LLFloater::stackWith(LLFloater& other)
 	setShape(next_rect);
 }
 
+LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
+:	coord_t(x, y)
+{
+	mFloater = floater.getHandle();
+}
+
+
+LLCoordFloater::LLCoordFloater(const LLCoordCommon& other, LLFloater& floater)
+{
+	mFloater = floater.getHandle();
+	convertFromCommon(other);
+}
+
+LLCoordFloater& LLCoordFloater::operator=(const LLCoordFloater& other)
+{
+	mFloater = other.mFloater;
+	coord_t::operator =(other);
+	return *this;
+}
+
+void LLCoordFloater::setFloater(LLFloater& floater)
+{
+	mFloater = floater.getHandle();
+}
+
+bool LLCoordFloater::operator==(const LLCoordFloater& other) const 
+{ 
+	return mX == other.mX && mY == other.mY && mFloater == other.mFloater; 
+}
+
+LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
+{
+	const LLCoordFloater& self = static_cast<const LLCoordFloater&>(*this);
+	return LLCoordCommon(self.mX, self.mY);
+}
+
+void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordFloater& self = static_cast<LLCoordFloater&>(*this);
+	self.mX = from.mX;
+	self.mY = from.mY;
+}
