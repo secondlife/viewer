@@ -60,7 +60,7 @@ uniform vec4 glow;
 
 uniform vec4 cloud_color;
 
-uniform vec4 cloud_scale;
+uniform float cloud_scale;
 
 void main()
 {
@@ -169,7 +169,7 @@ void main()
 	// Texture coords
 	vary_texcoord0 = texcoord0;
 	vary_texcoord0.xy -= 0.5;
-	vary_texcoord0.xy /= cloud_scale.x;
+	vary_texcoord0.xy /= cloud_scale;
 	vary_texcoord0.xy += 0.5;
 
 	vary_texcoord1 = vary_texcoord0;

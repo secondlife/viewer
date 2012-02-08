@@ -75,9 +75,9 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 			stop_glerror();
 		}
 		else if (param == "cloud_scale" || param == "cloud_shadow" ||
-				 param == "density_multiplier" ||
+				 param == "density_multiplier" || param == "distance_multiplier" ||
 				 param == "haze_density" || param == "haze_horizon" ||
-				 param == "max_y")
+				 param == "max_y" )
 		{
 			F32 val = (F32) i->second[0].asReal();
 
