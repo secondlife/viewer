@@ -30,8 +30,10 @@
 
 #include "v3math.h"
 #include "lluuid.h"
+#include "llavatarname.h"
 
 class LLSD;
+class LLAvatarName;
 
 class LLPathfindingCharacter
 {
@@ -45,19 +47,20 @@ public:
 	inline const LLUUID&      getUUID() const                     {return mUUID;};
 	inline const std::string& getName() const                     {return mName;};
 	inline const std::string& getDescription() const              {return mDescription;};
-	inline const std::string& getOwner() const                    {return mOwner;};
+	inline const std::string  getOwnerName() const                {return mOwnerName.getCompleteName();};
 	inline U32                getCPUTime() const                  {return mCPUTime;};
 	inline const LLVector3&   getLocation() const                 {return mLocation;};
 
 protected:
 
 private:
-	LLUUID      mUUID;
-	std::string mName;
-	std::string mDescription;
-	std::string mOwner;
-	U32         mCPUTime;
-	LLVector3   mLocation;
+	LLUUID       mUUID;
+	std::string  mName;
+	std::string  mDescription;
+	LLUUID       mOwnerUUID;
+	LLAvatarName mOwnerName;
+	U32          mCPUTime;
+	LLVector3    mLocation;
 };
 
 #endif // LL_LLPATHFINDINGCHARACTER_H

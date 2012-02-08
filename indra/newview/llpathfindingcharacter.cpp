@@ -30,6 +30,8 @@
 #include "llsd.h"
 #include "v3math.h"
 #include "lluuid.h"
+#include "llavatarname.h"
+#include "llavatarnamecache.h"
 
 #define CHARACTER_NAME_FIELD          "name"
 #define CHARACTER_DESCRIPTION_FIELD   "description"
@@ -45,7 +47,8 @@ LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const L
 	: mUUID(pUUID),
 	mName(),
 	mDescription(),
-	mOwner(),
+	mOwnerUUID(),
+	mOwnerName(),
 	mCPUTime(0U),
 	mLocation()
 {
@@ -58,8 +61,9 @@ LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const L
 	mDescription = pCharacterItem.get(CHARACTER_DESCRIPTION_FIELD).asString();
 
 	llassert(pCharacterItem.has(CHARACTER_OWNER_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_OWNER_FIELD).isString());
-	mOwner = pCharacterItem.get(CHARACTER_OWNER_FIELD).asString();
+	llassert(pCharacterItem.get(CHARACTER_OWNER_FIELD).isUUID());
+	mOwnerUUID = pCharacterItem.get(CHARACTER_OWNER_FIELD).asUUID();
+	LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
 
 	llassert(pCharacterItem.has(CHARACTER_CPU_TIME_FIELD));
 	llassert(pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).isInteger());
@@ -75,7 +79,8 @@ LLPathfindingCharacter::LLPathfindingCharacter(const LLPathfindingCharacter& pOt
 	: mUUID(pOther.mUUID),
 	mName(pOther.mName),
 	mDescription(pOther.mDescription),
-	mOwner(pOther.mOwner),
+	mOwnerUUID(pOther.mOwnerUUID),
+	mOwnerName(pOther.mOwnerName),
 	mCPUTime(pOther.mCPUTime),
 	mLocation(pOther.mLocation)
 {
@@ -90,7 +95,8 @@ LLPathfindingCharacter& LLPathfindingCharacter::operator =(const LLPathfindingCh
 	mUUID = pOther.mUUID;
 	mName = pOther.mName;
 	mDescription = pOther.mDescription;
-	mOwner = pOther.mOwner;
+	mOwnerUUID = pOther.mOwnerUUID;
+	mOwnerName = pOther.mOwnerName;
 	mCPUTime = pOther.mCPUTime;
 	mLocation = pOther.mLocation;
 

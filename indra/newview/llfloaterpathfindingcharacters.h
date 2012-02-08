@@ -34,6 +34,7 @@
 #include "llhandle.h"
 #include "llfloater.h"
 #include "llpathfindingcharacter.h"
+#include "llselectmgr.h"
 
 class LLSD;
 class LLTextBase;
@@ -84,6 +85,7 @@ private:
 	LLButton                                     *mReturnBtn;
 	LLButton                                     *mDeleteBtn;
 	LLButton                                     *mTeleportBtn;
+	LLObjectSelectionHandle                      mSelection;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.

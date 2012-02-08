@@ -43,6 +43,9 @@
 #include "llviewerregion.h"
 #include "llhttpclient.h"
 #include "lluuid.h"
+#include "llviewerobject.h"
+#include "llviewerobjectlist.h"
+#include "llselectmgr.h"
 
 //---------------------------------------------------------------------------
 // CharactersGetResponder
@@ -159,7 +162,8 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
 	mTakeCopyBtn(NULL),
 	mReturnBtn(NULL),
 	mDeleteBtn(NULL),
-	mTeleportBtn(NULL)
+	mTeleportBtn(NULL),
+	mSelection()
 {
 	mSelfHandle.bind(this);
 }
@@ -167,6 +171,7 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
 LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
 	mPathfindingCharacters.clear();
+	mSelection.clear();
 }
 
 void LLFloaterPathfindingCharacters::sendCharactersDataGetRequest()
@@ -263,6 +268,35 @@ void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagin
 
 void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
 {
+	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
+
+	LLSelectMgr::getInstance()->deselectAll();
+	if (!selectedItems.empty())
+	{
+		int numSelectedItems = selectedItems.size();
+
+		std::vector<LLViewerObject *> viewerObjects;
+		viewerObjects.reserve(numSelectedItems);
+
+		for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+			selectedItemIter != selectedItems.end(); ++selectedItemIter)
+		{
+			const LLScrollListItem *selectedItem = *selectedItemIter;
+
+			LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
+			if (viewerObject != NULL)
+			{
+				viewerObject->setSelected(true);
+				viewerObjects.push_back(viewerObject);
+			}
+		}
+
+		if (!viewerObjects.empty())
+		{
+			mSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
+		}
+	}
+
 	updateCharactersStatusMessage();
 	updateActionFields();
 }
@@ -347,7 +381,7 @@ void LLFloaterPathfindingCharacters::updateCharactersList()
 		columns[1]["font"] = "SANSSERIF";
 
 		columns[2]["column"] = "owner";
-		columns[2]["value"] = character.getOwner();
+		columns[2]["value"] = character.getOwnerName();
 		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "cpu_time";
