@@ -1105,14 +1105,26 @@
         <string>llphysicsextensions</string>
         <key>platforms</key>
         <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>55c73842cd5b97fa84ef9ad93ffd26e8</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_lion/rev/249092/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120208.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>51509a8f59209b0a41a0a81caff72eb8</string>
+              <string>6f1904cb3adbfc4a1a382d3a39d3f05a</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/249056/arch/Linux/installer/llphysicsextensions-0.1-linux-20120207.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/249092/arch/Linux/installer/llphysicsextensions-0.1-linux-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1122,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1d80161144228c516ec7949db52a2005</string>
+              <string>a561735a0d9a83bb7d59ef21a51b60ba</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/249056/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120207.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/249092/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1849,10 +1861,6 @@
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration Debug</string>
@@ -1903,10 +1911,6 @@
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration RelWithDebInfo</string>
@@ -1959,10 +1963,6 @@
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
-                <key>filters</key>
-                <array>
-                  <string>setenv</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration Release</string>
