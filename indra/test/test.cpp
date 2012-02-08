@@ -64,6 +64,7 @@
 #pragma warning (pop)
 #endif
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
@@ -115,11 +116,11 @@ public:
 	}
 
 	virtual void group_started(const std::string& name) {
-		std::cout << "Unit test group_started name=" << name << std::endl;
+		*mStream << "Unit test group_started name=" << name << std::endl;
 	}
 
 	virtual void group_completed(const std::string& name) {
-		std::cout << "Unit test group_completed name=" << name << std::endl;
+		*mStream << "Unit test group_completed name=" << name << std::endl;
 	}
 
 	virtual void test_completed(const tut::test_result& tr)
@@ -408,7 +409,7 @@ int main(int argc, char **argv)
 	apr_getopt_t* os = NULL;
 	if(APR_SUCCESS != apr_getopt_init(&os, pool, argc, argv))
 	{
-		std::cerr << "Unable to  pool" << std::endl;
+		std::cerr << "apr_getopt_init() failed" << std::endl;
 		return 1;
 	}
 
@@ -422,7 +423,7 @@ int main(int argc, char **argv)
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
 	int opt_id = 0;
-	std::ofstream *output = NULL;
+	boost::scoped_ptr<std::ofstream> output;
 	const char *touch = NULL;
 
 	while(true)
@@ -452,7 +453,7 @@ int main(int argc, char **argv)
 				verbose_mode = true;
 				break;
 			case 'o':
-				output = new std::ofstream;
+				output.reset(new std::ofstream);
 				output->open(opt_arg);
 				break;
 			case 's':	// --sourcedir
@@ -486,11 +487,11 @@ int main(int argc, char **argv)
 	LLTestCallback* mycallback;
 	if (getenv("TEAMCITY_PROJECT_NAME"))
 	{
-		mycallback = new LLTCTestCallback(verbose_mode, output);		
+		mycallback = new LLTCTestCallback(verbose_mode, output.get());		
 	}
 	else
 	{
-		mycallback = new LLTestCallback(verbose_mode, output);
+		mycallback = new LLTestCallback(verbose_mode, output.get());
 	}
 
 	tut::runner.get().set_callback(mycallback);
@@ -510,12 +511,6 @@ int main(int argc, char **argv)
 	{
 		std::cerr << "Press return to exit..." << std::endl;
 		std::cin.get();
-	}
-
-	if (output)
-	{
-		output->close();
-		delete output;
 	}
 
 	if (touch && success)
