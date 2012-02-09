@@ -90,9 +90,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9868bfa0b6954e4884c49c6f30068c80</string>
+              <string>6e5172597f00380b5004b8a7911098b7</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.4.2-darwin-20110217.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/249125/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -114,9 +114,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>73785c200a5b4ef74a1230b028bb680d</string>
+              <string>a596a9974ae6bfe48dc61a2cd13bc321</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.4.2-windows-20110217.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/249125/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120208.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
