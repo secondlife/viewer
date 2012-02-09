@@ -2078,6 +2078,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mFaceMask = 0x0;
 	mDetail = detail;
 	mSculptLevel = -2;
+	mSurfaceArea = 1.f; //only calculated for sculpts, defaults to 1 for all other prims
 	mIsMeshAssetLoaded = FALSE;
 	mLODScaleBias.setVec(1,1,1);
 	mHullPoints = NULL;
@@ -3143,6 +3144,8 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		if (mDetail > SCULPT_MIN_AREA_DETAIL)
 		{
 			F32 area = sculptGetSurfaceArea();
+
+			mSurfaceArea = area;
 
 			const F32 SCULPT_MAX_AREA = 384.f;
 

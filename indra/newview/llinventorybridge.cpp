@@ -73,7 +73,7 @@
 #include "llwearablelist.h"
 
 // Marketplace outbox current disabled
-#define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	1
+#define ENABLE_MERCHANT_OUTBOX_CONTEXT_MENU	0
 #define ENABLE_MERCHANT_SEND_TO_MARKETPLACE_CONTEXT_MENU 0
 #define BLOCK_WORN_ITEMS_IN_OUTBOX 1
 
@@ -3711,9 +3711,9 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// If an item is being dragged between windows, unselect everything in the active window 
 			// so that we don't follow the selection to its new location (which is very annoying).
 			if (active_panel && (destination_panel != active_panel))
-			{
-				active_panel->unSelectAll();
-			}
+				{
+					active_panel->unSelectAll();
+				}
 
 			//--------------------------------------------------------------------------------
 			// Destination folder logic

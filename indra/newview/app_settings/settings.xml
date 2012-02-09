@@ -1828,6 +1828,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CurlMaximumNumberOfHandles</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of handles curl can use (requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>256</integer>
+  </map>
+  <key>CurlRequestTimeOut</key>
+  <map>
+    <key>Comment</key>
+    <string>Max idle time of a curl request before killed (requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>120.0</real>
+  </map>
   <key>CurlUseMultipleThreads</key>
   <map>
     <key>Comment</key>
@@ -9068,6 +9090,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderAutoMuteByteLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum bytes of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAutoMuteSurfaceAreaLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>RenderUseShaderLOD</key>
     <map>
       <key>Comment</key>

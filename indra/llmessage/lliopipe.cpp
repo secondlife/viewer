@@ -75,6 +75,12 @@ LLIOPipe::~LLIOPipe()
 	//lldebugs << "destroying LLIOPipe" << llendl;
 }
 
+//virtual 
+bool LLIOPipe::isValid() 
+{
+	return true ;
+}
+
 // static
 std::string LLIOPipe::lookupStatusString(EStatus status)
 {

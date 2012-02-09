@@ -5520,11 +5520,12 @@ void LLViewerObject::dirtyMesh()
 {
 	if (mDrawable)
 	{
-		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
+		/*LLSpatialGroup* group = mDrawable->getSpatialGroup();
 		if (group)
 		{
 			group->dirtyMesh();
-		}
+		}*/
 	}
 }
 
