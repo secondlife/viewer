@@ -31,6 +31,7 @@
 #include "llstring.h"
 #include "stringize.h"
 #include "llapr.h"
+#include "apr_signal.h"
 
 #include <boost/foreach.hpp>
 #include <iostream>
@@ -274,9 +275,9 @@ std::string LLProcess::getStatusString(const std::string& desc, const Status& st
 #if LL_WINDOWS
 		return STRINGIZE(desc << " killed with exception " << std::hex << status.mData);
 #else
-		return STRINGIZE(desc << " killed by signal " << status.mData);
+		return STRINGIZE(desc << " killed by signal " << status.mData
+						 << " (" << apr_signal_description_get(status.mData) << ")");
 #endif
-
 
 	return STRINGIZE(desc << " in unknown state " << status.mState << " (" << status.mData << ")");
 }
@@ -391,72 +392,9 @@ std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 
 static std::string WindowsErrorString(const std::string& operation);
 
-/**
- * Wrap a Windows Job Object for use in managing child-process lifespan.
- *
- * On Windows, we use a Job Object to constrain the lifespan of any
- * autokill=true child process to the viewer's own lifespan:
- * http://stackoverflow.com/questions/53208/how-do-i-automatically-destroy-child-processes-in-windows
- * (thanks Richard!).
- *
- * We manage it using an LLSingleton for a couple of reasons:
- *
- * # Lazy initialization: if some viewer session never launches a child
- *   process, we should never have to create a Job Object.
- * # Cross-DLL support: be wary of C++ statics when multiple DLLs are
- *   involved.
- */
-class LLJob: public LLSingleton<LLJob>
-{
-public:
-	void assignProcess(const std::string& prog, LLProcess::handle hProcess)
-	{
-		// If we never managed to initialize this Job Object, can't use it --
-		// but don't keep spamming the log, we already emitted warnings when
-		// we first tried to create.
-		if (! mJob)
-			return;
-
-		if (! AssignProcessToJobObject(mJob, hProcess))
-		{
-			LL_WARNS("LLProcess") << WindowsErrorString(STRINGIZE("AssignProcessToJobObject("
-																  << prog << ")")) << LL_ENDL;
-		}
-	}
-
-private:
-	friend class LLSingleton<LLJob>;
-	LLJob():
-		mJob(0)
-	{
-		mJob = CreateJobObject(NULL, NULL);
-		if (! mJob)
-		{
-			LL_WARNS("LLProcess") << WindowsErrorString("CreateJobObject()") << LL_ENDL;
-			return;
-		}
-
-		JOBOBJECT_EXTENDED_LIMIT_INFORMATION jeli = { 0 };
-
-		// Configure all child processes associated with this new job object
-		// to terminate when the calling process (us!) terminates.
-		jeli.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
-		if (! SetInformationJobObject(mJob, JobObjectExtendedLimitInformation, &jeli, sizeof(jeli)))
-		{
-			LL_WARNS("LLProcess") << WindowsErrorString("SetInformationJobObject()") << LL_ENDL;
-			// This Job Object is useless to us
-			CloseHandle(mJob);
-			// prevent assignProcess() from trying to use it
-			mJob = 0;
-		}
-	}
-
-	LLProcess::handle mJob;
-};
-
 void LLProcess::autokill()
 {
-	LLJob::instance().assignProcess(mDesc, mProcess.hproc);
+	// hopefully now handled by apr_procattr_autokill_set()
 }
 
 LLProcess::handle LLProcess::isRunning(handle h, const std::string& desc)
