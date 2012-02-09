@@ -64,6 +64,13 @@ public:
 	virtual BOOL postBuild();
 };
 
+class LLFloaterAnimPreview : public LLFloaterNameDesc
+{
+public:
+	LLFloaterAnimPreview(const LLSD& filename );
+	virtual BOOL postBuild();
+};
+
 class LLFloaterScriptPreview : public LLFloaterNameDesc
 {
 public:
