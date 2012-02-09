@@ -64,6 +64,7 @@ public:
 
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
+	virtual void onClose(bool app_quitting);
 
 	EMessagingState getMessagingState() const;
 	BOOL            isMessagingInProgress() const;
@@ -85,7 +86,7 @@ private:
 	LLButton                                     *mReturnBtn;
 	LLButton                                     *mDeleteBtn;
 	LLButton                                     *mTeleportBtn;
-	LLObjectSelectionHandle                      mSelection;
+	LLObjectSelectionHandle                      mCharacterSelection;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.

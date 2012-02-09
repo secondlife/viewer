@@ -45,6 +45,7 @@
 #include "lluuid.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
+#include "llviewermenu.h"
 #include "llselectmgr.h"
 
 //---------------------------------------------------------------------------
@@ -81,7 +82,6 @@ BOOL LLFloaterPathfindingCharacters::postBuild()
 	mCharactersScrollList = findChild<LLScrollListCtrl>("pathfinding_characters");
 	llassert(mCharactersScrollList != NULL);
 	mCharactersScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onCharactersSelectionChange, this));
-	mCharactersScrollList->setCommitOnSelectionChange(true);
 	mCharactersScrollList->sortByColumnIndex(0, true);
 
 	mCharactersStatus = findChild<LLTextBase>("characters_status");
@@ -123,6 +123,35 @@ BOOL LLFloaterPathfindingCharacters::postBuild()
 void LLFloaterPathfindingCharacters::onOpen(const LLSD& pKey)
 {
 	sendCharactersDataGetRequest();
+	selectNoneCharacters();
+	mCharactersScrollList->setCommitOnSelectionChange(true);
+}
+
+void LLFloaterPathfindingCharacters::onClose(bool app_quitting)
+{
+	mCharactersScrollList->setCommitOnSelectionChange(false);
+	selectNoneCharacters();
+	if (mCharacterSelection.notNull())
+	{
+		std::vector<LLViewerObject *> selectedObjects;
+
+		LLObjectSelection *charactersSelected = mCharacterSelection.get();
+		for (LLObjectSelection::valid_iterator characterIter = charactersSelected->valid_begin();
+			characterIter != charactersSelected->valid_end();  ++characterIter)
+		{
+			LLSelectNode *characterNode = *characterIter;
+			selectedObjects.push_back(characterNode->getObject());
+		}
+
+		for (std::vector<LLViewerObject *>::const_iterator selectedObjectIter = selectedObjects.begin();
+			selectedObjectIter != selectedObjects.end(); ++selectedObjectIter)
+		{
+			LLViewerObject *selectedObject = *selectedObjectIter;
+			LLSelectMgr::getInstance()->deselectObjectAndFamily(selectedObject);
+		}
+
+		mCharacterSelection.clear();
+	}
 }
 
 LLFloaterPathfindingCharacters::EMessagingState LLFloaterPathfindingCharacters::getMessagingState() const
@@ -163,7 +192,7 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
 	mReturnBtn(NULL),
 	mDeleteBtn(NULL),
 	mTeleportBtn(NULL),
-	mSelection()
+	mCharacterSelection()
 {
 	mSelfHandle.bind(this);
 }
@@ -171,7 +200,7 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
 LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
 	mPathfindingCharacters.clear();
-	mSelection.clear();
+	mCharacterSelection.clear();
 }
 
 void LLFloaterPathfindingCharacters::sendCharactersDataGetRequest()
@@ -268,10 +297,10 @@ void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagin
 
 void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
 {
-#if 0
-	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-
+	mCharacterSelection.clear();
 	LLSelectMgr::getInstance()->deselectAll();
+
+	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
 	if (!selectedItems.empty())
 	{
 		int numSelectedItems = selectedItems.size();
@@ -287,17 +316,15 @@ void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
 			LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
 			if (viewerObject != NULL)
 			{
-				viewerObject->setSelected(true);
 				viewerObjects.push_back(viewerObject);
 			}
 		}
 
 		if (!viewerObjects.empty())
 		{
-			mSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
+			mCharacterSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
 		}
 	}
-#endif
 
 	updateCharactersStatusMessage();
 	updateActionFields();
