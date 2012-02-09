@@ -2458,7 +2458,10 @@ void LLIMMgr::addMessage(
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat))
+	bool skip_message = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") &&
+		LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);
+
+	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
 		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
