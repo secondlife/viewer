@@ -73,9 +73,14 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	// save currently focused view, so that return focus to it
 	// on destroying this toast.
 	LLView* current_selection = dynamic_cast<LLView*>(gFocusMgr.getKeyboardFocus());
-	if (current_selection)
+	while(current_selection)
 	{
-		mPreviouslyFocusedView = current_selection->getHandle();
+		if (current_selection->isFocusRoot())
+		{
+			mPreviouslyFocusedView = current_selection->getHandle();
+			break;
+		}
+		current_selection = current_selection->getParent();
 	}
 
 	const LLFontGL* font = LLFontGL::getFontSansSerif();
@@ -422,7 +427,7 @@ LLToastAlertPanel::~LLToastAlertPanel()
 	// return focus to the previously focused view
 	if (mPreviouslyFocusedView.get())
 	{
-		gFocusMgr.setKeyboardFocus(mPreviouslyFocusedView.get());
+		mPreviouslyFocusedView.get()->setFocus(TRUE);
 	}
 }
 
