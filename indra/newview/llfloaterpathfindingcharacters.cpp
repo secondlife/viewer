@@ -352,12 +352,12 @@ void LLFloaterPathfindingCharacters::onShowBeaconToggled()
 
 void LLFloaterPathfindingCharacters::onTakeCharactersClicked()
 {
-	llwarns << "functionality has not yet been implemented to take characters" << llendl;
+	handle_take();
 }
 
 void LLFloaterPathfindingCharacters::onTakeCopyCharactersClicked()
 {
-	llwarns << "functionality has not yet been implemented to take a copy of characters" << llendl;
+	handle_take_copy();
 }
 
 void LLFloaterPathfindingCharacters::onReturnCharactersClicked()
@@ -367,7 +367,7 @@ void LLFloaterPathfindingCharacters::onReturnCharactersClicked()
 
 void LLFloaterPathfindingCharacters::onDeleteCharactersClicked()
 {
-	llwarns << "functionality has not yet been implemented to delete characters" << llendl;
+	handle_object_delete();
 }
 
 void LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked()
@@ -532,10 +532,10 @@ void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 {
 	mLabelActions->setEnabled(pEnabled);
 	mShowBeaconCheckBox->setEnabled(false && pEnabled);
-	mTakeBtn->setEnabled(false && pEnabled);
-	mTakeCopyBtn->setEnabled(false && pEnabled);
+	mTakeBtn->setEnabled(true && pEnabled);
+	mTakeCopyBtn->setEnabled(true && pEnabled);
 	mReturnBtn->setEnabled(false && pEnabled);
-	mDeleteBtn->setEnabled(false && pEnabled);
+	mDeleteBtn->setEnabled(true && pEnabled);
 	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
 }
 

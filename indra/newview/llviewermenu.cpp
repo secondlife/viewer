@@ -197,7 +197,6 @@ void near_sit_object();
 BOOL is_selection_buy_not_take();
 S32 selection_price();
 BOOL enable_take();
-void handle_take();
 void handle_object_show_inspector();
 void handle_avatar_show_inspector();
 bool confirm_take(const LLSD& notification, const LLSD& response);
