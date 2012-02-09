@@ -997,7 +997,7 @@ void LLFloaterPreference::refreshDictLists(bool from_settings)
 		for (LLSD::array_const_iterator dict_it = dict_map.beginArray(); dict_it != dict_map.endArray(); ++dict_it)
 		{
 			const LLSD& dict = *dict_it;
-			if ( (dict["installed"].asBoolean()) && (dict.has("language")) )
+			if ( (dict["installed"].asBoolean()) && (dict["is_primary"].asBoolean()) && (dict.has("language")) )
 				dict_combo->add(dict["language"].asString());
 		}
 		if (!dict_combo->selectByValue(dict_cur))

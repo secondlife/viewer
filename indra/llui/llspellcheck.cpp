@@ -122,9 +122,7 @@ void LLSpellChecker::refreshDictionaryMap()
 		tmp_app_path = (sdDict.has("name")) ? app_path + sdDict["name"].asString() : LLStringUtil::null;
 		tmp_user_path = (sdDict.has("name")) ? user_path + sdDict["name"].asString() : LLStringUtil::null;
 		sdDict["installed"] = 
-			(!tmp_app_path.empty()) && 
-			( ((gDirUtilp->fileExists(tmp_user_path + ".aff")) && (gDirUtilp->fileExists(tmp_user_path + ".dic"))) ||
-			  ((gDirUtilp->fileExists(tmp_app_path + ".aff")) && (gDirUtilp->fileExists(tmp_app_path + ".dic"))) );
+			(!tmp_app_path.empty()) && ((gDirUtilp->fileExists(tmp_user_path + ".dic")) || (gDirUtilp->fileExists(tmp_app_path + ".dic")));
 		sdDict["has_custom"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_CUSTOM_SUFFIX + ".dic"));
 		sdDict["has_ignore"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_IGNORE_SUFFIX + ".dic"));
 	}
@@ -243,7 +241,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 	}
 
 	const LLSD dict_entry = (!dict_name.empty()) ? getDictionaryData(dict_name) : LLSD();
-	if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
+	if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) || (!dict_entry["is_primary"].asBoolean()))
 	{
 		sSettingsChangeSignal();
 		return;
