@@ -160,6 +160,31 @@ void change_category_parent(LLInventoryModel* model,
 	model->notifyObservers();
 }
 
+// Move the item to the trash. Works for folders and objects.
+// Caution: This method assumes that the item is removable!
+void remove_item(LLInventoryModel* model, const LLUUID& id)
+{
+	LLViewerInventoryItem* item = model->getItem(id);
+	if (!item)
+		return;
+	
+	if (item->getType() == LLAssetType::AT_CATEGORY)
+	{
+		// Call the general helper function to delete a folder
+		remove_category(model, id);
+	}
+	else
+	{
+		// Get the trash UUID
+		LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
+		if (trash_id.notNull())
+		{
+			// Finally, move the item to the trash
+			change_item_parent(model, item, trash_id, true);
+		}
+	}
+}
+
 void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
 {
 	if (!model || !get_is_category_removable(model, cat_id))

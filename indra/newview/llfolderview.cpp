@@ -1014,6 +1014,24 @@ bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFol
 	return false;
 }
 
+void LLFolderView::removeCutItems()
+{
+	// There's no item in "cut" mode on the clipboard -> exit
+	if (!LLClipboard::getInstance()->isCutMode())
+		return;
+
+	// Get the list of clipboard item uuids and iterate through them
+	LLDynamicArray<LLUUID> objects;
+	LLClipboard::getInstance()->pasteFromClipboard(objects);
+	for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+		 iter != objects.end();
+		 ++iter)
+	{
+		const LLUUID& item_id = (*iter);
+		remove_item(&gInventory, item_id);
+	}
+}
+
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -2109,7 +2127,12 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		return true;
 	}
 	if (("copy" == action) || ("cut" == action))
-	{	
+	{
+		// If there are things on the clipboard that have not been pasted but 
+		// already disappeared from view, we need to move them to the trash
+		removeCutItems();
+		
+		// Clear the clipboard before we start adding things on it
 		LLClipboard::getInstance()->reset();
 	}
 

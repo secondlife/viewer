@@ -62,6 +62,8 @@ void change_item_parent(LLInventoryModel* model,
 									 const LLUUID& new_parent_id,
 									 BOOL restamp);
 
+void remove_item(LLInventoryModel* model, const LLUUID& id);
+
 void change_category_parent(LLInventoryModel* model,
 	LLViewerInventoryCategory* cat,
 	const LLUUID& new_parent_id,
