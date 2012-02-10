@@ -42,6 +42,11 @@ import errno
 import subprocess
 
 class ManifestError(RuntimeError):
+    """Use an exception more specific than generic Python RuntimeError"""
+    pass
+
+class MissingError(ManifestError):
+    """You specified a file that doesn't exist"""
     pass
 
 def path_ancestors(path):
@@ -604,16 +609,12 @@ class LLManifest(object):
 
     def check_file_exists(self, path):
         if not os.path.exists(path) and not os.path.islink(path):
-            raise ManifestError("Path %s doesn't exist" % (os.path.abspath(path),))
+            raise MissingError("Path %s doesn't exist" % (os.path.abspath(path),))
 
 
     wildcard_pattern = re.compile(r'\*')
     def expand_globs(self, src, dst):
         src_list = glob.glob(src)
-        # Assume that if caller specifies a wildcard, s/he wants it to match
-        # at least one file...
-        if not src_list:
-            raise ManifestError("Path %s doesn't exist" % (os.path.abspath(src),))
         src_re, d_template = self.wildcard_regex(src.replace('\\', '/'),
                                                  dst.replace('\\', '/'))
         for s in src_list:
@@ -646,13 +647,23 @@ class LLManifest(object):
                 else:
                     count += self.process_file(src, dst)
             return count
-        try:
-            count = try_path(os.path.join(self.get_src_prefix(), src))
-        except ManifestError:
+
+        for pfx in self.get_src_prefix(), self.get_artwork_prefix(), self.get_build_prefix():
             try:
-                count = try_path(os.path.join(self.get_artwork_prefix(), src))
-            except ManifestError:
-                count = try_path(os.path.join(self.get_build_prefix(), src))
+                count = try_path(os.path.join(pfx, src))
+            except MissingError:
+                # If src isn't a wildcard, and if that file doesn't exist in
+                # this pfx, try next pfx.
+                count = 0
+                continue
+
+            # Here try_path() didn't raise MissingError. Did it process any files?
+            if count:
+                break
+            # Even though try_path() didn't raise MissingError, it returned 0
+            # files. src is probably a wildcard meant for some other pfx. Loop
+            # back to try the next.
+
         print "%d files" % count
 
     def do(self, *actions):
