@@ -5010,6 +5010,12 @@ class LLEditDelete : public view_listener_t
 	}
 };
 
+bool enable_object_return()
+{
+	return (!LLSelectMgr::getInstance()->getSelection()->isEmpty() &&
+		(gAgent.isGodlike() || can_derez(DRD_RETURN_TO_OWNER)));
+}
+
 bool enable_object_delete()
 {
 	bool new_value = 
@@ -5023,6 +5029,49 @@ bool enable_object_delete()
 	LLSelectMgr::getInstance()->canDoDelete();
 #endif
 	return new_value;
+}
+
+class LLObjectsReturnPackage
+{
+public:
+	LLObjectsReturnPackage() : mObjectSelection(), mReturnableObjects(), mError(),	mFirstRegion(NULL) {};
+	~LLObjectsReturnPackage()
+	{
+		mObjectSelection.clear();
+		mReturnableObjects.clear();
+		mError.clear();
+		mFirstRegion = NULL;
+	};
+
+	LLObjectSelectionHandle mObjectSelection;
+	LLDynamicArray<LLViewerObjectPtr> mReturnableObjects;
+	std::string mError;
+	LLViewerRegion *mFirstRegion;
+};
+
+static void return_objects(LLObjectsReturnPackage *objectsReturnPackage, const LLSD& notification, const LLSD& response)
+{
+	if (LLNotificationsUtil::getSelectedOption(notification, response) == 0)
+	{
+		// Ignore category ID for this derez destination.
+		derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null, objectsReturnPackage->mFirstRegion, objectsReturnPackage->mError, &objectsReturnPackage->mReturnableObjects);
+	}
+
+	delete objectsReturnPackage;
+}
+
+void handle_object_return()
+{
+	if (!LLSelectMgr::getInstance()->getSelection()->isEmpty())
+	{
+		LLObjectsReturnPackage *objectsReturnPackage = new LLObjectsReturnPackage();
+		objectsReturnPackage->mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+
+		// Save selected objects, so that we still know what to return after the confirmation dialog resets selection.
+		get_derezzable_objects(DRD_RETURN_TO_OWNER, objectsReturnPackage->mError, objectsReturnPackage->mFirstRegion, &objectsReturnPackage->mReturnableObjects);
+
+		LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&return_objects, objectsReturnPackage, _1, _2));
+	}
 }
 
 void handle_object_delete()

@@ -356,7 +356,7 @@ void LLFloaterPathfindingCharacters::onTakeCopyCharactersClicked()
 
 void LLFloaterPathfindingCharacters::onReturnCharactersClicked()
 {
-	llwarns << "functionality has not yet been implemented to return characters" << llendl;
+	handle_object_return();
 }
 
 void LLFloaterPathfindingCharacters::onDeleteCharactersClicked()
@@ -528,7 +528,7 @@ void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 	mShowBeaconCheckBox->setEnabled(pEnabled);
 	mTakeBtn->setEnabled(pEnabled && tools_visible_take_object());
 	mTakeCopyBtn->setEnabled(pEnabled && enable_object_take_copy());
-	mReturnBtn->setEnabled(false && pEnabled);
+	mReturnBtn->setEnabled(pEnabled && enable_object_return());
 	mDeleteBtn->setEnabled(pEnabled && enable_object_delete());
 	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
 }

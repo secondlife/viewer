@@ -96,6 +96,7 @@ void handle_object_open();
 bool visible_take_object();
 bool tools_visible_take_object();
 bool enable_object_take_copy();
+bool enable_object_return();
 bool enable_object_delete();
 
 // Buy either contents or object itself
@@ -104,6 +105,7 @@ void handle_take();
 void handle_take_copy();
 void handle_look_at_selection(const LLSD& param);
 void handle_zoom_to_object(LLUUID object_id);
+void handle_object_return();
 void handle_object_delete();
 
 void handle_buy_land();
