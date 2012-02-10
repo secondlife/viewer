@@ -9619,18 +9619,29 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowConsoleWindow</key>
-    <map>
-      <key>Comment</key>
-      <string>Show log in separate OS window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>NavBarShowCoordinates</key>
+  <key>ShowConsoleWindow</key>
+  <map>
+    <key>Comment</key>
+    <string>Show log in separate OS window</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>EnableVisualLeakDetector</key>
+  <map>
+    <key>Comment</key>
+    <string>EnableVisualLeakDetector</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
       <string>Show coordinates in navigation bar</string>
