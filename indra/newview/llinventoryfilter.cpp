@@ -240,12 +240,26 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 
 	////////////////////////////////////////////////////////////////////////////////
 	// FILTERTYPE_CLIPBOARD
-	// Pass if this item is not on the clipboard
+	// Pass if this item is not on the clipboard or is not a descendant of a folder 
+	// which is on the clipboard
 	if (filterTypes & FILTERTYPE_CLIPBOARD)
 	{
-		if (LLClipboard::getInstance()->isCutMode() && LLClipboard::getInstance()->isOnClipboard(object_id))
+		if (LLClipboard::getInstance()->isCutMode())
 		{
-			return FALSE;
+			LLUUID current_id = object_id;
+			LLInventoryObject *current_object = gInventory.getObject(object_id);
+			while (current_id.notNull())
+			{
+				if (LLClipboard::getInstance()->isOnClipboard(current_id))
+				{
+					return FALSE;
+				}
+				current_id = current_object->getParentUUID();
+				if (current_id.notNull())
+				{
+					current_object = gInventory.getObject(current_id);
+				}
+			}
 		}
 	}
 		
@@ -307,6 +321,31 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 		if (item->getCreationDate() < earliest ||
 			item->getCreationDate() > mFilterOps.mMaxDate)
 			return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_CLIPBOARD
+	// Pass if this item is not on the clipboard or is not a descendant of a folder 
+	// which is on the clipboard
+	if (filterTypes & FILTERTYPE_CLIPBOARD)
+	{
+		if (LLClipboard::getInstance()->isCutMode())
+		{
+			LLUUID current_id = object_id;
+			LLInventoryObject *current_object = gInventory.getObject(object_id);
+			while (current_id.notNull())
+			{
+				if (LLClipboard::getInstance()->isOnClipboard(current_id))
+				{
+					return false;
+				}
+				current_id = current_object->getParentUUID();
+				if (current_id.notNull())
+				{
+					current_object = gInventory.getObject(current_id);
+				}
+			}
+		}
 	}
 
 	return true;

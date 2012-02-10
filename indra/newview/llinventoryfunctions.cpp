@@ -238,6 +238,42 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 	model->notifyObservers();
 }
 
+void copy_inventory_category(LLInventoryModel* model,
+							 LLViewerInventoryCategory* cat,
+							 const LLUUID& parent_id)
+{
+	// Create the initial folder
+	LLUUID new_cat_uuid = gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName());
+	model->notifyObservers();
+
+	// Get the content of the folder
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+
+	// Copy all the items
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+		copy_inventory_item(
+							gAgent.getID(),
+							item->getPermissions().getOwner(),
+							item->getUUID(),
+							new_cat_uuid,
+							std::string(),
+							LLPointer<LLInventoryCallback>(NULL));
+	}
+	
+	// Copy all the folders
+	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	{
+		LLViewerInventoryCategory* category = *iter;
+		copy_inventory_category(model, category, new_cat_uuid);
+	}
+}
+
 class LLInventoryCollectAllItems : public LLInventoryCollectFunctor
 {
 public:
