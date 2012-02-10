@@ -65,6 +65,7 @@ public:
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 	virtual void onClose(bool app_quitting);
+	virtual void draw();
 
 	EMessagingState getMessagingState() const;
 	BOOL            isMessagingInProgress() const;
@@ -108,7 +109,6 @@ private:
 	void onRefreshCharactersClicked();
 	void onSelectAllCharactersClicked();
 	void onSelectNoneCharactersClicked();
-	void onShowBeaconToggled();
 	void onTakeCharactersClicked();
 	void onTakeCopyCharactersClicked();
 	void onReturnCharactersClicked();

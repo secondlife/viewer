@@ -92,7 +92,6 @@ BOOL LLFloaterPathfindingCharacters::postBuild()
 
 	mShowBeaconCheckBox = findChild<LLCheckBoxCtrl>("show_beacon");
 	llassert(mShowBeaconCheckBox != NULL);
-	mShowBeaconCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onShowBeaconToggled, this));
 
 	mTakeBtn = findChild<LLButton>("take_characters");
 	llassert(mTakeBtn != NULL)
@@ -345,11 +344,6 @@ void LLFloaterPathfindingCharacters::onSelectNoneCharactersClicked()
 	selectNoneCharacters();
 }
 
-void LLFloaterPathfindingCharacters::onShowBeaconToggled()
-{
-	llwarns << "functionality has not yet been implemented to toggle show beacon" << llendl;
-}
-
 void LLFloaterPathfindingCharacters::onTakeCharactersClicked()
 {
 	handle_take();
@@ -531,12 +525,43 @@ void LLFloaterPathfindingCharacters::updateActionFields()
 void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 {
 	mLabelActions->setEnabled(pEnabled);
-	mShowBeaconCheckBox->setEnabled(false && pEnabled);
+	mShowBeaconCheckBox->setEnabled(pEnabled);
 	mTakeBtn->setEnabled(pEnabled && tools_visible_take_object());
 	mTakeCopyBtn->setEnabled(pEnabled && enable_object_take_copy());
 	mReturnBtn->setEnabled(false && pEnabled);
 	mDeleteBtn->setEnabled(pEnabled && enable_object_delete());
 	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
+}
+
+void LLFloaterPathfindingCharacters::draw()
+{
+	if (mShowBeaconCheckBox->get())
+	{
+		std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
+		if (!selectedItems.empty())
+		{
+			int numSelectedItems = selectedItems.size();
+
+			std::vector<LLViewerObject *> viewerObjects;
+			viewerObjects.reserve(numSelectedItems);
+
+			for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+				selectedItemIter != selectedItems.end(); ++selectedItemIter)
+			{
+				const LLScrollListItem *selectedItem = *selectedItemIter;
+
+				const std::string &objectName = selectedItem->getColumn(0)->getValue().asString();
+
+				LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
+				if (viewerObject != NULL)
+				{
+					gObjectList.addDebugBeacon(viewerObject->getPositionAgent(), objectName, LLColor4(0.f, 0.f, 1.f, 0.8f), LLColor4(1.f, 1.f, 1.f, 1.f), 6);
+				}
+			}
+		}
+	}
+
+	LLFloater::draw();
 }
 
 //---------------------------------------------------------------------------
