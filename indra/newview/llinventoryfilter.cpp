@@ -282,19 +282,9 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 	// Pass if this item is within the date range.
 	if (filterTypes & FILTERTYPE_DATE)
 	{
-		const U16 HOURS_TO_SECONDS = 3600;
-		time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
-		if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
-		{
-			earliest = mFilterOps.mMinDate;
-		}
-		else if (!mFilterOps.mHoursAgo)
-		{
-			earliest = 0;
-		}
-		if (item->getCreationDate() < earliest ||
-			item->getCreationDate() > mFilterOps.mMaxDate)
-			return false;
+		// We don't get the updated item creation date for the task inventory or
+		// a notecard embedded item. See LLTaskInvFVBridge::getCreationDate().
+		return false;
 	}
 
 	return true;
@@ -548,7 +538,9 @@ void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 		mFilterOps.mMaxDate = llmax(mFilterOps.mMinDate, max_date);
 		setModified();
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
+			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 }
 
 void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
@@ -560,10 +552,12 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 	}
 	if (!sl && isSinceLogoff())
 	{
-		setDateRange(0, time_max());
+		setDateRange(time_min(), time_max());
 		setModified();
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
+			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 }
 
 BOOL LLInventoryFilter::isSinceLogoff() const
@@ -608,7 +602,9 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 			setModified(FILTER_RESTART);
 		}
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
+			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 }
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
@@ -1057,4 +1053,11 @@ const std::string& LLInventoryFilter::getEmptyLookupMessage() const
 {
 	return mEmptyLookupMessage;
 
+}
+
+bool LLInventoryFilter::areDateLimitsSet()
+{
+	return     mFilterOps.mMinDate != time_min()
+			|| mFilterOps.mMaxDate != time_max()
+			|| mFilterOps.mHoursAgo != 0;
 }

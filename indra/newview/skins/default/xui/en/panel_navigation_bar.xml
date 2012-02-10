@@ -70,7 +70,7 @@
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="310"
+           min_width="410"
            name="navigation_layout_panel"
            width="480">
 	        <panel

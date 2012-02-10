@@ -179,6 +179,8 @@ public:
 	void 				fromLLSD(LLSD& data);
 
 private:
+	bool				areDateLimitsSet();
+
 	struct FilterOps
 	{
 		FilterOps();
