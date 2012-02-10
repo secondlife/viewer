@@ -327,8 +327,8 @@ void LLScreenChannel::onToastFade(LLToast* toast)
 		bool delete_toast = !mCanStoreToasts || !toast->getCanBeStored();
 		if(delete_toast)
 		{
-			deleteToast(toast);
 			mToastList.erase(it);
+			deleteToast(toast);
 		}
 		else
 		{
