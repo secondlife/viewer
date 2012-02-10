@@ -866,11 +866,10 @@ void LLLineEditor::addChar(const llwchar uni_char)
 		LLUI::reportBadKeystroke();
 	}
 
-// *TODO implement callback routine
 	if (!mReadOnly && mAutocorrectCallback != NULL)
 	{
 		// call callback
-		// mAutotocorrectCallback(mText&, mCursorPos&);
+		mAutocorrectCallback(mText, mCursorPos);
 	}
 
 	getWindow()->hideCursorUntilMouseMove();

@@ -88,8 +88,7 @@ BOOL LLNearbyChatBar::postBuild()
 {
 	mChatBox = getChild<LLLineEditor>("chat_box");
 
-	// *TODO Establish LineEditor with autocorrect callback
-//	mChatBox->setAutocorrectCallback(boost::bind(&AutoCorrect::autocorrectCallback, _1, _2));
+	mChatBox->setAutocorrectCallback(boost::bind(&AutoCorrect::autocorrectCallback, AutoCorrect::getInstance(), _1, _2));
 	mChatBox->setCommitCallback(boost::bind(&LLNearbyChatBar::onChatBoxCommit, this));
 	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
 	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));

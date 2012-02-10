@@ -56,7 +56,7 @@
 #include "llrootview.h"
 #include "llspeakers.h"
 #include "llviewerchat.h"
-
+#include "llautocorrect.h"
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id),
@@ -251,11 +251,12 @@ BOOL LLIMFloater::postBuild()
 	slide_right->setVisible(!mControlPanel->getParent()->getVisible());
 	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
-	// *TODO Establish LineEditor with autocorrect callback
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
+	// *TODO Establish LineEditor with autocorrect callback
+	mInputEditor->setAutocorrectCallback(boost::bind(&AutoCorrect::autocorrectCallback, AutoCorrect::getInstance(), _1, _2));
 
 	LLFontGL* font = LLViewerChat::getChatFont();
 	mInputEditor->setFont(font);	

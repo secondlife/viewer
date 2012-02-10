@@ -349,7 +349,7 @@ std::string AutoCorrect::replaceWords(std::string words)
 {
 	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
 	if(!(perform_autocorrect))return words;
-	//TODO update this function to use the "wordStyle" thing,
+	//*TODO update this function to use the "wordStyle" thing,
 	//but so far this function is never used, so later
 
 	boost_tokenizer tokens(words, boost::char_separator<char>(" "));
