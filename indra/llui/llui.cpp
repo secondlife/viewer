@@ -2049,7 +2049,7 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 	// Start at spawn position (using left/top)
 	view->setOrigin( local_x, local_y - view->getRect().getHeight());
 	// Make sure we're on-screen and not overlapping the mouse
-	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect, FALSE );
+	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect );
 }
 
 LLView* LLUI::resolvePath(LLView* context, const std::string& path)
