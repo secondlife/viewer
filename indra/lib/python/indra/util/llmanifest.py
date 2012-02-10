@@ -41,6 +41,9 @@ import tarfile
 import errno
 import subprocess
 
+class ManifestError(RuntimeError):
+    pass
+
 def path_ancestors(path):
     drive, path = os.path.splitdrive(os.path.normpath(path))
     result = []
@@ -180,6 +183,9 @@ def usage(srctree=""):
             arg['description'] % nd)
 
 def main():
+##  import itertools
+##  print ' '.join((("'%s'" % item) if ' ' in item else item)
+##                 for item in itertools.chain([sys.executable], sys.argv))
     option_names = [arg['name'] + '=' for arg in ARGUMENTS]
     option_names.append('help')
     options, remainder = getopt.getopt(sys.argv[1:], "", option_names)
@@ -385,7 +391,7 @@ class LLManifest(object):
         child.stdout.close()
         status = child.wait()
         if status:
-            raise RuntimeError(
+            raise ManifestError(
                 "Command %s returned non-zero status (%s) \noutput:\n%s"
                 % (command, status, output) )
         return output
@@ -395,7 +401,7 @@ class LLManifest(object):
           a) verify that you really have created it
           b) schedule it for cleanup"""
         if not os.path.exists(path):
-            raise RuntimeError, "Should be something at path " + path
+            raise ManifestError, "Should be something at path " + path
         self.created_paths.append(path)
 
     def put_in_file(self, contents, dst):
@@ -550,7 +556,7 @@ class LLManifest(object):
             except (IOError, os.error), why:
                 errors.append((srcname, dstname, why))
         if errors:
-            raise RuntimeError, errors
+            raise ManifestError, errors
 
 
     def cmakedirs(self, path):
@@ -598,13 +604,16 @@ class LLManifest(object):
 
     def check_file_exists(self, path):
         if not os.path.exists(path) and not os.path.islink(path):
-            raise RuntimeError("Path %s doesn't exist" % (
-                os.path.normpath(os.path.join(os.getcwd(), path)),))
+            raise ManifestError("Path %s doesn't exist" % (os.path.abspath(path),))
 
 
-    wildcard_pattern = re.compile('\*')
+    wildcard_pattern = re.compile(r'\*')
     def expand_globs(self, src, dst):
         src_list = glob.glob(src)
+        # Assume that if caller specifies a wildcard, s/he wants it to match
+        # at least one file...
+        if not src_list:
+            raise ManifestError("Path %s doesn't exist" % (os.path.abspath(src),))
         src_re, d_template = self.wildcard_regex(src.replace('\\', '/'),
                                                  dst.replace('\\', '/'))
         for s in src_list:
@@ -615,7 +624,7 @@ class LLManifest(object):
         sys.stdout.write("Processing %s => %s ... " % (src, dst))
         sys.stdout.flush()
         if src == None:
-            raise RuntimeError("No source file, dst is " + dst)
+            raise ManifestError("No source file, dst is " + dst)
         if dst == None:
             dst = src
         dst = os.path.join(self.get_dst_prefix(), dst)
@@ -639,10 +648,10 @@ class LLManifest(object):
             return count
         try:
             count = try_path(os.path.join(self.get_src_prefix(), src))
-        except RuntimeError:
+        except ManifestError:
             try:
                 count = try_path(os.path.join(self.get_artwork_prefix(), src))
-            except RuntimeError:
+            except ManifestError:
                 count = try_path(os.path.join(self.get_build_prefix(), src))
         print "%d files" % count
 
