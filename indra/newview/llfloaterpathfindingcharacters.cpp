@@ -532,10 +532,10 @@ void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 {
 	mLabelActions->setEnabled(pEnabled);
 	mShowBeaconCheckBox->setEnabled(false && pEnabled);
-	mTakeBtn->setEnabled(true && pEnabled);
-	mTakeCopyBtn->setEnabled(true && pEnabled);
+	mTakeBtn->setEnabled(pEnabled && tools_visible_take_object());
+	mTakeCopyBtn->setEnabled(pEnabled && enable_object_take_copy());
 	mReturnBtn->setEnabled(false && pEnabled);
-	mDeleteBtn->setEnabled(true && pEnabled);
+	mDeleteBtn->setEnabled(pEnabled && enable_object_delete());
 	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
 }
 
