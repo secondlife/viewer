@@ -2380,6 +2380,8 @@ S32 LLTextBase::getEditableIndex(S32 index, bool increasing_direction)
 
 void LLTextBase::updateRects()
 {
+	mVisibleTextRect = getLocalRect();
+
 	if (mLineInfoList.empty()) 
 	{
 		mTextBoundingRect = LLRect(0, mVPad, mHPad, 0);
@@ -2604,8 +2606,7 @@ BOOL LLTextSegment::handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; 
 BOOL LLTextSegment::handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; }
 const std::string&	LLTextSegment::getName() const 
 {
-	static std::string empty_string("");
-	return empty_string; 
+	return LLStringUtil::null;
 }
 void LLTextSegment::onMouseCaptureLost() {}
 void LLTextSegment::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {}
