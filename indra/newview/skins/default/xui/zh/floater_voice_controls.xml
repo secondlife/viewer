@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Voice Controls">
+<floater name="floater_voice_controls" title="語音控制">
 	<string name="title_nearby">
-		NEARBY VOICE
+		附近的語音
 	</string>
 	<string name="title_group">
 		與 [GROUP] 進行群組通話
@@ -13,7 +13,7 @@
 		與 [NAME] 進行通話
 	</string>
 	<string name="no_one_near">
-		No one near has voice enabled
+		附近沒有一人開啟語音
 	</string>
 	<layout_stack name="my_call_stack">
 		<layout_panel name="my_panel">

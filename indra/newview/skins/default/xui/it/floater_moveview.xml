@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater">
+<floater name="move_floater" title="CAMMINA / CORRI / VOLA">
 	<string name="walk_forward_tooltip">
 		Cammina in avanti (premi freccia su o W)
 	</string>
@@ -58,14 +58,14 @@
 		Vola
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="move up btn" tool_tip="Vola in alto (premi E)"/>
 		<button label="" label_selected="" name="turn left btn" tool_tip="Gira a sinistra (premi freccia sinistra o A)"/>
 		<joystick_slide name="move left btn" tool_tip="Cammina a sinistra (premi Maiusc + freccia sinistra o A)"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Vola in basso (premi C)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Gira a destra (premi freccia destra o D)"/>
 		<joystick_slide name="move right btn" tool_tip="Cammina a destra (premi Maiusc + freccia destra o D)"/>
 		<joystick_turn name="forward btn" tool_tip="Cammina in avanti (premi freccia su o W)"/>
 		<joystick_turn name="backward btn" tool_tip="Cammina indietro (premi freccia giù o S)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Vola in alto (premi E)"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Vola in basso (premi C)"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="Modalità cammina"/>

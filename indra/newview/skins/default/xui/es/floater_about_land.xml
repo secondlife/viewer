@@ -130,7 +130,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Tráfico:
 			</text>
 			<text name="DwellText">
-				0
+				Cargando...
 			</text>
 			<button label="Comprar terreno" left="130" name="Buy Land..." width="125"/>
 			<button label="Venta Linden" name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
@@ -213,19 +213,19 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Plus de objetos en la región: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso de primitivas:
+				Capacidad de la región:
 			</text>
 			<text name="objects_available">
 				[COUNT] de un máx. de [MAX] ([AVAILABLE] disponibles)
 			</text>
 			<text name="Primitives parcel supports:">
-				Prims que admite la parcela:
+				Capacidad del terreno de la parcela:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims en la parcela:
+				Impacto en el terreno de la parcela:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
@@ -309,13 +309,15 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Sin &apos;empujones&apos; (prevalece lo marcado en la región)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Ver a los residentes de esta parcela y chatear con ellos
+				Los avatares de otras parcelas pueden ver
 			</panel.string>
 			<text name="allow_label">
 				Permitir a otros Residentes:
 			</text>
-			<check_box label="Editar el terreno" name="edit land check" tool_tip="Si se marca, cualquiera podrá modificar su terreno. Mejor dejarlo desmarcado, pues usted siempre puede modificar su terreno."/>
-			<check_box label="Volar" name="check fly" tool_tip="Si se marca, los residentes podrán volar en su terreno. Si no, sólo podrán volar al cruzarlo o hasta que aterricen en él."/>
+			<text name="allow_label0">
+				Volar:
+			</text>
+			<check_box label="Todos" name="check fly" tool_tip="Si se marca, los residentes podrán volar en su terreno. Si no, sólo podrán volar al cruzarlo o hasta que aterricen en él."/>
 			<text name="allow_label2">
 				Crear objetos:
 			</text>
@@ -331,9 +333,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<check_box label="Todos los residentes" name="check other scripts"/>
 			<check_box label="El grupo" name="check group scripts"/>
-			<text name="land_options_label">
-				Opciones del terreno:
-			</text>
 			<check_box label="Seguro (sin daño)" name="check safe" tool_tip="Si se marca, convierte el terreno en &apos;seguro&apos;, desactivando el daño en combate. Si no, se activa el daño en combate."/>
 			<check_box label="Sin &apos;empujones&apos;" name="PushRestrictCheck" tool_tip="Previene scripts que empujen. Marcando esta opción prevendrá que en su terreno haya comportamientos destructivos."/>
 			<check_box label="Mostrar el sitio en la búsqueda (30 L$/semana)" name="ShowDirectoryCheck" tool_tip="Let people see this parcel in search results"/>
@@ -374,9 +373,9 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
 			<text name="allow_label5">
-				Permitir a los residentes de otras parcelas:
+				a los avatares de esta parcela y chatear con ellos
 			</text>
-			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los residentes de otras parcelas vean a los residentes de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
+			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
 			<text name="landing_point">
 				Punto de llegada: [LANDING]
 			</text>

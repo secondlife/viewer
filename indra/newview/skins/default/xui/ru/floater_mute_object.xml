@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="block by name" title="В ЧЕРНЫЙ СПИСОК">
+	<text name="message">
+		Внести в черный список объект:
+	</text>
+	<line_editor name="object_name">
+		Название объекта
+	</line_editor>
+	<text name="note">
+		* Блокируются только сообщения объекта, но не звуки
+	</text>
+	<button label="ОК" name="OK"/>
+	<button label="Отмена" name="Cancel"/>
+</floater>

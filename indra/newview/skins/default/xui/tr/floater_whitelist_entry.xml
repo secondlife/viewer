@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="whitelist_entry" title="GÜVENİLENLER LİSTESİ GİRİŞİ">
+	<text name="media_label">
+		İzin verilen alan adlarının listesine eklemek için bir URL ya da URL örneği girin
+	</text>
+	<line_editor name="whitelist_entry" tool_tip="Güvenilenler Listesine eklemek için bir URL ya da URL örneği girin"/>
+	<button label="Tamam" name="ok_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+</floater>

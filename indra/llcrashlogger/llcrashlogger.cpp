@@ -42,6 +42,7 @@
 #include "llpumpio.h"
 #include "llhttpclient.h"
 #include "llsdserialize.h"
+#include "llproxy.h"
 
 LLPumpIO* gServicePump;
 BOOL gBreak = false;
@@ -414,7 +415,8 @@ bool LLCrashLogger::init()
 		return false;
 	}
 
-	gServicePump = new LLPumpIO;
+	gServicePump = new LLPumpIO(gAPRPoolp);
+	gServicePump->prime(gAPRPoolp);
 	LLHTTPClient::setPump(*gServicePump);
 
 	//If we've opened the crash logger, assume we can delete the marker file if it exists
@@ -426,4 +428,10 @@ bool LLCrashLogger::init()
 	}
 	
 	return true;
+}
+
+// For cleanup code common to all platforms.
+void LLCrashLogger::commonCleanup()
+{
+	LLProxy::cleanupClass();
 }

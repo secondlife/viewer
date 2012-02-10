@@ -32,10 +32,10 @@
 #include "llcommandhandler.h"
 #include "llfloaterhelpbrowser.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llpanellogin.h"
 #include "llregionhandle.h"
-#include "llsidetray.h"
 #include "llslurl.h"
 #include "llstartup.h"			// gStartupState
 #include "llweb.h"
@@ -167,9 +167,9 @@ bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl,
 // static
 bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, const std::string& nav_type, bool right_mouse)
 {
-  if(slurl.getType() != LLSLURL::LOCATION)
+	if(slurl.getType() != LLSLURL::LOCATION)
     {
-      return false;
+		return false;
     }
 	// Before we're logged in, need to update the startup screen
 	// to tell the user where they are going.
@@ -246,7 +246,7 @@ void LLURLDispatcherImpl::regionHandleCallback(U64 region_handle, const LLSLURL&
 		key["y"] = global_pos.mdV[VY];
 		key["z"] = global_pos.mdV[VZ];
 
-		LLSideTray::getInstance()->showPanel("panel_places", key);
+		LLFloaterSidePanelContainer::showPanel("places", key);
 	}
 }
 

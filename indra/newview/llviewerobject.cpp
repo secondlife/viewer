@@ -3219,12 +3219,12 @@ F32 LLViewerObject::getLinksetPhysicsCost()
 	return mLinksetPhysicsCost;
 }
 
-F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes)
+F32 LLViewerObject::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
 {
 	return 0.f;
 }
 
-U32 LLViewerObject::getTriangleCount()
+U32 LLViewerObject::getTriangleCount(S32* vcount) const
 {
 	return 0;
 }
@@ -5520,11 +5520,12 @@ void LLViewerObject::dirtyMesh()
 {
 	if (mDrawable)
 	{
-		LLSpatialGroup* group = mDrawable->getSpatialGroup();
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL);
+		/*LLSpatialGroup* group = mDrawable->getSpatialGroup();
 		if (group)
 		{
 			group->dirtyMesh();
-		}
+		}*/
 	}
 }
 

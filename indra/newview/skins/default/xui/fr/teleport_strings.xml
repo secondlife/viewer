@@ -20,6 +20,10 @@ Si vous ne parvenez toujours pas à être téléporté, déconnectez-vous puis r
 			Désolé, la connexion vers votre lieu de téléportation n&apos;a pas abouti.
 Veuillez réessayer dans un moment.
 		</message>
+		<message name="NoHelpIslandTP">
+			Vous ne pouvez pas vous téléporter à nouveau vers Welcome Island.
+Pour recommencer le didacticiel, accédez à Welcome Island Public.
+		</message>
 		<message name="noaccess_tport">
 			Désolé, vous n&apos;avez pas accès à cette destination.
 		</message>

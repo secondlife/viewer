@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Цвета" name="colors_panel">
+	<text name="effects_color_textbox">
+		Мои эффекты (луч выбора):
+	</text>
+	<color_swatch name="effect_color_swatch" tool_tip="Щелкните для выбора цвета"/>
+	<text name="font_colors">
+		Цвета шрифтов чата:
+	</text>
+	<text name="text_box1">
+		Я
+	</text>
+	<text name="text_box2">
+		Другие
+	</text>
+	<text name="text_box3">
+		Объекты
+	</text>
+	<text name="text_box4">
+		Система
+	</text>
+	<text name="text_box5">
+		Ошибки
+	</text>
+	<text name="text_box10">
+		Прямо
+	</text>
+	<text name="text_box7">
+		Владелец
+	</text>
+	<text name="text_box9">
+		URL-адреса
+	</text>
+	<text name="bubble_chat">
+		Цвет фона тегов имен (также для чата в пузырьках):
+	</text>
+	<color_swatch name="background" tool_tip="Выберите цвет для тегов имен"/>
+	<slider label="Видимость:" name="bubble_chat_opacity" tool_tip="Задайте непрозрачность тегов имен"/>
+	<text name="floater_opacity">
+		Непрозрачность окон:
+	</text>
+	<slider label="Активные:" name="active"/>
+	<slider label="Неактивные:" name="inactive"/>
+</panel>

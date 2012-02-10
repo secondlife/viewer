@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Соглашение" name="Covenant">
+	<panel.string name="can_resell">
+		Приобретенная в этом регионе земля может быть перепродана.
+	</panel.string>
+	<panel.string name="can_not_resell">
+		Приобретенная в этом регионе земля не может быть перепродана.
+	</panel.string>
+	<panel.string name="can_change">
+		Приобретенная в этом регионе земля может быть объединена или разделена.
+	</panel.string>
+	<panel.string name="can_not_change">
+		Приобретенная в этом регионе земля не может быть объединена или разделена.
+	</panel.string>
+	<text name="estate_section_lbl">
+		Землевладение
+	</text>
+	<text name="estate_name_lbl">
+		Название:
+	</text>
+	<text name="estate_name_text">
+		материк
+	</text>
+	<text name="estate_owner_lbl">
+		Владелец:
+	</text>
+	<text name="estate_owner_text">
+		(нет)
+	</text>
+	<text name="estate_cov_lbl">
+		Соглашение:
+	</text>
+	<text name="covenant_timestamp_text">
+		Последнее изменение: 31 декабря 1969 г., среда, 16:00:00
+	</text>
+	<text_editor name="covenant_editor">
+		Нет соглашения для этого землевладения.
+	</text_editor>
+	<button label="Сброс" name="reset_covenant"/>
+	<text name="covenant_help_text">
+		Изменения в соглашении будут показаны на всех участках этого землевладения.
+	</text>
+	<text name="covenant_instructions">
+		Перетащите сюда заметку, чтобы изменить соглашение для этого землевладения.
+	</text>
+	<text name="region_section_lbl">
+		Регион
+	</text>
+	<text name="region_name_lbl">
+		Название:
+	</text>
+	<text name="region_name_text">
+		Эрика
+	</text>
+	<text name="region_landtype_lbl">
+		Тип:
+	</text>
+	<text name="region_landtype_text">
+		Материк/поместье
+	</text>
+	<text name="region_maturity_lbl">
+		Рейтинг:
+	</text>
+	<text name="region_maturity_text">
+		Для взрослых
+	</text>
+	<text name="resellable_lbl">
+		Перепродажа:
+	</text>
+	<text name="resellable_clause">
+		Земля в этом регионе не может быть перепродана.
+	</text>
+	<text name="changeable_lbl">
+		Разделение:
+	</text>
+	<text name="changeable_clause">
+		Земля в этом регионе не может быть объединена или разделена.
+	</text>
+</panel>

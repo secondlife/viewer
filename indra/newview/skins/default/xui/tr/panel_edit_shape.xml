@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_shape_panel">
+	<string name="meters">
+		Metre
+	</string>
+	<string name="feet">
+		Ayak
+	</string>
+	<string name="height">
+		Boy:
+	</string>
+	<panel label="Gömlek" name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="shape_body_tab" title="Beden"/>
+			<accordion_tab name="shape_head_tab" title="Baş"/>
+			<accordion_tab name="shape_eyes_tab" title="Gözler"/>
+			<accordion_tab name="shape_ears_tab" title="Kulaklar"/>
+			<accordion_tab name="shape_nose_tab" title="Burun"/>
+			<accordion_tab name="shape_mouth_tab" title="Ağız"/>
+			<accordion_tab name="shape_chin_tab" title="Çene"/>
+			<accordion_tab name="shape_torso_tab" title="Gövde"/>
+			<accordion_tab name="shape_legs_tab" title="Bacaklar"/>
+		</accordion>
+	</panel>
+</panel>

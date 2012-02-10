@@ -71,6 +71,7 @@ endif (DARWIN)
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
     llui
+    llinventory
     llmessage
     ${LLRENDER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}

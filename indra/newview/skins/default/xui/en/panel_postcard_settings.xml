@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_postcard_settings"
+ width="490">
+    <combo_box
+     follows="left|top|right"
+     height="23"
+     label="Resolution"
+     layout="topleft"
+     left="10"
+     name="postcard_size_combo"
+     right="-10"
+     top_pad="10">
+        <combo_box.item
+         label="Current Window"
+         name="CurrentWindow"
+         value="[i0,i0]" />
+        <combo_box.item
+         label="640x480"
+         name="640x480"
+         value="[i640,i480]" />
+        <combo_box.item
+         label="800x600"
+         name="800x600"
+         value="[i800,i600]" />
+        <combo_box.item
+         label="1024x768"
+         name="1024x768"
+         value="[i1024,i768]" />
+        <combo_box.item
+         label="Custom"
+         name="Custom"
+         value="[i-1,i-1]" />
+    </combo_box>
+    <layout_stack
+     animate="false"
+     follows="all"
+     height="275"
+     layout="bottomleft"
+     name="postcard_image_params_ls"
+     left_delta="0"
+     orientation="vertical"
+     top_pad="10"
+     right="-10">
+        <layout_panel
+         follows="top|left|right"
+         height="60"
+         layout="topleft"
+         left="0"
+         name="postcard_image_size_lp"
+         auto_resize="false"
+         top="0"
+         right="-1"
+         visible="true">
+            <spinner
+             allow_text_entry="false"
+             decimal_digits="0"
+             follows="left|top"
+             height="20"
+             increment="32"
+             label="Width"
+             label_width="40"
+             layout="topleft"
+             left="10"
+             max_val="6016"
+             min_val="32"
+             name="postcard_snapshot_width"
+             top_pad="10"
+             width="95" />
+            <spinner
+             allow_text_entry="false"
+             decimal_digits="0"
+             follows="left|top"
+             height="20"
+             increment="32"
+             label="Height"
+             label_width="40"
+             layout="topleft"
+             left_pad="5"
+             max_val="6016"
+             min_val="32"
+             name="postcard_snapshot_height"
+             top_delta="0"
+             width="95" />
+            <check_box
+             bottom_delta="20"
+             follows="left|top"
+             label="Constrain proportions"
+             layout="topleft"
+             left="10"
+             name="postcard_keep_aspect_check" />
+        </layout_panel>
+        <layout_panel
+         follows="top|left|right"
+         height="23"
+         layout="topleft"
+         left="0"
+         name="postcard_image_format_quality_lp"
+         auto_resize="true"
+         top="0"
+         right="-1"
+         visible="true">
+            <slider
+             decimal_digits="0"
+             follows="left|top"
+             height="15"
+             increment="1"
+             initial_value="75"
+             label="Image quality"
+             label_width="80"
+             layout="topleft"
+             left="0"
+             max_val="100"
+             name="image_quality_slider"
+             top_pad="7"
+             width="190" />
+            <text
+             type="string"
+             follows="left|top"
+             font="SansSerifSmall"
+             length="1"
+             height="14"
+             layout="topleft"
+             left_pad="-5"
+             halign="left"
+             name="image_quality_level"
+             top_delta="0"
+             width="60">
+               ([QLVL])
+            </text>
+        </layout_panel>
+    </layout_stack>
+</panel>

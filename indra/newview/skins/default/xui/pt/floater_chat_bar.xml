@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="chat_bar" title="BATE-PAPO LOCAL">
+	<panel name="bottom_panel">
+		<line_editor label="Clique aqui para bater papo." name="chat_box" tool_tip="Tecle Enter para falar, Ctrl+Enter para gritar"/>
+		<button name="show_nearby_chat" tool_tip="Mostra/oculta o histórico do bate-papo local"/>
+	</panel>
+</floater>

@@ -35,18 +35,20 @@
 LLImageDecodeThread::LLImageDecodeThread(bool threaded)
 	: LLQueuedThread("imagedecode", threaded)
 {
+	mCreationMutex = new LLMutex(getAPRPool());
 }
 
 //virtual 
 LLImageDecodeThread::~LLImageDecodeThread()
 {
+	delete mCreationMutex ;
 }
 
 // MAIN THREAD
 // virtual
-S32 LLImageDecodeThread::update(U32 max_time_ms)
+S32 LLImageDecodeThread::update(F32 max_time_ms)
 {
-	LLMutexLock lock(&mCreationMutex);
+	LLMutexLock lock(mCreationMutex);
 	for (creation_list_t::iterator iter = mCreationList.begin();
 		 iter != mCreationList.end(); ++iter)
 	{
@@ -69,7 +71,7 @@ S32 LLImageDecodeThread::update(U32 max_time_ms)
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLImageFormatted* image, 
 	U32 priority, S32 discard, BOOL needs_aux, Responder* responder)
 {
-	LLMutexLock lock(&mCreationMutex);
+	LLMutexLock lock(mCreationMutex);
 	handle_t handle = generateHandle();
 	mCreationList.push_back(creation_info(handle, image, priority, discard, needs_aux, responder));
 	return handle;
@@ -79,7 +81,7 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLImageFormatted*
 // Returns the size of the mutex guarded list as an indication of sanity
 S32 LLImageDecodeThread::tut_size()
 {
-	LLMutexLock lock(&mCreationMutex);
+	LLMutexLock lock(mCreationMutex);
 	S32 res = mCreationList.size();
 	return res;
 }

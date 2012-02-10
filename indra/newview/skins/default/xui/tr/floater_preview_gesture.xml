@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<floater.string name="step_anim">
+		Oynatılacak animasyon:
+	</floater.string>
+	<floater.string name="step_sound">
+		Çalınacak ses:
+	</floater.string>
+	<floater.string name="step_chat">
+		Konuşulacak sohbet:
+	</floater.string>
+	<floater.string name="step_wait">
+		Bekle:
+	</floater.string>
+	<floater.string name="stop_txt">
+		Durdur
+	</floater.string>
+	<floater.string name="preview_txt">
+		Önizleme
+	</floater.string>
+	<floater.string name="none_text">
+		-- Hiçbiri --
+	</floater.string>
+	<floater.string name="Title">
+		Mimik: [NAME]
+	</floater.string>
+	<text name="desc_label">
+		Açıklama:
+	</text>
+	<text name="trigger_label">
+		Tetikleyici:
+	</text>
+	<text name="replace_text" tool_tip="Tetikleyici kelimelerinin yerine bunları koyun. Örneğin, &apos;merhaba&apos; yerine &apos;naber&apos; konulması tetikleyicisi ile &quot;merhaba demek istemiştim&quot; sohbeti &quot;naber demek istemiştim olacak ve mimik gerçekleştirilecektir!">
+		Yerine şunu koy:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Tetikleyici kelimelerinin yerine bunları koyun. Örneğin, &apos;merhaba&apos; yerine &apos;naber&apos; konulması tetikleyicisi ile &quot;merhaba demek istemiştim&quot; sohbeti &quot;naber demek istemiştim olacak ve mimik gerçekleştirilecektir"/>
+	<text name="key_label">
+		Kısayol Tuşu:
+	</text>
+	<combo_box label="Hiçbiri" name="modifier_combo"/>
+	<combo_box label="Hiçbiri" name="key_combo"/>
+	<text name="library_label">
+		Kütüphane:
+	</text>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="Animasyon"/>
+		<scroll_list.rows name="action_sound" value="Ses"/>
+		<scroll_list.rows name="action_chat" value="Sohbet"/>
+		<scroll_list.rows name="action_wait" value="Bekle"/>
+	</scroll_list>
+	<button label="Ekle &gt;&gt;" name="add_btn"/>
+	<text name="steps_label">
+		Adımlar:
+	</text>
+	<button label="Yukarı" name="up_btn"/>
+	<button label="Aşağı" name="down_btn"/>
+	<button label="Kaldır" name="delete_btn"/>
+	<text name="options_text">
+		(seçenekler)
+	</text>
+	<radio_group name="animation_trigger_type">
+		<radio_item label="Başla" name="start"/>
+		<radio_item label="Durdur" name="stop"/>
+	</radio_group>
+	<check_box label="tüm animasyonlar bitinceye kadar" name="wait_anim_check"/>
+	<check_box label="saniye olarak zaman:" name="wait_time_check"/>
+	<text name="help_label">
+		Bekleme adımları eklemediğiniz sürece tüm adımlar aynı anda gerçekleşir.
+	</text>
+	<check_box label="Etkin" name="active_check" tool_tip="Etkin mimikleri tetiklemek için tetikleme fazları için sohbet gerçekleştirebilir veya kısayol tuşlarına basabilirsiniz.  Bir anahtar bağlama ihtilafı olduğunda mimikler genellikle inaktif hale geçer."/>
+	<button label="Önizleme" name="preview_btn"/>
+	<button label="Kaydet" name="save_btn"/>
+</floater>

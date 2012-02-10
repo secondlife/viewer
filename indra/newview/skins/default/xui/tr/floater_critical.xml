@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container">
+	<button label="Devam Et" label_selected="Devam Et" name="Continue"/>
+	<text name="tos_heading">
+		Lütfen aşağıdaki iletiyi dikkatle okuyun.
+	</text>
+	<text_editor name="tos_text">
+		TOS_TEXT
+	</text_editor>
+</floater>

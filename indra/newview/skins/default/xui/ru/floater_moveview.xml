@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="move_floater" title="ХОДЬБА / БЕГ / ПОЛЕТ">
+	<string name="walk_forward_tooltip">
+		Идти вперед (нажмите стрелку вверх или клавишу W)
+	</string>
+	<string name="walk_back_tooltip">
+		Идти назад (нажмите стрелку вниз или клавишу S)
+	</string>
+	<string name="walk_left_tooltip">
+		Идти налево (нажмите Shift + стрелку влево или клавишу A)
+	</string>
+	<string name="walk_right_tooltip">
+		Идти направо (нажмите Shift + стрелку вправо или клавишу D)
+	</string>
+	<string name="run_forward_tooltip">
+		Бежать вперед (нажмите стрелку вверх или клавишу W)
+	</string>
+	<string name="run_back_tooltip">
+		Бежать назад (нажмите стрелку вниз или клавишу S)
+	</string>
+	<string name="run_left_tooltip">
+		Бежать налево (нажмите Shift + стрелку влево или клавишу A)
+	</string>
+	<string name="run_right_tooltip">
+		Бежать направо (нажмите Shift + стрелку вправо или клавишу D)
+	</string>
+	<string name="fly_forward_tooltip">
+		Лететь вперед (нажмите стрелку вверх или клавишу W)
+	</string>
+	<string name="fly_back_tooltip">
+		Лететь назад (нажмите стрелку вниз или клавишу S)
+	</string>
+	<string name="fly_left_tooltip">
+		Лететь налево (нажмите Shift + стрелку влево или клавишу A)
+	</string>
+	<string name="fly_right_tooltip">
+		Лететь направо (нажмите Shift + стрелку вправо или клавишу D)
+	</string>
+	<string name="fly_up_tooltip">
+		Лететь вверх (нажмите клавишу E)
+	</string>
+	<string name="fly_down_tooltip">
+		Лететь вниз (нажмите клавишу C)
+	</string>
+	<string name="jump_tooltip">
+		Прыгнуть (нажмите клавишу E)
+	</string>
+	<string name="crouch_tooltip">
+		Присесть (нажмите клавишу C)
+	</string>
+	<string name="walk_title">
+		Ходьба
+	</string>
+	<string name="run_title">
+		Бег
+	</string>
+	<string name="fly_title">
+		Полет
+	</string>
+	<panel name="panel_actions">
+		<button name="turn left btn" tool_tip="Поворот налево (нажмите стрелку влево или клавишу A)"/>
+		<joystick_slide name="move left btn" tool_tip="Идти налево (нажмите Shift + стрелку влево или клавишу A)"/>
+		<button name="turn right btn" tool_tip="Поворот направо (нажмите стрелку вправо или клавишу D)"/>
+		<joystick_slide name="move right btn" tool_tip="Идти направо (нажмите Shift + стрелку вправо или клавишу D)"/>
+		<joystick_turn name="forward btn" tool_tip="Идти вперед (нажмите стрелку вверх или клавишу W)"/>
+		<joystick_turn name="backward btn" tool_tip="Идти назад (нажмите стрелку вниз или клавишу S)"/>
+		<button name="move up btn" tool_tip="Лететь вверх (нажмите клавишу E)"/>
+		<button name="move down btn" tool_tip="Лететь вниз (нажмите клавишу C)"/>
+	</panel>
+	<panel name="panel_modes">
+		<button label="" name="mode_walk_btn" tool_tip="Режим ходьбы"/>
+		<button label="" name="mode_run_btn" tool_tip="Режим бега"/>
+		<button label="" name="mode_fly_btn" tool_tip="Режим полета"/>
+	</panel>
+</floater>

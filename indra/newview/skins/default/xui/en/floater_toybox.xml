@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+  can_close="true"
+  can_dock="false"
+  can_minimize="false"
+  can_resize="false"
+  default_tab_group="1"
+  height="375"
+  help_topic="toybox"
+  layout="topleft"
+  legacy_header_height="18"
+  name="Toybox"
+  open_positioning="centered"
+  save_rect="true"
+  single_instance="true"
+  title="TOOLBAR BUTTONS"
+  width="650">
+  <text
+    follows="left|top"
+    font="SansSerifMedium"
+    valign="bottom"
+    halign="left"
+    height="20"
+    layout="topleft"
+    left="20"
+    length="1"
+    name="toybox label 1"
+    right="-20"
+    top="35"
+    type="string">
+      Add or remove buttons by dragging them to or from the toolbars.
+  </text>
+  <text
+    follows="left|top"
+    font="SansSerifMedium"
+    valign="bottom"
+    halign="left"
+    height="20"
+    layout="topleft"
+    left="20"
+    length="1"
+    name="toybox label 2"
+    right="-20"
+    top="55"
+    type="string">
+      Buttons will appear as shown or as icon-only depending on each toolbar's settings.
+  </text>
+  <toolbar
+    bottom="310"
+    button_display_mode="icons_with_text"
+    follows="all"
+    left="20"
+    button_icon_and_text.button_width.max="140"
+    button_icon_and_text.button_width.min="70"
+    name="toybox_toolbar"
+    pad_left="5"
+    pad_right="5"
+    pad_top="5"
+    pad_bottom="5"
+    pad_between="15"
+    read_only="true"
+    right="-20"
+    side="top"
+    top="85">
+    <button_panel background_visible="false" />
+    <button_icon_and_text image_unselected="PushButton_Off"
+                          image_selected="PushButton_Off"
+                          image_disabled_selected="PushButton_Disabled"
+                          image_disabled="PushButton_Disabled"
+                          label_color="ButtonLabelColor"
+                          label_color_selected="ButtonLabelColor"
+                          label_color_disabled="ButtonLabelDisabledColor"
+                          label_color_disabled_selected="ButtonLabelDisabledColor"
+                          image_color="ButtonImageColor"
+                          image_color_disabled="ButtonImageColor"
+                          flash_color="ButtonUnselectedFgColor"
+                          halign="left"
+                          hover_glow_amount="0.15"
+                          sound_flags="0"
+                          display_pressed_state="false" />
+  </toolbar>
+  <panel
+    bevel_style="none"
+    border="true"
+    bottom="311"
+    follows="left|bottom|right"
+    left="20"
+    right="-20"
+    top="311" />
+  <button
+    follows="left|bottom|right"
+    height="23"
+    label="Clear all toolbars"
+    label_selected="Clear all toolbars"
+    layout="topleft"
+    left="185"
+    name="btn_clear_all"
+    top="330"
+    width="130">
+    <button.commit_callback function="Toybox.ClearAll" />
+  </button>
+  <button
+    follows="left|bottom|right"
+    height="23"
+    label="Restore defaults"
+    label_selected="Restore defaults"
+    layout="topleft"
+    left="335"
+    name="btn_restore_defaults"
+    top="330"
+    width="130">
+    <button.commit_callback function="Toybox.RestoreDefaults" />
+  </button>
+</floater>

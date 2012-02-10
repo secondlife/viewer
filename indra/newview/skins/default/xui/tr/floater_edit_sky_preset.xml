@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Sky Preset" title="Gökyüzü Ön Ayarını Düzenle">
+	<string name="title_new">
+		Yeni Gökyüzü Ön Ayarı Oluştur
+	</string>
+	<string name="title_edit">
+		Gökyüzü Ön Ayarını Düzenle
+	</string>
+	<string name="hint_new">
+		Ön ayarınızı adlandırın, bunu oluşturmak için denetimleri ayarlayın ve &quot;Kaydet&quot; üzerine tıklayın.
+	</string>
+	<string name="hint_edit">
+		Gökyüzü ön ayarınızı düzenlemek için denetimleri ayarlayın ve &quot;Kaydet&quot; üzerine tıklayın.
+	</string>
+	<string name="combo_label">
+		-Bir ön ayar seçin-
+	</string>
+	<text name="hint">
+		Ön ayarınızı düzenlemek için denetimleri ayarlayın, sonra &quot;Kaydet&quot; üzerine tıklayın.
+	</text>
+	<text name="label">
+		Ön Ayar Adı:
+	</text>
+	<text name="note">
+		Not: Ön ayarınızın adını değiştirirseniz, yeni bir ön ayar oluşturursunuz ve mevcut ön ayar değişmez.
+	</text>
+	<tab_container name="WindLight Tabs">
+		<panel label="ATMOSFER" name="Atmosphere">
+			<text name="BHText">
+				Mavi Ufuk
+			</text>
+			<text name="BDensText">
+				Puslu Ufuk
+			</text>
+			<text name="BDensText2">
+				Mavi Yoğunluğu
+			</text>
+			<text name="HDText">
+				Pus Yoğunluğu
+			</text>
+			<text name="DensMultText">
+				Yoğunluk Çarpanı
+			</text>
+			<text name="WLDistanceMultText">
+				Mesafe Çarpanı
+			</text>
+			<text name="MaxAltText">
+				Maks İrtifa
+			</text>
+		</panel>
+		<panel label="AYDINLATMA" name="Lighting">
+			<text name="SLCText">
+				Güneş/Ay Rengi
+			</text>
+			<text name="WLAmbientText">
+				Ortam
+			</text>
+			<text name="SunGlowText">
+				Güneş Parlaması
+			</text>
+			<slider label="Odak" name="WLGlowB"/>
+			<slider label="Büyüklük" name="WLGlowR"/>
+			<text name="WLStarText">
+				Yıldız Parlaklığı
+			</text>
+			<text name="SceneGammaText">
+				Sahne Gaması
+			</text>
+			<text name="TODText">
+				Güneş/Ay Konumu
+			</text>
+			<multi_slider initial_value="0" name="WLSunPos"/>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<text name="WL12am">
+				12
+			</text>
+			<text name="WL6am">
+				6
+			</text>
+			<text name="WL12pmHash">
+				24
+			</text>
+			<text name="WL6pm">
+				18
+			</text>
+			<text name="WL12am2">
+				12
+			</text>
+			<time name="WLDayTime" value="6:00"/>
+			<text name="WLEastAngleText">
+				Doğu Açısı
+			</text>
+		</panel>
+		<panel label="BULUTLAR" name="Clouds">
+			<text name="WLCloudColorText">
+				Bulut Rengi
+			</text>
+			<text name="WLCloudColorText2">
+				Bulut XY/Yoğunluğu
+			</text>
+			<slider label="X" name="WLCloudX"/>
+			<slider label="Y" name="WLCloudY"/>
+			<slider label="D" name="WLCloudDensity"/>
+			<text name="WLCloudCoverageText">
+				Bulut Örtüsü
+			</text>
+			<text name="WLCloudScaleText">
+				Bulut Yüksekliği
+			</text>
+			<text name="WLCloudDetailText">
+				Bulut Ayrıntısı (XY/Yoğunluğu)
+			</text>
+			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Y" name="WLCloudDetailY"/>
+			<slider label="D" name="WLCloudDetailDensity"/>
+			<text name="WLCloudScrollXText">
+				Bulut Kaydırma X
+			</text>
+			<check_box label="Kilitle" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Bulut Kaydırma Y
+			</text>
+			<check_box label="Kilitle" name="WLCloudLockY"/>
+		</panel>
+	</tab_container>
+	<check_box label="Bu ön ayarı yeni gökyüzü ayarım yap" name="make_default_cb"/>
+	<button label="Kaydet" name="save"/>
+	<button label="İptal" name="cancel"/>
+</floater>

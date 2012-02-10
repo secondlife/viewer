@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Перемещение" name="move_panel">
+	<slider label="Угол обзора" name="camera_fov"/>
+	<slider label="Расстояние" name="camera_offset_scale"/>
+	<text name="heading2">
+		Автоматическая установка позиции для:
+	</text>
+	<check_box label="создания/редактирования" name="edit_camera_movement" tool_tip="Автоматическое позиционирование камеры при входе в режим редактирования и выходе из него"/>
+	<check_box label="внешности" name="appearance_camera_movement" tool_tip="Автоматическое позиционирование камеры в режиме редактирования"/>
+	<text name="keyboard_lbl">
+		Клавиатура:
+	</text>
+	<check_box label="Клавиши со стрелками всегда перемещают меня" name="arrow_keys_move_avatar_check"/>
+	<check_box label="Бег после двойного нажатия клавиши" name="tap_tap_hold_to_run"/>
+	<text name="mouse_lbl">
+		Мышь:
+	</text>
+	<check_box label="Показывать меня при обзоре мышью" name="first_person_avatar_visible"/>
+	<text name=" Mouse Sensitivity">
+		Чувствительность мыши:
+	</text>
+	<check_box label="Инвертировать" name="invert_mouse"/>
+	<text name="single_click_action_lbl">
+		Один щелчок на земле:
+	</text>
+	<combo_box name="single_click_action_combo">
+		<combo_box.item label="Без действия" name="0"/>
+		<combo_box.item label="Перемещение в точку щелчка" name="1"/>
+	</combo_box>
+	<text name="double_click_action_lbl">
+		Двойной щелчок на земле:
+	</text>
+	<combo_box name="double_click_action_combo">
+		<combo_box.item label="Без действия" name="0"/>
+		<combo_box.item label="Перемещение в точку щелчка" name="1"/>
+		<combo_box.item label="Телепортация в точку щелчка" name="2"/>
+	</combo_box>
+	<button label="Другие устройства" name="joystick_setup_button"/>
+</panel>

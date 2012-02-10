@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Environment Editor Floater" title="ORTAM AYARLARI">
+	<text name="note">
+		Görüntüleyiciniz için ortam ayarlarını özelleştirmek isterseniz aşağıdaki seçenekleri kullanın.
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="Bölge ayarlarını kullanın" name="use_region_settings"/>
+		<radio_item label="Ortamımı özelleştir" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="note">
+			Not: Özel ayarlarınız diğer kullanıcılar tarafından görülmez.
+		</text>
+		<text name="water_settings_title">
+			Su Ayarı
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			Gökyüzü/Gün Dön.
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="Sabit gökyüzü" name="my_sky_settings"/>
+			<radio_item label="Gün döngüsü" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="Tamam" name="ok_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+</floater>

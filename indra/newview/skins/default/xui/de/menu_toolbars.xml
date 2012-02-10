@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Toolbars Popup">
+	<menu_item_call label="Diese Schaltfläche entfernen" name="Remove button"/>
+	<menu_item_call label="Symbolleistenschaltflächen..." name="Choose Buttons"/>
+	<menu_item_check label="Symbole und Beschriftungen" name="icons_with_text"/>
+	<menu_item_check label="Nur Symbole" name="icons_only"/>
+</context_menu>

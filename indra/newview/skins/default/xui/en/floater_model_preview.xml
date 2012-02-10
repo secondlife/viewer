@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater can_close="true" can_drag_on_left="false" can_minimize="false"
      can_resize="false" height="480" min_height="480" min_width="940"
-     name="Model Preview" title="Upload Model" width="940"
+     name="Model Preview" title="UPLOAD MODEL" width="940"
       help_topic="upload_model" >
 
   <string name="status_idle"></string>
   <string name="status_parse_error">Error: Dae parsing issue - see log for details.</string>
+  <string name="status_material_mismatch">Error: Material of model is not a subset of reference model.</string>
   <string name="status_reading_file">Loading...</string>
   <string name="status_generating_meshes">Generating Meshes...</string>
   <string name="status_vertex_number_overflow">Error: Vertex number is more than 65534, aborted!</string>
@@ -789,7 +790,7 @@
                     <check_box name="physics_use_hull" follows="left|top" width="130" left_pad="5" height="20" label="Use Convex Hull"/> -->
                 </panel>
             
-            <!-- ==== STEP 2: Analyse ==== -->
+            <!-- ==== STEP 2: Analyze ==== -->
             <view_border
               bevel_style="none"
               follows="top|left"
@@ -818,7 +819,7 @@
                       name="method_label"
                       text_color="White"
                       top_pad="0">
-                      Step 2: Analyse
+                      Step 2: Analyze
                     </text>
                     <text
                       follows="top|left"

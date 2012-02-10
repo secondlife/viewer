@@ -31,7 +31,6 @@
      width="1000">
         <layout_panel
          auto_resize="false"
-         user_resize="false" 
          min_width="2"
          width="2" />
         <layout_panel
@@ -40,8 +39,7 @@
          height="28"
          layout="topleft"
          width="310"
-         min_width="188"
-         user_resize="false">
+         min_width="188">
           <panel
             left="0"
             filename="panel_nearby_chat_bar.xml"
@@ -61,8 +59,7 @@
          width="82"
          top_delta="0"
          min_width="52"
-         name="gesture_panel"
-         user_resize="false">
+         name="gesture_panel">
             <gesture_combo_list
              follows="left|right"
              height="23"
@@ -80,7 +77,6 @@
         </layout_panel>
         <layout_panel
          auto_resize="false"
-         user_resize="false" 
          min_width="3"
          name="after_gesture_panel"
          width="3"/>

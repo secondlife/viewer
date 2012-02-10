@@ -185,8 +185,6 @@ protected:
 	 */
 	void createForm(const LLUUID& object_id);
 
-	/*virtual*/ void getAllowedRect(LLRect& rect);
-
 	/**
 	 * Hide all notification toasts.
 	 */

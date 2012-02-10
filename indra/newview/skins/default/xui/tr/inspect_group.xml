@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater name="inspect_group">
+	<string name="PrivateGroup">
+		Özel grup
+	</string>
+	<string name="FreeToJoin">
+		Katılım ücretsiz
+	</string>
+	<string name="CostToJoin">
+		Katılmak için L$[AMOUNT] gerekiyor
+	</string>
+	<string name="YouAreMember">
+		Siz üyesiniz
+	</string>
+	<text name="group_subtitle">
+		123 üye
+	</text>
+	<text name="group_details">
+		İçinde geyik olan bir oda oluşturmakla sorumlu bir grup insan.
+Geyikten korkun!  Korkun!  Firavun faresinden de!
+	</text>
+	<text name="group_cost">
+		Katılmak için L$123 gerekiyor
+	</text>
+	<button label="Katıl" name="join_btn"/>
+	<button label="Ayrıl" name="leave_btn"/>
+	<button label="Profili Göster" name="view_profile_btn"/>
+</floater>

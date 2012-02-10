@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ open_positioning="cascading"
+ ignore_ui_scale="false"
+ legacy_header_height="225"
+ can_minimize="true"
+ can_close="true"
+ can_resize="true"
+ min_height="230"
+ min_width="450"
+ height="230"
+ layout="topleft"
+ name="Avatar"
+ single_instance="true"
+ help_topic="avatar"
+ save_rect="true"
+ save_visibility="true"
+ title="CHOOSE AN AVATAR"
+ width="700">
+    <web_browser
+      top="25"
+      height="200"
+      width="700"
+      follows="all"
+      name="avatar_picker_contents"
+      trusted_content="true"/>
+</floater>

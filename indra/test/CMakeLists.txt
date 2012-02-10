@@ -4,7 +4,6 @@ project (test)
 
 include(00-Common)
 include(LLCommon)
-include(LLDatabase)
 include(LLInventory)
 include(LLMath)
 include(LLMessage)
@@ -32,7 +31,7 @@ include_directories(
 
 set(test_SOURCE_FILES
     io.cpp
-#    llapp_tut.cpp                      # Temporarily removed until thread issues can be solved
+    llapp_tut.cpp
     llblowfish_tut.cpp
     llbuffer_tut.cpp
     lldoubledispatch_tut.cpp
@@ -53,8 +52,6 @@ set(test_SOURCE_FILES
     llservicebuilder_tut.cpp
     llstreamtools_tut.cpp
     lltemplatemessagebuilder_tut.cpp
-    lltimestampcache_tut.cpp
-    lltranscode_tut.cpp
     lltut.cpp
     lluuidhashmap_tut.cpp
     message_tut.cpp
@@ -76,12 +73,6 @@ if (NOT WINDOWS)
        )
 endif (NOT WINDOWS)
 
-if (NOT DARWIN)
-  list(APPEND test_SOURCE_FILES
-    lldatabase_tut.cpp
-    )
-endif (NOT DARWIN)
-
 set_source_files_properties(${test_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
@@ -100,7 +91,6 @@ target_link_libraries(test
     ${LLCOMMON_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
-    ${APRICONV_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
@@ -119,38 +109,28 @@ endif (WINDOWS)
 
 get_target_property(TEST_EXE test LOCATION)
 
-SET_TEST_PATH(LD_LIBRARY_PATH)
-LL_TEST_COMMAND(command "${LD_LIBRARY_PATH}"
-  "${TEST_EXE}" "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
+SET_TEST_PATH(DYLD_LIBRARY_PATH)
+
+LL_TEST_COMMAND(command 
+  "${DYLD_LIBRARY_PATH}"
+  "${TEST_EXE}"
+  "--output=${CMAKE_CURRENT_BINARY_DIR}/cpp_test_results.txt" 
+  "--touch=${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt")
+
 ADD_CUSTOM_COMMAND(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt
   COMMAND ${command}
   DEPENDS test
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "C++ unit tests"
- )
+  )
 
 set(test_results ${CMAKE_CURRENT_BINARY_DIR}/cpp_tests_ok.txt)
 
-if (EXISTS /etc/debian_version_FAIL)
-  # The Python tests have all kinds of wacky non-portable assumptions
-  # built in.
-
-  add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/py_tests_ok.txt
-    COMMAND ${PYTHON_EXECUTABLE}
-    ARGS
-      ${CMAKE_CURRENT_SOURCE_DIR}/test.py
-      --mode=static
-      --output=${CMAKE_CURRENT_BINARY_DIR}/py_test_results.txt
-      --touch=${CMAKE_CURRENT_BINARY_DIR}/py_tests_ok.txt
-      --mode=static
-    DEPENDS test.py
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    COMMENT "Python unit tests"
-    )
-
-  list(APPEND test_results ${CMAKE_CURRENT_BINARY_DIR}/py_tests_ok.txt)
-endif (EXISTS /etc/debian_version_FAIL)
-    
-add_custom_target(tests_ok ALL DEPENDS ${test_results})
+# This should cause the test executable to be built, but not 
+# run if LL_TESTS is disabled. This will hopefully keep the
+# tests up to date with any code changes changes even if 
+# developers choose to disable LL_TESTS.
+if (LL_TESTS)  
+    add_custom_target(tests_ok ALL DEPENDS ${test_results})
+endif (LL_TESTS)

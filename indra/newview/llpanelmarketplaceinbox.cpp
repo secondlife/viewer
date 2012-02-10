@@ -32,6 +32,7 @@
 #include "llappviewer.h"
 #include "llbutton.h"
 #include "llinventorypanel.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llsidepanelinventory.h"
 #include "llviewercontrol.h"
@@ -47,6 +48,8 @@ const LLPanelMarketplaceInbox::Params& LLPanelMarketplaceInbox::getDefaultParams
 // protected
 LLPanelMarketplaceInbox::LLPanelMarketplaceInbox(const Params& p)
 	: LLPanel(p)
+	, mFreshCountCtrl(NULL)
+	, mInboxButton(NULL)
 	, mInventoryPanel(NULL)
 {
 }
@@ -58,26 +61,21 @@ LLPanelMarketplaceInbox::~LLPanelMarketplaceInbox()
 // virtual
 BOOL LLPanelMarketplaceInbox::postBuild()
 {
-	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLPanelMarketplaceInbox::handleLoginComplete, this));
-
 	LLFocusableElement::setFocusReceivedCallback(boost::bind(&LLPanelMarketplaceInbox::onFocusReceived, this));
+
+	mFreshCountCtrl = getChild<LLUICtrl>("inbox_fresh_new_count");
+	mInboxButton = getChild<LLButton>("inbox_btn");
 	
 	return TRUE;
 }
 
 void LLPanelMarketplaceInbox::onSelectionChange()
 {
-	LLSidepanelInventory* sidepanel_inventory = dynamic_cast<LLSidepanelInventory*>(LLSideTray::getInstance()->getPanel("sidepanel_inventory"));
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		
 	sidepanel_inventory->updateVerbs();
 }
 
-
-void LLPanelMarketplaceInbox::handleLoginComplete()
-{
-	// Set us up as the class to drive the badge value for the sidebar_inventory button
-	LLSideTray::getInstance()->setTabButtonBadgeDriver("sidebar_inventory", this);
-}
 
 LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 {
@@ -113,9 +111,11 @@ LLInventoryPanel * LLPanelMarketplaceInbox::setupInventoryPanel()
 
 void LLPanelMarketplaceInbox::onFocusReceived()
 {
-	LLSidepanelInventory * sidepanel_inventory = LLSideTray::getInstance()->getPanel<LLSidepanelInventory>("sidepanel_inventory");
-
-	sidepanel_inventory->clearSelections(true, false, true);
+	LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	if (sidepanel_inventory)
+	{
+		sidepanel_inventory->clearSelections(true, false);
+	}
 
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
@@ -156,6 +156,20 @@ U32 LLPanelMarketplaceInbox::getFreshItemCount() const
 					fresh_item_count++;
 				}
 			}
+
+			LLFolderViewFolder::items_t::const_iterator items_it = inbox_folder->getItemsBegin();
+			LLFolderViewFolder::items_t::const_iterator items_end = inbox_folder->getItemsEnd();
+
+			for (; items_it != items_end; ++items_it)
+			{
+				const LLFolderViewItem * item_view = *items_it;
+				const LLInboxFolderViewItem * inbox_item_view = dynamic_cast<const LLInboxFolderViewItem*>(item_view);
+
+				if (inbox_item_view && inbox_item_view->isFresh())
+				{
+					fresh_item_count++;
+				}
+			}
 		}
 	}
 
@@ -176,6 +190,7 @@ U32 LLPanelMarketplaceInbox::getTotalItemCount() const
 		if (inbox_folder)
 		{
 			item_count += inbox_folder->getFoldersCount();
+			item_count += inbox_folder->getItemsCount();
 		}
 	}
 	
@@ -186,9 +201,10 @@ std::string LLPanelMarketplaceInbox::getBadgeString() const
 {
 	std::string item_count_str("");
 
+	LLPanel *inventory_panel = LLFloaterSidePanelContainer::getPanel("inventory");
+
 	// If the inbox is visible, and the side panel is collapsed or expanded and not the inventory panel
-	if (getParent()->getVisible() &&
-		(LLSideTray::getInstance()->getCollapsed() || !LLSideTray::getInstance()->isPanelActive("sidepanel_inventory")))
+	if (getParent()->getVisible() && inventory_panel && !inventory_panel->isInVisibleChain())
 	{
 		U32 item_count = getFreshItemCount();
 
@@ -205,7 +221,7 @@ void LLPanelMarketplaceInbox::draw()
 {
 	U32 item_count = getTotalItemCount();
 
-	LLView * fresh_new_count_view = getChildView("inbox_fresh_new_count");
+	llassert(mFreshCountCtrl != NULL);
 
 	if (item_count > 0)
 	{
@@ -213,26 +229,26 @@ void LLPanelMarketplaceInbox::draw()
 
 		LLStringUtil::format_map_t args;
 		args["[NUM]"] = item_count_str;
-		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelWithArg", args));
+		mInboxButton->setLabel(getString("InboxLabelWithArg", args));
 
 #if SUPPORTING_FRESH_ITEM_COUNT
 		// set green text to fresh item count
 		U32 fresh_item_count = getFreshItemCount();
-		fresh_new_count_view->setVisible((fresh_item_count > 0));
+		mFreshCountCtrl->setVisible((fresh_item_count > 0));
 
 		if (fresh_item_count > 0)
 		{
-			getChild<LLUICtrl>("inbox_fresh_new_count")->setTextArg("[NUM]", llformat("%d", fresh_item_count));
+			mFreshCountCtrl->setTextArg("[NUM]", llformat("%d", fresh_item_count));
 		}
 #else
-		fresh_new_count_view->setVisible(FALSE);
+		mFreshCountCtrl->setVisible(FALSE);
 #endif
 	}
 	else
 	{
-		getChild<LLButton>("inbox_btn")->setLabel(getString("InboxLabelNoArg"));
+		mInboxButton->setLabel(getString("InboxLabelNoArg"));
 
-		fresh_new_count_view->setVisible(FALSE);
+		mFreshCountCtrl->setVisible(FALSE);
 	}
 		
 	LLPanel::draw();

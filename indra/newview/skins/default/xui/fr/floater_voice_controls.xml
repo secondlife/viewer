@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Contrôles vocaux">
+<floater name="floater_voice_controls" title="CONTROLES DE LA VOIX">
 	<string name="title_nearby">
-		CHAT VOCAL PRÈS DE VOUS
+		PARAMÈTRES VOCAUX
 	</string>
 	<string name="title_group">
-		Appel de groupe avec [GROUP]
+		APPEL DE GROUPE AVEC [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Téléconférence
+		CONFÉRENCE
 	</string>
 	<string name="title_peer_2_peer">
-		Appel avec [NAME]
+		APPEL AVEC [NAME]
 	</string>
 	<string name="no_one_near">
 		Il n&apos;y a personne près de vous avec le chat vocal activé

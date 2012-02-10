@@ -46,6 +46,7 @@
 
 #include <algorithm>
 #include <boost/regex.hpp>
+#include <boost/foreach.hpp>
 
 
 const std::string NOTIFICATION_PERSIST_VERSION = "0.93";
@@ -416,23 +417,17 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 		mSoundEffect = LLUUID(LLUI::sSettingGroups["config"]->getString(p.sound));
 	}
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::UniquenessContext>::const_iterator it = p.unique.contexts.begin(),
-			end_it = p.unique.contexts.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(const LLNotificationTemplate::UniquenessContext& context, p.unique.contexts)
 	{
-		mUniqueContext.push_back(it->value);
+		mUniqueContext.push_back(context.value);
 	}
 	
 	lldebugs << "notification \"" << mName << "\": tag count is " << p.tags.size() << llendl;
 	
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::Tag>::const_iterator it = p.tags.begin(),
-			end_it = p.tags.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(const LLNotificationTemplate::Tag& tag, p.tags)
 	{
-		lldebugs << "    tag \"" << std::string(it->value) << "\"" << llendl;
-		mTags.push_back(it->value);
+		lldebugs << "    tag \"" << std::string(tag.value) << "\"" << llendl;
+		mTags.push_back(tag.value);
 	}
 
 	mForm = LLNotificationFormPtr(new LLNotificationForm(p.name, p.form_ref.form));
@@ -1397,14 +1392,12 @@ void replaceFormText(LLNotificationForm::Params& form, const std::string& patter
 	{
 		form.ignore.text = replace;
 	}
-	for (LLInitParam::ParamIterator<LLNotificationForm::FormElement>::iterator it = form.form_elements.elements.begin(),
-			end_it = form.form_elements.elements.end();
-		it != end_it;
-		++it)
+
+	BOOST_FOREACH(LLNotificationForm::FormElement& element, form.form_elements.elements)
 	{
-		if (it->button.isChosen() && it->button.text() == pattern)
+		if (element.button.isChosen() && element.button.text() == pattern)
 		{
-			it->button.text = replace;
+			element.button.text = replace;
 		}
 	}
 }
@@ -1453,48 +1446,42 @@ bool LLNotifications::loadTemplates()
 
 	mTemplates.clear();
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::GlobalString>::const_iterator it = params.strings.begin(), end_it = params.strings.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(LLNotificationTemplate::GlobalString& string, params.strings)
 	{
-		mGlobalStrings[it->name] = it->value;
+		mGlobalStrings[string.name] = string.value;
 	}
 
 	std::map<std::string, LLNotificationForm::Params> form_templates;
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::Template>::const_iterator it = params.templates.begin(), end_it = params.templates.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(LLNotificationTemplate::Template& notification_template, params.templates)
 	{
-		form_templates[it->name] = it->form;
+		form_templates[notification_template.name] = notification_template.form;
 	}
 
-	for(LLInitParam::ParamIterator<LLNotificationTemplate::Params>::iterator it = params.notifications.begin(), end_it = params.notifications.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(LLNotificationTemplate::Params& notification, params.notifications)
 	{
-		if (it->form_ref.form_template.isChosen())
+		if (notification.form_ref.form_template.isChosen())
 		{
 			// replace form contents from template
-			it->form_ref.form = form_templates[it->form_ref.form_template.name];
-			if(it->form_ref.form_template.yes_text.isProvided())
+			notification.form_ref.form = form_templates[notification.form_ref.form_template.name];
+			if(notification.form_ref.form_template.yes_text.isProvided())
 			{
-				replaceFormText(it->form_ref.form, "$yestext", it->form_ref.form_template.yes_text);
+				replaceFormText(notification.form_ref.form, "$yestext", notification.form_ref.form_template.yes_text);
 			}
-			if(it->form_ref.form_template.no_text.isProvided())
+			if(notification.form_ref.form_template.no_text.isProvided())
 			{
-				replaceFormText(it->form_ref.form, "$notext", it->form_ref.form_template.no_text);
+				replaceFormText(notification.form_ref.form, "$notext", notification.form_ref.form_template.no_text);
 			}
-			if(it->form_ref.form_template.cancel_text.isProvided())
+			if(notification.form_ref.form_template.cancel_text.isProvided())
 			{
-				replaceFormText(it->form_ref.form, "$canceltext", it->form_ref.form_template.cancel_text);
+				replaceFormText(notification.form_ref.form, "$canceltext", notification.form_ref.form_template.cancel_text);
 			}
-			if(it->form_ref.form_template.ignore_text.isProvided())
+			if(notification.form_ref.form_template.ignore_text.isProvided())
 			{
-				replaceFormText(it->form_ref.form, "$ignoretext", it->form_ref.form_template.ignore_text);
+				replaceFormText(notification.form_ref.form, "$ignoretext", notification.form_ref.form_template.ignore_text);
 			}
 		}
-		mTemplates[it->name] = LLNotificationTemplatePtr(new LLNotificationTemplate(*it));
+		mTemplates[notification.name] = LLNotificationTemplatePtr(new LLNotificationTemplate(notification));
 	}
 
 	return true;
@@ -1517,12 +1504,9 @@ bool LLNotifications::loadVisibilityRules()
 
 	mVisibilityRules.clear();
 
-	for(LLInitParam::ParamIterator<LLNotificationVisibilityRule::Rule>::iterator it = params.rules.begin(), 
-			end_it = params.rules.end();
-		it != end_it;
-		++it)
+	BOOST_FOREACH(LLNotificationVisibilityRule::Rule& rule, params.rules)
 	{
-		mVisibilityRules.push_back(LLNotificationVisibilityRulePtr(new LLNotificationVisibilityRule(*it)));
+		mVisibilityRules.push_back(LLNotificationVisibilityRulePtr(new LLNotificationVisibilityRule(rule)));
 	}
 
 	return true;
@@ -1640,7 +1624,7 @@ LLNotificationPtr LLNotifications::find(LLUUID uuid)
 	LLNotificationSet::iterator it=mItems.find(target);
 	if (it == mItems.end())
 	{
-		llwarns << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << llendl;
+		LL_DEBUGS("Notifications") << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << llendl;
 		return LLNotificationPtr((LLNotification*)NULL);
 	}
 	else

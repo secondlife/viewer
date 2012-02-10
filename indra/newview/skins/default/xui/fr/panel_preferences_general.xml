@@ -11,10 +11,12 @@
 		<combo_box.item label="Español (Espagnol) - Bêta" name="Spanish"/>
 		<combo_box.item label="Français - Bêta" name="French"/>
 		<combo_box.item label="Italiano (Italien) - Bêta" name="Italian"/>
-		<combo_box.item label="Nederlands (Néerlandais) - Bêta" name="Dutch"/>
 		<combo_box.item label="Polski (Polonais) - Bêta" name="Polish"/>
 		<combo_box.item label="Português (Portugais) - Bêta" name="Portugese"/>
+		<combo_box.item label="Русский (Russe) - Bêta" name="Russian"/>
+		<combo_box.item label="Türkçe (Turc) - Bêta" name="Turkish"/>
 		<combo_box.item label="日本語 (Japonais) - Bêta" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (Chinois traditionnel) - Bêta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(redémarrage requis)
@@ -49,7 +51,6 @@
 	<check_box label="Titres de groupe" name="show_all_title_checkbox1" tool_tip="Afficher les titres de groupe, comme Officier ou Membre."/>
 	<check_box label="Mettre mes amis en surbrillance" name="show_friends" tool_tip="Mettre en surbrillance l&apos;affichage des noms de vos amis."/>
 	<check_box label="Voir les noms d&apos;affichage" name="display_names_check" tool_tip="Cocher pour utiliser les noms d&apos;affichage dans les chats, les IM, l&apos;affichage des noms, etc."/>
-	<check_box label="Activer les astuces de l&apos;interface" name="viewer_hints_check"/>
 	<text name="inworld_typing_rg_label">
 		Appuyer sur les touches lettre :
 	</text>

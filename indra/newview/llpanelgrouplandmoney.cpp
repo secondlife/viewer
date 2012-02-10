@@ -1062,7 +1062,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 
 	// We don't do time zone corrections of the calculated number of seconds
 	// because we don't have a full time stamp, only a date.
-	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%A %b %d, %Y", start_date);
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 	LLStringUtil::format (time_str, substitution);
 
 	if ( interval_days != mImplementationp->mIntervalLength || 
@@ -1217,7 +1217,7 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 
 		// We don't do time zone corrections of the calculated number of seconds
 		// because we don't have a full time stamp, only a date.
-		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%A %b %d, %Y", start_date);
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 		LLStringUtil::format (time_str, substitution);
 
 		text = time_str + "\n\n";
@@ -1431,22 +1431,23 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	LLSD substitution;
 	// We don't do time zone corrections of the calculated number of seconds
 	// because we don't have a full time stamp, only a date.
-	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%m/%d/%Y", start_date);
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
 	LLStringUtil::format (time_str, substitution);
 
 	text.append(time_str);
+	text.append(".  ");
 
 	if (current_interval == 0)
 	{
 		text.append(LLTrans::getString("NextStipendDay"));
 
 		time_str = date_format_str;
-		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%m/%d/%Y", next_stipend_date);
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", next_stipend_date);
 		LLStringUtil::format (time_str, substitution);
 
 		text.append(time_str);
-		text.append("\n\n");
-		text.append(llformat("%-24sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
+		text.append(".\n\n");
+		text.append(llformat("%-23sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
 		text.append(1, '\n');
 	}
 

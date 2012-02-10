@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Genel" name="general_panel">
+	<text name="language_textbox">
+		Dil:
+	</text>
+	<combo_box name="language_combobox">
+		<combo_box.item label="Sistem varsayılanı" name="System Default Language"/>
+		<combo_box.item label="English (İngilizce)" name="English"/>
+		<combo_box.item label="Dansk (Danca) - Beta" name="Danish"/>
+		<combo_box.item label="Deutsch (Almanca) - Beta" name="Deutsch(German)"/>
+		<combo_box.item label="Español (İspanyolca) - Beta" name="Spanish"/>
+		<combo_box.item label="Français (Fransızca) - Beta" name="French"/>
+		<combo_box.item label="Italiano (İtalyanca) - Beta" name="Italian"/>
+		<combo_box.item label="Polski (Lehçe) - Beta" name="Polish"/>
+		<combo_box.item label="Português (Portekizce) - Beta" name="Portugese"/>
+		<combo_box.item label="Русский (Rusça) - Beta" name="Russian"/>
+		<combo_box.item label="Türkçe - Beta" name="Turkish"/>
+		<combo_box.item label="日本語 (Japonca) - Beta" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (Geleneksel Çince) - Beta" name="Traditional Chinese"/>
+	</combo_box>
+	<text name="language_textbox2">
+		(Yeniden başlatma gerekir)
+	</text>
+	<text name="maturity_desired_prompt">
+		Seviyelndrl. içeriğe erişim istiyorum::
+	</text>
+	<combo_box name="maturity_desired_combobox">
+		<combo_box.item label="Genel, Orta, Yetişkin" name="Desired_Adult"/>
+		<combo_box.item label="Genel ve Orta" name="Desired_Mature"/>
+		<combo_box.item label="Genel" name="Desired_PG"/>
+	</combo_box>
+	<text name="start_location_textbox">
+		Standart konum:
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_box.item label="Son konumum" name="MyLastLocation"/>
+		<combo_box.item label="Ana Konumum" name="MyHome"/>
+	</combo_box>
+	<check_box initial_value="true" label="Oturumu açarken göster" name="show_location_checkbox"/>
+	<text name="name_tags_textbox">
+		Ad etiketleri:
+	</text>
+	<radio_group name="Name_Tag_Preference">
+		<radio_item label="Kapalı" name="radio" value="0"/>
+		<radio_item label="Açık" name="radio2" value="1"/>
+		<radio_item label="Kısaca göster" name="radio3" value="2"/>
+	</radio_group>
+	<check_box label="Adım" name="show_my_name_checkbox1"/>
+	<check_box label="Kullanıcı adları" name="show_slids" tool_tip="Kullanıcı adını göster, bobsmith123 gibi"/>
+	<check_box label="Grup unvanları" name="show_all_title_checkbox1" tool_tip="Grup unvanlarını göster, Görevli veya Üye gibi"/>
+	<check_box label="Arkadaşları vurgula" name="show_friends" tool_tip="Arkadaşlarının ad etiketlerini vurgula"/>
+	<check_box label="Ekran Adlarını Görüntüle" name="display_names_check" tool_tip="Sohbet, Aİ, ad etiketleri, vb.de ekran adlarını kullanmak için işaretle"/>
+	<text name="inworld_typing_rg_label">
+		Basılacak harf tuşları:
+	</text>
+	<radio_group name="inworld_typing_preference">
+		<radio_item label="Yerel sohbet başlat" name="radio_start_chat" value="1"/>
+		<radio_item label="Hareketi etkiler (yani WASD)" name="radio_move" value="0"/>
+	</radio_group>
+	<text name="title_afk_text">
+		Uzakta süre sonu:
+	</text>
+	<combo_box label="Uzakta süre sonu:" name="afk">
+		<combo_box.item label="2 dakika" name="item0"/>
+		<combo_box.item label="5 dakika" name="item1"/>
+		<combo_box.item label="10 dakika" name="item2"/>
+		<combo_box.item label="30 dakika" name="item3"/>
+		<combo_box.item label="asla" name="item4"/>
+	</combo_box>
+	<text name="text_box3">
+		Meşgul durumu cevabı:
+	</text>
+	<text_editor name="busy_response">
+		log_in_to_change
+	</text_editor>
+</panel>

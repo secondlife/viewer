@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="perm prefs" title="СТАНДАРТНЫЕ РАЗРЕШЕНИЯ НА ПЕРЕДАЧУ">
+	<panel label="Разрешения" name="permissions">
+		<check_box label="Поделиться с группой" name="share_with_group"/>
+		<check_box label="Разрешить всем копировать" name="everyone_copy"/>
+		<text name="NextOwnerLabel">
+			Следующий владелец может:
+		</text>
+		<check_box label="изменять" name="next_owner_modify"/>
+		<check_box label="копировать" name="next_owner_copy"/>
+		<check_box initial_value="истина" label="перепродавать/отдавать" name="next_owner_transfer"/>
+	</panel>
+	<button label="ОК" label_selected="ОК" name="ok"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel"/>
+</floater>

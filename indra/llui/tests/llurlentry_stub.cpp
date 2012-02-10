@@ -105,8 +105,6 @@ LLStyle::Params::Params()
 
 namespace LLInitParam
 {
-	BaseBlock::BaseBlock() {}
-	BaseBlock::~BaseBlock() {}
 	Param::Param(BaseBlock* enclosing_block)
 	:	mIsProvided(false)
 	{
@@ -114,7 +112,6 @@ namespace LLInitParam
 		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
 		mEnclosingBlockOffset = (U16)(my_addr - block_addr);
 	}
-	void BaseBlock::paramChanged(const Param& last_param, bool user_provided) {}
 
 	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name){}
 	void BaseBlock::addSynonym(Param& param, const std::string& synonym) {}
@@ -124,8 +121,8 @@ namespace LLInitParam
 	{
 		descriptor.mCurrentBlockPtr = this;
 	}
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, S32 generation){ return true; }
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const {}
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name){ return true; }
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const {}
 	bool BaseBlock::inspectBlock(Parser& parser, Parser::name_stack_t name_stack, S32 min_value, S32 max_value) const { return true; }
 	bool BaseBlock::mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite) { return true; }
 	bool BaseBlock::validateBlock(bool emit_errors) const { return true; }

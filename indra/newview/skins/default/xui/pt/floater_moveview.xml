@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater">
+<floater name="move_floater" title="ANDAR/CORRER/VOAR">
 	<string name="walk_forward_tooltip">
 		Andar para frente (flecha para cima ou W)
 	</string>
@@ -58,14 +58,14 @@
 		Voar
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="move up btn" tool_tip="Voar para cima (tecla E)"/>
 		<button label="" label_selected="" name="turn left btn" tool_tip="Virar à esquerda (flecha ESQ ou A)"/>
 		<joystick_slide name="move left btn" tool_tip="Andar para a esquerda (Shift + Seta esquerda ou A)"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Voar para baixo (tecla C)"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Virar à direita (flecha DIR ou D)"/>
 		<joystick_slide name="move right btn" tool_tip="Andar para a direita (Shift + Seta direita ou D)"/>
 		<joystick_turn name="forward btn" tool_tip="Andar para frente (flecha para cima ou W)"/>
 		<joystick_turn name="backward btn" tool_tip="Andar para trás (flecha para baixo ou S)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Voar para cima (tecla E)"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Voar para baixo (tecla C)"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="Modo caminhar"/>

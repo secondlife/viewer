@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="camera_floater" title="УПРАВЛЕНИЕ КАМЕРОЙ">
+	<floater.string name="rotate_tooltip">
+		Повернуть камеру вокруг точки фокусировки
+	</floater.string>
+	<floater.string name="zoom_tooltip">
+		Приблизить/отдалить камеру относительно точки фокусировки
+	</floater.string>
+	<floater.string name="move_tooltip">
+		Переместить камеру вверх, вниз, влево или вправо
+	</floater.string>
+	<floater.string name="free_mode_title">
+		Смотреть на объект
+	</floater.string>
+	<panel name="controls">
+		<panel name="preset_views_list">
+			<panel_camera_item name="front_view">
+				<panel_camera_item.text name="front_view_text">
+					Вид спереди
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="group_view">
+				<panel_camera_item.text name="side_view_text">
+					Вид сбоку
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="rear_view">
+				<panel_camera_item.text name="rear_view_text">
+					Вид сзади
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
+		<panel name="camera_modes_list">
+			<panel_camera_item name="object_view">
+				<panel_camera_item.text name="object_view_text">
+					Осмотр объекта
+				</panel_camera_item.text>
+			</panel_camera_item>
+			<panel_camera_item name="mouselook_view">
+				<panel_camera_item.text name="mouselook_view_text">
+					Обзор с помощью мыши
+				</panel_camera_item.text>
+			</panel_camera_item>
+		</panel>
+		<panel name="zoom">
+			<joystick_rotate name="cam_rotate_stick" tool_tip="Повернуть камеру вокруг точки фокусировки"/>
+			<slider_bar name="zoom_slider" tool_tip="Приблизить/отдалить камеру относительно точки фокусировки"/>
+			<joystick_track name="cam_track_stick" tool_tip="Переместить камеру вверх, вниз, влево или вправо"/>
+		</panel>
+	</panel>
+	<panel name="buttons">
+		<button label="" name="presets_btn" tool_tip="Стандартные настройки"/>
+		<button label="" name="pan_btn" tool_tip="Вращение, приближение, сдвиг"/>
+		<button label="" name="avatarview_btn" tool_tip="Режимы камеры"/>
+	</panel>
+</floater>

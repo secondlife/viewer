@@ -17,12 +17,9 @@
 	</panel.string>
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="Haz clic para actualizar tu saldo en L$" value="20 L$"/>
-		<button label="COMPRAR L$" name="buyL" tool_tip="Pulsa para comprar más L$"/>
+		<button label="Comprar L$" name="buyL" tool_tip="Pulsa para comprar más L$"/>
+		<button label="Comprar" name="goShop" tool_tip="Abrir el mercado de Second Life" width="80"/>
 	</panel>
-	<combo_box name="mode_combo" tool_tip="Selecciona el modo. Elige Básico para una exploración rápida y fácil y para chatear. Elige Avanzado para tener acceso a más funciones.">
-		<combo_box.item label="Modo Básico" name="Basic"/>
-		<combo_box.item label="Modo Avanzado" name="Advanced"/>
-	</combo_box>
 	<text name="TimeText" tool_tip="Hora actual (Pacífico)">
 		24:00 AM PST
 	</text>

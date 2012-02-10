@@ -130,7 +130,7 @@
 				交通量:
 			</text>
 			<text name="DwellText">
-				誤
+				ローディング...
 			</text>
 			<button label="土地の購入" label_selected="土地を購入..." left="130" name="Buy Land..." width="100"/>
 			<button label="リンデンセール" label_selected="Linden セール..." name="Linden Sale..." tool_tip="土地が所有されており、コンテンツが設定されている必要があります。オークションの対象になっていないことも必要条件です。"/>
@@ -214,19 +214,19 @@
 				オブジェクトボーナス: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				プリム使用状況：
+				リージョン（地域）の許容数：
 			</text>
 			<text name="objects_available">
 				[MAX] の内 [COUNT] （[AVAILABLE] 利用可能）
 			</text>
 			<text name="Primitives parcel supports:">
-				区画でサポートされるプリム数：
+				区画の許容数：
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				区画上のプリム数：
+				区画の負荷：
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
@@ -311,13 +311,15 @@
 				プッシュ禁止 （地域設定優先）
 			</panel.string>
 			<panel.string name="see_avs_text">
-				この区画にいる住人と会ってチャットする
+				他の区画にいるアバターは、
 			</panel.string>
 			<text name="allow_label">
 				他の住人への許可：
 			</text>
-			<check_box label="地形を編集" name="edit land check" tool_tip="チェックを入れると、他人があなたの土地の地形編集を行うことが可能となります。このオプションのチェックを外しておくことをおすすめします。外した状態であなたの土地の地形編集が可能です。"/>
-			<check_box label="飛行" name="check fly" tool_tip="チェックを入れるとこの土地での飛行が可能となります。チェックを外すと土地に入る際と通り過ぎるときのみ飛行可能となります。"/>
+			<text name="allow_label0">
+				飛行：
+			</text>
+			<check_box label="全員" name="check fly" tool_tip="チェックを入れるとこの土地での飛行が可能となります。チェックを外すと土地に入る際と通り過ぎるときのみ飛行可能となります。"/>
 			<text name="allow_label2">
 				制作：
 			</text>
@@ -333,9 +335,6 @@
 			</text>
 			<check_box label="全員" name="check other scripts"/>
 			<check_box label="グループ" name="check group scripts"/>
-			<text name="land_options_label">
-				土地オプション：
-			</text>
 			<check_box label="安全（ダメージなし）" name="check safe" tool_tip="チェックを入れるとこの土地でのダメージコンバットが無効になり、「安全」に設定されます。 チェックを外すとダメージコンバットが有効になります。"/>
 			<check_box label="プッシュ禁止" name="PushRestrictCheck" tool_tip="スクリプトによるプッシュを禁止します。 このオプションを選択することにより、あなたの土地での破壊的行動を防ぐことができます。"/>
 			<check_box label="検索に区画を表示（週 L$ 30）" name="ShowDirectoryCheck" tool_tip="この区画を検索結果に表示します"/>
@@ -376,9 +375,9 @@
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="写真をクリックして選択"/>
 			<text name="allow_label5">
-				他の区画にいる住人への許可：
+				この区画にいるアバターに会ってチャットできます
 			</text>
-			<check_box label="アバターを表示" name="SeeAvatarsCheck" tool_tip="他の区画の住人が、この区画にいる住人に会ってチャットすることを許可し、あなたもそれら住人に会ってチャットできるようにします。"/>
+			<check_box label="アバターを表示" name="SeeAvatarsCheck" tool_tip="他の区画のアバターが、この区画にいるアバターに会ってチャットすることを許可し、あなたもそれらアバターに会ってチャットできるようにします。"/>
 			<text name="landing_point">
 				着地点: [LANDING]
 			</text>

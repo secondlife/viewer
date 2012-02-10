@@ -130,7 +130,7 @@
 				Traffic:
 			</text>
 			<text name="DwellText">
-				0
+				Laden...
 			</text>
 			<button label="Land kaufen" label_selected="Land kaufen..." name="Buy Land..."/>
 			<button label="Linden-Verkauf" label_selected="Linden-Verkauf..." name="Linden Sale..." tool_tip="Land muss Eigentum und auf Inhalt gesetzt sein und nicht zur Auktion stehen."/>
@@ -214,19 +214,19 @@ werden.
 				Objektbonusfaktor in Region: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Prim-Verwendung:
+				Regionskapazität:
 			</text>
 			<text name="objects_available">
 				[COUNT] von [MAX] ([AVAILABLE] verfügbar)
 			</text>
 			<text name="Primitives parcel supports:">
-				Von Parzelle unterstützte Prims:
+				Parzellenlandkapazität:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Prims auf Parzelle:
+				Parzellenlandauswirkung:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
@@ -310,13 +310,15 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 				Kein Stoßen (regional)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Auf dieser Parzelle Einwohner sehen und mit ihnen chatten
+				Avatare auf anderen Parzellen können
 			</panel.string>
 			<text name="allow_label">
 				Anderen Einwohnern gestatten:
 			</text>
-			<check_box label="Terrain bearbeiten" name="edit land check" tool_tip="Falls aktiviert, kann jeder Ihr Land terraformen. Am besten ist es, wenn Sie diese Option deaktiviert lassen. Sie können Ihr eigenes Land jederzeit bearbeiten."/>
-			<check_box label="Fliegen" name="check fly" tool_tip="Falls aktiviert, können Einwohner auf Ihrem Land fliegen. Falls nicht aktiviert, können Einwohner lediglich auf Ihr Land fliegen und dort landen (dann jedoch nicht wieder weiterfliegen) oder über Ihr Land hinweg fliegen."/>
+			<text name="allow_label0">
+				Fliegen:
+			</text>
+			<check_box label="Jeder" name="check fly" tool_tip="Falls aktiviert, können Einwohner auf Ihrem Land fliegen. Falls nicht aktiviert, können Einwohner lediglich auf Ihr Land fliegen und dort landen (dann jedoch nicht wieder weiterfliegen) oder über Ihr Land hinweg fliegen."/>
 			<text name="allow_label2">
 				Bauen:
 			</text>
@@ -332,9 +334,6 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</text>
 			<check_box label="Jeder" name="check other scripts"/>
 			<check_box label="Gruppe" name="check group scripts"/>
-			<text name="land_options_label">
-				Landoptionen:
-			</text>
 			<check_box label="Sicher (kein Schaden)" name="check safe" tool_tip="Falls aktiviert, wird Land auf Option „Sicher“ eingestellt, Kampfschäden sind deaktiviert. Ansonsten sind Kampfschäden aktiviert."/>
 			<check_box label="Kein Stoßen" name="PushRestrictCheck" tool_tip="Verhindert Stoßen durch Skripte. Durch Aktivieren dieser Option verhindern Sie störendes Verhalten auf Ihrem Land."/>
 			<check_box label="Ort in Suche anzeigen (30 L$/Woche)" name="ShowDirectoryCheck" tool_tip="Diese Parzelle in Suchergebnissen anzeigen."/>
@@ -375,9 +374,9 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<text name="allow_label5">
-				Einwohnern auf anderen Parzellen Folgendes gestatten:
+				Avatare auf dieser Parzelle sehen und mit ihnen chatten
 			</text>
-			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Einwohnern auf anderen Parzellen, Einwohner auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Einwohner auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
+			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Avataren auf anderen Parzellen, Avatare auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Avatare auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
 			<text name="landing_point">
 				Landepunkt: [LANDING]
 			</text>

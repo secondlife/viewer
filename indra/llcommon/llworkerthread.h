@@ -83,10 +83,10 @@ private:
 	LLMutex* mDeleteMutex;
 	
 public:
-	LLWorkerThread(const std::string& name, bool threaded = true);
+	LLWorkerThread(const std::string& name, bool threaded = true, bool should_pause = false);
 	~LLWorkerThread();
 
-	/*virtual*/ S32 update(U32 max_time_ms);
+	/*virtual*/ S32 update(F32 max_time_ms);
 	
 	handle_t addWorkRequest(LLWorkerClass* workerclass, S32 param, U32 priority = PRIORITY_NORMAL);
 	
@@ -94,6 +94,7 @@ public:
 
 private:
 	void deleteWorker(LLWorkerClass* workerclass); // schedule for deletion
+	
 };
 
 //============================================================================
@@ -193,7 +194,7 @@ protected:
 	U32 mRequestPriority; // last priority set
 
 private:
-	LLMutexRootPool mMutex;		// Use LLMutexRootPool since this object is created and destructed by multiple threads.
+	LLMutex mMutex;
 	LLAtomicU32 mWorkFlags;
 };
 

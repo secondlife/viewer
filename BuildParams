@@ -43,14 +43,16 @@ snowstorm_viewer-development.login_channel = "Second Life Development"
 snowstorm_viewer-development.build_viewer_update_version_manager = false
 snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.com
 snowstorm_viewer-development.build_enforce_coding_policy = true
+snowstorm_viewer-development.codeticket_add_context = true
 
 Snowstorm_viewer-project-review.build_debug_release_separately = true
 Snowstorm_viewer-project-review.codeticket_add_context = true
 Snowstorm_viewer-project-review.viewer_channel = "Project Viewer - Snowstorm Team"
 Snowstorm_viewer-project-review.login_channel = "Project Viewer - Snowstorm Team"
+Snowstorm_viewer-project-review.codeticket_add_context = true
 
 # ========================================
-# Viewer Beta
+# Viewer Beta (Owner: Dessie Linden)
 # ========================================
 viewer-beta.viewer_channel = "Second Life Beta Viewer"
 viewer-beta.login_channel = "Second Life Beta Viewer"
@@ -64,7 +66,7 @@ viewer-pre-beta.build_viewer_update_version_manager = true
 
 
 # ========================================
-# Viewer Release
+# Viewer Release (Owner: Dessie Linden)
 # ========================================
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
@@ -75,7 +77,7 @@ viewer-pre-release.viewer_channel = "Second Life Release"
 viewer-pre-release.login_channel = "Second Life Release"
 viewer-pre-release.build_debug_release_separately = true
 viewer-pre-release.build_viewer_update_version_manager = true
-#viewer-pre-release.release-viewer.jira = DRTVWR-46
+#viewer-pre-release.release-viewer.jira = DRTVWR-92
 
 
 # ========================================
@@ -134,14 +136,6 @@ viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
 
-
-# ========================================
-# CG
-# ========================================
-
-cg_viewer-development_lenny.show_changes_since = 4b140ce7839d
-cg_viewer-development_lenny.email = cg@lindenlab.com
-
 # ================
 # oz
 # ================
@@ -149,20 +143,31 @@ cg_viewer-development_lenny.email = cg@lindenlab.com
 oz_viewer-devreview.build_debug_release_separately = true
 oz_viewer-devreview.codeticket_add_context = false
 oz_viewer-devreview.build_enforce_coding_policy = true
+oz_viewer-devreview.email = oz@lindenlab.com
 
-oz_project-1.build_debug_release_separately = true
-oz_project-1.codeticket_add_context = false
-oz_project-2.build_debug_release_separately = true
-oz_project-2.codeticket_add_context = false
-oz_project-3.build_debug_release_separately = true
-oz_project-3.codeticket_add_context = false
-oz_project-4.build_debug_release_separately = true
-oz_project-4.codeticket_add_context = false
+oz_viewer-trial.build_debug_release_separately = true
+oz_viewer-trial.codeticket_add_context = false
+oz_viewer-trial.build_enforce_coding_policy = true
+oz_viewer-trial.email = oz@lindenlab.com
 
 oz_viewer-beta-review.build_debug_release_separately = true
 oz_viewer-beta-review.codeticket_add_context = false
 oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
+oz_viewer-beta-review.email = oz@lindenlab.com
+
+oz_project-1.build_debug_release_separately = true
+oz_project-1.codeticket_add_context = false
+oz_project-1.email = oz@lindenlab.com
+oz_project-2.build_debug_release_separately = true
+oz_project-2.codeticket_add_context = false
+oz_project-2.email = oz@lindenlab.com
+oz_project-3.build_debug_release_separately = true
+oz_project-3.codeticket_add_context = false
+oz_project-3.email = oz@lindenlab.com
+oz_project-4.build_debug_release_separately = true
+oz_project-4.codeticket_add_context = false
+oz_project-4.email = oz@lindenlab.com
 
 # =================================================================
 # asset delivery 2010 projects

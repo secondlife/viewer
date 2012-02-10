@@ -119,6 +119,8 @@ private:
 	LLContextMenu*			mAccordionTabMenu;
 	LLHandle<LLView>		mGearMenuHandle;
 	LLMenuButton*			mMenuGearButton;
+
+	boost::signals2::connection mTeleportHistoryChangedConnection;
 };
 
 

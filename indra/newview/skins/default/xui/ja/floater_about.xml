@@ -10,7 +10,7 @@
 	<floater.string name="AboutPosition">
 		あなたの現在地は、[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] の [REGION] です。位置は &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; です。（[HOSTIP]）
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [リリースノート]]
+[SERVER_RELEASE_NOTES_URL]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		CPU： [CPU]
@@ -36,6 +36,9 @@ Qt Webkit バージョン： [QT_WEBKIT_VERSION]
 	</floater.string>
 	<floater.string name="AboutTraffic">
 		パケットロス： [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] （[PACKETS_PCT,number,1]%）
+	</floater.string>
+	<floater.string name="ErrorFetchingServerReleaseNotesURL">
+		サーバーのリリースノートの URL を取得中にエラーが発生しました。
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="情報" name="support_panel">
@@ -86,6 +89,8 @@ zlib Copyright (C) 1995-2002 Jean-loup Gailly and Mark Adler.
 google-perftools Copyright (c) 2005, Google Inc.
 
 Second Life ビューワでは Havok (TM) Physics が使用されています。(c)Copyright 1999-2010 Havok.com Inc. (and its Licensors).無断複写・複製・転載を禁じます。詳細については www.havok.com をご参照ください。
+
+このソフトウェアには、NVIDIA Corporation によるソースコードが含まれます。
 
 無断複写・複製・転載を禁じます。詳細については licenses.txt をご参照ください。
 

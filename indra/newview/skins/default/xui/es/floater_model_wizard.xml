@@ -6,25 +6,22 @@
 	<button label="2. Optimizar" name="optimize_btn"/>
 	<button label="1. Seleccionar archivo" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="choose_file_header_panel">
-			<text name="choose_file_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Elige el archivo de modelo
 			</text>
 		</panel>
-		<panel name="choose_file_content_panel">
+		<panel name="content">
 			<text name="advanced_users_text">
 				Usuarios avanzados: si tienes experiencia con las herramientas de creación de contenidos 3D, quizá te interese utilizar la función de subida avanzada.
 			</text>
 			<button label="Cambiar al modo Avanzado" name="switch_to_advanced"/>
-			<text name="choose_model_file_label">
+			<text name="Cache location">
 				Elige el archivo de modelo que deseas subir
 			</text>
 			<button label="Buscar..." label_selected="Buscar..." name="browse"/>
-			<text name="support_collada_text">
+			<text name="Model types">
 				‎Second Life admite los archivos COLLADA (.dae)
-			</text>
-			<text name="dimensions_label">
-				Dimensiones (metros):
 			</text>
 			<text name="dimensions">
 				X         Y         Z
@@ -38,18 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="optimize_header_panel">
-			<text name="optimize_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Optimizar el modelo
 			</text>
 		</panel>
-		<text name="optimize_hint">
+		<text name="description">
 			Hemos optimizado el rendimiento del modelo, pero puedes ajustarlo más si lo deseas.
 		</text>
-		<panel name="optimize_content_panel">
-			<text name="generating_lod_label">
-				Generando el nivel de detalle
-			</text>
+		<panel name="content">
 			<text name="high_detail_text">
 				Generar el nivel de detalle: Alto
 			</text>
@@ -64,123 +58,64 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="optimize_performance_text">
-				Rendimiento
-			</text>
-			<text name="optimize_faster_rendering_text">
-				Renderizado más rápido
-Menos detalles
-Menos peso de prim
-			</text>
-			<text name="optimize_accuracy_text">
-				Precisión
-			</text>
-			<text name="optimize_slower_rendering_text">
-				Renderizado más lento
-Más detalles
-Más peso de prim
-			</text>
-			<text name="accuracy_slider_mark1">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark2">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark3">
-				&apos;
-			</text>
 			<button label="Recalcular la geometría" name="recalculate_geometry_btn"/>
-			<text name="geometry_preview_label">
+			<text name="lod_label">
 				Vista previa de geometría
 			</text>
 			<combo_box name="preview_lod_combo" tool_tip="LOD para ver en renderizado de prueba">
-				<combo_item name="preview_lod_high">
+				<combo_item name="high">
 					Detalle alto
 				</combo_item>
-				<combo_item name="preview_lod_medium">
+				<combo_item name="medium">
 					Detalles medios
 				</combo_item>
-				<combo_item name="preview_lod_low">
+				<combo_item name="low">
 					Detalle bajo
 				</combo_item>
-				<combo_item name="preview_lod_lowest">
+				<combo_item name="lowest">
 					Detalles mínimos
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="physics_header_panel">
-			<text name="physics_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Ajustar la física
 			</text>
 		</panel>
-		<text name="physics_hint">
+		<text name="description">
 			Crearemos una forma para la apariencia exterior del modelo. Ajusta el nivel de detalle de la forma según se necesite para el propósito proyectado del modelo.
 		</text>
-		<panel name="physics_content_panel">
-			<text name="physics_performance_text">
-				Rendimiento
-			</text>
-			<text name="physics_faster_rendering_text">
-				Renderizado más rápido
-Menos detalles
-Menos peso de prim
-			</text>
-			<text name="physics_accuracy_text">
-				Precisión
-			</text>
-			<text name="physics_slower_dendering_text">
-				Renderizado más lento
-Más detalles
-Más peso de prim
-			</text>
-			<text name="physics_example_1">
-				Ejemplos:
-Objetos en movimiento
-Objetos voladores
-Vehículos
-			</text>
-			<text name="physics_example_2">
-				Ejemplos:
-Objetos estáticos pequeños
-Objetos con menos detalles
-Muebles sencillos
-			</text>
-			<text name="physics_example_3">
-				Ejemplos:
-Objetos estáticos
-Objetos con detalles
-Edificios
-			</text>
+		<panel name="content">
 			<button label="Recalcular física" name="recalculate_physics_btn"/>
 			<button label="Recalculando..." name="recalculating_physics_btn"/>
-			<text name="physics_preview_label">
+			<text name="lod_label">
 				Prueba de física
 			</text>
 			<combo_box name="preview_lod_combo2" tool_tip="LOD para ver en renderizado de prueba">
-				<combo_item name="preview_lod2_high">
+				<combo_item name="high">
 					Detalle alto
 				</combo_item>
-				<combo_item name="preview_lod2_medium">
+				<combo_item name="medium">
 					Detalles medios
 				</combo_item>
-				<combo_item name="preview_lod2_low">
+				<combo_item name="low">
 					Detalle bajo
 				</combo_item>
-				<combo_item name="preview_lod2_lowest">
+				<combo_item name="lowest">
 					Detalles mínimos
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="review_header_panel">
-			<text name="review_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Revisar
 			</text>
 		</panel>
-		<panel name="review_content_panel">
+		<panel name="content">
 			<text name="review_prim_equiv">
 				Impacto en la parcela/región: [EQUIV] equivalentes en prim
 			</text>
@@ -193,8 +128,8 @@ Edificios
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="upload_header_panel">
-			<text name="upload_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Subida finalizada
 			</text>
 		</panel>

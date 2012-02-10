@@ -79,6 +79,8 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 
 BOOL LLResizeBar::handleMouseDown(S32 x, S32 y, MASK mask)
 {
+	if (!canResize()) return FALSE;
+
 	// Route future Mouse messages here preemptively.  (Release on mouse up.)
 	// No handler needed for focus lost since this clas has no state that depends on it.
 	gFocusMgr.setMouseCapture( this );
@@ -243,7 +245,7 @@ BOOL LLResizeBar::handleHover(S32 x, S32 y, MASK mask)
 		handled = TRUE;
 	}
 
-	if( handled )
+	if( handled && canResize() )
 	{
 		switch( mSide )
 		{

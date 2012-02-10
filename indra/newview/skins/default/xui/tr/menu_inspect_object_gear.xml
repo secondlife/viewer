@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toggleable_menu name="Gear Menu">
+	<menu_item_call label="Dokun" name="touch"/>
+	<menu_item_call label="Otur" name="sit"/>
+	<menu_item_call label="Öde" name="pay"/>
+	<menu_item_call label="Satın Al" name="buy"/>
+	<menu_item_call label="Al" name="take"/>
+	<menu_item_call label="Kopya Al" name="take_copy"/>
+	<menu_item_call label="Aç" name="open"/>
+	<menu_item_call label="Düzenle" name="edit"/>
+	<menu_item_call label="Giy" name="wear"/>
+	<menu_item_call label="Ekle" name="add"/>
+	<menu_item_call label="Raporla" name="report"/>
+	<menu_item_call label="Engelle" name="block"/>
+	<menu_item_call label="Yakınlaştır" name="zoom_in"/>
+	<menu_item_call label="Kaldır" name="remove"/>
+	<menu_item_call label="Ek Bilgi" name="more_info"/>
+</toggleable_menu>

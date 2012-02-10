@@ -946,7 +946,7 @@ Zaproponować znajomość [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Czy chcesz usunąć [NAME] z listy znajomych?
+		Czy chcesz usunąć &lt;nolink&gt;[NAME]&lt;/nolink&gt; z listy znajomych?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1385,7 +1385,7 @@ W celu instalacji aktualizacji musi zostać wykonany restart [APP_NAME].
 		<usetemplate ignoretext="Potwierdź zanim zwrócisz obiekty do ich właścicieli" name="okcancelignore" notext="Anuluj" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Jesteś członkiem grupy [GROUP].
+		Jesteś członkiem grupy &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Chcesz opuścić grupę?
 		<usetemplate name="okcancelbuttons" notext="Anuluj" yestext="OK"/>
 	</notification>
@@ -2078,10 +2078,10 @@ Zamieść go na stronie internetowej żeby umożliwić innym łatwy dostęp do t
 		Temat: [SUBJECT], Treść: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] jest w Second Life
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; jest w Second Life
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] opuszcza Second Life
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; opuszcza Second Life
 	</notification>
 	<notification name="AddSelfFriend">
 		Nie możesz dodać siebie do listy znajomych.
@@ -2458,10 +2458,10 @@ Spróbuj ponowanie za kilka minut.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		Twoja propozycja znajomości została przyjęta przez [NAME].
+		Twoja propozycja znajomości została przyjęta przez &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</notification>
 	<notification name="FriendshipDeclined">
-		Twoja propozycja znajomości została odrzucona przez [NAME].
+		Twoja propozycja znajomości została odrzucona przez &lt;nolink&gt;[NAME]&lt;/nolink&gt;.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Propozycja znajomości została zaakceptowana.

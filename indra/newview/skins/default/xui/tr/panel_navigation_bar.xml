@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="navigation_bar">
+	<layout_stack name="nvp_stack">
+		<layout_panel name="navigation_layout_panel">
+			<panel name="navigation_panel">
+				<pull_button name="back_btn" tool_tip="Önceki konuma geri git"/>
+				<pull_button name="forward_btn" tool_tip="Bir konum ileri git"/>
+				<button name="home_btn" tool_tip="Ana konumuma ışınla"/>
+				<location_input label="Konum" name="location_combo"/>
+			</panel>
+		</layout_panel>
+		<layout_panel name="favorites_layout_panel">
+			<favorites_bar name="favorite" tool_tip="Second Life içerisinde sık kullandığınız yerlere hızla erişmek için Yer İmlerini buraya sürükleyin!">
+				<label name="favorites_bar_label" tool_tip="Second Life içerisinde sık kullandığınız yerlere hızla erişmek için Yer İmlerini buraya sürükleyin!">
+					Favoriler Çubuğu
+				</label>
+				<more_button name="&gt;&gt;" tool_tip="Favorilerimden daha çok göster">
+					Daha Fazla ▼
+				</more_button>
+			</favorites_bar>
+		</layout_panel>
+	</layout_stack>
+</panel>

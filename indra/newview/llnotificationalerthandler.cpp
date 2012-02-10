@@ -44,7 +44,7 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 {
 	mType = type;
 
-	LLChannelManager::Params p;
+	LLScreenChannelBase::Params p;
 	p.id = LLUUID(gSavedSettings.getString("AlertChannelUUID"));
 	p.display_toasts_always = true;
 	p.toast_align = NA_CENTRE;
@@ -114,7 +114,7 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		// Show alert in middle of progress view (during teleport) (EXT-1093)
 		LLProgressView* progress = gViewerWindow->getProgressView();
 		LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
-		mChannel->updatePositionAndSize(rc, rc);
+		mChannel->updatePositionAndSize(rc);
 
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 		if(channel)

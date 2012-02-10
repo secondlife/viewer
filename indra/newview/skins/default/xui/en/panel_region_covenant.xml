@@ -57,7 +57,7 @@
      mouse_opaque="false"
      name="estate_name_text"
      top_delta="0"
-     width="150">
+     width="350">
         mainland
     </text>
     <text
@@ -79,7 +79,7 @@
      mouse_opaque="false"
      name="estate_owner_text"
      top_delta="0"
-     width="150">
+     width="350">
         (none)
     </text>
     <text
@@ -107,13 +107,13 @@
     <text_editor
      enabled="false"
      follows="left|top"
-     height="100"
+     height="180"
      layout="topleft"
-     left="110"
+     left="10"
      max_length="65535"
      name="covenant_editor"
-     top_delta="30"
-     width="340"
+     top_delta="20"
+     width="460"
      word_wrap="true">
         There is no Covenant provided for this Estate.
     </text_editor>

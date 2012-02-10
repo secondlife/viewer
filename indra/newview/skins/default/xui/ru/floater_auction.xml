@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_auction" title="НАЧАТЬ ПРОДАЖУ ЗЕМЛИ ЛИНДЕНОВ">
+	<floater.string name="already for sale">
+		Нельзя выставить на аукцион участки, которые уже продаются.
+	</floater.string>
+	<check_box initial_value="истина" label="Включая желтую ограду вокруг выбранного участка" name="fence_check"/>
+	<button label="Снимок" label_selected="Снимок" name="snapshot_btn"/>
+	<button label="Купить может каждый" label_selected="Купить может каждый" name="sell_to_anyone_btn"/>
+	<button label="Очистить настройки" label_selected="Очистить настройки" name="reset_parcel_btn"/>
+	<button label="Начать аукцион" label_selected="Начать аукцион" name="start_auction_btn"/>
+</floater>

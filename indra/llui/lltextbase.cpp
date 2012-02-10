@@ -598,7 +598,7 @@ S32 LLTextBase::insertStringNoUndo(S32 pos, const LLWString &wstr, LLTextBase::s
 
 	pos = getEditableIndex(pos, true);
 
-	segment_set_t::iterator seg_iter = getSegIterContaining(pos);
+	segment_set_t::iterator seg_iter = getEditableSegIterContaining(pos);
 
 	LLTextSegmentPtr default_segment;
 
@@ -1510,8 +1510,48 @@ void LLTextBase::getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg
 	}
 }
 
+LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32 index)
+{
+	segment_set_t::iterator it = getSegIterContaining(index);
+	segment_set_t::iterator orig_it = it;
+
+	if (it == mSegments.end()) return it;
+
+	if (!(*it)->canEdit() 
+		&& index == (*it)->getStart() 
+		&& it != mSegments.begin())
+	{
+		it--;
+		if ((*it)->canEdit())
+		{
+			return it;
+		}
+	}
+	return orig_it;
+}
+
+LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaining(S32 index) const
+{
+	segment_set_t::const_iterator it = getSegIterContaining(index);
+	segment_set_t::const_iterator orig_it = it;
+	if (it == mSegments.end()) return it;
+
+	if (!(*it)->canEdit() 
+		&& index == (*it)->getStart() 
+		&& it != mSegments.begin())
+	{
+		it--;
+		if ((*it)->canEdit())
+		{
+			return it;
+		}
+	}
+	return orig_it;
+}
+
 LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 {
+
 	static LLPointer<LLIndexSegment> index_segment = new LLIndexSegment();
 
 	if (index > getLength()) { return mSegments.end(); }
@@ -2518,7 +2558,11 @@ BOOL LLTextSegment::handleDoubleClick(S32 x, S32 y, MASK mask) { return FALSE; }
 BOOL LLTextSegment::handleHover(S32 x, S32 y, MASK mask) { return FALSE; }
 BOOL LLTextSegment::handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; }
 BOOL LLTextSegment::handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; }
-std::string	LLTextSegment::getName() const { return ""; }
+const std::string&	LLTextSegment::getName() const 
+{
+	static std::string empty_string("");
+	return empty_string; 
+}
 void LLTextSegment::onMouseCaptureLost() {}
 void LLTextSegment::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {}
 void LLTextSegment::localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const {}

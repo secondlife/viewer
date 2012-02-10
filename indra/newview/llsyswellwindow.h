@@ -76,11 +76,6 @@ public:
 	static const S32 MIN_WINDOW_WIDTH		= 318;
 
 protected:
-
-	// gets a rect that bounds possible positions for the SysWellWindow on a screen (EXT-1111)
-	void getAllowedRect(LLRect& rect);
-
-
 	// init Window's channel
 	virtual void initChannel();
 
@@ -158,6 +153,7 @@ public:
 	~LLIMWellWindow();
 
 	static LLIMWellWindow* getInstance(const LLSD& key = LLSD());
+	static LLIMWellWindow* findInstance(const LLSD& key = LLSD());
 	static void initClass() { getInstance(); }
 
 	/*virtual*/ BOOL postBuild();

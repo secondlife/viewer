@@ -23,21 +23,22 @@
  * $/LicenseInfo$
  */
  
-
+uniform vec4 sunlight_color_copy;
+uniform vec4 light_ambient;
 
 vec3 atmosAmbient(vec3 light)
 {
-	return gl_LightModel.ambient.rgb + light;
+	return light + light_ambient.rgb;
 }
 
 vec3 atmosAffectDirectionalLight(float lightIntensity)
 {
-	return gl_LightSource[0].diffuse.rgb * lightIntensity;
+	return sunlight_color_copy.rgb * lightIntensity;
 }
 
 vec3 atmosGetDiffuseSunlightColor()
 {
-	return gl_LightSource[0].diffuse.rgb;
+	return sunlight_color_copy.rgb;
 }
 
 vec3 scaleDownLight(vec3 light)

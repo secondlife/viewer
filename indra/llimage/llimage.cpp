@@ -53,7 +53,7 @@ LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
 //static
 void LLImage::initClass()
 {
-	sMutex = new LLMutex;
+	sMutex = new LLMutex(NULL);
 
 	LLImageBase::createPrivatePool() ;
 }
@@ -195,7 +195,7 @@ U8* LLImageBase::allocateData(S32 size)
 		mData = (U8*)ALLOCATE_MEM(sPrivatePoolp, size);
 		if (!mData)
 		{
-			llwarns << "allocate image data: " << size << llendl;
+			llwarns << "Failed to allocate image data size [" << size << "]" << llendl;
 			size = 0 ;
 			mWidth = mHeight = 0 ;
 			mBadBufferAllocation = true ;
@@ -1566,7 +1566,8 @@ BOOL LLImageFormatted::load(const std::string &filename)
 	resetLastError();
 
 	S32 file_size = 0;
-	LLAPRFile infile(filename, LL_APR_RB, &file_size);
+	LLAPRFile infile ;
+	infile.open(filename, LL_APR_RB, NULL, &file_size);
 	apr_file_t* apr_file = infile.getFileHandle();
 	if (!apr_file)
 	{
@@ -1601,7 +1602,8 @@ BOOL LLImageFormatted::save(const std::string &filename)
 {
 	resetLastError();
 
-	LLAPRFile outfile(filename, LL_APR_WB);
+	LLAPRFile outfile ;
+	outfile.open(filename, LL_APR_WB);
 	if (!outfile.getFileHandle())
 	{
 		setLastError("Unable to open file for writing", filename);

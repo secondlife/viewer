@@ -329,13 +329,9 @@ public:
 			{
 				return lhs->getTexture() < rhs->getTexture();
 			}
-			else if (lte->getBumpShinyFullbright() != rte->getBumpShinyFullbright())
-			{
-				return lte->getBumpShinyFullbright() < rte->getBumpShinyFullbright();
-			}
 			else 
 			{
-				return lte->getGlow() < rte->getGlow();
+				return lte->getBumpShinyFullbright() < rte->getBumpShinyFullbright();
 			}
 		}
 	};

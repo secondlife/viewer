@@ -143,23 +143,10 @@ public:
 
 	/*virtual*/ BOOL isAnimatable() const { return FALSE; }
 	
-	static void updateVectorize(); // Update globals when settings variables change
-	
 private:
-	// Avatar vertex skinning is a significant performance issue on computers
-	// with avatar vertex programs turned off (for example, most Macs).  We
-	// therefore have custom versions that use SIMD instructions.
-	//
-	// These functions require compiler options for SSE2, SSE, or neither, and
-	// hence are contained in separate individual .cpp files.  JC
-	static void updateGeometryOriginal(LLFace* face, LLPolyMesh* mesh);
-	// generic vector code, used for Altivec
-	static void updateGeometryVectorized(LLFace* face, LLPolyMesh* mesh);
-	static void updateGeometrySSE(LLFace* face, LLPolyMesh* mesh);
-	static void updateGeometrySSE2(LLFace* face, LLPolyMesh* mesh);
 
-	// Use a fuction pointer to indicate which version we are running.
-	static void (*sUpdateGeometryFunc)(LLFace* face, LLPolyMesh* mesh);
+	//copy mesh into given face's vertex buffer, applying current animation pose
+	static void updateGeometry(LLFace* face, LLPolyMesh* mesh);
 
 private:
 	// Allocate skin data

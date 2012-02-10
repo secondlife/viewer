@@ -92,19 +92,24 @@ void LLDockControl::setDock(LLView* dockWidget)
 
 void LLDockControl::getAllowedRect(LLRect& rect)
 {
-	rect = mDockableFloater->getRootView()->getRect();
+	rect = mDockableFloater->getRootView()->getChild<LLView>("non_toolbar_panel")->getRect();
 }
 
 void LLDockControl::repositionDockable()
 {
+	if (!mDockWidget) return;
 	LLRect dockRect = mDockWidget->calcScreenRect();
 	LLRect rootRect;
+	LLRect floater_rect = mDockableFloater->calcScreenRect();
 	mGetAllowedRectCallback(rootRect);
 
-	// recalculate dockable position if dock position changed, dock visibility changed,
-	// root view rect changed or recalculation is forced
-	if (mPrevDockRect != dockRect  || mDockWidgetVisible != isDockVisible()
-			|| mRootRect != rootRect || mRecalculateDocablePosition)
+	// recalculate dockable position if:
+	if (mPrevDockRect != dockRect					//dock position   changed
+		|| mDockWidgetVisible != isDockVisible()	//dock visibility changed
+		|| mRootRect != rootRect					//root view rect  changed
+		|| mFloaterRect != floater_rect				//floater rect    changed
+		|| mRecalculateDockablePosition				//recalculation is forced
+	)
 	{
 		// undock dockable and off() if dock not visible
 		if (!isDockVisible())
@@ -135,7 +140,8 @@ void LLDockControl::repositionDockable()
 
 		mPrevDockRect = dockRect;
 		mRootRect = rootRect;
-		mRecalculateDocablePosition = false;
+		mFloaterRect = floater_rect;
+		mRecalculateDockablePosition = false;
 		mDockWidgetVisible = isDockVisible();
 	}
 }
@@ -160,7 +166,7 @@ bool LLDockControl::isDockVisible()
 			case TOP:
 			{
 				// check is dock inside parent rect
-				// assume that parent for all dockable flaoters
+				// assume that parent for all dockable floaters
 				// is the root view
 				LLRect dockParentRect =
 						mDockWidget->getRootView()->calcScreenRect();
@@ -202,21 +208,33 @@ void LLDockControl::moveDockable()
 	switch (mDockAt)
 	{
 	case LEFT:
-		x = dockRect.mLeft;
-		y = dockRect.mTop + mDockTongue->getHeight() + dockableRect.getHeight();
-		// check is dockable inside root view rect
-		if (x < rootRect.mLeft)
-		{
-			x = rootRect.mLeft;
-		}
-		if (x + dockableRect.getWidth() > rootRect.mRight)
-		{
-			x = rootRect.mRight - dockableRect.getWidth();
-		}
+
+		x = dockRect.mLeft - dockableRect.getWidth();
+		y = dockRect.getCenterY() + dockableRect.getHeight() / 2;
 		
-		mDockTongueX = x + dockableRect.getWidth()/2 - mDockTongue->getWidth() / 2;
+		if (use_tongue)
+		{
+			x -= mDockTongue->getWidth();
+		}
+
+		mDockTongueX = dockableRect.mRight;
+		mDockTongueY = dockableRect.getCenterY() - mDockTongue->getHeight() / 2;
 		
-		mDockTongueY = dockRect.mTop;
+		break;
+
+	case RIGHT:
+
+		x = dockRect.mRight;
+		y = dockRect.getCenterY() + dockableRect.getHeight() / 2;
+
+		if (use_tongue)
+		{
+			x += mDockTongue->getWidth();
+		}
+
+		mDockTongueX = dockRect.mRight;
+		mDockTongueY = dockableRect.getCenterY() - mDockTongue->getHeight() / 2;
+
 		break;
 
 	case TOP:
@@ -314,13 +332,12 @@ void LLDockControl::moveDockable()
 		dockableRect.setLeftTopAndSize(x, y, dockableRect.getWidth(),
 				dockableRect.getHeight());
 	}
-	LLRect localDocableParentRect;
-	mDockableFloater->getParent()->screenRectToLocal(dockableRect,
-			&localDocableParentRect);
-	mDockableFloater->setRect(localDocableParentRect);
 
-	mDockableFloater->screenPointToLocal(mDockTongueX, mDockTongueY,
-			&mDockTongueX, &mDockTongueY);
+	LLRect localDocableParentRect;
+
+	mDockableFloater->getParent()->screenRectToLocal(dockableRect, &localDocableParentRect);
+	mDockableFloater->setRect(localDocableParentRect);
+	mDockableFloater->screenPointToLocal(mDockTongueX, mDockTongueY, &mDockTongueX, &mDockTongueY);
 
 }
 
@@ -329,7 +346,7 @@ void LLDockControl::on()
 	 if (isDockVisible())
 	{
 		mEnabled = true;
-		mRecalculateDocablePosition = true;
+		mRecalculateDockablePosition = true;
 	}
 }
 
@@ -340,7 +357,7 @@ void LLDockControl::off()
 
 void LLDockControl::forceRecalculatePosition()
 {
-	mRecalculateDocablePosition = true;
+	mRecalculateDockablePosition = true;
 }
 
 void LLDockControl::drawToungue()

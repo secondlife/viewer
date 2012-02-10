@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Cihaz Ayarları" name="device_settings_panel">
+	<panel.string name="default_text">
+		Varsayılan
+	</panel.string>
+	<string name="name_no_device">
+		Cihaz Yok
+	</string>
+	<string name="name_default_system_device">
+		Varsayılan Sistem Cihazı
+	</string>
+	<text name="Input">
+		Girdi
+	</text>
+	<text name="Output">
+		Çıktı
+	</text>
+	<text name="My volume label">
+		Ses düzeyim:
+	</text>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Bu kaydırıcıyı kullanarak ses düzeyini değiştirin"/>
+	<text name="wait_text">
+		Lütfen bekleyin
+	</text>
+</panel>

@@ -43,6 +43,7 @@ public:
 	{
 		TOP,
 		LEFT,
+		RIGHT,
 		BOTTOM
 	};
 
@@ -79,12 +80,13 @@ private:
 private:
 	get_allowed_rect_callback_t mGetAllowedRectCallback;
 	bool mEnabled;
-	bool mRecalculateDocablePosition;
+	bool mRecalculateDockablePosition;
 	bool mDockWidgetVisible;
 	DocAt mDockAt;
 	LLView* mDockWidget;
 	LLRect mPrevDockRect;
 	LLRect mRootRect;
+	LLRect mFloaterRect;
 	LLFloater* mDockableFloater;
 	LLUIImagePtr mDockTongue;
 	S32 mDockTongueX;

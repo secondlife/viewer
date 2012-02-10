@@ -160,14 +160,14 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	static const unsigned int vertices_per_quad = 4;
 	static const unsigned int indices_per_quad = 6;
 
-	const S32 size = gSavedSettings.getBOOL("RenderTransparentWater") ? 16 : 1;
+	const S32 size = gSavedSettings.getBOOL("RenderTransparentWater") && !LLGLSLShader::sNoFixedFunction ? 16 : 1;
 
 	const S32 num_quads = size * size;
 	face->setSize(vertices_per_quad * num_quads,
 				  indices_per_quad * num_quads);
 	
 	LLVertexBuffer* buff = face->getVertexBuffer();
-	if (!buff)
+	if (!buff || !buff->isWriteable())
 	{
 		buff = new LLVertexBuffer(LLDrawPoolWater::VERTEX_DATA_MASK, GL_DYNAMIC_DRAW_ARB);
 		buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE);
@@ -231,7 +231,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 		}
 	}
 	
-	buff->setBuffer(0);
+	buff->flush();
 
 	mDrawable->movePartition();
 	LLPipeline::sCompiles++;

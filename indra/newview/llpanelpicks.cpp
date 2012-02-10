@@ -35,6 +35,7 @@
 #include "lldispatcher.h"
 #include "llflatlistview.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
@@ -48,11 +49,11 @@
 #include "llaccordionctrl.h"
 #include "llaccordionctrltab.h"
 #include "llavatarpropertiesprocessor.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
 #include "llpanelpick.h"
 #include "llpanelclassified.h"
-#include "llsidetray.h"
 
 static const std::string XML_BTN_NEW = "new_btn";
 static const std::string XML_BTN_DELETE = "trash_btn";
@@ -129,11 +130,14 @@ public:
 
 	void createPick()
 	{
-		LLSD params;
-		params["id"] = gAgent.getID();
-		params["open_tab_name"] = "panel_picks";
-		params["show_tab_panel"] = "create_pick";
-		LLSideTray::getInstance()->showPanel("panel_me", params);
+		// open the new pick panel on the Picks floater
+		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
+
+		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
+		if (picks)
+		{
+			picks->createNewPick();
+		}
 	}
 
 	void editPick(LLPickData* pick_info)
@@ -146,8 +150,7 @@ public:
 		params["snapshot_id"] = pick_info->snapshot_id;
 		params["pick_name"] = pick_info->name;
 		params["pick_desc"] = pick_info->desc;
-		
-		LLSideTray::getInstance()->showPanel("panel_me", params);
+		LLFloaterSidePanelContainer::showPanel("picks", params);
 	}
 	
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type)
@@ -247,12 +250,14 @@ public:
 
 	void createClassified()
 	{
-		// open the new classified panel on the Me > Picks sidetray
-		LLSD params;
-		params["id"] = gAgent.getID();
-		params["open_tab_name"] = "panel_picks";
-		params["show_tab_panel"] = "create_classified";
-		LLSideTray::getInstance()->showPanel("panel_me", params);
+		// open the new classified panel on the Picks floater
+		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
+
+		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
+		if (picks)
+		{
+			picks->createNewClassified();
+		}
 	}
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
@@ -270,7 +275,7 @@ public:
 			params["classified_name"] = c_info->name;
 			params["classified_desc"] = c_info->description;
 			params["from_search"] = true;
-			LLSideTray::getInstance()->showPanel("panel_profile_view", params);
+			LLFloaterSidePanelContainer::showPanel("picks", params);
 		}
 		else if (mRequestVerb == "edit")
 		{
@@ -283,7 +288,7 @@ public:
 				params["open_tab_name"] = "panel_picks";
 				params["show_tab_panel"] = "edit_classified";
 				params["classified_id"] = c_info->classified_id;
-				LLSideTray::getInstance()->showPanel("panel_me", params);
+				LLFloaterSidePanelContainer::showPanel("my_profile", params);
 			}
 			else
 			{
@@ -1043,13 +1048,10 @@ void LLPanelPicks::createPickInfoPanel()
 
 void LLPanelPicks::createClassifiedInfoPanel()
 {
-	if(!mPanelClassifiedInfo)
-	{
-		mPanelClassifiedInfo = LLPanelClassifiedInfo::create();
-		mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedInfo));
-		mPanelClassifiedInfo->setEditClassifiedCallback(boost::bind(&LLPanelPicks::onPanelClassifiedEdit, this));
-		mPanelClassifiedInfo->setVisible(FALSE);
-	}
+	mPanelClassifiedInfo = LLPanelClassifiedInfo::create();
+	mPanelClassifiedInfo->setExitCallback(boost::bind(&LLPanelPicks::onPanelClassifiedClose, this, mPanelClassifiedInfo));
+	mPanelClassifiedInfo->setEditClassifiedCallback(boost::bind(&LLPanelPicks::onPanelClassifiedEdit, this));
+	mPanelClassifiedInfo->setVisible(FALSE);
 }
 
 void LLPanelPicks::createClassifiedEditPanel(LLPanelClassifiedEdit** panel)
@@ -1067,14 +1069,11 @@ void LLPanelPicks::createClassifiedEditPanel(LLPanelClassifiedEdit** panel)
 
 void LLPanelPicks::createPickEditPanel()
 {
-	if(!mPanelPickEdit)
-	{
-		mPanelPickEdit = LLPanelPickEdit::create();
-		mPanelPickEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
-		mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickSave, this, mPanelPickEdit));
-		mPanelPickEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
-		mPanelPickEdit->setVisible(FALSE);
-	}
+	mPanelPickEdit = LLPanelPickEdit::create();
+	mPanelPickEdit->setExitCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
+	mPanelPickEdit->setSaveCallback(boost::bind(&LLPanelPicks::onPanelPickSave, this, mPanelPickEdit));
+	mPanelPickEdit->setCancelCallback(boost::bind(&LLPanelPicks::onPanelPickClose, this, mPanelPickEdit));
+	mPanelPickEdit->setVisible(FALSE);
 }
 
 // void LLPanelPicks::openPickEditPanel(LLPickItem* pick)

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+      layout="topleft"
+      name="Toolbars Popup"
+      visible="false">
+  <menu_item_call label="Remove this button"
+                  layout="topleft"
+                  name="Remove button">
+    <menu_item_call.on_click function="Toolbars.RemoveSelectedCommand" />
+  </menu_item_call>
+  <menu_item_separator layout="topleft" />
+  <menu_item_call label="Toolbar buttons..."
+                  layout="topleft"
+                  name="Choose Buttons">
+    <menu_item_call.on_click function="Floater.Show"
+                             parameter="toybox" />
+  </menu_item_call>
+  <menu_item_separator layout="topleft" />
+  <menu_item_check label="Icons and labels"
+                   layout="topleft"
+                   name="icons_with_text">
+    <on_click function="Toolbars.EnableSetting"
+              parameter="icons_with_text" />
+    <on_check function="Toolbars.CheckSetting"
+              parameter="icons_with_text" />
+  </menu_item_check>
+  <menu_item_check label="Icons only"
+                   layout="topleft"
+                   name="icons_only">
+    <on_click function="Toolbars.EnableSetting"
+              parameter="icons_only" />
+    <on_check function="Toolbars.CheckSetting"
+              parameter="icons_only" />
+  </menu_item_check>
+</context_menu>

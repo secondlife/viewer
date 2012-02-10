@@ -35,7 +35,6 @@
 #include "llhost.h"
 #include "llmemtype.h"
 #include "llpumpio.h"
-#include "llthread.h"
 
 //
 // constants
@@ -99,31 +98,51 @@ void ll_debug_socket(const char* msg, apr_socket_t* apr_sock)
 ///
 
 // static
-LLSocket::ptr_t LLSocket::create(EType type, U16 port)
+LLSocket::ptr_t LLSocket::create(apr_pool_t* pool, EType type, U16 port)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_TCP);
+	LLSocket::ptr_t rv;
+	apr_socket_t* socket = NULL;
+	apr_pool_t* new_pool = NULL;
 	apr_status_t status = APR_EGENERAL;
-	LLSocket::ptr_t rv(new LLSocket);
+
+	// create a pool for the socket
+	status = apr_pool_create(&new_pool, pool);
+	if(ll_apr_warn_status(status))
+	{
+		if(new_pool) apr_pool_destroy(new_pool);
+		return rv;
+	}
 
 	if(STREAM_TCP == type)
 	{
-		status = apr_socket_create(&rv->mSocket, APR_INET, SOCK_STREAM, APR_PROTO_TCP, rv->mPool());
+		status = apr_socket_create(
+			&socket,
+			APR_INET,
+			SOCK_STREAM,
+			APR_PROTO_TCP,
+			new_pool);
 	}
 	else if(DATAGRAM_UDP == type)
 	{
-		status = apr_socket_create(&rv->mSocket, APR_INET, SOCK_DGRAM, APR_PROTO_UDP, rv->mPool());
+		status = apr_socket_create(
+			&socket,
+			APR_INET,
+			SOCK_DGRAM,
+			APR_PROTO_UDP,
+			new_pool);
 	}
 	else
 	{
-		rv.reset();
+		if(new_pool) apr_pool_destroy(new_pool);
 		return rv;
 	}
 	if(ll_apr_warn_status(status))
 	{
-		rv->mSocket = NULL;
-		rv.reset();
+		if(new_pool) apr_pool_destroy(new_pool);
 		return rv;
 	}
+	rv = ptr_t(new LLSocket(socket, new_pool));
 	if(port > 0)
 	{
 		apr_sockaddr_t* sa = NULL;
@@ -133,7 +152,7 @@ LLSocket::ptr_t LLSocket::create(EType type, U16 port)
 			APR_UNSPEC,
 			port,
 			0,
-			rv->mPool());
+			new_pool);
 		if(ll_apr_warn_status(status))
 		{
 			rv.reset();
@@ -141,8 +160,8 @@ LLSocket::ptr_t LLSocket::create(EType type, U16 port)
 		}
 		// This allows us to reuse the address on quick down/up. This
 		// is unlikely to create problems.
-		ll_apr_warn_status(apr_socket_opt_set(rv->mSocket, APR_SO_REUSEADDR, 1));
-		status = apr_socket_bind(rv->mSocket, sa);
+		ll_apr_warn_status(apr_socket_opt_set(socket, APR_SO_REUSEADDR, 1));
+		status = apr_socket_bind(socket, sa);
 		if(ll_apr_warn_status(status))
 		{
 			rv.reset();
@@ -156,7 +175,7 @@ LLSocket::ptr_t LLSocket::create(EType type, U16 port)
 			// to keep a queue of incoming connections for ACCEPT.
 			lldebugs << "Setting listen state for socket." << llendl;
 			status = apr_socket_listen(
-				rv->mSocket,
+				socket,
 				LL_DEFAULT_LISTEN_BACKLOG);
 			if(ll_apr_warn_status(status))
 			{
@@ -177,27 +196,20 @@ LLSocket::ptr_t LLSocket::create(EType type, U16 port)
 }
 
 // static
-LLSocket::ptr_t LLSocket::create(apr_status_t& status, LLSocket::ptr_t& listen_socket)
+LLSocket::ptr_t LLSocket::create(apr_socket_t* socket, apr_pool_t* pool)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_TCP);
-	if (!listen_socket->getSocket())
+	LLSocket::ptr_t rv;
+	if(!socket)
 	{
-		status = APR_ENOSOCKET;
-		return LLSocket::ptr_t();
-	}
-	LLSocket::ptr_t rv(new LLSocket);
-	lldebugs << "accepting socket" << llendl;
-	status = apr_socket_accept(&rv->mSocket, listen_socket->getSocket(), rv->mPool());
-	if (status != APR_SUCCESS)
-	{
-		rv->mSocket = NULL;
-		rv.reset();
 		return rv;
 	}
+	rv = ptr_t(new LLSocket(socket, pool));
 	rv->mPort = PORT_EPHEMERAL;
 	rv->setNonBlocking();
 	return rv;
 }
+
 
 bool LLSocket::blockingConnect(const LLHost& host)
 {
@@ -211,7 +223,7 @@ bool LLSocket::blockingConnect(const LLHost& host)
 		APR_UNSPEC,
 		host.getPort(),
 		0,
-		mPool())))
+		mPool)))
 	{
 		return false;
 	}
@@ -222,11 +234,13 @@ bool LLSocket::blockingConnect(const LLHost& host)
 	return true;
 }
 
-LLSocket::LLSocket() :
-	mSocket(NULL),
-	mPool(LLThread::tldata().mRootPool),
+LLSocket::LLSocket(apr_socket_t* socket, apr_pool_t* pool) :
+	mSocket(socket),
+	mPool(pool),
 	mPort(PORT_INVALID)
 {
+	ll_debug_socket("Constructing wholely formed socket", mSocket);
+	LLMemType m1(LLMemType::MTYPE_IO_TCP);
 }
 
 LLSocket::~LLSocket()
@@ -238,6 +252,10 @@ LLSocket::~LLSocket()
 		ll_debug_socket("Destroying socket", mSocket);
 		apr_socket_close(mSocket);
 		mSocket = NULL;
+	}
+	if(mPool)
+	{
+		apr_pool_destroy(mPool);
 	}
 }
 
@@ -427,6 +445,7 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 	// efficient - not only because writev() is better, but also
 	// because we won't have to do as much work to find the start
 	// address.
+	buffer->lock();
 	LLBufferArray::segment_iterator_t it;
 	LLBufferArray::segment_iterator_t end = buffer->endSegment();
 	LLSegment segment;
@@ -506,6 +525,8 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 		}
 
 	}
+	buffer->unlock();
+
 	PUMP_DEBUG;
 	if(done && eos)
 	{
@@ -520,8 +541,10 @@ LLIOPipe::EStatus LLIOSocketWriter::process_impl(
 ///
 
 LLIOServerSocket::LLIOServerSocket(
+	apr_pool_t* pool,
 	LLIOServerSocket::socket_t listener,
 	factory_t factory) :
+	mPool(pool),
 	mListenSocket(listener),
 	mReactor(factory),
 	mInitialized(false),
@@ -583,15 +606,21 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	lldebugs << "accepting socket" << llendl;
 
 	PUMP_DEBUG;
-	apr_status_t status;
-	LLSocket::ptr_t llsocket(LLSocket::create(status, mListenSocket));
+	apr_pool_t* new_pool = NULL;
+	apr_status_t status = apr_pool_create(&new_pool, mPool);
+	apr_socket_t* socket = NULL;
+	status = apr_socket_accept(
+		&socket,
+		mListenSocket->getSocket(),
+		new_pool);
+	LLSocket::ptr_t llsocket(LLSocket::create(socket, new_pool));
 	//EStatus rv = STATUS_ERROR;
-	if(llsocket && status == APR_SUCCESS)
+	if(llsocket)
 	{
 		PUMP_DEBUG;
 
 		apr_sockaddr_t* remote_addr;
-		apr_socket_addr_get(&remote_addr, APR_REMOTE, llsocket->getSocket());
+		apr_socket_addr_get(&remote_addr, APR_REMOTE, socket);
 		
 		char* remote_host_string;
 		apr_sockaddr_ip_get(&remote_host_string, remote_addr);
@@ -606,6 +635,7 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 		{
 			chain.push_back(LLIOPipe::ptr_t(new LLIOSocketWriter(llsocket)));
 			pump->addChain(chain, mResponseTimeout);
+			status = STATUS_OK;
 		}
 		else
 		{
@@ -614,8 +644,7 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 	}
 	else
 	{
-		char buf[256];
-		llwarns << "Unable to accept linden socket: " << apr_strerror(status, buf, sizeof(buf)) << llendl;
+		llwarns << "Unable to create linden socket." << llendl;
 	}
 
 	PUMP_DEBUG;
@@ -628,10 +657,11 @@ LLIOPipe::EStatus LLIOServerSocket::process_impl(
 #if 0
 LLIODataSocket::LLIODataSocket(
 	U16 suggested_port,
-	U16 start_discovery_port) :
+	U16 start_discovery_port,
+	apr_pool_t* pool) : 
 	mSocket(NULL)
 {
-	if(PORT_INVALID == suggested_port) return;
+	if(!pool || (PORT_INVALID == suggested_port)) return;
 	if(ll_apr_warn_status(apr_socket_create(&mSocket, APR_INET, SOCK_DGRAM, APR_PROTO_UDP, pool))) return;
 	apr_sockaddr_t* sa = NULL;
 	if(ll_apr_warn_status(apr_sockaddr_info_get(&sa, APR_ANYADDR, APR_UNSPEC, suggested_port, 0, pool))) return;

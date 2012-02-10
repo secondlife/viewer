@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ayarlar" name="Input panel">
+	<text name="Network:">
+		Ağ:
+	</text>
+	<text name="Maximum bandwidth">
+		Maksimum bant genişliği
+	</text>
+	<text name="text_box2">
+		kbps
+	</text>
+	<check_box label="Özel port" name="connection_port_enabled"/>
+	<spinner label="Port numarası:" name="connection_port"/>
+	<text name="Web:">
+		Web:
+	</text>
+	<radio_group name="use_external_browser">
+		<radio_item label="Tarayıcımı kullan (IE, Firefox, Safari)" name="external" tool_tip="Yardım, web bağlantıları vs. için sistemin varsayılan web tarayıcısını kullanın. Tam ekran çalıştırılıyorsa tavsiye edilmez." value="true"/>
+		<radio_item label="Yerleşik tarayıcıyı kullan" name="internal" tool_tip="Yardım, web bağlantıları vs. için dahili web tarayıcısını kullanın. Bu tarayıcı [APP_NAME] içerisinde yeni bir pencere olarak açılır." value=""/>
+	</radio_group>
+	<check_box initial_value="true" label="Eklentileri etkinleştir" name="browser_plugins_enabled"/>
+	<check_box initial_value="true" label="Çerezleri kabul et" name="cookies_enabled"/>
+	<check_box initial_value="true" label="Javascript&apos;i etkinleştir" name="browser_javascript_enabled"/>
+	<check_box initial_value="false" label="Ortam tarayıcısı açılır pencerelerini etkinleştir" name="media_popup_enabled"/>
+	<text name="Software updates:">
+		Yazılım güncelleştirmeleri:
+	</text>
+	<combo_box name="updater_service_combobox">
+		<combo_box.item label="Otomatik olarak kurulsun" name="Install_automatically"/>
+		<combo_box.item label="Güncelleştirmeler manuel olarak karşıdan yüklensin ve kurulsun" name="Install_manual"/>
+	</combo_box>
+	<text name="Proxy Settings:">
+		Proxy Ayarları:
+	</text>
+	<button label="Proxy ayarlarını yap" label_selected="Gözat" name="set_proxy"/>
+</panel>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="script ed float" title="СКРИПТ: СОЗДАТЬ СКРИПТ">
+	<floater.string name="not_allowed">
+		Вы не можете просматривать и изменять этот скрипт, поскольку для него выбрана категория «не копируемые». Для просмотра или изменения скрипта в объекте нужны полные права доступа.
+	</floater.string>
+	<floater.string name="script_running">
+		Выполняется
+	</floater.string>
+	<floater.string name="Title">
+		СКРИПТ: [NAME]
+	</floater.string>
+	<button label="Сброс" label_selected="Сброс" name="Reset"/>
+	<check_box initial_value="истина" label="Выполняется" name="running"/>
+	<check_box initial_value="истина" label="Моно" name="mono"/>
+</floater>

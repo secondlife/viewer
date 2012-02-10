@@ -84,7 +84,6 @@
                      left="0"			
                      mouse_opaque="false"
                      name="save_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="156">
                     <button
@@ -118,7 +117,6 @@
                      left_pad="3"			
                      mouse_opaque="false"
                      name="wear_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="147">
                     <button

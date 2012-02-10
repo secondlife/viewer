@@ -53,10 +53,12 @@
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "lllandmarklist.h"
+#include "llprogressview.h"
 #include "llsky.h"
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewerinventory.h"
+#include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"
 #include "llviewercontrol.h"
@@ -110,6 +112,8 @@ void LLTracker::stopTracking(void* userdata)
 void LLTracker::drawHUDArrow()
 {
 	if (!gSavedSettings.getBOOL("RenderTrackerBeacon")) return;
+
+	if (gViewerWindow->getProgressView()->getVisible()) return;
 
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	
@@ -505,9 +509,10 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	
 	
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-		glTranslatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
+	{
+		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
 		
 		draw_shockwave(1024.f, gRenderStartTime.getElapsedTimeF32(), 32, fogged_color);
 
@@ -559,9 +564,8 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 			
 			gGL.end();
 		}
-							
-		//gCylinder.render(1000);
-	glPopMatrix();
+	}
+	gGL.popMatrix();
 
 	std::string text;
 	text = llformat( "%.0f m", to_vec.magVec());

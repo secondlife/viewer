@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="price_for_listing" title="ОПУБЛИКОВАТЬ РЕКЛАМУ">
+	<text name="explanation_text">
+		Ваша реклама будет действительна в течение недели с момента публикации.
+
+Позиция объявления определяется уплаченной за него суммой.
+
+Чем выше плата за объявление, тем выше оно расположено в списке и тем легче его найти.
+	</text>
+	<text name="price_text">
+		Цена за объявление:
+	</text>
+	<text name="price_symbol">
+		L$
+	</text>
+	<button label="ОК" name="set_price_btn"/>
+	<button label="Отмена" name="cancel_btn"/>
+</floater>

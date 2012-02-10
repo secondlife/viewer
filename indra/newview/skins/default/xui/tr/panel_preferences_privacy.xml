@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="İletişim" name="im">
+	<panel.string name="log_in_to_change">
+		değiştirmek için oturum açın
+	</panel.string>
+	<button label="Geçmişi Temizle" name="clear_cache" tool_tip="Oturum açma görüntüsünü, son konumu, ışınlama geçmişini, web ve dokulama önbelleğini temizleyin."/>
+	<text name="cache_size_label_l">
+		(Konumlar, görüntüler, web, arama geçmişi)
+	</text>
+	<check_box label="Arama sonuçlarında beni göster" name="online_searchresults"/>
+	<check_box label="Çevrimiçi olduğumu sadece arkadaşlar ve gruplar bilsin" name="online_visibility"/>
+	<check_box label="Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin" name="voice_call_friends_only_check"/>
+	<check_box label="Aramaları sonlandırırken mikrofonu kapat" name="auto_disengage_mic_check"/>
+	<check_box label="Oturum Açarken Favori Yer İmlerimi Göster (&apos;Buradan başla&apos; menüsünden)" name="favorites_on_login_check"/>
+	<text name="Logs:">
+		Sohbet Günlükleri:
+	</text>
+	<check_box label="Yakındaki sohbet günlüklerini bilgisayarımda göster" name="log_nearby_chat"/>
+	<check_box label="Aİ günlüklerini bilgisayarıma kaydet" name="log_instant_messages"/>
+	<check_box label="Sohbet günlüğünde her satıra zaman damgası eklensin" name="show_timestamps_check_im"/>
+	<check_box label="Günlük dosyası adına tarih damgası eklensin." name="logfile_name_datestamp"/>
+	<text name="log_path_desc">
+		Günlüklerin konumu:
+	</text>
+	<button label="Gözat" label_selected="Gözat" name="log_path_button"/>
+	<button label="Listeyi engelle" name="block_list"/>
+	<text name="block_list_label">
+		(Engellediğiniz Kişiler ve/veya Nesneler)
+	</text>
+</panel>

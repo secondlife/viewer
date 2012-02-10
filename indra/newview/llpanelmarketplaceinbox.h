@@ -28,11 +28,12 @@
 #define LL_LLPANELMARKETPLACEINBOX_H
 
 #include "llpanel.h"
-#include "llsidetray.h"
 
+class LLButton;
 class LLInventoryPanel;
+class LLUICtrl;
 
-class LLPanelMarketplaceInbox : public LLPanel, public LLSideTrayTabBadgeDriver
+class LLPanelMarketplaceInbox : public LLPanel
 {
 public:
 
@@ -61,16 +62,16 @@ public:
 	std::string getBadgeString() const;
 
 private:
-	void handleLoginComplete();
 
 	void onSelectionChange();
 
 	void onFocusReceived();
 
 private:
-	LLInventoryPanel* mInventoryPanel;
+	LLUICtrl *			mFreshCountCtrl;
+	LLButton *			mInboxButton;
+	LLInventoryPanel *	mInventoryPanel;
 };
 
 
 #endif //LL_LLPANELMARKETPLACEINBOX_H
-

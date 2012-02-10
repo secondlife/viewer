@@ -92,10 +92,12 @@ void LLPluginMessagePipeOwner::killMessagePipe(void)
 }
 
 LLPluginMessagePipe::LLPluginMessagePipe(LLPluginMessagePipeOwner *owner, LLSocket::ptr_t socket):
+	mInputMutex(gAPRPoolp),
+	mOutputMutex(gAPRPoolp),
+	mOutputStartIndex(0),
 	mOwner(owner),
 	mSocket(socket)
 {
-	
 	mOwner->setMessagePipe(this);
 }
 
@@ -111,6 +113,14 @@ bool LLPluginMessagePipe::addMessage(const std::string &message)
 {
 	// queue the message for later output
 	LLMutexLock lock(&mOutputMutex);
+
+	// If we're starting to use up too much memory, clear
+	if (mOutputStartIndex > 1024 * 1024)
+	{
+		mOutput = mOutput.substr(mOutputStartIndex);
+		mOutputStartIndex = 0;
+	}
+		
 	mOutput += message;
 	mOutput += MESSAGE_DELIMITER;	// message separator
 	
@@ -163,35 +173,44 @@ bool LLPluginMessagePipe::pumpOutput()
 	if(mSocket)
 	{
 		apr_status_t status;
-		apr_size_t size;
+		apr_size_t in_size, out_size;
 		
 		LLMutexLock lock(&mOutputMutex);
-		if(!mOutput.empty())
+
+		const char * output_data = &(mOutput.data()[mOutputStartIndex]);
+		if(*output_data != '\0')
 		{
 			// write any outgoing messages
-			size = (apr_size_t)mOutput.size();
+			in_size = (apr_size_t) (mOutput.size() - mOutputStartIndex);
+			out_size = in_size;
 			
 			setSocketTimeout(0);
 			
 //			LL_INFOS("Plugin") << "before apr_socket_send, size = " << size << LL_ENDL;
 
-			status = apr_socket_send(
-					mSocket->getSocket(),
-					(const char*)mOutput.data(),
-					&size);
+			status = apr_socket_send(mSocket->getSocket(),
+									 output_data,
+									 &out_size);
 
 //			LL_INFOS("Plugin") << "after apr_socket_send, size = " << size << LL_ENDL;
 			
-			if(status == APR_SUCCESS)
+			if((status == APR_SUCCESS) || APR_STATUS_IS_EAGAIN(status))
 			{
-				// success
-				mOutput = mOutput.substr(size);
-			}
-			else if(APR_STATUS_IS_EAGAIN(status))
-			{
-				// Socket buffer is full... 
-				// remove the written part from the buffer and try again later.
-				mOutput = mOutput.substr(size);
+				// Success or Socket buffer is full... 
+				
+				// If we've pumped the entire string, clear it
+				if (out_size == in_size)
+				{
+					mOutputStartIndex = 0;
+					mOutput.clear();
+				}
+				else
+				{
+					llassert(in_size > out_size);
+					
+					// Remove the written part from the buffer and try again later.
+					mOutputStartIndex += out_size;
+				}
 			}
 			else if(APR_STATUS_IS_EOF(status))
 			{

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="menu_gesture_gear">
+	<menu_item_call label="Добавить в избранное/удалить" name="activate"/>
+	<menu_item_call label="Копировать" name="copy_gesture"/>
+	<menu_item_call label="Вставить" name="paste"/>
+	<menu_item_call label="Копировать UUID" name="copy_uuid"/>
+	<menu_item_call label="Сохранить в текущий костюм" name="save_to_outfit"/>
+	<menu_item_call label="Изменить" name="edit_gesture"/>
+</toggleable_menu>

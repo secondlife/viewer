@@ -18,11 +18,8 @@
 	<panel name="balance_bg">
 		<text name="balance" tool_tip="クリックして L$ 残高を更新" value="L$20"/>
 		<button label="L$ の購入" name="buyL" tool_tip="クリックして L$ を購入します"/>
+		<button label="店" name="goShop" tool_tip="Second Life マーケットプレイスを開く"  width="40"/>
 	</panel>
-	<combo_box name="mode_combo" tool_tip="モードを選択します。ベーシックモードでは探索やチャットをすばやく簡単に実行でき、アドバンスモードでは、より多くの機能が利用できます。">
-		<combo_box.item label="ベーシックモード" name="Basic"/>
-		<combo_box.item label="アドバンスモード" name="Advanced"/>
-	</combo_box>
 	<text name="TimeText" tool_tip="現在時刻（太平洋）">
 		24:00 AM PST
 	</text>

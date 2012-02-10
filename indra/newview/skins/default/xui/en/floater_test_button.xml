@@ -78,7 +78,6 @@
     <button
      bottom_delta="30"
      height="23"
-     highlight_color="EmphasisColor"
      label="Highlight"
      layout="topleft"
      name="highlight_color_button" />

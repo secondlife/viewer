@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="toolbox floater" short_title="İNŞA ET ARAÇLARI">
+	<floater.string name="status_rotate">
+		Nesneyi döndürmek için renkli bantları sürükleyin
+	</floater.string>
+	<floater.string name="status_scale">
+		Seçilen tarafı uzatmak için tıklayın ve sürükleyin
+	</floater.string>
+	<floater.string name="status_move">
+		Hareket ettirmek için sürükleyin, kopyalamak için Shift ile sürükleyin
+	</floater.string>
+	<floater.string name="status_modifyland">
+		Araziyi değiştirmek için tıklayın ve tutun
+	</floater.string>
+	<floater.string name="status_camera">
+		Kamerayı hareket ettirmek için tıklayın ve sürükleyin
+	</floater.string>
+	<floater.string name="status_grab">
+		Hareket ettirmek için sürükleyin, kaldırmak için Ctrl, döndürmek için Ctrl+Shift kullanın
+	</floater.string>
+	<floater.string name="status_place">
+		İnşa etmek için SL dünyası içine tıklayın
+	</floater.string>
+	<floater.string name="status_selectland">
+		Araziyi seçmek için tıklayın ve sürükleyin
+	</floater.string>
+	<floater.string name="status_selectcount">
+		[OBJ_COUNT] nesne seçili, [LAND_IMPACT] arazi etkisi
+	</floater.string>
+	<floater.string name="status_remaining_capacity">
+		Kalan kapasite [LAND_CAPACITY].
+	</floater.string>
+	<button name="button focus" tool_tip="Odak"/>
+	<button name="button move" tool_tip="Hareket Et"/>
+	<button name="button edit" tool_tip="Düzenle"/>
+	<button name="button create" tool_tip="Oluştur"/>
+	<button name="button land" tool_tip="Arazi"/>
+	<text name="text status">
+		Hareket ettirmek için sürükleyin, kopyalamak için Shift ile sürükleyin
+	</text>
+	<radio_group name="focus_radio_group">
+		<radio_item label="Yakınlaştır" name="radio zoom"/>
+		<radio_item label="Yörünge Değişimi (Ctrl)" name="radio orbit"/>
+		<radio_item label="Kamerayı Çevir (Ctrl+Shift)" name="radio pan"/>
+	</radio_group>
+	<slider_bar initial_value="0.125" name="slider zoom"/>
+	<radio_group name="move_radio_group">
+		<radio_item label="Hareket Et" name="radio move"/>
+		<radio_item label="Kaldır (Ctrl)" name="radio lift"/>
+		<radio_item label="Çevir (Ctrl+Shift)" name="radio spin"/>
+	</radio_group>
+	<radio_group name="edit_radio_group">
+		<radio_item label="Hareket Et" name="radio position"/>
+		<radio_item label="Döndür (Ctrl)" name="radio rotate"/>
+		<radio_item label="Uzat (Ctrl+Shift)" name="radio stretch"/>
+		<radio_item label="Yüzü Seç" name="radio select face"/>
+	</radio_group>
+	<check_box label="Bağlantılıları düzenle" name="checkbox edit linked parts"/>
+	<button label="Bağla" name="link_btn"/>
+	<button label="Bağlantıyı Kopar" name="unlink_btn"/>
+	<text label="Her İki Tarafı Uzat" name="checkbox uniform label">
+		Her İki Tarafı Uzat
+	</text>
+	<check_box initial_value="true" label="Dokuları Uzat" name="checkbox stretch textures"/>
+	<check_box initial_value="true" label="Yasla" name="checkbox snap to grid"/>
+	<button label="Seçenekler..." name="Options..." tool_tip="İlave ağ seçeneklerine bak"/>
+	<button name="ToolCube" tool_tip="Küp"/>
+	<button name="ToolPrism" tool_tip="Prizma"/>
+	<button name="ToolPyramid" tool_tip="Piramit"/>
+	<button name="ToolTetrahedron" tool_tip="Üçgen Piramit"/>
+	<button name="ToolCylinder" tool_tip="Silindir"/>
+	<button name="ToolHemiCylinder" tool_tip="Yarı Silindir"/>
+	<button name="ToolCone" tool_tip="Koni"/>
+	<button name="ToolHemiCone" tool_tip="Yarı Koni"/>
+	<button name="ToolSphere" tool_tip="Küre"/>
+	<button name="ToolHemiSphere" tool_tip="Yarı Küre"/>
+	<button name="ToolTorus" tool_tip="Torus"/>
+	<button name="ToolTube" tool_tip="Tüp"/>
+	<button name="ToolRing" tool_tip="Halka"/>
+	<button name="ToolTree" tool_tip="Ağaç"/>
+	<button name="ToolGrass" tool_tip="Çimen"/>
+	<check_box label="Seçili Aracı tut" name="checkbox sticky"/>
+	<check_box label="Seçimi kopyala" name="checkbox copy selection"/>
+	<check_box initial_value="true" label="Kopyayı Merkezle" name="checkbox copy centers"/>
+	<check_box label="Kopyayı Döndür" name="checkbox copy rotates"/>
+	<radio_group name="land_radio_group">
+		<radio_item label="Araziyi Seç" name="radio select land"/>
+		<radio_item label="Düzleştir" name="radio flatten"/>
+		<radio_item label="Yükselt" name="radio raise"/>
+		<radio_item label="Alçalt" name="radio lower"/>
+		<radio_item label="Düzgünleştir" name="radio smooth"/>
+		<radio_item label="Pürüzlendir" name="radio noise"/>
+		<radio_item label="Geri Çevir" name="radio revert"/>
+	</radio_group>
+	<text name="Bulldozer:">
+		Buldozer:
+	</text>
+	<text name="Dozer Size:">
+		Büyüklük
+	</text>
+	<slider_bar initial_value="2.0" name="slider brush size"/>
+	<text name="Strength:">
+		Kuvvet
+	</text>
+	<slider_bar initial_value="0.00" name="slider force"/>
+	<button label="Uygula" label_selected="Uygula" name="button apply to selection" tool_tip="Seçilen araziyi değiştirin"/>
+	<text name="selection_empty">
+		Seçilen bir şey yok.
+	</text>
+	<text name="remaining_capacity">
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Ek bilgi]
+	</text>
+	<tab_container name="Object Info Tabs">
+		<panel label="Genel" name="General">
+			<panel.string name="text deed continued">
+				Devret
+			</panel.string>
+			<panel.string name="text deed">
+				Devret
+			</panel.string>
+			<panel.string name="text modify info 1">
+				Bu nesneyi değiştirebilirsiniz
+			</panel.string>
+			<panel.string name="text modify info 2">
+				Bu nesneleri değiştirebilirsiniz
+			</panel.string>
+			<panel.string name="text modify info 3">
+				Bu nesneyi değiştiremezsiniz
+			</panel.string>
+			<panel.string name="text modify info 4">
+				Bu nesneleri değiştiremezsiniz
+			</panel.string>
+			<panel.string name="text modify warning">
+				İzinleri ayarlamak için tüm nesneyi seçmelisiniz
+			</panel.string>
+			<panel.string name="Cost Default">
+				Fiyat: L$
+			</panel.string>
+			<panel.string name="Cost Total">
+				Toplam Fiyat: L$
+			</panel.string>
+			<panel.string name="Cost Per Unit">
+				Birim Fiyatı: L$
+			</panel.string>
+			<panel.string name="Cost Mixed">
+				Karma Fiyat
+			</panel.string>
+			<panel.string name="Sale Mixed">
+				Karma Satış
+			</panel.string>
+			<text name="Name:">
+				Ad:
+			</text>
+			<text name="Description:">
+				Açıklama:
+			</text>
+			<text name="Creator:">
+				Oluşturan:
+			</text>
+			<text name="Owner:">
+				Sahip:
+			</text>
+			<text name="Group:">
+				Grup:
+			</text>
+			<name_box initial_value="Yükleniyor..." name="Group Name Proxy"/>
+			<button name="button set group" tool_tip="Bu nesnenin izinlerini paylaşmak için bir grup seçin"/>
+			<check_box label="Paylaş" name="checkbox share with group" tool_tip="Ayarlanan grubun tüm üyelerinin, bu nesne için değiştirme izinlerinizi paylaşmasına izin verir. Rol kısıtlamalarını etkinleştirmek için Devretme yapmalısınız."/>
+			<button label="Devret" label_selected="Devret" name="button deed" tool_tip="Bu nesne devredilerek verildiğinde, nesnenin sonraki sahibi için izinler geçerli olur. Grup içerisinde paylaşılan nesneler bir grup yetkilisi tarafından devredilebilir."/>
+			<text name="label click action">
+				Şu eylem için tıklayın:
+			</text>
+			<combo_box name="clickaction">
+				<combo_box.item label="Dokun (varsayılan)" name="Touch/grab(default)"/>
+				<combo_box.item label="Nesnenin üzerine otur" name="Sitonobject"/>
+				<combo_box.item label="Nesneyi satın al" name="Buyobject"/>
+				<combo_box.item label="Nesneye ödeme yap" name="Payobject"/>
+				<combo_box.item label="Aç" name="Open"/>
+				<combo_box.item label="Yakınlaştır" name="Zoom"/>
+			</combo_box>
+			<check_box label="Satılık:" name="checkbox for sale"/>
+			<combo_box name="sale type">
+				<combo_box.item label="Kopyala" name="Copy"/>
+				<combo_box.item label="İçerik" name="Contents"/>
+				<combo_box.item label="Orijinal" name="Original"/>
+			</combo_box>
+			<spinner label="Fiyat: L$" name="Edit Cost"/>
+			<check_box label="Aramada göster" name="search_check" tool_tip="Kişiler arama sonuçlarında bu nesneyi görebilsin"/>
+			<panel name="perms_build">
+				<text name="perm_modify">
+					Bu nesneyi değiştirebilirsiniz
+				</text>
+				<text name="Anyone can:">
+					Herkes:
+				</text>
+				<check_box label="Hareket Et" name="checkbox allow everyone move"/>
+				<check_box label="Kopyala" name="checkbox allow everyone copy"/>
+				<text name="Next owner can:">
+					Sonraki sahip:
+				</text>
+				<check_box label="Değiştir" name="checkbox next owner can modify"/>
+				<check_box label="Kopyala" name="checkbox next owner can copy"/>
+				<check_box label="Aktar" name="checkbox next owner can transfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+				<text name="B:">
+					B:
+				</text>
+				<text name="O:">
+					O:
+				</text>
+				<text name="G:">
+					G:
+				</text>
+				<text name="E:">
+					E:
+				</text>
+				<text name="N:">
+					N:
+				</text>
+				<text name="F:">
+					F:
+				</text>
+			</panel>
+		</panel>
+		<panel label="Nesne" name="Object">
+			<check_box label="Kilitli" name="checkbox locked" tool_tip="Nesnenin hareket ettirilmesini veya silinmesini engeller. Arzulanmayan düzenlemelerden kaçınmak için inşa işlemleri sırasında oldukça faydalıdır."/>
+			<check_box label="Fiziksel" name="Physical Checkbox Ctrl" tool_tip="Nesnelerin itilmesine ve yerçekiminden etkilenmesine izin verir."/>
+			<check_box label="Geçici" name="Temporary Checkbox Ctrl" tool_tip="Nesnenin oluşturulduktan 1 dakika sonra silinmesine neden olur"/>
+			<check_box label="Fantom" name="Phantom Checkbox Ctrl" tool_tip="Nesnenin diğer nesneler veya avatarlarla çarpışmamasına neden olur"/>
+			<text name="label position">
+				Konum (metre)
+			</text>
+			<spinner label="X" name="Pos X"/>
+			<spinner label="Y" name="Pos Y"/>
+			<spinner label="Z" name="Pos Z"/>
+			<text name="label size">
+				Büyüklük (metre)
+			</text>
+			<spinner label="X" name="Scale X"/>
+			<spinner label="Y" name="Scale Y"/>
+			<spinner label="Z" name="Scale Z"/>
+			<text name="label rotation">
+				Dönüş (derece)
+			</text>
+			<spinner label="X" name="Rot X"/>
+			<spinner label="Y" name="Rot Y"/>
+			<spinner label="Z" name="Rot Z"/>
+			<combo_box name="comboBaseType">
+				<combo_box.item label="Kutu" name="Box"/>
+				<combo_box.item label="Silindir" name="Cylinder"/>
+				<combo_box.item label="Prizma" name="Prism"/>
+				<combo_box.item label="Küre" name="Sphere"/>
+				<combo_box.item label="Torus" name="Torus"/>
+				<combo_box.item label="Tüp" name="Tube"/>
+				<combo_box.item label="Halka" name="Ring"/>
+				<combo_box.item label="Şekillendirilmiş" name="Sculpted"/>
+			</combo_box>
+			<text name="text cut">
+				Yolu Kes (başlangıç/son)
+			</text>
+			<spinner label="B DİKKAT" name="cut begin"/>
+			<spinner label="D - DİKKAT" name="cut end"/>
+			<text name="text hollow">
+				Oyuk
+			</text>
+			<text name="text skew">
+				Çarpıt
+			</text>
+			<text name="Hollow Shape">
+				Oyuk Şekil
+			</text>
+			<combo_box name="hole">
+				<combo_box.item label="Varsayılan" name="Default"/>
+				<combo_box.item label="Daire" name="Circle"/>
+				<combo_box.item label="Kare" name="Square"/>
+				<combo_box.item label="Üçgen" name="Triangle"/>
+			</combo_box>
+			<text name="text twist">
+				Bük (başlangıç/son)
+			</text>
+			<spinner label="B DİKKAT" name="Twist Begin"/>
+			<spinner label="D - DİKKAT" name="Twist End"/>
+			<text name="scale_taper">
+				Kısalt
+			</text>
+			<text name="scale_hole">
+				Delik Büyüklüğü
+			</text>
+			<spinner label="X" name="Taper Scale X"/>
+			<spinner label="Y" name="Taper Scale Y"/>
+			<text name="text topshear">
+				Üstü Kaydır
+			</text>
+			<spinner label="X" name="Shear X"/>
+			<spinner label="Y" name="Shear Y"/>
+			<text name="advanced_cut">
+				Profili Kes (başlangıç/son)
+			</text>
+			<text name="advanced_dimple">
+				Çukurlaştır (başlangıç/son)
+			</text>
+			<text name="advanced_slice">
+				Dilimle (başlangıç/son)
+			</text>
+			<spinner label="B" name="Path Limit Begin"/>
+			<spinner label="D" name="Path Limit End"/>
+			<text name="text taper2">
+				Kısalt
+			</text>
+			<spinner label="X" name="Taper X"/>
+			<spinner label="Y" name="Taper Y"/>
+			<text name="text radius delta">
+				Yarıçap
+			</text>
+			<text name="text revolutions">
+				Dönüş
+			</text>
+			<texture_picker label="Dokuyu Şekillendir" name="sculpt texture control" tool_tip="Bir resim seçmek için tıklayın"/>
+			<check_box label="Ayna" name="sculpt mirror control" tool_tip="Şekillendirilmiş primi X ekseni etrafında döndürür"/>
+			<check_box label="İçini Dışına Çıkar" name="sculpt invert control" tool_tip="Şekillendirilmiş prim normallerini tersine çevirir, iç kısmı dışarıda gösterir"/>
+			<text name="label sculpt type">
+				Dikiş türü
+			</text>
+			<combo_box name="sculpt type control">
+				<combo_box.item label="Küre" name="Sphere"/>
+				<combo_box.item label="Torus" name="Torus"/>
+				<combo_box.item label="Düzlem" name="Plane"/>
+				<combo_box.item label="Silindir" name="Cylinder"/>
+			</combo_box>
+		</panel>
+		<panel label="Özellikler" name="Features">
+			<panel.string name="None">
+				Hiçbiri
+			</panel.string>
+			<panel.string name="Prim">
+				Prim
+			</panel.string>
+			<panel.string name="Convex Hull">
+				Dışbükey Gövde
+			</panel.string>
+			<text name="select_single">
+				Özelliklerini düzenlemek için sadece bir tane ilkel öğeyi seçin.
+			</text>
+			<text name="edit_object">
+				Nesne özelliklerini düzenleyin:
+			</text>
+			<check_box label="Esnek Yol" name="Flexible1D Checkbox Ctrl" tool_tip="Nesnelerin Z ekseni etrafında esnemesine imkan tanır (sadece istemci tarafında)"/>
+			<spinner label="Yumuşaklık" name="FlexNumSections"/>
+			<spinner label="Yerçekimi" name="FlexGravity"/>
+			<spinner label="Sürükle" name="FlexFriction"/>
+			<spinner label="Rüzgar" name="FlexWind"/>
+			<spinner label="Gerilim" name="FlexTension"/>
+			<spinner label="X Kuvveti" name="FlexForceX"/>
+			<spinner label="Y Kuvveti" name="FlexForceY"/>
+			<spinner label="Z Kuvveti" name="FlexForceZ"/>
+			<check_box label="Işık" name="Light Checkbox Ctrl" tool_tip="Nesnelerin ışık yaymasına neden olur"/>
+			<color_swatch name="colorswatch" tool_tip="Renk seçiciyi açmak için tıklayın"/>
+			<texture_picker label="" name="light texture control" tool_tip="Bir projeksiyon görüntüsü seçmek için tıklayın (sadece ertelenmiş işleme etkinken geçerlidir)"/>
+			<spinner label="Yoğunluk" name="Light Intensity"/>
+			<spinner label="Görünüm Alanı" name="Light FOV"/>
+			<spinner label="Yarıçap" name="Light Radius"/>
+			<spinner label="Odak" name="Light Focus"/>
+			<spinner label="Işık Azalması" name="Light Falloff"/>
+			<spinner label="Ambiyans" name="Light Ambiance"/>
+			<text name="label physicsshapetype">
+				Fizik Şekil Türü:
+			</text>
+			<combo_box name="Physics Shape Type Combo Ctrl" tool_tip="Fizik şekil türünü seçin"/>
+			<combo_box name="material">
+				<combo_box.item label="Taş" name="Stone"/>
+				<combo_box.item label="Metal" name="Metal"/>
+				<combo_box.item label="Cam" name="Glass"/>
+				<combo_box.item label="Ahşap" name="Wood"/>
+				<combo_box.item label="Et" name="Flesh"/>
+				<combo_box.item label="Plastik" name="Plastic"/>
+				<combo_box.item label="Lastik" name="Rubber"/>
+			</combo_box>
+			<spinner label="Yerçekimi" name="Physics Gravity"/>
+			<spinner label="Sürtünme" name="Physics Friction"/>
+			<spinner label="100 kg/m3 cinsinden yoğunluk" name="Physics Density"/>
+			<spinner label="Restitüsyon" name="Physics Restitution"/>
+		</panel>
+		<panel label="Doku" name="Texture">
+			<panel.string name="string repeats per meter">
+				Metrede Kaç Kez Tekrarlandığı
+			</panel.string>
+			<panel.string name="string repeats per face">
+				Bir Yüzde Kaç Kez Tekrarlandığı
+			</panel.string>
+			<texture_picker label="Doku" name="texture control" tool_tip="Bir resim seçmek için tıklayın"/>
+			<color_swatch label="Renk" name="colorswatch" tool_tip="Renk seçiciyi açmak için tıklayın"/>
+			<text name="color trans">
+				Saydamlık %
+			</text>
+			<text name="glow label">
+				Parıltı
+			</text>
+			<check_box label="Tam Parlak" name="checkbox fullbright"/>
+			<text name="tex gen">
+				Eşleştirme
+			</text>
+			<combo_box name="combobox texgen">
+				<combo_box.item label="Varsayılan" name="Default"/>
+				<combo_box.item label="Planar" name="Planar"/>
+			</combo_box>
+			<text name="label shininess">
+				Parıldama
+			</text>
+			<combo_box name="combobox shininess">
+				<combo_box.item label="Hiçbiri" name="None"/>
+				<combo_box.item label="Düşük" name="Low"/>
+				<combo_box.item label="Orta" name="Medium"/>
+				<combo_box.item label="Yüksek" name="High"/>
+			</combo_box>
+			<text name="label bumpiness">
+				Yumruluk
+			</text>
+			<combo_box name="combobox bumpiness">
+				<combo_box.item label="Hiçbiri" name="None"/>
+				<combo_box.item label="Parlaklık" name="Brightness"/>
+				<combo_box.item label="Koyuluk" name="Darkness"/>
+				<combo_box.item label="damarlı ahşap" name="woodgrain"/>
+				<combo_box.item label="ağaç kabuğu" name="bark"/>
+				<combo_box.item label="tuğlalar" name="bricks"/>
+				<combo_box.item label="dama tahtası" name="checker"/>
+				<combo_box.item label="beton" name="concrete"/>
+				<combo_box.item label="sert çini" name="crustytile"/>
+				<combo_box.item label="kesilmiş taş" name="cutstone"/>
+				<combo_box.item label="diskler" name="discs"/>
+				<combo_box.item label="çakıl" name="gravel"/>
+				<combo_box.item label="petri kabı" name="petridish"/>
+				<combo_box.item label="dış kaplama" name="siding"/>
+				<combo_box.item label="taş çini" name="stonetile"/>
+				<combo_box.item label="stükko" name="stucco"/>
+				<combo_box.item label="vakum" name="suction"/>
+				<combo_box.item label="örgü" name="weave"/>
+			</combo_box>
+			<check_box initial_value="false" label="Planar yüzleri hizala" name="checkbox planar align" tool_tip="Tüm seçili yüzeylerdeki dokuları son seçili yüzdekiyle hizalar. Planar doku eşleştirmesi gerektirir."/>
+			<text name="rpt">
+				Tekrarlar / Yüz
+			</text>
+			<spinner label="Yatay (U)" name="TexScaleU"/>
+			<check_box label="Çevir" name="checkbox flip s"/>
+			<spinner label="Dikey (V)" name="TexScaleV"/>
+			<check_box label="Çevir" name="checkbox flip t"/>
+			<spinner label="Döndürme*" name="TexRot"/>
+			<spinner label="Tekrarlar / Metre" name="rptctrl"/>
+			<button label="Uygula" label_selected="Uygula" name="button apply"/>
+			<text name="tex offset">
+				Doku Dengeleyicisi
+			</text>
+			<spinner label="Yatay (U)" name="TexOffsetU"/>
+			<spinner label="Dikey (V)" name="TexOffsetV"/>
+			<panel name="Add_Media">
+				<text name="media_tex">
+					Ortam
+				</text>
+				<button name="add_media" tool_tip="Ortam Ekle"/>
+				<button name="delete_media" tool_tip="Bu ortam dokusunu sil"/>
+				<button name="edit_media" tool_tip="Bu Ortamı Düzenle"/>
+				<button label="Hizala" label_selected="Ortamı Hizala" name="button align" tool_tip="Ortam dokusunu hizala (önce yüklenmelidir)"/>
+			</panel>
+		</panel>
+		<panel label="İçerik" name="Contents">
+			<button label="Yeni Komut Dosyası" label_selected="Yeni Komut Dosyası" name="button new script"/>
+			<button label="İzinler" name="button permissions"/>
+		</panel>
+	</tab_container>
+	<panel name="land info panel">
+		<text name="label_parcel_info">
+			Parsel Bilgisi
+		</text>
+		<text name="label_area_price">
+			Fiyat: [AREA] m² için L$[PRICE]
+		</text>
+		<text name="label_area">
+			Alan: [AREA] m²
+		</text>
+		<button label="Arazi Hakkında" label_selected="Arazi Hakkında" name="button about land"/>
+		<check_box label="Sahipleri göster" name="checkbox show owners" tool_tip="Sahip türüne göre parselleri renklendir:   Yeşil = Sizin araziniz  Deniz Mavisi = Grubunuzun arazisi  Kırmızı = Başkalarının mülkiyetinde  Sarı = Satılık  Mor = Açık artırmada  Gri = Kamuya açık"/>
+		<text name="label_parcel_modify">
+			Parseli Değiştir
+		</text>
+		<button label="Böl" label_selected="Böl" name="button subdivide land"/>
+		<button label="Birleştir" label_selected="Birleştir" name="button join land"/>
+		<text name="label_parcel_trans">
+			Arazi Alışverişleri
+		</text>
+		<button label="Arazi Satın Al" label_selected="Arazi Satın Al" name="button buy land"/>
+		<button label="Araziyi Terket" label_selected="Araziyi Terket" name="button abandon land"/>
+	</panel>
+</floater>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Toybox" title="PULSANTI BARRA STRUMENTI">
+	<text name="toybox label 1">
+		Aggiungere o rimuovere pulsanti trascinandoli dentro o fuori dalle barre strumenti.
+	</text>
+	<text name="toybox label 2">
+		I pulsanti verranno visualizzati come mostrato o solo come icone, a seconda delle impostazioni della singola barra degli strumenti.
+	</text>
+	<button label="Cancella tutte le barre strumenti" label_selected="Cancella tutte le barre strumenti" name="btn_clear_all"/>
+	<button label="Ripristina predefiniti" label_selected="Ripristina predefiniti" name="btn_restore_defaults"/>
+</floater>

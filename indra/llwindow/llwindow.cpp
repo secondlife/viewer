@@ -41,8 +41,6 @@
 #include "llkeyboard.h"
 #include "linked_lists.h"
 #include "llwindowcallbacks.h"
-#include "llwindowlistener.h"
-#include <boost/lambda/core.hpp>
 
 
 //
@@ -110,25 +108,21 @@ LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
 	  mSupportedResolutions(NULL),
 	  mNumSupportedResolutions(0),
 	  mCurrentCursor(UI_CURSOR_ARROW),
+	  mNextCursor(UI_CURSOR_ARROW),
 	  mCursorHidden(FALSE),
 	  mBusyCount(0),
 	  mIsMouseClipping(FALSE),
+	  mMinWindowWidth(0),
+	  mMinWindowHeight(0),
 	  mSwapMethod(SWAP_METHOD_UNDEFINED),
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),
 	  mHighSurrogate(0)
 {
-	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
-	// pass its value right now. Instead, pass it a nullary function that
-	// will, when we later need it, return the value of gKeyboard.
-	// boost::lambda::var() constructs such a functor on the fly.
-	mListener = new LLWindowListener(callbacks, boost::lambda::var(gKeyboard));
 }
 
 LLWindow::~LLWindow()
 {
-	delete mListener;
-	mListener = NULL;
 }
 
 //virtual
@@ -186,6 +180,36 @@ void *LLWindow::getMediaWindow()
 {
 	// Default to returning the platform window.
 	return getPlatformWindow();
+}
+
+BOOL LLWindow::setSize(LLCoordScreen size)
+{
+	if (!getMaximized())
+	{
+		size.mX = llmax(size.mX, mMinWindowWidth);
+		size.mY = llmax(size.mY, mMinWindowHeight);
+	}
+	return setSizeImpl(size);
+}
+
+
+// virtual
+void LLWindow::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
+{
+	mMinWindowWidth = min_width;
+	mMinWindowHeight = min_height;
+
+	if (enforce_immediately)
+	{
+		LLCoordScreen cur_size;
+		if (!getMaximized() && getSize(&cur_size))
+		{
+			if (cur_size.mX < mMinWindowWidth || cur_size.mY < mMinWindowHeight)
+			{
+				setSizeImpl(LLCoordScreen(llmin(cur_size.mX, mMinWindowWidth), llmin(cur_size.mY, mMinWindowHeight)));
+			}
+		}
+	}
 }
 
 //virtual

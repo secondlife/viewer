@@ -58,6 +58,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
+#define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
 #endif
 
 //
@@ -211,6 +212,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		break;
 	case FFLOAD_MODEL:
 		mOFN.lpstrFilter = MODEL_FILTER \
+			L"\0";
+		break;
+	case FFLOAD_SCRIPT:
+		mOFN.lpstrFilter = SCRIPT_FILTER \
 			L"\0";
 		break;
 	default:
@@ -497,6 +502,14 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename)
 			L"Compressed Images (*.j2c)\0*.j2c\0" \
 			L"\0";
 		break;
+	case FFSAVE_SCRIPT:
+		if (filename.empty())
+		{
+			wcsncpy( mFilesW,L"untitled.lsl", FILENAME_BUFFER_SIZE);
+		}
+		mOFN.lpstrDefExt = L"txt";
+		mOFN.lpstrFilter = L"LSL Files (*.lsl)\0*.lsl\0" L"\0";
+		break;
 	default:
 		return FALSE;
 	}
@@ -620,6 +633,14 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 								result = false;
 							}
 						}
+						else if (filter == FFLOAD_SCRIPT)
+						{
+							if (fileInfo.filetype != 'LSL ' &&
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("lsl"), kCFCompareCaseInsensitive) != kCFCompareEqualTo)) )
+							{
+								result = false;
+							}
+						}
 						
 						if (fileInfo.extension)
 						{
@@ -653,12 +674,12 @@ OSStatus	LLFilePicker::doNavChooseDialog(ELoadFilter filter)
 	//   (It is destroyed by NavDialogDispose() below.)
 	error = NavCreateChooseFileDialog(&mNavOptions, NULL, NULL, NULL, navOpenFilterProc, (void*)(&filter), &navRef);
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	if (error == noErr)
 		error = NavDialogRun(navRef);
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	if (error == noErr)
 		error = NavDialogGetReply(navRef, &navReply);
@@ -766,6 +787,12 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 			extension = CFSTR(".j2c");
 			break;
 		
+		case FFSAVE_SCRIPT:
+			type = 'LSL ';
+			creator = '\?\?\?\?';
+			extension = CFSTR(".lsl");
+			break;
+		
 		case FFSAVE_ALL:
 		default:
 			type = '\?\?\?\?';
@@ -808,13 +835,13 @@ OSStatus	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& fi
 		}
 	}
 	
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	// Run the dialog
 	if (error == noErr)
 		error = NavDialogRun(navRef);
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	if (error == noErr)
 		error = NavDialogGetReply(navRef, &navReply);
@@ -1192,7 +1219,12 @@ static std::string add_imageload_filter_to_gtkchooser(GtkWindow *picker)
 	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
 	return filtername;
 }
-
+ 
+static std::string add_script_filter_to_gtkchooser(GtkWindow *picker)
+{
+	return add_simple_mime_filter_to_gtkchooser(picker,  "text/plain",
+							LLTrans::getString("script_files") + " (*.lsl)");
+}
 
 BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename )
 {
@@ -1204,7 +1236,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		return FALSE;
 	}
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
 	
@@ -1258,6 +1290,10 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 				 LLTrans::getString("compressed_image_files") + " (*.j2c)");
 			suggest_ext = ".j2c";
 			break;
+		case FFSAVE_SCRIPT:
+			caption += add_script_filter_to_gtkchooser(picker);
+			suggest_ext = ".lsl";
+			break;
 		default:;
 			break;
 		}
@@ -1284,7 +1320,7 @@ BOOL LLFilePicker::getSaveFile( ESaveFilter filter, const std::string& filename 
 		rtn = (getFileCount() == 1);
 	}
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	return rtn;
 }
@@ -1299,7 +1335,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		return FALSE;
 	}
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
 	
@@ -1323,6 +1359,9 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		case FFLOAD_IMAGE:
 			filtername = add_imageload_filter_to_gtkchooser(picker);
 			break;
+		case FFLOAD_SCRIPT:
+			filtername = add_script_filter_to_gtkchooser(picker);
+			break;
 		default:;
 			break;
 		}
@@ -1337,7 +1376,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		rtn = (getFileCount() == 1);
 	}
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	return rtn;
 }
@@ -1352,7 +1391,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 		return FALSE;
 	}
 
-	gViewerWindow->mWindow->beforeDialog();
+	gViewerWindow->getWindow()->beforeDialog();
 
 	reset();
 	
@@ -1370,7 +1409,7 @@ BOOL LLFilePicker::getMultipleOpenFiles( ELoadFilter filter )
 		rtn = !mFiles.empty();
 	}
 
-	gViewerWindow->mWindow->afterDialog();
+	gViewerWindow->getWindow()->afterDialog();
 
 	return rtn;
 }

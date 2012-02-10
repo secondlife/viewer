@@ -159,39 +159,67 @@ void LLMemory::logMemoryInfo(BOOL update)
 	if(update)
 	{
 		updateMemoryInfo() ;
+		LLPrivateMemoryPoolManager::getInstance()->updateStatistics() ;
 	}
 
 	llinfos << "Current allocated physical memory(KB): " << sAllocatedMemInKB << llendl ;
 	llinfos << "Current allocated page size (KB): " << sAllocatedPageSizeInKB << llendl ;
 	llinfos << "Current availabe physical memory(KB): " << sAvailPhysicalMemInKB << llendl ;
 	llinfos << "Current max usable memory(KB): " << sMaxPhysicalMemInKB << llendl ;
+
+	llinfos << "--- private pool information -- " << llendl ;
+	llinfos << "Total reserved (KB): " << LLPrivateMemoryPoolManager::getInstance()->mTotalReservedSize / 1024 << llendl ;
+	llinfos << "Total allocated (KB): " << LLPrivateMemoryPoolManager::getInstance()->mTotalAllocatedSize / 1024 << llendl ;
 }
 
 //return 0: everything is normal;
 //return 1: the memory pool is low, but not in danger;
 //return -1: the memory pool is in danger, is about to crash.
 //static 
-S32 LLMemory::isMemoryPoolLow()
+bool LLMemory::isMemoryPoolLow()
 {
 	static const U32 LOW_MEMEOY_POOL_THRESHOLD_KB = 64 * 1024 ; //64 MB for emergency use
+	const static U32 MAX_SIZE_CHECKED_MEMORY_BLOCK = 64 * 1024 * 1024 ; //64 MB
+	static void* last_reserved_address = NULL ;
 
 	if(!sEnableMemoryFailurePrevention)
 	{
-		return 0 ; //no memory failure prevention.
+		return false ; //no memory failure prevention.
 	}
 
 	if(sAvailPhysicalMemInKB < (LOW_MEMEOY_POOL_THRESHOLD_KB >> 2)) //out of physical memory
 	{
-		return -1 ;
+		return true ;
 	}
 
 	if(sAllocatedPageSizeInKB + (LOW_MEMEOY_POOL_THRESHOLD_KB >> 2) > sMaxHeapSizeInKB) //out of virtual address space.
 	{
-		return -1 ;
+		return true ;
 	}
 
-	return (S32)(sAvailPhysicalMemInKB < LOW_MEMEOY_POOL_THRESHOLD_KB || 
+	bool is_low = (S32)(sAvailPhysicalMemInKB < LOW_MEMEOY_POOL_THRESHOLD_KB || 
 		sAllocatedPageSizeInKB + LOW_MEMEOY_POOL_THRESHOLD_KB > sMaxHeapSizeInKB) ;
+
+	//check the virtual address space fragmentation
+	if(!is_low)
+	{
+		if(!last_reserved_address)
+		{
+			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+		}
+		else
+		{
+			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+			if(!last_reserved_address) //failed, try once more
+			{
+				last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK) ;
+			}
+		}
+
+		is_low = !last_reserved_address ; //allocation failed
+	}
+
+	return is_low ;
 }
 
 //static 
@@ -1289,18 +1317,16 @@ U16 LLPrivateMemoryPool::LLMemoryChunk::getPageLevel(U32 size)
 //--------------------------------------------------------------------
 const U32 CHUNK_SIZE = 4 << 20 ; //4 MB
 const U32 LARGE_CHUNK_SIZE = 4 * CHUNK_SIZE ; //16 MB
-LLPrivateMemoryPool::LLPrivateMemoryPool(S32 type) :
+LLPrivateMemoryPool::LLPrivateMemoryPool(S32 type, U32 max_pool_size) :
 	mMutexp(NULL),	
 	mReservedPoolSize(0),
 	mHashFactor(1),
-	mType(type)
+	mType(type),
+	mMaxPoolSize(max_pool_size)
 {
-	const U32 MAX_POOL_SIZE = 256 * 1024 * 1024 ; //256 MB
-
-	mMaxPoolSize = MAX_POOL_SIZE ;
 	if(type == STATIC_THREADED || type == VOLATILE_THREADED)
 	{
-		mMutexp = new LLMutex ;
+		mMutexp = new LLMutex(NULL) ;
 	}
 
 	for(S32 i = 0 ; i < SUPER_ALLOCATION ; i++)
@@ -1362,15 +1388,30 @@ char* LLPrivateMemoryPool::allocate(U32 size)
 				chunk = chunk->mNext ;
 			}
 		}
-
-		chunk = addChunk(chunk_idx) ;
-		if(chunk)
+		else
 		{
-			p = chunk->allocate(size) ;
+			chunk = addChunk(chunk_idx) ;
+			if(chunk)
+			{
+				p = chunk->allocate(size) ;
+			}
 		}
 	}
 
 	unlock() ;
+
+	if(!p) //to get memory from the private pool failed, try the heap directly
+	{
+		static bool to_log = true ;
+		
+		if(to_log)
+		{
+			llwarns << "The memory pool overflows, now using heap directly!" << llendl ;
+			to_log = false ;
+		}
+
+		return (char*)malloc(size) ;
+	}
 
 	return p ;
 }
@@ -1472,7 +1513,7 @@ void  LLPrivateMemoryPool::destroyPool()
 	unlock() ;
 }
 
-void  LLPrivateMemoryPool::checkSize(U32 asked_size)
+bool LLPrivateMemoryPool::checkSize(U32 asked_size)
 {
 	if(mReservedPoolSize + asked_size > mMaxPoolSize)
 	{
@@ -1480,8 +1521,12 @@ void  LLPrivateMemoryPool::checkSize(U32 asked_size)
 		llinfos << "Total reserved size: " << mReservedPoolSize + asked_size << llendl ;
 		llinfos << "Total_allocated Size: " << getTotalAllocatedSize() << llendl ;
 
-		llerrs << "The pool is overflowing..." << llendl ;
+		//llerrs << "The pool is overflowing..." << llendl ;
+
+		return false ;
 	}
+
+	return true ;
 }
 
 LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::addChunk(S32 chunk_index)
@@ -1501,7 +1546,11 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::addChunk(S32 chunk_inde
 			MAX_SLOT_SIZES[chunk_index], MIN_BLOCK_SIZES[chunk_index], MAX_BLOCK_SIZES[chunk_index]) ;
 	}
 
-	checkSize(preferred_size + overhead) ;
+	if(!checkSize(preferred_size + overhead))
+	{
+		return NULL ;
+	}
+
 	mReservedPoolSize += preferred_size + overhead ;
 
 	char* buffer = (char*)malloc(preferred_size + overhead) ;
@@ -1593,7 +1642,7 @@ LLPrivateMemoryPool::LLMemoryChunk* LLPrivateMemoryPool::findChunk(const char* a
 
 void LLPrivateMemoryPool::addToHashTable(LLMemoryChunk* chunk) 
 {
-	static const U16 HASH_FACTORS[] = {41, 83, 193, 317, 419, 523, 0xFFFF}; 
+	static const U16 HASH_FACTORS[] = {41, 83, 193, 317, 419, 523, 719, 997, 1523, 0xFFFF}; 
 	
 	U16 i ;
 	if(mChunkHashList.empty())
@@ -1773,8 +1822,10 @@ void LLPrivateMemoryPool::LLChunkHashElement::remove(LLPrivateMemoryPool::LLMemo
 //class LLPrivateMemoryPoolManager
 //--------------------------------------------------------------------
 LLPrivateMemoryPoolManager* LLPrivateMemoryPoolManager::sInstance = NULL ;
+BOOL LLPrivateMemoryPoolManager::sPrivatePoolEnabled = FALSE ;
+std::vector<LLPrivateMemoryPool*> LLPrivateMemoryPoolManager::sDanglingPoolList ;
 
-LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled) 
+LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled, U32 max_pool_size) 
 {
 	mPoolList.resize(LLPrivateMemoryPool::MAX_TYPES) ;
 
@@ -1783,7 +1834,10 @@ LLPrivateMemoryPoolManager::LLPrivateMemoryPoolManager(BOOL enabled)
 		mPoolList[i] = NULL ;
 	}
 
-	mPrivatePoolEnabled = enabled ;
+	sPrivatePoolEnabled = enabled ;
+
+	const U32 MAX_POOL_SIZE = 256 * 1024 * 1024 ; //256 MB
+	mMaxPrivatePoolSize = llmax(max_pool_size, MAX_POOL_SIZE) ;
 }
 
 LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager() 
@@ -1797,7 +1851,7 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 		S32 k = 0 ;
 		for(mem_allocation_info_t::iterator iter = sMemAllocationTracker.begin() ; iter != sMemAllocationTracker.end() ; ++iter)
 		{
-			llinfos << k++ << ", " << iter->second << llendl ;
+			llinfos << k++ << ", " << (U32)iter->first << " : " << iter->second << llendl ;
 		}
 		sMemAllocationTracker.clear() ;
 	}
@@ -1817,7 +1871,17 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 	{
 		if(mPoolList[i])
 		{
-			delete mPoolList[i] ;
+			if(mPoolList[i]->isEmpty())
+			{
+				delete mPoolList[i] ;
+			}
+			else
+			{
+				//can not delete this pool because it has alloacted memory to be freed.
+				//move it to the dangling list.
+				sDanglingPoolList.push_back(mPoolList[i]) ;				
+			}
+
 			mPoolList[i] = NULL ;
 		}
 	}
@@ -1826,11 +1890,11 @@ LLPrivateMemoryPoolManager::~LLPrivateMemoryPoolManager()
 }
 
 //static 
-void LLPrivateMemoryPoolManager::initClass(BOOL enabled) 
+void LLPrivateMemoryPoolManager::initClass(BOOL enabled, U32 max_pool_size) 
 {
 	llassert_always(!sInstance) ;
 
-	sInstance = new LLPrivateMemoryPoolManager(enabled) ;
+	sInstance = new LLPrivateMemoryPoolManager(enabled, max_pool_size) ;
 }
 
 //static 
@@ -1855,14 +1919,14 @@ void LLPrivateMemoryPoolManager::destroyClass()
 
 LLPrivateMemoryPool* LLPrivateMemoryPoolManager::newPool(S32 type) 
 {
-	if(!mPrivatePoolEnabled)
+	if(!sPrivatePoolEnabled)
 	{
 		return NULL ;
 	}
 
 	if(!mPoolList[type])
 	{
-		mPoolList[type] = new LLPrivateMemoryPool(type) ;
+		mPoolList[type] = new LLPrivateMemoryPool(type, mMaxPrivatePoolSize) ;
 	}
 
 	return mPoolList[type] ;
@@ -1953,7 +2017,38 @@ void  LLPrivateMemoryPoolManager::freeMem(LLPrivateMemoryPool* poolp, void* addr
 	}
 	else
 	{
-		free(addr) ;
+		if(!sPrivatePoolEnabled)
+		{
+			free(addr) ; //private pool is disabled.
+		}
+		else if(!sInstance) //the private memory manager is destroyed, try the dangling list
+		{
+			for(S32 i = 0 ; i < sDanglingPoolList.size(); i++)
+			{
+				if(sDanglingPoolList[i]->findChunk((char*)addr))
+				{
+					sDanglingPoolList[i]->freeMem(addr) ;
+					if(sDanglingPoolList[i]->isEmpty())
+					{
+						delete sDanglingPoolList[i] ;
+						
+						if(i < sDanglingPoolList.size() - 1)
+						{
+							sDanglingPoolList[i] = sDanglingPoolList[sDanglingPoolList.size() - 1] ;
+						}
+						sDanglingPoolList.pop_back() ;
+					}
+
+					addr = NULL ;
+					break ;
+				}
+			}		
+			llassert_always(!addr) ; //addr should be release before hitting here!
+		}
+		else
+		{
+			llerrs << "private pool is used before initialized.!" << llendl ;
+		}
 	}	
 }
 

@@ -27,84 +27,25 @@
 #ifndef LL_LLNEARBYCHATBAR_H
 #define LL_LLNEARBYCHATBAR_H
 
-#include "llpanel.h"
+#include "llfloater.h"
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
-#include "llbottomtray.h"
 
-
-class LLGestureComboList
-	: public LLGestureManagerObserver
-	, public LLUICtrl
-{
-public:
-	struct Params :	public LLInitParam::Block<Params, LLUICtrl::Params>
-	{
-		Optional<LLBottomtrayButton::Params>			combo_button;
-		Optional<LLScrollListCtrl::Params>	combo_list;
-		Optional<bool>						get_more,
-											view_all;
-		
-		Params();
-	};
-
-protected:
-	
-	friend class LLUICtrlFactory;
-	LLGestureComboList(const Params&);
-	std::vector<LLMultiGesture*> mGestures;
-	std::string mLabel;
-	bool			mShowViewAll;
-	bool			mShowGetMore;
-	LLSD::Integer mViewAllItemIndex;
-	LLSD::Integer mGetMoreItemIndex;
-
-public:
-
-	~LLGestureComboList();
-
-	LLCtrlListInterface* getListInterface();
-	virtual void	showList();
-	virtual void	hideList();
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-
-	virtual void	draw();
-
-	S32				getCurrentIndex() const;
-	void			onItemSelected(const LLSD& data);
-	void			sortByName(bool ascending = true);
-	void refreshGestures();
-	void onCommitGesture();
-	void onButtonCommit();
-	virtual LLSD	getValue() const;
-
-	// LLGestureManagerObserver trigger
-	virtual void changed() { refreshGestures(); }
-
-private:
-
-	LLButton*			mButton;
-	LLScrollListCtrl*	mList;
-	S32                 mLastSelectedIndex;
-};
-
-class LLNearbyChatBar
-:	public LLPanel
+class LLNearbyChatBar :	public LLFloater
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
-	LLNearbyChatBar();
+	LLNearbyChatBar(const LLSD& key);
 	~LLNearbyChatBar() {}
 
 	virtual BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	static LLNearbyChatBar* getInstance();
-
-	static bool instanceExists();
 
 	LLLineEditor* getChatBox() { return mChatBox; }
 
@@ -119,6 +60,10 @@ public:
 	static void sendChatFromViewer(const std::string &utf8text, EChatType type, BOOL animate);
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
+	void showHistory();
+	void enableTranslationCheckbox(BOOL enable);
+	/*virtual*/void setMinimized(BOOL b);
+
 protected:
 	static BOOL matchChatTypeTrigger(const std::string& in_str, std::string* out_str);
 	static void onChatBoxKeystroke(LLLineEditor* caller, void* userdata);
@@ -129,6 +74,10 @@ protected:
 	void onChatBoxCommit();
 	void onChatFontChange(LLFontGL* fontp);
 
+	/* virtual */ bool applyRectControl();
+
+	void onToggleNearbyChatPanel();
+
 	static LLWString stripChannelNumber(const LLWString &mesg, S32* channel);
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 
@@ -137,9 +86,12 @@ protected:
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
-	LLLineEditor*		mChatBox;
-	LLOutputMonitorCtrl* mOutputMonitor;
-	LLLocalSpeakerMgr*  mSpeakerMgr;
+	LLLineEditor*			mChatBox;
+	LLView*					mNearbyChat;
+	LLOutputMonitorCtrl*	mOutputMonitor;
+	LLLocalSpeakerMgr*		mSpeakerMgr;
+
+	S32 mExpandedHeight;
 };
 
 #endif

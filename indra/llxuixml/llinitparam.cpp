@@ -40,7 +40,7 @@ namespace LLInitParam
 	{
 		const U8* my_addr = reinterpret_cast<const U8*>(this);
 		const U8* block_addr = reinterpret_cast<const U8*>(enclosing_block);
-		mEnclosingBlockOffset = 0x7FFFffff & ((U32)(my_addr - block_addr));
+		mEnclosingBlockOffset = 0x7FFFffff & (U32)(my_addr - block_addr);
 	}
 
 	//
@@ -62,7 +62,6 @@ namespace LLInitParam
 		mInspectFunc(inspect_func),
 		mMinCount(min_count),
 		mMaxCount(max_count),
-		mGeneration(0),
 		mUserData(NULL)
 	{}
 
@@ -75,7 +74,6 @@ namespace LLInitParam
 		mInspectFunc(NULL),
 		mMinCount(0),
 		mMaxCount(0),
-		mGeneration(0),
 		mUserData(NULL)
 	{}
 
@@ -87,8 +85,6 @@ namespace LLInitParam
 	//
 	// Parser
 	//
-	S32 Parser::sNextParseGeneration = 0;
-
 	Parser::~Parser()
 	{}
 
@@ -122,16 +118,6 @@ namespace LLInitParam
 		mCurrentBlockPtr(NULL)
 	{}
 
-	//
-	// BaseBlock
-	//
-	BaseBlock::BaseBlock()
-	:	mChangeVersion(0)
-	{}
-
-	BaseBlock::~BaseBlock()
-	{}
-
 	// called by each derived class in least to most derived order
 	void BaseBlock::init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size)
 	{
@@ -162,9 +148,9 @@ namespace LLInitParam
 		return (param_address - baseblock_address);
 	}
 
-	bool BaseBlock::submitValue(const Parser::name_stack_t& name_stack, Parser& p, bool silent)
+	bool BaseBlock::submitValue(Parser::name_stack_t& name_stack, Parser& p, bool silent)
 	{
-		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end()), -1))
+		if (!deserializeBlock(p, std::make_pair(name_stack.begin(), name_stack.end()), true))
 		{
 			if (!silent)
 			{
@@ -194,7 +180,7 @@ namespace LLInitParam
 		return true;
 	}
 
-	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t name_stack, const LLInitParam::BaseBlock* diff_block) const
+	void BaseBlock::serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const LLInitParam::BaseBlock* diff_block) const
 	{
 		// named param is one like LLView::Params::follows
 		// unnamed param is like LLView::Params::rect - implicit
@@ -213,8 +199,7 @@ namespace LLInitParam
 				// each param descriptor remembers its serial number
 				// so we can inspect the same param under different names
 				// and see that it has the same number
-				(*it)->mGeneration = parser.newParseGeneration();
-				name_stack.push_back(std::make_pair("", (*it)->mGeneration));
+				name_stack.push_back(std::make_pair("", true));
 				serialize_func(*param, parser, name_stack, diff_param);
 				name_stack.pop_back();
 			}
@@ -250,12 +235,7 @@ namespace LLInitParam
 					continue;
 				}
 
-				if (!duplicate)
-				{
-					it->second->mGeneration = parser.newParseGeneration();
-				}
-
-				name_stack.push_back(std::make_pair(it->first, it->second->mGeneration));
+				name_stack.push_back(std::make_pair(it->first, !duplicate));
 				const Param* diff_param = diff_block ? diff_block->getParamFromHandle(param_handle) : NULL;
 				serialize_func(*param, parser, name_stack, diff_param);
 				name_stack.pop_back();
@@ -278,8 +258,7 @@ namespace LLInitParam
 			ParamDescriptor::inspect_func_t inspect_func = (*it)->mInspectFunc;
 			if (inspect_func)
 			{
-				(*it)->mGeneration = parser.newParseGeneration();
-				name_stack.push_back(std::make_pair("", (*it)->mGeneration));
+				name_stack.push_back(std::make_pair("", true));
 				inspect_func(*param, parser, name_stack, (*it)->mMinCount, (*it)->mMaxCount);
 				name_stack.pop_back();
 			}
@@ -307,11 +286,7 @@ namespace LLInitParam
 					}
 				}
 
-				if (!duplicate)
-				{
-					it->second->mGeneration = parser.newParseGeneration();
-				}
-				name_stack.push_back(std::make_pair(it->first, it->second->mGeneration));
+				name_stack.push_back(std::make_pair(it->first, !duplicate));
 				inspect_func(*param, parser, name_stack, it->second->mMinCount, it->second->mMaxCount);
 				name_stack.pop_back();
 			}
@@ -320,16 +295,18 @@ namespace LLInitParam
 		return true;
 	}
 
-	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, S32 parent_generation)
+	bool BaseBlock::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool ignored)
 	{
 		BlockDescriptor& block_data = mostDerivedBlockDescriptor();
-		bool names_left = name_stack.first != name_stack.second;
+		bool names_left = name_stack_range.first != name_stack_range.second;
 
-		S32 parse_generation = name_stack.first == name_stack.second ? -1 : name_stack.first->second;
+		bool new_name = names_left
+						? name_stack_range.first->second
+						: true;
 
 		if (names_left)
 		{
-			const std::string& top_name = name_stack.first->first;
+			const std::string& top_name = name_stack_range.first->first;
 
 			ParamDescriptor::deserialize_func_t deserialize_func = NULL;
 			Param* paramp = NULL;
@@ -341,9 +318,18 @@ namespace LLInitParam
 				paramp = getParamFromHandle(found_it->second->mParamHandle);
 				deserialize_func = found_it->second->mDeserializeFunc;
 					
-				Parser::name_stack_range_t new_name_stack(name_stack.first, name_stack.second);
+				Parser::name_stack_range_t new_name_stack(name_stack_range.first, name_stack_range.second);
 				++new_name_stack.first;
-				return deserialize_func(*paramp, p, new_name_stack, parse_generation);
+				if (deserialize_func(*paramp, p, new_name_stack, new_name))
+				{
+					// value is no longer new, we know about it now
+					name_stack_range.first->second = false;
+					return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
 		}
 
@@ -355,7 +341,7 @@ namespace LLInitParam
 			Param* paramp = getParamFromHandle((*it)->mParamHandle);
 			ParamDescriptor::deserialize_func_t deserialize_func = (*it)->mDeserializeFunc;
 
-			if (deserialize_func && deserialize_func(*paramp, p, name_stack, parse_generation))
+			if (deserialize_func && deserialize_func(*paramp, p, name_stack_range, new_name))
 			{
 				return true;
 			}
@@ -365,7 +351,7 @@ namespace LLInitParam
 		// verify by calling readValue with NoParamValue type, an inherently unparseable type
 		if (!names_left)
 		{
-			NoParamValue no_value;
+			Flag no_value;
 			return p.readValue(no_value);
 		}
 
@@ -431,14 +417,6 @@ namespace LLInitParam
 		}
 	}
 
-	void BaseBlock::paramChanged(const Param& changed_param, bool user_provided)
-	{ 
-		if (user_provided)
-		{
-			mChangeVersion++;
-		}
-	}
-
 	const std::string& BaseBlock::getParamName(const BlockDescriptor& block_data, const Param* paramp) const
 	{
 		param_handle_t handle = getHandleFromParam(paramp);
@@ -482,6 +460,7 @@ namespace LLInitParam
 			if (merge_func)
 			{
 				Param* paramp = getParamFromHandle((*it)->mParamHandle);
+				llassert(paramp->mEnclosingBlockOffset == (*it)->mParamHandle);
 				some_param_changed |= merge_func(*paramp, *other_paramp, overwrite);
 			}
 		}

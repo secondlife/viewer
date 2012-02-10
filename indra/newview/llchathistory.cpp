@@ -42,6 +42,7 @@
 #include "llavataractions.h"
 #include "lltrans.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llmutelist.h"
 #include "llstylemap.h"
 #include "llslurl.h"
@@ -57,8 +58,6 @@
 #include "llstring.h"
 
 #include "llviewercontrol.h"
-
-#include "llsidetray.h"//for blocked objects panel
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
@@ -144,7 +143,7 @@ public:
 		{
 			LLMuteList::getInstance()->add(LLMute(getAvatarId(), mFrom, LLMute::OBJECT));
 
-			LLSideTray::getInstance()->showPanel("panel_block_list_sidetray", LLSD().with("blocked_to_select", getAvatarId()));
+			LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD().with("blocked_to_select", getAvatarId()));
 		}
 	}
 
@@ -622,7 +621,6 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	panel_p.has_border = false;
 	panel_p.mouse_opaque = false;
 	panel_p.min_dim = 30;
-	panel_p.max_dim = S32_MAX;
 	panel_p.auto_resize = true;
 	panel_p.user_resize = false;
 

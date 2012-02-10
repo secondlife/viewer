@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Model Preview" title="モデルをアップロード">
-	<string name="status_idle">
-		待機状態
-	</string>
+<floater name="Model Preview" title="モデルウィザード">
+	<string name="status_idle"/>
 	<string name="status_parse_error">
-		Dae に問題が見つかりました - 詳細についてはログをご参照ください。
+		エラー：Dae に問題が見つかりました - 詳細についてはログをご参照ください。
+	</string>
+	<string name="status_material_mismatch">
+		エラー：モデルの材料は参考モデルのサブセットではありません。
 	</string>
 	<string name="status_reading_file">
 		ローディング...
@@ -51,6 +52,9 @@
 	<string name="mesh_status_missing_lod">
 		必要な描画詳細度が見つかりません。
 	</string>
+	<string name="mesh_status_invalid_material_list">
+		LOD 付きの材料は参考モデルのサブセットではありません。
+	</string>
 	<string name="layer_all">
 		全て
 	</string>
@@ -63,188 +67,211 @@
 	<string name="tbd">
 		未定
 	</string>
-	<text name="name_label">
-		名前：
-	</text>
+	<panel name="left_panel">
+		<panel name="model_name_representation_panel">
+			<text name="name_label">
+				モデル名：
+			</text>
+			<text name="model_category_label">
+				このモデルは...
+			</text>
+			<combo_box name="model_category_combo">
+				<combo_item label="1つを選択..." name="Choose one"/>
+				<combo_item label="アバターの形" name="Avatar shape"/>
+				<combo_item label="アバターのアタッチメント" name="Avatar attachment"/>
+				<combo_item label="動くオブジェクト（車、動物）" name="Moving object (vehicle, animal)"/>
+				<combo_item label="制作用コンポーネント" name="Building Component"/>
+				<combo_item label="大型、不動、等" name="Large, non moving etc"/>
+				<combo_item label="やや小型、不動、等" name="Smaller, non-moving etc"/>
+				<combo_item label="いずれにも該当しない" name="Not really any of these"/>
+			</combo_box>
+		</panel>
+		<tab_container name="import_tab">
+			<panel label="描画詳細度" name="lod_panel" title="描画詳細度">
+				<text initial_value="データ源" name="source" value="データ源"/>
+				<text initial_value="三角形" name="triangles" value="三角形"/>
+				<text initial_value="頂点" name="vertices" value="頂点"/>
+				<text initial_value="高" name="high_label" value="高"/>
+				<button label="参照" name="lod_browse_high"/>
+				<text initial_value="0" name="high_triangles" value="0"/>
+				<text initial_value="0" name="high_vertices" value="0"/>
+				<text initial_value="中" name="medium_label" value="中"/>
+				<button label="参照" name="lod_browse_medium"/>
+				<text initial_value="0" name="medium_triangles" value="0"/>
+				<text initial_value="0" name="medium_vertices" value="0"/>
+				<text initial_value="低" name="low_label" value="低"/>
+				<button label="参照" name="lod_browse_low"/>
+				<text initial_value="0" name="low_triangles" value="0"/>
+				<text initial_value="0" name="low_vertices" value="0"/>
+				<text initial_value="最低" name="lowest_label" value="最低"/>
+				<button label="参照" name="lod_browse_lowest"/>
+				<text initial_value="0" name="lowest_triangles" value="0"/>
+				<text initial_value="0" name="lowest_vertices" value="0"/>
+				<check_box label="ノーマルの作成" name="gen_normals"/>
+				<text initial_value="折れ角度：" name="crease_label" value="折れ角度："/>
+				<spinner name="crease_angle" value="75"/>
+			</panel>
+			<panel label="物理効果" name="physics_panel">
+				<panel name="physics geometry">
+					<text name="first_step_name">
+						手順1：描画詳細度
+					</text>
+					<combo_box name="physics_lod_combo" tool_tip="実像に適用するLOD">
+						<combo_item name="choose_one">
+							1つを選択...
+						</combo_item>
+						<combo_item name="physics_high">
+							高
+						</combo_item>
+						<combo_item name="physics_medium">
+							中
+						</combo_item>
+						<combo_item name="physics_low">
+							低
+						</combo_item>
+						<combo_item name="physics_lowest">
+							最低
+						</combo_item>
+						<combo_item name="load_from_file">
+							ファイルから
+						</combo_item>
+					</combo_box>
+					<button label="参照" name="physics_browse"/>
+				</panel>
+				<panel name="physics analysis">
+					<text name="method_label">
+						手順2：分析
+					</text>
+					<text name="analysis_method_label">
+						方法：
+					</text>
+					<text name="quality_label">
+						品質：
+					</text>
+					<text name="smooth_method_label">
+						滑らかさ：
+					</text>
+					<check_box label="穴を閉じる" name="Close Holes (Slow)"/>
+					<button label="分析" name="Decompose"/>
+					<button label="取り消し" name="decompose_cancel"/>
+				</panel>
+				<panel name="physics simplification">
+					<text name="second_step_label">
+						手順3：単純化
+					</text>
+					<text name="simp_method_header">
+						方法：
+					</text>
+					<text name="pass_method_header">
+						パス：
+					</text>
+					<text name="Detail Scale label">
+						詳細度：
+					</text>
+					<text name="Retain%_label">
+						維持率：
+					</text>
+					<combo_box name="Combine Quality" value="1"/>
+					<button label="単純化" name="Simplify"/>
+					<button label="取り消し" name="simplify_cancel"/>
+				</panel>
+				<panel name="physics info">
+					<text name="results_text">
+						結果：
+					</text>
+					<text name="physics_triangles">
+						三角形：[TRIANGLES],
+					</text>
+					<text name="physics_points">
+						頂点：[POINTS],
+					</text>
+					<text name="physics_hulls">
+						外殻構造：[HULLS]
+					</text>
+				</panel>
+			</panel>
+			<panel label="アップロードのオプション" name="modifiers_panel">
+				<text name="scale_label">
+					スケール（1=増減なし）：
+				</text>
+				<spinner name="import_scale" value="1.0"/>
+				<text name="dimensions_label">
+					サイズ：
+				</text>
+				<text name="import_dimensions">
+					[X] X [Y] X [Z]
+				</text>
+				<check_box label="テクスチャを含む" name="upload_textures"/>
+				<text name="include_label">
+					アバターモデル専用：
+				</text>
+				<check_box label="スキンの重さを含む" name="upload_skin"/>
+				<check_box label="ジョイントポジションを含む" name="upload_joints"/>
+				<text name="pelvis_offset_label">
+					Z オフセット（アバターを上下調整）：
+				</text>
+				<spinner name="pelvis_offset" value="0.0"/>
+			</panel>
+		</tab_container>
+		<panel name="weights_and_warning_panel">
+			<button label="ウェイトと料金の計算" name="calculate_btn" tool_tip="ウェイトと料金の計算"/>
+			<button label="取り消し" name="cancel_btn"/>
+			<button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロード"/>
+			<button label="設定をクリアしてフォームをリセット" name="reset_btn"/>
+			<text name="upload_fee">
+				アップロード料金：L$ [FEE]
+			</text>
+			<text name="prim_weight">
+				土地の負荷：[EQ]
+			</text>
+			<text name="download_weight">
+				ダウンロード：[ST]
+			</text>
+			<text name="physics_weight">
+				物理演算：[PH]
+			</text>
+			<text name="server_weight">
+				サーバー負荷：[SIM]
+			</text>
+			<text name="warning_title">
+				ご注意：
+			</text>
+			<text name="warning_message">
+				メッシュモデルをアップロードする権利がありません。権利の取得方法については [[VURL]] こちらを参照してください。
+			</text>
+			<text name="status">
+				[STATUS]
+			</text>
+		</panel>
+	</panel>
 	<text name="lod_label">
 		プレビュー：
 	</text>
-	<combo_box name="preview_lod_combo" tool_tip="プレビュー表示のLOD設定">
-		<combo_item name="high">
-			描画詳細度：高
-		</combo_item>
-		<combo_item name="medium">
-			描画詳細度：中
-		</combo_item>
-		<combo_item name="low">
-			描画詳細度：低
-		</combo_item>
-		<combo_item name="lowest">
-			描画詳細度：最低
-		</combo_item>
-	</combo_box>
-	<text name="warning_title">
-		警告：
-	</text>
-	<text name="warning_message">
-		このモデルを Second Life サーバーにアップロードすることはできません。メッシュモデルのアップロード手順については [[VURL] こちらを参照してください]。
-	</text>
-	<text name="weights_text">
-		ダウンロード：
-物理演算：
-サーバー負荷：
-
-プリム換算：
-	</text>
-	<text name="weights">
-		[ST]
-[PH]
-[SIM]
-
-[EQ]
-	</text>
-	<tab_container name="import_tab">
-		<panel label="描画詳細度" name="lod_panel">
-			<text name="lod_table_header">
-				描画詳細度を選択：
-			</text>
-			<text name="high_label" value="高"/>
-			<text name="high_triangles" value="0"/>
-			<text name="high_vertices" value="0"/>
-			<text name="medium_label" value="中"/>
-			<text name="medium_triangles" value="0"/>
-			<text name="medium_vertices" value="0"/>
-			<text name="low_label" value="低"/>
-			<text name="low_triangles" value="0"/>
-			<text name="low_vertices" value="0"/>
-			<text name="lowest_label" value="最低"/>
-			<text name="lowest_triangles" value="0"/>
-			<text name="lowest_vertices" value="0"/>
-			<text name="lod_table_footer">
-				描画詳細度： [DETAIL]
-			</text>
-			<radio_group name="lod_file_or_limit" value="lod_from_file">
-				<radio_item label="ファイルからロード" name="lod_from_file"/>
-				<radio_item label="自動作成" name="lod_auto_generate"/>
-				<radio_item label="なし" name="lod_none"/>
-			</radio_group>
-			<button label="参照" name="lod_browse"/>
-			<combo_box name="lod_mode">
-				<combo_item name="triangle_limit">
-					三角形の限度数
-				</combo_item>
-				<combo_item name="error_threshold">
-					エラーしきい値
-				</combo_item>
-			</combo_box>
-			<text name="build_operator_text">
-				制作演算子：
-			</text>
-			<text name="queue_mode_text">
-				キューモード：
-			</text>
-			<combo_box name="build_operator">
-				<combo_item name="edge_collapse">
-					稜の完全複合
-				</combo_item>
-				<combo_item name="half_edge_collapse">
-					稜の半複合
-				</combo_item>
-			</combo_box>
-			<combo_box name="queue_mode">
-				<combo_item name="greedy">
-					グリーディ
-				</combo_item>
-				<combo_item name="lazy">
-					レイジー
-				</combo_item>
-				<combo_item name="independent">
-					インディペンデント
-				</combo_item>
-			</combo_box>
-			<text name="border_mode_text">
-				境界線モード：
-			</text>
-			<text name="share_tolderance_text">
-				共有誤差：
-			</text>
-			<combo_box name="border_mode">
-				<combo_item name="border_unlock">
-					ロック解除
-				</combo_item>
-				<combo_item name="border_lock">
-					ロック
-				</combo_item>
-			</combo_box>
-			<text name="crease_label">
-				折れ角度：
-			</text>
-			<spinner name="crease_angle" value="75"/>
-		</panel>
-		<panel label="物理効果" name="physics_panel">
-			<panel name="physics geometry">
-				<radio_group name="physics_load_radio" value="physics_load_from_file">
-					<radio_item label="ファイル：" name="physics_load_from_file"/>
-					<radio_item label="次の描画詳細度を使用：" name="physics_use_lod"/>
-				</radio_group>
-				<combo_box name="physics_lod_combo" tool_tip="実像に適用するLOD">
-					<combo_item name="physics_lowest">
-						最低
-					</combo_item>
-					<combo_item name="physics_low">
-						低
-					</combo_item>
-					<combo_item name="physics_medium">
-						中
-					</combo_item>
-					<combo_item name="physics_high">
-						高
-					</combo_item>
-				</combo_box>
-				<button label="参照" name="physics_browse"/>
-			</panel>
-			<panel name="physics analysis">
-				<slider label="滑らかさ：" name="Smooth"/>
-				<check_box label="穴を閉じる（スロー）" name="Close Holes (Slow)"/>
-				<button label="分析" name="Decompose"/>
-				<button label="取り消し" name="decompose_cancel"/>
-			</panel>
-			<panel name="physics simplification">
-				<slider label="パス：" name="Combine Quality"/>
-				<slider label="詳細度：" name="Detail Scale"/>
-				<slider label="維持率：" name="Retain%"/>
-				<button label="単純化" name="Simplify"/>
-				<button label="取り消し" name="simplify_cancel"/>
-			</panel>
-			<panel name="physics info">
-				<slider label="プレビュースプレッド：" name="physics_explode"/>
-				<text name="physics_triangles">
-					三角形： [TRIANGLES]
-				</text>
-				<text name="physics_points">
-					頂点： [POINTS]
-				</text>
-				<text name="physics_hulls">
-					外殻構造： [HULLS]
-				</text>
-			</panel>
-		</panel>
-		<panel label="修飾子" name="modifiers_panel">
-			<spinner name="import_scale" value="1.0"/>
-			<text name="import_dimensions">
-				[X] x [Y] x [Z] m
-			</text>
-			<check_box label="テクスチャ" name="upload_textures"/>
-			<check_box label="スキンの重さ" name="upload_skin"/>
-			<check_box label="ジョイントポジション" name="upload_joints"/>
-			<spinner name="pelvis_offset" value="0.0"/>
-		</panel>
-	</tab_container>
-	<text name="upload_fee">
-		アップロード料金：L$ [FEE]
-	</text>
-	<button label="デフォルトに設定" name="reset_btn" tool_tip="デフォルトに設定"/>
-	<button label="ウェイトと料金の計算" name="calculate_btn" tool_tip="ウェイトと料金の計算"/>
-	<button label="アップロード" name="ok_btn" tool_tip="シミュレーターにアップロード"/>
-	<button label="取り消し" name="cancel_btn"/>
+	<panel name="right_panel">
+		<combo_box name="preview_lod_combo" tool_tip="プレビュー表示の LOD 設定">
+			<combo_item name="high">
+				高
+			</combo_item>
+			<combo_item name="medium">
+				中
+			</combo_item>
+			<combo_item name="low">
+				低
+			</combo_item>
+			<combo_item name="lowest">
+				最低
+			</combo_item>
+		</combo_box>
+		<text name="label_display">
+			ディスプレイ...
+		</text>
+		<check_box label="稜" name="show_edges"/>
+		<check_box label="物理効果" name="show_physics"/>
+		<check_box label="テクスチャ" name="show_textures"/>
+		<check_box label="スキンの重さ" name="show_skin_weight"/>
+		<check_box label="ジョイント" name="show_joint_positions"/>
+		<text name="physics_explode_label">
+			プレビュースプレッド：
+		</text>
+	</panel>
 </floater>

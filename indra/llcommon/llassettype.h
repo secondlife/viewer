@@ -108,9 +108,13 @@ public:
 
 		AT_LINK_FOLDER = 25,
 			// Inventory folder link
+		
+		AT_WIDGET = 40,
+			// UI Widget: this is *not* an inventory asset type, only a viewer side asset (e.g. button, other ui items...)
+		
 		AT_MESH = 49,
-		    // Mesh data in our proprietary SLM format
-
+			// Mesh data in our proprietary SLM format
+		
 		AT_COUNT = 50,
 
 			// +*********************************************************+

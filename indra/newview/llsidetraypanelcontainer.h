@@ -57,6 +57,11 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	/**
+	 * Opens given subpanel.
+	 */
+	void openPanel(const std::string& panel_name, const LLSD& key = LLSD::emptyMap());
+
+	/**
 	* Opens previous panel from panel navigation history.
 	*/
 	void openPreviousPanel();

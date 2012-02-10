@@ -203,34 +203,80 @@ Save changes to current clothing/body part?
    icon="alertmodal.tga"
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
-        You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
-        [ITEM_NAME]
-        <usetemplate
-         name="okcancelbuttons"
-         notext="No"
-         yestext="Yes"/>
-    </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="OutboxUploadComplete"
-   type="alertmodal">
-Marketplace upload complete.
-        <usetemplate
-         name="okbutton"
-         yestext="Hooray!"/>
+You don't have permission to copy one or more of these items to the Merchant Outbox.  You can move them or leave them behind.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Don't move item(s)"
+     yestext="Move item(s)"/>
   </notification>
 
   <notification
-   icon="alertmodal.tga"
-   name="OutboxUploadHadErrors"
-   type="alertmodal">
-Marketplace upload completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
-        <usetemplate
-         name="okbutton"
-         yestext="Boo!"/>
+   icon="OutboxStatus_Success"
+   name="OutboxFolderCreated"
+   type="outbox">
+    <unique/>
+A new folder has been created for each item you have transferred into the top level of your Merchant Outbox.
+
+    <usetemplate
+     ignoretext="A new folder was created in the Merchant Outbox"
+     name="okignore"
+     yestext="OK"/>
   </notification>
 
+  <notification
+   icon="OutboxStatus_Success"
+   name="OutboxImportComplete"
+   type="outbox">
+Success
+
+All folders were successfully sent to the Marketplace.
+
+        <usetemplate
+         ignoretext="All folders sent to the Marketplace"
+         name="okignore"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Warning"
+   name="OutboxImportHadErrors"
+   type="outbox">
+Some folders did not transfer
+
+Errors occurred when some folders were sent to the Marketplace.  Those folders are still in your Merchant Outbox.
+
+See the [[MARKETPLACE_IMPORTS_URL] error log] for more information.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxImportFailed"
+   type="outbox">
+Transfer failed
+
+No folders were sent to the Marketplace because of a system or network error.  Try again later.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxInitFailed"
+   type="outbox">
+Marketplace initialization failed
+
+Initialization with the Marketplace failed because of a system or network error.  Try again later.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
     
 
     <notification
@@ -2297,8 +2343,8 @@ Would you be my friend?
  icon="alertmodal.tga"
  label="Save Outfit"
  name="SaveOutfitAs"
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     Save what I'm wearing as a new Outfit:
     <tag>confirm</tag>
     <form name="form">
@@ -2369,7 +2415,7 @@ Would you be my friend?
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
-Do you want to remove [NAME] from your Friends List?
+Do you want to remove &lt;nolink&gt;[NAME]&lt;/nolink&gt; from your Friends List?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -2665,9 +2711,18 @@ Display settings have been set to safe levels because you have specified the -sa
 
   <notification
    icon="alertmodal.tga"
-   name="DisplaySetToRecommended"
+   name="DisplaySetToRecommendedGPUChange"
    type="alertmodal">
-Display settings have been set to recommended levels based on your system configuration.
+Display settings have been set to recommended levels because your graphics card changed
+from &apos;[LAST_GPU]&apos;
+to &apos;[THIS_GPU]&apos;
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="DisplaySetToRecommendedFeatureChange"
+   type="alertmodal">
+Display settings have been set to recommended levels because of a change to the rendering subsystem.
   </notification>
 
   <notification
@@ -3400,7 +3455,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group [GROUP].
+You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Leave Group?
     <tag>group</tag>
     <tag>confirm</tag>
@@ -4611,8 +4666,8 @@ Go to your [http://secondlife.com/account/ Dashboard] to see your account histor
   <notification
    icon="alertmodal.tga"
    name="ConfirmQuit"
-   type="alertmodal"
-   unique="true">
+   type="alertmodal">
+    <unique/>
 Are you sure you want to quit?
     <tag>confirm</tag>
     <usetemplate
@@ -4624,9 +4679,37 @@ Are you sure you want to quit?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmRestoreToybox"
+   type="alertmodal">
+    <unique/>
+This action will restore your default buttons and toolbars.
+
+You cannot undo this action.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ConfirmClearAllToybox"
+   type="alertmodal">
+    <unique/>
+This action will return all buttons to the toolbox and your toolbars will be empty.
+    
+You cannot undo this action.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="DeleteItems"
-   type="alertmodal"
-   unique="true">
+   type="alertmodal">
+    <unique/>
     [QUESTION]
     <tag>confirm</tag>
     <usetemplate
@@ -4639,8 +4722,9 @@ Are you sure you want to quit?
   <notification
    icon="alertmodal.tga"
    name="HelpReportAbuseEmailLL"
-   type="alert"
-   unique="true">
+   type="alert">
+    <unique/>
+    
 Use this tool to report violations of the [http://secondlife.com/corporate/tos.php Terms of Service] and [http://secondlife.com/corporate/cs.php Community Standards].
 
 All reported abuses are investigated and resolved.
@@ -5123,7 +5207,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOnline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Online
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
   </notification>
 
   <notification
@@ -5131,7 +5215,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOffline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Offline
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
   </notification>
 
   <notification
@@ -5408,21 +5492,23 @@ Your calling card was declined.
   </notification>
 
   <notification
-   icon="notifytip.tga"
-   name="TeleportToLandmark"
-   type="notifytip">
-You can teleport to locations like &apos;[NAME]&apos; by opening the Places panel on the right side of your screen, and then select the Landmarks tab.
-Click on any landmark to select it, then click &apos;Teleport&apos; at the bottom of the panel.
-(You can also double-click on the landmark, or right-click it and choose &apos;Teleport&apos;.)
+ icon="notifytip.tga"
+ name="TeleportToLandmark"
+ type="notifytip">
+    To teleport to locations like &apos;[NAME]&apos;, click on the &quot;Places&quot; button,
+    then select the Landmarks tab in the window that opens. Click on any
+    landmark to select it, then click &apos;Teleport&apos; at the bottom of the window.
+    (You can also double-click on the landmark, or right-click it and
+    choose &apos;Teleport&apos;.)
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="TeleportToPerson"
    type="notifytip">
-You can contact Residents like &apos;[NAME]&apos; by opening the People panel on the right side of your screen.
-Select the Resident from the list, then click &apos;IM&apos; at the bottom of the panel.
-(You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
+    To contact Residents like &apos;[NAME]&apos;, click on the &quot;People&quot; button , select a Resident from the window that opens, then click &apos;IM&apos; at the
+    bottom of the window.
+    (You can also double-click on their name in the list, or right-click and choose &apos;IM&apos;).
   </notification>
 
   <notification
@@ -5470,6 +5556,15 @@ Please select at least one type of content to search (General, Moderate, or Adul
   <notification
    icon="notify.tga"
    name="PaymentSent"
+   persist="true"
+   type="notify">
+    <tag>funds</tag>
+[MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentFailure"
    persist="true"
    type="notify">
     <tag>funds</tag>
@@ -5615,8 +5710,8 @@ Message from [NAME]:
    icon="notify.tga"
    name="NotSafe"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>
 This land has damage enabled.
 You can be hurt here. If you die, you will be teleported to your home location.
   </notification>
@@ -5625,8 +5720,8 @@ You can be hurt here. If you die, you will be teleported to your home location.
    icon="notify.tga"
    name="NoFly"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>
    <tag>fail</tag>
 This area has flying disabled.
 You can&apos;t fly here.
@@ -5636,8 +5731,8 @@ You can&apos;t fly here.
    icon="notify.tga"
    name="PushRestricted"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 This area does not allow pushing. You can&apos;t push others here unless you own the land.
   </notification>
 
@@ -5645,8 +5740,8 @@ This area does not allow pushing. You can&apos;t push others here unless you own
    icon="notify.tga"
    name="NoVoice"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 This area has voice chat disabled. You won&apos;t be able to hear anyone talking.
     <tag>voice</tag>
   </notification>
@@ -5655,8 +5750,8 @@ This area has voice chat disabled. You won&apos;t be able to hear anyone talking
    icon="notify.tga"
    name="NoBuild"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 This area has building disabled. You can&apos;t build or rez objects here.
   </notification>
 
@@ -5664,8 +5759,8 @@ This area has building disabled. You can&apos;t build or rez objects here.
    icon="notify.tga"
    name="SeeAvatars"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 This parcel hides avatars and text chat from another parcel.   You can&apos;t see other residents outside the parcel, and those outside are not able to see you.  Regular text chat on channel 0 is also blocked.
   </notification>
 
@@ -6131,7 +6226,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="FriendshipAccepted"
    type="offer">
     <tag>friendship</tag>
-[NAME] accepted your friendship offer.
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
   </notification>
 
   <notification
@@ -6140,7 +6235,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    persist="true"
    type="notify">
     <tag>friendship</tag>
-[NAME] declined your friendship offer.
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; declined your friendship offer.
   </notification>
   
     <notification
@@ -6553,8 +6648,8 @@ The voice call you are trying to join, [VOICE_CHANNEL_NAME], has reached maximum
   <notification
    icon="notifytip.tga"
    name="ProximalVoiceChannelFull"
-   type="notifytip"
-   unique="true">
+   type="notifytip">
+    <unique/>
     We&apos;re sorry.  This area has reached maximum capacity for voice conversations.  Please try to use voice in another area.
     <tag>fail</tag>
     <tag>voice</tag>
@@ -6622,8 +6717,8 @@ Failed to connect to [VOICE_CHANNEL_NAME], please try again later.  You will now
    duration="10"
    icon="notifytip.tga"
    name="VoiceLoginRetry"
-   type="notifytip"
-   unique="true">
+   type="notifytip">
+    <unique/>    
 We are creating a voice channel for you. This may take up to one minute.
   <tag>status</tag>
   <tag>voice</tag>
@@ -6634,8 +6729,8 @@ We are creating a voice channel for you. This may take up to one minute.
    name="VoiceEffectsExpired"
    sound="UISndAlert"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 One or more of your subscribed Voice Morphs has expired.
 [[URL] Click here] to renew your subscription.
   <tag>fail</tag>
@@ -6647,8 +6742,8 @@ One or more of your subscribed Voice Morphs has expired.
    name="VoiceEffectsExpiredInUse"
    sound="UISndAlert"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>
 The active Voice Morph has expired, your normal voice settings have been applied.
 [[URL] Click here] to renew your subscription.
     <tag>fail</tag>
@@ -6660,8 +6755,8 @@ The active Voice Morph has expired, your normal voice settings have been applied
    name="VoiceEffectsWillExpire"
    sound="UISndAlert"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 One or more of your Voice Morphs will expire in less than [INTERVAL] days.
 [[URL] Click here] to renew your subscription.
   <tag>fail</tag>
@@ -6673,8 +6768,8 @@ One or more of your Voice Morphs will expire in less than [INTERVAL] days.
    name="VoiceEffectsNew"
    sound="UISndAlert"
    persist="true"
-   type="notify"
-   unique="true">
+   type="notify">
+    <unique/>    
 New Voice Morphs are available!
    <tag>voice</tag>
   </notification>
@@ -6899,6 +6994,26 @@ With the following Residents:
 	<usetemplate
      name="okcancelbuttons"
      notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="ShareFolderConfirmation"
+   type="alertmodal">
+Only one folder at a time can be shared.
+
+Are you sure you want to share the following items:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+With the following Residents:
+
+[RESIDENTS]
+  <tag>confirm</tag>
+	<usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
      yestext="Ok"/>
   </notification>
   
@@ -7075,8 +7190,9 @@ Are you sure you want to leave this call?
      ignoretext="Confirm before I leave call"
      name="okcancelignore"
      notext="No"
-     yestext="Yes"
-     unique="true"/>
+     yestext="Yes">
+      <unique/>
+    </usetemplate>
   </notification>
 
   <notification
@@ -7094,32 +7210,32 @@ Mute everyone?
     <usetemplate
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
-     yestext="Ok"
-     notext="Cancel"
-     unique="true"/>
+     yestext="OK"
+     notext="Cancel">
+      <unique/>
+    </usetemplate>
   </notification>
   <notification
   name="HintChat"
   label="Chat"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     To join the conversation, type into the chat field below.
   </notification>
 
   <notification
   name="HintSit"
-  
   label="Stand"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     To stand up and exit the sitting position, click the Stand button.
   </notification>
 
   <notification
   name="HintSpeak"
   label="Speak"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>    
 Click the Speak button to turn your microphone on and off.
 
 Click on the up arrow to see the voice control panel.
@@ -7130,32 +7246,32 @@ Hiding the Speak button will disable the voice feature.
   <notification
   name="HintDestinationGuide"
   label="Explore the World"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
   </notification>
 
   <notification
     name="HintSidePanel"
     label="Side Panel"
-    type="hint"
-    unique="true">
+    type="hint">
+    <unique/>
     Get quick access to your inventory, outfits, profiles and more in the side panel.
   </notification>
 
   <notification
   name="HintMove"
   label="Move"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     To walk or run, open the Move Panel and use the directional arrows to navigate. You can also use the directional keys on your keyboard.
   </notification>
 
   <notification
   name="HintMoveClick"
   label=""
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>    
 1. Click to Walk
 Click anywhere on the ground to walk to that spot.
 
@@ -7167,8 +7283,8 @@ Click and drag anywhere on the world to rotate your view
   <notification
   name="HintDisplayName"
   label="Display Name"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     Set your customizable display name here. This is in addition to your unique username, which can't be changed. You can change how you see other people's names in your preferences.
   </notification>
 
@@ -7176,8 +7292,8 @@ Click and drag anywhere on the world to rotate your view
   <notification
   name="HintView"
   label="View"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     To change your camera view, use the Orbit and Pan controls. Reset your view by pressing Escape or walking.
     <tag>custom_skin</tag>
   </notification>
@@ -7185,16 +7301,16 @@ Click and drag anywhere on the world to rotate your view
   <notification
   name="HintInventory"
   label="Inventory"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     Check your inventory to find items. Newest items can be easily found in the Recent tab.
   </notification>
 
   <notification
   name="HintLindenDollar"
   label="You've got Linden Dollars!"
-  type="hint"
-  unique="true">
+  type="hint">
+    <unique/>
     Here's your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
     <tag>funds</tag>
   </notification>
@@ -7381,23 +7497,10 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   </notification>
 
   <notification
- name="ModeChange"
- label=""
- type="alertmodal"
- unique="true">
-    Changing modes requires you to quit and restart.
-    <tag>confirm</tag>
-    <usetemplate
-   name="okcancelbuttons"
-   yestext="Quit"
-   notext="Don't Quit"/>
-    </notification>
-
-  <notification
  name="NoClassifieds"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Creation and editing of Classifieds is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
@@ -7410,8 +7513,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoGroupInfo"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Creation and editing of Groups is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
@@ -7424,8 +7527,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoPlaceInfo"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Viewing place profile is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
@@ -7438,8 +7541,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoPicks"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Creation and editing of Picks is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
@@ -7452,8 +7555,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoWorldMap"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Viewing of the world map is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
@@ -7466,8 +7569,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoVoiceCall"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Voice calls are only available in Advanced mode. Would you like to logout and change modes?
@@ -7480,8 +7583,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoAvatarShare"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Sharing is only available in Advanced mode. Would you like to logout and change modes?
@@ -7494,8 +7597,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoAvatarPay"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
 	  Paying other residents is only available in Advanced mode. Would you like to logout and change modes?
@@ -7508,8 +7611,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoInventory"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Viewing inventory is only available in Advanced mode. Would you like to logout and change modes?
@@ -7522,8 +7625,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoAppearance"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     The appearance editor is only available in Advanced mode. Would you like to logout and change modes?
@@ -7536,8 +7639,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
   <notification
  name="NoSearch"
  label=""
- type="alertmodal"
- unique="true">
+ type="alertmodal">
+    <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
     Search is only available in Advanced mode. Would you like to logout and change modes?
@@ -7547,6 +7650,20 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
    notext="Don't Quit"/>
   </notification>
 
+  <notification
+    name="ConfirmHideUI"
+    label=""
+    type="alertmodal">
+    <unique/>
+    <tag>confirm</tag>
+    This action will hide all menu items and buttons. To get them back, click [SHORTCUT] again.
+    <usetemplate
+      name="okcancelignore"
+      yestext="OK"
+      notext="Cancel"
+      ignoretext="Confirm before hiding UI"/>
+  </notification>
+  
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 

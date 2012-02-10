@@ -11,10 +11,12 @@
 		<combo_box.item label="Español (Spagnolo) - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Francese) - Beta" name="French"/>
 		<combo_box.item label="Italiano - Beta" name="Italian"/>
-		<combo_box.item label="Nederlands (Olandese) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Polacco) - Beta" name="Polish"/>
 		<combo_box.item label="Português (Portoghese) - Beta" name="Portugese"/>
+		<combo_box.item label="Русский (Russo) - Beta" name="Russian"/>
+		<combo_box.item label="Türkçe (Turco) - Beta" name="Turkish"/>
 		<combo_box.item label="日本語 (Giapponese) - Beta" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (Cinese tradizionale) - Beta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Richiede il riavvio)
@@ -49,7 +51,6 @@
 	<check_box label="TItoli gruppo" name="show_all_title_checkbox1" tool_tip="Mostra titoli di gruppo, come Funzionario o Membro"/>
 	<check_box label="Evidenzia amici" name="show_friends" tool_tip="Evidenzia le etichette dei nomi dei tuoi amici"/>
 	<check_box label="Mostra nomi visualizzati" name="display_names_check" tool_tip="Seleziona per visualizzare i nomi in chat, IM, etichette, ecc."/>
-	<check_box label="Attiva suggerimenti UI Viewer" name="viewer_hints_check"/>
 	<text name="inworld_typing_rg_label">
 		Premere i tasti lettera:
 	</text>

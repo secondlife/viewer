@@ -45,7 +45,6 @@
 #include "llpaneltopinfobar.h"
 #include "llteleporthistory.h"
 #include "llsearchcombobox.h"
-#include "llsidetray.h"
 #include "llslurl.h"
 #include "llurlregistry.h"
 #include "llurldispatcher.h"
@@ -55,7 +54,6 @@
 #include "llworldmapmessage.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
-#include "llfloatermediabrowser.h"
 #include "llweb.h"
 #include "llhints.h"
 
@@ -269,7 +267,6 @@ LLNavigationBar::LLNavigationBar()
 	mBtnForward(NULL),
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
-	mSearchComboBox(NULL),
 	mPurgeTPHistoryItems(false),
 	mSaveToLocationHistory(false)
 {
@@ -291,10 +288,7 @@ BOOL LLNavigationBar::postBuild()
 	mBtnForward	= getChild<LLPullButton>("forward_btn");
 	mBtnHome	= getChild<LLButton>("home_btn");
 	
-	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo"); 
-	mSearchComboBox	= getChild<LLSearchComboBox>("search_combo_box");
-
-	fillSearchComboBox();
+	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo");
 
 	mBtnBack->setEnabled(FALSE);
 	mBtnBack->setClickedCallback(boost::bind(&LLNavigationBar::onBackButtonClicked, this));
@@ -309,8 +303,6 @@ BOOL LLNavigationBar::postBuild()
 	mBtnHome->setClickedCallback(boost::bind(&LLNavigationBar::onHomeButtonClicked, this));
 
 	mCmbLocation->setCommitCallback(boost::bind(&LLNavigationBar::onLocationSelection, this));
-	
-	mSearchComboBox->setCommitCallback(boost::bind(&LLNavigationBar::onSearchCommit, this));
 
 	mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLNavigationBar::onTeleportFinished, this, _1));
@@ -325,7 +317,7 @@ BOOL LLNavigationBar::postBuild()
 	LLTeleportHistory::getInstance()->setHistoryChangedCallback(
 			boost::bind(&LLNavigationBar::onTeleportHistoryChanged, this));
 
-	LLHints::registerHintTarget("nav_bar", LLView::getHandle());
+	LLHints::registerHintTarget("nav_bar", getHandle());
 
 	return TRUE;
 }
@@ -341,26 +333,6 @@ void LLNavigationBar::setVisible(BOOL visible)
 			LL_WARNS("LLNavigationBar")<<"NavigationBar has an unknown name of the parent: "<<getParent()->getName()<< LL_ENDL;
 		}
 		getParent()->setVisible(visible);	
-	}
-}
-
-
-void LLNavigationBar::fillSearchComboBox()
-{
-	if(!mSearchComboBox)
-	{
-		return;
-	}
-
-	LLSearchHistory::getInstance()->load();
-
-	LLSearchHistory::search_history_list_t search_list = 
-		LLSearchHistory::getInstance()->getSearchHistoryList();
-	LLSearchHistory::search_history_list_t::const_iterator it = search_list.begin();
-	for( ; search_list.end() != it; ++it)
-	{
-		LLSearchHistory::LLSearchHistoryItem item = *it;
-		mSearchComboBox->add(item.search_query);
 	}
 }
 
@@ -414,16 +386,6 @@ void LLNavigationBar::onForwardButtonClicked()
 void LLNavigationBar::onHomeButtonClicked()
 {
 	gAgent.teleportHome();
-}
-
-void LLNavigationBar::onSearchCommit()
-{
-	std::string search_query = mSearchComboBox->getSimple();
-	if(!search_query.empty())
-	{
-		LLSearchHistory::getInstance()->addEntry(search_query);
-	}
-	invokeSearch(search_query);	
 }
 
 void LLNavigationBar::onTeleportHistoryMenuItemClicked(const LLSD& userdata)
@@ -735,152 +697,4 @@ int LLNavigationBar::getDefNavBarHeight()
 int LLNavigationBar::getDefFavBarHeight()
 {
 	return mDefaultFpRect.getHeight();
-}
-
-void LLNavigationBar::showNavigationPanel(BOOL visible)
-{
-	bool fpVisible = gSavedSettings.getBOOL("ShowNavbarFavoritesPanel");
-
-	LLFavoritesBarCtrl* fb = getChild<LLFavoritesBarCtrl>("favorite");
-	LLPanel* navPanel = getChild<LLPanel>("navigation_panel");
-
-	LLRect nbRect(getRect());
-	LLRect fbRect(fb->getRect());
-
-	navPanel->setVisible(visible);
-
-	if (visible)
-	{
-		if (fpVisible)
-		{
-			// Navigation Panel must be shown. Favorites Panel is visible.
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), mDefaultNbRect.getHeight());
-			fbRect.setLeftTopAndSize(fbRect.mLeft, mDefaultFpRect.mTop, fbRect.getWidth(), fbRect.getHeight());
-
-			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
-			reshape(nbRect.getWidth(), nbRect.getHeight());
-			setRect(nbRect);
-			// propagate size to parent container
-			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
-
-			fb->reshape(fbRect.getWidth(), fbRect.getHeight());
-			fb->setRect(fbRect);
-		}
-		else
-		{
-			// Navigation Panel must be shown. Favorites Panel is hidden.
-
-			S32 height = mDefaultNbRect.getHeight() - mDefaultFpRect.getHeight() - FAVBAR_TOP_PADDING;
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), height);
-
-			reshape(nbRect.getWidth(), nbRect.getHeight());
-			setRect(nbRect);
-			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
-		}
-	}
-	else
-	{
-		if (fpVisible)
-		{
-			// Navigation Panel must be hidden. Favorites Panel is visible.
-
-			S32 fpHeight = mDefaultFpRect.getHeight() + FAVBAR_TOP_PADDING;
-			S32 fpTop = fpHeight - (mDefaultFpRect.getHeight() / 2) + 1;
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
-			fbRect.setLeftTopAndSize(fbRect.mLeft, fpTop, fbRect.getWidth(), mDefaultFpRect.getHeight());
-
-			// this is duplicated in 'else' section because it should be called BEFORE fb->reshape
-			reshape(nbRect.getWidth(), nbRect.getHeight());
-			setRect(nbRect);
-			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
-
-			fb->reshape(fbRect.getWidth(), fbRect.getHeight());
-			fb->setRect(fbRect);
-		}
-		else
-		{
-			// Navigation Panel must be hidden. Favorites Panel is hidden.
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), 0);
-
-			reshape(nbRect.getWidth(), nbRect.getHeight());
-			setRect(nbRect);
-			getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
-		}
-	}
-
-	getChildView("bg_icon")->setVisible( visible && fpVisible);
-	getChildView("bg_icon_no_fav_bevel")->setVisible( visible && !fpVisible);
-	getChildView("bg_icon_no_nav_bevel")->setVisible( !visible && fpVisible);
-}
-
-void LLNavigationBar::showFavoritesPanel(BOOL visible)
-{
-	bool npVisible = gSavedSettings.getBOOL("ShowNavbarNavigationPanel");
-
-	LLFavoritesBarCtrl* fb = getChild<LLFavoritesBarCtrl>("favorite");
-
-	LLRect nbRect(getRect());
-	LLRect fbRect(fb->getRect());
-
-	if (visible)
-	{
-		if (npVisible)
-		{
-			// Favorites Panel must be shown. Navigation Panel is visible.
-
-			S32 fbHeight = fbRect.getHeight();
-			S32 newHeight = nbRect.getHeight() + fbHeight + FAVBAR_TOP_PADDING;
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
-			fbRect.setLeftTopAndSize(mDefaultFpRect.mLeft, mDefaultFpRect.mTop, fbRect.getWidth(), fbRect.getHeight());
-		}
-		else
-		{
-			// Favorites Panel must be shown. Navigation Panel is hidden.
-
-			S32 fpHeight = mDefaultFpRect.getHeight() + FAVBAR_TOP_PADDING;
-			S32 fpTop = fpHeight - (mDefaultFpRect.getHeight() / 2) + 1;
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), fpHeight);
-			fbRect.setLeftTopAndSize(fbRect.mLeft, fpTop, fbRect.getWidth(), mDefaultFpRect.getHeight());
-		}
-
-		reshape(nbRect.getWidth(), nbRect.getHeight());
-		setRect(nbRect);
-		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
-
-		fb->reshape(fbRect.getWidth(), fbRect.getHeight());
-		fb->setRect(fbRect);
-	}
-	else
-	{
-		if (npVisible)
-		{
-			// Favorites Panel must be hidden. Navigation Panel is visible.
-
-			S32 fbHeight = fbRect.getHeight();
-			S32 newHeight = nbRect.getHeight() - fbHeight - FAVBAR_TOP_PADDING;
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), newHeight);
-		}
-		else
-		{
-			// Favorites Panel must be hidden. Navigation Panel is hidden.
-
-			nbRect.setLeftTopAndSize(nbRect.mLeft, nbRect.mTop, nbRect.getWidth(), 0);
-		}
-
-		reshape(nbRect.getWidth(), nbRect.getHeight());
-		setRect(nbRect);
-		getParent()->reshape(nbRect.getWidth(), nbRect.getHeight());
-	}
-
-	getChildView("bg_icon")->setVisible( npVisible && visible);
-	getChildView("bg_icon_no_fav_bevel")->setVisible( npVisible && !visible);
-	getChildView("bg_icon_no_nav_bevel")->setVisible( !npVisible && visible);
-
-	fb->setVisible(visible);
 }

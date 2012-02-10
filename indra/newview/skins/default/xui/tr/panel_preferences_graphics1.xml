@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Grafikler" name="Display panel">
+	<text name="QualitySpeed">
+		Kalite ve hız:
+	</text>
+	<text name="FasterText">
+		Daha hızlı
+	</text>
+	<text name="BetterText">
+		Daha iyi
+	</text>
+	<text name="ShadersPrefText">
+		Düşük
+	</text>
+	<text name="ShadersPrefText2">
+		Orta
+	</text>
+	<text name="ShadersPrefText3">
+		Yüksek
+	</text>
+	<text name="ShadersPrefText4">
+		Ultra
+	</text>
+	<panel label="ÖzelGrafikler" name="CustomGraphics Panel">
+		<text name="ShadersText">
+			Gölgelendiriciler:
+		</text>
+		<check_box initial_value="true" label="Saydam Su" name="TransparentWater"/>
+		<check_box initial_value="true" label="Tümsek eşleme ve parlaklık" name="BumpShiny"/>
+		<check_box initial_value="true" label="Yerel Işıklar" name="LocalLights"/>
+		<check_box initial_value="true" label="Temel gölgeleyiciler" name="BasicShaders" tool_tip="Bu seçeneğin devre dışı bırakılması bazı grafik kartlarının sürücülerinin kilitlenmesini önleyebilir"/>
+		<check_box initial_value="true" label="Atmosferik gölgeleyiciler" name="WindLightUseAtmosShaders"/>
+		<check_box initial_value="true" label="Işıklandırma ve Gölgeler" name="UseLightShaders"/>
+		<check_box initial_value="true" label="Ortam Gölgeleme" name="UseSSAO"/>
+		<check_box initial_value="true" label="Alan Derinliği" name="UseDoF"/>
+		<text name="shadows_label">
+			Gölgeler:
+		</text>
+		<combo_box name="ShadowDetail">
+			<combo_box.item label="Hiçbiri" name="0"/>
+			<combo_box.item label="Güneş/Ay" name="1"/>
+			<combo_box.item label="Güneş/Ay + Projektörler" name="2"/>
+		</combo_box>
+		<text name="reflection_label">
+			Su Yansımaları:
+		</text>
+		<combo_box name="Reflections">
+			<combo_box.item label="Minimal" name="0"/>
+			<combo_box.item label="Yüzey ve ağaçlar" name="1"/>
+			<combo_box.item label="Tüm statik nesneler" name="2"/>
+			<combo_box.item label="Tüm avatarlar ve nesneler" name="3"/>
+			<combo_box.item label="Her şey" name="4"/>
+		</combo_box>
+		<slider label="Avatar Fzk. Özlk.:" name="AvatarPhysicsDetail"/>
+		<text name="AvatarPhysicsDetailText">
+			Düşük
+		</text>
+		<slider label="Mesafeyi çiz:" name="DrawDistance"/>
+		<text name="DrawDistanceMeterText2">
+			m
+		</text>
+		<slider label="Maks. parçacık sayısı:" name="MaxParticleCount"/>
+		<slider label="Düşük gr. özl. olmayan mks. avatar:" name="MaxNumberAvatarDrawn"/>
+		<slider label="Son işleme kalitesi:" name="RenderPostProcess"/>
+		<text name="MeshDetailText">
+			Örgü detayı:
+		</text>
+		<slider label="Nesneler:" name="ObjectMeshDetail"/>
+		<slider label="Esnek primler:" name="FlexibleMeshDetail"/>
+		<slider label="Ağaçlar:" name="TreeMeshDetail"/>
+		<slider label="Avatarlar:" name="AvatarMeshDetail"/>
+		<slider label="Yüzey:" name="TerrainMeshDetail"/>
+		<slider label="Gökyüzü:" name="SkyMeshDetail"/>
+		<text name="PostProcessText">
+			Düşük
+		</text>
+		<text name="ObjectMeshDetailText">
+			Düşük
+		</text>
+		<text name="FlexibleMeshDetailText">
+			Düşük
+		</text>
+		<text name="TreeMeshDetailText">
+			Düşük
+		</text>
+		<text name="AvatarMeshDetailText">
+			Düşük
+		</text>
+		<text name="TerrainMeshDetailText">
+			Düşük
+		</text>
+		<text name="SkyMeshDetailText">
+			Düşük
+		</text>
+		<text name="AvatarRenderingText">
+			Avatar İşleme:
+		</text>
+		<check_box initial_value="true" label="Düşük grafik özellikli avatarlar" name="AvatarImpostors"/>
+		<check_box initial_value="true" label="Donanım ile kaplama" name="AvatarVertexProgram"/>
+		<check_box initial_value="true" label="Avatar giysisi" name="AvatarCloth"/>
+		<text name="TerrainDetailText">
+			Yüzey detayı:
+		</text>
+		<radio_group name="TerrainDetailRadio">
+			<radio_item label="Düşük" name="0"/>
+			<radio_item label="Yüksek" name="2"/>
+		</radio_group>
+		--&gt;
+	</panel>
+	<button label="Uygula" label_selected="Uygula" name="Apply"/>
+	<button label="Sıfırla" name="Defaults"/>
+	<button label="Gelişmiş" name="Advanced"/>
+	<button label="Donanım" label_selected="Donanım" name="GraphicsHardwareButton"/>
+</panel>

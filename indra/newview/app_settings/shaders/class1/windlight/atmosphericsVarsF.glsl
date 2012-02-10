@@ -24,10 +24,7 @@
  */
  
 
-
-varying vec3 vary_PositionEye;
-
 vec3 getPositionEye()
 {
-	return vary_PositionEye;
+	return vec3(0,0,0);
 }

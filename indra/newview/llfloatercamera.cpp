@@ -36,7 +36,6 @@
 #include "lljoystickbutton.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
-#include "llbottomtray.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
 #include "llslider.h"
@@ -314,12 +313,6 @@ void LLFloaterCamera::onOpen(const LLSD& key)
 {
 	LLFirstUse::viewPopup();
 
-	LLButton *anchor_panel = LLBottomTray::getInstance()->getChild<LLButton>("camera_btn");
-
-	setDockControl(new LLDockControl(
-		anchor_panel, this,
-		getDockTongue(), LLDockControl::TOP));
-
 	mZoom->onOpen(key);
 
 	// Returns to previous mode, see EXT-2727(View tool should remember state).
@@ -343,27 +336,23 @@ void LLFloaterCamera::onClose(bool app_quitting)
 	if (mCurrMode == CAMERA_CTRL_MODE_PAN)
 		mPrevMode = CAMERA_CTRL_MODE_PAN;
 
-	// HACK: Should always close as docked to prevent toggleInstance without calling onOpen.
-	if ( !isDocked() )
-		setDocked(true);
 	switchMode(CAMERA_CTRL_MODE_PAN);
 	mClosed = TRUE;
 }
 
 LLFloaterCamera::LLFloaterCamera(const LLSD& val)
-:	LLTransientDockableFloater(NULL, true, val),
+:	LLFloater(val),
 	mClosed(FALSE),
 	mCurrMode(CAMERA_CTRL_MODE_PAN),
 	mPrevMode(CAMERA_CTRL_MODE_PAN)
 {
-	LLHints::registerHintTarget("view_popup", LLView::getHandle());
+	LLHints::registerHintTarget("view_popup", getHandle());
+	mCommitCallbackRegistrar.add("CameraPresets.ChangeView", boost::bind(&LLFloaterCamera::onClickCameraItem, _2));
 }
 
 // virtual
 BOOL LLFloaterCamera::postBuild()
 {
-	setIsChrome(TRUE);
-	setTitleVisible(TRUE); // restore title visibility after chrome applying
 	updateTransparency(TT_ACTIVE); // force using active floater transparency (STORM-730)
 
 	mRotate = getChild<LLJoystickCameraRotate>(ORBIT);
@@ -379,7 +368,7 @@ BOOL LLFloaterCamera::postBuild()
 	// ensure that appearance mode is handled while building. See EXT-7796.
 	handleAvatarEditingAppearance(sAppearanceEditing);
 
-	return LLDockableFloater::postBuild();
+	return LLFloater::postBuild();
 }
 
 void LLFloaterCamera::fillFlatlistFromPanel (LLFlatListView* list, LLPanel* panel)
@@ -442,26 +431,6 @@ void LLFloaterCamera::setMode(ECameraControlMode mode)
 	}
 	
 	updateState();
-}
-
-void LLFloaterCamera::setModeTitle(const ECameraControlMode mode)
-{
-	std::string title; 
-	switch(mode)
-	{
-	case CAMERA_CTRL_MODE_MODES:
-		title = getString("camera_modes_title");
-		break;
-	case CAMERA_CTRL_MODE_PAN:
-		title = getString("pan_mode_title");
-		break;
-	case CAMERA_CTRL_MODE_PRESETS:
-		title = getString("presets_mode_title");
-		break;
-	default:
-		break;
-	}
-	setTitle(title);
 }
 
 void LLFloaterCamera::switchMode(ECameraControlMode mode)
@@ -543,7 +512,6 @@ void LLFloaterCamera::updateState()
 	{
 		iter->second->setToggleState(iter->first == mCurrMode);
 	}
-	setModeTitle(mCurrMode);
 }
 
 void LLFloaterCamera::updateItemsSelection()

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Water Preset" title="Изменить настройку воды">
+	<string name="title_new">
+		Создать настройку воды
+	</string>
+	<string name="title_edit">
+		Изменение настройки воды
+	</string>
+	<string name="hint_new">
+		Введите имя настройки, задайте ее параметры с помощью элементов управления и нажмите кнопку «Сохранить».
+	</string>
+	<string name="hint_edit">
+		Чтобы изменить настройку воды, задайте параметры с помощью элементов управления и нажмите кнопку «Сохранить».
+	</string>
+	<string name="combo_label">
+		-Выбор настройки-
+	</string>
+	<text name="hint">
+		Чтобы изменить настройку, задайте ее параметры с помощью элементов управления и нажмите кнопку «Сохранить».
+	</text>
+	<text name="label">
+		Имя настройки:
+	</text>
+	<text name="note">
+		Примечание. Если изменить имя настройки, будет создана новая настройка, а изменения в существующей не будут сохранены.
+	</text>
+	<panel name="panel_water_preset">
+		<text name="water_color_label">
+			Оттенок
+		</text>
+		<text name="water_fog_density_label">
+			Прозрачность
+		</text>
+		<text name="underwater_fog_modifier_label">
+			Изменение прозрачности
+		</text>
+		<text name="BHText">
+			Направление больших волн
+		</text>
+		<slider label="X" name="WaterWave1DirX"/>
+		<slider label="Y" name="WaterWave1DirY"/>
+		<text name="BDensText">
+			Степень отражения зыби
+		</text>
+		<text name="HDText">
+			Отражение
+		</text>
+		<text name="FresnelOffsetText">
+			Угловая зависимость
+		</text>
+		<text name="BHText2">
+			Направление ряби
+		</text>
+		<slider label="X" name="WaterWave2DirX"/>
+		<slider label="Y" name="WaterWave2DirY"/>
+		<text name="DensMultText">
+			Преломление (над водой)
+		</text>
+		<text name="WaterScaleBelowText">
+			Преломление (под водой)
+		</text>
+		<text name="MaxAltText">
+			Размытие
+		</text>
+		<text name="BHText3">
+			Карта поверхности
+		</text>
+	</panel>
+	<check_box label="Применить эту настройку воды" name="make_default_cb"/>
+	<button label="Сохранить" name="save"/>
+	<button label="Отмена" name="cancel"/>
+</floater>

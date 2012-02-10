@@ -2,22 +2,19 @@
 
 include(Variables)
 
-
-if (NOT STANDALONE)
-  set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
-  set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
-  set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
-  if (WINDOWS)
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
-    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
-  elseif (LINUX)
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
-    set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
-  elseif (DARWIN)
-    set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
-    set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs/\$(CONFIGURATION)")
-  endif (WINDOWS)
-endif (NOT STANDALONE)
+set(ARCH_PREBUILT_DIRS ${AUTOBUILD_INSTALL_DIR}/lib)
+set(ARCH_PREBUILT_DIRS_RELEASE ${AUTOBUILD_INSTALL_DIR}/lib/release)
+set(ARCH_PREBUILT_DIRS_DEBUG ${AUTOBUILD_INSTALL_DIR}/lib/debug)
+if (WINDOWS)
+  set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
+  set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
+elseif (LINUX)
+  set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/lib)
+  set(EXE_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs/bin)
+elseif (DARWIN)
+  set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
+  set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs/\$(CONFIGURATION)")
+endif (WINDOWS)
 
 # Autobuild packages must provide 'release' versions of libraries, but may provide versions for
 # specific build types.  AUTOBUILD_LIBS_INSTALL_DIRS lists first the build type directory and then

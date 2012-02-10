@@ -34,7 +34,6 @@
 
 #include "llfirstuse.h"
 #include "llnearbychatbar.h"
-#include "llbottomtray.h"
 #include "llagent.h"
 #include "llgesturemgr.h"
 #include "llmultigesture.h"
@@ -48,13 +47,19 @@
 #include "llviewerwindow.h"
 #include "llrootview.h"
 #include "llviewerchat.h"
+#include "llnearbychat.h"
+#include "lltranslate.h"
+
+#include "llresizehandle.h"
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
+const S32 EXPANDED_HEIGHT = 300;
+const S32 COLLAPSED_HEIGHT = 60;
+const S32 EXPANDED_MIN_HEIGHT = 150;
+
 // legacy callback glue
 void send_chat_from_viewer(const std::string& utf8_out_text, EChatType type, S32 channel);
-
-static LLDefaultChildRegistry::Register<LLGestureComboList> r("gesture_combo_list");
 
 struct LLChatTypeTrigger {
 	std::string name;
@@ -66,353 +71,13 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 	{ "/shout"	, CHAT_TYPE_SHOUT}
 };
 
-//ext-7367
-//Problem: gesture list control (actually LLScrollListCtrl) didn't actually process mouse wheel message. 
-// introduce new gesture list subclass to "eat" mouse wheel messages (and probably some other messages)
-class LLGestureScrollListCtrl: public LLScrollListCtrl
-{
-protected:
-	friend class LLUICtrlFactory;
-	LLGestureScrollListCtrl(const LLScrollListCtrl::Params& params)
-		:LLScrollListCtrl(params)
-	{
-	}
-public:
-	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks)
-	{
-		LLScrollListCtrl::handleScrollWheel( x, y, clicks );
-		return TRUE;
-	}
-	//See EXT-6598
-	//Mouse hover over separator will result in not processing tooltip message
-	//So eat this message
-	BOOL handleToolTip(S32 x, S32 y, MASK mask)
-	{
-		LLScrollListCtrl::handleToolTip( x, y, mask );
-		return TRUE;
-	}
-};
-
-LLGestureComboList::Params::Params()
-:	combo_button("combo_button"),
-	combo_list("combo_list"),
-	get_more("get_more", true),
-	view_all("view_all", true)
-{
-}
-
-LLGestureComboList::LLGestureComboList(const LLGestureComboList::Params& p)
-:	LLUICtrl(p),
-	mLabel(p.label),
-	mViewAllItemIndex(-1),
-	mGetMoreItemIndex(-1),
-	mShowViewAll(p.view_all),
-	mShowGetMore(p.get_more)
-{
-	LLBottomtrayButton::Params button_params = p.combo_button;
-	button_params.follows.flags(FOLLOWS_LEFT|FOLLOWS_BOTTOM|FOLLOWS_RIGHT);
-
-	mButton = LLUICtrlFactory::create<LLBottomtrayButton>(button_params);
-	mButton->reshape(getRect().getWidth(),getRect().getHeight());
-	mButton->setCommitCallback(boost::bind(&LLGestureComboList::onButtonCommit, this));
-
-	addChild(mButton);
-
-	LLGestureScrollListCtrl::Params params(p.combo_list);
-	
-	params.name("GestureComboList");
-	params.commit_callback.function(boost::bind(&LLGestureComboList::onItemSelected, this, _2));
-	params.visible(false);
-	params.commit_on_keyboard_movement(false);
-
-	mList = LLUICtrlFactory::create<LLGestureScrollListCtrl>(params);
-	addChild(mList);
-
-	//****************************Gesture Part********************************/
-
-	setCommitCallback(boost::bind(&LLGestureComboList::onCommitGesture, this));
-
-	// now register us as observer since we have a place to put the results
-	LLGestureMgr::instance().addObserver(this);
-
-	// refresh list from current active gestures
-	refreshGestures();
-
-	setFocusLostCallback(boost::bind(&LLGestureComboList::hideList, this));
-}
-
-BOOL LLGestureComboList::handleKeyHere(KEY key, MASK mask)
-{
-	BOOL handled = FALSE;
-	
-	if (key == KEY_ESCAPE && mask == MASK_NONE )
-	{
-		hideList();
-		handled = TRUE;
-	}
-	else
-	{
-		handled = mList->handleKeyHere(key, mask);
-	}
-
-	return handled; 		
-}
-
-void LLGestureComboList::draw()
-{
-	LLUICtrl::draw();
-
-	if(mButton->getToggleState())
-	{
-		showList();
-	}
-}
-
-void LLGestureComboList::showList()
-{
-	LLRect rect = mList->getRect();
-	LLRect button_rect = mButton->getRect();
-	
-	// Calculating amount of space between the navigation bar and gestures combo
-	LLNavigationBar* nb = LLNavigationBar::getInstance();
-
-	S32 x, nb_bottom;
-	nb->localPointToOtherView(0, 0, &x, &nb_bottom, this);
-
-	S32 max_height = nb_bottom - button_rect.mTop;
-	mList->calcColumnWidths();
-	rect.setOriginAndSize(button_rect.mLeft, button_rect.mTop, llmax(mList->getMaxContentWidth(),mButton->getRect().getWidth()), max_height);
-
-	mList->setRect(rect);
-	mList->fitContents( llmax(mList->getMaxContentWidth(),mButton->getRect().getWidth()), max_height);
-
-	gFocusMgr.setKeyboardFocus(this);
-
-	// Show the list and push the button down
-	mButton->setToggleState(TRUE);
-	mList->setVisible(TRUE);
-	sendChildToFront(mList);
-	LLUI::addPopup(mList);
-}
-
-void LLGestureComboList::onButtonCommit()
-{
-	if (!mList->getVisible())
-	{
-		// highlight the last selected item from the original selection before potentially selecting a new item
-		// as visual cue to original value of combo box
-		LLScrollListItem* last_selected_item = mList->getLastSelectedItem();
-		if (last_selected_item)
-		{
-			mList->mouseOverHighlightNthItem(mList->getItemIndex(last_selected_item));
-		}
-
-		if (mList->getItemCount() != 0)
-		{
-			showList();
-		}
-	}
-	else
-	{
-		hideList();
-	} 
-}
-
-void LLGestureComboList::hideList()
-{
-	if (mList->getVisible())
-	{
-		mButton->setToggleState(FALSE);
-		mList->setVisible(FALSE);
-		mList->mouseOverHighlightNthItem(-1);
-		LLUI::removePopup(mList);
-		gFocusMgr.setKeyboardFocus(NULL);
-	}
-}
-
-S32 LLGestureComboList::getCurrentIndex() const
-{
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return mList->getItemIndex( item );
-	}
-	return -1;
-}
-
-void LLGestureComboList::onItemSelected(const LLSD& data)
-{
-	const std::string name = mList->getSelectedItemLabel();
-
-	S32 cur_id = getCurrentIndex();
-	mLastSelectedIndex = cur_id;
-	if (cur_id != mList->getItemCount()-1 && cur_id != -1)
-	{
-		mButton->setLabel(name);
-	}
-
-	// hiding the list reasserts the old value stored in the text editor/dropdown button
-	hideList();
-
-	// commit does the reverse, asserting the value in the list
-	onCommit();
-}
-
-void LLGestureComboList::sortByName(bool ascending)
-{
-	mList->sortOnce(0, ascending);
-}
-
-LLSD LLGestureComboList::getValue() const
-{
-	LLScrollListItem* item = mList->getFirstSelected();
-	if( item )
-	{
-		return item->getValue();
-	}
-	else
-	{
-		return LLSD();
-	}
-}
-
-void LLGestureComboList::refreshGestures()
-{
-	//store current selection so we can maintain it
-	LLSD cur_gesture = getValue();
-	
-	mList->selectFirstItem();
-	mList->clearRows();
-	mGestures.clear();
-
-	LLGestureMgr::item_map_t::const_iterator it;
-	const LLGestureMgr::item_map_t& active_gestures = LLGestureMgr::instance().getActiveGestures();
-	LLSD::Integer idx(0);
-	for (it = active_gestures.begin(); it != active_gestures.end(); ++it)
-	{
-		LLMultiGesture* gesture = (*it).second;
-		if (gesture)
-		{
-			mList->addSimpleElement(gesture->mName, ADD_BOTTOM, LLSD(idx));
-			mGestures.push_back(gesture);
-			idx++;
-		}
-	}
-
-	sortByName();
-
-	// store indices for Get More and View All items (idx is the index followed by the last added Gesture)
-	if (mShowGetMore)
-	{
-		mGetMoreItemIndex = idx;
-		mList->addSimpleElement(LLTrans::getString("GetMoreGestures"), ADD_BOTTOM, LLSD(mGetMoreItemIndex));
-	}
-	if (mShowViewAll)
-	{
-		mViewAllItemIndex = idx + 1;
-		mList->addSimpleElement(LLTrans::getString("ViewAllGestures"), ADD_BOTTOM, LLSD(mViewAllItemIndex));
-	}
-
-	// Insert label after sorting, at top, with separator below it
-	mList->addSeparator(ADD_TOP);	
-	mList->addSimpleElement(mLabel, ADD_TOP);
-
-	if (cur_gesture.isDefined())
-	{ 
-		mList->selectByValue(cur_gesture);
-
-	}
-	else
-	{
-		mList->selectFirstItem();
-	}
-
-	LLCtrlListInterface* gestures = getListInterface();
-	LLMultiGesture* gesture = NULL;
-	
-	if (gestures)
-	{
-		S32 sel_index = gestures->getFirstSelectedIndex();
-		if (sel_index != 0)
-		{
-			S32 index = gestures->getSelectedValue().asInteger();
-			if (index<0 || index >= (S32)mGestures.size())
-			{
-				llwarns << "out of range gesture access" << llendl;
-			}
-			else
-			{
-				gesture = mGestures.at(index);
-			}
-		}
-	}
-	
-	if(gesture && LLGestureMgr::instance().isGesturePlaying(gesture))
-	{
-		return;
-	}
-	
-	mButton->setLabel(mLabel);
-}
-
-void LLGestureComboList::onCommitGesture()
-{
-	LLCtrlListInterface* gestures = getListInterface();
-	if (gestures)
-	{
-		S32 sel_index = gestures->getFirstSelectedIndex();
-		if (sel_index == 0)
-		{
-			return;
-		}
-
-		S32 index = gestures->getSelectedValue().asInteger();
-
-		if (mViewAllItemIndex == index)
-		{
-			// The same behavior as Ctrl+G. EXT-823
-			LLFloaterReg::toggleInstance("gestures");
-			gestures->selectFirstItem();
-			return;
-		}
-
-		if (mGetMoreItemIndex == index)
-		{
-			LLWeb::loadURLExternal(gSavedSettings.getString("GesturesMarketplaceURL"));
-			return;
-		}
-
-		if (index<0 || index >= (S32)mGestures.size())
-		{
-			llwarns << "out of range gesture index" << llendl;
-		}
-		else
-		{
-			LLMultiGesture* gesture = mGestures.at(index);
-			if(gesture)
-			{
-				LLGestureMgr::instance().playGesture(gesture);
-				if(!gesture->mReplaceText.empty())
-				{
-					LLNearbyChatBar::sendChatFromViewer(gesture->mReplaceText, CHAT_TYPE_NORMAL, FALSE);
-				}
-			}
-		}
-	}
-}
-
-LLGestureComboList::~LLGestureComboList()
-{
-	LLGestureMgr::instance().removeObserver(this);
-}
-
-LLCtrlListInterface* LLGestureComboList::getListInterface()
-{
-	return mList;
-}
-
-LLNearbyChatBar::LLNearbyChatBar() 
-:	mChatBox(NULL)
+LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
+:	LLFloater(key),
+	mChatBox(NULL),
+	mNearbyChat(NULL),
+	mOutputMonitor(NULL),
+	mSpeakerMgr(NULL),
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
@@ -436,13 +101,48 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
+	mNearbyChat = getChildView("nearby_chat");
+
+	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
+	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
+
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
+
+	gSavedSettings.declareBOOL("nearbychat_history_visibility", mNearbyChat->getVisible(), "Visibility state of nearby chat history", TRUE);
+
+	mNearbyChat->setVisible(gSavedSettings.getBOOL("nearbychat_history_visibility"));
 
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
+	enableResizeCtrls(true, true, false);
+
 	return TRUE;
+}
+
+// virtual
+void LLNearbyChatBar::onOpen(const LLSD& key)
+{
+	enableTranslationCheckbox(LLTranslate::isTranslationConfigured());
+}
+
+bool LLNearbyChatBar::applyRectControl()
+{
+	bool rect_controlled = LLFloater::applyRectControl();
+
+	if (!mNearbyChat->getVisible())
+	{
+		reshape(getRect().getWidth(), getMinHeight());
+		enableResizeCtrls(true, true, false);
+	}
+	else
+	{
+		enableResizeCtrls(true);
+		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
+	}
+	
+	return rect_controlled;
 }
 
 void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
@@ -457,19 +157,28 @@ void LLNearbyChatBar::onChatFontChange(LLFontGL* fontp)
 //static
 LLNearbyChatBar* LLNearbyChatBar::getInstance()
 {
-	return LLBottomTray::getInstance() ? LLBottomTray::getInstance()->getNearbyChatBar() : NULL;
+	return LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar");
 }
 
-//static
-bool LLNearbyChatBar::instanceExists()
+void LLNearbyChatBar::showHistory()
 {
-	return LLBottomTray::instanceExists() && LLBottomTray::getInstance()->getNearbyChatBar() != NULL;
+	openFloater();
+
+	if (!getChildView("nearby_chat")->getVisible())
+	{
+		onToggleNearbyChatPanel();
+	}
+}
+
+void LLNearbyChatBar::enableTranslationCheckbox(BOOL enable)
+{
+	getChild<LLUICtrl>("translate_chat_checkbox")->setEnabled(enable);
 }
 
 void LLNearbyChatBar::draw()
 {
 	displaySpeakingIndicator();
-	LLPanel::draw();
+	LLFloater::draw();
 }
 
 std::string LLNearbyChatBar::getCurrentChat()
@@ -683,6 +392,46 @@ void LLNearbyChatBar::sendChat( EChatType type )
 	}
 }
 
+
+void LLNearbyChatBar::onToggleNearbyChatPanel()
+{
+	LLView* nearby_chat = getChildView("nearby_chat");
+
+	if (nearby_chat->getVisible())
+	{
+		if (!isMinimized())
+		{
+			mExpandedHeight = getRect().getHeight();
+		}
+		setResizeLimits(getMinWidth(), COLLAPSED_HEIGHT);
+		nearby_chat->setVisible(FALSE);
+		reshape(getRect().getWidth(), COLLAPSED_HEIGHT);
+		enableResizeCtrls(true, true, false);
+		storeRectControl();
+	}
+	else
+	{
+		nearby_chat->setVisible(TRUE);
+		setResizeLimits(getMinWidth(), EXPANDED_MIN_HEIGHT);
+		reshape(getRect().getWidth(), mExpandedHeight);
+		enableResizeCtrls(true);
+		storeRectControl();
+	}
+
+	gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
+}
+
+void LLNearbyChatBar::setMinimized(BOOL b)
+{
+	LLNearbyChat* nearby_chat = getChild<LLNearbyChat>("nearby_chat");
+	// when unminimizing with nearby chat visible, go ahead and kill off screen chats
+	if (!b && nearby_chat->getVisible())
+	{
+		nearby_chat->removeScreenChat();
+	}
+		LLFloater::setMinimized(b);
+}
+
 void LLNearbyChatBar::onChatBoxCommit()
 {
 	if (mChatBox->getText().length() > 0)
@@ -780,17 +529,13 @@ void LLNearbyChatBar::sendChatFromViewer(const LLWString &wtext, EChatType type,
 // static 
 void LLNearbyChatBar::startChat(const char* line)
 {
-	LLBottomTray *bt = LLBottomTray::getInstance();
-
-	if (!bt)
-		return;
-
-	LLNearbyChatBar* cb = bt->getNearbyChatBar();
+	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
 	if (!cb )
 		return;
 
-	bt->setVisible(TRUE);
+	cb->setVisible(TRUE);
+	cb->setFocus(TRUE);
 	cb->mChatBox->setFocus(TRUE);
 
 	if (line)
@@ -806,12 +551,7 @@ void LLNearbyChatBar::startChat(const char* line)
 // static
 void LLNearbyChatBar::stopChat()
 {
-	LLBottomTray *bt = LLBottomTray::getInstance();
-
-	if (!bt)
-		return;
-
-	LLNearbyChatBar* cb = bt->getNearbyChatBar();
+	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
 	if (!cb)
 		return;

@@ -6,7 +6,7 @@
  height="500"
  layout="topleft"
  name="modal container"
- open_centered="true"
+ open_positioning="centered"
  width="600">
     <button
      height="20"

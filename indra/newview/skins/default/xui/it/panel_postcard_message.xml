@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_postcard_message">
+	<text name="to_label">
+		A:
+	</text>
+	<text name="name_label">
+		Da:
+	</text>
+	<text name="subject_label">
+		Oggetto:
+	</text>
+	<line_editor label="Digita qui l&apos;oggetto." name="subject_form"/>
+	<text name="msg_label">
+		Messaggio:
+	</text>
+	<text_editor name="msg_form">
+		Digita qui il messaggio.
+	</text_editor>
+	<button label="Annulla" name="cancel_btn"/>
+	<button label="Invia" name="send_btn"/>
+</panel>

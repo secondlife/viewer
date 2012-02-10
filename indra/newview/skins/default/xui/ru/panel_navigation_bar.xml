@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="navigation_bar">
+	<layout_stack name="nvp_stack">
+		<layout_panel name="navigation_layout_panel">
+			<panel name="navigation_panel">
+				<pull_button name="back_btn" tool_tip="Вернуться в предыдущее место"/>
+				<pull_button name="forward_btn" tool_tip="Перейти в следующее место"/>
+				<button name="home_btn" tool_tip="Телепортация домой"/>
+				<location_input label="Место" name="location_combo"/>
+			</panel>
+		</layout_panel>
+		<layout_panel name="favorites_layout_panel">
+			<favorites_bar name="favorite" tool_tip="Перетаскивайте сюда закладки, чтобы было удобнее переходить в любимые места в Second Life!">
+				<label name="favorites_bar_label" tool_tip="Перетаскивайте сюда закладки, чтобы было удобнее переходить в любимые места в Second Life!">
+					Избранное
+				</label>
+				<more_button name="&gt;&gt;" tool_tip="Показать больше избранного">
+					Больше ▼
+				</more_button>
+			</favorites_bar>
+		</layout_panel>
+	</layout_stack>
+</panel>

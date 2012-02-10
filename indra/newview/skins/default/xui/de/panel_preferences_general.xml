@@ -11,10 +11,12 @@
 		<combo_box.item label="Español (Spanisch) - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Französisch) - Beta" name="French"/>
 		<combo_box.item label="Italiano (Italienisch) - Beta" name="Italian"/>
-		<combo_box.item label="Nederlands (Niederländisch) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Polnisch) - Beta" name="Polish"/>
 		<combo_box.item label="Português (Portugiesisch) - Beta" name="Portugese"/>
+		<combo_box.item label="Русский (Russisch) – Beta" name="Russian"/>
+		<combo_box.item label="Türkçe (Türkisch) – Beta" name="Turkish"/>
 		<combo_box.item label="日本語 (Japanisch) - Beta" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (Traditionelles Chinesisch) – Beta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Erfordert Neustart)
@@ -49,7 +51,6 @@
 	<check_box label="Gruppentitel" name="show_all_title_checkbox1" tool_tip="Gruppentitel wie „Vorstand“ oder „Mitglied“"/>
 	<check_box label="Freunde hervorheben" name="show_friends" tool_tip="Avatarnamen Ihrer Freunde hervorheben"/>
 	<check_box label="Anzeigenamen anzeigen" name="display_names_check" tool_tip="Aktivieren Sie diese Option, um Anzeigenamen in Chat, IM, Avatarnamen usw. zu verwenden."/>
-	<check_box label="Viewer-UI-Tipps aktivieren" name="viewer_hints_check"/>
 	<text name="inworld_typing_rg_label">
 		Drücken von Buchstabentasten:
 	</text>

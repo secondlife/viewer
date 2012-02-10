@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!-- Side tray panel -->
+<panel label="Люди" name="people_panel">
+	<string name="no_recent_people" value="Нет людей, говоривших недавно. Ищете, с кем пообщаться? Воспользуйтесь [secondlife:///app/search/people поиском] или [secondlife:///app/worldmap картой мира]."/>
+	<string name="no_filtered_recent_people" value="Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/people/[SEARCH_TERM] поиском]."/>
+	<string name="no_one_near" value="Никого нет рядом. Ищете, с кем пообщаться? Воспользуйтесь [secondlife:///app/search/people поиском] или [secondlife:///app/worldmap картой мира]."/>
+	<string name="no_one_filtered_near" value="Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/people/[SEARCH_TERM] поиском]."/>
+	<string name="no_friends_online" value="Нет друзей онлайн"/>
+	<string name="no_friends" value="Нет друзей"/>
+	<string name="no_friends_msg">
+		Найдите друзей с помощью [secondlife:///app/search/people поиска] или добавьте жителей в друзья с помощью правой кнопки мыши.
+Ищете, с кем пообщаться? Воспользуйтесь [secondlife:///app/worldmap картой мира].
+	</string>
+	<string name="no_filtered_friends_msg">
+		Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/people/[SEARCH_TERM] поиском].
+	</string>
+	<string name="people_filter_label" value="Фильтр для людей"/>
+	<string name="groups_filter_label" value="Фильтр для групп"/>
+	<string name="no_filtered_groups_msg" value="Не нашли того, что вам нужно? Воспользуйтесь [secondlife:///app/search/groups/[SEARCH_TERM] поиском]."/>
+	<string name="no_groups_msg" value="Ищете группу, чтобы присоединиться к ней? Воспользуйтесь [secondlife:///app/search/groups поиском]."/>
+	<string name="MiniMapToolTipMsg" value="[REGION](Двойной щелчок открывает карту, shift+перетягивание – обзор)"/>
+	<string name="AltMiniMapToolTipMsg" value="[REGION](Двойной щелчок – телепортация, shift+перетягивание – обзор)"/>
+	<filter_editor label="Фильтр" name="filter_input"/>
+	<tab_container name="tabs">
+		<panel label="РЯДОМ" name="nearby_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="nearby_view_sort_btn" tool_tip="Опции"/>
+				<button name="add_friend_btn" tool_tip="Добавить выбранного жителя в список друзей"/>
+			</panel>
+		</panel>
+		<panel label="МОИ ДРУЗЬЯ" name="friends_panel">
+			<accordion name="friends_accordion">
+				<accordion_tab name="tab_online" title="Онлайн"/>
+				<accordion_tab name="tab_all" title="Все"/>
+			</accordion>
+			<panel label="bottom_panel" name="bottom_panel">
+				<layout_stack name="bottom_panel">
+					<layout_panel name="options_gear_btn_panel">
+						<menu_button name="friends_viewsort_btn" tool_tip="Показать дополнительные параметры"/>
+					</layout_panel>
+					<layout_panel name="add_btn_panel">
+						<button name="add_btn" tool_tip="Предложить жителю дружбу"/>
+					</layout_panel>
+					<layout_panel name="trash_btn_panel">
+						<dnd_button name="del_btn" tool_tip="Удалить выбранного жителя из списка друзей"/>
+					</layout_panel>
+				</layout_stack>
+			</panel>
+		</panel>
+		<panel label="МОИ ГРУППЫ" name="groups_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="groups_viewsort_btn" tool_tip="Опции"/>
+				<button name="plus_btn" tool_tip="Присоединиться к группе/создать новую группу"/>
+				<button name="activate_btn" tool_tip="Активировать выбранную группу"/>
+			</panel>
+		</panel>
+		<panel label="НЕДАВНИЕ" name="recent_panel">
+			<panel label="bottom_panel" name="bottom_panel">
+				<menu_button name="recent_viewsort_btn" tool_tip="Опции"/>
+				<button name="add_friend_btn" tool_tip="Добавить выбранного жителя в список друзей"/>
+			</panel>
+		</panel>
+	</tab_container>
+	<panel name="button_bar">
+		<layout_stack name="bottom_bar_ls">
+			<layout_panel name="view_profile_btn_lp">
+				<button label="Профиль" name="view_profile_btn" tool_tip="Показать изображение, группы и прочую информацию о жителе"/>
+			</layout_panel>
+			<layout_panel name="im_btn_lp">
+				<button label="IM" name="im_btn" tool_tip="Начать сеанс IM"/>
+			</layout_panel>
+			<layout_panel name="call_btn_lp">
+				<button label="Звонок" name="call_btn" tool_tip="Позвонить этому жителю"/>
+			</layout_panel>
+			<layout_panel name="share_btn_lp">
+				<button label="Поделиться" name="share_btn" tool_tip="Поделиться объектом из инвентаря"/>
+			</layout_panel>
+			<layout_panel name="teleport_btn_lp">
+				<button label="Телепортация" name="teleport_btn" tool_tip="Предложить телепортацию"/>
+			</layout_panel>
+		</layout_stack>
+		<layout_stack name="bottom_bar_ls1">
+			<layout_panel name="group_info_btn_lp">
+				<button label="Профиль группы" name="group_info_btn" tool_tip="Показать информацию о группе"/>
+			</layout_panel>
+			<layout_panel name="chat_btn_lp">
+				<button label="Групповой чат" name="chat_btn" tool_tip="Открыть сеанс чата"/>
+			</layout_panel>
+			<layout_panel name="group_call_btn_lp">
+				<button label="Звонок группе" name="group_call_btn" tool_tip="Позвонить этой группе"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

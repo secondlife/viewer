@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<floater
+  open_positioning="cascading"
+  legacy_header_height="18"
+  can_resize="true"
+  height="588"
+  layout="topleft"
+  name="floater_places"
+  help_topic="floater_places"
+  save_rect="true"
+  reuse_instance="true"
+  title="PLACES"
+  min_height="440"
+  min_width="333"
+  width="333">
+    <panel
+      top="18"
+      class="panel_places"
+      name="main_panel"
+      filename="panel_places.xml"
+      label="Places"
+      font="SansSerifBold"/>
+</floater>

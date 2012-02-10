@@ -3,9 +3,9 @@
 	<panel.string name="log_in_to_change">
 		se connecter pour changer
 	</panel.string>
-	<button label="Vider le cache" name="clear_cache" tool_tip="Effacer l&apos;image de connexion, le dernier lieu, l&apos;historique des téléportations et la texture du cache."/>
+	<button label="Vider l'historique" name="clear_cache" tool_tip="Effacer le cache de l&apos;image de connexion, du dernier lieu, de l&apos;historique des téléportations, Web et de texture."/>
 	<text name="cache_size_label_l">
-		(Endroits, images, web, historique des recherches)
+		(endroits, images, web, historique des recherches)
 	</text>
 	<check_box label="M&apos;afficher dans les résultats de recherche" name="online_searchresults"/>
 	<check_box label="Seuls mes amis et groupes voient quand je suis en ligne" name="online_visibility"/>
@@ -20,7 +20,7 @@
 	<check_box label="Inclure la date et l&apos;heure pour chaque ligne du journal de chat" name="show_timestamps_check_im"/>
 	<check_box label="Inclure la date dans le nom du fichier journal" name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
-		Emplacement :
+		Emplacement journaux :
 	</text>
 	<line_editor left="308" name="log_path_string" right="-20"/>
 	<button label="Parcourir" label_selected="Parcourir" name="log_path_button" width="150"/>

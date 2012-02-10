@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<floater
+ open_positioning="cascading"
+ can_close="true"
+ can_resize="true"
+ height="572"
+ help_topic="sidebar_me"
+ min_width="333"
+ min_height="440"
+ name="floater_picks"
+ save_rect="true"
+ save_visibility="true"
+ reuse_instance="true"
+ title="Picks"
+ width="333" >
+   <panel
+    class="panel_me"
+    name="main_panel"
+    filename="panel_me.xml"
+    follows="all"/>
+</floater>

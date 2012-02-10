@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="Gear COF">
+	<menu label="Yeni Giysiler" name="COF.Gear.New_Clothes"/>
+	<menu label="Yeni Vücut Bölümleri" name="COF.Geear.New_Body_Parts"/>
+</toggleable_menu>

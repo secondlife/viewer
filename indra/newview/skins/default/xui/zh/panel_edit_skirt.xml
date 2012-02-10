@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="edit_skirt_panel">
 	<panel name="avatar_skirt_color_panel">
-		<texture_picker label="材質" name="Fabric" tool_tip="點擊以挑選圖片"/>
+		<texture_picker label="材質" name="Fabric" tool_tip="點擊以挑選圖像"/>
 		<color_swatch label="Color/Tint" name="Color/Tint" tool_tip="點擊以開啟顏色挑選器"/>
 	</panel>
 	<panel name="accordion_panel">

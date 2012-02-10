@@ -42,6 +42,7 @@
 #include "llagentui.h"
 #include "llcallbacklist.h"
 #include "lldndbutton.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -51,7 +52,6 @@
 #include "llmenubutton.h"
 #include "llplacesinventorybridge.h"
 #include "llplacesinventorypanel.h"
-#include "llsidetray.h"
 #include "lltoggleablemenu.h"
 #include "llviewermenu.h"
 #include "llviewerregion.h"
@@ -367,7 +367,7 @@ void LLLandmarksPanel::onSelectorButtonClicked()
 		key["type"] = "landmark";
 		key["id"] = listenerp->getUUID();
 
-		LLSideTray::getInstance()->showPanel("panel_places", key);
+		LLFloaterSidePanelContainer::showPanel("places", key);
 	}
 }
 
@@ -786,7 +786,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		}
 		else
 		{
-			LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 		}
 	} 
 	else if ("category" == command_name)
@@ -1309,7 +1309,13 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 	landmark->getGlobalPos(landmark_global_pos);
 
 	// let's toggle pick panel into  panel places
-	LLPanel* panel_places =  LLSideTray::getInstance()->getPanel("panel_places");//-> sidebar_places
+	LLPanel* panel_places = NULL;
+	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("places");
+	if (floaterp)
+	{
+		panel_places = floaterp->findChild<LLPanel>("main_panel");
+	}
+
 	if (!panel_places)
 	{
 		llassert(NULL != panel_places);
@@ -1392,10 +1398,6 @@ static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::strin
 		// Re-open folders that were open before
 		inventory_list->restoreFolderState();
 	}
-
-	// Open the immediate children of the root folder, since those
-	// are invisible in the UI and thus must always be open.
-	inventory_list->getRootFolder()->openTopLevelFolders();
 
 	if (inventory_list->getFilterSubString().empty() && string.empty())
 	{

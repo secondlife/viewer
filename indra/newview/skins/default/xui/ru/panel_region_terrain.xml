@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ландшафт" name="Terrain">
+	<text name="region_text_lbl">
+		Регион:
+	</text>
+	<text name="region_text">
+		неизвестен
+	</text>
+	<spinner label="Уровень воды" name="water_height_spin"/>
+	<spinner label="Верх. точка ландшафта" name="terrain_raise_spin"/>
+	<spinner label="Ниж. точка ландшафта" name="terrain_lower_spin"/>
+	<text name="detail_texture_text">
+		Текстуры ландшафта (требования: 512x512, 24-битные, TGA)
+	</text>
+	<text name="height_text_lbl">
+		1 (Низ)
+	</text>
+	<text name="height_text_lbl2">
+		2
+	</text>
+	<text name="height_text_lbl3">
+		3
+	</text>
+	<text name="height_text_lbl4">
+		4 (Верх)
+	</text>
+	<text name="height_text_lbl5">
+		Диапазон высот текстур
+	</text>
+	<text name="height_text_lbl10">
+		Эти значения определяют степень смешивания наложенных текстур.
+	</text>
+	<text name="height_text_lbl11">
+		Измеряются в метрах. Значение «Низ» – это МАКСИМАЛЬНАЯ высота текстуры №1, а значение «Верх» – это МИНИМАЛЬНАЯ высота текстуры №4.
+	</text>
+	<text name="height_text_lbl6">
+		Северо-запад
+	</text>
+	<text name="height_text_lbl7">
+		Северо-восток
+	</text>
+	<spinner label="Низ" name="height_start_spin_1"/>
+	<spinner label="Низ" name="height_start_spin_3"/>
+	<spinner label="Верх" name="height_range_spin_1"/>
+	<spinner label="Верх" name="height_range_spin_3"/>
+	<text name="height_text_lbl8">
+		Юго-запад
+	</text>
+	<text name="height_text_lbl9">
+		Юго-восток
+	</text>
+	<spinner label="Низ" name="height_start_spin_0"/>
+	<spinner label="Низ" name="height_start_spin_2"/>
+	<spinner label="Верх" name="height_range_spin_0"/>
+	<spinner label="Верх" name="height_range_spin_2"/>
+	<button label="Загрузить ландшафт RAW..." name="download_raw_btn" tool_tip="Доступно только землевладельцам, не менеджерам"/>
+	<button label="Передать ландшафт RAW..." name="upload_raw_btn" tool_tip="Доступно только землевладельцам, не менеджерам"/>
+	<button label="Зафиксировать пределы" name="bake_terrain_btn" tool_tip="Установить высоту ландшафта по средней точке между верхней и нижней точками"/>
+	<button label="Применить" name="apply_btn"/>
+</panel>

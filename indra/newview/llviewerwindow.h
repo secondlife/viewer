@@ -44,6 +44,7 @@
 #include "llstat.h"
 #include "llmousehandler.h"
 #include "llhandle.h"
+#include "llinitparam.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -62,6 +63,7 @@ class LLImageFormatted;
 class LLHUDIcon;
 class LLWindow;
 class LLRootView;
+class LLWindowListener;
 class LLViewerWindowListener;
 class LLPopupView;
 
@@ -132,7 +134,23 @@ public:
 	//
 	// CREATORS
 	//
-	LLViewerWindow(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Mandatory<std::string>		title,
+									name;
+		Mandatory<S32>				x,
+									y,
+									width,
+									height,
+									min_width,
+									min_height;
+		Optional<bool>				fullscreen,
+									ignore_pixel_depth;
+
+		Params();
+	};
+
+	LLViewerWindow(const Params& p);
 	virtual ~LLViewerWindow();
 
 	void			shutdownViews();
@@ -143,6 +161,8 @@ public:
 	void			adjustRectanglesForFirstUse(const LLRect& window);
 	void            adjustControlRectanglesForFirstUse(const LLRect& window);
 	void			initWorldUI();
+	void			setUIVisibility(bool);
+	bool			getUIVisibility();
 
 	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
 
@@ -282,8 +302,7 @@ public:
 	void				updateKeyboardFocus();		
 
 	void			updateWorldViewRect(bool use_full_window=false);
-	LLView*			getNonSideTrayView() { return mNonSideTrayView.get(); }
-	LLView*			getFloaterViewHolder() { return mFloaterViewHolder.get(); }
+	LLView*			getToolBarHolder() { return mToolBarHolder.get(); }
 	LLView*			getHintHolder() { return mHintHolder.get(); }
 	LLView*			getLoginPanelHolder() { return mLoginPanelHolder.get(); }
 	BOOL			handleKey(KEY key, MASK mask);
@@ -322,7 +341,7 @@ public:
 	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type) ;
 	BOOL			isSnapshotLocSet() const { return ! sSnapshotDir.empty(); }
 	void			resetSnapshotLoc() const { sSnapshotDir.clear(); }
-	BOOL		    saveImageNumbered(LLImageFormatted *image);
+	BOOL		    saveImageNumbered(LLImageFormatted *image, bool force_picker = false);
 
 	// Reset the directory where snapshots are saved.
 	// Client will open directory picker on next snapshot save.
@@ -394,11 +413,10 @@ private:
 	S32				getChatConsoleBottomPad(); // Vertical padding for child console rect, varied by bottom clutter
 	LLRect			getChatConsoleRect(); // Get optimal cosole rect.
 
-public:
+private:
 	LLWindow*		mWindow;						// graphical window object
-
-protected:
-	BOOL			mActive;
+	bool			mActive;
+	bool			mUIVisible;
 
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size
@@ -444,8 +462,7 @@ protected:
 	std::string		mInitAlert;			// Window / GL initialization requires an alert
 
 	LLHandle<LLView> mWorldViewPlaceholder;	// widget that spans the portion of screen dedicated to rendering the 3d world
-	LLHandle<LLView> mNonSideTrayView;		// parent of world view + bottom bar, etc...everything but the side tray
-	LLHandle<LLView> mFloaterViewHolder;	// container for floater_view
+	LLHandle<LLView> mToolBarHolder;		// container for toolbars
 	LLHandle<LLView> mHintHolder;			// container for hints
 	LLHandle<LLView> mLoginPanelHolder;		// container for login panel
 	LLPopupView*	mPopupView;			// container for transient popups
@@ -456,15 +473,14 @@ protected:
 	bool			mStatesDirty;
 	U32			mCurrResolutionIndex;
 
-    boost::scoped_ptr<LLViewerWindowListener> mViewerWindowListener;
+	boost::scoped_ptr<LLWindowListener> mWindowListener;
+	boost::scoped_ptr<LLViewerWindowListener> mViewerWindowListener;
 
-protected:
 	static std::string sSnapshotBaseName;
 	static std::string sSnapshotDir;
 
 	static std::string sMovieBaseName;
 	
-private:
 	// Object temporarily hovered over while dragging
 	LLPointer<LLViewerObject>	mDragHoveredObject;
 };

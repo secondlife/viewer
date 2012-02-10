@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Landmarks">
+	<accordion name="landmarks_accordion">
+		<accordion_tab name="tab_favorites" title="Favoriler çubuğu"/>
+		<accordion_tab name="tab_landmarks" title="Yer İmlerim"/>
+		<accordion_tab name="tab_inventory" title="Envanterim"/>
+		<accordion_tab name="tab_library" title="Kütüphane"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<layout_stack name="bottom_panel">
+			<layout_panel name="options_gear_btn_panel">
+				<menu_button name="options_gear_btn" tool_tip="İlave seçenekleri göster"/>
+			</layout_panel>
+			<layout_panel name="add_btn_panel">
+				<button name="add_btn" tool_tip="Yeni yer imi ekle"/>
+			</layout_panel>
+			<layout_panel name="trash_btn_panel">
+				<dnd_button name="trash_btn" tool_tip="Seçilen yer imini sil"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

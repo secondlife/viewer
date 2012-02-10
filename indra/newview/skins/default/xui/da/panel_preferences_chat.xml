@@ -31,7 +31,7 @@
 	<spinner label="Tid før chatvisning forsvinder:" name="nearby_toasts_fadingtime"/>
 	<check_box name="translate_chat_checkbox"/>
 	<text name="translate_chb_label">
-		Benyt maskinel oversættelse ved chat (håndteret af Google)
+		Benyt maskinel oversættelse ved chat
 	</text>
 	<text name="translate_language_text" width="110">
 		Oversæt chat til :
@@ -51,7 +51,7 @@
 		<combo_box.item label="Русский (Russisk)" name="Russian"/>
 		<combo_box.item label="Türkçe (Tyrkisk)" name="Turkish"/>
 		<combo_box.item label="Українська (Ukrainsk)" name="Ukrainian"/>
-		<combo_box.item label="中文 (简体) (Kinesisk)" name="Chinese"/>
+		<combo_box.item label="中文 (正體) (Kinesisk)" name="Chinese"/>
 		<combo_box.item label="日本語 (Japansk)" name="Japanese"/>
 		<combo_box.item label="한국어 (Koreansk)" name="Korean"/>
 	</combo_box>

@@ -149,7 +149,7 @@ public:
 	static handle_t nullHandle() { return handle_t(0); }
 	
 public:
-	LLQueuedThread(const std::string& name, bool threaded = true);
+	LLQueuedThread(const std::string& name, bool threaded = true, bool should_pause = false);
 	virtual ~LLQueuedThread();	
 	virtual void shutdown();
 	
@@ -173,8 +173,8 @@ protected:
 public:
 	bool waitForResult(handle_t handle, bool auto_complete = true);
 
-	virtual S32 update(U32 max_time_ms);
-	S32 updateQueue(U32 max_time_ms);
+	virtual S32 update(F32 max_time_ms);
+	S32 updateQueue(F32 max_time_ms);
 	
 	void waitOnPending();
 	void printQueueStats();

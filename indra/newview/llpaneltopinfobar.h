@@ -41,6 +41,8 @@ class LLPanelTopInfoBar : public LLPanel, public LLSingleton<LLPanelTopInfoBar>,
 	friend class LLDestroyClass<LLPanelTopInfoBar>;
 
 public:
+	typedef boost::signals2::signal<void ()> resize_signal_t;
+
 	LLPanelTopInfoBar();
 	~LLPanelTopInfoBar();
 
@@ -56,6 +58,8 @@ public:
 	 * Called when the top info bar gets shown or hidden
 	 */
 	void onVisibilityChange(const LLSD& show);
+
+	boost::signals2::connection setResizeCallback( const resize_signal_t::slot_type& cb );
 
 private:
 	class LLParcelChangeObserver;
@@ -148,7 +152,7 @@ private:
 	void setParcelInfoText(const std::string& new_text);
 
 	/**
-	 *  Implementation of LLDestroyClass<LLSideTray>
+	 *  Implementation of LLDestroyClass<T>
 	 */
 	static void destroyClass()
 	{
@@ -167,6 +171,8 @@ private:
 	boost::signals2::connection	mParcelPropsCtrlConnection;
 	boost::signals2::connection	mShowCoordsCtrlConnection;
 	boost::signals2::connection	mParcelMgrConnection;
+
+	resize_signal_t mResizeSignal;
 };
 
 #endif /* LLPANELTOPINFOBAR_H_ */
