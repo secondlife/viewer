@@ -90,9 +90,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a2c41379bc0abc83b45246eebdafc4ab</string>
+              <string>15333927db9f249daefcaed70fc6683c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/log_3p-apr/rev/249247/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120209.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/249247/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120210.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -102,9 +102,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ad6e6bff18306cb5079128d5aadeb6e</string>
+              <string>297508ece8b0f334bae842fd147f2962</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/log_3p-apr-lenny/rev/249247/arch/Linux/installer/apr_suite-1.4.5-linux-20120209.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/249247/arch/Linux/installer/apr_suite-1.4.5-linux-20120211.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -114,9 +114,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31cd12ea119753e389dc9be5ea82cbb3</string>
+              <string>7ad1e767f4419a6d35a70abba1edbcdc</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/log_3p-apr/rev/249247/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120209.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/249247/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120210.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
