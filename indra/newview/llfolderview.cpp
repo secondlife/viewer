@@ -1028,7 +1028,18 @@ void LLFolderView::removeCutItems()
 		 ++iter)
 	{
 		const LLUUID& item_id = (*iter);
-		remove_item(&gInventory, item_id);
+		LLInventoryObject *obj = gInventory.getObject(item_id);
+		if (obj)
+		{
+			if (LLAssetType::AT_CATEGORY == obj->getType())
+			{
+				remove_category(&gInventory, item_id);
+			}
+			else
+			{
+				remove_item(&gInventory, item_id);
+			}
+		}
 	}
 }
 

@@ -248,8 +248,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		getFilter()->setFilterEmptySystemFolders();
 	}
 	
-	// hide items that are on the clipboard
-	getFilter()->setFilterClipboard();
+	// keep track of the clipboard state so that we avoid filtering too much
 	mClipboardState = LLClipboard::getInstance()->getState();
 	
 	// Initialize base class params.

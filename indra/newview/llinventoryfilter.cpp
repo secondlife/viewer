@@ -97,13 +97,16 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 	}
 
 	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
+	const LLFolderViewEventListener* listener = item->getListener();
 
 	const BOOL passed_filtertype = checkAgainstFilterType(item);
 	const BOOL passed_permissions = checkAgainstPermissions(item);
 	const BOOL passed_filterlink = checkAgainstFilterLinks(item);
+	const BOOL passed_clipboard = (listener ? checkAgainstClipboard(listener->getUUID()) : TRUE);
 	const BOOL passed = (passed_filtertype &&
 						 passed_permissions &&
 						 passed_filterlink &&
+						 passed_clipboard &&
 						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
 
 	return passed;
@@ -115,8 +118,10 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 
 	const bool passed_filtertype = checkAgainstFilterType(item);
 	const bool passed_permissions = checkAgainstPermissions(item);
+	const BOOL passed_clipboard = checkAgainstClipboard(item->getUUID());
 	const bool passed = (passed_filtertype &&
 						 passed_permissions &&
+						 passed_clipboard &&
 						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
 
 	return passed;
@@ -145,7 +150,10 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 			return false;
 	}
 
-	return true;
+	// Always check against the clipboard
+	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
+
+	return passed_clipboard;
 }
 
 BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) const
@@ -238,31 +246,6 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////////
-	// FILTERTYPE_CLIPBOARD
-	// Pass if this item is not on the clipboard or is not a descendant of a folder 
-	// which is on the clipboard
-	if (filterTypes & FILTERTYPE_CLIPBOARD)
-	{
-		if (LLClipboard::getInstance()->isCutMode())
-		{
-			LLUUID current_id = object_id;
-			LLInventoryObject *current_object = gInventory.getObject(object_id);
-			while (current_id.notNull())
-			{
-				if (LLClipboard::getInstance()->isOnClipboard(current_id))
-				{
-					return FALSE;
-				}
-				current_id = current_object->getParentUUID();
-				if (current_id.notNull())
-				{
-					current_object = gInventory.getObject(current_id);
-				}
-			}
-		}
-	}
-		
 	return TRUE;
 }
 
@@ -323,31 +306,30 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 			return false;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////
-	// FILTERTYPE_CLIPBOARD
-	// Pass if this item is not on the clipboard or is not a descendant of a folder 
-	// which is on the clipboard
-	if (filterTypes & FILTERTYPE_CLIPBOARD)
+	return true;
+}
+
+// Items and folders that are on the clipboard or, recursively, in a folder which  
+// is on the clipboard must be filtered out if the clipboard is in the "cut" mode.
+bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
+{
+	if (LLClipboard::getInstance()->isCutMode())
 	{
-		if (LLClipboard::getInstance()->isCutMode())
+		LLUUID current_id = object_id;
+		LLInventoryObject *current_object = gInventory.getObject(object_id);
+		while (current_id.notNull())
 		{
-			LLUUID current_id = object_id;
-			LLInventoryObject *current_object = gInventory.getObject(object_id);
-			while (current_id.notNull())
+			if (LLClipboard::getInstance()->isOnClipboard(current_id))
 			{
-				if (LLClipboard::getInstance()->isOnClipboard(current_id))
-				{
-					return false;
-				}
-				current_id = current_object->getParentUUID();
-				if (current_id.notNull())
-				{
-					current_object = gInventory.getObject(current_id);
-				}
+				return false;
+			}
+			current_id = current_object->getParentUUID();
+			if (current_id.notNull())
+			{
+				current_object = gInventory.getObject(current_id);
 			}
 		}
 	}
-
 	return true;
 }
 
@@ -499,11 +481,6 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 void LLInventoryFilter::setFilterEmptySystemFolders()
 {
 	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
-}
-
-void LLInventoryFilter::setFilterClipboard()
-{
-	mFilterOps.mFilterTypes |= FILTERTYPE_CLIPBOARD;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)

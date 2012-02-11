@@ -59,8 +59,7 @@ public:
 		FILTERTYPE_UUID	= 0x1 << 2,		// find the object with UUID and any links to it
 		FILTERTYPE_DATE = 0x1 << 3,		// search by date range
 		FILTERTYPE_WEARABLE = 0x1 << 4,	// search by wearable type
-		FILTERTYPE_EMPTYFOLDERS = 0x1 << 5,	// pass if folder is not a system folder to be hidden if empty
-		FILTERTYPE_CLIPBOARD = 0x1 << 6	// pass if item is not on the clipboard
+		FILTERTYPE_EMPTYFOLDERS = 0x1 << 5	// pass if folder is not a system folder to be hidden if empty
 	};
 
 	enum EFilterLink
@@ -92,7 +91,6 @@ public:
 	void 				setFilterUUID(const LLUUID &object_id);
 	void				setFilterWearableTypes(U64 types);
 	void				setFilterEmptySystemFolders();
-	void				setFilterClipboard();
 	void				updateFilterTypes(U64 types, U64& current_types);
 
 	void 				setFilterSubString(const std::string& string);
@@ -125,6 +123,7 @@ public:
 	BOOL 				checkAgainstPermissions(const LLFolderViewItem* item) const;
 	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	BOOL 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
+	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
 	std::string::size_type getStringMatchOffset() const;
 
