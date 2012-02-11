@@ -966,7 +966,7 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		MASK currentKeyMask = gKeyboard->currentMask(TRUE);
 		if ( !(currentKeyMask & MASK_ALT) )
 		{
-			LLFloaterPathfindingSetup* pFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingSetup>("pathfinding_setup");
+			LLFloaterPathfindingConsole* pFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
 			if ( pFloater )
 			{
 				//The floater takes care of determining what stage - essentially where the data goes into the pathing packet(start or end)

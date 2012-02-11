@@ -1,5 +1,5 @@
 /** 
-* @file llfloaterpathfindingsetup.cpp
+* @file llfloaterpathfindingconsole.cpp
 * @author William Todd Stinson
 * @brief "Pathfinding console" floater, allowing manipulation of the Havok AI pathfinding settings.
 *
@@ -57,74 +57,74 @@
 const int CURRENT_REGION = 99;
 const int MAX_OBSERVERS = 10;
 //---------------------------------------------------------------------------
-// LLFloaterPathfindingSetup
+// LLFloaterPathfindingConsole
 //---------------------------------------------------------------------------
 
-BOOL LLFloaterPathfindingSetup::postBuild()
+BOOL LLFloaterPathfindingConsole::postBuild()
 {
-	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingSetup::onViewEditLinksetClicked, this));
-	childSetAction("rebuild_navmesh", boost::bind(&LLFloaterPathfindingSetup::onRebuildNavMeshClicked, this));
-	childSetAction("refresh_navmesh", boost::bind(&LLFloaterPathfindingSetup::onRefreshNavMeshClicked, this));
+	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
+	childSetAction("rebuild_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRebuildNavMeshClicked, this));
+	childSetAction("refresh_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRefreshNavMeshClicked, this));
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh_overlay");
 	llassert(mShowNavMeshCheckBox != NULL);
-	mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onShowNavMeshToggle, this));
+	mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavMeshToggle, this));
 
 	mShowExcludeVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_exclusion_volumes");
 	llassert(mShowExcludeVolumesCheckBox != NULL);
-	mShowExcludeVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onShowExcludeVolumesToggle, this));
+	mShowExcludeVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowExcludeVolumesToggle, this));
 
 	mShowPathCheckBox = findChild<LLCheckBoxCtrl>("show_path");
 	llassert(mShowPathCheckBox != NULL);
-	mShowPathCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onShowPathToggle, this));
+	mShowPathCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowPathToggle, this));
 
 	mShowWaterPlaneCheckBox = findChild<LLCheckBoxCtrl>("show_water_plane");
 	llassert(mShowWaterPlaneCheckBox != NULL);
-	mShowWaterPlaneCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onShowWaterPlaneToggle, this));
+	mShowWaterPlaneCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWaterPlaneToggle, this));
 
 	mRegionOverlayDisplayRadioGroup = findChild<LLRadioGroup>("region_overlay_display");
 	llassert(mRegionOverlayDisplayRadioGroup != NULL);
-	mRegionOverlayDisplayRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onRegionOverlayDisplaySwitch, this));
+	mRegionOverlayDisplayRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch, this));
 
 	mPathSelectionRadioGroup = findChild<LLRadioGroup>("path_selection");
 	llassert(mPathSelectionRadioGroup  != NULL);
-	mPathSelectionRadioGroup ->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onPathSelectionSwitch, this));
+	mPathSelectionRadioGroup ->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onPathSelectionSwitch, this));
 
 	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
 	llassert(mCharacterWidthSlider != NULL);
-	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onCharacterWidthSet, this));
+	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
 
 	mCharacterTypeRadioGroup = findChild<LLRadioGroup>("character_type");
 	llassert(mCharacterTypeRadioGroup  != NULL);
-	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onCharacterTypeSwitch, this));
+	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
 
 	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
 	llassert(mPathfindingStatus != NULL);
 
 	mTerrainMaterialA = findChild<LLLineEditor>("terrain_material_a");
 	llassert(mTerrainMaterialA != NULL);
-	mTerrainMaterialA->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onTerrainMaterialASet, this));
+	mTerrainMaterialA->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialASet, this));
 	mTerrainMaterialA->setPrevalidate(LLTextValidate::validateFloat);
 
 	mTerrainMaterialB = findChild<LLLineEditor>("terrain_material_b");
 	llassert(mTerrainMaterialB != NULL);
-	mTerrainMaterialB->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onTerrainMaterialBSet, this));
+	mTerrainMaterialB->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialBSet, this));
 	mTerrainMaterialB->setPrevalidate(LLTextValidate::validateFloat);
 
 	mTerrainMaterialC = findChild<LLLineEditor>("terrain_material_c");
 	llassert(mTerrainMaterialC != NULL);
-	mTerrainMaterialC->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onTerrainMaterialCSet, this));
+	mTerrainMaterialC->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialCSet, this));
 	mTerrainMaterialC->setPrevalidate(LLTextValidate::validateFloat);
 
 	mTerrainMaterialD = findChild<LLLineEditor>("terrain_material_d");
 	llassert(mTerrainMaterialD != NULL);
-	mTerrainMaterialD->setCommitCallback(boost::bind(&LLFloaterPathfindingSetup::onTerrainMaterialDSet, this));
+	mTerrainMaterialD->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialDSet, this));
 	mTerrainMaterialD->setPrevalidate(LLTextValidate::validateFloat);
 
 	return LLFloater::postBuild();
 }
 
-LLFloaterPathfindingSetup::ERegionOverlayDisplay LLFloaterPathfindingSetup::getRegionOverlayDisplay() const
+LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const
 {
 	ERegionOverlayDisplay regionOverlayDisplay;
 	switch (mRegionOverlayDisplayRadioGroup->getValue().asInteger())
@@ -144,7 +144,7 @@ LLFloaterPathfindingSetup::ERegionOverlayDisplay LLFloaterPathfindingSetup::getR
 	return regionOverlayDisplay;
 }
 
-void LLFloaterPathfindingSetup::setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay)
+void LLFloaterPathfindingConsole::setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay)
 {
 	LLSD radioGroupValue;
 
@@ -165,7 +165,7 @@ void LLFloaterPathfindingSetup::setRegionOverlayDisplay(ERegionOverlayDisplay pR
 	mRegionOverlayDisplayRadioGroup->setValue(radioGroupValue);
 }
 
-LLFloaterPathfindingSetup::EPathSelectionState LLFloaterPathfindingSetup::getPathSelectionState() const
+LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::getPathSelectionState() const
 {
 	EPathSelectionState pathSelectionState;
 
@@ -185,7 +185,7 @@ LLFloaterPathfindingSetup::EPathSelectionState LLFloaterPathfindingSetup::getPat
 	return pathSelectionState;
 }
 
-void LLFloaterPathfindingSetup::setPathSelectionState(EPathSelectionState pPathSelectionState)
+void LLFloaterPathfindingConsole::setPathSelectionState(EPathSelectionState pPathSelectionState)
 {
 	LLSD radioGroupValue;
 
@@ -205,17 +205,17 @@ void LLFloaterPathfindingSetup::setPathSelectionState(EPathSelectionState pPathS
 	mPathSelectionRadioGroup->setValue(radioGroupValue);
 }
 
-F32 LLFloaterPathfindingSetup::getCharacterWidth() const
+F32 LLFloaterPathfindingConsole::getCharacterWidth() const
 {
 	return mCharacterWidthSlider->getValueF32();
 }
 
-void LLFloaterPathfindingSetup::setCharacterWidth(F32 pCharacterWidth)
+void LLFloaterPathfindingConsole::setCharacterWidth(F32 pCharacterWidth)
 {
 	mCharacterWidthSlider->setValue(LLSD(pCharacterWidth));
 }
 
-LLFloaterPathfindingSetup::ECharacterType LLFloaterPathfindingSetup::getCharacterType() const
+LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getCharacterType() const
 {
 	ECharacterType characterType;
 
@@ -242,7 +242,7 @@ LLFloaterPathfindingSetup::ECharacterType LLFloaterPathfindingSetup::getCharacte
 	return characterType;
 }
 
-void LLFloaterPathfindingSetup::setCharacterType(ECharacterType pCharacterType)
+void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType)
 {
 	LLSD radioGroupValue;
 
@@ -269,47 +269,47 @@ void LLFloaterPathfindingSetup::setCharacterType(ECharacterType pCharacterType)
 	mCharacterTypeRadioGroup->setValue(radioGroupValue);
 }
 
-F32 LLFloaterPathfindingSetup::getTerrainMaterialA() const
+F32 LLFloaterPathfindingConsole::getTerrainMaterialA() const
 {
 	return mTerrainMaterialA->getValue().asReal();
 }
 
-void LLFloaterPathfindingSetup::setTerrainMaterialA(F32 pTerrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialA(F32 pTerrainMaterial)
 {
 	mTerrainMaterialA->setValue(LLSD(pTerrainMaterial));
 }
 
-F32 LLFloaterPathfindingSetup::getTerrainMaterialB() const
+F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
 {
 	return mTerrainMaterialB->getValue().asReal();
 }
 
-void LLFloaterPathfindingSetup::setTerrainMaterialB(F32 pTerrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialB(F32 pTerrainMaterial)
 {
 	mTerrainMaterialB->setValue(LLSD(pTerrainMaterial));
 }
 
-F32 LLFloaterPathfindingSetup::getTerrainMaterialC() const
+F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
 {
 	return mTerrainMaterialC->getValue().asReal();
 }
 
-void LLFloaterPathfindingSetup::setTerrainMaterialC(F32 pTerrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialC(F32 pTerrainMaterial)
 {
 	mTerrainMaterialC->setValue(LLSD(pTerrainMaterial));
 }
 
-F32 LLFloaterPathfindingSetup::getTerrainMaterialD() const
+F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
 {
 	return mTerrainMaterialD->getValue().asReal();
 }
 
-void LLFloaterPathfindingSetup::setTerrainMaterialD(F32 pTerrainMaterial)
+void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 pTerrainMaterial)
 {
 	mTerrainMaterialD->setValue(LLSD(pTerrainMaterial));
 }
 
-void LLFloaterPathfindingSetup::setHasNavMeshReceived()
+void LLFloaterPathfindingConsole::setHasNavMeshReceived()
 {
 	std::string str = getString("navmesh_fetch_complete_available");
 	mPathfindingStatus->setText((LLStringExplicit)str);
@@ -321,13 +321,13 @@ void LLFloaterPathfindingSetup::setHasNavMeshReceived()
 	}
 }
 
-void LLFloaterPathfindingSetup::setHasNoNavMesh()
+void LLFloaterPathfindingConsole::setHasNoNavMesh()
 {
 	std::string str = getString("navmesh_fetch_complete_none");
 	mPathfindingStatus->setText((LLStringExplicit)str);
 }
 
-LLFloaterPathfindingSetup::LLFloaterPathfindingSetup(const LLSD& pSeed)
+LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mShowNavMeshCheckBox(NULL),
 	mShowExcludeVolumesCheckBox(NULL),
@@ -352,11 +352,11 @@ LLFloaterPathfindingSetup::LLFloaterPathfindingSetup(const LLSD& pSeed)
 	}
 }
 
-LLFloaterPathfindingSetup::~LLFloaterPathfindingSetup()
+LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 {
 }
 
-void LLFloaterPathfindingSetup::onOpen(const LLSD& pKey)
+void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 {
 	//make sure we have a pathing system
 	if ( !LLPathingLib::getInstance() )
@@ -426,7 +426,7 @@ void LLFloaterPathfindingSetup::onOpen(const LLSD& pKey)
 	}		
 }
 
-void LLFloaterPathfindingSetup::onShowNavMeshToggle()
+void LLFloaterPathfindingConsole::onShowNavMeshToggle()
 {
 	BOOL checkBoxValue = mShowNavMeshCheckBox->get();
 
@@ -442,7 +442,7 @@ void LLFloaterPathfindingSetup::onShowNavMeshToggle()
 	}
 }
 
-void LLFloaterPathfindingSetup::onShowExcludeVolumesToggle()
+void LLFloaterPathfindingConsole::onShowExcludeVolumesToggle()
 {
 	BOOL checkBoxValue = mShowExcludeVolumesCheckBox->get();
 
@@ -458,7 +458,7 @@ void LLFloaterPathfindingSetup::onShowExcludeVolumesToggle()
 	}
 }
 
-void LLFloaterPathfindingSetup::onShowPathToggle()
+void LLFloaterPathfindingConsole::onShowPathToggle()
 {
 	BOOL checkBoxValue = mShowPathCheckBox->get();
 
@@ -474,7 +474,7 @@ void LLFloaterPathfindingSetup::onShowPathToggle()
 	}
 }
 
-void LLFloaterPathfindingSetup::onShowWaterPlaneToggle()
+void LLFloaterPathfindingConsole::onShowWaterPlaneToggle()
 {
 	BOOL checkBoxValue = mShowWaterPlaneCheckBox->get();
 
@@ -494,7 +494,7 @@ void LLFloaterPathfindingSetup::onShowWaterPlaneToggle()
 		<< (checkBoxValue ? "ON" : "OFF") << llendl;
 }
 
-void LLFloaterPathfindingSetup::onRegionOverlayDisplaySwitch()
+void LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch()
 {
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if (llPathingLibInstance != NULL)
@@ -520,7 +520,7 @@ void LLFloaterPathfindingSetup::onRegionOverlayDisplaySwitch()
 	}
 }
 
-void LLFloaterPathfindingSetup::onPathSelectionSwitch()
+void LLFloaterPathfindingConsole::onPathSelectionSwitch()
 {
 	switch (getPathSelectionState())
 	{
@@ -536,12 +536,12 @@ void LLFloaterPathfindingSetup::onPathSelectionSwitch()
 	}
 }
 
-void LLFloaterPathfindingSetup::onCharacterWidthSet()
+void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
 	generatePath();
 }
 
-void LLFloaterPathfindingSetup::onCharacterTypeSwitch()
+void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
 {
 	switch (getCharacterType())
 	{
@@ -572,43 +572,43 @@ void LLFloaterPathfindingSetup::onCharacterTypeSwitch()
 
 }
 
-void LLFloaterPathfindingSetup::onViewEditLinksetClicked()
+void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
 }
 
-void LLFloaterPathfindingSetup::onRebuildNavMeshClicked()
+void LLFloaterPathfindingConsole::onRebuildNavMeshClicked()
 {
 	llwarns << "functionality has not yet been implemented to handle rebuilding of the navmesh" << llendl;
 }
 
-void LLFloaterPathfindingSetup::onRefreshNavMeshClicked()
+void LLFloaterPathfindingConsole::onRefreshNavMeshClicked()
 {
 	llwarns << "functionality has not yet been implemented to handle refreshing of the navmesh" << llendl;
 }
 
-void LLFloaterPathfindingSetup::onTerrainMaterialASet()
+void LLFloaterPathfindingConsole::onTerrainMaterialASet()
 {
 	F32 terrainMaterial = getTerrainMaterialA();
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialA->getName()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
 }
 
-void LLFloaterPathfindingSetup::onTerrainMaterialBSet()
+void LLFloaterPathfindingConsole::onTerrainMaterialBSet()
 {
 	F32 terrainMaterial = getTerrainMaterialB();
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialB->getName()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
 }
 
-void LLFloaterPathfindingSetup::onTerrainMaterialCSet()
+void LLFloaterPathfindingConsole::onTerrainMaterialCSet()
 {
 	F32 terrainMaterial = getTerrainMaterialC();
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialC->getName()
 		<< "' to value (" << terrainMaterial << ")" << llendl;
 }
 
-void LLFloaterPathfindingSetup::onTerrainMaterialDSet()
+void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
 {
 	F32 terrainMaterial = getTerrainMaterialD();
 	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialD->getName()
@@ -616,7 +616,7 @@ void LLFloaterPathfindingSetup::onTerrainMaterialDSet()
 }
 
 
-void LLFloaterPathfindingSetup::providePathingData( const LLVector3& point1, const LLVector3& point2 )
+void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, const LLVector3& point2 )
 {
 	switch (getPathSelectionState())
 	{
@@ -643,7 +643,7 @@ void LLFloaterPathfindingSetup::providePathingData( const LLVector3& point1, con
 	generatePath();
 }
 
-void LLFloaterPathfindingSetup::generatePath()
+void LLFloaterPathfindingConsole::generatePath()
 {
 	if (mHasStartPoint && mHasEndPoint)
 	{
