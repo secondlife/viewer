@@ -204,7 +204,7 @@
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
 #include "LLPathingLib.h"
-#include "llfloaterpathfindingsetup.h"
+#include "llfloaterpathfindingconsole.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
