@@ -26,7 +26,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor;
 #endif
 
 #define FXAA_PC 1
@@ -2113,6 +2115,6 @@ void main()
 
 	//diff = texture2D(diffuseMap, vary_tc);
 	
-	gl_FragColor = diff;
+	frag_color = diff;
 	
 }

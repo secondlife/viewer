@@ -26,7 +26,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor;
 #endif
 
 //class 1 -- no shadow, SSAO only
@@ -128,8 +130,8 @@ void main()
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 		
-	gl_FragColor[0] = 1.0;
-	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
-	gl_FragColor[2] = 1.0; 
-	gl_FragColor[3] = 1.0;
+	frag_color[0] = 1.0;
+	frag_color[1] = calcAmbientOcclusion(pos, norm);
+	frag_color[2] = 1.0; 
+	frag_color[3] = 1.0;
 }

@@ -416,6 +416,7 @@ void LLViewerShaderMgr::setShaders()
 	LLGLSLShader::sNoFixedFunction = false;
 	LLVertexBuffer::unbind();
 	if (LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable") 
+		&& (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10)
 		&& gSavedSettings.getBOOL("VertexShaderEnable"))
 	{
 		//using shaders, disable fixed function
@@ -741,7 +742,10 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "windlight/atmosphericsV.glsl",			mVertexShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",				1 ) );
 	shaders.push_back( make_pair( "avatar/objectSkinV.glsl",				1 ) );
-	shaders.push_back( make_pair( "objects/indexedTextureV.glsl",			1 ) );
+	if (gGLManager.mGLSLVersionMajor >= 2 || gGLManager.mGLSLVersionMinor >= 30)
+	{
+		shaders.push_back( make_pair( "objects/indexedTextureV.glsl",			1 ) );
+	}
 	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
 
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
@@ -758,11 +762,11 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	// (in order of shader function call depth for reference purposes, deepest level first)
 
 	shaders.clear();
-	S32 ch = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
+	S32 ch = 1;
 
-	if (gGLManager.mGLVersion < 3.1f)
-	{ //force to 1 texture index channel for old drivers
-		ch = 1;
+	if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
+	{ //use indexed texture rendering for GLSL >= 1.30
+		ch = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 	}
 
 	std::vector<S32> index_channels;

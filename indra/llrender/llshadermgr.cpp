@@ -575,31 +575,39 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[4096];
 	GLuint count = 0;
 
-	F32 version = gGLManager.mGLVersion;
-
-//hack to never use GLSL > 1.20 on OSX
-#if LL_DARWIN
-	version = llmin(version, 2.9f);
-#endif
-
-	if (version < 2.1f)
+	S32 major_version = gGLManager.mGLSLVersionMajor;
+	S32 minor_version = gGLManager.mGLSLVersionMinor;
+	
+	if (major_version == 1 && minor_version < 30)
 	{
-		text[count++] = strdup("#version 110\n");
-		text[count++] = strdup("#define ATTRIBUTE attribute\n");
-		text[count++] = strdup("#define VARYING varying\n");
-	}
-	else if (version < 3.3f)
-	{
-		//set version to 1.20
-		text[count++] = strdup("#version 120\n");
-		text[count++] = strdup("#define FXAA_GLSL_120 1\n");
-		text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
-		text[count++] = strdup("#define ATTRIBUTE attribute\n");
-		text[count++] = strdup("#define VARYING varying\n");
+		if (minor_version < 10)
+		{
+			//should NEVER get here -- if major version is 1 and minor version is less than 10, 
+			// viewer should never attempt to use shaders, continuing will result in undefined behavior
+			llerrs << "Unsupported GLSL Version." << llendl;
+		}
+
+		if (minor_version <= 19)
+		{
+			text[count++] = strdup("#version 110\n");
+			text[count++] = strdup("#define ATTRIBUTE attribute\n");
+			text[count++] = strdup("#define VARYING varying\n");
+			text[count++] = strdup("#define VARYING_FLAT varying\n");
+		}
+		else if (minor_version <= 29)
+		{
+			//set version to 1.20
+			text[count++] = strdup("#version 120\n");
+			text[count++] = strdup("#define FXAA_GLSL_120 1\n");
+			text[count++] = strdup("#define FXAA_FAST_PIXEL_OFFSET 0\n");
+			text[count++] = strdup("#define ATTRIBUTE attribute\n");
+			text[count++] = strdup("#define VARYING varying\n");
+			text[count++] = strdup("#define VARYING_FLAT varying\n");
+		}
 	}
 	else
 	{  
-		if (version < 4.f)
+		if (major_version < 4)
 		{
 			//set version to 1.30
 			text[count++] = strdup("#version 130\n");
@@ -618,13 +626,17 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
 			// ("varying" is deprecated after version 1.20)
 			text[count++] = strdup("#define VARYING out\n");
+			text[count++] = strdup("#define VARYING_FLAT flat out\n");
 		}
 		else
 		{
 			text[count++] = strdup("#define VARYING in\n");
+			text[count++] = strdup("#define VARYING_FLAT flat in\n");
 		}
 
 		//backwards compatibility with legacy texture lookup syntax
+		text[count++] = strdup("#define texture2D texture\n");
+		text[count++] = strdup("#define texture2DRect texture\n");
 		text[count++] = strdup("#define textureCube texture\n");
 		text[count++] = strdup("#define texture2DLod textureLod\n");
 		text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
@@ -651,11 +663,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		.
 		uniform sampler2D texN;
 		
-		VARYING float vary_texture_index;
+		VARYING uvec4 vary_texture_index;
 
 		vec4 diffuseLookup(vec2 texcoord)
 		{
-			switch (int(vary_texture_index+0.25))
+			switch (vary_texture_index.r))
 			{
 				case 0: return texture2D(tex0, texcoord);
 				case 1: return texture2D(tex1, texcoord);
@@ -679,7 +691,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 		if (texture_index_channels > 1)
 		{
-			text[count++] = strdup("VARYING float vary_texture_index;\n");
+			text[count++] = strdup("VARYING_FLAT uvec4 vary_texture_index;\n");
 		}
 
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");
@@ -691,9 +703,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup("return texture2D(tex0, texcoord);\n");
 			text[count++] = strdup("}\n");
 		}
-		else if (gGLManager.mGLVersion >= 3.f)
-		{ 
-			text[count++] = strdup("\tswitch (int(vary_texture_index+0.25))\n");
+		else if (major_version > 1 || minor_version >= 30)
+		{  //switches are supported in GLSL 1.30 and later
+			text[count++] = strdup("\tswitch (vary_texture_index.r)\n");
 			text[count++] = strdup("\t{\n");
 		
 			//switch body
@@ -708,28 +720,10 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			text[count++] = strdup("}\n");
 		}
 		else
-		{
-			//switches aren't supported, make block that looks like:
-			/*
-				int ti = int(vary_texture_index+0.25);
-				if (ti == 0) return texture2D(tex0, texcoord);
-				if (ti == 1) return texture2D(tex1, texcoord);
-				.
-				.
-				.
-				if (ti == N) return texture2D(texN, texcoord);
-			*/
-				
-			text[count++] = strdup("int ti = int(vary_texture_index+0.25);\n");
-			for (S32 i = 0; i < texture_index_channels; ++i)
-			{
-				std::string if_str = llformat("if (ti == %d) return texture2D(tex%d, texcoord);\n", i, i);
-				text[count++] = strdup(if_str.c_str());
-			}
-
-			text[count++] = strdup("\treturn vec4(1,0,1,1);\n");
-			text[count++] = strdup("}\n");
-		}			
+		{ //should never get here.  Indexed texture rendering requires GLSL 1.30 or later 
+			// (for passing integers between vertex and fragment shaders)
+			llerrs << "Indexed texture rendering requires GLSL 1.30 or later." << llendl;
+		}
 	}
 
 	//copy file into memory
