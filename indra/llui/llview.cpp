@@ -1300,7 +1300,10 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
 			S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
 			viewp->translate( delta_x, delta_y );
-			viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+			if (child_rect.getWidth() != viewp->getRect().getWidth() || child_rect.getHeight() != viewp->getRect().getHeight())
+			{
+				viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+			}
 		}
 	}
 
