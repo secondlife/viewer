@@ -47,19 +47,6 @@ class LLFloaterPathfindingConsole
 public:
 	typedef enum
 	{
-		kRenderOverlayOnFixedPhysicsGeometry  = 0,
-		kRenderOverlayOnAllRenderableGeometry = 1
-	} ERegionOverlayDisplay;
-
-	typedef enum
-	{
-		kPathSelectNone       = 0,
-		kPathSelectStartPoint = 1,
-		kPathSelectEndPoint   = 2
-	} EPathSelectionState;
-
-	typedef enum
-	{
 		kCharacterTypeA = 0,
 		kCharacterTypeB = 1,
 		kCharacterTypeC = 2,
@@ -70,29 +57,11 @@ public:
 	//Populates a data packet that is forwarded onto the LLPathingSystem
 	void providePathingData( const LLVector3& point1, const LLVector3& point2 );
 
-	ERegionOverlayDisplay getRegionOverlayDisplay() const;
-    void                  setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay);
-
-    EPathSelectionState   getPathSelectionState() const;
-    void                  setPathSelectionState(EPathSelectionState pPathSelectionState);
-
     F32                   getCharacterWidth() const;
     void                  setCharacterWidth(F32 pCharacterWidth);
 
     ECharacterType        getCharacterType() const;
     void                  setCharacterType(ECharacterType pCharacterType);
-
-    F32                   getTerrainMaterialA() const;
-    void                  setTerrainMaterialA(F32 pTerrainMaterial);
-
-    F32                   getTerrainMaterialB() const;
-    void                  setTerrainMaterialB(F32 pTerrainMaterial);
-
-    F32                   getTerrainMaterialC() const;
-    void                  setTerrainMaterialC(F32 pTerrainMaterial);
-
-    F32                   getTerrainMaterialD() const;
-    void                  setTerrainMaterialD(F32 pTerrainMaterial);
 
 	void setHasNavMeshReceived();
 	void setHasNoNavMesh();
@@ -106,37 +75,28 @@ private:
 	virtual ~LLFloaterPathfindingConsole();
 
 	virtual void onOpen(const LLSD& pKey);
+	virtual void onClose(bool app_quitting);
 
 	void onShowNavMeshToggle();
-	void onShowExcludeVolumesToggle();
-	void onShowPathToggle();
-	void onShowWaterPlaneToggle();
-	void onRegionOverlayDisplaySwitch();
-	void onPathSelectionSwitch();
+	void onShowWalkablesToggle();
+	void onShowStaticObstaclesToggle();
+	void onShowMaterialVolumesToggle();
+	void onShowExclusionVolumesToggle();
+	void onShowWorldToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onViewEditLinksetClicked();
-	void onRebuildNavMeshClicked();
-	void onRefreshNavMeshClicked();
-	void onTerrainMaterialASet();
-	void onTerrainMaterialBSet();
-	void onTerrainMaterialCSet();
-	void onTerrainMaterialDSet();
 	void generatePath();
 
 	LLCheckBoxCtrl *mShowNavMeshCheckBox;
-	LLCheckBoxCtrl *mShowExcludeVolumesCheckBox;
-	LLCheckBoxCtrl *mShowPathCheckBox;
-	LLCheckBoxCtrl *mShowWaterPlaneCheckBox;
-	LLRadioGroup   *mRegionOverlayDisplayRadioGroup;
-	LLRadioGroup   *mPathSelectionRadioGroup;
+	LLCheckBoxCtrl *mShowWalkablesCheckBox;
+	LLCheckBoxCtrl *mShowStaticObstaclesCheckBox;
+	LLCheckBoxCtrl *mShowMaterialVolumesCheckBox;
+	LLCheckBoxCtrl *mShowExclusionVolumesCheckBox;
+	LLCheckBoxCtrl *mShowWorldCheckBox;
 	LLSliderCtrl   *mCharacterWidthSlider;
 	LLRadioGroup   *mCharacterTypeRadioGroup;
 	LLTextBase     *mPathfindingStatus;
-	LLLineEditor   *mTerrainMaterialA;
-	LLLineEditor   *mTerrainMaterialB;
-	LLLineEditor   *mTerrainMaterialC;
-	LLLineEditor   *mTerrainMaterialD;
 
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;

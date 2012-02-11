@@ -42,13 +42,6 @@
 
 #include "LLPathingLib.h"
 
-#define XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY 1
-#define XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY 2
-
-#define XUI_PATH_SELECT_NONE 0
-#define XUI_PATH_SELECT_START_POINT 1
-#define XUI_PATH_SELECT_END_POINT 2
-
 #define XUI_CHARACTER_TYPE_A 1
 #define XUI_CHARACTER_TYPE_B 2
 #define XUI_CHARACTER_TYPE_C 3
@@ -63,32 +56,33 @@ const int MAX_OBSERVERS = 10;
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
 	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
-	childSetAction("rebuild_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRebuildNavMeshClicked, this));
-	childSetAction("refresh_navmesh", boost::bind(&LLFloaterPathfindingConsole::onRefreshNavMeshClicked, this));
 
-	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh_overlay");
+	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
 	mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavMeshToggle, this));
 
-	mShowExcludeVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_exclusion_volumes");
-	llassert(mShowExcludeVolumesCheckBox != NULL);
-	mShowExcludeVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowExcludeVolumesToggle, this));
+	mShowWalkablesCheckBox = findChild<LLCheckBoxCtrl>("show_walkables");
+	llassert(mShowWalkablesCheckBox != NULL);
+	mShowWalkablesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWalkablesToggle, this));
 
-	mShowPathCheckBox = findChild<LLCheckBoxCtrl>("show_path");
-	llassert(mShowPathCheckBox != NULL);
-	mShowPathCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowPathToggle, this));
+	mShowStaticObstaclesCheckBox = findChild<LLCheckBoxCtrl>("show_static_obstacles");
+	llassert(mShowStaticObstaclesCheckBox != NULL);
+	mShowStaticObstaclesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowStaticObstaclesToggle, this));
 
-	mShowWaterPlaneCheckBox = findChild<LLCheckBoxCtrl>("show_water_plane");
-	llassert(mShowWaterPlaneCheckBox != NULL);
-	mShowWaterPlaneCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWaterPlaneToggle, this));
+	mShowMaterialVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_material_volumes");
+	llassert(mShowMaterialVolumesCheckBox != NULL);
+	mShowMaterialVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowMaterialVolumesToggle, this));
 
-	mRegionOverlayDisplayRadioGroup = findChild<LLRadioGroup>("region_overlay_display");
-	llassert(mRegionOverlayDisplayRadioGroup != NULL);
-	mRegionOverlayDisplayRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch, this));
+	mShowExclusionVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_exclusion_volumes");
+	llassert(mShowExclusionVolumesCheckBox != NULL);
+	mShowExclusionVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowExclusionVolumesToggle, this));
 
-	mPathSelectionRadioGroup = findChild<LLRadioGroup>("path_selection");
-	llassert(mPathSelectionRadioGroup  != NULL);
-	mPathSelectionRadioGroup ->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onPathSelectionSwitch, this));
+	mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
+	llassert(mShowWorldCheckBox != NULL);
+	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldToggle, this));
+
+	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
+	llassert(mPathfindingStatus != NULL);
 
 	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
 	llassert(mCharacterWidthSlider != NULL);
@@ -98,111 +92,7 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mCharacterTypeRadioGroup  != NULL);
 	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
 
-	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
-	llassert(mPathfindingStatus != NULL);
-
-	mTerrainMaterialA = findChild<LLLineEditor>("terrain_material_a");
-	llassert(mTerrainMaterialA != NULL);
-	mTerrainMaterialA->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialASet, this));
-	mTerrainMaterialA->setPrevalidate(LLTextValidate::validateFloat);
-
-	mTerrainMaterialB = findChild<LLLineEditor>("terrain_material_b");
-	llassert(mTerrainMaterialB != NULL);
-	mTerrainMaterialB->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialBSet, this));
-	mTerrainMaterialB->setPrevalidate(LLTextValidate::validateFloat);
-
-	mTerrainMaterialC = findChild<LLLineEditor>("terrain_material_c");
-	llassert(mTerrainMaterialC != NULL);
-	mTerrainMaterialC->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialCSet, this));
-	mTerrainMaterialC->setPrevalidate(LLTextValidate::validateFloat);
-
-	mTerrainMaterialD = findChild<LLLineEditor>("terrain_material_d");
-	llassert(mTerrainMaterialD != NULL);
-	mTerrainMaterialD->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTerrainMaterialDSet, this));
-	mTerrainMaterialD->setPrevalidate(LLTextValidate::validateFloat);
-
 	return LLFloater::postBuild();
-}
-
-LLFloaterPathfindingConsole::ERegionOverlayDisplay LLFloaterPathfindingConsole::getRegionOverlayDisplay() const
-{
-	ERegionOverlayDisplay regionOverlayDisplay;
-	switch (mRegionOverlayDisplayRadioGroup->getValue().asInteger())
-	{
-	case XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY :
-		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
-		break;
-	case XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY :
-		regionOverlayDisplay = kRenderOverlayOnAllRenderableGeometry;
-		break;
-	default :
-		regionOverlayDisplay = kRenderOverlayOnFixedPhysicsGeometry;
-		llassert(0);
-		break;
-	}
-
-	return regionOverlayDisplay;
-}
-
-void LLFloaterPathfindingConsole::setRegionOverlayDisplay(ERegionOverlayDisplay pRegionOverlayDisplay)
-{
-	LLSD radioGroupValue;
-
-	switch (pRegionOverlayDisplay)
-	{
-	case kRenderOverlayOnFixedPhysicsGeometry :
-		radioGroupValue = XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY;
-		break;
-	case kRenderOverlayOnAllRenderableGeometry :
-		radioGroupValue = XUI_RENDER_OVERLAY_ON_ALL_RENDERABLE_GEOMETRY;
-		break;
-	default :
-		radioGroupValue = XUI_RENDER_OVERLAY_ON_FIXED_PHYSICS_GEOMETRY;
-		llassert(0);
-		break;
-	}
-
-	mRegionOverlayDisplayRadioGroup->setValue(radioGroupValue);
-}
-
-LLFloaterPathfindingConsole::EPathSelectionState LLFloaterPathfindingConsole::getPathSelectionState() const
-{
-	EPathSelectionState pathSelectionState;
-
-	switch (mPathSelectionRadioGroup->getValue().asInteger())
-	{
-	case XUI_PATH_SELECT_START_POINT :
-		pathSelectionState = kPathSelectStartPoint;
-		break;
-	case XUI_PATH_SELECT_END_POINT :
-		pathSelectionState = kPathSelectEndPoint;
-		break;
-	default :
-		pathSelectionState = kPathSelectNone;
-		break;
-	}
-
-	return pathSelectionState;
-}
-
-void LLFloaterPathfindingConsole::setPathSelectionState(EPathSelectionState pPathSelectionState)
-{
-	LLSD radioGroupValue;
-
-	switch (pPathSelectionState)
-	{
-	case kPathSelectStartPoint :
-		radioGroupValue = XUI_PATH_SELECT_START_POINT;
-		break;
-	case kPathSelectEndPoint :
-		radioGroupValue = XUI_PATH_SELECT_END_POINT;
-		break;
-	default :
-		radioGroupValue = XUI_PATH_SELECT_NONE;
-		break;
-	}
-
-	mPathSelectionRadioGroup->setValue(radioGroupValue);
 }
 
 F32 LLFloaterPathfindingConsole::getCharacterWidth() const
@@ -269,46 +159,6 @@ void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType
 	mCharacterTypeRadioGroup->setValue(radioGroupValue);
 }
 
-F32 LLFloaterPathfindingConsole::getTerrainMaterialA() const
-{
-	return mTerrainMaterialA->getValue().asReal();
-}
-
-void LLFloaterPathfindingConsole::setTerrainMaterialA(F32 pTerrainMaterial)
-{
-	mTerrainMaterialA->setValue(LLSD(pTerrainMaterial));
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialB() const
-{
-	return mTerrainMaterialB->getValue().asReal();
-}
-
-void LLFloaterPathfindingConsole::setTerrainMaterialB(F32 pTerrainMaterial)
-{
-	mTerrainMaterialB->setValue(LLSD(pTerrainMaterial));
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialC() const
-{
-	return mTerrainMaterialC->getValue().asReal();
-}
-
-void LLFloaterPathfindingConsole::setTerrainMaterialC(F32 pTerrainMaterial)
-{
-	mTerrainMaterialC->setValue(LLSD(pTerrainMaterial));
-}
-
-F32 LLFloaterPathfindingConsole::getTerrainMaterialD() const
-{
-	return mTerrainMaterialD->getValue().asReal();
-}
-
-void LLFloaterPathfindingConsole::setTerrainMaterialD(F32 pTerrainMaterial)
-{
-	mTerrainMaterialD->setValue(LLSD(pTerrainMaterial));
-}
-
 void LLFloaterPathfindingConsole::setHasNavMeshReceived()
 {
 	std::string str = getString("navmesh_fetch_complete_available");
@@ -330,18 +180,14 @@ void LLFloaterPathfindingConsole::setHasNoNavMesh()
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mShowNavMeshCheckBox(NULL),
-	mShowExcludeVolumesCheckBox(NULL),
-	mShowPathCheckBox(NULL),
-	mShowWaterPlaneCheckBox(NULL),
-	mRegionOverlayDisplayRadioGroup(NULL),
-	mPathSelectionRadioGroup(NULL),
+	mShowWalkablesCheckBox(NULL),
+	mShowStaticObstaclesCheckBox(NULL),
+	mShowMaterialVolumesCheckBox(NULL),
+	mShowExclusionVolumesCheckBox(NULL),
+	mShowWorldCheckBox(NULL),
 	mCharacterWidthSlider(NULL),
 	mCharacterTypeRadioGroup(NULL),
 	mPathfindingStatus(NULL),
-	mTerrainMaterialA(NULL),
-	mTerrainMaterialB(NULL),
-	mTerrainMaterialC(NULL),
-	mTerrainMaterialD(NULL),
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
 	mHasEndPoint(false)
@@ -423,7 +269,17 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
 			}
 		}
+		LLPathingLib::getInstance()->setRenderPath(true);
 	}		
+}
+
+void LLFloaterPathfindingConsole::onClose(bool app_quitting)
+{
+	//make sure we have a pathing system
+	if ( !LLPathingLib::getInstance() )
+	{
+		LLPathingLib::getInstance()->setRenderPath(false);
+	}
 }
 
 void LLFloaterPathfindingConsole::onShowNavMeshToggle()
@@ -442,9 +298,64 @@ void LLFloaterPathfindingConsole::onShowNavMeshToggle()
 	}
 }
 
-void LLFloaterPathfindingConsole::onShowExcludeVolumesToggle()
+void LLFloaterPathfindingConsole::onShowWalkablesToggle()
 {
-	BOOL checkBoxValue = mShowExcludeVolumesCheckBox->get();
+	BOOL checkBoxValue = mShowWalkablesCheckBox->get();
+
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if (llPathingLibInstance != NULL)
+	{
+		//llPathingLibInstance->setRenderNavMesh(checkBoxValue);
+		llwarns << "functionality has not yet been implemented to set walkables to "
+			<< (checkBoxValue ? "TRUE" : "FALSE") << llendl;
+
+	}
+	else
+	{
+		mShowWalkablesCheckBox->set(FALSE);
+		llwarns << "cannot find LLPathingLib instance" << llendl;
+	}
+}
+
+void LLFloaterPathfindingConsole::onShowStaticObstaclesToggle()
+{
+	BOOL checkBoxValue = mShowStaticObstaclesCheckBox->get();
+
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if (llPathingLibInstance != NULL)
+	{
+		//llPathingLibInstance->setRenderNavMesh(checkBoxValue);
+		llwarns << "functionality has not yet been implemented to set static obstacles to "
+			<< (checkBoxValue ? "TRUE" : "FALSE") << llendl;
+	}
+	else
+	{
+		mShowStaticObstaclesCheckBox->set(FALSE);
+		llwarns << "cannot find LLPathingLib instance" << llendl;
+	}
+}
+
+void LLFloaterPathfindingConsole::onShowMaterialVolumesToggle()
+{
+	BOOL checkBoxValue = mShowMaterialVolumesCheckBox->get();
+
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if (llPathingLibInstance != NULL)
+	{
+		//llPathingLibInstance->setRenderNavMesh(checkBoxValue);
+		llwarns << "functionality has not yet been implemented to set material volumes to "
+			<< (checkBoxValue ? "TRUE" : "FALSE") << llendl;
+	}
+	else
+	{
+		mShowMaterialVolumesCheckBox->set(FALSE);
+		llwarns << "cannot find LLPathingLib instance" << llendl;
+	}
+}
+
+void LLFloaterPathfindingConsole::onShowExclusionVolumesToggle()
+{
+	BOOL checkBoxValue = mShowExclusionVolumesCheckBox->get();
 
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if (llPathingLibInstance != NULL)
@@ -453,86 +364,24 @@ void LLFloaterPathfindingConsole::onShowExcludeVolumesToggle()
 	}
 	else
 	{
-		mShowExcludeVolumesCheckBox->set(FALSE);
+		mShowExclusionVolumesCheckBox->set(FALSE);
 		llwarns << "cannot find LLPathingLib instance" << llendl;
 	}
 }
 
-void LLFloaterPathfindingConsole::onShowPathToggle()
+void LLFloaterPathfindingConsole::onShowWorldToggle()
 {
-	BOOL checkBoxValue = mShowPathCheckBox->get();
+	BOOL checkBoxValue = mShowWorldCheckBox->get();
 
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if (llPathingLibInstance != NULL)
 	{
-		llPathingLibInstance->setRenderPath(checkBoxValue);
+		llPathingLibInstance->setRenderOverlayMode(checkBoxValue);
 	}
 	else
 	{
-		mShowPathCheckBox->set(FALSE);
+		mShowWorldCheckBox->set(FALSE);
 		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowWaterPlaneToggle()
-{
-	BOOL checkBoxValue = mShowWaterPlaneCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		llPathingLibInstance->setRenderWaterPlane(checkBoxValue);
-	}
-	else
-	{
-		mShowWaterPlaneCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-
-	llwarns << "functionality has not yet been implemented to toggle '"
-		<< mShowWaterPlaneCheckBox->getLabel() << "' to "
-		<< (checkBoxValue ? "ON" : "OFF") << llendl;
-}
-
-void LLFloaterPathfindingConsole::onRegionOverlayDisplaySwitch()
-{
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		switch (getRegionOverlayDisplay())
-		{
-		case kRenderOverlayOnFixedPhysicsGeometry :
-			llPathingLibInstance->setRenderOverlayMode(false);
-			break;
-		case kRenderOverlayOnAllRenderableGeometry :
-			llPathingLibInstance->setRenderOverlayMode(true);
-			break;
-		default :
-			llPathingLibInstance->setRenderOverlayMode(false);
-			llassert(0);
-			break;
-		}
-	}
-	else
-	{
-		this->setRegionOverlayDisplay(kRenderOverlayOnFixedPhysicsGeometry);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-}
-
-void LLFloaterPathfindingConsole::onPathSelectionSwitch()
-{
-	switch (getPathSelectionState())
-	{
-	case kPathSelectNone :
-		break;
-	case kPathSelectStartPoint :
-		break;
-	case kPathSelectEndPoint :
-		break;
-	default :
-		llassert(0);
-		break;
 	}
 }
 
@@ -577,47 +426,10 @@ void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
 }
 
-void LLFloaterPathfindingConsole::onRebuildNavMeshClicked()
-{
-	llwarns << "functionality has not yet been implemented to handle rebuilding of the navmesh" << llendl;
-}
-
-void LLFloaterPathfindingConsole::onRefreshNavMeshClicked()
-{
-	llwarns << "functionality has not yet been implemented to handle refreshing of the navmesh" << llendl;
-}
-
-void LLFloaterPathfindingConsole::onTerrainMaterialASet()
-{
-	F32 terrainMaterial = getTerrainMaterialA();
-	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialA->getName()
-		<< "' to value (" << terrainMaterial << ")" << llendl;
-}
-
-void LLFloaterPathfindingConsole::onTerrainMaterialBSet()
-{
-	F32 terrainMaterial = getTerrainMaterialB();
-	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialB->getName()
-		<< "' to value (" << terrainMaterial << ")" << llendl;
-}
-
-void LLFloaterPathfindingConsole::onTerrainMaterialCSet()
-{
-	F32 terrainMaterial = getTerrainMaterialC();
-	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialC->getName()
-		<< "' to value (" << terrainMaterial << ")" << llendl;
-}
-
-void LLFloaterPathfindingConsole::onTerrainMaterialDSet()
-{
-	F32 terrainMaterial = getTerrainMaterialD();
-	llwarns << "functionality has not yet been implemented to setting '" << mTerrainMaterialD->getName()
-		<< "' to value (" << terrainMaterial << ")" << llendl;
-}
-
 
 void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, const LLVector3& point2 )
 {
+#if 0
 	switch (getPathSelectionState())
 	{
 	case kPathSelectNone :
@@ -639,7 +451,7 @@ void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, c
 		llassert(0);
 		break;
 	}
-
+#endif
 	generatePath();
 }
 

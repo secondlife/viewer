@@ -2,15 +2,15 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="228"
+    height="270"
     layout="topleft"
-    name="floater_pathfinding"
-    help_topic="floater_pathfinding"
+    name="floater_pathfinding_console"
+    help_topic="floater_pathfinding_console"
     reuse_instance="true"
     save_rect="true"
     single_instance="true"
-    title="Pathfinding setup"
-    width="833">
+    title="Pathfinding"
+    width="450">
   <floater.string name="navmesh_fetch_initial"></floater.string>
   <floater.string name="navmesh_fetch_inprogress">Downloading the navmesh ...</floater.string>
   <floater.string name="navmesh_fetch_complete_available">Navmesh received.</floater.string>
@@ -29,15 +29,39 @@
       left="12"
       top="20"
       width="208">
-    Show overlays:
+    Show:
   </text>
   <check_box
       height="19"
       label="Navmesh"
       layout="topleft"
       left="20"
-      name="show_navmesh_overlay"
+      name="show_navmesh"
       top_pad="5"
+      width="90" />
+  <check_box
+      height="19"
+      label="Walkables"
+      layout="topleft"
+      left="20"
+      name="show_walkables"
+      top_pad="0"
+      width="90" />
+  <check_box
+      height="19"
+      label="Static obstacles"
+      layout="topleft"
+      left="20"
+      name="show_static_obstacles"
+      top_pad="0"
+      width="90" />
+  <check_box
+      height="19"
+      label="Material volumes"
+      layout="topleft"
+      left="20"
+      name="show_material_volumes"
+      top_pad="0"
       width="90" />
   <check_box
       height="19"
@@ -49,418 +73,306 @@
       width="90" />
   <check_box
       height="19"
-      label="Path"
+      label="World"
       layout="topleft"
       left="20"
-      name="show_path"
+      name="show_world"
       top_pad="0"
       width="90" />
-  <check_box
-      height="19"
-      label="Water plane"
-      layout="topleft"
-      left="20"
-      name="show_water_plane"
-      top_pad="0"
-      width="90" />
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      layout="topleft"
-      left="12"
-      top_pad="10"
-      width="208">
-    Overlay on:
-  </text>
-  <radio_group
-      follows="top|left"
-      height="45"
-      value="1"
-      layout="topleft"
-      left_delta="8"
-      name="region_overlay_display"
-      top_delta="17"
-      width="200">
-    <radio_item
-        label="Fixed physics geometry"
-        layout="topleft"
-        height="14"
-        name="display_overlay_on_fixed"
-        value="1"/>
-    <radio_item
-        label="All renderable geometry"
-        layout="topleft"
-        height="14"
-        name="display_overlay_on_all"
-        value="2"/>
-  </radio_group>
-  <view_border
+  <panel
+      border="true"
       bevel_style="none"
-      follows="top|left"
-      height="203"
-      layout="topleft"
-      name="horiz_separator_1"
-      top="15"
-      left="228"
-      width="0"/>
-  <text
-      height="24"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      line_spacing.pixels="2"
       follows="left|top"
       layout="topleft"
-      left="240"
-      top="18"
-      width="208">
-Click on two points
-to see the path between them.
-  </text>
-  <radio_group
-      allow_deselect="true"
-      follows="top|left"
-      height="45"
-      layout="topleft"
-      left_delta="0"
-      name="path_selection"
-      top_delta="33"
-      value="0"
+      height="60"
       width="200">
-    <radio_item
-        label="Choose start point"
+    <text
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
         layout="topleft"
-        height="14"
-        name="choose_path_start_point"
-        value="1"/>
-    <radio_item
-        label="Choose end point"
+        left="5"
+        top_pad="5"
+        width="190">
+      Status:
+    </text>
+    <text
+        height="28"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
         layout="topleft"
-        height="14"
-        name="choose_path_end_point"
-        value="2"/>
-  </radio_group>
-  <text
-      height="14"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="240"
-      width="208">
-    Character width
-  </text>
-  <slider
-      decimal_digits="1"
-      height="14"
-      increment="0.1"
-      layout="topleft"
-      max_val="2"
-      min_val="0.2"
-      name="character_width"
-      top_pad="7"
-      value="1"
-      width="145" />
-  <text
-      height="14"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      top_pad="-14"
-      left="382"
-      width="208">
-    m
-  </text>
-  <text
-      height="14"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="240"
-      top_pad="10"
-      width="208">
-    Character type
-  </text>
-  <radio_group
-      follows="top|left"
-      height="20"
-      layout="topleft"
-      left_delta="0"
-      name="character_type"
-      top_delta="20"
-      value="1"
-      width="200">
-    <radio_item
-        label="A"
-        height="14"
-        width="30"
-	value="1"
-        name="character_type_a"/>
-    <radio_item
-        label="B"
-        height="14"
-        width="30"
-        layout="topleft"
-        top="4"
-        left="50"
-	value="2"
-        name="character_type_b"/>
-    <radio_item
-        label="C"
-        height="14"
-        width="30"
-        layout="topleft"
-        top="4"
-        left="100"
-	value="3"
-        name="character_type_c"/>
-    <radio_item
-        label="D"
-        height="14"
-        width="30"
-        layout="topleft"
-        top="4"
-        left="150"
-	value="4"
-        name="character_type_d"/>
-  </radio_group>
-  <text
-      height="14"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="240"
-      name="pathfinding_status"
-      top_pad="10"
-      width="208">
-  </text>
-  <view_border
-      bevel_style="none"
-      follows="top|left"
-      height="203"
-      layout="topleft"
-      name="horiz_separator_2"
-      top="15"
-      left="456"
-      width="0"/>
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="470"
-      top="18"
-      width="180">
-    View / edit linkset attributes:
-  </text>
+        left="15"
+        name="pathfinding_status"
+        top_pad="10"
+        width="180">
+    </text>
+  </panel>
   <button
       follows="left|top"
       height="21"
-      label="Linksets..."
+      left="20"
+      label="Characters..."
       layout="topleft"
-      name="view_and_edit_linksets"
+      name="view_characters_floater"
+      top_pad="10"
       width="96"/>
-  <text
-      height="25"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      line_spacing.pixels="4"
+  <tab_container
       follows="left|top"
       layout="topleft"
-      top_pad="22"
-      width="180">
-If you have made changes
-to objects or terrain:
-  </text>
-  <button
-      follows="left|top"
-      height="22"
-      label="Rebuild navmesh"
-      layout="topleft"
-      name="rebuild_navmesh"
-      top_pad="14"
-      width="149"/>
-  <text
-      height="25"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      line_spacing.pixels="4"
-      follows="left|top"
-      layout="topleft"
-      top_pad="14"
-      width="180">
-To load the current state
-of the mesh:
-  </text>
-  <button
-      follows="left|top"
-      height="21"
-      label="Refresh"
-      layout="topleft"
-      name="refresh_navmesh"
-      top_pad="9"
-      width="95"/>
-  <view_border
-      bevel_style="none"
-      follows="top|left"
-      height="203"
-      layout="topleft"
-      name="horiz_separator_3"
-      top="15"
-      left="667"
-      width="0"/>
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="689"
-      top="18"
-      width="208">
-    Terrain materials
-  </text>
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      top_pad="17"
-      width="208">
-    A
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="top|left"
-      height="21"
-      layout="topleft"
-      left_delta="22"
-      max_length_bytes="10"
-      name="terrain_material_a"
-      width="46" />
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      layout="topleft"
-      left_pad="-68"
-      top_pad="17"
-      width="208">
-    B
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="top|left"
-      height="21"
-      layout="topleft"
-      left_delta="22"
-      max_length_bytes="10"
-      name="terrain_material_b"
-      width="46" />
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      layout="topleft"
-      left_pad="-68"
-      top_pad="17"
-      width="208">
-    C
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="top|left"
-      height="21"
-      layout="topleft"
-      left_delta="22"
-      max_length_bytes="10"
-      name="terrain_material_c"
-      width="46" />
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      layout="topleft"
-      left_pad="-68"
-      top_pad="17"
-      width="208">
-    D
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="top|left"
-      height="21"
-      layout="topleft"
-      left_delta="22"
-      max_length_bytes="10"
-      name="terrain_material_d"
-      width="46" />
-  <text
-      height="38"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      line_spacing.pixels="4"
-      follows="left|top"
-      layout="topleft"
-      left_pad="-68"
-      top_pad="14"
-      width="180">
-Rebuild the navmesh
-after making any
-changes.
-  </text>
+      tab_position="top"
+      left="220"
+      top="20"
+      height="230"
+      width="220">
+    <panel
+        border="true"
+        bevel_style="none"
+        follows="left|top"
+        layout="topleft"
+        name="edit_panel"
+        left="1"
+        label="Edit">
+      <text
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left="20"
+          top_pad="10"
+          height="13"
+          width="180">
+        To blah blah blah:
+      </text>
+      <button
+          follows="left|top"
+          height="21"
+          left="30"
+          enabled="false"
+          label="Unfreeze"
+          layout="topleft"
+          name="enter_unfrozen_mode"
+          top_pad="0"
+          width="96"/>
+      <text
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left="20"
+          top_pad="10"
+          height="13"
+          width="180">
+        To blah blah blah:
+      </text>
+      <button
+          follows="left|top"
+          height="21"
+          left="30"
+          enabled="false"
+          label="Freeze"
+          layout="topleft"
+          name="enter_frozen_mode"
+          top_pad="0"
+          width="96"/>
+      <text
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left="20"
+          top_pad="10"
+          height="13"
+          width="180">
+        View / edit linkset attributes:
+      </text>
+      <button
+          follows="left|top"
+          height="21"
+          left="30"
+          label="Linksets..."
+          layout="topleft"
+          name="view_and_edit_linksets"
+          top_pad="0"
+          width="96"/>
+      <button
+          follows="left|top"
+          height="21"
+          label="Clear path"
+          layout="topleft"
+          name="clear_path_on_edit"
+          left="20"
+          top="175"
+          width="96"/>
+    </panel>
+    <panel
+        border="true"
+        bevel_style="none"
+        follows="left|top"
+        layout="topleft"
+        left="1"
+        name="test_panel"
+        label="Test">
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left="20"
+          width="190">
+        Character width
+      </text>
+      <slider
+          decimal_digits="1"
+          height="14"
+          increment="0.1"
+          layout="topleft"
+          follows="left|top"
+          max_val="2"
+          min_val="0.2"
+          name="character_width"
+          top_pad="5"
+          value="1"
+          width="145" />
+      <text
+          height="14"
+          word_wrap="false"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="-14"
+          left_pad="0"
+          width="20">
+        m
+      </text>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left_pad="-165"
+          top_pad="10"
+          width="190">
+        Character type
+      </text>
+      <radio_group
+          follows="top|left"
+          height="20"
+          layout="topleft"
+          left_delta="0"
+          name="character_type"
+          top_delta="20"
+          value="1"
+          width="190">
+        <radio_item
+            label="A"
+            height="14"
+            width="30"
+            value="1"
+            name="character_type_a"/>
+        <radio_item
+            label="B"
+            height="14"
+            width="30"
+            layout="topleft"
+            top="4"
+            left="50"
+            value="2"
+            name="character_type_b"/>
+        <radio_item
+            label="C"
+            height="14"
+            width="30"
+            layout="topleft"
+            top="4"
+            left="100"
+            value="3"
+            name="character_type_c"/>
+        <radio_item
+            label="D"
+            height="14"
+            width="30"
+            layout="topleft"
+            top="4"
+            left="150"
+            value="4"
+            name="character_type_d"/>
+      </radio_group>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left_pad="-190"
+          top_pad="10"
+          width="190">
+        Ctrl-click to select start point.
+      </text>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="5"
+          width="190">
+        Alt-click to select start point.
+      </text>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="DrYellow"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="15"
+          width="190">
+        Result: No path found.
+      </text>
+      <button
+          follows="left|top"
+          height="21"
+          label="Clear path"
+          layout="topleft"
+          name="clear_path_on_test"
+          left="20"
+          top="175"
+          width="96"/>
+    </panel>
+  </tab_container>
 </floater>
