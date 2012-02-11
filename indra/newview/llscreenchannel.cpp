@@ -798,6 +798,7 @@ void LLScreenChannel::showToastsTop()
 	}
 
 	// Dismiss toasts we don't have space for (STORM-391).
+	std::vector<LLToast*> toasts_to_hide;
 	if(it != mToastList.rend())
 	{
 		mHiddenToastsNum = 0;
@@ -806,9 +807,16 @@ void LLScreenChannel::showToastsTop()
 			LLToast* toast = it->getToast();
 			if (toast)
 			{
-				toast->hide();
+				toasts_to_hide.push_back(toast);
 			}
 		}
+	}
+
+	for (std::vector<LLToast*>::iterator it = toasts_to_hide.begin(), end_it = toasts_to_hide.end();
+		it != end_it;
+		++it)
+	{
+		(*it)->hide();
 	}
 }
 

@@ -180,11 +180,14 @@ LLToast::~LLToast()
 //--------------------------------------------------------------------------
 void LLToast::hide()
 {
-	setVisible(FALSE);
-	setFading(false);
-	mTimer->stop();
-	mIsHidden = true;
-	mOnFadeSignal(this); 
+	if (!mIsHidden)
+	{
+		setVisible(FALSE);
+		setFading(false);
+		mTimer->stop();
+		mIsHidden = true;
+		mOnFadeSignal(this); 
+	}
 }
 
 void LLToast::onFocusLost()
