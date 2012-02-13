@@ -938,10 +938,10 @@
          tear_off="false">
         <menu_item_call
             label="Setup..."
-            name="pathfinding_setup_menu_item">
+            name="pathfinding_console_menu_item">
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
-              parameter="pathfinding_setup" />
+              parameter="pathfinding_console" />
         </menu_item_call>
         <menu_item_call
             label="Linksets..."

@@ -86,7 +86,7 @@
 #include "llfloateroutbox.h"
 #include "llfloaterpathfindingcharacters.h"
 #include "llfloaterpathfindinglinksets.h"
-#include "llfloaterpathfindingsetup.h"
+#include "llfloaterpathfindingconsole.h"
 #include "llfloaterpay.h"
 #include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
@@ -248,7 +248,7 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("pathfinding_characters", "floater_pathfinding_characters.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingCharacters>);
 	LLFloaterReg::add("pathfinding_linksets", "floater_pathfinding_linksets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingLinksets>);
-	LLFloaterReg::add("pathfinding_setup", "floater_pathfinding_setup.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingSetup>);
+	LLFloaterReg::add("pathfinding_console", "floater_pathfinding_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingConsole>);
 	LLFloaterReg::add("people", "floater_people.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("places", "floater_places.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);

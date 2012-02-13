@@ -31,7 +31,7 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 #include "llsdutil.h"
-#include "llfloaterpathfindingsetup.h"
+#include "llfloaterpathfindingconsole.h"
 
 //===============================================================================
 LLNavMeshStation::LLNavMeshStation()

@@ -78,7 +78,7 @@
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
 #include "LLPathingLib.h"
-#include "llfloaterpathfindingsetup.h"
+#include "llfloaterpathfindingconsole.h"
 #include "llfloaterreg.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
