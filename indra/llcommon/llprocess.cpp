@@ -120,7 +120,9 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 		// As of 2012-02-02, we only expect this to be implemented on Windows.
 		// Avoid spamming the log with warnings we fully expect.
 		ll_apr_warn_status(ok);
-# endif // LL_WINDOWS
+#else   // ! LL_WINDOWS
+		(void)ok;                   // suppress 'unused' warning
+# endif // ! LL_WINDOWS
 #else
 		LL_WARNS("LLProcess") << "This version of APR lacks Linden apr_procattr_autokill_set() extension" << LL_ENDL;
 #endif
