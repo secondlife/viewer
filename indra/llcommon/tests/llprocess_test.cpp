@@ -33,6 +33,7 @@
 #include "../test/namedtempfile.h"
 #include "stringize.h"
 #include "llsdutil.h"
+#include "llevents.h"
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -88,6 +89,27 @@ static std::string readfile(const std::string& pathname, const std::string& desc
     return output;
 }
 
+/// Looping on LLProcess::isRunning() must now be accompanied by pumping
+/// "mainloop" -- otherwise the status won't update and you get an infinite
+/// loop.
+void waitfor(LLProcess& proc)
+{
+    while (proc.isRunning())
+    {
+        sleep(1);
+        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+    }
+}
+
+void waitfor(LLProcess::handle h, const std::string& desc)
+{
+    while (LLProcess::isRunning(h, desc))
+    {
+        sleep(1);
+        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+    }
+}
+
 /**
  * Construct an LLProcess to run a Python script.
  */
@@ -120,10 +142,7 @@ struct PythonProcessLauncher
         // there's no API to wait for the child to terminate -- but given
         // its use in our graphics-intensive interactive viewer, it's
         // understandable.
-        while (mPy->isRunning())
-        {
-            sleep(1);
-        }
+        waitfor(*mPy);
     }
 
     /**
@@ -619,10 +638,7 @@ namespace tut
         // script has performed its first write and should now be sleeping.
         py.mPy->kill();
         // wait for the script to terminate... one way or another.
-        while (py.mPy->isRunning())
-        {
-            sleep(1);
-        }
+        waitfor(*py.mPy);
 #if LL_WINDOWS
         ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
         ensure_equals("Status.mData",  py.mPy->getStatus().mData,  -1);
@@ -672,10 +688,7 @@ namespace tut
             // Destroy the LLProcess, which should kill the child.
         }
         // wait for the script to terminate... one way or another.
-        while (LLProcess::isRunning(phandle, "kill() script"))
-        {
-            sleep(1);
-        }
+        waitfor(phandle, "kill() script");
         // If kill() failed, the script would have woken up on its own and
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
@@ -737,10 +750,7 @@ namespace tut
             outf << "go";
         } // flush and close.
         // now wait for the script to terminate... one way or another.
-        while (LLProcess::isRunning(phandle, "autokill script"))
-        {
-            sleep(1);
-        }
+        waitfor(phandle, "autokill script");
         // If the LLProcess destructor implicitly called kill(), the
         // script could not have written 'ack' as we expect.
         ensure_equals("autokill script output", readfile(from.getName()), "ack");

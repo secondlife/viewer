@@ -32,8 +32,10 @@
 #include "stringize.h"
 #include "llapr.h"
 #include "apr_signal.h"
+#include "llevents.h"
 
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp>
 #include <iostream>
 #include <stdexcept>
 
@@ -46,6 +48,74 @@ struct LLProcessError: public std::runtime_error
 {
 	LLProcessError(const std::string& msg): std::runtime_error(msg) {}
 };
+
+/**
+ * Ref-counted "mainloop" listener. As long as there are still outstanding
+ * LLProcess objects, keep listening on "mainloop" so we can keep polling APR
+ * for process status.
+ */
+class LLProcessListener
+{
+	LOG_CLASS(LLProcessListener);
+public:
+	LLProcessListener():
+		mCount(0)
+	{}
+
+	void addPoll(const LLProcess&)
+	{
+		// Unconditionally increment mCount. If it was zero before
+		// incrementing, listen on "mainloop".
+		if (mCount++ == 0)
+		{
+			LL_DEBUGS("LLProcess") << "listening on \"mainloop\"" << LL_ENDL;
+			mConnection = LLEventPumps::instance().obtain("mainloop")
+				.listen("LLProcessListener", boost::bind(&LLProcessListener::tick, this, _1));
+		}
+	}
+
+	void dropPoll(const LLProcess&)
+	{
+		// Unconditionally decrement mCount. If it's zero after decrementing,
+		// stop listening on "mainloop".
+		if (--mCount == 0)
+		{
+			LL_DEBUGS("LLProcess") << "disconnecting from \"mainloop\"" << LL_ENDL;
+			mConnection.disconnect();
+		}
+	}
+
+private:
+	/// called once per frame by the "mainloop" LLEventPump
+	bool tick(const LLSD&)
+	{
+		// Tell APR to sense whether each registered LLProcess is still
+		// running and call handle_status() appropriately. We should be able
+		// to get the same info from an apr_proc_wait(APR_NOWAIT) call; but at
+		// least in APR 1.4.2, testing suggests that even with APR_NOWAIT,
+		// apr_proc_wait() blocks the caller. We can't have that in the
+		// viewer. Hence the callback rigmarole. (Once we update APR, it's
+		// probably worth testing again.) Also -- although there's an
+		// apr_proc_other_child_refresh() call, i.e. get that information for
+		// one specific child, it accepts an 'apr_other_child_rec_t*' that's
+		// mentioned NOWHERE else in the documentation or header files! I
+		// would use the specific call in LLProcess::getStatus() if I knew
+		// how. As it is, each call to apr_proc_other_child_refresh_all() will
+		// call callbacks for ALL still-running child processes. That's why we
+		// centralize such calls, using "mainloop" to ensure it happens once
+		// per frame, and refcounting running LLProcess objects to remain
+		// registered only while needed.
+		LL_DEBUGS("LLProcess") << "calling apr_proc_other_child_refresh_all()" << LL_ENDL;
+		apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
+		return false;
+	}
+
+	/// If this object is destroyed before mCount goes to zero, stop
+	/// listening on "mainloop" anyway.
+	LLTempBoundListener mConnection;
+	unsigned mCount;
+};
+static LLProcessListener sProcessListener;
 
 LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 {
@@ -159,6 +229,8 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// arrange to call status_callback()
 	apr_proc_other_child_register(&mProcess, &LLProcess::status_callback, this, mProcess.in,
 								  gAPRPoolp);
+	// and make sure we poll it once per "mainloop" tick
+	sProcessListener.addPoll(*this);
 	mStatus.mState = RUNNING;
 
 	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << mProcess.pid << ')');
@@ -195,6 +267,8 @@ LLProcess::~LLProcess()
 		// information updated in this object by such a callback is no longer
 		// available to any consumer anyway.
 		apr_proc_other_child_unregister(this);
+		// One less LLProcess to poll for
+		sProcessListener.dropPoll(*this);
 	}
 
 	if (mAutokill)
@@ -228,26 +302,6 @@ bool LLProcess::isRunning(void)
 
 LLProcess::Status LLProcess::getStatus()
 {
-	// Only when mState is RUNNING might the status change dynamically. For
-	// any other value, pointless to attempt to update status: it won't
-	// change.
-	if (mStatus.mState == RUNNING)
-	{
-		// Tell APR to sense whether the child is still running and call
-		// handle_status() appropriately. We should be able to get the same
-		// info from an apr_proc_wait(APR_NOWAIT) call; but at least in APR
-		// 1.4.2, testing suggests that even with APR_NOWAIT, apr_proc_wait()
-		// blocks the caller. We can't have that in the viewer. Hence the
-		// callback rigmarole. Once we update APR, it's probably worth testing
-		// again. Also -- although there's an apr_proc_other_child_refresh()
-		// call, i.e. get that information for one specific child, it accepts
-		// an 'apr_other_child_rec_t*' that's mentioned NOWHERE else in the
-		// documentation or header files! I would use the specific call if I
-		// knew how. As it is, each call to this method will call callbacks
-		// for ALL still-running child processes. Sigh...
-		apr_proc_other_child_refresh_all(APR_OC_REASON_RUNNING);
-	}
-
 	return mStatus;
 }
 
@@ -341,6 +395,8 @@ void LLProcess::handle_status(int reason, int status)
 	// it already knows the child has terminated. We must pass the same 'data'
 	// pointer as for the register() call, which was our 'this'.
 	apr_proc_other_child_unregister(this);
+	// don't keep polling for a terminated process
+	sProcessListener.dropPoll(*this);
 	// We overload mStatus.mState to indicate whether the child is registered
 	// for APR callback: only RUNNING means registered. Track that we've
 	// unregistered. We know the child has terminated; might be EXITED or

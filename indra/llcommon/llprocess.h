@@ -49,9 +49,17 @@ class LLProcess;
 typedef boost::shared_ptr<LLProcess> LLProcessPtr;
 
 /**
- *	LLProcess handles launching external processes with specified command line arguments.
- *	It also keeps track of whether the process is still running, and can kill it if required.
-*/
+ * LLProcess handles launching an external process with specified command line
+ * arguments. It also keeps track of whether the process is still running, and
+ * can kill it if required.
+ *
+ * LLProcess relies on periodic post() calls on the "mainloop" LLEventPump: an
+ * LLProcess object's Status won't update until the next "mainloop" tick. The
+ * viewer's main loop already posts to that LLEventPump once per iteration
+ * (hence the name). See indra/llcommon/tests/llprocess_test.cpp for an
+ * example of waiting for child-process termination in a standalone test
+ * context.
+ */
 class LL_COMMON_API LLProcess: public boost::noncopyable
 {
 	LOG_CLASS(LLProcess);
@@ -72,11 +80,7 @@ public:
 		 * zero or more additional command-line arguments. Arguments are
 		 * passed through as exactly as we can manage, whitespace and all.
 		 * @note On Windows we manage this by implicitly double-quoting each
-		 * argument while assembling the command line. BUT if a given argument
-		 * is already double-quoted, we don't double-quote it again. Try to
-		 * avoid making use of this, though, as on Mac and Linux explicitly
-		 * double-quoted args will be passed to the child process including
-		 * the double quotes.
+		 * argument while assembling the command line.
 		 */
 		Multiple<std::string> args;
 		/// current working directory, if need it changed
