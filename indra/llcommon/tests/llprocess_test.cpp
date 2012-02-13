@@ -556,6 +556,41 @@ namespace tut
     template<> template<>
     void object::test<4>()
     {
+        set_test_name("exit(0)");
+        PythonProcessLauncher py("exit(0)",
+                                 "import sys\n"
+                                 "sys.exit(0)\n");
+        py.run();
+        ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("Status.mData",  py.mPy->getStatus().mData,  0);
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("exit(2)");
+        PythonProcessLauncher py("exit(2)",
+                                 "import sys\n"
+                                 "sys.exit(2)\n");
+        py.run();
+        ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("Status.mData",  py.mPy->getStatus().mData,  2);
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("syntax_error:");
+        PythonProcessLauncher py("syntax_error:",
+                                 "syntax_error:\n");
+        py.run();
+        ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("Status.mData",  py.mPy->getStatus().mData,  1);
+    }
+
+    template<> template<>
+    void object::test<7>()
+    {
         set_test_name("explicit kill()");
         PythonProcessLauncher py("kill()",
                                  "from __future__ import with_statement\n"
@@ -588,6 +623,13 @@ namespace tut
         {
             sleep(1);
         }
+#if LL_WINDOWS
+        ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("Status.mData",  py.mPy->getStatus().mData,  -1);
+#else
+        ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::KILLED);
+        ensure_equals("Status.mData",  py.mPy->getStatus().mData,  SIGTERM);
+#endif
         // If kill() failed, the script would have woken up on its own and
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
@@ -595,7 +637,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<5>()
+    void object::test<8>()
     {
         set_test_name("implicit kill()");
         NamedTempFile out("out", "not started");
@@ -641,7 +683,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<6>()
+    void object::test<9>()
     {
         set_test_name("autokill=false");
         NamedTempFile from("from", "not started");
