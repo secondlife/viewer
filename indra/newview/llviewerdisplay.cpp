@@ -907,9 +907,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					//NavMesh
 					if ( llPathingLibInstance->getRenderNavMeshState() )
 					{
-						glClearColor(0.0f, 0.0f, 0.0f, 0.5f);          												
-						glEnable(GL_DEPTH_TEST);                        
-						gGL.setAmbientLightColor( LLColor4::white );
 						llPathingLibInstance->renderNavMesh();
 						exclusiveDraw = true;
 					}
