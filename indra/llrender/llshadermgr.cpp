@@ -663,7 +663,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		.
 		uniform sampler2D texN;
 		
-		VARYING uvec4 vary_texture_index;
+		VARYING ivec4 vary_texture_index;
 
 		vec4 diffuseLookup(vec2 texcoord)
 		{
@@ -691,7 +691,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 		if (texture_index_channels > 1)
 		{
-			text[count++] = strdup("VARYING_FLAT uvec4 vary_texture_index;\n");
+			text[count++] = strdup("VARYING_FLAT ivec4 vary_texture_index;\n");
 		}
 
 		text[count++] = strdup("vec4 diffuseLookup(vec2 texcoord)\n");

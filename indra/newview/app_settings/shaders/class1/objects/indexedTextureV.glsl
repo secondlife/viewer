@@ -23,9 +23,9 @@
  * $/LicenseInfo$
  */
 
-ATTRIBUTE uvec4 texture_index;
+ATTRIBUTE ivec4 texture_index;
 
-VARYING_FLAT uvec4 vary_texture_index;
+VARYING_FLAT ivec4 vary_texture_index;
 
 void passTextureIndex()
 {
