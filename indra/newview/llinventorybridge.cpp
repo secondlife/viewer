@@ -1778,9 +1778,9 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
+	// Folders are always copyable as they have no permissions attached to them as items.
+	// The story is different of course for items within folders.
 	return TRUE;
-	// Can copy folders to paste-as-link, but not for straight paste.
-	//return gSavedSettings.getBOOL("InventoryLinking");
 }
 
 BOOL LLFolderBridge::isClipboardPasteable() const
