@@ -45,7 +45,7 @@ public:
 
 	LLCoord():	mX(0), mY(0)
 	{}
-	LLCoord(S32 x, S32 y): mX(x), mY(y)
+	LLCoord(S32 x, S32 y): mX((typename COORD_FRAME::value_t)(x)), mY((typename COORD_FRAME::value_t)(y))
 	{}
 
 	LLCoord(const LLCoordCommon& other)
