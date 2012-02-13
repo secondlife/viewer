@@ -561,6 +561,15 @@ bool LLGLManager::initGL()
 	if (mGLVersion >= 2.f)
 	{
 		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
+
+#if LL_DARWIN
+		//never use GLSL greater than 1.20 on OSX
+		if (mGLSLVersionMajor > 1 || mGLSLVersionMinor >= 30)
+		{
+			mGLSLVersionMajor = 1;
+			mGLSLVersionMinor = 20;
+		}
+#endif
 	}
 
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
