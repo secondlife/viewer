@@ -6643,8 +6643,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				mDeferredLight.flush();
 			}
 
-			U32 dof_width = mScreen.getWidth()*CameraDoFResScale;
-			U32 dof_height = mScreen.getHeight()*CameraDoFResScale;
+			U32 dof_width = (U32) (mScreen.getWidth()*CameraDoFResScale);
+			U32 dof_height = (U32) (mScreen.getHeight()*CameraDoFResScale);
 			
 			{ //perform DoF sampling at half-res (preserve alpha channel)
 				mScreen.bindTarget();
