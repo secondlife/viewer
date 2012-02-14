@@ -29,6 +29,7 @@
 #define LL_LLFLOATERPATHFINDINGCONSOLE_H
 
 #include "llfloater.h"
+#include "llhandle.h"
 #include "llnavmeshstation.h"
 #include "LLPathingLib.h"
 
@@ -38,6 +39,7 @@ class LLSliderCtrl;
 class LLLineEditor;
 class LLTextBase;
 class LLCheckBoxCtrl;
+class LLTabContainer;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -54,8 +56,11 @@ public:
 	} ECharacterType;
 
 	virtual BOOL postBuild();
-	//Populates a data packet that is forwarded onto the LLPathingSystem
-	void providePathingData( const LLVector3& point1, const LLVector3& point2 );
+	virtual BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
+
+	BOOL isGeneratePathMode() const;
+
+	static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
 
     F32                   getCharacterWidth() const;
     void                  setCharacterWidth(F32 pCharacterWidth);
@@ -88,15 +93,17 @@ private:
 	void onViewEditLinksetClicked();
 	void generatePath();
 
-	LLCheckBoxCtrl *mShowNavMeshCheckBox;
-	LLCheckBoxCtrl *mShowWalkablesCheckBox;
-	LLCheckBoxCtrl *mShowStaticObstaclesCheckBox;
-	LLCheckBoxCtrl *mShowMaterialVolumesCheckBox;
-	LLCheckBoxCtrl *mShowExclusionVolumesCheckBox;
-	LLCheckBoxCtrl *mShowWorldCheckBox;
-	LLSliderCtrl   *mCharacterWidthSlider;
-	LLRadioGroup   *mCharacterTypeRadioGroup;
-	LLTextBase     *mPathfindingStatus;
+	LLRootHandle<LLFloaterPathfindingConsole> mSelfHandle;
+	LLCheckBoxCtrl                            *mShowNavMeshCheckBox;
+	LLCheckBoxCtrl                            *mShowWalkablesCheckBox;
+	LLCheckBoxCtrl                            *mShowStaticObstaclesCheckBox;
+	LLCheckBoxCtrl                            *mShowMaterialVolumesCheckBox;
+	LLCheckBoxCtrl                            *mShowExclusionVolumesCheckBox;
+	LLCheckBoxCtrl                            *mShowWorldCheckBox;
+	LLTextBase                                *mPathfindingStatus;
+	LLTabContainer                            *mEditTestTabContainer;
+	LLSliderCtrl                              *mCharacterWidthSlider;
+	LLRadioGroup                              *mCharacterTypeRadioGroup;
 
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;
@@ -106,6 +113,8 @@ private:
 	LLPathingLib::PathingPacket		mPathData;
 	bool mHasStartPoint;
 	bool mHasEndPoint;
+
+	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

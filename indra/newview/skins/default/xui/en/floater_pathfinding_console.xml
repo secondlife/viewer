@@ -127,6 +127,7 @@
       follows="left|top"
       layout="topleft"
       tab_position="top"
+      name="edit_test_tab_container"
       left="220"
       top="20"
       height="230"
@@ -349,7 +350,7 @@
           layout="topleft"
           top_pad="5"
           width="190">
-        Alt-click to select start point.
+        Shift-click to select end point.
       </text>
       <text
           height="14"

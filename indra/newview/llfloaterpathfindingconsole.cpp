@@ -30,15 +30,19 @@
 #include "llfloaterpathfindinglinksets.h"
 
 #include "llsd.h"
+#include "llhandle.h"
 #include "llagent.h"
 #include "llbutton.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lllineeditor.h"
 #include "lltextbase.h"
-#include "lltextvalidate.h"
+#include "lltabcontainer.h"
 #include "llnavmeshstation.h"
+#include "llfloaterreg.h"
 #include "llviewerregion.h"
+#include "llviewerwindow.h"
+#include "llviewercamera.h"
 
 #include "LLPathingLib.h"
 
@@ -49,6 +53,9 @@
 
 const int CURRENT_REGION = 99;
 const int MAX_OBSERVERS = 10;
+
+LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
+
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
 //---------------------------------------------------------------------------
@@ -84,6 +91,9 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
 	llassert(mPathfindingStatus != NULL);
 
+	mEditTestTabContainer = findChild<LLTabContainer>("edit_test_tab_container");
+	llassert(mEditTestTabContainer != NULL);
+
 	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
 	llassert(mCharacterWidthSlider != NULL);
 	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
@@ -93,6 +103,58 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
 
 	return LLFloater::postBuild();
+}
+
+BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
+{
+	if (down && (clicktype == LLMouseHandler::CLICK_LEFT) &&
+		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
+		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))))
+	{
+		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(x, y);
+		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
+		LLVector3 rayStart = mousePos;
+		LLVector3 rayEnd = mousePos + dv * 150;
+
+		if (mask & MASK_CONTROL)
+		{
+			mPathData.mStartPointA = rayStart;
+			mPathData.mEndPointA = rayEnd;
+			mHasStartPoint = true;
+		}
+		else if (mask & MASK_SHIFT)
+		{
+			mPathData.mStartPointB = rayStart;
+			mPathData.mEndPointB = rayEnd;
+			mHasEndPoint = true;
+		}
+		generatePath();
+
+		return TRUE;
+	}
+	else
+	{
+		return LLFloater::handleAnyMouseClick(x, y, mask, clicktype, down);
+	}
+}
+
+BOOL LLFloaterPathfindingConsole::isGeneratePathMode() const
+{
+	return (getVisible() && (mEditTestTabContainer->getCurrentPanelIndex() == 1));
+}
+
+LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::getInstanceHandle()
+{
+	if (sInstanceHandle.isDead())
+	{
+		LLFloaterPathfindingConsole *floaterInstance = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
+		if (floaterInstance != NULL)
+		{
+			sInstanceHandle = floaterInstance->mSelfHandle;
+		}
+	}
+
+	return sInstanceHandle;
 }
 
 F32 LLFloaterPathfindingConsole::getCharacterWidth() const
@@ -179,19 +241,23 @@ void LLFloaterPathfindingConsole::setHasNoNavMesh()
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
+	mSelfHandle(),
 	mShowNavMeshCheckBox(NULL),
 	mShowWalkablesCheckBox(NULL),
 	mShowStaticObstaclesCheckBox(NULL),
 	mShowMaterialVolumesCheckBox(NULL),
 	mShowExclusionVolumesCheckBox(NULL),
 	mShowWorldCheckBox(NULL),
+	mPathfindingStatus(NULL),
+	mEditTestTabContainer(NULL),
 	mCharacterWidthSlider(NULL),
 	mCharacterTypeRadioGroup(NULL),
-	mPathfindingStatus(NULL),
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
 	mHasEndPoint(false)
 {
+	mSelfHandle.bind(this);
+
 	for (int i=0;i<MAX_OBSERVERS;++i)
 	{
 		mNavMeshDownloadObserver[i].setPathfindingConsole(this);
@@ -424,35 +490,6 @@ void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
-}
-
-
-void LLFloaterPathfindingConsole::providePathingData( const LLVector3& point1, const LLVector3& point2 )
-{
-#if 0
-	switch (getPathSelectionState())
-	{
-	case kPathSelectNone :
-		break;
-
-	case kPathSelectStartPoint :
-		mPathData.mStartPointA	= point1;
-		mPathData.mEndPointA	= point2;
-		mHasStartPoint = true;
-		break;
-
-	case kPathSelectEndPoint :
-		mPathData.mStartPointB		= point1;
-		mPathData.mEndPointB		= point2;		
-		mHasEndPoint = true;
-		break;
-
-	default :
-		llassert(0);
-		break;
-	}
-#endif
-	generatePath();
 }
 
 void LLFloaterPathfindingConsole::generatePath()

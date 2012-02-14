@@ -952,25 +952,19 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		}
 	}
 
-
 	//Determine if we have a pathing system and subsequently provide any mouse input
-	if ( LLPathingLib::getInstance() && mLeftMouseDown == down )
+	if ((LLPathingLib::getInstance() != NULL) &&
+		(clicktype == LLMouseHandler::CLICK_LEFT) && down && 
+		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
+		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))))
 	{
-		LLVector3 dv		= mouseDirectionGlobal(x,y);
-		LLVector3 mousePos	= LLViewerCamera::getInstance()->getOrigin();
-		LLVector3 rayStart	= mousePos;
-		LLVector3 rayEnd	= mousePos + dv * 150;
-	
-		//Determine if alt is being held in conjunction with a lmb click, if alt is being held
-		//then do not provide any input to the pathingLib console
-		MASK currentKeyMask = gKeyboard->currentMask(TRUE);
-		if ( !(currentKeyMask & MASK_ALT) )
+		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+		if (!pathfindingConsoleHandle.isDead())
 		{
-			LLFloaterPathfindingConsole* pFloater = LLFloaterReg::getTypedInstance<LLFloaterPathfindingConsole>("pathfinding_console");
-			if ( pFloater )
+			LLFloaterPathfindingConsole *pathfindingConsoleFloater = pathfindingConsoleHandle.get();
+			if (pathfindingConsoleFloater->isGeneratePathMode())
 			{
-				//The floater takes care of determining what stage - essentially where the data goes into the pathing packet(start or end)
-				pFloater->providePathingData( rayStart, rayEnd );
+				return pathfindingConsoleFloater->handleAnyMouseClick(x, y, mask, clicktype, down);
 			}
 		}
 	}
@@ -981,7 +975,6 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		return TRUE;
 	}
 	
-
 	// If we got this far on a down-click, it wasn't handled.
 	// Up-clicks, though, are always handled as far as the OS is concerned.
 	BOOL default_rtn = !down;
