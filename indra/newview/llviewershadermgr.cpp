@@ -363,6 +363,12 @@ void LLViewerShaderMgr::setShaders()
 	//NEVER use more than 16 texture channels (work around for prevalent driver bug)
 	LLGLSLShader::sIndexedTextureChannels = llmin(LLGLSLShader::sIndexedTextureChannels, 16);
 
+	if (gGLManager.mGLSLVersionMajor < 1 ||
+		(gGLManager.mGLSLVersionMajor == 1 && gGLManager.mGLSLVersionMinor <= 20))
+	{ //NEVER use indexed texture rendering when GLSL version is 1.20 or earlier
+		LLGLSLShader::sIndexedTextureChannels = 1;
+	}
+
 	reentrance = true;
 
 	if (LLRender::sGLCoreProfile)

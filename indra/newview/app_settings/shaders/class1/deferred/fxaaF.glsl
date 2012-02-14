@@ -343,18 +343,23 @@ A. Or use FXAA_GREEN_AS_LUMA.
     // 1 = API supports gather4 on alpha channel.
     // 0 = API does not support gather4 on alpha channel.
     //
+	#if (FXAA_GLSL_130 == 0)
+		#define FXAA_GATHER4_ALPHA 0
+	#endif
     #if (FXAA_HLSL_5 == 1)
         #define FXAA_GATHER4_ALPHA 1
     #endif
-    #ifdef GL_ARB_gpu_shader5
-        #define FXAA_GATHER4_ALPHA 1
-    #endif
-    #ifdef GL_NV_gpu_shader5
-        #define FXAA_GATHER4_ALPHA 1
-    #endif
     #ifndef FXAA_GATHER4_ALPHA
-        #define FXAA_GATHER4_ALPHA 0
-    #endif
+		#ifdef GL_ARB_gpu_shader5
+			#define FXAA_GATHER4_ALPHA 1
+		#endif
+	    #ifdef GL_NV_gpu_shader5
+		    #define FXAA_GATHER4_ALPHA 1
+		#endif
+		#ifndef FXAA_GATHER4_ALPHA
+			#define FXAA_GATHER4_ALPHA 0
+		#endif
+	#endif
 #endif
 
 /*============================================================================

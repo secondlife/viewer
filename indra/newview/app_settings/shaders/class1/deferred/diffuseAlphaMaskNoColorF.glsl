@@ -27,7 +27,7 @@
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
-#define frag_data gl_FragData;
+#define frag_data gl_FragData
 #endif
 
 uniform float minimum_alpha;
