@@ -139,7 +139,7 @@ void LLDriverParamInfo::toStream(std::ostream &out)
 			}
 			else
 			{
-				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << gAgentAvatarp << " for driver parameter " << getID() << llendl;
+				llwarns << "could not get parameter " << driven.mDrivenID << " from avatar " << gAgentAvatarp.get() << " for driver parameter " << getID() << llendl;
 			}
 			out << std::endl;
 		}
