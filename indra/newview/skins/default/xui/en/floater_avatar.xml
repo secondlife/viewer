@@ -7,7 +7,7 @@
  can_close="true"
  can_resize="true"
  min_height="230"
- min_width="450"
+ min_width="515"
  height="230"
  layout="topleft"
  name="Avatar"
