@@ -10,7 +10,7 @@
     save_rect="true"
     single_instance="true"
     title="Pathfinding"
-    width="450">
+    width="465">
   <floater.string name="navmesh_fetch_initial"></floater.string>
   <floater.string name="navmesh_fetch_inprogress">Downloading the navmesh ...</floater.string>
   <floater.string name="navmesh_fetch_complete_available">Navmesh received.</floater.string>
@@ -123,17 +123,26 @@
       name="view_characters_floater"
       top_pad="10"
       width="96"/>
+  <view_border
+      bevel_style="none"
+      follows="top|left"
+      layout="topleft"
+      left="233"
+      top="41"
+      height="208"
+      width="216"
+      visible="true" />
   <tab_container
       follows="left|top"
       layout="topleft"
       tab_position="top"
       name="edit_test_tab_container"
-      left="220"
+      left="230"
       top="20"
       height="230"
       width="220">
     <panel
-        border="true"
+        border="false"
         bevel_style="none"
         follows="left|top"
         layout="topleft"
@@ -211,18 +220,9 @@
           name="view_and_edit_linksets"
           top_pad="0"
           width="96"/>
-      <button
-          follows="left|top"
-          height="21"
-          label="Clear path"
-          layout="topleft"
-          name="clear_path_on_edit"
-          left="20"
-          top="175"
-          width="96"/>
     </panel>
     <panel
-        border="true"
+        border="false"
         bevel_style="none"
         follows="left|top"
         layout="topleft"
@@ -370,7 +370,7 @@
           height="21"
           label="Clear path"
           layout="topleft"
-          name="clear_path_on_test"
+          name="clear_path"
           left="20"
           top="175"
           width="96"/>
