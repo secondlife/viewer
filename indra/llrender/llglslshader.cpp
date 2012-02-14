@@ -109,7 +109,9 @@ void LLGLSLShader::unload()
 		glGetAttachedObjectsARB(mProgramObject, 1024, &count, obj);
 		for (GLsizei i = 0; i < count; i++)
 		{
+#if !LL_DARWIN
 			if (glIsProgramARB(obj[i]))
+#endif
 			{
 				glDeleteObjectARB(obj[i]);
 			}
