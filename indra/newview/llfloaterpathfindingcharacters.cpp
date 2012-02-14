@@ -459,7 +459,7 @@ void LLFloaterPathfindingCharacters::updateCharactersList()
 		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "cpu_time";
-		columns[3]["value"] = llformat("%3d ms", character.getCPUTime());
+		columns[3]["value"] = llformat("%3.0f ms", character.getCPUTime());
 		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "altitude";

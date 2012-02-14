@@ -48,7 +48,7 @@ public:
 	inline const std::string& getName() const                     {return mName;};
 	inline const std::string& getDescription() const              {return mDescription;};
 	inline const std::string  getOwnerName() const                {return mOwnerName.getCompleteName();};
-	inline U32                getCPUTime() const                  {return mCPUTime;};
+	inline F32                getCPUTime() const                  {return mCPUTime;};
 	inline const LLVector3&   getLocation() const                 {return mLocation;};
 
 protected:
@@ -59,7 +59,7 @@ private:
 	std::string  mDescription;
 	LLUUID       mOwnerUUID;
 	LLAvatarName mOwnerName;
-	U32          mCPUTime;
+	F32          mCPUTime;
 	LLVector3    mLocation;
 };
 

@@ -66,9 +66,8 @@ LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const L
 	LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
 
 	llassert(pCharacterItem.has(CHARACTER_CPU_TIME_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).isInteger());
-	llassert(pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).asInteger() >= 0);
-	mCPUTime = pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).asInteger();
+	llassert(pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).isReal());
+	mCPUTime = pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).asReal();
 
 	llassert(pCharacterItem.has(CHARACTER_POSITION_FIELD));
 	llassert(pCharacterItem.get(CHARACTER_POSITION_FIELD).isArray());
