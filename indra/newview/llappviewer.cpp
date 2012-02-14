@@ -1487,6 +1487,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	//ditch LLVOAvatarSelf instance
+	gAgentAvatarp = NULL;
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 
@@ -1769,8 +1772,6 @@ bool LLAppViewer::cleanup()
 
 	LLAvatarIconIDCache::getInstance()->save();
 	
-	gAgentAvatarp = NULL;
-
 	LLViewerMedia::saveCookieFile();
 
 	// Stop the plugin read thread if it's running.
