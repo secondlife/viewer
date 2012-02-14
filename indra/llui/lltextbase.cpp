@@ -552,7 +552,7 @@ void LLTextBase::drawText()
 			const LLWString& wstrText = getWText(); 
 			mMisspellRanges.clear();
 
-			segment_set_t::iterator seg_it = getSegIterContaining(start);
+			segment_set_t::const_iterator seg_it = getSegIterContaining(start);
 			while (mSegments.end() != seg_it)
 			{
 				LLTextSegmentPtr text_segment = *seg_it;
@@ -673,7 +673,10 @@ void LLTextBase::drawText()
 			{
 				// Skip the current word if the user is still busy editing it
 				if ( (!mSpellCheckTimer.hasExpired()) && (misspell_it->first <= (U32)mCursorPos) && (misspell_it->second >= (U32)mCursorPos) )
+				{
+					++misspell_it;
  					continue;
+				}
 
 				S32 squiggle_start = 0, squiggle_end = 0, pony = 0;
 				cur_segment->getDimensions(seg_start - cur_segment->getStart(), misspell_it->first - seg_start, squiggle_start, pony);
