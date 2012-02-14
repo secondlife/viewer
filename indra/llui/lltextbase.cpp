@@ -678,9 +678,10 @@ void LLTextBase::drawText()
  					continue;
 				}
 
+				U32 misspell_start = llmax<U32>(misspell_it->first, seg_start), misspell_end = llmin<U32>(misspell_it->second, seg_end);
 				S32 squiggle_start = 0, squiggle_end = 0, pony = 0;
-				cur_segment->getDimensions(seg_start - cur_segment->getStart(), misspell_it->first - seg_start, squiggle_start, pony);
-				cur_segment->getDimensions(misspell_it->first - cur_segment->getStart(), misspell_it->second - misspell_it->first, squiggle_end, pony);
+				cur_segment->getDimensions(seg_start - cur_segment->getStart(), misspell_start - seg_start, squiggle_start, pony);
+				cur_segment->getDimensions(misspell_start - cur_segment->getStart(), misspell_end - misspell_start, squiggle_end, pony);
 				squiggle_start += text_rect.mLeft;
 
 				pony = (squiggle_end + 3) / 6;
