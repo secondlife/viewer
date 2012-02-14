@@ -297,11 +297,11 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		LLViewerRegion* pCurrentRegion = gAgent.getRegion();
 		std::vector<LLViewerRegion*> regions;
 		regions.push_back( pCurrentRegion );
-		pCurrentRegion->getNeighboringRegions( regions );
+		//pCurrentRegion->getNeighboringRegions( regions );
 
 		std::vector<int> shift;
 		shift.push_back( CURRENT_REGION );
-		pCurrentRegion->getNeighboringRegionsStatus( shift );
+		//pCurrentRegion->getNeighboringRegionsStatus( shift );
 
 		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
 		if ( shift.size() != regions.size() )
