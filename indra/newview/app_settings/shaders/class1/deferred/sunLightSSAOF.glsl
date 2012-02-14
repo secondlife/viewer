@@ -28,7 +28,7 @@
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
-#define frag_color gl_FragColor;
+#define frag_color gl_FragColor
 #endif
 
 //class 1 -- no shadow, SSAO only
