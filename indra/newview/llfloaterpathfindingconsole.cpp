@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindinglinksets.h"
+#include "llfloaterpathfindingcharacters.h"
 
 #include "llsd.h"
 #include "llhandle.h"
@@ -62,6 +63,7 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHand
 
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
+	childSetAction("view_characters_floater", boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
 	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
@@ -485,6 +487,11 @@ void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
 		break;
 	}
 
+}
+
+void LLFloaterPathfindingConsole::onViewCharactersClicked()
+{
+	LLFloaterPathfindingCharacters::openCharactersViewer();
 }
 
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()

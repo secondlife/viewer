@@ -67,6 +67,8 @@ public:
 	virtual void onClose(bool app_quitting);
 	virtual void draw();
 
+	static void openCharactersViewer();
+
 	EMessagingState getMessagingState() const;
 	BOOL            isMessagingInProgress() const;
 

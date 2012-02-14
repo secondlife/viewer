@@ -153,6 +153,42 @@ void LLFloaterPathfindingCharacters::onClose(bool app_quitting)
 	}
 }
 
+void LLFloaterPathfindingCharacters::draw()
+{
+	if (mShowBeaconCheckBox->get())
+	{
+		std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
+		if (!selectedItems.empty())
+		{
+			int numSelectedItems = selectedItems.size();
+
+			std::vector<LLViewerObject *> viewerObjects;
+			viewerObjects.reserve(numSelectedItems);
+
+			for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+				selectedItemIter != selectedItems.end(); ++selectedItemIter)
+			{
+				const LLScrollListItem *selectedItem = *selectedItemIter;
+
+				const std::string &objectName = selectedItem->getColumn(0)->getValue().asString();
+
+				LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
+				if (viewerObject != NULL)
+				{
+					gObjectList.addDebugBeacon(viewerObject->getPositionAgent(), objectName, LLColor4(0.f, 0.f, 1.f, 0.8f), LLColor4(1.f, 1.f, 1.f, 1.f), 6);
+				}
+			}
+		}
+	}
+
+	LLFloater::draw();
+}
+
+void LLFloaterPathfindingCharacters::openCharactersViewer()
+{
+	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_characters");
+}
+
 LLFloaterPathfindingCharacters::EMessagingState LLFloaterPathfindingCharacters::getMessagingState() const
 {
 	return mMessagingState;
@@ -531,37 +567,6 @@ void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 	mReturnBtn->setEnabled(pEnabled && enable_object_return());
 	mDeleteBtn->setEnabled(pEnabled && enable_object_delete());
 	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
-}
-
-void LLFloaterPathfindingCharacters::draw()
-{
-	if (mShowBeaconCheckBox->get())
-	{
-		std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-		if (!selectedItems.empty())
-		{
-			int numSelectedItems = selectedItems.size();
-
-			std::vector<LLViewerObject *> viewerObjects;
-			viewerObjects.reserve(numSelectedItems);
-
-			for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
-				selectedItemIter != selectedItems.end(); ++selectedItemIter)
-			{
-				const LLScrollListItem *selectedItem = *selectedItemIter;
-
-				const std::string &objectName = selectedItem->getColumn(0)->getValue().asString();
-
-				LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-				if (viewerObject != NULL)
-				{
-					gObjectList.addDebugBeacon(viewerObject->getPositionAgent(), objectName, LLColor4(0.f, 0.f, 1.f, 0.8f), LLColor4(1.f, 1.f, 1.f, 1.f), 6);
-				}
-			}
-		}
-	}
-
-	LLFloater::draw();
 }
 
 //---------------------------------------------------------------------------

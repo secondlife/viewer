@@ -90,6 +90,7 @@ private:
 	void onShowWorldToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
+	void onViewCharactersClicked();
 	void onViewEditLinksetClicked();
 	void generatePath();
 
