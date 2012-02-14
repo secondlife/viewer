@@ -46,6 +46,7 @@
       left="20"
       name="show_walkables"
       top_pad="0"
+      tool_tip="Functionality is not implemented currently."
       width="90" />
   <check_box
       height="19"
@@ -54,6 +55,7 @@
       left="20"
       name="show_static_obstacles"
       top_pad="0"
+      tool_tip="Functionality is not implemented currently."
       width="90" />
   <check_box
       height="19"
@@ -62,6 +64,7 @@
       left="20"
       name="show_material_volumes"
       top_pad="0"
+      tool_tip="Functionality is not implemented currently."
       width="90" />
   <check_box
       height="19"
