@@ -144,8 +144,8 @@ public:
 		{
 			// Copy data out from mStreambuf to a flat, contiguous buffer to
 			// write -- but only up to a certain size.
-			std::streamsize total(mStreambuf.size());
-			std::streamsize bufsize((std::min)(4096, total));
+			std::size_t total(mStreambuf.size());
+			std::size_t bufsize((std::min)(std::size_t(4096), total));
 			boost::asio::streambuf::const_buffers_type bufs = mStreambuf.data();
 			std::vector<char> buffer(
 				boost::asio::buffers_begin(bufs),
@@ -241,7 +241,7 @@ private:
 
 				// Now that we've received new data, publish it on our
 				// LLEventPump as advertised. Constrain it by mLimit.
-				std::streamsize datasize((std::min)(mLimit, mStreambuf.size()));
+				std::size_t datasize((std::min)(mLimit, mStreambuf.size()));
 				boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
 				mPump.post(LLSDMap("data", LLSD::String(
 									   boost::asio::buffers_begin(cbufs),
