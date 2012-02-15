@@ -65,6 +65,7 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 {
 	childSetAction("view_characters_floater", boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
 	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
+	childSetAction("clear_path", boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
@@ -460,6 +461,12 @@ void LLFloaterPathfindingConsole::onViewCharactersClicked()
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
+}
+
+void LLFloaterPathfindingConsole::onClearPathClicked()
+{
+	mHasStartPoint = false;
+	mHasEndPoint = false;
 }
 
 void LLFloaterPathfindingConsole::generatePath()

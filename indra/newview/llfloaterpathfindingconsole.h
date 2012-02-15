@@ -106,6 +106,8 @@ private:
 	void onCharacterTypeSwitch();
 	void onViewCharactersClicked();
 	void onViewEditLinksetClicked();
+	void onClearPathClicked();
+
 	void generatePath();
 
 	LLRootHandle<LLFloaterPathfindingConsole> mSelfHandle;
