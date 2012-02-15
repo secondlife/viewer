@@ -43,6 +43,7 @@ const S32 MAX_FETCH_RETRIES = 10;
 
 LLInventoryModelBackgroundFetch::LLInventoryModelBackgroundFetch() :
 	mBackgroundFetchActive(FALSE),
+	mFolderFetchActive(false),
 	mAllFoldersFetched(FALSE),
 	mRecursiveInventoryFetchStarted(FALSE),
 	mRecursiveLibraryFetchStarted(FALSE),
@@ -98,19 +99,20 @@ bool LLInventoryModelBackgroundFetch::isEverythingFetched() const
 	return mAllFoldersFetched;
 }
 
-BOOL LLInventoryModelBackgroundFetch::backgroundFetchActive() const
+BOOL LLInventoryModelBackgroundFetch::folderFetchActive() const
 {
-	return mBackgroundFetchActive;
+	return mFolderFetchActive;
 }
 
 void LLInventoryModelBackgroundFetch::start(const LLUUID& id, BOOL recursive)
 {
 	LLViewerInventoryCategory* cat = gInventory.getCategory(id);
-	if (cat || (id.isNull() && !mAllFoldersFetched))
+	if (cat || (id.isNull() && !isEverythingFetched()))
 	{	// it's a folder, do a bulk fetch
 		LL_DEBUGS("InventoryFetch") << "Start fetching category: " << id << ", recursive: " << recursive << LL_ENDL;
 
 		mBackgroundFetchActive = TRUE;
+		mFolderFetchActive = true;
 		if (id.isNull())
 		{
 			if (!mRecursiveInventoryFetchStarted)
@@ -159,19 +161,9 @@ void LLInventoryModelBackgroundFetch::start(const LLUUID& id, BOOL recursive)
 void LLInventoryModelBackgroundFetch::findLostItems()
 {
 	mBackgroundFetchActive = TRUE;
+	mFolderFetchActive = true;
     mFetchQueue.push_back(FetchQueueInfo(LLUUID::null, TRUE));
     gIdleCallbacks.addFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
-}
-
-void LLInventoryModelBackgroundFetch::stopBackgroundFetch()
-{
-	if (mBackgroundFetchActive)
-	{
-		mBackgroundFetchActive = FALSE;
-		gIdleCallbacks.deleteFunction(&LLInventoryModelBackgroundFetch::backgroundFetchCB, NULL);
-		mFetchCount=0;
-		mMinTimeBetweenFetches=0.0f;
-	}
 }
 
 void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
@@ -181,7 +173,7 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 	{
 		mAllFoldersFetched = TRUE;
 	}
-	stopBackgroundFetch();
+	mFolderFetchActive = false;
 }
 
 void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
@@ -211,6 +203,9 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			llinfos << "Inventory fetch completed" << llendl;
 
 			setAllFoldersFetched();
+			mBackgroundFetchActive = false;
+			mFolderFetchActive = false;
+
 			return;
 		}
 
@@ -240,80 +235,114 @@ void LLInventoryModelBackgroundFetch::backgroundFetch()
 			}
 
 			const FetchQueueInfo info = mFetchQueue.front();
-			LLViewerInventoryCategory* cat = gInventory.getCategory(info.mUUID);
 
-			// Category has been deleted, remove from queue.
-			if (!cat)
+			if (info.mIsCategory)
 			{
-				mFetchQueue.pop_front();
-				continue;
-			}
-			
-			if (mFetchTimer.getElapsedTimeF32() > mMinTimeBetweenFetches && 
-				LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
-			{
-				// Category exists but has no children yet, fetch the descendants
-				// for now, just request every time and rely on retry timer to throttle.
-				if (cat->fetch())
+
+				LLViewerInventoryCategory* cat = gInventory.getCategory(info.mUUID);
+
+				// Category has been deleted, remove from queue.
+				if (!cat)
 				{
+					mFetchQueue.pop_front();
+					continue;
+				}
+			
+				if (mFetchTimer.getElapsedTimeF32() > mMinTimeBetweenFetches && 
+					LLViewerInventoryCategory::VERSION_UNKNOWN == cat->getVersion())
+				{
+					// Category exists but has no children yet, fetch the descendants
+					// for now, just request every time and rely on retry timer to throttle.
+					if (cat->fetch())
+					{
+						mFetchTimer.reset();
+						mTimelyFetchPending = TRUE;
+					}
+					else
+					{
+						//  The catagory also tracks if it has expired and here it says it hasn't
+						//  yet.  Get out of here because nothing is going to happen until we
+						//  update the timers.
+						break;
+					}
+				}
+				// Do I have all my children?
+				else if (gInventory.isCategoryComplete(info.mUUID))
+				{
+					// Finished with this category, remove from queue.
+					mFetchQueue.pop_front();
+
+					// Add all children to queue.
+					LLInventoryModel::cat_array_t* categories;
+					LLInventoryModel::item_array_t* items;
+					gInventory.getDirectDescendentsOf(cat->getUUID(), categories, items);
+					for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
+						 it != categories->end();
+						 ++it)
+					{
+						mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(),info.mRecursive));
+					}
+
+					// We received a response in less than the fast time.
+					if (mTimelyFetchPending && mFetchTimer.getElapsedTimeF32() < fast_fetch_time)
+					{
+						// Shrink timeouts based on success.
+						mMinTimeBetweenFetches = llmax(mMinTimeBetweenFetches * 0.8f, 0.3f);
+						mMaxTimeBetweenFetches = llmax(mMaxTimeBetweenFetches * 0.8f, 10.f);
+						lldebugs << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
+					}
+
+					mTimelyFetchPending = FALSE;
+					continue;
+				}
+				else if (mFetchTimer.getElapsedTimeF32() > mMaxTimeBetweenFetches)
+				{
+					// Received first packet, but our num descendants does not match db's num descendants
+					// so try again later.
+					mFetchQueue.pop_front();
+
+					if (mNumFetchRetries++ < MAX_FETCH_RETRIES)
+					{
+						// push on back of queue
+						mFetchQueue.push_back(info);
+					}
+					mTimelyFetchPending = FALSE;
+					mFetchTimer.reset();
+					break;
+				}
+
+				// Not enough time has elapsed to do a new fetch
+				break;
+			}
+			else
+			{
+				LLViewerInventoryItem* itemp = gInventory.getItem(info.mUUID);
+
+				mFetchQueue.pop_front();
+				if (!itemp) 
+				{
+					continue;
+				}
+
+				if (mFetchTimer.getElapsedTimeF32() > mMinTimeBetweenFetches)
+				{
+					itemp->fetchFromServer();
 					mFetchTimer.reset();
 					mTimelyFetchPending = TRUE;
 				}
-				else
+				else if (itemp->mIsComplete)
 				{
-					//  The catagory also tracks if it has expired and here it says it hasn't
-					//  yet.  Get out of here because nothing is going to happen until we
-					//  update the timers.
-					break;
+					mTimelyFetchPending = FALSE;
 				}
-			}
-			// Do I have all my children?
-			else if (gInventory.isCategoryComplete(info.mUUID))
-			{
-				// Finished with this category, remove from queue.
-				mFetchQueue.pop_front();
-
-				// Add all children to queue.
-				LLInventoryModel::cat_array_t* categories;
-				LLInventoryModel::item_array_t* items;
-				gInventory.getDirectDescendentsOf(cat->getUUID(), categories, items);
-				for (LLInventoryModel::cat_array_t::const_iterator it = categories->begin();
-					 it != categories->end();
-					 ++it)
+				else if (mFetchTimer.getElapsedTimeF32() > mMaxTimeBetweenFetches)
 				{
-					mFetchQueue.push_back(FetchQueueInfo((*it)->getUUID(),info.mRecursive));
-				}
-
-				// We received a response in less than the fast time.
-				if (mTimelyFetchPending && mFetchTimer.getElapsedTimeF32() < fast_fetch_time)
-				{
-					// Shrink timeouts based on success.
-					mMinTimeBetweenFetches = llmax(mMinTimeBetweenFetches * 0.8f, 0.3f);
-					mMaxTimeBetweenFetches = llmax(mMaxTimeBetweenFetches * 0.8f, 10.f);
-					lldebugs << "Inventory fetch times shrunk to (" << mMinTimeBetweenFetches << ", " << mMaxTimeBetweenFetches << ")" << llendl;
-				}
-
-				mTimelyFetchPending = FALSE;
-				continue;
-			}
-			else if (mFetchTimer.getElapsedTimeF32() > mMaxTimeBetweenFetches)
-			{
-				// Received first packet, but our num descendants does not match db's num descendants
-				// so try again later.
-				mFetchQueue.pop_front();
-
-				if (mNumFetchRetries++ < MAX_FETCH_RETRIES)
-				{
-					// push on back of queue
 					mFetchQueue.push_back(info);
+					mFetchTimer.reset();
+					mTimelyFetchPending = FALSE;
 				}
-				mTimelyFetchPending = FALSE;
-				mFetchTimer.reset();
+				// Not enough time has elapsed to do a new fetch
 				break;
 			}
-
-			// Not enough time has elapsed to do a new fetch
-			break;
 		}
 
 		//
@@ -543,7 +572,6 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	//Background fetch is called from gIdleCallbacks in a loop until background fetch is stopped.
 	//If there are items in mFetchQueue, we want to check the time since the last bulkFetch was 
 	//sent.  If it exceeds our retry time, go ahead and fire off another batch.  
-	//Stopbackgroundfetch will be run from the Responder instead of here.  
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region) return;
 
@@ -574,12 +602,12 @@ void LLInventoryModelBackgroundFetch::bulkFetch()
 	LLSD item_request_body;
 	LLSD item_request_body_lib;
 
-	while (!(mFetchQueue.empty()) && ((item_count + folder_count) < max_batch_size))
+	while (!mFetchQueue.empty() 
+			&& (item_count + folder_count) < max_batch_size)
 	{
 		const FetchQueueInfo& fetch_info = mFetchQueue.front();
 		if (fetch_info.mIsCategory)
 		{
-
 			const LLUUID &cat_id = fetch_info.mUUID;
 			if (cat_id.isNull()) //DEV-17797
 			{

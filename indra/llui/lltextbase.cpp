@@ -1192,7 +1192,7 @@ void LLTextBase::reflow()
 
 		// shrink document to minimum size (visible portion of text widget)
 		// to force inlined widgets with follows set to shrink
-		mDocumentView->reshape(mVisibleTextRect.getWidth(), mDocumentView->getRect().getHeight());
+		//mDocumentView->reshape(mVisibleTextRect.getWidth(), mDocumentView->getRect().getHeight());
 
 		S32 cur_top = 0;
 
@@ -2380,6 +2380,9 @@ S32 LLTextBase::getEditableIndex(S32 index, bool increasing_direction)
 
 void LLTextBase::updateRects()
 {
+	LLRect old_text_rect = mVisibleTextRect;
+	mVisibleTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
+
 	if (mLineInfoList.empty()) 
 	{
 		mTextBoundingRect = LLRect(0, mVPad, mHPad, 0);
@@ -2401,10 +2404,10 @@ void LLTextBase::updateRects()
 		switch(mVAlign)
 		{
 		case LLFontGL::TOP:
-			delta_pos = llmax(mVisibleTextRect.mTop - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
+			delta_pos = llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom);
 			break;
 		case LLFontGL::VCENTER:
-			delta_pos = (llmax(mVisibleTextRect.mTop - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
+			delta_pos = (llmax(mVisibleTextRect.getHeight() - mTextBoundingRect.mTop, -mTextBoundingRect.mBottom) + (mVisibleTextRect.mBottom - mTextBoundingRect.mBottom)) / 2;
 			break;
 		case LLFontGL::BOTTOM:
 			delta_pos = mVisibleTextRect.mBottom - mTextBoundingRect.mBottom;
@@ -2457,7 +2460,6 @@ void LLTextBase::updateRects()
 	//update mVisibleTextRect *after* mDocumentView has been resized
 	// so that scrollbars are added if document needs to scroll
 	// since mVisibleTextRect does not include scrollbars
-	LLRect old_text_rect = mVisibleTextRect;
 	mVisibleTextRect = mScroller ? mScroller->getContentWindowRect() : getLocalRect();
 	//FIXME: replace border with image?
 	if (mBorderVisible)
@@ -2604,8 +2606,7 @@ BOOL LLTextSegment::handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; 
 BOOL LLTextSegment::handleToolTip(S32 x, S32 y, MASK mask) { return FALSE; }
 const std::string&	LLTextSegment::getName() const 
 {
-	static std::string empty_string("");
-	return empty_string; 
+	return LLStringUtil::null;
 }
 void LLTextSegment::onMouseCaptureLost() {}
 void LLTextSegment::screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const {}

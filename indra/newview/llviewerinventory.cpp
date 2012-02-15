@@ -436,11 +436,6 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 			gAgent.sendReliableMessage();
 		}
 	}
-	else
-	{
-		// *FIX: this can be removed after a bit.
-		llwarns << "request to fetch complete item" << llendl;
-	}
 }
 
 // virtual
