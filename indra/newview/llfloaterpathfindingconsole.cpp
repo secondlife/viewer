@@ -97,8 +97,12 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
 
 	mCharacterTypeRadioGroup = findChild<LLRadioGroup>("character_type");
-	llassert(mCharacterTypeRadioGroup  != NULL);
+	llassert(mCharacterTypeRadioGroup != NULL);
 	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+
+	mPathTestingStatus = findChild<LLTextBase>("path_test_status");
+	llassert(mPathTestingStatus != NULL);
+	updatePathTestStatus();
 
 	return LLFloater::postBuild();
 }
@@ -125,6 +129,7 @@ BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, E
 			mHasEndPoint = true;
 		}
 		generatePath();
+		updatePathTestStatus();
 
 		return TRUE;
 	}
@@ -316,6 +321,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mEditTestTabContainer(NULL),
 	mCharacterWidthSlider(NULL),
 	mCharacterTypeRadioGroup(NULL),
+	mPathTestingStatus(NULL),
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
 	mHasEndPoint(false)
@@ -421,6 +427,7 @@ void LLFloaterPathfindingConsole::onShowWorldToggle()
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
 	generatePath();
+	updatePathTestStatus();
 }
 
 void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
@@ -451,7 +458,7 @@ void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
 		llassert(0);
 		break;
 	}
-
+	updatePathTestStatus();
 }
 
 void LLFloaterPathfindingConsole::onViewCharactersClicked()
@@ -468,6 +475,7 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 {
 	mHasStartPoint = false;
 	mHasEndPoint = false;
+	updatePathTestStatus();
 }
 
 void LLFloaterPathfindingConsole::generatePath()
@@ -477,4 +485,34 @@ void LLFloaterPathfindingConsole::generatePath()
 		mPathData.mCharacterWidth = getCharacterWidth();
 		LLPathingLib::getInstance()->generatePath(mPathData);
 	}
+}
+
+void LLFloaterPathfindingConsole::updatePathTestStatus()
+{
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+
+	std::string statusText("");
+	LLStyle::Params styleParams;
+
+	if (!mHasStartPoint && !mHasEndPoint)
+	{
+		statusText = getString("pathing_choose_start_and_end_points");
+		styleParams.color = warningColor;
+	}
+	else if (!mHasStartPoint && mHasEndPoint)
+	{
+		statusText = getString("pathing_choose_start_point");
+		styleParams.color = warningColor;
+	}
+	else if (mHasStartPoint && !mHasEndPoint)
+	{
+		statusText = getString("pathing_choose_end_point");
+		styleParams.color = warningColor;
+	}
+	else
+	{
+		statusText = getString("pathing_path_valid");
+	}
+
+	mPathTestingStatus->setText((LLStringExplicit)statusText, styleParams);
 }

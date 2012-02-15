@@ -109,6 +109,7 @@ private:
 	void onClearPathClicked();
 
 	void generatePath();
+	void updatePathTestStatus();
 
 	LLRootHandle<LLFloaterPathfindingConsole> mSelfHandle;
 	LLCheckBoxCtrl                            *mShowNavMeshCheckBox;
@@ -121,6 +122,7 @@ private:
 	LLTabContainer                            *mEditTestTabContainer;
 	LLSliderCtrl                              *mCharacterWidthSlider;
 	LLRadioGroup                              *mCharacterTypeRadioGroup;
+	LLTextBase                                *mPathTestingStatus;
 
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;

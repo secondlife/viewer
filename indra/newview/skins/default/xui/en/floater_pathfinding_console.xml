@@ -17,6 +17,10 @@
   <floater.string name="navmesh_fetch_complete_none">No navmesh for region.</floater.string>
   <floater.string name="navmesh_region_not_enabled">Pathfinding is not enabled for this region.</floater.string>
   <floater.string name="navmesh_library_not_implemented">Cannot find pathing library implementation.</floater.string>
+  <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
+  <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
+  <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
+  <floater.string name="pathing_path_valid">Path is shown in blue.</floater.string>
   <text
       height="13"
       word_wrap="true"
@@ -360,13 +364,13 @@
           word_wrap="true"
           use_ellipses="false"
           type="string"
-          text_color="DrYellow"
+          text_color="LabelTextColor"
           length="1"
           follows="left|top"
           layout="topleft"
+          name="path_test_status"
           top_pad="15"
           width="190">
-        Result: No path found.
       </text>
       <button
           follows="left|top"
