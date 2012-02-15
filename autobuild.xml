@@ -1134,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a6d14591055cef01a64516d67bd23de2</string>
+              <string>c73e60c8e8d86aa534da121ba0b13254</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/249502/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120214.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/249534/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120215.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
