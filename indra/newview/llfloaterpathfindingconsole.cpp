@@ -105,9 +105,7 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
 {
-	if (down && (clicktype == LLMouseHandler::CLICK_LEFT) &&
-		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
-		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))))
+	if (isGeneratePathMode(mask, clicktype, down))
 	{
 		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(x, y);
 		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
@@ -136,9 +134,12 @@ BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, E
 	}
 }
 
-BOOL LLFloaterPathfindingConsole::isGeneratePathMode() const
+BOOL LLFloaterPathfindingConsole::isGeneratePathMode(MASK mask, EClickType clicktype, BOOL down) const
 {
-	return (getVisible() && (mEditTestTabContainer->getCurrentPanelIndex() == 1));
+	return (getVisible() && (mEditTestTabContainer->getCurrentPanelIndex() == 1) &&
+		(clicktype == LLMouseHandler::CLICK_LEFT) && down && 
+		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
+		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))));
 }
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::getInstanceHandle()

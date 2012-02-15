@@ -953,16 +953,13 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	}
 
 	//Determine if we have a pathing system and subsequently provide any mouse input
-	if ((LLPathingLib::getInstance() != NULL) &&
-		(clicktype == LLMouseHandler::CLICK_LEFT) && down && 
-		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
-		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))))
+	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
 		if (!pathfindingConsoleHandle.isDead())
 		{
 			LLFloaterPathfindingConsole *pathfindingConsoleFloater = pathfindingConsoleHandle.get();
-			if (pathfindingConsoleFloater->isGeneratePathMode())
+			if (pathfindingConsoleFloater->isGeneratePathMode(mask, clicktype, down))
 			{
 				return pathfindingConsoleFloater->handleAnyMouseClick(x, y, mask, clicktype, down);
 			}

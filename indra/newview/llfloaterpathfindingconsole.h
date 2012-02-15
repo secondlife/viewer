@@ -58,7 +58,7 @@ public:
 	virtual BOOL postBuild();
 	virtual BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
 
-	BOOL isGeneratePathMode() const;
+	BOOL isGeneratePathMode(MASK mask, EClickType clicktype, BOOL down) const;
 
 	static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
 
