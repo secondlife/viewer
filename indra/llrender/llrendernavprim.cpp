@@ -67,7 +67,7 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	}
-	LLGLDisable cull(GL_CULL_FACE);
+	LLGLEnable cull(GL_CULL_FACE);
 	LLColor4 colorA( color );	
 	colorA*=1.25f;
 	gGL.color4fv( colorA.mV );		
