@@ -197,6 +197,25 @@ public:
 	virtual LLEventPump& getPump() { return mPump; }
 	virtual void setLimit(size_t limit) { mLimit = limit; }
 	virtual size_t getLimit() const { return mLimit; }
+    virtual std::size_t size() { return mStreambuf.size(); }
+
+	virtual std::string peek(std::size_t offset=0,
+							 std::size_t len=(std::numeric_limits<std::size_t>::max)())
+	{
+		// Constrain caller's offset and len to overlap actual buffer content.
+		std::size_t real_offset = (std::min)(mStreambuf.size(), offset);
+		std::size_t real_end	= (std::min)(mStreambuf.size(), real_offset + len);
+		boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
+		return std::string(boost::asio::buffers_begin(cbufs) + real_offset,
+						   boost::asio::buffers_begin(cbufs) + real_end);
+	}
+
+	virtual bool contains(const std::string& seek, std::size_t offset=0)
+	{
+		// There may be a more efficient way to search mStreambuf contents,
+		// but this is far the easiest...
+		return peek(offset).find(seek) != std::string::npos;
+	}
 
 private:
 	bool tick(const LLSD&)
@@ -240,12 +259,13 @@ private:
 									   << mStreambuf.size() << LL_ENDL;
 
 				// Now that we've received new data, publish it on our
-				// LLEventPump as advertised. Constrain it by mLimit.
+				// LLEventPump as advertised. Constrain it by mLimit. But show
+				// listener the actual accumulated buffer size, regardless of
+				// mLimit.
 				std::size_t datasize((std::min)(mLimit, mStreambuf.size()));
-				boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
-				mPump.post(LLSDMap("data", LLSD::String(
-									   boost::asio::buffers_begin(cbufs),
-									   boost::asio::buffers_begin(cbufs) + datasize)));
+				mPump.post(LLSDMap
+						   ("data", peek(0, datasize))
+						   ("len", LLSD::Integer(mStreambuf.size())));
 			}
 		}
 		return false;
@@ -985,5 +1005,4 @@ void LLProcess::reap(void)
 	}
 }
 |*==========================================================================*/
-
 #endif  // Posix

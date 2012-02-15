@@ -919,6 +919,7 @@ namespace tut
                         message, "somename");
     }
 
+    /*-------------- support for "get*Pipe() validation" test --------------*/
 #define TEST_getPipe(PROCESS, GETPIPE, GETOPTPIPE, VALID, NOPIPE, BADPIPE) \
     do                                                                  \
     {                                                                   \
@@ -985,11 +986,49 @@ namespace tut
                      LLProcess::STDIN);  // BADPIPE
     }
 
+    template<> template<>
+    void object::test<16>()
+    {
+        set_test_name("talk to stdin/stdout");
+        PythonProcessLauncher py("stdin/stdout",
+                                 "import sys, time\n"
+                                 "print 'ok'\n"
+                                 "sys.stdout.flush()\n"
+                                 "# wait for 'go' from test program\n"
+                                 "go = sys.stdin.readline()\n"
+                                 "if go != 'go\\n':\n"
+                                 "    sys.exit('expected \"go\", saw %r' % go)\n"
+                                 "print 'ack'\n");
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.mPy = LLProcess::create(py.mParams);
+        ensure("couldn't launch stdin/stdout script", py.mPy);
+        LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        int i, timeout = 60;
+        for (i = 0; i < timeout && py.mPy->isRunning() && childout.size() < 3; ++i)
+        {
+            yield();
+        }
+        ensure("script never started", i < timeout);
+        std::string line;
+        std::getline(childout.get_istream(), line);
+        ensure_equals("bad wakeup from stdin/stdout script", line, "ok");
+        py.mPy->getWritePipe().get_ostream() << "go" << std::endl;
+        for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
+        {
+            yield();
+        }
+        ensure("script never replied", childout.contains("\n"));
+        std::getline(childout.get_istream(), line);
+        ensure_equals("child didn't ack", line, "ack");
+        ensure_equals("bad child termination", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("bad child exit code",   py.mPy->getStatus().mData,  0);
+    }
+
     // TODO:
-    // test pipe for stdin, stdout (etc.)
-    // test getWritePipe().get_ostream(), getReadPipe().get_istream()
     // test listening on getReadPipe().getPump(), disconnecting
     // test setLimit(), getLimit()
     // test EOF -- check logging
+    // test peek() with substr
 
 } // namespace tut

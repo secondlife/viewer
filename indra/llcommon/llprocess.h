@@ -331,6 +331,31 @@ public:
 		virtual std::istream& get_istream() = 0;
 
 		/**
+		 * Get accumulated buffer length.
+		 * Often we need to refrain from actually reading the std::istream
+		 * returned by get_istream() until we've accumulated enough data to
+		 * make it worthwhile. For instance, if we're expecting a number from
+		 * the child, but the child happens to flush "12" before emitting
+		 * "3\n", get_istream() >> myint could return 12 rather than 123!
+		 */
+		virtual std::size_t size() = 0;
+
+		/**
+		 * Peek at accumulated buffer data without consuming it. Optional
+		 * parameters give you substr() functionality.
+		 *
+		 * @note You can discard buffer data using get_istream().ignore(n).
+		 */
+		virtual std::string peek(std::size_t offset=0,
+								 std::size_t len=(std::numeric_limits<std::size_t>::max)()) = 0;
+
+		/**
+		 * Search accumulated buffer data without retrieving it. Optional
+		 * offset allows you to start at specified position.
+		 */
+		virtual bool contains(const std::string& seek, std::size_t offset=0) = 0;
+
+		/**
 		 * Get LLEventPump& on which to listen for incoming data. The posted
 		 * LLSD::Map event will contain a key "data" whose value is an
 		 * LLSD::String containing (part of) the data accumulated in the
