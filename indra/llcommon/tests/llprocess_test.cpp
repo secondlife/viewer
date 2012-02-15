@@ -31,6 +31,7 @@
 #include "../test/lltut.h"
 #include "../test/manageapr.h"
 #include "../test/namedtempfile.h"
+#include "../test/catch_and_store_what_in.h"
 #include "stringize.h"
 #include "llsdutil.h"
 #include "llevents.h"
@@ -952,10 +953,7 @@ namespace tut
         {                                                               \
             CODE;                                                       \
         }                                                               \
-        catch (const EXCEPTION& e)                                      \
-        {                                                               \
-            (THREW) = e.what();                                         \
-        }                                                               \
+        CATCH_AND_STORE_WHAT_IN(THREW, EXCEPTION)                       \
         ensure("failed to throw " #EXCEPTION ": " #CODE, ! (THREW).empty()); \
     } while (0)
 
