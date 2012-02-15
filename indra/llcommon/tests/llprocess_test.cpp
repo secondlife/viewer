@@ -900,14 +900,98 @@ namespace tut
         ensure_contains("did not name 'stderr'", message, "stderr");
     }
 
+    template<> template<>
+    void object::test<14>()
+    {
+        set_test_name("internal pipe name warning");
+        TestRecorder recorder;
+        PythonProcessLauncher py("pipe warning",
+                                 "import sys\n"
+                                 "sys.exit(7)\n");
+        py.mParams.files.add(LLProcess::FileParam("pipe", "somename"));
+        py.run();                   // verify that it did launch anyway
+        ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
+        ensure_equals("Status.mData",  py.mPy->getStatus().mData,  7);
+        std::string message(recorder.messageWith("not yet supported"));
+        ensure("did not log pipe name warning", ! message.empty());
+        ensure_contains("log message did not mention internal pipe name",
+                        message, "somename");
+    }
+
+#define TEST_getPipe(PROCESS, GETPIPE, GETOPTPIPE, VALID, NOPIPE, BADPIPE) \
+    do                                                                  \
+    {                                                                   \
+        std::string threw;                                              \
+        /* Both the following calls should work. */                     \
+        (PROCESS).GETPIPE(VALID);                                       \
+        ensure(#GETOPTPIPE "(" #VALID ") failed", (PROCESS).GETOPTPIPE(VALID)); \
+        /* pass obviously bogus PIPESLOT */                             \
+        CATCH_IN(threw, LLProcess::NoPipe, (PROCESS).GETPIPE(LLProcess::FILESLOT(4))); \
+        ensure_contains("didn't reject bad slot", threw, "no slot");    \
+        ensure_contains("didn't mention bad slot num", threw, "4");     \
+        EXPECT_FAIL_WITH_LOG(threw, (PROCESS).GETOPTPIPE(LLProcess::FILESLOT(4))); \
+        /* pass NOPIPE */                                               \
+        CATCH_IN(threw, LLProcess::NoPipe, (PROCESS).GETPIPE(NOPIPE));  \
+        ensure_contains("didn't reject non-pipe", threw, "not a monitored"); \
+        EXPECT_FAIL_WITH_LOG(threw, (PROCESS).GETOPTPIPE(NOPIPE));      \
+        /* pass BADPIPE: FILESLOT isn't empty but wrong direction */    \
+        CATCH_IN(threw, LLProcess::NoPipe, (PROCESS).GETPIPE(BADPIPE)); \
+        /* sneaky: GETPIPE is getReadPipe or getWritePipe */            \
+        /* so skip "get" to obtain ReadPipe or WritePipe  :-P  */       \
+        ensure_contains("didn't reject wrong pipe", threw, (#GETPIPE)+3); \
+        EXPECT_FAIL_WITH_LOG(threw, (PROCESS).GETOPTPIPE(BADPIPE));     \
+    } while (0)
+
+/// For expecting exceptions. Execute CODE, catch EXCEPTION, store its what()
+/// in std::string THREW, ensure it's not empty (i.e. EXCEPTION did happen).
+#define CATCH_IN(THREW, EXCEPTION, CODE)                                \
+    do                                                                  \
+    {                                                                   \
+        (THREW).clear();                                                \
+        try                                                             \
+        {                                                               \
+            CODE;                                                       \
+        }                                                               \
+        catch (const EXCEPTION& e)                                      \
+        {                                                               \
+            (THREW) = e.what();                                         \
+        }                                                               \
+        ensure("failed to throw " #EXCEPTION ": " #CODE, ! (THREW).empty()); \
+    } while (0)
+
+#define EXPECT_FAIL_WITH_LOG(EXPECT, CODE)                              \
+    do                                                                  \
+    {                                                                   \
+        TestRecorder recorder;                                          \
+        ensure(#CODE " succeeded", ! (CODE));                           \
+        ensure("wrong log message", ! recorder.messageWith(EXPECT).empty()); \
+    } while (0)
+
+    template<> template<>
+    void object::test<15>()
+    {
+        set_test_name("get*Pipe() validation");
+        PythonProcessLauncher py("just stderr",
+                                 "print 'this output is expected'\n");
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for  stdin
+        py.mParams.files.add(LLProcess::FileParam());       // inherit stdout
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for stderr
+        py.run();
+        TEST_getPipe(*py.mPy, getWritePipe, getOptWritePipe,
+                     LLProcess::STDIN,   // VALID
+                     LLProcess::STDOUT,  // NOPIPE
+                     LLProcess::STDERR); // BADPIPE
+        TEST_getPipe(*py.mPy, getReadPipe,  getOptReadPipe,
+                     LLProcess::STDERR,  // VALID
+                     LLProcess::STDOUT,  // NOPIPE
+                     LLProcess::STDIN);  // BADPIPE
+    }
+
     // TODO:
-    // test "pipe" with nonempty name (should log & continue)
-    // test pipe for just stderr (tests for get[Opt]ReadPipe(), get[Opt]WritePipe())
     // test pipe for stdin, stdout (etc.)
     // test getWritePipe().get_ostream(), getReadPipe().get_istream()
     // test listening on getReadPipe().getPump(), disconnecting
     // test setLimit(), getLimit()
     // test EOF -- check logging
-    // test get(Read|Write)Pipe(3), unmonitored slot, getReadPipe(1), getWritePipe(0)
 
 } // namespace tut
