@@ -32,6 +32,8 @@
 #include "llhandle.h"
 
 class LLSD;
+class LLTextBase;
+class LLButton;
 
 class LLFloaterPathfindingBasic
 :	public LLFloater
@@ -39,8 +41,8 @@ class LLFloaterPathfindingBasic
 	friend class LLFloaterReg;
 
 public:
-
 	virtual BOOL postBuild();
+	virtual void onOpen(const LLSD& key);
 
 protected:
 
@@ -52,6 +54,17 @@ private:
 
 	void onUnfreezeClicked();
 	void onFreezeClicked();
+
+	std::string getCapabilityURL() const;
+
+	void updateOnFrozenState();
+
+	LLTextBase *mRegionNotEnabledText;
+	LLTextBase *mUnfreezeLabel;
+	LLButton   *mUnfreezeButton;
+	LLTextBase *mFreezeLabel;
+	LLButton   *mFreezeButton;
+	bool       mIsRegionFrozenXXX; // XXX stinson : Feb 15, 2012 : I think this will be unneeded with the service
 };
 
 #endif // LL_LLFLOATERPATHFINDINGBASIC_H
