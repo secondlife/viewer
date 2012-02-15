@@ -53,11 +53,14 @@ LLViewerAudio::LLViewerAudio() :
 {
 	mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFailedCallback(boost::bind(&LLViewerAudio::onTeleportFailed, this));
+	mTeleportFinishedConnection = LLViewerParcelMgr::getInstance()->
+		setTeleportFinishedCallback(boost::bind(&LLViewerAudio::onTeleportFinished, this, _1, _2));
 }
 
 LLViewerAudio::~LLViewerAudio()
 {
 	mTeleportFailedConnection.disconnect();
+	mTeleportFinishedConnection.disconnect();
 }
 
 void LLViewerAudio::registerIdleListener()
@@ -253,6 +256,19 @@ void LLViewerAudio::onTeleportFailed()
 		if (parcel)
 		{
 			mNextStreamURI = parcel->getMusicURL();
+			llinfos << "Teleport failed -- resetting music stream" << llendl;
+		}
+	}
+}
+
+void LLViewerAudio::onTeleportFinished(const LLVector3d& pos, const bool& local)
+{
+	if (gAudiop && local)
+	{
+		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		if (parcel)
+		{
+			LLViewerParcelMgr::optionally_start_music(parcel->getMusicURL());
 		}
 	}
 }

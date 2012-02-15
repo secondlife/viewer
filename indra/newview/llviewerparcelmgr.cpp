@@ -82,7 +82,6 @@ LLPointer<LLViewerTexture> sBlockedImage;
 LLPointer<LLViewerTexture> sPassImage;
 
 // Local functions
-void optionally_start_music(const std::string& music_url);
 void callback_start_music(S32 option, void* data);
 void optionally_prepare_video(const LLParcel *parcelp);
 void callback_prepare_video(S32 option, void* data);
@@ -1589,7 +1588,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			if (instance->mTeleportInProgress)
 			{
 				instance->mTeleportInProgress = FALSE;
-				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal());
+				instance->mTeleportFinishedSignal(gAgent.getPositionGlobal(), false);
 			}
 		}
 	}
@@ -1773,7 +1772,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	};
 }
 
-void optionally_start_music(const std::string& music_url)
+void LLViewerParcelMgr::optionally_start_music(const std::string& music_url)
 {
 	if (gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
@@ -2559,7 +2558,7 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
 	{
 		// Local teleport. We already have the agent parcel data.
 		// Emit the signal immediately.
-		getInstance()->mTeleportFinishedSignal(new_pos);
+		getInstance()->mTeleportFinishedSignal(new_pos, local);
 	}
 	else
 	{

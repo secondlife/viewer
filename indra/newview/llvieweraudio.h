@@ -77,11 +77,13 @@ private:
 	bool mIdleListnerActive;
 	bool mForcedTeleportFade;
 	boost::signals2::connection	mTeleportFailedConnection;
+	boost::signals2::connection	mTeleportFinishedConnection;
 
 	void registerIdleListener();
 	void deregisterIdleListener() { mIdleListnerActive = false; };
 	void startFading();
 	void onTeleportFailed();
+	void onTeleportFinished(const LLVector3d& pos, const bool& local);
 
 };
 
