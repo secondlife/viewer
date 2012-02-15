@@ -31,8 +31,11 @@
 #include "llsdparam.h"
 #include "apr_thread_proc.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
+#include <boost/optional.hpp>
 #include <boost/noncopyable.hpp>
 #include <iosfwd>                   // std::ostream
+#include <stdexcept>
 
 #if LL_WINDOWS
 #define WIN32_LEAN_AND_MEAN
@@ -42,6 +45,8 @@
 #undef Status
 #endif
 #endif
+
+class LLEventPump;
 
 class LLProcess;
 /// LLProcess instances are created on the heap by static factory methods and
@@ -64,6 +69,87 @@ class LL_COMMON_API LLProcess: public boost::noncopyable
 {
 	LOG_CLASS(LLProcess);
 public:
+	/**
+	 * Specify what to pass for each of child stdin, stdout, stderr.
+	 * @see LLProcess::Params::files.
+	 */
+	struct FileParam: public LLInitParam::Block<FileParam>
+	{
+		/**
+		 * type of file handle to pass to child process
+		 *
+		 * - "" (default): let the child inherit the same file handle used by
+		 *   this process. For instance, if passed as stdout, child stdout
+		 *   will be interleaved with stdout from this process. In this case,
+		 *   @a name is moot and should be left "".
+		 *
+		 * - "file": open an OS filesystem file with the specified @a name.
+		 *   <i>Not yet implemented.</i>
+		 *
+		 * - "pipe" or "tpipe" or "npipe": depends on @a name
+		 *
+		 *   - @a name.empty(): construct an OS pipe used only for this slot
+		 *     of the forthcoming child process.
+		 *
+		 *   - ! @a name.empty(): in a global registry, find or create (using
+		 *     the specified @a name) an OS pipe. The point of the (purely
+		 *     internal) @a name is that passing the same @a name in more than
+		 *     one slot for a given LLProcess -- or for slots in different
+		 *     LLProcess instances -- means the same pipe. For example, you
+		 *     might pass the same @a name value as both stdout and stderr to
+		 *     make the child process produce both on the same actual pipe. Or
+		 *     you might pass the same @a name as the stdout for one LLProcess
+		 *     and the stdin for another to connect the two child processes.
+		 *     Use LLProcess::getPipeName() to generate a unique name
+		 *     guaranteed not to already exist in the registry. <i>Not yet
+		 *     implemented.</i>
+		 *
+		 *   The difference between "pipe", "tpipe" and "npipe" is as follows.
+		 *
+		 *   - "pipe": direct LLProcess to monitor the parent end of the pipe,
+		 *     pumping nonblocking I/O every frame. The expectation (at least
+		 *     for stdout or stderr) is that the caller will listen for
+		 *     incoming data and consume it as it arrives. It's important not
+		 *     to neglect such a pipe, because it's buffered in viewer memory.
+		 *     If you suspect the child may produce a great volume of output
+		 *     between viewer frames, consider directing the child to write to
+		 *     a filesystem file instead, then read the file later.
+		 *
+		 *   - "tpipe": do not engage LLProcess machinery to monitor the
+		 *     parent end of the pipe. A "tpipe" is used only to connect
+		 *     different child processes. As such, it makes little sense to
+		 *     pass an empty @a name. <i>Not yet implemented.</i>
+		 *
+		 *   - "npipe": like "tpipe", but use an OS named pipe with a
+		 *     generated name. Note that @a name is the @em internal name of
+		 *     the pipe in our global registry -- it doesn't necessarily have
+		 *     anything to do with the pipe's name in the OS filesystem. Use
+		 *     LLProcess::getPipeName() to obtain the named pipe's OS
+		 *     filesystem name, e.g. to pass it as the @a name to another
+		 *     LLProcess instance using @a type "file". This supports usage
+		 *     like bash's &lt;(subcommand...) or &gt;(subcommand...)
+		 *     constructs. <i>Not yet implemented.</i>
+		 *
+		 * In all cases the open mode (read, write) is determined by the child
+		 * slot you're filling. Child stdin means select the "read" end of a
+		 * pipe, or open a filesystem file for reading; child stdout or stderr
+		 * means select the "write" end of a pipe, or open a filesystem file
+		 * for writing.
+		 *
+		 * Confusion such as passing the same pipe as the stdin of two
+		 * processes (rather than stdout for one and stdin for the other) is
+		 * explicitly permitted: it's up to the caller to construct meaningful
+		 * LLProcess pipe graphs.
+		 */
+		Optional<std::string> type;
+		Optional<std::string> name;
+
+		FileParam(const std::string& tp="", const std::string& nm=""):
+			type("type", tp),
+			name("name", nm)
+		{}
+	};
+
 	/// Param block definition
 	struct Params: public LLInitParam::Block<Params>
 	{
@@ -71,7 +157,8 @@ public:
 			executable("executable"),
 			args("args"),
 			cwd("cwd"),
-			autokill("autokill", true)
+			autokill("autokill", true),
+			files("files")
 		{}
 
 		/// pathname of executable
@@ -87,19 +174,22 @@ public:
 		Optional<std::string> cwd;
 		/// implicitly kill process on destruction of LLProcess object
 		Optional<bool> autokill;
+		/**
+		 * Up to three FileParam items: for child stdin, stdout, stderr.
+		 * Passing two FileParam entries means default treatment for stderr,
+		 * and so forth.
+		 *
+		 * @note While it's theoretically plausible to pass additional open
+		 * file handles to a child specifically written to expect them, our
+		 * underlying implementation library doesn't support that.
+		 */
+		Multiple<FileParam> files;
 	};
 	typedef LLSDParamAdapter<Params> LLSDOrParams;
 
 	/**
 	 * Factory accepting either plain LLSD::Map or Params block.
 	 * MAY RETURN DEFAULT-CONSTRUCTED LLProcessPtr if params invalid!
-	 *
-	 * Redundant with Params definition above?
-	 *
-	 * executable (required, string):				executable pathname
-	 * args		  (optional, string array):			extra command-line arguments
-	 * cwd		  (optional, string, dft no chdir): change to this directory before executing
-	 * autokill	  (optional, bool, dft true):		implicit kill() on ~LLProcess
 	 */
 	static LLProcessPtr create(const LLSDOrParams& params);
 	virtual ~LLProcess();
@@ -190,6 +280,125 @@ public:
 	 */
 	static handle isRunning(handle, const std::string& desc="");
 
+	/// Provide symbolic access to child's file slots
+	enum FILESLOT { STDIN=0, STDOUT=1, STDERR=2, NSLOTS=3 };
+
+	/**
+	 * For a pipe constructed with @a type "npipe", obtain the generated OS
+	 * filesystem name for the specified pipe. Otherwise returns the empty
+	 * string. @see LLProcess::FileParam::type
+	 */
+	std::string getPipeName(FILESLOT);
+
+	/// base of ReadPipe, WritePipe
+	class BasePipe
+	{
+	public:
+		virtual ~BasePipe() = 0;
+	};
+
+	/// As returned by getWritePipe() or getOptWritePipe()
+	class WritePipe: public BasePipe
+	{
+	public:
+		/**
+		 * Get ostream& on which to write to child's stdin.
+		 *
+		 * @usage
+		 * @code
+		 * myProcess->getWritePipe().get_ostream() << "Hello, child!" << std::endl;
+		 * @endcode
+		 */
+		virtual std::ostream& get_ostream() = 0;
+	};
+
+	/// As returned by getReadPipe() or getOptReadPipe()
+	class ReadPipe: public BasePipe
+	{
+	public:
+		/**
+		 * Get istream& on which to read from child's stdout or stderr.
+		 *
+		 * @usage
+		 * @code
+		 * std::string stuff;
+		 * myProcess->getReadPipe().get_istream() >> stuff;
+		 * @endcode
+		 *
+		 * You should be sure in advance that the ReadPipe in question can
+		 * fill the request. @see getPump()
+		 */
+		virtual std::istream& get_istream() = 0;
+
+		/**
+		 * Get LLEventPump& on which to listen for incoming data. The posted
+		 * LLSD::Map event will contain a key "data" whose value is an
+		 * LLSD::String containing (part of) the data accumulated in the
+		 * buffer.
+		 *
+		 * If the child sends "abc", and this ReadPipe posts "data"="abc", but
+		 * you don't consume it by reading the std::istream returned by
+		 * get_istream(), and the child next sends "def", ReadPipe will post
+		 * "data"="abcdef".
+		 */
+		virtual LLEventPump& getPump() = 0;
+
+		/**
+		 * Set maximum length of buffer data that will be posted in the LLSD
+		 * announcing arrival of new data from the child. If you call
+		 * setLimit(5), and the child sends "abcdef", the LLSD event will
+		 * contain "data"="abcde". However, you may still read the entire
+		 * "abcdef" from get_istream(): this limit affects only the size of
+		 * the data posted with the LLSD event. If you don't call this method,
+		 * all pending data will be posted.
+		 */
+		virtual void setLimit(size_t limit) = 0;
+
+		/**
+		 * Query the current setLimit() limit.
+		 */
+		virtual size_t getLimit() const = 0;
+	};
+
+	/// Exception thrown by getWritePipe(), getReadPipe() if you didn't ask to
+	/// create a pipe at the corresponding FILESLOT.
+	struct NoPipe: public std::runtime_error
+	{
+		NoPipe(const std::string& what): std::runtime_error(what) {}
+	};
+
+	/**
+	 * Get a reference to the (only) WritePipe for this LLProcess. @a slot, if
+	 * specified, must be STDIN. Throws NoPipe if you did not request a "pipe"
+	 * for child stdin. Use this method when you know how you created the
+	 * LLProcess in hand.
+	 */
+	WritePipe& getWritePipe(FILESLOT slot=STDIN);
+
+	/**
+	 * Get a boost::optional<WritePipe&> to the (only) WritePipe for this
+	 * LLProcess. @a slot, if specified, must be STDIN. The return value is
+	 * empty if you did not request a "pipe" for child stdin. Use this method
+	 * for inspecting an LLProcess you did not create.
+	 */
+	boost::optional<WritePipe&> getOptWritePipe(FILESLOT slot=STDIN);
+
+	/**
+	 * Get a reference to one of the ReadPipes for this LLProcess. @a slot, if
+	 * specified, must be STDOUT or STDERR. Throws NoPipe if you did not
+	 * request a "pipe" for child stdout or stderr. Use this method when you
+	 * know how you created the LLProcess in hand.
+	 */
+	ReadPipe& getReadPipe(FILESLOT slot);
+
+	/**
+	 * Get a boost::optional<ReadPipe&> to one of the ReadPipes for this
+	 * LLProcess. @a slot, if specified, must be STDOUT or STDERR. The return
+	 * value is empty if you did not request a "pipe" for child stdout or
+	 * stderr. Use this method for inspecting an LLProcess you did not create.
+	 */
+	boost::optional<ReadPipe&> getOptReadPipe(FILESLOT slot);
+
 private:
 	/// constructor is private: use create() instead
 	LLProcess(const LLSDOrParams& params);
@@ -198,11 +407,21 @@ private:
 	static void status_callback(int reason, void* data, int status);
 	// Object-oriented callback
 	void handle_status(int reason, int status);
+	// implementation for get[Opt][Read|Write]Pipe()
+	template <class PIPETYPE>
+	PIPETYPE& getPipe(FILESLOT slot);
+	template <class PIPETYPE>
+	boost::optional<PIPETYPE&> getOptPipe(FILESLOT slot);
+	template <class PIPETYPE>
+	PIPETYPE* getPipePtr(std::string& error, FILESLOT slot);
 
 	std::string mDesc;
 	apr_proc_t mProcess;
 	bool mAutokill;
 	Status mStatus;
+	// explicitly want this ptr_vector to be able to store NULLs
+	typedef boost::ptr_vector< boost::nullable<BasePipe> > PipeVector;
+	PipeVector mPipes;
 };
 
 /// for logging

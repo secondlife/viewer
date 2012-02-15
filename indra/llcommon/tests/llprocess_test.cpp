@@ -34,6 +34,7 @@
 #include "stringize.h"
 #include "llsdutil.h"
 #include "llevents.h"
+#include "llerrorcontrol.h"
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -92,12 +93,18 @@ static std::string readfile(const std::string& pathname, const std::string& desc
 /// Looping on LLProcess::isRunning() must now be accompanied by pumping
 /// "mainloop" -- otherwise the status won't update and you get an infinite
 /// loop.
+void yield(int seconds=1)
+{
+    // This function simulates waiting for another viewer frame
+    sleep(seconds);
+    LLEventPumps::instance().obtain("mainloop").post(LLSD());
+}
+
 void waitfor(LLProcess& proc)
 {
     while (proc.isRunning())
     {
-        sleep(1);
-        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        yield();
     }
 }
 
@@ -105,8 +112,7 @@ void waitfor(LLProcess::handle h, const std::string& desc)
 {
     while (LLProcess::isRunning(h, desc))
     {
-        sleep(1);
-        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+        yield();
     }
 }
 
@@ -217,6 +223,68 @@ public:
 
 private:
     std::string mPath;
+};
+
+// statically reference the function in test.cpp... it's short, we could
+// replicate, but better to reuse
+extern void wouldHaveCrashed(const std::string& message);
+
+/**
+ * Capture log messages. This is adapted (simplified) from the one in
+ * llerror_test.cpp. Sigh, should've broken that out into a separate header
+ * file, but time for this project is short...
+ */
+class TestRecorder : public LLError::Recorder
+{
+public:
+    TestRecorder():
+        // Mostly what we're trying to accomplish by saving and resetting
+        // LLError::Settings is to bypass the default RecordToStderr and
+        // RecordToWinDebug Recorders. As these are visible only inside
+        // llerror.cpp, we can't just call LLError::removeRecorder() with
+        // each. For certain tests we need to produce, capture and examine
+        // DEBUG log messages -- but we don't want to spam the user's console
+        // with that output. If it turns out that saveAndResetSettings() has
+        // some bad effect, give up and just let the DEBUG level log messages
+        // display.
+        mOldSettings(LLError::saveAndResetSettings())
+    {
+        LLError::setFatalFunction(wouldHaveCrashed);
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        LLError::addRecorder(this);
+    }
+
+    ~TestRecorder()
+    {
+        LLError::removeRecorder(this);
+        LLError::restoreSettings(mOldSettings);
+    }
+
+    void recordMessage(LLError::ELevel level,
+                       const std::string& message)
+    {
+        mMessages.push_back(message);
+    }
+
+    /// Don't assume the message we want is necessarily the LAST log message
+    /// emitted by the underlying code; search backwards through all messages
+    /// for the sought string.
+    std::string messageWith(const std::string& search)
+    {
+        for (std::list<std::string>::const_reverse_iterator rmi(mMessages.rbegin()),
+                 rmend(mMessages.rend());
+             rmi != rmend; ++rmi)
+        {
+            if (rmi->find(search) != std::string::npos)
+                return *rmi;
+        }
+        // failed to find any such message
+        return std::string();
+    }
+
+    typedef std::list<std::string> MessageList;
+    MessageList mMessages;
+    LLError::Settings* mOldSettings;
 };
 
 /*****************************************************************************
@@ -602,9 +670,19 @@ namespace tut
         set_test_name("syntax_error:");
         PythonProcessLauncher py("syntax_error:",
                                  "syntax_error:\n");
+        py.mParams.files.add(LLProcess::FileParam()); // inherit stdin
+        py.mParams.files.add(LLProcess::FileParam()); // inherit stdout
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for stderr
         py.run();
         ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
         ensure_equals("Status.mData",  py.mPy->getStatus().mData,  1);
+        std::istream& rpipe(py.mPy->getReadPipe(LLProcess::STDERR).get_istream());
+        std::vector<char> buffer(4096);
+        rpipe.read(&buffer[0], buffer.size());
+        std::streamsize got(rpipe.gcount());
+        ensure("Nothing read from stderr pipe", got);
+        std::string data(&buffer[0], got);
+        ensure("Didn't find 'SyntaxError:'", data.find("\nSyntaxError:") != std::string::npos);
     }
 
     template<> template<>
@@ -629,7 +707,7 @@ namespace tut
         int i = 0, timeout = 60;
         for ( ; i < timeout; ++i)
         {
-            sleep(1);
+            yield();
             if (readfile(out.getName(), "from kill() script") == "ok")
                 break;
         }
@@ -678,7 +756,7 @@ namespace tut
             int i = 0, timeout = 60;
             for ( ; i < timeout; ++i)
             {
-                sleep(1);
+                yield();
                 if (readfile(out.getName(), "from kill() script") == "ok")
                     break;
             }
@@ -733,7 +811,7 @@ namespace tut
             int i = 0, timeout = 60;
             for ( ; i < timeout; ++i)
             {
-                sleep(1);
+                yield();
                 if (readfile(from.getName(), "from autokill script") == "ok")
                     break;
             }
@@ -742,7 +820,7 @@ namespace tut
             // Now destroy the LLProcess, which should NOT kill the child!
         }
         // If the destructor killed the child anyway, give it time to die
-        sleep(2);
+        yield(2);
         // How do we know it's not terminated? By making it respond to
         // a specific stimulus in a specific way.
         {
@@ -755,4 +833,81 @@ namespace tut
         // script could not have written 'ack' as we expect.
         ensure_equals("autokill script output", readfile(from.getName()), "ack");
     }
+
+    template<> template<>
+    void object::test<10>()
+    {
+        set_test_name("'bogus' test");
+        TestRecorder recorder;
+        PythonProcessLauncher py("'bogus' test",
+                                 "print 'Hello world'\n");
+        py.mParams.files.add(LLProcess::FileParam("bogus"));
+        py.mPy = LLProcess::create(py.mParams);
+        ensure("should have rejected 'bogus'", ! py.mPy);
+        std::string message(recorder.messageWith("bogus"));
+        ensure("did not log 'bogus' type", ! message.empty());
+        ensure_contains("did not name 'stdin'", message, "stdin");
+    }
+
+    template<> template<>
+    void object::test<11>()
+    {
+        set_test_name("'file' test");
+        // Replace this test with one or more real 'file' tests when we
+        // implement 'file' support
+        PythonProcessLauncher py("'file' test",
+                                 "print 'Hello world'\n");
+        py.mParams.files.add(LLProcess::FileParam());
+        py.mParams.files.add(LLProcess::FileParam("file"));
+        py.mPy = LLProcess::create(py.mParams);
+        ensure("should have rejected 'file'", ! py.mPy);
+    }
+
+    template<> template<>
+    void object::test<12>()
+    {
+        set_test_name("'tpipe' test");
+        // Replace this test with one or more real 'tpipe' tests when we
+        // implement 'tpipe' support
+        TestRecorder recorder;
+        PythonProcessLauncher py("'tpipe' test",
+                                 "print 'Hello world'\n");
+        py.mParams.files.add(LLProcess::FileParam());
+        py.mParams.files.add(LLProcess::FileParam("tpipe"));
+        py.mPy = LLProcess::create(py.mParams);
+        ensure("should have rejected 'tpipe'", ! py.mPy);
+        std::string message(recorder.messageWith("tpipe"));
+        ensure("did not log 'tpipe' type", ! message.empty());
+        ensure_contains("did not name 'stdout'", message, "stdout");
+    }
+
+    template<> template<>
+    void object::test<13>()
+    {
+        set_test_name("'npipe' test");
+        // Replace this test with one or more real 'npipe' tests when we
+        // implement 'npipe' support
+        TestRecorder recorder;
+        PythonProcessLauncher py("'npipe' test",
+                                 "print 'Hello world'\n");
+        py.mParams.files.add(LLProcess::FileParam());
+        py.mParams.files.add(LLProcess::FileParam());
+        py.mParams.files.add(LLProcess::FileParam("npipe"));
+        py.mPy = LLProcess::create(py.mParams);
+        ensure("should have rejected 'npipe'", ! py.mPy);
+        std::string message(recorder.messageWith("npipe"));
+        ensure("did not log 'npipe' type", ! message.empty());
+        ensure_contains("did not name 'stderr'", message, "stderr");
+    }
+
+    // TODO:
+    // test "pipe" with nonempty name (should log & continue)
+    // test pipe for just stderr (tests for get[Opt]ReadPipe(), get[Opt]WritePipe())
+    // test pipe for stdin, stdout (etc.)
+    // test getWritePipe().get_ostream(), getReadPipe().get_istream()
+    // test listening on getReadPipe().getPump(), disconnecting
+    // test setLimit(), getLimit()
+    // test EOF -- check logging
+    // test get(Read|Write)Pipe(3), unmonitored slot, getReadPipe(1), getWritePipe(0)
+
 } // namespace tut
