@@ -62,6 +62,26 @@ public:
 
 	static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
 
+	BOOL isRenderPath() const;
+
+	BOOL isRenderNavMesh() const;
+	void setRenderNavMesh(BOOL pIsRenderNavMesh);
+
+	BOOL isRenderWalkables() const;
+	void setRenderWalkables(BOOL pIsRenderWalkables);
+
+	BOOL isRenderStaticObstacles() const;
+	void setRenderStaticObstacles(BOOL pIsRenderStaticObstacles);
+
+	BOOL isRenderMaterialVolumes() const;
+	void setRenderMaterialVolumes(BOOL pIsRenderMaterialVolumes);
+
+	BOOL isRenderExclusionVolumes() const;
+	void setRenderExclusionVolumes(BOOL pIsRenderExclusionVolumes);
+
+	BOOL isRenderWorld() const;
+	void setRenderWorld(BOOL pIsRenderWorld);
+
     F32                   getCharacterWidth() const;
     void                  setCharacterWidth(F32 pCharacterWidth);
 
@@ -80,13 +100,7 @@ private:
 	virtual ~LLFloaterPathfindingConsole();
 
 	virtual void onOpen(const LLSD& pKey);
-	virtual void onClose(bool app_quitting);
 
-	void onShowNavMeshToggle();
-	void onShowWalkablesToggle();
-	void onShowStaticObstaclesToggle();
-	void onShowMaterialVolumesToggle();
-	void onShowExclusionVolumesToggle();
 	void onShowWorldToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();

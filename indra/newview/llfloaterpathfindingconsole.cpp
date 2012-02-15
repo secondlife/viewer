@@ -68,23 +68,18 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
-	mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavMeshToggle, this));
 
 	mShowWalkablesCheckBox = findChild<LLCheckBoxCtrl>("show_walkables");
 	llassert(mShowWalkablesCheckBox != NULL);
-	mShowWalkablesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWalkablesToggle, this));
 
 	mShowStaticObstaclesCheckBox = findChild<LLCheckBoxCtrl>("show_static_obstacles");
 	llassert(mShowStaticObstaclesCheckBox != NULL);
-	mShowStaticObstaclesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowStaticObstaclesToggle, this));
 
 	mShowMaterialVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_material_volumes");
 	llassert(mShowMaterialVolumesCheckBox != NULL);
-	mShowMaterialVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowMaterialVolumesToggle, this));
 
 	mShowExclusionVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_exclusion_volumes");
 	llassert(mShowExclusionVolumesCheckBox != NULL);
-	mShowExclusionVolumesCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowExclusionVolumesToggle, this));
 
 	mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
 	llassert(mShowWorldCheckBox != NULL);
@@ -157,6 +152,71 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::getInstanceHa
 	}
 
 	return sInstanceHandle;
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderPath() const
+{
+	return (mHasStartPoint && mHasEndPoint);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderNavMesh() const
+{
+	return mShowNavMeshCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderNavMesh(BOOL pIsRenderNavMesh)
+{
+	mShowNavMeshCheckBox->set(pIsRenderNavMesh);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderWalkables() const
+{
+	return mShowWalkablesCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderWalkables(BOOL pIsRenderWalkables)
+{
+	mShowWalkablesCheckBox->set(pIsRenderWalkables);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderStaticObstacles() const
+{
+	return mShowStaticObstaclesCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderStaticObstacles(BOOL pIsRenderStaticObstacles)
+{
+	mShowStaticObstaclesCheckBox->set(pIsRenderStaticObstacles);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderMaterialVolumes() const
+{
+	return mShowMaterialVolumesCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderMaterialVolumes(BOOL pIsRenderMaterialVolumes)
+{
+	mShowMaterialVolumesCheckBox->set(pIsRenderMaterialVolumes);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderExclusionVolumes() const
+{
+	return mShowExclusionVolumesCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderExclusionVolumes(BOOL pIsRenderExclusionVolumes)
+{
+	mShowExclusionVolumesCheckBox->set(pIsRenderExclusionVolumes);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderWorld() const
+{
+	return mShowWorldCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderWorld(BOOL pIsRenderWorld)
+{
+	mShowWorldCheckBox->set(pIsRenderWorld);
 }
 
 F32 LLFloaterPathfindingConsole::getCharacterWidth() const
@@ -337,104 +397,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
 			}
 		}
-		LLPathingLib::getInstance()->setRenderPath(true);
 	}		
-}
-
-void LLFloaterPathfindingConsole::onClose(bool app_quitting)
-{
-	//make sure we have a pathing system
-	if ( !LLPathingLib::getInstance() )
-	{
-		LLPathingLib::getInstance()->setRenderPath(false);
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowNavMeshToggle()
-{
-	BOOL checkBoxValue = mShowNavMeshCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		llPathingLibInstance->setRenderNavMesh(checkBoxValue);
-	}
-	else
-	{
-		mShowNavMeshCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowWalkablesToggle()
-{
-	BOOL checkBoxValue = mShowWalkablesCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		//llPathingLibInstance->setRenderNavMesh(checkBoxValue);
-		llwarns << "functionality has not yet been implemented to set walkables to "
-			<< (checkBoxValue ? "TRUE" : "FALSE") << llendl;
-
-	}
-	else
-	{
-		mShowWalkablesCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowStaticObstaclesToggle()
-{
-	BOOL checkBoxValue = mShowStaticObstaclesCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		//llPathingLibInstance->setRenderNavMesh(checkBoxValue);
-		llwarns << "functionality has not yet been implemented to set static obstacles to "
-			<< (checkBoxValue ? "TRUE" : "FALSE") << llendl;
-	}
-	else
-	{
-		mShowStaticObstaclesCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowMaterialVolumesToggle()
-{
-	BOOL checkBoxValue = mShowMaterialVolumesCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		//llPathingLibInstance->setRenderNavMesh(checkBoxValue);
-		llwarns << "functionality has not yet been implemented to set material volumes to "
-			<< (checkBoxValue ? "TRUE" : "FALSE") << llendl;
-	}
-	else
-	{
-		mShowMaterialVolumesCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowExclusionVolumesToggle()
-{
-	BOOL checkBoxValue = mShowExclusionVolumesCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		llPathingLibInstance->setRenderShapes(checkBoxValue);
-	}
-	else
-	{
-		mShowExclusionVolumesCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
-	}
 }
 
 void LLFloaterPathfindingConsole::onShowWorldToggle()
@@ -444,7 +407,7 @@ void LLFloaterPathfindingConsole::onShowWorldToggle()
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if (llPathingLibInstance != NULL)
 	{
-		llPathingLibInstance->setRenderOverlayMode(checkBoxValue);
+		llPathingLibInstance->setRenderWorld(checkBoxValue);
 	}
 	else
 	{

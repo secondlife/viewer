@@ -900,26 +900,31 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				//Render any navmesh geometry	
 				LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 				if ( llPathingLibInstance != NULL ) 
-				{	
-					//Determine if we can should overlay the navmesh ontop of the scenes typical renderables
-					allowRenderables = llPathingLibInstance->getRenderOverlayMode();
+				{
+					LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+					if (!pathfindingConsoleHandle.isDead())
+					{
+						LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+						//Determine if we can should overlay the navmesh ontop of the scenes typical renderables
+						allowRenderables = pathfindingConsole->isRenderWorld();
 
-					//NavMesh
-					if ( llPathingLibInstance->getRenderNavMeshState() )
-					{
-						llPathingLibInstance->renderNavMesh();
-						exclusiveDraw = true;
-					}
-					//physics/exclusion shapes
-					if ( llPathingLibInstance->getRenderShapesState() )
-					{						
-						llPathingLibInstance->renderNavMeshShapesVBO();
-						exclusiveDraw = true;
-					}	
-					//User designated path
-					if ( llPathingLibInstance->getRenderPathState() )
-					{
-						llPathingLibInstance->renderPath();
+						//NavMesh
+						if (pathfindingConsole->isRenderNavMesh())
+						{
+							llPathingLibInstance->renderNavMesh();
+							exclusiveDraw = true;
+						}
+						//physics/exclusion shapes
+						if (pathfindingConsole->isRenderExclusionVolumes())
+						{						
+							llPathingLibInstance->renderNavMeshShapesVBO();
+							exclusiveDraw = true;
+						}	
+						//User designated path
+						if (pathfindingConsole->isRenderPath())
+						{
+							llPathingLibInstance->renderPath();
+						}
 					}
 				}			
 			}
