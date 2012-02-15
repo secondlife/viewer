@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="270"
+    height="320"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -10,7 +10,7 @@
     save_rect="true"
     single_instance="true"
     title="Pathfinding"
-    width="465">
+    width="455">
   <floater.string name="navmesh_fetch_initial"></floater.string>
   <floater.string name="navmesh_fetch_inprogress">Downloading the navmesh ...</floater.string>
   <floater.string name="navmesh_fetch_complete_available">Navmesh received.</floater.string>
@@ -30,8 +30,8 @@
       length="1"
       follows="left|top"
       layout="topleft"
-      left="12"
-      top="20"
+      left="15"
+      top="8"
       width="208">
     Show:
   </text>
@@ -39,59 +39,95 @@
       height="19"
       label="Navmesh"
       layout="topleft"
-      left="20"
+      left="14"
       name="show_navmesh"
-      top_pad="5"
+      top_pad="8"
       width="90" />
+  <combo_box
+      height="18"
+      layout="topleft"
+      left="34"
+      name="show_heatmap_mode"
+      width="155">
+    <combo_box.item
+        label="Show walkability map..."
+        name="show_heatmap_mode_none"
+        value="0" />
+    <combo_box.item
+        label="Character type A"
+        name="show_heatmap_mode_a"
+        value="1" />
+    <combo_box.item
+        label="Character type B"
+        name="show_heatmap_mode_b"
+        value="2" />
+    <combo_box.item
+        label="Character type C"
+        name="show_heatmap_mode_c"
+        value="3" />
+    <combo_box.item
+        label="Character type D"
+        name="show_heatmap_mode_d"
+        value="4" />
+  </combo_box>
   <check_box
       height="19"
       label="Walkables"
       layout="topleft"
-      left="20"
+      left="14"
       name="show_walkables"
-      top_pad="0"
-      tool_tip="Functionality is not implemented currently."
-      width="90" />
-  <check_box
-      height="19"
-      label="Static obstacles"
-      layout="topleft"
-      left="20"
-      name="show_static_obstacles"
-      top_pad="0"
+      top_pad="10"
       tool_tip="Functionality is not implemented currently."
       width="90" />
   <check_box
       height="19"
       label="Material volumes"
       layout="topleft"
-      left="20"
+      left="14"
       name="show_material_volumes"
-      top_pad="0"
+      top_pad="4"
+      tool_tip="Functionality is not implemented currently."
+      width="90" />
+  <check_box
+      height="19"
+      label="Static obstacles"
+      layout="topleft"
+      left="14"
+      name="show_static_obstacles"
+      top_pad="4"
       tool_tip="Functionality is not implemented currently."
       width="90" />
   <check_box
       height="19"
       label="Exclusion volumes"
       layout="topleft"
-      left="20"
+      left="14"
       name="show_exclusion_volumes"
-      top_pad="0"
+      top_pad="4"
       width="90" />
   <check_box
       height="19"
       label="World"
       layout="topleft"
-      left="20"
+      left="14"
       name="show_world"
-      top_pad="0"
+      top_pad="4"
       width="90" />
+  <view_border
+      bevel_style="none"
+      follows="top|left"
+      layout="topleft"
+      left="14"
+      height="0"
+      width="200"
+      top_pad="7"
+      visible="true" />
   <panel
-      border="true"
+      border="false"
       bevel_style="none"
       follows="left|top"
       layout="topleft"
-      height="60"
+      height="73"
       width="200">
     <text
         height="13"
@@ -101,13 +137,13 @@
         text_color="LabelTextColor"
         length="1"
         layout="topleft"
-        left="5"
+        left="0"
         top_pad="5"
-        width="190">
-      Status:
+        width="200">
+      Status
     </text>
     <text
-        height="28"
+        height="40"
         word_wrap="true"
         use_ellipses="false"
         type="string"
@@ -115,38 +151,59 @@
         length="1"
         follows="left|top"
         layout="topleft"
-        left="15"
+        left="0"
         name="pathfinding_status"
-        top_pad="10"
-        width="180">
+        top_pad="8"
+        width="200">
     </text>
   </panel>
+  <view_border
+      bevel_style="none"
+      follows="top|left"
+      layout="topleft"
+      left="14"
+      height="0"
+      width="200"
+      top_pad="0"
+      visible="true" />
+  <text
+      height="13"
+      word_wrap="true"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      length="1"
+      layout="topleft"
+      left="14"
+      top_pad="18"
+      width="105">
+    Lost characters?
+  </text>
   <button
       follows="left|top"
       height="21"
-      left="20"
       label="Characters..."
       layout="topleft"
       name="view_characters_floater"
-      top_pad="10"
+      left_pad="0"
       width="96"/>
   <view_border
       bevel_style="none"
       follows="top|left"
       layout="topleft"
-      left="233"
-      top="41"
-      height="208"
-      width="216"
+      left="230"
+      top="35"
+      height="276"
+      width="215"
       visible="true" />
   <tab_container
       follows="left|top"
       layout="topleft"
       tab_position="top"
       name="edit_test_tab_container"
-      left="230"
-      top="20"
-      height="230"
+      left="226"
+      top="14"
+      height="298"
       width="220">
     <panel
         border="false"
@@ -164,22 +221,22 @@
           length="1"
           follows="left|top"
           layout="topleft"
-          left="20"
-          top_pad="10"
+          left="16"
+          top_pad="17"
           height="13"
-          width="180">
-        To blah blah blah:
+          width="190">
+        Permit object / terrain changes:
       </text>
       <button
           follows="left|top"
-          height="21"
-          left="30"
+          height="22"
+          left="16"
           enabled="false"
           label="Unfreeze"
           layout="topleft"
           name="enter_unfrozen_mode"
-          top_pad="0"
-          width="96"/>
+          top_pad="5"
+          width="116"/>
       <text
           word_wrap="true"
           use_ellipses="false"
@@ -188,45 +245,45 @@
           length="1"
           follows="left|top"
           layout="topleft"
-          left="20"
-          top_pad="10"
+          left="16"
+          top_pad="23"
           height="13"
-          width="180">
-        To blah blah blah:
+          width="190">
+        Edit linkset attributes:
       </text>
       <button
           follows="left|top"
-          height="21"
-          left="30"
+          height="22"
+          left="16"
+          label="Linksets..."
+          layout="topleft"
+          name="view_and_edit_linksets"
+          top_pad="5"
+          width="116"/>
+      <text
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          left="16"
+          top_pad="23"
+          height="26"
+          width="190">
+        Prevent object / terrain changes and update the navmesh:
+      </text>
+      <button
+          follows="left|top"
+          height="22"
+          left="16"
           enabled="false"
           label="Freeze"
           layout="topleft"
           name="enter_frozen_mode"
-          top_pad="0"
-          width="96"/>
-      <text
-          word_wrap="true"
-          use_ellipses="false"
-          type="string"
-          text_color="LabelTextColor"
-          length="1"
-          follows="left|top"
-          layout="topleft"
-          left="20"
-          top_pad="10"
-          height="13"
-          width="180">
-        View / edit linkset attributes:
-      </text>
-      <button
-          follows="left|top"
-          height="21"
-          left="30"
-          label="Linksets..."
-          layout="topleft"
-          name="view_and_edit_linksets"
-          top_pad="0"
-          width="96"/>
+          top_pad="9"
+          width="116"/>
     </panel>
     <panel
         border="false"
@@ -245,7 +302,8 @@
           length="1"
           follows="left|top"
           layout="topleft"
-          left="20"
+          left="16"
+          top_pad="14"
           width="190">
         Character width
       </text>
@@ -285,7 +343,7 @@
           follows="left|top"
           layout="topleft"
           left_pad="-165"
-          top_pad="10"
+          top_pad="9"
           width="190">
         Character type
       </text>
@@ -295,7 +353,7 @@
           layout="topleft"
           left_delta="0"
           name="character_type"
-          top_delta="20"
+          top_delta="18"
           value="1"
           width="190">
         <radio_item
@@ -342,7 +400,7 @@
           follows="left|top"
           layout="topleft"
           left_pad="-190"
-          top_pad="10"
+          top_pad="12"
           width="190">
         Ctrl-click to select start point.
       </text>
@@ -369,17 +427,16 @@
           follows="left|top"
           layout="topleft"
           name="path_test_status"
-          top_pad="15"
+          top_pad="11"
           width="190">
       </text>
       <button
           follows="left|top"
-          height="21"
+          height="22"
           label="Clear path"
           layout="topleft"
           name="clear_path"
-          left="20"
-          top="175"
+          top_pad="27"
           width="96"/>
     </panel>
   </tab_container>
