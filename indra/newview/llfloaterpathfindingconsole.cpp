@@ -39,6 +39,7 @@
 #include "lllineeditor.h"
 #include "lltextbase.h"
 #include "lltabcontainer.h"
+#include "llcombobox.h"
 #include "llnavmeshstation.h"
 #include "llfloaterreg.h"
 #include "llviewerregion.h"
@@ -46,6 +47,12 @@
 #include "llviewercamera.h"
 
 #include "LLPathingLib.h"
+
+#define XUI_RENDER_HEATMAP_NONE 0
+#define XUI_RENDER_HEATMAP_A 1
+#define XUI_RENDER_HEATMAP_B 2
+#define XUI_RENDER_HEATMAP_C 3
+#define XUI_RENDER_HEATMAP_D 4
 
 #define XUI_CHARACTER_TYPE_A 1
 #define XUI_CHARACTER_TYPE_B 2
@@ -69,6 +76,10 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
+
+	mShowNavMeshWalkabilityComboBox = findChild<LLComboBox>("show_heatmap_mode");
+	llassert(mShowNavMeshWalkabilityComboBox != NULL);
+	mShowNavMeshWalkabilityComboBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWalkabilitySet, this));
 
 	mShowWalkablesCheckBox = findChild<LLCheckBoxCtrl>("show_walkables");
 	llassert(mShowWalkablesCheckBox != NULL);
@@ -226,6 +237,66 @@ void LLFloaterPathfindingConsole::setRenderWorld(BOOL pIsRenderWorld)
 	mShowWorldCheckBox->set(pIsRenderWorld);
 }
 
+LLFloaterPathfindingConsole::ERenderHeatmapType LLFloaterPathfindingConsole::getRenderHeatmapType() const
+{
+	ERenderHeatmapType renderHeatmapType;
+
+	switch (mShowNavMeshWalkabilityComboBox->getValue().asInteger())
+	{
+	case XUI_RENDER_HEATMAP_NONE :
+		renderHeatmapType = kRenderHeatmapNone;
+		break;
+	case XUI_RENDER_HEATMAP_A :
+		renderHeatmapType = kRenderHeatmapA;
+		break;
+	case XUI_RENDER_HEATMAP_B :
+		renderHeatmapType = kRenderHeatmapB;
+		break;
+	case XUI_RENDER_HEATMAP_C :
+		renderHeatmapType = kRenderHeatmapC;
+		break;
+	case XUI_RENDER_HEATMAP_D :
+		renderHeatmapType = kRenderHeatmapD;
+		break;
+	default :
+		renderHeatmapType = kRenderHeatmapNone;
+		llassert(0);
+		break;
+	}
+
+	return renderHeatmapType;
+}
+
+void LLFloaterPathfindingConsole::setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType)
+{
+	LLSD comboBoxValue;
+
+	switch (pRenderHeatmapType)
+	{
+	case kRenderHeatmapNone :
+		comboBoxValue = XUI_RENDER_HEATMAP_NONE;
+		break;
+	case kRenderHeatmapA :
+		comboBoxValue = XUI_RENDER_HEATMAP_A;
+		break;
+	case kRenderHeatmapB :
+		comboBoxValue = XUI_RENDER_HEATMAP_B;
+		break;
+	case kRenderHeatmapC :
+		comboBoxValue = XUI_RENDER_HEATMAP_C;
+		break;
+	case kRenderHeatmapD :
+		comboBoxValue = XUI_RENDER_HEATMAP_D;
+		break;
+	default :
+		comboBoxValue = XUI_RENDER_HEATMAP_NONE;
+		llassert(0);
+		break;
+	}
+
+	return mShowNavMeshWalkabilityComboBox->setValue(comboBoxValue);
+}
+
 F32 LLFloaterPathfindingConsole::getCharacterWidth() const
 {
 	return mCharacterWidthSlider->getValueF32();
@@ -312,6 +383,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
 	mShowNavMeshCheckBox(NULL),
+	mShowNavMeshWalkabilityComboBox(NULL),
 	mShowWalkablesCheckBox(NULL),
 	mShowStaticObstaclesCheckBox(NULL),
 	mShowMaterialVolumesCheckBox(NULL),
@@ -406,6 +478,41 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 			}
 		}
 	}		
+}
+
+void LLFloaterPathfindingConsole::onShowWalkabilitySet()
+{
+	switch (getRenderHeatmapType())
+	{
+	case kRenderHeatmapNone :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapNone"
+			<< llendl;
+		break;
+	case kRenderHeatmapA :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapA"
+			<< llendl;
+		break;
+	case kRenderHeatmapB :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapB"
+			<< llendl;
+		break;
+	case kRenderHeatmapC :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapC"
+			<< llendl;
+		break;
+	case kRenderHeatmapD :
+		llwarns << "functionality has not yet been implemented to toggle '"
+			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapD"
+			<< llendl;
+		break;
+	default :
+		llassert(0);
+		break;
+	}
 }
 
 void LLFloaterPathfindingConsole::onShowWorldToggle()

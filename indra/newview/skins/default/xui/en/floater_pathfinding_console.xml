@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="320"
+    height="330"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -43,14 +43,27 @@
       name="show_navmesh"
       top_pad="8"
       width="90" />
+  <text
+      height="13"
+      word_wrap="true"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      left="35"
+      width="208">
+    Show walkability heatmap:
+  </text>
   <combo_box
       height="18"
       layout="topleft"
       left="34"
       name="show_heatmap_mode"
-      width="155">
+      width="125">
     <combo_box.item
-        label="Show walkability map..."
+        label="None"
         name="show_heatmap_mode_none"
         value="0" />
     <combo_box.item
@@ -269,6 +282,7 @@
           follows="left|top"
           layout="topleft"
           left="16"
+          line_spacing.multiple="1.5"
           top_pad="23"
           height="26"
           width="190">

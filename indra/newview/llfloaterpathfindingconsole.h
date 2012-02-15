@@ -40,6 +40,7 @@ class LLLineEditor;
 class LLTextBase;
 class LLCheckBoxCtrl;
 class LLTabContainer;
+class LLComboBox;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -47,6 +48,15 @@ class LLFloaterPathfindingConsole
 	friend class LLFloaterReg;
 
 public:
+	typedef enum
+	{
+		kRenderHeatmapNone,
+		kRenderHeatmapA,
+		kRenderHeatmapB,
+		kRenderHeatmapC,
+		kRenderHeatmapD
+	} ERenderHeatmapType;
+
 	typedef enum
 	{
 		kCharacterTypeA = 0,
@@ -82,11 +92,14 @@ public:
 	BOOL isRenderWorld() const;
 	void setRenderWorld(BOOL pIsRenderWorld);
 
-    F32                   getCharacterWidth() const;
-    void                  setCharacterWidth(F32 pCharacterWidth);
+	ERenderHeatmapType getRenderHeatmapType() const;
+	void               setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType);
 
-    ECharacterType        getCharacterType() const;
-    void                  setCharacterType(ECharacterType pCharacterType);
+    F32            getCharacterWidth() const;
+    void           setCharacterWidth(F32 pCharacterWidth);
+
+    ECharacterType getCharacterType() const;
+    void           setCharacterType(ECharacterType pCharacterType);
 
 	void setHasNavMeshReceived();
 	void setHasNoNavMesh();
@@ -101,6 +114,7 @@ private:
 
 	virtual void onOpen(const LLSD& pKey);
 
+	void onShowWalkabilitySet();
 	void onShowWorldToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
@@ -113,6 +127,7 @@ private:
 
 	LLRootHandle<LLFloaterPathfindingConsole> mSelfHandle;
 	LLCheckBoxCtrl                            *mShowNavMeshCheckBox;
+	LLComboBox                                *mShowNavMeshWalkabilityComboBox;
 	LLCheckBoxCtrl                            *mShowWalkablesCheckBox;
 	LLCheckBoxCtrl                            *mShowStaticObstaclesCheckBox;
 	LLCheckBoxCtrl                            *mShowMaterialVolumesCheckBox;
