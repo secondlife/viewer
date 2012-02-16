@@ -1028,6 +1028,7 @@ namespace tut
         ensure("script never started", i < timeout);
         ensure_equals("bad wakeup from stdin/stdout script",
                       getline(childout.get_istream()), "ok");
+        // important to get the implicit flush from std::endl
         py.mPy->getWritePipe().get_ostream() << "go" << std::endl;
         for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
         {
@@ -1039,8 +1040,94 @@ namespace tut
         ensure_equals("bad child exit code",   py.mPy->getStatus().mData,  0);
     }
 
+    struct EventListener: public boost::noncopyable
+    {
+        EventListener(LLEventPump& pump)
+        {
+            mConnection = 
+                pump.listen("EventListener", boost::bind(&EventListener::tick, this, _1));
+        }
+
+        bool tick(const LLSD& data)
+        {
+            mHistory.push_back(data);
+            return false;
+        }
+
+        std::list<LLSD> mHistory;
+        LLTempBoundListener mConnection;
+    };
+
+    static bool ack(std::ostream& out, const LLSD& data)
+    {
+        out << "continue" << std::endl;
+        return false;
+    }
+
+    template<> template<>
+    void object::test<17>()
+    {
+        set_test_name("listen for ReadPipe events");
+        PythonProcessLauncher py("ReadPipe listener",
+                                 "import sys\n"
+                                 "sys.stdout.write('abc')\n"
+                                 "sys.stdout.flush()\n"
+                                 "sys.stdin.readline()\n"
+                                 "sys.stdout.write('def')\n"
+                                 "sys.stdout.flush()\n"
+                                 "sys.stdin.readline()\n"
+                                 "sys.stdout.write('ghi\\n')\n"
+                                 "sys.stdout.flush()\n"
+                                 "sys.stdin.readline()\n"
+                                 "sys.stdout.write('second line\\n')\n");
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.mPy = LLProcess::create(py.mParams);
+        ensure("couldn't launch ReadPipe listener script", py.mPy);
+        std::ostream& childin(py.mPy->getWritePipe(LLProcess::STDIN).get_ostream());
+        LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        // listen for incoming data on childout
+        EventListener listener(childout.getPump());
+        // also listen with a function that prompts the child to continue
+        // every time we see output
+        LLTempBoundListener connection(
+            childout.getPump().listen("ack", boost::bind(ack, boost::ref(childin), _1)));
+        int i, timeout = 60;
+        // wait through stuttering first line
+        for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
+        {
+            yield();
+        }
+        ensure("couldn't get first line", i < timeout);
+        // disconnect from listener
+        listener.mConnection.disconnect();
+        // finish out the run
+        for (i = 0; i < timeout && py.mPy->isRunning(); ++i)
+        {
+            yield();
+        }
+        ensure("child took too long to terminate", i < timeout);
+        // now verify history
+        std::list<LLSD>::const_iterator li(listener.mHistory.begin()),
+                                        lend(listener.mHistory.end());
+        ensure("no events", li != lend);
+        ensure_equals("history[0]", (*li)["data"].asString(), "abc");
+        ensure_equals("history[0] len", (*li)["len"].asInteger(), 3);
+        ++li;
+        ensure("only 1 event", li != lend);
+        ensure_equals("history[1]", (*li)["data"].asString(), "abcdef");
+        ensure_equals("history[0] len", (*li)["len"].asInteger(), 6);
+        ++li;
+        ensure("only 2 events", li != lend);
+        ensure_equals("history[2]", (*li)["data"].asString(), "abcdefghi" EOL);
+        ensure_equals("history[0] len", (*li)["len"].asInteger(), 9 + sizeof(EOL) - 1);
+        ++li;
+        // We DO NOT expect a whole new event for the second line because we
+        // disconnected.
+        ensure("more than 3 events", li == lend);
+    }
+
     // TODO:
-    // test listening on getReadPipe().getPump(), disconnecting
     // test setLimit(), getLimit()
     // test EOF -- check logging
     // test peek() with substr
