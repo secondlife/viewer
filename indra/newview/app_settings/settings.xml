@@ -12777,7 +12777,7 @@
     <key>WindowX</key>
     <map>
       <key>Comment</key>
-      <string>X coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>X coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12788,7 +12788,7 @@
     <key>WindowY</key>
     <map>
       <key>Comment</key>
-      <string>Y coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>Y coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

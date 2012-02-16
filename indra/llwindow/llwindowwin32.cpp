@@ -891,7 +891,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	S32 height = size.mY;
 	BOOL auto_show = FALSE;
 
-	if (mhRC)
+	if (mhRC)	
 	{
 		auto_show = TRUE;
 		resetDisplayResolution();
@@ -985,6 +985,10 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			window_rect.bottom = (long) height;
 			dw_ex_style = WS_EX_APPWINDOW;
 			dw_style = WS_POPUP;
+
+			// Move window borders out not to cover window contents.
+			// This converts client rect to window rect, i.e. expands it by the window border size.
+			AdjustWindowRectEx(&window_rect, dw_style, FALSE, dw_ex_style);
 		}
 		// If it failed, we don't want to run fullscreen
 		else
@@ -1011,9 +1015,6 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		dw_style = WS_OVERLAPPEDWINDOW;
 	}
 
-	// Move window borders out not to cover window contents.
-	// This converts client rect to window rect, i.e. expands it by the window border size.
-	AdjustWindowRectEx(&window_rect, dw_style, FALSE, dw_ex_style);
 
 	// don't post quit messages when destroying old windows
 	mPostQuit = FALSE;
