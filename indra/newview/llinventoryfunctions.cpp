@@ -240,11 +240,15 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 
 void copy_inventory_category(LLInventoryModel* model,
 							 LLViewerInventoryCategory* cat,
-							 const LLUUID& parent_id)
+							 const LLUUID& parent_id,
+							 const LLUUID& root_copy_id)
 {
 	// Create the initial folder
 	LLUUID new_cat_uuid = gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName());
 	model->notifyObservers();
+	
+	// We need to exclude the initial root of the copy to avoid recursively copying the copy, etc...
+	LLUUID root_id = (root_copy_id.isNull() ? new_cat_uuid : root_copy_id);
 
 	// Get the content of the folder
 	LLInventoryModel::cat_array_t* cat_array;
@@ -270,7 +274,10 @@ void copy_inventory_category(LLInventoryModel* model,
 	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
 	{
 		LLViewerInventoryCategory* category = *iter;
-		copy_inventory_category(model, category, new_cat_uuid);
+		if (category->getUUID() != root_id)
+		{
+			copy_inventory_category(model, category, new_cat_uuid, root_id);
+		}
 	}
 }
 
