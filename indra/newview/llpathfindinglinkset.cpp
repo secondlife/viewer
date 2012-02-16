@@ -57,9 +57,6 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mLandImpact(0U),
 	mLocation(),
 	mLinksetUse(kUnknown),
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	mIsWalkabilityCoefficientsF32(false),
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientC(MIN_WALKABILITY_VALUE),
@@ -93,52 +90,6 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mLinksetUse = getLinksetUse(isPhantom, isPermanent, isWalkable);
 
 	llassert(pLinksetItem.has(LINKSET_WALKABILITY_A_FIELD));
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	mIsWalkabilityCoefficientsF32 = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isReal();
-	if (mIsWalkabilityCoefficientsF32)
-	{
-		// Old server-side storage was real
-		mWalkabilityCoefficientA = llround(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asReal() * 100.0f);
-
-		llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isReal());
-		mWalkabilityCoefficientB = llround(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asReal() * 100.0f);
-
-		llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isReal());
-		mWalkabilityCoefficientC = llround(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asReal() * 100.0f);
-
-		llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isReal());
-		mWalkabilityCoefficientD = llround(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asReal() * 100.0f);
-	}
-	else
-	{
-		// New server-side storage will be integer
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
-		mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
-		llassert(mWalkabilityCoefficientA >= MIN_WALKABILITY_VALUE);
-		llassert(mWalkabilityCoefficientA <= MAX_WALKABILITY_VALUE);
-
-		llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isInteger());
-		mWalkabilityCoefficientB = pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asInteger();
-		llassert(mWalkabilityCoefficientB >= MIN_WALKABILITY_VALUE);
-		llassert(mWalkabilityCoefficientB <= MAX_WALKABILITY_VALUE);
-
-		llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isInteger());
-		mWalkabilityCoefficientC = pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asInteger();
-		llassert(mWalkabilityCoefficientC >= MIN_WALKABILITY_VALUE);
-		llassert(mWalkabilityCoefficientC <= MAX_WALKABILITY_VALUE);
-
-		llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
-		llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isInteger());
-		mWalkabilityCoefficientD = pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asInteger();
-		llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
-		llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
-	}
-#else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
 	mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
 	llassert(mWalkabilityCoefficientA >= MIN_WALKABILITY_VALUE);
@@ -161,7 +112,6 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mWalkabilityCoefficientD = pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asInteger();
 	llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
 	llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 
 	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
 	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());
@@ -175,9 +125,6 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
 	mLinksetUse(pOther.mLinksetUse),
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	mIsWalkabilityCoefficientsF32(pOther.mIsWalkabilityCoefficientsF32),
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
 	mWalkabilityCoefficientB(pOther.mWalkabilityCoefficientB),
 	mWalkabilityCoefficientC(pOther.mWalkabilityCoefficientC),
@@ -197,9 +144,6 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
 	mLinksetUse = pOther.mLinksetUse;
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	mIsWalkabilityCoefficientsF32 = pOther.mIsWalkabilityCoefficientsF32;
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
 	mWalkabilityCoefficientC = pOther.mWalkabilityCoefficientC;
@@ -239,63 +183,26 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, 
 		itemData[LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pLinksetUse));
 		itemData[LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pLinksetUse));
 	}
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	if (mIsWalkabilityCoefficientsF32)
-	{
-		if (mWalkabilityCoefficientA != pA)
-		{
-			itemData[LINKSET_WALKABILITY_A_FIELD] = llclamp(static_cast<F32>(pA) / 100.0f, 0.0f, 1.0f);
-		}
-		if (mWalkabilityCoefficientB != pB)
-		{
-			itemData[LINKSET_WALKABILITY_B_FIELD] = llclamp(static_cast<F32>(pB) / 100.0f, 0.0f, 1.0f);
-		}
-		if (mWalkabilityCoefficientC != pC)
-		{
-			itemData[LINKSET_WALKABILITY_C_FIELD] = llclamp(static_cast<F32>(pC) / 100.0f, 0.0f, 1.0f);
-		}
-		if (mWalkabilityCoefficientD != pD)
-		{
-			itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(static_cast<F32>(pD) / 100.0f, 0.0f, 1.0f);
-		}
-	}
-	else
-	{
-		if (mWalkabilityCoefficientA != pA)
-		{
-			itemData[LINKSET_WALKABILITY_A_FIELD] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-		}
-		if (mWalkabilityCoefficientB != pB)
-		{
-			itemData[LINKSET_WALKABILITY_B_FIELD] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-		}
-		if (mWalkabilityCoefficientC != pC)
-		{
-			itemData[LINKSET_WALKABILITY_C_FIELD] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-		}
-		if (mWalkabilityCoefficientD != pD)
-		{
-			itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-		}
-	}
-#else // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
+
 	if (mWalkabilityCoefficientA != pA)
 	{
 		itemData[LINKSET_WALKABILITY_A_FIELD] = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
+
 	if (mWalkabilityCoefficientB != pB)
 	{
 		itemData[LINKSET_WALKABILITY_B_FIELD] = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
+
 	if (mWalkabilityCoefficientC != pC)
 	{
 		itemData[LINKSET_WALKABILITY_C_FIELD] = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
+
 	if (mWalkabilityCoefficientD != pD)
 	{
 		itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 
 	return itemData;
 }

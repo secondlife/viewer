@@ -31,10 +31,6 @@
 #include "v3math.h"
 #include "lluuid.h"
 
-// This is a reminder to remove the code regarding the changing of the data type for the
-// walkability coefficients from F32 to S32 representing the percentage from 0-100.
-#define XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-
 class LLSD;
 
 class LLPathfindingLinkset
@@ -97,9 +93,6 @@ private:
 	U32          mLandImpact;
 	LLVector3    mLocation;
 	ELinksetUse  mLinksetUse;
-#ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	BOOL         mIsWalkabilityCoefficientsF32;
-#endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	S32          mWalkabilityCoefficientA;
 	S32          mWalkabilityCoefficientB;
 	S32          mWalkabilityCoefficientC;
