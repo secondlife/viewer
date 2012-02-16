@@ -291,7 +291,7 @@ public:
 	std::string getPipeName(FILESLOT);
 
 	/// base of ReadPipe, WritePipe
-	class BasePipe
+	class LL_COMMON_API BasePipe
 	{
 	public:
 		virtual ~BasePipe() = 0;
