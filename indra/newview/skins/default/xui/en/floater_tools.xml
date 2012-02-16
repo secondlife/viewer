@@ -2401,46 +2401,6 @@ even though the user gets a free copy.
              name="Physics Restitution"
              top_pad="8"
              width="132" />
-          <text
-           type="string"
-           length="1"
-           follows="left|top"
-           height="10"
-           layout="topleft"
-           left_delta="0"
-           top_delta="45"
-           name="pathfinding_type_label"
-           width="121">
-            Pathfinding Type:
-          </text>
-          <radio_group
-            follows="top|left"
-            height="55"
-            layout="topleft"
-            name="edit_pathfinding_state"
-            left_delta="0"
-            top_delta="15"
-            value="1"
-            width="75">
-            <radio_item
-                label="Walkable"
-                layout="topleft"
-                height="13"
-                name="edit_pathfinding_state_walkable"
-                value="1"/>
-            <radio_item
-                label="Obstacle"
-                layout="topleft"
-                height="13"
-                name="edit_pathfinding_state_obstacle"
-                value="2"/>
-            <radio_item
-                label="Ignored"
-                layout="topleft"
-                height="13"
-                name="edit_pathfinding_state_ignored"
-                value="3"/>
-          </radio_group>
         </panel>
          <panel
          border="false"
