@@ -289,8 +289,7 @@
           left="0"
           top="0"
           width="290"
-          height="16"
-          user_resize="false">
+          height="16">
         <text
          follows="left|top"
          font.style="BOLD"
@@ -327,8 +326,7 @@
           left="0"
           top="0"
           width="290"
-          height="16"
-          user_resize="false">
+          height="16">
         <text
          follows="left|top"
          font.style="BOLD"
@@ -357,8 +355,7 @@
           left="0"
           top="0"
           width="290"
-          height="215"
-          user_resize="false">
+          height="215">
         <text
          auto_resize="false"
          follows="left|top"
@@ -416,7 +413,6 @@
 			  layout="bottomleft"
 			  left="0"
 			  name="layout_panel1"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="101">
 			  <button
@@ -436,7 +432,6 @@
 			  layout="bottomleft"
 			  left_pad="3"
 			  name="show_on_map_btn_lp"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="100">
 			  <button
@@ -455,7 +450,6 @@
 			  layout="bottomleft"
 			  left_pad="3"
 			  name="edit_btn_lp"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="101">
 			  <button
