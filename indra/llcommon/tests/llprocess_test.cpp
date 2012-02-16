@@ -288,6 +288,22 @@ public:
     LLError::Settings* mOldSettings;
 };
 
+std::string getline(std::istream& in)
+{
+    std::string line;
+    std::getline(in, line);
+    // Blur the distinction between "\r\n" and plain "\n". std::getline() will
+    // have eaten the "\n", but we could still end up with a trailing "\r".
+    std::string::size_type lastpos = line.find_last_not_of("\r");
+    if (lastpos != std::string::npos)
+    {
+        // Found at least one character that's not a trailing '\r'. SKIP OVER
+        // IT and then erase the rest of the line.
+        line.erase(lastpos+1);
+    }
+    return line;
+}
+
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
@@ -1010,17 +1026,15 @@ namespace tut
             yield();
         }
         ensure("script never started", i < timeout);
-        std::string line;
-        std::getline(childout.get_istream(), line);
-        ensure_equals("bad wakeup from stdin/stdout script", line, "ok");
+        ensure_equals("bad wakeup from stdin/stdout script",
+                      getline(childout.get_istream()), "ok");
         py.mPy->getWritePipe().get_ostream() << "go" << std::endl;
         for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
         {
             yield();
         }
         ensure("script never replied", childout.contains("\n"));
-        std::getline(childout.get_istream(), line);
-        ensure_equals("child didn't ack", line, "ack");
+        ensure_equals("child didn't ack", getline(childout.get_istream()), "ack");
         ensure_equals("bad child termination", py.mPy->getStatus().mState, LLProcess::EXITED);
         ensure_equals("bad child exit code",   py.mPy->getStatus().mData,  0);
     }
