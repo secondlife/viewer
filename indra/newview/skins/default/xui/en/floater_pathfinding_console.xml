@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="330"
+    height="352"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -10,12 +10,12 @@
     save_rect="true"
     single_instance="true"
     title="Pathfinding edit / test"
-    width="455">
+    width="456">
   <floater.string name="navmesh_fetch_initial"></floater.string>
   <floater.string name="navmesh_fetch_inprogress">Downloading the navmesh ...</floater.string>
   <floater.string name="navmesh_fetch_complete_available">Navmesh received.</floater.string>
   <floater.string name="navmesh_fetch_complete_none">No navmesh for region.</floater.string>
-  <floater.string name="navmesh_region_not_enabled">Pathfinding is not enabled for this region.</floater.string>
+  <floater.string name="navmesh_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="navmesh_library_not_implemented">Cannot find pathing library implementation.</floater.string>
   <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
@@ -31,7 +31,7 @@
       follows="left|top"
       layout="topleft"
       left="15"
-      top="8"
+      top="9"
       width="208">
     Show:
   </text>
@@ -41,7 +41,7 @@
       layout="topleft"
       left="14"
       name="show_navmesh"
-      top_pad="8"
+      top_pad="7"
       width="90" />
   <text
       height="13"
@@ -54,14 +54,15 @@
       layout="topleft"
       left="35"
       width="208">
-    Show walkability heatmap:
+    Show walkability map:
   </text>
   <combo_box
-      height="18"
+      height="19"
       layout="topleft"
       left="34"
       name="show_heatmap_mode"
-      width="125">
+      top_pad="8"
+      width="156">
     <combo_box.item
         label="None"
         name="show_heatmap_mode_none"
@@ -133,7 +134,7 @@
       left="14"
       height="0"
       width="200"
-      top_pad="7"
+      top_pad="12"
       visible="true" />
   <panel
       border="false"
@@ -206,18 +207,18 @@
       layout="topleft"
       left="230"
       top="35"
-      height="276"
-      width="215"
+      height="305"
+      width="214"
       visible="true" />
   <tab_container
       follows="left|top"
       layout="topleft"
       tab_position="top"
       name="edit_test_tab_container"
-      left="226"
+      left="227"
       top="14"
-      height="298"
-      width="220">
+      height="327"
+      width="218">
     <panel
         border="false"
         bevel_style="none"
@@ -231,14 +232,16 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
           length="1"
           follows="left|top"
           layout="topleft"
+          name="unfreeze_label"
           left="16"
-          top_pad="17"
+          top_pad="16"
           height="13"
           width="190">
-        Permit object / terrain changes:
+        Allow object / terrain changes:
       </text>
       <button
           follows="left|top"
@@ -255,10 +258,12 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
           length="1"
           follows="left|top"
           layout="topleft"
           left="16"
+          name="edit_linksets_label"
           top_pad="23"
           height="13"
           width="190">
@@ -278,11 +283,13 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
           length="1"
           follows="left|top"
           layout="topleft"
           left="16"
           line_spacing.multiple="1.5"
+          name="freeze_label"
           top_pad="23"
           height="26"
           width="190">

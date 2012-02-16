@@ -41,6 +41,7 @@ class LLTextBase;
 class LLCheckBoxCtrl;
 class LLTabContainer;
 class LLComboBox;
+class LLButton;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -113,14 +114,19 @@ private:
 	virtual ~LLFloaterPathfindingConsole();
 
 	virtual void onOpen(const LLSD& pKey);
+	std::string getCurrentRegionCapabilityURL() const;
 
 	void onShowWalkabilitySet();
 	void onShowWorldToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onViewCharactersClicked();
+	void onUnfreezeClicked();
+	void onFreezeClicked();
 	void onViewEditLinksetClicked();
 	void onClearPathClicked();
+
+	void updateOnPathfindingServerStatus();
 
 	void generatePath();
 	void updatePathTestStatus();
@@ -134,10 +140,19 @@ private:
 	LLCheckBoxCtrl                            *mShowExclusionVolumesCheckBox;
 	LLCheckBoxCtrl                            *mShowWorldCheckBox;
 	LLTextBase                                *mPathfindingStatus;
+	LLButton                                  *mViewCharactersButton;
 	LLTabContainer                            *mEditTestTabContainer;
+	LLTextBase                                *mUnfreezeLabel;
+	LLButton                                  *mUnfreezeButton;
+	LLTextBase                                *mLinksetsLabel;
+	LLButton                                  *mLinksetsButton;
+	LLTextBase                                *mFreezeLabel;
+	LLButton                                  *mFreezeButton;
 	LLSliderCtrl                              *mCharacterWidthSlider;
 	LLRadioGroup                              *mCharacterTypeRadioGroup;
 	LLTextBase                                *mPathTestingStatus;
+	LLButton                                  *mClearPathButton;
+	bool                                      mIsRegionFrozen;
 
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;

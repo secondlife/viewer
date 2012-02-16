@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="204"
+    height="213"
     layout="topleft"
     name="floater_pathfinding_basic"
     help_topic="floater_pathfinding_basic"
@@ -13,17 +13,34 @@
     width="312">
   <text
       height="13"
-      word_wrap="true"
+      word_wrap="false"
       use_ellipses="false"
       type="string"
-      text_color="LabelTextColor"
+      text_color="DrYellow"
       length="1"
       follows="left|top"
       layout="topleft"
       left="15"
-      top="15"
+      name="disabled_warning_label"
+      top="8"
       width="289">
-    Permit object / terrain changes:
+    This region is not enabled for pathfinding.
+  </text>
+  <text
+      height="13"
+      word_wrap="true"
+      use_ellipses="false"
+      type="string"
+      text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
+      length="1"
+      follows="left|top"
+      layout="topleft"
+      left="15"
+      name="unfreeze_label"
+      top_pad="4"
+      width="289">
+    Allow object / terrain changes:
   </text>
   <button
       follows="left|top"
@@ -38,11 +55,13 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
       length="1"
       follows="left|top"
       layout="topleft"
       line_spacing.multiple="1.5"
       left="15"
+      name="freeze_label"
       top_pad="23"
       width="289">
     In unfrozen mode, you can move and make changes to objects and terrain.  When you are finished, click the Freeze button.  It may require a few minutes to process your changes.

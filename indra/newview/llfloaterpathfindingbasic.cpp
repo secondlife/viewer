@@ -30,6 +30,9 @@
 
 #include "llsd.h"
 #include "llagent.h"
+#include "lltextbase.h"
+#include "llbutton.h"
+#include "llviewerregion.h"
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingBasic
@@ -37,15 +40,40 @@
 
 BOOL LLFloaterPathfindingBasic::postBuild()
 {
-	childSetAction("enter_unfrozen_mode", boost::bind(&LLFloaterPathfindingBasic::onUnfreezeClicked, this));
-	childSetAction("enter_frozen_mode", boost::bind(&LLFloaterPathfindingBasic::onFreezeClicked, this));
+	mRegionNotEnabledText = findChild<LLTextBase>("disabled_warning_label");
+	llassert(mRegionNotEnabledText != NULL);
+
+	mUnfreezeLabel = findChild<LLTextBase>("unfreeze_label");
+	llassert(mUnfreezeLabel != NULL);
+
+	mUnfreezeButton = findChild<LLButton>("enter_unfrozen_mode");
+	llassert(mUnfreezeButton != NULL);
+	mUnfreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingBasic::onUnfreezeClicked, this));
+
+	mFreezeLabel = findChild<LLTextBase>("freeze_label");
+	llassert(mFreezeLabel != NULL);
+
+	mFreezeButton = findChild<LLButton>("enter_frozen_mode");
+	llassert(mFreezeButton != NULL);
+	mFreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingBasic::onFreezeClicked, this));
+
+	updateOnFrozenState();
 
 	return LLFloater::postBuild();
 }
 
+void LLFloaterPathfindingBasic::onOpen(const LLSD& key)
+{
+}
 
 LLFloaterPathfindingBasic::LLFloaterPathfindingBasic(const LLSD& pSeed)
-	: LLFloater(pSeed)
+	: LLFloater(pSeed),
+	mRegionNotEnabledText(NULL),
+	mUnfreezeLabel(NULL),
+	mUnfreezeButton(NULL),
+	mFreezeLabel(NULL),
+	mFreezeButton(NULL),
+	mIsRegionFrozenXXX(true)
 {
 }
 
@@ -53,12 +81,61 @@ LLFloaterPathfindingBasic::~LLFloaterPathfindingBasic()
 {
 }
 
+std::string LLFloaterPathfindingBasic::getCapabilityURL() const
+{
+	std::string capURL("");
+
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		capURL = region->getCapability("RetrieveNavMeshSrc");
+	}
+
+	return capURL;
+}
+
+void LLFloaterPathfindingBasic::updateOnFrozenState()
+{
+	std::string capURL = getCapabilityURL();
+
+	if (capURL.empty())
+	{
+		mRegionNotEnabledText->setVisible(TRUE);
+		mUnfreezeLabel->setEnabled(FALSE);
+		mUnfreezeButton->setEnabled(FALSE);
+		mFreezeLabel->setEnabled(FALSE);
+		mFreezeButton->setEnabled(FALSE);
+	}
+	else
+	{
+		mRegionNotEnabledText->setVisible(FALSE);
+		if (mIsRegionFrozenXXX)
+		{
+			mUnfreezeLabel->setEnabled(TRUE);
+			mUnfreezeButton->setEnabled(TRUE);
+			mFreezeLabel->setEnabled(FALSE);
+			mFreezeButton->setEnabled(FALSE);
+		}
+		else
+		{
+			mUnfreezeLabel->setEnabled(FALSE);
+			mUnfreezeButton->setEnabled(FALSE);
+			mFreezeLabel->setEnabled(TRUE);
+			mFreezeButton->setEnabled(TRUE);
+		}
+	}
+}
+
 void LLFloaterPathfindingBasic::onUnfreezeClicked()
 {
+	mIsRegionFrozenXXX = false;
+	updateOnFrozenState();
 	llwarns << "functionality has not yet been implemented to set unfrozen state" << llendl;
 }
 
 void LLFloaterPathfindingBasic::onFreezeClicked()
 {
+	mIsRegionFrozenXXX = true;
+	updateOnFrozenState();
 	llwarns << "functionality has not yet been implemented to set frozen state" << llendl;
 }

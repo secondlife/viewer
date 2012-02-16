@@ -70,10 +70,6 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHand
 
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
-	childSetAction("view_characters_floater", boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
-	childSetAction("view_and_edit_linksets", boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
-	childSetAction("clear_path", boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
-
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
 
@@ -97,11 +93,36 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mShowWorldCheckBox != NULL);
 	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldToggle, this));
 
-	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
-	llassert(mPathfindingStatus != NULL);
+	mViewCharactersButton = findChild<LLButton>("view_characters_floater");
+	llassert(mViewCharactersButton != NULL);
+	mViewCharactersButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
 
 	mEditTestTabContainer = findChild<LLTabContainer>("edit_test_tab_container");
 	llassert(mEditTestTabContainer != NULL);
+
+	mUnfreezeLabel = findChild<LLTextBase>("unfreeze_label");
+	llassert(mUnfreezeLabel != NULL);
+
+	mUnfreezeButton = findChild<LLButton>("enter_unfrozen_mode");
+	llassert(mUnfreezeButton != NULL);
+	mUnfreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onUnfreezeClicked, this));
+
+	mLinksetsLabel = findChild<LLTextBase>("edit_linksets_label");
+	llassert(mLinksetsLabel != NULL);
+
+	mLinksetsButton = findChild<LLButton>("view_and_edit_linksets");
+	llassert(mLinksetsButton != NULL);
+	mLinksetsButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
+
+	mFreezeLabel = findChild<LLTextBase>("freeze_label");
+	llassert(mFreezeLabel != NULL);
+
+	mFreezeButton = findChild<LLButton>("enter_frozen_mode");
+	llassert(mFreezeButton != NULL);
+	mFreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onFreezeClicked, this));
+
+	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
+	llassert(mPathfindingStatus != NULL);
 
 	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
 	llassert(mCharacterWidthSlider != NULL);
@@ -113,6 +134,12 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mPathTestingStatus = findChild<LLTextBase>("path_test_status");
 	llassert(mPathTestingStatus != NULL);
+
+	mClearPathButton = findChild<LLButton>("clear_path");
+	llassert(mClearPathButton != NULL);
+	mClearPathButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
+
+	updateOnPathfindingServerStatus();
 	updatePathTestStatus();
 
 	return LLFloater::postBuild();
@@ -390,13 +417,22 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowExclusionVolumesCheckBox(NULL),
 	mShowWorldCheckBox(NULL),
 	mPathfindingStatus(NULL),
+	mViewCharactersButton(NULL),
 	mEditTestTabContainer(NULL),
+	mUnfreezeLabel(NULL),
+	mUnfreezeButton(NULL),
+	mLinksetsLabel(NULL),
+	mLinksetsButton(NULL),
+	mFreezeLabel(NULL),
+	mFreezeButton(NULL),
 	mCharacterWidthSlider(NULL),
 	mCharacterTypeRadioGroup(NULL),
 	mPathTestingStatus(NULL),
+	mClearPathButton(NULL),
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
-	mHasEndPoint(false)
+	mHasEndPoint(false),
+	mIsRegionFrozen(false)
 {
 	mSelfHandle.bind(this);
 
@@ -478,6 +514,21 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 			}
 		}
 	}		
+
+	updateOnPathfindingServerStatus();
+}
+
+std::string LLFloaterPathfindingConsole::getCurrentRegionCapabilityURL() const
+{
+	std::string capURL("");
+
+	LLViewerRegion *region = gAgent.getRegion();
+	if (region != NULL)
+	{
+		capURL = region->getCapability("RetrieveNavMeshSrc");
+	}
+
+	return capURL;
 }
 
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
@@ -573,6 +624,20 @@ void LLFloaterPathfindingConsole::onViewCharactersClicked()
 	LLFloaterPathfindingCharacters::openCharactersViewer();
 }
 
+void LLFloaterPathfindingConsole::onUnfreezeClicked()
+{
+	mIsRegionFrozen = false;
+	updateOnPathfindingServerStatus();
+	llwarns << "functionality has not yet been implemented to set unfrozen state" << llendl;
+}
+
+void LLFloaterPathfindingConsole::onFreezeClicked()
+{
+	mIsRegionFrozen = true;
+	updateOnPathfindingServerStatus();
+	llwarns << "functionality has not yet been implemented to set frozen state" << llendl;
+}
+
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 {
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
@@ -585,6 +650,68 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	updatePathTestStatus();
 }
 
+void LLFloaterPathfindingConsole::updateOnPathfindingServerStatus()
+{
+	std::string capURL = getCurrentRegionCapabilityURL();
+
+	if (capURL.empty())
+	{
+		mShowNavMeshCheckBox->setEnabled(FALSE);
+		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
+		mShowWalkablesCheckBox->setEnabled(FALSE);
+		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
+		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
+		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
+		mShowWorldCheckBox->setEnabled(FALSE);
+		mViewCharactersButton->setEnabled(FALSE);
+		mEditTestTabContainer->setEnabled(FALSE);
+		mUnfreezeLabel->setEnabled(FALSE);
+		mUnfreezeButton->setEnabled(FALSE);
+		mLinksetsLabel->setEnabled(FALSE);
+		mLinksetsButton->setEnabled(FALSE);
+		mFreezeLabel->setEnabled(FALSE);
+		mFreezeButton->setEnabled(FALSE);
+		mCharacterWidthSlider->setEnabled(FALSE);
+		mCharacterTypeRadioGroup->setEnabled(FALSE);
+		mClearPathButton->setEnabled(FALSE);
+
+		mEditTestTabContainer->selectTab(0);
+	}
+	else
+	{
+		mShowNavMeshCheckBox->setEnabled(TRUE);
+		mShowNavMeshWalkabilityComboBox->setEnabled(TRUE);
+		mShowWalkablesCheckBox->setEnabled(TRUE);
+		mShowStaticObstaclesCheckBox->setEnabled(TRUE);
+		mShowMaterialVolumesCheckBox->setEnabled(TRUE);
+		mShowExclusionVolumesCheckBox->setEnabled(TRUE);
+		mShowWorldCheckBox->setEnabled(TRUE);
+		mViewCharactersButton->setEnabled(TRUE);
+		mEditTestTabContainer->setEnabled(TRUE);
+		mCharacterWidthSlider->setEnabled(TRUE);
+		mCharacterTypeRadioGroup->setEnabled(TRUE);
+		mClearPathButton->setEnabled(TRUE);
+		if (mIsRegionFrozen)
+		{
+			mUnfreezeLabel->setEnabled(TRUE);
+			mUnfreezeButton->setEnabled(TRUE);
+			mLinksetsLabel->setEnabled(FALSE);
+			mLinksetsButton->setEnabled(FALSE);
+			mFreezeLabel->setEnabled(FALSE);
+			mFreezeButton->setEnabled(FALSE);
+		}
+		else
+		{
+			mUnfreezeLabel->setEnabled(FALSE);
+			mUnfreezeButton->setEnabled(FALSE);
+			mLinksetsLabel->setEnabled(TRUE);
+			mLinksetsButton->setEnabled(TRUE);
+			mFreezeLabel->setEnabled(TRUE);
+			mFreezeButton->setEnabled(TRUE);
+		}
+	}
+}
+ 
 void LLFloaterPathfindingConsole::generatePath()
 {
 	if (mHasStartPoint && mHasEndPoint)
