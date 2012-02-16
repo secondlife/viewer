@@ -3,9 +3,9 @@
     open_positioning="cascading"
     can_resize="true"
     can_tear_off="false"
-    height="330"
+    height="382"
     width="950"
-    min_height="330"
+    min_height="382"
     min_width="950"
     layout="topleft"
     name="floater_pathfinding_linksets"
@@ -27,401 +27,503 @@
   <floater.string name="linksets_messaging_complete_none_found">No pathfinding linksets</floater.string>
   <floater.string name="linksets_messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
   <floater.string name="linksets_messaging_service_not_available">Required capability is not available in current region</floater.string>
-  <floater.string name="linkset_path_state_walkable">Walkable</floater.string>
-  <floater.string name="linkset_path_state_obstacle">Obstacle</floater.string>
-  <floater.string name="linkset_path_state_ignored">Ignored</floater.string>
-  <floater.string name="linkset_is_phantom">Phantom</floater.string>
-  <floater.string name="linkset_is_not_phantom">--</floater.string>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
+  <floater.string name="linkset_use_walkable">Walkable</floater.string>
+  <floater.string name="linkset_use_static_obstacle">Static obstacle</floater.string>
+  <floater.string name="linkset_use_dynamic_obstacle">Dynamic obstacle</floater.string>
+  <floater.string name="linkset_use_material_volume">Material volume</floater.string>
+  <floater.string name="linkset_use_exclusion_volume">Exclusion volume</floater.string>
+  <floater.string name="linkset_use_dynamic_phantom">Dynamic phantom</floater.string>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top|right|bottom"
       layout="topleft"
-      left="20"
-      top="16"
-      width="67">
-    Filter by:
-  </text>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="87"
-      top="16"
-      width="62">
-    Name
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="left|top"
-      height="20"
-      layout="topleft"
-      left_delta="62"
-      top="11"
-      max_length_bytes="10"
-      name="filter_by_name"
-      width="105" />
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="273"
-      top="16"
-      width="88">
-    Description
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="left|top"
-      height="20"
-      layout="topleft"
-      left_delta="88"
-      top="11"
-      max_length_bytes="10"
-      name="filter_by_description"
-      width="106" />
-  <check_box
-      height="19"
-      follows="left|top"
-      initial_value="true"
-      label="Walkable"
-      layout="topleft"
-      left="481"
-      top="14"
-      name="filter_by_walkable"
-      width="90" />
-  <check_box
-      height="19"
-      follows="left|top"
-      initial_value="true"
-      label="Obstacle"
-      layout="topleft"
-      left="577"
-      top="14"
-      name="filter_by_obstacle"
-      width="90" />
-  <check_box
-      height="19"
-      follows="left|top"
-      initial_value="true"
-      label="Ignored"
-      layout="topleft"
-      left="674"
-      top="14"
-      name="filter_by_ignored"
-      width="90" />
-  <button
-      follows="right|top"
-      height="21"
-      label="Apply"
-      layout="topleft"
-      name="apply_filters"
-      top="11"
-      left="769"
-      width="73"/>
-  <button
-      follows="right|top"
-      height="21"
-      label="Clear"
-      layout="topleft"
-      name="clear_filters"
-      top="11"
-      left="851"
-      width="73"/>
-  <scroll_list
-      column_padding="0"
-      draw_heading="true"
-      follows="all"
-      height="135"
-      layout="topleft"
-      left="18"
-      top="48"
-      multi_select="true"
-      name="pathfinding_linksets"
-      width="910">
-    <scroll_list.columns
-        label="Name (root prim)"
-        name="name"
-        dynamic_width="true" />
-    <scroll_list.columns
-        label="Description (root prim)"
-        name="description"
-        width="212" />
-    <scroll_list.columns
-        label="Land impact"
-        name="land_impact"
-        width="95" />
-    <scroll_list.columns
-        label="Dist from you"
-        name="dist_from_you"
-        width="97" />
-    <scroll_list.columns
-        label="State"
-        name="path_state"
-        width="74" />
-    <scroll_list.columns
-        label="Phantom"
-        name="is_phantom"
-        width="74" />
-    <scroll_list.columns
-        label="A %"
-        name="a_percent"
-        width="41" />
-    <scroll_list.columns
-        label="B %"
-        name="b_percent"
-        width="41" />
-    <scroll_list.columns
-        label="C %"
-        name="c_percent"
-        width="41" />
-    <scroll_list.columns
-        label="D %"
-        name="d_percent"
-        width="41" />
-  </scroll_list>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      name="linksets_status"
-      top="200"
-      width="500">
-    Linksets:
-  </text>
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Refresh list"
-      layout="topleft"
-      name="refresh_linksets_list"
-      top="200"
-      left="568"
-      width="115"/>
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Select all"
-      layout="topleft"
-      name="select_all_linksets"
-      top="200"
-      left="690"
-      width="115"/>
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Select none"
-      layout="topleft"
-      name="select_none_linksets"
-      top="200"
-      left="812"
-      width="115"/>
+      height="226"
+      width="950">
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="20"
+        top_pad="14"
+        width="67">
+      Filter by:
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left_pad="0"
+        width="62">
+      Name
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|top"
+        height="20"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-18"
+        max_length_bytes="10"
+        name="filter_by_name"
+        width="105" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left_pad="22"
+        top_pad="-15"
+        width="88">
+      Description
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|top"
+        height="20"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-17"
+        max_length_bytes="10"
+        name="filter_by_description"
+        width="145" />
+    <combo_box
+        height="20"
+        layout="topleft"
+        follows="left|top"
+        name="filter_by_linkset_use"
+        left_pad="32"
+        top_pad="-20"
+        width="199">
+      <combo_box.item
+          label="Filter by linkset use..."
+          name="filter_by_linkset_use_none"
+          value="0" />
+      <combo_box.item
+          label="Walkable"
+          name="filter_by_linkset_use_walkable"
+          value="1" />
+      <combo_box.item
+          label="Static obstacle"
+          name="filter_by_linkset_use_static_obstacle"
+          value="2" />
+      <combo_box.item
+          label="Dynamic obstacle"
+          name="filter_by_linkset_use_dynamic_obstacle"
+          value="3" />
+      <combo_box.item
+          label="Material volume"
+          name="filter_by_linkset_use_material_volume"
+          value="4" />
+      <combo_box.item
+          label="Exclusion volume"
+          name="filter_by_linkset_use_exclusion_volume"
+          value="5" />
+      <combo_box.item
+          label="Dynamic phantom"
+          name="filter_by_linkset_use_dynamic_phantom"
+          value="6" />
+    </combo_box>
+    <button
+        follows="right|top"
+        height="21"
+        label="Apply"
+        layout="topleft"
+        name="apply_filters"
+        top_pad="-21"
+        left_pad="31"
+        width="73"/>
+    <button
+        follows="right|top"
+        height="21"
+        label="Clear"
+        layout="topleft"
+        name="clear_filters"
+        top_pad="-21"
+        left_pad="8"
+        width="73"/>
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        follows="all"
+        height="135"
+        layout="topleft"
+        left="18"
+        top_pad="15"
+        multi_select="true"
+        name="pathfinding_linksets"
+        width="910">
+      <scroll_list.columns
+          label="Name (root prim)"
+          name="name"
+          dynamic_width="true" />
+      <scroll_list.columns
+          label="Description (root prim)"
+          name="description"
+          width="192" />
+      <scroll_list.columns
+          label="Land impact"
+          name="land_impact"
+          width="88" />
+      <scroll_list.columns
+          label="Dist from you"
+          name="dist_from_you"
+          width="97" />
+      <scroll_list.columns
+          label="Linkset use"
+          name="linkset_use"
+          width="210" />
+      <scroll_list.columns
+          label="A %"
+          name="a_percent"
+          width="41" />
+      <scroll_list.columns
+          label="B %"
+          name="b_percent"
+          width="41" />
+      <scroll_list.columns
+          label="C %"
+          name="c_percent"
+          width="41" />
+      <scroll_list.columns
+          label="D %"
+          name="d_percent"
+          width="41" />
+    </scroll_list>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        name="linksets_status"
+        top_pad="17"
+        width="549">
+      Linksets:
+    </text>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Refresh list"
+        layout="topleft"
+        name="refresh_linksets_list"
+        top_pad="-16"
+        left_pad="0"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select all"
+        layout="topleft"
+        name="select_all_linksets"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select none"
+        layout="topleft"
+        name="select_none_linksets"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+  </panel>
   <view_border
       bevel_style="none"
       follows="left|bottom|right"
       height="0"
       layout="topleft"
       name="horiz_separator"
-      top="230"
-      left="20"
+      top_pad="0"
+      left="18"
       width="912"/>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|bottom"
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|right|bottom"
       layout="topleft"
-      top_pad="12"
-      width="910">
-    Select row(s) to edit attributes of linkset(s).  If a linkset is deleted or returned to inventory, attributes assigned to it will be lost.
-  </text>
-  <radio_group
-      follows="left|bottom"
-      height="55"
-      value="1"
-      layout="topleft"
-      left_delta="0"
-      name="edit_path_state"
-      top_delta="21"
-      width="138">
-    <radio_item
-        label="Walkable"
-        layout="topleft"
+      left="0"
+      height="67"
+      width="950">
+    <text
         height="13"
-        name="edit_pathing_state_walkable"
-        value="1"/>
-    <radio_item
-        label="Obstacle"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        left="18"
+        follows="left|bottom|right"
         layout="topleft"
-        height="13"
-        name="edit_pathing_state_obstacle"
-        value="2"/>
-    <radio_item
-        label="Ignored"
+        top_pad="8"
+        width="912">
+      Actions on selected linksets (If a linkset is removed from the world, its attributes will be lost):
+    </text>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Take"
         layout="topleft"
+        name="take_linksets"
+        top_pad="12"
+        left="18"
+        width="95"/>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Take copy"
+        layout="topleft"
+        name="take_copy_linksets"
+        top_pad="-21"
+        left_pad="6"
+        width="95"/>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Return"
+        layout="topleft"
+        name="return_linksets"
+        top_pad="-21"
+        left_pad="6"
+        width="95"/>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Delete"
+        layout="topleft"
+        name="delete_linksets"
+        top_pad="-21"
+        left_pad="6"
+        width="95"/>
+    <button
+        follows="left|bottom"
+        height="21"
+        label="Teleport me to it"
+        layout="topleft"
+        name="teleport_me_to_linkset"
+        top_pad="-21"
+        left_pad="6"
+        width="160"/>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="left|bottom|right"
+      height="0"
+      layout="topleft"
+      name="horiz_separator"
+      top_pad="0"
+      left="18"
+      width="912"/>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|right|bottom"
+      layout="topleft"
+      left="0"
+      height="75"
+      width="950">
+    <text
         height="13"
-        name="edit_pathing_state_ignored"
-        value="3"/>
-  </radio_group>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      name="walkability_coefficients_label"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      left="159"
-      top="271"
-      width="200">
-    Walkability coefficients
-  </text>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      name="edit_a_label"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      top_pad="12"
-      width="90">
-    A
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="left|bottom"
-      height="20"
-      layout="topleft"
-      left_delta="14"
-      max_length_chars="3"
-      name="edit_a_value"
-      width="45" />
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      name="edit_b_label"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      left="248"
-      top_pad="-13"
-      width="90">
-    B
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="left|bottom"
-      height="20"
-      layout="topleft"
-      left_delta="14"
-      max_length_chars="3"
-      name="edit_b_value"
-      width="45" />
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      name="edit_c_label"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      left="337"
-      top_pad="-13"
-      width="90">
-    C
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="left|bottom"
-      height="20"
-      layout="topleft"
-      left_delta="14"
-      max_length_chars="3"
-      name="edit_c_value"
-      width="45" />
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      name="edit_d_label"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      left="426"
-      top_pad="-13"
-      width="90">
-    D
-  </text>
-  <line_editor
-      border_style="line"
-      border_thickness="1"
-      follows="left|bottom"
-      height="20"
-      layout="topleft"
-      left_delta="14"
-      max_length_chars="3"
-      name="edit_d_value"
-      width="45" />
-  <check_box
-      follows="left|bottom"
-      height="19"
-      label="Phantom"
-      layout="topleft"
-      name="edit_phantom_value"
-      top="271"
-      left="559"
-      width="90" />
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Apply changes"
-      layout="topleft"
-      name="apply_edit_values"
-      top="270"
-      left="735"
-      width="134"/>
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left="18"
+        top_pad="8"
+        width="912">
+      Edit attributes of selected linksets
+    </text>
+    <combo_box
+        height="20"
+        layout="topleft"
+        follows="left|top"
+        name="edit_linkset_use"
+        left="18"
+        top_pad="17"
+        width="199">
+      <combo_box.item
+          label="Choose linkset use..."
+          name="edit_linkset_use_none"
+          value="0" />
+      <combo_box.item
+          label="Walkable"
+          name="edit_linkset_use_walkable"
+          value="1" />
+      <combo_box.item
+          label="Static obstacle"
+          name="edit_linkset_use_static_obstacle"
+          value="2" />
+      <combo_box.item
+          label="Dynamic obstacle"
+          name="edit_linkset_use_dynamic_obstacle"
+          value="3" />
+      <combo_box.item
+          label="Material volume"
+          name="edit_linkset_use_material_volume"
+          value="4" />
+      <combo_box.item
+          label="Exclusion volume"
+          name="edit_linkset_use_exclusion_volume"
+          value="5" />
+      <combo_box.item
+          label="Dynamic phantom"
+          name="edit_linkset_use_dynamic_phantom"
+          value="6" />
+    </combo_box>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="walkability_coefficients_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="36"
+        top_pad="-17"
+        width="110">
+      Walkability:
+    </text>
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_a_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="0"
+        width="18">
+      A
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_a_value"
+        width="45" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_b_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="44"
+        top_pad="-15"
+        width="18">
+      B
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_b_value"
+        width="45" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_c_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="44"
+        top_pad="-15"
+        width="18">
+      C
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_c_value"
+        width="45" />
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="edit_d_label"
+        length="1"
+        follows="left|bottom"
+        layout="topleft"
+        left_pad="44"
+        top_pad="-15"
+        width="18">
+      D
+    </text>
+    <line_editor
+        border_style="line"
+        border_thickness="1"
+        follows="left|bottom"
+        height="21"
+        layout="topleft"
+        left_pad="0"
+        top_pad="-19"
+        max_length_chars="3"
+        name="edit_d_value"
+        width="45" />
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Apply changes"
+        layout="topleft"
+        name="apply_edit_values"
+        top_pad="-21"
+        left_pad="40"
+        width="140"/>
+  </panel>
 </floater>

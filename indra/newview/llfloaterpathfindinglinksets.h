@@ -38,8 +38,7 @@ class LLSD;
 class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
-class LLCheckBoxCtrl;
-class LLRadioGroup;
+class LLComboBox;
 class LLButton;
 
 class LLFloaterPathfindingLinksets
@@ -78,30 +77,32 @@ protected:
 
 private:
 	LLRootHandle<LLFloaterPathfindingLinksets> mSelfHandle;
-	LLFilteredPathfindingLinksets              mPathfindingLinksets;
-	EMessagingState                            mMessagingState;
-	LLScrollListCtrl                           *mLinksetsScrollList;
-	LLTextBase                                 *mLinksetsStatus;
 	LLLineEditor                               *mFilterByName;
 	LLLineEditor                               *mFilterByDescription;
-	LLCheckBoxCtrl                             *mFilterByWalkable;
-	LLCheckBoxCtrl                             *mFilterByObstacle;
-	LLCheckBoxCtrl                             *mFilterByIgnored;
-	LLRadioGroup                               *mEditPathState;
-	LLUICtrl                                   *mEditPathStateWalkable;
-	LLUICtrl                                   *mEditPathStateObstacle;
-	LLUICtrl                                   *mEditPathStateIgnored;
+	LLComboBox                                 *mFilterByLinksetUse;
+	LLScrollListCtrl                           *mLinksetsScrollList;
+	LLTextBase                                 *mLinksetsStatus;
+	LLButton                                   *mRefreshListButton;
+	LLButton                                   *mSelectAllButton;
+	LLButton                                   *mSelectNoneButton;
+	LLButton                                   *mTakeButton;
+	LLButton                                   *mTakeCopyButton;
+	LLButton                                   *mReturnButton;
+	LLButton                                   *mDeleteButton;
+	LLButton                                   *mTeleportButton;
+	LLComboBox                                 *mEditLinksetUse;
 	LLTextBase                                 *mLabelWalkabilityCoefficients;
 	LLTextBase                                 *mLabelEditA;
-	LLTextBase                                 *mLabelEditB;
-	LLTextBase                                 *mLabelEditC;
-	LLTextBase                                 *mLabelEditD;
 	LLLineEditor                               *mEditA;
+	LLTextBase                                 *mLabelEditB;
 	LLLineEditor                               *mEditB;
+	LLTextBase                                 *mLabelEditC;
 	LLLineEditor                               *mEditC;
+	LLTextBase                                 *mLabelEditD;
 	LLLineEditor                               *mEditD;
-	LLCheckBoxCtrl                             *mEditPhantom;
-	LLButton                                   *mApplyEdits;
+	LLButton                                   *mApplyEditsButton;
+	LLFilteredPathfindingLinksets              mPathfindingLinksets;
+	EMessagingState                            mMessagingState;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
@@ -120,12 +121,17 @@ private:
 
 	void setMessagingState(EMessagingState pMessagingState);
 
-	void onApplyFiltersClicked();
+	void onApplyAllFilters();
 	void onClearFiltersClicked();
 	void onLinksetsSelectionChange();
 	void onRefreshLinksetsClicked();
 	void onSelectAllLinksetsClicked();
 	void onSelectNoneLinksetsClicked();
+	void onTakeClicked();
+	void onTakeCopyClicked();
+	void onReturnClicked();
+	void onDeleteClicked();
+	void onTeleportClicked();
 	void onApplyChangesClicked();
 
 	void applyFilters();
@@ -141,8 +147,14 @@ private:
 	void applyEditFields();
 	void setEnableEditFields(BOOL pEnabled);
 
-	LLPathfindingLinkset::EPathState getPathState() const;
-	void                             setPathState(LLPathfindingLinkset::EPathState pPathState);
+	LLPathfindingLinkset::ELinksetUse getFilterLinksetUse() const;
+	void                              setFilterLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
+
+	LLPathfindingLinkset::ELinksetUse getEditLinksetUse() const;
+	void                              setEditLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
+
+	LLPathfindingLinkset::ELinksetUse convertToLinksetUse(LLSD pXuiValue) const;
+	LLSD                              convertToXuiValue(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGLINKSETS_H

@@ -42,10 +42,14 @@ class LLPathfindingLinkset
 public:
 	typedef enum
 	{
+		kUnknown,
 		kWalkable,
-		kObstacle,
-		kIgnored
-	} EPathState;
+		kStaticObstacle,
+		kDynamicObstacle,
+		kMaterialVolume,
+		kExclusionVolume,
+		kDynamicPhantom
+	} ELinksetUse;
 
 	LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetItem);
 	LLPathfindingLinkset(const LLPathfindingLinkset& pOther);
@@ -53,21 +57,14 @@ public:
 
 	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
-	inline const LLUUID&      getUUID() const                     {return mUUID;};
-	inline const std::string& getName() const                     {return mName;};
-	inline const std::string& getDescription() const              {return mDescription;};
-	inline U32                getLandImpact() const               {return mLandImpact;};
-	inline const LLVector3&   getLocation() const                 {return mLocation;};
+	inline const LLUUID&      getUUID() const                        {return mUUID;};
+	inline const std::string& getName() const                        {return mName;};
+	inline const std::string& getDescription() const                 {return mDescription;};
+	inline U32                getLandImpact() const                  {return mLandImpact;};
+	inline const LLVector3&   getLocation() const                    {return mLocation;};
 
-	inline EPathState         getPathState() const                {return mPathState;};
-	inline void               setPathState(EPathState pPathState) {mPathState = pPathState;};
-
-	static EPathState         getPathState(bool pIsPermanent, bool pIsWalkable);
-	static BOOL               isPermanent(EPathState pPathState);
-	static BOOL               isWalkable(EPathState pPathState);
-
-	inline BOOL               isPhantom() const                   {return mIsPhantom;};
-	inline void               setPhantom(BOOL pIsPhantom)         {mIsPhantom = pIsPhantom;};
+	inline ELinksetUse        getLinksetUse() const                  {return mLinksetUse;};
+	inline void               setLinksetUse(ELinksetUse pLinksetUse) {mLinksetUse = pLinksetUse;};
 
 	inline S32                getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
 	void                      setWalkabilityCoefficientA(S32 pA);
@@ -81,28 +78,32 @@ public:
 	inline S32                getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 	void                      setWalkabilityCoefficientD(S32 pD);
 
-	LLSD                      encodeAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const;
+	LLSD                      encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
 protected:
 
 private:
+	static ELinksetUse        getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
+	static BOOL               isPhantom(ELinksetUse pLinksetUse);
+	static BOOL               isPermanent(ELinksetUse pLinksetUse);
+	static BOOL               isWalkable(ELinksetUse pLinksetUse);
+
 	static const S32 MIN_WALKABILITY_VALUE;
 	static const S32 MAX_WALKABILITY_VALUE;
 
-	LLUUID      mUUID;
-	std::string mName;
-	std::string mDescription;
-	U32         mLandImpact;
-	LLVector3   mLocation;
-	EPathState  mPathState;
-	BOOL        mIsPhantom;
+	LLUUID       mUUID;
+	std::string  mName;
+	std::string  mDescription;
+	U32          mLandImpact;
+	LLVector3    mLocation;
+	ELinksetUse  mLinksetUse;
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	BOOL        mIsWalkabilityCoefficientsF32;
+	BOOL         mIsWalkabilityCoefficientsF32;
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	S32         mWalkabilityCoefficientA;
-	S32         mWalkabilityCoefficientB;
-	S32         mWalkabilityCoefficientC;
-	S32         mWalkabilityCoefficientD;
+	S32          mWalkabilityCoefficientA;
+	S32          mWalkabilityCoefficientB;
+	S32          mWalkabilityCoefficientC;
+	S32          mWalkabilityCoefficientD;
 };
 
 #endif // LL_LLPATHFINDINGLINKSET_H

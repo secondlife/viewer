@@ -30,9 +30,9 @@
 
 #include <string>
 #include <map>
+#include "llpathfindinglinkset.h"
 
 class LLSD;
-class LLPathfindingLinkset;
 
 class FilterString
 {
@@ -80,14 +80,8 @@ public:
 	void                         setDescriptionFilter(const std::string& pDescriptionFilter);
 	const std::string&           getDescriptionFilter() const;
 
-	void                         setWalkableFilter(BOOL pWalkableFilter);
-	BOOL                         isWalkableFilter() const;
-
-	void                         setObstacleFilter(BOOL pObstacleFilter);
-	BOOL                         isObstacleFilter() const;
-
-	void                         setIgnoredFilter(BOOL pIgnoredFilter);
-	BOOL                         isIgnoredFilter() const;
+	void                              setLinksetUseFilter(LLPathfindingLinkset::ELinksetUse pLinksetUse);
+	LLPathfindingLinkset::ELinksetUse getLinksetUseFilter() const;
 
 	void                         clearFilters();
 
@@ -97,12 +91,10 @@ private:
 	PathfindingLinksetMap mAllLinksets;
 	PathfindingLinksetMap mFilteredLinksets;
 
-	bool                  mIsFiltersDirty;
-	FilterString          mNameFilter;
-	FilterString          mDescriptionFilter;
-	BOOL                  mIsWalkableFilter;
-	BOOL                  mIsObstacleFilter;
-	BOOL                  mIsIgnoredFilter;
+	bool                              mIsFiltersDirty;
+	FilterString                      mNameFilter;
+	FilterString                      mDescriptionFilter;
+	LLPathfindingLinkset::ELinksetUse mLinksetUseFilter;
 
 	void applyFilters();
 	BOOL doesMatchFilters(const LLPathfindingLinkset& pLinkset) const;

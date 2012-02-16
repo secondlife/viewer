@@ -56,8 +56,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(),
-	mPathState(kIgnored),
-	mIsPhantom(false),
+	mLinksetUse(kUnknown),
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mIsWalkabilityCoefficientsF32(false),
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
@@ -79,6 +78,10 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
 	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
 
+	llassert(pLinksetItem.has(LINKSET_PHANTOM_FIELD));
+	llassert(pLinksetItem.get(LINKSET_PHANTOM_FIELD).isBoolean());
+	bool isPhantom = pLinksetItem.get(LINKSET_PHANTOM_FIELD).asBoolean();
+
 	llassert(pLinksetItem.has(LINKSET_PERMANENT_FIELD));
 	llassert(pLinksetItem.get(LINKSET_PERMANENT_FIELD).isBoolean());
 	bool isPermanent = pLinksetItem.get(LINKSET_PERMANENT_FIELD).asBoolean();
@@ -87,11 +90,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	llassert(pLinksetItem.get(LINKSET_WALKABLE_FIELD).isBoolean());
 	bool isWalkable = pLinksetItem.get(LINKSET_WALKABLE_FIELD).asBoolean();
 
-	mPathState = getPathState(isPermanent, isWalkable);
-
-	llassert(pLinksetItem.has(LINKSET_PHANTOM_FIELD));
-	llassert(pLinksetItem.get(LINKSET_PHANTOM_FIELD).isBoolean());
-	mIsPhantom = pLinksetItem.get(LINKSET_PHANTOM_FIELD).asBoolean();
+	mLinksetUse = getLinksetUse(isPhantom, isPermanent, isWalkable);
 
 	llassert(pLinksetItem.has(LINKSET_WALKABILITY_A_FIELD));
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
@@ -175,8 +174,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	mDescription(pOther.mDescription),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
-	mPathState(pOther.mPathState),
-	mIsPhantom(pOther.mIsPhantom),
+	mLinksetUse(pOther.mLinksetUse),
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mIsWalkabilityCoefficientsF32(pOther.mIsWalkabilityCoefficientsF32),
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
@@ -198,8 +196,7 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
-	mPathState = pOther.mPathState;
-	mIsPhantom = pOther.mIsPhantom;
+	mLinksetUse = pOther.mLinksetUse;
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	mIsWalkabilityCoefficientsF32 = pOther.mIsWalkabilityCoefficientsF32;
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
@@ -209,56 +206,6 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mWalkabilityCoefficientD = pOther.mWalkabilityCoefficientD;
 
 	return *this;
-}
-
-
-LLPathfindingLinkset::EPathState LLPathfindingLinkset::getPathState(bool pIsPermanent, bool pIsWalkable)
-{
-	return (pIsPermanent ? (pIsWalkable ? kWalkable : kObstacle) : kIgnored);
-}
-
-BOOL LLPathfindingLinkset::isPermanent(EPathState pPathState)
-{
-	BOOL retVal;
-
-	switch (pPathState)
-	{
-	case kWalkable :
-	case kObstacle :
-		retVal = true;
-		break;
-	case kIgnored :
-		retVal = false;
-		break;
-	default :
-		retVal = false;
-		llassert(0);
-		break;
-	}
-
-	return retVal;
-}
-
-BOOL LLPathfindingLinkset::isWalkable(EPathState pPathState)
-{
-	BOOL retVal;
-
-	switch (pPathState)
-	{
-	case kWalkable :
-		retVal = true;
-		break;
-	case kObstacle :
-	case kIgnored :
-		retVal = false;
-		break;
-	default :
-		retVal = false;
-		llassert(0);
-		break;
-	}
-
-	return retVal;
 }
 
 void LLPathfindingLinkset::setWalkabilityCoefficientA(S32 pA)
@@ -281,14 +228,16 @@ void LLPathfindingLinkset::setWalkabilityCoefficientD(S32 pD)
 	mWalkabilityCoefficientD = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 }
 
-LLSD LLPathfindingLinkset::encodeAlteredFields(EPathState pPathState, S32 pA, S32 pB, S32 pC, S32 pD, BOOL pIsPhantom) const
+LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD itemData;
 
-	if (mPathState != pPathState)
+	if (mLinksetUse != pLinksetUse)
 	{
-		itemData[LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pPathState));
-		itemData[LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pPathState));
+		llassert(pLinksetUse != kUnknown);
+		itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPhantom(pLinksetUse));
+		itemData[LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pLinksetUse));
+		itemData[LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pLinksetUse));
 	}
 #ifdef XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
 	if (mIsWalkabilityCoefficientsF32)
@@ -347,10 +296,90 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(EPathState pPathState, S32 pA, S3
 		itemData[LINKSET_WALKABILITY_D_FIELD] = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
 	}
 #endif // XXX_STINSON_WALKABILITY_COEFFICIENTS_TYPE_CHANGE
-	if (mIsPhantom != pIsPhantom)
-	{
-		itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(pIsPhantom);
-	}
 
 	return itemData;
+}
+
+LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable)
+{
+	return (pIsPhantom ? (pIsPermanent ? (pIsWalkable ? kMaterialVolume : kExclusionVolume) : kDynamicPhantom) :
+		(pIsPermanent ? (pIsWalkable ? kWalkable : kStaticObstacle) : kDynamicObstacle));
+}
+
+BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
+{
+	BOOL retVal;
+
+	switch (pLinksetUse)
+	{
+	case kWalkable :
+	case kStaticObstacle :
+	case kDynamicObstacle :
+		retVal = false;
+		break;
+	case kMaterialVolume :
+	case kExclusionVolume :
+	case kDynamicPhantom :
+		retVal = true;
+		break;
+	case kUnknown :
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
+}
+
+BOOL LLPathfindingLinkset::isPermanent(ELinksetUse pLinksetUse)
+{
+	BOOL retVal;
+
+	switch (pLinksetUse)
+	{
+	case kWalkable :
+	case kStaticObstacle :
+	case kMaterialVolume :
+	case kExclusionVolume :
+		retVal = true;
+		break;
+	case kDynamicObstacle :
+	case kDynamicPhantom :
+		retVal = false;
+		break;
+	case kUnknown :
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
+}
+
+BOOL LLPathfindingLinkset::isWalkable(ELinksetUse pLinksetUse)
+{
+	BOOL retVal;
+
+	switch (pLinksetUse)
+	{
+	case kWalkable :
+	case kMaterialVolume :
+		retVal = true;
+		break;
+	case kStaticObstacle :
+	case kDynamicObstacle :
+	case kExclusionVolume :
+	case kDynamicPhantom :
+		retVal = false;
+		break;
+	case kUnknown :
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
 }

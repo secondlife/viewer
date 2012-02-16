@@ -116,9 +116,7 @@ LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets()
 	mIsFiltersDirty(false),
 	mNameFilter(),
 	mDescriptionFilter(),
-	mIsWalkableFilter(true),
-	mIsObstacleFilter(true),
-	mIsIgnoredFilter(true)
+	mLinksetUseFilter(LLPathfindingLinkset::kUnknown)
 {
 }
 
@@ -128,9 +126,7 @@ LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets(const LLSD& pLinkse
 	mIsFiltersDirty(false),
 	mNameFilter(),
 	mDescriptionFilter(),
-	mIsWalkableFilter(true),
-	mIsObstacleFilter(true),
-	mIsIgnoredFilter(true)
+	mLinksetUseFilter(LLPathfindingLinkset::kUnknown)
 {
 	setPathfindingLinksets(pLinksetItems);
 }
@@ -141,9 +137,7 @@ LLFilteredPathfindingLinksets::LLFilteredPathfindingLinksets(const LLFilteredPat
 	mIsFiltersDirty(pOther.mIsFiltersDirty),
 	mNameFilter(pOther.mNameFilter),
 	mDescriptionFilter(pOther.mDescriptionFilter),
-	mIsWalkableFilter(pOther.mIsWalkableFilter),
-	mIsObstacleFilter(pOther.mIsObstacleFilter),
-	mIsIgnoredFilter(pOther.mIsIgnoredFilter)
+	mLinksetUseFilter(pOther.mLinksetUseFilter)
 {
 }
 
@@ -219,7 +213,8 @@ const LLFilteredPathfindingLinksets::PathfindingLinksetMap& LLFilteredPathfindin
 
 BOOL LLFilteredPathfindingLinksets::isFiltersActive() const
 {
-	return (mNameFilter.isActive() || mDescriptionFilter.isActive() || !mIsWalkableFilter || !mIsObstacleFilter || !mIsIgnoredFilter);
+	return (mNameFilter.isActive() || mDescriptionFilter.isActive() ||
+		(mLinksetUseFilter != LLPathfindingLinkset::kUnknown));
 }
 
 void LLFilteredPathfindingLinksets::setNameFilter(const std::string& pNameFilter)
@@ -242,46 +237,22 @@ const std::string& LLFilteredPathfindingLinksets::getDescriptionFilter() const
 	return mDescriptionFilter.get();
 }
 
-void LLFilteredPathfindingLinksets::setWalkableFilter(BOOL pWalkableFilter)
+void LLFilteredPathfindingLinksets::setLinksetUseFilter(LLPathfindingLinkset::ELinksetUse pLinksetUse)
 {
-	mIsFiltersDirty = (mIsFiltersDirty || (mIsWalkableFilter == pWalkableFilter));
-	mIsWalkableFilter = pWalkableFilter;
+	mIsFiltersDirty = (mIsFiltersDirty || (mLinksetUseFilter == pLinksetUse));
+	mLinksetUseFilter = pLinksetUse;
 }
 
-BOOL LLFilteredPathfindingLinksets::isWalkableFilter() const
+LLPathfindingLinkset::ELinksetUse LLFilteredPathfindingLinksets::getLinksetUseFilter() const
 {
-	return mIsWalkableFilter;
-}
-
-void LLFilteredPathfindingLinksets::setObstacleFilter(BOOL pObstacleFilter)
-{
-	mIsFiltersDirty = (mIsFiltersDirty || (mIsObstacleFilter == pObstacleFilter));
-	mIsObstacleFilter = pObstacleFilter;
-}
-
-BOOL LLFilteredPathfindingLinksets::isObstacleFilter() const
-{
-	return mIsObstacleFilter;
-}
-
-void LLFilteredPathfindingLinksets::setIgnoredFilter(BOOL pIgnoredFilter)
-{
-	mIsFiltersDirty = (mIsFiltersDirty || (mIsIgnoredFilter == pIgnoredFilter));
-	mIsIgnoredFilter = pIgnoredFilter;
-}
-
-BOOL LLFilteredPathfindingLinksets::isIgnoredFilter() const
-{
-	return mIsIgnoredFilter;
+	return mLinksetUseFilter;
 }
 
 void LLFilteredPathfindingLinksets::clearFilters()
 {
 	mNameFilter.clear();
 	mDescriptionFilter.clear();
-	mIsWalkableFilter = true;
-	mIsObstacleFilter = true;
-	mIsIgnoredFilter = true;
+	mLinksetUseFilter = LLPathfindingLinkset::kUnknown;
 	mIsFiltersDirty = false;
 }
 
@@ -305,9 +276,7 @@ void LLFilteredPathfindingLinksets::applyFilters()
 
 BOOL LLFilteredPathfindingLinksets::doesMatchFilters(const LLPathfindingLinkset& pLinkset) const
 {
-	return (((mIsWalkableFilter && (pLinkset.getPathState() == LLPathfindingLinkset::kWalkable)) ||
-			 (mIsObstacleFilter && (pLinkset.getPathState() == LLPathfindingLinkset::kObstacle)) ||
-			 (mIsIgnoredFilter && (pLinkset.getPathState() == LLPathfindingLinkset::kIgnored))) &&
-			(!mNameFilter.isActive() || mNameFilter.doesMatch(pLinkset.getName())) &&
-			(!mDescriptionFilter.isActive() || mDescriptionFilter.doesMatch(pLinkset.getDescription())));
+	return (((mLinksetUseFilter == LLPathfindingLinkset::kUnknown) || (mLinksetUseFilter == pLinkset.getLinksetUse())) &&
+		(!mNameFilter.isActive() || mNameFilter.doesMatch(pLinkset.getName())) &&
+		(!mDescriptionFilter.isActive() || mDescriptionFilter.doesMatch(pLinkset.getDescription())));
 }
