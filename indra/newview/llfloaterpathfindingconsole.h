@@ -157,7 +157,7 @@ private:
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;
 	int							mNavMeshCnt;
-
+	U32							mNeighboringRegion;
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;
 	bool mHasStartPoint;
