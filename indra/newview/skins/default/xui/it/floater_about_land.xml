@@ -378,7 +378,7 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
 			<text name="allow_label5">
-				e chattare con avatar in questo lotto
+				Gli avatar su altri lotti possono vedere gli avatar su questo lotto e chattare con loro
 			</text>
 			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
 			<text name="landing_point">
@@ -465,12 +465,12 @@ Media:
 			<text name="Limit access to this parcel to:">
 				Accesso a questo terreno
 			</text>
-			<check_box label="Consenti l&apos;accesso pubblico [MATURITY]" name="public_access"/>
+			<check_box label="Consenti l&apos;accesso pubblico (se si rimuove la selezione vengono create linee di espulsione)" name="public_access"/>
 			<text name="Only Allow">
-				Consenti l&apos;accesso soltanto ai residenti verificati tramite:
+				Consenti l&apos;accesso solo ai Residenti che:
 			</text>
-			<check_box label="Informazioni di pagamento in archivio [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Espelli i residenti non identificati."/>
-			<check_box label="Verifica dell&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Espelli i residenti che non hanno la loro età verificata. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="Hanno informazioni di pagamento in archivio [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Per poter visitare questo lotto i Residenti devono aver fornito informazioni di pagamento a Linden Lab.  Vedi [SUPPORT_SITE] per maggiori informazioni."/>
+			<check_box label="Hanno verificato l&apos;età [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Per poter visitare questo lotto i Residenti devono aver verificato la propria età. Vedi [SUPPORT_SITE] per maggiori informazioni."/>
 			<check_box label="Permetti accesso al gruppo: [GROUP]" name="GroupCheck" tool_tip="Imposta il gruppo nel pannello generale."/>
 			<check_box label="Vendi pass a:" name="PassCheck" tool_tip="Permetti in questo terreno l&apos;accesso temporaneo"/>
 			<combo_box name="pass_combo">
