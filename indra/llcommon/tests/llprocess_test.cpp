@@ -1131,5 +1131,7 @@ namespace tut
     // test setLimit(), getLimit()
     // test EOF -- check logging
     // test peek() with substr
+    // test contains(char)
+    // test find(string, offset), find(char, offset), offset <, =, > size()
 
 } // namespace tut

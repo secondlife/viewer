@@ -295,6 +295,9 @@ public:
 	{
 	public:
 		virtual ~BasePipe() = 0;
+
+		typedef std::size_t size_type;
+		static const size_type npos;
 	};
 
 	/// As returned by getWritePipe() or getOptWritePipe()
@@ -338,7 +341,7 @@ public:
 		 * the child, but the child happens to flush "12" before emitting
 		 * "3\n", get_istream() >> myint could return 12 rather than 123!
 		 */
-		virtual std::size_t size() = 0;
+		virtual size_type size() const = 0;
 
 		/**
 		 * Peek at accumulated buffer data without consuming it. Optional
@@ -346,14 +349,32 @@ public:
 		 *
 		 * @note You can discard buffer data using get_istream().ignore(n).
 		 */
-		virtual std::string peek(std::size_t offset=0,
-								 std::size_t len=(std::numeric_limits<std::size_t>::max)()) = 0;
+		virtual std::string peek(size_type offset=0, size_type len=npos) const = 0;
 
 		/**
-		 * Search accumulated buffer data without retrieving it. Optional
-		 * offset allows you to start at specified position.
+		 * Detect presence of a substring (or char) in accumulated buffer data
+		 * without retrieving it. Optional offset allows you to search from
+		 * specified position.
 		 */
-		virtual bool contains(const std::string& seek, std::size_t offset=0) = 0;
+		template <typename SEEK>
+		bool contains(SEEK seek, size_type offset=0) const
+		{ return find(seek, offset) != npos; }
+
+		/**
+		 * Search for a substring in accumulated buffer data without
+		 * retrieving it. Returns size_type position at which found, or npos
+		 * meaning not found. Optional offset allows you to search from
+		 * specified position.
+		 */
+		virtual size_type find(const std::string& seek, size_type offset=0) const = 0;
+
+		/**
+		 * Search for a char in accumulated buffer data without retrieving it.
+		 * Returns size_type position at which found, or npos meaning not
+		 * found. Optional offset allows you to search from specified
+		 * position.
+		 */
+		virtual size_type find(char seek, size_type offset=0) const = 0;
 
 		/**
 		 * Get LLEventPump& on which to listen for incoming data. The posted
@@ -377,12 +398,12 @@ public:
 		 * the data posted with the LLSD event. If you don't call this method,
 		 * all pending data will be posted.
 		 */
-		virtual void setLimit(size_t limit) = 0;
+		virtual void setLimit(size_type limit) = 0;
 
 		/**
 		 * Query the current setLimit() limit.
 		 */
-		virtual size_t getLimit() const = 0;
+		virtual size_type getLimit() const = 0;
 	};
 
 	/// Exception thrown by getWritePipe(), getReadPipe() if you didn't ask to
