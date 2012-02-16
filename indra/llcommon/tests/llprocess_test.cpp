@@ -140,11 +140,17 @@ struct PythonProcessLauncher
         mParams.args.add(mScript.getName());
     }
 
-    /// Run Python script and wait for it to complete.
-    void run()
+    /// Launch Python script; verify that it launched
+    void launch()
     {
         mPy = LLProcess::create(mParams);
         tut::ensure(STRINGIZE("Couldn't launch " << mDesc << " script"), mPy);
+    }
+
+    /// Run Python script and wait for it to complete.
+    void run()
+    {
+        launch();
         // One of the irritating things about LLProcess is that
         // there's no API to wait for the child to terminate -- but given
         // its use in our graphics-intensive interactive viewer, it's
@@ -718,8 +724,7 @@ namespace tut
                                  "    f.write('bad')\n");
         NamedTempFile out("out", "not started");
         py.mParams.args.add(out.getName());
-        py.mPy = LLProcess::create(py.mParams);
-        ensure("couldn't launch kill() script", py.mPy);
+        py.launch();
         // Wait for the script to wake up and do its first write
         int i = 0, timeout = 60;
         for ( ; i < timeout; ++i)
@@ -765,8 +770,7 @@ namespace tut
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('bad')\n");
             py.mParams.args.add(out.getName());
-            py.mPy = LLProcess::create(py.mParams);
-            ensure("couldn't launch kill() script", py.mPy);
+            py.launch();
             // Capture handle for later
             phandle = py.mPy->getProcessHandle();
             // Wait for the script to wake up and do its first write
@@ -820,8 +824,7 @@ namespace tut
             py.mParams.args.add(from.getName());
             py.mParams.args.add(to.getName());
             py.mParams.autokill = false;
-            py.mPy = LLProcess::create(py.mParams);
-            ensure("couldn't launch kill() script", py.mPy);
+            py.launch();
             // Capture handle for later
             phandle = py.mPy->getProcessHandle();
             // Wait for the script to wake up and do its first write
@@ -1017,8 +1020,7 @@ namespace tut
                                  "print 'ack'\n");
         py.mParams.files.add(LLProcess::FileParam("pipe")); // stdin
         py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
-        py.mPy = LLProcess::create(py.mParams);
-        ensure("couldn't launch stdin/stdout script", py.mPy);
+        py.launch();
         LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
         int i, timeout = 60;
         for (i = 0; i < timeout && py.mPy->isRunning() && childout.size() < 3; ++i)
@@ -1082,8 +1084,7 @@ namespace tut
                                  "sys.stdout.write('second line\\n')\n");
         py.mParams.files.add(LLProcess::FileParam("pipe")); // stdin
         py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
-        py.mPy = LLProcess::create(py.mParams);
-        ensure("couldn't launch ReadPipe listener script", py.mPy);
+        py.launch();
         std::ostream& childin(py.mPy->getWritePipe(LLProcess::STDIN).get_ostream());
         LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
         // listen for incoming data on childout
@@ -1102,11 +1103,7 @@ namespace tut
         // disconnect from listener
         listener.mConnection.disconnect();
         // finish out the run
-        for (i = 0; i < timeout && py.mPy->isRunning(); ++i)
-        {
-            yield();
-        }
-        ensure("child took too long to terminate", i < timeout);
+        waitfor(*py.mPy);
         // now verify history
         std::list<LLSD>::const_iterator li(listener.mHistory.begin()),
                                         lend(listener.mHistory.end());
@@ -1127,8 +1124,37 @@ namespace tut
         ensure("more than 3 events", li == lend);
     }
 
+    template<> template<>
+    void object::test<18>()
+    {
+        set_test_name("setLimit()");
+        PythonProcessLauncher py("setLimit()",
+                                 "import sys\n"
+                                 "print sys.argv[1]\n");
+        std::string abc("abcdefghijklmnopqrstuvwxyz");
+        py.mParams.args.add(abc);
+        py.mParams.files.add(LLProcess::FileParam()); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.launch();
+        LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        // listen for incoming data on childout
+        EventListener listener(childout.getPump());
+        // but set limit
+        childout.setLimit(10);
+        ensure_equals("getLimit() after setlimit(10)", childout.getLimit(), 10);
+        // okay, pump I/O to pick up output from child
+        waitfor(*py.mPy);
+        ensure("no events", ! listener.mHistory.empty());
+        // For all we know, that data could have arrived in several different
+        // bursts... probably not, but anyway, only check the last one.
+        ensure_equals("event[\"len\"]",
+                      listener.mHistory.back()["len"].asInteger(),
+                      abc.length() + sizeof(EOL) - 1);
+        ensure_equals("length of setLimit(10) data",
+                      listener.mHistory.back()["data"].asString().length(), 10);
+    }
+
     // TODO:
-    // test setLimit(), getLimit()
     // test EOF -- check logging
     // test peek() with substr
     // test contains(char)
