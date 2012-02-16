@@ -1130,7 +1130,7 @@ namespace tut
         set_test_name("setLimit()");
         PythonProcessLauncher py("setLimit()",
                                  "import sys\n"
-                                 "print sys.argv[1]\n");
+                                 "sys.stdout.write(sys.argv[1])\n");
         std::string abc("abcdefghijklmnopqrstuvwxyz");
         py.mParams.args.add(abc);
         py.mParams.files.add(LLProcess::FileParam()); // stdin
@@ -1148,16 +1148,65 @@ namespace tut
         // For all we know, that data could have arrived in several different
         // bursts... probably not, but anyway, only check the last one.
         ensure_equals("event[\"len\"]",
-                      listener.mHistory.back()["len"].asInteger(),
-                      abc.length() + sizeof(EOL) - 1);
+                      listener.mHistory.back()["len"].asInteger(), abc.length());
         ensure_equals("length of setLimit(10) data",
                       listener.mHistory.back()["data"].asString().length(), 10);
     }
 
+    template<> template<>
+    void object::test<19>()
+    {
+        set_test_name("peek() ReadPipe data");
+        PythonProcessLauncher py("peek() ReadPipe",
+                                 "import sys\n"
+                                 "sys.stdout.write(sys.argv[1])\n");
+        std::string abc("abcdefghijklmnopqrstuvwxyz");
+        py.mParams.args.add(abc);
+        py.mParams.files.add(LLProcess::FileParam()); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.launch();
+        LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        // okay, pump I/O to pick up output from child
+        waitfor(*py.mPy);
+        // peek() with substr args
+        ensure_equals("peek()", childout.peek(), abc);
+        ensure_equals("peek(23)", childout.peek(23), abc.substr(23));
+        ensure_equals("peek(5, 3)", childout.peek(5, 3), abc.substr(5, 3));
+        ensure_equals("peek(27, 2)", childout.peek(27, 2), "");
+        ensure_equals("peek(23, 5)", childout.peek(23, 5), "xyz");
+        // contains() -- we don't exercise as thoroughly as find() because the
+        // contains() implementation is trivially (and visibly) based on find()
+        ensure("contains(\":\")", ! childout.contains(":"));
+        ensure("contains(':')",   ! childout.contains(':'));
+        ensure("contains(\"d\")", childout.contains("d"));
+        ensure("contains('d')",   childout.contains("d"));
+        ensure("contains(\"klm\")", childout.contains("klm"));
+        ensure("contains(\"klx\")", ! childout.contains("klx"));
+        // find()
+        ensure("find(\":\")", childout.find(":") == LLProcess::ReadPipe::npos);
+        ensure("find(':')",   childout.find(':') == LLProcess::ReadPipe::npos);
+        ensure_equals("find(\"d\")", childout.find("d"), 3);
+        ensure_equals("find('d')",   childout.find("d"), 3);
+        ensure_equals("find(\"d\", 3)", childout.find("d", 3), 3);
+        ensure_equals("find('d', 3)",   childout.find("d", 3), 3);
+        ensure("find(\"d\", 4)", childout.find("d", 4) == LLProcess::ReadPipe::npos);
+        ensure("find('d', 4)",   childout.find('d', 4) == LLProcess::ReadPipe::npos);
+        // The case of offset == end and offset > end are different. In the
+        // first case, we can form a valid (albeit empty) iterator range and
+        // search that. In the second, guard logic in the implementation must
+        // realize we can't form a valid iterator range.
+        ensure("find(\"d\", 26)", childout.find("d", 26) == LLProcess::ReadPipe::npos);
+        ensure("find('d', 26)",   childout.find('d', 26) == LLProcess::ReadPipe::npos);
+        ensure("find(\"d\", 27)", childout.find("d", 27) == LLProcess::ReadPipe::npos);
+        ensure("find('d', 27)",   childout.find('d', 27) == LLProcess::ReadPipe::npos);
+        ensure_equals("find(\"ghi\")", childout.find("ghi"), 6);
+        ensure_equals("find(\"ghi\", 6)", childout.find("ghi"), 6);
+        ensure("find(\"ghi\", 7)", childout.find("ghi", 7) == LLProcess::ReadPipe::npos);
+        ensure("find(\"ghi\", 26)", childout.find("ghi", 26) == LLProcess::ReadPipe::npos);
+        ensure("find(\"ghi\", 27)", childout.find("ghi", 27) == LLProcess::ReadPipe::npos);
+    }
+
     // TODO:
     // test EOF -- check logging
-    // test peek() with substr
-    // test contains(char)
-    // test find(string, offset), find(char, offset), offset <, =, > size()
 
 } // namespace tut

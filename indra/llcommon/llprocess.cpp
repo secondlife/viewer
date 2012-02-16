@@ -230,7 +230,8 @@ public:
 	{
 		// Constrain caller's offset and len to overlap actual buffer content.
 		std::size_t real_offset = (std::min)(mStreambuf.size(), std::size_t(offset));
-		std::size_t real_end	= (std::min)(mStreambuf.size(), std::size_t(real_offset + len));
+		size_type	want_end	= (len == npos)? npos : (real_offset + len);
+		std::size_t real_end	= (std::min)(mStreambuf.size(), std::size_t(want_end));
 		boost::asio::streambuf::const_buffers_type cbufs = mStreambuf.data();
 		return std::string(boost::asio::buffers_begin(cbufs) + real_offset,
 						   boost::asio::buffers_begin(cbufs) + real_end);
