@@ -176,9 +176,8 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, 
 {
 	LLSD itemData;
 
-	if (mLinksetUse != pLinksetUse)
+	if ((pLinksetUse != kUnknown) && (mLinksetUse != pLinksetUse))
 	{
-		llassert(pLinksetUse != kUnknown);
 		itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPhantom(pLinksetUse));
 		itemData[LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pLinksetUse));
 		itemData[LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pLinksetUse));
