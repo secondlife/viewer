@@ -983,6 +983,7 @@ private:
 	// Avatar Rez Metrics
 	//--------------------------------------------------------------------
 public:
+	void 			debugAvatarRezTime(std::string notification_name, std::string comment = "");
 	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez

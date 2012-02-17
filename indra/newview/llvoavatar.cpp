@@ -774,32 +774,39 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastPelvisFixup = 0.0f;
 }
 
+void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
+{
+	llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+			<< "sec ] Avatar '" << getFullname()
+			<< "' RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+			<< " Notification " << notification_name
+			<< " : " << comment
+			<< llendl;
+
+	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+	{
+		LLSD args;
+		args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
+		args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
+		args["NAME"] = getFullname();
+		LLNotificationsUtil::add(notification_name,args);
+	}
+}
+
 //------------------------------------------------------------------------
 // LLVOAvatar::~LLVOAvatar()
 //------------------------------------------------------------------------
 LLVOAvatar::~LLVOAvatar()
 {
-	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+	if (!mFullyLoaded)
 	{
-		if (!mFullyLoaded)
-		{
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left after " << (U32)mRuthDebugTimer.getElapsedTimeF32() << " seconds as cloud." << llendl;
-			LLSD args;
-			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-			args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
-			args["NAME"] = getFullname();
-			LLNotificationsUtil::add("AvatarRezLeftCloudNotification",args);
-		}
-		else
-		{
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left." << llendl;
-			LLSD args;
-			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-			args["NAME"] = getFullname();
-			LLNotificationsUtil::add("AvatarRezLeftNotification",args);
-		}
-
+		debugAvatarRezTime("AvatarRezLeftCloudNotification","left after ruth seconds as cloud");
 	}
+	else
+	{
+		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
+	}
+
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
 	mRoot.removeAllChildren();
@@ -2252,18 +2259,12 @@ U32 LLVOAvatar::processUpdateMessage(LLMessageSystem *mesgsys,
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
 
 	// Print out arrival information once we have name of avatar.
-	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+	if (has_name && getNVPair("FirstName"))
 	{
-		if (has_name && getNVPair("FirstName"))
-		{
-			mDebugExistenceTimer.reset();
-			LLSD args;
-			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-			args["NAME"] = getFullname();
-			LLNotificationsUtil::add("AvatarRezArrivedNotification",args);
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' arrived." << llendl;
-		}
+		mDebugExistenceTimer.reset();
+		debugAvatarRezTime("AvatarRezArrivedNotification","avatar arrived");
 	}
+
 	if(retval & LLViewerObject::INVALID_UPDATE)
 	{
 		if (isSelf())
@@ -3006,34 +3007,23 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		is_muted = false;
 	}
 	else
-		{
+	{
 		is_muted = LLMuteList::getInstance()->isMuted(getID());
 	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	bool is_cloud = getIsCloud();
 
-			if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
-			{
-				if (is_appearance != mNameAppearance)
-				{
-					if (is_appearance)
-					{
-						LLSD args;
-						args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-						args["NAME"] = getFullname();
-						LLNotificationsUtil::add("AvatarRezEnteredAppearanceNotification",args);
-						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' entered appearance mode." << llendl;
-					}
-					else
-					{
-						LLSD args;
-						args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-						args["NAME"] = getFullname();
-						LLNotificationsUtil::add("AvatarRezLeftAppearanceNotification",args);
-						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left appearance mode." << llendl;
-					}
-				}
-			}
+	if (is_appearance != mNameAppearance)
+	{
+		if (is_appearance)
+		{
+			debugAvatarRezTime("AvatarRezEnteredAppearanceNotification","entered appearance mode");
+		}
+		else
+		{
+			debugAvatarRezTime("AvatarRezLeftAppearanceNotification","left appearance mode");
+		}
+	}
 
 	// Rebuild name tag if state change detected
 	if (mNameString.empty()
@@ -3241,8 +3231,8 @@ void LLVOAvatar::clearNameTag()
 {
 	mNameString.clear();
 	if (mNameText)
-				{
-					mNameText->setLabel("");
+	{
+		mNameText->setLabel("");
 		mNameText->setString( "" );
 	}
 }
@@ -6429,16 +6419,7 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 	if (mPreviousFullyLoaded)
 	{
 		mRuthTimer.reset();
-		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
-		{
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' became cloud." << llendl;
-			LLSD args;
-			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-			args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
-			args["NAME"] = getFullname();
-			LLNotificationsUtil::add("AvatarRezCloudNotification",args);
-		}
-		mRuthDebugTimer.reset();
+		debugAvatarRezTime("AvatarRezCloudNotification","became cloud");
 	}
 	
 	const F32 LOADING_TIMEOUT__SECONDS = 120.f;
@@ -6466,17 +6447,9 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	
 	mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > PAUSE);
 
-	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+	if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
 	{
-		if (!mPreviousFullyLoaded && !loading && mFullyLoaded)
-		{
-			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' resolved in " << (U32)mRuthDebugTimer.getElapsedTimeF32() << " seconds." << llendl;
-			LLSD args;
-			args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-			args["TIME"] = llformat("%d",(U32)mRuthDebugTimer.getElapsedTimeF32());
-			args["NAME"] = getFullname();
-			LLNotificationsUtil::add("AvatarRezNotification",args);
-		}
+		debugAvatarRezTime("AvatarRezNotification","fully loaded");
 	}
 
 	// did our loading state "change" from last call?
