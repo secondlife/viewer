@@ -31,6 +31,7 @@
 #include "llhandle.h"
 #include "llfloater.h"
 #include "lluuid.h"
+#include "llselectmgr.h"
 #include "llpathfindinglinkset.h"
 #include "llfilteredpathfindinglinksets.h"
 
@@ -67,6 +68,7 @@ public:
 
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
+	virtual void onClose(bool app_quitting);
 
 	static void openLinksetsEditor();
 
@@ -103,6 +105,7 @@ private:
 	LLButton                                   *mApplyEditsButton;
 	LLFilteredPathfindingLinksets              mPathfindingLinksets;
 	EMessagingState                            mMessagingState;
+	LLObjectSelectionHandle                    mLinksetsSelection;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
@@ -143,9 +146,9 @@ private:
 
 	void updateLinksetsStatusMessage();
 
-	void updateEditFields();
+	void updateActionAndEditFields();
+	void setEnableActionAndEditFields(BOOL pEnabled);
 	void applyEditFields();
-	void setEnableEditFields(BOOL pEnabled);
 
 	LLPathfindingLinkset::ELinksetUse getFilterLinksetUse() const;
 	void                              setFilterLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);
