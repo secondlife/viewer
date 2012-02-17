@@ -216,26 +216,6 @@
    control_name="ac_list_style"
    name="ac_list_style"
    tool_tip="Having this checked means the list is for full words that should be replaced, unchecked means that it will look within words contents as well."/>
-  <view_border
-   bottom="405"
-   left="201"
-   height="40"
-   width="0"
-   follows="left|top"
-   bevel_style="none"
-   border_thickness="1"
-   mouse_opaque="false"
-   name="divisor2"/>
-  <view_border
-   bottom_delta="-0"
-   left="2"
-   height="0"
-   width="396"
-   follows="left|top"
-   bevel_style="none"
-   border_thickness="1"
-   mouse_opaque="false"
-   name="divisor3"/>
   <button
    top="100"
    left="5"
@@ -297,7 +277,7 @@
    height="16"
    layout="topleft"
    left="10"
-   top="440"
+   top="450"
    width="364">
    Original text:
   </text>
@@ -308,7 +288,7 @@
    left="100"
    max_length_bytes="255"
    name="ac_old_text"
-   top_delta="0"
+   top_delta="-5"
    right="-15"
    select_on_focus="true" />
   <text
@@ -318,7 +298,7 @@
    height="16"
    layout="topleft"
    left="10"
-   top="470"
+   top="475"
    width="364">
    New text:
   </text>
@@ -329,7 +309,7 @@
    left="100"
    max_length_bytes="255"
    name="ac_new_text"
-   top_delta="0"
+   top_delta="-5"
    right="-15"
    select_on_focus="true" />
 </floater>
