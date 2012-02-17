@@ -1110,7 +1110,7 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>123cc763661eda2d599b94c7901c6ea6</string>
+              <string>2b44ae6f5c73383854eb78340264a9e8</string>
               <key>url</key>
               <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_lion/rev/249585/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120216.tar.bz2</string>
             </map>
