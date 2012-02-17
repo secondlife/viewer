@@ -23,6 +23,7 @@
   <floater.string name="characters_messaging_complete_none_found">No pathfinding characters</floater.string>
   <floater.string name="characters_messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL]</floater.string>
   <floater.string name="characters_messaging_service_not_available">Required capability is not available in current region</floater.string>
+  <floater.string name="character_cpu_time">[CPU_TIME] µs</floater.string>
   <scroll_list
       column_padding="0"
       draw_heading="true"

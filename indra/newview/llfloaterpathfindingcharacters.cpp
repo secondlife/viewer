@@ -439,6 +439,7 @@ void LLFloaterPathfindingCharacters::updateCharactersList()
 	mCharactersScrollList->deleteAllItems();
 	updateCharactersStatusMessage();
 
+	LLLocale locale(LLStringUtil::getLocale());
 	for (PathfindingCharacterMap::const_iterator characterIter = mPathfindingCharacters.begin();
 		characterIter != mPathfindingCharacters.end(); ++characterIter)
 	{
@@ -458,8 +459,15 @@ void LLFloaterPathfindingCharacters::updateCharactersList()
 		columns[2]["value"] = character.getOwnerName();
 		columns[2]["font"] = "SANSSERIF";
 
+		S32 cpuTime = llround(character.getCPUTime());
+		std::string cpuTimeString;
+		LLResMgr::getInstance()->getIntegerString(cpuTimeString, cpuTime);
+
+		LLStringUtil::format_map_t string_args;
+		string_args["[CPU_TIME]"] = cpuTimeString;
+
 		columns[3]["column"] = "cpu_time";
-		columns[3]["value"] = llformat("%3.0f ms", character.getCPUTime());
+		columns[3]["value"] = getString("character_cpu_time", string_args);
 		columns[3]["font"] = "SANSSERIF";
 
 		columns[4]["column"] = "altitude";
