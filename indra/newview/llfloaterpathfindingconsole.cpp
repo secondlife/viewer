@@ -45,6 +45,7 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
+#include "llviewercontrol.h"	
 
 #include "LLPathingLib.h"
 
@@ -432,7 +433,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
 	mHasEndPoint(false),
-	mIsRegionFrozen(false)
+	mIsRegionFrozen(false),
+	mNeighboringRegion( CURRENT_REGION )
 {
 	mSelfHandle.bind(this);
 
@@ -470,26 +472,43 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
 		//make sure the region is essentially enabled for navmesh support
 		std::string capability = "RetrieveNavMeshSrc";
-
-		//prep# neighboring navmesh support proto
+		
 		LLViewerRegion* pCurrentRegion = gAgent.getRegion();
 		std::vector<LLViewerRegion*> regions;
 		regions.push_back( pCurrentRegion );
-		//pCurrentRegion->getNeighboringRegions( regions );
+		std::vector<int> shiftDirections;
+		shiftDirections.push_back( CURRENT_REGION );
 
-		std::vector<int> shift;
-		shift.push_back( CURRENT_REGION );
-		//pCurrentRegion->getNeighboringRegionsStatus( shift );
-
-		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
-		if ( shift.size() != regions.size() )
+		mNeighboringRegion = gSavedSettings.getU32("RetrieveNeighboringRegion");
+		if ( mNeighboringRegion != CURRENT_REGION )
 		{
-			shift.clear();regions.clear();
+			//User wants to pull in a neighboring region
+			std::vector<S32> availableRegions;
+			pCurrentRegion->getNeighboringRegionsStatus( availableRegions );
+			//Is the desired region in the available list
+			std::vector<S32>::iterator foundElem = std::find(availableRegions.begin(),availableRegions.end(),mNeighboringRegion); 
+			if ( foundElem != availableRegions.end() )
+			{
+				LLViewerRegion* pCurrentRegion = gAgent.getRegion();
+				std::vector<LLViewerRegion*> regionPtrs;
+				pCurrentRegion->getNeighboringRegions( regionPtrs );
+				regions.push_back( regionPtrs[mNeighboringRegion] );
+				shiftDirections.push_back( mNeighboringRegion );
+			}
+		}		
+		
+		
+		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
+		if ( shiftDirections.size() != regions.size() )
+		{
+			shiftDirections.clear();regions.clear();
 			regions.push_back( pCurrentRegion );
-			shift.push_back( CURRENT_REGION );				
+			shiftDirections.push_back( CURRENT_REGION );				
 		}
+
 		int regionCnt = regions.size();
 		mNavMeshCnt = regionCnt;
+
 		for ( int i=0; i<regionCnt; ++i )
 		{
 			std::string url = regions[i]->getCapability( capability );
@@ -499,7 +518,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 				std::string str = getString("navmesh_fetch_inprogress");
 				mPathfindingStatus->setText((LLStringExplicit)str);
 				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
-				int dir = shift[i];
+				int dir = shiftDirections[i];
 				LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver[mCurrentMDO].getObserverHandle(), dir );				
 				++mCurrentMDO;
 			}				

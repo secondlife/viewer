@@ -13483,5 +13483,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+	<key>RetrieveNeighboringRegion</key>
+    <map>
+      <key>Comment</key>
+      <string>Download a neighboring region when visualize a navmesh (default val 99 is for the current region).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+	  <integer>6</integer>
+    </map>
 </map>
 </llsd>
