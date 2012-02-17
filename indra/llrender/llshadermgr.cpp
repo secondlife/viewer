@@ -611,6 +611,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		{
 			//set version to 1.30
 			text[count++] = strdup("#version 130\n");
+
+			//some implementations of GLSL 1.30 require integer precision be explicitly declared
+			text[count++] = strdup("precision mediump int;\n");
 		}
 		else
 		{ //set version to 400
@@ -663,7 +666,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		.
 		uniform sampler2D texN;
 		
-		VARYING ivec4 vary_texture_index;
+		VARYING_FLAT ivec4 vary_texture_index;
 
 		vec4 diffuseLookup(vec2 texcoord)
 		{
