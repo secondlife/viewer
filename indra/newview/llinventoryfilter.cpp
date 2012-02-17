@@ -317,7 +317,7 @@ bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 	{
 		LLUUID current_id = object_id;
 		LLInventoryObject *current_object = gInventory.getObject(object_id);
-		while (current_id.notNull())
+		while (current_id.notNull() && current_object)
 		{
 			if (LLClipboard::getInstance()->isOnClipboard(current_id))
 			{
