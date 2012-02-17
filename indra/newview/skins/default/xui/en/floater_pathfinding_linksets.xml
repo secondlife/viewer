@@ -276,16 +276,25 @@
         follows="left|bottom|right"
         layout="topleft"
         top_pad="8"
-        width="912">
+        width="580">
       Actions on selected linksets (If a linkset is removed from the world, its attributes will be lost):
     </text>
+    <check_box
+        height="19"
+        follows="left|bottom"
+        label="Show beacon"
+        layout="topleft"
+        name="show_beacon"
+        left_pad="0"
+        top_pad="-16"
+        width="90" />
     <button
         follows="left|bottom"
         height="21"
         label="Take"
         layout="topleft"
         name="take_linksets"
-        top_pad="12"
+        top_pad="9"
         left="18"
         width="95"/>
     <button

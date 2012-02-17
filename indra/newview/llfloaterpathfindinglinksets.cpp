@@ -40,6 +40,7 @@
 #include "llscrolllistitem.h"
 #include "llscrolllistctrl.h"
 #include "llcombobox.h"
+#include "llcheckboxctrl.h"
 #include "llbutton.h"
 #include "llresmgr.h"
 #include "llviewerregion.h"
@@ -146,6 +147,9 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	llassert(mSelectNoneButton != NULL);
 	mSelectNoneButton->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onSelectNoneLinksetsClicked, this));
 
+	mShowBeaconCheckBox = findChild<LLCheckBoxCtrl>("show_beacon");
+	llassert(mShowBeaconCheckBox != NULL);
+
 	mTakeButton = findChild<LLButton>("take_linksets");
 	llassert(mTakeButton != NULL);
 	mTakeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onTakeClicked, this));
@@ -242,6 +246,37 @@ void LLFloaterPathfindingLinksets::onClose(bool app_quitting)
 
 		mLinksetsSelection.clear();
 	}
+}
+
+void LLFloaterPathfindingLinksets::draw()
+{
+	if (mShowBeaconCheckBox->get())
+	{
+		std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+		if (!selectedItems.empty())
+		{
+			int numSelectedItems = selectedItems.size();
+
+			std::vector<LLViewerObject *> viewerObjects;
+			viewerObjects.reserve(numSelectedItems);
+
+			for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+				selectedItemIter != selectedItems.end(); ++selectedItemIter)
+			{
+				const LLScrollListItem *selectedItem = *selectedItemIter;
+
+				const std::string &objectName = selectedItem->getColumn(0)->getValue().asString();
+
+				LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
+				if (viewerObject != NULL)
+				{
+					gObjectList.addDebugBeacon(viewerObject->getPositionAgent(), objectName, LLColor4(0.f, 0.f, 1.f, 0.8f), LLColor4(1.f, 1.f, 1.f, 1.f), 6);
+				}
+			}
+		}
+	}
+
+	LLFloater::draw();
 }
 
 void LLFloaterPathfindingLinksets::openLinksetsEditor()

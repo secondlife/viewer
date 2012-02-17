@@ -40,6 +40,7 @@ class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
 class LLComboBox;
+class LLCheckBoxCtrl;
 class LLButton;
 
 class LLFloaterPathfindingLinksets
@@ -69,6 +70,7 @@ public:
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 	virtual void onClose(bool app_quitting);
+	virtual void draw();
 
 	static void openLinksetsEditor();
 
@@ -87,6 +89,7 @@ private:
 	LLButton                                   *mRefreshListButton;
 	LLButton                                   *mSelectAllButton;
 	LLButton                                   *mSelectNoneButton;
+	LLCheckBoxCtrl                             *mShowBeaconCheckBox;
 	LLButton                                   *mTakeButton;
 	LLButton                                   *mTakeCopyButton;
 	LLButton                                   *mReturnButton;
