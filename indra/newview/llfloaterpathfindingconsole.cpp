@@ -60,6 +60,8 @@
 #define XUI_CHARACTER_TYPE_C 3
 #define XUI_CHARACTER_TYPE_D 4
 
+#define XUI_TEST_TAB_INDEX 1
+
 const int CURRENT_REGION = 99;
 const int MAX_OBSERVERS = 10;
 
@@ -180,7 +182,7 @@ BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, E
 
 BOOL LLFloaterPathfindingConsole::isGeneratePathMode(MASK mask, EClickType clicktype, BOOL down) const
 {
-	return (getVisible() && (mEditTestTabContainer->getCurrentPanelIndex() == 1) &&
+	return (isShown() && (mEditTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX) &&
 		(clicktype == LLMouseHandler::CLICK_LEFT) && down && 
 		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
 		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))));
