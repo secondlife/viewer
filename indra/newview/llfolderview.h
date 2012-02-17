@@ -159,7 +159,7 @@ public:
 
 	// deletion functionality
  	void removeSelectedItems();
- 	void removeCutItems();
+ 	static void removeCutItems();
 
 	// open the selected item.
 	void openSelectedItems( void );

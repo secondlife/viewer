@@ -27,6 +27,7 @@
 #ifndef LL_LLCLIPBOARD_H
 #define LL_LLCLIPBOARD_H
 
+#include <boost/function.hpp>
 
 #include "llstring.h"
 #include "lluuid.h"
@@ -34,6 +35,8 @@
 #include "llsingleton.h"
 #include "llassettype.h"
 #include "llinventory.h"
+
+typedef boost::function<void ()> cleanup_callback_t;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLClipboard
@@ -77,13 +80,15 @@ public:
 	bool isOnClipboard(const LLUUID& object) const;					// True if the input object uuid is on the clipboard
 
 	bool isCutMode() const { return mCutMode; }
-	void setCutMode(bool mode) { mCutMode = mode; mState++; }
+	void setCutMode(bool mode, cleanup_callback_t cb = NULL) { mCutMode = mode; mCleanupCallback = cb; mState++; }
 
 private:
 	LLDynamicArray<LLUUID> mObjects;	// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
 	LLWString mString;					// The text string. If mObjects is not empty, this string is reflecting them (UUIDs for the moment).
-	bool mCutMode;						// This is a convenience flag for the viewer. It has no influence on the cliboard management.
+	bool mCutMode;						// This is a convenience flag for the viewer. Will determine if mCleanupCallback() needs to be called.
+	cleanup_callback_t mCleanupCallback;// Function to call when the cut clipboard is being wiped out. Can be set to NULL (nothing done then).
 	int mState;							// Incremented when the clipboard change so that interested parties can check its state.
+	
 };
 
 #endif  // LL_LLCLIPBOARD_H

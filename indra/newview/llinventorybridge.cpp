@@ -213,7 +213,7 @@ BOOL LLInvFVBridge::cutToClipboard() const
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemMovable() && isItemRemovable())
 	{
-		LLClipboard::getInstance()->setCutMode(true);
+		LLClipboard::getInstance()->setCutMode(true, boost::bind(LLFolderView::removeCutItems));
 		return LLClipboard::getInstance()->addToClipboard(mUUID,obj->getType());
 	}
 	return FALSE;

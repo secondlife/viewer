@@ -47,9 +47,17 @@ LLClipboard::~LLClipboard()
 
 void LLClipboard::reset()
 {
+	// Increment the clipboard state
 	mState++;
+	// Call the cleanup function (if any) before releasing the object list
+	if (mCutMode && mCleanupCallback)
+	{
+		mCleanupCallback();
+	}
+	// Clear the clipboard
 	mObjects.reset();
 	mCutMode = false;
+	mCleanupCallback = NULL;
 	mString = LLWString();
 }
 

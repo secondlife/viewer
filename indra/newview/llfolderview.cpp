@@ -1014,6 +1014,7 @@ bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFol
 	return false;
 }
 
+// static
 void LLFolderView::removeCutItems()
 {
 	// There's no item in "cut" mode on the clipboard -> exit
@@ -2139,10 +2140,6 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 	}
 	if (("copy" == action) || ("cut" == action))
 	{
-		// If there are things on the clipboard that have not been pasted but 
-		// already disappeared from view, we need to move them to the trash
-		removeCutItems();
-		
 		// Clear the clipboard before we start adding things on it
 		LLClipboard::getInstance()->reset();
 	}
