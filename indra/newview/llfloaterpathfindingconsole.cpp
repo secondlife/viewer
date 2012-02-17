@@ -397,7 +397,7 @@ void LLFloaterPathfindingConsole::setHasNavMeshReceived()
 	--mNavMeshCnt;
 	if ( mNavMeshCnt == 0 )
 	{
-		LLPathingLib::getInstance()->stitchNavMeshes();
+		LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
 	}
 }
 
