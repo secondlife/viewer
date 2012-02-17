@@ -882,6 +882,7 @@ private:
 
 public:
 	std::string		getFullname() const; // Returns "FirstName LastName"
+	std::string		avString() const; // Frequently used string in log messages "Avatar '<full name'"
 protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	

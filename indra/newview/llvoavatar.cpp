@@ -774,11 +774,17 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastPelvisFixup = 0.0f;
 }
 
+std::string LLVOAvatar::avString() const
+{
+	return " Avatar '" + getFullname() + "' ";
+}
+
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
 {
 	llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
-			<< "sec ] Avatar '" << getFullname()
-			<< "' RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+			<< "sec ]"
+			<< avString() 
+			<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
 			<< " Notification " << notification_name
 			<< " : " << comment
 			<< llendl;
@@ -2775,11 +2781,15 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			static bool first_fully_visible = true;
 			if (first_fully_visible)
 			{
-				llinfos << "self isFullyLoaded, first_fully_visible" << llendl;
+				llinfos << avString() << "self isFullyLoaded, first_fully_visible" << llendl;
 
 				first_fully_visible = false;
 				LLAppearanceMgr::instance().onFirstFullyVisible();
 			}
+		}
+		if (isFullyLoaded() && !isSelf())
+		{
+			llinfos << avString() << "other isFullyLoaded" << llendl;
 		}
 		if (isFullyLoaded())
 		{
@@ -6892,7 +6902,7 @@ LLColor4 LLVOAvatar::getDummyColor()
 
 void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 {	
-	llinfos << (isSelf() ? "Self: " : "Other: ") << context << llendl;
+	llinfos << avString() << (isSelf() ? "Self: " : "Other: ") << context << llendl;
 	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
 		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
 		 ++iter)
@@ -6902,23 +6912,23 @@ void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 		const LLViewerTexture* te_image = getImage(iter->first,0);
 		if( !te_image )
 		{
-			llinfos << "       " << texture_dict->mName << ": null ptr" << llendl;
+			llinfos << avString() << "       " << texture_dict->mName << ": null ptr" << llendl;
 		}
 		else if( te_image->getID().isNull() )
 		{
-			llinfos << "       " << texture_dict->mName << ": null UUID" << llendl;
+			llinfos << avString() << "       " << texture_dict->mName << ": null UUID" << llendl;
 		}
 		else if( te_image->getID() == IMG_DEFAULT )
 		{
-			llinfos << "       " << texture_dict->mName << ": IMG_DEFAULT" << llendl;
+			llinfos << avString() << "       " << texture_dict->mName << ": IMG_DEFAULT" << llendl;
 		}
 		else if( te_image->getID() == IMG_DEFAULT_AVATAR )
 		{
-			llinfos << "       " << texture_dict->mName << ": IMG_DEFAULT_AVATAR" << llendl;
+			llinfos << avString() << "       " << texture_dict->mName << ": IMG_DEFAULT_AVATAR" << llendl;
 		}
 		else
 		{
-			llinfos << "       " << texture_dict->mName << ": " << te_image->getID() << llendl;
+			llinfos << avString() << "       " << texture_dict->mName << ": " << te_image->getID() << llendl;
 		}
 	}
 }
