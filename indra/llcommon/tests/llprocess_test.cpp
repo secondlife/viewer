@@ -1179,16 +1179,16 @@ namespace tut
         ensure("contains(\":\")", ! childout.contains(":"));
         ensure("contains(':')",   ! childout.contains(':'));
         ensure("contains(\"d\")", childout.contains("d"));
-        ensure("contains('d')",   childout.contains("d"));
+        ensure("contains('d')",   childout.contains('d'));
         ensure("contains(\"klm\")", childout.contains("klm"));
         ensure("contains(\"klx\")", ! childout.contains("klx"));
         // find()
         ensure("find(\":\")", childout.find(":") == LLProcess::ReadPipe::npos);
         ensure("find(':')",   childout.find(':') == LLProcess::ReadPipe::npos);
         ensure_equals("find(\"d\")", childout.find("d"), 3);
-        ensure_equals("find('d')",   childout.find("d"), 3);
+        ensure_equals("find('d')",   childout.find('d'), 3);
         ensure_equals("find(\"d\", 3)", childout.find("d", 3), 3);
-        ensure_equals("find('d', 3)",   childout.find("d", 3), 3);
+        ensure_equals("find('d', 3)",   childout.find('d', 3), 3);
         ensure("find(\"d\", 4)", childout.find("d", 4) == LLProcess::ReadPipe::npos);
         ensure("find('d', 4)",   childout.find('d', 4) == LLProcess::ReadPipe::npos);
         // The case of offset == end and offset > end are different. In the
