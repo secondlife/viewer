@@ -6,7 +6,7 @@
  bottom="400"
  left="300"
  can_resize="false"
- height="430"
+ height="500"
  width="400"
  name="ac_floater"
  title="Autocorrect Settings">
@@ -237,7 +237,7 @@
    mouse_opaque="false"
    name="divisor3"/>
   <button
-   bottom="400"
+   top="100"
    left="5"
    height="22"
    width="90"
@@ -291,24 +291,45 @@
    name="ac_rementry"
    label="Remove Entry"/>
   <text
-   bottom_delta="25"
-   left_delta="-240"
-   height="16"
-   width="170"
+   type="string"
+   length="1"
    follows="left|top"
-   halign="center"
-   font="SansSerifSmall"
-   mouse_opaque="true"
-   name="ac_text3">
-   Words automatically corrected:
+   height="16"
+   layout="topleft"
+   left="10"
+   top="440"
+   width="364">
+   Original text:
   </text>
-  <view_border
-   bottom_delta="-0"
-   left_delta="180"
-   height="16"
-   width="70"
+  <line_editor
    follows="left|top"
-   bevel_style="in"
-   mouse_opaque="false"
-   name="ac_statsbox"/>
+   height="23"
+   layout="topleft"
+   left="100"
+   max_length_bytes="255"
+   name="ac_old_text"
+   top_delta="0"
+   right="-15"
+   select_on_focus="true" />
+  <text
+   type="string"
+   length="1"
+   follows="left|top"
+   height="16"
+   layout="topleft"
+   left="10"
+   top="470"
+   width="364">
+   New text:
+  </text>
+  <line_editor
+   follows="left|top"
+   height="23"
+   layout="topleft"
+   left="100"
+   max_length_bytes="255"
+   name="ac_new_text"
+   top_delta="0"
+   right="-15"
+   select_on_focus="true" />
 </floater>

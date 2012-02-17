@@ -24,6 +24,7 @@
 #include "llfloater.h"
 #include "llmediactrl.h"
 #include "llscrolllistctrl.h"
+#include "lllineeditor.h"
 
 #include "llviewerinventory.h"
 #include <boost/bind.hpp>
@@ -47,6 +48,8 @@ public:
 
 	LLScrollListCtrl *namesList;
 	LLScrollListCtrl *entryList;
+	LLLineEditor* mOldText;
+	LLLineEditor* mNewText;
 	//LLPanel * empanel;
 private:
 	//static JCInvDropTarget* mNotecardDropTarget;

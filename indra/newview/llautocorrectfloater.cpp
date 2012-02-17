@@ -74,6 +74,8 @@ BOOL AutoCorrectFloater::postBuild(void)
 
 	namesList = getChild<LLScrollListCtrl>("ac_list_name");
 	entryList = getChild<LLScrollListCtrl>("ac_list_entry");
+	mOldText = getChild<LLLineEditor>("ac_old_text");
+	mNewText = getChild<LLLineEditor>("ac_new_text");
 
 	childSetCommitCallback("ac_enable",onBoxCommitEnabled,this);
 
@@ -273,7 +275,7 @@ void AutoCorrectFloater::deleteEntry(void* data)
 			if((self->entryList->getAllSelected().size())>0)
 			{	
 				std::string wrong= self->entryList->getFirstSelected()->getColumn(0)->getValue().asString();
-       				AutoCorrect::getInstance()->removeEntryFromList(wrong,listName);
+   				AutoCorrect::getInstance()->removeEntryFromList(wrong,listName);
 				self->updateItemsList();
 				AutoCorrect::getInstance()->save();
 			}
@@ -348,17 +350,16 @@ void AutoCorrectFloater::addEntry(void* data)
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			LLChat chat;
-			chat.mText ="To add an entry, please type in chat \""+gSavedSettings.getString("CmdLineAutocorrect")+" "+listName+"|wrongWord|rightWord\"";
-
-			chat.mSourceType = CHAT_SOURCE_SYSTEM;
-			LLSD args;
-			args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
-			LLNotificationsUI::LLNotificationManager::instance().onChat(chat, args);
-			
+			std::string wrong = self->mOldText->getText();
+			std::string right = self->mNewText->getText();
+			if(wrong != "" && right != "")
+			{
+				AutoCorrect::getInstance()->addEntryToList(wrong, right, listName);
+				self->updateItemsList();
+				AutoCorrect::getInstance()->save();
+			}
 		}
 	}
-	
 }
 AutoCorrectFloater* AutoCorrectFloater::showFloater()
 {
