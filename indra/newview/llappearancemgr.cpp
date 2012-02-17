@@ -239,7 +239,7 @@ void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*)gInventory.getItem(inv_item);
 	const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	llinfos << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << llendl;
+	llinfos << self_av_string() << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << llendl;
 #endif
 	mFireCount++;
 }
@@ -1401,8 +1401,8 @@ void LLAppearanceMgr::filterWearableItems(
 
 // Create links to all listed items.
 void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
-								  LLInventoryModel::item_array_t& items,
-								  LLPointer<LLInventoryCallback> cb)
+							  LLInventoryModel::item_array_t& items,
+							  LLPointer<LLInventoryCallback> cb)
 {
 	for (S32 i=0; i<items.count(); i++)
 	{
@@ -1418,7 +1418,7 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 		const LLViewerInventoryCategory *cat = gInventory.getCategory(cat_uuid);
 		const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-		llinfos << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl;
+		llinfos << self_av_string() << "Linking Item [ name:" << item->getName() << " UUID:" << item->getUUID() << " ] to Category [ name:" << cat_name << " UUID:" << cat_uuid << " ] " << llendl;
 #endif
 	}
 }

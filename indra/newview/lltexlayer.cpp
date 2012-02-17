@@ -55,6 +55,9 @@ using namespace LLVOAvatarDefines;
 static const S32 BAKE_UPLOAD_ATTEMPTS = 7;
 static const F32 BAKE_UPLOAD_RETRY_DELAY = 2.f; // actual delay grows by power of 2 each attempt
 
+// runway consolidate
+extern std::string self_av_string();
+
 class LLTexLayerInfo
 {
 	friend class LLTexLayer;
@@ -577,7 +580,7 @@ void LLTexLayerSetBuffer::doUpload()
 					args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 					args["RESOLUTION"] = lod_str;
 					LLNotificationsUtil::add("AvatarRezSelfBakedTextureUploadNotification",args);
-					llinfos << "Uploading [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUploadTimer.getElapsedTimeF32() << " ]" << llendl;
+					llinfos << self_av_string() << "Uploading [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUploadTimer.getElapsedTimeF32() << " ]" << llendl;
 				}
 			}
 			else
@@ -631,7 +634,7 @@ void LLTexLayerSetBuffer::doUpdate()
 		args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 		args["RESOLUTION"] = lod_str;
 		LLNotificationsUtil::add("AvatarRezSelfBakedTextureUpdateNotification",args);
-		llinfos << "Locally updating [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUpdateTimer.getElapsedTimeF32() << " ]" << llendl;
+		llinfos << self_av_string() << "Locally updating [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUpdateTimer.getElapsedTimeF32() << " ]" << llendl;
 	}
 }
 

@@ -2252,11 +2252,25 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 			if (isAllLocalTextureDataFinal())
 			{
 				LLNotificationsUtil::add("AvatarRezSelfBakedDoneNotification",args);
+				llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+						<< "sec ]"
+						<< avString() 
+						<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+						<< " SelfLoadTimer " << (U32)mDebugSelfLoadTimer.getElapsedTimeF32()
+						<< " Notification " << "AvatarRezSelfBakedDoneNotification"
+						<< llendl;
 			}
 			else
 			{
 				args["STATUS"] = debugDumpAllLocalTextureDataInfo();
 				LLNotificationsUtil::add("AvatarRezSelfBakedUpdateNotification",args);
+				llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+						<< "sec ]"
+						<< avString() 
+						<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+						<< " SelfLoadTimer " << (U32)mDebugSelfLoadTimer.getElapsedTimeF32()
+						<< " Notification " << "AvatarRezSelfBakedUpdateNotification"
+						<< llendl;
 			}
 		}
 
