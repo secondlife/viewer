@@ -421,8 +421,6 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 		return FALSE;
 	}
 
-	const LLUUID &agent_id = gAgent.getID();
-
 	LLDynamicArray<LLUUID> objects;
 	LLClipboard::getInstance()->pasteFromClipboard(objects);
 	S32 count = objects.count();
@@ -430,18 +428,21 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 	{
 		const LLUUID &item_id = objects.get(i);
 
-		// Always paste folders
+		// Folders are pastable if all items in there are copyable
 		const LLInventoryCategory *cat = model->getCategory(item_id);
-		if (cat) continue;
-
-		const LLInventoryItem *item = model->getItem(item_id);
-		if (item)
+		if (cat) 
 		{
-			if (!item->getPermissions().allowCopyBy(agent_id))
-			{
+			LLFolderBridge cat_br(mInventoryPanel.get(), mRoot, item_id);
+			if (!cat_br.isItemCopyable())
 				return FALSE;
-			}
+			// Skip to the next item in the clipboard
+			continue;
 		}
+
+		// Each item must be copyable to be pastable
+		LLItemBridge item_br(mInventoryPanel.get(), mRoot, item_id);
+		if (!item_br.isItemCopyable())
+			return FALSE;
 	}
 	return TRUE;
 }
@@ -634,7 +635,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	{
 		items.push_back(std::string("Paste"));
 	}
-	if (!isClipboardPasteable() || ((flags & FIRST_SELECTED_ITEM) == 0))
+	if ((!LLClipboard::getInstance()->isCutMode() && !isClipboardPasteable()) || ((flags & FIRST_SELECTED_ITEM) == 0))
 	{
 		disabled_items.push_back(std::string("Paste"));
 	}
@@ -1778,8 +1779,33 @@ BOOL LLFolderBridge::isUpToDate() const
 
 BOOL LLFolderBridge::isItemCopyable() const
 {
-	// Folders are always copyable as they have no permissions attached to them as items.
-	// The story is different of course for items within folders.
+	// Folders are copyable if items in them are, recursively, copyable.
+
+	// Get the content of the folder
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(mUUID,cat_array,item_array);
+
+	// Check the items
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+		LLItemBridge item_br(mInventoryPanel.get(), mRoot, item->getUUID());
+		if (!item_br.isItemCopyable())
+			return FALSE;
+	}
+	
+	// Check the folders
+	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	{
+		LLViewerInventoryCategory* category = *iter;
+		LLFolderBridge cat_br(mInventoryPanel.get(), mRoot, category->getUUID());
+		if (!cat_br.isItemCopyable())
+			return FALSE;
+	}
+	
 	return TRUE;
 }
 
@@ -2823,7 +2849,7 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 void LLFolderBridge::pasteFromClipboard()
 {
 	LLInventoryModel* model = getInventoryModel();
-	if (model && isClipboardPasteable())
+	if (model && (isClipboardPasteable() || LLClipboard::getInstance()->isCutMode()))
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
