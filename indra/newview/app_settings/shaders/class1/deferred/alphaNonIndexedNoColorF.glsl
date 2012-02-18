@@ -34,8 +34,6 @@ out vec4 frag_color;
 uniform sampler2DRect depthMap;
 uniform sampler2D diffuseMap;
 
-uniform mat4 shadow_matrix[6];
-uniform vec4 shadow_clip;
 uniform vec2 screen_res;
 
 vec3 atmosLighting(vec3 light);

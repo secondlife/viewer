@@ -8817,16 +8817,16 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		
 		da = powf(da, split_exp.mV[2]);
 
-
 		F32 sxp = split_exp.mV[1] + (split_exp.mV[0]-split_exp.mV[1])*da;
-
-
+		
 		for (U32 i = 0; i < 4; ++i)
 		{
 			F32 x = (F32)(i+1)/4.f;
 			x = powf(x, sxp);
 			mSunClipPlanes.mV[i] = near_clip+range*x;
 		}
+
+		mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
 	}
 
 	// convenience array of 4 near clip plane distances
@@ -8883,8 +8883,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
 				delta.normVec();
 				F32 dp = delta*pn;
-				frust[i] = eye + (delta*dist[j]*0.95f)/dp;
-				frust[i+4] = eye + (delta*dist[j+1]*1.05f)/dp;
+				frust[i] = eye + (delta*dist[j]*0.75f)/dp;
+				frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
 			}
 						
 			shadow_cam.calcAgentFrustumPlanes(frust);

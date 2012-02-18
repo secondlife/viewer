@@ -39,8 +39,6 @@ uniform sampler2D noiseMap;
 
 
 // Inputs
-uniform mat4 shadow_matrix[6];
-uniform vec4 shadow_clip;
 uniform float ssao_radius;
 uniform float ssao_max_radius;
 uniform float ssao_factor;
@@ -50,9 +48,6 @@ VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
-
-uniform float shadow_bias;
-uniform float shadow_offset;
 
 vec4 getPosition(vec2 pos_screen)
 {
