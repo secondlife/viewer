@@ -420,6 +420,7 @@ set(viewer_SOURCE_FILES
     llpatchvertexarray.cpp
     llpathfindingcharacter.cpp
     llpathfindinglinkset.cpp
+    llpathfindingmanager.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -973,6 +974,7 @@ set(viewer_HEADER_FILES
     llpatchvertexarray.h
     llpathfindingcharacter.h
     llpathfindinglinkset.h
+    llpathfindingmanager.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h

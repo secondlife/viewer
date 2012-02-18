@@ -11,6 +11,8 @@
     single_instance="true"
     title="Basic pathfinding setup"
     width="312">
+  <floater.string name="pathfinding_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="unable_to_change_state">Unable to change modes successfully.</floater.string>
   <text
       height="13"
       word_wrap="false"
@@ -21,10 +23,9 @@
       follows="left|top"
       layout="topleft"
       left="15"
-      name="disabled_warning_label"
+      name="status_label"
       top="8"
       width="289">
-    This region is not enabled for pathfinding.
   </text>
   <text
       height="13"

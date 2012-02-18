@@ -1,5 +1,5 @@
 /** 
- * @file llpathfindinglinksets.cpp
+ * @file llpathfindingcharacter.cpp
  * @author William Todd Stinson
  * @brief Definition of a pathfinding character that contains various properties required for havok pathfinding.
  *
