@@ -214,7 +214,7 @@ BOOL LLInvFVBridge::cutToClipboard() const
 	if (obj && isItemMovable() && isItemRemovable())
 	{
 		LLClipboard::getInstance()->setCutMode(true, boost::bind(LLFolderView::removeCutItems));
-		return LLClipboard::getInstance()->addToClipboard(mUUID,obj->getType());
+		return LLClipboard::getInstance()->addToClipboard(mUUID);
 	}
 	return FALSE;
 }
@@ -224,7 +224,7 @@ BOOL LLInvFVBridge::copyToClipboard() const
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemCopyable())
 	{
-		return LLClipboard::getInstance()->addToClipboard(mUUID,obj->getType());
+		return LLClipboard::getInstance()->addToClipboard(mUUID);
 	}
 	return FALSE;
 }
