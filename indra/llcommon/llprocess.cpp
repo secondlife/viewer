@@ -209,7 +209,7 @@ public:
 		mPipe(pipe),
 		// Essential to initialize our std::istream with our special streambuf!
 		mStream(&mStreambuf),
-		mPump("ReadPipe"),
+		mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
 		// use funky syntax to call max() to avoid blighted max() macros
 		mLimit(npos)
 	{
