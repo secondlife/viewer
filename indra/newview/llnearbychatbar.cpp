@@ -34,6 +34,7 @@
 
 #include "llfirstuse.h"
 #include "llnearbychatbar.h"
+#include "llnearbychatbarlistener.h"
 #include "llagent.h"
 #include "llgesturemgr.h"
 #include "llmultigesture.h"
@@ -80,6 +81,7 @@ LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+	mListener.reset(new LLNearbyChatBarListener(*this));
 }
 
 //virtual
