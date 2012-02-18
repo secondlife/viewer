@@ -40,10 +40,11 @@ class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 public:
 	typedef enum {
-		kAgentStateNotEnabled  = 0,
-		kAgentStateFrozen   = 1,
-		kAgentStateUnfrozen = 2,
-		kAgentStateError    = 3
+		kAgentStateNotEnabled     = 0,
+		kAgentStateFrozen         = 1,
+		kAgentStateUnfrozen       = 2,
+		kAgentStateError          = 3,
+		kAgentStateInitialDefault = kAgentStateUnfrozen
 	} EAgentState;
 
 	typedef boost::function<void (EAgentState pAgentState)> agent_state_callback_t;

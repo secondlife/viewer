@@ -82,7 +82,7 @@ LLFloaterPathfindingBasic::LLFloaterPathfindingBasic(const LLSD& pSeed)
 	mUnfreezeButton(NULL),
 	mFreezeLabel(NULL),
 	mFreezeButton(NULL),
-	mAgentState(LLPathfindingManager::kAgentStateNotEnabled)
+	mAgentState(LLPathfindingManager::kAgentStateInitialDefault)
 {
 }
 
