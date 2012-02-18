@@ -103,8 +103,14 @@ void LLPreviewAnim::play(const LLSD& param)
 		
 		if (getChild<LLUICtrl>(btn_name)->getValue().asBoolean() ) 
 		{
-			"Inworld" == btn_name ? gAgent.sendAnimationRequest(itemID, ANIM_REQUEST_START) :
-									gAgentAvatarp->startMotion(item->getAssetUUID());
+			if("Inworld" == btn_name)
+			{
+				gAgent.sendAnimationRequest(itemID, ANIM_REQUEST_START);
+			}
+			else
+			{
+				gAgentAvatarp->startMotion(item->getAssetUUID());
+			}
 
 			LLMotion* motion = gAgentAvatarp->findMotion(itemID);
 			if (motion)
