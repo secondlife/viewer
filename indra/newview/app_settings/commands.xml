@@ -40,7 +40,7 @@
            is_enabled_function="Build.Enabled"
            is_enabled_parameters="build"
            is_running_function="Floater.IsOpen"
-           is_running_parameters="toolbox floater"
+           is_running_parameters="build"
            />
   <command name="chat"
            available_in_toybox="true"
