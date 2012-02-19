@@ -169,11 +169,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 
 	const std::string& param = sdname.asString();
 
-	if (param == "build")
-	{
-		retval = LLViewerParcelMgr::getInstance()->allowAgentBuild();
-	}
-	else if (param == "speak")
+	if (param == "speak")
 	{
 		if ( gAgent.isVoiceConnected() && 
 			LLViewerParcelMgr::getInstance()->allowAgentVoice() &&
