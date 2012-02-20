@@ -1206,6 +1206,65 @@ namespace tut
         ensure("find(\"ghi\", 27)", childout.find("ghi", 27) == LLProcess::ReadPipe::npos);
     }
 
+    template<> template<>
+    void object::test<20>()
+    {
+        set_test_name("good postend");
+        PythonProcessLauncher py("postend",
+                                 "import sys\n"
+                                 "sys.exit(35)\n");
+        std::string pumpname("postend");
+        EventListener listener(LLEventPumps::instance().obtain(pumpname));
+        py.mParams.postend = pumpname;
+        py.launch();
+        LLProcess::id childid(py.mPy->getProcessID());
+        // Don't use waitfor(), which calls isRunning(); instead wait for an
+        // event on pumpname.
+        int i, timeout = 60;
+        for (i = 0; i < timeout && listener.mHistory.empty(); ++i)
+        {
+            yield();
+        }
+        ensure("no postend event", i < timeout);
+        ensure_equals("number of postend events", listener.mHistory.size(), 1);
+        LLSD postend(listener.mHistory.front());
+        ensure_equals("id",    postend["id"].asInteger(), childid);
+        ensure("desc empty", ! postend["desc"].asString().empty());
+        ensure_equals("state", postend["state"].asInteger(), LLProcess::EXITED);
+        ensure_equals("data",  postend["data"].asInteger(),  35);
+        std::string str(postend["string"]);
+        ensure_contains("string", str, "exited");
+        ensure_contains("string", str, "35");
+    }
+
+    template<> template<>
+    void object::test<21>()
+    {
+        set_test_name("bad postend");
+        std::string pumpname("postend");
+        EventListener listener(LLEventPumps::instance().obtain(pumpname));
+        LLProcess::Params params;
+        params.postend = pumpname;
+        LLProcessPtr child = LLProcess::create(params);
+        ensure("shouldn't have launched", ! child);
+        ensure_equals("number of postend events", listener.mHistory.size(), 1);
+        LLSD postend(listener.mHistory.front());
+        ensure("has id", ! postend.has("id"));
+        // Ha ha, in this case the implementation normally sets "desc" to
+        // params.executable. But as the nature of the problem is that
+        // params.executable is empty, expecting "desc" to be nonempty is a
+        // bit unreasonable!
+        //ensure("desc empty", ! postend["desc"].asString().empty());
+        ensure_equals("state", postend["state"].asInteger(), LLProcess::UNSTARTED);
+        ensure("has data", ! postend.has("data"));
+        std::string error(postend["string"]);
+        // All we get from canned parameter validation is a bool, so the
+        // "validation failed" message we ourselves generate can't mention
+        // "executable" by name. Just check that it's nonempty.
+        //ensure_contains("error", error, "executable");
+        ensure("string", ! error.empty());
+    }
+
     // TODO:
     // test EOF -- check logging
 

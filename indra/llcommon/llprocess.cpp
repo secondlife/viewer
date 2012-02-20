@@ -125,7 +125,7 @@ const LLProcess::BasePipe::size_type
 
 class WritePipeImpl: public LLProcess::WritePipe
 {
-    LOG_CLASS(WritePipeImpl);
+	LOG_CLASS(WritePipeImpl);
 public:
 	WritePipeImpl(const std::string& desc, apr_file_t* pipe):
 		mDesc(desc),
@@ -202,7 +202,7 @@ private:
 
 class ReadPipeImpl: public LLProcess::ReadPipe
 {
-    LOG_CLASS(ReadPipeImpl);
+	LOG_CLASS(ReadPipeImpl);
 public:
 	ReadPipeImpl(const std::string& desc, apr_file_t* pipe):
 		mDesc(desc),
@@ -394,6 +394,23 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 	catch (const LLProcessError& e)
 	{
 		LL_WARNS("LLProcess") << e.what() << LL_ENDL;
+
+		// If caller is requesting an event on process termination, send one
+		// indicating bad launch. This may prevent someone waiting forever for
+		// a termination post that can't arrive because the child never
+		// started.
+		if (! std::string(params.postend).empty())
+		{
+			LLEventPumps::instance().obtain(params.postend)
+				.post(LLSDMap
+					  // no "id"
+					  ("desc", std::string(params.executable))
+					  ("state", LLProcess::UNSTARTED)
+					  // no "data"
+					  ("string", e.what())
+					 );
+		}
+
 		return LLProcessPtr();
 	}
 }
@@ -424,6 +441,8 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 		throw LLProcessError(STRINGIZE("not launched: failed parameter validation\n"
 									   << LLSDNotationStreamer(params)));
 	}
+
+	mPostend = params.postend;
 
 	apr_procattr_t *procattr = NULL;
 	chkapr(apr_procattr_create(&procattr, gAPRPoolp));
@@ -744,6 +763,19 @@ void LLProcess::handle_status(int reason, int status)
 	// hand.
 	mStatus = interpret_status(status);
 	LL_INFOS("LLProcess") << getStatusString() << LL_ENDL;
+
+	// If caller requested notification on child termination, send it.
+	if (! mPostend.empty())
+	{
+		LLEventPumps::instance().obtain(mPostend)
+			.post(LLSDMap
+				  ("id",     getProcessID())
+				  ("desc",   mDesc)
+				  ("state",  mStatus.mState)
+				  ("data",   mStatus.mData)
+				  ("string", getStatusString())
+				 );
+	}
 }
 
 LLProcess::id LLProcess::getProcessID() const
@@ -769,72 +801,72 @@ std::string LLProcess::getPipeName(FILESLOT)
 template<class PIPETYPE>
 PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
 {
-    if (slot >= NSLOTS)
-    {
-        error = STRINGIZE(mDesc << " has no slot " << slot);
-        return NULL;
-    }
-    if (mPipes.is_null(slot))
-    {
-        error = STRINGIZE(mDesc << ' ' << whichfile[slot] << " not a monitored pipe");
-        return NULL;
-    }
-    // Make sure we dynamic_cast in pointer domain so we can test, rather than
-    // accepting runtime's exception.
-    PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(&mPipes[slot]);
-    if (! ppipe)
-    {
-        error = STRINGIZE(mDesc << ' ' << whichfile[slot] << " not a " << typeid(PIPETYPE).name());
-        return NULL;
-    }
+	if (slot >= NSLOTS)
+	{
+		error = STRINGIZE(mDesc << " has no slot " << slot);
+		return NULL;
+	}
+	if (mPipes.is_null(slot))
+	{
+		error = STRINGIZE(mDesc << ' ' << whichfile[slot] << " not a monitored pipe");
+		return NULL;
+	}
+	// Make sure we dynamic_cast in pointer domain so we can test, rather than
+	// accepting runtime's exception.
+	PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(&mPipes[slot]);
+	if (! ppipe)
+	{
+		error = STRINGIZE(mDesc << ' ' << whichfile[slot] << " not a " << typeid(PIPETYPE).name());
+		return NULL;
+	}
 
-    error.clear();
-    return ppipe;
+	error.clear();
+	return ppipe;
 }
 
 template <class PIPETYPE>
 PIPETYPE& LLProcess::getPipe(FILESLOT slot)
 {
-    std::string error;
-    PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
-    if (! wp)
-    {
-        throw NoPipe(error);
-    }
-    return *wp;
+	std::string error;
+	PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
+	if (! wp)
+	{
+		throw NoPipe(error);
+	}
+	return *wp;
 }
 
 template <class PIPETYPE>
 boost::optional<PIPETYPE&> LLProcess::getOptPipe(FILESLOT slot)
 {
-    std::string error;
-    PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
-    if (! wp)
-    {
-        LL_DEBUGS("LLProcess") << error << LL_ENDL;
-        return boost::optional<PIPETYPE&>();
-    }
-    return *wp;
+	std::string error;
+	PIPETYPE* wp = getPipePtr<PIPETYPE>(error, slot);
+	if (! wp)
+	{
+		LL_DEBUGS("LLProcess") << error << LL_ENDL;
+		return boost::optional<PIPETYPE&>();
+	}
+	return *wp;
 }
 
 LLProcess::WritePipe& LLProcess::getWritePipe(FILESLOT slot)
 {
-    return getPipe<WritePipe>(slot);
+	return getPipe<WritePipe>(slot);
 }
 
 boost::optional<LLProcess::WritePipe&> LLProcess::getOptWritePipe(FILESLOT slot)
 {
-    return getOptPipe<WritePipe>(slot);
+	return getOptPipe<WritePipe>(slot);
 }
 
 LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
 {
-    return getPipe<ReadPipe>(slot);
+	return getPipe<ReadPipe>(slot);
 }
 
 boost::optional<LLProcess::ReadPipe&> LLProcess::getOptReadPipe(FILESLOT slot)
 {
-    return getOptPipe<ReadPipe>(slot);
+	return getOptPipe<ReadPipe>(slot);
 }
 
 std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
@@ -932,7 +964,7 @@ static std::string WindowsErrorString(const std::string& operation)
 					   NULL)
 		!= 0) 
 	{
-        // convert from wide-char string to multi-byte string
+		// convert from wide-char string to multi-byte string
 		char message[256];
 		wcstombs(message, error_str, sizeof(message));
 		message[sizeof(message)-1] = 0;

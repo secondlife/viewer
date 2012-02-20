@@ -158,7 +158,8 @@ public:
 			args("args"),
 			cwd("cwd"),
 			autokill("autokill", true),
-			files("files")
+			files("files"),
+			postend("postend")
 		{}
 
 		/// pathname of executable
@@ -184,6 +185,20 @@ public:
 		 * underlying implementation library doesn't support that.
 		 */
 		Multiple<FileParam> files;
+		/**
+		 * On child-process termination, if this LLProcess object still
+		 * exists, post LLSD event to LLEventPump with specified name (default
+		 * no event). Event contains at least:
+		 *
+		 * - "id" as obtained from getProcessID()
+		 * - "desc" short string description of child (executable + pid)
+		 * - "state" @c state enum value, from Status.mState
+		 * - "data"	 if "state" is EXITED, exit code; if KILLED, on Posix,
+		 *   signal number
+		 * - "string" English text describing "state" and "data" (e.g. "exited
+		 *   with code 0")
+		 */
+		Optional<std::string> postend;
 	};
 	typedef LLSDParamAdapter<Params> LLSDOrParams;
 
@@ -462,6 +477,7 @@ private:
 	PIPETYPE* getPipePtr(std::string& error, FILESLOT slot);
 
 	std::string mDesc;
+	std::string mPostend;
 	apr_proc_t mProcess;
 	bool mAutokill;
 	Status mStatus;
