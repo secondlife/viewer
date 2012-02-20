@@ -50,6 +50,7 @@
 static const char* whichfile[] = { "stdin", "stdout", "stderr" };
 static std::string empty;
 static LLProcess::Status interpret_status(int status);
+static std::string getDesc(const LLProcess::Params& params);
 
 /**
  * Ref-counted "mainloop" listener. As long as there are still outstanding
@@ -404,7 +405,7 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 			LLEventPumps::instance().obtain(params.postend)
 				.post(LLSDMap
 					  // no "id"
-					  ("desc", std::string(params.executable))
+					  ("desc", getDesc(params))
 					  ("state", LLProcess::UNSTARTED)
 					  // no "data"
 					  ("string", e.what())
@@ -561,8 +562,8 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	sProcessListener.addPoll(*this);
 	mStatus.mState = RUNNING;
 
-	mDesc = STRINGIZE(LLStringUtil::quote(params.executable) << " (" << mProcess.pid << ')');
-	LL_INFOS("LLProcess") << "Launched " << params << " (" << mProcess.pid << ")" << LL_ENDL;
+	mDesc = STRINGIZE(getDesc(params) << " (" << mProcess.pid << ')');
+	LL_INFOS("LLProcess") << mDesc << ": launched " << params << LL_ENDL;
 
 	// Unless caller explicitly turned off autokill (child should persist),
 	// take steps to terminate the child. This is all suspenders-and-belt: in
@@ -602,6 +603,29 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 		LL_DEBUGS("LLProcess") << "Instantiating " << typeid(mPipes[i]).name()
 							   << "('" << desc << "')" << LL_ENDL;
 	}
+}
+
+// Helper to obtain a description string, given a Params block
+static std::string getDesc(const LLProcess::Params& params)
+{
+	// If caller specified a description string, by all means use it.
+	std::string desc(params.desc);
+	if (! desc.empty())
+		return desc;
+
+	// Caller didn't say. Use the executable name -- but use just the filename
+	// part. On Mac, for instance, full pathnames get cumbersome.
+	// If there are Linden utility functions to manipulate pathnames, I
+	// haven't found them -- and for this usage, Boost.Filesystem seems kind
+	// of heavyweight.
+	std::string executable(params.executable);
+	std::string::size_type delim = executable.find_last_of("\\/");
+	// If executable contains no pathname delimiters, return the whole thing.
+	if (delim == std::string::npos)
+		return executable;
+
+	// Return just the part beyond the last delimiter.
+	return executable.substr(delim + 1);
 }
 
 LLProcess::~LLProcess()

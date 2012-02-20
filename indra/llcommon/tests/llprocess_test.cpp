@@ -136,6 +136,7 @@ struct PythonProcessLauncher
         const char* PYTHON(getenv("PYTHON"));
         tut::ensure("Set $PYTHON to the Python interpreter", PYTHON);
 
+        mParams.desc = desc + " script";
         mParams.executable = PYTHON;
         mParams.args.add(mScript.getName());
     }
@@ -1244,17 +1245,14 @@ namespace tut
         std::string pumpname("postend");
         EventListener listener(LLEventPumps::instance().obtain(pumpname));
         LLProcess::Params params;
+        params.desc = "bad postend";
         params.postend = pumpname;
         LLProcessPtr child = LLProcess::create(params);
         ensure("shouldn't have launched", ! child);
         ensure_equals("number of postend events", listener.mHistory.size(), 1);
         LLSD postend(listener.mHistory.front());
         ensure("has id", ! postend.has("id"));
-        // Ha ha, in this case the implementation normally sets "desc" to
-        // params.executable. But as the nature of the problem is that
-        // params.executable is empty, expecting "desc" to be nonempty is a
-        // bit unreasonable!
-        //ensure("desc empty", ! postend["desc"].asString().empty());
+        ensure_equals("desc", postend["desc"].asString(), std::string(params.desc));
         ensure_equals("state", postend["state"].asInteger(), LLProcess::UNSTARTED);
         ensure("has data", ! postend.has("data"));
         std::string error(postend["string"]);

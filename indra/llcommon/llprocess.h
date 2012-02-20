@@ -159,7 +159,8 @@ public:
 			cwd("cwd"),
 			autokill("autokill", true),
 			files("files"),
-			postend("postend")
+			postend("postend"),
+			desc("desc")
 		{}
 
 		/// pathname of executable
@@ -199,6 +200,13 @@ public:
 		 *   with code 0")
 		 */
 		Optional<std::string> postend;
+		/**
+		 * Description of child process for logging purposes. It need not be
+		 * unique; the logged description string will contain the PID as well.
+		 * If this is omitted, a description will be derived from the
+		 * executable name.
+		 */
+		Optional<std::string> desc;
 	};
 	typedef LLSDParamAdapter<Params> LLSDOrParams;
 
