@@ -1897,6 +1897,26 @@ void LLPanelEstateInfo::sendEstateAccessDelta(U32 flags, const LLUUID& agent_or_
 	gAgent.sendReliableMessage();
 }
 
+// static
+void LLPanelEstateInfo::updateEstateOwnerName(const std::string& name)
+{
+	LLPanelEstateInfo* panelp = LLFloaterRegionInfo::getPanelEstate();
+	if (panelp)
+	{
+		panelp->setOwnerName(name);
+	}
+}
+
+// static
+void LLPanelEstateInfo::updateEstateName(const std::string& name)
+{
+	LLPanelEstateInfo* panelp = LLFloaterRegionInfo::getPanelEstate();
+	if (panelp)
+	{
+		panelp->getChildRef<LLTextBox>("estate_name").setText(name);
+	}
+}
+
 void LLPanelEstateInfo::updateControls(LLViewerRegion* region)
 {
 	BOOL god = gAgent.isGodlike();
