@@ -1630,7 +1630,7 @@ void LLAgentWearables::queryWearableCache()
 			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
 		}
 
-		llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
+		llinfos << gAgentAvatarp->avString() << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		gAgentQueryManager.mNumPendingQueries++;
 		gAgentQueryManager.mWearablesCacheQueryID++;

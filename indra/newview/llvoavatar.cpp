@@ -687,6 +687,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNeedsSkin(FALSE),
 	mLastSkinTime(0.f),
 	mUpdatePeriod(1),
+	mFirstFullyVisible(TRUE),
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
@@ -2776,20 +2777,16 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	// update visibility when avatar is partially loaded
 	if (updateIsFullyLoaded()) // changed?
 	{
-		if (isFullyLoaded() && isSelf())
+		if (isFullyLoaded() && mFirstFullyVisible && isSelf())
 		{
-			static bool first_fully_visible = true;
-			if (first_fully_visible)
-			{
-				llinfos << avString() << "self isFullyLoaded, first_fully_visible" << llendl;
-
-				first_fully_visible = false;
-				LLAppearanceMgr::instance().onFirstFullyVisible();
-			}
+			llinfos << avString() << "self isFullyLoaded, mFirstFullyVisible" << llendl;
+			mFirstFullyVisible = FALSE;
+			LLAppearanceMgr::instance().onFirstFullyVisible();
 		}
-		if (isFullyLoaded() && !isSelf())
+		if (isFullyLoaded() && mFirstFullyVisible && !isSelf())
 		{
-			llinfos << avString() << "other isFullyLoaded" << llendl;
+			llinfos << avString() << "other isFullyLoaded, mFirstFullyVisible" << llendl;
+			mFirstFullyVisible = FALSE;
 		}
 		if (isFullyLoaded())
 		{
@@ -6435,7 +6432,8 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 	const F32 LOADING_TIMEOUT__SECONDS = 120.f;
 	if (mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT__SECONDS)
 	{
-		llinfos << "Ruth Timer timeout: Missing texture data for '" << getFullname() << "' "
+		llinfos << avString()
+				<< "Ruth Timer timeout: Missing texture data for '" << getFullname() << "' "
 				<< "( Params loaded : " << !visualParamWeightsAreDefault() << " ) "
 				<< "( Lower : " << isTextureDefined(TEX_LOWER_BAKED) << " ) "
 				<< "( Upper : " << isTextureDefined(TEX_UPPER_BAKED) << " ) "

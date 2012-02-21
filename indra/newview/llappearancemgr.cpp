@@ -52,12 +52,7 @@
 
 std::string self_av_string()
 {
-	static std::string av_name_string = "";
-	if (av_name_string.empty() && gAgentAvatarp)
-	{
-		av_name_string =  " Avatar '" + gAgentAvatarp->getFullname() + "' ";
-	}
-	return av_name_string;
+	return gAgentAvatarp->avString();
 }
 
 // RAII thingy to guarantee that a variable gets reset when the Setter

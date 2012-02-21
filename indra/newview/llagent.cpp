@@ -3779,7 +3779,7 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
-	llinfos << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << llendl;
+	llinfos << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << llendl;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -3826,14 +3826,14 @@ void LLAgent::sendAgentSetAppearance()
 	// only update cache entries if we have all our baked textures
 	if (textures_current)
 	{
-		llinfos << "TAT: Sending cached texture data" << llendl;
+		llinfos << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << llendl;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
 			BOOL generate_valid_hash = TRUE;
 			if (isAgentAvatarValid() && !gAgentAvatarp->isBakedTextureFinal((LLVOAvatarDefines::EBakedTextureIndex)baked_index))
 			{
 				generate_valid_hash = FALSE;
-				llinfos << "Not caching baked texture upload for " << (U32)baked_index << " due to being uploaded at low resolution." << llendl;
+				llinfos << gAgentAvatarp->avString() << "Not caching baked texture upload for " << (U32)baked_index << " due to being uploaded at low resolution." << llendl;
 			}
 
 			const LLUUID hash = gAgentWearables.computeBakedTextureHash((EBakedTextureIndex) baked_index, generate_valid_hash);

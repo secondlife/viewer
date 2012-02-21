@@ -285,6 +285,8 @@ protected:
 	void			updateRuthTimer(bool loading);
 	F32 			calcMorphAmount();
 private:
+	// runway state-machine spaghetti
+	BOOL			mFirstFullyVisible;
 	BOOL			mFullyLoaded;
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
