@@ -126,6 +126,17 @@ LLAgentListener::LLAgentListener(LLAgent &agent)
 		"[\"obj_uuid\"]: id of object to look at, use this or [\"position\"] to indicate the target\n"
 		"[\"position\"]: region position {x, y, z} where to find closest object or avatar to look at",
         &LLAgentListener::lookAt);
+    add("getGroups",
+        "Send information about the agent's groups on [\"reply\"]:\n"
+        "[\"groups\"]: array of group information\n"
+        "[\"id\"]: group id\n"
+        "[\"name\"]: group name\n"
+        "[\"insignia\"]: group insignia texture id\n"
+        "[\"notices\"]: boolean indicating if this user accepts notices from this group\n"
+        "[\"display\"]: boolean indicating if this group is listed in the user's profile\n"
+        "[\"contrib\"]: user's land contribution to this group\n",
+        &LLAgentListener::getGroups,
+        LLSDMap("reply", LLSD()));
 }
 
 void LLAgentListener::requestTeleport(LLSD const & event_data) const
