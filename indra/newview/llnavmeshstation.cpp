@@ -32,7 +32,7 @@
 #include "llviewerregion.h"
 #include "llsdutil.h"
 #include "llfloaterpathfindingconsole.h"
-
+#include "llsdserialize.h"
 //===============================================================================
 LLNavMeshStation::LLNavMeshStation()
 {
@@ -48,8 +48,7 @@ public:
 	}
 
 	void error( U32 statusNum, const std::string& reason )
-	{
-		//statusNum;
+	{	
 		llwarns	<< "Transport error "<<reason<<llendl;			
 	}
 	
@@ -65,23 +64,53 @@ public:
 		{
 			LLNavMeshDownloadObserver* pObserver = mObserverHandle.get();
 			if ( pObserver )
-			{
-				
+			{				
 				if ( content.has("navmesh_data") )
 				{
-					const LLSD::Binary& stuff = content["navmesh_data"].asBinary();
-					LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( stuff, mDir );
-					pObserver->getPathfindingConsole()->setHasNavMeshReceived();
+					const std::vector<U8>& value = content["navmesh_data"].asBinary();
+					unsigned int binSize = value.size();
+					U8* pBinBuffer = new U8[binSize];
+					memcpy( &pBinBuffer[0], &value[0], binSize );
+					std::string newStr((char*) pBinBuffer, binSize );
+                    std::istringstream streamdecomp( newStr );                 
+					unsigned int decompBinSize = 0;
+					bool valid = false;
+					if ( pBinBuffer ) 
+					{
+						delete [] pBinBuffer ;
+					}
+					U8* pUncompressedNavMeshContainer = unzip_llsdNavMesh( valid, decompBinSize, streamdecomp, binSize ) ;
+					if ( !valid )
+                    {
+						if ( pUncompressedNavMeshContainer )
+						{
+							free( pUncompressedNavMeshContainer );
+						}
+                        llwarns << "Unable to decompress the navmesh llsd." << llendl;
+						pObserver->getPathfindingConsole()->setHasNoNavMesh();
+                        return;
+                    }
+                    else
+                    {                    
+						if ( pUncompressedNavMeshContainer )
+						{
+							std::vector<U8> lsd;
+							lsd.resize( decompBinSize );
+							memcpy( &lsd[0], &pUncompressedNavMeshContainer[0], decompBinSize );
+							LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD( lsd, mDir );
+							pObserver->getPathfindingConsole()->setHasNavMeshReceived();
+							free( pUncompressedNavMeshContainer );
+						}
+                    }					
 				}
 				else
 				{
-					llwarns<<"no mesh data "<<llendl;
+					llwarns<<"No mesh data received"<<llendl;
 					pObserver->getPathfindingConsole()->setHasNoNavMesh();
 				}
 			}
 		}	
-}	
-	
+}		
 private:
 	//Observer handle
 	LLHandle<LLNavMeshDownloadObserver> mObserverHandle;
