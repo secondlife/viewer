@@ -32,6 +32,7 @@
 #include "llhandle.h"
 #include "llnavmeshstation.h"
 #include "LLPathingLib.h"
+#include "llpathfindingmanager.h"
 
 class LLSD;
 class LLRadioGroup;
@@ -67,6 +68,8 @@ public:
 	} ECharacterType;
 
 	virtual BOOL postBuild();
+	virtual void onOpen(const LLSD& pKey);
+	virtual void onClose(bool pIsAppQuitting);
 	virtual BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
 
 	BOOL isGeneratePathMode(MASK mask, EClickType clicktype, BOOL down) const;
@@ -113,7 +116,6 @@ private:
 	LLFloaterPathfindingConsole(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingConsole();
 
-	virtual void onOpen(const LLSD& pKey);
 	std::string getCurrentRegionCapabilityURL() const;
 
 	void onShowWalkabilitySet();
@@ -125,8 +127,9 @@ private:
 	void onFreezeClicked();
 	void onViewEditLinksetClicked();
 	void onClearPathClicked();
+	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 
-	void updateOnPathfindingServerStatus();
+	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
 	void generatePath();
 	void updatePathTestStatus();
@@ -152,7 +155,7 @@ private:
 	LLRadioGroup                              *mCharacterTypeRadioGroup;
 	LLTextBase                                *mPathTestingStatus;
 	LLButton                                  *mClearPathButton;
-	bool                                      mIsRegionFrozen;
+	LLPathfindingManager::agent_state_slot_t  mAgentStateSlot;
 
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;

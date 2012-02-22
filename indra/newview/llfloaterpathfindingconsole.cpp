@@ -45,7 +45,8 @@
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
-#include "llviewercontrol.h"	
+#include "llviewercontrol.h"
+#include "llpathfindingmanager.h"
 
 #include "LLPathingLib.h"
 
@@ -142,10 +143,113 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mClearPathButton != NULL);
 	mClearPathButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
 
-	updateOnPathfindingServerStatus();
-	updatePathTestStatus();
-
 	return LLFloater::postBuild();
+}
+
+void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
+{
+	LLFloater::onOpen(pKey);
+
+	//make sure we have a pathing system
+	if ( !LLPathingLib::getInstance() )
+	{
+		LLPathingLib::initSystem();
+	}	
+	if ( LLPathingLib::getInstance() == NULL )
+	{ 
+		std::string str = getString("navmesh_library_not_implemented");
+		LLStyle::Params styleParams;
+		styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+		mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
+		llwarns <<"Errror: cannout find pathing library implementation."<<llendl;
+	}
+	else
+	{	
+		LLPathingLib::getInstance()->cleanupResidual();
+
+		mCurrentMDO = 0;
+		mNavMeshCnt = 0;
+
+		//make sure the region is essentially enabled for navmesh support
+		std::string capability = "RetrieveNavMeshSrc";
+		
+		LLViewerRegion* pCurrentRegion = gAgent.getRegion();
+		std::vector<LLViewerRegion*> regions;
+		regions.push_back( pCurrentRegion );
+		std::vector<int> shiftDirections;
+		shiftDirections.push_back( CURRENT_REGION );
+
+		mNeighboringRegion = gSavedSettings.getU32("RetrieveNeighboringRegion");
+		if ( mNeighboringRegion != CURRENT_REGION )
+		{
+			//User wants to pull in a neighboring region
+			std::vector<S32> availableRegions;
+			pCurrentRegion->getNeighboringRegionsStatus( availableRegions );
+			//Is the desired region in the available list
+			std::vector<S32>::iterator foundElem = std::find(availableRegions.begin(),availableRegions.end(),mNeighboringRegion); 
+			if ( foundElem != availableRegions.end() )
+			{
+				LLViewerRegion* pCurrentRegion = gAgent.getRegion();
+				std::vector<LLViewerRegion*> regionPtrs;
+				pCurrentRegion->getNeighboringRegions( regionPtrs );
+				regions.push_back( regionPtrs[mNeighboringRegion] );
+				shiftDirections.push_back( mNeighboringRegion );
+			}
+		}		
+		
+		
+		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
+		if ( shiftDirections.size() != regions.size() )
+		{
+			shiftDirections.clear();regions.clear();
+			regions.push_back( pCurrentRegion );
+			shiftDirections.push_back( CURRENT_REGION );				
+		}
+
+		int regionCnt = regions.size();
+		mNavMeshCnt = regionCnt;
+
+		for ( int i=0; i<regionCnt; ++i )
+		{
+			std::string url = regions[i]->getCapability( capability );
+
+			if ( !url.empty() )
+			{
+				std::string str = getString("navmesh_fetch_inprogress");
+				mPathfindingStatus->setText((LLStringExplicit)str);
+				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
+				int dir = shiftDirections[i];
+				LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver[mCurrentMDO].getObserverHandle(), dir );				
+				++mCurrentMDO;
+			}				
+			else
+			{
+				--mNavMeshCnt;
+				std::string str = getString("navmesh_region_not_enabled");
+				LLStyle::Params styleParams;
+				styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+				mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
+				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
+			}
+		}
+	}		
+
+	if (!mAgentStateSlot.connected())
+	{
+		LLPathfindingManager::getInstance()->registerAgentStateSignal(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
+	}
+	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
+	updatePathTestStatus();
+}
+
+void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
+{
+	if (mAgentStateSlot.connected())
+	{
+		mAgentStateSlot.disconnect();
+	}
+
+	LLFloater::onClose(pIsAppQuitting);
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
@@ -432,10 +536,10 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mCharacterTypeRadioGroup(NULL),
 	mPathTestingStatus(NULL),
 	mClearPathButton(NULL),
+	mAgentStateSlot(),
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
 	mHasEndPoint(false),
-	mIsRegionFrozen(false),
 	mNeighboringRegion( CURRENT_REGION )
 {
 	mSelfHandle.bind(this);
@@ -448,95 +552,6 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 {
-}
-
-void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
-{
-	//make sure we have a pathing system
-	if ( !LLPathingLib::getInstance() )
-	{
-		LLPathingLib::initSystem();
-	}	
-	if ( LLPathingLib::getInstance() == NULL )
-	{ 
-		std::string str = getString("navmesh_library_not_implemented");
-		LLStyle::Params styleParams;
-		styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
-		mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
-		llwarns <<"Errror: cannout find pathing library implementation."<<llendl;
-	}
-	else
-	{	
-		LLPathingLib::getInstance()->cleanupResidual();
-
-		mCurrentMDO = 0;
-		mNavMeshCnt = 0;
-
-		//make sure the region is essentially enabled for navmesh support
-		std::string capability = "RetrieveNavMeshSrc";
-		
-		LLViewerRegion* pCurrentRegion = gAgent.getRegion();
-		std::vector<LLViewerRegion*> regions;
-		regions.push_back( pCurrentRegion );
-		std::vector<int> shiftDirections;
-		shiftDirections.push_back( CURRENT_REGION );
-
-		mNeighboringRegion = gSavedSettings.getU32("RetrieveNeighboringRegion");
-		if ( mNeighboringRegion != CURRENT_REGION )
-		{
-			//User wants to pull in a neighboring region
-			std::vector<S32> availableRegions;
-			pCurrentRegion->getNeighboringRegionsStatus( availableRegions );
-			//Is the desired region in the available list
-			std::vector<S32>::iterator foundElem = std::find(availableRegions.begin(),availableRegions.end(),mNeighboringRegion); 
-			if ( foundElem != availableRegions.end() )
-			{
-				LLViewerRegion* pCurrentRegion = gAgent.getRegion();
-				std::vector<LLViewerRegion*> regionPtrs;
-				pCurrentRegion->getNeighboringRegions( regionPtrs );
-				regions.push_back( regionPtrs[mNeighboringRegion] );
-				shiftDirections.push_back( mNeighboringRegion );
-			}
-		}		
-		
-		
-		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
-		if ( shiftDirections.size() != regions.size() )
-		{
-			shiftDirections.clear();regions.clear();
-			regions.push_back( pCurrentRegion );
-			shiftDirections.push_back( CURRENT_REGION );				
-		}
-
-		int regionCnt = regions.size();
-		mNavMeshCnt = regionCnt;
-
-		for ( int i=0; i<regionCnt; ++i )
-		{
-			std::string url = regions[i]->getCapability( capability );
-
-			if ( !url.empty() )
-			{
-				std::string str = getString("navmesh_fetch_inprogress");
-				mPathfindingStatus->setText((LLStringExplicit)str);
-				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
-				int dir = shiftDirections[i];
-				LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver[mCurrentMDO].getObserverHandle(), dir );				
-				++mCurrentMDO;
-			}				
-			else
-			{
-				--mNavMeshCnt;
-				std::string str = getString("navmesh_region_not_enabled");
-				LLStyle::Params styleParams;
-				styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
-				mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
-				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
-			}
-		}
-	}		
-
-	updateOnPathfindingServerStatus();
 }
 
 std::string LLFloaterPathfindingConsole::getCurrentRegionCapabilityURL() const
@@ -647,16 +662,14 @@ void LLFloaterPathfindingConsole::onViewCharactersClicked()
 
 void LLFloaterPathfindingConsole::onUnfreezeClicked()
 {
-	mIsRegionFrozen = false;
-	updateOnPathfindingServerStatus();
-	llwarns << "functionality has not yet been implemented to set unfrozen state" << llendl;
+	mUnfreezeButton->setEnabled(FALSE);
+	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateUnfrozen);
 }
 
 void LLFloaterPathfindingConsole::onFreezeClicked()
 {
-	mIsRegionFrozen = true;
-	updateOnPathfindingServerStatus();
-	llwarns << "functionality has not yet been implemented to set frozen state" << llendl;
+	mFreezeButton->setEnabled(FALSE);
+	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateFrozen);
 }
 
 void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
@@ -671,12 +684,17 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	updatePathTestStatus();
 }
 
-void LLFloaterPathfindingConsole::updateOnPathfindingServerStatus()
+void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
 {
-	std::string capURL = getCurrentRegionCapabilityURL();
+	setAgentState(pAgentState);
+}
 
-	if (capURL.empty())
+void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
+{
+	switch (pAgentState)
 	{
+	case LLPathfindingManager::kAgentStateUnknown :
+	case LLPathfindingManager::kAgentStateNotEnabled :
 		mShowNavMeshCheckBox->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
 		mShowWalkablesCheckBox->setEnabled(FALSE);
@@ -686,20 +704,15 @@ void LLFloaterPathfindingConsole::updateOnPathfindingServerStatus()
 		mShowWorldCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(FALSE);
 		mEditTestTabContainer->setEnabled(FALSE);
-		mUnfreezeLabel->setEnabled(FALSE);
-		mUnfreezeButton->setEnabled(FALSE);
-		mLinksetsLabel->setEnabled(FALSE);
-		mLinksetsButton->setEnabled(FALSE);
-		mFreezeLabel->setEnabled(FALSE);
-		mFreezeButton->setEnabled(FALSE);
 		mCharacterWidthSlider->setEnabled(FALSE);
 		mCharacterTypeRadioGroup->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
 
 		mEditTestTabContainer->selectTab(0);
-	}
-	else
-	{
+		mHasStartPoint = false;
+		mHasEndPoint = false;
+		break;
+	default :
 		mShowNavMeshCheckBox->setEnabled(TRUE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(TRUE);
 		mShowWalkablesCheckBox->setEnabled(TRUE);
@@ -712,24 +725,39 @@ void LLFloaterPathfindingConsole::updateOnPathfindingServerStatus()
 		mCharacterWidthSlider->setEnabled(TRUE);
 		mCharacterTypeRadioGroup->setEnabled(TRUE);
 		mClearPathButton->setEnabled(TRUE);
-		if (mIsRegionFrozen)
-		{
-			mUnfreezeLabel->setEnabled(TRUE);
-			mUnfreezeButton->setEnabled(TRUE);
-			mLinksetsLabel->setEnabled(FALSE);
-			mLinksetsButton->setEnabled(FALSE);
-			mFreezeLabel->setEnabled(FALSE);
-			mFreezeButton->setEnabled(FALSE);
-		}
-		else
-		{
-			mUnfreezeLabel->setEnabled(FALSE);
-			mUnfreezeButton->setEnabled(FALSE);
-			mLinksetsLabel->setEnabled(TRUE);
-			mLinksetsButton->setEnabled(TRUE);
-			mFreezeLabel->setEnabled(TRUE);
-			mFreezeButton->setEnabled(TRUE);
-		}
+		break;
+	}
+
+	switch (LLPathfindingManager::getInstance()->getLastKnownNonErrorAgentState())
+	{
+	case LLPathfindingManager::kAgentStateUnknown :
+	case LLPathfindingManager::kAgentStateNotEnabled :
+		mUnfreezeLabel->setEnabled(FALSE);
+		mUnfreezeButton->setEnabled(FALSE);
+		mLinksetsLabel->setEnabled(FALSE);
+		mLinksetsButton->setEnabled(FALSE);
+		mFreezeLabel->setEnabled(FALSE);
+		mFreezeButton->setEnabled(FALSE);
+		break;
+	case LLPathfindingManager::kAgentStateFrozen :
+		mUnfreezeLabel->setEnabled(TRUE);
+		mUnfreezeButton->setEnabled(TRUE);
+		mLinksetsLabel->setEnabled(FALSE);
+		mLinksetsButton->setEnabled(FALSE);
+		mFreezeLabel->setEnabled(FALSE);
+		mFreezeButton->setEnabled(FALSE);
+		break;
+	case LLPathfindingManager::kAgentStateUnfrozen :
+		mUnfreezeLabel->setEnabled(FALSE);
+		mUnfreezeButton->setEnabled(FALSE);
+		mLinksetsLabel->setEnabled(TRUE);
+		mLinksetsButton->setEnabled(TRUE);
+		mFreezeLabel->setEnabled(TRUE);
+		mFreezeButton->setEnabled(TRUE);
+		break;
+	default :
+		llassert(0);
+		break;
 	}
 }
  
