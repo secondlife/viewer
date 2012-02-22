@@ -395,6 +395,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 {
 	if (!isMostRecent())
 	{
+		// runway why don't we actually skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 		
@@ -450,6 +451,7 @@ void LLWearableHoldingPattern::onAllComplete()
 
 	if (!isMostRecent())
 	{
+		// runway need to skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
@@ -499,6 +501,7 @@ void LLWearableHoldingPattern::onFetchCompletion()
 {
 	if (!isMostRecent())
 	{
+		// runway skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
@@ -510,6 +513,7 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 {
 	if (!isMostRecent())
 	{
+		// runway skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 
@@ -548,6 +552,7 @@ public:
 		if (!mHolder->isMostRecent())
 		{
 			llwarns << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
+			// runway skip here?
 		}
 
 		llinfos << "Recovered item link for type " << mType << llendl;
@@ -601,6 +606,7 @@ public:
 	{
 		if (!mHolder->isMostRecent())
 		{
+			// runway skip here?
 			llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 		}
 
@@ -631,6 +637,7 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 {
 	if (!isMostRecent())
 	{
+		// runway skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 	
@@ -680,6 +687,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 {
 	if (!isMostRecent())
 	{
+		// runway skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
 	
