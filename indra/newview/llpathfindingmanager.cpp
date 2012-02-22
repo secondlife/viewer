@@ -217,7 +217,8 @@ std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::st
 //---------------------------------------------------------------------------
 
 AgentStateResponder::AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState)
-	: mCapabilityURL(pCapabilityURL),
+	: LLHTTPClient::Responder(),
+	mCapabilityURL(pCapabilityURL),
 	mRequestedAgentState(pRequestedAgentState)
 {
 }
