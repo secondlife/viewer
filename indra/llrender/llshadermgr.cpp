@@ -644,6 +644,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		text[count++] = strdup("#define textureCube texture\n");
 		text[count++] = strdup("#define texture2DLod textureLod\n");
 		text[count++] = strdup("#define	shadow2D(a,b) vec2(texture(a,b))\n");
+		text[count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
 	}
 
 	//copy preprocessor definitions into buffer

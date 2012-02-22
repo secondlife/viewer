@@ -1,5 +1,6 @@
 /** 
- * @file avatarShadowF.glsl
+ * @file postDeferredV.glsl
+ *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
@@ -22,18 +23,18 @@
  * $/LicenseInfo$
  */
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
+uniform mat4 modelview_projection_matrix;
 
-uniform sampler2D diffuseMap;
+ATTRIBUTE vec3 position;
 
-VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_fragcoord;
 
-void main() 
+uniform vec2 screen_res;
+
+void main()
 {
-	frag_color = vec4(1,1,1,1);
+	//transform vertex
+	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	gl_Position = pos;	
+	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
 }
-
