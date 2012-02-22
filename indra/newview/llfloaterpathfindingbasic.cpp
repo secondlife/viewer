@@ -155,3 +155,4 @@ void LLFloaterPathfindingBasic::setAgentState(LLPathfindingManager::EAgentState 
 		break;
 	}
 }
+
