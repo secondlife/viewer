@@ -42,7 +42,8 @@ class LLFloaterPathfindingBasic
 
 public:
 	virtual BOOL postBuild();
-	virtual void onOpen(const LLSD& key);
+	virtual void onOpen(const LLSD& pKey);
+	virtual void onClose(bool pIsAppQuitting);
 
 protected:
 
@@ -59,12 +60,12 @@ private:
 
 	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
-	LLTextBase                        *mStatusText;
-	LLTextBase                        *mUnfreezeLabel;
-	LLButton                          *mUnfreezeButton;
-	LLTextBase                        *mFreezeLabel;
-	LLButton                          *mFreezeButton;
-	LLPathfindingManager::EAgentState mAgentState;
+	LLTextBase                               *mStatusText;
+	LLTextBase                               *mUnfreezeLabel;
+	LLButton                                 *mUnfreezeButton;
+	LLTextBase                               *mFreezeLabel;
+	LLButton                                 *mFreezeButton;
+	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGBASIC_H

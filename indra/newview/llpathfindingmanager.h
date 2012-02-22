@@ -31,6 +31,7 @@
 #include <string>
 
 #include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #include "llsingleton.h"
 
@@ -38,35 +39,49 @@ class LLFloater;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
+	friend class AgentStateResponder;
 public:
 	typedef enum {
-		kAgentStateNotEnabled     = 0,
-		kAgentStateFrozen         = 1,
-		kAgentStateUnfrozen       = 2,
-		kAgentStateError          = 3,
-		kAgentStateInitialDefault = kAgentStateUnfrozen
+		kAgentStateUnknown,
+		kAgentStateFrozen,
+		kAgentStateUnfrozen,
+		kAgentStateNotEnabled,
+		kAgentStateError
 	} EAgentState;
 
-	typedef boost::function<void (EAgentState pAgentState)> agent_state_callback_t;
+	typedef boost::function<void (EAgentState pAgentState)>         agent_state_callback_t;
+	typedef boost::signals2::signal<void (EAgentState pAgentState)> agent_state_signal_t;
+	typedef boost::signals2::connection                             agent_state_slot_t;
 
 	LLPathfindingManager();
 	virtual ~LLPathfindingManager();
 
 	bool isPathfindingEnabledForCurrentRegion() const;
 
-	void requestGetAgentState(agent_state_callback_t pAgentStateCB) const;
-	void requestSetAgentState(EAgentState, agent_state_callback_t pAgentStateCB) const;
-
-	void handleAgentStateResult(const LLSD &pContent, agent_state_callback_t pAgentStateCB) const;
-	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL, agent_state_callback_t pAgentStateCB) const;
+	agent_state_slot_t registerAgentStateSignal(agent_state_callback_t pAgentStateCallback);
+	EAgentState        getAgentState();
+	EAgentState        getLastKnownNonErrorAgentState() const;
+	void               requestSetAgentState(EAgentState pAgentState);
 
 protected:
 
 private:
+	static bool isValidAgentState(EAgentState pAgentState);
+
+	void requestGetAgentState();
+	void setAgentState(EAgentState pAgentState);
+
+	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
+	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+
 	std::string getRetrieveNavMeshURLForCurrentRegion() const;
 	std::string getAgentStateURLForCurrentRegion() const;
 
 	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
+
+	agent_state_signal_t mAgentStateSignal;
+	EAgentState          mAgentState;
+	EAgentState          mLastKnownNonErrorAgentState;
 };
 
 #endif // LL_LLPATHFINDINGMANAGER_H

@@ -27,14 +27,15 @@
 
 #include <string>
 
-#include <boost/function.hpp>
-
 #include "llviewerprecompiledheaders.h"
 #include "llpathfindingmanager.h"
 #include "llsingleton.h"
 #include "llhttpclient.h"
 #include "llagent.h"
 #include "llviewerregion.h"
+
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 
 #define CAP_SERVICE_RETRIEVE_NAVMESH  "RetrieveNavMeshSrc"
 
@@ -48,7 +49,7 @@
 class AgentStateResponder : public LLHTTPClient::Responder
 {
 public:
-	AgentStateResponder(LLPathfindingManager::agent_state_callback_t pAgentStateCB, const std::string &pCapabilityURL);
+	AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState = LLPathfindingManager::kAgentStateUnknown);
 	virtual ~AgentStateResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -57,8 +58,8 @@ public:
 protected:
 
 private:
-	LLPathfindingManager::agent_state_callback_t mAgentStateCB;
-	std::string                                  mCapabilityURL;
+	std::string                       mCapabilityURL;
+	LLPathfindingManager::EAgentState mRequestedAgentState;
 };
 
 //---------------------------------------------------------------------------
@@ -66,6 +67,10 @@ private:
 //---------------------------------------------------------------------------
 
 LLPathfindingManager::LLPathfindingManager()
+	: LLSingleton<LLPathfindingManager>(),
+	mAgentStateSignal(),
+	mAgentState(kAgentStateUnknown),
+	mLastKnownNonErrorAgentState(kAgentStateUnknown)
 {
 }
 
@@ -79,52 +84,103 @@ bool LLPathfindingManager::isPathfindingEnabledForCurrentRegion() const
 	return !retrieveNavMeshURL.empty();
 }
 
-void LLPathfindingManager::requestGetAgentState(agent_state_callback_t pAgentStateCB) const
+LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateSignal(agent_state_callback_t pAgentStateCallback)
 {
-	std::string agentStateURL = getAgentStateURLForCurrentRegion();
+	return mAgentStateSignal.connect(pAgentStateCallback);
+}
 
-	if (agentStateURL.empty())
+LLPathfindingManager::EAgentState LLPathfindingManager::getAgentState()
+{
+	if (!isPathfindingEnabledForCurrentRegion())
 	{
-		pAgentStateCB(kAgentStateError);
+		setAgentState(kAgentStateNotEnabled);
 	}
 	else
 	{
-		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(pAgentStateCB, agentStateURL);
-		LLHTTPClient::get(agentStateURL, responder);
+		if (!isValidAgentState(mAgentState))
+		{
+			requestGetAgentState();
+		}
 	}
+
+	return mAgentState;
 }
 
-void LLPathfindingManager::requestSetAgentState(EAgentState pAgentState, agent_state_callback_t pAgentStateCB) const
+LLPathfindingManager::EAgentState LLPathfindingManager::getLastKnownNonErrorAgentState() const
 {
+	return mLastKnownNonErrorAgentState;
+}
+
+void LLPathfindingManager::requestSetAgentState(EAgentState pRequestedAgentState)
+{
+	llassert(isValidAgentState(pRequestedAgentState));
 	std::string agentStateURL = getAgentStateURLForCurrentRegion();
 
 	if (agentStateURL.empty())
 	{
-		pAgentStateCB(kAgentStateError);
+		setAgentState(kAgentStateNotEnabled);
 	}
 	else
 	{
 		LLSD request;
-		request[ALTER_PERMANENT_OBJECTS_FIELD] = static_cast<LLSD::Boolean>(pAgentState == kAgentStateUnfrozen);
+		request[ALTER_PERMANENT_OBJECTS_FIELD] = static_cast<LLSD::Boolean>(pRequestedAgentState == kAgentStateUnfrozen);
 
-		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(pAgentStateCB, agentStateURL);
+		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL, pRequestedAgentState);
 		LLHTTPClient::post(agentStateURL, request, responder);
 	}
 }
 
-void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent, agent_state_callback_t pAgentStateCB) const
+bool LLPathfindingManager::isValidAgentState(EAgentState pAgentState)
+{
+	return ((pAgentState == kAgentStateFrozen) || (pAgentState == kAgentStateUnfrozen));
+}
+
+void LLPathfindingManager::requestGetAgentState()
+{
+	std::string agentStateURL = getAgentStateURLForCurrentRegion();
+
+	if (agentStateURL.empty())
+	{
+		setAgentState(kAgentStateNotEnabled);
+	}
+	else
+	{
+		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL);
+		LLHTTPClient::get(agentStateURL, responder);
+	}
+}
+
+void LLPathfindingManager::setAgentState(EAgentState pAgentState)
+{
+	mAgentState = pAgentState;
+
+	if (mAgentState != kAgentStateError)
+	{
+		mLastKnownNonErrorAgentState = mAgentState;
+	}
+
+	mAgentStateSignal(mAgentState);
+}
+
+void LLPathfindingManager::handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState)
 {
 	llassert(pContent.has(ALTER_PERMANENT_OBJECTS_FIELD));
 	llassert(pContent.get(ALTER_PERMANENT_OBJECTS_FIELD).isBoolean());
 	EAgentState agentState = (pContent.get(ALTER_PERMANENT_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
 
-	pAgentStateCB(agentState);
+	if (isValidAgentState(pRequestedAgentState) && (agentState != pRequestedAgentState))
+	{
+		agentState = kAgentStateError;
+		llassert(0);
+	}
+
+	setAgentState(agentState);
 }
 
-void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL, agent_state_callback_t pAgentStateCB) const
+void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-	pAgentStateCB(kAgentStateError);
+	setAgentState(kAgentStateError);
 }
 
 std::string LLPathfindingManager::getRetrieveNavMeshURLForCurrentRegion() const
@@ -160,9 +216,9 @@ std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::st
 // AgentStateResponder
 //---------------------------------------------------------------------------
 
-AgentStateResponder::AgentStateResponder(LLPathfindingManager::agent_state_callback_t pAgentStateCB, const std::string &pCapabilityURL)
-	: mAgentStateCB(pAgentStateCB),
-	mCapabilityURL(pCapabilityURL)
+AgentStateResponder::AgentStateResponder(const std::string &pCapabilityURL, LLPathfindingManager::EAgentState pRequestedAgentState)
+	: mCapabilityURL(pCapabilityURL),
+	mRequestedAgentState(pRequestedAgentState)
 {
 }
 
@@ -172,10 +228,10 @@ AgentStateResponder::~AgentStateResponder()
 
 void AgentStateResponder::result(const LLSD &pContent)
 {
-	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent, mAgentStateCB);
+	LLPathfindingManager::getInstance()->handleAgentStateResult(pContent, mRequestedAgentState);
 }
 
 void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 {
-	LLPathfindingManager::getInstance()->handleAgentStateError(pStatus, pReason, mCapabilityURL, mAgentStateCB);
+	LLPathfindingManager::getInstance()->handleAgentStateError(pStatus, pReason, mCapabilityURL);
 }

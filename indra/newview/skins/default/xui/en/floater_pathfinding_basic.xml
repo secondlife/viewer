@@ -11,14 +11,15 @@
     single_instance="true"
     title="Basic pathfinding setup"
     width="312">
-  <floater.string name="pathfinding_not_enabled">This region is not enabled for pathfinding.</floater.string>
-  <floater.string name="unable_to_change_state">Unable to change modes successfully.</floater.string>
+  <floater.string name="status_pathfinding_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="status_unable_to_change_state">Unable to change modes successfully.</floater.string>
+  <floater.string name="status_querying_state">Checking status ...</floater.string>
   <text
       height="13"
       word_wrap="false"
       use_ellipses="false"
       type="string"
-      text_color="DrYellow"
+      text_color="LabelTextColor"
       length="1"
       follows="left|top"
       layout="topleft"

@@ -25,14 +25,15 @@
 * $/LicenseInfo$
 */
 
-#include <boost/bind.hpp>
-
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterpathfindingbasic.h"
 #include "llsd.h"
 #include "lltextbase.h"
 #include "llbutton.h"
 #include "llpathfindingmanager.h"
+
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingBasic
@@ -60,19 +61,25 @@ BOOL LLFloaterPathfindingBasic::postBuild()
 	return LLFloater::postBuild();
 }
 
-void LLFloaterPathfindingBasic::onOpen(const LLSD& key)
+void LLFloaterPathfindingBasic::onOpen(const LLSD& pKey)
 {
-	LLPathfindingManager *pathfindingManager = LLPathfindingManager::getInstance();
-	if (pathfindingManager->isPathfindingEnabledForCurrentRegion())
+	LLFloater::onOpen(pKey);
+
+	if (!mAgentStateSlot.connected())
 	{
-		LLPathfindingManager::getInstance()->requestGetAgentState(boost::bind(&LLFloaterPathfindingBasic::onAgentStateCB, this, _1));
+		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateSignal(boost::bind(&LLFloaterPathfindingBasic::onAgentStateCB, this, _1));
 	}
-	else
+	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
+}
+
+void LLFloaterPathfindingBasic::onClose(bool pIsAppQuitting)
+{
+	if (mAgentStateSlot.connected())
 	{
-		setAgentState(LLPathfindingManager::kAgentStateNotEnabled);
+		mAgentStateSlot.disconnect();
 	}
 
-	LLFloater::onOpen(key);
+	LLFloater::onClose(pIsAppQuitting);
 }
 
 LLFloaterPathfindingBasic::LLFloaterPathfindingBasic(const LLSD& pSeed)
@@ -82,7 +89,7 @@ LLFloaterPathfindingBasic::LLFloaterPathfindingBasic(const LLSD& pSeed)
 	mUnfreezeButton(NULL),
 	mFreezeLabel(NULL),
 	mFreezeButton(NULL),
-	mAgentState(LLPathfindingManager::kAgentStateInitialDefault)
+	mAgentStateSlot()
 {
 }
 
@@ -93,13 +100,13 @@ LLFloaterPathfindingBasic::~LLFloaterPathfindingBasic()
 void LLFloaterPathfindingBasic::onUnfreezeClicked()
 {
 	mUnfreezeButton->setEnabled(FALSE);
-	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateUnfrozen, boost::bind(&LLFloaterPathfindingBasic::onAgentStateCB, this, _1));
+	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateUnfrozen);
 }
 
 void LLFloaterPathfindingBasic::onFreezeClicked()
 {
 	mUnfreezeButton->setEnabled(FALSE);
-	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateFrozen, boost::bind(&LLFloaterPathfindingBasic::onAgentStateCB, this, _1));
+	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateFrozen);
 }
 
 void LLFloaterPathfindingBasic::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
@@ -109,26 +116,33 @@ void LLFloaterPathfindingBasic::onAgentStateCB(LLPathfindingManager::EAgentState
 
 void LLFloaterPathfindingBasic::setAgentState(LLPathfindingManager::EAgentState pAgentState)
 {
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+	LLStyle::Params styleParams;
+
 	switch (pAgentState)
 	{
+	case LLPathfindingManager::kAgentStateUnknown : 
+		mStatusText->setVisible(TRUE);
+		mStatusText->setText((LLStringExplicit)getString("status_querying_state"), styleParams);
+		break;
 	case LLPathfindingManager::kAgentStateNotEnabled : 
 		mStatusText->setVisible(TRUE);
-		mStatusText->setText((LLStringExplicit)getString("pathfinding_not_enabled"));
-		mAgentState = pAgentState;
+		styleParams.color = warningColor;
+		mStatusText->setText((LLStringExplicit)getString("status_pathfinding_not_enabled"), styleParams);
 		break;
 	case LLPathfindingManager::kAgentStateError : 
 		mStatusText->setVisible(TRUE);
-		mStatusText->setText((LLStringExplicit)getString("unable_to_change_state"));
-		// Do not actually change the current state in the error case allowing user to retry previous command
+		styleParams.color = warningColor;
+		mStatusText->setText((LLStringExplicit)getString("status_unable_to_change_state"), styleParams);
 		break;
 	default :
 		mStatusText->setVisible(FALSE);
-		mAgentState = pAgentState;
 		break;
 	}
 
-	switch (mAgentState)
+	switch (LLPathfindingManager::getInstance()->getLastKnownNonErrorAgentState())
 	{
+	case LLPathfindingManager::kAgentStateUnknown : 
 	case LLPathfindingManager::kAgentStateNotEnabled : 
 		mUnfreezeLabel->setEnabled(FALSE);
 		mUnfreezeButton->setEnabled(FALSE);
@@ -147,12 +161,8 @@ void LLFloaterPathfindingBasic::setAgentState(LLPathfindingManager::EAgentState 
 		mFreezeLabel->setEnabled(TRUE);
 		mFreezeButton->setEnabled(TRUE);
 		break;
-	case LLPathfindingManager::kAgentStateError : 
-		llassert(0);
-		break;
 	default :
 		llassert(0);
 		break;
 	}
 }
-
