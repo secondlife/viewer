@@ -121,16 +121,35 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 	return passed;
 }
 
-bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
+bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
+{
+	if (!folder)
+	{
+		llwarns << "The filter can not be checked on an invalid folder." << llendl;
+		llassert(false); // crash in development builds
+		return false;
+	}
+
+	const LLFolderViewEventListener* listener = folder->getListener();
+	if (!listener)
+	{
+		llwarns << "Folder view event listener not found." << llendl;
+		llassert(false); // crash in development builds
+		return false;
+	}
+
+	const LLUUID folder_id = listener->getUUID();
+
+	return checkFolder(folder_id);
+}
+
+bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
 	// we're showing all folders, overriding filter
 	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
 		return true;
 	}
-
-	const LLFolderViewEventListener* listener = folder->getListener();
-	const LLUUID folder_id = listener->getUUID();
 	
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{

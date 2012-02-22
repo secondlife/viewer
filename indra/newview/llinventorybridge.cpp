@@ -113,6 +113,13 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+static bool check_category(LLInventoryModel* model,
+						   const LLUUID& cat_id,
+						   LLFolderView* active_folder_view,
+						   LLInventoryFilter* filter);
+static bool check_item(const LLUUID& item_id,
+					   LLFolderView* active_folder_view,
+					   LLInventoryFilter* filter);
 
 // Helper functions
 
@@ -1959,6 +1966,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	if (!isAgentAvatarValid()) return FALSE;
 	if (!isAgentInventory()) return FALSE; // cannot drag categories into library
 
+	LLInventoryPanel* destination_panel = mInventoryPanel.get();
+	if (!destination_panel) return false;
+
+	LLInventoryFilter* filter = destination_panel->getFilter();
+	if (!filter) return false;
+
 	const LLUUID &cat_id = inv_cat->getUUID();
 	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 	const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
@@ -2146,6 +2159,39 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 		}
 
+		if (is_movable)
+		{
+			LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+			is_movable = active_panel != NULL;
+
+			// For a folder to pass the filter all its descendants are required to pass.
+			// We make this exception to allow reordering folders within an inventory panel,
+			// which has a filter applied, like Recent tab for example.
+			// There may be folders which are displayed because some of their descendants pass
+			// the filter, but other don't, and thus remain hidden. Without this check,
+			// such folders would not be allowed to be moved within a panel.
+			if (destination_panel == active_panel)
+			{
+				is_movable = true;
+			}
+			else
+			{
+				LLFolderView* active_folder_view;
+
+				if (is_movable)
+				{
+					active_folder_view = active_panel->getRootFolder();
+					is_movable = active_folder_view != NULL;
+				}
+
+				if (is_movable)
+				{
+					// Check whether the folder being dragged from active inventory panel
+					// passes the filter of the destination panel.
+					is_movable = check_category(model, cat_id, active_folder_view, filter);
+				}
+			}
+		}
 		// 
 		//--------------------------------------------------------------------------------
 
@@ -2240,7 +2286,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		}
 		else
 		{
-			accept = move_inv_category_world_to_agent(cat_id, mUUID, drop);
+			accept = move_inv_category_world_to_agent(cat_id, mUUID, drop, NULL, NULL, filter);
 		}
 	}
 	else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)
@@ -2285,7 +2331,8 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 									  const LLUUID& category_id,
 									  BOOL drop,
 									  void (*callback)(S32, void*),
-									  void* user_data)
+									  void* user_data,
+									  LLInventoryFilter* filter)
 {
 	// Make sure the object exists. If we allowed dragging from
 	// anonymous objects, it would be possible to bypass
@@ -2309,7 +2356,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 		return FALSE;
 	}
 
-	BOOL accept = TRUE;
+	BOOL accept = FALSE;
 	BOOL is_move = FALSE;
 
 	// coming from a task. Need to figure out if the person can
@@ -2318,9 +2365,16 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	LLInventoryObject::object_list_t::iterator end = inventory_objects.end();
 	for ( ; it != end; ++it)
 	{
+		LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(it->get());
+		if (!item)
+		{
+			llwarns << "Invalid inventory item for drop" << llendl;
+			continue;
+		}
+
 		// coming from a task. Need to figure out if the person can
 		// move/copy this item.
-		LLPermissions perm(((LLInventoryItem*)((LLInventoryObject*)(*it)))->getPermissions());
+		LLPermissions perm(item->getPermissions());
 		if((perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
 			&& perm.allowTransferTo(gAgent.getID())))
 //			|| gAgent.isGodlike())
@@ -2335,9 +2389,14 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 			is_move = TRUE;
 			accept = TRUE;
 		}
-		else
+
+		if (filter && accept)
 		{
-			accept = FALSE;
+			accept = filter->check(item);
+		}
+
+		if (!accept)
+		{
 			break;
 		}
 	}
@@ -3693,10 +3752,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		// passes the filter of the destination panel.
 		if (accept && active_panel)
 		{
-			LLFolderView* active_folder_viev = active_panel->getRootFolder();
-			if (!active_folder_viev) return false;
+			LLFolderView* active_folder_view = active_panel->getRootFolder();
+			if (!active_folder_view) return false;
 
-			LLFolderViewItem* fv_item = active_folder_viev->getItemByID(inv_item->getUUID());
+			LLFolderViewItem* fv_item = active_folder_view->getItemByID(inv_item->getUUID());
 			if (!fv_item) return false;
 
 			accept = filter->check(fv_item);
@@ -3916,10 +3975,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// passes the filter of the destination panel.
 			if (accept && active_panel)
 			{
-				LLFolderView* active_folder_viev = active_panel->getRootFolder();
-				if (!active_folder_viev) return false;
+				LLFolderView* active_folder_view = active_panel->getRootFolder();
+				if (!active_folder_view) return false;
 
-				LLFolderViewItem* fv_item = active_folder_viev->getItemByID(inv_item->getUUID());
+				LLFolderViewItem* fv_item = active_folder_view->getItemByID(inv_item->getUUID());
 				if (!fv_item) return false;
 
 				accept = filter->check(fv_item);
@@ -3957,6 +4016,68 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		llwarns << "unhandled drag source" << llendl;
 	}
 	return accept;
+}
+
+// static
+bool check_category(LLInventoryModel* model,
+					const LLUUID& cat_id,
+					LLFolderView* active_folder_view,
+					LLInventoryFilter* filter)
+{
+	if (!model || !active_folder_view || !filter)
+		return false;
+
+	if (!filter->checkFolder(cat_id))
+	{
+		return false;
+	}
+
+	LLInventoryModel::cat_array_t descendent_categories;
+	LLInventoryModel::item_array_t descendent_items;
+	model->collectDescendents(cat_id, descendent_categories, descendent_items, TRUE);
+
+	S32 num_descendent_categories = descendent_categories.count();
+	S32 num_descendent_items = descendent_items.count();
+
+	if (num_descendent_categories + num_descendent_items == 0
+		&& filter->getShowFolderState() != LLInventoryFilter::SHOW_ALL_FOLDERS)
+	{
+		// Empty folders are not allowed if we are not showing all folders
+		return false;
+	}
+
+	for (S32 i = 0; i < num_descendent_categories; ++i)
+	{
+		LLInventoryCategory* category = descendent_categories[i];
+		if(!check_category(model, category->getUUID(), active_folder_view, filter))
+		{
+			return false;
+		}
+	}
+
+	for (S32 i = 0; i < num_descendent_items; ++i)
+	{
+		LLViewerInventoryItem* item = descendent_items[i];
+		if(!check_item(item->getUUID(), active_folder_view, filter))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// static
+bool check_item(const LLUUID& item_id,
+				LLFolderView* active_folder_view,
+				LLInventoryFilter* filter)
+{
+	if (!active_folder_view || !filter) return false;
+
+	LLFolderViewItem* fv_item = active_folder_view->getItemByID(item_id);
+	if (!fv_item) return false;
+
+	return filter->check(fv_item);
 }
 
 // +=================================================+
