@@ -2176,7 +2176,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 			else
 			{
-				LLFolderView* active_folder_view;
+				LLFolderView* active_folder_view = NULL;
 
 				if (is_movable)
 				{
