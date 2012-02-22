@@ -1,7 +1,7 @@
 /** 
  * @file llfloaterpathfindingbasic.h
  * @author William Todd Stinson
- * @brief "Pathfinding basic" floater, allowing for basic freezing and unfreezing of the pathfinding avator mode.
+ * @brief "Pathfinding basic" floater, allowing for basic freezing and unfreezing of the pathfinding avatar mode.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
