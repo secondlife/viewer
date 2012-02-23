@@ -4102,7 +4102,7 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	gViewerWindow->getWindow()->getSize(&size);
 	if ( size != new_size )
 	{
-		gViewerWindow->getWindow()->setSize(new_size.convert());
+		gViewerWindow->getWindow()->setSize(new_size);
 	}
 }
 

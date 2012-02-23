@@ -192,6 +192,21 @@ BOOL LLWindow::setSize(LLCoordScreen size)
 	return setSizeImpl(size);
 }
 
+BOOL LLWindow::setSize(LLCoordWindow size)
+{
+	//HACK: we are inconsistently using minimum window dimensions
+	// in this case, we are constraining the inner "client" rect and other times
+	// we constrain the outer "window" rect
+	// There doesn't seem to be a good way to do this consistently without a bunch of platform
+	// specific code
+	if (!getMaximized())
+	{
+		size.mX = llmax(size.mX, mMinWindowWidth);
+		size.mY = llmax(size.mY, mMinWindowHeight);
+	}
+	return setSizeImpl(size);
+}
+
 
 // virtual
 void LLWindow::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
