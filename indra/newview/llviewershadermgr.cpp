@@ -1218,6 +1218,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		std::string fragment;
+		std::string vertex = "deferred/sunLightV.glsl";
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{
@@ -1226,11 +1227,15 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		else
 		{
 			fragment = "deferred/sunLightF.glsl";
+			if (mVertexShaderLevel[SHADER_DEFERRED] == 1)
+			{ //no shadows, no SSAO, no frag coord
+				vertex = "deferred/sunLightNoFragCoordV.glsl";
+			}
 		}
 
 		gDeferredSunProgram.mName = "Deferred Sun Shader";
 		gDeferredSunProgram.mShaderFiles.clear();
-		gDeferredSunProgram.mShaderFiles.push_back(make_pair("deferred/sunLightV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER_ARB));
 		gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER_ARB));
 		gDeferredSunProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredSunProgram.createShader(NULL, NULL);
