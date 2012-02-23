@@ -58,12 +58,16 @@ typedef boost::shared_ptr<LLProcess> LLProcessPtr;
  * arguments. It also keeps track of whether the process is still running, and
  * can kill it if required.
  *
+ * In discussing LLProcess, we use the term "parent" to refer to this process
+ * (the process invoking LLProcess), versus "child" to refer to the process
+ * spawned by LLProcess.
+ *
  * LLProcess relies on periodic post() calls on the "mainloop" LLEventPump: an
- * LLProcess object's Status won't update until the next "mainloop" tick. The
- * viewer's main loop already posts to that LLEventPump once per iteration
- * (hence the name). See indra/llcommon/tests/llprocess_test.cpp for an
- * example of waiting for child-process termination in a standalone test
- * context.
+ * LLProcess object's Status won't update until the next "mainloop" tick. For
+ * instance, the Second Life viewer's main loop already posts to an
+ * LLEventPump by that name once per iteration. See
+ * indra/llcommon/tests/llprocess_test.cpp for an example of waiting for
+ * child-process termination in a standalone test context.
  */
 class LL_COMMON_API LLProcess: public boost::noncopyable
 {
@@ -110,10 +114,10 @@ public:
 		 *     pumping nonblocking I/O every frame. The expectation (at least
 		 *     for stdout or stderr) is that the caller will listen for
 		 *     incoming data and consume it as it arrives. It's important not
-		 *     to neglect such a pipe, because it's buffered in viewer memory.
-		 *     If you suspect the child may produce a great volume of output
-		 *     between viewer frames, consider directing the child to write to
-		 *     a filesystem file instead, then read the file later.
+		 *     to neglect such a pipe, because it's buffered in memory. If you
+		 *     suspect the child may produce a great volume of output between
+		 *     frames, consider directing the child to write to a filesystem
+		 *     file instead, then read the file later.
 		 *
 		 *   - "tpipe": do not engage LLProcess machinery to monitor the
 		 *     parent end of the pipe. A "tpipe" is used only to connect
@@ -145,9 +149,14 @@ public:
 		Optional<std::string> name;
 
 		FileParam(const std::string& tp="", const std::string& nm=""):
-			type("type", tp),
-			name("name", nm)
-		{}
+			type("type"),
+			name("name")
+		{
+			// If caller wants to specify values, use explicit assignment to
+			// set them rather than initialization.
+			if (! tp.empty()) type = tp;
+			if (! nm.empty()) name = nm;
+        }
 	};
 
 	/// Param block definition
@@ -175,17 +184,28 @@ public:
 		/// current working directory, if need it changed
 		Optional<std::string> cwd;
 		/// implicitly kill process on destruction of LLProcess object
+		/// (default true)
 		Optional<bool> autokill;
 		/**
 		 * Up to three FileParam items: for child stdin, stdout, stderr.
 		 * Passing two FileParam entries means default treatment for stderr,
 		 * and so forth.
 		 *
+		 * @note LLInitParam::Block permits usage like this:
+		 * @code
+		 * LLProcess::Params params;
+		 * ...
+		 * params.files
+		 *     .add(LLProcess::FileParam()) // stdin
+		 *     .add(LLProcess::FileParam().type("pipe") // stdout
+		 *     .add(LLProcess::FileParam().type("file").name("error.log"));
+		 * @endcode
+		 *
 		 * @note While it's theoretically plausible to pass additional open
 		 * file handles to a child specifically written to expect them, our
-		 * underlying implementation library doesn't support that.
+		 * underlying implementation doesn't yet support that.
 		 */
-		Multiple<FileParam> files;
+		Multiple<FileParam, AtMost<3> > files;
 		/**
 		 * On child-process termination, if this LLProcess object still
 		 * exists, post LLSD event to LLEventPump with specified name (default
@@ -217,9 +237,8 @@ public:
 	static LLProcessPtr create(const LLSDOrParams& params);
 	virtual ~LLProcess();
 
-	// isRunning() isn't const because, when child terminates, it sets stored
-	// Status
-	bool isRunning(void);
+	/// Is child process still running?
+	bool isRunning() const;
 
 	/**
 	 * State of child process
@@ -252,11 +271,11 @@ public:
 	};
 
 	/// Status query
-	Status getStatus();
+	Status getStatus() const;
 	/// English Status string query, for logging etc.
-	std::string getStatusString();
+	std::string getStatusString() const;
 	/// English Status string query for previously-captured Status
-	std::string getStatusString(const Status& status);
+	std::string getStatusString(const Status& status) const;
 	/// static English Status string query
 	static std::string getStatusString(const std::string& desc, const Status& status);
 
@@ -311,7 +330,7 @@ public:
 	 * filesystem name for the specified pipe. Otherwise returns the empty
 	 * string. @see LLProcess::FileParam::type
 	 */
-	std::string getPipeName(FILESLOT);
+	std::string getPipeName(FILESLOT) const;
 
 	/// base of ReadPipe, WritePipe
 	class LL_COMMON_API BasePipe
@@ -419,7 +438,7 @@ public:
 		 * contain "data"="abcde". However, you may still read the entire
 		 * "abcdef" from get_istream(): this limit affects only the size of
 		 * the data posted with the LLSD event. If you don't call this method,
-		 * all pending data will be posted.
+		 * @em no data will be posted: the default is 0 bytes.
 		 */
 		virtual void setLimit(size_type limit) = 0;
 

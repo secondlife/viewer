@@ -47,10 +47,17 @@
 #include <typeinfo>
 #include <utility>
 
-static const char* whichfile[] = { "stdin", "stdout", "stderr" };
+static const char* whichfile_[] = { "stdin", "stdout", "stderr" };
 static std::string empty;
 static LLProcess::Status interpret_status(int status);
 static std::string getDesc(const LLProcess::Params& params);
+
+static std::string whichfile(LLProcess::FILESLOT index)
+{
+	if (index < LL_ARRAY_SIZE(whichfile_))
+		return whichfile_[index];
+	return STRINGIZE("file slot " << index);
+}
 
 /**
  * Ref-counted "mainloop" listener. As long as there are still outstanding
@@ -122,6 +129,7 @@ static LLProcessListener sProcessListener;
 
 LLProcess::BasePipe::~BasePipe() {}
 const LLProcess::BasePipe::size_type
+	  // use funky syntax to call max() to avoid blighted max() macros
 	  LLProcess::BasePipe::npos((std::numeric_limits<LLProcess::BasePipe::size_type>::max)());
 
 class WritePipeImpl: public LLProcess::WritePipe
@@ -205,14 +213,14 @@ class ReadPipeImpl: public LLProcess::ReadPipe
 {
 	LOG_CLASS(ReadPipeImpl);
 public:
-	ReadPipeImpl(const std::string& desc, apr_file_t* pipe):
+	ReadPipeImpl(const std::string& desc, apr_file_t* pipe, LLProcess::FILESLOT index):
 		mDesc(desc),
 		mPipe(pipe),
+		mIndex(index),
 		// Essential to initialize our std::istream with our special streambuf!
 		mStream(&mStreambuf),
 		mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
-		// use funky syntax to call max() to avoid blighted max() macros
-		mLimit(npos)
+		mLimit(0)
 	{
 		mConnection = LLEventPumps::instance().obtain("mainloop")
 			.listen(LLEventPump::inventName("ReadPipe"),
@@ -364,7 +372,10 @@ private:
 			size_type datasize((std::min)(mLimit, size_type(mStreambuf.size())));
 			mPump.post(LLSDMap
 					   ("data", peek(0, datasize))
-					   ("len", LLSD::Integer(mStreambuf.size())));
+					   ("len", LLSD::Integer(mStreambuf.size()))
+					   ("index", LLSD::Integer(mIndex))
+					   ("name", whichfile(mIndex))
+					   ("desc", mDesc));
 		}
 
 		return false;
@@ -372,6 +383,7 @@ private:
 
 	std::string mDesc;
 	apr_file_t* mPipe;
+	LLProcess::FILESLOT mIndex;
 	LLTempBoundListener mConnection;
 	boost::asio::streambuf mStreambuf;
 	std::istream mStream;
@@ -400,7 +412,7 @@ LLProcessPtr LLProcess::create(const LLSDOrParams& params)
 		// indicating bad launch. This may prevent someone waiting forever for
 		// a termination post that can't arrive because the child never
 		// started.
-		if (! std::string(params.postend).empty())
+		if (params.postend.isProvided())
 		{
 			LLEventPumps::instance().obtain(params.postend)
 				.post(LLSDMap
@@ -458,22 +470,24 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// and passing it as both stdout and stderr (apr_procattr_child_out_set(),
 	// apr_procattr_child_err_set()), or accepting a filename, opening it and
 	// passing that apr_file_t (simple <, >, 2> redirect emulation).
-	std::vector<FileParam> fparams(params.files.begin(), params.files.end());
-	// By default, pass APR_NO_PIPE for each slot.
-	std::vector<apr_int32_t> select(LL_ARRAY_SIZE(whichfile), APR_NO_PIPE);
-	for (size_t i = 0; i < (std::min)(LL_ARRAY_SIZE(whichfile), fparams.size()); ++i)
+	std::vector<apr_int32_t> select;
+	BOOST_FOREACH(const FileParam& fparam, params.files)
 	{
-		if (std::string(fparams[i].type).empty()) // inherit our file descriptor
+		// Every iteration, we're going to append an item to 'select'. At the
+		// top of the loop, its size() is, in effect, an index. Use that to
+		// pick a string description for messages.
+		std::string which(whichfile(FILESLOT(select.size())));
+		if (fparam.type().empty())  // inherit our file descriptor
 		{
-			select[i] = APR_NO_PIPE;
+			select.push_back(APR_NO_PIPE);
 		}
-		else if (std::string(fparams[i].type) == "pipe") // anonymous pipe
+		else if (fparam.type() == "pipe") // anonymous pipe
 		{
-			if (! std::string(fparams[i].name).empty())
+			if (! fparam.name().empty())
 			{
-				LL_WARNS("LLProcess") << "For " << std::string(params.executable)
+				LL_WARNS("LLProcess") << "For " << params.executable()
 									  << ": internal names for reusing pipes ('"
-									  << std::string(fparams[i].name) << "' for " << whichfile[i]
+									  << fparam.name() << "' for " << which
 									  << ") are not yet supported -- creating distinct pipe"
 									  << LL_ENDL;
 			}
@@ -482,15 +496,20 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 			// makes very little sense to set nonblocking I/O for the child
 			// end of a pipe: only a specially-written child could deal with
 			// that.
-			select[i] = APR_CHILD_BLOCK;
+			select.push_back(APR_CHILD_BLOCK);
 		}
 		else
 		{
-			throw LLProcessError(STRINGIZE("For " << std::string(params.executable)
-										   << ": unsupported FileParam for " << whichfile[i]
-										   << ": type='" << std::string(fparams[i].type)
-										   << "', name='" << std::string(fparams[i].name) << "'"));
+			throw LLProcessError(STRINGIZE("For " << params.executable()
+										   << ": unsupported FileParam for " << which
+										   << ": type='" << fparam.type()
+										   << "', name='" << fparam.name() << "'"));
 		}
+	}
+	// By default, pass APR_NO_PIPE for unspecified slots.
+	while (select.size() < NSLOTS)
+	{
+		select.push_back(APR_NO_PIPE);
 	}
 	chkapr(apr_procattr_io_set(procattr, select[STDIN], select[STDOUT], select[STDERR]));
 
@@ -527,24 +546,32 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 #endif
 	}
 
-	// Have to instantiate named std::strings for string params items so their
-	// c_str() values persist.
-	std::string cwd(params.cwd);
-	if (! cwd.empty())
+	// In preparation for calling apr_proc_create(), we collect a number of
+	// const char* pointers obtained from std::string::c_str(). Turns out
+	// LLInitParam::Block's helpers Optional, Mandatory, Multiple et al.
+	// guarantee that converting to the wrapped type (std::string in our
+	// case), e.g. by calling operator(), returns a reference to *the same
+	// instance* of the wrapped type that's stored in our Block subclass.
+	// That's important! We know 'params' persists throughout this method
+	// call; but without that guarantee, we'd have to assume that converting
+	// one of its members to std::string might return a different (temp)
+	// instance. Capturing the c_str() from a temporary std::string is Bad Bad
+	// Bad. But armed with this knowledge, when you see params.cwd().c_str(),
+	// grit your teeth and smile and carry on.
+
+	if (params.cwd.isProvided())
 	{
-		chkapr(apr_procattr_dir_set(procattr, cwd.c_str()));
+		chkapr(apr_procattr_dir_set(procattr, params.cwd().c_str()));
 	}
 
 	// create an argv vector for the child process
 	std::vector<const char*> argv;
 
-	// add the executable path
-	std::string executable(params.executable);
-	argv.push_back(executable.c_str());
+	// Add the executable path. See above remarks about c_str().
+	argv.push_back(params.executable().c_str());
 
-	// and any arguments
-	std::vector<std::string> args(params.args.begin(), params.args.end());
-	BOOST_FOREACH(const std::string& arg, args)
+	// Add arguments. See above remarks about c_str().
+	BOOST_FOREACH(const std::string& arg, params.args)
 	{
 		argv.push_back(arg.c_str());
 	}
@@ -590,7 +617,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	{
 		if (select[i] != APR_CHILD_BLOCK)
 			continue;
-		std::string desc(STRINGIZE(mDesc << ' ' << whichfile[i]));
+		std::string desc(STRINGIZE(mDesc << ' ' << whichfile(FILESLOT(i))));
 		apr_file_t* pipe(mProcess.*(members[i]));
 		if (i == STDIN)
 		{
@@ -598,7 +625,7 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 		}
 		else
 		{
-			mPipes.replace(i, new ReadPipeImpl(desc, pipe));
+			mPipes.replace(i, new ReadPipeImpl(desc, pipe, FILESLOT(i)));
 		}
 		LL_DEBUGS("LLProcess") << "Instantiating " << typeid(mPipes[i]).name()
 							   << "('" << desc << "')" << LL_ENDL;
@@ -609,9 +636,8 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 static std::string getDesc(const LLProcess::Params& params)
 {
 	// If caller specified a description string, by all means use it.
-	std::string desc(params.desc);
-	if (! desc.empty())
-		return desc;
+	if (params.desc.isProvided())
+		return params.desc;
 
 	// Caller didn't say. Use the executable name -- but use just the filename
 	// part. On Mac, for instance, full pathnames get cumbersome.
@@ -670,22 +696,22 @@ bool LLProcess::kill(const std::string& who)
 	return ! isRunning();
 }
 
-bool LLProcess::isRunning(void)
+bool LLProcess::isRunning() const
 {
 	return getStatus().mState == RUNNING;
 }
 
-LLProcess::Status LLProcess::getStatus()
+LLProcess::Status LLProcess::getStatus() const
 {
 	return mStatus;
 }
 
-std::string LLProcess::getStatusString()
+std::string LLProcess::getStatusString() const
 {
 	return getStatusString(getStatus());
 }
 
-std::string LLProcess::getStatusString(const Status& status)
+std::string LLProcess::getStatusString(const Status& status) const
 {
 	return getStatusString(mDesc, status);
 }
@@ -816,7 +842,7 @@ LLProcess::handle LLProcess::getProcessHandle() const
 #endif
 }
 
-std::string LLProcess::getPipeName(FILESLOT)
+std::string LLProcess::getPipeName(FILESLOT) const
 {
 	// LLProcess::FileParam::type "npipe" is not yet implemented
 	return "";
@@ -832,7 +858,7 @@ PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
 	}
 	if (mPipes.is_null(slot))
 	{
-		error = STRINGIZE(mDesc << ' ' << whichfile[slot] << " not a monitored pipe");
+		error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a monitored pipe");
 		return NULL;
 	}
 	// Make sure we dynamic_cast in pointer domain so we can test, rather than
@@ -840,7 +866,7 @@ PIPETYPE* LLProcess::getPipePtr(std::string& error, FILESLOT slot)
 	PIPETYPE* ppipe = dynamic_cast<PIPETYPE*>(&mPipes[slot]);
 	if (! ppipe)
 	{
-		error = STRINGIZE(mDesc << ' ' << whichfile[slot] << " not a " << typeid(PIPETYPE).name());
+		error = STRINGIZE(mDesc << ' ' << whichfile(slot) << " not a " << typeid(PIPETYPE).name());
 		return NULL;
 	}
 
@@ -895,10 +921,9 @@ boost::optional<LLProcess::ReadPipe&> LLProcess::getOptReadPipe(FILESLOT slot)
 
 std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
 {
-	std::string cwd(params.cwd);
-	if (! cwd.empty())
+	if (params.cwd.isProvided())
 	{
-		out << "cd " << LLStringUtil::quote(cwd) << ": ";
+		out << "cd " << LLStringUtil::quote(params.cwd) << ": ";
 	}
 	out << LLStringUtil::quote(params.executable);
 	BOOST_FOREACH(const std::string& arg, params.args)

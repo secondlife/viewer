@@ -696,7 +696,7 @@ namespace tut
                                  "syntax_error:\n");
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdin
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdout
-        py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for stderr
+        py.mParams.files.add(LLProcess::FileParam().type("pipe")); // pipe for stderr
         py.run();
         ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
         ensure_equals("Status.mData",  py.mPy->getStatus().mData,  1);
@@ -1088,6 +1088,8 @@ namespace tut
         py.launch();
         std::ostream& childin(py.mPy->getWritePipe(LLProcess::STDIN).get_ostream());
         LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        // lift the default limit; allow event to carry (some of) the actual data
+        childout.setLimit(20);
         // listen for incoming data on childout
         EventListener listener(childout.getPump());
         // also listen with a function that prompts the child to continue
