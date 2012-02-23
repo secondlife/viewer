@@ -1262,7 +1262,7 @@ void LLVertexBuffer::setupVertexArray()
 		{
 			glEnableVertexAttribArrayARB(i);
 
-			if (attrib_integer)
+			if (attrib_integer[i])
 			{
 #if !LL_DARWIN
 				//glVertexattribIPointer requires GLSL 1.30 or later
