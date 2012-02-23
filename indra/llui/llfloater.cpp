@@ -3306,7 +3306,7 @@ bool LLCoordFloater::operator==(const LLCoordFloater& other) const
 
 LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
 {
-	const LLCoordFloater& self = static_cast<const LLCoordFloater&>(*this);
+	const LLCoordFloater& self = static_cast<const LLCoordFloater&>(LLCoordFloater::getTypedCoords(*this));
 
 	LLRect snap_rect = gFloaterView->getSnapRect();
 	LLFloater* floaterp = mFloater.get();
@@ -3348,7 +3348,7 @@ LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
 
 void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
 {
-	LLCoordFloater& self = static_cast<LLCoordFloater&>(*this);
+	LLCoordFloater& self = static_cast<LLCoordFloater&>(LLCoordFloater::getTypedCoords(*this));
 	LLRect snap_rect = gFloaterView->getSnapRect();
 	LLFloater* floaterp = mFloater.get();
 	S32 floater_width = floaterp ? floaterp->getRect().getWidth() : 0;
