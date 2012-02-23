@@ -389,6 +389,7 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 	for(; it != end; ++it)
 	{
 		gInventory.moveObject((*it), trash_id);
+		model->updateItem(gInventory.getItem(*it));
 	}
 
 	// notify inventory observers.
