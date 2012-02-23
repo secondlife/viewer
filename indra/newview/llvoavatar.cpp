@@ -3956,7 +3956,7 @@ void LLVOAvatar::updateVisibility()
 			LLNameValue* firstname = getNVPair("FirstName");
 			if (firstname)
 			{
-				llinfos << "Avatar " << firstname->getString() << " updating visiblity" << llendl;
+				llinfos << avString() << " updating visiblity" << llendl;
 			}
 			else
 			{
@@ -6461,6 +6461,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	}
 
 	// did our loading state "change" from last call?
+	// runway - why are we updating every 30 calls even if nothing has changed?
 	const S32 UPDATE_RATE = 30;
 	BOOL changed =
 		((mFullyLoaded != mPreviousFullyLoaded) ||         // if the value is different from the previous call
@@ -7057,6 +7058,7 @@ void LLVOAvatar::rebuildHUD()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::onFirstTEMessageReceived()
 {
+	llinfos << avString() << llendl;
 	if( !mFirstTEMessageReceived )
 	{
 		mFirstTEMessageReceived = TRUE;
@@ -7085,6 +7087,7 @@ void LLVOAvatar::onFirstTEMessageReceived()
 					image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
 						src_callback_list, paused);
 				}
+				llinfos << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << llendl;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
 			}
@@ -7143,14 +7146,16 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 
-//	llinfos << "processAvatarAppearance start " << mID << llendl;
 	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
-
 	mFirstAppearanceMessageReceived = TRUE;
+
+	llinfos << avString() << "processAvatarAppearance start " << mID
+			<< " first? " << is_first_appearance_message << " self? " << isSelf() << llendl;
+
 
 	if( isSelf() )
 	{
-		llwarns << "Received AvatarAppearance for self" << llendl;
+		llwarns << avString() << "Received AvatarAppearance for self" << llendl;
 		if( mFirstTEMessageReceived )
 		{
 //			llinfos << "processAvatarAppearance end  " << mID << llendl;
@@ -7178,7 +7183,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 
-	if( !is_first_appearance_message )
+	// runway - is this right? Will be called every time *except* the first.
+	// FIXME - trying toggle
+	if (is_first_appearance_message )
 	{
 		onFirstTEMessageReceived();
 	}
@@ -7199,6 +7206,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
 	if( num_blocks > 1 && !drop_visual_params_debug)
 	{
+		llinfos << avString() << " handle visual params, num_blocks " << num_blocks << llendl;
 		BOOL params_changed = FALSE;
 		BOOL interp_params = FALSE;
 		
@@ -7271,6 +7279,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	else
 	{
 		// AvatarAppearance message arrived without visual params
+		llinfos << avString() << "no visual params" << llendl;
 		if (drop_visual_params_debug)
 		{
 			llinfos << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << llendl;
@@ -7423,8 +7432,15 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 // static
 void LLVOAvatar::onInitialBakedTextureLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
+
+	
 	LLUUID *avatar_idp = (LLUUID *)userdata;
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
+	
+	if (selfp)
+	{
+		llinfos << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << llendl;
+	}
 
 	if (!success && selfp)
 	{
@@ -7443,6 +7459,10 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_
 	LLUUID id = src_vi->getID();
 	LLUUID *avatar_idp = (LLUUID *)userdata;
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
+	if (selfp)
+	{	
+		llinfos << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << llendl;
+	}
 
 	if (selfp && !success)
 	{
@@ -7464,6 +7484,8 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_
 // Called when baked texture is loaded and also when we start up with a baked texture
 void LLVOAvatar::useBakedTexture( const LLUUID& id )
 {
+
+	
 	/* if(id == head_baked->getID())
 		 mHeadBakedLoaded = TRUE;
 		 mLastHeadBakedID = id;
