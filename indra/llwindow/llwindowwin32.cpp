@@ -876,6 +876,17 @@ BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 	return TRUE;
 }
 
+BOOL LLWindowWin32::setSizeImpl(const LLCoordWindow size)
+{
+	RECT window_rect = {0, 0, size.mX, size.mY };
+	DWORD dw_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+	DWORD dw_style = WS_OVERLAPPEDWINDOW;
+
+	AdjustWindowRectEx(&window_rect, dw_style, FALSE, dw_ex_style);
+
+	return setSizeImpl(LLCoordScreen(window_rect.right - window_rect.left, window_rect.bottom - window_rect.top));
+}
+
 // changing fullscreen resolution
 BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp)
 {
