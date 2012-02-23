@@ -41,6 +41,7 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 

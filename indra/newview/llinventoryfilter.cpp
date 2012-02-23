@@ -150,7 +150,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	{
 		return true;
 	}
-	
+
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory
@@ -558,8 +558,14 @@ void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 		setModified();
 	}
 
-	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
-			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	if (areDateLimitsSet())
+	{
+		mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+	}
+	else
+	{
+		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
 }
 
 void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
@@ -575,8 +581,14 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 		setModified();
 	}
 
-	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
-			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	if (areDateLimitsSet())
+	{
+		mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+	}
+	else
+	{
+		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
 }
 
 BOOL LLInventoryFilter::isSinceLogoff() const
@@ -622,8 +634,14 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 		}
 	}
 
-	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
-			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	if (areDateLimitsSet())
+	{
+		mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+	}
+	else
+	{
+		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
 }
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
