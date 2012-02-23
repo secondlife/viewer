@@ -286,7 +286,7 @@ void LLInventoryPanel::draw()
 	if (mClipboardState != LLClipboard::getInstance()->getState())
 	{
 		mClipboardState = LLClipboard::getInstance()->getState();
-		getFilter()->setModified(LLInventoryFilter::FILTER_RESTART);
+		getFilter()->setModified(LLClipboard::getInstance()->isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
 	}
 	
 	LLPanel::draw();
