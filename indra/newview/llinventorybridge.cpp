@@ -4039,11 +4039,12 @@ bool check_category(LLInventoryModel* model,
 	S32 num_descendent_categories = descendent_categories.count();
 	S32 num_descendent_items = descendent_items.count();
 
-	if (num_descendent_categories + num_descendent_items == 0
-		&& filter->getShowFolderState() != LLInventoryFilter::SHOW_ALL_FOLDERS)
+	if (num_descendent_categories + num_descendent_items == 0)
 	{
-		// Empty folders are not allowed if we are not showing all folders
-		return false;
+		// Empty folder should be checked as any other folder view item.
+		// If we are filtering by date the folder should not pass because
+		// it doesn't have its own creation date. See LLInvFVBridge::getCreationDate().
+		return check_item(cat_id, active_folder_view, filter);
 	}
 
 	for (S32 i = 0; i < num_descendent_categories; ++i)
