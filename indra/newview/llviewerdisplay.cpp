@@ -911,6 +911,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 						//NavMesh
 						if (pathfindingConsole->isRenderNavMesh())
 						{
+							glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 							llPathingLibInstance->renderNavMesh();
 							exclusiveDraw = true;
 						}
