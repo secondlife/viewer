@@ -316,7 +316,6 @@ void events_object::test<7>()
 {
 	set_test_name("listener dependency order");
 	typedef LLEventPump::NameList NameList;
-	typedef Collect::StringList StringList;
 	LLEventPump& button(pumps.obtain("button"));
 	Collect collector;
 	button.listen("Mary",
@@ -330,7 +329,7 @@ void events_object::test<7>()
 	button.listen("spot",
 				  boost::bind(&Collect::add, boost::ref(collector), "spot", _1));
 	button.post(1);
-	ensure_equals(collector.result, make<StringList>(list_of("spot")("checked")("Mary")));
+	ensure_equals(collector.result, make<StringVec>(list_of("spot")("checked")("Mary")));
 	collector.clear();
 	button.stopListening("Mary");
 	button.listen("Mary",
@@ -339,7 +338,7 @@ void events_object::test<7>()
 			// now "Mary" must come before "spot"
 			make<NameList>(list_of("spot")));
 	button.post(2);
-	ensure_equals(collector.result, make<StringList>(list_of("Mary")("spot")("checked")));
+	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("spot")("checked")));
 	collector.clear();
 	button.stopListening("spot");
 	std::string threw;
@@ -373,7 +372,7 @@ void events_object::test<7>()
 				  boost::bind(&Collect::add, boost::ref(collector), "shoelaces", _1),
 				  make<NameList>(list_of("checked")));
 	button.post(3);
-	ensure_equals(collector.result, make<StringList>(list_of("Mary")("checked")("yellow")("shoelaces")));
+	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
 	collector.clear();
 	threw.clear();
 	try
@@ -395,7 +394,7 @@ void events_object::test<7>()
 	ensure_contains("old order", threw, "was: Mary, checked, yellow, shoelaces");
 	ensure_contains("new order", threw, "now: Mary, checked, shoelaces, of, yellow");
 	button.post(4);
-	ensure_equals(collector.result, make<StringList>(list_of("Mary")("checked")("yellow")("shoelaces")));
+	ensure_equals(collector.result, make<StringVec>(list_of("Mary")("checked")("yellow")("shoelaces")));
 }
 
 template<> template<>
