@@ -3275,7 +3275,7 @@ void LLFloater::stackWith(LLFloater& other)
 }
 
 LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
-:	coord_t(x, y)
+:	coord_t((S32)x, (S32)y)
 {
 	mFloater = floater.getHandle();
 }
