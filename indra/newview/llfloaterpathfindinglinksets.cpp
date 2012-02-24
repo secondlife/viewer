@@ -320,7 +320,7 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingLinksetListPt
 	llassert(!isMessagingInProgress());
 	if (!isMessagingInProgress())
 	{
-		switch (LLPathfindingManager::getInstance()->requestSetLinksets(pLinksetList, pLinksetUse, pA, pB, pC, pD, boost::bind(&LLFloaterPathfindingLinksets::handleNewLinksets, this, _1, _2)))
+		switch (LLPathfindingManager::getInstance()->requestSetLinksets(pLinksetList, pLinksetUse, pA, pB, pC, pD, boost::bind(&LLFloaterPathfindingLinksets::handleUpdateLinksets, this, _1, _2)))
 		{
 		case LLPathfindingManager::kLinksetsRequestStarted :
 			setMessagingState(kMessagingSetRequestSent);
@@ -354,6 +354,26 @@ void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::ELink
 		break;
 	default :
 		setMessagingState(kMessagingGetError);
+		llassert(0);
+		break;
+	}
+}
+
+void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
+{
+	mLinksetsListPtr->update(*pLinksetsListPtr);
+	updateScrollList();
+
+	switch (pLinksetsRequestStatus)
+	{
+	case LLPathfindingManager::kLinksetsRequestCompleted :
+		setMessagingState(kMessagingComplete);
+		break;
+	case LLPathfindingManager::kLinksetsRequestError :
+		setMessagingState(kMessagingSetError);
+		break;
+	default :
+		setMessagingState(kMessagingSetError);
 		llassert(0);
 		break;
 	}

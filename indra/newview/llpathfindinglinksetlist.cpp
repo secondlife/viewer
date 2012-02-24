@@ -62,24 +62,23 @@ LLPathfindingLinksetList::~LLPathfindingLinksetList()
 	clear();
 }
 
-void LLPathfindingLinksetList::update(const LLSD& pLinksetItems)
+void LLPathfindingLinksetList::update(const LLPathfindingLinksetList &pUpdateLinksetList)
 {
-	for (LLSD::map_const_iterator linksetItemIter = pLinksetItems.beginMap();
-		linksetItemIter != pLinksetItems.endMap(); ++linksetItemIter)
+	for (LLPathfindingLinksetList::const_iterator updateLinksetIter = pUpdateLinksetList.begin();
+		updateLinksetIter != pUpdateLinksetList.end(); ++updateLinksetIter)
 	{
-		const std::string& uuid(linksetItemIter->first);
-		const LLSD& linksetData = linksetItemIter->second;
-		LLPathfindingLinksetMap::iterator linksetIter = this->find(uuid);
+		const std::string &uuid = updateLinksetIter->first;
+		const LLPathfindingLinksetPtr updateLinksetPtr = updateLinksetIter->second;
+
+		LLPathfindingLinksetList::iterator linksetIter = find(uuid);
 		if (linksetIter == end())
 		{
-			LLPathfindingLinksetPtr linkset(new LLPathfindingLinkset(uuid, linksetData));
-			insert(std::pair<std::string, LLPathfindingLinksetPtr>(uuid, linkset));
+			insert(std::pair<std::string, LLPathfindingLinksetPtr>(uuid, updateLinksetPtr));
 		}
 		else
 		{
 			LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-			const LLPathfindingLinkset newLinkset(uuid, linksetData);
-			*linksetPtr = newLinkset;
+			*linksetPtr = *updateLinksetPtr;
 		}
 	}
 }

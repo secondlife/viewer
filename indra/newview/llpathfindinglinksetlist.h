@@ -47,7 +47,7 @@ public:
 	LLPathfindingLinksetList(const LLSD& pLinksetItems);
 	virtual ~LLPathfindingLinksetList();
 
-	void update(const LLSD& pLinksetItems);
+	void update(const LLPathfindingLinksetList &pUpdateLinksetList);
 
 	LLSD encodeAlteredFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
