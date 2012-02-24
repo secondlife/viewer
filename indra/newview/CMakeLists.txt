@@ -162,7 +162,6 @@ set(viewer_SOURCE_FILES
     llfavoritesbar.cpp
     llfeaturemanager.cpp
     llfilepicker.cpp
-    llfilteredpathfindinglinksets.cpp
     llfilteredwearablelist.cpp
     llfirstuse.cpp
     llflexibleobject.cpp
@@ -728,7 +727,6 @@ set(viewer_HEADER_FILES
     llfavoritesbar.h
     llfeaturemanager.h
     llfilepicker.h
-    llfilteredpathfindinglinksets.h
     llfilteredwearablelist.h
     llfirstuse.h
     llflexibleobject.h

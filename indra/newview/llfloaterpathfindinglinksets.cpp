@@ -508,22 +508,14 @@ void LLFloaterPathfindingLinksets::onAgentStateCB(LLPathfindingManager::EAgentSt
 
 void LLFloaterPathfindingLinksets::applyFilters()
 {
-#if 0
-	mLinksetsListPtr.setNameFilter(mFilterByName->getText());
-	mLinksetsListPtr.setDescriptionFilter(mFilterByDescription->getText());
-	mLinksetsListPtr.setLinksetUseFilter(getFilterLinksetUse());
-#endif
 	updateScrollList();
 }
 
 void LLFloaterPathfindingLinksets::clearFilters()
 {
-#if 0
-	mLinksetsListPtr.clearFilters();
-	mFilterByName->setText(LLStringExplicit(mLinksetsListPtr.getNameFilter()));
-	mFilterByDescription->setText(LLStringExplicit(mLinksetsListPtr.getDescriptionFilter()));
-	setFilterLinksetUse(mLinksetsListPtr.getLinksetUseFilter());
-#endif
+	mFilterByName->clear();
+	mFilterByDescription->clear();
+	setFilterLinksetUse(LLPathfindingLinkset::kUnknown);
 	updateScrollList();
 }
 
@@ -601,92 +593,129 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 
 	if (mLinksetsListPtr != NULL)
 	{
+		std::string nameFilter = mFilterByName->getText();
+		std::string descriptionFilter = mFilterByDescription->getText();
+		LLPathfindingLinkset::ELinksetUse linksetUseFilter = getFilterLinksetUse();
+		bool isFilteringName = !nameFilter.empty();
+		bool isFilteringDescription = !descriptionFilter.empty();
+		bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
+
 		const LLVector3& avatarPosition = gAgent.getPositionAgent();
-		for (LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->begin();
-			linksetIter != mLinksetsListPtr->end(); ++linksetIter)
+
+		if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
 		{
-			const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
-
-			LLSD columns;
-
-			columns[0]["column"] = "name";
-			columns[0]["value"] = linksetPtr->getName();
-			columns[0]["font"] = "SANSSERIF";
-
-			columns[1]["column"] = "description";
-			columns[1]["value"] = linksetPtr->getDescription();
-			columns[1]["font"] = "SANSSERIF";
-
-			columns[2]["column"] = "land_impact";
-			columns[2]["value"] = llformat("%1d", linksetPtr->getLandImpact());
-			columns[2]["font"] = "SANSSERIF";
-
-			columns[3]["column"] = "dist_from_you";
-			columns[3]["value"] = llformat("%1.0f m", dist_vec(avatarPosition, linksetPtr->getLocation()));
-			columns[3]["font"] = "SANSSERIF";
-
-			columns[4]["column"] = "linkset_use";
-			std::string linksetUse;
-			switch (linksetPtr->getLinksetUse())
+			LLStringUtil::toUpper(nameFilter);
+			LLStringUtil::toUpper(descriptionFilter);
+			for (LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->begin();
+				linksetIter != mLinksetsListPtr->end(); ++linksetIter)
 			{
-			case LLPathfindingLinkset::kWalkable :
-				linksetUse = getString("linkset_use_walkable");
-				break;
-			case LLPathfindingLinkset::kStaticObstacle :
-				linksetUse = getString("linkset_use_static_obstacle");
-				break;
-			case LLPathfindingLinkset::kDynamicObstacle :
-				linksetUse = getString("linkset_use_dynamic_obstacle");
-				break;
-			case LLPathfindingLinkset::kMaterialVolume :
-				linksetUse = getString("linkset_use_material_volume");
-				break;
-			case LLPathfindingLinkset::kExclusionVolume :
-				linksetUse = getString("linkset_use_exclusion_volume");
-				break;
-			case LLPathfindingLinkset::kDynamicPhantom :
-				linksetUse = getString("linkset_use_dynamic_phantom");
-				break;
-			case LLPathfindingLinkset::kUnknown :
-			default :
-				linksetUse = getString("linkset_use_dynamic_obstacle");
-				llassert(0);
-				break;
+				const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
+				std::string linksetName = linksetPtr->getName();
+				std::string linksetDescription = linksetPtr->getDescription();
+				LLStringUtil::toUpper(linksetName);
+				LLStringUtil::toUpper(linksetDescription);
+				if ((!isFilteringName || (linksetName.find(nameFilter) != std::string::npos)) &&
+					(!isFilteringDescription || (linksetDescription.find(descriptionFilter) != std::string::npos)) &&
+					(!isFilteringLinksetUse || (linksetPtr->getLinksetUse() == linksetUseFilter)))
+				{
+					LLSD element = buildScrollListElement(linksetPtr, avatarPosition);
+					mLinksetsScrollList->addElement(element);
+				}
 			}
-			if (linksetPtr->isLocked())
+		}
+		else
+		{
+			for (LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->begin();
+				linksetIter != mLinksetsListPtr->end(); ++linksetIter)
 			{
-				linksetUse += (" " + getString("linkset_is_locked_state"));
+				const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
+				LLSD element = buildScrollListElement(linksetPtr, avatarPosition);
+				mLinksetsScrollList->addElement(element);
 			}
-			columns[4]["value"] = linksetUse;
-			columns[4]["font"] = "SANSSERIF";
-
-			columns[5]["column"] = "a_percent";
-			columns[5]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientA());
-			columns[5]["font"] = "SANSSERIF";
-
-			columns[6]["column"] = "b_percent";
-			columns[6]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientB());
-			columns[6]["font"] = "SANSSERIF";
-
-			columns[7]["column"] = "c_percent";
-			columns[7]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientC());
-			columns[7]["font"] = "SANSSERIF";
-
-			columns[8]["column"] = "d_percent";
-			columns[8]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientD());
-			columns[8]["font"] = "SANSSERIF";
-
-			LLSD element;
-			element["id"] = linksetPtr->getUUID().asString();
-			element["column"] = columns;
-
-			mLinksetsScrollList->addElement(element);
 		}
 	}
 
 	mLinksetsScrollList->selectMultiple(selectedUUIDs);
 	updateEditFieldValues();
 	updateControls();
+}
+
+LLSD LLFloaterPathfindingLinksets::buildScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition)
+{
+	LLSD columns;
+
+	columns[0]["column"] = "name";
+	columns[0]["value"] = pLinksetPtr->getName();
+	columns[0]["font"] = "SANSSERIF";
+
+	columns[1]["column"] = "description";
+	columns[1]["value"] = pLinksetPtr->getDescription();
+	columns[1]["font"] = "SANSSERIF";
+
+	columns[2]["column"] = "land_impact";
+	columns[2]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+	columns[2]["font"] = "SANSSERIF";
+
+	columns[3]["column"] = "dist_from_you";
+	columns[3]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+	columns[3]["font"] = "SANSSERIF";
+
+	columns[4]["column"] = "linkset_use";
+	std::string linksetUse;
+	switch (pLinksetPtr->getLinksetUse())
+	{
+	case LLPathfindingLinkset::kWalkable :
+		linksetUse = getString("linkset_use_walkable");
+		break;
+	case LLPathfindingLinkset::kStaticObstacle :
+		linksetUse = getString("linkset_use_static_obstacle");
+		break;
+	case LLPathfindingLinkset::kDynamicObstacle :
+		linksetUse = getString("linkset_use_dynamic_obstacle");
+		break;
+	case LLPathfindingLinkset::kMaterialVolume :
+		linksetUse = getString("linkset_use_material_volume");
+		break;
+	case LLPathfindingLinkset::kExclusionVolume :
+		linksetUse = getString("linkset_use_exclusion_volume");
+		break;
+	case LLPathfindingLinkset::kDynamicPhantom :
+		linksetUse = getString("linkset_use_dynamic_phantom");
+		break;
+	case LLPathfindingLinkset::kUnknown :
+	default :
+		linksetUse = getString("linkset_use_dynamic_obstacle");
+		llassert(0);
+		break;
+	}
+	if (pLinksetPtr->isLocked())
+	{
+		linksetUse += (" " + getString("linkset_is_locked_state"));
+	}
+	columns[4]["value"] = linksetUse;
+	columns[4]["font"] = "SANSSERIF";
+
+	columns[5]["column"] = "a_percent";
+	columns[5]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
+	columns[5]["font"] = "SANSSERIF";
+
+	columns[6]["column"] = "b_percent";
+	columns[6]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
+	columns[6]["font"] = "SANSSERIF";
+
+	columns[7]["column"] = "c_percent";
+	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
+	columns[7]["font"] = "SANSSERIF";
+
+	columns[8]["column"] = "d_percent";
+	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
+	columns[8]["font"] = "SANSSERIF";
+
+	LLSD element;
+	element["id"] = pLinksetPtr->getUUID().asString();
+	element["column"] = columns;
+
+	return element;
 }
 
 void LLFloaterPathfindingLinksets::updateStatusMessage()

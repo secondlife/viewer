@@ -139,6 +139,7 @@ private:
 	void updateControls();
 	void updateEditFieldValues();
 	void updateScrollList();
+	LLSD buildScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition);
 
 	void updateStatusMessage();
 	void updateEnableStateOnListActions();
