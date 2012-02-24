@@ -950,6 +950,13 @@
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_console" />
         </menu_item_call>
+        <menu_item_call
+            label="Characters..."
+            name="pathfinding_characters_menu_item">
+          <menu_item_call.on_click
+              function="Floater.ToggleOrBringToFront"
+              parameter="pathfinding_characters" />
+        </menu_item_call>
       </menu>
 
 
