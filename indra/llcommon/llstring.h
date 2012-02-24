@@ -253,32 +253,32 @@ public:
 										std::vector<string_type >& tokens,
 										const string_type& delims);
 	/// like simple scan overload, but returns scanned vector
-	LL_COMMON_API static std::vector<string_type> getTokens(const string_type& instr,
-															const string_type& delims);
+	static std::vector<string_type> getTokens(const string_type& instr,
+											  const string_type& delims);
 	/// add support for keep_delims and quotes (either could be empty string)
-	LL_COMMON_API static void getTokens(const string_type& instr,
-										std::vector<string_type>& tokens,
-										const string_type& drop_delims,
-										const string_type& keep_delims,
-										const string_type& quotes=string_type());
+	static void getTokens(const string_type& instr,
+						  std::vector<string_type>& tokens,
+						  const string_type& drop_delims,
+						  const string_type& keep_delims,
+						  const string_type& quotes=string_type());
 	/// like keep_delims-and-quotes overload, but returns scanned vector
-	LL_COMMON_API static std::vector<string_type> getTokens(const string_type& instr,
-															const string_type& drop_delims,
-															const string_type& keep_delims,
-															const string_type& quotes=string_type());
+	static std::vector<string_type> getTokens(const string_type& instr,
+											  const string_type& drop_delims,
+											  const string_type& keep_delims,
+											  const string_type& quotes=string_type());
 	/// add support for escapes (could be empty string)
-	LL_COMMON_API static void getTokens(const string_type& instr,
-										std::vector<string_type>& tokens,
-										const string_type& drop_delims,
-										const string_type& keep_delims,
-										const string_type& quotes,
-										const string_type& escapes);
+	static void getTokens(const string_type& instr,
+						  std::vector<string_type>& tokens,
+						  const string_type& drop_delims,
+						  const string_type& keep_delims,
+						  const string_type& quotes,
+						  const string_type& escapes);
 	/// like escapes overload, but returns scanned vector
-	LL_COMMON_API static std::vector<string_type> getTokens(const string_type& instr,
-															const string_type& drop_delims,
-															const string_type& keep_delims,
-															const string_type& quotes,
-															const string_type& escapes);
+	static std::vector<string_type> getTokens(const string_type& instr,
+											  const string_type& drop_delims,
+											  const string_type& keep_delims,
+											  const string_type& quotes,
+											  const string_type& escapes);
 
 	LL_COMMON_API static void formatNumber(string_type& numStr, string_type decimals);
 	LL_COMMON_API static bool formatDatetime(string_type& replacement, string_type token, string_type param, S32 secFromEpoch);
@@ -748,6 +748,7 @@ struct InString
 		iter(b),
 		end(e)
 	{}
+	virtual ~InString() {}
 
 	bool done() const { return iter == end; }
 	/// Is the current character (*iter) escaped? This implementation can
