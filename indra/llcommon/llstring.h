@@ -40,6 +40,7 @@
 #endif
 
 #include <string.h>
+#include <boost/scoped_ptr.hpp>
 
 #if LL_SOLARIS
 // stricmp and strnicmp do not exist on Solaris:
@@ -247,7 +248,38 @@ public:
 	static const string_type null;
 	
 	typedef std::map<LLFormatMapString, LLFormatMapString> format_map_t;
-	LL_COMMON_API static void getTokens(const string_type& instr, std::vector<string_type >& tokens, const string_type& delims);
+	/// considers any sequence of delims as a single field separator
+	LL_COMMON_API static void getTokens(const string_type& instr,
+										std::vector<string_type >& tokens,
+										const string_type& delims);
+	/// like simple scan overload, but returns scanned vector
+	LL_COMMON_API static std::vector<string_type> getTokens(const string_type& instr,
+															const string_type& delims);
+	/// add support for keep_delims and quotes (either could be empty string)
+	LL_COMMON_API static void getTokens(const string_type& instr,
+										std::vector<string_type>& tokens,
+										const string_type& drop_delims,
+										const string_type& keep_delims,
+										const string_type& quotes=string_type());
+	/// like keep_delims-and-quotes overload, but returns scanned vector
+	LL_COMMON_API static std::vector<string_type> getTokens(const string_type& instr,
+															const string_type& drop_delims,
+															const string_type& keep_delims,
+															const string_type& quotes=string_type());
+	/// add support for escapes (could be empty string)
+	LL_COMMON_API static void getTokens(const string_type& instr,
+										std::vector<string_type>& tokens,
+										const string_type& drop_delims,
+										const string_type& keep_delims,
+										const string_type& quotes,
+										const string_type& escapes);
+	/// like escapes overload, but returns scanned vector
+	LL_COMMON_API static std::vector<string_type> getTokens(const string_type& instr,
+															const string_type& drop_delims,
+															const string_type& keep_delims,
+															const string_type& quotes,
+															const string_type& escapes);
+
 	LL_COMMON_API static void formatNumber(string_type& numStr, string_type decimals);
 	LL_COMMON_API static bool formatDatetime(string_type& replacement, string_type token, string_type param, S32 secFromEpoch);
 	LL_COMMON_API static S32 format(string_type& s, const format_map_t& substitutions);
@@ -260,6 +292,11 @@ public:
 	static bool isValidIndex(const string_type& string, size_type i)
 	{
 		return !string.empty() && (0 <= i) && (i <= string.size());
+	}
+
+	static bool contains(const string_type& string, T c, size_type i=0)
+	{
+		return string.find(c, i) != string_type::npos;
 	}
 
 	static void	trimHead(string_type& string);
@@ -650,10 +687,324 @@ namespace LLStringFn
 ////////////////////////////////////////////////////////////
 // NOTE: LLStringUtil::format, getTokens, and support functions moved to llstring.cpp.
 // There is no LLWStringUtil::format implementation currently.
-// Calling thse for anything other than LLStringUtil will produce link errors.
+// Calling these for anything other than LLStringUtil will produce link errors.
 
 ////////////////////////////////////////////////////////////
 
+// static
+template <class T>
+std::vector<typename LLStringUtilBase<T>::string_type>
+LLStringUtilBase<T>::getTokens(const string_type& instr, const string_type& delims)
+{
+	std::vector<string_type> tokens;
+	getTokens(instr, tokens, delims);
+	return tokens;
+}
+
+// static
+template <class T>
+std::vector<typename LLStringUtilBase<T>::string_type>
+LLStringUtilBase<T>::getTokens(const string_type& instr,
+							   const string_type& drop_delims,
+							   const string_type& keep_delims,
+							   const string_type& quotes)
+{
+	std::vector<string_type> tokens;
+	getTokens(instr, tokens, drop_delims, keep_delims, quotes);
+	return tokens;
+}
+
+// static
+template <class T>
+std::vector<typename LLStringUtilBase<T>::string_type>
+LLStringUtilBase<T>::getTokens(const string_type& instr,
+							   const string_type& drop_delims,
+							   const string_type& keep_delims,
+							   const string_type& quotes,
+							   const string_type& escapes)
+{
+	std::vector<string_type> tokens;
+	getTokens(instr, tokens, drop_delims, keep_delims, quotes, escapes);
+	return tokens;
+}
+
+namespace LLStringUtilBaseImpl
+{
+
+/**
+ * Input string scanner helper for getTokens(), or really any other
+ * character-parsing routine that may have to deal with escape characters.
+ * This implementation defines the concept (also an interface, should you
+ * choose to implement the concept by subclassing) and provides trivial
+ * implementations for a string @em without escape processing.
+ */
+template <class T>
+struct InString
+{
+	typedef std::basic_string<T> string_type;
+	typedef typename string_type::const_iterator const_iterator;
+
+	InString(const_iterator b, const_iterator e):
+		iter(b),
+		end(e)
+	{}
+
+	bool done() const { return iter == end; }
+	/// Is the current character (*iter) escaped? This implementation can
+	/// answer trivially because it doesn't support escapes.
+	virtual bool escaped() const { return false; }
+	/// Obtain the current character and advance @c iter.
+	virtual T next() { return *iter++; }
+	/// Does the current character match specified character?
+	virtual bool is(T ch) const { return (! done()) && *iter == ch; }
+	/// Is the current character any one of the specified characters?
+	virtual bool oneof(const string_type& delims) const
+	{
+		return (! done()) && LLStringUtilBase<T>::contains(delims, *iter);
+	}
+
+	/**
+	 * Scan forward from @from until either @a delim or end. This is primarily
+	 * useful for processing quoted substrings.
+	 *
+	 * If we do see @a delim, append everything from @from until (excluding)
+	 * @a delim to @a into, advance @c iter to skip @a delim, and return @c
+	 * true.
+	 *
+	 * If we do not see @a delim, do not alter @a into or @c iter and return
+	 * @c false. Do not pass GO, do not collect $200.
+	 *
+	 * @note The @c false case described above implements normal getTokens()
+	 * treatment of an unmatched open quote: treat the quote character as if
+	 * escaped, that is, simply collect it as part of the current token. Other
+	 * plausible behaviors directly affect the way getTokens() deals with an
+	 * unmatched quote: e.g. throwing an exception to treat it as an error, or
+	 * assuming a close quote beyond end of string (in which case return @c
+	 * true).
+	 */
+	virtual bool collect_until(string_type& into, const_iterator from, T delim)
+	{
+		const_iterator found = std::find(from, end, delim);
+		// If we didn't find delim, change nothing, just tell caller.
+		if (found == end)
+			return false;
+		// Found delim! Append everything between from and found.
+		into.append(from, found);
+		// advance past delim in input
+		iter = found + 1;
+		return true;
+	}
+
+	const_iterator iter, end;
+};
+
+/// InString subclass that handles escape characters
+template <class T>
+class InEscString: public InString<T>
+{
+public:
+	typedef InString<T> super;
+	typedef typename super::string_type string_type;
+	typedef typename super::const_iterator const_iterator;
+	using super::done;
+	using super::iter;
+	using super::end;
+
+	InEscString(const_iterator b, const_iterator e, const string_type& escapes_):
+		super(b, e),
+		escapes(escapes_)
+	{
+		// Even though we've already initialized 'iter' via our base-class
+		// constructor, set it again to check for initial escape char.
+		setiter(b);
+	}
+
+	/// This implementation uses the answer cached by setiter().
+	virtual bool escaped() const { return isesc; }
+	virtual T next()
+	{
+		// If we're looking at the escape character of an escape sequence,
+		// skip that character. This is the one time we can modify 'iter'
+		// without using setiter: for this one case we DO NOT CARE if the
+		// escaped character is itself an escape.
+		if (isesc)
+			++iter;
+		// If we were looking at an escape character, this is the escaped
+		// character; otherwise it's just the next character.
+		T result(*iter);
+		// Advance iter, checking for escape sequence.
+		setiter(iter + 1);
+		return result;
+	}
+
+	virtual bool is(T ch) const
+	{
+		// Like base-class is(), except that an escaped character matches
+		// nothing.
+		return (! done()) && (! isesc) && *iter == ch;
+	}
+
+	virtual bool oneof(const string_type& delims) const
+	{
+		// Like base-class oneof(), except that an escaped character matches
+		// nothing.
+		return (! done()) && (! isesc) && LLStringUtilBase<T>::contains(delims, *iter);
+	}
+
+	virtual bool collect_until(string_type& into, const_iterator from, T delim)
+	{
+		// Deal with escapes in the characters we collect; that is, an escaped
+		// character must become just that character without the preceding
+		// escape. Collect characters in a separate string rather than
+		// directly appending to 'into' in case we do not find delim, in which
+		// case we're supposed to leave 'into' unmodified.
+		string_type collected;
+		// For scanning purposes, we're going to work directly with 'iter'.
+		// Save its current value in case we fail to see delim.
+		const_iterator save_iter(iter);
+		// Okay, set 'iter', checking for escape.
+		setiter(from);
+		while (! done())
+		{
+			// If we see an unescaped delim, stop and report success.
+			if ((! isesc) && *iter == delim)
+			{
+				// Append collected chars to 'into'.
+				into.append(collected);
+				// Don't forget to advance 'iter' past delim.
+				setiter(iter + 1);
+				return true;
+			}
+			// We're not at end, and either we're not looking at delim or it's
+			// escaped. Collect this character and keep going.
+			collected.push_back(next());
+		}
+		// Here we hit 'end' without ever seeing delim. Restore iter and tell
+		// caller.
+		setiter(save_iter);
+		return false;
+	}
+
+private:
+	void setiter(const_iterator i)
+	{
+		iter = i;
+
+		// Every time we change 'iter', set 'isesc' to be able to repetitively
+		// answer escaped() without having to rescan 'escapes'. isesc caches
+		// contains(escapes, *iter).
+
+		// We're looking at an escaped char if we're not already at end (that
+		// is, *iter is even meaningful); if *iter is in fact one of the
+		// specified escape characters; and if there's one more character
+		// following it. That is, if an escape character is the very last
+		// character of the input string, it loses its special meaning.
+		isesc = (! done()) &&
+				LLStringUtilBase<T>::contains(escapes, *iter) &&
+				(iter+1) != end;
+	}
+
+	const string_type escapes;
+	bool isesc;
+};
+
+/// getTokens() implementation based on InString concept
+template <typename INSTRING, typename string_type>
+void getTokens(INSTRING& instr, std::vector<string_type>& tokens,
+			   const string_type& drop_delims, const string_type& keep_delims,
+			   const string_type& quotes)
+{
+	// There are times when we want to match either drop_delims or
+	// keep_delims. Concatenate them up front to speed things up.
+	string_type all_delims(drop_delims + keep_delims);
+	// no tokens yet
+	tokens.clear();
+
+	// try for another token
+	while (! instr.done())
+	{
+		// scan past any drop_delims
+		while (instr.oneof(drop_delims))
+		{
+			// skip this drop_delim
+			instr.next();
+			// but if that was the end of the string, done
+			if (instr.done())
+				return;
+		}
+		// found the start of another token: make a slot for it
+		tokens.push_back(string_type());
+		if (instr.oneof(keep_delims))
+		{
+			// *iter is a keep_delim, a token of exactly 1 character. Append
+			// that character to the new token and proceed.
+			tokens.back().push_back(instr.next());
+			continue;
+		}
+		// Here we have a non-delimiter token, which might consist of a mix of
+		// quoted and unquoted parts. Use bash rules for quoting: you can
+		// embed a quoted substring in the midst of an unquoted token (e.g.
+		// ~/"sub dir"/myfile.txt); you can ram two quoted substrings together
+		// to make a single token (e.g. 'He said, "'"Don't."'"'). We diverge
+		// from bash in that bash considers an unmatched quote an error. Our
+		// param signature doesn't allow for errors, so just pretend it's not
+		// a quote and embed it.
+		// At this level, keep scanning until we hit the next delimiter of
+		// either type (drop_delims or keep_delims).
+		while (! instr.oneof(all_delims))
+		{
+			// If we're looking at an open quote, search forward for
+			// a close quote, collecting characters along the way.
+			if (instr.oneof(quotes) &&
+				instr.collect_until(tokens.back(), instr.iter+1, *instr.iter))
+			{
+				// collect_until is cleverly designed to do exactly what we
+				// need here. No further action needed if it returns true.
+			}
+			else
+			{
+				// Either *iter isn't a quote, or there's no matching close
+				// quote: in other words, just an ordinary char. Append it to
+				// current token.
+				tokens.back().push_back(instr.next());
+			}
+			// having scanned that segment of this token, if we've reached the
+			// end of the string, we're done
+			if (instr.done())
+				return;
+		}
+	}
+}
+
+} // namespace LLStringUtilBaseImpl
+
+// static
+template <class T>
+void LLStringUtilBase<T>::getTokens(const string_type& string, std::vector<string_type>& tokens,
+									const string_type& drop_delims, const string_type& keep_delims,
+									const string_type& quotes)
+{
+	// Because this overload doesn't support escapes, use simple InString to
+	// manage input range.
+	LLStringUtilBaseImpl::InString<T> instring(string.begin(), string.end());
+	LLStringUtilBaseImpl::getTokens(instring, tokens, drop_delims, keep_delims, quotes);
+}
+
+// static
+template <class T>
+void LLStringUtilBase<T>::getTokens(const string_type& string, std::vector<string_type>& tokens,
+									const string_type& drop_delims, const string_type& keep_delims,
+									const string_type& quotes, const string_type& escapes)
+{
+	// This overload must deal with escapes. Delegate that to InEscString
+	// (unless there ARE no escapes).
+	boost::scoped_ptr< LLStringUtilBaseImpl::InString<T> > instrp;
+	if (escapes.empty())
+		instrp.reset(new LLStringUtilBaseImpl::InString<T>(string.begin(), string.end()));
+	else
+		instrp.reset(new LLStringUtilBaseImpl::InEscString<T>(string.begin(), string.end(), escapes));
+	LLStringUtilBaseImpl::getTokens(*instrp, tokens, drop_delims, keep_delims, quotes);
+}
 
 // static
 template<class T> 
