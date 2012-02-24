@@ -31,7 +31,12 @@
 #include "v3math.h"
 #include "lluuid.h"
 
+#include <boost/shared_ptr.hpp>
+
 class LLSD;
+class LLPathfindingLinkset;
+
+typedef boost::shared_ptr<LLPathfindingLinkset> LLPathfindingLinksetPtr;
 
 class LLPathfindingLinkset
 {
@@ -53,26 +58,19 @@ public:
 
 	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
-	inline const LLUUID&      getUUID() const                        {return mUUID;};
-	inline const std::string& getName() const                        {return mName;};
-	inline const std::string& getDescription() const                 {return mDescription;};
-	inline U32                getLandImpact() const                  {return mLandImpact;};
-	inline const LLVector3&   getLocation() const                    {return mLocation;};
+	inline const LLUUID&      getUUID() const                     {return mUUID;};
+	inline const std::string& getName() const                     {return mName;};
+	inline const std::string& getDescription() const              {return mDescription;};
+	inline U32                getLandImpact() const               {return mLandImpact;};
+	inline const LLVector3&   getLocation() const                 {return mLocation;};
+	BOOL                      isLocked() const                    {return mIsLocked;};
 
-	inline ELinksetUse        getLinksetUse() const                  {return mLinksetUse;};
-	inline void               setLinksetUse(ELinksetUse pLinksetUse) {mLinksetUse = pLinksetUse;};
+	inline ELinksetUse        getLinksetUse() const               {return mLinksetUse;};
 
 	inline S32                getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
-	void                      setWalkabilityCoefficientA(S32 pA);
-
 	inline S32                getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
-	void                      setWalkabilityCoefficientB(S32 pB);
-
 	inline S32                getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
-	void                      setWalkabilityCoefficientC(S32 pC);
-
 	inline S32                getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
-	void                      setWalkabilityCoefficientD(S32 pD);
 
 	LLSD                      encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
@@ -92,6 +90,7 @@ private:
 	std::string  mDescription;
 	U32          mLandImpact;
 	LLVector3    mLocation;
+	BOOL         mIsLocked;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
 	S32          mWalkabilityCoefficientB;

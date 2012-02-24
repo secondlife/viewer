@@ -34,6 +34,7 @@
 #define LINKSET_NAME_FIELD          "name"
 #define LINKSET_DESCRIPTION_FIELD   "description"
 #define LINKSET_LAND_IMPACT_FIELD   "landimpact"
+#define LINKSET_MODIFIABLE_FIELD    "modifiable"
 #define LINKSET_PERMANENT_FIELD     "permanent"
 #define LINKSET_WALKABLE_FIELD      "walkable"
 #define LINKSET_PHANTOM_FIELD       "phantom"
@@ -55,7 +56,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mName(),
 	mDescription(),
 	mLandImpact(0U),
-	mLocation(),
+	mLocation(LLVector3::zero),
+	mIsLocked(FALSE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -74,6 +76,12 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).isInteger());
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
 	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
+
+	if (pLinksetItem.has(LINKSET_MODIFIABLE_FIELD))
+	{
+		llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
+		mIsLocked = !pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
+	}
 
 	llassert(pLinksetItem.has(LINKSET_PHANTOM_FIELD));
 	llassert(pLinksetItem.get(LINKSET_PHANTOM_FIELD).isBoolean());
@@ -124,6 +132,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	mDescription(pOther.mDescription),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
+	mIsLocked(pOther.mIsLocked),
 	mLinksetUse(pOther.mLinksetUse),
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
 	mWalkabilityCoefficientB(pOther.mWalkabilityCoefficientB),
@@ -143,6 +152,7 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
+	// mIsLocked = pOther.mIsLocked;  XXX stinson 02/23/2012 : disabling temporarily until all sim-service responses include the modifiable state
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
@@ -152,33 +162,16 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	return *this;
 }
 
-void LLPathfindingLinkset::setWalkabilityCoefficientA(S32 pA)
-{
-	mWalkabilityCoefficientA = llclamp(pA, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-}
-
-void LLPathfindingLinkset::setWalkabilityCoefficientB(S32 pB)
-{
-	mWalkabilityCoefficientB = llclamp(pB, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-}
-
-void LLPathfindingLinkset::setWalkabilityCoefficientC(S32 pC)
-{
-	mWalkabilityCoefficientC = llclamp(pC, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-}
-
-void LLPathfindingLinkset::setWalkabilityCoefficientD(S32 pD)
-{
-	mWalkabilityCoefficientD = llclamp(pD, MIN_WALKABILITY_VALUE, MAX_WALKABILITY_VALUE);
-}
-
 LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD itemData;
 
 	if ((pLinksetUse != kUnknown) && (mLinksetUse != pLinksetUse))
 	{
-		itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPhantom(pLinksetUse));
+		if (!mIsLocked)
+		{
+			itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPhantom(pLinksetUse));
+		}
 		itemData[LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pLinksetUse));
 		itemData[LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pLinksetUse));
 	}

@@ -28,12 +28,12 @@
 #ifndef LL_LLFLOATERPATHFINDINGLINKSETS_H
 #define LL_LLFLOATERPATHFINDINGLINKSETS_H
 
-#include "llhandle.h"
 #include "llfloater.h"
 #include "lluuid.h"
 #include "llselectmgr.h"
 #include "llpathfindinglinkset.h"
-#include "llfilteredpathfindinglinksets.h"
+#include "llpathfindinglinksetlist.h"
+#include "llpathfindingmanager.h"
 
 class LLSD;
 class LLTextBase;
@@ -47,85 +47,72 @@ class LLFloaterPathfindingLinksets
 :	public LLFloater
 {
 	friend class LLFloaterReg;
-	friend class NavMeshDataGetResponder;
-	friend class NavMeshDataPutResponder;
 
 public:
 	typedef enum
 	{
-		kMessagingInitial,
-		kMessagingFetchStarting,
-		kMessagingFetchRequestSent,
-		kMessagingFetchRequestSent_MultiRequested,
-		kMessagingFetchReceived,
-		kMessagingFetchError,
-		kMessagingModifyStarting,
-		kMessagingModifyRequestSent,
-		kMessagingModifyReceived,
-		kMessagingModifyError,
+		kMessagingUnknown,
+		kMessagingGetRequestSent,
+		kMessagingGetError,
+		kMessagingSetRequestSent,
+		kMessagingSetError,
 		kMessagingComplete,
-		kMessagingServiceNotAvailable
+		kMessagingNotEnabled
 	} EMessagingState;
 
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
-	virtual void onClose(bool app_quitting);
+	virtual void onClose(bool pAppQuitting);
 	virtual void draw();
 
 	static void openLinksetsEditor();
 
 	EMessagingState getMessagingState() const;
-	BOOL            isMessagingInProgress() const;
+	bool            isMessagingInProgress() const;
 
 protected:
 
 private:
-	LLRootHandle<LLFloaterPathfindingLinksets> mSelfHandle;
-	LLLineEditor                               *mFilterByName;
-	LLLineEditor                               *mFilterByDescription;
-	LLComboBox                                 *mFilterByLinksetUse;
-	LLScrollListCtrl                           *mLinksetsScrollList;
-	LLTextBase                                 *mLinksetsStatus;
-	LLButton                                   *mRefreshListButton;
-	LLButton                                   *mSelectAllButton;
-	LLButton                                   *mSelectNoneButton;
-	LLCheckBoxCtrl                             *mShowBeaconCheckBox;
-	LLButton                                   *mTakeButton;
-	LLButton                                   *mTakeCopyButton;
-	LLButton                                   *mReturnButton;
-	LLButton                                   *mDeleteButton;
-	LLButton                                   *mTeleportButton;
-	LLComboBox                                 *mEditLinksetUse;
-	LLTextBase                                 *mLabelWalkabilityCoefficients;
-	LLTextBase                                 *mLabelEditA;
-	LLLineEditor                               *mEditA;
-	LLTextBase                                 *mLabelEditB;
-	LLLineEditor                               *mEditB;
-	LLTextBase                                 *mLabelEditC;
-	LLLineEditor                               *mEditC;
-	LLTextBase                                 *mLabelEditD;
-	LLLineEditor                               *mEditD;
-	LLButton                                   *mApplyEditsButton;
-	LLFilteredPathfindingLinksets              mPathfindingLinksets;
-	EMessagingState                            mMessagingState;
-	LLObjectSelectionHandle                    mLinksetsSelection;
+	LLLineEditor     *mFilterByName;
+	LLLineEditor     *mFilterByDescription;
+	LLComboBox       *mFilterByLinksetUse;
+	LLScrollListCtrl *mLinksetsScrollList;
+	LLTextBase       *mLinksetsStatus;
+	LLButton         *mRefreshListButton;
+	LLButton         *mSelectAllButton;
+	LLButton         *mSelectNoneButton;
+	LLCheckBoxCtrl   *mShowBeaconCheckBox;
+	LLButton         *mTakeButton;
+	LLButton         *mTakeCopyButton;
+	LLButton         *mReturnButton;
+	LLButton         *mDeleteButton;
+	LLButton         *mTeleportButton;
+	LLComboBox       *mEditLinksetUse;
+	LLTextBase       *mLabelWalkabilityCoefficients;
+	LLTextBase       *mLabelEditA;
+	LLLineEditor     *mEditA;
+	LLTextBase       *mLabelEditB;
+	LLLineEditor     *mEditB;
+	LLTextBase       *mLabelEditC;
+	LLLineEditor     *mEditC;
+	LLTextBase       *mLabelEditD;
+	LLLineEditor     *mEditD;
+	LLButton         *mApplyEditsButton;
+
+	EMessagingState                          mMessagingState;
+	LLPathfindingLinksetListPtr              mLinksetsListPtr;
+	LLObjectSelectionHandle                  mLinksetsSelection;
+	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterPathfindingLinksets(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingLinksets();
 
-	void sendNavMeshDataGetRequest();
-	void sendNavMeshDataPutRequest(const LLSD& pPostData);
-	void handleNavMeshDataGetReply(const LLSD& pNavMeshData);
-	void handleNavMeshDataGetError(const std::string& pURL, const std::string& pErrorReason);
-	void handleNavMeshDataPutReply(const LLSD& pModifiedData);
-	void handleNavMeshDataPutError(const std::string& pURL, const std::string& pErrorReason);
-
-	std::string getRegionName() const;
-	std::string getCapabilityURL() const;
-
 	void setMessagingState(EMessagingState pMessagingState);
+	void requestGetLinksets();
+	void requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD);
+	void handleNewLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
 
 	void onApplyAllFilters();
 	void onClearFiltersClicked();
@@ -139,19 +126,23 @@ private:
 	void onDeleteClicked();
 	void onTeleportClicked();
 	void onApplyChangesClicked();
+	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 
 	void applyFilters();
 	void clearFilters();
 
-	void updateLinksetsList();
 	void selectAllLinksets();
 	void selectNoneLinksets();
 
-	void updateLinksetsStatusMessage();
+	void updateControls();
+	void updateEditFieldValues();
+	void updateScrollList();
 
-	void updateActionAndEditFields();
-	void setEnableActionAndEditFields(BOOL pEnabled);
-	void applyEditFields();
+	void updateStatusMessage();
+	void updateEnableStateOnListActions();
+	void updateEnableStateOnEditFields();
+
+	void applyEdit();
 
 	LLPathfindingLinkset::ELinksetUse getFilterLinksetUse() const;
 	void                              setFilterLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);

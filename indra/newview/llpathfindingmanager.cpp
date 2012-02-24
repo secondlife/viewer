@@ -33,6 +33,8 @@
 #include "llhttpclient.h"
 #include "llagent.h"
 #include "llviewerregion.h"
+#include "llpathfindinglinkset.h"
+#include "llpathfindinglinksetlist.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -41,6 +43,8 @@
 
 #define CAP_SERVICE_AGENT_STATE       "AgentPreferences"
 #define ALTER_PERMANENT_OBJECTS_FIELD "alter_permanent_objects"
+
+#define CAP_SERVICE_LINKSETS          "ObjectNavMeshProperties"
 
 //---------------------------------------------------------------------------
 // AgentStateResponder
@@ -63,6 +67,26 @@ private:
 };
 
 //---------------------------------------------------------------------------
+// LinksetsResponder
+//---------------------------------------------------------------------------
+
+class LinksetsResponder : public LLHTTPClient::Responder
+{
+public:
+	LinksetsResponder(const std::string &pCapabilityURL, LLPathfindingManager::linksets_callback_t pLinksetsCallback);
+	virtual ~LinksetsResponder();
+
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string &pReason);
+
+protected:
+
+private:
+	std::string                               mCapabilityURL;
+	LLPathfindingManager::linksets_callback_t mLinksetsCallback;
+};
+
+//---------------------------------------------------------------------------
 // LLPathfindingManager
 //---------------------------------------------------------------------------
 
@@ -82,6 +106,11 @@ bool LLPathfindingManager::isPathfindingEnabledForCurrentRegion() const
 {
 	std::string retrieveNavMeshURL = getRetrieveNavMeshURLForCurrentRegion();
 	return !retrieveNavMeshURL.empty();
+}
+
+bool LLPathfindingManager::isAllowAlterPermanent()
+{
+	return (!isPathfindingEnabledForCurrentRegion() || (getAgentState() == kAgentStateUnfrozen));
 }
 
 LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateSignal(agent_state_callback_t pAgentStateCallback)
@@ -128,6 +157,45 @@ void LLPathfindingManager::requestSetAgentState(EAgentState pRequestedAgentState
 		LLHTTPClient::ResponderPtr responder = new AgentStateResponder(agentStateURL, pRequestedAgentState);
 		LLHTTPClient::post(agentStateURL, request, responder);
 	}
+}
+
+LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestGetLinksets(linksets_callback_t pLinksetsCallback) const
+{
+	ELinksetsRequestStatus status;
+
+	std::string linksetsURL = getLinksetsURLForCurrentRegion();
+	if (linksetsURL.empty())
+	{;
+		status = kLinksetsRequestNotEnabled;
+	}
+	else
+	{
+		LLHTTPClient::ResponderPtr responder = new LinksetsResponder(linksetsURL, pLinksetsCallback);
+		LLHTTPClient::get(linksetsURL, responder);
+		status = kLinksetsRequestStarted;
+	}
+
+	return status;
+}
+
+LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const
+{
+	ELinksetsRequestStatus status;
+
+	std::string linksetsURL = getLinksetsURLForCurrentRegion();
+	if (linksetsURL.empty())
+	{
+		status = kLinksetsRequestNotEnabled;
+	}
+	else
+	{
+		LLHTTPClient::ResponderPtr responder = new LinksetsResponder(linksetsURL, pLinksetsCallback);
+		LLSD postData = pLinksetList->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+		LLHTTPClient::put(linksetsURL, postData, responder);
+		status = kLinksetsRequestStarted;
+	}
+
+	return status;
 }
 
 bool LLPathfindingManager::isValidAgentState(EAgentState pAgentState)
@@ -183,6 +251,19 @@ void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string 
 	setAgentState(kAgentStateError);
 }
 
+void LLPathfindingManager::handleLinksetsResult(const LLSD &pContent, linksets_callback_t pLinksetsCallback) const
+{
+	LLPathfindingLinksetListPtr linksetListPtr(new LLPathfindingLinksetList(pContent));
+	pLinksetsCallback(kLinksetsRequestCompleted, linksetListPtr);
+}
+
+void LLPathfindingManager::handleLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL, linksets_callback_t pLinksetsCallback) const
+{
+	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	LLPathfindingLinksetListPtr linksetListPtr(new LLPathfindingLinksetList());
+	pLinksetsCallback(kLinksetsRequestError, linksetListPtr);
+}
+
 std::string LLPathfindingManager::getRetrieveNavMeshURLForCurrentRegion() const
 {
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_RETRIEVE_NAVMESH);
@@ -191,6 +272,11 @@ std::string LLPathfindingManager::getRetrieveNavMeshURLForCurrentRegion() const
 std::string LLPathfindingManager::getAgentStateURLForCurrentRegion() const
 {
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_AGENT_STATE);
+}
+
+std::string LLPathfindingManager::getLinksetsURLForCurrentRegion() const
+{
+	return getCapabilityURLForCurrentRegion(CAP_SERVICE_LINKSETS);
 }
 
 std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const
@@ -235,4 +321,29 @@ void AgentStateResponder::result(const LLSD &pContent)
 void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 {
 	LLPathfindingManager::getInstance()->handleAgentStateError(pStatus, pReason, mCapabilityURL);
+}
+
+//---------------------------------------------------------------------------
+// LinksetsResponder
+//---------------------------------------------------------------------------
+
+LinksetsResponder::LinksetsResponder(const std::string &pCapabilityURL, LLPathfindingManager::linksets_callback_t pLinksetsCallback)
+	: LLHTTPClient::Responder(),
+	mCapabilityURL(pCapabilityURL),
+	mLinksetsCallback(pLinksetsCallback)
+{
+}
+
+LinksetsResponder::~LinksetsResponder()
+{
+}
+
+void LinksetsResponder::result(const LLSD &pContent)
+{
+	LLPathfindingManager::getInstance()->handleLinksetsResult(pContent, mLinksetsCallback);
+}
+
+void LinksetsResponder::error(U32 pStatus, const std::string &pReason)
+{
+	LLPathfindingManager::getInstance()->handleLinksetsError(pStatus, pReason, mCapabilityURL, mLinksetsCallback);
 }

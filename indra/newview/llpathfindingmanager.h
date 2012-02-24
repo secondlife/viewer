@@ -34,12 +34,15 @@
 #include <boost/signals2.hpp>
 
 #include "llsingleton.h"
+#include "llpathfindinglinkset.h"
+#include "llpathfindinglinksetlist.h"
 
 class LLFloater;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 	friend class AgentStateResponder;
+	friend class LinksetsResponder;
 public:
 	typedef enum {
 		kAgentStateUnknown,
@@ -49,19 +52,33 @@ public:
 		kAgentStateError
 	} EAgentState;
 
-	typedef boost::function<void (EAgentState pAgentState)>         agent_state_callback_t;
-	typedef boost::signals2::signal<void (EAgentState pAgentState)> agent_state_signal_t;
-	typedef boost::signals2::connection                             agent_state_slot_t;
+	typedef boost::function<void (EAgentState)>         agent_state_callback_t;
+	typedef boost::signals2::signal<void (EAgentState)> agent_state_signal_t;
+	typedef boost::signals2::connection                 agent_state_slot_t;
+
+	typedef enum {
+		kLinksetsRequestStarted,
+		kLinksetsRequestCompleted,
+		kLinksetsRequestNotEnabled,
+		kLinksetsRequestError
+	} ELinksetsRequestStatus;
+
+	typedef boost::function<void (ELinksetsRequestStatus, LLPathfindingLinksetListPtr)> linksets_callback_t;
 
 	LLPathfindingManager();
 	virtual ~LLPathfindingManager();
 
 	bool isPathfindingEnabledForCurrentRegion() const;
 
+	bool isAllowAlterPermanent();
+
 	agent_state_slot_t registerAgentStateSignal(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
 	EAgentState        getLastKnownNonErrorAgentState() const;
 	void               requestSetAgentState(EAgentState pAgentState);
+
+	ELinksetsRequestStatus requestGetLinksets(linksets_callback_t pLinksetsCallback) const;
+	ELinksetsRequestStatus requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const;
 
 protected:
 
@@ -70,12 +87,15 @@ private:
 
 	void requestGetAgentState();
 	void setAgentState(EAgentState pAgentState);
-
 	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
+	void handleLinksetsResult(const LLSD &pContent, linksets_callback_t pLinksetsCallback) const;
+	void handleLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL, linksets_callback_t pLinksetsCallback) const;
+
 	std::string getRetrieveNavMeshURLForCurrentRegion() const;
 	std::string getAgentStateURLForCurrentRegion() const;
+	std::string getLinksetsURLForCurrentRegion() const;
 
 	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
 
