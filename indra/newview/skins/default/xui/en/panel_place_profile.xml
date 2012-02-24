@@ -238,7 +238,6 @@
                  mouse_opaque="false"
                  name="here_panel"
                  top="0"
-                 user_resize="false"
                  width="60">
                     <icon
                      follows="top|left"
@@ -259,7 +258,6 @@
                  mouse_opaque="false"
                  name="for_sale_panel"
                  top="0"
-                 user_resize="false"
                  width="60">
                     <icon
                      follows="top|left"

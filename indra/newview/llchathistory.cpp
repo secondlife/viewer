@@ -621,7 +621,6 @@ void LLChatHistory::initFromParams(const LLChatHistory::Params& p)
 	panel_p.has_border = false;
 	panel_p.mouse_opaque = false;
 	panel_p.min_dim = 30;
-	panel_p.max_dim = S32_MAX;
 	panel_p.auto_resize = true;
 	panel_p.user_resize = false;
 

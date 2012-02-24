@@ -20,7 +20,6 @@
                 mouse_opaque="false">
   <layout_panel name="vertical_toolbar_panel"
                 auto_resize="true"
-                user_resize="false"
                 width="1024"
                 height="500"
                 mouse_opaque="false">
@@ -34,7 +33,6 @@
                   mouse_opaque="false">
       <layout_panel name="left_toolbar_panel"
                     auto_resize="false"
-                    user_resize="false"
                     height="500"
                     width="30"
                     mouse_opaque="false">
@@ -61,7 +59,6 @@
       </layout_panel>
       <layout_panel name="non_toolbar_panel"
                     auto_resize="true"
-                    user_resize="false"
                     mouse_opaque="false"
                     height="100"
                     width="200">
@@ -102,7 +99,6 @@
       </layout_panel>
       <layout_panel name="right_toolbar_panel"
                     auto_resize="false"
-                    user_resize="false"
                     height="500"
                     width="30"
                     mouse_opaque="false">
@@ -132,7 +128,6 @@
   </layout_panel>
   <layout_panel name="bottom_toolbar_panel"
                 auto_resize="false"
-                user_resize="false"
                 height="30"
                 width="1024"
                 mouse_opaque="false">

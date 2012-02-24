@@ -195,7 +195,7 @@ bool LLPumpIO::prime(apr_pool_t* pool)
 	return ((pool == NULL) ? false : true);
 }
 
-bool LLPumpIO::addChain(const chain_t& chain, F32 timeout)
+bool LLPumpIO::addChain(const chain_t& chain, F32 timeout, bool has_curl_request)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
 	if(chain.empty()) return false;
@@ -204,8 +204,10 @@ bool LLPumpIO::addChain(const chain_t& chain, F32 timeout)
 	LLScopedLock lock(mChainsMutex);
 #endif
 	LLChainInfo info;
+	info.mHasCurlRequest = has_curl_request;
 	info.setTimeoutSeconds(timeout);
 	info.mData = LLIOPipe::buffer_ptr_t(new LLBufferArray);
+	info.mData->setThreaded(has_curl_request);
 	LLLinkInfo link;
 #if LL_DEBUG_PIPE_TYPE_IN_PUMP
 	lldebugs << "LLPumpIO::addChain() " << chain[0] << " '"
@@ -440,6 +442,15 @@ void LLPumpIO::pump()
 
 static LLFastTimer::DeclareTimer FTM_PUMP_IO("Pump IO");
 
+LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t& run_chain) 
+{
+	std::for_each(
+				(*run_chain).mDescriptors.begin(),
+				(*run_chain).mDescriptors.end(),
+				ll_delete_apr_pollset_fd_client_data());
+	return mRunningChains.erase(run_chain);
+}
+
 //timeout is in microseconds
 void LLPumpIO::pump(const S32& poll_timeout)
 {
@@ -585,10 +596,16 @@ void LLPumpIO::pump(const S32& poll_timeout)
 //						<< (*run_chain).mChainLinks[0].mPipe
 //						<< " because we reached the end." << llendl;
 #endif
-				run_chain = mRunningChains.erase(run_chain);
+				run_chain = removeRunningChain(run_chain);
 				continue;
 			}
 		}
+		else if(isChainExpired(*run_chain))
+		{
+			run_chain = removeRunningChain(run_chain);
+			continue;
+		}
+
 		PUMP_DEBUG;
 		if((*run_chain).mLock)
 		{
@@ -696,11 +713,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 			PUMP_DEBUG;
 			// This chain is done. Clean up any allocated memory and
 			// erase the chain info.
-			std::for_each(
-				(*run_chain).mDescriptors.begin(),
-				(*run_chain).mDescriptors.end(),
-				ll_delete_apr_pollset_fd_client_data());
-			run_chain = mRunningChains.erase(run_chain);
+			run_chain = removeRunningChain(run_chain);
 
 			// *NOTE: may not always need to rebuild the pollset.
 			mRebuildPollset = true;
@@ -1095,6 +1108,24 @@ void LLPumpIO::processChain(LLChainInfo& chain)
 	PUMP_DEBUG;
 }
 
+bool LLPumpIO::isChainExpired(LLChainInfo& chain)
+{
+	if(!chain.mHasCurlRequest)
+	{
+		return false ;
+	}
+
+	for(links_t::iterator iter = chain.mChainLinks.begin(); iter != chain.mChainLinks.end(); ++iter)
+	{
+		if(!(*iter).mPipe->isValid())
+		{
+			return true ;
+		}
+	}
+
+	return false ;
+}
+
 bool LLPumpIO::handleChainError(
 	LLChainInfo& chain,
 	LLIOPipe::EStatus error)
@@ -1136,6 +1167,9 @@ bool LLPumpIO::handleChainError(
 #endif
 			keep_going = false;
 			break;
+		case LLIOPipe::STATUS_EXPIRED:
+			keep_going = false;
+			break ;
 		default:
 			if(LLIOPipe::isSuccess(error))
 			{
@@ -1157,7 +1191,8 @@ bool LLPumpIO::handleChainError(
 LLPumpIO::LLChainInfo::LLChainInfo() :
 	mInit(false),
 	mLock(0),
-	mEOS(false)
+	mEOS(false),
+	mHasCurlRequest(false)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_PUMP);
 	mTimer.setTimerExpirySec(DEFAULT_CHAIN_EXPIRY_SECS);

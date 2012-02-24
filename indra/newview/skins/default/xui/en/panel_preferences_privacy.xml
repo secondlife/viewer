@@ -59,7 +59,6 @@
      top_pad="30"
      width="350" />
     <check_box
-     enabled_control="EnableVoiceChat"
      control_name="VoiceCallsFriendsOnly"
      height="16"
      label="Only friends and groups can call or IM me"

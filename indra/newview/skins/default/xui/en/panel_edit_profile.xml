@@ -435,7 +435,6 @@
 			  layout="bottomleft"
 			  name="save_changes_btn_lp"
 			  top="0"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="153">
         <button
@@ -456,7 +455,6 @@
 			  left_pad="3"
 			  name="show_on_map_btn_lp"
 			  top="0"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="154">
         <button

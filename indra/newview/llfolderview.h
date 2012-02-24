@@ -75,6 +75,7 @@ public:
 		Optional<std::string>   title;
 		Optional<bool>			use_label_suffix,
 								allow_multiselect,
+								show_empty_message,
 								show_load_status,
 								use_ellipses;
 
@@ -105,6 +106,8 @@ public:
 	//LLInventoryFilter::EFolderShow getShowFolderState();
 	U32 getSortOrder() const;
 	BOOL isFilterModified();
+
+	bool getAllowMultiSelect() { return mAllowMultiSelect; }
 
 	// Close all folders in the view
 	void closeAllFolders();
@@ -141,8 +144,6 @@ public:
 	// children, and keeps track of selected objects.
 	virtual BOOL changeSelection(LLFolderViewItem* selection, BOOL selected);
 
-	virtual void extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items);
-
 	virtual std::set<LLUUID> getSelectionList() const;
 
 	// make sure if ancestor is selected, descendents are not
@@ -155,7 +156,6 @@ public:
 	void setDragAndDropThisFrame() { mDragAndDropThisFrame = TRUE; }
 	void setDraggingOverItem(LLFolderViewItem* item) { mDraggingOverItem = item; }
 	LLFolderViewItem* getDraggingOverItem() { return mDraggingOverItem; }
-
 
 	// deletion functionality
  	void removeSelectedItems();
@@ -282,6 +282,7 @@ protected:
 	selected_items_t				mSelectedItems;
 	BOOL							mKeyboardSelection;
 	BOOL							mAllowMultiSelect;
+	BOOL							mShowEmptyMessage;
 	BOOL							mShowFolderHierarchy;
 	LLUUID							mSourceID;
 
