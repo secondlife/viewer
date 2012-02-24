@@ -301,7 +301,12 @@ void LLFloaterPathfindingLinksets::requestGetLinksets()
 		case LLPathfindingManager::kLinksetsRequestStarted :
 			setMessagingState(kMessagingGetRequestSent);
 			break;
+		case LLPathfindingManager::kLinksetsRequestCompleted :
+			clearLinksets();
+			setMessagingState(kMessagingComplete);
+			break;
 		case LLPathfindingManager::kLinksetsRequestNotEnabled :
+			clearLinksets();
 			setMessagingState(kMessagingNotEnabled);
 			break;
 		case LLPathfindingManager::kLinksetsRequestError :
@@ -325,7 +330,11 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingLinksetListPt
 		case LLPathfindingManager::kLinksetsRequestStarted :
 			setMessagingState(kMessagingSetRequestSent);
 			break;
+		case LLPathfindingManager::kLinksetsRequestCompleted :
+			setMessagingState(kMessagingComplete);
+			break;
 		case LLPathfindingManager::kLinksetsRequestNotEnabled :
+			clearLinksets();
 			setMessagingState(kMessagingNotEnabled);
 			break;
 		case LLPathfindingManager::kLinksetsRequestError :
@@ -361,7 +370,14 @@ void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::ELink
 
 void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
 {
-	mLinksetsListPtr->update(*pLinksetsListPtr);
+	if (mLinksetsListPtr == NULL)
+	{
+		mLinksetsListPtr = pLinksetsListPtr;
+	}
+	else
+	{
+		mLinksetsListPtr->update(*pLinksetsListPtr);
+	}
 	updateScrollList();
 
 	switch (pLinksetsRequestStatus)
@@ -467,6 +483,7 @@ void LLFloaterPathfindingLinksets::onTeleportClicked()
 	{
 		std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
 		const LLScrollListItem *selectedItem = selectedItemRef;
+		llassert(mLinksetsListPtr != NULL);
 		LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->find(selectedItem->getUUID().asString());
 		const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
 		const LLVector3 &linksetLocation = linksetPtr->getLocation();
@@ -520,6 +537,15 @@ void LLFloaterPathfindingLinksets::selectNoneLinksets()
 	mLinksetsScrollList->deselectAllItems();
 }
 
+void LLFloaterPathfindingLinksets::clearLinksets()
+{
+	if (mLinksetsListPtr != NULL)
+	{
+		mLinksetsListPtr->clear();
+	}
+	updateScrollList();
+}
+
 void LLFloaterPathfindingLinksets::updateControls()
 {
 	updateStatusMessage();
@@ -543,6 +569,7 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 	{
 		LLScrollListItem *firstItem = selectedItems.front();
 
+		llassert(mLinksetsListPtr != NULL);
 		LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->find(firstItem->getUUID().asString());
 		const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
 
@@ -572,89 +599,93 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 
 	mLinksetsScrollList->deleteAllItems();
 
-	const LLVector3& avatarPosition = gAgent.getPositionAgent();
-	for (LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->begin();
-		linksetIter != mLinksetsListPtr->end(); ++linksetIter)
+	if (mLinksetsListPtr != NULL)
 	{
-		const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
-
-		LLSD columns;
-
-		columns[0]["column"] = "name";
-		columns[0]["value"] = linksetPtr->getName();
-		columns[0]["font"] = "SANSSERIF";
-
-		columns[1]["column"] = "description";
-		columns[1]["value"] = linksetPtr->getDescription();
-		columns[1]["font"] = "SANSSERIF";
-
-		columns[2]["column"] = "land_impact";
-		columns[2]["value"] = llformat("%1d", linksetPtr->getLandImpact());
-		columns[2]["font"] = "SANSSERIF";
-
-		columns[3]["column"] = "dist_from_you";
-		columns[3]["value"] = llformat("%1.0f m", dist_vec(avatarPosition, linksetPtr->getLocation()));
-		columns[3]["font"] = "SANSSERIF";
-
-		columns[4]["column"] = "linkset_use";
-		std::string linksetUse;
-		switch (linksetPtr->getLinksetUse())
+		const LLVector3& avatarPosition = gAgent.getPositionAgent();
+		for (LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->begin();
+			linksetIter != mLinksetsListPtr->end(); ++linksetIter)
 		{
-		case LLPathfindingLinkset::kWalkable :
-			linksetUse = getString("linkset_use_walkable");
-			break;
-		case LLPathfindingLinkset::kStaticObstacle :
-			linksetUse = getString("linkset_use_static_obstacle");
-			break;
-		case LLPathfindingLinkset::kDynamicObstacle :
-			linksetUse = getString("linkset_use_dynamic_obstacle");
-			break;
-		case LLPathfindingLinkset::kMaterialVolume :
-			linksetUse = getString("linkset_use_material_volume");
-			break;
-		case LLPathfindingLinkset::kExclusionVolume :
-			linksetUse = getString("linkset_use_exclusion_volume");
-			break;
-		case LLPathfindingLinkset::kDynamicPhantom :
-			linksetUse = getString("linkset_use_dynamic_phantom");
-			break;
-		case LLPathfindingLinkset::kUnknown :
-		default :
-			linksetUse = getString("linkset_use_dynamic_obstacle");
-			llassert(0);
-			break;
+			const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
+
+			LLSD columns;
+
+			columns[0]["column"] = "name";
+			columns[0]["value"] = linksetPtr->getName();
+			columns[0]["font"] = "SANSSERIF";
+
+			columns[1]["column"] = "description";
+			columns[1]["value"] = linksetPtr->getDescription();
+			columns[1]["font"] = "SANSSERIF";
+
+			columns[2]["column"] = "land_impact";
+			columns[2]["value"] = llformat("%1d", linksetPtr->getLandImpact());
+			columns[2]["font"] = "SANSSERIF";
+
+			columns[3]["column"] = "dist_from_you";
+			columns[3]["value"] = llformat("%1.0f m", dist_vec(avatarPosition, linksetPtr->getLocation()));
+			columns[3]["font"] = "SANSSERIF";
+
+			columns[4]["column"] = "linkset_use";
+			std::string linksetUse;
+			switch (linksetPtr->getLinksetUse())
+			{
+			case LLPathfindingLinkset::kWalkable :
+				linksetUse = getString("linkset_use_walkable");
+				break;
+			case LLPathfindingLinkset::kStaticObstacle :
+				linksetUse = getString("linkset_use_static_obstacle");
+				break;
+			case LLPathfindingLinkset::kDynamicObstacle :
+				linksetUse = getString("linkset_use_dynamic_obstacle");
+				break;
+			case LLPathfindingLinkset::kMaterialVolume :
+				linksetUse = getString("linkset_use_material_volume");
+				break;
+			case LLPathfindingLinkset::kExclusionVolume :
+				linksetUse = getString("linkset_use_exclusion_volume");
+				break;
+			case LLPathfindingLinkset::kDynamicPhantom :
+				linksetUse = getString("linkset_use_dynamic_phantom");
+				break;
+			case LLPathfindingLinkset::kUnknown :
+			default :
+				linksetUse = getString("linkset_use_dynamic_obstacle");
+				llassert(0);
+				break;
+			}
+			if (linksetPtr->isLocked())
+			{
+				linksetUse += (" " + getString("linkset_is_locked_state"));
+			}
+			columns[4]["value"] = linksetUse;
+			columns[4]["font"] = "SANSSERIF";
+
+			columns[5]["column"] = "a_percent";
+			columns[5]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientA());
+			columns[5]["font"] = "SANSSERIF";
+
+			columns[6]["column"] = "b_percent";
+			columns[6]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientB());
+			columns[6]["font"] = "SANSSERIF";
+
+			columns[7]["column"] = "c_percent";
+			columns[7]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientC());
+			columns[7]["font"] = "SANSSERIF";
+
+			columns[8]["column"] = "d_percent";
+			columns[8]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientD());
+			columns[8]["font"] = "SANSSERIF";
+
+			LLSD element;
+			element["id"] = linksetPtr->getUUID().asString();
+			element["column"] = columns;
+
+			mLinksetsScrollList->addElement(element);
 		}
-		if (linksetPtr->isLocked())
-		{
-			linksetUse += (" " + getString("linkset_is_locked_state"));
-		}
-		columns[4]["value"] = linksetUse;
-		columns[4]["font"] = "SANSSERIF";
-
-		columns[5]["column"] = "a_percent";
-		columns[5]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientA());
-		columns[5]["font"] = "SANSSERIF";
-
-		columns[6]["column"] = "b_percent";
-		columns[6]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientB());
-		columns[6]["font"] = "SANSSERIF";
-
-		columns[7]["column"] = "c_percent";
-		columns[7]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientC());
-		columns[7]["font"] = "SANSSERIF";
-
-		columns[8]["column"] = "d_percent";
-		columns[8]["value"] = llformat("%3d", linksetPtr->getWalkabilityCoefficientD());
-		columns[8]["font"] = "SANSSERIF";
-
-		LLSD element;
-		element["id"] = linksetPtr->getUUID().asString();
-		element["column"] = columns;
-
-		mLinksetsScrollList->addElement(element);
 	}
 
 	mLinksetsScrollList->selectMultiple(selectedUUIDs);
+	updateEditFieldValues();
 	updateControls();
 }
 
@@ -802,6 +833,7 @@ void LLFloaterPathfindingLinksets::applyEdit()
 			const LLScrollListItem *listItem = *itemIter;
 			LLUUID uuid = listItem->getUUID();
 			const std::string &uuidString = uuid.asString();
+			llassert(mLinksetsListPtr != NULL);
 			LLPathfindingLinksetList::iterator linksetIter = mLinksetsListPtr->find(uuidString);
 			llassert(linksetIter != mLinksetsListPtr->end());
 			LLPathfindingLinksetPtr linksetPtr = linksetIter->second;

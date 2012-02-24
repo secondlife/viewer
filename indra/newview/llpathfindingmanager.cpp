@@ -165,7 +165,7 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestGetLin
 
 	std::string linksetsURL = getLinksetsURLForCurrentRegion();
 	if (linksetsURL.empty())
-	{;
+	{
 		status = kLinksetsRequestNotEnabled;
 	}
 	else
@@ -191,8 +191,15 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLin
 	{
 		LLHTTPClient::ResponderPtr responder = new LinksetsResponder(linksetsURL, pLinksetsCallback);
 		LLSD postData = pLinksetList->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
-		LLHTTPClient::put(linksetsURL, postData, responder);
-		status = kLinksetsRequestStarted;
+		if (postData.isUndefined())
+		{
+			status = kLinksetsRequestCompleted;
+		}
+		else
+		{
+			LLHTTPClient::put(linksetsURL, postData, responder);
+			status = kLinksetsRequestStarted;
+		}
 	}
 
 	return status;

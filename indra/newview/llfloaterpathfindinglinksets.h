@@ -134,6 +134,7 @@ private:
 
 	void selectAllLinksets();
 	void selectNoneLinksets();
+	void clearLinksets();
 
 	void updateControls();
 	void updateEditFieldValues();
