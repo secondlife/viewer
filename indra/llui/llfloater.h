@@ -64,7 +64,7 @@ namespace LLFloaterEnums
 {
 	enum EOpenPositioning
 	{
-		OPEN_POSITIONING_NONE,
+		OPEN_POSITIONING_RELATIVE,
 		OPEN_POSITIONING_CASCADING,
 		OPEN_POSITIONING_CASCADE_GROUP,
 		OPEN_POSITIONING_CENTERED,
@@ -163,10 +163,7 @@ public:
 								can_dock,
 								show_title;
 		
-		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
-		Optional<S32>								specified_left;
-		Optional<S32>								specified_bottom;
-
+		Optional<LLFloaterEnums::EOpenPositioning>	positioning;
 		
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
@@ -355,7 +352,7 @@ public:
 		
 	void			enableResizeCtrls(bool enable, bool width = true, bool height = true);
 
-	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mOpenPositioning); }
+	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mPositioning); }
 protected:
 	void			applyControlsAndPosition(LLFloater* other);
 
@@ -453,9 +450,7 @@ private:
 	BOOL			mDragOnLeft;
 	BOOL			mResizable;
 
-	LLFloaterEnums::EOpenPositioning	mOpenPositioning;
-	S32									mSpecifiedLeft;
-	S32									mSpecifiedBottom;
+	LLFloaterEnums::EOpenPositioning	mPositioning;
 	LLCoordFloater	mPosition;
 	
 	S32				mMinWidth;

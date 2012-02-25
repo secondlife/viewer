@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  ignore_ui_scale="false"
  legacy_header_height="225"
  can_minimize="true"
