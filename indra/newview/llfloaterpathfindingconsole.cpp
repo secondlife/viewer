@@ -248,7 +248,7 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	{
 		mAgentStateSlot.disconnect();
 	}
-
+	LLPathingLib::getInstance()->cleanupResidual();
 	LLFloater::onClose(pIsAppQuitting);
 }
 
