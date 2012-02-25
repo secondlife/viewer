@@ -68,10 +68,10 @@ namespace LLInitParam
 {
 	void TypeValues<LLFloaterEnums::EOpenPositioning>::declareValues()
 	{
-		declare("relative",   LLFloaterEnums::OPEN_POSITIONING_RELATIVE);
-		declare("cascading",  LLFloaterEnums::OPEN_POSITIONING_CASCADING);
-		declare("centered",   LLFloaterEnums::OPEN_POSITIONING_CENTERED);
-		declare("specified",  LLFloaterEnums::OPEN_POSITIONING_SPECIFIED);
+		declare("relative",   LLFloaterEnums::POSITIONING_RELATIVE);
+		declare("cascading",  LLFloaterEnums::POSITIONING_CASCADING);
+		declare("centered",   LLFloaterEnums::POSITIONING_CENTERED);
+		declare("specified",  LLFloaterEnums::POSITIONING_SPECIFIED);
 	}
 }
 
@@ -177,7 +177,7 @@ LLFloater::Params::Params()
 	save_visibility("save_visibility", false),
 	can_dock("can_dock", false),
 	show_title("show_title", true),
-	positioning("positioning", LLFloaterEnums::OPEN_POSITIONING_RELATIVE),
+	positioning("positioning", LLFloaterEnums::POSITIONING_RELATIVE),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
 	close_image("close_image"),
@@ -873,7 +873,7 @@ bool LLFloater::applyRectControl()
 	{
 		// other floaters in our group, position ourselves relative to them and don't save the rect
 		mRectControl.clear();
-		mPositioning = LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP;
+		mPositioning = LLFloaterEnums::POSITIONING_CASCADE_GROUP;
 	}
 	else if (mRectControl.size() > 1)
 	{
@@ -912,16 +912,16 @@ void LLFloater::applyPositioning(LLFloater* other)
 	// Otherwise position according to the positioning code
 	switch (mPositioning)
 	{
-	case LLFloaterEnums::OPEN_POSITIONING_CENTERED:
+	case LLFloaterEnums::POSITIONING_CENTERED:
 		center();
 		break;
 
-	case LLFloaterEnums::OPEN_POSITIONING_SPECIFIED:
+	case LLFloaterEnums::POSITIONING_SPECIFIED:
 		//translateIntoRect(gFloaterView->getSnapRect());
 		break;
 
-	case LLFloaterEnums::OPEN_POSITIONING_CASCADE_GROUP:
-	case LLFloaterEnums::OPEN_POSITIONING_CASCADING:
+	case LLFloaterEnums::POSITIONING_CASCADE_GROUP:
+	case LLFloaterEnums::POSITIONING_CASCADING:
 		if (other != NULL && other != this)
 		{
 			stackWith(*other);
@@ -942,12 +942,12 @@ void LLFloater::applyPositioning(LLFloater* other)
 			translate(snap_rect.mLeft, snap_rect.mBottom);
 			//translateIntoRect(snap_rect);
 		}
-		mPositioning = LLFloaterEnums::OPEN_POSITIONING_SPECIFIED;
+		mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
 		setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 
 		break;
 
-	case LLFloaterEnums::OPEN_POSITIONING_RELATIVE:
+	case LLFloaterEnums::POSITIONING_RELATIVE:
 		{
 			LLRect snap_rect = gFloaterView->getSnapRect();
 			LLRect floater_view_screen_rect = gFloaterView->calcScreenRect();
@@ -1076,7 +1076,7 @@ void LLFloater::handleReshape(const LLRect& new_rect, bool by_user)
 	if (by_user && !isMinimized())
 	{
 		storeRectControl();
-		mPositioning = LLFloaterEnums::OPEN_POSITIONING_RELATIVE;
+		mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 		LLRect screen_rect = calcScreenRect();
 		mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 	}
@@ -1596,7 +1596,7 @@ void LLFloater::setDocked(bool docked, bool pop_on_undock)
 		if (mDocked)
 		{
 			setMinimized(FALSE);
-			mPositioning = LLFloaterEnums::OPEN_POSITIONING_RELATIVE;
+			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 		}
 
 		updateTitleButtons();
@@ -2977,7 +2977,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	LLPanel::initFromParams(p);
 
 	// override any follows flags
-	if (mPositioning != LLFloaterEnums::OPEN_POSITIONING_SPECIFIED)
+	if (mPositioning != LLFloaterEnums::POSITIONING_SPECIFIED)
 	{
 		setFollows(FOLLOWS_NONE);
 	}
@@ -3279,7 +3279,7 @@ void LLFloater::stackWith(LLFloater& other)
 	
 	setShape(next_rect);
 
-	other.mPositioning = LLFloaterEnums::OPEN_POSITIONING_SPECIFIED;
+	other.mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
 	other.setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
 }
 

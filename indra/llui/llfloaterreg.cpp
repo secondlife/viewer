@@ -96,7 +96,7 @@ LLFloater* LLFloaterReg::getLastFloaterCascading()
 		{
 			LLFloater* inst = *iter;
 
-			if (inst->getVisible() && inst->isPositioning(LLFloaterEnums::OPEN_POSITIONING_CASCADING))
+			if (inst->getVisible() && inst->isPositioning(LLFloaterEnums::POSITIONING_CASCADING))
 			{
 				if (candidate_rect.mTop > inst->getRect().mTop)
 				{
