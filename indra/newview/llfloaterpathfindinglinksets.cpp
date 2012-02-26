@@ -140,28 +140,28 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 	mEditA = findChild<LLLineEditor>("edit_a_value");
 	llassert(mEditA != NULL);
-	mEditA->setPrevalidate(LLTextValidate::validatePositiveS32);
+	mEditA->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
 	mLabelEditB = findChild<LLTextBase>("edit_b_label");
 	llassert(mLabelEditB != NULL);
 
 	mEditB = findChild<LLLineEditor>("edit_b_value");
 	llassert(mEditB != NULL);
-	mEditB->setPrevalidate(LLTextValidate::validatePositiveS32);
+	mEditB->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
 	mLabelEditC = findChild<LLTextBase>("edit_c_label");
 	llassert(mLabelEditC != NULL);
 
 	mEditC = findChild<LLLineEditor>("edit_c_value");
 	llassert(mEditC != NULL);
-	mEditC->setPrevalidate(LLTextValidate::validatePositiveS32);
+	mEditC->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
 	mLabelEditD = findChild<LLTextBase>("edit_d_label");
 	llassert(mLabelEditD != NULL);
 
 	mEditD = findChild<LLLineEditor>("edit_d_value");
 	llassert(mEditD != NULL);
-	mEditD->setPrevalidate(LLTextValidate::validatePositiveS32);
+	mEditD->setPrevalidate(LLTextValidate::validateNonNegativeS32);
 
 	mApplyEditsButton = findChild<LLButton>("apply_edit_values");
 	llassert(mApplyEditsButton != NULL);
