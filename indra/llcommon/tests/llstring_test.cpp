@@ -847,6 +847,9 @@ namespace tut
 		ensure_getTokens("adjacent quoted",
 						 "abc'def \"ghi'\"jkl' mno\"pqr", " ", "", "\"'",
 						 list_of("abcdef \"ghijkl' mnopqr"));
+		ensure_getTokens("quoted empty string",
+						 "--set SomeVar ''", " ", "", "'",
+						 list_of("--set")("SomeVar")(""));
 
 		// escapes
 		// Don't use backslash as an escape for these tests -- you'll go nuts
