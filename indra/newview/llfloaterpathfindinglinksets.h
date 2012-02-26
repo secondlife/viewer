@@ -36,6 +36,7 @@
 #include "llpathfindingmanager.h"
 
 class LLSD;
+class LLUICtrl;
 class LLTextBase;
 class LLScrollListCtrl;
 class LLLineEditor;
@@ -126,6 +127,7 @@ private:
 	void onReturnClicked();
 	void onDeleteClicked();
 	void onTeleportClicked();
+	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl);
 	void onApplyChangesClicked();
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 

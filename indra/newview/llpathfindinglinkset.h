@@ -76,6 +76,9 @@ public:
 
 	LLSD                      encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
+	static const S32 MIN_WALKABILITY_VALUE;
+	static const S32 MAX_WALKABILITY_VALUE;
+	
 protected:
 
 private:
@@ -85,9 +88,6 @@ private:
 	static BOOL               isPhantom(ELinksetUse pLinksetUse);
 	static BOOL               isPermanent(ELinksetUse pLinksetUse);
 	static BOOL               isWalkable(ELinksetUse pLinksetUse);
-
-	static const S32 MIN_WALKABILITY_VALUE;
-	static const S32 MAX_WALKABILITY_VALUE;
 
 	LLUUID       mUUID;
 	bool         mIsTerrain;

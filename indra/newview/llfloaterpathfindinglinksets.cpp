@@ -141,6 +141,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditA = findChild<LLLineEditor>("edit_a_value");
 	llassert(mEditA != NULL);
 	mEditA->setPrevalidate(LLTextValidate::validateNonNegativeS32);
+	mEditA->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
 
 	mLabelEditB = findChild<LLTextBase>("edit_b_label");
 	llassert(mLabelEditB != NULL);
@@ -148,6 +149,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditB = findChild<LLLineEditor>("edit_b_value");
 	llassert(mEditB != NULL);
 	mEditB->setPrevalidate(LLTextValidate::validateNonNegativeS32);
+	mEditB->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
 
 	mLabelEditC = findChild<LLTextBase>("edit_c_label");
 	llassert(mLabelEditC != NULL);
@@ -155,6 +157,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditC = findChild<LLLineEditor>("edit_c_value");
 	llassert(mEditC != NULL);
 	mEditC->setPrevalidate(LLTextValidate::validateNonNegativeS32);
+	mEditC->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
 
 	mLabelEditD = findChild<LLTextBase>("edit_d_label");
 	llassert(mLabelEditD != NULL);
@@ -162,6 +165,7 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 	mEditD = findChild<LLLineEditor>("edit_d_value");
 	llassert(mEditD != NULL);
 	mEditD->setPrevalidate(LLTextValidate::validateNonNegativeS32);
+	mEditD->setCommitCallback(boost::bind(&LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered, this, _1));
 
 	mApplyEditsButton = findChild<LLButton>("apply_edit_values");
 	llassert(mApplyEditsButton != NULL);
@@ -493,6 +497,21 @@ void LLFloaterPathfindingLinksets::onTeleportClicked()
 		{
 			gAgent.teleportRequest(region->getHandle(), linksetLocation, true);
 		}
+	}
+}
+
+void LLFloaterPathfindingLinksets::onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl)
+{
+	LLLineEditor *pLineEditor = static_cast<LLLineEditor *>(pUICtrl);
+	llassert(pLineEditor != NULL);
+
+	const std::string &valueString = pLineEditor->getText();
+	S32 value = static_cast<S32>(atoi(valueString.c_str()));
+
+	if ((value < LLPathfindingLinkset::MIN_WALKABILITY_VALUE) || (value > LLPathfindingLinkset::MAX_WALKABILITY_VALUE))
+	{
+		value = llclamp(value, LLPathfindingLinkset::MIN_WALKABILITY_VALUE, LLPathfindingLinkset::MAX_WALKABILITY_VALUE);
+		pLineEditor->setValue(LLSD(value));
 	}
 }
 
