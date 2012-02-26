@@ -119,6 +119,12 @@ std::string LLExternalEditor::getErrorMessage(EErrorCode code)
 	return LLTrans::getString("Unknown");
 }
 
+// TODO:
+// - Unit-test this with tests like LLStringUtil::getTokens() (the
+//   command-line overload that supports quoted tokens)
+// - Unless there are significant semantic differences, eliminate this method
+//   and use LLStringUtil::getTokens() instead.
+
 // static
 size_t LLExternalEditor::tokenize(string_vec_t& tokens, const std::string& str)
 {
