@@ -112,7 +112,7 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
-	// mIsLocked = pOther.mIsLocked;  XXX stinson 02/23/2012 : disabling temporarily until all sim-service responses include the modifiable state
+	mIsLocked = pOther.mIsLocked;
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
@@ -174,11 +174,9 @@ void LLPathfindingLinkset::parseObjectData(const LLSD &pLinksetItem)
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
 	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
 	
-	if (pLinksetItem.has(LINKSET_MODIFIABLE_FIELD))
-	{
-		llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
-		mIsLocked = !pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
-	}
+	llassert(pLinksetItem.has(LINKSET_MODIFIABLE_FIELD));
+	llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
+	mIsLocked = !pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
 	
 	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
 	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());
