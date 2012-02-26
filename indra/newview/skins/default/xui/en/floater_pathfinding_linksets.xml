@@ -22,6 +22,10 @@
   <floater.string name="linksets_messaging_complete_none_found">No pathfinding linksets</floater.string>
   <floater.string name="linksets_messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
   <floater.string name="linksets_messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="linkset_terrain_name">[Terrain]</floater.string>
+  <floater.string name="linkset_terrain_description">--</floater.string>
+  <floater.string name="linkset_terrain_land_impact">--</floater.string>
+  <floater.string name="linkset_terrain_dist_from_you">--</floater.string>
   <floater.string name="linkset_use_walkable">Walkable</floater.string>
   <floater.string name="linkset_use_static_obstacle">Static obstacle</floater.string>
   <floater.string name="linkset_use_dynamic_obstacle">Dynamic obstacle</floater.string>

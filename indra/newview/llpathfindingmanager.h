@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2010, Linden Research, Inc. 
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -42,7 +42,6 @@ class LLFloater;
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 	friend class AgentStateResponder;
-	friend class LinksetsResponder;
 public:
 	typedef enum {
 		kAgentStateUnknown,
@@ -90,12 +89,10 @@ private:
 	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
-	void handleLinksetsResult(const LLSD &pContent, linksets_callback_t pLinksetsCallback) const;
-	void handleLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL, linksets_callback_t pLinksetsCallback) const;
-
 	std::string getRetrieveNavMeshURLForCurrentRegion() const;
 	std::string getAgentStateURLForCurrentRegion() const;
-	std::string getLinksetsURLForCurrentRegion() const;
+	std::string getObjectLinksetsURLForCurrentRegion() const;
+	std::string getTerrainLinksetsURLForCurrentRegion() const;
 
 	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
 

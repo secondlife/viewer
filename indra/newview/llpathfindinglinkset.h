@@ -52,12 +52,14 @@ public:
 		kDynamicPhantom
 	} ELinksetUse;
 
+	LLPathfindingLinkset(const LLSD &pTerrainLinksetItem);
 	LLPathfindingLinkset(const std::string &pUUID, const LLSD &pLinksetItem);
 	LLPathfindingLinkset(const LLPathfindingLinkset& pOther);
 	virtual ~LLPathfindingLinkset();
 
 	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
+	inline bool               isTerrain() const                   {return mIsTerrain;};
 	inline const LLUUID&      getUUID() const                     {return mUUID;};
 	inline const std::string& getName() const                     {return mName;};
 	inline const std::string& getDescription() const              {return mDescription;};
@@ -77,6 +79,8 @@ public:
 protected:
 
 private:
+	void                      parseObjectData(const LLSD &pLinksetItem);
+	void                      parsePathfindingData(const LLSD &pLinksetItem);
 	static ELinksetUse        getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
 	static BOOL               isPhantom(ELinksetUse pLinksetUse);
 	static BOOL               isPermanent(ELinksetUse pLinksetUse);
@@ -86,6 +90,7 @@ private:
 	static const S32 MAX_WALKABILITY_VALUE;
 
 	LLUUID       mUUID;
+	bool         mIsTerrain;
 	std::string  mName;
 	std::string  mDescription;
 	U32          mLandImpact;

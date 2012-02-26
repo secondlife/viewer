@@ -83,20 +83,40 @@ void LLPathfindingLinksetList::update(const LLPathfindingLinksetList &pUpdateLin
 	}
 }
 
-LLSD LLPathfindingLinksetList::encodeAlteredFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
+LLSD LLPathfindingLinksetList::encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD listData;
 
 	for (LLPathfindingLinksetMap::const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
 	{
 		const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-		LLSD linksetData = linksetPtr->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
-		if (!linksetData.isUndefined())
+		if (!linksetPtr->isTerrain())
 		{
-			const std::string& uuid(linksetIter->first);
-			listData[uuid] = linksetData;
+			LLSD linksetData = linksetPtr->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+			if (!linksetData.isUndefined())
+			{
+				const std::string& uuid(linksetIter->first);
+				listData[uuid] = linksetData;
+			}
 		}
 	}
 
 	return listData;
+}
+
+LLSD LLPathfindingLinksetList::encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
+{
+	LLSD terrainData;
+	
+	for (LLPathfindingLinksetMap::const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
+	{
+		const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
+		if (linksetPtr->isTerrain())
+		{
+			terrainData = linksetPtr->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+			break;
+		}
+	}
+	
+	return terrainData;
 }

@@ -44,7 +44,8 @@
 #define CAP_SERVICE_AGENT_STATE       "AgentPreferences"
 #define ALTER_PERMANENT_OBJECTS_FIELD "alter_permanent_objects"
 
-#define CAP_SERVICE_LINKSETS          "ObjectNavMeshProperties"
+#define CAP_SERVICE_OBJECT_LINKSETS   "ObjectNavMeshProperties"
+#define CAP_SERVICE_TERRAIN_LINKSETS  "TerrainNavMeshProperties"
 
 //---------------------------------------------------------------------------
 // AgentStateResponder
@@ -70,20 +71,79 @@ private:
 // LinksetsResponder
 //---------------------------------------------------------------------------
 
-class LinksetsResponder : public LLHTTPClient::Responder
+class LinksetsResponder
 {
 public:
-	LinksetsResponder(const std::string &pCapabilityURL, LLPathfindingManager::linksets_callback_t pLinksetsCallback);
+	LinksetsResponder(LLPathfindingManager::linksets_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested);
 	virtual ~LinksetsResponder();
-
-	virtual void result(const LLSD &pContent);
-	virtual void error(U32 pStatus, const std::string &pReason);
-
+	
+	void handleObjectLinksetsResult(const LLSD &pContent);
+	void handleObjectLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+	void handleTerrainLinksetsResult(const LLSD &pContent);
+	void handleTerrainLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+	
 protected:
 
 private:
-	std::string                               mCapabilityURL;
+	void sendCallback();
+
+	typedef enum
+	{
+		kNotRequested,
+		kWaiting,
+		kReceivedGood,
+		kReceivedError
+	} EMessagingState;
+	
 	LLPathfindingManager::linksets_callback_t mLinksetsCallback;
+	
+	EMessagingState                           mObjectMessagingState;
+	EMessagingState                           mTerrainMessagingState;
+	
+	LLPathfindingLinksetListPtr               mObjectLinksetListPtr;
+	LLPathfindingLinksetPtr                   mTerrainLinksetPtr;
+};
+
+typedef boost::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
+
+//---------------------------------------------------------------------------
+// ObjectLinksetsResponder
+//---------------------------------------------------------------------------
+
+class ObjectLinksetsResponder : public LLHTTPClient::Responder
+{
+public:
+	ObjectLinksetsResponder(const std::string &pCapabilityURL, LinksetsResponderPtr pLinksetsResponsderPtr);
+	virtual ~ObjectLinksetsResponder();
+	
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string &pReason);
+	
+protected:
+	
+private:
+	std::string          mCapabilityURL;
+	LinksetsResponderPtr mLinksetsResponsderPtr;
+};
+
+//---------------------------------------------------------------------------
+// TerrainLinksetsResponder
+//---------------------------------------------------------------------------
+
+class TerrainLinksetsResponder : public LLHTTPClient::Responder
+{
+public:
+	TerrainLinksetsResponder(const std::string &pCapabilityURL, LinksetsResponderPtr pLinksetsResponsderPtr);
+	virtual ~TerrainLinksetsResponder();
+	
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string &pReason);
+	
+protected:
+	
+private:
+	std::string          mCapabilityURL;
+	LinksetsResponderPtr mLinksetsResponsderPtr;
 };
 
 //---------------------------------------------------------------------------
@@ -163,15 +223,21 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestGetLin
 {
 	ELinksetsRequestStatus status;
 
-	std::string linksetsURL = getLinksetsURLForCurrentRegion();
-	if (linksetsURL.empty())
+	std::string objectLinksetsURL = getObjectLinksetsURLForCurrentRegion();
+	std::string terrainLinksetsURL = getTerrainLinksetsURLForCurrentRegion();
+	if (objectLinksetsURL.empty() || terrainLinksetsURL.empty())
 	{
 		status = kLinksetsRequestNotEnabled;
 	}
 	else
 	{
-		LLHTTPClient::ResponderPtr responder = new LinksetsResponder(linksetsURL, pLinksetsCallback);
-		LLHTTPClient::get(linksetsURL, responder);
+		LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pLinksetsCallback, true, true));
+		
+		LLHTTPClient::ResponderPtr objectLinksetsResponder = new ObjectLinksetsResponder(objectLinksetsURL, linksetsResponderPtr);
+		LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(terrainLinksetsURL, linksetsResponderPtr);
+		
+		LLHTTPClient::get(objectLinksetsURL, objectLinksetsResponder);
+		LLHTTPClient::get(terrainLinksetsURL, terrainLinksetsResponder);
 		status = kLinksetsRequestStarted;
 	}
 
@@ -180,24 +246,38 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestGetLin
 
 LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const
 {
-	ELinksetsRequestStatus status;
+	ELinksetsRequestStatus status = kLinksetsRequestNotEnabled;
 
-	std::string linksetsURL = getLinksetsURLForCurrentRegion();
-	if (linksetsURL.empty())
+	std::string objectLinksetsURL = getObjectLinksetsURLForCurrentRegion();
+	std::string terrainLinksetsURL = getTerrainLinksetsURLForCurrentRegion();
+	if (objectLinksetsURL.empty() || terrainLinksetsURL.empty())
 	{
 		status = kLinksetsRequestNotEnabled;
 	}
 	else
 	{
-		LLHTTPClient::ResponderPtr responder = new LinksetsResponder(linksetsURL, pLinksetsCallback);
-		LLSD postData = pLinksetList->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
-		if (postData.isUndefined())
+		LLSD objectPostData = pLinksetList->encodeObjectFields(pLinksetUse, pA, pB, pC, pD);
+		LLSD terrainPostData = pLinksetList->encodeTerrainFields(pLinksetUse, pA, pB, pC, pD);
+		if (objectPostData.isUndefined() && terrainPostData.isUndefined())
 		{
 			status = kLinksetsRequestCompleted;
 		}
 		else
 		{
-			LLHTTPClient::put(linksetsURL, postData, responder);
+			LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
+
+			if (!objectPostData.isUndefined())
+			{
+				LLHTTPClient::ResponderPtr objectLinksetsResponder = new ObjectLinksetsResponder(objectLinksetsURL, linksetsResponderPtr);
+				LLHTTPClient::put(objectLinksetsURL, objectPostData, objectLinksetsResponder);
+			}
+			
+			if (!terrainPostData.isUndefined())
+			{
+				LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(terrainLinksetsURL, linksetsResponderPtr);
+				LLHTTPClient::put(terrainLinksetsURL, terrainPostData, terrainLinksetsResponder);
+			}
+
 			status = kLinksetsRequestStarted;
 		}
 	}
@@ -258,19 +338,6 @@ void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string 
 	setAgentState(kAgentStateError);
 }
 
-void LLPathfindingManager::handleLinksetsResult(const LLSD &pContent, linksets_callback_t pLinksetsCallback) const
-{
-	LLPathfindingLinksetListPtr linksetListPtr(new LLPathfindingLinksetList(pContent));
-	pLinksetsCallback(kLinksetsRequestCompleted, linksetListPtr);
-}
-
-void LLPathfindingManager::handleLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL, linksets_callback_t pLinksetsCallback) const
-{
-	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-	LLPathfindingLinksetListPtr linksetListPtr(new LLPathfindingLinksetList());
-	pLinksetsCallback(kLinksetsRequestError, linksetListPtr);
-}
-
 std::string LLPathfindingManager::getRetrieveNavMeshURLForCurrentRegion() const
 {
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_RETRIEVE_NAVMESH);
@@ -281,9 +348,14 @@ std::string LLPathfindingManager::getAgentStateURLForCurrentRegion() const
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_AGENT_STATE);
 }
 
-std::string LLPathfindingManager::getLinksetsURLForCurrentRegion() const
+std::string LLPathfindingManager::getObjectLinksetsURLForCurrentRegion() const
 {
-	return getCapabilityURLForCurrentRegion(CAP_SERVICE_LINKSETS);
+	return getCapabilityURLForCurrentRegion(CAP_SERVICE_OBJECT_LINKSETS);
+}
+
+std::string LLPathfindingManager::getTerrainLinksetsURLForCurrentRegion() const
+{
+	return getCapabilityURLForCurrentRegion(CAP_SERVICE_TERRAIN_LINKSETS);
 }
 
 std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const
@@ -334,10 +406,12 @@ void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 // LinksetsResponder
 //---------------------------------------------------------------------------
 
-LinksetsResponder::LinksetsResponder(const std::string &pCapabilityURL, LLPathfindingManager::linksets_callback_t pLinksetsCallback)
-	: LLHTTPClient::Responder(),
-	mCapabilityURL(pCapabilityURL),
-	mLinksetsCallback(pLinksetsCallback)
+LinksetsResponder::LinksetsResponder(LLPathfindingManager::linksets_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested)
+	: mLinksetsCallback(pLinksetsCallback),
+	mObjectMessagingState(pIsObjectRequested ? kWaiting : kNotRequested),
+	mTerrainMessagingState(pIsTerrainRequested ? kWaiting : kNotRequested),
+	mObjectLinksetListPtr(),
+	mTerrainLinksetPtr()
 {
 }
 
@@ -345,12 +419,113 @@ LinksetsResponder::~LinksetsResponder()
 {
 }
 
-void LinksetsResponder::result(const LLSD &pContent)
+void LinksetsResponder::handleObjectLinksetsResult(const LLSD &pContent)
 {
-	LLPathfindingManager::getInstance()->handleLinksetsResult(pContent, mLinksetsCallback);
+	mObjectLinksetListPtr = LLPathfindingLinksetListPtr(new LLPathfindingLinksetList(pContent));
+
+	mObjectMessagingState = kReceivedGood;
+	if (mTerrainMessagingState != kWaiting)
+	{
+		sendCallback();
+	}
 }
 
-void LinksetsResponder::error(U32 pStatus, const std::string &pReason)
+void LinksetsResponder::handleObjectLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL)
 {
-	LLPathfindingManager::getInstance()->handleLinksetsError(pStatus, pReason, mCapabilityURL, mLinksetsCallback);
+	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
+	mObjectMessagingState = kReceivedError;
+	if (mTerrainMessagingState != kWaiting)
+	{
+		sendCallback();
+	}
+}
+
+void LinksetsResponder::handleTerrainLinksetsResult(const LLSD &pContent)
+{
+	mTerrainLinksetPtr = LLPathfindingLinksetPtr(new LLPathfindingLinkset(pContent));
+
+	mTerrainMessagingState = kReceivedGood;
+	if (mObjectMessagingState != kWaiting)
+	{
+		sendCallback();
+	}
+}
+
+void LinksetsResponder::handleTerrainLinksetsError(U32 pStatus, const std::string &pReason, const std::string &pURL)
+{
+	mTerrainMessagingState = kReceivedError;
+	if (mObjectMessagingState != kWaiting)
+	{
+		sendCallback();
+	}
+}
+	
+void LinksetsResponder::sendCallback()
+{
+	llassert(mObjectMessagingState != kWaiting);
+	llassert(mTerrainMessagingState != kWaiting);
+	LLPathfindingManager::ELinksetsRequestStatus requestStatus =
+		((((mObjectMessagingState == kReceivedGood) || (mObjectMessagingState == kNotRequested)) &&
+		  ((mTerrainMessagingState == kReceivedGood) || (mTerrainMessagingState == kNotRequested))) ?
+		 LLPathfindingManager::kLinksetsRequestCompleted : LLPathfindingManager::kLinksetsRequestError);
+
+	if (mObjectMessagingState != kReceivedGood)
+	{
+		mObjectLinksetListPtr = LLPathfindingLinksetListPtr(new LLPathfindingLinksetList());
+	}
+
+	if (mTerrainMessagingState == kReceivedGood)
+	{
+		mObjectLinksetListPtr->insert(std::pair<std::string, LLPathfindingLinksetPtr>(mTerrainLinksetPtr->getUUID().asString(), mTerrainLinksetPtr));
+	}
+
+	mLinksetsCallback(requestStatus, mObjectLinksetListPtr);
+}
+
+//---------------------------------------------------------------------------
+// ObjectLinksetsResponder
+//---------------------------------------------------------------------------
+
+ObjectLinksetsResponder::ObjectLinksetsResponder(const std::string &pCapabilityURL, LinksetsResponderPtr pLinksetsResponsderPtr)
+	: mCapabilityURL(pCapabilityURL),
+	mLinksetsResponsderPtr(pLinksetsResponsderPtr)
+{
+}
+
+ObjectLinksetsResponder::~ObjectLinksetsResponder()
+{
+}
+
+void ObjectLinksetsResponder::result(const LLSD &pContent)
+{
+	mLinksetsResponsderPtr->handleObjectLinksetsResult(pContent);
+}
+
+void ObjectLinksetsResponder::error(U32 pStatus, const std::string &pReason)
+{
+	mLinksetsResponsderPtr->handleObjectLinksetsError(pStatus, pReason, mCapabilityURL);
+}
+	
+//---------------------------------------------------------------------------
+// TerrainLinksetsResponder
+//---------------------------------------------------------------------------
+
+TerrainLinksetsResponder::TerrainLinksetsResponder(const std::string &pCapabilityURL, LinksetsResponderPtr pLinksetsResponsderPtr)
+: mCapabilityURL(pCapabilityURL),
+mLinksetsResponsderPtr(pLinksetsResponsderPtr)
+{
+}
+
+TerrainLinksetsResponder::~TerrainLinksetsResponder()
+{
+}
+
+void TerrainLinksetsResponder::result(const LLSD &pContent)
+{
+	mLinksetsResponsderPtr->handleTerrainLinksetsResult(pContent);
+}
+
+void TerrainLinksetsResponder::error(U32 pStatus, const std::string &pReason)
+{
+	mLinksetsResponsderPtr->handleTerrainLinksetsError(pStatus, pReason, mCapabilityURL);
 }

@@ -51,8 +51,26 @@
 const S32 LLPathfindingLinkset::MIN_WALKABILITY_VALUE(0);
 const S32 LLPathfindingLinkset::MAX_WALKABILITY_VALUE(100);
 
+LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainLinksetItem)
+	: mUUID(),
+	mIsTerrain(true),
+	mName(),
+	mDescription(),
+	mLandImpact(0U),
+	mLocation(LLVector3::zero),
+	mIsLocked(TRUE),
+	mLinksetUse(kUnknown),
+	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
+	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
+	mWalkabilityCoefficientC(MIN_WALKABILITY_VALUE),
+	mWalkabilityCoefficientD(MIN_WALKABILITY_VALUE)
+{
+	parsePathfindingData(pTerrainLinksetItem);
+}
+
 LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD& pLinksetItem)
 	: mUUID(pUUID),
+	mIsTerrain(false),
 	mName(),
 	mDescription(),
 	mLandImpact(0U),
@@ -64,66 +82,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mWalkabilityCoefficientC(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientD(MIN_WALKABILITY_VALUE)
 {
-	llassert(pLinksetItem.has(LINKSET_NAME_FIELD));
-	llassert(pLinksetItem.get(LINKSET_NAME_FIELD).isString());
-	mName = pLinksetItem.get(LINKSET_NAME_FIELD).asString();
-
-	llassert(pLinksetItem.has(LINKSET_DESCRIPTION_FIELD));
-	llassert(pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).isString());
-	mDescription = pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).asString();
-
-	llassert(pLinksetItem.has(LINKSET_LAND_IMPACT_FIELD));
-	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).isInteger());
-	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
-	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
-
-	if (pLinksetItem.has(LINKSET_MODIFIABLE_FIELD))
-	{
-		llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
-		mIsLocked = !pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
-	}
-
-	llassert(pLinksetItem.has(LINKSET_PHANTOM_FIELD));
-	llassert(pLinksetItem.get(LINKSET_PHANTOM_FIELD).isBoolean());
-	bool isPhantom = pLinksetItem.get(LINKSET_PHANTOM_FIELD).asBoolean();
-
-	llassert(pLinksetItem.has(LINKSET_PERMANENT_FIELD));
-	llassert(pLinksetItem.get(LINKSET_PERMANENT_FIELD).isBoolean());
-	bool isPermanent = pLinksetItem.get(LINKSET_PERMANENT_FIELD).asBoolean();
-
-	llassert(pLinksetItem.has(LINKSET_WALKABLE_FIELD));
-	llassert(pLinksetItem.get(LINKSET_WALKABLE_FIELD).isBoolean());
-	bool isWalkable = pLinksetItem.get(LINKSET_WALKABLE_FIELD).asBoolean();
-
-	mLinksetUse = getLinksetUse(isPhantom, isPermanent, isWalkable);
-
-	llassert(pLinksetItem.has(LINKSET_WALKABILITY_A_FIELD));
-	llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
-	mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
-	llassert(mWalkabilityCoefficientA >= MIN_WALKABILITY_VALUE);
-	llassert(mWalkabilityCoefficientA <= MAX_WALKABILITY_VALUE);
-
-	llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
-	llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isInteger());
-	mWalkabilityCoefficientB = pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asInteger();
-	llassert(mWalkabilityCoefficientB >= MIN_WALKABILITY_VALUE);
-	llassert(mWalkabilityCoefficientB <= MAX_WALKABILITY_VALUE);
-
-	llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
-	llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isInteger());
-	mWalkabilityCoefficientC = pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asInteger();
-	llassert(mWalkabilityCoefficientC >= MIN_WALKABILITY_VALUE);
-	llassert(mWalkabilityCoefficientC <= MAX_WALKABILITY_VALUE);
-
-	llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
-	llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isInteger());
-	mWalkabilityCoefficientD = pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asInteger();
-	llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
-	llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
-
-	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
-	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());
-	mLocation.setValue(pLinksetItem.get(LINKSET_POSITION_FIELD));
+	parseObjectData(pLinksetItem);
+	parsePathfindingData(pLinksetItem);
 }
 
 LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
@@ -166,7 +126,7 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, 
 {
 	LLSD itemData;
 
-	if ((pLinksetUse != kUnknown) && (mLinksetUse != pLinksetUse))
+	if (!isTerrain() && (pLinksetUse != kUnknown) && (mLinksetUse != pLinksetUse))
 	{
 		if (!mIsLocked)
 		{
@@ -197,6 +157,76 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, 
 	}
 
 	return itemData;
+}
+
+void LLPathfindingLinkset::parseObjectData(const LLSD &pLinksetItem)
+{
+	llassert(pLinksetItem.has(LINKSET_NAME_FIELD));
+	llassert(pLinksetItem.get(LINKSET_NAME_FIELD).isString());
+	mName = pLinksetItem.get(LINKSET_NAME_FIELD).asString();
+	
+	llassert(pLinksetItem.has(LINKSET_DESCRIPTION_FIELD));
+	llassert(pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).isString());
+	mDescription = pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).asString();
+	
+	llassert(pLinksetItem.has(LINKSET_LAND_IMPACT_FIELD));
+	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).isInteger());
+	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
+	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
+	
+	if (pLinksetItem.has(LINKSET_MODIFIABLE_FIELD))
+	{
+		llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
+		mIsLocked = !pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
+	}
+	
+	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
+	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());
+	mLocation.setValue(pLinksetItem.get(LINKSET_POSITION_FIELD));
+}
+
+void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetItem)
+{
+	bool isPhantom = false;
+	if (pLinksetItem.has(LINKSET_PHANTOM_FIELD))
+	{
+		llassert(pLinksetItem.get(LINKSET_PHANTOM_FIELD).isBoolean());
+		isPhantom = pLinksetItem.get(LINKSET_PHANTOM_FIELD).asBoolean();
+	}
+	
+	llassert(pLinksetItem.has(LINKSET_PERMANENT_FIELD));
+	llassert(pLinksetItem.get(LINKSET_PERMANENT_FIELD).isBoolean());
+	bool isPermanent = pLinksetItem.get(LINKSET_PERMANENT_FIELD).asBoolean();
+	
+	llassert(pLinksetItem.has(LINKSET_WALKABLE_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABLE_FIELD).isBoolean());
+	bool isWalkable = pLinksetItem.get(LINKSET_WALKABLE_FIELD).asBoolean();
+	
+	mLinksetUse = getLinksetUse(isPhantom, isPermanent, isWalkable);
+	
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_A_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
+	mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
+	llassert(mWalkabilityCoefficientA >= MIN_WALKABILITY_VALUE);
+	llassert(mWalkabilityCoefficientA <= MAX_WALKABILITY_VALUE);
+	
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_B_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).isInteger());
+	mWalkabilityCoefficientB = pLinksetItem.get(LINKSET_WALKABILITY_B_FIELD).asInteger();
+	llassert(mWalkabilityCoefficientB >= MIN_WALKABILITY_VALUE);
+	llassert(mWalkabilityCoefficientB <= MAX_WALKABILITY_VALUE);
+	
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_C_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).isInteger());
+	mWalkabilityCoefficientC = pLinksetItem.get(LINKSET_WALKABILITY_C_FIELD).asInteger();
+	llassert(mWalkabilityCoefficientC >= MIN_WALKABILITY_VALUE);
+	llassert(mWalkabilityCoefficientC <= MAX_WALKABILITY_VALUE);
+	
+	llassert(pLinksetItem.has(LINKSET_WALKABILITY_D_FIELD));
+	llassert(pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).isInteger());
+	mWalkabilityCoefficientD = pLinksetItem.get(LINKSET_WALKABILITY_D_FIELD).asInteger();
+	llassert(mWalkabilityCoefficientD >= MIN_WALKABILITY_VALUE);
+	llassert(mWalkabilityCoefficientD <= MAX_WALKABILITY_VALUE);
 }
 
 LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable)

@@ -610,7 +610,7 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 				linksetIter != mLinksetsListPtr->end(); ++linksetIter)
 			{
 				const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
-				std::string linksetName = linksetPtr->getName();
+				std::string linksetName = (linksetPtr->isTerrain() ? getString("linkset_terrain_name") : linksetPtr->getName());
 				std::string linksetDescription = linksetPtr->getDescription();
 				LLStringUtil::toUpper(linksetName);
 				LLStringUtil::toUpper(linksetDescription);
@@ -643,22 +643,43 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 LLSD LLFloaterPathfindingLinksets::buildScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition)
 {
 	LLSD columns;
-
-	columns[0]["column"] = "name";
-	columns[0]["value"] = pLinksetPtr->getName();
-	columns[0]["font"] = "SANSSERIF";
-
-	columns[1]["column"] = "description";
-	columns[1]["value"] = pLinksetPtr->getDescription();
-	columns[1]["font"] = "SANSSERIF";
-
-	columns[2]["column"] = "land_impact";
-	columns[2]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
-	columns[2]["font"] = "SANSSERIF";
-
-	columns[3]["column"] = "dist_from_you";
-	columns[3]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
-	columns[3]["font"] = "SANSSERIF";
+	
+	if (pLinksetPtr->isTerrain())
+	{
+		columns[0]["column"] = "name";
+		columns[0]["value"] = getString("linkset_terrain_name");
+		columns[0]["font"] = "SANSSERIF";
+		
+		columns[1]["column"] = "description";
+		columns[1]["value"] = getString("linkset_terrain_description");
+		columns[1]["font"] = "SANSSERIF";
+		
+		columns[2]["column"] = "land_impact";
+		columns[2]["value"] = getString("linkset_terrain_land_impact");
+		columns[2]["font"] = "SANSSERIF";
+		
+		columns[3]["column"] = "dist_from_you";
+		columns[3]["value"] = getString("linkset_terrain_dist_from_you");
+		columns[3]["font"] = "SANSSERIF";
+	}
+	else
+	{
+		columns[0]["column"] = "name";
+		columns[0]["value"] = pLinksetPtr->getName();
+		columns[0]["font"] = "SANSSERIF";
+		
+		columns[1]["column"] = "description";
+		columns[1]["value"] = pLinksetPtr->getDescription();
+		columns[1]["font"] = "SANSSERIF";
+		
+		columns[2]["column"] = "land_impact";
+		columns[2]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+		columns[2]["font"] = "SANSSERIF";
+		
+		columns[3]["column"] = "dist_from_you";
+		columns[3]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+		columns[3]["font"] = "SANSSERIF";
+	}
 
 	columns[4]["column"] = "linkset_use";
 	std::string linksetUse;

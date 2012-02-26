@@ -49,7 +49,8 @@ public:
 
 	void update(const LLPathfindingLinksetList &pUpdateLinksetList);
 
-	LLSD encodeAlteredFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+	LLSD encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+	LLSD encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
 protected:
 
