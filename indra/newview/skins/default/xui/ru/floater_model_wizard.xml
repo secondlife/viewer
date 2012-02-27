@@ -20,6 +20,9 @@
 				Выберите файл модели для передачи
 			</text>
 			<button label="Обзор..." label_selected="Обзор..." name="browse"/>
+			<text name="Model types">
+				В Second Life поддерживаются файлы COLLADA (﻿.dae)
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>

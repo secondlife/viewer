@@ -1124,8 +1124,13 @@ Der Gruppe „[GROUP_NAME]“ [AREA] m² an Land schenken?
 	<notification name="DisplaySetToSafe">
 		Es wurden sichere Anzeige-Einstellungen gewählt, da die Option -safe verwendet wurde.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Es wurden die für Ihre Systemkonfiguration empfohlenen Anzeige-Einstellungen gewählt.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Die Anzeigeeinstellungen wurden auf die empfohlenen Werte gesetzt, da Ihre Grafikkarte geändert wurde
+von „[LAST_GPU]“
+in „[THIS_GPU]“
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		Aufgrund einer Änderung des Rendersubsystems wurden die Anzeigeeinstellungen auf die empfohlenen Werte gesetzt.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1443,7 +1448,7 @@ Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
 		<usetemplate ignoretext="Bestätigen, bevor Objekte an Ihre Eigentümer zurückgegeben werden" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Sie sind Mitglied der Gruppe [GROUP].
+		Sie sind Mitglied der Gruppe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
@@ -1926,7 +1931,13 @@ Inventarobjekt(e) verschieben?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Möchten Sie wirklich Ihre Standardschaltflächen und -symbolleisten wiederherstellen? 
+		Durch diese Aktion werden Ihre Standardschaltflächen und -symbolleisten wiederhergestellt.
+
+Diese Aktion kann nicht rückgängig gemacht werden.
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Durch diese Aktion werden alle Schaltflächen zurück in die Toolbox gestellt; die Symbolleisten sind leer.
     
 Diese Aktion kann nicht rückgängig gemacht werden.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -2250,14 +2261,16 @@ Wählen Sie ein einzelnes Objekt aus.
 		Ihre Visitenkarte wurde abgelehnt.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Meine Landmarken“ auswählen.
-Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf unten in der Registerkarte auf „Teleportieren“.
-(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleportieren“ auswählen).
+		Um zu Orten wie „[NAME]“ zu teleportieren, klicken Sie zuerst auf die Schaltfläche „Orte“
+    und dann im eingeblendeten Fenster auf die Registerkarte „Landmarken“. Klicken Sie auf
+    die gewünschte Landmarke und dann unten im Fenster auf „Teleportieren“.
+    (Sie können auch auf die Landmarke doppelklicken bzw. sie mit der rechten Maustaste ankklicken und dann
+    „Teleportieren“ wählen.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Sie können Einwohner wie „[NAME]“ kontaktieren, wenn Sie die Tafel „Leute“ auf der rechten Seite Ihres Bildschirms öffnen.
-Wählen Sie den Einwohner aus der Liste aus und klicken Sie unten auf „IM“.
-(Sie können auch auf den Namen doppelt klicken oder mit rechts auf den Namen klicken und dann „IM“ auswählen).
+		Um Einwohner wie „[NAME]“ zu kontaktieren, klicken Sie auf die Schaltfläche „Leute“, wählen Sie eingeblendeten Fenster einen Einwohner aus
+    und klicken Sie unten im Fenster auf „IM“.
+    (Sie können auch auf den Namen doppelklicken bzw. ihn mit der rechten Maustaste anklicken und dann „IM“ wählen.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Land kann nicht über Servergrenzen hinweg ausgewählt werden.
@@ -2276,6 +2289,9 @@ Wählen Sie eine kleinere Landfläche.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">

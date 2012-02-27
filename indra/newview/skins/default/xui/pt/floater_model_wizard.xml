@@ -20,6 +20,9 @@
 				Escolha o arquivo de modelo para upload
 			</text>
 			<button label="Procurar..." label_selected="Procurar..." name="browse"/>
+			<text name="Model types">
+				O Second Life oferece suporte a arquivos COLLADA (.dae)
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>

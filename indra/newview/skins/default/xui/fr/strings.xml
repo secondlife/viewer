@@ -1214,7 +1214,7 @@ Veuillez réessayer de vous connecter dans une minute.
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
 	<string name="InventoryInboxNoItems">
-		Ici seront livrés les articles achetés sur la Place du marché.
+		Lorsque vous achetez ou recevez un article, il s&apos;affiche ici. Vous pouvez alors le faire glisser vers un dossier de votre inventaire ou le supprimer si vous ne souhaitez pas le conserver.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1412,6 +1412,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="no_attachments">
 		Aucun élément attaché porté
 	</string>
+	<string name="Attachments remain">
+		Éléments attachés ([COUNT] emplacements restants)
+	</string>
 	<string name="Buy">
 		Acheter
 	</string>
@@ -1537,6 +1540,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Right Pec">
 		Pectoral droit
+	</string>
+	<string name="Neck">
+		Cou
+	</string>
+	<string name="Avatar Center">
+		Centre de l&apos;avatar
 	</string>
 	<string name="Invalid Attachment">
 		Point d&apos;attache non valide
@@ -4030,6 +4039,18 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Votre paiement de [AMOUNT] L$ à [NAME] [REASON] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Votre paiement de [AMOUNT] L$ a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Votre paiement de [AMOUNT] L$ à [NAME] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Votre paiement de [AMOUNT] L$ [REASON] a échoué.
+	</string>
 	<string name="for item">
 		pour l&apos;article suivant : [ITEM]
 	</string>
@@ -4440,6 +4461,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="ExternalEditorFailedToRun">
 		Échec d&apos;exécution de l&apos;éditeur externe.
 	</string>
+	<string name="TranslationFailed">
+		Échec de traduction : [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Erreur lors de l&apos;analyse de la réponse relative à la traduction.
+	</string>
 	<string name="Esc">
 		Échap
 	</string>
@@ -4810,7 +4837,7 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Mini-carte
 	</string>
 	<string name="Command_Move_Label">
-		Bouger
+		Marcher / Courir / Voler
 	</string>
 	<string name="Command_People_Label">
 		Personnes
@@ -4837,10 +4864,10 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Parler
 	</string>
 	<string name="Command_View_Label">
-		Affichage
+		Paramètres de la caméra
 	</string>
 	<string name="Command_Voice_Label">
-		Chat près de vous
+		Paramètres vocaux
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Information sur le terrain que vous visitez
@@ -4912,7 +4939,16 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Changer l&apos;angle de la caméra
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Personnes près de vous avec le chat vocal
+		Commandes de réglage du volume des appels et des personnes près de vous dans Second Life.
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		actuellement dans la barre d&apos;outils du bas
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		actuellement dans la barre d&apos;outils de gauche
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		actuellement dans la barre d&apos;outils de droite
 	</string>
 	<string name="Retain%">
 		Garder%
@@ -4937,5 +4973,20 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Très faible
+	</string>
+	<string name="snapshot_quality_low">
+		Faible
+	</string>
+	<string name="snapshot_quality_medium">
+		Moyenne
+	</string>
+	<string name="snapshot_quality_high">
+		Élevée
+	</string>
+	<string name="snapshot_quality_very_high">
+		Très élevée
 	</string>
 </strings>

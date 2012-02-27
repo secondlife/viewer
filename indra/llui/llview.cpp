@@ -121,6 +121,7 @@ LLView::Params::Params()
 
 LLView::LLView(const LLView::Params& p)
 :	mVisible(p.visible),
+	mInDraw(false),
 	mName(p.name),
 	mParentView(NULL),
 	mReshapeFlags(FOLLOWS_NONE),
@@ -333,6 +334,8 @@ void LLView::removeChild(LLView* child)
 	//llassert_always(sDepth == 0); // Avoid re-ordering while drawing; it can cause subtle iterator bugs
 	if (child->mParentView == this) 
 	{
+		// if we are removing an item we are currently iterating over, that would be bad
+		llassert(child->mInDraw == false);
 		mChildList.remove( child );
 		child->mParentView = NULL;
 		if (child->isCtrl())
@@ -1090,6 +1093,11 @@ void LLView::drawChildren()
 		{
 			child_list_reverse_iter_t child = child_iter++;
 			LLView *viewp = *child;
+			
+			if (viewp == NULL)
+			{
+				continue;
+			}
 
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
@@ -1099,7 +1107,10 @@ void LLView::drawChildren()
 					LLUI::pushMatrix();
 					{
 						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
+						// flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
+						viewp->mInDraw = true;
 						viewp->draw();
+						viewp->mInDraw = false;
 
 						if (sDebugRects)
 						{

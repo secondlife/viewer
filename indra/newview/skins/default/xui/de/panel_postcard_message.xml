@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_postcard_message">
+	<text name="to_label">
+		An:
+	</text>
+	<text name="name_label">
+		Von:
+	</text>
+	<text name="subject_label">
+		Betreff:
+	</text>
+	<line_editor label="Betreff hier eingeben." name="subject_form"/>
+	<text name="msg_label">
+		Nachricht:
+	</text>
+	<text_editor name="msg_form">
+		Nachricht hier eingeben.
+	</text_editor>
+	<button label="Abbrechen" name="cancel_btn"/>
+	<button label="Senden" name="send_btn"/>
+</panel>

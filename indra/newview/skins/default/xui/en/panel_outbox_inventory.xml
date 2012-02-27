@@ -8,7 +8,6 @@
     bg_opaque_color="DkGray2"
     bg_alpha_color="DkGray2"
     background_visible="true"
-    background_opaque="true"
     border="false"
     bevel_style="none"
     show_item_link_overlays="true"

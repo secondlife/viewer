@@ -284,7 +284,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="options_gear_btn_panel"
-				       user_resize="false"
 				       width="32">
 				          <menu_button
 				           follows="bottom|left"
@@ -305,7 +304,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="add_btn_panel"
-				       user_resize="false"
 				       width="32">
 				          <button
 				           follows="bottom|left"
@@ -326,7 +324,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="dummy_panel"
-				       user_resize="false"
 				       width="210">
 				          <icon
 				           follows="bottom|left|right"
@@ -343,7 +340,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 				       height="25"
 				       layout="topleft"
 				       name="trash_btn_panel"
-				       user_resize="false"
 				       width="31">
 				          <dnd_button
 				           follows="bottom|left"
@@ -602,7 +598,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			layout="bottomleft"
 			left="0"
 			name="view_profile_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="68">
 				<button
@@ -623,7 +618,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			layout="bottomleft"
 			left_pad="3"
 			name="im_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="41">
 				<button
@@ -644,7 +638,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			layout="bottomleft"
 			left_pad="3"
 			name="call_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="52">
 				<button
@@ -665,7 +658,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			layout="bottomleft"
 			left_pad="3"
 			name="share_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="66">
 				<button
@@ -686,7 +678,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			layout="bottomleft"
 			left_pad="3"
 			name="teleport_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="77">
 				<button
@@ -720,7 +711,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			left="0"			
 			mouse_opaque="false"
 			name="group_info_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="108">
 				<button
@@ -743,7 +733,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			left_pad="3"
 			mouse_opaque="false"
 			name="chat_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="101">
 				<button
@@ -766,7 +755,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 			left_pad="3"
 			mouse_opaque="false"
 			name="group_call_btn_lp"
-		    user_resize="false" 
 		    auto_resize="true"
 			width="96">
 				<button

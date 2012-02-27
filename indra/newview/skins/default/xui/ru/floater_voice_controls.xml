@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="УПРАВЛЕНИЕ ГОЛОСОМ">
 	<string name="title_nearby">
-		Настройки голоса
+		НАСТРОЙКИ ГОЛОСА
 	</string>
 	<string name="title_group">
-		Звонок группе [GROUP]
+		ЗВОНОК ГРУППЕ [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Конференция
+		КОНФЕРЕНЦИЯ
 	</string>
 	<string name="title_peer_2_peer">
-		Звонок пользователю [NAME]
+		ЗВОНОК ПОЛЬЗОВАТЕЛЮ [NAME]
 	</string>
 	<string name="no_one_near">
 		Нет никого с включенным голосом

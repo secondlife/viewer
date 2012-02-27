@@ -65,7 +65,7 @@ public:
 			return;
 		}
 
-		U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
+		volatile U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
 
 		//assume tex coords 2 and 3 are present
 		U32 type_mask = mTypeMask | MAP_TEXCOORD2 | MAP_TEXCOORD3;
