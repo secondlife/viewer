@@ -2997,10 +2997,10 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 }
 
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
-			{
-		LLNameValue *title = getNVPair("Title");
-		LLNameValue* firstname = getNVPair("FirstName");
-		LLNameValue* lastname = getNVPair("LastName");
+{
+	LLNameValue *title = getNVPair("Title");
+	LLNameValue* firstname = getNVPair("FirstName");
+	LLNameValue* lastname = getNVPair("LastName");
 
 	// Avatars must have a first and last name
 	if (!firstname || !lastname) return;
@@ -7452,7 +7452,10 @@ void LLVOAvatar::onInitialBakedTextureLoaded( BOOL success, LLViewerFetchedTextu
 	}
 }
 
-void LLVOAvatar::onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
+// Static
+void LLVOAvatar::onBakedTextureLoaded(BOOL success,
+									  LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src,
+									  S32 discard_level, BOOL final, void* userdata)
 {
 	//llinfos << "onBakedTextureLoaded: " << src_vi->getID() << llendl;
 
@@ -7461,7 +7464,7 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
 	if (selfp)
 	{	
-		llinfos << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << llendl;
+		llinfos << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << " id " << src_vi->getID() << llendl;
 	}
 
 	if (selfp && !success)
@@ -7496,6 +7499,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 		LLViewerTexture* image_baked = getImage( mBakedTextureDatas[i].mTextureIndex, 0 );
 		if (id == image_baked->getID())
 		{
+			llinfos << avString() << " i " << i << " id " << id << llendl;
 			mBakedTextureDatas[i].mIsLoaded = true;
 			mBakedTextureDatas[i].mLastTextureIndex = id;
 			mBakedTextureDatas[i].mIsUsed = true;
