@@ -269,8 +269,6 @@ public:
 	BOOL			isResizable() const				{ return mResizable; }
 	void			setResizeLimits( S32 min_width, S32 min_height );
 	void			getResizeLimits( S32* min_width, S32* min_height ) { *min_width = mMinWidth; *min_height = mMinHeight; }
-	LLRect			getSavedRect() const;
-	bool			hasSavedRect() const;
 
 	static std::string		getControlName(const std::string& name, const LLSD& key);
 	static LLControlGroup*	getControlGroup();
@@ -361,6 +359,8 @@ protected:
 	virtual bool	applyRectControl();
 	bool			applyDockState();
 	void			applyPositioning(LLFloater* other);
+	void			applyRelativePosition();
+
 	void			storeRectControl();
 	void			storeVisibilityControl();
 	void			storeDockStateControl();
@@ -424,7 +424,10 @@ public:
 	commit_signal_t* mMinimizeSignal;
 
 protected:
+	bool			mSaveRect;
 	std::string		mRectControl;
+	std::string		mPosXControl;
+	std::string		mPosYControl;
 	std::string		mVisibilityControl;
 	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg

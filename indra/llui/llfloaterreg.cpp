@@ -358,9 +358,7 @@ void LLFloaterReg::restoreVisibleInstances()
 //static
 std::string LLFloaterReg::getRectControlName(const std::string& name)
 {
-	std::string res = std::string("floater_rect_") + name;
-	LLStringUtil::replaceChar( res, ' ', '_' );
-	return res;
+	return std::string("floater_rect_") + getBaseControlName(name);
 }
 
 //static
@@ -368,18 +366,47 @@ std::string LLFloaterReg::declareRectControl(const std::string& name)
 {
 	std::string controlname = getRectControlName(name);
 	LLFloater::getControlGroup()->declareRect(controlname, LLRect(),
-												 llformat("Window Position and Size for %s", name.c_str()),
+												 llformat("Window Size for %s", name.c_str()),
 												 TRUE);
 	return controlname;
 }
 
+std::string LLFloaterReg::declarePosXControl(const std::string& name)
+{
+	std::string controlname = std::string("floater_pos_x_") + getBaseControlName(name);
+	LLFloater::getControlGroup()->declareF32(controlname, 
+											10.f,
+											llformat("Window X Position for %s", name.c_str()),
+											TRUE);
+	return controlname;
+}
+
+std::string LLFloaterReg::declarePosYControl(const std::string& name)
+{
+	std::string controlname = std::string("floater_pos_y_") + getBaseControlName(name);
+	LLFloater::getControlGroup()->declareF32(controlname,
+											10.f,
+											llformat("Window Y Position for %s", name.c_str()),
+											TRUE);
+
+	return controlname;
+}
+
+
 //static
 std::string LLFloaterReg::getVisibilityControlName(const std::string& name)
 {
-	std::string res = std::string("floater_vis_") + name;
+	return std::string("floater_vis_") + getBaseControlName(name);
+}
+
+//static 
+std::string LLFloaterReg::getBaseControlName(const std::string& name)
+{
+	std::string res(name);
 	LLStringUtil::replaceChar( res, ' ', '_' );
 	return res;
 }
+
 
 //static
 std::string LLFloaterReg::declareVisibilityControl(const std::string& name)

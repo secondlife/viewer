@@ -543,9 +543,17 @@ LLFloater::~LLFloater()
 
 void LLFloater::storeRectControl()
 {
-	if( mRectControl.size() > 1 )
+	if (!mRectControl.empty())
 	{
 		getControlGroup()->setRect( mRectControl, getRect() );
+	}
+	if (!mPosXControl.empty() && mPositioning == LLFloaterEnums::POSITIONING_RELATIVE)
+	{
+		getControlGroup()->setF32( mPosXControl, mPosition.mX );
+	}
+	if (!mPosYControl.empty() && mPositioning == LLFloaterEnums::POSITIONING_RELATIVE)
+	{
+		getControlGroup()->setF32( mPosYControl, mPosition.mY );
 	}
 }
 
@@ -563,23 +571,6 @@ void LLFloater::storeDockStateControl()
 	{
 		getControlGroup()->setBOOL( mDocStateControl, isDocked() );
 	}
-}
-
-LLRect LLFloater::getSavedRect() const
-{
-	LLRect rect;
-
-	if (mRectControl.size() > 1)
-	{
-		rect = getControlGroup()->getRect(mRectControl);
-	}
-
-	return rect;
-}
-
-bool LLFloater::hasSavedRect() const
-{
-	return !getSavedRect().isEmpty();
 }
 
 // static
@@ -875,18 +866,39 @@ bool LLFloater::applyRectControl()
 		mRectControl.clear();
 		mPositioning = LLFloaterEnums::POSITIONING_CASCADE_GROUP;
 	}
-	else if (mRectControl.size() > 1)
+	else
 	{
-		// If we have a saved rect, use it
-		const LLRect& rect = getControlGroup()->getRect(mRectControl);
-		saved_rect = rect.notEmpty();
-		if (saved_rect)
+		if (!mRectControl.empty())
 		{
-			setOrigin(rect.mLeft, rect.mBottom);
-
-			if (mResizable)
+			// If we have a saved rect, use it
+			const LLRect& rect = getControlGroup()->getRect(mRectControl);
+			if (rect.notEmpty()) saved_rect = true;
+			if (saved_rect)
 			{
-				reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
+				setOrigin(rect.mLeft, rect.mBottom);
+
+				if (mResizable)
+				{
+					reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
+				}
+			}
+		}
+
+		if (!mPosXControl.empty() && !mPosYControl.empty())
+		{
+			LLControlVariablePtr x_control = getControlGroup()->getControl(mPosXControl);
+			LLControlVariablePtr y_control = getControlGroup()->getControl(mPosYControl);
+			if (x_control.notNull() 
+				&& y_control.notNull()
+				&& !x_control->isDefault()
+				&& !y_control->isDefault())
+			{
+				mPosition.mX = x_control->getValue().asReal();
+				mPosition.mY = y_control->getValue().asReal();
+				mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+				applyRelativePosition();
+
+				saved_rect = true;
 			}
 		}
 	}
@@ -949,14 +961,8 @@ void LLFloater::applyPositioning(LLFloater* other)
 
 	case LLFloaterEnums::POSITIONING_RELATIVE:
 		{
-			LLRect snap_rect = gFloaterView->getSnapRect();
-			LLRect floater_view_screen_rect = gFloaterView->calcScreenRect();
-			snap_rect.translate(floater_view_screen_rect.mLeft, floater_view_screen_rect.mBottom);
-			LLRect floater_screen_rect = calcScreenRect();
+			applyRelativePosition();
 
-			LLCoordGL new_center = mPosition.convert();
-			LLCoordGL cur_center(floater_screen_rect.getCenterX(), floater_screen_rect.getCenterY());
-			translate(new_center.mX - cur_center.mX, new_center.mY - cur_center.mY);
 			break;
 		}
 	default:
@@ -1630,7 +1636,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		self->openFloater(self->getKey());
 		
 		// only force position for floaters that don't have that data saved
-		if (self->mRectControl.size() <= 1)
+		if (self->mRectControl.empty())
 		{
 			new_rect.setLeftTopAndSize(host_floater->getRect().mLeft + 5, host_floater->getRect().mTop - floater_header_size - 5, self->getRect().getWidth(), self->getRect().getHeight());
 			self->setRect(new_rect);
@@ -2918,9 +2924,11 @@ void LLFloater::setInstanceName(const std::string& name)
 		std::string ctrl_name = getControlName(mInstanceName, mKey);
 
 		// save_rect and save_visibility only apply to registered floaters
-		if (!mRectControl.empty())
+		if (mSaveRect)
 		{
 			mRectControl = LLFloaterReg::declareRectControl(ctrl_name);
+			mPosXControl = LLFloaterReg::declarePosXControl(ctrl_name);
+			mPosYControl = LLFloaterReg::declarePosYControl(ctrl_name);
 		}
 		if (!mVisibilityControl.empty())
 		{
@@ -3001,10 +3009,7 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 
 	mPositioning = p.positioning;
 
-	if (p.save_rect && mRectControl.empty())
-	{
-		mRectControl = "t"; // flag to build mRectControl name once mInstanceName is set
-	}
+	mSaveRect = p.save_rect;
 	if (p.save_visibility)
 	{
 		mVisibilityControl = "t"; // flag to build mVisibilityControl name once mInstanceName is set
@@ -3282,6 +3287,19 @@ void LLFloater::stackWith(LLFloater& other)
 	other.mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
 	other.setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
 }
+
+void LLFloater::applyRelativePosition()
+{
+	LLRect snap_rect = gFloaterView->getSnapRect();
+	LLRect floater_view_screen_rect = gFloaterView->calcScreenRect();
+	snap_rect.translate(floater_view_screen_rect.mLeft, floater_view_screen_rect.mBottom);
+	LLRect floater_screen_rect = calcScreenRect();
+
+	LLCoordGL new_center = mPosition.convert();
+	LLCoordGL cur_center(floater_screen_rect.getCenterX(), floater_screen_rect.getCenterY());
+	translate(new_center.mX - cur_center.mX, new_center.mY - cur_center.mY);
+}
+
 
 LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
 :	coord_t(x, y)
