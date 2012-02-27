@@ -3365,7 +3365,7 @@ void LLVOAvatar::slamPosition()
 	mRoot.updateWorldMatrixChildren();
 }
 
-bool LLVOAvatar::isVisuallyMuted()
+bool LLVOAvatar::isVisuallyMuted() const
 {
 	static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
 	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
@@ -3434,7 +3434,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	if (visible && !isSelf() && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+	if (visible && (!isSelf() || isVisuallyMuted()) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
@@ -3474,6 +3474,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
 	}
+	else
+	{
+		mUpdatePeriod = 1;
+	}
+
 
 	// don't early out for your own avatar, as we rely on your animations playing reliably
 	// for example, the "turn around" animation when entering customize avatar needs to trigger
@@ -5029,7 +5034,7 @@ void LLVOAvatar::addDebugText(const std::string& text)
 //-----------------------------------------------------------------------------
 // getID()
 //-----------------------------------------------------------------------------
-const LLUUID& LLVOAvatar::getID()
+const LLUUID& LLVOAvatar::getID() const
 {
 	return mID;
 }
@@ -8296,7 +8301,7 @@ void LLVOAvatar::updateImpostors()
 
 BOOL LLVOAvatar::isImpostor() const
 {
-	return (sUseImpostors && mUpdatePeriod >= IMPOSTOR_PERIOD) ? TRUE : FALSE;
+	return (isVisuallyMuted() || (sUseImpostors && mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
 }
 
 
