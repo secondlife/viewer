@@ -1811,6 +1811,10 @@ static LLFastTimer::DeclareTimer FTM_MOUSEHANDLER("Handle Mouse");
 
 LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
+	// Ignore clicks not originated in the client area, i.e. mouse-up events not preceded with a WM_LBUTTONDOWN.
+	// This helps prevent avatar walking after maximizing the window by double-clicking the title bar.
+	static bool sHandleLeftMouseUp = true;
+
 	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(h_wnd, GWL_USERDATA);
 
 
@@ -2157,10 +2161,20 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(FALSE));
 			return 0;
 
+		case WM_NCLBUTTONDOWN:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_NCLBUTTONDOWN");
+				// A click in a non-client area, e.g. title bar or window border.
+				sHandleLeftMouseUp = false;
+			}
+			break;
+
 		case WM_LBUTTONDOWN:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONDOWN");
 				LLFastTimer t2(FTM_MOUSEHANDLER);
+				sHandleLeftMouseUp = true;
+
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
 					window_imp->interruptLanguageTextInput();
@@ -2225,6 +2239,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONUP");
 				LLFastTimer t2(FTM_MOUSEHANDLER);
+
+				if (!sHandleLeftMouseUp)
+				{
+					sHandleLeftMouseUp = true;
+					break;
+				}
+
 				//if (gDebugClicks)
 				//{
 				//	LL_INFOS("Window") << "WndProc left button up" << LL_ENDL;
