@@ -1271,10 +1271,22 @@ BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 	Rect client_rect;
 	if (mWindow && GetWindowBounds(mWindow, kWindowContentRgn, &client_rect) != noErr)
 	{
-		client_rect.right = client_rect.left + size.mX;
-		client_rect.bottom = client_rect.top + size.mY;
-		OSStatus err = SetWindowBounds(mWindow, kWindowContentRgn, &client_rect);
-		return err == noErr;
+		OSStatus err = getWindowBounds(mWindow, kWindowContentRgn, &client_rect);
+		if (err == noErr)
+		{
+			client_rect.right = client_rect.left + size.mX;
+			client_rect.bottom = client_rect.top + size.mY;
+			err = SetWindowBounds(mWindow, kWindowContentRgn, &client_rect);
+		}
+		if (err == noErr)
+		{
+			return TRUE;
+		}
+		else
+		{
+			llinfos << "Error setting size" << err << llendl;
+			return FALSE;
+		}
 	}
 	return FALSE;
 }

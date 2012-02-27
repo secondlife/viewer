@@ -872,6 +872,15 @@ BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 		return FALSE;
 	}
 
+	WINDOWPLACEMENT placement;
+	placement.length = sizeof(WINDOWPLACEMENT);
+
+	if (!GetWindowPlacement(mWindowHandle, &placement)) return FALSE;
+
+	placement.showCmd = SW_RESTORE;
+
+	if (!SetWindowPlacement(mWindowHandle, &placement)) return FALSE;
+
 	moveWindow(position, size);
 	return TRUE;
 }
