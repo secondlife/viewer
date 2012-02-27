@@ -620,7 +620,7 @@ namespace tut
         // guaranteed to exist on every machine, under every OS? Have to
         // create one. Naturally, ensure we clean it up when done.
         NamedTempDir tempdir;
-        PythonProcessLauncher py("getcwd()",
+        PythonProcessLauncher py(get_test_name(),
                                  "from __future__ import with_statement\n"
                                  "import os, sys\n"
                                  "with open(sys.argv[1], 'w') as f:\n"
@@ -634,7 +634,7 @@ namespace tut
     void object::test<3>()
     {
         set_test_name("arguments");
-        PythonProcessLauncher py("args",
+        PythonProcessLauncher py(get_test_name(),
                                  "from __future__ import with_statement\n"
                                  "import sys\n"
                                  // note nonstandard output-file arg!
@@ -668,7 +668,7 @@ namespace tut
     void object::test<4>()
     {
         set_test_name("exit(0)");
-        PythonProcessLauncher py("exit(0)",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.exit(0)\n");
         py.run();
@@ -680,7 +680,7 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("exit(2)");
-        PythonProcessLauncher py("exit(2)",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.exit(2)\n");
         py.run();
@@ -692,7 +692,7 @@ namespace tut
     void object::test<6>()
     {
         set_test_name("syntax_error:");
-        PythonProcessLauncher py("syntax_error:",
+        PythonProcessLauncher py(get_test_name(),
                                  "syntax_error:\n");
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdin
         py.mParams.files.add(LLProcess::FileParam()); // inherit stdout
@@ -713,7 +713,7 @@ namespace tut
     void object::test<7>()
     {
         set_test_name("explicit kill()");
-        PythonProcessLauncher py("kill()",
+        PythonProcessLauncher py(get_test_name(),
                                  "from __future__ import with_statement\n"
                                  "import sys, time\n"
                                  "with open(sys.argv[1], 'w') as f:\n"
@@ -750,7 +750,7 @@ namespace tut
         // If kill() failed, the script would have woken up on its own and
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
-        ensure_equals("kill() script output", readfile(out.getName()), "ok");
+        ensure_equals(get_test_name() + " script output", readfile(out.getName()), "ok");
     }
 
     template<> template<>
@@ -760,7 +760,7 @@ namespace tut
         NamedTempFile out("out", "not started");
         LLProcess::handle phandle(0);
         {
-            PythonProcessLauncher py("kill()",
+            PythonProcessLauncher py(get_test_name(),
                                      "from __future__ import with_statement\n"
                                      "import sys, time\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
@@ -792,7 +792,7 @@ namespace tut
         // If kill() failed, the script would have woken up on its own and
         // overwritten the file with 'bad'. But if kill() succeeded, it should
         // not have had that chance.
-        ensure_equals("kill() script output", readfile(out.getName()), "ok");
+        ensure_equals(get_test_name() + " script output", readfile(out.getName()), "ok");
     }
 
     template<> template<>
@@ -803,7 +803,7 @@ namespace tut
         NamedTempFile to("to", "");
         LLProcess::handle phandle(0);
         {
-            PythonProcessLauncher py("autokill",
+            PythonProcessLauncher py(get_test_name(),
                                      "from __future__ import with_statement\n"
                                      "import sys, time\n"
                                      "with open(sys.argv[1], 'w') as f:\n"
@@ -852,7 +852,7 @@ namespace tut
         waitfor(phandle, "autokill script");
         // If the LLProcess destructor implicitly called kill(), the
         // script could not have written 'ack' as we expect.
-        ensure_equals("autokill script output", readfile(from.getName()), "ack");
+        ensure_equals(get_test_name() + " script output", readfile(from.getName()), "ack");
     }
 
     template<> template<>
@@ -860,7 +860,7 @@ namespace tut
     {
         set_test_name("'bogus' test");
         TestRecorder recorder;
-        PythonProcessLauncher py("'bogus' test",
+        PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam("bogus"));
         py.mPy = LLProcess::create(py.mParams);
@@ -876,7 +876,7 @@ namespace tut
         set_test_name("'file' test");
         // Replace this test with one or more real 'file' tests when we
         // implement 'file' support
-        PythonProcessLauncher py("'file' test",
+        PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam());
         py.mParams.files.add(LLProcess::FileParam("file"));
@@ -891,7 +891,7 @@ namespace tut
         // Replace this test with one or more real 'tpipe' tests when we
         // implement 'tpipe' support
         TestRecorder recorder;
-        PythonProcessLauncher py("'tpipe' test",
+        PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam());
         py.mParams.files.add(LLProcess::FileParam("tpipe"));
@@ -909,7 +909,7 @@ namespace tut
         // Replace this test with one or more real 'npipe' tests when we
         // implement 'npipe' support
         TestRecorder recorder;
-        PythonProcessLauncher py("'npipe' test",
+        PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam());
         py.mParams.files.add(LLProcess::FileParam());
@@ -926,7 +926,7 @@ namespace tut
     {
         set_test_name("internal pipe name warning");
         TestRecorder recorder;
-        PythonProcessLauncher py("pipe warning",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.exit(7)\n");
         py.mParams.files.add(LLProcess::FileParam("pipe", "somename"));
@@ -990,7 +990,7 @@ namespace tut
     void object::test<15>()
     {
         set_test_name("get*Pipe() validation");
-        PythonProcessLauncher py("just stderr",
+        PythonProcessLauncher py(get_test_name(),
                                  "print 'this output is expected'\n");
         py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for  stdin
         py.mParams.files.add(LLProcess::FileParam());       // inherit stdout
@@ -1010,7 +1010,7 @@ namespace tut
     void object::test<16>()
     {
         set_test_name("talk to stdin/stdout");
-        PythonProcessLauncher py("stdin/stdout",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys, time\n"
                                  "print 'ok'\n"
                                  "sys.stdout.flush()\n"
@@ -1071,7 +1071,7 @@ namespace tut
     void object::test<17>()
     {
         set_test_name("listen for ReadPipe events");
-        PythonProcessLauncher py("ReadPipe listener",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.stdout.write('abc')\n"
                                  "sys.stdout.flush()\n"
@@ -1131,7 +1131,7 @@ namespace tut
     void object::test<18>()
     {
         set_test_name("setLimit()");
-        PythonProcessLauncher py("setLimit()",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.stdout.write(sys.argv[1])\n");
         std::string abc("abcdefghijklmnopqrstuvwxyz");
@@ -1160,7 +1160,7 @@ namespace tut
     void object::test<19>()
     {
         set_test_name("peek() ReadPipe data");
-        PythonProcessLauncher py("peek() ReadPipe",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.stdout.write(sys.argv[1])\n");
         std::string abc("abcdefghijklmnopqrstuvwxyz");
@@ -1213,7 +1213,7 @@ namespace tut
     void object::test<20>()
     {
         set_test_name("good postend");
-        PythonProcessLauncher py("postend",
+        PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.exit(35)\n");
         std::string pumpname("postend");
@@ -1247,7 +1247,7 @@ namespace tut
         std::string pumpname("postend");
         EventListener listener(LLEventPumps::instance().obtain(pumpname));
         LLProcess::Params params;
-        params.desc = "bad postend";
+        params.desc = get_test_name();
         params.postend = pumpname;
         LLProcessPtr child = LLProcess::create(params);
         ensure("shouldn't have launched", ! child);
