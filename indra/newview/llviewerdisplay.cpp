@@ -1015,9 +1015,9 @@ void render_navmesh( bool& allowRenderables, bool& exclusiveNavDraw )
 				exclusiveNavDraw = true;
 			}
 			//physics/exclusion shapes
-			if ( pathfindingConsole->isRenderExclusionVolumes() )
+			if ( pathfindingConsole->isRenderAnyShapes() )
 			{						
-				llPathingLibInstance->renderNavMeshShapesVBO();
+				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );
 				exclusiveNavDraw = true;
 			}	
 			//User designated path

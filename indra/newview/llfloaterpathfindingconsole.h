@@ -95,6 +95,9 @@ public:
 
 	BOOL isRenderWorld() const;
 	void setRenderWorld(BOOL pIsRenderWorld);
+	
+	BOOL isRenderAnyShapes() const;
+	U32  getRenderShapeFlags();
 
 	ERenderHeatmapType getRenderHeatmapType() const;
 	void               setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType);
@@ -133,6 +136,8 @@ private:
 
 	void generatePath();
 	void updatePathTestStatus();
+	void resetShapeRenderFlags() { mShapeRenderFlags = 0; }
+	void setShapeRenderFlag( LLPathingLib::LLShapeType type ) { mShapeRenderFlags |= (1<<type); }
 
 	LLRootHandle<LLFloaterPathfindingConsole> mSelfHandle;
 	LLCheckBoxCtrl                            *mShowNavMeshCheckBox;
@@ -165,7 +170,7 @@ private:
 	LLPathingLib::PathingPacket		mPathData;
 	bool mHasStartPoint;
 	bool mHasEndPoint;
-
+	U32							mShapeRenderFlags;
 	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
 };
 
