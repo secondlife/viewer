@@ -43,6 +43,7 @@
 #include "llsd.h"
 #include "llthread.h"
 #include "llqueuedthread.h"
+#include "llframetimer.h"
 
 class LLMutex;
 class LLCurlThread;
@@ -162,7 +163,7 @@ public:
 	/**
 	 * @ brief Initialize LLCurl class
 	 */
-	static void initClass(bool multi_threaded = false);
+	static void initClass(F32 curl_reuest_timeout = 120.f, S32 max_number_handles = 256, bool multi_threaded = false);
 
 	/**
 	 * @ brief Cleanup LLCurl class
@@ -182,11 +183,24 @@ public:
 	static unsigned long ssl_thread_id(void);
 
 	static LLCurlThread* getCurlThread() { return sCurlThread ;}
+
+	static CURLM* newMultiHandle() ;
+	static CURLMcode deleteMultiHandle(CURLM* handle) ;
+	static CURL*  newEasyHandle() ;
+	static void   deleteEasyHandle(CURL* handle) ;
+
 private:
 	static std::string sCAPath;
 	static std::string sCAFile;
 	static const unsigned int MAX_REDIRECTS;
 	static LLCurlThread* sCurlThread;
+
+	static LLMutex* sHandleMutexp ;
+	static S32      sTotalHandles ;
+	static S32      sMaxHandles;
+public:
+	static bool     sNotQuitting;
+	static F32      sCurlRequestTimeOut;	
 };
 
 class LLCurl::Easy
@@ -253,6 +267,7 @@ private:
 
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
+	static LLMutex*        sHandleMutexp ;
 };
 
 class LLCurl::Multi
@@ -276,7 +291,7 @@ public:
 		STATE_COMPLETED=2
 	} ePerformState;
 
-	Multi();	
+	Multi(F32 idle_time_out = 0.f);	
 
 	LLCurl::Easy* allocEasy();
 	bool addEasy(LLCurl::Easy* easy);	
@@ -287,7 +302,10 @@ public:
 
 	void setState(ePerformState state) ;
 	ePerformState getState() ;
+	
 	bool isCompleted() ;
+	bool isValid() {return mCurlMultiHandle != NULL ;}
+	bool isDead() {return mDead;}
 
 	bool waitToComplete() ;
 
@@ -300,6 +318,7 @@ public:
 	
 private:
 	void easyFree(LLCurl::Easy*);
+	void cleanup() ;
 	
 	CURLM* mCurlMultiHandle;
 
@@ -316,6 +335,9 @@ private:
 	BOOL mDead ;
 	LLMutex* mMutexp ;
 	LLMutex* mDeletionMutexp ;
+	LLMutex* mEasyMutexp ;
+	LLFrameTimer mIdleTimer ;
+	F32 mIdleTimeOut;
 };
 
 class LLCurlThread : public LLQueuedThread
@@ -344,7 +366,7 @@ public:
 	LLCurlThread(bool threaded = true) ;
 	virtual ~LLCurlThread() ;
 
-	S32 update(U32 max_time_ms);
+	S32 update(F32 max_time_ms);
 
 	void addMulti(LLCurl::Multi* multi) ;
 	void killMulti(LLCurl::Multi* multi) ;
@@ -352,6 +374,7 @@ public:
 private:
 	bool doMultiPerform(LLCurl::Multi* multi) ;
 	void deleteMulti(LLCurl::Multi* multi) ;
+	void cleanupMulti(LLCurl::Multi* multi) ;
 } ;
 
 namespace boost
@@ -409,6 +432,7 @@ public:
 	std::string getErrorString();
 	bool isCompleted() {return mMulti->isCompleted() ;}
 	bool wait() { return mMulti->waitToComplete(); }
+	bool isValid() {return mMulti && mMulti->isValid(); }
 
 	LLCurl::Easy* getEasy() const { return mEasy; }
 

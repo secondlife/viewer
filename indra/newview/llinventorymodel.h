@@ -64,6 +64,7 @@ class LLInventoryCollectFunctor;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryModel
 {
+	LOG_CLASS(LLInventoryModel);
 public:
 	friend class LLInventoryModelFetchDescendentsResponder;
 
@@ -238,6 +239,9 @@ public:
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
+	
+	// Get first descendant of the child object under the specified parent
+	const LLViewerInventoryCategory *getFirstDescendantOf(const LLUUID& master_parent_id, const LLUUID& obj_id) const;
 
 	// Get the object by id. Returns NULL if not found.
 	//   NOTE: Use the pointer returned for read operations - do
@@ -360,7 +364,9 @@ public:
 	// name based on type, pass in a NULL to the 'name' parameter.
 	LLUUID createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
-							 const std::string& name);
+							 const std::string& name,
+							 void (*callback)(const LLSD&, void*) = NULL,
+							 void* user_data = NULL );
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods

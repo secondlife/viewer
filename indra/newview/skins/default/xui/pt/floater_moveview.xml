@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater" title="MOVER">
+<floater name="move_floater" title="ANDAR/CORRER/VOAR">
 	<string name="walk_forward_tooltip">
 		Andar para frente (flecha para cima ou W)
 	</string>

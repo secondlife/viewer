@@ -26,8 +26,7 @@
          mouse_opaque="false"
          width="145"
          top="0"
-         name="speakers_list_panel"
-         user_resize="false">
+         name="speakers_list_panel">
             <avatar_list
              color="DkGray2"
              follows="all"
@@ -48,8 +47,7 @@
          layout="topleft"
          min_height="28"
          width="130"
-         name="group_info_btn_panel"
-         user_resize="false">
+         name="group_info_btn_panel">
             <button
              follows="left|right|bottom"
              height="23"
@@ -66,8 +64,7 @@
          layout="topleft"
          min_height="28"
          width="130"
-         name="call_btn_panel"
-         user_resize="false">
+         name="call_btn_panel">
             <button
              follows="all"
              height="23"
@@ -84,7 +81,6 @@
          min_height="28"
          width="130"
          name="end_call_btn_panel"
-         user_resize="false"
          visible="false">
             <button
              follows="all"
@@ -101,7 +97,6 @@
          min_height="28"
          width="130"
          name="voice_ctrls_btn_panel"
-         user_resize="false"
          visible="false">
             <button
              follows="all"

@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<outbox_inventory_panel show_load_status="false" />
+<outbox_inventory_panel show_empty_message="false" show_load_status="false" />

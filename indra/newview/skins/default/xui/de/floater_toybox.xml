@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Toybox" title="SYMBOLLEISTEN ANPASSEN">
+<floater name="Toybox" title="SYMBOLLEISTENSCHALTFLÄCHEN">
 	<text name="toybox label 1">
 		Sie können Schaltflächen durch Ziehen zu Symbolleisten hinzufügen oder daraus entfernen.
 	</text>
 	<text name="toybox label 2">
 		Je nach Einstellung erscheinen Schaltflächen wie dargestellt oder nur als Symbol.
 	</text>
+	<button label="Alle Symbolleisten leeren" label_selected="Alle Symbolleisten leeren" name="btn_clear_all"/>
 	<button label="Standards wiederherstellen" label_selected="Standards wiederherstellen" name="btn_restore_defaults"/>
 </floater>

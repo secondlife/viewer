@@ -129,7 +129,7 @@
 				Trafik:
 			</text>
 			<text name="DwellText">
-				0
+				Yükleniyor...
 			</text>
 			<button label="Arazi Satın Al" name="Buy Land..."/>
 			<button label="Linden Satışı" name="Linden Sale..." tool_tip="Arazinin sahip olunması, içeriğinin ayarlanması ve ihaleye çıkmamış olması gerekir"/>
@@ -307,13 +307,15 @@ Sadece büyük parseller aramada görünür.
 				İtme Yok (Bölge Geçersiz Kılma)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Parseldeki sakinleri gör ve onlarla sohbet et
+				Diğer parsellerdeki avatarlar bu
 			</panel.string>
 			<text name="allow_label">
 				Sakinlere şunun için izin ver:
 			</text>
-			<check_box label="Yüzeyi Düzenle" name="edit land check" tool_tip="İşaretliyse herkes arazinizi şekillendirebilir. en iyisi bunu işaretlememektir, çünkü kendi arazinizi her zaman düzenleyebilirsiniz."/>
-			<check_box label="Uç" name="check fly" tool_tip="İşaretliyse Sakinler arazinizden uçabilir. İşaretli değilse, sadece arazinize ve arazinizin üzerinde uçabilir."/>
+			<text name="allow_label0">
+				Uçma:
+			</text>
+			<check_box label="Herkes" name="check fly" tool_tip="İşaretliyse Sakinler arazinizden uçabilir. İşaretli değilse, sadece arazinize ve arazinizin üzerinde uçabilir."/>
 			<text name="allow_label2">
 				İnşa Et:
 			</text>
@@ -329,9 +331,6 @@ Sadece büyük parseller aramada görünür.
 			</text>
 			<check_box label="Herkes" name="check other scripts"/>
 			<check_box label="Grup" name="check group scripts"/>
-			<text name="land_options_label">
-				Arazi Seçenekleri:
-			</text>
 			<check_box label="Güvenli (hasar yok)" name="check safe" tool_tip="İşaretliyse, araziyi Güvenli moda getirerek hasar çarpışmasını etkinsizleştirir İşaretli değilse hasar çarpışması etkinleşir."/>
 			<check_box label="İtme Yok" name="PushRestrictCheck" tool_tip="Komut dosyalarının itmesini önler Bu seçeneğin işaretlenmesi arazinizdeki bozucu davranışları önlemeye yardımcı olabilir."/>
 			<check_box label="Konumu Arama sonuçlarında göster (L$30/hafta)" name="ShowDirectoryCheck" tool_tip="Arama sonuçlarında bu parsel görünsün"/>
@@ -372,9 +371,9 @@ Sadece büyük parseller aramada görünür.
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Bir resim seçmek için tıklayın"/>
 			<text name="allow_label5">
-				Diğer parsel Sakinlerine şunun için izin verin:
+				bu parseldeki avatarları görebilir ve onlarla sohbet edebilir
 			</text>
-			<check_box label="Avatarları Gör" name="SeeAvatarsCheck" tool_tip="Diğer parsellerdeki sakinlerin bu parseldeki sakinleri görmesine ve onlarla sohbet etmesine, sizin de onları görüp, onlarla sohbet etmenize imkan tanır."/>
+			<check_box label="Avatarları Gör" name="SeeAvatarsCheck" tool_tip="Diğer parsellerdeki avatarların bu parseldeki avatarları görmesine ve onlarla sohbet etmesine, sizin de onları görüp, onlarla sohbet etmenize imkan tanır."/>
 			<text name="landing_point">
 				İniş Noktası: [LANDING]
 			</text>

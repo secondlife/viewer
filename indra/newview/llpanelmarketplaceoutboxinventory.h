@@ -28,7 +28,6 @@
 #define LL_OUTBOXINVENTORYPANEL_H
 
 
-#include "llbadgeowner.h"
 #include "llinventorypanel.h"
 #include "llfolderviewitem.h"
 
@@ -53,44 +52,26 @@ public:
 };
 
 
-class LLOutboxFolderViewFolder : public LLFolderViewFolder, public LLBadgeOwner
+class LLOutboxFolderViewFolder : public LLFolderViewFolder
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLFolderViewFolder::Params>
 	{
-		Optional<LLBadge::Params>	error_badge;
-		
-		Params()
-			: error_badge("error_badge")
-		{
-		}
+		Params() {}
 	};
 	
 	LLOutboxFolderViewFolder(const Params& p);
-	~LLOutboxFolderViewFolder();
-
-	void draw();
-
-	void setErrorString(const std::string& errorString);
-	void setError(S32 errorCode);
-	
-	bool hasError() const { return (mError != 0); }
-
-protected:
-	S32 mError;
 };
 
 
 class LLOutboxFolderViewItem : public LLFolderViewItem
 {
 public:
-	LLOutboxFolderViewItem(const Params& p)
-		: LLFolderViewItem(p)
-	{
-	}
+	LLOutboxFolderViewItem(const Params& p);
 
 	// virtual
 	BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
+	void openItem();
 };
 
 

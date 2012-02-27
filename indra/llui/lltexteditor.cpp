@@ -2250,6 +2250,22 @@ void LLTextEditor::insertText(const std::string &new_text)
 	setEnabled( enabled );
 }
 
+void LLTextEditor::insertText(LLWString &new_text)
+{
+	BOOL enabled = getEnabled();
+	setEnabled( TRUE );
+
+	// Delete any selected characters (the insertion replaces them)
+	if( hasSelection() )
+	{
+		deleteSelection(TRUE);
+	}
+
+	setCursorPos(mCursorPos + insert( mCursorPos, new_text, FALSE, LLTextSegmentPtr() ));
+
+	setEnabled( enabled );
+}
+
 void LLTextEditor::appendWidget(const LLInlineViewSegment::Params& params, const std::string& text, bool allow_undo)
 {
 	// Save old state
@@ -2837,4 +2853,14 @@ void LLTextEditor::clear()
 {
 	getViewModel()->setDisplay(LLWStringUtil::null);
 	clearSegments();
+}
+
+bool LLTextEditor::canLoadOrSaveToFile()
+{
+	return !mReadOnly;
+}
+
+S32 LLTextEditor::spacesPerTab()
+{
+	return SPACES_PER_TAB;
 }

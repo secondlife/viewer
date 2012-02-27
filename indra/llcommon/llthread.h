@@ -151,6 +151,7 @@ public:
 	void lock();		// blocks
 	void unlock();
 	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
+	bool isSelfLocked(); //return true if locked in a same thread
 	U32 lockingThread() const; //get ID of locking thread
 	
 protected:
@@ -187,11 +188,14 @@ public:
 	LLMutexLock(LLMutex* mutex)
 	{
 		mMutex = mutex;
-		mMutex->lock();
+		
+		if(mMutex)
+			mMutex->lock();
 	}
 	~LLMutexLock()
 	{
-		mMutex->unlock();
+		if(mMutex)
+			mMutex->unlock();
 	}
 private:
 	LLMutex* mMutex;

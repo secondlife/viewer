@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_snapshot_postcard">
+	<string name="default_subject">
+		Cartolina da [SECOND_LIFE].
+	</string>
+	<string name="default_message">
+		Dai un&apos;occhiata!
+	</string>
+	<string name="upload_message">
+		Invio...
+	</string>
+	<text name="title">
+		E-mail
+	</text>
+	<button label="Messaggio" name="message_btn"/>
+	<button label="Impostazioni" name="settings_btn"/>
+</panel>

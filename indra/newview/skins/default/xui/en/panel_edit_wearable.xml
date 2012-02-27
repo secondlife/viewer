@@ -454,7 +454,6 @@
              left="0"			
              mouse_opaque="false"
              name="save_as_btn_lp"
-             user_resize="false" 
              auto_resize="true"
              width="154">
                 <button
@@ -474,7 +473,6 @@
              left_pad="3"			
              mouse_opaque="false"
              name="revert_btn_lp"
-             user_resize="false" 
              auto_resize="true"
              width="152">
                 <button

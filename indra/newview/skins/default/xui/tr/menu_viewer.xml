@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Ben" name="Me">
-		<menu_item_call label="Kontrol Paneli..." name="Manage My Account"/>
 		<menu_item_call label="Profil..." name="Profile"/>
 		<menu_item_call label="Görünüm..." name="ChangeOutfit"/>
+		<menu_item_call label="Bir avatar seçin..." name="Avatar Picker"/>
 		<menu_item_check label="Envanter..." name="Inventory"/>
-		<menu_item_check label="Mimikler..." name="Gestures"/>
-		<menu_item_check label="Ses..." name="ShowVoice"/>
+		<menu_item_call label="Yeni Envanter Penceresi" name="NewInventoryWindow"/>
+		<menu_item_call label="Yerler..." name="Places"/>
+		<menu_item_call label="Favoriler..." name="Picks"/>
+		<menu_item_call label="Kamera Denetimleri..." name="Camera Controls"/>
 		<menu label="Hareket" name="Movement">
 			<menu_item_call label="Otur" name="Sit Down Here"/>
 			<menu_item_check label="Uç" name="Fly"/>
@@ -20,34 +22,37 @@
 		<menu_item_call label="Yönetici Durumu Talep Et" name="Request Admin Options"/>
 		<menu_item_call label="Yönetici Durumundan Ayrıl" name="Leave Admin Options"/>
 		<menu_item_call label="L$ Satın Al" name="Buy and Sell L$"/>
+		<menu_item_call label="Hesap kontrol paneli..." name="Manage My Account"/>
 		<menu_item_call label="Tercihler..." name="Preferences"/>
-		<menu_item_call label="Araç çubukları..." name="Toolbars"/>
+		<menu_item_call label="Araç çubuğu düğmeleri..." name="Toolbars"/>
 		<menu_item_call label="Tüm denetimleri sakla" name="Hide UI"/>
 		<menu_item_call label="[APP_NAME]&apos;den Çık" name="Quit"/>
 	</menu>
 	<menu label="İletişim Kur" name="Communicate">
-		<menu_item_call label="Arkadaşlarım" name="My Friends"/>
-		<menu_item_call label="Gruplarım" name="My Groups"/>
-		<menu_item_check label="Yakındaki Sohbet" name="Nearby Chat"/>
-		<menu_item_call label="Yakındaki Kişiler" name="Active Speakers"/>
-		<menu_item_check label="Yakındaki Ses" name="Nearby Voice"/>
+		<menu_item_check label="Sohbet..." name="Nearby Chat"/>
+		<menu_item_check label="Konuş" name="Speak"/>
+		<menu_item_check label="Ses ayarları..." name="Nearby Voice"/>
+		<menu_item_check label="Ses şekillendirme..." name="ShowVoice"/>
+		<menu_item_check label="Mimikler..." name="Gestures"/>
+		<menu_item_call label="Arkadaşlar" name="My Friends"/>
+		<menu_item_call label="Gruplar" name="My Groups"/>
+		<menu_item_call label="Yakındaki kişiler" name="Active Speakers"/>
 	</menu>
 	<menu label="Dünya" name="World">
-		<menu_item_check label="Mini-harita" name="Mini-Map"/>
-		<menu_item_check label="Dünya Haritası" name="World Map"/>
-		<menu_item_check label="Ara" name="Search"/>
-		<menu_item_call label="Anlık Görüntü" name="Take Snapshot"/>
 		<menu_item_call label="Bu Yeri Yer İmlerine Ekle" name="Create Landmark Here"/>
-		<menu label="Profili Yerleştir" name="Land">
-			<menu_item_call label="Profili Yerleştir" name="Place Profile"/>
-			<menu_item_call label="Arazi Hakkında" name="About Land"/>
-			<menu_item_call label="Bölge/Gayrimenkul" name="Region/Estate"/>
-		</menu>
-		<menu_item_call label="Bu Araziyi Satın Al" name="Buy Land"/>
-		<menu_item_call label="Arazim" name="My Land"/>
+		<menu_item_call label="Hedef Konumlar..." name="Destinations"/>
+		<menu_item_check label="Dünya haritası" name="World Map"/>
+		<menu_item_check label="Mini-harita" name="Mini-Map"/>
+		<menu_item_check label="Ara" name="Search"/>
+		<menu_item_call label="Ana konuma ışınlan" name="Teleport Home"/>
+		<menu_item_call label="Ana konumu burası olarak seç" name="Set Home to Here"/>
+		<menu_item_call label="Anlık Görüntü" name="Take Snapshot"/>
+		<menu_item_call label="Profili yerleştir" name="Place Profile"/>
+		<menu_item_call label="Arazi hakkında" name="About Land"/>
+		<menu_item_call label="Bölge / Gayrimenkul" name="Region/Estate"/>
+		<menu_item_call label="Sahip olduğum arazi parçaları..." name="My Land"/>
+		<menu_item_call label="Bu araziyi satın al" name="Buy Land"/>
 		<menu label="Göster" name="LandShow">
-			<menu_item_check label="Denetimleri Hareket Ettir" name="Movement Controls"/>
-			<menu_item_check label="Denetimleri Göster" name="Camera Controls"/>
 			<menu_item_check label="Yasaklama Çizgileri" name="Ban Lines"/>
 			<menu_item_check label="İşaretler" name="beacons"/>
 			<menu_item_check label="Mülkiyet Çizgileri" name="Property Lines"/>
@@ -56,16 +61,15 @@
 			<menu_item_check label="Parsel Özellikleri" name="Parcel Properties"/>
 			<menu_item_check label="Gelişmiş Menü" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_call label="Ana Konuma Işınla" name="Teleport Home"/>
-		<menu_item_call label="Ana Konumu Burası Olarak Seç" name="Set Home to Here"/>
 		<menu label="Güneş" name="Environment Settings">
 			<menu_item_call label="Gün Doğumu" name="Sunrise"/>
 			<menu_item_call label="Gün Ortası" name="Noon"/>
 			<menu_item_call label="Gün Batımı" name="Sunset"/>
 			<menu_item_call label="Gece Yarısı" name="Midnight"/>
+			<menu_item_call label="Bölge Ayarlarını Kullanın" name="Use Region Settings"/>
 		</menu>
-		<menu label="Ortam Düzenleyici" name="Enviroment Editor">
-			<menu_item_call label="Ortam Ayarları..." name="Enviroment Settings"/>
+		<menu label="Ortam Düzenleyici" name="Environment Editor">
+			<menu_item_call label="Ortam Ayarları..." name="Environment Settings"/>
 			<menu label="Su Ön Ayarları" name="Water Presets">
 				<menu_item_call label="Yeni ön ayar..." name="new_water_preset"/>
 				<menu_item_call label="Ön ayarı düzenle..." name="edit_water_preset"/>
@@ -144,6 +148,7 @@
 		<menu_item_call label="Yinele" name="Redo"/>
 	</menu>
 	<menu label="Yardım" name="Help">
+		<menu_item_call label="Nasıl yapılır..." name="How To"/>
 		<menu_item_call label="[SECOND_LIFE] Yardımı" name="Second Life Help"/>
 		<menu_item_call label="Kötüye Kullanımı Bildir" name="Report Abuse"/>
 		<menu_item_call label="Hata Bildir" name="Report Bug"/>
@@ -198,11 +203,10 @@
 		<menu_item_check label="İş Parçacığı Okuma Eklentisini Kullan" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Grup Ön Belleğini Temizle" name="ClearGroupCache"/>
 		<menu_item_check label="Fare Düzleştirme" name="Mouse Smoothing"/>
+		<menu_item_call label="Bırakma Anahtarları" name="Release Keys"/>
 		<menu label="Kısa Yollar" name="Shortcuts">
 			<menu_item_call label="Görüntü (L$[COST])..." name="Upload Image"/>
 			<menu_item_check label="Ara" name="Search"/>
-			<menu_item_call label="Bırakma Anahtarları" name="Release Keys"/>
-			<menu_item_call label="KA Büyüklüğünü Varsayılana Ayarla" name="Set UI Size to Default"/>
 			<menu_item_check label="Gelişmiş Menüyü Göster - eski kısayol" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Pencereyi Kapat" name="Close Window"/>
 			<menu_item_call label="Tüm Pencereleri Kapat" name="Close All Windows"/>
@@ -288,6 +292,7 @@
 			<menu_item_check label="Işıklar" name="Lights"/>
 			<menu_item_check label="Çarpışma İskeleti" name="Collision Skeleton"/>
 			<menu_item_check label="Işın Yayını" name="Raycast"/>
+			<menu_item_check label="Rüzgar Vektörleri" name="Wind Vectors"/>
 			<menu_item_check label="İşleme Karmaşıklığı" name="rendercomplexity"/>
 			<menu_item_check label="Şekillendir" name="Sculpt"/>
 		</menu>
@@ -300,7 +305,6 @@
 			<menu_item_check label="Işıklandırma ve Gölgeler" name="Lighting and Shadows"/>
 			<menu_item_check label="Güneş/Ay/Projektörlerden Gelen Gölgeler" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO ve Gölge Yumuşatma" name="SSAO and Shadow Smoothing"/>
-			<menu_item_check label="Küresel Aydınlatma (Deneysel)" name="Global Illumination"/>
 			<menu_item_check label="GL Hata Ayıklama" name="Debug GL"/>
 			<menu_item_check label="Ardışık Hata Ayıklama" name="Debug Pipeline"/>
 			<menu_item_check label="Otomatik Alfa Maskeleri (ertelenmiş)" name="Automatic Alpha Masks (deferred)"/>

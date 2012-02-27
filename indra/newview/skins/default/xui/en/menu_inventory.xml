@@ -686,12 +686,12 @@
 		 parameter="copy_to_outbox" />
 	</menu_item_call>
 	<menu_item_call
-	 label="Move to Merchant Outbox"
+	 label="Send to Marketplace"
 	 layout="topleft"
-	 name="Merchant Move">
+	 name="Marketplace Send">
 		<menu_item_call.on_click
 		 function="Inventory.DoToSelected"
-		 parameter="move_to_outbox" />
+		 parameter="send_to_marketplace" />
 	</menu_item_call>
 	<menu_item_call
      label="--no options--"

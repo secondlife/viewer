@@ -3,72 +3,63 @@
 	<floater.string name="unknown">
 		неизвестно
 	</floater.string>
-	<radio_group label="Тип снимка" name="snapshot_type_radio">
-		<radio_item label="Электронная почта" name="postcard"/>
-		<radio_item label="Мой инвентарь (L$[AMOUNT])" name="texture"/>
-		<radio_item label="Сохранить на моем компьютере" name="local"/>
-	</radio_group>
+	<string name="postcard_progress_str">
+		Отправка письма
+	</string>
+	<string name="profile_progress_str">
+		Публикация
+	</string>
+	<string name="inventory_progress_str">
+		Сохранение в -инвентарь
+	</string>
+	<string name="local_progress_str">
+		Сохранение на компьютере
+	</string>
+	<string name="profile_succeeded_str">
+		Изображение отправлено
+	</string>
+	<string name="postcard_succeeded_str">
+		Письмо отправлено!
+	</string>
+	<string name="inventory_succeeded_str">
+		Сохранено в инвентаре!
+	</string>
+	<string name="local_succeeded_str">
+		Сохранено на компьютере!
+	</string>
+	<string name="profile_failed_str">
+		Не удалось передать изображение в ваш профиль.
+	</string>
+	<string name="postcard_failed_str">
+		Не удалось отправить письмо.
+	</string>
+	<string name="inventory_failed_str">
+		Не удалось сохранить в инвентаре.
+	</string>
+	<string name="local_failed_str">
+		Не удалось сохранить на компьютере.
+	</string>
+	<button name="advanced_options_btn" tool_tip="Дополнительные параметры"/>
+	<text name="image_res_text">
+		[WIDTH] x [HEIGHT] пикс.
+	</text>
 	<text name="file_size_label">
 		[SIZE] КБ
 	</text>
-	<button label="Послать" name="send_btn"/>
-	<button label="Сохранить (L$[AMOUNT])" name="upload_btn"/>
-	<flyout_button label="Сохранить" name="save_btn" tool_tip="Сохранить изображение в файл">
-		<flyout_button.item label="Сохранить" name="save_item"/>
-		<flyout_button.item label="Сохранить как..." name="saveas_item"/>
-	</flyout_button>
-	<button label="Больше" name="more_btn" tool_tip="Дополнительные параметры"/>
-	<button label="Меньше" name="less_btn" tool_tip="Дополнительные параметры"/>
-	<button label="Отмена" name="discard_btn"/>
-	<text name="type_label2">
-		Размер
-	</text>
-	<text name="format_label">
-		Формат
-	</text>
-	<combo_box label="Разрешение" name="postcard_size_combo">
-		<combo_box.item label="Текущее окно" name="CurrentWindow"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="Задать" name="Custom"/>
-	</combo_box>
-	<combo_box label="Разрешение" name="texture_size_combo">
-		<combo_box.item label="Текущее окно" name="CurrentWindow"/>
-		<combo_box.item label="Маленький (128x128)" name="Small(128x128)"/>
-		<combo_box.item label="Средний (256x256)" name="Medium(256x256)"/>
-		<combo_box.item label="Большой (512x512)" name="Large(512x512)"/>
-		<combo_box.item label="Задать" name="Custom"/>
-	</combo_box>
-	<combo_box label="Разрешение" name="local_size_combo">
-		<combo_box.item label="Текущее окно" name="CurrentWindow"/>
-		<combo_box.item label="320x240" name="320x240"/>
-		<combo_box.item label="640x480" name="640x480"/>
-		<combo_box.item label="800x600" name="800x600"/>
-		<combo_box.item label="1024x768" name="1024x768"/>
-		<combo_box.item label="1280x1024" name="1280x1024"/>
-		<combo_box.item label="1600x1200" name="1600x1200"/>
-		<combo_box.item label="Задать" name="Custom"/>
-	</combo_box>
-	<combo_box label="Формат" name="local_format_combo">
-		<combo_box.item label="PNG" name="PNG"/>
-		<combo_box.item label="JPEG" name="JPEG"/>
-		<combo_box.item label="BMP" name="BMP"/>
-	</combo_box>
-	<spinner label="Ширина" name="snapshot_width"/>
-	<spinner label="Высота" name="snapshot_height"/>
-	<check_box label="Сохранять пропорции" name="keep_aspect_check"/>
-	<slider label="Качество изображения" name="image_quality_slider"/>
-	<text name="layer_type_label">
-		Захват:
-	</text>
-	<combo_box label="Слои изображения" name="layer_types">
-		<combo_box.item label="Цвета" name="Colors"/>
-		<combo_box.item label="Глубина" name="Depth"/>
-	</combo_box>
-	<check_box label="Интерфейс" name="ui_check"/>
-	<check_box label="HUD" name="hud_check"/>
-	<check_box label="Оставить окно открытым" name="keep_open_check"/>
-	<check_box label="Стоп-кадр (полноэкранный)" name="freeze_frame_check"/>
-	<check_box label="Автообновление" name="auto_snapshot_check"/>
+	<panel name="advanced_options_panel">
+		<text name="advanced_options_label">
+			ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ
+		</text>
+		<text name="layer_type_label">
+			Захват:
+		</text>
+		<combo_box label="Слои изображения" name="layer_types">
+			<combo_box.item label="Цвета" name="Colors"/>
+			<combo_box.item label="Глубина" name="Depth"/>
+		</combo_box>
+		<check_box label="Интерфейс" name="ui_check"/>
+		<check_box label="Данные в игре" name="hud_check"/>
+		<check_box label="Стоп-кадр (полноэкранный)" name="freeze_frame_check"/>
+		<check_box label="Автообновление" name="auto_snapshot_check"/>
+	</panel>
 </floater>

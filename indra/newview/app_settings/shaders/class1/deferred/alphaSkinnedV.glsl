@@ -30,7 +30,6 @@ ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
 mat4 getObjectSkinnedTransform();
 void calcAtmospherics(vec3 inPositionEye);
 
@@ -38,8 +37,6 @@ float calcDirectionalLight(vec3 n, vec3 l);
 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
-vec3 scaleUpLight(vec3 light);
 
 VARYING vec3 vary_position;
 VARYING vec3 vary_ambient;
@@ -64,17 +61,17 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 	vec3 lv = lp.xyz-v;
 	
 	//get distance
-	float d = length(lv);
+	float d = dot(lv,lv);
 	
 	float da = 0.0;
 
 	if (d > 0.0 && la > 0.0 && fa > 0.0)
 	{
 		//normalize light vector
-		lv *= 1.0/d;
+		lv = normalize(lv);
 	
 		//distance attenuation
-		float dist2 = d*d/(la*la);
+		float dist2 = d/la;
 		da = clamp(1.0-(dist2-1.0*(1.0-fa))/fa, 0.0, 1.0);
 
 		// spotlight coefficient.
@@ -82,7 +79,7 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 		da *= spot*spot; // GL_SPOT_EXPONENT=2
 
 		//angular attenuation
-		da *= calcDirectionalLight(n, lv);
+		da *= max(dot(n, lv), 0.0);		
 	}
 
 	return da;	

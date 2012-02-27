@@ -28,6 +28,7 @@
 #include "llpanelmaininventory.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llavataractions.h"
 #include "lldndbutton.h"
 #include "lleconomy.h"
@@ -294,7 +295,13 @@ void LLPanelMainInventory::closeAllFolders()
 
 void LLPanelMainInventory::newWindow()
 {
-	LLFloaterInventory::showAgentInventory();
+	static S32 instance_num = 0;
+	instance_num = (instance_num + 1) % S32_MAX;
+
+	if (!gAgentCamera.cameraMouselook())
+	{
+		LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
+	}
 }
 
 void LLPanelMainInventory::doCreate(const LLSD& userdata)
@@ -586,7 +593,7 @@ void LLPanelMainInventory::onFocusReceived()
 		return;
 	}
 
-	sidepanel_inventory->clearSelections(false, true, true);
+	sidepanel_inventory->clearSelections(false, true);
 }
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
