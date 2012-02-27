@@ -32,7 +32,8 @@
   <floater.string name="linkset_use_material_volume">Material volume</floater.string>
   <floater.string name="linkset_use_exclusion_volume">Exclusion volume</floater.string>
   <floater.string name="linkset_use_dynamic_phantom">Dynamic phantom</floater.string>
-  <floater.string name="linkset_is_locked_state">[locked]</floater.string>
+  <floater.string name="linkset_is_locked_state">[restricted]</floater.string>
+  <floater.string name="linkset_choose_use">Choose linkset use...</floater.string>
   <panel
       border="false"
       bevel_style="none"
@@ -373,34 +374,6 @@
         left="18"
         top_pad="17"
         width="199">
-      <combo_box.item
-          label="Choose linkset use..."
-          name="edit_linkset_use_none"
-          value="0" />
-      <combo_box.item
-          label="Walkable"
-          name="edit_linkset_use_walkable"
-          value="1" />
-      <combo_box.item
-          label="Static obstacle"
-          name="edit_linkset_use_static_obstacle"
-          value="2" />
-      <combo_box.item
-          label="Dynamic obstacle"
-          name="edit_linkset_use_dynamic_obstacle"
-          value="3" />
-      <combo_box.item
-          label="Material volume"
-          name="edit_linkset_use_material_volume"
-          value="4" />
-      <combo_box.item
-          label="Exclusion volume"
-          name="edit_linkset_use_exclusion_volume"
-          value="5" />
-      <combo_box.item
-          label="Dynamic phantom"
-          name="edit_linkset_use_dynamic_phantom"
-          value="6" />
     </combo_box>
     <text
         height="13"

@@ -122,6 +122,46 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	return *this;
 }
 
+BOOL LLPathfindingLinkset::isPhantom() const
+{
+	return isPhantom(getLinksetUse());
+}
+
+BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
+{
+	BOOL retVal;
+
+	switch (pLinksetUse)
+	{
+	case kWalkable :
+	case kStaticObstacle :
+	case kDynamicObstacle :
+		retVal = false;
+		break;
+	case kMaterialVolume :
+	case kExclusionVolume :
+	case kDynamicPhantom :
+		retVal = true;
+		break;
+	case kUnknown :
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
+}
+
+LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse)
+{
+	BOOL isPhantom = LLPathfindingLinkset::isPhantom(pLinksetUse);
+	BOOL isPermanent = LLPathfindingLinkset::isPermanent(pLinksetUse);
+	BOOL isWalkable = LLPathfindingLinkset::isWalkable(pLinksetUse);
+
+	return getLinksetUse(!isPhantom, isPermanent, isWalkable);
+}
+
 LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD itemData;
@@ -231,32 +271,6 @@ LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUse(bool pIsPh
 {
 	return (pIsPhantom ? (pIsPermanent ? (pIsWalkable ? kMaterialVolume : kExclusionVolume) : kDynamicPhantom) :
 		(pIsPermanent ? (pIsWalkable ? kWalkable : kStaticObstacle) : kDynamicObstacle));
-}
-
-BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
-{
-	BOOL retVal;
-
-	switch (pLinksetUse)
-	{
-	case kWalkable :
-	case kStaticObstacle :
-	case kDynamicObstacle :
-		retVal = false;
-		break;
-	case kMaterialVolume :
-	case kExclusionVolume :
-	case kDynamicPhantom :
-		retVal = true;
-		break;
-	case kUnknown :
-	default :
-		retVal = false;
-		llassert(0);
-		break;
-	}
-
-	return retVal;
 }
 
 BOOL LLPathfindingLinkset::isPermanent(ELinksetUse pLinksetUse)

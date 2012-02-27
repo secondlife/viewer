@@ -66,6 +66,9 @@ public:
 	inline U32                getLandImpact() const               {return mLandImpact;};
 	inline const LLVector3&   getLocation() const                 {return mLocation;};
 	BOOL                      isLocked() const                    {return mIsLocked;};
+	BOOL                      isPhantom() const;
+	static BOOL               isPhantom(ELinksetUse pLinksetUse);
+	static ELinksetUse        getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
 
 	inline ELinksetUse        getLinksetUse() const               {return mLinksetUse;};
 
@@ -85,7 +88,6 @@ private:
 	void                      parseObjectData(const LLSD &pLinksetItem);
 	void                      parsePathfindingData(const LLSD &pLinksetItem);
 	static ELinksetUse        getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
-	static BOOL               isPhantom(ELinksetUse pLinksetUse);
 	static BOOL               isPermanent(ELinksetUse pLinksetUse);
 	static BOOL               isWalkable(ELinksetUse pLinksetUse);
 

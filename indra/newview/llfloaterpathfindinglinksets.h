@@ -39,6 +39,7 @@ class LLSD;
 class LLUICtrl;
 class LLTextBase;
 class LLScrollListCtrl;
+class LLScrollListItem;
 class LLLineEditor;
 class LLComboBox;
 class LLCheckBoxCtrl;
@@ -74,6 +75,13 @@ public:
 protected:
 
 private:
+	typedef enum
+	{
+		kAllowLinksetUseAll,
+		kAllowLinksetUseOnlyNonPhantom,
+		kAllowLinksetUseOnlyPhantom
+	} EAllowLinksetsUse;
+
 	LLLineEditor     *mFilterByName;
 	LLLineEditor     *mFilterByDescription;
 	LLComboBox       *mFilterByLinksetUse;
@@ -89,6 +97,13 @@ private:
 	LLButton         *mDeleteButton;
 	LLButton         *mTeleportButton;
 	LLComboBox       *mEditLinksetUse;
+	LLScrollListItem *mEditLinksetUseUnset;
+	LLScrollListItem *mEditLinksetUseWalkable;
+	LLScrollListItem *mEditLinksetUseStaticObstacle;
+	LLScrollListItem *mEditLinksetUseDynamicObstacle;
+	LLScrollListItem *mEditLinksetUseMaterialVolume;
+	LLScrollListItem *mEditLinksetUseExclusionVolume;
+	LLScrollListItem *mEditLinksetUseDynamicPhantom;
 	LLTextBase       *mLabelWalkabilityCoefficients;
 	LLTextBase       *mLabelEditA;
 	LLLineEditor     *mEditA;
@@ -141,13 +156,21 @@ private:
 	void updateControls();
 	void updateEditFieldValues();
 	void updateScrollList();
-	LLSD buildScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition);
+	LLSD buildLinksetScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition) const;
+	LLSD buildLinksetUseScrollListElement(const std::string &label, S32 value) const;
+
+	EAllowLinksetsUse getAllowLinksetUse() const;
+	bool              doShowLinksetUseSetWarning(LLPathfindingLinkset::ELinksetUse linksetUse) const;
 
 	void updateStatusMessage();
 	void updateEnableStateOnListActions();
 	void updateEnableStateOnEditFields();
 
 	void applyEdit();
+	void handleApplyEdit(const LLSD &pNotification, const LLSD &pResponse);
+	void doApplyEdit();
+
+	std::string getLinksetUseString(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
 
 	LLPathfindingLinkset::ELinksetUse getFilterLinksetUse() const;
 	void                              setFilterLinksetUse(LLPathfindingLinkset::ELinksetUse pLinksetUse);

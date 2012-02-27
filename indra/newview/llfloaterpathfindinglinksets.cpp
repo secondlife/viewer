@@ -50,6 +50,7 @@
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
 #include "llpathfindingmanager.h"
+#include "llnotificationsutil.h"
 
 #include <boost/bind.hpp>
 
@@ -131,6 +132,31 @@ BOOL LLFloaterPathfindingLinksets::postBuild()
 
 	mEditLinksetUse = findChild<LLComboBox>("edit_linkset_use");
 	llassert(mEditLinksetUse != NULL);
+
+	mEditLinksetUse->clearRows();
+
+	mEditLinksetUseUnset = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getString("linkset_choose_use"), XUI_LINKSET_USE_NONE));
+	llassert(mEditLinksetUseUnset != NULL);
+
+	mEditLinksetUseWalkable = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getLinksetUseString(LLPathfindingLinkset::kWalkable), XUI_LINKSET_USE_WALKABLE));
+	llassert(mEditLinksetUseWalkable != NULL);
+
+	mEditLinksetUseStaticObstacle = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getLinksetUseString(LLPathfindingLinkset::kStaticObstacle), XUI_LINKSET_USE_STATIC_OBSTACLE));
+	llassert(mEditLinksetUseStaticObstacle != NULL);
+
+	mEditLinksetUseDynamicObstacle = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getLinksetUseString(LLPathfindingLinkset::kDynamicObstacle), XUI_LINKSET_USE_DYNAMIC_OBSTACLE));
+	llassert(mEditLinksetUseDynamicObstacle != NULL);
+
+	mEditLinksetUseMaterialVolume = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getLinksetUseString(LLPathfindingLinkset::kMaterialVolume), XUI_LINKSET_USE_MATERIAL_VOLUME));
+	llassert(mEditLinksetUseMaterialVolume != NULL);
+
+	mEditLinksetUseExclusionVolume = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getLinksetUseString(LLPathfindingLinkset::kExclusionVolume), XUI_LINKSET_USE_EXCLUSION_VOLUME));
+	llassert(mEditLinksetUseExclusionVolume != NULL);
+
+	mEditLinksetUseDynamicPhantom = mEditLinksetUse->addElement(buildLinksetUseScrollListElement(getLinksetUseString(LLPathfindingLinkset::kDynamicPhantom), XUI_LINKSET_USE_DYNAMIC_PHANTOM));
+	llassert(mEditLinksetUseDynamicPhantom != NULL);
+
+	mEditLinksetUse->selectFirstItem();
 
 	mLabelWalkabilityCoefficients = findChild<LLTextBase>("walkability_coefficients_label");
 	llassert(mLabelWalkabilityCoefficients != NULL);
@@ -570,7 +596,7 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 	int numSelectedItems = selectedItems.size();
 	if (numSelectedItems <= 0)
 	{
-		mEditLinksetUse->clear();
+		mEditLinksetUse->selectFirstItem();
 		mEditA->clear();
 		mEditB->clear();
 		mEditC->clear();
@@ -589,6 +615,37 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 		mEditB->setValue(LLSD(linksetPtr->getWalkabilityCoefficientB()));
 		mEditC->setValue(LLSD(linksetPtr->getWalkabilityCoefficientC()));
 		mEditD->setValue(LLSD(linksetPtr->getWalkabilityCoefficientD()));
+
+		switch (getAllowLinksetUse())
+		{
+		case kAllowLinksetUseAll :
+			mEditLinksetUseWalkable->setEnabled(TRUE);
+			mEditLinksetUseStaticObstacle->setEnabled(TRUE);
+			mEditLinksetUseDynamicObstacle->setEnabled(TRUE);
+			mEditLinksetUseMaterialVolume->setEnabled(TRUE);
+			mEditLinksetUseExclusionVolume->setEnabled(TRUE);
+			mEditLinksetUseDynamicPhantom->setEnabled(TRUE);
+			break;
+		case kAllowLinksetUseOnlyNonPhantom :
+			mEditLinksetUseWalkable->setEnabled(TRUE);
+			mEditLinksetUseStaticObstacle->setEnabled(TRUE);
+			mEditLinksetUseDynamicObstacle->setEnabled(TRUE);
+			mEditLinksetUseMaterialVolume->setEnabled(FALSE);
+			mEditLinksetUseExclusionVolume->setEnabled(FALSE);
+			mEditLinksetUseDynamicPhantom->setEnabled(FALSE);
+			break;
+		case kAllowLinksetUseOnlyPhantom :
+			mEditLinksetUseWalkable->setEnabled(FALSE);
+			mEditLinksetUseStaticObstacle->setEnabled(FALSE);
+			mEditLinksetUseDynamicObstacle->setEnabled(FALSE);
+			mEditLinksetUseMaterialVolume->setEnabled(TRUE);
+			mEditLinksetUseExclusionVolume->setEnabled(TRUE);
+			mEditLinksetUseDynamicPhantom->setEnabled(TRUE);
+			break;
+		default : 
+			llassert(0);
+			break;
+		}
 	}
 }
 
@@ -637,7 +694,7 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 					(!isFilteringDescription || (linksetDescription.find(descriptionFilter) != std::string::npos)) &&
 					(!isFilteringLinksetUse || (linksetPtr->getLinksetUse() == linksetUseFilter)))
 				{
-					LLSD element = buildScrollListElement(linksetPtr, avatarPosition);
+					LLSD element = buildLinksetScrollListElement(linksetPtr, avatarPosition);
 					mLinksetsScrollList->addElement(element);
 				}
 			}
@@ -648,7 +705,7 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 				linksetIter != mLinksetsListPtr->end(); ++linksetIter)
 			{
 				const LLPathfindingLinksetPtr linksetPtr(linksetIter->second);
-				LLSD element = buildScrollListElement(linksetPtr, avatarPosition);
+				LLSD element = buildLinksetScrollListElement(linksetPtr, avatarPosition);
 				mLinksetsScrollList->addElement(element);
 			}
 		}
@@ -659,7 +716,7 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 	updateControls();
 }
 
-LLSD LLFloaterPathfindingLinksets::buildScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition)
+LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition) const
 {
 	LLSD columns;
 	
@@ -701,33 +758,7 @@ LLSD LLFloaterPathfindingLinksets::buildScrollListElement(const LLPathfindingLin
 	}
 
 	columns[4]["column"] = "linkset_use";
-	std::string linksetUse;
-	switch (pLinksetPtr->getLinksetUse())
-	{
-	case LLPathfindingLinkset::kWalkable :
-		linksetUse = getString("linkset_use_walkable");
-		break;
-	case LLPathfindingLinkset::kStaticObstacle :
-		linksetUse = getString("linkset_use_static_obstacle");
-		break;
-	case LLPathfindingLinkset::kDynamicObstacle :
-		linksetUse = getString("linkset_use_dynamic_obstacle");
-		break;
-	case LLPathfindingLinkset::kMaterialVolume :
-		linksetUse = getString("linkset_use_material_volume");
-		break;
-	case LLPathfindingLinkset::kExclusionVolume :
-		linksetUse = getString("linkset_use_exclusion_volume");
-		break;
-	case LLPathfindingLinkset::kDynamicPhantom :
-		linksetUse = getString("linkset_use_dynamic_phantom");
-		break;
-	case LLPathfindingLinkset::kUnknown :
-	default :
-		linksetUse = getString("linkset_use_dynamic_obstacle");
-		llassert(0);
-		break;
-	}
+	std::string linksetUse = getLinksetUseString(pLinksetPtr->getLinksetUse());
 	if (pLinksetPtr->isLocked())
 	{
 		linksetUse += (" " + getString("linkset_is_locked_state"));
@@ -756,6 +787,99 @@ LLSD LLFloaterPathfindingLinksets::buildScrollListElement(const LLPathfindingLin
 	element["column"] = columns;
 
 	return element;
+}
+
+LLSD LLFloaterPathfindingLinksets::buildLinksetUseScrollListElement(const std::string &label, S32 value) const
+{
+	LLSD columns;
+	
+	columns[0]["column"] = "name";
+	columns[0]["relwidth"] = static_cast<LLSD::Real>(100.0f);
+	columns[0]["value"] = label;
+	columns[0]["font"] = "SANSSERIF";
+		
+	LLSD element;
+	element["value"] = value;
+	element["column"] = columns;
+
+	return element;
+}
+
+LLFloaterPathfindingLinksets::EAllowLinksetsUse LLFloaterPathfindingLinksets::getAllowLinksetUse() const
+{
+	EAllowLinksetsUse allowLinksetUse = kAllowLinksetUseAll;
+
+	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+	if (!selectedItems.empty())
+	{
+		bool isAllLocked = true;
+		bool isAllPhantom = true;
+		bool isAllNonPhantom = true;
+
+		for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+			(isAllLocked || isAllPhantom || isAllNonPhantom) && (selectedItemIter != selectedItems.end()); ++selectedItemIter)
+		{
+			const LLScrollListItem *selectedItem = *selectedItemIter;
+			llassert(mLinksetsListPtr != NULL);
+			LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->find(selectedItem->getUUID().asString());
+			llassert(linksetIter != mLinksetsListPtr->end());
+			const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
+			if (linksetPtr->isLocked())
+			{
+				if (linksetPtr->isPhantom())
+				{
+					isAllNonPhantom = false;
+				}
+				else
+				{
+					isAllPhantom = false;
+				}
+			}
+			else
+			{
+				isAllLocked = false;
+			}
+		}
+
+		if (isAllLocked)
+		{
+			if (isAllPhantom && !isAllNonPhantom)
+			{
+				allowLinksetUse = kAllowLinksetUseOnlyPhantom;
+			}
+			else if (isAllNonPhantom && !isAllPhantom)
+			{
+				allowLinksetUse = kAllowLinksetUseOnlyNonPhantom;
+			}
+		}
+	}
+
+	return allowLinksetUse;
+}
+
+bool LLFloaterPathfindingLinksets::doShowLinksetUseSetWarning(LLPathfindingLinkset::ELinksetUse linksetUse) const
+{
+	bool showWarning = false;
+
+	if (linksetUse != LLPathfindingLinkset::kUnknown)
+	{
+		std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
+		if (!selectedItems.empty())
+		{
+			for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
+				!showWarning && (selectedItemIter != selectedItems.end()); ++selectedItemIter)
+			{
+				const LLScrollListItem *selectedItem = *selectedItemIter;
+				llassert(mLinksetsListPtr != NULL);
+				LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->find(selectedItem->getUUID().asString());
+				llassert(linksetIter != mLinksetsListPtr->end());
+				const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
+				showWarning = (linksetPtr->isLocked() && (linksetPtr->isPhantom() != LLPathfindingLinkset::isPhantom(linksetUse)));
+			}
+		}
+	}
+
+	return showWarning;
 }
 
 void LLFloaterPathfindingLinksets::updateStatusMessage()
@@ -882,6 +1006,32 @@ void LLFloaterPathfindingLinksets::updateEnableStateOnEditFields()
 
 void LLFloaterPathfindingLinksets::applyEdit()
 {
+	LLPathfindingLinkset::ELinksetUse linksetUse = getEditLinksetUse();
+
+	if (doShowLinksetUseSetWarning(linksetUse))
+	{
+		LLPathfindingLinkset::ELinksetUse restrictedLinksetUse = LLPathfindingLinkset::getLinksetUseWithToggledPhantom(linksetUse);
+		LLSD substitutions;
+		substitutions["REQUESTED_TYPE"] = getLinksetUseString(linksetUse);
+		substitutions["RESTRICTED_TYPE"] = getLinksetUseString(restrictedLinksetUse);
+		LLNotificationsUtil::add("PathfindingLinksets_SetLinksetUseMismatchOnRestricted", substitutions, LLSD(), boost::bind(&LLFloaterPathfindingLinksets::handleApplyEdit, this, _1, _2));
+	}
+	else
+	{
+		doApplyEdit();
+	}
+}
+
+void LLFloaterPathfindingLinksets::handleApplyEdit(const LLSD &pNotification, const LLSD &pResponse)
+{
+	if (LLNotificationsUtil::getSelectedOption(pNotification, pResponse) == 0)
+	{
+		doApplyEdit();
+	}
+}
+
+void LLFloaterPathfindingLinksets::doApplyEdit()
+{
 	std::vector<LLScrollListItem*> selectedItems = mLinksetsScrollList->getAllSelected();
 	if (!selectedItems.empty())
 	{
@@ -911,6 +1061,40 @@ void LLFloaterPathfindingLinksets::applyEdit()
 
 		requestSetLinksets(editListPtr, linksetUse, aValue, bValue, cValue, dValue);
 	}
+}
+
+std::string LLFloaterPathfindingLinksets::getLinksetUseString(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
+{
+	std::string linksetUse;
+
+	switch (pLinksetUse)
+	{
+	case LLPathfindingLinkset::kWalkable :
+		linksetUse = getString("linkset_use_walkable");
+		break;
+	case LLPathfindingLinkset::kStaticObstacle :
+		linksetUse = getString("linkset_use_static_obstacle");
+		break;
+	case LLPathfindingLinkset::kDynamicObstacle :
+		linksetUse = getString("linkset_use_dynamic_obstacle");
+		break;
+	case LLPathfindingLinkset::kMaterialVolume :
+		linksetUse = getString("linkset_use_material_volume");
+		break;
+	case LLPathfindingLinkset::kExclusionVolume :
+		linksetUse = getString("linkset_use_exclusion_volume");
+		break;
+	case LLPathfindingLinkset::kDynamicPhantom :
+		linksetUse = getString("linkset_use_dynamic_phantom");
+		break;
+	case LLPathfindingLinkset::kUnknown :
+	default :
+		linksetUse = getString("linkset_use_dynamic_obstacle");
+		llassert(0);
+		break;
+	}
+
+	return linksetUse;
 }
 
 LLPathfindingLinkset::ELinksetUse LLFloaterPathfindingLinksets::getFilterLinksetUse() const
