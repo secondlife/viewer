@@ -1269,9 +1269,9 @@ BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
 {
 	Rect client_rect;
-	if (mWindow && GetWindowBounds(mWindow, kWindowContentRgn, &client_rect) != noErr)
+	if (mWindow)
 	{
-		OSStatus err = getWindowBounds(mWindow, kWindowContentRgn, &client_rect);
+		OSStatus err = GetWindowBounds(mWindow, kWindowContentRgn, &client_rect);
 		if (err == noErr)
 		{
 			client_rect.right = client_rect.left + size.mX;
