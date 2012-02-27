@@ -95,6 +95,7 @@ namespace tut
     void object::test<2>()
     {
         ensure_equals(Unkeyed::instanceCount(), 0);
+        Unkeyed* dangling = NULL;
         {
             Unkeyed one;
             ensure_equals(Unkeyed::instanceCount(), 1);
@@ -107,7 +108,11 @@ namespace tut
                 ensure_equals(found, two.get());
             }
             ensure_equals(Unkeyed::instanceCount(), 1);
-        }
+            // store an unwise pointer to a temp Unkeyed instance
+            dangling = &one;
+        } // make that instance vanish
+        // check the now-invalid pointer to the destroyed instance
+        ensure("getInstance(T*) failed to track destruction", ! Unkeyed::getInstance(dangling));
         ensure_equals(Unkeyed::instanceCount(), 0);
     }
 
