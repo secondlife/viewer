@@ -904,10 +904,13 @@ BOOL LLVOAvatar::isFullyBaked()
 
 BOOL LLVOAvatar::isFullyTextured() const
 {
-	for (std::vector<LLViewerJoint*>::const_iterator jointIter = mMeshLOD.begin();
-		 jointIter != mMeshLOD.end(); ++jointIter)
+	for (S32 i = 0; i < mMeshLOD.size(); i++)
 	{
-		LLViewerJoint* joint = (LLViewerJoint*) *jointIter;
+		LLViewerJoint* joint = (LLViewerJoint*) mMeshLOD[i];
+		if (i==MESH_ID_SKIRT && !isWearingWearableType(LLWearableType::WT_SKIRT))
+		{
+			continue; // don't care about skirt textures if we're not wearing one.
+		}
 		if (!joint)
 		{
 			continue; // nonexistent LOD OK.
