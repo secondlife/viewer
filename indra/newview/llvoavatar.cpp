@@ -777,7 +777,14 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 std::string LLVOAvatar::avString() const
 {
-	return " Avatar '" + getFullname() + "' ";
+	std::string viz_string;
+	if (getIsCloud())
+		viz_string = "cloud";
+	else if (isFullyTextured())
+		viz_string = "textured";
+	else
+		viz_string = "gray";
+	return " Avatar '" + getFullname() + "' " + viz_string + " ";
 }
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
@@ -893,6 +900,44 @@ BOOL LLVOAvatar::isFullyBaked()
 		}
 	}
 	return TRUE;
+}
+
+BOOL LLVOAvatar::isFullyTextured() const
+{
+	for (std::vector<LLViewerJoint*>::const_iterator jointIter = mMeshLOD.begin();
+		 jointIter != mMeshLOD.end(); ++jointIter)
+	{
+		LLViewerJoint* joint = (LLViewerJoint*) *jointIter;
+		if (!joint)
+		{
+			continue; // nonexistent LOD OK.
+		}
+		std::vector<LLViewerJointMesh*>::iterator meshIter = joint->mMeshParts.begin();
+		if (meshIter != joint->mMeshParts.end())
+		{
+			LLViewerJointMesh *mesh = (LLViewerJointMesh *) *meshIter;
+			if (!mesh)
+			{
+				continue; // nonexistent mesh OK
+			}
+			if (mesh->mTexture.notNull() && mesh->mTexture->hasGLTexture())
+			{
+				continue; // Mesh exists and has a baked texture.
+			}
+			if (mesh->mLayerSet && mesh->mLayerSet->hasComposite())
+			{
+				continue; // Mesh exists and has a composite texture.
+			}
+			// Fail
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+BOOL LLVOAvatar::hasGray() const
+{
+	return !getIsCloud() && !isFullyTextured();
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
@@ -4122,11 +4167,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
 		if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
 		{
-		updateMeshData();
+			updateMeshData();
 			mDirtyMesh = 0;
-		mNeedsSkin = TRUE;
-		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
-	}
+			mNeedsSkin = TRUE;
+			mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+		}
 	}
 
 	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
@@ -6385,10 +6430,10 @@ BOOL LLVOAvatar::isVisible() const
 }
 
 // Determine if we have enough avatar data to render
-BOOL LLVOAvatar::getIsCloud()
+BOOL LLVOAvatar::getIsCloud() const
 {
 	// Do we have a shape?
-	if (visualParamWeightsAreDefault())
+	if ((const_cast<LLVOAvatar*>(this))->visualParamWeightsAreDefault())
 	{
 		return TRUE;
 	}
@@ -8468,7 +8513,15 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 	}
 
-	setDebugText(llformat("%d", cost));
+	
+	std::string viz_string;
+	if (getIsCloud())
+		viz_string = "cloud";
+	else if (isFullyTextured())
+		viz_string = "textured";
+	else
+		viz_string = "gray";
+	setDebugText(llformat("%s %d", viz_string.c_str(), cost));
 	mVisualComplexity = cost;
 	F32 green = 1.f-llclamp(((F32) cost-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
 	F32 red = llmin((F32) cost/(F32)ARC_LIMIT, 1.f);

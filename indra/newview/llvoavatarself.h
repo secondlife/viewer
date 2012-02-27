@@ -121,7 +121,7 @@ public:
 	// Loading state
 	//--------------------------------------------------------------------
 public:
-	/*virtual*/ BOOL    getIsCloud();
+	/*virtual*/ BOOL    getIsCloud() const;
 
 	//--------------------------------------------------------------------
 	// Region state

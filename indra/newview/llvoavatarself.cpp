@@ -1888,7 +1888,7 @@ void LLVOAvatarSelf::dumpTotalLocalTextureByteCount()
 	llinfos << "Total Avatar LocTex GL:" << (gl_bytes/1024) << "KB" << llendl;
 }
 
-BOOL LLVOAvatarSelf::getIsCloud()
+BOOL LLVOAvatarSelf::getIsCloud() const
 {
 	// do we have our body parts?
 	if (gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE) == 0 ||

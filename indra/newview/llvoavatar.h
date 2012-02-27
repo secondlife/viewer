@@ -277,9 +277,11 @@ public:
 public:
 	BOOL			isFullyLoaded() const;
 	bool			isTooComplex() const;
-	bool visualParamWeightsAreDefault();
+	bool 			visualParamWeightsAreDefault();
+	virtual BOOL	getIsCloud() const;
+	BOOL			isFullyTextured() const;
+	BOOL			hasGray() const; 
 protected:
-	virtual BOOL	getIsCloud();
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
 	void			updateRuthTimer(bool loading);
@@ -519,7 +521,6 @@ public:
 	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
 	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
 
-protected:
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
 
