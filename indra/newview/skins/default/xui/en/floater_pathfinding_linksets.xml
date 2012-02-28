@@ -365,7 +365,7 @@
         left="18"
         top_pad="8"
         width="912">
-      Edit attributes of selected linksets
+      Edit attributes of selected linksets and press the button to apply changes
     </text>
     <combo_box
         height="20"
