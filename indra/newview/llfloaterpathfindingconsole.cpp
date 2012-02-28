@@ -799,3 +799,38 @@ void LLFloaterPathfindingConsole::updatePathTestStatus()
 
 	mPathTestingStatus->setText((LLStringExplicit)statusText, styleParams);
 }
+
+
+BOOL LLFloaterPathfindingConsole::isRenderAnyShapes() const
+{
+	if ( isRenderWalkables() || isRenderStaticObstacles() ||
+		 isRenderMaterialVolumes() ||  isRenderExclusionVolumes() )
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
+{
+	resetShapeRenderFlags();
+
+	if ( isRenderWalkables() )			
+	{ 
+		setShapeRenderFlag( LLPathingLib::LLST_WalkableObjects ); 
+	}
+	if ( isRenderStaticObstacles() )	
+	{ 
+		setShapeRenderFlag( LLPathingLib::LLST_ObstacleObjects ); 
+	}
+	if ( isRenderMaterialVolumes() )	
+	{ 
+		setShapeRenderFlag( LLPathingLib::LLST_MaterialPhantoms ); 
+	}
+	if ( isRenderExclusionVolumes() )	
+	{ 
+		setShapeRenderFlag( LLPathingLib::LLST_ExclusionPhantoms ); 
+	}
+	return mShapeRenderFlags;
+}
