@@ -850,7 +850,7 @@ void LLFloater::applyControlsAndPosition(LLFloater* other)
 	{
 		if (!applyRectControl())
 		{
-			applyPositioning(other);
+			applyPositioning(other, true);
 		}
 	}
 }
@@ -919,7 +919,7 @@ bool LLFloater::applyDockState()
 	return docked;
 }
 
-void LLFloater::applyPositioning(LLFloater* other)
+void LLFloater::applyPositioning(LLFloater* other, bool on_open)
 {
 	// Otherwise position according to the positioning code
 	switch (mPositioning)
@@ -934,29 +934,30 @@ void LLFloater::applyPositioning(LLFloater* other)
 
 	case LLFloaterEnums::POSITIONING_CASCADE_GROUP:
 	case LLFloaterEnums::POSITIONING_CASCADING:
-		if (other != NULL && other != this)
+		if (on_open)
 		{
-			stackWith(*other);
-		}
-		else
-		{
-			static const U32 CASCADING_FLOATER_HOFFSET = 0;
-			static const U32 CASCADING_FLOATER_VOFFSET = 0;
+			if (other != NULL && other != this)
+			{
+				stackWith(*other);
+			}
+			else
+			{
+				static const U32 CASCADING_FLOATER_HOFFSET = 0;
+				static const U32 CASCADING_FLOATER_VOFFSET = 0;
 			
-			const LLRect& snap_rect = gFloaterView->getSnapRect();
+				const LLRect& snap_rect = gFloaterView->getSnapRect();
 
-			const S32 horizontal_offset = CASCADING_FLOATER_HOFFSET;
-			const S32 vertical_offset = snap_rect.getHeight() - CASCADING_FLOATER_VOFFSET;
+				const S32 horizontal_offset = CASCADING_FLOATER_HOFFSET;
+				const S32 vertical_offset = snap_rect.getHeight() - CASCADING_FLOATER_VOFFSET;
 
-			S32 rect_height = getRect().getHeight();
-			setOrigin(horizontal_offset, vertical_offset - rect_height);
+				S32 rect_height = getRect().getHeight();
+				setOrigin(horizontal_offset, vertical_offset - rect_height);
 
-			translate(snap_rect.mLeft, snap_rect.mBottom);
-			//translateIntoRect(snap_rect);
+				translate(snap_rect.mLeft, snap_rect.mBottom);
+			}
+			//mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
+			setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
-		mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
-		setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
-
 		break;
 
 	case LLFloaterEnums::POSITIONING_RELATIVE:
@@ -1262,6 +1263,7 @@ void LLFloater::setMinimized(BOOL minimize)
 
 		// Reshape *after* setting mMinimized
 		reshape( mExpandedRect.getWidth(), mExpandedRect.getHeight(), TRUE );
+		applyPositioning(NULL, false);
 	}
 
 	make_ui_sound("UISndWindowClose");
@@ -2199,7 +2201,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		if (!floaterp->isMinimized() && floaterp->getCanDrag())
 		{
 			LLRect old_rect = floaterp->getRect();
-			floaterp->applyPositioning(NULL);
+			floaterp->applyPositioning(NULL, false);
 			LLRect new_rect = floaterp->getRect();
 
 			//LLRect r = floaterp->getRect();
@@ -3284,7 +3286,7 @@ void LLFloater::stackWith(LLFloater& other)
 	
 	setShape(next_rect);
 
-	other.mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
+	//other.mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
 	other.setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
 }
 
