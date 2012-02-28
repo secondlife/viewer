@@ -173,6 +173,12 @@ bool LLPathfindingManager::isAllowAlterPermanent()
 	return (!isPathfindingEnabledForCurrentRegion() || (getAgentState() == kAgentStateUnfrozen));
 }
 
+bool LLPathfindingManager::isAllowViewTerrainProperties() const
+{
+	LLViewerRegion* region = getCurrentRegion();
+	return (gAgent.isGodlike() || ((region != NULL) && region->canManageEstate()));
+}
+
 LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateSignal(agent_state_callback_t pAgentStateCallback)
 {
 	return mAgentStateSignal.connect(pAgentStateCallback);
@@ -231,13 +237,18 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestGetLin
 	}
 	else
 	{
-		LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pLinksetsCallback, true, true));
+		bool doRequestTerrain = isAllowViewTerrainProperties();
+		LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pLinksetsCallback, true, doRequestTerrain));
 		
 		LLHTTPClient::ResponderPtr objectLinksetsResponder = new ObjectLinksetsResponder(objectLinksetsURL, linksetsResponderPtr);
-		LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(terrainLinksetsURL, linksetsResponderPtr);
-		
 		LLHTTPClient::get(objectLinksetsURL, objectLinksetsResponder);
-		LLHTTPClient::get(terrainLinksetsURL, terrainLinksetsResponder);
+
+		if (doRequestTerrain)
+		{
+			LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(terrainLinksetsURL, linksetsResponderPtr);
+			LLHTTPClient::get(terrainLinksetsURL, terrainLinksetsResponder);
+		}
+
 		status = kLinksetsRequestStarted;
 	}
 
@@ -257,7 +268,12 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLin
 	else
 	{
 		LLSD objectPostData = pLinksetList->encodeObjectFields(pLinksetUse, pA, pB, pC, pD);
-		LLSD terrainPostData = pLinksetList->encodeTerrainFields(pLinksetUse, pA, pB, pC, pD);
+		LLSD terrainPostData;
+		if (isAllowViewTerrainProperties())
+		{
+			terrainPostData = pLinksetList->encodeTerrainFields(pLinksetUse, pA, pB, pC, pD);
+		}
+
 		if (objectPostData.isUndefined() && terrainPostData.isUndefined())
 		{
 			status = kLinksetsRequestCompleted;
@@ -362,7 +378,7 @@ std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::st
 {
 	std::string capabilityURL("");
 
-	LLViewerRegion* region = gAgent.getRegion();
+	LLViewerRegion* region = getCurrentRegion();
 	if (region != NULL)
 	{
 		capabilityURL = region->getCapability(pCapabilityName);
@@ -375,6 +391,11 @@ std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::st
 	}
 
 	return capabilityURL;
+}
+
+LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
+{
+	return gAgent.getRegion();
 }
 
 //---------------------------------------------------------------------------

@@ -38,6 +38,7 @@
 #include "llpathfindinglinksetlist.h"
 
 class LLFloater;
+class LLViewerRegion;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
@@ -70,6 +71,7 @@ public:
 	bool isPathfindingEnabledForCurrentRegion() const;
 
 	bool isAllowAlterPermanent();
+	bool isAllowViewTerrainProperties() const;
 
 	agent_state_slot_t registerAgentStateSignal(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
@@ -95,6 +97,7 @@ private:
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
 
 	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
+	LLViewerRegion *getCurrentRegion() const;
 
 	agent_state_signal_t mAgentStateSignal;
 	EAgentState          mAgentState;
