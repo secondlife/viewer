@@ -358,7 +358,7 @@ protected:
 
 	virtual bool	applyRectControl();
 	bool			applyDockState();
-	void			applyPositioning(LLFloater* other);
+	void			applyPositioning(LLFloater* other, bool on_open);
 	void			applyRelativePosition();
 
 	void			storeRectControl();
