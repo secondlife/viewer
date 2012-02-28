@@ -13492,7 +13492,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-	  <integer>6</integer>
+	  <integer>99</integer>
     </map>
 	<key>EnableVBOForNavMeshVisualization</key>
     <map>
