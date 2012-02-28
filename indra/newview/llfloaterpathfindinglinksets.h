@@ -79,7 +79,8 @@ private:
 	{
 		kAllowLinksetUseAll,
 		kAllowLinksetUseOnlyNonPhantom,
-		kAllowLinksetUseOnlyPhantom
+		kAllowLinksetUseOnlyPhantom,
+		kAllowLinksetUseOnlyTerrain
 	} EAllowLinksetsUse;
 
 	LLLineEditor     *mFilterByName;

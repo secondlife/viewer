@@ -32,7 +32,8 @@
   <floater.string name="linkset_use_material_volume">Material volume</floater.string>
   <floater.string name="linkset_use_exclusion_volume">Exclusion volume</floater.string>
   <floater.string name="linkset_use_dynamic_phantom">Dynamic phantom</floater.string>
-  <floater.string name="linkset_is_locked_state">[restricted]</floater.string>
+  <floater.string name="linkset_is_terrain">[unmodifiable]</floater.string>
+  <floater.string name="linkset_is_restricted_state">[restricted]</floater.string>
   <floater.string name="linkset_choose_use">Choose linkset use...</floater.string>
   <panel
       border="false"

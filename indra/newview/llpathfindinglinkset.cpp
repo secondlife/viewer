@@ -58,7 +58,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainLinksetItem)
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(LLVector3::zero),
-	mIsLocked(TRUE),
+	mIsModifiable(TRUE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -75,7 +75,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(LLVector3::zero),
-	mIsLocked(FALSE),
+	mIsModifiable(TRUE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -92,7 +92,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	mDescription(pOther.mDescription),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
-	mIsLocked(pOther.mIsLocked),
+	mIsModifiable(pOther.mIsModifiable),
 	mLinksetUse(pOther.mLinksetUse),
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
 	mWalkabilityCoefficientB(pOther.mWalkabilityCoefficientB),
@@ -112,7 +112,7 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
-	mIsLocked = pOther.mIsLocked;
+	mIsModifiable = pOther.mIsModifiable;
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
@@ -168,7 +168,7 @@ LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, 
 
 	if (!isTerrain() && (pLinksetUse != kUnknown) && (mLinksetUse != pLinksetUse))
 	{
-		if (!mIsLocked)
+		if (mIsModifiable)
 		{
 			itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPhantom(pLinksetUse));
 		}
@@ -216,7 +216,7 @@ void LLPathfindingLinkset::parseObjectData(const LLSD &pLinksetItem)
 	
 	llassert(pLinksetItem.has(LINKSET_MODIFIABLE_FIELD));
 	llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
-	mIsLocked = !pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
+	mIsModifiable = pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
 	
 	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
 	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());

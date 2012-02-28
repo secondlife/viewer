@@ -65,7 +65,7 @@ public:
 	inline const std::string& getDescription() const              {return mDescription;};
 	inline U32                getLandImpact() const               {return mLandImpact;};
 	inline const LLVector3&   getLocation() const                 {return mLocation;};
-	BOOL                      isLocked() const                    {return mIsLocked;};
+	BOOL                      isModifiable() const                {return mIsModifiable;};
 	BOOL                      isPhantom() const;
 	static BOOL               isPhantom(ELinksetUse pLinksetUse);
 	static ELinksetUse        getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
@@ -97,7 +97,7 @@ private:
 	std::string  mDescription;
 	U32          mLandImpact;
 	LLVector3    mLocation;
-	BOOL         mIsLocked;
+	BOOL         mIsModifiable;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
 	S32          mWalkabilityCoefficientB;

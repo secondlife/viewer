@@ -642,6 +642,14 @@ void LLFloaterPathfindingLinksets::updateEditFieldValues()
 			mEditLinksetUseExclusionVolume->setEnabled(TRUE);
 			mEditLinksetUseDynamicPhantom->setEnabled(TRUE);
 			break;
+		case kAllowLinksetUseOnlyTerrain :
+			mEditLinksetUseWalkable->setEnabled(TRUE);
+			mEditLinksetUseStaticObstacle->setEnabled(FALSE);
+			mEditLinksetUseDynamicObstacle->setEnabled(FALSE);
+			mEditLinksetUseMaterialVolume->setEnabled(FALSE);
+			mEditLinksetUseExclusionVolume->setEnabled(FALSE);
+			mEditLinksetUseDynamicPhantom->setEnabled(FALSE);
+			break;
 		default : 
 			llassert(0);
 			break;
@@ -759,9 +767,13 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfin
 
 	columns[4]["column"] = "linkset_use";
 	std::string linksetUse = getLinksetUseString(pLinksetPtr->getLinksetUse());
-	if (pLinksetPtr->isLocked())
+	if (pLinksetPtr->isTerrain())
 	{
-		linksetUse += (" " + getString("linkset_is_locked_state"));
+		linksetUse += (" " + getString("linkset_is_terrain"));
+	}
+	else if (!pLinksetPtr->isModifiable())
+	{
+		linksetUse += (" " + getString("linkset_is_restricted_state"));
 	}
 	columns[4]["value"] = linksetUse;
 	columns[4]["font"] = "SANSSERIF";
@@ -815,6 +827,7 @@ LLFloaterPathfindingLinksets::EAllowLinksetsUse LLFloaterPathfindingLinksets::ge
 		bool isAllLocked = true;
 		bool isAllPhantom = true;
 		bool isAllNonPhantom = true;
+		bool isAllTerrain = true;
 
 		for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
 			(isAllLocked || isAllPhantom || isAllNonPhantom) && (selectedItemIter != selectedItems.end()); ++selectedItemIter)
@@ -824,7 +837,11 @@ LLFloaterPathfindingLinksets::EAllowLinksetsUse LLFloaterPathfindingLinksets::ge
 			LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->find(selectedItem->getUUID().asString());
 			llassert(linksetIter != mLinksetsListPtr->end());
 			const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-			if (linksetPtr->isLocked())
+			if (!linksetPtr->isTerrain())
+			{
+				isAllTerrain = false;
+			}
+			if (!linksetPtr->isModifiable())
 			{
 				if (linksetPtr->isPhantom())
 				{
@@ -841,7 +858,11 @@ LLFloaterPathfindingLinksets::EAllowLinksetsUse LLFloaterPathfindingLinksets::ge
 			}
 		}
 
-		if (isAllLocked)
+		if (isAllTerrain)
+		{
+			allowLinksetUse = kAllowLinksetUseOnlyTerrain;
+		}
+		else if (isAllLocked)
 		{
 			if (isAllPhantom && !isAllNonPhantom)
 			{
@@ -874,7 +895,7 @@ bool LLFloaterPathfindingLinksets::doShowLinksetUseSetWarning(LLPathfindingLinks
 				LLPathfindingLinksetList::const_iterator linksetIter = mLinksetsListPtr->find(selectedItem->getUUID().asString());
 				llassert(linksetIter != mLinksetsListPtr->end());
 				const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-				showWarning = (linksetPtr->isLocked() && (linksetPtr->isPhantom() != LLPathfindingLinkset::isPhantom(linksetUse)));
+				showWarning = (!linksetPtr->isModifiable() && (linksetPtr->isPhantom() != LLPathfindingLinkset::isPhantom(linksetUse)));
 			}
 		}
 	}
