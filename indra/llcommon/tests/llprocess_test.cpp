@@ -295,22 +295,6 @@ public:
     LLError::Settings* mOldSettings;
 };
 
-std::string getline(std::istream& in)
-{
-    std::string line;
-    std::getline(in, line);
-    // Blur the distinction between "\r\n" and plain "\n". std::getline() will
-    // have eaten the "\n", but we could still end up with a trailing "\r".
-    std::string::size_type lastpos = line.find_last_not_of("\r");
-    if (lastpos != std::string::npos)
-    {
-        // Found at least one character that's not a trailing '\r'. SKIP OVER
-        // IT and then erase the rest of the line.
-        line.erase(lastpos+1);
-    }
-    return line;
-}
-
 /*****************************************************************************
 *   TUT
 *****************************************************************************/
@@ -1030,7 +1014,7 @@ namespace tut
         }
         ensure("script never started", i < timeout);
         ensure_equals("bad wakeup from stdin/stdout script",
-                      getline(childout.get_istream()), "ok");
+                      childout.getline(), "ok");
         // important to get the implicit flush from std::endl
         py.mPy->getWritePipe().get_ostream() << "go" << std::endl;
         for (i = 0; i < timeout && py.mPy->isRunning() && ! childout.contains("\n"); ++i)
@@ -1038,7 +1022,7 @@ namespace tut
             yield();
         }
         ensure("script never replied", childout.contains("\n"));
-        ensure_equals("child didn't ack", getline(childout.get_istream()), "ack");
+        ensure_equals("child didn't ack", childout.getline(), "ack");
         ensure_equals("bad child termination", py.mPy->getStatus().mState, LLProcess::EXITED);
         ensure_equals("bad child exit code",   py.mPy->getStatus().mData,  0);
     }
@@ -1130,6 +1114,32 @@ namespace tut
     template<> template<>
     void object::test<18>()
     {
+        set_test_name("ReadPipe \"eof\" event");
+        PythonProcessLauncher py(get_test_name(),
+                                 "print 'Hello from Python!'\n");
+        py.mParams.files.add(LLProcess::FileParam()); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.launch();
+        LLProcess::ReadPipe& childout(py.mPy->getReadPipe(LLProcess::STDOUT));
+        EventListener listener(childout.getPump());
+        waitfor(*py.mPy);
+        // We can't be positive there will only be a single event, if the OS
+        // (or any other intervening layer) does crazy buffering. What we want
+        // to ensure is that there was exactly ONE event with "eof" true, and
+        // that it was the LAST event.
+        std::list<LLSD>::const_reverse_iterator rli(listener.mHistory.rbegin()),
+                                                rlend(listener.mHistory.rend());
+        ensure("no events", rli != rlend);
+        ensure("last event not \"eof\"", (*rli)["eof"].asBoolean());
+        while (++rli != rlend)
+        {
+            ensure("\"eof\" event not last", ! (*rli)["eof"].asBoolean());
+        }
+    }
+
+    template<> template<>
+    void object::test<19>()
+    {
         set_test_name("setLimit()");
         PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
@@ -1157,7 +1167,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<19>()
+    void object::test<20>()
     {
         set_test_name("peek() ReadPipe data");
         PythonProcessLauncher py(get_test_name(),
@@ -1210,7 +1220,32 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<20>()
+    void object::test<21>()
+    {
+        set_test_name("bad postend");
+        std::string pumpname("postend");
+        EventListener listener(LLEventPumps::instance().obtain(pumpname));
+        LLProcess::Params params;
+        params.desc = get_test_name();
+        params.postend = pumpname;
+        LLProcessPtr child = LLProcess::create(params);
+        ensure("shouldn't have launched", ! child);
+        ensure_equals("number of postend events", listener.mHistory.size(), 1);
+        LLSD postend(listener.mHistory.front());
+        ensure("has id", ! postend.has("id"));
+        ensure_equals("desc", postend["desc"].asString(), std::string(params.desc));
+        ensure_equals("state", postend["state"].asInteger(), LLProcess::UNSTARTED);
+        ensure("has data", ! postend.has("data"));
+        std::string error(postend["string"]);
+        // All we get from canned parameter validation is a bool, so the
+        // "validation failed" message we ourselves generate can't mention
+        // "executable" by name. Just check that it's nonempty.
+        //ensure_contains("error", error, "executable");
+        ensure("string", ! error.empty());
+    }
+
+    template<> template<>
+    void object::test<22>()
     {
         set_test_name("good postend");
         PythonProcessLauncher py(get_test_name(),
@@ -1240,32 +1275,48 @@ namespace tut
         ensure_contains("string", str, "35");
     }
 
-    template<> template<>
-    void object::test<21>()
+    struct PostendListener
     {
-        set_test_name("bad postend");
+        PostendListener(LLProcess::ReadPipe& rpipe,
+                        const std::string& pumpname,
+                        const std::string& expect):
+            mReadPipe(rpipe),
+            mExpect(expect),
+            mTriggered(false)
+        {
+            LLEventPumps::instance().obtain(pumpname)
+                .listen("PostendListener", boost::bind(&PostendListener::postend, this, _1));
+        }
+
+        bool postend(const LLSD&)
+        {
+            mTriggered = true;
+            ensure_equals("postend listener", mReadPipe.read(mReadPipe.size()), mExpect);
+            return false;
+        }
+
+        LLProcess::ReadPipe& mReadPipe;
+        std::string mExpect;
+        bool mTriggered;
+    };
+
+    template<> template<>
+    void object::test<23>()
+    {
+        set_test_name("all data visible at postend");
+        PythonProcessLauncher py(get_test_name(),
+                                 "import sys\n"
+                                 // note, no '\n' in written data
+                                 "sys.stdout.write('partial line')\n");
         std::string pumpname("postend");
-        EventListener listener(LLEventPumps::instance().obtain(pumpname));
-        LLProcess::Params params;
-        params.desc = get_test_name();
-        params.postend = pumpname;
-        LLProcessPtr child = LLProcess::create(params);
-        ensure("shouldn't have launched", ! child);
-        ensure_equals("number of postend events", listener.mHistory.size(), 1);
-        LLSD postend(listener.mHistory.front());
-        ensure("has id", ! postend.has("id"));
-        ensure_equals("desc", postend["desc"].asString(), std::string(params.desc));
-        ensure_equals("state", postend["state"].asInteger(), LLProcess::UNSTARTED);
-        ensure("has data", ! postend.has("data"));
-        std::string error(postend["string"]);
-        // All we get from canned parameter validation is a bool, so the
-        // "validation failed" message we ourselves generate can't mention
-        // "executable" by name. Just check that it's nonempty.
-        //ensure_contains("error", error, "executable");
-        ensure("string", ! error.empty());
+        py.mParams.files.add(LLProcess::FileParam()); // stdin
+        py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout
+        py.mParams.postend = pumpname;
+        py.launch();
+        PostendListener listener(py.mPy->getReadPipe(LLProcess::STDOUT),
+                                 pumpname,
+                                 "partial line");
+        waitfor(*py.mPy);
+        ensure("postend never triggered", listener.mTriggered);
     }
-
-    // TODO:
-    // test EOF -- check logging
-
 } // namespace tut

@@ -156,7 +156,7 @@ public:
 			// set them rather than initialization.
 			if (! tp.empty()) type = tp;
 			if (! nm.empty()) name = nm;
-        }
+		}
 	};
 
 	/// Param block definition
@@ -376,6 +376,18 @@ public:
 		virtual std::istream& get_istream() = 0;
 
 		/**
+		 * Like std::getline(get_istream(), line), but trims off trailing '\r'
+		 * to make calling code less platform-sensitive.
+		 */
+		virtual std::string getline() = 0;
+
+		/**
+		 * Like get_istream().read(buffer, n), but returns std::string rather
+		 * than requiring caller to construct a buffer, etc.
+		 */
+		virtual std::string read(size_type len) = 0;
+
+		/**
 		 * Get accumulated buffer length.
 		 * Often we need to refrain from actually reading the std::istream
 		 * returned by get_istream() until we've accumulated enough data to
@@ -420,9 +432,15 @@ public:
 
 		/**
 		 * Get LLEventPump& on which to listen for incoming data. The posted
-		 * LLSD::Map event will contain a key "data" whose value is an
-		 * LLSD::String containing (part of) the data accumulated in the
-		 * buffer.
+		 * LLSD::Map event will contain:
+		 *
+		 * - "data" part of pending data; see setLimit()
+		 * - "len" entire length of pending data, regardless of setLimit()
+		 * - "slot" this ReadPipe's FILESLOT, e.g. LLProcess::STDOUT
+		 * - "name" e.g. "stdout"
+		 * - "desc" e.g. "SLPlugin (pid) stdout"
+		 * - "eof" @c true means there no more data will arrive on this pipe,
+		 *   therefore no more events on this pump
 		 *
 		 * If the child sends "abc", and this ReadPipe posts "data"="abc", but
 		 * you don't consume it by reading the std::istream returned by
@@ -486,6 +504,11 @@ public:
 	 * stderr. Use this method for inspecting an LLProcess you did not create.
 	 */
 	boost::optional<ReadPipe&> getOptReadPipe(FILESLOT slot);
+
+	/// little utilities that really should already be somewhere else in the
+	/// code base
+	static std::string basename(const std::string& path);
+	static std::string getline(std::istream&);
 
 private:
 	/// constructor is private: use create() instead

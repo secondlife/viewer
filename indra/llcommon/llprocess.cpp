@@ -220,7 +220,8 @@ public:
 		// Essential to initialize our std::istream with our special streambuf!
 		mStream(&mStreambuf),
 		mPump("ReadPipe", true),    // tweak name as needed to avoid collisions
-		mLimit(0)
+		mLimit(0),
+		mEOF(false)
 	{
 		mConnection = LLEventPumps::instance().obtain("mainloop")
 			.listen(LLEventPump::inventName("ReadPipe"),
@@ -230,10 +231,24 @@ public:
 	// Much of the implementation is simply connecting the abstract virtual
 	// methods with implementation data concealed from the base class.
 	virtual std::istream& get_istream() { return mStream; }
+	virtual std::string getline() { return LLProcess::getline(mStream); }
 	virtual LLEventPump& getPump() { return mPump; }
 	virtual void setLimit(size_type limit) { mLimit = limit; }
 	virtual size_type getLimit() const { return mLimit; }
 	virtual size_type size() const { return mStreambuf.size(); }
+
+	virtual std::string read(size_type len)
+	{
+		// Read specified number of bytes into a buffer. Make a buffer big
+		// enough.
+		size_type readlen((std::min)(size(), len));
+		std::vector<char> buffer(readlen);
+		mStream.read(&buffer[0], readlen);
+		// Since we've already clamped 'readlen', we can think of no reason
+		// why mStream.read() should read fewer than 'readlen' bytes.
+		// Nonetheless, use the actual retrieved length.
+		return std::string(&buffer[0], mStream.gcount());
+	}
 
 	virtual std::string peek(size_type offset=0, size_type len=npos) const
 	{
@@ -287,14 +302,18 @@ public:
 		return (found == end)? npos : (found - begin);
 	}
 
-private:
 	bool tick(const LLSD&)
 	{
+		// Once we've hit EOF, skip all the rest of this.
+		if (mEOF)
+			return false;
+
 		typedef boost::asio::streambuf::mutable_buffers_type mutable_buffer_sequence;
 		// Try, every time, to read into our streambuf. In fact, we have no
 		// idea how much data the child might be trying to send: keep trying
 		// until we're convinced we've temporarily exhausted the pipe.
-		bool exhausted = false;
+		enum PipeState { RETRY, EXHAUSTED, CLOSED };
+		PipeState state = RETRY;
 		std::size_t committed(0);
 		do
 		{
@@ -329,7 +348,9 @@ private:
 					}
 					// Either way, though, we won't need any more tick() calls.
 					mConnection.disconnect();
-					exhausted = true; // also break outer retry loop
+					// Ignore any subsequent calls we might get anyway.
+					mEOF = true;
+					state = CLOSED; // also break outer retry loop
 					break;
 				}
 
@@ -347,7 +368,7 @@ private:
 				if (gotten < toread)
 				{
 					// break outer retry loop too
-					exhausted = true;
+					state = EXHAUSTED;
 					break;
 				}
 			}
@@ -356,15 +377,20 @@ private:
 			mStreambuf.commit(tocommit);
 			committed += tocommit;
 
-			// 'exhausted' is set when we can't fill any one buffer of the
-			// mutable_buffer_sequence established by the current prepare()
-			// call -- whether due to error or not enough bytes. That is,
-			// 'exhausted' is still false when we've filled every physical
+			// state is changed from RETRY when we can't fill any one buffer
+			// of the mutable_buffer_sequence established by the current
+			// prepare() call -- whether due to error or not enough bytes.
+			// That is, if state is still RETRY, we've filled every physical
 			// buffer in the mutable_buffer_sequence. In that case, for all we
 			// know, the child might have still more data pending -- go for it!
-		} while (! exhausted);
+		} while (state == RETRY);
 
-		if (committed)
+		// Once we recognize that the pipe is closed, make one more call to
+		// listener. The listener might be waiting for a particular substring
+		// to arrive, or a particular length of data or something. The event
+		// with "eof" == true announces that nothing further will arrive, so
+		// use it or lose it.
+		if (committed || state == CLOSED)
 		{
 			// If we actually received new data, publish it on our LLEventPump
 			// as advertised. Constrain it by mLimit. But show listener the
@@ -373,14 +399,16 @@ private:
 			mPump.post(LLSDMap
 					   ("data", peek(0, datasize))
 					   ("len", LLSD::Integer(mStreambuf.size()))
-					   ("index", LLSD::Integer(mIndex))
+					   ("slot", LLSD::Integer(mIndex))
 					   ("name", whichfile(mIndex))
-					   ("desc", mDesc));
+					   ("desc", mDesc)
+					   ("eof", state == CLOSED));
 		}
 
 		return false;
 	}
 
+private:
 	std::string mDesc;
 	apr_file_t* mPipe;
 	LLProcess::FILESLOT mIndex;
@@ -389,6 +417,7 @@ private:
 	std::istream mStream;
 	LLEventStream mPump;
 	size_type mLimit;
+	bool mEOF;
 };
 
 /// Need an exception to avoid constructing an invalid LLProcess object, but
@@ -641,17 +670,22 @@ static std::string getDesc(const LLProcess::Params& params)
 
 	// Caller didn't say. Use the executable name -- but use just the filename
 	// part. On Mac, for instance, full pathnames get cumbersome.
+	return LLProcess::basename(params.executable);
+}
+
+//static
+std::string LLProcess::basename(const std::string& path)
+{
 	// If there are Linden utility functions to manipulate pathnames, I
 	// haven't found them -- and for this usage, Boost.Filesystem seems kind
 	// of heavyweight.
-	std::string executable(params.executable);
-	std::string::size_type delim = executable.find_last_of("\\/");
-	// If executable contains no pathname delimiters, return the whole thing.
+	std::string::size_type delim = path.find_last_of("\\/");
+	// If path contains no pathname delimiters, return the whole thing.
 	if (delim == std::string::npos)
-		return executable;
+		return path;
 
 	// Return just the part beyond the last delimiter.
-	return executable.substr(delim + 1);
+	return path.substr(delim + 1);
 }
 
 LLProcess::~LLProcess()
@@ -804,6 +838,24 @@ void LLProcess::handle_status(int reason, int status)
 	// KILLED; refine below.
 	mStatus.mState = EXITED;
 
+	// Make last-gasp calls for each of the ReadPipes we have on hand. Since
+	// they're listening on "mainloop", we can be sure they'll eventually
+	// collect all pending data from the child. But we want to be able to
+	// guarantee to our consumer that by the time we post on the "postend"
+	// LLEventPump, our ReadPipes are already buffering all the data there
+	// will ever be from the child. That lets the "postend" listener decide
+	// what to do with that final data.
+	for (size_t i = 0; i < mPipes.size(); ++i)
+	{
+		std::string error;
+		ReadPipeImpl* ppipe = getPipePtr<ReadPipeImpl>(error, FILESLOT(i));
+		if (ppipe)
+		{
+			static LLSD trivial;
+			ppipe->tick(trivial);
+		}
+	}
+
 //	wi->rv = apr_proc_wait(wi->child, &wi->rc, &wi->why, APR_NOWAIT);
 	// It's just wrong to call apr_proc_wait() here. The only way APR knows to
 	// call us with APR_OC_REASON_DEATH is that it's already reaped this child
@@ -917,6 +969,23 @@ LLProcess::ReadPipe& LLProcess::getReadPipe(FILESLOT slot)
 boost::optional<LLProcess::ReadPipe&> LLProcess::getOptReadPipe(FILESLOT slot)
 {
 	return getOptPipe<ReadPipe>(slot);
+}
+
+//static
+std::string LLProcess::getline(std::istream& in)
+{
+	std::string line;
+	std::getline(in, line);
+	// Blur the distinction between "\r\n" and plain "\n". std::getline() will
+	// have eaten the "\n", but we could still end up with a trailing "\r".
+	std::string::size_type lastpos = line.find_last_not_of("\r");
+	if (lastpos != std::string::npos)
+	{
+		// Found at least one character that's not a trailing '\r'. SKIP OVER
+		// IT and erase the rest of the line.
+		line.erase(lastpos+1);
+	}
+	return line;
 }
 
 std::ostream& operator<<(std::ostream& out, const LLProcess::Params& params)
