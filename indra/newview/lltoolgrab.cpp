@@ -205,9 +205,9 @@ BOOL LLToolGrab::handleObjectHit(const LLPickInfo& info)
 
 	// Clicks on scripted or physical objects are temporary grabs, so
 	// not "Build mode"
-	mHideBuildHighlight = script_touch || objectp->usePhysics();
+	mHideBuildHighlight = script_touch || objectp->flagUsePhysics();
 
-	if (!objectp->usePhysics())
+	if (!objectp->flagUsePhysics())
 	{
 		if (script_touch)
 		{

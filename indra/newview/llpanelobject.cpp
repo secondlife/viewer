@@ -283,7 +283,6 @@ LLPanelObject::LLPanelObject()
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
-	mCastShadows(TRUE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
 	mSculptTypeRevert(0)
@@ -497,7 +496,7 @@ void LLPanelObject::getState( )
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
 
 	// Physics checkbox
-	mIsPhysical = root_objectp->usePhysics();
+	mIsPhysical = root_objectp->flagUsePhysics();
 	mCheckPhysics->set( mIsPhysical );
 	mCheckPhysics->setEnabled( roots_selected>0 
 								&& (editable || gAgent.isGodlike()) 
@@ -512,12 +511,6 @@ void LLPanelObject::getState( )
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
 
        
-#if 0 // 1.9.2
-	mCastShadows = root_objectp->flagCastShadows();
-	mCheckCastShadows->set( mCastShadows );
-	mCheckCastShadows->setEnabled( roots_selected==1 && editable );
-#endif
-	
 	//----------------------------------------------------------------------------
 
 	S32 selected_item	= MI_BOX;
@@ -1214,22 +1207,6 @@ void LLPanelObject::sendIsPhantom()
 	}
 }
 
-void LLPanelObject::sendCastShadows()
-{
-	BOOL value = mCheckCastShadows->get();
-	if( mCastShadows != value )
-	{
-		LLSelectMgr::getInstance()->selectionUpdateCastShadows(value);
-		mCastShadows = value;
-
-		llinfos << "update cast shadows sent" << llendl;
-	}
-	else
-	{
-		llinfos << "update cast shadows not changed" << llendl;
-	}
-}
-
 // static
 void LLPanelObject::onCommitParametric( LLUICtrl* ctrl, void* userdata )
 {
@@ -1886,10 +1863,6 @@ void LLPanelObject::clearCtrls()
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
 	
-#if 0 // 1.9.2
-	mCheckCastShadows->set(FALSE);
-	mCheckCastShadows->setEnabled( FALSE );
-#endif
 	// Disable text labels
 	mLabelPosition	->setEnabled( FALSE );
 	mLabelSize		->setEnabled( FALSE );
@@ -1976,14 +1949,6 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 	LLPanelObject* self = (LLPanelObject*) userdata;
 	self->sendIsPhantom();
 }
-
-// static
-void LLPanelObject::onCommitCastShadows( LLUICtrl* ctrl, void* userdata )
-{
-	LLPanelObject* self = (LLPanelObject*) userdata;
-	self->sendCastShadows();
-}
-
 
 void LLPanelObject::onSelectSculpt(const LLSD& data)
 {

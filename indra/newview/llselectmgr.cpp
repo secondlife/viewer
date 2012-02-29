@@ -4144,12 +4144,6 @@ void LLSelectMgr::selectionUpdatePhantom(BOOL is_phantom)
 	getSelection()->applyToObjects(&func);	
 }
 
-void LLSelectMgr::selectionUpdateCastShadows(BOOL cast_shadows)
-{
-	LLSelectMgrApplyFlags func(	FLAGS_CAST_SHADOWS, cast_shadows);
-	getSelection()->applyToObjects(&func);	
-}
-
 //----------------------------------------------------------------------
 // Helpful packing functions for sendObjectMessage()
 //----------------------------------------------------------------------
