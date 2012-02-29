@@ -383,11 +383,6 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
-
-	if(gAuditTexture)
-	{
-		LLImageGL::setHighlightTexture(LLViewerTexture::OTHER) ;	
-	}
 }
 
 // static
@@ -654,10 +649,6 @@ void LLViewerTexture::setBoostLevel(S32 level)
 		if(mBoostLevel != LLViewerTexture::BOOST_NONE)
 		{
 			setNoDelete() ;		
-		}
-		if(gAuditTexture)
-		{
-			setCategory(mBoostLevel);
 		}
 	}
 }

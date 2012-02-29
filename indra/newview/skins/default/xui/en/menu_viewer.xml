@@ -2577,16 +2577,6 @@
                  parameter="TextureLoadFullRes" />
             </menu_item_check>
             <menu_item_check
-               label="Audit Textures"
-               name="Audit Textures">
-              <menu_item_check.on_check
-               function="CheckControl"
-               parameter="AuditTexture" />
-              <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="AuditTexture" />
-            </menu_item_check>
-            <menu_item_check
              label="Texture Atlas (experimental)"
              name="Texture Atlas">
               <menu_item_check.on_check
