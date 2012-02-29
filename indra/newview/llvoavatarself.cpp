@@ -2339,7 +2339,7 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 void LLVOAvatarSelf::outputRezTiming(const std::string& msg) const
 {
 	llinfos
-		<< " Avatar '" << getFullname() << "' "
+		<< avString()
 		<< llformat("%s. Time from avatar creation: %.2f", msg.c_str(), mDebugSelfLoadTimer.getElapsedTimeF32())
 		<< llendl;
 }

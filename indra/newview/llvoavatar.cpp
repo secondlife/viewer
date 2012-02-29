@@ -4004,7 +4004,7 @@ void LLVOAvatar::updateVisibility()
 			LLNameValue* firstname = getNVPair("FirstName");
 			if (firstname)
 			{
-				llinfos << avString() << " updating visiblity" << llendl;
+				llinfos << avString() << " updating visibility" << llendl;
 			}
 			else
 			{
@@ -4216,7 +4216,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		LLNameValue* firstname = getNVPair("FirstName");
 		if (firstname)
 		{
-			llinfos << "Avatar " << firstname->getString() << " in render" << llendl;
+			llinfos << avString() << " in render" << llendl;
 		}
 		else
 		{
@@ -7231,8 +7231,9 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 
-	// runway - is this right? Will be called every time *except* the first.
-	// FIXME - trying toggle
+	// runway - was
+	// if (!is_first_appearance_message )
+	// which means it would be called on second appearance message - probably wrong.
 	if (is_first_appearance_message )
 	{
 		onFirstTEMessageReceived();
