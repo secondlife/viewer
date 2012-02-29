@@ -511,14 +511,6 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			toggle_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			toggle_visibility( (void*)gTextureCategoryView );
-		}
 		else if ("fast timers" == console_type)
 		{
 			LLFloaterReg::toggleInstance("fast_timers");
@@ -550,14 +542,6 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
-		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{

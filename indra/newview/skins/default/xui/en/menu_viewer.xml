@@ -1891,28 +1891,6 @@
                parameter="notifications_console" />
             </menu_item_call>
             <menu_item_check
-               label="Texture Size Console"
-               name="Texture Size"
-               shortcut="control|shift|6">
-              <menu_item_check.on_check
-               function="Advanced.CheckConsole"
-               parameter="texture size" />
-              <menu_item_check.on_click
-               function="Advanced.ToggleConsole"
-               parameter="texture size" />
-            </menu_item_check>
-            <menu_item_check
-               label="Texture Category Console"
-               name="Texture Category"
-               shortcut="control|shift|7">
-              <menu_item_check.on_check
-               function="Advanced.CheckConsole"
-               parameter="texture category" />
-              <menu_item_check.on_click
-               function="Advanced.ToggleConsole"
-               parameter="texture category" />
-            </menu_item_check>
-            <menu_item_check
              label="Fast Timers"
              name="Fast Timers"
              shortcut="control|shift|9"
