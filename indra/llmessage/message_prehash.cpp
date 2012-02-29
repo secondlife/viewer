@@ -999,7 +999,6 @@ char const* const _PREHASH_SnapshotID = LLMessageStringTable::getInstance()->get
 char const* const _PREHASH_Aspect = LLMessageStringTable::getInstance()->getString("Aspect");
 char const* const _PREHASH_ParamSize = LLMessageStringTable::getInstance()->getString("ParamSize");
 char const* const _PREHASH_VoteCast = LLMessageStringTable::getInstance()->getString("VoteCast");
-char const* const _PREHASH_CastsShadows = LLMessageStringTable::getInstance()->getString("CastsShadows");
 char const* const _PREHASH_EveryoneMask = LLMessageStringTable::getInstance()->getString("EveryoneMask");
 char const* const _PREHASH_ObjectSpinUpdate = LLMessageStringTable::getInstance()->getString("ObjectSpinUpdate");
 char const* const _PREHASH_MaturePublish = LLMessageStringTable::getInstance()->getString("MaturePublish");

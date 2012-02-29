@@ -999,7 +999,6 @@ extern char const* const _PREHASH_SnapshotID;
 extern char const* const _PREHASH_Aspect;
 extern char const* const _PREHASH_ParamSize;
 extern char const* const _PREHASH_VoteCast;
-extern char const* const _PREHASH_CastsShadows;
 extern char const* const _PREHASH_EveryoneMask;
 extern char const* const _PREHASH_ObjectSpinUpdate;
 extern char const* const _PREHASH_MaturePublish;

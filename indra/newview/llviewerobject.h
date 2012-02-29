@@ -468,20 +468,26 @@ public:
 	BOOL			permCopy() const;	
 	BOOL			permMove() const;		
 	BOOL			permTransfer() const;
-	inline BOOL		usePhysics() const				{ return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+	inline BOOL		flagUsePhysics() const			{ return ((mFlags & FLAGS_USE_PHYSICS) != 0); }
+	inline BOOL		flagObjectAnyOwner() const		{ return ((mFlags & FLAGS_OBJECT_ANY_OWNER) != 0); }
+	inline BOOL		flagObjectYouOwner() const		{ return ((mFlags & FLAGS_OBJECT_YOU_OWNER) != 0); }
+	inline BOOL		flagObjectGroupOwned() const	{ return ((mFlags & FLAGS_OBJECT_GROUP_OWNED) != 0); }
+	inline BOOL		flagObjectOwnerModify() const	{ return ((mFlags & FLAGS_OBJECT_OWNER_MODIFY) != 0); }
+	inline BOOL		flagObjectModify() const		{ return ((mFlags & FLAGS_OBJECT_MODIFY) != 0); }
+	inline BOOL		flagObjectCopy() const			{ return ((mFlags & FLAGS_OBJECT_COPY) != 0); }
+	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
+	inline BOOL		flagObjectTransfer() const		{ return ((mFlags & FLAGS_OBJECT_TRANSFER) != 0); }
+	inline BOOL		flagIncludeInSearch() const     { return ((mFlags & FLAGS_INCLUDE_IN_SEARCH) != 0); }
 	inline BOOL		flagScripted() const			{ return ((mFlags & FLAGS_SCRIPTED) != 0); }
 	inline BOOL		flagHandleTouch() const			{ return ((mFlags & FLAGS_HANDLE_TOUCH) != 0); }
 	inline BOOL		flagTakesMoney() const			{ return ((mFlags & FLAGS_TAKES_MONEY) != 0); }
 	inline BOOL		flagPhantom() const				{ return ((mFlags & FLAGS_PHANTOM) != 0); }
 	inline BOOL		flagInventoryEmpty() const		{ return ((mFlags & FLAGS_INVENTORY_EMPTY) != 0); }
-	inline BOOL		flagCastShadows() const			{ return ((mFlags & FLAGS_CAST_SHADOWS) != 0); }
 	inline BOOL		flagAllowInventoryAdd() const	{ return ((mFlags & FLAGS_ALLOW_INVENTORY_DROP) != 0); }
-	inline BOOL		flagTemporary() const			{ return ((mFlags & FLAGS_TEMPORARY) != 0); }
 	inline BOOL		flagTemporaryOnRez() const		{ return ((mFlags & FLAGS_TEMPORARY_ON_REZ) != 0); }
 	inline BOOL		flagAnimSource() const			{ return ((mFlags & FLAGS_ANIM_SOURCE) != 0); }
 	inline BOOL		flagCameraSource() const		{ return ((mFlags & FLAGS_CAMERA_SOURCE) != 0); }
 	inline BOOL		flagCameraDecoupled() const		{ return ((mFlags & FLAGS_CAMERA_DECOUPLED) != 0); }
-	inline BOOL		flagObjectMove() const			{ return ((mFlags & FLAGS_OBJECT_MOVE) != 0); }
 
 	U8       getPhysicsShapeType() const;
 	inline F32      getPhysicsGravity() const       { return mPhysicsGravity; }
@@ -595,9 +601,11 @@ public:
 	U32				mGLName;			// GL "name" used by selection code
 	BOOL			mbCanSelect;		// true if user can select this object by clicking
 
+private:
 	// Grabbed from UPDATE_FLAGS
 	U32				mFlags;
 
+public:
 	// Sent to sim in UPDATE_FLAGS, received in ObjectPhysicsProperties
 	U8              mPhysicsShapeType;
 	F32             mPhysicsGravity;
