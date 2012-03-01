@@ -111,6 +111,9 @@ public:
 	void setHasNavMeshReceived();
 	void setHasNoNavMesh();
 
+	bool getHeartBeat() const { return mHeartBeat;}
+	void setHeartBeat( bool state ) { mHeartBeat=state; }
+
 protected:
 
 private:
@@ -168,9 +171,10 @@ private:
 	U32							mNeighboringRegion;
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;
-	bool mHasStartPoint;
-	bool mHasEndPoint;
-	U32							mShapeRenderFlags;
+	bool							mHasStartPoint;
+	bool							mHasEndPoint;
+	U32								mShapeRenderFlags;
+	bool							mHeartBeat;
 	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
 };
 

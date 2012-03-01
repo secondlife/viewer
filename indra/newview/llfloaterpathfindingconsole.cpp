@@ -149,7 +149,7 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 {
 	LLFloater::onOpen(pKey);
-
+	setHeartBeat( true );
 	//make sure we have a pathing system
 	if ( !LLPathingLib::getInstance() )
 	{
@@ -250,6 +250,7 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	}
 	LLPathingLib::getInstance()->cleanupResidual();
 	LLFloater::onClose(pIsAppQuitting);
+	setHeartBeat( false );
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
@@ -540,7 +541,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mNavMeshCnt(0),
 	mHasStartPoint(false),
 	mHasEndPoint(false),
-	mNeighboringRegion( CURRENT_REGION )
+	mNeighboringRegion( CURRENT_REGION ),
+	mHeartBeat( false )
 {
 	mSelfHandle.bind(this);
 
