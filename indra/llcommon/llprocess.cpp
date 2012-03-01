@@ -145,6 +145,15 @@ public:
 		mConnection = LLEventPumps::instance().obtain("mainloop")
 			.listen(LLEventPump::inventName("WritePipe"),
 					boost::bind(&WritePipeImpl::tick, this, _1));
+
+#if ! LL_WINDOWS
+		// We can't count on every child process reading everything we try to
+		// write to it. And if the child terminates with WritePipe data still
+		// pending, unless we explicitly suppress it, Posix will hit us with
+		// SIGPIPE. That would terminate the viewer, boom. "Ignoring" it means
+		// APR gets the correct errno, passes it back to us, we log it, etc.
+		signal(SIGPIPE, SIG_IGN);
+#endif
 	}
 
 	virtual std::ostream& get_ostream() { return mStream; }
