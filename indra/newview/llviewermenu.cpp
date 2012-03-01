@@ -25,6 +25,11 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#ifdef INCLUDE_VLD
+#include "vld.h"
+#endif
+
 #include "llviewermenu.h" 
 
 // linden library includes
@@ -214,7 +219,7 @@ void near_sit_down_point(BOOL success, void *);
 
 
 void velocity_interpolate( void* );
-
+void handle_visual_leak_detector_toggle(void*);
 void handle_rebake_textures(void*);
 BOOL check_admin_override(void*);
 void handle_admin_override_toggle(void*);
@@ -946,6 +951,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("composition" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_COMPOSITION;
+	}
+	else if ("attachment bytes" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES;
 	}
 	else if ("glow" == info_display)
 	{
@@ -2014,6 +2023,15 @@ class LLAdvancedToggleViewAdminOptions : public view_listener_t
 	}
 };
 
+class LLAdvancedToggleVisualLeakDetector : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		handle_visual_leak_detector_toggle(NULL);
+		return true;
+	}
+};
+
 class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2786,8 +2804,31 @@ bool enable_object_mute()
 	else
 	{
 		// Just a regular object
-		return LLSelectMgr::getInstance()->getSelection()->
-			contains( object, SELECT_ALL_TES );
+		return LLSelectMgr::getInstance()->getSelection()->contains( object, SELECT_ALL_TES ) &&
+			   !LLMuteList::getInstance()->isMuted(object->getID());
+	}
+}
+
+bool enable_object_unmute()
+{
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!object) return false;
+
+	LLVOAvatar* avatar = find_avatar_from_object(object); 
+	if (avatar)
+	{
+		// It's an avatar
+		LLNameValue *lastname = avatar->getNVPair("LastName");
+		bool is_linden =
+			lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
+		bool is_self = avatar->isSelf();
+		return !is_linden && !is_self;
+	}
+	else
+	{
+		// Just a regular object
+		return LLSelectMgr::getInstance()->getSelection()->contains( object, SELECT_ALL_TES ) &&
+			   LLMuteList::getInstance()->isMuted(object->getID());;
 	}
 }
 
@@ -3415,6 +3456,35 @@ void handle_admin_override_toggle(void*)
 
 	// The above may have affected which debug menus are visible
 	show_debug_menus();
+}
+
+void handle_visual_leak_detector_toggle(void*)
+{
+	static bool vld_enabled = false;
+
+	if ( vld_enabled )
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDDisable();
+#endif // _DEBUG
+#endif // INCLUDE_VLD
+		vld_enabled = false;
+	}
+	else
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+	#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDEnable();
+	#endif // _DEBUG
+#endif // INCLUDE_VLD
+
+		vld_enabled = true;
+	};
 }
 
 void handle_god_mode(void*)
@@ -8210,6 +8280,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
+	view_listener_t::addMenu(new LLAdvancedToggleVisualLeakDetector(), "Advanced.ToggleVisualLeakDetector");
+
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 
@@ -8302,6 +8374,7 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
+	enable.add("Object.EnableUnmute", boost::bind(&enable_object_unmute));
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
 	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 

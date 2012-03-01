@@ -127,7 +127,29 @@ bool LLInventoryFilter::check(const LLInventoryItem* item)
 	return passed;
 }
 
-bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
+bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
+{
+	if (!folder)
+	{
+		llwarns << "The filter can not be checked on an invalid folder." << llendl;
+		llassert(false); // crash in development builds
+		return false;
+	}
+
+	const LLFolderViewEventListener* listener = folder->getListener();
+	if (!listener)
+	{
+		llwarns << "Folder view event listener not found." << llendl;
+		llassert(false); // crash in development builds
+		return false;
+	}
+
+	const LLUUID folder_id = listener->getUUID();
+
+	return checkFolder(folder_id);
+}
+
+bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
 	// we're showing all folders, overriding filter
 	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
@@ -135,9 +157,6 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 		return true;
 	}
 
-	const LLFolderViewEventListener* listener = folder->getListener();
-	const LLUUID folder_id = listener->getUUID();
-	
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory
@@ -291,19 +310,9 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 	// Pass if this item is within the date range.
 	if (filterTypes & FILTERTYPE_DATE)
 	{
-		const U16 HOURS_TO_SECONDS = 3600;
-		time_t earliest = time_corrected() - mFilterOps.mHoursAgo * HOURS_TO_SECONDS;
-		if (mFilterOps.mMinDate > time_min() && mFilterOps.mMinDate < earliest)
-		{
-			earliest = mFilterOps.mMinDate;
-		}
-		else if (!mFilterOps.mHoursAgo)
-		{
-			earliest = 0;
-		}
-		if (item->getCreationDate() < earliest ||
-			item->getCreationDate() > mFilterOps.mMaxDate)
-			return false;
+		// We don't get the updated item creation date for the task inventory or
+		// a notecard embedded item. See LLTaskInvFVBridge::getCreationDate().
+		return false;
 	}
 
 	return true;
@@ -581,7 +590,15 @@ void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 		mFilterOps.mMaxDate = llmax(mFilterOps.mMinDate, max_date);
 		setModified();
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	if (areDateLimitsSet())
+	{
+		mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+	}
+	else
+	{
+		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
 }
 
 void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
@@ -593,10 +610,18 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 	}
 	if (!sl && isSinceLogoff())
 	{
-		setDateRange(0, time_max());
+		setDateRange(time_min(), time_max());
 		setModified();
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	if (areDateLimitsSet())
+	{
+		mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+	}
+	else
+	{
+		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
 }
 
 BOOL LLInventoryFilter::isSinceLogoff() const
@@ -641,7 +666,15 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 			setModified(FILTER_RESTART);
 		}
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	if (areDateLimitsSet())
+	{
+		mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+	}
+	else
+	{
+		mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
+	}
 }
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
@@ -921,7 +954,7 @@ const std::string& LLInventoryFilter::getFilterText()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive()
+	if (!LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 		&& filtered_by_type
 		&& !filtered_by_all_types)
 	{
@@ -1090,4 +1123,11 @@ const std::string& LLInventoryFilter::getEmptyLookupMessage() const
 {
 	return mEmptyLookupMessage;
 
+}
+
+bool LLInventoryFilter::areDateLimitsSet()
+{
+	return     mFilterOps.mMinDate != time_min()
+			|| mFilterOps.mMaxDate != time_max()
+			|| mFilterOps.mHoursAgo != 0;
 }

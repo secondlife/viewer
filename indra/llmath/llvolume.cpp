@@ -2078,6 +2078,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mFaceMask = 0x0;
 	mDetail = detail;
 	mSculptLevel = -2;
+	mSurfaceArea = 1.f; //only calculated for sculpts, defaults to 1 for all other prims
 	mIsMeshAssetLoaded = FALSE;
 	mLODScaleBias.setVec(1,1,1);
 	mHullPoints = NULL;
@@ -2903,7 +2904,7 @@ F32 LLVolume::sculptGetSurfaceArea()
 			// compute the area of the quad by taking the length of the cross product of the two triangles
 			LLVector3 cross1 = (p1 - p2) % (p1 - p3);
 			LLVector3 cross2 = (p4 - p2) % (p4 - p3);
-			area += (cross1.magVec() + cross2.magVec()) / 2.0;
+			area += (cross1.magVec() + cross2.magVec()) / 2.f;
 		}
 	}
 
@@ -3143,6 +3144,8 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		if (mDetail > SCULPT_MIN_AREA_DETAIL)
 		{
 			F32 area = sculptGetSurfaceArea();
+
+			mSurfaceArea = area;
 
 			const F32 SCULPT_MAX_AREA = 384.f;
 
@@ -5887,7 +5890,7 @@ F32 find_vertex_score(LLVCacheVertexData& data)
 	}
 
 	//bonus points for having low valence
-	F32 valence_boost = powf(data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
+	F32 valence_boost = powf((F32)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
 	score += FindVertexScore_ValenceBoostScale * valence_boost;
 
 	return score;

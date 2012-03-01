@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <inbox_inventory_panel
+    accepts_drag_and_drop="false"
     name="inventory_inbox"
     start_folder="Received Items"
     follows="all" layout="topleft"

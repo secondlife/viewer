@@ -2474,27 +2474,6 @@ void LLPanelLandAccess::refresh()
 				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
 		}
-		
-		LLCheckBoxWithTBAcess* maturity_checkbox = (LLCheckBoxWithTBAcess*) getChild<LLCheckBoxCtrl>( "public_access");
-		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-		if(region)
-		{
-			LLTextBox* maturity_textbox = maturity_checkbox->getTextBox();
-			insert_maturity_into_textbox(maturity_textbox, gFloaterView->getParentFloater(this), getString("allow_public_access"));
-			maturity_checkbox->reshape(maturity_checkbox->getRect().getWidth(), maturity_checkbox->getRect().getHeight(), FALSE);
-		}
-		else
-		{
-			std::string maturity_string = getString("allow_public_access");
-			size_t maturity_pos = maturity_string.find(MATURITY);
-
-			if (maturity_pos != std::string::npos)
-			{
-				maturity_string.replace(maturity_pos, MATURITY.length(), std::string(""));
-			}
-
-			maturity_checkbox->setLabel(maturity_string);
-		}
 
 		if(parcel->getRegionDenyAnonymousOverride())
 		{
@@ -2760,7 +2739,12 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1)) );
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1));
+	if (picker)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+	}
 }
 
 void LLPanelLandAccess::callbackAvatarCBAccess(const uuid_vec_t& ids)
@@ -2804,7 +2788,12 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1)));
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1));
+	if (picker)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+	}
 }
 
 // static

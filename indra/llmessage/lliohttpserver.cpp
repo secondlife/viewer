@@ -818,6 +818,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 
   			// Copy everything after mLast read to the out.
 			LLBufferArray::segment_iterator_t seg_iter;
+
+			buffer->lock();
 			seg_iter = buffer->splitAfter(mLastRead);
 			if(seg_iter != buffer->endSegment())
 			{
@@ -838,7 +840,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				}
 #endif
 			}
-
+			buffer->unlock();
 			//
 			// *FIX: get rid of extra bytes off the end
 			//

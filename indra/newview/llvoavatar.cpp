@@ -149,10 +149,6 @@ const F32 PELVIS_LAG_WALKING	= 0.4f;	// ...while walking
 const F32 PELVIS_LAG_MOUSELOOK = 0.15f;
 const F32 MOUSELOOK_PELVIS_FOLLOW_FACTOR = 0.5f;
 const F32 PELVIS_LAG_WHEN_FOLLOW_CAM_IS_ON = 0.0001f; // not zero! - something gets divided by this!
-
-const F32 PELVIS_ROT_THRESHOLD_SLOW = 60.0f;	// amount of deviation allowed between
-const F32 PELVIS_ROT_THRESHOLD_FAST = 2.0f;	// the pelvis and the view direction
-											// when moving fast & slow
 const F32 TORSO_NOISE_AMOUNT = 1.0f;	// Amount of deviation from up-axis, in degrees
 const F32 TORSO_NOISE_SPEED = 0.2f;	// Time scale factor on torso noise.
 
@@ -651,6 +647,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mIsDummy(FALSE),
 	mSpecialRenderMode(0),
+	mAttachmentGeometryBytes(0),
+	mAttachmentSurfaceArea(0.f),
 	mTurning(FALSE),
 	mPelvisToFoot(0.f),
 	mLastSkeletonSerialNum( 0 ),
@@ -3363,6 +3361,16 @@ void LLVOAvatar::slamPosition()
 	mRoot.updateWorldMatrixChildren();
 }
 
+bool LLVOAvatar::isVisuallyMuted()
+{
+	static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
+	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
+	
+	return LLMuteList::getInstance()->isMuted(getID()) ||
+			(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
+			(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f);
+}
+
 //------------------------------------------------------------------------
 // updateCharacter()
 // called on both your avatar and other avatars
@@ -3429,8 +3437,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
 
+		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (LLMuteList::getInstance()->isMuted(getID()))
+		if (isVisuallyMuted())
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
@@ -3639,7 +3648,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			BOOL self_in_mouselook = isSelf() && gAgentCamera.cameraMouselook();
 
 			LLVector3 pelvisDir( mRoot.getWorldMatrix().getFwdRow4().mV );
-			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, PELVIS_ROT_THRESHOLD_SLOW, PELVIS_ROT_THRESHOLD_FAST);
+
+			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow");
+			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast");
+
+			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
 						
 			if (self_in_mouselook)
 			{
@@ -8332,6 +8345,11 @@ void LLVOAvatar::idleUpdateRenderCost()
 	static const U32 ARC_LIMIT = 20000;
 
 	static std::set<LLUUID> all_textures;
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
+	{ //set debug text to attachment geometry bytes here so render cost will override
+		setDebugText(llformat("%.1f KB, %.2f m^2", mAttachmentGeometryBytes/1024.f, mAttachmentSurfaceArea));
+	}
 
 	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{

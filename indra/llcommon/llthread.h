@@ -151,6 +151,7 @@ public:
 	void lock();		// blocks
 	void unlock();
 	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
+	bool isSelfLocked(); //return true if locked in a same thread
 	U32 lockingThread() const; //get ID of locking thread
 	
 protected:

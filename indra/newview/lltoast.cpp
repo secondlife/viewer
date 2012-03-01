@@ -180,11 +180,14 @@ LLToast::~LLToast()
 //--------------------------------------------------------------------------
 void LLToast::hide()
 {
-	setVisible(FALSE);
-	setFading(false);
-	mTimer->stop();
-	mIsHidden = true;
-	mOnFadeSignal(this); 
+	if (!mIsHidden)
+	{
+		setVisible(FALSE);
+		setFading(false);
+		mTimer->stop();
+		mIsHidden = true;
+		mOnFadeSignal(this); 
+	}
 }
 
 void LLToast::onFocusLost()
@@ -213,6 +216,13 @@ void LLToast::setLifetime(S32 seconds)
 void LLToast::setFadingTime(S32 seconds)
 {
 	mToastFadingTime = seconds;
+}
+
+void LLToast::closeToast()
+{
+	mOnDeleteToastSignal(this);
+
+	closeFloater();
 }
 
 S32 LLToast::getTopPad()

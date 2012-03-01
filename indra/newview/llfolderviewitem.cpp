@@ -1046,7 +1046,7 @@ void LLFolderViewItem::draw()
 	}
 	if ((mIsLoading
 		&&	mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			||	(LLInventoryModelBackgroundFetch::instance().backgroundFetchActive()
+			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 				&&	root_is_loading
 				&&	mShowLoadStatus))
 	{

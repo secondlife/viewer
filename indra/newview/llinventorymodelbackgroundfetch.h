@@ -48,7 +48,7 @@ public:
 	// This gets triggered when performing a filter-search.
 	void start(const LLUUID& cat_id = LLUUID::null, BOOL recursive = TRUE);
 
-	BOOL backgroundFetchActive() const;
+	BOOL folderFetchActive() const;
 	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
 
 	bool libraryFetchStarted() const;
@@ -67,7 +67,6 @@ protected:
 
 	void backgroundFetch();
 	static void backgroundFetchCB(void*); // background fetch idle function
-	void stopBackgroundFetch(); // stop fetch process
 
 	void setAllFoldersFetched();
 	bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
@@ -77,6 +76,7 @@ private:
 	BOOL mAllFoldersFetched;
 
 	BOOL mBackgroundFetchActive;
+	bool mFolderFetchActive;
 	S16 mFetchCount;
 	BOOL mTimelyFetchPending;
 	S32 mNumFetchRetries;

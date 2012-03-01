@@ -138,7 +138,7 @@ void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const 
 
 		LLUI::pushMatrix();
 		{
-			LLUI::translate((F32) cur_x, (F32) rect.mBottom, 0.0f);
+			LLUI::translate((F32) cur_x, (F32) rect.mBottom);
 
 			cell->draw( fg_color, highlight_color );
 		}

@@ -78,6 +78,8 @@ class LLVOAvatar :
 	public LLCharacter,
 	public boost::signals2::trackable
 {
+	LOG_CLASS(LLVOAvatar);
+
 public:
 	friend class LLVOAvatarSelf;
 protected:
@@ -380,6 +382,8 @@ private:
 
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
+	bool		isVisuallyMuted();
+
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
 	F32			getLastSkinTime() { return mLastSkinTime; }
@@ -391,6 +395,9 @@ public:
 	static void	restoreGL();
 	BOOL 		mIsDummy; // for special views
 	S32			mSpecialRenderMode; // special lighting
+	U32			mAttachmentGeometryBytes; //number of bytes in attached geometry
+	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
+
 private:
 	bool		shouldAlphaMask();
 

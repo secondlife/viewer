@@ -317,7 +317,7 @@ void LLMenuItemGL::setJumpKey(KEY key)
 // virtual 
 U32 LLMenuItemGL::getNominalHeight( void ) const 
 { 
-	return llround(mFont->getLineHeight()) + MENU_ITEM_PADDING; 
+	return mFont->getLineHeight() + MENU_ITEM_PADDING;
 }
 
 //virtual
@@ -1966,7 +1966,7 @@ void LLMenuGL::arrange( void )
 
 		// *FIX: create the item first and then ask for its dimensions?
 		S32 spillover_item_width = PLAIN_PAD_PIXELS + LLFontGL::getFontSansSerif()->getWidth( std::string("More") ); // *TODO: Translate
-		S32 spillover_item_height = llround(LLFontGL::getFontSansSerif()->getLineHeight()) + MENU_ITEM_PADDING;
+		S32 spillover_item_height = LLFontGL::getFontSansSerif()->getLineHeight() + MENU_ITEM_PADDING;
 
 		// Scrolling support
 		item_list_t::iterator first_visible_item_iter;
@@ -3082,7 +3082,7 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 		mouse_y + MOUSE_CURSOR_PADDING, 
 		CURSOR_WIDTH + MOUSE_CURSOR_PADDING * 2, 
 		CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
-	menu->translateIntoRectWithExclusion( menu_region_rect, mouse_rect, FALSE );
+	menu->translateIntoRectWithExclusion( menu_region_rect, mouse_rect );
 	menu->getParent()->sendChildToFront(menu);
 }
 
@@ -3425,7 +3425,7 @@ void LLMenuHolderGL::draw()
 		
 		LLUI::pushMatrix();
 		{
-			LLUI::translate((F32)item_rect.mLeft, (F32)item_rect.mBottom, 0.f);
+			LLUI::translate((F32)item_rect.mLeft, (F32)item_rect.mBottom);
 			selecteditem->getMenu()->drawBackground(selecteditem, interpolant);
 			selecteditem->draw();
 		}

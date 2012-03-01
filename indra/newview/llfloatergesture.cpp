@@ -90,6 +90,12 @@ public:
 		if(mFloater)
 		{
 			mFloater->addGesture(inv_item,NULL,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
+
+			// EXP-1909 (Pasted gesture displayed twice)
+			// The problem is that addGesture is called here for the second time for the same item (which is copied)
+			// First time addGesture is called from LLFloaterGestureObserver::changed(), which is a callback for inventory
+			// change. So we need to refresh the gesture list to avoid duplicates.
+			mFloater->refreshAll();
 		}
 	}
 };

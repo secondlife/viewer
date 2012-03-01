@@ -119,6 +119,7 @@
              top_delta="0"
              width="95" />
             <check_box
+              height="10"
              bottom_delta="20"
              label="Constrain proportions"
              layout="topleft"
