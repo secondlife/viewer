@@ -788,7 +788,6 @@ namespace tut
         py.mPy = LLProcess::create(py.mParams);
         ensure("should have rejected 'bogus'", ! py.mPy);
         std::string message(recorder.messageWith("bogus"));
-        ensure("did not log 'bogus' type", ! message.empty());
         ensure_contains("did not name 'stdin'", message, "stdin");
     }
 
@@ -820,7 +819,6 @@ namespace tut
         py.mPy = LLProcess::create(py.mParams);
         ensure("should have rejected 'tpipe'", ! py.mPy);
         std::string message(recorder.messageWith("tpipe"));
-        ensure("did not log 'tpipe' type", ! message.empty());
         ensure_contains("did not name 'stdout'", message, "stdout");
     }
 
@@ -839,7 +837,6 @@ namespace tut
         py.mPy = LLProcess::create(py.mParams);
         ensure("should have rejected 'npipe'", ! py.mPy);
         std::string message(recorder.messageWith("npipe"));
-        ensure("did not log 'npipe' type", ! message.empty());
         ensure_contains("did not name 'stderr'", message, "stderr");
     }
 
@@ -856,7 +853,6 @@ namespace tut
         ensure_equals("Status.mState", py.mPy->getStatus().mState, LLProcess::EXITED);
         ensure_equals("Status.mData",  py.mPy->getStatus().mData,  7);
         std::string message(recorder.messageWith("not yet supported"));
-        ensure("did not log pipe name warning", ! message.empty());
         ensure_contains("log message did not mention internal pipe name",
                         message, "somename");
     }
@@ -905,7 +901,7 @@ namespace tut
     {                                                                   \
         CaptureLog recorder;                                            \
         ensure(#CODE " succeeded", ! (CODE));                           \
-        ensure("wrong log message", ! recorder.messageWith(EXPECT).empty()); \
+        recorder.messageWith(EXPECT);                                   \
     } while (0)
 
     template<> template<>

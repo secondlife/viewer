@@ -29,11 +29,13 @@
 #if ! defined(LL_WRAPLLERRS_H)
 #define LL_WRAPLLERRS_H
 
+#include <tut/tut.hpp>
 #include "llerrorcontrol.h"
 #include <boost/bind.hpp>
 #include <list>
 #include <string>
 #include <stdexcept>
+#include <sstream>
 
 // statically reference the function in test.cpp... it's short, we could
 // replicate, but better to reuse
@@ -117,17 +119,26 @@ public:
     /// Don't assume the message we want is necessarily the LAST log message
     /// emitted by the underlying code; search backwards through all messages
     /// for the sought string.
-    std::string messageWith(const std::string& search)
+    std::string messageWith(const std::string& search, bool required=true)
     {
-        for (std::list<std::string>::const_reverse_iterator rmi(mMessages.rbegin()),
-                 rmend(mMessages.rend());
+        for (MessageList::const_reverse_iterator rmi(mMessages.rbegin()), rmend(mMessages.rend());
              rmi != rmend; ++rmi)
         {
             if (rmi->find(search) != std::string::npos)
                 return *rmi;
         }
         // failed to find any such message
-        return std::string();
+        if (! required)
+            return std::string();
+
+        std::ostringstream out;
+        out << "failed to find '" << search << "' in captured log messages:";
+        for (MessageList::const_iterator mi(mMessages.begin()), mend(mMessages.end());
+             mi != mend; ++mi)
+        {
+            out << '\n' << *mi;
+        }
+        throw tut::failure(out.str());
     }
 
     typedef std::list<std::string> MessageList;
