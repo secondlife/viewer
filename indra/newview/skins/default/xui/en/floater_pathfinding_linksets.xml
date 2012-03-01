@@ -28,10 +28,10 @@
   <floater.string name="linkset_terrain_dist_from_you">--</floater.string>
   <floater.string name="linkset_use_walkable">Walkable</floater.string>
   <floater.string name="linkset_use_static_obstacle">Static obstacle</floater.string>
-  <floater.string name="linkset_use_dynamic_obstacle">Dynamic obstacle</floater.string>
+  <floater.string name="linkset_use_dynamic_obstacle">Movable obstacle</floater.string>
   <floater.string name="linkset_use_material_volume">Material volume</floater.string>
   <floater.string name="linkset_use_exclusion_volume">Exclusion volume</floater.string>
-  <floater.string name="linkset_use_dynamic_phantom">Dynamic phantom</floater.string>
+  <floater.string name="linkset_use_dynamic_phantom">Movable phantom</floater.string>
   <floater.string name="linkset_is_terrain">[unmodifiable]</floater.string>
   <floater.string name="linkset_is_restricted_state">[restricted]</floater.string>
   <floater.string name="linkset_choose_use">Choose linkset use...</floater.string>
@@ -126,7 +126,7 @@
           name="filter_by_linkset_use_static_obstacle"
           value="2" />
       <combo_box.item
-          label="Dynamic obstacle"
+          label="Movable obstacle"
           name="filter_by_linkset_use_dynamic_obstacle"
           value="3" />
       <combo_box.item
@@ -138,7 +138,7 @@
           name="filter_by_linkset_use_exclusion_volume"
           value="5" />
       <combo_box.item
-          label="Dynamic phantom"
+          label="Movable phantom"
           name="filter_by_linkset_use_dynamic_phantom"
           value="6" />
     </combo_box>
