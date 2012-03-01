@@ -35,7 +35,7 @@
 #include "stringize.h"
 #include "llsdutil.h"
 #include "llevents.h"
-#include "llerrorcontrol.h"
+#include "wrapllerrs.h"
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -231,68 +231,6 @@ public:
 
 private:
     std::string mPath;
-};
-
-// statically reference the function in test.cpp... it's short, we could
-// replicate, but better to reuse
-extern void wouldHaveCrashed(const std::string& message);
-
-/**
- * Capture log messages. This is adapted (simplified) from the one in
- * llerror_test.cpp. Sigh, should've broken that out into a separate header
- * file, but time for this project is short...
- */
-class TestRecorder : public LLError::Recorder
-{
-public:
-    TestRecorder():
-        // Mostly what we're trying to accomplish by saving and resetting
-        // LLError::Settings is to bypass the default RecordToStderr and
-        // RecordToWinDebug Recorders. As these are visible only inside
-        // llerror.cpp, we can't just call LLError::removeRecorder() with
-        // each. For certain tests we need to produce, capture and examine
-        // DEBUG log messages -- but we don't want to spam the user's console
-        // with that output. If it turns out that saveAndResetSettings() has
-        // some bad effect, give up and just let the DEBUG level log messages
-        // display.
-        mOldSettings(LLError::saveAndResetSettings())
-    {
-        LLError::setFatalFunction(wouldHaveCrashed);
-        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-        LLError::addRecorder(this);
-    }
-
-    ~TestRecorder()
-    {
-        LLError::removeRecorder(this);
-        LLError::restoreSettings(mOldSettings);
-    }
-
-    void recordMessage(LLError::ELevel level,
-                       const std::string& message)
-    {
-        mMessages.push_back(message);
-    }
-
-    /// Don't assume the message we want is necessarily the LAST log message
-    /// emitted by the underlying code; search backwards through all messages
-    /// for the sought string.
-    std::string messageWith(const std::string& search)
-    {
-        for (std::list<std::string>::const_reverse_iterator rmi(mMessages.rbegin()),
-                 rmend(mMessages.rend());
-             rmi != rmend; ++rmi)
-        {
-            if (rmi->find(search) != std::string::npos)
-                return *rmi;
-        }
-        // failed to find any such message
-        return std::string();
-    }
-
-    typedef std::list<std::string> MessageList;
-    MessageList mMessages;
-    LLError::Settings* mOldSettings;
 };
 
 /*****************************************************************************
@@ -843,7 +781,7 @@ namespace tut
     void object::test<10>()
     {
         set_test_name("'bogus' test");
-        TestRecorder recorder;
+        CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam("bogus"));
@@ -874,7 +812,7 @@ namespace tut
         set_test_name("'tpipe' test");
         // Replace this test with one or more real 'tpipe' tests when we
         // implement 'tpipe' support
-        TestRecorder recorder;
+        CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam());
@@ -892,7 +830,7 @@ namespace tut
         set_test_name("'npipe' test");
         // Replace this test with one or more real 'npipe' tests when we
         // implement 'npipe' support
-        TestRecorder recorder;
+        CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
                                  "print 'Hello world'\n");
         py.mParams.files.add(LLProcess::FileParam());
@@ -909,7 +847,7 @@ namespace tut
     void object::test<14>()
     {
         set_test_name("internal pipe name warning");
-        TestRecorder recorder;
+        CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
                                  "import sys\n"
                                  "sys.exit(7)\n");
@@ -965,7 +903,7 @@ namespace tut
 #define EXPECT_FAIL_WITH_LOG(EXPECT, CODE)                              \
     do                                                                  \
     {                                                                   \
-        TestRecorder recorder;                                          \
+        CaptureLog recorder;                                            \
         ensure(#CODE " succeeded", ! (CODE));                           \
         ensure("wrong log message", ! recorder.messageWith(EXPECT).empty()); \
     } while (0)

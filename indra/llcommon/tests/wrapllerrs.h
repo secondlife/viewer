@@ -30,6 +30,14 @@
 #define LL_WRAPLLERRS_H
 
 #include "llerrorcontrol.h"
+#include <boost/bind.hpp>
+#include <list>
+#include <string>
+#include <stdexcept>
+
+// statically reference the function in test.cpp... it's short, we could
+// replicate, but better to reuse
+extern void wouldHaveCrashed(const std::string& message);
 
 struct WrapLL_ERRS
 {
@@ -68,6 +76,63 @@ struct WrapLL_ERRS
     std::string error;
     LLError::Settings* mPriorErrorSettings;
     LLError::FatalFunction mPriorFatal;
+};
+
+/**
+ * Capture log messages. This is adapted (simplified) from the one in
+ * llerror_test.cpp.
+ */
+class CaptureLog : public LLError::Recorder
+{
+public:
+    CaptureLog():
+        // Mostly what we're trying to accomplish by saving and resetting
+        // LLError::Settings is to bypass the default RecordToStderr and
+        // RecordToWinDebug Recorders. As these are visible only inside
+        // llerror.cpp, we can't just call LLError::removeRecorder() with
+        // each. For certain tests we need to produce, capture and examine
+        // DEBUG log messages -- but we don't want to spam the user's console
+        // with that output. If it turns out that saveAndResetSettings() has
+        // some bad effect, give up and just let the DEBUG level log messages
+        // display.
+        mOldSettings(LLError::saveAndResetSettings())
+    {
+        LLError::setFatalFunction(wouldHaveCrashed);
+        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        LLError::addRecorder(this);
+    }
+
+    ~CaptureLog()
+    {
+        LLError::removeRecorder(this);
+        LLError::restoreSettings(mOldSettings);
+    }
+
+    void recordMessage(LLError::ELevel level,
+                       const std::string& message)
+    {
+        mMessages.push_back(message);
+    }
+
+    /// Don't assume the message we want is necessarily the LAST log message
+    /// emitted by the underlying code; search backwards through all messages
+    /// for the sought string.
+    std::string messageWith(const std::string& search)
+    {
+        for (std::list<std::string>::const_reverse_iterator rmi(mMessages.rbegin()),
+                 rmend(mMessages.rend());
+             rmi != rmend; ++rmi)
+        {
+            if (rmi->find(search) != std::string::npos)
+                return *rmi;
+        }
+        // failed to find any such message
+        return std::string();
+    }
+
+    typedef std::list<std::string> MessageList;
+    MessageList mMessages;
+    LLError::Settings* mOldSettings;
 };
 
 #endif /* ! defined(LL_WRAPLLERRS_H) */
