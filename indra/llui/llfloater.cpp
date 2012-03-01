@@ -884,22 +884,24 @@ bool LLFloater::applyRectControl()
 			}
 		}
 
-		if (!mPosXControl.empty() && !mPosYControl.empty())
+		LLControlVariablePtr x_control = getControlGroup()->getControl(mPosXControl);
+		LLControlVariablePtr y_control = getControlGroup()->getControl(mPosYControl);
+		if (x_control.notNull() 
+			&& y_control.notNull()
+			&& !x_control->isDefault()
+			&& !y_control->isDefault())
 		{
-			LLControlVariablePtr x_control = getControlGroup()->getControl(mPosXControl);
-			LLControlVariablePtr y_control = getControlGroup()->getControl(mPosYControl);
-			if (x_control.notNull() 
-				&& y_control.notNull()
-				&& !x_control->isDefault()
-				&& !y_control->isDefault())
-			{
-				mPosition.mX = x_control->getValue().asReal();
-				mPosition.mY = y_control->getValue().asReal();
-				mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
-				applyRelativePosition();
+			mPosition.mX = x_control->getValue().asReal();
+			mPosition.mY = y_control->getValue().asReal();
+			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+			applyRelativePosition();
 
-				saved_rect = true;
-			}
+			saved_rect = true;
+		}
+		else
+		{
+			LLRect screen_rect = calcScreenRect();
+			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 		}
 	}
 
@@ -929,7 +931,6 @@ void LLFloater::applyPositioning(LLFloater* other, bool on_open)
 		break;
 
 	case LLFloaterEnums::POSITIONING_SPECIFIED:
-		//translateIntoRect(gFloaterView->getSnapRect());
 		break;
 
 	case LLFloaterEnums::POSITIONING_CASCADE_GROUP:
@@ -955,7 +956,6 @@ void LLFloater::applyPositioning(LLFloater* other, bool on_open)
 
 				translate(snap_rect.mLeft, snap_rect.mBottom);
 			}
-			//mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
 			setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
 		break;
