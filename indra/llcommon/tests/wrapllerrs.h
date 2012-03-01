@@ -87,7 +87,7 @@ struct WrapLL_ERRS
 class CaptureLog : public LLError::Recorder
 {
 public:
-    CaptureLog():
+    CaptureLog(LLError::ELevel level=LLError::LEVEL_DEBUG):
         // Mostly what we're trying to accomplish by saving and resetting
         // LLError::Settings is to bypass the default RecordToStderr and
         // RecordToWinDebug Recorders. As these are visible only inside
@@ -100,7 +100,7 @@ public:
         mOldSettings(LLError::saveAndResetSettings())
     {
         LLError::setFatalFunction(wouldHaveCrashed);
-        LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+        LLError::setDefaultLevel(level);
         LLError::addRecorder(this);
     }
 
