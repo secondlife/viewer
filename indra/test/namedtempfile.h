@@ -12,6 +12,7 @@
 #if ! defined(LL_NAMEDTEMPFILE_H)
 #define LL_NAMEDTEMPFILE_H
 
+#include "llerror.h"
 #include "llapr.h"
 #include "apr_file_io.h"
 #include <string>
@@ -28,6 +29,7 @@
  */
 class NamedTempFile: public boost::noncopyable
 {
+    LOG_CLASS(NamedTempFile);
 public:
     NamedTempFile(const std::string& pfx, const std::string& content, apr_pool_t* pool=gAPRPoolp):
         mPool(pool)
@@ -53,12 +55,12 @@ public:
         createFile(pfx, func);
     }
 
-    ~NamedTempFile()
+    virtual ~NamedTempFile()
     {
         ll_apr_assert_status(apr_file_remove(mPath.c_str(), mPool));
     }
 
-    std::string getName() const { return mPath; }
+    virtual std::string getName() const { return mPath; }
 
     void peep()
     {
@@ -70,7 +72,7 @@ public:
         std::cout << "---\n";
     }
 
-private:
+protected:
     void createFile(const std::string& pfx, const Streamer& func)
     {
         // Create file in a temporary place.
@@ -109,6 +111,95 @@ private:
 
     std::string mPath;
     apr_pool_t* mPool;
+};
+
+/**
+ * Create a NamedTempFile with a specified filename extension. This is useful
+ * when, for instance, you must be able to use the file in a Python import
+ * statement.
+ *
+ * A NamedExtTempFile actually has two different names. We retain the original
+ * no-extension name as a placeholder in the temp directory to ensure
+ * uniqueness; to that we link the name plus the desired extension. Naturally,
+ * both must be removed on destruction.
+ */
+class NamedExtTempFile: public NamedTempFile
+{
+    LOG_CLASS(NamedExtTempFile);
+public:
+    NamedExtTempFile(const std::string& ext, const std::string& content, apr_pool_t* pool=gAPRPoolp):
+        NamedTempFile(remove_dot(ext), content, pool),
+        mLink(mPath + ensure_dot(ext))
+    {
+        linkto(mLink);
+    }
+
+    // Disambiguate when passing string literal
+    NamedExtTempFile(const std::string& ext, const char* content, apr_pool_t* pool=gAPRPoolp):
+        NamedTempFile(remove_dot(ext), content, pool),
+        mLink(mPath + ensure_dot(ext))
+    {
+        linkto(mLink);
+    }
+
+    NamedExtTempFile(const std::string& ext, const Streamer& func, apr_pool_t* pool=gAPRPoolp):
+        NamedTempFile(remove_dot(ext), func, pool),
+        mLink(mPath + ensure_dot(ext))
+    {
+        linkto(mLink);
+    }
+
+    virtual ~NamedExtTempFile()
+    {
+        ll_apr_assert_status(apr_file_remove(mLink.c_str(), mPool));
+    }
+
+    // Since the caller has gone to the trouble to create the name with the
+    // extension, that should be the name we return. In this class, mPath is
+    // just a placeholder to ensure that future createFile() calls won't
+    // collide.
+    virtual std::string getName() const { return mLink; }
+
+    static std::string ensure_dot(const std::string& ext)
+    {
+        if (ext.empty())
+        {
+            // What SHOULD we do when the caller makes a point of using
+            // NamedExtTempFile to generate a file with a particular
+            // extension, then passes an empty extension? Use just "."? That
+            // sounds like a Bad Idea, especially on Windows. Treat that as a
+            // coding error.
+            LL_ERRS("NamedExtTempFile") << "passed empty extension" << LL_ENDL;
+        }
+        if (ext[0] == '.')
+        {
+            return ext;
+        }
+        return std::string(".") + ext;
+    }
+
+    static std::string remove_dot(const std::string& ext)
+    {
+        std::string::size_type found = ext.find_first_not_of(".");
+        if (found == std::string::npos)
+        {
+            return ext;
+        }
+        return ext.substr(found);
+    }
+
+private:
+    void linkto(const std::string& path)
+    {
+        // This method assumes that since mPath (without extension) is
+        // guaranteed by apr_file_mktemp() to be unique, then (mPath + any
+        // extension) is also unique. This is likely, though not guaranteed:
+        // files could be created in the same temp directory other than by
+        // this class.
+        ll_apr_assert_status(apr_file_link(mPath.c_str(), path.c_str()));
+    }
+
+    std::string mLink;
 };
 
 #endif /* ! defined(LL_NAMEDTEMPFILE_H) */
