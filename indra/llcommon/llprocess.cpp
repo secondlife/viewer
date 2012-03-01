@@ -617,8 +617,14 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// terminate with a null pointer
 	argv.push_back(NULL);
 
-	// Launch! The NULL would be the environment block, if we were passing one.
-	chkapr(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr, gAPRPoolp));    
+	// Launch! The NULL would be the environment block, if we were passing
+	// one. Hand-expand chkapr() macro so we can fill in the actual command
+	// string instead of the variable names.
+	if (ll_apr_warn_status(apr_proc_create(&mProcess, argv[0], &argv[0], NULL, procattr,
+										   gAPRPoolp)))
+	{
+		throw LLProcessError(STRINGIZE(params << " failed"));
+	}
 
 	// arrange to call status_callback()
 	apr_proc_other_child_register(&mProcess, &LLProcess::status_callback, this, mProcess.in,
