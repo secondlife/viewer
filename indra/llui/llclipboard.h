@@ -54,7 +54,7 @@ public:
 	// Clears the clipboard
 	void reset();
 	// Returns the state of the clipboard so client can know if it has been modified (comparing with tracked state)
-	int	getState() const { return mState; }
+	int	getGeneration() const { return mGeneration; }
 
 	// Text strings management:
 	// ------------------------
@@ -80,15 +80,14 @@ public:
 	bool isOnClipboard(const LLUUID& object) const;					// True if the input object uuid is on the clipboard
 
 	bool isCutMode() const { return mCutMode; }
-	void setCutMode(bool mode, cleanup_callback_t cb = NULL) { mCutMode = mode; mCleanupCallback = cb; mState++; }
+	void setCutMode(bool mode, cleanup_callback_t cb = NULL) { mCutMode = mode; mCleanupCallback = cb; mGeneration++; }
 
 private:
-	std::vector<LLUUID> mObjects;	// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
+	std::vector<LLUUID> mObjects;		// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
 	LLWString mString;					// The text string. If mObjects is not empty, this string is reflecting them (UUIDs for the moment).
 	bool mCutMode;						// This is a convenience flag for the viewer. Will determine if mCleanupCallback() needs to be called.
 	cleanup_callback_t mCleanupCallback;// Function to call when the cut clipboard is being wiped out. Can be set to NULL (nothing done then).
-	int mState;							// Incremented when the clipboard change so that interested parties can check its state.
-	
+	int mGeneration;					// Incremented when the clipboard changes so that interested parties can check for changes on the clipboard.	
 };
 
 #endif  // LL_LLCLIPBOARD_H

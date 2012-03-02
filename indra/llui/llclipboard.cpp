@@ -35,7 +35,7 @@
 #include "llwindow.h"
 
 LLClipboard::LLClipboard() :
-	mState(0)
+	mGeneration(0)
 {
 	reset();
 }
@@ -47,8 +47,8 @@ LLClipboard::~LLClipboard()
 
 void LLClipboard::reset()
 {
-	// Increment the clipboard state
-	mState++;
+	// Increment the clipboard count
+	mGeneration++;
 	// Call the cleanup function (if any) before releasing the object list
 	if (mCutMode && mCleanupCallback)
 	{
@@ -84,7 +84,7 @@ bool LLClipboard::addToClipboard(const LLUUID& src, const LLAssetType::EType typ
 		if (res)
 		{
 			mObjects.push_back(src);
-			mState++;
+			mGeneration++;
 		}
 	}
 	return res;
@@ -138,7 +138,7 @@ bool LLClipboard::addToClipboard(const LLWString &src, S32 pos, S32 len, bool us
 	{
 		mString = mString + sep + src.substr(pos, len);
 	}
-	mState++;
+	mGeneration++;
 	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
 }
 
