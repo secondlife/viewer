@@ -55,7 +55,7 @@ void LLClipboard::reset()
 		mCleanupCallback();
 	}
 	// Clear the clipboard
-	mObjects.reset();
+	mObjects.clear();
 	mCutMode = false;
 	mCleanupCallback = NULL;
 	mString = LLWString();
@@ -83,24 +83,24 @@ bool LLClipboard::addToClipboard(const LLUUID& src, const LLAssetType::EType typ
 		}
 		if (res)
 		{
-			mObjects.put(src);
+			mObjects.push_back(src);
 			mState++;
 		}
 	}
 	return res;
 }
 
-bool LLClipboard::pasteFromClipboard(LLDynamicArray<LLUUID>& inv_objects) const
+bool LLClipboard::pasteFromClipboard(std::vector<LLUUID>& inv_objects) const
 {
 	bool res = false;
-	S32 count = mObjects.count();
+	S32 count = mObjects.size();
 	if (count > 0)
 	{
 		res = true;
-		inv_objects.reset();
+		inv_objects.clear();
 		for (S32 i = 0; i < count; i++)
 		{
-			inv_objects.put(mObjects[i]);
+			inv_objects.push_back(mObjects[i]);
 		}
 	}
 	return res;
@@ -109,13 +109,14 @@ bool LLClipboard::pasteFromClipboard(LLDynamicArray<LLUUID>& inv_objects) const
 // Returns true if the LL Clipboard has pasteable items in it
 bool LLClipboard::hasContents() const
 {
-	return (mObjects.count() > 0);
+	return (mObjects.size() > 0);
 }
 
 // Returns true if the input uuid is in the list of clipboard objects
 bool LLClipboard::isOnClipboard(const LLUUID& object) const
 {
-	return (mObjects.find(object) != LLDynamicArray<LLUUID>::FAIL);
+	std::vector<LLUUID>::const_iterator iter = std::find(mObjects.begin(), mObjects.end(), object);
+	return (iter != mObjects.end());
 }
 
 // Copy the input string to the LL and the system clipboard

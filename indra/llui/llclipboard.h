@@ -74,7 +74,7 @@ public:
 	// Adds one object to the current list of objects on the clipboard
 	bool addToClipboard(const LLUUID& src, const LLAssetType::EType type = LLAssetType::AT_NONE);
 	// Gets a copy of the objects on the clipboard
-	bool pasteFromClipboard(LLDynamicArray<LLUUID>& inventory_objects) const;
+	bool pasteFromClipboard(std::vector<LLUUID>& inventory_objects) const;
 	
 	bool hasContents() const;										// True if the clipboard has pasteable objects
 	bool isOnClipboard(const LLUUID& object) const;					// True if the input object uuid is on the clipboard
@@ -83,7 +83,7 @@ public:
 	void setCutMode(bool mode, cleanup_callback_t cb = NULL) { mCutMode = mode; mCleanupCallback = cb; mState++; }
 
 private:
-	LLDynamicArray<LLUUID> mObjects;	// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
+	std::vector<LLUUID> mObjects;	// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
 	LLWString mString;					// The text string. If mObjects is not empty, this string is reflecting them (UUIDs for the moment).
 	bool mCutMode;						// This is a convenience flag for the viewer. Will determine if mCleanupCallback() needs to be called.
 	cleanup_callback_t mCleanupCallback;// Function to call when the cut clipboard is being wiped out. Can be set to NULL (nothing done then).
