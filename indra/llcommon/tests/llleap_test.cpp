@@ -83,8 +83,21 @@ namespace tut
         llleap_data():
             reader(".py",
                    // This logic is adapted from vita.viewerclient.receiveEvent()
-                   "import re\n"
+                   boost::lambda::_1 <<
+                   "import os\n"
                    "import sys\n"
+                   // Don't forget that this Python script is written to some
+                   // temp directory somewhere! Its __file__ is useless in
+                   // finding indra/lib/python. Use our __FILE__, with
+                   // raw-string syntax to deal with Windows pathnames.
+                   "mydir = os.path.dirname(r'" << __FILE__ << "')\n"
+                   "try:\n"
+                   "    from llbase import llsd\n"
+                   "except ImportError:\n"
+                   // We expect mydir to be .../indra/llcommon/tests.
+                   "    sys.path.insert(0,\n"
+                   "        os.path.join(mydir, os.pardir, os.pardir, 'lib', 'python'))\n"
+                   "    from indra.base import llsd\n"
                    "LEFTOVER = ''\n"
                    "class ProtocolError(Exception):\n"
                    "    pass\n"
@@ -113,29 +126,28 @@ namespace tut
                    "        parts[-1] = parts[-1][:excess]\n"
                    "    data = ''.join(parts)\n"
                    "    assert len(data) == length\n"
-                   "    return data\n"
+                   "    return llsd.parse(data)\n"
+                   "\n"
+                   "# deal with initial stdin message\n"
+                   // this will throw if the initial write to stdin doesn't
+                   // follow len:data protocol, or if we couldn't find 'pump'
+                   // in the dict
+                   "_reply = get()['pump']\n"
+                   "\n"
+                   "def replypump():\n"
+                   "    return _reply\n"
                    "\n"
                    "def put(req):\n"
                    "    sys.stdout.write(':'.join((str(len(req)), req)))\n"
                    "    sys.stdout.flush()\n"
                    "\n"
-                   "# deal with initial stdin message\n"
-                   // this will throw if the initial write to stdin
-                   // doesn't follow len:data protocol
-                   "_initial = get()\n"
-                   "_match = re.search(r\"'pump':'(.*?)'\", _initial)\n"
-                   // this will throw if we couldn't find
-                   // 'pump':'etc.' in the initial write
-                   "_reply = _match.group(1)\n"
+                   "def send(pump, data):\n"
+                   "    put(llsd.format_notation(dict(pump=pump, data=data)))\n"
                    "\n"
-                   "def replypump():\n"
-                   "    return _reply\n"
-                   "\n"
-                   "def escape(str):\n"
-                   "    return ''.join(('\\\\'+c if c in r\"\\'\" else c) for c in str)\n"
-                   "\n"
-                   "def quote(str):\n"
-                   "    return \"'%s'\" % escape(str)\n"),
+                   "def request(pump, data):\n"
+                   "    # we expect 'data' is a dict\n"
+                   "    data['reply'] = _reply\n"
+                   "    send(pump, data)\n"),
             // Get the actual pathname of the NamedExtTempFile and trim off
             // the ".py" extension. (We could cache reader.getName() in a
             // separate member variable, but I happen to know getName() just
@@ -297,21 +309,18 @@ namespace tut
                              "import sys\n"
                              "from " << reader_module << " import *\n"
                              // make a request on our little API
-                             "put(\"{'pump':'" << api.getName() << "','data':{'reply':'%s'}}\" %\n"
-                             "    replypump())\n"
+                             "request(pump='" << api.getName() << "', data={})\n"
                              // wait for its response
                              "resp = get()\n"
-                             // We expect "{'data':'ack','pump':'%s'}", but
-                             // don't depend on the order of the keys.
-                             "result = 'bad: ' + resp\n"
-                             "if resp.startswith('{') and resp.endswith('}'):\n"
-                             "    expect = set((\"'data':'ack'\", \"'pump':'%s'\" % replypump()))\n"
-                             "    actual = set(resp[1:-1].split(','))\n"
-                             "    if actual == expect:\n"
-                             "        result = ''\n"
-                             "put(\"{'pump':'" << result.getName() << "','data':%s}\" %\n"
-                             "    quote(result))\n");
+                             "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
+                             "            else 'bad: ' + str(resp)\n"
+                             "send(pump='" << result.getName() << "', data=result)\n");
         waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))));
         result.ensure();
     }
+
+    // TODO:
+    // many many small messages buffered in both directions
+    // very large message in both directions (md5)
+
 } // namespace tut
