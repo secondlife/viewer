@@ -4433,10 +4433,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					else
 					{
 						if (te->getColor().mV[3] > 0.f)
-						{
+						{ //only treat as alpha in the pipeline if < 100% transparent
 							drawablep->setState(LLDrawable::HAS_ALPHA);
-							alpha_faces.push_back(facep);
 						}
+						alpha_faces.push_back(facep);
 					}
 				}
 				else
@@ -4947,7 +4947,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (facep->canRenderAsMask())
+				if (facep->getFaceColor().mV[3] <= 0.f)
+				{ //100% transparent, don't render unless we're highlighting transparent
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA_INVISIBLE);
+				}
+				else if (facep->canRenderAsMask())
 				{
 					if (te->getFullbright() || LLPipeline::sNoAlpha)
 					{

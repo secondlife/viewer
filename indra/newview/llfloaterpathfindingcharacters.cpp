@@ -123,12 +123,24 @@ void LLFloaterPathfindingCharacters::onOpen(const LLSD& pKey)
 {
 	sendCharactersDataGetRequest();
 	selectNoneCharacters();
+
+	if (!mSelectionUpdateSlot.connected())
+	{
+		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingCharacters::updateActionFields, this));
+	}
+
 	mCharactersScrollList->setCommitOnSelectionChange(true);
 }
 
 void LLFloaterPathfindingCharacters::onClose(bool app_quitting)
 {
 	mCharactersScrollList->setCommitOnSelectionChange(false);
+
+	if (mSelectionUpdateSlot.connected())
+	{
+		mSelectionUpdateSlot.disconnect();
+	}
+
 	selectNoneCharacters();
 	if (mCharacterSelection.notNull())
 	{
@@ -227,7 +239,8 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
 	mReturnBtn(NULL),
 	mDeleteBtn(NULL),
 	mTeleportBtn(NULL),
-	mCharacterSelection()
+	mCharacterSelection(),
+	mSelectionUpdateSlot()
 {
 	mSelfHandle.bind(this);
 }
@@ -570,7 +583,7 @@ void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
 {
 	mLabelActions->setEnabled(pEnabled);
 	mShowBeaconCheckBox->setEnabled(pEnabled);
-	mTakeBtn->setEnabled(pEnabled && tools_visible_take_object());
+	mTakeBtn->setEnabled(pEnabled && visible_take_object());
 	mTakeCopyBtn->setEnabled(pEnabled && enable_object_take_copy());
 	mReturnBtn->setEnabled(pEnabled && enable_object_return());
 	mDeleteBtn->setEnabled(pEnabled && enable_object_delete());

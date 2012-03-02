@@ -36,6 +36,8 @@
 #include "llpathfindingcharacter.h"
 #include "llselectmgr.h"
 
+#include <boost/signals2.hpp>
+
 class LLSD;
 class LLTextBase;
 class LLScrollListCtrl;
@@ -90,6 +92,7 @@ private:
 	LLButton                                     *mDeleteBtn;
 	LLButton                                     *mTeleportBtn;
 	LLObjectSelectionHandle                      mCharacterSelection;
+	boost::signals2::connection                  mSelectionUpdateSlot;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
