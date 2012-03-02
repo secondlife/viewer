@@ -31,11 +31,11 @@
 
 #include <tut/tut.hpp>
 #include "llerrorcontrol.h"
+#include "stringize.h"
 #include <boost/bind.hpp>
 #include <list>
 #include <string>
 #include <stdexcept>
-#include <sstream>
 
 // statically reference the function in test.cpp... it's short, we could
 // replicate, but better to reuse
@@ -131,19 +131,30 @@ public:
         if (! required)
             return std::string();
 
-        std::ostringstream out;
-        out << "failed to find '" << search << "' in captured log messages:";
-        for (MessageList::const_iterator mi(mMessages.begin()), mend(mMessages.end());
-             mi != mend; ++mi)
-        {
-            out << '\n' << *mi;
-        }
-        throw tut::failure(out.str());
+        throw tut::failure(STRINGIZE("failed to find '" << search
+                                     << "' in captured log messages:\n"
+                                     << *this));
     }
 
     typedef std::list<std::string> MessageList;
     MessageList mMessages;
     LLError::Settings* mOldSettings;
 };
+
+std::ostream& operator<<(std::ostream& out, const CaptureLog& log)
+{
+    CaptureLog::MessageList::const_iterator mi(log.mMessages.begin()), mend(log.mMessages.end());
+    if (mi != mend)
+    {
+        // handle first message separately: it doesn't get a newline
+        out << *mi++;
+        for ( ; mi != mend; ++mi)
+        {
+            // every subsequent message gets a newline
+            out << '\n' << *mi;
+        }
+    }
+    return out;
+}
 
 #endif /* ! defined(LL_WRAPLLERRS_H) */
