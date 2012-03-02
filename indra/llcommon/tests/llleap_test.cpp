@@ -83,6 +83,7 @@ namespace tut
         llleap_data():
             reader(".py",
                    // This logic is adapted from vita.viewerclient.receiveEvent()
+                   "import re\n"
                    "import sys\n"
                    "LEFTOVER = ''\n"
                    "class ProtocolError(Exception):\n"
@@ -112,7 +113,29 @@ namespace tut
                    "        parts[-1] = parts[-1][:excess]\n"
                    "    data = ''.join(parts)\n"
                    "    assert len(data) == length\n"
-                   "    return data\n"),
+                   "    return data\n"
+                   "\n"
+                   "def put(req):\n"
+                   "    sys.stdout.write(':'.join((str(len(req)), req)))\n"
+                   "    sys.stdout.flush()\n"
+                   "\n"
+                   "# deal with initial stdin message\n"
+                   // this will throw if the initial write to stdin
+                   // doesn't follow len:data protocol
+                   "_initial = get()\n"
+                   "_match = re.search(r\"'pump':'(.*?)'\", _initial)\n"
+                   // this will throw if we couldn't find
+                   // 'pump':'etc.' in the initial write
+                   "_reply = _match.group(1)\n"
+                   "\n"
+                   "def replypump():\n"
+                   "    return _reply\n"
+                   "\n"
+                   "def escape(str):\n"
+                   "    return ''.join(('\\\\'+c if c in r\"\\'\" else c) for c in str)\n"
+                   "\n"
+                   "def quote(str):\n"
+                   "    return \"'%s'\" % escape(str)\n"),
             // Get the actual pathname of the NamedExtTempFile and trim off
             // the ".py" extension. (We could cache reader.getName() in a
             // separate member variable, but I happen to know getName() just
@@ -203,23 +226,64 @@ namespace tut
         ensure("bad launch returned non-NULL", ! LLLeap::create("bad exe", BADPYTHON, false));
     }
 
-    // Mimic a dummy little LLEventAPI that merely sends a reply back to its
-    // requester on the "reply" pump.
-    struct API
+    // Generic self-contained listener: derive from this and override its
+    // call() method, then tell somebody to post on the pump named getName().
+    // Control will reach your call() override.
+    struct ListenerBase
     {
-        API():
-            mPump("API", true)
+        // Pass the pump name you want; will tweak for uniqueness.
+        ListenerBase(const std::string& name):
+            mPump(name, true)
         {
-            mPump.listen("API", boost::bind(&API::entry, this, _1));
+            mPump.listen(name, boost::bind(&ListenerBase::call, this, _1));
         }
 
-        bool entry(const LLSD& request)
+        virtual bool call(const LLSD& request)
+        {
+            return false;
+        }
+
+        LLEventPump& getPump() { return mPump; }
+        const LLEventPump& getPump() const { return mPump; }
+
+        std::string getName() const { return mPump.getName(); }
+        void post(const LLSD& data) { mPump.post(data); }
+
+        LLEventStream mPump;
+    };
+
+    // Mimic a dummy little LLEventAPI that merely sends a reply back to its
+    // requester on the "reply" pump.
+    struct API: public ListenerBase
+    {
+        API(): ListenerBase("API") {}
+
+        virtual bool call(const LLSD& request)
         {
             LLEventPumps::instance().obtain(request["reply"]).post("ack");
             return false;
         }
+    };
 
-        LLEventStream mPump;
+    // Give LLLeap script a way to post success/failure.
+    struct Result: public ListenerBase
+    {
+        Result(): ListenerBase("Result") {}
+
+        virtual bool call(const LLSD& request)
+        {
+            mData = request;
+            return false;
+        }
+
+        void ensure() const
+        {
+            tut::ensure(std::string("never posted to ") + getName(), mData.isDefined());
+            // Post an empty string for success, non-empty string is failure message.
+            tut::ensure(mData, mData.asString().empty());
+        }
+
+        LLSD mData;
     };
 
     template<> template<>
@@ -227,35 +291,27 @@ namespace tut
     {
         set_test_name("round trip");
         API api;
+        Result result;
         NamedTempFile script("py",
                              boost::lambda::_1 <<
-                             "import re\n"
                              "import sys\n"
-                             "from " << reader_module << " import get\n"
-                             // this will throw if the initial write to stdin
-                             // doesn't follow len:data protocol
-                             "initial = get()\n"
-                             "match = re.search(r\"'pump':'(.*?)'\", initial)\n"
-                             // this will throw if we couldn't find
-                             // 'pump':'etc.' in the initial write
-                             "reply = match.group(1)\n"
-                             "req = '''\\\n"
-                             "{'pump':'" << api.mPump.getName() << "','data':{'reply':'%s'}}\\\n"
-                             "''' % reply\n"
+                             "from " << reader_module << " import *\n"
                              // make a request on our little API
-                             "sys.stdout.write(':'.join((str(len(req)), req)))\n"
-                             "sys.stdout.flush()\n"
+                             "put(\"{'pump':'" << api.getName() << "','data':{'reply':'%s'}}\" %\n"
+                             "    replypump())\n"
                              // wait for its response
                              "resp = get()\n"
-                             // it would be cleverer to be order-insensitive
-                             // about 'data' and 'pump'; hopefully the C++
-                             // serializer doesn't change its rules soon
-                             "result = 'good' if (resp == \"{'data':'ack','pump':'%s'}\" % reply)\\\n"
-                             "                else 'bad: ' + resp\n"
-                             // write 'good' or 'bad' to the log so we can observe
-                             "sys.stderr.write(result)\n");
-        CaptureLog log(LLError::LEVEL_INFO);
+                             // We expect "{'data':'ack','pump':'%s'}", but
+                             // don't depend on the order of the keys.
+                             "result = 'bad: ' + resp\n"
+                             "if resp.startswith('{') and resp.endswith('}'):\n"
+                             "    expect = set((\"'data':'ack'\", \"'pump':'%s'\" % replypump()))\n"
+                             "    actual = set(resp[1:-1].split(','))\n"
+                             "    if actual == expect:\n"
+                             "        result = ''\n"
+                             "put(\"{'pump':'" << result.getName() << "','data':%s}\" %\n"
+                             "    quote(result))\n");
         waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))));
-        log.messageWith("good");
+        result.ensure();
     }
 } // namespace tut
