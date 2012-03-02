@@ -236,6 +236,20 @@ namespace tut
     template<> template<>
     void object::test<5>()
     {
+        set_test_name("bad stdout len prefix");
+        NamedTempFile script("py",
+                             "import sys\n"
+                             "sys.stdout.write('5a2:something')\n");
+        CaptureLog log(LLError::LEVEL_WARN);
+        waitfor(LLLeap::create(get_test_name(),
+                               sv(list_of(PYTHON)(script.getName()))));
+        ensure_contains("error log line",
+                        log.messageWith("invalid protocol"), "5a2:");
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
         set_test_name("empty plugin vector");
         std::string threw;
         try
@@ -249,7 +263,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<6>()
+    void object::test<7>()
     {
         set_test_name("bad launch");
         // Synthesize bogus executable name
@@ -329,7 +343,7 @@ namespace tut
     };
 
     template<> template<>
-    void object::test<7>()
+    void object::test<8>()
     {
         set_test_name("round trip");
         AckAPI api;
@@ -361,7 +375,7 @@ namespace tut
     };
 
     template<> template<>
-    void object::test<8>()
+    void object::test<9>()
     {
         set_test_name("many small messages");
         // It's not clear to me whether there's value in iterating many times
@@ -409,7 +423,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<9>()
+    void object::test<10>()
     {
         set_test_name("very large message");
         ReqIDAPI api;
