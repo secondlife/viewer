@@ -53,6 +53,7 @@
 #include "llnotificationsutil.h"
 
 #include <boost/bind.hpp>
+#include <boost/signals2.hpp>
 
 #define XUI_LINKSET_USE_NONE             0
 #define XUI_LINKSET_USE_WALKABLE         1
@@ -212,10 +213,20 @@ void LLFloaterPathfindingLinksets::onOpen(const LLSD& pKey)
 	{
 		LLPathfindingManager::getInstance()->registerAgentStateSignal(boost::bind(&LLFloaterPathfindingLinksets::onAgentStateCB, this, _1));
 	}
+
+	if (!mSelectionUpdateSlot.connected())
+	{
+		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingLinksets::updateControls, this));
+	}
 }
 
 void LLFloaterPathfindingLinksets::onClose(bool pAppQuitting)
 {
+	if (mSelectionUpdateSlot.connected())
+	{
+		mSelectionUpdateSlot.disconnect();
+	}
+
 	if (mAgentStateSlot.connected())
 	{
 		mAgentStateSlot.disconnect();
@@ -307,7 +318,8 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mMessagingState(kMessagingUnknown),
 	mLinksetsListPtr(),
 	mLinksetsSelection(),
-	mAgentStateSlot()
+	mAgentStateSlot(),
+	mSelectionUpdateSlot()
 {
 }
 
@@ -1004,7 +1016,7 @@ void LLFloaterPathfindingLinksets::updateEnableStateOnEditFields()
 	bool isEditEnabled = ((numSelectedItems > 0) && LLPathfindingManager::getInstance()->isAllowAlterPermanent());
 
 	mShowBeaconCheckBox->setEnabled(numSelectedItems > 0);
-	mTakeButton->setEnabled(isEditEnabled && tools_visible_take_object());
+	mTakeButton->setEnabled(isEditEnabled && visible_take_object());
 	mTakeCopyButton->setEnabled(isEditEnabled && enable_object_take_copy());
 	mReturnButton->setEnabled(isEditEnabled && enable_object_return());
 	mDeleteButton->setEnabled(isEditEnabled && enable_object_delete());

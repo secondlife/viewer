@@ -35,6 +35,8 @@
 #include "llpathfindinglinksetlist.h"
 #include "llpathfindingmanager.h"
 
+#include <boost/signals2.hpp>
+
 class LLSD;
 class LLUICtrl;
 class LLTextBase;
@@ -120,6 +122,7 @@ private:
 	LLPathfindingLinksetListPtr              mLinksetsListPtr;
 	LLObjectSelectionHandle                  mLinksetsSelection;
 	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
+	boost::signals2::connection              mSelectionUpdateSlot;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
