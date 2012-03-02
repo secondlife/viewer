@@ -94,6 +94,10 @@ void APIENTRY gl_debug_callback(GLenum source,
 	llwarns << "Severity: " << std::hex << severity << llendl;
 	llwarns << "Message: " << message << llendl;
 	llwarns << "-----------------------" << llendl;
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		llerrs << "Halting on GL Error" << llendl;
+	}
 }
 #endif
 
@@ -572,6 +576,15 @@ bool LLGLManager::initGL()
 #endif
 	}
 
+	if (mGLVersion >= 3.f && LLImageGL::sCompressTextures)
+	{ //use texture compression
+		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+	}
+	else
+	{ //GL version is < 3.0, always disable texture compression
+		LLImageGL::sCompressTextures = false;
+	}
+	
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
 	if (mGLVendor.substr(0,4) == "ATI ")
