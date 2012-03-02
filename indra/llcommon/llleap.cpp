@@ -230,10 +230,7 @@ public:
                 // childout (well, up to a max length) to log what was wrong.
                 LLProcess::ReadPipe::size_type
                     readlen((std::min)(childout.size(), LLProcess::ReadPipe::size_type(80)));
-                std::vector<char> buffer(readlen + 1);
-                childstream.read(&buffer[0], readlen);
-                buffer[childstream.gcount()] = '\0';
-                bad_protocol(STRINGIZE(expect << char(colon) << &buffer[0]));
+                bad_protocol(STRINGIZE(expect << char(colon) << childout.read(readlen)));
             }
             else
             {
