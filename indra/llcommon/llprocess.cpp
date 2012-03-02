@@ -367,7 +367,7 @@ public:
 				// received. Make sure we commit those later. (Don't commit them
 				// now, that would invalidate the buffer iterator sequence!)
 				tocommit += gotten;
-				LL_DEBUGS("LLProcess") << "read " << gotten << " of " << toread
+				LL_DEBUGS("LLProcess") << "filled " << gotten << " of " << toread
 									   << " bytes from " << mDesc << LL_ENDL;
 
 				// The parent end of this pipe is nonblocking. If we weren't even
