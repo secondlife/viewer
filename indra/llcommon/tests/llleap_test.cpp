@@ -208,6 +208,34 @@ namespace tut
     template<> template<>
     void object::test<3>()
     {
+        set_test_name("bad stdout protocol");
+        NamedTempFile script("py",
+                             "print 'Hello from Python!'\n");
+        CaptureLog log(LLError::LEVEL_WARN);
+        waitfor(LLLeap::create(get_test_name(),
+                               sv(list_of(PYTHON)(script.getName()))));
+        ensure_contains("error log line",
+                        log.messageWith("invalid protocol"), "Hello from Python!");
+    }
+
+    template<> template<>
+    void object::test<4>()
+    {
+        set_test_name("leftover stdout");
+        NamedTempFile script("py",
+                             "import sys\n"
+                             // note lack of newline
+                             "sys.stdout.write('Hello from Python!')\n");
+        CaptureLog log(LLError::LEVEL_WARN);
+        waitfor(LLLeap::create(get_test_name(),
+                               sv(list_of(PYTHON)(script.getName()))));
+        ensure_contains("error log line",
+                        log.messageWith("Discarding"), "Hello from Python!");
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
         set_test_name("empty plugin vector");
         std::string threw;
         try
@@ -221,7 +249,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<4>()
+    void object::test<6>()
     {
         set_test_name("bad launch");
         // Synthesize bogus executable name
@@ -301,7 +329,7 @@ namespace tut
     };
 
     template<> template<>
-    void object::test<5>()
+    void object::test<7>()
     {
         set_test_name("round trip");
         AckAPI api;
@@ -333,7 +361,7 @@ namespace tut
     };
 
     template<> template<>
-    void object::test<6>()
+    void object::test<8>()
     {
         set_test_name("many small messages");
         // It's not clear to me whether there's value in iterating many times
@@ -381,7 +409,7 @@ namespace tut
     }
 
     template<> template<>
-    void object::test<7>()
+    void object::test<9>()
     {
         set_test_name("very large message");
         ReqIDAPI api;
