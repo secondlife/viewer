@@ -40,9 +40,11 @@ StringVec sv(const StringVec& listof) { return listof; }
 #define sleep(secs) _sleep((secs) * 1000)
 #endif
 
-void waitfor(const std::vector<LLLeap*>& instances)
+const size_t BUFFERED_LENGTH = 1024*1024; // try wrangling a megabyte of data
+
+void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
 {
-    int i, timeout = 60;
+    int i;
     for (i = 0; i < timeout; ++i)
     {
         // Every iteration, test whether any of the passed LLLeap instances
@@ -66,11 +68,11 @@ void waitfor(const std::vector<LLLeap*>& instances)
     tut::ensure("timed out without terminating", i < timeout);
 }
 
-void waitfor(LLLeap* instance)
+void waitfor(LLLeap* instance, int timeout=60)
 {
     std::vector<LLLeap*> instances;
     instances.push_back(instance);
-    waitfor(instances);
+    waitfor(instances, timeout);
 }
 
 /*****************************************************************************
@@ -266,9 +268,9 @@ namespace tut
 
     // Mimic a dummy little LLEventAPI that merely sends a reply back to its
     // requester on the "reply" pump.
-    struct API: public ListenerBase
+    struct AckAPI: public ListenerBase
     {
-        API(): ListenerBase("API") {}
+        AckAPI(): ListenerBase("AckAPI") {}
 
         virtual bool call(const LLSD& request)
         {
@@ -302,11 +304,10 @@ namespace tut
     void object::test<5>()
     {
         set_test_name("round trip");
-        API api;
+        AckAPI api;
         Result result;
         NamedTempFile script("py",
                              boost::lambda::_1 <<
-                             "import sys\n"
                              "from " << reader_module << " import *\n"
                              // make a request on our little API
                              "request(pump='" << api.getName() << "', data={})\n"
@@ -319,8 +320,107 @@ namespace tut
         result.ensure();
     }
 
+    struct ReqIDAPI: public ListenerBase
+    {
+        ReqIDAPI(): ListenerBase("ReqIDAPI") {}
+
+        virtual bool call(const LLSD& request)
+        {
+            // free function from llevents.h
+            sendReply(LLSD(), request);
+            return false;
+        }
+    };
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("many small messages");
+        // It's not clear to me whether there's value in iterating many times
+        // over a send/receive loop -- I don't think that will exercise any
+        // interesting corner cases. This test first sends a large number of
+        // messages, then receives all the responses. The intent is to ensure
+        // that some of that data stream crosses buffer boundaries, loop
+        // iterations etc. in OS pipes and the LLLeap/LLProcess implementation.
+        ReqIDAPI api;
+        Result result;
+        NamedTempFile script("py",
+                             boost::lambda::_1 <<
+                             "import sys\n"
+                             "from " << reader_module << " import *\n"
+                             // Note that since reader imports llsd, this
+                             // 'import *' gets us llsd too.
+                             "sample = llsd.format_notation(dict(pump='" <<
+                             api.getName() << "', data=dict(reqid=999999, reply=replypump())))\n"
+                             // The whole packet has length prefix too: "len:data"
+                             "samplen = len(str(len(sample))) + 1 + len(sample)\n"
+                             // guess how many messages it will take to
+                             // accumulate BUFFERED_LENGTH
+                             "count = int(" << BUFFERED_LENGTH << "/samplen)\n"
+                             "print >>sys.stderr, 'Sending %s requests' % count\n"
+                             "for i in xrange(count):\n"
+                             "    request('" << api.getName() << "', dict(reqid=i))\n"
+                             // The assumption in this specific test that
+                             // replies will arrive in the same order as
+                             // requests is ONLY valid because the API we're
+                             // invoking sends replies instantly. If the API
+                             // had to wait for some external event before
+                             // sending its reply, replies could arrive in
+                             // arbitrary order, and we'd have to tick them
+                             // off from a set.
+                             "result = ''\n"
+                             "for i in xrange(count):\n"
+                             "    resp = get()\n"
+                             "    if resp['data']['reqid'] != i:\n"
+                             "        result = 'expected reqid=%s in %s' % (i, resp)\n"
+                             "        break\n"
+                             "send(pump='" << result.getName() << "', data=result)\n");
+        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))),
+                300);               // needs more realtime than most tests
+        result.ensure();
+    }
+
+    template<> template<>
+    void object::test<7>()
+    {
+        set_test_name("very large message");
+        ReqIDAPI api;
+        Result result;
+        NamedTempFile script("py",
+                             boost::lambda::_1 <<
+                             "import sys\n"
+                             "from " << reader_module << " import *\n"
+                             // Generate a very large string value.
+                             "desired = int(sys.argv[1])\n"
+                             // 7 chars per item: 6 digits, 1 comma
+                             "count = int((desired - 50)/7)\n"
+                             "large = ''.join('%06d,' % i for i in xrange(count))\n"
+                             // Pass 'large' as reqid because we know the API
+                             // will echo reqid, and we want to receive it back.
+                             "request('" << api.getName() << "', dict(reqid=large))\n"
+                             "resp = get()\n"
+                             "echoed = resp['data']['reqid']\n"
+                             "if echoed == large:\n"
+                             "    send('" << result.getName() << "', '')\n"
+                             "    sys.exit(0)\n"
+                             // Here we know echoed did NOT match; try to find where
+                             "for i in xrange(count):\n"
+                             "    start = 7*i\n"
+                             "    end   = 7*(i+1)\n"
+                             "    if end > len(echoed)\\\n"
+                             "    or echoed[start:end] != large[start:end]:\n"
+                             "        send('" << result.getName() << "',\n"
+                             "             'at offset %s, expected %r but got %r' %\n"
+                             "             (start, large[start:end], echoed[start:end]))\n"
+                             "sys.exit(1)\n");
+        waitfor(LLLeap::create(get_test_name(),
+                               sv(list_of
+                                  (PYTHON)
+                                  (script.getName())
+                                  (stringize(BUFFERED_LENGTH)))));
+        result.ensure();
+    }
+
     // TODO:
-    // many many small messages buffered in both directions
-    // very large message in both directions (md5)
 
 } // namespace tut
