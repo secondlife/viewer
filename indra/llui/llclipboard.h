@@ -42,7 +42,7 @@ typedef boost::function<void ()> cleanup_callback_t;
 // Class LLClipboard
 //
 // This class is used to cut/copy/paste text strings and inventory items around 
-// the world. Use LLClipboard::getInstance()->method() to use its methods.
+// the world. Use LLClipboard::instance().method() to use its methods.
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLClipboard : public LLSingleton<LLClipboard>

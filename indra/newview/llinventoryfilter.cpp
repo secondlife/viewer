@@ -322,13 +322,13 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 // is on the clipboard must be filtered out if the clipboard is in the "cut" mode.
 bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 {
-	if (LLClipboard::getInstance()->isCutMode())
+	if (LLClipboard::instance().isCutMode())
 	{
 		LLUUID current_id = object_id;
 		LLInventoryObject *current_object = gInventory.getObject(object_id);
 		while (current_id.notNull() && current_object)
 		{
-			if (LLClipboard::getInstance()->isOnClipboard(current_id))
+			if (LLClipboard::instance().isOnClipboard(current_id))
 			{
 				return false;
 			}

@@ -302,6 +302,6 @@ void LLPanelWearing::copyToClipboard()
 		}
 	}
 
-	LLClipboard::getInstance()->copyToClipboard(utf8str_to_wstring(text),0,text.size());
+	LLClipboard::instance().copyToClipboard(utf8str_to_wstring(text),0,text.size());
 }
 // EOF

@@ -249,7 +249,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	}
 	
 	// keep track of the clipboard state so that we avoid filtering too much
-	mClipboardState = LLClipboard::getInstance()->getState();
+	mClipboardState = LLClipboard::instance().getState();
 	
 	// Initialize base class params.
 	LLPanel::initFromParams(params);
@@ -283,10 +283,10 @@ void LLInventoryPanel::draw()
 	mFolderRoot->updateSelection();
 	
 	// Nudge the filter if the clipboard state changed
-	if (mClipboardState != LLClipboard::getInstance()->getState())
+	if (mClipboardState != LLClipboard::instance().getState())
 	{
-		mClipboardState = LLClipboard::getInstance()->getState();
-		getFilter()->setModified(LLClipboard::getInstance()->isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
+		mClipboardState = LLClipboard::instance().getState();
+		getFilter()->setModified(LLClipboard::instance().isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
 	}
 	
 	LLPanel::draw();

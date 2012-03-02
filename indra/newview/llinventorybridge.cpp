@@ -220,8 +220,8 @@ BOOL LLInvFVBridge::cutToClipboard() const
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemMovable() && isItemRemovable())
 	{
-		LLClipboard::getInstance()->setCutMode(true, boost::bind(LLFolderView::removeCutItems));
-		return LLClipboard::getInstance()->addToClipboard(mUUID);
+		LLClipboard::instance().setCutMode(true, boost::bind(LLFolderView::removeCutItems));
+		return LLClipboard::instance().addToClipboard(mUUID);
 	}
 	return FALSE;
 }
@@ -231,7 +231,7 @@ BOOL LLInvFVBridge::copyToClipboard() const
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemCopyable())
 	{
-		return LLClipboard::getInstance()->addToClipboard(mUUID);
+		return LLClipboard::instance().addToClipboard(mUUID);
 	}
 	return FALSE;
 }
@@ -419,7 +419,7 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 
 BOOL LLInvFVBridge::isClipboardPasteable() const
 {
-	if (!LLClipboard::getInstance()->hasContents() || !isAgentInventory())
+	if (!LLClipboard::instance().hasContents() || !isAgentInventory())
 	{
 		return FALSE;
 	}
@@ -430,7 +430,7 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 	}
 
 	LLDynamicArray<LLUUID> objects;
-	LLClipboard::getInstance()->pasteFromClipboard(objects);
+	LLClipboard::instance().pasteFromClipboard(objects);
 	S32 count = objects.count();
 	for(S32 i = 0; i < count; i++)
 	{
@@ -457,7 +457,7 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 
 BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 {
-	if (!LLClipboard::getInstance()->hasContents() || !isAgentInventory())
+	if (!LLClipboard::instance().hasContents() || !isAgentInventory())
 	{
 		return FALSE;
 	}
@@ -468,7 +468,7 @@ BOOL LLInvFVBridge::isClipboardPasteableAsLink() const
 	}
 
 	LLDynamicArray<LLUUID> objects;
-	LLClipboard::getInstance()->pasteFromClipboard(objects);
+	LLClipboard::instance().pasteFromClipboard(objects);
 	S32 count = objects.count();
 	for(S32 i = 0; i < count; i++)
 	{
@@ -643,7 +643,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	{
 		items.push_back(std::string("Paste"));
 	}
-	if ((!LLClipboard::getInstance()->isCutMode() && !isClipboardPasteable()) || ((flags & FIRST_SELECTED_ITEM) == 0))
+	if ((!LLClipboard::instance().isCutMode() && !isClipboardPasteable()) || ((flags & FIRST_SELECTED_ITEM) == 0))
 	{
 		disabled_items.push_back(std::string("Paste"));
 	}
@@ -1833,7 +1833,7 @@ BOOL LLFolderBridge::isClipboardPasteable() const
 		}
 
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->pasteFromClipboard(objects);
+		LLClipboard::instance().pasteFromClipboard(objects);
 		const LLViewerInventoryCategory *current_cat = getCategory();
 
 		// Search for the direct descendent of current Friends subfolder among all pasted items,
@@ -1871,7 +1871,7 @@ BOOL LLFolderBridge::isClipboardPasteableAsLink() const
 		const BOOL is_in_friend_folder = LLFriendCardsManager::instance().isCategoryInFriendFolder( current_cat );
 		const LLUUID &current_cat_id = current_cat->getUUID();
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->pasteFromClipboard(objects);
+		LLClipboard::instance().pasteFromClipboard(objects);
 		S32 count = objects.count();
 		for(S32 i = 0; i < count; i++)
 		{
@@ -2910,7 +2910,7 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 void LLFolderBridge::pasteFromClipboard()
 {
 	LLInventoryModel* model = getInventoryModel();
-	if (model && (isClipboardPasteable() || LLClipboard::getInstance()->isCutMode()))
+	if (model && (isClipboardPasteable() || LLClipboard::instance().isCutMode()))
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
@@ -2920,7 +2920,7 @@ void LLFolderBridge::pasteFromClipboard()
 		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
 
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->pasteFromClipboard(objects);
+		LLClipboard::instance().pasteFromClipboard(objects);
 
 		if (move_is_into_outbox)
 		{
@@ -2980,7 +2980,7 @@ void LLFolderBridge::pasteFromClipboard()
 						dropToOutfit(item, move_is_into_current_outfit);
 					}
 				}
-				else if (LLClipboard::getInstance()->isCutMode())
+				else if (LLClipboard::instance().isCutMode())
 				{
 					// Do a move to "paste" a "cut"
 					// move_inventory_item() is not enough, as we have to update inventory locally too
@@ -3029,7 +3029,7 @@ void LLFolderBridge::pasteFromClipboard()
 			}
 		}
 		// Change mode to paste for next paste
-		LLClipboard::getInstance()->setCutMode(false);
+		LLClipboard::instance().setCutMode(false);
 	}
 }
 
@@ -3054,7 +3054,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 		const LLUUID parent_id(mUUID);
 
 		LLDynamicArray<LLUUID> objects;
-		LLClipboard::getInstance()->pasteFromClipboard(objects);
+		LLClipboard::instance().pasteFromClipboard(objects);
 		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
 			 iter != objects.end();
 			 ++iter)
@@ -3093,7 +3093,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			}
 		}
 		// Change mode to paste for next paste
-		LLClipboard::getInstance()->setCutMode(false);
+		LLClipboard::instance().setCutMode(false);
 	}
 }
 

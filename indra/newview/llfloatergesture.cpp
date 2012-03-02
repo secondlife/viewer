@@ -397,11 +397,11 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 	std::string command_name = command.asString();
 	if("paste" == command_name)
 	{
-		if(!LLClipboard::getInstance()->hasContents())
+		if(!LLClipboard::instance().hasContents())
 			return false;
 
 		LLDynamicArray<LLUUID> ids;
-		LLClipboard::getInstance()->pasteFromClipboard(ids);
+		LLClipboard::instance().pasteFromClipboard(ids);
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
@@ -502,20 +502,20 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		uuid_vec_t ids;
 		getSelectedIds(ids);
 		// Make sure the clipboard is empty
-		LLClipboard::getInstance()->reset();
+		LLClipboard::instance().reset();
 		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
-				LLClipboard::getInstance()->addToClipboard(item->getUUID(),LLAssetType::AT_GESTURE);
+				LLClipboard::instance().addToClipboard(item->getUUID(),LLAssetType::AT_GESTURE);
 			}
 		}
 	}
 	else if ("paste" == command_name)
 	{
 		LLDynamicArray<LLUUID> ids;
-		LLClipboard::getInstance()->pasteFromClipboard(ids);
+		LLClipboard::instance().pasteFromClipboard(ids);
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);
@@ -535,11 +535,11 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 						gesture_dir->getUUID(), getString("copy_name", string_args), cb);
 			}
 		}
-		LLClipboard::getInstance()->reset();
+		LLClipboard::instance().reset();
 	}
 	else if ("copy_uuid" == command_name)
 	{
-		LLClipboard::getInstance()->copyToClipboard(mGestureList->getCurrentID(),LLAssetType::AT_GESTURE);
+		LLClipboard::instance().copyToClipboard(mGestureList->getCurrentID(),LLAssetType::AT_GESTURE);
 	}
 }
 
