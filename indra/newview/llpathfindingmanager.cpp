@@ -33,6 +33,7 @@
 #include "llhttpclient.h"
 #include "llagent.h"
 #include "llviewerregion.h"
+#include "llpathfindingnavmesh.h"
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
 
@@ -46,6 +47,27 @@
 
 #define CAP_SERVICE_OBJECT_LINKSETS   "ObjectNavMeshProperties"
 #define CAP_SERVICE_TERRAIN_LINKSETS  "TerrainNavMeshProperties"
+
+//---------------------------------------------------------------------------
+// NavMeshResponder
+//---------------------------------------------------------------------------
+
+class NavMeshResponder : public LLHTTPClient::Responder
+{
+public:
+	NavMeshResponder(const std::string &pCapabilityURL, U32 pNavMeshVersion, LLPathfindingNavMeshPtr pNavMeshPtr);
+	virtual ~NavMeshResponder();
+
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
+
+protected:
+
+private:
+	std::string             mCapabilityURL;
+	U32                     mNavMeshVersion;
+	LLPathfindingNavMeshPtr mNavMeshPtr;
+};
 
 //---------------------------------------------------------------------------
 // AgentStateResponder
@@ -152,6 +174,8 @@ private:
 
 LLPathfindingManager::LLPathfindingManager()
 	: LLSingleton<LLPathfindingManager>(),
+	mNavMeshMap(),
+	mNavMeshVersionXXX(0),
 	mAgentStateSignal(),
 	mAgentState(kAgentStateUnknown),
 	mLastKnownNonErrorAgentState(kAgentStateUnknown)
@@ -179,7 +203,49 @@ bool LLPathfindingManager::isAllowViewTerrainProperties() const
 	return (gAgent.isGodlike() || ((region != NULL) && region->canManageEstate()));
 }
 
-LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateSignal(agent_state_callback_t pAgentStateCallback)
+LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListenerForCurrentRegion(LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback)
+{
+	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForCurrentRegion();
+	return navMeshPtr->registerNavMeshListener(pNavMeshCallback);
+}
+
+void LLPathfindingManager::requestGetNavMeshForCurrentRegion()
+{
+	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForCurrentRegion();
+
+	if (navMeshPtr->hasNavMeshVersion(mNavMeshVersionXXX))
+	{
+		navMeshPtr->handleRefresh();
+	}
+	else
+	{
+		LLViewerRegion *region = getCurrentRegion();
+		if (region == NULL)
+		{
+			navMeshPtr->handleNavMeshNotEnabled();
+		}
+		else
+		{
+			std::string navMeshURL = getRetrieveNavMeshURLForCurrentRegion();
+			if (navMeshURL.empty())
+			{
+				navMeshPtr->handleNavMeshNotEnabled();
+			}
+			else
+			{
+				navMeshPtr->handleNavMeshStart(mNavMeshVersionXXX);
+				LLHTTPClient::ResponderPtr responder = new NavMeshResponder(navMeshURL, mNavMeshVersionXXX, navMeshPtr);
+
+				LLSD postData;
+				postData["agent_id"] = gAgent.getID();
+				postData["region_id"] = region->getRegionID();
+				LLHTTPClient::post(navMeshURL, postData, responder);
+			}
+		}
+	}
+}
+
+LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateListener(agent_state_callback_t pAgentStateCallback)
 {
 	return mAgentStateSignal.connect(pAgentStateCallback);
 }
@@ -301,6 +367,31 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLin
 	return status;
 }
 
+LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForCurrentRegion()
+{
+
+	LLUUID regionUUID;
+	LLViewerRegion *region = getCurrentRegion();
+	if (region != NULL)
+	{
+		regionUUID = region->getRegionID();
+	}
+
+	LLPathfindingNavMeshPtr navMeshPtr;
+	NavMeshMap::iterator navMeshIter = mNavMeshMap.find(regionUUID);
+	if (navMeshIter == mNavMeshMap.end())
+	{
+		navMeshPtr = LLPathfindingNavMeshPtr(new LLPathfindingNavMesh(regionUUID));
+		mNavMeshMap.insert(std::pair<LLUUID, LLPathfindingNavMeshPtr>(regionUUID, navMeshPtr));
+	}
+	else
+	{
+		navMeshPtr = navMeshIter->second;
+	}
+
+	return navMeshPtr;
+}
+
 bool LLPathfindingManager::isValidAgentState(EAgentState pAgentState)
 {
 	return ((pAgentState == kAgentStateFrozen) || (pAgentState == kAgentStateUnfrozen));
@@ -396,6 +487,31 @@ std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::st
 LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 {
 	return gAgent.getRegion();
+}
+
+//---------------------------------------------------------------------------
+// NavMeshResponder
+//---------------------------------------------------------------------------
+
+NavMeshResponder::NavMeshResponder(const std::string &pCapabilityURL, U32 pNavMeshVersion, LLPathfindingNavMeshPtr pNavMeshPtr)
+	: mCapabilityURL(pCapabilityURL),
+	mNavMeshVersion(pNavMeshVersion),
+	mNavMeshPtr(pNavMeshPtr)
+{
+}
+
+NavMeshResponder::~NavMeshResponder()
+{
+}
+
+void NavMeshResponder::result(const LLSD &pContent)
+{
+	mNavMeshPtr->handleNavMeshResult(pContent, mNavMeshVersion);
+}
+
+void NavMeshResponder::error(U32 pStatus, const std::string& pReason)
+{
+	mNavMeshPtr->handleNavMeshError(pStatus, pReason, mCapabilityURL, mNavMeshVersion);
 }
 
 //---------------------------------------------------------------------------

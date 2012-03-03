@@ -33,6 +33,7 @@
 #include "llsd.h"
 #include "llhandle.h"
 #include "llagent.h"
+#include "llpanel.h"
 #include "llbutton.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
@@ -40,12 +41,12 @@
 #include "lltextbase.h"
 #include "lltabcontainer.h"
 #include "llcombobox.h"
-#include "llnavmeshstation.h"
 #include "llfloaterreg.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
+#include "llpathfindingnavmesh.h"
 #include "llpathfindingmanager.h"
 
 #include "LLPathingLib.h"
@@ -104,6 +105,12 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mEditTestTabContainer = findChild<LLTabContainer>("edit_test_tab_container");
 	llassert(mEditTestTabContainer != NULL);
 
+	mEditTab = findChild<LLPanel>("edit_panel");
+	llassert(mEditTab != NULL);
+
+	mTestTab = findChild<LLPanel>("test_panel");
+	llassert(mTestTab != NULL);
+
 	mUnfreezeLabel = findChild<LLTextBase>("unfreeze_label");
 	llassert(mUnfreezeLabel != NULL);
 
@@ -157,14 +164,18 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	}	
 	if ( LLPathingLib::getInstance() == NULL )
 	{ 
-		std::string str = getString("navmesh_library_not_implemented");
-		LLStyle::Params styleParams;
-		styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
-		mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
+		setConsoleState(kConsoleStateLibraryNotImplemented);
 		llwarns <<"Errror: cannout find pathing library implementation."<<llendl;
 	}
 	else
-	{	
+	{
+		LLPathfindingManager *pathfindingManagerInstance = LLPathfindingManager::getInstance();
+		if (!mNavMeshSlot.connected())
+		{
+			pathfindingManagerInstance->registerNavMeshListenerForCurrentRegion(boost::bind(&LLFloaterPathfindingConsole::onNavMeshDownloadCB, this, _1, _2, _3, _4));
+		}
+		pathfindingManagerInstance->requestGetNavMeshForCurrentRegion();
+#if 0
 		LLPathingLib::getInstance()->cleanupResidual();
 
 		mCurrentMDO = 0;
@@ -232,12 +243,14 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
 			}
 		}
+#endif
 	}		
 
 	if (!mAgentStateSlot.connected())
 	{
-		LLPathfindingManager::getInstance()->registerAgentStateSignal(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
+		LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
 	}
+
 	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
 	updatePathTestStatus();
 }
@@ -248,9 +261,16 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	{
 		mAgentStateSlot.disconnect();
 	}
-	LLPathingLib::getInstance()->cleanupResidual();
+
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
+
+	clearNavMesh();
 	LLFloater::onClose(pIsAppQuitting);
 	setHeartBeat( false );
+	setConsoleState(kConsoleStateUnknown);
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
@@ -496,6 +516,7 @@ void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType
 	mCharacterTypeRadioGroup->setValue(radioGroupValue);
 }
 
+#if 0
 void LLFloaterPathfindingConsole::setHasNavMeshReceived()
 {
 	std::string str = getString("navmesh_fetch_complete_available");
@@ -513,6 +534,7 @@ void LLFloaterPathfindingConsole::setHasNoNavMesh()
 	std::string str = getString("navmesh_fetch_complete_none");
 	mPathfindingStatus->setText((LLStringExplicit)str);
 }
+#endif
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
@@ -527,6 +549,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathfindingStatus(NULL),
 	mViewCharactersButton(NULL),
 	mEditTestTabContainer(NULL),
+	mEditTab(NULL),
+	mTestTab(NULL),
 	mUnfreezeLabel(NULL),
 	mUnfreezeButton(NULL),
 	mLinksetsLabel(NULL),
@@ -537,36 +561,31 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mCharacterTypeRadioGroup(NULL),
 	mPathTestingStatus(NULL),
 	mClearPathButton(NULL),
+	mNavMeshSlot(),
 	mAgentStateSlot(),
+	mConsoleState(kConsoleStateUnknown),
+	mHasNavMesh(false),
+	mNavMeshRegionVersion(0U),
+	mNavMeshRegionUUID(),
+#if 0
 	mNavMeshCnt(0),
+	mNeighboringRegion( CURRENT_REGION ),
+#endif
 	mHasStartPoint(false),
 	mHasEndPoint(false),
-	mNeighboringRegion( CURRENT_REGION ),
 	mHeartBeat( false )
 {
 	mSelfHandle.bind(this);
-
+#if 0
 	for (int i=0;i<MAX_OBSERVERS;++i)
 	{
 		mNavMeshDownloadObserver[i].setPathfindingConsole(this);
 	}
+#endif
 }
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 {
-}
-
-std::string LLFloaterPathfindingConsole::getCurrentRegionCapabilityURL() const
-{
-	std::string capURL("");
-
-	LLViewerRegion *region = gAgent.getRegion();
-	if (region != NULL)
-	{
-		capURL = region->getCapability("RetrieveNavMeshSrc");
-	}
-
-	return capURL;
 }
 
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
@@ -686,17 +705,76 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	updatePathTestStatus();
 }
 
+void LLFloaterPathfindingConsole::onNavMeshDownloadCB(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
+{
+
+	switch (pNavMeshRequestStatus)
+	{
+	case LLPathfindingNavMesh::kNavMeshRequestStarted :
+		setConsoleState(kConsoleStateDownloading);
+		break;
+	case LLPathfindingNavMesh::kNavMeshRequestCompleted :
+		updateNavMesh(pRegionUUID, pNavMeshVersion, pNavMeshData);
+		setConsoleState(kConsoleStateHasNavMesh);
+		break;
+	case LLPathfindingNavMesh::kNavMeshRequestNotEnabled :
+		clearNavMesh();
+		setConsoleState(kConsoleStateRegionNotEnabled);
+		break;
+	case LLPathfindingNavMesh::kNavMeshRequestMessageError :
+		clearNavMesh();
+		setConsoleState(kConsoleStateDownloadError);
+		break;
+	case LLPathfindingNavMesh::kNavMeshRequestFormatError :
+		clearNavMesh();
+		setConsoleState(kConsoleStateNavMeshError);
+		break;
+	case LLPathfindingNavMesh::kNavMeshRequestUnknown :
+	default:
+		clearNavMesh();
+		setConsoleState(kConsoleStateUnknown);
+		llassert(0);
+		break;
+	}
+}
+
+void LLFloaterPathfindingConsole::updateNavMesh(const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
+{
+	if (!mHasNavMesh || (mNavMeshRegionUUID != pRegionUUID) || (mNavMeshRegionVersion != pNavMeshVersion))
+	{
+		llassert(!pNavMeshData.empty());
+		mHasNavMesh = true;
+		mNavMeshRegionUUID = pRegionUUID;
+		mNavMeshRegionVersion = pNavMeshVersion;
+		LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, CURRENT_REGION);
+	}
+}
+
+void LLFloaterPathfindingConsole::clearNavMesh()
+{
+	mHasNavMesh = false;
+	LLPathingLib::getInstance()->cleanupResidual();
+}
+
 void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
 {
 	setAgentState(pAgentState);
 }
 
-void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
+void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
 {
-	switch (pAgentState)
+	mConsoleState = pConsoleState;
+	updateControlsOnConsoleState();
+	updateStatusOnConsoleState();
+}
+
+void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
+{
+	switch (mConsoleState)
 	{
-	case LLPathfindingManager::kAgentStateUnknown :
-	case LLPathfindingManager::kAgentStateNotEnabled :
+	case kConsoleStateUnknown :
+	case kConsoleStateLibraryNotImplemented :
+	case kConsoleStateRegionNotEnabled :
 		mShowNavMeshCheckBox->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
 		mShowWalkablesCheckBox->setEnabled(FALSE);
@@ -705,16 +783,35 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(FALSE);
-		mEditTestTabContainer->setEnabled(FALSE);
+		mEditTestTabContainer->selectTab(0);
+		mTestTab->setEnabled(FALSE);
 		mCharacterWidthSlider->setEnabled(FALSE);
 		mCharacterTypeRadioGroup->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
-
-		mEditTestTabContainer->selectTab(0);
 		mHasStartPoint = false;
 		mHasEndPoint = false;
 		break;
-	default :
+	case kConsoleStateDownloading :
+	case kConsoleStateDownloadError :
+	case kConsoleStateNavMeshError :
+		mShowNavMeshCheckBox->setEnabled(FALSE);
+		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
+		mShowWalkablesCheckBox->setEnabled(FALSE);
+		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
+		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
+		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
+		mShowWorldCheckBox->setEnabled(FALSE);
+		mViewCharactersButton->setEnabled(TRUE);
+		mEditTestTabContainer->selectTab(0);
+		mTestTab->setEnabled(FALSE);
+		mCharacterWidthSlider->setEnabled(FALSE);
+		mCharacterTypeRadioGroup->setEnabled(FALSE);
+		mClearPathButton->setEnabled(FALSE);
+		mHasStartPoint = false;
+		mHasEndPoint = false;
+		break;
+	case kConsoleStateHasNavMesh :
+	case kConsoleStateHasNavMeshDownloading :
 		mShowNavMeshCheckBox->setEnabled(TRUE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(TRUE);
 		mShowWalkablesCheckBox->setEnabled(TRUE);
@@ -723,17 +820,71 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 		mShowExclusionVolumesCheckBox->setEnabled(TRUE);
 		mShowWorldCheckBox->setEnabled(TRUE);
 		mViewCharactersButton->setEnabled(TRUE);
-		mEditTestTabContainer->setEnabled(TRUE);
+		mTestTab->setEnabled(TRUE);
 		mCharacterWidthSlider->setEnabled(TRUE);
 		mCharacterTypeRadioGroup->setEnabled(TRUE);
 		mClearPathButton->setEnabled(TRUE);
+		mTestTab->setEnabled(TRUE);
+		break;
+	default :
+		llassert(0);
+		break;
+	}
+}
+
+void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
+{
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+
+	std::string statusText("");
+	LLStyle::Params styleParams;
+
+	switch (mConsoleState)
+	{
+	case kConsoleStateUnknown :
+		statusText = getString("navmesh_status_unknown");
+		break;
+	case kConsoleStateLibraryNotImplemented :
+		statusText = getString("navmesh_status_library_not_implemented");
+		styleParams.color = warningColor;
+		break;
+	case kConsoleStateRegionNotEnabled :
+		statusText = getString("navmesh_status_region_not_enabled");
+		styleParams.color = warningColor;
+		break;
+	case kConsoleStateDownloading :
+		statusText = getString("navmesh_status_downloading");
+		break;
+	case kConsoleStateHasNavMesh :
+		statusText = getString("navmesh_status_has_navmesh");
+		break;
+	case kConsoleStateHasNavMeshDownloading :
+		statusText = getString("navmesh_status_has_navmesh_downloading");
+		break;
+	case kConsoleStateDownloadError :
+		statusText = getString("navmesh_status_download_error");
+		styleParams.color = warningColor;
+		break;
+	case kConsoleStateNavMeshError :
+		statusText = getString("navmesh_status_navmesh_error");
+		styleParams.color = warningColor;
+		break;
+	default :
+		statusText = getString("navmesh_status_unknown");
+		llassert(0);
 		break;
 	}
 
+	mPathfindingStatus->setText((LLStringExplicit)statusText, styleParams);
+}
+
+void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
+{
 	switch (LLPathfindingManager::getInstance()->getLastKnownNonErrorAgentState())
 	{
 	case LLPathfindingManager::kAgentStateUnknown :
 	case LLPathfindingManager::kAgentStateNotEnabled :
+		mEditTab->setEnabled(FALSE);
 		mUnfreezeLabel->setEnabled(FALSE);
 		mUnfreezeButton->setEnabled(FALSE);
 		mLinksetsLabel->setEnabled(FALSE);
@@ -742,6 +893,7 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 		mFreezeButton->setEnabled(FALSE);
 		break;
 	case LLPathfindingManager::kAgentStateFrozen :
+		mEditTab->setEnabled(TRUE);
 		mUnfreezeLabel->setEnabled(TRUE);
 		mUnfreezeButton->setEnabled(TRUE);
 		mLinksetsLabel->setEnabled(FALSE);
@@ -750,6 +902,7 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 		mFreezeButton->setEnabled(FALSE);
 		break;
 	case LLPathfindingManager::kAgentStateUnfrozen :
+		mEditTab->setEnabled(TRUE);
 		mUnfreezeLabel->setEnabled(FALSE);
 		mUnfreezeButton->setEnabled(FALSE);
 		mLinksetsLabel->setEnabled(TRUE);

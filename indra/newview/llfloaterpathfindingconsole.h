@@ -30,11 +30,12 @@
 
 #include "llfloater.h"
 #include "llhandle.h"
-#include "llnavmeshstation.h"
 #include "LLPathingLib.h"
 #include "llpathfindingmanager.h"
+#include "llpathfindingnavmesh.h"
 
 class LLSD;
+class LLPanel;
 class LLRadioGroup;
 class LLSliderCtrl;
 class LLLineEditor;
@@ -108,21 +109,28 @@ public:
     ECharacterType getCharacterType() const;
     void           setCharacterType(ECharacterType pCharacterType);
 
-	void setHasNavMeshReceived();
-	void setHasNoNavMesh();
-
 	bool getHeartBeat() const { return mHeartBeat;}
 	void setHeartBeat( bool state ) { mHeartBeat=state; }
 
 protected:
 
 private:
+	typedef enum
+	{
+		kConsoleStateUnknown,
+		kConsoleStateLibraryNotImplemented,
+		kConsoleStateRegionNotEnabled,
+		kConsoleStateDownloading,
+		kConsoleStateHasNavMesh,
+		kConsoleStateHasNavMeshDownloading,
+		kConsoleStateDownloadError,
+		kConsoleStateNavMeshError
+	} EConsoleState;
+
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterPathfindingConsole(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingConsole();
-
-	std::string getCurrentRegionCapabilityURL() const;
 
 	void onShowWalkabilitySet();
 	void onShowWorldToggle();
@@ -133,7 +141,15 @@ private:
 	void onFreezeClicked();
 	void onViewEditLinksetClicked();
 	void onClearPathClicked();
+	void onNavMeshDownloadCB(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
+
+	void setConsoleState(EConsoleState pConsoleState);
+	void updateNavMesh(const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
+	void clearNavMesh();
+
+	void updateControlsOnConsoleState();
+	void updateStatusOnConsoleState();
 
 	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
@@ -153,6 +169,8 @@ private:
 	LLTextBase                                *mPathfindingStatus;
 	LLButton                                  *mViewCharactersButton;
 	LLTabContainer                            *mEditTestTabContainer;
+	LLPanel                                   *mEditTab;
+	LLPanel                                   *mTestTab;
 	LLTextBase                                *mUnfreezeLabel;
 	LLButton                                  *mUnfreezeButton;
 	LLTextBase                                *mLinksetsLabel;
@@ -163,12 +181,19 @@ private:
 	LLRadioGroup                              *mCharacterTypeRadioGroup;
 	LLTextBase                                *mPathTestingStatus;
 	LLButton                                  *mClearPathButton;
+	LLPathfindingNavMesh::navmesh_slot_t      mNavMeshSlot;
 	LLPathfindingManager::agent_state_slot_t  mAgentStateSlot;
+	EConsoleState                             mConsoleState;
+	bool                                      mHasNavMesh;
+	U32                                       mNavMeshRegionVersion;
+	LLUUID                                    mNavMeshRegionUUID;
 
+#if 0
 	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
 	int							mCurrentMDO;
 	int							mNavMeshCnt;
 	U32							mNeighboringRegion;
+#endif
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;
 	bool							mHasStartPoint;

@@ -211,7 +211,7 @@ void LLFloaterPathfindingLinksets::onOpen(const LLSD& pKey)
 
 	if (!mAgentStateSlot.connected())
 	{
-		LLPathfindingManager::getInstance()->registerAgentStateSignal(boost::bind(&LLFloaterPathfindingLinksets::onAgentStateCB, this, _1));
+		LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingLinksets::onAgentStateCB, this, _1));
 	}
 
 	if (!mSelectionUpdateSlot.connected())

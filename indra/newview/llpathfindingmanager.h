@@ -28,14 +28,17 @@
 #ifndef LL_LLPATHFINDINGMANAGER_H
 #define LL_LLPATHFINDINGMANAGER_H
 
+#include "llsingleton.h"
+#include "lluuid.h"
+#include "llpathfindingnavmesh.h"
+#include "llpathfindinglinkset.h"
+#include "llpathfindinglinksetlist.h"
+
 #include <string>
+#include <map>
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
-
-#include "llsingleton.h"
-#include "llpathfindinglinkset.h"
-#include "llpathfindinglinksetlist.h"
 
 class LLFloater;
 class LLViewerRegion;
@@ -44,6 +47,8 @@ class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 	friend class AgentStateResponder;
 public:
+	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
+
 	typedef enum {
 		kAgentStateUnknown,
 		kAgentStateFrozen,
@@ -73,7 +78,10 @@ public:
 	bool isAllowAlterPermanent();
 	bool isAllowViewTerrainProperties() const;
 
-	agent_state_slot_t registerAgentStateSignal(agent_state_callback_t pAgentStateCallback);
+	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForCurrentRegion(LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
+	void requestGetNavMeshForCurrentRegion();
+
+	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
 	EAgentState        getLastKnownNonErrorAgentState() const;
 	void               requestSetAgentState(EAgentState pAgentState);
@@ -84,6 +92,8 @@ public:
 protected:
 
 private:
+	LLPathfindingNavMeshPtr getNavMeshForCurrentRegion();
+
 	static bool isValidAgentState(EAgentState pAgentState);
 
 	void requestGetAgentState();
@@ -96,8 +106,11 @@ private:
 	std::string getObjectLinksetsURLForCurrentRegion() const;
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
 
-	std::string getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
+	std::string    getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
+
+	NavMeshMap           mNavMeshMap;
+	U32                  mNavMeshVersionXXX; // XXX stinson 03/02/2012 : a hacky way of doing versions for now
 
 	agent_state_signal_t mAgentStateSignal;
 	EAgentState          mAgentState;

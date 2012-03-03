@@ -66,7 +66,7 @@ void LLFloaterPathfindingBasic::onOpen(const LLSD& pKey)
 
 	if (!mAgentStateSlot.connected())
 	{
-		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateSignal(boost::bind(&LLFloaterPathfindingBasic::onAgentStateCB, this, _1));
+		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingBasic::onAgentStateCB, this, _1));
 	}
 	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
 }

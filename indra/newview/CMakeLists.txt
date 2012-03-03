@@ -333,7 +333,6 @@ set(viewer_SOURCE_FILES
     llnameeditor.cpp
     llnamelistctrl.cpp
     llnavigationbar.cpp
-    llnavmeshstation.cpp
     llnearbychat.cpp
     llnearbychatbar.cpp
     llnearbychathandler.cpp
@@ -421,6 +420,7 @@ set(viewer_SOURCE_FILES
     llpathfindinglinkset.cpp
     llpathfindinglinksetlist.cpp
     llpathfindingmanager.cpp
+    llpathfindingnavmesh.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -898,7 +898,6 @@ set(viewer_HEADER_FILES
     llnameeditor.h
     llnamelistctrl.h
     llnavigationbar.h
-    llnavmeshstation.h
     llnearbychat.h
     llnearbychatbar.h
     llnearbychathandler.h
@@ -975,6 +974,7 @@ set(viewer_HEADER_FILES
     llpathfindinglinkset.h
     llpathfindinglinksetlist.h
     llpathfindingmanager.h
+    llpathfindingnavmesh.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
