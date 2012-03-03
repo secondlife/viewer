@@ -2278,7 +2278,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	}
 }
 
-// FIXME: This is never called. Something may be broken.
+// FIXME: This is not called consistently. Something may be broken.
 void LLVOAvatarSelf::outputRezDiagnostics() const
 {
 	if(!gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))

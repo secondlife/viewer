@@ -807,6 +807,17 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 	}
 }
 
+// Dump avatar metrics data.
+// virtual
+LLSD LLVOAvatar::metricsData()
+{
+	LLSD result;
+	result["id"] = getID();
+	result["rez_status"] = getRezzedStatus();
+	result["is_self"] = isSelf();
+	return result;
+}
+
 //------------------------------------------------------------------------
 // LLVOAvatar::~LLVOAvatar()
 //------------------------------------------------------------------------
@@ -941,6 +952,14 @@ BOOL LLVOAvatar::isFullyTextured() const
 BOOL LLVOAvatar::hasGray() const
 {
 	return !getIsCloud() && !isFullyTextured();
+}
+
+S32 LLVOAvatar::getRezzedStatus() const
+{
+	if (getIsCloud()) return 0;
+	if (hasGray()) return 1;
+	if (isFullyTextured()) return 2;
+	return -1;
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)

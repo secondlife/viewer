@@ -281,6 +281,7 @@ public:
 	virtual BOOL	getIsCloud() const;
 	BOOL			isFullyTextured() const;
 	BOOL			hasGray() const; 
+	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = fully textured.
 protected:
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
@@ -988,6 +989,8 @@ private:
 public:
 	void 			debugAvatarRezTime(std::string notification_name, std::string comment = "");
 	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
+	LLSD			metricsData();
+
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.

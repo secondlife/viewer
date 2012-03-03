@@ -730,12 +730,12 @@ bool LLAppViewer::init()
 	
 	{
 		// Viewer metrics initialization
-		static LLCachedControl<bool> metrics_submode(gSavedSettings,
-													 "QAModeMetrics",
-													 false,
-													 "Enables QA features (logging, faster cycling) for metrics collector");
+		//static LLCachedControl<bool> metrics_submode(gSavedSettings,
+		//											 "QAModeMetrics",
+		//											 false,
+		//											 "Enables QA features (logging, faster cycling) for metrics collector");
 
-		if (metrics_submode)
+		if (gSavedSettings.getBOOL("QAModeMetrics"))
 		{
 			app_metrics_qa_mode = true;
 			app_metrics_interval = METRICS_INTERVAL_QA;
@@ -4244,7 +4244,8 @@ void LLAppViewer::idle()
 		static LLTimer report_interval;
 
 		// *TODO:  Add configuration controls for this
-		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
+		F32 seconds = report_interval.getElapsedTimeF32();
+		if (seconds >= app_metrics_interval)
 		{
 			metricsSend(! gDisconnected);
 			report_interval.reset();
