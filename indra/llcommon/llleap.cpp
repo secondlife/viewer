@@ -237,6 +237,8 @@ public:
                 // Saw length prefix, saw colon, life is good. Now wait for
                 // that length of data to arrive.
                 mExpect = expect;
+                LL_DEBUGS("LLLeap") << "got length, waiting for "
+                                    << mExpect << " bytes of data" << LL_ENDL;
                 // Block calls to this method; resetting mBlocker unblocks
                 // calls to the other method.
                 mBlocker.reset(new LLEventPump::Blocker(mStdoutConnection));
@@ -268,6 +270,8 @@ public:
         if (childout.size() >= mExpect)
         {
             // Ready to rock and roll.
+            LL_DEBUGS("LLLeap") << "needed " << mExpect << " bytes, got "
+                                << childout.size() << ", parsing LLSD" << LL_ENDL;
             LLSD data;
             LLPointer<LLSDParser> parser(new LLSDNotationParser());
             S32 parse_status(parser->parse(childout.get_istream(), data, mExpect));
