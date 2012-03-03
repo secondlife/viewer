@@ -42,6 +42,8 @@
 #include "llclipboard.h"
 #include "lltrans.h"
 
+LLFastTimer::DeclareTimer FT_FILTER_CLIPBOARD("Filter Clipboard");
+
 LLInventoryFilter::FilterOps::FilterOps() :
 	mFilterObjectTypes(0xffffffffffffffffULL),
 	mFilterCategoryTypes(0xffffffffffffffffULL),
@@ -324,6 +326,7 @@ bool LLInventoryFilter::checkAgainstClipboard(const LLUUID& object_id) const
 {
 	if (LLClipboard::instance().isCutMode())
 	{
+		LLFastTimer ft(FT_FILTER_CLIPBOARD);
 		LLUUID current_id = object_id;
 		LLInventoryObject *current_object = gInventory.getObject(object_id);
 		while (current_id.notNull() && current_object)
@@ -412,7 +415,7 @@ BOOL LLInventoryFilter::isNotDefault() const
 	not_default |= (mFilterOps.mMinDate != mDefaultFilterOps.mMinDate);
 	not_default |= (mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate);
 	not_default |= (mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo);
-
+	
 	return not_default;
 }
 
@@ -998,7 +1001,7 @@ void LLInventoryFilter::fromLLSD(LLSD& data)
 {
 	if(data.has("filter_types"))
 	{
-		setFilterObjectTypes((U32)data["filter_types"].asInteger());
+		setFilterObjectTypes((U64)data["filter_types"].asInteger());
 	}
 
 	if(data.has("min_date") && data.has("max_date"))
