@@ -168,38 +168,58 @@ public:
 			const_buffer_sequence bufs = mStreambuf.data();
 			// In general, our streambuf might contain a number of different
 			// physical buffers; iterate over those.
+			bool keepwriting = true;
 			for (const_buffer_sequence::const_iterator bufi(bufs.begin()), bufend(bufs.end());
-				 bufi != bufend; ++bufi)
+				 bufi != bufend && keepwriting; ++bufi)
 			{
 				// http://www.boost.org/doc/libs/1_49_0_beta1/doc/html/boost_asio/reference/buffer.html#boost_asio.reference.buffer.accessing_buffer_contents
-				std::size_t towrite(boost::asio::buffer_size(*bufi));
-				apr_size_t written(towrite);
-				apr_status_t err = apr_file_write(mPipe,
-												  boost::asio::buffer_cast<const void*>(*bufi),
-												  &written);
-				// EAGAIN is exactly what we want from a nonblocking pipe.
-				// Rather than waiting for data, it should return immediately.
-				if (! (err == APR_SUCCESS || APR_STATUS_IS_EAGAIN(err)))
+				// Although apr_file_write() accepts const void*, we
+				// manipulate const char* so we can increment the pointer.
+				const char* remainptr = boost::asio::buffer_cast<const char*>(*bufi);
+				std::size_t remainlen = boost::asio::buffer_size(*bufi);
+				while (remainlen)
 				{
-					LL_WARNS("LLProcess") << "apr_file_write(" << towrite << ") on " << mDesc
-										  << " got " << err << ":" << LL_ENDL;
-					ll_apr_warn_status(err);
-				}
+					// Tackle the current buffer in discrete chunks. On
+					// Windows, we've observed strange failures when trying to
+					// write big lengths (~1 MB) in a single operation.
+					std::size_t towrite((std::min)(remainlen, std::size_t(32*1024)));
+					apr_size_t written(towrite);
+					apr_status_t err = apr_file_write(mPipe, remainptr, &written);
+					// EAGAIN is exactly what we want from a nonblocking pipe.
+					// Rather than waiting for data, it should return immediately.
+					if (! (err == APR_SUCCESS || APR_STATUS_IS_EAGAIN(err)))
+					{
+						LL_WARNS("LLProcess") << "apr_file_write(" << towrite << ") on " << mDesc
+											  << " got " << err << ":" << LL_ENDL;
+						ll_apr_warn_status(err);
+					}
 
-				// 'written' is modified to reflect the number of bytes actually
-				// written. Make sure we consume those later. (Don't consume them
-				// now, that would invalidate the buffer iterator sequence!)
-				consumed += written;
-				LL_DEBUGS("LLProcess") << "wrote " << written << " of " << towrite
-									   << " bytes to " << mDesc
-									   << " (original " << total << ")" << LL_ENDL;
+					// 'written' is modified to reflect the number of bytes actually
+					// written. Make sure we consume those later. (Don't consume them
+					// now, that would invalidate the buffer iterator sequence!)
+					consumed += written;
+					// don't forget to advance to next chunk of current buffer
+					remainptr += written;
+					remainlen -= written;
 
-				// The parent end of this pipe is nonblocking. If we weren't able
-				// to write everything we wanted, don't keep banging on it -- that
-				// won't change until the child reads some. Wait for next tick().
-				if (written < towrite)
-					break;
-			}
+					char msgbuf[512];
+					LL_DEBUGS("LLProcess") << "wrote " << written << " of " << towrite
+										   << " bytes to " << mDesc
+										   << " (original " << total << "),"
+										   << " code " << err << ": "
+										   << apr_strerror(err, msgbuf, sizeof(msgbuf))
+										   << LL_ENDL;
+
+					// The parent end of this pipe is nonblocking. If we weren't able
+					// to write everything we wanted, don't keep banging on it -- that
+					// won't change until the child reads some. Wait for next tick().
+					if (written < towrite)
+					{
+						keepwriting = false; // break outer loop over buffers too
+						break;
+					}
+				} // next chunk of current buffer
+			}     // next buffer
 			// In all, we managed to write 'consumed' bytes. Remove them from the
 			// streambuf so we don't keep trying to send them. This could be
 			// anywhere from 0 up to mStreambuf.size(); anything we haven't yet
