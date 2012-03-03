@@ -86,6 +86,7 @@ namespace tut
             reader(".py",
                    // This logic is adapted from vita.viewerclient.receiveEvent()
                    boost::lambda::_1 <<
+                   "import re\n"
                    "import os\n"
                    "import sys\n"
                    // Don't forget that this Python script is written to some
@@ -128,7 +129,33 @@ namespace tut
                    "        parts[-1] = parts[-1][:excess]\n"
                    "    data = ''.join(parts)\n"
                    "    assert len(data) == length\n"
-                   "    return llsd.parse(data)\n"
+                   "    try:\n"
+                   "        return llsd.parse(data)\n"
+                   "    except llsd.LLSDParseError, e:\n"
+                   "        print >>sys.stderr, 'Bad received packet (%s), %s bytes:' % \\\n"
+                   "              (e, len(data))\n"
+                   "        showmax = 40\n"
+                   //       We've observed failures with very large packets;
+                   //       dumping the entire packet wastes time and space.
+                   //       But if the error states a particular byte offset,
+                   //       truncate to (near) that offset when dumping data.
+                   "        location = re.search(r' at byte ([0-9]+)', str(e))\n"
+                   "        if not location:\n"
+                   "            # didn't find offset, dump whole thing, no ellipsis\n"
+                   "            ellipsis = ''\n"
+                   "        else:\n"
+                   "            # found offset within error message\n"
+                   "            trunc = int(location.group(1)) + showmax\n"
+                   "            data = data[:trunc]\n"
+                   "            ellipsis = '... (%s more)' % (length - trunc)\n"
+                   "        offset = -showmax\n"
+                   "        for offset in xrange(0, len(data)-showmax, showmax):\n"
+                   "            print >>sys.stderr, '%04d: %r +' % \\\n"
+                   "                  (offset, data[offset:offset+showmax])\n"
+                   "        offset += showmax\n"
+                   "        print >>sys.stderr, '%04d: %r%s' % \\\n"
+                   "              (offset, data[offset:], ellipsis)\n"
+                   "        raise\n"
                    "\n"
                    "# deal with initial stdin message\n"
                    // this will throw if the initial write to stdin doesn't
@@ -293,6 +320,8 @@ namespace tut
         {
             mPump.listen(name, boost::bind(&ListenerBase::call, this, _1));
         }
+
+        virtual ~ListenerBase() {}  // pacify MSVC
 
         virtual bool call(const LLSD& request)
         {
