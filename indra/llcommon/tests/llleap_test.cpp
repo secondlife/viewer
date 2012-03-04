@@ -40,7 +40,7 @@ StringVec sv(const StringVec& listof) { return listof; }
 #define sleep(secs) _sleep((secs) * 1000)
 #endif
 
-const size_t BUFFERED_LENGTH = 1024*1024; // try wrangling a megabyte of data
+const size_t BUFFERED_LENGTH = 1024*1023; // try wrangling just under a megabyte of data
 
 void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
 {
@@ -139,13 +139,13 @@ namespace tut
                    //       dumping the entire packet wastes time and space.
                    //       But if the error states a particular byte offset,
                    //       truncate to (near) that offset when dumping data.
-                   "        location = re.search(r' at byte ([0-9]+)', str(e))\n"
+                   "        location = re.search(r' at (byte|index) ([0-9]+)', str(e))\n"
                    "        if not location:\n"
                    "            # didn't find offset, dump whole thing, no ellipsis\n"
                    "            ellipsis = ''\n"
                    "        else:\n"
                    "            # found offset within error message\n"
-                   "            trunc = int(location.group(1)) + showmax\n"
+                   "            trunc = int(location.group(2)) + showmax\n"
                    "            data = data[:trunc]\n"
                    "            ellipsis = '... (%s more)' % (length - trunc)\n"
                    "        offset = -showmax\n"
