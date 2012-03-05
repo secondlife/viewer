@@ -192,6 +192,31 @@ public:
         std::ostringstream buffer;
         buffer << LLSDNotationStreamer(packet);
 
+/*==========================================================================*|
+        // DEBUGGING ONLY: don't copy str() if we can avoid it.
+        std::string strdata(buffer.str());
+        if (std::size_t(buffer.tellp()) != strdata.length())
+        {
+            LL_ERRS("LLLeap") << "tellp() -> " << buffer.tellp() << " != "
+                              << "str().length() -> " << strdata.length() << LL_ENDL;
+        }
+        // DEBUGGING ONLY: reading back is terribly inefficient.
+        std::istringstream readback(strdata);
+        LLSD echo;
+        LLPointer<LLSDParser> parser(new LLSDNotationParser());
+        S32 parse_status(parser->parse(readback, echo, strdata.length()));
+        if (parse_status == LLSDParser::PARSE_FAILURE)
+        {
+            LL_ERRS("LLLeap") << "LLSDNotationParser() cannot parse output of "
+                              << "LLSDNotationStreamer()" << LL_ENDL;
+        }
+        if (! llsd_equals(echo, packet))
+        {
+            LL_ERRS("LLLeap") << "LLSDNotationParser() produced different LLSD "
+                              << "than passed to LLSDNotationStreamer()" << LL_ENDL;
+        }
+|*==========================================================================*/
+
         LL_DEBUGS("EventHost") << "Sending: " << buffer.tellp() << ':';
         std::string::size_type truncate(80);
         if (buffer.tellp() <= truncate)
