@@ -797,8 +797,11 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 			<< " : " << comment
 			<< llendl;
 
-	LLSD metrics = gAgentAvatarp->metricsData();
-	llinfos << gAgentAvatarp->avString() << " metrics " << metrics << llendl;
+	if (gAgentAvatarp && !gAgentAvatarp->isDead()) // not safe to call during ~LLVOAvatarself
+	{
+		LLSD metrics = gAgentAvatarp->metricsData();
+		llinfos << gAgentAvatarp->avString() << " metrics " << metrics << llendl;
+	}
 
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
