@@ -89,6 +89,7 @@ namespace tut
                    "import re\n"
                    "import os\n"
                    "import sys\n"
+                   "\n"
                    // Don't forget that this Python script is written to some
                    // temp directory somewhere! Its __file__ is useless in
                    // finding indra/lib/python. Use our __FILE__, with
@@ -101,8 +102,15 @@ namespace tut
                    "    sys.path.insert(0,\n"
                    "        os.path.join(mydir, os.pardir, os.pardir, 'lib', 'python'))\n"
                    "    from indra.base import llsd\n"
+                   "\n"
                    "class ProtocolError(Exception):\n"
+                   "    def __init__(self, msg, data):\n"
+                   "        Exception.__init__(self, msg)\n"
+                   "        self.data = data\n"
+                   "\n"
+                   "class ParseError(ProtocolError):\n"
                    "    pass\n"
+                   "\n"
                    "def get():\n"
                    "    hdr = ''\n"
                    "    while ':' not in hdr and len(hdr) < 20:\n"
@@ -110,11 +118,11 @@ namespace tut
                    "        if not hdr:\n"
                    "            sys.exit(0)\n"
                    "    if not hdr.endswith(':'):\n"
-                   "        raise ProtocolError('Expected len:data, got %r' % hdr)\n"
+                   "        raise ProtocolError('Expected len:data, got %r' % hdr, hdr)\n"
                    "    try:\n"
                    "        length = int(hdr[:-1])\n"
                    "    except ValueError:\n"
-                   "        raise ProtocolError('Non-numeric len %r' % hdr[:-1])\n"
+                   "        raise ProtocolError('Non-numeric len %r' % hdr[:-1], hdr[:-1])\n"
                    "    parts = []\n"
                    "    received = 0\n"
                    "    while received < length:\n"
@@ -124,9 +132,12 @@ namespace tut
                    "    assert len(data) == length\n"
                    "    try:\n"
                    "        return llsd.parse(data)\n"
-                   "    except llsd.LLSDParseError, e:\n"
-                   "        print >>sys.stderr, 'Bad received packet (%s), %s bytes:' % \\\n"
-                   "              (e, len(data))\n"
+                   //   Seems the old indra.base.llsd module didn't properly
+                   //   convert IndexError (from running off end of string) to
+                   //   LLSDParseError.
+                   "    except (IndexError, llsd.LLSDParseError), e:\n"
+                   "        msg = 'Bad received packet (%s)' % e\n"
+                   "        print >>sys.stderr, '%s, %s bytes:' % (msg, len(data))\n"
                    "        showmax = 40\n"
                    //       We've observed failures with very large packets;
                    //       dumping the entire packet wastes time and space.
@@ -148,7 +159,7 @@ namespace tut
                    "        offset += showmax\n"
                    "        print >>sys.stderr, '%04d: %r%s' % \\\n"
                    "              (offset, data[offset:], ellipsis)\n"
-                   "        raise\n"
+                   "        raise ParseError(msg, data)\n"
                    "\n"
                    "# deal with initial stdin message\n"
                    // this will throw if the initial write to stdin doesn't
@@ -462,7 +473,33 @@ namespace tut
                              // Pass 'large' as reqid because we know the API
                              // will echo reqid, and we want to receive it back.
                              "request('" << api.getName() << "', dict(reqid=large))\n"
-                             "resp = get()\n"
+                             "try:\n"
+                             "    resp = get()\n"
+                             "except ParseError, e:\n"
+                             "    # try to find where e.data diverges from expectation\n"
+                             // Normally we'd expect a 'pump' key in there,
+                             // too, with value replypump(). But Python
+                             // serializes keys in a different order than C++,
+                             // so incoming data start with 'data'.
+                             // Truthfully, though, if we get as far as 'pump'
+                             // before we find a difference, something's very
+                             // strange.
+                             "    expect = llsd.format_notation(dict(data=dict(reqid=large)))\n"
+                             "    chunk = 40\n"
+                             "    for offset in xrange(0, max(len(e.data), len(expect)), chunk):\n"
+                             "        if e.data[offset:offset+chunk] != \\\n"
+                             "           expect[offset:offset+chunk]:\n"
+                             "            print >>sys.stderr, 'Offset %06d: expect %r,\\n'\\\n"
+                             "                                '                  get %r' %\\\n"
+                             "                                (offset,\n"
+                             "                                 expect[offset:offset+chunk],\n"
+                             "                                 e.data[offset:offset+chunk])\n"
+                             "            break\n"
+                             "    else:\n"
+                             "        print >>sys.stderr, 'incoming data matches expect?!'\n"
+                             "    send('" << result.getName() << "', '%s: %s' % (e.__class__.__name__, e))\n"
+                             "    sys.exit(1)\n"
+                             "\n"
                              "echoed = resp['data']['reqid']\n"
                              "if echoed == large:\n"
                              "    send('" << result.getName() << "', '')\n"
