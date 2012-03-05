@@ -797,6 +797,9 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 			<< " : " << comment
 			<< llendl;
 
+	LLSD metrics = gAgentAvatarp->metricsData();
+	llinfos << gAgentAvatarp->avString() << " metrics " << metrics << llendl;
+
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
 		LLSD args;
@@ -805,17 +808,6 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 		args["NAME"] = getFullname();
 		LLNotificationsUtil::add(notification_name,args);
 	}
-}
-
-// Dump avatar metrics data.
-// virtual
-LLSD LLVOAvatar::metricsData()
-{
-	LLSD result;
-	result["id"] = getID();
-	result["rez_status"] = getRezzedStatus();
-	result["is_self"] = isSelf();
-	return result;
 }
 
 //------------------------------------------------------------------------
@@ -957,9 +949,9 @@ BOOL LLVOAvatar::hasGray() const
 S32 LLVOAvatar::getRezzedStatus() const
 {
 	if (getIsCloud()) return 0;
-	if (hasGray()) return 1;
 	if (isFullyTextured()) return 2;
-	return -1;
+	llassert(hasGray());
+	return 1; // gray
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
@@ -1006,6 +998,22 @@ BOOL LLVOAvatar::areAllNearbyInstancesBaked(S32& grey_avatars)
 		}
 	}
 	return res;
+}
+
+// static
+void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
+{
+	counts.clear();
+	counts.resize(3);
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		 iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		LLVOAvatar* inst = (LLVOAvatar*) *iter;
+		if (!inst)
+			continue;
+		S32 rez_status = inst->getRezzedStatus();
+		counts[rez_status]++;
+	}
 }
 
 // static
@@ -7733,6 +7741,9 @@ void LLVOAvatar::cullAvatarsByPixelArea()
 		}
 	}
 
+	// runway - this doesn't detect gray/grey state.
+	// think we just need to be checking self av since it's the only
+	// one with lltexlayer stuff.
 	S32 grey_avatars = 0;
 	if (LLVOAvatar::areAllNearbyInstancesBaked(grey_avatars))
 	{

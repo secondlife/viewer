@@ -524,6 +524,7 @@ public:
 
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
+	static void		getNearbyRezzedStats(std::vector<S32>& counts);
 
 	//--------------------------------------------------------------------
 	// Baked textures
@@ -989,7 +990,6 @@ private:
 public:
 	void 			debugAvatarRezTime(std::string notification_name, std::string comment = "");
 	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
-	LLSD			metricsData();
 
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez

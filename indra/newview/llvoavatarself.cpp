@@ -2054,6 +2054,22 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 	return text;
 }
 
+// Dump avatar metrics data.
+LLSD LLVOAvatarSelf::metricsData()
+{
+	LLSD result;
+	result["id"] = getID();
+	result["rez_status"] = getRezzedStatus();
+	result["is_self"] = isSelf();
+	std::vector<S32> rez_counts;
+	LLVOAvatar::getNearbyRezzedStats(rez_counts);
+	result["nearby_cloud"] = rez_counts[0];
+	result["nearby_gray"] = rez_counts[1];
+	result["nearby_textured"] = rez_counts[2];
+	
+	return result;
+}
+
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
 {
 	if (canGrabBakedTexture(baked_index))
