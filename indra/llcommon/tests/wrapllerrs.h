@@ -136,25 +136,31 @@ public:
                                      << *this));
     }
 
+    std::ostream& streamto(std::ostream& out) const
+    {
+        MessageList::const_iterator mi(mMessages.begin()), mend(mMessages.end());
+        if (mi != mend)
+        {
+            // handle first message separately: it doesn't get a newline
+            out << *mi++;
+            for ( ; mi != mend; ++mi)
+            {
+                // every subsequent message gets a newline
+                out << '\n' << *mi;
+            }
+        }
+        return out;
+    }
+
     typedef std::list<std::string> MessageList;
     MessageList mMessages;
     LLError::Settings* mOldSettings;
 };
 
+inline
 std::ostream& operator<<(std::ostream& out, const CaptureLog& log)
 {
-    CaptureLog::MessageList::const_iterator mi(log.mMessages.begin()), mend(log.mMessages.end());
-    if (mi != mend)
-    {
-        // handle first message separately: it doesn't get a newline
-        out << *mi++;
-        for ( ; mi != mend; ++mi)
-        {
-            // every subsequent message gets a newline
-            out << '\n' << *mi;
-        }
-    }
-    return out;
+    return log.streamto(out);
 }
 
 #endif /* ! defined(LL_WRAPLLERRS_H) */
