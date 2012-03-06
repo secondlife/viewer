@@ -87,7 +87,7 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 			if ( !valid )
 			{
 				llwarns << "Unable to decompress the navmesh llsd." << llendl;
-				setRequestStatus(kNavMeshRequestFormatError);
+				setRequestStatus(kNavMeshRequestError);
 			}
 			else
 			{
@@ -104,7 +104,7 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 		else
 		{
 			llwarns << "No mesh data received" << llendl;
-			setRequestStatus(kNavMeshRequestMessageError);
+			setRequestStatus(kNavMeshRequestError);
 		}
 	}
 }
@@ -122,7 +122,7 @@ void LLPathfindingNavMesh::handleNavMeshError(U32 pStatus, const std::string &pR
 	mNavMeshData.clear();
 	if (mNavMeshVersion == pNavMeshVersion)
 	{
-		setRequestStatus(kNavMeshRequestMessageError);
+		setRequestStatus(kNavMeshRequestError);
 	}
 }
 

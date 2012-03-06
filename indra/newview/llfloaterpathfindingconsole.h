@@ -32,7 +32,7 @@
 #include "llhandle.h"
 #include "LLPathingLib.h"
 #include "llpathfindingmanager.h"
-#include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshzone.h"
 
 class LLSD;
 class LLPanel;
@@ -123,8 +123,7 @@ private:
 		kConsoleStateDownloading,
 		kConsoleStateHasNavMesh,
 		kConsoleStateHasNavMeshDownloading,
-		kConsoleStateDownloadError,
-		kConsoleStateNavMeshError
+		kConsoleStateError
 	} EConsoleState;
 
 	// Does its own instance management, so clients not allowed
@@ -141,12 +140,10 @@ private:
 	void onFreezeClicked();
 	void onViewEditLinksetClicked();
 	void onClearPathClicked();
-	void onNavMeshDownloadCB(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
+	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 
 	void setConsoleState(EConsoleState pConsoleState);
-	void updateNavMesh(const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
-	void clearNavMesh();
 
 	void updateControlsOnConsoleState();
 	void updateStatusOnConsoleState();
@@ -158,48 +155,44 @@ private:
 	void resetShapeRenderFlags() { mShapeRenderFlags = 0; }
 	void setShapeRenderFlag( LLPathingLib::LLShapeType type ) { mShapeRenderFlags |= (1<<type); }
 
-	LLRootHandle<LLFloaterPathfindingConsole> mSelfHandle;
-	LLCheckBoxCtrl                            *mShowNavMeshCheckBox;
-	LLComboBox                                *mShowNavMeshWalkabilityComboBox;
-	LLCheckBoxCtrl                            *mShowWalkablesCheckBox;
-	LLCheckBoxCtrl                            *mShowStaticObstaclesCheckBox;
-	LLCheckBoxCtrl                            *mShowMaterialVolumesCheckBox;
-	LLCheckBoxCtrl                            *mShowExclusionVolumesCheckBox;
-	LLCheckBoxCtrl                            *mShowWorldCheckBox;
-	LLTextBase                                *mPathfindingStatus;
-	LLButton                                  *mViewCharactersButton;
-	LLTabContainer                            *mEditTestTabContainer;
-	LLPanel                                   *mEditTab;
-	LLPanel                                   *mTestTab;
-	LLTextBase                                *mUnfreezeLabel;
-	LLButton                                  *mUnfreezeButton;
-	LLTextBase                                *mLinksetsLabel;
-	LLButton                                  *mLinksetsButton;
-	LLTextBase                                *mFreezeLabel;
-	LLButton                                  *mFreezeButton;
-	LLSliderCtrl                              *mCharacterWidthSlider;
-	LLRadioGroup                              *mCharacterTypeRadioGroup;
-	LLTextBase                                *mPathTestingStatus;
-	LLButton                                  *mClearPathButton;
-	LLPathfindingNavMesh::navmesh_slot_t      mNavMeshSlot;
-	LLPathfindingManager::agent_state_slot_t  mAgentStateSlot;
-	EConsoleState                             mConsoleState;
-	bool                                      mHasNavMesh;
-	U32                                       mNavMeshRegionVersion;
-	LLUUID                                    mNavMeshRegionUUID;
+	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
+	LLCheckBoxCtrl                                *mShowNavMeshCheckBox;
+	LLComboBox                                    *mShowNavMeshWalkabilityComboBox;
+	LLCheckBoxCtrl                                *mShowWalkablesCheckBox;
+	LLCheckBoxCtrl                                *mShowStaticObstaclesCheckBox;
+	LLCheckBoxCtrl                                *mShowMaterialVolumesCheckBox;
+	LLCheckBoxCtrl                                *mShowExclusionVolumesCheckBox;
+	LLCheckBoxCtrl                                *mShowWorldCheckBox;
+	LLTextBase                                    *mPathfindingStatus;
+	LLButton                                      *mViewCharactersButton;
+	LLTabContainer                                *mEditTestTabContainer;
+	LLPanel                                       *mEditTab;
+	LLPanel                                       *mTestTab;
+	LLTextBase                                    *mUnfreezeLabel;
+	LLButton                                      *mUnfreezeButton;
+	LLTextBase                                    *mLinksetsLabel;
+	LLButton                                      *mLinksetsButton;
+	LLTextBase                                    *mFreezeLabel;
+	LLButton                                      *mFreezeButton;
+	LLSliderCtrl                                  *mCharacterWidthSlider;
+	LLRadioGroup                                  *mCharacterTypeRadioGroup;
+	LLTextBase                                    *mPathTestingStatus;
+	LLButton                                      *mClearPathButton;
 
-#if 0
-	LLNavMeshDownloadObserver	mNavMeshDownloadObserver[10];
-	int							mCurrentMDO;
-	int							mNavMeshCnt;
-	U32							mNeighboringRegion;
-#endif
+
+	LLPathfindingNavMeshZone::navmesh_zone_slot_t mNavMeshZoneSlot;
+	LLPathfindingNavMeshZone                      mNavMeshZone;
+	LLPathfindingManager::agent_state_slot_t      mAgentStateSlot;
+
+	EConsoleState                                 mConsoleState;
+
 	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
 	LLPathingLib::PathingPacket		mPathData;
 	bool							mHasStartPoint;
 	bool							mHasEndPoint;
 	U32								mShapeRenderFlags;
 	bool							mHeartBeat;
+
 	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
 };
 

@@ -50,8 +50,7 @@ public:
 		kNavMeshRequestStarted,
 		kNavMeshRequestCompleted,
 		kNavMeshRequestNotEnabled,
-		kNavMeshRequestMessageError,
-		kNavMeshRequestFormatError
+		kNavMeshRequestError
 	} ENavMeshRequestStatus;
 
 	typedef boost::function<void (ENavMeshRequestStatus, const LLUUID &, U32, const LLSD::Binary &)>         navmesh_callback_t;

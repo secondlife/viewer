@@ -46,7 +46,7 @@
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
-#include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshzone.h"
 #include "llpathfindingmanager.h"
 
 #include "LLPathingLib.h"
@@ -63,9 +63,6 @@
 #define XUI_CHARACTER_TYPE_D 4
 
 #define XUI_TEST_TAB_INDEX 1
-
-const int CURRENT_REGION = 99;
-const int MAX_OBSERVERS = 10;
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
 
@@ -165,16 +162,17 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	if ( LLPathingLib::getInstance() == NULL )
 	{ 
 		setConsoleState(kConsoleStateLibraryNotImplemented);
-		llwarns <<"Errror: cannout find pathing library implementation."<<llendl;
+		llwarns <<"Errror: cannot find pathing library implementation."<<llendl;
 	}
 	else
 	{
-		LLPathfindingManager *pathfindingManagerInstance = LLPathfindingManager::getInstance();
-		if (!mNavMeshSlot.connected())
+		if (!mNavMeshZoneSlot.connected())
 		{
-			pathfindingManagerInstance->registerNavMeshListenerForCurrentRegion(boost::bind(&LLFloaterPathfindingConsole::onNavMeshDownloadCB, this, _1, _2, _3, _4));
+			mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
 		}
-		pathfindingManagerInstance->requestGetNavMeshForCurrentRegion();
+
+		mNavMeshZone.setCurrentRegionAsCenter();
+		mNavMeshZone.refresh();
 #if 0
 		LLPathingLib::getInstance()->cleanupResidual();
 
@@ -262,12 +260,13 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 		mAgentStateSlot.disconnect();
 	}
 
-	if (mNavMeshSlot.connected())
+	if (mNavMeshZoneSlot.connected())
 	{
-		mNavMeshSlot.disconnect();
+		mNavMeshZoneSlot.disconnect();
 	}
 
-	clearNavMesh();
+	//mNavMeshZone.disable();
+
 	LLFloater::onClose(pIsAppQuitting);
 	setHeartBeat( false );
 	setConsoleState(kConsoleStateUnknown);
@@ -516,26 +515,6 @@ void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType
 	mCharacterTypeRadioGroup->setValue(radioGroupValue);
 }
 
-#if 0
-void LLFloaterPathfindingConsole::setHasNavMeshReceived()
-{
-	std::string str = getString("navmesh_fetch_complete_available");
-	mPathfindingStatus->setText((LLStringExplicit)str);
-	//check to see if all regions are done loading and they are then stitch the navmeshes together
-	--mNavMeshCnt;
-	if ( mNavMeshCnt == 0 )
-	{
-		LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
-	}
-}
-
-void LLFloaterPathfindingConsole::setHasNoNavMesh()
-{
-	std::string str = getString("navmesh_fetch_complete_none");
-	mPathfindingStatus->setText((LLStringExplicit)str);
-}
-#endif
-
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
@@ -561,27 +540,16 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mCharacterTypeRadioGroup(NULL),
 	mPathTestingStatus(NULL),
 	mClearPathButton(NULL),
-	mNavMeshSlot(),
+	mNavMeshZoneSlot(),
+	mNavMeshZone(),
 	mAgentStateSlot(),
 	mConsoleState(kConsoleStateUnknown),
-	mHasNavMesh(false),
-	mNavMeshRegionVersion(0U),
-	mNavMeshRegionUUID(),
-#if 0
-	mNavMeshCnt(0),
-	mNeighboringRegion( CURRENT_REGION ),
-#endif
+	mPathData(),
 	mHasStartPoint(false),
 	mHasEndPoint(false),
 	mHeartBeat( false )
 {
 	mSelfHandle.bind(this);
-#if 0
-	for (int i=0;i<MAX_OBSERVERS;++i)
-	{
-		mNavMeshDownloadObserver[i].setPathfindingConsole(this);
-	}
-#endif
 }
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
@@ -705,55 +673,28 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	updatePathTestStatus();
 }
 
-void LLFloaterPathfindingConsole::onNavMeshDownloadCB(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
+void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
 {
-
-	switch (pNavMeshRequestStatus)
+	switch (pNavMeshZoneRequestStatus)
 	{
-	case LLPathfindingNavMesh::kNavMeshRequestStarted :
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestStarted :
 		setConsoleState(kConsoleStateDownloading);
 		break;
-	case LLPathfindingNavMesh::kNavMeshRequestCompleted :
-		updateNavMesh(pRegionUUID, pNavMeshVersion, pNavMeshData);
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestCompleted :
 		setConsoleState(kConsoleStateHasNavMesh);
 		break;
-	case LLPathfindingNavMesh::kNavMeshRequestNotEnabled :
-		clearNavMesh();
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestNotEnabled :
 		setConsoleState(kConsoleStateRegionNotEnabled);
 		break;
-	case LLPathfindingNavMesh::kNavMeshRequestMessageError :
-		clearNavMesh();
-		setConsoleState(kConsoleStateDownloadError);
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestError :
+		setConsoleState(kConsoleStateError);
 		break;
-	case LLPathfindingNavMesh::kNavMeshRequestFormatError :
-		clearNavMesh();
-		setConsoleState(kConsoleStateNavMeshError);
-		break;
-	case LLPathfindingNavMesh::kNavMeshRequestUnknown :
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestUnknown :
 	default:
-		clearNavMesh();
 		setConsoleState(kConsoleStateUnknown);
 		llassert(0);
 		break;
 	}
-}
-
-void LLFloaterPathfindingConsole::updateNavMesh(const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
-{
-	if (!mHasNavMesh || (mNavMeshRegionUUID != pRegionUUID) || (mNavMeshRegionVersion != pNavMeshVersion))
-	{
-		llassert(!pNavMeshData.empty());
-		mHasNavMesh = true;
-		mNavMeshRegionUUID = pRegionUUID;
-		mNavMeshRegionVersion = pNavMeshVersion;
-		LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, CURRENT_REGION);
-	}
-}
-
-void LLFloaterPathfindingConsole::clearNavMesh()
-{
-	mHasNavMesh = false;
-	LLPathingLib::getInstance()->cleanupResidual();
 }
 
 void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
@@ -792,8 +733,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mHasEndPoint = false;
 		break;
 	case kConsoleStateDownloading :
-	case kConsoleStateDownloadError :
-	case kConsoleStateNavMeshError :
+	case kConsoleStateError :
 		mShowNavMeshCheckBox->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
 		mShowWalkablesCheckBox->setEnabled(FALSE);
@@ -861,12 +801,8 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 	case kConsoleStateHasNavMeshDownloading :
 		statusText = getString("navmesh_status_has_navmesh_downloading");
 		break;
-	case kConsoleStateDownloadError :
-		statusText = getString("navmesh_status_download_error");
-		styleParams.color = warningColor;
-		break;
-	case kConsoleStateNavMeshError :
-		statusText = getString("navmesh_status_navmesh_error");
+	case kConsoleStateError :
+		statusText = getString("navmesh_status_error");
 		styleParams.color = warningColor;
 		break;
 	default :
