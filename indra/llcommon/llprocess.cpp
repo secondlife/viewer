@@ -181,8 +181,15 @@ public:
 				{
 					// Tackle the current buffer in discrete chunks. On
 					// Windows, we've observed strange failures when trying to
-					// write big lengths (~1 MB) in a single operation.
-					std::size_t towrite((std::min)(remainlen, std::size_t(32*1024)));
+					// write big lengths (~1 MB) in a single operation. Even a
+					// 32K chunk seems too large. At some point along the way
+					// apr_file_write() returns 11 (Resource temporarily
+					// unavailable, i.e. EAGAIN) and says it wrote 0 bytes --
+					// even though it did write the chunk! Our next write
+					// attempt retries with the same chunk, resulting in the
+					// chunk being duplicated at the child end. Using smaller
+					// chunks is empirically more reliable.
+					std::size_t towrite((std::min)(remainlen, std::size_t(4*1024)));
 					apr_size_t written(towrite);
 					apr_status_t err = apr_file_write(mPipe, remainptr, &written);
 					// EAGAIN is exactly what we want from a nonblocking pipe.
