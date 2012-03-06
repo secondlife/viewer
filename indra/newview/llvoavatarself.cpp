@@ -2063,14 +2063,15 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["is_self"] = isSelf();
 	std::vector<S32> rez_counts;
 	LLVOAvatar::getNearbyRezzedStats(rez_counts);
-	result["nearby_cloud"] = rez_counts[0];
-	result["nearby_gray"] = rez_counts[1];
-	result["nearby_textured"] = rez_counts[2];
-	result["timer_debug_existence"] = mDebugExistenceTimer.getElapsedTimeF32();
-	result["timer_ruth_debug"] = mRuthDebugTimer.getElapsedTimeF32();
-	result["timer_ruth"] = mRuthTimer.getElapsedTimeF32();
-	result["timer_invisible"] = mInvisibleTimer.getElapsedTimeF32();
-	result["timer_fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
+	result["nearby"] = LLSD::emptyArray();
+	result["nearby"][0] = rez_counts[0];
+	result["nearby"][1] = rez_counts[1];
+	result["nearby"][2] = rez_counts[2];
+	result["timers"]["debug_existence"] = mDebugExistenceTimer.getElapsedTimeF32();
+	result["timers"]["ruth_debug"] = mRuthDebugTimer.getElapsedTimeF32();
+	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
+	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
+	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
 	
 	return result;
 }
