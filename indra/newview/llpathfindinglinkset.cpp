@@ -65,6 +65,9 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainLinksetItem)
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(LLVector3::zero),
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	mHasModifiable(true),
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(TRUE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
@@ -82,6 +85,9 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mDescription(),
 	mLandImpact(0U),
 	mLocation(LLVector3::zero),
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	mHasModifiable(false),
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(TRUE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
@@ -99,7 +105,12 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	mDescription(pOther.mDescription),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	mHasModifiable(pOther.mHasModifiable),
+	mIsModifiable(pOther.mHasModifiable ? pOther.mIsModifiable : TRUE),
+#else // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(pOther.mIsModifiable),
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mLinksetUse(pOther.mLinksetUse),
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
 	mWalkabilityCoefficientB(pOther.mWalkabilityCoefficientB),
@@ -119,7 +130,15 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mDescription = pOther.mDescription;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	if (pOther.mHasModifiable)
+	{
+		mHasModifiable = pOther.mHasModifiable;
+		mIsModifiable = pOther.mIsModifiable;
+	}
+#else // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable = pOther.mIsModifiable;
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
@@ -223,9 +242,18 @@ void LLPathfindingLinkset::parseObjectData(const LLSD &pLinksetItem)
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);
 	mLandImpact = pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger();
 	
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	mHasModifiable = pLinksetItem.has(LINKSET_MODIFIABLE_FIELD);
+	if (mHasModifiable)
+	{
+		llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
+		mIsModifiable = pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
+	}
+#else // MISSING_MODIFIABLE_FIELD_WAR
 	llassert(pLinksetItem.has(LINKSET_MODIFIABLE_FIELD));
 	llassert(pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).isBoolean());
 	mIsModifiable = pLinksetItem.get(LINKSET_MODIFIABLE_FIELD).asBoolean();
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	
 	llassert(pLinksetItem.has(LINKSET_POSITION_FIELD));
 	llassert(pLinksetItem.get(LINKSET_POSITION_FIELD).isArray());

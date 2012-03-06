@@ -39,6 +39,7 @@ class LLPathfindingLinkset;
 typedef boost::shared_ptr<LLPathfindingLinkset> LLPathfindingLinksetPtr;
 
 #define DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
+#define MISSING_MODIFIABLE_FIELD_WAR
 
 class LLPathfindingLinkset
 {
@@ -113,6 +114,9 @@ private:
 	std::string  mDescription;
 	U32          mLandImpact;
 	LLVector3    mLocation;
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	bool         mHasModifiable;
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	BOOL         mIsModifiable;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
