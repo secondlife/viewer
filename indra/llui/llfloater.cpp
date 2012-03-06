@@ -933,8 +933,13 @@ void LLFloater::applyPositioning(LLFloater* other, bool on_open)
 	case LLFloaterEnums::POSITIONING_SPECIFIED:
 		break;
 
-	case LLFloaterEnums::POSITIONING_CASCADE_GROUP:
 	case LLFloaterEnums::POSITIONING_CASCADING:
+		if (!on_open)
+		{
+			applyRelativePosition();
+		}
+		// fall through
+	case LLFloaterEnums::POSITIONING_CASCADE_GROUP:
 		if (on_open)
 		{
 			if (other != NULL && other != this)
@@ -3286,7 +3291,7 @@ void LLFloater::stackWith(LLFloater& other)
 	
 	setShape(next_rect);
 
-	//other.mPositioning = LLFloaterEnums::POSITIONING_SPECIFIED;
+	other.mPositioning = LLFloaterEnums::POSITIONING_CASCADE_GROUP;
 	other.setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
 }
 
