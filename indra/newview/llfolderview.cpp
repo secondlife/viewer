@@ -1383,6 +1383,7 @@ void LLFolderView::cut()
 				listener->cutToClipboard();
 			}
 		}
+		LLFolderView::removeCutItems();
 	}
 	mSearchString.clear();
 }

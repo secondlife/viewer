@@ -220,7 +220,7 @@ BOOL LLInvFVBridge::cutToClipboard() const
 	const LLInventoryObject* obj = gInventory.getObject(mUUID);
 	if (obj && isItemMovable() && isItemRemovable())
 	{
-		LLClipboard::instance().setCutMode(true, boost::bind(LLFolderView::removeCutItems));
+		LLClipboard::instance().setCutMode(true);
 		return LLClipboard::instance().addToClipboard(mUUID);
 	}
 	return FALSE;
@@ -1307,6 +1307,7 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
+		LLFolderView::removeCutItems();
 		return;
 	}
 	else if ("copy" == action)
@@ -2697,6 +2698,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	else if ("cut" == action)
 	{
 		cutToClipboard();
+		LLFolderView::removeCutItems();
 		return;
 	}
 	else if ("copy" == action)
