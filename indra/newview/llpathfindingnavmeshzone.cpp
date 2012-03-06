@@ -81,7 +81,7 @@ void LLPathfindingNavMeshZone::refresh()
 	LLPathfindingManager *pathfindingManagerInstance = LLPathfindingManager::getInstance();
 	if (!mNavMeshSlot.connected())
 	{
-		pathfindingManagerInstance->registerNavMeshListenerForCurrentRegion(boost::bind(&LLPathfindingNavMeshZone::handleNavMesh, this, _1, _2, _3, _4));
+		mNavMeshSlot = pathfindingManagerInstance->registerNavMeshListenerForCurrentRegion(boost::bind(&LLPathfindingNavMeshZone::handleNavMesh, this, _1, _2, _3, _4));
 	}
 
 	pathfindingManagerInstance->requestGetNavMeshForCurrentRegion();

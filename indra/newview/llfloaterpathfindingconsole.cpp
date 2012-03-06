@@ -168,7 +168,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	{	
 		if (!mNavMeshZoneSlot.connected())
 		{
-			mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
+			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
 		}
 
 		mNavMeshZone.setCurrentRegionAsCenter();
@@ -246,7 +246,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
 	if (!mAgentStateSlot.connected())
 	{
-		LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
+		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
 	}
 
 	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
