@@ -429,8 +429,13 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		}
 		else
 		{
-			folderp->setVisible(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
-									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
+			bool visible = (show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
+						(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation)));
+			if (getFilter())
+			{
+				visible &= getFilter()->check(folderp);
+			}
+			folderp->setVisible(visible);
 		}
 
 		if (folderp->getVisible())

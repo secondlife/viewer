@@ -91,20 +91,22 @@ LLInventoryFilter::~LLInventoryFilter()
 
 BOOL LLInventoryFilter::check(const LLFolderViewItem* item) 
 {
-	// If it's a folder and we're showing all folders, return TRUE automatically.
+	// Clipboard cut items are *always* filtered so we need this value upfront
+	const LLFolderViewEventListener* listener = item->getListener();
+	const BOOL passed_clipboard = (listener ? checkAgainstClipboard(listener->getUUID()) : TRUE);
+
+	// If it's a folder and we're showing all folders, return automatically.
 	const BOOL is_folder = (dynamic_cast<const LLFolderViewFolder*>(item) != NULL);
 	if (is_folder && (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS))
 	{
-		return TRUE;
+		return passed_clipboard;
 	}
 
 	mSubStringMatchOffset = mFilterSubString.size() ? item->getSearchableLabel().find(mFilterSubString) : std::string::npos;
-	const LLFolderViewEventListener* listener = item->getListener();
 
 	const BOOL passed_filtertype = checkAgainstFilterType(item);
 	const BOOL passed_permissions = checkAgainstPermissions(item);
 	const BOOL passed_filterlink = checkAgainstFilterLinks(item);
-	const BOOL passed_clipboard = (listener ? checkAgainstClipboard(listener->getUUID()) : TRUE);
 	const BOOL passed = (passed_filtertype &&
 						 passed_permissions &&
 						 passed_filterlink &&
@@ -153,10 +155,13 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
 
 bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
+	// Always check against the clipboard
+	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
+	
 	// we're showing all folders, overriding filter
 	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
-		return true;
+		return passed_clipboard;
 	}
 
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
@@ -170,9 +175,6 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 		if (cat_type != LLFolderType::FT_NONE && (1LL << cat_type & mFilterOps.mFilterCategoryTypes) == U64(0))
 			return false;
 	}
-
-	// Always check against the clipboard
-	const BOOL passed_clipboard = checkAgainstClipboard(folder_id);
 
 	return passed_clipboard;
 }
