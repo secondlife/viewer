@@ -165,7 +165,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		llwarns <<"Errror: cannot find pathing library implementation."<<llendl;
 	}
 	else
-	{
+	{	
 		if (!mNavMeshZoneSlot.connected())
 		{
 			mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
