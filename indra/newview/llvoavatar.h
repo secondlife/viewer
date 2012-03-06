@@ -282,6 +282,13 @@ public:
 	BOOL			isFullyTextured() const;
 	BOOL			hasGray() const; 
 	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = fully textured.
+
+	// Tracking progress of active/completed phases for activities like outfit changing.
+	LLFrameTimer& 	getPhaseTimer(const std::string& phase_name);
+	void			startPhase(const std::string& phase_name);
+	void			stopPhase(const std::string& phase_name);
+	void			clearPhases();
+	LLSD			dumpPhases();
 protected:
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
@@ -296,6 +303,11 @@ private:
 	S32				mVisualComplexity;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
+
+	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
+	phase_map_t		mPhases;
+
 protected:
 	LLFrameTimer    mInvisibleTimer;
 	

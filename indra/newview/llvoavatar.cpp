@@ -875,6 +875,8 @@ LLVOAvatar::~LLVOAvatar()
 	mAnimationSources.clear();
 	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 
+	clearPhases();
+	
 	lldebugs << "LLVOAvatar Destructor end" << llendl;
 }
 
@@ -955,6 +957,46 @@ S32 LLVOAvatar::getRezzedStatus() const
 	if (isFullyTextured()) return 2;
 	llassert(hasGray());
 	return 1; // gray
+}
+
+LLFrameTimer& LLVOAvatar::getPhaseTimer(const std::string& phase_name)
+{
+	phase_map_t::iterator iter = mPhases.find(phase_name);
+	if (iter == mPhases.end())
+	{
+		LLFrameTimer timer;
+		mPhases[phase_name] = timer;
+	}
+	LLFrameTimer& timer = mPhases[phase_name];
+	return timer;
+}
+
+void LLVOAvatar::startPhase(const std::string& phase_name)
+{
+	LLFrameTimer& timer = getPhaseTimer(phase_name);
+	timer.unpause();
+}
+
+void LLVOAvatar::stopPhase(const std::string& phase_name)
+{
+	LLFrameTimer& timer = getPhaseTimer(phase_name);
+	timer.pause();
+}
+
+void LLVOAvatar::clearPhases()
+{
+	mPhases.clear();
+}
+
+LLSD LLVOAvatar::dumpPhases()
+{
+	LLSD result;
+	for (phase_map_t::iterator iter = mPhases.begin(); iter != mPhases.end(); ++iter)
+	{
+		result[iter->first]["completed"] = !(iter->second.getStarted());
+		result[iter->first]["elapsed"] = iter->second.getElapsedTimeF32();
+	}
+	return result;
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)

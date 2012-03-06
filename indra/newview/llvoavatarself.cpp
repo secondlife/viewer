@@ -2072,6 +2072,7 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
+	result["phases"] = dumpPhases();
 	
 	return result;
 }
