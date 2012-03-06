@@ -685,6 +685,7 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 		}
 	}
 
+	S32 origScrollPosition = mLinksetsScrollList->getScrollPos();
 	mLinksetsScrollList->deleteAllItems();
 
 	if (mLinksetsListPtr != NULL)
@@ -732,6 +733,7 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 	}
 
 	mLinksetsScrollList->selectMultiple(selectedUUIDs);
+	mLinksetsScrollList->setScrollPos(origScrollPosition);
 	updateEditFieldValues();
 	updateControls();
 }

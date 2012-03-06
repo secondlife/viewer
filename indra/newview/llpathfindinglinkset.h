@@ -38,9 +38,19 @@ class LLPathfindingLinkset;
 
 typedef boost::shared_ptr<LLPathfindingLinkset> LLPathfindingLinksetPtr;
 
+#define DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
+#define MISSING_MODIFIABLE_FIELD_WAR
+
 class LLPathfindingLinkset
 {
 public:
+	typedef enum
+	{
+		kNavMeshGenerationIgnore,
+		kNavMeshGenerationInclude,
+		kNavMeshGenerationExclude
+	} ENavMeshGenerationCategory;
+
 	typedef enum
 	{
 		kUnknown,
@@ -59,25 +69,25 @@ public:
 
 	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
-	inline bool               isTerrain() const                   {return mIsTerrain;};
-	inline const LLUUID&      getUUID() const                     {return mUUID;};
-	inline const std::string& getName() const                     {return mName;};
-	inline const std::string& getDescription() const              {return mDescription;};
-	inline U32                getLandImpact() const               {return mLandImpact;};
-	inline const LLVector3&   getLocation() const                 {return mLocation;};
-	BOOL                      isModifiable() const                {return mIsModifiable;};
-	BOOL                      isPhantom() const;
-	static BOOL               isPhantom(ELinksetUse pLinksetUse);
-	static ELinksetUse        getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
+	inline bool                       isTerrain() const                   {return mIsTerrain;};
+	inline const LLUUID&              getUUID() const                     {return mUUID;};
+	inline const std::string&         getName() const                     {return mName;};
+	inline const std::string&         getDescription() const              {return mDescription;};
+	inline U32                        getLandImpact() const               {return mLandImpact;};
+	inline const LLVector3&           getLocation() const                 {return mLocation;};
+	BOOL                              isModifiable() const                {return mIsModifiable;};
+	BOOL                              isPhantom() const;
+	static BOOL                       isPhantom(ELinksetUse pLinksetUse);
+	static ELinksetUse                getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
 
-	inline ELinksetUse        getLinksetUse() const               {return mLinksetUse;};
+	inline ELinksetUse                getLinksetUse() const               {return mLinksetUse;};
 
-	inline S32                getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
-	inline S32                getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
-	inline S32                getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
-	inline S32                getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
+	inline S32                        getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
+	inline S32                        getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
+	inline S32                        getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
+	inline S32                        getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 
-	LLSD                      encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+	LLSD                              encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
 	static const S32 MIN_WALKABILITY_VALUE;
 	static const S32 MAX_WALKABILITY_VALUE;
@@ -85,11 +95,18 @@ public:
 protected:
 
 private:
-	void                      parseObjectData(const LLSD &pLinksetItem);
-	void                      parsePathfindingData(const LLSD &pLinksetItem);
-	static ELinksetUse        getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
-	static BOOL               isPermanent(ELinksetUse pLinksetUse);
-	static BOOL               isWalkable(ELinksetUse pLinksetUse);
+	void                              parseObjectData(const LLSD &pLinksetItem);
+	void                              parsePathfindingData(const LLSD &pLinksetItem);
+
+#ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
+	static ELinksetUse                getLinksetUse(bool pIsPhantom, bool pIsPermanent, bool pIsWalkable);
+	static BOOL                       isPermanent(ELinksetUse pLinksetUse);
+	static BOOL                       isWalkable(ELinksetUse pLinksetUse);
+#endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
+	static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
+	static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
+	static LLSD                       convertCategoryToLLSD(ENavMeshGenerationCategory pNavMeshGenerationCategory);
+	static ENavMeshGenerationCategory convertCategoryFromLLSD(const LLSD &llsd);
 
 	LLUUID       mUUID;
 	bool         mIsTerrain;
@@ -97,6 +114,9 @@ private:
 	std::string  mDescription;
 	U32          mLandImpact;
 	LLVector3    mLocation;
+#ifdef MISSING_MODIFIABLE_FIELD_WAR
+	bool         mHasModifiable;
+#endif // MISSING_MODIFIABLE_FIELD_WAR
 	BOOL         mIsModifiable;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
