@@ -511,7 +511,7 @@ void LLGLTexMemBar::draw()
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
 	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-	S32 v_offset = (S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
+	S32 v_offset = 0;//(S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
 	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
 	U32 total_http_requests = LLAppViewer::getTextureFetch()->getTotalNumHTTPRequests() ;
@@ -538,67 +538,7 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*3,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	//----------------------------------------------------------------------------
-#if 0
-	S32 bar_left = 400;
-	S32 bar_width = 200;
-	S32 top = line_height*3 - 2 + v_offset;
-	S32 bottom = top - 6;
-	S32 left = bar_left;
-	S32 right = left + bar_width;
-	F32 bar_scale;
-	
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-	// GL Mem Bar
-		
-	left = bar_left;
-	text = "GL";
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, line_height*3,
-											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	
-	left = bar_left+20;
-	right = left + bar_width;
-	
-	gGL.color4f(0.5f, 0.5f, 0.5f, 0.75f); // grey
-	gl_rect_2d(left, top, right, bottom);
-
-	bar_scale = (F32)bar_width / (max_total_mem * 1.5f);
-	right = left + llfloor(total_mem * bar_scale);
-	right = llclamp(right, bar_left, bar_left + bar_width);
-	
-	color = (total_mem < llfloor(max_total_mem * texmem_lower_bound_scale)) ? LLColor4::green :
-		  	(total_mem < max_total_mem) ? LLColor4::yellow : LLColor4::red;
-	color[VALPHA] = .75f;
-	gGL.diffuseColor4fv(color.mV);
-	
-	gl_rect_2d(left, top, right, bottom); // red/yellow/green
-
-	//
-	bar_left += bar_width + bar_space;
-	//top = bottom - 2; bottom = top - 6;
-	
-	// Bound Mem Bar
-
-	left = bar_left;
-	text = "GL";
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, left, line_height*3,
-									 text_color, LLFontGL::LEFT, LLFontGL::TOP);
-	left = bar_left + 20;
-	right = left + bar_width;
-	
-	gGL.color4f(0.5f, 0.5f, 0.5f, 0.75f);
-	gl_rect_2d(left, top, right, bottom);
-
-	color = (bound_mem < llfloor(max_bound_mem * texmem_lower_bound_scale)) ? LLColor4::green :
-		  	(bound_mem < max_bound_mem) ? LLColor4::yellow : LLColor4::red;
-	color[VALPHA] = .75f;
-	gGL.diffuseColor4fv(color.mV);
-
-	gl_rect_2d(left, top, right, bottom);
-#else
 	S32 left = 0 ;
-#endif
 	//----------------------------------------------------------------------------
 
 	text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d",
@@ -667,7 +607,7 @@ BOOL LLGLTexMemBar::handleMouseDown(S32 x, S32 y, MASK mask)
 LLRect LLGLTexMemBar::getRequiredRect()
 {
 	LLRect rect;
-	//rect.mTop = 50;
+	rect.mTop = LLFontGL::getFontMonospace()->getLineHeight() * 6;
 	rect.mTop = 0;
 	return rect;
 }
@@ -952,9 +892,11 @@ void LLTextureView::draw()
 		LLRect tmbr;
 		tmbp.name("gl texmem bar");
 		tmbp.rect(tmbr);
+		tmbp.follows.flags = FOLLOWS_LEFT|FOLLOWS_TOP;
 		tmbp.texture_view(this);
 		mGLTexMemBar = LLUICtrlFactory::create<LLGLTexMemBar>(tmbp);
-		addChildInBack(mGLTexMemBar);
+		addChild(mGLTexMemBar);
+		sendChildToFront(mGLTexMemBar);
 
 		LLAvatarTexBar::Params atbp;
 		LLRect atbr;
@@ -963,16 +905,13 @@ void LLTextureView::draw()
 		atbp.rect(atbr);
 		mAvatarTexBar = LLUICtrlFactory::create<LLAvatarTexBar>(atbp);
 		addChild(mAvatarTexBar);
+		sendChildToFront(mAvatarTexBar);
 
 		reshape(getRect().getWidth(), getRect().getHeight(), TRUE);
 
-		/*
-		  count = gTextureList.getNumImages();
-		  std::string info_string;
-		  info_string = llformat("Global Info:\nTexture Count: %d", count);
-		  mInfoTextp->setText(info_string);
-		*/
-
+		LLUI::popMatrix();
+		LLUI::pushMatrix();
+		LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 
 		for (child_list_const_iter_t child_iter = getChildList()->begin();
 			 child_iter != getChildList()->end(); ++child_iter)

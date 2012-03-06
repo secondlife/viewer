@@ -115,7 +115,7 @@ void LLDebugView::init()
 	LLTextureView::Params tvp;
 	tvp.name("gTextureView");
 	tvp.rect(r);
-	tvp.follows.flags(FOLLOWS_BOTTOM|FOLLOWS_LEFT);
+	tvp.follows.flags(FOLLOWS_TOP|FOLLOWS_LEFT);
 	tvp.visible(false);
 	gTextureView = LLUICtrlFactory::create<LLTextureView>(tvp);
 	addChild(gTextureView);

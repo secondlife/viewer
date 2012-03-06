@@ -344,11 +344,14 @@ LLWearableHoldingPattern::LLWearableHoldingPattern():
 			 
 	}
 	sActiveHoldingPatterns.insert(this);
+	gAgentAvatarp->clearPhases();
+	gAgentAvatarp->startPhase("holding_pattern");
 }
 
 LLWearableHoldingPattern::~LLWearableHoldingPattern()
 {
 	sActiveHoldingPatterns.erase(this);
+	gAgentAvatarp->stopPhase("holding_pattern");
 }
 
 bool LLWearableHoldingPattern::isMostRecent()
@@ -398,7 +401,7 @@ void LLWearableHoldingPattern::checkMissingWearables()
 		// runway why don't we actually skip here?
 		llwarns << self_av_string() << "skipping because LLWearableHolding pattern is invalid (superceded by later outfit request)" << llendl;
 	}
-		
+
 	std::vector<S32> found_by_type(LLWearableType::WT_COUNT,0);
 	std::vector<S32> requested_by_type(LLWearableType::WT_COUNT,0);
 	for (found_list_t::iterator it = getFoundList().begin(); it != getFoundList().end(); ++it)
@@ -436,6 +439,10 @@ void LLWearableHoldingPattern::checkMissingWearables()
 	}
 
 	resetTime(60.0F);
+	if (!isMissingCompleted())
+	{
+		gAgentAvatarp->startPhase("get_missing_wearables");
+	}
 	if (!pollMissingWearables())
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
@@ -499,6 +506,8 @@ void LLWearableHoldingPattern::onAllComplete()
 
 void LLWearableHoldingPattern::onFetchCompletion()
 {
+	gAgentAvatarp->stopPhase("get_wearables");
+		
 	if (!isMostRecent())
 	{
 		// runway skip here?
@@ -706,6 +715,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 
 	if (done)
 	{
+		gAgentAvatarp->stopPhase("get_missing_wearables");
 		gAgentAvatarp->debugWearablesLoaded();
 
 		// BAP - if we don't call clearCOFLinksForMissingWearables()
@@ -1784,6 +1794,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 			}
 		}
 	}
+
+	gAgentAvatarp->startPhase("get_wearables");
 
 	for (LLWearableHoldingPattern::found_list_t::iterator it = holder->getFoundList().begin();
 		 it != holder->getFoundList().end(); ++it)
