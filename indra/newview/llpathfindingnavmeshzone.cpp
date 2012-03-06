@@ -65,7 +65,10 @@ LLPathfindingNavMeshZone::navmesh_zone_slot_t LLPathfindingNavMeshZone::register
 void LLPathfindingNavMeshZone::setCurrentRegionAsCenter()
 {
 	llassert(LLPathingLib::getInstance() != NULL);
-	LLPathingLib::getInstance()->cleanupResidual();
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::getInstance()->cleanupResidual();
+	}
 	mNavMeshLocations.clear();
 	LLViewerRegion *currentRegion = gAgent.getRegion();
 	const LLUUID &currentRegionUUID = currentRegion->getRegionID();
@@ -91,8 +94,10 @@ void LLPathfindingNavMeshZone::disable()
 		mNavMeshSlot.disconnect();
 	}
 
-	llassert(LLPathingLib::getInstance() != NULL);
-	LLPathingLib::getInstance()->cleanupResidual();
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::getInstance()->cleanupResidual();
+	}
 
 	mNavMeshLocations.clear();
 }
@@ -163,7 +168,11 @@ void LLPathfindingNavMeshZone::updateStatus()
 	else if (hasRequestCompleted)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestCompleted;
-		LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
+		llassert(LLPathingLib::getInstance() != NULL);
+		if (LLPathingLib::getInstance() != NULL)
+		{
+			LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
+		}
 	}
 	else
 	{
@@ -209,7 +218,11 @@ void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMe
 		llassert(!pNavMeshData.empty());
 		mHasNavMesh = true;
 		mNavMeshVersion = pNavMeshVersion;
-		LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, mDirection);
+		llassert(LLPathingLib::getInstance() != NULL);
+		if (LLPathingLib::getInstance() != NULL)
+		{
+			LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, mDirection);
+		}
 	}
 }
 

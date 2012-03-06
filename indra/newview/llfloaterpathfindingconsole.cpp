@@ -265,7 +265,10 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 		mNavMeshZoneSlot.disconnect();
 	}
 
-	//mNavMeshZone.disable();
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		mNavMeshZone.disable();
+	}
 
 	LLFloater::onClose(pIsAppQuitting);
 	setHeartBeat( false );
