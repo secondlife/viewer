@@ -113,7 +113,26 @@ S32 LLLayoutPanel::getLayoutDim() const
 					? getRect().getWidth()
 					: getRect().getHeight()));
 }
- 
+
+S32 LLLayoutPanel::getTargetDim() const
+{
+	return mTargetDim;
+}
+
+void LLLayoutPanel::setTargetDim(S32 value)
+{
+	LLRect new_rect(getRect());
+	if (mOrientation == LLLayoutStack::HORIZONTAL)
+	{
+		new_rect.mRight = new_rect.mLeft + value;
+	}
+	else
+	{
+		new_rect.mTop = new_rect.mBottom + value;
+	}
+	setShape(new_rect, true);
+}
+
 S32 LLLayoutPanel::getVisibleDim() const
 {
 	F32 min_dim = getRelevantMinDim();
