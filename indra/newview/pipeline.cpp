@@ -4328,10 +4328,16 @@ void LLPipeline::renderDebug()
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
 	assertInitialized();
+	
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gUIProgram.bind();
 	}
+
+	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gPipeline.disableLights();
+
 	//Render any navmesh geometry	
 	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 	if ( llPathingLibInstance != NULL ) 
