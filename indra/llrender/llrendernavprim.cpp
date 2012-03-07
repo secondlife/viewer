@@ -38,7 +38,7 @@ LLRenderNavPrim gRenderNav;
 void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color, bool overlayMode  ) const
 {	
 	LLColor4 colorA( color );	
-	glLineWidth(1.5f);	
+	//glLineWidth(1.5f);	
 	gGL.color3fv( colorA.mV );
 
 	gGL.begin(LLRender::LINES);
@@ -52,16 +52,6 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 //=============================================================================
 void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color, bool overlayMode ) const
 {
-	//glLineWidth(1.5f);	
-	if ( overlayMode )
-	{
-		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-	}
-	else
-	{
-		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-	}
-	
 	LLColor4 colorA( color );	
 	colorA*=1.25f;
 	gGL.color4fv( colorA.mV );
@@ -72,8 +62,6 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 		gGL.vertex3fv( c.mV );
 	}
 	gGL.end();		
-	//glLineWidth(1.0f);	
-	//move out ...glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
