@@ -237,8 +237,6 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 				LLHTTPClient::ResponderPtr responder = new NavMeshResponder(navMeshURL, mNavMeshVersionXXX, navMeshPtr);
 
 				LLSD postData;
-				postData["agent_id"] = gAgent.getID();
-				postData["region_id"] = pRegion->getRegionID();
 				LLHTTPClient::post(navMeshURL, postData, responder);
 			}
 		}
