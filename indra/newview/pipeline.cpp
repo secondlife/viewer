@@ -105,6 +105,7 @@
 #include "llcurl.h"
 #include "llnotifications.h"
 #include "LLPathingLib.h"
+#include "llfloaterpathfindingconsole.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -4327,6 +4328,55 @@ void LLPipeline::renderDebug()
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
 	assertInitialized();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+	//Render any navmesh geometry	
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if ( llPathingLibInstance != NULL ) 
+	{
+		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+		if (!pathfindingConsoleHandle.isDead())
+		{
+			LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+			//NavMesh
+			if ( pathfindingConsole->isRenderNavMesh() )
+			{				
+				glLineWidth(1.5f);	
+				LLGLEnable cull(GL_CULL_FACE);
+				if ( pathfindingConsole->isRenderWorld() )
+				{					
+					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+				}
+				else
+				{
+					glClearColor(0,0,0,0);
+					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				}
+				llPathingLibInstance->renderNavMesh();
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				glLineWidth(1.0f);	
+				gGL.flush();
+			}
+			//physics/exclusion shapes
+			if ( pathfindingConsole->isRenderAnyShapes() )
+			{						
+				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );
+			}	
+			//User designated path
+			if ( pathfindingConsole->isRenderPath() )
+			{
+				llPathingLibInstance->renderPath();
+			}
+		}
+	}
+	gGL.flush();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
 
 	gGL.color4f(1,1,1,1);
 

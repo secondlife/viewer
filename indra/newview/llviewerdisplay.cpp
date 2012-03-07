@@ -113,7 +113,6 @@ void render_hud_attachments();
 void render_ui_3d();
 void render_ui_2d();
 void render_disconnected_background();
-void render_navmesh( bool& allowRenderables, bool& exclusiveNavDraw );
 
 void display_startup()
 {
@@ -719,7 +718,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
-			gPipeline.renderPhysicsDisplay();
+			gPipeline.renderPhysicsDisplay();				
 		}
 
 		LLGLState::checkStates();
@@ -860,6 +859,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		stop_glerror();
 
+		
 		if (to_texture)
 		{
 			gGL.setColorMask(true, true);
@@ -884,27 +884,23 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gGL.setColorMask(true, false);
 		}
 		
-		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
-		bool exclusiveNavDraw = false;
-		bool allowRenderables = false;
-		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
+			if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 			LLMemType mt_rg(LLMemType::MTYPE_DISPLAY_RENDER_GEOM);
 			gGL.setColorMask(true, false);
+		
+
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
-				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());				
+				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());
 			}
-
-			render_navmesh( allowRenderables, exclusiveNavDraw );
-			
-			if ( !exclusiveNavDraw || allowRenderables )					
+			else
 			{
 				gPipeline.renderGeom(*LLViewerCamera::getInstance(), TRUE);
 			}
-
+			
 			gGL.setColorMask(true, true);
 
 			//store this frame's modelview matrix for use
@@ -956,6 +952,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
+
 		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender )
 		{
 			gPipeline.renderDeferredLighting();
@@ -992,42 +989,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	LLAppViewer::instance()->pingMainloopTimeout("Display:Done");
 }
 
-void render_navmesh( bool& allowRenderables, bool& exclusiveNavDraw )
-{
-	//Render any navmesh geometry	
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if ( llPathingLibInstance != NULL ) 
-	{
-		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-		if (!pathfindingConsoleHandle.isDead())
-		{
-			LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
-			//Determine if we can should overlay the navmesh ontop of the scenes typical renderables
-			allowRenderables = pathfindingConsole->isRenderWorld();
-
-			//NavMesh
-			if ( pathfindingConsole->isRenderNavMesh() )
-			{
-				glClearColor(0,0,0,0);
-				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-				LLGLDisable lighting(GL_LIGHTING);
-				llPathingLibInstance->renderNavMesh();
-				exclusiveNavDraw = true;
-			}
-			//physics/exclusion shapes
-			if ( pathfindingConsole->isRenderAnyShapes() )
-			{						
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );
-				exclusiveNavDraw = true;
-			}	
-			//User designated path
-			if ( pathfindingConsole->isRenderPath() )
-			{
-				llPathingLibInstance->renderPath();
-			}
-		}
-	}			
-}
 void render_hud_attachments()
 {
 	LLMemType mt_ra(LLMemType::MTYPE_DISPLAY_RENDER_ATTACHMENTS);
@@ -1266,7 +1227,6 @@ void render_ui(F32 zoom_factor, int subfield)
 			{
 				render_disconnected_background();
 			}
-
 			render_ui_2d();
 			LLGLState::checkStates();
 		}
