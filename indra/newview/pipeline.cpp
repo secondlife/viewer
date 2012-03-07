@@ -4334,8 +4334,8 @@ void LLPipeline::renderDebug()
 		gUIProgram.bind();
 	}
 
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
 	gPipeline.disableLights();
 
 	//Render any navmesh geometry	
@@ -4368,8 +4368,16 @@ void LLPipeline::renderDebug()
 			}
 			//physics/exclusion shapes
 			if ( pathfindingConsole->isRenderAnyShapes() )
-			{						
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );
+			{					
+				LLGLEnable blend(GL_BLEND);
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+				gGL.flush();				
+				LLGLDisable blendOut(GL_BLEND);
+				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+				gGL.flush();
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 			}	
 			//User designated path
 			if ( pathfindingConsole->isRenderPath() )
