@@ -578,7 +578,7 @@ bool LLGLManager::initGL()
 
 	if (mGLVersion >= 3.f && LLImageGL::sCompressTextures)
 	{ //use texture compression
-		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST);
+		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
 	}
 	else
 	{ //GL version is < 3.0, always disable texture compression
