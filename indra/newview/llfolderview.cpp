@@ -943,6 +943,9 @@ void LLFolderView::draw()
 			// We should call this method to also notify parent about required rect.
 			// See EXT-7564, EXT-7047.
 			arrangeFromRoot();
+			LLUI::popMatrix();
+			LLUI::pushMatrix();
+			LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 		}
 	}
 
