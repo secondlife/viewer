@@ -37,9 +37,6 @@ LLRenderNavPrim gRenderNav;
 //=============================================================================
 void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color, bool overlayMode  ) const
 {	
-	bool ff = LLGLSLShader::sNoFixedFunction;
-	LLGLSLShader::sNoFixedFunction = false;
-	LLGLEnable smooth(GL_LINE_SMOOTH);
 	LLColor4 colorA( color );	
 	glLineWidth(1.5f);	
 	gGL.color3fv( colorA.mV );
@@ -50,16 +47,12 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 		gGL.vertex3fv( end.mV );
 	}
 	gGL.end();	
-
-	gGL.flush();
-	LLGLSLShader::sNoFixedFunction = ff;
-	LLGLDisable smoothout(GL_LINE_SMOOTH);
-	glLineWidth(1.0f);	
+	//glLineWidth(1.0f);	
 }
 //=============================================================================
 void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color, bool overlayMode ) const
 {
-	glLineWidth(1.5f);	
+	//glLineWidth(1.5f);	
 	if ( overlayMode )
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
@@ -68,12 +61,10 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	{
 		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 	}
-	LLGLEnable cull(GL_CULL_FACE);
+	
 	LLColor4 colorA( color );	
 	colorA*=1.25f;
 	gGL.color4fv( colorA.mV );
-	bool ff = LLGLSLShader::sNoFixedFunction;
-	LLGLSLShader::sNoFixedFunction = false;
 	gGL.begin(LLRender::TRIANGLES);
 	{
 		gGL.vertex3fv( a.mV );
@@ -81,10 +72,8 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 		gGL.vertex3fv( c.mV );
 	}
 	gGL.end();		
-	gGL.flush();
-	glLineWidth(1.0f);	
-	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-	LLGLSLShader::sNoFixedFunction = ff;
+	//glLineWidth(1.0f);	
+	//move out ...glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 }
 //=============================================================================
 void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
@@ -98,13 +87,11 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
 	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );		
-	LLGLEnable smooth( GL_LINE_SMOOTH );
 	//pass 2 outlined
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
 	LLGLSLShader::sNoFixedFunction = ff;
 	glLineWidth(1.0f);		
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-	LLGLDisable smoothout( GL_LINE_SMOOTH );
 }
 //=============================================================================
 void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, int color ) const

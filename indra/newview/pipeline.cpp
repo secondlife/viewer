@@ -105,6 +105,7 @@
 #include "llcurl.h"
 #include "llnotifications.h"
 #include "LLPathingLib.h"
+#include "llfloaterpathfindingconsole.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -4327,6 +4328,40 @@ void LLPipeline::renderDebug()
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
 	assertInitialized();
+	
+	//Render any navmesh geometry	
+	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+	if ( llPathingLibInstance != NULL ) 
+	{
+		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+		if (!pathfindingConsoleHandle.isDead())
+		{
+			LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+			//Determine if we can should overlay the navmesh ontop of the scenes typical renderables
+			//allowRenderables = pathfindingConsole->isRenderWorld();
+
+			//NavMesh
+			if ( pathfindingConsole->isRenderNavMesh() )
+			{
+				glClearColor(0,0,0,0);
+				glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				//LLGLDisable lighting(GL_LIGHTING);
+				llPathingLibInstance->renderNavMesh();
+				gGL.flush();
+				}
+			//physics/exclusion shapes
+			if ( pathfindingConsole->isRenderAnyShapes() )
+			{						
+				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );
+			}	
+			//User designated path
+			if ( pathfindingConsole->isRenderPath() )
+			{
+				llPathingLibInstance->renderPath();
+			}
+		}
+	}
+
 
 	gGL.color4f(1,1,1,1);
 
