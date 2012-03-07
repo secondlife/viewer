@@ -613,6 +613,9 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 {
 	switch (pNavMeshZoneRequestStatus)
 	{
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestUnknown :
+		setConsoleState(kConsoleStateUnknown);
+		break;
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestStarted :
 		setConsoleState(kConsoleStateDownloading);
 		break;
@@ -625,7 +628,6 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestError :
 		setConsoleState(kConsoleStateError);
 		break;
-	case LLPathfindingNavMeshZone::kNavMeshZoneRequestUnknown :
 	default:
 		setConsoleState(kConsoleStateUnknown);
 		llassert(0);

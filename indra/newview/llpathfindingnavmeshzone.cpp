@@ -65,11 +65,6 @@ LLPathfindingNavMeshZone::navmesh_zone_slot_t LLPathfindingNavMeshZone::register
 
 void LLPathfindingNavMeshZone::initialize()
 {
-	llassert(LLPathingLib::getInstance() != NULL);
-	if (LLPathingLib::getInstance() != NULL)
-	{
-		LLPathingLib::getInstance()->cleanupResidual();
-	}
 	mNavMeshLocationPtrs.clear();
 
 	NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
@@ -101,17 +96,16 @@ void LLPathfindingNavMeshZone::disable()
 		NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
 		navMeshLocationPtr->disable();
 	}
-#if 0
+}
+
+void LLPathfindingNavMeshZone::refresh()
+{
 	llassert(LLPathingLib::getInstance() != NULL);
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLPathingLib::getInstance()->cleanupResidual();
 	}
-#endif
-}
 
-void LLPathfindingNavMeshZone::refresh()
-{
 	for (NavMeshLocationPtrs::iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
 		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
@@ -170,6 +164,10 @@ void LLPathfindingNavMeshZone::updateStatus()
 	{
 		zoneRequestStatus = kNavMeshZoneRequestError;
 	}
+	else if (hasRequestUnknown)
+	{
+		zoneRequestStatus = kNavMeshZoneRequestUnknown;
+	}
 	else if (hasRequestCompleted)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestCompleted;
@@ -182,10 +180,6 @@ void LLPathfindingNavMeshZone::updateStatus()
 	else if (hasRequestNotEnabled)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestNotEnabled;
-	}
-	else if (hasRequestUnknown)
-	{
-		zoneRequestStatus = kNavMeshZoneRequestUnknown;
 	}
 	else
 	{
@@ -239,7 +233,7 @@ void LLPathfindingNavMeshZone::NavMeshLocation::refresh()
 	{
 		llassert(mRegionUUID.isNull());
 		LLSD::Binary nullData;
-		handleNavMesh(LLPathfindingNavMesh::kNavMeshRequestUnknown, mRegionUUID, 0U, nullData);
+		handleNavMesh(LLPathfindingNavMesh::kNavMeshRequestNotEnabled, mRegionUUID, 0U, nullData);
 	}
 	else
 	{
