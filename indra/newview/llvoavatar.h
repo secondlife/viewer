@@ -303,7 +303,6 @@ private:
 	S32				mVisualComplexity;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
-	typedef std::deque<LLMaskedMorph *> 	morph_list_t;
 
 	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
 	phase_map_t		mPhases;
