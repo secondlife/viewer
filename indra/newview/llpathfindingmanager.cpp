@@ -204,15 +204,15 @@ bool LLPathfindingManager::isAllowViewTerrainProperties() const
 	return (gAgent.isGodlike() || ((region != NULL) && region->canManageEstate()));
 }
 
-LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListenerForCurrentRegion(LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback)
+LLPathfindingNavMesh::navmesh_slot_t LLPathfindingManager::registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback)
 {
-	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForCurrentRegion();
+	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
 	return navMeshPtr->registerNavMeshListener(pNavMeshCallback);
 }
 
-void LLPathfindingManager::requestGetNavMeshForCurrentRegion()
+void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 {
-	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForCurrentRegion();
+	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegion);
 
 	if (navMeshPtr->hasNavMeshVersion(mNavMeshVersionXXX))
 	{
@@ -220,14 +220,13 @@ void LLPathfindingManager::requestGetNavMeshForCurrentRegion()
 	}
 	else
 	{
-		LLViewerRegion *region = getCurrentRegion();
-		if (region == NULL)
+		if (pRegion == NULL)
 		{
 			navMeshPtr->handleNavMeshNotEnabled();
 		}
 		else
 		{
-			std::string navMeshURL = getRetrieveNavMeshURLForCurrentRegion();
+			std::string navMeshURL = getRetrieveNavMeshURLForRegion(pRegion);
 			if (navMeshURL.empty())
 			{
 				navMeshPtr->handleNavMeshNotEnabled();
@@ -239,7 +238,7 @@ void LLPathfindingManager::requestGetNavMeshForCurrentRegion()
 
 				LLSD postData;
 				postData["agent_id"] = gAgent.getID();
-				postData["region_id"] = region->getRegionID();
+				postData["region_id"] = pRegion->getRegionID();
 				LLHTTPClient::post(navMeshURL, postData, responder);
 			}
 		}
@@ -371,14 +370,13 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLin
 	return status;
 }
 
-LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForCurrentRegion()
+LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion *pRegion)
 {
 
 	LLUUID regionUUID;
-	LLViewerRegion *region = getCurrentRegion();
-	if (region != NULL)
+	if (pRegion != NULL)
 	{
-		regionUUID = region->getRegionID();
+		regionUUID = pRegion->getRegionID();
 	}
 
 	LLPathfindingNavMeshPtr navMeshPtr;
@@ -469,6 +467,11 @@ std::string LLPathfindingManager::getRetrieveNavMeshURLForCurrentRegion() const
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_RETRIEVE_NAVMESH);
 }
 
+std::string LLPathfindingManager::getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const
+{
+	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_RETRIEVE_NAVMESH);
+}
+
 std::string LLPathfindingManager::getAgentStateURLForCurrentRegion() const
 {
 	return getCapabilityURLForCurrentRegion(CAP_SERVICE_AGENT_STATE);
@@ -486,18 +489,22 @@ std::string LLPathfindingManager::getTerrainLinksetsURLForCurrentRegion() const
 
 std::string LLPathfindingManager::getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const
 {
+	return getCapabilityURLForRegion(getCurrentRegion(), pCapabilityName);
+}
+
+std::string LLPathfindingManager::getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const
+{
 	std::string capabilityURL("");
 
-	LLViewerRegion* region = getCurrentRegion();
-	if (region != NULL)
+	if (pRegion != NULL)
 	{
-		capabilityURL = region->getCapability(pCapabilityName);
+		capabilityURL = pRegion->getCapability(pCapabilityName);
 	}
 
 	if (capabilityURL.empty())
 	{
 		llwarns << "cannot find capability '" << pCapabilityName << "' for current region '"
-			<< ((region != NULL) ? region->getName() : "<null>") << "'" << llendl;
+			<< ((pRegion != NULL) ? pRegion->getName() : "<null>") << "'" << llendl;
 	}
 
 	return capabilityURL;

@@ -78,8 +78,8 @@ public:
 	bool isAllowAlterPermanent();
 	bool isAllowViewTerrainProperties() const;
 
-	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForCurrentRegion(LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
-	void requestGetNavMeshForCurrentRegion();
+	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
+	void requestGetNavMeshForRegion(LLViewerRegion *pRegion);
 
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
@@ -92,7 +92,7 @@ public:
 protected:
 
 private:
-	LLPathfindingNavMeshPtr getNavMeshForCurrentRegion();
+	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
 
 	static bool isValidAgentState(EAgentState pAgentState);
 
@@ -102,11 +102,13 @@ private:
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
 	std::string getRetrieveNavMeshURLForCurrentRegion() const;
+	std::string getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getAgentStateURLForCurrentRegion() const;
 	std::string getObjectLinksetsURLForCurrentRegion() const;
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
 
 	std::string    getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
+	std::string    getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;
 	LLViewerRegion *getCurrentRegion() const;
 
 	NavMeshMap           mNavMeshMap;

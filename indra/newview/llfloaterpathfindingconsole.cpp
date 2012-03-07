@@ -171,77 +171,10 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
 		}
 
-		mNavMeshZone.setCurrentRegionAsCenter();
+		mNavMeshZone.initialize();
+
+		mNavMeshZone.enable();
 		mNavMeshZone.refresh();
-#if 0
-		LLPathingLib::getInstance()->cleanupResidual();
-
-		mCurrentMDO = 0;
-		mNavMeshCnt = 0;
-
-		//make sure the region is essentially enabled for navmesh support
-		std::string capability = "RetrieveNavMeshSrc";
-		
-		LLViewerRegion* pCurrentRegion = gAgent.getRegion();
-		std::vector<LLViewerRegion*> regions;
-		regions.push_back( pCurrentRegion );
-		std::vector<int> shiftDirections;
-		shiftDirections.push_back( CURRENT_REGION );
-
-		mNeighboringRegion = gSavedSettings.getU32("RetrieveNeighboringRegion");
-		if ( mNeighboringRegion != CURRENT_REGION )
-		{
-			//User wants to pull in a neighboring region
-			std::vector<S32> availableRegions;
-			pCurrentRegion->getNeighboringRegionsStatus( availableRegions );
-			//Is the desired region in the available list
-			std::vector<S32>::iterator foundElem = std::find(availableRegions.begin(),availableRegions.end(),mNeighboringRegion); 
-			if ( foundElem != availableRegions.end() )
-			{
-				LLViewerRegion* pCurrentRegion = gAgent.getRegion();
-				std::vector<LLViewerRegion*> regionPtrs;
-				pCurrentRegion->getNeighboringRegions( regionPtrs );
-				regions.push_back( regionPtrs[mNeighboringRegion] );
-				shiftDirections.push_back( mNeighboringRegion );
-			}
-		}		
-		
-		
-		//If the navmesh shift ops and the total region counts do not match - use the current region, only.
-		if ( shiftDirections.size() != regions.size() )
-		{
-			shiftDirections.clear();regions.clear();
-			regions.push_back( pCurrentRegion );
-			shiftDirections.push_back( CURRENT_REGION );				
-		}
-
-		int regionCnt = regions.size();
-		mNavMeshCnt = regionCnt;
-
-		for ( int i=0; i<regionCnt; ++i )
-		{
-			std::string url = regions[i]->getCapability( capability );
-
-			if ( !url.empty() )
-			{
-				std::string str = getString("navmesh_fetch_inprogress");
-				mPathfindingStatus->setText((LLStringExplicit)str);
-				LLNavMeshStation::getInstance()->setNavMeshDownloadURL( url );
-				int dir = shiftDirections[i];
-				LLNavMeshStation::getInstance()->downloadNavMeshSrc( mNavMeshDownloadObserver[mCurrentMDO].getObserverHandle(), dir );				
-				++mCurrentMDO;
-			}				
-			else
-			{
-				--mNavMeshCnt;
-				std::string str = getString("navmesh_region_not_enabled");
-				LLStyle::Params styleParams;
-				styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
-				mPathfindingStatus->setText((LLStringExplicit)str, styleParams);
-				llinfos<<"Region has does not required caps of type ["<<capability<<"]"<<llendl;
-			}
-		}
-#endif
 	}		
 
 	if (!mAgentStateSlot.connected())

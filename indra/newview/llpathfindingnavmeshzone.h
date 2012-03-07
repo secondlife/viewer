@@ -32,8 +32,9 @@
 #include "lluuid.h"
 #include "llpathfindingnavmesh.h"
 
-#include <map>
+#include <vector>
 
+#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
@@ -56,44 +57,53 @@ public:
 	virtual ~LLPathfindingNavMeshZone();
 
 	navmesh_zone_slot_t registerNavMeshZoneListener(navmesh_zone_callback_t pNavMeshZoneCallback);
-	void setCurrentRegionAsCenter();
-	void refresh();
-	void disable();
+	void initialize();
 
-	void handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
+	void enable();
+	void disable();
+	void refresh();
 
 protected:
 
 private:
+	typedef boost::function<void (void)> navmesh_location_callback_t;
 	class NavMeshLocation
 	{
 	public:
-		NavMeshLocation(const LLUUID &pRegionUUID, S32 pDirection);
-		NavMeshLocation(const NavMeshLocation &other);
+		NavMeshLocation(S32 pDirection, navmesh_location_callback_t pLocationCallback);
 		virtual ~NavMeshLocation();
 
-		void handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
-		LLPathfindingNavMesh::ENavMeshRequestStatus getRequestStatus() const;
+		void enable();
+		void refresh();
+		void disable();
 
-		NavMeshLocation &operator =(const NavMeshLocation &other);
+		LLPathfindingNavMesh::ENavMeshRequestStatus getRequestStatus() const;
 
 	protected:
 
 	private:
-		LLUUID                                      mRegionUUID;
+		void           handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
+
+		void           clear();
+		LLViewerRegion *getRegion() const;
+
 		S32                                         mDirection;
+		LLUUID                                      mRegionUUID;
 		bool                                        mHasNavMesh;
 		U32                                         mNavMeshVersion;
+		navmesh_location_callback_t                 mLocationCallback;
 		LLPathfindingNavMesh::ENavMeshRequestStatus mRequestStatus;
+		LLPathfindingNavMesh::navmesh_slot_t        mNavMeshSlot;
 	};
 
-	typedef std::map<LLUUID, NavMeshLocation> NavMeshLocations;
+	typedef boost::shared_ptr<NavMeshLocation> NavMeshLocationPtr;
+	typedef std::vector<NavMeshLocationPtr> NavMeshLocationPtrs;
 
+	void handleNavMeshLocation();
 	void updateStatus();
 
-	NavMeshLocations                     mNavMeshLocations;
-	navmesh_zone_signal_t                mNavMeshZoneSignal;
-	LLPathfindingNavMesh::navmesh_slot_t mNavMeshSlot;
+	NavMeshLocationPtrs   mNavMeshLocationPtrs;
+	navmesh_zone_signal_t mNavMeshZoneSignal;
 };
 
 #endif // LL_LLPATHFINDINGNAVMESHZONE_H

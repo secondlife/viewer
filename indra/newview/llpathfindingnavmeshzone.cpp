@@ -38,7 +38,9 @@
 #include "LLPathingLib.h"
 
 #include <string>
-#include <map>
+#include <vector>
+
+#include <boost/bind.hpp>
 
 #define CENTER_REGION 99
 
@@ -47,9 +49,8 @@
 //---------------------------------------------------------------------------
 
 LLPathfindingNavMeshZone::LLPathfindingNavMeshZone()
-	: mNavMeshLocations(),
-	mNavMeshZoneSignal(),
-	mNavMeshSlot()
+	: mNavMeshLocationPtrs(),
+	mNavMeshZoneSignal()
 {
 }
 
@@ -62,54 +63,66 @@ LLPathfindingNavMeshZone::navmesh_zone_slot_t LLPathfindingNavMeshZone::register
 	return mNavMeshZoneSignal.connect(pNavMeshZoneCallback);
 }
 
-void LLPathfindingNavMeshZone::setCurrentRegionAsCenter()
+void LLPathfindingNavMeshZone::initialize()
 {
 	llassert(LLPathingLib::getInstance() != NULL);
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLPathingLib::getInstance()->cleanupResidual();
 	}
-	mNavMeshLocations.clear();
-	LLViewerRegion *currentRegion = gAgent.getRegion();
-	const LLUUID &currentRegionUUID = currentRegion->getRegionID();
-	NavMeshLocation centerNavMesh(currentRegionUUID, CENTER_REGION);
-	mNavMeshLocations.insert(std::pair<LLUUID, NavMeshLocation>(currentRegionUUID, centerNavMesh));
+	mNavMeshLocationPtrs.clear();
+
+	NavMeshLocationPtr centerNavMeshPtr(new NavMeshLocation(CENTER_REGION, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
+	mNavMeshLocationPtrs.push_back(centerNavMeshPtr);
+
+	U32 neighborRegionDir = gSavedSettings.getU32("RetrieveNeighboringRegion");
+	if (neighborRegionDir != CENTER_REGION)
+	{
+		NavMeshLocationPtr neighborNavMeshPtr(new NavMeshLocation(neighborRegionDir, boost::bind(&LLPathfindingNavMeshZone::handleNavMeshLocation, this)));
+		mNavMeshLocationPtrs.push_back(neighborNavMeshPtr);
+	}
 }
 
-void LLPathfindingNavMeshZone::refresh()
+void LLPathfindingNavMeshZone::enable()
 {
-	LLPathfindingManager *pathfindingManagerInstance = LLPathfindingManager::getInstance();
-	if (!mNavMeshSlot.connected())
+	for (NavMeshLocationPtrs::iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
+		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
-		mNavMeshSlot = pathfindingManagerInstance->registerNavMeshListenerForCurrentRegion(boost::bind(&LLPathfindingNavMeshZone::handleNavMesh, this, _1, _2, _3, _4));
+		NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
+		navMeshLocationPtr->enable();
 	}
-
-	pathfindingManagerInstance->requestGetNavMeshForCurrentRegion();
 }
 
 void LLPathfindingNavMeshZone::disable()
 {
-	if (mNavMeshSlot.connected())
+	for (NavMeshLocationPtrs::iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
+		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
-		mNavMeshSlot.disconnect();
+		NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
+		navMeshLocationPtr->disable();
 	}
-
+#if 0
+	llassert(LLPathingLib::getInstance() != NULL);
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		LLPathingLib::getInstance()->cleanupResidual();
 	}
-
-	mNavMeshLocations.clear();
+#endif
 }
 
-void LLPathfindingNavMeshZone::handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
+void LLPathfindingNavMeshZone::refresh()
 {
-	NavMeshLocations::iterator navMeshIter = mNavMeshLocations.find(pRegionUUID);
-	if (navMeshIter != mNavMeshLocations.end())
+	for (NavMeshLocationPtrs::iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
+		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
-		navMeshIter->second.handleNavMesh(pNavMeshRequestStatus, pRegionUUID, pNavMeshVersion, pNavMeshData);
-		updateStatus();
+		NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
+		navMeshLocationPtr->refresh();
 	}
+}
+
+void LLPathfindingNavMeshZone::handleNavMeshLocation()
+{
+	updateStatus();
 }
 
 void LLPathfindingNavMeshZone::updateStatus()
@@ -120,10 +133,11 @@ void LLPathfindingNavMeshZone::updateStatus()
 	bool hasRequestNotEnabled = false;
 	bool hasRequestError = false;
 
-	for (NavMeshLocations::iterator navMeshIter = mNavMeshLocations.begin();
-		navMeshIter != mNavMeshLocations.end(); ++navMeshIter)
+	for (NavMeshLocationPtrs::iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
+		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
-		switch (navMeshIter->second.getRequestStatus())
+		NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
+		switch (navMeshLocationPtr->getRequestStatus())
 		{
 		case LLPathfindingNavMesh::kNavMeshRequestUnknown :
 			hasRequestUnknown = true;
@@ -148,22 +162,13 @@ void LLPathfindingNavMeshZone::updateStatus()
 	}
 
 	ENavMeshZoneRequestStatus zoneRequestStatus = kNavMeshZoneRequestUnknown;
-	if (hasRequestNotEnabled)
+	if (hasRequestStarted)
 	{
-		zoneRequestStatus = kNavMeshZoneRequestNotEnabled;
+		zoneRequestStatus = kNavMeshZoneRequestStarted;
 	}
 	else if (hasRequestError)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestError;
-	}
-	else if (hasRequestStarted)
-	{
-		zoneRequestStatus = kNavMeshZoneRequestStarted;
-	}
-	else if (hasRequestUnknown)
-	{
-		zoneRequestStatus = kNavMeshZoneRequestUnknown;
-		llassert(0);
 	}
 	else if (hasRequestCompleted)
 	{
@@ -173,6 +178,14 @@ void LLPathfindingNavMeshZone::updateStatus()
 		{
 			LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
 		}
+	}
+	else if (hasRequestNotEnabled)
+	{
+		zoneRequestStatus = kNavMeshZoneRequestNotEnabled;
+	}
+	else if (hasRequestUnknown)
+	{
+		zoneRequestStatus = kNavMeshZoneRequestUnknown;
 	}
 	else
 	{
@@ -187,26 +200,62 @@ void LLPathfindingNavMeshZone::updateStatus()
 // LLPathfindingNavMeshZone::NavMeshLocation
 //---------------------------------------------------------------------------
 
-LLPathfindingNavMeshZone::NavMeshLocation::NavMeshLocation(const LLUUID &pRegionUUID, S32 pDirection)
-	: mRegionUUID(pRegionUUID),
-	mDirection(pDirection),
+LLPathfindingNavMeshZone::NavMeshLocation::NavMeshLocation(S32 pDirection, navmesh_location_callback_t pLocationCallback)
+	: mDirection(pDirection),
+	mRegionUUID(),
 	mHasNavMesh(false),
 	mNavMeshVersion(0U),
-	mRequestStatus(LLPathfindingNavMesh::kNavMeshRequestUnknown)
-{
-}
-
-LLPathfindingNavMeshZone::NavMeshLocation::NavMeshLocation(const NavMeshLocation &other)
-	: mRegionUUID(other.mRegionUUID),
-	mDirection(other.mDirection),
-	mHasNavMesh(other.mHasNavMesh),
-	mNavMeshVersion(other.mNavMeshVersion),
-	mRequestStatus(other.mRequestStatus)
+	mLocationCallback(pLocationCallback),
+	mRequestStatus(LLPathfindingNavMesh::kNavMeshRequestUnknown),
+	mNavMeshSlot()
 {
 }
 
 LLPathfindingNavMeshZone::NavMeshLocation::~NavMeshLocation()
 {
+}
+
+void LLPathfindingNavMeshZone::NavMeshLocation::enable()
+{
+	clear();
+
+	LLViewerRegion *region = getRegion();
+	if (region == NULL)
+	{
+		mRegionUUID.setNull();
+	}
+	else
+	{
+		mRegionUUID = region->getRegionID();
+		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(region, boost::bind(&LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh, this, _1, _2, _3, _4));
+	}
+}
+
+void LLPathfindingNavMeshZone::NavMeshLocation::refresh()
+{
+	LLViewerRegion *region = getRegion();
+
+	if (region == NULL)
+	{
+		llassert(mRegionUUID.isNull());
+		LLSD::Binary nullData;
+		handleNavMesh(LLPathfindingNavMesh::kNavMeshRequestUnknown, mRegionUUID, 0U, nullData);
+	}
+	else
+	{
+		llassert(mRegionUUID == region->getRegionID());
+		LLPathfindingManager::getInstance()->requestGetNavMeshForRegion(region);
+	}
+}
+
+void LLPathfindingNavMeshZone::NavMeshLocation::disable()
+{
+	clear();
+}
+
+LLPathfindingNavMesh::ENavMeshRequestStatus LLPathfindingNavMeshZone::NavMeshLocation::getRequestStatus() const
+{
+	return mRequestStatus;
 }
 
 void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
@@ -224,20 +273,45 @@ void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMe
 			LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, mDirection);
 		}
 	}
+	mLocationCallback();
 }
 
-LLPathfindingNavMesh::ENavMeshRequestStatus LLPathfindingNavMeshZone::NavMeshLocation::getRequestStatus() const
+void LLPathfindingNavMeshZone::NavMeshLocation::clear()
 {
-	return mRequestStatus;
+	mHasNavMesh = false;
+	mRequestStatus = LLPathfindingNavMesh::kNavMeshRequestUnknown;
+	if (mNavMeshSlot.connected())
+	{
+		mNavMeshSlot.disconnect();
+	}
 }
 
-LLPathfindingNavMeshZone::NavMeshLocation &LLPathfindingNavMeshZone::NavMeshLocation::operator =(const NavMeshLocation &other)
+LLViewerRegion *LLPathfindingNavMeshZone::NavMeshLocation::getRegion() const
 {
-	mRegionUUID = other.mRegionUUID;
-	mDirection = other.mDirection;
-	mHasNavMesh = other.mHasNavMesh;
-	mNavMeshVersion = other.mNavMeshVersion;
-	mRequestStatus = other.mRequestStatus;
+	LLViewerRegion *region = NULL;
 
-	return (*this);
+	LLViewerRegion *currentRegion = gAgent.getRegion();
+	if (currentRegion != NULL)
+	{
+		if (mDirection == CENTER_REGION)
+		{
+			region = currentRegion;
+		}
+		else
+		{
+			//User wants to pull in a neighboring region
+			std::vector<S32> availableRegions;
+			currentRegion->getNeighboringRegionsStatus( availableRegions );
+			//Is the desired region in the available list
+			std::vector<S32>::iterator foundElem = std::find(availableRegions.begin(),availableRegions.end(),mDirection); 
+			if ( foundElem != availableRegions.end() )
+			{
+				std::vector<LLViewerRegion*> neighborRegionsPtrs;
+				currentRegion->getNeighboringRegions( neighborRegionsPtrs );
+				region = neighborRegionsPtrs[foundElem - availableRegions.begin()];
+			}
+		}
+	}
+
+	return region;
 }
