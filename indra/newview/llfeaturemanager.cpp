@@ -779,6 +779,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("MapBufferRange");
 	}
+	if (gGLManager.mVRAM > 512)
+	{
+		maskFeatures("VRAMGT512");
+	}
 
 	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
