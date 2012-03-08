@@ -110,6 +110,7 @@
 #include "lleconomy.h"
 #include "lltoolgrab.h"
 #include "llwindow.h"
+#include "llpathfindingmanager.h"
 #include "boost/unordered_map.hpp"
 
 using namespace LLVOAvatarDefines;
@@ -4752,6 +4753,14 @@ class LLToolsSaveToObjectInventory : public view_listener_t
 	}
 };
 
+class LLToolsEnableLinksets : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return LLPathfindingManager::getInstance()->isAllowAlterPermanent();
+	}
+};
+
 // Round the position of all root objects to the grid
 class LLToolsSnapObjectXY : public view_listener_t
 {
@@ -8143,6 +8152,8 @@ void initialize_menus()
 	enable.add("Tools.VisibleTakeObject", boost::bind(&tools_visible_take_object));
 	view_listener_t::addMenu(new LLToolsEnableSaveToInventory(), "Tools.EnableSaveToInventory");
 	view_listener_t::addMenu(new LLToolsEnableSaveToObjectInventory(), "Tools.EnableSaveToObjectInventory");
+
+	view_listener_t::addMenu(new LLToolsEnableLinksets(), "Tools.EnableLinksets");
 
 	// Help menu
 	// most items use the ShowFloater method
