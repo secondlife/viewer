@@ -952,6 +952,8 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 
 	if (isAgentAvatarValid())
 	{
+		gAgentAvatarp->clearPhases(); // reset phase timers for outfit loading.
+		gAgentAvatarp->startPhase("process_initial_wearables_update");
 		gAgentAvatarp->outputRezTiming("Received initial wearables update");
 	}
 
@@ -1627,6 +1629,7 @@ void LLAgentWearables::queryWearableCache()
 	{
 		if (isAgentAvatarValid())
 		{
+			selfStartPhase("fetch_texture_cache_entries");
 			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
 		}
 

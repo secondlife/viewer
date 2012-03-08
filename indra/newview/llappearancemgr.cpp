@@ -161,6 +161,8 @@ public:
 	{
 		mCatID = cat_id;
 		mAppend = append;
+
+		selfStartPhase("wear_inventory_category_callback");
 	}
 	void fire(const LLUUID& item_id)
 	{
@@ -172,6 +174,7 @@ public:
 		 * after the last item has fired the event and dereferenced it -- if all
 		 * the events actually fire!
 		 */
+		selfStopPhase("wear_inventory_category_callback");
 	}
 
 protected:
@@ -217,11 +220,14 @@ LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit
 	mFireCount(0),
 	mUpdateBaseOrder(update_base_outfit_ordering)
 {
+	selfStartPhase("update_appearance_on_destroy");
 }
 
 LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 {
 	llinfos << self_av_string() << "done update appearance on destroy" << llendl;
+
+	selfStopPhase("update_appearance_on_destroy");
 	
 	if (!LLApp::isExiting())
 	{
@@ -344,14 +350,16 @@ LLWearableHoldingPattern::LLWearableHoldingPattern():
 			 
 	}
 	sActiveHoldingPatterns.insert(this);
-	gAgentAvatarp->clearPhases();
-	gAgentAvatarp->startPhase("holding_pattern");
+	selfStartPhase("holding_pattern");
 }
 
 LLWearableHoldingPattern::~LLWearableHoldingPattern()
 {
 	sActiveHoldingPatterns.erase(this);
-	gAgentAvatarp->stopPhase("holding_pattern");
+	if (isMostRecent())
+	{
+		selfStopPhase("holding_pattern");
+	}
 }
 
 bool LLWearableHoldingPattern::isMostRecent()
@@ -439,10 +447,8 @@ void LLWearableHoldingPattern::checkMissingWearables()
 	}
 
 	resetTime(60.0F);
-	if (!isMissingCompleted())
-	{
-		gAgentAvatarp->startPhase("get_missing_wearables");
-	}
+
+	selfStartPhase("get_missing_wearables");
 	if (!pollMissingWearables())
 	{
 		doOnIdleRepeating(boost::bind(&LLWearableHoldingPattern::pollMissingWearables,this));
@@ -506,7 +512,7 @@ void LLWearableHoldingPattern::onAllComplete()
 
 void LLWearableHoldingPattern::onFetchCompletion()
 {
-	gAgentAvatarp->stopPhase("get_wearables");
+	selfStopPhase("get_wearables");
 		
 	if (!isMostRecent())
 	{
@@ -715,7 +721,8 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 
 	if (done)
 	{
-		gAgentAvatarp->stopPhase("get_missing_wearables");
+		selfStopPhase("get_missing_wearables");
+
 		gAgentAvatarp->debugWearablesLoaded();
 
 		// BAP - if we don't call clearCOFLinksForMissingWearables()
@@ -1701,6 +1708,8 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 		return;
 	}
 
+	selfStartPhase("update_appearance_from_cof");
+	
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 
 	llinfos << self_av_string() << "starting" << llendl;
@@ -1795,7 +1804,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 		}
 	}
 
-	gAgentAvatarp->startPhase("get_wearables");
+	selfStartPhase("get_wearables");
 
 	for (LLWearableHoldingPattern::found_list_t::iterator it = holder->getFoundList().begin();
 		 it != holder->getFoundList().end(); ++it)
@@ -1873,6 +1882,9 @@ void LLAppearanceMgr::getUserDescendents(const LLUUID& category,
 void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool copy, bool append)
 {
 	if(!category) return;
+
+	selfClearPhases();
+	selfStartPhase("wear_inventory_category");
 
 	gAgentWearables.notifyLoadingStarted();
 

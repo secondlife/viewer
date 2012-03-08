@@ -74,6 +74,30 @@ BOOL isAgentAvatarValid()
 			(!gAgentAvatarp->isDead()));
 }
 
+void selfStartPhase(const std::string& phase_name)
+{
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->startPhase(phase_name);
+	}
+}
+
+void selfStopPhase(const std::string& phase_name)
+{
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->stopPhase(phase_name);
+	}
+}
+
+void selfClearPhases()
+{
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->clearPhases();
+	}
+}
+
 using namespace LLVOAvatarDefines;
 
 /*********************************************************************************
