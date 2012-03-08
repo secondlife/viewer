@@ -15,8 +15,8 @@
   <floater.string name="navmesh_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>
   <floater.string name="navmesh_status_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="navmesh_status_downloading">Downloading the navmesh ...</floater.string>
+  <floater.string name="navmesh_status_updating">The navmesh has changed on the server. Downloading the latest navmesh ...</floater.string>
   <floater.string name="navmesh_status_has_navmesh">Navmesh received.</floater.string>
-  <floater.string name="navmesh_status_has_navmesh_downloading">Downloading the latest navmesh ...</floater.string>
   <floater.string name="navmesh_status_error">Unable to download navmesh successfully.</floater.string>
   <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>

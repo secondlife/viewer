@@ -80,6 +80,7 @@ public:
 
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
 	void requestGetNavMeshForRegion(LLViewerRegion *pRegion);
+	void handleNavMeshUpdate(const LLUUID &pRegionUUID, U32 pNavMeshVersion);
 
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
@@ -92,6 +93,7 @@ public:
 protected:
 
 private:
+	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
 
 	static bool isValidAgentState(EAgentState pAgentState);

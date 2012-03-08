@@ -26,8 +26,10 @@
  */
 
 #include <string>
+#include <vector>
 
 #include "llviewerprecompiledheaders.h"
+#include "llsd.h"
 #include "llpathfindingmanager.h"
 #include "llsingleton.h"
 #include "llhttpclient.h"
@@ -36,6 +38,7 @@
 #include "llpathfindingnavmesh.h"
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
+#include "llhttpnode.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -48,6 +51,20 @@
 
 #define CAP_SERVICE_OBJECT_LINKSETS   "ObjectNavMeshProperties"
 #define CAP_SERVICE_TERRAIN_LINKSETS  "TerrainNavMeshProperties"
+
+#define SIM_MESSAGE_NAVMESH_STATUS_UPDATE "/message/NavmeshStatusUpdate"
+
+//---------------------------------------------------------------------------
+// LLNavMeshSimStateChangeNode
+//---------------------------------------------------------------------------
+
+class LLNavMeshSimStateChangeNode : public LLHTTPNode
+{
+public:
+	virtual void post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const;
+};
+
+LLHTTPRegistration<LLNavMeshSimStateChangeNode> gHTTPRegistrationNavMeshSimStateChangeNode(SIM_MESSAGE_NAVMESH_STATUS_UPDATE);
 
 //---------------------------------------------------------------------------
 // NavMeshResponder
@@ -243,6 +260,12 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 	}
 }
 
+void LLPathfindingManager::handleNavMeshUpdate(const LLUUID &pRegionUUID, U32 pNavMeshVersion)
+{
+	LLPathfindingNavMeshPtr navMeshPtr = getNavMeshForRegion(pRegionUUID);
+	navMeshPtr->handleNavMeshNewVersion(++mNavMeshVersionXXX);
+}
+
 LLPathfindingManager::agent_state_slot_t LLPathfindingManager::registerAgentStateListener(agent_state_callback_t pAgentStateCallback)
 {
 	return mAgentStateSignal.connect(pAgentStateCallback);
@@ -368,21 +391,14 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLin
 	return status;
 }
 
-LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion *pRegion)
+LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(const LLUUID &pRegionUUID)
 {
-
-	LLUUID regionUUID;
-	if (pRegion != NULL)
-	{
-		regionUUID = pRegion->getRegionID();
-	}
-
 	LLPathfindingNavMeshPtr navMeshPtr;
-	NavMeshMap::iterator navMeshIter = mNavMeshMap.find(regionUUID);
+	NavMeshMap::iterator navMeshIter = mNavMeshMap.find(pRegionUUID);
 	if (navMeshIter == mNavMeshMap.end())
 	{
-		navMeshPtr = LLPathfindingNavMeshPtr(new LLPathfindingNavMesh(regionUUID));
-		mNavMeshMap.insert(std::pair<LLUUID, LLPathfindingNavMeshPtr>(regionUUID, navMeshPtr));
+		navMeshPtr = LLPathfindingNavMeshPtr(new LLPathfindingNavMesh(pRegionUUID));
+		mNavMeshMap.insert(std::pair<LLUUID, LLPathfindingNavMeshPtr>(pRegionUUID, navMeshPtr));
 	}
 	else
 	{
@@ -390,6 +406,17 @@ LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion
 	}
 
 	return navMeshPtr;
+}
+
+LLPathfindingNavMeshPtr LLPathfindingManager::getNavMeshForRegion(LLViewerRegion *pRegion)
+{
+	LLUUID regionUUID;
+	if (pRegion != NULL)
+	{
+		regionUUID = pRegion->getRegionID();
+	}
+
+	return getNavMeshForRegion(regionUUID);
 }
 
 bool LLPathfindingManager::isValidAgentState(EAgentState pAgentState)
@@ -511,6 +538,17 @@ std::string LLPathfindingManager::getCapabilityURLForRegion(LLViewerRegion *pReg
 LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 {
 	return gAgent.getRegion();
+}
+
+//---------------------------------------------------------------------------
+// LLNavMeshSimStateChangeNode
+//---------------------------------------------------------------------------
+
+void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
+{
+	LLViewerRegion *region = gAgent.getRegion();
+	U32 navMeshVersion = 0U;
+	LLPathfindingManager::getInstance()->handleNavMeshUpdate(region->getRegionID(), navMeshVersion);
 }
 
 //---------------------------------------------------------------------------

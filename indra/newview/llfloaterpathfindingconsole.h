@@ -122,7 +122,6 @@ private:
 		kConsoleStateRegionNotEnabled,
 		kConsoleStateDownloading,
 		kConsoleStateHasNavMesh,
-		kConsoleStateHasNavMeshDownloading,
 		kConsoleStateError
 	} EConsoleState;
 
@@ -179,9 +178,10 @@ private:
 	LLTextBase                                    *mPathTestingStatus;
 	LLButton                                      *mClearPathButton;
 
-
 	LLPathfindingNavMeshZone::navmesh_zone_slot_t mNavMeshZoneSlot;
 	LLPathfindingNavMeshZone                      mNavMeshZone;
+	bool                                          mIsNavMeshUpdating;
+
 	LLPathfindingManager::agent_state_slot_t      mAgentStateSlot;
 
 	EConsoleState                                 mConsoleState;

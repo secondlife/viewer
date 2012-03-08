@@ -64,6 +64,13 @@ void LLPathfindingNavMesh::handleRefresh()
 	mNavMeshSignal(mNavMeshRequestStatus, mRegionUUID, mNavMeshVersion, mNavMeshData);
 }
 
+void LLPathfindingNavMesh::handleNavMeshNewVersion(U32 pNavMeshVersion)
+{
+	mNavMeshData.clear();
+	mNavMeshVersion = pNavMeshVersion;
+	setRequestStatus(kNavMeshRequestNeedsUpdate);
+}
+
 void LLPathfindingNavMesh::handleNavMeshStart(U32 pNavMeshVersion)
 {
 	mNavMeshVersion = pNavMeshVersion;
@@ -72,7 +79,6 @@ void LLPathfindingNavMesh::handleNavMeshStart(U32 pNavMeshVersion)
 
 void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion)
 {
-	llassert(mNavMeshVersion == pNavMeshVersion);
 	if (mNavMeshVersion == pNavMeshVersion)
 	{
 		if ( pContent.has("navmesh_data") )
@@ -118,10 +124,9 @@ void LLPathfindingNavMesh::handleNavMeshNotEnabled()
 void LLPathfindingNavMesh::handleNavMeshError(U32 pStatus, const std::string &pReason, const std::string &pURL, U32 pNavMeshVersion)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-	llassert(mNavMeshVersion == pNavMeshVersion);
-	mNavMeshData.clear();
 	if (mNavMeshVersion == pNavMeshVersion)
 	{
+		mNavMeshData.clear();
 		setRequestStatus(kNavMeshRequestError);
 	}
 }

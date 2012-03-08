@@ -38,11 +38,14 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
+#define XXX_STINSON_DEBUG_NAVMESH_ZONE
+
 class LLPathfindingNavMeshZone
 {
 public:
 	typedef enum {
 		kNavMeshZoneRequestUnknown,
+		kNavMeshZoneRequestNeedsUpdate,
 		kNavMeshZoneRequestStarted,
 		kNavMeshZoneRequestCompleted,
 		kNavMeshZoneRequestNotEnabled,
@@ -78,6 +81,10 @@ private:
 		void disable();
 
 		LLPathfindingNavMesh::ENavMeshRequestStatus getRequestStatus() const;
+#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
+		const LLUUID &getRegionUUID() const {return mRegionUUID;};
+		S32          getDirection() const {return mDirection;};
+#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 
 	protected:
 

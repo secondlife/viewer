@@ -171,6 +171,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
 		}
 
+		mIsNavMeshUpdating = false;
 		mNavMeshZone.initialize();
 
 		mNavMeshZone.enable();
@@ -478,6 +479,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mClearPathButton(NULL),
 	mNavMeshZoneSlot(),
 	mNavMeshZone(),
+	mIsNavMeshUpdating(false),
 	mAgentStateSlot(),
 	mConsoleState(kConsoleStateUnknown),
 	mPathData(),
@@ -616,10 +618,15 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestUnknown :
 		setConsoleState(kConsoleStateUnknown);
 		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestNeedsUpdate :
+		mIsNavMeshUpdating = true;
+		mNavMeshZone.refresh();
+		break;
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestStarted :
 		setConsoleState(kConsoleStateDownloading);
 		break;
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestCompleted :
+		mIsNavMeshUpdating = false;
 		setConsoleState(kConsoleStateHasNavMesh);
 		break;
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestNotEnabled :
@@ -689,7 +696,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mHasEndPoint = false;
 		break;
 	case kConsoleStateHasNavMesh :
-	case kConsoleStateHasNavMeshDownloading :
 		mShowNavMeshCheckBox->setEnabled(TRUE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(TRUE);
 		mShowWalkablesCheckBox->setEnabled(TRUE);
@@ -731,13 +737,17 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 		styleParams.color = warningColor;
 		break;
 	case kConsoleStateDownloading :
-		statusText = getString("navmesh_status_downloading");
+		if (mIsNavMeshUpdating)
+		{
+			statusText = getString("navmesh_status_updating");
+		}
+		else
+		{
+			statusText = getString("navmesh_status_downloading");
+		}
 		break;
 	case kConsoleStateHasNavMesh :
 		statusText = getString("navmesh_status_has_navmesh");
-		break;
-	case kConsoleStateHasNavMeshDownloading :
-		statusText = getString("navmesh_status_has_navmesh_downloading");
 		break;
 	case kConsoleStateError :
 		statusText = getString("navmesh_status_error");
