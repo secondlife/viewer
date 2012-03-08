@@ -38,7 +38,7 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
-#define XXX_STINSON_DEBUG_NAVMESH_ZONE
+//#define XXX_STINSON_DEBUG_NAVMESH_ZONE
 
 class LLPathfindingNavMeshZone
 {
