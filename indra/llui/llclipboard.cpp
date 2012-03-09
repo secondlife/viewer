@@ -49,15 +49,9 @@ void LLClipboard::reset()
 {
 	// Increment the clipboard count
 	mGeneration++;
-	// Call the cleanup function (if any) before releasing the object list
-	if (mCutMode && mCleanupCallback)
-	{
-		mCleanupCallback();
-	}
 	// Clear the clipboard
 	mObjects.clear();
 	mCutMode = false;
-	mCleanupCallback = NULL;
 	mString = LLWString();
 }
 

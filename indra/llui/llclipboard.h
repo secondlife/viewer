@@ -36,8 +36,6 @@
 #include "llassettype.h"
 #include "llinventory.h"
 
-typedef boost::function<void ()> cleanup_callback_t;
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLClipboard
 //
@@ -80,13 +78,12 @@ public:
 	bool isOnClipboard(const LLUUID& object) const;					// True if the input object uuid is on the clipboard
 
 	bool isCutMode() const { return mCutMode; }
-	void setCutMode(bool mode, cleanup_callback_t cb = NULL) { mCutMode = mode; mCleanupCallback = cb; mGeneration++; }
+	void setCutMode(bool mode) { mCutMode = mode; mGeneration++; }
 
 private:
 	std::vector<LLUUID> mObjects;		// Objects on the clipboard. Can be empty while mString contains something licit (e.g. text from chat)
 	LLWString mString;					// The text string. If mObjects is not empty, this string is reflecting them (UUIDs for the moment).
-	bool mCutMode;						// This is a convenience flag for the viewer. Will determine if mCleanupCallback() needs to be called.
-	cleanup_callback_t mCleanupCallback;// Function to call when the cut clipboard is being wiped out. Can be set to NULL (nothing done then).
+	bool mCutMode;						// This is a convenience flag for the viewer.
 	int mGeneration;					// Incremented when the clipboard changes so that interested parties can check for changes on the clipboard.	
 };
 
