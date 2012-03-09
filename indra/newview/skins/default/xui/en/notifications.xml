@@ -1667,7 +1667,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
-[APP_NAME] does not currently support bulk upload of animation files.
+[APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
 
@@ -6409,11 +6409,11 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Mute"
+       name="Client_Side_Mute"
        text="Block"/>
       <button
        index="-1"
-       name="Ignore"
+       name="Client_Side_Ignore"
        text="Ignore"/>
     </form>
   </notification>
@@ -6428,11 +6428,11 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Mute"
+       name="Client_Side_Mute"
        text="Block"/>
       <button
        index="-1"
-       name="Ignore"
+       name="Client_Side_Ignore"
        text="Ignore"/>
     </form>
   </notification>

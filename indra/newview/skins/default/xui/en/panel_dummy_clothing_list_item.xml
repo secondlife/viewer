@@ -29,7 +29,7 @@
      width="380" />
     <icon
      height="16"
-     color="0.75 0.75 0.75 1"
+     color="LtGray"
      follows="top|left"
      image_name="Inv_Object"
      layout="topleft"

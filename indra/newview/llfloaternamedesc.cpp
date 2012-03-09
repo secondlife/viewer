@@ -207,6 +207,25 @@ BOOL LLFloaterSoundPreview::postBuild()
 
 
 //-----------------------------------------------------------------------------
+// LLFloaterAnimPreview()
+//-----------------------------------------------------------------------------
+
+LLFloaterAnimPreview::LLFloaterAnimPreview(const LLSD& filename )
+	: LLFloaterNameDesc(filename)
+{
+}
+
+BOOL LLFloaterAnimPreview::postBuild()
+{
+	if (!LLFloaterNameDesc::postBuild())
+	{
+		return FALSE;
+	}
+	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
 // LLFloaterScriptPreview()
 //-----------------------------------------------------------------------------
 

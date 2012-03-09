@@ -59,7 +59,7 @@
    left="20"
    name="toast_text"
    word_wrap="true"
-   text_color="white"
+   text_color="White"
    top="5"
    translate="false"
    use_ellipses="true"

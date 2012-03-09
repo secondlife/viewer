@@ -35,7 +35,6 @@
 #include "llcallfloater.h"
 #include "llfasttimerview.h"
 #include "llfloaterabout.h"
-#include "llfloateranimpreview.h"
 #include "llfloaterauction.h"
 #include "llfloateravatar.h"
 #include "llfloateravatarpicker.h"
@@ -49,6 +48,7 @@
 #include "llfloaterbuyland.h"
 #include "llfloaterbulkpermission.h"
 #include "llfloaterbump.h"
+#include "llfloaterbvhpreview.h"
 #include "llfloatercamera.h"
 #include "llfloaterdeleteenvpreset.h"
 #include "llfloaterdisplayname.h"
@@ -294,7 +294,8 @@ void LLViewerFloaterReg::registerFloaters()
 
 	
 	LLFloaterUIPreviewUtil::registerFloater();
-	LLFloaterReg::add("upload_anim", "floater_animation_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
+	LLFloaterReg::add("upload_anim_bvh", "floater_animation_bvh_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBvhPreview>, "upload");
+	LLFloaterReg::add("upload_anim_anim", "floater_animation_anim_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
 	LLFloaterReg::add("upload_image", "floater_image_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImagePreview>, "upload");
 	LLFloaterReg::add("upload_model", "floater_model_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelPreview>, "upload");
 	LLFloaterReg::add("upload_model_wizard", "floater_model_wizard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelWizard>);

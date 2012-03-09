@@ -5816,6 +5816,16 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	S32 orig = notification["payload"]["questions"].asInteger();
 	S32 new_questions = orig;
 
+	if (response["Details"])
+	{
+		// respawn notification...
+		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
+
+		// ...with description on top
+		LLNotificationsUtil::add("DebitPermissionDetails");
+		return false;
+	}
+
 	// check whether permissions were granted or denied
 	BOOL allowed = TRUE;
 	// the "yes/accept" button is the first button in the template, making it button 0
@@ -5873,14 +5883,6 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 				gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
 	}
 
-	if (response["Details"])
-	{
-		// respawn notification...
-		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
-
-		// ...with description on top
-		LLNotificationsUtil::add("DebitPermissionDetails");
-	}
 	return false;
 }
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
