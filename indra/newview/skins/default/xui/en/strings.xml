@@ -369,6 +369,9 @@ Please try logging in again in a minute.</string>
 	<string name="anim_yes_happy">Yes (Happy)</string>
 	<string name="anim_yes_head">Yes</string>
 
+	<!-- build floater -->
+	<string name="multiple_textures">Multiple</string>
+
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>

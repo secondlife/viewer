@@ -4633,14 +4633,14 @@ void LLAnimationBridge::performAction(LLInventoryModel* model, std::string actio
 	{
 		if (getItem())
 		{
-			LLPreviewAnim::e_activation_type activate = LLPreviewAnim::NONE;
-			if ("playworld" == action) activate = LLPreviewAnim::PLAY;
-			if ("playlocal" == action) activate = LLPreviewAnim::AUDITION;
+			LLSD::String activate = "NONE";
+			if ("playworld" == action) activate = "Inworld";
+			if ("playlocal" == action) activate = "Locally";
 
 			LLPreviewAnim* preview = LLFloaterReg::showTypedInstance<LLPreviewAnim>("preview_anim", LLSD(mUUID));
 			if (preview)
 			{
-				preview->activate(activate);
+				preview->play(activate);
 			}
 		}
 	}

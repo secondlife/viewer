@@ -54,7 +54,7 @@ public:
 
 	bool			inEdit();
 	bool			canEdit();
-	void			toggleBuildMode();
+	void			toggleBuildMode(const LLSD& sdname);
 	
 	/* Determines if we are in Build mode or not. */
 	bool			inBuildMode();
