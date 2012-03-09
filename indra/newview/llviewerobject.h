@@ -1,4 +1,4 @@
-/** 
+/**
  * @file llviewerobject.h
  * @brief Description of LLViewerObject class, which is the base class for most objects in the viewer.
  *
@@ -43,12 +43,12 @@
 #include "v3dmath.h"
 #include "v3math.h"
 #include "llvertexbuffer.h"
-#include "llaccountingquota.h"
+#include "llbbox.h"
+#include "llbbox.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
 class LLAudioSourceVO;
-class LLBBox;
 class LLDataPacker;
 class LLColor4;
 class LLFrameTimer;
@@ -110,6 +110,12 @@ public:
 	S32			mMaterialIndex;
 	S32			mTextureIndex;
 	LLColor4	mColor;
+};
+
+struct PotentialReturnableObject
+{
+	LLBBox			box;
+	LLViewerRegion* pRegion;
 };
 
 //============================================================================
@@ -234,6 +240,13 @@ public:
 	// anti-encroachment is enabled
 	bool isReturnable();
 
+	void buildReturnablesForChildrenVO( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild, LLViewerRegion* pTargetRegion );
+	void constructAndAddReturnable( std::vector<PotentialReturnableObject>& returnables, LLViewerObject* pChild, LLViewerRegion* pTargetRegion );
+
+	// This method returns true if the object crosses
+	// any parcel bounds in the region.
+	bool crossesParcelBounds();
+
 	/*
 	// This method will scan through this object, and then query the
 	// selection manager to see if the local agent probably has the
@@ -327,8 +340,8 @@ public:
 	
 	virtual void setScale(const LLVector3 &scale, BOOL damped = FALSE);
 
-	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL);
-	virtual U32 getTriangleCount();
+	virtual F32 getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL, F32* unscaled_value = NULL) const;
+	virtual U32 getTriangleCount(S32* vcount = NULL) const;
 	virtual U32 getHighLODTriangleCount();
 
 	void setObjectCost(F32 cost);
@@ -646,9 +659,7 @@ protected:
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
 	
 public:
-	void  updateQuota(  const SelectionQuota& quota );
-	const SelectionQuota& getQuota( void ) { return mSelectionQuota; }
-	
+		
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
@@ -710,8 +721,6 @@ protected:
 	F32 mPhysicsCost;
 	F32 mLinksetPhysicsCost;
 
-	SelectionQuota mSelectionQuota;
-	
 	bool mCostStale;
 	mutable bool mPhysicsShapeUnknown;
 
@@ -802,7 +811,7 @@ public:
 
 	virtual F32 getPartSize(S32 idx);
 	virtual void getGeometry(S32 idx,
-								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector4a>& verticesp,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 

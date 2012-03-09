@@ -69,15 +69,12 @@ LLHelpHandler gHelpHandler;
 //////////////////////////////
 // implement LLHelp interface
 
-void LLViewerHelp::showTopic(const std::string &topic)
+std::string LLViewerHelp::getURL(const std::string &topic)
 {
 	// allow overriding the help server with a local help file
 	if( gSavedSettings.getBOOL("HelpUseLocal") )
 	{
-		showHelp();
-		LLFloaterHelpBrowser* helpbrowser = dynamic_cast<LLFloaterHelpBrowser*>(LLFloaterReg::getInstance("help_browser"));
-		helpbrowser->navigateToLocalPage( "help-offline" , "index.html" );
-		return;
+		return "__local";
 	}
 
 	// if the help topic is empty, use the default topic
@@ -99,11 +96,12 @@ void LLViewerHelp::showTopic(const std::string &topic)
 		}
 	}
 
-	// work out the URL for this topic and display it 
-	showHelp();
-	
-	std::string helpURL = LLViewerHelpUtil::buildHelpURL( help_topic );
-	setRawURL(helpURL);
+	return LLViewerHelpUtil::buildHelpURL( help_topic );
+}
+
+void LLViewerHelp::showTopic(const std::string& topic)
+{
+	LLFloaterReg::showInstance("help_browser", topic);
 }
 
 std::string LLViewerHelp::defaultTopic()
@@ -144,25 +142,5 @@ std::string LLViewerHelp::getTopicFromFocus()
 	// didn't find a help topic in the UI hierarchy for focused
 	// element, return the fallback topic name instead.
 	return defaultTopic();
-}
-
-// static 
-void LLViewerHelp::showHelp()
-{
-	LLFloaterReg::showInstance("help_browser");
-}
-
-// static
-void LLViewerHelp::setRawURL(std::string url)
-{
-	LLFloaterHelpBrowser* helpbrowser = dynamic_cast<LLFloaterHelpBrowser*>(LLFloaterReg::getInstance("help_browser"));
-	if (helpbrowser)
-	{
-		helpbrowser->openMedia(url);	
-	}
-	else
-	{
-		llwarns << "Eep, help_browser floater not found" << llendl;
-	}
 }
 

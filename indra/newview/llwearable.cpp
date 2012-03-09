@@ -30,13 +30,13 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "lldictionary.h"
+#include "llfloatersidepanelcontainer.h"
 #include "lllocaltextureobject.h"
 #include "llnotificationsutil.h"
 #include "llviewertexturelist.h"
 #include "llinventorymodel.h"
 #include "llinventoryobserver.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltexlayer.h"
 #include "lltexglobalcolor.h"
 #include "lltrans.h"
@@ -221,7 +221,7 @@ void LLWearable::createVisualParams()
 		param->resetDrivenParams();
 		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
 		{
-			if( !param->linkDrivenParams(boost::bind(avatar_function,gAgentAvatarp,_1 ), true))
+			if( !param->linkDrivenParams(boost::bind(avatar_function,gAgentAvatarp.get(),_1 ), true))
 			{
 				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
 				continue;
@@ -697,7 +697,7 @@ void LLWearable::removeFromAvatar( LLWearableType::EType type, BOOL upload_bake 
 
 	if(gAgentCamera.cameraCustomizeAvatar())
 	{
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 	}
 
 	gAgentAvatarp->updateVisualParams();
@@ -967,7 +967,7 @@ void LLWearable::revertValues()
 	syncImages(mSavedTEMap, mTEMap);
 
 
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();
@@ -1008,7 +1008,7 @@ void LLWearable::saveValues()
 	syncImages(mTEMap, mSavedTEMap);
 
 
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();

@@ -40,6 +40,7 @@
 #include "lldrawpoolalpha.h"
 #include "llviewerobject.h"
 #include "llcharacter.h"
+#include "llcontrol.h"
 #include "llviewerjointmesh.h"
 #include "llviewerjointattachment.h"
 #include "llrendertarget.h"
@@ -77,6 +78,8 @@ class LLVOAvatar :
 	public LLCharacter,
 	public boost::signals2::trackable
 {
+	LOG_CLASS(LLVOAvatar);
+
 public:
 	friend class LLVOAvatarSelf;
 protected:
@@ -182,7 +185,7 @@ public:
 	void					resetSpecificJointPosition( const std::string& name );
 	
 	virtual const char*		getAnimationPrefix() { return "avatar"; }
-	virtual const LLUUID&   getID();
+	virtual const LLUUID&   getID() const;
 	virtual LLVector3		getVolumePos(S32 joint_index, LLVector3& volume_offset);
 	virtual LLJoint*		findCollisionVolume(U32 volume_id);
 	virtual S32				getCollisionVolumeID(std::string &name);
@@ -273,6 +276,7 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+	bool			isTooComplex() const;
 	bool visualParamWeightsAreDefault();
 protected:
 	virtual BOOL	getIsCloud();
@@ -285,6 +289,7 @@ private:
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
 	S32				mFullyLoadedFrameCounter;
+	S32				mVisualComplexity;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 protected:
@@ -377,6 +382,8 @@ private:
 
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
+	bool		isVisuallyMuted() const;
+
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
 	F32			getLastSkinTime() { return mLastSkinTime; }
@@ -388,6 +395,9 @@ public:
 	static void	restoreGL();
 	BOOL 		mIsDummy; // for special views
 	S32			mSpecialRenderMode; // special lighting
+	U32			mAttachmentGeometryBytes; //number of bytes in attached geometry
+	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
+
 private:
 	bool		shouldAlphaMask();
 
@@ -448,6 +458,8 @@ private:
 	F32			mImpostorDistance;
 	F32			mImpostorPixelArea;
 	LLVector3	mLastAnimExtents[2];  
+	
+	LLCachedControl<bool> mRenderUnloadedAvatar;
 
 	//--------------------------------------------------------------------
 	// Wind rippling in clothes

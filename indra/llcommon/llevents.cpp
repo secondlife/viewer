@@ -591,6 +591,17 @@ void LLReqID::stamp(LLSD& response) const
 
 bool sendReply(const LLSD& reply, const LLSD& request, const std::string& replyKey)
 {
+    // If the original request has no value for replyKey, it's pointless to
+    // construct or send a reply event: on which LLEventPump should we send
+    // it? Allow that to be optional: if the caller wants to require replyKey,
+    // it can so specify when registering the operation method.
+    if (! request.has(replyKey))
+    {
+        return false;
+    }
+
+    // Here the request definitely contains replyKey; reasonable to proceed.
+
     // Copy 'reply' to modify it.
     LLSD newreply(reply);
     // Get the ["reqid"] element from request

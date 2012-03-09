@@ -40,11 +40,6 @@ void lat2xyz(LLVector3 * result, F32 lat, F32 lon);			// utility routine
 class LLRenderSphere  
 {
 public:
-	LLGLuint	mDList[5];
-
-	void prerender();
-	void cleanupGL();
-	void render(F32 pixel_area);		// of a box of size 1.0 at that position
 	void render();						// render at highest LOD
 	void renderGGL();                   // render using LLRender
 

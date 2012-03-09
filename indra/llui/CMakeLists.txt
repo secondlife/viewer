@@ -5,6 +5,7 @@ project(llui)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
+include(LLInventory)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
@@ -16,6 +17,7 @@ include(LLXUIXML)
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
@@ -29,11 +31,13 @@ set(llui_SOURCE_FILES
     llaccordionctrl.cpp
     llaccordionctrltab.cpp
     llbadge.cpp
+    llbadgeholder.cpp
     llbadgeowner.cpp
     llbutton.cpp
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
+    llcommandmanager.cpp
     llconsole.cpp
     llcontainerview.cpp
     llctrlselectioninterface.cpp
@@ -98,6 +102,7 @@ set(llui_SOURCE_FILES
     lltimectrl.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
+    lltoolbar.cpp
     lltooltip.cpp
     llui.cpp
     lluicolortable.cpp
@@ -111,6 +116,7 @@ set(llui_SOURCE_FILES
     llurlmatch.cpp
     llurlregistry.cpp
     llviewborder.cpp
+    llviewinject.cpp
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
@@ -123,12 +129,14 @@ set(llui_HEADER_FILES
     llaccordionctrl.h
     llaccordionctrltab.h
     llbadge.h
+    llbadgeholder.h
     llbadgeowner.h
     llbutton.h
     llcallbackmap.h
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
+    llcommandmanager.h
     llconsole.h
     llcontainerview.h
     llctrlselectioninterface.h
@@ -165,7 +173,7 @@ set(llui_HEADER_FILES
     llnotificationslistener.h
     llnotificationsutil.h
     llnotificationtemplate.h
-	llnotificationvisibilityrule.h
+    llnotificationvisibilityrule.h
     llpanel.h
     llprogressbar.h
     llradiogroup.h
@@ -198,6 +206,7 @@ set(llui_HEADER_FILES
     lltextvalidate.h
     lltimectrl.h
     lltoggleablemenu.h
+    lltoolbar.h
     lltooltip.h
     lltransutil.h
     lluicolortable.h
@@ -214,6 +223,7 @@ set(llui_HEADER_FILES
     llurlmatch.h
     llurlregistry.h
     llviewborder.h
+    llviewinject.h
     llviewmodel.h
     llview.h
     llviewquery.h
@@ -243,6 +253,7 @@ target_link_libraries(llui
     ${LLRENDER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
+    ${LLINVENTORY_LIBRARIES}
     ${LLVFS_LIBRARIES}    # ugh, just for LLDir
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}

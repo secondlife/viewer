@@ -55,13 +55,12 @@
 #include "llimview.h" // for LLIMMgr
 #include "llparcel.h"
 #include "llviewerparcelmgr.h"
-//#include "llfirstuse.h"
+#include "llfirstuse.h"
 #include "llspeakers.h"
 #include "lltrans.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 
-#include "llfloaterfriends.h"  //VIVOX, inorder to refresh communicate panel
 #include "llviewernetwork.h"
 #include "llnotificationsutil.h"
 
@@ -4498,17 +4497,25 @@ bool LLVivoxVoiceClient::parcelVoiceInfoReceived(state requesting_state)
 
 bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 {
-	LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
-
-	// grab the cap for parcel voice info from the region.  
 	LLViewerRegion * region = gAgent.getRegion();
-	if (region == NULL)
+	if (region == NULL || !region->capabilitiesReceived())
 	{
+		// we don't have the cap yet, so return false so the caller can try again later.
+
+		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not yet available, deferring" << LL_ENDL;
 		return false;
 	}
+
 	// grab the cap.
 	std::string url = gAgent.getRegion()->getCapability("ParcelVoiceInfoRequest");
-	if (!url.empty())
+	if (url.empty())
+	{
+		// Region dosn't have the cap. Stop probing.
+		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest capability not available in this region" << LL_ENDL;
+		setState(stateDisableCleanup);
+		return false;
+	}
+	else 
 	{
 		// if we've already retrieved the cap from the region, go ahead and make the request,
 		// and return true so we can go into the state that waits for the response.
@@ -4517,17 +4524,10 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
 		LL_DEBUGS("Voice") << "sending ParcelVoiceInfoRequest (" << mCurrentRegionName << ", " << mCurrentParcelLocalID << ")" << LL_ENDL;
 		
 		LLHTTPClient::post(
-						   url,
-						   data,
-						   new LLVivoxVoiceClientCapResponder(getState()));
+						url,
+						data,
+						new LLVivoxVoiceClientCapResponder(getState()));
 		return true;
-	}
-	else 
-	{
-		
-		// we don't have the cap yet, so return false so the caller can try again later.
-		LL_DEBUGS("Voice") << "ParcelVoiceInfoRequest cap not yet available, deferring" << LL_ENDL;
-		return false;
 	}
 }
 
@@ -6257,6 +6257,19 @@ void LLVivoxVoiceClient::notifyStatusObservers(LLVoiceClientStatusObserver::ESta
 		it = mStatusObservers.upper_bound(observer);
 	}
 
+	// skipped to avoid speak button blinking
+	if (   status != LLVoiceClientStatusObserver::STATUS_JOINING
+		&& status != LLVoiceClientStatusObserver::STATUS_LEFT_CHANNEL)
+	{
+		bool voice_status = LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
+
+		gAgent.setVoiceConnected(voice_status);
+
+		if (voice_status)
+		{
+			LLFirstUse::speak(true);
+		}
+	}
 }
 
 void LLVivoxVoiceClient::addObserver(LLFriendObserver* observer)
@@ -7006,7 +7019,6 @@ void LLVivoxVoiceClient::captureBufferPlayStopSendMessage()
 
 LLVivoxProtocolParser::LLVivoxProtocolParser()
 {
-	parser = NULL;
 	parser = XML_ParserCreate(NULL);
 	
 	reset();
@@ -7049,6 +7061,8 @@ LLVivoxProtocolParser::~LLVivoxProtocolParser()
 		XML_ParserFree(parser);
 }
 
+static LLFastTimer::DeclareTimer FTM_VIVOX_PROCESS("Vivox Process");
+
 // virtual
 LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 													  const LLChannelDescriptors& channels,
@@ -7057,6 +7071,7 @@ LLIOPipe::EStatus LLVivoxProtocolParser::process_impl(
 													  LLSD& context,
 													  LLPumpIO* pump)
 {
+	LLFastTimer t(FTM_VIVOX_PROCESS);
 	LLBufferStream istr(channels, buffer.get());
 	std::ostringstream ostr;
 	while (istr.good())

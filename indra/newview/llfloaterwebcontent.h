@@ -29,6 +29,7 @@
 
 #include "llfloater.h"
 #include "llmediactrl.h"
+#include "llsdparam.h"
 
 class LLMediaCtrl;
 class LLComboBox;
@@ -38,24 +39,47 @@ class LLIconCtrl;
 
 class LLFloaterWebContent :
 	public LLFloater,
-	public LLViewerMediaObserver
+	public LLViewerMediaObserver,
+	public LLInstanceTracker<LLFloaterWebContent, std::string>
 {
 public:
+	typedef LLInstanceTracker<LLFloaterWebContent, std::string> instance_tracker_t;
     LOG_CLASS(LLFloaterWebContent);
-	LLFloaterWebContent(const LLSD& key);
+
+	struct _Params : public LLInitParam::Block<_Params>
+	{
+		Optional<std::string>	url,
+								target,
+								window_class,
+								id;
+		Optional<bool>			show_chrome,
+								allow_address_entry,
+								trusted_content,
+								show_page_title;
+		Optional<LLRect>		preferred_media_size;
+
+		_Params();
+	};
+
+	typedef LLSDParamAdapter<_Params> Params;
+
+	LLFloaterWebContent(const Params& params);
 
 	void initializeURLHistory();
 
-	static void create(const std::string &url, const std::string& target, const std::string& uuid = LLStringUtil::null, bool show_chrome = true, const LLRect& preferred_media_size = LLRect() );
+	static LLFloater* create(Params);
 
 	static void closeRequest(const std::string &uuid);
 	static void geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height);
 	void geometryChanged(S32 x, S32 y, S32 width, S32 height);
 
 	/* virtual */ BOOL postBuild();
+	/* virtual */ void onOpen(const LLSD& key);
+	/* virtual */ bool matchesKey(const LLSD& key);
 	/* virtual */ void onClose(bool app_quitting);
 	/* virtual */ void draw();
 
+protected:
 	// inherited from LLViewerMediaObserver
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
@@ -66,17 +90,24 @@ public:
 	void onEnterAddress();
 	void onPopExternal();
 
-private:
-	void open_media(const std::string& media_url, const std::string& target);
+	static void preCreate(Params& p);
+	void open_media(const Params& );
 	void set_current_url(const std::string& url);
 
-	LLMediaCtrl* mWebBrowser;
-	LLComboBox* mAddressCombo;
-	LLIconCtrl *mSecureLockIcon;
-	LLTextBox* mStatusBarText;
-	LLProgressBar* mStatusBarProgress;
-	std::string mCurrentURL;
-	std::string mUUID;
+	LLMediaCtrl*	mWebBrowser;
+	LLComboBox*		mAddressCombo;
+	LLIconCtrl*		mSecureLockIcon;
+	LLTextBox*		mStatusBarText;
+	LLProgressBar*	mStatusBarProgress;
+
+	LLView*			mBtnBack;
+	LLView*			mBtnForward;
+	LLView*			mBtnReload;
+	LLView*			mBtnStop;
+
+	std::string		mCurrentURL;
+	std::string		mUUID;
+	bool			mShowPageTitle;
 };
 
 #endif  // LL_LLFLOATERWEBCONTENT_H

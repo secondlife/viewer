@@ -42,25 +42,15 @@ class LLWeb
 public:
 	static void initClass();
 	
-	/// Load the given url in the user's preferred web browser
-	static void loadURL(const std::string& url, const std::string& target, const std::string& uuid = LLStringUtil::null);
-	static void loadURL(const std::string& url) { loadURL(url, LLStringUtil::null); }
-	/// Load the given url in the user's preferred web browser	
-	static void loadURL(const char* url, const std::string& target) { loadURL( ll_safe_string(url), target); }
-	static void loadURL(const char* url) { loadURL( ll_safe_string(url), LLStringUtil::null ); }
-	/// Load the given url in the Second Life internal web browser
-	static void loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid = LLStringUtil::null);
-	static void loadURLInternal(const std::string &url) { loadURLInternal(url, LLStringUtil::null); }
 	/// Load the given url in the operating system's web browser, async if we want to return immediately
 	/// before browser has spawned
-	static void loadURLExternal(const std::string& url) { loadURLExternal(url,  LLStringUtil::null); };
+	static void loadURLExternal(const std::string& url) {loadURLExternal(url, LLStringUtil::null);}
 	static void loadURLExternal(const std::string& url, const std::string& uuid);
 	static void loadURLExternal(const std::string& url, bool async, const std::string& uuid = LLStringUtil::null);
 
-	// Explicitly open a Web URL using the Web content floater vs. the more general media browser
-	static void loadWebURL(const std::string& url, const std::string& target, const std::string& uuid);
-	static void loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid);
-	static void loadWebURLInternal(const std::string &url) { loadWebURLInternal(url, LLStringUtil::null, LLStringUtil::null); }
+	static void loadURL(const std::string& url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
+	// load content using built-in browser
+	static void loadURLInternal(const std::string &url, const std::string& target = LLStringUtil::null, const std::string& uuid = LLStringUtil::null);
 
 	/// Returns escaped url (eg, " " to "%20") - used by all loadURL methods
 	static std::string escapeURL(const std::string& url);

@@ -62,12 +62,12 @@ IDI_LCD_LL_ICON         ICON                    "icon1.ico"
 // Dialog
 //
 
-SPLASHSCREEN DIALOG  32, 32, 144, 34
+SPLASHSCREEN DIALOG  32, 32, 264, 34
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_VISIBLE
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDI_LL_ICON,IDC_STATIC,7,7,20,20
-    LTEXT           "Loading Second Life...",666,36,13,91,8
+    LTEXT           "Loading Second Life...",666,36,13,211,8
 END
 
 
@@ -82,7 +82,7 @@ BEGIN
     "SPLASHSCREEN", DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 137
+        RIGHTMARGIN, 257
         VERTGUIDE, 36
         TOPMARGIN, 7
         BOTTOMMARGIN, 27

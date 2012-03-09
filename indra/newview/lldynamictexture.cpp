@@ -40,6 +40,8 @@
 #include "llvertexbuffer.h"
 #include "llviewerdisplay.h"
 #include "llrender.h"
+#include "pipeline.h"
+#include "llglslshader.h"
 
 // static
 LLViewerDynamicTexture::instance_list_t LLViewerDynamicTexture::sInstances[ LLViewerDynamicTexture::ORDER_COUNT ];
@@ -123,8 +125,16 @@ BOOL LLViewerDynamicTexture::render()
 //-----------------------------------------------------------------------------
 void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 {
-	{
-		// force rendering to on-screen portion of frame buffer
+	//only images up to 512x512 are supported
+	llassert(mFullHeight <= 512);
+	llassert(mFullWidth <= 512);
+
+	if (gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete())
+	{ //using offscreen render target, just use the bottom left corner
+		mOrigin.set(0, 0);
+	}
+	else
+	{ // force rendering to on-screen portion of frame buffer
 		LLCoordScreen window_pos;
 		gViewerWindow->getWindow()->getPosition( &window_pos );
 		mOrigin.set(0, gViewerWindow->getWindowHeightRaw() - mFullHeight);  // top left corner
@@ -138,9 +148,9 @@ void LLViewerDynamicTexture::preRender(BOOL clear_depth)
 			mOrigin.mY += window_pos.mY;
 			mOrigin.mY = llmax(mOrigin.mY, 0) ;
 		}
-
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	}
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	// Set up camera
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	mCamera.setOrigin(*camera);
@@ -201,11 +211,21 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 BOOL LLViewerDynamicTexture::updateAllInstances()
 {
 	sNumRenders = 0;
-	if (gGLManager.mIsDisabled)
+	if (gGLManager.mIsDisabled || LLPipeline::sMemAllocationThrottled)
 	{
 		return TRUE;
 	}
 
+	bool use_fbo = gGLManager.mHasFramebufferObject && gPipeline.mWaterDis.isComplete();
+
+	if (use_fbo)
+	{
+		gPipeline.mWaterDis.bindTarget();
+	}
+
+	LLGLSLShader::bindNoShader();
+	LLVertexBuffer::unbind();
+	
 	BOOL result = FALSE;
 	BOOL ret = FALSE ;
 	for( S32 order = 0; order < ORDER_COUNT; order++ )
@@ -234,6 +254,11 @@ BOOL LLViewerDynamicTexture::updateAllInstances()
 				dynamicTexture->postRender(result);
 			}
 		}
+	}
+
+	if (use_fbo)
+	{
+		gPipeline.mWaterDis.flush();
 	}
 
 	return ret;

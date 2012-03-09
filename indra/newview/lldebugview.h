@@ -48,19 +48,22 @@ public:
 	{
 		Params()
 		{
-			mouse_opaque = false;
+			changeDefault(mouse_opaque, false);
 		}
 	};
+	
 	LLDebugView(const Params&);
 	~LLDebugView();
 
 	void init();
-
+	void draw();
+	
 	void setStatsVisible(BOOL visible);
 	
 	LLFastTimerView* mFastTimerView;
 	LLMemoryView*	 mMemoryView;
 	LLConsole*		 mDebugConsolep;
+	LLView*			 mFloaterSnapRegion;
 };
 
 extern LLDebugView* gDebugView;

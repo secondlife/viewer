@@ -37,6 +37,9 @@
  **                    MISCELLANEOUS GLOBAL FUNCTIONS
  **/
 
+// Is this a parent folder to a worn item
+BOOL get_is_parent_to_worn_item(const LLUUID& id);
+
 // Is this item or its baseitem is worn, attached, etc...
 BOOL get_is_item_worn(const LLUUID& id);
 
@@ -70,6 +73,11 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 
 // Generates a string containing the path to the item specified by item_id.
 void append_path(const LLUUID& id, std::string& path);
+
+void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder, S32 operation_id);
+void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 operation_id);
+
+void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder, S32 operation_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **

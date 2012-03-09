@@ -41,6 +41,7 @@ class LLPluginMessagePipeOwner
 public:
 	LLPluginMessagePipeOwner();
 	virtual ~LLPluginMessagePipeOwner();
+
 	// called with incoming messages
 	virtual void receiveMessageRaw(const std::string &message) = 0;
 	// called when the socket has an error
@@ -85,6 +86,7 @@ protected:
 	std::string mInput;
 	LLMutex mOutputMutex;
 	std::string mOutput;
+	std::string::size_type mOutputStartIndex;
 
 	LLPluginMessagePipeOwner *mOwner;
 	LLSocket::ptr_t mSocket;

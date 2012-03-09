@@ -38,6 +38,7 @@
 #include "llimagetga.h"
 #include "llimagej2c.h"
 #include "lldir.h"
+#include "lldiriterator.h"
 
 // system libraries
 #include <iostream>
@@ -201,7 +202,8 @@ void store_input_file(std::list<std::string> &input_filenames, const std::string
 	{
 		// If file name is a pattern, iterate to get each file name and store
 		std::string next_name;
-		while (gDirUtilp->getNextFileInDir(dir,name,next_name))
+		LLDirIterator iter(dir, name);
+		while (iter.next(next_name))
 		{
 			std::string file_name = dir + gDirUtilp->getDirDelimiter() + next_name;
 			input_filenames.push_back(file_name);

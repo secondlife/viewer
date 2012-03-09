@@ -372,17 +372,16 @@ public:
 			drop_shadow("drop_shadow", true),
 			bg_visible("bg_visible", true),
 			create_jump_keys("create_jump_keys", false),
+			keep_fixed_size("keep_fixed_size", false),
 			bg_color("bg_color",  LLUIColorTable::instance().getColor( "MenuDefaultBgColor" )),
 			scrollable("scrollable", false), 
 			max_scrollable_items("max_scrollable_items", U32_MAX),
 			preferred_width("preferred_width", U32_MAX),
 			shortcut_pad("shortcut_pad")
-			
 		{
 			addSynonym(bg_visible, "opaque");
 			addSynonym(bg_color, "color");
-
-			name = "menu";
+			addSynonym(can_tear_off, "can_tear_off");
 		}
 	};
 
@@ -517,6 +516,9 @@ public:
 
 	static class LLMenuHolderGL* sMenuContainer;
 	
+	void resetScrollPositionOnShow(bool reset_scroll_pos) { mResetScrollPositionOnShow = reset_scroll_pos; }
+	bool isScrollPositionOnShowReset() { return mResetScrollPositionOnShow; }
+
 protected:
 	void createSpilloverBranch();
 	void cleanupSpilloverBranch();
@@ -566,6 +568,7 @@ private:
 	KEY				mJumpKey;
 	BOOL			mCreateJumpKeys;
 	S32				mShortcutPad;
+	bool			mResetScrollPositionOnShow;
 }; // end class LLMenuGL
 
 
@@ -650,7 +653,7 @@ public:
 	{
 		Params()
 		{
-			visible = false;
+			changeDefault(visible, false);
 		}
 	};
 
@@ -678,7 +681,7 @@ public:
 
 			BOOL	appendContextSubMenu(LLContextMenu *menu);
 
-			LLHandle<LLContextMenu> getHandle() { mHandle.bind(this); return mHandle; }
+			LLHandle<LLContextMenu> getHandle() { return getDerivedHandle<LLContextMenu>(); }
 
 protected:
 	BOOL						mHoveredAnyItem;
@@ -698,16 +701,7 @@ class LLMenuBarGL : public LLMenuGL
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLMenuGL::Params>
-	{
-		Params()
-		{
-			can_tear_off = false;
-			keep_fixed_size = true;
-			horizontal_layout = true;
-			visible = true;
-			drop_shadow = false;
-		}
-	};
+	{};
 	LLMenuBarGL( const Params& p );
 	virtual ~LLMenuBarGL();
 
@@ -825,13 +819,7 @@ class LLMenuItemTearOffGL : public LLMenuItemGL
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLMenuItemGL::Params>
-	{
-		Params()
-		{
-			name = "tear off";
-			label = "~~~~~~~~~~~";
-		}
-	};
+	{};
 
 	LLMenuItemTearOffGL( const Params& );
 	

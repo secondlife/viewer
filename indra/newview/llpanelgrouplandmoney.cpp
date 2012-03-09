@@ -35,6 +35,7 @@
 #include "llqueryflags.h"
 
 #include "llagent.h"
+#include "lldateutil.h"
 #include "lliconctrl.h"
 #include "llfloaterreg.h"
 #include "lllineeditor.h"
@@ -1056,6 +1057,14 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 	msg->getS32Fast(_PREHASH_MoneyData, _PREHASH_CurrentInterval, current_interval );
 	msg->getStringFast(_PREHASH_MoneyData, _PREHASH_StartDate, start_date);
 
+	std::string time_str = LLTrans::getString("GroupMoneyDate");
+	LLSD substitution;
+
+	// We don't do time zone corrections of the calculated number of seconds
+	// because we don't have a full time stamp, only a date.
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
+	LLStringUtil::format (time_str, substitution);
+
 	if ( interval_days != mImplementationp->mIntervalLength || 
 		 current_interval != mImplementationp->mCurrentInterval )
 	{
@@ -1064,7 +1073,7 @@ void LLGroupMoneyDetailsTabEventHandler::processReply(LLMessageSystem* msg,
 		return;
 	}
 
-	std::string text = start_date;
+	std::string text = time_str;
 	text.append("\n\n");
 
 	S32 total_amount = 0;
@@ -1203,7 +1212,15 @@ void LLGroupMoneySalesTabEventHandler::processReply(LLMessageSystem* msg,
 	// Start with the date.
 	if (text == mImplementationp->mLoadingText)
 	{
-		text = start_date + "\n\n";
+		std::string time_str = LLTrans::getString("GroupMoneyDate");
+		LLSD substitution;
+
+		// We don't do time zone corrections of the calculated number of seconds
+		// because we don't have a full time stamp, only a date.
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
+		LLStringUtil::format (time_str, substitution);
+
+		text = time_str + "\n\n";
 	}
 
 	S32 transactions = msg->getNumberOfBlocksFast(_PREHASH_HistoryData);
@@ -1408,14 +1425,29 @@ void LLGroupMoneyPlanningTabEventHandler::processReply(LLMessageSystem* msg,
 	}
 
 	text.append(LLTrans::getString("SummaryForTheWeek"));
-	text.append(start_date);
+
+	std::string date_format_str = LLTrans::getString("GroupPlanningDate");
+	std::string time_str = date_format_str;
+	LLSD substitution;
+	// We don't do time zone corrections of the calculated number of seconds
+	// because we don't have a full time stamp, only a date.
+	substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", start_date);
+	LLStringUtil::format (time_str, substitution);
+
+	text.append(time_str);
+	text.append(".  ");
 
 	if (current_interval == 0)
 	{
 		text.append(LLTrans::getString("NextStipendDay"));
-		text.append(next_stipend_date);
-		text.append("\n\n");
-		text.append(llformat("%-24sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
+
+		time_str = date_format_str;
+		substitution["datetime"] = LLDateUtil::secondsSinceEpochFromString("%Y-%m-%d", next_stipend_date);
+		LLStringUtil::format (time_str, substitution);
+
+		text.append(time_str);
+		text.append(".\n\n");
+		text.append(llformat("%-23sL$%6d\n", LLTrans::getString("GroupMoneyBalance").c_str(), balance ));
 		text.append(1, '\n');
 	}
 

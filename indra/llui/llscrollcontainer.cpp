@@ -74,11 +74,7 @@ LLScrollContainer::Params::Params()
 	min_auto_scroll_rate("min_auto_scroll_rate", 100),
 	max_auto_scroll_rate("max_auto_scroll_rate", 1000),
 	reserve_scroll_corner("reserve_scroll_corner", false)
-{
-	name = "scroll_container";
-	mouse_opaque(true);
-	tab_stop(false);
-}
+{}
 
 
 // Default constructor
@@ -224,6 +220,15 @@ BOOL LLScrollContainer::handleKeyHere(KEY key, MASK mask)
 		}
 	}	
 
+	return FALSE;
+}
+
+BOOL LLScrollContainer::handleUnicodeCharHere(llwchar uni_char)
+{
+	if (mScrolledView && mScrolledView->handleUnicodeCharHere(uni_char))
+	{
+		return TRUE;
+	}
 	return FALSE;
 }
 
@@ -419,63 +424,66 @@ void LLScrollContainer::draw()
 		focusFirstItem();
 	}
 
-	// Draw background
-	if( mIsOpaque )
+	if (getRect().isValid()) 
 	{
-		F32 alpha = getCurrentTransparency();
+		// Draw background
+		if( mIsOpaque )
+		{
+			F32 alpha = getCurrentTransparency();
 
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(mInnerRect, mBackgroundColor.get() % alpha);
-	}
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gl_rect_2d(mInnerRect, mBackgroundColor.get() % alpha);
+		}
 	
-	// Draw mScrolledViews and update scroll bars.
-	// get a scissor region ready, and draw the scrolling view. The
-	// scissor region ensures that we don't draw outside of the bounds
-	// of the rectangle.
-	if( mScrolledView )
-	{
-		updateScroll();
-
-		// Draw the scrolled area.
+		// Draw mScrolledViews and update scroll bars.
+		// get a scissor region ready, and draw the scrolling view. The
+		// scissor region ensures that we don't draw outside of the bounds
+		// of the rectangle.
+		if( mScrolledView )
 		{
-			S32 visible_width = 0;
-			S32 visible_height = 0;
-			BOOL show_v_scrollbar = FALSE;
-			BOOL show_h_scrollbar = FALSE;
-			calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
+			updateScroll();
 
-			LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
-					mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0) + visible_height,
-					mInnerRect.mRight - (show_v_scrollbar ? scrollbar_size: 0),
-					mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0)
-					));
-			drawChild(mScrolledView);
+			// Draw the scrolled area.
+			{
+				S32 visible_width = 0;
+				S32 visible_height = 0;
+				BOOL show_v_scrollbar = FALSE;
+				BOOL show_h_scrollbar = FALSE;
+				calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
+
+				LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
+						mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0) + visible_height,
+						mInnerRect.mRight - (show_v_scrollbar ? scrollbar_size: 0),
+						mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0)
+						));
+				drawChild(mScrolledView);
+			}
 		}
-	}
 
-	// Highlight border if a child of this container has keyboard focus
-	if( mBorder->getVisible() )
-	{
-		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus(this) );
-	}
+		// Highlight border if a child of this container has keyboard focus
+		if( mBorder->getVisible() )
+		{
+			mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus(this) );
+		}
 
-	// Draw all children except mScrolledView
-	// Note: scrollbars have been adjusted by above drawing code
-	for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
-		 child_iter != getChildList()->rend(); ++child_iter)
-	{
-		LLView *viewp = *child_iter;
-		if( sDebugRects )
+		// Draw all children except mScrolledView
+		// Note: scrollbars have been adjusted by above drawing code
+		for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
+			 child_iter != getChildList()->rend(); ++child_iter)
 		{
-			sDepth++;
-		}
-		if( (viewp != mScrolledView) && viewp->getVisible() )
-		{
-			drawChild(viewp);
-		}
-		if( sDebugRects )
-		{
-			sDepth--;
+			LLView *viewp = *child_iter;
+			if( sDebugRects )
+			{
+				sDepth++;
+			}
+			if( (viewp != mScrolledView) && viewp->getVisible() )
+			{
+				drawChild(viewp);
+			}
+			if( sDebugRects )
+			{
+				sDepth--;
+			}
 		}
 	}
 } // end draw

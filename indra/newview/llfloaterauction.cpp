@@ -27,7 +27,6 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterauction.h"
-#include "llfloaterregioninfo.h"
 
 #include "llgl.h"
 #include "llimagej2c.h"
@@ -40,6 +39,7 @@
 
 #include "llagent.h"
 #include "llcombobox.h"
+#include "llestateinfomodel.h"
 #include "llmimetypes.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -114,16 +114,9 @@ void LLFloaterAuction::initialize()
 		getChildView("reset_parcel_btn")->setEnabled(TRUE);
 		getChildView("start_auction_btn")->setEnabled(TRUE);
 
-		LLPanelEstateInfo* panel = LLFloaterRegionInfo::getPanelEstate();
-		if (panel)
-		{	// Only enable "Sell to Anyone" on Teen grid or if we don't know the ID yet
-			U32 estate_id = panel->getEstateID();
-			getChildView("sell_to_anyone_btn")->setEnabled((estate_id == ESTATE_TEEN || estate_id == 0));
-		}
-		else
-		{	// Don't have the panel up, so don't know if we're on the teen grid or not.  Default to enabling it
-			getChildView("sell_to_anyone_btn")->setEnabled(TRUE);
-		}
+		U32 estate_id = LLEstateInfoModel::instance().getID();
+		// Only enable "Sell to Anyone" on Teen grid or if we don't know the ID yet
+		getChildView("sell_to_anyone_btn")->setEnabled(estate_id == ESTATE_TEEN || estate_id == 0);
 	}
 	else
 	{

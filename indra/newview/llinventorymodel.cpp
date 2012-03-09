@@ -217,6 +217,38 @@ const LLViewerInventoryCategory *LLInventoryModel::getFirstNondefaultParent(cons
 	return NULL;
 }
 
+//
+// Search up the parent chain until we get to the specified parent, then return the first child category under it
+//
+const LLViewerInventoryCategory* LLInventoryModel::getFirstDescendantOf(const LLUUID& master_parent_id, const LLUUID& obj_id) const
+{
+	if (master_parent_id == obj_id)
+	{
+		return NULL;
+	}
+
+	const LLViewerInventoryCategory* current_cat = getCategory(obj_id);
+
+	if (current_cat == NULL)
+	{
+		current_cat = getCategory(getObject(obj_id)->getParentUUID());
+	}
+	
+	while (current_cat != NULL)
+	{
+		const LLUUID& current_parent_id = current_cat->getParentUUID();
+		
+		if (current_parent_id == master_parent_id)
+		{
+			return current_cat;
+		}
+		
+		current_cat = getCategory(current_parent_id);
+	}
+
+	return NULL;
+}
+
 // Get the object by id. Returns NULL if not found.
 LLInventoryObject* LLInventoryModel::getObject(const LLUUID& id) const
 {
@@ -377,14 +409,67 @@ const LLUUID LLInventoryModel::findCategoryUUIDForType(LLFolderType::EType prefe
 	return rv;
 }
 
+class LLCreateInventoryCategoryResponder : public LLHTTPClient::Responder
+{
+public:
+	LLCreateInventoryCategoryResponder(LLInventoryModel* model, 
+									   void (*callback)(const LLSD&, void*),
+									   void* user_data) :
+										mModel(model),
+										mCallback(callback), 
+										mData(user_data) 
+	{
+	}
+	
+	virtual void error(U32 status, const std::string& reason)
+	{
+		LL_WARNS("InvAPI") << "CreateInventoryCategory failed.   status = " << status << ", reasion = \"" << reason << "\"" << LL_ENDL;
+	}
+	
+	virtual void result(const LLSD& content)
+	{
+		//Server has created folder.
+		
+		LLUUID category_id = content["folder_id"].asUUID();
+		
+		
+		// Add the category to the internal representation
+		LLPointer<LLViewerInventoryCategory> cat =
+		new LLViewerInventoryCategory( category_id, 
+									  content["parent_id"].asUUID(),
+									  (LLFolderType::EType)content["type"].asInteger(),
+									  content["name"].asString(), 
+									  gAgent.getID() );
+		cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL);
+		cat->setDescendentCount(0);
+		LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+		mModel->accountForUpdate(update);
+		mModel->updateCategory(cat);
+		
+		if (mCallback && mData)
+		{
+			mCallback(content, mData);
+		}
+		
+	}
+	
+private:
+	void (*mCallback)(const LLSD&, void*);
+	void* mData;
+	LLInventoryModel* mModel;
+};
+
 // Convenience function to create a new category. You could call
 // updateCategory() with a newly generated UUID category, but this
 // version will take care of details like what the name should be
 // based on preferred type. Returns the UUID of the new category.
 LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   LLFolderType::EType preferred_type,
-										   const std::string& pname)
+										   const std::string& pname,
+										   void (*callback)(const LLSD&, void*),	//Default to NULL
+										   void* user_data)							//Default to NULL
 {
+	
 	LLUUID id;
 	if(!isInventoryUsable())
 	{
@@ -407,6 +492,35 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 	else
 	{
 		name.assign(LLViewerFolderType::lookupNewCategoryName(preferred_type));
+	}
+	
+	if ( callback && user_data )  //callback required for acked message.
+	{
+		LLViewerRegion* viewer_region = gAgent.getRegion();
+		std::string url;
+		if ( viewer_region )
+			url = viewer_region->getCapability("CreateInventoryCategory");
+		
+		if (!url.empty())
+		{
+			//Let's use the new capability.
+			
+			LLSD request, body;
+			body["folder_id"] = id;
+			body["parent_id"] = parent_id;
+			body["type"] = (LLSD::Integer) preferred_type;
+			body["name"] = name;
+			
+			request["message"] = "CreateInventoryCategory";
+			request["payload"] = body;
+			
+	//		viewer_region->getCapAPI().post(request);
+			LLHTTPClient::post(
+							   url,
+							   body,
+							   new LLCreateInventoryCategoryResponder(this, callback, user_data) );
+			return LLUUID::null;
+		}
 	}
 
 	// Add the category to the internal representation
@@ -1087,7 +1201,6 @@ void LLInventoryModel::notifyObservers()
 		 iter != mObservers.end(); )
 	{
 		LLInventoryObserver* observer = *iter;
-		
 		observer->changed(mModifyMask);
 
 		// safe way to increment since changed may delete entries! (@!##%@!@&*!)
@@ -2168,6 +2281,9 @@ void LLInventoryModel::registerCallbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryFolder,
 						processRemoveInventoryFolder,
 						NULL);
+	msg->setHandlerFuncFast(_PREHASH_RemoveInventoryObjects,
+							processRemoveInventoryObjects,
+							NULL);	
 	//msg->setHandlerFuncFast(_PREHASH_ExchangeCallingCard,
 	//						processExchangeCallingcard,
 	//						NULL);
@@ -2284,6 +2400,37 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account)
 }
 
 // 	static
+void LLInventoryModel::removeInventoryItem(LLUUID agent_id, LLMessageSystem* msg, const char* msg_label)
+{
+	LLUUID item_id;
+	S32 count = msg->getNumberOfBlocksFast(msg_label);
+	lldebugs << "Message has " << count << " item blocks" << llendl;
+	uuid_vec_t item_ids;
+	update_map_t update;
+	for(S32 i = 0; i < count; ++i)
+	{
+		msg->getUUIDFast(msg_label, _PREHASH_ItemID, item_id, i);
+		lldebugs << "Checking for item-to-be-removed " << item_id << llendl;
+		LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
+		if(itemp)
+		{
+		lldebugs << "Item will be removed " << item_id << llendl;
+			// we only bother with the delete and account if we found
+			// the item - this is usually a back-up for permissions,
+			// so frequently the item will already be gone.
+			--update[itemp->getParentUUID()];
+			item_ids.push_back(item_id);
+		}
+	}
+	gInventory.accountForUpdate(update);
+	for(uuid_vec_t::iterator it = item_ids.begin(); it != item_ids.end(); ++it)
+	{
+		lldebugs << "Calling deleteObject " << *it << llendl;
+		gInventory.deleteObject(*it);
+	}
+}
+
+// 	static
 void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 {
 	lldebugs << "LLInventoryModel::processRemoveInventoryItem()" << llendl;
@@ -2295,27 +2442,7 @@ void LLInventoryModel::processRemoveInventoryItem(LLMessageSystem* msg, void**)
 				<< llendl;
 		return;
 	}
-	S32 count = msg->getNumberOfBlocksFast(_PREHASH_InventoryData);
-	uuid_vec_t item_ids;
-	update_map_t update;
-	for(S32 i = 0; i < count; ++i)
-	{
-		msg->getUUIDFast(_PREHASH_InventoryData, _PREHASH_ItemID, item_id, i);
-		LLViewerInventoryItem* itemp = gInventory.getItem(item_id);
-		if(itemp)
-		{
-			// we only bother with the delete and account if we found
-			// the item - this is usually a back-up for permissions,
-			// so frequently the item will already be gone.
-			--update[itemp->getParentUUID()];
-			item_ids.push_back(item_id);
-		}
-	}
-	gInventory.accountForUpdate(update);
-	for(uuid_vec_t::iterator it = item_ids.begin(); it != item_ids.end(); ++it)
-	{
-		gInventory.deleteObject(*it);
-	}
+	LLInventoryModel::removeInventoryItem(agent_id, msg, _PREHASH_InventoryData);
 	gInventory.notifyObservers();
 }
 
@@ -2380,18 +2507,10 @@ void LLInventoryModel::processUpdateInventoryFolder(LLMessageSystem* msg,
 }
 
 // 	static
-void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
-													void**)
+void LLInventoryModel::removeInventoryFolder(LLUUID agent_id,
+											 LLMessageSystem* msg)
 {
-	lldebugs << "LLInventoryModel::processRemoveInventoryFolder()" << llendl;
-	LLUUID agent_id, folder_id;
-	msg->getUUIDFast(_PREHASH_FolderData, _PREHASH_AgentID, agent_id);
-	if(agent_id != gAgent.getID())
-	{
-		llwarns << "Got a RemoveInventoryFolder for the wrong agent."
-				<< llendl;
-		return;
-	}
+	LLUUID folder_id;
 	uuid_vec_t folder_ids;
 	update_map_t update;
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_FolderData);
@@ -2410,6 +2529,42 @@ void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
 	{
 		gInventory.deleteObject(*it);
 	}
+}
+
+// 	static
+void LLInventoryModel::processRemoveInventoryFolder(LLMessageSystem* msg,
+													void**)
+{
+	lldebugs << "LLInventoryModel::processRemoveInventoryFolder()" << llendl;
+	LLUUID agent_id, session_id;
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
+	if(agent_id != gAgent.getID())
+	{
+		llwarns << "Got a RemoveInventoryFolder for the wrong agent."
+		<< llendl;
+		return;
+	}
+	LLInventoryModel::removeInventoryFolder( agent_id, msg );
+	gInventory.notifyObservers();
+}
+
+// 	static
+void LLInventoryModel::processRemoveInventoryObjects(LLMessageSystem* msg,
+													void**)
+{
+	lldebugs << "LLInventoryModel::processRemoveInventoryObjects()" << llendl;
+	LLUUID agent_id, session_id;
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
+	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
+	if(agent_id != gAgent.getID())
+	{
+		llwarns << "Got a RemoveInventoryObjects for the wrong agent."
+		<< llendl;
+		return;
+	}
+	LLInventoryModel::removeInventoryFolder( agent_id, msg );
+	LLInventoryModel::removeInventoryItem( agent_id, msg, _PREHASH_ItemData );
 	gInventory.notifyObservers();
 }
 
@@ -2486,9 +2641,9 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryCategory> tfolder = new LLViewerInventoryCategory(gAgent.getID());
 		tfolder->unpackMessage(msg, _PREHASH_FolderData, i);
-		//llinfos << "unpaked folder '" << tfolder->getName() << "' ("
-		//		<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
-		//		<< llendl;
+		llinfos << "unpacked folder '" << tfolder->getName() << "' ("
+				<< tfolder->getUUID() << ") in " << tfolder->getParentUUID()
+				<< llendl;
 		if(tfolder->getUUID().notNull())
 		{
 			folders.push_back(tfolder);
@@ -2528,11 +2683,11 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 		titem->unpackMessage(msg, _PREHASH_ItemData, i);
-		//llinfos << "unpaked item '" << titem->getName() << "' in "
-		//		<< titem->getParentUUID() << llendl;
+		llinfos << "unpaked item '" << titem->getName() << "' in "
+				<< titem->getParentUUID() << llendl;
 		U32 callback_id;
 		msg->getU32Fast(_PREHASH_ItemData, _PREHASH_CallbackID, callback_id);
-		if(titem->getUUID().notNull())
+		if(titem->getUUID().notNull() ) // && callback_id.notNull() )
 		{
 			items.push_back(titem);
 			cblist.push_back(InventoryCallbackInfo(callback_id, titem->getUUID()));
@@ -2837,40 +2992,62 @@ BOOL LLInventoryModel::getIsFirstTimeInViewer2()
 	return sFirstTimeInViewer2;
 }
 
-static LLInventoryModel::item_array_t::iterator find_item_iter_by_uuid(LLInventoryModel::item_array_t& items, const LLUUID& id)
+LLInventoryModel::item_array_t::iterator LLInventoryModel::findItemIterByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id)
 {
-	LLInventoryModel::item_array_t::iterator result = items.end();
+	LLInventoryModel::item_array_t::iterator curr_item = items.begin();
 
-	for (LLInventoryModel::item_array_t::iterator i = items.begin(); i != items.end(); ++i)
+	while (curr_item != items.end())
 	{
-		if ((*i)->getUUID() == id)
+		if ((*curr_item)->getUUID() == id)
 		{
-			result = i;
 			break;
 		}
+		++curr_item;
 	}
 
-	return result;
+	return curr_item;
 }
 
 // static
 // * @param[in, out] items - vector with items to be updated. It should be sorted in a right way
 // * before calling this method.
 // * @param src_item_id - LLUUID of inventory item to be moved in new position
-// * @param dest_item_id - LLUUID of inventory item before which source item should be placed.
-void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& src_item_id, const LLUUID& dest_item_id)
+// * @param dest_item_id - LLUUID of inventory item before (or after) which source item should 
+// * be placed.
+// * @param insert_before - bool indicating if src_item_id should be placed before or after 
+// * dest_item_id. Default is true.
+void LLInventoryModel::updateItemsOrder(LLInventoryModel::item_array_t& items, const LLUUID& src_item_id, const LLUUID& dest_item_id, bool insert_before)
 {
-	LLInventoryModel::item_array_t::iterator it_src = find_item_iter_by_uuid(items, src_item_id);
-	LLInventoryModel::item_array_t::iterator it_dest = find_item_iter_by_uuid(items, dest_item_id);
+	LLInventoryModel::item_array_t::iterator it_src = findItemIterByUUID(items, src_item_id);
+	LLInventoryModel::item_array_t::iterator it_dest = findItemIterByUUID(items, dest_item_id);
 
-	if (it_src == items.end() || it_dest == items.end()) return;
+	// If one of the passed UUID is not in the item list, bail out
+	if ((it_src == items.end()) || (it_dest == items.end())) 
+		return;
 
+	// Erase the source element from the list, keep a copy before erasing.
 	LLViewerInventoryItem* src_item = *it_src;
 	items.erase(it_src);
 	
-	// target iterator can not be valid because the container was changed, so update it.
-	it_dest = find_item_iter_by_uuid(items, dest_item_id);
-	items.insert(it_dest, src_item);
+	// Note: Target iterator is not valid anymore because the container was changed, so update it.
+	it_dest = findItemIterByUUID(items, dest_item_id);
+	
+	// Go to the next element if one wishes to insert after the dest element
+	if (!insert_before)
+	{
+		++it_dest;
+	}
+	
+	// Reinsert the source item in the right place
+	if (it_dest != items.end())
+	{
+		items.insert(it_dest, src_item);
+	}
+	else 
+	{
+		// Append to the list if it_dest reached the end
+		items.push_back(src_item);
+	}
 }
 
 //* @param[in] items vector of items in order to be saved.

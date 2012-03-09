@@ -621,16 +621,20 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 				S32 num_entries;
 				success = check_read(&apr_file, &num_entries, sizeof(S32)) ;
 	
-				for (S32 i = 0; success && i < num_entries; i++)
+				if(success)
 				{
-					LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
-					if (!entry->getLocalID())
+					for (S32 i = 0; i < num_entries; i++)
 					{
-						llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
-						delete entry ;
-						success = false ;
+						LLVOCacheEntry* entry = new LLVOCacheEntry(&apr_file);
+						if (!entry->getLocalID())
+						{
+							llwarns << "Aborting cache file load for " << filename << ", cache file corruption!" << llendl;
+							delete entry ;
+							success = false ;
+							break ;
+						}
+						cache_entry_map[entry->getLocalID()] = entry;
 					}
-					cache_entry_map[entry->getLocalID()] = entry;
 				}
 			}
 		}		
@@ -747,4 +751,3 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 
 	return ;
 }
-

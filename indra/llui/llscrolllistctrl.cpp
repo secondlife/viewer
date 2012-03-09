@@ -147,12 +147,9 @@ LLScrollListCtrl::Params::Params()
 	highlighted_color("highlighted_color"),
 	contents(""),
 	scroll_bar_bg_visible("scroll_bar_bg_visible"),
-	scroll_bar_bg_color("scroll_bar_bg_color")
-	, border("border")
-{
-	name = "scroll_list";
-	mouse_opaque = true;
-}
+	scroll_bar_bg_color("scroll_bar_bg_color"), 
+	border("border")
+{}
 
 LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 :	LLUICtrl(p),
@@ -178,6 +175,7 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mBorder(NULL),
 	mSortCallback(NULL),
 	mPopupMenu(NULL),
+	mCommentTextView(NULL),
 	mNumDynamicWidthColumns(0),
 	mTotalStaticColumnWidth(0),
 	mTotalColumnPadding(0),
@@ -479,7 +477,12 @@ void LLScrollListCtrl::updateLayout()
 		getRect().getWidth() - 2 * mBorderThickness,
 		getRect().getHeight() - (2 * mBorderThickness ) - heading_size );
 
-	getChildView("comment_text")->setShape(mItemListRect);
+	if (mCommentTextView == NULL)
+	{
+		mCommentTextView = getChildView("comment_text");
+	}
+
+	mCommentTextView->setShape(mItemListRect);
 
 	// how many lines of content in a single "page"
 	S32 page_lines =  getLinesPerPage();
@@ -2813,7 +2816,10 @@ LLScrollListItem* LLScrollListCtrl::addRow(LLScrollListItem *new_item, const LLS
 		}
 
 		S32 index = columnp->mIndex;
-		cell_p.width.setIfNotProvided(columnp->getWidth());
+		if (!cell_p.width.isProvided())
+		{
+			cell_p.width = columnp->getWidth();
+		}
 
 		LLScrollListCell* cell = LLScrollListCell::create(cell_p);
 

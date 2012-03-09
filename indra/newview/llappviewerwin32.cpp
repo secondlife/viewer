@@ -403,11 +403,9 @@ bool LLAppViewerWin32::initHardwareTest()
 	//
 	if (FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
-		BOOL vram_only = !gSavedSettings.getBOOL("ProbeHardwareOnStartup");
-
 		// per DEV-11631 - disable hardware probing for everything
 		// but vram.
-		vram_only = TRUE;
+		BOOL vram_only = TRUE;
 
 		LLSplashScreen::update(LLTrans::getString("StartupDetectingHardware"));
 
@@ -518,11 +516,7 @@ void LLAppViewerWin32::handleCrashReporting(bool reportFreeze)
 	}
 	else
 	{
-		S32 cb = gCrashSettings.getS32(CRASH_BEHAVIOR_SETTING);
-		if(cb != CRASH_BEHAVIOR_NEVER_SEND)
-		{
-			_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
-		}
+		_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str, NULL);
 	}
 }
 

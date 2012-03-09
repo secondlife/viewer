@@ -29,9 +29,6 @@
 
 #include <Carbon/Carbon.h>
 #include <iostream>
-#include <sstream>
-
-#include "boost/tokenizer.hpp"
 
 #include "indra_constants.h"	// CRASH_BEHAVIOR_ASK, CRASH_SETTING_NAME
 #include "llerror.h"
@@ -247,10 +244,11 @@ bool LLCrashLoggerMac::mainLoop()
 
 void LLCrashLoggerMac::updateApplication(const std::string& message)
 {
-	LLCrashLogger::updateApplication();
+	LLCrashLogger::updateApplication(message);
 }
 
 bool LLCrashLoggerMac::cleanup()
 {
+	commonCleanup();
 	return true;
 }

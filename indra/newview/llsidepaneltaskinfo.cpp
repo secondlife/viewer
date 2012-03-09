@@ -117,6 +117,42 @@ BOOL LLSidepanelTaskInfo::postBuild()
 	childSetCommitCallback("checkbox next owner can transfer",	&LLSidepanelTaskInfo::onCommitNextOwnerTransfer,this);
 	childSetCommitCallback("clickaction",						&LLSidepanelTaskInfo::onCommitClickAction,this);
 	childSetCommitCallback("search_check",						&LLSidepanelTaskInfo::onCommitIncludeInSearch,this);
+	
+	mDAPermModify = getChild<LLUICtrl>("perm_modify");
+	mDACreator = getChildView("Creator:");
+	mDACreatorName = getChild<LLUICtrl>("Creator Name");
+	mDAOwner = getChildView("Owner:");
+	mDAOwnerName = getChild<LLUICtrl>("Owner Name");
+	mDAGroup = getChildView("Group:");
+	mDAGroupName = getChild<LLUICtrl>("Group Name");
+	mDAButtonSetGroup = getChildView("button set group");
+	mDAObjectName = getChild<LLUICtrl>("Object Name");
+	mDAName = getChildView("Name:");
+	mDADescription = getChildView("Description:");
+	mDAObjectDescription = getChild<LLUICtrl>("Object Description");
+	mDAPermissions = getChildView("Permissions:");
+	mDACheckboxShareWithGroup = getChild<LLUICtrl>("checkbox share with group");
+	mDAButtonDeed = getChildView("button deed");
+	mDACheckboxAllowEveryoneMove = getChild<LLUICtrl>("checkbox allow everyone move");
+	mDACheckboxAllowEveryoneCopy = getChild<LLUICtrl>("checkbox allow everyone copy");
+	mDANextOwnerCan = getChildView("Next owner can:");
+	mDACheckboxNextOwnerCanModify = getChild<LLUICtrl>("checkbox next owner can modify");
+	mDACheckboxNextOwnerCanCopy = getChild<LLUICtrl>("checkbox next owner can copy");
+	mDACheckboxNextOwnerCanTransfer = getChild<LLUICtrl>("checkbox next owner can transfer");
+	mDACheckboxForSale = getChild<LLUICtrl>("checkbox for sale");
+	mDASearchCheck = getChild<LLUICtrl>("search_check");
+	mDAComboSaleType = getChild<LLComboBox>("sale type");
+	mDACost = getChild<LLUICtrl>("Cost");
+	mDAEditCost = getChild<LLUICtrl>("Edit Cost");
+	mDALabelClickAction = getChildView("label click action");
+	mDAComboClickAction = getChild<LLComboBox>("clickaction");
+	mDAB = getChildView("B:");
+	mDAO = getChildView("O:");
+	mDAG = getChildView("G:");
+	mDAE = getChildView("E:");
+	mDAN = getChildView("N:");
+	mDAF = getChildView("F:");
+	
 	return TRUE;
 }
 
@@ -138,81 +174,80 @@ BOOL LLSidepanelTaskInfo::postBuild()
 
 void LLSidepanelTaskInfo::disableAll()
 {
-	getChildView("perm_modify")->setEnabled(FALSE);
-	getChild<LLUICtrl>("perm_modify")->setValue(LLStringUtil::null);
+	mDAPermModify->setEnabled(FALSE);
+	mDAPermModify->setValue(LLStringUtil::null);
 
-	getChildView("Creator:")->setEnabled(FALSE);
-	getChild<LLUICtrl>("Creator Name")->setValue(LLStringUtil::null);
-	getChildView("Creator Name")->setEnabled(FALSE);
+	mDACreator->setEnabled(FALSE);
+	mDACreatorName->setValue(LLStringUtil::null);
+	mDACreatorName->setEnabled(FALSE);
 
-	getChildView("Owner:")->setEnabled(FALSE);
-	getChild<LLUICtrl>("Owner Name")->setValue(LLStringUtil::null);
-	getChildView("Owner Name")->setEnabled(FALSE);
+	mDAOwner->setEnabled(FALSE);
+	mDAOwnerName->setValue(LLStringUtil::null);
+	mDAOwnerName->setEnabled(FALSE);
 
-	getChildView("Group:")->setEnabled(FALSE);
-	getChild<LLUICtrl>("Group Name")->setValue(LLStringUtil::null);
-	getChildView("Group Name")->setEnabled(FALSE);
-	getChildView("button set group")->setEnabled(FALSE);
+	mDAGroup->setEnabled(FALSE);
+	mDAGroupName->setValue(LLStringUtil::null);
+	mDAGroupName->setEnabled(FALSE);
+	mDAButtonSetGroup->setEnabled(FALSE);
 
-	getChild<LLUICtrl>("Object Name")->setValue(LLStringUtil::null);
-	getChildView("Object Name")->setEnabled(FALSE);
-	getChildView("Name:")->setEnabled(FALSE);
-	getChild<LLUICtrl>("Group Name")->setValue(LLStringUtil::null);
-	getChildView("Group Name")->setEnabled(FALSE);
-	getChildView("Description:")->setEnabled(FALSE);
-	getChild<LLUICtrl>("Object Description")->setValue(LLStringUtil::null);
-	getChildView("Object Description")->setEnabled(FALSE);
+	mDAObjectName->setValue(LLStringUtil::null);
+	mDAObjectName->setEnabled(FALSE);
+	mDAName->setEnabled(FALSE);
+	mDAGroupName->setValue(LLStringUtil::null);
+	mDAGroupName->setEnabled(FALSE);
+	mDADescription->setEnabled(FALSE);
+	mDAObjectDescription->setValue(LLStringUtil::null);
+	mDAObjectDescription->setEnabled(FALSE);
 
-	getChildView("Permissions:")->setEnabled(FALSE);
+	mDAPermissions->setEnabled(FALSE);
 		
-	getChild<LLUICtrl>("checkbox share with group")->setValue(FALSE);
-	getChildView("checkbox share with group")->setEnabled(FALSE);
-	getChildView("button deed")->setEnabled(FALSE);
+	mDACheckboxShareWithGroup->setValue(FALSE);
+	mDACheckboxShareWithGroup->setEnabled(FALSE);
+	mDAButtonDeed->setEnabled(FALSE);
 
-	getChild<LLUICtrl>("checkbox allow everyone move")->setValue(FALSE);
-	getChildView("checkbox allow everyone move")->setEnabled(FALSE);
-	getChild<LLUICtrl>("checkbox allow everyone copy")->setValue(FALSE);
-	getChildView("checkbox allow everyone copy")->setEnabled(FALSE);
+	mDACheckboxAllowEveryoneMove->setValue(FALSE);
+	mDACheckboxAllowEveryoneMove->setEnabled(FALSE);
+	mDACheckboxAllowEveryoneCopy->setValue(FALSE);
+	mDACheckboxAllowEveryoneCopy->setEnabled(FALSE);
 
 	//Next owner can:
-	getChildView("Next owner can:")->setEnabled(FALSE);
-	getChild<LLUICtrl>("checkbox next owner can modify")->setValue(FALSE);
-	getChildView("checkbox next owner can modify")->setEnabled(FALSE);
-	getChild<LLUICtrl>("checkbox next owner can copy")->setValue(FALSE);
-	getChildView("checkbox next owner can copy")->setEnabled(FALSE);
-	getChild<LLUICtrl>("checkbox next owner can transfer")->setValue(FALSE);
-	getChildView("checkbox next owner can transfer")->setEnabled(FALSE);
+	mDANextOwnerCan->setEnabled(FALSE);
+	mDACheckboxNextOwnerCanModify->setValue(FALSE);
+	mDACheckboxNextOwnerCanModify->setEnabled(FALSE);
+	mDACheckboxNextOwnerCanCopy->setValue(FALSE);
+	mDACheckboxNextOwnerCanCopy->setEnabled(FALSE);
+	mDACheckboxNextOwnerCanTransfer->setValue(FALSE);
+	mDACheckboxNextOwnerCanTransfer->setEnabled(FALSE);
 
 	//checkbox for sale
-	getChild<LLUICtrl>("checkbox for sale")->setValue(FALSE);
-	getChildView("checkbox for sale")->setEnabled(FALSE);
+	mDACheckboxForSale->setValue(FALSE);
+	mDACheckboxForSale->setEnabled(FALSE);
 
 	//checkbox include in search
-	getChild<LLUICtrl>("search_check")->setValue(FALSE);
-	getChildView("search_check")->setEnabled(FALSE);
+	mDASearchCheck->setValue(FALSE);
+	mDASearchCheck->setEnabled(FALSE);
 		
-	LLComboBox*	combo_sale_type = getChild<LLComboBox>("sale type");
-	combo_sale_type->setValue(LLSaleInfo::FS_COPY);
-	combo_sale_type->setEnabled(FALSE);
+	mDAComboSaleType->setValue(LLSaleInfo::FS_COPY);
+	mDAComboSaleType->setEnabled(FALSE);
 		
-	getChildView("Cost")->setEnabled(FALSE);
-	getChild<LLUICtrl>("Cost")->setValue(getString("Cost Default"));
-	getChild<LLUICtrl>("Edit Cost")->setValue(LLStringUtil::null);
-	getChildView("Edit Cost")->setEnabled(FALSE);
+	mDACost->setEnabled(FALSE);
+	mDACost->setValue(getString("Cost Default"));
+	mDAEditCost->setValue(LLStringUtil::null);
+	mDAEditCost->setEnabled(FALSE);
 		
-	getChildView("label click action")->setEnabled(FALSE);
-	LLComboBox*	combo_click_action = getChild<LLComboBox>("clickaction");
-	if (combo_click_action)
+	mDALabelClickAction->setEnabled(FALSE);
+	if (mDAComboClickAction)
 	{
-		combo_click_action->setEnabled(FALSE);
-		combo_click_action->clear();
+		mDAComboClickAction->setEnabled(FALSE);
+		mDAComboClickAction->clear();
 	}
-	getChildView("B:")->setVisible(								FALSE);
-	getChildView("O:")->setVisible(								FALSE);
-	getChildView("G:")->setVisible(								FALSE);
-	getChildView("E:")->setVisible(								FALSE);
-	getChildView("N:")->setVisible(								FALSE);
-	getChildView("F:")->setVisible(								FALSE);
+
+	mDAB->setVisible(FALSE);
+	mDAO->setVisible(FALSE);
+	mDAG->setVisible(FALSE);
+	mDAE->setVisible(FALSE);
+	mDAN->setVisible(FALSE);
+	mDAF->setVisible(FALSE);
 	
 	mOpenBtn->setEnabled(FALSE);
 	mPayBtn->setEnabled(FALSE);

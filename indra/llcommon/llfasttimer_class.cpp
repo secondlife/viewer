@@ -219,14 +219,19 @@ LLFastTimer::DeclareTimer::DeclareTimer(const std::string& name)
 // static
 void LLFastTimer::DeclareTimer::updateCachedPointers()
 {
-	DeclareTimer::LLInstanceTrackerScopedGuard guard;
 	// propagate frame state pointers to timer declarations
-	for (DeclareTimer::instance_iter it = guard.beginInstances();
-		it != guard.endInstances();
-		++it)
+	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
 		// update cached pointer
 		it->mFrameState = &it->mTimer.getFrameState();
+	}
+
+	// also update frame states of timers on stack
+	LLFastTimer* cur_timerp = LLFastTimer::sCurTimerData.mCurTimer;
+	while(cur_timerp->mLastTimerData.mCurTimer != cur_timerp)	
+	{
+		cur_timerp->mFrameState = &cur_timerp->mFrameState->mTimer->getFrameState();
+		cur_timerp = cur_timerp->mLastTimerData.mCurTimer;
 	}
 }
 
@@ -298,14 +303,15 @@ LLFastTimer::NamedTimer::~NamedTimer()
 
 std::string LLFastTimer::NamedTimer::getToolTip(S32 history_idx)
 {
+	F64 ms_multiplier = 1000.0 / (F64)LLFastTimer::countsPerSecond();
 	if (history_idx < 0)
 	{
-		// by default, show average number of calls
-		return llformat("%s (%d calls)", getName().c_str(), (S32)getCallAverage());
+		// by default, show average number of call
+		return llformat("%s (%d ms, %d calls)", getName().c_str(), (S32)(getCountAverage() * ms_multiplier), (S32)getCallAverage());
 	}
 	else
 	{
-		return llformat("%s (%d calls)", getName().c_str(), (S32)getHistoricalCalls(history_idx));
+		return llformat("%s (%d ms, %d calls)", getName().c_str(), (S32)(getHistoricalCount(history_idx) * ms_multiplier), (S32)getHistoricalCalls(history_idx));
 	}
 }
 
@@ -388,10 +394,7 @@ void LLFastTimer::NamedTimer::buildHierarchy()
 
 	// set up initial tree
 	{
-		NamedTimer::LLInstanceTrackerScopedGuard guard;
-		for (instance_iter it = guard.beginInstances();
-		     it != guard.endInstances();
-		     ++it)
+		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 		{
 			NamedTimer& timer = *it;
 			if (&timer == NamedTimerFactory::instance().getRootTimer()) continue;
@@ -519,10 +522,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 		LLSD sd;
 
 		{
-			NamedTimer::LLInstanceTrackerScopedGuard guard;
-			for (NamedTimer::instance_iter it = guard.beginInstances();
-			     it != guard.endInstances();
-			     ++it)
+			for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 			{
 				NamedTimer& timer = *it;
 				FrameState& info = timer.getFrameState();
@@ -559,7 +559,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 		llassert_always(timerp->mFrameStateIndex < (S32)getFrameStateList().size());
 	}
 
-	// sort timers by dfs traversal order to improve cache coherency
+	// sort timers by DFS traversal order to improve cache coherency
 	std::sort(getFrameStateList().begin(), getFrameStateList().end(), SortTimersDFS());
 
 	// update pointers into framestatelist now that we've sorted it
@@ -567,10 +567,7 @@ void LLFastTimer::NamedTimer::resetFrame()
 
 	// reset for next frame
 	{
-		NamedTimer::LLInstanceTrackerScopedGuard guard;
-		for (NamedTimer::instance_iter it = guard.beginInstances();
-		     it != guard.endInstances();
-		     ++it)
+		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 		{
 			NamedTimer& timer = *it;
 			
@@ -614,10 +611,7 @@ void LLFastTimer::NamedTimer::reset()
 
 	// reset all history
 	{
-		NamedTimer::LLInstanceTrackerScopedGuard guard;
-		for (NamedTimer::instance_iter it = guard.beginInstances();
-		     it != guard.endInstances();
-		     ++it)
+		for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 		{
 			NamedTimer& timer = *it;
 			if (&timer != NamedTimerFactory::instance().getRootTimer()) 
@@ -700,17 +694,7 @@ void LLFastTimer::nextFrame()
 		llinfos << "Slow frame, fast timers inaccurate" << llendl;
 	}
 
-	if (sPauseHistory)
-	{
-		sResetHistory = true;
-	}
-	else if (sResetHistory)
-	{
-		sLastFrameIndex = 0;
-		sCurFrameIndex = 0;
-		sResetHistory = false;
-	}
-	else // not paused
+	if (!sPauseHistory)
 	{
 		NamedTimer::processTimes();
 		sLastFrameIndex = sCurFrameIndex++;
@@ -865,7 +849,7 @@ std::string LLFastTimer::sClockType = "rdtsc";
 
 #else
 //LL_COMMON_API U64 get_clock_count(); // in lltimer.cpp
-// These use QueryPerformanceCounter, which is arguably fine and also works on amd architectures.
+// These use QueryPerformanceCounter, which is arguably fine and also works on AMD architectures.
 U32 LLFastTimer::getCPUClockCount32()
 {
 	return (U32)(get_clock_count()>>8);

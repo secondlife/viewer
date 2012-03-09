@@ -32,6 +32,7 @@
 #include "llaudioengine.h"
 #include "llavataractions.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llinventorybridge.h"
@@ -50,7 +51,6 @@
 #include "llpreviewtexture.h"
 #include "llscrollbar.h"
 #include "llscrollcontainer.h"
-#include "llsidetray.h"
 #include "lltooldraganddrop.h"
 #include "lltooltip.h"
 #include "lltrans.h"
@@ -80,7 +80,7 @@ public:
 		LLSD key;
 		key["type"] = "landmark";
 		key["id"] = landmark_inv_id;
-		LLSideTray::getInstance()->showPanel("panel_places", key);
+		LLFloaterSidePanelContainer::showPanel("places", key);
 	}
 	static void processForeignLandmark(LLLandmark* landmark,
 			const LLUUID& object_id, const LLUUID& notecard_inventory_id,
@@ -88,12 +88,12 @@ public:
 	{
 		LLVector3d global_pos;
 		landmark->getGlobalPos(global_pos);
-		LLViewerInventoryItem* agent_lanmark =
+		LLViewerInventoryItem* agent_landmark =
 				LLLandmarkActions::findLandmarkForGlobalPos(global_pos);
 
-		if (agent_lanmark)
+		if (agent_landmark)
 		{
-			showInfo(agent_lanmark->getUUID());
+			showInfo(agent_landmark->getUUID());
 		}
 		else
 		{
@@ -104,8 +104,13 @@ public:
 			}
 			else
 			{
+				LLInventoryItem* item = item_ptr.get();
 				LLPointer<LLEmbeddedLandmarkCopied> cb = new LLEmbeddedLandmarkCopied();
-				copy_inventory_from_notecard(object_id, notecard_inventory_id, item_ptr.get(), gInventoryCallbacks.registerCB(cb));
+				copy_inventory_from_notecard(get_folder_by_itemtype(item),
+											 object_id,
+											 notecard_inventory_id,
+											 item,
+											 gInventoryCallbacks.registerCB(cb));
 			}
 		}
 	}
@@ -1266,9 +1271,11 @@ bool LLViewerTextEditor::importStream(std::istream& str)
 
 void LLViewerTextEditor::copyInventory(const LLInventoryItem* item, U32 callback_id)
 {
-	copy_inventory_from_notecard(mObjectID,
+	copy_inventory_from_notecard(LLUUID::null,  // Don't specify a destination -- let the sim do that
+								 mObjectID,
 								 mNotecardInventoryID,
-								 item, callback_id);
+								 item,
+								 callback_id);
 }
 
 bool LLViewerTextEditor::hasEmbeddedInventory()

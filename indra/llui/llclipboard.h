@@ -30,6 +30,8 @@
 
 #include "llstring.h"
 #include "lluuid.h"
+#include "stdenums.h"
+#include "llinventory.h"
 
 
 class LLClipboard
@@ -52,9 +54,14 @@ public:
 	BOOL		canPastePrimaryString() const;
 	const LLWString&	getPastePrimaryWString(LLUUID* source_id = NULL);	
 
+	// Support clipboard for object known only by their uuid and asset type
+	void		  setSourceObject(const LLUUID& source_id, LLAssetType::EType type);
+	const LLInventoryObject* getSourceObject() { return mSourceItem; }
+	
 private:
-	LLUUID		mSourceID;
+	LLUUID      mSourceID;
 	LLWString	mString;
+	LLInventoryObject* mSourceItem;
 };
 
 

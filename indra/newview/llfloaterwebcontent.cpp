@@ -40,8 +40,32 @@
 
 #include "llfloaterwebcontent.h"
 
-LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
-	: LLFloater( key )
+LLFloaterWebContent::_Params::_Params()
+:	url("url"),
+	target("target"),
+	id("id"),
+	window_class("window_class", "web_content"),
+	show_chrome("show_chrome", true),
+	allow_address_entry("allow_address_entry", true),
+	preferred_media_size("preferred_media_size"),
+	trusted_content("trusted_content", false),
+	show_page_title("show_page_title", true)
+{}
+
+LLFloaterWebContent::LLFloaterWebContent( const Params& params )
+:	LLFloater( params ),
+	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
+	mWebBrowser(NULL),
+	mAddressCombo(NULL),
+	mSecureLockIcon(NULL),
+	mStatusBarText(NULL),
+	mStatusBarProgress(NULL),
+	mBtnBack(NULL),
+	mBtnForward(NULL),
+	mBtnReload(NULL),
+	mBtnStop(NULL),
+	mUUID(params.id()),
+	mShowPageTitle(params.show_page_title)
 {
 	mCommitCallbackRegistrar.add( "WebContent.Back", boost::bind( &LLFloaterWebContent::onClickBack, this ));
 	mCommitCallbackRegistrar.add( "WebContent.Forward", boost::bind( &LLFloaterWebContent::onClickForward, this ));
@@ -54,16 +78,21 @@ LLFloaterWebContent::LLFloaterWebContent( const LLSD& key )
 BOOL LLFloaterWebContent::postBuild()
 {
 	// these are used in a bunch of places so cache them
-	mWebBrowser = getChild< LLMediaCtrl >( "webbrowser" );
-	mAddressCombo = getChild< LLComboBox >( "address" );
-	mStatusBarText = getChild< LLTextBox >( "statusbartext" );
+	mWebBrowser        = getChild< LLMediaCtrl >( "webbrowser" );
+	mAddressCombo      = getChild< LLComboBox >( "address" );
+	mStatusBarText     = getChild< LLTextBox >( "statusbartext" );
 	mStatusBarProgress = getChild<LLProgressBar>("statusbarprogress" );
+
+	mBtnBack           = getChildView( "back" );
+	mBtnForward        = getChildView( "forward" );
+	mBtnReload         = getChildView( "reload" );
+	mBtnStop           = getChildView( "stop" );
 
 	// observe browser events
 	mWebBrowser->addObserver( this );
 
 	// these buttons are always enabled
-	getChildView("reload")->setEnabled( true );
+	mBtnReload->setEnabled( true );
 	getChildView("popexternal")->setEnabled( true );
 
 	// cache image for secure browsing
@@ -86,10 +115,8 @@ void LLFloaterWebContent::initializeURLHistory()
 
 	// Get all of the entries in the "browser" collection
 	LLSD browser_history = LLURLHistory::getURLHistory("browser");
-	LLSD::array_iterator iter_history =
-		browser_history.beginArray();
-	LLSD::array_iterator end_history =
-		browser_history.endArray();
+	LLSD::array_iterator iter_history = browser_history.beginArray();
+	LLSD::array_iterator end_history = browser_history.endArray();
 	for(; iter_history != end_history; ++iter_history)
 	{
 		std::string url = (*iter_history).asString();
@@ -98,111 +125,44 @@ void LLFloaterWebContent::initializeURLHistory()
 	}
 }
 
-//static
-void LLFloaterWebContent::create( const std::string &url, const std::string& target, const std::string& uuid,  bool show_chrome, const LLRect& preferred_media_size)
+bool LLFloaterWebContent::matchesKey(const LLSD& key)
 {
-	lldebugs << "url = " << url << ", target = " << target << ", uuid = " << uuid << llendl;
-
-	std::string tag = target;
-
-	if(target.empty() || target == "_blank")
+	Params p(mKey);
+	Params other_p(key);
+	if (!other_p.target().empty() && other_p.target() != "_blank")
 	{
-		if(!uuid.empty())
-		{
-			tag = uuid;
-		}
-		else
-		{
-			// create a unique tag for this instance
-			LLUUID id;
-			id.generate();
-			tag = id.asString();
-		}
+		return other_p.target() == p.target();
 	}
-
-	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
-
-	if(LLFloaterReg::findInstance("web_content", tag) != NULL)
+	else
 	{
-		// There's already a web browser for this tag, so we won't be opening a new window.
+		return other_p.id() == p.id();
 	}
-	else if(browser_window_limit != 0)
-	{
-		// showInstance will open a new window.  Figure out how many web browsers are already open,
-		// and close the least recently opened one if this will put us over the limit.
+}
 
-		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList("web_content");
-		lldebugs << "total instance count is " << instances.size() << llendl;
-
-		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
-		{
-			lldebugs << "    " << (*iter)->getKey() << llendl;
-		}
-
-		if(instances.size() >= (size_t)browser_window_limit)
-		{
-			// Destroy the least recently opened instance
-			(*instances.begin())->closeFloater();
-		}
-	}
-
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::showInstance("web_content", tag));
-	llassert(browser);
-	if(browser)
-	{
-		browser->mUUID = uuid;
-
-		// tell the browser instance to load the specified URL
-		browser->open_media(url, target);
-		LLViewerMedia::proxyWindowOpened(target, uuid);
-
-		browser->getChild<LLLayoutPanel>("status_bar")->setVisible(show_chrome);
-		browser->getChild<LLLayoutPanel>("nav_controls")->setVisible(show_chrome);
-
-		if (!show_chrome)
-		{
-			browser->setResizeLimits(100, 100);
-		}
-
-		if (!preferred_media_size.isEmpty())
-		{
-			//ignore x, y for now
-			browser->geometryChanged(browser->getRect().mLeft, browser->getRect().mBottom, preferred_media_size.getWidth(), preferred_media_size.getHeight());
-		}
-	}
+//static
+LLFloater* LLFloaterWebContent::create( Params p)
+{
+	preCreate(p);
+	return new LLFloaterWebContent(p);
 }
 
 //static
 void LLFloaterWebContent::closeRequest(const std::string &uuid)
 {
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("web_content");
-	lldebugs << "instance list size is " << inst_list.size() << ", incoming uuid is " << uuid << llendl;
-	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
+	if (floaterp)
 	{
-		LLFloaterWebContent* i = dynamic_cast<LLFloaterWebContent*>(*iter);
-		lldebugs << "    " << i->mUUID << llendl;
-		if (i && i->mUUID == uuid)
-		{
-			i->closeFloater(false);
-			return;
- 		}
- 	}
+		floaterp->closeFloater(false);
+	}
 }
 
 //static
 void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
 {
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("web_content");
-	lldebugs << "instance list size is " << inst_list.size() << ", incoming uuid is " << uuid << llendl;
-	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end(); ++iter)
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
+	if (floaterp)
 	{
-		LLFloaterWebContent* i = dynamic_cast<LLFloaterWebContent*>(*iter);
-		lldebugs << "    " << i->mUUID << llendl;
-		if (i && i->mUUID == uuid)
-		{
-			i->geometryChanged(x, y, width, height);
-			return;
-		}
+		floaterp->geometryChanged(x, y, width, height);
 	}
 }
 
@@ -216,24 +176,112 @@ void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 	getWindow()->getSize(&window_size);
 
 	// Adjust width and height for the size of the chrome on the web Browser window.
-	width += getRect().getWidth() - mWebBrowser->getRect().getWidth();
-	height += getRect().getHeight() - mWebBrowser->getRect().getHeight();
+	LLRect browser_rect;
+	mWebBrowser->localRectToOtherView(mWebBrowser->getLocalRect(), &browser_rect, this);
 
+	S32 requested_browser_bottom = window_size.mY - (y + height);
 	LLRect geom;
-	geom.setOriginAndSize(x, window_size.mY - (y + height), width, height);
+	geom.setOriginAndSize(x - browser_rect.mLeft, 
+						requested_browser_bottom - browser_rect.mBottom, 
+						width + getRect().getWidth() - browser_rect.getWidth(), 
+						height + getRect().getHeight() - browser_rect.getHeight());
 
 	lldebugs << "geometry change: " << geom << llendl;
-
-	setShape(geom);
+	
+	LLRect new_rect;
+	getParent()->screenRectToLocal(geom, &new_rect);
+	setShape(new_rect);	
 }
 
-void LLFloaterWebContent::open_media(const std::string& web_url, const std::string& target)
+// static
+void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
+{
+	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
+
+	if (!p.id.isProvided())
+	{
+		p.id = LLUUID::generateNewID().asString();
+	}
+
+	if(p.target().empty() || p.target() == "_blank")
+	{
+		p.target = p.id();
+	}
+
+	S32 browser_window_limit = gSavedSettings.getS32("WebContentWindowLimit");
+	if(browser_window_limit != 0)
+	{
+		// showInstance will open a new window.  Figure out how many web browsers are already open,
+		// and close the least recently opened one if this will put us over the limit.
+
+		LLFloaterReg::const_instance_list_t &instances = LLFloaterReg::getFloaterList(p.window_class);
+		lldebugs << "total instance count is " << instances.size() << llendl;
+
+		for(LLFloaterReg::const_instance_list_t::const_iterator iter = instances.begin(); iter != instances.end(); iter++)
+		{
+			lldebugs << "    " << (*iter)->getKey()["target"] << llendl;
+		}
+
+		if(instances.size() >= (size_t)browser_window_limit)
+		{
+			// Destroy the least recently opened instance
+			(*instances.begin())->closeFloater();
+		}
+	}
+}
+
+void LLFloaterWebContent::open_media(const Params& p)
 {
 	// Specifying a mime type of text/html here causes the plugin system to skip the MIME type probe and just open a browser plugin.
-	mWebBrowser->setHomePageUrl(web_url, "text/html");
-	mWebBrowser->setTarget(target);
-	mWebBrowser->navigateTo(web_url, "text/html");
-	set_current_url(web_url);
+	LLViewerMedia::proxyWindowOpened(p.target(), p.id());
+	mWebBrowser->setHomePageUrl(p.url, "text/html");
+	mWebBrowser->setTarget(p.target);
+	mWebBrowser->navigateTo(p.url, "text/html");
+	
+	set_current_url(p.url);
+
+	getChild<LLLayoutPanel>("status_bar")->setVisible(p.show_chrome);
+	getChild<LLLayoutPanel>("nav_controls")->setVisible(p.show_chrome);
+	bool address_entry_enabled = p.allow_address_entry && !p.trusted_content;
+	getChildView("address")->setEnabled(address_entry_enabled);
+	getChildView("popexternal")->setEnabled(address_entry_enabled);
+
+	if (!address_entry_enabled)
+	{
+		mWebBrowser->setFocus(TRUE);
+	}
+
+	if (!p.show_chrome)
+	{
+		setResizeLimits(100, 100);
+	}
+
+	if (!p.preferred_media_size().isEmpty())
+	{
+		LLLayoutStack::updateClass();
+		LLRect browser_rect = mWebBrowser->calcScreenRect();
+		LLCoordWindow window_size;
+		getWindow()->getSize(&window_size);
+		
+		geometryChanged(browser_rect.mLeft, window_size.mY - browser_rect.mTop, p.preferred_media_size().getWidth(), p.preferred_media_size().getHeight());
+	}
+
+}
+
+void LLFloaterWebContent::onOpen(const LLSD& key)
+{
+	Params params(key);
+
+	if (!params.validateBlock())
+	{
+		closeFloater();
+		return;
+	}
+
+	mWebBrowser->setTrustedContent(params.trusted_content);
+
+	// tell the browser instance to load the specified URL
+	open_media(params);
 }
 
 //virtual
@@ -246,9 +294,9 @@ void LLFloaterWebContent::onClose(bool app_quitting)
 // virtual
 void LLFloaterWebContent::draw()
 {
-	// this is asychronous so we need to keep checking
-	getChildView( "back" )->setEnabled( mWebBrowser->canNavigateBack() );
-	getChildView( "forward" )->setEnabled( mWebBrowser->canNavigateForward() );
+	// this is asynchronous so we need to keep checking
+	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() );
+	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() );
 
 	LLFloater::draw();
 }
@@ -268,12 +316,12 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
 	{
 		// flags are sent with this event
-		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
-		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
+		mBtnBack->setEnabled( self->getHistoryBackAvailable() );
+		mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
 
 		// toggle visibility of these buttons based on browser state
-		getChildView("reload")->setVisible( false );
-		getChildView("stop")->setVisible( true );
+		mBtnReload->setVisible( false );
+		mBtnStop->setVisible( true );
 
 		// turn "on" progress bar now we're about to start loading
 		mStatusBarProgress->setVisible( true );
@@ -281,12 +329,12 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
 		// flags are sent with this event
-		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
-		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
+		mBtnBack->setEnabled( self->getHistoryBackAvailable() );
+		mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
 
 		// toggle visibility of these buttons based on browser state
-		getChildView("reload")->setVisible( true );
-		getChildView("stop")->setVisible( false );
+		mBtnReload->setVisible( true );
+		mBtnStop->setVisible( false );
 
 		// turn "off" progress bar now we're loaded
 		mStatusBarProgress->setVisible( false );
@@ -332,10 +380,13 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	{
 		std::string page_title = self->getMediaName();
 		// simulate browser behavior - title is empty, use the current URL
-		if ( page_title.length() > 0 )
-			setTitle( page_title );
-		else
-			setTitle( mCurrentURL );
+		if (mShowPageTitle)
+		{
+			if ( page_title.length() > 0 )
+				setTitle( page_title );
+			else
+				setTitle( mCurrentURL );
+		}
 	}
 	else if(event == MEDIA_EVENT_LINK_HOVERED )
 	{
@@ -388,9 +439,9 @@ void LLFloaterWebContent::onClickStop()
 
 	// still should happen when we catch the navigate complete event
 	// but sometimes (don't know why) that event isn't sent from Qt
-	// and we getto a point where the stop button stays active.
-	getChildView("reload")->setVisible( true );
-	getChildView("stop")->setVisible( false );
+	// and we ghetto a point where the stop button stays active.
+	mBtnReload->setVisible( true );
+	mBtnStop->setVisible( false );
 }
 
 void LLFloaterWebContent::onEnterAddress()

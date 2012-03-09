@@ -90,8 +90,6 @@ public:
 
 	static void initNameCache();
 	
-	static void copyLibraryGestures(const std::string& same_gender_gestures);
-
 	static void cleanupNameCache();
 
 	// outfit_folder_name can be a folder anywhere in your inventory, 
@@ -112,6 +110,8 @@ public:
 	static void postStartupState();
 	static void setStartSLURL(const LLSLURL& slurl); 
 	static LLSLURL& getStartSLURL() { return sStartSLURL; } 
+
+	static bool startLLProxy(); // Initialize the SOCKS 5 proxy
 
 private:
 	static LLSLURL sStartSLURL;

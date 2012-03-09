@@ -29,11 +29,13 @@
 
 #include "llpanel.h"
 
+class LLButton;
 class LLFolderViewItem;
-class LLInboxOutboxAddedObserver;
+class LLInboxAddedObserver;
 class LLInventoryCategoriesObserver;
 class LLInventoryItem;
 class LLInventoryPanel;
+class LLLayoutPanel;
 class LLPanelMainInventory;
 class LLSidepanelItemInfo;
 class LLSidepanelTaskInfo;
@@ -45,19 +47,23 @@ public:
 	virtual ~LLSidepanelInventory();
 
 private:
-	void handleLoginComplete();
+	void updateInbox();
 	
 public:
-	void observeInboxOutboxCreation();
+	void observeInboxCreation();
 	void observeInboxModifications(const LLUUID& inboxID);
-	void observeOutboxModifications(const LLUUID& outboxID);
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	LLInventoryPanel* getActivePanel(); // Returns an active inventory panel, if any.
+	LLInventoryPanel* getInboxPanel() const { return mInventoryPanelInbox; }
+
 	LLPanelMainInventory* getMainInventoryPanel() const { return mPanelMainInventory; }
 	BOOL isMainInventoryPanelActive() const;
+
+	void clearSelections(bool clearMain, bool clearInbox);
+	std::set<LLUUID> getInboxSelectionList();
 
 	void showItemInfoPanel();
 	void showTaskInfoPanel();
@@ -67,13 +73,12 @@ public:
 	bool canShare();
 
 	void onToggleInboxBtn();
-	void onToggleOutboxBtn();
 
 	void enableInbox(bool enabled);
-	void enableOutbox(bool enabled);
-
+	
+	void openInbox();
+	
 	bool isInboxEnabled() const { return mInboxEnabled; }
-	bool isOutboxEnabled() const { return mOutboxEnabled; }
 
 	void updateVerbs();
 
@@ -88,13 +93,13 @@ protected:
 	bool canWearSelected(); // check whether selected items can be worn
 
 	void onInboxChanged(const LLUUID& inbox_id);
-	void onOutboxChanged(const LLUUID& outbox_id);
 
 	//
 	// UI Elements
 	//
 private:
 	LLPanel*					mInventoryPanel; // Main inventory view
+	LLInventoryPanel*			mInventoryPanelInbox;
 	LLSidepanelItemInfo*		mItemPanel; // Individual item view
 	LLSidepanelTaskInfo*		mTaskPanel; // Individual in-world object view
 	LLPanelMainInventory*		mPanelMainInventory;
@@ -119,10 +124,9 @@ private:
 	LLButton*					mShopBtn;
 
 	bool						mInboxEnabled;
-	bool						mOutboxEnabled;
 
-	LLInventoryCategoriesObserver* 			mCategoriesObserver;
-	LLInboxOutboxAddedObserver*				mInboxOutboxAddedObserver;
+	LLInventoryCategoriesObserver* 	mCategoriesObserver;
+	LLInboxAddedObserver*			mInboxAddedObserver;
 };
 
 #endif //LL_LLSIDEPANELINVENTORY_H

@@ -30,6 +30,7 @@
 // linden library includes
 #include "llavatarnamecache.h"	// IDEVO
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llcombobox.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
@@ -41,9 +42,9 @@
 #include "llagentcamera.h"
 #include "llagentwearables.h"
 #include "llagentpilot.h"
-#include "llbottomtray.h"
 #include "llcompilequeue.h"
 #include "llconsole.h"
+#include "lldaycyclemanager.h"
 #include "lldebugview.h"
 #include "llenvmanager.h"
 #include "llfilepicker.h"
@@ -61,6 +62,7 @@
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
+#include "llfloaterbuildoptions.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
@@ -74,13 +76,11 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
-#include "llmenucommands.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
 #include "llsceneview.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
 #include "lltoolcomp.h"
@@ -100,6 +100,7 @@
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
+#include "llwaterparammanager.h"
 #include "llwlanimator.h"
 #include "llwlparammanager.h"
 #include "llfloatercamera.h"
@@ -112,6 +113,8 @@
 #include "boost/unordered_map.hpp"
 
 using namespace LLVOAvatarDefines;
+
+typedef LLPointer<LLViewerObject> LLViewerObjectPtr;
 
 static boost::unordered_map<std::string, LLStringExplicit> sDefaultItemLabels;
 
@@ -368,8 +371,6 @@ void set_underclothes_menu_options()
 
 void init_menus()
 {
-	S32 top = gViewerWindow->getRootView()->getRect().getHeight();
-
 	// Initialize actions
 	initialize_menus();
 
@@ -441,11 +442,13 @@ void init_menus()
 	{
 		color = LLUIColorTable::instance().getColor( "MenuNonProductionBgColor" );
 	}
-	gMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_viewer.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	gMenuBarView->setRect(LLRect(0, top, 0, top - MENU_BAR_HEIGHT));
-	gMenuBarView->setBackgroundColor( color );
 
 	LLView* menu_bar_holder = gViewerWindow->getRootView()->getChildView("menu_bar_holder");
+
+	gMenuBarView = LLUICtrlFactory::getInstance()->createFromFile<LLMenuBarGL>("menu_viewer.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	gMenuBarView->setRect(LLRect(0, menu_bar_holder->getRect().mTop, 0, menu_bar_holder->getRect().mTop - MENU_BAR_HEIGHT));
+	gMenuBarView->setBackgroundColor( color );
+
 	menu_bar_holder->addChild(gMenuBarView);
   
     gViewerWindow->setMenuBackgroundColor(false, 
@@ -518,7 +521,7 @@ class LLAdvancedToggleConsole : public view_listener_t
 		}
 		else if ("fast timers" == console_type)
 		{
-			toggle_visibility( (void*)gDebugView->mFastTimerView );
+			LLFloaterReg::toggleInstance("fast_timers");
 		}
 		else if ("scene view" == console_type)
 		{
@@ -558,7 +561,7 @@ class LLAdvancedCheckConsole : public view_listener_t
 		}
 		else if ("fast timers" == console_type)
 		{
-			new_value = get_visibility( (void*)gDebugView->mFastTimerView );
+			new_value = LLFloaterReg::instanceVisible("fast_timers");
 		}
 		else if ("scene view" == console_type)
 		{
@@ -829,7 +832,8 @@ U32 feature_from_string(std::string feature)
 };
 
 
-class LLAdvancedToggleFeature : public view_listener_t{
+class LLAdvancedToggleFeature : public view_listener_t
+{
 	bool handleEvent(const LLSD& userdata)
 	{
 		U32 feature = feature_from_string( userdata.asString() );
@@ -842,7 +846,8 @@ class LLAdvancedToggleFeature : public view_listener_t{
 };
 
 class LLAdvancedCheckFeature : public view_listener_t
-{bool handleEvent(const LLSD& userdata)
+{
+	bool handleEvent(const LLSD& userdata)
 {
 	U32 feature = feature_from_string( userdata.asString() );
 	bool new_value = false;
@@ -854,51 +859,6 @@ class LLAdvancedCheckFeature : public view_listener_t
 
 	return new_value;
 }
-};
-
-void toggle_destination_and_avatar_picker(const LLSD& show)
-{
-	S32 panel_idx = show.isDefined() ? show.asInteger() : -1;
-	LLView* container = gViewerWindow->getRootView()->findChildView("avatar_picker_and_destination_guide_container");
-	if (!container) return;
-
-	LLMediaCtrl* destinations = container->findChild<LLMediaCtrl>("destination_guide_contents");
-	LLMediaCtrl* avatar_picker = container->findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (!destinations || !avatar_picker) return;
-
-	LLButton* avatar_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("avatar_btn");
-	LLButton* destination_btn = gViewerWindow->getRootView()->getChildView("bottom_tray")->getChild<LLButton>("destination_btn");
-
-	if (panel_idx == 0
-		&& !destinations->getVisible())
-	{	// opening destinations guide
-		container->setVisible(true);
-		destinations->setVisible(true);
-		avatar_picker->setVisible(false);
-		LLFirstUse::notUsingDestinationGuide(false);
-		avatar_btn->setToggleState(false);
-		destination_btn->setToggleState(true);
-		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", 0);
-	}
-	else if (panel_idx == 1 
-		&& !avatar_picker->getVisible())
-	{	// opening avatar picker
-		container->setVisible(true);
-		destinations->setVisible(false);
-		avatar_picker->setVisible(true);
-		avatar_btn->setToggleState(true);
-		destination_btn->setToggleState(false);
-		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", 1);
-	}
-	else
-	{	// toggling off dest guide or avatar picker
-		container->setVisible(false);
-		destinations->setVisible(false);
-		avatar_picker->setVisible(false);
-		avatar_btn->setToggleState(false);
-		destination_btn->setToggleState(false);
-		gSavedSettings.setS32("DestinationsAndAvatarsVisibility", -1);
-	}
 };
 
 
@@ -987,6 +947,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_COMPOSITION;
 	}
+	else if ("attachment bytes" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES;
+	}
 	else if ("glow" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_GLOW;
@@ -1007,6 +971,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_SCULPTED;
 	}
+	else if ("wind vectors" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
+	}
 	else
 	{
 		return 0;
@@ -1019,6 +987,8 @@ class LLAdvancedToggleInfoDisplay : public view_listener_t
 	{
 		U32 info_display = info_display_from_string( userdata.asString() );
 
+		LL_INFOS("ViewerMenu") << "toggle " << userdata.asString() << LL_ENDL;
+		
 		if ( info_display != 0 )
 		{
 			LLPipeline::toggleRenderDebug( (void*)info_display );
@@ -1035,6 +1005,8 @@ class LLAdvancedCheckInfoDisplay : public view_listener_t
 	{
 		U32 info_display = info_display_from_string( userdata.asString() );
 		bool new_value = false;
+
+		LL_INFOS("ViewerMenu") << "check " << userdata.asString() << LL_ENDL;
 
 		if ( info_display != 0 )
 		{
@@ -1066,26 +1038,6 @@ class LLAdvancedCheckRandomizeFramerate : public view_listener_t
 	{
 		bool new_value = gRandomizeFramerate;
 		return new_value;
-	}
-};
-
-void run_vectorize_perf_test(void *)
-{
-	gSavedSettings.setBOOL("VectorizePerfTest", TRUE);
-}
-
-
-////////////////////////////////
-// RUN Vectorized Perform Test//
-////////////////////////////////
-
-
-class LLAdvancedVectorizePerfTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		run_vectorize_perf_test(NULL);
-		return true;
 	}
 };
 
@@ -2255,6 +2207,30 @@ class LLAdvancedEnableToggleHackedGodmode : public view_listener_t
 //// Advanced menu
 ////-------------------------------------------------------------------
 
+
+//////////////////
+// DEVELOP MENU //
+//////////////////
+
+class LLDevelopCheckLoggingLevel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		U32 level = userdata.asInteger();
+		return (static_cast<LLError::ELevel>(level) == LLError::getDefaultLevel());
+	}
+};
+
+class LLDevelopSetLoggingLevel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		U32 level = userdata.asInteger();
+		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
+		return true;
+	}
+};
+
 //////////////////
 // ADMIN MENU   //
 //////////////////
@@ -2626,7 +2602,7 @@ void handle_object_inspect()
 	{
 		LLSD key;
 		key["task"] = "task";
-		LLSideTray::getInstance()->showPanel("sidepanel_inventory", key);
+		LLFloaterSidePanelContainer::showPanel("inventory", key);
 	}
 	
 	/*
@@ -2814,8 +2790,31 @@ bool enable_object_mute()
 	else
 	{
 		// Just a regular object
-		return LLSelectMgr::getInstance()->getSelection()->
-			contains( object, SELECT_ALL_TES );
+		return LLSelectMgr::getInstance()->getSelection()->contains( object, SELECT_ALL_TES ) &&
+			   !LLMuteList::getInstance()->isMuted(object->getID());
+	}
+}
+
+bool enable_object_unmute()
+{
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!object) return false;
+
+	LLVOAvatar* avatar = find_avatar_from_object(object); 
+	if (avatar)
+	{
+		// It's an avatar
+		LLNameValue *lastname = avatar->getNVPair("LastName");
+		bool is_linden =
+			lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
+		bool is_self = avatar->isSelf();
+		return !is_linden && !is_self;
+	}
+	else
+	{
+		// Just a regular object
+		return LLSelectMgr::getInstance()->getSelection()->contains( object, SELECT_ALL_TES ) &&
+			   LLMuteList::getInstance()->isMuted(object->getID());;
 	}
 }
 
@@ -3151,6 +3150,12 @@ void handle_avatar_eject(const LLSD& avatar_id)
 		}
 }
 
+bool my_profile_visible()
+{
+	LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
+	return floaterp && floaterp->isInVisibleChain();
+}
+
 bool enable_freeze_eject(const LLSD& avatar_id)
 {
 	// Use avatar_id if available, otherwise default to right-click avatar
@@ -3385,15 +3390,6 @@ bool enable_sitdown_self()
     return isAgentAvatarValid() && !gAgentAvatarp->isSitting() && !gAgent.getFlying();
 }
 
-// Used from the login screen to aid in UI work on side tray
-void handle_show_side_tray()
-{
-	LLSideTray* side_tray = LLSideTray::getInstance();
-	LLView* root = gViewerWindow->getRootView();
-	// automatically removes and re-adds if there already
-	root->addChild(side_tray);
-}
-
 // Toggle one of "People" panel tabs in side tray.
 class LLTogglePanelPeopleTab : public view_listener_t
 {
@@ -3404,21 +3400,11 @@ class LLTogglePanelPeopleTab : public view_listener_t
 		LLSD param;
 		param["people_panel_tab_name"] = panel_name;
 
-		static LLPanel* friends_panel = NULL;
-		static LLPanel* groups_panel = NULL;
-		static LLPanel* nearby_panel = NULL;
-
-		if (panel_name == "friends_panel")
+		if (   panel_name == "friends_panel"
+			|| panel_name == "groups_panel"
+			|| panel_name == "nearby_panel")
 		{
-			return togglePeoplePanel(friends_panel, panel_name, param);
-		}
-		else if (panel_name == "groups_panel")
-		{
-			return togglePeoplePanel(groups_panel, panel_name, param);
-		}
-		else if (panel_name == "nearby_panel")
-		{
-			return togglePeoplePanel(nearby_panel, panel_name, param);
+			return togglePeoplePanel(panel_name, param);
 		}
 		else
 		{
@@ -3426,16 +3412,20 @@ class LLTogglePanelPeopleTab : public view_listener_t
 		}
 	}
 
-	static bool togglePeoplePanel(LLPanel* &panel, const std::string& panel_name, const LLSD& param)
+	static bool togglePeoplePanel(const std::string& panel_name, const LLSD& param)
 	{
+		LLPanel	*panel = LLFloaterSidePanelContainer::getPanel("people", panel_name);
 		if(!panel)
-		{
-			panel = LLSideTray::getInstance()->getPanel(panel_name);
-			if(!panel)
-				return false;
-		}
+			return false;
 
-		LLSideTray::getInstance()->togglePanel(panel, "panel_people", param);
+		if (panel->isInVisibleChain())
+		{
+			LLFloaterReg::hideInstance("people");
+		}
+		else
+		{
+			LLFloaterSidePanelContainer::showPanel("people", "panel_people", param) ;
+		}
 
 		return true;
 	}
@@ -3750,7 +3740,7 @@ void handle_reset_view()
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
 		// switching to outfit selector should automagically save any currently edited wearable
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
+		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "my_outfits"));
 	}
 
 	gAgentCamera.switchCameraPreset(CAMERA_PRESET_REAR_VIEW);
@@ -3812,6 +3802,43 @@ class LLViewDefaultUISize : public view_listener_t
 		gSavedSettings.setBOOL("UIAutoScale", FALSE);	
 		gViewerWindow->reshape(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
 		return true;
+	}
+};
+
+class LLViewToggleUI : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLNotification::Params params("ConfirmHideUI");
+		params.functor.function(boost::bind(&LLViewToggleUI::confirm, this, _1, _2));
+		LLSD substitutions;
+#if LL_DARWIN
+		substitutions["SHORTCUT"] = "Cmd+Shift+U";
+#else
+		substitutions["SHORTCUT"] = "Ctrl+Shift+U";
+#endif
+		params.substitutions = substitutions;
+		if (gViewerWindow->getUIVisibility())
+		{
+			// hiding, so show notification
+			LLNotifications::instance().add(params);
+		}
+		else
+		{
+			LLNotifications::instance().forceResponse(params, 0);
+		}
+
+		return true;
+	}
+
+	void confirm(const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+
+		if (option == 0) // OK
+		{
+			gViewerWindow->setUIVisibility(!gViewerWindow->getUIVisibility());
+		}
 	}
 };
 
@@ -4005,23 +4032,21 @@ void handle_god_request_avatar_geometry(void *)
 	}
 }
 
-
-void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
+static bool get_derezzable_objects(
+	EDeRezDestination dest,
+	std::string& error,
+	LLViewerRegion*& first_region,
+	LLDynamicArray<LLViewerObjectPtr>* derez_objectsp,
+	bool only_check = false)
 {
-	if(gAgentCamera.cameraMouselook())
-	{
-		gAgentCamera.changeCameraToDefault();
-	}
-	//gInventoryView->setPanelOpen(TRUE);
+	bool found = false;
 
-	std::string error;
-	LLDynamicArray<LLViewerObject*> derez_objects;
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	
 	// Check conditions that we can't deal with, building a list of
 	// everything that we'll actually be derezzing.
-	LLViewerRegion* first_region = NULL;
-	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
+	for (LLObjectSelection::valid_root_iterator iter = selection->valid_root_begin();
+		 iter != selection->valid_root_end(); iter++)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -4088,8 +4113,53 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 		}
 		if(can_derez_current)
 		{
-			derez_objects.put(object);
+			found = true;
+
+			if (only_check)
+				// one found, no need to traverse to the end
+				break;
+
+			if (derez_objectsp)
+				derez_objectsp->put(object);
+
 		}
+	}
+
+	return found;
+}
+
+static bool can_derez(EDeRezDestination dest)
+{
+	LLViewerRegion* first_region = NULL;
+	std::string error;
+	return get_derezzable_objects(dest, error, first_region, NULL, true);
+}
+
+static void derez_objects(
+	EDeRezDestination dest,
+	const LLUUID& dest_id,
+	LLViewerRegion*& first_region,
+	std::string& error,
+	LLDynamicArray<LLViewerObjectPtr>* objectsp)
+{
+	LLDynamicArray<LLViewerObjectPtr> derez_objects;
+
+	if (!objectsp) // if objects to derez not specified
+	{
+		// get them from selection
+		if (!get_derezzable_objects(dest, error, first_region, &derez_objects, false))
+		{
+			llwarns << "No objects to derez" << llendl;
+			return;
+		}
+
+		objectsp = &derez_objects;
+	}
+
+
+	if(gAgentCamera.cameraMouselook())
+	{
+		gAgentCamera.changeCameraToDefault();
 	}
 
 	// This constant is based on (1200 - HEADER_SIZE) / 4 bytes per
@@ -4099,13 +4169,13 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	// satisfy anybody.
 	const S32 MAX_ROOTS_PER_PACKET = 250;
 	const S32 MAX_PACKET_COUNT = 254;
-	F32 packets = ceil((F32)derez_objects.count() / (F32)MAX_ROOTS_PER_PACKET);
+	F32 packets = ceil((F32)objectsp->count() / (F32)MAX_ROOTS_PER_PACKET);
 	if(packets > (F32)MAX_PACKET_COUNT)
 	{
 		error = "AcquireErrorTooManyObjects";
 	}
 
-	if(error.empty() && derez_objects.count() > 0)
+	if(error.empty() && objectsp->count() > 0)
 	{
 		U8 d = (U8)dest;
 		LLUUID tid;
@@ -4130,11 +4200,11 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 			msg->addU8Fast(_PREHASH_PacketCount, packet_count);
 			msg->addU8Fast(_PREHASH_PacketNumber, packet_number);
 			objects_in_packet = 0;
-			while((object_index < derez_objects.count())
+			while((object_index < objectsp->count())
 				  && (objects_in_packet++ < MAX_ROOTS_PER_PACKET))
 
 			{
-				LLViewerObject* object = derez_objects.get(object_index++);
+				LLViewerObject* object = objectsp->get(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
 				// VEFFECT: DerezObject
@@ -4159,6 +4229,13 @@ void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 	}
 }
 
+static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
+{
+	LLViewerRegion* first_region = NULL;
+	std::string error;
+	derez_objects(dest, dest_id, first_region, error, NULL);
+}
+
 void handle_take_copy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
@@ -4170,11 +4247,18 @@ void handle_take_copy()
 // You can return an object to its owner if it is on your land.
 class LLObjectReturn : public view_listener_t
 {
+public:
+	LLObjectReturn() : mFirstRegion(NULL) {}
+
+private:
 	bool handleEvent(const LLSD& userdata)
 	{
 		if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return true;
 		
 		mObjectSelection = LLSelectMgr::getInstance()->getEditSelection();
+
+		// Save selected objects, so that we still know what to return after the confirmation dialog resets selection.
+		get_derezzable_objects(DRD_RETURN_TO_OWNER, mError, mFirstRegion, &mReturnableObjects);
 
 		LLNotificationsUtil::add("ReturnToOwner", LLSD(), LLSD(), boost::bind(&LLObjectReturn::onReturnToOwner, this, _1, _2));
 		return true;
@@ -4186,16 +4270,23 @@ class LLObjectReturn : public view_listener_t
 		if (0 == option)
 		{
 			// Ignore category ID for this derez destination.
-			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null);
+			derez_objects(DRD_RETURN_TO_OWNER, LLUUID::null, mFirstRegion, mError, &mReturnableObjects);
 		}
+
+		mReturnableObjects.clear();
+		mError.clear();
+		mFirstRegion = NULL;
 
 		// drop reference to current selection
 		mObjectSelection = NULL;
 		return false;
 	}
 
-protected:
 	LLObjectSelectionHandle mObjectSelection;
+
+	LLDynamicArray<LLViewerObjectPtr> mReturnableObjects;
+	std::string mError;
+	LLViewerRegion* mFirstRegion;
 };
 
 
@@ -4220,29 +4311,7 @@ class LLObjectEnableReturn : public view_listener_t
 		}
 		else
 		{
-			LLViewerRegion* region = gAgent.getRegion();
-			if (region)
-			{
-				// Estate owners and managers can always return objects.
-				if (region->canManageEstate())
-				{
-					new_value = true;
-				}
-				else
-				{
-					struct f : public LLSelectedObjectFunctor
-					{
-						virtual bool apply(LLViewerObject* obj)
-						{
-							return 
-								obj->permModify() ||
-								obj->isReturnable();
-						}
-					} func;
-					const bool firstonly = true;
-					new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
-				}
-			}
+			new_value = can_derez(DRD_RETURN_TO_OWNER);
 		}
 #endif
 		return new_value;
@@ -4488,6 +4557,13 @@ bool tools_visible_buy_object()
 bool tools_visible_take_object()
 {
 	return !is_selection_buy_not_take();
+}
+
+bool enable_how_to_visible(const LLSD& param)
+{
+	LLFloaterWebContent::Params p;
+	p.target = "__help_how_to";
+	return LLFloaterReg::instanceVisible("how_to", p);
 }
 
 class LLToolsEnableBuyOrTake : public view_listener_t
@@ -5275,7 +5351,7 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "create_landmark"));
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 
 		return true;
 	}
@@ -5285,7 +5361,7 @@ class LLWorldPlaceProfile : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSideTray::getInstance()->showPanel("panel_places", LLSD().with("type", "agent"));
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "agent"));
 
 		return true;
 	}
@@ -5380,6 +5456,34 @@ class LLAvatarAddFriend : public view_listener_t
 		return true;
 	}
 };
+
+
+class LLAvatarToggleMyProfile : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloater* instance = LLAvatarActions::getProfileFloater(gAgent.getID());
+		if (LLFloater::isMinimized(instance))
+		{
+			instance->setMinimized(FALSE);
+			instance->setFocus(TRUE);
+		}
+		else if (!LLFloater::isShown(instance))
+		{
+			LLAvatarActions::showProfile(gAgent.getID());
+		}
+		else if (!instance->hasFocus() && !instance->getIsChrome())
+		{
+			instance->setFocus(TRUE);
+		}
+		else
+		{
+			instance->closeFloater();
+		}
+		return true;
+	}
+};
+
 
 class LLAvatarAddContact : public view_listener_t
 {
@@ -5526,22 +5630,22 @@ void handle_viewer_disable_message_log(void*)
 
 void handle_customize_avatar()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "my_outfits"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "my_outfits"));
 }
 
 void handle_edit_outfit()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_outfit"));
 }
 
 void handle_edit_shape()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_shape"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_shape"));
 }
 
 void handle_edit_physics()
 {
-	LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_physics"));
+	LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "edit_physics"));
 }
 
 void handle_report_abuse()
@@ -5611,18 +5715,18 @@ class LLShowSidetrayPanel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string panel_name = userdata.asString();
+		std::string floater_name = userdata.asString();
 
-		LLPanel* panel = LLSideTray::getInstance()->getPanel(panel_name);
+		LLPanel* panel = LLFloaterSidePanelContainer::getPanel(floater_name);
 		if (panel)
 		{
 			if (panel->isInVisibleChain())
 			{
-				LLSideTray::getInstance()->hidePanel(panel_name);
+				LLFloaterReg::getInstance(floater_name)->closeFloater();
 			}
 			else
 			{
-				LLSideTray::getInstance()->showPanel(panel_name);
+				LLFloaterReg::getInstance(floater_name)->openFloater();
 			}
 		}
 		return true;
@@ -5633,9 +5737,9 @@ class LLSidetrayPanelVisible : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		std::string panel_name = userdata.asString();
+		std::string floater_name = userdata.asString();
 		// Toggle the panel
-		if (LLSideTray::getInstance()->isPanelActive(panel_name))
+		if (LLFloaterReg::getInstance(floater_name)->isInVisibleChain())
 		{
 			return true;
 		}
@@ -6821,6 +6925,22 @@ class LLToolsEnableSaveToObjectInventory : public view_listener_t
 	}
 };
 
+class LLToggleHowTo : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloaterWebContent::Params p;
+		std::string url = gSavedSettings.getString("HowToHelpURL");
+		p.url = LLWeb::expandURLSubstitutions(url, LLSD());
+		p.show_chrome = false;
+		p.target = "__help_how_to";
+		p.show_page_title = false;
+		p.preferred_media_size = LLRect(0, 460, 335, 0);
+
+		LLFloaterReg::toggleInstanceOrBringToFront("how_to", p);
+		return true;
+	}
+};
 
 class LLViewEnableMouselook : public view_listener_t
 {
@@ -7161,9 +7281,11 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
-		if (gFloaterTools)
+
+		LLFloaterBuildOptions* build_options_floater = LLFloaterReg::getTypedInstance<LLFloaterBuildOptions>("build_options");
+		if (build_options_floater && build_options_floater->getVisible())
 		{
-			gFloaterTools->mComboGridMode->setCurrentByIndex((S32)GRID_MODE_REF_OBJECT);
+			build_options_floater->setGridMode(GRID_MODE_REF_OBJECT);
 		}
 		return true;
 	}
@@ -7238,7 +7360,7 @@ void handle_web_browser_test(const LLSD& param)
 void handle_web_content_test(const LLSD& param)
 {
 	std::string url = param.asString();
-	LLWeb::loadWebURLInternal(url);
+	LLWeb::loadURLInternal(url);
 }
 
 void handle_buy_currency_test(void*)
@@ -7609,7 +7731,14 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else
 		{
-			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
+			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
+			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
+			bool use_fixed_sky = false;
+			bool use_region_settings = true;
+			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
+					    envmgr.getSkyPresetName(),
+					    envmgr.getDayCycleName(),
+					    use_fixed_sky, use_region_settings);
 		}
 
 		return true;
@@ -7667,30 +7796,46 @@ class LLWorldEnvPreset : public view_listener_t
 	}
 };
 
+class LLWorldEnableEnvPreset : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string item = userdata.asString();
+
+		if (item == "delete_water")
+		{
+			LLWaterParamManager::preset_name_list_t user_waters;
+			LLWaterParamManager::instance().getUserPresetNames(user_waters);
+			return !user_waters.empty();
+		}
+		else if (item == "delete_sky")
+		{
+			LLWLParamManager::preset_name_list_t user_skies;
+			LLWLParamManager::instance().getUserPresetNames(user_skies);
+			return !user_skies.empty();
+		}
+		else if (item == "delete_day_cycle")
+		{
+			LLDayCycleManager::preset_name_list_t user_days;
+			LLDayCycleManager::instance().getUserPresetNames(user_days);
+			return !user_days.empty();
+		}
+		else
+		{
+			llwarns << "Unknown item" << llendl;
+		}
+
+		return false;
+	}
+};
+
+
 /// Post-Process callbacks
 class LLWorldPostProcess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterReg::showInstance("env_post_process");
-		return true;
-	}
-};
-
-class LLWorldToggleMovementControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLBottomTray::getInstance()->toggleMovementControls();
-		return true;
-	}
-};
-
-class LLWorldToggleCameraControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLBottomTray::getInstance()->toggleCameraControls();
 		return true;
 	}
 };
@@ -7844,9 +7989,17 @@ void initialize_menus()
 
 	view_listener_t::addEnable(new LLUploadCostCalculator(), "Upload.CalculateCosts");
 
+
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
+	commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+	commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
+	enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
 	// File menu
 	init_menu_file();
@@ -7873,6 +8026,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLZoomer(1/1.2f), "View.ZoomIn");
 	view_listener_t::addMenu(new LLZoomer(DEFAULT_FIELD_OF_VIEW, false), "View.ZoomDefault");
 	view_listener_t::addMenu(new LLViewDefaultUISize(), "View.DefaultUISize");
+	view_listener_t::addMenu(new LLViewToggleUI(), "View.ToggleUI");
 
 	view_listener_t::addMenu(new LLViewEnableMouselook(), "View.EnableMouselook");
 	view_listener_t::addMenu(new LLViewEnableJoystickFlycam(), "View.EnableJoystickFlycam");
@@ -7888,7 +8042,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// World menu
-	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
 	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
@@ -7906,10 +8059,8 @@ void initialize_menus()
 	
 	view_listener_t::addMenu(new LLWorldEnvSettings(), "World.EnvSettings");
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
+	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-
-	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
-	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -7947,6 +8098,8 @@ void initialize_menus()
 
 	// Help menu
 	// most items use the ShowFloater method
+	view_listener_t::addMenu(new LLToggleHowTo(), "Help.ToggleHowTo");
+	enable.add("Help.HowToVisible", boost::bind(&enable_how_to_visible, _2));
 
 	// Advanced menu
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
@@ -7984,7 +8137,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
 	view_listener_t::addMenu(new LLAdvancedCheckPeriodicSlowFrame(), "Advanced.CheckPeriodicSlowFrame");
-	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
@@ -8025,7 +8177,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckDebugKeys(), "Advanced.CheckDebugKeys");
 	view_listener_t::addMenu(new LLAdvancedToggleDebugWindowProc(), "Advanced.ToggleDebugWindowProc");
 	view_listener_t::addMenu(new LLAdvancedCheckDebugWindowProc(), "Advanced.CheckDebugWindowProc");
-	commit.add("Advanced.ShowSideTray", boost::bind(&handle_show_side_tray));
 
 	// Advanced > XUI
 	commit.add("Advanced.ReloadColorSettings", boost::bind(&LLUIColorTable::loadFromSettings, LLUIColorTable::getInstance()));
@@ -8095,6 +8246,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 
+	// Develop >Set logging level
+	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
+	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
@@ -8140,6 +8294,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarCall(), "Avatar.Call");
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
+	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
+	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
+
+	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
@@ -8177,6 +8335,7 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
+	enable.add("Object.EnableUnmute", boost::bind(&enable_object_unmute));
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
 	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 
@@ -8212,6 +8371,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLGoToObject(), "GoToObject");
 	commit.add("PayObject", boost::bind(&handle_give_money_dialog));
 
+	commit.add("Inventory.NewWindow", boost::bind(&LLFloaterInventory::showAgentInventory));
+
 	enable.add("EnablePayObject", boost::bind(&enable_pay_object));
 	enable.add("EnablePayAvatar", boost::bind(&enable_pay_avatar));
 	enable.add("EnableEdit", boost::bind(&enable_object_edit));
@@ -8224,9 +8385,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLSomethingSelectedNoHUD(), "SomethingSelectedNoHUD");
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
-
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
-
-	commit.add("Destination.show", boost::bind(&toggle_destination_and_avatar_picker, 0));
-	commit.add("Avatar.show", boost::bind(&toggle_destination_and_avatar_picker, 1));
 }

@@ -1,4 +1,8 @@
-version 30
+version 31
+// The version number above should be implemented IF AND ONLY IF some
+// change has been made that is sufficiently important to justify
+// resetting the graphics preferences of all users to the recommended
+// defaults.  This should be as rare an event as we can manage.
 
 // NOTE: This is mostly identical to featuretable_mac.txt with a few differences
 // Should be combined into one table
@@ -39,7 +43,6 @@ RenderGlowResolutionPow		1	9
 RenderGround				1	1
 RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
-RenderNightBrightness		1	1.0
 RenderObjectBump			1	1
 RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
@@ -58,6 +61,7 @@ WLSkyDetail					1	128
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
+RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
@@ -65,6 +69,7 @@ RenderShadowDetail			1	0
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
+RenderMaxTextureIndex		1	16
 
 //
 // Low Graphics Settings
@@ -155,7 +160,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	4
+RenderFSAASamples			1	2
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -185,7 +190,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	8
+RenderFSAASamples			1	2
 
 //
 // Class Unknown Hardware (unknown)
@@ -218,6 +223,12 @@ list Class3
 RenderVBOEnable				1	1
 
 //
+// VRAM > 512MB
+//
+list VRAMGT512
+RenderCompressTextures		1	0
+
+//
 // No Pixel Shaders available
 //
 list NoPixelShaders
@@ -244,10 +255,10 @@ RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
 //
-// No GL_ARB_map_buffer_range
+// GL_ARB_map_buffer_range exists
 //
-list NoMapBufferRange
-RenderVBOMappingDisable		1	0
+list MapBufferRange
+RenderVBOMappingDisable		1	1
 
 
 //
@@ -290,6 +301,7 @@ RenderVBOEnable				1	0
 
 list OpenGLPre30
 RenderDeferred				0	0
+RenderMaxTextureIndex		1	1
 
 list Intel
 RenderAnisotropic			1	0

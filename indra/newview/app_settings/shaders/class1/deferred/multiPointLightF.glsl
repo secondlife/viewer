@@ -2,12 +2,34 @@
  * @file multiPointLightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2007, Linden Research, Inc.
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect diffuseRect;
@@ -27,7 +49,7 @@ uniform int light_count;
 uniform vec4 light[MAX_LIGHT_COUNT];
 uniform vec4 light_col[MAX_LIGHT_COUNT];
 
-varying vec4 vary_fragcoord;
+VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform float far_z;
@@ -106,7 +128,7 @@ void main()
 				
 				if (sa > 0.0)
 				{
-					sa = texture2D(lightFunc,vec2(sa, spec.a)).a * min(dist_atten*4.0, 1.0);
+					sa = texture2D(lightFunc,vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
 					sa *= noise;
 					col += da*sa*light_col[i].rgb*spec.rgb;
 				}
@@ -121,8 +143,6 @@ void main()
 		discard;
 	}
 	
-	gl_FragColor.rgb = out_col;
-	gl_FragColor.a = 0.0;
-	
-	//gl_FragColor = vec4(0.1, 0.025, 0.025/4.0, 0.0);
+	frag_color.rgb = out_col;
+	frag_color.a = 0.0;
 }

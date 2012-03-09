@@ -60,7 +60,7 @@ public:
 
 	typedef boost::function<void (LLLineEditor* caller)> keystroke_callback_t;
 	
-	struct MaxLength : public LLInitParam::Choice<MaxLength>
+	struct MaxLength : public LLInitParam::ChoiceBlock<MaxLength>
 	{
 		Alternative<S32> bytes, chars;
 		

@@ -173,6 +173,92 @@ bool LLViewerParcelOverlay::encroachesOwned(const std::vector<LLBBox>& boxes) co
 	}
 	return false;
 }
+bool LLViewerParcelOverlay::encroachesOnUnowned(const std::vector<LLBBox>& boxes) const
+{
+	// boxes are expected to already be axis aligned
+	for (U32 i = 0; i < boxes.size(); ++i)
+	{
+		LLVector3 min = boxes[i].getMinAgent();
+		LLVector3 max = boxes[i].getMaxAgent();
+		
+		S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 top    = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 bottom = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		
+		for (S32 row = top; row <= bottom; row++)
+		{
+			for (S32 column = left; column <= right; column++)
+			{
+				U8 type = ownership(row, column);
+				if ((PARCEL_SELF != type))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool LLViewerParcelOverlay::encroachesOnNearbyParcel(const std::vector<LLBBox>& boxes) const
+{
+	// boxes are expected to already be axis aligned
+	for (U32 i = 0; i < boxes.size(); ++i)
+	{
+		LLVector3 min = boxes[i].getMinAgent();
+		LLVector3 max = boxes[i].getMaxAgent();
+
+		// If an object crosses region borders it crosses a parcel
+		if (   min.mV[VX] < 0
+			|| min.mV[VY] < 0
+			|| max.mV[VX] > REGION_WIDTH_METERS
+			|| max.mV[VY] > REGION_WIDTH_METERS)
+		{
+			return true;
+		}
+
+		S32 left   = S32(llclamp((min.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 right  = S32(llclamp((max.mV[VX] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 bottom = S32(llclamp((min.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+		S32 top    = S32(llclamp((max.mV[VY] / PARCEL_GRID_STEP_METERS), 0.f, REGION_WIDTH_METERS - 1));
+
+		const S32 GRIDS_PER_EDGE = mParcelGridsPerEdge;
+
+		for (S32 row = bottom; row <= top; row++)
+		{
+			for (S32 col = left; col <= right; col++)
+			{
+				// This is not the rightmost column
+				if (col < GRIDS_PER_EDGE-1)
+				{
+					U8 east_overlay = mOwnership[row*GRIDS_PER_EDGE+col+1];
+					// If the column to the east of the current one marks
+					// the other parcel's west edge and the box extends
+					// to the west it crosses the parcel border.
+					if ((east_overlay & PARCEL_WEST_LINE) && col < right)
+					{
+						return true;
+					}
+				}
+
+				// This is not the topmost column
+				if (row < GRIDS_PER_EDGE-1)
+				{
+					U8 north_overlay = mOwnership[(row+1)*GRIDS_PER_EDGE+col];
+					// If the row to the north of the current one marks
+					// the other parcel's south edge and the box extends
+					// to the south it crosses the parcel border.
+					if ((north_overlay & PARCEL_SOUTH_LINE) && row < top)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
 
 BOOL LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
 {
@@ -798,14 +884,14 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	// Always fudge a little vertically.
 	pull_toward_camera.mV[VZ] += 0.01f;
 
-	glMatrixMode( GL_MODELVIEW );
-	glPushMatrix();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.pushMatrix();
 
 	// Move to appropriate region coords
 	LLVector3 origin = mRegion->getOriginAgent();
-	glTranslatef( origin.mV[VX], origin.mV[VY], origin.mV[VZ] );
+	gGL.translatef( origin.mV[VX], origin.mV[VY], origin.mV[VZ] );
 
-	glTranslatef(pull_toward_camera.mV[VX], pull_toward_camera.mV[VY],
+	gGL.translatef(pull_toward_camera.mV[VX], pull_toward_camera.mV[VY],
 		pull_toward_camera.mV[VZ]);
 
 	// Include +1 because vertices are fenceposts.
@@ -904,7 +990,7 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		
 	}
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	return drawn;
 }

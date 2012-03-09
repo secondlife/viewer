@@ -36,10 +36,10 @@
 #include "llagentwearables.h"
 #include "llagentui.h"
 #include "llanimationstates.h"
-#include "llbottomtray.h"
 #include "llcallingcard.h"
 #include "llcapabilitylistener.h"
 #include "llchannelmanager.h"
+#include "llchicletbar.h"
 #include "llconsole.h"
 #include "llenvmanager.h"
 #include "llfirstuse.h"
@@ -68,9 +68,11 @@
 #include "llstatusbar.h"
 #include "llteleportflags.h"
 #include "lltool.h"
+#include "lltoolbarview.h"
 #include "lltoolpie.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
+#include "lluictrl.h"
 #include "llurlentry.h"
 #include "llviewercontrol.h"
 #include "llviewerdisplay.h"
@@ -107,13 +109,15 @@ const F64 CHAT_AGE_FAST_RATE = 3.0;
 const F32 MIN_FIDGET_TIME = 8.f; // seconds
 const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
-
 // The agent instance.
 LLAgent gAgent;
 
 //--------------------------------------------------------------------
 // Statics
 //
+
+/// minimum time after setting away state before coming back based on movement
+const F32 LLAgent::MIN_AFK_TIME = 10.0f;
 
 const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
 
@@ -150,6 +154,68 @@ bool handleSlowMotionAnimation(const LLSD& newvalue)
 	return true;
 }
 
+// static
+void LLAgent::parcelChangedCallback()
+{
+	bool can_edit = LLToolMgr::getInstance()->canEdit();
+
+	gAgent.mCanEditParcel = can_edit;
+}
+
+// static
+bool LLAgent::isActionAllowed(const LLSD& sdname)
+{
+	bool retval = false;
+
+	const std::string& param = sdname.asString();
+
+	if (param == "build")
+	{
+		retval = gAgent.canEditParcel();
+	}
+	else if (param == "speak")
+	{
+		if ( gAgent.isVoiceConnected() && 
+			LLViewerParcelMgr::getInstance()->allowAgentVoice() &&
+				! LLVoiceClient::getInstance()->inTuningMode() )
+		{
+			retval = true;
+		}
+		else
+		{
+			retval = false;
+		}
+	}
+
+	return retval;
+}
+
+// static 
+void LLAgent::pressMicrophone(const LLSD& name)
+{
+	LLFirstUse::speak(false);
+
+	 LLVoiceClient::getInstance()->inputUserControlState(true);
+}
+
+// static 
+void LLAgent::releaseMicrophone(const LLSD& name)
+{
+	LLVoiceClient::getInstance()->inputUserControlState(false);
+}
+
+// static
+void LLAgent::toggleMicrophone(const LLSD& name)
+{
+	LLVoiceClient::getInstance()->toggleUserPTTState();
+}
+
+// static
+bool LLAgent::isMicrophoneOn(const LLSD& sdname)
+{
+	return LLVoiceClient::getInstance()->getUserPTTState();
+}
+
 // ************************************************************
 // Enabled this definition to compile a 'hacked' viewer that
 // locally believes the end user has godlike powers.
@@ -181,6 +247,7 @@ LLAgent::LLAgent() :
 	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
+	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
@@ -229,6 +296,8 @@ LLAgent::LLAgent() :
 	mCurrentFidget(0),
 	mFirstLogin(FALSE),
 	mGenderChosen(FALSE),
+	
+	mVoiceConnected(false),
 
 	mAppearanceSerialNum(0),
 
@@ -265,7 +334,9 @@ void LLAgent::init()
 
 	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
-	
+
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
+
 	mInitialized = TRUE;
 }
 
@@ -1030,19 +1101,10 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 
 	LLVector3 skyward = getReferenceUpVector();
 
-	F32			look_down_limit;
-	F32			look_up_limit = 10.f * DEG_TO_RAD;
+	const F32 look_down_limit = 179.f * DEG_TO_RAD;;
+	const F32 look_up_limit   =   1.f * DEG_TO_RAD;
 
 	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
-
-	if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
-	{
-		look_down_limit = 130.f * DEG_TO_RAD;
-	}
-	else
-	{
-		look_down_limit = 170.f * DEG_TO_RAD;
-	}
 
 	// clamp pitch to limits
 	if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
@@ -1165,6 +1227,7 @@ void LLAgent::setAFK()
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_START);
 		setControlFlags(AGENT_CONTROL_AWAY | AGENT_CONTROL_STOP);
+		LL_INFOS("AFK") << "Setting Away" << LL_ENDL;
 		gAwayTimer.start();
 		if (gAFKMenu)
 		{
@@ -1188,6 +1251,7 @@ void LLAgent::clearAFK()
 	{
 		sendAnimationRequest(ANIM_AGENT_AWAY, ANIM_REQUEST_STOP);
 		clearControlFlags(AGENT_CONTROL_AWAY);
+		LL_INFOS("AFK") << "Clearing Away" << LL_ENDL;
 		if (gAFKMenu)
 		{
 			gAFKMenu->setLabel(LLTrans::getString("AvatarSetAway"));
@@ -1793,11 +1857,12 @@ void LLAgent::endAnimationUpdateUI()
 	// clean up UI from mode we're leaving
 	if (gAgentCamera.getLastCameraMode() == CAMERA_MODE_MOUSELOOK )
 	{
+		gToolBarView->setToolBarsVisible(true);
 		// show mouse cursor
 		gViewerWindow->showCursor();
 		// show menus
 		gMenuBarView->setVisible(TRUE);
-		LLNavigationBar::getInstance()->setVisible(TRUE);
+		LLNavigationBar::getInstance()->setVisible(TRUE && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
 		gStatusBar->setVisibleForMouselook(true);
 
 		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
@@ -1805,7 +1870,7 @@ void LLAgent::endAnimationUpdateUI()
 			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
 		}
 
-		LLBottomTray::getInstance()->onMouselookModeOut();
+		LLChicletBar::getInstance()->setVisible(TRUE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(TRUE);
 
@@ -1902,14 +1967,19 @@ void LLAgent::endAnimationUpdateUI()
 	//---------------------------------------------------------------------
 	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 	{
-		// hide menus
+		// clean up UI
+		// first show anything hidden by UI toggle
+		gViewerWindow->setUIVisibility(TRUE);
+
+		// then hide stuff we want hidden for mouselook 
+		gToolBarView->setToolBarsVisible(false);
 		gMenuBarView->setVisible(FALSE);
 		LLNavigationBar::getInstance()->setVisible(FALSE);
 		gStatusBar->setVisibleForMouselook(false);
 
 		LLPanelTopInfoBar::getInstance()->setVisible(FALSE);
 
-		LLBottomTray::getInstance()->onMouselookModeIn();
+		LLChicletBar::getInstance()->setVisible(FALSE);
 
 		LLPanelStandStopFlying::getInstance()->setVisible(FALSE);
 
@@ -3244,6 +3314,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 	}
 
 	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
+	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
 
 	gAgentAvatarp->updateMeshTextures();
 
@@ -3356,8 +3427,15 @@ bool LLAgent::teleportCore(bool is_local)
 	// hide the Region/Estate floater
 	LLFloaterReg::hideInstance("region_info");
 
-	// hide the search floater (EXT-8276)
-	LLFloaterReg::hideInstance("search");
+	// minimize the Search floater (STORM-1474)
+	{
+		LLFloater* instance = LLFloaterReg::getInstance("search");
+
+		if (instance && instance->getVisible())
+		{
+			instance->setMinimized(TRUE);
+		}
+	}
 
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();
@@ -3918,14 +3996,14 @@ void LLAgent::renderAutoPilotTarget()
 		F32 height_meters;
 		LLVector3d target_global;
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
 
 		// not textured
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		// lovely green
-		glColor4f(0.f, 1.f, 1.f, 1.f);
+		gGL.color4f(0.f, 1.f, 1.f, 1.f);
 
 		target_global = mAutoPilotTargetGlobal;
 
@@ -3933,9 +4011,9 @@ void LLAgent::renderAutoPilotTarget()
 
 		height_meters = 1.f;
 
-		glScalef(height_meters, height_meters, height_meters);
+		gGL.scalef(height_meters, height_meters, height_meters);
 
-		gSphere.render(1500.f);
+		gSphere.render();
 
 		gGL.popMatrix();
 	}

@@ -263,10 +263,14 @@ protected:
 	void reorganizeVolumeList() ;
 	void setTexelsPerImage();
 private:
+	friend class LLBumpImageList;
+	friend class LLUIImageList;
+
 	//note: do not make this function public.
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 	virtual void switchToCachedImage();
 	
+	static bool isMemoryForTextureLow() ;
 protected:
 	LLUUID mID;
 	S32 mBoostLevel;				// enum describing priority level
@@ -330,6 +334,7 @@ public:
 	static BOOL sUseTextureAtlas ;
 
 	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
+	static LLPointer<LLViewerTexture> sBlackImagep;	// Texture to show NOTHING (pure black)
 };
 
 
@@ -596,7 +601,7 @@ public:
 
 private:
 	void init(bool firstinit) ;
-	void scaleDown() ;		
+	bool scaleDown() ;		
 
 private:
 	F32 mDiscardVirtualSize;		// Virtual size used to calculate desired discard	

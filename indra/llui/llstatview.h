@@ -46,7 +46,7 @@ public:
 		Params() 
 		:	setting("setting")
 		{
-			follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
+			changeDefault(follows.flags, FOLLOWS_TOP | FOLLOWS_LEFT);
 		}
 	};
 

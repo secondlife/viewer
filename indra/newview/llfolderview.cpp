@@ -172,6 +172,7 @@ LLFolderView::Params::Params()
 	title("title"),
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
+	show_empty_message("show_empty_message", true),
 	show_load_status("show_load_status", true),
 	use_ellipses("use_ellipses", false)
 {
@@ -181,9 +182,11 @@ LLFolderView::Params::Params()
 // Default constructor
 LLFolderView::LLFolderView(const Params& p)
 :	LLFolderViewFolder(p),
+	mRunningHeight(0),
 	mScrollContainer( NULL ),
 	mPopupMenuHandle(),
 	mAllowMultiSelect(p.allow_multiselect),
+	mShowEmptyMessage(p.show_empty_message),
 	mShowFolderHierarchy(FALSE),
 	mSourceID(p.task_id),
 	mRenameItem( NULL ),
@@ -298,7 +301,7 @@ LLFolderView::~LLFolderView( void )
 	mAutoOpenItems.removeAllNodes();
 	gIdleCallbacks.deleteFunction(idle, this);
 
-	LLView::deleteViewByHandle(mPopupMenuHandle);
+	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 
 	mAutoOpenItems.removeAllNodes();
 	clearSelection();
@@ -348,10 +351,6 @@ BOOL LLFolderView::addFolder( LLFolderViewFolder* folder)
 	{
 		mFolders.insert(mFolders.begin(), folder);
 	}
-	if (folder->numSelected())
-	{
-		recursiveIncrementNumDescendantsSelected(folder->numSelected());
-	}
 	folder->setShowLoadStatus(mShowLoadStatus);
 	folder->setOrigin(0, 0);
 	folder->reshape(getRect().getWidth(), 0);
@@ -367,16 +366,6 @@ void LLFolderView::closeAllFolders()
 	// Close all the folders
 	setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
 	arrangeAll();
-}
-
-void LLFolderView::openFolder(const std::string& foldername)
-{
-	LLFolderViewFolder* inv = findChild<LLFolderViewFolder>(foldername);
-	if (inv)
-	{
-		setSelection(inv, FALSE, FALSE);
-		inv->setOpen(TRUE);
-	}
 }
 
 void LLFolderView::openTopLevelFolders()
@@ -402,6 +391,16 @@ static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 // This view grows and shinks to enclose all of its children items and folders.
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
 {
+	if (getListener()->getUUID().notNull())
+	{
+		if (mNeedsSort)
+		{
+			mFolders.sort(mSortFunction);
+			mItems.sort(mSortFunction);
+			mNeedsSort = false;
+		}
+	}
+
 	LLFastTimer t2(FTM_ARRANGE);
 
 	filter_generation = mFilter->getMinRequiredGeneration();
@@ -479,6 +478,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		target_height = running_height;
 	}
 
+	mRunningHeight = running_height;
 	LLRect scroll_rect = mScrollContainer->getContentWindowRect();
 	reshape( llmax(scroll_rect.getWidth(), total_width), running_height );
 
@@ -524,9 +524,11 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	LLRect scroll_rect;
 	if (mScrollContainer)
 	{
+		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
 	width = llmax(mMinWidth, scroll_rect.getWidth());
+	height = llmax(mRunningHeight, scroll_rect.getHeight());
 
 	// restrict width with scroll container's width
 	if (mUseEllipses)
@@ -690,28 +692,10 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 	return rv;
 }
 
-void LLFolderView::extendSelection(LLFolderViewItem* selection, LLFolderViewItem* last_selected, LLDynamicArray<LLFolderViewItem*>& items)
-{
-	// now store resulting selection
-	if (mAllowMultiSelect)
-	{
-		LLFolderViewItem *cur_selection = getCurSelectedItem();
-		LLFolderViewFolder::extendSelection(selection, cur_selection, items);
-		for (S32 i = 0; i < items.count(); i++)
-		{
-			addToSelectionList(items[i]);
-		}
-	}
-	else
-	{
-		setSelection(selection, FALSE, FALSE);
-	}
-
-	mSignalSelectCallback = SIGNAL_KEYBOARD_FOCUS;
-}
-
+static LLFastTimer::DeclareTimer FTM_SANITIZE_SELECTION("Sanitize Selection");
 void LLFolderView::sanitizeSelection()
 {
+	LLFastTimer _(FTM_SANITIZE_SELECTION);
 	// store off current item in case it is automatically deselected
 	// and we want to preserve context
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
@@ -926,7 +910,7 @@ void LLFolderView::draw()
 		mStatusText.clear();
 		mStatusTextBox->setVisible( FALSE );
 	}
-	else
+	else if (mShowEmptyMessage)
 	{
 		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
@@ -960,7 +944,6 @@ void LLFolderView::draw()
 			// See EXT-7564, EXT-7047.
 			arrangeFromRoot();
 		}
-		
 	}
 
 	// skip over LLFolderViewFolder::draw since we don't want the folder icon, label, 
@@ -1004,6 +987,33 @@ void LLFolderView::removeSelectedItems( void )
 	LLNotificationsUtil::add("DeleteItems", args, LLSD(), boost::bind(&LLFolderView::onItemsRemovalConfirmation, this, _1, _2));
 }
 
+bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFolderViewItem*>& selectedItems)
+{
+	LLFolderViewItem* item_parent = dynamic_cast<LLFolderViewItem*>(item->getParent());
+
+	if (item_parent)
+	{
+		for(std::vector<LLFolderViewItem*>::const_iterator it = selectedItems.begin(); it != selectedItems.end(); ++it)
+		{
+			const LLFolderViewItem* const selected_item = (*it);
+
+			LLFolderViewItem* parent = item_parent;
+
+			while (parent)
+			{
+				if (selected_item == parent)
+				{
+					return true;
+				}
+
+				parent = dynamic_cast<LLFolderViewItem*>(parent->getParent());
+			}
+		}
+	}
+
+	return false;
+}
+
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -1025,7 +1035,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 		for (item_it = mSelectedItems.begin(); item_it != mSelectedItems.end(); ++item_it)
 		{
 			item = *item_it;
-			if(item->isRemovable())
+			if (item && item->isRemovable())
 			{
 				items.push_back(item);
 			}
@@ -1078,7 +1088,7 @@ void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LL
 			if (!new_selection)
 			{
 				new_selection = last_item->getPreviousOpenNode(FALSE);
-				while (new_selection && new_selection->isSelected())
+				while (new_selection && (new_selection->isSelected() || isDescendantOfASelectedItem(new_selection, items)))
 				{
 					new_selection = new_selection->getPreviousOpenNode(FALSE);
 				}
@@ -1189,7 +1199,9 @@ void LLFolderView::changeType(LLInventoryModel *model, LLFolderType::EType new_f
 
 void LLFolderView::autoOpenItem( LLFolderViewFolder* item )
 {
-	if (mAutoOpenItems.check() == item || mAutoOpenItems.getDepth() >= (U32)AUTO_OPEN_STACK_DEPTH)
+	if ((mAutoOpenItems.check() == item) || 
+		(mAutoOpenItems.getDepth() >= (U32)AUTO_OPEN_STACK_DEPTH) ||
+		item->isOpen())
 	{
 		return;
 	}
@@ -1690,7 +1702,7 @@ BOOL LLFolderView::handleUnicodeCharHere(llwchar uni_char)
 	}
 
 	BOOL handled = FALSE;
-	if (gFocusMgr.childHasKeyboardFocus(getRoot()))
+	if (mParentPanel->hasFocus())
 	{
 		// SL-51858: Key presses are not being passed to the Popup menu.
 		// A proper fix is non-trivial so instead just close the menu.
@@ -1903,20 +1915,25 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									 std::string& tooltip_msg)
 {
 	mDragAndDropThisFrame = TRUE;
+	// have children handle it first
 	BOOL handled = LLView::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data,
 											 accept, tooltip_msg);
 
-	// When there are no visible children drag and drop is handled
+	// when drop is not handled by child, it should be handled
 	// by the folder which is the hierarchy root.
-	if (!handled && !hasVisibleChildren())
+	if (!handled)
 	{
-		if (mFolders.empty())
+		if (getListener()->getUUID().notNull())
 		{
-			handled = handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
 		else
 		{
-			handled = mFolders.front()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+			if (!mFolders.empty())
+			{
+				// dispatch to last folder as a hack to support "Contents" folder in object inventory
+				handled = mFolders.back()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
+			}
 		}
 	}
 
@@ -1931,7 +1948,7 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 void LLFolderView::deleteAllChildren()
 {
 	closeRenamer();
-	LLView::deleteViewByHandle(mPopupMenuHandle);
+	if (mPopupMenuHandle.get()) mPopupMenuHandle.get()->die();
 	mPopupMenuHandle = LLHandle<LLView>();
 	mScrollContainer = NULL;
 	mRenameItem = NULL;
@@ -2038,8 +2055,10 @@ void LLFolderView::removeItemID(const LLUUID& id)
 	mItemMap.erase(id);
 }
 
+LLFastTimer::DeclareTimer FTM_GET_ITEM_BY_ID("Get FolderViewItem by ID");
 LLFolderViewItem* LLFolderView::getItemByID(const LLUUID& id)
 {
+	LLFastTimer _(FTM_GET_ITEM_BY_ID);
 	if (id == getListener()->getUUID())
 	{
 		return this;

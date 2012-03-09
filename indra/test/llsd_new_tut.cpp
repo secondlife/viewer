@@ -5,7 +5,7 @@
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2006-2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,12 +25,26 @@
  * $/LicenseInfo$
  */
 
+#define LLSD_DEBUG_INFO
 #include <tut/tut.hpp>
 #include "linden_common.h"
 #include "lltut.h"
 
 #include "llsdtraits.h"
 #include "llstring.h"
+
+#if LL_WINDOWS
+#include <float.h>
+namespace
+{
+	int fpclassify(double x)
+	{
+		return _fpclass(x);
+	}
+}
+#else
+using std::fpclassify;
+#endif
 
 namespace tut
 {
@@ -39,11 +53,11 @@ namespace tut
 	private:
 		U32	mOutstandingAtStart;
 	public:
-		SDCleanupCheck() : mOutstandingAtStart(LLSD::outstandingCount()) { }
+		SDCleanupCheck() : mOutstandingAtStart(llsd::outstandingCount()) { }
 		~SDCleanupCheck()
 		{
 			ensure_equals("SDCleanupCheck",
-				LLSD::outstandingCount(), mOutstandingAtStart);
+				llsd::outstandingCount(), mOutstandingAtStart);
 		}
 	};
 
@@ -57,12 +71,12 @@ namespace tut
 		SDAllocationCheck(const std::string& message, int expectedAllocations)
 			: mMessage(message),
 			mExpectedAllocations(expectedAllocations),
-			mAllocationAtStart(LLSD::allocationCount())
+			mAllocationAtStart(llsd::allocationCount())
 			{ }
 		~SDAllocationCheck()
 		{
 			ensure_equals(mMessage + " SDAllocationCheck",
-				LLSD::allocationCount() - mAllocationAtStart,
+				llsd::allocationCount() - mAllocationAtStart,
 				mExpectedAllocations);
 		}
 	};
@@ -218,19 +232,16 @@ namespace tut
 		}
 		else
 		{
-// TODO: Fix on windows....
-#ifndef LL_WINDOWS
-# if !defined(fpclassify) && __GNUC__ >= 3
-#   define FPCLASSIFY_NAMESPACE std::
-# else
-#   define FPCLASSIFY_NAMESPACE
-# endif
-			int left  = FPCLASSIFY_NAMESPACE fpclassify(v.asReal());
-			int right = FPCLASSIFY_NAMESPACE fpclassify(eReal);
+			int left  = fpclassify(v.asReal());
+			int right = fpclassify(eReal);
 
 			ensure_equals(s+" to real", 	left, 			right);
-			ensure_equals(s+" to string",	v.asString(),	eString);
-#endif
+			// ensure_equals(s+" to string", v.asString(), eString);
+			// I've commented this check out, since there doesn't
+			// seem to be uniform string representation for NaN on
+			// all platforms. For example, on my Ubuntu 8.10 laptop
+			// with libc 2.11.1, sqrt(-1.0) will return '-nan', not
+			// 'nan'.
 		}
 	}
 	
@@ -742,6 +753,78 @@ namespace tut
 			LLSD w = v;
 			w = "nice day";
 		}
+
+		{
+			SDAllocationCheck check("shared values test for threaded work", 9);
+
+			//U32 start_llsd_count = llsd::outstandingCount();
+
+			LLSD m = LLSD::emptyMap();
+
+			m["one"] = 1;
+			m["two"] = 2;
+			m["one_copy"] = m["one"];			// 3 (m, "one" and "two")
+
+			m["undef_one"] = LLSD();
+			m["undef_two"] = LLSD();
+			m["undef_one_copy"] = m["undef_one"];
+
+			{	// Ensure first_array gets freed to avoid counting it
+				LLSD first_array = LLSD::emptyArray();
+				first_array.append(1.0f);
+				first_array.append(2.0f);			
+				first_array.append(3.0f);			// 7
+
+				m["array"] = first_array;
+				m["array_clone"] = first_array;
+				m["array_copy"] = m["array"];		// 7
+			}
+
+			m["string_one"] = "string one value";
+			m["string_two"] = "string two value";
+			m["string_one_copy"] = m["string_one"];		// 9
+
+			//U32 llsd_object_count = llsd::outstandingCount();
+			//std::cout << "Using " << (llsd_object_count - start_llsd_count) << " LLSD objects" << std::endl;
+
+			//m.dumpStats();
+		}
+
+		{
+			SDAllocationCheck check("shared values test for threaded work", 9);
+
+			//U32 start_llsd_count = LLSD::outstandingCount();
+
+			LLSD m = LLSD::emptyMap();
+
+			m["one"] = 1;
+			m["two"] = 2;
+			m["one_copy"] = m["one"];			// 3 (m, "one" and "two")
+
+			m["undef_one"] = LLSD();
+			m["undef_two"] = LLSD();
+			m["undef_one_copy"] = m["undef_one"];
+
+			{	// Ensure first_array gets freed to avoid counting it
+				LLSD first_array = LLSD::emptyArray();
+				first_array.append(1.0f);
+				first_array.append(2.0f);			
+				first_array.append(3.0f);			// 7
+
+				m["array"] = first_array;
+				m["array_clone"] = first_array;
+				m["array_copy"] = m["array"];		// 7
+			}
+
+			m["string_one"] = "string one value";
+			m["string_two"] = "string two value";
+			m["string_one_copy"] = m["string_one"];		// 9
+
+			//U32 llsd_object_count = LLSD::outstandingCount();
+			//std::cout << "Using " << (llsd_object_count - start_llsd_count) << " LLSD objects" << std::endl;
+
+			//m.dumpStats();
+		}
 	}
 
 	template<> template<>
@@ -769,4 +852,3 @@ namespace tut
 		test serializations
 	*/
 }
-

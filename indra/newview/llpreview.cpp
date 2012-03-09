@@ -363,8 +363,10 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 		// Copy to inventory
 		if (self->mNotecardInventoryID.notNull())
 		{
-			copy_inventory_from_notecard(self->mNotecardObjectID,
-				self->mNotecardInventoryID, item);
+			copy_inventory_from_notecard(LLUUID::null,
+										 self->mNotecardObjectID,
+										 self->mNotecardInventoryID,
+										 item);
 		}
 		else
 		{
@@ -444,18 +446,15 @@ void LLPreview::handleReshape(const LLRect& new_rect, bool by_user)
 LLMultiPreview::LLMultiPreview()
 	: LLMultiFloater(LLSD())
 {
-	// *TODO: There should be a .xml file for this
-	const LLRect& nextrect = LLFloaterReg::getFloaterRect("preview"); // place where the next preview should show up
-	if (nextrect.getWidth() > 0)
+	// start with a rect in the top-left corner ; will get resized
+	LLRect rect;
+	rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 200, 400);
+	setRect(rect);
+
+	LLFloater* last_floater = LLFloaterReg::getLastFloaterInGroup("preview");
+	if (last_floater)
 	{
-		setRect(nextrect);
-	}
-	else
-	{
-		// start with a rect in the top-left corner ; will get resized
-		LLRect rect;
-		rect.setLeftTopAndSize(0, gViewerWindow->getWindowHeightScaled(), 200, 400);
-		setRect(rect);
+		stackWith(*last_floater);
 	}
 	setTitle(LLTrans::getString("MultiPreviewTitle"));
 	buildTabContainer();

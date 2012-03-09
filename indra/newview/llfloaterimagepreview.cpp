@@ -50,6 +50,7 @@
 #include "llvoavatar.h"
 #include "pipeline.h"
 #include "lluictrlfactory.h"
+#include "llviewershadermgr.h"
 #include "llviewertexturelist.h"
 #include "llstring.h"
 
@@ -62,6 +63,7 @@
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
+const S32 PREVIEW_VPAD = -24;	// yuk, hard coded
 const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
 const S32 PREVIEW_TEXTURE_HEIGHT = 320;
 
@@ -98,7 +100,7 @@ BOOL LLFloaterImagePreview::postBuild()
 	childSetCommitCallback("clothing_type_combo", onPreviewTypeCommit, this);
 
 	mPreviewRect.set(PREVIEW_HPAD, 
-		PREVIEW_TEXTURE_HEIGHT,
+		PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD,
 		getRect().getWidth() - PREVIEW_HPAD, 
 		PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
@@ -270,13 +272,13 @@ void LLFloaterImagePreview::draw()
 			gGL.begin( LLRender::QUADS );
 			{
 				gGL.texCoord2f(mPreviewImageRect.mLeft, mPreviewImageRect.mTop);
-				gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+				gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 				gGL.texCoord2f(mPreviewImageRect.mLeft, mPreviewImageRect.mBottom);
 				gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 				gGL.texCoord2f(mPreviewImageRect.mRight, mPreviewImageRect.mBottom);
 				gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 				gGL.texCoord2f(mPreviewImageRect.mRight, mPreviewImageRect.mTop);
-				gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+				gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 			}
 			gGL.end();
 
@@ -302,13 +304,13 @@ void LLFloaterImagePreview::draw()
 				gGL.begin( LLRender::QUADS );
 				{
 					gGL.texCoord2f(0.f, 1.f);
-					gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+					gGL.vertex2i(PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 					gGL.texCoord2f(0.f, 0.f);
 					gGL.vertex2i(PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 					gGL.texCoord2f(1.f, 0.f);
 					gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_HPAD + PREF_BUTTON_HEIGHT + PREVIEW_HPAD);
 					gGL.texCoord2f(1.f, 1.f);
-					gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT);
+					gGL.vertex2i(r.getWidth() - PREVIEW_HPAD, PREVIEW_TEXTURE_HEIGHT + PREVIEW_VPAD);
 				}
 				gGL.end();
 
@@ -649,25 +651,30 @@ BOOL LLImagePreviewAvatar::render()
 	gGL.pushUIMatrix();
 	gGL.loadUIIdentity();
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	glLoadIdentity();
+	gGL.loadIdentity();
 	
 
 	LLGLSUIDefault def;
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
 	gl_rect_2d_simple( mFullWidth, mFullHeight );
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
 	gGL.flush();
@@ -690,8 +697,7 @@ BOOL LLImagePreviewAvatar::render()
 
 	LLVertexBuffer::unbind();
 	avatarp->updateLOD();
-	
-
+		
 	if (avatarp->mDrawable.notNull())
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
@@ -699,7 +705,7 @@ BOOL LLImagePreviewAvatar::render()
 		LLGLDisable no_blend(GL_BLEND);
 
 		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)avatarp->mDrawable->getFace(0)->getPool();
-		
+		gPipeline.enableLightsPreview();
 		avatarPoolp->renderAvatars(avatarp);  // renders only one avatar
 	}
 
@@ -790,15 +796,17 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	U32 num_indices = vf.mNumIndices;
 	U32 num_vertices = vf.mNumVertices;
 
-	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL, 0);
+	mVertexBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0, 0);
 	mVertexBuffer->allocateBuffer(num_vertices, num_indices, TRUE);
 
 	LLStrider<LLVector3> vertex_strider;
 	LLStrider<LLVector3> normal_strider;
+	LLStrider<LLVector2> tc_strider;
 	LLStrider<U16> index_strider;
 
 	mVertexBuffer->getVertexStrider(vertex_strider);
 	mVertexBuffer->getNormalStrider(normal_strider);
+	mVertexBuffer->getTexCoord0Strider(tc_strider);
 	mVertexBuffer->getIndexStrider(index_strider);
 
 	// build vertices and normals
@@ -806,7 +814,8 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 	pos = (LLVector3*) vf.mPositions; pos.setStride(16);
 	LLStrider<LLVector3> norm;
 	norm = (LLVector3*) vf.mNormals; norm.setStride(16);
-		
+	LLStrider<LLVector2> tc;
+	tc = (LLVector2*) vf.mTexCoords; tc.setStride(8);
 
 	for (U32 i = 0; i < num_vertices; i++)
 	{
@@ -814,6 +823,7 @@ void LLImagePreviewSculpted::setPreviewTarget(LLImageRaw* imagep, F32 distance)
 		LLVector3 normal = *norm++;
 		normal.normalize();
 		*(normal_strider++) = normal;
+		*(tc_strider++) = *tc++;
 	}
 
 	// build indices
@@ -835,23 +845,28 @@ BOOL LLImagePreviewSculpted::render()
 	LLGLEnable cull(GL_CULL_FACE);
 	LLGLDepthTest depth(GL_TRUE);
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	glLoadIdentity();
+	gGL.loadIdentity();
 		
 	gGL.color4f(0.15f, 0.2f, 0.3f, 1.f);
 
-	gl_rect_2d_simple( mFullWidth, mFullHeight );
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
 
-	glMatrixMode(GL_PROJECTION);
+	gl_rect_2d_simple( mFullWidth, mFullHeight );
+	
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -876,17 +891,28 @@ BOOL LLImagePreviewSculpted::render()
 	const LLVolumeFace &vf = mVolume->getVolumeFace(0);
 	U32 num_indices = vf.mNumIndices;
 	
-	mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL);
-
 	gPipeline.enableLightsAvatar();
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gObjectPreviewProgram.bind();
+	}
 	gGL.pushMatrix();
 	const F32 SCALE = 1.25f;
 	gGL.scalef(SCALE, SCALE, SCALE);
 	const F32 BRIGHTNESS = 0.9f;
 	gGL.color3f(BRIGHTNESS, BRIGHTNESS, BRIGHTNESS);
+
+	mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_TEXCOORD0);
 	mVertexBuffer->draw(LLRender::TRIANGLES, num_indices, 0);
 
 	gGL.popMatrix();
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gObjectPreviewProgram.unbind();
+	}
+
 	return TRUE;
 }
 

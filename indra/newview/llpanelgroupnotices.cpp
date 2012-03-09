@@ -82,8 +82,8 @@ public:
 		:	panel("panel"),
 			group_id("group_id")
 		{
-			mouse_opaque(false);
-			follows.flags(FOLLOWS_ALL);
+			changeDefault(mouse_opaque, false);
+			changeDefault(follows.flags, FOLLOWS_ALL);
 		}
 	};
 	LLGroupDropTarget(const Params&);

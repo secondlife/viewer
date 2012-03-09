@@ -52,7 +52,7 @@ typedef std::vector<std::string> menuentry_vec_t;
 //
 // You'll want to call LLInvItemFVELister::createBridge() to actually create
 // an instance of this class. This helps encapsulate the
-// funcationality a bit. (except for folders, you can create those
+// functionality a bit. (except for folders, you can create those
 // manually...)
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInvFVBridge : public LLFolderViewEventListener
@@ -69,7 +69,9 @@ public:
 									   U32 flags = 0x00);
 	virtual ~LLInvFVBridge() {}
 
-	BOOL canShare() const;
+	bool canShare() const;
+	bool canListOnMarketplace() const;
+	bool canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
@@ -115,7 +117,8 @@ public:
 	virtual BOOL startDrag(EDragAndDropType* type, LLUUID* id) const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data) { return FALSE; }
+							void* cargo_data,
+							std::string& tooltip_msg) { return FALSE; }
 	virtual LLInventoryType::EType getInventoryType() const { return mInvType; }
 	virtual LLWearableType::EType getWearableType() const { return LLWearableType::WT_NONE; }
 
@@ -128,6 +131,9 @@ protected:
 	virtual void addDeleteContextMenuOptions(menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
 	virtual void addOpenRightClickMenuOption(menuentry_vec_t &items);
+	virtual void addOutboxContextMenuOptions(U32 flags,
+											 menuentry_vec_t &items,
+											 menuentry_vec_t &disabled_items);
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 
@@ -140,6 +146,10 @@ protected:
 	BOOL isAgentInventory() const; // false if lost or in the inventory library
 	BOOL isCOFFolder() const; // true if COF or descendent of
 	BOOL isInboxFolder() const; // true if COF or descendent of marketplace inbox
+	BOOL isOutboxFolder() const; // true if COF or descendent of marketplace outbox
+	BOOL isOutboxFolderDirectParent() const;
+	const LLUUID getOutboxFolder() const;
+
 	virtual BOOL isItemPermissive() const;
 	static void changeItemParent(LLInventoryModel* model,
 								 LLViewerInventoryItem* item,
@@ -208,8 +218,7 @@ public:
 	/*virtual*/ void clearDisplayName() { mDisplayName.clear(); }
 
 	LLViewerInventoryItem* getItem() const;
-	bool isAddAction(std::string action) const;
-	bool isRemoveAction(std::string action) const;
+
 protected:
 	BOOL confirmRemoveItem(const LLSD& notification, const LLSD& response);
 	virtual BOOL isItemPermissive() const;
@@ -228,8 +237,9 @@ public:
 		mCallingCards(FALSE),
 		mWearables(FALSE)
 	{}
-	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop);
-	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop);
+		
+	BOOL dragItemIntoFolder(LLInventoryItem* inv_item, BOOL drop, std::string& tooltip_msg);
+	BOOL dragCategoryIntoFolder(LLInventoryCategory* inv_category, BOOL drop, std::string& tooltip_msg);
 
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	virtual void openItem();
@@ -255,7 +265,8 @@ public:
 	virtual BOOL hasChildren() const;
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data);
+							void* cargo_data,
+							std::string& tooltip_msg);
 
 	virtual BOOL isItemRemovable() const;
 	virtual BOOL isItemMovable() const ;
@@ -271,6 +282,9 @@ public:
 	LLHandle<LLFolderBridge> getHandle() { mHandle.bind(this); return mHandle; }
 
 protected:
+	void buildContextMenuBaseOptions(U32 flags);
+	void buildContextMenuFolderOptions(U32 flags);
+
 	//--------------------------------------------------------------------
 	// Menu callbacks
 	//--------------------------------------------------------------------
@@ -306,12 +320,10 @@ protected:
 public:
 	static LLHandle<LLFolderBridge> sSelf;
 	static void staticFolderOptionsMenu();
-	void folderOptionsMenu();
 
 private:
 	BOOL				mCallingCards;
 	BOOL				mWearables;
-	LLHandle<LLView>	mMenu;
 	menuentry_vec_t		mItems;
 	menuentry_vec_t		mDisabledItems;
 	LLRootHandle<LLFolderBridge> mHandle;
@@ -378,7 +390,8 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data);
+							void* cargo_data,
+							std::string& tooltip_msg);
 	void refreshFolderViewItem();
 protected:
 	LLCallingCardObserver* mObserver;
@@ -640,7 +653,6 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 // are set as enabled.
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show, 
-						  const menuentry_vec_t &disabled_entries,
-						  BOOL append = FALSE);
+						  const menuentry_vec_t &disabled_entries);
 
 #endif // LL_LLINVENTORYBRIDGE_H

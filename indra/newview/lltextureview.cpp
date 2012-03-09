@@ -94,7 +94,7 @@ public:
 		Params()
 		:	texture_view("texture_view")
 		{
-			mouse_opaque(false);
+			changeDefault(mouse_opaque, false);
 		}
 	};
 	LLTextureBar(const Params& p)
@@ -387,7 +387,7 @@ public:
 		:	texture_view("texture_view")
 		{
 			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-			rect(LLRect(0,0,100,line_height * 4));
+			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
 
@@ -486,7 +486,7 @@ public:
 		:	texture_view("texture_view")
 		{
 			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
-			rect(LLRect(0,0,100,line_height * 4));
+			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
 
@@ -527,11 +527,12 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
+	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
 					total_mem,
 					max_total_mem,
 					bound_mem,
 					max_bound_mem,
+					LLRenderTarget::sBytesAllocated/(1024*1024),
 					LLImageRaw::sGlobalRawMemory >> 20,	discard_bias,
 					cache_usage, cache_max_usage, total_texture_downloaded, total_object_downloaded, total_http_requests);
 	//, cache_entries, cache_max_entries
@@ -571,7 +572,7 @@ void LLGLTexMemBar::draw()
 	color = (total_mem < llfloor(max_total_mem * texmem_lower_bound_scale)) ? LLColor4::green :
 		  	(total_mem < max_total_mem) ? LLColor4::yellow : LLColor4::red;
 	color[VALPHA] = .75f;
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 	
 	gl_rect_2d(left, top, right, bottom); // red/yellow/green
 
@@ -594,7 +595,7 @@ void LLGLTexMemBar::draw()
 	color = (bound_mem < llfloor(max_bound_mem * texmem_lower_bound_scale)) ? LLColor4::green :
 		  	(bound_mem < max_bound_mem) ? LLColor4::yellow : LLColor4::red;
 	color[VALPHA] = .75f;
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 
 	gl_rect_2d(left, top, right, bottom);
 #else

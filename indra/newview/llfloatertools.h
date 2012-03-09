@@ -32,7 +32,6 @@
 #include "llparcelselection.h"
 
 class LLButton;
-class LLComboBox;
 class LLCheckBoxCtrl;
 class LLPanelPermissions;
 class LLPanelObject;
@@ -48,6 +47,7 @@ class LLMediaCtrl;
 class LLTool;
 class LLParcelSelection;
 class LLObjectSelection;
+class LLLandImpactsObserver;
 
 typedef LLSafeHandle<LLObjectSelection> LLObjectSelectionHandle;
 
@@ -104,6 +104,7 @@ public:
 	void updateMediaTitle();
 	void navigateToTitleMedia( const std::string url );
 	bool selectedMediaEditable();
+	void updateLandImpacts();
 
 private:
 	void refresh();
@@ -114,7 +115,6 @@ private:
 	static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 	static void setObjectType( LLPCode pcode );
 	void onClickGridOptions();
-	S32 calcRenderCost();
 
 public:
 	LLButton		*mBtnFocus;
@@ -140,7 +140,6 @@ public:
 
 	LLCheckBoxCtrl*	mCheckSnapToGrid;
 	LLButton*		mBtnGridOptions;
-	LLComboBox*		mComboGridMode;
 	LLCheckBoxCtrl*	mCheckStretchUniform;
 	LLCheckBoxCtrl*	mCheckStretchTexture;
 
@@ -179,7 +178,11 @@ public:
 	LLPanelFace				*mPanelFace;
 	LLPanelLandInfo			*mPanelLandInfo;
 
+	LLViewBorder*			mCostTextBorder;
+
 	LLTabContainer*			mTabLand;
+
+	LLLandImpactsObserver*  mLandImpactsObserver;
 
 	LLParcelSelectionHandle	mParcelSelection;
 	LLObjectSelectionHandle	mObjectSelection;

@@ -50,6 +50,8 @@
 #include "llfocusmgr.h"
 
 #include <list>
+#include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 
 class LLSD;
 
@@ -95,13 +97,14 @@ private:
 	static std::vector<LLViewDrawContext*> sDrawContextStack;
 };
 
-class LLViewWidgetRegistry : public LLChildRegistry<LLViewWidgetRegistry>
-{};
-
-class LLView : public LLMouseHandler, public LLMortician, public LLFocusableElement
+class LLView 
+:	public LLMouseHandler,			// handles mouse events
+	public LLFocusableElement,		// handles keyboard events
+	public LLMortician,				// lazy deletion
+	public LLHandleProvider<LLView>	// passes out weak references to self
 {
 public:
-	struct Follows : public LLInitParam::Choice<Follows>
+	struct Follows : public LLInitParam::ChoiceBlock<Follows>
 	{
 		Alternative<std::string>	string;
 		Alternative<U32>			flags;
@@ -150,7 +153,8 @@ public:
 		Params();
 	};
 
-	typedef LLViewWidgetRegistry child_registry_t;
+	// most widgets are valid children of LLView
+	typedef LLDefaultChildRegistry child_registry_t;
 
 	void initFromParams(const LLView::Params&);
 
@@ -240,7 +244,7 @@ public:
 
 	ECursorType	getHoverCursor() { return mHoverCursor; }
 
-	const std::string& getToolTip() const			{ return mToolTipMsg.getString(); }
+	virtual const std::string getToolTip() const			{ return mToolTipMsg.getString(); }
 
 	void		sendChildToFront(LLView* child);
 	void		sendChildToBack(LLView* child);
@@ -305,8 +309,6 @@ public:
 	void			pushVisible(BOOL visible)	{ mLastVisible = mVisible; setVisible(visible); }
 	void			popVisible()				{ setVisible(mLastVisible); }
 	BOOL			getLastVisible()	const	{ return mLastVisible; }
-
-	LLHandle<LLView>	getHandle()				{ mHandle.bind(this); return mHandle; }
 
 	U32			getFollows() const				{ return mReshapeFlags; }
 	BOOL		followsLeft() const				{ return mReshapeFlags & FOLLOWS_LEFT; }
@@ -431,18 +433,21 @@ public:
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 
-	/*virtual*/ std::string	getName() const;
+	/*virtual*/ const std::string& getName() const;
 	/*virtual*/ void	onMouseCaptureLost();
 	/*virtual*/ BOOL	hasMouseCapture();
 	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
 
-	virtual		LLView*	childFromPoint(S32 x, S32 y);
+	virtual		LLView*	childFromPoint(S32 x, S32 y, bool recur=false);
 
 	// view-specific handlers 
 	virtual void	onMouseEnter(S32 x, S32 y, MASK mask);
 	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
 
+	std::string getPathname() const;
+	// static method handles NULL pointer too
+	static std::string getPathname(const LLView*);
 
 	template <class T> T* findChild(const std::string& name, BOOL recurse = TRUE) const
 	{
@@ -467,6 +472,20 @@ public:
 		return dynamic_cast<T*>(widgetp);
 	}
 
+	template <class T> T* getParentByType() const
+	{
+		LLView* parent = getParent();
+		while(parent)
+		{
+			if (dynamic_cast<T*>(parent))
+			{
+				return static_cast<T*>(parent);
+			}
+			parent = parent->getParent();
+		}
+		return NULL;
+	}
+
 	//////////////////////////////////////////////
 	// statics
 	//////////////////////////////////////////////
@@ -482,7 +501,6 @@ public:
 	// return query for iterating over focus roots in tab order
 	static const LLCtrlQuery & getFocusRootsQuery();
 
-	static void deleteViewByHandle(LLHandle<LLView> handle);
 	static LLWindow*	getWindow(void) { return LLUI::sWindow; }
 
 	// Set up params after XML load before calling new(),
@@ -511,11 +529,17 @@ public:
 	virtual S32	notify(const LLSD& info) { return 0;};
 
 	static const LLViewDrawContext& getDrawContext();
+	
+	// Returns useful information about this ui widget.
+	LLSD getInfo(void);
 
 protected:
 	void			drawDebugRect();
 	void			drawChild(LLView* childp, S32 x_offset = 0, S32 y_offset = 0, BOOL force_draw = FALSE);
 	void			drawChildren();
+	bool			visibleAndContains(S32 local_x, S32 local_Y);
+	bool			visibleEnabledAndContains(S32 local_x, S32 local_y);
+	void			logMouseEvent();
 
 	LLView*	childrenHandleKey(KEY key, MASK mask);
 	LLView* childrenHandleUnicodeChar(llwchar uni_char);
@@ -538,8 +562,23 @@ protected:
 	LLView* childrenHandleToolTip(S32 x, S32 y, MASK mask);
 
 	ECursorType mHoverCursor;
-	
+
+	virtual void addInfo(LLSD & info);
 private:
+
+	template <typename METHOD, typename XDATA>
+	LLView* childrenHandleMouseEvent(const METHOD& method, S32 x, S32 y, XDATA extra, bool allow_mouse_block = true);
+
+	template <typename METHOD, typename CHARTYPE>
+	LLView* childrenHandleCharEvent(const std::string& desc, const METHOD& method,
+									CHARTYPE c, MASK mask);
+
+	// adapter to blur distinction between handleKey() and handleUnicodeChar()
+	// for childrenHandleCharEvent()
+	BOOL	handleUnicodeCharWithDummyMask(llwchar uni_char, MASK /* dummy */, BOOL from_parent)
+	{
+		return handleUnicodeChar(uni_char, from_parent);
+	}
 
 	LLView*		mParentView;
 	child_list_t mChildList;
@@ -569,10 +608,11 @@ private:
 	BOOL		mIsFocusRoot;
 	BOOL		mUseBoundingRect; // hit test against bounding rectangle that includes all child elements
 
-	LLRootHandle<LLView> mHandle;
 	BOOL		mLastVisible;
 
 	S32			mNextInsertionOrdinal;
+
+	bool		mInDraw;
 
 	static LLWindow* sWindow;	// All root views must know about their window.
 
@@ -582,7 +622,35 @@ private:
 
 	LLView& getDefaultWidgetContainer() const;
 
+	// This allows special mouse-event targeting logic for testing.
+	typedef boost::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
+	static DrilldownFunc sDrilldown;
+
 public:
+	// This is the only public accessor to alter sDrilldown. This is not
+	// an accident. The intended usage pattern is like:
+	// {
+	//     LLView::TemporaryDrilldownFunc scoped_func(myfunctor);
+	//     // ... test with myfunctor ...
+	// } // exiting block restores original LLView::sDrilldown
+	class TemporaryDrilldownFunc: public boost::noncopyable
+	{
+	public:
+		TemporaryDrilldownFunc(const DrilldownFunc& func):
+			mOldDrilldown(sDrilldown)
+		{
+			sDrilldown = func;
+		}
+
+		~TemporaryDrilldownFunc()
+		{
+			sDrilldown = mOldDrilldown;
+		}
+
+	private:
+		DrilldownFunc mOldDrilldown;
+	};
+
 	// Depth in view hierarchy during rendering
 	static S32	sDepth;
 

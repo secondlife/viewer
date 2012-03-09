@@ -34,9 +34,9 @@
 
 //============================================================================
 
-LLXMLNode *LLVolumeXml::exportProfileParams(const LLProfileParams* params)
+LLPointer<LLXMLNode> LLVolumeXml::exportProfileParams(const LLProfileParams* params)
 {
-	LLXMLNode *ret = new LLXMLNode("profile", FALSE);
+	LLPointer<LLXMLNode> ret = new LLXMLNode("profile", FALSE);
 
 	ret->createChild("curve_type", TRUE)->setByteValue(1, &params->getCurveType());
 	ret->createChild("interval", FALSE)->setFloatValue(2, &params->getBegin());
@@ -46,9 +46,9 @@ LLXMLNode *LLVolumeXml::exportProfileParams(const LLProfileParams* params)
 }
 
 
-LLXMLNode *LLVolumeXml::exportPathParams(const LLPathParams* params)
+LLPointer<LLXMLNode> LLVolumeXml::exportPathParams(const LLPathParams* params)
 {
-	LLXMLNode *ret = new LLXMLNode("path", FALSE); 
+	LLPointer<LLXMLNode> ret = new LLXMLNode("path", FALSE); 
 	ret->createChild("curve_type", TRUE)->setByteValue(1, &params->getCurveType());
 	ret->createChild("interval", FALSE)->setFloatValue(2, &params->getBegin());
 	ret->createChild("scale", FALSE)->setFloatValue(2, params->getScale().mV);
@@ -63,12 +63,15 @@ LLXMLNode *LLVolumeXml::exportPathParams(const LLPathParams* params)
 }
 
 
-LLXMLNode *LLVolumeXml::exportVolumeParams(const LLVolumeParams* params)
+LLPointer<LLXMLNode> LLVolumeXml::exportVolumeParams(const LLVolumeParams* params)
 {
-	LLXMLNode *ret = new LLXMLNode("shape", FALSE);
+	LLPointer<LLXMLNode> ret = new LLXMLNode("shape", FALSE);
 	
-	exportPathParams(&params->getPathParams())->setParent(ret);
-	exportProfileParams(&params->getProfileParams())->setParent(ret);
+	LLPointer<LLXMLNode> node ;
+	node = exportPathParams(&params->getPathParams()) ;
+	node->setParent(ret);
+	node = exportProfileParams(&params->getProfileParams()) ;
+	node->setParent(ret);
 
 	return ret;
 }

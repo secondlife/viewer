@@ -129,9 +129,12 @@ public:
 	const LLMatrix4&	getRelativeXform() const				{ return mRelativeXform; }
 	const LLMatrix3&	getRelativeXformInvTrans() const		{ return mRelativeXformInvTrans; }
 	/*virtual*/	const LLMatrix4	getRenderMatrix() const;
-				U32 	getRenderCost(std::set<LLUUID> &textures) const;
-	/*virtual*/	F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL);
-	/*virtual*/ U32		getTriangleCount();
+				typedef std::map<LLUUID, S32> texture_cost_t;
+				U32 	getRenderCost(texture_cost_t &textures) const;
+				F32		getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const;
+	/*virtual*/	F32		getStreamingCost(S32* bytes = NULL, S32* visible_bytes = NULL) { return getStreamingCost(bytes, visible_bytes, NULL); }
+
+	/*virtual*/ U32		getTriangleCount(S32* vcount = NULL) const;
 	/*virtual*/ U32		getHighLODTriangleCount();
 	/*virtual*/ BOOL lineSegmentIntersect(const LLVector3& start, const LLVector3& end, 
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
@@ -206,7 +209,7 @@ public:
 	/*virtual*/ BOOL	updateLOD();
 				void	updateRadius();
 	/*virtual*/ void	updateTextures();
-				void	updateTextureVirtualSize();
+				void	updateTextureVirtualSize(bool forced = false);
 
 				void	updateFaceFlags();
 				void	regenFaces();
@@ -320,11 +323,19 @@ protected:
 	LLFace* addFace(S32 face_index);
 	void updateTEData();
 
+	// stats tracking for render complexity
+	static S32 mRenderComplexity_last;
+	static S32 mRenderComplexity_current;
+
 	void requestMediaDataUpdate(bool isNew);
 	void cleanUpMediaImpls();
 	void addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index) ;
 	void removeMediaImpl(S32 texture_index) ;
 public:
+
+	static S32 getRenderComplexityMax() {return mRenderComplexity_last;}
+	static void updateRenderComplexity();
+
 	LLViewerTextureAnim *mTextureAnimp;
 	U8 mTexAnimMode;
 private:
@@ -358,8 +369,6 @@ public:
 		
 	static LLPointer<LLObjectMediaDataClient> sObjectMediaClient;
 	static LLPointer<LLObjectMediaNavigateClient> sObjectMediaNavigateClient;
-
-	static const U32 ARC_TEXTURE_COST = 5;
 
 protected:
 	static S32 sNumLODChanges;

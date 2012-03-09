@@ -2,12 +2,30 @@
  * @file atmosphericsV.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2005, Linden Research, Inc.
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
  
 
 
-// varying param funcs
+// VARYING param funcs
 void setSunlitColor(vec3 v);
 void setAmblitColor(vec3 v);
 void setAdditiveColor(vec3 v);
@@ -16,8 +34,8 @@ void setPositionEye(vec3 v);
 
 vec3 getAdditiveColor();
 
-//varying vec4 vary_CloudUVs;
-//varying float vary_CloudDensity;
+//VARYING vec4 vary_CloudUVs;
+//VARYING float vary_CloudDensity;
 
 // Inputs
 uniform vec4 morphFactor;
@@ -29,12 +47,12 @@ uniform vec4 sunlight_color;
 uniform vec4 ambient;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
-uniform vec4 haze_horizon;
-uniform vec4 haze_density;
-uniform vec4 cloud_shadow;
-uniform vec4 density_multiplier;
-uniform vec4 distance_multiplier;
-uniform vec4 max_y;
+uniform float haze_horizon;
+uniform float haze_density;
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float distance_multiplier;
+uniform float max_y;
 uniform vec4 glow;
 
 void calcAtmospherics(vec3 inPositionEye) {
@@ -43,8 +61,8 @@ void calcAtmospherics(vec3 inPositionEye) {
 	setPositionEye(P);
 	
 	//(TERRAIN) limit altitude
-	if (P.y > max_y.x) P *= (max_y.x / P.y);
-	if (P.y < -max_y.x) P *= (-max_y.x / P.y);
+	if (P.y > max_y) P *= (max_y / P.y);
+	if (P.y < -max_y) P *= (-max_y / P.y);
 
 	vec3 tmpLightnorm = lightnorm.xyz;
 
@@ -60,13 +78,13 @@ void calcAtmospherics(vec3 inPositionEye) {
 
 	//sunlight attenuation effect (hue and brightness) due to atmosphere
 	//this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density * 1.0 + vec4(haze_density.r) * 0.25) * (density_multiplier.x * max_y.x);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 		//I had thought blue_density and haze_density should have equal weighting,
 		//but attenuation due to haze_density tends to seem too strong
 
-	temp1 = blue_density + vec4(haze_density.r);
+	temp1 = blue_density + vec4(haze_density);
 	blue_weight = blue_density / temp1;
-	haze_weight = vec4(haze_density.r) / temp1;
+	haze_weight = vec4(haze_density) / temp1;
 
 	//(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
 	temp2.y = max(0.0, tmpLightnorm.y);
@@ -74,12 +92,12 @@ void calcAtmospherics(vec3 inPositionEye) {
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// main atmospheric scattering line integral
-	temp2.z = Plen * density_multiplier.x;
+	temp2.z = Plen * density_multiplier;
 
 	// Transparency (-> temp1)
-	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier.x in a variable because the ati
+	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier in a variable because the ati
 	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z * distance_multiplier.x);
+	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
 
 	//final atmosphere attenuation factor
 	setAtmosAttenuation(temp1.rgb);
@@ -104,12 +122,12 @@ void calcAtmospherics(vec3 inPositionEye) {
 
 
 	//increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow.x * 0.5;
+	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
 
 	//haze color
 	setAdditiveColor(
-		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow.x) + tmpAmbient)
-	  + (haze_horizon.r * haze_weight) * (sunlight*(1.-cloud_shadow.x) * temp2.x
+		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
+	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient

@@ -2,12 +2,34 @@
  * @file waterF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * Second Life Viewer Source Code
+ * Copyright (C) 2007, Linden Research, Inc.
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_data[3];
+#else
+#define frag_data gl_FragData
+#endif
 
 vec3 scaleSoftClip(vec3 inColor);
 vec3 atmosTransport(vec3 inColor);
@@ -40,10 +62,10 @@ uniform vec2 screen_res;
 uniform mat4 norm_mat; //region space to screen space
 
 //bigWave is (refCoord.w, view.w);
-varying vec4 refCoord;
-varying vec4 littleWave;
-varying vec4 view;
-varying vec4 vary_position;
+VARYING vec4 refCoord;
+VARYING vec4 littleWave;
+VARYING vec4 view;
+VARYING vec4 vary_position;
 
 void main() 
 {
@@ -137,7 +159,7 @@ void main()
 	//wavef = normalize(wavef);
 	vec3 screenspacewavef = (norm_mat*vec4(wavef, 1.0)).xyz;
 	
-	gl_FragData[0] = vec4(color.rgb, 0.5); // diffuse
-	gl_FragData[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
-	gl_FragData[2] = vec4(screenspacewavef.xy*0.5+0.5, screenspacewavef.z, screenspacewavef.z*0.5); // normalxyz, displace
+	frag_data[0] = vec4(color.rgb, 0.5); // diffuse
+	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
+	frag_data[2] = vec4(screenspacewavef.xy*0.5+0.5, screenspacewavef.z, screenspacewavef.z*0.5); // normalxyz, displace
 }

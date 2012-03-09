@@ -36,7 +36,9 @@
 
 #include "llmath.h"
 #include "llgl.h"
+#include "llglslshader.h"
 #include "llrender.h"
+
 //----------------------------------------------------------------------------
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
 
@@ -55,6 +57,7 @@ BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 BOOL LLImageGL::sAllowReadBackRaw       = FALSE ;
 LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
+bool LLImageGL::sCompressTextures = false;
 
 std::set<LLImageGL*> LLImageGL::sImageList;
 
@@ -475,6 +478,8 @@ void LLImageGL::init(BOOL usemipmaps)
 	mDiscardLevelInAtlas = -1 ;
 	mTexelsInAtlas = 0 ;
 	mTexelsInGLTexture = 0 ;
+
+	mAllowCompression = true;
 	
 	mTarget = GL_TEXTURE_2D;
 	mBindTarget = LLTexUnit::TT_TEXTURE;
@@ -703,7 +708,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						stop_glerror();
 					}
 						
-					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in);
+					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
 					if (gl_level == 0)
 					{
 						analyzeAlpha(data_in, w, h);
@@ -725,7 +730,10 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		{
 			if (mAutoGenMips)
 			{
-				glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
+				if (!gGLManager.mHasFramebufferObject)
+				{
+					glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_GENERATE_MIPMAP_SGIS, TRUE);
+				}
 				stop_glerror();
 				{
 // 					LLFastTimer t2(FTM_TEMP4);
@@ -742,7 +750,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
-								 data_in);
+								 data_in, mAllowCompression);
 					analyzeAlpha(data_in, w, h);
 					stop_glerror();
 
@@ -753,6 +761,11 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 0);
 						stop_glerror();
 					}
+				}
+
+				if (gGLManager.mHasFramebufferObject)
+				{
+					glGenerateMipmap(LLTexUnit::getInternalType(mBindTarget));
 				}
 			}
 			else
@@ -795,7 +808,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 							stop_glerror();
 						}
 
-						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data);
+						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
 						if (m == 0)
 						{
 							analyzeAlpha(data_in, w, h);
@@ -853,7 +866,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 			}
 
 			LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
-						 mFormatPrimary, mFormatType, (GLvoid *)data_in);
+						 mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
 			analyzeAlpha(data_in, w, h);
 			
 			updatePickMask(w, h, data_in);
@@ -875,6 +888,9 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 
 BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 {
+	//not compatible with core GL profile
+	llassert(!LLRender::sGLCoreProfile);
+
 	if (gGLManager.mIsDisabled)
 	{
 		llwarns << "Trying to create a texture while GL is disabled!" << llendl;
@@ -901,29 +917,29 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 	{
 		switch (mComponents)
 		{
-		  case 1:
+			case 1:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8;
 			mFormatPrimary = GL_LUMINANCE;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 2:
+			case 2:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8_ALPHA8;
 			mFormatPrimary = GL_LUMINANCE_ALPHA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 3:
+			case 3:
 			mFormatInternal = GL_RGB8;
 			mFormatPrimary = GL_RGB;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 4:
+			case 4:
 			mFormatInternal = GL_RGBA8;
 			mFormatPrimary = GL_RGBA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  default:
+			default:
 			llerrs << "Bad number of components for texture: " << (U32)getComponents() << llendl;
 		}
 	}
@@ -1097,10 +1113,107 @@ void LLImageGL::deleteTextures(S32 numTextures, U32 *textures, bool immediate)
 }
 
 // static
-void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels)
+void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression)
 {
-	glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, pixels);
+	bool use_scratch = false;
+	U32* scratch = NULL;
+	if (LLRender::sGLCoreProfile)
+	{
+		if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
+		{ //GL_ALPHA is deprecated, convert to RGBA
+			use_scratch = true;
+			scratch = new U32[width*height];
+
+			U32 pixel_count = (U32) (width*height);
+			for (U32 i = 0; i < pixel_count; i++)
+			{
+				U8* pix = (U8*) &scratch[i];
+				pix[0] = pix[1] = pix[2] = 0;
+				pix[3] = ((U8*) pixels)[i];
+			}				
+			
+			pixformat = GL_RGBA;
+			intformat = GL_RGBA8;
+		}
+
+		if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE) 
+		{ //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
+			use_scratch = true;
+			scratch = new U32[width*height];
+
+			U32 pixel_count = (U32) (width*height);
+			for (U32 i = 0; i < pixel_count; i++)
+			{
+				U8 lum = ((U8*) pixels)[i*2+0];
+				U8 alpha = ((U8*) pixels)[i*2+1];
+
+				U8* pix = (U8*) &scratch[i];
+				pix[0] = pix[1] = pix[2] = lum;
+				pix[3] = alpha;
+			}				
+			
+			pixformat = GL_RGBA;
+			intformat = GL_RGBA8;
+		}
+
+		if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE) 
+		{ //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
+			use_scratch = true;
+			scratch = new U32[width*height];
+
+			U32 pixel_count = (U32) (width*height);
+			for (U32 i = 0; i < pixel_count; i++)
+			{
+				U8 lum = ((U8*) pixels)[i];
+				
+				U8* pix = (U8*) &scratch[i];
+				pix[0] = pix[1] = pix[2] = lum;
+				pix[3] = 255;
+			}				
+			
+			pixformat = GL_RGBA;
+			intformat = GL_RGB8;
+		}
+	}
+
+	if (LLImageGL::sCompressTextures && allow_compression)
+	{
+		switch (intformat)
+		{
+			case GL_RGB: 
+			case GL_RGB8:
+				intformat = GL_COMPRESSED_RGB; 
+				break;
+			case GL_RGBA:
+			case GL_RGBA8:
+				intformat = GL_COMPRESSED_RGBA; 
+				break;
+			case GL_LUMINANCE:
+			case GL_LUMINANCE8:
+				intformat = GL_COMPRESSED_LUMINANCE;
+				break;
+			case GL_LUMINANCE_ALPHA:
+			case GL_LUMINANCE8_ALPHA8:
+				intformat = GL_COMPRESSED_LUMINANCE_ALPHA;
+				break;
+			case GL_ALPHA:
+			case GL_ALPHA8:
+				intformat = GL_COMPRESSED_ALPHA;
+				break;
+			default:
+				llwarns << "Could not compress format: " << std::hex << intformat << llendl;
+				break;
+		}
+	}
+
 	stop_glerror();
+	glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+	stop_glerror();
+
+	if (use_scratch)
+	{
+		delete [] scratch;
+	}
 }
 
 //create an empty GL texture: just create a texture name
@@ -1167,29 +1280,29 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	{
 		switch (mComponents)
 		{
-		  case 1:
+			case 1:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8;
 			mFormatPrimary = GL_LUMINANCE;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 2:
+			case 2:
 			// Use luminance alpha (for fonts)
 			mFormatInternal = GL_LUMINANCE8_ALPHA8;
 			mFormatPrimary = GL_LUMINANCE_ALPHA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 3:
+			case 3:
 			mFormatInternal = GL_RGB8;
 			mFormatPrimary = GL_RGB;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  case 4:
+			case 4:
 			mFormatInternal = GL_RGBA8;
 			mFormatPrimary = GL_RGBA;
 			mFormatType = GL_UNSIGNED_BYTE;
 			break;
-		  default:
+			default:
 			llerrs << "Bad number of components for texture: " << (U32)getComponents() << llendl;
 		}
 
@@ -1212,6 +1325,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
 	llassert(data_in);
+	stop_glerror();
 
 	if (discard_level < 0)
 	{
@@ -1240,8 +1354,11 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 		stop_glerror();
 		{
 			llverify(gGL.getTexUnit(0)->bind(this));
+			stop_glerror();
 			glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_BASE_LEVEL, 0);
+			stop_glerror();
 			glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL,  mMaxDiscardLevel-discard_level);
+			stop_glerror();
 		}
 	}
 	if (!mTexName)
@@ -1414,6 +1531,8 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 
 void LLImageGL::deleteDeadTextures()
 {
+	bool reset = false;
+
 	while (!sDeadTextureList.empty())
 	{
 		GLuint tex = sDeadTextureList.front();
@@ -1422,15 +1541,25 @@ void LLImageGL::deleteDeadTextures()
 		{
 			LLTexUnit* tex_unit = gGL.getTexUnit(i);
 
-			if (tex_unit->getCurrTexture() == tex)
+			if (tex_unit && tex_unit->getCurrTexture() == tex)
 			{
 				tex_unit->unbind(tex_unit->getCurrType());
 				stop_glerror();
+
+				if (i > 0)
+				{
+					reset = true;
+				}
 			}
 		}
 		
 		glDeleteTextures(1, &tex);
 		stop_glerror();
+	}
+
+	if (reset)
+	{
+		gGL.getTexUnit(0)->activate();
 	}
 }
 		
@@ -1742,7 +1871,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 	// this to be an intentional effect and don't treat as a mask.
 
 	U32 midrangetotal = 0;
-	for (U32 i = 4; i < 11; i++)
+	for (U32 i = 2; i < 13; i++)
 	{
 		midrangetotal += sample[i];
 	}
@@ -1757,7 +1886,7 @@ void LLImageGL::analyzeAlpha(const void* data_in, U32 w, U32 h)
 		upperhalftotal += sample[i];
 	}
 
-	if (midrangetotal > length/16 || // lots of midrange, or
+	if (midrangetotal > length/48 || // lots of midrange, or
 	    (lowerhalftotal == length && alphatotal != 0) || // all close to transparent but not all totally transparent, or
 	    (upperhalftotal == length && alphatotal != 255*length)) // all close to opaque but not all totally opaque
 	{
@@ -1875,6 +2004,7 @@ BOOL LLImageGL::getMask(const LLVector2 &tc)
 
 void LLImageGL::setCategory(S32 category) 
 {
+#if 0 //turn this off temporarily because it is not in use now.
 	if(!gAuditTexture)
 	{
 		return ;
@@ -1895,6 +2025,7 @@ void LLImageGL::setCategory(S32 category)
 			mCategory = -1 ;
 		}
 	}
+#endif
 }
 
 //for debug use 

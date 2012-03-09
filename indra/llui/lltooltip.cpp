@@ -55,7 +55,7 @@ static LLDefaultChildRegistry::Register<LLToolTipView> register_tooltip_view("to
 
 LLToolTipView::Params::Params()
 {
-	mouse_opaque = false;
+	changeDefault(mouse_opaque, false);
 }
 
 LLToolTipView::LLToolTipView(const LLToolTipView::Params& p)
@@ -156,7 +156,7 @@ LLToolTip::Params::Params()
 	web_based_media("web_based_media", false),
 	media_playing("media_playing", false)
 {
-	chrome = true;
+	changeDefault(chrome, true);
 }
 
 LLToolTip::LLToolTip(const LLToolTip::Params& p)
@@ -200,7 +200,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 		icon_params.image_selected(imagep);
 
 		icon_params.scale_image(true);
-		icon_params.flash_color(icon_params.highlight_color());
+		icon_params.flash_color.control = "ButtonUnselectedFgColor";
 		mInfoButton  = LLUICtrlFactory::create<LLButton>(icon_params);
 		if (p.click_callback.isProvided())
 		{
@@ -402,12 +402,12 @@ void LLToolTipMgr::createToolTip(const LLToolTip::Params& params)
 
 	LLToolTip::Params tooltip_params(params);
 	// block mouse events if there is a click handler registered (specifically, hover)
-	if (params.click_callback.isProvided())
+	if (params.click_callback.isProvided() && !params.mouse_opaque.isProvided())
 	{
 		// set mouse_opaque to true if it wasn't already set to something else
 		// this prevents mouse down from going "through" the tooltip and ultimately
 		// causing the tooltip to disappear
-		tooltip_params.mouse_opaque.setIfNotProvided(true);
+		tooltip_params.mouse_opaque = true;
 	}
 	tooltip_params.rect = LLRect (0, 1, 1, 0);
 

@@ -48,7 +48,8 @@ public:
 	virtual void updateApplication(const std::string& message = LLStringUtil::null);
 	virtual bool init();
 	virtual bool mainLoop() = 0;
-	virtual bool cleanup() { return true; }
+	virtual bool cleanup() = 0;
+	void commonCleanup();
 	void setUserText(const std::string& text) { mCrashInfo["UserNotes"] = text; }
 	S32 getCrashBehavior() { return mCrashBehavior; }
 	bool runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout);
@@ -65,16 +66,5 @@ protected:
 	LLSD mDebugLog;
 	bool mSentCrashLogs;
 };
-
-class LLCrashLoggerText : public LLCrashLogger
-{
-public:
-	LLCrashLoggerText(void) {}
-	~LLCrashLoggerText(void) {}
-
-	virtual bool mainLoop();
-	virtual void updateApplication(const std::string& message = LLStringUtil::null);
-};
-
 
 #endif //LLCRASHLOGGER_H

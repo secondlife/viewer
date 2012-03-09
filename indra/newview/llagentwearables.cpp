@@ -33,6 +33,7 @@
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -42,7 +43,6 @@
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltexlayer.h"
 #include "lltooldraganddrop.h"
 #include "llviewerregion.h"
@@ -185,6 +185,7 @@ void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
 { 
 	if (avatar)
 	{
+		avatar->outputRezTiming("Sending wearables request");
 		sendAgentWearablesRequest();
 	}
 }
@@ -949,6 +950,11 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (mInitialWearablesUpdateReceived)
 		return;
 
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Received initial wearables update");
+	}
+
 	// notify subscribers that wearables started loading. See EXT-7777
 	// *TODO: find more proper place to not be called from deprecated method.
 	// Seems such place is found: LLInitialWearablesFetch::processContents()
@@ -1168,14 +1174,11 @@ private:
 	std::vector<LLWearable*> mWearablesAwaitingItems;
 };
 
-void LLAgentWearables::createStandardWearables(BOOL female)
+void LLAgentWearables::createStandardWearables()
 {
-	llwarns << "Creating Standard " << (female ? "female" : "male")
-			<< " Wearables" << llendl;
+	llwarns << "Creating standard wearables" << llendl;
 
 	if (!isAgentAvatarValid()) return;
-
-	gAgentAvatarp->setSex(female ? SEX_FEMALE : SEX_MALE);
 
 	const BOOL create[LLWearableType::WT_COUNT] = 
 		{
@@ -1622,6 +1625,11 @@ void LLAgentWearables::queryWearableCache()
 	//VWR-22113: gAgent.getRegion() can return null if invalid, seen here on logout
 	if(gAgent.getRegion())
 	{
+		if (isAgentAvatarValid())
+		{
+			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
+		}
+
 		llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		gAgentQueryManager.mNumPendingQueries++;
@@ -1689,37 +1697,6 @@ void LLAgentWearables::userRemoveWearablesOfType(const LLWearableType::EType &ty
 		//!((!gAgent.isTeen()) && (type==LLWearableType::WT_UNDERPANTS || type==LLWearableType::WT_UNDERSHIRT)))
 	{
 		gAgentWearables.removeWearable(type,true,0);
-	}
-}
-
-// static
-void LLAgentWearables::userRemoveAllClothes()
-{
-	// We have to do this up front to avoid having to deal with the case of multiple wearables being dirty.
-	if (gAgentCamera.cameraCustomizeAvatar())
-	{
-		// switching to outfit editor should automagically save any currently edited wearable
-		LLSideTray::getInstance()->showPanel("sidepanel_appearance", LLSD().with("type", "edit_outfit"));
-	}
-	userRemoveAllClothesStep2(TRUE);
-}
-
-// static
-void LLAgentWearables::userRemoveAllClothesStep2(BOOL proceed)
-{
-	if (proceed)
-	{
-		gAgentWearables.removeWearable(LLWearableType::WT_SHIRT,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_PANTS,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_SHOES,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_SOCKS,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_JACKET,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_GLOVES,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_UNDERSHIRT,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_UNDERPANTS,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_SKIRT,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_ALPHA,true,0);
-		gAgentWearables.removeWearable(LLWearableType::WT_TATTOO,true,0);
 	}
 }
 
@@ -2046,7 +2023,7 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 	}
 
 	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
-	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
+	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("appearance");
 	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }
 

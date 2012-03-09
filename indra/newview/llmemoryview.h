@@ -38,8 +38,8 @@ public:
 	{
 		Params()
 		{
-			mouse_opaque = true;
-			visible = false;
+			changeDefault(mouse_opaque, true);
+			changeDefault(visible, false);
 		}
 	};
 	LLMemoryView(const LLMemoryView::Params&);

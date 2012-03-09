@@ -33,6 +33,7 @@
 #include "llrect.h"
 #include "llcontrol.h"
 #include "llcoord.h"
+#include "llglslshader.h"
 #include "llinitparam.h"
 #include "llregistry.h"
 #include "lluicolor.h"
@@ -40,12 +41,14 @@
 #include <boost/signals2.hpp>
 #include "lllazyvalue.h"
 #include "llframetimer.h"
+#include <limits>
 
 // LLUIFactory
 #include "llsd.h"
 
 // for initparam specialization
 #include "llfontgl.h"
+
 
 class LLColor4; 
 class LLVector3;
@@ -145,6 +148,122 @@ class LLUI
 {
 	LOG_CLASS(LLUI);
 public:
+	//
+	// Classes
+	//
+
+	struct RangeS32 
+	{
+		struct Params : public LLInitParam::Block<Params>
+		{
+			Optional<S32>	minimum,
+							maximum;
+
+			Params()
+			:	minimum("min", 0),
+				maximum("max", S32_MAX)
+			{}
+		};
+
+		// correct for inverted params
+		RangeS32(const Params& p = Params())
+		:	mMin(p.minimum),
+			mMax(p.maximum)
+		{
+			sanitizeRange();
+		}
+
+		RangeS32(S32 minimum, S32 maximum)
+		:	mMin(minimum),
+			mMax(maximum)
+		{
+			sanitizeRange();
+		}
+
+		S32 clamp(S32 input)
+		{
+			if (input < mMin) return mMin;
+			if (input > mMax) return mMax;
+			return input;
+		}
+
+		void setRange(S32 minimum, S32 maximum)
+		{
+			mMin = minimum;
+			mMax = maximum;
+			sanitizeRange();
+		}
+
+		S32 getMin() { return mMin; }
+		S32 getMax() { return mMax; }
+
+		bool operator==(const RangeS32& other) const
+		{
+			return mMin == other.mMin 
+				&& mMax == other.mMax;
+		}
+	private:
+		void sanitizeRange()
+		{
+			if (mMin > mMax)
+			{
+				llwarns << "Bad interval range (" << mMin << ", " << mMax << ")" << llendl;
+				// since max is usually the most dangerous one to ignore (buffer overflow, etc), prefer it
+				// in the case of a malformed range
+				mMin = mMax;
+			}
+		}
+
+
+		S32	mMin,
+			mMax;
+	};
+
+	struct ClampedS32 : public RangeS32
+	{
+		struct Params : public LLInitParam::Block<Params, RangeS32::Params>
+		{
+			Mandatory<S32> value;
+
+			Params()
+			:	value("", 0)
+			{
+				addSynonym(value, "value");
+			}
+		};
+
+		ClampedS32(const Params& p)
+		:	RangeS32(p)
+		{}
+
+		ClampedS32(const RangeS32& range)
+		:	RangeS32(range)
+		{
+			// set value here, after range has been sanitized
+			mValue = clamp(0);
+		}
+
+		ClampedS32(S32 value, const RangeS32& range = RangeS32())
+		:	RangeS32(range)
+		{
+			mValue = clamp(value);
+		}
+
+		S32 get()
+		{
+			return mValue;
+		}
+
+		void set(S32 value)
+		{
+			mValue = clamp(value);
+		}
+
+
+	private:
+		S32 mValue;
+	};
+
 	//
 	// Methods
 	//
@@ -363,7 +482,7 @@ template <typename T> LLRegisterWith<LLInitClassList> LLInitClass<T>::sRegister(
 template <typename T> LLRegisterWith<LLDestroyClassList> LLDestroyClass<T>::sRegister(&T::destroyClass);
 
 // useful parameter blocks
-struct TimeIntervalParam : public LLInitParam::Choice<TimeIntervalParam>
+struct TimeIntervalParam : public LLInitParam::ChoiceBlock<TimeIntervalParam>
 {
 	Alternative<F32>		seconds;
 	Alternative<S32>		frames;
@@ -408,7 +527,7 @@ namespace LLInitParam
 		ParamValue(const LLRect& value);
 
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -426,7 +545,7 @@ namespace LLInitParam
 
 		ParamValue(const LLUIColor& color);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -441,7 +560,7 @@ namespace LLInitParam
 
 		ParamValue(const LLFontGL* value);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 
 	template<>
@@ -480,8 +599,11 @@ namespace LLInitParam
 
 		ParamValue(const LLCoordGL& val);
 		void updateValueFromBlock();
-		void updateBlockFromValue();
+		void updateBlockFromValue(bool make_block_authoritative);
 	};
 }
+
+extern LLGLSLShader gSolidColorProgram;
+extern LLGLSLShader gUIProgram;
 
 #endif

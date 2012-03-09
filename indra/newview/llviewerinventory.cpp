@@ -34,7 +34,9 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llagentwearables.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llviewerfoldertype.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfolderview.h"
 #include "llviewercontrol.h"
 #include "llconsole.h"
@@ -43,7 +45,6 @@
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llgesturemgr.h"
-#include "llsidetray.h"
 
 #include "llinventorybridge.h"
 #include "llinventorypanel.h"
@@ -139,7 +140,35 @@ public:
 		mInventoryItemsDict["Female - Shrug"]			= LLTrans::getString("Female - Shrug");
 		mInventoryItemsDict["Female - Stick tougue out"]= LLTrans::getString("Female - Stick tougue out");
 		mInventoryItemsDict["Female - Wow"]				= LLTrans::getString("Female - Wow");
-		
+
+		//common
+		mInventoryItemsDict["/bow"]						= LLTrans::getString("/bow");
+		mInventoryItemsDict["/clap"]					= LLTrans::getString("/clap");
+		mInventoryItemsDict["/count"]					= LLTrans::getString("/count");
+		mInventoryItemsDict["/extinguish"]				= LLTrans::getString("/extinguish");
+		mInventoryItemsDict["/kmb"]						= LLTrans::getString("/kmb");
+		mInventoryItemsDict["/muscle"]					= LLTrans::getString("/muscle");
+		mInventoryItemsDict["/no"]						= LLTrans::getString("/no");
+		mInventoryItemsDict["/no!"]						= LLTrans::getString("/no!");
+		mInventoryItemsDict["/paper"]					= LLTrans::getString("/paper");
+		mInventoryItemsDict["/pointme"]					= LLTrans::getString("/pointme");
+		mInventoryItemsDict["/pointyou"]				= LLTrans::getString("/pointyou");
+		mInventoryItemsDict["/rock"]					= LLTrans::getString("/rock");
+		mInventoryItemsDict["/scissor"]					= LLTrans::getString("/scissor");
+		mInventoryItemsDict["/smoke"]					= LLTrans::getString("/smoke");
+		mInventoryItemsDict["/stretch"]					= LLTrans::getString("/stretch");
+		mInventoryItemsDict["/whistle"]					= LLTrans::getString("/whistle");
+		mInventoryItemsDict["/yes"]						= LLTrans::getString("/yes");
+		mInventoryItemsDict["/yes!"]					= LLTrans::getString("/yes!");
+		mInventoryItemsDict["afk"]						= LLTrans::getString("afk");
+		mInventoryItemsDict["dance1"]					= LLTrans::getString("dance1");
+		mInventoryItemsDict["dance2"]					= LLTrans::getString("dance2");
+		mInventoryItemsDict["dance3"]					= LLTrans::getString("dance3");
+		mInventoryItemsDict["dance4"]					= LLTrans::getString("dance4");
+		mInventoryItemsDict["dance5"]					= LLTrans::getString("dance5");
+		mInventoryItemsDict["dance6"]					= LLTrans::getString("dance6");
+		mInventoryItemsDict["dance7"]					= LLTrans::getString("dance7");
+		mInventoryItemsDict["dance8"]					= LLTrans::getString("dance8");
 	}
 
 	/**
@@ -192,7 +221,7 @@ public:
 		// support secondlife:///app/inventory/show
 		if (params[0].asString() == "show")
 		{
-			LLSideTray::getInstance()->showPanel("sidepanel_inventory", LLSD());
+			LLFloaterSidePanelContainer::showPanel("inventory", LLSD());
 			return true;
 		}
 
@@ -418,6 +447,9 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 BOOL LLViewerInventoryItem::unpackMessage(LLSD item)
 {
 	BOOL rv = LLInventoryItem::fromLLSD(item);
+
+	LLLocalizedInventoryItemsDictionary::getInstance()->localizeInventoryObjectName(mName);
+
 	mIsComplete = TRUE;
 	return rv;
 }
@@ -945,7 +977,7 @@ void ModifiedCOFCallback::fire(const LLUUID& inv_item)
 	if( gAgentCamera.cameraCustomizeAvatar() )
 	{
 		// If we're in appearance editing mode, the current tab may need to be refreshed
-		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLSideTray::getInstance()->getPanel("sidepanel_appearance"));
+		LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 		if (panel)
 		{
 			panel->showDefaultSubpart();
@@ -1177,7 +1209,23 @@ void move_inventory_item(
 	gAgent.sendReliableMessage();
 }
 
-void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecard_inv_id, const LLInventoryItem *src, U32 callback_id)
+const LLUUID get_folder_by_itemtype(const LLInventoryItem *src)
+{
+	LLUUID retval = LLUUID::null;
+	
+	if (src)
+	{
+		retval = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(src->getType()));
+	}
+	
+	return retval;
+}
+
+void copy_inventory_from_notecard(const LLUUID& destination_id,
+								  const LLUUID& object_id,
+								  const LLUUID& notecard_inv_id,
+								  const LLInventoryItem *src,
+								  U32 callback_id)
 {
 	if (NULL == src)
 	{
@@ -1223,7 +1271,7 @@ void copy_inventory_from_notecard(const LLUUID& object_id, const LLUUID& notecar
     body["notecard-id"] = notecard_inv_id;
     body["object-id"] = object_id;
     body["item-id"] = src->getUUID();
-	body["folder-id"] = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(src->getType()));
+	body["folder-id"] = destination_id;
     body["callback-id"] = (LLSD::Integer)callback_id;
 
     request["message"] = "CopyInventoryFromNotecard";

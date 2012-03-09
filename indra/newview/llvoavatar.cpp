@@ -651,6 +651,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mIsDummy(FALSE),
 	mSpecialRenderMode(0),
+	mAttachmentGeometryBytes(0),
+	mAttachmentSurfaceArea(0.f),
 	mTurning(FALSE),
 	mPelvisToFoot(0.f),
 	mLastSkeletonSerialNum( 0 ),
@@ -690,7 +692,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoadedInitialized(FALSE),
 	mSupportsAlphaLayers(FALSE),
 	mLoadedCallbacksPaused(FALSE),
-	mHasPelvisOffset( FALSE )
+	mHasPelvisOffset( FALSE ),
+	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar"))
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -1123,14 +1126,20 @@ void LLVOAvatar::initClass()
 	// Process XML data
 
 	// avatar_skeleton.xml
-	llassert(!sAvatarSkeletonInfo);
+	if (sAvatarSkeletonInfo)
+	{ //this can happen if a login attempt failed
+		delete sAvatarSkeletonInfo;
+	}
 	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
 	if (!sAvatarSkeletonInfo->parseXml(sSkeletonXMLTree.getRoot()))
 	{
 		llerrs << "Error parsing skeleton XML file: " << skeleton_path << llendl;
 	}
 	// parse avatar_lad.xml
-	llassert(!sAvatarXmlInfo);
+	if (sAvatarXmlInfo)
+	{ //this can happen if a login attempt failed
+		deleteAndClear(sAvatarXmlInfo);
+	}
 	sAvatarXmlInfo = new LLVOAvatarXmlInfo;
 	if (!sAvatarXmlInfo->parseXmlSkeletonNode(root))
 	{
@@ -2111,8 +2120,8 @@ void LLVOAvatar::updateMeshData()
 			}
 			else
 			{
-				if (buff->getRequestedIndices() == num_indices &&
-					buff->getRequestedVerts() == num_vertices)
+				if (buff->getNumIndices() == num_indices &&
+					buff->getNumVerts() == num_vertices)
 				{
 					terse_update = true;
 				}
@@ -2132,11 +2141,19 @@ void LLVOAvatar::updateMeshData()
 
 			for(S32 k = j ; k < part_index ; k++)
 			{
-				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update);
+				bool rigid = false;
+				if (k == MESH_ID_EYEBALL_LEFT ||
+					k == MESH_ID_EYEBALL_RIGHT)
+				{ //eyeballs can't have terse updates since they're never rendered with
+					//the hardware skinning shader
+					rigid = true;
+				}
+				
+				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
 			}
 
 			stop_glerror();
-			buff->setBuffer(0);
+			buff->flush();
 
 			if(!f_num)
 			{
@@ -2797,7 +2814,10 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_EMISSIVE_MASK | // LLPartData::LL_PART_FOLLOW_SRC_MASK |
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
-			setParticleSource(particle_parameters, getID());
+			if (!isTooComplex()) // do not generate particles for overly-complex avatars
+			{
+				setParticleSource(particle_parameters, getID());
+			}
 		}
 	}
 }	
@@ -3345,6 +3365,16 @@ void LLVOAvatar::slamPosition()
 	mRoot.updateWorldMatrixChildren();
 }
 
+bool LLVOAvatar::isVisuallyMuted() const
+{
+	static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
+	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
+	
+	return LLMuteList::getInstance()->isMuted(getID()) ||
+			(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
+			(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f);
+}
+
 //------------------------------------------------------------------------
 // updateCharacter()
 // called on both your avatar and other avatars
@@ -3404,15 +3434,16 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	if (visible && !isSelf() && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
+	if (visible && (!isSelf() || isVisuallyMuted()) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
 
+		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (LLMuteList::getInstance()->isMuted(getID()))
+		if (isVisuallyMuted())
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
@@ -3443,6 +3474,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		visible = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0 ? TRUE : FALSE;
 	}
+	else
+	{
+		mUpdatePeriod = 1;
+	}
+
 
 	// don't early out for your own avatar, as we rely on your animations playing reliably
 	// for example, the "turn around" animation when entering customize avatar needs to trigger
@@ -4126,7 +4162,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			LLVertexBuffer* vb = mDrawable->getFace(0)->getVertexBuffer();
 			if (vb)
 			{
-				vb->setBuffer(0);
+				vb->flush();
 			}
 		}
 	}
@@ -4219,7 +4255,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		bool should_alpha_mask = shouldAlphaMask();
 		LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 		
-		if (should_alpha_mask)
+		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 		{
 			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 		}
@@ -4248,7 +4284,10 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			}
 		}
 
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+		{
+			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		}
 
 		if (!LLDrawPoolAvatar::sSkipTransparent || LLPipeline::sImpostorRender)
 		{
@@ -4331,7 +4370,7 @@ U32 LLVOAvatar::renderRigid()
 	bool should_alpha_mask = shouldAlphaMask();
 	LLGLState test(GL_ALPHA_TEST, should_alpha_mask);
 
-	if (should_alpha_mask)
+	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
 	}
@@ -4342,7 +4381,10 @@ U32 LLVOAvatar::renderRigid()
 		num_indices += mMeshLOD[MESH_ID_EYEBALL_RIGHT]->render(mAdjustedPixelArea, TRUE, mIsDummy);
 	}
 
-	gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	if (should_alpha_mask && !LLGLSLShader::sNoFixedFunction)
+	{
+		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+	}
 	
 	return num_indices;
 }
@@ -4992,7 +5034,7 @@ void LLVOAvatar::addDebugText(const std::string& text)
 //-----------------------------------------------------------------------------
 // getID()
 //-----------------------------------------------------------------------------
-const LLUUID& LLVOAvatar::getID()
+const LLUUID& LLVOAvatar::getID() const
 {
 	return mID;
 }
@@ -5390,18 +5432,6 @@ BOOL LLVOAvatar::loadAvatar()
 		}
 	}
 
-	// Uncomment to enable avatar_lad.xml debugging. 
-	std::ofstream file;
-	file.open("avatar_lad.log");
-	for( LLViewerVisualParam* param = (LLViewerVisualParam*) getFirstVisualParam(); 
-	param;
-	param = (LLViewerVisualParam*) getNextVisualParam() )
-	{
-		param->getInfo()->toStream(file);
-		file << std::endl;
-	}
-
-	file.close();
 	
 	return TRUE;
 }
@@ -6377,6 +6407,11 @@ BOOL LLVOAvatar::getIsCloud()
 	{
 		return TRUE;
 	}
+
+	if (isTooComplex())
+	{
+		return TRUE;
+	}
 	return FALSE;
 }
 
@@ -6465,10 +6500,17 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 
 BOOL LLVOAvatar::isFullyLoaded() const
 {
-	if (gSavedSettings.getBOOL("RenderUnloadedAvatar"))
-		return TRUE;
-	else
-		return mFullyLoaded;
+	return (mRenderUnloadedAvatar || mFullyLoaded);
+}
+
+bool LLVOAvatar::isTooComplex() const
+{
+	if (gSavedSettings.getS32("RenderAvatarComplexityLimit") > 0 && mVisualComplexity >= gSavedSettings.getS32("RenderAvatarComplexityLimit"))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -8259,7 +8301,7 @@ void LLVOAvatar::updateImpostors()
 
 BOOL LLVOAvatar::isImpostor() const
 {
-	return (sUseImpostors && mUpdatePeriod >= IMPOSTOR_PERIOD) ? TRUE : FALSE;
+	return (isVisuallyMuted() || (sUseImpostors && mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
 }
 
 
@@ -8304,10 +8346,15 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 
 void LLVOAvatar::idleUpdateRenderCost()
 {
-	static const U32 ARC_BODY_PART_COST = 20;
-	static const U32 ARC_LIMIT = 2048;
+	static const U32 ARC_BODY_PART_COST = 200;
+	static const U32 ARC_LIMIT = 20000;
 
 	static std::set<LLUUID> all_textures;
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
+	{ //set debug text to attachment geometry bytes here so render cost will override
+		setDebugText(llformat("%.1f KB, %.2f m^2", mAttachmentGeometryBytes/1024.f, mAttachmentSurfaceArea));
+	}
 
 	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{
@@ -8315,7 +8362,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 	}
 
 	U32 cost = 0;
-	std::set<LLUUID> textures;
+	LLVOVolume::texture_cost_t textures;
 
 	for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 	{
@@ -8330,6 +8377,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 	}
 
+
 	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
 		 iter != mAttachmentPoints.end();
 		 ++iter)
@@ -8342,6 +8390,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 			const LLViewerObject* attached_object = (*attachment_iter);
 			if (attached_object && !attached_object->isHUDAttachment())
 			{
+				textures.clear();
 				const LLDrawable* drawable = attached_object->mDrawable;
 				if (drawable)
 				{
@@ -8349,6 +8398,25 @@ void LLVOAvatar::idleUpdateRenderCost()
 					if (volume)
 					{
 						cost += volume->getRenderCost(textures);
+
+						const_child_list_t children = volume->getChildren();
+						for (const_child_list_t::const_iterator child_iter = children.begin();
+							  child_iter != children.end();
+							  ++child_iter)
+						{
+							LLViewerObject* child_obj = *child_iter;
+							LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
+							if (child)
+							{
+								cost += child->getRenderCost(textures);
+							}
+						}
+
+						for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
+						{
+							// add the cost of each individual texture in the linkset
+							cost += iter->second;
+						}
 					}
 				}
 			}
@@ -8356,15 +8424,17 @@ void LLVOAvatar::idleUpdateRenderCost()
 
 	}
 
+
+
 	// Diagnostic output to identify all avatar-related textures.
 	// Does not affect rendering cost calculation.
 	// Could be wrapped in a debug option if output becomes problematic.
 	if (isSelf())
 	{
 		// print any attachment textures we didn't already know about.
-		for (std::set<LLUUID>::iterator it = textures.begin(); it != textures.end(); ++it)
+		for (LLVOVolume::texture_cost_t::iterator it = textures.begin(); it != textures.end(); ++it)
 		{
-			LLUUID image_id = *it;
+			LLUUID image_id = it->first;
 			if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
 				continue;
 			if (all_textures.find(image_id) == all_textures.end())
@@ -8396,9 +8466,8 @@ void LLVOAvatar::idleUpdateRenderCost()
 		}
 	}
 
-	cost += textures.size() * LLVOVolume::ARC_TEXTURE_COST;
-
 	setDebugText(llformat("%d", cost));
+	mVisualComplexity = cost;
 	F32 green = 1.f-llclamp(((F32) cost-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
 	F32 red = llmin((F32) cost/(F32)ARC_LIMIT, 1.f);
 	mText->setColor(LLColor4(red,green,0,1));

@@ -491,14 +491,16 @@ class LLCallDialog : public LLDockableFloater
 {
 public:
 	LLCallDialog(const LLSD& payload);
-	~LLCallDialog();
+	virtual ~LLCallDialog();
 
 	virtual BOOL postBuild();
 
+	void dockToToolbarButton(const std::string& toolbarButtonName);
+	
 	// check timer state
 	/*virtual*/ void draw();
 	/*virtual*/ void onOpen(const LLSD& key);
-
+	
 protected:
 	// lifetime timer for a notification
 	LLTimer	mLifetimeTimer;
@@ -507,8 +509,6 @@ protected:
 	static const S32 DEFAULT_LIFETIME = 5;
 	virtual bool lifetimeHasExpired();
 	virtual void onLifetimeExpired();
-
-	virtual void getAllowedRect(LLRect& rect);
 
 	/**
 	 * Sets icon depend on session.
@@ -521,6 +521,9 @@ protected:
 	void setIcon(const LLSD& session_id, const LLSD& participant_id);
 
 	LLSD mPayload;
+
+private:
+	LLDockControl::DocAt getDockControlPos(const std::string& toolbarButtonName);
 };
 
 class LLIncomingCallDialog : public LLCallDialog

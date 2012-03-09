@@ -185,9 +185,10 @@ protected:
 	ctrl_name_table_t mNameTable;
 	std::string mTypeString[TYPE_COUNT];
 
+public:
 	eControlType typeStringToEnum(const std::string& typestr);
 	std::string typeEnumToString(eControlType typeenum);	
-public:
+
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();
 	void cleanup();
@@ -385,7 +386,8 @@ class LLCachedControl
 {
 public:
 	LLCachedControl(LLControlGroup& group,
-					const std::string& name, 
+					const std::string& name,
+
 					const T& default_value, 
 					const std::string& comment = "Declared In Code")
 	{

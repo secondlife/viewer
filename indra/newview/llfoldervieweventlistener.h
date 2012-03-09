@@ -96,7 +96,8 @@ public:
 	// otherwise FALSE.
 	virtual BOOL dragOrDrop(MASK mask, BOOL drop,
 							EDragAndDropType cargo_type,
-							void* cargo_data) = 0;
+							void* cargo_data,
+							std::string& tooltip_msg) = 0;
 };
 
 #endif

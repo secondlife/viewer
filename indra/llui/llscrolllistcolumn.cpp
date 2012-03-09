@@ -46,10 +46,7 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterColumnHeaderParams(&typeid
 //---------------------------------------------------------------------------
 LLScrollColumnHeader::Params::Params()
 :	column("column")
-{
-	name  = "column_header";
-	tab_stop(false);
-}
+{}
 
 
 LLScrollColumnHeader::LLScrollColumnHeader(const LLScrollColumnHeader::Params& p) 

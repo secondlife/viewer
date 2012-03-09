@@ -35,6 +35,7 @@
 #include "lluiimage.h"
 #include "lluistring.h"
 #include "v4color.h"
+#include "llbadgeholder.h"
 #include <list>
 #include <queue>
 
@@ -51,7 +52,7 @@ class LLUIImage;
  * With or without border,
  * Can contain LLUICtrls.
  */
-class LLPanel : public LLUICtrl
+class LLPanel : public LLUICtrl, public LLBadgeHolder
 {
 public:
 	struct LocalizedString : public LLInitParam::Block<LocalizedString>
@@ -95,9 +96,6 @@ public:
 		Params();
 	};
 
-	// valid children for LLPanel are stored in this registry
-	typedef LLDefaultChildRegistry child_registry_t;
-
 protected:
 	friend class LLUICtrlFactory;
 	// RN: for some reason you can't just use LLUICtrlFactory::getDefaultParams as a default argument in VC8
@@ -137,6 +135,8 @@ public:
 	const LLColor4&	getBackgroundColor() const { return mBgOpaqueColor; }
 	void			setTransparentColor(const LLColor4& color) { mBgAlphaColor = color; }
 	const LLColor4& getTransparentColor() const { return mBgAlphaColor; }
+	void			setBackgroundImage(LLUIImage* image) { mBgOpaqueImage = image; }
+	void			setTransparentImage(LLUIImage* image) { mBgAlphaImage = image; }
 	LLPointer<LLUIImage> getBackgroundImage() const { return mBgOpaqueImage; }
 	LLPointer<LLUIImage> getTransparentImage() const { return mBgAlphaImage; }
 	LLColor4		getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
@@ -155,7 +155,7 @@ public:
 	
 	void			setCtrlsEnabled(BOOL b);
 
-	LLHandle<LLPanel>	getHandle() const { return mPanelHandle; }
+	LLHandle<LLPanel>	getHandle() const { return getDerivedHandle<LLPanel>(); }
 
 	const LLCallbackMap::map_t& getFactoryMap() const { return mFactoryMap; }
 	
@@ -252,8 +252,6 @@ public:
 	
 	boost::signals2::connection setVisibleCallback( const commit_signal_t::slot_type& cb );
 
-	bool acceptsBadge() const { return mAcceptsBadge; }
-
 protected:
 	// Override to set not found list
 	LLButton*		getDefaultButton() { return mDefaultBtn; }
@@ -266,9 +264,11 @@ protected:
 	std::string		mHelpTopic;         // the name of this panel's help topic to display in the Help Viewer
 	typedef std::deque<const LLCallbackMap::map_t*> factory_stack_t;
 	static factory_stack_t	sFactoryStack;
+
+	// for setting the xml filename when building panel in context dependent cases
+	std::string		mXMLFilename;
 	
 private:
-	bool			mAcceptsBadge;
 	BOOL			mBgVisible;				// any background at all?
 	BOOL			mBgOpaque;				// use opaque color or image
 	LLUIColor		mBgOpaqueColor;
@@ -280,13 +280,10 @@ private:
 	LLViewBorder*	mBorder;
 	LLButton*		mDefaultBtn;
 	LLUIString		mLabel;
-	LLRootHandle<LLPanel> mPanelHandle;
 
 	typedef std::map<std::string, std::string> ui_string_map_t;
 	ui_string_map_t	mUIStrings;
 
-	// for setting the xml filename when building panel in context dependent cases
-	std::string		mXMLFilename;
 
 }; // end class LLPanel
 

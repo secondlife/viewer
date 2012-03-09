@@ -228,6 +228,12 @@ static void request(
 	LLPumpIO::chain_t chain;
 
 	LLURLRequest* req = new LLURLRequest(method, url);
+	if(!req->isValid())//failed
+	{
+		delete req ;
+		return ;
+	}
+
 	req->setSSLVerifyCallback(LLHTTPClient::getCertVerifyCallback(), (void *)req);
 
 	
@@ -423,11 +429,16 @@ static LLSD blocking_request(
 {
 	lldebugs << "blockingRequest of " << url << llendl;
 	char curl_error_buffer[CURL_ERROR_SIZE] = "\0";
-	CURL* curlp = curl_easy_init();
+	CURL* curlp = LLCurl::newEasyHandle();
+	llassert_always(curlp != NULL) ;
+
 	LLHTTPBuffer http_buffer;
 	std::string body_str;
 	
 	// other request method checks root cert first, we skip?
+
+	// Apply configured proxy settings
+	LLProxy::getInstance()->applyProxySettings(curlp);
 	
 	// * Set curl handle options
 	curl_easy_setopt(curlp, CURLOPT_NOSIGNAL, 1);	// don't use SIGALRM for timeouts
@@ -436,7 +447,7 @@ static LLSD blocking_request(
 	curl_easy_setopt(curlp, CURLOPT_WRITEDATA, &http_buffer);
 	curl_easy_setopt(curlp, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curlp, CURLOPT_ERRORBUFFER, curl_error_buffer);
-	
+
 	// * Setup headers (don't forget to free them after the call!)
 	curl_slist* headers_list = NULL;
 	if (headers.isMap())
@@ -514,7 +525,7 @@ static LLSD blocking_request(
 	}
 
 	// * Cleanup
-	curl_easy_cleanup(curlp);
+	LLCurl::deleteEasyHandle(curlp);
 	return response;
 }
 

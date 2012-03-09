@@ -468,13 +468,20 @@ void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t c
 
 void LLParticipantList::updateRecentSpeakersOrder()
 {
-	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
+	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder() && !isHovered())
 	{
 		// Need to update speakers to sort list correctly
 		mSpeakerMgr->update(true);
 		// Resort avatar list
 		sort();
 	}
+}
+
+bool LLParticipantList::isHovered()
+{
+	S32 x, y;
+	LLUI::getMousePositionScreen(&x, &y);
+	return mAvatarList->calcScreenRect().pointInRect(x, y);
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
@@ -798,11 +805,19 @@ void LLParticipantList::LLParticipantListMenu::toggleMuteVoice(const LLSD& userd
 
 bool LLParticipantList::LLParticipantListMenu::isGroupModerator()
 {
-	// Agent is in Group Call
+	if (!mParent.mSpeakerMgr)
+	{
+		llwarns << "Speaker manager is missing" << llendl;
+		return false;
+	}
+
+	// Is session a group call/chat?
 	if(gAgent.isInGroup(mParent.mSpeakerMgr->getSessionID()))
 	{
-		// Agent is Moderator
-		return mParent.mSpeakerMgr->findSpeaker(gAgentID)->mIsModerator;
+		LLSpeaker* speaker = mParent.mSpeakerMgr->findSpeaker(gAgentID).get();
+
+		// Is agent a moderator?
+		return speaker && speaker->mIsModerator;
 	}
 	return false;
 }

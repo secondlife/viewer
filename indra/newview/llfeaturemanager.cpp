@@ -51,6 +51,7 @@
 #include "llcontrol.h"
 #include "llboost.h"
 #include "llweb.h"
+#include "llviewershadermgr.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -106,7 +107,7 @@ BOOL LLFeatureList::isFeatureAvailable(const std::string& name)
 		return mFeatures[name].mAvailable;
 	}
 
-	LL_WARNS("RenderInit") << "Feature " << name << " not on feature list!" << LL_ENDL;
+	LL_WARNS_ONCE("RenderInit") << "Feature " << name << " not on feature list!" << LL_ENDL;
 	
 	// changing this to TRUE so you have to explicitly disable 
 	// something for it to be disabled
@@ -120,7 +121,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 		return mFeatures[name].mRecommendedLevel;
 	}
 
-	LL_WARNS("RenderInit") << "Feature " << name << " not on feature list or not available!" << LL_ENDL;
+	LL_WARNS_ONCE("RenderInit") << "Feature " << name << " not on feature list or not available!" << LL_ENDL;
 	return 0;
 }
 
@@ -662,8 +663,10 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 
 void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 {
-	applyBaseMasks();
+	LLViewerShaderMgr::sSkipReload = true;
 
+	applyBaseMasks();
+	
 	switch (level)
 	{
 		case 0:
@@ -684,6 +687,9 @@ void LLFeatureManager::setGraphicsLevel(S32 level, bool skipFeatures)
 	}
 
 	applyFeatures(skipFeatures);
+
+	LLViewerShaderMgr::sSkipReload = false;
+	LLViewerShaderMgr::instance()->setShaders();
 }
 
 void LLFeatureManager::applyBaseMasks()
@@ -725,7 +731,7 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("NoPixelShaders");
 	}
-	if (!gGLManager.mHasVertexShader)
+	if (!gGLManager.mHasVertexShader || !mGPUSupported)
 	{
 		maskFeatures("NoVertexShaders");
 	}
@@ -768,6 +774,14 @@ void LLFeatureManager::applyBaseMasks()
 	if (gGLManager.mNumTextureImageUnits <= 8)
 	{
 		maskFeatures("TexUnit8orLess");
+	}
+	if (gGLManager.mHasMapBufferRange)
+	{
+		maskFeatures("MapBufferRange");
+	}
+	if (gGLManager.mVRAM > 512)
+	{
+		maskFeatures("VRAMGT512");
 	}
 
 	// now mask by gpu string

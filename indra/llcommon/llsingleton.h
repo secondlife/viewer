@@ -100,12 +100,6 @@ private:
 		DELETED
 	} EInitState;
 	
-	static void deleteSingleton()
-	{
-		delete getData().mSingletonInstance;
-		getData().mSingletonInstance = NULL;
-	}
-	
 	// stores pointer to singleton instance
 	// and tracks initialization state of singleton
 	struct SingletonInstanceData
@@ -120,7 +114,10 @@ private:
 
 		~SingletonInstanceData()
 		{
-			deleteSingleton();
+			if (mInitState != DELETED)
+			{
+				deleteSingleton();
+			}
 		}
 	};
 	
@@ -130,6 +127,33 @@ public:
 		SingletonInstanceData& data = getData();
 		data.mSingletonInstance = NULL;
 		data.mInitState = DELETED;
+	}
+
+	/**
+	 * @brief Immediately delete the singleton.
+	 *
+	 * A subsequent call to LLProxy::getInstance() will construct a new
+	 * instance of the class.
+	 *
+	 * LLSingletons are normally destroyed after main() has exited and the C++
+	 * runtime is cleaning up statically-constructed objects. Some classes
+	 * derived from LLSingleton have objects that are part of a runtime system
+	 * that is terminated before main() exits. Calling the destructor of those
+	 * objects after the termination of their respective systems can cause
+	 * crashes and other problems during termination of the project. Using this
+	 * method to destroy the singleton early can prevent these crashes.
+	 *
+	 * An example where this is needed is for a LLSingleton that has an APR
+	 * object as a member that makes APR calls on destruction. The APR system is
+	 * shut down explicitly before main() exits. This causes a crash on exit.
+	 * Using this method before the call to apr_terminate() and NOT calling
+	 * getInstance() again will prevent the crash.
+	 */
+	static void deleteSingleton()
+	{
+		delete getData().mSingletonInstance;
+		getData().mSingletonInstance = NULL;
+		getData().mInitState = DELETED;
 	}
 
 	static SingletonInstanceData& getData()

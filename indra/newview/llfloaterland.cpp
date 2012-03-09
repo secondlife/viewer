@@ -433,7 +433,6 @@ BOOL LLPanelLandGeneral::postBuild()
 
 	
 	mTextDwell = getChild<LLTextBox>("DwellText");
-
 	
 	mBtnBuyLand = getChild<LLButton>("Buy Land...");
 	mBtnBuyLand->setClickedCallback(onClickBuyLand, (void*)&BUY_PERSONAL_LAND);
@@ -566,10 +565,7 @@ void LLPanelLandGeneral::refresh()
 		if (regionp)
 		{
 			insert_maturity_into_textbox(mContentRating, gFloaterView->getParentFloater(this), MATURITY);
-
-			std::string land_type;
-			bool is_land_type_localized = LLTrans::findString(land_type, regionp->getSimProductName());
-			mLandType->setText(is_land_type_localized ? land_type : regionp->getSimProductName());
+			mLandType->setText(regionp->getLocalizedSimProductName());
 		}
 
 		// estate owner/manager cannot edit other parts of the parcel
@@ -699,20 +695,26 @@ void LLPanelLandGeneral::refresh()
 		S32 area;
 		S32 claim_price;
 		S32 rent_price;
-		F32 dwell;
+		F32 dwell = DWELL_NAN;
 		LLViewerParcelMgr::getInstance()->getDisplayInfo(&area,
 								 &claim_price,
 								 &rent_price,
 								 &for_sale,
 								 &dwell);
-
 		// Area
 		LLUIString price = getString("area_size_text");
 		price.setArg("[AREA]", llformat("%d",area));    
 		mTextPriceLabel->setText(getString("area_text"));
 		mTextPrice->setText(price.getString());
 
-		mTextDwell->setText(llformat("%.0f", dwell));
+		if (dwell == DWELL_NAN)
+		{
+			mTextDwell->setText(LLTrans::getString("LoadingData"));
+		}
+		else
+		{
+			mTextDwell->setText(llformat("%.0f", dwell));
+		}
 
 		if (for_sale)
 		{
@@ -1804,7 +1806,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mCheckEditGroupObjects(NULL),
 	mCheckAllObjectEntry(NULL),
 	mCheckGroupObjectEntry(NULL),
-	mCheckEditLand(NULL),
 	mCheckSafe(NULL),
 	mCheckFly(NULL),
 	mCheckGroupScripts(NULL),
@@ -1837,10 +1838,6 @@ BOOL LLPanelLandOptions::postBuild()
 
 	mCheckGroupObjectEntry = getChild<LLCheckBoxCtrl>( "group object entry check");
 	childSetCommitCallback("group object entry check", onCommitAny, this);
-	
-	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
-	childSetCommitCallback("edit land check", onCommitAny, this);
-
 	
 	mCheckGroupScripts = getChild<LLCheckBoxCtrl>( "check group scripts");
 	childSetCommitCallback("check group scripts", onCommitAny, this);
@@ -1954,9 +1951,6 @@ void LLPanelLandOptions::refresh()
 		mCheckGroupObjectEntry	->set(FALSE);
 		mCheckGroupObjectEntry	->setEnabled(FALSE);
 
-		mCheckEditLand		->set(FALSE);
-		mCheckEditLand		->setEnabled(FALSE);
-		
 		mCheckSafe			->set(FALSE);
 		mCheckSafe			->setEnabled(FALSE);
 
@@ -2004,10 +1998,6 @@ void LLPanelLandOptions::refresh()
 
 		mCheckGroupObjectEntry	->set( parcel->getAllowGroupObjectEntry() ||  parcel->getAllowAllObjectEntry());
 		mCheckGroupObjectEntry	->setEnabled( can_change_options && !parcel->getAllowAllObjectEntry() );
-
-		BOOL can_change_terraform = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_EDIT);
-		mCheckEditLand		->set( parcel->getAllowTerraform() );
-		mCheckEditLand		->setEnabled( can_change_terraform );
 		
 		mCheckSafe			->set( !parcel->getAllowDamage() );
 		mCheckSafe			->setEnabled( can_change_options );
@@ -2035,7 +2025,6 @@ void LLPanelLandOptions::refresh()
 		}
 
 		mSeeAvatarsCtrl->set(parcel->getSeeAVs());
-		mSeeAvatarsCtrl->setLabel(getString("see_avs_text"));
 		mSeeAvatarsCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
@@ -2233,7 +2222,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL create_group_objects	= self->mCheckEditGroupObjects->get() || self->mCheckEditObjects->get();
 	BOOL all_object_entry		= self->mCheckAllObjectEntry->get();
 	BOOL group_object_entry	= self->mCheckGroupObjectEntry->get() || self->mCheckAllObjectEntry->get();
-	BOOL allow_terraform	= self->mCheckEditLand->get();
+	BOOL allow_terraform	= false; // removed from UI so always off now - self->mCheckEditLand->get();
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
 	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
@@ -2484,27 +2473,6 @@ void LLPanelLandAccess::refresh()
 				}
 				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
-		}
-		
-		LLCheckBoxWithTBAcess* maturity_checkbox = (LLCheckBoxWithTBAcess*) getChild<LLCheckBoxCtrl>( "public_access");
-		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-		if(region)
-		{
-			LLTextBox* maturity_textbox = maturity_checkbox->getTextBox();
-			insert_maturity_into_textbox(maturity_textbox, gFloaterView->getParentFloater(this), getString("allow_public_access"));
-			maturity_checkbox->reshape(maturity_checkbox->getRect().getWidth(), maturity_checkbox->getRect().getHeight(), FALSE);
-		}
-		else
-		{
-			std::string maturity_string = getString("allow_public_access");
-			size_t maturity_pos = maturity_string.find(MATURITY);
-
-			if (maturity_pos != std::string::npos)
-			{
-				maturity_string.replace(maturity_pos, MATURITY.length(), std::string(""));
-			}
-
-			maturity_checkbox->setLabel(maturity_string);
 		}
 
 		if(parcel->getRegionDenyAnonymousOverride())
@@ -2883,13 +2851,7 @@ void LLPanelLandCovenant::refresh()
 	}
 
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
-	if (region_landtype)
-	{
-		std::string land_type;
-		bool is_land_type_localized = LLTrans::findString(land_type, region->getSimProductName());
-
-		region_landtype->setText(is_land_type_localized ? land_type : region->getSimProductName());
-	}
+	region_landtype->setText(region->getLocalizedSimProductName());
 	
 	LLTextBox* region_maturity = getChild<LLTextBox>("region_maturity_text");
 	if (region_maturity)

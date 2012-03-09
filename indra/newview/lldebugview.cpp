@@ -41,6 +41,7 @@
 #include "llmemoryview.h"
 #include "llsceneview.h"
 #include "llviewertexture.h"
+#include "llfloaterreg.h"
 
 //
 // Globals
@@ -54,8 +55,22 @@ LLDebugView* gDebugView = NULL;
 static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
-:	LLView(p)
+:	LLView(p),
+	mFastTimerView(NULL),
+	mMemoryView(NULL),
+	mDebugConsolep(NULL),
+	mFloaterSnapRegion(NULL)
 {}
+
+LLDebugView::~LLDebugView()
+{
+	// These have already been deleted.  Fix the globals appropriately.
+	gDebugView = NULL;
+	gTextureView = NULL;
+	gSceneView = NULL;
+	gTextureSizeView = NULL;
+	gTextureCategoryView = NULL;
+}
 
 void LLDebugView::init()
 {
@@ -79,12 +94,7 @@ void LLDebugView::init()
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
   									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 	
-	mFastTimerView = new LLFastTimerView(r);
-	mFastTimerView->setFollowsTop();
-	mFastTimerView->setFollowsLeft();
-	mFastTimerView->setVisible(FALSE);			// start invisible
-	addChild(mFastTimerView);
-	mFastTimerView->setRect(rect);
+	mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("fast_timers"));
 
 	gSceneView = new LLSceneView(r);
 	gSceneView->setFollowsTop();
@@ -113,8 +123,6 @@ void LLDebugView::init()
 	addChild(gTextureView);
 	//gTextureView->reshape(r.getWidth(), r.getHeight(), TRUE);
 
-	
-
 
 	if(gAuditTexture)
 	{
@@ -140,14 +148,16 @@ void LLDebugView::init()
 	}
 }
 
-
-LLDebugView::~LLDebugView()
+void LLDebugView::draw()
 {
-	// These have already been deleted.  Fix the globals appropriately.
-	gDebugView = NULL;
-	gTextureView = NULL;
-	gSceneView = NULL;
-	gTextureSizeView = NULL;
-	gTextureCategoryView = NULL;
-}
+	if (mFloaterSnapRegion == NULL)
+	{
+		mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
+	}
 
+	LLRect debug_rect;
+	mFloaterSnapRegion->localRectToOtherView(mFloaterSnapRegion->getLocalRect(), &debug_rect, getParent());
+
+	setShape(debug_rect);
+	LLView::draw();
+}

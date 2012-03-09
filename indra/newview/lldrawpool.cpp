@@ -190,15 +190,16 @@ void LLDrawPool::renderPostDeferred(S32 pass)
 //virtual
 void LLDrawPool::endRenderPass( S32 pass )
 {
-	for (U32 i = 0; i < gGLManager.mNumTextureImageUnits; i++)
+	/*for (U32 i = 0; i < gGLManager.mNumTextureImageUnits; i++)
 	{ //dummy cleanup of any currently bound textures
 		if (gGL.getTexUnit(i)->getCurrType() != LLTexUnit::TT_NONE)
 		{
 			gGL.getTexUnit(i)->unbind(gGL.getTexUnit(i)->getCurrType());
 			gGL.getTexUnit(i)->disable();
 		}
-	}
+	}*/
 
+	//make sure channel 0 is active channel
 	gGL.getTexUnit(0)->activate();
 }
 
@@ -383,7 +384,7 @@ BOOL LLFacePool::LLOverrideFaceColor::sOverrideFaceColor = FALSE;
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4& color)
 {
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 }
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
@@ -393,7 +394,7 @@ void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
 
 void LLFacePool::LLOverrideFaceColor::setColor(F32 r, F32 g, F32 b, F32 a)
 {
-	glColor4f(r,g,b,a);
+	gGL.diffuseColor4f(r,g,b,a);
 }
 
 
@@ -456,10 +457,10 @@ void LLRenderPass::applyModelMatrix(LLDrawInfo& params)
 	if (params.mModelMatrix != gGLLastMatrix)
 	{
 		gGLLastMatrix = params.mModelMatrix;
-		glLoadMatrixd(gGLModelView);
+		gGL.loadMatrix(gGLModelView);
 		if (params.mModelMatrix)
 		{
-			glMultMatrixf((GLfloat*) params.mModelMatrix->mMatrix);
+			gGL.multMatrix((GLfloat*) params.mModelMatrix->mMatrix);
 		}
 		gPipeline.mMatrixOpCount++;
 	}
@@ -493,8 +494,8 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 				{
 					tex_setup = true;
 					gGL.getTexUnit(0)->activate();
-					glMatrixMode(GL_TEXTURE);
-					glLoadMatrixf((GLfloat*) params.mTextureMatrix->mMatrix);
+					gGL.matrixMode(LLRender::MM_TEXTURE);
+					gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
 					gPipeline.mTextureMatrixOps++;
 				}
 			}
@@ -518,8 +519,8 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 
 	if (tex_setup)
 	{
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 }
 

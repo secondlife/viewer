@@ -41,6 +41,7 @@
 #include "llgl.h"
 
 // Project includes
+#include "llcommandmanager.h"
 #include "llcontrol.h"
 #include "llui.h"
 #include "lluicolortable.h"
@@ -57,6 +58,7 @@
 #include "llfiltereditor.h"
 #include "llflyoutbutton.h"
 #include "llsearcheditor.h"
+#include "lltoolbar.h"
 
 // for XUIParse
 #include "llquaternion.h"
@@ -87,14 +89,14 @@ std::list<std::string> gUntranslated;
 /*static*/ LLUI::remove_popup_t	LLUI::sRemovePopupFunc;
 /*static*/ LLUI::clear_popups_t	LLUI::sClearPopupsFunc;
 
-// register filtereditor here
+// register filter editor here
 static LLDefaultChildRegistry::Register<LLFilterEditor> register_filter_editor("filter_editor");
 static LLDefaultChildRegistry::Register<LLFlyoutButton> register_flyout_button("flyout_button");
 static LLDefaultChildRegistry::Register<LLSearchEditor> register_search_editor("search_editor");
 
 // register other widgets which otherwise may not be linked in
 static LLDefaultChildRegistry::Register<LLLoadingIndicator> register_loading_indicator("loading_indicator");
-
+static LLDefaultChildRegistry::Register<LLToolBar> register_toolbar("toolbar");
 
 //
 // Functions
@@ -104,7 +106,7 @@ void make_ui_sound(const char* namep)
 	std::string name = ll_safe_string(namep);
 	if (!LLUI::sSettingGroups["config"]->controlExists(name))
 	{
-		llwarns << "tried to make ui sound for unknown sound name: " << name << llendl;	
+		llwarns << "tried to make UI sound for unknown sound name: " << name << llendl;	
 	}
 	else
 	{
@@ -115,12 +117,12 @@ void make_ui_sound(const char* namep)
 			{
 				if (LLUI::sSettingGroups["config"]->getBOOL("UISndDebugSpamToggle"))
 				{
-					llinfos << "ui sound name: " << name << " triggered but silent (null uuid)" << llendl;	
+					llinfos << "UI sound name: " << name << " triggered but silent (null uuid)" << llendl;	
 				}				
 			}
 			else
 			{
-				llwarns << "ui sound named: " << name << " does not translate to a valid uuid" << llendl;	
+				llwarns << "UI sound named: " << name << " does not translate to a valid uuid" << llendl;	
 			}
 
 		}
@@ -128,7 +130,7 @@ void make_ui_sound(const char* namep)
 		{
 			if (LLUI::sSettingGroups["config"]->getBOOL("UISndDebugSpamToggle"))
 			{
-				llinfos << "ui sound name: " << name << llendl;	
+				llinfos << "UI sound name: " << name << llendl;	
 			}
 			LLUI::sAudioCallback(uuid);
 		}
@@ -151,11 +153,11 @@ void gl_state_for_2d(S32 width, S32 height)
 	F32 window_width = (F32) width;//gViewerWindow->getWindowWidth();
 	F32 window_height = (F32) height;//gViewerWindow->getWindowHeight();
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0f, llmax(window_width, 1.f), 0.0f, llmax(window_height,1.f), -1.0f, 1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, llmax(window_width, 1.f), 0.0f, llmax(window_height,1.f), -1.0f, 1.0f);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.loadIdentity();
 	stop_glerror();
 }
 
@@ -472,7 +474,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		return;
 	}
 
-	// add in offset of current image to current ui translation
+	// add in offset of current image to current UI translation
 	const LLVector3 ui_scale = gGL.getUIScale();
 	const LLVector3 ui_translation = (gGL.getUITranslation() + LLVector3(x, y, 0.f)).scaledVec(ui_scale);
 
@@ -524,11 +526,18 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 	
 	if (solid_color)
 	{
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
-		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gSolidColorProgram.bind();
+		}
+		else
+		{
+			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
+			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_ALPHA, LLTexUnit::TBS_VERT_ALPHA);
+		}
 	}
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
 	
@@ -699,7 +708,14 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 
 	if (solid_color)
 	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.bind();
+		}
+		else
+		{
+			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+		}
 	}
 }
 
@@ -719,7 +735,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 	LLGLSUIDefault gls_ui;
 
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
 
@@ -772,7 +788,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 		LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
 		
-		gGL.getTexUnit(0)->bind(image);
+		gGL.getTexUnit(0)->bind(image, true);
 
 		gGL.color4fv(color.mV);
 		
@@ -939,10 +955,12 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 		if( render_center )
 		{
 			gGL.color4fv(center_color.mV);
+			gGL.diffuseColor4fv(center_color.mV);
 			gl_deep_circle( radius, width, steps );
 		}
 		else
 		{
+			gGL.diffuseColor4fv(side_color.mV);
 			gl_washer_2d(radius, radius - width, steps, side_color, side_color);
 			gGL.translateUI(0.f, 0.f, width);
 			gl_washer_2d(radius - width, radius, steps, side_color, side_color);
@@ -954,35 +972,53 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 // Draw gray and white checkerboard with black border
 void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 {
-	// Initialize the first time this is called.
-	const S32 PIXELS = 32;
-	static GLubyte checkerboard[PIXELS * PIXELS];
-	static BOOL first = TRUE;
-	if( first )
-	{
-		for( S32 i = 0; i < PIXELS; i++ )
+	if (!LLGLSLShader::sNoFixedFunction)
+	{ 
+		// Initialize the first time this is called.
+		const S32 PIXELS = 32;
+		static GLubyte checkerboard[PIXELS * PIXELS];
+		static BOOL first = TRUE;
+		if( first )
 		{
-			for( S32 j = 0; j < PIXELS; j++ )
+			for( S32 i = 0; i < PIXELS; i++ )
 			{
-				checkerboard[i * PIXELS + j] = ((i & 1) ^ (j & 1)) * 0xFF;
+				for( S32 j = 0; j < PIXELS; j++ )
+				{
+					checkerboard[i * PIXELS + j] = ((i & 1) ^ (j & 1)) * 0xFF;
+				}
 			}
+			first = FALSE;
 		}
-		first = FALSE;
+	
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+		// ...white squares
+		gGL.color4f( 1.f, 1.f, 1.f, alpha );
+		gl_rect_2d(rect);
+
+		// ...gray squares
+		gGL.color4f( .7f, .7f, .7f, alpha );
+		gGL.flush();
+
+		glPolygonStipple( checkerboard );
+
+		LLGLEnable polygon_stipple(GL_POLYGON_STIPPLE);
+		gl_rect_2d(rect);
+	}
+	else
+	{ //polygon stipple is deprecated, use "Checker" texture
+		LLPointer<LLUIImage> img = LLUI::getUIImage("Checker");
+		gGL.getTexUnit(0)->bind(img->getImage());
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+
+		LLColor4 color(1.f, 1.f, 1.f, alpha);
+		LLRectf uv_rect(0, 0, rect.getWidth()/32.f, rect.getHeight()/32.f);
+
+		gl_draw_scaled_image(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(),
+			img->getImage(), color, uv_rect);
 	}
 	
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-	// ...white squares
-	gGL.color4f( 1.f, 1.f, 1.f, alpha );
-	gl_rect_2d(rect);
-
-	// ...gray squares
-	gGL.color4f( .7f, .7f, .7f, alpha );
-	gGL.flush();
-	glPolygonStipple( checkerboard );
-
-	LLGLEnable polygon_stipple(GL_POLYGON_STIPPLE);
-	gl_rect_2d(rect);
 	gGL.flush();
 }
 
@@ -1600,16 +1636,16 @@ void LLUI::initClass(const settings_map_t& settings,
 
 	LLUICtrl::CommitCallbackRegistry::Registrar& reg = LLUICtrl::CommitCallbackRegistry::defaultRegistrar();
 
-	// Callbacks for associating controls with floater visibilty:
-	reg.add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleFloaterInstance, _2));
-	reg.add("Floater.Show", boost::bind(&LLFloaterReg::showFloaterInstance, _2));
-	reg.add("Floater.Hide", boost::bind(&LLFloaterReg::hideFloaterInstance, _2));
-	reg.add("Floater.InitToVisibilityControl", boost::bind(&LLFloaterReg::initUICtrlToFloaterVisibilityControl, _1, _2));
+	// Callbacks for associating controls with floater visibility:
+	reg.add("Floater.Toggle", boost::bind(&LLFloaterReg::toggleInstance, _2, LLSD()));
+	reg.add("Floater.ToggleOrBringToFront", boost::bind(&LLFloaterReg::toggleInstanceOrBringToFront, _2, LLSD()));
+	reg.add("Floater.Show", boost::bind(&LLFloaterReg::showInstance, _2, LLSD(), FALSE));
+	reg.add("Floater.Hide", boost::bind(&LLFloaterReg::hideInstance, _2, LLSD()));
 	
 	// Button initialization callback for toggle buttons
 	reg.add("Button.SetFloaterToggle", boost::bind(&LLButton::setFloaterToggle, _1, _2));
 	
-	// Button initialization callback for toggle buttons on dockale floaters
+	// Button initialization callback for toggle buttons on dockable floaters
 	reg.add("Button.SetDockableFloaterToggle", boost::bind(&LLButton::setDockableFloaterToggle, _1, _2));
 
 	// Display the help topic for the current context
@@ -1618,8 +1654,12 @@ void LLUI::initClass(const settings_map_t& settings,
 	// Currently unused, but kept for reference:
 	reg.add("Button.ToggleFloater", boost::bind(&LLButton::toggleFloaterAndSetToggleState, _1, _2));
 	
-	// Used by menus along with Floater.Toggle to display visibility as a checkmark
-	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::floaterInstanceVisible, _2));
+	// Used by menus along with Floater.Toggle to display visibility as a check-mark
+	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.Visible", boost::bind(&LLFloaterReg::instanceVisible, _2, LLSD()));
+	LLUICtrl::EnableCallbackRegistry::defaultRegistrar().add("Floater.IsOpen", boost::bind(&LLFloaterReg::instanceVisible, _2, LLSD()));
+
+	// Parse the master list of commands
+	LLCommandManager::load();
 }
 
 void LLUI::cleanupClass()
@@ -1803,9 +1843,12 @@ void LLUI::setupPaths()
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
 	Paths paths;
-	LLXUIParser parser;
-	parser.readXUI(root, paths, filename);
 
+	if(success)
+	{
+		LLXUIParser parser;
+		parser.readXUI(root, paths, filename);
+	}
 	sXUIPaths.clear();
 	
 	if (success && paths.validateBlock())
@@ -2013,12 +2056,12 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 								CURSOR_HEIGHT + MOUSE_CURSOR_PADDING * 2);
 
 	S32 local_x, local_y;
-	// convert screen coordinates to tooltipview-local coordinates
+	// convert screen coordinates to tooltip view-local coordinates
 	parent->screenPointToLocal(spawn_x, spawn_y, &local_x, &local_y);
 
 	// Start at spawn position (using left/top)
 	view->setOrigin( local_x, local_y - view->getRect().getHeight());
-	// Make sure we're onscreen and not overlapping the mouse
+	// Make sure we're on-screen and not overlapping the mouse
 	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect, FALSE );
 }
 
@@ -2082,12 +2125,12 @@ namespace LLInitParam
 		alpha("alpha"),
 		control("")
 	{
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
 	{
-		if (control.isProvided())
+		if (control.isProvided() && !control().empty())
 		{
 			updateValue(LLUIColorTable::instance().getColor(control));
 		}
@@ -2097,14 +2140,14 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue()
+	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		LLColor4 color = getValue();
-		red.set(color.mV[VRED], false);
-		green.set(color.mV[VGREEN], false);
-		blue.set(color.mV[VBLUE], false);
-		alpha.set(color.mV[VALPHA], false);
-		control.set("", false);
+		red.set(color.mV[VRED], make_block_authoritative);
+		green.set(color.mV[VGREEN], make_block_authoritative);
+		blue.set(color.mV[VBLUE], make_block_authoritative);
+		alpha.set(color.mV[VALPHA], make_block_authoritative);
+		control.set("", make_block_authoritative);
 	}
 
 	bool ParamCompare<const LLFontGL*, false>::equals(const LLFontGL* a, const LLFontGL* b)
@@ -2124,7 +2167,7 @@ namespace LLInitParam
 			updateValue(LLFontGL::getFontDefault());
 		}
 		addSynonym(name, "");
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
@@ -2150,13 +2193,13 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue()
+	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue())
 		{
-			name.set(LLFontGL::nameFromFont(getValue()), false);
-			size.set(LLFontGL::sizeFromFont(getValue()), false);
-			style.set(LLFontGL::getStringFromStyle(getValue()->getFontDesc().getStyle()), false);
+			name.set(LLFontGL::nameFromFont(getValue()), make_block_authoritative);
+			size.set(LLFontGL::sizeFromFont(getValue()), make_block_authoritative);
+			style.set(LLFontGL::getStringFromStyle(getValue()->getFontDesc().getStyle()), make_block_authoritative);
 		}
 	}
 
@@ -2169,7 +2212,7 @@ namespace LLInitParam
 		width("width"),
 		height("height")
 	{
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<LLRect, TypeValues<LLRect> >::updateValueFromBlock()
@@ -2236,19 +2279,21 @@ namespace LLInitParam
 		updateValue(rect);
 	}
 	
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue()
+	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue(bool make_block_authoritative)
 	{
 		// because of the ambiguity in specifying a rect by position and/or dimensions
-		// we clear the "provided" flag so that values from xui/etc have priority
-		// over those calculated from the rect object
-
+		// we use the lowest priority pairing so that any valid pairing in xui 
+		// will override those calculated from the rect object
+		// in this case, that is left+width and bottom+height
 		LLRect& value = getValue();
-		left.set(value.mLeft, false);
+
 		right.set(value.mRight, false);
-		bottom.set(value.mBottom, false);
+		left.set(value.mLeft, make_block_authoritative);
+		width.set(value.getWidth(), make_block_authoritative);
+
 		top.set(value.mTop, false);
-		width.set(value.getWidth(), false);
-		height.set(value.getHeight(), false);
+		bottom.set(value.mBottom, make_block_authoritative);
+		height.set(value.getHeight(), make_block_authoritative);
 	}
 
 	ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::ParamValue(const LLCoordGL& coord)
@@ -2256,7 +2301,7 @@ namespace LLInitParam
 		x("x"),
 		y("y")
 	{
-		updateBlockFromValue();
+		updateBlockFromValue(false);
 	}
 
 	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateValueFromBlock()
@@ -2264,10 +2309,10 @@ namespace LLInitParam
 		updateValue(LLCoordGL(x, y));
 	}
 	
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue()
+	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue(bool make_block_authoritative)
 	{
-		x.set(getValue().mX, false);
-		y.set(getValue().mY, false);
+		x.set(getValue().mX, make_block_authoritative);
+		y.set(getValue().mY, make_block_authoritative);
 	}
 
 

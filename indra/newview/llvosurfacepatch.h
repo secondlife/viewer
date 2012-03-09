@@ -44,8 +44,7 @@ public:
 		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
 							(1 << LLVertexBuffer::TYPE_NORMAL) |
 							(1 << LLVertexBuffer::TYPE_TEXCOORD0) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD1) |
-							(1 << LLVertexBuffer::TYPE_COLOR) 
+							(1 << LLVertexBuffer::TYPE_TEXCOORD1)
 	};
 
 	LLVOSurfacePatch(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
@@ -64,7 +63,6 @@ public:
 	/*virtual*/ void		updateFaceSize(S32 idx);
 	void getGeometry(LLStrider<LLVector3> &verticesp,
 								LLStrider<LLVector3> &normalsp,
-								LLStrider<LLColor4U> &colorsp,
 								LLStrider<LLVector2> &texCoords0p,
 								LLStrider<LLVector2> &texCoords1p,
 								LLStrider<U16> &indicesp);
@@ -116,7 +114,6 @@ protected:
 	void updateMainGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
-					   LLStrider<LLColor4U> &colorsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,
@@ -124,7 +121,6 @@ protected:
 	void updateNorthGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
-					   LLStrider<LLColor4U> &colorsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,
@@ -132,7 +128,6 @@ protected:
 	void updateEastGeometry(LLFace *facep,
 					   LLStrider<LLVector3> &verticesp,
 					   LLStrider<LLVector3> &normalsp,
-					   LLStrider<LLColor4U> &colorsp,
 					   LLStrider<LLVector2> &texCoords0p,
 					   LLStrider<LLVector2> &texCoords1p,
 					   LLStrider<U16> &indicesp,

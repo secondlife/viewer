@@ -339,7 +339,7 @@ LLAccordionCtrlTab::Params::Params()
 	,fit_panel("fit_panel",true)
 	,selection_enabled("selection_enabled", false)
 {
-	mouse_opaque(false);
+	changeDefault(mouse_opaque, false);
 }
 
 LLAccordionCtrlTab::LLAccordionCtrlTab(const LLAccordionCtrlTab::Params&p)
@@ -973,7 +973,7 @@ void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
 		
 		if ( root_rect.overlaps(screen_rect)  && LLUI::sDirtyRect.overlaps(screen_rect))
 		{
-			glMatrixMode(GL_MODELVIEW);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			{
 				LLUI::translate((F32)child->getRect().mLeft, (F32)child->getRect().mBottom, 0.f);

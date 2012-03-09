@@ -78,6 +78,8 @@ void on_new_single_inventory_upload_complete(
 	const LLSD& server_response,
 	S32 upload_price)
 {
+	bool success = false;
+
 	if ( upload_price > 0 )
 	{
 		// this upload costed us L$, update our balance
@@ -127,6 +129,15 @@ void on_new_single_inventory_upload_complete(
 			group_perms,
 			next_owner_perms);
 
+		U32 inventory_item_flags = 0;
+		if (server_response.has("inventory_flags"))
+		{
+			inventory_item_flags = (U32) server_response["inventory_flags"].asInteger();
+			if (inventory_item_flags != 0)
+			{
+				llinfos << "inventory_item_flags " << inventory_item_flags << llendl;
+			}
+		}
 		S32 creation_date_now = time_corrected();
 		LLPointer<LLViewerInventoryItem> item = new LLViewerInventoryItem(
 			server_response["new_inventory_item"].asUUID(),
@@ -138,11 +149,12 @@ void on_new_single_inventory_upload_complete(
 			item_name,
 			item_description,
 			LLSaleInfo::DEFAULT,
-			LLInventoryItemFlags::II_FLAGS_NONE,
+			inventory_item_flags,
 			creation_date_now);
 
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
+		success = true;
 
 		// Show the preview panel for textures and sounds to let
 		// user know that the image (or snapshot) arrived intact.
@@ -166,6 +178,13 @@ void on_new_single_inventory_upload_complete(
 
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();	
+
+	// Let the Snapshot floater know we have finished uploading a snapshot to inventory.
+	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+	if (asset_type == LLAssetType::AT_TEXTURE && floater_snapshot)
+	{
+		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", success).with("msg", "inventory")));
+	}
 }
 
 LLAssetUploadResponder::LLAssetUploadResponder(const LLSD &post_data,
@@ -276,6 +295,11 @@ void LLAssetUploadResponder::uploadFailure(const LLSD& content)
 {
 	// remove the "Uploading..." message
 	LLUploadDialog::modalUploadFinished();
+	LLFloater* floater_snapshot = LLFloaterReg::findInstance("snapshot");
+	if (floater_snapshot)
+	{
+		floater_snapshot->notify(LLSD().with("set-finished", LLSD().with("ok", false).with("msg", "inventory")));
+	}
 	
 	std::string reason = content["state"];
 	// deal with L$ errors

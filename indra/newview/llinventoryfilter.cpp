@@ -36,6 +36,7 @@
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
+#include "llviewerfoldertype.h"
 
 // linden library includes
 #include "lltrans.h"
@@ -117,7 +118,7 @@ bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
 
 	const LLFolderViewEventListener* listener = folder->getListener();
 	const LLUUID folder_id = listener->getUUID();
-
+	
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
 		// Can only filter categories for items in your inventory
@@ -206,6 +207,23 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 		}
 	}
 
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_EMPTYFOLDERS
+	// Pass if this item is a folder and is not a system folder that should be hidden
+	if (filterTypes & FILTERTYPE_EMPTYFOLDERS)
+	{
+		if (object_type == LLInventoryType::IT_CATEGORY)
+		{
+			bool is_hidden_if_empty = LLViewerFolderType::lookupIsHiddenIfEmpty(listener->getPreferredType());
+			if (is_hidden_if_empty)
+			{
+				// Force the fetching of those folders so they are hidden iff they really are empty...
+				gInventory.fetchDescendentsOf(object_id);
+				return FALSE;
+			}
+		}
+	}
+	
 	return TRUE;
 }
 
@@ -256,16 +274,20 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 // has user modified default filter params?
 BOOL LLInventoryFilter::isNotDefault() const
 {
-	return mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes 
-		|| mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes 
-		|| mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes 
-		|| mFilterOps.mFilterTypes != FILTERTYPE_OBJECT
-		|| mFilterOps.mFilterLinks != FILTERLINK_INCLUDE_LINKS
-		|| mFilterSubString.size() 
-		|| mFilterOps.mPermissions != mDefaultFilterOps.mPermissions
-		|| mFilterOps.mMinDate != mDefaultFilterOps.mMinDate 
-		|| mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate
-		|| mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo;
+	BOOL not_default = FALSE;
+
+	not_default |= (mFilterOps.mFilterObjectTypes != mDefaultFilterOps.mFilterObjectTypes);
+	not_default |= (mFilterOps.mFilterCategoryTypes != mDefaultFilterOps.mFilterCategoryTypes);
+	not_default |= (mFilterOps.mFilterWearableTypes != mDefaultFilterOps.mFilterWearableTypes);
+	not_default |= (mFilterOps.mFilterTypes != mDefaultFilterOps.mFilterTypes);
+	not_default |= (mFilterOps.mFilterLinks != mDefaultFilterOps.mFilterLinks);
+	not_default |= (mFilterSubString.size());
+	not_default |= (mFilterOps.mPermissions != mDefaultFilterOps.mPermissions);
+	not_default |= (mFilterOps.mMinDate != mDefaultFilterOps.mMinDate);
+	not_default |= (mFilterOps.mMaxDate != mDefaultFilterOps.mMaxDate);
+	not_default |= (mFilterOps.mHoursAgo != mDefaultFilterOps.mHoursAgo);
+
+	return not_default;
 }
 
 BOOL LLInventoryFilter::isActive() const
@@ -337,6 +359,11 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 {
 	updateFilterTypes(types, mFilterOps.mFilterWearableTypes);
 	mFilterOps.mFilterTypes |= FILTERTYPE_WEARABLE;
+}
+
+void LLInventoryFilter::setFilterEmptySystemFolders()
+{
+	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
 }
 
 void LLInventoryFilter::setFilterUUID(const LLUUID& object_id)

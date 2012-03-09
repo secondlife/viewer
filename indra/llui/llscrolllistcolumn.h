@@ -95,7 +95,7 @@ public:
 		Optional<ESortDirection, SortNames>	sort_direction;
 		Optional<bool>						sort_ascending;
 
-		struct Width : public LLInitParam::Choice<Width>
+		struct Width : public LLInitParam::ChoiceBlock<Width>
 		{
 			Alternative<bool>	dynamic_width;
 			Alternative<S32>		pixel_width;
@@ -112,7 +112,7 @@ public:
 		Optional<Width>						width;
 
 		// either an image or label is used in column header
-		struct Header : public LLInitParam::Choice<Header>
+		struct Header : public LLInitParam::ChoiceBlock<Header>
 		{
 			Alternative<std::string>			label;
 			Alternative<LLUIImage*>			image;
@@ -135,7 +135,7 @@ public:
 			halign("halign", LLFontGL::LEFT)
 		{
 			// default choice to "dynamic_width"
-			width.dynamic_width = true;
+			changeDefault(width.dynamic_width, true);
 
 			addSynonym(sort_column, "sort");
 		}

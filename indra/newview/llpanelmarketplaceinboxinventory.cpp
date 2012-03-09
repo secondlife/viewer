@@ -37,12 +37,15 @@
 #include "llviewerfoldertype.h"
 
 
+#define DEBUGGING_FRESHNESS	0
+
 //
 // statics
 //
 
 static LLDefaultChildRegistry::Register<LLInboxInventoryPanel> r1("inbox_inventory_panel");
 static LLDefaultChildRegistry::Register<LLInboxFolderViewFolder> r2("inbox_folder_view_folder");
+static LLDefaultChildRegistry::Register<LLInboxFolderViewItem> r3("inbox_folder_view_item");
 
 
 //
@@ -66,7 +69,7 @@ void LLInboxInventoryPanel::buildFolderView(const LLInventoryPanel::Params& para
 	
 	LLUUID root_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, false, false);
 	
-	// leslie -- temporary HACK to work around sim not creating inbox and outbox with proper system folder type
+	// leslie -- temporary HACK to work around sim not creating inbox with proper system folder type
 	if (root_id.isNull())
 	{
 		std::string start_folder_name(params.start_folder());
@@ -133,6 +136,27 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 	return LLUICtrlFactory::create<LLInboxFolderViewFolder>(params);
 }
 
+LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
+{
+	LLInboxFolderViewItem::Params params;
+
+	params.name = bridge->getDisplayName();
+	params.icon = bridge->getIcon();
+	params.icon_open = bridge->getOpenIcon();
+
+	if (mShowItemLinkOverlays) // if false, then links show up just like normal items
+	{
+		params.icon_overlay = LLUI::getUIImage("Inv_Link");
+	}
+
+	params.creation_date = bridge->getCreationDate();
+	params.root = mFolderRoot;
+	params.listener = bridge;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+
+	return LLUICtrlFactory::create<LLInboxFolderViewItem>(params);
+}
 
 //
 // LLInboxFolderViewFolder Implementation
@@ -143,24 +167,162 @@ LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 	, LLBadgeOwner(getHandle())
 	, mFresh(false)
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	initBadgeParams(p.new_badge());
-}
-
-LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
-{
+#endif
 }
 
 // virtual
 void LLInboxFolderViewFolder::draw()
 {
+#if SUPPORTING_FRESH_ITEM_COUNT
 	if (!badgeHasParent())
 	{
 		addBadgeToParentPanel();
 	}
 	
 	setBadgeVisibility(mFresh);
+#endif
 
 	LLFolderViewFolder::draw();
+}
+
+void LLInboxFolderViewFolder::selectItem()
+{
+	deFreshify();
+
+	LLFolderViewFolder::selectItem();
+}
+
+void LLInboxFolderViewFolder::toggleOpen()
+{
+	deFreshify();
+
+	LLFolderViewFolder::toggleOpen();
+}
+
+void LLInboxFolderViewFolder::computeFreshness()
+{
+	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
+
+	if (last_expansion_utc > 0)
+	{
+		mFresh = (mCreationDate > last_expansion_utc);
+
+#if DEBUGGING_FRESHNESS
+		if (mFresh)
+		{
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+		}
+#endif
+	}
+	else
+	{
+		mFresh = true;
+	}
+}
+
+void LLInboxFolderViewFolder::deFreshify()
+{
+	mFresh = false;
+
+	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+}
+
+void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
+{ 
+	mCreationDate = creation_date_utc; 
+
+	if (mParentFolder == mRoot)
+	{
+		computeFreshness();
+	}
+}
+
+//
+// LLInboxFolderViewItem Implementation
+//
+
+LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
+	: LLFolderViewItem(p)
+	, LLBadgeOwner(getHandle())
+	, mFresh(false)
+{
+#if SUPPORTING_FRESH_ITEM_COUNT
+	initBadgeParams(p.new_badge());
+#endif
+}
+
+BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+{
+	BOOL retval = LLFolderViewItem::addToFolder(folder, root);
+
+#if SUPPORTING_FRESH_ITEM_COUNT
+	// Compute freshness if our parent is the root folder for the inbox
+	if (mParentFolder == mRoot)
+	{
+		computeFreshness();
+	}
+#endif
+	
+	return retval;
+}
+
+BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	deFreshify();
+	
+	return LLFolderViewItem::handleDoubleClick(x, y, mask);
+}
+
+// virtual
+void LLInboxFolderViewItem::draw()
+{
+#if SUPPORTING_FRESH_ITEM_COUNT
+	if (!badgeHasParent())
+	{
+		addBadgeToParentPanel();
+	}
+
+	setBadgeVisibility(mFresh);
+#endif
+
+	LLFolderViewItem::draw();
+}
+
+void LLInboxFolderViewItem::selectItem()
+{
+	deFreshify();
+
+	LLFolderViewItem::selectItem();
+}
+
+void LLInboxFolderViewItem::computeFreshness()
+{
+	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
+
+	if (last_expansion_utc > 0)
+	{
+		mFresh = (mCreationDate > last_expansion_utc);
+
+#if DEBUGGING_FRESHNESS
+		if (mFresh)
+		{
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+		}
+#endif
+	}
+	else
+	{
+		mFresh = true;
+	}
+}
+
+void LLInboxFolderViewItem::deFreshify()
+{
+	mFresh = false;
+
+	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
 

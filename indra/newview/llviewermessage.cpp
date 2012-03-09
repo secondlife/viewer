@@ -59,8 +59,9 @@
 #include "llfloaterland.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterlandholdings.h"
-#include "llfloaterpostcard.h"
 #include "llfloaterpreference.h"
+#include "llfloatersidepanelcontainer.h"
+#include "llfloatersnapshot.h"
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llinventoryfunctions.h"
@@ -73,7 +74,6 @@
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
 #include "llselectmgr.h"
-#include "llsidetray.h"
 #include "llstartup.h"
 #include "llsky.h"
 #include "llslurl.h"
@@ -1049,48 +1049,26 @@ void start_new_inventory_observer()
 class LLDiscardAgentOffer : public LLInventoryFetchItemsObserver
 {
 	LOG_CLASS(LLDiscardAgentOffer);
+
 public:
 	LLDiscardAgentOffer(const LLUUID& folder_id, const LLUUID& object_id) :
 		LLInventoryFetchItemsObserver(object_id),
 		mFolderID(folder_id),
 		mObjectID(object_id) {}
-	virtual ~LLDiscardAgentOffer() {}
+
 	virtual void done()
 	{
 		LL_DEBUGS("Messaging") << "LLDiscardAgentOffer::done()" << LL_ENDL;
-		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		bool notify = false;
-		if(trash_id.notNull() && mObjectID.notNull())
-		{
-			LLInventoryModel::update_list_t update;
-			LLInventoryModel::LLCategoryUpdate old_folder(mFolderID, -1);
-			update.push_back(old_folder);
-			LLInventoryModel::LLCategoryUpdate new_folder(trash_id, 1);
-			update.push_back(new_folder);
-			gInventory.accountForUpdate(update);
-			gInventory.moveObject(mObjectID, trash_id);
-			LLInventoryObject* obj = gInventory.getObject(mObjectID);
-			if(obj)
-			{
-				// no need to restamp since this is already a freshly
-				// stamped item.
-				obj->updateParentOnServer(FALSE);
-				notify = true;
-			}
-		}
-		else
-		{
-			LL_WARNS("Messaging") << "DiscardAgentOffer unable to find: "
-					<< (trash_id.isNull() ? "trash " : "")
-					<< (mObjectID.isNull() ? "object" : "") << LL_ENDL;
-		}
+
+		// We're invoked from LLInventoryModel::notifyObservers().
+		// If we now try to remove the inventory item, it will cause a nested
+		// notifyObservers() call, which won't work.
+		// So defer moving the item to trash until viewer gets idle (in a moment).
+		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeItem, &gInventory, mObjectID));
 		gInventory.removeObserver(this);
-		if(notify)
-		{
-			gInventory.notifyObservers();
-		}
 		delete this;
 	}
+
 protected:
 	LLUUID mFolderID;
 	LLUUID mObjectID;
@@ -1214,9 +1192,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLInventoryCategory* parent_folder = gInventory.getCategory(item->getParentUUID());
 						if ("inventory_handler" == from_name)
 						{
-							//we have to filter inventory_handler messages to avoid notification displaying
-							LLSideTray::getInstance()->showPanel("panel_places",
-																 LLSD().with("type", "landmark").with("id", item->getUUID()));
+							LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id", item->getUUID()));
 						}
 						else if("group_offer" == from_name)
 						{
@@ -1225,7 +1201,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 							LLSD args;
 							args["type"] = "landmark";
 							args["id"] = obj_id;
-							LLSideTray::getInstance()->showPanel("panel_places", args);
+							LLFloaterSidePanelContainer::showPanel("places", args);
 
 							continue;
 						}
@@ -1280,14 +1256,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 		const BOOL auto_open = 
 			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
 			!from_name.empty(); // don't open if it's not from anyone.
-		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(auto_open);
-		if(active_panel)
-		{
-			LL_DEBUGS("Messaging") << "Highlighting" << obj_id  << LL_ENDL;
-			LLFocusableElement* focus_ctrl = gFocusMgr.getKeyboardFocus();
-			active_panel->setSelection(obj_id, TAKE_FOCUS_NO);
-			gFocusMgr.setKeyboardFocus(focus_ctrl);
-		}
+		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
 	}
 }
 
@@ -1321,29 +1290,12 @@ bool highlight_offered_object(const LLUUID& obj_id)
 
 void inventory_offer_mute_callback(const LLUUID& blocked_id,
 								   const std::string& full_name,
-								   bool is_group,
-								   boost::shared_ptr<LLNotificationResponderInterface> offer_ptr)
+								   bool is_group)
 {
-	LLOfferInfo* offer =  dynamic_cast<LLOfferInfo*>(offer_ptr.get());
-	
-	std::string from_name = full_name;
-	LLMute::EType type;
-	if (is_group)
-	{
-		type = LLMute::GROUP;
-	}
-	else if(offer && offer->mFromObject)
-	{
-		//we have to block object by name because blocked_id is an id of owner
-		type = LLMute::BY_NAME;
-	}
-	else
-	{
-		type = LLMute::AGENT;
-	}
+	// *NOTE: blocks owner if the offer came from an object
+	LLMute::EType mute_type = is_group ? LLMute::GROUP : LLMute::AGENT;
 
-	// id should be null for BY_NAME mute, see  LLMuteList::add for details  
-	LLMute mute(type == LLMute::BY_NAME ? LLUUID::null : blocked_id, from_name, type);
+	LLMute mute(blocked_id, full_name, mute_type);
 	if (LLMuteList::getInstance()->add(mute))
 	{
 		LLPanelBlockedList::showPanelAndSelect(blocked_id);
@@ -1357,6 +1309,7 @@ void inventory_offer_mute_callback(const LLUUID& blocked_id,
 		bool matches(const LLNotificationPtr notification) const
 		{
 			if(notification->getName() == "ObjectGiveItem" 
+				|| notification->getName() == "OwnObjectGiveItem"
 				|| notification->getName() == "UserGiveItem")
 			{
 				return (notification->getPayload()["from_id"].asUUID() == blocked_id);
@@ -1495,7 +1448,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	LLChat chat;
 	std::string log_message;
 	S32 button = LLNotificationsUtil::getSelectedOption(notification, response);
-	
+
 	LLInventoryObserver* opener = NULL;
 	LLViewerInventoryCategory* catp = NULL;
 	catp = (LLViewerInventoryCategory*)gInventory.getCategory(mObjectID);
@@ -1517,7 +1470,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		llassert(notification_ptr != NULL);
 		if (notification_ptr != NULL)
 		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,notification_ptr->getResponderPtr()));
+			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
 		}
 	}
 
@@ -1527,7 +1480,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	// TODO: when task inventory offers can also be handled the new way, migrate the code that sets these strings here:
 	from_string = chatHistory_string = mFromName;
 	
-	bool busy=FALSE;
+	bool busy = gAgent.getBusy();
 	
 	switch(button)
 	{
@@ -1586,9 +1539,6 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		}
 		break;
 
-	case IOR_BUSY:
-		//Busy falls through to decline.  Says to make busy message.
-		busy=TRUE;
 	case IOR_MUTE:
 		// MUTE falls through to decline
 	case IOR_DECLINE:
@@ -1665,7 +1615,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		llassert(notification_ptr != NULL);
 		if (notification_ptr != NULL)
 		{
-			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback,_1,_2,_3,notification_ptr->getResponderPtr()));
+			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
 		}
 	}
 	
@@ -1734,7 +1684,7 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		from_string = chatHistory_string = mFromName;
 	}
 	
-	bool busy=FALSE;
+	bool busy = gAgent.getBusy();
 	
 	switch(button)
 	{
@@ -1780,9 +1730,6 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		}	// end switch (mIM)
 			break;
 			
-		case IOR_BUSY:
-			//Busy falls through to decline.  Says to make busy message.
-			busy=TRUE;
 		case IOR_MUTE:
 			// MUTE falls through to decline
 		case IOR_DECLINE:
@@ -1846,22 +1793,18 @@ void LLOfferInfo::initRespondFunctionMap()
 	if(mRespondFunctions.empty())
 	{
 		mRespondFunctions["ObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
+		mRespondFunctions["OwnObjectGiveItem"] = boost::bind(&LLOfferInfo::inventory_task_offer_callback, this, _1, _2);
 		mRespondFunctions["UserGiveItem"] = boost::bind(&LLOfferInfo::inventory_offer_callback, this, _1, _2);
 	}
 }
 
 void inventory_offer_handler(LLOfferInfo* info)
 {
-	//Until throttling is implmented, busy mode should reject inventory instead of silently
-	//accepting it.  SEE SL-39554
-	if (gAgent.getBusy())
-	{
-		info->forceResponse(IOR_BUSY);
-		return;
-	}
-	
-	//If muted, don't even go through the messaging stuff.  Just curtail the offer here.
-	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName))
+	// If muted, don't even go through the messaging stuff.  Just curtail the offer here.
+	// Passing in a null UUID handles the case of where you have muted one of your own objects by_name.
+	// The solution for STORM-1297 seems to handle the cases where the object is owned by someone else.
+	if (LLMuteList::getInstance()->isMuted(info->mFromID, info->mFromName) ||
+		LLMuteList::getInstance()->isMuted(LLUUID::null, info->mFromName))
 	{
 		info->forceResponse(IOR_MUTE);
 		return;
@@ -1941,7 +1884,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 	std::string verb = "select?name=" + LLURI::escape(msg);
 	args["ITEM_SLURL"] = LLSLURL("inventory", info->mObjectID, verb.c_str()).getSLURLString();
 
-	LLNotification::Params p("ObjectGiveItem");
+	LLNotification::Params p;
 
 	// Object -> Agent Inventory Offer
 	if (info->mFromObject)
@@ -1951,7 +1894,10 @@ void inventory_offer_handler(LLOfferInfo* info)
 		// Note: sets inventory_task_offer_callback as the callback
 		p.substitutions(args).payload(payload).functor.responder(LLNotificationResponderPtr(info));
 		info->mPersist = true;
-		p.name = "ObjectGiveItem";
+
+		// Offers from your own objects need a special notification template.
+		p.name = info->mFromID == gAgentID ? "OwnObjectGiveItem" : "ObjectGiveItem";
+
 		// Pop up inv offer chiclet and let the user accept (keep), or reject (and silently delete) the inventory.
 	    LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, info->mFromGroup == TRUE);
 	}
@@ -2238,7 +2184,7 @@ void god_message_name_cb(const LLAvatarName& av_name, LLChat chat, std::string m
 	// Treat like a system message and put in chat history.
 	chat.mText = av_name.getCompleteName() + ": " + message;
 
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 	if(nearby_chat)
 	{
 		nearby_chat->addMessage(chat);
@@ -2289,6 +2235,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	{
         name = LLTrans::getString("Unnamed");
 	}
+
+	// Preserve the unaltered name for use in group notice mute checking.
+	std::string original_name = name;
+
 	// IDEVO convert new-style "Resident" names for display
 	name = clean_name_from_im(name, dialog);
 
@@ -2495,6 +2445,26 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				break;
 			}
 
+			// The group notice packet does not have an AgentID.  Obtain one from the name cache.
+			// If last name is "Resident" strip it out so the cache name lookup works.
+			U32 index = original_name.find(" Resident");
+			if (index != std::string::npos)
+			{
+				original_name = original_name.substr(0, index);
+			}
+			std::string legacy_name = gCacheName->buildLegacyName(original_name);
+			LLUUID agent_id;
+			gCacheName->getUUID(legacy_name, agent_id);
+
+			if (agent_id.isNull())
+			{
+				LL_WARNS("Messaging") << "buildLegacyName returned null while processing " << original_name << LL_ENDL;
+			}
+			else if (LLMuteList::getInstance()->isMuted(agent_id))
+			{
+				break;
+			}
+
 			notice_bin_bucket = (struct notice_bucket_full_t*) &binary_bucket[0];
 			U8 has_inventory = notice_bin_bucket->header.has_inventory;
 			U8 asset_type = notice_bin_bucket->header.asset_type;
@@ -2630,8 +2600,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				bucketp = (struct offer_agent_bucket_t*) &binary_bucket[0];
 				info->mType = (LLAssetType::EType) bucketp->asset_type;
 				info->mObjectID = bucketp->object_id;
+				info->mFromObject = FALSE;
 			}
-			else
+			else // IM_TASK_INVENTORY_OFFERED
 			{
 				if (sizeof(S8) != binary_bucket_size)
 				{
@@ -2641,6 +2612,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				}
 				info->mType = (LLAssetType::EType) binary_bucket[0];
 				info->mObjectID = LLUUID::null;
+				info->mFromObject = TRUE;
 			}
 
 			info->mIM = dialog;
@@ -2649,14 +2621,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			info->mTransactionID = session_id;
 			info->mFolderID = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(info->mType));
 
-			if (dialog == IM_TASK_INVENTORY_OFFERED)
-			{
-				info->mFromObject = TRUE;
-			}
-			else
-			{
-				info->mFromObject = FALSE;
-			}
 			info->mFromName = name;
 			info->mDesc = message;
 			info->mHost = msg->getSender();
@@ -2669,6 +2633,12 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				delete fetch_item;
 
 				// Same as closing window
+				info->forceResponse(IOR_DECLINE);
+			}
+			else if (is_busy && dialog != IM_TASK_INVENTORY_OFFERED) // busy mode must not affect interaction with objects (STORM-565)
+			{
+				// Until throttling is implemented, busy mode should reject inventory instead of silently
+				// accepting it.  SEE SL-39554
 				info->forceResponse(IOR_DECLINE);
 			}
 			else
@@ -2800,7 +2770,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
-			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 			if(SYSTEM_FROM != name && nearby_chat)
 			{
 				chat.mOwnerID = from_id;
@@ -2884,8 +2854,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			else
 			{
 				LLVector3 pos, look_at;
-				U64 region_handle;
-				U8 region_access;
+				U64 region_handle(0);
+				U8 region_access(0);
 				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
 				std::string region_access_str = LLStringUtil::null;
 				std::string region_access_icn = LLStringUtil::null;
@@ -3168,7 +3138,7 @@ protected:
 	{
 		// filter out non-interesting responeses
 		if ( !translation.empty()
-			&& (m_toLang != detected_language)
+			&& (mToLang != detected_language)
 			&& (LLStringUtil::compareInsensitive(translation, m_origMesg) != 0) )
 		{
 			m_chat.mText += " (" + translation + ")";
@@ -3177,10 +3147,13 @@ protected:
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
 	}
 
-	void handleFailure()
+	void handleFailure(int status, const std::string& err_msg)
 	{
-		LLTranslate::TranslationReceiver::handleFailure();
-		m_chat.mText += " (?)";
+		llwarns << "Translation failed for mesg " << m_origMesg << " toLang " << mToLang << " fromLang " << mFromLang << llendl;
+
+		std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
+		LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
+		m_chat.mText += " (" + msg + ")";
 
 		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
 	}
@@ -3418,7 +3391,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			const std::string from_lang = ""; // leave empty to trigger autodetect
 			const std::string to_lang = LLTranslate::getTranslateLanguage();
 
-			LLHTTPClient::ResponderPtr result = ChatTranslationReceiver::build(from_lang, to_lang, mesg, chat, args);
+			LLTranslate::TranslationReceiverPtr result = ChatTranslationReceiver::build(from_lang, to_lang, mesg, chat, args);
 			LLTranslate::translateMessage(result, from_lang, to_lang, mesg);
 		}
 		else
@@ -3688,6 +3661,9 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAssetStorage->setUpstream(sim);
 	gCacheName->setUpstream(sim);
 */
+
+	// Make sure we're standing
+	gAgent.standUp();
 
 	// now, use the circuit info to tell simulator about us!
 	LL_INFOS("Messaging") << "process_teleport_finish() Enabling "
@@ -5254,6 +5230,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	BOOL is_dest_group = FALSE;
     S32 amount = 0;
     std::string item_description;
+	BOOL success = FALSE;
 
     msg->getS32("TransactionInfo", "TransactionType", transaction_type);
     msg->getUUID("TransactionInfo", "SourceID", source_id);
@@ -5262,6 +5239,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
     msg->getS32("TransactionInfo", "Amount", amount);
     msg->getString("TransactionInfo", "ItemDescription", item_description);
+	msg->getBOOL("MoneyData", "TransactionSuccess", success);
     LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
 		<< " dest " << dest_id
 		<< " type " << transaction_type
@@ -5323,28 +5301,32 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars", args);
+				message = success ? LLTrans::getString("you_paid_ldollars", args) :
+									LLTrans::getString("you_paid_failure_ldollars", args);
 			}
 			else
 			{
 				// transaction fee to the system, eg, to create a group
-				message = LLTrans::getString("you_paid_ldollars_no_name", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_name", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_name", args);
 			}
 		}
 		else
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars_no_reason", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_reason", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
 			}
 			else
 			{
 				// no target, no reason, you just paid money
-				message = LLTrans::getString("you_paid_ldollars_no_info", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_info", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_info", args);
 			}
 		}
 		final_args["MESSAGE"] = message;
-		notification = "PaymentSent";
+		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
 	else {
 		// ...someone paid you
@@ -6514,7 +6496,7 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
 	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, email);
-	LLFloaterPostcard::updateUserInfo(email);
+	LLFloaterSnapshot::setAgentEmail(email);
 }
 
 
@@ -6546,8 +6528,24 @@ bool callback_script_dialog(const LLSD& notification, const LLSD& response)
 		rtn_text = LLNotification::getSelectedOptionName(response);
 	}
 
-	// Didn't click "Ignore"
-	if (button_idx != -1)
+	// Button -2 = Mute
+	// Button -1 = Ignore - no processing needed for this button
+	// Buttons 0 and above = dialog choices
+
+	if (-2 == button_idx)
+	{
+		std::string object_name = notification["payload"]["object_name"].asString();
+		LLUUID object_id = notification["payload"]["object_id"].asUUID();
+		LLMute mute(object_id, object_name, LLMute::OBJECT);
+		if (LLMuteList::getInstance()->add(mute))
+		{
+			// This call opens the sidebar, displays the block list, and highlights the newly blocked
+			// object in the list so the user can see that their block click has taken effect.
+			LLPanelBlockedList::showPanelAndSelect(object_id);
+		}
+	}
+
+	if (0 <= button_idx)
 	{
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("ScriptDialogReply");
@@ -6590,12 +6588,12 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	std::string message; 
 	std::string first_name;
 	std::string last_name;
-	std::string title;
+	std::string object_name;
 
 	S32 chat_channel;
 	msg->getString("Data", "FirstName", first_name);
 	msg->getString("Data", "LastName", last_name);
-	msg->getString("Data", "ObjectName", title);
+	msg->getString("Data", "ObjectName", object_name);
 	msg->getString("Data", "Message", message);
 	msg->getS32("Data", "ChatChannel", chat_channel);
 
@@ -6606,6 +6604,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	payload["sender"] = msg->getSender().getIPandPort();
 	payload["object_id"] = object_id;
 	payload["chat_channel"] = chat_channel;
+	payload["object_name"] = object_name;
 
 	// build up custom form
 	S32 button_count = msg->getNumberOfBlocks("Buttons");
@@ -6624,7 +6623,7 @@ void process_script_dialog(LLMessageSystem* msg, void**)
 	}
 
 	LLSD args;
-	args["TITLE"] = title;
+	args["TITLE"] = object_name;
 	args["MESSAGE"] = message;
 	LLNotificationPtr notification;
 	if (!first_name.empty())
@@ -6832,7 +6831,7 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
 	if (panel)
 	{
 		panel->updateEstateName(estate_name);
@@ -6966,7 +6965,7 @@ void onCovenantLoadComplete(LLVFS *vfs,
 	LLPanelLandCovenant::updateCovenantText(covenant_text);
 	LLFloaterBuyLand::updateCovenantText(covenant_text, asset_uuid);
 
-	LLPanelPlaceProfile* panel = LLSideTray::getInstance()->getPanel<LLPanelPlaceProfile>("panel_place_profile");
+	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");
 	if (panel)
 	{
 		panel->updateCovenantText(covenant_text);

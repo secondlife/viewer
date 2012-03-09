@@ -36,6 +36,7 @@
 #define LLCONVEXDECOMPINTER_STATIC 1
 
 #include "llconvexdecomposition.h"
+#include "lluploadfloaterobservers.h"
 
 class LLVOVolume;
 class LLMeshResponder;
@@ -91,6 +92,7 @@ public:
 	LLPointer<LLViewerFetchedTexture> mDiffuseMap;
 	std::string mDiffuseMapFilename;
 	std::string mDiffuseMapLabel;
+	std::string mBinding;
 	LLColor4 mDiffuseColor;
 	bool mFullbright;
 
@@ -119,9 +121,9 @@ public:
 	S32 mLocalMeshID;
 
 	LLMatrix4 mTransform;
-	std::vector<LLImportMaterial> mMaterial;
+	std::map<std::string, LLImportMaterial> mMaterial;
 
-	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::vector<LLImportMaterial>& materials)
+	LLModelInstance(LLModel* model, const std::string& label, LLMatrix4& transform, std::map<std::string, LLImportMaterial>& materials)
 		: mModel(model), mLabel(label), mTransform(transform), mMaterial(materials)
 	{
 		mLocalMeshID = -1;
@@ -189,7 +191,7 @@ public:
 	static S32 llcdCallback(const char*, S32, S32);
 	void cancel();
 
-	void setMeshData(LLCDMeshData& mesh);
+	void setMeshData(LLCDMeshData& mesh, bool vertex_based);
 	void doDecomposition();
 	void doDecompositionSingleHull();
 
@@ -229,8 +231,7 @@ public:
 	mesh_header_map mMeshHeader;
 	
 	std::map<LLUUID, U32> mMeshHeaderSize;
-	std::map<LLUUID, U32> mMeshResourceCost;
-
+	
 	class HeaderRequest
 	{ 
 	public:
@@ -322,8 +323,8 @@ public:
 	virtual void run();
 
 	void loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
-	bool fetchMeshHeader(const LLVolumeParams& mesh_params);
-	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
+	bool fetchMeshHeader(const LLVolumeParams& mesh_params, U32& count);
+	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, U32& count);
 	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
 	bool lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
@@ -333,8 +334,7 @@ public:
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
-	U32 getResourceCost(const LLUUID& mesh_params);
-
+	
 	void loadMeshSkinInfo(const LLUUID& mesh_id);
 	void loadMeshDecomposition(const LLUUID& mesh_id);
 	void loadMeshPhysicsShape(const LLUUID& mesh_id);
@@ -356,6 +356,9 @@ public:
 
 class LLMeshUploadThread : public LLThread 
 {
+private:
+	S32 mMeshUploadTimeOut ; //maximum time in seconds to execute an uploading request.
+
 public:
 	class DecompRequest : public LLPhysicsDecomp::Request
 	{
@@ -385,9 +388,7 @@ public:
 
 	LLMutex*					mMutex;
 	LLCurlRequest* mCurlRequest;
-	S32				mPendingConfirmations;
 	S32				mPendingUploads;
-	S32				mPendingCost;
 	LLVector3		mOrigin;
 	bool			mFinished;	
 	bool			mUploadTextures;
@@ -399,30 +400,10 @@ public:
 	std::string		mWholeModelFeeCapability;
 	std::string		mWholeModelUploadURL;
 
-	std::queue<LLMeshUploadData> mUploadQ;
-	std::queue<LLMeshUploadData> mConfirmedQ;
-	std::queue<LLModelInstance> mInstanceQ;
-
-	std::queue<LLTextureUploadData> mTextureQ;
-	std::queue<LLTextureUploadData> mConfirmedTextureQ;
-
-	std::map<LLViewerFetchedTexture*, LLTextureUploadData> mTextureMap;
-
 	LLMeshUploadThread(instance_list& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints);
+			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
+					   LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 	~LLMeshUploadThread();
-
-	void uploadTexture(LLTextureUploadData& data);
-	void doUploadTexture(LLTextureUploadData& data);
-	void priceResult(LLTextureUploadData& data, const LLSD& content);
-	void onTextureUploaded(LLTextureUploadData& data);
-
-	void uploadModel(LLMeshUploadData& data);
-	void doUploadModel(LLMeshUploadData& data);
-	void onModelUploaded(LLMeshUploadData& data);
-	void createObjects(LLMeshUploadData& data);
-	LLSD createObject(LLModelInstance& instance);
-	void priceResult(LLMeshUploadData& data, const LLSD& content);
 
 	bool finished() { return mFinished; }
 	virtual void run();
@@ -430,7 +411,10 @@ public:
 	void discard() ;
 	BOOL isDiscarded();
 
+	void generateHulls();
+
 	void doWholeModelUpload();
+	void requestWholeModelFee();
 
 	void wholeModelToLLSD(LLSD& dest, bool include_textures);
 
@@ -438,6 +422,15 @@ public:
 							 LLVector3& result_pos,
 							 LLQuaternion& result_rot,
 							 LLVector3& result_scale);
+
+	void setFeeObserverHandle(LLHandle<LLWholeModelFeeObserver> observer_handle) { mFeeObserverHandle = observer_handle; }
+	void setUploadObserverHandle(LLHandle<LLWholeModelUploadObserver> observer_handle) { mUploadObserverHandle = observer_handle; }
+
+private:
+	LLHandle<LLWholeModelFeeObserver> mFeeObserverHandle;
+	LLHandle<LLWholeModelUploadObserver> mUploadObserverHandle;
+
+	bool mDoUpload; // if FALSE only model data will be requested, otherwise the model will be uploaded
 };
 
 class LLMeshRepository
@@ -448,11 +441,13 @@ public:
 	static U32 sBytesReceived;
 	static U32 sHTTPRequestCount;
 	static U32 sHTTPRetryCount;
+	static U32 sLODPending;
+	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
 	static U32 sPeakKbps;
 	
-	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1);
+	static F32 getStreamingCost(LLSD& header, F32 radius, S32* bytes = NULL, S32* visible_bytes = NULL, S32 detail = -1, F32 *unscaled_value = NULL);
 
 	LLMeshRepository();
 
@@ -471,9 +466,7 @@ public:
 
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
 	static S32 getActualMeshLOD(LLSD& header, S32 lod);
-	U32 calcResourceCost(LLSD& header);
-	U32 getResourceCost(const LLUUID& mesh_params);
-	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj);
+	const LLMeshSkinInfo* getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj);
 	LLModel::Decomposition* getDecomposition(const LLUUID& mesh_id);
 	void fetchPhysicsShape(const LLUUID& mesh_id);
 	bool hasPhysicsShape(const LLUUID& mesh_id);
@@ -488,7 +481,8 @@ public:
 	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
-			bool upload_skin, bool upload_joints);
+			bool upload_skin, bool upload_joints, std::string upload_url, bool do_upload = true,
+					 LLHandle<LLWholeModelFeeObserver> fee_observer= (LLHandle<LLWholeModelFeeObserver>()), LLHandle<LLWholeModelUploadObserver> upload_observer = (LLHandle<LLWholeModelUploadObserver>()));
 
 	S32 getMeshSize(const LLUUID& mesh_id, S32 lod);
 

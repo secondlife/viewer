@@ -323,7 +323,8 @@ LLMutex::LLMutex(apr_pool_t *poolp) :
 LLMutex::~LLMutex()
 {
 #if MUTEX_DEBUG
-	llassert_always(!isLocked()); // better not be locked!
+	//bad assertion, the subclass LLSignal might be "locked", and that's OK
+	//llassert_always(!isLocked()); // better not be locked!
 #endif
 	apr_thread_mutex_destroy(mAPRMutexp);
 	mAPRMutexp = NULL;
@@ -336,11 +337,7 @@ LLMutex::~LLMutex()
 
 void LLMutex::lock()
 {
-#if LL_DARWIN
-	if (mLockingThread == LLThread::currentID())
-#else
-	if (mLockingThread == sThreadID)
-#endif
+	if(isSelfLocked())
 	{ //redundant lock
 		mCount++;
 		return;
@@ -395,6 +392,15 @@ bool LLMutex::isLocked()
 		apr_thread_mutex_unlock(mAPRMutexp);
 		return false;
 	}
+}
+
+bool LLMutex::isSelfLocked()
+{
+#if LL_DARWIN
+	return mLockingThread == LLThread::currentID();
+#else
+	return mLockingThread == sThreadID;
+#endif
 }
 
 U32 LLMutex::lockingThread() const

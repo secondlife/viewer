@@ -164,11 +164,13 @@ public:
 	login_completed_signal_t mOnLoginCompleted;
 	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb ) { return mOnLoginCompleted.connect(cb); } 
 
+	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
+
 	void purgeCache(); // Clear the local cache. 
 	
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
-	virtual bool getMasterSystemAudioMute();
+	virtual bool getMasterSystemAudioMute();	
 
 	// Metrics policy helper statics.
 	static void metricsUpdateRegion(U64 region_handle);
@@ -191,11 +193,12 @@ protected:
 
 private:
 
+	void initMaxHeapSize();
 	bool initThreads(); // Initialize viewer threads, return false on failure.
 	bool initConfiguration(); // Initialize settings from the command line/config file.
 	void initUpdater(); // Initialize the updater service.
 	bool initCache(); // Initialize local client cache.
-
+	void checkMemory() ;
 
 	// We have switched locations of both Mac and Windows cache, make sure
 	// files migrate and old cache is cleared out.
@@ -269,8 +272,7 @@ private:
 
 	std::set<struct apr_dso_handle_t*> mPlugins;
 
-	U32 mAvailPhysicalMemInKB ;
-	U32 mAvailVirtualMemInKB ;
+	LLFrameTimer mMemCheckTimer;
 	
 	boost::scoped_ptr<LLUpdaterService> mUpdater;
 

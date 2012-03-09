@@ -104,14 +104,13 @@ protected:
 	void setHardwareDefaults();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
-	// callback for changing double click action checkbox
-	void onDoubleClickCheckBox(LLUICtrl* ctrl);
-	// callback for selecting double click action radio-button
-	void onDoubleClickRadio();
-	// updates double-click action settings depending on controls from preferences
-	void updateDoubleClickSettings();
-	// updates double-click action controls depending on values from settings.xml
-	void updateDoubleClickControls();
+
+	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
+	void onClickActionChange();
+	// updates click/double-click action settings depending on controls values
+	void updateClickActionSettings();
+	// updates click/double-click action controls depending on values from settings.xml
+	void updateClickActionControls();
 	
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
@@ -156,6 +155,8 @@ public:
 	void applyResolution();
 	void onChangeMaturity();
 	void onClickBlockList();
+	void onClickProxySettings();
+	void onClickTranslationSettings();
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	
@@ -163,9 +164,7 @@ public:
 	static void refreshSkin(void* data);
 private:
 	static std::string sSkin;
-	// set true if state of double-click action checkbox or radio-group was changed by user
-	// (reset back to false on apply or cancel)
-	bool mDoubleClickActionDirty;
+	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
@@ -228,5 +227,34 @@ protected:
 	void resetDirtyChilds();
 	
 };
+
+class LLFloaterPreferenceProxy : public LLFloater
+{
+public: 
+	LLFloaterPreferenceProxy(const LLSD& key);
+	~LLFloaterPreferenceProxy();
+
+	/// show off our menu
+	static void show();
+	void cancel();
+	
+protected:
+	BOOL postBuild();
+	void onOpen(const LLSD& key);
+	void onClose(bool app_quitting);
+	void saveSettings();
+	void onBtnOk();
+	void onBtnCancel();
+
+	void onChangeSocksSettings();
+
+private:
+	
+	bool mSocksSettingsDirty;
+	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
+	control_values_map_t mSavedValues;
+
+};
+
 
 #endif  // LL_LLPREFERENCEFLOATER_H

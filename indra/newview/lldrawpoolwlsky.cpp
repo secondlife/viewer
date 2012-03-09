@@ -62,13 +62,24 @@ LLDrawPoolWLSky::LLDrawPoolWLSky(void) :
 		llerrs << "Error: Failed to load cloud noise image " << cloudNoiseFilename << llendl;
 	}
 
-	cloudNoiseFile->load(cloudNoiseFilename);
+	if(cloudNoiseFile->load(cloudNoiseFilename))
+	{
+		sCloudNoiseRawImage = new LLImageRaw();
 
-	sCloudNoiseRawImage = new LLImageRaw();
+		if(cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f))
+		{
+			//debug use			
+			lldebugs << "cloud noise raw image width: " << sCloudNoiseRawImage->getWidth() << " : height: " << sCloudNoiseRawImage->getHeight() << " : components: " << 
+				(S32)sCloudNoiseRawImage->getComponents() << " : data size: " << sCloudNoiseRawImage->getDataSize() << llendl ;
+			llassert_always(sCloudNoiseRawImage->getData()) ;
 
-	cloudNoiseFile->decode(sCloudNoiseRawImage, 0.0f);
-
-	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+			sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+		}
+		else
+		{
+			sCloudNoiseRawImage = NULL ;
+		}
+	}
 
 	LLWLParamManager::getInstance()->propagateParameters();
 }
@@ -89,12 +100,12 @@ void LLDrawPoolWLSky::beginRenderPass( S32 pass )
 {
 	sky_shader =
 		LLPipeline::sUnderWaterRender ?
-			&gObjectSimpleWaterProgram :
+			&gObjectFullbrightNoColorWaterProgram :
 			&gWLSkyProgram;
 
 	cloud_shader =
 			LLPipeline::sUnderWaterRender ?
-				&gObjectSimpleWaterProgram :
+				&gObjectFullbrightNoColorWaterProgram :
 				&gWLCloudProgram;
 }
 
@@ -119,33 +130,33 @@ void LLDrawPoolWLSky::renderDome(F32 camHeightLocal, LLGLSLShader * shader) cons
 
 	llassert_always(NULL != shader);
 
-	glPushMatrix();
+	gGL.pushMatrix();
 
 	//chop off translation
 	if (LLPipeline::sReflectionRender && origin.mV[2] > 256.f)
 	{
-		glTranslatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
+		gGL.translatef(origin.mV[0], origin.mV[1], 256.f-origin.mV[2]*0.5f);
 	}
 	else
 	{
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 	}
 		
 
 	// the windlight sky dome works most conveniently in a coordinate system
 	// where Y is up, so permute our basis vectors accordingly.
-	glRotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
+	gGL.rotatef(120.f, 1.f / F_SQRT3, 1.f / F_SQRT3, 1.f / F_SQRT3);
 
-	glScalef(0.333f, 0.333f, 0.333f);
+	gGL.scalef(0.333f, 0.333f, 0.333f);
 
-	glTranslatef(0.f,-camHeightLocal, 0.f);
+	gGL.translatef(0.f,-camHeightLocal, 0.f);
 	
 	// Draw WL Sky	
 	shader->uniform3f("camPosLocal", 0.f, camHeightLocal, 0.f);
 
 	gSky.mVOWLSkyp->drawDome();
 
-	glPopMatrix();
+	gGL.popMatrix();
 }
 
 void LLDrawPoolWLSky::renderSkyHaze(F32 camHeightLocal) const
@@ -186,29 +197,43 @@ void LLDrawPoolWLSky::renderStars(void) const
 	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
 
 	gGL.pushMatrix();
-	glRotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
+	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
 	// gl_FragColor.rgb = gl_Color.rgb;
 	// gl_FragColor.a = gl_Color.a * star_alpha.a;
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gCustomAlphaProgram.bind();
+		gCustomAlphaProgram.uniform1f("custom_alpha", star_alpha.mV[3]);
+	}
+	else
+	{
+		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
+		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
+		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
+	}
 
 	gSky.mVOWLSkyp->drawStars();
 
 	gGL.popMatrix();
-	
-	// and disable the combiner states
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gCustomAlphaProgram.unbind();
+	}
+	else
+	{
+		// and disable the combiner states
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	}
 }
 
 void LLDrawPoolWLSky::renderSkyClouds(F32 camHeightLocal) const
 {
-	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS))
+	if (gPipeline.canUseWindLightShaders() && gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_CLOUDS) && sCloudNoiseTexture.notNull())
 	{
 		LLGLEnable blend(GL_BLEND);
 		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-
+		
 		gGL.getTexUnit(0)->bind(sCloudNoiseTexture);
 
 		cloud_shader->bind();
@@ -255,8 +280,19 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 			
 		color.mV[3] = llclamp(a, 0.f, 1.f);
 		
+		if (gPipeline.canUseVertexShaders())
+		{
+			gHighlightProgram.bind();
+		}
+
 		LLFacePool::LLOverrideFaceColor color_override(this, color);
+		
 		face->renderIndexed();
+
+		if (gPipeline.canUseVertexShaders())
+		{
+			gHighlightProgram.unbind();
+		}
 	}
 }
 
@@ -281,10 +317,10 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 	renderSkyHaze(camHeightLocal);
 
 	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	glPushMatrix();
+	gGL.pushMatrix();
 
 		
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		gDeferredStarProgram.bind();
 		// *NOTE: have to bind a texture here since register combiners blending in
@@ -298,7 +334,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 		
 		gDeferredStarProgram.unbind();
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	renderSkyClouds(camHeightLocal);
 
@@ -326,9 +362,9 @@ void LLDrawPoolWLSky::render(S32 pass)
 	renderSkyHaze(camHeightLocal);
 
 	LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
-	glPushMatrix();
+	gGL.pushMatrix();
 
-		glTranslatef(origin.mV[0], origin.mV[1], origin.mV[2]);
+		gGL.translatef(origin.mV[0], origin.mV[1], origin.mV[2]);
 
 		// *NOTE: have to bind a texture here since register combiners blending in
 		// renderStars() requires something to be bound and we might as well only
@@ -340,7 +376,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 		renderStars();
 		
 
-	glPopMatrix();
+	gGL.popMatrix();
 
 	renderSkyClouds(camHeightLocal);
 
@@ -375,5 +411,8 @@ void LLDrawPoolWLSky::cleanupGL()
 //static
 void LLDrawPoolWLSky::restoreGL()
 {
-	sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+	if(sCloudNoiseRawImage.notNull())
+	{
+		sCloudNoiseTexture = LLViewerTextureManager::getLocalTexture(sCloudNoiseRawImage.get(), TRUE);
+	}
 }

@@ -63,7 +63,6 @@ extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
 #endif
 
-static LLPointer<LLVertexBuffer> sRenderBuffer = NULL;
 static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
 							   LLVertexBuffer::MAP_NORMAL |
 							   LLVertexBuffer::MAP_TEXCOORD0;
@@ -459,7 +458,10 @@ void LLViewerJointMesh::uploadJointMatrices()
 			}
 		}
 		stop_glerror();
-		glUniform4fvARB(gAvatarMatrixParam, 45, mat);
+		if (LLGLSLShader::sCurBoundShaderPtr)
+		{
+			LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLViewerShaderMgr::AVATAR_MATRIX, 45, mat);
+		}
 		stop_glerror();
 	}
 	else
@@ -512,7 +514,8 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 {
 	if (!mValid || !mMesh || !mFace || !mVisible || 
 		!mFace->getVertexBuffer() ||
-		mMesh->getNumFaces() == 0) 
+		mMesh->getNumFaces() == 0 ||
+		(LLGLSLShader::sNoFixedFunction && LLGLSLShader::sCurBoundShaderPtr == NULL))
 	{
 		return 0;
 	}
@@ -527,13 +530,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	// setup current color
 	//----------------------------------------------------------------
 	if (is_dummy)
-		glColor4fv(LLVOAvatar::getDummyColor().mV);
+		gGL.diffuseColor4fv(LLVOAvatar::getDummyColor().mV);
 	else
-		glColor4fv(mColor.mV);
+		gGL.diffuseColor4fv(mColor.mV);
 
 	stop_glerror();
 	
-	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), mFace->getPool()->getVertexShaderLevel() > 0 ? 0.f : mShiny);
+	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), (mFace->getPool()->getVertexShaderLevel() > 0 || LLGLSLShader::sNoFixedFunction) ? 0.f : mShiny);
 
 	//----------------------------------------------------------------
 	// setup current texture
@@ -547,11 +550,11 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 		if (mIsTransparent)
 		{
-			glColor4f(1.f, 1.f, 1.f, 1.f);
+			gGL.diffuseColor4f(1.f, 1.f, 1.f, 1.f);
 		}
 		else
 		{
-			glColor4f(0.7f, 0.6f, 0.3f, 1.f);
+			gGL.diffuseColor4f(0.7f, 0.6f, 0.3f, 1.f);
 			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
@@ -582,12 +585,15 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
 	
-	mFace->getVertexBuffer()->setBuffer(sRenderMask);
+	
+	U32 mask = sRenderMask;
 
 	U32 start = mMesh->mFaceVertexOffset;
 	U32 end = start + mMesh->mFaceVertexCount - 1;
 	U32 count = mMesh->mFaceIndexCount;
 	U32 offset = mMesh->mFaceIndexOffset;
+
+	LLVertexBuffer* buff = mFace->getVertexBuffer();
 
 	if (mMesh->hasWeights())
 	{
@@ -597,17 +603,24 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			{
 				uploadJointMatrices();
 			}
+			mask = mask | LLVertexBuffer::MAP_WEIGHT;
+			if (mFace->getPool()->getVertexShaderLevel() > 1)
+			{
+				mask = mask | LLVertexBuffer::MAP_CLOTHWEIGHT;
+			}
 		}
 		
-		mFace->getVertexBuffer()->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		buff->setBuffer(mask);
+		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 	}
 	else
 	{
-		glPushMatrix();
+		gGL.pushMatrix();
 		LLMatrix4 jointToWorld = getWorldMatrix();
-		glMultMatrixf((GLfloat*)jointToWorld.mMatrix);
-		mFace->getVertexBuffer()->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-		glPopMatrix();
+		gGL.multMatrix((GLfloat*)jointToWorld.mMatrix);
+		buff->setBuffer(mask);
+		buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		gGL.popMatrix();
 	}
 	gPipeline.addTrianglesDrawn(count);
 
@@ -692,9 +705,9 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 
 		if (num_verts)
 		{
-			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
 			face->getVertexBuffer()->getIndexStrider(indicesp);
-
+			face->getGeometryAvatar(verticesp, normalsp, tex_coordsp, vertex_weightsp, clothing_weightsp);
+			
 			verticesp += mMesh->mFaceVertexOffset;
 			normalsp += mMesh->mFaceVertexOffset;
 			
@@ -752,7 +765,7 @@ BOOL LLViewerJointMesh::updateLOD(F32 pixel_area, BOOL activate)
 }
 
 // static
-void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
+void LLViewerJointMesh::updateGeometry(LLFace *mFace, LLPolyMesh *mMesh)
 {
 	LLStrider<LLVector3> o_vertices;
 	LLStrider<LLVector3> o_normals;
@@ -803,64 +816,7 @@ void LLViewerJointMesh::updateGeometryOriginal(LLFace *mFace, LLPolyMesh *mMesh)
 		}
 	}
 
-	buffer->setBuffer(0);
-}
-
-const U32 UPDATE_GEOMETRY_CALL_MASK			= 0x1FFF; // 8K samples before overflow
-const U32 UPDATE_GEOMETRY_CALL_OVERFLOW		= ~UPDATE_GEOMETRY_CALL_MASK;
-static bool sUpdateGeometryCallPointer		= false;
-static F64 sUpdateGeometryGlobalTime		= 0.0 ;
-static F64 sUpdateGeometryElapsedTime		= 0.0 ;
-static F64 sUpdateGeometryElapsedTimeOff	= 0.0 ;
-static F64 sUpdateGeometryElapsedTimeOn		= 0.0 ;
-static F64 sUpdateGeometryRunAvgOff[10];
-static F64 sUpdateGeometryRunAvgOn[10];
-static U32 sUpdateGeometryRunCount			= 0 ;
-static U32 sUpdateGeometryCalls				= 0 ;
-static U32 sUpdateGeometryLastProcessor		= 0 ;
-static BOOL sVectorizePerfTest 				= FALSE;
-static U32 sVectorizeProcessor 				= 0;
-
-//static
-void (*LLViewerJointMesh::sUpdateGeometryFunc)(LLFace* face, LLPolyMesh* mesh);
-
-//static
-void LLViewerJointMesh::updateVectorize()
-{
-	sVectorizePerfTest = gSavedSettings.getBOOL("VectorizePerfTest");
-	sVectorizeProcessor = gSavedSettings.getU32("VectorizeProcessor");
-	BOOL vectorizeEnable = gSavedSettings.getBOOL("VectorizeEnable");
-	BOOL vectorizeSkin = gSavedSettings.getBOOL("VectorizeSkin");
-
-	std::string vp;
-	switch(sVectorizeProcessor)
-	{
-		case 2: vp = "SSE2"; break;					// *TODO: replace the magic #s
-		case 1: vp = "SSE"; break;
-		default: vp = "COMPILER DEFAULT"; break;
-	}
-	LL_INFOS("AppInit") << "Vectorization         : " << ( vectorizeEnable ? "ENABLED" : "DISABLED" ) << LL_ENDL ;
-	LL_INFOS("AppInit") << "Vector Processor      : " << vp << LL_ENDL ;
-	LL_INFOS("AppInit") << "Vectorized Skinning   : " << ( vectorizeSkin ? "ENABLED" : "DISABLED" ) << LL_ENDL ;
-	if(vectorizeEnable && vectorizeSkin)
-	{
-		switch(sVectorizeProcessor)
-		{
-			case 2:
-				sUpdateGeometryFunc = &updateGeometrySSE2;
-				break;
-			case 1:
-				sUpdateGeometryFunc = &updateGeometrySSE;
-				break;
-			default:
-				sUpdateGeometryFunc = &updateGeometryVectorized;
-				break;
-		}
-	}
-	else
-	{
-		sUpdateGeometryFunc = &updateGeometryOriginal;
-	}
+	buffer->flush();
 }
 
 void LLViewerJointMesh::updateJointGeometry()
@@ -875,129 +831,8 @@ void LLViewerJointMesh::updateJointGeometry()
 		return;
 	}
 
-	if (!sVectorizePerfTest)
-	{
-		// Once we've measured performance, just run the specified
-		// code version.
-		if(sUpdateGeometryFunc == updateGeometryOriginal)
-			uploadJointMatrices();
-		sUpdateGeometryFunc(mFace, mMesh);
-	}
-	else
-	{
-		// At startup, measure the amount of time in skinning and choose
-		// the fastest one.
-		LLTimer ug_timer ;
-		
-		if (sUpdateGeometryCallPointer)
-		{
-			if(sUpdateGeometryFunc == updateGeometryOriginal)
-				uploadJointMatrices();
-			// call accelerated version for this processor
-			sUpdateGeometryFunc(mFace, mMesh);
-		}
-		else
-		{
-			uploadJointMatrices();
-			updateGeometryOriginal(mFace, mMesh);
-		}
-	
-		sUpdateGeometryElapsedTime += ug_timer.getElapsedTimeF64();
-		++sUpdateGeometryCalls;
-		if(0 != (sUpdateGeometryCalls & UPDATE_GEOMETRY_CALL_OVERFLOW))
-		{
-			F64 time_since_app_start = ug_timer.getElapsedSeconds();
-			if(sUpdateGeometryGlobalTime == 0.0 
-				|| sUpdateGeometryLastProcessor != sVectorizeProcessor)
-			{
-				sUpdateGeometryGlobalTime		= time_since_app_start;
-				sUpdateGeometryElapsedTime		= 0;
-				sUpdateGeometryCalls			= 0;
-				sUpdateGeometryRunCount			= 0;
-				sUpdateGeometryLastProcessor	= sVectorizeProcessor;
-				sUpdateGeometryCallPointer		= false;
-				return;
-			}
-			F64 percent_time_in_function = 
-				( sUpdateGeometryElapsedTime * 100.0 ) / ( time_since_app_start - sUpdateGeometryGlobalTime ) ;
-			sUpdateGeometryGlobalTime = time_since_app_start;
-			if (!sUpdateGeometryCallPointer)
-			{
-				// First set of run data is with vectorization off.
-				sUpdateGeometryCallPointer = true;
-				llinfos << "profile (avg of " << sUpdateGeometryCalls << " samples) = "
-					<< "vectorize off " << percent_time_in_function
-					<< "% of time with "
-					<< (sUpdateGeometryElapsedTime / (F64)sUpdateGeometryCalls)
-					<< " seconds per call "
-					<< llendl;
-				sUpdateGeometryRunAvgOff[sUpdateGeometryRunCount] = percent_time_in_function;
-				sUpdateGeometryElapsedTimeOff += sUpdateGeometryElapsedTime;
-				sUpdateGeometryCalls = 0;
-			}
-			else
-			{
-				// Second set of run data is with vectorization on.
-				sUpdateGeometryCallPointer = false;
-				llinfos << "profile (avg of " << sUpdateGeometryCalls << " samples) = "
-					<< "VEC on " << percent_time_in_function
-					<< "% of time with "
-					<< (sUpdateGeometryElapsedTime / (F64)sUpdateGeometryCalls)
-					<< " seconds per call "
-					<< llendl;
-				sUpdateGeometryRunAvgOn[sUpdateGeometryRunCount] = percent_time_in_function ;
-				sUpdateGeometryElapsedTimeOn += sUpdateGeometryElapsedTime;
-
-				sUpdateGeometryCalls = 0;
-				sUpdateGeometryRunCount++;
-				F64 a = 0.0, b = 0.0;
-				for(U32 i = 0; i<sUpdateGeometryRunCount; i++)
-				{
-					a += sUpdateGeometryRunAvgOff[i];
-					b += sUpdateGeometryRunAvgOn[i];
-				}
-				a /= sUpdateGeometryRunCount;
-				b /= sUpdateGeometryRunCount;
-				F64 perf_boost = ( sUpdateGeometryElapsedTimeOff - sUpdateGeometryElapsedTimeOn ) / sUpdateGeometryElapsedTimeOn;
-				llinfos << "run averages (" << (F64)sUpdateGeometryRunCount
-					<< "/10) vectorize off " << a
-					<< "% : vectorize type " << sVectorizeProcessor
-					<< " " << b
-					<< "% : performance boost " 
-					<< perf_boost * 100.0
-					<< "%"
-					<< llendl ;
-				if(sUpdateGeometryRunCount == 10)
-				{
-					// In case user runs test again, force reset of data on
-					// next run.
-					sUpdateGeometryGlobalTime = 0.0;
-
-					// We have data now on which version is faster.  Switch to that
-					// code and save the data for next run.
-					gSavedSettings.setBOOL("VectorizePerfTest", FALSE);
-
-					if (perf_boost > 0.0)
-					{
-						llinfos << "Vectorization improves avatar skinning performance, "
-							<< "keeping on for future runs."
-							<< llendl;
-						gSavedSettings.setBOOL("VectorizeSkin", TRUE);
-					}
-					else
-					{
-						// SIMD decreases performance, fall back to original code
-						llinfos << "Vectorization decreases avatar skinning performance, "
-							<< "switching back to original code."
-							<< llendl;
-
-						gSavedSettings.setBOOL("VectorizeSkin", FALSE);
-					}
-				}
-			}
-			sUpdateGeometryElapsedTime = 0.0f;
-		}
-	}
+	uploadJointMatrices();
+	updateGeometry(mFace, mMesh);
 }
 
 void LLViewerJointMesh::dump()

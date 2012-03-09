@@ -66,7 +66,8 @@ public:
 		SOURCE_AGENT,
 		SOURCE_WORLD,
 		SOURCE_NOTECARD,
-		SOURCE_LIBRARY
+		SOURCE_LIBRARY,
+		SOURCE_VIEWER
 	};
 
 	void beginDrag(EDragAndDropType type,
@@ -85,6 +86,9 @@ public:
 	EAcceptance getLastAccept() { return mLastAccept; }
 
 	boost::signals2::connection setEndDragCallback( const enddrag_signal_t::slot_type& cb ) { return mEndDragSignal.connect(cb); }
+	
+	uuid_vec_t::size_type getCargoIDsCount() const { return mCargoIDs.size(); }
+	static S32 getOperationId() { return sOperationId; }
 
 protected:
 	enum EDropTarget
@@ -123,6 +127,8 @@ protected:
 	ESource mSource;
 	LLUUID mSourceID;
 	LLUUID mObjectID;
+
+	static S32		sOperationId;
 
 	LLVector3d		mLastCameraPos;
 	LLVector3d		mLastHitPos;

@@ -1,4 +1,4 @@
-/** 
+ /** 
  * @file llnearbychat.h
  * @brief nearby chat history scrolling panel implementation
  *
@@ -27,18 +27,17 @@
 #ifndef LL_LLNEARBYCHAT_H_
 #define LL_LLNEARBYCHAT_H_
 
-#include "lldockablefloater.h"
 #include "llscrollbar.h"
 #include "llviewerchat.h"
+#include "llfloater.h"
 
 class LLResizeBar;
 class LLChatHistory;
 
-class LLNearbyChat: public LLDockableFloater
+class LLNearbyChat: public LLPanel
 {
 public:
-	LLNearbyChat(const LLSD& key);
-	~LLNearbyChat();
+	LLNearbyChat(const Params& p = LLPanel::getDefaultParams());
 
 	BOOL	postBuild			();
 
@@ -54,12 +53,8 @@ public:
 	/*virtual*/ void	onFocusLost();
 	/*virtual*/ void	onFocusReceived();
 	
-	/*virtual*/ void	onOpen	(const LLSD& key);
-
 	/*virtual*/ void	setVisible(BOOL visible);
-
-	virtual void setRect		(const LLRect &rect);
-
+	
 	virtual void updateChatHistoryStyle();
 
 	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
@@ -67,14 +62,14 @@ public:
 	void loadHistory();
 
 	static LLNearbyChat* getInstance();
+	void removeScreenChat();
 
 private:
-	virtual void    applySavedVariables();
 
 	void	getAllowedRect		(LLRect& rect);
 
 	void	onNearbySpeakers	();
-	
+
 
 private:
 	LLHandle<LLView>	mPopupMenuHandle;

@@ -525,15 +525,12 @@ void LLComboBox::createLineEditor(const LLComboBox::Params& p)
 	else
 	{
 		mButton->setRect(rect);
-		mButton->setTabStop(TRUE);
-		mButton->setHAlign(LLFontGL::LEFT);
 		mButton->setLabel(mLabel.getString());
 		
 		if (mTextEntry)
 		{
 			mTextEntry->setVisible(FALSE);
 		}
-		mButton->setFollowsAll();
 	}
 }
 
@@ -791,8 +788,10 @@ BOOL LLComboBox::handleKeyHere(KEY key, MASK mask)
 			return FALSE;
 		}
 		// if selection has changed, pop open list
-		else if (mList->getLastSelectedItem() != last_selected_item ||
-				(key == KEY_DOWN || key == KEY_UP) && !mList->isEmpty())
+		else if (mList->getLastSelectedItem() != last_selected_item 
+					|| ((key == KEY_DOWN || key == KEY_UP)
+						&& mList->getCanSelect()
+						&& !mList->isEmpty()))
 		{
 			showList();
 		}

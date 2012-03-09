@@ -26,6 +26,8 @@
  */
  
 #include "llviewerprecompiledheaders.h"
+#include <iostream>
+#include <fstream>
 
 #include "llfloaterabout.h"
 
@@ -68,6 +70,22 @@ extern U32 gPacketsIn;
 
 static std::string get_viewer_release_notes_url();
 
+///----------------------------------------------------------------------------
+/// Class LLServerReleaseNotesURLFetcher
+///----------------------------------------------------------------------------
+class LLServerReleaseNotesURLFetcher : public LLHTTPClient::Responder
+{
+	LOG_CLASS(LLServerReleaseNotesURLFetcher);
+public:
+
+	static void startFetch();
+	/*virtual*/ void completedHeader(U32 status, const std::string& reason, const LLSD& content);
+	/*virtual*/ void completedRaw(
+		U32 status,
+		const std::string& reason,
+		const LLChannelDescriptors& channels,
+		const LLIOPipe::buffer_ptr_t& buffer);
+};
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterAbout
@@ -87,6 +105,11 @@ public:
 	/// separated so that we can programmatically access the same info.
 	static LLSD getInfo();
 	void onClickCopyToClipboard();
+
+	void updateServerReleaseNotesURL(const std::string& url);
+
+private:
+	void setSupportText(const std::string& server_release_notes_url);
 };
 
 
@@ -108,90 +131,88 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *support_widget = 
 		getChild<LLViewerTextEditor>("support_editor", true);
 
-	LLViewerTextEditor *credits_widget = 
-		getChild<LLViewerTextEditor>("credits_editor", true);
+	LLViewerTextEditor *linden_names_widget = 
+		getChild<LLViewerTextEditor>("linden_names", true);
+
+	LLViewerTextEditor *contrib_names_widget = 
+		getChild<LLViewerTextEditor>("contrib_names", true);
+
+	LLViewerTextEditor *trans_names_widget = 
+		getChild<LLViewerTextEditor>("trans_names", true);
 
 	getChild<LLUICtrl>("copy_btn")->setCommitCallback(
 		boost::bind(&LLFloaterAbout::onClickCopyToClipboard, this));
 
-#if LL_WINDOWS
-	getWindow()->incBusyCount();
-	getWindow()->setCursor(UI_CURSOR_ARROW);
-#endif
-	LLSD info(getInfo());
-#if LL_WINDOWS
-	getWindow()->decBusyCount();
-	getWindow()->setCursor(UI_CURSOR_ARROW);
-#endif
-
-	std::ostringstream support;
-
-	// Render the LLSD from getInfo() as a format_map_t
-	LLStringUtil::format_map_t args;
-
-	// allow the "Release Notes" URL label to be localized
-	args["ReleaseNotes"] = LLTrans::getString("ReleaseNotes");
-
-	for (LLSD::map_const_iterator ii(info.beginMap()), iend(info.endMap());
-		 ii != iend; ++ii)
+	if (gAgent.getRegion())
 	{
-		if (! ii->second.isArray())
-		{
-			// Scalar value
-			if (ii->second.isUndefined())
-			{
-				args[ii->first] = getString("none");
-			}
-			else
-			{
-				// don't forget to render value asString()
-				args[ii->first] = ii->second.asString();
-			}
-		}
-		else
-		{
-			// array value: build KEY_0, KEY_1 etc. entries
-			for (LLSD::Integer n(0), size(ii->second.size()); n < size; ++n)
-			{
-				args[STRINGIZE(ii->first << '_' << n)] = ii->second[n].asString();
-			}
-		}
+		// start fetching server release notes URL
+		setSupportText(LLTrans::getString("RetrievingData"));
+		LLServerReleaseNotesURLFetcher::startFetch();
+	}
+	else // not logged in
+	{
+		setSupportText(LLStringUtil::null);
 	}
 
-	// Now build the various pieces
-	support << getString("AboutHeader", args);
-	if (info.has("REGION"))
-	{
-		support << "\n\n" << getString("AboutPosition", args);
-	}
-	support << "\n\n" << getString("AboutSystem", args);
-	support << "\n";
-	if (info.has("GRAPHICS_DRIVER_VERSION"))
-	{
-		support << "\n" << getString("AboutDriver", args);
-	}
-	support << "\n" << getString("AboutLibs", args);
-	if (info.has("COMPILER"))
-	{
-		support << "\n" << getString("AboutCompiler", args);
-	}
-	if (info.has("PACKETS_IN"))
-	{
-		support << '\n' << getString("AboutTraffic", args);
-	}
-
-	support_widget->appendText(support.str(), 
-								FALSE, 
-								LLStyle::Params()
-									.color(LLUIColorTable::instance().getColor("TextFgReadOnlyColor")));
 	support_widget->blockUndo();
 
 	// Fix views
 	support_widget->setEnabled(FALSE);
 	support_widget->startOfDoc();
 
-	credits_widget->setEnabled(FALSE);
-	credits_widget->startOfDoc();
+	// Get the names of Lindens, added by viewer_manifest.py at build time
+	std::string lindens_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"lindens.txt");
+	llifstream linden_file;
+	std::string lindens;
+	linden_file.open(lindens_path);		/* Flawfinder: ignore */
+	if (linden_file.is_open())
+	{
+		std::getline(linden_file, lindens); // all names are on a single line
+		linden_file.close();
+		linden_names_widget->setText(lindens);
+	}
+	else
+	{
+		LL_INFOS("AboutInit") << "Could not read lindens file at " << lindens_path << LL_ENDL;
+	}
+	linden_names_widget->setEnabled(FALSE);
+	linden_names_widget->startOfDoc();
+
+	// Get the names of contributors, extracted from .../doc/contributions.txt by viewer_manifest.py at build time
+	std::string contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"contributors.txt");
+	llifstream contrib_file;
+	std::string contributors;
+	contrib_file.open(contributors_path);		/* Flawfinder: ignore */
+	if (contrib_file.is_open())
+	{
+		std::getline(contrib_file, contributors); // all names are on a single line
+		contrib_file.close();
+	}
+	else
+	{
+		LL_WARNS("AboutInit") << "Could not read contributors file at " << contributors_path << LL_ENDL;
+	}
+	contrib_names_widget->setText(contributors);
+	contrib_names_widget->setEnabled(FALSE);
+	contrib_names_widget->startOfDoc();
+
+	// Get the names of translators, extracted from .../doc/tranlations.txt by viewer_manifest.py at build time
+	std::string translators_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"translators.txt");
+	llifstream trans_file;
+	std::string translators;
+	trans_file.open(translators_path);		/* Flawfinder: ignore */
+	if (trans_file.is_open())
+	{
+		std::getline(trans_file, translators); // all names are on a single line
+		trans_file.close();
+	}
+	else
+	{
+		LL_WARNS("AboutInit") << "Could not read translators file at " << translators_path << LL_ENDL;
+	}
+	trans_names_widget->setText(translators);
+	trans_names_widget->setEnabled(FALSE);
+	trans_names_widget->startOfDoc();
 
 	return TRUE;
 }
@@ -235,7 +256,6 @@ LLSD LLFloaterAbout::getInfo()
 		info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
 		info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
 		info["SERVER_VERSION"] = gLastVersionChannel;
-		info["SERVER_RELEASE_NOTES_URL"] = LLWeb::escapeURL(region->getCapability("ServerReleaseNotes"));
 	}
 
 	// CPU
@@ -330,6 +350,98 @@ void LLFloaterAbout::onClickCopyToClipboard()
 	support_widget->deselect();
 }
 
+void LLFloaterAbout::updateServerReleaseNotesURL(const std::string& url)
+{
+	setSupportText(url);
+}
+
+void LLFloaterAbout::setSupportText(const std::string& server_release_notes_url)
+{
+#if LL_WINDOWS
+	getWindow()->incBusyCount();
+	getWindow()->setCursor(UI_CURSOR_ARROW);
+#endif
+	LLSD info(getInfo());
+#if LL_WINDOWS
+	getWindow()->decBusyCount();
+	getWindow()->setCursor(UI_CURSOR_ARROW);
+#endif
+
+	if (LLStringUtil::startsWith(server_release_notes_url, "http")) // it's an URL
+	{
+		info["SERVER_RELEASE_NOTES_URL"] = "[" + LLWeb::escapeURL(server_release_notes_url) + " " + LLTrans::getString("ReleaseNotes") + "]";
+	}
+	else
+	{
+		info["SERVER_RELEASE_NOTES_URL"] = server_release_notes_url;
+	}
+
+	LLViewerTextEditor *support_widget =
+		getChild<LLViewerTextEditor>("support_editor", true);
+
+	std::ostringstream support;
+
+	// Render the LLSD from getInfo() as a format_map_t
+	LLStringUtil::format_map_t args;
+
+	// allow the "Release Notes" URL label to be localized
+	args["ReleaseNotes"] = LLTrans::getString("ReleaseNotes");
+
+	for (LLSD::map_const_iterator ii(info.beginMap()), iend(info.endMap());
+		 ii != iend; ++ii)
+	{
+		if (! ii->second.isArray())
+		{
+			// Scalar value
+			if (ii->second.isUndefined())
+			{
+				args[ii->first] = getString("none");
+			}
+			else
+			{
+				// don't forget to render value asString()
+				args[ii->first] = ii->second.asString();
+			}
+		}
+		else
+		{
+			// array value: build KEY_0, KEY_1 etc. entries
+			for (LLSD::Integer n(0), size(ii->second.size()); n < size; ++n)
+			{
+				args[STRINGIZE(ii->first << '_' << n)] = ii->second[n].asString();
+			}
+		}
+	}
+
+	// Now build the various pieces
+	support << getString("AboutHeader", args);
+	if (info.has("REGION"))
+	{
+		support << "\n\n" << getString("AboutPosition", args);
+	}
+	support << "\n\n" << getString("AboutSystem", args);
+	support << "\n";
+	if (info.has("GRAPHICS_DRIVER_VERSION"))
+	{
+		support << "\n" << getString("AboutDriver", args);
+	}
+	support << "\n" << getString("AboutLibs", args);
+	if (info.has("COMPILER"))
+	{
+		support << "\n" << getString("AboutCompiler", args);
+	}
+	if (info.has("PACKETS_IN"))
+	{
+		support << '\n' << getString("AboutTraffic", args);
+	}
+
+	support_widget->clear();
+	support_widget->appendText(support.str(),
+								FALSE,
+								LLStyle::Params()
+									.color(LLUIColorTable::instance().getColor("TextFgReadOnlyColor")));
+}
+
 ///----------------------------------------------------------------------------
 /// LLFloaterAboutUtil
 ///----------------------------------------------------------------------------
@@ -338,4 +450,53 @@ void LLFloaterAboutUtil::registerFloater()
 	LLFloaterReg::add("sl_about", "floater_about.xml",
 		&LLFloaterReg::build<LLFloaterAbout>);
 
+}
+
+///----------------------------------------------------------------------------
+/// Class LLServerReleaseNotesURLFetcher implementation
+///----------------------------------------------------------------------------
+// static
+void LLServerReleaseNotesURLFetcher::startFetch()
+{
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region) return;
+
+	// We cannot display the URL returned by the ServerReleaseNotes capability
+	// because opening it in an external browser will trigger a warning about untrusted
+	// SSL certificate.
+	// So we query the URL ourselves, expecting to find
+	// an URL suitable for external browsers in the "Location:" HTTP header.
+	std::string cap_url = region->getCapability("ServerReleaseNotes");
+	LLHTTPClient::get(cap_url, new LLServerReleaseNotesURLFetcher);
+}
+
+// virtual
+void LLServerReleaseNotesURLFetcher::completedHeader(U32 status, const std::string& reason, const LLSD& content)
+{
+	lldebugs << "Status: " << status << llendl;
+	lldebugs << "Reason: " << reason << llendl;
+	lldebugs << "Headers: " << content << llendl;
+
+	LLFloaterAbout* floater_about = LLFloaterReg::getTypedInstance<LLFloaterAbout>("sl_about");
+	if (floater_about)
+	{
+		std::string location = content["location"].asString();
+		if (location.empty())
+		{
+			location = floater_about->getString("ErrorFetchingServerReleaseNotesURL");
+		}
+		floater_about->updateServerReleaseNotesURL(location);
+	}
+}
+
+// virtual
+void LLServerReleaseNotesURLFetcher::completedRaw(
+	U32 status,
+	const std::string& reason,
+	const LLChannelDescriptors& channels,
+	const LLIOPipe::buffer_ptr_t& buffer)
+{
+	// Do nothing.
+	// We're overriding just because the base implementation tries to
+	// deserialize LLSD which triggers warnings.
 }

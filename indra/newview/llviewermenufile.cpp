@@ -528,23 +528,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
 			
-			LLPointer<LLImageFormatted> formatted;
-			switch(LLFloaterSnapshot::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat")))
-			{
-			  case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
-				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
-				break;
-			  case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
-				formatted = new LLImagePNG;
-				break;
-			  case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP: 
-				formatted = new LLImageBMP;
-				break;
-			  default: 
-				llwarns << "Unknown Local Snapshot format" << llendl;
-				return true;
-			}
-
+			LLPointer<LLImageFormatted> formatted = new LLImagePNG;
 			formatted->enableOverSize() ;
 			formatted->encode(raw, 0);
 			formatted->disableOverSize() ;
@@ -965,11 +949,12 @@ void upload_done_callback(
 			args["REASON"] = std::string(LLAssetStorage::getErrorString(result));
 			LLNotificationsUtil::add("CannotUploadReason", args);
 		}
+
+		delete data;
+		data = NULL;
 	}
 
 	LLUploadDialog::modalUploadFinished();
-	delete data;
-	data = NULL;
 
 	// *NOTE: This is a pretty big hack. What this does is check the
 	// file picker if there are any more pending uploads. If so,

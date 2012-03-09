@@ -45,6 +45,8 @@ class LLViewerHelp : public LLHelp, public LLSingleton<LLViewerHelp>
 	/// display the specified help topic in the help viewer
 	/*virtual*/ void showTopic(const std::string &topic);
 
+	std::string getURL(const std::string& topic);
+
 	// return topic derived from viewer UI focus, else default topic
 	std::string getTopicFromFocus();
 
@@ -56,10 +58,6 @@ class LLViewerHelp : public LLHelp, public LLSingleton<LLViewerHelp>
 
 	// return topic to use for the top-level help, invoked by F1
 	/*virtual*/ std::string f1HelpTopic();
-
- private:
-	static void showHelp(); // make sure help UI is visible & raised
-	static void setRawURL(std::string url); // send URL to help UI
 };
 
 #endif // header guard
