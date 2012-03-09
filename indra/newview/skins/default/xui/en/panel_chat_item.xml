@@ -16,13 +16,13 @@
         top="3"
         width="18" />
 	<text_chat
-      top="5"
+      top="3"
       left="30"
       height="120"
       text_color="white"
       word_wrap="true"
       mouse_opaque="true"
-      valign="bottom"
+      valign="top"
       name="msg_text">
 	</text_chat>
 </panel>

@@ -108,16 +108,48 @@ BOOL LLInventoryFilter::check(const LLFolderViewItem* item)
 	return passed;
 }
 
-bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder)
+bool LLInventoryFilter::check(const LLInventoryItem* item)
+{
+	mSubStringMatchOffset = mFilterSubString.size() ? item->getName().find(mFilterSubString) : std::string::npos;
+
+	const bool passed_filtertype = checkAgainstFilterType(item);
+	const bool passed_permissions = checkAgainstPermissions(item);
+	const bool passed = (passed_filtertype &&
+						 passed_permissions &&
+						 (mFilterSubString.size() == 0 || mSubStringMatchOffset != std::string::npos));
+
+	return passed;
+}
+
+bool LLInventoryFilter::checkFolder(const LLFolderViewFolder* folder) const
+{
+	if (!folder)
+	{
+		llwarns << "The filter can not be checked on an invalid folder." << llendl;
+		llassert(false); // crash in development builds
+		return false;
+	}
+
+	const LLFolderViewEventListener* listener = folder->getListener();
+	if (!listener)
+	{
+		llwarns << "Folder view event listener not found." << llendl;
+		llassert(false); // crash in development builds
+		return false;
+	}
+
+	const LLUUID folder_id = listener->getUUID();
+
+	return checkFolder(folder_id);
+}
+
+bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 {
 	// we're showing all folders, overriding filter
 	if (mFilterOps.mShowFolderState == LLInventoryFilter::SHOW_ALL_FOLDERS)
 	{
 		return true;
 	}
-
-	const LLFolderViewEventListener* listener = folder->getListener();
-	const LLUUID folder_id = listener->getUUID();
 	
 	if (mFilterOps.mFilterTypes & FILTERTYPE_CATEGORY)
 	{
@@ -227,6 +259,56 @@ BOOL LLInventoryFilter::checkAgainstFilterType(const LLFolderViewItem* item) con
 	return TRUE;
 }
 
+bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) const
+{
+	LLInventoryType::EType object_type = item->getInventoryType();
+	const LLUUID object_id = item->getUUID();
+
+	const U32 filterTypes = mFilterOps.mFilterTypes;
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_OBJECT
+	// Pass if this item's type is of the correct filter type
+	if (filterTypes & FILTERTYPE_OBJECT)
+	{
+		// If it has no type, pass it, unless it's a link.
+		if (object_type == LLInventoryType::IT_NONE)
+		{
+			if (item && item->getIsLinkType())
+			{
+				return false;
+			}
+		}
+		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+		{
+			return false;
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_UUID
+	// Pass if this item is the target UUID or if it links to the target UUID
+	if (filterTypes & FILTERTYPE_UUID)
+	{
+		if (!item) return false;
+
+		if (item->getLinkedUUID() != mFilterOps.mFilterUUID)
+			return false;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////
+	// FILTERTYPE_DATE
+	// Pass if this item is within the date range.
+	if (filterTypes & FILTERTYPE_DATE)
+	{
+		// We don't get the updated item creation date for the task inventory or
+		// a notecard embedded item. See LLTaskInvFVBridge::getCreationDate().
+		return false;
+	}
+
+	return true;
+}
+
 BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) const
 {
 	const LLFolderViewEventListener* listener = item->getListener();
@@ -241,6 +323,17 @@ BOOL LLInventoryFilter::checkAgainstPermissions(const LLFolderViewItem* item) co
 		if (linked_item)
 			perm = linked_item->getPermissionMask();
 	}
+	return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
+}
+
+bool LLInventoryFilter::checkAgainstPermissions(const LLInventoryItem* item) const
+{
+	if (!item) return false;
+
+	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+	PermissionMask perm = new_item->getPermissionMask();
+	new_item = NULL;
+
 	return (perm & mFilterOps.mPermissions) == mFilterOps.mPermissions;
 }
 
@@ -464,7 +557,9 @@ void LLInventoryFilter::setDateRange(time_t min_date, time_t max_date)
 		mFilterOps.mMaxDate = llmax(mFilterOps.mMinDate, max_date);
 		setModified();
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
+			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 }
 
 void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
@@ -476,10 +571,12 @@ void LLInventoryFilter::setDateRangeLastLogoff(BOOL sl)
 	}
 	if (!sl && isSinceLogoff())
 	{
-		setDateRange(0, time_max());
+		setDateRange(time_min(), time_max());
 		setModified();
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
+			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 }
 
 BOOL LLInventoryFilter::isSinceLogoff() const
@@ -524,7 +621,9 @@ void LLInventoryFilter::setHoursAgo(U32 hours)
 			setModified(FILTER_RESTART);
 		}
 	}
-	mFilterOps.mFilterTypes |= FILTERTYPE_DATE;
+
+	areDateLimitsSet() ? mFilterOps.mFilterTypes |= FILTERTYPE_DATE
+			: mFilterOps.mFilterTypes &= ~FILTERTYPE_DATE;
 }
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
@@ -804,7 +903,7 @@ const std::string& LLInventoryFilter::getFilterText()
 		filtered_by_all_types = FALSE;
 	}
 
-	if (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive()
+	if (!LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 		&& filtered_by_type
 		&& !filtered_by_all_types)
 	{
@@ -973,4 +1072,11 @@ const std::string& LLInventoryFilter::getEmptyLookupMessage() const
 {
 	return mEmptyLookupMessage;
 
+}
+
+bool LLInventoryFilter::areDateLimitsSet()
+{
+	return     mFilterOps.mMinDate != time_min()
+			|| mFilterOps.mMaxDate != time_max()
+			|| mFilterOps.mHoursAgo != 0;
 }

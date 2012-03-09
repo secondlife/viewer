@@ -33,9 +33,9 @@
 #include "v3dmath.h"
 #include "v4color.h"
 #include "llpointer.h"
+#include "llcoord.h"
 
 class LLColor4U;
-class LLCoordGL;
 class LLImageRaw;
 class LLViewerTexture;
 class LLFloaterMap;

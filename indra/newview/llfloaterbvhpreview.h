@@ -32,6 +32,7 @@
 #include "lldynamictexture.h"
 #include "llcharacter.h"
 #include "llquaternion.h"
+#include "llextendedstatus.h"
 
 class LLVOAvatar;
 class LLViewerJointMesh;

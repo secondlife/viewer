@@ -113,6 +113,7 @@ private:
 	LLFrameTimer	mDefaultBtnTimer;
 	// For Dialogs that take a line as text as input:
 	LLLineEditor* mLineEditor;
+	LLHandle<LLView>	mPreviouslyFocusedView;
 
 };
 

@@ -28,8 +28,6 @@
 
 #include "llwindowcallbacks.h"
 
-#include "llcoord.h"
-
 //
 // LLWindowCallbacks
 //

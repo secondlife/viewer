@@ -124,7 +124,7 @@ BOOL LLNearbyChatBar::postBuild()
 // virtual
 void LLNearbyChatBar::onOpen(const LLSD& key)
 {
-	enableTranslationCheckbox(LLTranslate::isTranslationConfigured());
+	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
 bool LLNearbyChatBar::applyRectControl()
@@ -170,9 +170,9 @@ void LLNearbyChatBar::showHistory()
 	}
 }
 
-void LLNearbyChatBar::enableTranslationCheckbox(BOOL enable)
+void LLNearbyChatBar::showTranslationCheckbox(BOOL show)
 {
-	getChild<LLUICtrl>("translate_chat_checkbox")->setEnabled(enable);
+	getChild<LLUICtrl>("translate_chat_checkbox_lp")->setVisible(show);
 }
 
 void LLNearbyChatBar::draw()

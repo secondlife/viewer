@@ -1345,7 +1345,9 @@ if (WINDOWS)
         DXGUID_LIBRARY
         )
 
+# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
+        opengl32
         ${WINDOWS_LIBRARIES}
         comdlg32
         ${DINPUT_LIBRARY}
@@ -1355,7 +1357,6 @@ if (WINDOWS)
         odbccp32
         ole32
         oleaut32
-        opengl32
         shell32
         Vfw32
         winspool

@@ -158,7 +158,7 @@ namespace
 			if(fstream.is_open())
 			{
 				fstream.seekg(0, std::ios::end);
-				U32 fileSize = fstream.tellg();
+				U32 fileSize = (U32)fstream.tellg();
 				fstream.seekg(0, std::ios::beg);
 				std::vector<char> fileBuffer(fileSize);
 				fstream.read(&fileBuffer[0], fileSize);

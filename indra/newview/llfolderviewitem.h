@@ -114,6 +114,7 @@ public:
 	static const S32 ICON_PAD = 2;
 	static const S32 ICON_WIDTH = 16;
 	static const S32 TEXT_PAD = 1;
+	static const S32 TEXT_PAD_RIGHT = 4;
 	static const S32 ARROW_SIZE = 12;
 	static const S32 MAX_FOLDER_ITEM_OVERLAP = 2;
 	// animation parameters

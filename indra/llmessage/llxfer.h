@@ -29,6 +29,7 @@
 
 #include "message.h"
 #include "lltimer.h"
+#include "llextendedstatus.h"
 
 const S32 LL_XFER_LARGE_PAYLOAD = 7680;
 

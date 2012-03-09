@@ -83,7 +83,7 @@ void LLPopupView::draw()
 
 			LLUI::pushMatrix();
 			{
-				LLUI::translate( (F32) screen_x, (F32) screen_y, 0.f);
+				LLUI::translate( (F32) screen_x, (F32) screen_y);
 				popup->draw();
 			}
 			LLUI::popMatrix();
