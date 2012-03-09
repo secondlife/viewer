@@ -36,49 +36,24 @@ viewer-development.build_debug_release_separately = true
 # <username>_<reponame>.email = <email-address>
 
 # =================================================================
-# Viewer Development (snowstorm canonical build owned by Oz Linden)
+# Canonical viewer integration builds - Oz Linden
 # =================================================================
-snowstorm_viewer-development.viewer_channel = "Second Life Development"
-snowstorm_viewer-development.login_channel = "Second Life Development"
-snowstorm_viewer-development.build_viewer_update_version_manager = false
-snowstorm_viewer-development.email = viewer-development-builds@lists.secondlife.com
-snowstorm_viewer-development.build_enforce_coding_policy = true
-snowstorm_viewer-development.codeticket_add_context = true
+integration_viewer-development.viewer_channel = "Second Life Development"
+integration_viewer-development.login_channel = "Second Life Development"
+integration_viewer-development.build_viewer_update_version_manager = false
+integration_viewer-development.email = viewer-development-builds@lists.secondlife.com
+integration_viewer-development.build_enforce_coding_policy = true
+integration_viewer-development.codeticket_add_context = true
 
-Snowstorm_viewer-project-review.build_debug_release_separately = true
-Snowstorm_viewer-project-review.codeticket_add_context = true
-Snowstorm_viewer-project-review.viewer_channel = "Project Viewer - Snowstorm Team"
-Snowstorm_viewer-project-review.login_channel = "Project Viewer - Snowstorm Team"
-Snowstorm_viewer-project-review.codeticket_add_context = true
-
-# ========================================
-# Viewer Beta (Owner: Dessie Linden)
-# ========================================
 viewer-beta.viewer_channel = "Second Life Beta Viewer"
 viewer-beta.login_channel = "Second Life Beta Viewer"
 viewer-beta.build_debug_release_separately = true
 viewer-beta.build_viewer_update_version_manager = true
 
-viewer-pre-beta.viewer_channel = "Second Life Beta Viewer"
-viewer-pre-beta.login_channel = "Second Life Beta Viewer"
-viewer-pre-beta.build_debug_release_separately = true
-viewer-pre-beta.build_viewer_update_version_manager = true
-
-
-# ========================================
-# Viewer Release (Owner: Dessie Linden)
-# ========================================
 viewer-release.viewer_channel = "Second Life Release"
 viewer-release.login_channel = "Second Life Release"
 viewer-release.build_debug_release_separately = true
 viewer-release.build_viewer_update_version_manager = true
-
-viewer-pre-release.viewer_channel = "Second Life Release"
-viewer-pre-release.login_channel = "Second Life Release"
-viewer-pre-release.build_debug_release_separately = true
-viewer-pre-release.build_viewer_update_version_manager = true
-#viewer-pre-release.release-viewer.jira = DRTVWR-92
-
 
 # ========================================
 # mesh-development
@@ -139,6 +114,12 @@ viewer-mesh.email = shining@lists.lindenlab.com
 # ================
 # oz
 # ================
+
+Snowstorm_viewer-project-review.build_debug_release_separately = true
+Snowstorm_viewer-project-review.codeticket_add_context = true
+Snowstorm_viewer-project-review.viewer_channel = "Project Viewer - Snowstorm Team"
+Snowstorm_viewer-project-review.login_channel = "Project Viewer - Snowstorm Team"
+Snowstorm_viewer-project-review.codeticket_add_context = true
 
 oz_viewer-devreview.build_debug_release_separately = true
 oz_viewer-devreview.codeticket_add_context = false
