@@ -98,6 +98,14 @@ void selfClearPhases()
 	}
 }
 
+void selfStopAllPhases()
+{
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->stopAllPhases();
+	}
+}
+
 using namespace LLVOAvatarDefines;
 
 /*********************************************************************************

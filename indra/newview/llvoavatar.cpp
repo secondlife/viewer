@@ -983,6 +983,15 @@ void LLVOAvatar::stopPhase(const std::string& phase_name)
 	timer.pause();
 }
 
+void LLVOAvatar::stopAllPhases()
+{
+	for (phase_map_t::iterator iter = mPhases.begin();
+		 iter != mPhases.end(); ++iter)
+	{
+		iter->second.pause();
+	}
+}
+
 void LLVOAvatar::clearPhases()
 {
 	mPhases.clear();

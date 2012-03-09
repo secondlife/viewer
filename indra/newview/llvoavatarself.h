@@ -390,6 +390,7 @@ BOOL isAgentAvatarValid();
 
 void selfStartPhase(const std::string& phase_name);
 void selfStopPhase(const std::string& phase_name);
+void selfStopAllPhases();
 void selfClearPhases();
 
 #endif // LL_VO_AVATARSELF_H

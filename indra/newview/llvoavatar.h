@@ -287,6 +287,7 @@ public:
 	LLFrameTimer& 	getPhaseTimer(const std::string& phase_name);
 	void			startPhase(const std::string& phase_name);
 	void			stopPhase(const std::string& phase_name);
+	void			stopAllPhases();
 	void			clearPhases();
 	LLSD			dumpPhases();
 protected:
