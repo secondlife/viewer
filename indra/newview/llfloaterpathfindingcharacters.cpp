@@ -473,9 +473,7 @@ void LLFloaterPathfindingCharacters::updateCharactersList()
 		columns[2]["font"] = "SANSSERIF";
 
 		S32 cpuTime = llround(character.getCPUTime());
-		std::string cpuTimeString;
-		LLResMgr::getInstance()->getIntegerString(cpuTimeString, cpuTime);
-
+		std::string cpuTimeString = llformat("%d", cpuTime);
 		LLStringUtil::format_map_t string_args;
 		string_args["[CPU_TIME]"] = cpuTimeString;
 
