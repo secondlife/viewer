@@ -116,7 +116,6 @@ bool LLClipboard::isOnClipboard(const LLUUID& object) const
 // Copy the input string to the LL and the system clipboard
 bool LLClipboard::copyToClipboard(const LLWString &src, S32 pos, S32 len, bool use_primary)
 {
-	reset();
 	return addToClipboard(src, pos, len, use_primary);
 }
 
@@ -132,7 +131,6 @@ bool LLClipboard::addToClipboard(const LLWString &src, S32 pos, S32 len, bool us
 	{
 		mString = mString + sep + src.substr(pos, len);
 	}
-	mGeneration++;
 	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
 }
 
