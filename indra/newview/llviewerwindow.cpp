@@ -613,7 +613,9 @@ public:
 				
 				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
 					LLMeshRepository::sHTTPRetryCount));
-				
+				ypos += y_inc;
+
+				addText(xpos, ypos, llformat("%d/%d Mesh LOD Pending/Processing", LLMeshRepository::sLODPending, LLMeshRepository::sLODProcessing));
 				ypos += y_inc;
 
 				addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
@@ -749,8 +751,9 @@ public:
 			LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
 			if (nodep)
 			{
-				objectp = nodep->getObject();			
+				objectp = nodep->getObject();
 			}
+
 			if (objectp && !objectp->isDead())
 			{
 				S32 num_faces = objectp->mDrawable->getNumFaces() ;
@@ -764,8 +767,8 @@ public:
 						//		facep->mTexExtents[0].mV[1], facep->mTexExtents[1].mV[1]));
 						//ypos += y_inc;
 						
-						addText(xpos, ypos, llformat("v_size: %.3f:  p_size: %.3f", facep->getVirtualSize(), facep->getPixelArea()));
-						ypos += y_inc;
+						//addText(xpos, ypos, llformat("v_size: %.3f:  p_size: %.3f", facep->getVirtualSize(), facep->getPixelArea()));
+						//ypos += y_inc;
 						
 						//const LLTextureEntry *tep = facep->getTextureEntry();
 						//if(tep)
@@ -774,10 +777,14 @@ public:
 						//	ypos += y_inc;
 						//}
 						
-						LLViewerTexture* tex = facep->getTexture() ;
+						LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(facep->getTexture()) ;
 						if(tex)
 						{
 							addText(xpos, ypos, llformat("ID: %s v_size: %.3f", tex->getID().asString().c_str(), tex->getMaxVirtualSize()));
+							ypos += y_inc;
+
+							addText(xpos, ypos, llformat("discard level: %d desired level: %d Missing: %s", tex->getDiscardLevel(), 
+								tex->getDesiredDiscardLevel(), tex->isMissingAsset() ? "Y" : "N"));
 							ypos += y_inc;
 						}
 					}
@@ -1971,7 +1978,7 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	llinfos << "Global views cleaned." << llendl ;
-
+	
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
@@ -1984,17 +1991,17 @@ void LLViewerWindow::shutdownViews()
 		delete LLNavigationBar::getInstance();
 	}
 	llinfos << "LLNavigationBar destroyed." << llendl ;
-
+	
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
 	llinfos << "menus destroyed." << llendl ;
-
+	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
-
+	
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
@@ -2019,6 +2026,12 @@ void LLViewerWindow::shutdownGL()
 	gSky.cleanup();
 	stop_glerror();
 
+	llinfos << "Cleaning up pipeline" << llendl;
+	gPipeline.cleanup();
+	stop_glerror();
+
+	//MUST clean up pipeline before cleaning up wearables
+	llinfos << "Cleaning up wearables" << llendl;
 	LLWearableList::instance().cleanup() ;
 
 	gTextureList.shutdown();
@@ -2028,10 +2041,6 @@ void LLViewerWindow::shutdownGL()
 	stop_glerror();
 
 	LLWorldMapView::cleanupTextures();
-
-	llinfos << "Cleaning up pipeline" << llendl;
-	gPipeline.cleanup();
-	stop_glerror();
 
 	LLViewerTextureManager::cleanup() ;
 	LLImageGL::cleanupClass() ;

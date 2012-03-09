@@ -528,6 +528,7 @@ static void settings_to_globals()
 	LLRender::sGLCoreProfile = gSavedSettings.getBOOL("RenderGLCoreProfile");
 
 	LLImageGL::sGlobalUseAnisotropic	= gSavedSettings.getBOOL("RenderAnisotropic");
+	LLImageGL::sCompressTextures		= gSavedSettings.getBOOL("RenderCompressTextures");
 	LLVOVolume::sLODFactor				= gSavedSettings.getF32("RenderVolumeLODFactor");
 	LLVOVolume::sDistanceFactor			= 1.f-LLVOVolume::sLODFactor * 0.1f;
 	LLVolumeImplFlexible::sUpdateFactor = gSavedSettings.getF32("RenderFlexTimeFactor");
@@ -545,7 +546,7 @@ static void settings_to_globals()
 	gAgentPilot.setNumRuns(gSavedSettings.getS32("StatsNumRuns"));
 	gAgentPilot.setQuitAfterRuns(gSavedSettings.getBOOL("StatsQuitAfterRuns"));
 	gAgent.setHideGroupTitle(gSavedSettings.getBOOL("RenderHideGroupTitle"));
-
+		
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
@@ -1487,6 +1488,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	//ditch LLVOAvatarSelf instance
+	gAgentAvatarp = NULL;
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 

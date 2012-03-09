@@ -5556,38 +5556,37 @@ BOOL LLSelectNode::allowOperationOnNode(PermissionBit op, U64 group_proxy_power)
 //helper function for pushing relevant vertices from drawable to GL
 void pushWireframe(LLDrawable* drawable)
 {
-	if (drawable->isState(LLDrawable::RIGGED))
-	{ //render straight from rigged volume if this is a rigged attachment
-		LLVOVolume* vobj = drawable->getVOVolume();
-		if (vobj)
-		{
-			vobj->updateRiggedVolume();
-			LLRiggedVolume* rigged_volume = vobj->getRiggedVolume();
-			if (rigged_volume)
-			{
-				LLVertexBuffer::unbind();
-				gGL.pushMatrix();
-				gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
-				for (S32 i = 0; i < rigged_volume->getNumVolumeFaces(); ++i)
-				{
-					const LLVolumeFace& face = rigged_volume->getVolumeFace(i);
-					LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
-				}
-				gGL.popMatrix();
-			}
-		}
-	}
-	else
+	LLVOVolume* vobj = drawable->getVOVolume();
+	if (vobj)
 	{
-		for (S32 i = 0; i < drawable->getNumFaces(); ++i)
+		LLVertexBuffer::unbind();
+		gGL.pushMatrix();
+		gGL.multMatrix((F32*) vobj->getRelativeXform().mMatrix);
+
+		LLVolume* volume = NULL;
+
+		if (drawable->isState(LLDrawable::RIGGED))
 		{
-			LLFace* face = drawable->getFace(i);
-			if (face->verify())
+				vobj->updateRiggedVolume();
+				volume = vobj->getRiggedVolume();
+		}
+		else
+		{
+			volume = vobj->getVolume();
+		}
+
+		if (volume)
+		{
+			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
-				pushVerts(face, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+				const LLVolumeFace& face = volume->getVolumeFace(i);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, face.mTexCoords, face.mNumIndices, face.mIndices);
 			}
 		}
+
+		gGL.popMatrix();
 	}
+	
 }
 
 void LLSelectNode::renderOneWireframe(const LLColor4& color)

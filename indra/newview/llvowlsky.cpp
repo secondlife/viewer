@@ -774,7 +774,7 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 	LLStrider<LLColor4U> colorsp;
 	LLStrider<LLVector2> texcoordsp;
 
-	if (mStarsVerts.isNull())
+	if (mStarsVerts.isNull() || !mStarsVerts->isWriteable())
 	{
 		mStarsVerts = new LLVertexBuffer(LLDrawPoolWLSky::STAR_VERTEX_DATA_MASK, GL_DYNAMIC_DRAW);
 		mStarsVerts->allocateBuffer(getStarsNumVerts()*6, 0, TRUE);

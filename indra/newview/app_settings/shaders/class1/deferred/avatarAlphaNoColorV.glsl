@@ -1,5 +1,5 @@
 /** 
- * @file alphaV.glsl
+ * @file avatarAlphaNoColorV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,40 +23,35 @@
  * $/LicenseInfo$
  */
 
-uniform mat3 normal_matrix;
-uniform mat4 texture_matrix0;
-uniform mat4 modelview_matrix;
-uniform mat4 modelview_projection_matrix;
+uniform mat4 projection_matrix;
 
 ATTRIBUTE vec3 position;
-void passTextureIndex();
 ATTRIBUTE vec3 normal;
-ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
 vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+mat4 getSkinnedTransform();
 void calcAtmospherics(vec3 inPositionEye);
 
 float calcDirectionalLight(vec3 n, vec3 l);
+float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float is_pointlight);
 
 vec3 atmosAmbient(vec3 light);
 vec3 atmosAffectDirectionalLight(float lightIntensity);
 vec3 scaleDownLight(vec3 light);
 vec3 scaleUpLight(vec3 light);
 
+VARYING vec3 vary_position;
 VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
-VARYING vec3 vary_position;
 VARYING vec3 vary_pointlight_col;
-
-VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
 
 uniform float near_clip;
-uniform float shadow_offset;
-uniform float shadow_bias;
+
+uniform vec4 color;
 
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
@@ -101,25 +96,32 @@ float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, floa
 
 void main()
 {
-	//transform vertex
-	vec4 vert = vec4(position.xyz, 1.0);
-	passTextureIndex();
-	vec4 pos = (modelview_matrix * vert);
-	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+	vary_texcoord0 = texcoord0;
+				
+	vec4 pos;
+	vec3 norm;
 	
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-		
-	vec3 norm = normalize(normal_matrix * normal);
+	mat4 trans = getSkinnedTransform();
+	vec4 pos_in = vec4(position.xyz, 1.0);
+	pos.x = dot(trans[0], pos_in);
+	pos.y = dot(trans[1], pos_in);
+	pos.z = dot(trans[2], pos_in);
+	pos.w = 1.0;
 	
-	float dp_directional_light = max(0.0, dot(norm, light_position[0].xyz));
-	vary_position = pos.xyz + light_position[0].xyz * (1.0-dp_directional_light)*shadow_offset;
+	norm.x = dot(trans[0].xyz, normal);
+	norm.y = dot(trans[1].xyz, normal);
+	norm.z = dot(trans[2].xyz, normal);
+	norm = normalize(norm);
 		
+	vec4 frag_pos = projection_matrix * pos;
+	gl_Position = frag_pos;
+	
+	vary_position = pos.xyz;
+	
 	calcAtmospherics(pos.xyz);
 
-	//vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
-	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);
+	vec4 col = vec4(0.0, 0.0, 0.0, 1.0);
 
-	
 	// Collect normal lights
 	col.rgb += light_diffuse[2].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[2], light_direction[2], light_attenuation[2].x, light_attenuation[2].y, light_attenuation[2].z);
 	col.rgb += light_diffuse[3].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[3], light_direction[3], light_attenuation[3].x, light_attenuation[3].y, light_attenuation[3].z);
@@ -127,24 +129,20 @@ void main()
 	col.rgb += light_diffuse[5].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[5], light_direction[5], light_attenuation[5].x, light_attenuation[5].y, light_attenuation[5].z);
 	col.rgb += light_diffuse[6].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[6], light_direction[6], light_attenuation[6].x, light_attenuation[6].y, light_attenuation[6].z);
 	col.rgb += light_diffuse[7].rgb*calcPointLightOrSpotLight(pos.xyz, norm, light_position[7], light_direction[7], light_attenuation[7].x, light_attenuation[7].y, light_attenuation[7].z);
-
-	vary_pointlight_col = col.rgb*diffuse_color.rgb;
+	
+	vary_pointlight_col = col.rgb*color.rgb;
 
 	col.rgb = vec3(0,0,0);
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
 	
-	vary_ambient = col.rgb*diffuse_color.rgb;
-	vary_directional.rgb = diffuse_color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), (1.0-diffuse_color.a)*(1.0-diffuse_color.a)));
+	vary_ambient = col.rgb*color.rgb;
+	vary_directional = color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), 0.0));
 	
-	col.rgb = col.rgb*diffuse_color.rgb;
+	col.rgb = col.rgb * color.rgb;
 	
-	vertex_color = col;
-
-	
-	
-	pos = modelview_projection_matrix * vert;
-	vary_fragcoord.xyz = pos.xyz + vec3(0,0,near_clip);
-	
+	vary_fragcoord.xyz = frag_pos.xyz + vec3(0,0,near_clip);
 }
+
+

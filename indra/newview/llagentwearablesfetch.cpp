@@ -87,6 +87,10 @@ public:
 LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
 	LLInventoryFetchDescendentsObserver(cof_id)
 {
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Initial wearables fetch started");
+	}
 }
 
 LLInitialWearablesFetch::~LLInitialWearablesFetch()
@@ -101,6 +105,10 @@ void LLInitialWearablesFetch::done()
 	// idle tick instead.
 	gInventory.removeObserver(this);
 	doOnIdleOneTime(boost::bind(&LLInitialWearablesFetch::processContents,this));
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Initial wearables fetch done");
+	}
 }
 
 void LLInitialWearablesFetch::add(InitialWearableData &data)

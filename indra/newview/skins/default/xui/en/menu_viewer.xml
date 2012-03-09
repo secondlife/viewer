@@ -2412,6 +2412,16 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="rendercomplexity" />
         </menu_item_check>
+        <menu_item_check
+         label="Attachment Bytes"
+         name="attachment bytes">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="attachment bytes" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="attachment bytes" />
+        </menu_item_check>
 		<menu_item_check
          label="Sculpt"
          name="Sculpt">
