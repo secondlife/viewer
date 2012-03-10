@@ -143,6 +143,21 @@ bool isMarketplaceSendAction(const std::string& action)
 	return ("send_to_marketplace" == action);
 }
 
+//Used by LLFolderBridge as callback for directory recursion.
+class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
+{
+public:
+	LLRightClickInventoryFetchDescendentsObserver(const uuid_vec_t& ids,
+												  bool copy_items) : 
+	LLInventoryFetchDescendentsObserver(ids),
+	mCopyItems(copy_items) 
+	{}
+	~LLRightClickInventoryFetchDescendentsObserver() {}
+	virtual void done();
+protected:
+	bool mCopyItems;
+};
+
 // +=================================================+
 // |        LLInvFVBridge                            |
 // +=================================================+
@@ -1722,9 +1737,15 @@ LLHandle<LLFolderBridge> LLFolderBridge::sSelf;
 BOOL LLFolderBridge::isItemMovable() const
 {
 	LLInventoryObject* obj = getInventoryObject();
-	if(obj)
+	if (obj)
 	{
-		return (!LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)obj)->getPreferredType()));
+		// If it's a protected type folder, we can't move it
+		if (LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)obj)->getPreferredType()))
+			return FALSE;
+		// If the folder is not there yet, it's too early to decide if it's movable
+		if (!isUpToDate())
+			return FALSE;
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -1759,6 +1780,10 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
+	// If the folder is not there yet, we shouldn't try to remove it yet
+	if (!isUpToDate())
+		return FALSE;
+	
 	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
 	if (folderp)
@@ -1790,7 +1815,11 @@ BOOL LLFolderBridge::isUpToDate() const
 BOOL LLFolderBridge::isItemCopyable() const
 {
 	// Folders are copyable if items in them are, recursively, copyable.
-
+	
+	// If the folder is not there yet, it's not copyable
+	if (!isUpToDate())
+		return FALSE;
+		
 	// Get the content of the folder
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
@@ -2490,21 +2519,6 @@ protected:
 	LLUUID mCatID;
 	bool mCopyItems;
 
-};
-
-//Used by LLFolderBridge as callback for directory recursion.
-class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
-{
-public:
-	LLRightClickInventoryFetchDescendentsObserver(const uuid_vec_t& ids,
-												  bool copy_items) : 
-		LLInventoryFetchDescendentsObserver(ids),
-		mCopyItems(copy_items) 
-	{}
-	~LLRightClickInventoryFetchDescendentsObserver() {}
-	virtual void done();
-protected:
-	bool mCopyItems;
 };
 
 void LLRightClickInventoryFetchDescendentsObserver::done()
@@ -3358,6 +3372,7 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		inc_busy_count();
 		if (fetch->isFinished())
 		{
+			delete fetch;
 			buildContextMenuFolderOptions(flags);
 		}
 		else
