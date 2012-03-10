@@ -122,15 +122,7 @@ bool LLClipboard::copyToClipboard(const LLWString &src, S32 pos, S32 len, bool u
 // Concatenate the input string to the LL and the system clipboard
 bool LLClipboard::addToClipboard(const LLWString &src, S32 pos, S32 len, bool use_primary)
 {
-	const LLWString sep(utf8str_to_wstring(std::string(", ")));
-	if (mString.length() == 0)
-	{
-		mString = src.substr(pos, len);
-	}
-	else
-	{
-		mString = mString + sep + src.substr(pos, len);
-	}
+	mString = src.substr(pos, len);
 	return (use_primary ? LLView::getWindow()->copyTextToPrimary(mString) : LLView::getWindow()->copyTextToClipboard(mString));
 }
 
