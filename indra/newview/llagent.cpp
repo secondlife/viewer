@@ -3779,6 +3779,7 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
+	gAgentAvatarp->sendAppearanceChangeMetrics();
 	llinfos << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << llendl;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 

@@ -2089,6 +2089,7 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 // Dump avatar metrics data.
 LLSD LLVOAvatarSelf::metricsData()
 {
+	// runway - add region info
 	LLSD result;
 	result["id"] = getID();
 	result["rez_status"] = getRezzedStatus();
@@ -2107,6 +2108,53 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["phases"] = dumpPhases();
 	
 	return result;
+}
+
+class ViewerAppearanceChangeMetricsResponder: public LLCurl::Responder
+{
+public:
+	ViewerAppearanceChangeMetricsResponder()
+	{
+	}
+
+	virtual void completed(U32 status,
+						   const std::string& reason,
+						   const LLSD& content)
+	{
+		if (isGoodStatus(status))
+		{
+			llinfos << "OK" << llendl;
+			result(content);
+		}
+		else
+		{
+			llwarns << "Failed " << status << " reason " << reason << llendl;
+			error(status,reason);
+		}
+	}
+};
+
+void LLVOAvatarSelf::sendAppearanceChangeMetrics()
+{
+	gAgentAvatarp->stopAllPhases();
+
+	LLSD msg = metricsData();
+	msg["message"] = "ViewerAppearanceChangeMetrics";
+
+	llinfos << "message: " << msg << llendl;
+	std::string	caps_url;
+	if (getRegion())
+	{
+		// runway - change here to activate.
+		caps_url = "";//getRegion()->getCapability("ViewerMetrics");
+	}
+	if (!caps_url.empty())
+	{
+		LLCurlRequest::headers_t headers;
+		LLHTTPClient::post(caps_url,
+							msg,
+							new ViewerAppearanceChangeMetricsResponder);
+	}
 }
 
 const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) const
