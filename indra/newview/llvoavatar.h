@@ -290,6 +290,24 @@ public:
 	void			stopAllPhases();
 	void			clearPhases();
 	LLSD			dumpPhases();
+
+	class ScopedPhaseSetter
+	{
+	public:
+		ScopedPhaseSetter(LLVOAvatar* avatar, std::string phase_name):
+			mAvatar(avatar),mPhaseName(phase_name)
+		{
+			if (mAvatar) { mAvatar->startPhase(mPhaseName); }
+		}
+		~ScopedPhaseSetter()
+		{
+			if (mAvatar) { mAvatar->stopPhase(mPhaseName); }
+		}
+	private:
+		std::string mPhaseName;
+		LLVOAvatar* mAvatar;
+	};
+
 protected:
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);

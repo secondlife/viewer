@@ -3257,6 +3257,10 @@ void LLAgent::processControlRelease(LLMessageSystem *msg, void **)
 void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void **user_data)
 {
 	gAgentQueryManager.mNumPendingQueries--;
+	if (gAgentQueryManager.mNumPendingQueries == 0)
+	{
+		selfStopPhase("fetch_texture_cache_entries");
+	}
 
 	if (!isAgentAvatarValid() || gAgentAvatarp->isDead())
 	{

@@ -2136,7 +2136,7 @@ public:
 
 void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 {
-	gAgentAvatarp->stopAllPhases();
+	// gAgentAvatarp->stopAllPhases();
 
 	LLSD msg = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";

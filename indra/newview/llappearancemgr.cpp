@@ -1708,7 +1708,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 		return;
 	}
 
-	selfStartPhase("update_appearance_from_cof");
+	LLVOAvatar::ScopedPhaseSetter(gAgentAvatarp,"update_appearance_from_cof");
 	
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 
