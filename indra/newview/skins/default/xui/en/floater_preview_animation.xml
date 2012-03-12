@@ -41,18 +41,26 @@
      label_selected="Stop"
      layout="topleft"
      left="10"
-     name="Anim play btn"
+     name="Inworld"
      tool_tip="Play this animation so that others can see it"
      top="47"
-     width="125" />
+     width="125">
+       <button.commit_callback
+        function="PreviewAnim.Play"
+        parameter="Inworld" /> 
+    </button>
     <button
      height="20"
      label="Play Locally"
      label_selected="Stop"
      layout="topleft"
      left_pad="5"
-     name="Anim audition btn"
+     name="Locally"
      tool_tip="Play this animation so that only you can see it"
      top_delta="0"
-     width="125" />
+     width="125">
+       <button.commit_callback
+        function="PreviewAnim.Play"
+        parameter="Locally" /> 
+    </button>
 </floater>

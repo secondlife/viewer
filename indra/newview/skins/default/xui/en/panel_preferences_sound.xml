@@ -63,7 +63,7 @@
       layout="topleft"
       left_pad="0"
       name="mute_chb_label"
-      top_delta="0"
+      top_delta="-1"
       width="150"
       wrap="true">
       Mute when minimized

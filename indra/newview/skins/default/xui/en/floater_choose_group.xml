@@ -20,7 +20,7 @@
         Choose a group:
     </text>
     <scroll_list
-     height="160"
+     height="165"
      layout="topleft"
      left_delta="0"
      name="group list"

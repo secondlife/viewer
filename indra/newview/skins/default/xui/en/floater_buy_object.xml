@@ -89,7 +89,7 @@
      left_delta="0"
 	 line_spacing.pixels="7"
      name="buy_text"
-     text_color="white"
+     text_color="White"
      top_pad="5"
      use_ellipses="true"
      width="260"
@@ -106,7 +106,7 @@ Buy for L$[AMOUNT] from:
      left_delta="0"
 	 line_spacing.pixels="7"
      name="buy_name_text"
-     text_color="white"
+     text_color="White"
      top_pad="5"
      use_ellipses="true"
      width="260">
