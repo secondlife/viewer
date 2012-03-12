@@ -207,6 +207,13 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	LLFloater::onClose(pIsAppQuitting);
 	setHeartBeat( false );
 	setConsoleState(kConsoleStateUnknown);
+	//Reset all the checkboxes to default
+	mShowNavMeshCheckBox->set( false );
+	mShowWalkablesCheckBox->set( false );
+	mShowMaterialVolumesCheckBox->set(  false );
+	mShowStaticObstaclesCheckBox->set( false );
+	mShowExclusionVolumesCheckBox->set( false );
+	mShowWorldCheckBox->set( false );	
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
