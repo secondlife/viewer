@@ -55,6 +55,7 @@
 #include "message.h"
 #include "pipeline.h"
 #include "llappviewer.h"		// for do_disconnect()
+#include "llfloaterpathfindingconsole.h"
 
 #include <deque>
 #include <queue>
@@ -1091,6 +1092,14 @@ void process_region_handshake(LLMessageSystem* msg, void** user_data)
 	}
 
 	regionp->unpackRegionHandshake();
+	 
+	LLFloaterPathfindingConsole* pWindow = LLFloaterPathfindingConsole::getInstanceHandle().get();
+	if ( pWindow && pWindow->getHeartBeat() )
+	{
+		pWindow->regionCrossingOccured();
+		return;
+	}
+
 }
 
 

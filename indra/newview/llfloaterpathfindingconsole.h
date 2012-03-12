@@ -111,6 +111,8 @@ public:
 
 	bool getHeartBeat() const { return mHeartBeat;}
 	void setHeartBeat( bool state ) { mHeartBeat=state; }
+	void regionCrossingOccured();
+
 
 protected:
 

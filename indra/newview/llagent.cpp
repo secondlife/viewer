@@ -400,12 +400,7 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
-	LLFloaterPathfindingConsole* pWindow = LLFloaterPathfindingConsole::getInstanceHandle().get();
-	if ( pWindow && pWindow->getHeartBeat() )
-	{
-		return;
-	}
-
+	
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -434,11 +429,6 @@ void LLAgent::moveAt(S32 direction, bool reset)
 //-----------------------------------------------------------------------------
 void LLAgent::moveAtNudge(S32 direction)
 {
-	LLFloaterPathfindingConsole* pWindow = LLFloaterPathfindingConsole::getInstanceHandle().get();
-	if ( pWindow && pWindow->getHeartBeat() )
-	{
-		return;
-	}
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -660,11 +650,6 @@ void LLAgent::setFlying(BOOL fly)
 // static
 void LLAgent::toggleFlying()
 {
-	LLFloaterPathfindingConsole* pWindow = LLFloaterPathfindingConsole::getInstanceHandle().get();
-	if ( pWindow && pWindow->getHeartBeat() )
-	{
-		return;
-	}
 
 	if ( gAgent.mAutoPilot )
 	{
@@ -2724,12 +2709,7 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 
 void LLAgent::sendWalkRun(bool running)
 {
-	LLFloaterPathfindingConsole* pWindow =  LLFloaterPathfindingConsole::getInstanceHandle().get();
-	if ( pWindow->getHeartBeat() )
-	{
-		return;
-	}
-
+	
 	LLMessageSystem* msgsys = gMessageSystem;
 	if (msgsys)
 	{

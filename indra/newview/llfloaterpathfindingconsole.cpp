@@ -873,3 +873,12 @@ U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 	}
 	return mShapeRenderFlags;
 }
+
+void LLFloaterPathfindingConsole::regionCrossingOccured()
+{	
+	std::string statusText("");	
+	LLStyle::Params styleParams;	
+	styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+	statusText = getString("navmesh_update_needed");
+	mPathfindingStatus->setText((LLStringExplicit)statusText, styleParams);
+}
