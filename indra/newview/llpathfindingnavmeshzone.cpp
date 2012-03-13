@@ -311,10 +311,15 @@ LLPathfindingNavMesh::ENavMeshRequestStatus LLPathfindingNavMeshZone::NavMeshLoc
 void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
 {
 	llassert(mRegionUUID == pRegionUUID);
-	mRequestStatus = pNavMeshRequestStatus;
-	if ((pNavMeshRequestStatus == LLPathfindingNavMesh::kNavMeshRequestCompleted) && (!mHasNavMesh || (mNavMeshVersion != pNavMeshVersion)))
+	if (pNavMeshRequestStatus != LLPathfindingNavMesh::kNavMeshRequestCompleted)
+	{
+		mRequestStatus = pNavMeshRequestStatus;
+		mLocationCallback();
+	}
+	else if (!mHasNavMesh || (mNavMeshVersion != pNavMeshVersion))
 	{
 		llassert(!pNavMeshData.empty());
+		mRequestStatus = pNavMeshRequestStatus;
 		mHasNavMesh = true;
 		mNavMeshVersion = pNavMeshVersion;
 		llassert(LLPathingLib::getInstance() != NULL);
@@ -322,8 +327,8 @@ void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMe
 		{
 			LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, mDirection);
 		}
+		mLocationCallback();
 	}
-	mLocationCallback();
 }
 
 void LLPathfindingNavMeshZone::NavMeshLocation::clear()

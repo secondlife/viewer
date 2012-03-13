@@ -42,6 +42,7 @@
 
 class LLFloater;
 class LLViewerRegion;
+class LLPathfindingNavMeshStatus;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
@@ -74,13 +75,16 @@ public:
 	virtual ~LLPathfindingManager();
 
 	bool isPathfindingEnabledForCurrentRegion() const;
+	bool isPathfindingEnabledForRegion(LLViewerRegion *pRegion) const;
 
 	bool isAllowAlterPermanent();
 	bool isAllowViewTerrainProperties() const;
 
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
 	void requestGetNavMeshForRegion(LLViewerRegion *pRegion);
-	void handleNavMeshUpdate(const LLUUID &pRegionUUID, U32 pNavMeshVersion);
+
+	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
+	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
@@ -93,6 +97,8 @@ public:
 protected:
 
 private:
+	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, U32 pNavMeshVersion);
+
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
 
@@ -103,7 +109,7 @@ private:
 	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 
-	std::string getRetrieveNavMeshURLForCurrentRegion() const;
+	std::string getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getAgentStateURLForCurrentRegion() const;
 	std::string getObjectLinksetsURLForCurrentRegion() const;
@@ -114,7 +120,6 @@ private:
 	LLViewerRegion *getCurrentRegion() const;
 
 	NavMeshMap           mNavMeshMap;
-	U32                  mNavMeshVersionXXX; // XXX stinson 03/02/2012 : a hacky way of doing versions for now
 
 	agent_state_signal_t mAgentStateSignal;
 	EAgentState          mAgentState;

@@ -421,6 +421,7 @@ set(viewer_SOURCE_FILES
     llpathfindinglinksetlist.cpp
     llpathfindingmanager.cpp
     llpathfindingnavmesh.cpp
+    llpathfindingnavmeshstatus.cpp
     llpathfindingnavmeshzone.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
@@ -976,6 +977,7 @@ set(viewer_HEADER_FILES
     llpathfindinglinksetlist.h
     llpathfindingmanager.h
     llpathfindingnavmesh.h
+    llpathfindingnavmeshstatus.h
     llpathfindingnavmeshzone.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
