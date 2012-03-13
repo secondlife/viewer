@@ -88,7 +88,7 @@
 #include "llworld.h"
 #include "llworldmap.h"
 #include "stringize.h"
-#include "llfloaterpathfindingconsole.h"
+#include "LLPathingLib.h"
 
 using namespace LLVOAvatarDefines;
 
