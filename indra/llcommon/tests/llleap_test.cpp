@@ -60,12 +60,21 @@ void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
         // If we made it through all of 'instances' without finding one that's
         // still running, we're done.
         if (vli == vlend)
+        {
+/*==========================================================================*|
+            std::cout << instances.size() << " LLLeap instances terminated in "
+                      << i << " seconds, proceeding" << std::endl;
+|*==========================================================================*/
             return;
+        }
         // Found an instance that's still running. Wait and pump LLProcess.
         sleep(1);
         LLEventPumps::instance().obtain("mainloop").post(LLSD());
     }
-    tut::ensure("timed out without terminating", i < timeout);
+    tut::ensure(STRINGIZE("at least 1 of " << instances.size()
+                          << " LLLeap instances timed out ("
+                          << timeout << " seconds) without terminating"),
+                i < timeout);
 }
 
 void waitfor(LLLeap* instance, int timeout=60)
@@ -455,10 +464,11 @@ namespace tut
         result.ensure();
     }
 
-    template<> template<>
-    void object::test<10>()
+    // This is the body of test<10>, extracted so we can run it over a number
+    // of large-message sizes.
+    void test_large_message(const std::string& PYTHON, const std::string& reader_module,
+                            const std::string& test_name, size_t size)
     {
-        set_test_name("very large message");
         ReqIDAPI api;
         Result result;
         NamedTempFile script("py",
@@ -514,14 +524,62 @@ namespace tut
                              "             'at offset %s, expected %r but got %r' %\n"
                              "             (start, large[start:end], echoed[start:end]))\n"
                              "sys.exit(1)\n");
-        waitfor(LLLeap::create(get_test_name(),
+        waitfor(LLLeap::create(test_name,
                                sv(list_of
                                   (PYTHON)
                                   (script.getName())
-                                  (stringize(BUFFERED_LENGTH)))));
+                                  (stringize(size)))),
+                180);               // try a longer timeout
         result.ensure();
     }
 
-    // TODO:
+    // The point of this function is to try to find a size at which
+    // test_large_message() can succeed. We still want the overall test to
+    // fail; otherwise we won't get the coder's attention -- but if
+    // test_large_message() fails, try to find a plausible size at which it
+    // DOES work.
+    void test_or_split(const std::string& PYTHON, const std::string& reader_module,
+                       const std::string& test_name, size_t size)
+    {
+        try
+        {
+            test_large_message(PYTHON, reader_module, test_name, size);
+        }
+        catch (const failure& e)
+        {
+            std::cout << "test_large_message(" << size << ") failed: " << e.what() << std::endl;
+            // If it still fails below 4K, give up: subdividing any further is
+            // pointless.
+            if (size >= 4096)
+            {
+                try
+                {
+                    // Recur with half the size
+                    size_t smaller(size/2);
+                    test_or_split(PYTHON, reader_module, test_name, smaller);
+                    // Recursive call will throw if test_large_message()
+                    // failed, therefore we only reach the line below if it
+                    // succeeded.
+                    std::cout << "but test_large_message(" << smaller << ") succeeded" << std::endl;
+                }
+                catch (const failure&)
+                {
+                    // The recursive test_or_split() call above has already
+                    // handled the exception. We don't want our caller to see
+                    // innermost exception; propagate outermost (below).
+                }
+            }
+            // In any case, because we reached here through failure of
+            // our original test_large_message(size) call, ensure failure
+            // propagates.
+            throw e;
+        }
+    }
 
+    template<> template<>
+    void object::test<10>()
+    {
+        set_test_name("very large message");
+        test_or_split(PYTHON, reader_module, get_test_name(), BUFFERED_LENGTH);
+    }
 } // namespace tut
