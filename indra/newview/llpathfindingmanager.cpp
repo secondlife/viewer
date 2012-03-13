@@ -41,6 +41,7 @@
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
 #include "llhttpnode.h"
+//#include "llpathfindingnavmeshzone.h" // XXX
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -57,6 +58,7 @@
 #define CAP_SERVICE_TERRAIN_LINKSETS "TerrainNavMeshProperties"
 
 #define SIM_MESSAGE_NAVMESH_STATUS_UPDATE "/message/NavMeshStatusUpdate"
+#define SIM_MESSAGE_BODY_FIELD            "body"
 
 //---------------------------------------------------------------------------
 // LLNavMeshSimStateChangeNode
@@ -628,10 +630,12 @@ LLViewerRegion *LLPathfindingManager::getCurrentRegion() const
 void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
 {
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "Received NavMeshStatusUpdate: " << pContext << llendl;
+	llinfos << "STINSON DEBUG: Received NavMeshStatusUpdate: " << pInput << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
-	LLPathfindingNavMeshStatus navMeshStatus(pContext);
-	LLPathfindingManager::getInstance()->handleNavMeshStatusUpdate(pContext);
+	llassert(pInput.has(SIM_MESSAGE_BODY_FIELD));
+	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
+	LLPathfindingNavMeshStatus navMeshStatus(pInput.get(SIM_MESSAGE_BODY_FIELD));
+	LLPathfindingManager::getInstance()->handleNavMeshStatusUpdate(navMeshStatus);
 }
 
 //---------------------------------------------------------------------------
@@ -656,7 +660,7 @@ NavMeshStatusResponder::~NavMeshStatusResponder()
 void NavMeshStatusResponder::result(const LLSD &pContent)
 {
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-	llinfos << "Received requested NavMeshStatus: " << pContent << llendl;
+	llinfos << "STINSON DEBUG: Received requested NavMeshStatus: " << pContent << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	LLPathfindingNavMeshStatus navMeshStatus(mRegionUUID, pContent);
 	LLPathfindingManager::getInstance()->handleNavMeshStatusRequest(navMeshStatus, mRegion);
