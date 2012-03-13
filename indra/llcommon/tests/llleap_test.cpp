@@ -29,6 +29,7 @@
 #include "llprocess.h"
 #include "stringize.h"
 #include "StringVec.h"
+#include <functional>
 
 using boost::assign::list_of;
 
@@ -533,6 +534,66 @@ namespace tut
         result.ensure();
     }
 
+    struct TestLargeMessage: public std::binary_function<size_t, size_t, bool>
+    {
+        TestLargeMessage(const std::string& PYTHON_, const std::string& reader_module_,
+                         const std::string& test_name_):
+            PYTHON(PYTHON_),
+            reader_module(reader_module_),
+            test_name(test_name_)
+        {}
+
+        bool operator()(size_t left, size_t right) const
+        {
+            // We don't know whether upper_bound is going to pass the "sought
+            // value" as the left or the right operand. We pass 0 as the
+            // "sought value" so we can distinguish it. Of course that means
+            // the sequence we're searching must not itself contain 0!
+            size_t size;
+            bool success;
+            if (left)
+            {
+                size = left;
+                // Consider our return value carefully. Normal binary_search
+                // (or, in our case, upper_bound) expects a container sorted
+                // in ascending order, and defaults to the std::less
+                // comparator. Our container is in fact in ascending order, so
+                // return consistently with std::less. Here we were called as
+                // compare(item, sought). If std::less were called that way,
+                // 'true' would mean to move right (to higher numbers) within
+                // the sequence: the item being considered is less than the
+                // sought value. For us, that means that test_large_message()
+                // success should return 'true'.
+                success = true;
+            }
+            else
+            {
+                size = right;
+                // Here we were called as compare(sought, item). If std::less
+                // were called that way, 'true' would mean to move left (to
+                // lower numbers) within the sequence: the sought value is
+                // less than the item being considered. For us, that means
+                // test_large_message() FAILURE should return 'true', hence
+                // test_large_message() success should return 'false'.
+                success = false;
+            }
+
+            try
+            {
+                test_large_message(PYTHON, reader_module, test_name, size);
+                std::cout << "test_large_message(" << size << ") succeeded" << std::endl;
+                return success;
+            }
+            catch (const failure& e)
+            {
+                std::cout << "test_large_message(" << size << ") failed: " << e.what() << std::endl;
+                return ! success;
+            }
+        }
+
+        const std::string PYTHON, reader_module, test_name;
+    };
+
     // The point of this function is to try to find a size at which
     // test_large_message() can succeed. We still want the overall test to
     // fail; otherwise we won't get the coder's attention -- but if
@@ -561,6 +622,35 @@ namespace tut
                     // failed, therefore we only reach the line below if it
                     // succeeded.
                     std::cout << "but test_large_message(" << smaller << ") succeeded" << std::endl;
+
+                    // Binary search for largest size that works. But since
+                    // std::binary_search() only returns bool, actually use
+                    // std::upper_bound(), consistent with our desire to find
+                    // the LARGEST size that works. First generate a sorted
+                    // container of all the sizes we intend to try, from
+                    // 'smaller' (known to work) to 'size' (known to fail). We
+                    // could whomp up magic iterators to do this dynamically,
+                    // without actually instantiating a vector, but for a test
+                    // program this will do. At least preallocate the vector.
+                    // Per TestLargeMessage comments, it's important that this
+                    // vector not contain 0.
+                    std::vector<size_t> sizes;
+                    sizes.reserve((size - smaller)/4096 + 1);
+                    for (size_t sz(smaller), szend(size); sz < szend; sz += 4096)
+                        sizes.push_back(sz);
+                    // our comparator
+                    TestLargeMessage tester(PYTHON, reader_module, test_name);
+                    // Per TestLargeMessage comments, pass 0 as the sought value.
+                    std::vector<size_t>::const_iterator found =
+                        std::upper_bound(sizes.begin(), sizes.end(), 0, tester);
+                    if (found != sizes.end() && found != sizes.begin())
+                    {
+                        std::cout << "test_large_message(" << *(found - 1) << ") is largest that succeeds" << std::endl;
+                    }
+                    else
+                    {
+                        std::cout << "cannot determine largest test_large_message(size) that succeeds" << std::endl;
+                    }
                 }
                 catch (const failure&)
                 {
