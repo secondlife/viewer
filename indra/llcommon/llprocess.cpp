@@ -47,6 +47,9 @@
 #include <typeinfo>
 #include <utility>
 
+/*****************************************************************************
+*   Helpers
+*****************************************************************************/
 static const char* whichfile_[] = { "stdin", "stdout", "stderr" };
 static std::string empty;
 static LLProcess::Status interpret_status(int status);
@@ -127,6 +130,9 @@ private:
 };
 static LLProcessListener sProcessListener;
 
+/*****************************************************************************
+*   WritePipe and ReadPipe
+*****************************************************************************/
 LLProcess::BasePipe::~BasePipe() {}
 const LLProcess::BasePipe::size_type
 	  // use funky syntax to call max() to avoid blighted max() macros
@@ -456,6 +462,9 @@ private:
 	bool mEOF;
 };
 
+/*****************************************************************************
+*   LLProcess itself
+*****************************************************************************/
 /// Need an exception to avoid constructing an invalid LLProcess object, but
 /// internal use only
 struct LLProcessError: public std::runtime_error
@@ -669,11 +678,23 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	// that doesn't always work (e.g. VWR-21538).
 	if (params.autokill)
 	{
+/*==========================================================================*|
+		// NO: There may be an APR bug, not sure -- but at least on Mac, when
+		// gAPRPoolp is destroyed, OUR process receives SIGTERM! Apparently
+		// either our own PID is getting into the list of processes to kill()
+		// (unlikely), or somehow one of those PIDs is getting zeroed first,
+		// so that kill() sends SIGTERM to the whole process group -- this
+		// process included. I'd have to build and link with a debug version
+		// of APR to know for sure. It's too bad: this mechanism would be just
+		// right for dealing with static autokill LLProcessPtr variables,
+		// which aren't destroyed until after APR is no longer available.
+
 		// Tie the lifespan of this child process to the lifespan of our APR
 		// pool: on destruction of the pool, forcibly kill the process. Tell
 		// APR to try SIGTERM and wait 3 seconds. If that didn't work, use
 		// SIGKILL.
 		apr_pool_note_subprocess(gAPRPoolp, &mProcess, APR_KILL_AFTER_TIMEOUT);
+|*==========================================================================*/
 
 		// On Windows, associate the new child process with our Job Object.
 		autokill();
@@ -732,6 +753,13 @@ std::string LLProcess::basename(const std::string& path)
 
 LLProcess::~LLProcess()
 {
+	// In the Linden viewer, there's at least one static LLProcessPtr. Its
+	// destructor will be called *after* ll_cleanup_apr(). In such a case,
+	// unregistering is pointless (and fatal!) -- and kill(), which also
+	// relies on APR, is impossible.
+	if (! gAPRPoolp)
+		return;
+
 	// Only in state RUNNING are we registered for callback. In UNSTARTED we
 	// haven't yet registered. And since receiving the callback is the only
 	// way we detect child termination, we only change from state RUNNING at
@@ -1263,38 +1291,4 @@ static LLProcess::Status interpret_status(int status)
 	return result;
 }
 
-/*==========================================================================*|
-static std::list<pid_t> sZombies;
-
-void LLProcess::orphan(void)
-{
-	// Disassociate the process from this object
-	if(mProcessID != 0)
-	{	
-		// We may still need to reap the process's zombie eventually
-		sZombies.push_back(mProcessID);
-	
-		mProcessID = 0;
-	}
-}
-
-// static 
-void LLProcess::reap(void)
-{
-	// Attempt to real all saved process ID's.
-	
-	std::list<pid_t>::iterator iter = sZombies.begin();
-	while(iter != sZombies.end())
-	{
-		if(reap_pid(*iter))
-		{
-			iter = sZombies.erase(iter);
-		}
-		else
-		{
-			iter++;
-		}
-	}
-}
-|*==========================================================================*/
 #endif  // Posix
