@@ -101,20 +101,26 @@ void yield(int seconds=1)
     LLEventPumps::instance().obtain("mainloop").post(LLSD());
 }
 
-void waitfor(LLProcess& proc)
+void waitfor(LLProcess& proc, int timeout=60)
 {
-    while (proc.isRunning())
+    int i = 0;
+    for ( ; i < timeout && proc.isRunning(); ++i)
     {
         yield();
     }
+    tut::ensure(STRINGIZE("process took longer than " << timeout << " seconds to terminate"),
+                i < timeout);
 }
 
-void waitfor(LLProcess::handle h, const std::string& desc)
+void waitfor(LLProcess::handle h, const std::string& desc, int timeout=60)
 {
-    while (LLProcess::isRunning(h, desc))
+    int i = 0;
+    for ( ; i < timeout && LLProcess::isRunning(h, desc); ++i)
     {
         yield();
     }
+    tut::ensure(STRINGIZE("process took longer than " << timeout << " seconds to terminate"),
+                i < timeout);
 }
 
 /**
