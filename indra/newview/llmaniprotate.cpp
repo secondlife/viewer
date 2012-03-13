@@ -481,7 +481,7 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 			LLViewerObject* object = selectNode->getObject();
 
 			// have permission to move and object is root of selection or individually selected
-			if (object->permMove() && (object->isRootEdit() || selectNode->mIndividualSelection))
+			if (object->permMove() && !object->isPermanentEnforced() && (object->isRootEdit() || selectNode->mIndividualSelection))
 			{
 				object->mUnselectedChildrenPositions.clear() ;
 			}
@@ -569,7 +569,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 		LLViewerObject* object = selectNode->getObject();
 
 		// have permission to move and object is root of selection or individually selected
-		if (object->permMove() && (object->isRootEdit() || selectNode->mIndividualSelection))
+		if (object->permMove() && !object->isPermanentEnforced() && (object->isRootEdit() || selectNode->mIndividualSelection))
 		{
 			if (!object->isRootEdit())
 			{
@@ -623,7 +623,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 		LLViewerObject* object = selectNode->getObject();
 
 		// to avoid cumulative position changes we calculate the objects new position using its saved position
-		if (object && object->permMove())
+		if (object && object->permMove() && !object->isPermanentEnforced())
 		{
 			LLVector3 center   = gAgent.getPosAgentFromGlobal( mRotationCenter );
 
@@ -704,7 +704,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
-		if( cur->permModify() && cur->permMove() && !cur->isAvatar())
+		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() && !cur->isAvatar())
 		{
 			selectNode->mLastRotation = cur->getRotation();
 			selectNode->mLastPositionLocal = cur->getPosition();
@@ -1871,7 +1871,7 @@ BOOL LLManipRotate::canAffectSelection()
 		{
 			virtual bool apply(LLViewerObject* objectp)
 			{
-				return objectp->permMove() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+				return objectp->permMove() && !objectp->isPermanentEnforced() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 			}
 		} func;
 		can_rotate = mObjectSelection->applyToObjects(&func);

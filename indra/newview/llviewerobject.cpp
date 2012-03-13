@@ -100,6 +100,7 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
+#include "llpathfindingmanager.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -5319,6 +5320,11 @@ void LLViewerObject::markForUpdate(BOOL priority)
 		gPipeline.markTextured(mDrawable);
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, priority);
 	}
+}
+
+bool LLViewerObject::isPermanentEnforced() const
+{
+	return flagObjectPermanent() && !LLPathfindingManager::getInstance()->isAllowAlterPermanent();
 }
 
 bool LLViewerObject::getIncludeInSearch() const

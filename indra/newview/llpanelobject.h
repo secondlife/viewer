@@ -74,7 +74,8 @@ public:
 	void     		onSelectSculpt(const LLSD& data);
 	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
-		
+
+	void            handleAgentStateCallback() const;
 	
 protected:
 	void			getState();

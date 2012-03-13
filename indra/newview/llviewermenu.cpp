@@ -6436,6 +6436,7 @@ BOOL object_selected_and_point_valid()
 		(selection->getFirstRootObject()->getPCode() == LL_PCODE_VOLUME) && 
 		selection->getFirstRootObject()->permYouOwner() &&
 		selection->getFirstRootObject()->flagObjectMove() &&
+		!selection->getFirstRootObject()->flagObjectPermanent() &&
 		!((LLViewerObject*)selection->getFirstRootObject()->getRoot())->isAvatar() && 
 		(selection->getFirstRootObject()->getNVPair("AssetContainer") == NULL);
 }

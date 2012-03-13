@@ -222,18 +222,24 @@ BOOL LLToolGrab::handleObjectHit(const LLPickInfo& info)
 			if (gAgentCamera.cameraMouselook())
 			{
 				mMode = GRAB_LOCKED;
+				gViewerWindow->hideCursor();
+				gViewerWindow->moveCursorToCenter();
+			}
+			else if (objectp->permMove() && !objectp->isPermanentEnforced())
+			{
+				mMode = GRAB_ACTIVE_CENTER;
+				gViewerWindow->hideCursor();
+				gViewerWindow->moveCursorToCenter();
 			}
 			else
 			{
-				mMode = GRAB_ACTIVE_CENTER;
+				mMode = GRAB_LOCKED;
 			}
 
-			gViewerWindow->hideCursor();
-			gViewerWindow->moveCursorToCenter();
 			
 		}
 	}
-	else if( !objectp->permMove() )
+	else if( !objectp->permMove() || objectp->isPermanentEnforced())
 	{
 		// if mouse is over a physical object without move permission, show feedback if user tries to move it.
 		mMode = GRAB_LOCKED;

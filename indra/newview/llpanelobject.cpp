@@ -66,6 +66,8 @@
 #include "llviewercontrol.h"
 #include "lluictrlfactory.h"
 //#include "llfirstuse.h"
+#include "llfloatertools.h"
+#include "llpathfindingmanager.h"
 
 #include "lldrawpool.h"
 
@@ -271,6 +273,8 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("sculpt mirror control", onCommitSculptType, this);
 	mCtrlSculptInvert = getChild<LLCheckBoxCtrl>("sculpt invert control");
 	childSetCommitCallback("sculpt invert control", onCommitSculptType, this);
+
+	LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLPanelObject::handleAgentStateCallback, this));
 	
 	// Start with everyone disabled
 	clearCtrls();
@@ -341,9 +345,9 @@ void LLPanelObject::getState( )
 	}
 
 	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-	BOOL enable_move	= objectp->permMove() && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-	BOOL enable_scale	= objectp->permMove() && objectp->permModify();
-	BOOL enable_rotate	= objectp->permMove() && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && objectp->permModify();
+	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
 
 	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
@@ -548,7 +552,7 @@ void LLPanelObject::getState( )
 	{
 		// Only allowed to change these parameters for objects
 		// that you have permissions on AND are not attachments.
-		enabled = root_objectp->permModify();
+		enabled = root_objectp->permModify() && !root_objectp->isPermanentEnforced();
 		
 		// Volume type
 		const LLVolumeParams &volume_params = objectp->getVolume()->getParams();
@@ -1966,6 +1970,11 @@ void LLPanelObject::onSelectSculpt(const LLSD& data)
 void LLPanelObject::onCommitSculpt( const LLSD& data )
 {
 	sendSculpt();
+}
+
+void LLPanelObject::handleAgentStateCallback() const
+{
+	gFloaterTools->dirty();
 }
 
 BOOL LLPanelObject::onDropSculpt(LLInventoryItem* item)

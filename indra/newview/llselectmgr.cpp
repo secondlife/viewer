@@ -276,7 +276,7 @@ void LLSelectMgr::overrideObjectUpdates()
 		virtual bool apply(LLSelectNode* selectNode)
 		{
 			LLViewerObject* object = selectNode->getObject();
-			if (object && object->permMove())
+			if (object && object->permMove() && !object->isPermanentEnforced())
 			{
 				if (!selectNode->mLastPositionLocal.isExactlyZero())
 				{
@@ -955,7 +955,7 @@ void LLSelectMgr::highlightObjectOnly(LLViewerObject* objectp)
 	}
 	
 	if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !objectp->permYouOwner()) 
-		|| (gSavedSettings.getBOOL("SelectMovableOnly") && !objectp->permMove()))
+		|| (gSavedSettings.getBOOL("SelectMovableOnly") && (!objectp->permMove() ||  objectp->isPermanentEnforced())))
 	{
 		// only select my own objects
 		return;
@@ -6236,7 +6236,7 @@ BOOL LLSelectMgr::canSelectObject(LLViewerObject* object)
 	}
 
 	if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !object->permYouOwner()) ||
-		(gSavedSettings.getBOOL("SelectMovableOnly") && !object->permMove()))
+		(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())))
 	{
 		// only select my own objects
 		return FALSE;
@@ -6928,7 +6928,7 @@ LLSelectNode* LLObjectSelection::getFirstMoveableNode(BOOL get_root_first)
 		bool apply(LLSelectNode* node)
 		{
 			LLViewerObject* obj = node->getObject();
-			return obj && obj->permMove();
+			return obj && obj->permMove() && !obj->isPermanentEnforced();
 		}
 	} func;
 	LLSelectNode* res = get_root_first ? getFirstRootNode(&func, TRUE) : getFirstNode(&func);
@@ -7008,7 +7008,7 @@ LLViewerObject* LLObjectSelection::getFirstMoveableObject(BOOL get_parent)
 		bool apply(LLSelectNode* node)
 		{
 			LLViewerObject* obj = node->getObject();
-			return obj && obj->permMove();
+			return obj && obj->permMove() && !obj->isPermanentEnforced();
 		}
 	} func;
 	return getFirstSelectedObject(&func, get_parent);
@@ -7077,7 +7077,7 @@ bool LLSelectMgr::selectionMove(const LLVector3& displ,
 	{
 		obj = (*it)->getObject();
 		bool enable_pos = false, enable_rot = false;
-		bool perm_move = obj->permMove();
+		bool perm_move = obj->permMove() && !obj->isPermanentEnforced();
 		bool perm_mod = obj->permModify();
 		
 		LLVector3d sel_center(getSelectionCenterGlobal());
