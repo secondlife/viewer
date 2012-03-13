@@ -47,6 +47,7 @@ class LLPathfindingNavMeshStatus;
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
 	friend class AgentStateResponder;
+	friend class LLAgentStateChangeNode;
 public:
 	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
 
@@ -108,6 +109,7 @@ private:
 	void setAgentState(EAgentState pAgentState);
 	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
+	void handleAgentStateUpdate(const LLSD &pContent);
 
 	std::string getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const;

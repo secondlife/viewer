@@ -58,6 +58,7 @@
 #define CAP_SERVICE_TERRAIN_LINKSETS "TerrainNavMeshProperties"
 
 #define SIM_MESSAGE_NAVMESH_STATUS_UPDATE "/message/NavMeshStatusUpdate"
+#define SIM_MESSAGE_AGENT_STATE_UPDATE    "/message/AgentPreferencesUpdate"
 #define SIM_MESSAGE_BODY_FIELD            "body"
 
 //---------------------------------------------------------------------------
@@ -71,6 +72,18 @@ public:
 };
 
 LLHTTPRegistration<LLNavMeshSimStateChangeNode> gHTTPRegistrationNavMeshSimStateChangeNode(SIM_MESSAGE_NAVMESH_STATUS_UPDATE);
+
+//---------------------------------------------------------------------------
+// LLAgentStateChangeNode
+//---------------------------------------------------------------------------
+
+class LLAgentStateChangeNode : public LLHTTPNode
+{
+public:
+	virtual void post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const;
+};
+
+LLHTTPRegistration<LLAgentStateChangeNode> gHTTPRegistrationAgentStateChangeNode(SIM_MESSAGE_AGENT_STATE_UPDATE);
 
 //---------------------------------------------------------------------------
 // NavMeshStatusResponder
@@ -570,6 +583,15 @@ void LLPathfindingManager::handleAgentStateError(U32 pStatus, const std::string 
 	setAgentState(kAgentStateError);
 }
 
+void LLPathfindingManager::handleAgentStateUpdate(const LLSD &pContent)
+{
+	llassert(pContent.has(ALTER_NAVMESH_OBJECTS_FIELD));
+	llassert(pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).isBoolean());
+	EAgentState agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
+
+	setAgentState(agentState);
+}
+
 std::string LLPathfindingManager::getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const
 {
 	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_NAVMESH_STATUS);
@@ -636,6 +658,20 @@ void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pConte
 	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
 	LLPathfindingNavMeshStatus navMeshStatus(pInput.get(SIM_MESSAGE_BODY_FIELD));
 	LLPathfindingManager::getInstance()->handleNavMeshStatusUpdate(navMeshStatus);
+}
+
+//---------------------------------------------------------------------------
+// LLAgentStateChangeNode
+//---------------------------------------------------------------------------
+
+void LLAgentStateChangeNode::post(ResponsePtr pResponse, const LLSD &pContext, const LLSD &pInput) const
+{
+#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
+	llinfos << "STINSON DEBUG: Received AgentPreferencesUpdate: " << pInput << llendl;
+#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
+	llassert(pInput.has(SIM_MESSAGE_BODY_FIELD));
+	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
+	LLPathfindingManager::getInstance()->handleAgentStateUpdate(pInput.get(SIM_MESSAGE_BODY_FIELD));
 }
 
 //---------------------------------------------------------------------------
