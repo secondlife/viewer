@@ -63,6 +63,11 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 	// *TODO: Use a key to allow this not to be an effective singleton
 	LLFloaterAvatarPicker* floater = 
 		LLFloaterReg::showTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
+	if (!floater)
+	{
+		llwarns << "Cannot instantiate avatar picker" << llendl;
+		return NULL;
+	}
 	
 	floater->mSelectionCallback = callback;
 	floater->setAllowMultiple(allow_multiple);

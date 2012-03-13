@@ -82,6 +82,37 @@ namespace LLInitParam
 	};
 }
 
+struct LL_COORD_FLOATER
+{
+	typedef F32 value_t;
+
+	LLCoordCommon convertToCommon() const;
+	void convertFromCommon(const LLCoordCommon& from);
+protected:
+	LLHandle<LLFloater> mFloater;
+};
+
+struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
+{
+	typedef LLCoord<LL_COORD_FLOATER> coord_t;
+
+	LLCoordFloater() {}
+	LLCoordFloater(F32 x, F32 y, LLFloater& floater);
+	LLCoordFloater(const LLCoordCommon& other, LLFloater& floater);
+
+	LLCoordFloater& operator=(const LLCoordCommon& other)
+	{
+		convertFromCommon(other);
+		return *this;
+	}
+
+	LLCoordFloater& operator=(const LLCoordFloater& other);
+
+	bool operator==(const LLCoordFloater& other) const;
+	bool operator!=(const LLCoordFloater& other) const { return !(*this == other); }
+
+	void setFloater(LLFloater& floater);
+};
 
 class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 {
@@ -184,7 +215,7 @@ public:
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
 
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
-	/*virtual*/ BOOL canSnapTo(const LLView* other_view);
+	/*virtual*/ BOOL canSnapTo(const LLView* other_view); 
 	/*virtual*/ void setSnappedTo(const LLView* snap_view);
 	/*virtual*/ void setFocus( BOOL b );
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
@@ -425,6 +456,7 @@ private:
 	LLFloaterEnums::EOpenPositioning	mOpenPositioning;
 	S32									mSpecifiedLeft;
 	S32									mSpecifiedBottom;
+	LLCoordFloater	mPosition;
 	
 	S32				mMinWidth;
 	S32				mMinHeight;

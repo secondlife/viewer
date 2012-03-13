@@ -331,7 +331,7 @@
    </text>
    <radio_group
      control_name="LetterKeysFocusChatBar" 
-     height="20"
+     height="34"
      layout="topleft"
      left="35"
      top_pad="0" 
@@ -339,7 +339,7 @@
         <radio_item
          label="Starts local chat"
          name="radio_start_chat"
-         top_delta="20" 
+         top="0" 
          layout="topleft"
          height="16" 
          left="0" 
@@ -364,7 +364,7 @@
      layout="topleft"
      left="30"
      name="title_afk_text"
-     top_pad="15" 
+     top_pad="5" 
      width="190">
     	Away timeout:
     </text>

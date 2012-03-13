@@ -464,7 +464,7 @@ S32 LLSDXMLParser::Impl::parseLines(std::istream& input, LLSD& data)
 			}
 		}
 
-		status = XML_ParseBuffer(mParser, num_read, false);
+		status = XML_ParseBuffer(mParser, (int)num_read, false);
 		if (status == XML_STATUS_ERROR)
 		{
 			break;

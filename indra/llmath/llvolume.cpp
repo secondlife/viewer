@@ -2904,7 +2904,7 @@ F32 LLVolume::sculptGetSurfaceArea()
 			// compute the area of the quad by taking the length of the cross product of the two triangles
 			LLVector3 cross1 = (p1 - p2) % (p1 - p3);
 			LLVector3 cross2 = (p4 - p2) % (p4 - p3);
-			area += (cross1.magVec() + cross2.magVec()) / 2.0;
+			area += (cross1.magVec() + cross2.magVec()) / 2.f;
 		}
 	}
 
@@ -5890,7 +5890,7 @@ F32 find_vertex_score(LLVCacheVertexData& data)
 	}
 
 	//bonus points for having low valence
-	F32 valence_boost = powf(data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
+	F32 valence_boost = powf((F32)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
 	score += FindVertexScore_ValenceBoostScale * valence_boost;
 
 	return score;

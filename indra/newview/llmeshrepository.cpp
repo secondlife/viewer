@@ -728,7 +728,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 			if (!http_url.empty())
 			{				
 				ret = mCurlRequest->getByteRange(http_url, headers, offset, size,
-										   new LLMeshSkinInfoResponder(mesh_id, offset, size));
+												 new LLMeshSkinInfoResponder(mesh_id, offset, size));
 				if(ret)
 				{
 					LLMeshRepository::sHTTPRequestCount++;
@@ -805,7 +805,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 			if (!http_url.empty())
 			{				
 				ret = mCurlRequest->getByteRange(http_url, headers, offset, size,
-										   new LLMeshDecompositionResponder(mesh_id, offset, size));
+												 new LLMeshDecompositionResponder(mesh_id, offset, size));
 				if(ret)
 				{
 					LLMeshRepository::sHTTPRequestCount++;
@@ -881,7 +881,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 			if (!http_url.empty())
 			{				
 				ret = mCurlRequest->getByteRange(http_url, headers, offset, size,
-										   new LLMeshPhysicsShapeResponder(mesh_id, offset, size));
+												 new LLMeshPhysicsShapeResponder(mesh_id, offset, size));
 
 				if(ret)
 				{
@@ -1093,17 +1093,19 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 
 bool LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
 {
-	LLVolume* volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
+	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
 	std::string mesh_string((char*) data, data_size);
 	std::istringstream stream(mesh_string);
 
 	if (volume->unpackVolumeFaces(stream, data_size))
 	{
-		LoadedMesh mesh(volume, mesh_params, lod);
 		if (volume->getNumFaces() > 0)
 		{
-			LLMutexLock lock(mMutex);
-			mLoadedQ.push(mesh);
+			LoadedMesh mesh(volume, mesh_params, lod);
+			{
+				LLMutexLock lock(mMutex);
+				mLoadedQ.push(mesh);
+			}
 			return true;
 		}
 	}

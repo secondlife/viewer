@@ -36,7 +36,7 @@
 #include "llcriticaldamp.h"
 #include "boost/foreach.hpp"
 
-static const F32 MIN_FRACTIONAL_SIZE = 0.0001f;
+static const F32 MIN_FRACTIONAL_SIZE = 0.0f;
 static const F32 MAX_FRACTIONAL_SIZE = 1.f;
 
 static LLDefaultChildRegistry::Register<LLLayoutStack> register_layout_stack("layout_stack");
@@ -129,6 +129,12 @@ void LLLayoutPanel::setOrientation( LLLayoutStack::ELayoutOrientation orientatio
 		? getRect().getWidth()
 		: getRect().getHeight()));
 
+	if (mAutoResize == FALSE 
+		&& mUserResize == TRUE 
+		&& mMinDim == -1 )
+	{
+		setMinDim(layout_dim);
+	}
 	mTargetDim = llmax(layout_dim, getMinDim());
 }
  
@@ -306,7 +312,6 @@ void LLLayoutStack::updateLayout()
 
 	bool animation_in_progress = animatePanels();
 	F32 total_visible_fraction = 0.f;
-	F32 total_open_fraction = 0.f;
 	S32 space_to_distribute = (mOrientation == HORIZONTAL)
 							? getRect().getWidth()
 							: getRect().getHeight();
@@ -318,20 +323,17 @@ void LLLayoutStack::updateLayout()
 		if (panelp->mAutoResize)
 		{
 			panelp->mTargetDim = panelp->getRelevantMinDim();
-			if (!panelp->mCollapsed && panelp->getVisible())
-			{
-				total_open_fraction += panelp->mFractionalSize;
-			}
 		}
 		space_to_distribute -= panelp->getVisibleDim() + llround((F32)mPanelSpacing * panelp->getVisibleAmount());
-		total_visible_fraction += panelp->mFractionalSize;
+		total_visible_fraction += panelp->mFractionalSize * panelp->getAutoResizeFactor();
 	}
 
-	llassert(total_visible_fraction < 1.01f);
+	llassert(total_visible_fraction < 1.05f);
 
 	// don't need spacing after last panel
 	space_to_distribute += panelp ? llround((F32)mPanelSpacing * panelp->getVisibleAmount()) : 0;
 
+	S32 remaining_space = space_to_distribute;
 	F32 fraction_distributed = 0.f;
 	if (space_to_distribute > 0 && total_visible_fraction > 0.f)
 	{	// give space proportionally to visible auto resize panels
@@ -343,26 +345,23 @@ void LLLayoutStack::updateLayout()
 				S32 delta = llround((F32)space_to_distribute * fraction_to_distribute);
 				fraction_distributed += fraction_to_distribute;
 				panelp->mTargetDim += delta;
+				remaining_space -= delta;
 			}
 		}
 	}
 
-	if (fraction_distributed < total_visible_fraction)
-	{	// distribute any left over pixels to non-collapsed, visible panels
-		F32 fraction_left = total_visible_fraction - fraction_distributed;
-		S32 space_left = llround((F32)space_to_distribute * (fraction_left / total_visible_fraction));
+	// distribute any left over pixels to non-collapsed, visible panels
+	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	{
+		if (remaining_space == 0) break;
 
-		BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+		if (panelp->mAutoResize 
+			&& !panelp->mCollapsed 
+			&& panelp->getVisible())
 		{
-			if (panelp->mAutoResize 
-				&& !panelp->mCollapsed 
-				&& panelp->getVisible())
-			{
-				S32 space_for_panel = llmax(0, llround((F32)space_left * (panelp->mFractionalSize / total_open_fraction)));
-				panelp->mTargetDim += space_for_panel;
-				space_left -= space_for_panel;
-				total_open_fraction -= panelp->mFractionalSize;
-			}
+			S32 space_for_panel = remaining_space > 0 ? 1 : -1;
+			panelp->mTargetDim += space_for_panel;
+			remaining_space -= space_for_panel;
 		}
 	}
 
@@ -494,30 +493,43 @@ void LLLayoutStack::updateClass()
 
 void LLLayoutStack::updateFractionalSizes()
 {
-	F32 total_resizable_dim = 0;
-	S32 num_auto_resize_panels = 0;
+	F32 total_resizable_dim = 0.f;
 
 	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
 	{
 		if (panelp->mAutoResize)
 		{
 			total_resizable_dim += llmax(0, panelp->getLayoutDim() - panelp->getRelevantMinDim());
-			num_auto_resize_panels++;
 		}
 	}
 
-	F32 total_fractional_size = 0.f;
-	
 	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
 	{
 		if (panelp->mAutoResize)
 		{
 			F32 panel_resizable_dim = llmax(MIN_FRACTIONAL_SIZE, (F32)(panelp->getLayoutDim() - panelp->getRelevantMinDim()));
 			panelp->mFractionalSize = panel_resizable_dim > 0.f 
-										? llclamp(panel_resizable_dim / total_resizable_dim, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE)
-										: MIN_FRACTIONAL_SIZE;
-			total_fractional_size += panelp->mFractionalSize;
+				? llclamp(panel_resizable_dim / total_resizable_dim, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE)
+				: MIN_FRACTIONAL_SIZE;
 			llassert(!llisnan(panelp->mFractionalSize));
+		}
+	}
+
+	normalizeFractionalSizes();
+}
+
+
+void LLLayoutStack::normalizeFractionalSizes()
+{
+	S32 num_auto_resize_panels = 0;
+	F32 total_fractional_size = 0.f;
+	
+	BOOST_FOREACH(LLLayoutPanel* panelp, mPanels)
+	{
+		if (panelp->mAutoResize)
+		{
+			total_fractional_size += panelp->mFractionalSize;
+			num_auto_resize_panels++;
 		}
 	}
 
@@ -632,7 +644,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 
 	F32 total_visible_fraction = 0.f;
 	F32 delta_auto_resize_headroom = 0.f;
-	F32 total_auto_resize_headroom = 0.f;
+	F32 original_auto_resize_headroom = 0.f;
 
 	LLLayoutPanel* other_resize_panel = NULL;
 	LLLayoutPanel* following_panel = NULL;
@@ -641,8 +653,11 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 	{
 		if (panelp->mAutoResize)
 		{
-			total_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
-			total_visible_fraction += panelp->mFractionalSize * panelp->getAutoResizeFactor();
+			original_auto_resize_headroom += (F32)(panelp->mTargetDim - panelp->getRelevantMinDim());
+			if (panelp->getVisible() && !panelp->mCollapsed)
+			{
+				total_visible_fraction += panelp->mFractionalSize;
+			}
 		}
 
 		if (panelp == resized_panel)
@@ -656,18 +671,25 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		}
 	}
 
-	if (resized_panel->mAutoResize == FALSE)
+
+	if (resized_panel->mAutoResize)
 	{
-		delta_auto_resize_headroom += -delta_dim;
+		if (!other_resize_panel || !other_resize_panel->mAutoResize)
+		{
+			delta_auto_resize_headroom += delta_dim;	
+		}
 	}
-	if (other_resize_panel && other_resize_panel->mAutoResize == FALSE)
+	else 
 	{
-		delta_auto_resize_headroom += delta_dim;
+		if (!other_resize_panel || other_resize_panel->mAutoResize)
+		{
+			delta_auto_resize_headroom -= delta_dim;
+		}
 	}
 
 	F32 fraction_given_up = 0.f;
 	F32 fraction_remaining = 1.f;
-	F32 updated_auto_resize_headroom = total_auto_resize_headroom + delta_auto_resize_headroom;
+	F32 updated_auto_resize_headroom = original_auto_resize_headroom + delta_auto_resize_headroom;
 
 	enum
 	{
@@ -691,14 +713,15 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 		case BEFORE_RESIZED_PANEL:
 			if (panelp->mAutoResize)
 			{	// freeze current size as fraction of overall auto_resize space
-				F32 fractional_adjustment_factor = total_auto_resize_headroom / updated_auto_resize_headroom;
+				F32 fractional_adjustment_factor = updated_auto_resize_headroom == 0.f
+													? 1.f
+													: original_auto_resize_headroom / updated_auto_resize_headroom;
 				F32 new_fractional_size = llclamp(panelp->mFractionalSize * fractional_adjustment_factor,
 													MIN_FRACTIONAL_SIZE,
 													MAX_FRACTIONAL_SIZE);
-				F32 fraction_delta = (new_fractional_size - panelp->mFractionalSize);
-				fraction_given_up -= fraction_delta;
+				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
-				panelp->mFractionalSize += fraction_delta;
+				panelp->mFractionalSize = new_fractional_size;
 				llassert(!llisnan(panelp->mFractionalSize));
 			}
 			else
@@ -711,7 +734,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			{	// freeze new size as fraction
 				F32 new_fractional_size = (updated_auto_resize_headroom == 0.f)
 					? MAX_FRACTIONAL_SIZE
-					: llclamp((F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
+					: llclamp(total_visible_fraction * (F32)(new_dim - panelp->getRelevantMinDim()) / updated_auto_resize_headroom, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
 				fraction_given_up -= new_fractional_size - panelp->mFractionalSize;
 				fraction_remaining -= panelp->mFractionalSize;
 				panelp->mFractionalSize = new_fractional_size;
@@ -720,7 +743,6 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			else
 			{	// freeze new size as original size
 				panelp->mTargetDim = new_dim;
-				fraction_remaining -= fraction_given_up;
 			}
 			which_panel = NEXT_PANEL;
 			break;
@@ -728,14 +750,14 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			if (panelp->mAutoResize)
 			{
 				fraction_remaining -= panelp->mFractionalSize;
-				if (fraction_given_up != 0.f)
+				if (resized_panel->mAutoResize)
 				{
 					panelp->mFractionalSize = llclamp(panelp->mFractionalSize + fraction_given_up, MIN_FRACTIONAL_SIZE, MAX_FRACTIONAL_SIZE);
 					fraction_given_up = 0.f;
 				}
 				else
 				{
-					F32 new_fractional_size = llclamp((F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
+					F32 new_fractional_size = llclamp(total_visible_fraction * (F32)(panelp->mTargetDim - panelp->getRelevantMinDim() + delta_auto_resize_headroom) 
 														/ updated_auto_resize_headroom,
 													MIN_FRACTIONAL_SIZE,
 													MAX_FRACTIONAL_SIZE);
@@ -750,7 +772,7 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			which_panel = AFTER_RESIZED_PANEL;
 			break;
 		case AFTER_RESIZED_PANEL:
-			if (panelp->mAutoResize)
+			if (panelp->mAutoResize && fraction_given_up != 0.f)
 			{
 				panelp->mFractionalSize = llclamp(panelp->mFractionalSize + (panelp->mFractionalSize / fraction_remaining) * fraction_given_up,
 												MIN_FRACTIONAL_SIZE,
@@ -760,6 +782,8 @@ void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect&
 			break;
 		}
 	}
+	updateLayout();
+	normalizeFractionalSizes();
 }
 
 void LLLayoutStack::reshape(S32 width, S32 height, BOOL called_from_parent)

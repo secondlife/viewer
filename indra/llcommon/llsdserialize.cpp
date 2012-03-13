@@ -114,7 +114,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	if (!strncasecmp(LEGACY_NON_HEADER, hdr_buf, strlen(LEGACY_NON_HEADER))) /* Flawfinder: ignore */
 	{
 		legacy_no_header = true;
-		inbuf = str.gcount();
+		inbuf = (int)str.gcount();
 	}
 	else
 	{
@@ -347,7 +347,7 @@ std::istream& LLSDParser::get(
 	char delim) const
 {
 	istr.get(s, n, delim);
-	if(mCheckLimits) mMaxBytesLeft -= istr.gcount();
+	if(mCheckLimits) mMaxBytesLeft -= (int)istr.gcount();
 	return istr;
 }
 
@@ -357,7 +357,7 @@ std::istream& LLSDParser::get(
 		char delim) const		
 {
 	istr.get(sb, delim);
-	if(mCheckLimits) mMaxBytesLeft -= istr.gcount();
+	if(mCheckLimits) mMaxBytesLeft -= (int)istr.gcount();
 	return istr;
 }
 
@@ -381,7 +381,7 @@ std::istream& LLSDParser::read(
 	std::streamsize n) const
 {
 	istr.read(s, n);
-	if(mCheckLimits) mMaxBytesLeft -= istr.gcount();
+	if(mCheckLimits) mMaxBytesLeft -= (int)istr.gcount();
 	return istr;
 }
 
@@ -793,7 +793,7 @@ bool LLSDNotationParser::parseBinary(std::istream& istr, LLSD& data) const
 		if(len)
 		{
 			value.resize(len);
-			account(fullread(istr, (char *)&value[0], len));
+			account((int)fullread(istr, (char *)&value[0], len));
 		}
 		c = get(istr); // strip off the trailing double-quote
 		data = value;
@@ -1073,7 +1073,7 @@ S32 LLSDBinaryParser::doParse(std::istream& istr, LLSD& data) const
 			if(size > 0)
 			{
 				value.resize(size);
-				account(fullread(istr, (char*)&value[0], size));
+				account((int)fullread(istr, (char*)&value[0], size));
 			}
 			data = value;
 		}
@@ -1204,7 +1204,7 @@ bool LLSDBinaryParser::parseString(
 	if(size)
 	{
 		buf.resize(size);
-		account(fullread(istr, &buf[0], size));
+		account((int)fullread(istr, &buf[0], size));
 		value.assign(buf.begin(), buf.end());
 	}
 	return true;
@@ -1646,7 +1646,7 @@ int deserialize_string_raw(
 	const S32 BUF_LEN = 20;
 	char buf[BUF_LEN];		/* Flawfinder: ignore */
 	istr.get(buf, BUF_LEN - 1, ')');
-	count += istr.gcount();
+	count += (int)istr.gcount();
 	int c = istr.get();
 	c = istr.get();
 	count += 2;
@@ -1661,7 +1661,7 @@ int deserialize_string_raw(
 		if(len)
 		{
 			buf.resize(len);
-			count += fullread(istr, (char *)&buf[0], len);
+			count += (int)fullread(istr, (char *)&buf[0], len);
 			value.assign(buf.begin(), buf.end());
 		}
 		c = istr.get();

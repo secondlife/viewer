@@ -135,6 +135,7 @@ extern BOOL gDebugClicks;
 
 // function prototypes
 bool check_offer_throttle(const std::string& from_name, bool check_only);
+bool check_asset_previewable(const LLAssetType::EType asset_type);
 static void process_money_balance_reply_extended(LLMessageSystem* msg);
 
 //inventory offer throttle globals
@@ -1147,7 +1148,18 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 		}
 	}
 }
- 
+
+// Return "true" if we have a preview method for that asset type, "false" otherwise
+bool check_asset_previewable(const LLAssetType::EType asset_type)
+{
+	return	(asset_type == LLAssetType::AT_NOTECARD)  || 
+			(asset_type == LLAssetType::AT_LANDMARK)  ||
+			(asset_type == LLAssetType::AT_TEXTURE)   ||
+			(asset_type == LLAssetType::AT_ANIMATION) ||
+			(asset_type == LLAssetType::AT_SCRIPT)    ||
+			(asset_type == LLAssetType::AT_SOUND);
+}
+
 void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_name)
 {
 	for (uuid_vec_t::const_iterator obj_iter = objects.begin();
@@ -1171,7 +1183,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 
 		// Either an inventory item or a category.
 		const LLInventoryItem* item = dynamic_cast<const LLInventoryItem*>(obj);
-		if (item)
+		if (item && check_asset_previewable(asset_type))
 		{
 			////////////////////////////////////////////////////////////////////////////////
 			// Special handling for various types.
@@ -1246,6 +1258,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLFloaterReg::showInstance("preview_sound", LLSD(obj_id), take_focus);
 						break;
 					default:
+						LL_DEBUGS("Messaging") << "No preview method for previewable asset type : " << LLAssetType::lookupHumanReadable(asset_type)  << LL_ENDL;
 						break;
 				}
 			}
@@ -2360,8 +2373,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
-			if(accept_im_from_only_friend&&!is_friend)
+			if (accept_im_from_only_friend && !is_friend)
 			{
+				if (!gIMMgr->isNonFriendSessionNotified(session_id))
+				{
+					std::string message = LLTrans::getString("IM_unblock_only_groups_friends");
+					gIMMgr->addMessage(session_id, from_id, name, message);
+					gIMMgr->addNotifiedNonFriendSessionID(session_id);
+				}
+
 				mute_im = true;
 			}
 			if (!mute_im || is_linden) 
@@ -5816,6 +5836,16 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	S32 orig = notification["payload"]["questions"].asInteger();
 	S32 new_questions = orig;
 
+	if (response["Details"])
+	{
+		// respawn notification...
+		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
+
+		// ...with description on top
+		LLNotificationsUtil::add("DebitPermissionDetails");
+		return false;
+	}
+
 	// check whether permissions were granted or denied
 	BOOL allowed = TRUE;
 	// the "yes/accept" button is the first button in the template, making it button 0
@@ -5873,14 +5903,6 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 				gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
 	}
 
-	if (response["Details"])
-	{
-		// respawn notification...
-		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
-
-		// ...with description on top
-		LLNotificationsUtil::add("DebitPermissionDetails");
-	}
 	return false;
 }
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);

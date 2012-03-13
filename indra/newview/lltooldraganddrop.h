@@ -86,8 +86,11 @@ public:
 	EAcceptance getLastAccept() { return mLastAccept; }
 
 	boost::signals2::connection setEndDragCallback( const enddrag_signal_t::slot_type& cb ) { return mEndDragSignal.connect(cb); }
-	
-	uuid_vec_t::size_type getCargoIDsCount() const { return mCargoIDs.size(); }
+
+	void setCargoCount(U32 count) { mCargoCount = count; }
+	void resetCargoCount() { mCargoCount = 0; }
+	U32 getCargoCount() const { return (mCargoCount > 0) ? mCargoCount : mCargoIDs.size(); }
+
 	static S32 getOperationId() { return sOperationId; }
 
 protected:
@@ -117,6 +120,8 @@ protected:
 	void pick(const LLPickInfo& pick_info);
 
 protected:
+
+	U32				mCargoCount;
 
 	S32				mDragStartX;
 	S32				mDragStartY;

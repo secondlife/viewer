@@ -410,8 +410,8 @@ BOOL LLFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* roo
 }
 
 
-// Finds width and height of this object and it's children.  Also
-// makes sure that this view and it's children are the right size.
+// Finds width and height of this object and its children.  Also
+// makes sure that this view and its children are the right size.
 S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 {
 	const Params& p = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
@@ -423,7 +423,7 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 		: 0;
 	if (mLabelWidthDirty)
 	{
-		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mSearchableLabel); 
+		mLabelWidth = ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + TEXT_PAD_RIGHT; 
 		mLabelWidthDirty = false;
 	}
 
@@ -1045,7 +1045,7 @@ void LLFolderViewItem::draw()
 	}
 	if ((mIsLoading
 		&&	mTimeSinceRequestStart.getElapsedTimeF32() >= gSavedSettings.getF32("FolderLoadingMessageWaitTime"))
-			||	(LLInventoryModelBackgroundFetch::instance().backgroundFetchActive()
+			||	(LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 				&&	root_is_loading
 				&&	mShowLoadStatus))
 	{
