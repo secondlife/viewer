@@ -207,6 +207,13 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	LLFloater::onClose(pIsAppQuitting);
 	setHeartBeat( false );
 	setConsoleState(kConsoleStateUnknown);
+	//Reset all the checkboxes to default
+	mShowNavMeshCheckBox->set( false );
+	mShowWalkablesCheckBox->set( false );
+	mShowMaterialVolumesCheckBox->set(  false );
+	mShowStaticObstaclesCheckBox->set( false );
+	mShowExclusionVolumesCheckBox->set( false );
+	mShowWorldCheckBox->set( false );	
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
@@ -879,4 +886,13 @@ U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 		setShapeRenderFlag( LLPathingLib::LLST_ExclusionPhantoms ); 
 	}
 	return mShapeRenderFlags;
+}
+
+void LLFloaterPathfindingConsole::regionCrossingOccured()
+{	
+	std::string statusText("");	
+	LLStyle::Params styleParams;	
+	styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
+	statusText = getString("navmesh_update_needed");
+	mPathfindingStatus->setText((LLStringExplicit)statusText, styleParams);
 }
