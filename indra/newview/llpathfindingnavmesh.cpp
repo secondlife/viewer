@@ -32,6 +32,9 @@
 
 #include <string>
 
+#define NAVMESH_VERSION_FIELD "navmesh_version"
+#define NAVMESH_DATA_FIELD    "navmesh_data"
+
 //---------------------------------------------------------------------------
 // LLPathfindingNavMesh
 //---------------------------------------------------------------------------
@@ -98,11 +101,24 @@ void LLPathfindingNavMesh::handleNavMeshStart(U32 pNavMeshVersion)
 
 void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion)
 {
+	if (pContent.has(NAVMESH_VERSION_FIELD))
+	{
+		llassert(pContent.get(NAVMESH_VERSION_FIELD).isInteger());
+		llassert(pContent.get(NAVMESH_VERSION_FIELD).asInteger() >= 0);
+		U32 embeddedNavMeshVersion = static_cast<U32>(pContent.get(NAVMESH_VERSION_FIELD).asInteger());
+		llassert(embeddedNavMeshVersion == pNavMeshVersion); // stinson 03/13/2012 : does this ever occur?
+		if (embeddedNavMeshVersion != pNavMeshVersion)
+		{
+			llwarns << "Mismatch between expected and embedded navmesh versions occurred" << llendl;
+			pNavMeshVersion = embeddedNavMeshVersion;
+		}
+	}
+		
 	if (mNavMeshVersion == pNavMeshVersion)
 	{
-		if ( pContent.has("navmesh_data") )
+		if ( pContent.has(NAVMESH_DATA_FIELD) )
 		{
-			const LLSD::Binary &value = pContent["navmesh_data"].asBinary();
+			const LLSD::Binary &value = pContent.get(NAVMESH_DATA_FIELD).asBinary();
 			unsigned int binSize = value.size();
 			std::string newStr(reinterpret_cast<const char *>(&value[0]), binSize);
 			std::istringstream streamdecomp( newStr );                 
