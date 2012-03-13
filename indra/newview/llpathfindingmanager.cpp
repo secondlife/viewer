@@ -274,11 +274,13 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 		}
 		else
 		{
+			navMeshPtr->handleNavMeshCheckVersion();
 			LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
 			LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
 		}
 #else // DEPRECATED_UNVERSIONED_NAVMESH
 		llassert(!navMeshStatusURL.empty());
+		navMeshPtr->handleNavMeshCheckVersion();
 		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
 		LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
 #endif // DEPRECATED_UNVERSIONED_NAVMESH
@@ -297,7 +299,7 @@ void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMesh
 	{
 		if (navMeshPtr->hasNavMeshVersion(pNavMeshStatus.getVersion()))
 		{
-			navMeshPtr->handleRefresh();
+			navMeshPtr->handleRefresh(pNavMeshStatus.getVersion());
 		}
 		else
 		{

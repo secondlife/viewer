@@ -14,6 +14,7 @@
   <floater.string name="navmesh_status_unknown"></floater.string>
   <floater.string name="navmesh_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>
   <floater.string name="navmesh_status_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="navmesh_status_checking_version">Checking the status of the navmesh ...</floater.string>
   <floater.string name="navmesh_status_downloading">Downloading the navmesh ...</floater.string>
   <floater.string name="navmesh_status_updating">The navmesh has changed on the server. Downloading the latest navmesh ...</floater.string>
   <floater.string name="navmesh_status_has_navmesh">Navmesh received.</floater.string>

@@ -50,6 +50,7 @@ class LLPathfindingNavMesh
 public:
 	typedef enum {
 		kNavMeshRequestUnknown,
+		kNavMeshRequestChecking,
 		kNavMeshRequestNeedsUpdate,
 		kNavMeshRequestStarted,
 		kNavMeshRequestCompleted,
@@ -72,7 +73,8 @@ public:
 
 	bool hasNavMeshVersion(U32 pNavMeshVersion) const;
 
-	void handleRefresh();
+	void handleNavMeshCheckVersion();
+	void handleRefresh(U32 pNavMeshVersion);
 	void handleNavMeshNewVersion(U32 pNavMeshVersion);
 	void handleNavMeshStart(U32 pNavMeshVersion);
 	void handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion);

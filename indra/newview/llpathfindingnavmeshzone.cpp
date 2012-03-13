@@ -140,6 +140,7 @@ void LLPathfindingNavMeshZone::handleNavMeshLocation()
 void LLPathfindingNavMeshZone::updateStatus()
 {
 	bool hasRequestUnknown = false;
+	bool hasRequestChecking = false;
 	bool hasRequestNeedsUpdate = false;
 	bool hasRequestStarted = false;
 	bool hasRequestCompleted = false;
@@ -160,6 +161,9 @@ void LLPathfindingNavMeshZone::updateStatus()
 		{
 		case LLPathfindingNavMesh::kNavMeshRequestUnknown :
 			hasRequestUnknown = true;
+			break;
+		case LLPathfindingNavMesh::kNavMeshRequestChecking :
+			hasRequestChecking = true;
 			break;
 		case LLPathfindingNavMesh::kNavMeshRequestNeedsUpdate :
 			hasRequestNeedsUpdate = true;
@@ -189,6 +193,13 @@ void LLPathfindingNavMeshZone::updateStatus()
 		zoneRequestStatus = kNavMeshZoneRequestNeedsUpdate;
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llinfos << "STINSON DEBUG: Navmesh zone update is NEEDS UPDATE" << llendl;
+#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
+	}
+	else if (hasRequestChecking)
+	{
+		zoneRequestStatus = kNavMeshZoneRequestChecking;
+#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
+		llinfos << "STINSON DEBUG: Navmesh zone update is CHECKING" << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
 	else if (hasRequestStarted)
