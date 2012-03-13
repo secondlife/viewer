@@ -538,7 +538,10 @@ public:
 			
 			}
 
-			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024)));
+			addText(xpos, ypos, llformat("%d MB Index Data (%d MB Pooled, %d KIndices)", LLVertexBuffer::sAllocatedIndexBytes/(1024*1024), LLVBOPool::sIndexBytesPooled/(1024*1024), LLVertexBuffer::sIndexCount/1024));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled, %d KVerts)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024), LLVertexBuffer::sVertexCount/1024));
 			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
