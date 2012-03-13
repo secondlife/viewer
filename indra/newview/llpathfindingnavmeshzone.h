@@ -45,6 +45,7 @@ class LLPathfindingNavMeshZone
 public:
 	typedef enum {
 		kNavMeshZoneRequestUnknown,
+		kNavMeshZoneRequestChecking,
 		kNavMeshZoneRequestNeedsUpdate,
 		kNavMeshZoneRequestStarted,
 		kNavMeshZoneRequestCompleted,

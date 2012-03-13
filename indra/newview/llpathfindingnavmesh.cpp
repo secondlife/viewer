@@ -56,19 +56,38 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingNavMesh::registerNavMeshListen
 
 bool LLPathfindingNavMesh::hasNavMeshVersion(U32 pNavMeshVersion) const
 {
-	return (((mNavMeshRequestStatus == kNavMeshRequestStarted) || (mNavMeshRequestStatus == kNavMeshRequestCompleted)) && (mNavMeshVersion == pNavMeshVersion));
+	return ((mNavMeshVersion == pNavMeshVersion) && 
+		((mNavMeshRequestStatus == kNavMeshRequestStarted) || (mNavMeshRequestStatus == kNavMeshRequestCompleted) ||
+		((mNavMeshRequestStatus == kNavMeshRequestChecking) && !mNavMeshData.empty())));
 }
 
-void LLPathfindingNavMesh::handleRefresh()
+void LLPathfindingNavMesh::handleRefresh(U32 pNavMeshVersion)
 {
-	mNavMeshSignal(mNavMeshRequestStatus, mRegionUUID, mNavMeshVersion, mNavMeshData);
+	llassert(pNavMeshVersion == mNavMeshVersion);
+	if (mNavMeshRequestStatus == kNavMeshRequestChecking)
+	{
+		llassert(!mNavMeshData.empty());
+		setRequestStatus(kNavMeshRequestCompleted);
+	}
+	else
+	{
+		mNavMeshSignal(mNavMeshRequestStatus, mRegionUUID, mNavMeshVersion, mNavMeshData);
+	}
+}
+
+void LLPathfindingNavMesh::handleNavMeshCheckVersion()
+{
+	setRequestStatus(kNavMeshRequestChecking);
 }
 
 void LLPathfindingNavMesh::handleNavMeshNewVersion(U32 pNavMeshVersion)
 {
-	mNavMeshData.clear();
-	mNavMeshVersion = pNavMeshVersion;
-	setRequestStatus(kNavMeshRequestNeedsUpdate);
+	if (mNavMeshVersion != pNavMeshVersion)
+	{
+		mNavMeshData.clear();
+		mNavMeshVersion = pNavMeshVersion;
+		setRequestStatus(kNavMeshRequestNeedsUpdate);
+	}
 }
 
 void LLPathfindingNavMesh::handleNavMeshStart(U32 pNavMeshVersion)
@@ -121,13 +140,18 @@ void LLPathfindingNavMesh::handleNavMeshNotEnabled()
 	setRequestStatus(kNavMeshRequestNotEnabled);
 }
 
+void LLPathfindingNavMesh::handleNavMeshError()
+{
+	mNavMeshData.clear();
+	setRequestStatus(kNavMeshRequestError);
+}
+
 void LLPathfindingNavMesh::handleNavMeshError(U32 pStatus, const std::string &pReason, const std::string &pURL, U32 pNavMeshVersion)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 	if (mNavMeshVersion == pNavMeshVersion)
 	{
-		mNavMeshData.clear();
-		setRequestStatus(kNavMeshRequestError);
+		handleNavMeshError();
 	}
 }
 

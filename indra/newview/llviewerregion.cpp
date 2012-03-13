@@ -1522,6 +1522,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("MapLayer");
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("MeshUploadFlag");	
+	capabilityNames.append("NavMeshGenerationStatus");
 	capabilityNames.append("NavMeshUpload");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ObjectNavMeshProperties");

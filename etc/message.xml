@@ -547,7 +547,7 @@
 					<boolean>true</boolean>
 				</map>
 
-        <key>NavmeshStatusUpdate</key>
+        <key>NavMeshStatusUpdate</key>
         <map>
           <key>flavor</key>
           <string>llsd</string>

@@ -625,6 +625,9 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestUnknown :
 		setConsoleState(kConsoleStateUnknown);
 		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestChecking :
+		setConsoleState(kConsoleStateCheckingVersion);
+		break;
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestNeedsUpdate :
 		mIsNavMeshUpdating = true;
 		mNavMeshZone.refresh();
@@ -684,6 +687,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mHasStartPoint = false;
 		mHasEndPoint = false;
 		break;
+	case kConsoleStateCheckingVersion :
 	case kConsoleStateDownloading :
 	case kConsoleStateError :
 		mShowNavMeshCheckBox->setEnabled(FALSE);
@@ -742,6 +746,9 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 	case kConsoleStateRegionNotEnabled :
 		statusText = getString("navmesh_status_region_not_enabled");
 		styleParams.color = warningColor;
+		break;
+	case kConsoleStateCheckingVersion :
+		statusText = getString("navmesh_status_checking_version");
 		break;
 	case kConsoleStateDownloading :
 		if (mIsNavMeshUpdating)
