@@ -55,7 +55,8 @@ class LLVBOPool
 {
 public:
 	static U32 sBytesPooled;
-	
+	static U32 sIndexBytesPooled;
+
 	LLVBOPool(U32 vboUsage, U32 vboType)
 		: mUsage(vboUsage)
 		, mType(vboType)
@@ -332,6 +333,9 @@ public:
 	static bool sIBOActive;
 	static U32 sLastMask;
 	static U32 sAllocatedBytes;
+	static U32 sAllocatedIndexBytes;
+	static U32 sVertexCount;
+	static U32 sIndexCount;
 	static U32 sBindCount;
 	static U32 sSetCount;
 };
