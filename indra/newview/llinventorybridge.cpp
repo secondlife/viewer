@@ -434,6 +434,7 @@ void LLInvFVBridge::removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*
 
 BOOL LLInvFVBridge::isClipboardPasteable() const
 {
+	// Return FALSE on degenerated cases: empty clipboard, no inventory, no agent
 	if (!LLClipboard::instance().hasContents() || !isAgentInventory())
 	{
 		return FALSE;
@@ -444,6 +445,13 @@ BOOL LLInvFVBridge::isClipboardPasteable() const
 		return FALSE;
 	}
 
+	// In cut mode, whatever is on the clipboard is always pastable
+	if (LLClipboard::instance().isCutMode())
+	{
+		return TRUE;
+	}
+
+	// In normal mode, we need to check each element of the clipboard to know if we can paste or not
 	LLDynamicArray<LLUUID> objects;
 	LLClipboard::instance().pasteFromClipboard(objects);
 	S32 count = objects.count();
@@ -658,7 +666,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	{
 		items.push_back(std::string("Paste"));
 	}
-	if ((!LLClipboard::instance().isCutMode() && !isClipboardPasteable()) || ((flags & FIRST_SELECTED_ITEM) == 0))
+	if (!isClipboardPasteable() || ((flags & FIRST_SELECTED_ITEM) == 0))
 	{
 		disabled_items.push_back(std::string("Paste"));
 	}
@@ -2926,7 +2934,7 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 void LLFolderBridge::pasteFromClipboard()
 {
 	LLInventoryModel* model = getInventoryModel();
-	if (model && (isClipboardPasteable() || LLClipboard::instance().isCutMode()))
+	if (model && isClipboardPasteable())
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
