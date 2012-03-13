@@ -438,6 +438,10 @@ public:
 
 	bool isVoiceCall(const LLUUID& session_id);
 
+	void addNotifiedNonFriendSessionID(const LLUUID& session_id);
+
+	bool isNonFriendSessionNotified(const LLUUID& session_id);
+
 private:
 
 	/**
@@ -464,6 +468,14 @@ private:
 	
 	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
 	session_observers_list_t mSessionObservers;
+
+	// EXP-901
+	// If "Only friends and groups can IM me" option is ON but the user got message from non-friend,
+	// the user should be notified that to be able to see this message the option should be OFF.
+	// This set stores session IDs in which user was notified. Need to store this IDs so that the user
+	// be notified only one time per session with non-friend.
+	typedef std::set<LLUUID> notified_non_friend_sessions_t;
+	notified_non_friend_sessions_t mNotifiedNonFriendSessions;
 
 	LLSD mPendingInvitations;
 	LLSD mPendingAgentListUpdates;

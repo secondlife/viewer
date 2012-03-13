@@ -818,7 +818,7 @@ bool LLPanelPrimMediaControls::isMouseOver()
 		LLCoordGL cursor_pos_gl;
 		S32 x, y;
 		getWindow()->getCursorPosition(&cursor_pos_window);
-		getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+		cursor_pos_gl = cursor_pos_window.convert();
 				
 		if(mMediaControlsStack->getVisible())
 		{

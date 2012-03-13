@@ -232,7 +232,7 @@ BOOL LLScrollListText::getVisible() const
 //virtual 
 S32 LLScrollListText::getHeight() const
 {
-	return llround(mFont->getLineHeight());
+	return mFont->getLineHeight();
 }
 
 
@@ -306,7 +306,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 			break;
 		}
 		LLRect highlight_rect(left - 2, 
-				llround(mFont->getLineHeight()) + 1, 
+				mFont->getLineHeight() + 1, 
 				left + mFont->getWidth(mText.getString(), mHighlightOffset, mHighlightCount) + 1, 
 				1);
 		mRoundedRectImage->draw(highlight_rect, highlight_color);
@@ -329,7 +329,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 		break;
 	}
 	mFont->render(mText.getWString(), 0, 
-					start_x, 2.f,
+					start_x, 0.f,
 					display_color,
 					mFontAlignment,
 					LLFontGL::BOTTOM, 

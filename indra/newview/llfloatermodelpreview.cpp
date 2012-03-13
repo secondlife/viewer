@@ -4525,7 +4525,17 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	if (mFMP->childGetValue("physics_lod_combo").asString() == "From file")
+	
+	LLCtrlSelectionInterface* iface = fmp->childGetSelectionInterface("physics_lod_combo");
+	S32 which_mode = 0; 
+	S32 file_mode = 1;
+	if (iface)
+	{
+		which_mode = iface->getFirstSelectedIndex();
+		file_mode = iface->getItemCount() - 1;
+	}
+
+	if (which_mode == file_mode)
 	{
 		mFMP->childEnable("physics_file");
 		mFMP->childEnable("physics_browse");

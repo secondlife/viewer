@@ -27,9 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerwindow.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
 
 // system library includes
 #include <stdio.h>
@@ -49,7 +46,6 @@
 #include "llviewquery.h"
 #include "llxmltree.h"
 #include "llslurl.h"
-//#include "llviewercamera.h"
 #include "llrender.h"
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
@@ -616,7 +612,7 @@ public:
 				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
 					LLMeshRepository::sHTTPRetryCount));
 				ypos += y_inc;
-
+				
 				addText(xpos, ypos, llformat("%d/%d Mesh LOD Pending/Processing", LLMeshRepository::sLODPending, LLMeshRepository::sLODProcessing));
 				ypos += y_inc;
 
@@ -1556,14 +1552,14 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
+	mProgressView(NULL)
+{
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
 	// will, when we later need it, return the value of gKeyboard.
 	// boost::lambda::var() constructs such a functor on the fly.
-	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
-	mViewerWindowListener(new LLViewerWindowListener(this)),
-	mProgressView(NULL)
-{
+	mWindowListener.reset(new LLWindowListener(this, boost::lambda::var(gKeyboard)));
+	mViewerWindowListener.reset(new LLViewerWindowListener(this));
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
 
@@ -1989,12 +1985,12 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	llinfos << "Global views cleaned." << llendl ;
-	
+
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
 	llinfos << "LLModalDialog shut down." << llendl; 
-
+	
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	if (LLNavigationBar::instanceExists())
@@ -2002,17 +1998,17 @@ void LLViewerWindow::shutdownViews()
 		delete LLNavigationBar::getInstance();
 	}
 	llinfos << "LLNavigationBar destroyed." << llendl ;
-	
+
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
 	llinfos << "menus destroyed." << llendl ;
-	
+
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
-	
+
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
@@ -2391,7 +2387,7 @@ void LLViewerWindow::draw()
 
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
-			LLUI::translate( (F32) screen_x, (F32) screen_y, 0.f);
+			LLUI::translate( (F32) screen_x, (F32) screen_y);
 			top_ctrl->draw();	
 			LLUI::popMatrix();
 		}
@@ -3197,12 +3193,6 @@ void LLViewerWindow::updateLayout()
 			gFloaterTools->setVisible(FALSE);
 		}
 		//gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
-	}
-
-	LLFloaterBuildOptions* build_options_floater = LLFloaterReg::findTypedInstance<LLFloaterBuildOptions>("build_options");
-	if (build_options_floater && build_options_floater->getVisible())
-	{
-		build_options_floater->updateGridMode();
 	}
 
 	// Always update console
@@ -4122,14 +4112,11 @@ void LLViewerWindow::resetSnapshotLoc()
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
 	LLCoordWindow size;
+	LLCoordWindow new_size(new_width, new_height);
 	gViewerWindow->getWindow()->getSize(&size);
-	if ( size.mX != new_width
-		|| size.mY != new_height)
+	if ( size != new_size )
 	{
-		LLCoordWindow new_size(new_width, new_height);
-		LLCoordScreen screen_size;
-		gViewerWindow->getWindow()->convertCoords(new_size, &screen_size);
-		gViewerWindow->getWindow()->setSize(screen_size);
+		gViewerWindow->getWindow()->setSize(new_size.convert());
 	}
 }
 

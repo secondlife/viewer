@@ -49,18 +49,18 @@ uniform vec4 sunlight_color;
 uniform vec4 ambient;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
-uniform vec4 haze_horizon;
-uniform vec4 haze_density;
+uniform float haze_horizon;
+uniform float haze_density;
 
-uniform vec4 cloud_shadow;
-uniform vec4 density_multiplier;
-uniform vec4 max_y;
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float max_y;
 
 uniform vec4 glow;
 
 uniform vec4 cloud_color;
 
-uniform vec4 cloud_scale;
+uniform float cloud_scale;
 
 void main()
 {
@@ -76,7 +76,7 @@ void main()
 	// Set altitude
 	if (P.y > 0.)
 	{
-		P *= (max_y.x / P.y);
+		P *= (max_y / P.y);
 	}
 	else
 	{
@@ -98,12 +98,12 @@ void main()
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density * 1.0 + haze_density.x * 0.25) * (density_multiplier.x * max_y.x);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 
 	// Calculate relative weights
-	temp1 = blue_density + haze_density.x;
+	temp1 = blue_density + haze_density;
 	blue_weight = blue_density / temp1;
-	haze_weight = haze_density.x / temp1;
+	haze_weight = haze_density / temp1;
 
 	// Compute sunlight from P & lightnorm (for long rays like sky)
 	temp2.y = max(0., max(0., Pn.y) * 1.0 + lightnorm.y );
@@ -111,7 +111,7 @@ void main()
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// Distance
-	temp2.z = Plen * density_multiplier.x;
+	temp2.z = Plen * density_multiplier;
 
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
@@ -135,14 +135,14 @@ void main()
 
 	// Increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient;
-	tmpAmbient += (1. - tmpAmbient) * cloud_shadow.x * 0.5; 
+	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
 	// Dim sunlight by cloud shadow percentage
-	sunlight *= (1. - cloud_shadow.x);
+	sunlight *= (1. - cloud_shadow);
 
 	// Haze color below cloud
 	vec4 additiveColorBelowCloud = (	  blue_horizon * blue_weight * (sunlight + tmpAmbient)
-				+ (haze_horizon.r * haze_weight) * (sunlight * temp2.x + tmpAmbient)
+				+ (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
 			 );	
 
 	// CLOUDS
@@ -163,13 +163,13 @@ void main()
 	vec4 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - temp1);
 
 	// Make a nice cloud density based on the cloud_shadow value that was passed in.
-	vary_CloudDensity = 2. * (cloud_shadow.x - 0.25);
+	vary_CloudDensity = 2. * (cloud_shadow - 0.25);
 
 
 	// Texture coords
 	vary_texcoord0 = texcoord0;
 	vary_texcoord0.xy -= 0.5;
-	vary_texcoord0.xy /= cloud_scale.x;
+	vary_texcoord0.xy /= cloud_scale;
 	vary_texcoord0.xy += 0.5;
 
 	vary_texcoord1 = vary_texcoord0;

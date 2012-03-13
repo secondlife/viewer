@@ -25,7 +25,7 @@
      layout="topleft"
      left_pad="5"
      name="message"
-     text_color="white"
+     text_color="White"
      top="15"
      use_ellipses="true"
      value=""

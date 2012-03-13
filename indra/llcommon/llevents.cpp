@@ -430,13 +430,13 @@ LLBoundListener LLEventPump::listen_impl(const std::string& name, const LLEventL
     {
         // The new node isn't last. Place it between the previous node and
         // the successor.
-        newNode = (myprev + mydmi->second)/2.0;
+        newNode = (myprev + mydmi->second)/2.f;
     }
     else
     {
         // The new node is last. Bump myprev up to the next integer, add
         // 1.0 and use that.
-        newNode = std::ceil(myprev) + 1.0;
+        newNode = std::ceil(myprev) + 1.f;
     }
     // Now that newNode has a value that places it appropriately in mSignal,
     // connect it.

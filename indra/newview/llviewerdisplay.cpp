@@ -263,6 +263,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	gPipeline.disableLights();
 	
+	//reset vertex buffers if needed
+	gPipeline.doResetVertexBuffers();
+
 	stop_glerror();
 
 	// Don't draw if the window is hidden or minimized.

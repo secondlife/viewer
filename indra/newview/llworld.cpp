@@ -1170,24 +1170,13 @@ void send_agent_resume()
 
 static LLVector3d unpackLocalToGlobalPosition(U32 compact_local, const LLVector3d& region_origin)
 {
-	LLVector3d pos_global;
-	LLVector3 pos_local;
-	U8 bits;
+	LLVector3d pos_local;
 
-	bits = compact_local & 0xFF;
-	pos_local.mV[VZ] = F32(bits) * 4.f;
-	compact_local >>= 8;
+	pos_local.mdV[VZ] = (compact_local & 0xFFU) * 4;
+	pos_local.mdV[VY] = (compact_local >> 8) & 0xFFU;
+	pos_local.mdV[VX] = (compact_local >> 16) & 0xFFU;
 
-	bits = compact_local & 0xFF;
-	pos_local.mV[VY] = (F32)bits;
-	compact_local >>= 8;
-
-	bits = compact_local & 0xFF;
-	pos_local.mV[VX] = (F32)bits;
-
-	pos_global.setVec( pos_local );
-	pos_global += region_origin;
-	return pos_global;
+	return region_origin + pos_local;
 }
 
 void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positions, const LLVector3d& relative_to, F32 radius) const
@@ -1208,23 +1197,20 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 		iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
-		if(!pVOAvatar->isDead() && !pVOAvatar->isSelf())
+		LLVector3d pos_global = pVOAvatar->getPositionGlobal();
+		LLUUID uuid = pVOAvatar->getID();
+		if( !pVOAvatar->isDead()
+			&& !pVOAvatar->isSelf()
+			&& !uuid.isNull() &&
+			dist_vec_squared(pos_global, relative_to) <= radius_squared)
 		{
-			LLUUID uuid = pVOAvatar->getID();
-			if(!uuid.isNull())
+			if(positions != NULL)
 			{
-				LLVector3d pos_global = pVOAvatar->getPositionGlobal();
-				if(dist_vec_squared(pos_global, relative_to) <= radius_squared)
-				{
-					if(positions != NULL)
-					{
-						positions->push_back(pos_global);
-					}
-					if(avatar_ids !=NULL)
-					{
-						avatar_ids->push_back(uuid);
-					}
-				}
+				positions->push_back(pos_global);
+			}
+			if(avatar_ids !=NULL)
+			{
+				avatar_ids->push_back(uuid);
 			}
 		}
 	}
@@ -1242,9 +1228,9 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 			{
 				LLUUID uuid = regionp->mMapAvatarIDs.get(i);
 				// if this avatar doesn't already exist in the list, add it
-				if(uuid.notNull() && avatar_ids!=NULL && std::find(avatar_ids->begin(), avatar_ids->end(), uuid) == avatar_ids->end())
+				if(uuid.notNull() && avatar_ids != NULL && std::find(avatar_ids->begin(), avatar_ids->end(), uuid) == avatar_ids->end())
 				{
-					if(positions != NULL)
+					if (positions != NULL)
 					{
 						positions->push_back(pos_global);
 					}

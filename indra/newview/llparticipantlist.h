@@ -72,9 +72,9 @@ public:
 	const EParticipantSortOrder getSortOrder() const;
 
 	/**
-	 * Refreshes the participant list if it's in sort by recent speaker order.
+	 * Refreshes the participant list.
 	 */
-	void updateRecentSpeakersOrder();
+	void update();
 
 	/**
 	 * Set a callback to be called before adding a speaker. Invalid speakers will not be added.

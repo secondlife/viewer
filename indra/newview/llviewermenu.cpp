@@ -7338,12 +7338,6 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
-
-		LLFloaterBuildOptions* build_options_floater = LLFloaterReg::getTypedInstance<LLFloaterBuildOptions>("build_options");
-		if (build_options_floater && build_options_floater->getVisible())
-		{
-			build_options_floater->setGridMode(GRID_MODE_REF_OBJECT);
-		}
 		return true;
 	}
 };

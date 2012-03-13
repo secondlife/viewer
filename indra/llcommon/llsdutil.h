@@ -308,7 +308,7 @@ class LLSDParam<T>                              \
 {                                               \
 public:                                         \
     LLSDParam(const LLSD& value):               \
-        _value(value.AS())                      \
+        _value((T)value.AS())                      \
     {}                                          \
                                                 \
     operator T() const { return _value; }       \
