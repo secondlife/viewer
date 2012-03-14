@@ -143,6 +143,19 @@
       <string>InBandwidth</string>
     </map>
 
+    <key>leap</key>
+    <map>
+      <key>desc</key>
+      <string>command line to run an LLSD Event API Plugin</string>
+      <key>count</key>
+      <integer>1</integer>
+      <!-- you can specify multiple such plugins -->
+      <key>compose</key>
+      <boolean>true</boolean>
+      <key>map-to</key>
+      <string>LeapCommand</string>
+    </map>
+
     <key>logfile</key>
     <map>
       <key>count</key>
