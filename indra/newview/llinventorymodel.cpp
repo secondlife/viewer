@@ -1116,7 +1116,8 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
 		{
 			// Something on the clipboard is in "cut mode" and needs to be preserved
-			llinfos << "Merov debug : purging through iteration" << llendl;
+			llinfos << "LLInventoryModel::purgeDescendentsOf " << cat->getName()
+			<< " iterate and purge non hidden items" << llendl;
 			cat_array_t* categories;
 			item_array_t* items;
 			// Get the list of direct descendants in tha categoy passed as argument

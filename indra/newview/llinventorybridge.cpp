@@ -143,19 +143,40 @@ bool isMarketplaceSendAction(const std::string& action)
 	return ("send_to_marketplace" == action);
 }
 
-//Used by LLFolderBridge as callback for directory recursion.
+// Used by LLFolderBridge as callback for directory fetching recursion
 class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
 {
 public:
-	LLRightClickInventoryFetchDescendentsObserver(const uuid_vec_t& ids,
-												  bool copy_items) : 
-	LLInventoryFetchDescendentsObserver(ids),
-	mCopyItems(copy_items) 
-	{}
+	LLRightClickInventoryFetchDescendentsObserver(const uuid_vec_t& ids) : LLInventoryFetchDescendentsObserver(ids) {}
 	~LLRightClickInventoryFetchDescendentsObserver() {}
-	virtual void done();
-protected:
-	bool mCopyItems;
+	virtual void execute(bool clear_observer = false);
+	virtual void done()
+	{
+		execute(true);
+	}
+};
+
+// Used by LLFolderBridge as callback for directory content items fetching
+class LLRightClickInventoryFetchObserver : public LLInventoryFetchItemsObserver
+{
+public:
+	LLRightClickInventoryFetchObserver(const uuid_vec_t& ids) : LLInventoryFetchItemsObserver(ids) { };
+	~LLRightClickInventoryFetchObserver() {}
+	void execute(bool clear_observer = false)
+	{
+		if (clear_observer)
+		{
+			dec_busy_count();
+			gInventory.removeObserver(this);
+			delete this;
+		}
+		// we've downloaded all the items, so repaint the dialog
+		LLFolderBridge::staticFolderOptionsMenu();
+	}
+	virtual void done()
+	{
+		execute(true);
+	}
 };
 
 // +=================================================+
@@ -2499,106 +2520,114 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	return accept;
 }
 
-//Used by LLFolderBridge as callback for directory recursion.
-class LLRightClickInventoryFetchObserver : public LLInventoryFetchItemsObserver
+void LLRightClickInventoryFetchDescendentsObserver::execute(bool clear_observer)
 {
-public:
-	LLRightClickInventoryFetchObserver(const uuid_vec_t& ids) :
-		LLInventoryFetchItemsObserver(ids),
-		mCopyItems(false)
-	{ };
-	LLRightClickInventoryFetchObserver(const uuid_vec_t& ids,
-									   const LLUUID& cat_id, 
-									   bool copy_items) :
-		LLInventoryFetchItemsObserver(ids),
-		mCatID(cat_id),
-		mCopyItems(copy_items)
-	{ };
-	virtual void done()
-	{
-		// we've downloaded all the items, so repaint the dialog
-		LLFolderBridge::staticFolderOptionsMenu();
-
-		gInventory.removeObserver(this);
-		delete this;
-	}
-
-protected:
-	LLUUID mCatID;
-	bool mCopyItems;
-
-};
-
-void LLRightClickInventoryFetchDescendentsObserver::done()
-{
-	// Avoid passing a NULL-ref as mCompleteFolders.front() down to
-	// gInventory.collectDescendents()
+	// Bail out immediately if no descendents
 	if( mComplete.empty() )
 	{
 		llwarns << "LLRightClickInventoryFetchDescendentsObserver::done with empty mCompleteFolders" << llendl;
+		if (clear_observer)
+		{
+			dec_busy_count();
+			gInventory.removeObserver(this);
+			delete this;
+		}
+		return;
+	}
+	
+	// Copy the list of complete fetched folders while "this" is still valid
+	uuid_vec_t completed_folder = mComplete;
+	
+	// Clean up, and remove this as an observer now since recursive calls
+	// could notify observers and throw us into an infinite loop.
+	if (clear_observer)
+	{
 		dec_busy_count();
 		gInventory.removeObserver(this);
 		delete this;
-		return;
 	}
-
-	// What we do here is get the complete information on the items in
-	// the library, and set up an observer that will wait for that to
-	// happen.
-	LLInventoryModel::cat_array_t cat_array;
-	LLInventoryModel::item_array_t item_array;
-	gInventory.collectDescendents(mComplete.front(),
-								  cat_array,
-								  item_array,
-								  LLInventoryModel::EXCLUDE_TRASH);
-	S32 count = item_array.count();
-#if 0 // HACK/TODO: Why?
-	// This early causes a giant menu to get produced, and doesn't seem to be needed.
-	if(!count)
+	
+	for (uuid_vec_t::iterator current_folder = completed_folder.begin(); current_folder != completed_folder.end(); ++current_folder)
 	{
-		llwarns << "Nothing fetched in category " << mCompleteFolders.front()
-				<< llendl;
-		dec_busy_count();
-		gInventory.removeObserver(this);
-		delete this;
-		return;
+		// Get the information on the fetched folder items and subfolders and fetch those 
+		LLInventoryModel::cat_array_t* cat_array;
+		LLInventoryModel::item_array_t* item_array;
+		gInventory.getDirectDescendentsOf(*current_folder, cat_array, item_array);
+
+		S32 item_count = item_array->count();
+		S32 cat_count = cat_array->count();
+	
+		// Move to next if current folder empty
+		if ((item_count == 0) && (cat_count == 0))
+		{
+			continue;
+		}
+
+		uuid_vec_t ids;
+		LLRightClickInventoryFetchObserver* outfit = NULL;
+		LLRightClickInventoryFetchDescendentsObserver* categories = NULL;
+
+		// Fetch the items
+		if (item_count)
+		{
+			for (S32 i = 0; i < item_count; ++i)
+			{
+				ids.push_back(item_array->get(i)->getUUID());
+			}
+			outfit = new LLRightClickInventoryFetchObserver(ids);
+		}
+		// Fetch the subfolders
+		if (cat_count)
+		{
+			for (S32 i = 0; i < cat_count; ++i)
+			{
+				ids.push_back(cat_array->get(i)->getUUID());
+			}
+			categories = new LLRightClickInventoryFetchDescendentsObserver(ids);
+		}
+
+		// Perform the item fetch
+		if (outfit)
+		{
+			outfit->startFetch();
+			outfit->execute();				// Not interested in waiting and this will be right 99% of the time.
+			delete outfit;
+			// Uncomment the following code for laggy Inventory UI.
+			/*
+			 if (outfit->isFinished())
+			 {
+				// everything is already here - call done.
+				outfit->execute();
+				delete outfit;
+			 }
+			 else
+			 {
+				// it's all on its way - add an observer, and the inventory
+				// will call done for us when everything is here.
+				inc_busy_count();
+				gInventory.addObserver(outfit);
+			}
+			*/
+		}
+		// Perform the subfolders fetch : this is where we truly recurse down the folder hierarchy
+		if (categories)
+		{
+			categories->startFetch();
+			if (categories->isFinished())
+			{
+				// everything is already here - call done.
+				categories->execute();
+				delete categories;
+			}
+			else
+			{
+				// it's all on its way - add an observer, and the inventory
+				// will call done for us when everything is here.
+				inc_busy_count();
+				gInventory.addObserver(categories);
+			}
+		}
 	}
-#endif
-
-	uuid_vec_t ids;
-	for(S32 i = 0; i < count; ++i)
-	{
-		ids.push_back(item_array.get(i)->getUUID());
-	}
-
-	LLRightClickInventoryFetchObserver* outfit = new LLRightClickInventoryFetchObserver(ids, mComplete.front(), mCopyItems);
-
-	// clean up, and remove this as an observer since the call to the
-	// outfit could notify observers and throw us into an infinite
-	// loop.
-	dec_busy_count();
-	gInventory.removeObserver(this);
-	delete this;
-
-	// increment busy count and either tell the inventory to check &
-	// call done, or add this object to the inventory for observation.
-	inc_busy_count();
-
-	// do the fetch
-	outfit->startFetch();
-	outfit->done();				//Not interested in waiting and this will be right 99% of the time.
-//Uncomment the following code for laggy Inventory UI.
-/*	if(outfit->isFinished())
-	{
-	// everything is already here - call done.
-	outfit->done();
-	}
-	else
-	{
-	// it's all on it's way - add an observer, and the inventory
-	// will call done for us when everything is here.
-	gInventory.addObserver(outfit);
-	}*/
 }
 
 
@@ -3375,17 +3404,19 @@ void LLFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		folders.push_back(category->getUUID());
 
 		sSelf = getHandle();
-		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders, FALSE);
+		LLRightClickInventoryFetchDescendentsObserver* fetch = new LLRightClickInventoryFetchDescendentsObserver(folders);
 		fetch->startFetch();
-		inc_busy_count();
 		if (fetch->isFinished())
 		{
+			// Do not call execute() or done() here as if the folder is here, there's likely no point drilling down 
+			// This saves lots of time as buildContextMenu() is called a lot
 			delete fetch;
 			buildContextMenuFolderOptions(flags);
 		}
 		else
 		{
 			// it's all on its way - add an observer, and the inventory will call done for us when everything is here.
+			inc_busy_count();
 			gInventory.addObserver(fetch);
 		}
 	}
