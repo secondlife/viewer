@@ -47,7 +47,8 @@ public:
 	void renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt );
 	//Draw a star
 	void renderStar( const LLVector3& center, const float scale, int color ) const;
-
+	//Flush the device
+	void flushDevice() { gGL.flush(); }
 private:
 };
 
