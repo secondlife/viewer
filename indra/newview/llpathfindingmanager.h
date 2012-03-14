@@ -77,6 +77,9 @@ public:
 
 	bool isPathfindingEnabledForCurrentRegion() const;
 	bool isPathfindingEnabledForRegion(LLViewerRegion *pRegion) const;
+#ifdef DEPRECATED_UNVERSIONED_NAVMESH
+	bool isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX() const;
+#endif // DEPRECATED_UNVERSIONED_NAVMESH
 
 	bool isAllowAlterPermanent();
 	bool isAllowViewTerrainProperties() const;
@@ -98,7 +101,7 @@ public:
 protected:
 
 private:
-	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, U32 pNavMeshVersion);
+	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);

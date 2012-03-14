@@ -41,7 +41,6 @@
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
 #include "llhttpnode.h"
-//#include "llpathfindingnavmeshzone.h" // XXX
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -254,6 +253,14 @@ bool LLPathfindingManager::isPathfindingEnabledForRegion(LLViewerRegion *pRegion
 	return !retrieveNavMeshURL.empty();
 }
 
+#ifdef DEPRECATED_UNVERSIONED_NAVMESH
+bool LLPathfindingManager::isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX() const
+{
+	std::string navMeshStatusURL = getNavMeshStatusURLForRegion(getCurrentRegion());
+	return !navMeshStatusURL.empty();
+}
+#endif // DEPRECATED_UNVERSIONED_NAVMESH
+
 bool LLPathfindingManager::isAllowAlterPermanent()
 {
 	return (!isPathfindingEnabledForCurrentRegion() || (getAgentState() == kAgentStateUnfrozen));
@@ -285,7 +292,9 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 #ifdef DEPRECATED_UNVERSIONED_NAVMESH
 		if (navMeshStatusURL.empty())
 		{
-			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, navMeshPtr->getNavMeshVersion() + 1U);
+			LLPathfindingNavMeshStatus navMeshStatus = navMeshPtr->getNavMeshStatusXXX();
+			navMeshStatus.incrementNavMeshVersionXXX();
+			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, navMeshStatus);
 		}
 		else
 		{
@@ -312,13 +321,13 @@ void LLPathfindingManager::handleNavMeshStatusRequest(const LLPathfindingNavMesh
 	}
 	else
 	{
-		if (navMeshPtr->hasNavMeshVersion(pNavMeshStatus.getVersion()))
+		if (navMeshPtr->hasNavMeshVersion(pNavMeshStatus))
 		{
-			navMeshPtr->handleRefresh(pNavMeshStatus.getVersion());
+			navMeshPtr->handleRefresh(pNavMeshStatus);
 		}
 		else
 		{
-			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, pNavMeshStatus.getVersion());
+			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, pNavMeshStatus);
 		}
 	}
 }
@@ -333,7 +342,7 @@ void LLPathfindingManager::handleNavMeshStatusUpdate(const LLPathfindingNavMeshS
 	}
 	else
 	{
-		navMeshPtr->handleNavMeshNewVersion(pNavMeshStatus.getVersion());
+		navMeshPtr->handleNavMeshNewVersion(pNavMeshStatus);
 	}
 }
 
@@ -462,7 +471,7 @@ LLPathfindingManager::ELinksetsRequestStatus LLPathfindingManager::requestSetLin
 	return status;
 }
 
-void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, U32 pNavMeshVersion)
+void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus)
 {
 	if ((pRegion == NULL) || !pRegion->isAlive())
 	{
@@ -478,8 +487,8 @@ void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPt
 		}
 		else
 		{
-			navMeshPtr->handleNavMeshStart(pNavMeshVersion);
-			LLHTTPClient::ResponderPtr responder = new NavMeshResponder(navMeshURL, pNavMeshVersion, navMeshPtr);
+			navMeshPtr->handleNavMeshStart(pNavMeshStatus);
+			LLHTTPClient::ResponderPtr responder = new NavMeshResponder(navMeshURL, pNavMeshStatus.getVersion(), navMeshPtr);
 
 			LLSD postData;
 			LLHTTPClient::post(navMeshURL, postData, responder);

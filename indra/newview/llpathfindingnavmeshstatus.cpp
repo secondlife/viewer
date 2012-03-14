@@ -48,6 +48,14 @@ const std::string LLPathfindingNavMeshStatus::sStatusRepending("repending");
 // LLPathfindingNavMeshStatus
 //---------------------------------------------------------------------------
 
+LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus()
+	: mIsValid(false),
+	mRegionUUID(),
+	mVersion(0U),
+	mStatus(kComplete)
+{
+}
+
 LLPathfindingNavMeshStatus::LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID)
 	: mIsValid(false),
 	mRegionUUID(pRegionUUID),
@@ -127,19 +135,19 @@ void LLPathfindingNavMeshStatus::parseStatus(const LLSD &pContent)
 	std::string status = pContent.get(STATUS_FIELD).asString();
 #endif // DEPRECATED_STATE_FIELD
 
-	if (LLStringUtil::compareStrings(status, sStatusPending))
+	if (LLStringUtil::compareStrings(status, sStatusPending) == 0)
 	{
 		mStatus = kPending;
 	}
-	else if (LLStringUtil::compareStrings(status, sStatusBuilding))
+	else if (LLStringUtil::compareStrings(status, sStatusBuilding) == 0)
 	{
 		mStatus = kBuilding;
 	}
-	else if (LLStringUtil::compareStrings(status, sStatusComplete))
+	else if (LLStringUtil::compareStrings(status, sStatusComplete) == 0)
 	{
 		mStatus = kComplete;
 	}
-	else if (LLStringUtil::compareStrings(status, sStatusRepending))
+	else if (LLStringUtil::compareStrings(status, sStatusRepending) == 0)
 	{
 		mStatus = kRepending;
 	}

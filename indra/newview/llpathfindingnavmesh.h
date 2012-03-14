@@ -29,7 +29,6 @@
 #define LL_LLPATHFINDINGNAVMESH_H
 
 #include "llsd.h"
-#include "lluuid.h"
 
 #include <string>
 
@@ -37,13 +36,12 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 
-class LLSD;
+#include "llpathfindingnavmeshstatus.h"
+
+class LLUUID;
 class LLPathfindingNavMesh;
 
 typedef boost::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
-
-// XXX stinson 03/12/2012 : This definition is in place to support an older version of the pathfinding simulator that does not have versioned information
-#define DEPRECATED_UNVERSIONED_NAVMESH
 
 class LLPathfindingNavMesh
 {
@@ -58,9 +56,9 @@ public:
 		kNavMeshRequestError
 	} ENavMeshRequestStatus;
 
-	typedef boost::function<void (ENavMeshRequestStatus, const LLUUID &, U32, const LLSD::Binary &)>         navmesh_callback_t;
-	typedef boost::signals2::signal<void (ENavMeshRequestStatus, const LLUUID &, U32, const LLSD::Binary &)> navmesh_signal_t;
-	typedef boost::signals2::connection                                                                      navmesh_slot_t;
+	typedef boost::function<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)>         navmesh_callback_t;
+	typedef boost::signals2::signal<void (ENavMeshRequestStatus, const LLPathfindingNavMeshStatus &, const LLSD::Binary &)> navmesh_signal_t;
+	typedef boost::signals2::connection                                                                                     navmesh_slot_t;
 
 	LLPathfindingNavMesh(const LLUUID &pRegionUUID);
 	virtual ~LLPathfindingNavMesh();
@@ -68,15 +66,15 @@ public:
 	navmesh_slot_t registerNavMeshListener(navmesh_callback_t pNavMeshCallback);
 
 #ifdef DEPRECATED_UNVERSIONED_NAVMESH
-	U32  getNavMeshVersion() const {return mNavMeshVersion;};
+	const LLPathfindingNavMeshStatus &getNavMeshStatusXXX() const {return mNavMeshStatus;};
 #endif // DEPRECATED_UNVERSIONED_NAVMESH
 
-	bool hasNavMeshVersion(U32 pNavMeshVersion) const;
+	bool hasNavMeshVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus) const;
 
 	void handleNavMeshCheckVersion();
-	void handleRefresh(U32 pNavMeshVersion);
-	void handleNavMeshNewVersion(U32 pNavMeshVersion);
-	void handleNavMeshStart(U32 pNavMeshVersion);
+	void handleRefresh(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+	void handleNavMeshNewVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus);
+	void handleNavMeshStart(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 	void handleNavMeshResult(const LLSD &pContent, U32 pNavMeshVersion);
 	void handleNavMeshNotEnabled();
 	void handleNavMeshError();
@@ -86,12 +84,12 @@ protected:
 
 private:
 	void setRequestStatus(ENavMeshRequestStatus pNavMeshRequestStatus);
+	void sendStatus();
 
-	LLUUID                mRegionUUID;
-	ENavMeshRequestStatus mNavMeshRequestStatus;
-	navmesh_signal_t      mNavMeshSignal;
-	LLSD::Binary          mNavMeshData;
-	U32                   mNavMeshVersion;
+	LLPathfindingNavMeshStatus mNavMeshStatus;
+	ENavMeshRequestStatus      mNavMeshRequestStatus;
+	navmesh_signal_t           mNavMeshSignal;
+	LLSD::Binary               mNavMeshData;
 };
 
 #endif // LL_LLPATHFINDINGNAVMESH_H

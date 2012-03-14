@@ -28,6 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "lluuid.h"
 #include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshstatus.h"
 #include "llsdserialize.h"
 
 #include <string>
@@ -40,11 +41,11 @@
 //---------------------------------------------------------------------------
 
 LLPathfindingNavMesh::LLPathfindingNavMesh(const LLUUID &pRegionUUID)
-	: mRegionUUID(pRegionUUID),
+	: mNavMeshStatus(pRegionUUID),
 	mNavMeshRequestStatus(kNavMeshRequestUnknown),
 	mNavMeshSignal(),
-	mNavMeshData(),
-	mNavMeshVersion(0U)
+	mNavMeshData()
+	
 {
 }
 
@@ -57,25 +58,11 @@ LLPathfindingNavMesh::navmesh_slot_t LLPathfindingNavMesh::registerNavMeshListen
 	return mNavMeshSignal.connect(pNavMeshCallback);
 }
 
-bool LLPathfindingNavMesh::hasNavMeshVersion(U32 pNavMeshVersion) const
+bool LLPathfindingNavMesh::hasNavMeshVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus) const
 {
-	return ((mNavMeshVersion == pNavMeshVersion) && 
+	return ((mNavMeshStatus.getVersion() == pNavMeshStatus.getVersion()) &&
 		((mNavMeshRequestStatus == kNavMeshRequestStarted) || (mNavMeshRequestStatus == kNavMeshRequestCompleted) ||
 		((mNavMeshRequestStatus == kNavMeshRequestChecking) && !mNavMeshData.empty())));
-}
-
-void LLPathfindingNavMesh::handleRefresh(U32 pNavMeshVersion)
-{
-	llassert(pNavMeshVersion == mNavMeshVersion);
-	if (mNavMeshRequestStatus == kNavMeshRequestChecking)
-	{
-		llassert(!mNavMeshData.empty());
-		setRequestStatus(kNavMeshRequestCompleted);
-	}
-	else
-	{
-		mNavMeshSignal(mNavMeshRequestStatus, mRegionUUID, mNavMeshVersion, mNavMeshData);
-	}
 }
 
 void LLPathfindingNavMesh::handleNavMeshCheckVersion()
@@ -83,19 +70,42 @@ void LLPathfindingNavMesh::handleNavMeshCheckVersion()
 	setRequestStatus(kNavMeshRequestChecking);
 }
 
-void LLPathfindingNavMesh::handleNavMeshNewVersion(U32 pNavMeshVersion)
+void LLPathfindingNavMesh::handleRefresh(const LLPathfindingNavMeshStatus &pNavMeshStatus)
 {
-	if (mNavMeshVersion != pNavMeshVersion)
+	llassert(mNavMeshStatus.getRegionUUID() == pNavMeshStatus.getRegionUUID());
+	llassert(mNavMeshStatus.getVersion() == pNavMeshStatus.getVersion());
+	mNavMeshStatus = pNavMeshStatus;
+	if (mNavMeshRequestStatus == kNavMeshRequestChecking)
+	{
+		llassert(!mNavMeshData.empty());
+		setRequestStatus(kNavMeshRequestCompleted);
+	}
+	else
+	{
+		sendStatus();
+	}
+}
+
+void LLPathfindingNavMesh::handleNavMeshNewVersion(const LLPathfindingNavMeshStatus &pNavMeshStatus)
+{
+	llassert(mNavMeshStatus.getRegionUUID() == pNavMeshStatus.getRegionUUID());
+	if (mNavMeshStatus.getVersion() == pNavMeshStatus.getVersion())
+	{
+		mNavMeshStatus = pNavMeshStatus;
+		sendStatus();
+	}
+	else
 	{
 		mNavMeshData.clear();
-		mNavMeshVersion = pNavMeshVersion;
+		mNavMeshStatus = pNavMeshStatus;
 		setRequestStatus(kNavMeshRequestNeedsUpdate);
 	}
 }
 
-void LLPathfindingNavMesh::handleNavMeshStart(U32 pNavMeshVersion)
+void LLPathfindingNavMesh::handleNavMeshStart(const LLPathfindingNavMeshStatus &pNavMeshStatus)
 {
-	mNavMeshVersion = pNavMeshVersion;
+	llassert(mNavMeshStatus.getRegionUUID() == pNavMeshStatus.getRegionUUID());
+	mNavMeshStatus = pNavMeshStatus;
 	setRequestStatus(kNavMeshRequestStarted);
 }
 
@@ -114,8 +124,9 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 		}
 	}
 		
-	if (mNavMeshVersion == pNavMeshVersion)
+	if (mNavMeshStatus.getVersion() == pNavMeshVersion)
 	{
+		ENavMeshRequestStatus status;
 		if ( pContent.has(NAVMESH_DATA_FIELD) )
 		{
 			const LLSD::Binary &value = pContent.get(NAVMESH_DATA_FIELD).asBinary();
@@ -128,14 +139,14 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 			if ( !valid )
 			{
 				llwarns << "Unable to decompress the navmesh llsd." << llendl;
-				setRequestStatus(kNavMeshRequestError);
+				status = kNavMeshRequestError;
 			}
 			else
 			{
 				llassert(pUncompressedNavMeshContainer);
 				mNavMeshData.resize( decompBinSize );
 				memcpy( &mNavMeshData[0], &pUncompressedNavMeshContainer[0], decompBinSize );
-				setRequestStatus(kNavMeshRequestCompleted);
+				status = kNavMeshRequestCompleted;
 			}					
 			if ( pUncompressedNavMeshContainer )
 			{
@@ -145,8 +156,9 @@ void LLPathfindingNavMesh::handleNavMeshResult(const LLSD &pContent, U32 pNavMes
 		else
 		{
 			llwarns << "No mesh data received" << llendl;
-			setRequestStatus(kNavMeshRequestError);
+			status = kNavMeshRequestError;
 		}
+		setRequestStatus(status);
 	}
 }
 
@@ -165,7 +177,7 @@ void LLPathfindingNavMesh::handleNavMeshError()
 void LLPathfindingNavMesh::handleNavMeshError(U32 pStatus, const std::string &pReason, const std::string &pURL, U32 pNavMeshVersion)
 {
 	llwarns << "error with request to URL '" << pURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
-	if (mNavMeshVersion == pNavMeshVersion)
+	if (mNavMeshStatus.getVersion() == pNavMeshVersion)
 	{
 		handleNavMeshError();
 	}
@@ -174,5 +186,10 @@ void LLPathfindingNavMesh::handleNavMeshError(U32 pStatus, const std::string &pR
 void LLPathfindingNavMesh::setRequestStatus(ENavMeshRequestStatus pNavMeshRequestStatus)
 {
 	mNavMeshRequestStatus = pNavMeshRequestStatus;
-	mNavMeshSignal(mNavMeshRequestStatus, mRegionUUID, mNavMeshVersion, mNavMeshData);
+	sendStatus();
+}
+
+void LLPathfindingNavMesh::sendStatus()
+{
+	mNavMeshSignal(mNavMeshRequestStatus, mNavMeshStatus, mNavMeshData);
 }

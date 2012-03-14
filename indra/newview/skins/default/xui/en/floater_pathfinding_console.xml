@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="352"
+    height="420"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -11,19 +11,27 @@
     single_instance="true"
     title="Pathfinding edit / test"
     width="456">
-  <floater.string name="navmesh_status_unknown"></floater.string>
-  <floater.string name="navmesh_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>
-  <floater.string name="navmesh_status_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
-  <floater.string name="navmesh_status_checking_version">Checking the status of the navmesh ...</floater.string>
-  <floater.string name="navmesh_status_downloading">Downloading the navmesh ...</floater.string>
-  <floater.string name="navmesh_status_updating">The navmesh has changed on the server. Downloading the latest navmesh ...</floater.string>
-  <floater.string name="navmesh_status_has_navmesh">Navmesh received.</floater.string>
-  <floater.string name="navmesh_status_error">Unable to download navmesh successfully.</floater.string>
+  <floater.string name="navmesh_viewer_status_unknown"></floater.string>
+  <floater.string name="navmesh_viewer_status_library_not_implemented">Cannot find pathing library implementation.</floater.string>
+  <floater.string name="navmesh_viewer_status_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="navmesh_viewer_status_checking_version">Checking the status of the navmesh.</floater.string>
+  <floater.string name="navmesh_viewer_status_downloading">Downloading the navmesh.</floater.string>
+  <floater.string name="navmesh_viewer_status_updating">The navmesh has changed on the server. Downloading the latest navmesh.</floater.string>
+  <floater.string name="navmesh_viewer_status_has_navmesh">Latest navmesh has been downloaded.</floater.string>
+  <floater.string name="navmesh_viewer_status_error">Unable to download navmesh successfully.</floater.string>
+  <floater.string name="navmesh_simulator_status_unknown"></floater.string>
+  <floater.string name="navmesh_simulator_status_region_not_enabled">This region does not expose the navmesh status.</floater.string>
+  <floater.string name="navmesh_simulator_status_pending">Navmesh has pending changes.</floater.string>
+  <floater.string name="navmesh_simulator_status_building">Navmesh is building.</floater.string>
+  <floater.string name="navmesh_simulator_status_some_pending">Some navmesh regions have pending changes.</floater.string>
+  <floater.string name="navmesh_simulator_status_some_building">Some navmesh regions are building.</floater.string>
+  <floater.string name="navmesh_simulator_status_pending_and_building">Some navmesh regions have pending changes and others are building.</floater.string>
+  <floater.string name="navmesh_simulator_status_complete">Navmesh is up-to-date.</floater.string>
   <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
   <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
   <floater.string name="pathing_path_valid">Path is shown in blue.</floater.string>
-  <floater.string name="navmesh_update_needed">Region boundary hit, navmesh may not be accurate. Update.</floater.string>
+  <floater.string name="navmesh_update_needed">Region boundary hit, navmesh may not be accurate.</floater.string>
   <text
       height="13"
       word_wrap="true"
@@ -56,7 +64,7 @@
       follows="left|top"
       layout="topleft"
       left="35"
-      width="208">
+      width="188">
     Show walkability map:
   </text>
   <combo_box
@@ -157,7 +165,7 @@
         left="0"
         top_pad="5"
         width="200">
-      Status
+      Viewer status
     </text>
     <text
         height="40"
@@ -169,7 +177,51 @@
         follows="left|top"
         layout="topleft"
         left="0"
-        name="pathfinding_status"
+        name="pathfinding_viewer_status"
+        top_pad="8"
+        width="200">
+    </text>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="top|left"
+      layout="topleft"
+      left="14"
+      height="0"
+      width="200"
+      top_pad="0"
+      visible="true" />
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      height="73"
+      width="200">
+    <text
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        layout="topleft"
+        left="0"
+        top_pad="5"
+        width="200">
+      Simulator status
+    </text>
+    <text
+        height="40"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        name="pathfinding_simulator_status"
         top_pad="8"
         width="200">
     </text>
@@ -210,7 +262,7 @@
       layout="topleft"
       left="230"
       top="35"
-      height="305"
+      height="373"
       width="214"
       visible="true" />
   <tab_container
@@ -220,7 +272,7 @@
       name="edit_test_tab_container"
       left="227"
       top="14"
-      height="327"
+      height="395"
       width="218">
     <panel
         border="false"
@@ -294,7 +346,7 @@
           line_spacing.multiple="1.5"
           name="freeze_label"
           top_pad="23"
-          height="26"
+          height="32"
           width="190">
         Prevent object / terrain changes and update the navmesh:
       </text>
@@ -306,7 +358,7 @@
           label="Freeze"
           layout="topleft"
           name="enter_frozen_mode"
-          top_pad="9"
+          top_pad="3"
           width="116"/>
     </panel>
     <panel

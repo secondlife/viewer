@@ -50,6 +50,7 @@
 
 LLPathfindingNavMeshZone::LLPathfindingNavMeshZone()
 	: mNavMeshLocationPtrs(),
+	mNavMeshZoneRequestStatus(kNavMeshZoneRequestUnknown),
 	mNavMeshZoneSignal()
 {
 }
@@ -132,6 +133,71 @@ void LLPathfindingNavMeshZone::refresh()
 	}
 }
 
+LLPathfindingNavMeshZone::ENavMeshZoneStatus LLPathfindingNavMeshZone::getNavMeshZoneStatus() const
+{
+	bool hasPending = false;
+	bool hasBuilding = false;
+	bool hasComplete = false;
+	bool hasRepending = false;
+
+	for (NavMeshLocationPtrs::const_iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
+		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
+	{
+		const NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
+
+		switch (navMeshLocationPtr->getNavMeshStatus())
+		{
+		case LLPathfindingNavMeshStatus::kPending :
+			hasPending = true;
+			break;
+		case LLPathfindingNavMeshStatus::kBuilding :
+			hasBuilding = true;
+			break;
+		case LLPathfindingNavMeshStatus::kComplete :
+			hasComplete = true;
+			break;
+		case LLPathfindingNavMeshStatus::kRepending :
+			hasRepending = true;
+			break;
+		default :
+			hasPending = true;
+			llassert(0);
+			break;
+		}
+	}
+
+	ENavMeshZoneStatus zoneStatus = kNavMeshZoneComplete;
+	if (hasRepending || (hasPending && hasBuilding))
+	{
+		zoneStatus = kNavMeshZonePendingAndBuilding;
+	}
+	else if (hasComplete)
+	{
+		if (hasPending)
+		{
+			zoneStatus = kNavMeshZoneSomePending;
+		}
+		else if (hasBuilding)
+		{
+			zoneStatus = kNavMeshZoneSomeBuilding;
+		}
+		else
+		{
+			zoneStatus = kNavMeshZoneComplete;
+		}
+	}
+	else if (hasPending)
+	{
+		zoneStatus = kNavMeshZonePending;
+	}
+	else if (hasBuilding)
+	{
+		zoneStatus = kNavMeshZoneBuilding;
+	}
+
+	return zoneStatus;
+}
+
 void LLPathfindingNavMeshZone::handleNavMeshLocation()
 {
 	updateStatus();
@@ -150,10 +216,10 @@ void LLPathfindingNavMeshZone::updateStatus()
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 	llinfos << "STINSON DEBUG: Navmesh zone update BEGIN" << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
-	for (NavMeshLocationPtrs::iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
+	for (NavMeshLocationPtrs::const_iterator navMeshLocationPtrIter = mNavMeshLocationPtrs.begin();
 		navMeshLocationPtrIter != mNavMeshLocationPtrs.end(); ++navMeshLocationPtrIter)
 	{
-		NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
+		const NavMeshLocationPtr navMeshLocationPtr = *navMeshLocationPtrIter;
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llinfos << "STINSON DEBUG:    region #" << navMeshLocationPtr->getDirection() << ": region(" << navMeshLocationPtr->getRegionUUID().asString() << ") status:" << navMeshLocationPtr->getRequestStatus() << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
@@ -227,14 +293,6 @@ void LLPathfindingNavMeshZone::updateStatus()
 	{
 		zoneRequestStatus = kNavMeshZoneRequestCompleted;
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llinfos << "STINSON DEBUG: Navmesh zone update is stitching" << llendl;
-#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
-		llassert(LLPathingLib::getInstance() != NULL);
-		if (LLPathingLib::getInstance() != NULL)
-		{
-			LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
-		}
-#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llinfos << "STINSON DEBUG: Navmesh zone update is COMPLETED" << llendl;
 #endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
 	}
@@ -254,7 +312,24 @@ void LLPathfindingNavMeshZone::updateStatus()
 		llassert(0);
 	}
 
-	mNavMeshZoneSignal(zoneRequestStatus);
+	if ((mNavMeshZoneRequestStatus != kNavMeshZoneRequestCompleted) &&
+		(zoneRequestStatus == kNavMeshZoneRequestCompleted))
+	{
+#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
+		llinfos << "STINSON DEBUG: Navmesh zone update is stitching" << llendl;
+#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
+		llassert(LLPathingLib::getInstance() != NULL);
+		if (LLPathingLib::getInstance() != NULL)
+		{
+			LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
+		}
+#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
+		llinfos << "STINSON DEBUG: Navmesh zone update stitching is done" << llendl;
+#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
+	}
+
+	mNavMeshZoneRequestStatus = zoneRequestStatus;
+	mNavMeshZoneSignal(mNavMeshZoneRequestStatus);
 }
 
 //---------------------------------------------------------------------------
@@ -266,6 +341,7 @@ LLPathfindingNavMeshZone::NavMeshLocation::NavMeshLocation(S32 pDirection, navme
 	mRegionUUID(),
 	mHasNavMesh(false),
 	mNavMeshVersion(0U),
+	mNavMeshStatus(LLPathfindingNavMeshStatus::kComplete),
 	mLocationCallback(pLocationCallback),
 	mRequestStatus(LLPathfindingNavMesh::kNavMeshRequestUnknown),
 	mNavMeshSlot()
@@ -288,7 +364,7 @@ void LLPathfindingNavMeshZone::NavMeshLocation::enable()
 	else
 	{
 		mRegionUUID = region->getRegionID();
-		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(region, boost::bind(&LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh, this, _1, _2, _3, _4));
+		mNavMeshSlot = LLPathfindingManager::getInstance()->registerNavMeshListenerForRegion(region, boost::bind(&LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh, this, _1, _2, _3));
 	}
 }
 
@@ -299,8 +375,9 @@ void LLPathfindingNavMeshZone::NavMeshLocation::refresh()
 	if (region == NULL)
 	{
 		llassert(mRegionUUID.isNull());
+		LLPathfindingNavMeshStatus newNavMeshStatus(mRegionUUID);
 		LLSD::Binary nullData;
-		handleNavMesh(LLPathfindingNavMesh::kNavMeshRequestNotEnabled, mRegionUUID, 0U, nullData);
+		handleNavMesh(LLPathfindingNavMesh::kNavMeshRequestNotEnabled, newNavMeshStatus, nullData);
 	}
 	else
 	{
@@ -319,33 +396,38 @@ LLPathfindingNavMesh::ENavMeshRequestStatus LLPathfindingNavMeshZone::NavMeshLoc
 	return mRequestStatus;
 }
 
-void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData)
+LLPathfindingNavMeshStatus::ENavMeshStatus LLPathfindingNavMeshZone::NavMeshLocation::getNavMeshStatus() const
 {
-	llassert(mRegionUUID == pRegionUUID);
-	if (pNavMeshRequestStatus != LLPathfindingNavMesh::kNavMeshRequestCompleted)
-	{
-		mRequestStatus = pNavMeshRequestStatus;
-		mLocationCallback();
-	}
-	else if (!mHasNavMesh || (mNavMeshVersion != pNavMeshVersion))
+	return mNavMeshStatus;
+}
+
+void LLPathfindingNavMeshZone::NavMeshLocation::handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus, const LLSD::Binary &pNavMeshData)
+{
+	llassert(mRegionUUID == pNavMeshStatus.getRegionUUID());
+
+	if ((pNavMeshRequestStatus == LLPathfindingNavMesh::kNavMeshRequestCompleted) &&
+		(!mHasNavMesh || (mNavMeshVersion != pNavMeshStatus.getVersion())))
 	{
 		llassert(!pNavMeshData.empty());
-		mRequestStatus = pNavMeshRequestStatus;
 		mHasNavMesh = true;
-		mNavMeshVersion = pNavMeshVersion;
+		mNavMeshVersion = pNavMeshStatus.getVersion();
 		llassert(LLPathingLib::getInstance() != NULL);
 		if (LLPathingLib::getInstance() != NULL)
 		{
 			LLPathingLib::getInstance()->extractNavMeshSrcFromLLSD(pNavMeshData, mDirection);
 		}
-		mLocationCallback();
 	}
+
+	mRequestStatus = pNavMeshRequestStatus;
+	mNavMeshStatus = pNavMeshStatus.getStatus();
+	mLocationCallback();
 }
 
 void LLPathfindingNavMeshZone::NavMeshLocation::clear()
 {
 	mHasNavMesh = false;
 	mRequestStatus = LLPathfindingNavMesh::kNavMeshRequestUnknown;
+	mNavMeshStatus = LLPathfindingNavMeshStatus::kComplete;
 	if (mNavMeshSlot.connected())
 	{
 		mNavMeshSlot.disconnect();

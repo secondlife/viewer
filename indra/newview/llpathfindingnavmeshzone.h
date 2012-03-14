@@ -31,12 +31,15 @@
 #include "llsd.h"
 #include "lluuid.h"
 #include "llpathfindingnavmesh.h"
+#include "llpathfindingnavmeshstatus.h"
 
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
+class LLPathfindingNavMeshStatus;
 
 //#define XXX_STINSON_DEBUG_NAVMESH_ZONE
 
@@ -53,9 +56,18 @@ public:
 		kNavMeshZoneRequestError
 	} ENavMeshZoneRequestStatus;
 
+	typedef enum {
+		kNavMeshZonePending,
+		kNavMeshZoneBuilding,
+		kNavMeshZoneSomePending,
+		kNavMeshZoneSomeBuilding,
+		kNavMeshZonePendingAndBuilding,
+		kNavMeshZoneComplete
+	} ENavMeshZoneStatus;
+
 	typedef boost::function<void (ENavMeshZoneRequestStatus)>         navmesh_zone_callback_t;
 	typedef boost::signals2::signal<void (ENavMeshZoneRequestStatus)> navmesh_zone_signal_t;
-	typedef boost::signals2::connection                               navmesh_zone_slot_t;
+	typedef boost::signals2::connection                                                   navmesh_zone_slot_t;
 
 	LLPathfindingNavMeshZone();
 	virtual ~LLPathfindingNavMeshZone();
@@ -66,6 +78,8 @@ public:
 	void enable();
 	void disable();
 	void refresh();
+
+	ENavMeshZoneStatus getNavMeshZoneStatus() const;
 
 protected:
 
@@ -82,6 +96,7 @@ private:
 		void disable();
 
 		LLPathfindingNavMesh::ENavMeshRequestStatus getRequestStatus() const;
+		LLPathfindingNavMeshStatus::ENavMeshStatus  getNavMeshStatus() const;
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 		const LLUUID &getRegionUUID() const {return mRegionUUID;};
 		S32          getDirection() const {return mDirection;};
@@ -90,7 +105,7 @@ private:
 	protected:
 
 	private:
-		void           handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLUUID &pRegionUUID, U32 pNavMeshVersion, const LLSD::Binary &pNavMeshData);
+		void           handleNavMesh(LLPathfindingNavMesh::ENavMeshRequestStatus pNavMeshRequestStatus, const LLPathfindingNavMeshStatus &pNavMeshStatus, const LLSD::Binary &pNavMeshData);
 
 		void           clear();
 		LLViewerRegion *getRegion() const;
@@ -99,6 +114,7 @@ private:
 		LLUUID                                      mRegionUUID;
 		bool                                        mHasNavMesh;
 		U32                                         mNavMeshVersion;
+		LLPathfindingNavMeshStatus::ENavMeshStatus  mNavMeshStatus;
 		navmesh_location_callback_t                 mLocationCallback;
 		LLPathfindingNavMesh::ENavMeshRequestStatus mRequestStatus;
 		LLPathfindingNavMesh::navmesh_slot_t        mNavMeshSlot;
@@ -110,8 +126,9 @@ private:
 	void handleNavMeshLocation();
 	void updateStatus();
 
-	NavMeshLocationPtrs   mNavMeshLocationPtrs;
-	navmesh_zone_signal_t mNavMeshZoneSignal;
+	NavMeshLocationPtrs       mNavMeshLocationPtrs;
+	ENavMeshZoneRequestStatus mNavMeshZoneRequestStatus;
+	navmesh_zone_signal_t     mNavMeshZoneSignal;
 };
 
 #endif // LL_LLPATHFINDINGNAVMESHZONE_H

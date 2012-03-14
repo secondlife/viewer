@@ -129,8 +129,11 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mFreezeButton != NULL);
 	mFreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onFreezeClicked, this));
 
-	mPathfindingStatus = findChild<LLTextBase>("pathfinding_status");
-	llassert(mPathfindingStatus != NULL);
+	mPathfindingViewerStatus = findChild<LLTextBase>("pathfinding_viewer_status");
+	llassert(mPathfindingViewerStatus != NULL);
+
+	mPathfindingSimulatorStatus = findChild<LLTextBase>("pathfinding_simulator_status");
+	llassert(mPathfindingSimulatorStatus != NULL);
 
 	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
 	llassert(mCharacterWidthSlider != NULL);
@@ -469,7 +472,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowMaterialVolumesCheckBox(NULL),
 	mShowExclusionVolumesCheckBox(NULL),
 	mShowWorldCheckBox(NULL),
-	mPathfindingStatus(NULL),
+	mPathfindingViewerStatus(NULL),
+	mPathfindingSimulatorStatus(NULL),
 	mViewCharactersButton(NULL),
 	mEditTestTabContainer(NULL),
 	mEditTab(NULL),
@@ -731,49 +735,125 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 {
 	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
 
-	std::string statusText("");
-	LLStyle::Params styleParams;
+	std::string simulatorStatusText("");
+	std::string viewerStatusText("");
+	LLStyle::Params viewerStyleParams;
 
 	switch (mConsoleState)
 	{
 	case kConsoleStateUnknown :
-		statusText = getString("navmesh_status_unknown");
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_unknown");
 		break;
 	case kConsoleStateLibraryNotImplemented :
-		statusText = getString("navmesh_status_library_not_implemented");
-		styleParams.color = warningColor;
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_library_not_implemented");
+		viewerStyleParams.color = warningColor;
 		break;
 	case kConsoleStateRegionNotEnabled :
-		statusText = getString("navmesh_status_region_not_enabled");
-		styleParams.color = warningColor;
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_region_not_enabled");
+		viewerStyleParams.color = warningColor;
 		break;
 	case kConsoleStateCheckingVersion :
-		statusText = getString("navmesh_status_checking_version");
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_checking_version");
 		break;
 	case kConsoleStateDownloading :
+		simulatorStatusText = getSimulatorStatusText();
 		if (mIsNavMeshUpdating)
 		{
-			statusText = getString("navmesh_status_updating");
+			viewerStatusText = getString("navmesh_viewer_status_updating");
 		}
 		else
 		{
-			statusText = getString("navmesh_status_downloading");
+			viewerStatusText = getString("navmesh_viewer_status_downloading");
 		}
 		break;
 	case kConsoleStateHasNavMesh :
-		statusText = getString("navmesh_status_has_navmesh");
+		simulatorStatusText = getSimulatorStatusText();
+		viewerStatusText = getString("navmesh_viewer_status_has_navmesh");
 		break;
 	case kConsoleStateError :
-		statusText = getString("navmesh_status_error");
-		styleParams.color = warningColor;
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_error");
+		viewerStyleParams.color = warningColor;
 		break;
 	default :
-		statusText = getString("navmesh_status_unknown");
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_unknown");
 		llassert(0);
 		break;
 	}
 
-	mPathfindingStatus->setText((LLStringExplicit)statusText, styleParams);
+	mPathfindingViewerStatus->setText((LLStringExplicit)viewerStatusText, viewerStyleParams);
+	mPathfindingSimulatorStatus->setText((LLStringExplicit)simulatorStatusText);
+}
+
+std::string LLFloaterPathfindingConsole::getSimulatorStatusText() const
+{
+	std::string simulatorStatusText("");
+
+#ifdef DEPRECATED_UNVERSIONED_NAVMESH
+	if (LLPathfindingManager::getInstance()->isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX())
+	{
+		switch (mNavMeshZone.getNavMeshZoneStatus())
+		{
+		case LLPathfindingNavMeshZone::kNavMeshZonePending : 
+			simulatorStatusText = getString("navmesh_simulator_status_pending");
+			break;
+		case LLPathfindingNavMeshZone::kNavMeshZoneBuilding : 
+			simulatorStatusText = getString("navmesh_simulator_status_building");
+			break;
+		case LLPathfindingNavMeshZone::kNavMeshZoneSomePending : 
+			simulatorStatusText = getString("navmesh_simulator_status_some_pending");
+			break;
+		case LLPathfindingNavMeshZone::kNavMeshZoneSomeBuilding : 
+			simulatorStatusText = getString("navmesh_simulator_status_some_building");
+			break;
+		case LLPathfindingNavMeshZone::kNavMeshZonePendingAndBuilding : 
+			simulatorStatusText = getString("navmesh_simulator_status_pending_and_building");
+			break;
+		case LLPathfindingNavMeshZone::kNavMeshZoneComplete : 
+			simulatorStatusText = getString("navmesh_simulator_status_complete");
+			break;
+		default : 
+			simulatorStatusText = getString("navmesh_simulator_status_unknown");
+			break;
+		}
+	}
+	else
+	{
+		simulatorStatusText = getString("navmesh_simulator_status_region_not_enabled");
+	}
+#else // DEPRECATED_UNVERSIONED_NAVMESH
+	switch (mNavMeshZone.getNavMeshZoneStatus())
+	{
+	case LLPathfindingNavMeshZone::kNavMeshZonePending : 
+		simulatorStatusText = getString("navmesh_simulator_status_pending");
+		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneBuilding : 
+		simulatorStatusText = getString("navmesh_simulator_status_building");
+		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneSomePending : 
+		simulatorStatusText = getString("navmesh_simulator_status_some_pending");
+		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneSomeBuilding : 
+		simulatorStatusText = getString("navmesh_simulator_status_some_building");
+		break;
+	case LLPathfindingNavMeshZone::kNavMeshZonePendingAndBuilding : 
+		simulatorStatusText = getString("navmesh_simulator_status_pending_and_building");
+		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneComplete : 
+		simulatorStatusText = getString("navmesh_simulator_status_complete");
+		break;
+	default : 
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		break;
+	}
+#endif // DEPRECATED_UNVERSIONED_NAVMESH
+
+	return simulatorStatusText;
 }
 
 void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
@@ -894,5 +974,5 @@ void LLFloaterPathfindingConsole::regionCrossingOccured()
 	LLStyle::Params styleParams;	
 	styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
 	statusText = getString("navmesh_update_needed");
-	mPathfindingStatus->setText((LLStringExplicit)statusText, styleParams);
+	mPathfindingViewerStatus->setText((LLStringExplicit)statusText, styleParams);
 }

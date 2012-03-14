@@ -32,6 +32,9 @@
 
 #include <string>
 
+// XXX stinson 03/12/2012 : This definition is in place to support an older version of the pathfinding simulator that does not have versioned information
+#define DEPRECATED_UNVERSIONED_NAVMESH
+
 class LLSD;
 
 class LLPathfindingNavMeshStatus
@@ -45,6 +48,7 @@ public:
 		kRepending
 	} ENavMeshStatus;
 
+	LLPathfindingNavMeshStatus();
 	LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshStatus(const LLUUID &pRegionUUID, const LLSD &pContent);
 	LLPathfindingNavMeshStatus(const LLSD &pContent);
@@ -52,6 +56,10 @@ public:
 	virtual ~LLPathfindingNavMeshStatus();
 
 	LLPathfindingNavMeshStatus &operator =(const LLPathfindingNavMeshStatus &pOther);
+
+#ifdef DEPRECATED_UNVERSIONED_NAVMESH
+	void incrementNavMeshVersionXXX() {++mVersion;};
+#endif // DEPRECATED_UNVERSIONED_NAVMESH
 
 	bool           isValid() const        {return mIsValid;};
 	const LLUUID   &getRegionUUID() const {return mRegionUUID;};

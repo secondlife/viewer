@@ -147,8 +147,9 @@ private:
 
 	void setConsoleState(EConsoleState pConsoleState);
 
-	void updateControlsOnConsoleState();
-	void updateStatusOnConsoleState();
+	void        updateControlsOnConsoleState();
+	void        updateStatusOnConsoleState();
+	std::string getSimulatorStatusText() const;
 
 	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
@@ -165,7 +166,8 @@ private:
 	LLCheckBoxCtrl                                *mShowMaterialVolumesCheckBox;
 	LLCheckBoxCtrl                                *mShowExclusionVolumesCheckBox;
 	LLCheckBoxCtrl                                *mShowWorldCheckBox;
-	LLTextBase                                    *mPathfindingStatus;
+	LLTextBase                                    *mPathfindingViewerStatus;
+	LLTextBase                                    *mPathfindingSimulatorStatus;
 	LLButton                                      *mViewCharactersButton;
 	LLTabContainer                                *mEditTestTabContainer;
 	LLPanel                                       *mEditTab;
