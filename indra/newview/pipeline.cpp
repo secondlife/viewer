@@ -4335,7 +4335,7 @@ void LLPipeline::renderDebug()
 			//NavMesh
 			if ( pathfindingConsole->isRenderNavMesh() )
 			{				
-				glLineWidth(1.5f);	
+				glLineWidth(2.0f);	
 				LLGLEnable cull(GL_CULL_FACE);
 				if ( pathfindingConsole->isRenderWorld() )
 				{					
