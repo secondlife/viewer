@@ -2141,7 +2141,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	LLSD msg = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";
 
-	llinfos << "message: " << msg << llendl;
+	llinfos << avString() << "message: " << msg << llendl;
 	std::string	caps_url;
 	if (getRegion())
 	{

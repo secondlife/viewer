@@ -35,6 +35,15 @@
 #include "lluuid.h"
 #include "llsdutil.h"
 #include "llregionhandle.h"
+#include "../llvoavatar.h"
+
+void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
+{
+	counts.resize(3);
+	counts[0] = 0;
+	counts[1] = 0;
+	counts[2] = 1;
+}
 
 static const char * all_keys[] = 
 {

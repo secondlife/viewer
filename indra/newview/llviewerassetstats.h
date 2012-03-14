@@ -125,7 +125,8 @@ public:
 			  mRegionHandle(src.mRegionHandle),
 			  mTotalTime(src.mTotalTime),
 			  mStartTimestamp(src.mStartTimestamp),
-			  mFPS(src.mFPS)
+			  mFPS(src.mFPS),
+			  mAvatarRezStates(src.mAvatarRezStates)
 			{
 				for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
 				{
@@ -148,6 +149,7 @@ public:
 		duration_t			mTotalTime;
 		duration_t			mStartTimestamp;
 		LLSimpleStatMMM<>	mFPS;
+		std::vector<S32>	mAvatarRezStates;
 		
 		struct prs_group
 		{
@@ -180,6 +182,9 @@ public:
 
 	// Frames-Per-Second Samples
 	void recordFPS(F32 fps);
+
+	// Avatar-related statistics
+	void recordAvatarStats();
 
 	// Merge a source instance into a destination instance.  This is
 	// conceptually an 'operator+=()' method:
@@ -310,6 +315,7 @@ void record_response_main(LLViewerAssetType::EType at, bool with_http, bool is_t
 
 void record_fps_main(F32 fps);
 
+void record_avatar_stats();
 
 /**
  * Region context, event and duration loggers for Thread 1.

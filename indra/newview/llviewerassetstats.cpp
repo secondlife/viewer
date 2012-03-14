@@ -30,6 +30,7 @@
 #include "llregionhandle.h"
 
 #include "stdtypes.h"
+#include "llvoavatar.h"
 
 /*
  * Classes and utility functions for per-thread and per-region
@@ -126,6 +127,8 @@ LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionSta
 		mFPS.merge(src.mFPS);
 	}
 
+	// Avatar stats - data all comes from main thread, so leave alone.
+
 	// Requests
 	for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
 	{
@@ -133,6 +136,7 @@ LLViewerAssetStats::PerRegionStats::merge(const LLViewerAssetStats::PerRegionSta
 		mRequests[i].mDequeued.merge(src.mRequests[i].mDequeued);
 		mRequests[i].mResponse.merge(src.mRequests[i].mResponse);
 	}
+
 }
 
 
@@ -252,6 +256,14 @@ LLViewerAssetStats::recordFPS(F32 fps)
 	mCurRegionStats->mFPS.record(fps);
 }
 
+void
+LLViewerAssetStats::recordAvatarStats()
+{
+	std::vector<S32> rez_counts;
+	LLVOAvatar::getNearbyRezzedStats(rez_counts);
+	mCurRegionStats->mAvatarRezStates = rez_counts;
+}
+
 LLSD
 LLViewerAssetStats::asLLSD(bool compact_output)
 {
@@ -282,6 +294,10 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 	static const LLSD::String max_tag("max");
 	static const LLSD::String mean_tag("mean");
 
+	// Avatar sub-tags
+	static const LLSD::String avatar_tag("avatar");
+	static const LLSD::String avatar_nearby_tag("nearby");
+	
 	const duration_t now = LLViewerAssetStatsFF::get_timestamp();
 	mCurRegionStats->accumulateTime(now);
 
@@ -328,6 +344,11 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 			slot[min_tag] = LLSD(F64(stats.mFPS.getMin()));
 			slot[max_tag] = LLSD(F64(stats.mFPS.getMax()));
 			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
+		}
+		reg_stat[avatar_tag][avatar_nearby_tag] = LLSD::emptyArray();
+		for (S32 j = 0; j < stats.mAvatarRezStates.size(); ++j)
+		{
+			reg_stat[avatar_tag][avatar_nearby_tag].append(stats.mAvatarRezStates[j]);
 		}
 
 		U32 grid_x(0), grid_y(0);
@@ -439,6 +460,14 @@ record_fps_main(F32 fps)
 	gViewerAssetStatsMain->recordFPS(fps);
 }
 
+void
+record_avatar_stats()
+{
+	if (! gViewerAssetStatsMain)
+		return;
+
+	gViewerAssetStatsMain->recordAvatarStats();
+}
 
 // 'thread1' - should be for TextureFetch thread
 
