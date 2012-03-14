@@ -357,7 +357,7 @@ S32 LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_MAX] =
 	sizeof(F32),	   // TYPE_WEIGHT,
 	sizeof(LLVector4), // TYPE_WEIGHT4,
 	sizeof(LLVector4), // TYPE_CLOTHWEIGHT,
-	sizeof(U32),	   // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
+	sizeof(LLVector4), // TYPE_TEXTURE_INDEX (actually exists as position.w), no extra data, but stride is 16 bytes
 };
 
 U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] = 
