@@ -133,11 +133,6 @@ bool LLClipboard::pasteFromClipboard(LLWString &dst, bool use_primary)
 	bool res = (use_primary ? LLView::getWindow()->pasteTextFromPrimary(dst) : LLView::getWindow()->pasteTextFromClipboard(dst));
 	if (res)
 	{
-		if (dst != mString)
-		{
-			// Invalidate the LL clipboard if the System had a different string in it (i.e. some copy/cut was done in some other app)
-			reset();
-		}
 		mString = dst;
 	}
 	return res;
