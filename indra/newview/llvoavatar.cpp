@@ -101,6 +101,8 @@
 #include "llvoicevisualizer.h" // Ventrella
 
 #include "lldebugmessagebox.h"
+#include "llsdutil.h"
+
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
@@ -800,7 +802,7 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 	if (gAgentAvatarp && !gAgentAvatarp->isDead()) // not safe to call during ~LLVOAvatarself
 	{
 		LLSD metrics = gAgentAvatarp->metricsData();
-		llinfos << gAgentAvatarp->avString() << " metrics " << metrics << llendl;
+		llinfos << gAgentAvatarp->avString() << " metrics " << ll_pretty_print_sd(metrics) << llendl;
 	}
 
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))

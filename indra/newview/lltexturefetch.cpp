@@ -52,6 +52,7 @@
 #include "llviewerstats.h"
 #include "llviewerassetstats.h"
 #include "llworld.h"
+#include "llsdutil.h"
 
 //////////////////////////////////////////////////////////////////////////////
 class LLTextureFetchWorker : public LLWorkerClass
@@ -2959,7 +2960,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// In QA mode, Metrics submode, log the result for ease of testing
 	if (fetcher->isQAMode())
 	{
-		LL_INFOS("Textures") << merged_llsd << LL_ENDL;
+		LL_INFOS("Textures") << ll_pretty_print_sd(merged_llsd) << LL_ENDL;
 	}
 
 	gViewerAssetStatsThread1->reset();

@@ -58,6 +58,7 @@
 #include "llappearancemgr.h"
 #include "llmeshrepository.h"
 #include "llvovolume.h"
+#include "llsdutil.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -2141,7 +2142,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	LLSD msg = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";
 
-	llinfos << avString() << "message: " << msg << llendl;
+	llinfos << avString() << "message: " << ll_pretty_print_sd(msg) << llendl;
 	std::string	caps_url;
 	if (getRegion())
 	{
