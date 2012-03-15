@@ -291,8 +291,13 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 		}
 	}
 
-	base.setSize(dims.size.x, dims.size.y, components);
+	// Get the number of resolution levels in that image
+	mLevels = mCodeStreamp->get_min_dwt_levels();
 
+	// Set the base dimensions
+	base.setSize(dims.size.x, dims.size.y, components);
+	base.setLevels(mLevels);
+	
 	if (!keep_codestream)
 	{
 		mCodeStreamp->destroy();
@@ -394,12 +399,9 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 
 		// Resize raw_image according to the image to be decoded
 		kdu_dims dims; mCodeStreamp->get_dims(0,dims);
-		// *TODO: Use the real number of levels read from the file throughout the code instead of relying on an infered value from dimensions
-		//S32 levels = mCodeStreamp->get_min_dwt_levels();
 		S32 channels = base.getComponents() - first_channel;
 		channels = llmin(channels,max_channel_count);
 		raw_image.resize(dims.size.x, dims.size.y, channels);
-		//llinfos << "j2c image dimension: width = " << dims.size.x << ", height = " << dims.size.y << ", channels = " << channels << ", levels = " << levels << llendl;
 
 		if (!mTileIndicesp)
 		{

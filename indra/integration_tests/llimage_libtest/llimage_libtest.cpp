@@ -104,9 +104,9 @@ void output_image_stats(LLPointer<LLImageFormatted> image, const std::string &fi
 	// Print out some statistical data on the image
 	std::cout << "Image stats for : " << filename << ", extension : " << image->getExtension() << std::endl;
 
-	std::cout << "    with : " << (int)(image->getWidth())       << ", height : " << (int)(image->getHeight())       << std::endl;
-	std::cout << "    comp : " << (int)(image->getComponents())  << ", levels : " << (int)(image->getDiscardLevel()) << std::endl;
-	std::cout << "    head : " << (int)(image->calcHeaderSize()) << ",   data : " << (int)(image->getDataSize())     << std::endl;
+	std::cout << "    with : " << (int)(image->getWidth())       << ", height : " << (int)(image->getHeight())   << std::endl;
+	std::cout << "    comp : " << (int)(image->getComponents())  << ", levels : " << (int)(image->getLevels())   << std::endl;
+	std::cout << "    head : " << (int)(image->calcHeaderSize()) << ",   data : " << (int)(image->getDataSize()) << std::endl;
 
 	return;
 }

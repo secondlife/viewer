@@ -142,6 +142,7 @@ BOOL LLImageJ2C::updateData()
 
 BOOL LLImageJ2C::initDecode(LLImageRaw &raw_image, int discard_level, int* region)
 {
+	setDiscardLevel(discard_level != -1 ? discard_level : 0);
 	return mImpl->initDecode(*this,raw_image,discard_level,region);
 }
 
@@ -286,6 +287,8 @@ S32 LLImageJ2C::calcHeaderSize()
 
 // calcDataSize() returns how many bytes to read 
 // to load discard_level (including header and higher discard levels)
+// *TODO: This is deeply wrong. That size should be taken from the image file header or other 
+// relevant infos. In any case, this is only an approximation.
 S32 LLImageJ2C::calcDataSize(S32 discard_level)
 {
 	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
