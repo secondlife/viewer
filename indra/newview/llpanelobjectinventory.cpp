@@ -1568,7 +1568,7 @@ void LLPanelObjectInventory::reset()
 	scroll_p.rect(scroller_rect);
 	scroll_p.tab_stop(true);
 	scroll_p.follows.flags(FOLLOWS_ALL);
-	mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroll_p);
+	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroll_p);
 	addChild(mScroller);
 	mScroller->addChild(mFolders);
 	

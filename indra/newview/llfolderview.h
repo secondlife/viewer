@@ -44,6 +44,7 @@
 #include "lldepthstack.h"
 #include "lleditmenuhandler.h"
 #include "llfontgl.h"
+#include "llscrollcontainer.h"
 #include "lltooldraganddrop.h"
 #include "llviewertexture.h"
 
@@ -54,9 +55,27 @@ class LLInventoryModel;
 class LLPanel;
 class LLLineEditor;
 class LLMenuGL;
-class LLScrollContainer;
 class LLUICtrl;
 class LLTextBox;
+
+/**
+ * Class LLFolderViewScrollContainer
+ *
+ * A scroll container which provides the information about the height
+ * of currently displayed folder view contents.
+ * Used for updating vertical scroll bar visibility in inventory panel.
+ * See LLScrollContainer::calcVisibleSize().
+ */
+class LLFolderViewScrollContainer : public LLScrollContainer
+{
+public:
+	/*virtual*/ ~LLFolderViewScrollContainer() {};
+	/*virtual*/ const LLRect getScrolledViewRect() const;
+
+protected:
+	LLFolderViewScrollContainer(const LLScrollContainer::Params& p);
+	friend class LLUICtrlFactory;
+};
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFolderView
@@ -81,6 +100,9 @@ public:
 
 		Params();
 	};
+
+	friend class LLFolderViewScrollContainer;
+
 	LLFolderView(const Params&);
 	virtual ~LLFolderView( void );
 

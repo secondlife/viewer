@@ -206,10 +206,11 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		scroller_view_rect.translate(-scroller_view_rect.mLeft, -scroller_view_rect.mBottom);
 		LLScrollContainer::Params scroller_params(params.scroll());
 		scroller_params.rect(scroller_view_rect);
-		mScroller = LLUICtrlFactory::create<LLScrollContainer>(scroller_params);
+		mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
 		addChild(mScroller);
 		mScroller->addChild(mFolderRoot);
 		mFolderRoot->setScrollContainer(mScroller);
+		mFolderRoot->setFollowsAll();
 		mFolderRoot->addChild(mFolderRoot->mStatusTextBox);
 	}
 
