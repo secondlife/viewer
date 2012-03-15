@@ -294,7 +294,7 @@ public:
 	// getRawDiscardLevel() by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
 	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
-	BOOL load(const std::string& filename);
+	BOOL load(const std::string& filename, int load_size = 0);
 	BOOL save(const std::string& filename);
 
 	virtual BOOL updateData() = 0; // pure virtual

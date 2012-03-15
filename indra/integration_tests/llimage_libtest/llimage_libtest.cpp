@@ -54,6 +54,11 @@ static const char USAGE[] = "\n"
 " -o, --output <file1 .. file2> OR <type>\n"
 "        List of image files to create (assumes same order as for input files)\n"
 "        OR 3 letters file type extension to convert each input file into.\n"
+" -load, --load_size <n>\n"
+"        Portion of the input image to load, in bytes."
+"        Will load the whole image if 0 or if the size requested is more than the file size."
+"        This parameter will be applied to any input image type but really makes sense only"
+"        for j2c images."
 " -r, --region <x0, y0, x1, y1>\n"
 "        Crop region applied to the input files in pixels.\n"
 "        Only used for j2c images. Default is no region cropping.\n"
@@ -112,12 +117,12 @@ void output_image_stats(LLPointer<LLImageFormatted> image, const std::string &fi
 }
 
 // Load an image from file and return a raw (decompressed) instance of its data
-LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_level, int* region, bool output_stats)
+LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_level, int* region, int load_size, bool output_stats)
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
 	
 	// This just loads the image file stream into a buffer. No decoding done.
-	if (!image->load(src_filename))
+	if (!image->load(src_filename, load_size))
 	{
 		return NULL;
 	}
@@ -310,6 +315,7 @@ int main(int argc, char** argv)
 	bool image_stats = false;
 	int* region = NULL;
 	int discard_level = -1;
+	int load_size = 0;
 	int precincts_size = -1;
 	int blocks_size = -1;
 	int levels = 0;
@@ -394,6 +400,22 @@ int main(int argc, char** argv)
 				discard_level = atoi(value_str.c_str());
 				// Clamp to the values accepted by the viewer
 				discard_level = llclamp(discard_level,0,5);
+			}
+		}
+		else if (!strcmp(argv[arg], "--load_size") || !strcmp(argv[arg], "-load"))
+		{
+			std::string value_str;
+			if ((arg + 1) < argc)
+			{
+				value_str = argv[arg+1];
+			}
+			if (((arg + 1) >= argc) || (value_str[0] == '-'))
+			{
+				std::cout << "No valid --load_size argument given, load_size ignored" << std::endl;
+			}
+			else
+			{
+				load_size = atoi(value_str.c_str());
 			}
 		}
 		else if (!strcmp(argv[arg], "--precincts") || !strcmp(argv[arg], "-p"))
@@ -510,7 +532,7 @@ int main(int argc, char** argv)
 	for (; in_file != in_end; ++in_file, ++out_file)
 	{
 		// Load file
-		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, image_stats);
+		LLPointer<LLImageRaw> raw_image = load_image(*in_file, discard_level, region, load_size, image_stats);
 		if (!raw_image)
 		{
 			std::cout << "Error: Image " << *in_file << " could not be loaded" << std::endl;
