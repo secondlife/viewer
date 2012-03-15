@@ -1544,6 +1544,25 @@ bool LLAppViewer::cleanup()
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
 
+	{
+		// Kill off LLLeap objects. We can find them all because LLLeap is derived
+		// from LLInstanceTracker. But collect instances first: LLInstanceTracker
+		// specifically forbids adding/deleting instances while iterating.
+		std::vector<LLLeap*> leaps;
+		leaps.reserve(LLLeap::instanceCount());
+		for (LLLeap::instance_iter li(LLLeap::beginInstances()), lend(LLLeap::endInstances());
+			 li != lend; ++li)
+		{
+			leaps.push_back(&*li);
+		}
+		// Okay, now trash them all. We don't have to NULL or erase the entry
+		// in 'leaps' because the whole vector is going away momentarily.
+		BOOST_FOREACH(LLLeap* leap, leaps)
+		{
+			delete leap;
+		}
+	} // destroy 'leaps'
+
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
 	LLMortician::setZealous(TRUE);
