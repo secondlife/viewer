@@ -164,6 +164,9 @@ private:
 	LLMutex mQueueMutex;        //to protect mRequestMap and mCommands only
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
+	static LLStat sCacheHitRate;
+	static LLStat sCacheReadLatency;
+
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
 	LLCurlRequest* mCurlGetRequest;
