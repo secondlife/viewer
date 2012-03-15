@@ -56,14 +56,8 @@ const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte
 // ones -- how?? Empirically this behavior is only observed when writing a
 // "very large message". To be able to move forward at all, try to bypass this
 // particular failure by adjusting the size of a "very large message" on
-// Windows. When the test fails at BUFFERED_LENGTH, the test_or_split()
-// function performs a binary search to find the largest size that will work.
-// Running several times on a couple different Windows machines produces a
-// range of "largest successful size" results... suggesting that it may be a
-// matter of available OS buffer space? In any case, pick something small
-// enough to be optimistic, while hopefully remaining comfortably larger than
-// real messages we'll encounter in the wild.
-const size_t BUFFERED_LENGTH = 256*1024;
+// Windows.
+const size_t BUFFERED_LENGTH = 65336;
 #endif  // LL_WINDOWS
 
 void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
