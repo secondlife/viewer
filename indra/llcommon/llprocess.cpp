@@ -163,6 +163,7 @@ public:
 	}
 
 	virtual std::ostream& get_ostream() { return mStream; }
+	virtual size_type size() const { return mStreambuf.size(); }
 
 	bool tick(const LLSD&)
 	{

@@ -340,6 +340,20 @@ public:
 
 		typedef std::size_t size_type;
 		static const size_type npos;
+
+		/**
+		 * Get accumulated buffer length.
+		 *
+		 * For WritePipe, is there still pending data to send to child?
+		 *
+		 * For ReadPipe, we often need to refrain from actually reading the
+		 * std::istream returned by get_istream() until we've accumulated
+		 * enough data to make it worthwhile. For instance, if we're expecting
+		 * a number from the child, but the child happens to flush "12" before
+		 * emitting "3\n", get_istream() >> myint could return 12 rather than
+		 * 123!
+		 */
+		virtual size_type size() const = 0;
 	};
 
 	/// As returned by getWritePipe() or getOptWritePipe()
@@ -386,16 +400,6 @@ public:
 		 * than requiring caller to construct a buffer, etc.
 		 */
 		virtual std::string read(size_type len) = 0;
-
-		/**
-		 * Get accumulated buffer length.
-		 * Often we need to refrain from actually reading the std::istream
-		 * returned by get_istream() until we've accumulated enough data to
-		 * make it worthwhile. For instance, if we're expecting a number from
-		 * the child, but the child happens to flush "12" before emitting
-		 * "3\n", get_istream() >> myint could return 12 rather than 123!
-		 */
-		virtual size_type size() const = 0;
 
 		/**
 		 * Peek at accumulated buffer data without consuming it. Optional
