@@ -580,7 +580,7 @@ void LLTexLayerSetBuffer::doUpload()
 					args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 					args["RESOLUTION"] = lod_str;
 					LLNotificationsUtil::add("AvatarRezSelfBakedTextureUploadNotification",args);
-					llinfos << self_av_string() << "Uploading [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUploadTimer.getElapsedTimeF32() << " ]" << llendl;
+					LL_INFOS("Avatar") << self_av_string() << "Uploading [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUploadTimer.getElapsedTimeF32() << " ]" << LL_ENDL;
 				}
 			}
 			else
@@ -634,7 +634,7 @@ void LLTexLayerSetBuffer::doUpdate()
 		args["BODYREGION"] = mTexLayerSet->getBodyRegionName();
 		args["RESOLUTION"] = lod_str;
 		LLNotificationsUtil::add("AvatarRezSelfBakedTextureUpdateNotification",args);
-		llinfos << self_av_string() << "Locally updating [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUpdateTimer.getElapsedTimeF32() << " ]" << llendl;
+		LL_INFOS("Avatar") << self_av_string() << "Locally updating [ name: " << mTexLayerSet->getBodyRegionName() << " res:" << lod_str << " time:" << (U32)mNeedsUpdateTimer.getElapsedTimeF32() << " ]" << LL_ENDL;
 	}
 }
 
