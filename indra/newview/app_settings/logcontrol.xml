@@ -42,6 +42,7 @@
 						</array>
 					<key>tags</key>
 						<array>
+							<string>Avatar</string>
 							<!-- sample entry for debugging a specific item	-->
 <!--						<string>Voice</string>		-->
 						</array>

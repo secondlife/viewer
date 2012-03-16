@@ -802,7 +802,7 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 	if (gAgentAvatarp && !gAgentAvatarp->isDead()) // not safe to call during ~LLVOAvatarself
 	{
 		LLSD metrics = gAgentAvatarp->metricsData();
-		LL_INFOS("Avatar") << gAgentAvatarp->avString() << " metrics " << ll_pretty_print_sd(metrics) << LL_ENDL;
+		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << " metrics " << ll_pretty_print_sd(metrics) << LL_ENDL;
 	}
 
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
@@ -2910,13 +2910,13 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	{
 		if (isFullyLoaded() && mFirstFullyVisible && isSelf())
 		{
-			LL_INFOS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
 			mFirstFullyVisible = FALSE;
 			LLAppearanceMgr::instance().onFirstFullyVisible();
 		}
 		if (isFullyLoaded() && mFirstFullyVisible && !isSelf())
 		{
-			LL_INFOS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
 			mFirstFullyVisible = FALSE;
 		}
 		if (isFullyLoaded())
@@ -4087,7 +4087,7 @@ void LLVOAvatar::updateVisibility()
 			LLNameValue* firstname = getNVPair("FirstName");
 			if (firstname)
 			{
-				LL_INFOS("Avatar") << avString() << " updating visibility" << LL_ENDL;
+				LL_DEBUGS("Avatar") << avString() << " updating visibility" << LL_ENDL;
 			}
 			else
 			{
@@ -4299,7 +4299,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 		LLNameValue* firstname = getNVPair("FirstName");
 		if (firstname)
 		{
-			LL_INFOS("Avatar") << avString() << " in render" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << " in render" << LL_ENDL;
 		}
 		else
 		{
@@ -6563,7 +6563,7 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 	const F32 LOADING_TIMEOUT__SECONDS = 120.f;
 	if (mRuthTimer.getElapsedTimeF32() > LOADING_TIMEOUT__SECONDS)
 	{
-		LL_INFOS("Avatar") << avString()
+		LL_DEBUGS("Avatar") << avString()
 				<< "Ruth Timer timeout: Missing texture data for '" << getFullname() << "' "
 				<< "( Params loaded : " << !visualParamWeightsAreDefault() << " ) "
 				<< "( Lower : " << isTextureDefined(TEX_LOWER_BAKED) << " ) "
@@ -7032,7 +7032,7 @@ LLColor4 LLVOAvatar::getDummyColor()
 
 void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 {	
-	LL_INFOS("Avatar") << avString() << (isSelf() ? "Self: " : "Other: ") << context << LL_ENDL;
+	LL_DEBUGS("Avatar") << avString() << (isSelf() ? "Self: " : "Other: ") << context << LL_ENDL;
 	for (LLVOAvatarDictionary::Textures::const_iterator iter = LLVOAvatarDictionary::getInstance()->getTextures().begin();
 		 iter != LLVOAvatarDictionary::getInstance()->getTextures().end();
 		 ++iter)
@@ -7042,23 +7042,23 @@ void LLVOAvatar::dumpAvatarTEs( const std::string& context ) const
 		const LLViewerTexture* te_image = getImage(iter->first,0);
 		if( !te_image )
 		{
-			LL_INFOS("Avatar") << avString() << "       " << texture_dict->mName << ": null ptr" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "       " << texture_dict->mName << ": null ptr" << LL_ENDL;
 		}
 		else if( te_image->getID().isNull() )
 		{
-			LL_INFOS("Avatar") << avString() << "       " << texture_dict->mName << ": null UUID" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "       " << texture_dict->mName << ": null UUID" << LL_ENDL;
 		}
 		else if( te_image->getID() == IMG_DEFAULT )
 		{
-			LL_INFOS("Avatar") << avString() << "       " << texture_dict->mName << ": IMG_DEFAULT" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "       " << texture_dict->mName << ": IMG_DEFAULT" << LL_ENDL;
 		}
 		else if( te_image->getID() == IMG_DEFAULT_AVATAR )
 		{
-			LL_INFOS("Avatar") << avString() << "       " << texture_dict->mName << ": IMG_DEFAULT_AVATAR" << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "       " << texture_dict->mName << ": IMG_DEFAULT_AVATAR" << LL_ENDL;
 		}
 		else
 		{
-			LL_INFOS("Avatar") << avString() << "       " << texture_dict->mName << ": " << te_image->getID() << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << "       " << texture_dict->mName << ": " << te_image->getID() << LL_ENDL;
 		}
 	}
 }
@@ -7189,7 +7189,7 @@ void LLVOAvatar::rebuildHUD()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::onFirstTEMessageReceived()
 {
-	LL_INFOS("Avatar") << avString() << LL_ENDL;
+	LL_DEBUGS("Avatar") << avString() << LL_ENDL;
 	if( !mFirstTEMessageReceived )
 	{
 		mFirstTEMessageReceived = TRUE;
@@ -7218,7 +7218,7 @@ void LLVOAvatar::onFirstTEMessageReceived()
 					image->setLoadedCallback( onBakedTextureMasksLoaded, MORPH_MASK_REQUESTED_DISCARD, TRUE, TRUE, new LLTextureMaskData( mID ), 
 						src_callback_list, paused);
 				}
-				LL_INFOS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
+				LL_DEBUGS("Avatar") << avString() << "layer_baked, setting onInitialBakedTextureLoaded as callback" << LL_ENDL;
 				image->setLoadedCallback( onInitialBakedTextureLoaded, MAX_DISCARD_LEVEL, FALSE, FALSE, new LLUUID( mID ), 
 					src_callback_list, paused );
 			}
@@ -7280,7 +7280,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
 	mFirstAppearanceMessageReceived = TRUE;
 
-	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
+	LL_DEBUGS("Avatar") << avString() << "processAvatarAppearance start " << mID
 			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
 
 
@@ -7338,7 +7338,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
 	if( num_blocks > 1 && !drop_visual_params_debug)
 	{
-		LL_INFOS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
 		BOOL params_changed = FALSE;
 		BOOL interp_params = FALSE;
 		
@@ -7411,7 +7411,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	else
 	{
 		// AvatarAppearance message arrived without visual params
-		LL_INFOS("Avatar") << avString() << "no visual params" << LL_ENDL;
+		LL_DEBUGS("Avatar") << avString() << "no visual params" << LL_ENDL;
 		if (drop_visual_params_debug)
 		{
 			llinfos << "Debug-faked lack of parameters on AvatarAppearance for object: "  << getID() << llendl;
@@ -7571,7 +7571,7 @@ void LLVOAvatar::onInitialBakedTextureLoaded( BOOL success, LLViewerFetchedTextu
 	
 	if (selfp)
 	{
-		LL_INFOS("Avatar") << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << LL_ENDL;
+		LL_DEBUGS("Avatar") << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << LL_ENDL;
 	}
 
 	if (!success && selfp)
@@ -7596,7 +7596,7 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success,
 	LLVOAvatar *selfp = (LLVOAvatar *)gObjectList.findObject(*avatar_idp);
 	if (selfp)
 	{	
-		LL_INFOS("Avatar") << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << " id " << src_vi->getID() << LL_ENDL;
+		LL_DEBUGS("Avatar") << selfp->avString() << "discard_level " << discard_level << " success " << success << " final " << final << " id " << src_vi->getID() << LL_ENDL;
 	}
 
 	if (selfp && !success)
@@ -7631,7 +7631,7 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 		LLViewerTexture* image_baked = getImage( mBakedTextureDatas[i].mTextureIndex, 0 );
 		if (id == image_baked->getID())
 		{
-			LL_INFOS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
+			LL_DEBUGS("Avatar") << avString() << " i " << i << " id " << id << LL_ENDL;
 			mBakedTextureDatas[i].mIsLoaded = true;
 			mBakedTextureDatas[i].mLastTextureIndex = id;
 			mBakedTextureDatas[i].mIsUsed = true;

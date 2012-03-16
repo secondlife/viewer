@@ -2142,7 +2142,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	LLSD msg = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";
 
-	LL_INFOS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
+	LL_DEBUGS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
 	std::string	caps_url;
 	if (getRegion())
 	{
@@ -2442,7 +2442,7 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 
 void LLVOAvatarSelf::outputRezTiming(const std::string& msg) const
 {
-	LL_INFOS("Avatar")
+	LL_DEBUGS("Avatar")
 		<< avString()
 		<< llformat("%s. Time from avatar creation: %.2f", msg.c_str(), mDebugSelfLoadTimer.getElapsedTimeF32())
 		<< LL_ENDL;
