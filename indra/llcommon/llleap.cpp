@@ -29,12 +29,15 @@
 #include "stringize.h"
 #include "llsdutil.h"
 #include "llsdserialize.h"
+#include "llerrorcontrol.h"
+#include "lltimer.h"
 
 LLLeap::LLLeap() {}
 LLLeap::~LLLeap() {}
 
 class LLLeapImpl: public LLLeap
 {
+    LOG_CLASS(LLLeap);
 public:
     // Called only by LLLeap::create()
     LLLeapImpl(const std::string& desc, const std::vector<std::string>& plugin):
@@ -48,7 +51,8 @@ public:
         // Try to make that more difficult by generating a UUID for the reply-
         // pump name -- so it should NOT need tweaking for uniqueness.
         mReplyPump(LLUUID::generateNewID().asString()),
-        mExpect(0)
+        mExpect(0),
+        mPrevFatalFunction(LLError::getFatalFunction())
     {
         // Rule out empty vector
         if (plugin.empty())
@@ -135,6 +139,9 @@ public:
         mStderrConnection = childerr.getPump()
             .listen("LLLeap", boost::bind(&LLLeapImpl::rstderr, this, _1));
 
+        // For our lifespan, intercept any LL_ERRS so we can notify plugin
+        LLError::setFatalFunction(boost::bind(&LLLeapImpl::fatalFunction, this, _1));
+
         // Send child a preliminary event reporting our own reply-pump name --
         // which would otherwise be pretty tricky to guess!
 // TODO TODO inject name of command pump here.
@@ -150,6 +157,8 @@ public:
     virtual ~LLLeapImpl()
     {
         LL_DEBUGS("LLLeap") << "destroying LLLeap(\"" << mDesc << "\")" << LL_ENDL;
+        // Restore original FatalFunction
+        LLError::setFatalFunction(mPrevFatalFunction);
     }
 
     // Listener for failed launch attempt
@@ -363,6 +372,30 @@ public:
         return false;
     }
 
+    void fatalFunction(const std::string& error)
+    {
+        // Notify plugin
+        LLSD event;
+        event["type"] = "error";
+        event["error"] = error;
+        mReplyPump.post(event);
+
+        // All the above really accomplished was to buffer the serialized
+        // event in our WritePipe. Have to pump mainloop a couple times to
+        // really write it out there... but time out in case we can't write.
+        LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
+        LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+        LLSD nop;
+        F64 until(LLTimer::getElapsedSeconds() + 2);
+        while (childin.size() && LLTimer::getElapsedSeconds() < until)
+        {
+            mainloop.post(nop);
+        }
+
+        // forward the call to the previous FatalFunction
+        mPrevFatalFunction(error);
+    }
+
 private:
     std::string mDesc;
     LLEventStream mDonePump;
@@ -372,6 +405,7 @@ private:
         mStdinConnection, mStdoutConnection, mStdoutDataConnection, mStderrConnection;
     boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
+    LLError::FatalFunction mPrevFatalFunction;
 };
 
 // This must follow the declaration of LLLeapImpl, so it may as well be last.
