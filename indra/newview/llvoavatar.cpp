@@ -791,7 +791,7 @@ std::string LLVOAvatar::avString() const
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
 {
-	llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+	LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
 			<< "sec ]"
 			<< avString() 
 			<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()

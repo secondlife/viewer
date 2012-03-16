@@ -2356,7 +2356,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 			if (isAllLocalTextureDataFinal())
 			{
 				LLNotificationsUtil::add("AvatarRezSelfBakedDoneNotification",args);
-				llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+				LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
 						<< "sec ]"
 						<< avString() 
 						<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
@@ -2368,7 +2368,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 			{
 				args["STATUS"] = debugDumpAllLocalTextureDataInfo();
 				LLNotificationsUtil::add("AvatarRezSelfBakedUpdateNotification",args);
-				llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+				LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
 						<< "sec ]"
 						<< avString() 
 						<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
