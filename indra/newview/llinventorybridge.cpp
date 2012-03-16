@@ -1775,9 +1775,6 @@ BOOL LLFolderBridge::isItemMovable() const
 		// If it's a protected type folder, we can't move it
 		if (LLFolderType::lookupIsProtectedType(((LLInventoryCategory*)obj)->getPreferredType()))
 			return FALSE;
-		// If the folder is not there yet, it's too early to decide if it's movable
-		if (!isUpToDate())
-			return FALSE;
 		return TRUE;
 	}
 	return FALSE;
@@ -1785,8 +1782,9 @@ BOOL LLFolderBridge::isItemMovable() const
 
 void LLFolderBridge::selectItem()
 {
+	// Have no fear: the first thing start() does is to test if everything for that folder has been fetched...
+	LLInventoryModelBackgroundFetch::instance().start(getUUID(), true);
 }
-
 
 // Iterate through a folder's children to determine if
 // all the children are removable.
@@ -1813,10 +1811,6 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	// If the folder is not there yet, we shouldn't try to remove it yet
-	if (!isUpToDate())
-		return FALSE;
-	
 	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
 	if (folderp)
@@ -1849,10 +1843,6 @@ BOOL LLFolderBridge::isItemCopyable() const
 {
 	// Folders are copyable if items in them are, recursively, copyable.
 	
-	// If the folder is not there yet, it's not copyable
-	if (!isUpToDate())
-		return FALSE;
-		
 	// Get the content of the folder
 	LLInventoryModel::cat_array_t* cat_array;
 	LLInventoryModel::item_array_t* item_array;
