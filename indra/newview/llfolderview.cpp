@@ -165,6 +165,33 @@ void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 { }
 
 ///----------------------------------------------------------------------------
+/// Class LLFolderViewScrollContainer
+///----------------------------------------------------------------------------
+
+// virtual
+const LLRect LLFolderViewScrollContainer::getScrolledViewRect() const
+{
+	LLRect rect = LLRect::null;
+	if (mScrolledView)
+	{
+		LLFolderView* folder_view = dynamic_cast<LLFolderView*>(mScrolledView);
+		if (folder_view)
+		{
+			S32 height = folder_view->mRunningHeight;
+
+			rect = mScrolledView->getRect();
+			rect.setLeftTopAndSize(rect.mLeft, rect.mTop, rect.getWidth(), height);
+		}
+	}
+
+	return rect;
+}
+
+LLFolderViewScrollContainer::LLFolderViewScrollContainer(const LLScrollContainer::Params& p)
+:	LLScrollContainer(p)
+{}
+
+///----------------------------------------------------------------------------
 /// Class LLFolderView
 ///----------------------------------------------------------------------------
 LLFolderView::Params::Params()
@@ -535,6 +562,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		width = scroll_rect.getWidth();
 	}
+
 	LLView::reshape(width, height, called_from_parent);
 	mReshapeSignal(mSelectedItems, FALSE);
 }
@@ -943,6 +971,9 @@ void LLFolderView::draw()
 			// We should call this method to also notify parent about required rect.
 			// See EXT-7564, EXT-7047.
 			arrangeFromRoot();
+			LLUI::popMatrix();
+			LLUI::pushMatrix();
+			LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 		}
 	}
 

@@ -3295,6 +3295,7 @@
          name="Set Logging Level"
          tear_off="true">
           <menu_item_check
+            name="Debug"
             label="Debug">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3304,6 +3305,7 @@
              parameter="0" />
           </menu_item_check>
           <menu_item_check
+            name="Info"
             label="Info">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3313,6 +3315,7 @@
              parameter="1" />
           </menu_item_check>
           <menu_item_check
+            name="Warning"
             label="Warning">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3322,6 +3325,7 @@
              parameter="2" />
           </menu_item_check>
           <menu_item_check
+            name="Error"
             label="Error">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3331,6 +3335,7 @@
              parameter="3" />
           </menu_item_check>
           <menu_item_check
+            name="None"
             label="None">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"

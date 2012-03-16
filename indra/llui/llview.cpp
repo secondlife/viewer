@@ -1835,7 +1835,10 @@ const LLCtrlQuery & LLView::getFocusRootsQuery()
 
 void	LLView::setShape(const LLRect& new_rect, bool by_user)
 {
-	handleReshape(new_rect, by_user);
+	if (new_rect != getRect())
+	{
+		handleReshape(new_rect, by_user);
+	}
 }
 
 void LLView::handleReshape(const LLRect& new_rect, bool by_user)
