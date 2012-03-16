@@ -64,6 +64,7 @@ set(llcommon_SOURCE_FILES
     llinitparam.cpp
     llinstancetracker.cpp
     llleap.cpp
+    llleaplistener.cpp
     llliveappconfig.cpp
     lllivefile.cpp
     lllog.cpp
@@ -182,6 +183,7 @@ set(llcommon_HEADER_FILES
     llkeythrottle.h
     lllazy.h
     llleap.h
+    llleaplistener.h
     lllistenerwrapper.h
     lllinkedqueue.h
     llliveappconfig.h

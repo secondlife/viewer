@@ -31,6 +31,12 @@
 #include "llsdserialize.h"
 #include "llerrorcontrol.h"
 #include "lltimer.h"
+#include "lluuid.h"
+#include "llleaplistener.h"
+
+#if LL_MSVC
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
 
 LLLeap::LLLeap() {}
 LLLeap::~LLLeap() {}
@@ -52,7 +58,13 @@ public:
         // pump name -- so it should NOT need tweaking for uniqueness.
         mReplyPump(LLUUID::generateNewID().asString()),
         mExpect(0),
-        mPrevFatalFunction(LLError::getFatalFunction())
+        mPrevFatalFunction(LLError::getFatalFunction()),
+        // Instantiate a distinct LLLeapListener for this plugin. (Every
+        // plugin will want its own collection of managed listeners, etc.)
+        // Pass it a callback to our connect() method, so it can send events
+        // from a particular LLEventPump to the plugin without having to know
+        // this class or method name.
+        mListener(new LLLeapListener(boost::bind(&LLLeapImpl::connect, this, _1, _2)))
     {
         // Rule out empty vector
         if (plugin.empty())
@@ -115,11 +127,8 @@ public:
         childout.setLimit(20);
         childerr.setLimit(20);
 
-        // Serialize any event received on mReplyPump to our child's stdin,
-        // suitably enriched with the pump name on which it was received.
-        mStdinConnection = mReplyPump
-            .listen("LLLeap",
-                    boost::bind(&LLLeapImpl::wstdin, this, mReplyPump.getName(), _1));
+        // Serialize any event received on mReplyPump to our child's stdin.
+        mStdinConnection = connect(mReplyPump, "LLLeap");
 
         // Listening on stdout is stateful. In general, we're either waiting
         // for the length prefix or waiting for the specified length of data.
@@ -144,13 +153,12 @@ public:
 
         // Send child a preliminary event reporting our own reply-pump name --
         // which would otherwise be pretty tricky to guess!
-// TODO TODO inject name of command pump here.
         wstdin(mReplyPump.getName(),
                LLSDMap
-               ("command", LLSD())
+               ("command", mListener->getName())
                // Include LLLeap features -- this may be important for child to
                // construct (or recognize) current protocol.
-               ("features", LLSD::emptyMap()));
+               ("features", LLLeapListener::getFeatures()));
     }
 
     // Normally we'd expect to arrive here only via done()
@@ -397,6 +405,17 @@ public:
     }
 
 private:
+    /// We always want to listen on mReplyPump with wstdin(); under some
+    /// circumstances we'll also echo other LLEventPumps to the plugin.
+    LLBoundListener connect(LLEventPump& pump, const std::string& listener)
+    {
+        // Serialize any event received on the specified LLEventPump to our
+        // child's stdin, suitably enriched with the pump name on which it was
+        // received.
+        return pump.listen(listener,
+                           boost::bind(&LLLeapImpl::wstdin, this, pump.getName(), _1));
+    }
+
     std::string mDesc;
     LLEventStream mDonePump;
     LLEventStream mReplyPump;
@@ -406,6 +425,7 @@ private:
     boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
     LLError::FatalFunction mPrevFatalFunction;
+    boost::scoped_ptr<LLLeapListener> mListener;
 };
 
 // This must follow the declaration of LLLeapImpl, so it may as well be last.
