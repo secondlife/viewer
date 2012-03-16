@@ -55,10 +55,10 @@ static const char USAGE[] = "\n"
 "        List of image files to create (assumes same order as for input files)\n"
 "        OR 3 letters file type extension to convert each input file into.\n"
 " -load, --load_size <n>\n"
-"        Portion of the input image to load, in bytes."
-"        Will load the whole image if 0 or if the size requested is more than the file size."
-"        This parameter will be applied to any input image type but really makes sense only"
-"        for j2c images."
+"        Portion of the input file to load, in bytes."
+"        If (load == 0), it will load the whole file."
+"        If (load == -1), it will load the size relevant to reach the requested discard level (see -d)."
+"        Only valid for j2c images. Default is 0 (load whole file).\n"
 " -r, --region <x0, y0, x1, y1>\n"
 "        Crop region applied to the input files in pixels.\n"
 "        Only used for j2c images. Default is no region cropping.\n"
@@ -121,10 +121,40 @@ LLPointer<LLImageRaw> load_image(const std::string &src_filename, int discard_le
 {
 	LLPointer<LLImageFormatted> image = create_image(src_filename);
 	
-	// This just loads the image file stream into a buffer. No decoding done.
-	if (!image->load(src_filename, load_size))
+	// We support partial loading only for j2c images
+	if (image->getCodec() == IMG_CODEC_J2C)
 	{
-		return NULL;
+		// Load the header
+		if (!image->load(src_filename, 600))
+		{
+			return NULL;
+		}
+		S32 h = ((LLImageJ2C*)(image.get()))->calcHeaderSize();
+		S32 d = (load_size > 0 ? ((LLImageJ2C*)(image.get()))->calcDiscardLevelBytes(load_size) : 0);
+		S8  r = ((LLImageJ2C*)(image.get()))->getRawDiscardLevel();
+		std::cout << "Merov debug : header = " << h << ", load_size = " << load_size << ", discard level = " << d << ", raw discard level = " << r << std::endl;
+		for (d = 0; d < MAX_DISCARD_LEVEL; d++)
+		{
+			S32 data_size = ((LLImageJ2C*)(image.get()))->calcDataSize(d);
+			std::cout << "Merov debug : discard_level = " << d << ", data_size = " << data_size << std::endl;
+		}
+		if (load_size < 0)
+		{
+			load_size = (discard_level != -1 ? ((LLImageJ2C*)(image.get()))->calcDataSize(discard_level) : 0);
+		}
+		// Load the requested byte range
+		if (!image->load(src_filename, load_size))
+		{
+			return NULL;
+		}
+	}
+	else 
+	{
+		// This just loads the image file stream into a buffer. No decoding done.
+		if (!image->load(src_filename))
+		{
+			return NULL;
+		}
 	}
 	
 	if(	(image->getComponents() != 3) && (image->getComponents() != 4) )
