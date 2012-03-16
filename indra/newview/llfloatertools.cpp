@@ -110,9 +110,6 @@ void click_show_more(void*);
 void click_popup_info(void*);
 void click_popup_done(void*);
 void click_popup_minimize(void*);
-void click_popup_rotate_left(void*);
-void click_popup_rotate_reset(void*);
-void click_popup_rotate_right(void*);
 void commit_slider_dozer_force(LLUICtrl *);
 void click_apply_to_selection(void*);
 void commit_radio_group_focus(LLUICtrl* ctrl);
@@ -952,24 +949,6 @@ void commit_slider_zoom(LLUICtrl *ctrl)
 	// renormalize value, since max "volume" level is 0.5 for some reason
 	F32 zoom_level = (F32)ctrl->getValue().asReal() * 2.f; // / 0.5f;
 	gAgentCamera.setCameraZoomFraction(zoom_level);
-}
-
-void click_popup_rotate_left(void*)
-{
-	LLSelectMgr::getInstance()->selectionRotateAroundZ( 45.f );
-	dialog_refresh_all();
-}
-
-void click_popup_rotate_reset(void*)
-{
-	LLSelectMgr::getInstance()->selectionResetRotation();
-	dialog_refresh_all();
-}
-
-void click_popup_rotate_right(void*)
-{
-	LLSelectMgr::getInstance()->selectionRotateAroundZ( -45.f );
-	dialog_refresh_all();
 }
 
 void commit_slider_dozer_force(LLUICtrl *ctrl)

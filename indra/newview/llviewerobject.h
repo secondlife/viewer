@@ -308,7 +308,6 @@ public:
 
 	inline void setRotation(const F32 x, const F32 y, const F32 z, BOOL damped = FALSE);
 	inline void setRotation(const LLQuaternion& quat, BOOL damped = FALSE);
-	void sendRotationUpdate() const;
 
 	/*virtual*/	void	setNumTEs(const U8 num_tes);
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);

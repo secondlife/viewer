@@ -538,8 +538,6 @@ public:
 	void selectionTexScaleAutofit(F32 repeats_per_meter);
 	void adjustTexturesByScale(BOOL send_to_sim, BOOL stretch);
 
-	void selectionResetRotation();				// sets rotation quat to identity
-	void selectionRotateAroundZ(F32 degrees);
 	bool selectionMove(const LLVector3& displ, F32 rx, F32 ry, F32 rz,
 					   U32 update_type);
 	void sendSelectionMove();

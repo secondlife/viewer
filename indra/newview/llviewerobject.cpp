@@ -4026,38 +4026,6 @@ void LLViewerObject::sendMaterialUpdate() const
 
 }
 
-// formerly send_object_rotation
-void LLViewerObject::sendRotationUpdate() const
-{
-	LLViewerRegion* regionp = getRegion();
-	if(!regionp) return;
-	gMessageSystem->newMessageFast(_PREHASH_ObjectRotation);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, mLocalID);
-	gMessageSystem->addQuatFast(_PREHASH_Rotation, getRotationEdit());
-	//llinfos << "Sent rotation " << getRotationEdit() << llendl;
-	gMessageSystem->sendReliable( regionp->getHost() );
-}
-
-/* Obsolete, we use MultipleObjectUpdate instead
-//// formerly send_object_position_global
-//void LLViewerObject::sendPositionUpdate() const
-//{
-//	gMessageSystem->newMessageFast(_PREHASH_ObjectPosition);
-//	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-//	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
-//	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-//	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
-//	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID,	mLocalID );
-//	gMessageSystem->addVector3Fast(_PREHASH_Position, getPositionRegion());
-//	LLViewerRegion* regionp = getRegion();
-//	gMessageSystem->sendReliable(regionp->getHost());
-//}
-*/
-
 //formerly send_object_shape(LLViewerObject *object)
 void LLViewerObject::sendShapeUpdate()
 {
