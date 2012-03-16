@@ -20,7 +20,7 @@
 					<key>tags</key>
 						<array>
 							<string>AppInit</string>
-              <string>Capabilities</string>
+							<string>Capabilities</string>
 							<string>SystemInfo</string>
 							<string>TextureCache</string>
 							<string>AppCache</string>
