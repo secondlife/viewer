@@ -882,6 +882,10 @@ bool LLFloater::applyRectControl()
 					reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
 				}
 			}
+			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+			LLRect screen_rect = calcScreenRect();
+			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+			storeRectControl();
 		}
 
 		LLControlVariablePtr x_control = getControlGroup()->getControl(mPosXControl);
@@ -897,11 +901,6 @@ bool LLFloater::applyRectControl()
 			applyRelativePosition();
 
 			saved_rect = true;
-		}
-		else
-		{
-			LLRect screen_rect = calcScreenRect();
-			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 		}
 	}
 
