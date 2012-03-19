@@ -2147,7 +2147,7 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	if (getRegion())
 	{
 		// runway - change here to activate.
-		caps_url = "";//getRegion()->getCapability("ViewerMetrics");
+		caps_url = getRegion()->getCapability("ViewerMetrics");
 	}
 	if (!caps_url.empty())
 	{
