@@ -46,13 +46,6 @@ class LLPathfindingLinkset
 public:
 	typedef enum
 	{
-		kNavMeshGenerationIgnore,
-		kNavMeshGenerationInclude,
-		kNavMeshGenerationExclude
-	} ENavMeshGenerationCategory;
-
-	typedef enum
-	{
 		kUnknown,
 		kWalkable,
 		kStaticObstacle,
@@ -77,7 +70,7 @@ public:
 	inline const LLVector3&           getLocation() const                 {return mLocation;};
 	BOOL                              isModifiable() const                {return mIsModifiable;};
 	BOOL                              isPhantom() const;
-	static BOOL                       isPhantom(ELinksetUse pLinksetUse);
+	BOOL                              canBeVolume() const                 {return mCanBeVolume;};
 	static ELinksetUse                getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
 
 	inline ELinksetUse                getLinksetUse() const               {return mLinksetUse;};
@@ -87,6 +80,8 @@ public:
 	inline S32                        getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
 	inline S32                        getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 
+	bool                              isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
+	bool                              isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
 	LLSD                              encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
 	static const S32 MIN_WALKABILITY_VALUE;
@@ -95,6 +90,13 @@ public:
 protected:
 
 private:
+	typedef enum
+	{
+		kNavMeshGenerationIgnore,
+		kNavMeshGenerationInclude,
+		kNavMeshGenerationExclude
+	} ENavMeshGenerationCategory;
+
 	void                              parseObjectData(const LLSD &pLinksetItem);
 	void                              parsePathfindingData(const LLSD &pLinksetItem);
 
@@ -103,6 +105,7 @@ private:
 	static BOOL                       isPermanent(ELinksetUse pLinksetUse);
 	static BOOL                       isWalkable(ELinksetUse pLinksetUse);
 #endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
+	static BOOL                       isPhantom(ELinksetUse pLinksetUse);
 	static ELinksetUse                getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory);
 	static ENavMeshGenerationCategory getNavMeshGenerationCategory(ELinksetUse pLinksetUse);
 	static LLSD                       convertCategoryToLLSD(ENavMeshGenerationCategory pNavMeshGenerationCategory);
@@ -118,6 +121,7 @@ private:
 	bool         mHasModifiable;
 #endif // MISSING_MODIFIABLE_FIELD_WAR
 	BOOL         mIsModifiable;
+	BOOL         mCanBeVolume;
 	ELinksetUse  mLinksetUse;
 	S32          mWalkabilityCoefficientA;
 	S32          mWalkabilityCoefficientB;

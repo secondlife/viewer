@@ -34,6 +34,8 @@
   <floater.string name="linkset_use_dynamic_phantom">Movable phantom</floater.string>
   <floater.string name="linkset_is_terrain">[unmodifiable]</floater.string>
   <floater.string name="linkset_is_restricted_state">[restricted]</floater.string>
+  <floater.string name="linkset_is_non_volume_state">[concave]</floater.string>
+  <floater.string name="linkset_is_restricted_non_volume_state">[restricted,concave]</floater.string>
   <floater.string name="linkset_choose_use">Choose linkset use...</floater.string>
   <panel
       border="false"
@@ -178,7 +180,7 @@
       <scroll_list.columns
           label="Description (root prim)"
           name="description"
-          width="192" />
+          width="166" />
       <scroll_list.columns
           label="Land impact"
           name="land_impact"
@@ -190,7 +192,7 @@
       <scroll_list.columns
           label="Linkset use"
           name="linkset_use"
-          width="210" />
+          width="236" />
       <scroll_list.columns
           label="A %"
           name="a_percent"

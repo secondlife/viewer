@@ -7677,6 +7677,33 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnVolume"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of the shape is non-convex.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_SetLinksetUseMismatchOnRestrictedAndVolume"
+   type="alertmodal">
+    Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of permission restrictions on the linkset.  These linksets will be set to be '[RESTRICTED_TYPE]' instead.
+ Some selected linksets cannot be set to be '[REQUESTED_TYPE]' because of the shape is non-convex. These linksets use types will not change.
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 

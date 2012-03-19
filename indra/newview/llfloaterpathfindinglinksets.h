@@ -77,14 +77,6 @@ public:
 protected:
 
 private:
-	typedef enum
-	{
-		kAllowLinksetUseAll,
-		kAllowLinksetUseOnlyNonPhantom,
-		kAllowLinksetUseOnlyPhantom,
-		kAllowLinksetUseOnlyTerrain
-	} EAllowLinksetsUse;
-
 	LLLineEditor     *mFilterByName;
 	LLLineEditor     *mFilterByDescription;
 	LLComboBox       *mFilterByLinksetUse;
@@ -163,12 +155,13 @@ private:
 	LLSD buildLinksetScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition) const;
 	LLSD buildLinksetUseScrollListElement(const std::string &label, S32 value) const;
 
-	EAllowLinksetsUse getAllowLinksetUse() const;
-	bool              doShowLinksetUseSetWarning(LLPathfindingLinkset::ELinksetUse linksetUse) const;
+	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse linksetUse) const;
+	bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse linksetUse) const;
 
 	void updateStatusMessage();
 	void updateEnableStateOnListActions();
 	void updateEnableStateOnEditFields();
+	void updateEnableStateOnEditLinksetUse();
 
 	void applyEdit();
 	void handleApplyEdit(const LLSD &pNotification, const LLSD &pResponse);

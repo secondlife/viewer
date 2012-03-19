@@ -31,15 +31,16 @@
 #include "v3math.h"
 #include "lluuid.h"
 
-#define LINKSET_NAME_FIELD                  "name"
-#define LINKSET_DESCRIPTION_FIELD           "description"
-#define LINKSET_LAND_IMPACT_FIELD           "landimpact"
-#define LINKSET_MODIFIABLE_FIELD            "modifiable"
+#define LINKSET_NAME_FIELD                 "name"
+#define LINKSET_DESCRIPTION_FIELD          "description"
+#define LINKSET_LAND_IMPACT_FIELD          "landimpact"
+#define LINKSET_MODIFIABLE_FIELD           "modifiable"
 #ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-#define DEPRECATED_LINKSET_PERMANENT_FIELD  "permanent"
+#define DEPRECATED_LINKSET_PERMANENT_FIELD "permanent"
 #define DEPRECATED_LINKSET_WALKABLE_FIELD  "walkable"
 #endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 #define LINKSET_CATEGORY_FIELD             "navmesh_category"
+#define LINKSET_CAN_BE_VOLUME              "can_be_volume"
 #define LINKSET_PHANTOM_FIELD              "phantom"
 #define LINKSET_WALKABILITY_A_FIELD        "A"
 #define LINKSET_WALKABILITY_B_FIELD        "B"
@@ -68,7 +69,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainLinksetItem)
 #ifdef MISSING_MODIFIABLE_FIELD_WAR
 	mHasModifiable(true),
 #endif // MISSING_MODIFIABLE_FIELD_WAR
-	mIsModifiable(TRUE),
+	mIsModifiable(FALSE),
+	mCanBeVolume(FALSE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -89,6 +91,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mHasModifiable(false),
 #endif // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(TRUE),
+	mCanBeVolume(TRUE),
 	mLinksetUse(kUnknown),
 	mWalkabilityCoefficientA(MIN_WALKABILITY_VALUE),
 	mWalkabilityCoefficientB(MIN_WALKABILITY_VALUE),
@@ -111,6 +114,7 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 #else // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable(pOther.mIsModifiable),
 #endif // MISSING_MODIFIABLE_FIELD_WAR
+	mCanBeVolume(pOther.mCanBeVolume),
 	mLinksetUse(pOther.mLinksetUse),
 	mWalkabilityCoefficientA(pOther.mWalkabilityCoefficientA),
 	mWalkabilityCoefficientB(pOther.mWalkabilityCoefficientB),
@@ -139,6 +143,7 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 #else // MISSING_MODIFIABLE_FIELD_WAR
 	mIsModifiable = pOther.mIsModifiable;
 #endif // MISSING_MODIFIABLE_FIELD_WAR
+	mCanBeVolume = pOther.mCanBeVolume;
 	mLinksetUse = pOther.mLinksetUse;
 	mWalkabilityCoefficientA = pOther.mWalkabilityCoefficientA;
 	mWalkabilityCoefficientB = pOther.mWalkabilityCoefficientB;
@@ -153,32 +158,6 @@ BOOL LLPathfindingLinkset::isPhantom() const
 	return isPhantom(getLinksetUse());
 }
 
-BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
-{
-	BOOL retVal;
-
-	switch (pLinksetUse)
-	{
-	case kWalkable :
-	case kStaticObstacle :
-	case kDynamicObstacle :
-		retVal = false;
-		break;
-	case kMaterialVolume :
-	case kExclusionVolume :
-	case kDynamicPhantom :
-		retVal = true;
-		break;
-	case kUnknown :
-	default :
-		retVal = false;
-		llassert(0);
-		break;
-	}
-
-	return retVal;
-}
-
 LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse)
 {
 	BOOL isPhantom = LLPathfindingLinkset::isPhantom(pLinksetUse);
@@ -187,19 +166,31 @@ LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUseWithToggled
 	return getLinksetUse(!isPhantom, navMeshGenerationCategory);
 }
 
+bool LLPathfindingLinkset::isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const
+{
+	return (!isModifiable() && (isPhantom() != isPhantom(pLinksetUse)));
+}
+
+bool LLPathfindingLinkset::isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const
+{
+	return (!canBeVolume() && ((pLinksetUse == kMaterialVolume) || (pLinksetUse == kExclusionVolume)));
+}
+
 LLSD LLPathfindingLinkset::encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD itemData;
 
-	if (!isTerrain() && (pLinksetUse != kUnknown) && (mLinksetUse != pLinksetUse))
+	if (!isTerrain() && (pLinksetUse != kUnknown) && (getLinksetUse() != pLinksetUse) &&
+		(canBeVolume() || ((pLinksetUse != kMaterialVolume) && (pLinksetUse != kExclusionVolume))))
 	{
-		if (mIsModifiable)
+		if (isModifiable())
 		{
-			itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPhantom(pLinksetUse));
+			itemData[LINKSET_PHANTOM_FIELD] = static_cast<bool>(isPhantom(pLinksetUse));
 		}
+
 #ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-		itemData[DEPRECATED_LINKSET_PERMANENT_FIELD] = static_cast<bool>(LLPathfindingLinkset::isPermanent(pLinksetUse));
-		itemData[DEPRECATED_LINKSET_WALKABLE_FIELD] = static_cast<bool>(LLPathfindingLinkset::isWalkable(pLinksetUse));
+		itemData[DEPRECATED_LINKSET_PERMANENT_FIELD] = static_cast<bool>(isPermanent(pLinksetUse));
+		itemData[DEPRECATED_LINKSET_WALKABLE_FIELD] = static_cast<bool>(isWalkable(pLinksetUse));
 #endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
 		itemData[LINKSET_CATEGORY_FIELD] = convertCategoryToLLSD(getNavMeshGenerationCategory(pLinksetUse));
 	}
@@ -290,7 +281,13 @@ void LLPathfindingLinkset::parsePathfindingData(const LLSD &pLinksetItem)
 	llassert(pLinksetItem.has(LINKSET_CATEGORY_FIELD));
 	mLinksetUse = getLinksetUse(isPhantom, convertCategoryFromLLSD(pLinksetItem.get(LINKSET_CATEGORY_FIELD)));
 #endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
-	
+
+	if (pLinksetItem.has(LINKSET_CAN_BE_VOLUME))
+	{
+		llassert(pLinksetItem.get(LINKSET_CAN_BE_VOLUME).isBoolean());
+		mCanBeVolume = pLinksetItem.get(LINKSET_CAN_BE_VOLUME).asBoolean();
+	}
+
 	llassert(pLinksetItem.has(LINKSET_WALKABILITY_A_FIELD));
 	llassert(pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).isInteger());
 	mWalkabilityCoefficientA = pLinksetItem.get(LINKSET_WALKABILITY_A_FIELD).asInteger();
@@ -375,6 +372,32 @@ BOOL LLPathfindingLinkset::isWalkable(ELinksetUse pLinksetUse)
 	return retVal;
 }
 #endif // DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
+
+BOOL LLPathfindingLinkset::isPhantom(ELinksetUse pLinksetUse)
+{
+	BOOL retVal;
+
+	switch (pLinksetUse)
+	{
+	case kWalkable :
+	case kStaticObstacle :
+	case kDynamicObstacle :
+		retVal = false;
+		break;
+	case kMaterialVolume :
+	case kExclusionVolume :
+	case kDynamicPhantom :
+		retVal = true;
+		break;
+	case kUnknown :
+	default :
+		retVal = false;
+		llassert(0);
+		break;
+	}
+
+	return retVal;
+}
 
 LLPathfindingLinkset::ELinksetUse LLPathfindingLinkset::getLinksetUse(bool pIsPhantom, ENavMeshGenerationCategory pNavMeshGenerationCategory)
 {
