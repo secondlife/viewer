@@ -67,6 +67,7 @@
 // statics
 LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
 LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
+LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
@@ -96,6 +97,7 @@ S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA ;
 BOOL LLViewerTexture::sFreezeImageScalingDown = FALSE ;
 F32 LLViewerTexture::sCurrentTime = 0.0f ;
 BOOL LLViewerTexture::sUseTextureAtlas        = FALSE ;
+LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
 const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
 const F32 desired_discard_bias_max = (F32)MAX_DISCARD_LEVEL; // max number of levels to reduce image quality by
@@ -346,6 +348,21 @@ void LLViewerTextureManager::init()
 
  	LLViewerFetchedTexture::sSmokeImagep = LLViewerTextureManager::getFetchedTexture(IMG_SMOKE, TRUE, LLViewerTexture::BOOST_UI);
 	LLViewerFetchedTexture::sSmokeImagep->setNoDelete() ;
+
+	image_raw = new LLImageRaw(32,32,3);
+	data = image_raw->getData();
+
+	for (S32 i = 0; i < (32*32*3); i+=3)
+	{
+		S32 x = (i % (32*3)) / (3*16);
+		S32 y = i / (32*3*16);
+		U8 color = ((x + y) % 2) * 255;
+		data[i] = color;
+		data[i+1] = color;
+		data[i+2] = color;
+	}
+
+	LLViewerTexture::sCheckerBoardImagep = LLViewerTextureManager::getLocalTexture(image_raw.get(), TRUE);
 
 	LLViewerTexture::initClass() ;
 

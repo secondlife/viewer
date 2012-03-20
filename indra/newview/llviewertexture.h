@@ -139,6 +139,7 @@ public:
 		OTHER,
 		MAX_GL_IMAGE_CATEGORY
 	};
+
 	static S32 getTotalNumOfCategories() ;
 	static S32 getIndexFromCategory(S32 category) ;
 	static S32 getCategoryFromIndex(S32 index) ;
@@ -330,8 +331,19 @@ public:
 	static F32  sCurrentTime ;
 	static BOOL sUseTextureAtlas ;
 
+	enum EDebugTexels
+	{
+		DEBUG_TEXELS_OFF,
+		DEBUG_TEXELS_CURRENT,
+		DEBUG_TEXELS_DESIRED,
+		DEBUG_TEXELS_FULL
+	};
+
+	static EDebugTexels sDebugTexelsMode;
+
 	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
 	static LLPointer<LLViewerTexture> sBlackImagep;	// Texture to show NOTHING (pure black)
+	static LLPointer<LLViewerTexture> sCheckerBoardImagep;	// Texture to show NOTHING (pure black)
 };
 
 
