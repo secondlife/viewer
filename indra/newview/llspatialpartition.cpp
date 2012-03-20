@@ -3647,6 +3647,47 @@ void renderShadowFrusta(LLDrawInfo* params)
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
+void renderTexelDensity(LLDrawInfo* params)
+{
+	LLGLEnable _(GL_BLEND);
+	if (LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_OFF
+		|| LLViewerTexture::sCheckerBoardImagep.isNull())
+	{
+		return;
+	}
+	LLViewerTexture* texturep = params->mTexture.get();
+	LLMatrix4 checkboard_matrix;
+	S32 discard_level = -1;
+	switch(LLViewerTexture::sDebugTexelsMode)
+	{
+	case LLViewerTexture::DEBUG_TEXELS_CURRENT:
+		discard_level = -1;
+		break;
+	case LLViewerTexture::DEBUG_TEXELS_DESIRED:
+		{
+			LLViewerFetchedTexture* fetched_texturep = dynamic_cast<LLViewerFetchedTexture*>(texturep);
+			discard_level = fetched_texturep ? fetched_texturep->getDesiredDiscardLevel() : -1;
+			break;
+		}
+	default:
+	case LLViewerTexture::DEBUG_TEXELS_FULL:
+		discard_level = 0;
+		break;
+	}
+
+	checkboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
+	gGL.getTexUnit(0)->activate();
+	gGL.matrixMode(LLRender::MM_TEXTURE);
+	gGL.loadMatrix((GLfloat*) checkboard_matrix.mMatrix);
+
+	gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+
+	pushVerts(params, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+}
+
 
 void renderLights(LLDrawable* drawablep)
 {
@@ -4097,6 +4138,10 @@ public:
 				{
 					renderShadowFrusta(draw_info);
 				}
+				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
+				{
+					renderTexelDensity(draw_info);
+				}
 			}
 		}
 	}
@@ -4291,7 +4336,8 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_AGENT_TARGET |
 									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
-									  LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY)) 
+									  LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY |
+									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY)) 
 	{
 		return;
 	}
