@@ -613,7 +613,9 @@ public:
 				
 				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
 					LLMeshRepository::sHTTPRetryCount));
-				
+				ypos += y_inc;
+
+				addText(xpos, ypos, llformat("%d/%d Mesh LOD Pending/Processing", LLMeshRepository::sLODPending, LLMeshRepository::sLODProcessing));
 				ypos += y_inc;
 
 				addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
@@ -1971,7 +1973,7 @@ void LLViewerWindow::shutdownViews()
 		gMorphView->setVisible(FALSE);
 	}
 	llinfos << "Global views cleaned." << llendl ;
-
+	
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
@@ -1984,17 +1986,17 @@ void LLViewerWindow::shutdownViews()
 		delete LLNavigationBar::getInstance();
 	}
 	llinfos << "LLNavigationBar destroyed." << llendl ;
-
+	
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
 	llinfos << "menus destroyed." << llendl ;
-
+	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
 	llinfos << "RootView deleted." << llendl ;
-
+	
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
@@ -2019,6 +2021,12 @@ void LLViewerWindow::shutdownGL()
 	gSky.cleanup();
 	stop_glerror();
 
+	llinfos << "Cleaning up pipeline" << llendl;
+	gPipeline.cleanup();
+	stop_glerror();
+
+	//MUST clean up pipeline before cleaning up wearables
+	llinfos << "Cleaning up wearables" << llendl;
 	LLWearableList::instance().cleanup() ;
 
 	gTextureList.shutdown();
@@ -2028,10 +2036,6 @@ void LLViewerWindow::shutdownGL()
 	stop_glerror();
 
 	LLWorldMapView::cleanupTextures();
-
-	llinfos << "Cleaning up pipeline" << llendl;
-	gPipeline.cleanup();
-	stop_glerror();
 
 	LLViewerTextureManager::cleanup() ;
 	LLImageGL::cleanupClass() ;

@@ -1077,6 +1077,7 @@ BOOL LLDrawable::isVisible() const
 LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask)
 : LLSpatialPartition(data_mask, render_by_group, GL_STREAM_DRAW_ARB)
 {
+	mBridge = this;
 	mDrawable = root;
 	root->setSpatialBridge(this);
 	
@@ -1105,6 +1106,15 @@ LLSpatialBridge::~LLSpatialBridge()
 	{
 		group->mSpatialPartition->remove(this, group);
 	}
+
+	//delete octree here so listeners will still be able to access bridge specific state
+	destroyTree();
+}
+
+void LLSpatialBridge::destroyTree()
+{
+	delete mOctree;
+	mOctree = NULL;
 }
 
 void LLSpatialBridge::updateSpatialExtents()

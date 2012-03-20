@@ -111,6 +111,8 @@
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 
+#include "llleap.h"
+
 // Third party library includes
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
@@ -124,7 +126,6 @@
 #endif
 
 #include "llapr.h"
-#include "apr_dso.h"
 #include <boost/lexical_cast.hpp>
 
 #include "llviewerkeyboard.h"
@@ -161,6 +162,7 @@
 #include "llcontainerview.h"
 #include "lltooltip.h"
 
+#include "llsdutil.h"
 #include "llsdserialize.h"
 
 #include "llworld.h"
@@ -1038,11 +1040,38 @@ bool LLAppViewer::init()
 
 
 	gGLActive = FALSE;
+
+	// Iterate over --leap command-line options. But this is a bit tricky: if
+	// there's only one, it won't be an array at all.
+	LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
+	LL_DEBUGS("InitInfo") << "LeapCommand: " << LeapCommand << LL_ENDL;
+	if (LeapCommand.isDefined() && ! LeapCommand.isArray())
+	{
+		// If LeapCommand is actually a scalar value, make an array of it.
+		// Have to do it in two steps because LeapCommand.append(LeapCommand)
+		// trashes content! :-P
+		LLSD item(LeapCommand);
+		LeapCommand.append(item);
+	}
+	BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
+	{
+		LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
+		// We don't have any better description of this plugin than the
+		// user-specified command line. Passing "" causes LLLeap to derive a
+		// description from the command line itself.
+		// Suppress LLLeap::Error exception: trust LLLeap's own logging. We
+		// don't consider any one --leap command mission-critical, so if one
+		// fails, log it, shrug and carry on.
+		LLLeap::create("", leap, false); // exception=false
+	}
+
 	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
 	{
-		loadEventHostModule(gSavedSettings.getS32("QAModeEventHostPort"));
+		LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
+							 << "lleventhost no longer supported as a dynamic library"
+							 << LL_ENDL;
 	}
-	
+
 	LLViewerMedia::initClass();
 	LL_INFOS("InitInfo") << "Viewer media initialized." << LL_ENDL ;
 
@@ -1487,6 +1516,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	//ditch LLVOAvatarSelf instance
+	gAgentAvatarp = NULL;
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 
@@ -1512,17 +1544,24 @@ bool LLAppViewer::cleanup()
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
 
-	// *TODO - generalize this and move DSO wrangling to a helper class -brad
-	std::set<struct apr_dso_handle_t *>::const_iterator i;
-	for(i = mPlugins.begin(); i != mPlugins.end(); ++i)
 	{
-		int (*ll_plugin_stop_func)(void) = NULL;
-		apr_status_t rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_stop_func, *i, "ll_plugin_stop");
-		ll_plugin_stop_func();
-
-		rv = apr_dso_unload(*i);
-	}
-	mPlugins.clear();
+		// Kill off LLLeap objects. We can find them all because LLLeap is derived
+		// from LLInstanceTracker. But collect instances first: LLInstanceTracker
+		// specifically forbids adding/deleting instances while iterating.
+		std::vector<LLLeap*> leaps;
+		leaps.reserve(LLLeap::instanceCount());
+		for (LLLeap::instance_iter li(LLLeap::beginInstances()), lend(LLLeap::endInstances());
+			 li != lend; ++li)
+		{
+			leaps.push_back(&*li);
+		}
+		// Okay, now trash them all. We don't have to NULL or erase the entry
+		// in 'leaps' because the whole vector is going away momentarily.
+		BOOST_FOREACH(LLLeap* leap, leaps)
+		{
+			delete leap;
+		}
+	} // destroy 'leaps'
 
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
@@ -4953,87 +4992,6 @@ void LLAppViewer::handleLoginComplete()
 	mOnLoginCompleted();
 
 	writeDebugInfo();
-}
-
-// *TODO - generalize this and move DSO wrangling to a helper class -brad
-void LLAppViewer::loadEventHostModule(S32 listen_port)
-{
-	std::string dso_name =
-#if LL_WINDOWS
-	    "lleventhost.dll";
-#elif LL_DARWIN
-	    "liblleventhost.dylib";
-#else
-	    "liblleventhost.so";
-#endif
-
-	std::string dso_path = gDirUtilp->findFile(dso_name,
-		gDirUtilp->getAppRODataDir(),
-		gDirUtilp->getExecutableDir());
-
-	if(dso_path == "")
-	{
-		llerrs << "QAModeEventHost requested but module \"" << dso_name << "\" not found!" << llendl;
-		return;
-	}
-
-	LL_INFOS("eventhost") << "Found lleventhost at '" << dso_path << "'" << LL_ENDL;
-#if ! defined(LL_WINDOWS)
-	{
-		std::string outfile("/tmp/lleventhost.file.out");
-		std::string command("file '" + dso_path + "' > '" + outfile + "' 2>&1");
-		int rc = system(command.c_str());
-		if (rc != 0)
-		{
-			LL_WARNS("eventhost") << command << " ==> " << rc << ':' << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS("eventhost") << command << ':' << LL_ENDL;
-		}
-		{
-			std::ifstream reader(outfile.c_str());
-			std::string line;
-			while (std::getline(reader, line))
-			{
-				size_t len = line.length();
-				if (len && line[len-1] == '\n')
-					line.erase(len-1);
-				LL_INFOS("eventhost") << line << LL_ENDL;
-			}
-		}
-		remove(outfile.c_str());
-	}
-#endif // LL_WINDOWS
-
-	apr_dso_handle_t * eventhost_dso_handle = NULL;
-	apr_pool_t * eventhost_dso_memory_pool = NULL;
-
-	//attempt to load the shared library
-	apr_pool_create(&eventhost_dso_memory_pool, NULL);
-	apr_status_t rv = apr_dso_load(&eventhost_dso_handle,
-		dso_path.c_str(),
-		eventhost_dso_memory_pool);
-	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
-	llassert_always(eventhost_dso_handle != NULL);
-
-	int (*ll_plugin_start_func)(LLSD const &) = NULL;
-	rv = apr_dso_sym((apr_dso_handle_sym_t*)&ll_plugin_start_func, eventhost_dso_handle, "ll_plugin_start");
-
-	llassert_always(! ll_apr_warn_status(rv, eventhost_dso_handle));
-	llassert_always(ll_plugin_start_func != NULL);
-
-	LLSD args;
-	args["listen_port"] = listen_port;
-
-	int status = ll_plugin_start_func(args);
-
-	if(status != 0)
-	{
-		llerrs << "problem loading eventhost plugin, status: " << status << llendl;
-	}
-
-	mPlugins.insert(eventhost_dso_handle);
 }
 
 void LLAppViewer::launchUpdater()
