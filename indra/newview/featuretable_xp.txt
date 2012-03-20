@@ -72,6 +72,37 @@ RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
 
 //
+// Low Graphics Settings (fixed function)
+//
+list LowFixedFunction
+RenderAnisotropic			1	0
+RenderAvatarCloth			1	0
+RenderAvatarLODFactor		1	0
+RenderAvatarPhysicsLODFactor 1	0
+RenderAvatarMaxVisible      1   3
+RenderAvatarVP				1	0
+RenderFarClip				1	64
+RenderFlexTimeFactor		1	0
+RenderGlowResolutionPow		1	8
+RenderLocalLights			1	0
+RenderMaxPartCount			1	0
+RenderObjectBump			1	0
+RenderReflectionDetail		1	0
+RenderTerrainDetail			1	0
+RenderTerrainLODFactor		1	1
+RenderTransparentWater		1	0
+RenderTreeLODFactor			1	0
+RenderUseImpostors			1	1
+RenderVolumeLODFactor		1	0.5
+VertexShaderEnable			1	0
+WindLightUseAtmosShaders	1	0
+WLSkyDetail					1	48
+RenderDeferred				1	0
+RenderDeferredSSAO			1	0
+RenderShadowDetail			1	0
+RenderFSAASamples			1	0
+
+//
 // Low Graphics Settings
 //
 list Low
@@ -94,7 +125,7 @@ RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	0.5
-VertexShaderEnable			1	0
+VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	48
 RenderDeferred				1	0
