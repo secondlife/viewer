@@ -5378,6 +5378,19 @@ void LLViewerObject::updateFlags(BOOL physics_changed)
 
 BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 {
+	BOOL setit = setFlagsWithoutUpdate(flags, state);
+
+	// BUG: Sometimes viewer physics and simulator physics get
+	// out of sync.  To fix this, always send update to simulator.
+// 	if (setit)
+	{
+		updateFlags();
+	}
+	return setit;
+}
+
+BOOL LLViewerObject::setFlagsWithoutUpdate(U32 flags, BOOL state)
+{
 	BOOL setit = FALSE;
 	if (state)
 	{
@@ -5394,13 +5407,6 @@ BOOL LLViewerObject::setFlags(U32 flags, BOOL state)
 			mFlags &= ~flags;
 			setit = TRUE;
 		}
-	}
-
-	// BUG: Sometimes viewer physics and simulator physics get
-	// out of sync.  To fix this, always send update to simulator.
-// 	if (setit)
-	{
-		updateFlags();
 	}
 	return setit;
 }
