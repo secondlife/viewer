@@ -33,6 +33,7 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "llavataractions.h"
+#include "llclipboard.h"
 #include "llfloaterinventory.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
@@ -248,6 +249,9 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		getFilter()->setFilterEmptySystemFolders();
 	}
 	
+	// keep track of the clipboard state so that we avoid filtering too much
+	mClipboardState = LLClipboard::instance().getGeneration();
+	
 	// Initialize base class params.
 	LLPanel::initFromParams(params);
 }
@@ -278,6 +282,14 @@ void LLInventoryPanel::draw()
 {
 	// Select the desired item (in case it wasn't loaded when the selection was requested)
 	mFolderRoot->updateSelection();
+	
+	// Nudge the filter if the clipboard state changed
+	if (mClipboardState != LLClipboard::instance().getGeneration())
+	{
+		mClipboardState = LLClipboard::instance().getGeneration();
+		getFilter()->setModified(LLClipboard::instance().isCutMode() ? LLInventoryFilter::FILTER_MORE_RESTRICTIVE : LLInventoryFilter::FILTER_LESS_RESTRICTIVE);
+	}
+	
 	LLPanel::draw();
 }
 

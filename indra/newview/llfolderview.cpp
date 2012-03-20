@@ -30,7 +30,7 @@
 
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
-#include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
+#include "llclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -456,8 +456,8 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		}
 		else
 		{
-			folderp->setVisible(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
-									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
+			folderp->setVisible((show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
+								 (folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))));
 		}
 
 		if (folderp->getVisible())
@@ -1045,6 +1045,36 @@ bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFol
 	return false;
 }
 
+// static
+void LLFolderView::removeCutItems()
+{
+	// There's no item in "cut" mode on the clipboard -> exit
+	if (!LLClipboard::instance().isCutMode())
+		return;
+
+	// Get the list of clipboard item uuids and iterate through them
+	LLDynamicArray<LLUUID> objects;
+	LLClipboard::instance().pasteFromClipboard(objects);
+	for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+		 iter != objects.end();
+		 ++iter)
+	{
+		const LLUUID& item_id = (*iter);
+		LLInventoryObject *obj = gInventory.getObject(item_id);
+		if (obj)
+		{
+			if (LLAssetType::AT_CATEGORY == obj->getType())
+			{
+				remove_category(&gInventory, item_id);
+			}
+			else
+			{
+				remove_item(&gInventory, item_id);
+			}
+		}
+	}
+}
+
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -1324,7 +1354,7 @@ BOOL LLFolderView::canCopy() const
 void LLFolderView::copy()
 {
 	// *NOTE: total hack to clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1365,7 +1395,7 @@ BOOL LLFolderView::canCut() const
 void LLFolderView::cut()
 {
 	// clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1379,6 +1409,7 @@ void LLFolderView::cut()
 				listener->cutToClipboard();
 			}
 		}
+		LLFolderView::removeCutItems();
 	}
 	mSearchString.clear();
 }
@@ -2139,10 +2170,10 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		removeSelectedItems();
 		return true;
 	}
-
-	if ("copy" == action)
-	{	
-		LLInventoryClipboard::instance().reset();
+	if (("copy" == action) || ("cut" == action))
+	{
+		// Clear the clipboard before we start adding things on it
+		LLClipboard::instance().reset();
 	}
 
 	static const std::string change_folder_string = "change_folder_type_";

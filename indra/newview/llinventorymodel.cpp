@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llclipboard.h"
 #include "llinventorypanel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -1110,50 +1111,82 @@ void LLInventoryModel::purgeDescendentsOf(const LLUUID& id)
 		return;
 	}
 	LLPointer<LLViewerInventoryCategory> cat = getCategory(id);
-	if(cat.notNull())
+	if (cat.notNull())
 	{
-		// do the cache accounting
-		llinfos << "LLInventoryModel::purgeDescendentsOf " << cat->getName()
+		if (LLClipboard::instance().hasContents() && LLClipboard::instance().isCutMode())
+		{
+			// Something on the clipboard is in "cut mode" and needs to be preserved
+			llinfos << "LLInventoryModel::purgeDescendentsOf " << cat->getName()
+			<< " iterate and purge non hidden items" << llendl;
+			cat_array_t* categories;
+			item_array_t* items;
+			// Get the list of direct descendants in tha categoy passed as argument
+			getDirectDescendentsOf(id, categories, items);
+			std::vector<LLUUID> list_uuids;
+			// Make a unique list with all the UUIDs of the direct descendants (items and categories are not treated differently)
+			// Note: we need to do that shallow copy as purging things will invalidate the categories or items lists
+			for (cat_array_t::const_iterator it = categories->begin(); it != categories->end(); ++it)
+			{
+				list_uuids.push_back((*it)->getUUID());
+			}
+			for (item_array_t::const_iterator it = items->begin(); it != items->end(); ++it)
+			{
+				list_uuids.push_back((*it)->getUUID());
+			}
+			// Iterate through the list and only purge the UUIDs that are not on the clipboard
+			for (std::vector<LLUUID>::const_iterator it = list_uuids.begin(); it != list_uuids.end(); ++it)
+			{
+				if (!LLClipboard::instance().isOnClipboard(*it))
+				{
+					purgeObject(*it);
+				}
+			}
+		}
+		else
+		{
+			// Fast purge
+			// do the cache accounting
+			llinfos << "LLInventoryModel::purgeDescendentsOf " << cat->getName()
 				<< llendl;
-		S32 descendents = cat->getDescendentCount();
-		if(descendents > 0)
-		{
-			LLCategoryUpdate up(id, -descendents);
-			accountForUpdate(up);
-		}
+			S32 descendents = cat->getDescendentCount();
+			if(descendents > 0)
+			{
+				LLCategoryUpdate up(id, -descendents);
+				accountForUpdate(up);
+			}
 
-		// we know that descendent count is 0, aide since the
-		// accounting may actually not do an update, we should force
-		// it here.
-		cat->setDescendentCount(0);
+			// we know that descendent count is 0, however since the
+			// accounting may actually not do an update, we should force
+			// it here.
+			cat->setDescendentCount(0);
 
-		// send it upstream
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessage("PurgeInventoryDescendents");
-		msg->nextBlock("AgentData");
-		msg->addUUID("AgentID", gAgent.getID());
-		msg->addUUID("SessionID", gAgent.getSessionID());
-		msg->nextBlock("InventoryData");
-		msg->addUUID("FolderID", id);
-		gAgent.sendReliableMessage();
+			// send it upstream
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("PurgeInventoryDescendents");
+			msg->nextBlock("AgentData");
+			msg->addUUID("AgentID", gAgent.getID());
+			msg->addUUID("SessionID", gAgent.getSessionID());
+			msg->nextBlock("InventoryData");
+			msg->addUUID("FolderID", id);
+			gAgent.sendReliableMessage();
 
-		// unceremoniously remove anything we have locally stored.
-		cat_array_t categories;
-		item_array_t items;
-		collectDescendents(id,
-						   categories,
-						   items,
-						   INCLUDE_TRASH);
-		S32 count = items.count();
-		S32 i;
-		for(i = 0; i < count; ++i)
-		{
-			deleteObject(items.get(i)->getUUID());
-		}
-		count = categories.count();
-		for(i = 0; i < count; ++i)
-		{
-			deleteObject(categories.get(i)->getUUID());
+			// unceremoniously remove anything we have locally stored.
+			cat_array_t categories;
+			item_array_t items;
+			collectDescendents(id,
+							   categories,
+							   items,
+							   INCLUDE_TRASH);
+			S32 count = items.count();
+			for(S32 i = 0; i < count; ++i)
+			{
+				deleteObject(items.get(i)->getUUID());
+			}
+			count = categories.count();
+			for(S32 i = 0; i < count; ++i)
+			{
+				deleteObject(categories.get(i)->getUUID());
+			}
 		}
 	}
 }
