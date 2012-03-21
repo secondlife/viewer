@@ -2097,10 +2097,10 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["is_self"] = isSelf();
 	std::vector<S32> rez_counts;
 	LLVOAvatar::getNearbyRezzedStats(rez_counts);
-	result["nearby"] = LLSD::emptyArray();
-	result["nearby"][0] = rez_counts[0];
-	result["nearby"][1] = rez_counts[1];
-	result["nearby"][2] = rez_counts[2];
+	result["nearby"] = LLSD::emptyMap();
+	result["nearby"]["cloud"] = rez_counts[0];
+	result["nearby"]["gray"] = rez_counts[1];
+	result["nearby"]["textured"] = rez_counts[2];
 	result["timers"]["debug_existence"] = mDebugExistenceTimer.getElapsedTimeF32();
 	result["timers"]["ruth_debug"] = mRuthDebugTimer.getElapsedTimeF32();
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();

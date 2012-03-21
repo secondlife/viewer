@@ -346,9 +346,11 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
 		}
 		reg_stat[avatar_tag][avatar_nearby_tag] = LLSD::emptyArray();
-		for (S32 j = 0; j < stats.mAvatarRezStates.size(); ++j)
+		if (stats.mAvatarRezStates.size() > 2)
 		{
-			reg_stat[avatar_tag][avatar_nearby_tag].append(stats.mAvatarRezStates[j]);
+			reg_stat[avatar_tag][avatar_nearby_tag]["cloud"] = stats.mAvatarRezStates[0];
+			reg_stat[avatar_tag][avatar_nearby_tag]["gray"] = stats.mAvatarRezStates[1];
+			reg_stat[avatar_tag][avatar_nearby_tag]["textured"] = stats.mAvatarRezStates[2];
 		}
 
 		U32 grid_x(0), grid_y(0);

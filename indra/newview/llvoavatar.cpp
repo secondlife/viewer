@@ -981,8 +981,11 @@ void LLVOAvatar::startPhase(const std::string& phase_name)
 
 void LLVOAvatar::stopPhase(const std::string& phase_name)
 {
-	LLFrameTimer& timer = getPhaseTimer(phase_name);
-	timer.pause();
+	phase_map_t::iterator iter = mPhases.find(phase_name);
+	if (iter != mPhases.end())
+	{
+		iter->second.pause();
+	}
 }
 
 void LLVOAvatar::stopAllPhases()
