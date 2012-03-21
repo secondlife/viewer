@@ -1,6 +1,18 @@
 /** 
- * @file llappviewer.h
- * @brief The LLAppViewer class declaration
+ * @mainpage Second Life Viewer
+ *
+ * This is the sources for the Second Life Viewer;
+ * information on the open source project is at 
+ * https://wiki.secondlife.com/wiki/Open_Source_Portal
+ *
+ * The Mercurial repository for the trunk version is at
+ * https://hg.secondlife.com/viewer-development
+ *
+ * @section source-license Source License
+ * @verbinclude LICENSE-source.txt
+ *
+ * @section artwork-license Artwork License
+ * @verbinclude LICENSE-logos.txt
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -22,6 +34,9 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
+ *
+ * @file llappviewer.h
+ * @brief The LLAppViewer class declaration
  */
 
 #ifndef LL_LLAPPVIEWER_H
