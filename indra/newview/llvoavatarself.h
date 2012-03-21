@@ -93,14 +93,26 @@ public:
 	/*virtual*/ void updateVisualParams();
 	/*virtual*/ void idleUpdateAppearanceAnimation();
 
+	/*virtual*/ U32  processUpdateMessage(LLMessageSystem *mesgsys,
+													 void **user_data,
+													 U32 block_num,
+													 const EObjectUpdateType update_type,
+													 LLDataPacker *dp);
+
 private:
 	// helper function. Passed in param is assumed to be in avatar's parameter list.
 	BOOL setParamWeight(LLViewerVisualParam *param, F32 weight, BOOL upload_bake = FALSE );
 
 
+
 /**                    Initialization
  **                                                                            **
  *******************************************************************************/
+
+private:
+	LLUUID mInitialBakeIDs[6];
+	bool mInitialBakesLoaded;
+
 
 /********************************************************************************
  **                                                                            **
