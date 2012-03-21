@@ -294,7 +294,7 @@ public:
 	// getRawDiscardLevel() by default returns mDiscardLevel, but may be overridden (LLImageJ2C)
 	virtual S8  getRawDiscardLevel() { return mDiscardLevel; }
 	
-	BOOL load(const std::string& filename);
+	BOOL load(const std::string& filename, int load_size = 0);
 	BOOL save(const std::string& filename);
 
 	virtual BOOL updateData() = 0; // pure virtual
@@ -313,6 +313,8 @@ public:
 	BOOL isDecoded()  const { return mDecoded ? TRUE : FALSE; }
 	void setDiscardLevel(S8 discard_level) { mDiscardLevel = discard_level; }
 	S8 getDiscardLevel() const { return mDiscardLevel; }
+	S8 getLevels() const { return mLevels; }
+	void setLevels(S8 nlevels) { mLevels = nlevels; }
 
 	// setLastError needs to be deferred for J2C images since it may be called from a DLL
 	virtual void resetLastError();
@@ -325,7 +327,8 @@ protected:
 	S8 mCodec;
 	S8 mDecoding;
 	S8 mDecoded;  // unused, but changing LLImage layout requires recompiling static Mac/Linux libs. 2009-01-30 JC
-	S8 mDiscardLevel;
+	S8 mDiscardLevel;	// Current resolution level worked on. 0 = full res, 1 = half res, 2 = quarter res, etc...
+	S8 mLevels;			// Number of resolution levels in that image. Min is 1. 0 means unknown.
 	
 public:
 	static S32 sGlobalFormattedMemory;
