@@ -868,6 +868,7 @@ bool LLFloater::applyRectControl()
 	}
 	else
 	{
+		bool rect_specified = false;
 		if (!mRectControl.empty())
 		{
 			// If we have a saved rect, use it
@@ -881,10 +882,11 @@ bool LLFloater::applyRectControl()
 				{
 					reshape(llmax(mMinWidth, rect.getWidth()), llmax(mMinHeight, rect.getHeight()));
 				}
+				mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+				LLRect screen_rect = calcScreenRect();
+				mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+				rect_specified = true;
 			}
-			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
-			LLRect screen_rect = calcScreenRect();
-			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
 		}
 
 		LLControlVariablePtr x_control = getControlGroup()->getControl(mPosXControl);
@@ -903,7 +905,7 @@ bool LLFloater::applyRectControl()
 		}
 
 		// remember updated position
-		if (mPositioning == LLFloaterEnums::POSITIONING_RELATIVE)
+		if (rect_specified)
 		{
 			storeRectControl();
 		}
