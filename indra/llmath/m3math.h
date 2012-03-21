@@ -27,7 +27,7 @@
 #ifndef LL_M3MATH_H
 #define LL_M3MATH_H
 
-//#include "llerror.h"
+#include "llerror.h"
 #include "stdtypes.h"
 
 class LLVector4;

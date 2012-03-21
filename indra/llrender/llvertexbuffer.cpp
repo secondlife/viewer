@@ -206,15 +206,14 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	rec.mClientData = buffer;
 	
 	if (buffer == NULL)
-	
 	{
 		glDeleteBuffersARB(1, &rec.mGLName);
 	}
 	else
 	{
 		sBytesPooled += size;
-	mFreeList[i].push_back(rec);
-}
+		mFreeList[i].push_back(rec);
+	}
 }
 
 void LLVBOPool::cleanup()
@@ -668,8 +667,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	}
 	else
 	{
-		bool uvb = useVBOs();
-		if (mGLBuffer != sGLRenderBuffer || uvb != sVBOActive)
+		if (mGLBuffer != sGLRenderBuffer || useVBOs() != sVBOActive)
 		{
 			llerrs << "Wrong vertex buffer bound." << llendl;
 		}
@@ -781,11 +779,10 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 		}
 		else
 		{
-ret_usage = GL_DYNAMIC_DRAW_ARB;
-
+			ret_usage = GL_DYNAMIC_DRAW_ARB;
+		}
 	}
-	}
-		
+	
 	return ret_usage;
 }
 

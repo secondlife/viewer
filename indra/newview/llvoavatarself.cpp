@@ -758,7 +758,7 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 	LLViewerObject* object = gObjectList.findObject(source_id);
 	if (object)
 	{
-		object->setFlags(FLAGS_ANIM_SOURCE, FALSE);
+		object->setFlagsWithoutUpdate(FLAGS_ANIM_SOURCE, FALSE);
 	}
 }
 

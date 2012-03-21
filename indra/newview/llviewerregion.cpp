@@ -1523,7 +1523,6 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("MapLayerGod");
 	capabilityNames.append("MeshUploadFlag");	
 	capabilityNames.append("NavMeshGenerationStatus");
-	capabilityNames.append("NavMeshUpload");
 	capabilityNames.append("NewFileAgentInventory");
 	capabilityNames.append("ObjectNavMeshProperties");
 	capabilityNames.append("ParcelPropertiesUpdate");
@@ -1562,6 +1561,7 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ViewerMetrics");
 	capabilityNames.append("ViewerStartAuction");
 	capabilityNames.append("ViewerStats");
+
 	// Please add new capabilities alphabetically to reduce
 	// merge conflicts.
 }

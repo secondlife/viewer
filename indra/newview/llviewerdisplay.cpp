@@ -77,9 +77,6 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llpostprocess.h"
-#include "LLPathingLib.h"
-#include "llfloaterpathfindingconsole.h"
-#include "llfloaterreg.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 
@@ -674,9 +671,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			if (!for_snapshot)
 			{
 				if (gFrameCount > 1)
-				{ 
-					//for some reason, ATI 4800 series will error out if you 
-				    //try to generate a shadow before the first frame is through
+				{ //for some reason, ATI 4800 series will error out if you 
+				  //try to generate a shadow before the first frame is through
 					gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
 				}
 
@@ -721,7 +717,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
-			gPipeline.renderPhysicsDisplay();				
+			gPipeline.renderPhysicsDisplay();
 		}
 
 		LLGLState::checkStates();
@@ -862,7 +858,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		stop_glerror();
 
-		
 		if (to_texture)
 		{
 			gGL.setColorMask(true, true);
@@ -887,14 +882,14 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gGL.setColorMask(true, false);
 		}
 		
-			if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
+		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderGeom");
+		
+		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 			LLMemType mt_rg(LLMemType::MTYPE_DISPLAY_RENDER_GEOM);
 			gGL.setColorMask(true, false);
-		
-
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 			{
 				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());
@@ -955,8 +950,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 		}
 
-
-		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender )
+		if (LLPipeline::sRenderDeferred && !LLPipeline::sUnderWaterRender)
 		{
 			gPipeline.renderDeferredLighting();
 		}
@@ -1230,6 +1224,7 @@ void render_ui(F32 zoom_factor, int subfield)
 			{
 				render_disconnected_background();
 			}
+
 			render_ui_2d();
 			LLGLState::checkStates();
 		}

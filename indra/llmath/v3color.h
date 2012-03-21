@@ -30,7 +30,7 @@
 class LLColor4;
 class LLVector4;
 
-//#include "llerror.h"
+#include "llerror.h"
 #include "llmath.h"
 #include "llsd.h"
 

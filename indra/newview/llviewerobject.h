@@ -513,6 +513,7 @@ public:
 
 	void updateFlags(BOOL physics_changed = FALSE);
 	BOOL setFlags(U32 flag, BOOL state);
+	BOOL setFlagsWithoutUpdate(U32 flag, BOOL state);
 	void setPhysicsShapeType(U8 type);
 	void setPhysicsGravity(F32 gravity);
 	void setPhysicsFriction(F32 friction);

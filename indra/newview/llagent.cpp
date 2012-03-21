@@ -396,7 +396,6 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 void LLAgent::moveAt(S32 direction, bool reset)
 {
-	
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
 
@@ -646,7 +645,6 @@ void LLAgent::setFlying(BOOL fly)
 // static
 void LLAgent::toggleFlying()
 {
-
 	if ( gAgent.mAutoPilot )
 	{
 		LLToolPie::instance().stopClickToWalk();
@@ -2705,7 +2703,6 @@ void LLAgent::sendAnimationRequest(const LLUUID &anim_id, EAnimRequest request)
 
 void LLAgent::sendWalkRun(bool running)
 {
-	
 	LLMessageSystem* msgsys = gMessageSystem;
 	if (msgsys)
 	{

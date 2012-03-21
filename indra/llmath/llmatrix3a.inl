@@ -66,6 +66,7 @@ inline void LLMatrix3a::setTranspose(const LLMatrix3a& src)
 
 inline const LLVector4a& LLMatrix3a::getColumn(const U32 column) const
 {
+	llassert( column < 3 );
 	return mColumns[column];
 }
 
