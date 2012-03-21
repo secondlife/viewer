@@ -1354,6 +1354,14 @@ even though the user gets a free copy.
              tool_tip="Causes object to not collide with other objects or avatars"
              top_pad="0"
              width="123" />
+            <check_box
+             height="19"
+             enabled="false"
+             label="Permanent"
+             layout="topleft"
+             name="Permanent Checkbox Ctrl"
+             top_pad="0"
+             width="123" />
 
             <text
              type="string"

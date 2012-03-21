@@ -152,6 +152,7 @@ protected:
 	LLCheckBoxCtrl	*mCheckPhysics;
 	LLCheckBoxCtrl	*mCheckTemporary;
 	LLCheckBoxCtrl	*mCheckPhantom;
+	LLCheckBoxCtrl  *mCheckPermanent;
 
 	LLTextureCtrl   *mCtrlSculptTexture;
 	LLTextBox       *mLabelSculptType;

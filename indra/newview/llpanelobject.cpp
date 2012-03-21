@@ -121,6 +121,9 @@ BOOL	LLPanelObject::postBuild()
 	mCheckPhantom = getChild<LLCheckBoxCtrl>("Phantom Checkbox Ctrl");
 	childSetCommitCallback("Phantom Checkbox Ctrl",onCommitPhantom,this);
        
+	// Permanent checkbox
+	mCheckPermanent = getChild<LLCheckBoxCtrl>("Permanent Checkbox Ctrl");
+       
 
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -513,6 +516,9 @@ void LLPanelObject::getState( )
 	mIsPhantom = root_objectp->flagPhantom();
 	mCheckPhantom->set( mIsPhantom );
 	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
+
+	mCheckPermanent->set( root_objectp->flagObjectPermanent() );
+	mCheckPermanent->setEnabled( FALSE );
 
        
 	//----------------------------------------------------------------------------
@@ -1866,6 +1872,8 @@ void LLPanelObject::clearCtrls()
 	mCheckTemporary	->setEnabled( FALSE );
 	mCheckPhantom	->set(FALSE);
 	mCheckPhantom	->setEnabled( FALSE );
+	mCheckPermanent	->set(FALSE);
+	mCheckPermanent	->setEnabled( FALSE );
 	
 	// Disable text labels
 	mLabelPosition	->setEnabled( FALSE );
