@@ -4347,7 +4347,8 @@ void LLPipeline::renderDebug()
 					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
 					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 				}
-				llPathingLibInstance->renderNavMesh();
+				int materialIndex = pathfindingConsole->getHeatMapType();
+				llPathingLibInstance->renderNavMesh( materialIndex );
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 				glLineWidth(1.0f);	
 				gGL.flush();

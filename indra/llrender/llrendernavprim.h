@@ -43,6 +43,8 @@ public:
 	void renderSegment( const LLVector3& start, const LLVector3& end, int color, bool overlayMode  ) const;
 	//Draw simple tri
 	void renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color, bool overlayMode ) const;
+	//Draw simple tri
+	void renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color, bool overlayMode ) const;
 	//Draw the contents of vertex buffer
 	void renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt );
 	//Draw a star

@@ -368,6 +368,35 @@ LLFloaterPathfindingConsole::ERenderHeatmapType LLFloaterPathfindingConsole::get
 	return renderHeatmapType;
 }
 
+int LLFloaterPathfindingConsole::getHeatMapType() const
+{
+	//converts the pathfinding console values to the navmesh filter values
+
+	int renderHeatmapType = 4; //none
+
+	switch ( mShowNavMeshWalkabilityComboBox->getValue().asInteger() )
+	{
+		case XUI_RENDER_HEATMAP_A :
+			renderHeatmapType = 0;
+			break;
+		case XUI_RENDER_HEATMAP_B :
+			renderHeatmapType = 1;
+			break;
+		case XUI_RENDER_HEATMAP_C :
+			renderHeatmapType = 2;
+			break;
+		case XUI_RENDER_HEATMAP_D :
+			renderHeatmapType = 3;
+			break;
+		default :
+			renderHeatmapType = 4;
+			break;
+	}
+
+	return renderHeatmapType;
+}
+
+
 void LLFloaterPathfindingConsole::setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType)
 {
 	LLSD comboBoxValue;
