@@ -748,6 +748,11 @@ bool LLGLManager::initGL()
 	}
 #endif
 
+	if (mIsIntel)
+	{ //never try to use framebuffer objects on intel (crashy)
+		mHasFramebufferObject = FALSE;
+	}
+
 	if (mHasFramebufferObject)
 	{
 		glGetIntegerv(GL_MAX_SAMPLES, &mMaxSamples);
