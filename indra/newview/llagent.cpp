@@ -3783,6 +3783,13 @@ void LLAgent::sendAgentSetAppearance()
 		return;
 	}
 
+	if (!gAgentWearables.changeInProgress())
+	{
+		// Change is fully resolved, can close some open phases.
+		gAgentAvatarp->stopPhase("process_initial_wearables_update");
+		gAgentAvatarp->stopPhase("wear_inventory_category");
+	}
+	
 	gAgentAvatarp->sendAppearanceChangeMetrics();
 	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );

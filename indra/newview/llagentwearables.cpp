@@ -2081,6 +2081,11 @@ boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_
 	return mLoadedSignal.connect(cb);
 }
 
+bool LLAgentWearables::changeInProgress() const
+{
+	return mCOFChangeInProgress;
+}
+
 void LLAgentWearables::notifyLoadingStarted()
 {
 	mCOFChangeInProgress = true;
