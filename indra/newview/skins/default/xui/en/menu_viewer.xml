@@ -2412,8 +2412,8 @@
 		</menu_item_check>
        <menu
          create_jump_keys="true"
-         label="Display Texture Density"
-         name="Display Texture Density"
+         label="Texture Density"
+         name="Texture Density"
          tear_off="true">
           <menu_item_check
            label="None"
