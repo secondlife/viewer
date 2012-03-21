@@ -885,7 +885,6 @@ bool LLFloater::applyRectControl()
 			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 			LLRect screen_rect = calcScreenRect();
 			mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
-			storeRectControl();
 		}
 
 		LLControlVariablePtr x_control = getControlGroup()->getControl(mPosXControl);
@@ -901,6 +900,12 @@ bool LLFloater::applyRectControl()
 			applyRelativePosition();
 
 			saved_rect = true;
+		}
+
+		// remember updated position
+		if (mPositioning == LLFloaterEnums::POSITIONING_RELATIVE)
+		{
+			storeRectControl();
 		}
 	}
 
