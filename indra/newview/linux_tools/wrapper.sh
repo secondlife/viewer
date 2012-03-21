@@ -110,22 +110,22 @@ export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 #    fi
 #fi
 
-export SL_ENV='LD_LIBRARY_PATH="`pwd`"/lib:"${LD_LIBRARY_PATH}"'
-export SL_CMD='$LL_WRAPPER bin/do-not-directly-run-secondlife-bin'
-export SL_OPT="`cat etc/gridargs.dat` $@"
+export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 
-# Run the program
-eval ${SL_ENV} ${SL_CMD} ${SL_OPT} || LL_RUN_ERR=runerr
+# Run the program.
+# Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
+# command line. Similar remarks about the contents of gridargs.dat. But DO
+# quote "$@": preserve separate args as individually quoted.
+$LL_WRAPPER bin/do-not-directly-run-secondlife-bin $(<etc/gridargs.dat) "$@"
+LL_RUN_ERR=$?
 
 # Handle any resulting errors
-if [ -n "$LL_RUN_ERR" ]; then
-	LL_RUN_ERR_MSG=""
-	if [ "$LL_RUN_ERR" = "runerr" ]; then
-		# generic error running the binary
-		echo '*** Bad shutdown. ***'
-		if [ "`uname -m`" = "x86_64" ]; then
-			echo
-			cat << EOFMARKER
+if [ $LL_RUN_ERR -ne 0 ]; then
+	# generic error running the binary
+	echo '*** Bad shutdown ($LL_RUN_ERR). ***'
+	if [ "$(uname -m)" = "x86_64" ]; then
+		echo
+		cat << EOFMARKER
 You are running the Second Life Viewer on a x86_64 platform.  The
 most common problems when launching the Viewer (particularly
 'bin/do-not-directly-run-secondlife-bin: not found' and 'error while
@@ -134,10 +134,8 @@ distribution's 32-bit compatibility packages.
 For example, on Ubuntu and other Debian-based Linuxes you might run:
 $ sudo apt-get install ia32-libs ia32-libs-gtk ia32-libs-kde ia32-libs-sdl
 EOFMARKER
-		fi
 	fi
 fi
-	
 
 echo
 echo '*******************************************************'
