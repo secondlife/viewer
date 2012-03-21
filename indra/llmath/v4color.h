@@ -27,7 +27,7 @@
 #ifndef LL_V4COLOR_H
 #define LL_V4COLOR_H
 
-//#include "llerror.h"
+#include "llerror.h"
 //#include "vmath.h"
 #include "llmath.h"
 #include "llsd.h"

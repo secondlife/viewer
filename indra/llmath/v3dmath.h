@@ -27,7 +27,7 @@
 #ifndef LL_V3DMATH_H
 #define LL_V3DMATH_H
 
-//#include "llerror.h"
+#include "llerror.h"
 #include "v3math.h"
 
 class LLVector3d

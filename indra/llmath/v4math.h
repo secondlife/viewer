@@ -27,7 +27,7 @@
 #ifndef LL_V4MATH_H
 #define LL_V4MATH_H
 
-//#include "llerror.h"
+#include "llerror.h"
 #include "llmath.h"
 #include "v3math.h"
 

@@ -681,7 +681,6 @@
             <menu_item_check.on_enable
              function="Build.Enabled" />
        </menu_item_check>
-	   
        <menu
           create_jump_keys="true"
           label="Select Build Tool"
@@ -1162,14 +1161,6 @@
             <menu_item_call.on_visible
             function="File.VisibleUploadModel"/>
             </menu_item_call>
-          <menu_item_call
-            label="BuildNavMeshTest"
-            layout="topleft"
-            name="BuildNavMesh">
-            <menu_item_call.on_click
-             function="File.UploadNavMesh"
-             parameter="" />
-          </menu_item_call>
 	   <menu_item_call
              label="Bulk (L$[COST] per file)..."
              layout="topleft"

@@ -52,7 +52,6 @@
 #include "llvolumemgr.h"
 #include "lltextureatlas.h"
 #include "llglslshader.h"
-#include "llagent.h"
 #include "llviewershadermgr.h"
 
 static LLFastTimer::DeclareTimer FTM_FRUSTUM_CULL("Frustum Culling");
@@ -4056,7 +4055,6 @@ public:
 				renderAgentTarget(avatar);
 			}
 			
-					
 			if (gDebugGL)
 			{
 				for (U32 i = 0; i < drawable->getNumFaces(); ++i)

@@ -1861,6 +1861,10 @@
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
+                <key>filters</key>
+                <array>
+                  <string>setenv</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration Debug</string>
@@ -1911,6 +1915,10 @@
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
+                <key>filters</key>
+                <array>
+                  <string>setenv</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration RelWithDebInfo</string>
@@ -1963,6 +1971,10 @@
               <map>
                 <key>command</key>
                 <string>xcodebuild</string>
+                <key>filters</key>
+                <array>
+                  <string>setenv</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-configuration Release</string>
