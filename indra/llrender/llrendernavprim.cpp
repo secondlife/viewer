@@ -35,7 +35,7 @@
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
-void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color, bool overlayMode  ) const
+void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color ) const
 {	
 	LLColor4 colorA( color );	
 	gGL.color3fv( colorA.mV );
@@ -48,7 +48,7 @@ void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& en
 	gGL.end();	
 }
 //=============================================================================
-void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color, bool overlayMode ) const
+void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, int color ) const
 {
 	LLColor4 colorA( color );	
 	colorA*=1.25f;
@@ -62,7 +62,7 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	gGL.end();		
 }
 //=============================================================================
-void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color, bool overlayMode ) const
+void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const
 {
 	LLColor4 cV(color);
 	gGL.color4fv( cV.mV );
@@ -90,7 +90,7 @@ void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, in
 		star[k] = 0.5f;
 		pt1 =  center + star;
 		pt2 =  center - star;	
-		renderSegment( pt1, pt2, color, false );
+		renderSegment( pt1, pt2, color );
 	}
 }
 //=============================================================================
