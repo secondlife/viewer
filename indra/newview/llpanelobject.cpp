@@ -501,24 +501,30 @@ void LLPanelObject::getState( )
 	}
 
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
+	BOOL is_permanent = root_objectp->flagObjectPermanent();
+	BOOL is_permanent_enforced = root_objectp->isPermanentEnforced();
 
 	// Physics checkbox
 	mIsPhysical = root_objectp->flagUsePhysics();
+	//llassert(is_permanent && mIsPhysical); // should never has a permanent object that is also physical
+
 	mCheckPhysics->set( mIsPhysical );
 	mCheckPhysics->setEnabled( roots_selected>0 
 								&& (editable || gAgent.isGodlike()) 
-								&& !is_flexible);
+								&& !is_flexible && !is_permanent);
 
 	mIsTemporary = root_objectp->flagTemporaryOnRez();
+	//llassert(is_permanent && mIsTemporary); // should never has a permanent object that is also temporary
+
 	mCheckTemporary->set( mIsTemporary );
-	mCheckTemporary->setEnabled( roots_selected>0 && editable );
+	mCheckTemporary->setEnabled( roots_selected>0 && editable && !is_permanent);
 
 	mIsPhantom = root_objectp->flagPhantom();
 	mCheckPhantom->set( mIsPhantom );
-	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible );
+	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible  && !is_permanent_enforced );
 
-	mCheckPermanent->set( root_objectp->flagObjectPermanent() );
-	mCheckPermanent->setEnabled( FALSE );
+	mCheckPermanent->set(is_permanent);
+	mCheckPermanent->setEnabled(FALSE);
 
        
 	//----------------------------------------------------------------------------

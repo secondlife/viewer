@@ -495,7 +495,7 @@ void LLPanelVolume::getState( )
 
 	mComboPhysicsShapeType->add(getString("Convex Hull"), LLSD(2));	
 	mComboPhysicsShapeType->setValue(LLSD(objectp->getPhysicsShapeType()));
-	mComboPhysicsShapeType->setEnabled(editable);
+	mComboPhysicsShapeType->setEnabled(editable && !objectp->isPermanentEnforced());
 
 	mObject = objectp;
 	mRootObject = root_objectp;

@@ -638,7 +638,7 @@ bool LLSelectMgr::enableLinkObjects()
 			{
 				virtual bool apply(LLViewerObject* object)
 				{
-					return object->permModify();
+					return object->permModify() && !object->isPermanentEnforced();
 				}
 			} func;
 			const bool firstonly = true;
@@ -654,7 +654,7 @@ bool LLSelectMgr::enableUnlinkObjects()
 
 	bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
 		first_editable_object &&
-		!first_editable_object->isAttachment();
+		!first_editable_object->isAttachment() && !first_editable_object->isPermanentEnforced();
 
 	return new_value;
 }
