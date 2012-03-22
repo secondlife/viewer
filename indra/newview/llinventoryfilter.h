@@ -163,6 +163,7 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
+	BOOL 				isDefault() const;
 	BOOL 				isNotDefault() const;
 	void 				markDefault();
 	void 				resetDefault();

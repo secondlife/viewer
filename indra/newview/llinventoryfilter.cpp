@@ -402,6 +402,11 @@ std::string::size_type LLInventoryFilter::getStringMatchOffset() const
 	return mSubStringMatchOffset;
 }
 
+BOOL LLInventoryFilter::isDefault() const
+{
+	return !isNotDefault();
+}
+
 // has user modified default filter params?
 BOOL LLInventoryFilter::isNotDefault() const
 {

@@ -1059,20 +1059,24 @@ void LLSaveFolderState::setApply(BOOL apply)
 void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_DO_FOLDER);
+	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
+	if(!bridge) return;
+	
 	if(mApply)
 	{
 		// we're applying the open state
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
-		if(!bridge) return;
 		LLUUID id(bridge->getUUID());
 		if(mOpenFolders.find(id) != mOpenFolders.end())
 		{
-			folder->setOpen(TRUE);
+			if (!folder->isOpen())
+			{
+				folder->setOpen(TRUE);
+			}
 		}
 		else
 		{
 			// keep selected filter in its current state, this is less jarring to user
-			if (!folder->isSelected())
+			if (!folder->isSelected() && folder->isOpen())
 			{
 				folder->setOpen(FALSE);
 			}
@@ -1083,8 +1087,6 @@ void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 		// we're recording state at this point
 		if(folder->isOpen())
 		{
-			LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
-			if(!bridge) return;
 			mOpenFolders.insert(bridge->getUUID());
 		}
 	}
@@ -1120,7 +1122,6 @@ void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 		{
 			item->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 		}
-		item->getRoot()->scrollToShowSelection();
 		mItemSelected = TRUE;
 	}
 }
@@ -1134,7 +1135,6 @@ void LLSelectFirstFilteredItem::doFolder(LLFolderViewFolder* folder)
 		{
 			folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 		}
-		folder->getRoot()->scrollToShowSelection();
 		mItemSelected = TRUE;
 	}
 }

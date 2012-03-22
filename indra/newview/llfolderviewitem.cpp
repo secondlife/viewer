@@ -221,6 +221,11 @@ BOOL LLFolderViewItem::potentiallyVisible()
 {
 	// we haven't been checked against min required filter
 	// or we have and we passed
+	return potentiallyFiltered();
+}
+
+BOOL LLFolderViewItem::potentiallyFiltered()
+{
 	return getLastFilterGeneration() < getRoot()->getFilter()->getMinRequiredGeneration() || getFiltered();
 }
 
@@ -1375,7 +1380,8 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			&& !mPassedFilter)									// and did not pass the filter
 		{
 			// go ahead and flag this folder as done
-			mLastFilterGeneration = filter_generation;			
+			mLastFilterGeneration = filter_generation;
+			mStringMatchOffset = std::string::npos;
 		}
 		else // filter self only on first pass through
 		{

@@ -797,7 +797,7 @@ void LLFolderView::sanitizeSelection()
 	// if nothing selected after prior constraints...
 	if (mSelectedItems.empty())
 	{
-		// ...select first available parent of original selection, or "My Inventory" otherwise
+		// ...select first available parent of original selection
 		LLFolderViewItem* new_selection = NULL;
 		if (original_selected_item)
 		{
@@ -2023,19 +2023,13 @@ void LLFolderView::deleteAllChildren()
 
 void LLFolderView::scrollToShowSelection()
 {
-	// If items are filtered while background fetch is in progress
-	// scrollbar resets to the first filtered item. See EXT-3981.
-	// However we allow scrolling for folder views with mAutoSelectOverride
-	// (used in Places SP) as an exception because the selection in them
-	// is not reset during items filtering. See STORM-133.
-	if ( (!LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mAutoSelectOverride)
-			&& mSelectedItems.size() )
+	if ( mSelectedItems.size() )
 	{
 		mNeedsScroll = TRUE;
 	}
 }
 
-// If the parent is scroll containter, scroll it to make the selection
+// If the parent is scroll container, scroll it to make the selection
 // is maximally visible.
 void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constraint_rect)
 {
@@ -2254,46 +2248,50 @@ void LLFolderView::doIdle()
 		arrangeAll();
 	}
 
+	if (mFilter->isModified() && mFilter->isNotDefault())
+	{
+		mNeedsAutoSelect = TRUE;
+	}
 	mFilter->clearModified();
-	BOOL filter_modified_and_active = mCompletedFilterGeneration < mFilter->getCurrentGeneration() && 
-										mFilter->isNotDefault();
-	mNeedsAutoSelect = filter_modified_and_active &&
-							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
 
-	// filter to determine visiblity before arranging
+	// filter to determine visibility before arranging
 	filterFromRoot();
 
 	// automatically show matching items, and select first one if we had a selection
-	// do this every frame until user puts keyboard focus into the inventory window
-	// signaling the end of the automatic update
-	// only do this when mNeedsFilter is set, meaning filtered items have
-	// potentially changed
 	if (mNeedsAutoSelect)
 	{
 		LLFastTimer t3(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if ((selected_itemp && !selected_itemp->getFiltered()) && !mAutoSelectOverride)
+		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyFiltered()))
 		{
-			// select first filtered item
-			LLSelectFirstFilteredItem filter;
-			applyFunctorRecursively(filter);
+			applyFunctorRecursively(LLSelectFirstFilteredItem());
 		}
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
 		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
 		{
-			LLOpenFilteredFolders filter;
-			applyFunctorRecursively(filter);
+			applyFunctorRecursively(LLOpenFilteredFolders());
 		}
 
 		scrollToShowSelection();
 	}
 
+	BOOL filter_finished = mCompletedFilterGeneration >= mFilter->getCurrentGeneration() 
+						&& !LLInventoryModelBackgroundFetch::instance().folderFetchActive();
+	if (filter_finished 
+		|| gFocusMgr.childHasKeyboardFocus(inventory_panel) 
+		|| gFocusMgr.childHasMouseCapture(inventory_panel))
+	{
+		// finishing the filter process, giving focus to the folder view, or dragging the scrollbar all stop the auto select process
+		mNeedsAutoSelect = FALSE;
+	}
+
+
 	// during filtering process, try to pin selected item's location on screen
 	// this will happen when searching your inventory and when new items arrive
-	if (filter_modified_and_active)
+	if (!filter_finished)
 	{
 		// calculate rectangle to pin item to at start of animated rearrange
 		if (!mPinningSelectedItem && !mSelectedItems.empty())
@@ -2359,7 +2357,7 @@ void LLFolderView::doIdle()
 	{
 		scrollToShowItem(mSelectedItems.back(), constraint_rect);
 		// continue scrolling until animated layout change is done
-		if (!filter_modified_and_active 
+		if (filter_finished
 			&& (!needsArrange() || !is_visible))
 		{
 			mNeedsScroll = FALSE;
