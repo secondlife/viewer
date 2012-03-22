@@ -41,6 +41,7 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 
@@ -287,7 +288,6 @@ set(viewer_SOURCE_FILES
     llinspectremoteobject.cpp
     llinspecttoast.cpp
     llinventorybridge.cpp
-    llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventoryicon.cpp
@@ -842,7 +842,6 @@ set(viewer_HEADER_FILES
     llinspectremoteobject.h
     llinspecttoast.h
     llinventorybridge.h
-    llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventoryicon.h
@@ -1345,7 +1344,9 @@ if (WINDOWS)
         DXGUID_LIBRARY
         )
 
+# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
+        opengl32
         ${WINDOWS_LIBRARIES}
         comdlg32
         ${DINPUT_LIBRARY}
@@ -1355,7 +1356,6 @@ if (WINDOWS)
         odbccp32
         ole32
         oleaut32
-        opengl32
         shell32
         Vfw32
         winspool

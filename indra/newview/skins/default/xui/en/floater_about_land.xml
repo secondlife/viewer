@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  can_tear_off="false"
  height="420"
  layout="topleft"
@@ -192,12 +192,12 @@
              type="string"
              length="1"
              follows="left|top"
-             height="20"
+             height="18"
              layout="topleft"
              left_pad="2"
              valign="center" 
              name="ContentRatingText"
-             top_delta="0"
+             top_delta="-2"
              width="250">
                 Adult
             </text>
@@ -209,7 +209,7 @@
              layout="topleft"
              left="10"
              name="Owner:"
-             top_pad="1"
+             top_pad="3"
              width="100">
                 Owner:
             </text>
@@ -736,7 +736,7 @@
              height="16"
              layout="topleft"
              left_pad="10"
-             top_delta="-3" 
+             top_delta="-1" 
              mouse_opaque="false"
              name="region_maturity_text"
              valign="center" 
@@ -1951,7 +1951,7 @@ Only large parcels can be listed in search.
 			 name="access_estate_defined">
 				(Defined by the Estate)
 			</panel.string>
-            <panel.string
+      <panel.string
              name="estate_override">
                 One or more of these options is set at the estate level
             </panel.string>
@@ -2085,7 +2085,7 @@ Only large parcels can be listed in search.
              column_padding="0"
              follows="top|bottom"
              heading_height="14"
-             height="120"
+             height="125"
              layout="topleft"
              left="0"
              multi_select="true"
@@ -2134,7 +2134,7 @@ Only large parcels can be listed in search.
              column_padding="0"
              follows="top|bottom"
              heading_height="14"
-             height="120"
+             height="125"
              layout="topleft"
              left="0"
              multi_select="true"

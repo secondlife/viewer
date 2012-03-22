@@ -378,19 +378,24 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 
 	if (!mHideScrollbar)
 	{
-		if( *visible_height < doc_height )
+		// Note: 1 pixel change can happen on final animation and should not trigger 
+		// the display of sliders.
+		if ((doc_height - *visible_height) > 1)
 		{
 			*show_v_scrollbar = TRUE;
 			*visible_width -= scrollbar_size;
 		}
-
-		if( *visible_width < doc_width )
+		if ((doc_width - *visible_width) > 1)
 		{
 			*show_h_scrollbar = TRUE;
 			*visible_height -= scrollbar_size;
 
+			// The view inside the scroll container should not be extended
+			// to container's full height to ensure the correct computation
+			// of *show_v_scrollbar after subtracting horizontal scrollbar_size.
+
 			// Must retest now that visible_height has changed
-			if( !*show_v_scrollbar && (*visible_height < doc_height) )
+			if( !*show_v_scrollbar && ((doc_height - *visible_height) > 1) )
 			{
 				*show_v_scrollbar = TRUE;
 				*visible_width -= scrollbar_size;

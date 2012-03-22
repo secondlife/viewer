@@ -169,7 +169,7 @@ void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y,
 void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
 {
 	// Make sure the layout of the browser control is updated, so this calculation is correct.
-	LLLayoutStack::updateClass();
+	getChild<LLLayoutStack>("stack1")->updateLayout();
 
 	// TODO: need to adjust size and constrain position to make sure floaters aren't moved outside the window view, etc.
 	LLCoordWindow window_size;
@@ -258,7 +258,7 @@ void LLFloaterWebContent::open_media(const Params& p)
 
 	if (!p.preferred_media_size().isEmpty())
 	{
-		LLLayoutStack::updateClass();
+		getChild<LLLayoutStack>("stack1")->updateLayout();
 		LLRect browser_rect = mWebBrowser->calcScreenRect();
 		LLCoordWindow window_size;
 		getWindow()->getSize(&window_size);

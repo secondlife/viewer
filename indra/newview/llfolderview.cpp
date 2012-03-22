@@ -30,7 +30,7 @@
 
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
-#include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
+#include "llclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -165,6 +165,33 @@ void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 { }
 
 ///----------------------------------------------------------------------------
+/// Class LLFolderViewScrollContainer
+///----------------------------------------------------------------------------
+
+// virtual
+const LLRect LLFolderViewScrollContainer::getScrolledViewRect() const
+{
+	LLRect rect = LLRect::null;
+	if (mScrolledView)
+	{
+		LLFolderView* folder_view = dynamic_cast<LLFolderView*>(mScrolledView);
+		if (folder_view)
+		{
+			S32 height = folder_view->mRunningHeight;
+
+			rect = mScrolledView->getRect();
+			rect.setLeftTopAndSize(rect.mLeft, rect.mTop, rect.getWidth(), height);
+		}
+	}
+
+	return rect;
+}
+
+LLFolderViewScrollContainer::LLFolderViewScrollContainer(const LLScrollContainer::Params& p)
+:	LLScrollContainer(p)
+{}
+
+///----------------------------------------------------------------------------
 /// Class LLFolderView
 ///----------------------------------------------------------------------------
 LLFolderView::Params::Params()
@@ -255,7 +282,7 @@ LLFolderView::LLFolderView(const Params& p)
 	LLRect new_r = LLRect(rect.mLeft + ICON_PAD,
 			      rect.mTop - TEXT_PAD,
 			      rect.mRight,
-			      rect.mTop - TEXT_PAD - llfloor(font->getLineHeight()));
+			      rect.mTop - TEXT_PAD - font->getLineHeight());
 	text_p.rect(new_r);
 	text_p.name(std::string(p.name));
 	text_p.font(font);
@@ -388,7 +415,7 @@ void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 
-// This view grows and shinks to enclose all of its children items and folders.
+// This view grows and shrinks to enclose all of its children items and folders.
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
 {
 	if (getListener()->getUUID().notNull())
@@ -414,7 +441,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		getRoot()->getFilter()->getShowFolderState();
 
 	S32 total_width = LEFT_PAD;
-	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
+	S32 running_height = mDebugFilters ? LLFontGL::getFontMonospace()->getLineHeight() : 0;
 	S32 target_height = running_height;
 	S32 parent_item_height = getRect().getHeight();
 
@@ -429,8 +456,8 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		}
 		else
 		{
-			folderp->setVisible(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
-									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
+			folderp->setVisible((show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
+								 (folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))));
 		}
 
 		if (folderp->getVisible())
@@ -527,15 +554,16 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
-	width = llmax(mMinWidth, scroll_rect.getWidth());
+	width  = llmax(mMinWidth, scroll_rect.getWidth());
 	height = llmax(mRunningHeight, scroll_rect.getHeight());
 
-	// restrict width with scroll container's width
-	if (mUseEllipses)
+	// Restrict width within scroll container's width
+	if (mUseEllipses && mScrollContainer)
+	{
 		width = scroll_rect.getWidth();
+	}
 
 	LLView::reshape(width, height, called_from_parent);
-
 	mReshapeSignal(mSelectedItems, FALSE);
 }
 
@@ -912,7 +940,7 @@ void LLFolderView::draw()
 	}
 	else if (mShowEmptyMessage)
 	{
-		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
+		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
 		}
@@ -943,6 +971,9 @@ void LLFolderView::draw()
 			// We should call this method to also notify parent about required rect.
 			// See EXT-7564, EXT-7047.
 			arrangeFromRoot();
+			LLUI::popMatrix();
+			LLUI::pushMatrix();
+			LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 		}
 	}
 
@@ -1012,6 +1043,36 @@ bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFol
 	}
 
 	return false;
+}
+
+// static
+void LLFolderView::removeCutItems()
+{
+	// There's no item in "cut" mode on the clipboard -> exit
+	if (!LLClipboard::instance().isCutMode())
+		return;
+
+	// Get the list of clipboard item uuids and iterate through them
+	LLDynamicArray<LLUUID> objects;
+	LLClipboard::instance().pasteFromClipboard(objects);
+	for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+		 iter != objects.end();
+		 ++iter)
+	{
+		const LLUUID& item_id = (*iter);
+		LLInventoryObject *obj = gInventory.getObject(item_id);
+		if (obj)
+		{
+			if (LLAssetType::AT_CATEGORY == obj->getType())
+			{
+				remove_category(&gInventory, item_id);
+			}
+			else
+			{
+				remove_item(&gInventory, item_id);
+			}
+		}
+	}
 }
 
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
@@ -1293,7 +1354,7 @@ BOOL LLFolderView::canCopy() const
 void LLFolderView::copy()
 {
 	// *NOTE: total hack to clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1334,7 +1395,7 @@ BOOL LLFolderView::canCut() const
 void LLFolderView::cut()
 {
 	// clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1348,6 +1409,7 @@ void LLFolderView::cut()
 				listener->cutToClipboard();
 			}
 		}
+		LLFolderView::removeCutItems();
 	}
 	mSearchString.clear();
 }
@@ -1966,7 +2028,7 @@ void LLFolderView::scrollToShowSelection()
 	// However we allow scrolling for folder views with mAutoSelectOverride
 	// (used in Places SP) as an exception because the selection in them
 	// is not reset during items filtering. See STORM-133.
-	if ( (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mAutoSelectOverride)
+	if ( (!LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mAutoSelectOverride)
 			&& mSelectedItems.size() )
 	{
 		mNeedsScroll = TRUE;
@@ -1994,7 +2056,7 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		LLRect visible_doc_rect = mScrollContainer->getVisibleContentRect();
 		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
-		S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight()); 
+		S32 label_height = getLabelFontForStyle(mLabelStyle)->getLineHeight(); 
 		// when navigating with keyboard, only move top of opened folder on screen, otherwise show whole folder
 		S32 max_height_to_show = item->isOpen() && mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
 		
@@ -2108,10 +2170,10 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		removeSelectedItems();
 		return true;
 	}
-
-	if ("copy" == action)
-	{	
-		LLInventoryClipboard::instance().reset();
+	if (("copy" == action) || ("cut" == action))
+	{
+		// Clear the clipboard before we start adding things on it
+		LLClipboard::instance().reset();
 	}
 
 	static const std::string change_folder_string = "change_folder_type_";

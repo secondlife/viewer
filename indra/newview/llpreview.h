@@ -32,6 +32,7 @@
 #include "llpointer.h"
 #include "lluuid.h"
 #include "llinventoryobserver.h"
+#include "llextendedstatus.h"
 #include <map>
 
 class LLInventoryItem;

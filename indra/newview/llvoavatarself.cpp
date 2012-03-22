@@ -366,9 +366,9 @@ BOOL LLVOAvatarSelf::buildMenus()
 						item_params.label = sub_piemenu_name;
 					}
 					item_params.name =(item_params.label );
-					item_params.on_click.function_name = "Attachment.Detach";
+					item_params.on_click.function_name = "Attachment.DetachFromPoint";
 					item_params.on_click.parameter = iter->first;
-					item_params.on_enable.function_name = "Attachment.EnableDetach";
+					item_params.on_enable.function_name = "Attachment.PointFilled";
 					item_params.on_enable.parameter = iter->first;
 					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 

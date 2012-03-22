@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
-    open_positioning="cascading"
+    positioning="cascading"
     can_close="true"
     can_resize="true"
     height="440"
@@ -99,7 +99,7 @@
             halign="center"
             font="SansSerifMedium"
             font_shadow="hard"
-            valign="bottom">
+            valign="top">
           Drag items here to create folders
         </text>
       </panel>
@@ -114,7 +114,7 @@
           height="20"
           wrap="true"
           halign="left"
-          valign="bottom"
+          valign="center"
           font="SansSerif" />
       <button
           label="Send to Marketplace"

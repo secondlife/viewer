@@ -2,7 +2,7 @@
 <!-- See also settings.xml UIFloater* settings for configuration -->
 <floater
  name="floater"
- open_positioning="none"
+ positioning="none"
  layout="topleft"
  bg_opaque_color="FloaterFocusBackgroundColor"
  bg_alpha_color="FloaterDefaultBackgroundColor"

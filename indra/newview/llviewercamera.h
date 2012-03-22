@@ -32,8 +32,8 @@
 #include "llstat.h"
 #include "lltimer.h"
 #include "m4math.h"
+#include "llcoord.h"
 
-class LLCoordGL;
 class LLViewerObject;
 
 // This rotation matrix moves the default OpenGL reference frame 

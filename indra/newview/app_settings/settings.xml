@@ -621,6 +621,28 @@
       <key>Value</key>
       <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
     </map>
+    <key>AvatarRotateThresholdSlow</key>
+    <map>
+      <key>Comment</key>
+      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving slowly (degrees)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>60</integer>
+    </map>  
+    <key>AvatarRotateThresholdFast</key>
+    <map>
+      <key>Comment</key>
+      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving fast (degrees)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>  
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
       <key>Comment</key>
@@ -9608,18 +9630,29 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowConsoleWindow</key>
-    <map>
-      <key>Comment</key>
-      <string>Show log in separate OS window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>NavBarShowCoordinates</key>
+  <key>ShowConsoleWindow</key>
+  <map>
+    <key>Comment</key>
+    <string>Show log in separate OS window</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>EnableVisualLeakDetector</key>
+  <map>
+    <key>Comment</key>
+    <string>EnableVisualLeakDetector</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
       <string>Show coordinates in navigation bar</string>
@@ -12755,7 +12788,7 @@
     <key>WindowX</key>
     <map>
       <key>Comment</key>
-      <string>X coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>X coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12766,7 +12799,7 @@
     <key>WindowY</key>
     <map>
       <key>Comment</key>
-      <string>Y coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>Y coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

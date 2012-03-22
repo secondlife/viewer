@@ -48,7 +48,7 @@ public:
 	// This gets triggered when performing a filter-search.
 	void start(const LLUUID& cat_id = LLUUID::null, BOOL recursive = TRUE);
 
-	BOOL backgroundFetchActive() const;
+	BOOL folderFetchActive() const;
 	bool isEverythingFetched() const; // completing the fetch once per session should be sufficient
 
 	bool libraryFetchStarted() const;
@@ -60,14 +60,13 @@ public:
 	bool inventoryFetchInProgress() const;
 
     void findLostItems();	
+	void incrFetchCount(S16 fetching);
 protected:
-	void incrBulkFetch(S16 fetching);
 	bool isBulkFetchProcessingComplete() const;
-	void bulkFetch(std::string url);
+	void bulkFetch();
 
 	void backgroundFetch();
 	static void backgroundFetchCB(void*); // background fetch idle function
-	void stopBackgroundFetch(); // stop fetch process
 
 	void setAllFoldersFetched();
 	bool fetchQueueContainsNoDescendentsOf(const LLUUID& cat_id) const;
@@ -77,7 +76,8 @@ private:
 	BOOL mAllFoldersFetched;
 
 	BOOL mBackgroundFetchActive;
-	S16 mBulkFetchCount;
+	bool mFolderFetchActive;
+	S16 mFetchCount;
 	BOOL mTimelyFetchPending;
 	S32 mNumFetchRetries;
 
@@ -87,11 +87,11 @@ private:
 
 	struct FetchQueueInfo
 	{
-		FetchQueueInfo(const LLUUID& id, BOOL recursive) :
-			mCatUUID(id), mRecursive(recursive)
-		{
-		}
-		LLUUID mCatUUID;
+		FetchQueueInfo(const LLUUID& id, BOOL recursive, bool is_category = true) :
+			mUUID(id), mRecursive(recursive), mIsCategory(is_category)
+		{}
+		LLUUID mUUID;
+		bool mIsCategory;
 		BOOL mRecursive;
 	};
 	typedef std::deque<FetchQueueInfo> fetch_queue_t;

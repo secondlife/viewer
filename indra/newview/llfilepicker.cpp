@@ -1073,8 +1073,11 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 	}
 
 	// set the default path for this usage context.
-	picker->mContextToPathMap[picker->mCurContextName] =
-		gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
+	const char* cur_folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
+	if (cur_folder != NULL)
+	{
+		picker->mContextToPathMap[picker->mCurContextName] = cur_folder;
+	}
 
 	gtk_widget_destroy(widget);
 	gtk_main_quit();

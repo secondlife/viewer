@@ -293,6 +293,6 @@ void LLFloaterTranslationSettings::onBtnOK()
 	gSavedSettings.setString("TranslationService", getSelectedService());
 	gSavedSettings.setString("BingTranslateAPIKey", getEnteredBingKey());
 	gSavedSettings.setString("GoogleTranslateAPIKey", getEnteredGoogleKey());
-	LLNearbyChatBar::getInstance()->enableTranslationCheckbox(LLTranslate::isTranslationConfigured());
+	LLNearbyChatBar::getInstance()->showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 	closeFloater(false);
 }
