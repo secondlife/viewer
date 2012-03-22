@@ -163,7 +163,8 @@ LLVOAvatarSelf::LLVOAvatarSelf(const LLUUID& id,
 	LLVOAvatar(id, pcode, regionp),
 	mScreenp(NULL),
 	mLastRegionHandle(0),
-	mRegionCrossingCount(0)
+	mRegionCrossingCount(0),
+	mInitialBakesLoaded(false)
 {
 	gAgentWearables.setAvatarObject(this);
 
@@ -196,6 +197,7 @@ void LLVOAvatarSelf::initInstance()
 	{
 		mDebugBakedTextureTimes[i][0] = -1.0f;
 		mDebugBakedTextureTimes[i][1] = -1.0f;
+		mInitialBakeIDs[i] = LLUUID::null;
 	}
 
 	status &= buildMenus();
@@ -793,6 +795,39 @@ void LLVOAvatarSelf::stopMotionFromSource(const LLUUID& source_id)
 		object->mFlags &= ~FLAGS_ANIM_SOURCE;
 	}
 }
+
+//virtual
+U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
+													 void **user_data,
+													 U32 block_num,
+													 const EObjectUpdateType update_type,
+													 LLDataPacker *dp)
+{
+	U32 retval = LLVOAvatar::processUpdateMessage(mesgsys,user_data,block_num,update_type,dp);
+
+	if (mInitialBakesLoaded == false && retval == 0x0)
+	{
+		// call update textures to force the images to be created
+		updateMeshTextures();
+
+		// unpack the texture UUIDs to the texture slots
+		retval = unpackTEMessage(mesgsys, _PREHASH_ObjectData, block_num);
+
+		// need to trigger a few operations to get the avatar to use the new bakes
+		for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
+		{
+			const LLVOAvatarDefines::ETextureIndex te = mBakedTextureDatas[i].mTextureIndex;
+			LLUUID texture_id = getTEImage(te)->getID();
+			setNewBakedTexture(te, texture_id);
+			mInitialBakeIDs[i] = texture_id;
+		}
+
+		mInitialBakesLoaded = true;
+	}
+
+	return retval;
+}
+
 
 void LLVOAvatarSelf::setLocalTextureTE(U8 te, LLViewerTexture* image, U32 index)
 {
@@ -2469,6 +2504,18 @@ void LLVOAvatarSelf::setCachedBakedTexture( ETextureIndex te, const LLUUID& uuid
 	{
 		if ( mBakedTextureDatas[i].mTextureIndex == te && mBakedTextureDatas[i].mTexLayerSet)
 		{
+			if (mInitialBakeIDs[i] != LLUUID::null)
+			{
+				if (mInitialBakeIDs[i] == uuid)
+				{
+					llinfos << "baked texture correctly loaded at login! " << i << llendl;
+				}
+				else
+				{
+					llwarns << "baked texture does not match id loaded at login!" << i << llendl;
+				}
+				mInitialBakeIDs[i] = LLUUID::null;
+			}
 			mBakedTextureDatas[i].mTexLayerSet->cancelUpload();
 		}
 	}
