@@ -3242,7 +3242,7 @@ void append_aggregate(std::string& string, const LLAggregatePermissions& ag_perm
 bool enable_buy_object()
 {
     // In order to buy, there must only be 1 purchaseable object in
-    // the selection manger.
+    // the selection manager.
 	if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return false;
     LLViewerObject* obj = NULL;
     LLSelectNode* node = LLSelectMgr::getInstance()->getSelection()->getFirstRootNode();

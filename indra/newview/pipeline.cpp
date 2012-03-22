@@ -6283,7 +6283,7 @@ void LLPipeline::doResetVertexBuffers()
 
 	if ( LLPathingLib::getInstance() )
 	{
-		LLPathingLib::getInstance()->cleanupVBOManger();
+		LLPathingLib::getInstance()->cleanupVBOManager();
 	}
 	LLVertexBuffer::cleanupClass();
 	
