@@ -3647,45 +3647,108 @@ void renderShadowFrusta(LLDrawInfo* params)
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
-void renderTexelDensity(LLDrawInfo* params)
+void renderTexelDensity(LLDrawable* drawable)
 {
-	LLGLEnable _(GL_BLEND);
 	if (LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_OFF
 		|| LLViewerTexture::sCheckerBoardImagep.isNull())
 	{
 		return;
 	}
-	LLViewerTexture* texturep = params->mTexture.get();
-	LLMatrix4 checkboard_matrix;
+
+	LLGLEnable _(GL_BLEND);
+	//gObjectFullbrightProgram.bind();
+
+	LLMatrix4 checkerboard_matrix;
 	S32 discard_level = -1;
-	switch(LLViewerTexture::sDebugTexelsMode)
+
+	for (S32 f = 0; f < drawable->getNumFaces(); f++)
 	{
-	case LLViewerTexture::DEBUG_TEXELS_CURRENT:
-		discard_level = -1;
-		break;
-	case LLViewerTexture::DEBUG_TEXELS_DESIRED:
+		LLFace* facep = drawable->getFace(f);
+		LLVertexBuffer* buffer = facep->getVertexBuffer();
+		LLViewerTexture* texturep = facep->getTexture();
+
+		if (texturep == NULL) continue;
+
+		switch(LLViewerTexture::sDebugTexelsMode)
 		{
-			LLViewerFetchedTexture* fetched_texturep = dynamic_cast<LLViewerFetchedTexture*>(texturep);
-			discard_level = fetched_texturep ? fetched_texturep->getDesiredDiscardLevel() : -1;
+		case LLViewerTexture::DEBUG_TEXELS_CURRENT:
+			discard_level = -1;
+			break;
+		case LLViewerTexture::DEBUG_TEXELS_DESIRED:
+			{
+				LLViewerFetchedTexture* fetched_texturep = dynamic_cast<LLViewerFetchedTexture*>(texturep);
+				discard_level = fetched_texturep ? fetched_texturep->getDesiredDiscardLevel() : -1;
+				break;
+			}
+		default:
+		case LLViewerTexture::DEBUG_TEXELS_FULL:
+			discard_level = 0;
 			break;
 		}
-	default:
-	case LLViewerTexture::DEBUG_TEXELS_FULL:
-		discard_level = 0;
-		break;
+
+		checkerboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
+
+		gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadMatrix((GLfloat*)&checkerboard_matrix.mMatrix);
+
+		if (buffer && (facep->getGeomCount() >= 3))
+		{
+			buffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+			U16 start = facep->getGeomStart();
+			U16 end = start + facep->getGeomCount()-1;
+			U32 count = facep->getIndicesCount();
+			U16 offset = facep->getIndicesStart();
+			buffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		}
+
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 
-	checkboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
-	gGL.getTexUnit(0)->activate();
-	gGL.matrixMode(LLRender::MM_TEXTURE);
-	gGL.loadMatrix((GLfloat*) checkboard_matrix.mMatrix);
+	//S32 num_textures = llmax(1, (S32)params->mTextureList.size());
 
-	gGL.getTexUnit(0)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+	//for (S32 i = 0; i < num_textures; i++)
+	//{
+	//	LLViewerTexture* texturep = params->mTextureList.empty() ? params->mTexture.get() : params->mTextureList[i].get();
+	//	if (texturep == NULL) continue;
 
-	pushVerts(params, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0);
+	//	LLMatrix4 checkboard_matrix;
+	//	S32 discard_level = -1;
+	//	switch(LLViewerTexture::sDebugTexelsMode)
+	//	{
+	//	case LLViewerTexture::DEBUG_TEXELS_CURRENT:
+	//		discard_level = -1;
+	//		break;
+	//	case LLViewerTexture::DEBUG_TEXELS_DESIRED:
+	//		{
+	//			LLViewerFetchedTexture* fetched_texturep = dynamic_cast<LLViewerFetchedTexture*>(texturep);
+	//			discard_level = fetched_texturep ? fetched_texturep->getDesiredDiscardLevel() : -1;
+	//			break;
+	//		}
+	//	default:
+	//	case LLViewerTexture::DEBUG_TEXELS_FULL:
+	//		discard_level = 0;
+	//		break;
+	//	}
 
-	gGL.loadIdentity();
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	//	checkboard_matrix.initScale(LLVector3(texturep->getWidth(discard_level) / 8, texturep->getHeight(discard_level) / 8, 1.f));
+	//	gGL.getTexUnit(i)->activate();
+
+	//	glMatrixMode(GL_TEXTURE);
+	//	glPushMatrix();
+	//	glLoadIdentity();
+	//	//gGL.matrixMode(LLRender::MM_TEXTURE);
+	//	glLoadMatrixf((GLfloat*) checkboard_matrix.mMatrix);
+
+	//	gGL.getTexUnit(i)->bind(LLViewerTexture::sCheckerBoardImagep, TRUE);
+
+	//	pushVerts(params, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
+
+	//	glPopMatrix();
+	//	glMatrixMode(GL_MODELVIEW);
+	//	//gGL.matrixMode(LLRender::MM_MODELVIEW);
+	//}
 }
 
 
@@ -4083,6 +4146,10 @@ public:
 			{
 				renderComplexityDisplay(drawable);
 			}
+			if(gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
+			{
+				renderTexelDensity(drawable);
+			}
 
 			LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(drawable->getVObj().get());
 			
@@ -4137,10 +4204,6 @@ public:
 				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
 				{
 					renderShadowFrusta(draw_info);
-				}
-				if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
-				{
-					renderTexelDensity(draw_info);
 				}
 			}
 		}
