@@ -911,6 +911,13 @@ bool LLFloater::applyRectControl()
 		}
 	}
 
+	if (saved_rect)
+	{
+		// propagate any derived positioning data back to settings file
+		storeRectControl();
+	}
+
+
 	return saved_rect;
 }
 
