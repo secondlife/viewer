@@ -745,23 +745,23 @@ struct InString
 	typedef typename string_type::const_iterator const_iterator;
 
 	InString(const_iterator b, const_iterator e):
-		iter(b),
-		end(e)
+		mIter(b),
+		mEnd(e)
 	{}
 	virtual ~InString() {}
 
-	bool done() const { return iter == end; }
-	/// Is the current character (*iter) escaped? This implementation can
+	bool done() const { return mIter == mEnd; }
+	/// Is the current character (*mIter) escaped? This implementation can
 	/// answer trivially because it doesn't support escapes.
 	virtual bool escaped() const { return false; }
-	/// Obtain the current character and advance @c iter.
-	virtual T next() { return *iter++; }
+	/// Obtain the current character and advance @c mIter.
+	virtual T next() { return *mIter++; }
 	/// Does the current character match specified character?
-	virtual bool is(T ch) const { return (! done()) && *iter == ch; }
+	virtual bool is(T ch) const { return (! done()) && *mIter == ch; }
 	/// Is the current character any one of the specified characters?
 	virtual bool oneof(const string_type& delims) const
 	{
-		return (! done()) && LLStringUtilBase<T>::contains(delims, *iter);
+		return (! done()) && LLStringUtilBase<T>::contains(delims, *mIter);
 	}
 
 	/**
@@ -769,10 +769,10 @@ struct InString
 	 * useful for processing quoted substrings.
 	 *
 	 * If we do see @a delim, append everything from @from until (excluding)
-	 * @a delim to @a into, advance @c iter to skip @a delim, and return @c
+	 * @a delim to @a into, advance @c mIter to skip @a delim, and return @c
 	 * true.
 	 *
-	 * If we do not see @a delim, do not alter @a into or @c iter and return
+	 * If we do not see @a delim, do not alter @a into or @c mIter and return
 	 * @c false. Do not pass GO, do not collect $200.
 	 *
 	 * @note The @c false case described above implements normal getTokens()
@@ -785,18 +785,18 @@ struct InString
 	 */
 	virtual bool collect_until(string_type& into, const_iterator from, T delim)
 	{
-		const_iterator found = std::find(from, end, delim);
+		const_iterator found = std::find(from, mEnd, delim);
 		// If we didn't find delim, change nothing, just tell caller.
-		if (found == end)
+		if (found == mEnd)
 			return false;
 		// Found delim! Append everything between from and found.
 		into.append(from, found);
 		// advance past delim in input
-		iter = found + 1;
+		mIter = found + 1;
 		return true;
 	}
 
-	const_iterator iter, end;
+	const_iterator mIter, mEnd;
 };
 
 /// InString subclass that handles escape characters
@@ -808,33 +808,33 @@ public:
 	typedef typename super::string_type string_type;
 	typedef typename super::const_iterator const_iterator;
 	using super::done;
-	using super::iter;
-	using super::end;
+	using super::mIter;
+	using super::mEnd;
 
-	InEscString(const_iterator b, const_iterator e, const string_type& escapes_):
+	InEscString(const_iterator b, const_iterator e, const string_type& escapes):
 		super(b, e),
-		escapes(escapes_)
+		mEscapes(escapes)
 	{
-		// Even though we've already initialized 'iter' via our base-class
+		// Even though we've already initialized 'mIter' via our base-class
 		// constructor, set it again to check for initial escape char.
 		setiter(b);
 	}
 
 	/// This implementation uses the answer cached by setiter().
-	virtual bool escaped() const { return isesc; }
+	virtual bool escaped() const { return mIsEsc; }
 	virtual T next()
 	{
 		// If we're looking at the escape character of an escape sequence,
-		// skip that character. This is the one time we can modify 'iter'
+		// skip that character. This is the one time we can modify 'mIter'
 		// without using setiter: for this one case we DO NOT CARE if the
 		// escaped character is itself an escape.
-		if (isesc)
-			++iter;
+		if (mIsEsc)
+			++mIter;
 		// If we were looking at an escape character, this is the escaped
 		// character; otherwise it's just the next character.
-		T result(*iter);
-		// Advance iter, checking for escape sequence.
-		setiter(iter + 1);
+		T result(*mIter);
+		// Advance mIter, checking for escape sequence.
+		setiter(mIter + 1);
 		return result;
 	}
 
@@ -842,14 +842,14 @@ public:
 	{
 		// Like base-class is(), except that an escaped character matches
 		// nothing.
-		return (! done()) && (! isesc) && *iter == ch;
+		return (! done()) && (! mIsEsc) && *mIter == ch;
 	}
 
 	virtual bool oneof(const string_type& delims) const
 	{
 		// Like base-class oneof(), except that an escaped character matches
 		// nothing.
-		return (! done()) && (! isesc) && LLStringUtilBase<T>::contains(delims, *iter);
+		return (! done()) && (! mIsEsc) && LLStringUtilBase<T>::contains(delims, *mIter);
 	}
 
 	virtual bool collect_until(string_type& into, const_iterator from, T delim)
@@ -860,27 +860,27 @@ public:
 		// directly appending to 'into' in case we do not find delim, in which
 		// case we're supposed to leave 'into' unmodified.
 		string_type collected;
-		// For scanning purposes, we're going to work directly with 'iter'.
+		// For scanning purposes, we're going to work directly with 'mIter'.
 		// Save its current value in case we fail to see delim.
-		const_iterator save_iter(iter);
-		// Okay, set 'iter', checking for escape.
+		const_iterator save_iter(mIter);
+		// Okay, set 'mIter', checking for escape.
 		setiter(from);
 		while (! done())
 		{
 			// If we see an unescaped delim, stop and report success.
-			if ((! isesc) && *iter == delim)
+			if ((! mIsEsc) && *mIter == delim)
 			{
 				// Append collected chars to 'into'.
 				into.append(collected);
-				// Don't forget to advance 'iter' past delim.
-				setiter(iter + 1);
+				// Don't forget to advance 'mIter' past delim.
+				setiter(mIter + 1);
 				return true;
 			}
 			// We're not at end, and either we're not looking at delim or it's
 			// escaped. Collect this character and keep going.
 			collected.push_back(next());
 		}
-		// Here we hit 'end' without ever seeing delim. Restore iter and tell
+		// Here we hit 'mEnd' without ever seeing delim. Restore mIter and tell
 		// caller.
 		setiter(save_iter);
 		return false;
@@ -889,24 +889,24 @@ public:
 private:
 	void setiter(const_iterator i)
 	{
-		iter = i;
+		mIter = i;
 
-		// Every time we change 'iter', set 'isesc' to be able to repetitively
-		// answer escaped() without having to rescan 'escapes'. isesc caches
-		// contains(escapes, *iter).
+		// Every time we change 'mIter', set 'mIsEsc' to be able to repetitively
+		// answer escaped() without having to rescan 'mEscapes'. mIsEsc caches
+		// contains(mEscapes, *mIter).
 
 		// We're looking at an escaped char if we're not already at end (that
-		// is, *iter is even meaningful); if *iter is in fact one of the
+		// is, *mIter is even meaningful); if *mIter is in fact one of the
 		// specified escape characters; and if there's one more character
 		// following it. That is, if an escape character is the very last
 		// character of the input string, it loses its special meaning.
-		isesc = (! done()) &&
-				LLStringUtilBase<T>::contains(escapes, *iter) &&
-				(iter+1) != end;
+		mIsEsc = (! done()) &&
+				LLStringUtilBase<T>::contains(mEscapes, *mIter) &&
+				(mIter+1) != mEnd;
 	}
 
-	const string_type escapes;
-	bool isesc;
+	const string_type mEscapes;
+	bool mIsEsc;
 };
 
 /// getTokens() implementation based on InString concept
@@ -957,7 +957,7 @@ void getTokens(INSTRING& instr, std::vector<string_type>& tokens,
 			// If we're looking at an open quote, search forward for
 			// a close quote, collecting characters along the way.
 			if (instr.oneof(quotes) &&
-				instr.collect_until(tokens.back(), instr.iter+1, *instr.iter))
+				instr.collect_until(tokens.back(), instr.mIter+1, *instr.mIter))
 			{
 				// collect_until is cleverly designed to do exactly what we
 				// need here. No further action needed if it returns true.
