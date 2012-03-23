@@ -1278,6 +1278,14 @@ The region [REGION] does not allow terraforming.
 
   <notification
    icon="alertmodal.tga"
+   name="RegionNoTerraformingWhileFrozen"
+   type="alertmodal">
+    You cannot terraform land while in Frozen mode.  Please switch to Unfrozen mode from the menu option Build->Pathfinding->Basic Setup.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CannotCopyWarning"
    type="alertmodal">
 You do not have permission to copy the following items:

@@ -52,6 +52,7 @@
 #include "llworld.h"
 #include "llappviewer.h"
 #include "llparcel.h"
+#include "llpathfindingmanager.h"
 
 #include "llglheaders.h"
 
@@ -244,6 +245,12 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 			alertNoTerraform(regionp);
 			return;
 		}
+
+		if (!LLPathfindingManager::getInstance()->isAllowAlterPermanent())
+		{
+			alertNoTerraformWhileFrozen();
+			return;
+		}
 	}
 
 	for(region_list_t::iterator iter = mLastAffectedRegions.begin();
@@ -379,6 +386,12 @@ BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 		if (!canTerraform(regionp))
 		{
 			alertNoTerraform(regionp);
+			return TRUE;
+		}
+
+		if (!LLPathfindingManager::getInstance()->isAllowAlterPermanent())
+		{
+			alertNoTerraformWhileFrozen();
 			return TRUE;
 		}
 
@@ -669,6 +682,12 @@ void LLToolBrushLand::alertNoTerraform(LLViewerRegion* regionp)
 	args["REGION"] = regionp->getName();
 	LLNotificationsUtil::add("RegionNoTerraforming", args);
 
+}
+
+// static
+void LLToolBrushLand::alertNoTerraformWhileFrozen()
+{
+	LLNotificationsUtil::add("RegionNoTerraformingWhileFrozen");
 }
 
 ///============================================================================
