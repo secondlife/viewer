@@ -859,6 +859,9 @@ bool LLFloater::applyRectControl()
 {
 	bool saved_rect = false;
 
+	LLRect screen_rect = calcScreenRect();
+	mPosition = LLCoordGL(screen_rect.getCenterX(), screen_rect.getCenterY()).convert();
+	
 	LLFloater* last_in_group = LLFloaterReg::getLastFloaterInGroup(mInstanceName);
 	if (last_in_group && last_in_group != this)
 	{
