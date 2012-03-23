@@ -2265,14 +2265,20 @@ void LLFolderView::doIdle()
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
 		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyFiltered()))
 		{
-			applyFunctorRecursively(LLSelectFirstFilteredItem());
+			// these are named variables to get around gcc not binding non-const references to rvalues
+			// and functor application is inherently non-const to allow for stateful functors
+			LLSelectFirstFilteredItem functor;
+			applyFunctorRecursively(functor);
 		}
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
 		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
 		{
-			applyFunctorRecursively(LLOpenFilteredFolders());
+			// these are named variables to get around gcc not binding non-const references to rvalues
+			// and functor application is inherently non-const to allow for stateful functors
+			LLOpenFilteredFolders functor;
+			applyFunctorRecursively(functor);
 		}
 
 		scrollToShowSelection();
