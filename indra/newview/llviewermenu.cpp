@@ -4499,9 +4499,10 @@ BOOL enable_take()
 			return TRUE;
 		}
 # endif
-		if((node->mPermissions->allowTransferTo(gAgent.getID())
+		if(!object->isPermanentEnforced() &&
+			((node->mPermissions->allowTransferTo(gAgent.getID())
 			&& object->permModify())
-		   || (node->mPermissions->getOwner() == gAgent.getID()))
+			|| (node->mPermissions->getOwner() == gAgent.getID())))
 		{
 			return TRUE;
 		}

@@ -6922,9 +6922,10 @@ LLViewerObject* LLObjectSelection::getFirstDeleteableObject()
 			LLViewerObject* obj = node->getObject();
 			// you can delete an object if you are the owner
 			// or you have permission to modify it.
-			if( obj && ( (obj->permModify()) ||
-						 (obj->permYouOwner()) ||
-						 (!obj->permAnyOwner())	))		// public
+			if( obj && !obj->isPermanentEnforced() &&
+				( (obj->permModify()) ||
+				(obj->permYouOwner()) ||
+				(!obj->permAnyOwner())	))		// public
 			{
 				if( !obj->isAttachment() )
 				{
