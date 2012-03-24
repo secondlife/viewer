@@ -1165,8 +1165,8 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 	}
 
 	// evaluate mHasVisibleChildren
-	mHasVisibleChildren = hasFilteredDescendants(filter_generation);
-	if (mHasVisibleChildren)
+	mHasVisibleChildren = false;
+	if (hasFilteredDescendants(filter_generation))
 	{
 		// We have to verify that there's at least one child that's not filtered out
 		bool found = false;
@@ -1192,6 +1192,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 					break;
 			}
 		}
+
 		mHasVisibleChildren = found;
 	}
 
@@ -1346,7 +1347,7 @@ void LLFolderViewFolder::requestSort()
 
 void LLFolderViewFolder::setCompletedFilterGeneration(S32 generation, BOOL recurse_up)
 {
-	mMostFilteredDescendantGeneration = llmin(mMostFilteredDescendantGeneration, generation);
+	//mMostFilteredDescendantGeneration = llmin(mMostFilteredDescendantGeneration, generation);
 	mCompletedFilterGeneration = generation;
 	// only aggregate up if we are a lower (older) value
 	if (recurse_up
