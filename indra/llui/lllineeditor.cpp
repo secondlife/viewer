@@ -1948,8 +1948,8 @@ void LLLineEditor::draw()
 			gGL.color4ub(255, 0, 0, 200);
 			while (pxStart < pxEnd)
 			{
-				gl_line_2d(pxStart, text_bottom - 2, pxStart + 3, text_bottom + 1);
-				gl_line_2d(pxStart + 3, text_bottom + 1, pxStart + 6, text_bottom - 2);
+				gl_line_2d(pxStart, (S32)text_bottom - 2, pxStart + 3, (S32)text_bottom + 1);
+				gl_line_2d(pxStart + 3, (S32)text_bottom + 1, pxStart + 6, (S32)text_bottom - 2);
 				pxStart += 6;
 			}
 		}
