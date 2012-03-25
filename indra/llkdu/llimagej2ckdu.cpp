@@ -32,6 +32,7 @@
 #include "llmath.h"
 #include "llkdumem.h"
 
+#include "kdu_block_coding.h"
 
 class kdc_flow_control {
 	
@@ -244,7 +245,7 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	mCodeStreamp->create(mInputp);
 
 	// Set the maximum number of bytes to use from the codestream
-	mCodeStreamp->set_max_bytes(max_bytes);
+	mCodeStreamp->set_max_bytes(max_bytes,true);
 
 	//	If you want to flip or rotate the image for some reason, change
 	// the resolution, or identify a restricted region of interest, this is
@@ -369,6 +370,9 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 	// To regain control, we throw an exception, and catch it here.
 	try
 	{
+		// Merov : Test!! DO NOT COMMIT!!
+		//findDiscardLevelsBoundaries(base);
+
 		base.updateRawDiscardLevel();
 		setupCodeStream(base, TRUE, mode);
 
@@ -750,6 +754,202 @@ BOOL LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 		base.setLastError( "Unknown J2C error" );
 		return FALSE;
 	}
+}
+
+/*****************************************************************************/
+/* STATIC                        copy_block                                  */
+/*****************************************************************************/
+
+static void copy_block(kdu_block *in, kdu_block *out)
+{
+	if (in->K_max_prime != out->K_max_prime)
+    { 
+		std::cout << "Cannot copy blocks belonging to subbands with different quantization parameters." << std::endl; 
+		return;
+	}
+	if ((in->size.x != out->size.x) || (in->size.y != out->size.y))  
+    { 
+		std::cout << "Cannot copy code-blocks with different dimensions." << std::endl; 
+		return;
+	}
+	out->missing_msbs = in->missing_msbs;
+	if (out->max_passes < (in->num_passes+2))        // Gives us enough to round up
+		out->set_max_passes(in->num_passes+2,false); // to the next whole bit-plane
+	out->num_passes = in->num_passes;
+	int num_bytes = 0;
+	for (int z=0; z < in->num_passes; z++)
+    {
+		num_bytes += (out->pass_lengths[z] = in->pass_lengths[z]);
+		out->pass_slopes[z] = in->pass_slopes[z];
+    }
+	
+    // Just copy compressed code-bytes. Block transcoding not supported.
+	if (out->max_bytes < num_bytes)
+		out->set_max_bytes(num_bytes,false);
+	memcpy(out->byte_buffer,in->byte_buffer,(size_t) num_bytes);
+}
+
+/*****************************************************************************/
+/* STATIC                        copy_tile                                   */
+/*****************************************************************************/
+
+static void
+copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
+		  kdu_params *siz_in, kdu_params *siz_out, int skip_components,
+		  int &num_blocks)
+{
+	int num_components = tile_out.get_num_components();
+	int new_tpart=0, next_tpart = 1;
+	
+	for (int c=0; c < num_components; c++)
+    {
+		kdu_tile_comp comp_in, comp_out;
+		comp_in = tile_in.access_component(c);
+		comp_out = tile_out.access_component(c);
+		int num_resolutions = comp_out.get_num_resolutions();
+		for (int r=0; r < num_resolutions; r++)
+        {
+			kdu_resolution res_in;  res_in = comp_in.access_resolution(r);
+			kdu_resolution res_out; res_out = comp_out.access_resolution(r);
+			int b, min_band;
+			int num_bands = res_in.get_valid_band_indices(min_band);
+			for (b=min_band; num_bands > 0; num_bands--, b++)
+            {
+				kdu_subband band_in;  band_in = res_in.access_subband(b);
+				kdu_subband band_out; band_out = res_out.access_subband(b);
+				kdu_dims blocks_in;  band_in.get_valid_blocks(blocks_in);
+				kdu_dims blocks_out; band_out.get_valid_blocks(blocks_out);
+				if ((blocks_in.size.x != blocks_out.size.x) ||
+					(blocks_in.size.y != blocks_out.size.y))
+                { 
+					std::cout << "Transcoding operation cannot proceed: Code-block partitions for the input and output code-streams do not agree." << std::endl;
+					return;
+				}
+				kdu_coords idx;
+				for (idx.y=0; idx.y < blocks_out.size.y; idx.y++)
+				{
+					for (idx.x=0; idx.x < blocks_out.size.x; idx.x++)
+					{
+						kdu_block *in =
+						band_in.open_block(idx+blocks_in.pos,&new_tpart);
+						for (; next_tpart <= new_tpart; next_tpart++)
+							siz_out->copy_from(siz_in,tnum_in,tnum_out,next_tpart,
+											   skip_components);
+						kdu_block *out = band_out.open_block(idx+blocks_out.pos);
+						copy_block(in,out);
+						band_in.close_block(in);
+						band_out.close_block(out);
+						num_blocks++;
+					}
+				}
+            }
+        }
+    }
+}
+
+// Find the block boundary for each discard level in the input image.
+// We parse the input blocks and copy them in a temporary output stream.
+// For the moment, we do nothing more that parsing the raw list of blocks and outputing result.
+void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
+{
+	// We need the number of levels in that image before starting.
+	getMetadata(base);
+	
+	for (int discard_level = 0; discard_level < mLevels; discard_level++)
+	{
+		// Create the input codestream object.
+		setupCodeStream(base, TRUE, MODE_FAST);
+		mCodeStreamp->apply_input_restrictions(0, 4, discard_level, 0, NULL);
+		//mCodeStreamp->set_max_bytes(max,true);
+		siz_params *siz_in = mCodeStreamp->access_siz();
+	
+		// Create the output codestream object.
+		siz_params siz;
+		siz.copy_from(siz_in,-1,-1,-1,0,discard_level,false,false,false);
+		siz.set(Scomponents,0,0,mCodeStreamp->get_num_components());
+	
+		U32 max_output_size = base.getWidth()*base.getHeight()*base.getComponents();
+		max_output_size = (max_output_size < 1000 ? 1000 : max_output_size);
+		U8 *output_buffer = new U8[max_output_size];
+		U32 output_size = 0; // Address updated by LLKDUMemTarget to give the final compressed buffer size
+		LLKDUMemTarget output(output_buffer, output_size, max_output_size);
+		kdu_codestream codestream_out; 
+		codestream_out.create(&siz,&output);
+		//codestream_out.share_buffering(*mCodeStreamp);
+		siz_params *siz_out = codestream_out.access_siz();
+		siz_out->copy_from(siz_in,-1,-1,-1,0,discard_level,false,false,false);
+		codestream_out.access_siz()->finalize_all(-1);
+	
+		// Set up rate control variables
+		kdu_long max_bytes = KDU_LONG_MAX;
+		kdu_params *cod = siz_out->access_cluster(COD_params);
+		int total_layers;  cod->get(Clayers,0,0,total_layers);
+		kdu_long *layer_bytes = new kdu_long[total_layers];
+		int nel, non_empty_layers = 0;
+	
+		// Now ready to perform the transfer of compressed data between streams
+		int flush_counter = INT_MAX;
+		kdu_dims tile_indices_in;  
+		mCodeStreamp->get_valid_tiles(tile_indices_in);
+		kdu_dims tile_indices_out; 
+		codestream_out.get_valid_tiles(tile_indices_out);
+		assert((tile_indices_in.size.x == tile_indices_out.size.x) &&
+			   (tile_indices_in.size.y == tile_indices_out.size.y));
+		int num_blocks=0;
+	
+		kdu_coords idx;
+		for (idx.y=0; idx.y < tile_indices_out.size.y; idx.y++)
+		{
+			for (idx.x=0; idx.x < tile_indices_out.size.x; idx.x++)
+			{
+				kdu_tile tile_in = mCodeStreamp->open_tile(idx+tile_indices_in.pos);
+				int tnum_in = tile_in.get_tnum();
+				int tnum_out = idx.x + idx.y*tile_indices_out.size.x;
+				siz_out->copy_from(siz_in,tnum_in,tnum_out,0,0,discard_level,false,false,false);
+				siz_out->finalize_all(tnum_out);
+				// Note: do not open the output tile without first copying any tile-specific code-stream parameters
+				kdu_tile tile_out = codestream_out.open_tile(idx+tile_indices_out.pos);
+				assert(tnum_out == tile_out.get_tnum());
+				copy_tile(tile_in,tile_out,tnum_in,tnum_out,siz_in,siz_out,0,num_blocks);
+				tile_in.close();
+				tile_out.close();
+				flush_counter--;
+				if ((flush_counter <= 0) && codestream_out.ready_for_flush())
+				{
+					flush_counter = INT_MAX;
+					nel = codestream_out.trans_out(max_bytes,layer_bytes,total_layers);
+					non_empty_layers = (nel > non_empty_layers)?nel:non_empty_layers;
+				}
+			}
+		}
+	
+		// Generate the output code-stream
+		if (codestream_out.ready_for_flush())
+		{
+			nel = codestream_out.trans_out(max_bytes,layer_bytes,total_layers);
+			non_empty_layers = (nel > non_empty_layers)?nel:non_empty_layers;
+		}
+		if (non_empty_layers > total_layers)
+			non_empty_layers = total_layers; // Can happen if a tile has more layers
+	
+		// Print out stats
+		std::cout << "Code stream parsing for discard level = " << discard_level << std::endl;
+		std::cout << "    Total compressed memory in  = " << mCodeStreamp->get_compressed_data_memory() << " bytes" << std::endl;
+		std::cout << "    Total compressed memory out = " << codestream_out.get_compressed_data_memory() << " bytes" << std::endl;
+		//std::cout << "    Output contains " << total_layers << " quality layers" << std::endl;		
+		std::cout << "    Transferred " << num_blocks << " code-blocks from in to out" << std::endl;
+		//std::cout << "    Read " << mCodeStreamp->get_num_tparts() << " tile-part(s) from a total of " << (int) tile_indices_in.area() << " tile(s)" << std::endl;
+		std::cout << "    Total bytes read = " << mCodeStreamp->get_total_bytes() << std::endl;
+		//std::cout << "    Wrote " << codestream_out.get_num_tparts() << " tile-part(s) in a total of " << (int) tile_indices_out.area() << " tile(s)" << std::endl;
+		std::cout << "    Total bytes written = " << codestream_out.get_total_bytes() << std::endl;
+		std::cout << "-------------" << std::endl;
+	
+		// Clean-up
+		cleanupCodeStream();
+		codestream_out.destroy();
+		delete[] output_buffer;	
+	}
+	return;
 }
 
 void set_default_colour_weights(kdu_params *siz)
