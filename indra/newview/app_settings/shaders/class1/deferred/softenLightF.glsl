@@ -299,7 +299,7 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).r;
+			vec3 dumbshiny = vary_SunlitColor*(6 * texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
