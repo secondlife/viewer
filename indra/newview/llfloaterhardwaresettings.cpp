@@ -37,6 +37,7 @@
 #include "llspinctrl.h"
 #include "llstartup.h"
 #include "lltextbox.h"
+#include "llcombobox.h"
 #include "pipeline.h"
 
 // Linden library includes
@@ -147,6 +148,13 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 BOOL LLFloaterHardwareSettings::postBuild()
 {
 	childSetAction("OK", onBtnOK, this);
+
+	if (gGLManager.mIsIntel)
+	{ //remove FSAA settings above "4x"
+		LLComboBox* combo = getChild<LLComboBox>("fsaa");
+		combo->remove("8x");
+		combo->remove("16x");
+	}
 
 	refresh();
 	center();
