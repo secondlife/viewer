@@ -966,9 +966,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d91e1f483209cd3eba04135c6a59e829</string>
+              <string>a32ddab0d1661bf77209d2c19116a99d</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/252131/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120326.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
