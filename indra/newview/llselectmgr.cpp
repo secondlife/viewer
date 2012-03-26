@@ -4305,8 +4305,8 @@ void LLSelectMgr::packObjectName(LLSelectNode* node, void* user_data)
 void LLSelectMgr::packObjectDescription(LLSelectNode* node, void* user_data)
 {
 	const std::string* desc = (const std::string*)user_data;
-	if(!desc->empty())
-	{
+	if(desc)
+	{	// Empty (non-null, but zero length) descriptions are OK
 		gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 		gMessageSystem->addU32Fast(_PREHASH_LocalID, node->getObject()->getLocalID());
 		gMessageSystem->addStringFast(_PREHASH_Description, *desc);
