@@ -55,9 +55,14 @@ class LLVBOPool
 {
 public:
 	static U32 sBytesPooled;
+	
+	LLVBOPool(U32 vboUsage, U32 vboType)
+		: mUsage(vboUsage)
+		, mType(vboType)
+	{}
 
-	U32 mUsage;
-	U32 mType;
+	const U32 mUsage;
+	const U32 mType;
 
 	//size MUST be a power of 2
 	volatile U8* allocate(U32& name, U32 size);
@@ -88,7 +93,7 @@ public:
 
 //============================================================================
 // base class 
-class LLPrivateMemoryPool ;
+class LLPrivateMemoryPool;
 class LLVertexBuffer : public LLRefCount
 {
 public:
@@ -103,6 +108,7 @@ public:
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
+		: mUsage(rhs.mUsage)
 	{
 		*this = rhs;
 	}
@@ -118,9 +124,9 @@ public:
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
 
-	static BOOL	sUseStreamDraw;
-	static BOOL sUseVAO;
-	static BOOL	sPreferStreamDraw;
+	static bool	sUseStreamDraw;
+	static bool sUseVAO;
+	static bool	sPreferStreamDraw;
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
@@ -201,7 +207,7 @@ protected:
 	void 	destroyGLIndices();
 	void	updateNumVerts(S32 nverts);
 	void	updateNumIndices(S32 nindices); 
-	virtual BOOL	useVBOs() const;
+	bool	useVBOs() const;
 	void	unmapBuffer();
 		
 public:
@@ -239,8 +245,8 @@ public:
 	bool getClothWeightStrider(LLStrider<LLVector4>& strider, S32 index=0, S32 count = -1, bool map_range = false);
 	
 
-	BOOL isEmpty() const					{ return mEmpty; }
-	BOOL isLocked() const					{ return mVertexLocked || mIndexLocked; }
+	bool isEmpty() const					{ return mEmpty; }
+	bool isLocked() const					{ return mVertexLocked || mIndexLocked; }
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	
@@ -254,7 +260,7 @@ public:
 	volatile U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
-	BOOL isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? TRUE : FALSE; }
+	bool isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? true : false; }
 
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
@@ -274,18 +280,25 @@ protected:
 	S32		mSize;
 	S32		mIndicesSize;
 	U32		mTypeMask;
-	S32		mUsage;			// GL usage
+
+	const S32		mUsage;			// GL usage
+	
 	U32		mGLBuffer;		// GL VBO handle
 	U32		mGLIndices;		// GL IBO handle
 	U32		mGLArray;		// GL VAO handle
 	
 	volatile U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
 	volatile U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
-	BOOL	mVertexLocked;			// if TRUE, vertex buffer is being or has been written to in client memory
-	BOOL	mIndexLocked;			// if TRUE, index buffer is being or has been written to in client memory
-	BOOL	mFinal;			// if TRUE, buffer can not be mapped again
-	BOOL	mEmpty;			// if TRUE, client buffer is empty (or NULL). Old values have been discarded.	
-	mutable BOOL	mMappable;     // if TRUE, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
+
+	U32		mMappedDataUsingVBOs : 1;
+	U32		mMappedIndexDataUsingVBOs : 1;
+	U32		mVertexLocked : 1;			// if true, vertex buffer is being or has been written to in client memory
+	U32		mIndexLocked : 1;			// if true, index buffer is being or has been written to in client memory
+	U32		mFinal : 1;			// if true, buffer can not be mapped again
+	U32		mEmpty : 1;			// if true, client buffer is empty (or NULL). Old values have been discarded.	
+	
+	mutable bool	mMappable;     // if true, use memory mapping to upload data (otherwise doublebuffer and use glBufferSubData)
+
 	S32		mOffsets[TYPE_MAX];
 
 	std::vector<MappedRegion> mMappedVertexRegions;
@@ -296,26 +309,27 @@ protected:
 	void placeFence() const;
 	void waitFence() const;
 
+	static S32 determineUsage(S32 usage);
 
 private:
-	static LLPrivateMemoryPool* sPrivatePoolp ;
+	static LLPrivateMemoryPool* sPrivatePoolp;
 
 public:
 	static S32 sCount;
 	static S32 sGLCount;
 	static S32 sMappedCount;
-	static BOOL sMapped;
+	static bool sMapped;
 	typedef std::list<LLVertexBuffer*> buffer_list_t;
 		
-	static BOOL sDisableVBOMapping; //disable glMapBufferARB
-	static BOOL sEnableVBOs;
+	static bool sDisableVBOMapping; //disable glMapBufferARB
+	static bool sEnableVBOs;
 	static S32 sTypeSize[TYPE_MAX];
 	static U32 sGLMode[LLRender::NUM_MODES];
 	static U32 sGLRenderBuffer;
 	static U32 sGLRenderArray;
 	static U32 sGLRenderIndices;
-	static BOOL sVBOActive;
-	static BOOL sIBOActive;
+	static bool sVBOActive;
+	static bool sIBOActive;
 	static U32 sLastMask;
 	static U32 sAllocatedBytes;
 	static U32 sBindCount;

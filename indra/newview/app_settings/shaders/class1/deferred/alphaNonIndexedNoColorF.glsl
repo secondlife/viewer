@@ -26,14 +26,14 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2D diffuseMap;
 
-uniform mat4 shadow_matrix[6];
-uniform vec4 shadow_clip;
 uniform vec2 screen_res;
 
 vec3 atmosLighting(vec3 light);
@@ -79,6 +79,6 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col.rgb;
 
-	gl_FragColor = color;
+	frag_color = color;
 }
 
