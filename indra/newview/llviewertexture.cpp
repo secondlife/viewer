@@ -3290,10 +3290,14 @@ LLViewerMediaTexture::LLViewerMediaTexture(const LLUUID& id, BOOL usemipmaps, LL
 	sMediaMap.insert(std::make_pair(id, this));
 
 	mGLTexturep = gl_image ;
+
 	if(mGLTexturep.isNull())
 	{
 		generateGLTexture() ;
 	}
+
+	mGLTexturep->setAllowCompression(false);
+
 	mGLTexturep->setNeedsAlphaAndPickMask(FALSE) ;
 
 	mIsPlaying = FALSE ;

@@ -4123,6 +4123,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	group->mGeometryBytes = 0;
 	group->mSurfaceArea = 0;
 	
+	//cache object box size since it might be used for determining visibility
+	group->mObjectBoxSize = group->mObjectBounds[1].getLength3().getF32();
+
 	group->clearDrawMap();
 
 	mFaceList.clear();
@@ -4714,11 +4717,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		buffer_index = -1;
 	}
 
-	S32 texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity
+	S32 texture_index_channels = 1;
 	
-	if (gGLManager.mGLVersion < 3.1f)
+	if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 	{
-		texture_index_channels = 1;
+		texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity;
 	}
 
 	if (LLPipeline::sRenderDeferred && distance_sort)
@@ -4939,6 +4942,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				fullbright = TRUE;
 			}
 
+			if (hud_group)
+			{ //all hud attachments are fullbright
+				fullbright = TRUE;
+			}
+
 			const LLTextureEntry* te = facep->getTextureEntry();
 			tex = facep->getTexture();
 
@@ -4968,7 +4976,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 			}
 			else if (gPipeline.canUseVertexShaders()
-				&& group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD 
 				&& LLPipeline::sRenderBump 
 				&& te->getShiny())
 			{ //shiny
@@ -5033,9 +5040,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 				}
 				
-				//not sure why this is here -- shiny HUD attachments maybe?  -- davep 5/11/2010
-				if (!is_alpha && te->getShiny() && LLPipeline::sRenderBump)
-				{
+				
+				if (!gPipeline.canUseVertexShaders() && 
+					!is_alpha && 
+					te->getShiny() && 
+					LLPipeline::sRenderBump)
+				{ //shiny as an extra pass when shaders are disabled
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
 			}

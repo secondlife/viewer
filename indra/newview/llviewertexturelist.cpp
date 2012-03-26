@@ -1432,6 +1432,9 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 
 	imagep->setAddressMode(LLTexUnit::TAM_CLAMP);
 
+	//don't compress UI images
+	imagep->getGLTexture()->setAllowCompression(false);
+
 	//all UI images are non-deletable
 	imagep->setNoDelete();
 

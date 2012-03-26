@@ -187,6 +187,7 @@ F32 LLPipeline::RenderShadowFOVCutoff;
 BOOL LLPipeline::CameraOffset;
 F32 LLPipeline::CameraMaxCoF;
 F32 LLPipeline::CameraDoFResScale;
+F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_AVATAR = 0.2f;
 const F32 BACKLIGHT_NIGHT_MAGNITUDE_AVATAR = 0.1f;
@@ -202,10 +203,6 @@ extern S32 gBoxFrame;
 //extern BOOL gHideSelectedObjects;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDebugGL;
-
-// hack counter for rendering a fixed number of frames after toggling
-// fullscreen to work around DEV-5361
-static S32 sDelayedVBOEnable = 0;
 
 BOOL	gAvatarBacklight = FALSE;
 
@@ -411,6 +408,7 @@ LLPipeline::LLPipeline() :
 	mOldRenderDebugMask(0),
 	mGroupQ1Locked(false),
 	mGroupQ2Locked(false),
+	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
 	mSkyPool(NULL),
@@ -595,6 +593,7 @@ void LLPipeline::init()
 	gSavedSettings.getControl("CameraOffset")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 	gSavedSettings.getControl("CameraMaxCoF")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 	gSavedSettings.getControl("CameraDoFResScale")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
 }
 
 LLPipeline::~LLPipeline()
@@ -692,8 +691,6 @@ void LLPipeline::destroyGL()
 
 	if (LLVertexBuffer::sEnableVBOs)
 	{
-		// render 30 frames after switching to work around DEV-5361
-		sDelayedVBOEnable = 30;
 		LLVertexBuffer::sEnableVBOs = FALSE;
 	}
 }
@@ -816,6 +813,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 	if (LLPipeline::sRenderDeferred)
 	{
+		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
+		gSavedSettings.setBOOL("RenderInitError", TRUE);
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+
 		S32 shadow_detail = RenderShadowDetail;
 		BOOL ssao = RenderDeferredSSAO;
 		
@@ -877,6 +878,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 				mShadow[i].release();
 			}
 		}
+
+		// don't disable shaders on next session
+		gSavedSettings.setBOOL("RenderInitError", FALSE);
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
 	}
 	else
 	{
@@ -1012,6 +1017,7 @@ void LLPipeline::refreshCachedSettings()
 	CameraOffset = gSavedSettings.getBOOL("CameraOffset");
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
+	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
 	
 	updateRenderDeferred();
 }
@@ -1081,10 +1087,11 @@ void LLPipeline::createGLBuffers()
 
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
-		U32 res = (U32) gSavedSettings.getS32("RenderWaterRefResolution");
+		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
 			
 		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
-		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE);
+		//always use FBO for mWaterDis so it can be used for avatar texture bakes
+		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 	}
 
 	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
@@ -1127,7 +1134,7 @@ void LLPipeline::createGLBuffers()
 			LLImageGL::generateTextures(1, &mNoiseMap);
 			
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mNoiseMap);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
@@ -1142,7 +1149,7 @@ void LLPipeline::createGLBuffers()
 
 			LLImageGL::generateTextures(1, &mTrueNoiseMap);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
@@ -1178,7 +1185,7 @@ void LLPipeline::createGLBuffers()
 
 			LLImageGL::generateTextures(1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, lg);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, lg, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
 
@@ -2523,15 +2530,6 @@ void LLPipeline::updateGeom(F32 max_dtime)
 
 	assertInitialized();
 
-	if (sDelayedVBOEnable > 0)
-	{
-		if (--sDelayedVBOEnable <= 0)
-		{
-			resetVertexBuffers();
-			LLVertexBuffer::sEnableVBOs = TRUE;
-		}
-	}
-
 	// notify various object types to reset internal cost metrics, etc.
 	// for now, only LLVOVolume does this to throttle LOD changes
 	LLVOVolume::preUpdateGeom();
@@ -3346,7 +3344,9 @@ void LLPipeline::postSort(LLCamera& camera)
 	{
 		LLSpatialGroup* group = *i;
 		if (sUseOcclusion && 
-			group->isOcclusionState(LLSpatialGroup::OCCLUDED))
+			group->isOcclusionState(LLSpatialGroup::OCCLUDED) ||
+			(RenderAutoHideSurfaceAreaLimit > 0.f && 
+			group->mSurfaceArea > RenderAutoHideSurfaceAreaLimit*llmax(group->mObjectBoxSize, 10.f)))
 		{
 			continue;
 		}
@@ -6185,7 +6185,7 @@ LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
 
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 {
-	if (!drawable || drawable->isDead())
+	if (!drawable)
 	{
 		return;
 	}
@@ -6198,7 +6198,19 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 }
 
 void LLPipeline::resetVertexBuffers()
-{	
+{
+	mResetVertexBuffers = true;
+}
+
+void LLPipeline::doResetVertexBuffers()
+{
+	if (!mResetVertexBuffers)
+	{
+		return;
+	}
+	
+	mResetVertexBuffers = false;
+
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -6224,10 +6236,8 @@ void LLPipeline::resetVertexBuffers()
 
 	if (LLVertexBuffer::sGLCount > 0)
 	{
-		llwarns << "VBO wipe failed." << llendl;
+		llwarns << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << llendl;
 	}
-
-	llassert(LLVertexBuffer::sGLCount == 0);
 
 	LLVertexBuffer::unbind();	
 	
@@ -6646,9 +6656,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				mDeferredLight.flush();
 			}
 
+			U32 dof_width = (U32) (mScreen.getWidth()*CameraDoFResScale);
+			U32 dof_height = (U32) (mScreen.getHeight()*CameraDoFResScale);
+			
 			{ //perform DoF sampling at half-res (preserve alpha channel)
 				mScreen.bindTarget();
-				glViewport(0,0,(GLsizei) (mScreen.getWidth()*CameraDoFResScale), (GLsizei) (mScreen.getHeight()*CameraDoFResScale));
+				glViewport(0,0, dof_width, dof_height);
 				gGL.setColorMask(true, false);
 
 				shader = &gDeferredPostProgram;
@@ -6661,7 +6674,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
-
+				
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 				gGL.vertex2f(-1,-1);
@@ -6706,6 +6719,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
 				shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, CameraDoFResScale);
+				shader->uniform1f(LLShaderMgr::DOF_WIDTH, dof_width-1);
+				shader->uniform1f(LLShaderMgr::DOF_HEIGHT, dof_height-1);
 
 				gGL.begin(LLRender::TRIANGLE_STRIP);
 				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
@@ -8815,16 +8830,16 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		
 		da = powf(da, split_exp.mV[2]);
 
-
 		F32 sxp = split_exp.mV[1] + (split_exp.mV[0]-split_exp.mV[1])*da;
-
-
+		
 		for (U32 i = 0; i < 4; ++i)
 		{
 			F32 x = (F32)(i+1)/4.f;
 			x = powf(x, sxp);
 			mSunClipPlanes.mV[i] = near_clip+range*x;
 		}
+
+		mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
 	}
 
 	// convenience array of 4 near clip plane distances
@@ -8881,8 +8896,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				delta += (frust[i+4]-frust[(i+2)%4+4])*0.05f;
 				delta.normVec();
 				F32 dp = delta*pn;
-				frust[i] = eye + (delta*dist[j]*0.95f)/dp;
-				frust[i+4] = eye + (delta*dist[j+1]*1.05f)/dp;
+				frust[i] = eye + (delta*dist[j]*0.75f)/dp;
+				frust[i+4] = eye + (delta*dist[j+1]*1.25f)/dp;
 			}
 						
 			shadow_cam.calcAgentFrustumPlanes(frust);

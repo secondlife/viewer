@@ -416,6 +416,9 @@ void LLFloaterAnimPreview::draw()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::resetMotion()
 {
+	if (!mAnimPreview)
+		return;
+
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 	BOOL paused = avatarp->areAnimationsPaused();
 
@@ -535,6 +538,9 @@ BOOL LLFloaterAnimPreview::handleHover(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 BOOL LLFloaterAnimPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
+	if (!mAnimPreview)
+		return false;
+
 	mAnimPreview->zoom((F32)clicks * -0.2f);
 	mAnimPreview->requestUpdate();
 
@@ -670,7 +676,7 @@ void LLFloaterAnimPreview::onCommitBaseAnim()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitLoop()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 	
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -689,7 +695,7 @@ void LLFloaterAnimPreview::onCommitLoop()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitLoopIn()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -709,7 +715,7 @@ void LLFloaterAnimPreview::onCommitLoopIn()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitLoopOut()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -729,7 +735,7 @@ void LLFloaterAnimPreview::onCommitLoopOut()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitName()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -770,7 +776,7 @@ void LLFloaterAnimPreview::onCommitEmote()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitPriority()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -784,7 +790,7 @@ void LLFloaterAnimPreview::onCommitPriority()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitEaseIn()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -799,7 +805,7 @@ void LLFloaterAnimPreview::onCommitEaseIn()
 //-----------------------------------------------------------------------------
 void LLFloaterAnimPreview::onCommitEaseOut()
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -814,7 +820,7 @@ void LLFloaterAnimPreview::onCommitEaseOut()
 //-----------------------------------------------------------------------------
 bool LLFloaterAnimPreview::validateEaseIn(const LLSD& data)
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
@@ -834,7 +840,7 @@ bool LLFloaterAnimPreview::validateEaseIn(const LLSD& data)
 //-----------------------------------------------------------------------------
 bool LLFloaterAnimPreview::validateEaseOut(const LLSD& data)
 {
-	if (!getEnabled())
+	if (!getEnabled() || !mAnimPreview)
 		return false;
 
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();

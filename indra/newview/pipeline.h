@@ -111,6 +111,7 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
+	void doResetVertexBuffers();
 	void resizeScreenTexture();
 	void releaseGLBuffers();
 	void releaseScreenBuffers();
@@ -653,6 +654,8 @@ protected:
 	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
 
+	bool mResetVertexBuffers; //if true, clear vertex buffers on next update
+
 	LLViewerObject::vobj_list_t		mCreateQ;
 		
 	LLDrawable::drawable_set_t		mRetexturedList;
@@ -846,6 +849,7 @@ public:
 	static BOOL CameraOffset;
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
+	static F32 RenderAutoHideSurfaceAreaLimit;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

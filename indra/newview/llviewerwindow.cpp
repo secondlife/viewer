@@ -538,7 +538,10 @@ public:
 			
 			}
 
-			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024)));
+			addText(xpos, ypos, llformat("%d MB Index Data (%d MB Pooled, %d KIndices)", LLVertexBuffer::sAllocatedIndexBytes/(1024*1024), LLVBOPool::sIndexBytesPooled/(1024*1024), LLVertexBuffer::sIndexCount/1024));
+			ypos += y_inc;
+
+			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled, %d KVerts)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024), LLVertexBuffer::sVertexCount/1024));
 			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
@@ -751,8 +754,9 @@ public:
 			LLSelectNode* nodep = LLSelectMgr::instance().getHoverNode();
 			if (nodep)
 			{
-				objectp = nodep->getObject();			
+				objectp = nodep->getObject();
 			}
+
 			if (objectp && !objectp->isDead())
 			{
 				S32 num_faces = objectp->mDrawable->getNumFaces() ;
@@ -766,8 +770,8 @@ public:
 						//		facep->mTexExtents[0].mV[1], facep->mTexExtents[1].mV[1]));
 						//ypos += y_inc;
 						
-						addText(xpos, ypos, llformat("v_size: %.3f:  p_size: %.3f", facep->getVirtualSize(), facep->getPixelArea()));
-						ypos += y_inc;
+						//addText(xpos, ypos, llformat("v_size: %.3f:  p_size: %.3f", facep->getVirtualSize(), facep->getPixelArea()));
+						//ypos += y_inc;
 						
 						//const LLTextureEntry *tep = facep->getTextureEntry();
 						//if(tep)
@@ -776,10 +780,14 @@ public:
 						//	ypos += y_inc;
 						//}
 						
-						LLViewerTexture* tex = facep->getTexture() ;
+						LLViewerFetchedTexture* tex = dynamic_cast<LLViewerFetchedTexture*>(facep->getTexture()) ;
 						if(tex)
 						{
 							addText(xpos, ypos, llformat("ID: %s v_size: %.3f", tex->getID().asString().c_str(), tex->getMaxVirtualSize()));
+							ypos += y_inc;
+
+							addText(xpos, ypos, llformat("discard level: %d desired level: %d Missing: %s", tex->getDiscardLevel(), 
+								tex->getDesiredDiscardLevel(), tex->isMissingAsset() ? "Y" : "N"));
 							ypos += y_inc;
 						}
 					}

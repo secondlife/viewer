@@ -84,6 +84,6 @@
 	<menu_item_call label="Aggiungi" name="Wearable Add"/>
 	<menu_item_call label="Togli" name="Take Off"/>
 	<menu_item_call label="Copia nella casella venditore in uscita" name="Merchant Copy"/>
-	<menu_item_call label="Passa alla casella venditore in uscita" name="Merchant Move"/>
+	<menu_item_call label="Invia a Marketplace" name="Marketplace Send"/>
 	<menu_item_call label="--nessuna opzione--" name="--no options--"/>
 </menu>
