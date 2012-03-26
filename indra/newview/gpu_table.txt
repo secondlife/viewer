@@ -205,6 +205,7 @@ ATI Radeon X800					.*ATI.*Radeon ?X8.*							2		1
 ATI Radeon X900					.*ATI.*Radeon ?X9.*							2		1
 ATI Radeon Xpress				.*ATI.*Radeon Xpress.*						0		1
 ATI Rage 128					.*ATI.*Rage 128.*							0		1
+ATI R300 (9700)					.*R300.*									1		1
 ATI R350 (9800)					.*R350.*									1		1
 ATI R580 (X1900)				.*R580.*									3		1
 ATI RC410 (Xpress 200)			.*RC410.*									0		0
