@@ -605,11 +605,8 @@ bool LLGLManager::initGL()
 #endif // LL_WINDOWS
 
 #if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
-		// release 7277 is a point at which we verify that ATI OpenGL
-		// drivers get pretty stable with SL, ~Catalyst 8.2,
-		// for both Win32 and Linux.
-		if (mDriverVersionRelease < 7277 &&
-		    mDriverVersionRelease != 0) // 0 == Undetectable driver version - these get to pretend to be new ATI drivers, though that decision may be revisited.
+		// count any pre OpenGL 3.0 implementation as an old driver
+		if (mGLVersion < 3.f) 
 		{
 			mATIOldDriver = TRUE;
 		}
