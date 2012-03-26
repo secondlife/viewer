@@ -1124,7 +1124,7 @@
               <key>hash</key>
               <string>d2db9a1c60b60ad773c27dc349aa594d</string>
               <key>url</key>
-              <string>'http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/252131/arch/Linux/installer/llphysicsextensions-0.1-linux-20120326.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/252131/arch/Linux/installer/llphysicsextensions-0.1-linux-20120326.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
