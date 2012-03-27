@@ -1017,6 +1017,58 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 	}
 }
 
+// Migrated from llinventoryfunctions
+void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
+										const LLUUID& new_parent_id,
+										BOOL restamp)
+{
+	if (item->getParentUUID() != new_parent_id)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(restamp);
+		updateItem(new_item);
+		notifyObservers();
+	}
+}
+
+// Migrated from llinventoryfunctions
+void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
+											const LLUUID& new_parent_id,
+											BOOL restamp)
+{
+	if (!cat)
+	{
+		return;
+	}
+
+	// Can't move a folder into a child of itself.
+	if (isObjectDescendentOf(new_parent_id, cat->getUUID()))
+	{
+		return;
+	}
+
+	LLInventoryModel::update_list_t update;
+	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
+	update.push_back(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+	update.push_back(new_folder);
+	accountForUpdate(update);
+
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->setParent(new_parent_id);
+	new_cat->updateParentOnServer(restamp);
+	updateCategory(new_cat);
+	notifyObservers();
+}
+
 // Delete a particular inventory object by ID.
 void LLInventoryModel::deleteObject(const LLUUID& id)
 {

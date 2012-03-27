@@ -306,6 +306,16 @@ public:
 	// observer notification, or server update is performed.
 	void moveObject(const LLUUID& object_id, const LLUUID& cat_id);
 
+	// Migrated from llinventoryfunctions
+	void changeItemParent(LLViewerInventoryItem* item,
+						  const LLUUID& new_parent_id,
+						  BOOL restamp);
+
+	// Migrated from llinventoryfunctions
+	void changeCategoryParent(LLViewerInventoryCategory* cat,
+							  const LLUUID& new_parent_id,
+							  BOOL restamp);
+
 	//--------------------------------------------------------------------
 	// Delete
 	//--------------------------------------------------------------------

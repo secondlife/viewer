@@ -57,16 +57,6 @@ void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id);
 
 void show_item_original(const LLUUID& item_uuid);
 
-void change_item_parent(LLInventoryModel* model,
-									 LLViewerInventoryItem* item,
-									 const LLUUID& new_parent_id,
-									 BOOL restamp);
-
-void change_category_parent(LLInventoryModel* model,
-	LLViewerInventoryCategory* cat,
-	const LLUUID& new_parent_id,
-	BOOL restamp);
-
 void remove_category(LLInventoryModel* model, const LLUUID& cat_id);
 
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name);
