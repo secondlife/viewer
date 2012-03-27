@@ -35,7 +35,7 @@
 //=============================================================================
 LLRenderNavPrim gRenderNav;
 //=============================================================================
-void LLRenderNavPrim::renderSegment( const LLVector3& start, const LLVector3& end, int color ) const
+void LLRenderNavPrim::renderLLSegment( const LLVector3& start, const LLVector3& end, const LLColor4U& color ) const
 {	
 	LLColor4 colorA( color );	
 	gGL.color3fv( colorA.mV );
@@ -81,7 +81,7 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
 }
 //=============================================================================
-void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, int color ) const
+void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, const LLColor4U& color ) const
 {	
 	for (int k=0; k<3; k++)
 	{
@@ -90,7 +90,7 @@ void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, in
 		star[k] = 0.5f;
 		pt1 =  center + star;
 		pt2 =  center - star;	
-		renderSegment( pt1, pt2, color );
+		renderLLSegment( pt1, pt2, color );
 	}
 }
 //=============================================================================
