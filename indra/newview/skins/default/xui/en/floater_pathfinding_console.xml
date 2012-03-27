@@ -30,7 +30,7 @@
   <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
   <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
-  <floater.string name="pathing_path_valid">Path is shown in blue.</floater.string>
+  <floater.string name="pathing_path_valid">Path is shown in olive green.</floater.string>
   <floater.string name="navmesh_update_needed">Region boundary hit, navmesh may not be accurate.</floater.string>
   <text
       height="13"
@@ -420,53 +420,38 @@
           follows="left|top"
           layout="topleft"
           left_pad="-165"
-          top_pad="9"
+          top_pad="13"
           width="190">
         Character type
       </text>
-      <radio_group
+      <combo_box
           follows="top|left"
-          height="20"
           layout="topleft"
-          left_delta="0"
-          name="character_type"
-          top_delta="18"
-          value="1"
-          width="190">
-        <radio_item
+          height="19"
+          width="156"
+          top_pad="5"
+          name="path_character_type">
+        <combo_box.item
+            label="None"
+            name="path_character_type_none"
+            value="0" />
+        <combo_box.item
             label="A"
-            height="14"
-            width="30"
-            value="1"
-            name="character_type_a"/>
-        <radio_item
+            name="path_character_type_a"
+            value="1" />
+        <combo_box.item
             label="B"
-            height="14"
-            width="30"
-            layout="topleft"
-            top="4"
-            left="50"
-            value="2"
-            name="character_type_b"/>
-        <radio_item
+            name="path_character_type_b"
+            value="2" />
+        <combo_box.item
             label="C"
-            height="14"
-            width="30"
-            layout="topleft"
-            top="4"
-            left="100"
-            value="3"
-            name="character_type_c"/>
-        <radio_item
+            name="path_character_type_c"
+            value="3" />
+        <combo_box.item
             label="D"
-            height="14"
-            width="30"
-            layout="topleft"
-            top="4"
-            left="150"
-            value="4"
-            name="character_type_d"/>
-      </radio_group>
+            name="path_character_type_d"
+            value="4" />
+      </combo_box>
       <text
           height="14"
           word_wrap="true"
@@ -476,7 +461,6 @@
           length="1"
           follows="left|top"
           layout="topleft"
-          left_pad="-190"
           top_pad="12"
           width="190">
         Ctrl-click to select start point.

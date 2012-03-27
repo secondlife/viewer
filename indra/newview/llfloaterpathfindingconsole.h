@@ -36,7 +36,6 @@
 
 class LLSD;
 class LLPanel;
-class LLRadioGroup;
 class LLSliderCtrl;
 class LLLineEditor;
 class LLTextBase;
@@ -62,10 +61,11 @@ public:
 
 	typedef enum
 	{
-		kCharacterTypeA = 0,
-		kCharacterTypeB = 1,
-		kCharacterTypeC = 2,
-		kCharacterTypeD = 3
+		kCharacterTypeNone,
+		kCharacterTypeA,
+		kCharacterTypeB,
+		kCharacterTypeC,
+		kCharacterTypeD
 	} ECharacterType;
 
 	virtual BOOL postBuild();
@@ -179,7 +179,7 @@ private:
 	LLTextBase                                    *mFreezeLabel;
 	LLButton                                      *mFreezeButton;
 	LLSliderCtrl                                  *mCharacterWidthSlider;
-	LLRadioGroup                                  *mCharacterTypeRadioGroup;
+	LLComboBox                                    *mCharacterTypeComboBox;
 	LLTextBase                                    *mPathTestingStatus;
 	LLButton                                      *mClearPathButton;
 

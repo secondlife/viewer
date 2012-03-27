@@ -35,7 +35,7 @@
 #include "llagent.h"
 #include "llpanel.h"
 #include "llbutton.h"
-#include "llradiogroup.h"
+#include "llcheckboxctrl.h"
 #include "llsliderctrl.h"
 #include "lllineeditor.h"
 #include "lltextbase.h"
@@ -57,6 +57,7 @@
 #define XUI_RENDER_HEATMAP_C 3
 #define XUI_RENDER_HEATMAP_D 4
 
+#define XUI_CHARACTER_TYPE_NONE 0
 #define XUI_CHARACTER_TYPE_A 1
 #define XUI_CHARACTER_TYPE_B 2
 #define XUI_CHARACTER_TYPE_C 3
@@ -139,9 +140,9 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mCharacterWidthSlider != NULL);
 	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
 
-	mCharacterTypeRadioGroup = findChild<LLRadioGroup>("character_type");
-	llassert(mCharacterTypeRadioGroup != NULL);
-	mCharacterTypeRadioGroup->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
+	mCharacterTypeComboBox = findChild<LLComboBox>("path_character_type");
+	llassert(mCharacterTypeComboBox != NULL);
+	mCharacterTypeComboBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterTypeSwitch, this));
 
 	mPathTestingStatus = findChild<LLTextBase>("path_test_status");
 	llassert(mPathTestingStatus != NULL);
@@ -441,8 +442,11 @@ LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getChar
 {
 	ECharacterType characterType;
 
-	switch (mCharacterTypeRadioGroup->getValue().asInteger())
+	switch (mCharacterTypeComboBox->getValue().asInteger())
 	{
+	case XUI_CHARACTER_TYPE_NONE :
+		characterType = kCharacterTypeNone;
+		break;
 	case XUI_CHARACTER_TYPE_A :
 		characterType = kCharacterTypeA;
 		break;
@@ -456,7 +460,7 @@ LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getChar
 		characterType = kCharacterTypeD;
 		break;
 	default :
-		characterType = kCharacterTypeA;
+		characterType = kCharacterTypeNone;
 		llassert(0);
 		break;
 	}
@@ -470,6 +474,9 @@ void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType
 
 	switch (pCharacterType)
 	{
+	case kCharacterTypeNone :
+		radioGroupValue = XUI_CHARACTER_TYPE_NONE;
+		break;
 	case kCharacterTypeA :
 		radioGroupValue = XUI_CHARACTER_TYPE_A;
 		break;
@@ -483,12 +490,12 @@ void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType
 		radioGroupValue = XUI_CHARACTER_TYPE_D;
 		break;
 	default :
-		radioGroupValue = XUI_CHARACTER_TYPE_A;
+		radioGroupValue = XUI_CHARACTER_TYPE_NONE;
 		llassert(0);
 		break;
 	}
 
-	mCharacterTypeRadioGroup->setValue(radioGroupValue);
+	mCharacterTypeComboBox->setValue(radioGroupValue);
 }
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
@@ -514,7 +521,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mFreezeLabel(NULL),
 	mFreezeButton(NULL),
 	mCharacterWidthSlider(NULL),
-	mCharacterTypeRadioGroup(NULL),
+	mCharacterTypeComboBox(NULL),
 	mPathTestingStatus(NULL),
 	mClearPathButton(NULL),
 	mNavMeshZoneSlot(),
@@ -593,32 +600,7 @@ void LLFloaterPathfindingConsole::onCharacterWidthSet()
 
 void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
 {
-	switch (getCharacterType())
-	{
-	case kCharacterTypeA :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeA"
-			<< llendl;
-		break;
-	case kCharacterTypeB :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeB"
-			<< llendl;
-		break;
-	case kCharacterTypeC :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeC"
-			<< llendl;
-		break;
-	case kCharacterTypeD :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mCharacterTypeRadioGroup->getName() << "' to CharacterTypeD"
-			<< llendl;
-		break;
-	default :
-		llassert(0);
-		break;
-	}
+	generatePath();
 	updatePathTestStatus();
 }
 
@@ -715,7 +697,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
 		mCharacterWidthSlider->setEnabled(FALSE);
-		mCharacterTypeRadioGroup->setEnabled(FALSE);
+		mCharacterTypeComboBox->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
 		mHasStartPoint = false;
 		mHasEndPoint = false;
@@ -734,7 +716,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
 		mCharacterWidthSlider->setEnabled(FALSE);
-		mCharacterTypeRadioGroup->setEnabled(FALSE);
+		mCharacterTypeComboBox->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
 		mHasStartPoint = false;
 		mHasEndPoint = false;
@@ -750,7 +732,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
 		mCharacterWidthSlider->setEnabled(TRUE);
-		mCharacterTypeRadioGroup->setEnabled(TRUE);
+		mCharacterTypeComboBox->setEnabled(TRUE);
 		mClearPathButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
 		break;
@@ -928,6 +910,27 @@ void LLFloaterPathfindingConsole::generatePath()
 	if (mHasStartPoint && mHasEndPoint)
 	{
 		mPathData.mCharacterWidth = getCharacterWidth();
+		switch (getCharacterType())
+		{
+		case kCharacterTypeNone :
+			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
+			break;
+		case kCharacterTypeA :
+			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
+			break;
+		case kCharacterTypeB :
+			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
+			break;
+		case kCharacterTypeC :
+			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
+			break;
+		case kCharacterTypeD :
+			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
+			break;
+		default :
+			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
+			break;
+		}
 		LLPathingLib::getInstance()->generatePath(mPathData);
 	}
 }
