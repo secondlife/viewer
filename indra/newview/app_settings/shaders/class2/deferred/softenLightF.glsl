@@ -311,7 +311,7 @@ void main()
 
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
-			bloom = dot(spec_contrib, spec_contrib);
+			bloom = dot(spec_contrib, spec_contrib) / 4;
 			col += spec_contrib;
 
 			//add environmentmap
