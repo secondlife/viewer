@@ -1022,8 +1022,16 @@ void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
 										const LLUUID& new_parent_id,
 										BOOL restamp)
 {
-	if (item->getParentUUID() != new_parent_id)
+	if (item->getParentUUID() == new_parent_id)
 	{
+		LL_DEBUGS("Inventory") << "'" << item->getName() << "' (" << item->getUUID()
+							   << ") is already in folder " << new_parent_id << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS("Inventory") << "Moving '" << item->getName() << "' (" << item->getUUID()
+							  << ") from " << item->getParentUUID() << " to folder "
+							  << new_parent_id << LL_ENDL;
 		LLInventoryModel::update_list_t update;
 		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
 		update.push_back(old_folder);
@@ -2983,21 +2991,15 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 void LLInventoryModel::removeItem(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item = getItem(item_id);
-	const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if (item && item->getParentUUID() != new_parent)
+	if (! item)
 	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent, 1);
-		update.push_back(new_folder);
-		accountForUpdate(update);
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent);
-		new_item->updateParentOnServer(TRUE);
-		updateItem(new_item);
-		notifyObservers();
+		LL_WARNS("Inventory") << "couldn't find inventory item " << item_id << LL_ENDL;
+	}
+	else
+	{
+		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
+		changeItemParent(item, new_parent, TRUE);
 	}
 }
 
