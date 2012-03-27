@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="420"
+    height="430"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -75,7 +75,7 @@
       top_pad="8"
       width="156">
     <combo_box.item
-        label="None"
+        label="Do not show"
         name="show_heatmap_mode_none"
         value="0" />
     <combo_box.item
@@ -245,8 +245,8 @@
       layout="topleft"
       left="14"
       top_pad="18"
-      width="105">
-    Lost characters?
+      width="250">
+    Lost characters? Bad performance?
   </text>
   <button
       follows="left|top"
@@ -255,6 +255,7 @@
       layout="topleft"
       name="view_characters_floater"
       left_pad="0"
+      top_pad="-17"
       width="96"/>
   <view_border
       bevel_style="none"
@@ -262,7 +263,7 @@
       layout="topleft"
       left="230"
       top="35"
-      height="373"
+      height="344"
       width="214"
       visible="true" />
   <tab_container
@@ -272,7 +273,7 @@
       name="edit_test_tab_container"
       left="227"
       top="14"
-      height="395"
+      height="366"
       width="218">
     <panel
         border="false"
