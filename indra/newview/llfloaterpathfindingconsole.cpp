@@ -1012,46 +1012,47 @@ void LLFloaterPathfindingConsole::regionCrossingOccured()
 
 void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 {
+
 	LLPathingLib::NavMeshColors colors;
 	
 	LLVector3 in = gSavedSettings.getVector3("WalkableRGB");
 	F32 a = gSavedSettings.getF32("WalkableA");
-	colors.mWalkable= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mWalkable= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 
 	in = gSavedSettings.getVector3("ObstacleRGB");
 	a  = gSavedSettings.getF32("ObstacleA");
-	colors.mObstacle= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mObstacle= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 
 	in = gSavedSettings.getVector3("MaterialRGB");
 	a  = gSavedSettings.getF32("MaterialA");
-	colors.mMaterial= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mMaterial= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 
 	in = gSavedSettings.getVector3("ExclusionRGB");
 	a  = gSavedSettings.getF32("ExclusionA");
-	colors.mExclusion= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mExclusion= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 	
 	in = gSavedSettings.getVector3("ConnectedEdgeRGB");
 	a  = gSavedSettings.getF32("ConnectedEdgeA");
-	colors.mConnectedEdge= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mConnectedEdge= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 
 	in = gSavedSettings.getVector3("BoundaryEdgeRGB");
 	a  = gSavedSettings.getF32("BoundaryEdgeA");
-	colors.mBoundaryEdge= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mBoundaryEdge= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 
 	in = gSavedSettings.getVector3("HeatColorBase");
 	a  = gSavedSettings.getF32("HeatColorBaseA");
-	colors.mHeatColorBase= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mHeatColorBase= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 
 	in = gSavedSettings.getVector3("HeatColorMax");
 	a  = gSavedSettings.getF32("HeatColorMaxA");
-	colors.mHeatColorMax= LLColor4U( in[0],in[1],in[2],a ); 
+	colors.mHeatColorMax= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
 	
 	in = gSavedSettings.getVector3("FaceColorRGB");
 	a  = gSavedSettings.getF32("FaceColorA");
-	colors.mFaceColor= LLColor4U( in[0],in[1],in[2],a ); 	
+	colors.mFaceColor= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
 
 	in = gSavedSettings.getVector3("NavMeshClearRGB");
-	colors.mNavMeshClear= LLColor4U( in[0],in[1],in[2],0 ); 
+	colors.mNavMeshClear= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2], 0 ); 
 
 	mNavMeshColors = colors;
 
