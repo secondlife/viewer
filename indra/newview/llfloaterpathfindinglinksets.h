@@ -124,8 +124,8 @@ private:
 	void setMessagingState(EMessagingState pMessagingState);
 	void requestGetLinksets();
 	void requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD);
-	void handleNewLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
-	void handleUpdateLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
+	void handleNewLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
+	void handleUpdateLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
 
 	void onApplyAllFilters();
 	void onClearFiltersClicked();

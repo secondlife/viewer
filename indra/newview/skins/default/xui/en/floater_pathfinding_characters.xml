@@ -15,165 +15,180 @@
     single_instance="true"
     title="Pathfinding characters">
   <floater.string name="characters_messaging_initial"></floater.string>
-  <floater.string name="characters_messaging_fetch_starting">Building query for pathfinding characters ...</floater.string>
-  <floater.string name="characters_messaging_fetch_inprogress">Querying for pathfinding characters ...</floater.string>
-  <floater.string name="characters_messaging_fetch_inprogress_multi_request">Querying for pathfinding characters (already in progress) ...</floater.string>
-  <floater.string name="characters_messaging_fetch_received">Loading pathfinding characters data from response ...</floater.string>
-  <floater.string name="characters_messaging_fetch_error">Error detected while querying for pathfinding characters</floater.string>
-  <floater.string name="characters_messaging_complete_none_found">No pathfinding characters</floater.string>
-  <floater.string name="characters_messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL]</floater.string>
-  <floater.string name="characters_messaging_service_not_available">Required capability is not available in current region</floater.string>
+  <floater.string name="characters_messaging_get_inprogress">Querying for pathfinding characters ...</floater.string>
+  <floater.string name="characters_messaging_get_error">Error detected while querying for pathfinding characters.</floater.string>
+  <floater.string name="characters_messaging_complete_none_found">No pathfinding characters.</floater.string>
+  <floater.string name="characters_messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL].</floater.string>
+  <floater.string name="characters_messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="character_cpu_time">[CPU_TIME] µs</floater.string>
-  <scroll_list
-      column_padding="0"
-      draw_heading="true"
-      follows="all"
-      height="135"
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top|right|bottom"
       layout="topleft"
-      left="18"
-      top="10"
-      multi_select="true"
-      name="pathfinding_characters"
-      width="600">
-    <scroll_list.columns
-        label="Name"
-        name="name"
-        dynamic_width="true" />
-    <scroll_list.columns
-        label="Description"
-        name="description"
-        width="172" />
-    <scroll_list.columns
-        label="Owner"
-        name="owner"
-        width="141" />
-    <scroll_list.columns
-        label="CPU"
-        name="cpu_time"
-        width="60" />
-    <scroll_list.columns
-        label="Altitude"
-        name="altitude"
-        width="64" />
-  </scroll_list>
-  <text
-      height="26"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|bottom"
-      layout="topleft"
-      name="characters_status"
-      top="161"
-      width="240">
-    Characters:
-  </text>
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Refresh list"
-      layout="topleft"
-      name="refresh_characters_list"
-      top="161"
-      left="257"
-      width="115"/>
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Select all"
-      layout="topleft"
-      name="select_all_characters"
-      top="161"
-      left="378"
-      width="115"/>
-  <button
-      follows="right|bottom"
-      height="21"
-      label="Select none"
-      layout="topleft"
-      name="select_none_characters"
-      top="161"
-      left="502"
-      width="115"/>
+      height="191"
+      width="635">
+    <scroll_list
+        column_padding="0"
+        draw_heading="true"
+        follows="all"
+        height="135"
+        layout="topleft"
+        left="18"
+        top_pad="10"
+        multi_select="true"
+        name="pathfinding_characters"
+        width="600">
+      <scroll_list.columns
+          label="Name"
+          name="name"
+          dynamic_width="true" />
+      <scroll_list.columns
+          label="Description"
+          name="description"
+          width="172" />
+      <scroll_list.columns
+          label="Owner"
+          name="owner"
+          width="141" />
+      <scroll_list.columns
+          label="CPU"
+          name="cpu_time"
+          width="60" />
+      <scroll_list.columns
+          label="Altitude"
+          name="altitude"
+          width="64" />
+    </scroll_list>
+    <text
+        height="26"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|bottom|right"
+        layout="topleft"
+        name="characters_status"
+        top_pad="17"
+        width="238">
+      Characters:
+    </text>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Refresh list"
+        layout="topleft"
+        name="refresh_characters_list"
+        top_pad="-29"
+        left_pad="0"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select all"
+        layout="topleft"
+        name="select_all_characters"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+    <button
+        follows="right|bottom"
+        height="21"
+        label="Select none"
+        layout="topleft"
+        name="select_none_characters"
+        top_pad="-21"
+        left_pad="8"
+        width="115"/>
+  </panel>
   <view_border
       bevel_style="none"
       follows="left|right|bottom"
       height="0"
       layout="topleft"
       name="horiz_separator"
-      top="196"
-      left="20"
+      top_pad="0"
+      left="18"
       width="600"/>
-  <text
-      height="13"
-      word_wrap="false"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      length="1"
-      follows="left|bottom"
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|right|bottom"
       layout="topleft"
-      name="actions_label"
-      top_pad="12"
-      width="242">
-    Actions on selected characters:
-  </text>
-  <check_box
-      height="19"
-      follows="left|bottom"
-      label="Show beacon"
-      layout="topleft"
-      name="show_beacon"
-      top="208"
-      left="259"
-      width="90" />
-  <button
-      follows="left|bottom"
-      height="22"
-      label="Take"
-      layout="topleft"
-      name="take_characters"
-      top="232"
-      left="17"
-      width="94"/>
-  <button
-      follows="left|bottom"
-      height="22"
-      label="Take copy"
-      layout="topleft"
-      name="take_copy_characters"
-      top="232"
-      left="119"
-      width="94"/>
-  <button
-      follows="left|bottom"
-      height="22"
-      label="Return"
-      layout="topleft"
-      name="return_characters"
-      top="233"
-      left="220"
-      width="94"/>
-  <button
-      follows="left|bottom"
-      height="22"
-      label="Delete"
-      layout="topleft"
-      name="delete_characters"
-      top="233"
-      left="322"
-      width="94"/>
-  <button
-      follows="left|bottom"
-      height="22"
-      label="Teleport me to it"
-      layout="topleft"
-      name="teleport_to_character"
-      tool_tip="Enabled only when one character is selected."
-      top="233"
-      left="420"
-      width="159"/>
+      left="0"
+      height="67"
+      width="635">
+    <text
+        height="13"
+        word_wrap="false"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        length="1"
+        follows="left|bottom|right"
+        layout="topleft"
+        name="actions_label"
+        left="18"
+        top_pad="8"
+        width="242">
+      Actions on selected characters:
+    </text>
+    <check_box
+        height="19"
+        follows="left|bottom"
+        label="Show beacon"
+        layout="topleft"
+        name="show_beacon"
+        top_pad="-16"
+        left_pad="0"
+        width="90" />
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Take"
+        layout="topleft"
+        name="take_characters"
+        top_pad="9"
+        left="18"
+        width="94"/>
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Take copy"
+        layout="topleft"
+        name="take_copy_characters"
+        top_pad="-22"
+        left_pad="6"
+        width="94"/>
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Return"
+        layout="topleft"
+        name="return_characters"
+        top_pad="-22"
+        left_pad="6"
+        width="94"/>
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Delete"
+        layout="topleft"
+        name="delete_characters"
+        top_pad="-22"
+        left_pad="6"
+        width="94"/>
+    <button
+        follows="left|bottom"
+        height="22"
+        label="Teleport me to it"
+        layout="topleft"
+        name="teleport_to_character"
+        tool_tip="Enabled only when one character is selected."
+        top_pad="-22"
+        left_pad="6"
+        width="159"/>
+  </panel>
 </floater>

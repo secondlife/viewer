@@ -1,29 +1,29 @@
 /** 
- * @file llfloaterpathfindinglinksets.cpp
- * @author William Todd Stinson
- * @brief "Pathfinding linksets" floater, allowing manipulation of the Havok AI pathfinding settings.
- *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License only.
- * 
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
- * $/LicenseInfo$
- */
+* @file llfloaterpathfindinglinksets.cpp
+* @author William Todd Stinson
+* @brief "Pathfinding linksets" floater, allowing manipulation of the Havok AI pathfinding settings.
+*
+* $LicenseInfo:firstyear=2002&license=viewerlgpl$
+* Second Life Viewer Source Code
+* Copyright (C) 2010, Linden Research, Inc.
+* 
+* This library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation;
+* version 2.1 of the License only.
+* 
+* This library is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+* 
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+* 
+* Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+* $/LicenseInfo$
+*/
 
 #include "llviewerprecompiledheaders.h"
 #include "llfloater.h"
@@ -339,18 +339,18 @@ void LLFloaterPathfindingLinksets::requestGetLinksets()
 	{
 		switch (LLPathfindingManager::getInstance()->requestGetLinksets(boost::bind(&LLFloaterPathfindingLinksets::handleNewLinksets, this, _1, _2)))
 		{
-		case LLPathfindingManager::kLinksetsRequestStarted :
+		case LLPathfindingManager::kRequestStarted :
 			setMessagingState(kMessagingGetRequestSent);
 			break;
-		case LLPathfindingManager::kLinksetsRequestCompleted :
+		case LLPathfindingManager::kRequestCompleted :
 			clearLinksets();
 			setMessagingState(kMessagingComplete);
 			break;
-		case LLPathfindingManager::kLinksetsRequestNotEnabled :
+		case LLPathfindingManager::kRequestNotEnabled :
 			clearLinksets();
 			setMessagingState(kMessagingNotEnabled);
 			break;
-		case LLPathfindingManager::kLinksetsRequestError :
+		case LLPathfindingManager::kRequestError :
 			setMessagingState(kMessagingGetError);
 			break;
 		default :
@@ -368,17 +368,17 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingLinksetListPt
 	{
 		switch (LLPathfindingManager::getInstance()->requestSetLinksets(pLinksetList, pLinksetUse, pA, pB, pC, pD, boost::bind(&LLFloaterPathfindingLinksets::handleUpdateLinksets, this, _1, _2)))
 		{
-		case LLPathfindingManager::kLinksetsRequestStarted :
+		case LLPathfindingManager::kRequestStarted :
 			setMessagingState(kMessagingSetRequestSent);
 			break;
-		case LLPathfindingManager::kLinksetsRequestCompleted :
+		case LLPathfindingManager::kRequestCompleted :
 			setMessagingState(kMessagingComplete);
 			break;
-		case LLPathfindingManager::kLinksetsRequestNotEnabled :
+		case LLPathfindingManager::kRequestNotEnabled :
 			clearLinksets();
 			setMessagingState(kMessagingNotEnabled);
 			break;
-		case LLPathfindingManager::kLinksetsRequestError :
+		case LLPathfindingManager::kRequestError :
 			setMessagingState(kMessagingSetError);
 			break;
 		default :
@@ -389,17 +389,17 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingLinksetListPt
 	}
 }
 
-void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
+void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
 {
 	mLinksetsListPtr = pLinksetsListPtr;
 	updateScrollList();
 
 	switch (pLinksetsRequestStatus)
 	{
-	case LLPathfindingManager::kLinksetsRequestCompleted :
+	case LLPathfindingManager::kRequestCompleted :
 		setMessagingState(kMessagingComplete);
 		break;
-	case LLPathfindingManager::kLinksetsRequestError :
+	case LLPathfindingManager::kRequestError :
 		setMessagingState(kMessagingGetError);
 		break;
 	default :
@@ -409,7 +409,7 @@ void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::ELink
 	}
 }
 
-void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::ELinksetsRequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
+void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
 {
 	if (mLinksetsListPtr == NULL)
 	{
@@ -423,10 +423,10 @@ void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::EL
 
 	switch (pLinksetsRequestStatus)
 	{
-	case LLPathfindingManager::kLinksetsRequestCompleted :
+	case LLPathfindingManager::kRequestCompleted :
 		setMessagingState(kMessagingComplete);
 		break;
-	case LLPathfindingManager::kLinksetsRequestError :
+	case LLPathfindingManager::kRequestError :
 		setMessagingState(kMessagingSetError);
 		break;
 	default :
@@ -702,21 +702,21 @@ void LLFloaterPathfindingLinksets::updateScrollList()
 LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfindingLinksetPtr pLinksetPtr, const LLVector3 &pAvatarPosition) const
 {
 	LLSD columns;
-	
+
 	if (pLinksetPtr->isTerrain())
 	{
 		columns[0]["column"] = "name";
 		columns[0]["value"] = getString("linkset_terrain_name");
 		columns[0]["font"] = "SANSSERIF";
-		
+
 		columns[1]["column"] = "description";
 		columns[1]["value"] = getString("linkset_terrain_description");
 		columns[1]["font"] = "SANSSERIF";
-		
+
 		columns[2]["column"] = "land_impact";
 		columns[2]["value"] = getString("linkset_terrain_land_impact");
 		columns[2]["font"] = "SANSSERIF";
-		
+
 		columns[3]["column"] = "dist_from_you";
 		columns[3]["value"] = getString("linkset_terrain_dist_from_you");
 		columns[3]["font"] = "SANSSERIF";
@@ -726,15 +726,15 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfin
 		columns[0]["column"] = "name";
 		columns[0]["value"] = pLinksetPtr->getName();
 		columns[0]["font"] = "SANSSERIF";
-		
+
 		columns[1]["column"] = "description";
 		columns[1]["value"] = pLinksetPtr->getDescription();
 		columns[1]["font"] = "SANSSERIF";
-		
+
 		columns[2]["column"] = "land_impact";
 		columns[2]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
 		columns[2]["font"] = "SANSSERIF";
-		
+
 		columns[3]["column"] = "dist_from_you";
 		columns[3]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
 		columns[3]["font"] = "SANSSERIF";
@@ -787,12 +787,12 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfin
 LLSD LLFloaterPathfindingLinksets::buildLinksetUseScrollListElement(const std::string &label, S32 value) const
 {
 	LLSD columns;
-	
+
 	columns[0]["column"] = "name";
 	columns[0]["relwidth"] = static_cast<LLSD::Real>(100.0f);
 	columns[0]["value"] = label;
 	columns[0]["font"] = "SANSSERIF";
-		
+
 	LLSD element;
 	element["value"] = value;
 	element["column"] = columns;
@@ -1172,7 +1172,7 @@ void LLFloaterPathfindingLinksets::setEditLinksetUse(LLPathfindingLinkset::ELink
 LLPathfindingLinkset::ELinksetUse LLFloaterPathfindingLinksets::convertToLinksetUse(LLSD pXuiValue) const
 {
 	LLPathfindingLinkset::ELinksetUse linkUse;
-	
+
 	switch (pXuiValue.asInteger())
 	{
 	case XUI_LINKSET_USE_NONE :

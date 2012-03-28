@@ -1,7 +1,7 @@
 /** 
  * @file llfloaterpathfindingcharacters.cpp
  * @author William Todd Stinson
- * @brief "Pathfinding linksets" floater, allowing manipulation of the Havok AI pathfinding settings.
+ * @brief "Pathfinding characters" floater, allowing for identification of pathfinding characters and their cpu usage.
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -28,7 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloater.h"
 #include "llfloaterpathfindingcharacters.h"
-#include "llpathfindingcharacter.h"
+#include "llpathfindingcharacterlist.h"
 #include "llsd.h"
 #include "llagent.h"
 #include "llhandle.h"
@@ -49,36 +49,11 @@
 #include "llselectmgr.h"
 
 //---------------------------------------------------------------------------
-// CharactersGetResponder
-//---------------------------------------------------------------------------
-
-class CharactersGetResponder : public LLHTTPClient::Responder
-{
-public:
-	CharactersGetResponder(const std::string& pCharactersDataGetURL,
-		const LLHandle<LLFloaterPathfindingCharacters> &pCharactersFloaterHandle);
-	virtual ~CharactersGetResponder();
-
-	virtual void result(const LLSD& pContent);
-	virtual void error(U32 pStatus, const std::string& pReason);
-
-private:
-	CharactersGetResponder(const CharactersGetResponder& pOther);
-
-	std::string                              mCharactersDataGetURL;
-	LLHandle<LLFloaterPathfindingCharacters> mCharactersFloaterHandle;
-};
-
-//---------------------------------------------------------------------------
 // LLFloaterPathfindingCharacters
 //---------------------------------------------------------------------------
 
 BOOL LLFloaterPathfindingCharacters::postBuild()
 {
-	childSetAction("refresh_characters_list", boost::bind(&LLFloaterPathfindingCharacters::onRefreshCharactersClicked, this));
-	childSetAction("select_all_characters", boost::bind(&LLFloaterPathfindingCharacters::onSelectAllCharactersClicked, this));
-	childSetAction("select_none_characters", boost::bind(&LLFloaterPathfindingCharacters::onSelectNoneCharactersClicked, this));
-
 	mCharactersScrollList = findChild<LLScrollListCtrl>("pathfinding_characters");
 	llassert(mCharactersScrollList != NULL);
 	mCharactersScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onCharactersSelectionChange, this));
@@ -87,82 +62,73 @@ BOOL LLFloaterPathfindingCharacters::postBuild()
 	mCharactersStatus = findChild<LLTextBase>("characters_status");
 	llassert(mCharactersStatus != NULL);
 
-	mLabelActions = findChild<LLTextBase>("actions_label");
-	llassert(mLabelActions != NULL);
+	mRefreshListButton = findChild<LLButton>("refresh_characters_list");
+	llassert(mRefreshListButton != NULL);
+	mRefreshListButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onRefreshCharactersClicked, this));
+
+	mSelectAllButton = findChild<LLButton>("select_all_characters");
+	llassert(mSelectAllButton != NULL);
+	mSelectAllButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onSelectAllCharactersClicked, this));
+
+	mSelectNoneButton = findChild<LLButton>("select_none_characters");
+	llassert(mSelectNoneButton != NULL);
+	mSelectNoneButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onSelectNoneCharactersClicked, this));
 
 	mShowBeaconCheckBox = findChild<LLCheckBoxCtrl>("show_beacon");
 	llassert(mShowBeaconCheckBox != NULL);
 
-	mTakeBtn = findChild<LLButton>("take_characters");
-	llassert(mTakeBtn != NULL)
-	mTakeBtn->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTakeCharactersClicked, this));
+	mTakeButton = findChild<LLButton>("take_characters");
+	llassert(mTakeButton != NULL)
+	mTakeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTakeCharactersClicked, this));
 
-	mTakeCopyBtn = findChild<LLButton>("take_copy_characters");
-	llassert(mTakeCopyBtn != NULL)
-	mTakeCopyBtn->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTakeCopyCharactersClicked, this));
+	mTakeCopyButton = findChild<LLButton>("take_copy_characters");
+	llassert(mTakeCopyButton != NULL)
+	mTakeCopyButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTakeCopyCharactersClicked, this));
 
-	mReturnBtn = findChild<LLButton>("return_characters");
-	llassert(mReturnBtn != NULL)
-	mReturnBtn->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onReturnCharactersClicked, this));
+	mReturnButton = findChild<LLButton>("return_characters");
+	llassert(mReturnButton != NULL)
+	mReturnButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onReturnCharactersClicked, this));
 
-	mDeleteBtn = findChild<LLButton>("delete_characters");
-	llassert(mDeleteBtn != NULL)
-	mDeleteBtn->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onDeleteCharactersClicked, this));
+	mDeleteButton = findChild<LLButton>("delete_characters");
+	llassert(mDeleteButton != NULL)
+	mDeleteButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onDeleteCharactersClicked, this));
 
-	mTeleportBtn = findChild<LLButton>("teleport_to_character");
-	llassert(mTeleportBtn != NULL)
-	mTeleportBtn->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked, this));
-
-	setEnableActionFields(false);
-	setMessagingState(kMessagingInitial);
+	mTeleportButton = findChild<LLButton>("teleport_to_character");
+	llassert(mTeleportButton != NULL)
+	mTeleportButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked, this));
 
 	return LLFloater::postBuild();
 }
 
 void LLFloaterPathfindingCharacters::onOpen(const LLSD& pKey)
 {
-	sendCharactersDataGetRequest();
+	LLFloater::onOpen(pKey);
+
+	requestGetCharacters();
 	selectNoneCharacters();
+	mCharactersScrollList->setCommitOnSelectionChange(true);
 
 	if (!mSelectionUpdateSlot.connected())
 	{
-		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingCharacters::updateActionFields, this));
+		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingCharacters::updateControls, this));
 	}
-
-	mCharactersScrollList->setCommitOnSelectionChange(true);
 }
 
-void LLFloaterPathfindingCharacters::onClose(bool app_quitting)
+void LLFloaterPathfindingCharacters::onClose(bool pAppQuitting)
 {
-	mCharactersScrollList->setCommitOnSelectionChange(false);
-
 	if (mSelectionUpdateSlot.connected())
 	{
 		mSelectionUpdateSlot.disconnect();
 	}
 
+	mCharactersScrollList->setCommitOnSelectionChange(false);
 	selectNoneCharacters();
 	if (mCharacterSelection.notNull())
 	{
-		std::vector<LLViewerObject *> selectedObjects;
-
-		LLObjectSelection *charactersSelected = mCharacterSelection.get();
-		for (LLObjectSelection::valid_iterator characterIter = charactersSelected->valid_begin();
-			characterIter != charactersSelected->valid_end();  ++characterIter)
-		{
-			LLSelectNode *characterNode = *characterIter;
-			selectedObjects.push_back(characterNode->getObject());
-		}
-
-		for (std::vector<LLViewerObject *>::const_iterator selectedObjectIter = selectedObjects.begin();
-			selectedObjectIter != selectedObjects.end(); ++selectedObjectIter)
-		{
-			LLViewerObject *selectedObject = *selectedObjectIter;
-			LLSelectMgr::getInstance()->deselectObjectAndFamily(selectedObject);
-		}
-
 		mCharacterSelection.clear();
 	}
+
+	LLFloater::onClose(pAppQuitting);
 }
 
 void LLFloaterPathfindingCharacters::draw()
@@ -208,139 +174,86 @@ LLFloaterPathfindingCharacters::EMessagingState LLFloaterPathfindingCharacters::
 
 BOOL LLFloaterPathfindingCharacters::isMessagingInProgress() const
 {
-	BOOL retVal;
-	switch (getMessagingState())
-	{
-	case kMessagingFetchStarting :
-	case kMessagingFetchRequestSent :
-	case kMessagingFetchRequestSent_MultiRequested :
-	case kMessagingFetchReceived :
-		retVal = true;
-		break;
-	default :
-		retVal = false;
-		break;
-	}
-
-	return retVal;
+	return (mMessagingState == kMessagingGetRequestSent);
 }
 
 LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed)
 	: LLFloater(pSeed),
-	mSelfHandle(),
-	mPathfindingCharacters(),
-	mMessagingState(kMessagingInitial),
 	mCharactersScrollList(NULL),
 	mCharactersStatus(NULL),
-	mLabelActions(NULL),
+	mRefreshListButton(NULL),
+	mSelectAllButton(NULL),
+	mSelectNoneButton(NULL),
 	mShowBeaconCheckBox(NULL),
-	mTakeBtn(NULL),
-	mTakeCopyBtn(NULL),
-	mReturnBtn(NULL),
-	mDeleteBtn(NULL),
-	mTeleportBtn(NULL),
+	mTakeButton(NULL),
+	mTakeCopyButton(NULL),
+	mReturnButton(NULL),
+	mDeleteButton(NULL),
+	mTeleportButton(NULL),
+	mMessagingState(kMessagingUnknown),
+	mCharacterListPtr(),
 	mCharacterSelection(),
 	mSelectionUpdateSlot()
 {
-	mSelfHandle.bind(this);
 }
 
 LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
-	mPathfindingCharacters.clear();
-	mCharacterSelection.clear();
-}
-
-void LLFloaterPathfindingCharacters::sendCharactersDataGetRequest()
-{
-	if (isMessagingInProgress())
-	{
-		if (getMessagingState() == kMessagingFetchRequestSent)
-		{
-			setMessagingState(kMessagingFetchRequestSent_MultiRequested);
-		}
-	}
-	else
-	{
-		setMessagingState(kMessagingFetchStarting);
-		mPathfindingCharacters.clear();
-		updateCharactersList();
-
-		std::string charactersDataURL = getCapabilityURL();
-		if (charactersDataURL.empty())
-		{
-			setMessagingState(kMessagingServiceNotAvailable);
-			llwarns << "cannot query pathfinding characters from current region '" << getRegionName() << "'" << llendl;
-		}
-		else
-		{
-			setMessagingState(kMessagingFetchRequestSent);
-			LLHTTPClient::get(charactersDataURL, new CharactersGetResponder(charactersDataURL, mSelfHandle));
-		}
-	}
-}
-
-void LLFloaterPathfindingCharacters::handleCharactersDataGetReply(const LLSD& pCharactersData)
-{
-	setMessagingState(kMessagingFetchReceived);
-	mPathfindingCharacters.clear();
-	parseCharactersData(pCharactersData);
-	updateCharactersList();
-	setMessagingState(kMessagingComplete);
-}
-
-void LLFloaterPathfindingCharacters::handleCharactersDataGetError(const std::string& pURL, const std::string& pErrorReason)
-{
-	setMessagingState(kMessagingFetchError);
-	mPathfindingCharacters.clear();
-	updateCharactersList();
-	llwarns << "Error fetching pathfinding characters from URL '" << pURL << "' because " << pErrorReason << llendl;
-}
-
-std::string LLFloaterPathfindingCharacters::getRegionName() const
-{
-	std::string regionName("");
-
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region != NULL)
-	{
-		regionName = region->getName();
-	}
-
-	return regionName;
-}
-
-std::string LLFloaterPathfindingCharacters::getCapabilityURL() const
-{
-	std::string charactersDataURL("");
-
-	LLViewerRegion* region = gAgent.getRegion();
-	if (region != NULL)
-	{
-		charactersDataURL = region->getCapability("CharacterProperties");
-	}
-
-	return charactersDataURL;
-}
-
-void LLFloaterPathfindingCharacters::parseCharactersData(const LLSD &pCharactersData)
-{
-	for (LLSD::map_const_iterator characterItemIter = pCharactersData.beginMap();
-		characterItemIter != pCharactersData.endMap(); ++characterItemIter)
-	{
-		const std::string &uuid(characterItemIter->first);
-		const LLSD &characterData(characterItemIter->second);
-		LLPathfindingCharacter character(uuid, characterData);
-
-		mPathfindingCharacters.insert(std::pair<std::string, LLPathfindingCharacter>(uuid, character));
-	}
 }
 
 void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagingState)
 {
 	mMessagingState = pMessagingState;
-	updateCharactersList();
-	updateActionFields();
+	updateControls();
+}
+
+void LLFloaterPathfindingCharacters::requestGetCharacters()
+{
+	llassert(!isMessagingInProgress());
+	if (!isMessagingInProgress())
+	{
+		switch (LLPathfindingManager::getInstance()->requestGetCharacters(boost::bind(&LLFloaterPathfindingCharacters::handleNewCharacters, this, _1, _2)))
+		{
+		case LLPathfindingManager::kRequestStarted :
+			setMessagingState(kMessagingGetRequestSent);
+			break;
+		case LLPathfindingManager::kRequestCompleted :
+			clearCharacters();
+			setMessagingState(kMessagingComplete);
+			break;
+		case LLPathfindingManager::kRequestNotEnabled :
+			clearCharacters();
+			setMessagingState(kMessagingNotEnabled);
+			break;
+		case LLPathfindingManager::kRequestError :
+			setMessagingState(kMessagingGetError);
+			break;
+		default :
+			setMessagingState(kMessagingGetError);
+			llassert(0);
+			break;
+		}
+	}
+}
+
+void LLFloaterPathfindingCharacters::handleNewCharacters(LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr)
+{
+	mCharacterListPtr = pCharacterListPtr;
+	updateScrollList();
+
+	switch (pCharacterRequestStatus)
+	{
+	case LLPathfindingManager::kRequestCompleted :
+		setMessagingState(kMessagingComplete);
+		break;
+	case LLPathfindingManager::kRequestError :
+		setMessagingState(kMessagingGetError);
+		break;
+	default :
+		setMessagingState(kMessagingGetError);
+		llassert(0);
+		break;
+	}
 }
 
 void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
@@ -374,13 +287,12 @@ void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
 		}
 	}
 
-	updateCharactersStatusMessage();
-	updateActionFields();
+	updateControls();
 }
 
 void LLFloaterPathfindingCharacters::onRefreshCharactersClicked()
 {
-	sendCharactersDataGetRequest();
+	requestGetCharacters();
 }
 
 void LLFloaterPathfindingCharacters::onSelectAllCharactersClicked()
@@ -421,9 +333,9 @@ void LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked()
 	{
 		std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
 		const LLScrollListItem *selectedItem = selectedItemRef;
-		PathfindingCharacterMap::const_iterator characterIter = mPathfindingCharacters.find(selectedItem->getUUID().asString());
-		const LLPathfindingCharacter &character = characterIter->second;
-		LLVector3 characterLocation = character.getLocation();
+		LLPathfindingCharacterList::const_iterator characterIter = mCharacterListPtr->find(selectedItem->getUUID().asString());
+		const LLPathfindingCharacterPtr &characterPtr = characterIter->second;
+		const LLVector3 &characterLocation = characterPtr->getLocation();
 
 		LLViewerRegion* region = gAgent.getRegion();
 		if (region != NULL)
@@ -433,7 +345,33 @@ void LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked()
 	}
 }
 
-void LLFloaterPathfindingCharacters::updateCharactersList()
+void LLFloaterPathfindingCharacters::selectAllCharacters()
+{
+	mCharactersScrollList->selectAll();
+}
+
+void LLFloaterPathfindingCharacters::selectNoneCharacters()
+{
+	mCharactersScrollList->deselectAllItems();
+}
+
+void LLFloaterPathfindingCharacters::clearCharacters()
+{
+	if (mCharacterListPtr != NULL)
+	{
+		mCharacterListPtr->clear();
+	}
+	updateScrollList();
+}
+
+void LLFloaterPathfindingCharacters::updateControls()
+{
+	updateStatusMessage();
+	updateEnableStateOnListActions();
+	updateEnableStateOnEditFields();
+}
+
+void LLFloaterPathfindingCharacters::updateScrollList()
 {
 	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
 	int numSelectedItems = selectedItems.size();
@@ -449,65 +387,62 @@ void LLFloaterPathfindingCharacters::updateCharactersList()
 		}
 	}
 
+	S32 origScrollPosition = mCharactersScrollList->getScrollPos();
 	mCharactersScrollList->deleteAllItems();
-	updateCharactersStatusMessage();
 
-	LLLocale locale(LLStringUtil::getLocale());
-	for (PathfindingCharacterMap::const_iterator characterIter = mPathfindingCharacters.begin();
-		characterIter != mPathfindingCharacters.end(); ++characterIter)
+	if (mCharacterListPtr != NULL)
 	{
-		const LLPathfindingCharacter& character(characterIter->second);
-
-		LLSD columns;
-
-		columns[0]["column"] = "name";
-		columns[0]["value"] = character.getName();
-		columns[0]["font"] = "SANSSERIF";
-
-		columns[1]["column"] = "description";
-		columns[1]["value"] = character.getDescription();
-		columns[1]["font"] = "SANSSERIF";
-
-		columns[2]["column"] = "owner";
-		columns[2]["value"] = character.getOwnerName();
-		columns[2]["font"] = "SANSSERIF";
-
-		S32 cpuTime = llround(character.getCPUTime());
-		std::string cpuTimeString = llformat("%d", cpuTime);
-		LLStringUtil::format_map_t string_args;
-		string_args["[CPU_TIME]"] = cpuTimeString;
-
-		columns[3]["column"] = "cpu_time";
-		columns[3]["value"] = getString("character_cpu_time", string_args);
-		columns[3]["font"] = "SANSSERIF";
-
-		columns[4]["column"] = "altitude";
-		columns[4]["value"] = llformat("%1.0f m", character.getLocation()[2]);
-		columns[4]["font"] = "SANSSERIF";
-
-		LLSD element;
-		element["id"] = character.getUUID().asString();
-		element["column"] = columns;
-
-		mCharactersScrollList->addElement(element);
+		for (LLPathfindingCharacterList::const_iterator characterIter = mCharacterListPtr->begin();
+			characterIter != mCharacterListPtr->end(); ++characterIter)
+		{
+			const LLPathfindingCharacterPtr& character(characterIter->second);
+			LLSD element = buildCharacterScrollListElement(character);
+			mCharactersScrollList->addElement(element);
+		}
 	}
 
 	mCharactersScrollList->selectMultiple(selectedUUIDs);
-	updateCharactersStatusMessage();
-	updateActionFields();
+	mCharactersScrollList->setScrollPos(origScrollPosition);
+	updateControls();
 }
 
-void LLFloaterPathfindingCharacters::selectAllCharacters()
+LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListElement(const LLPathfindingCharacterPtr pCharacterPtr) const
 {
-	mCharactersScrollList->selectAll();
+	LLSD columns;
+
+	columns[0]["column"] = "name";
+	columns[0]["value"] = pCharacterPtr->getName();
+	columns[0]["font"] = "SANSSERIF";
+
+	columns[1]["column"] = "description";
+	columns[1]["value"] = pCharacterPtr->getDescription();
+	columns[1]["font"] = "SANSSERIF";
+
+	columns[2]["column"] = "owner";
+	columns[2]["value"] = pCharacterPtr->getOwnerName();
+	columns[2]["font"] = "SANSSERIF";
+
+	S32 cpuTime = llround(pCharacterPtr->getCPUTime());
+	std::string cpuTimeString = llformat("%d", cpuTime);
+	LLStringUtil::format_map_t string_args;
+	string_args["[CPU_TIME]"] = cpuTimeString;
+
+	columns[3]["column"] = "cpu_time";
+	columns[3]["value"] = getString("character_cpu_time", string_args);
+	columns[3]["font"] = "SANSSERIF";
+
+	columns[4]["column"] = "altitude";
+	columns[4]["value"] = llformat("%1.0f m", pCharacterPtr->getLocation()[2]);
+	columns[4]["font"] = "SANSSERIF";
+
+	LLSD element;
+	element["id"] = pCharacterPtr->getUUID().asString();
+	element["column"] = columns;
+
+	return element;
 }
 
-void LLFloaterPathfindingCharacters::selectNoneCharacters()
-{
-	mCharactersScrollList->deselectAllItems();
-}
-
-void LLFloaterPathfindingCharacters::updateCharactersStatusMessage()
+void LLFloaterPathfindingCharacters::updateStatusMessage()
 {
 	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
 
@@ -516,23 +451,14 @@ void LLFloaterPathfindingCharacters::updateCharactersStatusMessage()
 
 	switch (getMessagingState())
 	{
-	case kMessagingInitial:
+	case kMessagingUnknown:
 		statusText = getString("characters_messaging_initial");
 		break;
-	case kMessagingFetchStarting :
-		statusText = getString("characters_messaging_fetch_starting");
+	case kMessagingGetRequestSent :
+		statusText = getString("characters_messaging_get_inprogress");
 		break;
-	case kMessagingFetchRequestSent :
-		statusText = getString("characters_messaging_fetch_inprogress");
-		break;
-	case kMessagingFetchRequestSent_MultiRequested :
-		statusText = getString("characters_messaging_fetch_inprogress_multi_request");
-		break;
-	case kMessagingFetchReceived :
-		statusText = getString("characters_messaging_fetch_received");
-		break;
-	case kMessagingFetchError :
-		statusText = getString("characters_messaging_fetch_error");
+	case kMessagingGetError :
+		statusText = getString("characters_messaging_get_error");
 		styleParams.color = warningColor;
 		break;
 	case kMessagingComplete :
@@ -558,8 +484,8 @@ void LLFloaterPathfindingCharacters::updateCharactersStatusMessage()
 			statusText = getString("characters_messaging_complete_available", string_args);
 		}
 		break;
-	case kMessagingServiceNotAvailable:
-		statusText = getString("characters_messaging_service_not_available");
+	case kMessagingNotEnabled:
+		statusText = getString("characters_messaging_not_enabled");
 		styleParams.color = warningColor;
 		break;
 	default:
@@ -571,52 +497,46 @@ void LLFloaterPathfindingCharacters::updateCharactersStatusMessage()
 	mCharactersStatus->setText((LLStringExplicit)statusText, styleParams);
 }
 
-void LLFloaterPathfindingCharacters::updateActionFields()
+void LLFloaterPathfindingCharacters::updateEnableStateOnListActions()
 {
-	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-	setEnableActionFields(!selectedItems.empty());
-}
-
-void LLFloaterPathfindingCharacters::setEnableActionFields(BOOL pEnabled)
-{
-	mLabelActions->setEnabled(pEnabled);
-	mShowBeaconCheckBox->setEnabled(pEnabled);
-	mTakeBtn->setEnabled(pEnabled && visible_take_object());
-	mTakeCopyBtn->setEnabled(pEnabled && enable_object_take_copy());
-	mReturnBtn->setEnabled(pEnabled && enable_object_return());
-	mDeleteBtn->setEnabled(pEnabled && enable_object_delete());
-	mTeleportBtn->setEnabled(pEnabled && (mCharactersScrollList->getNumSelected() == 1));
-}
-
-//---------------------------------------------------------------------------
-// CharactersGetResponder
-//---------------------------------------------------------------------------
-
-CharactersGetResponder::CharactersGetResponder(const std::string& pCharactersDataGetURL,
-	const LLHandle<LLFloaterPathfindingCharacters> &pCharactersFloaterHandle)
-	: mCharactersDataGetURL(pCharactersDataGetURL),
-	mCharactersFloaterHandle(pCharactersFloaterHandle)
-{
-}
-
-CharactersGetResponder::~CharactersGetResponder()
-{
-}
-
-void CharactersGetResponder::result(const LLSD& pContent)
-{
-	LLFloaterPathfindingCharacters *charactersFloater = mCharactersFloaterHandle.get();
-	if (charactersFloater != NULL)
+	switch (getMessagingState())
 	{
-		charactersFloater->handleCharactersDataGetReply(pContent);
+	case kMessagingUnknown:
+	case kMessagingGetRequestSent :
+		mRefreshListButton->setEnabled(FALSE);
+		mSelectAllButton->setEnabled(FALSE);
+		mSelectNoneButton->setEnabled(FALSE);
+		break;
+	case kMessagingGetError :
+	case kMessagingNotEnabled :
+		mRefreshListButton->setEnabled(TRUE);
+		mSelectAllButton->setEnabled(FALSE);
+		mSelectNoneButton->setEnabled(FALSE);
+		break;
+	case kMessagingComplete :
+		{
+			int numItems = mCharactersScrollList->getItemCount();
+			int numSelectedItems = mCharactersScrollList->getNumSelected();
+			mRefreshListButton->setEnabled(TRUE);
+			mSelectAllButton->setEnabled(numSelectedItems < numItems);
+			mSelectNoneButton->setEnabled(numSelectedItems > 0);
+		}
+		break;
+	default:
+		llassert(0);
+		break;
 	}
 }
 
-void CharactersGetResponder::error(U32 status, const std::string& reason)
+void LLFloaterPathfindingCharacters::updateEnableStateOnEditFields()
 {
-	LLFloaterPathfindingCharacters *charactersFloater = mCharactersFloaterHandle.get();
-	if (charactersFloater != NULL)
-	{
-		charactersFloater->handleCharactersDataGetError(mCharactersDataGetURL, reason);
-	}
+	int numSelectedItems = mCharactersScrollList->getNumSelected();
+	bool isEditEnabled = (numSelectedItems > 0);
+
+	mShowBeaconCheckBox->setEnabled(isEditEnabled);
+	mTakeButton->setEnabled(isEditEnabled && visible_take_object());
+	mTakeCopyButton->setEnabled(isEditEnabled && enable_object_take_copy());
+	mReturnButton->setEnabled(isEditEnabled && enable_object_return());
+	mDeleteButton->setEnabled(isEditEnabled && enable_object_delete());
+	mTeleportButton->setEnabled(numSelectedItems == 1);
 }

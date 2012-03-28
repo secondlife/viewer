@@ -32,8 +32,12 @@
 #include "lluuid.h"
 #include "llavatarname.h"
 
+#include <boost/shared_ptr.hpp>
+
 class LLSD;
-class LLAvatarName;
+class LLPathfindingCharacter;
+
+typedef boost::shared_ptr<LLPathfindingCharacter> LLPathfindingCharacterPtr;
 
 class LLPathfindingCharacter
 {
@@ -44,12 +48,12 @@ public:
 
 	LLPathfindingCharacter& operator = (const LLPathfindingCharacter& pOther);
 
-	inline const LLUUID&      getUUID() const                     {return mUUID;};
-	inline const std::string& getName() const                     {return mName;};
-	inline const std::string& getDescription() const              {return mDescription;};
-	inline const std::string  getOwnerName() const                {return mOwnerName.getCompleteName();};
-	inline F32                getCPUTime() const                  {return mCPUTime;};
-	inline const LLVector3&   getLocation() const                 {return mLocation;};
+	inline const LLUUID&      getUUID() const        {return mUUID;};
+	inline const std::string& getName() const        {return mName;};
+	inline const std::string& getDescription() const {return mDescription;};
+	inline const std::string  getOwnerName() const   {return mOwnerName.getCompleteName();};
+	inline F32                getCPUTime() const     {return mCPUTime;};
+	inline const LLVector3&   getLocation() const    {return mLocation;};
 
 protected:
 

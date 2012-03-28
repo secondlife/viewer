@@ -60,6 +60,7 @@
       use_ellipses="false"
       type="string"
       text_color="LabelTextColor"
+      text_readonly_color="LabelDisabledColor"
       length="1"
       follows="left|top"
       layout="topleft"

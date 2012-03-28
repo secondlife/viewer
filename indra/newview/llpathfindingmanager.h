@@ -33,6 +33,7 @@
 #include "llpathfindingnavmesh.h"
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
+#include "llpathfindingcharacterlist.h"
 
 #include <string>
 #include <map>
@@ -46,8 +47,10 @@ class LLPathfindingNavMeshStatus;
 
 class LLPathfindingManager : public LLSingleton<LLPathfindingManager>
 {
-	friend class AgentStateResponder;
+	friend class LLNavMeshSimStateChangeNode;
 	friend class LLAgentStateChangeNode;
+	friend class NavMeshStatusResponder;
+	friend class AgentStateResponder;
 public:
 	typedef std::map<LLUUID, LLPathfindingNavMeshPtr> NavMeshMap;
 
@@ -64,13 +67,14 @@ public:
 	typedef boost::signals2::connection                 agent_state_slot_t;
 
 	typedef enum {
-		kLinksetsRequestStarted,
-		kLinksetsRequestCompleted,
-		kLinksetsRequestNotEnabled,
-		kLinksetsRequestError
-	} ELinksetsRequestStatus;
+		kRequestStarted,
+		kRequestCompleted,
+		kRequestNotEnabled,
+		kRequestError
+	} ERequestStatus;
 
-	typedef boost::function<void (ELinksetsRequestStatus, LLPathfindingLinksetListPtr)> linksets_callback_t;
+	typedef boost::function<void (ERequestStatus, LLPathfindingLinksetListPtr)>   linksets_callback_t;
+	typedef boost::function<void (ERequestStatus, LLPathfindingCharacterListPtr)> characters_callback_t;
 
 	LLPathfindingManager();
 	virtual ~LLPathfindingManager();
@@ -87,21 +91,23 @@ public:
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
 	void requestGetNavMeshForRegion(LLViewerRegion *pRegion);
 
-	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
-	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
-
 	agent_state_slot_t registerAgentStateListener(agent_state_callback_t pAgentStateCallback);
 	EAgentState        getAgentState();
 	EAgentState        getLastKnownNonErrorAgentState() const;
 	void               requestSetAgentState(EAgentState pAgentState);
 
-	ELinksetsRequestStatus requestGetLinksets(linksets_callback_t pLinksetsCallback) const;
-	ELinksetsRequestStatus requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const;
+	ERequestStatus requestGetLinksets(linksets_callback_t pLinksetsCallback) const;
+	ERequestStatus requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const;
+
+	ERequestStatus requestGetCharacters(characters_callback_t pCharactersCallback) const;
 
 protected:
 
 private:
 	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
+
+	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
+	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	LLPathfindingNavMeshPtr getNavMeshForRegion(const LLUUID &pRegionUUID);
 	LLPathfindingNavMeshPtr getNavMeshForRegion(LLViewerRegion *pRegion);
@@ -119,6 +125,7 @@ private:
 	std::string getAgentStateURLForCurrentRegion() const;
 	std::string getObjectLinksetsURLForCurrentRegion() const;
 	std::string getTerrainLinksetsURLForCurrentRegion() const;
+	std::string getCharactersURLForCurrentRegion() const;
 
 	std::string    getCapabilityURLForCurrentRegion(const std::string &pCapabilityName) const;
 	std::string    getCapabilityURLForRegion(LLViewerRegion *pRegion, const std::string &pCapabilityName) const;

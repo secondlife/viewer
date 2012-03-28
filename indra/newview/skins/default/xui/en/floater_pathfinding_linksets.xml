@@ -16,11 +16,11 @@
     title="Pathfinding linksets">
   <floater.string name="linksets_messaging_initial"></floater.string>
   <floater.string name="linksets_messaging_get_inprogress">Querying for pathfinding linksets ...</floater.string>
-  <floater.string name="linksets_messaging_get_error">Error detected while querying for pathfinding linksets</floater.string>
+  <floater.string name="linksets_messaging_get_error">Error detected while querying for pathfinding linksets.</floater.string>
   <floater.string name="linksets_messaging_set_inprogress">Modifying selected pathfinding linksets ...</floater.string>
-  <floater.string name="linksets_messaging_set_error">Error detected while modifying selected pathfinding linksets</floater.string>
-  <floater.string name="linksets_messaging_complete_none_found">No pathfinding linksets</floater.string>
-  <floater.string name="linksets_messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL]</floater.string>
+  <floater.string name="linksets_messaging_set_error">Error detected while modifying selected pathfinding linksets.</floater.string>
+  <floater.string name="linksets_messaging_complete_none_found">No pathfinding linksets.</floater.string>
+  <floater.string name="linksets_messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL].</floater.string>
   <floater.string name="linksets_messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="linkset_terrain_name">[Terrain]</floater.string>
   <floater.string name="linkset_terrain_description">--</floater.string>
@@ -217,7 +217,7 @@
         type="string"
         text_color="LabelTextColor"
         length="1"
-        follows="left|bottom"
+        follows="left|bottom|right"
         layout="topleft"
         name="linksets_status"
         top_pad="17"
@@ -275,13 +275,14 @@
         use_ellipses="false"
         type="string"
         text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
         length="1"
         left="18"
         follows="left|bottom|right"
         layout="topleft"
         top_pad="8"
         width="580">
-      Actions on selected linksets (If a linkset is removed from the world, its attributes will be lost):
+      Actions on selected linksets (If a linkset is removed from the world, its attributes may be lost):
     </text>
     <check_box
         height="19"

@@ -33,11 +33,11 @@
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
 
-#define CHARACTER_NAME_FIELD          "name"
-#define CHARACTER_DESCRIPTION_FIELD   "description"
-#define CHARACTER_OWNER_FIELD         "owner"
-#define CHARACTER_CPU_TIME_FIELD      "cpu_time"
-#define CHARACTER_POSITION_FIELD      "position"
+#define CHARACTER_NAME_FIELD        "name"
+#define CHARACTER_DESCRIPTION_FIELD "description"
+#define CHARACTER_OWNER_FIELD       "owner"
+#define CHARACTER_CPU_TIME_FIELD    "cpu_time"
+#define CHARACTER_POSITION_FIELD    "position"
 
 //---------------------------------------------------------------------------
 // LLPathfindingCharacter
@@ -50,7 +50,7 @@ LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const L
 	mOwnerUUID(),
 	mOwnerName(),
 	mCPUTime(0U),
-	mLocation()
+	mLocation(LLVector3::zero)
 {
 	llassert(pCharacterItem.has(CHARACTER_NAME_FIELD));
 	llassert(pCharacterItem.get(CHARACTER_NAME_FIELD).isString());

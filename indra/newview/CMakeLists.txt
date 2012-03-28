@@ -417,6 +417,7 @@ set(viewer_SOURCE_FILES
     llparticipantlist.cpp
     llpatchvertexarray.cpp
     llpathfindingcharacter.cpp
+    llpathfindingcharacterlist.cpp
     llpathfindinglinkset.cpp
     llpathfindinglinksetlist.cpp
     llpathfindingmanager.cpp
@@ -973,6 +974,7 @@ set(viewer_HEADER_FILES
     llparticipantlist.h
     llpatchvertexarray.h
     llpathfindingcharacter.h
+    llpathfindingcharacterlist.h
     llpathfindinglinkset.h
     llpathfindinglinksetlist.h
     llpathfindingmanager.h
