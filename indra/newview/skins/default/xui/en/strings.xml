@@ -787,9 +787,9 @@ Sets the script timer to zero
 float llGetAndResetTime()
 Returns the script time in seconds and then resets the script timer to zero
 	</string>
-	<string name="LSLTipText_llSoplayund" translate="false">
+	<string name="LSLTipText_llSound" translate="false">
 llSound(string sound, float volume, integer queue, integer loop)
-Plays sound at volume and whether it should loop or not
+Plays sound at volume and whether it should loop or not.
 	</string>
 	<string name="LSLTipText_llPlaySound" translate="false">
 llPlaySound(string sound, float volume)
@@ -1665,7 +1665,7 @@ Returns a list containing results of the sent query
 	</string>
 	<string name="LSLTipText_llModPow" translate="false">
 integer llModPow(integer a, integer b, integer c)
-Returns a raised to the b power, mod c. ( (a**b)%c )
+Returns a raised to the b power, mod c. ( (a**b)%c )
 b is capped at 0xFFFF (16 bits).
 	</string>
 	<string name="LSLTipText_llGetInventoryType" translate="false">
