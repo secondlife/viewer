@@ -4343,7 +4343,9 @@ void LLPipeline::renderDebug()
 				}
 				else
 				{
-					glClearColor(0,0,0,0);
+					//glClearColor(0,0,0,0);
+					LLColor4U clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
+					glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
 					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
 					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 				}

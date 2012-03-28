@@ -157,6 +157,7 @@ private:
 	void updatePathTestStatus();
 	void resetShapeRenderFlags() { mShapeRenderFlags = 0; }
 	void setShapeRenderFlag( LLPathingLib::LLShapeType type ) { mShapeRenderFlags |= (1<<type); }
+	void fillInColorsForNavMeshVisualization();
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
 	LLCheckBoxCtrl                                *mShowNavMeshCheckBox;
@@ -199,6 +200,9 @@ private:
 	bool							mHeartBeat;
 
 	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
+	
+public:
+		LLPathingLib::NavMeshColors					mNavMeshColors;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

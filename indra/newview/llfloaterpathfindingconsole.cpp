@@ -170,6 +170,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	}
 	else
 	{	
+		fillInColorsForNavMeshVisualization();
 		if (!mNavMeshZoneSlot.connected())
 		{
 			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
@@ -1008,3 +1009,53 @@ void LLFloaterPathfindingConsole::regionCrossingOccured()
 	statusText = getString("navmesh_update_needed");
 	mPathfindingViewerStatus->setText((LLStringExplicit)statusText, styleParams);
 }
+
+void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
+{
+	LLPathingLib::NavMeshColors colors;
+	
+	LLVector3 in = gSavedSettings.getVector3("WalkableRGB");
+	F32 a = gSavedSettings.getF32("WalkableA");
+	colors.mWalkable= LLColor4U( in[0],in[1],in[2],a ); 
+
+	in = gSavedSettings.getVector3("ObstacleRGB");
+	a  = gSavedSettings.getF32("ObstacleA");
+	colors.mObstacle= LLColor4U( in[0],in[1],in[2],a ); 
+
+	in = gSavedSettings.getVector3("MaterialRGB");
+	a  = gSavedSettings.getF32("MaterialA");
+	colors.mMaterial= LLColor4U( in[0],in[1],in[2],a ); 
+
+	in = gSavedSettings.getVector3("ExclusionRGB");
+	a  = gSavedSettings.getF32("ExclusionA");
+	colors.mExclusion= LLColor4U( in[0],in[1],in[2],a ); 
+	
+	in = gSavedSettings.getVector3("ConnectedEdgeRGB");
+	a  = gSavedSettings.getF32("ConnectedEdgeA");
+	colors.mConnectedEdge= LLColor4U( in[0],in[1],in[2],a ); 
+
+	in = gSavedSettings.getVector3("BoundaryEdgeRGB");
+	a  = gSavedSettings.getF32("BoundaryEdgeA");
+	colors.mBoundaryEdge= LLColor4U( in[0],in[1],in[2],a ); 
+
+	in = gSavedSettings.getVector3("HeatColorBase");
+	a  = gSavedSettings.getF32("HeatColorBaseA");
+	colors.mHeatColorBase= LLColor4U( in[0],in[1],in[2],a ); 
+
+	in = gSavedSettings.getVector3("HeatColorMax");
+	a  = gSavedSettings.getF32("HeatColorMaxA");
+	colors.mHeatColorMax= LLColor4U( in[0],in[1],in[2],a ); 
+	
+	in = gSavedSettings.getVector3("FaceColorRGB");
+	a  = gSavedSettings.getF32("FaceColorA");
+	colors.mFaceColor= LLColor4U( in[0],in[1],in[2],a ); 	
+
+	in = gSavedSettings.getVector3("NavMeshClearRGB");
+	colors.mNavMeshClear= LLColor4U( in[0],in[1],in[2],0 ); 
+
+	mNavMeshColors = colors;
+
+	LLPathingLib::getInstance()->setNavMeshColors( colors );
+}
+
+
