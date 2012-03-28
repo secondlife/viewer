@@ -37,15 +37,14 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLGroupHandler::LLGroupHandler(e_notification_type type, const LLSD& id)
+LLGroupHandler::LLGroupHandler()
+:	LLSysHandler("Group Notifications", "groupnotify")
 {
-	mType = type;
-
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 	if(channel)
-		channel->setOnRejectToastCallback(boost::bind(&LLGroupHandler::onRejectToast, this, _1));
+		channel->addOnRejectToastCallback(boost::bind(&LLGroupHandler::onRejectToast, this, _1));
 }
 
 //--------------------------------------------------------------------------
@@ -62,17 +61,12 @@ void LLGroupHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLGroupHandler::processNotification(const LLSD& notify)
+bool LLGroupHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(!mChannel)
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel->getVisible())
@@ -80,30 +74,24 @@ bool LLGroupHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 	
-	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
-	{
-		LLHandlerUtil::logGroupNoticeToIMGroup(notification);
+	LLHandlerUtil::logGroupNoticeToIMGroup(notification);
 
-		LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.panel = notify_box;
-		p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
+	LLPanel* notify_box = new LLToastGroupNotifyPanel(notification);
+	LLToast::Params p;
+	p.notif_id = notification->getID();
+	p.notification = notification;
+	p.panel = notify_box;
+	p.on_delete_toast = boost::bind(&LLGroupHandler::onDeleteToast, this, _1);
 
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->addToast(p);
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	if(channel)
+		channel->addToast(p);
 
-		// send a signal to the counter manager
-		mNewNotificationSignal();
+	// send a signal to the counter manager
+	mNewNotificationSignal();
 
-		LLGroupActions::refresh_notices();
-	}
-	else if (notify["sigtype"].asString() == "delete")
-	{
-		mChannel->killToastByNotificationID(notification->getID());
-	}
+	LLGroupActions::refresh_notices();
+
 	return false;
 }
 
@@ -123,7 +111,7 @@ void LLGroupHandler::onRejectToast(LLUUID& id)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(id);
 
-	if (notification && LLNotificationManager::getInstance()->getHandlerForNotification(notification->getType()) == this)
+	if (notification && mItems.find(notification) != mItems.end())
 	{
 		LLNotifications::instance().cancel(notification);
 	}

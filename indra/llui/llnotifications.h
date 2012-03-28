@@ -513,7 +513,10 @@ public:
 	std::string getURL() const;
 	S32 getURLOption() const;
     S32 getURLOpenExternally() const;
-	
+	bool canLogToChat() const;
+	bool canLogToIM() const;
+	bool hasFormElements() const;
+
 	const LLNotificationFormPtr getForm();
 
 	const LLDate getExpiration() const
@@ -791,13 +794,6 @@ typedef boost::shared_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 // of a queue with notifications being added to different nonequivalent copies. So we 
 // make it inherit from boost::noncopyable, and then create a map of shared_ptr to manage it.
 // 
-// NOTE: LLNotificationChannel is self-registering. The *correct* way to create one is to 
-// do something like:
-//		LLNotificationChannel::buildChannel("name", "parent"...);
-// This returns an LLNotificationChannelPtr, which you can store, or
-// you can then retrieve the channel by using the registry:
-//		LLNotifications::instance().getChannel("name")...
-//
 class LLNotificationChannel : 
 	boost::noncopyable, 
 	public LLNotificationChannelBase
@@ -822,20 +818,13 @@ public:
 	
 	std::string summarize();
 
-	// factory method for constructing these channels; since they're self-registering,
-	// we want to make sure that you can't use new to make them
-	static LLNotificationChannelPtr buildChannel(const std::string& name, const std::string& parent,
-						LLNotificationFilter filter=LLNotificationFilters::includeEverything, 
-						LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
-	
-protected:
     // Notification Channels have a filter, which determines which notifications
 	// will be added to this channel. 
 	// Channel filters cannot change.
 	// Channels have a protected constructor so you can't make smart pointers that don't 
 	// come from our internal reference; call NotificationChannel::build(args)
 	LLNotificationChannel(const std::string& name, const std::string& parent,
-						  LLNotificationFilter filter, LLNotificationComparator comparator);
+						  LLNotificationFilter filter, LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
 
 private:
 	std::string mName;

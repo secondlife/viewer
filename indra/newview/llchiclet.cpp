@@ -339,9 +339,9 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 , mUreadSystemNotifications(0)
 {
 	// connect counter handlers to the signals
-	connectCounterUpdatersToSignal("notify");
-	connectCounterUpdatersToSignal("groupnotify");
-	connectCounterUpdatersToSignal("offer");
+	connectCounterUpdatersToSignal("Notify");
+	connectCounterUpdatersToSignal("Group Notify");
+	connectCounterUpdatersToSignal("Offer");
 
 	// ensure that notification well window exists, to synchronously
 	// handle toast add/delete events.
@@ -350,8 +350,7 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 
 void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)
 {
-	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
+	LLNotificationsUI::LLEventHandler* n_handler = dynamic_cast<LLNotificationsUI::LLEventHandler*>(LLNotifications::instance().getChannel(notification_type).get());
 	if(n_handler)
 	{
 		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));

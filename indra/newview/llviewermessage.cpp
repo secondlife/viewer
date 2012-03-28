@@ -2776,7 +2776,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mOwnerID = from_id;
 				LLSD args;
 				args["slurl"] = location;
-				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 
 				// Look for IRC-style emotes here so object name formatting is correct
 				std::string prefix = message.substr(0, 4);
@@ -3379,7 +3378,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// pass owner_id to chat so that we can display the remote
 		// object inspect for an object that is chatting with you
 		LLSD args;
-		args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 		chat.mOwnerID = owner_id;
 
 		if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)

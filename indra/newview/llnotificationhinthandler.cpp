@@ -33,26 +33,6 @@
 
 using namespace LLNotificationsUI;
 
-LLHintHandler::LLHintHandler()
-{
-}
-
-LLHintHandler::~LLHintHandler()
-{
-}
-
-bool LLHintHandler::processNotification(const LLSD& notify)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	std::string sigtype = notify["sigtype"].asString();
-	if (sigtype == "add" || sigtype == "load")
-	{
-		LLHints::show(notification);
-	}
-	else if (sigtype == "delete")
-	{
-		LLHints::hide(notification);
-	}
-	return false;
-}
+void LLHintHandler::onAdd(LLNotificationPtr p) { LLHints::show(p); }
+void LLHintHandler::onChange(LLNotificationPtr p) { LLHints::show(p); }
+void LLHintHandler::onDelete(LLNotificationPtr p) { LLHints::hide(p); }

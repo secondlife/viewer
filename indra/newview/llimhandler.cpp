@@ -37,10 +37,9 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLIMHandler::LLIMHandler(e_notification_type type, const LLSD& id)
+LLIMHandler::LLIMHandler()
+:	LLSysHandler("IM Notifications", "notifytoast")
 {
-	mType = type;
-
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
 }
@@ -59,17 +58,12 @@ void LLIMHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLIMHandler::processNotification(const LLSD& notify)
+bool LLIMHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(!mChannel)
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel->getVisible())
@@ -77,44 +71,38 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 
-	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
-	{
-		LLSD substitutions = notification->getSubstitutions();
+	LLSD substitutions = notification->getSubstitutions();
 
-		// According to comments in LLIMMgr::addMessage(), if we get message
-		// from ourselves, the sender id is set to null. This fixes EXT-875.
-		LLUUID avatar_id = substitutions["FROM_ID"].asUUID();
-		if (avatar_id.isNull())
-			avatar_id = gAgentID;
+	// According to comments in LLIMMgr::addMessage(), if we get message
+	// from ourselves, the sender id is set to null. This fixes EXT-875.
+	LLUUID avatar_id = substitutions["FROM_ID"].asUUID();
+	if (avatar_id.isNull())
+		avatar_id = gAgentID;
 
-		LLToastIMPanel::Params im_p;
-		im_p.notification = notification;
-		im_p.avatar_id = avatar_id;
-		im_p.from = substitutions["FROM"].asString();
-		im_p.time = substitutions["TIME"].asString();
-		im_p.message = substitutions["MESSAGE"].asString();
-		im_p.session_id = substitutions["SESSION_ID"].asUUID();
+	LLToastIMPanel::Params im_p;
+	im_p.notification = notification;
+	im_p.avatar_id = avatar_id;
+	im_p.from = substitutions["FROM"].asString();
+	im_p.time = substitutions["TIME"].asString();
+	im_p.message = substitutions["MESSAGE"].asString();
+	im_p.session_id = substitutions["SESSION_ID"].asUUID();
 
-		LLToastIMPanel* im_box = new LLToastIMPanel(im_p);
+	LLToastIMPanel* im_box = new LLToastIMPanel(im_p);
 
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.session_id = im_p.session_id;
-		p.notification = notification;
-		p.panel = im_box;
-		p.can_be_stored = false;
-		p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->addToast(p);
+	LLToast::Params p;
+	p.notif_id = notification->getID();
+	p.session_id = im_p.session_id;
+	p.notification = notification;
+	p.panel = im_box;
+	p.can_be_stored = false;
+	p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	if(channel)
+		channel->addToast(p);
 
-		// send a signal to the counter manager;
-		mNewNotificationSignal();
-	}
-	else if (notify["sigtype"].asString() == "delete")
-	{
-		mChannel->killToastByNotificationID(notification->getID());
-	}
+	// send a signal to the counter manager;
+	mNewNotificationSignal();
+	
 	return false;
 }
 

@@ -40,10 +40,10 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsModal(false)
+LLAlertHandler::LLAlertHandler(const std::string& name, const std::string& notification_type, bool is_modal) 
+:	LLSysHandler(name, notification_type),
+	mIsModal(is_modal)
 {
-	mType = type;
-
 	LLScreenChannelBase::Params p;
 	p.id = LLUUID(gSavedSettings.getString("AlertChannelUUID"));
 	p.display_toasts_always = true;
@@ -68,17 +68,12 @@ void LLAlertHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLAlertHandler::processNotification(const LLSD& notify)
+bool LLAlertHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(!mChannel)
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel->getVisible())
@@ -86,61 +81,45 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 
-	if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
+	if (notification->canLogToIM() && notification->hasFormElements())
 	{
-		if (LLHandlerUtil::canSpawnSessionAndLogToIM(notification))
-		{
-			const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+		const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
-			LLUUID from_id = notification->getPayload()["from_id"];
+		LLUUID from_id = notification->getPayload()["from_id"];
 
-			// firstly create session...
-			LLHandlerUtil::spawnIMSession(name, from_id);
+		// firstly create session...
+		LLHandlerUtil::spawnIMSession(name, from_id);
 
-			// ...then log message to have IM Well notified about new message
-			LLHandlerUtil::logToIMP2P(notification);
-		}
-
-		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.panel = dynamic_cast<LLToastPanel*>(alert_dialog);
-		p.enable_hide_btn = false;
-		p.can_fade = false;
-		p.is_modal = mIsModal;
-		p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
-
-		// Show alert in middle of progress view (during teleport) (EXT-1093)
-		LLProgressView* progress = gViewerWindow->getProgressView();
-		LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
-		mChannel->updatePositionAndSize(rc);
-
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->addToast(p);
+		// ...then log message to have IM Well notified about new message
+		LLHandlerUtil::logToIMP2P(notification);
 	}
-	else if (notify["sigtype"].asString() == "change")
-	{
-		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
-	}
-	else
-	{
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
-		if(channel)
-			channel->killToastByNotificationID(notification->getID());
-	}
+
+	LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
+	LLToast::Params p;
+	p.notif_id = notification->getID();
+	p.notification = notification;
+	p.panel = dynamic_cast<LLToastPanel*>(alert_dialog);
+	p.enable_hide_btn = false;
+	p.can_fade = false;
+	p.is_modal = mIsModal;
+	p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
+
+	// Show alert in middle of progress view (during teleport) (EXT-1093)
+	LLProgressView* progress = gViewerWindow->getProgressView();
+	LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
+	mChannel->updatePositionAndSize(rc);
+
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	if(channel)
+		channel->addToast(p);
+	
 	return false;
 }
 
-//--------------------------------------------------------------------------
-
-void LLAlertHandler::onDeleteToast(LLToast* toast)
+void LLAlertHandler::onChange( LLNotificationPtr notification )
 {
+	LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	if(channel)
+		channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
 }
-
-//--------------------------------------------------------------------------
-

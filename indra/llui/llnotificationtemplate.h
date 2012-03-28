@@ -170,7 +170,9 @@ struct LLNotificationTemplate
 	struct Params : public LLInitParam::Block<Params>
 	{
 		Mandatory<std::string>			name;
-		Optional<bool>					persist;
+		Optional<bool>					persist,
+										log_to_im,
+										log_to_chat;
 		Optional<std::string>			functor,
 										icon,
 										label,
@@ -190,6 +192,8 @@ struct LLNotificationTemplate
 		Params()
 		:	name("name"),
 			persist("persist", false),
+			log_to_im("log_to_im", false),
+			log_to_chat("log_to_chat", false),
 			functor("functor"),
 			icon("icon"),
 			label("label"),
@@ -291,6 +295,10 @@ struct LLNotificationTemplate
 	LLUUID mSoundEffect;
 	// List of tags that rules can match against.
 	std::list<std::string> mTags;
+
+	// inject these notifications into chat/IM streams
+	bool mLogToChat;
+	bool mLogToIM;
 };
 
 #endif //LL_LLNOTIFICATION_TEMPLATE_H

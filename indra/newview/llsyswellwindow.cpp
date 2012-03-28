@@ -437,9 +437,9 @@ LLNotificationWellWindow::LLNotificationWellWindow(const LLSD& key)
 : LLSysWellWindow(key)
 {
 	// init connections to the list's update events
-	connectListUpdaterToSignal("notify");
-	connectListUpdaterToSignal("groupnotify");
-	connectListUpdaterToSignal("offer");
+	connectListUpdaterToSignal("Notifications");
+	connectListUpdaterToSignal("Group Notifications");
+	connectListUpdaterToSignal("Offer");
 }
 
 // static
@@ -519,7 +519,7 @@ void LLNotificationWellWindow::initChannel()
 	LLSysWellWindow::initChannel();
 	if(mChannel)
 	{
-		mChannel->setOnStoreToastCallback(boost::bind(&LLNotificationWellWindow::onStoreToast, this, _1, _2));
+		mChannel->addOnStoreToastCallback(boost::bind(&LLNotificationWellWindow::onStoreToast, this, _1, _2));
 	}
 }
 
@@ -548,8 +548,7 @@ void LLNotificationWellWindow::onStoreToast(LLPanel* info_panel, LLUUID id)
 
 void LLNotificationWellWindow::connectListUpdaterToSignal(std::string notification_type)
 {
-	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
+	LLNotificationsUI::LLEventHandler* n_handler = dynamic_cast<LLNotificationsUI::LLEventHandler*>(LLNotifications::instance().getChannel(notification_type).get());
 	if(n_handler)
 	{
 		n_handler->setNotificationIDCallback(boost::bind(&LLNotificationWellWindow::removeItemByID, this, _1));

@@ -1548,11 +1548,11 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mViewerWindowListener(new LLViewerWindowListener(this)),
 	mProgressView(NULL)
 {
-	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
-	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
+	LLNotificationChannelPtr vw_alerts_channel(new LLNotificationChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert")));
+	LLNotificationChannelPtr vw_alerts_modal_channel(new LLNotificationChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal")));
 
-	LLNotifications::instance().getChannel("VW_alerts")->connectChanged(&LLViewerWindow::onAlert);
-	LLNotifications::instance().getChannel("VW_alertmodal")->connectChanged(&LLViewerWindow::onAlert);
+	vw_alerts_channel->connectChanged(&LLViewerWindow::onAlert);
+	vw_alerts_modal_channel->connectChanged(&LLViewerWindow::onAlert);
 	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
 	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
 

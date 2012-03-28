@@ -56,20 +56,11 @@ public:
 	void init(void);
 	//TODO: combine processing and storage (*)
 	
-	// this method reacts on system notifications and calls an appropriate handler
-	bool onNotification(const LLSD& notification);
-
 	// this method reacts on chat notifications and calls an appropriate handler
 	void onChat(const LLChat& msg, const LLSD &args);
 
-	// get a handler for a certain type of notification
-	LLEventHandler* getHandlerForNotification(std::string notification_type);
-
-
 private:
-	//TODO (*)
-	std::map<std::string, boost::shared_ptr<LLEventHandler> > mNotifyHandlers;
-	// cruft std::map<std::string, LLChatHandler*> mChatHandlers;
+	boost::shared_ptr<class LLNearbyChatHandler> mChatHandler;
 };
 
 }
