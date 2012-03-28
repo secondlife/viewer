@@ -337,6 +337,7 @@ list Intel
 RenderAnisotropic			1	0
 // Avoid some Intel crashes on Linux
 RenderCubeMap				0	0
+RenderFSAASamples			1	0
 
 list GeForce2
 RenderAnisotropic			1	0
