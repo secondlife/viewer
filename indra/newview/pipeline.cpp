@@ -4337,6 +4337,7 @@ void LLPipeline::renderDebug()
 			{				
 				glLineWidth(2.0f);	
 				LLGLEnable cull(GL_CULL_FACE);
+				LLGLEnable blend(GL_BLEND);
 				if ( pathfindingConsole->isRenderWorld() )
 				{					
 					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
@@ -4371,6 +4372,7 @@ void LLPipeline::renderDebug()
 			//User designated path
 			if ( pathfindingConsole->isRenderPath() )
 			{
+				LLGLEnable blend(GL_BLEND);
 				llPathingLibInstance->renderPath();
 			}
 		}
