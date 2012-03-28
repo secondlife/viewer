@@ -52,6 +52,7 @@ LLNotificationManager::~LLNotificationManager()
 //--------------------------------------------------------------------------
 void LLNotificationManager::init()
 {
+	new LLIMHandler();
 	new LLScriptHandler();
 	new LLTipHandler();
 	new LLGroupHandler();

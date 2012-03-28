@@ -339,8 +339,8 @@ LLNotificationChiclet::LLNotificationChiclet(const Params& p)
 , mUreadSystemNotifications(0)
 {
 	// connect counter handlers to the signals
-	connectCounterUpdatersToSignal("Notify");
-	connectCounterUpdatersToSignal("Group Notify");
+	connectCounterUpdatersToSignal("IM Notifications");
+	connectCounterUpdatersToSignal("Group Notifications");
 	connectCounterUpdatersToSignal("Offer");
 
 	// ensure that notification well window exists, to synchronously
