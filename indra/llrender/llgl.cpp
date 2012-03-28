@@ -745,8 +745,8 @@ bool LLGLManager::initGL()
 	}
 #endif
 
-	if (mIsIntel)
-	{ //never try to use framebuffer objects on intel (crashy)
+	if (mIsIntel && mGLVersion <= 3.f)
+	{ //never try to use framebuffer objects on older intel drivers (crashy)
 		mHasFramebufferObject = FALSE;
 	}
 

@@ -334,6 +334,7 @@ RenderDeferredSSAO			1	0
 list Intel
 RenderAnisotropic			1	0
 RenderLocalLights			1	0
+RenderFSAASamples			1	0
 
 list GeForce2
 RenderAnisotropic			1	0
