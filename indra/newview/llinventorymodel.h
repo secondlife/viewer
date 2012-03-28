@@ -325,8 +325,13 @@ public:
 	// consistent internal state. No cache accounting, observer
 	// notification, or server update is performed.
 	void deleteObject(const LLUUID& id);
+	/// move Item item_id to Trash
 	void removeItem(const LLUUID& item_id);
-	
+	/// move Category category_id to Trash
+	void removeCategory(const LLUUID& category_id);
+	/// removeItem() or removeCategory(), whichever is appropriate
+	void removeObject(const LLUUID& object_id);
+
 	// Delete a particular inventory object by ID, and delete it from
 	// the server. Also updates linked items.
 	void purgeObject(const LLUUID& id);

@@ -46,6 +46,7 @@
 #include "llviewerregion.h"
 #include "llcallbacklist.h"
 #include "llvoavatarself.h"
+#include <typeinfo>
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
@@ -3000,6 +3001,44 @@ void LLInventoryModel::removeItem(const LLUUID& item_id)
 		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
 		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
 		changeItemParent(item, new_parent, TRUE);
+	}
+}
+
+void LLInventoryModel::removeCategory(const LLUUID& category_id)
+{
+	LLViewerInventoryCategory* cat = getCategory(category_id);
+	if (! cat)
+	{
+		LL_WARNS("Inventory") << "couldn't find inventory folder " << category_id << LL_ENDL;
+	}
+	else
+	{
+		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
+		changeCategoryParent(cat, new_parent, TRUE);
+	}
+}
+
+void LLInventoryModel::removeObject(const LLUUID& object_id)
+{
+	LLInventoryObject* obj = getObject(object_id);
+	if (dynamic_cast<LLViewerInventoryItem*>(obj))
+	{
+		removeItem(object_id);
+	}
+	else if (dynamic_cast<LLViewerInventoryCategory*>(obj))
+	{
+		removeCategory(object_id);
+	}
+	else if (obj)
+	{
+		LL_WARNS("Inventory") << "object ID " << object_id
+							  << " is an object of unrecognized class "
+							  << typeid(*obj).name() << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("Inventory") << "object ID " << object_id << " not found" << LL_ENDL;
 	}
 }
 
