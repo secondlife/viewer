@@ -149,7 +149,7 @@ BOOL LLFloaterHardwareSettings::postBuild()
 {
 	childSetAction("OK", onBtnOK, this);
 
-	if (gGLManager.mIsIntel)
+	if (gGLManager.mIsIntel || gGLManager.mGLVersion < 3.f)
 	{ //remove FSAA settings above "4x"
 		LLComboBox* combo = getChild<LLComboBox>("fsaa");
 		combo->remove("8x");
