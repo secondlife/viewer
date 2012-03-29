@@ -13526,9 +13526,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
-        <real>0.0</real>
-        <real>0.0</real>
+        <real>0.1960784313725490196078431372549</real>
+        <real>0.1960784313725490196078431372549</real>
+        <real>0.1960784313725490196078431372549</real>
       </array>
     </map>
  <key>WalkableRGB</key>
@@ -13541,9 +13541,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
+        <real>0.0</real>
         <real>255.0</real>
-        <real>255.0</real>
-        <real>255.0</real>
+        <real>0.0</real>
       </array>
     </map>
  <key>WalkableA</key>
@@ -13593,9 +13593,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
-        <real>255.0</real>
+        <real>128.0</real>
         <real>0.0</real>
+        <real>255.0</real>
       </array>
     </map>
  <key>MaterialA</key>
@@ -13620,7 +13620,7 @@
       <key>Value</key>
       <array>
         <real>255.0</real>
-        <real>0.0</real>
+        <real>255.0</real>
         <real>0.0</real>
       </array>
     </map>
@@ -13645,9 +13645,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
-        <real>40.0</real>
-        <real>114.0</real>
+        <real>220.0</real>
+        <real>220.0</real>
+        <real>220.0</real>
       </array>
     </map>
  <key>ConnectedEdgeA</key>
@@ -13659,7 +13659,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>75</real>
+      <real>255</real>
     </map>	
 <key>BoundaryEdgeRGB</key>
     <map>
@@ -13671,7 +13671,7 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>170.0</real>
+        <real>255.0</real>
         <real>0.0</real>
         <real>0.0</real>
       </array>
@@ -13685,7 +13685,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>75</real>
+      <real>255</real>
     </map>	
 <key>HeatColorBase</key>
     <map>
@@ -13698,8 +13698,8 @@
       <key>Value</key>
       <array>
         <real>0.0</real>
-        <real>40.0</real>
-        <real>114.0</real>
+        <real>1.0</real>
+        <real>0.5</real>
       </array>
     </map>
  <key>HeatColorBaseA</key>
@@ -13711,7 +13711,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>75</real>
+      <real>1.0</real>
     </map>	
 <key>HeatColorMax</key>
     <map>
@@ -13724,8 +13724,8 @@
       <key>Value</key>
       <array>
         <real>0.0</real>
-        <real>40.0</real>
-        <real>114.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
       </array>
     </map>
  <key>HeatColorMaxA</key>
@@ -13737,7 +13737,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>75</real>
+      <real>1.0</real>
     </map>		
 	 <key>FaceColorRGB</key>
     <map>

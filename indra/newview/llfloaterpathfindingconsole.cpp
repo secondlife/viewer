@@ -1041,18 +1041,18 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 
 	in = gSavedSettings.getVector3("HeatColorBase");
 	a  = gSavedSettings.getF32("HeatColorBaseA");
-	colors.mHeatColorBase= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	colors.mHeatColorBase= LLVector4(in, a);
 
 	in = gSavedSettings.getVector3("HeatColorMax");
 	a  = gSavedSettings.getF32("HeatColorMaxA");
-	colors.mHeatColorMax= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	colors.mHeatColorMax= LLVector4( in, a ); 
 	
 	in = gSavedSettings.getVector3("FaceColorRGB");
 	a  = gSavedSettings.getF32("FaceColorA");
 	colors.mFaceColor= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
 
 	in = gSavedSettings.getVector3("NavMeshClearRGB");
-	colors.mNavMeshClear= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2], 0 ); 
+	colors.mNavMeshClear= LLColor4(in[0], in[1], in[2], 0); 
 
 	mNavMeshColors = colors;
 
