@@ -13749,7 +13749,7 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
+        <real>255.0</real>
         <real>255.0</real>
         <real>255.0</real>
       </array>
