@@ -170,6 +170,7 @@
         layout="topleft"
         left="18"
         top_pad="15"
+        tab_stop="false"
         multi_select="true"
         name="pathfinding_linksets"
         width="910">

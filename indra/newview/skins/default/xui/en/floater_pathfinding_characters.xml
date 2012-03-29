@@ -36,6 +36,7 @@
         layout="topleft"
         left="18"
         top_pad="10"
+        tab_stop="false"
         multi_select="true"
         name="pathfinding_characters"
         width="600">
