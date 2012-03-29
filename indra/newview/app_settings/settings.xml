@@ -13526,9 +13526,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>0.1960784313725490196078431372549</real>
-        <real>0.1960784313725490196078431372549</real>
-        <real>0.1960784313725490196078431372549</real>
+        <real>0.5</real>
+        <real>0.5</real>
+        <real>0.5</real>
       </array>
     </map>
  <key>WalkableRGB</key>
@@ -13775,9 +13775,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>214.0</real>
-        <real>212.0</real>
-        <real>212.0</real>
+        <real>200.0</real>
+        <real>120.0</real>
+        <real>0.0</real>
       </array>
     </map>
  <key>StarValidColorA</key>
@@ -13827,9 +13827,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>96.0</real>
-        <real>96.0</real>
-        <real>96.0</real>
+        <real>255.0</real>
+        <real>150.0</real>
+        <real>0.0</real>
       </array>
     </map>
  <key>TestPathColorA</key>
