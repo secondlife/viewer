@@ -112,11 +112,23 @@ export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 
 export LD_LIBRARY_PATH="$PWD/lib:${LD_LIBRARY_PATH}"
 
+# Have to deal specially with gridargs.dat; typical contents look like:
+# --channel "Second Life Developer"  --settings settings_developer.xml
+# Simply embedding $(<etc/gridargs.dat) into a command line treats each of
+# Second, Life and Developer as separate args -- no good. We need bash to
+# process quotes using eval.
+# First read it without scanning, then scan that string. Break quoted words
+# into a bash array. Note that if gridargs.dat is empty, or contains only
+# whitespace, the resulting gridargs array will be empty -- zero entries --
+# therefore "${gridargs[@]}" entirely vanishes from the command line below,
+# just as we want.
+eval gridargs=("$(<etc/gridargs.dat)")
+
 # Run the program.
 # Don't quote $LL_WRAPPER because, if empty, it should simply vanish from the
-# command line. Similar remarks about the contents of gridargs.dat. But DO
-# quote "$@": preserve separate args as individually quoted.
-$LL_WRAPPER bin/do-not-directly-run-secondlife-bin $(<etc/gridargs.dat) "$@"
+# command line. But DO quote "$@": preserve separate args as individually
+# quoted. Similar remarks about the contents of gridargs.
+$LL_WRAPPER bin/do-not-directly-run-secondlife-bin "${gridargs[@]}" "$@"
 LL_RUN_ERR=$?
 
 # Handle any resulting errors
