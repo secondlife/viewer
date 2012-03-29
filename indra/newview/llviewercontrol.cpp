@@ -507,7 +507,8 @@ bool handleSpellCheckChanged()
 	if (gSavedSettings.getBOOL("SpellCheck"))
 	{
 		std::list<std::string> dict_list;
-		boost::split(dict_list, gSavedSettings.getString("SpellCheckDictionary"), boost::is_any_of(std::string(",")));
+		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
 		if (!dict_list.empty())
 		{
 			LLSpellChecker::setUseSpellCheck(dict_list.front());
