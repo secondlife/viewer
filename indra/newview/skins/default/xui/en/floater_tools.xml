@@ -1362,15 +1362,23 @@ even though the user gets a free copy.
              name="Permanent Checkbox Ctrl"
              top_pad="0"
              width="123" />
+        <check_box
+         height="19"
+         enabled="false"
+         label="Character"
+         layout="topleft"
+         name="Character Checkbox Ctrl"
+         top_pad="0"
+         width="123" />
 
-            <text
+        <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
              name="label position"
-             top_pad="10"
+             top_pad="5"
              width="121">
                 Position (meters)
             </text>

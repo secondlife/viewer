@@ -124,6 +124,8 @@ BOOL	LLPanelObject::postBuild()
 	// Permanent checkbox
 	mCheckPermanent = getChild<LLCheckBoxCtrl>("Permanent Checkbox Ctrl");
        
+	// Character checkbox
+	mCheckCharacter = getChild<LLCheckBoxCtrl>("Character Checkbox Ctrl");
 
 	// Position
 	mLabelPosition = getChild<LLTextBox>("label position");
@@ -503,29 +505,35 @@ void LLPanelObject::getState( )
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
 	BOOL is_permanent = root_objectp->flagObjectPermanent();
 	BOOL is_permanent_enforced = root_objectp->isPermanentEnforced();
+	BOOL is_character = root_objectp->flagCharacter();
+	llassert(!is_permanent || !is_character); // should never have a permanent object that is also a character
 
 	// Physics checkbox
 	mIsPhysical = root_objectp->flagUsePhysics();
-	//llassert(is_permanent && mIsPhysical); // should never has a permanent object that is also physical
+	llassert(!is_permanent || !mIsPhysical); // should never have a permanent object that is also physical
+	llassert(!is_character || mIsPhysical); // all characters should also be physical
 
 	mCheckPhysics->set( mIsPhysical );
 	mCheckPhysics->setEnabled( roots_selected>0 
 								&& (editable || gAgent.isGodlike()) 
-								&& !is_flexible && !is_permanent);
+								&& !is_flexible && !is_permanent && !is_character);
 
 	mIsTemporary = root_objectp->flagTemporaryOnRez();
-	//llassert(is_permanent && mIsTemporary); // should never has a permanent object that is also temporary
+	llassert(!is_permanent || !mIsTemporary); // should never has a permanent object that is also temporary
 
 	mCheckTemporary->set( mIsTemporary );
 	mCheckTemporary->setEnabled( roots_selected>0 && editable && !is_permanent);
 
 	mIsPhantom = root_objectp->flagPhantom();
+	llassert(!is_character || !mIsPhantom); // should never have a character that is also a phantom
 	mCheckPhantom->set( mIsPhantom );
-	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible  && !is_permanent_enforced );
+	mCheckPhantom->setEnabled( roots_selected>0 && editable && !is_flexible && !is_permanent_enforced && !is_character);
 
 	mCheckPermanent->set(is_permanent);
 	mCheckPermanent->setEnabled(FALSE);
 
+	mCheckCharacter->set(is_character);
+	mCheckCharacter->setEnabled(FALSE);
        
 	//----------------------------------------------------------------------------
 
@@ -1880,6 +1888,8 @@ void LLPanelObject::clearCtrls()
 	mCheckPhantom	->setEnabled( FALSE );
 	mCheckPermanent	->set(FALSE);
 	mCheckPermanent	->setEnabled( FALSE );
+	mCheckCharacter	->set(FALSE);
+	mCheckCharacter	->setEnabled( FALSE );
 	
 	// Disable text labels
 	mLabelPosition	->setEnabled( FALSE );
