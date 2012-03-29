@@ -1051,6 +1051,18 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 	a  = gSavedSettings.getF32("FaceColorA");
 	colors.mFaceColor= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
 
+	in = gSavedSettings.getVector3("StarValidColorRGB");
+	a  = gSavedSettings.getF32("StarValidColorA");
+	colors.mStarValid= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+
+	in = gSavedSettings.getVector3("StarInvalidRGB");
+	a  = gSavedSettings.getF32("StarInvalidA");
+	colors.mStarInvalid= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+
+	in = gSavedSettings.getVector3("TestPathColorRGB");
+	a  = gSavedSettings.getF32("TestPathColorA");
+	colors.mTestPath= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+
 	in = gSavedSettings.getVector3("NavMeshClearRGB");
 	colors.mNavMeshClear= LLColor4(in[0], in[1], in[2], 0); 
 
