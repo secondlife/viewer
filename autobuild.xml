@@ -1147,8 +1147,6 @@
       <map>
         <key>license</key>
         <string>havok</string>
-        <key>license_file</key>
-        <string>on_file</string>
         <key>name</key>
         <string>llconvexdecomposition</string>
         <key>platforms</key>
