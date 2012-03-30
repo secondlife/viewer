@@ -111,37 +111,18 @@ void LLSysHandler::removeExclusiveNotifications(const LLNotificationPtr& notif)
 	}
 }
 
-const static std::string	OBJECT_GIVE_ITEM("ObjectGiveItem");
-
-static LLIMFloater* find_im_floater(const LLNotificationPtr& notification)
-{
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
-	return LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-}
-
 // static
 bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 {
 	bool res = false;
 
-	LLIMFloater* im_floater = find_im_floater(notification);
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+
 	if (im_floater != NULL)
 	{
 		res = im_floater->getVisible() == TRUE;
-	}
-
-	return res;
-}
-
-static bool is_IM_floater_focused(const LLNotificationPtr& notification)
-{
-	bool res = false;
-
-	LLIMFloater* im_floater = find_im_floater(notification);
-	if (im_floater != NULL)
-	{
-		res = im_floater->hasFocus() == TRUE;
 	}
 
 	return res;
@@ -208,12 +189,6 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 	}
 }
 
-// static
-void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
-{
-	logToIMP2P(notification, false);
-}
-
 void log_name_callback(const std::string& full_name, const std::string& from_name, 
 					   const std::string& message, const LLUUID& from_id)
 
@@ -225,25 +200,21 @@ void log_name_callback(const std::string& full_name, const std::string& from_nam
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
 {
-	// don't create IM p2p session with objects, it's necessary condition to log
-	//if (notification->getName() != OBJECT_GIVE_ITEM)
+	LLUUID from_id = notification->getPayload()["from_id"];
+
+	if (from_id.isNull())
 	{
-		LLUUID from_id = notification->getPayload()["from_id"];
+		llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
+		return;
+	}
 
-		if (from_id.isNull())
-		{
-			llwarns << " from_id for notification " << notification->getName() << " is null " << llendl;
-			return;
-		}
-
-		if(to_file_only)
-		{
-			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, "", notification->getMessage(), LLUUID()));
-		}
-		else
-		{
-			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
-		}
+	if(to_file_only)
+	{
+		gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, "", notification->getMessage(), LLUUID()));
+	}
+	else
+	{
+		gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
 	}
 }
 
@@ -377,23 +348,20 @@ void LLHandlerUtil::updateVisibleIMFLoaterMesages(const LLNotificationPtr& notif
 void LLHandlerUtil::decIMMesageCounter(const LLNotificationPtr& notification)
 {
 	const std::string name = LLHandlerUtil::getSubstitutionName(notification);
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+	LLUUID from_id 		   = notification->getPayload()["from_id"];
+	LLUUID session_id 	   = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
 
-	LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
-			session_id);
+	LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(session_id);
 
-	if (session == NULL)
+	if (session)
 	{
-		return;
+		LLSD arg;
+		arg["session_id"] = session_id;
+		session->mNumUnread--;
+		arg["num_unread"] = session->mNumUnread;
+		session->mParticipantUnreadMessageCount--;
+		arg["participant_unread"] = session->mParticipantUnreadMessageCount;
+		LLIMModel::getInstance()->mNewMsgSignal(arg);
 	}
-
-	LLSD arg;
-	arg["session_id"] = session_id;
-	session->mNumUnread--;
-	arg["num_unread"] = session->mNumUnread;
-	session->mParticipantUnreadMessageCount--;
-	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
-	LLIMModel::getInstance()->mNewMsgSignal(arg);
 }
 

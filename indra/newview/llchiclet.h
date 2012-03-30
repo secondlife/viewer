@@ -34,6 +34,7 @@
 #include "lloutputmonitorctrl.h"
 #include "llgroupmgr.h"
 #include "llimview.h"
+#include "llnotifications.h"
 
 class LLMenuGL;
 class LLIMFloater;
@@ -911,11 +912,35 @@ protected:
 
 class LLNotificationChiclet : public LLSysWellChiclet
 {
+	LOG_CLASS(LLNotificationChiclet);
+	
 	friend class LLUICtrlFactory;
 public:
 	struct Params : public LLInitParam::Block<Params, LLSysWellChiclet::Params>{};
 
 protected:
+	struct ChicletNotificationChannel : public LLNotificationChannel
+	{
+		ChicletNotificationChannel(LLNotificationChiclet* chiclet) 
+		:	LLNotificationChannel(LLNotificationChannel::Params().filter(filterNotification).name(chiclet->getSessionId().asString())),
+			mChiclet(chiclet)
+		{
+			// connect counter handlers to the signals
+			connectToChannel("IM Notifications");
+			connectToChannel("Group Notifications");
+			connectToChannel("Offer");
+		}
+
+		static bool filterNotification(LLNotificationPtr notify);
+		// connect counter updaters to the corresponding signals
+		/*virtual*/ void onAdd(LLNotificationPtr p) { mChiclet->setCounter(++mChiclet->mUreadSystemNotifications); }
+		/*virtual*/ void onDelete(LLNotificationPtr p) { mChiclet->setCounter(--mChiclet->mUreadSystemNotifications); }
+
+		LLNotificationChiclet* const mChiclet;
+	};
+
+	boost::scoped_ptr<ChicletNotificationChannel> mNotificationChannel;
+
 	LLNotificationChiclet(const Params& p);
 
 	/**
@@ -933,12 +958,6 @@ protected:
 	 */
 	/*virtual*/ void createMenu();
 
-	// connect counter updaters to the corresponding signals
-	void connectCounterUpdatersToSignal(const std::string& notification_type);
-
-	// methods for updating a number of unread System notifications
-	void incUreadSystemNotifications() { setCounter(++mUreadSystemNotifications); }
-	void decUreadSystemNotifications() { setCounter(--mUreadSystemNotifications); }
 	/*virtual*/ void setCounter(S32 counter);
 	S32 mUreadSystemNotifications;
 };

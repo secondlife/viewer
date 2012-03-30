@@ -95,24 +95,12 @@ bool LLIMHandler::processNotification(const LLNotificationPtr& notification)
 	p.notification = notification;
 	p.panel = im_box;
 	p.can_be_stored = false;
-	p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 	if(channel)
 		channel->addToast(p);
 
-	// send a signal to the counter manager;
-	mNewNotificationSignal();
-	
 	return false;
 }
 
-//--------------------------------------------------------------------------
-void LLIMHandler::onDeleteToast(LLToast* toast)
-{
-	// send a signal to the counter manager
-	mDelNotificationSignal();
-}
-
-//--------------------------------------------------------------------------
 
 

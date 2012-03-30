@@ -87,23 +87,9 @@ bool LLGroupHandler::processNotification(const LLNotificationPtr& notification)
 	if(channel)
 		channel->addToast(p);
 
-	// send a signal to the counter manager
-	mNewNotificationSignal();
-
 	LLGroupActions::refresh_notices();
 
 	return false;
-}
-
-//--------------------------------------------------------------------------
-void LLGroupHandler::onDeleteToast(LLToast* toast)
-{
-	// send a signal to the counter manager
-	mDelNotificationSignal();
-
-	// send a signal to a listener to let him perform some action
-	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
-	mNotificationIDSignal(toast->getNotificationID());
 }
 
 //--------------------------------------------------------------------------

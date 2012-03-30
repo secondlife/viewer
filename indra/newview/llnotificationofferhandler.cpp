@@ -79,16 +79,17 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 		initChannel();
 	}
 
-	bool add_notif_to_im = notification->canLogToIM() && notification->hasFormElements();
 
 	if( notification->getPayload().has("give_inventory_notification")
-		&& !notification->getPayload()["give_inventory_notification"] )
+		&& notification->getPayload()["give_inventory_notification"].asBoolean() == false)
 	{
 		// This is an original inventory offer, so add a script floater
 		LLScriptFloaterManager::instance().onAddNotification(notification->getID());
 	}
 	else
 	{
+		bool add_notif_to_im = notification->canLogToIM() && notification->hasFormElements();
+
 		notification->setReusable(add_notif_to_im);
 
 		LLUUID session_id;
@@ -99,10 +100,6 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 			LLUUID from_id = notification->getPayload()["from_id"];
 
 			session_id = LLHandlerUtil::spawnIMSession(name, from_id);
-		}
-
-		if (add_notif_to_im)
-		{
 			LLHandlerUtil::addNotifPanelToIM(notification);
 		}
 
@@ -120,33 +117,19 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 			p.notif_id = notification->getID();
 			p.notification = notification;
 			p.panel = notify_box;
-			p.on_delete_toast = boost::bind(&LLOfferHandler::onDeleteToast, this, _1);
 			// we not save offer notifications to the syswell floater that should be added to the IM floater
 			p.can_be_stored = !add_notif_to_im;
 
 			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
 			if(channel)
 				channel->addToast(p);
-
-			// if we not add notification to IM - add it to notification well
-			if (!add_notif_to_im)
-			{
-				// send a signal to the counter manager
-				mNewNotificationSignal();
-			}
 		}
 
 		if (notification->canLogToIM())
 		{
 			// log only to file if notif panel can be embedded to IM and IM is opened
-			if (add_notif_to_im && LLHandlerUtil::isIMFloaterOpened(notification))
-			{
-				LLHandlerUtil::logToIMP2P(notification, true);
-			}
-			else
-			{
-				LLHandlerUtil::logToIMP2P(notification);
-			}
+			bool file_only = add_notif_to_im && LLHandlerUtil::isIMFloaterOpened(notification);
+			LLHandlerUtil::logToIMP2P(notification, file_only);
 		}
 	}
 
@@ -171,21 +154,6 @@ bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
 		}
 		mChannel->killToastByNotificationID(notification->getID());
 	}
-}
-
-//--------------------------------------------------------------------------
-
-void LLOfferHandler::onDeleteToast(LLToast* toast)
-{
-	if (!toast->getNotification()->canLogToIM() || !toast->getNotification()->hasFormElements())
-	{
-		// send a signal to the counter manager
-		mDelNotificationSignal();
-	}
-
-	// send a signal to a listener to let him perform some action
-	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
-	mNotificationIDSignal(toast->getNotificationID());
 }
 
 //--------------------------------------------------------------------------

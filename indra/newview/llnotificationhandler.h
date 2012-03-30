@@ -67,19 +67,6 @@ class LLEventHandler
 public:
 	virtual ~LLEventHandler() {};
 
-	// callbacks for counters
-	typedef boost::function<void (void)> notification_callback_t;
-	typedef boost::signals2::signal<void (void)> notification_signal_t;
-	notification_signal_t mNewNotificationSignal;
-	notification_signal_t mDelNotificationSignal;
-	boost::signals2::connection setNewNotificationCallback(notification_callback_t cb) { return mNewNotificationSignal.connect(cb); }
-	boost::signals2::connection setDelNotification(notification_callback_t cb) { return mDelNotificationSignal.connect(cb); }
-	// callback for notification/toast
-	typedef boost::function<void (const LLUUID id)> notification_id_callback_t;
-	typedef boost::signals2::signal<void (const LLUUID id)> notification_id_signal_t;
-	notification_id_signal_t mNotificationIDSignal;
-	boost::signals2::connection setNotificationIDCallback(notification_id_callback_t cb) { return mNotificationIDSignal.connect(cb); }
-
 protected:
 	virtual void onDeleteToast(LLToast* toast) {}
 
@@ -143,7 +130,6 @@ public:
 
 protected:
 	bool processNotification(const LLNotificationPtr& p);
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 };
 
@@ -201,7 +187,6 @@ public:
 	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 
 	// own handlers
@@ -244,7 +229,6 @@ public:
 	virtual bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 
 	// own handlers
@@ -313,12 +297,7 @@ public:
 	/**
 	 * Writes notification message to IM  p2p session.
 	 */
-	static void logToIMP2P(const LLNotificationPtr& notification);
-
-	/**
-	 * Writes notification message to IM  p2p session.
-	 */
-	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only);
+	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only = false);
 
 	/**
 	 * Writes group notice notification message to IM  group session.

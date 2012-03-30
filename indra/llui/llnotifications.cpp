@@ -966,7 +966,7 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 	std::string cmd = payload["sigtype"];
 	LLNotificationSet::iterator foundItem = mItems.find(pNotification);
 	bool wasFound = (foundItem != mItems.end());
-	bool passesFilter = mFilter(pNotification);
+	bool passesFilter = mFilter ? mFilter(pNotification) : true;
 	
 	// first, we offer the result of the filter test to the simple
 	// signals for pass/fail. One of these is guaranteed to be called.
@@ -1071,27 +1071,28 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 	return abortProcessing;
 }
 
+LLNotificationChannel::LLNotificationChannel(const Params& p)
+:	LLNotificationChannelBase(p.filter(), p.comparator()),
+	LLInstanceTracker<LLNotificationChannel, std::string>(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString()),
+	mName(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString())
+{
+	BOOST_FOREACH(const std::string& source, p.sources)
+	{
+		connectToChannel(source);
+	}
+}
+
+
 LLNotificationChannel::LLNotificationChannel(const std::string& name, 
 											 const std::string& parent,
 											 LLNotificationFilter filter, 
-											 LLNotificationComparator comparator) : 
-LLNotificationChannelBase(filter, comparator),
-mName(name),
-mParent(parent)
+											 LLNotificationComparator comparator) 
+:	LLNotificationChannelBase(filter, comparator),
+	LLInstanceTracker<LLNotificationChannel, std::string>(name),
+	mName(name)
 {
-	// store myself in the channel map
-	LLNotifications::instance().addChannel(LLNotificationChannelPtr(this));
 	// bind to notification broadcast
-	if (parent.empty())
-	{
-		LLNotifications::instance().connectChanged(
-			boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
-	}
-	else
-	{
-		LLNotificationChannelPtr p = LLNotifications::instance().getChannel(parent);
-		p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
-	}
+	connectToChannel(parent);
 }
 
 
@@ -1133,6 +1134,21 @@ std::string LLNotificationChannel::summarize()
 	}
 	return s;
 }
+
+void LLNotificationChannel::connectToChannel( const std::string& channel_name )
+{
+	if (channel_name.empty())
+	{
+		LLNotifications::instance().connectChanged(
+			boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
+	}
+	else
+	{
+		LLNotificationChannelPtr p = LLNotifications::instance().getChannel(channel_name);
+		p->connectChanged(boost::bind(&LLNotificationChannelBase::updateItem, this, _1));
+	}
+}
+
 
 
 // ---
@@ -1248,21 +1264,9 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 	return false;
 }
 
-
-void LLNotifications::addChannel(LLNotificationChannelPtr pChan)
-{
-	mChannels[pChan->getName()] = pChan;
-}
-
 LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelName)
 {
-	ChannelMap::iterator p = mChannels.find(channelName);
-	if(p == mChannels.end())
-	{
-		llerrs << "Did not find channel named " << channelName << llendl;
-		return LLNotificationChannelPtr();
-	}
-	return p->second;
+	return LLNotificationChannelPtr(LLNotificationChannel::getInstance(channelName));
 }
 
 
@@ -1278,20 +1282,20 @@ void LLNotifications::createDefaultChannels()
 {
 	// now construct the various channels AFTER loading the notifications,
 	// because the history channel is going to rewrite the stored notifications file
-	new LLNotificationChannel("Enabled", "",
-		!boost::bind(&LLNotifications::getIgnoreAllNotifications, this));
-	new LLNotificationChannel("Expiration", "Enabled",
-		boost::bind(&LLNotifications::expirationFilter, this, _1));
-	new LLNotificationChannel("Unexpired", "Enabled",
-		!boost::bind(&LLNotifications::expirationFilter, this, _1)); // use negated bind
-	new LLNotificationChannel("Unique", "Unexpired",
-		boost::bind(&LLNotifications::uniqueFilter, this, _1));
-	new LLNotificationChannel("Ignore", "Unique",
-		filterIgnoredNotifications);
-	new LLNotificationChannel("VisibilityRules", "Ignore",
-		boost::bind(&LLNotifications::isVisibleByRules, this, _1));
-	new LLNotificationChannel("Visible", "VisibilityRules",
-		&LLNotificationFilters::includeEverything);
+	mDefaultChannels.push_back(new LLNotificationChannel("Enabled", "",
+		!boost::bind(&LLNotifications::getIgnoreAllNotifications, this)));
+	mDefaultChannels.push_back(new LLNotificationChannel("Expiration", "Enabled",
+		boost::bind(&LLNotifications::expirationFilter, this, _1)));
+	mDefaultChannels.push_back(new LLNotificationChannel("Unexpired", "Enabled",
+		!boost::bind(&LLNotifications::expirationFilter, this, _1))); // use negated bind
+	mDefaultChannels.push_back(new LLNotificationChannel("Unique", "Unexpired",
+		boost::bind(&LLNotifications::uniqueFilter, this, _1)));
+	mDefaultChannels.push_back(new LLNotificationChannel("Ignore", "Unique",
+		filterIgnoredNotifications));
+	mDefaultChannels.push_back(new LLNotificationChannel("VisibilityRules", "Ignore",
+		boost::bind(&LLNotifications::isVisibleByRules, this, _1)));
+	mDefaultChannels.push_back(new LLNotificationChannel("Visible", "VisibilityRules",
+		&LLNotificationFilters::includeEverything));
 
 	// create special persistent notification channel
 	// this isn't a leak, don't worry about the empty "new"

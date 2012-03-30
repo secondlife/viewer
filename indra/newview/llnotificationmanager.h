@@ -61,6 +61,7 @@ public:
 
 private:
 	boost::shared_ptr<class LLNearbyChatHandler> mChatHandler;
+	std::vector<LLNotificationChannelPtr> mChannels;
 };
 
 }

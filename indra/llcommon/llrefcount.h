@@ -27,6 +27,7 @@
 #define LLREFCOUNT_H
 
 #include <boost/noncopyable.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 #define LL_REF_COUNT_DEBUG 0
 #if LL_REF_COUNT_DEBUG
@@ -85,5 +86,23 @@ private:
 	mutable BOOL mCrashAtUnlock ; 
 #endif
 };
+
+/**
+ * intrusive pointer support
+ * this allows you to use boost::intrusive_ptr with any LLRefCount-derived type
+ */
+namespace boost
+{
+	inline void intrusive_ptr_add_ref(LLRefCount* p)
+	{
+		p->ref();
+	}
+
+	inline void intrusive_ptr_release(LLRefCount* p)
+	{
+		p->unref();
+	}
+};
+
 
 #endif
