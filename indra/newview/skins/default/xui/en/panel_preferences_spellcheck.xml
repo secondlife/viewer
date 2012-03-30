@@ -86,6 +86,7 @@
         Active
     </text>
     <scroll_list
+     enabled_control="SpellCheck"
      follows="top|left"
      height="155"
      layout="topleft"
@@ -96,6 +97,7 @@
      sort_ascending="true" 
      width="175" />
     <button
+     enabled_control="SpellCheck"
      follows="top|left"
      height="26"
      image_overlay="Arrow_Right"
@@ -107,6 +109,7 @@
      width="25">
     </button>
     <button
+     enabled_control="SpellCheck"
      follows="top|left"
      height="26"
      image_overlay="Arrow_Left"
@@ -117,6 +120,7 @@
      width="25">
     </button>
     <scroll_list
+     enabled_control="SpellCheck"
      follows="top|left"
      height="155"
      layout="topleft"

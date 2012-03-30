@@ -161,8 +161,8 @@ public:
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	
-	void buildDictLists();
 	void buildPopupLists();
+	void refreshDictLists(bool from_settings);
 	static void refreshSkin(void* data);
 private:
 	static std::string sSkin;

@@ -28,13 +28,15 @@
 #define LLSPELLCHECK_H
 
 #include "llsingleton.h"
+#include "llui.h"
 #include <boost/signals2.hpp>
 
 class Hunspell;
 
-class LLSpellChecker : public LLSingleton<LLSpellChecker>
+class LLSpellChecker : public LLSingleton<LLSpellChecker>, public LLInitClass<LLSpellChecker>
 {
 	friend class LLSingleton<LLSpellChecker>;
+	friend class LLInitClass<LLSpellChecker>;
 protected:
 	LLSpellChecker();
 	~LLSpellChecker();
@@ -52,28 +54,30 @@ public:
 	typedef std::list<std::string> dict_list_t;
 
 	const std::string&	getActiveDictionary() const { return mDictName; }
-	const LLSD			getDictionaryData(const std::string& dict_name) const;
-	const LLSD&			getDictionaryMap() const { return mDictMap; }
 	const dict_list_t&	getSecondaryDictionaries() const { return mDictSecondary; }
-	void				refreshDictionaryMap();
 	void				setSecondaryDictionaries(dict_list_t dict_list);
 
 	static const std::string getDictionaryAppPath();
 	static const std::string getDictionaryUserPath();
+	static const LLSD		 getDictionaryData(const std::string& dict_name);
+	static const LLSD&		 getDictionaryMap() { return sDictMap; }
 	static bool				 getUseSpellCheck();
+	static void				 refreshDictionaryMap();
 	static void				 setUseSpellCheck(const std::string& dict_name);
 
 	typedef boost::signals2::signal<void()> settings_change_signal_t;
 	static boost::signals2::connection setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb);
+protected:
+	static void initClass();
 
 protected:
 	Hunspell*	mHunspell;
 	std::string	mDictName;
 	std::string	mDictFile;
-	LLSD		mDictMap;
 	dict_list_t	mDictSecondary;
 	std::vector<std::string> mIgnoreList;
 
+	static LLSD						sDictMap;
 	static settings_change_signal_t	sSettingsChangeSignal;
 };
 

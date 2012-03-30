@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="llsd.xsd">
+    <array>
+        <map>
+        <key>name</key>
+            <string>en_gb</string>
+        <key>is_primary</key>
+            <boolean>1</boolean>
+        <key>language</key>
+            <string>English (United Kingdom)</string>
+        </map>
+        <map>
+        <key>name</key>
+            <string>en_us</string>
+        <key>is_primary</key>
+            <boolean>1</boolean>
+        <key>language</key>
+            <string>English (United States)</string>
+        </map>
+        <map>
+        <key>name</key>
+            <string>es_es</string>
+        <key>is_primary</key>
+            <boolean>1</boolean>
+        <key>language</key>
+            <string>Español (España)</string>
+        </map>
+        <map>
+        <key>name</key>
+            <string>pt_br</string>
+        <key>is_primary</key>
+            <boolean>1</boolean>
+        <key>language</key>
+            <string>Português (Brasil)</string>
+        </map>
+        <map>
+        <key>name</key>
+            <string>sl</string>
+        <key>is_primary</key>
+            <boolean>0</boolean>
+        <key>language</key>
+            <string>Second Life Glossary</string>
+        </map>
+    </array>
+</llsd>

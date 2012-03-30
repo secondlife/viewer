@@ -41,6 +41,7 @@ static const std::string DICT_DIR = "dictionaries";
 static const std::string DICT_CUSTOM_SUFFIX = "_custom";
 static const std::string DICT_IGNORE_SUFFIX = "_ignore";
 
+LLSD LLSpellChecker::sDictMap;
 LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 
 LLSpellChecker::LLSpellChecker()
@@ -86,9 +87,10 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
 	return suggestions.size();
 }
 
-const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_name) const
+// static
+const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_name)
 {
-	for (LLSD::array_const_iterator it = mDictMap.beginArray(); it != mDictMap.endArray(); ++it)
+	for (LLSD::array_const_iterator it = sDictMap.beginArray(); it != sDictMap.endArray(); ++it)
 	{
 		const LLSD& dict_entry = *it;
 		if (dict_name == dict_entry["language"].asString())
@@ -97,6 +99,7 @@ const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_name) const
 	return LLSD();
 }
 
+// static
 void LLSpellChecker::refreshDictionaryMap()
 {
 	const std::string app_path = getDictionaryAppPath();
@@ -104,24 +107,22 @@ void LLSpellChecker::refreshDictionaryMap()
 
 	// Load dictionary information (file name, friendly name, ...)
 	llifstream user_map(user_path + "dictionaries.xml", std::ios::binary);
-	if ( (!user_map.is_open()) || (0 == LLSDSerialize::fromXMLDocument(mDictMap, user_map)) || (0 == mDictMap.size()) )
+	if ( (!user_map.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, user_map)) || (0 == sDictMap.size()) )
 	{
 		llifstream app_map(app_path + "dictionaries.xml", std::ios::binary);
-		if ( (!app_map.is_open()) || (0 == LLSDSerialize::fromXMLDocument(mDictMap, app_map)) || (0 == mDictMap.size()) )
+		if ( (!app_map.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_map)) || (0 == sDictMap.size()) )
 			return;
 	}
 
 	// Look for installed dictionaries
 	std::string tmp_app_path, tmp_user_path;
-	for (LLSD::array_iterator it = mDictMap.beginArray(); it != mDictMap.endArray(); ++it)
+	for (LLSD::array_iterator it = sDictMap.beginArray(); it != sDictMap.endArray(); ++it)
 	{
 		LLSD& sdDict = *it;
 		tmp_app_path = (sdDict.has("name")) ? app_path + sdDict["name"].asString() : LLStringUtil::null;
 		tmp_user_path = (sdDict.has("name")) ? user_path + sdDict["name"].asString() : LLStringUtil::null;
 		sdDict["installed"] = 
-			(!tmp_app_path.empty()) && 
-			( ((gDirUtilp->fileExists(tmp_user_path + ".aff")) && (gDirUtilp->fileExists(tmp_user_path + ".dic"))) ||
-			  ((gDirUtilp->fileExists(tmp_app_path + ".aff")) && (gDirUtilp->fileExists(tmp_app_path + ".dic"))) );
+			(!tmp_app_path.empty()) && ((gDirUtilp->fileExists(tmp_user_path + ".dic")) || (gDirUtilp->fileExists(tmp_app_path + ".dic")));
 		sdDict["has_custom"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_CUSTOM_SUFFIX + ".dic"));
 		sdDict["has_ignore"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_IGNORE_SUFFIX + ".dic"));
 	}
@@ -240,7 +241,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 	}
 
 	const LLSD dict_entry = (!dict_name.empty()) ? getDictionaryData(dict_name) : LLSD();
-	if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
+	if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) || (!dict_entry["is_primary"].asBoolean()))
 	{
 		sSettingsChangeSignal();
 		return;
@@ -342,4 +343,11 @@ void LLSpellChecker::setUseSpellCheck(const std::string& dict_name)
 	{
 		LLSpellChecker::instance().initHunspell(dict_name);
 	}
+}
+
+// static
+void LLSpellChecker::initClass()
+{
+	if (sDictMap.isUndefined())
+		refreshDictionaryMap();
 }

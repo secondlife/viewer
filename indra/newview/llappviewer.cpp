@@ -45,6 +45,8 @@
 #include "llwindow.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
+#include "llmarketplacefunctions.h"
+#include "llmarketplacenotifications.h"
 #include "llmd5.h"
 #include "llmeshrepository.h"
 #include "llpumpio.h"
@@ -722,7 +724,9 @@ bool LLAppViewer::init()
 
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
-    LLCurl::initClass(gSavedSettings.getBOOL("CurlUseMultipleThreads"));
+    LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
+						gSavedSettings.getS32("CurlMaximumNumberOfHandles"), 
+						gSavedSettings.getBOOL("CurlUseMultipleThreads"));
 	LL_INFOS("InitInfo") << "LLCurl initialized." << LL_ENDL ;
 
     LLMachineID::init();
@@ -1485,6 +1489,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	//ditch LLVOAvatarSelf instance
+	gAgentAvatarp = NULL;
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 
@@ -2495,7 +2502,8 @@ bool LLAppViewer::initConfiguration()
 	if (gSavedSettings.getBOOL("SpellCheck"))
 	{
 		std::list<std::string> dict_list;
-		boost::split(dict_list, gSavedSettings.getString("SpellCheckDictionary"), boost::is_any_of(std::string(",")));
+		std::string dict_setting = gSavedSettings.getString("SpellCheckDictionary");
+		boost::split(dict_list, dict_setting, boost::is_any_of(std::string(",")));
 		if (!dict_list.empty())
 		{
 			LLSpellChecker::setUseSpellCheck(dict_list.front());
@@ -4418,6 +4426,10 @@ void LLAppViewer::idle()
 
 	// update media focus
 	LLViewerMediaFocus::getInstance()->update();
+	
+	// Update marketplace
+	LLMarketplaceInventoryImporter::update();
+	LLMarketplaceInventoryNotifications::update();
 
 	// objects and camera should be in sync, do LOD calculations now
 	{

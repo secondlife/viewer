@@ -18,7 +18,7 @@
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
 	<string name="StartupInitializingVFS">Initializing VFS...</string>
-  <string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
+	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
@@ -35,9 +35,9 @@
 	<string name="LoginAttempt">Previous login attempt failed. Logging in, attempt [NUMBER]</string>
 	<string name="LoginPrecaching">Loading world...</string>
 	<string name="LoginInitializingBrowser">Initializing embedded web browser...</string>
-  <string name="LoginInitializingMultimedia">Initializing multimedia...</string>
-  <string name="LoginInitializingFonts">Loading fonts...</string>
-  <string name="LoginVerifyingCache">Verifying cache files (can take 60-90 seconds)...</string>
+	<string name="LoginInitializingMultimedia">Initializing multimedia...</string>
+	<string name="LoginInitializingFonts">Loading fonts...</string>
+	<string name="LoginVerifyingCache">Verifying cache files (can take 60-90 seconds)...</string>
 	<string name="LoginProcessingResponse">Processing response...</string>
 	<string name="LoginInitializingWorld">Initializing world...</string>
 	<string name="LoginDecodingImages">Decoding images...</string>
@@ -49,12 +49,12 @@
 	<string name="LoginWaitingForRegionHandshake">Waiting for region handshake...</string>
 	<string name="LoginConnectingToRegion">Connecting to region...</string>
 	<string name="LoginDownloadingClothing">Downloading clothing...</string>
-        <string name="InvalidCertificate">The server returned an invalid or corrupt certificate. Please contact the Grid administrator.</string>
-        <string name="CertInvalidHostname">An invalid hostname was used to access the server, please check your SLURL or Grid hostname.</string>
-        <string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.</string>
-        <string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
-        <string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
-        <string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.</string>
+	<string name="InvalidCertificate">The server returned an invalid or corrupt certificate. Please contact the Grid administrator.</string>
+	<string name="CertInvalidHostname">An invalid hostname was used to access the server, please check your SLURL or Grid hostname.</string>
+	<string name="CertExpired">The certificate returned by the Grid appears to be expired.  Please check your system clock, or contact your Grid administrator.</string>
+	<string name="CertKeyUsage">The certificate returned by the server could not be used for SSL.  Please contact your Grid administrator.</string>
+	<string name="CertBasicConstraints">Too many certificates were in the servers Certificate chain.  Please contact your Grid administrator.</string>
+	<string name="CertInvalidSignature">The certificate signature returned by the Grid server could not be verified.  Please contact your Grid administrator.</string>
 
 	<string name="LoginFailedNoNetwork">Network error: Could not establish connection, please check your network connection.</string>
 	<string name="LoginFailed">Login failed.</string>
@@ -164,11 +164,19 @@ Please try logging in again in a minute.</string>
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
-	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred to another user.</string>
-	<string name="TooltipOutboxWorn">You are wearing one or more of these objects. Remove them from your avatar and try moving them again.</string>
-	<string name="TooltipOutboxFolderLevels">This folder has too many levels of subfolders. Rearrange the interior folders to a maximum of 4 levels deep (Root Folder contains A contains B contains C).</string>
-	<string name="TooltipOutboxTooManyObjects">This folder contains more than 200 objects. Box some of the items to reduce the object count.</string>
 
+	<string name="TooltipOutboxDragToWorld">You can not rez items in your merchant outbox</string>
+	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred.</string>
+	<string name="TooltipOutboxNotInInventory">Your merchant outbox can only accept items directly from your inventory</string>
+	<string name="TooltipOutboxWorn">You can not put items you are wearing into your merchant outbox</string>
+	<string name="TooltipOutboxCallingCard">You can not put calling cards into your merchant outbox</string>
+	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds 3</string>
+	<string name="TooltipOutboxTooManyFolders">Subfolder count in top-level folder exceeds 20</string>
+	<string name="TooltipOutboxTooManyObjects">Item count in top-level folder exceeds 200</string>
+	
+	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
+	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
+	
 	<!-- tooltips for Urls -->
 	<string name="TooltipHttpUrl">Click to view this web page</string>
 	<string name="TooltipSLURL">Click to view this location's information</string>
@@ -2029,24 +2037,28 @@ Returns a string with the requested data about the region
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
-	<string name="InventoryInboxNoItems">When you purchase or otherwise receive an item, it will appear here so you can drag it to a folder in your inventory, or delete it if you do not wish to keep it.</string>
-	<string name="MarketplaceURL">http://marketplace.[DOMAIN_NAME]</string>
-	<string name="MarketplaceURL_CreateStore">http://marketplace.[DOMAIN_NAME]/create_store</string>
-	<string name="MarketplaceURL_LearnMore">http://marketplace.[DOMAIN_NAME]/learn_more</string>
-	<string name="InventoryOutboxCreationErrorTitle">Your Merchant Outbox is not properly configured</string>
-	<string name="InventoryOutboxCreationErrorTooltip">Merchant Outbox configuration error</string>
-	<string name="InventoryOutboxCreationError">Please contact Customer Service to correct the problem.</string>
-	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace</string>
-	<string name="InventoryOutboxNotMerchantTooltip">Become a merchant!</string>
-	<string name="InventoryOutboxNotMerchant">[[MARKETPLACE_URL] The Second Life Marketplace] offers more than one million virtual products for sale, all of them created by Residents. You, too, can sell items you create, as well as some of the items you have purchased. It’s easy and setup is free.  [[LEARN_MORE_URL] Learn more] or [[CREATE_STORE_URL] create a store] on the Marketplace to get started.</string>
-	<string name="InventoryOutboxNoItemsTitle">A new way to send items to the Marketplace</string>
-	<string name="InventoryOutboxNoItemsTooltip">Drag and drop items here to prepare them for sale on the Marketplace</string>
-	<string name="InventoryOutboxNoItems">Drag items or folders that you wish to sell into this area.  A copy of the item will appear, leaving your inventory unchanged, unless you have dragged a no-copy item.  When you are ready to send the items to the Marketplace, click the Upload button. Once your items have been moved to your Marketplace Inventory, they will disappear from this folder.</string>
+	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
+	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
+	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4</string>
+	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
+	<string name="MarketplaceURL_Imports">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports</string>
+	<string name="MarketplaceURL_LearnMore">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more</string>
+	<string name="InventoryOutboxNotMerchantTitle">Anyone can sell items on the Marketplace.</string>
+	<string name="InventoryOutboxNotMerchantTooltip"></string>
+	<string name="InventoryOutboxNotMerchant">
+If you'd like to become a merchant, you'll need to [[MARKETPLACE_CREATE_STORE_URL] create a Marketplace store].
+	</string>
+	<string name="InventoryOutboxNoItemsTitle">Your outbox is empty.</string>
+	<string name="InventoryOutboxNoItemsTooltip"></string>
+	<string name="InventoryOutboxNoItems">
+Drag folders to this area and click "Send to Marketplace" to list them for sale on the [[MARKETPLACE_DASHBOARD_URL] Marketplace].
+	</string>
 
 	<string name="Marketplace Error None">No errors</string>
 	<string name="Marketplace Error Not Merchant">Error: Before sending items to the Marketplace you will need to set yourself up as a merchant (free of charge).</string>
 	<string name="Marketplace Error Empty Folder">Error: This folder has no contents.</string>
-	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, login to the marketplace website and reduce your unassociated item count.</string>
+	<string name="Marketplace Error Unassociated Products">Error: This item failed to upload because your merchant account has too many items unassociated with products.  To fix this error, log in to the marketplace website and reduce your unassociated item count.</string>
+
 	<string name="Marketplace Error Object Limit">Error: This item contains too many objects.  Fix this error by placing objects together in boxes to reduce the total count to less than 200.</string>
 	<string name="Marketplace Error Folder Depth">Error: This item contains too many levels of nested folders.  Reorganize it to a maximum of 3 levels of nested folders.</string>
 	<string name="Marketplace Error Unsellable Item">Error: This item can not be sold on the marketplace.</string>
@@ -3681,6 +3693,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Marketplace_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-map</string>
   <string name="Command_Move_Label">Walk / run / fly</string>
+  <string name="Command_Outbox_Label">Merchant outbox</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
@@ -3706,6 +3719,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Marketplace_Tooltip">Go shopping</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
+  <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>
   <string name="Command_Places_Tooltip">Places you've saved</string>
