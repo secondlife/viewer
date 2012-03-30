@@ -687,7 +687,9 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 			}
 		}
 
-		if (object->permMove() && !object->isPermanentEnforced())
+		LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
+		if (object->permMove() && !object->isPermanentEnforced() &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()))
 		{
 			// handle attachments in local space
 			if (object->isAttachment() && object->mDrawable.notNull())
@@ -2281,7 +2283,10 @@ BOOL LLManipTranslate::canAffectSelection()
 		{
 			virtual bool apply(LLViewerObject* objectp)
 			{
-				return objectp->permMove() && !objectp->isPermanentEnforced() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+				LLViewerObject *root_object = (objectp == NULL) ? NULL : objectp->getRootEdit();
+				return objectp->permMove() && !objectp->isPermanentEnforced() &&
+					((root_object == NULL) || !root_object->isPermanentEnforced()) &&
+					(objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 			}
 		} func;
 		can_move = mObjectSelection->applyToObjects(&func);
