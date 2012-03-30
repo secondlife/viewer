@@ -363,6 +363,50 @@
           </map>
         </map>
       </map>
+      <key>dictionaries</key>
+      <map>
+        <key>name</key>
+        <string>dictionaries</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>47d338ddf5c31ea2b97a96a172b9f0a7</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/252603/arch/Darwin/installer/dictionaries-1-darwin-20120330.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4ae5ecc7bc028e00c077ab4ed527e796</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/252603/arch/Linux/installer/dictionaries-1-linux-20120330.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>f0513cd8775236ef0f215b88c64e6fa0</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/252603/arch/CYGWIN/installer/dictionaries-1-windows-20120330.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+      </map>
       <key>elfio</key>
       <map>
         <key>license</key>
