@@ -1490,6 +1490,16 @@ Please make sure none are locked, and that you own all of them.
 
   <notification
    icon="alertmodal.tga"
+   name="CannotLinkPermanent"
+   type="alertmodal">
+Unable to link permanent objects in frozen mode.
+
+Please switch to unfrozen mode from the menu option Build->Pathfinding->Basic Setup.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="CannotLinkDifferentOwners"
    type="alertmodal">
 Unable to link because not all of the objects have the same owner.

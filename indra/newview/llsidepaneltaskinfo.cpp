@@ -301,6 +301,8 @@ void LLSidepanelTaskInfo::refresh()
 	// BUG: fails if a root and non-root are both single-selected.
 	const BOOL is_perm_modify = (mObjectSelection->getFirstRootNode() && LLSelectMgr::getInstance()->selectGetRootsModify()) ||
 		LLSelectMgr::getInstance()->selectGetModify();
+	const BOOL is_nonpermanent = (mObjectSelection->getFirstRootNode() && LLSelectMgr::getInstance()->selectGetRootsNonPermanent()) ||
+		LLSelectMgr::getInstance()->selectGetNonPermanent();
 
 	S32 string_index = 0;
 	std::string MODIFY_INFO_STRINGS[] =
@@ -308,11 +310,17 @@ void LLSidepanelTaskInfo::refresh()
 			getString("text modify info 1"),
 			getString("text modify info 2"),
 			getString("text modify info 3"),
-			getString("text modify info 4")
+			getString("text modify info 4"),
+			getString("text modify info 5"),
+			getString("text modify info 6")
 		};
 	if (!is_perm_modify)
 	{
 		string_index += 2;
+	}
+	else if (!is_nonpermanent)
+	{
+		string_index += 4;
 	}
 	if (!is_one_object)
 	{

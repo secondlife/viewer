@@ -560,6 +560,10 @@ public:
 	BOOL selectGetRootsModify();
 	BOOL selectGetModify();
 
+	// returns TRUE if is all objects are non-permanent
+	BOOL selectGetRootsNonPermanent();
+	BOOL selectGetNonPermanent();
+
 	// returns TRUE if selected objects can be transferred.
 	BOOL selectGetRootsTransfer();
 

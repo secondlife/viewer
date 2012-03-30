@@ -299,6 +299,9 @@ void LLPanelPermissions::refresh()
 	BOOL is_perm_modify = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
 						   && LLSelectMgr::getInstance()->selectGetRootsModify())
 		|| LLSelectMgr::getInstance()->selectGetModify();
+	BOOL is_nonpermanent = (LLSelectMgr::getInstance()->getSelection()->getFirstRootNode() 
+						   && LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
+		|| LLSelectMgr::getInstance()->selectGetNonPermanent();
 	const LLFocusableElement* keyboard_focus_view = gFocusMgr.getKeyboardFocus();
 
 	S32 string_index = 0;
@@ -307,11 +310,17 @@ void LLPanelPermissions::refresh()
 			getString("text modify info 1"),
 			getString("text modify info 2"),
 			getString("text modify info 3"),
-			getString("text modify info 4")
+			getString("text modify info 4"),
+			getString("text modify info 5"),
+			getString("text modify info 6")
 		};
 	if (!is_perm_modify)
 	{
 		string_index += 2;
+	}
+	else if (!is_nonpermanent)
+	{
+		string_index += 4;
 	}
 	if (!is_one_object)
 	{

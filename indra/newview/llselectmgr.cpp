@@ -593,6 +593,12 @@ bool LLSelectMgr::linkObjects()
 		return true;
 	}
 
+	if (!LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
+	{
+		LLNotificationsUtil::add("CannotLinkPermanent");
+		return true;
+	}
+
 	LLUUID owner_id;
 	std::string owner_name;
 	if (!LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name))
@@ -2489,6 +2495,54 @@ BOOL LLSelectMgr::selectGetRootsModify()
 			return FALSE;
 		}
 		if( !object->permModify() )
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// selectGetPermanent() - return TRUE if current agent can modify all
+// selected objects.
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetNonPermanent()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->isPermanentEnforced())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsModify() - return TRUE if current agent can modify all
+// selected root objects.
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsNonPermanent()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->isPermanentEnforced())
 		{
 			return FALSE;
 		}
