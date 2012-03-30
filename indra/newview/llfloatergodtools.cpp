@@ -1123,8 +1123,12 @@ bool LLPanelObjectTools::callbackSimWideDeletes( const LLSD& notification, const
 
 void LLPanelObjectTools::onClickSet()
 {
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelObjectTools::callbackAvatarID, this, _1,_2));
 	// grandparent is a floater, which can have a dependent
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelObjectTools::callbackAvatarID, this, _1,_2)));
+	if (picker)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+	}
 }
 
 void LLPanelObjectTools::onClickSetBySelection(void* data)

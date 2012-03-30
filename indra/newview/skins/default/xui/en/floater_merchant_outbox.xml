@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
-    open_positioning="cascading"
+    positioning="cascading"
     can_close="true"
     can_resize="true"
     height="440"
@@ -115,7 +115,7 @@
           wrap="true"
           halign="left"
           valign="center"
-          font="SansSerif"/>
+          font="SansSerif" />
       <button
           label="Send to Marketplace"
           tool_tip="Push to my Marketplace Storefront"
