@@ -5260,9 +5260,6 @@ class LLCommunicateBlockList : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		// we just send the message and let the server check for failure cases
-		// server will echo back a "Home position set." alert if it succeeds
-		// and the home location screencapture happens when that alert is recieved
 		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
 		return true;
 	}
