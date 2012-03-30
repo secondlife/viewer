@@ -807,12 +807,14 @@ copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
 		comp_in = tile_in.access_component(c);
 		comp_out = tile_out.access_component(c);
 		int num_resolutions = comp_out.get_num_resolutions();
+		//std::cout << "    Copying tile : num_resolutions = " << num_resolutions << std::endl;
 		for (int r=0; r < num_resolutions; r++)
         {
 			kdu_resolution res_in;  res_in = comp_in.access_resolution(r);
 			kdu_resolution res_out; res_out = comp_out.access_resolution(r);
 			int b, min_band;
 			int num_bands = res_in.get_valid_band_indices(min_band);
+			std::cout << "        Copying tile : num_bands = " << num_bands << std::endl;
 			for (b=min_band; num_bands > 0; num_bands--, b++)
             {
 				kdu_subband band_in;  band_in = res_in.access_subband(b);
@@ -826,6 +828,7 @@ copy_tile(kdu_tile tile_in, kdu_tile tile_out, int tnum_in, int tnum_out,
 					return;
 				}
 				kdu_coords idx;
+				//std::cout << "            Copying tile : block indices, x = " << blocks_out.size.x << " and y = " << blocks_out.size.y << std::endl;
 				for (idx.y=0; idx.y < blocks_out.size.y; idx.y++)
 				{
 					for (idx.x=0; idx.x < blocks_out.size.x; idx.x++)
@@ -857,10 +860,11 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 	
 	for (int discard_level = 0; discard_level < mLevels; discard_level++)
 	{
+		//std::cout << "Parsing discard level = " << discard_level << std::endl;
 		// Create the input codestream object.
 		setupCodeStream(base, TRUE, MODE_FAST);
 		mCodeStreamp->apply_input_restrictions(0, 4, discard_level, 0, NULL);
-		//mCodeStreamp->set_max_bytes(max,true);
+		mCodeStreamp->set_max_bytes(KDU_LONG_MAX,true);
 		siz_params *siz_in = mCodeStreamp->access_siz();
 	
 		// Create the output codestream object.
@@ -898,6 +902,7 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 		int num_blocks=0;
 	
 		kdu_coords idx;
+		//std::cout << "Parsing tiles : x = " << tile_indices_out.size.x << " to y = " << tile_indices_out.size.y << std::endl;
 		for (idx.y=0; idx.y < tile_indices_out.size.y; idx.y++)
 		{
 			for (idx.x=0; idx.x < tile_indices_out.size.x; idx.x++)
