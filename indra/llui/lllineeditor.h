@@ -243,6 +243,7 @@ public:
 	void			setSelectAllonFocusReceived(BOOL b);
 	void			setSelectAllonCommit(BOOL b) { mSelectAllonCommit = b; }
 	
+	void			onKeystroke();
 	typedef boost::function<void (LLLineEditor* caller, void* user_data)> callback_t;
 	void			setKeystrokeCallback(callback_t callback, void* user_data);
 

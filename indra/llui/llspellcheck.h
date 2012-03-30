@@ -44,17 +44,20 @@ public:
 	void addToIgnoreList(const std::string& word);
 	bool checkSpelling(const std::string& word) const;
 	S32  getSuggestions(const std::string& word, std::vector<std::string>& suggestions) const;
-
-public:
-	const LLSD	getDictionaryData(const std::string& dict_name) const;
-	const LLSD&	getDictionaryMap() const { return mDictMap; }
-	void		refreshDictionaryMap();
-	void		setSecondaryDictionaries(std::list<std::string> dictList);
 protected:
-	void		addToDictFile(const std::string& dict_path, const std::string& word);
-	void		initHunspell(const std::string& dict_name);
+	void addToDictFile(const std::string& dict_path, const std::string& word);
+	void initHunspell(const std::string& dict_name);
 
 public:
+	typedef std::list<std::string> dict_list_t;
+
+	const std::string&	getActiveDictionary() const { return mDictName; }
+	const LLSD			getDictionaryData(const std::string& dict_name) const;
+	const LLSD&			getDictionaryMap() const { return mDictMap; }
+	const dict_list_t&	getSecondaryDictionaries() const { return mDictSecondary; }
+	void				refreshDictionaryMap();
+	void				setSecondaryDictionaries(dict_list_t dict_list);
+
 	static const std::string getDictionaryAppPath();
 	static const std::string getDictionaryUserPath();
 	static bool				 getUseSpellCheck();
@@ -64,11 +67,11 @@ public:
 	static boost::signals2::connection setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb);
 
 protected:
-	Hunspell*				 mHunspell;
-	std::string				 mDictName;
-	std::string				 mDictFile;
-	LLSD					 mDictMap;
-	std::list<std::string>	 mDictSecondary;
+	Hunspell*	mHunspell;
+	std::string	mDictName;
+	std::string	mDictFile;
+	LLSD		mDictMap;
+	dict_list_t	mDictSecondary;
 	std::vector<std::string> mIgnoreList;
 
 	static settings_change_signal_t	sSettingsChangeSignal;
