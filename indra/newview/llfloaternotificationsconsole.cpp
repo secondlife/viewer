@@ -44,21 +44,16 @@ public:
 	BOOL postBuild();
 
 private:
-	bool update(const LLSD& payload, bool passed_filter);
+	bool update(const LLSD& payload);
 	static void toggleClick(void* user_data);
 	static void onClickNotification(void* user_data);
-	static void onClickNotificationReject(void* user_data);
 	LLNotificationChannelPtr mChannelPtr;
-	LLNotificationChannelPtr mChannelRejectsPtr;
 };
 
 LLNotificationChannelPanel::LLNotificationChannelPanel(const LLNotificationChannelPanel::Params& p) 
 :	LLLayoutPanel(p)
 {
 	mChannelPtr = LLNotifications::instance().getChannel(p.name);
-	mChannelRejectsPtr = LLNotificationChannelPtr(
-		new LLNotificationChannel(p.name() + "rejects", mChannelPtr->getParentChannelName(),
-											!boost::bind(mChannelPtr->getFilter(), _1)));
 	buildFromFile( "panel_notifications_channel.xml");
 }
 
@@ -68,14 +63,10 @@ BOOL LLNotificationChannelPanel::postBuild()
 	header_button->setLabel(mChannelPtr->getName());
 	header_button->setClickedCallback(toggleClick, this);
 
-	mChannelPtr->connectChanged(boost::bind(&LLNotificationChannelPanel::update, this, _1, true));
-	mChannelRejectsPtr->connectChanged(boost::bind(&LLNotificationChannelPanel::update, this, _1, false));
+	mChannelPtr->connectChanged(boost::bind(&LLNotificationChannelPanel::update, this, _1));
 
 	LLScrollListCtrl* scroll = getChild<LLScrollListCtrl>("notifications_list");
 	scroll->setDoubleClickCallback(onClickNotification, this);
-	scroll->setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mRight, 0));
-	scroll = getChild<LLScrollListCtrl>("notification_rejects_list");
-	scroll->setDoubleClickCallback(onClickNotificationReject, this);
 	scroll->setRect(LLRect( getRect().mLeft, getRect().mTop, getRect().mRight, 0));
 	return TRUE;
 }
@@ -97,8 +88,6 @@ void LLNotificationChannelPanel::toggleClick(void *user_data)
 	// turn off tab stop for collapsed panel
 	self->getChild<LLScrollListCtrl>("notifications_list")->setTabStop(!header_button->getToggleState());
 	self->getChild<LLScrollListCtrl>("notifications_list")->setVisible(!header_button->getToggleState());
-	self->getChild<LLScrollListCtrl>("notification_rejects_list")->setTabStop(!header_button->getToggleState());
-	self->getChild<LLScrollListCtrl>("notification_rejects_list")->setVisible(!header_button->getToggleState());
 }
 
 /*static*/
@@ -118,24 +107,7 @@ void LLNotificationChannelPanel::onClickNotification(void* user_data)
 	}
 }
 
-/*static*/
-void LLNotificationChannelPanel::onClickNotificationReject(void* user_data)
-{
-	LLNotificationChannelPanel* self = (LLNotificationChannelPanel*)user_data;
-	if (!self) return;
-	LLScrollListItem* firstselected = self->getChild<LLScrollListCtrl>("notification_rejects_list")->getFirstSelected();
-	llassert(firstselected);
-	if (firstselected)
-	{
-		void* data = firstselected->getUserdata();
-		if (data)
-		{
-			gFloaterView->getParentFloater(self)->addDependentFloater(new LLFloaterNotification((LLNotification*)data), TRUE);
-		}
-	}
-}
-
-bool LLNotificationChannelPanel::update(const LLSD& payload, bool passed_filter)
+bool LLNotificationChannelPanel::update(const LLSD& payload)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(payload["id"].asUUID());
 	if (notification)
@@ -151,9 +123,7 @@ bool LLNotificationChannelPanel::update(const LLSD& payload, bool passed_filter)
 		row["columns"][2]["column"] = "date";
 		row["columns"][2]["type"] = "date";
 
-		LLScrollListItem* sli = passed_filter ? 
-			getChild<LLScrollListCtrl>("notifications_list")->addElement(row) :
-			getChild<LLScrollListCtrl>("notification_rejects_list")->addElement(row);
+		LLScrollListItem* sli = getChild<LLScrollListCtrl>("notifications_list")->addElement(row);
 		sli->setUserdata(&(*notification));
 	}
 

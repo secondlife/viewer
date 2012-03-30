@@ -37,10 +37,6 @@
 
 using namespace LLNotificationsUI;
 
-static const std::string SCRIPT_DIALOG				("ScriptDialog");
-static const std::string SCRIPT_DIALOG_GROUP		("ScriptDialogGroup");
-static const std::string SCRIPT_LOAD_URL			("LoadWebPage");
-
 //--------------------------------------------------------------------------
 LLScriptHandler::LLScriptHandler()
 :	LLSysHandler("Notifications", "notify")
@@ -87,7 +83,7 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 		LLHandlerUtil::logToIMP2P(notification);
 	}
 
-	if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
+	if(notification->hasFormElements())
 	{
 		LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 	}
@@ -106,9 +102,6 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 		{
 			channel->addToast(p);
 		}
-
-		// send a signal to the counter manager
-		mNewNotificationSignal();
 	}
 	
 	return false;
@@ -117,7 +110,7 @@ bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 
 void LLScriptHandler::onDelete( LLNotificationPtr notification )
 {
-	if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
+	if(notification->hasFormElements())
 	{
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}
@@ -132,17 +125,11 @@ void LLScriptHandler::onDelete( LLNotificationPtr notification )
 
 void LLScriptHandler::onDeleteToast(LLToast* toast)
 {
-	// send a signal to the counter manager
-	mDelNotificationSignal();
-
 	// send a signal to a listener to let him perform some action
 	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
-	mNotificationIDSignal(toast->getNotificationID());
-
 	LLNotificationPtr notification = LLNotifications::getInstance()->find(toast->getNotificationID());
 	
-	if( notification && 
-		(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName()) )
+	if( notification && notification->hasFormElements())
 	{
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}

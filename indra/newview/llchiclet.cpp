@@ -335,27 +335,13 @@ void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 /*               LLNotificationChiclet implementation                   */
 /************************************************************************/
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
-: LLSysWellChiclet(p)
-, mUreadSystemNotifications(0)
+:	LLSysWellChiclet(p),
+	mUreadSystemNotifications(0)
 {
-	// connect counter handlers to the signals
-	connectCounterUpdatersToSignal("Notify");
-	connectCounterUpdatersToSignal("Group Notify");
-	connectCounterUpdatersToSignal("Offer");
-
+	mNotificationChannel.reset(new ChicletNotificationChannel(this));
 	// ensure that notification well window exists, to synchronously
 	// handle toast add/delete events.
 	LLNotificationWellWindow::getInstance()->setSysWellChiclet(this);
-}
-
-void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)
-{
-	LLNotificationsUI::LLEventHandler* n_handler = dynamic_cast<LLNotificationsUI::LLEventHandler*>(LLNotifications::instance().getChannel(notification_type).get());
-	if(n_handler)
-	{
-		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
-		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
-	}
 }
 
 void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
@@ -406,6 +392,12 @@ void LLNotificationChiclet::setCounter(S32 counter)
 	updateWidget(getCounter() == 0);
 	
 }
+
+bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notify )
+{
+	return !(notify->canLogToIM() && notify->hasFormElements());
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

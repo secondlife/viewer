@@ -34,6 +34,7 @@
 #include "llscreenchannel.h"
 #include "llscrollcontainer.h"
 #include "llimview.h"
+#include "llnotifications.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -111,7 +112,7 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
-
+	/*virtual*/ void onAdd(LLNotificationPtr notify);
 	// Operating with items
 	void addItem(LLSysWellItem::Params p);
 
@@ -119,6 +120,18 @@ public:
 	void closeAll();
 
 protected:
+	struct WellNotificationChannel : public LLNotificationChannel
+	{
+		WellNotificationChannel(LLNotificationWellWindow*);
+		void onAdd(LLNotificationPtr notify)
+		{
+			mWellWindow->removeItemByID(notify->getID());
+		} 
+
+		LLNotificationWellWindow* mWellWindow;
+	};
+
+	LLNotificationChannelPtr mNotificationUpdates;
 	/*virtual*/ const std::string& getAnchorViewName() { return NOTIFICATION_WELL_ANCHOR_NAME; }
 
 private:
@@ -126,11 +139,7 @@ private:
 	void initChannel();
 	void clearScreenChannels();
 
-
 	void onStoreToast(LLPanel* info_panel, LLUUID id);
-
-	// connect counter and list updaters to the corresponding signals
-	void connectListUpdaterToSignal(std::string notification_type);
 
 	// Handlers
 	void onItemClick(LLSysWellItem* item);

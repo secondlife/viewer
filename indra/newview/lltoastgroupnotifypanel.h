@@ -47,9 +47,6 @@ class LLToastGroupNotifyPanel
 public:
 	void close();
 
-	static bool onNewNotification(const LLSD& notification);
-
-
 	// Non-transient messages.  You can specify non-default button
 	// layouts (like one for script dialogs) by passing various
 	// numbers in for "layout".

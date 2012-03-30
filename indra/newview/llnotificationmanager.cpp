@@ -52,15 +52,16 @@ LLNotificationManager::~LLNotificationManager()
 //--------------------------------------------------------------------------
 void LLNotificationManager::init()
 {
-	new LLScriptHandler();
-	new LLTipHandler();
-	new LLGroupHandler();
-	new LLAlertHandler("Alerts", "alert", false);
-	new LLAlertHandler("AlertModal", "alertmodal", true);
-	new LLOfferHandler();
-	new LLHintHandler();
-	new LLBrowserNotification();
-	new LLOutboxNotification();
+	mChannels.push_back(new LLScriptHandler());
+	mChannels.push_back(new LLTipHandler());
+	mChannels.push_back(new LLGroupHandler());
+	mChannels.push_back(new LLAlertHandler("Alerts", "alert", false));
+	mChannels.push_back(new LLAlertHandler("AlertModal", "alertmodal", true));
+	mChannels.push_back(new LLOfferHandler());
+	mChannels.push_back(new LLHintHandler());
+	mChannels.push_back(new LLBrowserNotification());
+	mChannels.push_back(new LLOutboxNotification());
+	mChannels.push_back(new LLIMHandler());
 	
 	mChatHandler = boost::shared_ptr<LLNearbyChatHandler>(new LLNearbyChatHandler());
 }
