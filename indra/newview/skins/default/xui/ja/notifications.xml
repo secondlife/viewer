@@ -85,17 +85,38 @@
 		<usetemplate canceltext="キャンセル" name="yesnocancelbuttons" notext="保存しない" yestext="保存"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		マーチャントのアウトボックスにこれをコピーする権限があります。次のアイテムを移動しますか？
-[ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+		これらのアイテムの 1 つまたは複数をマーチャントアウトボックスにコピーする許可がありません。移動するか、置き去りにすることはできます。
+		<usetemplate name="okcancelbuttons" notext="アイテムを移動しない" yestext="アイテムを移動"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		マーケットプレイスへのアップロードが完了しました。
-		<usetemplate name="okbutton" yestext="やったあ！"/>
+	<notification name="OutboxFolderCreated">
+		マーチャントアウトボックスの最上位に転送した各アイテムにつき、それぞれ 1 つの新しいフォルダが作成されました。
+		<usetemplate ignoretext="新しいフォルダがマーチャントアウトボックス内に作成されました" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		マーケットプレイスへのアップロードの完了時にエラーが発生しました。アウトボックスの問題を解決して、もう一度お試しください。ありがとうございます。
-		<usetemplate name="okbutton" yestext="再トライ！"/>
+	<notification name="OutboxImportComplete">
+		成功
+
+マーケットプレイスに正常に送信されたすべてのフォルダ
+		<usetemplate ignoretext="マーケットプレイスに送信されたすべてのフォルダ" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		一部のフォルダは転送されませんでした
+
+一部のフォルダがマーケットプレイスに送信されたときにエラーが発生しました。これらのフォルダはまだマーチャントアウトボックス内にあります。
+
+詳細については、[[MARKETPLACE_IMPORTS_URL] エラーログ]をご覧ください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		転送に失敗
+
+システムまたはネットワークのエラーのため、フォルダはマーケットプレイスに送信されませんでした。後でもう一度お試しください。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		マーケットプレイスの初期化に失敗
+
+システムまたはネットワークのエラーのため、マーケットプレイスの初期化に失敗しました。後でもう一度お試しください。
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		次の理由で、スクリプト用テキストのアップロード時に問題が起こりました。
@@ -1472,8 +1493,8 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		<usetemplate ignoretext="オブジェクトを所有者に返却する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		現在あなたは &lt;nolink&gt;[GROUP]&lt;/nolink&gt; のメンバーです。
-このグループを抜けますか？
+		現在、あなたは &lt;nolink&gt;[GROUP]&lt;/nolink&gt; グループのメンバーです。
+グループから脱退しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2861,6 +2882,18 @@ M キーを押して変更します。
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		フォルダは一度に 1 つしか共有できません。
+
+次のアイテムを共有しますか？
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+次の住人と共有：
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
 	</notification>
 	<notification name="ItemsShared">
 		アイテムが共有されました。

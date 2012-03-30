@@ -374,7 +374,7 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Klicken Sie hier, um ein Bild auszuwählen"/>
 			<text name="allow_label5">
-				Avatare auf dieser Parzelle sehen und mit ihnen chatten
+				Avatare in anderen Parzellen können Avatare in dieser Parzelle sehen und mit ihnen chatten
 			</text>
 			<check_box label="Avatare sehen" name="SeeAvatarsCheck" tool_tip="Gestattet sowohl Avataren auf anderen Parzellen, Avatare auf dieser Parzelle zu sehen und mit ihnen zu chatten, als auch Ihnen, diese Avatare auf anderen Parzellen zu sehen und mit ihnen zu chatten."/>
 			<text name="landing_point">
@@ -458,12 +458,12 @@ Nur große Parzellen können in der Suche aufgeführt werden.
 			<text name="Limit access to this parcel to:">
 				Zugang zu dieser Parzelle
 			</text>
-			<check_box label="Öffentlichen Zugang erlauben [MATURITY]" name="public_access"/>
+			<check_box label="Öffentlichen Zugang gestatten (bei Deaktivierung dieser Option werden Bannlinien generiert)" name="public_access"/>
 			<text name="Only Allow" width="400">
-				Zugang auf Einwohner beschränken, die überprüft wurden von:
+				Zugang nur Einwohnern gestatten, die:
 			</text>
-			<check_box label="Zahlungsinformation gespeichert [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Einwohner ohne Zahlungsinformation nicht zulassen."/>
-			<check_box label="Altersüberprüfung [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung nicht zulassen. Weitere Informationen finden Sie im [SUPPORT_SITE]."/>
+			<check_box label="Zahlungsinformationen hinterlegt haben [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+			<check_box label="ihr Alter bestätigt haben [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Um diese Parzelle besuchen zu können, müssen Einwohner ihr Alter bestätigt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
 			<check_box label="Gruppenzugang erlauben: [GROUP]" name="GroupCheck" tool_tip="Gruppe im Register „Allgemein“ festlegen."/>
 			<check_box label="Pässe verkaufen an:" name="PassCheck" tool_tip="Ermöglicht befristeten Zugang zu dieser Parzelle"/>
 			<combo_box name="pass_combo">

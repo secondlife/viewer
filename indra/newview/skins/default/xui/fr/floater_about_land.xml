@@ -377,7 +377,7 @@ Seules les parcelles de grande taille peuvent apparaître dans la recherche.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Cliquez pour sélectionner une image"/>
 			<text name="allow_label5">
-				et chatter avec les avatars sur cette parcelle
+				Les avatars présents sur d&apos;autres parcelles peuvent voir et chatter avec les avatars présents sur cette parcelle.
 			</text>
 			<check_box label="Voir les avatars" name="SeeAvatarsCheck" tool_tip="Permettre aux avatars présents sur d&apos;autres parcelles de voir et chatter avec les avatars présents sur cette parcelle et à vous de les voir et de chatter avec eux."/>
 			<text name="landing_point">
@@ -465,12 +465,12 @@ musique :
 			<text name="Limit access to this parcel to:">
 				Accès à cette parcelle
 			</text>
-			<check_box label="Autoriser l&apos;accès public [MATURITY]" name="public_access"/>
+			<check_box label="Autoriser l&apos;accès public (des lignes d&apos;interdiction seront créées si cette case n&apos;est pas cochée)" name="public_access"/>
 			<text name="Only Allow">
-				Limiter l&apos;accès aux résidents vérifiés par :
+				Conditions d&apos;accès des résidents :
 			</text>
-			<check_box label="Informations de paiement enregistrées [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Bannir les résidents non identifiés."/>
-			<check_box label="Vérification de l&apos;âge [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Bannir les résidents qui n&apos;ont pas vérifié leur âge. Consultez la page [SUPPORT_SITE] pour plus d&apos;informations."/>
+			<check_box label="Informations de paiement enregistrées [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Pour pouvoir accéder à cette parcelle, les résidents doivent avoir enregistré des informations de paiement. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
+			<check_box label="Âge vérifié [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Pour que les résidents puissent accéder à cette parcelle, leur âge doit avoir fait l&apos;objet d&apos;une vérification. Consultez le [SUPPORT_SITE] pour plus d&apos;informations."/>
 			<check_box label="Autoriser l&apos;accès au groupe : [GROUP]" name="GroupCheck" tool_tip="Définir le groupe à l&apos;onglet Général."/>
 			<check_box label="Vendre des pass à :" name="PassCheck" tool_tip="Autoriser un accès temporaire à cette parcelle"/>
 			<combo_box name="pass_combo" width="110">
