@@ -291,6 +291,12 @@
               function="SideTray.PanelPeopleTab"
               parameter="nearby_panel" />
         </menu_item_call>
+        <menu_item_call
+         label="Block List"
+         name="Block List">
+            <menu_item_call.on_click
+              function="Communicate.BlockList" />
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
