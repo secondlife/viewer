@@ -34,5 +34,5 @@
 using namespace LLNotificationsUI;
 
 void LLHintHandler::onAdd(LLNotificationPtr p) { LLHints::show(p); }
-void LLHintHandler::onChange(LLNotificationPtr p) { LLHints::show(p); }
+void LLHintHandler::onLoad(LLNotificationPtr p) { LLHints::show(p); }
 void LLHintHandler::onDelete(LLNotificationPtr p) { LLHints::hide(p); }

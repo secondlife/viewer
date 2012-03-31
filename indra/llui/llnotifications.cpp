@@ -246,7 +246,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 	LLParamSDParser parser;
 	parser.writeSD(mFormData, p.form_elements);
 
-	if (!mFormData.isArray())
+	if (!mFormData.isArray() && !mFormData.isUndefined())
 	{
 		// change existing contents to a one element array
 		LLSD new_llsd_array = LLSD::emptyArray();
@@ -407,6 +407,7 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	mURLOption(p.url.option),
 	mURLTarget(p.url.target),
 	mUnique(p.unique.isProvided()),
+	mCombineBehavior(p.unique.combine),
 	mPriority(p.priority),
 	mPersist(p.persist),
 	mDefaultFunctor(p.functor.isProvided() ? p.functor() : p.name()),
@@ -903,6 +904,10 @@ bool LLNotification::hasFormElements() const
 	return mTemplatep->mForm->getNumElements() != 0;
 }
 
+LLNotification::ECombineBehavior LLNotification::getCombineBehavior() const
+{
+	return mTemplatep->mCombineBehavior;
+}
 
 
 
@@ -1242,22 +1247,25 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 		return false;
 	}
 
-	// Update the existing unique notification with the data from this particular instance...
-	// This guarantees that duplicate notifications will be collapsed to the one
-	// most recently triggered
-	for (LLNotificationMap::iterator existing_it = mUniqueNotifications.find(pNotif->getName());
-		existing_it != mUniqueNotifications.end();
-		++existing_it)
+	if (pNotif->getCombineBehavior() == LLNotification::USE_NEWEST)
 	{
-		LLNotificationPtr existing_notification = existing_it->second;
-		if (pNotif != existing_notification 
-			&& pNotif->isEquivalentTo(existing_notification))
+		// Update the existing unique notification with the data from this particular instance...
+		// This guarantees that duplicate notifications will be collapsed to the one
+		// most recently triggered
+		for (LLNotificationMap::iterator existing_it = mUniqueNotifications.find(pNotif->getName());
+			existing_it != mUniqueNotifications.end();
+			++existing_it)
 		{
-			// copy notification instance data over to oldest instance
-			// of this unique notification and update it
-			existing_notification->updateFrom(pNotif);
-			// then delete the new one
-			cancel(pNotif);
+			LLNotificationPtr existing_notification = existing_it->second;
+			if (pNotif != existing_notification 
+				&& pNotif->isEquivalentTo(existing_notification))
+			{
+				// copy notification instance data over to oldest instance
+				// of this unique notification and update it
+				existing_notification->updateFrom(pNotif);
+				// then delete the new one
+				cancel(pNotif);
+			}
 		}
 	}
 
@@ -1296,10 +1304,7 @@ void LLNotifications::createDefaultChannels()
 		boost::bind(&LLNotifications::isVisibleByRules, this, _1)));
 	mDefaultChannels.push_back(new LLNotificationChannel("Visible", "VisibilityRules",
 		&LLNotificationFilters::includeEverything));
-
-	// create special persistent notification channel
-	// this isn't a leak, don't worry about the empty "new"
-	new LLPersistentNotificationChannel();
+	mDefaultChannels.push_back(new LLPersistentNotificationChannel());
 
 	// connect action methods to these channels
 	LLNotifications::instance().getChannel("Enabled")->

@@ -94,7 +94,7 @@ public:
 
 	// base interface functions
 	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
 	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel) mChannel->killToastByNotificationID(p->getID());}
 
 	virtual bool processNotification(const LLNotificationPtr& notify)=0;
@@ -130,7 +130,7 @@ public:
 
 protected:
 	bool processNotification(const LLNotificationPtr& p);
-	virtual void initChannel();
+	/*virtual*/ void initChannel();
 };
 
 /**
@@ -144,11 +144,12 @@ public:
 	virtual ~LLTipHandler();
 
 	// base interface functions
-	virtual bool processNotification(const LLNotificationPtr& p);
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onRejectToast(const LLUUID& id);
-	virtual void initChannel();
+	/*virtual*/ void onRejectToast(const LLUUID& id);
+	/*virtual*/ void initChannel();
 };
 
 /**
@@ -161,13 +162,13 @@ public:
 	LLScriptHandler();
 	virtual ~LLScriptHandler();
 
-	virtual void onDelete(LLNotificationPtr p);
+	/*virtual*/ void onDelete(LLNotificationPtr p);
 	// base interface functions
-	virtual bool processNotification(const LLNotificationPtr& p);
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
-	virtual void initChannel();
+	/*virtual*/ void onDeleteToast(LLToast* toast);
+	/*virtual*/ void initChannel();
 
 	// own handlers
 	void onRejectToast(LLUUID& id);
@@ -184,7 +185,8 @@ public:
 	virtual ~LLGroupHandler();
 	
 	// base interface functions
-	virtual bool processNotification(const LLNotificationPtr& p);
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
 	virtual void initChannel();
@@ -204,9 +206,7 @@ public:
 
 	/*virtual*/ void onChange(LLNotificationPtr p);
 	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
-
-	// base interface functions
-	virtual bool processNotification(const LLNotificationPtr& p);
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
 	virtual void initChannel();
@@ -225,11 +225,12 @@ public:
 	virtual ~LLOfferHandler();
 
 	// base interface functions
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
 	/*virtual*/ void onDelete(LLNotificationPtr notification);
-	virtual bool processNotification(const LLNotificationPtr& p);
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void initChannel();
+	/*virtual*/ void initChannel();
 
 	// own handlers
 	void onRejectToast(LLUUID& id);
@@ -246,7 +247,7 @@ public:
 	virtual ~LLHintHandler() {}
 
 	/*virtual*/ void onAdd(LLNotificationPtr p);
-	/*virtual*/ void onChange(LLNotificationPtr p);
+	/*virtual*/ void onLoad(LLNotificationPtr p);
 	/*virtual*/ void onDelete(LLNotificationPtr p);
 };
 

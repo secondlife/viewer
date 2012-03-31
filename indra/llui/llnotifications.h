@@ -297,6 +297,7 @@ LOG_CLASS(LLNotification);
 friend class LLNotifications;
 
 public:
+
 	// parameter object used to instantiate a new notification
 	struct Params : public LLInitParam::Block<Params>
 	{
@@ -518,6 +519,13 @@ public:
 	bool canLogToIM() const;
 	bool hasFormElements() const;
 
+	typedef enum e_combine_behavior
+	{
+		USE_NEWEST,
+		USE_OLDEST
+	} ECombineBehavior;
+
+	ECombineBehavior getCombineBehavior() const;
 	const LLNotificationFormPtr getForm();
 
 	const LLDate getExpiration() const

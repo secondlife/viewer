@@ -393,9 +393,15 @@ void LLNotificationChiclet::setCounter(S32 counter)
 	
 }
 
-bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notify )
+bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notification )
 {
-	return !(notify->canLogToIM() && notify->hasFormElements());
+	if( !(notification->canLogToIM() && notification->hasFormElements())
+		&& (!notification->getPayload().has("give_inventory_notification")
+			|| notification->getPayload()["give_inventory_notification"]))
+	{
+		return true;
+	}
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -61,6 +61,17 @@ typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 // from the appropriate local language directory).
 struct LLNotificationTemplate
 {
+	struct CombineBehaviorNames
+		:	public LLInitParam::TypeValuesHelper<LLNotification::ECombineBehavior, CombineBehaviorNames>
+	{
+		static void declareValues()
+		{
+			declare("newest", LLNotification::USE_NEWEST);
+			declare("oldest", LLNotification::USE_OLDEST);
+		}
+	};
+
+
 	struct GlobalString : public LLInitParam::Block<GlobalString>
 	{
 		Mandatory<std::string>	name,
@@ -94,9 +105,11 @@ struct LLNotificationTemplate
 		Optional<LLInitParam::Flag>	dummy_val;
 	public:
 		Multiple<UniquenessContext>	contexts;
+		Optional<LLNotification::ECombineBehavior, CombineBehaviorNames> combine;
 
 		UniquenessConstraint()
 		:	contexts("context"),
+			combine("combine", LLNotification::USE_NEWEST),
 			dummy_val("")
 		{}
 	};
@@ -249,6 +262,7 @@ struct LLNotificationTemplate
     // (used for things like progress indications, or repeating warnings
     // like "the grid is going down in N minutes")
     bool mUnique;
+	LLNotification::ECombineBehavior mCombineBehavior;
     // if we want to be unique only if a certain part of the payload or substitutions args
 	// are constant specify the field names for the payload. The notification will only be
     // combined if all of the fields named in the context are identical in the
