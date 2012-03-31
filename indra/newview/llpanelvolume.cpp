@@ -351,7 +351,7 @@ void LLPanelVolume::getState( )
 	getChild<LLUICtrl>("Flexible1D Checkbox Ctrl")->setValue(is_flexible);
 	if (is_flexible || (volobjp && volobjp->canBeFlexible()))
 	{
-		getChildView("Flexible1D Checkbox Ctrl")->setEnabled(editable && single_volume && volobjp && !volobjp->isMesh());
+		getChildView("Flexible1D Checkbox Ctrl")->setEnabled(editable && single_volume && volobjp && !volobjp->isMesh() && !objectp->isPermanentEnforced());
 	}
 	else
 	{
