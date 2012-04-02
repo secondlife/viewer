@@ -1015,56 +1015,44 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 
 	LLPathingLib::NavMeshColors colors;
 	
-	LLVector3 in = gSavedSettings.getVector3("WalkableRGB");
-	F32 a = gSavedSettings.getF32("WalkableA");
-	colors.mWalkable= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	LLColor4 in = gSavedSettings.getColor4("PathfindingWalkable");
+	colors.mWalkable= LLColor4U(in); 
 
-	in = gSavedSettings.getVector3("ObstacleRGB");
-	a  = gSavedSettings.getF32("ObstacleA");
-	colors.mObstacle= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	in = gSavedSettings.getColor4("PathfindingObstacle");
+	colors.mObstacle= LLColor4U(in); 
 
-	in = gSavedSettings.getVector3("MaterialRGB");
-	a  = gSavedSettings.getF32("MaterialA");
-	colors.mMaterial= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	in = gSavedSettings.getColor4("PathfindingMaterial");
+	colors.mMaterial= LLColor4U(in); 
 
-	in = gSavedSettings.getVector3("ExclusionRGB");
-	a  = gSavedSettings.getF32("ExclusionA");
-	colors.mExclusion= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	in = gSavedSettings.getColor4("PathfindingExclusion");
+	colors.mExclusion= LLColor4U(in); 
 	
-	in = gSavedSettings.getVector3("ConnectedEdgeRGB");
-	a  = gSavedSettings.getF32("ConnectedEdgeA");
-	colors.mConnectedEdge= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	in = gSavedSettings.getColor4("PathfindingConnectedEdge");
+	colors.mConnectedEdge= LLColor4U(in); 
 
-	in = gSavedSettings.getVector3("BoundaryEdgeRGB");
-	a  = gSavedSettings.getF32("BoundaryEdgeA");
-	colors.mBoundaryEdge= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 
+	in = gSavedSettings.getColor4("PathfindingBoundaryEdge");
+	colors.mBoundaryEdge= LLColor4U(in); 
 
-	in = gSavedSettings.getVector3("HeatColorBase");
-	a  = gSavedSettings.getF32("HeatColorBaseA");
-	colors.mHeatColorBase= LLVector4(in, a);
+	in = gSavedSettings.getColor4("PathfindingHeatColorBase");
+	colors.mHeatColorBase= LLVector4(in.mV);
 
-	in = gSavedSettings.getVector3("HeatColorMax");
-	a  = gSavedSettings.getF32("HeatColorMaxA");
-	colors.mHeatColorMax= LLVector4( in, a ); 
+	in = gSavedSettings.getColor4("PathfindingHeatColorMax");
+	colors.mHeatColorMax= LLVector4( in.mV ); 
 	
-	in = gSavedSettings.getVector3("FaceColorRGB");
-	a  = gSavedSettings.getF32("FaceColorA");
-	colors.mFaceColor= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+	in = gSavedSettings.getColor4("PathfindingFaceColor");
+	colors.mFaceColor= LLColor4U(in); 	
 
-	in = gSavedSettings.getVector3("StarValidColorRGB");
-	a  = gSavedSettings.getF32("StarValidColorA");
-	colors.mStarValid= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+	in = gSavedSettings.getColor4("PathfindingStarValidColor");
+	colors.mStarValid= LLColor4U(in); 	
 
-	in = gSavedSettings.getVector3("StarInvalidRGB");
-	a  = gSavedSettings.getF32("StarInvalidA");
-	colors.mStarInvalid= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+	in = gSavedSettings.getColor4("PathfindingStarInvalidColor");
+	colors.mStarInvalid= LLColor4U(in);
 
-	in = gSavedSettings.getVector3("TestPathColorRGB");
-	a  = gSavedSettings.getF32("TestPathColorA");
-	colors.mTestPath= LLColor4U( (U8)in[0],(U8)in[1],(U8)in[2],(U8)a ); 	
+	in = gSavedSettings.getColor4("PathfindingTestPathColor");
+	colors.mTestPath= LLColor4U(in); 	
 
-	in = gSavedSettings.getVector3("NavMeshClearRGB");
-	colors.mNavMeshClear= LLColor4(in[0], in[1], in[2], 0); 
+	in = gSavedSettings.getColor4("PathfindingNavMeshClear");
+	colors.mNavMeshClear= LLColor4(in); 
 
 	mNavMeshColors = colors;
 

@@ -13516,332 +13516,213 @@
       <key>Value</key>
 	  <integer>0</integer>
     </map>
-	<key>NavMeshClearRGB</key>
+	<key>PathfindingNavMeshClear</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
         <real>0.5</real>
         <real>0.5</real>
         <real>0.5</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>WalkableRGB</key>
+ <key>PathfindingWalkable</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
         <real>0.0</real>
-        <real>255.0</real>
+        <real>1.0</real>
         <real>0.0</real>
+        <real>0.3</real>
       </array>
     </map>
- <key>WalkableA</key>
+ <key>PathfindingObstacle</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>75</real>
-    </map>	
-	<key>ObstacleRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
+        <real>1.0</real>
         <real>0.0</real>
         <real>0.0</real>
+        <real>0.3</real>
       </array>
     </map>
- <key>ObstacleA</key>
+ <key>PathfindingMaterial</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>75</real>
-    </map>	
-	<key>MaterialRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>128.0</real>
+        <real>0.5</real>
         <real>0.0</real>
-        <real>255.0</real>
+        <real>1.0</real>
+        <real>0.3</real>
       </array>
     </map>
- <key>MaterialA</key>
+ <key>PathfindingExclusion</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>75</real>
-    </map>	
-	<key>ExclusionRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
-        <real>255.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
         <real>0.0</real>
+        <real>0.3</real>
       </array>
     </map>
- <key>ExclusionA</key>
+ <key>PathfindingConnectedEdge</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>75</real>
-    </map>	
-<key>ConnectedEdgeRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>220.0</real>
-        <real>220.0</real>
-        <real>220.0</real>
+        <real>0.86</real>
+        <real>0.86</real>
+        <real>0.86</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>ConnectedEdgeA</key>
+ <key>PathfindingBoundaryEdge</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>255</real>
-    </map>	
-<key>BoundaryEdgeRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
+        <real>1.0</real>
         <real>0.0</real>
         <real>0.0</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>BoundaryEdgeA</key>
+ <key>PathfindingHeatColorBase</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>255</real>
-    </map>	
-<key>HeatColorBase</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
         <real>0.0</real>
         <real>1.0</real>
         <real>0.5</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>HeatColorBaseA</key>
+ <key>PathfindingHeatColorMax</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>	
-<key>HeatColorMax</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
         <real>0.0</real>
         <real>1.0</real>
         <real>1.0</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>HeatColorMaxA</key>
+  <key>PathfindingFaceColor</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>		
-	 <key>FaceColorRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
-        <real>255.0</real>
-        <real>255.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>FaceColorA</key>
+ 	 <key>PathfindingStarValidColor</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>255</real>
-    </map>	
-	 <key>StarValidColorRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>200.0</real>
-        <real>120.0</real>
+        <real>0.78</real>
+        <real>0.47</real>
         <real>0.0</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>StarValidColorA</key>
+     <key>PathfindingStarInvalidColor</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>255</real>
-    </map>	
-     <key>StarInvalidRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
+        <real>1.0</real>
         <real>0.0</real>
-        <real>255.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>StarInvalidA</key>
+	 <key>PathfindingTestPathColor</key>
     <map>
       <key>Comment</key>
       <string>yay!</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>255</real>
-    </map>	
-	 <key>TestPathColorRGB</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
+      <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>255.0</real>
-        <real>150.0</real>
+        <real>1.0</real>
+        <real>0.59</real>
         <real>0.0</real>
+        <real>1.0</real>
       </array>
     </map>
- <key>TestPathColorA</key>
-    <map>
-      <key>Comment</key>
-      <string>yay!</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>255</real>
-    </map>		
-</map>
+ </map>
 </llsd>

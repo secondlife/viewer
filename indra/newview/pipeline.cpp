@@ -4317,7 +4317,7 @@ void LLPipeline::renderDebug()
 	
 	if (LLGLSLShader::sNoFixedFunction)
 	{
-		gUIProgram.bind();
+		gPathfindingProgram.bind();
 	}
 
 
@@ -4335,6 +4335,7 @@ void LLPipeline::renderDebug()
 			//NavMesh
 			if ( pathfindingConsole->isRenderNavMesh() )
 			{				
+				gPathfindingProgram.uniform1f("tint", 1.f);
 				glLineWidth(2.0f);	
 				LLGLEnable cull(GL_CULL_FACE);
 				LLGLEnable blend(GL_BLEND);
@@ -4357,16 +4358,46 @@ void LLPipeline::renderDebug()
 			}
 			//physics/exclusion shapes
 			if ( pathfindingConsole->isRenderAnyShapes() )
-			{					
-				LLGLEnable blend(GL_BLEND);
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-				gGL.flush();				
-				LLGLDisable blendOut(GL_BLEND);
-				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+			{	
+				gPathfindingProgram.uniform1f("tint", 1.f);
 				gGL.flush();
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				//render to depth first to avoid blending artifacts
+				gGL.setColorMask(false, false);
+				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );		
+				gGL.setColorMask(true, false);
+
+				LLGLEnable blend(GL_BLEND);
+				
+				{
+					//get rid of some z-fighting
+					LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+					glPolygonOffset(-1.0f, -1.0f);
+
+					{ //draw solid overlay
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+						llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+						gGL.flush();				
+					}
+				
+					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+
+					{ //draw hidden wireframe as darker and less opaque
+						gPathfindingProgram.uniform1f("tint", 0.25f);
+						LLGLEnable blend(GL_BLEND);
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+						llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+					}
+
+					{ //draw visible wireframe as brighter and more opaque
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						LLGLDisable blendOut(GL_BLEND);
+						llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+						gGL.flush();
+					}
+				
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+				}
 			}	
 			//User designated path
 			if ( pathfindingConsole->isRenderPath() )
