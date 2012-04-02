@@ -2645,6 +2645,20 @@ LLTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
 	return NULL;
 }
 
+LLTexLayerSet* LLVOAvatarSelf::getLayerSet(EBakedTextureIndex baked_index) const
+{
+       /* switch(index)
+               case TEX_HEAD_BAKED:
+               case TEX_HEAD_BODYPAINT:
+                       return mHeadLayerSet; */
+       if (baked_index >= 0 && baked_index < BAKED_NUM_INDICES)
+       {
+                       return mBakedTextureDatas[baked_index].mTexLayerSet;
+       }
+       return NULL;
+}
+
+
 // static
 void LLVOAvatarSelf::onCustomizeStart()
 {

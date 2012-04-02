@@ -241,6 +241,7 @@ public:
 	void				requestLayerSetUpload(LLVOAvatarDefines::EBakedTextureIndex i);
 	void				requestLayerSetUpdate(LLVOAvatarDefines::ETextureIndex i);
 	LLTexLayerSet*		getLayerSet(LLVOAvatarDefines::ETextureIndex index) const;
+	LLTexLayerSet* 		getLayerSet(LLVOAvatarDefines::EBakedTextureIndex baked_index) const;
 	
 	//--------------------------------------------------------------------
 	// Composites
