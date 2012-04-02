@@ -4315,71 +4315,76 @@ void LLPipeline::renderDebug()
 
 	assertInitialized();
 	
-	if (LLGLSLShader::sNoFixedFunction)
+	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
+
+	if (!hud_only )
 	{
-		gUIProgram.bind();
-	}
-
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
-	gPipeline.disableLights();
-
-	//Render any navmesh geometry	
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if ( llPathingLibInstance != NULL ) 
-	{
-		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-		if (!pathfindingConsoleHandle.isDead())
+		if (LLGLSLShader::sNoFixedFunction)
 		{
-			LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
-			//NavMesh
-			if ( pathfindingConsole->isRenderNavMesh() )
-			{				
-				glLineWidth(2.0f);	
-				LLGLEnable cull(GL_CULL_FACE);
-				LLGLEnable blend(GL_BLEND);
-				if ( pathfindingConsole->isRenderWorld() )
-				{					
-					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-				}
-				else
-				{
-					const LLColor4 &clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
-					glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
-					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
-					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-				}
-				int materialIndex = pathfindingConsole->getHeatMapType();
-				llPathingLibInstance->renderNavMesh( materialIndex );
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-				glLineWidth(1.0f);	
-				gGL.flush();
-			}
-			//physics/exclusion shapes
-			if ( pathfindingConsole->isRenderAnyShapes() )
-			{					
-				LLGLEnable blend(GL_BLEND);
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-				gGL.flush();				
-				LLGLDisable blendOut(GL_BLEND);
-				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-				gGL.flush();
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-			}	
-			//User designated path
-			if ( pathfindingConsole->isRenderPath() )
+			gUIProgram.bind();
+		}
+
+
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
+		gPipeline.disableLights();
+
+		//Render any navmesh geometry	
+		LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
+		if ( llPathingLibInstance != NULL ) 
+		{
+			LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
+			if (!pathfindingConsoleHandle.isDead())
 			{
-				LLGLEnable blend(GL_BLEND);
-				llPathingLibInstance->renderPath();
+				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+				//NavMesh
+				if ( pathfindingConsole->isRenderNavMesh() )
+				{				
+					glLineWidth(2.0f);	
+					LLGLEnable cull(GL_CULL_FACE);
+					LLGLEnable blend(GL_BLEND);
+					if ( pathfindingConsole->isRenderWorld() )
+					{					
+						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+					}
+					else
+					{
+						const LLColor4 &clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
+						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
+						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+					}
+					int materialIndex = pathfindingConsole->getHeatMapType();
+					llPathingLibInstance->renderNavMesh( materialIndex );
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+					glLineWidth(1.0f);	
+					gGL.flush();
+				}
+				//physics/exclusion shapes
+				if ( pathfindingConsole->isRenderAnyShapes() )
+				{					
+					LLGLEnable blend(GL_BLEND);
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+					llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+					gGL.flush();				
+					LLGLDisable blendOut(GL_BLEND);
+					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+					llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+					gGL.flush();
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				}	
+				//User designated path
+				if ( pathfindingConsole->isRenderPath() )
+				{
+					LLGLEnable blend(GL_BLEND);
+					llPathingLibInstance->renderPath();
+				}
 			}
 		}
-	}
-	gGL.flush();
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
+		gGL.flush();
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
 	}
 
 	gGL.color4f(1,1,1,1);
@@ -4388,9 +4393,7 @@ void LLPipeline::renderDebug()
 	gGL.loadMatrix(gGLModelView);
 	gGL.setColorMask(true, false);
 
-	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
 
-	
 	if (!hud_only && !mDebugBlips.empty())
 	{ //render debug blips
 		if (LLGLSLShader::sNoFixedFunction)
