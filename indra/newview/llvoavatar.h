@@ -555,6 +555,7 @@ public:
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
 	static void		getNearbyRezzedStats(std::vector<S32>& counts);
+	static std::string rezStatusToString(S32 status);
 
 	//--------------------------------------------------------------------
 	// Baked textures

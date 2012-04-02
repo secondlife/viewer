@@ -45,6 +45,15 @@ void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
 	counts[2] = 1;
 }
 
+// static
+std::string LLVOAvatar::rezStatusToString(S32 rez_status)
+{
+	if (rez_status==0) return "cloud";
+	if (rez_status=1) return "gray";
+	if (rez_status=2) return "textured";
+	return "unknown";
+}
+
 static const char * all_keys[] = 
 {
 	"duration",

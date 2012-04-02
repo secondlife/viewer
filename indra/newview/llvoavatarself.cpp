@@ -2128,14 +2128,16 @@ LLSD LLVOAvatarSelf::metricsData()
 	// runway - add region info
 	LLSD result;
 	result["id"] = getID();
-	result["rez_status"] = getRezzedStatus();
+	result["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());
 	result["is_self"] = isSelf();
 	std::vector<S32> rez_counts;
 	LLVOAvatar::getNearbyRezzedStats(rez_counts);
 	result["nearby"] = LLSD::emptyMap();
-	result["nearby"]["cloud"] = rez_counts[0];
-	result["nearby"]["gray"] = rez_counts[1];
-	result["nearby"]["textured"] = rez_counts[2];
+	for (S32 i=0; i<rez_counts.size(); ++i)
+	{
+		std::string rez_status_name = LLVOAvatar::rezStatusToString(i);
+		result["nearby"][rez_status_name] = rez_counts[i];
+	}
 	result["timers"]["debug_existence"] = mDebugExistenceTimer.getElapsedTimeF32();
 	result["timers"]["ruth_debug"] = mRuthDebugTimer.getElapsedTimeF32();
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();

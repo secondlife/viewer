@@ -779,13 +779,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 std::string LLVOAvatar::avString() const
 {
-	std::string viz_string;
-	if (getIsCloud())
-		viz_string = "cloud";
-	else if (isFullyTextured())
-		viz_string = "textured";
-	else
-		viz_string = "gray";
+	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
 	return " Avatar '" + getFullname() + "' " + viz_string + " ";
 }
 
@@ -1073,6 +1067,15 @@ void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
 		S32 rez_status = inst->getRezzedStatus();
 		counts[rez_status]++;
 	}
+}
+
+// static
+std::string LLVOAvatar::rezStatusToString(S32 rez_status)
+{
+	if (rez_status==0) return "cloud";
+	if (rez_status==1) return "gray";
+	if (rez_status==2) return "textured";
+	return "unknown";
 }
 
 // static
@@ -8607,13 +8610,7 @@ void LLVOAvatar::idleUpdateRenderCost()
 	}
 
 	
-	std::string viz_string;
-	if (getIsCloud())
-		viz_string = "cloud";
-	else if (isFullyTextured())
-		viz_string = "textured";
-	else
-		viz_string = "gray";
+	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
 	setDebugText(llformat("%s %d", viz_string.c_str(), cost));
 	mVisualComplexity = cost;
 	F32 green = 1.f-llclamp(((F32) cost-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
