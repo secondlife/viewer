@@ -2682,7 +2682,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	
 	case IM_SESSION_SEND:
 	{
-		if (!is_linden && is_busy)
+		if (is_busy)
 		{
 			return;
 		}
