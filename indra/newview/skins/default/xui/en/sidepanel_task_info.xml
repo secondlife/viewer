@@ -31,6 +31,14 @@
                 You can't modify these objects
             </panel.string>
             <panel.string
+             name="text modify info 5">
+                You can't modify this object in frozen mode
+            </panel.string>
+            <panel.string
+             name="text modify info 6">
+                You can't modify these objects in frozen mode
+            </panel.string>
+            <panel.string
              name="text modify warning">
                 This object has linked parts
             </panel.string>

@@ -245,12 +245,12 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 			alertNoTerraform(regionp);
 			return;
 		}
+	}
 
-		if (!LLPathfindingManager::getInstance()->isAllowAlterPermanent())
-		{
-			alertNoTerraformWhileFrozen();
-			return;
-		}
+	if (!LLPathfindingManager::getInstance()->isAllowAlterPermanent())
+	{
+		alertNoTerraformWhileFrozen();
+		return;
 	}
 
 	for(region_list_t::iterator iter = mLastAffectedRegions.begin();

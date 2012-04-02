@@ -13724,5 +13724,27 @@
         <real>1.0</real>
       </array>
     </map>
+  <key>PathfindingDisablePermanentObjects</key>
+  <map>
+    <key>Comment</key>
+    <string>Disables the viewer from seeing the permanent object flag.  Useful for testing server-side enforcement of permanent object rules.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>PathfindingDisableCharacterObjects</key>
+  <map>
+    <key>Comment</key>
+    <string>Disables the viewer from seeing the character object flag.  Useful for testing server-side enforcement of character object rules.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
  </map>
 </llsd>

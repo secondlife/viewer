@@ -593,6 +593,12 @@ bool LLSelectMgr::linkObjects()
 		return true;
 	}
 
+	if (!LLSelectMgr::getInstance()->selectGetRootsNonPermanent())
+	{
+		LLNotificationsUtil::add("CannotLinkPermanent");
+		return true;
+	}
+
 	LLUUID owner_id;
 	std::string owner_name;
 	if (!LLSelectMgr::getInstance()->selectGetOwner(owner_id, owner_name))
@@ -638,7 +644,9 @@ bool LLSelectMgr::enableLinkObjects()
 			{
 				virtual bool apply(LLViewerObject* object)
 				{
-					return object->permModify() && !object->isPermanentEnforced();
+					LLViewerObject *root_object = (object == NULL) ? NULL : object->getRootEdit();
+					return object->permModify() && !object->isPermanentEnforced() &&
+						((root_object == NULL) || !root_object->isPermanentEnforced());
 				}
 			} func;
 			const bool firstonly = true;
@@ -651,10 +659,12 @@ bool LLSelectMgr::enableLinkObjects()
 bool LLSelectMgr::enableUnlinkObjects()
 {
 	LLViewerObject* first_editable_object = LLSelectMgr::getInstance()->getSelection()->getFirstEditableObject();
+	LLViewerObject *root_object = (first_editable_object == NULL) ? NULL : first_editable_object->getRootEdit();
 
 	bool new_value = LLSelectMgr::getInstance()->selectGetAllRootsValid() &&
 		first_editable_object &&
-		!first_editable_object->isAttachment() && !first_editable_object->isPermanentEnforced();
+		!first_editable_object->isAttachment() && !first_editable_object->isPermanentEnforced() &&
+		((root_object == NULL) || !root_object->isPermanentEnforced());
 
 	return new_value;
 }
@@ -2489,6 +2499,54 @@ BOOL LLSelectMgr::selectGetRootsModify()
 			return FALSE;
 		}
 		if( !object->permModify() )
+		{
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// selectGetPermanent() - return TRUE if current agent can modify all
+// selected objects.
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetNonPermanent()
+{
+	for (LLObjectSelection::iterator iter = getSelection()->begin();
+		 iter != getSelection()->end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !object || !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->isPermanentEnforced())
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// selectGetRootsModify() - return TRUE if current agent can modify all
+// selected root objects.
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetRootsNonPermanent()
+{
+	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+		 iter != getSelection()->root_end(); iter++ )
+	{
+		LLSelectNode* node = *iter;
+		LLViewerObject* object = node->getObject();
+		if( !node->mValid )
+		{
+			return FALSE;
+		}
+		if( object->isPermanentEnforced())
 		{
 			return FALSE;
 		}
