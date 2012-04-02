@@ -395,6 +395,8 @@ Frontera Thor
 Fury Rosewood
 Gaberoonie Zanzibar
 Ganymedes Costagravas
+Geenz Spad
+	STORM-1823
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth

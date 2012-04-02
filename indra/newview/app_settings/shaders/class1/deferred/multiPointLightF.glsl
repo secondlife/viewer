@@ -126,7 +126,7 @@ void main()
 				
 				if (sa > 0.0)
 				{
-					sa = texture2D(lightFunc,vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
+					sa = 6 * texture2D(lightFunc, vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
 					sa *= noise;
 					col += da*sa*light_col[i].rgb*spec.rgb;
 				}
