@@ -1171,6 +1171,8 @@ Unlikely Quintessa
 UsikuFarasi Kanarik
 Vadim Bigbear
 	VWR-2681
+Vaalith Jinn
+    STORM-64
 Vector Hastings
 	VWR-8726
 Veritas Raymaker
