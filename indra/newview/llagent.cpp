@@ -3310,13 +3310,12 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 					else
 					{
 						// no cache of this bake. request upload.
-						gAgentAvatarp->requestLayerSetUpload(baked_index);
+						gAgentAvatarp->invalidateComposite(gAgentAvatarp->getLayerSet(baked_index),TRUE);
 					}
 				}
 			}
 		}
 	}
-
 	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
 	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
 

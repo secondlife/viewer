@@ -822,6 +822,8 @@ U32  LLVOAvatarSelf::processUpdateMessage(LLMessageSystem *mesgsys,
 			mInitialBakeIDs[i] = texture_id;
 		}
 
+		onFirstTEMessageReceived();
+
 		mInitialBakesLoaded = true;
 	}
 
