@@ -62,12 +62,13 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	gGL.end();		
 }
 //=============================================================================
-void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const
+void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color, const LLVector3& n ) const
 {
 	LLColor4 cV(color);
 	gGL.color4fv( cV.mV );
 	gGL.begin(LLRender::TRIANGLES);
 	{
+		glNormal3f( n.mV[0],n.mV[1],n.mV[2] );
 		gGL.vertex3fv( a.mV );
 		gGL.vertex3fv( b.mV );
 		gGL.vertex3fv( c.mV );
