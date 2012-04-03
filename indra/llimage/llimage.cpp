@@ -48,11 +48,13 @@
 //static
 std::string LLImage::sLastErrorMessage;
 LLMutex* LLImage::sMutex = NULL;
+bool LLImage::sUseNewByteRange = false;
 LLPrivateMemoryPool* LLImageBase::sPrivatePoolp = NULL ;
 
 //static
-void LLImage::initClass()
+void LLImage::initClass(bool use_new_byte_range)
 {
+	sUseNewByteRange = use_new_byte_range;
 	sMutex = new LLMutex(NULL);
 
 	LLImageBase::createPrivatePool() ;

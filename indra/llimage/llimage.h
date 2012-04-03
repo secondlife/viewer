@@ -89,15 +89,18 @@ typedef enum e_image_codec
 class LLImage
 {
 public:
-	static void initClass();
+	static void initClass(bool use_new_byte_range = false);
 	static void cleanupClass();
 
 	static const std::string& getLastError();
 	static void setLastError(const std::string& message);
 	
+	static bool useNewByteRange() { return sUseNewByteRange; }
+	
 protected:
 	static LLMutex* sMutex;
 	static std::string sLastErrorMessage;
+	static bool sUseNewByteRange;
 };
 
 //============================================================================

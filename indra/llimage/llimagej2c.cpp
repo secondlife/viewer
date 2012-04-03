@@ -262,10 +262,12 @@ S32 LLImageJ2C::calcHeaderSizeJ2C()
 //static
 S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate)
 {
-	// Note: this only provides an *estimate* of the size in bytes of an image level
-	// *TODO: find a way to read the true size (when available) and convey the fact
-	// that the result is an estimate in the other cases
-	if (rate <= 0.f) rate = .125f;
+	// Note: This provides an estimation for the first quality layer of a given discard level
+	// This is however an efficient approximation, as the true discard level boundary would be
+	// in general too big for fast fetching.
+	// For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
+	if (rate <= 0.f) rate = 1.f/8.f;
+	// Compute w/pow(2,discard_level) and h/pow(2,discard_level)
 	while (discard_level > 0)
 	{
 		if (w < 1 || h < 1)
@@ -274,7 +276,13 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 		h >>= 1;
 		discard_level--;
 	}
-	S32 bytes = (S32)((F32)(w*h*comp)*rate);
+	// Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange 
+	// *TODO: Take the old code out once we have enough tests done
+	// *TODO: Replace the magic "7" by the number of quality layers in the j2c image
+	S32 bytes;
+	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/7.f;
+	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
+	bytes = (LLImage::useNewByteRange() ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
 }
@@ -284,11 +292,7 @@ S32 LLImageJ2C::calcHeaderSize()
 	return calcHeaderSizeJ2C();
 }
 
-
-// calcDataSize() returns how many bytes to read 
-// to load discard_level (including header and higher discard levels)
-// *TODO: This is deeply wrong. That size should be taken from the image file header or other 
-// relevant infos. In any case, this is only an approximation.
+// calcDataSize() returns how many bytes to read to load discard_level (including header)
 S32 LLImageJ2C::calcDataSize(S32 discard_level)
 {
 	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
@@ -304,25 +308,6 @@ S32 LLImageJ2C::calcDataSize(S32 discard_level)
 			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
 			level--;
 		}
-
-		/* This is technically a more correct way to calculate the size required
-		   for each discard level, since they should include the size needed for
-		   lower levels.   Unfortunately, this doesn't work well and will lead to 
-		   download stalls.  The true correct way is to parse the header.  This will
-		   all go away with http textures at some point.
-
-		// Calculate the size for each discard level.   Lower levels (higher quality)
-		// contain the cumulative size of higher levels		
-		S32 total_size = calcHeaderSizeJ2C();
-
-		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
-		while ( level >= 0 )
-		{	// Add in this discard level and all before it
-			total_size += calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
-			mDataSizes[level] = total_size;
-			level--;
-		}
-		*/
 	}
 	return mDataSizes[discard_level];
 }
@@ -337,8 +322,8 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	}
 	while (1)
 	{
-		S32 bytes_needed = calcDataSize(discard_level); // virtual
-		if (bytes >= bytes_needed - (bytes_needed>>2)) // For J2c, up the res at 75% of the optimal number of bytes
+		S32 bytes_needed = calcDataSize(discard_level);
+		if (bytes >= bytes_needed)
 		{
 			break;
 		}

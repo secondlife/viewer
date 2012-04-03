@@ -294,6 +294,13 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 
 	// Get the number of resolution levels in that image
 	mLevels = mCodeStreamp->get_min_dwt_levels();
+	
+	//kdu_coords idx; idx.x = 0; idx.y = 0;
+	//kdu_dims tile_indices_in;  
+	//mCodeStreamp->get_valid_tiles(tile_indices_in);
+	//mCodeStreamp->create_tile(idx+tile_indices_in.pos);
+	//int layers = mCodeStreamp->get_max_tile_layers();
+	//llinfos << "Merov debug : setupCodeStream, levels = " << mLevels << ", layers = " << layers << llendl;
 
 	// Set the base dimensions
 	base.setSize(dims.size.x, dims.size.y, components);
@@ -390,7 +397,7 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			region_kdu->size.y = region[3] - region[1];
 		}
 		int discard = (discard_level != -1 ? discard_level : base.getRawDiscardLevel());
-		
+		llinfos << "Merov debug : initDecode, discard used = " << discard << ", asked = " << discard_level << llendl;
 		// Apply loading restrictions
 		mCodeStreamp->apply_input_restrictions( first_channel, max_channel_count, discard, 0, region_kdu);
 		
@@ -467,6 +474,9 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 				if (!mDecodeState)
 				{
 					kdu_tile tile = mCodeStreamp->open_tile(*(mTPosp)+mTileIndicesp->pos);
+
+					int layers = mCodeStreamp->get_max_tile_layers();
+					llinfos << "Merov debug : decodeImpl, levels = " << mLevels << ", layers = " << layers << llendl;
 
 					// Find the region of the buffer occupied by this
 					// tile.  Note that we have no control over
@@ -675,7 +685,7 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 				std::string blocks_string = llformat("Cblk={%d,%d}",mBlocksSize,mBlocksSize);
 				codestream.access_siz()->parse_string(blocks_string.c_str());
 			}
-			std::string ordering_string = llformat("Corder=RPCL");
+			std::string ordering_string = llformat("Corder=LRCP");
 			codestream.access_siz()->parse_string(ordering_string.c_str());
 			std::string PLT_string = llformat("ORGgen_plt=yes");
 			codestream.access_siz()->parse_string(PLT_string.c_str());
