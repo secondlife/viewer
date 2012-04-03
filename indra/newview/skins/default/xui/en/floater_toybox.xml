@@ -10,7 +10,7 @@
   layout="topleft"
   legacy_header_height="18"
   name="Toybox"
-  open_positioning="centered"
+  positioning="centered"
   save_rect="true"
   single_instance="true"
   title="TOOLBAR BUTTONS"

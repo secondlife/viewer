@@ -35,8 +35,8 @@
     </panel.string>
   <panel
     height="18"
-    left="-370"
-    width="160"
+    left="-395"
+    width="185"
     top="1"
     follows="right|top" 
     name="balance_bg">

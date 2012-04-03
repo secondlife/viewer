@@ -84,6 +84,6 @@
 	<menu_item_call label="追加" name="Wearable Add"/>
 	<menu_item_call label="取り外す" name="Take Off"/>
 	<menu_item_call label="マーチャントのアウトボックスにコピー" name="Merchant Copy"/>
-	<menu_item_call label="マーチャントのアウトボックスに移動" name="Merchant Move"/>
+	<menu_item_call label="マーケットプレイスに送信" name="Marketplace Send"/>
 	<menu_item_call label="－－オプションなし－－" name="--no options--"/>
 </menu>

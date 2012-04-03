@@ -109,7 +109,12 @@ void LLGLSLShader::unload()
 		glGetAttachedObjectsARB(mProgramObject, 1024, &count, obj);
 		for (GLsizei i = 0; i < count; i++)
 		{
-			glDeleteObjectARB(obj[i]);
+#if !LL_DARWIN
+			if (glIsProgramARB(obj[i]))
+#endif
+			{
+				glDeleteObjectARB(obj[i]);
+			}
 		}
 
 		glDeleteObjectARB(mProgramObject);
@@ -161,8 +166,9 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 		return FALSE;
 	}
 
-	if (gGLManager.mGLVersion < 3.1f)
-	{ //attachShaderFeatures may have set the number of indexed texture channels, so set to 1 again
+	if (gGLManager.mGLSLVersionMajor < 2 && gGLManager.mGLSLVersionMinor < 3)
+	{ //indexed texture rendering requires GLSL 1.3 or later
+		//attachShaderFeatures may have set the number of indexed texture channels, so set to 1 again
 		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
 	}
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  legacy_header_height="18"
  height="580"
  layout="topleft"
@@ -1214,6 +1214,7 @@ even though the user gets a free copy.
              label="Modify"
              layout="topleft"
              left="10"
+             height="10"
              name="checkbox next owner can modify"
              width="85" />
             <check_box
