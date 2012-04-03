@@ -4340,24 +4340,28 @@ void LLPipeline::renderDebug()
 			if (!pathfindingConsoleHandle.isDead())
 			{
 				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
+
+				if ( pathfindingConsole->isRenderWorld() )
+				{					
+					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+				}
+				else
+				{
+					const LLColor4 &clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
+					gGL.setColorMask(true, true);
+					glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
+					glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+					gGL.setColorMask(true, false);
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				}
+
 				//NavMesh
 				if ( pathfindingConsole->isRenderNavMesh() )
 				{	gGL.flush();
 					glLineWidth(2.0f);	
 					LLGLEnable cull(GL_CULL_FACE);
 					LLGLDisable blend(GL_BLEND);
-					if ( pathfindingConsole->isRenderWorld() )
-					{					
-						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-					}
-					else
-					{
-						const LLColor4 &clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
-						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
-						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
-						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-					}
-								
+													
 					int materialIndex = pathfindingConsole->getHeatMapType();
 					llPathingLibInstance->renderNavMesh( materialIndex );
 					gGL.flush();
