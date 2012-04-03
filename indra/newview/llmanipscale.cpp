@@ -828,7 +828,7 @@ void LLManipScale::drag( S32 x, S32 y )
 		LLViewerObject*cur = selectNode->getObject();
 		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
 		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
-			((root_object == NULL) || root_object->isPermanentEnforced()) &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
 			!cur->isAvatar())
 		{
 			selectNode->mLastScale = cur->getScale();
@@ -1003,7 +1003,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 		LLViewerObject* cur = selectNode->getObject();
 		LLViewerObject *root_object = (cur == NULL) ? NULL : cur->getRootEdit();
 		if( cur->permModify() && cur->permMove() && !cur->isPermanentEnforced() &&
-			((root_object == NULL) && !root_object->isPermanentEnforced()) &&
+			((root_object == NULL) || !root_object->isPermanentEnforced()) &&
 			!cur->isAvatar() && cur->isRootEdit() )
 		{
 			const LLVector3& scale = selectNode->mSavedScale;
