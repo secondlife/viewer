@@ -13526,9 +13526,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.5</real>
-        <real>0.5</real>
-        <real>0.5</real>
+        <real>0</real>
+        <real>0</real>
+        <real>0</real>
         <real>1.0</real>
       </array>
     </map>
@@ -13542,10 +13542,10 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
+        <real>0.5</real>
+        <real>0.5</real>
+        <real>0.5</real>
         <real>1.0</real>
-        <real>0.0</real>
-        <real>0.3</real>
       </array>
     </map>
  <key>PathfindingObstacle</key>
@@ -13561,7 +13561,7 @@
         <real>1.0</real>
         <real>0.0</real>
         <real>0.0</real>
-        <real>0.3</real>
+        <real>1.0</real>
       </array>
     </map>
  <key>PathfindingMaterial</key>
@@ -13591,8 +13591,8 @@
       <key>Value</key>
       <array>
         <real>1.0</real>
-        <real>1.0</real>
-        <real>0.0</real>
+        <real>0.01</real>
+        <real>0.1</real>
         <real>0.3</real>
       </array>
     </map>
@@ -13638,9 +13638,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
         <real>1.0</real>
-        <real>0.5</real>
+        <real>0.0</real>
+        <real>0.07</real>
         <real>1.0</real>
       </array>
     </map>
@@ -13654,9 +13654,9 @@
       <string>Color4</string>
       <key>Value</key>
       <array>
-        <real>0.0</real>
         <real>1.0</real>
-        <real>1.0</real>
+        <real>0.93</real>
+        <real>0.936</real>
         <real>1.0</real>
       </array>
     </map>
@@ -13793,7 +13793,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>1.6</real>
+    <real>2.3</real>
   </map>
 
   <key>PathfindingDisablePermanentObjects</key>
