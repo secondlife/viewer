@@ -1110,9 +1110,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ffa4e99eb6bfea9b02f0fee971d515ef</string>
+              <string>fdf8c670a99a9d0c020c046e5fe28ed2</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/252687/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120402.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252805/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120402.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1122,9 +1122,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27c6a92b3287e11fbff3120049734b29</string>
+              <string>42d1054fb9e739d7f2d774789af532e0</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/252687/arch/Linux/installer/llphysicsextensions-0.1-linux-20120402.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252805/arch/Linux/installer/llphysicsextensions-0.1-linux-20120403.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1134,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bf21fdd1d3dab3b6ecfe795c8228c2ec</string>
+              <string>ee1088886cf7bb63def8ea4fb7405e19</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary/rev/252687/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120402.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252805/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120402.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
