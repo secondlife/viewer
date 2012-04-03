@@ -4322,6 +4322,10 @@ void LLPipeline::renderDebug()
 		if (LLGLSLShader::sNoFixedFunction)
 		{
 			gPathfindingProgram.bind();
+			
+			gPathfindingProgram.uniform1f("tint", 1.f);
+			gPathfindingProgram.uniform1f("ambiance", 1.f);
+			gPathfindingProgram.uniform1f("alpha_scale", 1.f);
 		}
 
 
@@ -4338,11 +4342,10 @@ void LLPipeline::renderDebug()
 				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
 				//NavMesh
 				if ( pathfindingConsole->isRenderNavMesh() )
-				{				
-				gPathfindingProgram.uniform1f("tint", 1.f);
+				{	gGL.flush();
 					glLineWidth(2.0f);	
 					LLGLEnable cull(GL_CULL_FACE);
-					LLGLEnable blend(GL_BLEND);
+					LLGLDisable blend(GL_BLEND);
 					if ( pathfindingConsole->isRenderWorld() )
 					{					
 						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
@@ -4354,54 +4357,78 @@ void LLPipeline::renderDebug()
 						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
 						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 					}
+								
 					int materialIndex = pathfindingConsole->getHeatMapType();
 					llPathingLibInstance->renderNavMesh( materialIndex );
+					gGL.flush();
 					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 					glLineWidth(1.0f);	
 					gGL.flush();
 				}
 				//physics/exclusion shapes
 				if ( pathfindingConsole->isRenderAnyShapes() )
-				{					
-				gPathfindingProgram.uniform1f("tint", 1.f);
-				gGL.flush();
-				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-				//render to depth first to avoid blending artifacts
-				gGL.setColorMask(false, false);
-				llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );		
-				gGL.setColorMask(true, false);
-
-				LLGLEnable blend(GL_BLEND);
+				{	
+					gGL.flush();
+					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 				
-				{
 					//get rid of some z-fighting
 					LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
-					glPolygonOffset(-1.0f, -1.0f);
+					glPolygonOffset(1.0f, 1.0f);
 
-					{ //draw solid overlay
-						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
-						llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-						gGL.flush();				
-					}
+					//render to depth first to avoid blending artifacts
+					gGL.setColorMask(false, false);
+					llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );		
+					gGL.setColorMask(true, false);
+
+					//get rid of some z-fighting
+					glPolygonOffset(0.f, 0.f);
+
+					LLGLEnable blend(GL_BLEND);
 				
-					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+					{
+						F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
 
-					{ //draw hidden wireframe as darker and less opaque
-						gPathfindingProgram.uniform1f("tint", 0.25f);
-						LLGLEnable blend(GL_BLEND);
-						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
-						llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-					}
+						gPathfindingProgram.uniform1f("ambiance", ambiance);
 
-					{ //draw visible wireframe as brighter and more opaque
-						gPathfindingProgram.uniform1f("tint", 1.f);
-						LLGLDisable blendOut(GL_BLEND);
-						llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-						gGL.flush();
-					}
+						{ //draw solid overlay
+							LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+							llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+							gGL.flush();				
+						}
 				
-					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-				}
+						LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+						
+						F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+
+						if (pathfindingConsole->isRenderXRay())
+						{
+							{ //draw hidden wireframe as darker and less opaque
+								glPolygonOffset(offset, -offset);
+								gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+								gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+								gPathfindingProgram.uniform1f("ambiance", 1.f);
+								LLGLEnable blend(GL_BLEND);
+								LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+								llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+							}
+						}
+
+						{ //draw visible wireframe as brighter, thicker and more opaque
+							glPolygonOffset(offset, offset);
+							gPathfindingProgram.uniform1f("ambiance", 1.f);
+							gPathfindingProgram.uniform1f("tint", 1.f);
+							gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+
+							glLineWidth(gSavedSettings.getF32("PathfindingLineWidth"));
+							LLGLDisable blendOut(GL_BLEND);
+							llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+							gGL.flush();
+							glLineWidth(1.f);
+						}
+				
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+					}
 				}	
 				//User designated path
 				if ( pathfindingConsole->isRenderPath() )
@@ -4414,7 +4441,7 @@ void LLPipeline::renderDebug()
 		gGL.flush();
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.unbind();
+			gPathfindingProgram.unbind();
 		}
 	}
 

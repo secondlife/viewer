@@ -139,6 +139,14 @@
       name="show_world"
       top_pad="4"
       width="90" />
+  <check_box
+      height="19"
+      label="X-Ray"
+      layout="topleft"
+      left="14"
+      name="x-ray"
+      top_pad="4"
+      width="90" />
   <view_border
       bevel_style="none"
       follows="top|left"

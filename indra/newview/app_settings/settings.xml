@@ -13519,7 +13519,7 @@
 	<key>PathfindingNavMeshClear</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Background color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13535,7 +13535,7 @@
  <key>PathfindingWalkable</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Walkable color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13551,7 +13551,7 @@
  <key>PathfindingObstacle</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Obstacle color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13567,7 +13567,7 @@
  <key>PathfindingMaterial</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Material volume color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13583,7 +13583,7 @@
  <key>PathfindingExclusion</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Exclusion volume color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13599,7 +13599,7 @@
  <key>PathfindingConnectedEdge</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Connected edge color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13615,7 +13615,7 @@
  <key>PathfindingBoundaryEdge</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Boundary edge color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13631,7 +13631,7 @@
  <key>PathfindingHeatColorBase</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Least walkable heat map color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13647,7 +13647,7 @@
  <key>PathfindingHeatColorMax</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Most walkable heat map color</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13663,7 +13663,7 @@
   <key>PathfindingFaceColor</key>
     <map>
       <key>Comment</key>
-      <string>yay!</string>
+      <string>Nav mesh color?</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13724,6 +13724,66 @@
         <real>1.0</real>
       </array>
     </map>
+  <key>PathfindingAmbiance</key>
+  <map>
+    <key>Comment</key>
+    <string>Ambiance of lit pathfinding displays.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.5</real>
+  </map>
+
+  <key>PathfindingXRayTint</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to darken/lighten x-ray lines in pathfinding display</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.8</real>
+  </map>
+
+  <key>PathfindingXRayOpacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Opacity of xray lines in pathfinding display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.25</real>
+  </map>
+
+  <key>PathfindingLineWidth</key>
+  <map>
+    <key>Comment</key>
+    <string>Width of volume outlines in pathfinding display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>2.0</real>
+  </map>
+
+  <key>PathfindingLineOffset</key>
+  <map>
+    <key>Comment</key>
+    <string>Depth offset of volume outlines in pathfinding display.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.6</real>
+  </map>
+
   <key>PathfindingDisablePermanentObjects</key>
   <map>
     <key>Comment</key>
@@ -13746,5 +13806,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
- </map>
+  
+
+</map>
 </llsd>

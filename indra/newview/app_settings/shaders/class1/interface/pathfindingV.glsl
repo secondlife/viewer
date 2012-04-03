@@ -27,14 +27,28 @@ uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec3 normal;
 
 VARYING vec4 vertex_color;
 
 uniform float tint;
-
+uniform float ambiance;
+uniform float alpha_scale;
+ 
 void main()
 {
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
-	vertex_color = diffuse_color * tint;
+
+	vec3 l1 = vec3(-0.75, 1, 1.0);
+	vec3 l2 = vec3(0.5, -0.6, 0.4)*0.25;
+	vec3 l3 = vec3(0.5, -0.8, 0.3)*0.5;
+
+	float lit = max(dot(normal, l1), 0.0);
+	lit += max(dot(normal, l2), 0.0);
+	lit += max(dot(normal, l3), 0.0);
+
+	lit = clamp(lit, ambiance, 1.0);
+	
+	vertex_color = vec4(diffuse_color.rgb * tint * lit, diffuse_color.a*alpha_scale);
 }
 

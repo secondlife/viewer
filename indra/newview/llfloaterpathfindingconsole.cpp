@@ -96,6 +96,10 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mShowWorldCheckBox != NULL);
 	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldToggle, this));
 
+	mShowXRayCheckBox = findChild<LLCheckBoxCtrl>("x-ray");
+	llassert(mShowXRayCheckBox != NULL);
+	mShowXRayCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowXRayToggle, this));
+
 	mViewCharactersButton = findChild<LLButton>("view_characters_floater");
 	llassert(mViewCharactersButton != NULL);
 	mViewCharactersButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
@@ -219,6 +223,7 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	mShowStaticObstaclesCheckBox->set( false );
 	mShowExclusionVolumesCheckBox->set( false );
 	mShowWorldCheckBox->set( false );	
+	mShowXRayCheckBox->set(false);
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
@@ -339,6 +344,17 @@ void LLFloaterPathfindingConsole::setRenderWorld(BOOL pIsRenderWorld)
 {
 	mShowWorldCheckBox->set(pIsRenderWorld);
 }
+
+BOOL LLFloaterPathfindingConsole::isRenderXRay() const
+{
+	return mShowXRayCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderXRay(BOOL pIsRenderXRay)
+{
+	mShowXRayCheckBox->set(pIsRenderXRay);
+}
+
 
 LLFloaterPathfindingConsole::ERenderHeatmapType LLFloaterPathfindingConsole::getRenderHeatmapType() const
 {
@@ -592,6 +608,12 @@ void LLFloaterPathfindingConsole::onShowWorldToggle()
 		llwarns << "cannot find LLPathingLib instance" << llendl;
 	}
 }
+
+void LLFloaterPathfindingConsole::onShowXRayToggle()
+{
+	//nothing to do (xray parameter not stored in pathing lib
+}
+
 
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
