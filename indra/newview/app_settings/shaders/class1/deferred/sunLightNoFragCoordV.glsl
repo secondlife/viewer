@@ -1,5 +1,5 @@
 /** 
- * @file postgiV.glsl
+ * @file sunLightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,14 +27,11 @@ uniform mat4 modelview_projection_matrix;
  
 ATTRIBUTE vec3 position;
 
-
-VARYING vec2 vary_fragcoord;
 uniform vec2 screen_res;
 
 void main()
 {
 	//transform vertex
 	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
-	gl_Position = pos; 	
-	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+	gl_Position = pos; 
 }

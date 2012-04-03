@@ -48,7 +48,6 @@ VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_position;
-VARYING vec3 vary_light;
 VARYING vec3 vary_pointlight_col;
 
 VARYING vec4 vertex_color;
@@ -133,8 +132,6 @@ void main()
 
 	// Add windlight lights
 	col.rgb = atmosAmbient(vec3(0.));
-	
-	vary_light = light_position[0].xyz;
 	
 	vary_ambient = col.rgb*diffuse_color.rgb;
 	vary_directional.rgb = diffuse_color.rgb*atmosAffectDirectionalLight(max(calcDirectionalLight(norm, light_position[0].xyz), (1.0-diffuse_color.a)*(1.0-diffuse_color.a)));

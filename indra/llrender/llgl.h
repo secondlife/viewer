@@ -138,6 +138,8 @@ public:
 	S32 mDriverVersionMinor;
 	S32 mDriverVersionRelease;
 	F32 mGLVersion; // e.g = 1.4
+	S32 mGLSLVersionMajor;
+	S32 mGLSLVersionMinor;
 	std::string mDriverVersionVendorString;
 
 	S32 mVRAM; // VRAM in MB
