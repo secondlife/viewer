@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="430"
+    height="448"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
