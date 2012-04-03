@@ -13760,6 +13760,18 @@
     <real>0.25</real>
   </map>
 
+  <key>PathfindingXRayWireframe</key>
+  <map>
+    <key>Comment</key>
+    <string>Render pathfinding xray as a wireframe.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  
   <key>PathfindingLineWidth</key>
   <map>
     <key>Comment</key>

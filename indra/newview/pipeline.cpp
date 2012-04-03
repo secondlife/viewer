@@ -4429,14 +4429,24 @@ void LLPipeline::renderDebug()
 
 							if (pathfindingConsole->isRenderXRay())
 							{
+								gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+								gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+								LLGLEnable blend(GL_BLEND);
+								LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+								
+								glPolygonOffset(offset, -offset);
+								
+								if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
 								{ //draw hidden wireframe as darker and less opaque
-									glPolygonOffset(offset, -offset);
-									gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
-									gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
 									gPathfindingProgram.uniform1f("ambiance", 1.f);
-									LLGLEnable blend(GL_BLEND);
-									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
 									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+								}
+								else
+								{
+									glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+									gPathfindingProgram.uniform1f("ambiance", ambiance);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 								}
 							}
 
