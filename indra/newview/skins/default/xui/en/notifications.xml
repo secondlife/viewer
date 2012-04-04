@@ -7722,6 +7722,19 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="PathfindingLinksets_ChangeToFlexiblePath"
+   type="alertmodal">
+    The selected object is marked as permanent and is included in the navmesh.  Setting the object to be a Flexible Path will unset the permanent value and remove the object from the navmesh.  Do you wish to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Do you wish to proceed?"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
