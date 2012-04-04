@@ -135,6 +135,7 @@ LLGLSLShader		gUnderWaterProgram;
 //interface shaders
 LLGLSLShader		gHighlightProgram;
 LLGLSLShader		gPathfindingProgram;
+LLGLSLShader		gPathfindingNoNormalsProgram;
 
 //avatar shader handles
 LLGLSLShader		gAvatarProgram;
@@ -596,6 +597,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gAlphaMaskProgram.unload();
 	gUIProgram.unload();
 	gPathfindingProgram.unload();
+	gPathfindingNoNormalsProgram.unload();
 	gCustomAlphaProgram.unload();
 	gGlowCombineProgram.unload();
 	gSplatTextureRectProgram.unload();
@@ -2520,6 +2522,16 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gPathfindingProgram.mShaderFiles.push_back(make_pair("interface/pathfindingF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gPathfindingProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gPathfindingProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gPathfindingNoNormalsProgram.mName = "PathfindingNoNormals Shader";
+		gPathfindingNoNormalsProgram.mShaderFiles.clear();
+		gPathfindingNoNormalsProgram.mShaderFiles.push_back(make_pair("interface/pathfindingNoNormalV.glsl", GL_VERTEX_SHADER_ARB));
+		gPathfindingNoNormalsProgram.mShaderFiles.push_back(make_pair("interface/pathfindingF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gPathfindingNoNormalsProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gPathfindingNoNormalsProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
