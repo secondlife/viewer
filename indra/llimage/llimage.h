@@ -48,6 +48,8 @@ const S32 MAX_PRECINCT_SIZE = 2048;			// No reason to be bigger than MAX_IMAGE_S
 const S32 MIN_PRECINCT_SIZE = 4;			// Can't be smaller than MIN_BLOCK_SIZE
 const S32 MAX_BLOCK_SIZE = 64;				// Max total block size is 4096, hence 64x64 when using square blocks
 const S32 MIN_BLOCK_SIZE = 4;				// Min block dim is 4 according to jpeg2000 spec
+const S32 MIN_LAYER_SIZE = 2000;			// Size of the first quality layer (after header). Must be > to FIRST_PACKET_SIZE!!
+const S32 MAX_NB_LAYERS = 64;				// Max number of layers we'll entertain in SL (practical limit)
 
 const S32 MIN_IMAGE_SIZE = (1<<MIN_IMAGE_MIP); // 4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_SIZE = (1<<MAX_IMAGE_MIP); // 2048

@@ -599,12 +599,6 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			comment.put_text(comment_text);
 		}
 
-		// Set codestream options
-		int num_layer_specs = 0;
-
-		kdu_long layer_bytes[64];
-		U32 max_bytes = 0;
-
 		if (num_components >= 3)
 		{
 			// Note that we always use YCC and not YUV
@@ -612,67 +606,70 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			set_default_colour_weights(codestream.access_siz());
 		}
 
-		if (reversible)
+		// Set codestream options
+		int num_layer_specs = 0;
+		kdu_long layer_bytes[MAX_NB_LAYERS];
+		U32 max_bytes = (U32)(base.getWidth() * base.getHeight() * base.getComponents());
+
+		// Rate is the argument passed into the LLImageJ2C which
+		// specifies the target compression rate.  The default is 8:1.
+		// *TODO: mRate is actually always 8:1 in the viewer. Test different values. Also force to reversible for small (< 500 bytes) textures.
+		if (base.mRate != 0.f)
 		{
-			codestream.access_siz()->parse_string("Creversible=yes");
-			// *TODO: we should use yuv in reversible mode and one level since those images are small. 
-			// Don't turn this on now though as both create problems on decoding for the moment
-			//codestream.access_siz()->parse_string("Clevels=1");
-			//codestream.access_siz()->parse_string("Cycc=no");
-			// If we're doing reversible (i.e. lossless compression), assumes we're not using quality layers.
-			// *TODO: this is incorrect and unecessary. Try using the regular layer setting.
-			codestream.access_siz()->parse_string("Clayers=1");
-			num_layer_specs = 1;
-			layer_bytes[0] = 0;
+			max_bytes = (U32)((F32)(max_bytes) * base.mRate);
 		}
 		else
 		{
-			// Rate is the argument passed into the LLImageJ2C which
-			// specifies the target compression rate.  The default is 8:1.
-			// Possibly if max_bytes < 500, we should just use the default setting?
-			// *TODO: mRate is actually always 8:1 in the viewer. Test different values. Also force to reversible for small (< 500 bytes) textures.
-			if (base.mRate != 0.f)
-			{
-				max_bytes = (U32)(base.mRate*base.getWidth()*base.getHeight()*base.getComponents());
-			}
-			else
-			{
-				max_bytes = (U32)(base.getWidth()*base.getHeight()*base.getComponents()*0.125);
-			}
-
-			const U32 min_bytes = FIRST_PACKET_SIZE;
-			if (max_bytes > min_bytes)
-			{
-				U32 i;
-				// This code is where we specify the target number of bytes for
-				// each layer.  Not sure if we should do this for small images
-				// or not.  The goal is to have this roughly align with
-				// different quality levels that we decode at.
-				for (i = min_bytes; i < max_bytes; i*=4)
-				{
-					if (i == min_bytes * 4)
-					{
-						i = 2000;
-					}
-					layer_bytes[num_layer_specs] = i;
-					num_layer_specs++;
-				}
-				layer_bytes[num_layer_specs] = max_bytes;
-				num_layer_specs++;
-
-				std::string layer_string = llformat("Clayers=%d",num_layer_specs);
-				codestream.access_siz()->parse_string(layer_string.c_str());
-			}
-			else
-			{
-				layer_bytes[0] = min_bytes;
-				num_layer_specs = 1;
-				std::string layer_string = llformat("Clayers=%d",num_layer_specs);
-				codestream.access_siz()->parse_string(layer_string.c_str());
-			}
+			max_bytes = (U32)((F32)(max_bytes) / 8.0f);
 		}
 		
+		// If the image is very small, code it in a lossless way.
+		// Note: it'll also have only 1 layer which is fine as there's no point reordering blocks in that case.
+		if (max_bytes < FIRST_PACKET_SIZE)
+		{
+			reversible = true;
+		}
+		
+		// This code is where we specify the target number of bytes for each quality layer.
+		// We're using a logarithmic spacing rule that fits with our way of fetching texture data.
+		// Note: For more info on this layers business, read kdu_codestream::flush() doc in kdu_compressed.h
+		U32 i = FIRST_PACKET_SIZE;
+		while ((i < max_bytes) && (num_layer_specs < (MAX_NB_LAYERS-1)))
+		{
+			if (i == FIRST_PACKET_SIZE * 4)
+			{
+				// That really just means that the first layer is FIRST_PACKET_SIZE and the second is MIN_LAYER_SIZE
+				i = MIN_LAYER_SIZE;
+			}
+			layer_bytes[num_layer_specs] = i;
+			num_layer_specs++;
+			i *= 4;
+		}
+
+		if (reversible)
+		{
+			codestream.access_siz()->parse_string("Creversible=yes");
+			// *TODO: we should use yuv in reversible mode and one res level since those images are small. 
+			// Don't turn this on now though as both create problems on decoding for the moment
+			//codestream.access_siz()->parse_string("Clevels=1");
+			//codestream.access_siz()->parse_string("Cycc=no");
+			// In the reversible case, set the last entry of that table to 0 so that all generated bits will
+			// indeed be output by the time the last quality layer is encountered.
+			layer_bytes[num_layer_specs] = 0;
+		}
+		else
+		{
+			// Truncate the last quality layer if necessary so to fit the set compression ratio
+			layer_bytes[num_layer_specs] = max_bytes;
+		}
+		num_layer_specs++;
+
+		std::string layer_string = llformat("Clayers=%d",num_layer_specs);
+		codestream.access_siz()->parse_string(layer_string.c_str());
+		
 		// Set up data ordering, markers, etc... if precincts or blocks specified
+		// Note: This code is *not* used in the encoding made by the viewer. It is currently used only
+		// by llimage_libtest to create various j2c and test alternative compression schemes.
 		if ((mBlocksSize != -1) || (mPrecinctsSize != -1))
 		{
 			if (mPrecinctsSize != -1)
@@ -692,16 +689,19 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			std::string Parts_string = llformat("ORGtparts=R");
 			codestream.access_siz()->parse_string(Parts_string.c_str());
 		}
+		
+		// Set the number of wavelets subresolutions (aka levels) 
 		if (mLevels != 0)
 		{
 			std::string levels_string = llformat("Clevels=%d",mLevels);
 			codestream.access_siz()->parse_string(levels_string.c_str());
 		}
 		
+		// Complete the encode settings
 		codestream.access_siz()->finalize_all();
 		codestream.change_appearance(transpose,vflip,hflip);
 
-		// Now we are ready for sample data processing.
+		// Now we are ready for sample data processing
 		kdc_flow_control *tile = new kdc_flow_control(&mem_in,codestream);
 		bool done = false;
 		while (!done)
