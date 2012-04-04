@@ -382,7 +382,7 @@ LLFloaterPathfindingConsole::ERenderHeatmapType LLFloaterPathfindingConsole::get
 		llassert(0);
 		break;
 	}
-	//prep#
+
 	LLPathingLib::getInstance()->rebuildNavMesh( getHeatMapType() );
 	return renderHeatmapType;
 }
