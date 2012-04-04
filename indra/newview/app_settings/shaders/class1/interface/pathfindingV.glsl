@@ -39,7 +39,7 @@ void main()
 {
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
-	vec3 l1 = vec3(-0.75, 1, 1.0);
+	vec3 l1 = vec3(-0.75, 1, 1.0)*0.5;
 	vec3 l2 = vec3(0.5, -0.6, 0.4)*0.25;
 	vec3 l3 = vec3(0.5, -0.8, 0.3)*0.5;
 
