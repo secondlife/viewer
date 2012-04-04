@@ -53,7 +53,7 @@ public:
 	{
 		// filename for it's toggleable menu
 		Optional<std::string>	menu_filename;
-		Optional<EMenuPosition>	position;
+		Optional<EMenuPosition, MenuPositions>	position;
 	
 		Params();
 	};
