@@ -4330,12 +4330,14 @@ void LLPipeline::renderDebug()
 
 				if (pathfindingConsole->isShown())
 				{
+					F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
 					if (LLGLSLShader::sNoFixedFunction)
 					{
 						gPathfindingProgram.bind();
 			
 						gPathfindingProgram.uniform1f("tint", 1.f);
-						gPathfindingProgram.uniform1f("ambiance", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", ambiance);
 						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
 					}
 
@@ -4413,8 +4415,6 @@ void LLPipeline::renderDebug()
 							LLGLEnable blend(GL_BLEND);
 				
 							{
-								F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
-
 								gPathfindingProgram.uniform1f("ambiance", ambiance);
 
 								{ //draw solid overlay
