@@ -948,6 +948,8 @@
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_basic" />
+          <menu_item_call.on_enable
+              function="Tools.EnablePathfinding" />
         </menu_item_call>
         <menu_item_call
             label="Edit / test..."
@@ -955,6 +957,8 @@
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_console" />
+          <menu_item_call.on_enable
+              function="Tools.EnablePathfinding" />
         </menu_item_call>
         <menu_item_call
             label="Linksets..."
@@ -963,7 +967,7 @@
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_linksets" />
           <menu_item_call.on_enable
-              function="Tools.EnableLinksets" />
+              function="Tools.EnablePathfindingLinksets" />
         </menu_item_call>
         <menu_item_call
             label="Characters..."
@@ -971,6 +975,8 @@
           <menu_item_call.on_click
               function="Floater.ToggleOrBringToFront"
               parameter="pathfinding_characters" />
+          <menu_item_call.on_enable
+              function="Tools.EnablePathfinding" />
         </menu_item_call>
       </menu>
 
