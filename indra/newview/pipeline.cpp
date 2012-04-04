@@ -4364,6 +4364,21 @@ void LLPipeline::renderDebug()
 													
 						int materialIndex = pathfindingConsole->getHeatMapType();
 						llPathingLibInstance->renderNavMesh( materialIndex );
+						
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", 1.f);
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", 1.f);
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+						}
+
 						gGL.flush();
 						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 						glLineWidth(1.0f);	
@@ -4503,6 +4518,20 @@ void LLPipeline::renderDebug()
 						{
 							gPathfindingProgram.uniform1f("ambiance", ambiance);
 							llPathingLibInstance->renderNavMesh( materialIndex );
+						}
+
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
 						}
 					
 						gGL.flush();
