@@ -1112,7 +1112,7 @@
               <key>hash</key>
               <string>6f0127b409cda1635cf7d52f5ec52365</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252896/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120403.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252974/arch/Darwin/installer/llphysicsextensions-0.1-darwin-20120404.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1122,9 +1122,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8e6525e0b3b0cf6fdea14dba19a1465a</string>
+              <string>cb639c760253d1315dda8a283a6f2715</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252896/arch/Linux/installer/llphysicsextensions-0.1-linux-20120403.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252974/arch/Linux/installer/llphysicsextensions-0.1-linux-20120404.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1134,9 +1134,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e26184acc9ccaf359d26e356f768350e</string>
+              <string>dbac794b95a4180f75d1190aee6a91f1</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252896/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120403.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/stinson_llpathinglibrary_xray/rev/252974/arch/CYGWIN/installer/llphysicsextensions-0.1-windows-20120404.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
