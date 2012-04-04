@@ -4134,15 +4134,19 @@ static bool get_derezzable_objects(
 		{
 		case DRD_TAKE_INTO_AGENT_INVENTORY:
 		case DRD_TRASH:
-			if( (node->mPermissions->allowTransferTo(gAgent.getID()) && object->permModify())
-				|| (node->allowOperationOnNode(PERM_OWNER, GP_OBJECT_MANIPULATE)) )
+			if (!object->isPermanentEnforced() &&
+				((node->mPermissions->allowTransferTo(gAgent.getID()) && object->permModify())
+				|| (node->allowOperationOnNode(PERM_OWNER, GP_OBJECT_MANIPULATE))))
 			{
 				can_derez_current = TRUE;
 			}
 			break;
 
 		case DRD_RETURN_TO_OWNER:
-			can_derez_current = TRUE;
+			if (!object->isPermanentEnforced() || gAgent.isGodlike())
+			{
+				can_derez_current = TRUE;
+			}
 			break;
 
 		default:
