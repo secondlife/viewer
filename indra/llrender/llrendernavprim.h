@@ -47,6 +47,8 @@ public:
 	void renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color, const LLVector3& n ) const;
 	//Draw the contents of vertex buffer
 	void renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt );
+	//Draw the contents of the edge vertex buffer
+	void renderNavMeshEdgeVB( LLVertexBuffer* pVBO, int vertCnt );
 	//Draw a star
 	void renderStar( const LLVector3& center, const float scale, const LLColor4U& color ) const;
 	//Flush the device

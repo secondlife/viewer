@@ -81,6 +81,12 @@ void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
 	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
 }
 //=============================================================================
+void LLRenderNavPrim::renderNavMeshEdgeVB( LLVertexBuffer* pVBO, int vertCnt )
+{	
+	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
+	pVBO->drawArrays( LLRender::LINES, 0, vertCnt );	
+}
+//=============================================================================
 void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, const LLColor4U& color ) const
 {	
 	for (int k=0; k<3; k++)
