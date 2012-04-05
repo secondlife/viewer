@@ -68,9 +68,6 @@ public:
 
 	static void openCharactersViewer();
 
-	EMessagingState getMessagingState() const;
-	BOOL            isMessagingInProgress() const;
-
 protected:
 
 private:
@@ -86,19 +83,23 @@ private:
 	LLButton         *mDeleteButton;
 	LLButton         *mTeleportButton;
 
-	EMessagingState               mMessagingState;
-	LLPathfindingCharacterListPtr mCharacterListPtr;
-	LLObjectSelectionHandle       mCharacterSelection;
-	boost::signals2::connection   mSelectionUpdateSlot;
+	EMessagingState                    mMessagingState;
+	LLPathfindingManager::request_id_t mMessagingRequestId;
+	LLPathfindingCharacterListPtr      mCharacterListPtr;
+	LLObjectSelectionHandle            mCharacterSelection;
+	boost::signals2::connection        mSelectionUpdateSlot;
+	boost::signals2::connection        mRegionBoundarySlot;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterPathfindingCharacters(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingCharacters();
 
-	void setMessagingState(EMessagingState pMessagingState);
+	EMessagingState getMessagingState() const;
+	void            setMessagingState(EMessagingState pMessagingState);
+
 	void requestGetCharacters();
-	void handleNewCharacters(LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr);
+	void handleNewCharacters(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr);
 
 	void onCharactersSelectionChange();
 	void onRefreshCharactersClicked();
@@ -109,6 +110,7 @@ private:
 	void onReturnCharactersClicked();
 	void onDeleteCharactersClicked();
 	void onTeleportCharacterToMeClicked();
+	void onRegionBoundaryCross();
 
 	void selectAllCharacters();
 	void selectNoneCharacters();

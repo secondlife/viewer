@@ -47,6 +47,7 @@
 #include "llviewerobjectlist.h"
 #include "llviewermenu.h"
 #include "llselectmgr.h"
+#include "llenvmanager.h"
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingCharacters
@@ -112,10 +113,20 @@ void LLFloaterPathfindingCharacters::onOpen(const LLSD& pKey)
 	{
 		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingCharacters::updateControls, this));
 	}
+
+	if (!mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingCharacters::onRegionBoundaryCross, this));
+	}
 }
 
 void LLFloaterPathfindingCharacters::onClose(bool pAppQuitting)
 {
+	if (mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot.disconnect();
+	}
+
 	if (mSelectionUpdateSlot.connected())
 	{
 		mSelectionUpdateSlot.disconnect();
@@ -167,16 +178,6 @@ void LLFloaterPathfindingCharacters::openCharactersViewer()
 	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_characters");
 }
 
-LLFloaterPathfindingCharacters::EMessagingState LLFloaterPathfindingCharacters::getMessagingState() const
-{
-	return mMessagingState;
-}
-
-BOOL LLFloaterPathfindingCharacters::isMessagingInProgress() const
-{
-	return (mMessagingState == kMessagingGetRequestSent);
-}
-
 LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mCharactersScrollList(NULL),
@@ -191,6 +192,7 @@ LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed
 	mDeleteButton(NULL),
 	mTeleportButton(NULL),
 	mMessagingState(kMessagingUnknown),
+	mMessagingRequestId(0U),
 	mCharacterListPtr(),
 	mCharacterSelection(),
 	mSelectionUpdateSlot()
@@ -201,6 +203,11 @@ LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
 }
 
+LLFloaterPathfindingCharacters::EMessagingState LLFloaterPathfindingCharacters::getMessagingState() const
+{
+	return mMessagingState;
+}
+
 void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagingState)
 {
 	mMessagingState = pMessagingState;
@@ -209,21 +216,41 @@ void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagin
 
 void LLFloaterPathfindingCharacters::requestGetCharacters()
 {
-	llassert(!isMessagingInProgress());
-	if (!isMessagingInProgress())
+	switch (LLPathfindingManager::getInstance()->requestGetCharacters(++mMessagingRequestId, boost::bind(&LLFloaterPathfindingCharacters::handleNewCharacters, this, _1, _2, _3)))
 	{
-		switch (LLPathfindingManager::getInstance()->requestGetCharacters(boost::bind(&LLFloaterPathfindingCharacters::handleNewCharacters, this, _1, _2)))
+	case LLPathfindingManager::kRequestStarted :
+		setMessagingState(kMessagingGetRequestSent);
+		break;
+	case LLPathfindingManager::kRequestCompleted :
+		clearCharacters();
+		setMessagingState(kMessagingComplete);
+		break;
+	case LLPathfindingManager::kRequestNotEnabled :
+		clearCharacters();
+		setMessagingState(kMessagingNotEnabled);
+		break;
+	case LLPathfindingManager::kRequestError :
+		setMessagingState(kMessagingGetError);
+		break;
+	default :
+		setMessagingState(kMessagingGetError);
+		llassert(0);
+		break;
+	}
+}
+
+void LLFloaterPathfindingCharacters::handleNewCharacters(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr)
+{
+	llassert(pRequestId <= mMessagingRequestId);
+	if (pRequestId == mMessagingRequestId)
+	{
+		mCharacterListPtr = pCharacterListPtr;
+		updateScrollList();
+
+		switch (pCharacterRequestStatus)
 		{
-		case LLPathfindingManager::kRequestStarted :
-			setMessagingState(kMessagingGetRequestSent);
-			break;
 		case LLPathfindingManager::kRequestCompleted :
-			clearCharacters();
 			setMessagingState(kMessagingComplete);
-			break;
-		case LLPathfindingManager::kRequestNotEnabled :
-			clearCharacters();
-			setMessagingState(kMessagingNotEnabled);
 			break;
 		case LLPathfindingManager::kRequestError :
 			setMessagingState(kMessagingGetError);
@@ -233,26 +260,6 @@ void LLFloaterPathfindingCharacters::requestGetCharacters()
 			llassert(0);
 			break;
 		}
-	}
-}
-
-void LLFloaterPathfindingCharacters::handleNewCharacters(LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr)
-{
-	mCharacterListPtr = pCharacterListPtr;
-	updateScrollList();
-
-	switch (pCharacterRequestStatus)
-	{
-	case LLPathfindingManager::kRequestCompleted :
-		setMessagingState(kMessagingComplete);
-		break;
-	case LLPathfindingManager::kRequestError :
-		setMessagingState(kMessagingGetError);
-		break;
-	default :
-		setMessagingState(kMessagingGetError);
-		llassert(0);
-		break;
 	}
 }
 
@@ -343,6 +350,11 @@ void LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked()
 			gAgent.teleportRequest(region->getHandle(), characterLocation, true);
 		}
 	}
+}
+
+void LLFloaterPathfindingCharacters::onRegionBoundaryCross()
+{
+	requestGetCharacters();
 }
 
 void LLFloaterPathfindingCharacters::selectAllCharacters()

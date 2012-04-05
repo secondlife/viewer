@@ -73,8 +73,10 @@ public:
 		kRequestError
 	} ERequestStatus;
 
-	typedef boost::function<void (ERequestStatus, LLPathfindingLinksetListPtr)>   linksets_callback_t;
-	typedef boost::function<void (ERequestStatus, LLPathfindingCharacterListPtr)> characters_callback_t;
+	typedef U32 request_id_t;
+
+	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingLinksetListPtr)>   linksets_callback_t;
+	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingCharacterListPtr)> characters_callback_t;
 
 	LLPathfindingManager();
 	virtual ~LLPathfindingManager();
@@ -96,10 +98,10 @@ public:
 	EAgentState        getLastKnownNonErrorAgentState() const;
 	void               requestSetAgentState(EAgentState pAgentState);
 
-	ERequestStatus requestGetLinksets(linksets_callback_t pLinksetsCallback) const;
-	ERequestStatus requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const;
+	ERequestStatus requestGetLinksets(request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const;
+	ERequestStatus requestSetLinksets(request_id_t pRequestId, LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const;
 
-	ERequestStatus requestGetCharacters(characters_callback_t pCharactersCallback) const;
+	ERequestStatus requestGetCharacters(request_id_t pRequestId, characters_callback_t pCharactersCallback) const;
 
 protected:
 

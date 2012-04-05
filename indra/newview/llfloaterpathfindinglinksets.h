@@ -71,9 +71,6 @@ public:
 
 	static void openLinksetsEditor();
 
-	EMessagingState getMessagingState() const;
-	bool            isMessagingInProgress() const;
-
 protected:
 
 private:
@@ -111,21 +108,25 @@ private:
 	LLButton         *mApplyEditsButton;
 
 	EMessagingState                          mMessagingState;
+	LLPathfindingManager::request_id_t       mMessagingRequestId;
 	LLPathfindingLinksetListPtr              mLinksetsListPtr;
 	LLObjectSelectionHandle                  mLinksetsSelection;
 	LLPathfindingManager::agent_state_slot_t mAgentStateSlot;
 	boost::signals2::connection              mSelectionUpdateSlot;
+	boost::signals2::connection              mRegionBoundarySlot;
 
 	// Does its own instance management, so clients not allowed
 	// to allocate or destroy.
 	LLFloaterPathfindingLinksets(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingLinksets();
 
-	void setMessagingState(EMessagingState pMessagingState);
+	EMessagingState getMessagingState() const;
+	void            setMessagingState(EMessagingState pMessagingState);
+
 	void requestGetLinksets();
 	void requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD);
-	void handleNewLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
-	void handleUpdateLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
+	void handleNewLinksets(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
+	void handleUpdateLinksets(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr);
 
 	void onApplyAllFilters();
 	void onClearFiltersClicked();
@@ -141,6 +142,7 @@ private:
 	void onWalkabilityCoefficientEntered(LLUICtrl *pUICtrl);
 	void onApplyChangesClicked();
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
+	void onRegionBoundaryCross();
 
 	void applyFilters();
 	void clearFilters();

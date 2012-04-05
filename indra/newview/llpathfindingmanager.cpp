@@ -156,7 +156,7 @@ private:
 class LinksetsResponder
 {
 public:
-	LinksetsResponder(LLPathfindingManager::linksets_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested);
+	LinksetsResponder(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::linksets_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested);
 	virtual ~LinksetsResponder();
 	
 	void handleObjectLinksetsResult(const LLSD &pContent);
@@ -177,6 +177,7 @@ private:
 		kReceivedError
 	} EMessagingState;
 	
+	LLPathfindingManager::request_id_t        mRequestId;
 	LLPathfindingManager::linksets_callback_t mLinksetsCallback;
 	
 	EMessagingState                           mObjectMessagingState;
@@ -235,7 +236,7 @@ private:
 class CharactersResponder : public LLHTTPClient::Responder
 {
 public:
-	CharactersResponder(const std::string &pCapabilityURL, LLPathfindingManager::characters_callback_t pCharactersCallback);
+	CharactersResponder(const std::string &pCapabilityURL, LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::characters_callback_t pCharactersCallback);
 	virtual ~CharactersResponder();
 	
 	virtual void result(const LLSD &pContent);
@@ -245,6 +246,7 @@ protected:
 	
 private:
 	std::string                                 mCapabilityURL;
+	LLPathfindingManager::request_id_t          mRequestId;
 	LLPathfindingManager::characters_callback_t mCharactersCallback;
 };
 
@@ -383,7 +385,7 @@ void LLPathfindingManager::requestSetAgentState(EAgentState pRequestedAgentState
 	}
 }
 
-LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetLinksets(linksets_callback_t pLinksetsCallback) const
+LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const
 {
 	ERequestStatus status;
 
@@ -396,7 +398,7 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetLinksets(li
 	else
 	{
 		bool doRequestTerrain = isAllowViewTerrainProperties();
-		LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pLinksetsCallback, true, doRequestTerrain));
+		LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, true, doRequestTerrain));
 		
 		LLHTTPClient::ResponderPtr objectLinksetsResponder = new ObjectLinksetsResponder(objectLinksetsURL, linksetsResponderPtr);
 		LLHTTPClient::get(objectLinksetsURL, objectLinksetsResponder);
@@ -413,7 +415,7 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetLinksets(li
 	return status;
 }
 
-LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const
+LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(request_id_t pRequestId, LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const
 {
 	ERequestStatus status = kRequestNotEnabled;
 
@@ -438,7 +440,7 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(LL
 		}
 		else
 		{
-			LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
+			LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
 
 			if (!objectPostData.isUndefined())
 			{
@@ -459,7 +461,7 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(LL
 	return status;
 }
 
-LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetCharacters(characters_callback_t pCharactersCallback) const
+LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, characters_callback_t pCharactersCallback) const
 {
 	ERequestStatus status;
 
@@ -470,7 +472,7 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetCharacters(
 	}
 	else
 	{
-		LLHTTPClient::ResponderPtr charactersResponder = new CharactersResponder(charactersURL, pCharactersCallback);
+		LLHTTPClient::ResponderPtr charactersResponder = new CharactersResponder(charactersURL, pRequestId, pCharactersCallback);
 		LLHTTPClient::get(charactersURL, charactersResponder);
 
 		status = kRequestStarted;
@@ -822,8 +824,9 @@ void AgentStateResponder::error(U32 pStatus, const std::string &pReason)
 // LinksetsResponder
 //---------------------------------------------------------------------------
 
-LinksetsResponder::LinksetsResponder(LLPathfindingManager::linksets_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested)
-	: mLinksetsCallback(pLinksetsCallback),
+LinksetsResponder::LinksetsResponder(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::linksets_callback_t pLinksetsCallback, bool pIsObjectRequested, bool pIsTerrainRequested)
+	: mRequestId(pRequestId),
+	mLinksetsCallback(pLinksetsCallback),
 	mObjectMessagingState(pIsObjectRequested ? kWaiting : kNotRequested),
 	mTerrainMessagingState(pIsTerrainRequested ? kWaiting : kNotRequested),
 	mObjectLinksetListPtr(),
@@ -895,7 +898,7 @@ void LinksetsResponder::sendCallback()
 		mObjectLinksetListPtr->insert(std::pair<std::string, LLPathfindingLinksetPtr>(mTerrainLinksetPtr->getUUID().asString(), mTerrainLinksetPtr));
 	}
 
-	mLinksetsCallback(requestStatus, mObjectLinksetListPtr);
+	mLinksetsCallback(mRequestId, requestStatus, mObjectLinksetListPtr);
 }
 
 //---------------------------------------------------------------------------
@@ -952,9 +955,10 @@ void TerrainLinksetsResponder::error(U32 pStatus, const std::string &pReason)
 // CharactersResponder
 //---------------------------------------------------------------------------
 
-CharactersResponder::CharactersResponder(const std::string &pCapabilityURL, LLPathfindingManager::characters_callback_t pCharactersCallback)
+CharactersResponder::CharactersResponder(const std::string &pCapabilityURL, LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::characters_callback_t pCharactersCallback)
 	: LLHTTPClient::Responder(),
 	mCapabilityURL(pCapabilityURL),
+	mRequestId(pRequestId),
 	mCharactersCallback(pCharactersCallback)
 {
 }
@@ -966,7 +970,7 @@ CharactersResponder::~CharactersResponder()
 void CharactersResponder::result(const LLSD &pContent)
 {
 	LLPathfindingCharacterListPtr characterListPtr = LLPathfindingCharacterListPtr(new LLPathfindingCharacterList(pContent));
-	mCharactersCallback(LLPathfindingManager::kRequestCompleted, characterListPtr);
+	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestCompleted, characterListPtr);
 }
 
 void CharactersResponder::error(U32 pStatus, const std::string &pReason)
@@ -974,5 +978,5 @@ void CharactersResponder::error(U32 pStatus, const std::string &pReason)
 	llwarns << "error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 
 	LLPathfindingCharacterListPtr characterListPtr;
-	mCharactersCallback(LLPathfindingManager::kRequestError, characterListPtr);
+	mCharactersCallback(mRequestId, LLPathfindingManager::kRequestError, characterListPtr);
 }

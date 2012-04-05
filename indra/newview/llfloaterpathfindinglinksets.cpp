@@ -51,6 +51,7 @@
 #include "llpathfindinglinksetlist.h"
 #include "llpathfindingmanager.h"
 #include "llnotificationsutil.h"
+#include "llenvmanager.h"
 
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
@@ -218,10 +219,20 @@ void LLFloaterPathfindingLinksets::onOpen(const LLSD& pKey)
 	{
 		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingLinksets::updateControls, this));
 	}
+
+	if (!mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingLinksets::onRegionBoundaryCross, this));
+	}
 }
 
 void LLFloaterPathfindingLinksets::onClose(bool pAppQuitting)
 {
+	if (mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot.disconnect();
+	}
+
 	if (mSelectionUpdateSlot.connected())
 	{
 		mSelectionUpdateSlot.disconnect();
@@ -277,16 +288,6 @@ void LLFloaterPathfindingLinksets::openLinksetsEditor()
 	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_linksets");
 }
 
-LLFloaterPathfindingLinksets::EMessagingState LLFloaterPathfindingLinksets::getMessagingState() const
-{
-	return mMessagingState;
-}
-
-bool LLFloaterPathfindingLinksets::isMessagingInProgress() const
-{
-	return ((mMessagingState == kMessagingGetRequestSent) || (mMessagingState == kMessagingSetRequestSent));
-}
-
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mFilterByName(NULL),
@@ -315,6 +316,7 @@ LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	mEditD(NULL),
 	mApplyEditsButton(NULL),
 	mMessagingState(kMessagingUnknown),
+	mMessagingRequestId(0U),
 	mLinksetsListPtr(),
 	mLinksetsSelection(),
 	mAgentStateSlot(),
@@ -326,6 +328,11 @@ LLFloaterPathfindingLinksets::~LLFloaterPathfindingLinksets()
 {
 }
 
+LLFloaterPathfindingLinksets::EMessagingState LLFloaterPathfindingLinksets::getMessagingState() const
+{
+	return mMessagingState;
+}
+
 void LLFloaterPathfindingLinksets::setMessagingState(EMessagingState pMessagingState)
 {
 	mMessagingState = pMessagingState;
@@ -334,49 +341,96 @@ void LLFloaterPathfindingLinksets::setMessagingState(EMessagingState pMessagingS
 
 void LLFloaterPathfindingLinksets::requestGetLinksets()
 {
-	llassert(!isMessagingInProgress());
-	if (!isMessagingInProgress())
+	switch (LLPathfindingManager::getInstance()->requestGetLinksets(++mMessagingRequestId, boost::bind(&LLFloaterPathfindingLinksets::handleNewLinksets, this, _1, _2, _3)))
 	{
-		switch (LLPathfindingManager::getInstance()->requestGetLinksets(boost::bind(&LLFloaterPathfindingLinksets::handleNewLinksets, this, _1, _2)))
-		{
-		case LLPathfindingManager::kRequestStarted :
-			setMessagingState(kMessagingGetRequestSent);
-			break;
-		case LLPathfindingManager::kRequestCompleted :
-			clearLinksets();
-			setMessagingState(kMessagingComplete);
-			break;
-		case LLPathfindingManager::kRequestNotEnabled :
-			clearLinksets();
-			setMessagingState(kMessagingNotEnabled);
-			break;
-		case LLPathfindingManager::kRequestError :
-			setMessagingState(kMessagingGetError);
-			break;
-		default :
-			setMessagingState(kMessagingGetError);
-			llassert(0);
-			break;
-		}
+	case LLPathfindingManager::kRequestStarted :
+		setMessagingState(kMessagingGetRequestSent);
+		break;
+	case LLPathfindingManager::kRequestCompleted :
+		clearLinksets();
+		setMessagingState(kMessagingComplete);
+		break;
+	case LLPathfindingManager::kRequestNotEnabled :
+		clearLinksets();
+		setMessagingState(kMessagingNotEnabled);
+		break;
+	case LLPathfindingManager::kRequestError :
+		setMessagingState(kMessagingGetError);
+		break;
+	default :
+		setMessagingState(kMessagingGetError);
+		llassert(0);
+		break;
 	}
 }
 
 void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD)
 {
-	llassert(!isMessagingInProgress());
-	if (!isMessagingInProgress())
+	switch (LLPathfindingManager::getInstance()->requestSetLinksets(++mMessagingRequestId, pLinksetList, pLinksetUse, pA, pB, pC, pD, boost::bind(&LLFloaterPathfindingLinksets::handleUpdateLinksets, this, _1, _2, _3)))
 	{
-		switch (LLPathfindingManager::getInstance()->requestSetLinksets(pLinksetList, pLinksetUse, pA, pB, pC, pD, boost::bind(&LLFloaterPathfindingLinksets::handleUpdateLinksets, this, _1, _2)))
+	case LLPathfindingManager::kRequestStarted :
+		setMessagingState(kMessagingSetRequestSent);
+		break;
+	case LLPathfindingManager::kRequestCompleted :
+		setMessagingState(kMessagingComplete);
+		break;
+	case LLPathfindingManager::kRequestNotEnabled :
+		clearLinksets();
+		setMessagingState(kMessagingNotEnabled);
+		break;
+	case LLPathfindingManager::kRequestError :
+		setMessagingState(kMessagingSetError);
+		break;
+	default :
+		setMessagingState(kMessagingSetError);
+		llassert(0);
+		break;
+	}
+}
+
+void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
+{
+	llassert(pRequestId <= mMessagingRequestId);
+	if (pRequestId == mMessagingRequestId)
+	{
+		mLinksetsListPtr = pLinksetsListPtr;
+		updateScrollList();
+
+		switch (pLinksetsRequestStatus)
 		{
-		case LLPathfindingManager::kRequestStarted :
-			setMessagingState(kMessagingSetRequestSent);
-			break;
 		case LLPathfindingManager::kRequestCompleted :
 			setMessagingState(kMessagingComplete);
 			break;
-		case LLPathfindingManager::kRequestNotEnabled :
-			clearLinksets();
-			setMessagingState(kMessagingNotEnabled);
+		case LLPathfindingManager::kRequestError :
+			setMessagingState(kMessagingGetError);
+			break;
+		default :
+			setMessagingState(kMessagingGetError);
+			llassert(0);
+			break;
+		}
+	}
+}
+
+void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
+{
+	llassert(pRequestId <= mMessagingRequestId);
+	if (pRequestId == mMessagingRequestId)
+	{
+		if (mLinksetsListPtr == NULL)
+		{
+			mLinksetsListPtr = pLinksetsListPtr;
+		}
+		else
+		{
+			mLinksetsListPtr->update(*pLinksetsListPtr);
+		}
+		updateScrollList();
+
+		switch (pLinksetsRequestStatus)
+		{
+		case LLPathfindingManager::kRequestCompleted :
+			setMessagingState(kMessagingComplete);
 			break;
 		case LLPathfindingManager::kRequestError :
 			setMessagingState(kMessagingSetError);
@@ -386,53 +440,6 @@ void LLFloaterPathfindingLinksets::requestSetLinksets(LLPathfindingLinksetListPt
 			llassert(0);
 			break;
 		}
-	}
-}
-
-void LLFloaterPathfindingLinksets::handleNewLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
-{
-	mLinksetsListPtr = pLinksetsListPtr;
-	updateScrollList();
-
-	switch (pLinksetsRequestStatus)
-	{
-	case LLPathfindingManager::kRequestCompleted :
-		setMessagingState(kMessagingComplete);
-		break;
-	case LLPathfindingManager::kRequestError :
-		setMessagingState(kMessagingGetError);
-		break;
-	default :
-		setMessagingState(kMessagingGetError);
-		llassert(0);
-		break;
-	}
-}
-
-void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::ERequestStatus pLinksetsRequestStatus, LLPathfindingLinksetListPtr pLinksetsListPtr)
-{
-	if (mLinksetsListPtr == NULL)
-	{
-		mLinksetsListPtr = pLinksetsListPtr;
-	}
-	else
-	{
-		mLinksetsListPtr->update(*pLinksetsListPtr);
-	}
-	updateScrollList();
-
-	switch (pLinksetsRequestStatus)
-	{
-	case LLPathfindingManager::kRequestCompleted :
-		setMessagingState(kMessagingComplete);
-		break;
-	case LLPathfindingManager::kRequestError :
-		setMessagingState(kMessagingSetError);
-		break;
-	default :
-		setMessagingState(kMessagingSetError);
-		llassert(0);
-		break;
 	}
 }
 
@@ -560,6 +567,11 @@ void LLFloaterPathfindingLinksets::onApplyChangesClicked()
 void LLFloaterPathfindingLinksets::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
 {
 	updateControls();
+}
+
+void LLFloaterPathfindingLinksets::onRegionBoundaryCross()
+{
+	requestGetLinksets();
 }
 
 void LLFloaterPathfindingLinksets::applyFilters()
