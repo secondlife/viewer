@@ -146,6 +146,7 @@ void kdu_codestream::set_fast() { }
 void kdu_codestream::set_fussy() { }
 void kdu_codestream::get_dims(int, kdu_dims&, bool ) { }
 int kdu_codestream::get_min_dwt_levels() { return 5; }
+int kdu_codestream::get_max_tile_layers() { return 1; }
 void kdu_codestream::change_appearance(bool, bool, bool) { }
 void kdu_codestream::get_tile_dims(kdu_coords, int, kdu_dims&, bool ) { }
 void kdu_codestream::destroy() { }

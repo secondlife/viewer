@@ -58,7 +58,8 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mRawDiscardLevel(-1),
 							mRate(0.0f),
 							mReversible(FALSE),
-							mAreaUsedForDataSizeCalcs(0)
+							mAreaUsedForDataSizeCalcs(0),
+							mLayersUsedForDataSizeCalcs(0)
 {
 	mImpl = fallbackCreateLLImageJ2CImpl();
 
@@ -260,7 +261,7 @@ S32 LLImageJ2C::calcHeaderSizeJ2C()
 }
 
 //static
-S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate)
+S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, S32 nb_layers, F32 rate)
 {
 	// Note: This provides an estimation for the first quality layer of a given discard level
 	// This is however an efficient approximation, as the true discard level boundary would be
@@ -278,10 +279,11 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 	}
 	// Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange 
 	// *TODO: Take the old code out once we have enough tests done
-	// *TODO: Replace the magic "7" by the number of quality layers in the j2c image
 	S32 bytes;
-	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/7.f;
+	F32 layer_factor = ((nb_layers > 0) && (nb_layers < 7) ? 3.0f * (7 - nb_layers): 3.0f);
+	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor;
 	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
+	llinfos << "Merov debug : calcDataSizeJ2C, layers = " << nb_layers << ", old = " << old_bytes << ", new = " << new_bytes << llendl;
 	bytes = (LLImage::useNewByteRange() ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
@@ -298,14 +300,20 @@ S32 LLImageJ2C::calcDataSize(S32 discard_level)
 	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
 
 	if ( mAreaUsedForDataSizeCalcs != (getHeight() * getWidth()) 
-		|| mDataSizes[0] == 0)
+		|| (mLayersUsedForDataSizeCalcs != getLayers())
+		|| (mDataSizes[0] == 0))
 	{
+		if (mLayersUsedForDataSizeCalcs != getLayers())
+		{
+			llinfos << "Merov debug : recomputing data size because " << mLayersUsedForDataSizeCalcs << " != " << getLayers() << llendl;
+		}
 		mAreaUsedForDataSizeCalcs = getHeight() * getWidth();
+		mLayersUsedForDataSizeCalcs = getLayers();
 		
 		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
 		while ( level >= 0 )
 		{
-			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
+			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, getLayers(), mRate);
 			level--;
 		}
 	}

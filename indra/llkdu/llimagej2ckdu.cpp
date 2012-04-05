@@ -195,7 +195,8 @@ mRawImagep(NULL),
 mDecodeState(NULL),
 mBlocksSize(-1),
 mPrecinctsSize(-1),
-mLevels(0)
+mLevels(0),
+mLayers(0)
 {
 }
 
@@ -245,6 +246,8 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	mCodeStreamp->create(mInputp);
 
 	// Set the maximum number of bytes to use from the codestream
+	// *TODO: This seems to be wrong. The base class should have no idea of how j2c compression works so no
+	// good way of computing what's the byte range to be used.
 	mCodeStreamp->set_max_bytes(max_bytes,true);
 
 	//	If you want to flip or rotate the image for some reason, change
@@ -295,13 +298,6 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, BOOL keep_codestream, ECod
 	// Get the number of resolution levels in that image
 	mLevels = mCodeStreamp->get_min_dwt_levels();
 	
-	//kdu_coords idx; idx.x = 0; idx.y = 0;
-	//kdu_dims tile_indices_in;  
-	//mCodeStreamp->get_valid_tiles(tile_indices_in);
-	//mCodeStreamp->create_tile(idx+tile_indices_in.pos);
-	//int layers = mCodeStreamp->get_max_tile_layers();
-	//llinfos << "Merov debug : setupCodeStream, levels = " << mLevels << ", layers = " << layers << llendl;
-
 	// Set the base dimensions
 	base.setSize(dims.size.x, dims.size.y, components);
 	base.setLevels(mLevels);
@@ -364,7 +360,8 @@ BOOL LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 	mLevels = levels;
 	if (mLevels != 0)
 	{
-		mLevels = llclamp(mLevels,MIN_DECOMPOSITION_LEVELS,MIN_DECOMPOSITION_LEVELS);		
+		mLevels = llclamp(mLevels,MIN_DECOMPOSITION_LEVELS,MAX_DECOMPOSITION_LEVELS);
+		base.setLevels(mLevels);
 	}
 	return TRUE;
 }
@@ -476,7 +473,11 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					kdu_tile tile = mCodeStreamp->open_tile(*(mTPosp)+mTileIndicesp->pos);
 
 					int layers = mCodeStreamp->get_max_tile_layers();
-					llinfos << "Merov debug : decodeImpl, levels = " << mLevels << ", layers = " << layers << llendl;
+					if (layers > mLayers)
+					{
+						mLayers = layers;
+						base.setLayers(mLayers);
+					}
 
 					// Find the region of the buffer occupied by this
 					// tile.  Note that we have no control over
@@ -607,7 +608,7 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		}
 
 		// Set codestream options
-		int num_layer_specs = 0;
+		mLayers = 0;
 		kdu_long layer_bytes[MAX_NB_LAYERS];
 		U32 max_bytes = (U32)(base.getWidth() * base.getHeight() * base.getComponents());
 
@@ -634,15 +635,15 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		// We're using a logarithmic spacing rule that fits with our way of fetching texture data.
 		// Note: For more info on this layers business, read kdu_codestream::flush() doc in kdu_compressed.h
 		U32 i = FIRST_PACKET_SIZE;
-		while ((i < max_bytes) && (num_layer_specs < (MAX_NB_LAYERS-1)))
+		while ((i < max_bytes) && (mLayers < (MAX_NB_LAYERS-1)))
 		{
 			if (i == FIRST_PACKET_SIZE * 4)
 			{
 				// That really just means that the first layer is FIRST_PACKET_SIZE and the second is MIN_LAYER_SIZE
 				i = MIN_LAYER_SIZE;
 			}
-			layer_bytes[num_layer_specs] = i;
-			num_layer_specs++;
+			layer_bytes[mLayers] = i;
+			mLayers++;
 			i *= 4;
 		}
 
@@ -655,17 +656,18 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			//codestream.access_siz()->parse_string("Cycc=no");
 			// In the reversible case, set the last entry of that table to 0 so that all generated bits will
 			// indeed be output by the time the last quality layer is encountered.
-			layer_bytes[num_layer_specs] = 0;
+			layer_bytes[mLayers] = 0;
 		}
 		else
 		{
 			// Truncate the last quality layer if necessary so to fit the set compression ratio
-			layer_bytes[num_layer_specs] = max_bytes;
+			layer_bytes[mLayers] = max_bytes;
 		}
-		num_layer_specs++;
+		mLayers++;
 
-		std::string layer_string = llformat("Clayers=%d",num_layer_specs);
+		std::string layer_string = llformat("Clayers=%d",mLayers);
 		codestream.access_siz()->parse_string(layer_string.c_str());
+		base.setLayers(mLayers);
 		
 		// Set up data ordering, markers, etc... if precincts or blocks specified
 		// Note: This code is *not* used in the encoding made by the viewer. It is currently used only
@@ -718,7 +720,7 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		}
 
 		// Produce the compressed output
-		codestream.flush(layer_bytes,num_layer_specs);
+		codestream.flush(layer_bytes,mLayers);
 
 		// Cleanup
 		delete tile;

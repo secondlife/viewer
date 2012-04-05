@@ -75,6 +75,7 @@ private:
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;
+	int mLayers;
 
 	// Temporary variables for in-progress decodes...
 	LLImageRaw *mRawImagep;

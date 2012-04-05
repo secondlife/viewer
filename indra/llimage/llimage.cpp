@@ -1337,7 +1337,8 @@ LLImageFormatted::LLImageFormatted(S8 codec)
 	  mDecoding(0),
 	  mDecoded(0),
 	  mDiscardLevel(-1),
-	  mLevels(0)
+	  mLevels(0),
+      mLayers(0)
 {
 	mMemType = LLMemType::MTYPE_IMAGEFORMATTED;
 }
