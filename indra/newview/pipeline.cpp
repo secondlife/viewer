@@ -4341,11 +4341,7 @@ void LLPipeline::renderDebug()
 						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
 					}
 
-					if ( pathfindingConsole->isRenderWorld() )
-					{					
-						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-					}
-					else
+					if ( !pathfindingConsole->isRenderWorld() )
 					{
 						const LLColor4 &clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
 						gGL.setColorMask(true, true);
@@ -4361,11 +4357,21 @@ void LLPipeline::renderDebug()
 						glLineWidth(2.0f);	
 						LLGLEnable cull(GL_CULL_FACE);
 						LLGLDisable blend(GL_BLEND);
-													
-						int materialIndex = pathfindingConsole->getHeatMapType();
-						llPathingLibInstance->renderNavMesh( materialIndex );
 						
-						//render edges
+						int materialIndex = pathfindingConsole->getHeatMapType();
+						
+						if ( pathfindingConsole->isRenderWorld() )
+						{					
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.66f);
+							llPathingLibInstance->renderNavMesh( materialIndex );
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMesh( materialIndex );
+						}
+						
+												//render edges
 						if (LLGLSLShader::sNoFixedFunction)
 						{
 							gPathfindingNoNormalsProgram.bind();
@@ -4388,7 +4394,17 @@ void LLPipeline::renderDebug()
 					if ( pathfindingConsole->isRenderPath() )
 					{
 						LLGLEnable blend(GL_BLEND);
-						llPathingLibInstance->renderPath();
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gUIProgram.bind();
+							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+							llPathingLibInstance->renderPath();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPath();
+						}
 					}
 					//physics/exclusion shapes
 					if ( pathfindingConsole->isRenderAnyShapes() )
