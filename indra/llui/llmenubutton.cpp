@@ -44,8 +44,9 @@ void LLMenuButton::MenuPositions::declareValues()
 
 LLMenuButton::Params::Params()
 :	menu_filename("menu_filename"),
-	position("position", MP_BOTTOM_LEFT)
+	position("menu_position", MP_BOTTOM_LEFT)
 {
+	addSynonym(position, "position");
 }
 
 
