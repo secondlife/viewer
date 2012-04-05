@@ -195,6 +195,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	}
 
 	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
+	setDefaultInputs();
 	updatePathTestStatus();
 }
 
@@ -220,16 +221,10 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 		mNavMeshZone.disable();
 	}
 
-	LLFloater::onClose(pIsAppQuitting);
+	setDefaultInputs();
 	setConsoleState(kConsoleStateUnknown);
-	//Reset all the checkboxes to default
-	mShowNavMeshCheckBox->set( false );
-	mShowWalkablesCheckBox->set( false );
-	mShowMaterialVolumesCheckBox->set(  false );
-	mShowStaticObstaclesCheckBox->set( false );
-	mShowExclusionVolumesCheckBox->set( false );
-	mShowWorldCheckBox->set( false );	
-	mShowXRayCheckBox->set(false);
+
+	LLFloater::onClose(pIsAppQuitting);
 }
 
 BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
@@ -360,7 +355,6 @@ void LLFloaterPathfindingConsole::setRenderXRay(BOOL pIsRenderXRay)
 {
 	mShowXRayCheckBox->set(pIsRenderXRay);
 }
-
 
 LLFloaterPathfindingConsole::ERenderHeatmapType LLFloaterPathfindingConsole::getRenderHeatmapType() const
 {
@@ -532,6 +526,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowMaterialVolumesCheckBox(NULL),
 	mShowExclusionVolumesCheckBox(NULL),
 	mShowWorldCheckBox(NULL),
+	mShowXRayCheckBox(NULL),
 	mPathfindingViewerStatus(NULL),
 	mPathfindingSimulatorStatus(NULL),
 	mViewCharactersButton(NULL),
@@ -707,6 +702,18 @@ void LLFloaterPathfindingConsole::onRegionBoundaryCross()
 	initializeNavMeshZoneForCurrentRegion();
 }
 
+void LLFloaterPathfindingConsole::setDefaultInputs()
+{
+	mEditTestTabContainer->selectTab(0);
+	mShowNavMeshCheckBox->set(FALSE);
+	mShowWalkablesCheckBox->set(FALSE);
+	mShowMaterialVolumesCheckBox->set(FALSE);
+	mShowStaticObstaclesCheckBox->set(FALSE);
+	mShowExclusionVolumesCheckBox->set(FALSE);
+	mShowWorldCheckBox->set(TRUE);	
+	mShowXRayCheckBox->set(FALSE);
+}
+
 void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
 {
 	mConsoleState = pConsoleState;
@@ -728,6 +735,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(FALSE);
 		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
@@ -747,6 +755,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(TRUE);
 		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
@@ -764,6 +773,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowMaterialVolumesCheckBox->setEnabled(TRUE);
 		mShowExclusionVolumesCheckBox->setEnabled(TRUE);
 		mShowWorldCheckBox->setEnabled(TRUE);
+		mShowXRayCheckBox->setEnabled(TRUE);
 		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
 		mCharacterWidthSlider->setEnabled(TRUE);

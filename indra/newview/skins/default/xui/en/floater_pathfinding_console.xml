@@ -271,7 +271,7 @@
       layout="topleft"
       left="230"
       top="35"
-      height="344"
+      height="366"
       width="214"
       visible="true" />
   <tab_container
@@ -281,7 +281,7 @@
       name="edit_test_tab_container"
       left="227"
       top="14"
-      height="366"
+      height="388"
       width="218">
     <panel
         border="false"

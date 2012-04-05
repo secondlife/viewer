@@ -149,6 +149,7 @@ private:
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 	void onRegionBoundaryCross();
 
+	void setDefaultInputs();
 	void setConsoleState(EConsoleState pConsoleState);
 
 	void        updateControlsOnConsoleState();
