@@ -34,6 +34,8 @@
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmeshzone.h"
 
+#include <boost/signals2.hpp>
+
 class LLSD;
 class LLPanel;
 class LLSliderCtrl;
@@ -109,9 +111,6 @@ public:
     ECharacterType getCharacterType() const;
     void           setCharacterType(ECharacterType pCharacterType);
 
-	bool getHeartBeat() const { return mHeartBeat;}
-	void setHeartBeat( bool state ) { mHeartBeat=state; }
-	void regionCrossingOccured();
 	int getHeatMapType() const;
 
 protected:
@@ -144,12 +143,15 @@ private:
 	void onClearPathClicked();
 	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
+	void onRegionBoundaryCross();
 
 	void setConsoleState(EConsoleState pConsoleState);
 
 	void        updateControlsOnConsoleState();
 	void        updateStatusOnConsoleState();
 	std::string getSimulatorStatusText() const;
+
+	void initializeNavMeshZoneForCurrentRegion();
 
 	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
@@ -189,6 +191,7 @@ private:
 	bool                                          mIsNavMeshUpdating;
 
 	LLPathfindingManager::agent_state_slot_t      mAgentStateSlot;
+	boost::signals2::connection                   mRegionBoundarySlot;
 
 	EConsoleState                                 mConsoleState;
 
@@ -197,7 +200,6 @@ private:
 	bool							mHasStartPoint;
 	bool							mHasEndPoint;
 	U32								mShapeRenderFlags;
-	bool							mHeartBeat;
 
 	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
 	

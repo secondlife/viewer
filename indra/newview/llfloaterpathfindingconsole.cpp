@@ -48,6 +48,7 @@
 #include "llviewercontrol.h"
 #include "llpathfindingnavmeshzone.h"
 #include "llpathfindingmanager.h"
+#include "llenvmanager.h"
 
 #include "LLPathingLib.h"
 
@@ -157,7 +158,6 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 {
 	LLFloater::onOpen(pKey);
-	setHeartBeat( true );
 	//make sure we have a pathing system
 	if ( !LLPathingLib::getInstance() )
 	{
@@ -177,15 +177,17 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		}
 
 		mIsNavMeshUpdating = false;
-		mNavMeshZone.initialize();
-
-		mNavMeshZone.enable();
-		mNavMeshZone.refresh();
+		initializeNavMeshZoneForCurrentRegion();
 	}		
 
 	if (!mAgentStateSlot.connected())
 	{
 		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
+	}
+
+	if (!mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
 	}
 
 	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
@@ -194,6 +196,11 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
 void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 {
+	if (mRegionBoundarySlot.connected())
+	{
+		mRegionBoundarySlot.disconnect();
+	}
+
 	if (mAgentStateSlot.connected())
 	{
 		mAgentStateSlot.disconnect();
@@ -210,7 +217,6 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	}
 
 	LLFloater::onClose(pIsAppQuitting);
-	setHeartBeat( false );
 	setConsoleState(kConsoleStateUnknown);
 	//Reset all the checkboxes to default
 	mShowNavMeshCheckBox->set( false );
@@ -529,11 +535,11 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mNavMeshZone(),
 	mIsNavMeshUpdating(false),
 	mAgentStateSlot(),
+	mRegionBoundarySlot(),
 	mConsoleState(kConsoleStateUnknown),
 	mPathData(),
 	mHasStartPoint(false),
-	mHasEndPoint(false),
-	mHeartBeat( false )
+	mHasEndPoint(false)
 {
 	mSelfHandle.bind(this);
 }
@@ -671,6 +677,11 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
 {
 	setAgentState(pAgentState);
+}
+
+void LLFloaterPathfindingConsole::onRegionBoundaryCross()
+{
+	initializeNavMeshZoneForCurrentRegion();
 }
 
 void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
@@ -868,6 +879,14 @@ std::string LLFloaterPathfindingConsole::getSimulatorStatusText() const
 	return simulatorStatusText;
 }
 
+void LLFloaterPathfindingConsole::initializeNavMeshZoneForCurrentRegion()
+{
+	mNavMeshZone.disable();
+	mNavMeshZone.initialize();
+	mNavMeshZone.enable();
+	mNavMeshZone.refresh();
+}
+
 void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
 {
 	switch (LLPathfindingManager::getInstance()->getLastKnownNonErrorAgentState())
@@ -1001,15 +1020,6 @@ U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 	return mShapeRenderFlags;
 }
 
-void LLFloaterPathfindingConsole::regionCrossingOccured()
-{	
-	std::string statusText("");	
-	LLStyle::Params styleParams;	
-	styleParams.color = LLUIColorTable::instance().getColor("DrYellow");
-	statusText = getString("navmesh_update_needed");
-	mPathfindingViewerStatus->setText((LLStringExplicit)statusText, styleParams);
-}
-
 void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 {
 
@@ -1070,5 +1080,3 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 
 	LLPathingLib::getInstance()->setNavMeshColors( colors );
 }
-
-

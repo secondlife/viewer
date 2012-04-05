@@ -31,7 +31,6 @@
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
   <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
   <floater.string name="pathing_path_valid">Path is shown in orange.</floater.string>
-  <floater.string name="navmesh_update_needed">Region boundary hit, navmesh may not be accurate.</floater.string>
   <text
       height="13"
       word_wrap="true"
