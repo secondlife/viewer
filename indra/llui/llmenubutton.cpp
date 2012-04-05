@@ -53,25 +53,18 @@ LLMenuButton::Params::Params()
 LLMenuButton::LLMenuButton(const LLMenuButton::Params& p)
 :	LLButton(p),
 	mIsMenuShown(false),
-	mMenuPosition(p.position)
+	mMenuPosition(p.position),
+	mOwnMenu(false)
 {
 	std::string menu_filename = p.menu_filename;
 
-	if (!menu_filename.empty())
-	{
-		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
-		if (!menu)
-		{
-			llwarns << "Error loading menu_button menu" << llendl;
-			return;
-		}
+	setMenu(menu_filename, mMenuPosition);
+	updateMenuOrigin();
+}
 
-		menu->setVisibilityChangeCallback(boost::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
-
-		mMenuHandle = menu->getHandle();
-
-		updateMenuOrigin();
-	}
+LLMenuButton::~LLMenuButton()
+{
+	cleanup();
 }
 
 boost::signals2::connection LLMenuButton::setMouseDownCallback( const mouse_signal_t::slot_type& cb )
@@ -95,12 +88,32 @@ LLToggleableMenu* LLMenuButton::getMenu()
 	return dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
 }
 
-void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_TOP_LEFT*/)
+void LLMenuButton::setMenu(const std::string& menu_filename, EMenuPosition position /*MP_TOP_LEFT*/)
+{
+	if (menu_filename.empty())
+	{
+		return;
+	}
+
+	LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+	if (!menu)
+	{
+		llwarns << "Error loading menu_button menu" << llendl;
+		return;
+	}
+
+	setMenu(menu, position, true);
+}
+
+void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_TOP_LEFT*/, bool take_ownership /*false*/)
 {
 	if (!menu) return;
 
+	cleanup(); // destroy the previous memnu if we own it
+
 	mMenuHandle = menu->getHandle();
 	mMenuPosition = position;
+	mOwnMenu = take_ownership;
 
 	menu->setVisibilityChangeCallback(boost::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
 }
@@ -210,5 +223,13 @@ void LLMenuButton::onMenuVisibilityChange(const LLSD& param)
 	{
 		setForcePressedState(false);
 		mIsMenuShown = false;
+	}
+}
+
+void LLMenuButton::cleanup()
+{
+	if (mMenuHandle.get() && mOwnMenu)
+	{
+		mMenuHandle.get()->die();
 	}
 }

@@ -34,6 +34,8 @@ class LLToggleableMenu;
 class LLMenuButton
 : public LLButton
 {
+	LOG_CLASS(LLMenuButton);
+
 public:
 	typedef enum e_menu_position
 	{
@@ -68,13 +70,15 @@ public:
 	void hideMenu();
 
 	LLToggleableMenu* getMenu();
-	void setMenu(LLToggleableMenu* menu, EMenuPosition position = MP_TOP_LEFT);
+	void setMenu(const std::string& menu_filename, EMenuPosition position = MP_TOP_LEFT);
+	void setMenu(LLToggleableMenu* menu, EMenuPosition position = MP_TOP_LEFT, bool take_ownership = false);
 
 	void setMenuPosition(EMenuPosition position) { mMenuPosition = position; }
 
 protected:
 	friend class LLUICtrlFactory;
 	LLMenuButton(const Params&);
+	~LLMenuButton();
 
 	void toggleMenu();
 	void updateMenuOrigin();
@@ -82,11 +86,14 @@ protected:
 	void onMenuVisibilityChange(const LLSD& param);
 
 private:
+	void cleanup();
+
 	LLHandle<LLView>		mMenuHandle;
 	bool					mIsMenuShown;
 	EMenuPosition			mMenuPosition;
 	S32						mX;
 	S32						mY;
+	bool					mOwnMenu; // true if we manage the menu lifetime
 };
 
 
