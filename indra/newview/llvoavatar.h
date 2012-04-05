@@ -48,6 +48,7 @@
 #include "lltexglobalcolor.h"
 #include "lldriverparam.h"
 #include "material_codes.h"		// LL_MCODE_END
+#include "llviewerstats.h"
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -282,6 +283,9 @@ public:
 	BOOL			isFullyTextured() const;
 	BOOL			hasGray() const; 
 	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = fully textured.
+	void			updateRezzedStatusTimers();
+
+	S32				mLastRezzedStatus;
 
 	// Tracking progress of active/completed phases for activities like outfit changing.
 	LLFrameTimer& 	getPhaseTimer(const std::string& phase_name);
@@ -290,6 +294,8 @@ public:
 	void			stopAllPhases();
 	void			clearPhases();
 	LLSD			dumpPhases();
+	static LLViewerStats::StatsAccumulator& getPhaseStats(const std::string& phase_name);
+	static void			recordPhaseStat(const std::string& phase_name, F32 value);
 
 	class ScopedPhaseSetter
 	{
@@ -323,8 +329,11 @@ private:
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 
+	// TODO move all the phase stuff to its down data structure.
 	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
 	phase_map_t		mPhases;
+	typedef std::map<std::string,LLViewerStats::StatsAccumulator>	phase_stats_t;
+	static phase_stats_t	sPhaseStats;
 
 protected:
 	LLFrameTimer    mInvisibleTimer;
