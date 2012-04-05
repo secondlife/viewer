@@ -153,6 +153,11 @@ BOOL LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLMenuButton::toggleMenu()
 {
+	if (mValidateSignal && !(*mValidateSignal)(this, LLSD()))
+	{
+		return;
+	}
+
 	if(mMenuHandle.isDead()) return;
 
 	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());

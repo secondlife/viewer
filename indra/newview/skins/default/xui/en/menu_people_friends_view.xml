@@ -3,27 +3,6 @@
      name="menu_group_plus"
      left="0" bottom="0" visible="false"
      mouse_opaque="false">
-  <menu_item_check
-   label="Sort by Name"
-   name="sort_name">
-      <menu_item_check.on_click
-       function="People.Friends.ViewSort.Action"
-       parameter="sort_name" />
-      <menu_item_check.on_check
-       function="People.Friends.ViewSort.CheckItem"
-       parameter="sort_name" />
-  </menu_item_check>
-  <menu_item_check
-   label="Sort by Status"
-   name="sort_status">
-      <menu_item_check.on_click
-       function="People.Friends.ViewSort.Action"
-       parameter="sort_status" />
-      <menu_item_check.on_check
-       function="People.Friends.ViewSort.CheckItem"
-       parameter="sort_status" />
-  </menu_item_check>
-  <menu_item_separator layout="topleft" />
   <menu_item_check name="view_icons" label="View People Icons">
     <menu_item_check.on_click
      function="People.Friends.ViewSort.Action"
