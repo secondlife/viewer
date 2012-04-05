@@ -99,6 +99,9 @@ public:
 	BOOL isRenderWorld() const;
 	void setRenderWorld(BOOL pIsRenderWorld);
 	
+	BOOL isRenderXRay() const;
+	void setRenderXRay(BOOL pIsRenderXRay);
+	
 	BOOL isRenderAnyShapes() const;
 	U32  getRenderShapeFlags();
 
@@ -134,6 +137,7 @@ private:
 
 	void onShowWalkabilitySet();
 	void onShowWorldToggle();
+	void onShowXRayToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onViewCharactersClicked();
@@ -169,6 +173,7 @@ private:
 	LLCheckBoxCtrl                                *mShowMaterialVolumesCheckBox;
 	LLCheckBoxCtrl                                *mShowExclusionVolumesCheckBox;
 	LLCheckBoxCtrl                                *mShowWorldCheckBox;
+	LLCheckBoxCtrl								  *mShowXRayCheckBox;
 	LLTextBase                                    *mPathfindingViewerStatus;
 	LLTextBase                                    *mPathfindingSimulatorStatus;
 	LLButton                                      *mViewCharactersButton;

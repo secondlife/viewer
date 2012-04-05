@@ -288,6 +288,8 @@ extern LLGLSLShader			gGlowExtractProgram;
 
 //interface shaders
 extern LLGLSLShader			gHighlightProgram;
+extern LLGLSLShader			gPathfindingProgram;
+extern LLGLSLShader			gPathfindingNoNormalsProgram;
 
 // avatar shader handles
 extern LLGLSLShader			gAvatarProgram;

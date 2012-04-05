@@ -62,7 +62,7 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	gGL.end();		
 }
 //=============================================================================
-void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const
+void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color, const LLVector3& n ) const
 {
 	LLColor4 cV(color);
 	gGL.color4fv( cV.mV );
@@ -75,10 +75,10 @@ void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const
 	gGL.end();		
 }
 //=============================================================================
-void LLRenderNavPrim::renderNavMeshVB( LLVertexBuffer* pVBO, int vertCnt )
+void LLRenderNavPrim::renderNavMeshVB( U32 mode, LLVertexBuffer* pVBO, int vertCnt )
 {	
 	pVBO->setBuffer( LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_NORMAL );
-	pVBO->drawArrays( LLRender::TRIANGLES, 0, vertCnt );	
+	pVBO->drawArrays( mode, 0, vertCnt );	
 }
 //=============================================================================
 void LLRenderNavPrim::renderStar( const LLVector3& center, const float scale, const LLColor4U& color ) const

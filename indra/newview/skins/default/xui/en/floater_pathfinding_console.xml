@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="430"
+    height="448"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -136,6 +136,14 @@
       layout="topleft"
       left="14"
       name="show_world"
+      top_pad="4"
+      width="90" />
+  <check_box
+      height="19"
+      label="X-Ray"
+      layout="topleft"
+      left="14"
+      name="x-ray"
       top_pad="4"
       width="90" />
   <view_border

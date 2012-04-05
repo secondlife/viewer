@@ -4323,20 +4323,11 @@ void LLPipeline::renderDebug()
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
 
 	assertInitialized();
-
+	
 	bool hud_only = hasRenderType(LLPipeline::RENDER_TYPE_HUD);
 
 	if (!hud_only )
 	{
-		if (LLGLSLShader::sNoFixedFunction)
-		{
-			gUIProgram.bind();
-		}
-
-
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);	
-		gPipeline.disableLights();
-
 		//Render any navmesh geometry	
 		LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 		if ( llPathingLibInstance != NULL ) 
@@ -4345,54 +4336,242 @@ void LLPipeline::renderDebug()
 			if (!pathfindingConsoleHandle.isDead())
 			{
 				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
-				//NavMesh
-				if ( pathfindingConsole->isRenderNavMesh() )
+
+				if (pathfindingConsole->isShown())
 				{				
-					glLineWidth(2.0f);	
-					LLGLEnable cull(GL_CULL_FACE);
-					LLGLEnable blend(GL_BLEND);
-					if ( pathfindingConsole->isRenderWorld() )
+					F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
+					if (LLGLSLShader::sNoFixedFunction)
 					{					
-						glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+						gPathfindingProgram.bind();
+			
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", ambiance);
+						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
 					}
-					else
+
+					if ( !pathfindingConsole->isRenderWorld() )
 					{
 						const LLColor4 &clearColor = pathfindingConsole->mNavMeshColors.mNavMeshClear;
+						gGL.setColorMask(true, true);
 						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
 						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+						gGL.setColorMask(true, false);
 						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 					}
+
+					//NavMesh
+					if ( pathfindingConsole->isRenderNavMesh() )
+					{	gGL.flush();
+						glLineWidth(2.0f);	
+						LLGLEnable cull(GL_CULL_FACE);
+						LLGLDisable blend(GL_BLEND);
+						
 					int materialIndex = pathfindingConsole->getHeatMapType();
+						
+						if ( pathfindingConsole->isRenderWorld() )
+						{					
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.66f);
 					llPathingLibInstance->renderNavMesh( materialIndex );
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMesh( materialIndex );
+						}
+						
+												//render edges
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", 1.f);
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", 1.f);
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+						}
+
+						gGL.flush();
 					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 					glLineWidth(1.0f);	
 					gGL.flush();
 				}
+					//User designated path
+					if ( pathfindingConsole->isRenderPath() )
+					{
+						LLGLEnable blend(GL_BLEND);
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gUIProgram.bind();
+							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+							llPathingLibInstance->renderPath();
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPath();
+						}
+					}
 				//physics/exclusion shapes
 				if ( pathfindingConsole->isRenderAnyShapes() )
 				{					
+						U32 render_order[] = {
+							1 << LLPathingLib::LLST_ObstacleObjects,
+							1 << LLPathingLib::LLST_WalkableObjects,
+							1 << LLPathingLib::LLST_ExclusionPhantoms,	
+							1 << LLPathingLib::LLST_MaterialPhantoms,
+						};
+
+						U32 flags = pathfindingConsole->getRenderShapeFlags();
+
+						for (U32 i = 0; i < 4; i++)
+						{
+							if (!(flags & render_order[i]))
+							{
+								continue;
+							}
+
+							//turn off backface culling for volumes so they are visible when camera is inside volume
+							LLGLDisable cull(i >= 2 ? GL_CULL_FACE : 0);
+						
+							gGL.flush();
+							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+				
+							//get rid of some z-fighting
+							LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+							glPolygonOffset(1.0f, 1.0f);
+
+							//render to depth first to avoid blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );		
+							gGL.setColorMask(true, false);
+
+							//get rid of some z-fighting
+							glPolygonOffset(0.f, 0.f);
+
 					LLGLEnable blend(GL_BLEND);
+				
+							{
+								gPathfindingProgram.uniform1f("ambiance", ambiance);
+
+								{ //draw solid overlay
+									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_LEQUAL);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									gGL.flush();				
+								}
+				
+								LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+								glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+						
+								F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+
+								if (pathfindingConsole->isRenderXRay())
+								{
+									gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+									gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+									LLGLEnable blend(GL_BLEND);
+									LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+								
+									glPolygonOffset(offset, -offset);
+								
+									if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
+									{ //draw hidden wireframe as darker and less opaque
+										gPathfindingProgram.uniform1f("ambiance", 1.f);
+										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									}
+									else
+									{
 					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-					llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
+										gPathfindingProgram.uniform1f("ambiance", ambiance);
+										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+										glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+									}
+								}
+
+								{ //draw visible wireframe as brighter, thicker and more opaque
+									glPolygonOffset(offset, offset);
+									gPathfindingProgram.uniform1f("ambiance", 1.f);
+									gPathfindingProgram.uniform1f("tint", 1.f);
+									gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+
+									glLineWidth(gSavedSettings.getF32("PathfindingLineWidth"));
+									LLGLDisable blendOut(GL_BLEND);
+									llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
+									gGL.flush();
+									glLineWidth(1.f);
+								}
+				
+								glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+							}
+						}
+					}
+
+					glPolygonOffset(0.f, 0.f);
+
+					if ( pathfindingConsole->isRenderNavMesh() && pathfindingConsole->isRenderXRay() )
+					{	//render navmesh xray
+						F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
+
+						LLGLEnable lineOffset(GL_POLYGON_OFFSET_LINE);
+						LLGLEnable polyOffset(GL_POLYGON_OFFSET_FILL);
+											
+						F32 offset = gSavedSettings.getF32("PathfindingLineOffset");
+						glPolygonOffset(offset, -offset);
+
+						LLGLEnable blend(GL_BLEND);
+						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
 					gGL.flush();				
-					LLGLDisable blendOut(GL_BLEND);
+						glLineWidth(2.0f);	
+						LLGLEnable cull(GL_CULL_FACE);
+																		
+						int materialIndex = pathfindingConsole->getHeatMapType();
+
+						gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+						gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+								
+						if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
+						{ //draw hidden wireframe as darker and less opaque
 					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
-					llPathingLibInstance->renderNavMeshShapesVBO( pathfindingConsole->getRenderShapeFlags() );				
-					gGL.flush();
+							gPathfindingProgram.uniform1f("ambiance", 1.f);
+							llPathingLibInstance->renderNavMesh( materialIndex );
 					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 				}	
-				//User designated path
-				if ( pathfindingConsole->isRenderPath() )
+						else
+						{
+							gPathfindingProgram.uniform1f("ambiance", ambiance);
+							llPathingLibInstance->renderNavMesh( materialIndex );
+						}
+
+						//render edges
+						if (LLGLSLShader::sNoFixedFunction)
 				{
-					LLGLEnable blend(GL_BLEND);
-					llPathingLibInstance->renderPath();
+							gPathfindingNoNormalsProgram.bind();
+							gPathfindingNoNormalsProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
+							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							gPathfindingProgram.bind();
 				}
+						else
+						{
+							llPathingLibInstance->renderNavMeshEdges( materialIndex );
 			}
+					
+						gGL.flush();
+						glLineWidth(1.0f);	
 		}
+			
+					glPolygonOffset(0.f, 0.f);
+
 		gGL.flush();
 		if (LLGLSLShader::sNoFixedFunction)
 		{
-			gUIProgram.unbind();
+						gPathfindingProgram.unbind();
+					}
+				}
+			}
 		}
 	}
 
@@ -4402,7 +4581,7 @@ void LLPipeline::renderDebug()
 	gGL.loadMatrix(gGLModelView);
 	gGL.setColorMask(true, false);
 
-	
+
 	if (!hud_only && !mDebugBlips.empty())
 	{ //render debug blips
 		if (LLGLSLShader::sNoFixedFunction)
@@ -6891,7 +7070,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				mFXAABuffer.bindTexture(0, channel);
 				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 			}
-			
+						
 			gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
 			gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
 			gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
@@ -7543,7 +7722,7 @@ void LLPipeline::renderDeferredLighting()
 					F32 s = volume->getLightRadius()*1.5f;
 
 					LLColor3 col = volume->getLightColor();
-					
+
 					if (col.magVecSquared() < 0.001f)
 					{
 						continue;
@@ -7656,7 +7835,7 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredSpotLightProgram, drawablep);
 					
 					LLColor3 col = volume->getLightColor();
-					
+
 					//vertex positions are encoded so the 3 bits of their vertex index 
 					//correspond to their axis facing, with bit position 3,2,1 matching
 					//axis facing x,y,z, bit set meaning positive facing, bit clear 
@@ -7765,7 +7944,7 @@ void LLPipeline::renderDeferredLighting()
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
 					LLColor3 col = volume->getLightColor();
-					
+
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
