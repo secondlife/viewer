@@ -62,6 +62,7 @@
 #include "llhudmanager.h"
 #include "llhudnametag.h"
 #include "llhudtext.h"				// for mText/mDebugText
+#include "llinitparam.h"
 #include "llkeyframefallmotion.h"
 #include "llkeyframestandmotion.h"
 #include "llkeyframewalkmotion.h"
@@ -193,6 +194,9 @@ const S32 MAX_BUBBLE_CHAT_LENGTH = DB_CHAT_MSG_STR_LEN;
 const S32 MAX_BUBBLE_CHAT_UTTERANCES = 12;
 const F32 CHAT_FADE_TIME = 8.0;
 const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
+const F32 NAMETAG_UPDATE_THRESHOLD = 0.3f;
+const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
+const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.15f;
 
 const LLColor4 DUMMY_COLOR = LLColor4(0.5,0.5,0.5,1.0);
 
@@ -224,55 +228,62 @@ struct LLTextureMaskData
  **/
 
 //------------------------------------------------------------------------
-// LLVOBoneInfo
+// LLVOAvatarBoneInfo
 // Trans/Scale/Rot etc. info about each avatar bone.  Used by LLVOAvatarSkeleton.
 //------------------------------------------------------------------------
-class LLVOAvatarBoneInfo
+struct LLVOAvatarCollisionVolumeInfo : public LLInitParam::Block<LLVOAvatarCollisionVolumeInfo>
 {
-	friend class LLVOAvatar;
-	friend class LLVOAvatarSkeletonInfo;
-public:
-	LLVOAvatarBoneInfo() : mIsJoint(FALSE) {}
-	~LLVOAvatarBoneInfo()
-	{
-		std::for_each(mChildList.begin(), mChildList.end(), DeletePointer());
-	}
-	BOOL parseXml(LLXmlTreeNode* node);
+	LLVOAvatarCollisionVolumeInfo() 
+	:	name("name"),
+		pos("pos"),
+		rot("rot"),
+		scale("scale")
+	{}
+
+	Mandatory<std::string>	name;
+	Mandatory<LLVector3>	pos,
+							rot,
+							scale;
+};
+
+struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
+{
+	Alternative<Lazy<struct LLVOAvatarBoneInfo> >	bone;
+	Alternative<LLVOAvatarCollisionVolumeInfo>		collision_volume;
+
+	LLVOAvatarChildJoint()
+	:	bone("bone"),
+		collision_volume("collision_volume")
+	{}
+};
+
+struct LLVOAvatarBoneInfo : public LLInitParam::Block<LLVOAvatarBoneInfo, LLVOAvatarCollisionVolumeInfo>
+{
+	LLVOAvatarBoneInfo() 
+	:	pivot("pivot")
+	{}
 	
-private:
-	std::string mName;
-	BOOL mIsJoint;
-	LLVector3 mPos;
-	LLVector3 mRot;
-	LLVector3 mScale;
-	LLVector3 mPivot;
-	typedef std::vector<LLVOAvatarBoneInfo*> child_list_t;
-	child_list_t mChildList;
+	Mandatory<LLVector3>					pivot;
+	Multiple<LLVOAvatarChildJoint>			children;
 };
 
 //------------------------------------------------------------------------
 // LLVOAvatarSkeletonInfo
 // Overall avatar skeleton
 //------------------------------------------------------------------------
-class LLVOAvatarSkeletonInfo
+struct LLVOAvatarSkeletonInfo : public LLInitParam::Block<LLVOAvatarSkeletonInfo>
 {
-	friend class LLVOAvatar;
-public:
-	LLVOAvatarSkeletonInfo() :
-		mNumBones(0), mNumCollisionVolumes(0) {}
-	~LLVOAvatarSkeletonInfo()
-	{
-		std::for_each(mBoneInfoList.begin(), mBoneInfoList.end(), DeletePointer());
-	}
-	BOOL parseXml(LLXmlTreeNode* node);
-	S32 getNumBones() const { return mNumBones; }
-	S32 getNumCollisionVolumes() const { return mNumCollisionVolumes; }
+	LLVOAvatarSkeletonInfo()
+	:	skeleton_root(""),
+		num_bones("num_bones"),
+		num_collision_volumes("num_collision_volumes"),
+		version("version")
+	{}
 	
-private:
-	S32 mNumBones;
-	S32 mNumCollisionVolumes;
-	typedef std::vector<LLVOAvatarBoneInfo*> bone_info_list_t;
-	bone_info_list_t mBoneInfoList;
+	Mandatory<std::string>			version;
+	Mandatory<S32>					num_bones,
+									num_collision_volumes;
+	Mandatory<LLVOAvatarChildJoint>	skeleton_root;
 };
 
 //-----------------------------------------------------------------------------
@@ -597,7 +608,7 @@ private:
 // Static Data
 //-----------------------------------------------------------------------------
 LLXmlTree LLVOAvatar::sXMLTree;
-LLXmlTree LLVOAvatar::sSkeletonXMLTree;
+LLXMLNodePtr LLVOAvatar::sSkeletonXMLTree;
 LLVOAvatarSkeletonInfo* LLVOAvatar::sAvatarSkeletonInfo = NULL;
 LLVOAvatar::LLVOAvatarXmlInfo* LLVOAvatar::sAvatarXmlInfo = NULL;
 LLVOAvatarDictionary *LLVOAvatar::sAvatarDictionary = NULL;
@@ -1123,18 +1134,6 @@ void LLVOAvatar::initClass()
 		llerrs << "Error parsing skeleton file: " << skeleton_path << llendl;
 	}
 
-	// Process XML data
-
-	// avatar_skeleton.xml
-	if (sAvatarSkeletonInfo)
-	{ //this can happen if a login attempt failed
-		delete sAvatarSkeletonInfo;
-	}
-	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
-	if (!sAvatarSkeletonInfo->parseXml(sSkeletonXMLTree.getRoot()))
-	{
-		llerrs << "Error parsing skeleton XML file: " << skeleton_path << llendl;
-	}
 	// parse avatar_lad.xml
 	if (sAvatarXmlInfo)
 	{ //this can happen if a login attempt failed
@@ -1183,7 +1182,7 @@ void LLVOAvatar::initClass()
 void LLVOAvatar::cleanupClass()
 {
 	deleteAndClear(sAvatarXmlInfo);
-	sSkeletonXMLTree.cleanup();
+	sSkeletonXMLTree = NULL;
 	sXMLTree.cleanup();
 }
 
@@ -1655,33 +1654,39 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 	//-------------------------------------------------------------------------
 	// parse the file
 	//-------------------------------------------------------------------------
-	BOOL parsesuccess = sSkeletonXMLTree.parseFile( filename, FALSE );
+	
+	LLXMLNodePtr skeleton_xml;
+	BOOL parsesuccess = LLXMLNode::parseFile(filename, skeleton_xml, NULL);
 
-	if (!parsesuccess)
+	if (!parsesuccess || skeleton_xml.isNull())
 	{
 		llerrs << "Can't parse skeleton file: " << filename << llendl;
 		return FALSE;
 	}
 
-	// now sanity check xml file
-	LLXmlTreeNode* root = sSkeletonXMLTree.getRoot();
-	if (!root) 
+	// Process XML data
+	if (sAvatarSkeletonInfo)
+	{ //this can happen if a login attempt failed
+		delete sAvatarSkeletonInfo;
+	}
+	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
+
+	LLXUIParser parser;
+	parser.readXUI(skeleton_xml, *sAvatarSkeletonInfo, filename);
+	if (!sAvatarSkeletonInfo->validateBlock())
 	{
-		llerrs << "No root node found in avatar skeleton file: " << filename << llendl;
-		return FALSE;
+		llerrs << "Error parsing skeleton XML file: " << filename << llendl;
 	}
 
-	if( !root->hasName( "linden_skeleton" ) )
+	if( !skeleton_xml->hasName( "linden_skeleton" ) )
 	{
 		llerrs << "Invalid avatar skeleton file header: " << filename << llendl;
 		return FALSE;
 	}
 
-	std::string version;
-	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
-	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
+	if (sAvatarSkeletonInfo->version() != "1.0")
 	{
-		llerrs << "Invalid avatar skeleton file version: " << version << " in file: " << filename << llendl;
+		llerrs << "Invalid avatar skeleton file version: " << sAvatarSkeletonInfo->version() << " in file: " << filename << llendl;
 		return FALSE;
 	}
 
@@ -1690,14 +1695,13 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 
 //-----------------------------------------------------------------------------
 // setupBone()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent, S32 &volume_num, S32 &joint_num)
+//-----------------------------------------------------------
+BOOL LLVOAvatar::setupBone(const LLVOAvatarChildJoint& info, LLViewerJoint* parent, S32 &volume_num, S32 &joint_num)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
 	LLViewerJoint* joint = NULL;
-
-	if (info->mIsJoint)
+	if (info.bone.isChosen())
 	{
 		joint = (LLViewerJoint*)getCharacterJoint(joint_num);
 		if (!joint)
@@ -1705,7 +1709,23 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 			llwarns << "Too many bones" << llendl;
 			return FALSE;
 		}
-		joint->setName( info->mName );
+		joint->setName( info.bone().name );
+		joint->setPosition(info.bone().pos);
+		joint->setRotation(mayaQ(info.bone().rot().mV[VX], info.bone().rot().mV[VY], info.bone().rot().mV[VZ], LLQuaternion::XYZ));
+		joint->setScale(info.bone().scale);
+		joint->setSkinOffset( info.bone().pivot );
+		joint_num++;
+
+		for (LLInitParam::ParamIterator<LLVOAvatarChildJoint>::const_iterator child_it = info.bone().children.begin(),
+				end_it = info.bone().children.end();
+			child_it != end_it;
+			++child_it)
+		{
+			if (!setupBone(*child_it, joint, volume_num, joint_num))
+			{
+				return FALSE;
+			}
+		}
 	}
 	else // collision volume
 	{
@@ -1715,7 +1735,11 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 			return FALSE;
 		}
 		joint = (LLViewerJoint*)(&mCollisionVolumes[volume_num]);
-		joint->setName( info->mName );
+		joint->setName( info.collision_volume.name);
+		joint->setPosition(info.collision_volume.pos);
+		joint->setRotation(mayaQ(info.collision_volume.rot().mV[VX], info.collision_volume.rot().mV[VY], info.collision_volume.rot().mV[VZ], LLQuaternion::XYZ));
+		joint->setScale(info.collision_volume.scale);
+		volume_num++;
 	}
 
 	// add to parent
@@ -1724,34 +1748,8 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 		parent->addChild( joint );
 	}
 
-	joint->setPosition(info->mPos);
-	joint->setRotation(mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
-							 info->mRot.mV[VZ], LLQuaternion::XYZ));
-	joint->setScale(info->mScale);
-
 	joint->setDefaultFromCurrentXform();
 	
-	if (info->mIsJoint)
-	{
-		joint->setSkinOffset( info->mPivot );
-		joint_num++;
-	}
-	else // collision volume
-	{
-		volume_num++;
-	}
-
-	// setup children
-	LLVOAvatarBoneInfo::child_list_t::const_iterator iter;
-	for (iter = info->mChildList.begin(); iter != info->mChildList.end(); ++iter)
-	{
-		LLVOAvatarBoneInfo *child_info = *iter;
-		if (!setupBone(child_info, joint, volume_num, joint_num))
-		{
-			return FALSE;
-		}
-	}
-
 	return TRUE;
 }
 
@@ -1765,35 +1763,31 @@ BOOL LLVOAvatar::buildSkeleton(const LLVOAvatarSkeletonInfo *info)
 	//-------------------------------------------------------------------------
 	// allocate joints
 	//-------------------------------------------------------------------------
-	if (!allocateCharacterJoints(info->mNumBones))
+	if (!allocateCharacterJoints(info->num_bones))
 	{
-		llerrs << "Can't allocate " << info->mNumBones << " joints" << llendl;
+		llerrs << "Can't allocate " << info->num_bones() << " joints" << llendl;
 		return FALSE;
 	}
 	
 	//-------------------------------------------------------------------------
 	// allocate volumes
 	//-------------------------------------------------------------------------
-	if (info->mNumCollisionVolumes)
+	if (info->num_collision_volumes)
 	{
-		if (!allocateCollisionVolumes(info->mNumCollisionVolumes))
+		if (!allocateCollisionVolumes(info->num_collision_volumes))
 		{
-			llerrs << "Can't allocate " << info->mNumCollisionVolumes << " collision volumes" << llendl;
+			llerrs << "Can't allocate " << info->num_collision_volumes() << " collision volumes" << llendl;
 			return FALSE;
 		}
 	}
 
 	S32 current_joint_num = 0;
 	S32 current_volume_num = 0;
-	LLVOAvatarSkeletonInfo::bone_info_list_t::const_iterator iter;
-	for (iter = info->mBoneInfoList.begin(); iter != info->mBoneInfoList.end(); ++iter)
+
+	if (!setupBone(info->skeleton_root, NULL, current_volume_num, current_joint_num))
 	{
-		LLVOAvatarBoneInfo *info = *iter;
-		if (!setupBone(info, NULL, current_volume_num, current_joint_num))
-		{
-			llerrs << "Error parsing bone in skeleton file" << llendl;
-			return FALSE;
-		}
+		llerrs << "Error parsing bone in skeleton file" << llendl;
+		return FALSE;
 	}
 
 	return TRUE;
@@ -2922,43 +2916,43 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-		BOOL new_name = FALSE;
-		if (visible_chat != mVisibleChat)
-		{
-			mVisibleChat = visible_chat;
-			new_name = TRUE;
-		}
+	BOOL new_name = FALSE;
+	if (visible_chat != mVisibleChat)
+	{
+		mVisibleChat = visible_chat;
+		new_name = TRUE;
+	}
 		
-		if (sRenderGroupTitles != mRenderGroupTitles)
-		{
-			mRenderGroupTitles = sRenderGroupTitles;
-			new_name = TRUE;
-		}
+	if (sRenderGroupTitles != mRenderGroupTitles)
+	{
+		mRenderGroupTitles = sRenderGroupTitles;
+		new_name = TRUE;
+	}
 
-		// First Calculate Alpha
-		// If alpha > 0, create mNameText if necessary, otherwise delete it
-			F32 alpha = 0.f;
-			if (mAppAngle > 5.f)
+	// First Calculate Alpha
+	// If alpha > 0, create mNameText if necessary, otherwise delete it
+		F32 alpha = 0.f;
+		if (mAppAngle > 5.f)
+		{
+			const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
+			if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
 			{
-				const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
-				if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
-				{
-					alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
-				}
-				else
-				{
-					// ...not fading, full alpha
-					alpha = 1.f;
-				}
+				alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
 			}
-			else if (mAppAngle > 2.f)
+			else
 			{
-				// far away is faded out also
-				alpha = (mAppAngle-2.f)/3.f;
+				// ...not fading, full alpha
+				alpha = 1.f;
 			}
+		}
+		else if (mAppAngle > 2.f)
+		{
+			// far away is faded out also
+			alpha = (mAppAngle-2.f)/3.f;
+		}
 
 	if (alpha <= 0.f)
-			{
+	{
 		if (mNameText)
 		{
 			mNameText->markDead();
@@ -2968,31 +2962,30 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-				if (!mNameText)
-				{
+	if (!mNameText)
+	{
 		mNameText = static_cast<LLHUDNameTag*>( LLHUDObject::addHUDObject(
 			LLHUDObject::LL_HUD_NAME_TAG) );
 		//mNameText->setMass(10.f);
-					mNameText->setSourceObject(this);
+		mNameText->setSourceObject(this);
 		mNameText->setVertAlignment(LLHUDNameTag::ALIGN_VERT_TOP);
-					mNameText->setVisibleOffScreen(TRUE);
-					mNameText->setMaxLines(11);
-					mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-					sNumVisibleChatBubbles++;
-					new_name = TRUE;
-				}
+		mNameText->setVisibleOffScreen(TRUE);
+		mNameText->setMaxLines(11);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
+		sNumVisibleChatBubbles++;
+		new_name = TRUE;
+	}
 				
-	LLVector3 name_position = idleUpdateNameTagPosition(root_pos_last);
-	mNameText->setPositionAgent(name_position);				
+	idleUpdateNameTagPosition(root_pos_last);
 	idleUpdateNameTagText(new_name);			
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
-			{
-		LLNameValue *title = getNVPair("Title");
-		LLNameValue* firstname = getNVPair("FirstName");
-		LLNameValue* lastname = getNVPair("LastName");
+{
+	LLNameValue *title = getNVPair("Title");
+	LLNameValue* firstname = getNVPair("FirstName");
+	LLNameValue* lastname = getNVPair("LastName");
 
 	// Avatars must have a first and last name
 	if (!firstname || !lastname) return;
@@ -3006,34 +2999,29 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		is_muted = false;
 	}
 	else
-		{
+	{
 		is_muted = LLMuteList::getInstance()->isMuted(getID());
 	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	bool is_cloud = getIsCloud();
 
-			if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
-			{
-				if (is_appearance != mNameAppearance)
-				{
-					if (is_appearance)
-					{
-						LLSD args;
-						args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-						args["NAME"] = getFullname();
-						LLNotificationsUtil::add("AvatarRezEnteredAppearanceNotification",args);
-						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' entered appearance mode." << llendl;
-					}
-					else
-					{
-						LLSD args;
-						args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
-						args["NAME"] = getFullname();
-						LLNotificationsUtil::add("AvatarRezLeftAppearanceNotification",args);
-						llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left appearance mode." << llendl;
-					}
-				}
-			}
+	if (gSavedSettings.getBOOL("DebugAvatarRezTime")
+		&& is_appearance != mNameAppearance)
+	{
+		LLSD args;
+		args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
+		args["NAME"] = getFullname();
+		if (is_appearance)
+		{
+			LLNotificationsUtil::add("AvatarRezEnteredAppearanceNotification",args);
+			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' entered appearance mode." << llendl;
+		}
+		else
+		{
+			LLNotificationsUtil::add("AvatarRezLeftAppearanceNotification",args);
+			llinfos << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32() << "sec ] Avatar '" << getFullname() << "' left appearance mode." << llendl;
+		}
+	}
 
 	// Rebuild name tag if state change detected
 	if (mNameString.empty()
@@ -3043,39 +3031,39 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_away != mNameAway 
 		|| is_busy != mNameBusy 
 		|| is_muted != mNameMute
-				|| is_appearance != mNameAppearance 
+		|| is_appearance != mNameAppearance 
 		|| is_friend != mNameFriend
 		|| is_cloud != mNameCloud)
-				{
+	{
 		LLColor4 name_tag_color = getNameTagColor(is_friend);
 
 		clearNameTag();
 
 		if (is_away || is_muted || is_busy || is_appearance)
-				{
+		{
 			std::string line;
-					if (is_away)
-					{
-						line += LLTrans::getString("AvatarAway");
+			if (is_away)
+			{
+				line += LLTrans::getString("AvatarAway");
 				line += ", ";
-					}
-					if (is_busy)
-					{
+			}
+			if (is_busy)
+			{
 				line += LLTrans::getString("AvatarBusy");
 				line += ", ";
 			}
 			if (is_muted)
-						{
+			{
 				line += LLTrans::getString("AvatarMuted");
-							line += ", ";
-						}
+				line += ", ";
+			}
 			if (is_appearance)
 			{
 				line += LLTrans::getString("AvatarEditingAppearance");
 				line += ", ";
-					}
+			}
 			if (is_cloud)
-					{
+			{
 				line += LLTrans::getString("LoadingData");
 				line += ", ";
 			}
@@ -3087,12 +3075,12 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		if (sRenderGroupTitles
 			&& title && title->getString() && title->getString()[0] != '\0')
-						{
+		{
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
 			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
-						}
+		}
 
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames");
 		static LLUICachedControl<bool> show_usernames("NameTagShowUsernames");
@@ -3106,119 +3094,118 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				// and force a rebuild
 				LLAvatarNameCache::get(getID(),
 					boost::bind(&LLVOAvatar::clearNameTag, this));
-					}
+			}
 
 			// Might be blank if name not available yet, that's OK
 			if (show_display_names)
 			{
 				addNameTagLine(av_name.mDisplayName, name_tag_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerif());
-				}
+			}
 			// Suppress SLID display if display name matches exactly (ugh)
 			if (show_usernames && !av_name.mIsDisplayNameDefault)
-				{
+			{
 				// *HACK: Desaturate the color
 				LLColor4 username_color = name_tag_color * 0.83f;
 				addNameTagLine(av_name.mUsername, username_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
 			}
-				}
+		}
 		else
-				{
+		{
 			const LLFontGL* font = LLFontGL::getFontSansSerif();
-			std::string full_name =
-				LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
+			std::string full_name = LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
 			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
-				}
+		}
 
-				mNameAway = is_away;
-				mNameBusy = is_busy;
-				mNameMute = is_muted;
-				mNameAppearance = is_appearance;
-		mNameFriend = is_friend;
-				mNameCloud = is_cloud;
-				mTitle = title ? title->getString() : "";
-				LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
-				new_name = TRUE;
-			}
+		mNameAway 		= is_away;
+		mNameBusy 		= is_busy;
+		mNameMute 		= is_muted;
+		mNameAppearance = is_appearance;
+		mNameFriend 	= is_friend;
+		mNameCloud 		= is_cloud;
+		mTitle 			= title ? title->getString() : "";
+		LLStringFn::replace_ascii_controlchars(mTitle, LL_UNKNOWN_CHAR);
+		new_name = TRUE;
+	}
 
 	if (mVisibleChat)
-			{
-				mNameText->setFont(LLFontGL::getFontSansSerif());
+	{
+		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
-				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
-			
-				char line[MAX_STRING];		/* Flawfinder: ignore */
-				line[0] = '\0';
-				std::deque<LLChat>::iterator chat_iter = mChats.begin();
-				mNameText->clearString();
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS * 2.f, 5.f);
 
-				LLColor4 new_chat = LLUIColorTable::instance().getColor( isSelf() ? "UserChatColor" : "AgentChatColor" );
-				LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
-				LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
-				if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
-				{
-					++chat_iter;
-				}
+		char line[MAX_STRING];		/* Flawfinder: ignore */
+		line[0] = '\0';
+		std::deque<LLChat>::iterator chat_iter = mChats.begin();
+		mNameText->clearString();
 
-				for(; chat_iter != mChats.end(); ++chat_iter)
-				{
-					F32 chat_fade_amt = llclamp((F32)((LLFrameTimer::getElapsedSeconds() - chat_iter->mTime) / CHAT_FADE_TIME), 0.f, 4.f);
-					LLFontGL::StyleFlags style;
-					switch(chat_iter->mChatType)
-					{
-						case CHAT_TYPE_WHISPER:
-							style = LLFontGL::ITALIC;
-							break;
-						case CHAT_TYPE_SHOUT:
-							style = LLFontGL::BOLD;
-							break;
-						default:
-							style = LLFontGL::NORMAL;
-							break;
-					}
-					if (chat_fade_amt < 1.f)
-					{
-						F32 u = clamp_rescale(chat_fade_amt, 0.9f, 1.f, 0.f, 1.f);
-						mNameText->addLine(chat_iter->mText, lerp(new_chat, normal_chat, u), style);
-					}
-					else if (chat_fade_amt < 2.f)
-					{
-						F32 u = clamp_rescale(chat_fade_amt, 1.9f, 2.f, 0.f, 1.f);
-						mNameText->addLine(chat_iter->mText, lerp(normal_chat, old_chat, u), style);
-					}
-					else if (chat_fade_amt < 3.f)
-					{
-						// *NOTE: only remove lines down to minimum number
-						mNameText->addLine(chat_iter->mText, old_chat, style);
-					}
-				}
-				mNameText->setVisibleOffScreen(TRUE);
+		LLColor4 new_chat = LLUIColorTable::instance().getColor( isSelf() ? "UserChatColor" : "AgentChatColor" );
+		LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
+		LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
+		if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
+		{
+			++chat_iter;
+		}
 
-				if (mTyping)
-				{
-					S32 dot_count = (llfloor(mTypingTimer.getElapsedTimeF32() * 3.f) + 2) % 3 + 1;
-					switch(dot_count)
-					{
-						case 1:
-							mNameText->addLine(".", new_chat);
-							break;
-						case 2:
-							mNameText->addLine("..", new_chat);
-							break;
-						case 3:
-							mNameText->addLine("...", new_chat);
-							break;
-					}
-
-				}
-			}
-			else
+		for(; chat_iter != mChats.end(); ++chat_iter)
+		{
+			F32 chat_fade_amt = llclamp((F32)((LLFrameTimer::getElapsedSeconds() - chat_iter->mTime) / CHAT_FADE_TIME), 0.f, 4.f);
+			LLFontGL::StyleFlags style;
+			switch(chat_iter->mChatType)
 			{
+			case CHAT_TYPE_WHISPER:
+				style = LLFontGL::ITALIC;
+				break;
+			case CHAT_TYPE_SHOUT:
+				style = LLFontGL::BOLD;
+				break;
+			default:
+				style = LLFontGL::NORMAL;
+				break;
+			}
+			if (chat_fade_amt < 1.f)
+			{
+				F32 u = clamp_rescale(chat_fade_amt, 0.9f, 1.f, 0.f, 1.f);
+				mNameText->addLine(chat_iter->mText, lerp(new_chat, normal_chat, u), style);
+			}
+			else if (chat_fade_amt < 2.f)
+			{
+				F32 u = clamp_rescale(chat_fade_amt, 1.9f, 2.f, 0.f, 1.f);
+				mNameText->addLine(chat_iter->mText, lerp(normal_chat, old_chat, u), style);
+			}
+			else if (chat_fade_amt < 3.f)
+			{
+				// *NOTE: only remove lines down to minimum number
+				mNameText->addLine(chat_iter->mText, old_chat, style);
+			}
+		}
+		mNameText->setVisibleOffScreen(TRUE);
+
+		if (mTyping)
+		{
+			S32 dot_count = (llfloor(mTypingTimer.getElapsedTimeF32() * 3.f) + 2) % 3 + 1;
+			switch(dot_count)
+			{
+			case 1:
+				mNameText->addLine(".", new_chat);
+				break;
+			case 2:
+				mNameText->addLine("..", new_chat);
+				break;
+			case 3:
+				mNameText->addLine("...", new_chat);
+				break;
+			}
+
+		}
+	}
+	else
+	{
 		// ...not using chat bubbles, just names
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_CENTER);
-				mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
-				mNameText->setVisibleOffScreen(FALSE);
+		mNameText->setFadeDistance(CHAT_NORMAL_RADIUS, 5.f);
+		mNameText->setVisibleOffScreen(FALSE);
 	}
 }
 
@@ -3241,8 +3228,8 @@ void LLVOAvatar::clearNameTag()
 {
 	mNameString.clear();
 	if (mNameText)
-				{
-					mNameText->setLabel("");
+	{
+		mNameText->setLabel("");
 		mNameText->setString( "" );
 	}
 }
@@ -3270,34 +3257,45 @@ void LLVOAvatar::invalidateNameTags()
 		if (avatar->isDead()) continue;
 
 		avatar->clearNameTag();
-
 	}
 }
 
 // Compute name tag position during idle update
-LLVector3 LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
+void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 {
 	LLQuaternion root_rot = mRoot.getWorldRotation();
+	LLQuaternion inv_root_rot = ~root_rot;
 	LLVector3 pixel_right_vec;
 	LLVector3 pixel_up_vec;
 	LLViewerCamera::getInstance()->getPixelVectors(root_pos_last, pixel_up_vec, pixel_right_vec);
 	LLVector3 camera_to_av = root_pos_last - LLViewerCamera::getInstance()->getOrigin();
 	camera_to_av.normalize();
-	LLVector3 local_camera_at = camera_to_av * ~root_rot;
+	LLVector3 local_camera_at = camera_to_av * inv_root_rot;
 	LLVector3 local_camera_up = camera_to_av % LLViewerCamera::getInstance()->getLeftAxis();
 	local_camera_up.normalize();
-	local_camera_up = local_camera_up * ~root_rot;
+	local_camera_up = local_camera_up * inv_root_rot;
 
-	local_camera_up.scaleVec(mBodySize * 0.5f);
-	local_camera_at.scaleVec(mBodySize * 0.5f);
+	LLVector3 avatar_ellipsoid(mBodySize.mV[VX] * 0.4f,
+								mBodySize.mV[VY] * 0.4f,
+								mBodySize.mV[VZ] * NAMETAG_VERT_OFFSET_WEIGHT);
 
-	LLVector3 name_position = mRoot.getWorldPosition();
-	name_position[VZ] -= mPelvisToFoot;
-	name_position[VZ] += (mBodySize[VZ]* 0.55f);
+	local_camera_up.scaleVec(avatar_ellipsoid);
+	local_camera_at.scaleVec(avatar_ellipsoid);
+
+	LLVector3 head_offset = (mHeadp->getLastWorldPosition() - mRoot.getLastWorldPosition()) * inv_root_rot;
+
+	if (dist_vec(head_offset, mTargetRootToHeadOffset) > NAMETAG_UPDATE_THRESHOLD)
+	{
+		mTargetRootToHeadOffset = head_offset;
+	}
+	
+	mCurRootToHeadOffset = lerp(mCurRootToHeadOffset, mTargetRootToHeadOffset, LLCriticalDamp::getInterpolant(0.2f));
+
+	LLVector3 name_position = mRoot.getLastWorldPosition() + (mCurRootToHeadOffset * root_rot);
 	name_position += (local_camera_up * root_rot) - (projected_vec(local_camera_at * root_rot, camera_to_av));	
-	name_position += pixel_up_vec * 15.f;
+	name_position += pixel_up_vec * NAMETAG_VERTICAL_SCREEN_OFFSET;
 
-	return name_position;
+	mNameText->setPositionAgent(name_position);				
 }
 
 void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
@@ -3333,7 +3331,7 @@ LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 		else
 		{
 			color_name = "NameTagMismatch";
-	}
+		}
 	}
 	else
 	{
@@ -3370,9 +3368,9 @@ bool LLVOAvatar::isVisuallyMuted()
 	static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
 	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
 	
-	return LLMuteList::getInstance()->isMuted(getID()) ||
-			(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
-			(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f);
+	return LLMuteList::getInstance()->isMuted(getID()) 
+			|| (mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) 
+			|| (mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f);
 }
 
 //------------------------------------------------------------------------
@@ -3413,8 +3411,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		}
 	}
 
-	LLVector3d root_pos_global;
-
 	if (!mIsBuilt)
 	{
 		return FALSE;
@@ -3428,7 +3424,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	{
 		mTimeVisible.reset();
 	}
-
 	
 	//--------------------------------------------------------------------
 	// the rest should only be done occasionally for far away avatars
@@ -3823,10 +3818,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		if ( playSound )
 		{
-//			F32 gain = clamp_rescale( mSpeedAccum,
-//							AUDIO_STEP_LO_SPEED, AUDIO_STEP_HI_SPEED,
-//							AUDIO_STEP_LO_GAIN, AUDIO_STEP_HI_GAIN );
-
 			const F32 STEP_VOLUME = 0.1f;
 			const LLUUID& step_sound_id = getStepSound();
 
@@ -4043,13 +4034,6 @@ void LLVOAvatar::updateVisibility()
 		{
 			releaseMeshData();
 		}
-		// this breaks off-screen chat bubbles
-		//if (mNameText)
-		//{
-		//	mNameText->markDead();
-		//	mNameText = NULL;
-		//	sNumVisibleChatBubbles--;
-		//}
 	}
 
 	mVisible = visible;
@@ -4063,46 +4047,6 @@ bool LLVOAvatar::shouldAlphaMask()
 
 	return should_alpha_mask;
 
-}
-
-U32 LLVOAvatar::renderSkinnedAttachments()
-{
-	/*U32 num_indices = 0;
-	
-	const U32 data_mask =	LLVertexBuffer::MAP_VERTEX | 
-							LLVertexBuffer::MAP_NORMAL | 
-							LLVertexBuffer::MAP_TEXCOORD0 |
-							LLVertexBuffer::MAP_COLOR |
-							LLVertexBuffer::MAP_WEIGHT4;
-
-	for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
-		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-			 attachment_iter != attachment->mAttachedObjects.end();
-			 ++attachment_iter)
-		{
-			const LLViewerObject* attached_object = (*attachment_iter);
-			if (attached_object && !attached_object->isHUDAttachment())
-			{
-				const LLDrawable* drawable = attached_object->mDrawable;
-				if (drawable)
-				{
-					for (S32 i = 0; i < drawable->getNumFaces(); ++i)
-					{
-						LLFace* face = drawable->getFace(i);
-						if (face->isState(LLFace::RIGGED))
-						{
-							
-				}
-			}
-		}
-	}
-
-	return num_indices;*/
-	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -4125,11 +4069,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
 		if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
 		{
-		updateMeshData();
+			updateMeshData();
 			mDirtyMesh = 0;
-		mNeedsSkin = TRUE;
-		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
-	}
+			mNeedsSkin = TRUE;
+			mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+		}
 	}
 
 	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
@@ -5790,36 +5734,34 @@ BOOL LLVOAvatar::updateJointLODs()
 	F32 avatar_num_factor = clamp_rescale((F32)sNumVisibleAvatars, 8, 25, 1.f, avatar_num_min_factor);
 	F32 area_scale = 0.16f;
 
+	if (isSelf())
 	{
-		if (isSelf())
-		{
-			if(gAgentCamera.cameraCustomizeAvatar() || gAgentCamera.cameraMouselook())
-			{
-				mAdjustedPixelArea = MAX_PIXEL_AREA;
-			}
-			else
-			{
-				mAdjustedPixelArea = mPixelArea*area_scale;
-			}
-		}
-		else if (mIsDummy)
+		if(gAgentCamera.cameraCustomizeAvatar() || gAgentCamera.cameraMouselook())
 		{
 			mAdjustedPixelArea = MAX_PIXEL_AREA;
 		}
 		else
 		{
-			// reported avatar pixel area is dependent on avatar render load, based on number of visible avatars
-			mAdjustedPixelArea = (F32)mPixelArea * area_scale * lod_factor * lod_factor * avatar_num_factor * avatar_num_factor;
+			mAdjustedPixelArea = mPixelArea*area_scale;
 		}
+	}
+	else if (mIsDummy)
+	{
+		mAdjustedPixelArea = MAX_PIXEL_AREA;
+	}
+	else
+	{
+		// reported avatar pixel area is dependent on avatar render load, based on number of visible avatars
+		mAdjustedPixelArea = (F32)mPixelArea * area_scale * lod_factor * lod_factor * avatar_num_factor * avatar_num_factor;
+	}
 
-		// now select meshes to render based on adjusted pixel area
-		BOOL res = mRoot.updateLOD(mAdjustedPixelArea, TRUE);
- 		if (res)
-		{
-			sNumLODChangesThisFrame++;
-			dirtyMesh(2);
-			return TRUE;
-		}
+	// now select meshes to render based on adjusted pixel area
+	BOOL res = mRoot.updateLOD(mAdjustedPixelArea, TRUE);
+ 	if (res)
+	{
+		sNumLODChangesThisFrame++;
+		dirtyMesh(2);
+		return TRUE;
 	}
 
 	return FALSE;
@@ -6109,25 +6051,18 @@ void LLVOAvatar::cleanupAttachedMesh( LLViewerObject* pVO )
 		if ( pVObj )
 		{
 			const LLMeshSkinInfo* pSkinData = gMeshRepo.getSkinInfo( pVObj->getVolume()->getParams().getSculptID(), pVObj );
-			if ( pSkinData )
+			if (pSkinData 
+				&& pSkinData->mJointNames.size() > 20				// full rig
+				&& pSkinData->mAlternateBindMatrix.size() > 0)
 			{
-				const int jointCnt = pSkinData->mJointNames.size();
-				bool fullRig = ( jointCnt>=20 ) ? true : false;
-				if ( fullRig )
+				LLVOAvatar::resetJointPositionsToDefault();
+				//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
+				//This handles the case where we detach a replacement rig.
+				if ( gAgentCamera.cameraCustomizeAvatar() )
 				{
-					const int bindCnt = pSkinData->mAlternateBindMatrix.size();							
-					if ( bindCnt > 0 )
-					{
-						LLVOAvatar::resetJointPositionsToDefault();
-						//Need to handle the repositioning of the cam, updating rig data etc during outfit editing 
-						//This handles the case where we detach a replacement rig.
-						if ( gAgentCamera.cameraCustomizeAvatar() )
-						{
-							gAgent.unpauseAnimation();
-							//Still want to refocus on head bone
-							gAgentCamera.changeCameraToCustomizeAvatar();
-						}
-					}
+					gAgent.unpauseAnimation();
+					//Still want to refocus on head bone
+					gAgentCamera.changeCameraToCustomizeAvatar();
 				}
 			}				
 		}
@@ -6281,11 +6216,7 @@ void LLVOAvatar::getOffObject()
 		at_axis.mV[VZ] = 0.f;
 		at_axis.normalize();
 		gAgent.resetAxes(at_axis);
-
-		//reset orientation
-//		mRoot.setRotation(avWorldRot);
 		gAgentCamera.setThirdPersonHeadOffset(LLVector3(0.f, 0.f, 1.f));
-
 		gAgentCamera.setSitCamera(LLUUID::null);
 	}
 }
@@ -6335,7 +6266,6 @@ LLColor4 LLVOAvatar::getGlobalColor( const std::string& color_name ) const
 	}
 	else
 	{
-//		return LLColor4( .5f, .5f, .5f, .5f );
 		return LLColor4( 0.f, 1.f, 1.f, 1.f ); // good debugging color
 	}
 }
@@ -7067,10 +6997,6 @@ LLBBox LLVOAvatar::getHUDBBox() const
 	return bbox;
 }
 
-void LLVOAvatar::rebuildHUD()
-{
-}
-
 //-----------------------------------------------------------------------------
 // onFirstTEMessageReceived()
 //-----------------------------------------------------------------------------
@@ -7192,7 +7118,10 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 			&& baked_index != BAKED_SKIRT)
 		{
 			setTEImage(mBakedTextureDatas[baked_index].mTextureIndex, 
-				LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE));
+						LLViewerTextureManager::getFetchedTexture(mBakedTextureDatas[baked_index].mLastTextureIndex, 
+																TRUE, 
+																LLViewerTexture::BOOST_NONE, 
+																LLViewerTexture::LOD_TEXTURE));
 		}
 	}
 
@@ -7483,11 +7412,6 @@ void LLVOAvatar::onBakedTextureLoaded(BOOL success, LLViewerFetchedTexture *src_
 // Called when baked texture is loaded and also when we start up with a baked texture
 void LLVOAvatar::useBakedTexture( const LLUUID& id )
 {
-	/* if(id == head_baked->getID())
-		 mHeadBakedLoaded = TRUE;
-		 mLastHeadBakedID = id;
-		 mHeadMesh0.setTexture( head_baked );
-		 mHeadMesh1.setTexture( head_baked ); */
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
 		LLViewerTexture* image_baked = getImage( mBakedTextureDatas[i].mTextureIndex, 0 );
@@ -7718,111 +7642,111 @@ LLVOAvatar::LLVOAvatarXmlInfo::~LLVOAvatarXmlInfo()
 	std::for_each(mMorphMaskInfoList.begin(), mMorphMaskInfoList.end(), DeletePointer());
 }
 
-//-----------------------------------------------------------------------------
-// LLVOAvatarBoneInfo::parseXml()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
-{
-	if (node->hasName("bone"))
-	{
-		mIsJoint = TRUE;
-		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
-		if (!node->getFastAttributeString(name_string, mName))
-		{
-			llwarns << "Bone without name" << llendl;
-			return FALSE;
-		}
-	}
-	else if (node->hasName("collision_volume"))
-	{
-		mIsJoint = FALSE;
-		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
-		if (!node->getFastAttributeString(name_string, mName))
-		{
-			mName = "Collision Volume";
-		}
-	}
-	else
-	{
-		llwarns << "Invalid node " << node->getName() << llendl;
-		return FALSE;
-	}
-
-	static LLStdStringHandle pos_string = LLXmlTree::addAttributeString("pos");
-	if (!node->getFastAttributeVector3(pos_string, mPos))
-	{
-		llwarns << "Bone without position" << llendl;
-		return FALSE;
-	}
-
-	static LLStdStringHandle rot_string = LLXmlTree::addAttributeString("rot");
-	if (!node->getFastAttributeVector3(rot_string, mRot))
-	{
-		llwarns << "Bone without rotation" << llendl;
-		return FALSE;
-	}
-	
-	static LLStdStringHandle scale_string = LLXmlTree::addAttributeString("scale");
-	if (!node->getFastAttributeVector3(scale_string, mScale))
-	{
-		llwarns << "Bone without scale" << llendl;
-		return FALSE;
-	}
-
-	if (mIsJoint)
-	{
-		static LLStdStringHandle pivot_string = LLXmlTree::addAttributeString("pivot");
-		if (!node->getFastAttributeVector3(pivot_string, mPivot))
-		{
-			llwarns << "Bone without pivot" << llendl;
-			return FALSE;
-		}
-	}
-
-	// parse children
-	LLXmlTreeNode* child;
-	for( child = node->getFirstChild(); child; child = node->getNextChild() )
-	{
-		LLVOAvatarBoneInfo *child_info = new LLVOAvatarBoneInfo;
-		if (!child_info->parseXml(child))
-		{
-			delete child_info;
-			return FALSE;
-		}
-		mChildList.push_back(child_info);
-	}
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// LLVOAvatarSkeletonInfo::parseXml()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
-{
-	static LLStdStringHandle num_bones_string = LLXmlTree::addAttributeString("num_bones");
-	if (!node->getFastAttributeS32(num_bones_string, mNumBones))
-	{
-		llwarns << "Couldn't find number of bones." << llendl;
-		return FALSE;
-	}
-
-	static LLStdStringHandle num_collision_volumes_string = LLXmlTree::addAttributeString("num_collision_volumes");
-	node->getFastAttributeS32(num_collision_volumes_string, mNumCollisionVolumes);
-
-	LLXmlTreeNode* child;
-	for( child = node->getFirstChild(); child; child = node->getNextChild() )
-	{
-		LLVOAvatarBoneInfo *info = new LLVOAvatarBoneInfo;
-		if (!info->parseXml(child))
-		{
-			delete info;
-			llwarns << "Error parsing bone in skeleton file" << llendl;
-			return FALSE;
-		}
-		mBoneInfoList.push_back(info);
-	}
-	return TRUE;
-}
+////-----------------------------------------------------------------------------
+//// LLVOAvatarBoneInfo::parseXml()
+////-----------------------------------------------------------------------------
+//BOOL LLVOAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
+//{
+//	if (node->hasName("bone"))
+//	{
+//		mIsJoint = TRUE;
+//		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
+//		if (!node->getFastAttributeString(name_string, mName))
+//		{
+//			llwarns << "Bone without name" << llendl;
+//			return FALSE;
+//		}
+//	}
+//	else if (node->hasName("collision_volume"))
+//	{
+//		mIsJoint = FALSE;
+//		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
+//		if (!node->getFastAttributeString(name_string, mName))
+//		{
+//			mName = "Collision Volume";
+//		}
+//	}
+//	else
+//	{
+//		llwarns << "Invalid node " << node->getName() << llendl;
+//		return FALSE;
+//	}
+//
+//	static LLStdStringHandle pos_string = LLXmlTree::addAttributeString("pos");
+//	if (!node->getFastAttributeVector3(pos_string, mPos))
+//	{
+//		llwarns << "Bone without position" << llendl;
+//		return FALSE;
+//	}
+//
+//	static LLStdStringHandle rot_string = LLXmlTree::addAttributeString("rot");
+//	if (!node->getFastAttributeVector3(rot_string, mRot))
+//	{
+//		llwarns << "Bone without rotation" << llendl;
+//		return FALSE;
+//	}
+//	
+//	static LLStdStringHandle scale_string = LLXmlTree::addAttributeString("scale");
+//	if (!node->getFastAttributeVector3(scale_string, mScale))
+//	{
+//		llwarns << "Bone without scale" << llendl;
+//		return FALSE;
+//	}
+//
+//	if (mIsJoint)
+//	{
+//		static LLStdStringHandle pivot_string = LLXmlTree::addAttributeString("pivot");
+//		if (!node->getFastAttributeVector3(pivot_string, mPivot))
+//		{
+//			llwarns << "Bone without pivot" << llendl;
+//			return FALSE;
+//		}
+//	}
+//
+//	// parse children
+//	LLXmlTreeNode* child;
+//	for( child = node->getFirstChild(); child; child = node->getNextChild() )
+//	{
+//		LLVOAvatarBoneInfo *child_info = new LLVOAvatarBoneInfo;
+//		if (!child_info->parseXml(child))
+//		{
+//			delete child_info;
+//			return FALSE;
+//		}
+//		mChildList.push_back(child_info);
+//	}
+//	return TRUE;
+//}
+//
+////-----------------------------------------------------------------------------
+//// LLVOAvatarSkeletonInfo::parseXml()
+////-----------------------------------------------------------------------------
+//BOOL LLVOAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
+//{
+//	static LLStdStringHandle num_bones_string = LLXmlTree::addAttributeString("num_bones");
+//	if (!node->getFastAttributeS32(num_bones_string, mNumBones))
+//	{
+//		llwarns << "Couldn't find number of bones." << llendl;
+//		return FALSE;
+//	}
+//
+//	static LLStdStringHandle num_collision_volumes_string = LLXmlTree::addAttributeString("num_collision_volumes");
+//	node->getFastAttributeS32(num_collision_volumes_string, mNumCollisionVolumes);
+//
+//	LLXmlTreeNode* child;
+//	for( child = node->getFirstChild(); child; child = node->getNextChild() )
+//	{
+//		LLVOAvatarBoneInfo *info = new LLVOAvatarBoneInfo;
+//		if (!info->parseXml(child))
+//		{
+//			delete info;
+//			llwarns << "Error parsing bone in skeleton file" << llendl;
+//			return FALSE;
+//		}
+//		mBoneInfoList.push_back(info);
+//	}
+//	return TRUE;
+//}
 
 //-----------------------------------------------------------------------------
 // parseXmlSkeletonNode(): parses <skeleton> nodes from XML tree

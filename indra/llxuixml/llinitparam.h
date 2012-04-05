@@ -377,13 +377,19 @@ namespace LLInitParam
 		class Lazy
 		{
 		public:
+			
 			Lazy()
-				: mPtr(NULL)
+			:	mPtr(NULL)
 			{}
 
 			~Lazy()
 			{
 				delete mPtr;
+			}
+
+			Lazy(const T& value)
+			{
+				mPtr = new T(value);
 			}
 
 			Lazy(const Lazy& other)
@@ -424,12 +430,17 @@ namespace LLInitParam
 
 			const T& get() const
 			{
-				return ensureInstance();
+				return *ensureInstance();
 			}
 
 			T& get()
 			{
-				return ensureInstance();
+				return *ensureInstance();
+			}
+
+			operator const T&() const
+			{ 
+				return get(); 
 			}
 
 		private:
@@ -520,8 +531,8 @@ namespace LLInitParam
 		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const;
 
-		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
-		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
+		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return getBlockDescriptor(); }
+		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return getBlockDescriptor(); }
 
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const BaseBlock& other)
@@ -539,6 +550,15 @@ namespace LLInitParam
 
 		ParamDescriptorPtr findParamDescriptor(const Param& param);
 
+		// take all provided params from other and apply to self
+		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
+
+		static BlockDescriptor& getBlockDescriptor()
+		{
+			static BlockDescriptor sBlockDescriptor;
+			return sBlockDescriptor;
+		}
+
 	protected:
 		void init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size);
 
@@ -547,23 +567,9 @@ namespace LLInitParam
 		{
 			return mergeBlock(block_data, source, overwrite);
 		}
-		// take all provided params from other and apply to self
-		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite);
-
-		static BlockDescriptor& selfBlockDescriptor()
-		{
-			static BlockDescriptor sBlockDescriptor;
-			return sBlockDescriptor;
-		}
 
 	private:
 		const std::string& getParamName(const BlockDescriptor& block_data, const Param* paramp) const;
-	};
-
-	template<typename T>
-	struct ParamCompare<BaseBlock::Lazy<T>, false >
-	{
-		static bool equals(const BaseBlock::Lazy<T>& a, const BaseBlock::Lazy<T>& b) { return !a.empty() || !b.empty(); }
 	};
 
 	class Param
@@ -607,26 +613,16 @@ namespace LLInitParam
 
 	// these templates allow us to distinguish between template parameters
 	// that derive from BaseBlock and those that don't
-	template<typename T, typename Void = void>
+	template<typename T, typename BLOCK_IDENTIFIER = void>
 	struct IsBlock
 	{
 		static const bool value = false;
-		struct EmptyBase {};
-		typedef EmptyBase base_class_t;
 	};
 
 	template<typename T>
 	struct IsBlock<T, typename T::baseblock_base_class_t>
 	{
 		static const bool value = true;
-		typedef BaseBlock base_class_t;
-	};
-
-	template<typename T>
-	struct IsBlock<BaseBlock::Lazy<T>, typename T::baseblock_base_class_t >
-	{
-		static const bool value = true;
-		typedef BaseBlock base_class_t;
 	};
 
 	template<typename T, typename NAME_VALUE_LOOKUP, bool VALUE_IS_BLOCK = IsBlock<T>::value>
@@ -817,13 +813,13 @@ namespace LLInitParam
 	public:
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>		self_t;
 		typedef ParamValue<T, NAME_VALUE_LOOKUP>											param_value_t;
-		typedef typename param_value_t::value_assignment_t				value_assignment_t;
-		typedef NAME_VALUE_LOOKUP															name_value_lookup_t;
+		typedef typename param_value_t::value_assignment_t									value_assignment_t;
 
 		using param_value_t::operator();
 
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
-		:	Param(block_descriptor.mCurrentBlockPtr)
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const T& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
+		:	Param(block_descriptor.mCurrentBlockPtr),
+			param_value_t(value)
 		{
 			if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 			{
@@ -837,8 +833,6 @@ namespace LLInitParam
 												min_count, max_count));
 				BaseBlock::addParam(block_descriptor, param_descriptor, name);
 			}
-
-			setValue(value);
 		} 
 
 		bool isProvided() const { return Param::anyProvided(); }
@@ -857,14 +851,14 @@ namespace LLInitParam
 				}
 				
 				// try to parse a known named value
-				if(name_value_lookup_t::valueNamesExist())
+				if(param_value_t::valueNamesExist())
 				{
 					// try to parse a known named value
 					std::string name;
 					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
-						if (name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
+						if (param_value_t::getValueFromName(name, typed_param.getValue()))
 						{
 							typed_param.setValueName(name);
 							typed_param.setProvided();
@@ -917,9 +911,9 @@ namespace LLInitParam
 			// tell parser about our actual type
 			parser.inspectValue<T>(name_stack, min_count, max_count, NULL);
 			// then tell it about string-based alternatives ("red", "blue", etc. for LLColor4)
-			if (name_value_lookup_t::getPossibleValues())
+			if (param_value_t::getPossibleValues())
 			{
-				parser.inspectValue<std::string>(name_stack, min_count, max_count, name_value_lookup_t::getPossibleValues());
+				parser.inspectValue<std::string>(name_stack, min_count, max_count, param_value_t::getPossibleValues());
 			}
 		}
 
@@ -969,11 +963,10 @@ namespace LLInitParam
 		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
 		typedef typename param_value_t::value_assignment_t		value_assignment_t;
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, true>	self_t;
-		typedef NAME_VALUE_LOOKUP								name_value_lookup_t;
 
 		using param_value_t::operator();
 
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const T& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
 			param_value_t(value)
 		{
@@ -1002,14 +995,14 @@ namespace LLInitParam
 				return true;
 			}
 
-			if(name_value_lookup_t::valueNamesExist())
+			if(param_value_t::valueNamesExist())
 			{
 				// try to parse a known named value
 				std::string name;
 				if (parser.readValue(name))
 				{
 					// try to parse a per type named value
-					if (name_value_lookup_t::getValueFromName(name, typed_param.getValue()))
+					if (param_value_t::getValueFromName(name, typed_param.getValue()))
 					{
 						typed_param.setValueName(name);
 						typed_param.setProvided();
@@ -1041,7 +1034,7 @@ namespace LLInitParam
 			}
 			else
 			{
-				typed_param.serializeBlock(parser, name_stack, static_cast<const self_t*>(diff_param));
+				typed_param.serializeBlock(parser, name_stack, &static_cast<const BaseBlock&>(*static_cast<const self_t*>(diff_param)));
 			}
 		}
 
@@ -1115,7 +1108,7 @@ namespace LLInitParam
 
 			if (src_typed_param.anyProvided())
 			{
-				if (dst_typed_param.mergeBlockParam(src_typed_param.isProvided(), dst_typed_param.isProvided(), param_value_t::selfBlockDescriptor(), src_typed_param, overwrite))
+				if (dst_typed_param.mergeBlockParam(src_typed_param.isProvided(), dst_typed_param.isProvided(), param_value_t::getBlockDescriptor(), src_typed_param, overwrite))
 				{
 					dst_typed_param.clearValueName();
 					dst_typed_param.setProvided(true);
@@ -1138,9 +1131,8 @@ namespace LLInitParam
 		typedef const container_t&											value_assignment_t;
 
 		typedef typename param_value_t::value_t								value_t;
-		typedef NAME_VALUE_LOOKUP											name_value_lookup_t;
 		
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const container_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
 			std::copy(value.begin(), value.end(), std::back_inserter(mValues));
@@ -1176,14 +1168,14 @@ namespace LLInitParam
 				}
 				
 				// try to parse a known named value
-				if(name_value_lookup_t::valueNamesExist())
+				if(param_value_t::valueNamesExist())
 				{
 					// try to parse a known named value
 					std::string name;
 					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
-						if (name_value_lookup_t::getValueFromName(name, value))
+						if (param_value_t::getValueFromName(name, value))
 						{
 							typed_param.add(value);
 							typed_param.mValues.back().setValueName(name);
@@ -1234,9 +1226,9 @@ namespace LLInitParam
 		static void inspectParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, S32 min_count, S32 max_count)
 		{
 			parser.inspectValue<VALUE_TYPE>(name_stack, min_count, max_count, NULL);
-			if (name_value_lookup_t::getPossibleValues())
+			if (param_value_t::getPossibleValues())
 			{
-				parser.inspectValue<std::string>(name_stack, min_count, max_count, name_value_lookup_t::getPossibleValues());
+				parser.inspectValue<std::string>(name_stack, min_count, max_count, param_value_t::getPossibleValues());
 			}
 		}
 
@@ -1261,12 +1253,12 @@ namespace LLInitParam
 			setProvided();
 		}
 
-		void add(const typename name_value_lookup_t::name_t& name)
+		void add(const typename param_value_t::name_t& name)
 		{
 			value_t value;
 
 			// try to parse a per type named value
-			if (name_value_lookup_t::getValueFromName(name, value))
+			if (param_value_t::getValueFromName(name, value))
 			{
 				add(value);
 				mValues.back().setValueName(name);
@@ -1330,9 +1322,8 @@ namespace LLInitParam
 		typedef typename std::vector<param_value_t>						container_t;
 		typedef const container_t&										value_assignment_t;
 		typedef typename param_value_t::value_t							value_t;
-		typedef NAME_VALUE_LOOKUP										name_value_lookup_t;
 
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, value_assignment_t value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const container_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
 			std::copy(value.begin(), value.end(), back_inserter(mValues));
@@ -1372,14 +1363,14 @@ namespace LLInitParam
 				typed_param.setProvided();
 				return true;
 			}
-			else if(name_value_lookup_t::valueNamesExist())
+			else if(param_value_t::valueNamesExist())
 			{
 				// try to parse a known named value
 				std::string name;
 				if (parser.readValue(name))
 				{
 					// try to parse a per type named value
-					if (name_value_lookup_t::getValueFromName(name, value.getValue()))
+					if (param_value_t::getValueFromName(name, value.getValue()))
 					{
 						typed_param.mValues.back().setValueName(name);
 						typed_param.setProvided();
@@ -1447,12 +1438,12 @@ namespace LLInitParam
 			setProvided();
 		}
 
-		void add(const typename name_value_lookup_t::name_t& name)
+		void add(const typename param_value_t::name_t& name)
 		{
 			value_t value;
 
 			// try to parse a per type named value
-			if (name_value_lookup_t::getValueFromName(name, value))
+			if (param_value_t::getValueFromName(name, value))
 			{
 				add(value);
 				mValues.back().setValueName(name);
@@ -1526,13 +1517,13 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(selfBlockDescriptor(), other, true);
+			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(getBlockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(selfBlockDescriptor(), other, false);
+			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(getBlockDescriptor(), other, false);
 		}
 
 		bool mergeBlockParam(bool source_provided, bool dest_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
@@ -1550,7 +1541,7 @@ namespace LLInitParam
 		bool mergeBlock(BlockDescriptor& block_data, const self_t& other, bool overwrite)
 		{
 			mCurChoice = other.mCurChoice;
-			return base_block_t::mergeBlock(selfBlockDescriptor(), other, overwrite);
+			return base_block_t::mergeBlock(getBlockDescriptor(), other, overwrite);
 		}
 
 		// clear out old choice when param has changed
@@ -1571,14 +1562,14 @@ namespace LLInitParam
 			base_block_t::paramChanged(changed_param, user_provided);
 		}
 
-		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
-		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
+		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return getBlockDescriptor(); }
+		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return getBlockDescriptor(); }
 
 	protected:
 		ChoiceBlock()
 		:	mCurChoice(0)
 		{
-			BaseBlock::init(selfBlockDescriptor(), base_block_t::selfBlockDescriptor(), sizeof(DERIVED_BLOCK));
+			BaseBlock::init(getBlockDescriptor(), base_block_t::getBlockDescriptor(), sizeof(DERIVED_BLOCK));
 		}
 
 		// Alternatives are mutually exclusive wrt other Alternatives in the same block.  
@@ -1596,13 +1587,13 @@ namespace LLInitParam
 
 			using super_t::operator =;
 
-			explicit Alternative(const char* name = "", value_assignment_t val = defaultValue<T>())
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1),
+			explicit Alternative(const char* name = "", const T& val = defaultValue<T>())
+			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, NULL, 0, 1),
 				mOriginalValue(val)
 			{
 				// assign initial choice to first declared option
-				DERIVED_BLOCK* blockp = ((DERIVED_BLOCK*)DERIVED_BLOCK::selfBlockDescriptor().mCurrentBlockPtr);
-				if (LL_UNLIKELY(DERIVED_BLOCK::selfBlockDescriptor().mInitializationState == BlockDescriptor::INITIALIZING))
+				DERIVED_BLOCK* blockp = ((DERIVED_BLOCK*)DERIVED_BLOCK::getBlockDescriptor().mCurrentBlockPtr);
+				if (LL_UNLIKELY(DERIVED_BLOCK::getBlockDescriptor().mInitializationState == BlockDescriptor::INITIALIZING))
 				{
 					if(blockp->mCurChoice == 0)
 					{
@@ -1654,8 +1645,8 @@ namespace LLInitParam
 			T			mOriginalValue;
 		};
 
-	protected:
-		static BlockDescriptor& selfBlockDescriptor()
+	public:
+		static BlockDescriptor& getBlockDescriptor()
 		{
 			static BlockDescriptor sBlockDescriptor;
 			return sBlockDescriptor;
@@ -1683,23 +1674,23 @@ namespace LLInitParam
 		// take all provided params from other and apply to self
 		bool overwriteFrom(const self_t& other)
 		{
-			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(selfBlockDescriptor(), other, true);
+			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(getBlockDescriptor(), other, true);
 		}
 
 		// take all provided params that are not already provided, and apply to self
 		bool fillFrom(const self_t& other)
 		{
-			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(selfBlockDescriptor(), other, false);
+			return static_cast<DERIVED_BLOCK*>(this)->mergeBlock(getBlockDescriptor(), other, false);
 		}
 
-		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return selfBlockDescriptor(); }
-		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return selfBlockDescriptor(); }
+		virtual const BlockDescriptor& mostDerivedBlockDescriptor() const { return getBlockDescriptor(); }
+		virtual BlockDescriptor& mostDerivedBlockDescriptor() { return getBlockDescriptor(); }
 
 	protected:
 		Block()
 		{
 			//#pragma message("Parsing LLInitParam::Block")
-			BaseBlock::init(selfBlockDescriptor(), BASE_BLOCK::selfBlockDescriptor(), sizeof(DERIVED_BLOCK));
+			BaseBlock::init(getBlockDescriptor(), BASE_BLOCK::getBlockDescriptor(), sizeof(DERIVED_BLOCK));
 		}
 
 		//
@@ -1715,8 +1706,8 @@ namespace LLInitParam
 			using super_t::operator();
 			using super_t::operator =;
 			
-			explicit Optional(const char* name = "", value_assignment_t val = defaultValue<T>())
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, NULL, 0, 1)
+			explicit Optional(const char* name = "", const T& val = defaultValue<T>())
+			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, NULL, 0, 1)
 			{
 				//#pragma message("Parsing LLInitParam::Block::Optional")
 			}
@@ -1746,8 +1737,8 @@ namespace LLInitParam
 			using super_t::operator =;
 
 			// mandatory parameters require a name to be parseable
-			explicit Mandatory(const char* name = "", value_assignment_t val = defaultValue<T>())
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, val, &validate, 1, 1)
+			explicit Mandatory(const char* name = "", const T& val = defaultValue<T>())
+			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, &validate, 1, 1)
 			{}
 
 			Mandatory& operator =(value_assignment_t val)
@@ -1782,7 +1773,7 @@ namespace LLInitParam
 			typedef typename super_t::const_iterator								const_iterator;
 
 			explicit Multiple(const char* name = "")
-			:	super_t(DERIVED_BLOCK::selfBlockDescriptor(), name, container_t(), &validate, RANGE::minCount, RANGE::maxCount)
+			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, container_t(), &validate, RANGE::minCount, RANGE::maxCount)
 			{}
 
 			Multiple& operator =(value_assignment_t val)
@@ -1808,9 +1799,9 @@ namespace LLInitParam
 		{
 		public:
 			explicit Deprecated(const char* name)
-			:	Param(DERIVED_BLOCK::selfBlockDescriptor().mCurrentBlockPtr)
+			:	Param(DERIVED_BLOCK::getBlockDescriptor().mCurrentBlockPtr)
 			{
-				BlockDescriptor& block_descriptor = DERIVED_BLOCK::selfBlockDescriptor();
+				BlockDescriptor& block_descriptor = DERIVED_BLOCK::getBlockDescriptor();
 				if (LL_UNLIKELY(block_descriptor.mInitializationState == BlockDescriptor::INITIALIZING))
 				{
 					ParamDescriptorPtr param_descriptor = ParamDescriptorPtr(new ParamDescriptor(
@@ -1841,13 +1832,14 @@ namespace LLInitParam
 		// different semantics for documentation purposes, but functionally identical
 		typedef Deprecated Ignored;
 
-	protected:
-		static BlockDescriptor& selfBlockDescriptor()
+	public:
+		static BlockDescriptor& getBlockDescriptor()
 		{
 			static BlockDescriptor sBlockDescriptor;
 			return sBlockDescriptor;
 		}
 
+	protected:
 		template <typename T, typename NAME_VALUE_LOOKUP, bool multiple, bool is_block>
 		void changeDefault(TypedParam<T, NAME_VALUE_LOOKUP, multiple, is_block>& param, 
 			typename TypedParam<T, NAME_VALUE_LOOKUP, multiple, is_block>::value_assignment_t value)
@@ -1887,7 +1879,7 @@ namespace LLInitParam
 			{
 				*static_cast<DERIVED_BLOCK*>(this) = defaultBatchValue();
 				// merge individual parameters into destination
-				return super_t::mergeBlock(super_t::selfBlockDescriptor(), other, overwrite);
+				return super_t::mergeBlock(super_t::getBlockDescriptor(), other, overwrite);
 			}
 			return false;
 		}
@@ -1955,14 +1947,36 @@ namespace LLInitParam
 		mutable bool 	mValidated; // lazy validation flag
 	};
 
-	template<typename T, bool IS_BLOCK>
+	template<typename T, typename BLOCK_IDENTIFIER>
+	struct IsBlock<ParamValue<BaseBlock::Lazy<T>, TypeValues<BaseBlock::Lazy<T> > > , BLOCK_IDENTIFIER>
+	{
+		static const bool value = true;//IsBlock<T>::value;
+	};
+
+	template<typename T>
+	struct ParamCompare<BaseBlock::Lazy<T>, false>
+	{
+		static bool equals(const T&a, const T &b)
+		{
+			return a == b;
+		}
+
+		static bool equals(const BaseBlock::Lazy<T>& a, const BaseBlock::Lazy<T>& b)
+		{
+			if (a.empty() || b.empty()) return false;
+			return a.get() == b.get();
+		}
+	};
+
+
+	template<typename T, bool VALUE_IS_BLOCK>
 	class ParamValue <BaseBlock::Lazy<T>,
-					TypeValues<T>,
-					IS_BLOCK>
-	:	public IsBlock<T>::base_class_t
+					TypeValues<BaseBlock::Lazy<T> >,
+					VALUE_IS_BLOCK>
+	:	public TypeValues<T>
 	{
 	public:
-		typedef ParamValue <BaseBlock::Lazy<T>, TypeValues<T>, false> self_t;
+		typedef ParamValue <BaseBlock::Lazy<T>, TypeValues<BaseBlock::Lazy<T> >, false> self_t;
 		typedef const T& value_assignment_t;
 		typedef T value_t;
 	
@@ -1971,8 +1985,13 @@ namespace LLInitParam
 			mValidated(false)
 		{}
 
-		ParamValue(value_assignment_t other)
+		ParamValue(const BaseBlock::Lazy<T>& other)
 		:	mValue(other),
+			mValidated(false)
+		{}
+
+		ParamValue(const T& value)
+		:	mValue(value),
 			mValidated(false)
 		{}
 
@@ -1987,6 +2006,11 @@ namespace LLInitParam
 		}
 
 		T& getValue()
+		{
+			return mValue.get();
+		}
+
+		operator const BaseBlock&() const
 		{
 			return mValue.get();
 		}
@@ -2020,7 +2044,22 @@ namespace LLInitParam
 			return mValue.get().inspectBlock(p, name_stack, min_count, max_count);
 		}
 
-	protected:
+		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
+		{
+			return mValue.get().mergeBlock(block_data, source.getValue(),  overwrite);
+		}
+
+		bool validateBlock(bool emit_errors = true) const
+		{
+			return mValue.get().validateBlock(emit_errors);
+		}
+
+		static BlockDescriptor& getBlockDescriptor()
+		{
+			return T::getBlockDescriptor();
+		}
+
+
 		mutable bool 	mValidated; // lazy validation flag
 
 	private:

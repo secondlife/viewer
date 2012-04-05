@@ -187,45 +187,42 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3&
 			+ (y_pixel_vec * screen_offset.mV[VY]);
 
 
-	//if (mUseBubble)
+	LLVector3 bg_pos = render_position
+		+ (F32)mOffsetY * y_pixel_vec
+		- (width_vec / 2.f)
+		- (height_vec);
+	//LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+
+	LLVector3 v[] = 
 	{
-		LLVector3 bg_pos = render_position
-			+ (F32)mOffsetY * y_pixel_vec
-			- (width_vec / 2.f)
-			- (height_vec);
-		//LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+		bg_pos,
+		bg_pos + width_vec,
+		bg_pos + width_vec + height_vec,
+		bg_pos + height_vec,
+	};
 
-		LLVector3 v[] = 
+	if (debug_render)
+	{
+		gGL.begin(LLRender::LINE_STRIP);
+		gGL.vertex3fv(v[0].mV);
+		gGL.vertex3fv(v[1].mV);
+		gGL.vertex3fv(v[2].mV);
+		gGL.vertex3fv(v[3].mV);
+		gGL.vertex3fv(v[0].mV);
+		gGL.vertex3fv(v[2].mV);
+		gGL.end();
+	}
+
+	LLVector3 dir = end-start;
+	F32 a, b, t;
+
+	if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a, b, t, FALSE) ||
+		LLTriangleRayIntersect(v[2], v[3], v[0], start, dir, a, b, t, FALSE) )
+	{
+		if (t <= 1.f)
 		{
-			bg_pos,
-			bg_pos + width_vec,
-			bg_pos + width_vec + height_vec,
-			bg_pos + height_vec,
-		};
-
-		if (debug_render)
-		{
-			gGL.begin(LLRender::LINE_STRIP);
-			gGL.vertex3fv(v[0].mV);
-			gGL.vertex3fv(v[1].mV);
-			gGL.vertex3fv(v[2].mV);
-			gGL.vertex3fv(v[3].mV);
-			gGL.vertex3fv(v[0].mV);
-			gGL.vertex3fv(v[2].mV);
-			gGL.end();
-		}
-
-		LLVector3 dir = end-start;
-		F32 a, b, t;
-
-		if (LLTriangleRayIntersect(v[0], v[1], v[2], start, dir, a, b, t, FALSE) ||
-			LLTriangleRayIntersect(v[2], v[3], v[0], start, dir, a, b, t, FALSE) )
-		{
-			if (t <= 1.f)
-			{
-				intersection = start + dir*t;
-				return TRUE;
-			}
+			intersection = start + dir*t;
+			return TRUE;
 		}
 	}
 
@@ -239,12 +236,6 @@ void LLHUDNameTag::render()
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 		renderText(FALSE);
 	}
-}
-
-void LLHUDNameTag::renderForSelect()
-{
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-	renderText(TRUE);
 }
 
 void LLHUDNameTag::renderText(BOOL for_select)
@@ -336,142 +327,53 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	LLCoordGL screen_pos;
 	LLViewerCamera::getInstance()->projectPosAgentToScreen(mPositionAgent, screen_pos, FALSE);
 
-	LLVector2 screen_offset;
-//	if (!mUseBubble)
-//	{
-//		screen_offset = mPositionOffset;
-//	}
-//	else
-//	{
-		screen_offset = updateScreenPos(mPositionOffset);
-//	}
+	LLVector2 screen_offset = updateScreenPos(mPositionOffset);
 
 	LLVector3 render_position = mPositionAgent  
 			+ (x_pixel_vec * screen_offset.mV[VX])
 			+ (y_pixel_vec * screen_offset.mV[VY]);
 
-//	if (mUseBubble)
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+	LLUI::pushMatrix();
 	{
-		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-		LLUI::pushMatrix();
+		LLVector3 bg_pos = render_position
+			+ (F32)mOffsetY * y_pixel_vec
+			- (width_vec / 2.f)
+			- (height_vec);
+		LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+
+		if (for_select)
 		{
-			LLVector3 bg_pos = render_position
-				+ (F32)mOffsetY * y_pixel_vec
-				- (width_vec / 2.f)
-				- (height_vec);
-			LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
-
-			if (for_select)
-			{
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-				S32 name = mSourceObject->mGLName;
-				LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
-				gGL.color4ubv(coloru.mV);
-				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
-				LLUI::popMatrix();
-				return;
-			}
-			else
-			{
-				gGL.getTexUnit(0)->bind(imagep->getImage());
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			S32 name = mSourceObject->mGLName;
+			LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
+			gGL.color4ubv(coloru.mV);
+			gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
+			LLUI::popMatrix();
+			return;
+		}
+		else
+		{
+			gGL.getTexUnit(0)->bind(imagep->getImage());
 				
-				gGL.color4fv(bg_color.mV);
-				gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
+			gGL.color4fv(bg_color.mV);
+			gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
 		
-				if ( mLabelSegments.size())
-				{
-					LLUI::pushMatrix();
-					{
-						gGL.color4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
-						LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
-						LLVector3 label_offset = height_vec - label_height;
-						LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
-						gl_segmented_rect_3d_tex_top(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, label_height);
-					}
-					LLUI::popMatrix();
-				}
-			}
-
-			BOOL outside_width = llabs(mPositionOffset.mV[VX]) > mWidth * 0.5f;
-			BOOL outside_height = llabs(mPositionOffset.mV[VY] + (mVertAlignment == ALIGN_VERT_TOP ? mHeight * 0.5f : 0.f)) > mHeight * (mVertAlignment == ALIGN_VERT_TOP ? mHeight * 0.75f : 0.5f);
-
-			// draw line segments pointing to parent object
-			if (!mOffscreen && (outside_width || outside_height))
+			if ( mLabelSegments.size())
 			{
 				LLUI::pushMatrix();
 				{
-					gGL.color4fv(bg_color.mV);
-					LLVector3 target_pos = -1.f * (mPositionOffset.mV[VX] * x_pixel_vec + mPositionOffset.mV[VY] * y_pixel_vec);
-					target_pos += (width_vec / 2.f);
-					target_pos += mVertAlignment == ALIGN_VERT_CENTER ? (height_vec * 0.5f) : LLVector3::zero;
-					target_pos -= 3.f * x_pixel_vec;
-					target_pos -= 6.f * y_pixel_vec;
-					LLUI::translate(target_pos.mV[VX], target_pos.mV[VY], target_pos.mV[VZ]);
-					gl_segmented_rect_3d_tex(border_scale_vec, 3.f * x_pixel_vec, 3.f * y_pixel_vec, 6.f * x_pixel_vec, 6.f * y_pixel_vec);	
+					gGL.color4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+					LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
+					LLVector3 label_offset = height_vec - label_height;
+					LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
+					gl_segmented_rect_3d_tex_top(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, label_height);
 				}
 				LLUI::popMatrix();
-
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-				LLGLDepthTest gls_depth(mZCompare ? GL_TRUE : GL_FALSE, GL_FALSE);
-				
-				LLVector3 box_center_offset;
-				box_center_offset = (width_vec * 0.5f) + (height_vec * 0.5f);
-				LLUI::translate(box_center_offset.mV[VX], box_center_offset.mV[VY], box_center_offset.mV[VZ]);
-				gGL.color4fv(bg_color.mV);
-				LLUI::setLineWidth(2.0);
-				gGL.begin(LLRender::LINES);
-				{
-					if (outside_width)
-					{
-						LLVector3 vert;
-						// draw line in x then y
-						if (mPositionOffset.mV[VX] < 0.f)
-						{
-							// start at right edge
-							vert = width_vec * 0.5f;
-							gGL.vertex3fv(vert.mV);
-						}
-						else
-						{
-							// start at left edge
-							vert = width_vec * -0.5f;
-							gGL.vertex3fv(vert.mV);
-						}
-						vert = -mPositionOffset.mV[VX] * x_pixel_vec;
-						gGL.vertex3fv(vert.mV);
-						gGL.vertex3fv(vert.mV);
-						vert -= mPositionOffset.mV[VY] * y_pixel_vec;
-						vert -= ((mVertAlignment == ALIGN_VERT_TOP) ? (height_vec * 0.5f) : LLVector3::zero);
-						gGL.vertex3fv(vert.mV);
-					}
-					else
-					{
-						LLVector3 vert;
-						// draw line in y then x
-						if (mPositionOffset.mV[VY] < 0.f)
-						{
-							// start at top edge
-							vert = (height_vec * 0.5f) - (mPositionOffset.mV[VX] * x_pixel_vec);
-							gGL.vertex3fv(vert.mV);
-						}
-						else
-						{
-							// start at bottom edge
-							vert = (height_vec * -0.5f)  - (mPositionOffset.mV[VX] * x_pixel_vec);
-							gGL.vertex3fv(vert.mV);
-						}
-						vert = -mPositionOffset.mV[VY] * y_pixel_vec - mPositionOffset.mV[VX] * x_pixel_vec;
-						vert -= ((mVertAlignment == ALIGN_VERT_TOP) ? (height_vec * 0.5f) : LLVector3::zero);
-						gGL.vertex3fv(vert.mV);
-					}
-				}
-				gGL.end();
-				LLUI::setLineWidth(1.0);
-
 			}
 		}
-		LLUI::popMatrix();
 	}
+	LLUI::popMatrix();
 
 	F32 y_offset = (F32)mOffsetY;
 		
@@ -874,29 +776,26 @@ void LLHUDNameTag::updateAll()
 	for (r_it = sVisibleTextObjects.rbegin(); r_it != sVisibleTextObjects.rend(); ++r_it)
 	{
 		LLHUDNameTag* textp = (*r_it);
-//		if (textp->mUseBubble)
-//		{
-			if (current_screen_area / screen_area > LOD_2_SCREEN_COVERAGE)
-			{
-				textp->setLOD(3);
-			}
-			else if (current_screen_area / screen_area > LOD_1_SCREEN_COVERAGE)
-			{
-				textp->setLOD(2);
-			}
-			else if (current_screen_area / screen_area > LOD_0_SCREEN_COVERAGE)
-			{
-				textp->setLOD(1);
-			}
-			else
-			{
-				textp->setLOD(0);
-			}
-			textp->updateSize();
-			// find on-screen position and initialize collision rectangle
-			textp->mTargetPositionOffset = textp->updateScreenPos(LLVector2::zero);
-			current_screen_area += (F32)(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
-//		}
+		if (current_screen_area / screen_area > LOD_2_SCREEN_COVERAGE)
+		{
+			textp->setLOD(3);
+		}
+		else if (current_screen_area / screen_area > LOD_1_SCREEN_COVERAGE)
+		{
+			textp->setLOD(2);
+		}
+		else if (current_screen_area / screen_area > LOD_0_SCREEN_COVERAGE)
+		{
+			textp->setLOD(1);
+		}
+		else
+		{
+			textp->setLOD(0);
+		}
+		textp->updateSize();
+		// find on-screen position and initialize collision rectangle
+		textp->mTargetPositionOffset = textp->updateScreenPos(LLVector2::zero);
+		current_screen_area += (F32)(textp->mSoftScreenRect.getWidth() * textp->mSoftScreenRect.getHeight());
 	}
 
 	LLStat* camera_vel_stat = LLViewerCamera::getInstance()->getVelocityStat();
@@ -914,20 +813,12 @@ void LLHUDNameTag::updateAll()
 		{
 			LLHUDNameTag* src_textp = (*src_it);
 
-//			if (!src_textp->mUseBubble)
-//			{
-//				continue;
-//			}
 			VisibleTextObjectIterator dst_it = src_it;
 			++dst_it;
 			for (; dst_it != sVisibleTextObjects.end(); ++dst_it)
 			{
 				LLHUDNameTag* dst_textp = (*dst_it);
 
-//				if (!dst_textp->mUseBubble)
-//				{
-//					continue;
-//				}
 				if (src_textp->mSoftScreenRect.overlaps(dst_textp->mSoftScreenRect))
 				{
 					LLRectf intersect_rect = src_textp->mSoftScreenRect;
@@ -976,10 +867,6 @@ void LLHUDNameTag::updateAll()
 	VisibleTextObjectIterator this_object_it;
 	for (this_object_it = sVisibleTextObjects.begin(); this_object_it != sVisibleTextObjects.end(); ++this_object_it)
 	{
-//		if (!(*this_object_it)->mUseBubble)
-//		{
-//			continue;
-//		}
 		(*this_object_it)->mPositionOffset = lerp((*this_object_it)->mPositionOffset, (*this_object_it)->mTargetPositionOffset, LLCriticalDamp::getInterpolant(POSITION_DAMPING_TC));
 	}
 }
@@ -1037,10 +924,6 @@ void LLHUDNameTag::addPickable(std::set<LLViewerObject*> &pick_list)
 	VisibleTextObjectIterator text_it;
 	for (text_it = sVisibleTextObjects.begin(); text_it != sVisibleTextObjects.end(); ++text_it)
 	{
-//		if (!(*text_it)->mUseBubble)
-//		{
-//			continue;
-//		}
 		pick_list.insert((*text_it)->mSourceObject);
 	}
 }
