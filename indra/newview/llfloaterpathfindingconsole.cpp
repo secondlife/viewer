@@ -676,6 +676,7 @@ void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentSta
 void LLFloaterPathfindingConsole::onRegionBoundaryCross()
 {
 	initializeNavMeshZoneForCurrentRegion();
+	mShowWorldCheckBox->set(TRUE);
 }
 
 void LLFloaterPathfindingConsole::setDefaultInputs()
