@@ -98,7 +98,6 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mShowXRayCheckBox = findChild<LLCheckBoxCtrl>("x-ray");
 	llassert(mShowXRayCheckBox != NULL);
-	mShowXRayCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowXRayToggle, this));
 
 	mViewCharactersButton = findChild<LLButton>("view_characters_floater");
 	llassert(mViewCharactersButton != NULL);
@@ -593,12 +592,6 @@ void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 		break;
 	}
 }
-
-void LLFloaterPathfindingConsole::onShowXRayToggle()
-{
-	//nothing to do (xray parameter not stored in pathing lib
-}
-
 
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
