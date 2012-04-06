@@ -38,12 +38,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      name="no_filtered_friends_msg">
          Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search].
     </string>
-    <string
-     name="people_filter_label"
-     value="Filter People" />
-    <string
-     name="groups_filter_label"
-     value="Filter Groups" />
      <!--
      *WORKAROUND: for group_list.no_items_msg & group_list.no_filtered_items_msg attributes.
      They are not defined as translatable in VLT. See EXT-5931
@@ -104,7 +98,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  height="23"
                  layout="topleft"
                  left="3"
-                 label="Filter"
+                 label="Filter People"
                  max_length_chars="300"
                  name="nearby_filter_input"
                  text_color="Black"
@@ -253,7 +247,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  height="23"
                  layout="topleft"
                  left="3"
-                 label="Filter"
+                 label="Filter People"
                  max_length_chars="300"
                  name="friends_filter_input"
                  text_color="Black"
@@ -410,7 +404,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  height="23"
                  layout="topleft"
                  left="3"
-                 label="Filter"
+                 label="Filter Groups"
                  max_length_chars="300"
                  name="groups_filter_input"
                  text_color="Black"
@@ -533,7 +527,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  height="23"
                  layout="topleft"
                  left="3"
-                 label="Filter"
+                 label="Filter People"
                  max_length_chars="300"
                  name="recent_filter_input"
                  text_color="Black"

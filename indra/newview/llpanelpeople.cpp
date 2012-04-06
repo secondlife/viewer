@@ -1016,11 +1016,6 @@ void LLPanelPeople::onTabSelected(const LLSD& param)
 	updateButtons();
 
 	showFriendsAccordionsIfNeeded();
-
-	if (GROUP_TAB_NAME == tab_name)
-		mFilterEditor->setLabel(getString("groups_filter_label"));
-	else
-		mFilterEditor->setLabel(getString("people_filter_label"));
 }
 
 void LLPanelPeople::onAvatarListDoubleClicked(LLUICtrl* ctrl)
