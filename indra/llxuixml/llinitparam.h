@@ -369,11 +369,30 @@ namespace LLInitParam
 		class BaseBlock*				mCurrentBlockPtr;		// pointer to block currently being constructed
 	};
 
+	struct IS_BLOCK {};
+	struct NOT_BLOCK {};
+
+	// these templates allow us to distinguish between template parameters
+	// that derive from BaseBlock and those that don't
+	template<typename T, typename BLOCK_IDENTIFIER = void>
+	struct IsBlock
+	{
+		static const bool value = false;
+		typedef NOT_BLOCK value_t;
+	};
+
+	template<typename T>
+	struct IsBlock<T, typename T::baseblock_base_class_t>
+	{
+		static const bool value = true;
+		typedef IS_BLOCK value_t;
+	};
+
 	class BaseBlock
 	{
 	public:
 		//TODO: implement in terms of owned_ptr
-		template<typename T>
+		template<typename T, bool IS_BLOCK = true>
 		class Lazy
 		{
 		public:
@@ -404,7 +423,7 @@ namespace LLInitParam
 				}
 			}
 
-			Lazy<T>& operator = (const Lazy<T>& other)
+			Lazy& operator = (const Lazy& other)
 			{
 				if (other.mPtr)
 				{
@@ -461,6 +480,7 @@ namespace LLInitParam
 
 			mutable T* mPtr;
 		};
+
 
 		// "Multiple" constraint types, put here in root class to avoid ambiguity during use
 		struct AnyAmount
@@ -611,19 +631,6 @@ namespace LLInitParam
 
 	};
 
-	// these templates allow us to distinguish between template parameters
-	// that derive from BaseBlock and those that don't
-	template<typename T, typename BLOCK_IDENTIFIER = void>
-	struct IsBlock
-	{
-		static const bool value = false;
-	};
-
-	template<typename T>
-	struct IsBlock<T, typename T::baseblock_base_class_t>
-	{
-		static const bool value = true;
-	};
 
 	template<typename T, typename NAME_VALUE_LOOKUP, bool VALUE_IS_BLOCK = IsBlock<T>::value>
 	class ParamValue : public NAME_VALUE_LOOKUP
@@ -805,7 +812,7 @@ namespace LLInitParam
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
-			bool		VALUE_IS_BLOCK = IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>
+			bool		VALUE_IS_BLOCK = IsBlock<T>::value>
 	class TypedParam 
 	:	public Param, 
 		public ParamValue<T, NAME_VALUE_LOOKUP>
@@ -1034,7 +1041,7 @@ namespace LLInitParam
 			}
 			else
 			{
-				typed_param.serializeBlock(parser, name_stack, &static_cast<const BaseBlock&>(*static_cast<const self_t*>(diff_param)));
+				typed_param.serializeBlock(parser, name_stack, static_cast<const self_t*>(diff_param));
 			}
 		}
 
@@ -1582,7 +1589,7 @@ namespace LLInitParam
 			friend class ChoiceBlock<DERIVED_BLOCK>;
 
 			typedef Alternative<T, NAME_VALUE_LOOKUP>									self_t;
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<T>::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			using super_t::operator =;
@@ -1700,7 +1707,7 @@ namespace LLInitParam
 		class Optional : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<T>::value>		super_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
 			using super_t::operator();
@@ -1729,7 +1736,7 @@ namespace LLInitParam
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>		super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IsBlock<T>::value>		super_t;
 			typedef Mandatory<T, NAME_VALUE_LOOKUP>										self_t;
 			typedef typename super_t::value_assignment_t								value_assignment_t;
 
@@ -1765,7 +1772,7 @@ namespace LLInitParam
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value>	super_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, IsBlock<T>::value>	super_t;
 			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>							self_t;
 			typedef typename super_t::container_t									container_t;
 			typedef typename super_t::value_assignment_t							value_assignment_t;
@@ -1948,20 +1955,21 @@ namespace LLInitParam
 	};
 
 	template<typename T, typename BLOCK_IDENTIFIER>
-	struct IsBlock<ParamValue<BaseBlock::Lazy<T>, TypeValues<BaseBlock::Lazy<T> > > , BLOCK_IDENTIFIER>
+	struct IsBlock<BaseBlock::Lazy<T, true>, BLOCK_IDENTIFIER>
 	{
-		static const bool value = true;//IsBlock<T>::value;
+		static const bool value = true;
 	};
 
-	template<typename T>
-	struct ParamCompare<BaseBlock::Lazy<T>, false>
+	template<typename T, typename BLOCK_IDENTIFIER>
+	struct IsBlock<BaseBlock::Lazy<T, false>, BLOCK_IDENTIFIER>
 	{
-		static bool equals(const T&a, const T &b)
-		{
-			return a == b;
-		}
+		static const bool value = false;
+	};
 
-		static bool equals(const BaseBlock::Lazy<T>& a, const BaseBlock::Lazy<T>& b)
+	template<typename T, bool IS_BLOCK>
+	struct ParamCompare<BaseBlock::Lazy<T, IS_BLOCK>, false>
+	{
+		static bool equals(const BaseBlock::Lazy<T, IS_BLOCK>& a, const BaseBlock::Lazy<T, IS_BLOCK>& b)
 		{
 			if (a.empty() || b.empty()) return false;
 			return a.get() == b.get();
@@ -1969,14 +1977,14 @@ namespace LLInitParam
 	};
 
 
-	template<typename T, bool VALUE_IS_BLOCK>
-	class ParamValue <BaseBlock::Lazy<T>,
-					TypeValues<BaseBlock::Lazy<T> >,
-					VALUE_IS_BLOCK>
+	template<typename T>
+	class ParamValue <BaseBlock::Lazy<T, true>,
+					TypeValues<BaseBlock::Lazy<T, true> >,
+					true>
 	:	public TypeValues<T>
 	{
 	public:
-		typedef ParamValue <BaseBlock::Lazy<T>, TypeValues<BaseBlock::Lazy<T> >, false> self_t;
+		typedef ParamValue <BaseBlock::Lazy<T, true>, TypeValues<BaseBlock::Lazy<T, true> >, true> self_t;
 		typedef const T& value_assignment_t;
 		typedef T value_t;
 	
@@ -1985,7 +1993,7 @@ namespace LLInitParam
 			mValidated(false)
 		{}
 
-		ParamValue(const BaseBlock::Lazy<T>& other)
+		ParamValue(const BaseBlock::Lazy<T, true>& other)
 		:	mValue(other),
 			mValidated(false)
 		{}
@@ -2010,11 +2018,6 @@ namespace LLInitParam
 			return mValue.get();
 		}
 
-		operator const BaseBlock&() const
-		{
-			return mValue.get();
-		}
-
 		operator value_assignment_t() const
 		{
 			return mValue.get();
@@ -2030,11 +2033,14 @@ namespace LLInitParam
 			return mValue.get().deserializeBlock(p, name_stack_range, new_name);
 		}
 
-		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const
+		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const self_t* diff_block = NULL) const
 		{
 			if (mValue.empty()) return;
 			
-			mValue.get().serializeBlock(p, name_stack, diff_block);
+			const BaseBlock* base_block = (diff_block && !diff_block->mValue.empty())
+											? &(diff_block->mValue.get())
+											: NULL;
+			mValue.get().serializeBlock(p, name_stack, base_block);
 		}
 
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
@@ -2063,7 +2069,7 @@ namespace LLInitParam
 		mutable bool 	mValidated; // lazy validation flag
 
 	private:
-		BaseBlock::Lazy<T>	mValue;
+		BaseBlock::Lazy<T, true>	mValue;
 	};
 
 	template <>
