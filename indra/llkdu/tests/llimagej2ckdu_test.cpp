@@ -87,7 +87,7 @@ void LLImageFormatted::resetLastError() { }
 void LLImageFormatted::sanityCheck() { }
 void LLImageFormatted::setLastError(const std::string& , const std::string& ) { }
 
-LLImageJ2C::LLImageJ2C() : LLImageFormatted(IMG_CODEC_J2C) { }
+LLImageJ2C::LLImageJ2C() : LLImageFormatted(IMG_CODEC_J2C), mRate(DEFAULT_COMPRESSION_RATE) { }
 LLImageJ2C::~LLImageJ2C() { }
 S32 LLImageJ2C::calcDataSize(S32 ) { return 0; }
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 ) { return 0; }
