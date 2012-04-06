@@ -62,6 +62,7 @@ const S32 MAX_IMAGE_DATA_SIZE = MAX_IMAGE_AREA * MAX_IMAGE_COMPONENTS; //2048 * 
 // *TODO: change both to 1024 when SIM texture fetching is deprecated
 const S32 FIRST_PACKET_SIZE = 600;
 const S32 MAX_IMG_PACKET_SIZE = 1000;
+const S32 HTTP_PACKET_SIZE = 1496;
 
 // Base classes for images.
 // There are two major parts for the image:
@@ -320,8 +321,6 @@ public:
 	S8 getDiscardLevel() const { return mDiscardLevel; }
 	S8 getLevels() const { return mLevels; }
 	void setLevels(S8 nlevels) { mLevels = nlevels; }
-	S32 getLayers() const { return mLayers; }
-	void setLayers(S32 nlayers) { mLayers = nlayers; }
 
 	// setLastError needs to be deferred for J2C images since it may be called from a DLL
 	virtual void resetLastError();
@@ -336,7 +335,6 @@ protected:
 	S8 mDecoded;  // unused, but changing LLImage layout requires recompiling static Mac/Linux libs. 2009-01-30 JC
 	S8 mDiscardLevel;	// Current resolution level worked on. 0 = full res, 1 = half res, 2 = quarter res, etc...
 	S8 mLevels;			// Number of resolution levels in that image. Min is 1. 0 means unknown.
-	S32 mLayers;		// Number of quality layers in that image. Min is 1. 0 means unknown.
 	
 public:
 	static S32 sGlobalFormattedMemory;

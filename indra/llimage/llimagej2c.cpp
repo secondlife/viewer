@@ -56,10 +56,9 @@ std::string LLImageJ2C::getEngineInfo()
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
 							mRawDiscardLevel(-1),
-							mRate(0.0f),
+							mRate(DEFAULT_COMPRESSION_RATE),
 							mReversible(FALSE),
-							mAreaUsedForDataSizeCalcs(0),
-							mLayersUsedForDataSizeCalcs(0)
+							mAreaUsedForDataSizeCalcs(0)
 {
 	mImpl = fallbackCreateLLImageJ2CImpl();
 
@@ -257,33 +256,40 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 //static
 S32 LLImageJ2C::calcHeaderSizeJ2C()
 {
-	return FIRST_PACKET_SIZE; // Hack. just needs to be >= actual header size...
+	return HTTP_PACKET_SIZE; // Hack. just needs to be >= actual header size...
 }
 
 //static
-S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, S32 nb_layers, F32 rate)
+S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate)
 {
-	// Note: This provides an estimation for the first quality layer of a given discard level
+	// Note: This provides an estimation for the first to last quality layer of a given discard level
 	// This is however an efficient approximation, as the true discard level boundary would be
 	// in general too big for fast fetching.
 	// For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
-	if (rate <= 0.f) rate = 1.f/8.f;
-	// Compute w/pow(2,discard_level) and h/pow(2,discard_level)
-	while (discard_level > 0)
+
+	// Estimate the number of layers. This is consistent with what's done in j2c encoding
+	S32 nb_layers = 1;
+	S32 surface = w*h;
+	S32 s = 64*64;
+	while (surface > s)
 	{
-		if (w < 1 || h < 1)
-			break;
-		w >>= 1;
-		h >>= 1;
-		discard_level--;
+		nb_layers++;
+		s *= 4;
 	}
+	F32 layer_factor =  3.0f * (7 - llclamp(nb_layers,1,6));
+	
+	// Compute w/pow(2,discard_level) and h/pow(2,discard_level)
+	w >>= discard_level;
+	h >>= discard_level;
+	w = llmax(w, 1);
+	h = llmax(h, 1);
+
 	// Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange 
 	// *TODO: Take the old code out once we have enough tests done
 	S32 bytes;
-	F32 layer_factor = ((nb_layers > 0) && (nb_layers < 7) ? 3.0f * (7 - nb_layers): 3.0f);
 	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor;
 	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
-	llinfos << "Merov debug : calcDataSizeJ2C, layers = " << nb_layers << ", old = " << old_bytes << ", new = " << new_bytes << llendl;
+	//llinfos << "Merov debug : w = " << w << ", h = " << h << ", c = " << comp << ", r = " << rate << ", d = " << discard_level << ", l = " << nb_layers << ", old = " << old_bytes << ", new = " << new_bytes << llendl;
 	bytes = (LLImage::useNewByteRange() ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
@@ -298,26 +304,22 @@ S32 LLImageJ2C::calcHeaderSize()
 S32 LLImageJ2C::calcDataSize(S32 discard_level)
 {
 	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
-
+	return calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), discard_level, mRate);
+	/*
 	if ( mAreaUsedForDataSizeCalcs != (getHeight() * getWidth()) 
-		|| (mLayersUsedForDataSizeCalcs != getLayers())
 		|| (mDataSizes[0] == 0))
 	{
-		if (mLayersUsedForDataSizeCalcs != getLayers())
-		{
-			llinfos << "Merov debug : recomputing data size because " << mLayersUsedForDataSizeCalcs << " != " << getLayers() << llendl;
-		}
 		mAreaUsedForDataSizeCalcs = getHeight() * getWidth();
-		mLayersUsedForDataSizeCalcs = getLayers();
 		
 		S32 level = MAX_DISCARD_LEVEL;	// Start at the highest discard
 		while ( level >= 0 )
 		{
-			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, getLayers(), mRate);
+			mDataSizes[level] = calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), level, mRate);
 			level--;
 		}
 	}
 	return mDataSizes[discard_level];
+	*/
 }
 
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
@@ -342,11 +344,6 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 		}
 	}
 	return discard_level;
-}
-
-void LLImageJ2C::setRate(F32 rate)
-{
-	mRate = rate;
 }
 
 void LLImageJ2C::setMaxBytes(S32 max_bytes)

@@ -195,8 +195,7 @@ mRawImagep(NULL),
 mDecodeState(NULL),
 mBlocksSize(-1),
 mPrecinctsSize(-1),
-mLevels(0),
-mLayers(0)
+mLevels(0)
 {
 }
 
@@ -472,13 +471,6 @@ BOOL LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 				{
 					kdu_tile tile = mCodeStreamp->open_tile(*(mTPosp)+mTileIndicesp->pos);
 
-					int layers = mCodeStreamp->get_max_tile_layers();
-					if (layers > mLayers)
-					{
-						mLayers = layers;
-						base.setLayers(mLayers);
-					}
-
 					// Find the region of the buffer occupied by this
 					// tile.  Note that we have no control over
 					// sub-sampling factors which might have been used
@@ -608,21 +600,14 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		}
 
 		// Set codestream options
-		mLayers = 0;
+		int nb_layers = 0;
 		kdu_long layer_bytes[MAX_NB_LAYERS];
 		U32 max_bytes = (U32)(base.getWidth() * base.getHeight() * base.getComponents());
 
-		// Rate is the argument passed into the LLImageJ2C which
-		// specifies the target compression rate.  The default is 8:1.
-		// *TODO: mRate is actually always 8:1 in the viewer. Test different values. Also force to reversible for small (< 500 bytes) textures.
-		if (base.mRate != 0.f)
-		{
-			max_bytes = (U32)((F32)(max_bytes) * base.mRate);
-		}
-		else
-		{
-			max_bytes = (U32)((F32)(max_bytes) / 8.0f);
-		}
+		// Rate is the argument passed into the LLImageJ2C which specifies the target compression rate. The default is 8:1.
+		// *TODO: mRate is actually always 8:1 in the viewer. Test different values.
+		llassert (base.mRate > 0.f);
+		max_bytes = (U32)((F32)(max_bytes) * base.mRate);
 		
 		// If the image is very small, code it in a lossless way.
 		// Note: it'll also have only 1 layer which is fine as there's no point reordering blocks in that case.
@@ -635,15 +620,15 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		// We're using a logarithmic spacing rule that fits with our way of fetching texture data.
 		// Note: For more info on this layers business, read kdu_codestream::flush() doc in kdu_compressed.h
 		U32 i = FIRST_PACKET_SIZE;
-		while ((i < max_bytes) && (mLayers < (MAX_NB_LAYERS-1)))
+		while ((i < max_bytes) && (nb_layers < (MAX_NB_LAYERS-1)))
 		{
 			if (i == FIRST_PACKET_SIZE * 4)
 			{
 				// That really just means that the first layer is FIRST_PACKET_SIZE and the second is MIN_LAYER_SIZE
 				i = MIN_LAYER_SIZE;
 			}
-			layer_bytes[mLayers] = i;
-			mLayers++;
+			layer_bytes[nb_layers] = i;
+			nb_layers++;
 			i *= 4;
 		}
 
@@ -656,18 +641,17 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			//codestream.access_siz()->parse_string("Cycc=no");
 			// In the reversible case, set the last entry of that table to 0 so that all generated bits will
 			// indeed be output by the time the last quality layer is encountered.
-			layer_bytes[mLayers] = 0;
+			layer_bytes[nb_layers] = 0;
 		}
 		else
 		{
 			// Truncate the last quality layer if necessary so to fit the set compression ratio
-			layer_bytes[mLayers] = max_bytes;
+			layer_bytes[nb_layers] = max_bytes;
 		}
-		mLayers++;
+		nb_layers++;
 
-		std::string layer_string = llformat("Clayers=%d",mLayers);
+		std::string layer_string = llformat("Clayers=%d",nb_layers);
 		codestream.access_siz()->parse_string(layer_string.c_str());
-		base.setLayers(mLayers);
 		
 		// Set up data ordering, markers, etc... if precincts or blocks specified
 		// Note: This code is *not* used in the encoding made by the viewer. It is currently used only
@@ -720,7 +704,7 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		}
 
 		// Produce the compressed output
-		codestream.flush(layer_bytes,mLayers);
+		codestream.flush(layer_bytes,nb_layers);
 
 		// Cleanup
 		delete tile;

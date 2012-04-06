@@ -497,7 +497,6 @@ void LLTexLayerSetBuffer::doUpload()
 	}
 	
 	LLPointer<LLImageJ2C> compressedImage = new LLImageJ2C;
-	compressedImage->setRate(0.f);
 	const char* comment_text = LINDEN_J2C_COMMENT_PREFIX "RGBHM"; // writes into baked_color_data. 5 channels (rgb, heightfield/alpha, mask)
 	if (compressedImage->encode(baked_image, comment_text))
 	{
