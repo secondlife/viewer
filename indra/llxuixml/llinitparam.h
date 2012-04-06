@@ -436,6 +436,12 @@ namespace LLInitParam
 				return *this;
 			}
 
+			bool operator==(const Lazy& other) const
+			{
+				if (empty() || other.empty()) return false;
+				return *mPtr == *other.mPtr;
+			}
+
 			bool empty() const
 			{
 				return mPtr == NULL;
@@ -1966,17 +1972,6 @@ namespace LLInitParam
 		static const bool value = false;
 	};
 
-	template<typename T, bool IS_BLOCK>
-	struct ParamCompare<BaseBlock::Lazy<T, IS_BLOCK>, false>
-	{
-		static bool equals(const BaseBlock::Lazy<T, IS_BLOCK>& a, const BaseBlock::Lazy<T, IS_BLOCK>& b)
-		{
-			if (a.empty() || b.empty()) return false;
-			return a.get() == b.get();
-		}
-	};
-
-
 	template<typename T>
 	class ParamValue <BaseBlock::Lazy<T, true>,
 					TypeValues<BaseBlock::Lazy<T, true> >,
@@ -2045,19 +2040,17 @@ namespace LLInitParam
 
 		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
 		{
-			if (mValue.empty()) return false;
-
 			return mValue.get().inspectBlock(p, name_stack, min_count, max_count);
 		}
 
 		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
 		{
-			return mValue.get().mergeBlock(block_data, source.getValue(),  overwrite);
+			return source.mValue.empty() || mValue.get().mergeBlock(block_data, source.getValue(),  overwrite);
 		}
 
 		bool validateBlock(bool emit_errors = true) const
 		{
-			return mValue.get().validateBlock(emit_errors);
+			return mValue.empty() || mValue.get().validateBlock(emit_errors);
 		}
 
 		static BlockDescriptor& getBlockDescriptor()
