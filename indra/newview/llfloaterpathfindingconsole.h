@@ -136,7 +136,6 @@ private:
 	virtual ~LLFloaterPathfindingConsole();
 
 	void onShowWalkabilitySet();
-	void onShowWorldToggle();
 	void onShowXRayToggle();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();

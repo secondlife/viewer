@@ -95,7 +95,6 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
 	llassert(mShowWorldCheckBox != NULL);
-	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldToggle, this));
 
 	mShowXRayCheckBox = findChild<LLCheckBoxCtrl>("x-ray");
 	llassert(mShowXRayCheckBox != NULL);
@@ -592,22 +591,6 @@ void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 	default :
 		llassert(0);
 		break;
-	}
-}
-
-void LLFloaterPathfindingConsole::onShowWorldToggle()
-{
-	BOOL checkBoxValue = mShowWorldCheckBox->get();
-
-	LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
-	if (llPathingLibInstance != NULL)
-	{
-		llPathingLibInstance->setRenderWorld(checkBoxValue);
-	}
-	else
-	{
-		mShowWorldCheckBox->set(FALSE);
-		llwarns << "cannot find LLPathingLib instance" << llendl;
 	}
 }
 
