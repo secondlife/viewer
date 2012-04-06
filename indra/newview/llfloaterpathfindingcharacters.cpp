@@ -456,7 +456,8 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListElement(const LLPat
 
 void LLFloaterPathfindingCharacters::updateStatusMessage()
 {
-	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+	static const LLColor4 errorColor = LLUIColorTable::instance().getColor("PathfindingErrorColor");
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("PathfindingWarningColor");
 
 	std::string statusText("");
 	LLStyle::Params styleParams;
@@ -465,13 +466,15 @@ void LLFloaterPathfindingCharacters::updateStatusMessage()
 	{
 	case kMessagingUnknown:
 		statusText = getString("characters_messaging_initial");
+		styleParams.color = errorColor;
 		break;
 	case kMessagingGetRequestSent :
 		statusText = getString("characters_messaging_get_inprogress");
+		styleParams.color = warningColor;
 		break;
 	case kMessagingGetError :
 		statusText = getString("characters_messaging_get_error");
-		styleParams.color = warningColor;
+		styleParams.color = errorColor;
 		break;
 	case kMessagingComplete :
 		if (mCharactersScrollList->isEmpty())
@@ -498,10 +501,11 @@ void LLFloaterPathfindingCharacters::updateStatusMessage()
 		break;
 	case kMessagingNotEnabled:
 		statusText = getString("characters_messaging_not_enabled");
-		styleParams.color = warningColor;
+		styleParams.color = errorColor;
 		break;
 	default:
 		statusText = getString("characters_messaging_initial");
+		styleParams.color = errorColor;
 		llassert(0);
 		break;
 	}

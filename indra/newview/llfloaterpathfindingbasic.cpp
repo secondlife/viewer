@@ -115,7 +115,7 @@ void LLFloaterPathfindingBasic::onAgentStateCB(LLPathfindingManager::EAgentState
 
 void LLFloaterPathfindingBasic::setAgentState(LLPathfindingManager::EAgentState pAgentState)
 {
-	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+	static const LLColor4 errorColor = LLUIColorTable::instance().getColor("PathfindingErrorColor");
 	LLStyle::Params styleParams;
 
 	switch (pAgentState)
@@ -126,12 +126,12 @@ void LLFloaterPathfindingBasic::setAgentState(LLPathfindingManager::EAgentState 
 		break;
 	case LLPathfindingManager::kAgentStateNotEnabled : 
 		mStatusText->setVisible(TRUE);
-		styleParams.color = warningColor;
+		styleParams.color = errorColor;
 		mStatusText->setText((LLStringExplicit)getString("status_pathfinding_not_enabled"), styleParams);
 		break;
 	case LLPathfindingManager::kAgentStateError : 
 		mStatusText->setVisible(TRUE);
-		styleParams.color = warningColor;
+		styleParams.color = errorColor;
 		mStatusText->setText((LLStringExplicit)getString("status_unable_to_change_state"), styleParams);
 		break;
 	default :

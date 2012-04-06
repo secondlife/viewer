@@ -766,7 +766,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 
 void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 {
-	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+	static const LLColor4 errorColor = LLUIColorTable::instance().getColor("PathfindingErrorColor");
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("PathfindingWarningColor");
 
 	std::string simulatorStatusText("");
 	std::string viewerStatusText("");
@@ -777,20 +778,22 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 	case kConsoleStateUnknown :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_unknown");
+		viewerStyleParams.color = errorColor;
 		break;
 	case kConsoleStateLibraryNotImplemented :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_library_not_implemented");
-		viewerStyleParams.color = warningColor;
+		viewerStyleParams.color = errorColor;
 		break;
 	case kConsoleStateRegionNotEnabled :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_region_not_enabled");
-		viewerStyleParams.color = warningColor;
+		viewerStyleParams.color = errorColor;
 		break;
 	case kConsoleStateCheckingVersion :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_checking_version");
+		viewerStyleParams.color = warningColor;
 		break;
 	case kConsoleStateDownloading :
 		simulatorStatusText = getSimulatorStatusText();
@@ -802,6 +805,7 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 		{
 			viewerStatusText = getString("navmesh_viewer_status_downloading");
 		}
+		viewerStyleParams.color = warningColor;
 		break;
 	case kConsoleStateHasNavMesh :
 		simulatorStatusText = getSimulatorStatusText();
@@ -810,11 +814,12 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 	case kConsoleStateError :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_error");
-		viewerStyleParams.color = warningColor;
+		viewerStyleParams.color = errorColor;
 		break;
 	default :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_unknown");
+		viewerStyleParams.color = errorColor;
 		llassert(0);
 		break;
 	}
@@ -967,7 +972,7 @@ void LLFloaterPathfindingConsole::generatePath()
 
 void LLFloaterPathfindingConsole::updatePathTestStatus()
 {
-	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("DrYellow");
+	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("PathfindingWarningColor");
 
 	std::string statusText("");
 	LLStyle::Params styleParams;

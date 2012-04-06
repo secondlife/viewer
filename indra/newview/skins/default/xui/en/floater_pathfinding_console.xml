@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="448"
+    height="406"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -31,136 +31,14 @@
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
   <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
   <floater.string name="pathing_path_valid">Path is shown in orange.</floater.string>
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="15"
-      top="9"
-      width="208">
-    Show:
-  </text>
-  <check_box
-      height="19"
-      label="Navmesh"
-      layout="topleft"
-      left="14"
-      name="show_navmesh"
-      top_pad="7"
-      width="90" />
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      text_readonly_color="LabelDisabledColor"
-      length="1"
-      follows="left|top"
-      layout="topleft"
-      left="35"
-      width="188">
-    Show walkability map:
-  </text>
-  <combo_box
-      height="19"
-      layout="topleft"
-      left="34"
-      name="show_heatmap_mode"
-      top_pad="8"
-      width="156">
-    <combo_box.item
-        label="Do not show"
-        name="show_heatmap_mode_none"
-        value="0" />
-    <combo_box.item
-        label="Character type A"
-        name="show_heatmap_mode_a"
-        value="1" />
-    <combo_box.item
-        label="Character type B"
-        name="show_heatmap_mode_b"
-        value="2" />
-    <combo_box.item
-        label="Character type C"
-        name="show_heatmap_mode_c"
-        value="3" />
-    <combo_box.item
-        label="Character type D"
-        name="show_heatmap_mode_d"
-        value="4" />
-  </combo_box>
-  <check_box
-      height="19"
-      label="Walkables"
-      layout="topleft"
-      left="14"
-      name="show_walkables"
-      top_pad="10"
-      tool_tip="Functionality is not implemented currently."
-      width="90" />
-  <check_box
-      height="19"
-      label="Material volumes"
-      layout="topleft"
-      left="14"
-      name="show_material_volumes"
-      top_pad="4"
-      tool_tip="Functionality is not implemented currently."
-      width="90" />
-  <check_box
-      height="19"
-      label="Static obstacles"
-      layout="topleft"
-      left="14"
-      name="show_static_obstacles"
-      top_pad="4"
-      tool_tip="Functionality is not implemented currently."
-      width="90" />
-  <check_box
-      height="19"
-      label="Exclusion volumes"
-      layout="topleft"
-      left="14"
-      name="show_exclusion_volumes"
-      top_pad="4"
-      width="90" />
-  <check_box
-      height="19"
-      label="World"
-      layout="topleft"
-      left="14"
-      name="show_world"
-      top_pad="4"
-      width="90" />
-  <check_box
-      height="19"
-      label="X-Ray"
-      layout="topleft"
-      left="14"
-      name="x-ray"
-      top_pad="4"
-      width="90" />
-  <view_border
-      bevel_style="none"
-      follows="top|left"
-      layout="topleft"
-      left="14"
-      height="0"
-      width="200"
-      top_pad="12"
-      visible="true" />
   <panel
       border="false"
       bevel_style="none"
       follows="left|top"
       layout="topleft"
-      height="73"
+      left="14"
+      top_pad="15"
+      height="68"
       width="200">
     <text
         height="13"
@@ -171,7 +49,7 @@
         length="1"
         layout="topleft"
         left="0"
-        top_pad="5"
+        top_pad="0"
         width="200">
       Viewer status
     </text>
@@ -180,7 +58,7 @@
         word_wrap="true"
         use_ellipses="false"
         type="string"
-        text_color="LabelTextColor"
+        text_color="PathfindingGoodColor"
         length="1"
         follows="left|top"
         layout="topleft"
@@ -204,74 +82,124 @@
       bevel_style="none"
       follows="left|top"
       layout="topleft"
-      height="73"
+      height="250"
       width="200">
+    <text
+	height="13"
+	word_wrap="true"
+	use_ellipses="false"
+	type="string"
+	text_color="LabelTextColor"
+	length="1"
+	follows="left|top"
+	layout="topleft"
+	top_pad="9"
+	width="200">
+      Show:
+    </text>
+    <check_box
+        height="19"
+        label="Navmesh"
+        layout="topleft"
+        name="show_navmesh"
+        top_pad="7"
+        width="90" />
     <text
         height="13"
         word_wrap="true"
         use_ellipses="false"
         type="string"
         text_color="LabelTextColor"
-        length="1"
-        layout="topleft"
-        left="0"
-        top_pad="5"
-        width="200">
-      Simulator status
-    </text>
-    <text
-        height="40"
-        word_wrap="true"
-        use_ellipses="false"
-        type="string"
-        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
         length="1"
         follows="left|top"
         layout="topleft"
-        left="0"
-        name="pathfinding_simulator_status"
-        top_pad="8"
-        width="200">
+        left="20"
+        width="180">
+      Show walkability map:
     </text>
+    <combo_box
+        height="19"
+        layout="topleft"
+        left="20"
+        name="show_heatmap_mode"
+        top_pad="8"
+        width="156">
+      <combo_box.item
+          label="Do not show"
+          name="show_heatmap_mode_none"
+          value="0" />
+      <combo_box.item
+          label="Character type A"
+          name="show_heatmap_mode_a"
+          value="1" />
+      <combo_box.item
+          label="Character type B"
+          name="show_heatmap_mode_b"
+          value="2" />
+      <combo_box.item
+          label="Character type C"
+          name="show_heatmap_mode_c"
+          value="3" />
+      <combo_box.item
+          label="Character type D"
+          name="show_heatmap_mode_d"
+          value="4" />
+    </combo_box>
+    <check_box
+        height="19"
+        label="Walkables"
+        layout="topleft"
+        left="0"
+        name="show_walkables"
+        top_pad="10"
+        tool_tip="Functionality is not implemented currently."
+        width="90" />
+    <check_box
+        height="19"
+        label="Material volumes"
+        layout="topleft"
+        name="show_material_volumes"
+        top_pad="4"
+        tool_tip="Functionality is not implemented currently."
+        width="90" />
+    <check_box
+        height="19"
+        label="Static obstacles"
+        layout="topleft"
+        name="show_static_obstacles"
+        top_pad="4"
+        tool_tip="Functionality is not implemented currently."
+        width="90" />
+    <check_box
+        height="19"
+        label="Exclusion volumes"
+        layout="topleft"
+        name="show_exclusion_volumes"
+        top_pad="4"
+        width="90" />
+    <check_box
+        height="19"
+        label="World"
+        layout="topleft"
+        name="show_world"
+        top_pad="4"
+        width="90" />
+    <check_box
+        height="19"
+        label="X-Ray"
+        layout="topleft"
+        name="x-ray"
+        top_pad="4"
+        width="90" />
   </panel>
-  <view_border
-      bevel_style="none"
-      follows="top|left"
-      layout="topleft"
-      left="14"
-      height="0"
-      width="200"
-      top_pad="0"
-      visible="true" />
-  <text
-      height="13"
-      word_wrap="true"
-      use_ellipses="false"
-      type="string"
-      text_color="LabelTextColor"
-      length="1"
-      layout="topleft"
-      left="14"
-      top_pad="18"
-      width="250">
-    Lost characters? Bad performance?
-  </text>
-  <button
-      follows="left|top"
-      height="21"
-      label="Characters..."
-      layout="topleft"
-      name="view_characters_floater"
-      left_pad="0"
-      top_pad="-17"
-      width="96"/>
   <view_border
       bevel_style="none"
       follows="top|left"
       layout="topleft"
       left="230"
       top="35"
-      height="366"
+      height="247"
       width="214"
       visible="true" />
   <tab_container
@@ -281,7 +209,7 @@
       name="edit_test_tab_container"
       left="227"
       top="14"
-      height="388"
+      height="268"
       width="218">
     <panel
         border="false"
@@ -385,9 +313,43 @@
           type="string"
           text_color="LabelTextColor"
           length="1"
+          left="16"
           follows="left|top"
           layout="topleft"
-          left="16"
+          top_pad="12"
+          width="190">
+        Ctrl-click to select start point.
+      </text>
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
+          top_pad="5"
+          width="190">
+        Shift-click to select end point.
+      </text>
+      <view_border
+          bevel_style="none"
+          follows="top|left"
+          layout="topleft"
+          height="0"
+          width="185"
+          top_pad="13"
+          visible="true" />
+      <text
+          height="14"
+          word_wrap="true"
+          use_ellipses="false"
+          type="string"
+          text_color="LabelTextColor"
+          length="1"
+          follows="left|top"
+          layout="topleft"
           top_pad="14"
           width="190">
         Character width
@@ -465,33 +427,7 @@
           word_wrap="true"
           use_ellipses="false"
           type="string"
-          text_color="LabelTextColor"
-          length="1"
-          follows="left|top"
-          layout="topleft"
-          top_pad="12"
-          width="190">
-        Ctrl-click to select start point.
-      </text>
-      <text
-          height="14"
-          word_wrap="true"
-          use_ellipses="false"
-          type="string"
-          text_color="LabelTextColor"
-          length="1"
-          follows="left|top"
-          layout="topleft"
-          top_pad="5"
-          width="190">
-        Shift-click to select end point.
-      </text>
-      <text
-          height="14"
-          word_wrap="true"
-          use_ellipses="false"
-          type="string"
-          text_color="LabelTextColor"
+          text_color="PathfindingGoodColor"
           length="1"
           follows="left|top"
           layout="topleft"
@@ -509,4 +445,79 @@
           width="96"/>
     </panel>
   </tab_container>
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      left="246"
+      height="73"
+      width="200">
+    <text
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        layout="topleft"
+        left="0"
+        top_pad="5"
+        width="200">
+      Simulator status
+    </text>
+    <text
+        height="40"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        left="0"
+        name="pathfinding_simulator_status"
+        top_pad="8"
+        width="200">
+    </text>
+  </panel>
+  <view_border
+      bevel_style="none"
+      follows="top|left"
+      layout="topleft"
+      height="0"
+      left="14"
+      width="430"
+      top_pad="0"
+      visible="true" />
+  <panel
+      border="false"
+      bevel_style="none"
+      follows="left|top"
+      layout="topleft"
+      height="40"
+      top_pad="0"
+      width="400">
+    <text
+	height="13"
+	word_wrap="true"
+	use_ellipses="false"
+	type="string"
+	text_color="LabelTextColor"
+	length="1"
+	layout="topleft"
+	top_pad="18"
+	width="250">
+      Lost characters? Bad performance?
+    </text>
+    <button
+        follows="left|top"
+        height="21"
+        label="Characters..."
+        layout="topleft"
+        name="view_characters_floater"
+        left_pad="0"
+        top_pad="-17"
+        width="96"/>
+  </panel>
 </floater>
