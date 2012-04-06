@@ -92,7 +92,7 @@ protected:
 namespace LLInitParam
 {
 	template<>
-	class ParamValue<LLUIImage*, TypeValues<LLUIImage*> > 
+	class ParamValue<LLUIImage*, TypeValues<LLUIImage*>, NOT_BLOCK > 
 	:	public CustomParamValue<LLUIImage*>
 	{
 		typedef boost::add_reference<boost::add_const<LLUIImage*>::type>::type	T_const_ref;
@@ -100,7 +100,7 @@ namespace LLInitParam
 	public:
 		Optional<std::string> name;
 
-		ParamValue(LLUIImage* const& image)
+		ParamValue(LLUIImage* const& image = NULL)
 		:	super_t(image)
 		{
 			updateBlockFromValue(false);
