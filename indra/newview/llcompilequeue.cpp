@@ -159,7 +159,6 @@ void LLFloaterScriptQueue::addObject(const LLUUID& id)
 
 BOOL LLFloaterScriptQueue::start()
 {
-	//llinfos << "LLFloaterCompileQueue::start()" << llendl;
 	std::string buffer;
 
 	LLSelectMgr *mgr = LLSelectMgr::getInstance();

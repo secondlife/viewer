@@ -123,7 +123,9 @@ public:
 			for(LLSD::array_const_iterator line	= compile_errors.beginArray();
 				line < compile_errors.endArray(); line++)
 			{
-				mSupplier->log(line->asString());
+				std::string str = line->asString();
+				str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
+				mSupplier->log(str);
 				llinfos << content["errors"] << llendl;
 			}
 		}
