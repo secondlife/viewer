@@ -88,7 +88,6 @@
 #include "llworld.h"
 #include "llworldmap.h"
 #include "stringize.h"
-#include "LLPathingLib.h"
 
 using namespace LLVOAvatarDefines;
 
@@ -3634,9 +3633,6 @@ void LLAgent::setTeleportState(ETeleportState state)
 
 		// Let the interested parties know we've teleported.
 		LLViewerParcelMgr::getInstance()->onTeleportFinished(false, getPositionGlobal());
-
-		//Since we teleported into a new region, we need to cleanup up any navmesh residuals
-		if ( LLPathingLib::getInstance() ) { LLPathingLib::getInstance()->cleanupResidual(); }
 			break;
 
 		default:
