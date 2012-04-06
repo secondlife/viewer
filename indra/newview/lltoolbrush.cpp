@@ -247,7 +247,7 @@ void LLToolBrushLand::modifyLandInSelectionGlobal()
 		}
 	}
 
-	if (!LLPathfindingManager::getInstance()->isAllowAlterPermanent())
+	if (!gSavedSettings.getBOOL("PathfindingDisablePermanentObjects") && !LLPathfindingManager::getInstance()->isAllowAlterPermanent())
 	{
 		alertNoTerraformWhileFrozen();
 		return;
@@ -389,7 +389,7 @@ BOOL LLToolBrushLand::handleMouseDown(S32 x, S32 y, MASK mask)
 			return TRUE;
 		}
 
-		if (!LLPathfindingManager::getInstance()->isAllowAlterPermanent())
+		if (!gSavedSettings.getBOOL("PathfindingDisablePermanentObjects") && !LLPathfindingManager::getInstance()->isAllowAlterPermanent())
 		{
 			alertNoTerraformWhileFrozen();
 			return TRUE;
