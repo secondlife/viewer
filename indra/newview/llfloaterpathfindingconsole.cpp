@@ -549,7 +549,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mConsoleState(kConsoleStateUnknown),
 	mPathData(),
 	mHasStartPoint(false),
-	mHasEndPoint(false)
+	mHasEndPoint(false),
+	mHasValidPath(false)
 {
 	mSelfHandle.bind(this);
 }
@@ -631,6 +632,7 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 {
 	mHasStartPoint = false;
 	mHasEndPoint = false;
+	mHasValidPath = false;
 	updatePathTestStatus();
 }
 
@@ -721,6 +723,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mClearPathButton->setEnabled(FALSE);
 		mHasStartPoint = false;
 		mHasEndPoint = false;
+		mHasValidPath = false;
 		break;
 	case kConsoleStateCheckingVersion :
 	case kConsoleStateDownloading :
@@ -741,6 +744,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mClearPathButton->setEnabled(FALSE);
 		mHasStartPoint = false;
 		mHasEndPoint = false;
+		mHasValidPath = false;
 		break;
 	case kConsoleStateHasNavMesh :
 		mShowNavMeshCheckBox->setEnabled(TRUE);
@@ -966,12 +970,14 @@ void LLFloaterPathfindingConsole::generatePath()
 			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
 			break;
 		}
-		LLPathingLib::getInstance()->generatePath(mPathData);
+		LLPathingLib::LLPLResult pathingResult = LLPathingLib::getInstance()->generatePath(mPathData);
+		mHasValidPath = (pathingResult == LLPathingLib::LLPL_PATH_GENERATED_OK);
 	}
 }
 
 void LLFloaterPathfindingConsole::updatePathTestStatus()
 {
+	static const LLColor4 errorColor = LLUIColorTable::instance().getColor("PathfindingErrorColor");
 	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("PathfindingWarningColor");
 
 	std::string statusText("");
@@ -992,9 +998,14 @@ void LLFloaterPathfindingConsole::updatePathTestStatus()
 		statusText = getString("pathing_choose_end_point");
 		styleParams.color = warningColor;
 	}
-	else
+	else if (mHasValidPath)
 	{
 		statusText = getString("pathing_path_valid");
+	}
+	else
+	{
+		statusText = getString("pathing_path_invalid");
+		styleParams.color = errorColor;
 	}
 
 	mPathTestingStatus->setText((LLStringExplicit)statusText, styleParams);

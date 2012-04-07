@@ -203,6 +203,7 @@ private:
 	LLPathingLib::PathingPacket		mPathData;
 	bool							mHasStartPoint;
 	bool							mHasEndPoint;
+	bool                            mHasValidPath;
 	U32								mShapeRenderFlags;
 
 	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;

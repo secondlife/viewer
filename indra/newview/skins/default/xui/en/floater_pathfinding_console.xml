@@ -31,6 +31,7 @@
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
   <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
   <floater.string name="pathing_path_valid">Path is shown in orange.</floater.string>
+  <floater.string name="pathing_path_invalid">A path between the chosen points cannot be found.</floater.string>
   <panel
       border="false"
       bevel_style="none"
