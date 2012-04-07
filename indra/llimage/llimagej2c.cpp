@@ -256,7 +256,7 @@ BOOL LLImageJ2C::encode(const LLImageRaw *raw_imagep, const char* comment_text, 
 //static
 S32 LLImageJ2C::calcHeaderSizeJ2C()
 {
-	return HTTP_PACKET_SIZE; // Hack. just needs to be >= actual header size...
+	return FIRST_PACKET_SIZE; // Hack. just needs to be >= actual header size...
 }
 
 //static
@@ -267,7 +267,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 	// in general too big for fast fetching.
 	// For details about the equation used here, see https://wiki.lindenlab.com/wiki/THX1138_KDU_Improvements#Byte_Range_Study
 
-	// Estimate the number of layers. This is consistent with what's done in j2c encoding
+	// Estimate the number of layers. This is consistent with what's done for j2c encoding in LLImageJ2CKDU::encodeImpl().
 	S32 nb_layers = 1;
 	S32 surface = w*h;
 	S32 s = 64*64;
@@ -304,8 +304,6 @@ S32 LLImageJ2C::calcHeaderSize()
 S32 LLImageJ2C::calcDataSize(S32 discard_level)
 {
 	discard_level = llclamp(discard_level, 0, MAX_DISCARD_LEVEL);
-	return calcDataSizeJ2C(getWidth(), getHeight(), getComponents(), discard_level, mRate);
-	/*
 	if ( mAreaUsedForDataSizeCalcs != (getHeight() * getWidth()) 
 		|| (mDataSizes[0] == 0))
 	{
@@ -319,7 +317,6 @@ S32 LLImageJ2C::calcDataSize(S32 discard_level)
 		}
 	}
 	return mDataSizes[discard_level];
-	*/
 }
 
 S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
@@ -332,8 +329,8 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	}
 	while (1)
 	{
-		S32 bytes_needed = calcDataSize(discard_level);
-		if (bytes >= bytes_needed)
+		S32 bytes_needed = calcDataSize(discard_level); // virtual
+		if (bytes >= bytes_needed - (bytes_needed>>2)) // For J2c, up the res at 75% of the optimal number of bytes
 		{
 			break;
 		}

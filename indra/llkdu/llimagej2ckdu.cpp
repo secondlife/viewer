@@ -393,7 +393,7 @@ BOOL LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			region_kdu->size.y = region[3] - region[1];
 		}
 		int discard = (discard_level != -1 ? discard_level : base.getRawDiscardLevel());
-		llinfos << "Merov debug : initDecode, discard used = " << discard << ", asked = " << discard_level << llendl;
+		//llinfos << "Merov debug : initDecode, discard used = " << discard << ", asked = " << discard_level << llendl;
 		// Apply loading restrictions
 		mCodeStreamp->apply_input_restrictions( first_channel, max_channel_count, discard, 0, region_kdu);
 		
