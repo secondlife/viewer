@@ -36,6 +36,7 @@
 #include "llviewerassetstorage.h"
 #include "llsimplestat.h"
 #include "llsd.h"
+#include "llvoavatar.h"
 
 /**
  * @class LLViewerAssetStats
@@ -125,8 +126,7 @@ public:
 			  mRegionHandle(src.mRegionHandle),
 			  mTotalTime(src.mTotalTime),
 			  mStartTimestamp(src.mStartTimestamp),
-			  mFPS(src.mFPS),
-			  mAvatarRezStates(src.mAvatarRezStates)
+			  mFPS(src.mFPS)
 			{
 				for (int i = 0; i < LL_ARRAY_SIZE(mRequests); ++i)
 				{
@@ -149,7 +149,6 @@ public:
 		duration_t			mTotalTime;
 		duration_t			mStartTimestamp;
 		LLSimpleStatMMM<>	mFPS;
-		std::vector<S32>	mAvatarRezStates;
 		
 		struct prs_group
 		{
@@ -257,6 +256,10 @@ protected:
 
 	// Time of last reset
 	duration_t mResetTimestamp;
+
+	// Nearby avatar stats
+	std::vector<S32> mAvatarRezStates;
+	LLVOAvatar::phase_stats_t mPhaseStats;
 };
 
 

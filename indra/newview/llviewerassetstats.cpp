@@ -160,7 +160,9 @@ LLViewerAssetStats::LLViewerAssetStats()
 
 LLViewerAssetStats::LLViewerAssetStats(const LLViewerAssetStats & src)
 	: mRegionHandle(src.mRegionHandle),
-	  mResetTimestamp(src.mResetTimestamp)
+	  mResetTimestamp(src.mResetTimestamp),
+	  mPhaseStats(src.mPhaseStats),
+	  mAvatarRezStates(src.mAvatarRezStates)
 {
 	const PerRegionContainer::const_iterator it_end(src.mRegionStats.end());
 	for (PerRegionContainer::const_iterator it(src.mRegionStats.begin()); it_end != it; ++it)
@@ -261,7 +263,10 @@ LLViewerAssetStats::recordAvatarStats()
 {
 	std::vector<S32> rez_counts;
 	LLVOAvatar::getNearbyRezzedStats(rez_counts);
-	mCurRegionStats->mAvatarRezStates = rez_counts;
+	mAvatarRezStates = rez_counts;
+	mPhaseStats.clear();
+	mPhaseStats["cloud"] = LLVOAvatar::getPhaseStats("cloud");
+	mPhaseStats["cloud-or-gray"] = LLVOAvatar::getPhaseStats("cloud-or-gray");
 }
 
 LLSD
@@ -297,6 +302,7 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 	// Avatar sub-tags
 	static const LLSD::String avatar_tag("avatar");
 	static const LLSD::String avatar_nearby_tag("nearby");
+	static const LLSD::String avatar_phase_stats_tag("phase_stats");
 	
 	const duration_t now = LLViewerAssetStatsFF::get_timestamp();
 	mCurRegionStats->accumulateTime(now);
@@ -345,13 +351,6 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 			slot[max_tag] = LLSD(F64(stats.mFPS.getMax()));
 			slot[mean_tag] = LLSD(F64(stats.mFPS.getMean()));
 		}
-		reg_stat[avatar_tag][avatar_nearby_tag] = LLSD::emptyArray();
-		for (S32 rez_stat=0; rez_stat < stats.mAvatarRezStates.size(); ++rez_stat)
-		{
-			std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
-			reg_stat["nearby"][rez_status_name] = stats.mAvatarRezStates[rez_stat];
-		}
-
 		U32 grid_x(0), grid_y(0);
 		grid_from_region_handle(it->first, &grid_x, &grid_y);
 		reg_stat["grid_x"] = LLSD::Integer(grid_x);
@@ -363,6 +362,16 @@ LLViewerAssetStats::asLLSD(bool compact_output)
 	LLSD ret = LLSD::emptyMap();
 	ret["regions"] = regions;
 	ret["duration"] = LLSD::Real((now - mResetTimestamp) * 1.0e-6);
+	LLSD avatar_info;
+	avatar_info[avatar_nearby_tag] = LLSD::emptyArray();
+	for (S32 rez_stat=0; rez_stat < mAvatarRezStates.size(); ++rez_stat)
+	{
+		std::string rez_status_name = LLVOAvatar::rezStatusToString(rez_stat);
+		avatar_info[avatar_nearby_tag][rez_status_name] = mAvatarRezStates[rez_stat];
+	}
+	avatar_info[avatar_phase_stats_tag]["cloud"] = mPhaseStats["cloud"].getData();
+	avatar_info[avatar_phase_stats_tag]["cloud-or-gray"] = mPhaseStats["cloud-or-gray"].getData();
+	ret[avatar_tag] = avatar_info;
 	
 	return ret;
 }

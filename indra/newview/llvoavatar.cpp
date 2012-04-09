@@ -6595,7 +6595,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
-		llinfos << avString() << "zxx rez state change: " << mLastRezzedStatus << " -> " << rez_status << llendl;
+		llinfos << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << llendl;
 		bool is_cloud_or_gray = (rez_status==0 || rez_status==1);
 		bool was_cloud_or_gray = (mLastRezzedStatus==0 || mLastRezzedStatus==1);
 		bool is_cloud = (rez_status==0);

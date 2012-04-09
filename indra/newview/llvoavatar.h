@@ -330,9 +330,12 @@ private:
 	LLFrameTimer	mRuthTimer;
 
 	// TODO move all the phase stuff to its down data structure.
-	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
-	phase_map_t		mPhases;
+public:
 	typedef std::map<std::string,LLViewerStats::StatsAccumulator>	phase_stats_t;
+	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
+
+private:
+	phase_map_t		mPhases;
 	static phase_stats_t	sPhaseStats;
 
 protected:
