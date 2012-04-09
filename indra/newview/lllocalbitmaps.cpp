@@ -59,6 +59,7 @@
 #include "llagentwearables.h"
 #include "lltexlayerparams.h"
 #include "llvovolume.h"
+#include "llnotificationsutil.h"
 
 /*=======================================*/
 /*  Formal declarations, constants, etc. */
@@ -234,6 +235,11 @@ bool LLLocalBitmap::updateSelf(bool first_update)
 								<< "Filename: " << mFilename << "\n"
 								<< "Disabling further update attempts for this file." << llendl;
 
+						LLSD notif_args;
+						notif_args["FNAME"] = mFilename;
+						notif_args["NRETRIES"] = LL_LOCAL_UPDATE_RETRIES;
+						LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
+
 						mLinkStatus = LS_BROKEN;
 					}
 				}		
@@ -246,6 +252,10 @@ bool LLLocalBitmap::updateSelf(bool first_update)
 			llwarns << "During the update process, the following file was not found." << "\n" 
 			        << "Filename: " << mFilename << "\n"
 				    << "Disabling further update attempts for this file." << llendl;
+
+			LLSD notif_args;
+			notif_args["FNAME"] = mFilename;
+			LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
 
 			mLinkStatus = LS_BROKEN;
 		}
