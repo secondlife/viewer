@@ -67,10 +67,11 @@
 
 #include <boost/lexical_cast.hpp>
 
-LLVOAvatarSelf *gAgentAvatarp = NULL;
+LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
+
 BOOL isAgentAvatarValid()
 {
-	return (gAgentAvatarp &&
+	return (gAgentAvatarp.notNull() &&
 			(gAgentAvatarp->getRegion() != NULL) &&
 			(!gAgentAvatarp->isDead()));
 }
