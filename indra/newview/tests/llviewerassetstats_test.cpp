@@ -128,13 +128,13 @@ is_single_key_map(const LLSD & sd, const std::string & key)
 {
 	return sd.isMap() && 1 == sd.size() && sd.has(key);
 }
-#endif
 
 static bool
 is_double_key_map(const LLSD & sd, const std::string & key1, const std::string & key2)
 {
 	return sd.isMap() && 2 == sd.size() && sd.has(key1) && sd.has(key2);
 }
+#endif
 
 static bool
 is_triple_key_map(const LLSD & sd, const std::string & key1, const std::string & key2, const std::string& key3)
