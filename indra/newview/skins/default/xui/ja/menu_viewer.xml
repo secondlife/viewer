@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="ミー" name="Me">
 		<menu_item_call label="プロフィール..." name="Profile"/>
 		<menu_item_call label="容姿..." name="ChangeOutfit"/>
 		<menu_item_call label="アバターを選択..." name="Avatar Picker"/>
-		<menu_item_check label="持ち物..." name="Inventory"/>
-		<menu_item_call label="新しい持ち物ウィンドウ" name="NewInventoryWindow"/>
+		<menu_item_check label="インベントリ..." name="Inventory"/>
+		<menu_item_call label="新しいインベントリウィンドウ" name="NewInventoryWindow"/>
 		<menu_item_call label="場所..." name="Places"/>
 		<menu_item_call label="ピック..." name="Picks"/>
 		<menu_item_call label="カメラコントロール..." name="Camera Controls"/>
@@ -112,7 +112,7 @@
 			<menu_item_call label="買う" name="Menu Object Buy"/>
 			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
-			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>
+			<menu_item_call label="マイインベントリに保存" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="オブジェクトの中身に保存" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="オブジェクトを返却する" name="Return Object back to Owner"/>
 		</menu>
@@ -337,7 +337,7 @@
 			<menu_item_call label="メディアブラウザのテスト" name="Web Browser Test"/>
 			<menu_item_call label="Web コンテンツブラウザ" name="Web Content Browser"/>
 			<menu_item_call label="SelectMgr をダンプ" name="Dump SelectMgr"/>
-			<menu_item_call label="持ち物の出力" name="Dump Inventory"/>
+			<menu_item_call label="インベントリの出力" name="Dump Inventory"/>
 			<menu_item_call label="タイマーをダンプ" name="Dump Timers"/>
 			<menu_item_call label="フォーカスホールダーをダンプ" name="Dump Focus Holder"/>
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
@@ -391,7 +391,7 @@
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
-		<menu_item_check label="HTTP 持ち物" name="HTTP Inventory"/>
+		<menu_item_check label="HTTP インベントリ" name="HTTP Inventory"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
