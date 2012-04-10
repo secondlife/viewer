@@ -282,6 +282,7 @@ void LLPathfindingPathTool::computeTempPath()
 {
 	if (mHasTempStartPoint && mHasTempEndPoint && (LLPathingLib::getInstance() != NULL))
 	{
-		LLPathingLib::getInstance()->generatePath(mTempPathData);
+		mPathResult = LLPathingLib::getInstance()->generatePath(mTempPathData);
 	}
+	mPathEventSignal();
 }
