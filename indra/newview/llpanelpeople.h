@@ -132,7 +132,6 @@ private:
 	bool					isAccordionCollapsedByUser(LLUICtrl* acc_tab);
 	bool					isAccordionCollapsedByUser(const std::string& name);
 
-	LLFilterEditor*			mFilterEditor;
 	LLTabContainer*			mTabContainer;
 	LLAvatarList*			mOnlineFriendList;
 	LLAvatarList*			mAllFriendList;
@@ -141,13 +140,13 @@ private:
 	LLGroupList*			mGroupList;
 	LLNetMap*				mMiniMap;
 
+	std::vector<std::string> mSavedOriginalFilters;
+	std::vector<std::string> mSavedFilters;
+
 	Updater*				mFriendListUpdater;
 	Updater*				mNearbyListUpdater;
 	Updater*				mRecentListUpdater;
 	Updater*				mButtonsUpdater;
-
-	std::string				mFilterSubString;
-	std::string				mFilterSubStringOrig;
 };
 
 #endif //LL_LLPANELPEOPLE_H

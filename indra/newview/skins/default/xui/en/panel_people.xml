@@ -365,7 +365,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              height="450"
              left="13"
              name="no_friends_help_text"
-             top="10"
+             top="37"
              width="293"
              wrap="true" />
         </panel>

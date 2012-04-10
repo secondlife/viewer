@@ -492,9 +492,6 @@ public:
 
 LLPanelPeople::LLPanelPeople()
 	:	LLPanel(),
-		mFilterSubString(LLStringUtil::null),
-		mFilterSubStringOrig(LLStringUtil::null),
-		mFilterEditor(NULL),
 		mTabContainer(NULL),
 		mOnlineFriendList(NULL),
 		mAllFriendList(NULL),
@@ -567,11 +564,15 @@ void LLPanelPeople::onFriendsAccordionExpandedCollapsed(LLUICtrl* ctrl, const LL
 
 BOOL LLPanelPeople::postBuild()
 {
-	mFilterEditor = getChild<LLFilterEditor>("filter_input");
-	mFilterEditor->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+	getChild<LLFilterEditor>("nearby_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+	getChild<LLFilterEditor>("friends_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+	getChild<LLFilterEditor>("groups_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
+	getChild<LLFilterEditor>("recent_filter_input")->setCommitCallback(boost::bind(&LLPanelPeople::onFilterEdit, this, _2));
 
 	mTabContainer = getChild<LLTabContainer>("tabs");
 	mTabContainer->setCommitCallback(boost::bind(&LLPanelPeople::onTabSelected, this, _2));
+	mSavedFilters.resize(mTabContainer->getTabCount());
+	mSavedOriginalFilters.resize(mTabContainer->getTabCount());
 
 	LLPanel* friends_tab = getChild<LLPanel>(FRIENDS_TAB_NAME);
 	// updater is active only if panel is visible to user.
@@ -680,9 +681,11 @@ void LLPanelPeople::updateFriendListHelpText()
 	if (no_friends_text->getVisible())
 	{
 		//update help text for empty lists
-		std::string message_name = mFilterSubString.empty() ? "no_friends_msg" : "no_filtered_friends_msg";
+		const std::string& filter = mSavedOriginalFilters[mTabContainer->getCurrentPanelIndex()];
+
+		std::string message_name = filter.empty() ? "no_friends_msg" : "no_filtered_friends_msg";
 		LLStringUtil::format_map_t args;
-		args["[SEARCH_TERM]"] = LLURI::escape(mFilterSubStringOrig);
+		args["[SEARCH_TERM]"] = LLURI::escape(filter);
 		no_friends_text->setText(getString(message_name, args));
 	}
 }
@@ -973,40 +976,56 @@ void LLPanelPeople::setSortOrder(LLAvatarList* list, ESortOrder order, bool save
 
 void LLPanelPeople::onFilterEdit(const std::string& search_string)
 {
-	mFilterSubStringOrig = search_string;
-	LLStringUtil::trimHead(mFilterSubStringOrig);
+	const S32 cur_tab_idx = mTabContainer->getCurrentPanelIndex();
+	std::string& filter = mSavedOriginalFilters[cur_tab_idx];
+	std::string& saved_filter = mSavedFilters[cur_tab_idx];
+
+	filter = search_string;
+	LLStringUtil::trimHead(filter);
+
 	// Searches are case-insensitive
-	std::string search_upper = mFilterSubStringOrig;
+	std::string search_upper = filter;
 	LLStringUtil::toUpper(search_upper);
 
-	if (mFilterSubString == search_upper)
+	if (saved_filter == search_upper)
 		return;
 
-	mFilterSubString = search_upper;
+	saved_filter = search_upper;
 
-	//store accordion tabs state before any manipulation with accordion tabs
-	if(!mFilterSubString.empty())
+	// Apply new filter to the current tab.
+	const std::string cur_tab = getActiveTabName();
+	if (cur_tab == NEARBY_TAB_NAME)
 	{
-		notifyChildren(LLSD().with("action","store_state"));
+		mNearbyList->setNameFilter(filter);
 	}
-
-
-	// Apply new filter.
-	mNearbyList->setNameFilter(mFilterSubStringOrig);
-	mOnlineFriendList->setNameFilter(mFilterSubStringOrig);
-	mAllFriendList->setNameFilter(mFilterSubStringOrig);
-	mRecentList->setNameFilter(mFilterSubStringOrig);
-	mGroupList->setNameFilter(mFilterSubStringOrig);
-
-	setAccordionCollapsedByUser("tab_online", false);
-	setAccordionCollapsedByUser("tab_all", false);
-
-	showFriendsAccordionsIfNeeded();
-
-	//restore accordion tabs state _after_ all manipulations...
-	if(mFilterSubString.empty())
+	else if (cur_tab == FRIENDS_TAB_NAME)
 	{
-		notifyChildren(LLSD().with("action","restore_state"));
+		// store accordion tabs opened/closed state before any manipulation with accordion tabs
+		if (!saved_filter.empty())
+		{
+			notifyChildren(LLSD().with("action","store_state"));
+		}
+
+		mOnlineFriendList->setNameFilter(filter);
+		mAllFriendList->setNameFilter(filter);
+
+		setAccordionCollapsedByUser("tab_online", false);
+		setAccordionCollapsedByUser("tab_all", false);
+		showFriendsAccordionsIfNeeded();
+
+		// restore accordion tabs state _after_ all manipulations
+		if(saved_filter.empty())
+		{
+			notifyChildren(LLSD().with("action","restore_state"));
+		}
+	}
+	else if (cur_tab == GROUP_TAB_NAME)
+	{
+		mGroupList->setNameFilter(filter);
+	}
+	else if (cur_tab == RECENT_TAB_NAME)
+	{
+		mRecentList->setNameFilter(filter);
 	}
 }
 
