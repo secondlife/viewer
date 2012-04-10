@@ -30,7 +30,7 @@
 
 #include "llsingleton.h"
 #include "lltool.h"
-#include "llpathinglib.h"
+#include "LLPathingLib.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -59,8 +59,6 @@ public:
 		kCharacterTypeC,
 		kCharacterTypeD
 	} ECharacterType;
-
-	typedef 
 
 	LLPathfindingPathTool();
 	virtual ~LLPathfindingPathTool();
