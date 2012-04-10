@@ -891,17 +891,21 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 void LLFloaterPathfindingConsole::switchIntoTestPathMode()
 {
 	llassert(mPathfindingToolset != NULL);
-	llassert(mSavedToolset == NULL);
-	mSavedToolset = LLToolMgr::getInstance()->getCurrentToolset();
-	LLToolMgr::getInstance()->setCurrentToolset(mPathfindingToolset);
+	LLToolMgr *toolMgrInstance = LLToolMgr::getInstance();
+	if (toolMgrInstance->getCurrentToolset() != mPathfindingToolset)
+	{
+		mSavedToolset = toolMgrInstance->getCurrentToolset();
+		toolMgrInstance->setCurrentToolset(mPathfindingToolset);
+	}
 }
 
 void LLFloaterPathfindingConsole::switchOutOfTestPathMode()
 {
 	llassert(mPathfindingToolset != NULL);
-	if (mSavedToolset != NULL)
+	LLToolMgr *toolMgrInstance = LLToolMgr::getInstance();
+	if (toolMgrInstance->getCurrentToolset() == mPathfindingToolset)
 	{
-		LLToolMgr::getInstance()->setCurrentToolset(mSavedToolset);
+		toolMgrInstance->setCurrentToolset(mSavedToolset);
 		mSavedToolset = NULL;
 	}
 }
