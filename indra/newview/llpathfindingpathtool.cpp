@@ -57,6 +57,8 @@ LLPathfindingPathTool::LLPathfindingPathTool()
 	{
 		LLPathingLib::initSystem();
 	}	
+
+	mFinalPathData.mCharacterWidth = mCharacterWidth;
 }
 
 LLPathfindingPathTool::~LLPathfindingPathTool()
@@ -115,7 +117,7 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 			mTempPathData.mStartPointB = mFinalPathData.mStartPointB;
 			mTempPathData.mEndPointB = mFinalPathData.mEndPointB;
 			mHasTempEndPoint = mHasFinalEndPoint;
-		}
+	}
 		else if (isEndPathToolModKeys(pMask))
 		{
 			mTempPathData.mStartPointB = rayStart;
