@@ -39,7 +39,6 @@ class LLLocalBitmap
 	public: /* main */
 		LLLocalBitmap(std::string filename);
 		~LLLocalBitmap();
-		bool updateSelf(bool first_update = false);
 
 	public: /* accessors */
 		std::string	getFilename();
@@ -48,18 +47,25 @@ class LLLocalBitmap
 		LLUUID		getWorldID();
 		bool		getValid();
 
-	private: /* maintenance */
+	public: /* self update public section */
+		enum EUpdateType
+		{
+			UT_FIRSTUSE,
+			UT_REGUPDATE
+		};
+
+		bool updateSelf(EUpdateType = UT_REGUPDATE);
+
+	private: /* self update private section */
 		bool decodeBitmap(LLPointer<LLImageRaw> raw);
 		void replaceIDs(LLUUID old_id, LLUUID new_id);
-
-	private: /* id replacement */
 		std::vector<LLViewerObject*> prepUpdateObjects(LLUUID old_id);
 		void updateUserPrims(LLUUID old_id, LLUUID new_id);
 		void updateUserSculpts(LLUUID old_id, LLUUID new_id);
 		void updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type);
 		LLVOAvatarDefines::ETextureIndex getTexIndex(LLWearableType::EType type, LLVOAvatarDefines::EBakedTextureIndex baked_texind);
 
-	private: /* enums */
+	private: /* private enums */
 		enum ELinkStatus
 		{
 			LS_ON,

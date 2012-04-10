@@ -7713,5 +7713,14 @@ Disabling future updates for this file.
 [FNAME] could not be opened or decoded for [NRETRIES] attempts, and is now considered broken.
 Disabling future updates for this file.
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsVerifyFail"
+   persist="true"
+   type="notify">
+Attempted to add an invalid or unreadable image file [FNAME] which could not be opened or decoded.
+Attempt cancelled.
+  </notification>
   
 </notifications>

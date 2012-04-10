@@ -116,15 +116,15 @@ LLLocalBitmap::LLLocalBitmap(std::string filename)
 	}
 
 	/* next phase of unit creation is nearly the same as an update cycle.
-	   true means the unit's update is running for the first time so it will not check 
-	   for current usage nor will it attempt to replace the old, non existent image */
-	mValid = updateSelf(true);
+	   we're running updateSelf as a special case with the optional UT_FIRSTUSE
+	   which omits the parts associated with removing the outdated texture */
+	mValid = updateSelf(UT_FIRSTUSE);
 }
 
 LLLocalBitmap::~LLLocalBitmap()
 {
 	// replace IDs with defaults, if set to do so.
-	if(LL_LOCAL_REPLACE_ON_DEL)
+	if(LL_LOCAL_REPLACE_ON_DEL && mValid) // fix for STORM-1837
 	{
 		replaceIDs(mWorldID, IMG_DEFAULT);
 		LLLocalBitmapMgr::doRebake();
@@ -167,7 +167,7 @@ bool LLLocalBitmap::getValid()
 }
 
 /* update functions */
-bool LLLocalBitmap::updateSelf(bool first_update)
+bool LLLocalBitmap::updateSelf(EUpdateType optional_firstupdate)
 {
 	bool updated = false;
 	
@@ -189,7 +189,7 @@ bool LLLocalBitmap::updateSelf(bool first_update)
 				{
 					// decode is successful, we can safely proceed.
 					LLUUID old_id = LLUUID::null;
-					if (!first_update && !mWorldID.isNull())
+					if (!(optional_firstupdate == UT_FIRSTUSE) && !mWorldID.isNull())
 					{
 						old_id = mWorldID;
 					}
@@ -205,7 +205,7 @@ bool LLLocalBitmap::updateSelf(bool first_update)
 
 					gTextureList.addImage(texture);
 			
-					if (!first_update)
+					if (!optional_firstupdate == UT_FIRSTUSE)
 					{
 						// seek out everything old_id uses and replace it with mWorldID
 						replaceIDs(old_id, mWorldID);
@@ -807,6 +807,13 @@ bool LLLocalBitmapMgr::addUnit()
 			}
 			else
 			{
+				llwarns << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
+					    << "Filename: " << filename << llendl;
+
+				LLSD notif_args;
+				notif_args["FNAME"] = filename;
+				LLNotificationsUtil::add("LocalBitmapsVerifyFail", notif_args);
+
 				delete unit;
 				unit = NULL;
 			}
