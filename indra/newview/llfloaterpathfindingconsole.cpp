@@ -158,6 +158,8 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mPathfindingToolset->addTool(LLPathfindingPathTool::getInstance());
 	mPathfindingToolset->addTool(LLToolCamera::getInstance());
 	mPathfindingToolset->setShowFloaterTools(false);
+	updateCharacterWidth();
+	updateCharacterType();
 
 	return LLFloater::postBuild();
 }
