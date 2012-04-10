@@ -60,8 +60,6 @@ public:
 		kCharacterTypeD
 	} ECharacterType;
 
-	typedef 
-
 	LLPathfindingPathTool();
 	virtual ~LLPathfindingPathTool();
 
