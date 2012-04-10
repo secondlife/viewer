@@ -53,7 +53,9 @@ LLPathfindingPathTool::LLPathfindingPathTool()
 	if (!LLPathingLib::getInstance())
 	{
 		LLPathingLib::initSystem();
-	}	
+	}
+
+	mPathData.mCharacterWidth = mCharacterWidth;
 }
 
 LLPathfindingPathTool::~LLPathfindingPathTool()

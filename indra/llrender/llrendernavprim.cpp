@@ -62,7 +62,7 @@ void LLRenderNavPrim::renderTri( const LLVector3& a, const LLVector3& b, const L
 	gGL.end();		
 }
 //=============================================================================
-void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color, const LLVector3& n ) const
+void LLRenderNavPrim::renderLLTri( const LLVector3& a, const LLVector3& b, const LLVector3& c, const LLColor4U& color ) const
 {
 	LLColor4 cV(color);
 	gGL.color4fv( cV.mV );
