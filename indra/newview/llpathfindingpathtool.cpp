@@ -32,7 +32,7 @@
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
 #include "llpathfindingmanager.h"
-#include "llpathinglib.h"
+#include "LLPathingLib.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
