@@ -199,8 +199,6 @@
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
 #include "llpaneltopinfobar.h"
-#include "LLPathingLib.h"
-#include "llfloaterpathfindingconsole.h"
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
@@ -834,7 +832,6 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 	x = llround((F32)x / mDisplayScale.mV[VX]);
 	y = llround((F32)y / mDisplayScale.mV[VY]);
 
-				
 	// only send mouse clicks to UI if UI is visible
 	if(gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{	
@@ -948,26 +945,13 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 		}
 	}
 
-	//Determine if we have a pathing system and subsequently provide any mouse input
-	if (LLPathingLib::getInstance() != NULL)
-	{
-		LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
-		if (!pathfindingConsoleHandle.isDead())
-		{
-			LLFloaterPathfindingConsole *pathfindingConsoleFloater = pathfindingConsoleHandle.get();
-			if (pathfindingConsoleFloater->isGeneratePathMode(mask, clicktype, down))
-			{
-				return pathfindingConsoleFloater->handleAnyMouseClick(x, y, mask, clicktype, down);
-			}
-		}
-	}
-
 	// Do not allow tool manager to handle mouseclicks if we have disconnected	
 	if(!gDisconnected && LLToolMgr::getInstance()->getCurrentTool()->handleAnyMouseClick( x, y, mask, clicktype, down ) )
 	{
 		return TRUE;
 	}
 	
+
 	// If we got this far on a down-click, it wasn't handled.
 	// Up-clicks, though, are always handled as far as the OS is concerned.
 	BOOL default_rtn = !down;
@@ -3180,8 +3164,7 @@ void LLViewerWindow::updateLayout()
 			||	(tool != LLToolPie::getInstance()						// not default tool
 				&& tool != LLToolCompGun::getInstance()					// not coming out of mouselook
 				&& !suppress_toolbox									// not override in third person
-				&& LLToolMgr::getInstance()->getCurrentToolset() != gFaceEditToolset	// not special mode
-				&& LLToolMgr::getInstance()->getCurrentToolset() != gMouselookToolset
+				&& LLToolMgr::getInstance()->getCurrentToolset()->isShowFloaterTools()
 				&& (!captor || dynamic_cast<LLView*>(captor) != NULL)))						// not dragging
 		{
 			// Force floater tools to be visible (unless minimized)

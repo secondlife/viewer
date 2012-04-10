@@ -27,11 +27,15 @@
   <floater.string name="navmesh_simulator_status_some_building">Some navmesh regions are building.</floater.string>
   <floater.string name="navmesh_simulator_status_pending_and_building">Some navmesh regions have pending changes and others are building.</floater.string>
   <floater.string name="navmesh_simulator_status_complete">Navmesh is up-to-date.</floater.string>
+  <floater.string name="pathing_unknown"></floater.string>
+  <floater.string name="pathing_library_not_implemented">Cannot find pathing library implementation.</floater.string>
+  <floater.string name="pathing_region_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="pathing_choose_start_and_end_points">Please choose start and end points.</floater.string>
   <floater.string name="pathing_choose_start_point">Please choose start point.</floater.string>
   <floater.string name="pathing_choose_end_point">Please choose end point.</floater.string>
   <floater.string name="pathing_path_valid">Path is shown in orange.</floater.string>
   <floater.string name="pathing_path_invalid">A path between the chosen points cannot be found.</floater.string>
+  <floater.string name="pathing_error">An error occurred during path generation.</floater.string>
   <panel
       border="false"
       bevel_style="none"

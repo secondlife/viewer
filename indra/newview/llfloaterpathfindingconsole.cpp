@@ -32,7 +32,6 @@
 
 #include "llsd.h"
 #include "llhandle.h"
-#include "llagent.h"
 #include "llpanel.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -42,13 +41,12 @@
 #include "lltabcontainer.h"
 #include "llcombobox.h"
 #include "llfloaterreg.h"
-#include "llviewerregion.h"
-#include "llviewerwindow.h"
-#include "llviewercamera.h"
-#include "llviewercontrol.h"
 #include "llpathfindingnavmeshzone.h"
 #include "llpathfindingmanager.h"
 #include "llenvmanager.h"
+#include "llpathfindingpathtool.h"
+#include "lltoolmgr.h"
+#include "lltoolfocus.h"
 
 #include "LLPathingLib.h"
 
@@ -64,6 +62,7 @@
 #define XUI_CHARACTER_TYPE_C 3
 #define XUI_CHARACTER_TYPE_D 4
 
+#define XUI_EDIT_TAB_INDEX 0
 #define XUI_TEST_TAB_INDEX 1
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
@@ -105,6 +104,7 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 
 	mEditTestTabContainer = findChild<LLTabContainer>("edit_test_tab_container");
 	llassert(mEditTestTabContainer != NULL);
+	mEditTestTabContainer->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTabSwitch, this));
 
 	mEditTab = findChild<LLPanel>("edit_panel");
 	llassert(mEditTab != NULL);
@@ -154,6 +154,11 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mClearPathButton != NULL);
 	mClearPathButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
 
+	mPathfindingToolset = new LLToolset();
+	mPathfindingToolset->addTool(LLPathfindingPathTool::getInstance());
+	mPathfindingToolset->addTool(LLToolCamera::getInstance());
+	mPathfindingToolset->setShowFloaterTools(false);
+
 	return LLFloater::postBuild();
 }
 
@@ -192,13 +197,30 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
 	}
 
+	if (!mPathEventSlot.connected())
+	{
+		mPathEventSlot = LLPathfindingPathTool::getInstance()->registerPathEventListener(boost::bind(&LLFloaterPathfindingConsole::onPathEvent, this));
+	}
+
 	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
 	setDefaultInputs();
 	updatePathTestStatus();
+
+	if (mEditTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX)
+	{
+		switchIntoTestPathMode();
+	}
 }
 
 void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 {
+	switchOutOfTestPathMode();
+	
+	if (mPathEventSlot.connected())
+	{
+		mPathEventSlot.disconnect();
+	}
+
 	if (mRegionBoundarySlot.connected())
 	{
 		mRegionBoundarySlot.disconnect();
@@ -225,46 +247,6 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	LLFloater::onClose(pIsAppQuitting);
 }
 
-BOOL LLFloaterPathfindingConsole::handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down)
-{
-	if (isGeneratePathMode(mask, clicktype, down))
-	{
-		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(x, y);
-		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
-		LLVector3 rayStart = mousePos;
-		LLVector3 rayEnd = mousePos + dv * 150;
-
-		if (mask & MASK_CONTROL)
-		{
-			mPathData.mStartPointA = rayStart;
-			mPathData.mEndPointA = rayEnd;
-			mHasStartPoint = true;
-		}
-		else if (mask & MASK_SHIFT)
-		{
-			mPathData.mStartPointB = rayStart;
-			mPathData.mEndPointB = rayEnd;
-			mHasEndPoint = true;
-		}
-		generatePath();
-		updatePathTestStatus();
-
-		return TRUE;
-	}
-	else
-	{
-		return LLFloater::handleAnyMouseClick(x, y, mask, clicktype, down);
-	}
-}
-
-BOOL LLFloaterPathfindingConsole::isGeneratePathMode(MASK mask, EClickType clicktype, BOOL down) const
-{
-	return (isShown() && (mEditTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX) &&
-		(clicktype == LLMouseHandler::CLICK_LEFT) && down && 
-		(((mask & MASK_CONTROL) && !(mask & (~MASK_CONTROL))) ||
-		((mask & MASK_SHIFT) && !(mask & (~MASK_SHIFT)))));
-}
-
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::getInstanceHandle()
 {
 	if (sInstanceHandle.isDead())
@@ -277,11 +259,6 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::getInstanceHa
 	}
 
 	return sInstanceHandle;
-}
-
-BOOL LLFloaterPathfindingConsole::isRenderPath() const
-{
-	return (mHasStartPoint && mHasEndPoint);
 }
 
 BOOL LLFloaterPathfindingConsole::isRenderNavMesh() const
@@ -444,76 +421,6 @@ void LLFloaterPathfindingConsole::setRenderHeatmapType(ERenderHeatmapType pRende
 	return mShowNavMeshWalkabilityComboBox->setValue(comboBoxValue);
 }
 
-F32 LLFloaterPathfindingConsole::getCharacterWidth() const
-{
-	return mCharacterWidthSlider->getValueF32();
-}
-
-void LLFloaterPathfindingConsole::setCharacterWidth(F32 pCharacterWidth)
-{
-	mCharacterWidthSlider->setValue(LLSD(pCharacterWidth));
-}
-
-LLFloaterPathfindingConsole::ECharacterType LLFloaterPathfindingConsole::getCharacterType() const
-{
-	ECharacterType characterType;
-
-	switch (mCharacterTypeComboBox->getValue().asInteger())
-	{
-	case XUI_CHARACTER_TYPE_NONE :
-		characterType = kCharacterTypeNone;
-		break;
-	case XUI_CHARACTER_TYPE_A :
-		characterType = kCharacterTypeA;
-		break;
-	case XUI_CHARACTER_TYPE_B :
-		characterType = kCharacterTypeB;
-		break;
-	case XUI_CHARACTER_TYPE_C :
-		characterType = kCharacterTypeC;
-		break;
-	case XUI_CHARACTER_TYPE_D :
-		characterType = kCharacterTypeD;
-		break;
-	default :
-		characterType = kCharacterTypeNone;
-		llassert(0);
-		break;
-	}
-
-	return characterType;
-}
-
-void LLFloaterPathfindingConsole::setCharacterType(ECharacterType pCharacterType)
-{
-	LLSD radioGroupValue;
-
-	switch (pCharacterType)
-	{
-	case kCharacterTypeNone :
-		radioGroupValue = XUI_CHARACTER_TYPE_NONE;
-		break;
-	case kCharacterTypeA :
-		radioGroupValue = XUI_CHARACTER_TYPE_A;
-		break;
-	case kCharacterTypeB :
-		radioGroupValue = XUI_CHARACTER_TYPE_B;
-		break;
-	case kCharacterTypeC :
-		radioGroupValue = XUI_CHARACTER_TYPE_C;
-		break;
-	case kCharacterTypeD :
-		radioGroupValue = XUI_CHARACTER_TYPE_D;
-		break;
-	default :
-		radioGroupValue = XUI_CHARACTER_TYPE_NONE;
-		llassert(0);
-		break;
-	}
-
-	mCharacterTypeComboBox->setValue(radioGroupValue);
-}
-
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
@@ -546,11 +453,11 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mIsNavMeshUpdating(false),
 	mAgentStateSlot(),
 	mRegionBoundarySlot(),
+	mPathEventSlot(),
+	mPathfindingToolset(NULL),
+	mSavedToolset(NULL),
 	mConsoleState(kConsoleStateUnknown),
-	mPathData(),
-	mHasStartPoint(false),
-	mHasEndPoint(false),
-	mHasValidPath(false)
+	mShapeRenderFlags(0U)
 {
 	mSelfHandle.bind(this);
 }
@@ -594,21 +501,21 @@ void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 	}
 }
 
-void LLFloaterPathfindingConsole::onCharacterWidthSet()
-{
-	generatePath();
-	updatePathTestStatus();
-}
-
-void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
-{
-	generatePath();
-	updatePathTestStatus();
-}
-
 void LLFloaterPathfindingConsole::onViewCharactersClicked()
 {
 	LLFloaterPathfindingCharacters::openCharactersViewer();
+}
+
+void LLFloaterPathfindingConsole::onTabSwitch()
+{
+	if (mEditTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX)
+	{
+		switchIntoTestPathMode();
+	}
+	else
+	{
+		switchOutOfTestPathMode();
+	}
 }
 
 void LLFloaterPathfindingConsole::onUnfreezeClicked()
@@ -628,12 +535,19 @@ void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
 	LLFloaterPathfindingLinksets::openLinksetsEditor();
 }
 
+void LLFloaterPathfindingConsole::onCharacterWidthSet()
+{
+	updateCharacterWidth();
+}
+
+void LLFloaterPathfindingConsole::onCharacterTypeSwitch()
+{
+	updateCharacterType();
+}
+
 void LLFloaterPathfindingConsole::onClearPathClicked()
 {
-	mHasStartPoint = false;
-	mHasEndPoint = false;
-	mHasValidPath = false;
-	updatePathTestStatus();
+	clearPath();
 }
 
 void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
@@ -681,9 +595,43 @@ void LLFloaterPathfindingConsole::onRegionBoundaryCross()
 	mShowWorldCheckBox->set(TRUE);
 }
 
+void LLFloaterPathfindingConsole::onPathEvent()
+{
+	const LLPathfindingPathTool *pathToolInstance = LLPathfindingPathTool::getInstance();
+
+	mCharacterWidthSlider->setValue(LLSD(pathToolInstance->getCharacterWidth()));
+
+	LLSD characterType;
+	switch (pathToolInstance->getCharacterType())
+	{
+	case LLPathfindingPathTool::kCharacterTypeNone :
+		characterType = XUI_CHARACTER_TYPE_NONE;
+		break;
+	case LLPathfindingPathTool::kCharacterTypeA :
+		characterType = XUI_CHARACTER_TYPE_A;
+		break;
+	case LLPathfindingPathTool::kCharacterTypeB :
+		characterType = XUI_CHARACTER_TYPE_B;
+		break;
+	case LLPathfindingPathTool::kCharacterTypeC :
+		characterType = XUI_CHARACTER_TYPE_C;
+		break;
+	case LLPathfindingPathTool::kCharacterTypeD :
+		characterType = XUI_CHARACTER_TYPE_D;
+		break;
+	default :
+		characterType = XUI_CHARACTER_TYPE_NONE;
+		llassert(0);
+		break;
+	}
+	mCharacterTypeComboBox->setValue(characterType);
+
+	updatePathTestStatus();
+}
+
 void LLFloaterPathfindingConsole::setDefaultInputs()
 {
-	mEditTestTabContainer->selectTab(0);
+	mEditTestTabContainer->selectTab(XUI_EDIT_TAB_INDEX);
 	mShowNavMeshCheckBox->set(FALSE);
 	mShowWalkablesCheckBox->set(FALSE);
 	mShowMaterialVolumesCheckBox->set(FALSE);
@@ -721,9 +669,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mCharacterWidthSlider->setEnabled(FALSE);
 		mCharacterTypeComboBox->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
-		mHasStartPoint = false;
-		mHasEndPoint = false;
-		mHasValidPath = false;
+		clearPath();
 		break;
 	case kConsoleStateCheckingVersion :
 	case kConsoleStateDownloading :
@@ -742,9 +688,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mCharacterWidthSlider->setEnabled(FALSE);
 		mCharacterTypeComboBox->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
-		mHasStartPoint = false;
-		mHasEndPoint = false;
-		mHasValidPath = false;
+		clearPath();
 		break;
 	case kConsoleStateHasNavMesh :
 		mShowNavMeshCheckBox->setEnabled(TRUE);
@@ -943,36 +887,63 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 		break;
 	}
 }
- 
-void LLFloaterPathfindingConsole::generatePath()
+
+void LLFloaterPathfindingConsole::switchIntoTestPathMode()
 {
-	if (mHasStartPoint && mHasEndPoint)
+	llassert(mPathfindingToolset != NULL);
+	llassert(mSavedToolset == NULL);
+	mSavedToolset = LLToolMgr::getInstance()->getCurrentToolset();
+	LLToolMgr::getInstance()->setCurrentToolset(mPathfindingToolset);
+}
+
+void LLFloaterPathfindingConsole::switchOutOfTestPathMode()
+{
+	llassert(mPathfindingToolset != NULL);
+	if (mSavedToolset != NULL)
 	{
-		mPathData.mCharacterWidth = getCharacterWidth();
-		switch (getCharacterType())
-		{
-		case kCharacterTypeNone :
-			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
-			break;
-		case kCharacterTypeA :
-			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
-			break;
-		case kCharacterTypeB :
-			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
-			break;
-		case kCharacterTypeC :
-			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
-			break;
-		case kCharacterTypeD :
-			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
-			break;
-		default :
-			mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
-			break;
-		}
-		LLPathingLib::LLPLResult pathingResult = LLPathingLib::getInstance()->generatePath(mPathData);
-		mHasValidPath = (pathingResult == LLPathingLib::LLPL_PATH_GENERATED_OK);
+		LLToolMgr::getInstance()->setCurrentToolset(mSavedToolset);
+		mSavedToolset = NULL;
 	}
+}
+
+void LLFloaterPathfindingConsole::updateCharacterWidth()
+{
+	LLPathfindingPathTool::getInstance()->setCharacterWidth(mCharacterWidthSlider->getValueF32());
+}
+
+void LLFloaterPathfindingConsole::updateCharacterType()
+{
+	LLPathfindingPathTool::ECharacterType characterType;
+
+	switch (mCharacterTypeComboBox->getValue().asInteger())
+	{
+	case XUI_CHARACTER_TYPE_NONE :
+		characterType = LLPathfindingPathTool::kCharacterTypeNone;
+		break;
+	case XUI_CHARACTER_TYPE_A :
+		characterType = LLPathfindingPathTool::kCharacterTypeA;
+		break;
+	case XUI_CHARACTER_TYPE_B :
+		characterType = LLPathfindingPathTool::kCharacterTypeB;
+		break;
+	case XUI_CHARACTER_TYPE_C :
+		characterType = LLPathfindingPathTool::kCharacterTypeC;
+		break;
+	case XUI_CHARACTER_TYPE_D :
+		characterType = LLPathfindingPathTool::kCharacterTypeD;
+		break;
+	default :
+		characterType = LLPathfindingPathTool::kCharacterTypeNone;
+		llassert(0);
+		break;
+	}
+
+	LLPathfindingPathTool::getInstance()->setCharacterType(characterType);
+}
+
+void LLFloaterPathfindingConsole::clearPath()
+{
+	LLPathfindingPathTool::getInstance()->clearPath();
 }
 
 void LLFloaterPathfindingConsole::updatePathTestStatus()
@@ -983,29 +954,47 @@ void LLFloaterPathfindingConsole::updatePathTestStatus()
 	std::string statusText("");
 	LLStyle::Params styleParams;
 
-	if (!mHasStartPoint && !mHasEndPoint)
+	switch (LLPathfindingPathTool::getInstance()->getPathStatus())
 	{
+	case LLPathfindingPathTool::kPathStatusUnknown :
+		statusText = getString("pathing_unknown");
+		styleParams.color = errorColor;
+		break;
+	case LLPathfindingPathTool::kPathStatusChooseStartAndEndPoints :
 		statusText = getString("pathing_choose_start_and_end_points");
 		styleParams.color = warningColor;
-	}
-	else if (!mHasStartPoint && mHasEndPoint)
-	{
+		break;
+	case LLPathfindingPathTool::kPathStatusChooseStartPoint :
 		statusText = getString("pathing_choose_start_point");
 		styleParams.color = warningColor;
-	}
-	else if (mHasStartPoint && !mHasEndPoint)
-	{
+		break;
+	case LLPathfindingPathTool::kPathStatusChooseEndPoint :
 		statusText = getString("pathing_choose_end_point");
 		styleParams.color = warningColor;
-	}
-	else if (mHasValidPath)
-	{
+		break;
+	case LLPathfindingPathTool::kPathStatusHasValidPath :
 		statusText = getString("pathing_path_valid");
-	}
-	else
-	{
+		break;
+	case LLPathfindingPathTool::kPathStatusHasInvalidPath :
 		statusText = getString("pathing_path_invalid");
 		styleParams.color = errorColor;
+		break;
+	case LLPathfindingPathTool::kPathStatusNotEnabled :
+		statusText = getString("pathing_region_not_enabled");
+		styleParams.color = errorColor;
+		break;
+	case LLPathfindingPathTool::kPathStatusNotImplemented :
+		statusText = getString("pathing_library_not_implemented");
+		styleParams.color = errorColor;
+		break;
+	case LLPathfindingPathTool::kPathStatusError :
+		statusText = getString("pathing_error");
+		styleParams.color = errorColor;
+		break;
+	default :
+		statusText = getString("pathing_unknown");
+		styleParams.color = errorColor;
+		break;
 	}
 
 	mPathTestingStatus->setText((LLStringExplicit)statusText, styleParams);

@@ -424,6 +424,7 @@ set(viewer_SOURCE_FILES
     llpathfindingnavmesh.cpp
     llpathfindingnavmeshstatus.cpp
     llpathfindingnavmeshzone.cpp
+    llpathfindingpathtool.cpp
     llphysicsmotion.cpp
     llphysicsshapebuilderutil.cpp
     llplacesinventorybridge.cpp
@@ -980,6 +981,7 @@ set(viewer_HEADER_FILES
     llpathfindingnavmesh.h
     llpathfindingnavmeshstatus.h
     llpathfindingnavmeshzone.h
+    llpathfindingpathtool.h
     llphysicsmotion.h
     llphysicsshapebuilderutil.h
     llplacesinventorybridge.h
@@ -1328,6 +1330,7 @@ if (WINDOWS)
         res/lltoolgrab.cur
         res/lltoolland.cur
         res/lltoolpan.cur
+        res/lltoolpathfinding.cur
         res/lltoolpipette.cur
         res/lltoolrotate.cur
         res/lltoolscale.cur

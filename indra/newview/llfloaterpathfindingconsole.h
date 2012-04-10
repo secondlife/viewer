@@ -33,6 +33,7 @@
 #include "LLPathingLib.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmeshzone.h"
+#include "llpathfindingpathtool.h"
 
 #include <boost/signals2.hpp>
 
@@ -45,6 +46,7 @@ class LLCheckBoxCtrl;
 class LLTabContainer;
 class LLComboBox;
 class LLButton;
+class LLToolset;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -61,25 +63,11 @@ public:
 		kRenderHeatmapD
 	} ERenderHeatmapType;
 
-	typedef enum
-	{
-		kCharacterTypeNone,
-		kCharacterTypeA,
-		kCharacterTypeB,
-		kCharacterTypeC,
-		kCharacterTypeD
-	} ECharacterType;
-
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 	virtual void onClose(bool pIsAppQuitting);
-	virtual BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EClickType clicktype, BOOL down);
-
-	BOOL isGeneratePathMode(MASK mask, EClickType clicktype, BOOL down) const;
 
 	static LLHandle<LLFloaterPathfindingConsole> getInstanceHandle();
-
-	BOOL isRenderPath() const;
 
 	BOOL isRenderNavMesh() const;
 	void setRenderNavMesh(BOOL pIsRenderNavMesh);
@@ -108,12 +96,6 @@ public:
 	ERenderHeatmapType getRenderHeatmapType() const;
 	void               setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType);
 
-    F32            getCharacterWidth() const;
-    void           setCharacterWidth(F32 pCharacterWidth);
-
-    ECharacterType getCharacterType() const;
-    void           setCharacterType(ECharacterType pCharacterType);
-
 	int getHeatMapType() const;
 
 protected:
@@ -136,16 +118,18 @@ private:
 	virtual ~LLFloaterPathfindingConsole();
 
 	void onShowWalkabilitySet();
-	void onCharacterWidthSet();
-	void onCharacterTypeSwitch();
 	void onViewCharactersClicked();
+	void onTabSwitch();
 	void onUnfreezeClicked();
 	void onFreezeClicked();
 	void onViewEditLinksetClicked();
+	void onCharacterWidthSet();
+	void onCharacterTypeSwitch();
 	void onClearPathClicked();
 	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 	void onRegionBoundaryCross();
+	void onPathEvent();
 
 	void setDefaultInputs();
 	void setConsoleState(EConsoleState pConsoleState);
@@ -158,8 +142,13 @@ private:
 
 	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
-	void generatePath();
+	void switchIntoTestPathMode();
+	void switchOutOfTestPathMode();
+	void updateCharacterWidth();
+	void updateCharacterType();
+	void clearPath();
 	void updatePathTestStatus();
+
 	void resetShapeRenderFlags() { mShapeRenderFlags = 0; }
 	void setShapeRenderFlag( LLPathingLib::LLShapeType type ) { mShapeRenderFlags |= (1<<type); }
 	void fillInColorsForNavMeshVisualization();
@@ -196,20 +185,19 @@ private:
 
 	LLPathfindingManager::agent_state_slot_t      mAgentStateSlot;
 	boost::signals2::connection                   mRegionBoundarySlot;
+	LLPathfindingPathTool::path_event_slot_t      mPathEventSlot;
+
+	LLToolset                                     *mPathfindingToolset;
+	LLToolset                                     *mSavedToolset;
 
 	EConsoleState                                 mConsoleState;
 
-	//Container that is populated and subsequently submitted to the LLPathingSystem for processing
-	LLPathingLib::PathingPacket		mPathData;
-	bool							mHasStartPoint;
-	bool							mHasEndPoint;
-	bool                            mHasValidPath;
-	U32								mShapeRenderFlags;
+	U32                                           mShapeRenderFlags;
 
-	static LLHandle<LLFloaterPathfindingConsole> sInstanceHandle;
+	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
 	
 public:
-		LLPathingLib::NavMeshColors					mNavMeshColors;
+		LLPathingLib::NavMeshColors               mNavMeshColors;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

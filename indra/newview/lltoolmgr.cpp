@@ -91,6 +91,8 @@ LLToolMgr::LLToolMgr()
 //	gLandToolset		= new LLToolset();
 	gMouselookToolset	= new LLToolset();
 	gFaceEditToolset	= new LLToolset();
+	gMouselookToolset->setShowFloaterTools(false);
+	gFaceEditToolset->setShowFloaterTools(false);
 }
 
 void LLToolMgr::initTools()

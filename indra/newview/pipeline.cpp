@@ -106,6 +106,7 @@
 #include "llnotifications.h"
 #include "LLPathingLib.h"
 #include "llfloaterpathfindingconsole.h"
+#include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
@@ -4400,7 +4401,7 @@ void LLPipeline::renderDebug()
 					gGL.flush();
 				}
 					//User designated path
-					if ( pathfindingConsole->isRenderPath() )
+					if ( LLPathfindingPathTool::getInstance()->isRenderPath() )
 					{
 						LLGLEnable blend(GL_BLEND);
 						if (LLGLSLShader::sNoFixedFunction)
