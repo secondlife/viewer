@@ -321,7 +321,7 @@ void LLPathfindingNavMeshZone::updateStatus()
 		llassert(LLPathingLib::getInstance() != NULL);
 		if (LLPathingLib::getInstance() != NULL)
 		{
-			LLPathingLib::getInstance()->stitchNavMeshes( gSavedSettings.getBOOL("EnableVBOForNavMeshVisualization") );
+			LLPathingLib::getInstance()->stitchNavMeshes();
 		}
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llinfos << "STINSON DEBUG: Navmesh zone update stitching is done" << llendl;
