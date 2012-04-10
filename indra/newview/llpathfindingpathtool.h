@@ -86,12 +86,20 @@ public:
 protected:
 
 private:
-	void              computePath();
+	bool              isAnyPathToolModKeys(MASK pMask) const;
+	bool              isStartPathToolModKeys(MASK pMask) const;
+	bool              isEndPathToolModKeys(MASK pMask) const;
 
-	LLPathingLib::PathingPacket mPathData;
+	void              computeFinalPath();
+	void              computeTempPath();
+
+	LLPathingLib::PathingPacket mFinalPathData;
+	LLPathingLib::PathingPacket mTempPathData;
 	LLPathingLib::LLPLResult    mPathResult;
-	bool                        mHasStartPoint;
-	bool                        mHasEndPoint;
+	bool                        mHasFinalStartPoint;
+	bool                        mHasFinalEndPoint;
+	bool                        mHasTempStartPoint;
+	bool                        mHasTempEndPoint;
 	F32                         mCharacterWidth;
 	ECharacterType              mCharacterType;
 	path_event_signal_t         mPathEventSignal;

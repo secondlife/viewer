@@ -42,10 +42,13 @@
 LLPathfindingPathTool::LLPathfindingPathTool()
 	: LLTool(PATH_TOOL_NAME),
 	LLSingleton<LLPathfindingPathTool>(),
-	mPathData(),
+	mFinalPathData(),
+	mTempPathData(),
 	mPathResult(LLPathingLib::LLPL_PATH_NOT_GENERATED),
-	mHasStartPoint(false),
-	mHasEndPoint(false),
+	mHasFinalStartPoint(false),
+	mHasFinalEndPoint(false),
+	mHasTempStartPoint(false),
+	mHasTempEndPoint(false),
 	mCharacterWidth(1.0f),
 	mCharacterType(kCharacterTypeNone),
 	mPathEventSignal()
@@ -62,39 +65,78 @@ LLPathfindingPathTool::~LLPathfindingPathTool()
 
 BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	if ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0)
+	BOOL returnVal = FALSE;
+
+	if (isAnyPathToolModKeys(pMask))
 	{
 		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
 		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
 		LLVector3 rayStart = mousePos;
 		LLVector3 rayEnd = mousePos + dv * 150;
 
-		if (pMask & MASK_CONTROL)
+		if (isStartPathToolModKeys(pMask))
 		{
-			mPathData.mStartPointA = rayStart;
-			mPathData.mEndPointA = rayEnd;
-			mHasStartPoint = true;
+			mFinalPathData.mStartPointA = rayStart;
+			mFinalPathData.mEndPointA = rayEnd;
+			mHasFinalStartPoint = true;
 		}
-		else if (pMask & MASK_SHIFT)
+		else if (isEndPathToolModKeys(pMask))
 		{
-			mPathData.mStartPointB = rayStart;
-			mPathData.mEndPointB = rayEnd;
-			mHasEndPoint = true;
+			mFinalPathData.mStartPointB = rayStart;
+			mFinalPathData.mEndPointB = rayEnd;
+			mHasFinalEndPoint = true;
 		}
-		computePath();
+		computeFinalPath();
+
+		returnVal = TRUE;
 	}
 
-	return ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0);
+	return returnVal;
 }
 
 BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 {
-	if ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0)
+	BOOL returnVal = FALSE;
+
+	if (isAnyPathToolModKeys(pMask))
 	{
 		gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING);
+
+		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
+		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
+		LLVector3 rayStart = mousePos;
+		LLVector3 rayEnd = mousePos + dv * 150;
+
+		if (isStartPathToolModKeys(pMask))
+		{
+			mTempPathData.mStartPointA = rayStart;
+			mTempPathData.mEndPointA = rayEnd;
+			mHasTempStartPoint = true;
+			mTempPathData.mStartPointB = mFinalPathData.mStartPointB;
+			mTempPathData.mEndPointB = mFinalPathData.mEndPointB;
+			mHasTempEndPoint = mHasFinalEndPoint;
+		}
+		else if (isEndPathToolModKeys(pMask))
+		{
+			mTempPathData.mStartPointB = rayStart;
+			mTempPathData.mEndPointB = rayEnd;
+			mHasTempEndPoint = true;
+			mTempPathData.mStartPointA = mFinalPathData.mStartPointA;
+			mTempPathData.mEndPointA = mFinalPathData.mEndPointA;
+			mHasTempStartPoint = mHasFinalStartPoint;
+		}
+		computeTempPath();
+
+		returnVal = TRUE;
+	}
+	else
+	{
+		mHasTempStartPoint = false;
+		mHasTempEndPoint = false;
+		computeFinalPath();
 	}
 
-	return ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0);
+	return returnVal;
 }
 
 LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
@@ -109,15 +151,15 @@ LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
 	{
 		status = kPathStatusNotEnabled;
 	}
-	else if (!mHasStartPoint && !mHasEndPoint)
+	else if (!mHasFinalStartPoint && !mHasFinalEndPoint)
 	{
 		status = kPathStatusChooseStartAndEndPoints;
 	}
-	else if (!mHasStartPoint)
+	else if (!mHasFinalStartPoint)
 	{
 		status = kPathStatusChooseStartPoint;
 	}
-	else if (!mHasEndPoint)
+	else if (!mHasFinalEndPoint)
 	{
 		status = kPathStatusChooseEndPoint;
 	}
@@ -145,8 +187,10 @@ F32 LLPathfindingPathTool::getCharacterWidth() const
 void LLPathfindingPathTool::setCharacterWidth(F32 pCharacterWidth)
 {
 	mCharacterWidth = pCharacterWidth;
-	mPathData.mCharacterWidth = pCharacterWidth;
-	computePath();
+	mFinalPathData.mCharacterWidth = pCharacterWidth;
+	mTempPathData.mCharacterWidth = pCharacterWidth;
+	computeFinalPath();
+	computeTempPath();
 }
 
 LLPathfindingPathTool::ECharacterType LLPathfindingPathTool::getCharacterType() const
@@ -157,41 +201,48 @@ LLPathfindingPathTool::ECharacterType LLPathfindingPathTool::getCharacterType() 
 void LLPathfindingPathTool::setCharacterType(ECharacterType pCharacterType)
 {
 	mCharacterType = pCharacterType;
+
+	LLPathingLib::LLPLCharacterType characterType;
 	switch (pCharacterType)
 	{
 	case kCharacterTypeNone :
-		mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
+		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
 		break;
 	case kCharacterTypeA :
-		mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
+		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
 		break;
 	case kCharacterTypeB :
-		mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
+		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
 		break;
 	case kCharacterTypeC :
-		mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
+		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
 		break;
 	case kCharacterTypeD :
-		mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
+		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
 		break;
 	default :
-		mPathData.mCharacterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
+		characterType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
 		llassert(0);
 		break;
 	}
-	computePath();
+	mFinalPathData.mCharacterType = characterType;
+	mTempPathData.mCharacterType = characterType;
+	computeFinalPath();
+	computeTempPath();
 }
 
 bool LLPathfindingPathTool::isRenderPath() const
 {
-	return (mHasStartPoint && mHasEndPoint);
+	return (mHasFinalStartPoint && mHasFinalEndPoint) || (mHasTempStartPoint && mHasTempEndPoint);
 }
 
 void LLPathfindingPathTool::clearPath()
 {
-	mHasStartPoint = false;
-	mHasEndPoint = false;
-	computePath();
+	mHasFinalStartPoint = false;
+	mHasFinalEndPoint = false;
+	mHasTempStartPoint = false;
+	mHasTempEndPoint = false;
+	computeFinalPath();
 }
 
 LLPathfindingPathTool::path_event_slot_t LLPathfindingPathTool::registerPathEventListener(path_event_callback_t pPathEventCallback)
@@ -199,8 +250,35 @@ LLPathfindingPathTool::path_event_slot_t LLPathfindingPathTool::registerPathEven
 	return mPathEventSignal.connect(pPathEventCallback);
 }
 
-void LLPathfindingPathTool::computePath()
+bool LLPathfindingPathTool::isAnyPathToolModKeys(MASK pMask) const
 {
-	mPathResult = LLPathingLib::getInstance()->generatePath(mPathData);
+	return ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0);
+}
+
+bool LLPathfindingPathTool::isStartPathToolModKeys(MASK pMask) const
+{
+	return ((pMask & MASK_CONTROL) != 0);
+}
+
+bool LLPathfindingPathTool::isEndPathToolModKeys(MASK pMask) const
+{
+	return ((pMask & MASK_SHIFT) != 0);
+}
+
+void LLPathfindingPathTool::computeFinalPath()
+{
+	mPathResult = LLPathingLib::LLPL_PATH_NOT_GENERATED;
+	if (mHasFinalStartPoint && mHasFinalEndPoint && (LLPathingLib::getInstance() != NULL))
+	{
+		mPathResult = LLPathingLib::getInstance()->generatePath(mFinalPathData);
+	}
 	mPathEventSignal();
+}
+
+void LLPathfindingPathTool::computeTempPath()
+{
+	if (mHasTempStartPoint && mHasTempEndPoint && (LLPathingLib::getInstance() != NULL))
+	{
+		LLPathingLib::getInstance()->generatePath(mTempPathData);
+	}
 }
