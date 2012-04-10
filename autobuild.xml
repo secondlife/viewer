@@ -365,6 +365,10 @@
       </map>
       <key>dictionaries</key>
       <map>
+        <key>license</key>
+        <string>various open</string>
+        <key>license_file</key>
+        <string>LICENSES/dictionaries.txt</string>
         <key>name</key>
         <string>dictionaries</string>
         <key>platforms</key>
@@ -1852,8 +1856,12 @@
     </map>
     <key>package_description</key>
     <map>
+      <key>description</key>
+      <string>Spell checking dictionaries</string>
+      <key>license</key>
+      <string>various open</string>
       <key>name</key>
-      <string>viewer_development</string>
+      <string>dictionaries</string>
       <key>platforms</key>
       <map>
         <key>common</key>
@@ -2563,6 +2571,8 @@
           <string>windows</string>
         </map>
       </map>
+      <key>version</key>
+      <string>1.0</string>
     </map>
     <key>type</key>
     <string>autobuild</string>
