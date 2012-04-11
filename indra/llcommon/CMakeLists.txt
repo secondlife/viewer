@@ -221,6 +221,7 @@ set(llcommon_HEADER_FILES
     llsingleton.h
     llskiplist.h
     llskipmap.h
+    llsortedvector.h
     llstack.h
     llstacktrace.h
     llstat.h
@@ -235,6 +236,7 @@ set(llcommon_HEADER_FILES
     llthreadsafequeue.h
     lltimer.h
     lltreeiterators.h
+    lltypeinfolookup.h
     lluri.h
     lluuid.h
     lluuidhashmap.h
