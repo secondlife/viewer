@@ -28,6 +28,7 @@
 #include "lloutputmonitorctrl.h"
 
 // library includes 
+#include "llfloaterreg.h"
 #include "llui.h"
 
 // viewer includes
@@ -239,6 +240,17 @@ void LLOutputMonitorCtrl::draw()
 	//
 	if(mBorder)
 		gl_rect_2d(0, monh, monw, 0, sColorBound, FALSE);
+}
+
+// virtual
+BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+	if (mSpeakerId != gAgentID)
+	{
+		LLFloaterReg::showInstance("floater_voice_volume", LLSD().with("avatar_id", mSpeakerId));
+	}
+
+	return TRUE;
 }
 
 void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id/* = LLUUID::null*/)

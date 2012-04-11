@@ -244,6 +244,7 @@ set(viewer_SOURCE_FILES
     llfloateruipreview.cpp
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
+    llfloatervoicevolume.cpp
     llfloaterwebcontent.cpp
     llfloaterwebprofile.cpp
     llfloaterwhitelistentry.cpp
@@ -800,6 +801,7 @@ set(viewer_HEADER_FILES
     llfloateruipreview.h
     llfloaterurlentry.h
     llfloatervoiceeffect.h
+    llfloatervoicevolume.h
     llfloaterwebcontent.h
     llfloaterwebprofile.h
     llfloaterwhitelistentry.h

@@ -110,6 +110,7 @@
 #include "llfloatertranslationsettings.h"
 #include "llfloateruipreview.h"
 #include "llfloatervoiceeffect.h"
+#include "llfloatervoicevolume.h"
 #include "llfloaterwhitelistentry.h"
 #include "llfloaterwindowsize.h"
 #include "llfloaterworldmap.h"
@@ -220,6 +221,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLInspectGroupUtil::registerFloater();
 	LLInspectObjectUtil::registerFloater();
 	LLInspectRemoteObjectUtil::registerFloater();
+	LLFloaterVoiceVolumeUtil::registerFloater();
 	LLNotificationsUI::registerFloater();
 	LLFloaterDisplayNameUtil::registerFloater();
 	

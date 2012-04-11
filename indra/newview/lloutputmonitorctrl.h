@@ -68,6 +68,7 @@ public:
 
 	// llview overrides
 	virtual void	draw();
+	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 
 	void			setPower(F32 val);
 	F32				getPower(F32 val) const { return mPower; }

@@ -558,8 +558,7 @@ void LLInspectAvatar::updateVolumeSlider()
 		getChild<LLUICtrl>("volume_slider")->setVisible(true);
 
 		// By convention, we only display and toggle voice mutes, not all mutes
-		bool is_muted = LLMuteList::getInstance()->
-							isMuted(mAvatarID, LLMute::flagVoiceChat);
+		bool is_muted = LLAvatarActions::isVoiceMuted(mAvatarID);
 
 		LLUICtrl* mute_btn = getChild<LLUICtrl>("mute_btn");
 

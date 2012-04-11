@@ -809,6 +809,26 @@ void LLAvatarActions::toggleBlock(const LLUUID& id)
 }
 
 // static
+void LLAvatarActions::toggleMuteVoice(const LLUUID& id)
+{
+	std::string name;
+	gCacheName->getFullName(id, name); // needed for mute
+
+	LLMuteList* mute_list = LLMuteList::getInstance();
+	bool is_muted = mute_list->isMuted(id, LLMute::flagVoiceChat);
+
+	LLMute mute(id, name, LLMute::AGENT);
+	if (!is_muted)
+	{
+		mute_list->add(mute, LLMute::flagVoiceChat);
+	}
+	else
+	{
+		mute_list->remove(mute, LLMute::flagVoiceChat);
+	}
+}
+
+// static
 bool LLAvatarActions::canOfferTeleport(const LLUUID& id)
 {
 	// First use LLAvatarTracker::isBuddy()
@@ -1020,6 +1040,12 @@ bool LLAvatarActions::isBlocked(const LLUUID& id)
 	std::string name;
 	gCacheName->getFullName(id, name); // needed for mute
 	return LLMuteList::getInstance()->isMuted(id, name);
+}
+
+// static
+bool LLAvatarActions::isVoiceMuted(const LLUUID& id)
+{
+	return LLMuteList::getInstance()->isMuted(id, LLMute::flagVoiceChat);
 }
 
 // static
