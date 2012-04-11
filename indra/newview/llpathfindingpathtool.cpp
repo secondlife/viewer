@@ -83,9 +83,71 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 		computeFinalPath();
 
 		returnVal = TRUE;
+		setMouseCapture(TRUE);
 	}
 
 	return returnVal;
+}
+
+BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
+{
+	BOOL returnVal = FALSE;
+
+	if (isAnyPathToolModKeys(pMask))
+	{
+		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
+		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
+		LLVector3 rayStart = mousePos;
+		LLVector3 rayEnd = mousePos + dv * 150;
+
+		if (isPointAModKeys(pMask))
+		{
+			setFinalA(rayStart, rayEnd);
+		}
+		else if (isPointBModKeys(pMask))
+		{
+			setFinalB(rayStart, rayEnd);
+		}
+		computeFinalPath();
+
+		setMouseCapture(FALSE);
+		returnVal = TRUE;
+	}
+
+	return returnVal;
+}
+
+BOOL LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
+{
+	setMouseCapture(TRUE);
+
+	return TRUE;
+}
+
+BOOL LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
+{
+	setMouseCapture(FALSE);
+
+	return TRUE;
+}
+
+BOOL LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
+{
+	setMouseCapture(TRUE);
+
+	return TRUE;
+}
+
+BOOL LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
+{
+	setMouseCapture(FALSE);
+
+	return TRUE;
+}
+
+BOOL LLPathfindingPathTool::handleDoubleClick(S32 pX, S32 pY, MASK pMask)
+{
+	return TRUE;
 }
 
 BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
