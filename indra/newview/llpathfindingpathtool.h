@@ -87,8 +87,27 @@ protected:
 
 private:
 	bool              isAnyPathToolModKeys(MASK pMask) const;
-	bool              isStartPathToolModKeys(MASK pMask) const;
-	bool              isEndPathToolModKeys(MASK pMask) const;
+	bool              isPointAModKeys(MASK pMask) const;
+	bool              isPointBModKeys(MASK pMask) const;
+
+	void              setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+	bool              hasFinalA() const;
+	const LLVector3   &getFinalAStart() const;
+	const LLVector3   &getFinalAEnd() const;
+
+	void              setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+	bool              hasTempA() const;
+
+	void              setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+	bool              hasFinalB() const;
+	const LLVector3   &getFinalBStart() const;
+	const LLVector3   &getFinalBEnd() const;
+
+	void              setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
+	bool              hasTempB() const;
+
+	void              clearFinal();
+	void              clearTemp();
 
 	void              computeFinalPath();
 	void              computeTempPath();
@@ -96,11 +115,6 @@ private:
 	LLPathingLib::PathingPacket mFinalPathData;
 	LLPathingLib::PathingPacket mTempPathData;
 	LLPathingLib::LLPLResult    mPathResult;
-	bool                        mHasFinalStartPoint;
-	bool                        mHasFinalEndPoint;
-	bool                        mHasTempStartPoint;
-	bool                        mHasTempEndPoint;
-	F32                         mCharacterWidth;
 	ECharacterType              mCharacterType;
 	path_event_signal_t         mPathEventSignal;
 };

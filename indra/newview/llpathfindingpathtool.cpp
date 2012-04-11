@@ -44,12 +44,7 @@ LLPathfindingPathTool::LLPathfindingPathTool()
 	LLSingleton<LLPathfindingPathTool>(),
 	mFinalPathData(),
 	mTempPathData(),
-	mPathResult(LLPathingLib::LLPL_PATH_NOT_GENERATED),
-	mHasFinalStartPoint(false),
-	mHasFinalEndPoint(false),
-	mHasTempStartPoint(false),
-	mHasTempEndPoint(false),
-	mCharacterWidth(1.0f),
+	mPathResult(LLPathingLib::LLPL_NO_PATH),
 	mCharacterType(kCharacterTypeNone),
 	mPathEventSignal()
 {
@@ -58,7 +53,7 @@ LLPathfindingPathTool::LLPathfindingPathTool()
 		LLPathingLib::initSystem();
 	}	
 
-	setCharacterWidth(mCharacterWidth);
+	setCharacterWidth(1.0f);
 	setCharacterType(mCharacterType);
 }
 
@@ -77,17 +72,13 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 		LLVector3 rayStart = mousePos;
 		LLVector3 rayEnd = mousePos + dv * 150;
 
-		if (isStartPathToolModKeys(pMask))
+		if (isPointAModKeys(pMask))
 		{
-			mFinalPathData.mStartPointA = rayStart;
-			mFinalPathData.mEndPointA = rayEnd;
-			mHasFinalStartPoint = true;
+			setFinalA(rayStart, rayEnd);
 		}
-		else if (isEndPathToolModKeys(pMask))
+		else if (isPointBModKeys(pMask))
 		{
-			mFinalPathData.mStartPointB = rayStart;
-			mFinalPathData.mEndPointB = rayEnd;
-			mHasFinalEndPoint = true;
+			setFinalB(rayStart, rayEnd);
 		}
 		computeFinalPath();
 
@@ -110,23 +101,21 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 		LLVector3 rayStart = mousePos;
 		LLVector3 rayEnd = mousePos + dv * 150;
 
-		if (isStartPathToolModKeys(pMask))
+		if (isPointAModKeys(pMask))
 		{
-			mTempPathData.mStartPointA = rayStart;
-			mTempPathData.mEndPointA = rayEnd;
-			mHasTempStartPoint = true;
-			mTempPathData.mStartPointB = mFinalPathData.mStartPointB;
-			mTempPathData.mEndPointB = mFinalPathData.mEndPointB;
-			mHasTempEndPoint = mHasFinalEndPoint;
-	}
-		else if (isEndPathToolModKeys(pMask))
+			setTempA(rayStart, rayEnd);
+			if (hasFinalB())
+			{
+				setTempB(getFinalBStart(), getFinalBEnd());
+			}
+		}
+		else if (isPointBModKeys(pMask))
 		{
-			mTempPathData.mStartPointB = rayStart;
-			mTempPathData.mEndPointB = rayEnd;
-			mHasTempEndPoint = true;
-			mTempPathData.mStartPointA = mFinalPathData.mStartPointA;
-			mTempPathData.mEndPointA = mFinalPathData.mEndPointA;
-			mHasTempStartPoint = mHasFinalStartPoint;
+			if (hasFinalA())
+			{
+				setTempA(getFinalAStart(), getFinalAEnd());
+			}
+			setTempB(rayStart, rayEnd);
 		}
 		computeTempPath();
 
@@ -134,8 +123,7 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 	}
 	else
 	{
-		mHasTempStartPoint = false;
-		mHasTempEndPoint = false;
+		clearTemp();
 		computeFinalPath();
 	}
 
@@ -154,15 +142,15 @@ LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
 	{
 		status = kPathStatusNotEnabled;
 	}
-	else if (!mHasFinalStartPoint && !mHasFinalEndPoint)
+	else if (!hasFinalA() && !hasFinalB())
 	{
 		status = kPathStatusChooseStartAndEndPoints;
 	}
-	else if (!mHasFinalStartPoint)
+	else if (!hasFinalA())
 	{
 		status = kPathStatusChooseStartPoint;
 	}
-	else if (!mHasFinalEndPoint)
+	else if (!hasFinalB())
 	{
 		status = kPathStatusChooseEndPoint;
 	}
@@ -184,12 +172,11 @@ LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
 
 F32 LLPathfindingPathTool::getCharacterWidth() const
 {
-	return mCharacterWidth;
+	return mFinalPathData.mCharacterWidth;
 }
 
 void LLPathfindingPathTool::setCharacterWidth(F32 pCharacterWidth)
 {
-	mCharacterWidth = pCharacterWidth;
 	mFinalPathData.mCharacterWidth = pCharacterWidth;
 	mTempPathData.mCharacterWidth = pCharacterWidth;
 	computeFinalPath();
@@ -236,15 +223,13 @@ void LLPathfindingPathTool::setCharacterType(ECharacterType pCharacterType)
 
 bool LLPathfindingPathTool::isRenderPath() const
 {
-	return (mHasFinalStartPoint && mHasFinalEndPoint) || (mHasTempStartPoint && mHasTempEndPoint);
+	return (hasFinalA() || hasFinalB() || hasTempA() || hasTempB());
 }
 
 void LLPathfindingPathTool::clearPath()
 {
-	mHasFinalStartPoint = false;
-	mHasFinalEndPoint = false;
-	mHasTempStartPoint = false;
-	mHasTempEndPoint = false;
+	clearFinal();
+	clearTemp();
 	computeFinalPath();
 }
 
@@ -258,20 +243,100 @@ bool LLPathfindingPathTool::isAnyPathToolModKeys(MASK pMask) const
 	return ((pMask & (MASK_CONTROL|MASK_SHIFT)) != 0);
 }
 
-bool LLPathfindingPathTool::isStartPathToolModKeys(MASK pMask) const
+bool LLPathfindingPathTool::isPointAModKeys(MASK pMask) const
 {
 	return ((pMask & MASK_CONTROL) != 0);
 }
 
-bool LLPathfindingPathTool::isEndPathToolModKeys(MASK pMask) const
+bool LLPathfindingPathTool::isPointBModKeys(MASK pMask) const
 {
 	return ((pMask & MASK_SHIFT) != 0);
 }
 
+void LLPathfindingPathTool::setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+{
+	mFinalPathData.mStartPointA = pStartPoint;
+	mFinalPathData.mEndPointA = pEndPoint;
+	mFinalPathData.mHasPointA = true;
+}
+
+bool LLPathfindingPathTool::hasFinalA() const
+{
+	return mFinalPathData.mHasPointA;
+}
+
+const LLVector3 &LLPathfindingPathTool::getFinalAStart() const
+{
+	return mFinalPathData.mStartPointA;
+}
+
+const LLVector3 &LLPathfindingPathTool::getFinalAEnd() const
+{
+	return mFinalPathData.mEndPointA;
+}
+
+void LLPathfindingPathTool::setTempA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+{
+	mTempPathData.mStartPointA = pStartPoint;
+	mTempPathData.mEndPointA = pEndPoint;
+	mTempPathData.mHasPointA = true;
+}
+
+bool LLPathfindingPathTool::hasTempA() const
+{
+	return mTempPathData.mHasPointA;
+}
+
+void LLPathfindingPathTool::setFinalB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+{
+	mFinalPathData.mStartPointB = pStartPoint;
+	mFinalPathData.mEndPointB = pEndPoint;
+	mFinalPathData.mHasPointB = true;
+}
+
+bool LLPathfindingPathTool::hasFinalB() const
+{
+	return mFinalPathData.mHasPointB;
+}
+
+const LLVector3 &LLPathfindingPathTool::getFinalBStart() const
+{
+	return mFinalPathData.mStartPointB;
+}
+
+const LLVector3 &LLPathfindingPathTool::getFinalBEnd() const
+{
+	return mFinalPathData.mEndPointB;
+}
+
+void LLPathfindingPathTool::setTempB(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
+{
+	mTempPathData.mStartPointB = pStartPoint;
+	mTempPathData.mEndPointB = pEndPoint;
+	mTempPathData.mHasPointB = true;
+}
+
+bool LLPathfindingPathTool::hasTempB() const
+{
+	return mTempPathData.mHasPointB;
+}
+
+void LLPathfindingPathTool::clearFinal()
+{
+	mFinalPathData.mHasPointA = false;
+	mFinalPathData.mHasPointB = false;
+}
+
+void LLPathfindingPathTool::clearTemp()
+{
+	mTempPathData.mHasPointA = false;
+	mTempPathData.mHasPointB = false;
+}
+
 void LLPathfindingPathTool::computeFinalPath()
 {
-	mPathResult = LLPathingLib::LLPL_PATH_NOT_GENERATED;
-	if (mHasFinalStartPoint && mHasFinalEndPoint && (LLPathingLib::getInstance() != NULL))
+	mPathResult = LLPathingLib::LLPL_NO_PATH;
+	if (LLPathingLib::getInstance() != NULL)
 	{
 		mPathResult = LLPathingLib::getInstance()->generatePath(mFinalPathData);
 	}
@@ -280,7 +345,8 @@ void LLPathfindingPathTool::computeFinalPath()
 
 void LLPathfindingPathTool::computeTempPath()
 {
-	if (mHasTempStartPoint && mHasTempEndPoint && (LLPathingLib::getInstance() != NULL))
+	mPathResult = LLPathingLib::LLPL_NO_PATH;
+	if (LLPathingLib::getInstance() != NULL)
 	{
 		mPathResult = LLPathingLib::getInstance()->generatePath(mTempPathData);
 	}
