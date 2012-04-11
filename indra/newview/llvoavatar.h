@@ -66,8 +66,9 @@ class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
-class LLVOAvatarBoneInfo;
-class LLVOAvatarSkeletonInfo;
+struct LLVOAvatarBoneInfo;
+struct LLVOAvatarChildJoint;
+struct LLVOAvatarSkeletonInfo;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -232,7 +233,7 @@ public:
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagText(BOOL new_name);
-	LLVector3		idleUpdateNameTagPosition(const LLVector3& root_pos_last);
+	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
 	LLColor4		getNameTagColor(bool is_friend);
 	void			clearNameTag();
@@ -317,6 +318,8 @@ public:
 	F32					mLastPelvisToFoot;
 	F32					mPelvisFixup;
 	F32					mLastPelvisFixup;
+	LLVector3			mCurRootToHeadOffset;
+	LLVector3			mTargetRootToHeadOffset;
 
 	LLVector3			mHeadOffset; // current head position
 	LLViewerJoint		mRoot;
@@ -325,7 +328,7 @@ protected:
 	void				buildCharacter();
 	virtual BOOL		loadAvatar();
 
-	BOOL				setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
+	BOOL				setupBone(const LLVOAvatarChildJoint& info, LLViewerJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
 	BOOL				buildSkeleton(const LLVOAvatarSkeletonInfo *info);
 private:
 	BOOL				mIsBuilt; // state of deferred character building
@@ -369,7 +372,7 @@ public:
 	//--------------------------------------------------------------------
 private:
 	static LLXmlTree 	sXMLTree; // avatar config file
-	static LLXmlTree 	sSkeletonXMLTree; // avatar skeleton file
+	static LLXMLNodePtr	sSkeletonXMLTree; // avatar skeleton file
 
 /**                    Skeleton
  **                                                                            **
@@ -387,7 +390,6 @@ public:
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);
 	F32			getLastSkinTime() { return mLastSkinTime; }
-	U32			renderSkinnedAttachments();
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
 	static void	deleteCachedImages(bool clearAll=true);
@@ -735,7 +737,6 @@ public:
 public:
 	BOOL 				hasHUDAttachment() const;
 	LLBBox 				getHUDBBox() const;
-	void 				rebuildHUD();
 	void 				resetHUDAttachments();
 	BOOL				canAttachMoreObjects() const;
 	BOOL				canAttachMoreObjects(U32 n) const;
