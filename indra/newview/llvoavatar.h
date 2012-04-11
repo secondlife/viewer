@@ -66,9 +66,8 @@ class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
-struct LLVOAvatarBoneInfo;
-struct LLVOAvatarChildJoint;
-struct LLVOAvatarSkeletonInfo;
+class LLVOAvatarBoneInfo;
+class LLVOAvatarSkeletonInfo;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -328,7 +327,7 @@ protected:
 	void				buildCharacter();
 	virtual BOOL		loadAvatar();
 
-	BOOL				setupBone(const LLVOAvatarChildJoint& info, LLViewerJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
+	BOOL				setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent, S32 &current_volume_num, S32 &current_joint_num);
 	BOOL				buildSkeleton(const LLVOAvatarSkeletonInfo *info);
 private:
 	BOOL				mIsBuilt; // state of deferred character building
@@ -372,7 +371,7 @@ public:
 	//--------------------------------------------------------------------
 private:
 	static LLXmlTree 	sXMLTree; // avatar config file
-	static LLXMLNodePtr	sSkeletonXMLTree; // avatar skeleton file
+	static LLXmlTree 	sSkeletonXMLTree; // avatar skeleton file
 
 /**                    Skeleton
  **                                                                            **
