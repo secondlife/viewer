@@ -46,7 +46,10 @@ LLPathfindingPathTool::LLPathfindingPathTool()
 	mTempPathData(),
 	mPathResult(LLPathingLib::LLPL_NO_PATH),
 	mCharacterType(kCharacterTypeNone),
-	mPathEventSignal()
+	mPathEventSignal(),
+	mIsLeftMouseButtonHeld(false),
+	mIsMiddleMouseButtonHeld(false),
+	mIsRightMouseButtonHeld(false)
 {
 	if (!LLPathingLib::getInstance())
 	{
@@ -65,12 +68,16 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	if (isAnyPathToolModKeys(pMask))
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
+	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{
 		computeFinalPoints(pX, pY, pMask);
+		mIsLeftMouseButtonHeld = true;
 		setMouseCapture(TRUE);
 		returnVal = TRUE;
 	}
+	mIsLeftMouseButtonHeld = true;
 
 	return returnVal;
 }
@@ -79,54 +86,85 @@ BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	if (isAnyPathToolModKeys(pMask))
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
+	if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{
 		computeFinalPoints(pX, pY, pMask);
 		setMouseCapture(FALSE);
 		returnVal = TRUE;
 	}
+	mIsLeftMouseButtonHeld = false;
 
 	return returnVal;
 }
 
 BOOL LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(FALSE);
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
+	setMouseCapture(TRUE);
+	mIsMiddleMouseButtonHeld = true;
+	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 
 	return TRUE;
 }
 
 BOOL LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(FALSE);
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
+	if (!mIsLeftMouseButtonHeld && mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
+	{
+		setMouseCapture(FALSE);
+	}
+	mIsMiddleMouseButtonHeld = false;
 
 	return TRUE;
 }
 
 BOOL LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(FALSE);
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
+	setMouseCapture(TRUE);
+	mIsRightMouseButtonHeld = true;
+	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
 
 	return TRUE;
 }
 
 BOOL LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(FALSE);
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
+	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && mIsRightMouseButtonHeld)
+	{
+		setMouseCapture(FALSE);
+	}
+	mIsRightMouseButtonHeld = false;
 
 	return TRUE;
 }
 
 BOOL LLPathfindingPathTool::handleDoubleClick(S32 pX, S32 pY, MASK pMask)
 {
+	llinfos << "STINSON DEBUG: got here" << llendl;
+
 	return TRUE;
+}
+
+void LLPathfindingPathTool::onMouseCaptureLost()
+{
+	llinfos << "STINSON DEBUG: got here" << llendl;
 }
 
 BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
+	llinfos << "STINSON DEBUG: got here" << llendl;
 
-	if (isAnyPathToolModKeys(pMask))
+	if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{
 		gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING);
 		computeTempPoints(pX, pY, pMask);

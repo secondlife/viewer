@@ -1698,6 +1698,7 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_TOOLBUY ]	= LoadCursor(module, TEXT("TOOLBUY"));
 	mCursor[ UI_CURSOR_TOOLOPEN ]	= LoadCursor(module, TEXT("TOOLOPEN"));
 	mCursor[ UI_CURSOR_TOOLPATHFINDING ]	= LoadCursor(module, TEXT("TOOLPATHFINDING"));
+	mCursor[ UI_CURSOR_TOOLNO ]	= LoadCursor(module, TEXT("TOOLNO"));
 
 	// Color cursors
 	mCursor[ UI_CURSOR_TOOLPLAY ]		= loadColorCursor(TEXT("TOOLPLAY"));
