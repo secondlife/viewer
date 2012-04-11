@@ -136,6 +136,17 @@ viewer-mesh.login_channel = "Project Viewer - Mesh"
 viewer-mesh.viewer_grid = aditi
 viewer-mesh.email = shining@lists.lindenlab.com
 
+# ========================================
+# viewer-chui
+# ========================================
+
+viewer-chui.viewer_channel = "Project Viewer - CHUI"
+viewer-chui.login_channel = "Project Viewer - CHUI"
+viewer-chui.viewer_grid = agni
+viewer-chui.build_debug_release_separately = true
+viewer-chui.build_CYGWIN_Debug = false
+viewer-chui.build_viewer_update_version_manager = false
+
 # ================
 # oz
 # ================
