@@ -1207,10 +1207,10 @@ void LLVertexBuffer::updateNumVerts(S32 nverts)
 
 	llassert(nverts >= 0);
 
-	if (nverts >= 65535)
+	if (nverts > 65536)
 	{
 		llwarns << "Vertex buffer overflow!" << llendl;
-		nverts = 65535;
+		nverts = 65536;
 	}
 
 	U32 needed_size = calcOffsets(mTypeMask, mOffsets, nverts);

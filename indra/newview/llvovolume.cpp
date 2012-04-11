@@ -5089,6 +5089,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 	mFaceList.clear();
 
 	//for each drawable
+
 	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 	{
 		LLDrawable* drawablep = *drawable_iter;
@@ -5109,11 +5110,14 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
-			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
+
+			
+			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA && 
+				facep->getGeomCount() + vertex_count <= 65536)
 			{
 				vertex_count += facep->getGeomCount();
 				index_count += facep->getIndicesCount();
-				llassert(facep->getIndicesCount() < 65536);
+				
 				//remember face (for sorting)
 				mFaceList.push_back(facep);
 			}
