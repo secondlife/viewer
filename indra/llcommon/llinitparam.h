@@ -35,6 +35,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "llerror.h"
+#include "lltypeinfolookup.h"
 
 namespace LLInitParam
 {
@@ -227,9 +228,9 @@ namespace LLInitParam
 		typedef bool (*parser_write_func_t)(Parser& parser, const void*, name_stack_t&);
 		typedef boost::function<void (name_stack_t&, S32, S32, const possible_values_t*)>	parser_inspect_func_t;
 
-		typedef std::map<const std::type_info*, parser_read_func_t, CompareTypeID>		parser_read_func_map_t;
-		typedef std::map<const std::type_info*, parser_write_func_t, CompareTypeID>		parser_write_func_map_t;
-		typedef std::map<const std::type_info*, parser_inspect_func_t, CompareTypeID>	parser_inspect_func_map_t;
+		typedef LLTypeInfoLookup<parser_read_func_t>		parser_read_func_map_t;
+		typedef LLTypeInfoLookup<parser_write_func_t>		parser_write_func_map_t;
+		typedef LLTypeInfoLookup<parser_inspect_func_t>		parser_inspect_func_map_t;
 
 		Parser(parser_read_func_map_t& read_map, parser_write_func_map_t& write_map, parser_inspect_func_map_t& inspect_map)
 		:	mParseSilently(false),
