@@ -229,7 +229,6 @@ void LLPathfindingPathTool::setCharacterWidth(F32 pCharacterWidth)
 	mFinalPathData.mCharacterWidth = pCharacterWidth;
 	mTempPathData.mCharacterWidth = pCharacterWidth;
 	computeFinalPath();
-	computeTempPath();
 }
 
 LLPathfindingPathTool::ECharacterType LLPathfindingPathTool::getCharacterType() const
@@ -267,7 +266,6 @@ void LLPathfindingPathTool::setCharacterType(ECharacterType pCharacterType)
 	mFinalPathData.mCharacterType = characterType;
 	mTempPathData.mCharacterType = characterType;
 	computeFinalPath();
-	computeTempPath();
 }
 
 bool LLPathfindingPathTool::isRenderPath() const
