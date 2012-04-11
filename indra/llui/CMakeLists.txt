@@ -253,7 +253,6 @@ add_library (llui ${llui_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui
-    ${HUNSPELL_LIBRARY}
     ${LLMESSAGE_LIBRARIES}
     ${LLRENDER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
@@ -263,6 +262,7 @@ target_link_libraries(llui
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${HUNSPELL_LIBRARY}
     ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
 
