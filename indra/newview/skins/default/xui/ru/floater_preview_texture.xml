@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_texture">
+	<floater.string name="Title">
+		Текстура: [NAME]
+	</floater.string>
+	<floater.string name="Copy">
+		Копировать в инвентарь
+	</floater.string>
+	<text name="desc txt">
+		Описание:
+	</text>
+	<text name="dimensions">
+		[WIDTH]x[HEIGHT] пикселей
+	</text>
+	<text name="aspect_ratio">
+		Соотношение сторон
+	</text>
+	<combo_box name="combo_aspect_ratio" tool_tip="Просмотр изображения с другим соотношением сторон">
+		<combo_item name="Unconstrained">
+			Без ограничения
+		</combo_item>
+		<combo_item name="1:1" tool_tip="Символ группы или профиль в реальном мире">
+			1:1
+		</combo_item>
+		<combo_item name="4:3" tool_tip="Профиль для [SECOND_LIFE]">
+			4:3
+		</combo_item>
+		<combo_item name="10:7" tool_tip="Реклама, поиск и закладки">
+			10:7
+		</combo_item>
+		<combo_item name="3:2" tool_tip="О земле">
+			3:2
+		</combo_item>
+		<combo_item name="16:10">
+			16:10
+		</combo_item>
+		<combo_item name="16:9" tool_tip="Профиль подборки">
+			16:9
+		</combo_item>
+		<combo_item name="2:1">
+			2:1
+		</combo_item>
+	</combo_box>
+	<button label="OK" name="Keep"/>
+	<button label="Удалить" name="Discard"/>
+	<button label="Сохранить как" name="save_tex_btn"/>
+</floater>

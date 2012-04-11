@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- follows="right"
  height="198"
  layout="topleft"
  name="build options floater"
@@ -37,7 +36,7 @@
      layout="topleft"
      left="10"
      tool_tip="Grid opacity"
-     name="grid_opacity_label"
+     name="grid_mode_label"
      top_pad="30"
      width="123">
         Mode

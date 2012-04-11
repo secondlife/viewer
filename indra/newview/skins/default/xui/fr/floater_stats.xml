@@ -10,8 +10,8 @@
 			</stat_view>
 			<stat_view label="Avancées" name="advanced">
 				<stat_view label="Rendu" name="render">
-					<stat_bar label="KTris Drawn" name="ktrisframe"/>
-					<stat_bar label="KTris Drawn" name="ktrissec"/>
+					<stat_bar label="KTris par image" name="ktrisframe"/>
+					<stat_bar label="KTris par s" name="ktrissec"/>
 					<stat_bar label="Objets totaux" name="objs"/>
 					<stat_bar label="Nouveaux objets" name="newobjs"/>
 				</stat_view>
@@ -32,13 +32,13 @@
 					<stat_bar label="Couches" name="layerskbitstat"/>
 					<stat_bar label="Arrivés" name="actualinkbitstat"/>
 					<stat_bar label="Sortis" name="actualoutkbitstat"/>
-					<stat_bar label="Ops VFS en attente" name="vfspendingoperations"/>
+					<stat_bar label="Opérations VFS en attente" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulateur" name="sim">
 				<stat_bar label="Dilatation temporelle" name="simtimedilation"/>
 				<stat_bar label="FPS sim" name="simfps"/>
-				<stat_bar label="Propriétés physiques FPS" name="simphysicsfps"/>
+				<stat_bar label="FPS physique" name="simphysicsfps"/>
 				<stat_view label="Détails des propriétés physiques" name="physicsdetail">
 					<stat_bar label="Objets fixés" name="physicspinnedtasks"/>
 					<stat_bar label="Objets LOD faibles" name="physicslodtasks"/>
@@ -53,17 +53,25 @@
 				<stat_bar label="Événements de scripts" name="simscripteps"/>
 				<stat_bar label="Paquets en entrée" name="siminpps"/>
 				<stat_bar label="Paquets en sortie" name="simoutpps"/>
-				<stat_bar label="En attente des téléchargements" name="simpendingdownloads"/>
-				<stat_bar label="En attente des chargements" name="simpendinguploads"/>
+				<stat_bar label="Téléchargements en attente" name="simpendingdownloads"/>
+				<stat_bar label="Chargements en attente" name="simpendinguploads"/>
 				<stat_bar label="Total Unacked Bytes" name="simtotalunackedbytes"/>
 				<stat_view label="Temps (ms)" name="simperf">
-					<stat_bar label="Durée du cadre totale" name="simframemsec"/>
+					<stat_bar label="Durée totale de l'image" name="simframemsec"/>
 					<stat_bar label="Durée nette" name="simnetmsec"/>
-					<stat_bar label="Durée physique" name="simsimphysicsmsec"/>
-					<stat_bar label="Durée de la simulation" name="simsimothermsec"/>
-					<stat_bar label="Durée de l&apos;avatar" name="simagentmsec"/>
+					<stat_bar label="Durée sim (physique)" name="simsimphysicsmsec"/>
+					<stat_bar label="Durée sim (autre)" name="simsimothermsec"/>
+					<stat_bar label="Durée des avatars" name="simagentmsec"/>
 					<stat_bar label="Durée des images" name="simimagesmsec"/>
-					<stat_bar label="Durée du script" name="simscriptmsec"/>
+					<stat_bar label="Durée des scripts" name="simscriptmsec"/>
+					<stat_bar label="Temps d&apos;inactivité" name="simsparemsec"/>
+					<stat_view label="Détails Temps (ms)" name="timedetails">
+						<stat_bar label="Etape propr. physiques" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Mettre à jour les formes phys" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Propriétés physiques Autre" name="simsimphysicsothermsec"/>
+						<stat_bar label="Temps de sommeil" name="simsleepmsec"/>
+						<stat_bar label="Pump IO" name="simpumpiomsec"/>
+					</stat_view>
 				</stat_view>
 			</stat_view>
 		</container_view>

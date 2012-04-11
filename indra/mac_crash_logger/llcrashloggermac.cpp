@@ -249,5 +249,6 @@ void LLCrashLoggerMac::updateApplication(const std::string& message)
 
 bool LLCrashLoggerMac::cleanup()
 {
+	commonCleanup();
 	return true;
 }

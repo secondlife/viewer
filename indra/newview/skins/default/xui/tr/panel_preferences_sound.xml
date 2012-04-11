@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Sesler" name="Preference Media panel">
+	<panel.string name="middle_mouse">
+		Orta Fare
+	</panel.string>
+	<slider label="Ana ses düzeyi" name="System Volume"/>
+	<check_box initial_value="true" name="mute_when_minimized"/>
+	<text name="mute_chb_label">
+		Küçültüldüğünde sustur
+	</text>
+	<slider label="Düğmeler" name="UI Volume"/>
+	<slider label="Ortam" name="Wind Volume"/>
+	<slider label="Ses Efektleri" name="SFX Volume"/>
+	<slider label="Müzik akışı" name="Music Volume"/>
+	<check_box label="Etkin" name="enable_music"/>
+	<slider label="Ortam" name="Media Volume"/>
+	<check_box label="Etkin" name="enable_media"/>
+	<slider label="Sesli Sohbet" name="Voice Volume"/>
+	<check_box label="Etkin" name="enable_voice_check"/>
+	<check_box label="Ortamı otomatik oynatmaya izin ver" name="media_auto_play_btn" tool_tip="istiyorsa ortamı otomatik oynatmak için bunu işaretleyin" value="true"/>
+	<check_box label="Diğer avatarlara eklenen ortamı oynat" name="media_show_on_others_btn" tool_tip="Yakınlardaki diğer avatarlara eklenen ortamı gizlemek için bunun işaretini kaldırın" value="true"/>
+	<check_box label="Mimiklere ses eşlik etsin" name="gesture_audio_play_btn" tool_tip="Mimiklerle beraber ses duymak için bunu işaretleyin" value="true"/>
+	<text name="voice_chat_settings">
+		Sesli Sohbet Ayarları
+	</text>
+	<text name="Listen from">
+		Şuradan dinle:
+	</text>
+	<radio_group name="ear_location">
+		<radio_item label="Kamera konumu" name="0"/>
+		<radio_item label="Avatar konumu" name="1"/>
+	</radio_group>
+	<check_box label="Konuşurken avatar dudaklarını hareket ettir" name="enable_lip_sync"/>
+	<check_box label="Aşağıdaki düğmeye bastığımda konuşmayı aç/kapat:" name="push_to_talk_toggle_check" tool_tip="Toggle (dönüşümlü) modda mikrofonunuzu açıp kapatmak için tetikleyici tuşuna BİR KERE basıp bırakın. Toggle (dönüşümlü) modda değilken mikrofonunuz sadece tetikleyici tuş basılı tutulurken sesinizi yayınlar."/>
+	<line_editor label="Bas-Konuş tetikleyici" name="modifier_combo"/>
+	<button label="Tuş Ayarla" name="set_voice_hotkey_button"/>
+	<button name="set_voice_middlemouse_button" tool_tip="Orta Fare Düğmesine Sıfırla"/>
+	<button label="Giriş/Çıkış cihazları" name="device_settings_btn"/>
+	<panel label="Cihaz Ayarları" name="device_settings_panel"/>
+</panel>

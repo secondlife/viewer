@@ -4,7 +4,6 @@
  bevel_style="none"
  border_style="line"
  can_resize="true"
- follows="left|top"
  height="580"
  layout="topleft"
  min_height="271"

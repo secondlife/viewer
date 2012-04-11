@@ -57,6 +57,7 @@
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
+#include "llclipboard.h"
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -280,6 +281,8 @@ void LLCategoryDropDescendentsObserver::done()
 	delete this;
 }
 */
+
+S32 LLToolDragAndDrop::sOperationId = 0;
 
 LLToolDragAndDrop::DragAndDropEntry::DragAndDropEntry(dragOrDrop3dImpl f_none,
 													  dragOrDrop3dImpl f_self,
@@ -625,6 +628,8 @@ BOOL LLToolDragAndDrop::handleToolTip(S32 x, S32 y, MASK mask)
 void LLToolDragAndDrop::handleDeselect()
 {
 	mToolTipMsg.clear();
+
+	LLToolTipMgr::instance().blockToolTips();
 }
 
 // protected
@@ -640,6 +645,12 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 	LLViewerInventoryCategory* cat;
 
 	mToolTipMsg.clear();
+
+	// Increment the operation id for every drop
+	if (drop)
+	{
+		sOperationId++;
+	}
 
 	if (top_view)
 	{
@@ -766,6 +777,21 @@ void LLToolDragAndDrop::dragOrDrop( S32 x, S32 y, MASK mask, BOOL drop,
 
 	if (!handled)
 	{
+		// Disallow drag and drop to 3D from the outbox
+		const LLUUID outbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false, false);
+		if (outbox_id.notNull())
+		{
+			for (S32 item_index = 0; item_index < (S32)mCargoIDs.size(); item_index++)
+			{
+				if (gInventory.isObjectDescendentOf(mCargoIDs[item_index], outbox_id))
+				{
+					*acceptance = ACCEPT_NO;
+					mToolTipMsg = LLTrans::getString("TooltipOutboxDragToWorld");
+					return;
+				}
+			}
+		}
+		
 		dragOrDrop3D( x, y, mask, drop, acceptance );
 	}
 }
@@ -802,7 +828,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 
 	LLViewerObject* hit_obj = pick_info.getObject();
 	LLSelectMgr::getInstance()->unhighlightAll();
-
+	bool highlight_object = false;
 	// Treat attachments as part of the avatar they are attached to.
 	if (hit_obj != NULL)
 	{
@@ -844,16 +870,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 		{
 			target = DT_OBJECT;
 			hit_face = pick_info.mObjectFace;
-			// if any item being dragged will be applied to the object under our cursor
-			// highlight that object
-			for (S32 i = 0; i < (S32)mCargoIDs.size(); i++)
-			{
-				if (mCargoTypes[i] != DAD_OBJECT || (pick_info.mKeyMask & MASK_CONTROL))
-				{
-					LLSelectMgr::getInstance()->highlightObjectAndFamily(hit_obj);
-					break;
-				}
-			}
+			highlight_object = true;
 		}
 	}
 	else if (pick_info.mPickType == LLPickInfo::PICK_LAND)
@@ -873,7 +890,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 			(U32)mLastAccept,
 			(U32)callMemberFunction(*this, 
 									LLDragAndDropDictionary::instance().get(dad_type, target))
-			(hit_obj, hit_face, pick_info.mKeyMask, FALSE));
+				(hit_obj, hit_face, pick_info.mKeyMask, FALSE));
 	}
 
 	if (mDrop && ((U32)mLastAccept >= ACCEPT_YES_COPY_SINGLE))
@@ -899,6 +916,19 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 		}
 	}
 
+	if (highlight_object && mLastAccept > ACCEPT_NO_LOCKED)
+	{
+		// if any item being dragged will be applied to the object under our cursor
+		// highlight that object
+		for (S32 i = 0; i < (S32)mCargoIDs.size(); i++)
+		{
+			if (mCargoTypes[i] != DAD_OBJECT || (pick_info.mKeyMask & MASK_CONTROL))
+			{
+				LLSelectMgr::getInstance()->highlightObjectAndFamily(hit_obj);
+				break;
+			}
+		}
+	}
 	ECursorType cursor = acceptanceToCursor( mLastAccept );
 	gViewerWindow->getWindow()->setCursor( cursor );
 
@@ -2494,6 +2524,10 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 		{
 			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
+	}
+	else if(mSource == SOURCE_VIEWER)
+	{
+		item = (LLViewerInventoryItem*)gClipboard.getSourceObject();
 	}
 	if(item) return item;
 	if(cat) return cat;

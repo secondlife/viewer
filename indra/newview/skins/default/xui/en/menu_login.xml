@@ -13,7 +13,7 @@
      tear_off="true"
      name="File">
         <menu_item_call
-         label="Preferences"
+         label="Preferences..."
          name="Preferences..."
          shortcut="control|P">
             <menu_item_call.on_click
@@ -93,14 +93,6 @@
              parameter="ui_preview" />
         </menu_item_call>
       <menu_item_separator />
-      <!-- Broken
-      <menu_item_call
-         label="Show Side Tray"
-         name="Show Side Tray">
-        <menu_item_call.on_click
-         function="Advanced.ShowSideTray" />
-      </menu_item_call>
-      -->
       <menu
        create_jump_keys="true"
        label="UI Tests"
@@ -175,13 +167,6 @@
              function="Floater.Show"
              parameter="message_critical" />
         </menu_item_call>
-        <menu_item_call
-         label="Media Browser Test"
-         name="Web Browser Test">
-          <menu_item_call.on_click
-           function="Advanced.WebBrowserTest"
-           parameter="http://join.secondlife.com/"/>
-        </menu_item_call>
       <menu_item_call
        label="Web Content Floater Debug Test"
        name="Web Content Floater Debug Test">
@@ -189,7 +174,58 @@
          function="Advanced.WebContentTest"
          parameter="http://google.com"/>
       </menu_item_call>
-      <menu_item_check
+      <menu
+       create_jump_keys="true"
+       label="Set Logging Level"
+       name="Set Logging Level"
+       tear_off="true">
+        <menu_item_check
+          label="Debug">
+          <menu_item_check.on_check
+            function="Develop.CheckLoggingLevel"
+            parameter="0" />
+          <menu_item_check.on_click
+           function="Develop.SetLoggingLevel"
+           parameter="0" />
+        </menu_item_check>
+        <menu_item_check
+          label="Info">
+          <menu_item_check.on_check
+            function="Develop.CheckLoggingLevel"
+            parameter="1" />
+          <menu_item_check.on_click
+           function="Develop.SetLoggingLevel"
+           parameter="1" />
+        </menu_item_check>
+        <menu_item_check
+          label="Warning">
+          <menu_item_check.on_check
+            function="Develop.CheckLoggingLevel"
+            parameter="2" />
+          <menu_item_check.on_click
+           function="Develop.SetLoggingLevel"
+           parameter="2" />
+        </menu_item_check>
+        <menu_item_check
+          label="Error">
+          <menu_item_check.on_check
+            function="Develop.CheckLoggingLevel"
+            parameter="3" />
+          <menu_item_check.on_click
+           function="Develop.SetLoggingLevel"
+           parameter="3" />
+        </menu_item_check>
+        <menu_item_check
+          label="None">
+          <menu_item_check.on_check
+            function="Develop.CheckLoggingLevel"
+            parameter="4" />
+          <menu_item_check.on_click
+           function="Develop.SetLoggingLevel"
+           parameter="4" />
+        </menu_item_check>
+      </menu>
+     <menu_item_check
         label="Show Grid Picker"
         name="Show Grid Picker"
         visible="false" 

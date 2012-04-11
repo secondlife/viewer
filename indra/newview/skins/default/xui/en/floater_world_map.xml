@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_resize="true"
- open_centered="true"
+ open_positioning="centered"
  height="600"
  layout="topleft"
  min_height="520"
@@ -468,7 +468,7 @@
      left="3"
      top_pad="7"
      mouse_opaque="true"
-     name="region_icon"
+     name="location_icon"
      width="16" />
     <search_editor
      follows="top|right"

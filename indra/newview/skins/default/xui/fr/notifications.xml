@@ -980,7 +980,7 @@ Proposer à [NAME] de devenir votre ami(e) ?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Voulez-vous supprimer [NAME] de votre liste d&apos;amis ?
+		Voulez-vous supprimer &lt;nolink&gt;[NAME]&lt;/nolink&gt; de votre liste d&apos;amis ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1105,8 +1105,13 @@ Céder ces [AREA] m² de terrain au groupe [GROUP_NAME] ?
 	<notification name="DisplaySetToSafe">
 		Les paramètres d&apos;affichage sont au niveau le plus sûr, comme vous l&apos;aviez indiqué.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Vos paramètres d&apos;affichage ont été réglés avec une marge de sécurité en fonction de votre configuration système.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Les paramètres d&apos;affichage ont été modifiés selon les niveaux recommandés car votre carte graphique
+[LAST_GPU] a été remplacée
+par une carte [THIS_GPU].
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		Les paramètres d&apos;affichage ont été modifiés selon les niveaux recommandés en raison d&apos;un changement relatif au sous-système de rendu.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1428,7 +1433,7 @@ Version [VERSION]
 		<usetemplate ignoretext="Confirmer avant de rendre les objets à leurs propriétaires" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Vous êtes actuellement membre du groupe [GROUP].
+		Vous êtes actuellement membre du groupe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Quitter le groupe ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
@@ -1909,6 +1914,18 @@ Déplacer les objets de l&apos;inventaire ?
 		Êtes-vous certain de vouloir quitter ?
 		<usetemplate ignoretext="Confirmer avant de quitter" name="okcancelignore" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Cette action rétablira vos boutons et barres d&apos;outils par défaut.
+
+Vous ne pouvez pas l&apos;annuler.
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Cette action replacera tous les boutons dans la boîte à outils de sorte que vos barres d&apos;outils seront vides.
+    
+Vous ne pouvez pas l&apos;annuler.
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Confirmer avant de supprimer des articles" name="okcancelignore" notext="Annuler" yestext="OK"/>
@@ -2113,10 +2130,10 @@ Cette opération lancera votre navigateur Web.
 		Sujet : [SUBJECT], Message : [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] est en ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est en ligne
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] est hors ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est hors ligne
 	</notification>
 	<notification name="AddSelfFriend">
 		Même si vous êtes extrêmement sympathique, vous ne pouvez pas devenir ami avec vous-même.
@@ -2230,14 +2247,16 @@ Veuillez sélectionner un seul objet.
 		Votre carte de visite a été refusée.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Vous pouvez vous téléporter vers des endroits comme [NAME] en ouvrant le panneau Lieux sur le côté droit de votre écran, puis en sélectionnant l&apos;onglet Repères.
-Cliquez sur le repère de votre choix pour le sélectionner, puis sur Téléporter en bas du panneau.
-(Vous pouvez aussi double-cliquer sur le repère ou cliquer dessus avec le bouton droit de la souris et sélectionner Téléporter.)
+		Pour vous téléporter vers un lieu tel que [NAME], cliquez sur le bouton Endroits,
+    puis sélectionnez l&apos;onglet Repères dans la fenêtre qui s&apos;ouvre. Cliquez sur n&apos;importe quel
+    repère pour le sélectionner, puis sur Téléportation en bas de la fenêtre.
+    (Vous pouvez aussi double-cliquer sur le repère ou cliquer-droit dessus et
+    choisir Téléportation).
 	</notification>
 	<notification name="TeleportToPerson">
-		Vous pouvez contacter des résidents comme [NAME] en ouvrant le panneau Résidents sur le côté droit de votre écran.
-Sélectionnez le résident de votre choix dans la liste, puis cliquez sur IM en bas du panneau.
-(Vous pouvez aussi double-cliquer sur le nom du résident dans la liste ou cliquer dessus avec le bouton droit de la souris et sélectionner IM.)
+		Pour contacter un résident tel que [NAME], cliquez sur le bouton Personnes, sélectionnez le résident dans la fenêtre qui s&apos;ouvre, puis cliquez sur IM en
+    bas de la fenêtre.
+    (Vous pouvez aussi double-cliquer sur le nom du résident dans la liste ou cliquer-droit dessus et choisir IM.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Vous ne pouvez pas sélectionner de terrain en dehors des limites du serveur.
@@ -2256,6 +2275,9 @@ Veuillez sélectionner un terrain plus petit.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2512,10 +2534,10 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] a accepté votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a accepté votre amitié.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] a refusé votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a refusé votre amitié.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Amitié acceptée.
@@ -2792,7 +2814,7 @@ Voir le fichier journal pour plus de détails.
 avec les résidents suivants :
 
 [RESIDENTS] ?
-		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Ok"/>
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ItemsShared">
 		Articles partagés.
@@ -2882,7 +2904,7 @@ Les résidents rejoignant l&apos;appel ultérieurement seront également
 ignorés, même si vous quittez l&apos;appel.
 
 Ignorer les autres ?
-		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Annuler" yestext="Ok"/>
+		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification label="Chat" name="HintChat">
 		Pour participer à la conversation, saisissez du texte dans le champ de chat situé en dessous.
@@ -2995,10 +3017,6 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 			<button name="cancel" text="Annuler"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Vous devez quitter et redémarrer l&apos;application afin de changer de mode.
-		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		Pour créer et modifier des petites annonces, vous devez utiliser le mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ? Le sélecteur de mode se trouve sur l&apos;écran de connexion.
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
@@ -3042,6 +3060,10 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 	<notification label="" name="NoSearch">
 		La recherche est uniquement disponible en mode Avancé. Voulez-vous quitter l&apos;application afin de changer de mode ?
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Cette action masquera tous les boutons et articles de menu. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
+		<usetemplate ignoretext="Confirmer avant de masquer l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Vous semblez ne pas avoir le matériel requis pour utiliser [APP_NAME]. [APP_NAME] requiert une carte graphique OpenGL avec une prise en charge du multitexturing. Si vous avez une telle carte, assurez-vous que vous avez aussi les pilotes les plus récents pour la carte, ainsi que les service packs et les patchs pour votre système d&apos;exploitation.

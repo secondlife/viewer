@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Profilim" name="panel_me">
+	<panel label="SEÇMELERİM" name="panel_picks"/>
+</panel>

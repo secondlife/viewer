@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="block_list_panel">
+	<text name="title_text">
+		Listeyi Engelle
+	</text>
+	<scroll_list name="blocked" tool_tip="Şu anda engellenmiş olan Sakinler listesi"/>
+	<button label="Kişiyi engelle" name="Block resident..." tool_tip="Engellenecek bir Sakin seç"/>
+	<button label="Nesneyi ada göre engelle" name="Block object by name..." tool_tip="Ada göre engellenecek bir nesne seç"/>
+	<button label="Engellemeyi Kaldır" name="Unblock" tool_tip="Engelleme listesinden Sakini veya nesneyi kaldır"/>
+</panel>

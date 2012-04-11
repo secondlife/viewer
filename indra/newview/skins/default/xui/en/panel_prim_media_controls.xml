@@ -31,8 +31,7 @@
 		width="0"
 		name="left_bookend_bottom"
 		mouse_opaque="false"
-		layout="topleft"
-		user_resize="false" />
+		layout="topleft"/>
 	<layout_panel
 		name="media_progress_indicator"
 		mouse_opaque="false"
@@ -41,7 +40,6 @@
 		left="0"
 		top="0"
 		auto_resize="false"
-		user_resize="false"
 		min_width="100"
 		width="200">
 	  <progress_bar
@@ -59,8 +57,7 @@
 		name="right_bookend_bottom"
 		width="0"
 		mouse_opaque="false"
-		layout="topleft"
-		user_resize="false" />
+		layout="topleft"/>
   </layout_stack>
   <layout_stack
 	  name="media_controls"
@@ -79,13 +76,11 @@
 		top="0"
 		width="0"
 		mouse_opaque="false"
-		layout="topleft"
-		user_resize="false" />
+		layout="topleft"/>
 	<layout_panel
 		name="back"
 		top="0"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		mouse_opaque="false"
 		min_width="22"
@@ -114,7 +109,6 @@
 		name="fwd"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		min_width="22"
 		top="0"
@@ -142,7 +136,6 @@
 		name="home"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="22"
@@ -170,7 +163,6 @@
 		name="media_stop"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="22"
@@ -198,7 +190,6 @@
 		name="reload"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="22"
@@ -226,7 +217,6 @@
 		name="stop"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="22"
@@ -254,7 +244,6 @@
 		name="play"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="22"
@@ -282,7 +271,6 @@
 		name="pause"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		min_width="22"
@@ -310,7 +298,6 @@
 		name="media_address"
 		mouse_opaque="false"
 		auto_resize="true"
-		user_resize="false"
 		height="24"
 		follows="left|right|bottom"
 		layout="topleft"
@@ -343,8 +330,7 @@
 			layout="topleft"
 			width="16"
 			mouse_opaque="false"
-			auto_resize="false"
-			user_resize="false">
+			auto_resize="false">
 		  <icon
 			  name="media_whitelist_flag"
 			  follows="top|right"
@@ -358,8 +344,7 @@
 			layout="topleft"
 			width="16"
 			mouse_opaque="false"
-			auto_resize="false"
-			user_resize="false">
+			auto_resize="false">
 		  <icon
 			  name="media_secure_lock_flag"
 			  height="16"
@@ -374,7 +359,6 @@
 		name="media_play_position"
 		mouse_opaque="false"
 		auto_resize="true"
-		user_resize="false"
 		follows="left|right"
 		layout="topleft"
 		top="0"
@@ -399,7 +383,6 @@
 		name="skip_back"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		min_width="22"
@@ -428,7 +411,6 @@
 		name="skip_forward"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		min_width="22"
@@ -455,7 +437,6 @@
 		name="media_volume"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="72"
@@ -511,7 +492,6 @@
 		name="zoom_frame"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		height="28"
@@ -539,7 +519,6 @@
 		name="close"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		min_width="21"
@@ -567,7 +546,6 @@
 		name="new_window"
 		mouse_opaque="false"
 		auto_resize="false"
-		user_resize="false"
 		layout="topleft"
 		top="0"
 		min_width="22"
@@ -596,8 +574,7 @@
 		mouse_opaque="false"
 		top="0"
 		width="0"
-		layout="topleft"
-		user_resize="false" />
+		layout="topleft"/>
   </layout_stack>
   <panel
 	  name="media_region"

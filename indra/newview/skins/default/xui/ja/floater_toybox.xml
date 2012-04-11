@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Toybox" title="ツールバーのボタン">
+	<text name="toybox label 1">
+		ボタンをツールバーに追加または削除するにはボタンをドラッグします。
+	</text>
+	<text name="toybox label 2">
+		各ツールバーの設定に応じて、ボタンは以下のように表示されたり、アイコンのみで表示されます。
+	</text>
+	<button label="ツールバーを全てクリア" label_selected="ツールバーを全てクリア" name="btn_clear_all"/>
+	<button label="デフォルト設定を復元" label_selected="デフォルト設定を復元" name="btn_restore_defaults"/>
+</floater>

@@ -154,10 +154,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	}
 	updateLocationCombo(false);
 
-	LLUICtrl& mode_combo = getChildRef<LLUICtrl>("mode_combo");
-	mode_combo.setValue(gSavedSettings.getString("SessionSettingsFile"));
-	mode_combo.setCommitCallback(boost::bind(&LLPanelLogin::onModeChange, this, getChild<LLUICtrl>("mode_combo")->getValue(), _2));
-
 	LLComboBox* server_choice_combo = sInstance->getChild<LLComboBox>("server_combo");
 	server_choice_combo->setCommitCallback(onSelectServer, NULL);
 	server_choice_combo->setFocusLostCallback(boost::bind(onServerComboLostFocus, _1));
@@ -287,15 +283,15 @@ LLPanelLogin::~LLPanelLogin()
 // virtual
 void LLPanelLogin::draw()
 {
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
 		F32 image_aspect = 1.333333f;
 		F32 view_aspect = (F32)getRect().getWidth() / (F32)getRect().getHeight();
 		// stretch image to maintain aspect ratio
 		if (image_aspect > view_aspect)
 		{
-			glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
-			glScalef(image_aspect / view_aspect, 1.f, 1.f);
+			gGL.translatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
+			gGL.scalef(image_aspect / view_aspect, 1.f, 1.f);
 		}
 
 		S32 width = getRect().getWidth();
@@ -310,7 +306,7 @@ void LLPanelLogin::draw()
 			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 		};
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 
 	LLPanel::draw();
 }
@@ -1023,32 +1019,6 @@ void LLPanelLogin::updateLoginPanelLinks()
 	// is static.
 	sInstance->getChildView("create_new_account_text")->setVisible( system_grid);
 	sInstance->getChildView("forgot_password_text")->setVisible( system_grid);
-}
-
-void LLPanelLogin::onModeChange(const LLSD& original_value, const LLSD& new_value)
-{
-	if (original_value.asString() != new_value.asString())
-	{
-		LLNotificationsUtil::add("ModeChange", LLSD(), LLSD(), boost::bind(&LLPanelLogin::onModeChangeConfirm, this, original_value, new_value, _1, _2));
-	}
-}
-
-void LLPanelLogin::onModeChangeConfirm(const LLSD& original_value, const LLSD& new_value, const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	switch (option)
-	{
-	case 0:
-		gSavedSettings.getControl("SessionSettingsFile")->set(new_value);
-		LLAppViewer::instance()->requestQuit();
-		break;
-	case 1:
-		// revert to original value
-		getChild<LLUICtrl>("mode_combo")->setValue(original_value);
-		break;
-	default:
-		break;
-	}
 }
 
 std::string canonicalize_username(const std::string& name)

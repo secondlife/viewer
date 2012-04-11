@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="Etkinlik" name="Event" title="ETKİNLİK AYRINTILARI">
+	<floater.string name="loading_text">
+		Yükleniyor...
+	</floater.string>
+	<floater.string name="done_text">
+		Tamamlandı
+	</floater.string>
+</floater>

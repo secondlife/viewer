@@ -3,12 +3,10 @@
  legacy_header_height="18"
  background_visible="true"
  default_tab_group="1"
- follows="all"
- height="350"
+ height="355"
+ help_topic="floater_im_box"
  layout="topleft"
- left="0"
  name="panel_im"
- top="0"
  can_dock="false"
  can_minimize="true"
  can_close="true"
@@ -18,7 +16,7 @@
  min_width="250"
  min_height="190">
   <layout_stack
-   animate="false" 
+   animate="true" 
    default_tab_group="2"
   follows="all"
   height="320"
@@ -34,8 +32,7 @@
       min_width="115"
       width="150" 
       height="320" 
-      auto_resize="false"
-      user_resize="false">
+      auto_resize="false">
       <panel
         name="panel_im_control_panel"
         layout="topleft"

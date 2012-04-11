@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Model Preview" title="ПЕРЕДАЧА МОДЕЛИ">
+	<string name="status_idle"/>
+	<string name="status_parse_error">
+		Ошибка. Проблема при анализе файла DAE – см. подробности в журнале.
+	</string>
+	<string name="status_material_mismatch">
+		Ошибка. Материал модели не входит в эталонную модель.
+	</string>
+	<string name="status_reading_file">
+		Загрузка...
+	</string>
+	<string name="status_generating_meshes">
+		Создаются меши...
+	</string>
+	<string name="status_vertex_number_overflow">
+		Ошибка. Число вершин превышает 65534. Прервано.
+	</string>
+	<string name="bad_element">
+		Ошибка: недопустимый элемент
+	</string>
+	<string name="high">
+		Высокий
+	</string>
+	<string name="medium">
+		Средний
+	</string>
+	<string name="low">
+		Низкий
+	</string>
+	<string name="lowest">
+		Самый низкий
+	</string>
+	<string name="mesh_status_good">
+		Доставлено!
+	</string>
+	<string name="mesh_status_na">
+		Н/Д
+	</string>
+	<string name="mesh_status_none">
+		Нет
+	</string>
+	<string name="mesh_status_submesh_mismatch">
+		Отличается число текстурируемых граней на уровнях детализации.
+	</string>
+	<string name="mesh_status_mesh_mismatch">
+		Отличается число экземпляров меша на уровнях детализации.
+	</string>
+	<string name="mesh_status_too_many_vertices">
+		Слишком много вершин на уровне детализации.
+	</string>
+	<string name="mesh_status_missing_lod">
+		Отсутствует необходимый уровень детализации.
+	</string>
+	<string name="mesh_status_invalid_material_list">
+		Материалы уровня детализации не входят в эталонную модель.
+	</string>
+	<string name="layer_all">
+		Все
+	</string>
+	<string name="decomposing">
+		Анализ...
+	</string>
+	<string name="simplifying">
+		Упрощение...
+	</string>
+	<string name="tbd">
+		Позже
+	</string>
+	<panel name="left_panel">
+		<panel name="model_name_representation_panel">
+			<text name="name_label">
+				Имя модели:
+			</text>
+			<text name="model_category_label">
+				Эта модель представляет...
+			</text>
+			<combo_box name="model_category_combo">
+				<combo_item label="Выберите вариант..." name="Choose one"/>
+				<combo_item label="Форма аватара" name="Avatar shape"/>
+				<combo_item label="Присоединение аватара" name="Avatar attachment"/>
+				<combo_item label="Подвижный объект (машина, животное)" name="Moving object (vehicle, animal)"/>
+				<combo_item label="Строительный компонент" name="Building Component"/>
+				<combo_item label="Большая, неподвижная и т.д." name="Large, non moving etc"/>
+				<combo_item label="Малая, неподвижная и т.д." name="Smaller, non-moving etc"/>
+				<combo_item label="Ни один из них" name="Not really any of these"/>
+			</combo_box>
+		</panel>
+		<tab_container name="import_tab">
+			<panel label="Уровень детализации" name="lod_panel" title="Уровень детализации">
+				<text initial_value="Источник" name="source" value="Источник"/>
+				<text initial_value="Треугольники" name="triangles" value="Треугольники"/>
+				<text initial_value="Вершины" name="vertices" value="Вершины"/>
+				<text initial_value="Высокий" name="high_label" value="Высокий"/>
+				<button label="Обзор..." name="lod_browse_high"/>
+				<text initial_value="0" name="high_triangles" value="0"/>
+				<text initial_value="0" name="high_vertices" value="0"/>
+				<text initial_value="Средний" name="medium_label" value="Средний"/>
+				<button label="Обзор..." name="lod_browse_medium"/>
+				<text initial_value="0" name="medium_triangles" value="0"/>
+				<text initial_value="0" name="medium_vertices" value="0"/>
+				<text initial_value="Низкий" name="low_label" value="Низкий"/>
+				<button label="Обзор..." name="lod_browse_low"/>
+				<text initial_value="0" name="low_triangles" value="0"/>
+				<text initial_value="0" name="low_vertices" value="0"/>
+				<text initial_value="Самый низкий" name="lowest_label" value="Самый низкий"/>
+				<button label="Обзор..." name="lod_browse_lowest"/>
+				<text initial_value="0" name="lowest_triangles" value="0"/>
+				<text initial_value="0" name="lowest_vertices" value="0"/>
+				<check_box label="Генерировать нормали" name="gen_normals"/>
+				<text initial_value="Угол сгиба:" name="crease_label" value="Угол сгиба:"/>
+				<spinner name="crease_angle" value="75"/>
+			</panel>
+			<panel label="Физика" name="physics_panel">
+				<panel name="physics geometry">
+					<text name="first_step_name">
+						Шаг 1. Уровень детализации
+					</text>
+					<combo_box name="physics_lod_combo" tool_tip="Уровень детализации для физической формы">
+						<combo_item name="choose_one">
+							Выберите вариант...
+						</combo_item>
+						<combo_item name="physics_high">
+							Высокое
+						</combo_item>
+						<combo_item name="physics_medium">
+							Средний
+						</combo_item>
+						<combo_item name="physics_low">
+							Низкий
+						</combo_item>
+						<combo_item name="physics_lowest">
+							Самый низкий
+						</combo_item>
+						<combo_item name="load_from_file">
+							Из файла
+						</combo_item>
+					</combo_box>
+					<button label="Обзор..." name="physics_browse"/>
+				</panel>
+				<panel name="physics analysis">
+					<text name="method_label">
+						2 этап. Анализ
+					</text>
+					<text name="analysis_method_label">
+						Метод:
+					</text>
+					<text name="quality_label">
+						Качество:
+					</text>
+					<text name="smooth_method_label">
+						Гладкость:
+					</text>
+					<check_box label="Закрыть отверстия" name="Close Holes (Slow)"/>
+					<button label="Анализ" name="Decompose"/>
+					<button label="Отмена" name="decompose_cancel"/>
+				</panel>
+				<panel name="physics simplification">
+					<text name="second_step_label">
+						Шаг 3. Упрощение
+					</text>
+					<text name="simp_method_header">
+						Метод:
+					</text>
+					<text name="pass_method_header">
+						Проходов:
+					</text>
+					<text name="Detail Scale label">
+						Масштаб деталей:
+					</text>
+					<text name="Retain%_label">
+						Сохранять:
+					</text>
+					<combo_box name="Combine Quality" value="1"/>
+					<button label="Упрощение" name="Simplify"/>
+					<button label="Отмена" name="simplify_cancel"/>
+				</panel>
+				<panel name="physics info">
+					<text name="results_text">
+						Результаты:
+					</text>
+					<text name="physics_triangles">
+						Треугольников: [TRIANGLES],
+					</text>
+					<text name="physics_points">
+						Вершин: [POINTS],
+					</text>
+					<text name="physics_hulls">
+						Оболочек: [HULLS]
+					</text>
+				</panel>
+			</panel>
+			<panel label="Параметры передачи" name="modifiers_panel">
+				<text name="scale_label">
+					Масштаб (1=не масштабировать):
+				</text>
+				<spinner name="import_scale" value="1.0"/>
+				<text name="dimensions_label">
+					Размеры:
+				</text>
+				<text name="import_dimensions">
+					[X] X [Y] X [Z]
+				</text>
+				<check_box label="Включить текстуры" name="upload_textures"/>
+				<text name="include_label">
+					Только для моделей аватаров:
+				</text>
+				<check_box label="Включить вес кожи" name="upload_skin"/>
+				<check_box label="Включить положения суставов" name="upload_joints"/>
+				<text name="pelvis_offset_label">
+					Смещение по Z (поднять или опустить аватар):
+				</text>
+				<spinner name="pelvis_offset" value="0.0"/>
+			</panel>
+		</tab_container>
+		<panel name="weights_and_warning_panel">
+			<button label="Рассчитать вес и плату" name="calculate_btn" tool_tip="Рассчитать вес и плату"/>
+			<button label="Отмена" name="cancel_btn"/>
+			<button label="Передать" name="ok_btn" tool_tip="Передать в симулятор"/>
+			<button label="Очистить настройки и сбросить форму" name="reset_btn"/>
+			<text name="upload_fee">
+				Плата за передачу: L$ [FEE]
+			</text>
+			<text name="prim_weight">
+				Влияние земли: [EQ]
+			</text>
+			<text name="download_weight">
+				Загрузка: [ST]
+			</text>
+			<text name="physics_weight">
+				Физика: [PH]
+			</text>
+			<text name="server_weight">
+				Сервер: [SIM]
+			</text>
+			<text name="warning_title">
+				ПРИМЕЧАНИЕ.
+			</text>
+			<text name="warning_message">
+				У вас нет прав на передачу сеточных моделей. [[VURL] Узнайте, как] получить их.
+			</text>
+			<text name="status">
+				[STATUS]
+			</text>
+		</panel>
+	</panel>
+	<text name="lod_label">
+		Просмотр:
+	</text>
+	<panel name="right_panel">
+		<combo_box name="preview_lod_combo" tool_tip="Уровень детализации при предварительном просмотре">
+			<combo_item name="high">
+				Высокий
+			</combo_item>
+			<combo_item name="medium">
+				Среднее
+			</combo_item>
+			<combo_item name="low">
+				Низкий
+			</combo_item>
+			<combo_item name="lowest">
+				Самый низкий
+			</combo_item>
+		</combo_box>
+		<text name="label_display">
+			Показать...
+		</text>
+		<check_box label="Ребра" name="show_edges"/>
+		<check_box label="Физика" name="show_physics"/>
+		<check_box label="Текстуры" name="show_textures"/>
+		<check_box label="Вес кожи" name="show_skin_weight"/>
+		<check_box label="Суставы" name="show_joint_positions"/>
+		<text name="physics_explode_label">
+			Просмотр разложения:
+		</text>
+	</panel>
+</floater>

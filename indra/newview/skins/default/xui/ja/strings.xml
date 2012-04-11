@@ -77,10 +77,10 @@
 		キャッシュファイルを検証しています（所要時間は 60 ～ 90 秒）...
 	</string>
 	<string name="LoginProcessingResponse">
-		応答を処理しています...
+		対応を処理中です...
 	</string>
 	<string name="LoginInitializingWorld">
-		ワールドを初期化しています...
+		ワールドを初期化中です...
 	</string>
 	<string name="LoginDecodingImages">
 		画像をデコードしています...
@@ -128,7 +128,7 @@
 		グリッドサーバーが返した証明書の署名を認証できませんでした。グリッドの管理者にお問い合わせください。
 	</string>
 	<string name="LoginFailedNoNetwork">
-		ネットワークエラー： 接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
+		ネットワークエラー：接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
 	<string name="LoginFailed">
 		ログインに失敗しました。
@@ -1214,7 +1214,7 @@ support@secondlife.com にお問い合わせください。
 		「持ち物」内にこのテクスチャのコピーがありません
 	</string>
 	<string name="InventoryInboxNoItems">
-		マーケットプレイスで購入した商品はここに配達されます。
+		購入するなどして取得したアイテムや商品はここに表示され、持ち物のフォルダにドラッグして移動することもできれば、要らなくなった場合には削除することができます。
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1275,6 +1275,9 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Marketplace Error Internal Import">
 		エラー：この商品に関して問題が発生しました。しばらくしてからお試しください。
+	</string>
+	<string name="Open landmarks">
+		ランドマークを開く
 	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
@@ -1409,6 +1412,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="no_attachments">
 		着用しているアタッチメントはありません
 	</string>
+	<string name="Attachments remain">
+		アタッチメント（残りのスロット数：[COUNT]）
+	</string>
 	<string name="Buy">
 		買う
 	</string>
@@ -1534,6 +1540,12 @@ support@secondlife.com にお問い合わせください。
 	</string>
 	<string name="Right Pec">
 		右胸筋
+	</string>
+	<string name="Neck">
+		首
+	</string>
+	<string name="Avatar Center">
+		アバターの中央
 	</string>
 	<string name="Invalid Attachment">
 		装着先が正しくありません
@@ -4027,6 +4039,18 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="you_paid_ldollars_no_name">
 		L$ [AMOUNT] を支払いました：[REASON]
 	</string>
+	<string name="you_paid_failure_ldollars">
+		[NAME] に [REASON] の代金 L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		[NAME] に L$ [AMOUNT] を支払えませんでした。
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		[REASON] の 代金 L$ [AMOUNT] を支払えませんでした。
+	</string>
 	<string name="for item">
 		[ITEM] 向け
 	</string>
@@ -4254,8 +4278,8 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Female - Wow">
 		女性 - Wow
 	</string>
-	<string name="/bow1">
-		/bow1
+	<string name="/bow">
+		/おじぎする
 	</string>
 	<string name="/clap">
 		/拍手
@@ -4436,6 +4460,12 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		外部エディターを実行できませんでした。
+	</string>
+	<string name="TranslationFailed">
+		翻訳できませんでした：[REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		翻訳の応答にエラーが発生しました。
 	</string>
 	<string name="Esc">
 		Esc
@@ -4766,5 +4796,197 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="ParticleHiding">
 		パーティクルを非表示
+	</string>
+	<string name="Command_AboutLand_Label">
+		土地情報
+	</string>
+	<string name="Command_Appearance_Label">
+		容姿
+	</string>
+	<string name="Command_Avatar_Label">
+		アバター
+	</string>
+	<string name="Command_Build_Label">
+		制作
+	</string>
+	<string name="Command_Chat_Label">
+		チャット
+	</string>
+	<string name="Command_Compass_Label">
+		コンパス
+	</string>
+	<string name="Command_Destinations_Label">
+		行き先
+	</string>
+	<string name="Command_Gestures_Label">
+		ジェスチャー
+	</string>
+	<string name="Command_HowTo_Label">
+		ハウツー
+	</string>
+	<string name="Command_Inventory_Label">
+		持ち物
+	</string>
+	<string name="Command_Map_Label">
+		地図
+	</string>
+	<string name="Command_Marketplace_Label">
+		マーケットプレイス
+	</string>
+	<string name="Command_MiniMap_Label">
+		ミニマップ
+	</string>
+	<string name="Command_Move_Label">
+		歩行 / 走行 / 飛行
+	</string>
+	<string name="Command_People_Label">
+		人
+	</string>
+	<string name="Command_Picks_Label">
+		ピック
+	</string>
+	<string name="Command_Places_Label">
+		場所
+	</string>
+	<string name="Command_Preferences_Label">
+		環境設定
+	</string>
+	<string name="Command_Profile_Label">
+		プロフィール
+	</string>
+	<string name="Command_Search_Label">
+		検索
+	</string>
+	<string name="Command_Snapshot_Label">
+		スナップショット
+	</string>
+	<string name="Command_Speak_Label">
+		話す
+	</string>
+	<string name="Command_View_Label">
+		カメラコントロール
+	</string>
+	<string name="Command_Voice_Label">
+		ボイス設定
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		訪問先に関する情報
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		アバターを変更
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		アバター一式を選択
+	</string>
+	<string name="Command_Build_Tooltip">
+		オブジェクトの制作と地形の変形
+	</string>
+	<string name="Command_Chat_Tooltip">
+		近くの人と文字チャットする
+	</string>
+	<string name="Command_Compass_Tooltip">
+		コンパス
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		行ってみたい場所
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		アバターのジェスチャー
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		一般的タスクの実行方法
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		持ち物を表示・使用
+	</string>
+	<string name="Command_Map_Tooltip">
+		世界地図
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		ショッピングに出掛ける
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		近くの人を表示する
+	</string>
+	<string name="Command_Move_Tooltip">
+		アバターの移動
+	</string>
+	<string name="Command_People_Tooltip">
+		フレンド、グループ、近くの人
+	</string>
+	<string name="Command_Picks_Tooltip">
+		プロフィールで紹介するお気に入りの場所
+	</string>
+	<string name="Command_Places_Tooltip">
+		保存済みの場所
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		環境設定
+	</string>
+	<string name="Command_Profile_Tooltip">
+		プロフィールを編集・表示
+	</string>
+	<string name="Command_Search_Tooltip">
+		場所、イベント、人を検索
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		ピクチャを撮る
+	</string>
+	<string name="Command_Speak_Tooltip">
+		マイクを使って近くの人と話す
+	</string>
+	<string name="Command_View_Tooltip">
+		カメラの角度を変更
+	</string>
+	<string name="Command_Voice_Tooltip">
+		インワールドでのコールや近くにいる人の音量調整
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		現在、下のツールバーにあります
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		現在、左のツールバーにあります
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		現在、右のツールバーにあります
+	</string>
+	<string name="Retain%">
+		維持率
+	</string>
+	<string name="Detail">
+		詳細
+	</string>
+	<string name="Better Detail">
+		もっと詳しく
+	</string>
+	<string name="Surface">
+		表面
+	</string>
+	<string name="Solid">
+		ソリッド
+	</string>
+	<string name="Wrap">
+		ラップ
+	</string>
+	<string name="Preview">
+		プレビュー
+	</string>
+	<string name="Normal">
+		普通
+	</string>
+	<string name="snapshot_quality_very_low">
+		非常に低い
+	</string>
+	<string name="snapshot_quality_low">
+		低
+	</string>
+	<string name="snapshot_quality_medium">
+		中
+	</string>
+	<string name="snapshot_quality_high">
+		高
+	</string>
+	<string name="snapshot_quality_very_high">
+		非常に高い
 	</string>
 </strings>

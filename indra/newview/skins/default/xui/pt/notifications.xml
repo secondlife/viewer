@@ -973,7 +973,7 @@ Oferecer amizade para [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Remover [NAME] da sua lista de amigos?
+		Deseja remover &lt;nolink&gt;[NAME]&lt;/nolink&gt; da sua lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Remover"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1099,8 +1099,13 @@ Doar este terreno de [AREA] m² para o grupo &apos;[GROUP_NAME]&apos;?
 	<notification name="DisplaySetToSafe">
 		Configurações de display foram ajustadas para níveis de segurança porque você especificou -- opção de segurança.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Configurações de display foram ajustadas para nível recomendado baseado na configuração do seu sistema.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		As configurações de tela foram definidas nos níveis recomendados porque sua placa de vídeo foi alterada
+de &apos;[LAST_GPU]&apos;
+para &apos;[THIS_GPU]&apos;
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		As configurações de tela foram definidas nos níveis recomendados por causa de uma alteração no subsistema de renderização.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1419,7 +1424,7 @@ Para instalar a atualização, será preciso reiniciar o [APP_NAME].
 		<usetemplate ignoretext="Confirmar antes de devolver objetos a seus donos" name="okcancelignore" notext="Cancelar" yestext="Retornar"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Você é atualmente um membro do grupo [GROUP].
+		Você é atualmente um membro do grupo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Sair do grupo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
@@ -1899,6 +1904,18 @@ Mover para o inventário o(s) item(s)?
 		Tem certeza que deseja sair?
 		<usetemplate ignoretext="Confirmar antes de sair" name="okcancelignore" notext="Não sair" yestext="Sair"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		Essa ação irá restaurar os botões e barras de ferramenta padrão.
+
+Não é possível desfazer essa ação.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Essa ação fará com que todos os botões voltem para a caixa de ferramentas e suas barras de ferramentas ficarão vazias.
+    
+Não é possível desfazer essa ação.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="Confirmar antes de excluir" name="okcancelignore" notext="Cancelar" yestext="OK"/>
@@ -2103,10 +2120,10 @@ Isso abrirá o seu navegador.
 		Assunto: [SUBJECT], Mensagem: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] está online
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está online
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] está offline
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Você é o máximo! Mesmo assim, não dá para adicionar a si mesmo(a) como amigo(a).
@@ -2219,14 +2236,16 @@ Selecione só um objeto.
 		Seu cartão de visita foi negado.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Para se teletransportar para lugares como &apos;[NAME]&apos;, abra o painel &apos;Lugares&apos; à direita da tela e selecione a guia Marcos.  
-Basta clicar em qualquer marco e depois clicar em &apos;Teletransportar&apos; na parte inferior da tela. 
-(Também é possível clicar duas vezes no marco, ou clicar no marco com o botão direito e selecionar &apos;Teletransportar&apos;.)
+		Para se teletransportar para locais como &apos;[NAME]&apos;, clique no botão &quot;Lugares&quot;,
+    e selecione a guia Marcos na janela que é exibida. Clique em qualquer
+    marco para selecioná-lo e em seguida em &apos;Teletransportar&apos; na parte inferior da tela.
+    (Também é possível clicar duas vezes sobre o marco ou clicar com o botão direito do mouse sobre ele
+    e selecionar &apos;Teletransportar&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Para entrar em contato com residentes como &apos;&apos;[NAME]&apos;,  abra o painel &apos;Pessoas&apos; à direita da tela.
-Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do painel.
-(Também é possível clicar duas vezes no nome, ou clicar no nome com o botão direito e selecionar &apos;MI&apos;.)
+		Para entrar em contato com residentes como &apos;[NAME]&apos;, clique no botão &quot;Pessoas&quot;, selecione um residente na janela que é exibida e clique em &apos;MI&apos; na
+    parte inferior da janela.
+    (Também é possível clicar duas vezes no nome, ou clicar no nome com o botão direito e selecionar &apos;MI&apos;.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Impossível selecionar terra nas fronteiras do servidor. Tente selecionar um pedaço menor de terra.
@@ -2244,6 +2263,9 @@ Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do p
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2495,10 +2517,10 @@ Cada um pode ver o status do outro (definição padrão).
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] aceitou seu convite de amizade.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; aceitou sua oferta de amizade.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] recusou seu convite de amizade
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; rejeitou sua oferta de amizade.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Oferta de amizada aceita.
@@ -2976,10 +2998,6 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 			<button name="cancel" text="Cancelar"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		Para alterar o modo, é preciso fechar e reiniciar.
-		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		É preciso usar o modo Avançado para criar e editar anúncios classificados.  Desejar sair para mudar o modo? Selecione o modo na tela de login.
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
@@ -3023,6 +3041,10 @@ Se o botão Falar for ocultado, o recurso de voz será desabilitado.
 	<notification label="" name="NoSearch">
 		É preciso estar no modo Avançado para fazer pesquisas. Deseja sair para mudar o modo?
 		<usetemplate name="okcancelbuttons" notext="Não sair" yestext="Sair"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		Essa ação irá ocultar todos os itens de menu e botões. Para trazê-los de volta, clique em [SHORTCUT] novamente.
+		<usetemplate ignoretext="Confirmar antes de ocultar interface" name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Aparentemente a sua máquina não atende os requisitos de hardware do [APP_NAME].  [APP_NAME] requer placas de vídeo OpenGL com suporte a multitexturas.  Se sua place de vídeo tiver este perfil, atualize o driver da placa de vídeo, assim como patches e service packs do sistema operacional. 

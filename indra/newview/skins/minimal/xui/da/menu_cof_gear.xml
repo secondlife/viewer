@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="Gear COF">
-	<menu label="Nyt tøj" name="COF.Gear.New_Clothes"/>
-	<menu label="Nye kropsdele" name="COF.Geear.New_Body_Parts"/>
-</menu>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Gelişmiş" name="advanced">
+	<panel.string name="aspect_ratio_text">
+		[NUM]:[DEN]
+	</panel.string>
+	<text name="Cache:">
+		Önbellek:
+	</text>
+	<spinner label="Önbellek boyutu (64-9984 MB)" name="cachesizespinner"/>
+	<text name="text_box5">
+		MB
+	</text>
+	<button label="Önbelleği Sil" label_selected="Önbelleği Sil" name="clear_cache"/>
+	<text name="Cache location">
+		Önbellek konumu:
+	</text>
+	<button label="Gözat" label_selected="Gözat" name="set_cache"/>
+	<button label="Varsayılan Konum" label_selected="Varsayılan Konum" name="default_cache_location"/>
+	<text name="UI Size:">
+		KA büyüklüğü:
+	</text>
+	<check_box label="Şuradaki komut dosyası hatalarını göster:" name="show_script_errors"/>
+	<radio_group name="show_location">
+		<radio_item label="Yakındaki sohbet" name="0"/>
+		<radio_item label="Ayrı pencere" name="1"/>
+	</radio_group>
+	<check_box label="Birden Çok Görüntüleyiciye İzin Ver" name="allow_multiple_viewer_check"/>
+	<check_box label="Oturum açarken Ağ Seçimini göster" name="show_grid_selection_check"/>
+	<check_box label="Gelişmiş Menüyü Göster" name="show_advanced_menu_check"/>
+	<check_box label="Geliştirici Menüsünü Göster" name="show_develop_menu_check"/>
+</panel>

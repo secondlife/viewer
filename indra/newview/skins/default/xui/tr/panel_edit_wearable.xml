@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Giyilebilir" name="panel_edit_wearable">
+	<string name="edit_shape_title">
+		Şekil Düzenleniyor
+	</string>
+	<string name="edit_skin_title">
+		Dış Katman Düzenleniyor
+	</string>
+	<string name="edit_hair_title">
+		Saç Düzenleniyor
+	</string>
+	<string name="edit_eyes_title">
+		Gözler Düzenleniyor
+	</string>
+	<string name="edit_shirt_title">
+		Gömlek Düzenleniyor
+	</string>
+	<string name="edit_pants_title">
+		Pantolon Düzenleniyor
+	</string>
+	<string name="edit_shoes_title">
+		Ayakkabılar Düzenleniyor
+	</string>
+	<string name="edit_socks_title">
+		Çoraplar Düzenleniyor
+	</string>
+	<string name="edit_jacket_title">
+		Ceket Düzenleniyor
+	</string>
+	<string name="edit_skirt_title">
+		Etek Düzenleniyor
+	</string>
+	<string name="edit_gloves_title">
+		Eldivenler Düzenleniyor
+	</string>
+	<string name="edit_undershirt_title">
+		Fanila Düzenleniyor
+	</string>
+	<string name="edit_underpants_title">
+		Külot Düzenleniyor
+	</string>
+	<string name="edit_alpha_title">
+		Alfa Maskesi Düzenleniyor
+	</string>
+	<string name="edit_tattoo_title">
+		Dövme Düzenleniyor
+	</string>
+	<string name="edit_physics_title">
+		Fizik Düzenleniyor
+	</string>
+	<string name="shape_desc_text">
+		Şekil:
+	</string>
+	<string name="skin_desc_text">
+		Dış Katman:
+	</string>
+	<string name="hair_desc_text">
+		Saç:
+	</string>
+	<string name="eyes_desc_text">
+		Gözler:
+	</string>
+	<string name="shirt_desc_text">
+		Gömlek:
+	</string>
+	<string name="pants_desc_text">
+		Pantolon:
+	</string>
+	<string name="shoes_desc_text">
+		Ayakkabılar:
+	</string>
+	<string name="socks_desc_text">
+		Çoraplar:
+	</string>
+	<string name="jacket_desc_text">
+		Ceket:
+	</string>
+	<string name="skirt_desc_text">
+		Etek:
+	</string>
+	<string name="gloves_desc_text">
+		Eldivenler:
+	</string>
+	<string name="undershirt_desc_text">
+		Fanila:
+	</string>
+	<string name="underpants_desc_text">
+		Külot:
+	</string>
+	<string name="alpha_desc_text">
+		Alfa Maskesi:
+	</string>
+	<string name="tattoo_desc_text">
+		Dövme:
+	</string>
+	<string name="physics_desc_text">
+		Fizik:
+	</string>
+	<labeled_back_button label="Kaydet" name="back_btn" tool_tip="Dış Görünümü Düzenlemeye Dön"/>
+	<text name="edit_wearable_title" value="Şekil Düzenleniyor"/>
+	<panel label="Gömlek" name="wearable_type_panel">
+		<text name="description_text" value="Şekil:"/>
+		<radio_group name="sex_radio">
+			<radio_item label="" name="sex_male" tool_tip="Erkek" value="1"/>
+			<radio_item label="" name="sex_female" tool_tip="Kadın" value="0"/>
+		</radio_group>
+		<icon name="male_icon" tool_tip="Erkek"/>
+		<icon name="female_icon" tool_tip="Kadın"/>
+	</panel>
+	<panel name="button_panel">
+		<layout_stack name="button_panel_ls">
+			<layout_panel name="save_as_btn_lp">
+				<button label="Farklı Kaydet" name="save_as_button"/>
+			</layout_panel>
+			<layout_panel name="revert_btn_lp">
+				<button label="Değişiklikleri Geri Al" name="revert_button"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

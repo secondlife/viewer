@@ -31,7 +31,6 @@ set(llcommon_SOURCE_FILES
     llallocator_heap_profile.cpp
     llapp.cpp
     llapr.cpp
-    llaprpool.cpp
     llassettype.cpp
     llavatarname.cpp
     llbase32.cpp
@@ -62,7 +61,10 @@ set(llcommon_SOURCE_FILES
     llformat.cpp
     llframetimer.cpp
     llheartbeat.cpp
+    llinitparam.cpp
     llinstancetracker.cpp
+    llleap.cpp
+    llleaplistener.cpp
     llliveappconfig.cpp
     lllivefile.cpp
     lllog.cpp
@@ -75,14 +77,14 @@ set(llcommon_SOURCE_FILES
     llmortician.cpp
     lloptioninterface.cpp
     llptrto.cpp 
-    llprocesslauncher.cpp
+    llprocess.cpp
     llprocessor.cpp
     llqueuedthread.cpp
     llrand.cpp
     llrefcount.cpp
     llrun.cpp
-    llscopedvolatileaprpool.h
     llsd.cpp
+    llsdparam.cpp
     llsdserialize.cpp
     llsdserialize_xml.cpp
     llsdutil.cpp
@@ -90,6 +92,7 @@ set(llcommon_SOURCE_FILES
     llsingleton.cpp
     llstat.cpp
     llstacktrace.cpp
+    llstreamqueue.cpp
     llstreamtools.cpp
     llstring.cpp
     llstringtable.cpp
@@ -124,7 +127,6 @@ set(llcommon_HEADER_FILES
     llavatarname.h
     llapp.h
     llapr.h
-    llaprpool.h
     llassettype.h
     llassoclist.h
     llavatarconstants.h
@@ -176,9 +178,12 @@ set(llcommon_HEADER_FILES
     llheartbeat.h
     llhttpstatuscodes.h
     llindexedqueue.h
+    llinitparam.h
     llinstancetracker.h
     llkeythrottle.h
     lllazy.h
+    llleap.h
+    llleaplistener.h
     lllistenerwrapper.h
     lllinkedqueue.h
     llliveappconfig.h
@@ -199,7 +204,7 @@ set(llcommon_HEADER_FILES
     llpointer.h
     llpreprocessor.h
     llpriqueuemap.h
-    llprocesslauncher.h
+    llprocess.h
     llprocessor.h
     llptrskiplist.h
     llptrskipmap.h
@@ -207,10 +212,12 @@ set(llcommon_HEADER_FILES
     llqueuedthread.h
     llrand.h
     llrefcount.h
+    llregistry.h
     llrun.h
     llrefcount.h
     llsafehandle.h
     llsd.h
+    llsdparam.h
     llsdserialize.h
     llsdserialize_xml.h
     llsdutil.h
@@ -219,11 +226,13 @@ set(llcommon_HEADER_FILES
     llsingleton.h
     llskiplist.h
     llskipmap.h
+    llsortedvector.h
     llstack.h
     llstacktrace.h
     llstat.h
     llstatenums.h
     llstl.h
+    llstreamqueue.h
     llstreamtools.h
     llstrider.h
     llstring.h
@@ -233,6 +242,7 @@ set(llcommon_HEADER_FILES
     llthreadsafequeue.h
     lltimer.h
     lltreeiterators.h
+    lltypeinfolookup.h
     lluri.h
     lluuid.h
     lluuidhashmap.h
@@ -320,8 +330,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lllazy "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llrand "" "${test_libs}")
-  LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}"
-                          "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/tests/setpython.py")
+  LL_ADD_INTEGRATION_TEST(llsdserialize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llsingleton "" "${test_libs}")                          
   LL_ADD_INTEGRATION_TEST(llstring "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lltreeiterators "" "${test_libs}")
@@ -329,6 +338,9 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(reflection "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lleventdispatcher "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llstreamqueue "" "${test_libs}")
 
   # *TODO - reenable these once tcmalloc libs no longer break the build.
   #ADD_BUILD_TEST(llallocator llcommon)

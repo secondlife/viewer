@@ -4,7 +4,7 @@
 		載入中...
 	</panel.string>
 	<panel.string name="can_not_view">
-		你不察看或編輯此腳本，自從它被設定為 &quot;no copy&quot; 後。你需要完整權限去察看或編輯有包含腳本在內的物件。
+		你不能察看或編輯此腳本，自從它被設定為 &quot;no copy&quot; 後。你需要完整權限去察看或編輯有包含腳本在內的物件。
 	</panel.string>
 	<panel.string name="public_objects_can_not_run">
 		公開物件不能執行腳本

@@ -423,6 +423,9 @@
 	<string name="symbolic folder link">
 		link folderu
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Edycja Wygląd)
+	</string>
 	<string name="AvatarAway">
 		Śpi
 	</string>

@@ -204,7 +204,8 @@ LLFSMState* LLStateDiagram::getState(U32 state_id)
 
 BOOL LLStateDiagram::saveDotFile(const std::string& filename)
 {
-	LLAPRFile outfile(filename, LL_APR_W);
+	LLAPRFile outfile ;
+	outfile.open(filename, LL_APR_W);
 	apr_file_t* dot_file = outfile.getFileHandle() ;
 
 	if (!dot_file)

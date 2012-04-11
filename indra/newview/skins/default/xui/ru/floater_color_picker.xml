@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="ColorPicker" title="ВЫБОР ЦВЕТА">
+	<text name="r_val_text">
+		Красный:
+	</text>
+	<text name="g_val_text">
+		Зеленый:
+	</text>
+	<text name="b_val_text">
+		Синий:
+	</text>
+	<text name="h_val_text">
+		Оттенок:
+	</text>
+	<text name="s_val_text">
+		Насыщен.:
+	</text>
+	<text name="l_val_text">
+		Яркость:
+	</text>
+	<check_box label="Применить сейчас" name="apply_immediate"/>
+	<button label="ОК" label_selected="ОК" name="select_btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_btn"/>
+	<text name="Current color:">
+		Текущий цвет:
+	</text>
+	<text name="(Drag below to save.)">
+		(Перетащите вниз для сохранения)
+	</text>
+</floater>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Preferences" title="TERCİHLER">
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+	<button label="İptal" label_selected="İptal" name="Cancel"/>
+	<tab_container name="pref core">
+		<panel label="Genel" name="general"/>
+		<panel label="Grafikler" name="display"/>
+		<panel label="Ses ve Ortamlar" name="audio"/>
+		<panel label="Sohbet" name="chat"/>
+		<panel label="Hareket ve Görünümler" name="move"/>
+		<panel label="Bildirimler" name="msgs"/>
+		<panel label="Renkler" name="colors"/>
+		<panel label="Gizlilik" name="im"/>
+		<panel label="Ayarlar" name="input"/>
+		<panel label="Gelişmiş" name="advanced1"/>
+	</tab_container>
+</floater>

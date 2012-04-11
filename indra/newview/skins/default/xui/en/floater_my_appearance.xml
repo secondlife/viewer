@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<floater
+  open_positioning="cascading"
+  legacy_header_height="18"
+  can_resize="true"
+  height="588"
+  layout="topleft"
+  name="floater_my_appearance"
+  help_topic="appearance"
+  save_rect="true"
+  single_instance="true"
+  reuse_instance="true"
+  title="APPEARANCE"
+  min_height="440"
+  min_width="333"
+  width="333">
+    <panel
+      top="18"
+      class="sidepanel_appearance"
+      name="main_panel"
+      filename="sidepanel_appearance.xml"
+      label="Edit Appearance"
+      font="SansSerifBold"/>
+</floater>

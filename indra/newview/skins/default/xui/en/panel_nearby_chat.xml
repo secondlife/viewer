@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel
+ height="300"
+ follows="all"
+ layout="topleft"
+ name="nearby_chat"
+ help_topic="nearby_chat"
+ width="320">
+            <check_box
+             bottom_delta="36"
+             control_name="TranslateChat"
+             enabled="true"
+             height="16"
+             label="Translate chat"
+             layout="topleft"
+             left="5"
+             name="translate_chat_checkbox"
+             width="230" />
+  <chat_history
+    parse_urls="true"
+    bg_readonly_color="ChatHistoryBgColor"
+    bg_writeable_color="ChatHistoryBgColor"
+    follows="all"
+    left="5"
+    top_delta="17"
+    layout="topleft"
+    height="260"
+    name="chat_history"
+    parse_highlights="true"
+    text_color="ChatHistoryTextColor"
+    text_readonly_color="ChatHistoryTextColor"
+    right_widget_pad="5"
+    left_widget_pad="0"
+    width="315" />
+</panel>

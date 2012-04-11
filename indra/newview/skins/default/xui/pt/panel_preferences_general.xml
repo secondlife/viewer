@@ -11,10 +11,12 @@
 		<combo_box.item label="Español (Espanhol) - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Francês) - Beta" name="French"/>
 		<combo_box.item label="Italiano - Beta" name="Italian"/>
-		<combo_box.item label="Nederlands (Holandês) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Polonês) - Beta" name="Polish"/>
 		<combo_box.item label="Português (Português) - Beta" name="Portugese"/>
+		<combo_box.item label="Русский (Russo) - Beta" name="Russian"/>
+		<combo_box.item label="Türkçe (Turco) - Beta" name="Turkish"/>
 		<combo_box.item label="日本語 (Japonês) - Beta" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (Chinês tradicional) - Beta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(Reinicie para trocar de idioma)
@@ -49,7 +51,6 @@
 	<check_box label="Cargos do grupo" name="show_all_title_checkbox1" tool_tip="Mostrar os títulos de cargos, como membro ou diretor"/>
 	<check_box label="Realçar amigos" name="show_friends" tool_tip="Realçar nomes de tela de amigos"/>
 	<check_box label="Ver nomes de tela" name="display_names_check" tool_tip="Usar nome de tela no bate-papo, MI, etc."/>
-	<check_box label="Exibir dicas da interface" name="viewer_hints_check"/>
 	<text name="inworld_typing_rg_label">
 		Teclas de letras:
 	</text>

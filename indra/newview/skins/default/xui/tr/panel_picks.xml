@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Favorilerim" name="panel_picks">
+	<string name="no_picks" value="Seçme Yok"/>
+	<string name="no_classifieds" value="İlan Yok"/>
+	<accordion name="accordion">
+		<accordion_tab name="tab_picks" title="Seçmelerim"/>
+		<accordion_tab name="tab_classifieds" title="İlanlar"/>
+	</accordion>
+	<panel label="bottom_panel" name="edit_panel">
+		<layout_stack name="edit_panel_ls">
+			<layout_panel name="gear_menu_btn">
+				<button name="new_btn" tool_tip="Mevcut konumda yeni bir seçme veya ilan oluşturun"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+	<panel name="buttons_cucks">
+		<layout_stack name="buttons_cucks_ls">
+			<layout_panel name="info_btn_lp">
+				<button label="Bilgi" name="info_btn" tool_tip="Seçme bilgilerini göster"/>
+			</layout_panel>
+			<layout_panel name="teleport_btn_lp">
+				<button label="Işınla" name="teleport_btn" tool_tip="İlişkili alana ışınlanın"/>
+			</layout_panel>
+			<layout_panel name="show_on_map_btn_lp">
+				<button label="Harita" name="show_on_map_btn" tool_tip="İlişkili alanı Dünya Haritasında göster"/>
+			</layout_panel>
+		</layout_stack>
+	</panel>
+</panel>

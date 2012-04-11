@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<teleport_messages>
+	<message_set name="errors">
+		<message name="invalid_tport">
+			Işınlama talebiniz işlenirken bir sorunla karşılaşıldı. Işınlanabilmek için yeniden oturum açmanız gerekebilir.
+Bu mesajı almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+		</message>
+		<message name="invalid_region_handoff">
+			Bölge değiştirme talebiniz işlenirken sorunla karşılaşıldı. Bölge geçebilmek için yeniden oturum açmanız gerekebilir.
+Bu mesajı almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
+		</message>
+		<message name="blocked_tport">
+			Üzgünüz, ışınlama şu anda engellenmiş durumda. Bir dakika sonra tekrar deneyin.
+Hala ışınlanamıyorsanız, sorunu çözmek için lütfen çıkış yapıp oturumu tekrar açın.
+		</message>
+		<message name="nolandmark_tport">
+			Üzgünüz fakat sistem yer imi hedef konumunu bulamadı.
+		</message>
+		<message name="timeout_tport">
+			Üzgünüz fakat sistem ışınlama bağlantısını tamamlayamadı.
+Bir dakika sonra tekrar deneyin.
+		</message>
+		<message name="NoHelpIslandTP">
+			Karşılama Ada&apos;sına geri ışınlanamazsınız.
+Öğreticiyi tekrarlamak için &apos;Karşılama Ada&apos;sı Kamusal Alanı&apos;na gidin.
+		</message>
+		<message name="noaccess_tport">
+			Üzgünüz, bu ışınlanma hedef konumuna erişim hakkına sahip değilsiniz.
+		</message>
+		<message name="missing_attach_tport">
+			Aksesuarlarınız henüz ulaşmadı. Işınlanmayı tekrar denemeden önce bir kaç saniye bekleyin veya çıkış yapıp oturumu tekrar açın.
+		</message>
+		<message name="too_many_uploads_tport">
+			Bu bölgedeki varlık sırası şu anda yoğunluktan dolayı tıkalı olduğu için ışınlanma talebiniz zamanında gerçekleştirilemeyecek. Lütfen bir kaç dakika sonra tekrar deneyin veya yoğunluğu daha az olan bir bölge seçin.
+		</message>
+		<message name="expired_tport">
+			Üzgünüz fakat sistem ışınlanma talebinizi zamanında tamamlayamadı. Lütfen bir kaç dakika sonra tekrar deneyin.
+		</message>
+		<message name="expired_region_handoff">
+			Üzgünüz fakat sistem bölge değiştirme talebinizi zamanında tamamlayamadı. Lütfen bir kaç dakika sonra tekrar deneyin.
+		</message>
+		<message name="no_host">
+			Işınlanma hedef konumu bulunamıyor. Hedef konumu geçici bir süre için kullanılamıyor ya da artık mevcut değil. Lütfen bir kaç dakika sonra tekrar deneyin.
+		</message>
+		<message name="no_inventory_host">
+			Envanter sistemi şu anda kullanılamıyor.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			Hedef konuma gönderiliyor.
+		</message>
+		<message name="redirecting">
+			Farklı konuma tekrar yönlendiriliyor.
+		</message>
+		<message name="relaying">
+			Hedefe aktarılıyor.
+		</message>
+		<message name="sending_home">
+			Ana konum talebi gönderiliyor.
+		</message>
+		<message name="sending_landmark">
+			Yer imi konumu talebi gönderiliyor.
+		</message>
+		<message name="completing">
+			Işınlanma tamamlanıyor.
+		</message>
+		<message name="completed_from">
+			[T_SLURL] konumundan ışınlanma tamamlandı.
+		</message>
+		<message name="resolving">
+			Hedef konum çözümleniyor.
+		</message>
+		<message name="contacting">
+			Yeni bölgeye bağlanılıyor.
+		</message>
+		<message name="arriving">
+			Konuma varılıyor...
+		</message>
+		<message name="requesting">
+			Işınlanma talep ediliyor...
+		</message>
+	</message_set>
+</teleport_messages>

@@ -314,7 +314,7 @@ void LLWorldMapView::draw()
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 		// Clear the background alpha to 0
 		gGL.flush();
@@ -422,7 +422,7 @@ void LLWorldMapView::draw()
 				// Draw something whenever we have enough info
 				if (overlayimage->hasGLTexture())
 				{
-					gGL.blendFunc(LLRender::BF_DEST_ALPHA, LLRender::BF_ZERO);
+					gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);	
 					gGL.getTexUnit(0)->bind(overlayimage);
 					gGL.color4f(1.f, 1.f, 1.f, 1.f);
 					gGL.begin(LLRender::QUADS);
@@ -1307,7 +1307,7 @@ void LLWorldMapView::drawTrackingCircle( const LLRect& rect, S32 x, S32 y, const
 		end_theta -= angle_adjust_y;
 	}
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 	gGL.translatef((F32)x, (F32)y, 0.f);
 	gl_washer_segment_2d(inner_radius, outer_radius, start_theta, end_theta, 40, color, color);

@@ -11,10 +11,12 @@
 		<combo_box.item label="Español （スペイン語） – ベータ" name="Spanish"/>
 		<combo_box.item label="Français （フランス語） – ベータ" name="French"/>
 		<combo_box.item label="Italiano （イタリア語） - ベータ" name="Italian"/>
-		<combo_box.item label="Nederlands （オランダ語） - ベータ" name="Dutch"/>
 		<combo_box.item label="Polski （ポーランド語） - ベータ" name="Polish"/>
 		<combo_box.item label="Português（ポルトガル語） - ベータ" name="Portugese"/>
+		<combo_box.item label="Русский （ロシア語） - ベータ" name="Russian"/>
+		<combo_box.item label="Türkçe （トルコ語） - ベータ" name="Turkish"/>
 		<combo_box.item label="日本語 – ベータ" name="(Japanese)"/>
+		<combo_box.item label="正體中文（簡体字中国語）- ベータ版" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		（再起動後に反映）
@@ -49,7 +51,6 @@
 	<check_box label="グループタイトル" name="show_all_title_checkbox1" tool_tip="オフィサーまたはメンバーなど、グループタイトルを表示"/>
 	<check_box label="フレンドをハイライト表示" name="show_friends" tool_tip="フレンドの名前をハイライト表示"/>
 	<check_box label="表示名を表示" name="display_names_check" tool_tip="これを選択すると、チャット、IM などで表示名が表示されます。"/>
-	<check_box label="ビューワの UI ヒントを有効にする" name="viewer_hints_check"/>
 	<text name="inworld_typing_rg_label">
 		文字キーを押して次の操作：
 	</text>

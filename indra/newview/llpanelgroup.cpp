@@ -29,6 +29,7 @@
 
 // Library includes
 #include "llbutton.h"
+#include "llfloatersidepanelcontainer.h"
 #include "lltabcontainer.h"
 #include "lltextbox.h"
 #include "lluictrlfactory.h"
@@ -49,7 +50,6 @@
 #include "llpanelgroupnotices.h"
 #include "llpanelgroupgeneral.h"
 
-#include "llsidetray.h"
 #include "llaccordionctrltab.h"
 #include "llaccordionctrl.h"
 
@@ -597,7 +597,7 @@ void LLPanelGroup::showNotice(const std::string& subject,
 //static
 void LLPanelGroup::refreshCreatedGroup(const LLUUID& group_id)
 {
-	LLPanelGroup* panel = LLSideTray::getInstance()->getPanel<LLPanelGroup>("panel_group_info_sidetray");
+	LLPanelGroup* panel = LLFloaterSidePanelContainer::getPanel<LLPanelGroup>("people", "panel_group_info_sidetray");
 	if(!panel)
 		return;
 	panel->setGroupID(group_id);
@@ -612,7 +612,7 @@ void LLPanelGroup::showNotice(const std::string& subject,
 					   const std::string& inventory_name,
 					   LLOfferInfo* inventory_offer)
 {
-	LLPanelGroup* panel = LLSideTray::getInstance()->getPanel<LLPanelGroup>("panel_group_info_sidetray");
+	LLPanelGroup* panel = LLFloaterSidePanelContainer::getPanel<LLPanelGroup>("people", "panel_group_info_sidetray");
 	if(!panel)
 		return;
 

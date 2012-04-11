@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Текстовый чат" name="chat">
+	<text name="font_size">
+		Размер шрифта:
+	</text>
+	<radio_group name="chat_font_size">
+		<radio_item label="Мелкий" name="radio" value="0"/>
+		<radio_item label="Средний" name="radio2" value="1"/>
+		<radio_item label="Крупный" name="radio3" value="2"/>
+	</radio_group>
+	<check_box initial_value="истина" label="Воспроизводить анимацию ввода текста при общении" name="play_typing_animation"/>
+	<check_box label="Отправлять мне сообщения по почте, когда меня нет в сети" name="send_im_to_email"/>
+	<check_box label="Вести журнал текстового IM и чата" name="plain_text_chat_history"/>
+	<check_box label="Чат в пузырьках" name="bubble_text_chat"/>
+	<text name="show_ims_in_label">
+		Показывать сообщения:
+	</text>
+	<text name="requires_restart_label">
+		(требуется перезапуск)
+	</text>
+	<radio_group name="chat_window" tool_tip="Показывать IM-сообщения в отдельных окнах или же в одном окне с несколькими вкладками (требуется перезапуск)">
+		<radio_item label="В отдельных окнах" name="radio" value="0"/>
+		<radio_item label="На вкладках" name="radio2" value="1"/>
+	</radio_group>
+	<text name="disable_toast_label">
+		Включить всплывающие сообщения с новыми репликами в чате:
+	</text>
+	<check_box label="Групповой чат" name="EnableGroupChatPopups" tool_tip="Отображать всплывающие уведомления при появлении сообщений в групповом чате"/>
+	<check_box label="Текстовые чаты" name="EnableIMChatPopups" tool_tip="Отображать всплывающие уведомления при получении IM-сообщений"/>
+	<spinner label="Время отображения всплывающих реплик:" name="nearby_toasts_lifetime"/>
+	<spinner label="Время затухания всплывающих реплик:" name="nearby_toasts_fadingtime"/>
+	<button label="Настройки перевода чата" name="ok_btn"/>
+</panel>

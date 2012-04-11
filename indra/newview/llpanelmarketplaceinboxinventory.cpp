@@ -45,6 +45,7 @@
 
 static LLDefaultChildRegistry::Register<LLInboxInventoryPanel> r1("inbox_inventory_panel");
 static LLDefaultChildRegistry::Register<LLInboxFolderViewFolder> r2("inbox_folder_view_folder");
+static LLDefaultChildRegistry::Register<LLInboxFolderViewItem> r3("inbox_folder_view_item");
 
 
 //
@@ -137,7 +138,7 @@ LLFolderViewFolder * LLInboxInventoryPanel::createFolderViewFolder(LLInvFVBridge
 
 LLFolderViewItem * LLInboxInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge)
 {
-	LLFolderViewItem::Params params;
+	LLInboxFolderViewItem::Params params;
 
 	params.name = bridge->getDisplayName();
 	params.icon = bridge->getIcon();
@@ -171,10 +172,6 @@ LLInboxFolderViewFolder::LLInboxFolderViewFolder(const Params& p)
 #endif
 }
 
-LLInboxFolderViewFolder::~LLInboxFolderViewFolder()
-{
-}
-
 // virtual
 void LLInboxFolderViewFolder::draw()
 {
@@ -190,21 +187,32 @@ void LLInboxFolderViewFolder::draw()
 	LLFolderViewFolder::draw();
 }
 
+void LLInboxFolderViewFolder::selectItem()
+{
+	deFreshify();
+
+	LLFolderViewFolder::selectItem();
+}
+
+void LLInboxFolderViewFolder::toggleOpen()
+{
+	deFreshify();
+
+	LLFolderViewFolder::toggleOpen();
+}
+
 void LLInboxFolderViewFolder::computeFreshness()
 {
 	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
 
 	if (last_expansion_utc > 0)
 	{
-		const U32 time_offset_for_pdt = 7 * 60 * 60;
-		const U32 last_expansion = last_expansion_utc - time_offset_for_pdt;
-
-		mFresh = (mCreationDate > last_expansion);
+		mFresh = (mCreationDate > last_expansion_utc);
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
 		{
-			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion << llendl;
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
 		}
 #endif
 	}
@@ -221,20 +229,6 @@ void LLInboxFolderViewFolder::deFreshify()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
-void LLInboxFolderViewFolder::selectItem()
-{
-	LLFolderViewFolder::selectItem();
-
-	deFreshify();
-}
-
-void LLInboxFolderViewFolder::toggleOpen()
-{
-	LLFolderViewFolder::toggleOpen();
-
-	deFreshify();
-}
-
 void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
 { 
 	mCreationDate = creation_date_utc; 
@@ -249,9 +243,87 @@ void LLInboxFolderViewFolder::setCreationDate(time_t creation_date_utc)
 // LLInboxFolderViewItem Implementation
 //
 
+LLInboxFolderViewItem::LLInboxFolderViewItem(const Params& p)
+	: LLFolderViewItem(p)
+	, LLBadgeOwner(getHandle())
+	, mFresh(false)
+{
+#if SUPPORTING_FRESH_ITEM_COUNT
+	initBadgeParams(p.new_badge());
+#endif
+}
+
+BOOL LLInboxFolderViewItem::addToFolder(LLFolderViewFolder* folder, LLFolderView* root)
+{
+	BOOL retval = LLFolderViewItem::addToFolder(folder, root);
+
+#if SUPPORTING_FRESH_ITEM_COUNT
+	// Compute freshness if our parent is the root folder for the inbox
+	if (mParentFolder == mRoot)
+	{
+		computeFreshness();
+	}
+#endif
+	
+	return retval;
+}
+
 BOOL LLInboxFolderViewItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-	return TRUE;
+	deFreshify();
+	
+	return LLFolderViewItem::handleDoubleClick(x, y, mask);
 }
+
+// virtual
+void LLInboxFolderViewItem::draw()
+{
+#if SUPPORTING_FRESH_ITEM_COUNT
+	if (!badgeHasParent())
+	{
+		addBadgeToParentPanel();
+	}
+
+	setBadgeVisibility(mFresh);
+#endif
+
+	LLFolderViewItem::draw();
+}
+
+void LLInboxFolderViewItem::selectItem()
+{
+	deFreshify();
+
+	LLFolderViewItem::selectItem();
+}
+
+void LLInboxFolderViewItem::computeFreshness()
+{
+	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
+
+	if (last_expansion_utc > 0)
+	{
+		mFresh = (mCreationDate > last_expansion_utc);
+
+#if DEBUGGING_FRESHNESS
+		if (mFresh)
+		{
+			llinfos << "Item is fresh! -- creation " << mCreationDate << ", saved_freshness_date " << last_expansion_utc << llendl;
+		}
+#endif
+	}
+	else
+	{
+		mFresh = true;
+	}
+}
+
+void LLInboxFolderViewItem::deFreshify()
+{
+	mFresh = false;
+
+	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+}
+
 
 // eof

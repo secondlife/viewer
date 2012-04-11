@@ -223,7 +223,8 @@ BOOL LLFloaterAnimPreview::postBuild()
 		// now load bvh file
 		S32 file_size;
 		
-		LLAPRFile infile(mFilenameAndPath, LL_APR_RB, &file_size);
+		LLAPRFile infile ;
+		infile.open(mFilenameAndPath, LL_APR_RB, NULL, &file_size);
 		
 		if (!infile.getFileHandle())
 		{
@@ -1062,14 +1063,19 @@ BOOL	LLPreviewAnimation::render()
 	mNeedsUpdate = FALSE;
 	LLVOAvatar* avatarp = mDummyAvatar;
 	
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, mFullWidth, 0.0f, mFullHeight, -1.0f, 1.0f);
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
-	glLoadIdentity();
+	gGL.loadIdentity();
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
 
 	LLGLSUIDefault def;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1077,10 +1083,10 @@ BOOL	LLPreviewAnimation::render()
 
 	gl_rect_2d_simple( mFullWidth, mFullHeight );
 
-	glMatrixMode(GL_PROJECTION);
+	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.popMatrix();
 
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
 	gGL.flush();

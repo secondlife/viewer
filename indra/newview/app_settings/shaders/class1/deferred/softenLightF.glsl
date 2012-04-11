@@ -23,9 +23,11 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
@@ -33,7 +35,6 @@ uniform sampler2DRect positionMap;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
-uniform sampler2D	  noiseMap;
 uniform samplerCube environmentMap;
 uniform sampler2D	  lightFunc;
 
@@ -58,13 +59,11 @@ uniform vec4 distance_multiplier;
 uniform vec4 max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
-uniform vec3 env_mat[3];
-//uniform mat4 shadow_matrix[3];
-//uniform vec4 shadow_clip;
+uniform mat3 env_mat;
 uniform mat3 ssao_effect_mat;
 
-varying vec4 vary_light;
-varying vec2 vary_fragcoord;
+uniform vec3 sun_dir;
+VARYING vec2 vary_fragcoord;
 
 vec3 vary_PositionEye;
 
@@ -146,10 +145,6 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	vec3 P = inPositionEye;
 	setPositionEye(P);
 	
-	//(TERRAIN) limit altitude
-	if (P.y > max_y.x) P *= (max_y.x / P.y);
-	if (P.y < -max_y.x) P *= (-max_y.x / P.y);
-
 	vec3 tmpLightnorm = lightnorm.xyz;
 
 	vec3 Pn = normalize(P);
@@ -281,9 +276,8 @@ void main()
 	vec3 pos = getPosition_d(tc, depth).xyz;
 	vec3 norm = texture2DRect(normalMap, tc).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
-	//vec3 nz = texture2D(noiseMap, vary_fragcoord.xy/128.0).xyz;
-	
-	float da = max(dot(norm.xyz, vary_light.xyz), 0.0);
+		
+	float da = max(dot(norm.xyz, sun_dir.xyz), 0.0);
 	
 	vec4 diffuse = texture2DRect(diffuseRect, tc);
 	vec4 spec = texture2DRect(specularRect, vary_fragcoord.xy);
@@ -304,13 +298,18 @@ void main()
 			// the old infinite-sky shiny reflection
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
-			float sa = dot(refnormpersp, vary_light.xyz);
-			vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).a;
+			float sa = dot(refnormpersp, sun_dir.xyz);
+			vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).r;
 			
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
 			bloom = dot(spec_contrib, spec_contrib);
 			col += spec_contrib;
+
+			//add environmentmap
+			vec3 env_vec = env_mat * refnormpersp;
+			col = mix(col.rgb, textureCube(environmentMap, env_vec).rgb, 
+				max(spec.a-diffuse.a*2.0, 0.0)); 
 		}
 	
 		col = atmosLighting(col);
@@ -324,5 +323,6 @@ void main()
 	}
 
 	gl_FragColor.rgb = col;
+
 	gl_FragColor.a = bloom;
 }

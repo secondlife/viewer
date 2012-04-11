@@ -915,14 +915,16 @@ void LLFloaterUIPreview::displayFloater(BOOL click, S32 ID, bool save)
 		{
 			panel->buildFromFile(path);										// build it
 			LLRect new_size = panel->getRect();								// get its rectangle
-			panel->setOrigin(0,0);											// reset its origin point so it's not offset by -left or other XUI attributes
+			panel->setOrigin(2,2);											// reset its origin point so it's not offset by -left or other XUI attributes
 			(*floaterp)->setTitle(path);									// use the file name as its title, since panels have no guaranteed meaningful name attribute
 			panel->setUseBoundingRect(TRUE);								// enable the use of its outer bounding rect (normally disabled because it's O(n) on the number of sub-elements)
 			panel->updateBoundingRect();									// update bounding rect
 			LLRect bounding_rect = panel->getBoundingRect();				// get the bounding rect
 			LLRect new_rect = panel->getRect();								// get the panel's rect
 			new_rect.unionWith(bounding_rect);								// union them to make sure we get the biggest one possible
-			(*floaterp)->reshape(new_rect.getWidth(), new_rect.getHeight() + floater_header_size);	// reshape floater to match the union rect's dimensions
+			LLRect floater_rect = new_rect;
+			floater_rect.stretch(4, 4);
+			(*floaterp)->reshape(floater_rect.getWidth(), floater_rect.getHeight() + floater_header_size);	// reshape floater to match the union rect's dimensions
 			panel->reshape(new_rect.getWidth(), new_rect.getHeight());		// reshape panel to match the union rect's dimensions as well (both are needed)
 			(*floaterp)->addChild(panel);					// add panel as child
 			(*floaterp)->openFloater();						// open floater (needed?)

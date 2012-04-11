@@ -122,7 +122,7 @@ public:
 	static void initMaxHeapSizeGB(F32 max_heap_size_gb, BOOL prevent_heap_failure);
 	static void updateMemoryInfo() ;
 	static void logMemoryInfo(BOOL update = FALSE);
-	static S32  isMemoryPoolLow();
+	static bool isMemoryPoolLow();
 
 	static U32 getAvailableMemKB() ;
 	static U32 getMaxMemKB() ;
@@ -303,7 +303,7 @@ public:
 	} ;
 
 private:
-	LLPrivateMemoryPool(S32 type) ;
+	LLPrivateMemoryPool(S32 type, U32 max_pool_size) ;
 	~LLPrivateMemoryPool() ;
 
 	char *allocate(U32 size) ;
@@ -320,7 +320,7 @@ private:
 	void unlock() ;	
 	S32 getChunkIndex(U32 size) ;
 	LLMemoryChunk*  addChunk(S32 chunk_index) ;
-	void checkSize(U32 asked_size) ;
+	bool checkSize(U32 asked_size) ;
 	void removeChunk(LLMemoryChunk* chunk) ;
 	U16  findHashKey(const char* addr);
 	void addToHashTable(LLMemoryChunk* chunk) ;
@@ -383,22 +383,24 @@ private:
 class LL_COMMON_API LLPrivateMemoryPoolManager
 {
 private:
-	LLPrivateMemoryPoolManager(BOOL enabled) ;
+	LLPrivateMemoryPoolManager(BOOL enabled, U32 max_pool_size) ;
 	~LLPrivateMemoryPoolManager() ;
 
 public:	
 	static LLPrivateMemoryPoolManager* getInstance() ;
-	static void initClass(BOOL enabled) ;
+	static void initClass(BOOL enabled, U32 pool_size) ;
 	static void destroyClass() ;
 
 	LLPrivateMemoryPool* newPool(S32 type) ;
 	void deletePool(LLPrivateMemoryPool* pool) ;
 
-private:
-	static LLPrivateMemoryPoolManager* sInstance ;
-	std::vector<LLPrivateMemoryPool*> mPoolList ;
-	BOOL mPrivatePoolEnabled;
+private:	
+	std::vector<LLPrivateMemoryPool*> mPoolList ;	
+	U32  mMaxPrivatePoolSize;
 
+	static LLPrivateMemoryPoolManager* sInstance ;
+	static BOOL sPrivatePoolEnabled;
+	static std::vector<LLPrivateMemoryPool*> sDanglingPoolList ;
 public:
 	//debug and statistics info.
 	void updateStatistics() ;

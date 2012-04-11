@@ -6,25 +6,22 @@
 	<button label="2. 最適化" name="optimize_btn"/>
 	<button label="1. ファイルを選択" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="choose_file_header_panel">
-			<text name="choose_file_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				モデルファイルを選択
 			</text>
 		</panel>
-		<panel name="choose_file_content_panel">
+		<panel name="content">
 			<text name="advanced_users_text">
 				上級ユーザーの場合：3D コンテンツの制作ツールを使い慣れた方は、高度なアップローダーもお試しください。
 			</text>
 			<button label="アドバンスモードに切り替える" name="switch_to_advanced"/>
-			<text name="choose_model_file_label">
+			<text name="Cache location">
 				アップロードするモデルファイルの選択
 			</text>
 			<button label="参照" label_selected="参照" name="browse"/>
-			<text name="support_collada_text">
+			<text name="Model types">
 				Second Life は COLLADA (.dae) ファイルをサポートします。
-			</text>
-			<text name="dimensions_label">
-				サイズ（メートル）：
 			</text>
 			<text name="dimensions">
 				X         Y         Z
@@ -38,18 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="optimize_header_panel">
-			<text name="optimize_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				モデルを最適化
 			</text>
 		</panel>
-		<text name="optimize_hint">
+		<text name="description">
 			パフォーマンスを重視してモデルを最適化しました。必要に応じて調整してください。
 		</text>
-		<panel name="optimize_content_panel">
-			<text name="generating_lod_label">
-				次の描画詳細度を作成
-			</text>
+		<panel name="content">
 			<text name="high_detail_text">
 				次の描画詳細度を作成：高
 			</text>
@@ -64,123 +58,64 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="optimize_performance_text">
-				パフォーマンス
-			</text>
-			<text name="optimize_faster_rendering_text">
-				レンダリング速度の向上
-詳細度の低下
-プリム換算ウェイトの軽減
-			</text>
-			<text name="optimize_accuracy_text">
-				正確さ
-			</text>
-			<text name="optimize_slower_rendering_text">
-				レンダリング速度の低下
-詳細化
-プリム換算ウェイトの増加
-			</text>
-			<text name="accuracy_slider_mark1">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark2">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark3">
-				&apos;
-			</text>
 			<button label="ジオメトリを再計算" name="recalculate_geometry_btn"/>
-			<text name="geometry_preview_label">
+			<text name="lod_label">
 				ジオメトリのプレビュー
 			</text>
 			<combo_box name="preview_lod_combo" tool_tip="プレビュー表示の LOD 設定">
-				<combo_item name="preview_lod_high">
+				<combo_item name="high">
 					高い詳細度
 				</combo_item>
-				<combo_item name="preview_lod_medium">
+				<combo_item name="medium">
 					中の詳細度
 				</combo_item>
-				<combo_item name="preview_lod_low">
+				<combo_item name="low">
 					低い詳細度
 				</combo_item>
-				<combo_item name="preview_lod_lowest">
+				<combo_item name="lowest">
 					最低の詳細度
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="physics_header_panel">
-			<text name="physics_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				物理作用の調整
 			</text>
 		</panel>
-		<text name="physics_hint">
+		<text name="description">
 			モデルの外殻構造のシェイプは弊社が作成します。モデルの目的に応じてシェイプの詳細度を調整してください。
 		</text>
-		<panel name="physics_content_panel">
-			<text name="physics_performance_text">
-				パフォーマンス
-			</text>
-			<text name="physics_faster_rendering_text">
-				レンダリング速度の向上
-詳細度の低下
-プリム換算ウェイトの軽減
-			</text>
-			<text name="physics_accuracy_text">
-				正確
-			</text>
-			<text name="physics_slower_dendering_text">
-				レンダリング速度の低下
-詳細化
-プリム換算ウェイトの増加
-			</text>
-			<text name="physics_example_1">
-				例：
-動くオブジェクト
-飛行オブジェクト
-車
-			</text>
-			<text name="physics_example_2">
-				例：
-小さな静止オブジェクト
-比較的詳細度の低いオブジェクト
-シンプルな家具
-			</text>
-			<text name="physics_example_3">
-				例：
-静止オブジェクト
-詳細なオブジェクト
-建物
-			</text>
+		<panel name="content">
 			<button label="物理演算ウェイトを再計算" name="recalculate_physics_btn"/>
 			<button label="再計算中..." name="recalculating_physics_btn"/>
-			<text name="physics_preview_label">
+			<text name="lod_label">
 				物理作用のプレビュー
 			</text>
 			<combo_box name="preview_lod_combo2" tool_tip="プレビュー表示の LOD 設定">
-				<combo_item name="preview_lod2_high">
+				<combo_item name="high">
 					高い詳細度
 				</combo_item>
-				<combo_item name="preview_lod2_medium">
+				<combo_item name="medium">
 					中の詳細度
 				</combo_item>
-				<combo_item name="preview_lod2_low">
+				<combo_item name="low">
 					低い詳細度
 				</combo_item>
-				<combo_item name="preview_lod2_lowest">
+				<combo_item name="lowest">
 					最低の詳細度
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="review_header_panel">
-			<text name="review_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				確認
 			</text>
 		</panel>
-		<panel name="review_content_panel">
+		<panel name="content">
 			<text name="review_prim_equiv">
 				区画/リージョンへの負荷：[EQUIV] プリム換算値
 			</text>
@@ -193,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="upload_header_panel">
-			<text name="upload_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				アップロード完了
 			</text>
 		</panel>

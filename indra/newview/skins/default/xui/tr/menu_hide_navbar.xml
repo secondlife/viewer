@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<menu name="hide_navbar_menu">
+	<menu_item_check label="Gezinme ve Favoriler Çubuğunu Göster" name="ShowNavbarNavigationPanel"/>
+	<menu_item_check label="Favoriler Çubuğunu Göster" name="ShowNavbarFavoritesPanel"/>
+	<menu_item_check label="Mini Konum Çubuğunu Göster" name="ShowMiniLocationPanel"/>
+</menu>

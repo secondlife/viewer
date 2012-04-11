@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<context_menu name="Object Pie">
+	<menu_item_call label="Dokun" name="Object Touch"/>
+	<menu_item_call label="Düzenle" name="Edit..."/>
+	<menu_item_call label="İnşa Et" name="Build"/>
+	<menu_item_call label="Aç" name="Open"/>
+	<menu_item_call label="Buraya Otur" name="Object Sit"/>
+	<menu_item_call label="Kalk" name="Object Stand Up"/>
+	<menu_item_call label="Nesne Profili" name="Object Inspect"/>
+	<menu_item_call label="Yakınlaştır" name="Zoom In"/>
+	<context_menu label="Üzerine Koy" name="Put On">
+		<menu_item_call label="Giy" name="Wear"/>
+		<menu_item_call label="Ekle" name="Add"/>
+		<context_menu label="Ekle" name="Object Attach"/>
+		<context_menu label="BÜG Ekle" name="Object Attach HUD"/>
+	</context_menu>
+	<context_menu label="Yönet" name="Remove">
+		<menu_item_call label="Kötüye Kullanımı Bildir" name="Report Abuse..."/>
+		<menu_item_call label="Engelle" name="Object Mute"/>
+		<menu_item_call label="İade Et" name="Return..."/>
+	</context_menu>
+	<menu_item_call label="Al" name="Pie Object Take"/>
+	<menu_item_call label="Kopya Al" name="Take Copy"/>
+	<menu_item_call label="Öde" name="Pay..."/>
+	<menu_item_call label="Satın Al" name="Buy..."/>
+	<menu_item_call label="Sil" name="Delete"/>
+</context_menu>

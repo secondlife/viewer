@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Общие" name="general_panel">
+	<text name="language_textbox">
+		Язык:
+	</text>
+	<combo_box name="language_combobox">
+		<combo_box.item label="Язык системы" name="System Default Language"/>
+		<combo_box.item label="English - Английский" name="English"/>
+		<combo_box.item label="Dansk – датский (бета-версия)" name="Danish"/>
+		<combo_box.item label="Deutsch – немецкий (бета-версия)" name="Deutsch(German)"/>
+		<combo_box.item label="Español – испанский (бета-версия)" name="Spanish"/>
+		<combo_box.item label="Français – французский (бета-версия)" name="French"/>
+		<combo_box.item label="Italiano – итальянский (бета-версия)" name="Italian"/>
+		<combo_box.item label="Polski – польский (бета-версия)" name="Polish"/>
+		<combo_box.item label="Português – португальский (бета-версия)" name="Portugese"/>
+		<combo_box.item label="Русский (бета-версия)" name="Russian"/>
+		<combo_box.item label="Türkçe - турецкий (бета-версия)" name="Turkish"/>
+		<combo_box.item label="日本語 – японский (бета-версия)" name="(Japanese)"/>
+		<combo_box.item label="китайский, традиционное письмо - бета-версия" name="Traditional Chinese"/>
+	</combo_box>
+	<text name="language_textbox2">
+		(Требуется перезапуск)
+	</text>
+	<text name="maturity_desired_prompt">
+		Показывать контент:
+	</text>
+	<combo_box name="maturity_desired_combobox">
+		<combo_box.item label="Общий, умеренный, для взрослых" name="Desired_Adult"/>
+		<combo_box.item label="Общий и умеренный" name="Desired_Mature"/>
+		<combo_box.item label="Общий" name="Desired_PG"/>
+	</combo_box>
+	<text name="start_location_textbox">
+		Место старта:
+	</text>
+	<combo_box name="start_location_combo">
+		<combo_box.item label="Мое последнее место" name="MyLastLocation"/>
+		<combo_box.item label="Мой дом" name="MyHome"/>
+	</combo_box>
+	<check_box initial_value="истина" label="Показывать на экране входа" name="show_location_checkbox"/>
+	<text name="name_tags_textbox">
+		Теги имен:
+	</text>
+	<radio_group name="Name_Tag_Preference">
+		<radio_item label="Выкл." name="radio" value="0"/>
+		<radio_item label="Вкл." name="radio2" value="1"/>
+		<radio_item label="Временный показ" name="radio3" value="2"/>
+	</radio_group>
+	<check_box label="Мое имя" name="show_my_name_checkbox1"/>
+	<check_box label="Имена пользователей" name="show_slids" tool_tip="Показывать имя пользователя, например, bobsmith123"/>
+	<check_box label="Титулы групп" name="show_all_title_checkbox1" tool_tip="Показывать титулы групп, например, Officer или Member"/>
+	<check_box label="Подсветка друзей" name="show_friends" tool_tip="Подсвечивать теги имен ваших друзей"/>
+	<check_box label="Экранные имена" name="display_names_check" tool_tip="Показывать экранные имена в чате, IM, тегах имен и пр."/>
+	<text name="inworld_typing_rg_label">
+		Нажатие клавиш с буквами:
+	</text>
+	<radio_group name="inworld_typing_preference">
+		<radio_item label="Начинает локальный чат" name="radio_start_chat" value="1"/>
+		<radio_item label="Приводит к перемещению (т. е. WASD)" name="radio_move" value="0"/>
+	</radio_group>
+	<text name="title_afk_text">
+		Задержка режима «Отошел»:
+	</text>
+	<combo_box label="Задержка режима «Отошел»:" name="afk">
+		<combo_box.item label="2 мин" name="item0"/>
+		<combo_box.item label="5 мин" name="item1"/>
+		<combo_box.item label="10 мин" name="item2"/>
+		<combo_box.item label="30 мин" name="item3"/>
+		<combo_box.item label="никогда" name="item4"/>
+	</combo_box>
+	<text name="text_box3">
+		Ответ в режиме «Занят»:
+	</text>
+	<text_editor name="busy_response">
+		log_in_to_change
+	</text_editor>
+</panel>

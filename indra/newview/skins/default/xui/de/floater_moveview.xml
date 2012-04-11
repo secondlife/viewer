@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="move_floater">
+<floater name="move_floater" title="GEHEN / RENNEN / FLIEGEN">
 	<string name="walk_forward_tooltip">
 		Vorwärts gehen (Nach-oben-Pfeil oder W drücken)
 	</string>
@@ -58,14 +58,14 @@
 		Fliegen
 	</string>
 	<panel name="panel_actions">
-		<button label="" label_selected="" name="move up btn" tool_tip="Nach oben fliegen, „E&quot; drücken"/>
 		<button label="" label_selected="" name="turn left btn" tool_tip="Nach links (Links-Pfeil oder A drücken)"/>
 		<joystick_slide name="move left btn" tool_tip="Nach links gehen (Umschalt + Links-Pfeil oder A drücken)"/>
-		<button label="" label_selected="" name="move down btn" tool_tip="Nach unten fliegen, „C&quot; drücken"/>
 		<button label="" label_selected="" name="turn right btn" tool_tip="Nach rechts (Rechts-Pfeil oder D drücken)"/>
 		<joystick_slide name="move right btn" tool_tip="Nach rechts fliegen (Umschalt + Rechts-Pfeil oder D drücken)"/>
 		<joystick_turn name="forward btn" tool_tip="Vorwärts gehen (Nach-oben-Pfeil oder W drücken)"/>
 		<joystick_turn name="backward btn" tool_tip="Rückwärts gehen (Nach-Unten-Pfeil oder S drücken)"/>
+		<button label="" label_selected="" name="move up btn" tool_tip="Nach oben fliegen, „E&quot; drücken"/>
+		<button label="" label_selected="" name="move down btn" tool_tip="Nach unten fliegen, „C&quot; drücken"/>
 	</panel>
 	<panel name="panel_modes">
 		<button label="" name="mode_walk_btn" tool_tip="Gehen"/>

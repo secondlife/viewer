@@ -10,6 +10,7 @@
 -->
 
 <floater
+ open_positioning="none"
  legacy_header_height="0"
  header_height="0"
  name="toast"
@@ -20,7 +21,6 @@
  width="310"
  left="0"
  top="0"
- follows="right|bottom"
  background_visible="false"
  bg_opaque_image="Toast_Over"
  bg_alpha_image="Toast_Background"

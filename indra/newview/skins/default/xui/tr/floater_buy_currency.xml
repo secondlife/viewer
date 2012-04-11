@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy currency" title="L$ SATIN AL">
+	<floater.string name="buy_currency">
+		Yaklaşık [LOCALAMOUNT] karşılığında [LINDENS] L$ satın al
+	</floater.string>
+	<text name="info_need_more">
+		Daha fazla L$&apos;na ihtiyacınız var
+	</text>
+	<text name="contacting">
+		LindeX ile bağlantı kuruluyor...
+	</text>
+	<text name="info_buying">
+		L$ Satın Al
+	</text>
+	<text name="balance_label">
+		Sahip olduğum miktar:
+	</text>
+	<text name="balance_amount">
+		L$ [AMT]
+	</text>
+	<text name="currency_action">
+		Satın almak istediğim miktar:
+	</text>
+	<text name="currency_label">
+		L$
+	</text>
+	<line_editor label="L$" name="currency_amt">
+		1234
+	</line_editor>
+	<text name="buying_label">
+		Fiyatı:
+	</text>
+	<text name="currency_est">
+		yakl. [LOCALAMOUNT]
+	</text>
+	<text name="getting_data">
+		Hesaplanıyor...
+	</text>
+	<text name="buy_action">
+		[ACTION]
+	</text>
+	<text name="total_label">
+		Bakiye param şu kadar olacak:
+	</text>
+	<text name="total_amount">
+		L$ [AMT]
+	</text>
+	<text name="currency_links">
+		[http://www.secondlife.com/my/account/payment_method_management.php ödeme yöntemi] | [http://www.secondlife.com/my/account/currency.php para birimi]
+	</text>
+	<text name="exchange_rate_note">
+		En son döviz kurunu görmek için miktarı yeniden girin.
+	</text>
+	<text name="purchase_warning_repurchase">
+		Bu satın alma işlemini teyit ettiğinizde nesne değil, L$ satın alırsınız.
+	</text>
+	<text name="purchase_warning_notenough">
+		Yeterli L$ satın almıyorsunuz. Lütfen miktarı artırın.
+	</text>
+	<button label="Şimdi Satın Al" name="buy_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+	<text name="info_cannot_buy">
+		Satın Alınamıyor
+	</text>
+	<button label="Web&apos;e devam et" name="error_web"/>
+</floater>

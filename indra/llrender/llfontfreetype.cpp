@@ -55,7 +55,10 @@ FT_Library gFTLibrary = NULL;
 //static
 void LLFontManager::initClass()
 {
-	gFontManagerp = new LLFontManager;
+	if (!gFontManagerp) 
+	{
+		gFontManagerp = new LLFontManager;
+	}
 }
 
 //static
@@ -136,7 +139,7 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 		FT_Done_Face(mFTFace);
 		mFTFace = NULL;
 	}
-
+	
 	int error;
 
 	error = FT_New_Face( gFTLibrary,

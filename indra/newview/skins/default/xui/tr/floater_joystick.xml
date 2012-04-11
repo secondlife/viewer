@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Joystick" title="OYUN ÇUBUĞU YAPILANDIRMA">
+	<floater.string name="NoDevice">
+		cihaz tespit edilmedi
+	</floater.string>
+	<check_box label="Oyun Çub. Etkşt:" name="enable_joystick"/>
+	<spinner label="X Eks. Haritalama" name="JoystickAxis1"/>
+	<spinner label="Y Eks. Haritalama" name="JoystickAxis2"/>
+	<spinner label="Z Eks. Haritalama" name="JoystickAxis0"/>
+	<spinner label="Eğim Haritalama" name="JoystickAxis4"/>
+	<spinner label="Düşey Sapma Haritalama" name="JoystickAxis5"/>
+	<spinner label="Tilt Haritalama" name="JoystickAxis3"/>
+	<spinner label="Zum Haritalama" name="JoystickAxis6"/>
+	<check_box label="Doğrudan Zum" name="ZoomDirect"/>
+	<check_box label="3B İmleç" name="Cursor3D"/>
+	<check_box label="Otomatik Düzey" name="AutoLeveling"/>
+	<text name="Control Modes:">
+		Kontrol Modları:
+	</text>
+	<check_box label="Avatar" name="JoystickAvatarEnabled"/>
+	<check_box label="İnşa Et" name="JoystickBuildEnabled"/>
+	<check_box label="Flycam" name="JoystickFlycamEnabled"/>
+	<stat_view label="Oyun Çubuğu İzleme" name="axis_view">
+		<stat_bar label="Eksen 0" name="axis0"/>
+		<stat_bar label="Eksen 1" name="axis1"/>
+		<stat_bar label="Eksen 2" name="axis2"/>
+		<stat_bar label="Eksen 3" name="axis3"/>
+		<stat_bar label="Eksen 4" name="axis4"/>
+		<stat_bar label="Eksen 5" name="axis5"/>
+	</stat_view>
+	<text name="XScale">
+		X Ölçeği
+	</text>
+	<text name="YScale">
+		Y Ölçeği
+	</text>
+	<text name="ZScale">
+		Z Ölçeği
+	</text>
+	<text name="PitchScale">
+		Eğim Ölçeği
+	</text>
+	<text name="YawScale">
+		Düşey Sapma Ölçeği
+	</text>
+	<text name="RollScale">
+		Tilt  Ölçeği
+	</text>
+	<text name="XDeadZone">
+		X Ölü Bölge
+	</text>
+	<text name="YDeadZone">
+		Y Ölü Bölge
+	</text>
+	<text name="ZDeadZone">
+		Z Ölü Bölge
+	</text>
+	<text name="PitchDeadZone">
+		Eğim Ölü Bölge
+	</text>
+	<text name="YawDeadZone">
+		Düşey Sapma Ölü Bölge
+	</text>
+	<text name="RollDeadZone">
+		Tilt Ölü Bölge
+	</text>
+	<text name="Feathering">
+		Uçlarda Rötuş
+	</text>
+	<text name="ZoomScale2">
+		Zum Ölçeği
+	</text>
+	<text name="ZoomDeadZone">
+		Zum Ölü Bölge
+	</text>
+	<button label="UzayNavigatörü Varsayılanlar" name="SpaceNavigatorDefaults"/>
+	<button label="Tamam" label_selected="Tamam" name="ok_btn"/>
+	<button label="İptal" label_selected="İptal" name="cancel_btn"/>
+</floater>

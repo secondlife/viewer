@@ -149,7 +149,7 @@ void LLFilePickerThread::run()
 //static
 void LLFilePickerThread::initClass()
 {
-	sMutex = new LLMutex();
+	sMutex = new LLMutex(NULL);
 }
 
 //static
@@ -528,23 +528,7 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
 			
-			LLPointer<LLImageFormatted> formatted;
-			switch(LLFloaterSnapshot::ESnapshotFormat(gSavedSettings.getS32("SnapshotFormat")))
-			{
-			  case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
-				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
-				break;
-			  case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
-				formatted = new LLImagePNG;
-				break;
-			  case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP: 
-				formatted = new LLImageBMP;
-				break;
-			  default: 
-				llwarns << "Unknown Local Snapshot format" << llendl;
-				return true;
-			}
-
+			LLPointer<LLImageFormatted> formatted = new LLImagePNG;
 			formatted->enableOverSize() ;
 			formatted->encode(raw, 0);
 			formatted->disableOverSize() ;
@@ -816,7 +800,8 @@ LLUUID upload_new_resource(
 		uuid = tid.makeAssetID(gAgent.getSecureSessionID());
 		// copy this file into the vfs for upload
 		S32 file_size;
-		LLAPRFile infile(filename, LL_APR_RB, &file_size);
+		LLAPRFile infile ;
+		infile.open(filename, LL_APR_RB, NULL, &file_size);
 		if (infile.getFileHandle())
 		{
 			LLVFile file(gVFS, uuid, asset_type, LLVFile::WRITE);

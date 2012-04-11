@@ -529,7 +529,7 @@ void LLFloaterTools::refresh()
 	mPanelLandInfo->refresh();
 
 	// Refresh the advanced weights floater
-	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::findTypedInstance<LLFloaterObjectWeights>("object_weights");
 	if(object_weights_floater && object_weights_floater->getVisible())
 	{
 		object_weights_floater->refresh();
@@ -1409,9 +1409,7 @@ bool LLFloaterTools::deleteMediaConfirm(const LLSD& notification, const LLSD& re
 //
 void LLFloaterTools::clearMediaSettings()
 {
-	LLFloaterMediaSettings::getInstance();
 	LLFloaterMediaSettings::clearValues(false);
-
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -32,8 +32,9 @@
 #include "llrootview.h"
 //#include "llchatitemscontainerctrl.h"
 #include "lliconctrl.h"
-#include "llsidetray.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
+#include "lllogchat.h"
 #include "llresizebar.h"
 #include "llresizehandle.h"
 #include "llmenugl.h"
@@ -50,21 +51,18 @@
 
 #include "lldraghandle.h"
 
-#include "llbottomtray.h"
 #include "llnearbychatbar.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
 static const S32 RESIZE_BAR_THICKNESS = 3;
 
-LLNearbyChat::LLNearbyChat(const LLSD& key) 
-	: LLDockableFloater(NULL, false, false, key)
-	,mChatHistory(NULL)
-{
-	
-}
 
-LLNearbyChat::~LLNearbyChat()
+static LLRegisterPanelClassWrapper<LLNearbyChat> t_panel_nearby_chat("panel_nearby_chat");
+
+LLNearbyChat::LLNearbyChat(const LLNearbyChat::Params& p) 
+:	LLPanel(p),
+	mChatHistory(NULL)
 {
 }
 
@@ -86,52 +84,10 @@ BOOL LLNearbyChat::postBuild()
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
-	if(!LLDockableFloater::postBuild())
+	if(!LLPanel::postBuild())
 		return false;
-
-	if (getDockControl() == NULL)
-	{
-		setDockControl(new LLDockControl(
-			LLBottomTray::getInstance()->getNearbyChatBar(), this,
-			getDockTongue(), LLDockControl::TOP, boost::bind(&LLNearbyChat::getAllowedRect, this, _1)));
-	}
-
-        //fix for EXT-4621 
-        //chrome="true" prevents floater from stilling capture
-        setIsChrome(true);
-	//chrome="true" hides floater caption 
-	if (mDragHandle)
-		mDragHandle->setTitleVisible(TRUE);
-
+	
 	return true;
-}
-
-
-void    LLNearbyChat::applySavedVariables()
-{
-	if (mRectControl.size() > 1)
-	{
-		const LLRect& rect = LLFloater::getControlGroup()->getRect(mRectControl);
-		if(!rect.isEmpty() && rect.isValid())
-		{
-			reshape(rect.getWidth(), rect.getHeight());
-			setRect(rect);
-		}
-	}
-
-
-	if(!LLFloater::getControlGroup()->controlExists(mDocStateControl))
-	{
-		setDocked(true);
-	}
-	else
-	{
-		if (mDocStateControl.size() > 1)
-		{
-			bool dockState = LLFloater::getControlGroup()->getBOOL(mDocStateControl);
-			setDocked(dockState);
-		}
-	}
 }
 
 std::string appendTime()
@@ -203,7 +159,7 @@ void LLNearbyChat::onNearbySpeakers()
 {
 	LLSD param;
 	param["people_panel_tab_name"] = "nearby_panel";
-	LLSideTray::getInstance()->showPanel("panel_people",param);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_people", param);
 }
 
 
@@ -218,29 +174,25 @@ bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 	return false;
 }
 
+void LLNearbyChat::removeScreenChat()
+{
+	LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
+	if(chat_channel)
+	{
+		chat_channel->removeToastsFromChannel();
+	}
+}
+
 void	LLNearbyChat::setVisible(BOOL visible)
 {
 	if(visible)
 	{
-		LLNotificationsUI::LLScreenChannelBase* chat_channel = LLNotificationsUI::LLChannelManager::getInstance()->findChannelByID(LLUUID(gSavedSettings.getString("NearByChatChannelUUID")));
-		if(chat_channel)
-		{
-			chat_channel->removeToastsFromChannel();
-		}
+		removeScreenChat();
 	}
 
-	LLDockableFloater::setVisible(visible);
+	LLPanel::setVisible(visible);
 }
 
-void	LLNearbyChat::onOpen(const LLSD& key )
-{
-	LLDockableFloater::onOpen(key);
-}
-
-void LLNearbyChat::setRect	(const LLRect &rect)
-{
-	LLDockableFloater::setRect(rect);
-}
 
 void LLNearbyChat::getAllowedRect(LLRect& rect)
 {
@@ -263,7 +215,8 @@ void LLNearbyChat::updateChatHistoryStyle()
 //static 
 void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
-	LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
 	if(nearby_chat)
 		nearby_chat->updateChatHistoryStyle();
 }
@@ -339,7 +292,8 @@ void LLNearbyChat::loadHistory()
 //static
 LLNearbyChat* LLNearbyChat::getInstance()
 {
-	return LLFloaterReg::getTypedInstance<LLNearbyChat>("nearby_chat", LLSD());
+	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
+	return chat_bar->findChild<LLNearbyChat>("nearby_chat");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -367,7 +321,7 @@ BOOL	LLNearbyChat::handleMouseDown(S32 x, S32 y, MASK mask)
 	
 	if(mChatHistory)
 		mChatHistory->setFocus(TRUE);
-	return LLDockableFloater::handleMouseDown(x, y, mask);
+	return LLPanel::handleMouseDown(x, y, mask);
 }
 
 void LLNearbyChat::draw()
@@ -380,5 +334,5 @@ void LLNearbyChat::draw()
 		setTransparencyType(hasFocus() ? TT_ACTIVE : TT_INACTIVE);
 	}
 
-	LLDockableFloater::draw();
+	LLPanel::draw();
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Dış Görünümler" name="appearance panel">
+	<string name="No Outfit" value="Dış Görünüm Yok"/>
+	<string name="Unsaved Changes" value="Kaydedilmemiş değişiklikler"/>
+	<string name="Now Wearing" value="Şimdi giyiyor..."/>
+	<string name="Changing outfits" value="Dış görünümler değiştiriliyor"/>
+	<panel name="panel_currentlook">
+		<button label="E" name="editappearance_btn"/>
+		<button label="O" name="openoutfit_btn"/>
+		<text name="currentlook_status">
+			(Durum)
+		</text>
+		<text name="currentlook_name">
+			MOOSE gibi gerçekten Uzun bir Adla Dış Görünümüm
+		</text>
+		<button label="" name="edit_outfit_btn" tool_tip="Bu dış görünümü düzenle"/>
+	</panel>
+	<filter_editor label="Dış Görünümleri Filtrele" name="Filter"/>
+</panel>

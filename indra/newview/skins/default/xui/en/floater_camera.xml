@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
+ open_positioning="specified"
+ specified_left="458"
+ specified_bottom="80"
  legacy_header_height="18"
- can_dock="true"
  can_minimize="true"
- can_close="false"
- follows="bottom"
+ can_close="true"
  height="164"
  layout="topleft"
  name="camera_floater"
  help_topic="camera_floater"
- save_rect="true"
  save_visibility="true"
- save_dock_state="true"
  single_instance="true"
+ title="CAMERA CONTROLS"
+ chrome="true"
+ save_rect="true"
  width="228">
     <floater.string
      name="rotate_tooltip">
@@ -25,18 +27,6 @@
     <floater.string
      name="move_tooltip">
         Move Camera Up and Down, Left and Right
-    </floater.string>
-    <floater.string
-     name="camera_modes_title">
-        Camera modes
-    </floater.string>
-    <floater.string
-     name="pan_mode_title">
-       Orbit Zoom Pan
-    </floater.string>
-    <floater.string
-     name="presets_mode_title">
-        Preset Views
     </floater.string>
     <floater.string
      name="free_mode_title">
@@ -164,14 +154,10 @@
            <joystick_rotate
               follows="top|left"
               height="78"
-              image_selected="Cam_Rotate_In"
-              image_unselected="Cam_Rotate_Out"
               layout="topleft"
               left="7"
-              mouse_opaque="false"
               name="cam_rotate_stick"
               quadrant="left"
-              scale_image="false"
               sound_flags="3"
               visible="true"
               tool_tip="Orbit camera around focus"

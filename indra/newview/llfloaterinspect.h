@@ -29,6 +29,7 @@
 #ifndef LL_LLFLOATERINSPECT_H
 #define LL_LLFLOATERINSPECT_H
 
+#include "llavatarname.h"
 #include "llfloater.h"
 
 //class LLTool;
@@ -53,6 +54,9 @@ public:
 	void onClickCreatorProfile();
 	void onClickOwnerProfile();
 	void onSelectObject();
+
+	static void onGetAvNameCallback(const LLUUID& idCreator, const LLAvatarName& av_name, void* FloaterPtr);
+
 	LLScrollListCtrl* mObjectList;
 protected:
 	// protected members

@@ -26,6 +26,7 @@
 #include "linden_common.h"
 
 #include "llimagedxt.h"
+#include "llmemory.h"
 
 //static
 void LLImageDXT::checkMinWidthHeight(EFileFormat format, S32& width, S32& height)

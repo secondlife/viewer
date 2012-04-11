@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="МОЙ АВАТАР" name="script_limits_my_avatar_panel">
+	<text name="script_memory">
+		Память под скрипты аватара
+	</text>
+	<text name="loading_text">
+		Загрузка...
+	</text>
+	<scroll_list name="scripts_list">
+		<scroll_list.columns label="Размер (КБ)" name="size"/>
+		<scroll_list.columns label="URL-адреса" name="urls"/>
+		<scroll_list.columns label="Название объекта" name="name"/>
+		<scroll_list.columns label="Место" name="location"/>
+	</scroll_list>
+	<button label="Обновить список" name="refresh_list_btn"/>
+</panel>

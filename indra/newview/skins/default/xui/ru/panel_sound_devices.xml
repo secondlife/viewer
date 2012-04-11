@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel label="Настройки устройства" name="device_settings_panel">
+	<panel.string name="default_text">
+		По умолчанию
+	</panel.string>
+	<string name="name_no_device">
+		Нет устройства
+	</string>
+	<string name="name_default_system_device">
+		Системное устройство по умолчанию
+	</string>
+	<text name="Input">
+		Вход
+	</text>
+	<text name="Output">
+		Выход
+	</text>
+	<text name="My volume label">
+		Моя громкость:
+	</text>
+	<slider_bar initial_value="1.0" name="mic_volume_slider" tool_tip="Измените значение, используя ползунок"/>
+	<text name="wait_text">
+		Подождите
+	</text>
+</panel>

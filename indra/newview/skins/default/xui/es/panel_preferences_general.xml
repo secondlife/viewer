@@ -11,10 +11,12 @@
 		<combo_box.item label="Español - Beta" name="Spanish"/>
 		<combo_box.item label="Français (Francés) - Beta" name="French"/>
 		<combo_box.item label="Italiano - Beta" name="Italian"/>
-		<combo_box.item label="Nederlands (Neerlandés) - Beta" name="Dutch"/>
 		<combo_box.item label="Polski (Polaco) - Beta" name="Polish"/>
 		<combo_box.item label="Português (portugués) - Beta" name="Portugese"/>
+		<combo_box.item label="Русский (Ruso) - Beta" name="Russian"/>
+		<combo_box.item label="Türkçe (Turco) - Beta" name="Turkish"/>
 		<combo_box.item label="日本語 (Japonés) - Beta" name="(Japanese)"/>
+		<combo_box.item label="正體中文 (Chino tradicional) - Beta" name="Traditional Chinese"/>
 	</combo_box>
 	<text name="language_textbox2">
 		(requiere reiniciar)
@@ -49,7 +51,6 @@
 	<check_box label="Títulos de grupos" name="show_all_title_checkbox1" tool_tip="Mostrar títulos de grupos, como Jefe o Miembro"/>
 	<check_box label="Realzar amigos" name="show_friends" tool_tip="Realzar las etiquetas de los nombres de tus amigos"/>
 	<check_box label="Ver nombres mostrados" name="display_names_check" tool_tip="Comprobar para utilizar nombres mostrados en chat, MI, etiquetas de nombres, etc."/>
-	<check_box label="Permitir los consejos de la IU del visor" name="viewer_hints_check"/>
 	<text name="inworld_typing_rg_label">
 		Si pulsas las teclas de letras:
 	</text>

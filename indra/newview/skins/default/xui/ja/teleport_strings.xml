@@ -20,6 +20,10 @@
 			申し訳ございませんが、システムはテレポートの接続を完了できませんでした。
 もう少し後でやり直してください。
 		</message>
+		<message name="NoHelpIslandTP">
+			ウェルカムアイランドにテレポートで戻ることはできません。
+「Welcome Island Public」に行き再度チュートリアルを行ってください。
+		</message>
 		<message name="noaccess_tport">
 			残念ながら、そのテレポート目的地へのアクセスがありません。
 		</message>

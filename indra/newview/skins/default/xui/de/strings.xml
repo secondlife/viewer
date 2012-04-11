@@ -128,7 +128,7 @@
 		Die Zertifikatsunterschrift des Gridservers konnte nicht bestätigt werden.  Bitte kontaktieren Sie Ihren Grid-Administrator.
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Netzwerk Fehler: Eine Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
+		Netzwerkfehler: Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
 	<string name="LoginFailed">
 		Anmeldung fehlgeschlagen
@@ -1214,7 +1214,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
 	<string name="InventoryInboxNoItems">
-		Objekte, die auf dem Marktplatz gekauft wurden, werden hierher geliefert.
+		Wenn Sie einen Artikel kaufen oder anderweitig erhalten, erscheint er hier, damit Sie ihn in einen Ordner in Ihrem Inventar ziehen bzw. löschen können, wenn Sie ihn nicht behalten möchten.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1275,6 +1275,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Marketplace Error Internal Import">
 		Fehler: Bei diesem Artikel ist ein Problem aufgetreten. Versuchen Sie es später erneut.
+	</string>
+	<string name="Open landmarks">
+		Landmarken öffnen
 	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
@@ -1409,6 +1412,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="no_attachments">
 		Keine Anhänge getragen
 	</string>
+	<string name="Attachments remain">
+		Anhänge (noch [COUNT] Positionen frei)
+	</string>
 	<string name="Buy">
 		Kaufen
 	</string>
@@ -1534,6 +1540,12 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	</string>
 	<string name="Right Pec">
 		Rechts
+	</string>
+	<string name="Neck">
+		Hals
+	</string>
+	<string name="Avatar Center">
+		Avatar-Mitte
 	</string>
 	<string name="Invalid Attachment">
 		Ungültige Stelle für Anhang
@@ -4027,6 +4039,18 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	<string name="you_paid_ldollars_no_name">
 		Sie haben [REASON] [AMOUNT] L$ bezahlt.
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Sie haben [NAME] [AMOUNT] L$ [REASON] nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Sie haben [AMOUNT] L$ nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Sie haben [NAME] [AMOUNT] L$ nicht bezahlt.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Sie haben [AMOUNT] L$ [REASON] nicht bezahlt.
+	</string>
 	<string name="for item">
 		für [ITEM]
 	</string>
@@ -4254,7 +4278,7 @@ Missbrauchsbericht
 	<string name="Female - Wow">
 		Weiblich - Wow
 	</string>
-	<string name="/bow1">
+	<string name="/bow">
 		/verbeugen
 	</string>
 	<string name="/clap">
@@ -4436,6 +4460,12 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Externer Editor konnte nicht ausgeführt werden.
+	</string>
+	<string name="TranslationFailed">
+		Übersetzung fehlgeschlagen: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Fehler beim Parsen der Übersetzungsantwort.
 	</string>
 	<string name="Esc">
 		Esc
@@ -4766,5 +4796,197 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	</string>
 	<string name="ParticleHiding">
 		Partikel werden ausgeblendet
+	</string>
+	<string name="Command_AboutLand_Label">
+		Landinformationen
+	</string>
+	<string name="Command_Appearance_Label">
+		Aussehen
+	</string>
+	<string name="Command_Avatar_Label">
+		Avatar
+	</string>
+	<string name="Command_Build_Label">
+		Bauen
+	</string>
+	<string name="Command_Chat_Label">
+		Chat
+	</string>
+	<string name="Command_Compass_Label">
+		Kompass
+	</string>
+	<string name="Command_Destinations_Label">
+		Ziele
+	</string>
+	<string name="Command_Gestures_Label">
+		Gesten
+	</string>
+	<string name="Command_HowTo_Label">
+		Infos
+	</string>
+	<string name="Command_Inventory_Label">
+		Inventar
+	</string>
+	<string name="Command_Map_Label">
+		Karte
+	</string>
+	<string name="Command_Marketplace_Label">
+		Marktplatz
+	</string>
+	<string name="Command_MiniMap_Label">
+		Minikarte
+	</string>
+	<string name="Command_Move_Label">
+		Gehen / Rennen / Fliegen
+	</string>
+	<string name="Command_People_Label">
+		Leute
+	</string>
+	<string name="Command_Picks_Label">
+		Auswahlen
+	</string>
+	<string name="Command_Places_Label">
+		Orte
+	</string>
+	<string name="Command_Preferences_Label">
+		Einstellungen
+	</string>
+	<string name="Command_Profile_Label">
+		Profil
+	</string>
+	<string name="Command_Search_Label">
+		Suchen
+	</string>
+	<string name="Command_Snapshot_Label">
+		Foto
+	</string>
+	<string name="Command_Speak_Label">
+		Sprechen
+	</string>
+	<string name="Command_View_Label">
+		Kamerasteuerungen
+	</string>
+	<string name="Command_Voice_Label">
+		Voice-Einstellungen
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Informationen zu dem von Ihnen besuchten Land
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Avatar ändern
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Kompletten Avatar auswählen
+	</string>
+	<string name="Command_Build_Tooltip">
+		Objekte bauen und Terrain umformen
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Mit Leuten in der Nähe chatten
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Kompass
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		Ziele von Interesse
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Gesten für Ihren Avatar
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Wie führe ich gängige Aufgaben aus?
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Ihr Eigentum anzeigen und benutzen
+	</string>
+	<string name="Command_Map_Tooltip">
+		Weltkarte
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Einkaufen gehen
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Leute in der Nähe anzeigen
+	</string>
+	<string name="Command_Move_Tooltip">
+		Ihren Avatar bewegen
+	</string>
+	<string name="Command_People_Tooltip">
+		Freunde, Gruppen und Leute in der Nähe
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Orte, die in Ihrem Profil als Favoriten angezeigt werden sollen
+	</string>
+	<string name="Command_Places_Tooltip">
+		Von Ihnen gespeicherte Orte
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Einstellungen
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Ihr Profil bearbeiten oder anzeigen
+	</string>
+	<string name="Command_Search_Tooltip">
+		Orte, Veranstaltungen, Leute finden
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Foto aufnehmen
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Über Ihr Mikrofon mit Leuten in der Nähe sprechen
+	</string>
+	<string name="Command_View_Tooltip">
+		Kamerawinkel ändern
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Lautstärkeregler für Anrufe und Leute in Ihrer Nähe in SL
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		gegenwärtig in der unteren Symbolleiste
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		gegenwärtig in der linken Symbolleiste
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		gegenwärtig in der rechten Symbolleiste
+	</string>
+	<string name="Retain%">
+		% zurückbehalten
+	</string>
+	<string name="Detail">
+		Details
+	</string>
+	<string name="Better Detail">
+		Bessere Details
+	</string>
+	<string name="Surface">
+		Oberfläche
+	</string>
+	<string name="Solid">
+		Fest
+	</string>
+	<string name="Wrap">
+		Wickeln
+	</string>
+	<string name="Preview">
+		Vorschau
+	</string>
+	<string name="Normal">
+		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Sehr niedrig
+	</string>
+	<string name="snapshot_quality_low">
+		Niedrig
+	</string>
+	<string name="snapshot_quality_medium">
+		Mittel
+	</string>
+	<string name="snapshot_quality_high">
+		Hoch
+	</string>
+	<string name="snapshot_quality_very_high">
+		Sehr hoch
 	</string>
 </strings>

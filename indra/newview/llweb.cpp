@@ -34,7 +34,6 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
-#include "llfloatermediabrowser.h"
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
 #include "lllogininstance.h"
@@ -78,32 +77,15 @@ void LLWeb::initClass()
 }
 
 
-// static
-void LLWeb::loadURL(const std::string& url, const std::string& target, const std::string& uuid)
-{
-	loadWebURL(url, target, uuid);
-	//if(target == "_internal")
-	//{
-	//	// Force load in the internal browser, as if with a blank target.
-	//	loadURLInternal(url, "", uuid);
-	//}
-	//else if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
-	//{
-	//	loadURLExternal(url);
-	//}
-	//else
-	//{
-	//	loadURLInternal(url, target, uuid);
-	//}
-}
+
 
 // static
-void LLWeb::loadWebURL(const std::string& url, const std::string& target, const std::string& uuid)
+void LLWeb::loadURL(const std::string& url, const std::string& target, const std::string& uuid)
 {
 	if(target == "_internal")
 	{
 		// Force load in the internal browser, as if with a blank target.
-		loadWebURLInternal(url, "", uuid);
+		loadURLInternal(url, "", uuid);
 	}
 	else if (gSavedSettings.getBOOL("UseExternalBrowser") || (target == "_external"))
 	{
@@ -111,21 +93,17 @@ void LLWeb::loadWebURL(const std::string& url, const std::string& target, const 
 	}
 	else
 	{
-		loadWebURLInternal(url, target, uuid);
+		loadURLInternal(url, target, uuid);
 	}
 }
 
 // static
+// Explicitly open a Web URL using the Web content floater
 void LLWeb::loadURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
 {
-	LLFloaterMediaBrowser::create(url, target, uuid);
-}
-
-// static
-// Explicitly open a Web URL using the Web content floater
-void LLWeb::loadWebURLInternal(const std::string &url, const std::string& target, const std::string& uuid)
-{
-	LLFloaterWebContent::create(LLFloaterWebContent::Params().url(url).target(target).id(uuid));
+	LLFloaterWebContent::Params p;
+	p.url(url).target(target).id(uuid);
+	LLFloaterReg::showInstance("web_content", p);
 }
 
 // static
@@ -208,6 +186,7 @@ std::string LLWeb::expandURLSubstitutions(const std::string &url,
 	substitution["VERSION_BUILD"] = LLVersionInfo::getBuild();
 	substitution["CHANNEL"] = LLVersionInfo::getChannel();
 	substitution["GRID"] = LLGridManager::getInstance()->getGridLabel();
+	substitution["GRID_LOWERCASE"] = utf8str_tolower(LLGridManager::getInstance()->getGridLabel());
 	substitution["OS"] = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 	substitution["SESSION_ID"] = gAgent.getSessionID();
 	substitution["FIRST_LOGIN"] = gAgent.isFirstLogin();

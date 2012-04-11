@@ -55,7 +55,7 @@
                 Mixed Sale
             </panel.string>
     <button
-     follows="top|right"
+     follows="top|left"
      height="24"
      image_hover_unselected="BackButton_Over"
      image_pressed="BackButton_Press"

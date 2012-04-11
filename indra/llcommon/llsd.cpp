@@ -24,6 +24,9 @@
  * $/LicenseInfo$
  */
 
+// Must turn on conditional declarations in header file so definitions end up
+// with proper linkage.
+#define LLSD_DEBUG_INFO
 #include "linden_common.h"
 #include "llsd.h"
 
@@ -31,6 +34,7 @@
 #include "../llmath/llmath.h"
 #include "llformat.h"
 #include "llsdserialize.h"
+#include "stringize.h"
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 #define NAME_UNNAMED_NAMESPACE
@@ -50,6 +54,18 @@ namespace
 using namespace LLSDUnnamedNamespace;
 #endif
 
+namespace llsd
+{
+
+// statics
+S32	sLLSDAllocationCount = 0;
+S32 sLLSDNetObjects = 0;
+
+} // namespace llsd
+
+#define	ALLOC_LLSD_OBJECT			{ llsd::sLLSDNetObjects++;	llsd::sLLSDAllocationCount++;	}
+#define	FREE_LLSD_OBJECT			{ llsd::sLLSDNetObjects--;									}
+
 class LLSD::Impl
 	/**< This class is the abstract base class of the implementation of LLSD
 		 It provides the reference counting implementation, and the default
@@ -58,13 +74,10 @@ class LLSD::Impl
 		
 	*/
 {
-private:
-	U32 mUseCount;
-	
 protected:
 	Impl();
 
-	enum StaticAllocationMarker { STATIC };
+	enum StaticAllocationMarker { STATIC_USAGE_COUNT = 0xFFFFFFFF };
 	Impl(StaticAllocationMarker);
 		///< This constructor is used for static objects and causes the
 		//   suppresses adjusting the debugging counters when they are
@@ -72,8 +85,10 @@ protected:
 		
 	virtual ~Impl();
 	
-	bool shared() const							{ return mUseCount > 1; }
+	bool shared() const							{ return (mUseCount > 1) && (mUseCount != STATIC_USAGE_COUNT); }
 	
+	U32 mUseCount;
+
 public:
 	static void reset(Impl*& var, Impl* impl);
 		///< safely set var to refer to the new impl (possibly shared)
@@ -127,6 +142,18 @@ public:
 	virtual LLSD::map_const_iterator endMap() const { static const std::map<String, LLSD> empty; return empty.end(); }
 	virtual LLSD::array_const_iterator beginArray() const { return endArray(); }
 	virtual LLSD::array_const_iterator endArray() const { static const std::vector<LLSD> empty; return empty.end(); }
+
+	virtual void dumpStats() const;
+	virtual void calcStats(S32 type_counts[], S32 share_counts[]) const;
+	// Container subclasses contain LLSD objects, rather than directly
+	// containing Impl objects. This helper forwards through LLSD.
+	void calcStats(const LLSD& llsd, S32 type_counts[], S32 share_counts[]) const
+	{
+		safe(llsd.impl).calcStats(type_counts, share_counts);
+	}
+
+	static const Impl& getImpl(const LLSD& llsd)	{ return safe(llsd.impl); }
+	static Impl& getImpl(LLSD& llsd)				{ return safe(llsd.impl); }
 
 	static const LLSD& undef();
 	
@@ -360,6 +387,9 @@ namespace
 		LLSD::map_iterator endMap() { return mData.end(); }
 		virtual LLSD::map_const_iterator beginMap() const { return mData.begin(); }
 		virtual LLSD::map_const_iterator endMap() const { return mData.end(); }
+
+		virtual void dumpStats() const;
+		virtual void calcStats(S32 type_counts[], S32 share_counts[]) const;
 	};
 	
 	ImplMap& ImplMap::makeMap(LLSD::Impl*& var)
@@ -414,6 +444,34 @@ namespace
 		return i->second;
 	}
 
+	void ImplMap::dumpStats() const
+	{
+		std::cout << "Map size: " << mData.size() << std::endl;
+
+		std::cout << "LLSD Net Objects: " << llsd::sLLSDNetObjects << std::endl;
+		std::cout << "LLSD allocations: " << llsd::sLLSDAllocationCount << std::endl;
+
+		std::cout << "LLSD::Impl Net Objects: " << sOutstandingCount << std::endl;
+		std::cout << "LLSD::Impl allocations: " << sAllocationCount << std::endl;
+
+		Impl::dumpStats();
+	}
+
+	void ImplMap::calcStats(S32 type_counts[], S32 share_counts[]) const
+	{
+		LLSD::map_const_iterator iter = beginMap();
+		while (iter != endMap())
+		{
+			//std::cout << "  " << (*iter).first << ": " << (*iter).second << std::endl;
+			Impl::calcStats((*iter).second, type_counts, share_counts);
+			iter++;
+		}
+
+		// Add in the values for this map
+		Impl::calcStats(type_counts, share_counts);
+	}
+
+
 	class ImplArray : public LLSD::Impl
 	{
 	private:
@@ -449,6 +507,8 @@ namespace
 		LLSD::array_iterator endArray() { return mData.end(); }
 		virtual LLSD::array_const_iterator beginArray() const { return mData.begin(); }
 		virtual LLSD::array_const_iterator endArray() const { return mData.end(); }
+
+		virtual void calcStats(S32 type_counts[], S32 share_counts[]) const;
 	};
 
 	ImplArray& ImplArray::makeArray(Impl*& var)
@@ -490,12 +550,13 @@ namespace
 	
 	void ImplArray::insert(LLSD::Integer i, const LLSD& v)
 	{
-		if (i < 0) {
+		if (i < 0) 
+		{
 			return;
 		}
 		DataVector::size_type index = i;
 		
-		if (index >= mData.size())
+		if (index >= mData.size())	// tbd - sanity check limit for index ?
 		{
 			mData.resize(index + 1);
 		}
@@ -543,6 +604,19 @@ namespace
 		
 		return mData[index];
 	}
+
+	void ImplArray::calcStats(S32 type_counts[], S32 share_counts[]) const
+	{
+		LLSD::array_const_iterator iter = beginArray();
+		while (iter != endArray())
+		{	// Add values for all items held in the array
+			Impl::calcStats((*iter), type_counts, share_counts);
+			iter++;
+		}
+
+		// Add in the values for this array
+		Impl::calcStats(type_counts, share_counts);
+	}
 }
 
 LLSD::Impl::Impl()
@@ -564,8 +638,11 @@ LLSD::Impl::~Impl()
 
 void LLSD::Impl::reset(Impl*& var, Impl* impl)
 {
-	if (impl) ++impl->mUseCount;
-	if (var  &&  --var->mUseCount == 0)
+	if (impl && impl->mUseCount != STATIC_USAGE_COUNT) 
+	{
+		++impl->mUseCount;
+	}
+	if (var  &&  var->mUseCount != STATIC_USAGE_COUNT && --var->mUseCount == 0)
 	{
 		delete var;
 	}
@@ -574,13 +651,13 @@ void LLSD::Impl::reset(Impl*& var, Impl* impl)
 
 LLSD::Impl& LLSD::Impl::safe(Impl* impl)
 {
-	static Impl theUndefined(STATIC);
+	static Impl theUndefined(STATIC_USAGE_COUNT);
 	return impl ? *impl : theUndefined;
 }
 
 const LLSD::Impl& LLSD::Impl::safe(const Impl* impl)
 {
-	static Impl theUndefined(STATIC);
+	static Impl theUndefined(STATIC_USAGE_COUNT);
 	return impl ? *impl : theUndefined;
 }
 
@@ -656,6 +733,43 @@ const LLSD& LLSD::Impl::undef()
 	return immutableUndefined;
 }
 
+void LLSD::Impl::dumpStats() const
+{
+	S32 type_counts[LLSD::TypeLLSDNumTypes + 1];
+	memset(&type_counts, 0, sizeof(type_counts));
+
+	S32 share_counts[LLSD::TypeLLSDNumTypes + 1];
+	memset(&share_counts, 0, sizeof(share_counts));
+
+	// Add info from all the values this object has
+	calcStats(type_counts, share_counts);
+
+	S32 type_index = LLSD::TypeLLSDTypeBegin;
+	while (type_index != LLSD::TypeLLSDTypeEnd)
+	{
+		std::cout << LLSD::typeString((LLSD::Type)type_index) << " type "
+			<< type_counts[type_index] << " objects, "
+			<< share_counts[type_index] << " shared"
+			<< std::endl;
+		type_index++;
+	}
+}
+
+
+void LLSD::Impl::calcStats(S32 type_counts[], S32 share_counts[]) const
+{
+	S32 tp = S32(type());
+	if (0 <= tp && tp < LLSD::TypeLLSDNumTypes)
+	{
+		type_counts[tp]++;	
+		if (shared())
+		{
+			share_counts[tp]++;
+		}
+	}
+}
+
+
 U32 LLSD::Impl::sAllocationCount = 0;
 U32 LLSD::Impl::sOutstandingCount = 0;
 
@@ -681,10 +795,10 @@ namespace
 }
 
 
-LLSD::LLSD()							: impl(0)	{ }
-LLSD::~LLSD()							{ Impl::reset(impl, 0); }
+LLSD::LLSD() : impl(0)					{ ALLOC_LLSD_OBJECT; }
+LLSD::~LLSD()							{ FREE_LLSD_OBJECT; Impl::reset(impl, 0); }
 
-LLSD::LLSD(const LLSD& other)			: impl(0) { assign(other); }
+LLSD::LLSD(const LLSD& other) : impl(0) { ALLOC_LLSD_OBJECT;  assign(other); }
 void LLSD::assign(const LLSD& other)	{ Impl::assign(impl, other.impl); }
 
 
@@ -692,18 +806,18 @@ void LLSD::clear()						{ Impl::assignUndefined(impl); }
 
 LLSD::Type LLSD::type() const			{ return safe(impl).type(); }
 
-// Scaler Constructors
-LLSD::LLSD(Boolean v)					: impl(0) { assign(v); }
-LLSD::LLSD(Integer v)					: impl(0) { assign(v); }
-LLSD::LLSD(Real v)						: impl(0) { assign(v); }
-LLSD::LLSD(const UUID& v)				: impl(0) { assign(v); }
-LLSD::LLSD(const String& v)				: impl(0) { assign(v); }
-LLSD::LLSD(const Date& v)				: impl(0) { assign(v); }
-LLSD::LLSD(const URI& v)				: impl(0) { assign(v); }
-LLSD::LLSD(const Binary& v)				: impl(0) { assign(v); }
+// Scalar Constructors
+LLSD::LLSD(Boolean v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(Integer v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(Real v) : impl(0)			{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(const UUID& v) : impl(0)		{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(const String& v) : impl(0)	{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(const Date& v) : impl(0)		{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(const URI& v) : impl(0)		{ ALLOC_LLSD_OBJECT;	assign(v); }
+LLSD::LLSD(const Binary& v) : impl(0)	{ ALLOC_LLSD_OBJECT;	assign(v); }
 
 // Convenience Constructors
-LLSD::LLSD(F32 v)						: impl(0) { assign((Real)v); }
+LLSD::LLSD(F32 v) : impl(0)				{ ALLOC_LLSD_OBJECT;	assign((Real)v); }
 
 // Scalar Assignment
 void LLSD::assign(Boolean v)			{ safe(impl).assign(impl, v); }
@@ -726,7 +840,7 @@ LLSD::URI		LLSD::asURI() const		{ return safe(impl).asURI(); }
 LLSD::Binary	LLSD::asBinary() const	{ return safe(impl).asBinary(); }
 
 // const char * helpers
-LLSD::LLSD(const char* v)				: impl(0) { assign(v); }
+LLSD::LLSD(const char* v) : impl(0)		{ ALLOC_LLSD_OBJECT;	assign(v); }
 void LLSD::assign(const char* v)
 {
 	if(v) assign(std::string(v));
@@ -784,9 +898,6 @@ LLSD&		LLSD::operator[](Integer i)
 const LLSD& LLSD::operator[](Integer i) const
 										{ return safe(impl).ref(i); }
 
-U32 LLSD::allocationCount()				{ return Impl::sAllocationCount; }
-U32 LLSD::outstandingCount()			{ return Impl::sOutstandingCount; }
-
 static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 {
 	// sStorage is used to hold the string representation of the llsd last
@@ -801,15 +912,9 @@ static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 	{
 		std::ostringstream out;
 		if (useXMLFormat)
-		{
-			LLSDXMLStreamer xml_streamer(llsd);
-			out << xml_streamer;
-		}
+			out << LLSDXMLStreamer(llsd);
 		else
-		{
-			LLSDNotationStreamer notation_streamer(llsd);
-			out << notation_streamer;
-		}
+			out << LLSDNotationStreamer(llsd);
 		out_string = out.str();
 	}
 	int len = out_string.length();
@@ -840,3 +945,38 @@ LLSD::array_iterator		LLSD::beginArray()		{ return makeArray(impl).beginArray();
 LLSD::array_iterator		LLSD::endArray()		{ return makeArray(impl).endArray(); }
 LLSD::array_const_iterator	LLSD::beginArray() const{ return safe(impl).beginArray(); }
 LLSD::array_const_iterator	LLSD::endArray() const	{ return safe(impl).endArray(); }
+
+namespace llsd
+{
+
+U32 allocationCount()								{ return LLSD::Impl::sAllocationCount; }
+U32 outstandingCount()								{ return LLSD::Impl::sOutstandingCount; }
+
+// Diagnostic dump of contents in an LLSD object
+void dumpStats(const LLSD& llsd)					{ LLSD::Impl::getImpl(llsd).dumpStats(); }
+
+} // namespace llsd
+
+// static
+std::string		LLSD::typeString(Type type)
+{
+	static const char * sTypeNameArray[] = {
+		"Undefined",
+		"Boolean",
+		"Integer",
+		"Real",
+		"String",
+		"UUID",
+		"Date",
+		"URI",
+		"Binary",
+		"Map",
+		"Array"
+	};
+
+	if (0 <= type && type < LL_ARRAY_SIZE(sTypeNameArray))
+	{
+		return sTypeNameArray[type];
+	}
+	return STRINGIZE("** invalid type value " << type);
+}

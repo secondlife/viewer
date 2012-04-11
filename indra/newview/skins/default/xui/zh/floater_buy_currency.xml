@@ -46,7 +46,7 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+		[http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency]
 	</text>
 	<text name="exchange_rate_note">
 		Re-enter amount to see the latest exchange rate.
@@ -55,7 +55,7 @@
 		Confirming this purchase only buys L$, not the object.
 	</text>
 	<text name="purchase_warning_notenough">
-		You aren&apos;t buying enough L$. Please increase the amount.
+		你並未購買足夠的林登幣，請先添加一些數量。
 	</text>
 	<button label="立即購買" name="buy_btn"/>
 	<button label="取消" name="cancel_btn"/>

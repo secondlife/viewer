@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Model Preview" title="Carica modello">
-	<string name="status_idle">
-		Pausa
-	</string>
+<floater name="Model Preview" title="CARICAMENTO MODELLO">
+	<string name="status_idle"/>
 	<string name="status_parse_error">
-		Problema nell&apos;elaborazione DAE - vedi il registro per informazioni al riguardo.
+		Errore: Errore elaborazione Dae - vedere il registro per informazioni dettagliate.
+	</string>
+	<string name="status_material_mismatch">
+		Errore: il materiale del modello non è un sottoinsieme del modello di riferimento.
 	</string>
 	<string name="status_reading_file">
 		Caricamento in corso...
@@ -51,6 +52,9 @@
 	<string name="mesh_status_missing_lod">
 		Livello di dettaglio minimo mancante.
 	</string>
+	<string name="mesh_status_invalid_material_list">
+		I materiali per il livello di dettaglio non sono un sottoinsieme  del modello di riferimento.
+	</string>
 	<string name="layer_all">
 		Tutto
 	</string>
@@ -63,188 +67,211 @@
 	<string name="tbd">
 		Da definire
 	</string>
-	<text name="name_label">
-		Nome:
-	</text>
+	<panel name="left_panel">
+		<panel name="model_name_representation_panel">
+			<text name="name_label">
+				Nome modello:
+			</text>
+			<text name="model_category_label">
+				Questo modello rappresenta...
+			</text>
+			<combo_box name="model_category_combo">
+				<combo_item label="Seleziona uno..." name="Choose one"/>
+				<combo_item label="Forma avatar" name="Avatar shape"/>
+				<combo_item label="Elemento collegato all&apos;avatar" name="Avatar attachment"/>
+				<combo_item label="Oggetto mobile (veicolo, animale)" name="Moving object (vehicle, animal)"/>
+				<combo_item label="Componente edificio" name="Building Component"/>
+				<combo_item label="Grande, immobile, ecc." name="Large, non moving etc"/>
+				<combo_item label="Piccolo, immobile, ecc." name="Smaller, non-moving etc"/>
+				<combo_item label="Nessuno di questi" name="Not really any of these"/>
+			</combo_box>
+		</panel>
+		<tab_container name="import_tab">
+			<panel label="Livello di dettaglio" name="lod_panel" title="Livello di dettaglio">
+				<text initial_value="Fonte" name="source" value="Fonte"/>
+				<text initial_value="Triangoli" name="triangles" value="Triangoli"/>
+				<text initial_value="Vertici" name="vertices" value="Vertici"/>
+				<text initial_value="Alto" name="high_label" value="Alto"/>
+				<button label="Sfoglia..." name="lod_browse_high"/>
+				<text initial_value="0" name="high_triangles" value="0"/>
+				<text initial_value="0" name="high_vertices" value="0"/>
+				<text initial_value="Medio" name="medium_label" value="Medio"/>
+				<button label="Sfoglia..." name="lod_browse_medium"/>
+				<text initial_value="0" name="medium_triangles" value="0"/>
+				<text initial_value="0" name="medium_vertices" value="0"/>
+				<text initial_value="Basso" name="low_label" value="Basso"/>
+				<button label="Sfoglia..." name="lod_browse_low"/>
+				<text initial_value="0" name="low_triangles" value="0"/>
+				<text initial_value="0" name="low_vertices" value="0"/>
+				<text initial_value="Bassissimo" name="lowest_label" value="Bassissimo"/>
+				<button label="Sfoglia..." name="lod_browse_lowest"/>
+				<text initial_value="0" name="lowest_triangles" value="0"/>
+				<text initial_value="0" name="lowest_vertices" value="0"/>
+				<check_box label="Genera normali" name="gen_normals"/>
+				<text initial_value="Angolo piega:" name="crease_label" value="Angolo piega:"/>
+				<spinner name="crease_angle" value="75"/>
+			</panel>
+			<panel label="Fisica" name="physics_panel">
+				<panel name="physics geometry">
+					<text name="first_step_name">
+						Passaggio 1: Livello di dettaglio
+					</text>
+					<combo_box name="physics_lod_combo" tool_tip="Livello di dettaglio per forma fisica">
+						<combo_item name="choose_one">
+							Seleziona uno...
+						</combo_item>
+						<combo_item name="physics_high">
+							Alto
+						</combo_item>
+						<combo_item name="physics_medium">
+							Medio
+						</combo_item>
+						<combo_item name="physics_low">
+							Basso
+						</combo_item>
+						<combo_item name="physics_lowest">
+							Bassissimo
+						</combo_item>
+						<combo_item name="load_from_file">
+							Da file
+						</combo_item>
+					</combo_box>
+					<button label="Sfoglia..." name="physics_browse"/>
+				</panel>
+				<panel name="physics analysis">
+					<text name="method_label">
+						Passaggio 2: Analizza
+					</text>
+					<text name="analysis_method_label">
+						Metodo:
+					</text>
+					<text name="quality_label">
+						Qualità:
+					</text>
+					<text name="smooth_method_label">
+						Liscia:
+					</text>
+					<check_box label="Chiudi fori" name="Close Holes (Slow)"/>
+					<button label="Analizza" name="Decompose"/>
+					<button label="Annulla" name="decompose_cancel"/>
+				</panel>
+				<panel name="physics simplification">
+					<text name="second_step_label">
+						Passaggio 3: Semplifica
+					</text>
+					<text name="simp_method_header">
+						Metodo:
+					</text>
+					<text name="pass_method_header">
+						Passaggi:
+					</text>
+					<text name="Detail Scale label">
+						Scala dettagli:
+					</text>
+					<text name="Retain%_label">
+						Mantieni:
+					</text>
+					<combo_box name="Combine Quality" value="1"/>
+					<button label="Semplifica" name="Simplify"/>
+					<button label="Annulla" name="simplify_cancel"/>
+				</panel>
+				<panel name="physics info">
+					<text name="results_text">
+						Risultati:
+					</text>
+					<text name="physics_triangles">
+						Triangoli: [TRIANGLES],
+					</text>
+					<text name="physics_points">
+						Vertici: [POINTS],
+					</text>
+					<text name="physics_hulls">
+						Scafi: [HULLS]
+					</text>
+				</panel>
+			</panel>
+			<panel label="Carica opzioni" name="modifiers_panel">
+				<text name="scale_label">
+					Scala (1=nessuna scala):
+				</text>
+				<spinner name="import_scale" value="1.0"/>
+				<text name="dimensions_label">
+					Dimensioni:
+				</text>
+				<text name="import_dimensions">
+					[X] X [Y] X [Z]
+				</text>
+				<check_box label="Includi texture" name="upload_textures"/>
+				<text name="include_label">
+					Solo per modelli avatar:
+				</text>
+				<check_box label="Includi peso pelle" name="upload_skin"/>
+				<check_box label="Includi posizioni giunti" name="upload_joints"/>
+				<text name="pelvis_offset_label">
+					Spostamento Z (sposta l&apos;avatar in alto o in basso):
+				</text>
+				<spinner name="pelvis_offset" value="0.0"/>
+			</panel>
+		</tab_container>
+		<panel name="weights_and_warning_panel">
+			<button label="Calcolare pesi e tariffa" name="calculate_btn" tool_tip="Calcolare pesi e tariffa"/>
+			<button label="Annulla" name="cancel_btn"/>
+			<button label="Carica" name="ok_btn" tool_tip="Carica al simulatore"/>
+			<button label="Annulla impostazioni e ripristina modulo" name="reset_btn"/>
+			<text name="upload_fee">
+				Costo caricamento: L$ [FEE]
+			</text>
+			<text name="prim_weight">
+				Impatto sul terreno: [EQ]
+			</text>
+			<text name="download_weight">
+				Download: [ST]
+			</text>
+			<text name="physics_weight">
+				Fisica: [PH]
+			</text>
+			<text name="server_weight">
+				Server: [SIM]
+			</text>
+			<text name="warning_title">
+				NOTA:
+			</text>
+			<text name="warning_message">
+				Non hai l&apos;autorizzazione per caricare i modelli di reticolo. [[VURL] Scopri come] ottenere la certificazione.
+			</text>
+			<text name="status">
+				[STATUS]
+			</text>
+		</panel>
+	</panel>
 	<text name="lod_label">
 		Anteprima:
 	</text>
-	<combo_box name="preview_lod_combo" tool_tip="Livello di dettaglio per anteprima rendering">
-		<combo_item name="high">
-			Livello di dettaglio: Alto
-		</combo_item>
-		<combo_item name="medium">
-			Livello di dettaglio: Medio
-		</combo_item>
-		<combo_item name="low">
-			Livello di dettaglio: Basso
-		</combo_item>
-		<combo_item name="lowest">
-			Livello di dettaglio: Bassissimo
-		</combo_item>
-	</combo_box>
-	<text name="warning_title">
-		ATTENZIONE:
-	</text>
-	<text name="warning_message">
-		Non sarà possibile completare il caricamento finale di questo modello sui server di Second Life. [[VURL] Scopri come] ricevere l&apos;autorizzazione per il caricamento dei modelli con reticolo.
-	</text>
-	<text name="weights_text">
-		Download:
-Fisica:
-Server:
-
-Prim equivalenti:
-	</text>
-	<text name="weights">
-		[ST]
-[PH]
-[SIM]
-
-[EQ]
-	</text>
-	<tab_container name="import_tab">
-		<panel label="Livello di dettaglio" name="lod_panel">
-			<text name="lod_table_header">
-				Seleziona livello di dettaglio:
-			</text>
-			<text name="high_label" value="Alto"/>
-			<text name="high_triangles" value="0"/>
-			<text name="high_vertices" value="0"/>
-			<text name="medium_label" value="Medio"/>
-			<text name="medium_triangles" value="0"/>
-			<text name="medium_vertices" value="0"/>
-			<text name="low_label" value="Basso"/>
-			<text name="low_triangles" value="0"/>
-			<text name="low_vertices" value="0"/>
-			<text name="lowest_label" value="Bassissimo"/>
-			<text name="lowest_triangles" value="0"/>
-			<text name="lowest_vertices" value="0"/>
-			<text name="lod_table_footer">
-				Livello di dettaglio: [DETAIL]
-			</text>
-			<radio_group name="lod_file_or_limit" value="lod_from_file">
-				<radio_item label="Carica da file" name="lod_from_file"/>
-				<radio_item label="Genera automaticamente" name="lod_auto_generate"/>
-				<radio_item label="Nessuno" name="lod_none"/>
-			</radio_group>
-			<button label="Sfoglia..." name="lod_browse"/>
-			<combo_box name="lod_mode">
-				<combo_item name="triangle_limit">
-					Limite triangoli
-				</combo_item>
-				<combo_item name="error_threshold">
-					Limite errori
-				</combo_item>
-			</combo_box>
-			<text name="build_operator_text">
-				Operatore costruzione:
-			</text>
-			<text name="queue_mode_text">
-				Modalità di coda:
-			</text>
-			<combo_box name="build_operator">
-				<combo_item name="edge_collapse">
-					Collassa bordo
-				</combo_item>
-				<combo_item name="half_edge_collapse">
-					Collassa mezzo bordo
-				</combo_item>
-			</combo_box>
-			<combo_box name="queue_mode">
-				<combo_item name="greedy">
-					Ingordo
-				</combo_item>
-				<combo_item name="lazy">
-					Pigro
-				</combo_item>
-				<combo_item name="independent">
-					Indipendente
-				</combo_item>
-			</combo_box>
-			<text name="border_mode_text">
-				Modalità bordo:
-			</text>
-			<text name="share_tolderance_text">
-				Tolleranza condivisione:
-			</text>
-			<combo_box name="border_mode">
-				<combo_item name="border_unlock">
-					Sblocca
-				</combo_item>
-				<combo_item name="border_lock">
-					Blocca
-				</combo_item>
-			</combo_box>
-			<text name="crease_label">
-				Angolo piega:
-			</text>
-			<spinner name="crease_angle" value="75"/>
-		</panel>
-		<panel label="Fisica" name="physics_panel">
-			<panel name="physics geometry">
-				<radio_group name="physics_load_radio" value="physics_load_from_file">
-					<radio_item label="File:" name="physics_load_from_file"/>
-					<radio_item label="Usa livello di dettaglio:" name="physics_use_lod"/>
-				</radio_group>
-				<combo_box name="physics_lod_combo" tool_tip="Livello di dettaglio per forma fisica">
-					<combo_item name="physics_lowest">
-						Bassissimo
-					</combo_item>
-					<combo_item name="physics_low">
-						Basso
-					</combo_item>
-					<combo_item name="physics_medium">
-						Medio
-					</combo_item>
-					<combo_item name="physics_high">
-						Alto
-					</combo_item>
-				</combo_box>
-				<button label="Sfoglia..." name="physics_browse"/>
-			</panel>
-			<panel name="physics analysis">
-				<slider label="Liscia:" name="Smooth"/>
-				<check_box label="Chiudi fori (lento)" name="Close Holes (Slow)"/>
-				<button label="Analizza" name="Decompose"/>
-				<button label="Annulla" name="decompose_cancel"/>
-			</panel>
-			<panel name="physics simplification">
-				<slider label="Passaggi:" name="Combine Quality"/>
-				<slider label="Scala dettagli:" name="Detail Scale"/>
-				<slider label="Mantieni:" name="Retain%"/>
-				<button label="Semplifica" name="Simplify"/>
-				<button label="Annulla" name="simplify_cancel"/>
-			</panel>
-			<panel name="physics info">
-				<slider label="Ampiezza anteprima:" name="physics_explode"/>
-				<text name="physics_triangles">
-					Triangoli: [TRIANGLES]
-				</text>
-				<text name="physics_points">
-					Vertici: [POINTS]
-				</text>
-				<text name="physics_hulls">
-					Inviluppi: [HULLS]
-				</text>
-			</panel>
-		</panel>
-		<panel label="Modificatori" name="modifiers_panel">
-			<spinner name="import_scale" value="1.0"/>
-			<text name="import_dimensions">
-				[X] x [Y] x [Z] m
-			</text>
-			<check_box label="Texture" name="upload_textures"/>
-			<check_box label="Peso pelle" name="upload_skin"/>
-			<check_box label="Posizioni giunti" name="upload_joints"/>
-			<spinner name="pelvis_offset" value="0.0"/>
-		</panel>
-	</tab_container>
-	<text name="upload_fee">
-		Costo caricamento: L$ [FEE]
-	</text>
-	<button label="Imposta sui valori predefiniti" name="reset_btn" tool_tip="Imposta sui valori predefiniti"/>
-	<button label="Calcolare pesi e tariffa" name="calculate_btn" tool_tip="Calcolare pesi e tariffa"/>
-	<button label="Carica sul server" name="ok_btn" tool_tip="Carica al simulatore"/>
-	<button label="Annulla" name="cancel_btn"/>
+	<panel name="right_panel">
+		<combo_box name="preview_lod_combo" tool_tip="Livello di dettaglio per anteprima rendering">
+			<combo_item name="high">
+				Alto
+			</combo_item>
+			<combo_item name="medium">
+				Medio
+			</combo_item>
+			<combo_item name="low">
+				Basso
+			</combo_item>
+			<combo_item name="lowest">
+				Bassissimo
+			</combo_item>
+		</combo_box>
+		<text name="label_display">
+			Visualizzazione...
+		</text>
+		<check_box label="Bordi" name="show_edges"/>
+		<check_box label="Fisica" name="show_physics"/>
+		<check_box label="Texture" name="show_textures"/>
+		<check_box label="Pesi pelle" name="show_skin_weight"/>
+		<check_box label="Giunti" name="show_joint_positions"/>
+		<text name="physics_explode_label">
+			Anteprima spaziatura:
+		</text>
+	</panel>
 </floater>

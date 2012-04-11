@@ -133,7 +133,7 @@ Vai al menu Mondo &gt; Informazioni sul terreno oppure seleziona un altro appezz
 				Traffico:
 			</text>
 			<text name="DwellText" width="140">
-				0
+				Caricamento in corso...
 			</text>
 			<button label="Acquista il terreno..." label_selected="Acquista il terreno..." left="130" name="Buy Land..." width="125"/>
 			<button label="Vendita Linden" name="Linden Sale..." tool_tip="La terra deve essere di proprietà, con contenuto impostato, e non già messa all&apos;asta."/>
@@ -218,19 +218,19 @@ o suddivisa.
 				Fattore bonus degli oggetti della regione: [BONUS]
 			</text>
 			<text name="Simulator primitive usage:">
-				Uso delle primitive:
+				Capacità regione:
 			</text>
 			<text name="objects_available">
 				[COUNT] dei [MAX] ([AVAILABLE] dsponibili)
 			</text>
 			<text name="Primitives parcel supports:">
-				Oggetti che il terreno supporta:
+				Capacità lotto di terreno:
 			</text>
 			<text name="object_contrib_text">
 				[COUNT]
 			</text>
 			<text name="Primitives on parcel:">
-				Oggetti sul terreno:
+				Impatto lotto di terreno:
 			</text>
 			<text name="total_objects_text">
 				[COUNT]
@@ -314,13 +314,15 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 				Nessuna spinta (Impostazione regionale)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Vedi i residenti in questo lotto e chatta con loro
+				Gli avatar in altri lotti possono vedere
 			</panel.string>
 			<text name="allow_label">
 				Permetti ad altri residenti di:
 			</text>
-			<check_box label="Modificare il terreno" name="edit land check" tool_tip="Se spuntata, chiunque può terraformare il tuo terreno. È preferibile lasciare questa opzione non spuntata, dato che sarai comunque in grado di modificare il tuo terreno."/>
-			<check_box label="Permetti il volo" name="check fly" tool_tip="Se spuntato, gli altri residenti potranno volare sul tuo terreno. Se non spuntato, potranno solamente arrivare in volo o sorvolare il terreno."/>
+			<text name="allow_label0">
+				Vola:
+			</text>
+			<check_box label="Tutti" name="check fly" tool_tip="Se spuntato, gli altri residenti potranno volare sul tuo terreno. Se non spuntato, potranno solamente arrivare in volo o sorvolare il terreno."/>
 			<text name="allow_label2">
 				Creare oggetti:
 			</text>
@@ -336,9 +338,6 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<check_box label="Tutti i residenti" name="check other scripts"/>
 			<check_box label="Gruppo" name="check group scripts"/>
-			<text name="land_options_label">
-				Opzioni per il terreno:
-			</text>
 			<check_box label="Sicuro (senza danno)" name="check safe" tool_tip="Se spuntato, imposta il terreno su &apos;sicuro&apos;, disabilitando i danni da combattimento. Se non spuntato, viene abilitato il combattimento con danni."/>
 			<check_box label="Nessuna spinta" name="PushRestrictCheck" tool_tip="Previeni i colpi. Selezionare questa opzione può essere utile per prevenire comportamenti dannosi sul tuo terreno."/>
 			<check_box label="Mostra luogo nella ricerca (30 L$/settimana)" name="ShowDirectoryCheck" tool_tip="Consenti che il lotto sia visto nei risultati di ricerca"/>
@@ -379,9 +378,9 @@ Solamente terreni più grandi possono essere abilitati nella ricerca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clicca per scegliere una immagine"/>
 			<text name="allow_label5">
-				Permetti ai residenti in altri lotti di:
+				e chattare con avatar in questo lotto
 			</text>
-			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ai residenti in altri lotti di vedere i residenti in questo lotto e chattare con loro, e ti consente di vederli e chattare con loro."/>
+			<check_box label="Vedi avatar" name="SeeAvatarsCheck" tool_tip="Consente ad avatar in altri lotti di vedere e chattare con avatar in questo lotto e viceversa."/>
 			<text name="landing_point">
 				Punto di atterraggio: [LANDING]
 			</text>

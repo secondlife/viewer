@@ -22,9 +22,11 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 gl_FragColor;
+#endif
 
 //class 2 -- shadows and SSAO
 
@@ -38,6 +40,7 @@ uniform sampler2DShadow shadowMap4;
 uniform sampler2DShadow shadowMap5;
 uniform sampler2D noiseMap;
 
+
 // Inputs
 uniform mat4 shadow_matrix[6];
 uniform vec4 shadow_clip;
@@ -46,13 +49,13 @@ uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform float ssao_factor_inv;
 
-varying vec2 vary_fragcoord;
-varying vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 uniform vec2 shadow_res;
 uniform vec2 proj_shadow_res;
+uniform vec3 sun_dir;
 
 uniform float shadow_bias;
 uniform float shadow_offset;
@@ -73,11 +76,8 @@ vec4 getPosition(vec2 pos_screen)
 	return pos;
 }
 
-//calculate decreases in ambient lighting when crowded out (SSAO)
-float calcAmbientOcclusion(vec4 pos, vec3 norm)
+vec2 getKern(int i)
 {
-	float ret = 1.0;
-
 	vec2 kern[8];
 	// exponentially (^2) distant occlusion samples spread around origin
 	kern[0] = vec2(-1.0, 0.0) * 0.125*0.125;
@@ -88,22 +88,30 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	kern[5] = vec2(-0.7071, -0.7071) * 0.750*0.750;
 	kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
 	kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
+	
+	return kern[i];
+}
+
+//calculate decreases in ambient lighting when crowded out (SSAO)
+float calcAmbientOcclusion(vec4 pos, vec3 norm)
+{
+	float ret = 1.0;
 
 	vec2 pos_screen = vary_fragcoord.xy;
 	vec3 pos_world = pos.xyz;
 	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
 		
 	float angle_hidden = 0.0;
-	int points = 0;
+	float points = 0;
 		
 	float scale = min(ssao_radius / -pos_world.z, ssao_max_radius);
-		
+	
 	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
 	for (int i = 0; i < 8; i++)
 	{
-		vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
+		vec2 samppos_screen = pos_screen + scale * reflect(getKern(i), noise_reflect);
 		vec3 samppos_world = getPosition(samppos_screen).xyz; 
-			
+		
 		vec3 diff = pos_world - samppos_world;
 		float dist2 = dot(diff, diff);
 			
@@ -111,17 +119,21 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 		// --> solid angle shrinking by the square of distance
 		//radius is somewhat arbitrary, can approx with just some constant k * 1 / dist^2
 		//(k should vary inversely with # of samples, but this is taken care of later)
-			
-		angle_hidden = angle_hidden + float(dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0) * min(1.0/dist2, ssao_factor_inv);
+		
+		float funky_val = (dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0) ? 1.0 : 0.0;
+		angle_hidden = angle_hidden + funky_val * min(1.0/dist2, ssao_factor_inv);
 			
 		// 'blocked' samples (significantly closer to camera relative to pos_world) are "no data", not "no occlusion" 
-		points = points + int(diff.z > -1.0);
+		float diffz_val = (diff.z > -1.0) ? 1.0 : 0.0;
+		points = points + diffz_val;
 	}
 		
-	angle_hidden = min(ssao_factor*angle_hidden/float(points), 1.0);
-		
-	ret = (1.0 - (float(points != 0) * angle_hidden));
+	angle_hidden = min(ssao_factor*angle_hidden/points, 1.0);
 	
+	float points_val = (points > 0.0) ? 1.0 : 0.0;
+	ret = (1.0 - (points_val * angle_hidden));
+
+	ret = max(ret, 0.0);
 	return min(ret, 1.0);
 }
 
@@ -158,7 +170,6 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl)
 	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x, cs);
 	shadow += max(shadow2D(shadowMap, stc.xyz+vec3(-off.x, -off.y, 0.0)).x, cs);
 	
-			
 	return shadow/5.0;
 	
 	//return shadow;
@@ -184,10 +195,10 @@ void main()
 	}*/
 	
 	float shadow = 1.0;
-	float dp_directional_light = max(0.0, dot(norm, vary_light.xyz));
+	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
 
 	vec3 shadow_pos = pos.xyz + displace*norm;
-	vec3 offset = vary_light.xyz * (1.0-dp_directional_light);
+	vec3 offset = sun_dir.xyz * (1.0-dp_directional_light);
 	
 	vec4 spos = vec4(shadow_pos+offset*shadow_offset, 1.0);
 	
@@ -251,7 +262,7 @@ void main()
 	gl_FragColor[0] = shadow;
 	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
 	
-	spos.xyz = shadow_pos+norm*spot_shadow_offset;
+	spos = vec4(shadow_pos+norm*spot_shadow_offset, 1.0);
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;

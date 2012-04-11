@@ -34,6 +34,9 @@
 	<string name="ProgressChangingResolution">
 		Alterando a resolução...
 	</string>
+	<string name="Fullbright">
+		Fullbright (antigo)
+	</string>
 	<string name="LoginInProgress">
 		Fazendo login. [APP_NAME] pode parecer congelado. Por favor, aguarde.
 	</string>
@@ -116,7 +119,7 @@
 		A assinatura do certificado dado pelo servidor do Grid não pôde ser verificada.  Contate o administrador do seu Grid.
 	</string>
 	<string name="LoginFailedNoNetwork">
-		Erro de rede: Não foi possível estabelecer a conexão, verifique sua conexão de rede.
+		Erro de rede: Falha de conexão: verifique sua conexão à internet.
 	</string>
 	<string name="LoginFailed">
 		Falha do login.
@@ -543,6 +546,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="mesh">
 		mesh
+	</string>
+	<string name="AvatarEditingAppearance">
+		(Edição Aparência)
 	</string>
 	<string name="AvatarAway">
 		Distante
@@ -1154,7 +1160,7 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Você não possui uma cópia desta textura no seu inventário
 	</string>
 	<string name="InventoryInboxNoItems">
-		Compras do marketplace serão entregues aqui.
+		Quando você comprar ou receber um item, ele aparecerá aqui para que você possa arrastá-lo para uma pasta em seu inventário ou excluí-lo caso não queira mantê-lo.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1215,6 +1221,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="Marketplace Error Internal Import">
 		Erro: ocorreu um problema com este item. Tente novamente mais tarde.
+	</string>
+	<string name="Open landmarks">
+		Marcos abertos
 	</string>
 	<string name="no_transfer" value="(não transferível)"/>
 	<string name="no_modify" value="(não modificável)"/>
@@ -1343,6 +1352,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="no_attachments">
 		Nenhum anexo vestido
 	</string>
+	<string name="Attachments remain">
+		Anexos ([COUNT] slots permanecem)
+	</string>
 	<string name="Buy">
 		Comprar
 	</string>
@@ -1468,6 +1480,12 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="Right Pec">
 		Peitoral D
+	</string>
+	<string name="Neck">
+		Pescoço
+	</string>
+	<string name="Avatar Center">
+		Centro do avatar
 	</string>
 	<string name="Invalid Attachment">
 		Ponto de encaixe inválido
@@ -3877,16 +3895,28 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
-		You pagou L$[AMOUNT] por [REASON] a [NAME].
+		Você pagou L$[AMOUNT] por [REASON] a [NAME].
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Você acaba de pagar L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		You pagou L$[AMOUNT] a [NAME].
+		Você pagou L$[AMOUNT] a [NAME].
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		You pagou L$[AMOUNT] por [REASON].
+		Você pagou L$[AMOUNT] por [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars">
+		Você não pagou L$[AMOUNT] a [NAME] referentes a [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Você não pagou L$[AMOUNT].
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Você não pagou L$[AMOUNT] a [NAME].
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Você não pagou L$[AMOUNT] referentes a [REASON].
 	</string>
 	<string name="for item">
 		por [ITEM]
@@ -4115,7 +4145,7 @@ Denunciar abuso
 	<string name="Female - Wow">
 		Wow - feminino
 	</string>
-	<string name="/bow1">
+	<string name="/bow">
 		/reverência
 	</string>
 	<string name="/clap">
@@ -4297,6 +4327,12 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Falha de execução do editor externo.
+	</string>
+	<string name="TranslationFailed">
+		Falha na tradução: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Erro ao analisar resposta de tradução.
 	</string>
 	<string name="Esc">
 		Esc
@@ -4627,5 +4663,197 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="ParticleHiding">
 		Ocultar partículas
+	</string>
+	<string name="Command_AboutLand_Label">
+		Sobre terrenos
+	</string>
+	<string name="Command_Appearance_Label">
+		Aparência
+	</string>
+	<string name="Command_Avatar_Label">
+		Avatar
+	</string>
+	<string name="Command_Build_Label">
+		Construir
+	</string>
+	<string name="Command_Chat_Label">
+		Bate-papo
+	</string>
+	<string name="Command_Compass_Label">
+		Bússola
+	</string>
+	<string name="Command_Destinations_Label">
+		Destinos
+	</string>
+	<string name="Command_Gestures_Label">
+		Gestos
+	</string>
+	<string name="Command_HowTo_Label">
+		Como
+	</string>
+	<string name="Command_Inventory_Label">
+		Inventário
+	</string>
+	<string name="Command_Map_Label">
+		Mapa
+	</string>
+	<string name="Command_Marketplace_Label">
+		Mercado
+	</string>
+	<string name="Command_MiniMap_Label">
+		Mini Mapa
+	</string>
+	<string name="Command_Move_Label">
+		Andar/correr/voar
+	</string>
+	<string name="Command_People_Label">
+		Pessoas
+	</string>
+	<string name="Command_Picks_Label">
+		Destaques
+	</string>
+	<string name="Command_Places_Label">
+		Lugares
+	</string>
+	<string name="Command_Preferences_Label">
+		Preferências
+	</string>
+	<string name="Command_Profile_Label">
+		Perfil
+	</string>
+	<string name="Command_Search_Label">
+		Buscar
+	</string>
+	<string name="Command_Snapshot_Label">
+		Foto
+	</string>
+	<string name="Command_Speak_Label">
+		Falar
+	</string>
+	<string name="Command_View_Label">
+		Controles da câmera
+	</string>
+	<string name="Command_Voice_Label">
+		Configurações de voz
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Informações sobre o terreno que você está visitando
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Mudar seu avatar
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Escolha um avatar completo
+	</string>
+	<string name="Command_Build_Tooltip">
+		Construindo objetos e redimensionando terreno
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Bater papo com pessoas próximas usando texto
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Bússola
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		Destinos de interesse
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Gestos para seu avatar
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Como executar tarefas comuns
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Exibir e usar seus pertences
+	</string>
+	<string name="Command_Map_Tooltip">
+		Mapa-múndi
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Faça compras
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Mostrar quem está aqui
+	</string>
+	<string name="Command_Move_Tooltip">
+		Movendo seu avatar
+	</string>
+	<string name="Command_People_Tooltip">
+		Amigos, grupos e pessoas próximas
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Lugares mostrados como favoritos em seu perfil
+	</string>
+	<string name="Command_Places_Tooltip">
+		Lugares salvos
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Preferências
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Edite ou visualize seu perfil
+	</string>
+	<string name="Command_Search_Tooltip">
+		Encontre lugares, eventos, pessoas
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Tirar uma foto
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Fale com pessoas próximas usando seu microfone
+	</string>
+	<string name="Command_View_Tooltip">
+		Alterar o ângulo da câmera
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Controles de volume das chamadas e pessoas próximas a você no mundo virtual
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		atualmente na sua barra de ferramentas inferior
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		atualmente na sua barra de ferramentas esquerda
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		atualmente na sua barra de ferramentas direita
+	</string>
+	<string name="Retain%">
+		Reter%
+	</string>
+	<string name="Detail">
+		Detalhe
+	</string>
+	<string name="Better Detail">
+		Detalhamento maior
+	</string>
+	<string name="Surface">
+		Superfície
+	</string>
+	<string name="Solid">
+		Sólido
+	</string>
+	<string name="Wrap">
+		Conclusão
+	</string>
+	<string name="Preview">
+		Visualizar
+	</string>
+	<string name="Normal">
+		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Muito baixo
+	</string>
+	<string name="snapshot_quality_low">
+		Baixo
+	</string>
+	<string name="snapshot_quality_medium">
+		Médio
+	</string>
+	<string name="snapshot_quality_high">
+		Alto
+	</string>
+	<string name="snapshot_quality_very_high">
+		Muito alto
 	</string>
 </strings>

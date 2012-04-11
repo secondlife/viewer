@@ -651,6 +651,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLViewerObject(id, pcode, regionp),
 	mIsDummy(FALSE),
 	mSpecialRenderMode(0),
+	mAttachmentGeometryBytes(0),
+	mAttachmentSurfaceArea(0.f),
 	mTurning(FALSE),
 	mPelvisToFoot(0.f),
 	mLastSkeletonSerialNum( 0 ),
@@ -690,7 +692,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mFullyLoadedInitialized(FALSE),
 	mSupportsAlphaLayers(FALSE),
 	mLoadedCallbacksPaused(FALSE),
-	mHasPelvisOffset( FALSE )
+	mHasPelvisOffset( FALSE ),
+	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar"))
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
@@ -2117,8 +2120,8 @@ void LLVOAvatar::updateMeshData()
 			}
 			else
 			{
-				if (buff->getRequestedIndices() == num_indices &&
-					buff->getRequestedVerts() == num_vertices)
+				if (buff->getNumIndices() == num_indices &&
+					buff->getNumVerts() == num_vertices)
 				{
 					terse_update = true;
 				}
@@ -2138,11 +2141,19 @@ void LLVOAvatar::updateMeshData()
 
 			for(S32 k = j ; k < part_index ; k++)
 			{
-				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update);
+				bool rigid = false;
+				if (k == MESH_ID_EYEBALL_LEFT ||
+					k == MESH_ID_EYEBALL_RIGHT)
+				{ //eyeballs can't have terse updates since they're never rendered with
+					//the hardware skinning shader
+					rigid = true;
+				}
+				
+				mMeshLOD[k]->updateFaceData(facep, mAdjustedPixelArea, k == MESH_ID_HAIR, terse_update && !rigid);
 			}
 
 			stop_glerror();
-			buff->setBuffer(0);
+			buff->flush();
 
 			if(!f_num)
 			{
@@ -3354,6 +3365,16 @@ void LLVOAvatar::slamPosition()
 	mRoot.updateWorldMatrixChildren();
 }
 
+bool LLVOAvatar::isVisuallyMuted()
+{
+	static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit");
+	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit");
+	
+	return LLMuteList::getInstance()->isMuted(getID()) ||
+			(mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
+			(mAttachmentSurfaceArea > max_attachment_area && max_attachment_area > 0.f);
+}
+
 //------------------------------------------------------------------------
 // updateCharacter()
 // called on both your avatar and other avatars
@@ -3420,8 +3441,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
 
+		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (LLMuteList::getInstance()->isMuted(getID()))
+		if (isVisuallyMuted())
 		{ // muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
@@ -4135,7 +4157,7 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			LLVertexBuffer* vb = mDrawable->getFace(0)->getVertexBuffer();
 			if (vb)
 			{
-				vb->setBuffer(0);
+				vb->flush();
 			}
 		}
 	}
@@ -5405,18 +5427,6 @@ BOOL LLVOAvatar::loadAvatar()
 		}
 	}
 
-	// Uncomment to enable avatar_lad.xml debugging. 
-	std::ofstream file;
-	file.open("avatar_lad.log");
-	for( LLViewerVisualParam* param = (LLViewerVisualParam*) getFirstVisualParam(); 
-	param;
-	param = (LLViewerVisualParam*) getNextVisualParam() )
-	{
-		param->getInfo()->toStream(file);
-		file << std::endl;
-	}
-
-	file.close();
 	
 	return TRUE;
 }
@@ -6485,10 +6495,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 
 BOOL LLVOAvatar::isFullyLoaded() const
 {
-	if (gSavedSettings.getBOOL("RenderUnloadedAvatar"))
-		return TRUE;
-	else
-		return mFullyLoaded;
+	return (mRenderUnloadedAvatar || mFullyLoaded);
 }
 
 bool LLVOAvatar::isTooComplex() const
@@ -7524,7 +7531,8 @@ void LLVOAvatar::useBakedTexture( const LLUUID& id )
 // static
 void LLVOAvatar::dumpArchetypeXML( void* )
 {
-	LLAPRFile outfile(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER, "new archetype.xml"), LL_APR_WB);
+	LLAPRFile outfile;
+	outfile.open(gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,"new archetype.xml"), LL_APR_WB );
 	apr_file_t* file = outfile.getFileHandle() ;
 	if (!file)
 	{
@@ -8334,9 +8342,14 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 void LLVOAvatar::idleUpdateRenderCost()
 {
 	static const U32 ARC_BODY_PART_COST = 200;
-	static const U32 ARC_LIMIT = 2048;
+	static const U32 ARC_LIMIT = 20000;
 
 	static std::set<LLUUID> all_textures;
+
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
+	{ //set debug text to attachment geometry bytes here so render cost will override
+		setDebugText(llformat("%.1f KB, %.2f m^2", mAttachmentGeometryBytes/1024.f, mAttachmentSurfaceArea));
+	}
 
 	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{

@@ -90,9 +90,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9868bfa0b6954e4884c49c6f30068c80</string>
+              <string>02eb2d32f4013e23eb0bc2cd1b7f9b82</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.4.2-darwin-20110217.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/251231/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -102,9 +102,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ff62946c518a247c86e1066c1e9a5855</string>
+              <string>4ade1434e263cbb85a424e7dd35b8025</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.4.2-linux-20110309.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/251231/arch/Linux/installer/apr_suite-1.4.5-linux-20120314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -114,9 +114,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>73785c200a5b4ef74a1230b028bb680d</string>
+              <string>6a2f05e8ddf01036aada46377295887f</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/apr_suite-1.4.2-windows-20110217.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/251231/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120314.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1206,9 +1206,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9cd66e879908f047d9af665b92946ecc</string>
+              <string>26aa7c367ffadd573f61a6a96f820f80</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/239803/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20110830.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/245988/arch/Darwin/installer/llqtwebkit-4.7.1-darwin-20111201.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1230,9 +1230,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ab9393795515cbbe9526bde33b41bf2a</string>
+              <string>270db8568a0c4bab266d98e1a820aec4</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/239670/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20110829.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llqtwebkit/rev/245988/arch/CYGWIN/installer/llqtwebkit-4.7.1-windows-20111201.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>

@@ -122,8 +122,6 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	{
 		addBorder(p.border);
 	}
-	
-	mPanelHandle.bind(this);
 }
 
 LLPanel::~LLPanel()

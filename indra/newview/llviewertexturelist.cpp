@@ -530,9 +530,12 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 		}
 		llerrs << "LLViewerTextureList::removeImageFromList - Image not in list" << llendl;
 	}
-	if(mImageList.erase(image) != 1) 
+
+	S32 count = mImageList.erase(image) ;
+	if(count != 1) 
 	{
-		llerrs << "Error happens when remove image from mImageList!" << llendl ;
+		llinfos << image->getID() << llendl ;
+		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
 	}
       
 	image->setInImageList(FALSE) ;
@@ -586,6 +589,11 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 
 ////////////////////////////////////////////////////////////////////////////
 static LLFastTimer::DeclareTimer FTM_IMAGE_MARK_DIRTY("Dirty Images");
+static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
+static LLFastTimer::DeclareTimer FTM_IMAGE_CALLBACKS("Callbacks");
+static LLFastTimer::DeclareTimer FTM_IMAGE_FETCH("Fetch");
+static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create");
+static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
@@ -597,14 +605,25 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	LLViewerStats::getInstance()->mGLBoundMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageGL::sBoundTextureMemoryInBytes));
 	LLViewerStats::getInstance()->mRawMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageRaw::sGlobalRawMemory));
 	LLViewerStats::getInstance()->mFormattedMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageFormatted::sGlobalFormattedMemory));
-	
-	updateImagesDecodePriorities();
+
+
+	{
+		LLFastTimer t(FTM_IMAGE_UPDATE_PRIORITIES);
+		updateImagesDecodePriorities();
+	}
 
 	F32 total_max_time = max_time;
-	max_time -= updateImagesFetchTextures(max_time);
+
+	{
+		LLFastTimer t(FTM_IMAGE_FETCH);
+		max_time -= updateImagesFetchTextures(max_time);
+	}
 	
-	max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
-	max_time -= updateImagesCreateTextures(max_time);
+	{
+		LLFastTimer t(FTM_IMAGE_CREATE);
+		max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
+		max_time -= updateImagesCreateTextures(max_time);
+	}
 	
 	if (!mDirtyTextureList.empty())
 	{
@@ -612,24 +631,32 @@ void LLViewerTextureList::updateImages(F32 max_time)
 		gPipeline.dirtyPoolObjectTextures(mDirtyTextureList);
 		mDirtyTextureList.clear();
 	}
-	bool didone = false;
-	for (image_list_t::iterator iter = mCallbackList.begin();
-		iter != mCallbackList.end(); )
+
 	{
-		//trigger loaded callbacks on local textures immediately
-		LLViewerFetchedTexture* image = *iter++;
-		if (!image->getUrl().empty())
+		LLFastTimer t(FTM_IMAGE_CALLBACKS);
+		bool didone = false;
+		for (image_list_t::iterator iter = mCallbackList.begin();
+			iter != mCallbackList.end(); )
 		{
-			// Do stuff to handle callbacks, update priorities, etc.
-			didone = image->doLoadedCallbacks();
-		}
-		else if (!didone)
-		{
-			// Do stuff to handle callbacks, update priorities, etc.
-			didone = image->doLoadedCallbacks();
+			//trigger loaded callbacks on local textures immediately
+			LLViewerFetchedTexture* image = *iter++;
+			if (!image->getUrl().empty())
+			{
+				// Do stuff to handle callbacks, update priorities, etc.
+				didone = image->doLoadedCallbacks();
+			}
+			else if (!didone)
+			{
+				// Do stuff to handle callbacks, update priorities, etc.
+				didone = image->doLoadedCallbacks();
+			}
 		}
 	}
-	updateImagesUpdateStats();
+
+	{
+		LLFastTimer t(FTM_IMAGE_STATS);
+		updateImagesUpdateStats();
+	}
 }
 
 void LLViewerTextureList::updateImagesDecodePriorities()
@@ -747,7 +774,6 @@ void LLViewerTextureList::updateImagesDecodePriorities()
  return type_from_host;
  }
  */
-static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create Images");
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
@@ -757,8 +783,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 	// Create GL textures for all textures that need them (images which have been
 	// decoded, but haven't been pushed into GL).
 	//
-	LLFastTimer t(FTM_IMAGE_CREATE);
-	
+		
 	LLTimer create_timer;
 	image_list_t::iterator enditer = mCreateTextureList.begin();
 	for (image_list_t::iterator iter = mCreateTextureList.begin();
@@ -895,6 +920,8 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		image_list.push_back(imagep);
 		imagep->setInImageList(FALSE) ;
 	}
+
+	llassert_always(image_list.size() == mImageList.size()) ;
 	mImageList.clear();
 	for (std::vector<LLPointer<LLViewerFetchedTexture> >::iterator iter = image_list.begin();
 		 iter != image_list.end(); ++iter)
@@ -1053,6 +1080,13 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 		// Treat any card with < 32 MB (shudder) as having 32 MB
 		//  - it's going to be swapping constantly regardless
 		S32 max_vram = gGLManager.mVRAM;
+
+		if(gGLManager.mIsATI)
+		{
+			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
+			max_vram = (S32)(max_vram * 0.75f);  
+		}
+
 		max_vram = llmax(max_vram, getMinVideoRamSetting());
 		max_texmem = max_vram;
 		if (!get_recommended)
@@ -1060,10 +1094,19 @@ S32 LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended)
 	}
 	else
 	{
-		if (get_recommended)
-			max_texmem = 128;
-		else
+		if (!get_recommended)
+		{
 			max_texmem = 512;
+		}
+		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
+		{
+			max_texmem = 512;
+		}
+		else
+		{
+			max_texmem = 128;
+		}
+
 		llwarns << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << llendl;
 	}
 
@@ -1342,7 +1385,8 @@ LLUIImagePtr LLUIImageList::getUIImageByID(const LLUUID& image_id, S32 priority)
 
 	const BOOL use_mips = FALSE;
 	const LLRect scale_rect = LLRect::null;
-	return loadUIImageByID(image_id, use_mips, scale_rect, (LLViewerTexture::EBoostLevel)priority);
+	const LLRect clip_rect = LLRect::null;
+	return loadUIImageByID(image_id, use_mips, scale_rect, clip_rect, (LLViewerTexture::EBoostLevel)priority);
 }
 
 LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priority)
@@ -1356,32 +1400,33 @@ LLUIImagePtr LLUIImageList::getUIImage(const std::string& image_name, S32 priori
 
 	const BOOL use_mips = FALSE;
 	const LLRect scale_rect = LLRect::null;
-	return loadUIImageByName(image_name, image_name, use_mips, scale_rect, (LLViewerTexture::EBoostLevel)priority);
+	const LLRect clip_rect = LLRect::null;
+	return loadUIImageByName(image_name, image_name, use_mips, scale_rect, clip_rect, (LLViewerTexture::EBoostLevel)priority);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByName(const std::string& name, const std::string& filename,
-											  BOOL use_mips, const LLRect& scale_rect, LLViewerTexture::EBoostLevel boost_priority )
+											  BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority )
 {
 	if (boost_priority == LLViewerTexture::BOOST_NONE)
 	{
 		boost_priority = LLViewerTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTextureFromFile(filename, MIPMAP_NO, boost_priority);
-	return loadUIImage(imagep, name, use_mips, scale_rect);
+	return loadUIImage(imagep, name, use_mips, scale_rect, clip_rect);
 }
 
 LLUIImagePtr LLUIImageList::loadUIImageByID(const LLUUID& id,
-											BOOL use_mips, const LLRect& scale_rect, LLViewerTexture::EBoostLevel boost_priority)
+											BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect, LLViewerTexture::EBoostLevel boost_priority)
 {
 	if (boost_priority == LLViewerTexture::BOOST_NONE)
 	{
 		boost_priority = LLViewerTexture::BOOST_UI;
 	}
 	LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(id, MIPMAP_NO, boost_priority);
-	return loadUIImage(imagep, id.asString(), use_mips, scale_rect);
+	return loadUIImage(imagep, id.asString(), use_mips, scale_rect, clip_rect);
 }
 
-LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect)
+LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const std::string& name, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect)
 {
 	if (!imagep) return NULL;
 
@@ -1402,13 +1447,14 @@ LLUIImagePtr LLUIImageList::loadUIImage(LLViewerFetchedTexture* imagep, const st
 		LLUIImageLoadData* datap = new LLUIImageLoadData;
 		datap->mImageName = name;
 		datap->mImageScaleRegion = scale_rect;
+		datap->mImageClipRegion = clip_rect;
 
 		imagep->setLoadedCallback(onUIImageLoaded, 0, FALSE, FALSE, datap, NULL);
 	}
 	return new_imagep;
 }
 
-LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect)
+LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::string& filename, BOOL use_mips, const LLRect& scale_rect, const LLRect& clip_rect)
 {
 	// look for existing image
 	uuid_ui_image_map_t::iterator found_it = mUIImages.find(name);
@@ -1418,7 +1464,7 @@ LLUIImagePtr LLUIImageList::preloadUIImage(const std::string& name, const std::s
 		llerrs << "UI Image " << name << " already loaded." << llendl;
 	}
 
-	return loadUIImageByName(name, filename, use_mips, scale_rect);
+	return loadUIImageByName(name, filename, use_mips, scale_rect, clip_rect);
 }
 
 //static 
@@ -1432,6 +1478,7 @@ void LLUIImageList::onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_v
 	LLUIImageLoadData* image_datap = (LLUIImageLoadData*)user_data;
 	std::string ui_image_name = image_datap->mImageName;
 	LLRect scale_rect = image_datap->mImageScaleRegion;
+	LLRect clip_rect = image_datap->mImageClipRegion;
 	if (final)
 	{
 		delete image_datap;
@@ -1448,9 +1495,21 @@ void LLUIImageList::onUIImageLoaded( BOOL success, LLViewerFetchedTexture *src_v
 		// from power-of-2 gl image
 		if (success && imagep.notNull() && src_vi && (src_vi->getUrl().compare(0, 7, "file://")==0))
 		{
-			F32 clip_x = (F32)src_vi->getOriginalWidth() / (F32)src_vi->getFullWidth();
-			F32 clip_y = (F32)src_vi->getOriginalHeight() / (F32)src_vi->getFullHeight();
-			imagep->setClipRegion(LLRectf(0.f, clip_y, clip_x, 0.f));
+			F32 full_width = (F32)src_vi->getFullWidth();
+			F32 full_height = (F32)src_vi->getFullHeight();
+			F32 clip_x = (F32)src_vi->getOriginalWidth() / full_width;
+			F32 clip_y = (F32)src_vi->getOriginalHeight() / full_height;
+			if (clip_rect != LLRect::null)
+			{
+				imagep->setClipRegion(LLRectf(llclamp((F32)clip_rect.mLeft / full_width, 0.f, 1.f),
+											llclamp((F32)clip_rect.mTop / full_height, 0.f, 1.f),
+											llclamp((F32)clip_rect.mRight / full_width, 0.f, 1.f),
+											llclamp((F32)clip_rect.mBottom / full_height, 0.f, 1.f)));
+			}
+			else
+			{
+				imagep->setClipRegion(LLRectf(0.f, clip_y, clip_x, 0.f));
+			}
 			if (scale_rect != LLRect::null)
 			{
 				imagep->setScaleRegion(
@@ -1471,6 +1530,7 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 	Optional<std::string>	file_name;
 	Optional<bool>			preload;
 	Optional<LLRect>		scale;
+	Optional<LLRect>		clip;
 	Optional<bool>			use_mips;
 
 	UIImageDeclaration()
@@ -1478,6 +1538,7 @@ struct UIImageDeclaration : public LLInitParam::Block<UIImageDeclaration>
 		file_name("file_name"),
 		preload("preload", false),
 		scale("scale"),
+		clip("clip"),
 		use_mips("use_mips", false)
 	{}
 };
@@ -1572,7 +1633,7 @@ bool LLUIImageList::initFromFile()
 			{
 				continue;
 			}
-			preloadUIImage(image.name, file_name, image.use_mips, image.scale);
+			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip);
 		}
 
 		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))

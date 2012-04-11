@@ -98,24 +98,25 @@ class LLCustomButtonIconCtrl : public LLButton
 {
 public:
 	struct Params
-	: public LLInitParam::Block<Params, LLButton::Params>
+	:	public LLInitParam::Block<Params, LLButton::Params>
 	{
 		// LEFT, RIGHT, TOP, BOTTOM paddings of LLIconCtrl in this class has same value
 		Optional<S32>					icon_ctrl_pad;
 
-		Params():
-		icon_ctrl_pad("icon_ctrl_pad", 1)
+		Params()
+		:	icon_ctrl_pad("icon_ctrl_pad", 1)
 		{}
 	};
 
 protected:
 	friend class LLUICtrlFactory;
-	LLCustomButtonIconCtrl(const Params& p):
-		LLButton(p),
+
+	LLCustomButtonIconCtrl(const Params& p)
+	:	LLButton(p),
 		mIcon(NULL),
 		mIconAlignment(LLFontGL::HCENTER),
 		mIconCtrlPad(p.icon_ctrl_pad)
-		{}
+	{}
 
 public:
 
@@ -214,6 +215,7 @@ LLTabContainer::Params::Params()
 	middle_tab("middle_tab"),
 	last_tab("last_tab"),
 	use_custom_icon_ctrl("use_custom_icon_ctrl", false),
+	open_tabs_on_drag_and_drop("open_tabs_on_drag_and_drop", false),
 	tab_icon_ctrl_pad("tab_icon_ctrl_pad", 0),
 	use_ellipses("use_ellipses"),
 	font_halign("halign")
@@ -250,6 +252,7 @@ LLTabContainer::LLTabContainer(const LLTabContainer::Params& p)
 	mMiddleTabParams(p.middle_tab),
 	mLastTabParams(p.last_tab),
 	mCustomIconCtrlUsed(p.use_custom_icon_ctrl),
+	mOpenTabsOnDragAndDrop(p.open_tabs_on_drag_and_drop),
 	mTabIconCtrlPad(p.tab_icon_ctrl_pad),
 	mUseTabEllipses(p.use_ellipses)
 {
@@ -548,23 +551,23 @@ BOOL LLTabContainer::handleMouseDown( S32 x, S32 y, MASK mask )
 	}
 
 	S32 tab_count = getTabCount();
-	if (tab_count > 0)
+	if (tab_count > 0 && !getTabsHidden())
 	{
 		LLTabTuple* firsttuple = getTab(0);
 		LLRect tab_rect;
 		if (mIsVertical)
 		{
 			tab_rect = LLRect(firsttuple->mButton->getRect().mLeft,
-							  has_scroll_arrows ? mPrevArrowBtn->getRect().mBottom - tabcntrv_pad : mPrevArrowBtn->getRect().mTop,
-							  firsttuple->mButton->getRect().mRight,
-							  has_scroll_arrows ? mNextArrowBtn->getRect().mTop + tabcntrv_pad : mNextArrowBtn->getRect().mBottom );
+								has_scroll_arrows ? mPrevArrowBtn->getRect().mBottom - tabcntrv_pad : mPrevArrowBtn->getRect().mTop,
+								firsttuple->mButton->getRect().mRight,
+								has_scroll_arrows ? mNextArrowBtn->getRect().mTop + tabcntrv_pad : mNextArrowBtn->getRect().mBottom );
 		}
 		else
 		{
 			tab_rect = LLRect(has_scroll_arrows ? mPrevArrowBtn->getRect().mRight : mJumpPrevArrowBtn->getRect().mLeft,
-							  firsttuple->mButton->getRect().mTop,
-							  has_scroll_arrows ? mNextArrowBtn->getRect().mLeft : mJumpNextArrowBtn->getRect().mRight,
-							  firsttuple->mButton->getRect().mBottom );
+								firsttuple->mButton->getRect().mTop,
+								has_scroll_arrows ? mNextArrowBtn->getRect().mLeft : mJumpNextArrowBtn->getRect().mRight,
+								firsttuple->mButton->getRect().mBottom );
 		}
 		if( tab_rect.pointInRect( x, y ) )
 		{
@@ -681,7 +684,7 @@ BOOL LLTabContainer::handleToolTip( S32 x, S32 y, MASK mask)
 {
 	static LLUICachedControl<S32> tabcntrv_pad ("UITabCntrvPad", 0);
 	BOOL handled = LLPanel::handleToolTip( x, y, mask);
-	if (!handled && getTabCount() > 0) 
+	if (!handled && getTabCount() > 0 && !getTabsHidden()) 
 	{
 		LLTabTuple* firsttuple = getTab(0);
 
@@ -812,47 +815,61 @@ BOOL LLTabContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,	BOOL drop,	EDrag
 {
 	BOOL has_scroll_arrows = (getMaxScrollPos() > 0);
 
-	if( mDragAndDropDelayTimer.getStarted() && mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME )
+	if(mOpenTabsOnDragAndDrop && !getTabsHidden())
 	{
-		if (has_scroll_arrows)
+		// In that case, we'll open the hovered tab while dragging and dropping items.
+		// This allows for drilling through tabs.
+		if (mDragAndDropDelayTimer.getStarted())
 		{
-			if (mJumpPrevArrowBtn && mJumpPrevArrowBtn->getRect().pointInRect(x, y))
+			if (mDragAndDropDelayTimer.getElapsedTimeF32() > SCROLL_DELAY_TIME)
 			{
-				S32	local_x	= x	- mJumpPrevArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mJumpPrevArrowBtn->getRect().mBottom;
-				mJumpPrevArrowBtn->handleHover(local_x,	local_y, mask);
-			}
-			if (mJumpNextArrowBtn && mJumpNextArrowBtn->getRect().pointInRect(x, y))
-			{
-				S32	local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
-				mJumpNextArrowBtn->handleHover(local_x,	local_y, mask);
-			}
-			if (mPrevArrowBtn->getRect().pointInRect(x,	y))
-			{
-				S32	local_x	= x	- mPrevArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mPrevArrowBtn->getRect().mBottom;
-				mPrevArrowBtn->handleHover(local_x,	local_y, mask);
-			}
-			else if	(mNextArrowBtn->getRect().pointInRect(x, y))
-			{
-				S32	local_x	= x	- mNextArrowBtn->getRect().mLeft;
-				S32	local_y	= y	- mNextArrowBtn->getRect().mBottom;
-				mNextArrowBtn->handleHover(local_x, local_y, mask);
-			}
-		}
+				if (has_scroll_arrows)
+				{
+					if (mJumpPrevArrowBtn && mJumpPrevArrowBtn->getRect().pointInRect(x, y))
+					{
+						S32	local_x	= x	- mJumpPrevArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mJumpPrevArrowBtn->getRect().mBottom;
+						mJumpPrevArrowBtn->handleHover(local_x,	local_y, mask);
+					}
+					if (mJumpNextArrowBtn && mJumpNextArrowBtn->getRect().pointInRect(x, y))
+					{
+						S32	local_x	= x	- mJumpNextArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mJumpNextArrowBtn->getRect().mBottom;
+						mJumpNextArrowBtn->handleHover(local_x,	local_y, mask);
+					}
+					if (mPrevArrowBtn->getRect().pointInRect(x,	y))
+					{
+						S32	local_x	= x	- mPrevArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mPrevArrowBtn->getRect().mBottom;
+						mPrevArrowBtn->handleHover(local_x,	local_y, mask);
+					}
+					else if	(mNextArrowBtn->getRect().pointInRect(x, y))
+					{
+						S32	local_x	= x	- mNextArrowBtn->getRect().mLeft;
+						S32	local_y	= y	- mNextArrowBtn->getRect().mBottom;
+						mNextArrowBtn->handleHover(local_x, local_y, mask);
+					}
+				}
 
-		for(tuple_list_t::iterator iter	= mTabList.begin();	iter !=	 mTabList.end(); ++iter)
-		{
-			LLTabTuple*	tuple =	*iter;
-			tuple->mButton->setVisible(	TRUE );
-			S32	local_x	= x	- tuple->mButton->getRect().mLeft;
-			S32	local_y	= y	- tuple->mButton->getRect().mBottom;
-			if (tuple->mButton->pointInView(local_x, local_y) &&  tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
-			{
-				tuple->mButton->onCommit();
+				for(tuple_list_t::iterator iter	= mTabList.begin();	iter !=	 mTabList.end(); ++iter)
+				{
+					LLTabTuple*	tuple =	*iter;
+					tuple->mButton->setVisible(	TRUE );
+					S32	local_x	= x	- tuple->mButton->getRect().mLeft;
+					S32	local_y	= y	- tuple->mButton->getRect().mBottom;
+					if (tuple->mButton->pointInView(local_x, local_y) &&  tuple->mButton->getEnabled() && !tuple->mTabPanel->getVisible())
+					{
+						tuple->mButton->onCommit();
+					}
+				}
+				// Stop the timer whether successful or not. Don't let it run forever.
 				mDragAndDropDelayTimer.stop();
 			}
+		}
+		else 
+		{
+			// Start a timer so we don't open tabs as soon as we hover on them
+			mDragAndDropDelayTimer.start();
 		}
 	}
 
@@ -1023,85 +1040,50 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	}
 	else
 	{
+		LLButton::Params& p = (mCustomIconCtrlUsed ? custom_btn_params : normal_btn_params);
+		
+		p.rect(btn_rect);
+		p.font(mFont);
+		p.font_halign = mFontHalign;
+		p.label(trimmed_label);
+		p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
+		if (indent)
+		{
+			p.pad_left(indent);
+		}
+		p.pad_bottom( mLabelPadBottom );
+		p.scale_image(true);
+		p.tab_stop(false);
+		p.label_shadow(false);
+		p.follows.flags = FOLLOWS_LEFT;
+		
 		if (mIsVertical)
 		{
-			LLButton::Params& p = (mCustomIconCtrlUsed)?
-					custom_btn_params:normal_btn_params;
-
 			p.name(std::string("vert tab button"));
-			p.rect(btn_rect);
-			p.follows.flags(FOLLOWS_TOP | FOLLOWS_LEFT);
-			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
-			p.font(mFont);
-			p.label(trimmed_label);
 			p.image_unselected(mMiddleTabParams.tab_left_image_unselected);
 			p.image_selected(mMiddleTabParams.tab_left_image_selected);
-			p.scale_image(true);
-			p.font_halign = mFontHalign;
-			p.pad_bottom( mLabelPadBottom );
-			p.tab_stop(false);
-			p.label_shadow(false);
-			if (indent)
-			{
-				p.pad_left(indent);
-			}
-			
-			
-			if(mCustomIconCtrlUsed)
-			{
-				btn = LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
-				
-			}
-			else
-			{
-				btn = LLUICtrlFactory::create<LLButton>(p);
-			}
+			p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
 		}
 		else
 		{
-			LLButton::Params& p = (mCustomIconCtrlUsed)?
-					custom_btn_params:normal_btn_params;
 			p.name(std::string(child->getName()) + " tab");
-			p.rect(btn_rect);
-			p.click_callback.function(boost::bind(&LLTabContainer::onTabBtn, this, _2, child));
-			p.font(mFont);
-			p.label(trimmed_label);
 			p.visible(false);
-			p.scale_image(true);
 			p.image_unselected(tab_img);
 			p.image_selected(tab_selected_img);
-			p.tab_stop(false);
-			p.label_shadow(false);
+			p.follows.flags = p.follows.flags() | (getTabPosition() == TOP ? FOLLOWS_TOP : FOLLOWS_BOTTOM);
 			// Try to squeeze in a bit more text
 			p.pad_left( mLabelPadLeft );
 			p.pad_right(2);
-			p.pad_bottom( mLabelPadBottom );
-			p.font_halign = mFontHalign;
-			p.follows.flags = FOLLOWS_LEFT;
-			p.follows.flags = FOLLOWS_LEFT;
-	
-			if (indent)
-			{
-				p.pad_left(indent);
-			}
-
-			if( getTabPosition() == TOP )
-			{
-				p.follows.flags = p.follows.flags() | FOLLOWS_TOP;
-			}
-			else
-			{
-				p.follows.flags = p.follows.flags() | FOLLOWS_BOTTOM;
-			}
-
-			if(mCustomIconCtrlUsed)
-			{
-				btn = LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
-			}
-			else
-			{
-				btn = LLUICtrlFactory::create<LLButton>(p);
-			}
+		}
+		
+		// *TODO : It seems wrong not to use p in both cases considering the way p is initialized
+		if (mCustomIconCtrlUsed)
+		{
+			btn = LLUICtrlFactory::create<LLCustomButtonIconCtrl>(custom_btn_params);
+		}
+		else
+		{
+			btn = LLUICtrlFactory::create<LLButton>(p);
 		}
 	}
 	
@@ -1278,6 +1260,10 @@ void LLTabContainer::enableTabButton(S32 which, BOOL enable)
 	{
 		mTabList[which]->mButton->setEnabled(enable);
 	}
+	// Stop the DaD timer as it might run forever
+	// enableTabButton() is typically called on refresh and draw when anything changed
+	// in the tab container so it's a good time to reset that.
+	mDragAndDropDelayTimer.stop();
 }
 
 void LLTabContainer::deleteAllTabs()

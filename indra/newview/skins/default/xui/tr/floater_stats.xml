@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Statistics" title="İSTATİSTİKLER">
+	<scroll_container name="statistics_scroll">
+		<container_view name="statistics_view">
+			<stat_view label="Temel" name="basic">
+				<stat_bar label="FPS" name="fps"/>
+				<stat_bar label="Bant genişliği" name="bandwidth"/>
+				<stat_bar label="Paket Kaybı" name="packet_loss"/>
+				<stat_bar label="Sim Pingi" name="ping"/>
+			</stat_view>
+			<stat_view label="Gelişmiş" name="advanced">
+				<stat_view label="İşle" name="render">
+					<stat_bar label="Çerçeve Başına Çizilen Üçgenler" name="ktrisframe"/>
+					<stat_bar label="Saniyede Bir Çizilen Üçgenler" name="ktrissec"/>
+					<stat_bar label="Toplam Nesne" name="objs"/>
+					<stat_bar label="Yeni Nesne" name="newobjs"/>
+				</stat_view>
+				<stat_view label="Doku" name="texture">
+					<stat_bar label="Sayım" name="numimagesstat"/>
+					<stat_bar label="Ham Sayım" name="numrawimagesstat"/>
+					<stat_bar label="GL Belleği" name="gltexmemstat"/>
+					<stat_bar label="Formatlanmış Bellek" name="formattedmemstat"/>
+					<stat_bar label="Ham Bellek" name="rawmemstat"/>
+					<stat_bar label="Bağlı Doku Belleği" name="glboundmemstat"/>
+				</stat_view>
+				<stat_view label="Ağ" name="network">
+					<stat_bar label="Gelen Paketler" name="packetsinstat"/>
+					<stat_bar label="Giden Paketler" name="packetsoutstat"/>
+					<stat_bar label="Nesneler" name="objectkbitstat"/>
+					<stat_bar label="Doku" name="texturekbitstat"/>
+					<stat_bar label="Varlık" name="assetkbitstat"/>
+					<stat_bar label="Katmanlar" name="layerskbitstat"/>
+					<stat_bar label="Gerçekte Gelen" name="actualinkbitstat"/>
+					<stat_bar label="Gerçekte Giden" name="actualoutkbitstat"/>
+					<stat_bar label="VFS Bekleyen İşlemler" name="vfspendingoperations"/>
+				</stat_view>
+			</stat_view>
+			<stat_view label="Simülatör" name="sim">
+				<stat_bar label="Zaman Genleşmesi" name="simtimedilation"/>
+				<stat_bar label="Sim FPS" name="simfps"/>
+				<stat_bar label="Fizik FPS" name="simphysicsfps"/>
+				<stat_view label="Fizik Ayrıntıları" name="physicsdetail">
+					<stat_bar label="Sabitlenmiş Nesneler" name="physicspinnedtasks"/>
+					<stat_bar label="Düşük Ayrıntı Seviyesindeki Nesneler" name="physicslodtasks"/>
+					<stat_bar label="Ayrılan Bellek" name="physicsmemoryallocated"/>
+				</stat_view>
+				<stat_bar label="Aracı Güncelleştirmeleri/sn" name="simagentups"/>
+				<stat_bar label="Ana Aracılar" name="simmainagents"/>
+				<stat_bar label="Alt Aracılar" name="simchildagents"/>
+				<stat_bar label="Nesneler" name="simobjects"/>
+				<stat_bar label="Etkin Nesneler" name="simactiveobjects"/>
+				<stat_bar label="Etkin Komut Dosyaları" name="simactivescripts"/>
+				<stat_bar label="Komut Dosyası Etkinlikleri" name="simscripteps"/>
+				<stat_bar label="Gelen Paketler" name="siminpps"/>
+				<stat_bar label="Giden Paketler" name="simoutpps"/>
+				<stat_bar label="Bekleyen Karşıdan Yüklemeler" name="simpendingdownloads"/>
+				<stat_bar label="Bekleyen Karşıya Yüklemeler" name="simpendinguploads"/>
+				<stat_bar label="Toplam Bildirilmiş Bayt" name="simtotalunackedbytes"/>
+				<stat_view label="Zaman (ms)" name="simperf">
+					<stat_bar label="Toplam Çerçeve Süresi" name="simframemsec"/>
+					<stat_bar label="Net Süre" name="simnetmsec"/>
+					<stat_bar label="Fizik Süresi" name="simsimphysicsmsec"/>
+					<stat_bar label="Simülasyon Süresi" name="simsimothermsec"/>
+					<stat_bar label="Aracı Süresi" name="simagentmsec"/>
+					<stat_bar label="Görüntü Süresi" name="simimagesmsec"/>
+					<stat_bar label="Komut Dosyası Süresi" name="simscriptmsec"/>
+					<stat_bar label="Yedek Zaman" name="simsparemsec"/>
+					<stat_view label="Zaman Ayrıntıları (ms)" name="timedetails">
+						<stat_bar label="Fizik Adımı" name="simsimphysicsstepmsec"/>
+						<stat_bar label="Fizik Şekillerini Güncelle" name="simsimphysicsshapeupdatemsec"/>
+						<stat_bar label="Fizik Diğer" name="simsimphysicsothermsec"/>
+						<stat_bar label="Uyku Zamanı" name="simsleepmsec"/>
+						<stat_bar label="Pompa Giriş Çıkış" name="simpumpiomsec"/>
+					</stat_view>
+				</stat_view>
+			</stat_view>
+		</container_view>
+	</scroll_container>
+</floater>

@@ -18,7 +18,6 @@ include(LLWindow)
 include(LLUI)
 include(LLVFS)        # ugh, needed for LLDir
 include(LLXML)
-include(LLXUIXML)
 include(Linking)
 # include(Tut)
 
@@ -32,7 +31,6 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLXUIXML_INCLUDE_DIRS}
     )
 
 set(llui_libtest_SOURCE_FILES
@@ -71,6 +69,7 @@ endif (DARWIN)
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
     llui
+    llinventory
     llmessage
     ${LLRENDER_LIBRARIES}
     ${LLIMAGE_LIBRARIES}

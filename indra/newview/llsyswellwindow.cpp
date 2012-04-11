@@ -35,16 +35,17 @@
 #include "llfloaterreg.h"
 #include "llnotifications.h"
 
-#include "llbottomtray.h"
 #include "llscriptfloater.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 
 #include "llchiclet.h"
+#include "llchicletbar.h"
 #include "lltoastpanel.h"
 #include "llnotificationmanager.h"
 #include "llnotificationsutil.h"
 #include "llspeakers.h"
+#include "lltoolbarview.h"
 
 //---------------------------------------------------------------------------------
 LLSysWellWindow::LLSysWellWindow(const LLSD& key) : LLTransientDockableFloater(NULL, true,  key),
@@ -140,15 +141,6 @@ void LLSysWellWindow::initChannel()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellWindow::getAllowedRect(LLRect& rect)
-{
-	rect = gViewerWindow->getWorldViewRectScaled();
-}
-
-//---------------------------------------------------------------------------------
-
-
-//---------------------------------------------------------------------------------
 void LLSysWellWindow::setVisible(BOOL visible)
 {
 	if (visible)
@@ -156,8 +148,8 @@ void LLSysWellWindow::setVisible(BOOL visible)
 		if (NULL == getDockControl() && getDockTongue().notNull())
 		{
 			setDockControl(new LLDockControl(
-				LLBottomTray::getInstance()->getChild<LLView>(getAnchorViewName()), this,
-				getDockTongue(), LLDockControl::TOP, boost::bind(&LLSysWellWindow::getAllowedRect, this, _1)));
+				LLChicletBar::getInstance()->getChild<LLView>(getAnchorViewName()), this,
+				getDockTongue(), LLDockControl::BOTTOM));
 		}
 	}
 
@@ -167,6 +159,7 @@ void LLSysWellWindow::setVisible(BOOL visible)
 	LLTransientDockableFloater::setVisible(visible);
 
 	// update notification channel state	
+	initChannel(); // make sure the channel still exists
 	if(mChannel)
 	{
 		mChannel->updateShowToastsState();
@@ -211,10 +204,9 @@ void LLSysWellWindow::reshapeWindow()
 		{
 			new_window_height = MAX_WINDOW_HEIGHT;
 		}
-		S32 newY = curRect.mTop + new_window_height - curRect.getHeight();
-		S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH
-			: curRect.getWidth();
-		curRect.setLeftTopAndSize(curRect.mLeft, newY, newWidth, new_window_height);
+		S32 newWidth = curRect.getWidth() < MIN_WINDOW_WIDTH ? MIN_WINDOW_WIDTH	: curRect.getWidth();
+
+		curRect.setLeftTopAndSize(curRect.mLeft, curRect.mTop, newWidth, new_window_height);
 		reshape(curRect.getWidth(), curRect.getHeight(), TRUE);
 		setRect(curRect);
 	}
@@ -607,6 +599,13 @@ LLIMWellWindow* LLIMWellWindow::getInstance(const LLSD& key /*= LLSD()*/)
 	return LLFloaterReg::getTypedInstance<LLIMWellWindow>("im_well_window", key);
 }
 
+
+// static
+LLIMWellWindow* LLIMWellWindow::findInstance(const LLSD& key /*= LLSD()*/)
+{
+	return LLFloaterReg::findTypedInstance<LLIMWellWindow>("im_well_window", key);
+}
+
 BOOL LLIMWellWindow::postBuild()
 {
 	BOOL rv = LLSysWellWindow::postBuild();
@@ -760,7 +759,10 @@ void LLIMWellWindow::removeObjectRow(const LLUUID& notification_id)
 {
 	if (mMessageList->removeItemByValue(notification_id))
 	{
-		mSysWellChiclet->updateWidget(isWindowEmpty());
+		if (mSysWellChiclet)
+		{
+			mSysWellChiclet->updateWidget(isWindowEmpty());
+		}
 	}
 	else
 	{

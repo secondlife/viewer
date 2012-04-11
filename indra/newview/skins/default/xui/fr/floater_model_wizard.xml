@@ -6,25 +6,22 @@
 	<button label="2. Optimisation" name="optimize_btn"/>
 	<button label="1. Sélection du fichier" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="choose_file_header_panel">
-			<text name="choose_file_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Choisir un fichier de modèle
 			</text>
 		</panel>
-		<panel name="choose_file_content_panel">
+		<panel name="content">
 			<text name="advanced_users_text">
 				Utilisateurs expérimentés : si vous êtes habitué à utiliser des outils de création de contenu en 3D, l&apos;outil de chargement avancé est mis à votre disposition.
 			</text>
 			<button label="Passer à Avancé" name="switch_to_advanced"/>
-			<text name="choose_model_file_label">
+			<text name="Cache location">
 				Choisir un fichier de modèle à charger
 			</text>
 			<button label="Parcourir..." label_selected="Parcourir..." name="browse"/>
-			<text name="support_collada_text">
+			<text name="Model types">
 				Second Life prend en charge les fichiers COLLADA (.dae).
-			</text>
-			<text name="dimensions_label">
-				Dimensions (mètres) :
 			</text>
 			<text name="dimensions">
 				X         Y         Z
@@ -38,18 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="optimize_header_panel">
-			<text name="optimize_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Optimiser le modèle
 			</text>
 		</panel>
-		<text name="optimize_hint">
+		<text name="description">
 			Le modèle a été optimisé en termes de performances. Vous pouvez l&apos;ajuster si vous le souhaitez.
 		</text>
-		<panel name="optimize_content_panel">
-			<text name="generating_lod_label">
-				Génération du niveau de détail
-			</text>
+		<panel name="content">
 			<text name="high_detail_text">
 				Générer le niveau de détail : Élevé
 			</text>
@@ -64,123 +58,64 @@
 			</text>
 		</panel>
 		<panel name="content2">
-			<text name="optimize_performance_text">
-				Performances
-			</text>
-			<text name="optimize_faster_rendering_text">
-				Rendu plus rapide
-Moins de détail
-Poids en prims inférieur
-			</text>
-			<text name="optimize_accuracy_text">
-				Précision
-			</text>
-			<text name="optimize_slower_rendering_text">
-				Rendu plus lent
-Plus de détail
-Poids en prims supérieur
-			</text>
-			<text name="accuracy_slider_mark1">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark2">
-				&apos;
-			</text>
-			<text name="accuracy_slider_mark3">
-				&apos;
-			</text>
 			<button label="Recalcul géométrique" name="recalculate_geometry_btn"/>
-			<text name="geometry_preview_label">
+			<text name="lod_label">
 				Aperçu de la géométrie
 			</text>
 			<combo_box name="preview_lod_combo" tool_tip="Niveau de détail à afficher en rendu d&apos;aperçu.">
-				<combo_item name="preview_lod_high">
+				<combo_item name="high">
 					Niveau de détail élevé
 				</combo_item>
-				<combo_item name="preview_lod_medium">
+				<combo_item name="medium">
 					Niveau de détail moyen
 				</combo_item>
-				<combo_item name="preview_lod_low">
+				<combo_item name="low">
 					Niveau de détail faible
 				</combo_item>
-				<combo_item name="preview_lod_lowest">
+				<combo_item name="lowest">
 					Niveau de détail le plus faible
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="physics_header_panel">
-			<text name="physics_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Ajuster les propriétés physiques
 			</text>
 		</panel>
-		<text name="physics_hint">
+		<text name="description">
 			Une forme va être créée pour l&apos;enveloppe externe du modèle. Ajustez le niveau de détail de la forme en fonction de l&apos;objectif souhaité pour votre modèle.
 		</text>
-		<panel name="physics_content_panel">
-			<text name="physics_performance_text">
-				Performances
-			</text>
-			<text name="physics_faster_rendering_text">
-				Rendu plus rapide
-Moins de détail
-Poids en prims inférieur
-			</text>
-			<text name="physics_accuracy_text">
-				Précision
-			</text>
-			<text name="physics_slower_dendering_text">
-				Rendu plus lent
-Plus de détail
-Poids en prims supérieur
-			</text>
-			<text name="physics_example_1">
-				Exemples :
-Objets mobiles
-Objets volants
-Véhicules
-			</text>
-			<text name="physics_example_2">
-				Exemples :
-Petits objets statiques
-Objets moins détaillés
-Mobilier simple
-			</text>
-			<text name="physics_example_3">
-				Exemples :
-Objets statiques
-Objets détaillés
-Bâtiments
-			</text>
+		<panel name="content">
 			<button label="Recalcul physique" name="recalculate_physics_btn"/>
 			<button label="Recalcul en cours..." name="recalculating_physics_btn"/>
-			<text name="physics_preview_label">
+			<text name="lod_label">
 				Aperçu des propriétés physiques
 			</text>
 			<combo_box name="preview_lod_combo2" tool_tip="Niveau de détail à afficher en rendu d&apos;aperçu.">
-				<combo_item name="preview_lod2_high">
+				<combo_item name="high">
 					Niveau de détail élevé
 				</combo_item>
-				<combo_item name="preview_lod2_medium">
+				<combo_item name="medium">
 					Niveau de détail moyen
 				</combo_item>
-				<combo_item name="preview_lod2_low">
+				<combo_item name="low">
 					Niveau de détail faible
 				</combo_item>
-				<combo_item name="preview_lod2_lowest">
+				<combo_item name="lowest">
 					Niveau de détail le plus faible
 				</combo_item>
 			</combo_box>
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="review_header_panel">
-			<text name="review_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Vérification
 			</text>
 		</panel>
-		<panel name="review_content_panel">
+		<panel name="content">
 			<text name="review_prim_equiv">
 				Impact sur la parcelle/région : équivalent à [EQUIV] prims
 			</text>
@@ -193,8 +128,8 @@ Bâtiments
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="upload_header_panel">
-			<text name="upload_header_text">
+		<panel name="header_panel">
+			<text name="header_text">
 				Chargement terminé
 			</text>
 		</panel>

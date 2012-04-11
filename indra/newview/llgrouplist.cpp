@@ -95,7 +95,7 @@ LLGroupList::LLGroupList(const Params& p)
 LLGroupList::~LLGroupList()
 {
 	gAgent.removeListener(this);
-	LLView::deleteViewByHandle(mContextMenuHandle);
+	if (mContextMenuHandle.get()) mContextMenuHandle.get()->die();
 }
 
 // virtual

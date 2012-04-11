@@ -42,8 +42,11 @@
 #include "lliopipe.h"
 #include "llsd.h"
 #include "llthread.h"
+#include "llqueuedthread.h"
+#include "llframetimer.h"
 
 class LLMutex;
+class LLCurlThread;
 
 // For whatever reason, this is not typedef'd in curl.h
 typedef size_t (*curl_header_callback)(void *ptr, size_t size, size_t nmemb, void *stream);
@@ -55,8 +58,6 @@ class LLCurl
 public:
 	class Easy;
 	class Multi;
-
-	static bool sMultiThreaded;
 
 	struct TransferInfo
 	{
@@ -162,7 +163,7 @@ public:
 	/**
 	 * @ brief Initialize LLCurl class
 	 */
-	static void initClass(bool multi_threaded = false);
+	static void initClass(F32 curl_reuest_timeout = 120.f, S32 max_number_handles = 256, bool multi_threaded = false);
 
 	/**
 	 * @ brief Cleanup LLCurl class
@@ -181,10 +182,25 @@ public:
 	static void ssl_locking_callback(int mode, int type, const char *file, int line);
 	static unsigned long ssl_thread_id(void);
 
+	static LLCurlThread* getCurlThread() { return sCurlThread ;}
+
+	static CURLM* newMultiHandle() ;
+	static CURLMcode deleteMultiHandle(CURLM* handle) ;
+	static CURL*  newEasyHandle() ;
+	static void   deleteEasyHandle(CURL* handle) ;
+
 private:
 	static std::string sCAPath;
 	static std::string sCAFile;
 	static const unsigned int MAX_REDIRECTS;
+	static LLCurlThread* sCurlThread;
+
+	static LLMutex* sHandleMutexp ;
+	static S32      sTotalHandles ;
+	static S32      sMaxHandles;
+public:
+	static bool     sNotQuitting;
+	static F32      sCurlRequestTimeOut;	
 };
 
 class LLCurl::Easy
@@ -216,7 +232,7 @@ public:
 	U32 report(CURLcode);
 	void getTransferInfo(LLCurl::TransferInfo* info);
 
-	void prepRequest(const std::string& url, const std::vector<std::string>& headers, ResponderPtr, S32 time_out = 0, bool post = false);
+	void prepRequest(const std::string& url, const std::vector<std::string>& headers, LLCurl::ResponderPtr, S32 time_out = 0, bool post = false);
 
 	const char* getErrorBuffer();
 
@@ -247,63 +263,119 @@ private:
 	// Note: char*'s not strings since we pass pointers to curl
 	std::vector<char*>	mStrings;
 
-	ResponderPtr		mResponder;
+	LLCurl::ResponderPtr		mResponder;
 
 	static std::set<CURL*> sFreeHandles;
 	static std::set<CURL*> sActiveHandles;
-	static LLMutex* sHandleMutex;
-	static LLMutex* sMultiMutex;
+	static LLMutex*        sHandleMutexp ;
 };
 
-class LLCurl::Multi : public LLThread
+class LLCurl::Multi
 {
 	LOG_CLASS(Multi);
+
+	friend class LLCurlThread ;
+
+private:
+	~Multi();
+
+	void markDead() ;
+	bool doPerform();
+
 public:
 
 	typedef enum
 	{
-		PERFORM_STATE_READY=0,
-		PERFORM_STATE_PERFORMING=1,
-		PERFORM_STATE_COMPLETED=2
+		STATE_READY=0,
+		STATE_PERFORMING=1,
+		STATE_COMPLETED=2
 	} ePerformState;
 
-	Multi();
-	~Multi();
+	Multi(F32 idle_time_out = 0.f);	
 
-	Easy* allocEasy();
-	bool addEasy(Easy* easy);
+	LLCurl::Easy* allocEasy();
+	bool addEasy(LLCurl::Easy* easy);	
+	void removeEasy(LLCurl::Easy* easy);
 	
-	void removeEasy(Easy* easy);
+	void lock() ;
+	void unlock() ;
+
+	void setState(ePerformState state) ;
+	ePerformState getState() ;
+	
+	bool isCompleted() ;
+	bool isValid() {return mCurlMultiHandle != NULL ;}
+	bool isDead() {return mDead;}
+
+	bool waitToComplete() ;
 
 	S32 process();
-	void perform();
-	void doPerform();
 	
-	virtual void run();
-
 	CURLMsg* info_read(S32* msgs_in_queue);
 
 	S32 mQueued;
 	S32 mErrorCount;
 	
-	S32 mPerformState;
-
-	LLCondition* mSignal;
-	bool mQuitting;
-	bool mThreaded;
-
 private:
-	void easyFree(Easy*);
+	void easyFree(LLCurl::Easy*);
+	void cleanup() ;
 	
 	CURLM* mCurlMultiHandle;
 
-	typedef std::set<Easy*> easy_active_list_t;
+	typedef std::set<LLCurl::Easy*> easy_active_list_t;
 	easy_active_list_t mEasyActiveList;
-	typedef std::map<CURL*, Easy*> easy_active_map_t;
+	typedef std::map<CURL*, LLCurl::Easy*> easy_active_map_t;
 	easy_active_map_t mEasyActiveMap;
-	typedef std::set<Easy*> easy_free_list_t;
+	typedef std::set<LLCurl::Easy*> easy_free_list_t;
 	easy_free_list_t mEasyFreeList;
+
+	LLQueuedThread::handle_t mHandle ;
+	ePerformState mState;
+
+	BOOL mDead ;
+	LLMutex* mMutexp ;
+	LLMutex* mDeletionMutexp ;
+	LLMutex* mEasyMutexp ;
+	LLFrameTimer mIdleTimer ;
+	F32 mIdleTimeOut;
 };
+
+class LLCurlThread : public LLQueuedThread
+{
+public:
+
+	class CurlRequest : public LLQueuedThread::QueuedRequest
+	{
+	protected:
+		virtual ~CurlRequest(); // use deleteRequest()
+		
+	public:
+		CurlRequest(handle_t handle, LLCurl::Multi* multi, LLCurlThread* curl_thread);
+
+		/*virtual*/ bool processRequest();
+		/*virtual*/ void finishRequest(bool completed);
+
+	private:
+		// input
+		LLCurl::Multi* mMulti;
+		LLCurlThread*  mCurlThread;
+	};
+	friend class CurlRequest;
+
+public:
+	LLCurlThread(bool threaded = true) ;
+	virtual ~LLCurlThread() ;
+
+	S32 update(F32 max_time_ms);
+
+	void addMulti(LLCurl::Multi* multi) ;
+	void killMulti(LLCurl::Multi* multi) ;
+
+private:
+	bool doMultiPerform(LLCurl::Multi* multi) ;
+	void deleteMulti(LLCurl::Multi* multi) ;
+	void cleanupMulti(LLCurl::Multi* multi) ;
+} ;
 
 namespace boost
 {
@@ -339,7 +411,6 @@ private:
 	LLCurl::Multi* mActiveMulti;
 	S32 mActiveRequestCount;
 	BOOL mProcessing;
-	U32 mThreadID; // debug
 };
 
 class LLCurlEasyRequest
@@ -357,9 +428,11 @@ public:
 	void slist_append(const char* str);
 	void sendRequest(const std::string& url);
 	void requestComplete();
-	void perform();
 	bool getResult(CURLcode* result, LLCurl::TransferInfo* info = NULL);
 	std::string getErrorString();
+	bool isCompleted() {return mMulti->isCompleted() ;}
+	bool wait() { return mMulti->waitToComplete(); }
+	bool isValid() {return mMulti && mMulti->isValid(); }
 
 	LLCurl::Easy* getEasy() const { return mEasy; }
 

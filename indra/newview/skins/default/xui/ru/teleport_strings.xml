@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<teleport_messages>
+	<message_set name="errors">
+		<message name="invalid_tport">
+			При запросе телепортации возникла проблема. Возможно, вам придется повторить вход перед тем, как вы сможете телепортироваться.
+Если данное сообщение повторится, посетите сайт [SUPPORT_SITE].
+		</message>
+		<message name="invalid_region_handoff">
+			При пересечении границы региона возникла проблема. Возможно, вам придется повторить вход перед тем, как вы сможете перейти границу.
+Если данное сообщение повторится, посетите сайт [SUPPORT_SITE].
+		</message>
+		<message name="blocked_tport">
+			Телепортация сейчас заблокирована. Повторите попытку позже.
+Если вам все равно не удается телепортироваться, выйдите и войдите в систему, чтобы устранить проблему.
+		</message>
+		<message name="nolandmark_tport">
+			Системе не удалось определить место назначения закладки.
+		</message>
+		<message name="timeout_tport">
+			Системе не удалось выполнить подключение телепорта.
+Повторите попытку позже.
+		</message>
+		<message name="NoHelpIslandTP">
+			Телепортироваться назад на Остров прибытия нельзя.
+Для повторения учебника перейдите на «Остров прибытия - общий».
+		</message>
+		<message name="noaccess_tport">
+			У вас нет доступа к точке назначения этого телепорта.
+		</message>
+		<message name="missing_attach_tport">
+			Ваши присоединения еще не доставлены. Подождите несколько секунд либо выйдите и войдите в программу, прежде чем повторить попытку телепортации.
+		</message>
+		<message name="too_many_uploads_tport">
+			Очередь активов в данном регионе заполнена, поэтому ваш запрос на телепортацию не будет выполнен своевременно. Повторите попытку через несколько минут или перейдите в менее загруженный регион.
+		</message>
+		<message name="expired_tport">
+			Системе не удалось своевременно выполнить ваш запрос на телепортацию. Повторите попытку через несколько минут.
+		</message>
+		<message name="expired_region_handoff">
+			Системе не удалось своевременно выполнить ваше пересечение границы. Повторите попытку через несколько минут.
+		</message>
+		<message name="no_host">
+			Не удалось найти точку назначения телепорта. Возможно, назначение временно недоступно или уже не существует. Повторите попытку через несколько минут.
+		</message>
+		<message name="no_inventory_host">
+			Система инвентаря сейчас недоступна.
+		</message>
+	</message_set>
+	<message_set name="progress">
+		<message name="sending_dest">
+			Отправка по назначению.
+		</message>
+		<message name="redirecting">
+			Перенаправление в другое место.
+		</message>
+		<message name="relaying">
+			Перенаправление по назначению.
+		</message>
+		<message name="sending_home">
+			Отправка запроса домашнего местоположения.
+		</message>
+		<message name="sending_landmark">
+			Отправка запроса местоположения закладки.
+		</message>
+		<message name="completing">
+			Выполнение телепортации.
+		</message>
+		<message name="completed_from">
+			Выполнена телепоратция из [T_SLURL]
+		</message>
+		<message name="resolving">
+			Определение назначения.
+		</message>
+		<message name="contacting">
+			Соединение с новым регионом.
+		</message>
+		<message name="arriving">
+			Прибытие…
+		</message>
+		<message name="requesting">
+			Запрос телепортации…
+		</message>
+	</message_set>
+</teleport_messages>

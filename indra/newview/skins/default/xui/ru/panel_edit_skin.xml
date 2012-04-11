@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_skin_panel">
+	<panel name="avatar_skin_color_panel">
+		<texture_picker label="Голова" name="Head" tool_tip="Щелкните для выбора изображения"/>
+		<texture_picker label="Верхняя часть тела" name="Upper Body" tool_tip="Щелкните для выбора изображения"/>
+		<texture_picker label="Нижняя часть тела" name="Lower Body" tool_tip="Щелкните для выбора изображения"/>
+	</panel>
+	<panel name="accordion_panel">
+		<accordion name="wearable_accordion">
+			<accordion_tab name="skin_color_tab" title="Цвет кожи"/>
+			<accordion_tab name="skin_face_tab" title="Особенности лица"/>
+			<accordion_tab name="skin_makeup_tab" title="Макияж"/>
+			<accordion_tab name="skin_body_tab" title="Особенности тела"/>
+		</accordion>
+	</panel>
+</panel>

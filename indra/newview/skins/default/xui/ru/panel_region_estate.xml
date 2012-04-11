@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Землевладение" name="Estate">
+	<text name="estate_help_text">
+		Изменение параметров на этой вкладке повлияет на все регионы этого землевладения.
+	</text>
+	<text name="estate_text">
+		Землевладение:
+	</text>
+	<text name="estate_name">
+		(неизвестно)
+	</text>
+	<text name="owner_text">
+		Землевладелец:
+	</text>
+	<text name="estate_owner">
+		(неизвестно)
+	</text>
+	<check_box label="Глобальное время" name="use_global_time_check"/>
+	<check_box label="Фиксированное" name="fixed_sun_check"/>
+	<slider label="Фаза" name="sun_hour_slider"/>
+	<check_box label="Разрешить общий доступ" name="externally_visible_check"/>
+	<text name="Only Allow">
+		Разрешить доступ только аккаунтам с подтверждением:
+	</text>
+	<check_box label="Информации об оплате в файле" name="limit_payment" tool_tip="Банить нераспознанных жителей"/>
+	<check_box label="Проверка возраста" name="limit_age_verified" tool_tip="Банить жителей, не прошедших проверку возраста. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+	<check_box label="Разрешить голосовое общение" name="voice_chat_check"/>
+	<check_box label="Разрешить прямой телепорт" name="allow_direct_teleport"/>
+	<button label="Применить" name="apply_btn"/>
+	<button label="Сообщение в землевладение..." name="message_estate_btn"/>
+	<button label="Выкинуть жителя с землевладения..." name="kick_user_from_estate_btn"/>
+	<text name="estate_manager_label">
+		Менеджеры землевладения:
+	</text>
+	<button label="Удалить..." name="remove_estate_manager_btn"/>
+	<button label="Добавить..." name="add_estate_manager_btn"/>
+	<text name="allow_resident_label">
+		Допущенные жители:
+	</text>
+	<button label="Удалить..." name="remove_allowed_avatar_btn"/>
+	<button label="Добавить..." name="add_allowed_avatar_btn"/>
+	<text name="allow_group_label">
+		Допущенные группы:
+	</text>
+	<button label="Удалить..." name="remove_allowed_group_btn"/>
+	<button label="Добавить..." name="add_allowed_group_btn"/>
+	<text name="ban_resident_label">
+		Забаненные жители:
+	</text>
+	<button label="Удалить..." name="remove_banned_avatar_btn"/>
+	<button label="Добавить..." name="add_banned_avatar_btn"/>
+</panel>

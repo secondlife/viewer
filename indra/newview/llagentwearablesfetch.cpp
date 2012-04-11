@@ -87,6 +87,10 @@ public:
 LLInitialWearablesFetch::LLInitialWearablesFetch(const LLUUID& cof_id) :
 	LLInventoryFetchDescendentsObserver(cof_id)
 {
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Initial wearables fetch started");
+	}
 }
 
 LLInitialWearablesFetch::~LLInitialWearablesFetch()
@@ -101,6 +105,10 @@ void LLInitialWearablesFetch::done()
 	// idle tick instead.
 	gInventory.removeObserver(this);
 	doOnIdleOneTime(boost::bind(&LLInitialWearablesFetch::processContents,this));
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Initial wearables fetch done");
+	}
 }
 
 void LLInitialWearablesFetch::add(InitialWearableData &data)
@@ -111,6 +119,12 @@ void LLInitialWearablesFetch::add(InitialWearableData &data)
 
 void LLInitialWearablesFetch::processContents()
 {
+	if(!gAgentAvatarp) //no need to process wearables if the agent avatar is deleted.
+	{
+		delete this;
+		return ;
+	}
+
 	// Fetch the wearable items from the Current Outfit Folder
 	LLInventoryModel::cat_array_t cat_array;
 	LLInventoryModel::item_array_t wearable_array;

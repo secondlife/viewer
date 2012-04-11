@@ -29,6 +29,7 @@
 
 #include "llfloaterreg.h"
 #include "llnearbychat.h"
+#include "llnearbychatbar.h"
 #include "llnotificationhandler.h"
 #include "llnotifications.h"
 #include "lltoastnotifypanel.h"
@@ -92,9 +93,9 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
 
 			// don't show toast if Nearby Chat is opened
-			LLNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<
-					LLNearbyChat>("nearby_chat", LLSD());
-			if (nearby_chat->getVisible())
+			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
+			LLNearbyChatBar* nearby_chat_bar = LLNearbyChatBar::getInstance();
+			if (!nearby_chat_bar->isMinimized() && nearby_chat_bar->getVisible() && nearby_chat->getVisible())
 			{
 				return false;
 			}

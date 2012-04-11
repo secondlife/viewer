@@ -818,6 +818,8 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 
   			// Copy everything after mLast read to the out.
 			LLBufferArray::segment_iterator_t seg_iter;
+
+			buffer->lock();
 			seg_iter = buffer->splitAfter(mLastRead);
 			if(seg_iter != buffer->endSegment())
 			{
@@ -838,7 +840,7 @@ LLIOPipe::EStatus LLHTTPResponder::process_impl(
 				}
 #endif
 			}
-
+			buffer->unlock();
 			//
 			// *FIX: get rid of extra bytes off the end
 			//
@@ -963,9 +965,13 @@ private:
 
 
 // static
-LLHTTPNode& LLIOHTTPServer::create(LLPumpIO& pump, U16 port)
+LLHTTPNode& LLIOHTTPServer::create(
+	apr_pool_t* pool, LLPumpIO& pump, U16 port)
 {
-	LLSocket::ptr_t socket = LLSocket::create(LLSocket::STREAM_TCP, port);
+	LLSocket::ptr_t socket = LLSocket::create(
+        pool,
+        LLSocket::STREAM_TCP,
+        port);
     if(!socket)
     {
         llerrs << "Unable to initialize socket" << llendl;
@@ -974,7 +980,7 @@ LLHTTPNode& LLIOHTTPServer::create(LLPumpIO& pump, U16 port)
     LLHTTPResponseFactory* factory = new LLHTTPResponseFactory;
 	boost::shared_ptr<LLChainIOFactory> factory_ptr(factory);
 
-    LLIOServerSocket* server = new LLIOServerSocket(socket, factory_ptr);
+    LLIOServerSocket* server = new LLIOServerSocket(pool, socket, factory_ptr);
 
 	LLPumpIO::chain_t chain;
     chain.push_back(LLIOPipe::ptr_t(server));

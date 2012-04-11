@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Hardware Settings Floater" title="DONANIM AYARLARI">
+	<text name="Filtering:">
+		Filtreleme:
+	</text>
+	<check_box label="Anisotropik Filtreleme (etkinken daha yavaş)" name="ani"/>
+	<text name="antialiasing label">
+		Düzgünleştirme:
+	</text>
+	<combo_box label="Antialiasing" name="fsaa">
+		<combo_box.item label="Devre dışı" name="FSAADisabled"/>
+		<combo_box.item label="2x" name="2x"/>
+		<combo_box.item label="4x" name="4x"/>
+		<combo_box.item label="8x" name="8x"/>
+		<combo_box.item label="16x" name="16x"/>
+	</combo_box>
+	<text name="antialiasing restart">
+		(görüntülemeyi eniden başlatma gerekir)
+	</text>
+	<spinner label="Gama:" name="gamma"/>
+	<text name="(brightness, lower is brighter)">
+		(0 = varsayılan parlaklık, düşük = daha parlak)
+	</text>
+	<text name="Enable VBO:">
+		VBO Etkinleştir:
+	</text>
+	<check_box initial_value="true" label="OpenGL Vertex Tampon Nesnelerini Etkinleştir" name="vbo" tool_tip="Modern donanımlarda bunun etkinleştirilmesi performans artışı sağlar.  Ancak, eski donanımlardaki VBO uygulamaları yetersizdir ve etkinleştirildiğinde bilgisayarınız çökebilir."/>
+	<slider label="Doku Belleği (MB):" name="GraphicsCardTextureMemory" tool_tip="Dokular için tahsis edilecek bellek miktarı. Varsayılan değer video kartı belleğidir. Bu değerin küçültülmesi performansı artırabilir, ama ayrıca dokuları bulanıklaştırabilir."/>
+	<spinner label="Sis Mesafe Oranı:" name="fog"/>
+	<button label="Tamam" label_selected="Tamam" name="OK"/>
+</floater>

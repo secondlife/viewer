@@ -1,5 +1,5 @@
 /** 
- * @file llfloatermediabrowser.h
+ * @file llfloaterhelpbrowser.h
  * @brief HTML Help floater - uses embedded web browser control
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
@@ -48,8 +48,6 @@ class LLFloaterHelpBrowser :
 	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
 
 	void openMedia(const std::string& media_url);
-
-	void navigateToLocalPage( const std::string& subdir, const std::string& filename_in );
 	
  private:
 	void buildURLHistory();

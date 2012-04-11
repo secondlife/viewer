@@ -29,30 +29,5 @@
 	<check_box label="Chat IM" name="EnableIMChatPopups" tool_tip="Seleziona per vedere una finestra popup quando arriva un messaggio IM"/>
 	<spinner label="Durata chat vicine:" name="nearby_toasts_lifetime"/>
 	<spinner label="Durata dissolvenza chat vicine:" name="nearby_toasts_fadingtime"/>
-	<check_box label="Use machine translation while chatting (powered by Google)" name="translate_chat_checkbox"/>
-	<text name="translate_chb_label">
-		Usa la traduzione meccanica durante le chat (tecnologia Google)
-	</text>
-	<text name="translate_language_text" width="110">
-		Traduci chat in:
-	</text>
-	<combo_box name="translate_language_combobox" width="146">
-		<combo_box.item label="Default di sistema" name="System Default Language"/>
-		<combo_box.item label="English (Inglese)" name="English"/>
-		<combo_box.item label="Dansk (Danese)" name="Danish"/>
-		<combo_box.item label="Deutsch (Tedesco)" name="German"/>
-		<combo_box.item label="Español (Spagnolo)" name="Spanish"/>
-		<combo_box.item label="Français (Francese)" name="French"/>
-		<combo_box.item label="Italiano" name="Italian"/>
-		<combo_box.item label="Magyar (Ungherese)" name="Hungarian"/>
-		<combo_box.item label="Nederlands (Olandese)" name="Dutch"/>
-		<combo_box.item label="Polski (Polacco)" name="Polish"/>
-		<combo_box.item label="Português (Portoghese)" name="Portugese"/>
-		<combo_box.item label="Русский (Russo)" name="Russian"/>
-		<combo_box.item label="Türkçe (Turco)" name="Turkish"/>
-		<combo_box.item label="Українська (Ucraino)" name="Ukrainian"/>
-		<combo_box.item label="中文 (简体) (Cinese)" name="Chinese"/>
-		<combo_box.item label="日本語 (Giapponese)" name="Japanese"/>
-		<combo_box.item label="한국어 (Coreano)" name="Korean"/>
-	</combo_box>
+	<button label="Impostazioni traduzione chat" name="ok_btn"/>
 </panel>

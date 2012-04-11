@@ -29,7 +29,9 @@
 #include "linden_common.h"
 #include "lltut.h"
 
+#include "llapr.h"
 #include "llmessagetemplate.h"
+#include "llmath.h"
 #include "llquaternion.h"
 #include "lltemplatemessagebuilder.h"
 #include "lltemplatemessagereader.h"
@@ -52,6 +54,7 @@ namespace tut
 			static bool init = false;
 			if(! init)
 			{
+				ll_init_apr();
 				const F32 circuit_heartbeat_interval=5;
 				const F32 circuit_timeout=100;
 
@@ -73,7 +76,7 @@ namespace tut
 
 		static LLMessageBlock* defaultBlock(const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
 		{
-			return createBlock(_PREHASH_Test0, type, size, block);
+			return createBlock(const_cast<char*>(_PREHASH_Test0), type, size, block);
 		}
 
 		static LLMessageBlock* createBlock(char* name, const EMsgVariableType type = MVT_NULL, const S32 size = 0, EMsgBlockType block = MBT_VARIABLE)
@@ -81,12 +84,12 @@ namespace tut
 			LLMessageBlock* result = new LLMessageBlock(name, block);
 			if(type != MVT_NULL)
 			{
-				result->addVariable(_PREHASH_Test0, type, size);
+				result->addVariable(const_cast<char*>(_PREHASH_Test0), type, size);
 			}
 			return result;
 		}
 
-		static LLTemplateMessageBuilder* defaultBuilder(LLMessageTemplate& messageTemplate, char* name = _PREHASH_Test0)
+		static LLTemplateMessageBuilder* defaultBuilder(LLMessageTemplate& messageTemplate, char* name = const_cast<char*>(_PREHASH_Test0))
 		{
 			nameMap[_PREHASH_TestMessage] = &messageTemplate;
 			LLTemplateMessageBuilder* builder = new LLTemplateMessageBuilder(nameMap);
@@ -401,11 +404,11 @@ namespace tut
 
 		// build template: Test0 before Test1
 		LLMessageTemplate messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4, MBT_SINGLE));
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4, MBT_SINGLE));
 
 		// build message: 1st declared block var == 0xaaaa, 2nd declared block var == 0xbbbb
-		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate, _PREHASH_Test0);
+		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate, const_cast<char*>(_PREHASH_Test0));
 		builder->addU32(_PREHASH_Test0, 0xaaaa);
 		builder->nextBlock(_PREHASH_Test1);
 		builder->addU32(_PREHASH_Test0, 0xbbbb);
@@ -414,11 +417,11 @@ namespace tut
 
 		// build template: Test1 before Test0
 		messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4, MBT_SINGLE));
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4, MBT_SINGLE));
 
 		// build message: 1st declared block var == 0xaaaa, 2nd declared block var == 0xbbbb
-		builder = defaultBuilder(messageTemplate, _PREHASH_Test1);
+		builder = defaultBuilder(messageTemplate, const_cast<char*>(_PREHASH_Test1));
 		builder->addU32(_PREHASH_Test0, 0xaaaa);
 		builder->nextBlock(_PREHASH_Test0);
 		builder->addU32(_PREHASH_Test0, 0xbbbb);
@@ -441,11 +444,11 @@ namespace tut
 
 		// build template: Test0 before Test1
 		LLMessageTemplate messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4, MBT_SINGLE));
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4, MBT_SINGLE));
 
 		// build message: 1st declared block var == 0xaaaa, 2nd declared block var == 0xbbbb
-		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate, _PREHASH_Test0);
+		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate, const_cast<char*>(_PREHASH_Test0));
 		builder->addU32(_PREHASH_Test0, 0xaaaa);
 		builder->nextBlock(_PREHASH_Test1);
 		builder->addU32(_PREHASH_Test0, 0xbbbb);
@@ -453,7 +456,7 @@ namespace tut
 		delete builder;
 
 		// build message: 1st declared block var == 0xaaaa, 2nd declared block var == 0xbbbb
-		builder = defaultBuilder(messageTemplate, _PREHASH_Test1);
+		builder = defaultBuilder(messageTemplate, const_cast<char*>(_PREHASH_Test1));
 		builder->addU32(_PREHASH_Test0, 0xbbbb);
 		builder->nextBlock(_PREHASH_Test0);
 		builder->addU32(_PREHASH_Test0, 0xaaaa);
@@ -476,21 +479,21 @@ namespace tut
 
 		// Build template: Test0 only
 		LLMessageTemplate messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4, MBT_SINGLE));
 
 		// Build message
-		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate, _PREHASH_Test0);
+		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate, const_cast<char*>(_PREHASH_Test0));
 		builder->addU32(_PREHASH_Test0, 0xaaaa);
 		bufferSize1 = builder->buildMessage(buffer1, MAX_BUFFER_SIZE, 0);
 		delete builder;
 
 		// Build template: Test0 before Test1
 		messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4, MBT_SINGLE));
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4, MBT_SINGLE));
 
 		// Build message
-		builder = defaultBuilder(messageTemplate, _PREHASH_Test0);
+		builder = defaultBuilder(messageTemplate, const_cast<char*>(_PREHASH_Test0));
 		builder->addU32(_PREHASH_Test0, 0xaaaa);
 		builder->nextBlock(_PREHASH_Test1);
 		builder->addU32(_PREHASH_Test0, 0xbbbb);
@@ -509,8 +512,8 @@ namespace tut
 		U32 inTest00 = 0, inTest01 = 1, inTest1 = 2;
 		U32 outTest00, outTest01, outTest1;
 		LLMessageTemplate messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4));
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4));
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addU32(_PREHASH_Test0, inTest00);
 		builder->nextBlock(_PREHASH_Test0);
@@ -534,15 +537,15 @@ namespace tut
 		U32 inTest = 1, outTest;
 		LLMessageTemplate messageTemplate = defaultTemplate();
 		messageTemplate.addBlock(
-			createBlock(_PREHASH_Test0, MVT_U32, 4, MBT_SINGLE));
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4));
+			createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4));
 
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addU32(_PREHASH_Test0, inTest);
 
 		LLTemplateMessageReader* reader = setReader(messageTemplate, builder);
 		reader->getU32(_PREHASH_Test0, _PREHASH_Test0, outTest);
-		S32 blockCount = reader->getNumberOfBlocks(_PREHASH_Test1);
+		S32 blockCount = reader->getNumberOfBlocks(const_cast<char*>(_PREHASH_Test1));
 		ensure_equals("Ensure block count", blockCount, 0);
 		ensure_equals("Ensure Test0", inTest, outTest);
 		delete reader;
@@ -554,7 +557,7 @@ namespace tut
 	{
 		// build template
 		LLMessageTemplate messageTemplate = defaultTemplate();
-		messageTemplate.addBlock(createBlock(_PREHASH_Test0, MVT_U32, 4));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test0), MVT_U32, 4));
 
 		// build message
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
@@ -879,7 +882,7 @@ namespace tut
 		delete builder;
 
 		// add block to reader template
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4, MBT_SINGLE));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4, MBT_SINGLE));
 
 		// read message value and default value
 		numberMap[1] = &messageTemplate;
@@ -912,7 +915,7 @@ namespace tut
 		delete builder;
 
 		// add variable block to reader template
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_U32, 4));
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_U32, 4));
 
 		// read message value and check block repeat count
 		numberMap[1] = &messageTemplate;
@@ -945,7 +948,7 @@ namespace tut
 		delete builder;
 
 		// add variable block to reader template
-		messageTemplate.addBlock(createBlock(_PREHASH_Test1, MVT_VARIABLE, 4, 
+		messageTemplate.addBlock(createBlock(const_cast<char*>(_PREHASH_Test1), MVT_VARIABLE, 4,
 											 MBT_SINGLE));
 
 		// read message value and default string

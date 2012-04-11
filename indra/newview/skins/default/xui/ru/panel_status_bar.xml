@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="status">
+	<panel.string name="packet_loss_tooltip">
+		Потери пакетов
+	</panel.string>
+	<panel.string name="bandwidth_tooltip">
+		Ширина канала
+	</panel.string>
+	<panel.string name="time">
+		[hour, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]
+	</panel.string>
+	<panel.string name="timeTooltip">
+		[weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+	</panel.string>
+	<panel.string name="buycurrencylabel">
+		L$ [AMT]
+	</panel.string>
+	<panel name="balance_bg">
+		<text name="balance" tool_tip="Щелкните для обновления вашего баланса L$" value="L$20"/>
+		<button label="Купить L$" name="buyL" tool_tip="Щелкните для покупки L$"/>
+		<button label="Торговый центр" name="goShop" tool_tip="Открыть торговый центр Second Life" width="121"/>
+	</panel>
+	<text name="TimeText" tool_tip="Текущее время (тихоокеанское)">
+		00:00 (тихоокеанское время)
+	</text>
+	<button name="media_toggle_btn" tool_tip="Запуск/остановка всех медиа (музыка, видео, веб-страницы)"/>
+	<button name="volume_btn" tool_tip="Регулятор громкости"/>
+</panel>

@@ -41,7 +41,6 @@
 #include "llstring.h"
 #include "apr_env.h"
 #include "llapr.h"
-#include "llscopedvolatileaprpool.h"
 static const U32 HTTP_STATUS_PIPE_ERROR = 499;
 
 /**
@@ -65,7 +64,7 @@ public:
 	~LLURLRequestDetail();
 	std::string mURL;
 	LLCurlEasyRequest* mCurlRequest;
-	LLBufferArray* mResponseBuffer;
+	LLIOPipe::buffer_ptr_t mResponseBuffer;
 	LLChannelDescriptors mChannels;
 	U8* mLastRead;
 	U32 mBodyLimit;
@@ -76,7 +75,6 @@ public:
 
 LLURLRequestDetail::LLURLRequestDetail() :
 	mCurlRequest(NULL),
-	mResponseBuffer(NULL),
 	mLastRead(NULL),
 	mBodyLimit(0),
 	mByteAccumulator(0),
@@ -85,13 +83,18 @@ LLURLRequestDetail::LLURLRequestDetail() :
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mCurlRequest = new LLCurlEasyRequest();
+	
+	if(!mCurlRequest->isValid()) //failed.
+	{
+		delete mCurlRequest ;
+		mCurlRequest = NULL ;
+	}
 }
 
 LLURLRequestDetail::~LLURLRequestDetail()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	delete mCurlRequest;
-	mResponseBuffer = NULL;
 	mLastRead = NULL;
 }
 
@@ -171,6 +174,7 @@ LLURLRequest::~LLURLRequest()
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	delete mDetail;
+	mDetail = NULL ;
 }
 
 void LLURLRequest::setURL(const std::string& url)
@@ -212,31 +216,27 @@ void LLURLRequest::setCallback(LLURLRequestComplete* callback)
 // is called with use_proxy = FALSE
 void LLURLRequest::useProxy(bool use_proxy)
 {
-    static std::string env_proxy;
+    static char *env_proxy;
 
-    if (use_proxy && env_proxy.empty())
+    if (use_proxy && (env_proxy == NULL))
     {
-		char* env_proxy_str;
-        LLScopedVolatileAPRPool scoped_pool;
-        apr_status_t status = apr_env_get(&env_proxy_str, "ALL_PROXY", scoped_pool);
+        apr_status_t status;
+        LLAPRPool pool;
+		status = apr_env_get(&env_proxy, "ALL_PROXY", pool.getAPRPool());
         if (status != APR_SUCCESS)
         {
-			status = apr_env_get(&env_proxy_str, "http_proxy", scoped_pool);
+			status = apr_env_get(&env_proxy, "http_proxy", pool.getAPRPool());
         }
         if (status != APR_SUCCESS)
         {
-            use_proxy = false;
+           use_proxy = FALSE;
         }
-		else
-		{
-			// env_proxy_str is stored in the scoped_pool, so we have to make a copy.
-			env_proxy = env_proxy_str;
-		}
     }
 
-    LL_DEBUGS("Proxy") << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (!env_proxy.empty() ? env_proxy : "(null)") << LL_ENDL;
 
-    if (use_proxy && !env_proxy.empty())
+    lldebugs << "use_proxy = " << (use_proxy?'Y':'N') << ", env_proxy = " << (env_proxy ? env_proxy : "(null)") << llendl;
+
+    if (env_proxy && use_proxy)
     {
 		mDetail->mCurlRequest->setoptString(CURLOPT_PROXY, env_proxy);
     }
@@ -256,12 +256,24 @@ void LLURLRequest::allowCookies()
 	mDetail->mCurlRequest->setoptString(CURLOPT_COOKIEFILE, "");
 }
 
+//virtual 
+bool LLURLRequest::isValid() 
+{
+	return mDetail->mCurlRequest && mDetail->mCurlRequest->isValid(); 
+}
+
 // virtual
 LLIOPipe::EStatus LLURLRequest::handleError(
 	LLIOPipe::EStatus status,
 	LLPumpIO* pump)
 {
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
+	
+	if(!isValid())
+	{
+		return STATUS_EXPIRED ;
+	}
+
 	if(mCompletionCallback && pump)
 	{
 		LLURLRequestComplete* complete = NULL;
@@ -330,7 +342,7 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 
 		// *FIX: bit of a hack, but it should work. The configure and
 		// callback method expect this information to be ready.
-		mDetail->mResponseBuffer = buffer.get();
+		mDetail->mResponseBuffer = buffer;
 		mDetail->mChannels = channels;
 		if(!configure())
 		{
@@ -349,7 +361,10 @@ LLIOPipe::EStatus LLURLRequest::process_impl(
 		static LLFastTimer::DeclareTimer FTM_URL_PERFORM("Perform");
 		{
 			LLFastTimer t(FTM_URL_PERFORM);
-			mDetail->mCurlRequest->perform();
+			if(!mDetail->mCurlRequest->wait())
+			{
+				return status ;
+			}
 		}
 
 		while(1)
@@ -444,6 +459,12 @@ void LLURLRequest::initialize()
 	LLMemType m1(LLMemType::MTYPE_IO_URL_REQUEST);
 	mState = STATE_INITIALIZED;
 	mDetail = new LLURLRequestDetail;
+
+	if(!isValid())
+	{
+		return ;
+	}
+
 	mDetail->mCurlRequest->setopt(CURLOPT_NOSIGNAL, 1);
 	mDetail->mCurlRequest->setWriteCallback(&downCallback, (void*)this);
 	mDetail->mCurlRequest->setReadCallback(&upCallback, (void*)this);

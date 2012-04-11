@@ -7,9 +7,9 @@
 		Construído com [COMPILER] versão [COMPILER_VERSION]
 	</floater.string>
 	<floater.string name="AboutPosition">
-		Você está em [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] em [REGION] localizado em &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt;([HOSTIP])
+		Você está em [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] em [REGION] localizado em [HOSTNAME]&lt;/nolink&gt;([HOSTIP])
 [SERVER_VERSION]
-[[SERVER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[SERVER_RELEASE_NOTES_URL]
 	</floater.string>
 	<floater.string name="AboutSystem">
 		CPU: [CPU]
@@ -35,6 +35,9 @@ Versão do servidor de voz: [VOICE_VERSION]
 	</floater.string>
 	<floater.string name="AboutTraffic">
 		Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</floater.string>
+	<floater.string name="ErrorFetchingServerReleaseNotesURL">
+		Erro ao obter URL de notas de versão do servidor.
 	</floater.string>
 	<tab_container name="about_tab">
 		<panel label="Info" name="support_panel">
@@ -62,13 +65,35 @@ Versão do servidor de voz: [VOICE_VERSION]
 		</panel>
 		<panel label="Licenças" name="licenses_panel">
 			<text_editor name="credits_editor">
-				3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion APR Copyright (C) 2000-2004 The Apache Software Foundation Collada DOM Copyright 2005 Sony Computer Entertainment Inc. cURL Copyright (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se) DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc. expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd. FreeType Copyright (C) 1996-2002, The FreeType Project (www.freetype.org). GL Copyright (C) 1999-2004 Brian Paul. GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University and David Luebke, Brenden Schubert, University of Virginia. google-perftools Copyright (c) 2005, Google Inc. Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited. jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW) jpeglib Copyright (C) 1991-1998, Thomas G. Lane. ogg/vorbis Copyright (C) 2001, Xiphophorus OpenSSL Copyright (C) 1998-2002 The OpenSSL Project. PCRE Copyright (c) 1997-2008 University of Cambridge SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com) xmlrpc-epi Copyright (C) 2000 Epinions, Inc. zlib Copyright (C) 1995-2002 Jean-loup Gailly and Mark Adler. google-perftools Copyright (c) 2005, Google Inc.
+				3Dconnexion SDK Copyright (C) 1992-2007 3Dconnexion
+        APR Copyright (C) 2000-2004 The Apache Software Foundation
+        Collada DOM Copyright 2005 Sony Computer Entertainment Inc.
+        cURL Copyright (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
+        DBus/dbus-glib Copyright (C) 2002, 2003  CodeFactory AB / Copyright (C) 2003, 2004 Red Hat, Inc.
+        expat Copyright (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
+        FreeType Copyright (C) 1996-2002, The FreeType Project (www.freetype.org).
+        GL Copyright (C) 1999-2004 Brian Paul.
+        GLOD Copyright (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University e David Luebke, Brenden Schubert, University of Virginia.
+        google-perftools Copyright (c) 2005, Google Inc.
+        Havok.com(TM) Copyright (C) 1999-2001, Telekinesys Research Limited.
+        jpeg2000 Copyright (C) 2001, David Taubman, The University of New South Wales (UNSW)
+        jpeglib Copyright (C) 1991-1998, Thomas G. Lane.
+        ogg/vorbis Copyright (C) 2001, Xiphophorus
+        OpenSSL Copyright (C) 1998-2002 The OpenSSL Project.
+        PCRE Copyright (c) 1997-2008 University of Cambridge
+        SDL Copyright (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
+        SSLeay Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+        xmlrpc-epi Copyright (C) 2000 Epinions, Inc.
+        zlib Copyright (C) 1995-2002 Jean-loup Gailly and Mark Adler.
+        google-perftools Copyright (c) 2005, Google Inc.
 
-O Second Life Viewer usa Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (e licenciadores). Todos os direitos reservados. Mais detalhes em www.havok.com
+        O Visualizador do Second Life usa Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (e seus Licenciantes). Todos os direitos reservados. Consulte www.havok.com para obter detalhes.
 
-Todos os direitos reservados.  Mais detalhes em licenses.txt.
+        Este software contém código fonte fornecido pela NVIDIA Corporation.
 
-Codificação do áudio de bate-papo de voz: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+        Todos os direitos reservados.  Consulte licenses.txt para obter detalhes.
+
+        Codificação de áudio da conversa com voz: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
 			</text_editor>
 		</panel>
 	</tab_container>

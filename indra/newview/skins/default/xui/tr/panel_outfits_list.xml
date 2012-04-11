@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="Outfits">
+	<accordion name="outfits_accordion">
+		<no_matched_tabs_text name="no_matched_outfits_msg" value="Aradığınızı bulamadınız mı? [secondlife:///app/search/all/[SEARCH_TERM] Arama] yapmayı deneyin."/>
+		<no_visible_tabs_text name="no_outfits_msg" value="Henüz herhangi bir dış görünümünüz yok. Try [secondlife:///app/search/all/ Arama] yapmayı deneyin"/>
+	</accordion>
+	<panel name="bottom_panel">
+		<menu_button name="options_gear_btn" tool_tip="İlave seçenekleri göster"/>
+		<button name="trash_btn" tool_tip="Seçili dış görünümü sil"/>
+	</panel>
+</panel>

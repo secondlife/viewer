@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Edit Sky Preset" title="Изменить настройку неба">
+	<string name="title_new">
+		Создать настройку неба
+	</string>
+	<string name="title_edit">
+		Изменить настройку неба
+	</string>
+	<string name="hint_new">
+		Введите имя настройки, задайте ее параметры с помощью элементов управления и нажмите кнопку «Сохранить».
+	</string>
+	<string name="hint_edit">
+		Чтобы изменить настройку неба, задайте ее параметры с помощью элементов управления и нажмите кнопку «Сохранить».
+	</string>
+	<string name="combo_label">
+		-Выбор настройки-
+	</string>
+	<text name="hint">
+		Чтобы изменить настройку, задайте ее параметры с помощью элементов управления и нажмите кнопку «Сохранить».
+	</text>
+	<text name="label">
+		Имя настройки:
+	</text>
+	<text name="note">
+		Примечание. Если изменить имя настройки, будет создана новая настройка, а изменения в существующей не будут сохранены.
+	</text>
+	<tab_container name="WindLight Tabs">
+		<panel label="АТМОСФЕРА" name="Atmosphere">
+			<text name="BHText">
+				Голубой горизонт
+			</text>
+			<text name="BDensText">
+				Дымка на горизонте
+			</text>
+			<text name="BDensText2">
+				Насыщенность голубого
+			</text>
+			<text name="HDText">
+				Плотность дымки
+			</text>
+			<text name="DensMultText">
+				Коэффициент плотности
+			</text>
+			<text name="WLDistanceMultText">
+				Коэффициент расстояния
+			</text>
+			<text name="MaxAltText">
+				Максимальная высота
+			</text>
+		</panel>
+		<panel label="ОСВЕЩЕНИЕ" name="Lighting">
+			<text name="SLCText">
+				Цвет солнца/луны
+			</text>
+			<text name="WLAmbientText">
+				Рассеянное
+			</text>
+			<text name="SunGlowText">
+				Сияние солнца
+			</text>
+			<slider label="Фокус" name="WLGlowB"/>
+			<slider label="Размер" name="WLGlowR"/>
+			<text name="WLStarText">
+				Яркость звезд
+			</text>
+			<text name="SceneGammaText">
+				Гамма-коррекция сцены
+			</text>
+			<text name="TODText">
+				Положение солнца/луны
+			</text>
+			<multi_slider initial_value="0" name="WLSunPos"/>
+			<text name="WL12amHash">
+				|
+			</text>
+			<text name="WL6amHash">
+				|
+			</text>
+			<text name="WL12pmHash2">
+				|
+			</text>
+			<text name="WL6pmHash">
+				|
+			</text>
+			<text name="WL12amHash2">
+				|
+			</text>
+			<text name="WL12am">
+				12 ночи
+			</text>
+			<text name="WL6am">
+				6 утра
+			</text>
+			<text name="WL12pmHash">
+				12 дня
+			</text>
+			<text name="WL6pm">
+				6 вечера
+			</text>
+			<text name="WL12am2">
+				12 ночи
+			</text>
+			<time name="WLDayTime" value="6:00"/>
+			<text name="WLEastAngleText">
+				Смещение отн. востока
+			</text>
+		</panel>
+		<panel label="ОБЛАКА" name="Clouds">
+			<text name="WLCloudColorText">
+				Цвет
+			</text>
+			<text name="WLCloudColorText2">
+				Положение и плотность
+			</text>
+			<slider label="X" name="WLCloudX"/>
+			<slider label="Y" name="WLCloudY"/>
+			<slider label="П" name="WLCloudDensity"/>
+			<text name="WLCloudCoverageText">
+				Облачность
+			</text>
+			<text name="WLCloudScaleText">
+				Размеры
+			</text>
+			<text name="WLCloudDetailText">
+				Детали (положение/плотность)
+			</text>
+			<slider label="X" name="WLCloudDetailX"/>
+			<slider label="Y" name="WLCloudDetailY"/>
+			<slider label="П" name="WLCloudDetailDensity"/>
+			<text name="WLCloudScrollXText">
+				Скорость по X
+			</text>
+			<check_box label="На месте" name="WLCloudLockX"/>
+			<text name="WLCloudScrollYText">
+				Скорость по Y
+			</text>
+			<check_box label="На месте" name="WLCloudLockY"/>
+		</panel>
+	</tab_container>
+	<check_box label="Применить эту настройку неба" name="make_default_cb"/>
+	<button label="Сохранить" name="save"/>
+	<button label="Отмена" name="cancel"/>
+</floater>

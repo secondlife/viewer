@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="nearby_chat">
+	<check_box label="Traducir el chat" name="translate_chat_checkbox"/>
+</panel>

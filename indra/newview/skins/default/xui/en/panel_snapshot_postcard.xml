@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_snapshot_postcard"
+ width="490">
+    <string
+     name="default_subject">
+        Postcard from [SECOND_LIFE].
+    </string>
+    <string
+     name="default_message">
+        Check this out!
+    </string>
+    <string
+     name="upload_message">
+        Sending...
+    </string>
+    <icon
+     follows="top|left"
+     height="18"
+     image_name="Snapshot_Email"
+     layout="topleft"
+     left="12"
+     mouse_opaque="true"
+     name="title_icon"
+     top="5"
+     width="18" />
+    <text
+     follows="top|left|right"
+     font="SansSerifBold"
+     height="20"
+     layout="topleft"
+     left_pad="12"
+     length="1"
+     name="title"
+     right="-10"
+     text_color="white"
+     type="string"
+     top_delta="3">
+        Email
+    </text>
+    <button
+     follows="right|top"
+     height="23"
+     is_toggle="true"
+     label="Message"
+     layout="topleft"
+     name="message_btn"
+     right="-82"
+     top_delta="-7"
+     width="70">
+      <button.commit_callback
+       function="Postcard.Message" />
+    </button>
+    <button
+     follows="right|top"
+     height="23"
+     is_toggle="true"
+     label="Settings"
+     layout="topleft"
+     name="settings_btn"
+     top_delta="0"
+     right="-10"
+     width="70">
+      <button.commit_callback
+       function="Postcard.Settings" />
+    </button>
+    <view_border 
+     bevel_style="in"
+     follows="left|top|right" 
+     height="1"
+     left="10"
+     layout="topleft"
+     name="hr"
+     right="-10"
+     top_pad="5"
+     />
+    <panel_container
+     follows="all"
+     height="340"
+     layout="topleft"
+     left="0"
+     name="postcard_panel_container"
+     default_panel_name="panel_postcard_message"
+     top_pad="10"
+     width="490">
+      <panel
+       follows="all"
+       layout="topleft"
+       name="panel_postcard_message"
+       filename="panel_postcard_message.xml" />
+      <panel
+       follows="all"
+       layout="topleft"
+       name="panel_postcard_settings"
+       filename="panel_postcard_settings.xml" />
+    </panel_container>
+</panel>

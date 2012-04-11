@@ -5,24 +5,24 @@ project(llui)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
+include(LLInventory)
 include(LLMath)
 include(LLMessage)
 include(LLRender)
 include(LLWindow)
 include(LLVFS)
 include(LLXML)
-include(LLXUIXML)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
+    ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLXUIXML_INCLUDE_DIRS}
     )
 
 set(llui_SOURCE_FILES
@@ -35,6 +35,7 @@ set(llui_SOURCE_FILES
     llcheckboxctrl.cpp
     llclipboard.cpp
     llcombobox.cpp
+    llcommandmanager.cpp
     llconsole.cpp
     llcontainerview.cpp
     llctrlselectioninterface.cpp
@@ -80,7 +81,6 @@ set(llui_SOURCE_FILES
     llscrolllistcolumn.cpp
     llscrolllistctrl.cpp
     llscrolllistitem.cpp
-    llsdparam.cpp
     llsearcheditor.cpp
     llslider.cpp
     llsliderctrl.cpp
@@ -97,10 +97,13 @@ set(llui_SOURCE_FILES
     lltextutil.cpp
     lltextvalidate.cpp
     lltimectrl.cpp
+    lltrans.cpp
     lltransutil.cpp
     lltoggleablemenu.cpp
+    lltoolbar.cpp
     lltooltip.cpp
     llui.cpp
+    lluicolor.cpp
     lluicolortable.cpp
     lluictrl.cpp
     lluictrlfactory.cpp
@@ -112,10 +115,12 @@ set(llui_SOURCE_FILES
     llurlmatch.cpp
     llurlregistry.cpp
     llviewborder.cpp
+    llviewinject.cpp
     llviewmodel.cpp
     llview.cpp
     llviewquery.cpp
     llwindowshade.cpp
+    llxuiparser.cpp
     )
     
 set(llui_HEADER_FILES
@@ -131,6 +136,7 @@ set(llui_HEADER_FILES
     llcheckboxctrl.h
     llclipboard.h
     llcombobox.h
+    llcommandmanager.h
     llconsole.h
     llcontainerview.h
     llctrlselectioninterface.h
@@ -183,7 +189,6 @@ set(llui_HEADER_FILES
     llscrolllistcolumn.h
     llscrolllistctrl.h
     llscrolllistitem.h
-    llsdparam.h
     llsliderctrl.h
     llslider.h
     llspinctrl.h
@@ -200,7 +205,9 @@ set(llui_HEADER_FILES
     lltextvalidate.h
     lltimectrl.h
     lltoggleablemenu.h
+    lltoolbar.h
     lltooltip.h
+    lltrans.h
     lltransutil.h
     lluicolortable.h
     lluiconstants.h
@@ -208,6 +215,7 @@ set(llui_HEADER_FILES
     lluictrl.h
     lluifwd.h
     llui.h
+    lluicolor.h
     lluiimage.h
     lluistring.h
     llundo.h
@@ -216,10 +224,12 @@ set(llui_HEADER_FILES
     llurlmatch.h
     llurlregistry.h
     llviewborder.h
+    llviewinject.h
     llviewmodel.h
     llview.h
     llviewquery.h
     llwindowshade.h
+    llxuiparser.h
     )
 
 set_source_files_properties(${llui_HEADER_FILES}
@@ -245,6 +255,7 @@ target_link_libraries(llui
     ${LLRENDER_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
+    ${LLINVENTORY_LIBRARIES}
     ${LLVFS_LIBRARIES}    # ugh, just for LLDir
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}

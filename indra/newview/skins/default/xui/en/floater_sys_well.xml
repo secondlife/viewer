@@ -2,9 +2,6 @@
 <floater
  legacy_header_height="18"
  bevel_style="in"
- left="0"
- top="0"
- follows="right|bottom"
  layout="topleft"
  name="sys_well_window"
  help_topic="notification_chiclet"
@@ -18,6 +15,7 @@
  can_resize="true"
  can_drag_on_left="false"
  can_dock="true"
+ save_dock_state="true"
  save_visibility="true"
  single_instance="true"
 >

@@ -4,12 +4,12 @@ bg_opaque_color="DkGray2"
        background_visible="true"
        background_opaque="true"
  follows="all"
- height="548"
+ height="571"
  label="Picks"
  layout="topleft"
- left="0"
+ left="8"
  name="panel_picks"
- top="0"
+ top_pad="0"
  width="313">
  <string
   name="no_picks"
@@ -30,7 +30,7 @@ bg_opaque_color="DkGray2"
  <accordion
   fit_parent="true" 
   follows="all"
-  height="485"
+  height="514"
   layout="topleft"
   left="0"
   name="accordion"
@@ -81,10 +81,10 @@ bg_opaque_color="DkGray2"
        left="1"
        height="27"
        label="bottom_panel"
-       layout="bottom"
+       layout="topleft"
        name="edit_panel"
-       top_pad="-2"
-       width="313">
+       top_pad="0"
+       width="312">
          
          <layout_stack
 		  follows="bottom|left|right"
@@ -102,7 +102,6 @@ bg_opaque_color="DkGray2"
 			  layout="bottomleft"
 			  left="0"
 			  name="gear_menu_btn"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="51">
 				<button
@@ -124,7 +123,6 @@ bg_opaque_color="DkGray2"
 			  height="18"
 			  layout="bottomleft"
 			  name="trash_btn_lp"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="18">
 				<button
@@ -149,8 +147,9 @@ bg_opaque_color="DkGray2"
          follows="bottom|left|right"
          layout="topleft"
          left="0"
-         height="40"
+         height="30"
          name="buttons_cucks"
+         top_pad="0"
          width="313">
       
       <layout_stack
@@ -169,7 +168,6 @@ bg_opaque_color="DkGray2"
 			  layout="topleft"
 			  left="0"
 			  name="info_btn_lp"
-		      user_resize="false" 
 		      auto_resize="true"
 			  top="0"
 			  width="95">
@@ -191,7 +189,6 @@ bg_opaque_color="DkGray2"
 			  layout="bottomleft" 
 			  left_pad="2"
 			  name="teleport_btn_lp"
-		      user_resize="false" 
 		      auto_resize="true"
 			  width="117">
 		        <button
@@ -211,7 +208,6 @@ bg_opaque_color="DkGray2"
 			  height="28"
 			  layout="bottomleft"
 			  name="show_on_map_btn_lp"
-		      user_resize="false" 
 		      auto_resize="true" 
 			  left_pad="2"
 			  width="90">

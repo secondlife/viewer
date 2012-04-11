@@ -67,11 +67,6 @@
          value="it" />
         <combo_box.item
          enabled="true"
-         label="Nederlands (Dutch) - Beta"
-         name="Dutch"
-         value="nl" />
-        <combo_box.item
-         enabled="true"
          label="Polski (Polish) - Beta"
          name="Polish"
          value="pl" />
@@ -82,9 +77,24 @@
          value="pt" />
         <combo_box.item
          enabled="true"
+         label="Русский (Russian) - Beta"
+         name="Russian"
+         value="ru" />
+        <combo_box.item
+         enabled="true"
+         label="Türkçe (Turkish) - Beta"
+         name="Turkish"
+         value="tr" />
+        <combo_box.item
+         enabled="true"
          label="日本語 (Japanese) - Beta"
          name="(Japanese)"
          value="ja" />
+        <combo_box.item
+         enabled="true"
+         label="正體中文 (Traditional Chinese) - Beta"
+         name="Traditional Chinese"
+         value="zh" />
     </combo_box>
     <text
  font="SansSerifSmall"
@@ -410,7 +420,7 @@
      follows="left|top"
      height="29"
      layout="topleft"
-     left="50"
+     left="30"
      name="busy_response"
      width="470"
      word_wrap="true">

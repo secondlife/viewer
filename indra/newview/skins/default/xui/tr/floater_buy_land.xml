@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="buy land" title="ARAZİ SATIN AL">
+	<floater.string name="can_resell">
+		Tekrar satılabilir.
+	</floater.string>
+	<floater.string name="can_not_resell">
+		Tekrar satılamaz.
+	</floater.string>
+	<floater.string name="can_change">
+		Eklenebilir veya bölünebilir.
+	</floater.string>
+	<floater.string name="can_not_change">
+		Eklenemez veya bölünemez.
+	</floater.string>
+	<floater.string name="cant_buy_for_group">
+		Etkin grubunuz adına arazi satın almak için gerekli izne sahip değilsiniz.
+	</floater.string>
+	<floater.string name="no_land_selected">
+		Seçili arazi yok.
+	</floater.string>
+	<floater.string name="multiple_parcels_selected">
+		Birden fazla farklı parsel seçildi. 
+Daha küçük bir alan seçmeyi deneyin.
+	</floater.string>
+	<floater.string name="no_permission">
+		Etkin grubunuz adına arazi satın almak için gerekli izne sahip değilsiniz.
+	</floater.string>
+	<floater.string name="parcel_not_for_sale">
+		Seçilen parsel satılık değil.
+	</floater.string>
+	<floater.string name="group_already_owns">
+		Parsel zaten gruba ait.
+	</floater.string>
+	<floater.string name="you_already_own">
+		Parsel zaten size ait.
+	</floater.string>
+	<floater.string name="set_to_sell_to_other">
+		Seçilen parsel başka birisine satılmak için ayrılmış.
+	</floater.string>
+	<floater.string name="no_public_land">
+		Seçilen alanda kamu arazisi yok.
+	</floater.string>
+	<floater.string name="not_owned_by_you">
+		Başka bir Sakine ait arazi seçildi. 
+Daha küçük bir alan seçmeyi deneyin.
+	</floater.string>
+	<floater.string name="processing">
+		Satın alımınız işleniyor...
+ 
+(Bu işlem bir iki dakika sürebilir.)
+	</floater.string>
+	<floater.string name="fetching_error">
+		Arazi alma bilgileri çekilirken hata oluştu.
+	</floater.string>
+	<floater.string name="buying_will">
+		Arazinin satın alınması sonucu:
+	</floater.string>
+	<floater.string name="buying_for_group">
+		Bu arazinin grup için satın alınması sonucu:
+	</floater.string>
+	<floater.string name="cannot_buy_now">
+		Şimdi satın alamaz:
+	</floater.string>
+	<floater.string name="not_for_sale">
+		Satılık değil:
+	</floater.string>
+	<floater.string name="none_needed">
+		hiç ihtiyaç yok
+	</floater.string>
+	<floater.string name="must_upgrade">
+		Arazi sahibi olmak için hesabınızın yükseltilmesi gerekir.
+	</floater.string>
+	<floater.string name="cant_own_land">
+		Hesabınız arazi sahibi olabilir.
+	</floater.string>
+	<floater.string name="land_holdings">
+		Elinizde [BUYER] m² arazi var.
+	</floater.string>
+	<floater.string name="pay_to_for_land">
+		Bu arazi için [SELLER]&apos;e L$[AMOUNT] ödeyin
+	</floater.string>
+	<floater.string name="buy_for_US">
+		Yaklaşık [LOCAL_AMOUNT] için L$[AMOUNT] satın al,
+	</floater.string>
+	<floater.string name="parcel_meters">
+		Bu parsel [AMOUNT] m²
+	</floater.string>
+	<floater.string name="premium_land">
+		Bu parsel primlidir ve [AMOUNT] m² olarak ücretlendirilecektir.
+	</floater.string>
+	<floater.string name="discounted_land">
+		Bu parsel indirimlidir ve [AMOUNT] m² olarak ücretlendirilecektir.
+	</floater.string>
+	<floater.string name="meters_supports_object">
+		[AMOUNT] m²
+[AMOUNT2] nesneyi destekler
+	</floater.string>
+	<floater.string name="sold_with_objects">
+		nesnelerle satılır
+	</floater.string>
+	<floater.string name="sold_without_objects">
+		nesneler dahil değildir
+	</floater.string>
+	<floater.string name="info_price_string">
+		L$[PRICE]
+(L$ [PRICE_PER_SQM]/m²)
+[SOLD_WITH_OBJECTS]
+	</floater.string>
+	<floater.string name="insufficient_land_credits">
+		[GROUP] grubu, satın almanın gerçekleşmesi için bu parselin fiyatını karşılamak amacıyla yeterli miktarda arazi kullanım kredisine ihtiyaç duyacaktır.
+	</floater.string>
+	<floater.string name="have_enough_lindens">
+		L$ [AMOUNT] sahibisiniz, bu da bu araziyi almaya yeter.
+	</floater.string>
+	<floater.string name="not_enough_lindens">
+		Sadece L$ [AMOUNT] sahibisiniz, L$ [AMOUNT2]  kadar daha ihtiyacınız var.
+	</floater.string>
+	<floater.string name="balance_left">
+		Satın alımdan sonra elinizde L$ [AMOUNT] kalacak.
+	</floater.string>
+	<floater.string name="balance_needed">
+		Bu araziyi alabilmek için en az L$ [AMOUNT] almanız gerekir.
+	</floater.string>
+	<floater.string name="no_parcel_selected">
+		(seçili parsel yok)
+	</floater.string>
+	<text name="region_name_label">
+		Bölge:
+	</text>
+	<text name="region_name_text">
+		(bilinmiyor)
+	</text>
+	<text name="region_type_label">
+		Tür:
+	</text>
+	<text name="region_type_text">
+		(bilinmiyor)
+	</text>
+	<text name="estate_name_label">
+		Gayrimenkul:
+	</text>
+	<text name="estate_name_text">
+		(bilinmiyor)
+	</text>
+	<text name="estate_owner_label">
+		Gayrimenkul Sahibi:
+	</text>
+	<text name="estate_owner_text">
+		(bilinmiyor)
+	</text>
+	<text name="resellable_changeable_label">
+		Bu bölgede satın alınan arazi:
+	</text>
+	<text name="resellable_clause">
+		Tekrar satılabilir veya satılamaz.
+	</text>
+	<text name="changeable_clause">
+		Eklenebilir/bölünebilir veya eklenemez/bölünemez.
+	</text>
+	<text name="covenant_text">
+		Gayrimenkul Sözleşmesini kabul etmelisiniz:
+	</text>
+	<text_editor name="covenant_editor">
+		Yükleniyor...
+	</text_editor>
+	<check_box label="Yukarıda Tanımlanan Sözleşmeyi Kabul Ediyorum." name="agree_covenant"/>
+	<text name="info_parcel_label">
+		Parsel:
+	</text>
+	<text name="info_parcel">
+		Scotopteryx 138,204
+	</text>
+	<text name="info_size_label">
+		Büyüklük:
+	</text>
+	<text name="info_size">
+		1.024 m²
+	</text>
+	<text name="info_price_label">
+		Fiyat:
+	</text>
+	<text name="info_price">
+		L$ 1500
+(L$ 1,1/m²)
+nesnelerle satılır
+	</text>
+	<text name="info_action">
+		Arazinin satın alınması sonucu:
+	</text>
+	<text name="error_message">
+		Bir şeyler yolunda değil.
+	</text>
+	<button label="Web sitesine git" name="error_web"/>
+	<text name="account_action">
+		Ücretli üyeliğini yükselt.
+	</text>
+	<text name="account_reason">
+		Sadece ücretli üyeler arazi sahibi olabilir.
+	</text>
+	<combo_box name="account_level">
+		<combo_box.item label="US$9,95/ay, aylık fatura edilir" name="US$9.95/month,billedmonthly"/>
+		<combo_box.item label="US$7,50/ay, üç aylık fatura edilir" name="US$7.50/month,billedquarterly"/>
+		<combo_box.item label="US$6,00/ay, yıllık fatura edilir" name="US$6.00/month,billedannually"/>
+	</combo_box>
+	<text name="land_use_action">
+		Aylık arazi kullanım ücretlerinizi US$40/aya çıkarın.
+	</text>
+	<text name="land_use_reason">
+		Elinizde 1309 m² arazi var.
+Bu parsel 512 m² arazidir.
+	</text>
+	<text name="purchase_action">
+		Arazi için Joe Sakine L$ 4000 ödeme yap
+	</text>
+	<text name="currency_reason">
+		L$ 2.100&apos;ünüz var.
+	</text>
+	<text name="currency_action">
+		İlave L$ satın al
+	</text>
+	<line_editor name="currency_amt">
+		1000
+	</line_editor>
+	<text name="currency_est">
+		yaklaşık [LOCAL_AMOUNT] için
+	</text>
+	<text name="currency_balance">
+		L$ 2.100&apos;ünüz var.
+	</text>
+	<check_box label="[AMOUNT] m² katkıyı gruptan kaldır." name="remove_contribution"/>
+	<button label="Satın Al" name="buy_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+</floater>

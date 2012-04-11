@@ -468,13 +468,20 @@ void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t c
 
 void LLParticipantList::updateRecentSpeakersOrder()
 {
-	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
+	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder() && !isHovered())
 	{
 		// Need to update speakers to sort list correctly
 		mSpeakerMgr->update(true);
 		// Resort avatar list
 		sort();
 	}
+}
+
+bool LLParticipantList::isHovered()
+{
+	S32 x, y;
+	LLUI::getMousePositionScreen(&x, &y);
+	return mAvatarList->calcScreenRect().pointInRect(x, y);
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)

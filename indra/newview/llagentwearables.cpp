@@ -33,6 +33,7 @@
 #include "llagentwearablesfetch.h"
 #include "llappearancemgr.h"
 #include "llcallbacklist.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llgesturemgr.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
@@ -42,7 +43,6 @@
 #include "llnotificationsutil.h"
 #include "lloutfitobserver.h"
 #include "llsidepanelappearance.h"
-#include "llsidetray.h"
 #include "lltexlayer.h"
 #include "lltooldraganddrop.h"
 #include "llviewerregion.h"
@@ -185,6 +185,7 @@ void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
 { 
 	if (avatar)
 	{
+		avatar->outputRezTiming("Sending wearables request");
 		sendAgentWearablesRequest();
 	}
 }
@@ -949,6 +950,11 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (mInitialWearablesUpdateReceived)
 		return;
 
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Received initial wearables update");
+	}
+
 	// notify subscribers that wearables started loading. See EXT-7777
 	// *TODO: find more proper place to not be called from deprecated method.
 	// Seems such place is found: LLInitialWearablesFetch::processContents()
@@ -1168,14 +1174,11 @@ private:
 	std::vector<LLWearable*> mWearablesAwaitingItems;
 };
 
-void LLAgentWearables::createStandardWearables(BOOL female)
+void LLAgentWearables::createStandardWearables()
 {
-	llwarns << "Creating Standard " << (female ? "female" : "male")
-			<< " Wearables" << llendl;
+	llwarns << "Creating standard wearables" << llendl;
 
 	if (!isAgentAvatarValid()) return;
-
-	gAgentAvatarp->setSex(female ? SEX_FEMALE : SEX_MALE);
 
 	const BOOL create[LLWearableType::WT_COUNT] = 
 		{
@@ -1622,6 +1625,11 @@ void LLAgentWearables::queryWearableCache()
 	//VWR-22113: gAgent.getRegion() can return null if invalid, seen here on logout
 	if(gAgent.getRegion())
 	{
+		if (isAgentAvatarValid())
+		{
+			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
+		}
+
 		llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		gAgentQueryManager.mNumPendingQueries++;
@@ -2015,7 +2023,7 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 	}
 
 	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
-	LLPanel* panel = LLSideTray::getInstance()->getPanel("sidepanel_appearance");
+	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("appearance");
 	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }
 

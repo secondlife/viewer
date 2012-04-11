@@ -9,7 +9,6 @@
   name="floater_web_content"
   help_topic="floater_web_content"
   save_rect="true"
-  auto_tile="true"
   title=""
   initial_mime_type="text/html"
   width="780">
@@ -32,7 +31,6 @@
       min_height="20"
       name="nav_controls"
       top="400"
-      user_resize="false"
       width="770">
       <button
         image_overlay="Arrow_Left_Off"
@@ -161,7 +159,6 @@
       left_delta="0"
       name="external_controls"
       top_delta="0"
-      user_resize="false"
       auto_resize="true"
       width="585">
       <web_browser
@@ -174,8 +171,7 @@
     </layout_panel>
     <layout_panel name="status_bar" 
                   height="23"
-                  auto_resize="false"
-                  user_resize="false">
+                  auto_resize="false">
       <text
         type="string"
         length="200"

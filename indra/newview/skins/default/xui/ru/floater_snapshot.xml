@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="ПРОСМОТР СНИМКА">
+	<floater.string name="unknown">
+		неизвестно
+	</floater.string>
+	<string name="postcard_progress_str">
+		Отправка письма
+	</string>
+	<string name="profile_progress_str">
+		Публикация
+	</string>
+	<string name="inventory_progress_str">
+		Сохранение в -инвентарь
+	</string>
+	<string name="local_progress_str">
+		Сохранение на компьютере
+	</string>
+	<string name="profile_succeeded_str">
+		Изображение отправлено
+	</string>
+	<string name="postcard_succeeded_str">
+		Письмо отправлено!
+	</string>
+	<string name="inventory_succeeded_str">
+		Сохранено в инвентаре!
+	</string>
+	<string name="local_succeeded_str">
+		Сохранено на компьютере!
+	</string>
+	<string name="profile_failed_str">
+		Не удалось передать изображение в ваш профиль.
+	</string>
+	<string name="postcard_failed_str">
+		Не удалось отправить письмо.
+	</string>
+	<string name="inventory_failed_str">
+		Не удалось сохранить в инвентаре.
+	</string>
+	<string name="local_failed_str">
+		Не удалось сохранить на компьютере.
+	</string>
+	<button name="advanced_options_btn" tool_tip="Дополнительные параметры"/>
+	<text name="image_res_text">
+		[WIDTH] x [HEIGHT] пикс.
+	</text>
+	<text name="file_size_label">
+		[SIZE] КБ
+	</text>
+	<panel name="advanced_options_panel">
+		<text name="advanced_options_label">
+			ДОПОЛНИТЕЛЬНЫЕ ПАРАМЕТРЫ
+		</text>
+		<text name="layer_type_label">
+			Захват:
+		</text>
+		<combo_box label="Слои изображения" name="layer_types">
+			<combo_box.item label="Цвета" name="Colors"/>
+			<combo_box.item label="Глубина" name="Depth"/>
+		</combo_box>
+		<check_box label="Интерфейс" name="ui_check"/>
+		<check_box label="Данные в игре" name="hud_check"/>
+		<check_box label="Стоп-кадр (полноэкранный)" name="freeze_frame_check"/>
+		<check_box label="Автообновление" name="auto_snapshot_check"/>
+	</panel>
+</floater>

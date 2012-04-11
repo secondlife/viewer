@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Snapshot" title="ANLIK GÖRÜNTÜ ÖNİZLEME">
+	<floater.string name="unknown">
+		bilinmiyor
+	</floater.string>
+	<string name="postcard_progress_str">
+		E-posta Gönderiliyor
+	</string>
+	<string name="profile_progress_str">
+		Yayınlanıyor
+	</string>
+	<string name="inventory_progress_str">
+		Envantere Kaydediliyor
+	</string>
+	<string name="local_progress_str">
+		Bilgisayara Kaydediliyor
+	</string>
+	<string name="profile_succeeded_str">
+		Görüntü yüklendi
+	</string>
+	<string name="postcard_succeeded_str">
+		E-posta Gönderildi!
+	</string>
+	<string name="inventory_succeeded_str">
+		Envantere Kaydedildi!
+	</string>
+	<string name="local_succeeded_str">
+		Bilgisayara Kaydedildi!
+	</string>
+	<string name="profile_failed_str">
+		Görüntü Profil Akışınıza yüklenemedi.
+	</string>
+	<string name="postcard_failed_str">
+		E-posta gönderilemedi.
+	</string>
+	<string name="inventory_failed_str">
+		Envantere kaydedilemedi.
+	</string>
+	<string name="local_failed_str">
+		Bilgisayara kaydedilemedi.
+	</string>
+	<button name="advanced_options_btn" tool_tip="Gelişmiş seçenekler"/>
+	<text name="image_res_text">
+		[WIDTH] x [HEIGHT] px
+	</text>
+	<text name="file_size_label">
+		[SIZE] KB
+	</text>
+	<panel name="advanced_options_panel">
+		<text name="advanced_options_label">
+			GELİŞMİŞ SEÇENEKLER
+		</text>
+		<text name="layer_type_label">
+			Yakala:
+		</text>
+		<combo_box label="Görüntü Katmanları" name="layer_types">
+			<combo_box.item label="Renkler" name="Colors"/>
+			<combo_box.item label="Derinlik" name="Depth"/>
+		</combo_box>
+		<check_box label="Arayüz" name="ui_check"/>
+		<check_box label="BÜG&apos;ler" name="hud_check"/>
+		<check_box label="Kare dondur (tam ekran)" name="freeze_frame_check"/>
+		<check_box label="Otomatik yenile" name="auto_snapshot_check"/>
+	</panel>
+</floater>

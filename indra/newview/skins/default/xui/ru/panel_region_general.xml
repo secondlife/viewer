@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Регион" name="General">
+	<text name="region_text_lbl">
+		Регион:
+	</text>
+	<text name="region_text">
+		неизвестно
+	</text>
+	<text name="version_channel_text_lbl">
+		Версия:
+	</text>
+	<text name="version_channel_text">
+		неизвестно
+	</text>
+	<text name="region_type_lbl">
+		Тип:
+	</text>
+	<text name="region_type">
+		неизвестно
+	</text>
+	<check_box label="Запретить терраформирование" name="block_terraform_check"/>
+	<check_box label="Запретить полеты" name="block_fly_check"/>
+	<check_box label="Разрешить повреждения" name="allow_damage_check"/>
+	<check_box label="Запретить толкание" name="restrict_pushobject"/>
+	<check_box label="Разрешить перепродажу земли" name="allow_land_resell_check"/>
+	<check_box label="Разрешить объединение/разделение земли" name="allow_parcel_changes_check"/>
+	<check_box label="Не показывать землю в поиске" name="block_parcel_search_check" tool_tip="Отображать регион и его участки в результатах поиска"/>
+	<check_box label="Разрешить меши-объекты" name="mesh_rez_enabled_check" tool_tip="Разрешить жителям выкладывать меши в этом регионе"/>
+	<spinner label="Лимит агентов" name="agent_limit_spin"/>
+	<spinner label="Льгота для объекта" name="object_bonus_spin"/>
+	<text label="Дозволенность" name="access_text">
+		Категория:
+	</text>
+	<icons_combo_box label="Умеренный" name="access_combo">
+		<icons_combo_box.item label="Для взрослых" name="Adult" value="42"/>
+		<icons_combo_box.item label="Умеренный" name="Mature" value="21"/>
+		<icons_combo_box.item label="Общий" name="PG" value="13"/>
+	</icons_combo_box>
+	<button label="Применить" name="apply_btn"/>
+	<button label="Телепортировать домой одного жителя..." name="kick_btn"/>
+	<button label="Телепортировать домой всех жителей..." name="kick_all_btn"/>
+	<button label="Отправить сообщение в регион..." name="im_btn"/>
+	<button label="Управление телехабом..." name="manage_telehub_btn"/>
+</panel>

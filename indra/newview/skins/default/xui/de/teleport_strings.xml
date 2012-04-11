@@ -20,6 +20,10 @@ Wenn der Teleport dann immer noch nicht funktioniert, melden Sie sich bitte ab u
 			Das System konnte keine Teleport-Verbindung herstellen.
 Versuchen Sie es später noch einmal.
 		</message>
+		<message name="NoHelpIslandTP">
+			Sie können nicht zurück nach Welcome Island teleportieren.
+Gehen Sie zu „Welcome Island Public“, um das Tutorial zu wiederholen.
+		</message>
 		<message name="noaccess_tport">
 			Sie haben leider keinen Zugang zu diesem Teleport-Ziel.
 		</message>

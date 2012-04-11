@@ -57,6 +57,8 @@
 #include "lldeleteutils.h"
 #include "imageids.h"
 #include "indra_constants.h"
+#include "llinitparam.h"
+
 //#include "linden_common.h"
 //#include "llpreprocessor.h"
 #include "llallocator.h"
@@ -123,5 +125,6 @@
 
 // Library includes from llmessage project
 #include "llcachename.h"
+
 
 #endif

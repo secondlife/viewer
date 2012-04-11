@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_about" title="[CAPITALIZED_APP_NAME] HAKKINDA">
+	<floater.string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Sürüm Notları]]
+	</floater.string>
+	<floater.string name="AboutCompiler">
+		[COMPILER] [COMPILER_VERSION] sürümü ile oluşturuldu
+	</floater.string>
+	<floater.string name="AboutPosition">
+		&lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP]) üzerinde bulunan [REGION] içerisinde [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1] konumundasınız
+[SERVER_VERSION]
+[SERVER_RELEASE_NOTES_URL]
+	</floater.string>
+	<floater.string name="AboutSystem">
+		CPU: [CPU]
+Bellek: [MEMORY_MB] MB
+İşl. Sis. Sürümü: [OS_VERSION]
+Grafik Kartı Üreticisi: [GRAPHICS_CARD_VENDOR]
+Grafik Kartı: [GRAPHICS_CARD]
+	</floater.string>
+	<floater.string name="AboutDriver">
+		Windows Grafik Sürücüsü Sürümü: [GRAPHICS_DRIVER_VERSION]
+	</floater.string>
+	<floater.string name="AboutLibs">
+		OpenGL Sürümü: [OPENGL_VERSION]
+
+libcurl Sürümü: [LIBCURL_VERSION]
+J2C Kod Çözücü Sürümü: [J2C_VERSION]
+Ses Sürücüsü Sürümü: [AUDIO_DRIVER_VERSION]
+Qt Web Kit Sürümü: [QT_WEBKIT_VERSION]
+Ses Sunucusu Sürümü: [VOICE_VERSION]
+	</floater.string>
+	<floater.string name="none">
+		(hiçbiri)
+	</floater.string>
+	<floater.string name="AboutTraffic">
+		Kaybolan Paketler: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)
+	</floater.string>
+	<floater.string name="ErrorFetchingServerReleaseNotesURL">
+		Sunucu sürümü notları URL&apos;si alınırken hata oluştu.
+	</floater.string>
+	<tab_container name="about_tab">
+		<panel label="Bilgi" name="support_panel">
+			<button label="Panoya Kopyala" name="copy_btn"/>
+		</panel>
+		<panel label="Katkıda Bulunanlar" name="credits_panel">
+			<text name="linden_intro">
+				Second Life, Linden&apos;lar tarafından geliştirilmiştir:
+			</text>
+			<text name="contrib_intro">
+				Açık kaynak kod katkısında bulunanlar:
+			</text>
+			<text_editor name="contrib_names">
+				Geçici Ad çalıştırma sırasında değiştirilir
+			</text_editor>
+			<text name="trans_intro">
+				Çevirileri yapanlar:
+			</text>
+			<text_editor name="trans_names">
+				Geçici Ad çalıştırma sırasında değiştirilir
+			</text_editor>
+		</panel>
+		<panel label="Lisanslar" name="licenses_panel">
+			<text_editor name="credits_editor">
+				3Dconnexion SDK Telif Hakkı (C) 1992-2007 3Dconnexion
+        APR Telif Hakkı (C) 2000-2004 The Apache Software Foundation
+        Collada DOM Telif Hakkı 2005 Sony Computer Entertainment Inc.
+        cURL Telif Hakkı (C) 1996-2002, Daniel Stenberg, (daniel@haxx.se)
+        DBus/dbus-glib Telif Hakkı (C) 2002, 2003  CodeFactory AB / Telif Hakkı (C) 2003, 2004 Red Hat, Inc.
+        expat Telif Hakkı (C) 1998, 1999, 2000 Thai Open Source Software Center Ltd.
+        FreeType Telif Hakkı (C) 1996-2002, The FreeType Project (www.freetype.org).
+        GL Telif Hakkı (C) 1999-2004 Brian Paul.
+        GLOD Telif Hakkı (C) 2003-04 Jonathan Cohen, Nat Duca, Chris Niski, Johns Hopkins University ve David Luebke, Brenden Schubert, University of Virginia.
+        google-perftools Telif Hakkı (c) 2005, Google Inc.
+        Havok.com(TM) Telif Hakkı (C) 1999-2001, Telekinesys Research Limited.
+        jpeg2000 Telif Hakkı (C) 2001, David Taubman, The University of New South Wales (UNSW)
+        jpeglib Telif Hakkı (C) 1991-1998, Thomas G. Lane.
+        ogg/vorbis Telif Hakkı (C) 2001, Xiphophorus
+        OpenSSL Telif Hakkı (C) 1998-2002 The OpenSSL Project.
+        PCRE Telif Hakkı (c) 1997-2008 University of Cambridge
+        SDL Telif Hakkı (C) 1997, 1998, 1999, 2000, 2001, 2002 Sam Lantinga
+        SSLeay Telif Hakkı (C) 1995-1998 Eric Young (eay@cryptsoft.com)
+        xmlrpc-epi Telif Hakkı (C) 2000 Epinions, Inc.
+        zlib Telif Hakkı (C) 1995-2002 Jean-loup Gailly ve Mark Adler.
+        google-perftools Telif Hakkı (c) 2005, Google Inc.
+
+        Second Life Görüntüleyicisi Havok (TM) Fizik motorunu kullanmaktadır. (c)Telif Hakkı 1999-2010 Havok.com Inc. (ve Lisans Verenleri). Tüm Hakları Saklıdır. Ayrıntılı bilgi için bkz. www.havok.com
+
+        Bu yazılımda NVIDIA Corporation tarafından sağlanan kaynak kod yer almaktadır.
+
+        Tüm hakları saklıdır.  Ayrıntılı bilgi için bkz. licenses.txt
+
+        Sesli sohbet için Ses kodlaması: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
+			</text_editor>
+		</panel>
+	</tab_container>
+</floater>

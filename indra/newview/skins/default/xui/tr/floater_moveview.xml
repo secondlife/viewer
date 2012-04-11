@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="move_floater" title="YÜRÜ / KOŞ / UÇ">
+	<string name="walk_forward_tooltip">
+		İleri Yürü (Yukarı Okuna veya W&apos;ye basın)
+	</string>
+	<string name="walk_back_tooltip">
+		Geri Yürü (Aşağı Okuna veya S&apos;ye basın)
+	</string>
+	<string name="walk_left_tooltip">
+		Sola Yürü (Shift + Sol Oka veya A&apos;ya basın)
+	</string>
+	<string name="walk_right_tooltip">
+		Sağa Yürü (Shift + Sağ Oka veya D&apos;ye basın)
+	</string>
+	<string name="run_forward_tooltip">
+		İleri Koş (Yukarı Okuna veya W&apos;ye basın)
+	</string>
+	<string name="run_back_tooltip">
+		Geri Koş (Aşağı Okuna veya S&apos;ye basın)
+	</string>
+	<string name="run_left_tooltip">
+		Sola Koş (Shift + Sol Oka veya A&apos;ya basın)
+	</string>
+	<string name="run_right_tooltip">
+		Sağa Koş (Shift + Sağ Oka veya D&apos;ye basın)
+	</string>
+	<string name="fly_forward_tooltip">
+		İleri Uç (Yukarı Okuna veya W&apos;ye basın)
+	</string>
+	<string name="fly_back_tooltip">
+		Geri Uç (Aşağı Okuna veya S&apos;ye basın)
+	</string>
+	<string name="fly_left_tooltip">
+		Sola Uç (Shift + Sol Oka veya A&apos;ya basın)
+	</string>
+	<string name="fly_right_tooltip">
+		Sağa Uç (Shift + Sağ Oka veya D&apos;ye basın)
+	</string>
+	<string name="fly_up_tooltip">
+		Yukarı Uç (E&apos;ye basın)
+	</string>
+	<string name="fly_down_tooltip">
+		Aşağı Uç (C&apos;ye basın)
+	</string>
+	<string name="jump_tooltip">
+		Atla (E&apos;ye basın)
+	</string>
+	<string name="crouch_tooltip">
+		Çömel (C&apos;ye basın)
+	</string>
+	<string name="walk_title">
+		Yürü
+	</string>
+	<string name="run_title">
+		Koş
+	</string>
+	<string name="fly_title">
+		Uç
+	</string>
+	<panel name="panel_actions">
+		<button name="turn left btn" tool_tip="Sola Dön (Sol Oka veya A&apos;ya basın)"/>
+		<joystick_slide name="move left btn" tool_tip="Sola Yürü (Shift + Sol Oka veya A&apos;ya basın)"/>
+		<button name="turn right btn" tool_tip="Sağa Dön (Sağ Oka veya D&apos;ye basın)"/>
+		<joystick_slide name="move right btn" tool_tip="Sağa Yürü (Shift + Sağ Oka veya D&apos;ye basın)"/>
+		<joystick_turn name="forward btn" tool_tip="İleri Yürü (Yukarı Okuna veya W&apos;ye basın)"/>
+		<joystick_turn name="backward btn" tool_tip="Geri Yürü (Aşağı Okuna veya S&apos;ye basın)"/>
+		<button name="move up btn" tool_tip="Yukarı Uç (E&apos;ye basın)"/>
+		<button name="move down btn" tool_tip="Aşağı Uç (C&apos;ye basın)"/>
+	</panel>
+	<panel name="panel_modes">
+		<button label="" name="mode_walk_btn" tool_tip="Yürüme modu"/>
+		<button label="" name="mode_run_btn" tool_tip="Koşma modu"/>
+		<button label="" name="mode_fly_btn" tool_tip="Uçma modu"/>
+	</panel>
+</floater>

@@ -42,6 +42,6 @@
   </menu_item_check>
   <menu_item_separator layout="topleft" />
   <menu_item_call name="show_blocked_list" label="Show Blocked Residents &amp; Objects">
-    <menu_item_call.on_click function="SideTray.ShowPanel" parameter="panel_block_list_sidetray" />
+    <menu_item_call.on_click function="People.Friends.ViewSort.Action" parameter="panel_block_list_sidetray" />
   </menu_item_call>
 </toggleable_menu>

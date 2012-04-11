@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Ortam" name="panel_env_info">
+	<text name="water_settings_title">
+		Bölgenize gelen tüm ziyaretçilerin görmesini istediğiniz Su ve Gökyüzü/Gündüz Döngüsü Ayarlarını seçin.  Ek bilgi
+	</text>
+	<radio_group name="region_settings_radio_group">
+		<radio_item label="Second Life varsayılanını kullan" name="use_sl_default_settings"/>
+		<radio_item label="Aşağıdaki ayarları kullan" name="use_my_settings"/>
+	</radio_group>
+	<panel name="user_environment_settings">
+		<text name="water_settings_title">
+			Su Ayarı
+		</text>
+		<combo_box name="water_settings_preset_combo">
+			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
+		</combo_box>
+		<text name="sky_dayc_settings_title">
+			Gökyüzü/Gün Dön.
+		</text>
+		<radio_group name="sky_dayc_settings_radio_group">
+			<radio_item label="Sabit gökyüzü" name="my_sky_settings"/>
+			<radio_item label="Gün döngüsü" name="my_dayc_settings"/>
+		</radio_group>
+		<combo_box name="sky_settings_preset_combo">
+			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
+		</combo_box>
+		<combo_box name="dayc_settings_preset_combo">
+			<combo_box.item label="-Bir ön ayar seçin-" name="item0"/>
+		</combo_box>
+	</panel>
+	<button label="Uygula" name="apply_btn"/>
+	<button label="İptal" name="cancel_btn"/>
+</panel>

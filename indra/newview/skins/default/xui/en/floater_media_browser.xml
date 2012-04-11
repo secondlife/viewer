@@ -9,7 +9,6 @@
  name="floater_about"
  help_topic="floater_about"
  save_rect="true"
- auto_tile="true"
  title="MEDIA BROWSER"
  width="820">
     <floater.string
@@ -38,7 +37,6 @@
          min_height="20"
          name="nav_controls"
          top="400"
-         user_resize="false"
          width="800">
             <button
              follows="left|top"
@@ -114,7 +112,6 @@
          min_height="20"         
          name="time_controls"
          top_delta="0"
-         user_resize="false"
          width="800">
             <button
              follows="left|top"
@@ -172,7 +169,6 @@
          min_height="20"         
          name="parcel_owner_controls"
          top_delta="0"
-         user_resize="false"
          width="540">
             <button
              enabled="false"
@@ -194,7 +190,6 @@
          left_delta="0"
          name="external_controls"
          top_delta="0"
-         user_resize="false"
          width="540">
           <web_browser
              bottom="-30"

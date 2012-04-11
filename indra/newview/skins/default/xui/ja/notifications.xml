@@ -1010,7 +1010,7 @@ L$ は返金されません。
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		フレンドリストから [NAME] を削除しますか？
+		フレンドリストから &lt;nolink&gt;[NAME]&lt;/nolink&gt; を削除しますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1144,8 +1144,13 @@ L$ は返金されません。
 		-safe オプションを指定したので、
 表示設定はセーフレベルに設定されています。
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		表示設定は、あなたのシステム構成に基づいて推奨されたレベルに設定されています。
+	<notification name="DisplaySetToRecommendedGPUChange">
+		グラフィックの変更により、画面設定は推奨レベルに設定されました。
+&apos;[LAST_GPU]&apos; から
+&apos;[THIS_GPU]&apos; まで
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		レンダリングサブシステムの変更により、画面設定は推奨レベルに設定されました。
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1467,7 +1472,7 @@ http://secondlife.com/download から最新バージョンをダウンロード�
 		<usetemplate ignoretext="オブジェクトを所有者に返却する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		現在あなたは [GROUP] のメンバーです。
+		現在あなたは &lt;nolink&gt;[GROUP]&lt;/nolink&gt; のメンバーです。
 このグループを抜けますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
@@ -1953,6 +1958,18 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 		終了しようとしています。続けますか？
 		<usetemplate ignoretext="終了時の確認" name="okcancelignore" notext="終了しない" yestext="終了"/>
 	</notification>
+	<notification name="ConfirmRestoreToybox">
+		この操作を実行すると、デフォルト設定のボタンとツールバーが復元されます。
+
+この操作は元に戻せません。
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		この操作により、全てのボタンはツールボックスに戻り、ツールバーは空になります。
+    
+この操作は元に戻せません。
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
+	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
 		<usetemplate ignoretext="アイテムを削除する前の確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
@@ -2161,10 +2178,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		件名： [SUBJECT]、メッセージ： [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] はオンライン中です
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; はオンラインです
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] はオフライン中です
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; はオフラインです
 	</notification>
 	<notification name="AddSelfFriend">
 		残念ながら自分自身をフレンド登録することはできません。
@@ -2278,13 +2295,15 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		コーリングカードが拒否されました。
 	</notification>
 	<notification name="TeleportToLandmark">
-		画面右の「場所」パネルを開いて、「ランドマーク」タブを選ぶと、[NAME] といった場所にテレポートできます。 
-好きなランドマークをクリックして選び、次にパネル下の「テレポート」をクリックします。
-（ランドマークをダブルクリック、または右クリックして「テレポート」を選んでも同じです。）
+		[NAME] などの場所にテレポートするには、「場所」ボタンをクリックしてから、
+表示されたウィンドウで「ランドマーク」タブを選択します。ランドマークを
+いずれか 1 つ選択してから、ウィンドウ下部にある「テレポート」をクリックします。
+（この操作は、ランドマークをダブルクリックするか、右クリックして
+「テレポート」を選択して実行することもできます。）
 	</notification>
 	<notification name="TeleportToPerson">
-		画面右の「人」パネルを開いて、[NAME] といった住人に連絡を取ることができます。
-リストから住人を選択して、パネル下の「IM」をクリックします。
+		[NAME] のような住人に連絡をとるには、「人」ボタンをクリックし、表示されるウィンドウで「住人」を選択してから、
+ウィンドウ下部にある「IM」をクリックします。
 （リストの名前をダブルクリック、または右クリックして「IM」を選んでも同じです。）
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
@@ -2304,6 +2323,9 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2561,10 +2583,10 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME]は、フレンド登録を受け入れました。
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; はあなたからの友人登録リクエストを受諾しました。
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME]は、フレンド登録を断りました。
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; はあなたからの友人登録リクエストを拒否しました。
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		フレンドの登録依頼が承認されました。
@@ -3041,10 +3063,6 @@ M キーを押して変更します。
 			<button name="cancel" text="取り消し"/>
 		</form>
 	</notification>
-	<notification label="" name="ModeChange">
-		モードを変更するには終了して再起動する必要があります。
-		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
-	</notification>
 	<notification label="" name="NoClassifieds">
 		クラシファイド広告の作成と編集はアドバンスモードでのみ利用できます。終了してモードを変更しますか？モードはログイン画面で選択できます。
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
@@ -3088,6 +3106,10 @@ M キーを押して変更します。
 	<notification label="" name="NoSearch">
 		検索はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
+	</notification>
+	<notification label="" name="ConfirmHideUI">
+		この操作により、全てのメニュー項目とボタンが非表示になります。再び表示するには [SHORTCUT] をもう一度クリックしてください。
+		<usetemplate ignoretext="UI を非表示にする前に確認" name="okcancelignore" notext="取り消し" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		[APP_NAME] に必要なハードウェアがないようです。 [APP_NAME] にはマルチテクスチャをサポートする OpenGL グラフィックカードが必要です。 お使いのグラフィックカードの最新ドライバがインストールされているかどうか、オペレーティングシステムのサービスパックとパッチが入っているかをご確認ください。

@@ -1,75 +1,65 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Snapshot" title="APERÇU DE LA PHOTO" width="247">
+<floater name="Snapshot" title="APERÇU DE LA PHOTO">
 	<floater.string name="unknown">
 		inconnu
 	</floater.string>
-	<radio_group label="Type de photo" name="snapshot_type_radio">
-		<radio_item label="E-mail" name="postcard"/>
-		<radio_item label="Mon inventaire ([AMOUNT] L$)" name="texture"/>
-		<radio_item label="Enregistrer sur mon ordinateur" name="local"/>
-	</radio_group>
+	<string name="postcard_progress_str">
+		Envoi par e-mail
+	</string>
+	<string name="profile_progress_str">
+		Publication
+	</string>
+	<string name="inventory_progress_str">
+		Enregistrement dans l&apos;inventaire
+	</string>
+	<string name="local_progress_str">
+		Enregistrement sur l&apos;ordinateur
+	</string>
+	<string name="profile_succeeded_str">
+		Image chargée
+	</string>
+	<string name="postcard_succeeded_str">
+		Envoi par e-mail effectué !
+	</string>
+	<string name="inventory_succeeded_str">
+		Enregistrement dans l&apos;inventaire effectué !
+	</string>
+	<string name="local_succeeded_str">
+		Enregistrement sur l&apos;ordinateur effectué !
+	</string>
+	<string name="profile_failed_str">
+		Échec de chargement de l&apos;image sur le flux de votre profil.
+	</string>
+	<string name="postcard_failed_str">
+		Échec d&apos;envoi par e-mail.
+	</string>
+	<string name="inventory_failed_str">
+		Échec d&apos;enregistrement dans l&apos;inventaire.
+	</string>
+	<string name="local_failed_str">
+		Échec d&apos;enregistrement sur l&apos;ordinateur.
+	</string>
+	<button name="advanced_options_btn" tool_tip="Options avancées"/>
+	<text name="image_res_text">
+		[WIDTH] x [HEIGHT] px
+	</text>
 	<text name="file_size_label">
 		[SIZE] Ko
 	</text>
-	<button label="Rafraîchir" name="new_snapshot_btn"/>
-	<button label="Envoyer" name="send_btn"/>
-	<button label="Enreg. ([AMOUNT] L$)" name="upload_btn"/>
-	<flyout_button label="Enregistrer" name="save_btn" tool_tip="Enregistrer l&apos;image sous forme de fichier">
-		<flyout_button.item label="Enregistrer" name="save_item"/>
-		<flyout_button.item label="Enregistrer sous..." name="saveas_item"/>
-	</flyout_button>
-	<button label="Plus" name="more_btn" tool_tip="Options avancées"/>
-	<button label="Moins" name="less_btn" tool_tip="Options avancées"/>
-	<button label="Annuler" name="discard_btn"/>
-	<text name="type_label2">
-		Taille
-	</text>
-	<text name="format_label">
-		Format
-	</text>
-	<combo_box label="Résolution" name="postcard_size_combo">
-		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
-		<combo_box.item label="640 x 480" name="640x480"/>
-		<combo_box.item label="800 x 600" name="800x600"/>
-		<combo_box.item label="1 024 x 768" name="1024x768"/>
-		<combo_box.item label="Personnalisée" name="Custom"/>
-	</combo_box>
-	<combo_box label="Résolution" name="texture_size_combo">
-		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
-		<combo_box.item label="Petite (128 x 128)" name="Small(128x128)"/>
-		<combo_box.item label="Moyenne (256 x 256)" name="Medium(256x256)"/>
-		<combo_box.item label="Grande (512 x 512)" name="Large(512x512)"/>
-		<combo_box.item label="Personnalisée" name="Custom"/>
-	</combo_box>
-	<combo_box label="Résolution" name="local_size_combo">
-		<combo_box.item label="Fenêtre actuelle" name="CurrentWindow"/>
-		<combo_box.item label="320 x 240" name="320x240"/>
-		<combo_box.item label="640 x 480" name="640x480"/>
-		<combo_box.item label="800 x 600" name="800x600"/>
-		<combo_box.item label="1 024 x 768" name="1024x768"/>
-		<combo_box.item label="1 280 x 1 024" name="1280x1024"/>
-		<combo_box.item label="1 600 x 1 200" name="1600x1200"/>
-		<combo_box.item label="Personnalisée" name="Custom"/>
-	</combo_box>
-	<combo_box label="Format" name="local_format_combo">
-		<combo_box.item label="PNG" name="PNG"/>
-		<combo_box.item label="JPEG" name="JPEG"/>
-		<combo_box.item label="BMP" name="BMP"/>
-	</combo_box>
-	<spinner label="Larg." name="snapshot_width"/>
-	<spinner label="Haut." name="snapshot_height"/>
-	<check_box label="Contraindre les proportions" name="keep_aspect_check"/>
-	<slider label="Qualité de l&apos;image" name="image_quality_slider"/>
-	<text name="layer_type_label">
-		Capturer :
-	</text>
-	<combo_box label="Couches d&apos;images" name="layer_types">
-		<combo_box.item label="Couleurs" name="Colors"/>
-		<combo_box.item label="Profondeur" name="Depth"/>
-	</combo_box>
-	<check_box label="Interface" name="ui_check"/>
-	<check_box label="HUD" name="hud_check"/>
-	<check_box label="Garder ouvert après enregistrement" name="keep_open_check"/>
-	<check_box label="Arrêt sur image (plein écran)" name="freeze_frame_check"/>
-	<check_box label="Actualisation automatique" name="auto_snapshot_check"/>
+	<panel name="advanced_options_panel">
+		<text name="advanced_options_label">
+			OPTIONS AVANCÉES
+		</text>
+		<text name="layer_type_label">
+			Capturer :
+		</text>
+		<combo_box label="Couches d&apos;images" name="layer_types">
+			<combo_box.item label="Couleurs" name="Colors"/>
+			<combo_box.item label="Profondeur" name="Depth"/>
+		</combo_box>
+		<check_box label="Interface" name="ui_check"/>
+		<check_box label="HUD" name="hud_check"/>
+		<check_box label="Arrêt sur image (plein écran)" name="freeze_frame_check"/>
+		<check_box label="Actualisation automatique" name="auto_snapshot_check"/>
+	</panel>
 </floater>

@@ -758,16 +758,16 @@ No parcel selected.
 No region selected.
 	</notification>
 	<notification name="CannotReleaseLandNothingSelected">
-		Unable to abandon land:
-No parcel selected.
+		無法放棄土地：
+無地段被選擇。
 	</notification>
 	<notification name="CannotReleaseLandNoRegion">
 		無法放棄土地：
 無法尋找地區。
 	</notification>
 	<notification name="CannotBuyLandNothingSelected">
-		Unable to buy land:
-No parcel selected.
+		無法購買土地：
+無地段被選擇。
 	</notification>
 	<notification name="CannotBuyLandNoRegion">
 		Unable to buy land:
@@ -777,121 +777,121 @@ Cannot find the region this land is in.
 		You cannot close the Buy Land window until [APP_NAME] estimates the price of this transaction.
 	</notification>
 	<notification name="CannotDeedLandNothingSelected">
-		Unable to deed land:
+		無法讓渡土地：
 無地段被選取。
 	</notification>
 	<notification name="CannotDeedLandNoGroup">
-		Unable to deed land:
+		無法讓渡土地：
 無群組被選取。
 	</notification>
 	<notification name="CannotDeedLandNoRegion">
-		Unable to deed land:
-Cannot find the region this land is in.
+		無法讓渡土地：
+無法發現這塊土地所在的地區。
 	</notification>
 	<notification name="CannotDeedLandMultipleSelected">
-		Unable to deed land:
-Multiple parcels selected.
+		無法讓渡土地：
+複數地段被選取。
 
-Try selecting a single parcel.
+請試著選取單一地段。
 	</notification>
 	<notification name="CannotDeedLandWaitingForServer">
-		Unable to deed land:
-Waiting for server to report ownership.
+		無法讓渡土地：
+等候伺服器報告擁有權。
 
-Please try again.
+請再試一次。
 	</notification>
 	<notification name="CannotDeedLandNoTransfer">
-		Unable to deed land:
-The region [REGION] does not allow transfer of land.
+		無法讓渡土地：
+此 [REGION] 地區並不允許土地轉移。
 	</notification>
 	<notification name="CannotReleaseLandWatingForServer">
-		Unable to abandon land:
-Waiting for server to update parcel information.
+		無法放棄土地：
+等候伺服器更新地段資訊。
 
-Try again in a few seconds.
+請稍後幾秒再試一次。
 	</notification>
 	<notification name="CannotReleaseLandSelected">
-		Unable to abandon land:
-You do not own all the parcels selected.
+		無法放棄土地：
+你並位擁有所選擇的全部土地。
 
-Please select a single parcel.
+請選擇一個單一地段。
 	</notification>
 	<notification name="CannotReleaseLandDontOwn">
-		Unable to abandon land:
-You don&apos;t have permission to release this parcel.
-Parcels you own appear in green.
+		無法放棄土地：
+你並沒有權限去釋出這個地段。
+你所擁有的地段將呈現綠色。
 	</notification>
 	<notification name="CannotReleaseLandRegionNotFound">
-		Unable to abandon land:
-Cannot find the region this land is in.
+		無法放棄土地：
+無法發現這快土地所在的地區。
 	</notification>
 	<notification name="CannotReleaseLandNoTransfer">
-		Unable to abandon land:
-The region [REGION] does not allow transfer of land.
+		無法放棄土地：
+此 [REGION] 地區並不許土地轉移。
 	</notification>
 	<notification name="CannotReleaseLandPartialSelection">
-		Unable to abandon land:
-You must select an entire parcel to release it.
+		無法放棄土地：
+你必須選取一整個地段以釋出它。
 
-Select an entire parcel, or divide your parcel first.
+選取一整個地段，或先進行分割。
 	</notification>
 	<notification name="ReleaseLandWarning">
-		You are about to release [AREA] m² of land.
-Releasing this parcel will remove it from your land holdings, but will not grant any L$.
+		你釋出約 [AREA] m² 面積土地。
+釋出個地段將會由你所持有的土地中移除，但不會給予任何 L$。
 
-Release this land?
+你確定要釋出這塊土地？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="CannotDivideLandNothingSelected">
-		Unable to divide land:
+		無法分割土地：
 
-No parcels selected.
+無地段被選取。
 	</notification>
 	<notification name="CannotDivideLandPartialSelection">
-		Unable to divide land:
+		無法分割土地：
 
-You have an entire parcel selected.
-Try selecting a part of the parcel.
+你現在選取整個地段。
+請試著選取其中部分地段。
 	</notification>
 	<notification name="LandDivideWarning">
-		Dividing this land will split this parcel into two and each parcel can have its own settings. Some settings will be reset to defaults after the operation.
+		分割土地會將佌地段一分為二，每一個地段將都各自有其設定。 在這個操作之後，一些設定值將會回復到預設值。
 
-Divide land?
+進行分割土地？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="CannotDivideLandNoRegion">
-		Unable to divide land:
-Cannot find the region this land is in.
+		無法分割土地：
+無法發現這塊土地所在的地區。
 	</notification>
 	<notification name="CannotJoinLandNoRegion">
-		Unable to join land:
-Cannot find the region this land is in.
+		無法合併土地：
+無法發現這塊土地所在的地區。
 	</notification>
 	<notification name="CannotJoinLandNothingSelected">
-		Unable to join land:
-No parcels selected.
+		無法合併土地：
+無地段被選取。
 	</notification>
 	<notification name="CannotJoinLandEntireParcelSelected">
-		Unable to join land:
-You only have one parcel selected.
+		無法合併土地：
+你只有選取一個地段。
 
-Select land across both parcels.
+請跨越兩個地段選取土地。
 	</notification>
 	<notification name="CannotJoinLandSelection">
-		Unable to join land:
-You must select more than one parcel.
+		無法合併土地：
+你必須選取超過一個地段。
 
-Select land across both parcels.
+請跨越兩個地段選取土地。
 	</notification>
 	<notification name="JoinLandWarning">
-		Joining this land will create one large parcel out of all parcels intersecting the selected rectangle.
-You will need to reset the name and options of the new parcel.
+		合併土地將會在選取的全部地段範圍裡產生一個巨大的地段。
+你將會需要重設這個新地段的名稱與設定選項。
 
-Join land?
+進行土地合併？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmNotecardSave">
-		This notecard needs to be saved before the item can be copied or viewed. Save notecard?
+		在物品能被覆製或察看前，這記事卡必須先進行儲存。儲存記事卡？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ConfirmItemCopy">
@@ -966,7 +966,7 @@ Offer friendship to [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Do you want to remove [NAME] from your Friends List?
+		Do you want to remove &lt;nolink&gt;[NAME]&lt;/nolink&gt; from your Friends List?
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1377,7 +1377,7 @@ We must restart [APP_NAME] to install the update.
 	<notification name="DeedObjectToGroup">
 		Deeding this object will cause the group to:
 * Receive L$ paid into the object
-		<usetemplate ignoretext="在我讓渡一個物件給群組前確認" name="okcancelignore" notext="取消" yestext="Deed"/>
+		<usetemplate ignoretext="在我讓渡一個物件給群組前確認" name="okcancelignore" notext="取消" yestext="讓渡"/>
 	</notification>
 	<notification name="WebLaunchExternalTarget">
 		你確定要開啟網頁瀏覽器去察看這個內容？
@@ -1418,7 +1418,7 @@ We must restart [APP_NAME] to install the update.
 		<usetemplate ignoretext="在我退回物件給它們的擁有者前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		你目前是 [GROUP] 群組的成員。
+		你目前是 &lt;nolink&gt;[GROUP]&lt;/nolink&gt; 群組的成員。
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
@@ -1457,7 +1457,7 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
 	<notification name="JoinedTooManyGroupsMember">
 		You have reached your maximum number of groups. Please leave another group before joining this one, or decline the offer.
 [NAME] has invited you to join a group as a member.
-		<usetemplate name="okcancelbuttons" notext="Decline" yestext="加入"/>
+		<usetemplate name="okcancelbuttons" notext="謝絕" yestext="加入"/>
 	</notification>
 	<notification name="JoinedTooManyGroups">
 		You have reached your maximum number of groups. Please leave some group before joining or creating a new one.
@@ -1509,12 +1509,12 @@ Chat and instant messages will be hidden. Instant messages will get your Busy mo
 Just like in real life, it takes a while for everyone to learn about a new name.  Please allow several days for [http://wiki.secondlife.com/wiki/Setting_your_display_name your name to update] in objects, scripts, search, etc.
 	</notification>
 	<notification name="SetDisplayNameBlocked">
-		Sorry, you cannot change your display name. If you feel this is in error, please contact support.
+		抱歉，你不可以變更你的顯示名稱。如果你覺得這是錯誤，請連繫支援廠商。
 	</notification>
 	<notification name="SetDisplayNameFailedLength">
-		Sorry, that name is too long.  Display names can have a maximum of [LENGTH] characters.
+		抱歉，這名稱太長。顯示名稱最大長度為 [LENGTH] 字元。
 
-Please try a shorter name.
+請嘗試短一些的名稱。
 	</notification>
 	<notification name="SetDisplayNameFailedGeneric">
 		Sorry, we could not set your display name.  Please try again later.
@@ -1890,7 +1890,7 @@ Move the inventory item(s)?
 	</notification>
 	<notification name="ConfirmQuit">
 		你確定你要結束退出？
-		<usetemplate ignoretext="當我結束退出時進行確認" name="okcancelignore" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate ignoretext="當我結束退出時進行確認" name="okcancelignore" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification name="DeleteItems">
 		[QUESTION]
@@ -1941,11 +1941,11 @@ Linden Lab
 		The following required components are missing from [FLOATER]:
 [COMPONENTS]
 	</notification>
-	<notification label="Replace Existing Attachment" name="ReplaceAttachment">
+	<notification label="取代現有的附件" name="ReplaceAttachment">
 		There is already an object attached to this point on your body.
 Do you want to replace it with the selected object?
 		<form name="form">
-			<ignore name="ignore" text="Replace an existing attachment with the selected item"/>
+			<ignore name="ignore" text="以所選擇的物品取代現有的附加物"/>
 			<button ignore="自動取代" name="Yes" text="確定"/>
 			<button ignore="絕不取代" name="No" text="取消"/>
 		</form>
@@ -2109,10 +2109,10 @@ Link to this from a web page to give others easy access to this location, or try
 		Topic: [SUBJECT], Message: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] is Online
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 上線
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] is Offline
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 離線
 	</notification>
 	<notification name="AddSelfFriend">
 		Although you&apos;re very nice, you can&apos;t add yourself as a friend.
@@ -2208,7 +2208,7 @@ Please select a single object.
 		[NAME] 接收到你提供的收納區物品。
 	</notification>
 	<notification name="InventoryDeclined">
-		[NAME] 拒絕你提供的收納區物品。
+		[NAME] 謝絕你提供的收納區物品。
 	</notification>
 	<notification name="ObjectMessage">
 		[NAME]: [MESSAGE]
@@ -2418,7 +2418,7 @@ Please try again in a few moments.
 	</notification>
 	<notification name="ObjectGiveItem">
 		An object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; owned by [NAME_SLURL] has given you this [OBJECTTYPE]:
-&lt;nolink&gt;[ITEM_SLURL]&lt;/nolink&gt;
+[ITEM_SLURL]
 		<form name="form">
 			<button name="Keep" text="Keep"/>
 			<button name="Discard" text="Discard"/>
@@ -2443,7 +2443,7 @@ Please try again in a few moments.
 		[MESSAGE]
 		<form name="form">
 			<button name="Join" text="加入"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 			<button name="Info" text="資訊"/>
 		</form>
 	</notification>
@@ -2475,7 +2475,7 @@ Please try again in a few moments.
 (By default, you will be able to see each other&apos;s online status.)
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 		</form>
 	</notification>
 	<notification name="FriendshipOffered">
@@ -2487,27 +2487,27 @@ Please try again in a few moments.
 (By default, you will be able to see each other&apos;s online status.)
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] accepted your friendship offer.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] declined your friendship offer.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 謝絕你的交友邀請。
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
-		Friendship offer accepted.
+		交友邀請被接受。
 	</notification>
 	<notification name="FriendshipDeclinedByMe">
-		Friendship offer declined.
+		交友邀請被謝絕。
 	</notification>
 	<notification name="OfferCallingCard">
 		[NAME] is offering their calling card.
 This will add a bookmark in your inventory so you can quickly IM this Resident.
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 		</form>
 	</notification>
 	<notification name="RegionRestartMinutes">
@@ -2559,7 +2559,7 @@ Grant this request?
 		<form name="form">
 			<button name="Grant" text="Grant"/>
 			<button name="Deny" text="Deny"/>
-			<button name="Details" text="Details..."/>
+			<button name="Details" text="細節..."/>
 		</form>
 	</notification>
 	<notification name="ScriptDialog">
@@ -2602,7 +2602,7 @@ Things you build here will be deleted after you leave, so don&apos;t forget to r
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 			<button name="Mute" text="Block"/>
 		</form>
 	</notification>
@@ -2620,7 +2620,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 			<button name="Mute" text="Block"/>
 		</form>
 	</notification>
@@ -2629,7 +2629,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 Click Accept to join the call or Decline to decline the invitation. Click Block to block this caller.
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 			<button name="Mute" text="Block"/>
 		</form>
 	</notification>
@@ -2638,7 +2638,7 @@ Click Accept to join the call or Decline to decline the invitation. Click Block 
 Click Accept to join the chat or Decline to decline the invitation. Click Block to block this caller.
 		<form name="form">
 			<button name="Accept" text="接受"/>
-			<button name="Decline" text="Decline"/>
+			<button name="Decline" text="謝絕"/>
 			<button name="Mute" text="Block"/>
 		</form>
 	</notification>
@@ -2757,10 +2757,10 @@ With the following Residents:
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="ItemsShared">
-		Items successfully shared.
+		物品已成功分享。
 	</notification>
 	<notification name="DeedToGroupFail">
-		Deed to group failed.
+		讓渡給群組失敗。
 	</notification>
 	<notification name="AvatarRezNotification">
 		( [EXISTENCE] seconds alive )
@@ -2822,7 +2822,7 @@ You uploaded a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TI
 You locally updated a [RESOLUTION] baked texture for &apos;[BODYREGION]&apos; after [TIME] seconds.
 	</notification>
 	<notification name="ConfirmLeaveCall">
-		Are you sure you want to leave this call?
+		你確定要離開這段通話？
 		<usetemplate ignoretext="我結束通話前進行確認" name="okcancelignore" notext="否" yestext="是"/>
 	</notification>
 	<notification name="ConfirmMuteAll">
@@ -2846,7 +2846,7 @@ Click on the up arrow to see the voice control panel.
 
 Hiding the Speak button will disable the voice feature.
 	</notification>
-	<notification label="Explore the World" name="HintDestinationGuide">
+	<notification label="探索世界" name="HintDestinationGuide">
 		The Destination Guide contains thousands of new places to discover. Select a location and choose Teleport to start exploring.
 	</notification>
 	<notification label="側邊欄" name="HintSidePanel">
@@ -2862,7 +2862,7 @@ Click anywhere on the ground to walk to that spot.
 2. Click and Drag to Rotate View
 Click and drag anywhere on the world to rotate your view
 	</notification>
-	<notification label="Display Name" name="HintDisplayName">
+	<notification label="顯示名稱" name="HintDisplayName">
 		Set your customizable display name here. This is in addition to your unique username, which can&apos;t be changed. You can change how you see other people&apos;s names in your preferences.
 	</notification>
 	<notification label="View" name="HintView">
@@ -2871,7 +2871,7 @@ Click and drag anywhere on the world to rotate your view
 	<notification label="收納區" name="HintInventory">
 		Check your inventory to find items. Newest items can be easily found in the Recent tab.
 	</notification>
-	<notification label="You&apos;ve got Linden Dollars!" name="HintLindenDollar">
+	<notification label="你得到林登幣!" name="HintLindenDollar">
 		Here&apos;s your current balance of L$. Click Buy L$ to purchase more Linden Dollars.
 	</notification>
 	<notification name="PopupAttempt">
@@ -2892,38 +2892,38 @@ Click and drag anywhere on the world to rotate your view
 	</notification>
 	<notification label="" name="ModeChange">
 		改變劉覽器模式要求你必須結束退出並重新啟動。
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoClassifieds">
 		Creation and editing of Classifieds is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoGroupInfo">
 		Creation and editing of Groups is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoPicks">
 		Creation and editing of Picks is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoWorldMap">
 		Viewing of the world map is only available in Advanced mode. Would you like to quit and change modes? The mode selector can be found on the login screen.
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoVoiceCall">
 		Voice calls are only available in Advanced mode. Would you like to logout and change modes?
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoAvatarShare">
 		Sharing is only available in Advanced mode. Would you like to logout and change modes?
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<notification label="" name="NoAvatarPay">
 		Paying other residents is only available in Advanced mode. Would you like to logout and change modes?
-		<usetemplate name="okcancelbuttons" notext="不結束退出" yestext="結束退出"/>
+		<usetemplate name="okcancelbuttons" notext="不要結束退出" yestext="結束退出"/>
 	</notification>
 	<global name="UnsupportedCPU">
-		- Your CPU speed does not meet the minimum requirements.
+		- 你的 CPU 運算速度未達到系統最低配備要求。
 	</global>
 	<global name="UnsupportedGLRequirements">
 		You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
@@ -2940,7 +2940,7 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 		- 你的顯示卡未達系統最低配備要求。
 	</global>
 	<global name="UnsupportedRAM">
-		- Your system memory does not meet the minimum requirements.
+		- 你的系統記憶體卡未達系統最低配備要求。
 	</global>
 	<global name="You can only set your &apos;Home Location&apos; on your land or at a mainland Infohub.">
 		若你擁有一塊土地，你可以標記它成為你的家的位置。

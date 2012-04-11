@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="gesture_preview">
+	<floater.string name="step_anim">
+		Воспроизвести анимацию:
+	</floater.string>
+	<floater.string name="step_sound">
+		Воспроизвести звук:
+	</floater.string>
+	<floater.string name="step_chat">
+		Сказать в чат:
+	</floater.string>
+	<floater.string name="step_wait">
+		Ждать:
+	</floater.string>
+	<floater.string name="stop_txt">
+		Стоп
+	</floater.string>
+	<floater.string name="preview_txt">
+		Предварительный просмотр
+	</floater.string>
+	<floater.string name="none_text">
+		- Ничего -
+	</floater.string>
+	<floater.string name="Title">
+		Жест: [NAME]
+	</floater.string>
+	<text name="desc_label">
+		Описание:
+	</text>
+	<text name="trigger_label">
+		Сигнал:
+	</text>
+	<text name="replace_text" tool_tip="Заменить сигнальное слово этими словами. Например, если сигнал – «здравствуйте», а заменитель – «привет», то при вводе в чат фразы «Я хотел сказать здравствуйте» появится «Я хотел сказать привет» вместе с жестом.">
+		Заменитель:
+	</text>
+	<line_editor name="replace_editor" tool_tip="Заменить сигнальное слово этими словами. Например, если сигнал – «здравствуйте», а заменитель – «привет», то при вводе в чат фразы «Я хотел сказать здравствуйте» появится «Я хотел сказать привет» вместе с жестом."/>
+	<text name="key_label">
+		Горячая клавиша:
+	</text>
+	<combo_box label="Нет" name="modifier_combo"/>
+	<combo_box label="Нет" name="key_combo"/>
+	<text name="library_label">
+		Библиотека:
+	</text>
+	<scroll_list name="library_list">
+		<scroll_list.rows name="action_animation" value="Анимация"/>
+		<scroll_list.rows name="action_sound" value="Звук"/>
+		<scroll_list.rows name="action_chat" value="Чат"/>
+		<scroll_list.rows name="action_wait" value="Ожидание"/>
+	</scroll_list>
+	<button label="Добавить &gt;&gt;" name="add_btn"/>
+	<text name="steps_label">
+		Шаги:
+	</text>
+	<button label="Вверх" name="up_btn"/>
+	<button label="Вниз" name="down_btn"/>
+	<button label="Удалить" name="delete_btn"/>
+	<text name="options_text">
+		(параметры)
+	</text>
+	<radio_group name="animation_trigger_type">
+		<radio_item label="Старт" name="start"/>
+		<radio_item label="Стоп" name="stop"/>
+	</radio_group>
+	<check_box label="до завершения анимации" name="wait_anim_check"/>
+	<check_box label="время в секундах:" name="wait_time_check"/>
+	<text name="help_label">
+		Все шаги выполняются одновременно, если только вы не добавите шаги ожидания.
+	</text>
+	<check_box label="Активный" name="active_check" tool_tip="Активные жесты можно включить путем ввода их триггеров в чат или нажатием горячих клавиш.  Жесты обычно становятся неактивными, если возникает конфликт клавиш."/>
+	<button label="Предварительный просмотр" name="preview_btn"/>
+	<button label="Сохранить" name="save_btn"/>
+</floater>

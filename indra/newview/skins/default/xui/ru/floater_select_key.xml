@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="modal container">
+	<text name="Save item as:">
+			Нажмите клавишу для включения/выключения речи.
+	</text>
+	<button label="Отмена" label_selected="Отмена" name="Cancel"/>
+</floater>

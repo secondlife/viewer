@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Controles de voz">
+<floater name="floater_voice_controls" title="CONTROLES DE VOZ">
 	<string name="title_nearby">
-		VOZ LOCAL
+		CONFIGURAÇÕES DE VOZ
 	</string>
 	<string name="title_group">
-		Ligação de grupo com [GROUP]
+		LIGAÇÃO DE GRUPO COM [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Teleconferência
+		TELECONFERÊNCIA
 	</string>
 	<string name="title_peer_2_peer">
-		Ligação para [NAME]
+		LIGAÇÃO PARA [NAME]
 	</string>
 	<string name="no_one_near">
 		Ninguém por perto ativou a voz

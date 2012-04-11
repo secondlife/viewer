@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="object properties" title="Nesne Profili">
+	<panel.string name="text deed continued">
+		Devret
+	</panel.string>
+	<panel.string name="text deed">
+		Devret
+	</panel.string>
+	<panel.string name="text modify info 1">
+		Bu nesneyi değiştirebilirsiniz
+	</panel.string>
+	<panel.string name="text modify info 2">
+		Bu nesneleri değiştirebilirsiniz
+	</panel.string>
+	<panel.string name="text modify info 3">
+		Bu nesneyi değiştiremezsiniz
+	</panel.string>
+	<panel.string name="text modify info 4">
+		Bu nesneleri değiştiremezsiniz
+	</panel.string>
+	<panel.string name="text modify warning">
+		Bu nesne bağlantılı parçalara sahip
+	</panel.string>
+	<panel.string name="Cost Default">
+		Fiyat: L$
+	</panel.string>
+	<panel.string name="Cost Total">
+		Toplam Fiyat: L$
+	</panel.string>
+	<panel.string name="Cost Per Unit">
+		Birim Fiyatı: L$
+	</panel.string>
+	<panel.string name="Cost Mixed">
+		Karma Fiyat
+	</panel.string>
+	<panel.string name="Sale Mixed">
+		Karma Satış
+	</panel.string>
+	<text name="title" value="Nesne Profili"/>
+	<text name="where" value="(SL Dünyası)"/>
+	<panel label="" name="properties_panel">
+		<text name="Name:">
+			Ad:
+		</text>
+		<text name="Description:">
+			Açıklama:
+		</text>
+		<text name="CreatorNameLabel">
+			Oluşturan:
+		</text>
+		<text name="Owner:">
+			Sahip:
+		</text>
+		<text name="Group_label">
+			Grup:
+		</text>
+		<button name="button set group" tool_tip="Bu nesnenin izinlerini paylaşmak için bir grup seçin"/>
+		<name_box initial_value="Yükleniyor..." name="Group Name Proxy"/>
+		<button label="Devret" label_selected="Devret" name="button deed" tool_tip="Bu nesne devredilerek verildiğinde, nesnenin sonraki sahibi için izinler geçerli olur. Grup içerisinde paylaşılan nesneler bir grup yetkilisi tarafından devredilebilir."/>
+		<text name="label click action">
+			Şu eylem için tıklayın:
+		</text>
+		<combo_box name="clickaction">
+			<combo_box.item label="Dokun (varsayılan)" name="Touch/grab(default)"/>
+			<combo_box.item label="Nesnenin üzerine otur" name="Sitonobject"/>
+			<combo_box.item label="Nesneyi satın al" name="Buyobject"/>
+			<combo_box.item label="Nesneye ödeme yap" name="Payobject"/>
+			<combo_box.item label="Aç" name="Open"/>
+		</combo_box>
+		<panel name="perms_inv">
+			<text name="perm_modify">
+				Bu nesneyi değiştirebilirsiniz
+			</text>
+			<text name="Anyone can:">
+				Herkes:
+			</text>
+			<check_box label="Kopyala" name="checkbox allow everyone copy"/>
+			<check_box label="Hareket Et" name="checkbox allow everyone move"/>
+			<text name="GroupLabel">
+				Grup:
+			</text>
+			<check_box label="Paylaş" name="checkbox share with group" tool_tip="Ayarlanan grubun tüm üyelerinin, bu nesne için değiştirme izinlerinizi paylaşmasına izin verir. Rol kısıtlamalarını etkinleştirmek için Devretme yapmalısınız."/>
+			<text name="NextOwnerLabel">
+				Sonraki sahip:
+			</text>
+			<check_box label="Değiştir" name="checkbox next owner can modify"/>
+			<check_box label="Kopyala" name="checkbox next owner can copy"/>
+			<check_box label="Aktar" name="checkbox next owner can transfer" tool_tip="Sonraki sahibi bu nesneyi verebilir veya tekrar satabilir"/>
+		</panel>
+		<check_box label="Satılık" name="checkbox for sale"/>
+		<combo_box name="sale type">
+			<combo_box.item label="Kopyala" name="Copy"/>
+			<combo_box.item label="İçerik" name="Contents"/>
+			<combo_box.item label="Orijinal" name="Original"/>
+		</combo_box>
+		<spinner label="Fiyat: L$" name="Edit Cost"/>
+		<check_box label="Aramada göster" name="search_check" tool_tip="Kişiler arama sonuçlarında bu nesneyi görebilsin"/>
+		<text name="B:">
+			B:
+		</text>
+		<text name="O:">
+			O:
+		</text>
+		<text name="G:">
+			G:
+		</text>
+		<text name="E:">
+			E:
+		</text>
+		<text name="N:">
+			N:
+		</text>
+		<text name="F:">
+			F:
+		</text>
+	</panel>
+	<panel name="button_panel">
+		<button label="Aç" name="open_btn"/>
+		<button label="Öde" name="pay_btn"/>
+		<button label="Satın Al" name="buy_btn"/>
+		<button label="Ayrıntl" name="details_btn"/>
+	</panel>
+</panel>

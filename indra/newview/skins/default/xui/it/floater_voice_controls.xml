@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="floater_voice_controls" title="Regolazione voce">
+<floater name="floater_voice_controls" title="CONTROLLI VOCE">
 	<string name="title_nearby">
-		VOCE NEI DINTORNI
+		IMPOSTAZIONI VOCE
 	</string>
 	<string name="title_group">
-		Chiamata di gruppo con [GROUP]
+		CHIAMATA DI GRUPPO CON [GROUP]
 	</string>
 	<string name="title_adhoc">
-		Chiamata in conferenza
+		CHIAMATA IN CONFERENZA
 	</string>
 	<string name="title_peer_2_peer">
-		Chiamata con [NAME]
+		CHIAMATA CON [NAME]
 	</string>
 	<string name="no_one_near">
 		Nessuno nei dintorni ha attivato la funzione voce

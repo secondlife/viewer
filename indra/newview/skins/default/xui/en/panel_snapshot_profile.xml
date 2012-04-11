@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ height="380"
+ layout="topleft"
+ name="panel_snapshot_profile"
+ width="490">
+    <icon
+     follows="top|left"
+     height="18"
+     image_name="Snapshot_Profile"
+     layout="topleft"
+     left="12"
+     mouse_opaque="true"
+     name="title_icon"
+     top="5"
+     width="18" />
+    <text
+     follows="top|left|right"
+     font="SansSerifBold"
+     height="20"
+     layout="topleft"
+     left_pad="12"
+     length="1"
+     name="title"
+     right="-10"
+     text_color="white"
+     type="string"
+     top_delta="4">
+        Post to My Profile Feed
+    </text>
+    <view_border 
+     bevel_style="in"
+     follows="left|top|right" 
+     height="1"
+     left="10"
+     layout="topleft"
+     name="hr"
+     right="-10"
+     top_pad="5"
+     />
+    <combo_box
+     follows="left|top"
+     height="23"
+     label="Resolution"
+     layout="topleft"
+     left_delta="0"
+     name="profile_size_combo"
+     top_pad="10"
+     width="250">
+        <combo_box.item
+         label="Current Window"
+         name="CurrentWindow"
+         value="[i0,i0]" />
+        <combo_box.item
+         label="640x480"
+         name="640x480"
+         value="[i640,i480]" />
+        <combo_box.item
+         label="800x600"
+         name="800x600"
+         value="[i800,i600]" />
+        <combo_box.item
+         label="1024x768"
+         name="1024x768"
+         value="[i1024,i768]" />
+        <combo_box.item
+         label="Custom"
+         name="Custom"
+         value="[i-1,i-1]" />
+    </combo_box>
+    <layout_stack
+     animate="false"
+     follows="all"
+     height="270"
+     layout="bottomleft"
+     name="profile_image_params_ls"
+     left_delta="0"
+     orientation="vertical"
+     top_pad="10"
+     right="-10">
+        <layout_panel
+         follows="top|left|right"
+         height="55"
+         layout="topleft"
+         left="0"
+         name="profile_image_size_lp"
+         auto_resize="false"
+         top="0"
+         right="-1"
+         visible="true">
+            <spinner
+             allow_text_entry="false"
+             decimal_digits="0"
+             follows="left|top"
+             height="20"
+             increment="32"
+             label="Width"
+             label_width="40"
+             layout="topleft"
+             left="10"
+             max_val="6016"
+             min_val="32"
+             name="profile_snapshot_width"
+             top_pad="10"
+             width="95" />
+            <spinner
+             allow_text_entry="false"
+             decimal_digits="0"
+             follows="left|top"
+             height="20"
+             increment="32"
+             label="Height"
+             label_width="40"
+             layout="topleft"
+             left_pad="5"
+             max_val="6016"
+             min_val="32"
+             name="profile_snapshot_height"
+             top_delta="0"
+             width="95" />
+            <check_box
+             bottom_delta="20"
+             label="Constrain proportions"
+             layout="topleft"
+             left="10"
+             name="profile_keep_aspect_check" />
+        </layout_panel>
+        <layout_panel
+         follows="top|left|right"
+         height="200"
+         layout="topleft"
+         left="0"
+         name="profile_image_metadata_lp"
+         auto_resize="true"
+         top="0"
+         right="-1"
+         visible="true">
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="0"
+             name="caption_label"
+             right="-10"
+             top_pad="0"
+             type="string">
+                Caption:
+            </text>
+            <text_editor
+             follows="all"
+             height="155"
+             layout="topleft"
+             left_delta="0"
+             length="1"
+             max_length="700"
+             name="caption"
+             right="-10"
+             top_pad="5"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+            <check_box
+             follows="left|bottom"
+             initial_value="true"
+             label="Include location"
+             layout="topleft"
+             left_delta="0"
+             name="add_location_cb"
+             top_pad="15" />
+        </layout_panel>
+    </layout_stack>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     name="cancel_btn"
+     right="-32"
+     top="350"
+     width="100">
+      <button.commit_callback
+       function="PostToProfile.Cancel" />
+    </button>
+    <button
+     follows="right|bottom"
+     height="23"
+     label="Post"
+     layout="topleft"
+     left_delta="-106"
+     name="post_btn"
+     top_delta="0"
+     width="100">
+      <button.commit_callback
+       function="PostToProfile.Send" />
+    </button>
+</panel>

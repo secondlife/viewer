@@ -34,13 +34,16 @@
 #include "llinventoryobserver.h"
 #include "llinventorymodel.h"
 
+class LLMenuItemCallGL;
+class LLToggleableMenu;
+
 class LLFavoritesBarCtrl : public LLUICtrl, public LLInventoryObserver
 {
 public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<LLUIImage*> image_drag_indication;
-		Optional<LLButton::Params> chevron_button;
+		Optional<LLTextBox::Params> more_button;
 		Optional<LLTextBox::Params> label;
 		Params();
 	};
@@ -127,15 +130,26 @@ private:
 	 * inserts an item identified by insertedItemId BEFORE an item identified by beforeItemId.
 	 * this function assumes that an item identified by insertedItemId doesn't exist in items array.
 	 */
-	void insertBeforeItem(LLInventoryModel::item_array_t& items, const LLUUID& beforeItemId, LLViewerInventoryItem* insertedItem);
+	void insertItem(LLInventoryModel::item_array_t& items, const LLUUID& dest_item_id, LLViewerInventoryItem* insertedItem, bool insert_before);
 
 	// finds an item by it's UUID in the items array
 	LLInventoryModel::item_array_t::iterator findItemByUUID(LLInventoryModel::item_array_t& items, const LLUUID& id);
 
+	void createOverflowMenu();
+
+	void updateMenuItems(LLToggleableMenu* menu);
+
+	// Fits menu item label width with favorites menu width
+	void fitLabelWidth(LLMenuItemCallGL* menu_item);
+
+	void addOpenLandmarksMenuItem(LLToggleableMenu* menu);
+
+	void positionAndShowMenu(LLToggleableMenu* menu);
+
 	BOOL mShowDragMarker;
 	LLUICtrl* mLandingTab;
 	LLUICtrl* mLastTab;
-	LLButton* mChevronButton;
+	LLTextBox* mMoreTextBox;
 	LLTextBox* mBarLabel;
 
 	LLUUID mDragItemId;

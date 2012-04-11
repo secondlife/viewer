@@ -1,54 +1,60 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="Yo" name="Me">
-		<menu_item_call label="Preferencias" name="Preferences"/>
-		<menu_item_call label="Mi panel de control" name="Manage My Account">
-			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=es"/>
-		</menu_item_call>
-		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
-		<menu_item_call label="Mi perfil" name="Profile"/>
-		<menu_item_call label="Mi apariencia" name="ChangeOutfit"/>
-		<menu_item_check label="Mi Inventario" name="Inventory"/>
-		<menu_item_check label="Mi Inventario" name="ShowSidetrayInventory"/>
-		<menu_item_check label="Mis gestos" name="Gestures"/>
-		<menu_item_check label="Mi voz" name="ShowVoice"/>
+		<menu_item_call label="Perfil..." name="Profile"/>
+		<menu_item_call label="Apariencia" name="ChangeOutfit"/>
+		<menu_item_call label="Elige un avatar..." name="Avatar Picker"/>
+		<menu_item_check label="Inventario..." name="Inventory"/>
+		<menu_item_call label="Nueva ventana del inventario" name="NewInventoryWindow"/>
+		<menu_item_call label="Lugares..." name="Places"/>
+		<menu_item_call label="Destacados..." name="Picks"/>
+		<menu_item_call label="Controles de la cámara..." name="Camera Controls"/>
 		<menu label="Movimiento" name="Movement">
 			<menu_item_call label="Sentarte" name="Sit Down Here"/>
 			<menu_item_check label="Volar" name="Fly"/>
 			<menu_item_check label="Correr siempre" name="Always Run"/>
 			<menu_item_call label="Parar mis animaciones" name="Stop Animating My Avatar"/>
 		</menu>
-		<menu label="Mi estado" name="Status">
+		<menu label="Estado" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="Solicitar estatus de Administrador" name="Request Admin Options"/>
 		<menu_item_call label="Dejar el estatus de Administrador" name="Leave Admin Options"/>
+		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
+		<menu_item_call label="Panel de control de la cuenta..." name="Manage My Account">
+			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=es"/>
+		</menu_item_call>
+		<menu_item_call label="Preferencias..." name="Preferences"/>
+		<menu_item_call label="Botones de la barra de herramientas..." name="Toolbars"/>
+		<menu_item_call label="Ocultar todos los controles" name="Hide UI"/>
 		<menu_item_call label="Salir de [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Comunicarme" name="Communicate">
-		<menu_item_call label="Mis amigos" name="My Friends"/>
-		<menu_item_call label="Mis grupos" name="My Groups"/>
-		<menu_item_check label="Chat" name="Nearby Chat"/>
+		<menu_item_check label="Chat..." name="Nearby Chat"/>
+		<menu_item_check label="Hablar" name="Speak"/>
+		<menu_item_check label="Configuración de voz..." name="Nearby Voice"/>
+		<menu_item_check label="Transformación de voz..." name="ShowVoice"/>
+		<menu_item_check label="Gestos..." name="Gestures"/>
+		<menu_item_call label="Amigos" name="My Friends"/>
+		<menu_item_call label="Grupos" name="My Groups"/>
 		<menu_item_call label="Gente cerca" name="Active Speakers"/>
-		<menu_item_check label="Chat de voz" name="Nearby Voice"/>
 	</menu>
 	<menu label="Mundo" name="World">
-		<menu_item_check label="Minimapa" name="Mini-Map"/>
-		<menu_item_check label="Mapa del mundo" name="World Map"/>
-		<menu_item_check label="Buscar" name="Search"/>
-		<menu_item_call label="Foto" name="Take Snapshot"/>
 		<menu_item_call label="Crear un hito de este sitio" name="Create Landmark Here"/>
-		<menu label="Perfil del lugar" name="Land">
-			<menu_item_call label="Perfil del lugar" name="Place Profile"/>
-			<menu_item_call label="Acerca del terreno" name="About Land"/>
-			<menu_item_call label="Región/Estado" name="Region/Estate"/>
-		</menu>
+		<menu_item_call label="Destinos..." name="Destinations"/>
+		<menu_item_check label="Mapa del mundo" name="World Map"/>
+		<menu_item_check label="Minimapa" name="Mini-Map"/>
+		<menu_item_check label="Buscar" name="Search"/>
+		<menu_item_call label="Teleportar a la Base" name="Teleport Home"/>
+		<menu_item_call label="Fijar mi Base aquí" name="Set Home to Here"/>
+		<menu_item_call label="Foto" name="Take Snapshot"/>
+		<menu_item_call label="Perfil del lugar" name="Place Profile"/>
+		<menu_item_call label="Acerca del terreno" name="About Land"/>
+		<menu_item_call label="Región/Estado" name="Region/Estate"/>
+		<menu_item_call label="Mis terrenos..." name="My Land"/>
 		<menu_item_call label="Comprar este terreno" name="Buy Land"/>
-		<menu_item_call label="Mi terreno" name="My Land"/>
 		<menu label="Mostrar" name="LandShow">
-			<menu_item_check label="Controles del movimiento" name="Movement Controls"/>
-			<menu_item_check label="Controles de la cámara" name="Camera Controls"/>
 			<menu_item_check label="Líneas de prohibición" name="Ban Lines"/>
 			<menu_item_check label="Balizas" name="beacons"/>
 			<menu_item_check label="Límites de las parcelas" name="Property Lines"/>
@@ -57,16 +63,15 @@
 			<menu_item_check label="Propiedades de la parcela" name="Parcel Properties"/>
 			<menu_item_check label="Menú Avanzado" name="Show Advanced Menu"/>
 		</menu>
-		<menu_item_call label="Teleportar a la Base" name="Teleport Home"/>
-		<menu_item_call label="Fijar mi Base aquí" name="Set Home to Here"/>
 		<menu label="Sol" name="Environment Settings">
 			<menu_item_call label="Amanecer" name="Sunrise"/>
 			<menu_item_call label="Mediodía" name="Noon"/>
 			<menu_item_call label="Atardecer" name="Sunset"/>
 			<menu_item_call label="Medianoche" name="Midnight"/>
+			<menu_item_call label="Usar configuración de región" name="Use Region Settings"/>
 		</menu>
-		<menu label="Editor de entorno" name="Enviroment Editor">
-			<menu_item_call label="Configuración de entorno..." name="Enviroment Settings"/>
+		<menu label="Editor de entorno" name="Environment Editor">
+			<menu_item_call label="Configuración del entorno..." name="Environment Settings"/>
 			<menu label="Agua predefinida" name="Water Presets">
 				<menu_item_call label="Nuevo predefinido..." name="new_water_preset"/>
 				<menu_item_call label="Editar predefinido..." name="edit_water_preset"/>
@@ -139,13 +144,14 @@
 			<menu_item_call label="Animación ([COST] L$)..." name="Upload Animation"/>
 			<menu_item_call label="Modelo..." name="Upload Model"/>
 			<menu_item_call label="Masivo ([COST] L$ por archivo)..." name="Bulk Upload"/>
+			<menu_item_call label="Configurar los permisos por defecto de subida" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Deshacer" name="Undo"/>
 		<menu_item_call label="Rehacer" name="Redo"/>
 	</menu>
 	<menu label="Ayuda" name="Help">
+		<menu_item_call label="Cómo..." name="How To"/>
 		<menu_item_call label="Ayuda de [SECOND_LIFE]" name="Second Life Help"/>
-		<menu_item_check label="Permitir consejos" name="Enable Hints"/>
 		<menu_item_call label="Denunciar una infracción" name="Report Abuse"/>
 		<menu_item_call label="Informar de un fallo" name="Report Bug"/>
 		<menu_item_call label="Acerca de [APP_NAME]" name="About Second Life"/>
@@ -161,7 +167,7 @@
 		<menu label="Herramientas de rendimiento" name="Performance Tools">
 			<menu_item_call label="Medidor de lag" name="Lag Meter"/>
 			<menu_item_check label="Estadísticas" name="Statistics Bar"/>
-			<menu_item_check label="Mostrar cuánto cuesta renderizar el avatar" name="Avatar Rendering Cost"/>
+			<menu_item_check label="Mostrar el peso del dibujo de los avatares" name="Avatar Rendering Cost"/>
 		</menu>
 		<menu label="Realzado y Visibilidad" name="Highlighting and Visibility">
 			<menu_item_check label="Baliza con destellos" name="Cheesy Beacon"/>
@@ -198,11 +204,10 @@
 		<menu_item_check label="Usar Plugin Read Thread" name="Use Plugin Read Thread"/>
 		<menu_item_call label="Vaciar la caché de grupo" name="ClearGroupCache"/>
 		<menu_item_check label="Vista subjetiva suavizada" name="Mouse Smoothing"/>
+		<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
 		<menu label="Atajos de teclado" name="Shortcuts">
 			<menu_item_call label="Imagen ([COST] L$)..." name="Upload Image"/>
 			<menu_item_check label="Buscar" name="Search"/>
-			<menu_item_call label="Recuperar las teclas" name="Release Keys"/>
-			<menu_item_call label="Interfaz en el tamaño predeterminado" name="Set UI Size to Default"/>
 			<menu_item_check label="Mostrar el menú Avanzado - acceso directo antiguo" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Cerrar la ventana" name="Close Window"/>
 			<menu_item_call label="Cerrar todas las ventanas" name="Close All Windows"/>
@@ -271,6 +276,8 @@
 			<menu_item_check label="Actualizar el tipo" name="Update Type"/>
 			<menu_item_check label="Información sobre el nivel de detalle" name="LOD Info"/>
 			<menu_item_check label="Crear cola" name="Build Queue"/>
+			<menu_item_check label="Vectores de viento" name="Wind Vectors"/>
+			<menu_item_check label="Complejidad del renderizado" name="rendercomplexity"/>
 			<menu_item_check label="Esculpir" name="Sculpt"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
@@ -279,7 +286,6 @@
 			<menu_item_check label="Luces y sombras" name="Lighting and Shadows"/>
 			<menu_item_check label="Sombras del sol/la luna/proyectores" name="Shadows from Sun/Moon/Projectors"/>
 			<menu_item_check label="SSAO y sombras suavizadas" name="SSAO and Shadow Smoothing"/>
-			<menu_item_check label="Iluminación global (experimental)" name="Global Illumination"/>
 			<menu_item_check label="Capas alfa automáticas (deferidas)" name="Automatic Alpha Masks (deferred)"/>
 			<menu_item_check label="Capas alfa automáticas (no deferidas)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animation Textures" name="Animation Textures"/>

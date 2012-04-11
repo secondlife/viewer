@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="preview_texture">
+	<floater.string name="Title">
+		Doku: [NAME]
+	</floater.string>
+	<floater.string name="Copy">
+		Envantere Kopyala
+	</floater.string>
+	<text name="desc txt">
+		Açıklama:
+	</text>
+	<text name="dimensions">
+		[WIDTH]px x [HEIGHT]px
+	</text>
+	<text name="aspect_ratio">
+		En boy oranını önizle
+	</text>
+	<combo_box name="combo_aspect_ratio" tool_tip="Sabit en boy oranında önizle">
+		<combo_item name="Unconstrained">
+			Kısıtsız
+		</combo_item>
+		<combo_item name="1:1" tool_tip="Grup işaretleri veya Real World profili">
+			1:1
+		</combo_item>
+		<combo_item name="4:3" tool_tip="[SECOND_LIFE] profili">
+			4:3
+		</combo_item>
+		<combo_item name="10:7" tool_tip="İlanlar ve arama listeleri, yer imleri">
+			10:7
+		</combo_item>
+		<combo_item name="3:2" tool_tip="Arazi hakkında">
+			3:2
+		</combo_item>
+		<combo_item name="16:10">
+			16:10
+		</combo_item>
+		<combo_item name="16:9" tool_tip="Profil seçmeleri">
+			16:9
+		</combo_item>
+		<combo_item name="2:1">
+			2:1
+		</combo_item>
+	</combo_box>
+	<button label="Tamam" name="Keep"/>
+	<button label="At" name="Discard"/>
+	<button label="Farklı Kaydet" name="save_tex_btn"/>
+</floater>

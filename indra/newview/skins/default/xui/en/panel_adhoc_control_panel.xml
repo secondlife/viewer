@@ -27,8 +27,7 @@
          mouse_opaque="false"
          width="147"
          top="0"
-         name="speakers_list_panel"
-         user_resize="false">
+         name="speakers_list_panel">
             <avatar_list
              color="DkGray2"
              follows="all"
@@ -50,7 +49,6 @@
          min_height="25"
          width="130"
          name="call_btn_panel"
-         user_resize="false"
          visible="false">
             <button
              follows="all"
@@ -58,7 +56,7 @@
              label="Call"
              name="call_btn"
              width="130"
-             top="5" />
+             top="0" />
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -68,14 +66,13 @@
          min_height="25"
          width="130"
          name="end_call_btn_panel"
-         user_resize="false"
          visible="false">
             <button
              follows="all"
              height="20"
              label="Leave Call"
              name="end_call_btn"
-             top="5"/>
+             top="0"/>
         </layout_panel>
         <layout_panel
          auto_resize="false"
@@ -85,14 +82,13 @@
          min_height="25"
          width="130"
          name="voice_ctrls_btn_panel"
-         user_resize="false"
          visible="false">
             <button
              follows="all"
              height="20"
              label="Voice Controls"
              name="voice_ctrls_btn"
-             top="5"
+             top="0"
              use_ellipses="true" />
         </layout_panel>
     </layout_stack>

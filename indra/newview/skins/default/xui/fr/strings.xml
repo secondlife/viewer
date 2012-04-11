@@ -1214,7 +1214,7 @@ Veuillez réessayer de vous connecter dans une minute.
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
 	<string name="InventoryInboxNoItems">
-		Ici seront livrés les articles achetés sur la Place du marché.
+		Lorsque vous achetez ou recevez un article, il s&apos;affiche ici. Vous pouvez alors le faire glisser vers un dossier de votre inventaire ou le supprimer si vous ne souhaitez pas le conserver.
 	</string>
 	<string name="MarketplaceURL">
 		http://marketplace.[DOMAIN_NAME]
@@ -1275,6 +1275,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Marketplace Error Internal Import">
 		Erreur : un problème est survenu concernant cet article. Veuillez réessayer ultérieurement.
+	</string>
+	<string name="Open landmarks">
+		Ouvrir les repères
 	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
@@ -1409,6 +1412,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="no_attachments">
 		Aucun élément attaché porté
 	</string>
+	<string name="Attachments remain">
+		Éléments attachés ([COUNT] emplacements restants)
+	</string>
 	<string name="Buy">
 		Acheter
 	</string>
@@ -1534,6 +1540,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Right Pec">
 		Pectoral droit
+	</string>
+	<string name="Neck">
+		Cou
+	</string>
+	<string name="Avatar Center">
+		Centre de l&apos;avatar
 	</string>
 	<string name="Invalid Attachment">
 		Point d&apos;attache non valide
@@ -2510,7 +2522,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Breast Physics InOut Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Breast Physics InOut Gain">
 		Amplification
@@ -2522,7 +2534,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Breast Physics UpDown Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Breast Physics UpDown Gain">
 		Amplification
@@ -2534,7 +2546,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Breast Physics LeftRight Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Breast Physics LeftRight Gain">
 		Amplification
@@ -2558,7 +2570,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Belly Physics UpDown Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Belly Physics UpDown Gain">
 		Amplification
@@ -2582,7 +2594,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Butt Physics UpDown Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Butt Physics UpDown Gain">
 		Amplification
@@ -2594,7 +2606,7 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		Effet max.
 	</string>
 	<string name="Butt Physics LeftRight Spring">
-		Vibration
+		Élasticité
 	</string>
 	<string name="Butt Physics LeftRight Gain">
 		Amplification
@@ -4027,6 +4039,18 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Votre paiement de [AMOUNT] L$ à [NAME] [REASON] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Votre paiement de [AMOUNT] L$ a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Votre paiement de [AMOUNT] L$ à [NAME] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Votre paiement de [AMOUNT] L$ [REASON] a échoué.
+	</string>
 	<string name="for item">
 		pour l&apos;article suivant : [ITEM]
 	</string>
@@ -4254,7 +4278,7 @@ de l&apos;infraction signalée
 	<string name="Female - Wow">
 		Femme - Ouah !
 	</string>
-	<string name="/bow1">
+	<string name="/bow">
 		/s&apos;incliner
 	</string>
 	<string name="/clap">
@@ -4436,6 +4460,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Échec d&apos;exécution de l&apos;éditeur externe.
+	</string>
+	<string name="TranslationFailed">
+		Échec de traduction : [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Erreur lors de l&apos;analyse de la réponse relative à la traduction.
 	</string>
 	<string name="Esc">
 		Échap
@@ -4766,5 +4796,197 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="ParticleHiding">
 		Masquage des particules
+	</string>
+	<string name="Command_AboutLand_Label">
+		À propos du terrain
+	</string>
+	<string name="Command_Appearance_Label">
+		Apparence
+	</string>
+	<string name="Command_Avatar_Label">
+		Avatar
+	</string>
+	<string name="Command_Build_Label">
+		Construire
+	</string>
+	<string name="Command_Chat_Label">
+		Chat
+	</string>
+	<string name="Command_Compass_Label">
+		Boussole
+	</string>
+	<string name="Command_Destinations_Label">
+		Destinations
+	</string>
+	<string name="Command_Gestures_Label">
+		Gestes
+	</string>
+	<string name="Command_HowTo_Label">
+		Aide rapide
+	</string>
+	<string name="Command_Inventory_Label">
+		Inventaire
+	</string>
+	<string name="Command_Map_Label">
+		Carte
+	</string>
+	<string name="Command_Marketplace_Label">
+		Place du marché
+	</string>
+	<string name="Command_MiniMap_Label">
+		Mini-carte
+	</string>
+	<string name="Command_Move_Label">
+		Marcher / Courir / Voler
+	</string>
+	<string name="Command_People_Label">
+		Personnes
+	</string>
+	<string name="Command_Picks_Label">
+		Favoris
+	</string>
+	<string name="Command_Places_Label">
+		Lieux
+	</string>
+	<string name="Command_Preferences_Label">
+		Préférences
+	</string>
+	<string name="Command_Profile_Label">
+		Profil
+	</string>
+	<string name="Command_Search_Label">
+		Recherche
+	</string>
+	<string name="Command_Snapshot_Label">
+		Photo
+	</string>
+	<string name="Command_Speak_Label">
+		Parler
+	</string>
+	<string name="Command_View_Label">
+		Paramètres de la caméra
+	</string>
+	<string name="Command_Voice_Label">
+		Paramètres vocaux
+	</string>
+	<string name="Command_AboutLand_Tooltip">
+		Information sur le terrain que vous visitez
+	</string>
+	<string name="Command_Appearance_Tooltip">
+		Modifier votre avatar
+	</string>
+	<string name="Command_Avatar_Tooltip">
+		Choisir un avatar complet
+	</string>
+	<string name="Command_Build_Tooltip">
+		Construction d&apos;objets et remodelage du terrain
+	</string>
+	<string name="Command_Chat_Tooltip">
+		Parler aux personnes près de vous par chat écrit
+	</string>
+	<string name="Command_Compass_Tooltip">
+		Boussole
+	</string>
+	<string name="Command_Destinations_Tooltip">
+		Destinations intéressantes
+	</string>
+	<string name="Command_Gestures_Tooltip">
+		Gestes de votre avatar
+	</string>
+	<string name="Command_HowTo_Tooltip">
+		Comment effectuer les opérations courantes
+	</string>
+	<string name="Command_Inventory_Tooltip">
+		Afficher et utiliser vos possessions
+	</string>
+	<string name="Command_Map_Tooltip">
+		Carte du monde
+	</string>
+	<string name="Command_Marketplace_Tooltip">
+		Faire du shopping
+	</string>
+	<string name="Command_MiniMap_Tooltip">
+		Afficher les personnes près de vous
+	</string>
+	<string name="Command_Move_Tooltip">
+		Faire bouger votre avatar
+	</string>
+	<string name="Command_People_Tooltip">
+		Amis, groupes et personnes près de vous
+	</string>
+	<string name="Command_Picks_Tooltip">
+		Lieux à afficher comme favoris dans votre profil
+	</string>
+	<string name="Command_Places_Tooltip">
+		Lieux enregistrés
+	</string>
+	<string name="Command_Preferences_Tooltip">
+		Préférences
+	</string>
+	<string name="Command_Profile_Tooltip">
+		Modifier ou afficher votre profil
+	</string>
+	<string name="Command_Search_Tooltip">
+		Trouver des lieux, personnes, événements
+	</string>
+	<string name="Command_Snapshot_Tooltip">
+		Prendre une photo
+	</string>
+	<string name="Command_Speak_Tooltip">
+		Parler aux personnes près de vous en utilisant votre micro
+	</string>
+	<string name="Command_View_Tooltip">
+		Changer l&apos;angle de la caméra
+	</string>
+	<string name="Command_Voice_Tooltip">
+		Commandes de réglage du volume des appels et des personnes près de vous dans Second Life.
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		actuellement dans la barre d&apos;outils du bas
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		actuellement dans la barre d&apos;outils de gauche
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		actuellement dans la barre d&apos;outils de droite
+	</string>
+	<string name="Retain%">
+		Garder%
+	</string>
+	<string name="Detail">
+		Détail
+	</string>
+	<string name="Better Detail">
+		Meilleur détail
+	</string>
+	<string name="Surface">
+		Surface
+	</string>
+	<string name="Solid">
+		Solide
+	</string>
+	<string name="Wrap">
+		Wrap
+	</string>
+	<string name="Preview">
+		Aperçu
+	</string>
+	<string name="Normal">
+		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Très faible
+	</string>
+	<string name="snapshot_quality_low">
+		Faible
+	</string>
+	<string name="snapshot_quality_medium">
+		Moyenne
+	</string>
+	<string name="snapshot_quality_high">
+		Élevée
+	</string>
+	<string name="snapshot_quality_very_high">
+		Très élevée
 	</string>
 </strings>

@@ -65,15 +65,12 @@ Aimee Trescothick
 Alejandro Rosenthal
 	VWR-1184
 Aleric Inglewood
-	SNOW-84
+	OPEN-38
 	SNOW-240
-	SNOW-477
 	SNOW-522
 	SNOW-626
-	SNOW-744
 	SNOW-756
 	SNOW-764
-	SNOW-766
 	SNOW-800
 	VWR-10001
 	VWR-10579
@@ -99,8 +96,11 @@ Aleric Inglewood
 	VWR-24366
 	VWR-24519
 	VWR-24520
+	SNOW-84
+	SNOW-477
+	SNOW-744
+	SNOW-766
 	STORM-163
-	STORM-864
 	STORM-955
 	STORM-960
 Ales Beaumont
@@ -159,6 +159,7 @@ Alissa Sabre
 	VWR-12620
 	VWR-12789
 	SNOW-322
+    STORM-1723
 Alliez Mysterio
 Angus Boyd
 	VWR-592
@@ -170,6 +171,8 @@ Ansariel Hiller
 	STORM-1101
 	VWR-25480
 	VWR-26150
+	STORM-1685
+	STORM-1713
 Aralara Rajal
 Ardy Lay
 	STORM-859
@@ -480,7 +483,9 @@ Ima Mechanique
 	OPEN-50
 	OPEN-61
 	OPEN-76
+	STORM-959
 	STORM-1175
+	STORM-1708
 Imnotgoing Sideways
 Inma Rau
 Innula Zenovka
@@ -575,8 +580,38 @@ Jonathan Yap
 	STORM-1567
 	STORM-1572
 	STORM-1574
+	STORM-1579
+	STORM-1638
+	STORM-976
+	STORM-1639
+	STORM-910
+	STORM-1653
+	STORM-1642
+	STORM-591
+	STORM-1105
+	STORM-1679
+	STORM-1222
+	STORM-1659
+	STORM-1674
+	STORM-1685
+	STORM-1721
+	STORM-1727
+	STORM-1725
+	STORM-1719
+	STORM-1712
+	STORM-1728
+	STORM-1736
+	STORM-1734
+	STORM-1731
+	STORM-653
+	STORM-1737
+	STORM-1733
+	STORM-1790
+	STORM-1788
+	STORM-1799
+	STORM-1796
 Kadah Coba
-    STORM-1060
+	STORM-1060
 Jondan Lundquist
 Josef Munster
 Josette Windlow
@@ -622,6 +657,7 @@ Latif Khalifa
 	VWR-5370
 leliel Mirihi
 	STORM-1100
+	STORM-1602
 len Starship
 Lisa Lowe
 	CT-218
@@ -647,6 +683,8 @@ Lilly Zenovka
 Lizzy Macarthur
 Luban Yiyuan
 Luc Starsider
+Luminous Luminos
+	STORM-959
 Lunita Savira
 Maccus McCullough
 maciek marksman
@@ -906,6 +944,7 @@ Robin Cornelius
 	SNOW-599
 	SNOW-747
 	STORM-422
+	STORM-591
 	STORM-960
 	STORM-1019
 	STORM-1095
@@ -1032,6 +1071,9 @@ Synystyr Texan
 Takeda Terrawyng
 TankMaster Finesmith
 	STORM-1100
+	STORM-1602
+	STORM-1258
+    VWR-26622
 Talamasca
 Tali Rosca
 Tayra Dagostino
@@ -1097,6 +1139,9 @@ Tofu Buzzard
 	CTS-411
 	STORM-546
 	VWR-24509
+    STORM-1684
+	SH-2477
+	STORM-1684
 Tony Kembia
 Torben Trautman
 TouchaHoney Perhaps
@@ -1130,6 +1175,7 @@ Vector Hastings
 	VWR-8726
 Veritas Raymaker
 Vex Streeter
+	STORM-1642
 Viaticus Speculaas
 Vick Forcella
 Villain Baroque
@@ -1215,6 +1261,7 @@ Zi Ree
 	VWR-1140
 	VWR-24017
 	VWR-25588
+	STORM-1790
 Zipherius Turas
 	VWR-76
 	VWR-77

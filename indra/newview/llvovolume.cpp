@@ -3266,13 +3266,13 @@ void LLVOVolume::updateRenderComplexity()
 	mRenderComplexity_current = 0;
 }
 
-U32 LLVOVolume::getTriangleCount() const
+U32 LLVOVolume::getTriangleCount(S32* vcount) const
 {
 	U32 count = 0;
 	LLVolume* volume = getVolume();
 	if (volume)
 	{
-		count = volume->getNumTriangles();
+		count = volume->getNumTriangles(vcount);
 	}
 
 	return count;
@@ -3976,8 +3976,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		}
 	}
 	
-	U8 glow = (U8) (facep->getTextureEntry()->getGlow() * 255);
-
 	if (idx >= 0 && 
 		draw_vec[idx]->mVertexBuffer == facep->getVertexBuffer() &&
 		draw_vec[idx]->mEnd == facep->getGeomIndex()-1 &&
@@ -3986,7 +3984,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
 		draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
-		draw_vec[idx]->mGlowColor.mV[3] == glow &&
 		draw_vec[idx]->mFullbright == fullbright &&
 		draw_vec[idx]->mBump == bump &&
 		draw_vec[idx]->mTextureMatrix == tex_mat &&
@@ -4018,7 +4015,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec.push_back(draw_info);
 		draw_info->mTextureMatrix = tex_mat;
 		draw_info->mModelMatrix = model_mat;
-		draw_info->mGlowColor.setVec(0,0,0,glow);
 		if (type == LLRenderPass::PASS_ALPHA)
 		{ //for alpha sorting
 			facep->setDrawInfo(draw_info);
@@ -4101,6 +4097,32 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 
+	LLVOAvatar* pAvatarVO = NULL;
+
+	LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
+	if (bridge)
+	{
+		if (bridge->mAvatar.isNull())
+		{
+			LLViewerObject* vobj = bridge->mDrawable->getVObj();
+			if (vobj)
+			{
+				bridge->mAvatar = vobj->getAvatar();
+			}
+		}
+
+		pAvatarVO = bridge->mAvatar;
+	}
+
+	if (pAvatarVO)
+	{
+		pAvatarVO->mAttachmentGeometryBytes -= group->mGeometryBytes;
+		pAvatarVO->mAttachmentSurfaceArea -= group->mSurfaceArea;
+	}
+
+	group->mGeometryBytes = 0;
+	group->mSurfaceArea = 0;
+	
 	group->clearDrawMap();
 
 	mFaceList.clear();
@@ -4117,6 +4139,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	U32 cur_total = 0;
+
+	bool emissive = false;
 
 	//get all the faces into a list
 	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
@@ -4135,10 +4159,22 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 		LLVOVolume* vobj = drawablep->getVOVolume();
 
+		if (!vobj)
+		{
+			continue;
+		}
+
 		if (vobj->isMesh() &&
 			(vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded() || !gMeshRepo.meshRezEnabled()))
 		{
 			continue;
+		}
+
+		LLVolume* volume = vobj->getVolume();
+		if (volume)
+		{
+			const LLVector3& scale = vobj->getScale();
+			group->mSurfaceArea += volume->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
 		}
 
 		llassert_always(vobj);
@@ -4185,7 +4221,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				//Determine if we've received skininfo that contains an
 				//alternate bind matrix - if it does then apply the translational component
 				//to the joints of the avatar.
-				LLVOAvatar* pAvatarVO = vobj->getAvatar();
 				bool pelvisGotSet = false;
 
 				if ( pAvatarVO )
@@ -4255,13 +4290,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 					if (type == LLDrawPool::POOL_ALPHA)
 					{
-						if (te->getFullbright())
+						if (te->getColor().mV[3] > 0.f)
 						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
-						}
-						else
-						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
+							}
+							else
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+							}
 						}
 					}
 					else if (te->getShiny())
@@ -4330,6 +4368,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				}
 			}
 
+
 			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 			{
 				facep->clearVertexBuffer();
@@ -4342,6 +4381,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 			{
 				const LLTextureEntry* te = facep->getTextureEntry();
 				LLViewerTexture* tex = facep->getTexture();
+
+				if (te->getGlow() >= 1.f/255.f)
+				{
+					emissive = true;
+				}
 
 				if (facep->isState(LLFace::TEXTURE_ANIM))
 				{
@@ -4388,7 +4432,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					}
 					else
 					{
-						drawablep->setState(LLDrawable::HAS_ALPHA);
+						if (te->getColor().mV[3] > 0.f)
+						{ //only treat as alpha in the pipeline if < 100% transparent
+							drawablep->setState(LLDrawable::HAS_ALPHA);
+						}
 						alpha_faces.push_back(facep);
 					}
 				}
@@ -4459,6 +4506,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 bump_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_NORMAL | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 	U32 fullbright_mask = LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR;
 
+	if (emissive)
+	{ //emissive faces are present, include emissive byte to preserve batching
+		simple_mask = simple_mask | LLVertexBuffer::MAP_EMISSIVE;
+		alpha_mask = alpha_mask | LLVertexBuffer::MAP_EMISSIVE;
+		bump_mask = bump_mask | LLVertexBuffer::MAP_EMISSIVE;
+		fullbright_mask = fullbright_mask | LLVertexBuffer::MAP_EMISSIVE;
+	}
+
 	bool batch_textures = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 1;
 
 	if (batch_textures)
@@ -4498,6 +4553,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 
 	mFaceList.clear();
+
+	if (pAvatarVO)
+	{
+		pAvatarVO->mAttachmentGeometryBytes += group->mGeometryBytes;
+		pAvatarVO->mAttachmentSurfaceArea += group->mSurfaceArea;
+	}
 }
 
 static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
@@ -4551,7 +4612,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		
 		for (std::set<LLVertexBuffer*>::iterator iter = mapped_buffers.begin(); iter != mapped_buffers.end(); ++iter)
 		{
-			(*iter)->setBuffer(0);
+			(*iter)->flush();
 		}
 
 		// don't forget alpha
@@ -4559,7 +4620,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		   !group->mVertexBuffer.isNull() && 
 		   group->mVertexBuffer->isLocked())
 		{
-			group->mVertexBuffer->setBuffer(0);
+			group->mVertexBuffer->flush();
 		}
 
 		//if not all buffers are unmapped
@@ -4575,7 +4636,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					LLVertexBuffer* buff = face->getVertexBuffer();
 					if (face && buff && buff->isLocked())
 					{
-						buff->setBuffer(0) ;
+						buff->flush();
 					}
 				}
 			} 
@@ -4602,10 +4663,6 @@ struct CompareBatchBreakerModified
 		{
 			return lte->getFullbright() < rte->getFullbright();
 		}
-		else  if (lte->getGlow() != rte->getGlow())
-		{
-			return lte->getGlow() < rte->getGlow();
-		}
 		else
 		{
 			return lhs->getTexture() < rhs->getTexture();
@@ -4616,6 +4673,19 @@ struct CompareBatchBreakerModified
 
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort, BOOL batch_textures)
 {
+	U32 buffer_usage = group->mBufferUsage;
+	
+#if LL_DARWIN
+	// HACK from Leslie:
+	// Disable VBO usage for alpha on Mac OS X because it kills the framerate
+	// due to implicit calls to glTexSubImage that are beyond our control.
+	// (this works because the only calls here that sort by distance are alpha)
+	if (distance_sort)
+	{
+		buffer_usage = 0x0;
+	}
+#endif
+	
 	//calculate maximum number of vertices to store in a single buffer
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
@@ -4644,7 +4714,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		buffer_index = -1;
 	}
 
-	S32 texture_index_channels = gGLManager.mNumTextureImageUnits-1; //always reserve one for shiny for now just for simplicity
+	S32 texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity
 	
 	if (gGLManager.mGLVersion < 3.1f)
 	{
@@ -4658,6 +4728,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 
 	texture_index_channels = llmin(texture_index_channels, (S32) gSavedSettings.getU32("RenderMaxTextureIndex"));
 	
+	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
+	texture_index_channels = llmin(texture_index_channels, 16);
 
 	while (face_iter != faces.end())
 	{
@@ -4783,29 +4855,30 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	
 		//create/delete/resize vertex buffer if needed
 		LLVertexBuffer* buffer = NULL;
-		LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
+
+		{ //try to find a buffer to reuse
+			LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
 		
-		if (found_iter != group->mBufferMap[mask].end())
-		{
-			if ((U32) buffer_index < found_iter->second.size())
+			if (found_iter != group->mBufferMap[mask].end())
 			{
-				buffer = found_iter->second[buffer_index];
+				if ((U32) buffer_index < found_iter->second.size())
+				{
+					buffer = found_iter->second[buffer_index];
+				}
 			}
 		}
 						
-		if (!buffer)
+		if (!buffer || !buffer->isWriteable())
 		{ //create new buffer if needed
-			buffer = createVertexBuffer(mask, 
-											group->mBufferUsage);
+			buffer = createVertexBuffer(mask, buffer_usage);
 			buffer->allocateBuffer(geom_count, index_count, TRUE);
 		}
 		else 
 		{ //resize pre-existing buffer
-			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != group->mBufferUsage ||
+			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != buffer_usage ||
 				buffer->getTypeMask() != mask)
 			{
-				buffer = createVertexBuffer(mask, 
-											group->mBufferUsage);
+				buffer = createVertexBuffer(mask, buffer_usage);
 				buffer->allocateBuffer(geom_count, index_count, TRUE);
 			}
 			else
@@ -4813,6 +4886,9 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				buffer->resizeBuffer(geom_count, index_count);
 			}
 		}
+
+		group->mGeometryBytes += buffer->getSize() + buffer->getIndicesSize();
+
 
 		buffer_map[mask][*face_iter].push_back(buffer);
 
@@ -4871,7 +4947,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (facep->canRenderAsMask())
+				if (facep->getFaceColor().mV[3] <= 0.f)
+				{ //100% transparent, don't render unless we're highlighting transparent
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA_INVISIBLE);
+				}
+				else if (facep->canRenderAsMask())
 				{
 					if (te->getFullbright() || LLPipeline::sNoAlpha)
 					{
@@ -4885,11 +4965,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				else
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
-				}
-
-				if (LLPipeline::sRenderDeferred)
-				{
-					registerFace(group, facep, LLRenderPass::PASS_ALPHA_SHADOW);
 				}
 			}
 			else if (gPipeline.canUseVertexShaders()
@@ -4985,7 +5060,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			++face_iter;
 		}
 
-		buffer->setBuffer(0);
+		buffer->flush();
 	}
 
 	group->mBufferMap[mask].clear();

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- auto_tile="true"
  can_resize="true"
- follows="left|top"
  height="350"
  layout="topleft"
  min_height="200"

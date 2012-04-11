@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Give Money">
+	<string name="payee_group">
+		Gruba Öde
+	</string>
+	<string name="payee_resident">
+		Sakine Öde
+	</string>
+	<text name="payee_name">
+		Ericacita Moostopolison
+	</text>
+	<text name="object_name_label">
+		Nesne yoluyla:
+	</text>
+	<icon name="icon_object" tool_tip="Nesneler"/>
+	<text name="object_name_text">
+		Harika nesnem gerçekten uzun bir adla
+	</text>
+	<button label="L$1" label_selected="L$1" name="fastpay 1"/>
+	<button label="L$5" label_selected="L$5" name="fastpay 5"/>
+	<button label="L$10" label_selected="L$10" name="fastpay 10"/>
+	<button label="L$20" label_selected="L$20" name="fastpay 20"/>
+	<text name="amount text">
+		veya tutarı seç:
+	</text>
+	<button label="Öde" label_selected="Öde" name="pay btn"/>
+	<button label="İptal" label_selected="İptal" name="cancel btn"/>
+</floater>

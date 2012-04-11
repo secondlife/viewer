@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_alpha_panel">
+	<scroll_container name="avatar_alpha_color_panel_scroll">
+		<panel name="avatar_alpha_color_panel">
+			<texture_picker label="Альфа низа" name="Lower Alpha" tool_tip="Щелкните для выбора изображения"/>
+			<texture_picker label="Альфа верха" name="Upper Alpha" tool_tip="Щелкните для выбора изображения"/>
+			<texture_picker label="Альфа головы" name="Head Alpha" tool_tip="Щелкните для выбора изображения"/>
+			<texture_picker label="Альфа глаз" name="Eye Alpha" tool_tip="Щелкните для выбора изображения"/>
+			<texture_picker label="Альфа волос" name="Hair Alpha" tool_tip="Щелкните для выбора изображения"/>
+		</panel>
+	</scroll_container>
+</panel>
