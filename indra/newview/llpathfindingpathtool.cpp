@@ -68,8 +68,6 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{
 		computeFinalPoints(pX, pY, pMask);
@@ -86,8 +84,6 @@ BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
 
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	if (mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{
 		computeFinalPoints(pX, pY, pMask);
@@ -101,8 +97,6 @@ BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	setMouseCapture(TRUE);
 	mIsMiddleMouseButtonHeld = true;
 	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
@@ -112,8 +106,6 @@ BOOL LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	if (!mIsLeftMouseButtonHeld && mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld)
 	{
 		setMouseCapture(FALSE);
@@ -125,8 +117,6 @@ BOOL LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	setMouseCapture(TRUE);
 	mIsRightMouseButtonHeld = true;
 	gViewerWindow->setCursor(UI_CURSOR_TOOLNO);
@@ -136,8 +126,6 @@ BOOL LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
 {
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	if (!mIsLeftMouseButtonHeld && !mIsMiddleMouseButtonHeld && mIsRightMouseButtonHeld)
 	{
 		setMouseCapture(FALSE);
@@ -149,20 +137,12 @@ BOOL LLPathfindingPathTool::handleRightMouseUp(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleDoubleClick(S32 pX, S32 pY, MASK pMask)
 {
-	llinfos << "STINSON DEBUG: got here" << llendl;
-
 	return TRUE;
-}
-
-void LLPathfindingPathTool::onMouseCaptureLost()
-{
-	llinfos << "STINSON DEBUG: got here" << llendl;
 }
 
 BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 {
 	BOOL returnVal = FALSE;
-	llinfos << "STINSON DEBUG: got here" << llendl;
 
 	if (!mIsMiddleMouseButtonHeld && !mIsRightMouseButtonHeld && isAnyPathToolModKeys(pMask))
 	{

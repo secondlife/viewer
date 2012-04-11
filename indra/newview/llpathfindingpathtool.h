@@ -74,7 +74,6 @@ public:
 	virtual BOOL      handleRightMouseDown(S32 pX, S32 pY, MASK pMask);
 	virtual BOOL      handleRightMouseUp(S32 pX, S32 pY, MASK pMask);
 	virtual BOOL      handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual void      onMouseCaptureLost();
 
 	virtual BOOL      handleHover(S32 pX, S32 pY, MASK pMask);
 
