@@ -97,6 +97,10 @@ private:
 	bool              isPointAModKeys(MASK pMask) const;
 	bool              isPointBModKeys(MASK pMask) const;
 
+	void              getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const;
+	void              computeFinalPoints(S32 pX, S32 pY, MASK pMask);
+	void              computeTempPoints(S32 pX, S32 pY, MASK pMask);
+
 	void              setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint);
 	bool              hasFinalA() const;
 	const LLVector3   &getFinalAStart() const;

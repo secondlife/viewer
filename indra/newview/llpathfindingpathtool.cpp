@@ -67,23 +67,9 @@ BOOL LLPathfindingPathTool::handleMouseDown(S32 pX, S32 pY, MASK pMask)
 
 	if (isAnyPathToolModKeys(pMask))
 	{
-		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
-		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
-		LLVector3 rayStart = mousePos;
-		LLVector3 rayEnd = mousePos + dv * 150;
-
-		if (isPointAModKeys(pMask))
-		{
-			setFinalA(rayStart, rayEnd);
-		}
-		else if (isPointBModKeys(pMask))
-		{
-			setFinalB(rayStart, rayEnd);
-		}
-		computeFinalPath();
-
-		returnVal = TRUE;
+		computeFinalPoints(pX, pY, pMask);
 		setMouseCapture(TRUE);
+		returnVal = TRUE;
 	}
 
 	return returnVal;
@@ -95,21 +81,7 @@ BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 	if (isAnyPathToolModKeys(pMask))
 	{
-		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
-		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
-		LLVector3 rayStart = mousePos;
-		LLVector3 rayEnd = mousePos + dv * 150;
-
-		if (isPointAModKeys(pMask))
-		{
-			setFinalA(rayStart, rayEnd);
-		}
-		else if (isPointBModKeys(pMask))
-		{
-			setFinalB(rayStart, rayEnd);
-		}
-		computeFinalPath();
-
+		computeFinalPoints(pX, pY, pMask);
 		setMouseCapture(FALSE);
 		returnVal = TRUE;
 	}
@@ -119,7 +91,7 @@ BOOL LLPathfindingPathTool::handleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleMiddleMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(TRUE);
+	setMouseCapture(FALSE);
 
 	return TRUE;
 }
@@ -133,7 +105,7 @@ BOOL LLPathfindingPathTool::handleMiddleMouseUp(S32 pX, S32 pY, MASK pMask)
 
 BOOL LLPathfindingPathTool::handleRightMouseDown(S32 pX, S32 pY, MASK pMask)
 {
-	setMouseCapture(TRUE);
+	setMouseCapture(FALSE);
 
 	return TRUE;
 }
@@ -157,30 +129,7 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 	if (isAnyPathToolModKeys(pMask))
 	{
 		gViewerWindow->setCursor(UI_CURSOR_TOOLPATHFINDING);
-
-		LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
-		LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
-		LLVector3 rayStart = mousePos;
-		LLVector3 rayEnd = mousePos + dv * 150;
-
-		if (isPointAModKeys(pMask))
-		{
-			setTempA(rayStart, rayEnd);
-			if (hasFinalB())
-			{
-				setTempB(getFinalBStart(), getFinalBEnd());
-			}
-		}
-		else if (isPointBModKeys(pMask))
-		{
-			if (hasFinalA())
-			{
-				setTempA(getFinalAStart(), getFinalAEnd());
-			}
-			setTempB(rayStart, rayEnd);
-		}
-		computeTempPath();
-
+		computeTempPoints(pX, pY, pMask);
 		returnVal = TRUE;
 	}
 	else
@@ -313,6 +262,54 @@ bool LLPathfindingPathTool::isPointAModKeys(MASK pMask) const
 bool LLPathfindingPathTool::isPointBModKeys(MASK pMask) const
 {
 	return ((pMask & MASK_SHIFT) != 0);
+}
+
+void LLPathfindingPathTool::getRayPoints(S32 pX, S32 pY, LLVector3 &pRayStart, LLVector3 &pRayEnd) const
+{
+	LLVector3 dv = gViewerWindow->mouseDirectionGlobal(pX, pY);
+	LLVector3 mousePos = LLViewerCamera::getInstance()->getOrigin();
+	pRayStart = mousePos;
+	pRayEnd = mousePos + dv * 150;
+}
+
+void LLPathfindingPathTool::computeFinalPoints(S32 pX, S32 pY, MASK pMask)
+{
+	LLVector3 rayStart, rayEnd;
+	getRayPoints(pX, pY, rayStart, rayEnd);
+
+	if (isPointAModKeys(pMask))
+	{
+		setFinalA(rayStart, rayEnd);
+	}
+	else if (isPointBModKeys(pMask))
+	{
+		setFinalB(rayStart, rayEnd);
+	}
+	computeFinalPath();
+}
+
+void LLPathfindingPathTool::computeTempPoints(S32 pX, S32 pY, MASK pMask)
+{
+	LLVector3 rayStart, rayEnd;
+	getRayPoints(pX, pY, rayStart, rayEnd);
+
+	if (isPointAModKeys(pMask))
+	{
+		setTempA(rayStart, rayEnd);
+		if (hasFinalB())
+		{
+			setTempB(getFinalBStart(), getFinalBEnd());
+		}
+	}
+	else if (isPointBModKeys(pMask))
+	{
+		if (hasFinalA())
+		{
+			setTempA(getFinalAStart(), getFinalAEnd());
+		}
+		setTempB(rayStart, rayEnd);
+	}
+	computeTempPath();
 }
 
 void LLPathfindingPathTool::setFinalA(const LLVector3 &pStartPoint, const LLVector3 &pEndPoint)
