@@ -4363,25 +4363,26 @@ void LLPipeline::renderDebug()
 
 					//NavMesh
 					if ( pathfindingConsole->isRenderNavMesh() )
-					{	gGL.flush();
+					{	
+						gGL.flush();
 						glLineWidth(2.0f);	
 						LLGLEnable cull(GL_CULL_FACE);
 						LLGLDisable blend(GL_BLEND);
 						
-					int materialIndex = pathfindingConsole->getHeatMapType();
+						int materialIndex = pathfindingConsole->getHeatMapType();
 						
 						if ( pathfindingConsole->isRenderWorld() )
 						{					
 							LLGLEnable blend(GL_BLEND);
 							gPathfindingProgram.uniform1f("alpha_scale", 0.66f);
-					llPathingLibInstance->renderNavMesh( materialIndex );
+							llPathingLibInstance->renderNavMesh( materialIndex );
 						}
 						else
 						{
 							llPathingLibInstance->renderNavMesh( materialIndex );
 						}
 						
-												//render edges
+						//render edges
 						if (LLGLSLShader::sNoFixedFunction)
 						{
 							gPathfindingNoNormalsProgram.bind();
@@ -4396,14 +4397,14 @@ void LLPipeline::renderDebug()
 						}
 
 						gGL.flush();
-					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-					glLineWidth(1.0f);	
-					gGL.flush();
-				}
+						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+						glLineWidth(1.0f);	
+						gGL.flush();
+					}
 					//User designated path
 					if ( LLPathfindingPathTool::getInstance()->isRenderPath() )
 					{
-						LLGLEnable blend(GL_BLEND);
+						//The path
 						if (LLGLSLShader::sNoFixedFunction)
 						{
 							gUIProgram.bind();
@@ -4415,6 +4416,21 @@ void LLPipeline::renderDebug()
 						{
 							llPathingLibInstance->renderPath();
 						}
+						//The bookends
+						LLGLEnable blend(GL_BLEND);
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						}
+					
 					}
 				//physics/exclusion shapes
 				if ( pathfindingConsole->isRenderAnyShapes() )
@@ -4453,7 +4469,7 @@ void LLPipeline::renderDebug()
 							//get rid of some z-fighting
 							glPolygonOffset(0.f, 0.f);
 
-					LLGLEnable blend(GL_BLEND);
+							LLGLEnable blend(GL_BLEND);
 				
 							{
 								gPathfindingProgram.uniform1f("ambiance", ambiance);
@@ -4485,7 +4501,7 @@ void LLPipeline::renderDebug()
 									}
 									else
 									{
-					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+										glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 										gPathfindingProgram.uniform1f("ambiance", ambiance);
 										llPathingLibInstance->renderNavMeshShapesVBO( render_order[i] );				
 										glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -4524,7 +4540,7 @@ void LLPipeline::renderDebug()
 
 						LLGLEnable blend(GL_BLEND);
 						LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
-					gGL.flush();				
+						gGL.flush();				
 						glLineWidth(2.0f);	
 						LLGLEnable cull(GL_CULL_FACE);
 																		
@@ -4535,11 +4551,11 @@ void LLPipeline::renderDebug()
 								
 						if (gSavedSettings.getBOOL("PathfindingXRayWireframe"))
 						{ //draw hidden wireframe as darker and less opaque
-					glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
+							glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
 							gPathfindingProgram.uniform1f("ambiance", 1.f);
 							llPathingLibInstance->renderNavMesh( materialIndex );
-					glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
-				}	
+							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
+						}	
 						else
 						{
 							gPathfindingProgram.uniform1f("ambiance", ambiance);
@@ -4548,27 +4564,27 @@ void LLPipeline::renderDebug()
 
 						//render edges
 						if (LLGLSLShader::sNoFixedFunction)
-				{
+						{
 							gPathfindingNoNormalsProgram.bind();
 							gPathfindingNoNormalsProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
 							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
 							llPathingLibInstance->renderNavMeshEdges( materialIndex );
 							gPathfindingProgram.bind();
-				}
+						}
 						else
 						{
 							llPathingLibInstance->renderNavMeshEdges( materialIndex );
-			}
+						}
 					
 						gGL.flush();
 						glLineWidth(1.0f);	
-		}
+					}
 			
 					glPolygonOffset(0.f, 0.f);
 
-		gGL.flush();
-		if (LLGLSLShader::sNoFixedFunction)
-		{
+					gGL.flush();
+					if (LLGLSLShader::sNoFixedFunction)
+					{
 						gPathfindingProgram.unbind();
 					}
 				}
