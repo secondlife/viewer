@@ -58,6 +58,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
+#include "llagent.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -597,6 +598,12 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
+	if(gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+	{
+		clearFetchingRequests();
+		return;
+	}
+
 	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLViewerStats::getInstance()->mTextureKBitStat.getMeanPerSec());
 
 	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
@@ -656,6 +663,24 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	{
 		LLFastTimer t(FTM_IMAGE_STATS);
 		updateImagesUpdateStats();
+	}
+}
+
+void LLViewerTextureList::clearFetchingRequests()
+{
+	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
+	{
+		return;
+	}
+
+	for (image_priority_list_t::iterator iter = mImageList.begin();
+		 iter != mImageList.end(); ++iter)
+	{
+		LLViewerFetchedTexture* image = *iter;
+		if(image->hasFetcher())
+		{
+			image->forceToDeleteRequest() ;
+		}
 	}
 }
 
