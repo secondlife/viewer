@@ -2417,6 +2417,52 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="sculpt" />
 		</menu_item_check>
+       <menu
+         create_jump_keys="true"
+         label="Texture Density"
+         name="Texture Density"
+         tear_off="true">
+          <menu_item_check
+           label="None"
+           name="None">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="none" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="none" />
+          </menu_item_check>
+          <menu_item_check
+           label="Current"
+           name="Current">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="current" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="current" />
+          </menu_item_check>
+          <menu_item_check
+           label="Desired"
+           name="Desired">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="desired" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="desired" />
+          </menu_item_check>
+          <menu_item_check
+           label="Full"
+           name="Full">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="full" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="full" />
+          </menu_item_check>
+        </menu>
       </menu>
         <menu
          create_jump_keys="true"

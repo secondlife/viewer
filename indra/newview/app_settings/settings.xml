@@ -10686,6 +10686,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureNewByteRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Use the new more accurate byte range computation for j2c discard levels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>TexturePickerShowFolders</key>
     <map>
       <key>Comment</key>

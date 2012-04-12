@@ -31,6 +31,9 @@
 #include "llassettype.h"
 #include "llmetricperformancetester.h"
 
+// JPEG2000 : compression rate used in j2c conversion.
+const F32 DEFAULT_COMPRESSION_RATE = 1.f/8.f;
+
 class LLImageJ2CImpl;
 class LLImageCompressionTester ;
 
@@ -67,12 +70,11 @@ public:
 
 	// Encode accessors
 	void setReversible(const BOOL reversible); // Use non-lossy?
-	void setRate(F32 rate);
 	void setMaxBytes(S32 max_bytes);
 	S32 getMaxBytes() const { return mMaxBytes; }
 
 	static S32 calcHeaderSizeJ2C();
-	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = 0.f);
+	static S32 calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 rate = DEFAULT_COMPRESSION_RATE);
 
 	static std::string getEngineInfo();
 
