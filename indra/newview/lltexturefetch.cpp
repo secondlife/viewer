@@ -53,6 +53,7 @@
 #include "llviewerassetstats.h"
 #include "llworld.h"
 #include "llsdutil.h"
+#include "llstartup.h"
 
 LLStat LLTextureFetch::sCacheHitRate("texture_cache_hits", 128);
 LLStat LLTextureFetch::sCacheReadLatency("texture_cache_read_latency", 128);
@@ -2238,7 +2239,13 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 	
 	if (!mDebugPause)
 	{
-		sendRequestListToSimulators();
+		// this is the startup state when send_complete_agent_movement() message is sent.
+		// Before this, the RequestImages message sent by sendRequestListToSimulators 
+		// won't work so don't bother trying
+		if (LLStartUp::getStartupState() > STATE_AGENT_SEND)
+		{
+			sendRequestListToSimulators();
+		}
 	}
 
 	if (!mThreaded)
