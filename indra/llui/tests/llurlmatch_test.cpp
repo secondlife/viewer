@@ -74,7 +74,7 @@ namespace LLInitParam
 						S32 max_count){}
 	ParamDescriptor::~ParamDescriptor() {}
 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name){}
+	void BlockDescriptor::addParam(const ParamDescriptorPtr in_param, const char* char_name){}
 	param_handle_t BaseBlock::getHandleFromParam(const Param* param) const {return 0;}
 	void BaseBlock::addSynonym(Param& param, const std::string& synonym) {}
 
