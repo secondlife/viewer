@@ -47,13 +47,13 @@ LLScriptHandler::LLScriptHandler(e_notification_type type, const LLSD& id)
 	mType = type;
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
-	mChannel->setControlHovering(true);
-	
-	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
+	{
+		channel->setControlHovering(true);
 		channel->setOnRejectToastCallback(boost::bind(&LLScriptHandler::onRejectToast, this, _1));
-
+		mChannel = channel->getHandle();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -66,13 +66,13 @@ void LLScriptHandler::initChannel()
 {
 	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLScriptHandler::processNotification(const LLSD& notify)
 {
-	if(!mChannel)
+	if(mChannel.isDead())
 	{
 		return false;
 	}
@@ -83,7 +83,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 		return false;
 
 	// arrange a channel on a screen
-	if(!mChannel->getVisible())
+	if(!mChannel.get()->getVisible())
 	{
 		initChannel();
 	}
@@ -109,7 +109,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 			p.panel = notify_box;	
 			p.on_delete_toast = boost::bind(&LLScriptHandler::onDeleteToast, this, _1);
 
-			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+			LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 			if(channel)
 			{
 				channel->addToast(p);
@@ -127,7 +127,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
-			mChannel->killToastByNotificationID(notification->getID());
+			mChannel.get()->killToastByNotificationID(notification->getID());
 		}
 	}
 	return false;
