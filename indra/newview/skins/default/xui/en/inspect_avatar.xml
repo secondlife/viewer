@@ -9,7 +9,7 @@
  bg_opaque_image="Inspector_Background"
  can_close="false"
  can_minimize="false"
- height="164"
+ height="130"
  layout="topleft"
  name="inspect_avatar"
  single_instance="true"
@@ -94,6 +94,17 @@
      use_ellipses="true"
      width="220">This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
     </text>
+    <text
+     follows="top|left"
+     height="16"
+     left="8"
+     name="avatar_profile_link"
+     font="SansSerifSmall"
+     text_color="White"
+     top_pad="5"
+     translate="false"
+     value="[[LINK] View full profile]"
+     width="175" />
     <avatar_icon
      follows="top|left"
      height="38"

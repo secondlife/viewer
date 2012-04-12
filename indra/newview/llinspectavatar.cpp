@@ -33,6 +33,7 @@
 #include "llavatarpropertiesprocessor.h"
 #include "lldateutil.h"
 #include "llinspect.h"
+#include "llslurl.h"
 #include "llstartup.h"
 #include "lltransientfloatermgr.h"
 
@@ -180,6 +181,9 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	{
 		LLUI::positionViewNearMouse(this);
 	}
+
+	// Generate link to avatar profile.
+	getChild<LLUICtrl>("avatar_profile_link")->setTextArg("[LINK]", LLSLURL("agent", mAvatarID, "about").getSLURLString());
 
 	// can't call from constructor as widgets are not built yet
 	requestUpdate();
