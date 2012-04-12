@@ -112,6 +112,35 @@ namespace LLInitParam
 		std::copy(src_block_data.mAllParams.begin(), src_block_data.mAllParams.end(), std::back_inserter(mAllParams));
 	}
 
+	void BlockDescriptor::addParam(const ParamDescriptorPtr in_param, const char* char_name)
+	{
+		// create a copy of the param descriptor in mAllParams
+		// so other data structures can store a pointer to it
+		mAllParams.push_back(in_param);
+		ParamDescriptorPtr param(mAllParams.back());
+
+		std::string name(char_name);
+		if ((size_t)param->mParamHandle > mMaxParamOffset)
+		{
+			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
+		}
+
+		if (name.empty())
+		{
+			mUnnamedParams.push_back(param);
+		}
+		else
+		{
+			// don't use insert, since we want to overwrite existing entries
+			mNamedParams[name] = param;
+		}
+
+		if (param->mValidationFunc)
+		{
+			mValidationList.push_back(std::make_pair(param->mParamHandle, param->mValidationFunc));
+		}
+	}
+
 	BlockDescriptor::BlockDescriptor()
 	:	mMaxParamOffset(0),
 		mInitializationState(UNINITIALIZED),
@@ -356,36 +385,6 @@ namespace LLInitParam
 		}
 
 		return false;
-	}
-
-	//static 
-	void BaseBlock::addParam(BlockDescriptor& block_data, const ParamDescriptorPtr in_param, const char* char_name)
-	{
-		// create a copy of the param descriptor in mAllParams
-		// so other data structures can store a pointer to it
-		block_data.mAllParams.push_back(in_param);
-		ParamDescriptorPtr param(block_data.mAllParams.back());
-
-		std::string name(char_name);
-		if ((size_t)param->mParamHandle > block_data.mMaxParamOffset)
-		{
-			llerrs << "Attempted to register param with block defined for parent class, make sure to derive from LLInitParam::Block<YOUR_CLASS, PARAM_BLOCK_BASE_CLASS>" << llendl;
-		}
-
-		if (name.empty())
-		{
-			block_data.mUnnamedParams.push_back(param);
-		}
-		else
-		{
-			// don't use insert, since we want to overwrite existing entries
-			block_data.mNamedParams[name] = param;
-		}
-
-		if (param->mValidationFunc)
-		{
-			block_data.mValidationList.push_back(std::make_pair(param->mParamHandle, param->mValidationFunc));
-		}
 	}
 
 	void BaseBlock::addSynonym(Param& param, const std::string& synonym)

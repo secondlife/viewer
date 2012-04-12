@@ -228,55 +228,62 @@ struct LLTextureMaskData
  **/
 
 //------------------------------------------------------------------------
-// LLVOBoneInfo
+// LLVOAvatarBoneInfo
 // Trans/Scale/Rot etc. info about each avatar bone.  Used by LLVOAvatarSkeleton.
 //------------------------------------------------------------------------
-class LLVOAvatarBoneInfo
+struct LLVOAvatarCollisionVolumeInfo : public LLInitParam::Block<LLVOAvatarCollisionVolumeInfo>
 {
-	friend class LLVOAvatar;
-	friend class LLVOAvatarSkeletonInfo;
-public:
-	LLVOAvatarBoneInfo() : mIsJoint(FALSE) {}
-	~LLVOAvatarBoneInfo()
-{
-		std::for_each(mChildList.begin(), mChildList.end(), DeletePointer());
-	}
-	BOOL parseXml(LLXmlTreeNode* node);
+	LLVOAvatarCollisionVolumeInfo() 
+	:	name("name"),
+		pos("pos"),
+		rot("rot"),
+		scale("scale")
+	{}
 
-private:
-	std::string mName;
-	BOOL mIsJoint;
-	LLVector3 mPos;
-	LLVector3 mRot;
-	LLVector3 mScale;
-	LLVector3 mPivot;
-	typedef std::vector<LLVOAvatarBoneInfo*> child_list_t;
-	child_list_t mChildList;
+	Mandatory<std::string>	name;
+	Mandatory<LLVector3>	pos,
+							rot,
+							scale;
+};
+
+struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
+{
+	Alternative<Lazy<struct LLVOAvatarBoneInfo> >	bone;
+	Alternative<LLVOAvatarCollisionVolumeInfo>		collision_volume;
+
+	LLVOAvatarChildJoint()
+	:	bone("bone"),
+		collision_volume("collision_volume")
+	{}
+};
+
+struct LLVOAvatarBoneInfo : public LLInitParam::Block<LLVOAvatarBoneInfo, LLVOAvatarCollisionVolumeInfo>
+{
+	LLVOAvatarBoneInfo() 
+	:	pivot("pivot")
+	{}
+	
+	Mandatory<LLVector3>					pivot;
+	Multiple<LLVOAvatarChildJoint>			children;
 };
 
 //------------------------------------------------------------------------
 // LLVOAvatarSkeletonInfo
 // Overall avatar skeleton
 //------------------------------------------------------------------------
-class LLVOAvatarSkeletonInfo
+struct LLVOAvatarSkeletonInfo : public LLInitParam::Block<LLVOAvatarSkeletonInfo>
 {
-	friend class LLVOAvatar;
-public:
-	LLVOAvatarSkeletonInfo() :
-		mNumBones(0), mNumCollisionVolumes(0) {}
-	~LLVOAvatarSkeletonInfo()
-	{
-		std::for_each(mBoneInfoList.begin(), mBoneInfoList.end(), DeletePointer());
-	}
-	BOOL parseXml(LLXmlTreeNode* node);
-	S32 getNumBones() const { return mNumBones; }
-	S32 getNumCollisionVolumes() const { return mNumCollisionVolumes; }
+	LLVOAvatarSkeletonInfo()
+	:	skeleton_root(""),
+		num_bones("num_bones"),
+		num_collision_volumes("num_collision_volumes"),
+		version("version")
+	{}
 	
-private:
-	S32 mNumBones;
-	S32 mNumCollisionVolumes;
-	typedef std::vector<LLVOAvatarBoneInfo*> bone_info_list_t;
-	bone_info_list_t mBoneInfoList;
+	Mandatory<std::string>			version;
+	Mandatory<S32>					num_bones,
+									num_collision_volumes;
+	Mandatory<LLVOAvatarChildJoint>	skeleton_root;
 };
 
 //-----------------------------------------------------------------------------
@@ -601,7 +608,7 @@ private:
 // Static Data
 //-----------------------------------------------------------------------------
 LLXmlTree LLVOAvatar::sXMLTree;
-LLXmlTree LLVOAvatar::sSkeletonXMLTree;
+LLXMLNodePtr LLVOAvatar::sSkeletonXMLTree;
 LLVOAvatarSkeletonInfo* LLVOAvatar::sAvatarSkeletonInfo = NULL;
 LLVOAvatar::LLVOAvatarXmlInfo* LLVOAvatar::sAvatarXmlInfo = NULL;
 LLVOAvatarDictionary *LLVOAvatar::sAvatarDictionary = NULL;
@@ -1127,18 +1134,6 @@ void LLVOAvatar::initClass()
 		llerrs << "Error parsing skeleton file: " << skeleton_path << llendl;
 	}
 
-	// Process XML data
-
-	// avatar_skeleton.xml
-	if (sAvatarSkeletonInfo)
-	{ //this can happen if a login attempt failed
-		delete sAvatarSkeletonInfo;
-	}
-	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
-	if (!sAvatarSkeletonInfo->parseXml(sSkeletonXMLTree.getRoot()))
-	{
-		llerrs << "Error parsing skeleton XML file: " << skeleton_path << llendl;
-	}
 	// parse avatar_lad.xml
 	if (sAvatarXmlInfo)
 	{ //this can happen if a login attempt failed
@@ -1187,7 +1182,7 @@ void LLVOAvatar::initClass()
 void LLVOAvatar::cleanupClass()
 {
 	deleteAndClear(sAvatarXmlInfo);
-	sSkeletonXMLTree.cleanup();
+	sSkeletonXMLTree = NULL;
 	sXMLTree.cleanup();
 }
 
@@ -1659,33 +1654,39 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 	//-------------------------------------------------------------------------
 	// parse the file
 	//-------------------------------------------------------------------------
-	BOOL parsesuccess = sSkeletonXMLTree.parseFile( filename, FALSE );
 	
-	if (!parsesuccess)
+	LLXMLNodePtr skeleton_xml;
+	BOOL parsesuccess = LLXMLNode::parseFile(filename, skeleton_xml, NULL);
+
+	if (!parsesuccess || skeleton_xml.isNull())
 	{
 		llerrs << "Can't parse skeleton file: " << filename << llendl;
 		return FALSE;
 	}
 
-	// now sanity check xml file
-	LLXmlTreeNode* root = sSkeletonXMLTree.getRoot();
-	if (!root) 
+	// Process XML data
+	if (sAvatarSkeletonInfo)
+	{ //this can happen if a login attempt failed
+		delete sAvatarSkeletonInfo;
+	}
+	sAvatarSkeletonInfo = new LLVOAvatarSkeletonInfo;
+
+	LLXUIParser parser;
+	parser.readXUI(skeleton_xml, *sAvatarSkeletonInfo, filename);
+	if (!sAvatarSkeletonInfo->validateBlock())
 	{
-		llerrs << "No root node found in avatar skeleton file: " << filename << llendl;
-		return FALSE;
+		llerrs << "Error parsing skeleton XML file: " << filename << llendl;
 	}
 
-	if( !root->hasName( "linden_skeleton" ) )
+	if( !skeleton_xml->hasName( "linden_skeleton" ) )
 	{
 		llerrs << "Invalid avatar skeleton file header: " << filename << llendl;
 		return FALSE;
 	}
 
-	std::string version;
-	static LLStdStringHandle version_string = LLXmlTree::addAttributeString("version");
-	if( !root->getFastAttributeString( version_string, version ) || (version != "1.0") )
+	if (sAvatarSkeletonInfo->version() != "1.0")
 	{
-		llerrs << "Invalid avatar skeleton file version: " << version << " in file: " << filename << llendl;
+		llerrs << "Invalid avatar skeleton file version: " << sAvatarSkeletonInfo->version() << " in file: " << filename << llendl;
 		return FALSE;
 	}
 
@@ -1694,14 +1695,13 @@ BOOL LLVOAvatar::parseSkeletonFile(const std::string& filename)
 
 //-----------------------------------------------------------------------------
 // setupBone()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent, S32 &volume_num, S32 &joint_num)
+//-----------------------------------------------------------
+BOOL LLVOAvatar::setupBone(const LLVOAvatarChildJoint& info, LLViewerJoint* parent, S32 &volume_num, S32 &joint_num)
 {
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	
 	LLViewerJoint* joint = NULL;
-
-	if (info->mIsJoint)
+	if (info.bone.isChosen())
 	{
 		joint = (LLViewerJoint*)getCharacterJoint(joint_num);
 		if (!joint)
@@ -1709,7 +1709,23 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 			llwarns << "Too many bones" << llendl;
 			return FALSE;
 		}
-		joint->setName( info->mName );
+		joint->setName( info.bone().name );
+		joint->setPosition(info.bone().pos);
+		joint->setRotation(mayaQ(info.bone().rot().mV[VX], info.bone().rot().mV[VY], info.bone().rot().mV[VZ], LLQuaternion::XYZ));
+		joint->setScale(info.bone().scale);
+		joint->setSkinOffset( info.bone().pivot );
+		joint_num++;
+
+		for (LLInitParam::ParamIterator<LLVOAvatarChildJoint>::const_iterator child_it = info.bone().children.begin(),
+				end_it = info.bone().children.end();
+			child_it != end_it;
+			++child_it)
+		{
+			if (!setupBone(*child_it, joint, volume_num, joint_num))
+			{
+				return FALSE;
+			}
+		}
 	}
 	else // collision volume
 	{
@@ -1719,7 +1735,11 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 			return FALSE;
 		}
 		joint = (LLViewerJoint*)(&mCollisionVolumes[volume_num]);
-		joint->setName( info->mName );
+		joint->setName( info.collision_volume.name);
+		joint->setPosition(info.collision_volume.pos);
+		joint->setRotation(mayaQ(info.collision_volume.rot().mV[VX], info.collision_volume.rot().mV[VY], info.collision_volume.rot().mV[VZ], LLQuaternion::XYZ));
+		joint->setScale(info.collision_volume.scale);
+		volume_num++;
 	}
 
 	// add to parent
@@ -1728,34 +1748,8 @@ BOOL LLVOAvatar::setupBone(const LLVOAvatarBoneInfo* info, LLViewerJoint* parent
 		parent->addChild( joint );
 	}
 
-	joint->setPosition(info->mPos);
-	joint->setRotation(mayaQ(info->mRot.mV[VX], info->mRot.mV[VY],
-							 info->mRot.mV[VZ], LLQuaternion::XYZ));
-	joint->setScale(info->mScale);
-
 	joint->setDefaultFromCurrentXform();
 	
-	if (info->mIsJoint)
-	{
-		joint->setSkinOffset( info->mPivot );
-		joint_num++;
-	}
-	else // collision volume
-	{
-		volume_num++;
-	}
-
-	// setup children
-	LLVOAvatarBoneInfo::child_list_t::const_iterator iter;
-	for (iter = info->mChildList.begin(); iter != info->mChildList.end(); ++iter)
-	{
-		LLVOAvatarBoneInfo *child_info = *iter;
-		if (!setupBone(child_info, joint, volume_num, joint_num))
-		{
-			return FALSE;
-		}
-	}
-
 	return TRUE;
 }
 
@@ -1769,35 +1763,31 @@ BOOL LLVOAvatar::buildSkeleton(const LLVOAvatarSkeletonInfo *info)
 	//-------------------------------------------------------------------------
 	// allocate joints
 	//-------------------------------------------------------------------------
-	if (!allocateCharacterJoints(info->mNumBones))
+	if (!allocateCharacterJoints(info->num_bones))
 	{
-		llerrs << "Can't allocate " << info->mNumBones << " joints" << llendl;
+		llerrs << "Can't allocate " << info->num_bones() << " joints" << llendl;
 		return FALSE;
 	}
 	
 	//-------------------------------------------------------------------------
 	// allocate volumes
 	//-------------------------------------------------------------------------
-	if (info->mNumCollisionVolumes)
+	if (info->num_collision_volumes)
 	{
-		if (!allocateCollisionVolumes(info->mNumCollisionVolumes))
+		if (!allocateCollisionVolumes(info->num_collision_volumes))
 		{
-			llerrs << "Can't allocate " << info->mNumCollisionVolumes << " collision volumes" << llendl;
+			llerrs << "Can't allocate " << info->num_collision_volumes() << " collision volumes" << llendl;
 			return FALSE;
 		}
 	}
 
 	S32 current_joint_num = 0;
 	S32 current_volume_num = 0;
-	LLVOAvatarSkeletonInfo::bone_info_list_t::const_iterator iter;
-	for (iter = info->mBoneInfoList.begin(); iter != info->mBoneInfoList.end(); ++iter)
-	{
-		LLVOAvatarBoneInfo *info = *iter;
-		if (!setupBone(info, NULL, current_volume_num, current_joint_num))
+
+	if (!setupBone(info->skeleton_root, NULL, current_volume_num, current_joint_num))
 	{
 		llerrs << "Error parsing bone in skeleton file" << llendl;
 		return FALSE;
-	}
 	}
 
 	return TRUE;
@@ -7652,111 +7642,111 @@ LLVOAvatar::LLVOAvatarXmlInfo::~LLVOAvatarXmlInfo()
 	std::for_each(mMorphMaskInfoList.begin(), mMorphMaskInfoList.end(), DeletePointer());
 }
 
-//-----------------------------------------------------------------------------
-// LLVOAvatarBoneInfo::parseXml()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
-{
-	if (node->hasName("bone"))
-	{
-		mIsJoint = TRUE;
-		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
-		if (!node->getFastAttributeString(name_string, mName))
-		{
-			llwarns << "Bone without name" << llendl;
-			return FALSE;
-		}
-	}
-	else if (node->hasName("collision_volume"))
-	{
-		mIsJoint = FALSE;
-		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
-		if (!node->getFastAttributeString(name_string, mName))
-		{
-			mName = "Collision Volume";
-		}
-	}
-	else
-	{
-		llwarns << "Invalid node " << node->getName() << llendl;
-		return FALSE;
-	}
-
-	static LLStdStringHandle pos_string = LLXmlTree::addAttributeString("pos");
-	if (!node->getFastAttributeVector3(pos_string, mPos))
-	{
-		llwarns << "Bone without position" << llendl;
-		return FALSE;
-	}
-
-	static LLStdStringHandle rot_string = LLXmlTree::addAttributeString("rot");
-	if (!node->getFastAttributeVector3(rot_string, mRot))
-	{
-		llwarns << "Bone without rotation" << llendl;
-		return FALSE;
-	}
-	
-	static LLStdStringHandle scale_string = LLXmlTree::addAttributeString("scale");
-	if (!node->getFastAttributeVector3(scale_string, mScale))
-	{
-		llwarns << "Bone without scale" << llendl;
-		return FALSE;
-	}
-
-	if (mIsJoint)
-	{
-		static LLStdStringHandle pivot_string = LLXmlTree::addAttributeString("pivot");
-		if (!node->getFastAttributeVector3(pivot_string, mPivot))
-		{
-			llwarns << "Bone without pivot" << llendl;
-			return FALSE;
-		}
-	}
-
-	// parse children
-	LLXmlTreeNode* child;
-	for( child = node->getFirstChild(); child; child = node->getNextChild() )
-	{
-		LLVOAvatarBoneInfo *child_info = new LLVOAvatarBoneInfo;
-		if (!child_info->parseXml(child))
-		{
-			delete child_info;
-			return FALSE;
-		}
-		mChildList.push_back(child_info);
-	}
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// LLVOAvatarSkeletonInfo::parseXml()
-//-----------------------------------------------------------------------------
-BOOL LLVOAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
-{
-	static LLStdStringHandle num_bones_string = LLXmlTree::addAttributeString("num_bones");
-	if (!node->getFastAttributeS32(num_bones_string, mNumBones))
-	{
-		llwarns << "Couldn't find number of bones." << llendl;
-		return FALSE;
-	}
-
-	static LLStdStringHandle num_collision_volumes_string = LLXmlTree::addAttributeString("num_collision_volumes");
-	node->getFastAttributeS32(num_collision_volumes_string, mNumCollisionVolumes);
-
-	LLXmlTreeNode* child;
-	for( child = node->getFirstChild(); child; child = node->getNextChild() )
-	{
-		LLVOAvatarBoneInfo *info = new LLVOAvatarBoneInfo;
-		if (!info->parseXml(child))
-		{
-			delete info;
-			llwarns << "Error parsing bone in skeleton file" << llendl;
-			return FALSE;
-		}
-		mBoneInfoList.push_back(info);
-	}
-	return TRUE;
-}
+////-----------------------------------------------------------------------------
+//// LLVOAvatarBoneInfo::parseXml()
+////-----------------------------------------------------------------------------
+//BOOL LLVOAvatarBoneInfo::parseXml(LLXmlTreeNode* node)
+//{
+//	if (node->hasName("bone"))
+//	{
+//		mIsJoint = TRUE;
+//		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
+//		if (!node->getFastAttributeString(name_string, mName))
+//		{
+//			llwarns << "Bone without name" << llendl;
+//			return FALSE;
+//		}
+//	}
+//	else if (node->hasName("collision_volume"))
+//	{
+//		mIsJoint = FALSE;
+//		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
+//		if (!node->getFastAttributeString(name_string, mName))
+//		{
+//			mName = "Collision Volume";
+//		}
+//	}
+//	else
+//	{
+//		llwarns << "Invalid node " << node->getName() << llendl;
+//		return FALSE;
+//	}
+//
+//	static LLStdStringHandle pos_string = LLXmlTree::addAttributeString("pos");
+//	if (!node->getFastAttributeVector3(pos_string, mPos))
+//	{
+//		llwarns << "Bone without position" << llendl;
+//		return FALSE;
+//	}
+//
+//	static LLStdStringHandle rot_string = LLXmlTree::addAttributeString("rot");
+//	if (!node->getFastAttributeVector3(rot_string, mRot))
+//	{
+//		llwarns << "Bone without rotation" << llendl;
+//		return FALSE;
+//	}
+//	
+//	static LLStdStringHandle scale_string = LLXmlTree::addAttributeString("scale");
+//	if (!node->getFastAttributeVector3(scale_string, mScale))
+//	{
+//		llwarns << "Bone without scale" << llendl;
+//		return FALSE;
+//	}
+//
+//	if (mIsJoint)
+//	{
+//		static LLStdStringHandle pivot_string = LLXmlTree::addAttributeString("pivot");
+//		if (!node->getFastAttributeVector3(pivot_string, mPivot))
+//		{
+//			llwarns << "Bone without pivot" << llendl;
+//			return FALSE;
+//		}
+//	}
+//
+//	// parse children
+//	LLXmlTreeNode* child;
+//	for( child = node->getFirstChild(); child; child = node->getNextChild() )
+//	{
+//		LLVOAvatarBoneInfo *child_info = new LLVOAvatarBoneInfo;
+//		if (!child_info->parseXml(child))
+//		{
+//			delete child_info;
+//			return FALSE;
+//		}
+//		mChildList.push_back(child_info);
+//	}
+//	return TRUE;
+//}
+//
+////-----------------------------------------------------------------------------
+//// LLVOAvatarSkeletonInfo::parseXml()
+////-----------------------------------------------------------------------------
+//BOOL LLVOAvatarSkeletonInfo::parseXml(LLXmlTreeNode* node)
+//{
+//	static LLStdStringHandle num_bones_string = LLXmlTree::addAttributeString("num_bones");
+//	if (!node->getFastAttributeS32(num_bones_string, mNumBones))
+//	{
+//		llwarns << "Couldn't find number of bones." << llendl;
+//		return FALSE;
+//	}
+//
+//	static LLStdStringHandle num_collision_volumes_string = LLXmlTree::addAttributeString("num_collision_volumes");
+//	node->getFastAttributeS32(num_collision_volumes_string, mNumCollisionVolumes);
+//
+//	LLXmlTreeNode* child;
+//	for( child = node->getFirstChild(); child; child = node->getNextChild() )
+//	{
+//		LLVOAvatarBoneInfo *info = new LLVOAvatarBoneInfo;
+//		if (!info->parseXml(child))
+//		{
+//			delete info;
+//			llwarns << "Error parsing bone in skeleton file" << llendl;
+//			return FALSE;
+//		}
+//		mBoneInfoList.push_back(info);
+//	}
+//	return TRUE;
+//}
 
 //-----------------------------------------------------------------------------
 // parseXmlSkeletonNode(): parses <skeleton> nodes from XML tree

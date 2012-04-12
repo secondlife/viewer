@@ -42,6 +42,7 @@
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "lluicolor.h"
+#include "v3math.h"
 
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
@@ -670,6 +671,7 @@ LLXUIParser::LLXUIParser()
 		registerParserFuncs<S32>(readS32Value, writeS32Value);
 		registerParserFuncs<F32>(readF32Value, writeF32Value);
 		registerParserFuncs<F64>(readF64Value, writeF64Value);
+		registerParserFuncs<LLVector3>(readVector3Value, writeVector3Value);
 		registerParserFuncs<LLColor4>(readColor4Value, writeColor4Value);
 		registerParserFuncs<LLUIColor>(readUIColorValue, writeUIColorValue);
 		registerParserFuncs<LLUUID>(readUUIDValue, writeUUIDValue);
@@ -1139,6 +1141,31 @@ bool LLXUIParser::writeF64Value(Parser& parser, const void* val_ptr, name_stack_
 	if (node.notNull())
 	{
 		node->setDoubleValue(*((F64*)val_ptr));
+		return true;
+	}
+	return false;
+}
+
+bool LLXUIParser::readVector3Value(Parser& parser, void* val_ptr)
+{
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLVector3* vecp = (LLVector3*)val_ptr;
+	if(self.mCurReadNode->getFloatValue(3, vecp->mV) >= 3)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool LLXUIParser::writeVector3Value(Parser& parser, const void* val_ptr, name_stack_t& stack)
+{
+	LLXUIParser& self = static_cast<LLXUIParser&>(parser);
+	LLXMLNodePtr node = self.getNode(stack);
+	if (node.notNull())
+	{
+		LLVector3 vector = *((LLVector3*)val_ptr);
+		node->setFloatValue(3, vector.mV);
 		return true;
 	}
 	return false;
