@@ -66,11 +66,14 @@ public:
         return mVector.insert(pair);
     }
 
+    // const find() forwards to non-const find(): this can alter mVector!
     const_iterator find(const std::type_info* key) const
     {
         return const_cast<self*>(this)->find(key);
     }
 
+    // non-const find() caches previously-unknown type_info* to speed future
+    // lookups.
     iterator find(const std::type_info* key)
     {
         iterator found = mVector.find(key);
@@ -101,11 +104,6 @@ public:
     }
 
 private:
-    /// Our LLSortedVector is mutable so that if we're passed an unrecognized
-    /// std::type_info* for a registered type (which we can identify by
-    /// searching for the name() string), we can cache the new std::type_info*
-    /// to speed future lookups -- even when the containing LLTypeInfoLookup
-    /// is const.
     vector_type mVector;
 };
 
