@@ -4417,9 +4417,15 @@ void LLPipeline::renderDebug()
 							llPathingLibInstance->renderPath();
 						}
 						//The bookends
-						LLGLEnable blend(GL_BLEND);
 						if (LLGLSLShader::sNoFixedFunction)
 						{
+							//remove blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+							gGL.setColorMask(true, false);
+							//render the bookends
+							LLGLEnable blend(GL_BLEND);
 							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
 							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
 							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
