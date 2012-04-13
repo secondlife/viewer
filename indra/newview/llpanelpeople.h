@@ -80,27 +80,18 @@ private:
 	std::string				getActiveTabName() const;
 	LLUUID					getCurrentItemID() const;
 	void					getCurrentItemIDs(uuid_vec_t& selected_uuids) const;
-	void					buttonSetVisible(std::string btn_name, BOOL visible);
-	void					buttonSetEnabled(const std::string& btn_name, bool enabled);
 	void					showGroupMenu(LLMenuGL* menu);
 	void					setSortOrder(LLAvatarList* list, ESortOrder order, bool save = true);
 
 	// UI callbacks
 	void					onFilterEdit(const std::string& search_string);
 	void					onTabSelected(const LLSD& param);
-	void					onViewProfileButtonClicked();
 	void					onAddFriendButtonClicked();
 	void					onAddFriendWizButtonClicked();
 	void					onDeleteFriendButtonClicked();
-	void					onGroupInfoButtonClicked();
 	void					onChatButtonClicked();
 	void					onImButtonClicked();
-	void					onCallButtonClicked();
-	void					onGroupCallButtonClicked();
-	void					onTeleportButtonClicked();
-	void					onShareButtonClicked();
 	void					onMoreButtonClicked();
-	void					onActivateButtonClicked();
 	void					onAvatarListDoubleClicked(LLUICtrl* ctrl);
 	void					onAvatarListCommitted(LLAvatarList* list);
 	bool					onGroupPlusButtonValidate();

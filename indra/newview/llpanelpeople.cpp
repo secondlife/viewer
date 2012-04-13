@@ -509,16 +509,8 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.AddFriend", boost::bind(&LLPanelPeople::onAddFriendButtonClicked, this));
 	mCommitCallbackRegistrar.add("People.AddFriendWizard",	boost::bind(&LLPanelPeople::onAddFriendWizButtonClicked,	this));
 	mCommitCallbackRegistrar.add("People.DelFriend",		boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
-	mCommitCallbackRegistrar.add("People.Group.Activate",	boost::bind(&LLPanelPeople::onActivateButtonClicked,	this));
 	mCommitCallbackRegistrar.add("People.Group.Minus",		boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
-	mCommitCallbackRegistrar.add("People.ViewProfile",	boost::bind(&LLPanelPeople::onViewProfileButtonClicked,	this));
-	mCommitCallbackRegistrar.add("People.GroupInfo",	boost::bind(&LLPanelPeople::onGroupInfoButtonClicked,	this));
 	mCommitCallbackRegistrar.add("People.Chat",			boost::bind(&LLPanelPeople::onChatButtonClicked,		this));
-	mCommitCallbackRegistrar.add("People.IM",			boost::bind(&LLPanelPeople::onImButtonClicked,			this));
-	mCommitCallbackRegistrar.add("People.Call",			boost::bind(&LLPanelPeople::onCallButtonClicked,		this));
-	mCommitCallbackRegistrar.add("People.GroupCall",	boost::bind(&LLPanelPeople::onGroupCallButtonClicked,	this));
-	mCommitCallbackRegistrar.add("People.Teleport",		boost::bind(&LLPanelPeople::onTeleportButtonClicked,	this));
-	mCommitCallbackRegistrar.add("People.Share",		boost::bind(&LLPanelPeople::onShareButtonClicked,		this));
 
 	mCommitCallbackRegistrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
 	mCommitCallbackRegistrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
@@ -770,24 +762,9 @@ void LLPanelPeople::updateRecentList()
 	mRecentList->setDirty();
 }
 
-void LLPanelPeople::buttonSetVisible(std::string btn_name, BOOL visible)
-{
-	// To make sure we're referencing the right widget (a child of the button bar).
-	LLButton* button = getChild<LLView>("button_bar")->getChild<LLButton>(btn_name);
-	button->setVisible(visible);
-}
-
-void LLPanelPeople::buttonSetEnabled(const std::string& btn_name, bool enabled)
-{
-	// To make sure we're referencing the right widget (a child of the button bar).
-	LLButton* button = getChild<LLView>("button_bar")->getChild<LLButton>(btn_name);
-	button->setEnabled(enabled);
-}
-
 void LLPanelPeople::updateButtons()
 {
 	std::string cur_tab		= getActiveTabName();
-	bool nearby_tab_active	= (cur_tab == NEARBY_TAB_NAME);
 	bool friends_tab_active = (cur_tab == FRIENDS_TAB_NAME);
 	bool group_tab_active	= (cur_tab == GROUP_TAB_NAME);
 	//bool recent_tab_active	= (cur_tab == RECENT_TAB_NAME);
@@ -798,27 +775,14 @@ void LLPanelPeople::updateButtons()
 	bool item_selected = (selected_uuids.size() == 1);
 	bool multiple_selected = (selected_uuids.size() >= 1);
 
-	buttonSetVisible("group_info_btn",		group_tab_active);
-	buttonSetVisible("chat_btn",			group_tab_active);
-	buttonSetVisible("view_profile_btn",	!group_tab_active);
-	buttonSetVisible("im_btn",				!group_tab_active);
-	buttonSetVisible("call_btn",			!group_tab_active);
-	buttonSetVisible("group_call_btn",		group_tab_active);
-	buttonSetVisible("teleport_btn",		friends_tab_active);
-	buttonSetVisible("share_btn",			nearby_tab_active || friends_tab_active);
-
 	if (group_tab_active)
 	{
-		bool cur_group_active = true;
-
 		if (item_selected)
 		{
 			selected_id = mGroupList->getSelectedUUID();
-			cur_group_active = (gAgent.getGroupID() == selected_id);
 		}
 
 		LLPanel* groups_panel = mTabContainer->getCurrentPanel();
-		groups_panel->getChildView("activate_btn")->setEnabled(item_selected && !cur_group_active); // "none" or a non-active group selected
 		groups_panel->getChildView("minus_btn")->setEnabled(item_selected && selected_id.notNull()); // a real group selected
 	}
 	else
@@ -844,19 +808,6 @@ void LLPanelPeople::updateButtons()
 			}
 		}
 	}
-
-	bool enable_calls = LLVoiceClient::getInstance()->isVoiceWorking() && LLVoiceClient::getInstance()->voiceEnabled();
-
-	buttonSetEnabled("view_profile_btn",item_selected);
-	buttonSetEnabled("share_btn",		item_selected);
-	buttonSetEnabled("im_btn",			multiple_selected); // allow starting the friends conference for multiple selection
-	buttonSetEnabled("call_btn",		multiple_selected && enable_calls);
-	buttonSetEnabled("teleport_btn",	multiple_selected && LLAvatarActions::canOfferTeleport(selected_uuids));
-
-	bool none_group_selected = item_selected && selected_id.isNull();
-	buttonSetEnabled("group_info_btn", !none_group_selected);
-	buttonSetEnabled("group_call_btn", !none_group_selected && enable_calls);
-	buttonSetEnabled("chat_btn", !none_group_selected);
 }
 
 std::string LLPanelPeople::getActiveTabName() const
@@ -1082,12 +1033,6 @@ void LLPanelPeople::onAvatarListCommitted(LLAvatarList* list)
 	updateButtons();
 }
 
-void LLPanelPeople::onViewProfileButtonClicked()
-{
-	LLUUID id = getCurrentItemID();
-	LLAvatarActions::showProfile(id);
-}
-
 void LLPanelPeople::onAddFriendButtonClicked()
 {
 	LLUUID id = getCurrentItemID();
@@ -1141,11 +1086,6 @@ void LLPanelPeople::onDeleteFriendButtonClicked()
 	}
 }
 
-void LLPanelPeople::onGroupInfoButtonClicked()
-{
-	LLGroupActions::show(getCurrentItemID());
-}
-
 void LLPanelPeople::onChatButtonClicked()
 {
 	LLUUID group_id = getCurrentItemID();
@@ -1167,11 +1107,6 @@ void LLPanelPeople::onImButtonClicked()
 		// for multiple selection start up friends conference
 		LLAvatarActions::startConference(selected_uuids);
 	}
-}
-
-void LLPanelPeople::onActivateButtonClicked()
-{
-	LLGroupActions::activate(mGroupList->getSelectedUUID());
 }
 
 // static
@@ -1325,40 +1260,6 @@ bool LLPanelPeople::onRecentViewSortMenuItemCheck(const LLSD& userdata)
 		return sort_order == E_SORT_BY_NAME;
 
 	return false;
-}
-
-void LLPanelPeople::onCallButtonClicked()
-{
-	uuid_vec_t selected_uuids;
-	getCurrentItemIDs(selected_uuids);
-
-	if (selected_uuids.size() == 1)
-	{
-		// initiate a P2P voice chat with the selected user
-		LLAvatarActions::startCall(getCurrentItemID());
-	}
-	else if (selected_uuids.size() > 1)
-	{
-		// initiate an ad-hoc voice chat with multiple users
-		LLAvatarActions::startAdhocCall(selected_uuids);
-	}
-}
-
-void LLPanelPeople::onGroupCallButtonClicked()
-{
-	LLGroupActions::startCall(getCurrentItemID());
-}
-
-void LLPanelPeople::onTeleportButtonClicked()
-{
-	uuid_vec_t selected_uuids;
-	getCurrentItemIDs(selected_uuids);
-	LLAvatarActions::offerTeleport(selected_uuids);
-}
-
-void LLPanelPeople::onShareButtonClicked()
-{
-	LLAvatarActions::share(getCurrentItemID());
 }
 
 void LLPanelPeople::onMoreButtonClicked()

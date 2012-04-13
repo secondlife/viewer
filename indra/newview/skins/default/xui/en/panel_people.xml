@@ -55,8 +55,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
 	 name="AltMiniMapToolTipMsg"
 	 value="[REGION](Double-click to teleport, shift-drag to pan)"/>
     <tab_container
+     bottom="-10"
      follows="all"
-     height="419"
      layout="topleft"
      left="3"
      name="tabs"
@@ -75,15 +75,15 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
+         bottom="-1"
          follows="all"
-         height="383"
          label="NEARBY"
          layout="topleft"
          left="0"
          help_topic="people_nearby_tab"
          name="nearby_panel"
-         top="0"
-         width="313">
+         right="-1"
+         top="0">
             <panel
              follows="left|top|right"
              height="27"
@@ -91,20 +91,20 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              layout="topleft"
              left="0"
              name="nearby_buttons_panel"
-             top="0"
-             width="313">
+             right="-1"
+             top="0">
                 <filter_editor
                  follows="left|top|right"
                  height="23"
                  layout="topleft"
-                 left="3"
+                 left="6"
                  label="Filter People"
                  max_length_chars="300"
                  name="nearby_filter_input"
                  text_color="Black"
                  text_pad_left="10"
-                 top="2"
-                 width="167" />
+                 top="4"
+                 width="178" />
                 <menu_button
                  follows="right"
                  height="25"
@@ -113,11 +113,11 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
-                 left_pad="10"
+                 left_pad="7"
                  menu_filename="menu_people_nearby_view.xml"
                  menu_position="bottomleft"
                  name="nearby_view_btn"
-                 top="1"
+                 top="3"
                  width="31" />
                 <menu_button
                  follows="right"
@@ -131,7 +131,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_nearby_sort.xml"
                  menu_position="bottomleft"
                  name="nearby_sort_btn"
-                 top="1"
+                 top_delta="0"
                  width="31" />
                 <button
                  follows="right"
@@ -143,7 +143,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="add_friend_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.AddFriend" />
@@ -159,7 +159,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="nearby_del_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.DelFriend" />
@@ -168,13 +168,13 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          <layout_stack
            clip="false"
            follows="all"
-           height="355"
+           height="410"
            layout="topleft"
            left="0"
            mouse_opaque="false"
            orientation="vertical"
-           top_pad="0"
-           width="313">
+           right="-1"
+           top_pad="0">
            <layout_panel
              height="142"
              layout="topleft"
@@ -191,16 +191,16 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                left="3"
                mouse_opaque="false"
                name="Net Map"
-               top="4"
-               width="305"/>
+               right="-1"
+               top="4" />
            </layout_panel>
            <layout_panel
              height="213"
              layout="topleft"
              min_dim="100"
              mouse_opaque="false"
-             user_resize="true"
-             width="313">
+             right="-1"
+             user_resize="true">
              <avatar_list
                allow_select="true"
                follows="all"
@@ -211,8 +211,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                keep_one_selected="false"
                multi_select="true"
                name="avatar_list"
-               top="2"
-               width="306" />
+               right="-1"
+               top="2" />
            </layout_panel>
          </layout_stack>
         </panel>
@@ -224,15 +224,15 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
        background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
+         bottom="-1"
          follows="all"
-         height="383"
          label="MY FRIENDS"
          layout="topleft"
          left="0"
          help_topic="people_friends_tab"
          name="friends_panel"
-         top="0"
-         width="313">
+         right="-1"
+         top="0">
             <panel
              follows="left|top|right"
              height="27"
@@ -240,20 +240,20 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              layout="topleft"
              left="0"
              name="friends_buttons_panel"
-             top="0"
-             width="313">
+             right="-1"
+             top="0">
                 <filter_editor
                  follows="left|top|right"
                  height="23"
                  layout="topleft"
-                 left="3"
+                 left="6"
                  label="Filter People"
                  max_length_chars="300"
                  name="friends_filter_input"
                  text_color="Black"
                  text_pad_left="10"
-                 top="2"
-                 width="167" />
+                 top="4"
+                 width="177" />
                 <menu_button
                  follows="right"
                  height="25"
@@ -262,11 +262,11 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
-                 left_pad="10"
+                 left_pad="8"
                  menu_filename="menu_people_friends_view.xml"
                  menu_position="bottomleft"
                  name="friends_view_btn"
-                 top="1"
+                 top="3"
                  width="31" />
                 <menu_button
                  follows="right"
@@ -280,7 +280,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_friends_sort.xml"
                  menu_position="bottomleft"
                  name="friends_sort_btn"
-                 top="1"
+                 top_delta="0"
                  width="31" />
                 <button
                  follows="right"
@@ -292,7 +292,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="friends_add_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.AddFriendWizard" />
@@ -307,7 +307,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="friends_del_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.DelFriend" />
@@ -318,12 +318,12 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
        		 bg_alpha_color="DkGray2"
        		 bg_opaque_color="DkGray2"
              follows="all"
-             height="356"
+             height="408"
              layout="topleft"
              left="3"
              name="friends_accordion"
-             top_pad="0"
-             width="307">
+             right="-2"
+             top_pad="2">
                 <accordion_tab
                  layout="topleft"
                  height="172"
@@ -365,8 +365,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              height="450"
              left="13"
              name="no_friends_help_text"
+             right="-13"
              top="37"
-             width="293"
              wrap="true" />
         </panel>
 
@@ -377,15 +377,15 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
        background_visible="true"
          bg_alpha_color="DkGray"
          bg_opaque_color="DkGray"
+         bottom="-1"
          follows="all"
-         height="383"
          label="MY GROUPS"
          layout="topleft"
          left="0"
          help_topic="people_groups_tab"
          name="groups_panel"
-         top="0"
-         width="313">
+         right="-1"
+         top="0">
     <!--
      *NOTE: no_groups_msg & group_list attributes are not defined as translatable in VLT. See EXT-5931
      Values are set from appropriate strings at the top of file via LLPeoplePanel::postBuild()
@@ -397,20 +397,20 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              layout="topleft"
              left="0"
              name="groups_buttons_panel"
-             top="0"
-             width="313">
+             right="-1"
+             top="0">
                 <filter_editor
                  follows="left|top|right"
                  height="23"
                  layout="topleft"
-                 left="3"
+                 left="6"
                  label="Filter Groups"
                  max_length_chars="300"
                  name="groups_filter_input"
                  text_color="Black"
                  text_pad_left="10"
-                 top="2"
-                 width="134" />
+                 top="4"
+                 width="177" />
                 <menu_button
                  follows="right"
                  height="25"
@@ -419,11 +419,11 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
-                 left_pad="10"
+                 left_pad="8"
                  menu_filename="menu_people_groups_view.xml"
                  menu_position="bottomleft"
                  name="groups_view_btn"
-                 top="1"
+                 top="3"
                  width="31" />
                 <menu_button
                  enabled="false"
@@ -436,23 +436,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="groups_sort_btn"
-                 top="1"
+                 top_delta="0"
                  width="31" />
-                <button
-                 follows="right"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Activate_Checkmark"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left_pad="2"
-                 name="activate_btn"
-                 top="1"
-                 width="31">
-                    <commit_callback
-                     function="People.Group.Activate" />
-                </button>
                 <menu_button
                  follows="right"
                  height="25"
@@ -465,7 +450,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_group_plus.xml"
                  menu_position="bottomleft"
                  name="minus_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <validate_callback
                      function="People.Group.Plus.Validate" />
@@ -480,7 +465,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="minus_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.Group.Minus" />
@@ -489,12 +474,12 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
             <group_list
              allow_select="true" 
              follows="all"
-             height="356"
+             height="406"
              layout="topleft"
              left="3"
              name="group_list"
-             top_pad="0"
-             width="307" />
+             right="-2"
+             top_pad="4" />
         </panel>
 
 <!-- ================================= RECENT tab =========================== -->
@@ -511,8 +496,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          left="0"
          help_topic="people_recent_tab"
          name="recent_panel"
-         top="0"
-         width="313">
+         right="-1"
+         top="0">
             <panel
              follows="left|top|right"
              height="27"
@@ -520,20 +505,20 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              layout="topleft"
              left="0"
              name="recent_buttons_panel"
-             top="0"
-             width="313">
+             right="-1"
+             top="0">
                 <filter_editor
                  follows="left|top|right"
                  height="23"
                  layout="topleft"
-                 left="3"
+                 left="6"
                  label="Filter People"
                  max_length_chars="300"
                  name="recent_filter_input"
                  text_color="Black"
                  text_pad_left="10"
-                 top="2"
-                 width="167" />
+                 top="4"
+                 width="177" />
                 <menu_button
                  follows="right"
                  height="25"
@@ -542,11 +527,11 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_selected="Toolbar_Middle_Selected"
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
-                 left_pad="10"
+                 left_pad="8"
                  menu_filename="menu_people_recent_view.xml"
                  menu_position="bottomleft"
                  name="recent_view_btn"
-                 top="1"
+                 top="3"
                  width="31" />
                 <menu_button
                  follows="right"
@@ -560,7 +545,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  menu_filename="menu_people_recent_sort.xml"
                  menu_position="bottomleft"
                  name="recent_sort_btn"
-                 top="1"
+                 top_delta="0"
                  width="31" />
                 <button
                  follows="right"
@@ -572,7 +557,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  layout="topleft"
                  left_pad="2"
                  name="add_friend_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.AddFriend" />
@@ -588,7 +573,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  left_pad="2"
                  layout="topleft"
                  name="recent_del_btn"
-                 top="1"
+                 top_delta="0"
                  width="31">
                     <commit_callback
                      function="People.DelFriend" />
@@ -597,14 +582,14 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
             <avatar_list
              allow_select="true"
              follows="all"
-             height="356"
+             height="351"
              layout="topleft"
              left="3"
              multi_select="true"
              name="avatar_list"
              show_last_interaction_time="true"
-             top_pad="0"
-             width="307" />
+             right="-2"
+             top_pad="4" />
         </panel>
 
 <!-- ================================= BLOCKED tab ========================== -->
@@ -633,227 +618,4 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
            width="313" />
         </panel>
     </tab_container>
-    <panel
-     follows="bottom|left|right"
-     height="23"
-     layout="topleft"
-     left="8"
-     top_pad="4"
-     name="button_bar"
-     width="313">
-
-<!--********************************Profile; IM; Call, Share, Teleport********************************--> 	
-     	<layout_stack
-     	follows="bottom|left|right"
-		height="23"
-		layout="topleft"
-		name="bottom_bar_ls"
-		left="0"
-		orientation="horizontal"
-		top_pad="0"
-		width="313">
-
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left="0"
-			name="view_profile_btn_lp"
-		    auto_resize="true"
-			width="68">
-				<button
-		         follows="bottom|left|right"
-		         height="23"
-		         label="Profile"
-		         layout="topleft"
-		         left="1"
-		         name="view_profile_btn"
-		         tool_tip="Show picture, groups, and other Residents information"
-		         top="0"
-		         width="67">
-                    <commit_callback
-                     function="People.ViewProfile" />
-		        </button>
-			</layout_panel>
-			
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			name="im_btn_lp"
-		    auto_resize="true"
-			width="41">
-				<button
-		         follows="bottom|left|right"
-		         left="1"
-		         height="23"
-		         label="IM"
-		         layout="topleft"
-		         name="im_btn"
-		         tool_tip="Open instant message session"
-		         top="0"
-		         width="40">
-                    <commit_callback
-                     function="People.IM" />
-		        </button>			
-			</layout_panel>
-			
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			name="call_btn_lp"
-		    auto_resize="true"
-			width="52">
-				<button
-		         follows="bottom|left|right"
-		         left="1"
-		         height="23"
-		         label="Call"
-		         layout="topleft"
-		         name="call_btn"
-		         tool_tip="Call this Resident"
-		         top="0"
-		         width="51">
-                    <commit_callback
-                     function="People.Call" />
-		        </button>		
-			</layout_panel>
-			
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			name="share_btn_lp"
-		    auto_resize="true"
-			width="66">
-				<button
-		         follows="bottom|left|right"
-		         left="1"
-		         height="23"
-		         label="Share"
-		         layout="topleft"
-		         name="share_btn"
-		         tool_tip="Share an inventory item"
-		         top="0"
-		         width="65">
-                    <commit_callback
-                     function="People.Share" />
-		        </button>	
-			</layout_panel>
-			
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			name="teleport_btn_lp"
-		    auto_resize="true"
-			width="77">
-				<button
-		         follows="bottom|left|right"
-		         left="1"
-		         height="23"
-		         label="Teleport"
-		         layout="topleft"
-		         name="teleport_btn"
-		         tool_tip="Offer teleport"
-		         top="0"
-		         width="76">
-                    <commit_callback
-                     function="People.Teleport" />
-		        </button>
-			</layout_panel>
-		</layout_stack>
-		
-<!--********************************Group Profile; Group Chat; Group Call buttons************************-->			
-		<layout_stack
-     	follows="bottom|left|right"
-		height="23"
-		layout="topleft"
-		mouse_opaque="false"
-		name="bottom_bar_ls1"
-		left="0"
-		orientation="horizontal"
-		top="0"
-		width="313">	
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left="0"			
-			mouse_opaque="false"
-			name="group_info_btn_lp"
-		    auto_resize="true"
-			width="108">
-				<button
-		        follows="bottom|left|right"
-		        left="1"
-		        height="23"
-		        label="Group Profile"
-		        layout="topleft"
-				mouse_opaque="false"
-		        name="group_info_btn"
-		        tool_tip="Show group information"
-		        top="0"
-		        width="107">
-                    <commit_callback
-                     function="People.GroupInfo" />
-		        </button>		
-			</layout_panel>
-			
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			mouse_opaque="false"
-			name="chat_btn_lp"
-		    auto_resize="true"
-			width="101">
-				<button
-		        follows="bottom|left|right"
-		        left="1"
-		        height="23"
-		        label="Group Chat"
-		        layout="topleft"
-				mouse_opaque="false"
-		        name="chat_btn"
-		        tool_tip="Open chat session"
-		        top="0"
-		        width="100">
-                    <commit_callback
-                     function="People.Chat" />
-		        </button>			
-			</layout_panel>
-		
-			<layout_panel
-			follows="bottom|left|right"
-			height="23"
-			layout="bottomleft"
-			left_pad="3"
-			mouse_opaque="false"
-			name="group_call_btn_lp"
-		    auto_resize="true"
-			width="96">
-				<button
-				follows="bottom|left|right"
-				left="1"
-				height="23"
-         		label="Group Call"
-         		layout="topleft"
-				mouse_opaque="false"
-         		name="group_call_btn"
-         		tool_tip="Call this group"
-		        top="0"
-         		width="95">
-                    <commit_callback
-                     function="People.GroupCall" />
-         	    </button>
-			</layout_panel>		
-		</layout_stack>
-    </panel>
 </panel>
