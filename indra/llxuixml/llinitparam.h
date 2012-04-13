@@ -390,15 +390,19 @@ namespace LLInitParam
 	class BaseBlock
 	{
 	public:
-		typedef IS_BLOCK IS_BLOCK;
-		typedef NOT_BLOCK NOT_BLOCK;
+		// lift block tags into baseblock namespace so derived classes do not need to qualify them
+		typedef LLInitParam::IS_BLOCK IS_BLOCK;
+		typedef LLInitParam::NOT_BLOCK NOT_BLOCK;
+
+		template<typename T>
+		class Batch
+		{};
 
 		//TODO: implement in terms of owned_ptr
-		template<typename T, typename BLOCK_T = IS_BLOCK>
+		template<typename T, typename BLOCK_T = IsBlock<T>::value_t >
 		class Lazy
 		{
 		public:
-			
 			Lazy()
 			:	mPtr(NULL)
 			{}
@@ -470,7 +474,7 @@ namespace LLInitParam
 				return get(); 
 			}
 
-		private:
+		private: 
 			// lazily allocate an instance of T
 			T* ensureInstance() const
 			{
@@ -642,11 +646,12 @@ namespace LLInitParam
 	{
 	public:
 		typedef const T&							value_assignment_t;
+		typedef T									default_value_t;
 		typedef T									value_t;
 		typedef ParamValue<T, NAME_VALUE_LOOKUP, VALUE_IS_BLOCK>	self_t;
 
 		ParamValue(): mValue() {}
-		ParamValue(value_assignment_t other) : mValue(other) {}
+		ParamValue(const default_value_t& other) : mValue(other) {}
 
 		void setValue(value_assignment_t val)
 		{
@@ -699,6 +704,7 @@ namespace LLInitParam
 	{
 	public:
 		typedef const T&							value_assignment_t;
+		typedef T									default_value_t;
 		typedef T									value_t;
 		typedef ParamValue<T, NAME_VALUE_LOOKUP, IS_BLOCK>	self_t;
 
@@ -707,7 +713,7 @@ namespace LLInitParam
 			mValidated(false)
 		{}
 
-		ParamValue(value_assignment_t other)
+		ParamValue(const default_value_t& other)
 		:	T(other),
 			mValidated(false)
 		{}
@@ -762,11 +768,12 @@ namespace LLInitParam
 	{
 	public:
 		typedef const std::string&	value_assignment_t;
+		typedef std::string			default_value_t;
 		typedef std::string			value_t;
 		typedef ParamValue<std::string, NAME_VALUE_LOOKUP, NOT_BLOCK>	self_t;
 
 		ParamValue(): mValue() {}
-		ParamValue(value_assignment_t other) : mValue(other) {}
+		ParamValue(const default_value_t& other) : mValue(other) {}
 
 		void setValue(value_assignment_t val)
 		{
@@ -808,8 +815,8 @@ namespace LLInitParam
 	template<typename T, typename NAME_VALUE_LOOKUP = TypeValues<T> >
 	struct ParamIterator
 	{
-		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP> >::const_iterator		const_iterator;
-		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP> >::iterator			iterator;
+		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t> >::const_iterator		const_iterator;
+		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t> >::iterator			iterator;
 	};
 
 	// specialize for custom parsing/decomposition of specific classes
@@ -817,19 +824,20 @@ namespace LLInitParam
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
-			typename	VALUE_IS_BLOCK = typename IsBlock<T>::value_t>
+			typename	VALUE_IS_BLOCK = typename IsBlock<ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t> >::value_t>
 	class TypedParam 
 	:	public Param, 
-		public ParamValue<T, NAME_VALUE_LOOKUP>
+		public ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>
 	{
 	public:
-		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>		self_t;
-		typedef ParamValue<T, NAME_VALUE_LOOKUP>											param_value_t;
-		typedef typename param_value_t::value_assignment_t									value_assignment_t;
+		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>	self_t;
+		typedef ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>										param_value_t;
+		typedef typename param_value_t::value_assignment_t								value_assignment_t;
+		typedef typename param_value_t::default_value_t									default_value_t;
 
 		using param_value_t::operator();
 
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, const T& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
 			param_value_t(value)
 		{
@@ -862,6 +870,7 @@ namespace LLInitParam
 					if (parser.readValue(name))
 					{
 						// try to parse a per type named value
+
 						if (param_value_t::getValueFromName(name, typed_param.getValue()))
 						{
 							typed_param.setValueName(name);
@@ -974,16 +983,17 @@ namespace LLInitParam
 	template <typename T, typename NAME_VALUE_LOOKUP>
 	class TypedParam<T, NAME_VALUE_LOOKUP, false, IS_BLOCK> 
 	:	public Param,
-		public ParamValue<T, NAME_VALUE_LOOKUP>
+	public ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>
 	{
 	public:
-		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>				param_value_t;
 		typedef typename param_value_t::value_assignment_t		value_assignment_t;
+		typedef typename param_value_t::default_value_t			default_value_t;
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IS_BLOCK>	self_t;
 
 		using param_value_t::operator();
 
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, const T& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
 			param_value_t(value)
 		{
@@ -1149,13 +1159,14 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, NOT_BLOCK>		self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>					param_value_t;
+		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP, typename IsBlock<VALUE_TYPE>::value_t>					param_value_t;
 		typedef typename std::vector<param_value_t>							container_t;
 		typedef const container_t&											value_assignment_t;
+		typedef container_t													default_value_t;
 
 		typedef typename param_value_t::value_t								value_t;
 		
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, const container_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
 			std::copy(value.begin(), value.end(), std::back_inserter(mValues));
@@ -1348,12 +1359,13 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypedParam<VALUE_TYPE, NAME_VALUE_LOOKUP, true, IS_BLOCK>	self_t;
-		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP>				param_value_t;
+		typedef ParamValue<VALUE_TYPE, NAME_VALUE_LOOKUP, typename IsBlock<VALUE_TYPE>::value_t>				param_value_t;
 		typedef typename std::vector<param_value_t>						container_t;
 		typedef const container_t&										value_assignment_t;
 		typedef typename param_value_t::value_t							value_t;
+		typedef container_t												default_value_t;
 
-		TypedParam(BlockDescriptor& block_descriptor, const char* name, const container_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count) 
+		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
 			std::copy(value.begin(), value.end(), back_inserter(mValues));
@@ -1617,13 +1629,14 @@ namespace LLInitParam
 		public:
 			friend class ChoiceBlock<DERIVED_BLOCK>;
 
-			typedef Alternative<T, NAME_VALUE_LOOKUP>									self_t;
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, typename IsBlock<T>::value_t>		super_t;
-			typedef typename super_t::value_assignment_t								value_assignment_t;
+			typedef Alternative<T, NAME_VALUE_LOOKUP>		self_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>	super_t;
+			typedef typename super_t::value_assignment_t	value_assignment_t;
+			typedef typename super_t::default_value_t		default_value_t;
 
 			using super_t::operator =;
 
-			explicit Alternative(const char* name = "", const T& val = defaultValue<T>())
+			explicit Alternative(const char* name = "", const default_value_t& val = defaultValue<default_value_t>())
 			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, NULL, 0, 1),
 				mOriginalValue(val)
 			{
@@ -1736,13 +1749,14 @@ namespace LLInitParam
 		class Optional : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, typename IsBlock<T>::value_t>	super_t;
-			typedef typename super_t::value_assignment_t									value_assignment_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>		super_t;
+			typedef typename super_t::value_assignment_t		value_assignment_t;
+			typedef typename super_t::default_value_t			default_value_t;
 
 			using super_t::operator();
 			using super_t::operator =;
 			
-			explicit Optional(const char* name = "", const T& val = defaultValue<T>())
+			explicit Optional(const char* name = "", const default_value_t& val = defaultValue<default_value_t>())
 			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, NULL, 0, 1)
 			{
 				//#pragma message("Parsing LLInitParam::Block::Optional")
@@ -1765,15 +1779,16 @@ namespace LLInitParam
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, false, typename IsBlock<T>::value_t>		super_t;
-			typedef Mandatory<T, NAME_VALUE_LOOKUP>										self_t;
-			typedef typename super_t::value_assignment_t								value_assignment_t;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>		super_t;
+			typedef Mandatory<T, NAME_VALUE_LOOKUP>				self_t;
+			typedef typename super_t::value_assignment_t		value_assignment_t;
+			typedef typename super_t::default_value_t			default_value_t;
 
 			using super_t::operator();
 			using super_t::operator =;
 
 			// mandatory parameters require a name to be parseable
-			explicit Mandatory(const char* name = "", const T& val = defaultValue<T>())
+			explicit Mandatory(const char* name = "", const default_value_t& val = defaultValue<default_value_t>())
 			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, val, &validate, 1, 1)
 			{}
 
@@ -1801,12 +1816,12 @@ namespace LLInitParam
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 		public:
-			typedef TypedParam<T, NAME_VALUE_LOOKUP, true, typename IsBlock<T>::value_t>	super_t;
-			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>							self_t;
-			typedef typename super_t::container_t									container_t;
-			typedef typename super_t::value_assignment_t							value_assignment_t;
-			typedef typename super_t::iterator										iterator;
-			typedef typename super_t::const_iterator								const_iterator;
+			typedef TypedParam<T, NAME_VALUE_LOOKUP, true>	super_t;
+			typedef Multiple<T, RANGE, NAME_VALUE_LOOKUP>	self_t;
+			typedef typename super_t::container_t			container_t;
+			typedef typename super_t::value_assignment_t	value_assignment_t;
+			typedef typename super_t::iterator				iterator;
+			typedef typename super_t::const_iterator		const_iterator;
 
 			explicit Multiple(const char* name = "")
 			:	super_t(DERIVED_BLOCK::getBlockDescriptor(), name, container_t(), &validate, RANGE::minCount, RANGE::maxCount)
@@ -1888,136 +1903,158 @@ namespace LLInitParam
 
 	};
 	
-	template <typename DERIVED_BLOCK, typename BASE_BLOCK = BaseBlock>
-	class BatchBlock
-	:	public Block<DERIVED_BLOCK, BASE_BLOCK>
+	template<typename T, typename BLOCK_T>
+	struct IsBlock<ParamValue<BaseBlock::Lazy<T, BaseBlock::IS_BLOCK>, TypeValues<BaseBlock::Lazy<T, BaseBlock::IS_BLOCK> >, BLOCK_T >, void>
+	{
+		typedef IS_BLOCK value_t;
+	};
+
+	template<typename T, typename BLOCK_T>
+	struct IsBlock<ParamValue<BaseBlock::Lazy<T, BaseBlock::NOT_BLOCK>, TypeValues<BaseBlock::Lazy<T, BaseBlock::NOT_BLOCK> >, BLOCK_T >, void>
+	{
+		typedef NOT_BLOCK value_t;
+	};
+
+	template<typename T, typename BLOCK_IDENTIFIER>
+	struct IsBlock<ParamValue<BaseBlock::Batch<T>, TypeValues<BaseBlock::Batch<T> >, typename IsBlock<BaseBlock::Batch<T> >::value_t >, BLOCK_IDENTIFIER>
+	{
+		typedef typename IsBlock<ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t > >::value_t value_t;
+	};
+
+	template<typename T, typename BLOCK_T>
+	class ParamValue <BaseBlock::Batch<T>,
+		TypeValues<BaseBlock::Batch<T> >,
+		BLOCK_T>
+	:	public TypeValues<T>
 	{
 	public:
-		typedef BatchBlock<DERIVED_BLOCK, BASE_BLOCK> self_t;
-		typedef Block<DERIVED_BLOCK, BASE_BLOCK> super_t;
+		typedef ParamValue <BaseBlock::Batch<T>, TypeValues<BaseBlock::Batch<T> >, BLOCK_T> self_t;
+		typedef ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t > param_value_t;
+		typedef const T& value_assignment_t;
+		typedef T value_t;
+		typedef T default_value_t;
 
-		BatchBlock()
+		ParamValue()
+		:	mValue(),
+			mValidated(false)
 		{}
+
+		ParamValue(const default_value_t& value)
+		:	mValue(value),
+			mValidated(false)
+		{}
+
+		void setValue(value_assignment_t val)
+		{
+			mValue.setValue(val);
+		}
+
+		const T& getValue() const
+		{
+			return mValue.getValue();
+		}
+
+		T& getValue()
+		{
+			return mValue;
+		}
+
+		operator value_assignment_t() const
+		{
+			return mValue;
+		}
+
+		value_assignment_t operator()() const
+		{
+			return mValue;
+		}
+
+		void operator ()(const typename TypeValues<T>::name_t& name)
+		{
+			*this = name;
+		}
+
+		self_t& operator =(const typename TypeValues<T>::name_t& name)
+		{
+			mValue = name;
+
+			return *this;
+		}
 
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name)
 		{
 			if (new_name)
 			{
 				// reset block
-				*static_cast<DERIVED_BLOCK*>(this) = defaultBatchValue();
+				mValue = defaultBatchValue();
 			}
-			return super_t::deserializeBlock(p, name_stack_range, new_name);
+			return mValue.deserializeBlock(p, name_stack_range, new_name);
 		}
 
-		bool mergeBlock(BlockDescriptor& block_data, const BaseBlock& other, bool overwrite)
+		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const self_t* diff_block = NULL) const
+		{
+			const BaseBlock* base_block = diff_block
+				? &(diff_block->mValue)
+				: NULL;
+			mValue.serializeBlock(p, name_stack, base_block);
+		}
+
+		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
+		{
+			return mValue.inspectBlock(p, name_stack, min_count, max_count);
+		}
+
+		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
 		{
 			if (overwrite)
 			{
-				*static_cast<DERIVED_BLOCK*>(this) = defaultBatchValue();
-				// merge individual parameters into destination
-				return super_t::mergeBlock(super_t::getBlockDescriptor(), other, overwrite);
+				mValue = defaultBatchValue();
+				return mValue.mergeBlock(block_data, source, overwrite);
 			}
 			return false;
 		}
-	protected:
-		static const DERIVED_BLOCK& defaultBatchValue()
+
+		bool validateBlock(bool emit_errors = true) const
 		{
-			static DERIVED_BLOCK default_value;
+			return mValue.validateBlock(emit_errors);
+		}
+
+		static BlockDescriptor& getBlockDescriptor()
+		{
+			return T::getBlockDescriptor();
+		}
+
+
+		mutable bool 	mValidated; // lazy validation flag
+
+	private:
+		static const T& defaultBatchValue()
+		{
+			static T default_value;
 			return default_value;
 		}
+
+		T	mValue;
 	};
 
-	// FIXME: this specialization is not currently used, as it only matches against the BatchBlock base class
-	// and not the derived class with the actual params
-	template<typename DERIVED_BLOCK,
-			typename BASE_BLOCK,
-			typename NAME_VALUE_LOOKUP>
-	class ParamValue <BatchBlock<DERIVED_BLOCK, BASE_BLOCK>,
-					NAME_VALUE_LOOKUP,
-					IS_BLOCK>
-	:	public NAME_VALUE_LOOKUP,
-		protected BatchBlock<DERIVED_BLOCK, BASE_BLOCK>
-	{
-	public:
-		typedef BatchBlock<DERIVED_BLOCK, BASE_BLOCK> block_t;
-		typedef const BatchBlock<DERIVED_BLOCK, BASE_BLOCK>&	value_assignment_t;
-		typedef block_t value_t;
-
-		ParamValue()
-		:	block_t(),
-			mValidated(false)
-		{}
-
-		ParamValue(value_assignment_t other)
-		:	block_t(other),
-			mValidated(false)
-		{
-		}
-
-		void setValue(value_assignment_t val)
-		{
-			*this = val;
-		}
-
-		value_assignment_t getValue() const
-		{
-			return *this;
-		}
-
-		BatchBlock<DERIVED_BLOCK, BASE_BLOCK>& getValue()
-		{
-			return *this;
-		}
-
-		operator value_assignment_t() const
-		{
-			return *this;
-		}
-
-		value_assignment_t operator()() const
-		{
-			return *this;
-		}
-
-	protected:
-		mutable bool 	mValidated; // lazy validation flag
-	};
-
-	template<typename T, typename BLOCK_IDENTIFIER>
-	struct IsBlock<BaseBlock::Lazy<T, IS_BLOCK>, BLOCK_IDENTIFIER>
-	{
-		typedef IS_BLOCK value_t;
-	};
-
-	template<typename T, typename BLOCK_IDENTIFIER>
-	struct IsBlock<BaseBlock::Lazy<T, NOT_BLOCK>, BLOCK_IDENTIFIER>
-	{
-		typedef NOT_BLOCK value_t;
-	};
-
-	//template<typename T, typename BLOCK_IDENTIFIER>
-	//struct IsBlock<BaseBlock::Lazy<T, void>, BLOCK_IDENTIFIER>
-	//{
-	//	typedef typename IsBlock<T>::value_t value_t;
-	//};
-
-	template<typename T>
+	template<typename T, typename BLOCK_T>
 	class ParamValue <BaseBlock::Lazy<T, IS_BLOCK>,
 					TypeValues<BaseBlock::Lazy<T, IS_BLOCK> >,
-					IS_BLOCK>
+					BLOCK_T> 
 	:	public TypeValues<T>
 	{
 	public:
-		typedef ParamValue <BaseBlock::Lazy<T, IS_BLOCK>, TypeValues<BaseBlock::Lazy<T, IS_BLOCK> >, IS_BLOCK> self_t;
+		typedef ParamValue <BaseBlock::Lazy<T, IS_BLOCK>, TypeValues<BaseBlock::Lazy<T, IS_BLOCK> >, BLOCK_T> self_t;
 		typedef const T& value_assignment_t;
 		typedef T value_t;
+		typedef BaseBlock::Lazy<T, IS_BLOCK> default_value_t;
 	
 		ParamValue()
 		:	mValue(),
 			mValidated(false)
 		{}
 
-		ParamValue(const BaseBlock::Lazy<T, IS_BLOCK>& other)
+		ParamValue(const default_value_t& other)
 		:	mValue(other),
 			mValidated(false)
 		{}
@@ -2052,6 +2089,21 @@ namespace LLInitParam
 			return mValue.get();
 		}
 
+		void operator ()(const typename TypeValues<T>::name_t& name)
+		{
+			*this = name;
+		}
+
+		self_t& operator =(const typename TypeValues<T>::name_t& name)
+		{
+			if (TypeValues<T>::getValueFromName(name, mValue.get()))
+			{
+				setValueName(name);
+			}
+
+			return *this;
+		}
+
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name)
 		{
 			return mValue.get().deserializeBlock(p, name_stack_range, new_name);
@@ -2074,7 +2126,7 @@ namespace LLInitParam
 
 		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
 		{
-			return source.mValue.empty() || mValue.get().mergeBlock(block_data, source.getValue(),  overwrite);
+			return source.mValue.empty() || mValue.get().mergeBlock(block_data, source,  overwrite);
 		}
 
 		bool validateBlock(bool emit_errors = true) const
@@ -2094,6 +2146,79 @@ namespace LLInitParam
 		BaseBlock::Lazy<T, IS_BLOCK>	mValue;
 	};
 
+	template<typename T, typename BLOCK_T>
+	class ParamValue <BaseBlock::Lazy<T, NOT_BLOCK>,
+		TypeValues<BaseBlock::Lazy<T, NOT_BLOCK> >,
+		BLOCK_T>
+		:	public TypeValues<T>
+	{
+	public:
+		typedef ParamValue <BaseBlock::Lazy<T, NOT_BLOCK>, TypeValues<BaseBlock::Lazy<T, NOT_BLOCK> >, BLOCK_T> self_t;
+		typedef const T& value_assignment_t;
+		typedef T value_t;
+		typedef BaseBlock::Lazy<T, NOT_BLOCK> default_value_t;
+
+		ParamValue()
+		:	mValue(),
+			mValidated(false)
+		{}
+
+		ParamValue(const default_value_t& other)
+		:	mValue(other),
+			mValidated(false)
+		{}
+
+		ParamValue(const T& value)
+		:	mValue(value),
+			mValidated(false)
+		{}
+
+		void setValue(value_assignment_t val)
+		{
+			mValue.set(val);
+		}
+
+		value_assignment_t getValue() const
+		{
+			return mValue.get();
+		}
+
+		T& getValue()
+		{
+			return mValue.get();
+		}
+
+		operator value_assignment_t() const
+		{
+			return mValue.get();
+		}
+
+		value_assignment_t operator()() const
+		{
+			return mValue.get();
+		}
+
+		void operator ()(const typename TypeValues<T>::name_t& name)
+		{
+			*this = name;
+		}
+
+		self_t& operator =(const typename TypeValues<T>::name_t& name)
+		{
+			if (TypeValues<T>::getValueFromName(name, mValue.get()))
+			{
+				setValueName(name);
+			}
+
+			return *this;
+		}
+
+		mutable bool 	mValidated; // lazy validation flag
+
+	private:
+		BaseBlock::Lazy<T, NOT_BLOCK>	mValue;
+	};
+
 	template <>
 	class ParamValue <LLSD,
 					TypeValues<LLSD>,
@@ -2104,12 +2229,13 @@ namespace LLInitParam
 	public:
 		typedef ParamValue<LLSD, TypeValues<LLSD>, NOT_BLOCK> self_t;
 		typedef const LLSD&	value_assignment_t;
+		typedef LLSD default_value_t;
 
 		ParamValue()
 		:	mValidated(false)
 		{}
 
-		ParamValue(value_assignment_t other)
+		ParamValue(const default_value_t& other)
 		:	mValue(other),
 			mValidated(false)
 		{}
@@ -2122,7 +2248,6 @@ namespace LLInitParam
 		operator value_assignment_t() const { return mValue; }
 		value_assignment_t operator()() const { return mValue; }
 		
-
 		// block param interface
 		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name);
 		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block = NULL) const;
@@ -2143,7 +2268,7 @@ namespace LLInitParam
 
 	template<typename T>
 	class CustomParamValue
-	:	public Block<ParamValue<T, TypeValues<T> > >,
+	:	public Block<ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t > >,
 		public TypeValues<T>
 	{
 	public:
@@ -2154,14 +2279,16 @@ namespace LLInitParam
 			BLOCK_AUTHORITATIVE		// mValue is derived from the block parameters, which are authoritative
 		} EValueAge;
 
-		typedef ParamValue<T, TypeValues<T> >	derived_t;
+		typedef ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t >	derived_t;
 		typedef CustomParamValue<T>				self_t;
 		typedef Block<derived_t>				block_t;
 		typedef const T&						value_assignment_t;
+		typedef T								default_value_t;
 		typedef T								value_t;
+		typedef void							baseblock_base_class_t;
 
 
-		CustomParamValue(const T& value = T())
+		CustomParamValue(const default_value_t& value = T())
 		:	mValue(value),
 			mValueAge(VALUE_AUTHORITATIVE),
 			mValidated(false)
@@ -2316,6 +2443,20 @@ namespace LLInitParam
 			return getValue();
 		}
 
+		void operator ()(const typename TypeValues<T>::name_t& name)
+		{
+			*this = name;
+		}
+
+		self_t& operator =(const typename TypeValues<T>::name_t& name)
+		{
+			if (TypeValues<T>::getValueFromName(name, mValue))
+			{
+				setValueName(name);
+			}
+
+			return *this;
+		}
 	protected:
 
 		// use this from within updateValueFromBlock() to set the value without making it authoritative
