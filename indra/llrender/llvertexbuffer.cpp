@@ -2287,10 +2287,10 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 	stop_glerror();
 	volatile U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
 
-	/*if ((data_mask & mTypeMask) != data_mask)
+	if (gDebugGL && ((data_mask & mTypeMask) != data_mask))
 	{
 		llerrs << "LLVertexBuffer::setupVertexBuffer missing required components for supplied data mask." << llendl;
-	}*/
+	}
 
 	if (LLGLSLShader::sNoFixedFunction)
 	{

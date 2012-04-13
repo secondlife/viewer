@@ -494,65 +494,104 @@ void LLViewerShaderMgr::setShaders()
 			gPipeline.mVertexShadersLoaded = 1;
 
 			// Load all shaders to set max levels
-			loadShadersEnvironment();
-			loadShadersWater();
-			loadShadersWindLight();
-			loadShadersEffects();
-			loadShadersInterface();
-			
-			// Load max avatar shaders to set the max level
-			mVertexShaderLevel[SHADER_AVATAR] = 3;
-			mMaxAvatarShaderLevel = 3;
-						
-			if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
-			{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
-				BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
-				S32 avatar_class = 1;
-				
-				// cloth is a class3 shader
-				if(avatar_cloth)
-				{
-					avatar_class = 3;
-				}
+			loaded = loadShadersEnvironment();
 
-				// Set the actual level
-				mVertexShaderLevel[SHADER_AVATAR] = avatar_class;
-				loadShadersAvatar();
-				if (mVertexShaderLevel[SHADER_AVATAR] != avatar_class)
-				{
-					if (mVertexShaderLevel[SHADER_AVATAR] == 0)
+			if (loaded)
+			{
+				loaded = loadShadersWater();
+			}
+
+			if (loaded)
+			{
+				loaded = loadShadersWindLight();
+			}
+
+			if (loaded)
+			{
+				loaded = loadShadersEffects();
+			}
+
+			if (loaded)
+			{
+				loaded = loadShadersInterface();
+			}
+			
+			if (loaded)
+			{
+				// Load max avatar shaders to set the max level
+				mVertexShaderLevel[SHADER_AVATAR] = 3;
+				mMaxAvatarShaderLevel = 3;
+				
+				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
+				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
+					BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+					S32 avatar_class = 1;
+				
+					// cloth is a class3 shader
+					if(avatar_cloth)
 					{
+						avatar_class = 3;
+					}
+
+					// Set the actual level
+					mVertexShaderLevel[SHADER_AVATAR] = avatar_class;
+					loadShadersAvatar();
+					if (mVertexShaderLevel[SHADER_AVATAR] != avatar_class)
+					{
+						if (mVertexShaderLevel[SHADER_AVATAR] == 0)
+						{
+							gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
+						}
+						if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
+						{
+							avatar_cloth = true;
+						}
+						else
+						{
+							avatar_cloth = false;
+						}
+						gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+					}
+				}
+				else
+				{ //hardware skinning not possible, neither is deferred rendering
+					mVertexShaderLevel[SHADER_AVATAR] = 0;
+					mVertexShaderLevel[SHADER_DEFERRED] = 0;
+
+					if (gSavedSettings.getBOOL("RenderAvatarVP"))
+					{
+						gSavedSettings.setBOOL("RenderDeferred", FALSE);
+						gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
 						gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
 					}
-					if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
-					{
-						avatar_cloth = true;
-					}
-					else
-					{
-						avatar_cloth = false;
-					}
-					gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+
+					loadShadersAvatar(); // unloads
+
+					loaded = loadShadersObject();
 				}
 			}
-			else
-			{ //hardware skinning not possible, neither is deferred rendering
-				mVertexShaderLevel[SHADER_AVATAR] = 0;
-				mVertexShaderLevel[SHADER_DEFERRED] = 0;
 
-				if (gSavedSettings.getBOOL("RenderAvatarVP"))
-				{
-					gSavedSettings.setBOOL("RenderDeferred", FALSE);
-					gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
-					gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
+			if (!loaded)
+			{ //some shader absolutely could not load, try to fall back to a simpler setting
+				if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
+				{ //disable windlight and try again
+					gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
+					reentrance = false;
+					setShaders();
+					return;
 				}
 
-				loadShadersAvatar(); // unloads
-				loadShadersObject();
-			}
+				if (gSavedSettings.getBOOL("VertexShaderEnable"))
+				{ //disable shaders outright and try again
+					gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
+					reentrance = false;
+					setShaders();
+					return;
+				}
+			}		
 
-			if (!loadShadersDeferred())
-			{
+			if (loaded && !loadShadersDeferred())
+			{ //everything else succeeded but deferred failed, disable deferred and try again
 				gSavedSettings.setBOOL("RenderDeferred", FALSE);
 				reentrance = false;
 				setShaders();
@@ -830,7 +869,7 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 	if (mVertexShaderLevel[SHADER_ENVIRONMENT] == 0)
 	{
 		gTerrainProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -870,7 +909,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.unload();
 		gUnderWaterProgram.unload();
 		gTerrainWaterProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -955,7 +994,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		gGlowExtractProgram.unload();
 		gPostColorFilterProgram.unload();	
 		gPostNightVisionProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -2412,7 +2451,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		gAvatarWaterProgram.unload();
 		gAvatarEyeballProgram.unload();
 		gAvatarPickProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
@@ -2506,7 +2545,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 	if (mVertexShaderLevel[SHADER_INTERFACE] == 0)
 	{
 		gHighlightProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 	
 	if (success)
@@ -2694,7 +2733,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
 	{
 		gWLSkyProgram.unload();
 		gWLCloudProgram.unload();
-		return FALSE;
+		return TRUE;
 	}
 
 	if (success)
