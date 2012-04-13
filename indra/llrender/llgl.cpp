@@ -1964,6 +1964,7 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 			case GL_COLOR_MATERIAL:
 			case GL_FOG:
 			case GL_LINE_STIPPLE:
+			case GL_POLYGON_STIPPLE:
 				mState = 0;
 				break;
 		}

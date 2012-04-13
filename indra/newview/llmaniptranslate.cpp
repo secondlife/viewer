@@ -1581,7 +1581,11 @@ void LLManipTranslate::renderSnapGuides()
 					LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GREATER);
 					LLGLEnable stipple(GL_LINE_STIPPLE);
 					gGL.flush();
-					glLineStipple(1, 0x3333);
+
+					if (!LLGLSLShader::sNoFixedFunction)
+					{
+						glLineStipple(1, 0x3333);
+					}
 		
 					switch (mManipPart)
 					{
