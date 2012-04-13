@@ -395,7 +395,7 @@ namespace LLInitParam
 		typedef LLInitParam::NOT_BLOCK NOT_BLOCK;
 
 		template<typename T>
-		class Batch
+		class Atomic
 		{};
 
 		//TODO: implement in terms of owned_ptr
@@ -1916,19 +1916,19 @@ namespace LLInitParam
 	};
 
 	template<typename T, typename BLOCK_IDENTIFIER>
-	struct IsBlock<ParamValue<BaseBlock::Batch<T>, TypeValues<BaseBlock::Batch<T> >, typename IsBlock<BaseBlock::Batch<T> >::value_t >, BLOCK_IDENTIFIER>
+	struct IsBlock<ParamValue<BaseBlock::Atomic<T>, TypeValues<BaseBlock::Atomic<T> >, typename IsBlock<BaseBlock::Atomic<T> >::value_t >, BLOCK_IDENTIFIER>
 	{
 		typedef typename IsBlock<ParamValue<T, TypeValues<T> > >::value_t value_t;
 	};
 
 	template<typename T, typename BLOCK_T>
-	class ParamValue <BaseBlock::Batch<T>,
-		TypeValues<BaseBlock::Batch<T> >,
+	class ParamValue <BaseBlock::Atomic<T>,
+		TypeValues<BaseBlock::Atomic<T> >,
 		BLOCK_T>
 	:	public TypeValues<T>
 	{
 	public:
-		typedef ParamValue <BaseBlock::Batch<T>, TypeValues<BaseBlock::Batch<T> >, BLOCK_T> self_t;
+		typedef ParamValue <BaseBlock::Atomic<T>, TypeValues<BaseBlock::Atomic<T> >, BLOCK_T> self_t;
 		typedef ParamValue<T, TypeValues<T> > param_value_t;
 		typedef const T& value_assignment_t;
 		typedef T value_t;
@@ -1985,8 +1985,7 @@ namespace LLInitParam
 		{
 			if (new_name)
 			{
-				// reset block
-				mValue = defaultBatchValue();
+				resetToDefault();
 			}
 			return mValue.deserializeBlock(p, name_stack_range, new_name);
 		}
@@ -2008,7 +2007,7 @@ namespace LLInitParam
 		{
 			if (overwrite)
 			{
-				mValue = defaultBatchValue();
+				resetToDefault();
 				return mValue.mergeBlock(block_data, source, overwrite);
 			}
 			return false;
@@ -2028,10 +2027,10 @@ namespace LLInitParam
 		mutable bool 	mValidated; // lazy validation flag
 
 	private:
-		static const T& defaultBatchValue()
+		void resetToDefault()
 		{
 			static T default_value;
-			return default_value;
+			mValue = default_value;
 		}
 
 		T	mValue;

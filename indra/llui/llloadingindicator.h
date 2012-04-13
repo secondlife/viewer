@@ -63,7 +63,7 @@ public:
 	struct Params : public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
 		Optional<F32>				images_per_sec;
-		Optional<Batch<Images> >	images;
+		Optional<Atomic<Images> >	images;
 
 		Params()
 		:	images_per_sec("images_per_sec", 1.0f),
