@@ -495,7 +495,7 @@ protected:
 
 	void showInfoCtrl()
 	{
-		if (mAvatarID.isNull() || mFrom.empty() || SYSTEM_FROM == mFrom) return;
+		if (mAvatarID.isNull() || mFrom.empty() || CHAT_SOURCE_SYSTEM == mSourceType) return;
 				
 		if (!sInfoCtrl)
 		{
