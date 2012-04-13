@@ -3,6 +3,37 @@
  name="menu_group_plus"
  left="0" bottom="0" visible="false"
  mouse_opaque="false">
+    <menu_item_check
+       label="Sort by Recent Speakers"
+       name="sort_by_recent_speakers">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+       parameter="sort_by_recent_speakers"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="sort_by_recent_speakers"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Sort by Name"
+       name="sort_name">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="sort_name"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="sort_name"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Sort by Distance"
+       name="sort_distance">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="sort_distance"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="sort_distance"/>
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
     <menu_item_check name="view_icons" label="View People Icons">
         <menu_item_check.on_click
          function="People.Nearby.ViewSort.Action"
