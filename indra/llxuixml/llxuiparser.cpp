@@ -343,7 +343,7 @@ void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, cons
 {
 	Schema schema(xml_namespace);
 
-	schema.root_element.super_t::param_value_t::name = type_name;
+	schema.root_element.name = type_name;
 	Choice& choice = schema.root_element.complexType.choice;
 
 	choice.minOccurs = 0;
