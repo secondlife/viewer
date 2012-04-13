@@ -399,7 +399,7 @@ namespace LLInitParam
 		{};
 
 		//TODO: implement in terms of owned_ptr
-		template<typename T, typename BLOCK_T = IsBlock<T>::value_t >
+		template<typename T, typename BLOCK_T = typename IsBlock<T>::value_t >
 		class Lazy
 		{
 		public:
@@ -815,8 +815,8 @@ namespace LLInitParam
 	template<typename T, typename NAME_VALUE_LOOKUP = TypeValues<T> >
 	struct ParamIterator
 	{
-		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t> >::const_iterator		const_iterator;
-		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t> >::iterator			iterator;
+		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP> >::const_iterator		const_iterator;
+		typedef typename std::vector<ParamValue<T, NAME_VALUE_LOOKUP> >::iterator			iterator;
 	};
 
 	// specialize for custom parsing/decomposition of specific classes
@@ -824,14 +824,14 @@ namespace LLInitParam
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
-			typename	VALUE_IS_BLOCK = typename IsBlock<ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t> >::value_t>
+			typename	VALUE_IS_BLOCK = typename IsBlock<ParamValue<T, NAME_VALUE_LOOKUP> >::value_t>
 	class TypedParam 
 	:	public Param, 
-		public ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>
+		public ParamValue<T, NAME_VALUE_LOOKUP>
 	{
 	public:
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>	self_t;
-		typedef ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>										param_value_t;
+		typedef ParamValue<T, NAME_VALUE_LOOKUP>										param_value_t;
 		typedef typename param_value_t::value_assignment_t								value_assignment_t;
 		typedef typename param_value_t::default_value_t									default_value_t;
 
@@ -983,10 +983,10 @@ namespace LLInitParam
 	template <typename T, typename NAME_VALUE_LOOKUP>
 	class TypedParam<T, NAME_VALUE_LOOKUP, false, IS_BLOCK> 
 	:	public Param,
-	public ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>
+	public ParamValue<T, NAME_VALUE_LOOKUP>
 	{
 	public:
-		typedef ParamValue<T, NAME_VALUE_LOOKUP, typename IsBlock<T>::value_t>				param_value_t;
+		typedef ParamValue<T, NAME_VALUE_LOOKUP>				param_value_t;
 		typedef typename param_value_t::value_assignment_t		value_assignment_t;
 		typedef typename param_value_t::default_value_t			default_value_t;
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IS_BLOCK>	self_t;
@@ -1918,7 +1918,7 @@ namespace LLInitParam
 	template<typename T, typename BLOCK_IDENTIFIER>
 	struct IsBlock<ParamValue<BaseBlock::Batch<T>, TypeValues<BaseBlock::Batch<T> >, typename IsBlock<BaseBlock::Batch<T> >::value_t >, BLOCK_IDENTIFIER>
 	{
-		typedef typename IsBlock<ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t > >::value_t value_t;
+		typedef typename IsBlock<ParamValue<T, TypeValues<T> > >::value_t value_t;
 	};
 
 	template<typename T, typename BLOCK_T>
@@ -1929,7 +1929,7 @@ namespace LLInitParam
 	{
 	public:
 		typedef ParamValue <BaseBlock::Batch<T>, TypeValues<BaseBlock::Batch<T> >, BLOCK_T> self_t;
-		typedef ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t > param_value_t;
+		typedef ParamValue<T, TypeValues<T> > param_value_t;
 		typedef const T& value_assignment_t;
 		typedef T value_t;
 		typedef T default_value_t;
@@ -2268,7 +2268,7 @@ namespace LLInitParam
 
 	template<typename T>
 	class CustomParamValue
-	:	public Block<ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t > >,
+	:	public Block<ParamValue<T, TypeValues<T> > >,
 		public TypeValues<T>
 	{
 	public:
@@ -2279,7 +2279,7 @@ namespace LLInitParam
 			BLOCK_AUTHORITATIVE		// mValue is derived from the block parameters, which are authoritative
 		} EValueAge;
 
-		typedef ParamValue<T, TypeValues<T>, typename IsBlock<T>::value_t >	derived_t;
+		typedef ParamValue<T, TypeValues<T> >	derived_t;
 		typedef CustomParamValue<T>				self_t;
 		typedef Block<derived_t>				block_t;
 		typedef const T&						value_assignment_t;
