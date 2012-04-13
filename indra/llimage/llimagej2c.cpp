@@ -289,7 +289,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 	S32 bytes;
 	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor;
 	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
-	bytes = (LLImage::useNewByteRange() ? new_bytes : old_bytes);
+	bytes = (LLImage::useNewByteRange() && (new_bytes < old_bytes) ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
 }
@@ -473,6 +473,7 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 
 	mTotalTimeDecompression = 0.0f;
 	mTotalTimeCompression = 0.0f;
+	mRunTimeDecompression = 0.0f;
 }
 
 LLImageCompressionTester::~LLImageCompressionTester()
@@ -555,12 +556,14 @@ void LLImageCompressionTester::updateDecompressionStats(const S32 bytesIn, const
 	mTotalBytesInDecompression += bytesIn;
 	mRunBytesInDecompression += bytesIn;
 	mTotalBytesOutDecompression += bytesOut;
-	if (mRunBytesInDecompression > (1000000))
+	//if (mRunBytesInDecompression > (1000000))
+	if ((mTotalTimeDecompression - mRunTimeDecompression) >= (5.0f))
 	{
 		// Output everything
 		outputTestResults();
 		// Reset the decompression data of the run
 		mRunBytesInDecompression = 0;
+		mRunTimeDecompression = mTotalTimeDecompression;
 	}
 }
 
