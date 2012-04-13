@@ -130,7 +130,7 @@ struct Any : public LLInitParam::Block<Any, Occurs>
 
 struct All : public LLInitParam::Block<All, Occurs>
 {
-	Multiple< Lazy<Element> > elements;
+	Multiple< Lazy<Element, IS_BLOCK> > elements;
 
 	All()
 	:	elements("element")
@@ -141,11 +141,11 @@ struct All : public LLInitParam::Block<All, Occurs>
 
 struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 {
-	Alternative< Lazy<Element> >	element;
-	Alternative< Lazy<Group> >		group;
-	Alternative< Lazy<Choice> >		choice;
-	Alternative< Lazy<Sequence> >	sequence;
-	Alternative< Lazy<Any> >		any;
+	Alternative< Lazy<Element, IS_BLOCK> >	element;
+	Alternative< Lazy<Group, IS_BLOCK> >		group;
+	Alternative< Lazy<Choice, IS_BLOCK> >		choice;
+	Alternative< Lazy<Sequence, IS_BLOCK> >	sequence;
+	Alternative< Lazy<Any, IS_BLOCK> >		any;
 
 	Choice()
 	:	element("element"),
@@ -159,11 +159,11 @@ struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 
 struct Sequence : public LLInitParam::ChoiceBlock<Sequence, Occurs>
 {
-	Alternative< Lazy<Element> >	element;
-	Alternative< Lazy<Group> >		group;
-	Alternative< Lazy<Choice> >		choice;
-	Alternative< Lazy<Sequence> >	sequence;
-	Alternative< Lazy<Any> >		any;
+	Alternative< Lazy<Element, IS_BLOCK> >	element;
+	Alternative< Lazy<Group, IS_BLOCK> >		group;
+	Alternative< Lazy<Choice, IS_BLOCK> >		choice;
+	Alternative< Lazy<Sequence, IS_BLOCK> >	sequence;
+	Alternative< Lazy<Any, IS_BLOCK> >		any;
 };
 
 struct GroupContents : public LLInitParam::ChoiceBlock<GroupContents, Occurs>
@@ -248,7 +248,7 @@ struct ComplexType : public LLInitParam::Block<ComplexType, ComplexTypeContents>
 	Optional<bool>					mixed;
 
 	Multiple<Attribute>				attribute;
-	Multiple< Lazy<Element> >			elements;
+	Multiple< Lazy<Element, IS_BLOCK > >			elements;
 
 	ComplexType()
 	:	name("name"),
@@ -343,7 +343,7 @@ void LLXSDWriter::writeXSD(const std::string& type_name, LLXMLNodePtr node, cons
 {
 	Schema schema(xml_namespace);
 
-	schema.root_element.name = type_name;
+	schema.root_element.super_t::param_value_t::name = type_name;
 	Choice& choice = schema.root_element.complexType.choice;
 
 	choice.minOccurs = 0;
