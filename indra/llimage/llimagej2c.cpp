@@ -289,7 +289,6 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 	S32 bytes;
 	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor;
 	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
-	//llinfos << "Merov debug : w = " << w << ", h = " << h << ", c = " << comp << ", r = " << rate << ", d = " << discard_level << ", l = " << nb_layers << ", old = " << old_bytes << ", new = " << new_bytes << llendl;
 	bytes = (LLImage::useNewByteRange() ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
@@ -329,8 +328,9 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	}
 	while (1)
 	{
-		S32 bytes_needed = calcDataSize(discard_level); // virtual
-		if (bytes >= bytes_needed - (bytes_needed>>2)) // For J2c, up the res at 75% of the optimal number of bytes
+		S32 bytes_needed = calcDataSize(discard_level);
+		// Use TextureReverseByteRange percent (see settings.xml) of the optimal size to qualify as correct rendering for the given discard level
+		if (bytes >= (bytes_needed*LLImage::getReverseByteRangePercent()/100))
 		{
 			break;
 		}

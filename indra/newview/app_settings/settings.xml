@@ -10719,6 +10719,17 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+    <key>TextureReverseByteRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimal percent of the optimal byte range allowed to render a given discard level</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>50</integer>
+    </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>
       <key>Comment</key>

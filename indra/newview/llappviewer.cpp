@@ -1947,7 +1947,7 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"));
+	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getBOOL("TextureReverseByteRange"));
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
