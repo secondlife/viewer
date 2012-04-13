@@ -416,12 +416,14 @@ void LLTexUnit::unbind(eTextureType type)
 
 	if (mIndex < 0) return;
 
+	//always flush and activate for consistency 
+	//   some code paths assume unbind always flushes and sets the active texture
+	gGL.flush();
+	activate();
+
 	// Disabled caching of binding state.
 	if (mCurrTexType == type)
 	{
-		gGL.flush();
-
-		activate();
 		mCurrTexture = 0;
 		if (LLGLSLShader::sNoFixedFunction && type == LLTexUnit::TT_TEXTURE)
 		{
