@@ -491,6 +491,7 @@ public:
 	BOOL        hasFetcher() const { return mHasFetcher;}
 	void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
 
+	void        forceToDeleteRequest();
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;

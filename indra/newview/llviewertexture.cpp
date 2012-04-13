@@ -2139,6 +2139,17 @@ bool LLViewerFetchedTexture::updateFetch()
 	return mIsFetching ? true : false;
 }
 
+void LLViewerFetchedTexture::forceToDeleteRequest()
+{
+	if (mHasFetcher)
+	{
+		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
+		mHasFetcher = FALSE;
+		mIsFetching = FALSE ;
+		resetTextureStats();
+	}
+}
+
 void LLViewerFetchedTexture::setIsMissingAsset()
 {
 	if (mUrl.empty())
