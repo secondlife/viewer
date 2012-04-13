@@ -19,6 +19,7 @@ include(LLUI)
 include(LLVFS)        # ugh, needed for LLDir
 include(LLXML)
 include(LLXUIXML)
+include(Hunspell)
 include(Linking)
 # include(Tut)
 
