@@ -1501,7 +1501,8 @@ void LLFloaterPreference::onChangeMaturity()
 // but the UI for this will still be enabled
 void LLFloaterPreference::onClickBlockList()
 {
-	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
+	LLFloaterSidePanelContainer::showPanel("people", "panel_people",
+		LLSD().with("people_panel_tab_name", "blocked_panel"));
 }
 
 void LLFloaterPreference::onClickProxySettings()

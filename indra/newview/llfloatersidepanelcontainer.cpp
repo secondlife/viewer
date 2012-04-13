@@ -66,10 +66,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
 	if (container)
 	{
-		LLSD new_params = params;
-		new_params[LLSideTrayPanelContainer::PARAM_SUB_PANEL_NAME] = panel_name;
-		container->onOpen(new_params);
-
+		container->openPanel(panel_name, params);
 		panel = container->getCurrentPanel();
 	}
 	else if ((panel = dynamic_cast<LLPanel*>(view)) != NULL)

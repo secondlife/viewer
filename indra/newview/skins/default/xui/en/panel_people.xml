@@ -66,7 +66,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      tab_position="top"
      top="0"
      halign="center"
-     width="319">
+     right="-5">
 
 <!-- ================================= NEARBY tab =========================== -->
 
@@ -605,6 +605,32 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
              show_last_interaction_time="true"
              top_pad="0"
              width="307" />
+        </panel>
+
+<!-- ================================= BLOCKED tab ========================== -->
+
+        <panel
+         background_opaque="true"
+         background_visible="true"
+         bg_alpha_color="DkGray"
+         bg_opaque_color="DkGray"
+         follows="all"
+         height="383"
+         label="BLOCKED"
+         layout="topleft"
+         left="0"
+         help_topic="people_blocked_tab"
+         name="blocked_panel"
+         top="0"
+         width="313">
+          <panel
+           class="panel_block_list_sidetray"
+           height="383"
+           name="panel_block_list_sidetray"
+           filename="panel_block_list_sidetray.xml"
+           label="Blocked Residents &amp; Objects"
+           font="SansSerifBold"
+           width="313" />
         </panel>
     </tab_container>
     <panel
