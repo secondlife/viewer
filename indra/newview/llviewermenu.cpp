@@ -6556,31 +6556,37 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		std::string action = userdata.asString();
 		bool mono = false;
 		std::string msg, name;
+		std::string title;
 		if (action == "compile mono")
 		{
 			name = "compile_queue";
 			mono = true;
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		if (action == "compile lsl")
 		{
 			name = "compile_queue";
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		else if (action == "reset")
 		{
 			name = "reset_queue";
 			msg = "Reset";
+			title = LLTrans::getString("ResetQueueTitle");
 		}
 		else if (action == "start")
 		{
 			name = "start_queue";
 			msg = "SetRunning";
+			title = LLTrans::getString("RunQueueTitle");
 		}
 		else if (action == "stop")
 		{
 			name = "stop_queue";
 			msg = "SetRunningNot";
+			title = LLTrans::getString("NotRunQueueTitle");
 		}
 		LLUUID id; id.generate();
 		
@@ -6589,6 +6595,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		{
 			queue->setMono(mono);
 			queue_actions(queue, msg);
+			queue->setTitle(title);
 		}
 		else
 		{

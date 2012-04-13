@@ -396,6 +396,8 @@ Frontera Thor
 Fury Rosewood
 Gaberoonie Zanzibar
 Ganymedes Costagravas
+Geenz Spad
+	STORM-1823
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -622,6 +624,8 @@ Jonathan Yap
 	STORM-1796
 	STORM-1807
 	STORM-1808
+	STORM-637
+	STORM-1822
 	STORM-1809
 	STORM-1793
 	STORM-1810
@@ -868,6 +872,7 @@ Nicky Perian
 	OPEN-1
 	STORM-1087
 	STORM-1090
+	STORM-1828
 Nicoladie Gymnast
 Nounouch Hapmouche
 	VWR-238
@@ -1187,6 +1192,8 @@ Unlikely Quintessa
 UsikuFarasi Kanarik
 Vadim Bigbear
 	VWR-2681
+Vaalith Jinn
+    STORM-64
 Vector Hastings
 	VWR-8726
 Veritas Raymaker
