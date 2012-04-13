@@ -287,7 +287,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 	// Temporary: compute both new and old range and pick one according to the settings TextureNewByteRange 
 	// *TODO: Take the old code out once we have enough tests done
 	S32 bytes;
-	S32 new_bytes = sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor;
+	S32 new_bytes = (S32) (sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor);
 	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
 	//llinfos << "Merov debug : w = " << w << ", h = " << h << ", c = " << comp << ", r = " << rate << ", d = " << discard_level << ", l = " << nb_layers << ", old = " << old_bytes << ", new = " << new_bytes << llendl;
 	bytes = (LLImage::useNewByteRange() ? new_bytes : old_bytes);
