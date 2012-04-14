@@ -4021,11 +4021,6 @@ BOOL LLContextMenu::handleRightMouseUp( S32 x, S32 y, MASK mask )
 	return result;
 }
 
-void LLContextMenu::draw()
-{
-	LLMenuGL::draw();
-}
-
 BOOL LLContextMenu::appendContextSubMenu(LLContextMenu *menu)
 {
 	

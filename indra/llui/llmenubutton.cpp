@@ -74,8 +74,6 @@ boost::signals2::connection LLMenuButton::setMouseDownCallback( const mouse_sign
 
 void LLMenuButton::hideMenu()
 {
-	if(mMenuHandle.isDead()) return;
-
 	LLToggleableMenu* menu = getMenu();
 	if (menu)
 	{
@@ -120,7 +118,7 @@ void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_T
 
 BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 {
-	if (mMenuHandle.isDead()) return FALSE;
+	if (!getMenu()) return FALSE;
 
 	if( KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))
 	{
@@ -158,8 +156,6 @@ void LLMenuButton::toggleMenu()
 		return;
 	}
 
-	if(mMenuHandle.isDead()) return;
-
 	LLToggleableMenu* menu = getMenu();
 	if (!menu) return;
 
@@ -189,7 +185,8 @@ void LLMenuButton::toggleMenu()
 
 void LLMenuButton::updateMenuOrigin()
 {
-	if (mMenuHandle.isDead()) return;
+	LLToggleableMenu* menu = getMenu();
+	if (!menu) return;
 
 	LLRect rect = getRect();
 
@@ -198,12 +195,12 @@ void LLMenuButton::updateMenuOrigin()
 		case MP_TOP_LEFT:
 		{
 			mX = rect.mLeft;
-			mY = rect.mTop + mMenuHandle.get()->getRect().getHeight();
+			mY = rect.mTop + menu->getRect().getHeight();
 			break;
 		}
 		case MP_TOP_RIGHT:
 		{
-			const LLRect& menu_rect = mMenuHandle.get()->getRect();
+			const LLRect& menu_rect = menu->getRect();
 			mX = rect.mRight - menu_rect.getWidth();
 			mY = rect.mTop + menu_rect.getHeight();
 			break;

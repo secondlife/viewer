@@ -668,8 +668,6 @@ public:
 	// can't set visibility directly, must call show or hide
 	virtual void	setVisible			(BOOL visible);
 	
-	virtual void	draw				();
-	
 	virtual void	show				(S32 x, S32 y);
 	virtual void	hide				();
 
