@@ -128,7 +128,7 @@ void remove_item(LLInventoryModel* model, const LLUUID& id)
 		if (trash_id.notNull())
 		{
 			// Finally, move the item to the trash
-			change_item_parent(model, item, trash_id, true);
+			model->changeItemParent(item, trash_id, true);
 		}
 	}
 }
