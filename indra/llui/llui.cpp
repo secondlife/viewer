@@ -2107,7 +2107,7 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
 
 namespace LLInitParam
 {
-	ParamValue<LLUIColor, TypeValues<LLUIColor> >::ParamValue(const LLUIColor& color)
+	ParamValue<LLUIColor>::ParamValue(const LLUIColor& color)
 	:	super_t(color),
 		red("red"),
 		green("green"),
@@ -2118,7 +2118,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
+	void ParamValue<LLUIColor>::updateValueFromBlock()
 	{
 		if (control.isProvided() && !control().empty())
 		{
@@ -2130,7 +2130,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLUIColor>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		LLColor4 color = getValue();
 		red.set(color.mV[VRED], make_block_authoritative);
@@ -2146,7 +2146,7 @@ namespace LLInitParam
 			&& !(b->getFontDesc() < a->getFontDesc());
 	}
 
-	ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::ParamValue(const LLFontGL* fontp)
+	ParamValue<const LLFontGL*>::ParamValue(const LLFontGL* fontp)
 	:	super_t(fontp),
 		name("name"),
 		size("size"),
@@ -2160,7 +2160,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
+	void ParamValue<const LLFontGL*>::updateValueFromBlock()
 	{
 		const LLFontGL* res_fontp = LLFontGL::getFontByName(name);
 		if (res_fontp)
@@ -2183,7 +2183,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<const LLFontGL*>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue())
 		{
@@ -2193,7 +2193,7 @@ namespace LLInitParam
 		}
 	}
 
-	ParamValue<LLRect, TypeValues<LLRect> >::ParamValue(const LLRect& rect)
+	ParamValue<LLRect>::ParamValue(const LLRect& rect)
 	:	super_t(rect),
 		left("left"),
 		top("top"),
@@ -2205,7 +2205,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateValueFromBlock()
+	void ParamValue<LLRect>::updateValueFromBlock()
 	{
 		LLRect rect;
 
@@ -2269,7 +2269,7 @@ namespace LLInitParam
 		updateValue(rect);
 	}
 	
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLRect>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		// because of the ambiguity in specifying a rect by position and/or dimensions
 		// we use the lowest priority pairing so that any valid pairing in xui 
@@ -2286,7 +2286,7 @@ namespace LLInitParam
 		height.set(value.getHeight(), make_block_authoritative);
 	}
 
-	ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::ParamValue(const LLCoordGL& coord)
+	ParamValue<LLCoordGL>::ParamValue(const LLCoordGL& coord)
 	:	super_t(coord),
 		x("x"),
 		y("y")
@@ -2294,12 +2294,12 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateValueFromBlock()
+	void ParamValue<LLCoordGL>::updateValueFromBlock()
 	{
 		updateValue(LLCoordGL(x, y));
 	}
 	
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLCoordGL>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		x.set(getValue().mX, make_block_authoritative);
 		y.set(getValue().mY, make_block_authoritative);

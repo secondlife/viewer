@@ -248,7 +248,7 @@ struct LLVOAvatarCollisionVolumeInfo : public LLInitParam::Block<LLVOAvatarColli
 
 struct LLVOAvatarChildJoint : public LLInitParam::ChoiceBlock<LLVOAvatarChildJoint>
 {
-	Alternative<Lazy<struct LLVOAvatarBoneInfo, IS_BLOCK> >	bone;
+	Alternative<Lazy<struct LLVOAvatarBoneInfo, IS_A_BLOCK> >	bone;
 	Alternative<LLVOAvatarCollisionVolumeInfo>		collision_volume;
 
 	LLVOAvatarChildJoint()

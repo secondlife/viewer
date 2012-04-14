@@ -512,7 +512,7 @@ public:
 namespace LLInitParam
 {
 	template<>
-	class ParamValue<LLRect, TypeValues<LLRect> > 
+	class ParamValue<LLRect> 
 	:	public CustomParamValue<LLRect>
 	{
         typedef CustomParamValue<LLRect> super_t;
@@ -531,7 +531,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	class ParamValue<LLUIColor, TypeValues<LLUIColor> > 
+	class ParamValue<LLUIColor> 
 	:	public CustomParamValue<LLUIColor>
 	{
         typedef CustomParamValue<LLUIColor> super_t;
@@ -549,7 +549,7 @@ namespace LLInitParam
 	};
 
 	template<>
-	class ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> > 
+	class ParamValue<const LLFontGL*> 
 	:	public CustomParamValue<const LLFontGL* >
 	{
         typedef CustomParamValue<const LLFontGL*> super_t;
@@ -589,7 +589,7 @@ namespace LLInitParam
 
 
 	template<>
-	class ParamValue<LLCoordGL, TypeValues<LLCoordGL> >
+	class ParamValue<LLCoordGL>
 	:	public CustomParamValue<LLCoordGL>
 	{
 		typedef CustomParamValue<LLCoordGL> super_t;

@@ -155,7 +155,7 @@ void LLUIImage::onImageLoaded()
 
 namespace LLInitParam
 {
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateValueFromBlock()
+	void ParamValue<LLUIImage*>::updateValueFromBlock()
 	{
 		// The keyword "none" is specifically requesting a null image
 		// do not default to current value. Used to overwrite template images. 
@@ -172,7 +172,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIImage*, TypeValues<LLUIImage*> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLUIImage*>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue() == NULL)
 		{
