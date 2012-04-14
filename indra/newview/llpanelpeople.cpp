@@ -511,6 +511,7 @@ LLPanelPeople::LLPanelPeople()
 	mCommitCallbackRegistrar.add("People.DelFriend",		boost::bind(&LLPanelPeople::onDeleteFriendButtonClicked,	this));
 	mCommitCallbackRegistrar.add("People.Group.Minus",		boost::bind(&LLPanelPeople::onGroupMinusButtonClicked,  this));
 	mCommitCallbackRegistrar.add("People.Chat",			boost::bind(&LLPanelPeople::onChatButtonClicked,		this));
+	mCommitCallbackRegistrar.add("People.Gear",			boost::bind(&LLPanelPeople::onGearButtonClicked,		this, _1));
 
 	mCommitCallbackRegistrar.add("People.Group.Plus.Action",  boost::bind(&LLPanelPeople::onGroupPlusMenuItemClicked,  this, _2));
 	mCommitCallbackRegistrar.add("People.Friends.ViewSort.Action",  boost::bind(&LLPanelPeople::onFriendsViewSortMenuItemClicked,  this, _2));
@@ -806,6 +807,11 @@ void LLPanelPeople::updateButtons()
 			{
 				cur_panel->getChildView("friends_del_btn")->setEnabled(multiple_selected);
 			}
+
+			if (!group_tab_active)
+			{
+				cur_panel->getChildView("gear_btn")->setEnabled(multiple_selected);
+			}
 		}
 	}
 }
@@ -1091,6 +1097,14 @@ void LLPanelPeople::onChatButtonClicked()
 	LLUUID group_id = getCurrentItemID();
 	if (group_id.notNull())
 		LLGroupActions::startIM(group_id);
+}
+
+void LLPanelPeople::onGearButtonClicked(LLUICtrl* btn)
+{
+	uuid_vec_t selected_uuids;
+	getCurrentItemIDs(selected_uuids);
+	// Spawn at bottom left corner of the button.
+	LLPanelPeopleMenus::gNearbyMenu.show(btn, selected_uuids, 0, 0);
 }
 
 void LLPanelPeople::onImButtonClicked()

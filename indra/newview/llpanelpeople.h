@@ -90,6 +90,7 @@ private:
 	void					onAddFriendWizButtonClicked();
 	void					onDeleteFriendButtonClicked();
 	void					onChatButtonClicked();
+	void					onGearButtonClicked(LLUICtrl* btn);
 	void					onImButtonClicked();
 	void					onMoreButtonClicked();
 	void					onAvatarListDoubleClicked(LLUICtrl* ctrl);

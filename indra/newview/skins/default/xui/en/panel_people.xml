@@ -105,7 +105,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  text_pad_left="10"
                  top="4"
                  width="178" />
-                <menu_button
+                <button
+                 commit_callback.function="People.Gear"
                  follows="right"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
@@ -114,9 +115,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  left_pad="7"
-                 menu_filename="menu_people_nearby_gear.xml"
-                 menu_position="bottomleft"
-                 name="nearby_gear_btn"
+                 name="gear_btn"
                  top="3"
                  width="31" />
                 <menu_button
@@ -254,7 +253,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  text_pad_left="10"
                  top="4"
                  width="177" />
-                <menu_button
+                <button
+                 commit_callback.function="People.Gear"
                  follows="right"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
@@ -263,9 +263,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  left_pad="8"
-                 menu_filename="menu_people_friends_gear.xml"
-                 menu_position="bottomleft"
-                 name="friends_gear_btn"
+                 name="gear_btn"
                  top="3"
                  width="31" />
                 <menu_button
@@ -520,7 +518,8 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  text_pad_left="10"
                  top="4"
                  width="177" />
-                <menu_button
+                <button
+                 commit_callback.function="People.Gear"
                  follows="right"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
@@ -529,9 +528,7 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  left_pad="8"
-                 menu_filename="menu_people_recent_gear.xml"
-                 menu_position="bottomleft"
-                 name="recent_gear_btn"
+                 name="gear_btn"
                  top="3"
                  width="31" />
                 <menu_button
