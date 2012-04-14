@@ -163,6 +163,7 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         //
         F32 mTotalTimeDecompression;        // Total time spent in computing decompression
         F32 mTotalTimeCompression;          // Total time spent in computing compression
+        F32 mRunTimeDecompression;          // Time in this run (we output every 5 sec in decompress)
     };
 
 #endif

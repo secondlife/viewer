@@ -92,18 +92,20 @@ typedef enum e_image_codec
 class LLImage
 {
 public:
-	static void initClass(bool use_new_byte_range = false);
+	static void initClass(bool use_new_byte_range = false, S32 minimal_reverse_byte_range_percent = 75);
 	static void cleanupClass();
 
 	static const std::string& getLastError();
 	static void setLastError(const std::string& message);
 	
 	static bool useNewByteRange() { return sUseNewByteRange; }
+    static S32  getReverseByteRangePercent() { return sMinimalReverseByteRangePercent; }
 	
 protected:
 	static LLMutex* sMutex;
 	static std::string sLastErrorMessage;
 	static bool sUseNewByteRange;
+    static S32  sMinimalReverseByteRangePercent;
 };
 
 //============================================================================

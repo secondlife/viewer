@@ -1339,13 +1339,11 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				static const F64 FRAME_SLOW_THRESHOLD = 0.5; //2 frames per seconds				
 				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
 				idleTimer.reset();
-				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
 				S32 total_work_pending = 0;
 				S32 total_io_pending = 0;	
-				while(!is_slow)//do not unpause threads if the frame rates are very low.
+				while(1)
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
@@ -1950,7 +1948,7 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"));
+	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);

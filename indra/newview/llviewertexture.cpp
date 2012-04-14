@@ -88,6 +88,7 @@ S32 LLViewerTexture::sMaxBoundTextureMemInMegaBytes = 0;
 S32 LLViewerTexture::sMaxTotalTextureMemInMegaBytes = 0;
 S32 LLViewerTexture::sMaxDesiredTextureMemInBytes = 0 ;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0 ;
+F32 LLViewerTexture::sCameraMovingBias = 0.0f ;
 S32 LLViewerTexture::sMaxSculptRez = 128 ; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64 ;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez ;
@@ -546,7 +547,8 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	
 	F32 camera_moving_speed = LLViewerCamera::getInstance()->getAverageSpeed() ;
 	F32 camera_angular_speed = LLViewerCamera::getInstance()->getAverageAngularSpeed();
-	sCameraMovingDiscardBias = (S8)llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1) ;
+	sCameraMovingBias = llmax(0.2f * camera_moving_speed, 2.0f * camera_angular_speed - 1);
+	sCameraMovingDiscardBias = (S8)(sCameraMovingBias);
 
 	LLViewerTexture::sFreezeImageScalingDown = (BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) < 0.75f * sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale) &&
 				(BYTES_TO_MEGA_BYTES(sTotalTextureMemoryInBytes) < 0.75f * sMaxTotalTextureMemInMegaBytes * texmem_middle_bound_scale) ;
@@ -1888,6 +1890,8 @@ S32 LLViewerFetchedTexture::getCurrentDiscardLevelForFetching()
 bool LLViewerFetchedTexture::updateFetch()
 {
 	static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+	static LLCachedControl<F32>  sCameraMotionThreshold(gSavedSettings,"TextureCameraMotionThreshold");
+	static LLCachedControl<S32>  sCameraMotionBoost(gSavedSettings,"TextureCameraMotionBoost");
 	if(textures_decode_disabled)
 	{
 		return false ;
@@ -2050,18 +2054,24 @@ bool LLViewerFetchedTexture::updateFetch()
 	//	make_request = false;
 	//}
 	
-	if(make_request)
+	if (make_request)
 	{
-		//load the texture progressively.
+		// Load the texture progressively: we try not to rush to the desired discard too fast.
+		// If the camera is not moving, we do not tweak the discard level notch by notch but go to the desired discard with larger boosted steps
+		// This mitigates the "textures stay blurry" problem when loading while not killing the texture memory while moving around
 		S32 delta_level = (mBoostLevel > LLViewerTexture::BOOST_NONE) ? 2 : 1 ; 
-		if(current_discard < 0)
+		if (current_discard < 0)
 		{
 			desired_discard = llmax(desired_discard, getMaxDiscardLevel() - delta_level);
 		}
-		else
+		else if (LLViewerTexture::sCameraMovingBias < sCameraMotionThreshold)
 		{
-			desired_discard = llmax(desired_discard, current_discard - delta_level);
+			desired_discard = llmax(desired_discard, current_discard - sCameraMotionBoost);
 		}
+        else
+        {
+			desired_discard = llmax(desired_discard, current_discard - delta_level);
+        }
 
 		if (mIsFetching)
 		{
@@ -2127,6 +2137,17 @@ bool LLViewerFetchedTexture::updateFetch()
 	llassert_always(mRawImage.notNull() || (!mNeedsCreateTexture && !mIsRawImageValid));
 	
 	return mIsFetching ? true : false;
+}
+
+void LLViewerFetchedTexture::forceToDeleteRequest()
+{
+	if (mHasFetcher)
+	{
+		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
+		mHasFetcher = FALSE;
+		mIsFetching = FALSE ;
+		resetTextureStats();
+	}
 }
 
 void LLViewerFetchedTexture::setIsMissingAsset()

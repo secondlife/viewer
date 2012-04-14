@@ -324,6 +324,7 @@ public:
 	static S32 sMaxTotalTextureMemInMegaBytes;
 	static S32 sMaxDesiredTextureMemInBytes ;
 	static S8  sCameraMovingDiscardBias;
+	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
 	static S32 sMinLargeImageSize ;
 	static S32 sMaxSmallImageSize ;
@@ -490,6 +491,7 @@ public:
 	BOOL        hasFetcher() const { return mHasFetcher;}
 	void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
 
+	void        forceToDeleteRequest();
 protected:
 	/*virtual*/ void switchToCachedImage();
 	S32 getCurrentDiscardLevelForFetching() ;

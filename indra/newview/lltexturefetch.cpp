@@ -846,6 +846,8 @@ void LLTextureFetchWorker::startWork(S32 param)
 // Called from LLWorkerThread::processRequest()
 bool LLTextureFetchWorker::doWork(S32 param)
 {
+	static const F32 FETCHING_TIMEOUT = 120.f;//seconds
+
 	LLMutexLock lock(&mWorkMutex);
 
 	if ((mFetcher->isQuitting() || getFlags(LLWorkerClass::WCF_DELETE_REQUESTED)))
@@ -1152,7 +1154,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//1, not openning too many file descriptors at the same time;
 			//2, control the traffic of http so udp gets bandwidth.
 			//
-			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 8 ;
+			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 24 ;
 			if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
 			{
 				return false ; //wait.
@@ -1188,6 +1190,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			bool res = false;
 			if (!mUrl.empty())
 			{
+				mRequestedTimer.reset();
+
 				mLoaded = FALSE;
 				mGetStatus = 0;
 				mGetReason.clear();
@@ -1346,6 +1350,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else
 		{
+			if(FETCHING_TIMEOUT < mRequestedTimer.getElapsedTimeF32())
+			{
+				//timeout, abort.
+				mState = DONE;
+				return true;
+			}
+
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
 		}

@@ -164,6 +164,8 @@ private:
 	// Implemented in header in case someone changes default params above. JC
 	LLViewerFetchedTexture* getImageFromHost(const LLUUID& image_id, LLHost host)
 	{ return getImage(image_id, TRUE, LLViewerTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE, 0, 0, host); }
+	
+	void clearFetchingRequests();
 
 public:
 	typedef std::set<LLPointer<LLViewerFetchedTexture> > image_list_t;	
