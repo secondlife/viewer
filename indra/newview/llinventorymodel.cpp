@@ -47,6 +47,7 @@
 #include "llviewerregion.h"
 #include "llcallbacklist.h"
 #include "llvoavatarself.h"
+#include <typeinfo>
 
 //#define DIFF_INVENTORY_FILES
 #ifdef DIFF_INVENTORY_FILES
@@ -1016,6 +1017,66 @@ void LLInventoryModel::moveObject(const LLUUID& object_id, const LLUUID& cat_id)
 		addChangedMask(LLInventoryObserver::STRUCTURE, object_id);
 		return;
 	}
+}
+
+// Migrated from llinventoryfunctions
+void LLInventoryModel::changeItemParent(LLViewerInventoryItem* item,
+										const LLUUID& new_parent_id,
+										BOOL restamp)
+{
+	if (item->getParentUUID() == new_parent_id)
+	{
+		LL_DEBUGS("Inventory") << "'" << item->getName() << "' (" << item->getUUID()
+							   << ") is already in folder " << new_parent_id << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS("Inventory") << "Moving '" << item->getName() << "' (" << item->getUUID()
+							  << ") from " << item->getParentUUID() << " to folder "
+							  << new_parent_id << LL_ENDL;
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(restamp);
+		updateItem(new_item);
+		notifyObservers();
+	}
+}
+
+// Migrated from llinventoryfunctions
+void LLInventoryModel::changeCategoryParent(LLViewerInventoryCategory* cat,
+											const LLUUID& new_parent_id,
+											BOOL restamp)
+{
+	if (!cat)
+	{
+		return;
+	}
+
+	// Can't move a folder into a child of itself.
+	if (isObjectDescendentOf(new_parent_id, cat->getUUID()))
+	{
+		return;
+	}
+
+	LLInventoryModel::update_list_t update;
+	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
+	update.push_back(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+	update.push_back(new_folder);
+	accountForUpdate(update);
+
+	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
+	new_cat->setParent(new_parent_id);
+	new_cat->updateParentOnServer(restamp);
+	updateCategory(new_cat);
+	notifyObservers();
 }
 
 // Delete a particular inventory object by ID.
@@ -2964,21 +3025,53 @@ void LLInventoryModel::emptyFolderType(const std::string notification, LLFolderT
 void LLInventoryModel::removeItem(const LLUUID& item_id)
 {
 	LLViewerInventoryItem* item = getItem(item_id);
-	const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
-	if (item && item->getParentUUID() != new_parent)
+	if (! item)
 	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent, 1);
-		update.push_back(new_folder);
-		accountForUpdate(update);
+		LL_WARNS("Inventory") << "couldn't find inventory item " << item_id << LL_ENDL;
+	}
+	else
+	{
+		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
+		changeItemParent(item, new_parent, TRUE);
+	}
+}
 
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent);
-		new_item->updateParentOnServer(TRUE);
-		updateItem(new_item);
-		notifyObservers();
+void LLInventoryModel::removeCategory(const LLUUID& category_id)
+{
+	LLViewerInventoryCategory* cat = getCategory(category_id);
+	if (! cat)
+	{
+		LL_WARNS("Inventory") << "couldn't find inventory folder " << category_id << LL_ENDL;
+	}
+	else
+	{
+		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
+		changeCategoryParent(cat, new_parent, TRUE);
+	}
+}
+
+void LLInventoryModel::removeObject(const LLUUID& object_id)
+{
+	LLInventoryObject* obj = getObject(object_id);
+	if (dynamic_cast<LLViewerInventoryItem*>(obj))
+	{
+		removeItem(object_id);
+	}
+	else if (dynamic_cast<LLViewerInventoryCategory*>(obj))
+	{
+		removeCategory(object_id);
+	}
+	else if (obj)
+	{
+		LL_WARNS("Inventory") << "object ID " << object_id
+							  << " is an object of unrecognized class "
+							  << typeid(*obj).name() << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("Inventory") << "object ID " << object_id << " not found" << LL_ENDL;
 	}
 }
 
