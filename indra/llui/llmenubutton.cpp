@@ -76,7 +76,7 @@ void LLMenuButton::hideMenu()
 {
 	if(mMenuHandle.isDead()) return;
 
-	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
+	LLToggleableMenu* menu = getMenu();
 	if (menu)
 	{
 		menu->setVisible(FALSE);
@@ -132,7 +132,7 @@ BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 		return TRUE;
 	}
 
-	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
+	LLToggleableMenu* menu = getMenu();
 	if (menu && menu->getVisible() && key == KEY_ESCAPE && mask == MASK_NONE)
 	{
 		menu->setVisible(FALSE);
@@ -160,7 +160,7 @@ void LLMenuButton::toggleMenu()
 
 	if(mMenuHandle.isDead()) return;
 
-	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
+	LLToggleableMenu* menu = getMenu();
 	if (!menu) return;
 
 	// Store the button rectangle to toggle menu visibility if a mouse event
