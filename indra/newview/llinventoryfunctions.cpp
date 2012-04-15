@@ -108,64 +108,6 @@ void append_path(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
-// Move the item to the trash. Works for folders and objects.
-// Caution: This method assumes that the item is removable!
-void remove_item(LLInventoryModel* model, const LLUUID& id)
-{
-	LLViewerInventoryItem* item = model->getItem(id);
-	if (!item)
-		return;
-	
-	if (item->getType() == LLAssetType::AT_CATEGORY)
-	{
-		// Call the general helper function to delete a folder
-		remove_category(model, id);
-	}
-	else
-	{
-		// Get the trash UUID
-		LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
-		if (trash_id.notNull())
-		{
-			// Finally, move the item to the trash
-			model->changeItemParent(item, trash_id, true);
-		}
-	}
-}
-
-void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
-{
-	if (!model || !get_is_category_removable(model, cat_id))
-	{
-		return;
-	}
-
-	// Look for any gestures and deactivate them
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
-
-	for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
-		 iter != descendent_items.end();
-		 ++iter)
-	{
-		const LLViewerInventoryItem* item = (*iter);
-		const LLUUID& item_id = item->getUUID();
-		if (item->getType() == LLAssetType::AT_GESTURE
-			&& LLGestureMgr::instance().isGestureActive(item_id))
-		{
-			LLGestureMgr::instance().deactivateGesture(item_id);
-		}
-	}
-
-	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-	if (cat)
-	{
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		model->changeCategoryParent(cat, trash_id, TRUE);
-	}
-}
-
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
 {
 	LLViewerInventoryCategory* cat;
@@ -610,7 +552,7 @@ void move_to_outbox_cb_action(const LLSD& payload)
 
 				if (cat_array->empty() && item_array->empty())
 				{
-					remove_category(&gInventory, parent);
+					gInventory.removeCategory(parent);
 				}
 
 				if (parent == top_level_folder)

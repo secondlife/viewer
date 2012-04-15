@@ -2948,7 +2948,7 @@ bool LLFolderBridge::removeItemResponse(const LLSD& notification, const LLSD& re
 	{
 		// move it to the trash
 		LLPreview::hide(mUUID);
-		remove_category(getInventoryModel(), mUUID);
+		getInventoryModel()->removeCategory(mUUID);
 		return TRUE;
 	}
 	return FALSE;

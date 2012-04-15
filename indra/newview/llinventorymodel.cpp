@@ -47,6 +47,7 @@
 #include "llviewerregion.h"
 #include "llcallbacklist.h"
 #include "llvoavatarself.h"
+#include "llgesturemgr.h"
 #include <typeinfo>
 
 //#define DIFF_INVENTORY_FILES
@@ -3032,23 +3033,47 @@ void LLInventoryModel::removeItem(const LLUUID& item_id)
 	else
 	{
 		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
-		changeItemParent(item, new_parent, TRUE);
+		if (new_parent.notNull())
+		{
+			LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
+			changeItemParent(item, new_parent, TRUE);
+		}
 	}
 }
 
 void LLInventoryModel::removeCategory(const LLUUID& category_id)
 {
-	LLViewerInventoryCategory* cat = getCategory(category_id);
-	if (! cat)
+	if (! get_is_category_removable(this, category_id))
 	{
-		LL_WARNS("Inventory") << "couldn't find inventory folder " << category_id << LL_ENDL;
+		return;
 	}
-	else
+
+	// Look for any gestures and deactivate them
+	LLInventoryModel::cat_array_t	descendent_categories;
+	LLInventoryModel::item_array_t	descendent_items;
+	collectDescendents(category_id, descendent_categories, descendent_items, FALSE);
+
+	for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
+		 iter != descendent_items.end();
+		 ++iter)
 	{
-		const LLUUID new_parent = findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		LL_INFOS("Inventory") << "Moving to Trash (" << new_parent << "):" << LL_ENDL;
-		changeCategoryParent(cat, new_parent, TRUE);
+		const LLViewerInventoryItem* item = (*iter);
+		const LLUUID& item_id = item->getUUID();
+		if (item->getType() == LLAssetType::AT_GESTURE
+			&& LLGestureMgr::instance().isGestureActive(item_id))
+		{
+			LLGestureMgr::instance().deactivateGesture(item_id);
+		}
+	}
+
+	LLViewerInventoryCategory* cat = getCategory(category_id);
+	if (cat)
+	{
+		const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+		if (trash_id.notNull())
+		{
+			changeCategoryParent(cat, trash_id, TRUE);
+		}
 	}
 }
 
