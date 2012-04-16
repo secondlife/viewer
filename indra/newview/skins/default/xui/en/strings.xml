@@ -403,8 +403,9 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-	<string name="ControlYourCamera">Control your camera</string>
-	<string name="NotConnected">Not Connected</string>
+  <string name="ControlYourCamera">Control your camera</string>
+  <string name="TeleportYourAgent">Teleport you</string>
+  <string name="NotConnected">Not Connected</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
