@@ -179,11 +179,11 @@ namespace LLInitParam
 	{
 	private:
 		struct Inaccessable{};
-		typedef typename ParamValue<T>::value_t	value_t;
 	public:
 		typedef std::map<std::string, T> value_name_map_t;
 		typedef Inaccessable name_t;
 		typedef TypeValues<T> type_value_t;
+		typedef typename ParamValue<T>::value_t	value_t;
 
 		TypeValues(const value_t& val)
 		:	ParamValue<T>(val)
@@ -232,11 +232,11 @@ namespace LLInitParam
 	:	public ParamValue<T>
 	{
 		typedef TypeValuesHelper<T, DERIVED_TYPE, IS_SPECIALIZED> self_t;
-		typedef typename ParamValue<T>::value_t	value_t;
 	public:
 		typedef typename std::map<std::string, T> value_name_map_t;
 		typedef std::string name_t;
 		typedef self_t type_value_t;
+		typedef typename ParamValue<T>::value_t	value_t;
 
 		TypeValuesHelper(const value_t& val)
 		:	ParamValue<T>(val)
@@ -845,10 +845,11 @@ namespace LLInitParam
 	protected:
 		typedef	TypedParam<T, NAME_VALUE_LOOKUP, HAS_MULTIPLE_VALUES, VALUE_IS_BLOCK>	self_t;
 		typedef ParamValue<T>															param_value_t;
-		typedef typename param_value_t::value_t											value_t;
 		typedef typename param_value_t::default_value_t									default_value_t;
 		typedef typename NAME_VALUE_LOOKUP::type_value_t								named_value_t;
 	public:
+		typedef typename param_value_t::value_t											value_t;
+
 		using named_value_t::operator();
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
@@ -1002,12 +1003,12 @@ namespace LLInitParam
 	{
 	protected:
 		typedef ParamValue<T>										param_value_t;
-		typedef typename param_value_t::value_t						value_t;
 		typedef typename param_value_t::default_value_t				default_value_t;
 		typedef TypedParam<T, NAME_VALUE_LOOKUP, false, IS_A_BLOCK>	self_t;
 		typedef typename NAME_VALUE_LOOKUP::type_value_t			named_value_t;
 	public:
 		using named_value_t::operator();
+		typedef typename param_value_t::value_t						value_t;
 
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr),
@@ -1188,10 +1189,11 @@ namespace LLInitParam
 		typedef ParamValue<VALUE_TYPE>										param_value_t;
 		typedef typename std::vector<typename NAME_VALUE_LOOKUP::type_value_t>	container_t;
 		typedef container_t													default_value_t;
-		typedef typename param_value_t::value_t								value_t;
 		typedef typename NAME_VALUE_LOOKUP::type_value_t					named_value_t;
 		
 	public:
+		typedef typename param_value_t::value_t								value_t;
+
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
@@ -1386,11 +1388,12 @@ namespace LLInitParam
 		typedef ParamValue<VALUE_TYPE>											param_value_t;
 		typedef typename std::vector<typename NAME_VALUE_LOOKUP::type_value_t>	container_t;
 		typedef typename NAME_VALUE_LOOKUP::type_value_t						named_value_t;
-		typedef typename param_value_t::value_t									value_t;
 		typedef container_t														default_value_t;
 		typedef typename container_t::iterator									iterator;
 		typedef typename container_t::const_iterator							const_iterator;
 	public:
+		typedef typename param_value_t::value_t									value_t;
+
 		TypedParam(BlockDescriptor& block_descriptor, const char* name, const default_value_t& value, ParamDescriptor::validation_func_t validate_func, S32 min_count, S32 max_count)
 		:	Param(block_descriptor.mCurrentBlockPtr)
 		{
