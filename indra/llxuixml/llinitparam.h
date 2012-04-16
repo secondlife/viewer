@@ -1495,7 +1495,7 @@ namespace LLInitParam
 
 		param_value_t& add()
 		{
-			mValues.push_back(value_t())
+			mValues.push_back(value_t());
 			setProvided();
 			return mValues.back();
 		}
