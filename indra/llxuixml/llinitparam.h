@@ -360,6 +360,7 @@ namespace LLInitParam
 	{
 	public:
 		typedef TypeValuesHelper<std::string, DERIVED_TYPE, true> self_t;
+		typedef TypeValuesHelper<std::string, DERIVED_TYPE, false> base_t;
 		typedef std::string value_t;
 		typedef std::string name_t;
 		typedef self_t type_value_t;
@@ -375,25 +376,25 @@ namespace LLInitParam
 
 		self_t& operator =(const std::string& name)
 		{
-			if (getValueFromName(name, ParamValue<T>::getValue()))
+			if (base_t::getValueFromName(name, ParamValue<std::string>::getValue()))
 			{
-				setValueName(name);
+				base_t::setValueName(name);
 			}
 			else
 			{
-				setValue(name);
+				ParamValue<std::string>::setValue(name);
 			}
 			return *this;
 		}
 		
 		operator const value_t&() const
 		{
-			return ParamValue<T>::getValue();
+			return ParamValue<std::string>::getValue();
 		}
 
 		const value_t& operator()() const
 		{
-			return ParamValue<T>::getValue();
+			return ParamValue<std::string>::getValue();
 		}
 
 	};
@@ -1778,7 +1779,7 @@ namespace LLInitParam
 		//
 		// Nested classes for declaring parameters
 		//
-		template <typename T, typename NAME_VALUE_LOOKUP = TypeValues<T>::type_value_t >
+		template <typename T, typename NAME_VALUE_LOOKUP = typename TypeValues<T>::type_value_t >
 		class Optional : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>		super_t;
@@ -1808,7 +1809,7 @@ namespace LLInitParam
 			}
 		};
 
-		template <typename T, typename NAME_VALUE_LOOKUP = TypeValues<T>::type_value_t >
+		template <typename T, typename NAME_VALUE_LOOKUP = typename TypeValues<T>::type_value_t >
 		class Mandatory : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>		super_t;
@@ -1845,7 +1846,7 @@ namespace LLInitParam
 
 		};
 
-		template <typename T, typename RANGE = BaseBlock::AnyAmount, typename NAME_VALUE_LOOKUP = TypeValues<T>::type_value_t >
+		template <typename T, typename RANGE = BaseBlock::AnyAmount, typename NAME_VALUE_LOOKUP = typename TypeValues<T>::type_value_t >
 		class Multiple : public TypedParam<T, NAME_VALUE_LOOKUP, true>
 		{
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, true>	super_t;
