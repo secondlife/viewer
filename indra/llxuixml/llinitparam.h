@@ -43,6 +43,8 @@ namespace LLInitParam
 
 	template<typename T> const T& defaultValue() { static T value; return value; }
 
+	// wraps comparison operator between any 2 values of the same type
+	// specialize to handle cases where equality isn't defined well, or at all
 	template <typename T, bool IS_BOOST_FUNCTION = boost::is_convertible<T, boost::function_base>::value >
     struct ParamCompare 
 	{
@@ -94,7 +96,11 @@ namespace LLInitParam
 		typedef IS_A_BLOCK value_t;
 	};
 
-
+	// ParamValue class directly manages the wrapped value
+	// by holding on to a copy (scalar params)
+	// or deriving from it (blocks)
+	// has specializations for custom value behavior
+	// and "tagged" values like Lazy and Atomic
 	template<typename T, typename VALUE_IS_BLOCK = typename IsBlock<T>::value_t>
 	class ParamValue
 	{
@@ -180,7 +186,7 @@ namespace LLInitParam
 		typedef TypeValues<T> type_value_t;
 
 		TypeValues(const value_t& val)
-		:	ParamValue(val)
+		:	ParamValue<T>(val)
 		{}
 
 		void setValueName(const std::string& key) {}
@@ -208,17 +214,19 @@ namespace LLInitParam
 
 		operator const value_t&() const
 		{
-			return getValue();
+			return ParamValue<T>::getValue();
 		}
 
 		const value_t& operator()() const
 		{
-			return getValue();
+			return ParamValue<T>::getValue();
 		}
 
 		static value_name_map_t* getValueNames() {return NULL;}
 	};
 
+	// helper class to implement name value lookups
+	// and caching of last used name
 	template <typename T, typename DERIVED_TYPE = TypeValues<T>, bool IS_SPECIALIZED = true >
 	class TypeValuesHelper
 	:	public ParamValue<T>
@@ -231,7 +239,7 @@ namespace LLInitParam
 		typedef self_t type_value_t;
 
 		TypeValuesHelper(const value_t& val)
-		:	ParamValue(val)
+		:	ParamValue<T>(val)
 		{}
 
 		//TODO: cache key by index to save on param block size
@@ -320,7 +328,7 @@ namespace LLInitParam
 
 		void assignNamedValue(const std::string& name)
 		{
-			if (getValueFromName(name, getValue()))
+			if (getValueFromName(name, ParamValue<T>::getValue()))
 			{
 				setValueName(name);
 			}
@@ -328,12 +336,12 @@ namespace LLInitParam
 
 		operator const value_t&() const
 		{
-			return getValue();
+			return ParamValue<T>::getValue();
 		}
 
 		const value_t& operator()() const
 		{
-			return getValue();
+			return ParamValue<T>::getValue();
 		}
 
 	protected:
@@ -343,11 +351,19 @@ namespace LLInitParam
 		mutable std::string	mValueName;
 	};
 
+	// string types can support custom named values, but need
+	// to disambiguate in code between a string that is a named value
+	// and a string that is a name
 	template <typename DERIVED_TYPE>
 	class TypeValuesHelper<std::string, DERIVED_TYPE, true>
 	:	public TypeValuesHelper<std::string, DERIVED_TYPE, false>
 	{
 	public:
+		typedef TypeValuesHelper<std::string, DERIVED_TYPE, true> self_t;
+		typedef std::string value_t;
+		typedef std::string name_t;
+		typedef self_t type_value_t;
+
 		TypeValuesHelper(const std::string& val)
 		:	TypeValuesHelper(val)
 		{}
@@ -359,7 +375,7 @@ namespace LLInitParam
 
 		self_t& operator =(const std::string& name)
 		{
-			if (getValueFromName(name, getValue()))
+			if (getValueFromName(name, ParamValue<T>::getValue()))
 			{
 				setValueName(name);
 			}
@@ -372,16 +388,17 @@ namespace LLInitParam
 		
 		operator const value_t&() const
 		{
-			return getValue();
+			return ParamValue<T>::getValue();
 		}
 
 		const value_t& operator()() const
 		{
-			return getValue();
+			return ParamValue<T>::getValue();
 		}
 
 	};
 
+	// parser base class with mechanisms for registering readers/writers/inspectors of different types
 	class Parser
 	{
 		LOG_CLASS(Parser);
@@ -639,6 +656,8 @@ namespace LLInitParam
 		mutable T* mPtr;
 	};
 
+	// root class of all parameter blocks
+
 	class BaseBlock
 	{
 	public:
@@ -808,8 +827,12 @@ namespace LLInitParam
 		typedef typename std::vector<typename NAME_VALUE_LOOKUP::type_value_t >::iterator			iterator;
 	};
 
-	// specialize for custom parsing/decomposition of specific classes
-	// e.g. TypedParam<LLRect> has left, top, right, bottom, etc...
+	// wrapper for parameter with a known type
+	// specialized to handle 4 cases:
+	// simple "scalar" value
+	// parameter that is itself a block
+	// multiple scalar values, stored in a vector
+	// multiple blocks, stored in a vector
 	template<typename	T,
 			typename	NAME_VALUE_LOOKUP = TypeValues<T>,
 			bool		HAS_MULTIPLE_VALUES = false,
@@ -1098,7 +1121,6 @@ namespace LLInitParam
 		/*virtual*/ void paramChanged(const Param& changed_param, bool user_provided)
 		{ 
 			param_value_t::paramChanged(changed_param, user_provided);
-			named_value_t::clearValueName();
 
 			if (user_provided)
 			{
@@ -1106,6 +1128,7 @@ namespace LLInitParam
 				// so *some* aspect of this block is now provided
 				param_value_t::mValidated = false;
 				setProvided();
+				named_value_t::clearValueName();
 			}
 			else
 			{
@@ -1472,7 +1495,7 @@ namespace LLInitParam
 
 		param_value_t& add()
 		{
-			mValues.push_back(value_t());
+			mValues.push_back(value_t())
 			setProvided();
 			return mValues.back();
 		}
@@ -1632,7 +1655,7 @@ namespace LLInitParam
 		// Alternatives are mutually exclusive wrt other Alternatives in the same block.  
 		// One alternative in a block will always have isChosen() == true.
 		// At most one alternative in a block will have isProvided() == true.
-		template <typename T, typename NAME_VALUE_LOOKUP = TypeValues<T>::type_value_t >
+		template <typename T, typename NAME_VALUE_LOOKUP = typename TypeValues<T>::type_value_t >
 		class Alternative : public TypedParam<T, NAME_VALUE_LOOKUP, false>
 		{
 			typedef TypedParam<T, NAME_VALUE_LOOKUP, false>	super_t;
