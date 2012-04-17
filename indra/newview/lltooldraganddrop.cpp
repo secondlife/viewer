@@ -48,6 +48,7 @@
 #include "llpreviewnotecard.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
+#include "lltoolbarview.h"
 #include "lltoolmgr.h"
 #include "lltooltip.h"
 #include "lltrans.h"
@@ -2528,7 +2529,7 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 	}
 	else if(mSource == SOURCE_VIEWER)
 	{
-		item = (LLViewerInventoryItem*)gClipboard.getSourceObject();
+		item = (LLViewerInventoryItem*)gToolBarView->getDragItem();
 	}
 	if(item) return item;
 	if(cat) return cat;

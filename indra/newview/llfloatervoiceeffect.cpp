@@ -145,7 +145,9 @@ void LLFloaterVoiceEffect::refreshEffectList()
 		for (voice_effect_list_t::const_iterator it = template_list.begin(); it != template_list.end(); ++it)
 		{
 			const LLUUID& effect_id = it->second;
-			std::string effect_name = getString("effect_" + it->first); // will throw an error if the effect is not listed in the XML
+
+			std::string localized_effect = "effect_" + it->first;
+			std::string effect_name = hasString(localized_effect) ? getString(localized_effect) : it->first;  // XML contains localized effects names
 
 			LLSD effect_properties = effect_interface->getVoiceEffectProperties(effect_id);
 

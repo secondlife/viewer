@@ -132,10 +132,6 @@ if test -f scripts/update_version_files.py ; then
   end_section UpdateVer
 fi
 
-# Now retrieve the version for use in the version manager
-# First three parts only, $revision will be appended automatically.
-build_viewer_update_version_manager_version=`python scripts/get_version.py --viewer-version | sed 's/\.[0-9]*$//'`
-
 if [ -z "$AUTOBUILD" ]
 then
   export autobuild_dir="$here/../../../autobuild/bin/"

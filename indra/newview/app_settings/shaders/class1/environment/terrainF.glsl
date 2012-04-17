@@ -24,7 +24,9 @@
  */
  
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 VARYING vec4 vertex_color;
@@ -59,6 +61,6 @@ void main()
 	/// Add WL Components
 	outColor.rgb = atmosLighting(outColor.rgb * vertex_color.rgb);
 	
-	gl_FragColor = vec4(scaleSoftClip(outColor.rgb), 1.0);
+	frag_color = vec4(scaleSoftClip(outColor.rgb), 1.0);
 }
 

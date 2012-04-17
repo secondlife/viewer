@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings
@@ -181,8 +181,8 @@ http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		既にログインしているユーザーに最上のインワールド体験を提供するため、Second Life へのログインは一時的に制限されています。
-	 	
-申し訳ございませんが、有料アカウントのユーザーを優先するために、現時点のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。
+
+申し訳ございませんが、有料アカウントのユーザーを優先するため、現在のところ無料アカウントのユーザーには Second Life へのアクセスをご遠慮いただいています。
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		このパソコンからは Second Life にアクセスできません。
@@ -339,17 +339,35 @@ support@secondlife.com にお問い合わせください。
 		アイテムは 1 つだけここにドラッグできます
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]："/>
+	<string name="TooltipOutboxDragToWorld">
+		マーチャントボックス内のアイテムを Rez することはできません
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		これらオブジェクトの 1 つまたは複数は、別のユーザーに売り渡したり譲渡できないものです。
+		これらオブジェクトの 1 つまたは複数は売り渡したり譲渡したりできないものです。
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		マーチャントアウトボックスでは、ご自分のインベントリからのアイテムしか受け入れることができません
 	</string>
 	<string name="TooltipOutboxWorn">
-		あなたはこれらオブジェクトの 1 つまたは複数を装着しています。アバターからそれらを取り外し、再び移動してみてください。
+		着用しているアイテムをマーチャントアウトボックスに入れることはできません
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		コーリングカードをマーチャントアウトボックスに入れることはできません
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		このフォルダにあるサブフォルダの階層が多すぎます。サブフォルダは4階層以内（ルートフォルダの下にA、その下にB、その下にCという風に）にまとめ直してください。
+		ネスト入りフォルダの深さが 3 を超えています
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		最上位フォルダ内のサブフォルダ数が 20 を超えています
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		このフォルダには 200 個以上のオブジェクトが含まれます。商品のいつかをボックスに入れ、オブジェクト数を減らしてください。
+		最上位フォルダ内のアイテム数が 200 を超えています
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		フォルダをその子フォルダに移動することはできません
+	</string>
+	<string name="TooltipDragOntoSelf">
+		フォルダをそのフォルダ自身に移動することはできません
 	</string>
 	<string name="TooltipHttpUrl">
 		クリックしてこの Web ページを見ます
@@ -976,6 +994,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="choose_the_directory">
 		参照
 	</string>
+	<string name="script_files">
+		スクリプト
+	</string>
 	<string name="AvatarSetNotAway">
 		一時退席中解除
 	</string>
@@ -1211,70 +1232,63 @@ support@secondlife.com にお問い合わせください。
 		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
-		「持ち物」内にこのテクスチャのコピーがありません
+		インベントリ内にこのテクスチャのコピーがありません
 	</string>
 	<string name="InventoryInboxNoItems">
-		購入するなどして取得したアイテムや商品はここに表示され、持ち物のフォルダにドラッグして移動することもできれば、要らなくなった場合には削除することができます。
+		プレミアムギフトなど、受け取る特定のアイテムはここに表示されます。その後、それらのアイテムを自分のインベントリの中にドラッグできます。
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		マーチャントアウトボックスが正しく設定されていません
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		マーチャントアウトボックスの設定エラー
-	</string>
-	<string name="InventoryOutboxCreationError">
-		問題を解決するにはカスタマーサービスにお問い合わせください。
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		マーケットプレイスは皆の売り場です
+		マーケットプレイスでは誰でもアイテムを売ることができます。
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		あなたもマーチャントに！
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] Second Life マーケットプレイス] では、SL 住人が制作した商品 100 万点以上が販売されています。あなたもご自分の自信作や、あなたが購入したアイテムを商品として売ってみませんか。その手順は簡単で、セットアップは無料です。[[LEARN_MORE_URL] こちらで詳細を確かめ]、マーケットプレイスに[[CREATE_STORE_URL] ストアを作成] しましょう。
+		マーチャントになりたい方は、[[MARKETPLACE_CREATE_STORE_URL] マーケットプレイスストアを作成]する必要があります。
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		マーケットプレイスへの新しい出荷方法
+		アウトボックスは空です。
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		商品をここにドラッグアンドドロップするだけで、マーケットプレイスの売り物となります
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		販売する商品またはフォルダをこのエリアにドラッグします。コピー不可のアイテムでない限り、ドラッグした商品のコピーが表示されるだけで、あなたの持ち物から商品が実際に移動するわけではありません。マーケットプレイスに商品を送る準備が整ったら、「アップロード」ボタンをクリックします。商品はマーケットプレイスインベントリに移動した時点でこのフォルダから削除されます。
+		[[MARKETPLACE_DASHBOARD_URL] マーケットプレイス]に販売するアイテムを一覧するには、フォルダをこのエリアにドラッグし、「マーケットプレイスに送信」をクリックします。
 	</string>
 	<string name="Marketplace Error None">
 		エラーなし
 	</string>
 	<string name="Marketplace Error Not Merchant">
-		エラー：マーケットプレイスに商品を送る前に、あなた自身をマーチャント登録する必要があります（登録は無料です）。
+		エラー：マーケットプレイスにアイテムを送る前に、あなた自身をマーチャント登録する必要があります（登録は無料です）。
 	</string>
 	<string name="Marketplace Error Empty Folder">
 		エラー：このフォルダは空です。
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		エラー：あなたのマーチャントアカウントには、商品と無関係のアイテムが多すぎるため、このアイテムをアップロードできませんでした。このエラーを解消するには、マーケットプレイスのウェブサイトにログインし、商品に関係のないアイテム数を減らしてください。
+		エラー：あなたのマーチャントアカウントには、商品に関連付けられていないアイテムが多すぎるため、このアイテムをアップロードできませんでした。このエラーを解消するには、マーケットプレイスの Web サイトにログインし、関連付けられていないアイテムの数を減らしてください。
 	</string>
 	<string name="Marketplace Error Object Limit">
-		エラー：この商品に含まれるオブジェクトが多すぎます。オブジェクトをいくつかボックスにまとめ、オブジェクト数を200以下に減らしてください。
+		エラー：このアイテムに含まれるオブジェクトが多すぎます。オブジェクトをいくつかボックスにまとめ、オブジェクト数を200以下に減らしてください。
 	</string>
 	<string name="Marketplace Error Folder Depth">
-		エラー：この商品はネスト入りフォルダの階層が多すぎます。ネスト入りフォルダを 3 階層以内にまとめ直してください。
+		エラー：このアイテムはネスト入りフォルダの階層が多すぎます。ネスト入りフォルダを 3 階層以内にまとめ直してください。
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		エラー：この項目をマーケットプレイスで販売することはできません。
+		エラー：このアイテムをマーケットプレイスで販売することはできません。
 	</string>
 	<string name="Marketplace Error Internal Import">
-		エラー：この商品に関して問題が発生しました。しばらくしてからお試しください。
+		エラー：このアイテムに関して問題が発生しました。しばらくしてからお試しください。
 	</string>
 	<string name="Open landmarks">
 		ランドマークを開く
@@ -1323,7 +1337,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="No Filters" value="いいえ "/>
 	<string name="Since Logoff" value=" - ログオフ以来"/>
 	<string name="InvFolder My Inventory">
-		持ち物
+		インベントリ
 	</string>
 	<string name="InvFolder Library">
 		ライブラリ
@@ -1356,7 +1370,7 @@ support@secondlife.com にお問い合わせください。
 		新規フォルダ
 	</string>
 	<string name="InvFolder Inventory">
-		持ち物
+		インベントリ
 	</string>
 	<string name="InvFolder Uncompressed Images">
 		圧縮されていない画像
@@ -3938,10 +3952,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		[AGENT_NAME] とコンファレンスする
 	</string>
 	<string name="inventory_item_offered-im">
-		持ち物アイテムを送りました
+		インベントリアイテムを送りました
 	</string>
 	<string name="share_alert">
-		持ち物からここにアイテムをドラッグします
+		インベントリからここにアイテムをドラッグします
 	</string>
 	<string name="no_session_message">
 		（IM セッションが存在しません）
@@ -4104,7 +4118,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="uploading_abuse_report">
 		アップロード中...
-  
+
 嫌がらせの報告
 	</string>
 	<string name="New Shape">
@@ -4370,10 +4384,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		大変申し訳ございませんが、予期せぬ問題が発生しました。
+		大変申し訳ございませんが、予期しない問題が発生しました。
 
-	status.secondlifegrid.netで、サービスに関する既知の問題についてお調べください。
-        問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を確認してください。
+	サービスに関する既知の問題については、status.secondlifegrid.net をご覧ください。
+問題が引き続き発生する場合は、お使いのネットワークやファイアウォールの設定を調べてください。
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		日曜日:月曜日:火曜日:水曜日:木曜日:金曜日:土曜日
@@ -4825,7 +4839,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ハウツー
 	</string>
 	<string name="Command_Inventory_Label">
-		持ち物
+		インベントリ
 	</string>
 	<string name="Command_Map_Label">
 		地図
@@ -4838,6 +4852,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Move_Label">
 		歩行 / 走行 / 飛行
+	</string>
+	<string name="Command_Outbox_Label">
+		マーチャントアウトボックス
 	</string>
 	<string name="Command_People_Label">
 		人
@@ -4897,7 +4914,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		一般的タスクの実行方法
 	</string>
 	<string name="Command_Inventory_Tooltip">
-		持ち物を表示・使用
+		インベントリを表示・使用
 	</string>
 	<string name="Command_Map_Tooltip">
 		世界地図
@@ -4910,6 +4927,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Command_Move_Tooltip">
 		アバターの移動
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		販売用にアイテムをマーケットプレイスに転送
 	</string>
 	<string name="Command_People_Tooltip">
 		フレンド、グループ、近くの人

@@ -26,7 +26,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 #define FXAA_PC 1
@@ -341,18 +343,23 @@ A. Or use FXAA_GREEN_AS_LUMA.
     // 1 = API supports gather4 on alpha channel.
     // 0 = API does not support gather4 on alpha channel.
     //
+	#if (FXAA_GLSL_130 == 0)
+		#define FXAA_GATHER4_ALPHA 0
+	#endif
     #if (FXAA_HLSL_5 == 1)
         #define FXAA_GATHER4_ALPHA 1
     #endif
-    #ifdef GL_ARB_gpu_shader5
-        #define FXAA_GATHER4_ALPHA 1
-    #endif
-    #ifdef GL_NV_gpu_shader5
-        #define FXAA_GATHER4_ALPHA 1
-    #endif
     #ifndef FXAA_GATHER4_ALPHA
-        #define FXAA_GATHER4_ALPHA 0
-    #endif
+		#ifdef GL_ARB_gpu_shader5
+			#define FXAA_GATHER4_ALPHA 1
+		#endif
+	    #ifdef GL_NV_gpu_shader5
+		    #define FXAA_GATHER4_ALPHA 1
+		#endif
+		#ifndef FXAA_GATHER4_ALPHA
+			#define FXAA_GATHER4_ALPHA 0
+		#endif
+	#endif
 #endif
 
 /*============================================================================
@@ -2113,6 +2120,6 @@ void main()
 
 	//diff = texture2D(diffuseMap, vary_tc);
 	
-	gl_FragColor = diff;
+	frag_color = diff;
 	
 }

@@ -85,17 +85,38 @@ Verifique se a conexão à internet está funcionando.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Não salvar" yestext="Salvar"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Você não tem permissão para copiar este item para a Caixa de saída do lojista. Tem certeza de que deseja mover o itens a seguir?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+		Você não possui permissão para copiar um ou mais destes itens para a Caixa de saída do lojista.  Você pode movê-los ou abandoná-los.
+		<usetemplate name="okcancelbuttons" notext="Não mover item(ns)" yestext="Mover item(ns)"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Envio para Mercado concluído.
-		<usetemplate name="okbutton" yestext="Viva!"/>
+	<notification name="OutboxFolderCreated">
+		Uma nova pasta foi criada para cada item transferido para o nível superior de sua Caixa de saída do lojista.
+		<usetemplate ignoretext="Uma nova pasta foi criada na Caixa de saída do lojista" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Envio para Mercado concluído com erros!  Corrija os problemas em sua caixa de saída e tente novamente. Obrigado.
-		<usetemplate name="okbutton" yestext="Tudo bem!"/>
+	<notification name="OutboxImportComplete">
+		Êxito
+
+Todas as pastas foram enviadas para o Mercado com êxito.
+		<usetemplate ignoretext="Todas as pastas enviadas para o Mercado" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Algumas pastas não foram transferidas
+
+Erro ao enviar algumas pastas para o Mercado.  Estas pastas ainda estão na sua Caixa de saída do lojista.
+
+Consulte o [[MARKETPLACE_IMPORTS_URL] log de erros] para mais informações.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Falha de transferência
+
+Nenhuma pasta enviada para o Mercado devido a um erro do sistema ou da rede.  Tente novamente mais tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Falha na inicialização do Mercado
+
+Falha na inicialização do mercado devido a um erro do sistema ou da rede.  Tente novamente mais tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Houve um problema com o carregamento do texto para um script devido à seguinte razão: [REASON]. Por favor, tente novamente mais tarde.
@@ -1424,8 +1445,7 @@ Para instalar a atualização, será preciso reiniciar o [APP_NAME].
 		<usetemplate ignoretext="Confirmar antes de devolver objetos a seus donos" name="okcancelignore" notext="Cancelar" yestext="Retornar"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Você é atualmente um membro do grupo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
-Sair do grupo?
+		Você é atualmente um membro do grupo
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2797,6 +2817,12 @@ Mais detalhes no log.
 Com os seguintes residentes:
 
 [RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Apenas uma pasta pode ser compartilhada por vez.
+
+Tem certeza de que quer compartilhar os itens abaixo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ItemsShared">

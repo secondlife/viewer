@@ -6,12 +6,12 @@
 	<button label="2. Otimizar" name="optimize_btn"/>
 	<button label="1. Selecionra arquivo" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Escolher arquivo de modelo
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
 				Usuários avançados: se você estiver familiarizado com ferramentas de criação de conteúdo 3D, use o Advanced Uploader.
 			</text>
@@ -35,15 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Otimizar modelo
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			O modelo foi ajustado para desempenho. Faça novos ajustes, se desejar.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
 				Gerar nível de detalhes: Alto
 			</text>
@@ -54,7 +54,7 @@
 				Gerar nível de detalhes: Baixo
 			</text>
 			<text name="lowest_detail_text">
-				Gerar nível de detalhes: mais baixo
+				Gerar nível de detalhes: Mais baixo
 			</text>
 		</panel>
 		<panel name="content2">
@@ -79,15 +79,15 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				Ajustar físico
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Criaremos uma forma para o corpo externo do modelo. Ajuste o nível de detalhes como necessário para a finalidade desejada de seu modelo.
 		</text>
-		<panel name="content">
+		<panel name="physics_content">
 			<button label="Recalcular físico" name="recalculate_physics_btn"/>
 			<button label="Recalculando..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
@@ -110,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Revisar
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Impacto no lote/região: [EQUIV] equivalentes de prim
 			</text>
@@ -128,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Upload concluído
 			</text>
 		</panel>

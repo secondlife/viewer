@@ -86,16 +86,37 @@ Veuillez vérifier votre connexion Internet.
 		<usetemplate canceltext="Cancel" name="yesnocancelbuttons" notext="Ne pas enregistrer" yestext="Enregistrer"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Vous n&apos;êtes pas autorisé à copier cet article dans la boîte d&apos;envoi vers la Place du marché. Voulez-vous vraiment déplacer l&apos;article suivant ?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
+		Vous n&apos;êtes pas autorisé à copier un ou plusieurs de ces articles dans la boîte d&apos;envoi vendeur. Vous pouvez les déplacer ou les laisser.
+		<usetemplate name="okcancelbuttons" notext="Ne pas déplacer les articles" yestext="Déplacer les articles"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Chargement sur la Place du marché terminé.
-		<usetemplate name="okbutton" yestext="Hourra !"/>
+	<notification name="OutboxFolderCreated">
+		Un nouveau dossier a été créé pour chaque article que vous avez transféré vers le niveau supérieur de votre boîte d&apos;envoi vendeur.
+		<usetemplate ignoretext="Un nouveau dossier a été créé dans la boîte d&apos;envoi vendeur." name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Chargement sur la Place du marché effectué avec des erreurs ! Corrigez les problèmes dans votre boîte d&apos;envoi et réessayez. Merci !
+	<notification name="OutboxImportComplete">
+		Transfert réussi
+
+Tous les dossiers ont été envoyés vers la Place du marché.
+		<usetemplate ignoretext="Tous les dossiers envoyés vers la Place du marché" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Impossible de transférer certains dossiers
+
+Des erreurs se sont produites lors de l&apos;envoi de certains dossiers vers la Place du marché. Ces dossiers sont toujours disponibles dans votre boîte d&apos;envoi vendeur.
+
+Pour plus d&apos;informations, consultez le [[MARKETPLACE_IMPORTS_URL] journal des erreurs].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Échec de transfert
+
+Aucun dossier n&apos;a été envoyé vers la Place du marché en raison d&apos;une erreur système ou réseau. Veuillez réessayer ultérieurement.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Échec d&apos;initialisation de la Place du marché
+
+L&apos;initialisation de la Place du marché a échoué en raison d&apos;une erreur système ou réseau. Veuillez réessayer ultérieurement.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
@@ -1434,7 +1455,7 @@ Version [VERSION]
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
 		Vous êtes actuellement membre du groupe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
-Quitter le groupe ?
+Quitter le groupe ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2815,6 +2836,18 @@ avec les résidents suivants :
 
 [RESIDENTS] ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Vous ne pouvez partager qu&apos;un dossier à la fois.
+
+Voulez-vous vraiment partager les articles suivants :
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+avec les résidents suivants :
+
+[RESIDENTS] ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Ok"/>
 	</notification>
 	<notification name="ItemsShared">
 		Articles partagés.

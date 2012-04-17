@@ -100,6 +100,7 @@ BOOL LLFloaterScriptQueue::postBuild()
 {
 	childSetAction("close",onCloseBtn,this);
 	getChildView("close")->setEnabled(FALSE);
+	setVisible(true);
 	return TRUE;
 }
 
@@ -158,7 +159,6 @@ void LLFloaterScriptQueue::addObject(const LLUUID& id)
 
 BOOL LLFloaterScriptQueue::start()
 {
-	//llinfos << "LLFloaterCompileQueue::start()" << llendl;
 	std::string buffer;
 
 	LLSelectMgr *mgr = LLSelectMgr::getInstance();
@@ -178,7 +178,7 @@ BOOL LLFloaterScriptQueue::start()
 	args["[COUNT]"] = llformat ("%d", mObjectIDs.count());
 	buffer = getString ("Starting", args);
 	
-	getChild<LLScrollListCtrl>("queue output")->setCommentText(buffer);
+	getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 
 	return nextObject();
 }
@@ -211,7 +211,7 @@ BOOL LLFloaterScriptQueue::nextObject()
 	if(isDone() && !mDone)
 	{
 		mDone = true;
-		getChild<LLScrollListCtrl>("queue output")->setCommentText(getString("Done"));
+		getChild<LLScrollListCtrl>("queue output")->addSimpleElement(getString("Done"), ADD_BOTTOM);
 		getChildView("close")->setEnabled(TRUE);
 	}
 	return successful_start;
@@ -277,7 +277,7 @@ public:
 			return;
 		}
 
-		queue->getChild<LLScrollListCtrl>("queue output")->setCommentText(message);
+		queue->getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, ADD_BOTTOM);
 	}
 		
 private:
@@ -464,7 +464,7 @@ void LLFloaterCompileQueue::scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 	}
 	if(queue && (buffer.size() > 0)) 
 	{
-		queue->getChild<LLScrollListCtrl>("queue output")->setCommentText(buffer);
+		queue->getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 	}
 	delete data;
 }
@@ -637,7 +637,7 @@ void LLFloaterResetQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLInventoryItem* item = (LLInventoryItem*)((LLInventoryObject*)(*it));
 				std::string buffer;
 				buffer = getString("Resetting") + (": ") + item->getName();
-				getChild<LLScrollListCtrl>("queue output")->setCommentText(buffer);
+				getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_ScriptReset);
 				msg->nextBlockFast(_PREHASH_AgentData);
@@ -690,7 +690,7 @@ void LLFloaterRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				std::string buffer;
 				buffer = getString("Running") + (": ") + item->getName();
-				list->setCommentText(buffer);
+				list->addSimpleElement(buffer, ADD_BOTTOM);
 
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_SetScriptRunning);
@@ -745,7 +745,7 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 				LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
 				std::string buffer;
 				buffer = getString("NotRunning") + (": ") +item->getName();
-				list->setCommentText(buffer);
+				list->addSimpleElement(buffer, ADD_BOTTOM);
 	
 				LLMessageSystem* msg = gMessageSystem;
 				msg->newMessageFast(_PREHASH_SetScriptRunning);

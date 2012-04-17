@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
-    open_positioning="cascading"
+    positioning="cascading"
     can_close="true"
     can_resize="true"
     height="440"
