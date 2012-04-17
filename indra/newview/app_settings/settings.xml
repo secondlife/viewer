@@ -7241,7 +7241,7 @@
     <key>WebContentWindowLimit</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of web brower windows that can be open at once in the Web content floater (0 for no limit)</string>
+      <string>Maximum number of web browser windows that can be open at once in the Web content floater (0 for no limit)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
