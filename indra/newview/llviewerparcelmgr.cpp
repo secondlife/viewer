@@ -1662,9 +1662,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			// Request access list information for this land
 			parcel_mgr.sendParcelAccessListRequest(AL_ACCESS | AL_BAN);
 
-			// Request the media url filter list for this land
-			parcel_mgr.requestParcelMediaURLFilter();
-
 			// Request dwell for this land, if it's not public land.
 			parcel_mgr.mSelectedDwell = DWELL_NAN;
 			if (0 != local_id)
@@ -1992,67 +1989,6 @@ void LLViewerParcelMgr::sendParcelAccessListUpdate(U32 which)
 		}
 	}
 }
-
-class LLParcelMediaURLFilterResponder : public LLHTTPClient::Responder
-{
-	virtual void result(const LLSD& content)
-	{
-		LLViewerParcelMgr::getInstance()->receiveParcelMediaURLFilter(content);
-	}
-};
-
-void LLViewerParcelMgr::requestParcelMediaURLFilter()
-{
-	if (!mSelected)
-	{
-		return;
-	}
-
-	LLViewerRegion* region = LLWorld::getInstance()->getRegionFromPosGlobal( mWestSouth );
-	if (!region)
-	{
-		return;
-	}
-
-	LLParcel* parcel = mCurrentParcel;
-	if (!parcel)
-	{
-		llwarns << "no parcel" << llendl;
-		return;
-	}
-
-	LLSD body;
-	body["local-id"] = parcel->getLocalID();
-	body["list"] = parcel->getMediaURLFilterList();
-
-	std::string url = region->getCapability("ParcelMediaURLFilterList");
-	if (!url.empty())
-	{
-		LLHTTPClient::post(url, body, new LLParcelMediaURLFilterResponder);
-	}
-	else
-	{
-		llwarns << "can't get ParcelMediaURLFilterList cap" << llendl;
-	}
-}
-
-
-void LLViewerParcelMgr::receiveParcelMediaURLFilter(const LLSD &content)
-{
-	if (content.has("list"))
-	{
-		LLParcel* parcel = LLViewerParcelMgr::getInstance()->mCurrentParcel;
-		if (!parcel) return;
-		
-		if (content["local-id"].asInteger() == parcel->getLocalID())
-		{
-			parcel->setMediaURLFilterList(content["list"]);
-			
-			LLViewerParcelMgr::getInstance()->notifyObservers();
-		}
-	}
-}
-
 
 void LLViewerParcelMgr::deedLandToGroup()
 {
