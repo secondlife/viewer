@@ -1465,10 +1465,14 @@ void LLSpatialGroup::handleChildRemoval(const OctreeNode* parent, const OctreeNo
 	unbound();
 }
 
-void LLSpatialGroup::destroyGL() 
+void LLSpatialGroup::destroyGL(bool keep_occlusion) 
 {
 	setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::IMAGE_DIRTY);
-	gPipeline.markRebuild(this, TRUE);
+
+	if (!keep_occlusion)
+	{ //going to need a rebuild
+		gPipeline.markRebuild(this, TRUE);
+	}
 
 	mLastUpdateTime = gFrameTimeSeconds;
 	mVertexBuffer = NULL;
@@ -1476,16 +1480,20 @@ void LLSpatialGroup::destroyGL()
 
 	clearDrawMap();
 
-	for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
+	if (!keep_occlusion)
 	{
-		if (mOcclusionQuery[i])
+		for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; i++)
 		{
-			sQueryPool.release(mOcclusionQuery[i]);
-			mOcclusionQuery[i] = 0;
+			if (mOcclusionQuery[i])
+			{
+				sQueryPool.release(mOcclusionQuery[i]);
+				mOcclusionQuery[i] = 0;
+			}
 		}
+
+		mOcclusionVerts = NULL;
 	}
 
-	mOcclusionVerts = NULL;
 
 	for (LLSpatialGroup::element_iter i = getData().begin(); i != getData().end(); ++i)
 	{
@@ -1635,7 +1643,9 @@ void LLSpatialGroup::checkOcclusion()
 				else
 				{
 					assert_states_valid(this);
+					
 					setOcclusionState(LLSpatialGroup::OCCLUDED, LLSpatialGroup::STATE_MODE_DIFF);
+					
 					assert_states_valid(this);
 				}
 

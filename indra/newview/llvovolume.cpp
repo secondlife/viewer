@@ -682,7 +682,21 @@ void LLVOVolume::updateTextures()
 	const F32 TEXTURE_AREA_REFRESH_TIME = 5.f; // seconds
 	if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
 	{
-		updateTextureVirtualSize();		
+		updateTextureVirtualSize();
+
+		if (mDrawable.notNull() && !isVisible())
+		{ //delete vertex buffer to free up some VRAM
+			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
+			if (group)
+			{
+				group->destroyGL(true);
+
+				//flag the group as having changed draw info state so it gets a rebuild next time
+				//it becomes visible
+				group->setState(LLSpatialGroup::NEW_DRAWINFO);
+			}
+		}
+
 	}
 }
 
