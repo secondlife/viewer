@@ -709,9 +709,13 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	LLMemType mt(LLMemType::MTYPE_AVATAR);
 	//VTResume();  // VTune
 	
+#ifdef XXX_STINSON_CHUI_REWORK
 	// mVoiceVisualizer is created by the hud effects manager and uses the HUD Effects pipeline
 	const BOOL needsSendToSim = false; // currently, this HUD effect doesn't need to pack and unpack data to do its job
 	mVoiceVisualizer = ( LLVoiceVisualizer *)LLHUDManager::getInstance()->createViewerEffect( LLHUDObject::LL_HUD_EFFECT_VOICE_VISUALIZER, needsSendToSim );
+#else // XXX_STINSON_CHUI_REWORK
+	mVoiceVisualizer = new LLVoiceVisualizer();
+#endif // XXX_STINSON_CHUI_REWORK
 
 	lldebugs << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << llendl;
 
@@ -870,7 +874,11 @@ void LLVOAvatar::markDead()
 		mNameText = NULL;
 		sNumVisibleChatBubbles--;
 	}
+#ifdef XXX_STINSON_CHUI_REWORK
 	mVoiceVisualizer->markDead();
+#else // XXX_STINSON_CHUI_REWORK
+	mVoiceVisualizer->setStopSpeaking();
+#endif // XXX_STINSON_CHUI_REWORK
 	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 	LLViewerObject::markDead();
 }
@@ -1328,7 +1336,9 @@ void LLVOAvatar::initInstance(void)
 	
 	//VTPause();  // VTune
 	
+#ifdef XXX_STINSON_CHUI_REWORK
 	mVoiceVisualizer->setVoiceEnabled( LLVoiceClient::getInstance()->getVoiceEnabled( mID ) );
+#endif // XXX_STINSON_CHUI_REWORK
 
 }
 
@@ -2424,6 +2434,7 @@ BOOL LLVOAvatar::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 
 void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 {
+#ifdef XXX_STINSON_CHUI_REWORK
 	bool render_visualizer = voice_enabled;
 	
 	// Don't render the user's own voice visualizer when in mouselook, or when opening the mic is disabled.
@@ -2436,6 +2447,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 	}
 	
 	mVoiceVisualizer->setVoiceEnabled(render_visualizer);
+#endif // XXX_STINSON_CHUI_REWORK
 	
 	if ( voice_enabled )
 	{		
@@ -2511,6 +2523,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 			}
 		}
 		
+#ifdef XXX_STINSON_CHUI_REWORK
 		//--------------------------------------------------------------------------------------------
 		// here we get the approximate head position and set as sound source for the voice symbol
 		// (the following version uses a tweak of "mHeadOffset" which handle sitting vs. standing)
@@ -2528,6 +2541,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 			tagPos[VZ] += ( mBodySize[VZ] + 0.125f );
 			mVoiceVisualizer->setVoiceSourceWorldPosition( tagPos );
 		}
+#endif // XXX_STINSON_CHUI_REWORK
 	}//if ( voiceEnabled )
 }		
 

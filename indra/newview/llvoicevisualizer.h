@@ -42,7 +42,11 @@
 #ifndef LL_VOICE_VISUALIZER_H
 #define LL_VOICE_VISUALIZER_H
 
+#ifdef XXX_STINSON_CHUI_REWORK
 #include "llhudeffect.h"
+#else // XXX_STINSON_CHUI_REWORK
+#include "llpointer.h"
+#endif // XXX_STINSON_CHUI_REWORK
 
 //-----------------------------------------------------------------------------------------------
 // The values of voice gesticulation represent energy levels for avatar animation, based on 
@@ -60,34 +64,45 @@ enum VoiceGesticulationLevel
 	NUM_VOICE_GESTICULATION_LEVELS
 };
 
+#ifdef XXX_STINSON_CHUI_REWORK
 const static int NUM_VOICE_SYMBOL_WAVES = 7;
+#endif // XXX_STINSON_CHUI_REWORK
 
 //----------------------------------------------------
 // LLVoiceVisualizer class 
 //----------------------------------------------------
+#ifdef XXX_STINSON_CHUI_REWORK
 class LLVoiceVisualizer : public LLHUDEffect
+#else // XXX_STINSON_CHUI_REWORK
+class LLVoiceVisualizer : public LLRefCount
+#endif // XXX_STINSON_CHUI_REWORK
 {
 	//---------------------------------------------------
 	// public methods 
 	//---------------------------------------------------
 	public:
-		LLVoiceVisualizer ( const U8 type );	//constructor
+#ifdef XXX_STINSON_CHUI_REWORK
+		LLVoiceVisualizer( const U8 type );	//constructor
+#else // XXX_STINSON_CHUI_REWORK
+		LLVoiceVisualizer();	//constructor
+#endif // XXX_STINSON_CHUI_REWORK
 		~LLVoiceVisualizer();					//destructor
-		
-		friend class LLHUDObject;
 
+#ifdef XXX_STINSON_CHUI_REWORK
 		void					setVoiceSourceWorldPosition( const LLVector3 &p );		// this should be the position of the speaking avatar's head
 		void					setMinGesticulationAmplitude( F32 );					// the lower range of meaningful amplitude for setting gesticulation level 
 		void					setMaxGesticulationAmplitude( F32 );					// the upper range of meaningful amplitude for setting gesticulation level 
+#endif // XXX_STINSON_CHUI_REWORK
 		void					setStartSpeaking();										// tell me when the av starts speaking
+#ifdef XXX_STINSON_CHUI_REWORK
 		void					setVoiceEnabled( bool );								// tell me whether or not the user is voice enabled
+#endif // XXX_STINSON_CHUI_REWORK
 		void					setSpeakingAmplitude( F32 );							// tell me how loud the av is speaking (ranges from 0 to 1)
 		void					setStopSpeaking();										// tell me when the av stops speaking
 		bool					getCurrentlySpeaking();									// the get for the above set
 		VoiceGesticulationLevel	getCurrentGesticulationLevel();							// based on voice amplitude, I'll give you the current "energy level" of avatar speech
-		static void				setPreferences( );
-		static void				lipStringToF32s ( std::string& in_string, F32*& out_F32s, U32& count_F32s ); // convert a string of digits to an array of floats
 		void					lipSyncOohAah( F32& ooh, F32& aah );
+#ifdef XXX_STINSON_CHUI_REWORK
 		void					render();												// inherited from HUD Effect
 		void 					packData(LLMessageSystem *mesgsys);						// inherited from HUD Effect
 		void 					unpackData(LLMessageSystem *mesgsys, S32 blocknum);		// inherited from HUD Effect
@@ -103,12 +118,17 @@ class LLVoiceVisualizer : public LLHUDEffect
 		//----------------------------------------------------------------------------------------------
 		void setMaxGesticulationAmplitude(); 
 		void setMinGesticulationAmplitude(); 
+#endif // XXX_STINSON_CHUI_REWORK
 
 	//---------------------------------------------------
 	// private members 
 	//---------------------------------------------------
 	private:
-	
+		static bool				handleVoiceVisualizerPrefsChanged(const LLSD& newvalue);
+		static void				setPreferences( );
+		static void				lipStringToF32s ( std::string& in_string, F32*& out_F32s, U32& count_F32s ); // convert a string of digits to an array of floats
+
+#ifdef XXX_STINSON_CHUI_REWORK
 		struct SoundSymbol
 		{
 			F32						mWaveExpansion			[ NUM_VOICE_SYMBOL_WAVES ];
@@ -119,15 +139,20 @@ class LLVoiceVisualizer : public LLHUDEffect
 			bool					mActive;
 			LLVector3				mPosition;
 		};
+#endif // XXX_STINSON_CHUI_REWORK
 
 		LLFrameTimer			mTimer;							// so I can ask the current time in seconds
 		F64						mStartTime;						// time in seconds when speaking started
+#ifdef XXX_STINSON_CHUI_REWORK
 		F64						mCurrentTime;					// current time in seconds, captured every step
 		F64						mPreviousTime;					// copy of "current time" from last frame
 		SoundSymbol				mSoundSymbol;					// the sound symbol that appears over the avatar's head
 		bool					mVoiceEnabled;					// if off, no rendering should happen
+#endif // XXX_STINSON_CHUI_REWORK
 		bool					mCurrentlySpeaking;				// is the user currently speaking?
+#ifdef XXX_STINSON_CHUI_REWORK
 		LLVector3				mVoiceSourceWorldPosition;		// give this to me every step - I need it to update the sound symbol
+#endif // XXX_STINSON_CHUI_REWORK
 		F32						mSpeakingAmplitude;				// this should be set as often as possible when the user is speaking
 		F32						mMaxGesticulationAmplitude;		// this is the upper-limit of the envelope of detectable gesticulation leves
 		F32						mMinGesticulationAmplitude;		// this is the lower-limit of the envelope of detectable gesticulation leves
