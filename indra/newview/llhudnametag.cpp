@@ -166,7 +166,6 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3&
 	}
 
 	// scale screen size of borders down
-	//RN: for now, text on hud objects is never occluded
 
 	LLVector3 x_pixel_vec;
 	LLVector3 y_pixel_vec;
@@ -191,7 +190,6 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3&
 		+ (F32)mOffsetY * y_pixel_vec
 		- (width_vec / 2.f)
 		- (height_vec);
-	//LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
 
 	LLVector3 v[] = 
 	{
@@ -200,18 +198,6 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector3& start, const LLVector3&
 		bg_pos + width_vec + height_vec,
 		bg_pos + height_vec,
 	};
-
-	if (debug_render)
-	{
-		gGL.begin(LLRender::LINE_STRIP);
-		gGL.vertex3fv(v[0].mV);
-		gGL.vertex3fv(v[1].mV);
-		gGL.vertex3fv(v[2].mV);
-		gGL.vertex3fv(v[3].mV);
-		gGL.vertex3fv(v[0].mV);
-		gGL.vertex3fv(v[2].mV);
-		gGL.end();
-	}
 
 	LLVector3 dir = end-start;
 	F32 a, b, t;
@@ -334,46 +320,48 @@ void LLHUDNameTag::renderText(BOOL for_select)
 			+ (y_pixel_vec * screen_offset.mV[VY]);
 
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-	LLUI::pushMatrix();
+	LLRect screen_rect;
+	screen_rect.setCenterAndSize(0, -mHeight / 2 + mOffsetY, mWidth, mHeight);
+	imagep->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
+	if (mLabelSegments.size())
 	{
-		LLVector3 bg_pos = render_position
-			+ (F32)mOffsetY * y_pixel_vec
-			- (width_vec / 2.f)
-			- (height_vec);
-		LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+		LLUIImagePtr rect_top_image = LLUI::getUIImage("Rounded_Rect_Top");
+		LLRect label_top_rect = screen_rect;
+		const S32 label_height = llround((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
+		label_top_rect.mBottom = label_top_rect.mTop - label_height;
+		LLColor4 label_top_color = text_color;
+		label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;
 
-		if (for_select)
-		{
-			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-			S32 name = mSourceObject->mGLName;
-			LLColor4U coloru((U8)(name >> 16), (U8)(name >> 8), (U8)name);
-			gGL.color4ubv(coloru.mV);
-			gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
-			LLUI::popMatrix();
-			return;
-		}
-		else
-		{
-			gGL.getTexUnit(0)->bind(imagep->getImage());
-				
-			gGL.color4fv(bg_color.mV);
-			gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
-		
-			if ( mLabelSegments.size())
-			{
-				LLUI::pushMatrix();
-				{
-					gGL.color4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
-					LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
-					LLVector3 label_offset = height_vec - label_height;
-					LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
-					gl_segmented_rect_3d_tex_top(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, label_height);
-				}
-				LLUI::popMatrix();
-			}
-		}
+		rect_top_image->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
+
 	}
-	LLUI::popMatrix();
+	//LLUI::pushMatrix();
+	//{
+	//	LLVector3 bg_pos = render_position
+	//		+ (F32)mOffsetY * y_pixel_vec
+	//		- (width_vec / 2.f)
+	//		- (height_vec);
+	//	LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
+
+	//	gGL.getTexUnit(0)->bind(imagep->getImage());
+	//			
+	//	gGL.color4fv(bg_color.mV);
+	//	gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
+	//	
+	//	if ( mLabelSegments.size())
+	//	{
+	//		LLUI::pushMatrix();
+	//		{
+	//			gGL.color4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
+	//			LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
+	//			LLVector3 label_offset = height_vec - label_height;
+	//			LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
+	//			gl_segmented_rect_3d_tex_top(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, label_height);
+	//		}
+	//		LLUI::popMatrix();
+	//	}
+	//}
+	//LLUI::popMatrix();
 
 	F32 y_offset = (F32)mOffsetY;
 		

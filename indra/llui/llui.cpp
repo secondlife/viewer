@@ -1464,144 +1464,132 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	gGL.popUIMatrix();
 }
 
-void gl_segmented_rect_3d_tex(const LLVector2& border_scale, const LLVector3& border_width, 
-							  const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec,
-							  const U32 edges)
+void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv_rect, const LLRectf& center_draw_rect, 
+							 const LLVector3& width_vec, const LLVector3& height_vec)
 {
-	LLVector3 left_border_width = ((edges & (~(U32)ROUNDED_RECT_RIGHT)) != 0) ? border_width : LLVector3::zero;
-	LLVector3 right_border_width = ((edges & (~(U32)ROUNDED_RECT_LEFT)) != 0) ? border_width : LLVector3::zero;
-
-	LLVector3 top_border_height = ((edges & (~(U32)ROUNDED_RECT_BOTTOM)) != 0) ? border_height : LLVector3::zero;
-	LLVector3 bottom_border_height = ((edges & (~(U32)ROUNDED_RECT_TOP)) != 0) ? border_height : LLVector3::zero;
-
-
 	gGL.begin(LLRender::QUADS);
 	{
 		// draw bottom left
-		gGL.texCoord2f(0.f, 0.f);
+		gGL.texCoord2f(clip_rect.mLeft, clip_rect.mBottom);
 		gGL.vertex3f(0.f, 0.f, 0.f);
 
-		gGL.texCoord2f(border_scale.mV[VX], 0.f);
-		gGL.vertex3fv(left_border_width.mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(0.f, border_scale.mV[VY]);
-		gGL.vertex3fv(bottom_border_height.mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mBottom * height_vec).mV);
 
 		// draw bottom middle
-		gGL.texCoord2f(border_scale.mV[VX], 0.f);
-		gGL.vertex3fv(left_border_width.mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 0.f);
-		gGL.vertex3fv((width_vec - right_border_width).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
 		// draw bottom right
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 0.f);
-		gGL.vertex3fv((width_vec - right_border_width).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec).mV);
 
-		gGL.texCoord2f(1.f, 0.f);
+		gGL.texCoord2f(clip_rect.mRight, clip_rect.mBottom);
 		gGL.vertex3fv(width_vec.mV);
 
-		gGL.texCoord2f(1.f, border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + bottom_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
 		// draw left 
-		gGL.texCoord2f(0.f, border_scale.mV[VY]);
-		gGL.vertex3fv(bottom_border_height.mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(0.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mTop * height_vec).mV);
 
 		// draw middle
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
 		// draw right 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f, border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + bottom_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
 		// draw top left
-		gGL.texCoord2f(0.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((left_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + height_vec).mV);
 
-		gGL.texCoord2f(0.f, 1.f);
+		gGL.texCoord2f(clip_rect.mLeft, clip_rect.mTop);
 		gGL.vertex3fv((height_vec).mV);
 
 		// draw top middle
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((left_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + height_vec).mV);
 
 		// draw top right
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f, 1.f);
+		gGL.texCoord2f(clip_rect.mRight, clip_rect.mTop);
 		gGL.vertex3fv((width_vec + height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + height_vec).mV);
 	}
 	gGL.end();
 
 }
 
-void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3& border_width, const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec)
-{
-	gl_segmented_rect_3d_tex(border_scale, border_width, border_height, width_vec, height_vec, ROUNDED_RECT_TOP);
-}
 
 void LLUI::initClass(const settings_map_t& settings,
 					 LLImageProviderInterface* image_provider,
