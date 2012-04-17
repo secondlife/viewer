@@ -604,16 +604,19 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
          left="0"
          help_topic="people_blocked_tab"
          name="blocked_panel"
-         top="0"
-         width="313">
+         right="-1"
+         top="0">
           <panel
            class="panel_block_list_sidetray"
            height="383"
            name="panel_block_list_sidetray"
            filename="panel_block_list_sidetray.xml"
+           follows="all"
            label="Blocked Residents &amp; Objects"
+           left="0"
            font="SansSerifBold"
-           width="313" />
+           top="0"
+           right="-1" />
         </panel>
     </tab_container>
 </panel>

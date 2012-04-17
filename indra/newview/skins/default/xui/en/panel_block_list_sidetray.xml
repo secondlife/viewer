@@ -4,20 +4,21 @@
  follows="left|top|right|bottom"
  height="305"
  layout="topleft"
+ left="0"
  name="block_list_panel"
  help_topic="blocked_list"
  min_height="350"
  min_width="240"
- width="280">
+ right="-1">
     <scroll_list
      follows="all"
      height="220"
      layout="topleft"
-     left="5"
+     left="3"
      name="blocked"
      tool_tip="List of currently blocked Residents"
-     top="0"
-     width="270">
+     right="-1"
+     top="1">
         <scroll_list.columns
          name="item_name" />
         <scroll_list.columns
