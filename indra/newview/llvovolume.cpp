@@ -729,7 +729,15 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	if(!forced)
 	{
 		if(!isVisible())
-		{
+		{ //don't load textures for non-visible faces
+			const S32 num_faces = mDrawable->getNumFaces();
+			for (S32 i = 0; i < num_faces; i++)
+			{
+				LLFace* face = mDrawable->getFace(i);
+				face->setPixelArea(0.f); 
+				face->setVirtualSize(0.f);
+			}
+
 			return ;
 		}
 
@@ -4056,7 +4064,6 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
-static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
@@ -4098,7 +4105,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		if (group->isState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
 		{
-			LLFastTimer ftm(FTM_REBUILD_VBO);	
 			LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 		
 			rebuildMesh(group);
@@ -4107,8 +4113,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 
 	group->mBuilt = 1.f;
-	LLFastTimer ftm(FTM_REBUILD_VBO);	
-
+	
 	LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 
 	LLVOAvatar* pAvatarVO = NULL;
