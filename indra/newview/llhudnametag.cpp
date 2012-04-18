@@ -321,7 +321,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	LLRect screen_rect;
-	screen_rect.setCenterAndSize(0, -mHeight / 2 + mOffsetY, mWidth, mHeight);
+	screen_rect.setCenterAndSize(0, static_cast<S32>(lltrunc(-mHeight / 2 + mOffsetY)), static_cast<S32>(lltrunc(mWidth)), static_cast<S32>(lltrunc(mHeight)));
 	imagep->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
 	if (mLabelSegments.size())
 	{
