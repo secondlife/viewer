@@ -30,7 +30,7 @@
 
 #include "llfloater.h"
 #include "llhandle.h"
-#include "LLPathingLib.h"
+#include "llpathinglib.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingnavmeshzone.h"
 #include "llpathfindingpathtool.h"

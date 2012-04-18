@@ -28,7 +28,7 @@
 
 #include "llmodel.h"
 #include "llmemory.h"
-#include "LLConvexDecomposition.h"
+#include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
 #if LL_MSVC

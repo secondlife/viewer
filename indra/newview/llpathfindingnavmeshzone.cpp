@@ -35,7 +35,7 @@
 #include "llpathfindingmanager.h"
 #include "llviewercontrol.h"
 
-#include "LLPathingLib.h"
+#include "llpathinglib.h"
 
 #include <string>
 #include <vector>

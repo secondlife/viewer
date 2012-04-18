@@ -104,7 +104,7 @@
 #include "lltoolpie.h"
 #include "llcurl.h"
 #include "llnotifications.h"
-#include "LLPathingLib.h"
+#include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
 #include "llpathfindingpathtool.h"
 

@@ -48,7 +48,7 @@
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
 
-#include "LLPathingLib.h"
+#include "llpathinglib.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
