@@ -145,10 +145,10 @@ void LLUIImage::draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, c
 							mClipRegion.mBottom + mScaleRegion.mBottom * mClipRegion.getHeight());
 		gl_segmented_rect_3d_tex(mClipRegion,
 								center_uv_rect,
-								LLRectf(border_width * border_scale * 0.5f,
-										1.f - (border_height * border_scale * 0.5f),
-										1.f - (border_width * border_scale * 0.5f),
-										border_height * border_scale * 0.5f),
+								LLRectf(border_width * border_scale * 0.5f / (F32)rect.getWidth(),
+										(rect.getHeight() - (border_height * border_scale * 0.5f)) / (F32)rect.getHeight(),
+										(rect.getWidth() - (border_width * border_scale * 0.5f)) / (F32)rect.getWidth(),
+										(border_height * border_scale * 0.5f) / (F32)rect.getHeight()),
 								rect.getWidth() * x_axis, 
 								rect.getHeight() * y_axis);
 		

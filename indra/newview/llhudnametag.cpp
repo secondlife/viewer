@@ -276,24 +276,6 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
 
-	// maybe a no-op?
-	//const S32 border_height = 16;
-	//const S32 border_width = 16;
-	const S32 border_height = 8;
-	const S32 border_width = 8;
-
-	// *TODO move this into helper function
-	F32 border_scale = 1.f;
-
-	if (border_height * 2 > mHeight)
-	{
-		border_scale = (F32)mHeight / ((F32)border_height * 2.f);
-	}
-	if (border_width * 2 > mWidth)
-	{
-		border_scale = llmin(border_scale, (F32)mWidth / ((F32)border_width * 2.f));
-	}
-
 	// scale screen size of borders down
 	//RN: for now, text on hud objects is never occluded
 
@@ -302,11 +284,8 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	
 	LLViewerCamera::getInstance()->getPixelVectors(mPositionAgent, y_pixel_vec, x_pixel_vec);
 
-	LLVector2 border_scale_vec((F32)border_width / (F32)imagep->getTextureWidth(), (F32)border_height / (F32)imagep->getTextureHeight());
 	LLVector3 width_vec = mWidth * x_pixel_vec;
 	LLVector3 height_vec = mHeight * y_pixel_vec;
-	LLVector3 scaled_border_width = (F32)llfloor(border_scale * (F32)border_width) * x_pixel_vec;
-	LLVector3 scaled_border_height = (F32)llfloor(border_scale * (F32)border_height) * y_pixel_vec;
 
 	mRadius = (width_vec + height_vec).magVec() * 0.5f;
 
@@ -333,35 +312,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;
 
 		rect_top_image->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
-
 	}
-	//LLUI::pushMatrix();
-	//{
-	//	LLVector3 bg_pos = render_position
-	//		+ (F32)mOffsetY * y_pixel_vec
-	//		- (width_vec / 2.f)
-	//		- (height_vec);
-	//	LLUI::translate(bg_pos.mV[VX], bg_pos.mV[VY], bg_pos.mV[VZ]);
-
-	//	gGL.getTexUnit(0)->bind(imagep->getImage());
-	//			
-	//	gGL.color4fv(bg_color.mV);
-	//	gl_segmented_rect_3d_tex(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, height_vec);
-	//	
-	//	if ( mLabelSegments.size())
-	//	{
-	//		LLUI::pushMatrix();
-	//		{
-	//			gGL.color4f(text_color.mV[VX], text_color.mV[VY], text_color.mV[VZ], gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
-	//			LLVector3 label_height = (mFontp->getLineHeight() * mLabelSegments.size() + (VERTICAL_PADDING / 3.f)) * y_pixel_vec;
-	//			LLVector3 label_offset = height_vec - label_height;
-	//			LLUI::translate(label_offset.mV[VX], label_offset.mV[VY], label_offset.mV[VZ]);
-	//			gl_segmented_rect_3d_tex_top(border_scale_vec, scaled_border_width, scaled_border_height, width_vec, label_height);
-	//		}
-	//		LLUI::popMatrix();
-	//	}
-	//}
-	//LLUI::popMatrix();
 
 	F32 y_offset = (F32)mOffsetY;
 		
