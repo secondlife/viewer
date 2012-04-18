@@ -535,6 +535,24 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	apr_procattr_t *procattr = NULL;
 	chkapr(apr_procattr_create(&procattr, gAPRPoolp));
 
+#if ! defined(APR_HAS_PROCATTR_INHERIT_SET)
+	// Our special preprocessor symbol isn't even defined -- wrong APR
+	LL_WARNS("LLProcess") << "This version of APR lacks Linden apr_procattr_inherit_set() extension" << LL_ENDL;
+#elif ! APR_HAS_PROCATTR_INHERIT_SET
+	// Symbol is defined, but to 0: expect apr_procattr_inherit_set() to
+	// return APR_ENOTIMPL.
+	LL_DEBUGS("LLProcess") << "apr_procattr_inherit_set() not supported on this platform" << LL_ENDL;
+#else  // APR_HAS_PROCATTR_INHERIT_SET nonzero
+	// As of 2012-04-17, the original Windows implementation of
+	// apr_proc_create() unconditionally passes TRUE for bInheritHandles. That
+	// seems to assume that all files are opened by APR so you can
+	// individually control whether each is inherited by a child process. But
+	// we've been burned by having surprising open file handles inherited by
+	// our child processes. Turn that OFF for us!
+	LL_DEBUGS("LLProcess") << "Setting apr_procattr_inherit_set(0)" << LL_ENDL;
+	ll_apr_warn_status(apr_procattr_inherit_set(procattr, 0));
+#endif
+
 	// For which of stdin, stdout, stderr should we create a pipe to the
 	// child? In the viewer, there are only a couple viable
 	// apr_procattr_io_set() alternatives: inherit the viewer's own stdxxx
@@ -607,17 +625,14 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
 	if (params.autokill)
 	{
-#if defined(APR_HAS_PROCATTR_AUTOKILL_SET)
-		apr_status_t ok = apr_procattr_autokill_set(procattr, 1);
-# if LL_WINDOWS
-		// As of 2012-02-02, we only expect this to be implemented on Windows.
-		// Avoid spamming the log with warnings we fully expect.
-		ll_apr_warn_status(ok);
-#else   // ! LL_WINDOWS
-		(void)ok;                   // suppress 'unused' warning
-# endif // ! LL_WINDOWS
-#else
+#if ! defined(APR_HAS_PROCATTR_AUTOKILL_SET)
+		// Our special preprocessor symbol isn't even defined -- wrong APR
 		LL_WARNS("LLProcess") << "This version of APR lacks Linden apr_procattr_autokill_set() extension" << LL_ENDL;
+#elif ! APR_HAS_PROCATTR_AUTOKILL_SET
+		// Symbol is defined, but to 0: expect apr_procattr_autokill_set() to
+		// return APR_ENOTIMPL.
+#else   // APR_HAS_PROCATTR_AUTOKILL_SET nonzero
+		ll_apr_warn_status(apr_procattr_autokill_set(procattr, 1));
 #endif
 	}
 
