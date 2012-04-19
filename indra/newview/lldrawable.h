@@ -277,6 +277,7 @@ public:
 		HAS_ALPHA		= 0x04000000,
 		RIGGED			= 0x08000000,
 		PARTITION_MOVE	= 0x10000000,
+		ANIMATED_CHILD  = 0x20000000,
 	} EDrawableFlags;
 
 private: //aligned members

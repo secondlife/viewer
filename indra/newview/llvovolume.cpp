@@ -691,9 +691,9 @@ void LLVOVolume::updateTextures()
 			{
 				group->destroyGL(true);
 
-				//flag the group as having changed draw info state so it gets a rebuild next time
+				//flag the group as having changed geometry so it gets a rebuild next time
 				//it becomes visible
-				group->setState(LLSpatialGroup::NEW_DRAWINFO);
+				group->setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 			}
 		}
 
@@ -1524,8 +1524,9 @@ void LLVOVolume::updateRelativeXform()
 		LLVector3 delta_pos, delta_scale;
 		
 		//matrix from local space to parent relative/global space
-		delta_rot = drawable->isSpatialRoot() ? LLQuaternion() : mDrawable->getRotation();
-		delta_pos = drawable->isSpatialRoot() ? LLVector3(0,0,0) : mDrawable->getPosition();
+		bool use_identity = drawable->isSpatialRoot() || drawable->isState(LLDrawable::ANIMATED_CHILD);
+		delta_rot = use_identity ? LLQuaternion() : mDrawable->getRotation();
+		delta_pos = use_identity ? LLVector3(0,0,0) : mDrawable->getPosition();
 		delta_scale = mDrawable->getScale();
 
 		// Vertex transform (4x4)
@@ -1626,7 +1627,11 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		return res;
 	}
 	
-	dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+	LLSpatialGroup* group = drawable->getSpatialGroup();
+	if (group)
+	{
+		group->dirtyMesh();
+	}
 
 	BOOL compiled = FALSE;
 			
@@ -1639,6 +1644,8 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 	if (mVolumeChanged || mFaceMappingChanged )
 	{
+		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+
 		compiled = TRUE;
 
 		if (mVolumeChanged)
@@ -1657,6 +1664,8 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	}
 	else if ((mLODChanged) || (mSculptChanged))
 	{
+		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+
 		LLVolume *old_volumep, *new_volumep;
 		F32 old_lod, new_lod;
 		S32 old_num_faces, new_num_faces ;
@@ -3957,9 +3966,10 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	const LLMatrix4* model_mat = NULL;
 
 	LLDrawable* drawable = facep->getDrawable();
+	
 	if (drawable->isActive())
 	{
-		model_mat = &(drawable->getRenderMatrix());
+		model_mat = &drawable->getRenderMatrix();
 	}
 	else
 	{
@@ -4667,7 +4677,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 	}
 
-	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
+//	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
 }
 
 struct CompareBatchBreakerModified

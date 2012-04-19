@@ -182,7 +182,7 @@ LLVOVolume* LLDrawable::getVOVolume() const
 
 const LLMatrix4& LLDrawable::getRenderMatrix() const
 { 
-	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
+	return isRoot() || isState(LLDrawable::ANIMATED_CHILD) ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
 BOOL LLDrawable::isLight() const
@@ -450,7 +450,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 {
 	if (isState(ACTIVE))
 	{
-		clearState(ACTIVE);
+		clearState(ACTIVE | ANIMATED_CHILD);
 
 		if (mParent.notNull() && mParent->isActive() && warning_enabled)
 		{
@@ -542,21 +542,32 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		{
 			// snap to final position
 			dist_squared = 0.0f;
-			if (getVOVolume() && !isRoot())
+			if (getVOVolume() && !isRoot() && !isState(LLDrawable::ANIMATED_CHILD))
 			{ //child prim snapping to some position, needs a rebuild
+				setState(LLDrawable::ANIMATED_CHILD);
 				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 			}
 		}
 	}
 
-	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && 
+	LLVector3 vec = mCurrentScale-target_scale;
+	
+	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
+	{ //scale change requires immediate rebuild
+		mCurrentScale = target_scale;
+		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+	}
+	else if (!isRoot() && 
 		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED || 
 		 !mVObjp->getAngularVelocity().isExactlyZero() ||
 		 target_pos != mXform.getPosition() ||
-		 target_rot != mXform.getRotation())))
-	{ //child prim moving or scale change requires immediate rebuild
-		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+		 target_rot != mXform.getRotation()))
+	{ //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
+		if (!isState(LLDrawable::ANIMATED_CHILD))
+		{
+			setState(LLDrawable::ANIMATED_CHILD);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+		}
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -568,9 +579,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
-	
-	mCurrentScale = target_scale;
-	
+		
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);
@@ -651,7 +660,6 @@ BOOL LLDrawable::updateMoveUndamped()
 	}
 
 	mVObjp->clearChanged(LLXform::MOVED);
-	
 	return TRUE;
 }
 
@@ -1529,10 +1537,10 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 
-	if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
-	{
+	/*if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
+	{ //target omega
 		return TRUE;
-	}
+	}*/
 
 	return FALSE;
 }

@@ -1793,7 +1793,7 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED);
 		if (done)
 		{
-			drawablep->clearState(LLDrawable::ON_MOVE_LIST);
+			drawablep->clearState(LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD);
 			iter = moved_list.erase(curiter);
 		}
 	}
