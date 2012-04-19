@@ -961,7 +961,7 @@ BOOL LLFloaterPathfindingConsole::isRenderAnyShapes() const
 
 U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 {
-	U32 shapeRenderFlag;
+	U32 shapeRenderFlag = 0U;
 
 	if (isRenderWalkables())
 	{ 
