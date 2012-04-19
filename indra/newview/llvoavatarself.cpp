@@ -59,6 +59,7 @@
 #include "llmeshrepository.h"
 #include "llvovolume.h"
 #include "llsdutil.h"
+#include "llstartup.h"
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -2148,6 +2149,7 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
 	result["phases"] = getPhases().dumpPhases();
+	result["startup"] = LLStartUp::getPhases().dumpPhases();
 	
 	return result;
 }
