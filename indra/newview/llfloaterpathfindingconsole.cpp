@@ -32,6 +32,7 @@
 
 #include "llsd.h"
 #include "llhandle.h"
+#include "llcontrol.h"
 #include "llpanel.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
@@ -66,6 +67,19 @@
 #define XUI_TEST_TAB_INDEX 1
 
 #define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
+
+#define CONTROL_NAME_WALKABLE_OBJECTS        "PathfindingWalkable"
+#define CONTROL_NAME_STATIC_OBSTACLE_OBJECTS "PathfindingObstacle"
+#define CONTROL_NAME_MATERIAL_VOLUMES        "PathfindingMaterial"
+#define CONTROL_NAME_EXCLUSION_VOLUMES       "PathfindingExclusion"
+#define CONTROL_NAME_INTERIOR_EDGE           "PathfindingConnectedEdge"
+#define CONTROL_NAME_EXTERIOR_EDGE           "PathfindingBoundaryEdge"
+#define CONTROL_NAME_HEATMAP_MIN             "PathfindingHeatColorBase"
+#define CONTROL_NAME_HEATMAP_MAX             "PathfindingHeatColorMax"
+#define CONTROL_NAME_NAVMESH_FACE            "PathfindingFaceColor"
+#define CONTROL_NAME_TEST_PATH_VALID_END     "PathfindingStarValidColor"
+#define CONTROL_NAME_TEST_PATH_INVALID_END   "PathfindingStarInvalidColor"
+#define CONTROL_NAME_TEST_PATH               "PathfindingTestPathColor"
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
 
@@ -163,6 +177,11 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	updateCharacterWidth();
 	updateCharacterType();
 
+	if ( !LLPathingLib::getInstance() )
+	{
+		LLPathingLib::initSystem();
+	}	
+
 	return LLFloater::postBuild();
 }
 
@@ -170,10 +189,6 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 {
 	LLFloater::onOpen(pKey);
 	//make sure we have a pathing system
-	if ( !LLPathingLib::getInstance() )
-	{
-		LLPathingLib::initSystem();
-	}	
 	if ( LLPathingLib::getInstance() == NULL )
 	{ 
 		setConsoleState(kConsoleStateLibraryNotImplemented);
@@ -181,7 +196,6 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 	}
 	else
 	{	
-		fillInColorsForNavMeshVisualization();
 		if (!mNavMeshZoneSlot.connected())
 		{
 			mNavMeshZoneSlot = mNavMeshZone.registerNavMeshZoneListener(boost::bind(&LLFloaterPathfindingConsole::onNavMeshZoneCB, this, _1));
@@ -189,6 +203,8 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
 		mIsNavMeshUpdating = false;
 		initializeNavMeshZoneForCurrentRegion();
+		registerNavMeshColorListeners();
+		fillInColorsForNavMeshVisualization();
 	}		
 
 	if (!mAgentStateSlot.connected())
@@ -244,6 +260,7 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	{
 		mNavMeshZone.disable();
 	}
+	deregisterNavMeshColorListeners();
 
 	setDefaultInputs();
 	setConsoleState(kConsoleStateUnknown);
@@ -430,6 +447,18 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathEventSlot(),
 	mPathfindingToolset(NULL),
 	mSavedToolset(NULL),
+	mSavedSettingWalkableSlot(),
+	mSavedSettingStaticObstacleSlot(),
+	mSavedSettingMaterialVolumeSlot(),
+	mSavedSettingExclusionVolumeSlot(),
+	mSavedSettingInteriorEdgeSlot(),
+	mSavedSettingExteriorEdgeSlot(),
+	mSavedSettingHeatmapMinSlot(),
+	mSavedSettingHeatmapMaxSlot(),
+	mSavedSettingNavMeshFaceSlot(),
+	mSavedSettingTestPathValidEndSlot(),
+	mSavedSettingTestPathInvalidEndSlot(),
+	mSavedSettingTestPathSlot(),
 	mConsoleState(kConsoleStateUnknown)
 {
 	mSelfHandle.bind(this);
@@ -978,41 +1007,155 @@ U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 	return shapeRenderFlag;
 }
 
+void LLFloaterPathfindingConsole::registerNavMeshColorListeners()
+{
+	if (!mSavedSettingWalkableSlot.connected())
+	{
+		mSavedSettingWalkableSlot = gSavedSettings.getControl(CONTROL_NAME_WALKABLE_OBJECTS)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingStaticObstacleSlot.connected())
+	{
+		mSavedSettingStaticObstacleSlot = gSavedSettings.getControl(CONTROL_NAME_STATIC_OBSTACLE_OBJECTS)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingMaterialVolumeSlot.connected())
+	{
+		mSavedSettingMaterialVolumeSlot = gSavedSettings.getControl(CONTROL_NAME_MATERIAL_VOLUMES)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingExclusionVolumeSlot.connected())
+	{
+		mSavedSettingExclusionVolumeSlot = gSavedSettings.getControl(CONTROL_NAME_EXCLUSION_VOLUMES)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingInteriorEdgeSlot.connected())
+	{
+		mSavedSettingInteriorEdgeSlot = gSavedSettings.getControl(CONTROL_NAME_INTERIOR_EDGE)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingExteriorEdgeSlot.connected())
+	{
+		mSavedSettingExteriorEdgeSlot = gSavedSettings.getControl(CONTROL_NAME_EXTERIOR_EDGE)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingHeatmapMinSlot.connected())
+	{
+		mSavedSettingHeatmapMinSlot = gSavedSettings.getControl(CONTROL_NAME_HEATMAP_MIN)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingHeatmapMaxSlot.connected())
+	{
+		mSavedSettingHeatmapMaxSlot = gSavedSettings.getControl(CONTROL_NAME_HEATMAP_MAX)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingNavMeshFaceSlot.connected())
+	{
+		mSavedSettingNavMeshFaceSlot = gSavedSettings.getControl(CONTROL_NAME_NAVMESH_FACE)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingTestPathValidEndSlot.connected())
+	{
+		mSavedSettingTestPathValidEndSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH_VALID_END)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingTestPathInvalidEndSlot.connected())
+	{
+		mSavedSettingTestPathInvalidEndSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH_INVALID_END)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+	if (!mSavedSettingTestPathSlot.connected())
+	{
+		mSavedSettingTestPathSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
+}
+
+void LLFloaterPathfindingConsole::deregisterNavMeshColorListeners()
+{
+	if (mSavedSettingWalkableSlot.connected())
+	{
+		mSavedSettingWalkableSlot.disconnect();
+	}
+	if (mSavedSettingStaticObstacleSlot.connected())
+	{
+		mSavedSettingStaticObstacleSlot.disconnect();
+	}
+	if (mSavedSettingMaterialVolumeSlot.connected())
+	{
+		mSavedSettingMaterialVolumeSlot.disconnect();
+	}
+	if (mSavedSettingExclusionVolumeSlot.connected())
+	{
+		mSavedSettingExclusionVolumeSlot.disconnect();
+	}
+	if (mSavedSettingInteriorEdgeSlot.connected())
+	{
+		mSavedSettingInteriorEdgeSlot.disconnect();
+	}
+	if (mSavedSettingExteriorEdgeSlot.connected())
+	{
+		mSavedSettingExteriorEdgeSlot.disconnect();
+	}
+	if (mSavedSettingHeatmapMinSlot.connected())
+	{
+		mSavedSettingHeatmapMinSlot.disconnect();
+	}
+	if (mSavedSettingHeatmapMaxSlot.connected())
+	{
+		mSavedSettingHeatmapMaxSlot.disconnect();
+	}
+	if (mSavedSettingNavMeshFaceSlot.connected())
+	{
+		mSavedSettingNavMeshFaceSlot.disconnect();
+	}
+	if (mSavedSettingTestPathValidEndSlot.connected())
+	{
+		mSavedSettingTestPathValidEndSlot.disconnect();
+	}
+	if (mSavedSettingTestPathInvalidEndSlot.connected())
+	{
+		mSavedSettingTestPathInvalidEndSlot.disconnect();
+	}
+	if (mSavedSettingTestPathSlot.connected())
+	{
+		mSavedSettingTestPathSlot.disconnect();
+	}
+}
+
+void LLFloaterPathfindingConsole::handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue)
+{
+	fillInColorsForNavMeshVisualization();
+}
+
 void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 {
-	LLColor4 in = gSavedSettings.getColor4("PathfindingWalkable");
-	mNavMeshColors.mWalkable= LLColor4U(in); 
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		LLPathingLib::NavMeshColors navMeshColors;
 
-	in = gSavedSettings.getColor4("PathfindingObstacle");
-	mNavMeshColors.mObstacle= LLColor4U(in); 
+		LLColor4 in = gSavedSettings.getColor4(CONTROL_NAME_WALKABLE_OBJECTS);
+		navMeshColors.mWalkable= LLColor4U(in); 
 
-	in = gSavedSettings.getColor4("PathfindingMaterial");
-	mNavMeshColors.mMaterial= LLColor4U(in); 
+		in = gSavedSettings.getColor4(CONTROL_NAME_STATIC_OBSTACLE_OBJECTS);
+		navMeshColors.mObstacle= LLColor4U(in); 
 
-	in = gSavedSettings.getColor4("PathfindingExclusion");
-	mNavMeshColors.mExclusion= LLColor4U(in); 
-	
-	in = gSavedSettings.getColor4("PathfindingConnectedEdge");
-	mNavMeshColors.mConnectedEdge= LLColor4U(in); 
+		in = gSavedSettings.getColor4(CONTROL_NAME_MATERIAL_VOLUMES);
+		navMeshColors.mMaterial= LLColor4U(in); 
 
-	in = gSavedSettings.getColor4("PathfindingBoundaryEdge");
-	mNavMeshColors.mBoundaryEdge= LLColor4U(in); 
+		in = gSavedSettings.getColor4(CONTROL_NAME_EXCLUSION_VOLUMES);
+		navMeshColors.mExclusion= LLColor4U(in); 
 
-	mNavMeshColors.mHeatColorBase = gSavedSettings.getColor4("PathfindingHeatColorBase");
+		in = gSavedSettings.getColor4(CONTROL_NAME_INTERIOR_EDGE);
+		navMeshColors.mConnectedEdge= LLColor4U(in); 
 
-	mNavMeshColors.mHeatColorMax = gSavedSettings.getColor4("PathfindingHeatColorMax");
-	
-	in = gSavedSettings.getColor4("PathfindingFaceColor");
-	mNavMeshColors.mFaceColor= LLColor4U(in); 	
+		in = gSavedSettings.getColor4(CONTROL_NAME_EXTERIOR_EDGE);
+		navMeshColors.mBoundaryEdge= LLColor4U(in); 
 
-	in = gSavedSettings.getColor4("PathfindingStarValidColor");
-	mNavMeshColors.mStarValid= LLColor4U(in); 	
+		navMeshColors.mHeatColorBase = gSavedSettings.getColor4(CONTROL_NAME_HEATMAP_MIN);
 
-	in = gSavedSettings.getColor4("PathfindingStarInvalidColor");
-	mNavMeshColors.mStarInvalid= LLColor4U(in);
+		navMeshColors.mHeatColorMax = gSavedSettings.getColor4(CONTROL_NAME_HEATMAP_MAX);
 
-	in = gSavedSettings.getColor4("PathfindingTestPathColor");
-	mNavMeshColors.mTestPath= LLColor4U(in); 	
+		in = gSavedSettings.getColor4(CONTROL_NAME_NAVMESH_FACE);
+		navMeshColors.mFaceColor= LLColor4U(in); 	
 
-	LLPathingLib::getInstance()->setNavMeshColors(mNavMeshColors);
+		in = gSavedSettings.getColor4(CONTROL_NAME_TEST_PATH_VALID_END);
+		navMeshColors.mStarValid= LLColor4U(in); 	
+
+		in = gSavedSettings.getColor4(CONTROL_NAME_TEST_PATH_INVALID_END);
+		navMeshColors.mStarInvalid= LLColor4U(in);
+
+		in = gSavedSettings.getColor4(CONTROL_NAME_TEST_PATH);
+		navMeshColors.mTestPath= LLColor4U(in); 	
+
+		LLPathingLib::getInstance()->setNavMeshColors(navMeshColors);
+	}
 }

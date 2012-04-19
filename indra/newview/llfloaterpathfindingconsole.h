@@ -48,6 +48,7 @@ class LLComboBox;
 class LLButton;
 class LLToolset;
 class LLColor4;
+class LLControlVariable;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -139,6 +140,9 @@ private:
 	void clearPath();
 	void updatePathTestStatus();
 
+	void registerNavMeshColorListeners();
+	void deregisterNavMeshColorListeners();
+	void handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue);
 	void fillInColorsForNavMeshVisualization();
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
@@ -178,11 +182,22 @@ private:
 	LLToolset                                     *mPathfindingToolset;
 	LLToolset                                     *mSavedToolset;
 
+	boost::signals2::connection                   mSavedSettingWalkableSlot;
+	boost::signals2::connection                   mSavedSettingStaticObstacleSlot;
+	boost::signals2::connection                   mSavedSettingMaterialVolumeSlot;
+	boost::signals2::connection                   mSavedSettingExclusionVolumeSlot;
+	boost::signals2::connection                   mSavedSettingInteriorEdgeSlot;
+	boost::signals2::connection                   mSavedSettingExteriorEdgeSlot;
+	boost::signals2::connection                   mSavedSettingHeatmapMinSlot;
+	boost::signals2::connection                   mSavedSettingHeatmapMaxSlot;
+	boost::signals2::connection                   mSavedSettingNavMeshFaceSlot;
+	boost::signals2::connection                   mSavedSettingTestPathValidEndSlot;
+	boost::signals2::connection                   mSavedSettingTestPathInvalidEndSlot;
+	boost::signals2::connection                   mSavedSettingTestPathSlot;
+
 	EConsoleState                                 mConsoleState;
 
 	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
-	
-	LLPathingLib::NavMeshColors                   mNavMeshColors;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H
