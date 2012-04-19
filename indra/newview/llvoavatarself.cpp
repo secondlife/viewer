@@ -80,7 +80,7 @@ void selfStartPhase(const std::string& phase_name)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->startPhase(phase_name);
+		gAgentAvatarp->getPhases().startPhase(phase_name);
 	}
 }
 
@@ -88,7 +88,7 @@ void selfStopPhase(const std::string& phase_name)
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->stopPhase(phase_name);
+		gAgentAvatarp->getPhases().stopPhase(phase_name);
 	}
 }
 
@@ -96,7 +96,8 @@ void selfClearPhases()
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->clearPhases();
+		gAgentAvatarp->getPhases().clearPhases();
+		gAgentAvatarp->mLastRezzedStatus = -1;
 	}
 }
 
@@ -104,7 +105,7 @@ void selfStopAllPhases()
 {
 	if (isAgentAvatarValid())
 	{
-		gAgentAvatarp->stopAllPhases();
+		gAgentAvatarp->getPhases().stopAllPhases();
 	}
 }
 
@@ -2146,7 +2147,7 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
-	result["phases"] = dumpPhases();
+	result["phases"] = getPhases().dumpPhases();
 	
 	return result;
 }

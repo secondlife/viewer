@@ -3785,8 +3785,8 @@ void LLAgent::sendAgentSetAppearance()
 	if (!gAgentWearables.changeInProgress())
 	{
 		// Change is fully resolved, can close some open phases.
-		gAgentAvatarp->stopPhase("process_initial_wearables_update");
-		gAgentAvatarp->stopPhase("wear_inventory_category");
+		gAgentAvatarp->getPhases().stopPhase("process_initial_wearables_update");
+		gAgentAvatarp->getPhases().stopPhase("wear_inventory_category");
 	}
 	
 	gAgentAvatarp->sendAppearanceChangeMetrics();

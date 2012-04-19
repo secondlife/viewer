@@ -265,8 +265,8 @@ LLViewerAssetStats::recordAvatarStats()
 	LLVOAvatar::getNearbyRezzedStats(rez_counts);
 	mAvatarRezStates = rez_counts;
 	mPhaseStats.clear();
-	mPhaseStats["cloud"] = LLVOAvatar::getPhaseStats("cloud");
-	mPhaseStats["cloud-or-gray"] = LLVOAvatar::getPhaseStats("cloud-or-gray");
+	mPhaseStats["cloud"] = LLViewerStats::PhaseMap::getPhaseStats("cloud");
+	mPhaseStats["cloud-or-gray"] = LLViewerStats::PhaseMap::getPhaseStats("cloud-or-gray");
 }
 
 LLSD

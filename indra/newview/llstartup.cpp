@@ -2706,7 +2706,10 @@ void LLStartUp::setStartupState( EStartupState state )
 	LL_INFOS("AppInit") << "Startup state changing from " <<  
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
+
+	selfStopPhase(getStartupStateString());
 	gStartupState = state;
+	selfStartPhase(getStartupStateString());
 	postStartupState();
 }
 

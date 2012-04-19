@@ -287,32 +287,10 @@ public:
 
 	S32				mLastRezzedStatus;
 
-	// Tracking progress of active/completed phases for activities like outfit changing.
-	LLFrameTimer& 	getPhaseTimer(const std::string& phase_name);
-	void			startPhase(const std::string& phase_name);
-	void			stopPhase(const std::string& phase_name);
-	void			stopAllPhases();
-	void			clearPhases();
-	LLSD			dumpPhases();
-	static LLViewerStats::StatsAccumulator& getPhaseStats(const std::string& phase_name);
-	static void			recordPhaseStat(const std::string& phase_name, F32 value);
-
-	class ScopedPhaseSetter
+	LLViewerStats::PhaseMap& getPhases()
 	{
-	public:
-		ScopedPhaseSetter(LLVOAvatar* avatar, std::string phase_name):
-			mAvatar(avatar),mPhaseName(phase_name)
-		{
-			if (mAvatar) { mAvatar->startPhase(mPhaseName); }
-		}
-		~ScopedPhaseSetter()
-		{
-			if (mAvatar) { mAvatar->stopPhase(mPhaseName); }
-		}
-	private:
-		std::string mPhaseName;
-		LLVOAvatar* mAvatar;
-	};
+		return mPhases;
+	}
 
 protected:
 	BOOL			updateIsFullyLoaded();
@@ -329,14 +307,26 @@ private:
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
 
-	// TODO move all the phase stuff to its down data structure.
 public:
-	typedef std::map<std::string,LLViewerStats::StatsAccumulator>	phase_stats_t;
-	typedef std::map<std::string,LLFrameTimer>	phase_map_t;
+	class ScopedPhaseSetter
+	{
+	public:
+		ScopedPhaseSetter(LLVOAvatar *avatarp, std::string phase_name):
+			mAvatar(avatarp), mPhaseName(phase_name)
+		{
+			if (mAvatar) { mAvatar->getPhases().startPhase(mPhaseName); }
+		}
+		~ScopedPhaseSetter()
+		{
+			if (mAvatar) { mAvatar->getPhases().stopPhase(mPhaseName); }
+		}
+	private:
+		std::string mPhaseName;
+		LLVOAvatar* mAvatar;
+	};
 
 private:
-	phase_map_t		mPhases;
-	static phase_stats_t	sPhaseStats;
+	LLViewerStats::PhaseMap mPhases;
 
 protected:
 	LLFrameTimer    mInvisibleTimer;
