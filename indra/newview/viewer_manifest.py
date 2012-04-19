@@ -52,11 +52,6 @@ class ViewerManifest(LLManifest):
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
-        # add the pre-installed spell checking dictionaries
-        dictdir = os.path.join(os.pardir, 'packages', 'dictionaries')
-        print "Trying dictionaries relative to %s with %s" % (self.get_src_prefix(), dictdir)
-        self.path(src=dictdir, dst=os.path.join("app_settings","dictionaries"))
-
         if self.is_packaging_viewer():
             if self.prefix(src="app_settings"):
                 self.exclude("logcontrol.xml")
@@ -96,6 +91,14 @@ class ViewerManifest(LLManifest):
 
                 # ... and the entire windlight directory
                 self.path("windlight")
+
+                # ... and the pre-installed spell checking dictionaries
+                pkgdir = os.path.join(self.get_build_prefix(), 'packages')
+                print "Trying to change src to %s" % (pkgdir);
+                if self.prefix(src=pkgdir,dst=""):
+                    print "Trying dictionaries relative to %s with %s" % (self.get_src_prefix(), "dictionaries");
+                    self.path("dictionaries")
+                    self.end_prefix(pkgdir)
                 self.end_prefix("app_settings")
 
             if self.prefix(src="character"):
