@@ -93,7 +93,7 @@ class ViewerManifest(LLManifest):
                 self.path("windlight")
                 # ... and the pre-installed spell checking dictionaries
                 dictdir = os.path.join(os.pardir, os.pardir, self.args['configuration'], 'packages/dictionaries')
-                print "Trying dictionary relative to %s with %s" % (get_build_prefix(), dictdir);
+                print "Trying dictionary relative to %s with %s" % (self.get_build_prefix(), dictdir);
                 self.path(src=dictdir,
                           dst="dictionaries")
                 self.end_prefix("app_settings")
