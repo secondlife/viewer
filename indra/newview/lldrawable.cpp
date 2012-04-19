@@ -182,7 +182,7 @@ LLVOVolume* LLDrawable::getVOVolume() const
 
 const LLMatrix4& LLDrawable::getRenderMatrix() const
 { 
-	return isRoot() || isState(LLDrawable::ANIMATED_CHILD) ? getWorldMatrix() : getParent()->getWorldMatrix();
+	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
 }
 
 BOOL LLDrawable::isLight() const
@@ -538,13 +538,12 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			target_rot = new_rot;
 			target_scale = new_scale;
 		}
-		else
+		else if (mVObjp->getAngularVelocity().isExactlyZero())
 		{
-			// snap to final position
+			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
-			if (getVOVolume() && !isRoot() && !isState(LLDrawable::ANIMATED_CHILD))
+			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
-				setState(LLDrawable::ANIMATED_CHILD);
 				gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 			}
 		}
@@ -558,8 +557,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
 	}
 	else if (!isRoot() && 
-		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED || 
-		 !mVObjp->getAngularVelocity().isExactlyZero() ||
+		 (!mVObjp->getAngularVelocity().isExactlyZero() ||
 		 target_pos != mXform.getPosition() ||
 		 target_rot != mXform.getRotation()))
 	{ //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild

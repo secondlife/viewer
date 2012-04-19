@@ -684,7 +684,7 @@ void LLVOVolume::updateTextures()
 	{
 		updateTextureVirtualSize();
 
-		if (mDrawable.notNull() && !isVisible())
+		if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
 		{ //delete vertex buffer to free up some VRAM
 			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
 			if (group)
@@ -1438,7 +1438,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
 
-//	bool rigged = false;
+	//	bool rigged = false;
 	LLVolume* volume = mRiggedVolume;
 	if (!volume)
 	{
@@ -1493,7 +1493,7 @@ void LLVOVolume::preRebuild()
 	}
 }
 
-void LLVOVolume::updateRelativeXform()
+void LLVOVolume::updateRelativeXform(bool force_identity)
 {
 	if (mVolumeImpl)
 	{
@@ -1517,14 +1517,14 @@ void LLVOVolume::updateRelativeXform()
 		mRelativeXform.invert();
 		mRelativeXformInvTrans.transpose();
 	}
-	else if (drawable->isActive())
+	else if (drawable->isActive() || force_identity)
 	{				
 		// setup relative transforms
 		LLQuaternion delta_rot;
 		LLVector3 delta_pos, delta_scale;
 		
 		//matrix from local space to parent relative/global space
-		bool use_identity = drawable->isSpatialRoot() || drawable->isState(LLDrawable::ANIMATED_CHILD);
+		bool use_identity = force_identity || drawable->isSpatialRoot();
 		delta_rot = use_identity ? LLQuaternion() : mDrawable->getRotation();
 		delta_pos = use_identity ? LLVector3(0,0,0) : mDrawable->getPosition();
 		delta_scale = mDrawable->getScale();
@@ -3969,7 +3969,14 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	if (drawable->isActive())
 	{
-		model_mat = &drawable->getRenderMatrix();
+		if (drawable->isState(LLDrawable::ANIMATED_CHILD))
+		{
+			model_mat = &drawable->getWorldMatrix();
+		}
+		else
+		{
+			model_mat = &drawable->getRenderMatrix();
+		}
 	}
 	else
 	{
@@ -4618,6 +4625,11 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
 
+				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+				{
+					vobj->updateRelativeXform(true);
+				}
+
 				LLVolume* volume = vobj->getVolume();
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
@@ -4637,6 +4649,12 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 						}
 					}
 				}
+
+				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+				{
+					vobj->updateRelativeXform();
+				}
+
 				
 				drawablep->clearState(LLDrawable::REBUILD_ALL);
 			}
@@ -4951,10 +4969,20 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					LLVOVolume* vobj = drawablep->getVOVolume();
 					LLVolume* volume = vobj->getVolume();
 
+					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+					{
+						vobj->updateRelativeXform(true);
+					}
+
 					U32 te_idx = facep->getTEOffset();
 
 					facep->getGeometryVolume(*volume, te_idx, 
 						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset);
+
+					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+					{
+						vobj->updateRelativeXform(false);
+					}
 				}
 			}
 
