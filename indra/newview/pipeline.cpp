@@ -4353,7 +4353,7 @@ void LLPipeline::renderDebug()
 
 					if ( !pathfindingConsole->isRenderWorld() )
 					{
-						const LLColor4 &clearColor = pathfindingConsole->getNavMeshBackgroundColor();
+						const LLColor4 clearColor = gSavedSettings.getColor4("PathfindingNavMeshClear");
 						gGL.setColorMask(true, true);
 						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
 						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					

@@ -395,11 +395,6 @@ void LLFloaterPathfindingConsole::setRenderHeatmapType(LLPathingLib::LLPLCharact
 	mShowNavMeshWalkabilityComboBox->setValue(comboBoxValue);
 }
 
-const LLColor4 &LLFloaterPathfindingConsole::getNavMeshBackgroundColor() const
-{
-	return mNavMeshColors.mNavMeshClear;
-}
-
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
@@ -1003,11 +998,9 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 	in = gSavedSettings.getColor4("PathfindingBoundaryEdge");
 	mNavMeshColors.mBoundaryEdge= LLColor4U(in); 
 
-	in = gSavedSettings.getColor4("PathfindingHeatColorBase");
-	mNavMeshColors.mHeatColorBase= LLVector4(in.mV);
+	mNavMeshColors.mHeatColorBase = gSavedSettings.getColor4("PathfindingHeatColorBase");
 
-	in = gSavedSettings.getColor4("PathfindingHeatColorMax");
-	mNavMeshColors.mHeatColorMax= LLVector4( in.mV ); 
+	mNavMeshColors.mHeatColorMax = gSavedSettings.getColor4("PathfindingHeatColorMax");
 	
 	in = gSavedSettings.getColor4("PathfindingFaceColor");
 	mNavMeshColors.mFaceColor= LLColor4U(in); 	
@@ -1020,9 +1013,6 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 
 	in = gSavedSettings.getColor4("PathfindingTestPathColor");
 	mNavMeshColors.mTestPath= LLColor4U(in); 	
-
-	in = gSavedSettings.getColor4("PathfindingNavMeshClear");
-	mNavMeshColors.mNavMeshClear= LLColor4(in); 
 
 	LLPathingLib::getInstance()->setNavMeshColors(mNavMeshColors);
 }

@@ -88,8 +88,6 @@ public:
 	LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;
 	void                            setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType);
 
-	const LLColor4 &getNavMeshBackgroundColor() const;
-
 protected:
 
 private:
