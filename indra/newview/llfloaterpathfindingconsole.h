@@ -47,6 +47,7 @@ class LLTabContainer;
 class LLComboBox;
 class LLButton;
 class LLToolset;
+class LLColor4;
 
 class LLFloaterPathfindingConsole
 :	public LLFloater
@@ -86,6 +87,8 @@ public:
 
 	LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;
 	void                            setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType);
+
+	const LLColor4 &getNavMeshBackgroundColor() const;
 
 protected:
 
@@ -185,8 +188,7 @@ private:
 
 	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
 	
-public:
-		LLPathingLib::NavMeshColors               mNavMeshColors;
+	LLPathingLib::NavMeshColors                   mNavMeshColors;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCONSOLE_H

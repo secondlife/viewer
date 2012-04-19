@@ -390,7 +390,12 @@ void LLFloaterPathfindingConsole::setRenderHeatmapType(LLPathingLib::LLPLCharact
 		break;
 	}
 
-	return mShowNavMeshWalkabilityComboBox->setValue(comboBoxValue);
+	mShowNavMeshWalkabilityComboBox->setValue(comboBoxValue);
+}
+
+const LLColor4 &LLFloaterPathfindingConsole::getNavMeshBackgroundColor() const
+{
+	return mNavMeshColors.mNavMeshClear;
 }
 
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
