@@ -4369,17 +4369,15 @@ void LLPipeline::renderDebug()
 						LLGLEnable cull(GL_CULL_FACE);
 						LLGLDisable blend(GL_BLEND);
 						
-						int materialIndex = pathfindingConsole->getHeatMapType();
-						
 						if ( pathfindingConsole->isRenderWorld() )
 						{					
 							LLGLEnable blend(GL_BLEND);
 							gPathfindingProgram.uniform1f("alpha_scale", 0.66f);
-							llPathingLibInstance->renderNavMesh( materialIndex );
+							llPathingLibInstance->renderNavMesh();
 						}
 						else
 						{
-							llPathingLibInstance->renderNavMesh( materialIndex );
+							llPathingLibInstance->renderNavMesh();
 						}
 						
 						//render edges
@@ -4388,12 +4386,12 @@ void LLPipeline::renderDebug()
 							gPathfindingNoNormalsProgram.bind();
 							gPathfindingNoNormalsProgram.uniform1f("tint", 1.f);
 							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", 1.f);
-							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							llPathingLibInstance->renderNavMeshEdges();
 							gPathfindingProgram.bind();
 						}
 						else
 						{
-							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							llPathingLibInstance->renderNavMeshEdges();
 						}
 
 						gGL.flush();
@@ -4550,8 +4548,6 @@ void LLPipeline::renderDebug()
 						glLineWidth(2.0f);	
 						LLGLEnable cull(GL_CULL_FACE);
 																		
-						int materialIndex = pathfindingConsole->getHeatMapType();
-
 						gPathfindingProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
 						gPathfindingProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
 								
@@ -4559,13 +4555,13 @@ void LLPipeline::renderDebug()
 						{ //draw hidden wireframe as darker and less opaque
 							glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );	
 							gPathfindingProgram.uniform1f("ambiance", 1.f);
-							llPathingLibInstance->renderNavMesh( materialIndex );
+							llPathingLibInstance->renderNavMesh();
 							glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 						}	
 						else
 						{
 							gPathfindingProgram.uniform1f("ambiance", ambiance);
-							llPathingLibInstance->renderNavMesh( materialIndex );
+							llPathingLibInstance->renderNavMesh();
 						}
 
 						//render edges
@@ -4574,12 +4570,12 @@ void LLPipeline::renderDebug()
 							gPathfindingNoNormalsProgram.bind();
 							gPathfindingNoNormalsProgram.uniform1f("tint", gSavedSettings.getF32("PathfindingXRayTint"));
 							gPathfindingNoNormalsProgram.uniform1f("alpha_scale", gSavedSettings.getF32("PathfindingXRayOpacity"));
-							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							llPathingLibInstance->renderNavMeshEdges();
 							gPathfindingProgram.bind();
 						}
 						else
 						{
-							llPathingLibInstance->renderNavMeshEdges( materialIndex );
+							llPathingLibInstance->renderNavMeshEdges();
 						}
 					
 						gGL.flush();

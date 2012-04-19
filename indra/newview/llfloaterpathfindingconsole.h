@@ -54,15 +54,6 @@ class LLFloaterPathfindingConsole
 	friend class LLFloaterReg;
 
 public:
-	typedef enum
-	{
-		kRenderHeatmapNone,
-		kRenderHeatmapA,
-		kRenderHeatmapB,
-		kRenderHeatmapC,
-		kRenderHeatmapD
-	} ERenderHeatmapType;
-
 	virtual BOOL postBuild();
 	virtual void onOpen(const LLSD& pKey);
 	virtual void onClose(bool pIsAppQuitting);
@@ -93,10 +84,8 @@ public:
 	BOOL isRenderAnyShapes() const;
 	U32  getRenderShapeFlags();
 
-	ERenderHeatmapType getRenderHeatmapType() const;
-	void               setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType);
-
-	int getHeatMapType() const;
+	LLPathingLib::LLPLCharacterType getRenderHeatmapType() const;
+	void                            setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType);
 
 protected:
 

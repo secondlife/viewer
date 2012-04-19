@@ -333,85 +333,55 @@ void LLFloaterPathfindingConsole::setRenderXRay(BOOL pIsRenderXRay)
 	mShowXRayCheckBox->set(pIsRenderXRay);
 }
 
-LLFloaterPathfindingConsole::ERenderHeatmapType LLFloaterPathfindingConsole::getRenderHeatmapType() const
+LLPathingLib::LLPLCharacterType LLFloaterPathfindingConsole::getRenderHeatmapType() const
 {
-	ERenderHeatmapType renderHeatmapType;
+	LLPathingLib::LLPLCharacterType renderHeatmapType;
 
 	switch (mShowNavMeshWalkabilityComboBox->getValue().asInteger())
 	{
 	case XUI_RENDER_HEATMAP_NONE :
-		renderHeatmapType = kRenderHeatmapNone;
+		renderHeatmapType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
 		break;
 	case XUI_RENDER_HEATMAP_A :
-		renderHeatmapType = kRenderHeatmapA;
+		renderHeatmapType = LLPathingLib::LLPL_CHARACTER_TYPE_A;
 		break;
 	case XUI_RENDER_HEATMAP_B :
-		renderHeatmapType = kRenderHeatmapB;
+		renderHeatmapType = LLPathingLib::LLPL_CHARACTER_TYPE_B;
 		break;
 	case XUI_RENDER_HEATMAP_C :
-		renderHeatmapType = kRenderHeatmapC;
+		renderHeatmapType = LLPathingLib::LLPL_CHARACTER_TYPE_C;
 		break;
 	case XUI_RENDER_HEATMAP_D :
-		renderHeatmapType = kRenderHeatmapD;
+		renderHeatmapType = LLPathingLib::LLPL_CHARACTER_TYPE_D;
 		break;
 	default :
-		renderHeatmapType = kRenderHeatmapNone;
+		renderHeatmapType = LLPathingLib::LLPL_CHARACTER_TYPE_NONE;
 		llassert(0);
 		break;
 	}
 
-	LLPathingLib::getInstance()->rebuildNavMesh( getHeatMapType() );
 	return renderHeatmapType;
 }
 
-int LLFloaterPathfindingConsole::getHeatMapType() const
-{
-	//converts the pathfinding console values to the navmesh filter values
-
-	int renderHeatmapType = 4; //none
-
-	switch ( mShowNavMeshWalkabilityComboBox->getValue().asInteger() )
-	{
-		case XUI_RENDER_HEATMAP_A :
-			renderHeatmapType = 0;
-			break;
-		case XUI_RENDER_HEATMAP_B :
-			renderHeatmapType = 1;
-			break;
-		case XUI_RENDER_HEATMAP_C :
-			renderHeatmapType = 2;
-			break;
-		case XUI_RENDER_HEATMAP_D :
-			renderHeatmapType = 3;
-			break;
-		default :
-			renderHeatmapType = 4;
-			break;
-	}
-
-	return renderHeatmapType;
-}
-
-
-void LLFloaterPathfindingConsole::setRenderHeatmapType(ERenderHeatmapType pRenderHeatmapType)
+void LLFloaterPathfindingConsole::setRenderHeatmapType(LLPathingLib::LLPLCharacterType pRenderHeatmapType)
 {
 	LLSD comboBoxValue;
 
 	switch (pRenderHeatmapType)
 	{
-	case kRenderHeatmapNone :
+	case LLPathingLib::LLPL_CHARACTER_TYPE_NONE :
 		comboBoxValue = XUI_RENDER_HEATMAP_NONE;
 		break;
-	case kRenderHeatmapA :
+	case LLPathingLib::LLPL_CHARACTER_TYPE_A :
 		comboBoxValue = XUI_RENDER_HEATMAP_A;
 		break;
-	case kRenderHeatmapB :
+	case LLPathingLib::LLPL_CHARACTER_TYPE_B :
 		comboBoxValue = XUI_RENDER_HEATMAP_B;
 		break;
-	case kRenderHeatmapC :
+	case LLPathingLib::LLPL_CHARACTER_TYPE_C :
 		comboBoxValue = XUI_RENDER_HEATMAP_C;
 		break;
-	case kRenderHeatmapD :
+	case LLPathingLib::LLPL_CHARACTER_TYPE_D :
 		comboBoxValue = XUI_RENDER_HEATMAP_D;
 		break;
 	default :
@@ -470,37 +440,7 @@ LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
 {
-	switch (getRenderHeatmapType())
-	{
-	case kRenderHeatmapNone :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapNone"
-			<< llendl;
-		break;
-	case kRenderHeatmapA :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapA"
-			<< llendl;
-		break;
-	case kRenderHeatmapB :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapB"
-			<< llendl;
-		break;
-	case kRenderHeatmapC :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapC"
-			<< llendl;
-		break;
-	case kRenderHeatmapD :
-		llwarns << "functionality has not yet been implemented to toggle '"
-			<< mShowNavMeshWalkabilityComboBox->getName() << "' to RenderHeatmapD"
-			<< llendl;
-		break;
-	default :
-		llassert(0);
-		break;
-	}
+	LLPathingLib::getInstance()->setNavMeshMaterialType(getRenderHeatmapType());
 }
 
 void LLFloaterPathfindingConsole::onViewCharactersClicked()
