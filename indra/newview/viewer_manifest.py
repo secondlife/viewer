@@ -93,7 +93,7 @@ class ViewerManifest(LLManifest):
                 self.path("windlight")
 
                 # ... and the included spell checking dictionaries
-                pkgdir = os.path.join(self.args['build'], 'packages')
+                pkgdir = os.path.join(self.args['build'], os.pardir(), 'packages')
                 print "Trying to change src to %s" % (pkgdir);
                 if self.prefix(src=pkgdir,dst=""):
                     print "Trying dictionaries relative to %s with %s" % (self.get_src_prefix(), "dictionaries");
