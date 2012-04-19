@@ -65,6 +65,8 @@
 #define XUI_EDIT_TAB_INDEX 0
 #define XUI_TEST_TAB_INDEX 1
 
+#define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
+
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
 
 //---------------------------------------------------------------------------
@@ -433,8 +435,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathEventSlot(),
 	mPathfindingToolset(NULL),
 	mSavedToolset(NULL),
-	mConsoleState(kConsoleStateUnknown),
-	mShapeRenderFlags(0U)
+	mConsoleState(kConsoleStateUnknown)
 {
 	mSelfHandle.bind(this);
 }
@@ -954,83 +955,74 @@ void LLFloaterPathfindingConsole::updatePathTestStatus()
 
 BOOL LLFloaterPathfindingConsole::isRenderAnyShapes() const
 {
-	if ( isRenderWalkables() || isRenderStaticObstacles() ||
-		 isRenderMaterialVolumes() ||  isRenderExclusionVolumes() )
-	{
-		return true;
-	}
-	
-	return false;
+	return (isRenderWalkables() || isRenderStaticObstacles() ||
+		isRenderMaterialVolumes() ||  isRenderExclusionVolumes());
 }
 
 U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 {
-	resetShapeRenderFlags();
+	U32 shapeRenderFlag;
 
-	if ( isRenderWalkables() )			
+	if (isRenderWalkables())
 	{ 
-		setShapeRenderFlag( LLPathingLib::LLST_WalkableObjects ); 
+		SET_SHAPE_RENDER_FLAG(shapeRenderFlag, LLPathingLib::LLST_WalkableObjects); 
 	}
-	if ( isRenderStaticObstacles() )	
+	if (isRenderStaticObstacles())
 	{ 
-		setShapeRenderFlag( LLPathingLib::LLST_ObstacleObjects ); 
+		SET_SHAPE_RENDER_FLAG(shapeRenderFlag, LLPathingLib::LLST_ObstacleObjects); 
 	}
-	if ( isRenderMaterialVolumes() )	
+	if (isRenderMaterialVolumes())
 	{ 
-		setShapeRenderFlag( LLPathingLib::LLST_MaterialPhantoms ); 
+		SET_SHAPE_RENDER_FLAG(shapeRenderFlag, LLPathingLib::LLST_MaterialPhantoms); 
 	}
-	if ( isRenderExclusionVolumes() )	
+	if (isRenderExclusionVolumes())
 	{ 
-		setShapeRenderFlag( LLPathingLib::LLST_ExclusionPhantoms ); 
+		SET_SHAPE_RENDER_FLAG(shapeRenderFlag, LLPathingLib::LLST_ExclusionPhantoms); 
 	}
-	return mShapeRenderFlags;
+
+	return shapeRenderFlag;
 }
 
 void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 {
-
-	LLPathingLib::NavMeshColors colors;
-	
 	LLColor4 in = gSavedSettings.getColor4("PathfindingWalkable");
-	colors.mWalkable= LLColor4U(in); 
+	mNavMeshColors.mWalkable= LLColor4U(in); 
 
 	in = gSavedSettings.getColor4("PathfindingObstacle");
-	colors.mObstacle= LLColor4U(in); 
+	mNavMeshColors.mObstacle= LLColor4U(in); 
 
 	in = gSavedSettings.getColor4("PathfindingMaterial");
-	colors.mMaterial= LLColor4U(in); 
+	mNavMeshColors.mMaterial= LLColor4U(in); 
 
 	in = gSavedSettings.getColor4("PathfindingExclusion");
-	colors.mExclusion= LLColor4U(in); 
+	mNavMeshColors.mExclusion= LLColor4U(in); 
 	
 	in = gSavedSettings.getColor4("PathfindingConnectedEdge");
-	colors.mConnectedEdge= LLColor4U(in); 
+	mNavMeshColors.mConnectedEdge= LLColor4U(in); 
 
 	in = gSavedSettings.getColor4("PathfindingBoundaryEdge");
-	colors.mBoundaryEdge= LLColor4U(in); 
+	mNavMeshColors.mBoundaryEdge= LLColor4U(in); 
 
 	in = gSavedSettings.getColor4("PathfindingHeatColorBase");
-	colors.mHeatColorBase= LLVector4(in.mV);
+	mNavMeshColors.mHeatColorBase= LLVector4(in.mV);
 
 	in = gSavedSettings.getColor4("PathfindingHeatColorMax");
-	colors.mHeatColorMax= LLVector4( in.mV ); 
+	mNavMeshColors.mHeatColorMax= LLVector4( in.mV ); 
 	
 	in = gSavedSettings.getColor4("PathfindingFaceColor");
-	colors.mFaceColor= LLColor4U(in); 	
+	mNavMeshColors.mFaceColor= LLColor4U(in); 	
 
 	in = gSavedSettings.getColor4("PathfindingStarValidColor");
-	colors.mStarValid= LLColor4U(in); 	
+	mNavMeshColors.mStarValid= LLColor4U(in); 	
 
 	in = gSavedSettings.getColor4("PathfindingStarInvalidColor");
-	colors.mStarInvalid= LLColor4U(in);
+	mNavMeshColors.mStarInvalid= LLColor4U(in);
 
 	in = gSavedSettings.getColor4("PathfindingTestPathColor");
-	colors.mTestPath= LLColor4U(in); 	
+	mNavMeshColors.mTestPath= LLColor4U(in); 	
 
 	in = gSavedSettings.getColor4("PathfindingNavMeshClear");
-	colors.mNavMeshClear= LLColor4(in); 
+	mNavMeshColors.mNavMeshClear= LLColor4(in); 
 
-	mNavMeshColors = colors;
-
-	LLPathingLib::getInstance()->setNavMeshColors( colors );
+	LLPathingLib::getInstance()->setNavMeshColors(mNavMeshColors);
 }

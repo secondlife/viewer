@@ -141,8 +141,6 @@ private:
 	void clearPath();
 	void updatePathTestStatus();
 
-	void resetShapeRenderFlags() { mShapeRenderFlags = 0; }
-	void setShapeRenderFlag( LLPathingLib::LLShapeType type ) { mShapeRenderFlags |= (1<<type); }
 	void fillInColorsForNavMeshVisualization();
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
@@ -183,8 +181,6 @@ private:
 	LLToolset                                     *mSavedToolset;
 
 	EConsoleState                                 mConsoleState;
-
-	U32                                           mShapeRenderFlags;
 
 	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
 	
