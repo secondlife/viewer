@@ -26,7 +26,7 @@
 #ifndef LLWINDOWCALLBACKS_H
 #define LLWINDOWCALLBACKS_H
 
-class LLCoordGL;
+#include "llcoord.h"
 class LLWindow;
 
 class LLWindowCallbacks

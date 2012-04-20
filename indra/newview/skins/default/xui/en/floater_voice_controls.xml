@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  can_resize="true"
  can_minimize="true"
  can_close="true"
@@ -71,7 +71,7 @@
              layout="topleft"
              left_pad="10"
              name="user_text"
-             text_color="white"
+             text_color="White"
              top="4"
              use_ellipses="true"
              value="My Avatar:"

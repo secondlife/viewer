@@ -169,11 +169,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 
 	const std::string& param = sdname.asString();
 
-	if (param == "build")
-	{
-		retval = gAgent.canEditParcel();
-	}
-	else if (param == "speak")
+	if (param == "speak")
 	{
 		if ( gAgent.isVoiceConnected() && 
 			LLViewerParcelMgr::getInstance()->allowAgentVoice() &&
@@ -3314,6 +3310,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 	}
 
 	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
+	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
 
 	gAgentAvatarp->updateMeshTextures();
 

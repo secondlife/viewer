@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- open_positioning="centered"
+ positioning="centered"
  default_tab_group="1"
  height="460"
  layout="topleft"
@@ -100,7 +100,7 @@
          help_topic="preferences_colors_tab"
          name="colors" />
         <panel
-		 class="panel_preference"
+         class="panel_preference_privacy"
          filename="panel_preferences_privacy.xml"
          label="Privacy"
          layout="topleft"

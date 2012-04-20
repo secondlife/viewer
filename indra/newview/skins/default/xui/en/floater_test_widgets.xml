@@ -115,6 +115,7 @@
   </flyout_button>
   <check_box
    bottom_delta="35"
+   height="10"
    label="Checkbox"
    layout="topleft"
    tool_tip="checkbox"
@@ -275,6 +276,7 @@
   <!-- "spinner" is a numerical input widget with an up and down arrow to
        change the value. -->
   <spinner
+    height="10"
    bottom_delta="35"
    follows="top|left"
    label="Spinner"

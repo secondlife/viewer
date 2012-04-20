@@ -3969,7 +3969,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 				U32 num_indices = mVertexBuffer[5][mdl][i]->getNumIndices();
 				if (num_indices > 2)
 				{
-					glodInsertElements(mObject[mdl], i, GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, mVertexBuffer[5][mdl][i]->getIndicesPointer(), 0, 0.f);
+					glodInsertElements(mObject[mdl], i, GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, (U8*) mVertexBuffer[5][mdl][i]->getIndicesPointer(), 0, 0.f);
 				}
 				tri_count += num_indices/3;
 				stop_gloderror();
@@ -4083,14 +4083,14 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 				{
 					buff->allocateBuffer(sizes[i*2+1], sizes[i*2], true);
 					buff->setBuffer(type_mask);
-					glodFillElements(mObject[base], names[i], GL_UNSIGNED_SHORT, buff->getIndicesPointer());
+					glodFillElements(mObject[base], names[i], GL_UNSIGNED_SHORT, (U8*) buff->getIndicesPointer());
 					stop_gloderror();
 				}
 				else
 				{ //this face was eliminated, create a dummy triangle (one vertex, 3 indices, all 0)
 					buff->allocateBuffer(1, 3, true);
-					memset(buff->getMappedData(), 0, buff->getSize());
-					memset(buff->getIndicesPointer(), 0, buff->getIndicesSize());
+					memset((U8*) buff->getMappedData(), 0, buff->getSize());
+					memset((U8*) buff->getIndicesPointer(), 0, buff->getIndicesSize());
 				}
 
 				buff->validateRange(0, buff->getNumVerts()-1, buff->getNumIndices(), 0);
@@ -4525,7 +4525,17 @@ void LLModelPreview::updateStatusMessages()
 		}
 	}
 
-	if (mFMP->childGetValue("physics_lod_combo").asString() == "From file")
+	
+	LLCtrlSelectionInterface* iface = fmp->childGetSelectionInterface("physics_lod_combo");
+	S32 which_mode = 0; 
+	S32 file_mode = 1;
+	if (iface)
+	{
+		which_mode = iface->getFirstSelectedIndex();
+		file_mode = iface->getItemCount() - 1;
+	}
+
+	if (which_mode == file_mode)
 	{
 		mFMP->childEnable("physics_file");
 		mFMP->childEnable("physics_browse");
@@ -4880,8 +4890,8 @@ void LLModelPreview::addEmptyFace( LLModel* pTarget )
 	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(type_mask, 0);
 	
 	buff->allocateBuffer(1, 3, true);
-	memset( buff->getMappedData(), 0, buff->getSize() );
-	memset( buff->getIndicesPointer(), 0, buff->getIndicesSize() );
+	memset( (U8*) buff->getMappedData(), 0, buff->getSize() );
+	memset( (U8*) buff->getIndicesPointer(), 0, buff->getIndicesSize() );
 		
 	buff->validateRange( 0, buff->getNumVerts()-1, buff->getNumIndices(), 0 );
 		

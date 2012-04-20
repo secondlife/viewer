@@ -1113,8 +1113,8 @@ LLChicletPanel::~LLChicletPanel()
 	}
 }
 
-void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
-	
+void LLChicletPanel::onMessageCountChanged(const LLSD& data)
+{
 	LLUUID session_id = data["session_id"].asUUID();
 	S32 unread = data["participant_unread"].asInteger();
 
@@ -1139,7 +1139,7 @@ void im_chiclet_callback(LLChicletPanel* panel, const LLSD& data){
 	}
 }
 
-void object_chiclet_callback(const LLSD& data)
+void LLChicletPanel::objectChicletCallback(const LLSD& data)
 {
 	LLUUID notification_id = data["notification_id"];
 	bool new_message = data["new_message"];
@@ -1163,10 +1163,10 @@ void object_chiclet_callback(const LLSD& data)
 BOOL LLChicletPanel::postBuild()
 {
 	LLPanel::postBuild();
-	LLIMModel::instance().addNewMsgCallback(boost::bind(im_chiclet_callback, this, _1));
-	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(im_chiclet_callback, this, _1));
-	LLScriptFloaterManager::getInstance()->addNewObjectCallback(boost::bind(object_chiclet_callback, _1));
-	LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(boost::bind(object_chiclet_callback, _1));
+	LLIMModel::instance().addNewMsgCallback(boost::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
+	LLIMModel::instance().addNoUnreadMsgsCallback(boost::bind(&LLChicletPanel::onMessageCountChanged, this, _1));
+	LLScriptFloaterManager::getInstance()->addNewObjectCallback(boost::bind(&LLChicletPanel::objectChicletCallback, this, _1));
+	LLScriptFloaterManager::getInstance()->addToggleObjectFloaterCallback(boost::bind(&LLChicletPanel::objectChicletCallback, this, _1));
 	LLIMChiclet::sFindChicletsSignal.connect(boost::bind(&LLChicletPanel::findChiclet<LLChiclet>, this, _1));
 	LLVoiceChannel::setCurrentVoiceChannelChangedCallback(boost::bind(&LLChicletPanel::onCurrentVoiceChannelChanged, this, _1));
 

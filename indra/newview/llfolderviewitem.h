@@ -114,6 +114,7 @@ public:
 	static const S32 ICON_PAD = 2;
 	static const S32 ICON_WIDTH = 16;
 	static const S32 TEXT_PAD = 1;
+	static const S32 TEXT_PAD_RIGHT = 4;
 	static const S32 ARROW_SIZE = 12;
 	static const S32 MAX_FOLDER_ITEM_OVERLAP = 2;
 	// animation parameters
@@ -303,7 +304,8 @@ public:
 	BOOL			isDescendantOf( const LLFolderViewFolder* potential_ancestor );
 	S32				getIndentation() { return mIndentation; }
 
-	virtual BOOL	potentiallyVisible(); // do we know for a fact that this item has been filtered out?
+	virtual BOOL	potentiallyVisible(); // do we know for a fact that this item won't be displayed?
+	virtual BOOL	potentiallyFiltered(); // do we know for a fact that this item has been filtered out?
 
 	virtual BOOL	getFiltered();
 	virtual BOOL	getFiltered(S32 filter_generation);

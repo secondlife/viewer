@@ -722,7 +722,9 @@ bool LLAppViewer::init()
 
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
-    LLCurl::initClass(gSavedSettings.getBOOL("CurlUseMultipleThreads"));
+    LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
+						gSavedSettings.getS32("CurlMaximumNumberOfHandles"), 
+						gSavedSettings.getBOOL("CurlUseMultipleThreads"));
 	LL_INFOS("InitInfo") << "LLCurl initialized." << LL_ENDL ;
 
     LLMachineID::init();
@@ -1485,6 +1487,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	//ditch LLVOAvatarSelf instance
+	gAgentAvatarp = NULL;
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 

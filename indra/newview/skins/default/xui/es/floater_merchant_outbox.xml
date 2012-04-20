@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="BUZÓN DE SALIDA DE COMERCIANTE">
+	<string name="OutboxFolderCount1">
+		1 carpeta
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] carpetas
+	</string>
+	<string name="OutboxImporting">
+		Enviando carpetas...
+	</string>
+	<string name="OutboxInitializing">
+		Inicializando...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Cargando...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="Enviar al Mercado" name="outbox_import_btn" tool_tip="Poner en el escaparate de Mi Mercado"/>
+		</panel>
+	</panel>
+</floater>

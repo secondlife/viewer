@@ -244,7 +244,7 @@ void LLDragHandleTop::reshapeTitleBox()
 	const LLFontGL* font = LLFontGL::getFontSansSerif();
 	S32 title_width = getRect().getWidth();
 	title_width -= LEFT_PAD + 2 * BORDER_PAD + getButtonsRect().getWidth();
-	S32 title_height = llround(font->getLineHeight());
+	S32 title_height = font->getLineHeight();
 	LLRect title_rect;
 	title_rect.setLeftTopAndSize( 
 		LEFT_PAD, 

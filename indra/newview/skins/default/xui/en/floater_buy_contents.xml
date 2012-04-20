@@ -62,7 +62,7 @@
      layout="topleft"
      left="10"
      name="buy_text"
-     text_color="white"
+     text_color="White"
      top="220"
      use_ellipses="true" 
      width="260">

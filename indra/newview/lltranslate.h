@@ -157,6 +157,7 @@ public:
 	/*virtual*/ bool isConfigured() const;
 private:
 	static std::string getAPIKey();
+	static std::string getAPILanguageCode(const std::string& lang);
 };
 
 /**

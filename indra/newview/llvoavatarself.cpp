@@ -66,10 +66,11 @@
 
 #include <boost/lexical_cast.hpp>
 
-LLVOAvatarSelf *gAgentAvatarp = NULL;
+LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
+
 BOOL isAgentAvatarValid()
 {
-	return (gAgentAvatarp &&
+	return (gAgentAvatarp.notNull() &&
 			(gAgentAvatarp->getRegion() != NULL) &&
 			(!gAgentAvatarp->isDead()));
 }
@@ -365,9 +366,9 @@ BOOL LLVOAvatarSelf::buildMenus()
 						item_params.label = sub_piemenu_name;
 					}
 					item_params.name =(item_params.label );
-					item_params.on_click.function_name = "Attachment.Detach";
+					item_params.on_click.function_name = "Attachment.DetachFromPoint";
 					item_params.on_click.parameter = iter->first;
-					item_params.on_enable.function_name = "Attachment.EnableDetach";
+					item_params.on_enable.function_name = "Attachment.PointFilled";
 					item_params.on_enable.parameter = iter->first;
 					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
@@ -1574,7 +1575,7 @@ void LLVOAvatarSelf::invalidateAll()
 	{
 		invalidateComposite(mBakedTextureDatas[i].mTexLayerSet, TRUE);
 	}
-	mDebugSelfLoadTimer.reset();
+	//mDebugSelfLoadTimer.reset();
 }
 
 //-----------------------------------------------------------------------------
@@ -1896,11 +1897,13 @@ BOOL LLVOAvatarSelf::getIsCloud()
 		gAgentWearables.getWearableCount(LLWearableType::WT_EYES) == 0 ||
 		gAgentWearables.getWearableCount(LLWearableType::WT_SKIN) == 0)	
 	{
+		lldebugs << "No body parts" << llendl;
 		return TRUE;
 	}
 
 	if (!isTextureDefined(TEX_HAIR, 0))
 	{
+		lldebugs << "No hair texture" << llendl;
 		return TRUE;
 	}
 
@@ -1909,12 +1912,14 @@ BOOL LLVOAvatarSelf::getIsCloud()
 		if (!isLocalTextureDataAvailable(mBakedTextureDatas[BAKED_LOWER].mTexLayerSet) &&
 			(!isTextureDefined(TEX_LOWER_BAKED, 0)))
 		{
+			lldebugs << "Lower textures not baked" << llendl;
 			return TRUE;
 		}
 
 		if (!isLocalTextureDataAvailable(mBakedTextureDatas[BAKED_UPPER].mTexLayerSet) &&
 			(!isTextureDefined(TEX_UPPER_BAKED, 0)))
 		{
+			lldebugs << "Upper textures not baked" << llendl;
 			return TRUE;
 		}
 
@@ -1931,10 +1936,12 @@ BOOL LLVOAvatarSelf::getIsCloud()
 			const LLViewerTexture* baked_img = getImage( texture_data.mTextureIndex, 0 );
 			if (!baked_img || !baked_img->hasGLTexture())
 			{
+				lldebugs << "Texture at index " << i << " (texture index is " << texture_data.mTextureIndex << ") is not loaded" << llendl;
 				return TRUE;
 			}
 		}
 
+		lldebugs << "Avatar de-clouded" << llendl;
 	}
 	return FALSE;
 }
@@ -2258,6 +2265,7 @@ void LLVOAvatarSelf::setNewBakedTexture( ETextureIndex te, const LLUUID& uuid )
 	}
 }
 
+// FIXME: This is never called. Something may be broken.
 void LLVOAvatarSelf::outputRezDiagnostics() const
 {
 	if(!gSavedSettings.getBOOL("DebugAvatarLocalTexLoadedTime"))
@@ -2313,6 +2321,18 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 		if (!layerset_buffer) continue;
 		llinfos << layerset_buffer->dumpTextureInfo() << llendl;
 	}
+}
+
+void LLVOAvatarSelf::outputRezTiming(const std::string& msg) const
+{
+	LL_DEBUGS("Avatar Rez")
+		<< llformat("%s. Time from avatar creation: %.2f", msg.c_str(), mDebugSelfLoadTimer.getElapsedTimeF32())
+		<< llendl;
+}
+
+void LLVOAvatarSelf::reportAvatarRezTime() const
+{
+	// TODO: report mDebugSelfLoadTimer.getElapsedTimeF32() somehow.
 }
 
 //-----------------------------------------------------------------------------

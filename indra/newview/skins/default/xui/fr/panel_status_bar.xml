@@ -15,7 +15,7 @@
 	<panel.string name="buycurrencylabel">
 		[AMT] L$
 	</panel.string>
-	<panel name="balance_bg">
+	<panel left="-405" name="balance_bg" width="195">
 		<text name="balance" tool_tip="Cliquer sur ce bouton pour actualiser votre solde en L$." value="20 L$"/>
 		<button label="Acheter L$" name="buyL" tool_tip="Cliquer pour acheter plus de L$."/>
 		<button label="Achats" name="goShop" tool_tip="Ouvrir la Place du marché Second Life." width="75"/>

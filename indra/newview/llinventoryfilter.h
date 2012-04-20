@@ -32,6 +32,7 @@
 
 class LLFolderViewItem;
 class LLFolderViewFolder;
+class LLInventoryItem;
 
 class LLInventoryFilter
 {
@@ -115,10 +116,15 @@ public:
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
 	BOOL 				check(const LLFolderViewItem* item);
-	bool				checkFolder(const LLFolderViewFolder* folder);
+	bool				check(const LLInventoryItem* item);
+	bool				checkFolder(const LLFolderViewFolder* folder) const;
+	bool				checkFolder(const LLUUID& folder_id) const;
 	BOOL 				checkAgainstFilterType(const LLFolderViewItem* item) const;
+	bool 				checkAgainstFilterType(const LLInventoryItem* item) const;
 	BOOL 				checkAgainstPermissions(const LLFolderViewItem* item) const;
+	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	BOOL 				checkAgainstFilterLinks(const LLFolderViewItem* item) const;
+	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
 	std::string::size_type getStringMatchOffset() const;
 
@@ -157,6 +163,7 @@ public:
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
+	BOOL 				isDefault() const;
 	BOOL 				isNotDefault() const;
 	void 				markDefault();
 	void 				resetDefault();
@@ -175,6 +182,8 @@ public:
 	void 				fromLLSD(LLSD& data);
 
 private:
+	bool				areDateLimitsSet();
+
 	struct FilterOps
 	{
 		FilterOps();
