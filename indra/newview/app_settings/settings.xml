@@ -13602,8 +13602,8 @@
       <key>Value</key>
       <array>
         <real>1.0</real>
-        <real>0.01</real>
-        <real>0.1</real>
+        <real>1.0</real>
+        <real>0.0</real>
         <real>0.3</real>
       </array>
     </map>
