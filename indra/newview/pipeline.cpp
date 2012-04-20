@@ -1793,7 +1793,17 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 		drawablep->clearState(LLDrawable::EARLY_MOVE | LLDrawable::MOVE_UNDAMPED);
 		if (done)
 		{
-			drawablep->clearState(LLDrawable::ON_MOVE_LIST | LLDrawable::ANIMATED_CHILD);
+			drawablep->clearState(LLDrawable::ON_MOVE_LIST);
+			if (drawablep->isState(LLDrawable::ANIMATED_CHILD)) // && drawablep->getVObj()->getAngularVelocity().isExactlyZero())
+			{ //not a target omega object, will likely not receive any future world matrix updates
+				// -- this keeps attachments from getting stuck in space and falling off your avatar
+				drawablep->clearState(LLDrawable::ANIMATED_CHILD);
+				LLSpatialGroup* group = drawablep->getSpatialGroup();
+				if (group)
+				{
+					group->dirtyGeom();
+				}				
+			}
 			iter = moved_list.erase(curiter);
 		}
 	}

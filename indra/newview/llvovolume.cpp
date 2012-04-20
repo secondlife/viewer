@@ -684,7 +684,7 @@ void LLVOVolume::updateTextures()
 	{
 		updateTextureVirtualSize();
 
-		if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
+		/*if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
 		{ //delete vertex buffer to free up some VRAM
 			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
 			if (group)
@@ -695,7 +695,7 @@ void LLVOVolume::updateTextures()
 				//it becomes visible
 				group->setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 			}
-		}
+		}*/
 
 	}
 }
@@ -3967,16 +3967,13 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	LLDrawable* drawable = facep->getDrawable();
 	
-	if (drawable->isActive())
+	if (drawable->isState(LLDrawable::ANIMATED_CHILD))
 	{
-		if (drawable->isState(LLDrawable::ANIMATED_CHILD))
-		{
-			model_mat = &drawable->getWorldMatrix();
-		}
-		else
-		{
-			model_mat = &drawable->getRenderMatrix();
-		}
+		model_mat = &drawable->getWorldMatrix();
+	}
+	else if (drawable->isActive())
+	{
+		model_mat = &drawable->getRenderMatrix();
 	}
 	else
 	{

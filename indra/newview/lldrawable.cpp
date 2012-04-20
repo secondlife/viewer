@@ -551,6 +551,8 @@ F32 LLDrawable::updateXform(BOOL undamped)
 
 	LLVector3 vec = mCurrentScale-target_scale;
 	
+	
+
 	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
 	{ //scale change requires immediate rebuild
 		mCurrentScale = target_scale;
@@ -564,7 +566,12 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		if (!isState(LLDrawable::ANIMATED_CHILD))
 		{
 			setState(LLDrawable::ANIMATED_CHILD);
-			gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+			LLSpatialGroup* group = getSpatialGroup();
+			if (group)
+			{
+				gPipeline.markRebuild(group, TRUE);
+			}
 		}
 	}
 	else if (!getVOVolume() && !isAvatar())
@@ -577,7 +584,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
-		
+
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);
