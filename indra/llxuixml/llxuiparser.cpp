@@ -43,7 +43,6 @@
 
 #include "lluicolor.h"
 #include "v3math.h"
-
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 const S32 MAX_STRING_ATTRIBUTE_SIZE = 40;
@@ -80,7 +79,6 @@ struct Occurs : public LLInitParam::Block<Occurs>
 	{}
 };
 
-
 typedef enum
 {
 	USE_REQUIRED,
@@ -102,9 +100,18 @@ namespace LLInitParam
 
 struct Element;
 struct Group;
-struct Choice;
 struct Sequence;
-struct Any;
+
+struct All : public LLInitParam::Block<All, Occurs>
+{
+	Multiple< Lazy<Element, IS_A_BLOCK> > elements;
+
+	All()
+	:	elements("element")
+	{
+		maxOccurs = 1;
+	}
+};
 
 struct Attribute : public LLInitParam::Block<Attribute>
 {
@@ -128,24 +135,13 @@ struct Any : public LLInitParam::Block<Any, Occurs>
 	{}
 };
 
-struct All : public LLInitParam::Block<All, Occurs>
-{
-	Multiple< Lazy<Element, IS_A_BLOCK> > elements;
-
-	All()
-	:	elements("element")
-	{
-		maxOccurs = 1;
-	}
-};
-
 struct Choice : public LLInitParam::ChoiceBlock<Choice, Occurs>
 {
 	Alternative< Lazy<Element, IS_A_BLOCK> >	element;
 	Alternative< Lazy<Group, IS_A_BLOCK> >		group;
 	Alternative< Lazy<Choice, IS_A_BLOCK> >		choice;
 	Alternative< Lazy<Sequence, IS_A_BLOCK> >	sequence;
-	Alternative< Lazy<Any, IS_A_BLOCK> >		any;
+	Alternative< Lazy<Any> >					any;
 
 	Choice()
 	:	element("element"),
@@ -161,9 +157,9 @@ struct Sequence : public LLInitParam::ChoiceBlock<Sequence, Occurs>
 {
 	Alternative< Lazy<Element, IS_A_BLOCK> >	element;
 	Alternative< Lazy<Group, IS_A_BLOCK> >		group;
-	Alternative< Lazy<Choice, IS_A_BLOCK> >		choice;
+	Alternative< Lazy<Choice> >					choice;
 	Alternative< Lazy<Sequence, IS_A_BLOCK> >	sequence;
-	Alternative< Lazy<Any, IS_A_BLOCK> >		any;
+	Alternative< Lazy<Any> >					any;
 };
 
 struct GroupContents : public LLInitParam::ChoiceBlock<GroupContents, Occurs>
@@ -314,7 +310,6 @@ public:
 			setNameSpace(ns);
 		};
 	}
-
 };
 
 //

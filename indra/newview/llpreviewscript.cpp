@@ -305,7 +305,11 @@ BOOL LLFloaterScriptSearch::handleKeyHere(KEY key, MASK mask)
 {
 	if (mEditorCore)
 	{
-		return mEditorCore->handleKeyHere(key, mask);
+		BOOL handled = mEditorCore->handleKeyHere(key, mask);
+		if (!handled)
+		{
+			LLFloater::handleKeyHere(key, mask);
+		}
 	}
 
 	return FALSE;
