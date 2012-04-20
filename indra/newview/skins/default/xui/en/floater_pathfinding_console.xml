@@ -90,16 +90,18 @@
       height="250"
       width="200">
     <text
-	height="13"
-	word_wrap="true"
-	use_ellipses="false"
-	type="string"
-	text_color="LabelTextColor"
-	length="1"
-	follows="left|top"
-	layout="topleft"
-	top_pad="9"
-	width="200">
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        text_readonly_color="LabelDisabledColor"
+        name="show_label"
+        length="1"
+        follows="left|top"
+        layout="topleft"
+        top_pad="9"
+        width="200">
       Show:
     </text>
     <check_box
@@ -116,6 +118,7 @@
         type="string"
         text_color="LabelTextColor"
         text_readonly_color="LabelDisabledColor"
+        name="show_walkability_label"
         length="1"
         follows="left|top"
         layout="topleft"
@@ -317,6 +320,8 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="ctrl_click_label"
           length="1"
           left="16"
           follows="left|top"
@@ -331,6 +336,8 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="shift_click_label"
           length="1"
           follows="left|top"
           layout="topleft"
@@ -352,6 +359,8 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="character_width_label"
           length="1"
           follows="left|top"
           layout="topleft"
@@ -377,6 +386,8 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="character_width_unit_label"
           length="1"
           follows="left|top"
           layout="topleft"
@@ -391,6 +402,8 @@
           use_ellipses="false"
           type="string"
           text_color="LabelTextColor"
+          text_readonly_color="LabelDisabledColor"
+          name="character_type_label"
           length="1"
           follows="left|top"
           layout="topleft"
@@ -504,15 +517,15 @@
       top_pad="0"
       width="400">
     <text
-	height="13"
-	word_wrap="true"
-	use_ellipses="false"
-	type="string"
-	text_color="LabelTextColor"
-	length="1"
-	layout="topleft"
-	top_pad="18"
-	width="250">
+        height="13"
+        word_wrap="true"
+        use_ellipses="false"
+        type="string"
+        text_color="LabelTextColor"
+        length="1"
+        layout="topleft"
+        top_pad="18"
+        width="250">
       Lost characters? Bad performance?
     </text>
     <button

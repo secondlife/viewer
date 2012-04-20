@@ -89,8 +89,14 @@ LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHand
 
 BOOL LLFloaterPathfindingConsole::postBuild()
 {
+	mShowLabel = findChild<LLTextBase>("show_label");
+	llassert(mShowLabel != NULL);
+
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
+
+	mShowNavMeshWalkabilityLabel = findChild<LLTextBase>("show_walkability_label");
+	llassert(mShowNavMeshWalkabilityLabel != NULL);
 
 	mShowNavMeshWalkabilityComboBox = findChild<LLComboBox>("show_heatmap_mode");
 	llassert(mShowNavMeshWalkabilityComboBox != NULL);
@@ -155,9 +161,24 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mPathfindingSimulatorStatus = findChild<LLTextBase>("pathfinding_simulator_status");
 	llassert(mPathfindingSimulatorStatus != NULL);
 
+	mCtrlClickLabel = findChild<LLTextBase>("ctrl_click_label");
+	llassert(mCtrlClickLabel != NULL);
+
+	mShiftClickLabel = findChild<LLTextBase>("shift_click_label");
+	llassert(mShiftClickLabel != NULL);
+
+	mCharacterWidthLabel = findChild<LLTextBase>("character_width_label");
+	llassert(mCharacterWidthLabel != NULL);
+
 	mCharacterWidthSlider = findChild<LLSliderCtrl>("character_width");
 	llassert(mCharacterWidthSlider != NULL);
 	mCharacterWidthSlider->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onCharacterWidthSet, this));
+
+	mCharacterWidthUnitLabel = findChild<LLTextBase>("character_width_unit_label");
+	llassert(mCharacterWidthUnitLabel != NULL);
+
+	mCharacterTypeLabel = findChild<LLTextBase>("character_type_label");
+	llassert(mCharacterTypeLabel != NULL);
 
 	mCharacterTypeComboBox = findChild<LLComboBox>("path_character_type");
 	llassert(mCharacterTypeComboBox != NULL);
@@ -170,17 +191,21 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mClearPathButton != NULL);
 	mClearPathButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
 
-	mPathfindingToolset = new LLToolset();
-	mPathfindingToolset->addTool(LLPathfindingPathTool::getInstance());
-	mPathfindingToolset->addTool(LLToolCamera::getInstance());
-	mPathfindingToolset->setShowFloaterTools(false);
-	updateCharacterWidth();
-	updateCharacterType();
-
-	if ( !LLPathingLib::getInstance() )
+	if (LLPathingLib::getInstance() == NULL)
 	{
 		LLPathingLib::initSystem();
-	}	
+	}
+
+	if (LLPathingLib::getInstance() != NULL)
+	{
+		mPathfindingToolset = new LLToolset();
+		mPathfindingToolset->addTool(LLPathfindingPathTool::getInstance());
+		mPathfindingToolset->addTool(LLToolCamera::getInstance());
+		mPathfindingToolset->setShowFloaterTools(false);
+	}
+
+	updateCharacterWidth();
+	updateCharacterType();
 
 	return LLFloater::postBuild();
 }
@@ -415,7 +440,9 @@ void LLFloaterPathfindingConsole::setRenderHeatmapType(LLPathingLib::LLPLCharact
 LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
+	mShowLabel(),
 	mShowNavMeshCheckBox(NULL),
+	mShowNavMeshWalkabilityLabel(),
 	mShowNavMeshWalkabilityComboBox(NULL),
 	mShowWalkablesCheckBox(NULL),
 	mShowStaticObstaclesCheckBox(NULL),
@@ -435,7 +462,12 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mLinksetsButton(NULL),
 	mFreezeLabel(NULL),
 	mFreezeButton(NULL),
+	mCtrlClickLabel(),
+	mShiftClickLabel(),
+	mCharacterWidthLabel(),
+	mCharacterWidthUnitLabel(),
 	mCharacterWidthSlider(NULL),
+	mCharacterTypeLabel(),
 	mCharacterTypeComboBox(NULL),
 	mPathTestingStatus(NULL),
 	mClearPathButton(NULL),
@@ -625,9 +657,10 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 	switch (mConsoleState)
 	{
 	case kConsoleStateUnknown :
-	case kConsoleStateLibraryNotImplemented :
 	case kConsoleStateRegionNotEnabled :
+		mShowLabel->setEnabled(FALSE);
 		mShowNavMeshCheckBox->setEnabled(FALSE);
+		mShowNavMeshWalkabilityLabel->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
 		mShowWalkablesCheckBox->setEnabled(FALSE);
 		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
@@ -638,15 +671,20 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mViewCharactersButton->setEnabled(FALSE);
 		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
+		mCtrlClickLabel->setEnabled(FALSE);
+		mShiftClickLabel->setEnabled(FALSE);
+		mCharacterWidthLabel->setEnabled(FALSE);
+		mCharacterWidthUnitLabel->setEnabled(FALSE);
 		mCharacterWidthSlider->setEnabled(FALSE);
+		mCharacterTypeLabel->setEnabled(FALSE);
 		mCharacterTypeComboBox->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
 		clearPath();
 		break;
-	case kConsoleStateCheckingVersion :
-	case kConsoleStateDownloading :
-	case kConsoleStateError :
+	case kConsoleStateLibraryNotImplemented :
+		mShowLabel->setEnabled(FALSE);
 		mShowNavMeshCheckBox->setEnabled(FALSE);
+		mShowNavMeshWalkabilityLabel->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
 		mShowWalkablesCheckBox->setEnabled(FALSE);
 		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
@@ -657,13 +695,46 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mViewCharactersButton->setEnabled(TRUE);
 		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
+		mCtrlClickLabel->setEnabled(FALSE);
+		mShiftClickLabel->setEnabled(FALSE);
+		mCharacterWidthLabel->setEnabled(FALSE);
+		mCharacterWidthUnitLabel->setEnabled(FALSE);
 		mCharacterWidthSlider->setEnabled(FALSE);
+		mCharacterTypeLabel->setEnabled(FALSE);
+		mCharacterTypeComboBox->setEnabled(FALSE);
+		mClearPathButton->setEnabled(FALSE);
+		clearPath();
+		break;
+	case kConsoleStateCheckingVersion :
+	case kConsoleStateDownloading :
+	case kConsoleStateError :
+		mShowLabel->setEnabled(FALSE);
+		mShowNavMeshCheckBox->setEnabled(FALSE);
+		mShowNavMeshWalkabilityLabel->setEnabled(FALSE);
+		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
+		mShowWalkablesCheckBox->setEnabled(FALSE);
+		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
+		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
+		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
+		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowXRayCheckBox->setEnabled(FALSE);
+		mViewCharactersButton->setEnabled(TRUE);
+		mEditTestTabContainer->selectTab(0);
+		mTestTab->setEnabled(FALSE);
+		mCtrlClickLabel->setEnabled(FALSE);
+		mShiftClickLabel->setEnabled(FALSE);
+		mCharacterWidthLabel->setEnabled(FALSE);
+		mCharacterWidthUnitLabel->setEnabled(FALSE);
+		mCharacterWidthSlider->setEnabled(FALSE);
+		mCharacterTypeLabel->setEnabled(FALSE);
 		mCharacterTypeComboBox->setEnabled(FALSE);
 		mClearPathButton->setEnabled(FALSE);
 		clearPath();
 		break;
 	case kConsoleStateHasNavMesh :
+		mShowLabel->setEnabled(TRUE);
 		mShowNavMeshCheckBox->setEnabled(TRUE);
+		mShowNavMeshWalkabilityLabel->setEnabled(TRUE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(TRUE);
 		mShowWalkablesCheckBox->setEnabled(TRUE);
 		mShowStaticObstaclesCheckBox->setEnabled(TRUE);
@@ -673,7 +744,12 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowXRayCheckBox->setEnabled(TRUE);
 		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
+		mCtrlClickLabel->setEnabled(TRUE);
+		mShiftClickLabel->setEnabled(TRUE);
+		mCharacterWidthLabel->setEnabled(TRUE);
+		mCharacterWidthUnitLabel->setEnabled(TRUE);
 		mCharacterWidthSlider->setEnabled(TRUE);
+		mCharacterTypeLabel->setEnabled(TRUE);
 		mCharacterTypeComboBox->setEnabled(TRUE);
 		mClearPathButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
@@ -862,23 +938,29 @@ void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentStat
 
 void LLFloaterPathfindingConsole::switchIntoTestPathMode()
 {
-	llassert(mPathfindingToolset != NULL);
-	LLToolMgr *toolMgrInstance = LLToolMgr::getInstance();
-	if (toolMgrInstance->getCurrentToolset() != mPathfindingToolset)
+	if (LLPathingLib::getInstance() != NULL)
 	{
-		mSavedToolset = toolMgrInstance->getCurrentToolset();
-		toolMgrInstance->setCurrentToolset(mPathfindingToolset);
+		llassert(mPathfindingToolset != NULL);
+		LLToolMgr *toolMgrInstance = LLToolMgr::getInstance();
+		if (toolMgrInstance->getCurrentToolset() != mPathfindingToolset)
+		{
+			mSavedToolset = toolMgrInstance->getCurrentToolset();
+			toolMgrInstance->setCurrentToolset(mPathfindingToolset);
+		}
 	}
 }
 
 void LLFloaterPathfindingConsole::switchOutOfTestPathMode()
 {
-	llassert(mPathfindingToolset != NULL);
-	LLToolMgr *toolMgrInstance = LLToolMgr::getInstance();
-	if (toolMgrInstance->getCurrentToolset() == mPathfindingToolset)
+	if (LLPathingLib::getInstance() != NULL)
 	{
-		toolMgrInstance->setCurrentToolset(mSavedToolset);
-		mSavedToolset = NULL;
+		llassert(mPathfindingToolset != NULL);
+		LLToolMgr *toolMgrInstance = LLToolMgr::getInstance();
+		if (toolMgrInstance->getCurrentToolset() == mPathfindingToolset)
+		{
+			toolMgrInstance->setCurrentToolset(mSavedToolset);
+			mSavedToolset = NULL;
+		}
 	}
 }
 

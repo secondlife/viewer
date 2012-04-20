@@ -146,7 +146,9 @@ private:
 	void fillInColorsForNavMeshVisualization();
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
+	LLTextBase                                    *mShowLabel;
 	LLCheckBoxCtrl                                *mShowNavMeshCheckBox;
+	LLTextBase                                    *mShowNavMeshWalkabilityLabel;
 	LLComboBox                                    *mShowNavMeshWalkabilityComboBox;
 	LLCheckBoxCtrl                                *mShowWalkablesCheckBox;
 	LLCheckBoxCtrl                                *mShowStaticObstaclesCheckBox;
@@ -166,7 +168,12 @@ private:
 	LLButton                                      *mLinksetsButton;
 	LLTextBase                                    *mFreezeLabel;
 	LLButton                                      *mFreezeButton;
+	LLTextBase                                    *mCtrlClickLabel;
+	LLTextBase                                    *mShiftClickLabel;
+	LLTextBase                                    *mCharacterWidthLabel;
+	LLTextBase                                    *mCharacterWidthUnitLabel;
 	LLSliderCtrl                                  *mCharacterWidthSlider;
+	LLTextBase                                    *mCharacterTypeLabel;
 	LLComboBox                                    *mCharacterTypeComboBox;
 	LLTextBase                                    *mPathTestingStatus;
 	LLButton                                      *mClearPathButton;
