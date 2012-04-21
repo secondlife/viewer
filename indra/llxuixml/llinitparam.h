@@ -755,13 +755,13 @@ namespace LLInitParam
 			{
 				typedef Lazy<ParamValue<S, BLOCK_T>, BLOCK_T> value_t;
 			};
-			template <typename T> struct Cons<Lazy<T, IS_A_BLOCK> >
+			template <typename S> struct Cons<Lazy<S, IS_A_BLOCK> >
 			{
-				typedef Lazy<T, IS_A_BLOCK> value_t;
+				typedef Lazy<S, IS_A_BLOCK> value_t;
 			};
-			template <typename T> struct Cons<Lazy<T, NOT_A_BLOCK> >
+			template <typename S> struct Cons<Lazy<S, NOT_A_BLOCK> >
 			{
-				typedef Lazy<T, BLOCK_T> value_t;
+				typedef Lazy<S, BLOCK_T> value_t;
 			};
 		};
 
