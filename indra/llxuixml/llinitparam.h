@@ -55,13 +55,13 @@ namespace LLTypeTags
 	template<typename ITEM, typename REST, bool NEEDS_SWAP = GreaterThan<ITEM::SORT_ORDER, REST::SORT_ORDER>::value >
 	struct Swap
 	{
-		typedef typename ITEM::Cons<REST>::value_t value_t;
+		typedef typename ITEM::template Cons<REST>::value_t value_t;
 	};
 
 	template<typename ITEM, typename REST>
 	struct Swap<ITEM, REST, true>
 	{
-		typedef typename REST::Cons<Swap<ITEM, typename REST::inner_t>::value_t>::value_t value_t;
+		typedef typename REST::template Cons<Swap<ITEM, typename REST::inner_t>::value_t>::value_t value_t;
 	};
 
 	template<typename T, typename SORTABLE = void>
@@ -79,7 +79,7 @@ namespace LLTypeTags
 	template<typename ITEM, typename REST, bool IS_REST_SORTABLE = IsSortable<REST>::value>
 	struct InsertInto
 	{
-		typedef typename ITEM::Cons<REST>::value_t value_t;
+		typedef typename ITEM::template Cons<REST>::value_t value_t;
 	};
 
 	template<typename ITEM, typename REST>
@@ -248,7 +248,7 @@ namespace LLInitParam
 		typedef std::map<std::string, T> value_name_map_t;
 		typedef Inaccessable name_t;
 		typedef TypeValues<T> type_value_t;
-		typedef typename ParamValue<typename LLTypeTags::Sorted<T>::value_t>	param_value_t;
+		typedef ParamValue<typename LLTypeTags::Sorted<T>::value_t>	param_value_t;
 		typedef typename param_value_t::value_t	value_t;
 
 		TypeValues(const typename param_value_t::value_t& val)
@@ -745,7 +745,7 @@ namespace LLInitParam
 		struct Atomic : public LLTypeTags::TypeTagBase<T, 1>
 		{
 			template <typename S> struct Cons { typedef Atomic<ParamValue<S> > value_t; };
-			template <typename T> struct Cons<Atomic<T> > { typedef Atomic<T> value_t; };
+			template <typename S> struct Cons<Atomic<S> > { typedef Atomic<S> value_t; };
 		};
 
 		template<typename T, typename BLOCK_T = typename IsBlock<T>::value_t >
