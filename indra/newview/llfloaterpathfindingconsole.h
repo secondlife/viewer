@@ -80,6 +80,12 @@ public:
 	BOOL isRenderWorld() const;
 	void setRenderWorld(BOOL pIsRenderWorld);
 	
+	BOOL isRenderWorldMovablesOnly() const;
+	void setRenderWorldMovablesOnly(BOOL pIsRenderWorldMovablesOnly);
+
+	BOOL isRenderWaterPlane() const;
+	void setRenderWaterPlane(BOOL pIsRenderWaterPlane);
+	
 	BOOL isRenderXRay() const;
 	void setRenderXRay(BOOL pIsRenderXRay);
 	
@@ -108,6 +114,8 @@ private:
 	LLFloaterPathfindingConsole(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingConsole();
 
+	void onShowWorldSet();
+	void onShowNavMeshSet();
 	void onShowWalkabilitySet();
 	void onViewCharactersClicked();
 	void onTabSwitch();
@@ -124,6 +132,8 @@ private:
 
 	void setDefaultInputs();
 	void setConsoleState(EConsoleState pConsoleState);
+	void setWorldRenderState();
+	void setNavMeshRenderState();
 
 	void        updateControlsOnConsoleState();
 	void        updateStatusOnConsoleState();
@@ -147,6 +157,8 @@ private:
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
 	LLTextBase                                    *mShowLabel;
+	LLCheckBoxCtrl                                *mShowWorldCheckBox;
+	LLCheckBoxCtrl                                *mShowWorldMovablesOnlyCheckBox;
 	LLCheckBoxCtrl                                *mShowNavMeshCheckBox;
 	LLTextBase                                    *mShowNavMeshWalkabilityLabel;
 	LLComboBox                                    *mShowNavMeshWalkabilityComboBox;
@@ -154,7 +166,7 @@ private:
 	LLCheckBoxCtrl                                *mShowStaticObstaclesCheckBox;
 	LLCheckBoxCtrl                                *mShowMaterialVolumesCheckBox;
 	LLCheckBoxCtrl                                *mShowExclusionVolumesCheckBox;
-	LLCheckBoxCtrl                                *mShowWorldCheckBox;
+	LLCheckBoxCtrl								  *mShowRenderWaterPlaneCheckBox;
 	LLCheckBoxCtrl								  *mShowXRayCheckBox;
 	LLTextBase                                    *mPathfindingViewerStatus;
 	LLTextBase                                    *mPathfindingSimulatorStatus;

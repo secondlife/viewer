@@ -2,7 +2,7 @@
 <floater
     open_positioning="cascading"
     can_tear_off="false"
-    height="406"
+    height="446"
     layout="topleft"
     name="floater_pathfinding_console"
     help_topic="floater_pathfinding_console"
@@ -87,7 +87,7 @@
       bevel_style="none"
       follows="left|top"
       layout="topleft"
-      height="250"
+      height="297"
       width="200">
     <text
         height="13"
@@ -106,7 +106,23 @@
     </text>
     <check_box
         height="19"
+        label="World"
+        layout="topleft"
+        name="show_world"
+        top_pad="4"
+        width="90" />
+    <check_box
+        height="19"
+        label="Movables only"
+        layout="topleft"
+        left="20"
+        name="show_world_movables_only"
+        top_pad="4"
+        width="90" />
+    <check_box
+        height="19"
         label="Navmesh"
+        left="0"
         layout="topleft"
         name="show_navmesh"
         top_pad="7"
@@ -161,7 +177,6 @@
         left="0"
         name="show_walkables"
         top_pad="10"
-        tool_tip="Functionality is not implemented currently."
         width="90" />
     <check_box
         height="19"
@@ -169,7 +184,6 @@
         layout="topleft"
         name="show_material_volumes"
         top_pad="4"
-        tool_tip="Functionality is not implemented currently."
         width="90" />
     <check_box
         height="19"
@@ -177,7 +191,6 @@
         layout="topleft"
         name="show_static_obstacles"
         top_pad="4"
-        tool_tip="Functionality is not implemented currently."
         width="90" />
     <check_box
         height="19"
@@ -188,16 +201,16 @@
         width="90" />
     <check_box
         height="19"
-        label="World"
+        label="Water plane"
         layout="topleft"
-        name="show_world"
+        name="show_water_plane"
         top_pad="4"
         width="90" />
     <check_box
         height="19"
-        label="X-Ray"
+        label="With X-ray vision"
         layout="topleft"
-        name="x-ray"
+        name="show_xray"
         top_pad="4"
         width="90" />
   </panel>
@@ -506,7 +519,7 @@
       height="0"
       left="14"
       width="430"
-      top_pad="0"
+      top_pad="25"
       visible="true" />
   <panel
       border="false"

@@ -92,8 +92,16 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mShowLabel = findChild<LLTextBase>("show_label");
 	llassert(mShowLabel != NULL);
 
+	mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
+	llassert(mShowWorldCheckBox != NULL);
+	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldSet, this));
+
+	mShowWorldMovablesOnlyCheckBox = findChild<LLCheckBoxCtrl>("show_world_movables_only");
+	llassert(mShowWorldMovablesOnlyCheckBox != NULL);
+
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
+	mShowNavMeshCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowNavMeshSet, this));
 
 	mShowNavMeshWalkabilityLabel = findChild<LLTextBase>("show_walkability_label");
 	llassert(mShowNavMeshWalkabilityLabel != NULL);
@@ -114,10 +122,10 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mShowExclusionVolumesCheckBox = findChild<LLCheckBoxCtrl>("show_exclusion_volumes");
 	llassert(mShowExclusionVolumesCheckBox != NULL);
 
-	mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
-	llassert(mShowWorldCheckBox != NULL);
+	mShowRenderWaterPlaneCheckBox = findChild<LLCheckBoxCtrl>("show_water_plane");
+	llassert(mShowRenderWaterPlaneCheckBox != NULL);
 
-	mShowXRayCheckBox = findChild<LLCheckBoxCtrl>("x-ray");
+	mShowXRayCheckBox = findChild<LLCheckBoxCtrl>("show_xray");
 	llassert(mShowXRayCheckBox != NULL);
 
 	mViewCharactersButton = findChild<LLButton>("view_characters_floater");
@@ -315,6 +323,7 @@ BOOL LLFloaterPathfindingConsole::isRenderNavMesh() const
 void LLFloaterPathfindingConsole::setRenderNavMesh(BOOL pIsRenderNavMesh)
 {
 	mShowNavMeshCheckBox->set(pIsRenderNavMesh);
+	setNavMeshRenderState();
 }
 
 BOOL LLFloaterPathfindingConsole::isRenderWalkables() const
@@ -365,6 +374,27 @@ BOOL LLFloaterPathfindingConsole::isRenderWorld() const
 void LLFloaterPathfindingConsole::setRenderWorld(BOOL pIsRenderWorld)
 {
 	mShowWorldCheckBox->set(pIsRenderWorld);
+	setWorldRenderState();
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderWorldMovablesOnly() const
+{
+	return (mShowWorldCheckBox->get() && mShowWorldMovablesOnlyCheckBox->get());
+}
+
+void LLFloaterPathfindingConsole::setRenderWorldMovablesOnly(BOOL pIsRenderWorldMovablesOnly)
+{
+	mShowWorldMovablesOnlyCheckBox->set(pIsRenderWorldMovablesOnly);
+}
+
+BOOL LLFloaterPathfindingConsole::isRenderWaterPlane() const
+{
+	return mShowRenderWaterPlaneCheckBox->get();
+}
+
+void LLFloaterPathfindingConsole::setRenderWaterPlane(BOOL pIsRenderWaterPlane)
+{
+	mShowRenderWaterPlaneCheckBox->set(pIsRenderWaterPlane);
 }
 
 BOOL LLFloaterPathfindingConsole::isRenderXRay() const
@@ -441,6 +471,8 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	: LLFloater(pSeed),
 	mSelfHandle(),
 	mShowLabel(),
+	mShowWorldCheckBox(NULL),
+	mShowWorldMovablesOnlyCheckBox(NULL),
 	mShowNavMeshCheckBox(NULL),
 	mShowNavMeshWalkabilityLabel(),
 	mShowNavMeshWalkabilityComboBox(NULL),
@@ -448,7 +480,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mShowStaticObstaclesCheckBox(NULL),
 	mShowMaterialVolumesCheckBox(NULL),
 	mShowExclusionVolumesCheckBox(NULL),
-	mShowWorldCheckBox(NULL),
+	mShowRenderWaterPlaneCheckBox(NULL),
 	mShowXRayCheckBox(NULL),
 	mPathfindingViewerStatus(NULL),
 	mPathfindingSimulatorStatus(NULL),
@@ -498,6 +530,16 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 
 LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 {
+}
+
+void LLFloaterPathfindingConsole::onShowWorldSet()
+{
+	setWorldRenderState();
+}
+
+void LLFloaterPathfindingConsole::onShowNavMeshSet()
+{
+	setNavMeshRenderState();
 }
 
 void LLFloaterPathfindingConsole::onShowWalkabilitySet()
@@ -596,7 +638,8 @@ void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentSta
 void LLFloaterPathfindingConsole::onRegionBoundaryCross()
 {
 	initializeNavMeshZoneForCurrentRegion();
-	mShowWorldCheckBox->set(TRUE);
+	setRenderWorld(TRUE);
+	setRenderWorldMovablesOnly(FALSE);
 }
 
 void LLFloaterPathfindingConsole::onPathEvent()
@@ -636,13 +679,14 @@ void LLFloaterPathfindingConsole::onPathEvent()
 void LLFloaterPathfindingConsole::setDefaultInputs()
 {
 	mEditTestTabContainer->selectTab(XUI_EDIT_TAB_INDEX);
-	mShowNavMeshCheckBox->set(FALSE);
-	mShowWalkablesCheckBox->set(FALSE);
-	mShowMaterialVolumesCheckBox->set(FALSE);
-	mShowStaticObstaclesCheckBox->set(FALSE);
-	mShowExclusionVolumesCheckBox->set(FALSE);
-	mShowWorldCheckBox->set(TRUE);	
-	mShowXRayCheckBox->set(FALSE);
+	setRenderWorld(TRUE);
+	setRenderNavMesh(FALSE);
+	setRenderWalkables(FALSE);
+	setRenderMaterialVolumes(FALSE);
+	setRenderStaticObstacles(FALSE);
+	setRenderExclusionVolumes(FALSE);
+	setRenderWaterPlane(FALSE);
+	setRenderXRay(FALSE);
 }
 
 void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
@@ -652,6 +696,25 @@ void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
 	updateStatusOnConsoleState();
 }
 
+void LLFloaterPathfindingConsole::setWorldRenderState()
+{
+	BOOL renderWorld = isRenderWorld();
+
+	mShowWorldMovablesOnlyCheckBox->setEnabled(renderWorld);
+	if (!renderWorld)
+	{
+		mShowWorldMovablesOnlyCheckBox->set(FALSE);
+	}
+}
+
+void LLFloaterPathfindingConsole::setNavMeshRenderState()
+{
+	BOOL renderNavMesh = isRenderNavMesh();
+
+	mShowNavMeshWalkabilityLabel->setEnabled(renderNavMesh);
+	mShowNavMeshWalkabilityComboBox->setEnabled(renderNavMesh);
+}
+
 void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 {
 	switch (mConsoleState)
@@ -659,6 +722,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 	case kConsoleStateUnknown :
 	case kConsoleStateRegionNotEnabled :
 		mShowLabel->setEnabled(FALSE);
+		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
 		mShowNavMeshCheckBox->setEnabled(FALSE);
 		mShowNavMeshWalkabilityLabel->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
@@ -666,7 +731,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
 		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
-		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(FALSE);
 		mEditTestTabContainer->selectTab(0);
@@ -683,6 +748,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		break;
 	case kConsoleStateLibraryNotImplemented :
 		mShowLabel->setEnabled(FALSE);
+		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
 		mShowNavMeshCheckBox->setEnabled(FALSE);
 		mShowNavMeshWalkabilityLabel->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
@@ -690,7 +757,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
 		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
-		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(TRUE);
 		mEditTestTabContainer->selectTab(0);
@@ -709,6 +776,8 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 	case kConsoleStateDownloading :
 	case kConsoleStateError :
 		mShowLabel->setEnabled(FALSE);
+		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
 		mShowNavMeshCheckBox->setEnabled(FALSE);
 		mShowNavMeshWalkabilityLabel->setEnabled(FALSE);
 		mShowNavMeshWalkabilityComboBox->setEnabled(FALSE);
@@ -716,7 +785,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowStaticObstaclesCheckBox->setEnabled(FALSE);
 		mShowMaterialVolumesCheckBox->setEnabled(FALSE);
 		mShowExclusionVolumesCheckBox->setEnabled(FALSE);
-		mShowWorldCheckBox->setEnabled(FALSE);
+		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(TRUE);
 		mEditTestTabContainer->selectTab(0);
@@ -733,14 +802,15 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		break;
 	case kConsoleStateHasNavMesh :
 		mShowLabel->setEnabled(TRUE);
+		mShowWorldCheckBox->setEnabled(TRUE);
+		setWorldRenderState();
 		mShowNavMeshCheckBox->setEnabled(TRUE);
-		mShowNavMeshWalkabilityLabel->setEnabled(TRUE);
-		mShowNavMeshWalkabilityComboBox->setEnabled(TRUE);
+		setNavMeshRenderState();
 		mShowWalkablesCheckBox->setEnabled(TRUE);
 		mShowStaticObstaclesCheckBox->setEnabled(TRUE);
 		mShowMaterialVolumesCheckBox->setEnabled(TRUE);
 		mShowExclusionVolumesCheckBox->setEnabled(TRUE);
-		mShowWorldCheckBox->setEnabled(TRUE);
+		mShowRenderWaterPlaneCheckBox->setEnabled(TRUE);
 		mShowXRayCheckBox->setEnabled(TRUE);
 		mViewCharactersButton->setEnabled(TRUE);
 		mTestTab->setEnabled(TRUE);
@@ -752,7 +822,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mCharacterTypeLabel->setEnabled(TRUE);
 		mCharacterTypeComboBox->setEnabled(TRUE);
 		mClearPathButton->setEnabled(TRUE);
-		mTestTab->setEnabled(TRUE);
 		break;
 	default :
 		llassert(0);
