@@ -88,19 +88,10 @@ float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl, vec2 pos_scr
 	stc.xyz /= stc.w;
 	stc.z += shadow_bias*scl;
 
-	////stc.x = floor(stc.x + fract(stc.y*12345));
-	//stc.x = floor(stc.x + fract(stc.y));
-	  stc.x = floor(stc.x + fract(pos_screen.y*0.666666666));
-
-	//stc.x = floor(stc.x);
-	//stc.y = floor(stc.y);
-
-	//stc.x += 0.5;
+	stc.x = floor(stc.x + fract(pos_screen.y*0.666666666)); // add some jitter to X sample pos according to Y to disguise the snapping going on here
 
 	float cs = shadow2DRect(shadowMap, stc.xyz).x;
 	float shadow = cs;
-
-	//return shadow;
 
 	shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(2.0, 1.5, 0.0)).x,cs);
 	shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(1.0, -1.5, 0.0)).x,cs);

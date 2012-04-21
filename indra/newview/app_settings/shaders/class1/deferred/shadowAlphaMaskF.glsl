@@ -29,18 +29,13 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform mat4 modelview_projection_matrix;
-
 uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
 
-//flat VARYING int foo;
 VARYING float pos_zd2;
 VARYING float pos_w;
 VARYING float target_pos_x;
-//VARYING vec4 pre_pos;
-//VARYING vec4 post_pos;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 

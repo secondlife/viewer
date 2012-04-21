@@ -425,8 +425,6 @@ LLPipeline::LLPipeline() :
 	mLightingDetail(0),
 	mScreenWidth(0),
 	mScreenHeight(0)
-	//	mSunShadowMapWidth(0),
-	//	mSpotShadowMapWidth(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -851,10 +849,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 0)
 		{ //allocate 4 sun shadow maps
-			U32 mSunShadowMapWidth = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
+			U32 sun_shadow_map_width = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
 			for (U32 i = 0; i < 4; i++)
 			{
-				if (!mShadow[i].allocate(mSunShadowMapWidth,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
+				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -863,7 +861,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			{
 				mShadow[i].release();
 			}
-			//mSunShadowMapWidth = 0;
 		}
 
 		U32 width = nhpo2(U32(resX*scale))/2;
@@ -871,10 +868,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 1)
 		{ //allocate two spot shadow maps
-			U32 mSpotShadowMapWidth = width;
+			U32 spot_shadow_map_width = width;
 			for (U32 i = 4; i < 6; i++)
 			{
-				if (!mShadow[i].allocate(mSpotShadowMapWidth, height, 0, TRUE, FALSE)) return false;
+				if (!mShadow[i].allocate(spot_shadow_map_width, height, 0, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -883,7 +880,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			{
 				mShadow[i].release();
 			}
-			//mSpotShadowMapWidth = 0;
 		}
 
 		// don't disable shaders on next session
@@ -8394,7 +8390,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
-		//		llwarns << "target_width is " << target_width << llendl;
 
 		U32 mask =	LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
