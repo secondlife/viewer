@@ -139,11 +139,6 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	return min(ret, 1.0);
 }
 
-float mex(float a, float b)
-{
-  return a;
-}
-
 float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 {
 	stc.xyz /= stc.w;
@@ -154,10 +149,10 @@ float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc, float scl, vec2 pos_scr
 	float cs = shadow2DRect(shadowMap, stc.xyz).x;
 	float shadow = cs;
 	
-	shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(2.0, 1.5, 0.0)).x,cs);
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(1.0, -1.5, 0.0)).x,cs);
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(-1.0, 1.5, 0.0)).x,cs);
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(-2.0, -1.5, 0.0)).x,cs);
+	shadow += shadow2DRect(shadowMap, stc.xyz+vec3(2.0, 1.5, 0.0)).x;
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(1.0, -1.5, 0.0)).x;
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(-1.0, 1.5, 0.0)).x;
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(-2.0, -1.5, 0.0)).x;
                         
         return shadow*0.2;
 }

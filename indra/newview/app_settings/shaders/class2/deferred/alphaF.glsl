@@ -58,11 +58,6 @@ uniform float shadow_bias;
 
 uniform mat4 inv_proj;
 
-float mex(float a, float b)
-{
-  return a;
-}
-
 float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc)
 {
 	stc.xyz /= stc.w;
@@ -73,10 +68,10 @@ float pcfShadow(sampler2DRectShadow shadowMap, vec4 stc)
 	float cs = shadow2DRect(shadowMap, stc.xyz).x;
 	float shadow = cs;
 
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(2.0, 1.5, 0.0)).x,cs);
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(1.0, -1.5, 0.0)).x,cs);
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(-1.0, 1.5, 0.0)).x,cs);
-        shadow += mex(shadow2DRect(shadowMap, stc.xyz+vec3(-2.0, -1.5, 0.0)).x,cs);
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(2.0, 1.5, 0.0)).x;
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(1.0, -1.5, 0.0)).x;
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(-1.0, 1.5, 0.0)).x;
+        shadow += shadow2DRect(shadowMap, stc.xyz+vec3(-2.0, -1.5, 0.0)).x;
                         
         return shadow*0.2;
 }
