@@ -108,10 +108,10 @@ float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
 	vec2 off = 1.0/proj_shadow_res;
 	off.y *= 1.5;
 	
-	shadow += mex(shadow2D(shadowMap, stc.xyz+vec3(off.x*2.0, off.y, 0.0)).x, cs);
-	shadow += mex(shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x, cs);
-	shadow += mex(shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x, cs);
-	shadow += mex(shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0)).x, cs);
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x*2.0, off.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(off.x, -off.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x, off.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-off.x*2.0, -off.y, 0.0)).x;
 
         return shadow*0.2;
 }
