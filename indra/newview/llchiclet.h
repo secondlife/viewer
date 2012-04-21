@@ -926,9 +926,9 @@ protected:
 			mChiclet(chiclet)
 		{
 			// connect counter handlers to the signals
-			connectToChannel("IM Notifications");
 			connectToChannel("Group Notifications");
 			connectToChannel("Offer");
+			connectToChannel("Notifications");
 		}
 
 		static bool filterNotification(LLNotificationPtr notify);
