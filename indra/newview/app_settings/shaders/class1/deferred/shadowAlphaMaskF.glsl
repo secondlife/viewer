@@ -29,8 +29,6 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform float minimum_alpha;
-
 uniform sampler2D diffuseMap;
 
 VARYING float pos_zd2;
