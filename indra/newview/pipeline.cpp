@@ -787,7 +787,6 @@ void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
-	llwarns << "ALLOCATING SCREEN BUFFER, " << resX << "x" << resY << llendl;
 	refreshCachedSettings();
 
 	// remember these dimensions
