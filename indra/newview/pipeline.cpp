@@ -738,8 +738,6 @@ void LLPipeline::allocatePhysicsBuffer()
 
 void LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
-	llwarns << "ALLOCATING SCREEN BUFFER, " << resX << "x" << resY << llendl;
-
 	refreshCachedSettings();
 	U32 samples = RenderFSAASamples;
 
