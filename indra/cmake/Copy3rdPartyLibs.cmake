@@ -217,7 +217,7 @@ elseif(DARWIN)
     libllqtwebkit.dylib
     libminizip.a
         libndofdev.dylib
-        libhunspell-1.3.dylib
+        libhunspell-1.3.0.dylib
         libexception_handler.dylib
     libcollada14dom.dylib
        )
