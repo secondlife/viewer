@@ -37,6 +37,7 @@
 #include "linden_common.h"
 #include "llerrorcontrol.h"
 #include "lltut.h"
+#include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
 #include "namedtempfile.h"
 
@@ -91,22 +92,24 @@ public:
 	virtual void replay(std::ostream&) {}
 };
 
-class LLReplayLogReal: public LLReplayLog, public LLError::Recorder
+class LLReplayLogReal: public LLReplayLog, public LLError::Recorder, public boost::noncopyable
 {
 public:
 	LLReplayLogReal(LLError::ELevel level, apr_pool_t* pool):
 		mOldSettings(LLError::saveAndResetSettings()),
+		mProxy(new RecorderProxy(this)),
 		mTempFile("log", "", pool),		// create file
 		mFile(mTempFile.getName().c_str()) // open it
 	{
 		LLError::setFatalFunction(wouldHaveCrashed);
 		LLError::setDefaultLevel(level);
-		LLError::addRecorder(this);
+		LLError::addRecorder(mProxy);
 	}
 
 	virtual ~LLReplayLogReal()
 	{
-		LLError::removeRecorder(this);
+		LLError::removeRecorder(mProxy);
+		delete mProxy;
 		LLError::restoreSettings(mOldSettings);
 	}
 
@@ -134,6 +137,7 @@ public:
 
 private:
 	LLError::Settings* mOldSettings;
+	LLError::Recorder* mProxy;
 	NamedTempFile mTempFile;
 	std::ofstream mFile;
 };

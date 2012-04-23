@@ -29,10 +29,15 @@
 #if ! defined(LL_WRAPLLERRS_H)
 #define LL_WRAPLLERRS_H
 
+#if LL_WINDOWS
+#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
+#endif
+
 #include <tut/tut.hpp>
 #include "llerrorcontrol.h"
 #include "stringize.h"
 #include <boost/bind.hpp>
+#include <boost/noncopyable.hpp>
 #include <list>
 #include <string>
 #include <stdexcept>
@@ -81,10 +86,38 @@ struct WrapLL_ERRS
 };
 
 /**
+ * LLError::addRecorder() accepts ownership of the passed Recorder* -- it
+ * expects to be able to delete it later. CaptureLog isa Recorder whose
+ * pointer we want to be able to pass without any ownership implications.
+ * For such cases, instantiate a new RecorderProxy(yourRecorder) and pass
+ * that. Your heap RecorderProxy might later be deleted, but not yourRecorder.
+ */
+class RecorderProxy: public LLError::Recorder
+{
+public:
+    RecorderProxy(LLError::Recorder* recorder):
+        mRecorder(recorder)
+    {}
+
+    virtual void recordMessage(LLError::ELevel level, const std::string& message)
+    {
+        mRecorder->recordMessage(level, message);
+    }
+
+    virtual bool wantsTime()
+    {
+        return mRecorder->wantsTime();
+    }
+
+private:
+    LLError::Recorder* mRecorder;
+};
+
+/**
  * Capture log messages. This is adapted (simplified) from the one in
  * llerror_test.cpp.
  */
-class CaptureLog : public LLError::Recorder
+class CaptureLog : public LLError::Recorder, public boost::noncopyable
 {
 public:
     CaptureLog(LLError::ELevel level=LLError::LEVEL_DEBUG):
@@ -97,16 +130,18 @@ public:
         // with that output. If it turns out that saveAndResetSettings() has
         // some bad effect, give up and just let the DEBUG level log messages
         // display.
-        mOldSettings(LLError::saveAndResetSettings())
+        mOldSettings(LLError::saveAndResetSettings()),
+        mProxy(new RecorderProxy(this))
     {
         LLError::setFatalFunction(wouldHaveCrashed);
         LLError::setDefaultLevel(level);
-        LLError::addRecorder(this);
+        LLError::addRecorder(mProxy);
     }
 
     ~CaptureLog()
     {
-        LLError::removeRecorder(this);
+        LLError::removeRecorder(mProxy);
+        delete mProxy;
         LLError::restoreSettings(mOldSettings);
     }
 
@@ -133,7 +168,7 @@ public:
 
         throw tut::failure(STRINGIZE("failed to find '" << search
                                      << "' in captured log messages:\n"
-                                     << *this));
+                                     << boost::ref(*this)));
     }
 
     std::ostream& streamto(std::ostream& out) const
@@ -155,6 +190,7 @@ public:
     typedef std::list<std::string> MessageList;
     MessageList mMessages;
     LLError::Settings* mOldSettings;
+    LLError::Recorder* mProxy;
 };
 
 inline
