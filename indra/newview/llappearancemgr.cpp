@@ -174,7 +174,6 @@ public:
 		 * after the last item has fired the event and dereferenced it -- if all
 		 * the events actually fire!
 		 */
-		selfStopPhase("wear_inventory_category_callback");
 	}
 
 protected:
@@ -182,6 +181,8 @@ protected:
 	{
 		LL_DEBUGS("Avatar") << self_av_string() << "done all inventory callbacks" << LL_ENDL;
 		
+		selfStopPhase("wear_inventory_category_callback");
+
 		// Is the destructor called by ordinary dereference, or because the app's shutting down?
 		// If the inventory callback manager goes away, we're shutting down, no longer want the callback.
 		if( LLInventoryCallbackManager::is_instantiated() )
@@ -1891,6 +1892,7 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 	LL_DEBUGS("Avatar") << self_av_string() << "wearInventoryCategory( " << category->getName()
 			 << " )" << LL_ENDL;
 
+	selfStartPhase("wear_inventory_category_fetch");
 	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
 														   &LLAppearanceMgr::instance(),
 														   category->getUUID(), copy, append));
@@ -1899,6 +1901,8 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
 {
 	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
+
+	selfStopPhase("wear_inventory_category_fetch");
 	
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
