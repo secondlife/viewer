@@ -93,11 +93,10 @@ class ViewerManifest(LLManifest):
                 self.path("windlight")
 
                 # ... and the included spell checking dictionaries
-                #pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                #if self.prefix(src=pkgdir,dst=""):
-                #    self.path("dictionaries")
-                #    self.end_prefix(pkgdir)
-                self.path(src="../packages/dictionaries", dst="dictionaries")
+                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+                if self.prefix(src=pkgdir,dst=""):
+                    self.path("dictionaries")
+                    self.end_prefix(pkgdir)
 
                 self.end_prefix("app_settings")
 
