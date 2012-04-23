@@ -347,7 +347,7 @@ size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 	if((size == 0) || (buffer == 0)) return 0;
 
 	apr_size_t written(size);
-	ll_apr_warn_status(apr_file_write(mDownloadStream, buffer, &written));
+	ll_apr_assert_status(apr_file_write(mDownloadStream, buffer, &written));
 	return written;
 }
 
@@ -379,7 +379,7 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
-	ll_apr_warn_status(apr_file_close(mDownloadStream));
+	ll_apr_assert_status(apr_file_close(mDownloadStream));
 	mDownloadStream = NULL;
 	if(code == CURLE_OK) {
 		LLFile::remove(mDownloadRecordPath);
@@ -459,9 +459,9 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	if(mHeaderList == 0) throw DownloadError("cannot add Range header");
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
 
-	ll_apr_warn_status(apr_file_open(&mDownloadStream, mDownloadData["path"].asString().c_str(),
-									 APR_WRITE | APR_APPEND | APR_BINARY | APR_BUFFERED,
-									 APR_OS_DEFAULT, gAPRPoolp));
+	ll_apr_assert_status(apr_file_open(&mDownloadStream, mDownloadData["path"].asString().c_str(),
+									   APR_WRITE | APR_APPEND | APR_BINARY | APR_BUFFERED,
+									   APR_OS_DEFAULT, gAPRPoolp));
 	start();
 }
 
@@ -484,9 +484,9 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
 
-	ll_apr_warn_status(apr_file_open(&mDownloadStream, filePath.c_str(),
-									 APR_WRITE | APR_TRUNCATE | APR_BINARY | APR_BUFFERED,
-									 APR_OS_DEFAULT, gAPRPoolp));
+	ll_apr_assert_status(apr_file_open(&mDownloadStream, filePath.c_str(),
+									   APR_WRITE | APR_CREATE | APR_TRUNCATE | APR_BINARY | APR_BUFFERED,
+									   APR_OS_DEFAULT, gAPRPoolp));
 	// IQA-463: Do NOT let this open file be inherited by child processes.
 	// That's why we switched from llofstream to apr_file_t. From
 	// apr_file_open() doc
