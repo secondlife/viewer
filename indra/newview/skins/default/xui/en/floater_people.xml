@@ -7,7 +7,7 @@
   height="570"
   help_topic="sidebar_people"
   min_height="440"
-  min_width="333"
+  min_width="390"
   layout="topleft"
   name="floater_people"
   save_rect="true"
