@@ -59,6 +59,9 @@ pre_build()
     && [ -r "$master_message_template_checkout/message_template.msg" ] \
     && template_verifier_master_url="-DTEMPLATE_VERIFIER_MASTER_URL=file://$master_message_template_checkout/message_template.msg"
 
+    echo -n "Before 'autobuild configure' ${build_dir}/packages/dictionaries " 1>&2
+    (test -d "${build_dir}/packages/dictionaries" && 'found' || echo 'missing' ) 1>&2
+
     "$AUTOBUILD" configure -c $variant -- \
      -DPACKAGE:BOOL=ON \
      -DRELEASE_CRASH_REPORTING:BOOL=ON \
@@ -67,6 +70,10 @@ pre_build()
      -DGRID:STRING="\"$viewer_grid\"" \
      -DLL_TESTS:BOOL="$run_tests" \
      -DTEMPLATE_VERIFIER_OPTIONS:STRING="$template_verifier_options" $template_verifier_master_url
+
+    echo -n "After 'autobuild configure' ${build_dir}/packages/dictionaries " 1>&2
+    (test -d "${build_dir}/packages/dictionaries" && 'found' || echo 'missing' ) 1>&2
+
  end_section "Pre$variant"
 }
 
@@ -76,12 +83,19 @@ build()
   if $build_viewer
   then
     begin_section "Viewer$variant"
+
+    echo -n "Before 'autobuild build' ${build_dir}/packages/dictionaries " 1>&2
+    (test -d "${build_dir}/packages/dictionaries" && 'found' || echo 'missing' ) 1>&2
+
     if "$AUTOBUILD" build --no-configure -c $variant
     then
       echo true >"$build_dir"/build_ok
     else
       echo false >"$build_dir"/build_ok
     fi
+    echo -n "After 'autobuild build' ${build_dir}/packages/dictionaries " 1>&2
+    (test -d "${build_dir}/packages/dictionaries" && 'found' || echo 'missing' ) 1>&2
+
     end_section "Viewer$variant"
   fi
 }
@@ -177,8 +191,14 @@ eval "$("$AUTOBUILD" source_environment)"
 env|sort
 
 
+echo -n "Before 'autobuild install' ${build_dir}/packages/dictionaries " 1>&2
+(test -d "${build_dir}/packages/dictionaries" && 'found' || echo 'missing' ) 1>&2
+
 # Install packages.
 "$AUTOBUILD" install --skip-license-check
+
+echo -n "After 'autobuild install' ${build_dir}/packages/dictionaries " 1>&2
+(test -d "${build_dir}/packages/dictionaries" && 'found' || echo 'missing' ) 1>&2
 
 # Now run the build
 succeeded=true
