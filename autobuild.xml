@@ -90,9 +90,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1ac038723ed702a5ad0db924dfe0fe1b</string>
+              <string>8f186209cae5c7bf86d6af6a7965bea3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/254105/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120418.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/254439/arch/Darwin/installer/apr_suite-1.4.5-darwin-20120423.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -102,9 +102,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c60ace3d6c593d95247bd58496d7c557</string>
+              <string>f8743e0ccc4f651d5cfcf690e789cbe8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/254105/arch/Linux/installer/apr_suite-1.4.5-linux-20120418.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/254439/arch/Linux/installer/apr_suite-1.4.5-linux-20120423.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -114,9 +114,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d353e31abcefb554379abdec0ac41ff3</string>
+              <string>9799e268830010c519174da9a669dabe</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/254105/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120418.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/254439/arch/CYGWIN/installer/apr_suite-1.4.5-windows-20120423.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
