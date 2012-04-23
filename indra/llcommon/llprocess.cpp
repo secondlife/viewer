@@ -282,9 +282,13 @@ public:
 
 	virtual std::string read(size_type len)
 	{
-		// Read specified number of bytes into a buffer. Make a buffer big
-		// enough.
+		// Read specified number of bytes into a buffer.
 		size_type readlen((std::min)(size(), len));
+		// Formally, &buffer[0] is invalid for a vector of size() 0. Exit
+		// early in that situation.
+		if (! readlen)
+			return "";
+		// Make a buffer big enough.
 		std::vector<char> buffer(readlen);
 		mStream.read(&buffer[0], readlen);
 		// Since we've already clamped 'readlen', we can think of no reason
@@ -534,24 +538,6 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 
 	apr_procattr_t *procattr = NULL;
 	chkapr(apr_procattr_create(&procattr, gAPRPoolp));
-
-#if ! defined(APR_HAS_PROCATTR_INHERIT_SET)
-	// Our special preprocessor symbol isn't even defined -- wrong APR
-	LL_WARNS("LLProcess") << "This version of APR lacks Linden apr_procattr_inherit_set() extension" << LL_ENDL;
-#elif ! APR_HAS_PROCATTR_INHERIT_SET
-	// Symbol is defined, but to 0: expect apr_procattr_inherit_set() to
-	// return APR_ENOTIMPL.
-	LL_DEBUGS("LLProcess") << "apr_procattr_inherit_set() not supported on this platform" << LL_ENDL;
-#else  // APR_HAS_PROCATTR_INHERIT_SET nonzero
-	// As of 2012-04-17, the original Windows implementation of
-	// apr_proc_create() unconditionally passes TRUE for bInheritHandles. That
-	// seems to assume that all files are opened by APR so you can
-	// individually control whether each is inherited by a child process. But
-	// we've been burned by having surprising open file handles inherited by
-	// our child processes. Turn that OFF for us!
-	LL_DEBUGS("LLProcess") << "Setting apr_procattr_inherit_set(0)" << LL_ENDL;
-	ll_apr_warn_status(apr_procattr_inherit_set(procattr, 0));
-#endif
 
 	// For which of stdin, stdout, stderr should we create a pipe to the
 	// child? In the viewer, there are only a couple viable
