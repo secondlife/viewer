@@ -213,6 +213,7 @@ private:
 	boost::signals2::connection                   mSavedSettingTestPathValidEndSlot;
 	boost::signals2::connection                   mSavedSettingTestPathInvalidEndSlot;
 	boost::signals2::connection                   mSavedSettingTestPathSlot;
+	boost::signals2::connection                   mSavedSettingWaterSlot;
 
 	EConsoleState                                 mConsoleState;
 

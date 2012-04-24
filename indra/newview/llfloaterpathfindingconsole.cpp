@@ -80,6 +80,7 @@
 #define CONTROL_NAME_TEST_PATH_VALID_END     "PathfindingStarValidColor"
 #define CONTROL_NAME_TEST_PATH_INVALID_END   "PathfindingStarInvalidColor"
 #define CONTROL_NAME_TEST_PATH               "PathfindingTestPathColor"
+#define CONTROL_NAME_WATER					 "PathfindingWaterColor"
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
 
@@ -522,6 +523,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mSavedSettingNavMeshFaceSlot(),
 	mSavedSettingTestPathValidEndSlot(),
 	mSavedSettingTestPathInvalidEndSlot(),
+	mSavedSettingWaterSlot(),
 	mSavedSettingTestPathSlot(),
 	mConsoleState(kConsoleStateUnknown)
 {
@@ -1208,6 +1210,10 @@ void LLFloaterPathfindingConsole::registerNavMeshColorListeners()
 	{
 		mSavedSettingTestPathSlot = gSavedSettings.getControl(CONTROL_NAME_TEST_PATH)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
 	}
+	if (!mSavedSettingWaterSlot.connected())
+	{
+		mSavedSettingWaterSlot = gSavedSettings.getControl(CONTROL_NAME_WATER)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
+	}
 }
 
 void LLFloaterPathfindingConsole::deregisterNavMeshColorListeners()
@@ -1306,6 +1312,9 @@ void LLFloaterPathfindingConsole::fillInColorsForNavMeshVisualization()
 
 		in = gSavedSettings.getColor4(CONTROL_NAME_TEST_PATH);
 		navMeshColors.mTestPath= LLColor4U(in); 	
+
+		in = gSavedSettings.getColor4(CONTROL_NAME_WATER);
+		navMeshColors.mWaterColor= LLColor4U(in); 	
 
 		LLPathingLib::getInstance()->setNavMeshColors(navMeshColors);
 	}

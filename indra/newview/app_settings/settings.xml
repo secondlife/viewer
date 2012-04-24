@@ -13732,7 +13732,7 @@
         <real>1.0</real>
         <real>0.59</real>
         <real>0.0</real>
-        <real>1.0</real>
+        <real>0.9</real>
       </array>
     </map>
   <key>PathfindingAmbiance</key>
@@ -13829,6 +13829,22 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
+ <key>PathfindingWaterColor</key>
+    <map>
+      <key>Comment</key>
+      <string>yay!</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Color4</string>
+      <key>Value</key>
+      <array>
+        <real>0.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
   
 
 </map>
