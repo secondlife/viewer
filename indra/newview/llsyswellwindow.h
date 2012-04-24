@@ -123,7 +123,7 @@ protected:
 	struct WellNotificationChannel : public LLNotificationChannel
 	{
 		WellNotificationChannel(LLNotificationWellWindow*);
-		void onAdd(LLNotificationPtr notify)
+		void onDelete(LLNotificationPtr notify)
 		{
 			mWellWindow->removeItemByID(notify->getID());
 		} 

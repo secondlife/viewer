@@ -207,7 +207,7 @@ namespace LLInitParam
 		typedef T	value_t;
 
 		ParamValue() 
-			:	T(),
+		:	T(),
 			mValidated(false)
 		{}
 
@@ -740,6 +740,13 @@ namespace LLInitParam
 		// lift block tags into baseblock namespace so derived classes do not need to qualify them
 		typedef LLInitParam::IS_A_BLOCK IS_A_BLOCK;
 		typedef LLInitParam::NOT_BLOCK NOT_A_BLOCK;
+
+		template<typename T>
+		struct Sequential : public LLTypeTags::TypeTagBase<T, 2>
+		{
+			template <typename S> struct Cons { typedef Sequential<ParamValue<S> > value_t; };
+			template <typename S> struct Cons<Sequential<S> > { typedef Sequential<S> value_t; };
+		};
 
 		template<typename T>
 		struct Atomic : public LLTypeTags::TypeTagBase<T, 1>
@@ -2050,6 +2057,13 @@ namespace LLInitParam
 		typedef typename IsBlock<T>::value_t value_t;
 	};
 
+	template<typename T, typename BLOCK_IDENTIFIER>
+	struct IsBlock<ParamValue<BaseBlock::Sequential<T>, typename IsBlock<BaseBlock::Sequential<T> >::value_t >, BLOCK_IDENTIFIER>
+	{
+		typedef typename IsBlock<T>::value_t value_t;
+	};
+
+
 	template<typename T>
 	struct InnerMostType
 	{
@@ -2155,6 +2169,135 @@ namespace LLInitParam
 		}
 
 		T	mValue;
+	};
+
+	template<typename T>
+	class ParamValue <BaseBlock::Sequential<T>, IS_A_BLOCK>
+	{
+		typedef ParamValue <BaseBlock::Sequential<T>, IS_A_BLOCK> self_t;
+
+	public:
+		typedef typename InnerMostType<T>::value_t	value_t;
+		typedef T									default_value_t;
+
+		ParamValue()
+		:	mValue(),
+			mValidated(false)
+		{
+			mCurParam = getBlockDescriptor().mAllParams.begin();
+		}
+
+		ParamValue(const default_value_t& value)
+		:	mValue(value),
+			mValidated(false)
+		{
+			mCurParam = getBlockDescriptor().mAllParams.begin();
+		}
+
+		void setValue(const value_t& val)
+		{
+			mValue.setValue(val);
+		}
+
+		const value_t& getValue() const
+		{
+			return mValue.getValue();
+		}
+
+		value_t& getValue()
+		{
+			return mValue.getValue();
+		}
+
+		bool deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack_range, bool new_name)
+		{
+			if (new_name)
+			{
+				mCurParam = getBlockDescriptor().mAllParams.begin();
+			}
+			if (name_stack_range.first == name_stack_range.second 
+				&& mCurParam != getBlockDescriptor().mAllParams.end())
+			{
+				// deserialize to mCurParam
+				LLParamDescriptor& pd = *(*mCurParam);
+				ParamDescriptor::deserialize_func_t deserialize_func = pd.mDeserializeFunc;
+				LLParam* paramp = mValue.getParamFromHandle(pd.mParamHandle);
+
+				if (deserialize_func 
+					&& paramp 
+					&& deserialize_func(paramp, p, name_stack_range, new_name))
+				{
+					++mCurParam;
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return mValue.deserializeBlock(p, name_stack_range, new_name);
+			}
+		}
+
+		void serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const self_t* diff_block = NULL) const
+		{
+			const BaseBlock* base_block = diff_block
+				? &(diff_block->mValue)
+				: NULL;
+			mValue.serializeBlock(p, name_stack, base_block);
+		}
+
+		bool inspectBlock(Parser& p, Parser::name_stack_t name_stack = Parser::name_stack_t(), S32 min_count = 0, S32 max_count = S32_MAX) const
+		{
+			return mValue.inspectBlock(p, name_stack, min_count, max_count);
+		}
+
+		bool mergeBlockParam(bool source_provided, bool dst_provided, BlockDescriptor& block_data, const self_t& source, bool overwrite)
+		{
+			return mValue.mergeBlock(block_data, source.getValue(), overwrite);
+		}
+
+		bool validateBlock(bool emit_errors = true) const
+		{
+			return mValue.validateBlock(emit_errors);
+		}
+
+		static BlockDescriptor& getBlockDescriptor()
+		{
+			return value_t::getBlockDescriptor();
+		}
+
+		mutable bool 	mValidated; // lazy validation flag
+
+	private:
+
+		BlockDescriptor::all_params_list_t::iterator	mCurParam;
+		T												mValue;
+	};
+
+	template<typename T>
+	class ParamValue <BaseBlock::Sequential<T>, NOT_BLOCK>
+	: public T
+	{
+		typedef ParamValue <BaseBlock::Sequential<T>, NOT_BLOCK> self_t;
+
+	public:
+		typedef typename InnerMostType<T>::value_t	value_t;
+		typedef T									default_value_t;
+
+		ParamValue()
+		:	T(),
+			mValidated(false)
+		{}
+
+		ParamValue(const default_value_t& value)
+		:	T(value.getValue()),
+			mValidated(false)
+		{}
+
+		mutable bool 	mValidated; // lazy validation flag
 	};
 
 	template<typename T, typename BLOCK_T>

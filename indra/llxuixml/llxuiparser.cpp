@@ -115,8 +115,8 @@ struct All : public LLInitParam::Block<All, Occurs>
 
 struct Attribute : public LLInitParam::Block<Attribute>
 {
-	Mandatory<std::string>	name;
-	Mandatory<std::string>	type;
+	Mandatory<std::string>	name,
+							type;
 	Mandatory<EUse>			use;
 	
 	Attribute()
