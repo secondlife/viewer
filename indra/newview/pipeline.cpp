@@ -4437,6 +4437,20 @@ void LLPipeline::renderDebug()
 						}
 					
 					}
+				
+					if ( pathfindingConsole->isRenderWaterPlane() )
+					{	
+						if (LLGLSLShader::sNoFixedFunction)
+						{
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );
+						}
+						else
+						{
+							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );					
+						}
+					}
 				//physics/exclusion shapes
 				if ( pathfindingConsole->isRenderAnyShapes() )
 				{					
