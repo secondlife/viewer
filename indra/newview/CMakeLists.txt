@@ -47,7 +47,7 @@ include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
