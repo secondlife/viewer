@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Anim Preview" title="ANIMATION.ANIM">
+	<text name="name_label">
+		Nome:
+	</text>
+	<text name="description_label">
+		Descrição:
+	</text>
+	<button label="Envio (L$[AMOUNT])" name="ok_btn"/>
+	<button label="Cancelar" label_selected="Cancelar" name="cancel_btn"/>
+</floater>

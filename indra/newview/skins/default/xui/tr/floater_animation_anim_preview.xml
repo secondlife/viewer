@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Anim Preview" title="ANIMATION.ANIM">
+	<text name="name_label">
+		Ad:
+	</text>
+	<text name="description_label">
+		Açıklama:
+	</text>
+	<button label="Karşıya Yükle (L$[AMOUNT])" name="ok_btn"/>
+	<button label="İptal" label_selected="İptal" name="cancel_btn"/>
+</floater>

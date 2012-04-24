@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="OUTILS POUR LA CONSTRUCTION" title="">
+	<floater.string name="grid_screen_text">
+		Écran
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Local
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Monde
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Référence
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Élément attaché
+	</floater.string>
 	<floater.string name="status_rotate">
 		Pour faire tourner l&apos;objet, faites glisser les bandes de couleur.
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="Étirer les textures" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Fixer" name="checkbox snap to grid"/>
-	<button label="Options..." label_selected="Options..." name="Options..." tool_tip="Afficher d&apos;autres options de grille"/>
+	<combo_box name="combobox grid mode" tool_tip="Choisir le type d&apos;axe de grille pour le positionnement de l&apos;objet.">
+		<combo_box.item label="Monde" name="World"/>
+		<combo_box.item label="Local" name="Local"/>
+		<combo_box.item label="Référence" name="Reference"/>
+	</combo_box>
+	<button label="" label_selected="Options..." name="Options..." tool_tip="Afficher d&apos;autres options de grille"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cube"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisme droit"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pyramide"/>
@@ -106,7 +126,7 @@
 		Aucune sélection effectuée.
 	</text>
 	<text name="remaining_capacity">
-		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Plus d'infos]
+		[CAPACITY_STRING] [secondlife:///app/openfloater/object_weights Plus d&apos;infos]
 	</text>
 	<tab_container name="Object Info Tabs">
 		<panel label="Général" name="General">

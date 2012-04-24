@@ -835,6 +835,9 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 	<string name="anim_yes_head">
 		Ja
 	</string>
+	<string name="multiple_textures">
+		Mehrfach
+	</string>
 	<string name="texture_loading">
 		Wird geladen...
 	</string>
@@ -1235,7 +1238,7 @@ Warten Sie kurz und versuchen Sie dann noch einmal, sich anzumelden.
 		Sie haben keine Kopie dieser Textur in Ihrem Inventar.
 	</string>
 	<string name="InventoryInboxNoItems">
-		Hier erscheinen bestimmte Artikel, die Sie erhalten, wie z. B. Premium-Geschenke. Sie können diese dann in Ihr Inventar ziehen.
+		Einkäufe aus dem Marktplatz erscheinen hier. Sie können diese dann zur Verwendung in Ihr Inventar ziehen.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3920,6 +3923,9 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich bitte an [SUPPORT_
 	</string>
 	<string name="Saved_message">
 		(Gespeichert am [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Wenn Sie diese Meldung sehen, müssen Sie unter „Einstellungen“ &gt; „Privatsphäre“ die Option „Nur IMs und Anrufe von Freunden oder Gruppen durchstellen“ deaktivieren.
 	</string>
 	<string name="answered_call">
 		Ihr Anruf wurde entgegengenommen

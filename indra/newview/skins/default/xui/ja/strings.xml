@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- This file contains strings that used to be hardcoded in the source.
      It is only for those strings which do not belong in a floater.
      For example, the strings used in avatar chat bubbles, and strings
@@ -835,6 +835,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="anim_yes_head">
 		頷く
 	</string>
+	<string name="multiple_textures">
+		複数
+	</string>
 	<string name="texture_loading">
 		ローディング...
 	</string>
@@ -1235,7 +1238,7 @@ support@secondlife.com にお問い合わせください。
 		インベントリ内にこのテクスチャのコピーがありません
 	</string>
 	<string name="InventoryInboxNoItems">
-		プレミアムギフトなど、受け取る特定のアイテムはここに表示されます。その後、それらのアイテムを自分のインベントリの中にドラッグできます。
+		マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3920,6 +3923,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Saved_message">
 		（保存日時：[LONG_TIMESTAMP]）
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		このメッセージを表示するには、「環境設定」の「プライバシー」で「フレンドとグループ以外からはコールと IM を受信しない」チェックボックスをオフにします。
 	</string>
 	<string name="answered_call">
 		相手がコールを受けました

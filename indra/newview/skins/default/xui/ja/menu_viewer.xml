@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <menu_bar name="Main Menu">
 	<menu label="ミー" name="Me">
 		<menu_item_call label="プロフィール..." name="Profile"/>
@@ -21,6 +21,7 @@
 			<menu_item_call label="取り込み中" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="L$ の購入..." name="Buy and Sell L$"/>
+		<menu_item_call label="マーチャントアウトボックス..." name="MerchantOutbox"/>
 		<menu_item_call label="マイアカウント..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
@@ -393,9 +394,16 @@
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
 		<menu_item_check label="HTTP インベントリ" name="HTTP Inventory"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
+		<menu_item_call label="Visual Leak Detector を有効にする" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
-		<menu label="ログレベルを設定" name="Set Logging Level"/>
+		<menu label="ログレベルを設定" name="Set Logging Level">
+			<menu_item_check label="デバッグ" name="Debug"/>
+			<menu_item_check label="情報" name="Info"/>
+			<menu_item_check label="警告" name="Warning"/>
+			<menu_item_check label="エラー" name="Error"/>
+			<menu_item_check label="なし" name="None"/>
+		</menu>
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
 		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>

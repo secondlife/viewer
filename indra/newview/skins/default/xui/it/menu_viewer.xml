@@ -21,6 +21,7 @@
 			<menu_item_call label="Non disponibile" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="Acquista L$..." name="Buy and Sell L$"/>
+		<menu_item_call label="Casella venditore in uscita..." name="MerchantOutbox"/>
 		<menu_item_call label="Dashboard dell&apos;account..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=it"/>
 		</menu_item_call>
@@ -334,8 +335,15 @@
 		</menu>
 		<menu_item_check label="Texture HTTP" name="HTTP Textures"/>
 		<menu_item_check label="Inventario HTTP" name="HTTP Inventory"/>
+		<menu_item_call label="Attiva Visual Leak Detector" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Finestra Console al prossimo lancio" name="Console Window"/>
-		<menu label="Imposta livello di registrazione" name="Set Logging Level"/>
+		<menu label="Imposta livello di registrazione" name="Set Logging Level">
+			<menu_item_check label="Debug" name="Debug"/>
+			<menu_item_check label="Informazioni" name="Info"/>
+			<menu_item_check label="Attenzione" name="Warning"/>
+			<menu_item_check label="Errore" name="Error"/>
+			<menu_item_check label="Nessuno" name="None"/>
+		</menu>
 		<menu_item_call label="Richiedi diritti Admin" name="Request Admin Options"/>
 		<menu_item_call label="Lascia stato Admin" name="Leave Admin Options"/>
 		<menu_item_check label="Mostra menu Admin" name="View Admin Options"/>

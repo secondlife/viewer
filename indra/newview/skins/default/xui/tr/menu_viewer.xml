@@ -21,6 +21,7 @@
 			<menu_item_call label="Meşgul" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="L$ Satın Al..." name="Buy and Sell L$"/>
+		<menu_item_call label="Satıcı Giden Kutusu..." name="MerchantOutbox"/>
 		<menu_item_call label="Hesap kontrol paneli..." name="Manage My Account"/>
 		<menu_item_call label="Tercihler..." name="Preferences"/>
 		<menu_item_call label="Araç çubuğu düğmeleri..." name="Toolbars"/>
@@ -391,9 +392,16 @@
 		<menu_item_check label="HTTP Dokuları" name="HTTP Textures"/>
 		<menu_item_check label="HTTP Envanteri" name="HTTP Inventory"/>
 		<menu_item_call label="Görüntüleri Sıkıştır" name="Compress Images"/>
+		<menu_item_call label="Visual Leak Detector&apos;ı Etkinleştir" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Mini Döküm Dosyası Hata Ayıklama Çıktısı" name="Output Debug Minidump"/>
 		<menu_item_check label="Sonraki Çalışmada Konsol Penceresi" name="Console Window"/>
-		<menu label="Günlük Tutma Seviyesini Seç" name="Set Logging Level"/>
+		<menu label="Günlük Tutma Seviyesini Seç" name="Set Logging Level">
+			<menu_item_check label="Hata ayıkla" name="Debug"/>
+			<menu_item_check label="Bilgi" name="Info"/>
+			<menu_item_check label="Uyarı" name="Warning"/>
+			<menu_item_check label="Hata" name="Error"/>
+			<menu_item_check label="Hiçbiri" name="None"/>
+		</menu>
 		<menu_item_call label="Yönetici Durumu Talep Et" name="Request Admin Options"/>
 		<menu_item_call label="Yönetici Durumundan Ayrıl" name="Leave Admin Options"/>
 		<menu_item_check label="Yönetici Menüsünü Göster" name="View Admin Options"/>

@@ -21,6 +21,7 @@
 			<menu_item_call label="Occupé" name="Set Busy"/>
 		</menu>
 		<menu_item_call label="Acheter des L$..." name="Buy and Sell L$"/>
+		<menu_item_call label="Boîte d&apos;envoi vendeur..." name="MerchantOutbox"/>
 		<menu_item_call label="Page d&apos;accueil du compte..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=fr"/>
 		</menu_item_call>
@@ -393,9 +394,16 @@
 		<menu_item_check label="Textures HTTP" name="HTTP Textures"/>
 		<menu_item_check label="Inventaire HTTP" name="HTTP Inventory"/>
 		<menu_item_call label="Compresser les images" name="Compress Images"/>
+		<menu_item_call label="Activer Visual Leak Detector" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Output Debug Minidump" name="Output Debug Minidump"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
-		<menu label="Définir le niveau de connexion" name="Set Logging Level"/>
+		<menu label="Définir le niveau de connexion" name="Set Logging Level">
+			<menu_item_check label="Débogage" name="Debug"/>
+			<menu_item_check label="Infos" name="Info"/>
+			<menu_item_check label="Avertissement" name="Warning"/>
+			<menu_item_check label="Erreur" name="Error"/>
+			<menu_item_check label="Aucun" name="None"/>
+		</menu>
 		<menu_item_call label="Demander le statut Admin" name="Request Admin Options"/>
 		<menu_item_call label="Quitter le statut Admin" name="Leave Admin Options"/>
 		<menu_item_check label="Afficher le menu Admin" name="View Admin Options"/>
