@@ -10,7 +10,7 @@ find_path(HUNSPELL_INCLUDE_DIR hunspell.h
   PATH_SUFFIXES hunspell
   )
 
-set(HUNSPELL_NAMES ${HUNSPELL_NAMES} libhunspell-1.3 libhunspell)
+set(HUNSPELL_NAMES ${HUNSPELL_NAMES} libhunspell-1.3.0 libhunspell)
 find_library(HUNSPELL_LIBRARY
   NAMES ${HUNSPELL_NAMES}
   )
