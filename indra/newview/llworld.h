@@ -157,6 +157,11 @@ public:
 		std::vector<LLVector3d>* positions = NULL, 
 		const LLVector3d& relative_to = LLVector3d(), F32 radius = FLT_MAX) const;
 
+	// Returns 'true' if the region is in mRegionList,
+	// 'false' if the region has been removed due to region change
+	// or if the circuit to this simulator had been lost.
+	bool isRegionListed(const LLViewerRegion* region) const;
+
 private:
 	region_list_t	mActiveRegionList;
 	region_list_t	mRegionList;
