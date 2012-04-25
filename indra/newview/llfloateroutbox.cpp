@@ -58,6 +58,14 @@ bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLNotifi
 	return false;
 }
 
+void LLNotificationsUI::LLOutboxNotification::onDelete(LLNotificationPtr p)
+{
+	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
+	if (sys_handler)
+	{
+		sys_handler->onDelete(p);
+	}
+}
 
 ///----------------------------------------------------------------------------
 /// LLOutboxAddedObserver helper class

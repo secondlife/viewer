@@ -276,6 +276,7 @@ public:
 	{}
 	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
 	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onDelete(LLNotificationPtr p);
 	bool processNotification(const LLNotificationPtr& p);
 };
 	
