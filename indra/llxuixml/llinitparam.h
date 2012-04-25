@@ -2225,7 +2225,7 @@ namespace LLInitParam
 
 				if (deserialize_func 
 					&& paramp 
-					&& deserialize_func(paramp, p, name_stack_range, new_name))
+					&& deserialize_func(*paramp, p, name_stack_range, new_name))
 				{
 					++mCurParam;
 					return true;
