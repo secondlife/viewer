@@ -151,8 +151,9 @@ private:
 	void clearPath();
 	void updatePathTestStatus();
 
-	void registerNavMeshColorListeners();
-	void deregisterNavMeshColorListeners();
+	void registerSavedSettingsListeners();
+	void deregisterSavedSettingsListeners();
+	void handleRetrieveNeighborChange(LLControlVariable *pControl, const LLSD &pNewValue);
 	void handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue);
 	void fillInColorsForNavMeshVisualization();
 
@@ -202,6 +203,7 @@ private:
 	LLToolset                                     *mPathfindingToolset;
 	LLToolset                                     *mSavedToolset;
 
+	boost::signals2::connection                   mSavedSettingRetrieveNeighborSlot;
 	boost::signals2::connection                   mSavedSettingWalkableSlot;
 	boost::signals2::connection                   mSavedSettingStaticObstacleSlot;
 	boost::signals2::connection                   mSavedSettingMaterialVolumeSlot;

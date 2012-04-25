@@ -68,6 +68,7 @@
 
 #define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
 
+#define CONTROL_NAME_RETRIEVE_NEIGHBOR       "RetrieveNeighboringRegion"
 #define CONTROL_NAME_WALKABLE_OBJECTS        "PathfindingWalkable"
 #define CONTROL_NAME_STATIC_OBSTACLE_OBJECTS "PathfindingObstacle"
 #define CONTROL_NAME_MATERIAL_VOLUMES        "PathfindingMaterial"
@@ -237,7 +238,7 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 
 		mIsNavMeshUpdating = false;
 		initializeNavMeshZoneForCurrentRegion();
-		registerNavMeshColorListeners();
+		registerSavedSettingsListeners();
 		fillInColorsForNavMeshVisualization();
 	}		
 
@@ -294,7 +295,7 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	{
 		mNavMeshZone.disable();
 	}
-	deregisterNavMeshColorListeners();
+	deregisterSavedSettingsListeners();
 
 	setDefaultInputs();
 	setConsoleState(kConsoleStateUnknown);
@@ -512,6 +513,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathEventSlot(),
 	mPathfindingToolset(NULL),
 	mSavedToolset(NULL),
+	mSavedSettingRetrieveNeighborSlot(),
 	mSavedSettingWalkableSlot(),
 	mSavedSettingStaticObstacleSlot(),
 	mSavedSettingMaterialVolumeSlot(),
@@ -1169,8 +1171,12 @@ U32 LLFloaterPathfindingConsole::getRenderShapeFlags()
 	return shapeRenderFlag;
 }
 
-void LLFloaterPathfindingConsole::registerNavMeshColorListeners()
+void LLFloaterPathfindingConsole::registerSavedSettingsListeners()
 {
+	if (!mSavedSettingRetrieveNeighborSlot.connected())
+	{
+		mSavedSettingRetrieveNeighborSlot = gSavedSettings.getControl(CONTROL_NAME_RETRIEVE_NEIGHBOR)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleRetrieveNeighborChange, this, _1, _2));
+	}
 	if (!mSavedSettingWalkableSlot.connected())
 	{
 		mSavedSettingWalkableSlot = gSavedSettings.getControl(CONTROL_NAME_WALKABLE_OBJECTS)->getSignal()->connect(boost::bind(&LLFloaterPathfindingConsole::handleNavMeshColorChange, this, _1, _2));
@@ -1225,8 +1231,12 @@ void LLFloaterPathfindingConsole::registerNavMeshColorListeners()
 	}
 }
 
-void LLFloaterPathfindingConsole::deregisterNavMeshColorListeners()
+void LLFloaterPathfindingConsole::deregisterSavedSettingsListeners()
 {
+	if (mSavedSettingRetrieveNeighborSlot.connected())
+	{
+		mSavedSettingRetrieveNeighborSlot.disconnect();
+	}
 	if (mSavedSettingWalkableSlot.connected())
 	{
 		mSavedSettingWalkableSlot.disconnect();
@@ -1275,6 +1285,11 @@ void LLFloaterPathfindingConsole::deregisterNavMeshColorListeners()
 	{
 		mSavedSettingTestPathSlot.disconnect();
 	}
+}
+
+void LLFloaterPathfindingConsole::handleRetrieveNeighborChange(LLControlVariable *pControl, const LLSD &pNewValue)
+{
+	initializeNavMeshZoneForCurrentRegion();
 }
 
 void LLFloaterPathfindingConsole::handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue)
