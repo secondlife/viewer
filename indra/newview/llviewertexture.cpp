@@ -178,7 +178,12 @@ LLViewerTexture*  LLViewerTextureManager::findTexture(const LLUUID& id)
 	}
 	return tex ;
 }
-		
+
+LLViewerFetchedTexture*  LLViewerTextureManager::findFetchedTexture(const LLUUID& id) 
+{
+	return gTextureList.findImage(id);
+}
+
 LLViewerMediaTexture* LLViewerTextureManager::findMediaTexture(const LLUUID &media_id)
 {
 	return LLViewerMediaTexture::findMediaTexture(media_id) ;	

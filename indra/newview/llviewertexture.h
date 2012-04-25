@@ -701,6 +701,7 @@ public:
 	//"find-texture" just check if the texture exists, if yes, return it, otherwise return null.
 	//
 	static LLViewerTexture*           findTexture(const LLUUID& id) ;
+	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id) ;
 	static LLViewerMediaTexture*      findMediaTexture(const LLUUID& id) ;
 	
 	static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;

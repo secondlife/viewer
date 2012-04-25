@@ -1877,6 +1877,13 @@
                  function="Advanced.ToggleConsole"
                  parameter="texture" />
             </menu_item_check>
+          <menu_item_call
+          label="Texture Fetch Debug Console"
+          name="Texture Fetch Debug Console">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="tex_fetch_debugger" />
+          </menu_item_call>
             <menu_item_check
              label="Debug Console"
              name="Debug Console"

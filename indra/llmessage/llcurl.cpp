@@ -1506,7 +1506,7 @@ void LLCurl::cleanupClass()
 	delete sHandleMutexp ;
 	sHandleMutexp = NULL ;
 
-	llassert(Easy::sActiveHandles.empty());
+	//llassert(Easy::sActiveHandles.empty());
 }
 
 //static 
