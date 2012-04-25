@@ -2219,9 +2219,9 @@ namespace LLInitParam
 				&& mCurParam != getBlockDescriptor().mAllParams.end())
 			{
 				// deserialize to mCurParam
-				LLParamDescriptor& pd = *(*mCurParam);
+				ParamDescriptor& pd = *(*mCurParam);
 				ParamDescriptor::deserialize_func_t deserialize_func = pd.mDeserializeFunc;
-				LLParam* paramp = mValue.getParamFromHandle(pd.mParamHandle);
+				Param* paramp = mValue.getParamFromHandle(pd.mParamHandle);
 
 				if (deserialize_func 
 					&& paramp 
