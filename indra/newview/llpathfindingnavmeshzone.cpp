@@ -206,6 +206,7 @@ void LLPathfindingNavMeshZone::handleNavMeshLocation()
 void LLPathfindingNavMeshZone::updateStatus()
 {
 	bool hasRequestUnknown = false;
+	bool hasRequestWaiting = false;
 	bool hasRequestChecking = false;
 	bool hasRequestNeedsUpdate = false;
 	bool hasRequestStarted = false;
@@ -227,6 +228,9 @@ void LLPathfindingNavMeshZone::updateStatus()
 		{
 		case LLPathfindingNavMesh::kNavMeshRequestUnknown :
 			hasRequestUnknown = true;
+			break;
+		case LLPathfindingNavMesh::kNavMeshRequestWaiting :
+			hasRequestWaiting = true;
 			break;
 		case LLPathfindingNavMesh::kNavMeshRequestChecking :
 			hasRequestChecking = true;
@@ -254,7 +258,14 @@ void LLPathfindingNavMeshZone::updateStatus()
 	}
 
 	ENavMeshZoneRequestStatus zoneRequestStatus = kNavMeshZoneRequestUnknown;
-	if (hasRequestNeedsUpdate)
+	if (hasRequestWaiting)
+	{
+		zoneRequestStatus = kNavMeshZoneRequestWaiting;
+#ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
+		llinfos << "STINSON DEBUG: Navmesh zone update is WAITING" << llendl;
+#endif // XXX_STINSON_DEBUG_NAVMESH_ZONE
+	}
+	else if (hasRequestNeedsUpdate)
 	{
 		zoneRequestStatus = kNavMeshZoneRequestNeedsUpdate;
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE

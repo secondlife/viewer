@@ -103,6 +103,7 @@ private:
 		kConsoleStateUnknown,
 		kConsoleStateLibraryNotImplemented,
 		kConsoleStateRegionNotEnabled,
+		kConsoleStateRegionLoading,
 		kConsoleStateCheckingVersion,
 		kConsoleStateDownloading,
 		kConsoleStateHasNavMesh,

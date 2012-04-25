@@ -605,6 +605,9 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestUnknown :
 		setConsoleState(kConsoleStateUnknown);
 		break;
+	case LLPathfindingNavMeshZone::kNavMeshZoneRequestWaiting :
+		setConsoleState(kConsoleStateRegionLoading);
+		break;
 	case LLPathfindingNavMeshZone::kNavMeshZoneRequestChecking :
 		setConsoleState(kConsoleStateCheckingVersion);
 		break;
@@ -723,6 +726,7 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 	{
 	case kConsoleStateUnknown :
 	case kConsoleStateRegionNotEnabled :
+	case kConsoleStateRegionLoading :
 		mShowLabel->setEnabled(FALSE);
 		mShowWorldCheckBox->setEnabled(FALSE);
 		mShowWorldMovablesOnlyCheckBox->setEnabled(FALSE);
@@ -856,6 +860,11 @@ void LLFloaterPathfindingConsole::updateStatusOnConsoleState()
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		viewerStatusText = getString("navmesh_viewer_status_region_not_enabled");
 		viewerStyleParams.color = errorColor;
+		break;
+	case kConsoleStateRegionLoading :
+		simulatorStatusText = getString("navmesh_simulator_status_unknown");
+		viewerStatusText = getString("navmesh_viewer_status_region_loading");
+		viewerStyleParams.color = warningColor;
 		break;
 	case kConsoleStateCheckingVersion :
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
