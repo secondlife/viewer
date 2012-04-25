@@ -206,7 +206,7 @@ struct LLNotificationTemplate
 		:	name("name"),
 			persist("persist", false),
 			log_to_im("log_to_im", false),
-			log_to_chat("log_to_chat", false),
+			log_to_chat("log_to_chat", true),
 			functor("functor"),
 			icon("icon"),
 			label("label"),

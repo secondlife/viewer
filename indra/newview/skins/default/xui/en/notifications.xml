@@ -5164,7 +5164,7 @@ The string [STRING_NAME] is missing from strings.xml
    icon="notifytip.tga"
    name="IMSystemMessageTip"
    log_to_im="true"   
-   log_to_chat="true"   
+   log_to_chat="false"   
    type="notifytip">
 [MESSAGE]
   </notification>
@@ -5209,7 +5209,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
   <notification
    icon="notifytip.tga"
    name="FriendOnline"
-   log_to_chat="true"
+   log_to_chat="false"
    type="notifytip">
     <tag>friendship</tag>
 &lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
@@ -5218,7 +5218,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
-   log_to_chat="true"
+   log_to_chat="false"
    type="notifytip">
     <tag>friendship</tag>
 &lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
@@ -5466,7 +5466,7 @@ You don&apos;t have permission to copy this.
    icon="notifytip.tga"
    name="InventoryAccepted"
    log_to_im="true"   
-   log_to_chat="true"
+   log_to_chat="false"
    type="notifytip">
 [NAME] received your inventory offer.
   </notification>
@@ -5475,7 +5475,7 @@ You don&apos;t have permission to copy this.
    icon="notifytip.tga"
    name="InventoryDeclined"
    log_to_im="true"   
-   log_to_chat="true"
+   log_to_chat="false"
    type="notifytip">
 [NAME] declined your inventory offer.
   </notification>
