@@ -58,11 +58,11 @@ set(llcorehttp_HEADER_FILES
 
 set_source_files_properties(${llcorehttp_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-if (APPLE)
-  # Boost headers define unused members so...
+if (DARWIN OR LINUX)
+  # Boost headers define unused members in condition_variable so...
   set_source_files_properties(${llcorehttp_SOURCE_FILES}
                               PROPERTIES COMPILE_FLAGS -Wno-unused-variable)
-endif (APPLE)
+endif (DARWIN OR LINUX)
 
 list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
 
