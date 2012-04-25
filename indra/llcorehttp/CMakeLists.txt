@@ -58,6 +58,11 @@ set(llcorehttp_HEADER_FILES
 
 set_source_files_properties(${llcorehttp_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
+if (APPLE)
+  # Boost headers define unused members so...
+  set_source_files_properties(${llcorehttp_SOURCE_FILES}
+                              PROPERTIES COMPILE_FLAGS -Wno-unused-variable)
+endif (APPLE)
 
 list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
 

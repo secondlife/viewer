@@ -91,7 +91,7 @@ public:
 
 	inline bool joinable() const
 		{
-			mThread->joinable();
+			return mThread->joinable();
 		}
 
 private:
