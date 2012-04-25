@@ -171,8 +171,8 @@ void LLIMModel::setActiveSessionID(const LLUUID& session_id)
 
 LLIMModel::LLIMModel() 
 {
-	addNewMsgCallback(LLIMFloater::newIMCallback);
-	addNewMsgCallback(toast_callback);
+	addNewMsgCallback(boost::bind(&LLIMFloater::newIMCallback, _1));
+	addNewMsgCallback(boost::bind(&toast_callback, _1));
 }
 
 LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)

@@ -690,7 +690,7 @@ typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 // Abstract base class (interface) for a channel; also used for the master container.
 // This lets us arrange channels into a call hierarchy.
 
-// We maintain a heirarchy of notification channels; events are always started at the top
+// We maintain a hierarchy of notification channels; events are always started at the top
 // and propagated through the hierarchy only if they pass a filter.
 // Any channel can be created with a parent. A null parent (empty string) means it's
 // tied to the root of the tree (the LLNotifications class itself).
