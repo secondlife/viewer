@@ -410,7 +410,7 @@ int parse_content_range_header(char * buffer,
 							   unsigned int * last,
 							   unsigned int * length)
 {
-	char * tok_state(NULL), * tok;
+	char * tok_state(NULL), * tok(NULL);
 	bool match(true);
 			
 	if (! strtok_r(buffer, ": \t", &tok_state))
