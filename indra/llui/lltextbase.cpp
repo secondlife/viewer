@@ -280,11 +280,23 @@ bool LLTextBase::truncate()
 	if (getLength() >= S32(mMaxTextByteLength / 4))
 	{	
 		// Have to check actual byte size
-		S32 utf8_byte_size = getViewModel()->getValue().asString().size();
+		S32 utf8_byte_size = 0;
+		LLSD value = getViewModel()->getValue();
+		if (value.type() == LLSD::TypeString)
+		{
+			// save a copy for strings.
+			utf8_byte_size = value.size();
+		}
+		else
+		{
+			// non string LLSDs need explicit conversion to string
+			utf8_byte_size = value.asString().size();
+		}
+
 		if ( utf8_byte_size > mMaxTextByteLength )
 		{
 			// Truncate safely in UTF-8
-			std::string temp_utf8_text = getViewModel()->getValue().asString();
+			std::string temp_utf8_text = value.asString();
 			temp_utf8_text = utf8str_truncate( temp_utf8_text, mMaxTextByteLength );
 			LLWString text = utf8str_to_wstring( temp_utf8_text );
 			// remove extra bit of current string, to preserve formatting, etc.

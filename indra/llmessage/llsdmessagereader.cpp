@@ -276,7 +276,7 @@ S32 getElementSize(const LLSD& llsd)
 	case LLSD::TypeReal:
 		return sizeof(F64);
 	case LLSD::TypeString:
-		return llsd.asString().size();
+		return llsd.size();
 	case LLSD::TypeUUID:
 		return sizeof(LLUUID);
 	case LLSD::TypeDate:
