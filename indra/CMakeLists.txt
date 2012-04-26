@@ -107,10 +107,10 @@ if (VIEWER)
 endif (VIEWER)
 
 # Linux builds the viewer and server in 2 separate projects
-# In order for build server to work on linux, 
+# In order for build server to work on linux,
 # the viewer project needs a server target.
 # This is not true for mac and windows.
-if (LINUX) 
+if (LINUX)
   add_custom_target(server)
 endif (LINUX)
 if (SERVER)
@@ -132,3 +132,16 @@ if (LL_TESTS)
   # individual apps can add themselves as dependencies
   add_subdirectory(${INTEGRATION_TESTS_PREFIX}integration_tests)
 endif (LL_TESTS)
+
+# add a target to generate API documentation with Doxygen
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    find_program(PERL perl) # I am not sure if this is really needed or not
+    GET_FILENAME_COMPONENT(DOXYGEN_TOP_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR} PATH)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    add_custom_target(doc
+                      ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+                      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                      COMMENT "Generating API documentation with Doxygen" VERBATIM
+                      )
+endif(DOXYGEN_FOUND)

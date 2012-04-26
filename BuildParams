@@ -139,7 +139,9 @@ oz_viewer-beta-review.email = oz@lindenlab.com
 
 oz_project-1.build_debug_release_separately = true
 oz_project-1.codeticket_add_context = false
+oz_project-1_Linux.build_docs = true
 oz_project-1.email = oz@lindenlab.com
+
 oz_project-2.build_debug_release_separately = true
 oz_project-2.codeticket_add_context = false
 oz_project-2.email = oz@lindenlab.com

@@ -90,9 +90,12 @@ build()
 build_docs()
 {
   begin_section Docs
-  # Stub code to generate docs
-  echo Hello world  > documentation.txt
-  upload_item docs documentation.txt text/plain
+  if "$AUTOBUILD" build -c Doxygen
+  then
+    echo true >"$build_dir"/build_ok
+  else
+    echo false >"$build_dir"/build_ok
+  fi
   end_section Docs
 }
 
