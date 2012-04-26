@@ -37,9 +37,7 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "lltexturefetch.h"
-
-//static
-F32 LLFloaterTextureFetchDebugger::sTexelPixelRatio = 1.0f;
+#include "llviewercontrol.h"
 
 LLFloaterTextureFetchDebugger::LLFloaterTextureFetchDebugger(const LLSD& key)
 	: LLFloater(key),
@@ -82,6 +80,8 @@ BOOL LLFloaterTextureFetchDebugger::postBuild(void)
 	mButtonStateMap["refetchvishttp_btn"] = true;
 
 	updateButtons();
+
+	getChild<LLUICtrl>("texel_pixel_ratio")->setValue(gSavedSettings.getF32("TexelPixelRatio"));
 
 	return TRUE ;
 }
@@ -165,7 +165,7 @@ void LLFloaterTextureFetchDebugger::idle()
 //----------------------
 void LLFloaterTextureFetchDebugger::onChangeTexelPixelRatio()
 {
-	sTexelPixelRatio = getChild<LLUICtrl>("texel_pixel_ratio")->getValue().asReal();
+	gSavedSettings.setF32("TexelPixelRatio", getChild<LLUICtrl>("texel_pixel_ratio")->getValue().asReal());
 }
 
 void LLFloaterTextureFetchDebugger::onClickStart()

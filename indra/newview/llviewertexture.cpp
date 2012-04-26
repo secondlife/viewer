@@ -722,11 +722,14 @@ void LLViewerTexture::forceImmediateUpdate()
 
 void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) const 
 {
+	static LLCachedControl<F32>  sTexelPixelRatio(gSavedSettings,"TexelPixelRatio");
+
 	if(needs_gltexture)
 	{
 		mNeedsGLTexture = TRUE ;
 	}
 
+	virtual_size *= sTexelPixelRatio;
 	if(!mMaxVirtualSizeResetCounter)
 	{
 		//flag to reset the values because the old values are used.
