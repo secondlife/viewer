@@ -51,6 +51,8 @@ public:
 	void onClickDecode();
 	void onClickGLTexture();
 
+	void onClickRefetchVisCache();
+	void onClickRefetchVisHTTP();
 public:
 	void idle() ;
 

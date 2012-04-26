@@ -2144,6 +2144,14 @@ bool LLViewerFetchedTexture::updateFetch()
 	return mIsFetching ? true : false;
 }
 
+void LLViewerFetchedTexture::clearFetchedResults()
+{
+	llassert_always(!mNeedsCreateTexture && !mIsFetching);
+	
+	cleanup();
+	destroyGLTexture();
+}
+
 void LLViewerFetchedTexture::forceToDeleteRequest()
 {
 	if (mHasFetcher)
