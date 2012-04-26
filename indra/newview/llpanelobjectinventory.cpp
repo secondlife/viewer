@@ -738,15 +738,7 @@ const std::string& LLTaskCategoryBridge::getDisplayName() const
 
 	if (cat)
 	{
-		// Localize "Contents" folder.
-		if (cat->getParentUUID().isNull() && cat->getName() == "Contents")
-		{
-			mDisplayName.assign(LLTrans::getString("ViewerObjectContents"));
-		}
-		else
-		{
-			mDisplayName.assign(cat->getName());
-		}
+		mDisplayName.assign(cat->getName());
 	}
 
 	return mDisplayName;
@@ -1552,6 +1544,7 @@ void LLPanelObjectInventory::reset()
 	p.parent_panel = this;
 	p.tool_tip= LLTrans::getString("PanelContentsTooltip");
 	p.listener = LLTaskInvFVBridge::createObjectBridge(this, NULL);
+	p.folder_indentation = -14; // subtract space normally reserved for folder expanders
 	mFolders = LLUICtrlFactory::create<LLFolderView>(p);
 	// this ensures that we never say "searching..." or "no items found"
 	mFolders->getFilter()->setShowFolderState(LLInventoryFilter::SHOW_ALL_FOLDERS);
@@ -1630,10 +1623,11 @@ void LLPanelObjectInventory::updateInventory()
 		LLInventoryObject* inventory_root = objectp->getInventoryRoot();
 		LLInventoryObject::object_list_t contents;
 		objectp->getInventoryContents(contents);
-		if (inventory_root)
+		mHaveInventory = TRUE;
+
+		if (inventory_root && !contents.empty())
 		{
 			createFolderViews(inventory_root, contents);
-			mHaveInventory = TRUE;
 			mIsInventoryEmpty = FALSE;
 			mFolders->setEnabled(TRUE);
 		}
@@ -1641,7 +1635,6 @@ void LLPanelObjectInventory::updateInventory()
 		{
 			// TODO: create an empty inventory
 			mIsInventoryEmpty = TRUE;
-			mHaveInventory = TRUE;
 		}
 	}
 	else
@@ -1693,19 +1686,19 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 	bridge = LLTaskInvFVBridge::createObjectBridge(this, inventory_root);
 	if(bridge)
 	{
-		LLFolderViewFolder* new_folder = NULL;
-		LLFolderViewFolder::Params p;
-		p.name = inventory_root->getName();
-		p.icon = LLUI::getUIImage("Inv_FolderClosed");
-		p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
-		p.root = mFolders;
-		p.listener = bridge;
-		p.tool_tip = p.name;
-		new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
-		new_folder->addToFolder(mFolders, mFolders);
-		new_folder->toggleOpen();
+		//LLFolderViewFolder* new_folder = NULL;
+		//LLFolderViewFolder::Params p;
+		//p.name = inventory_root->getName();
+		//p.icon = LLUI::getUIImage("Inv_FolderClosed");
+		//p.icon_open = LLUI::getUIImage("Inv_FolderOpen");
+		//p.root = mFolders;
+		//p.listener = bridge;
+		//p.tool_tip = p.name;
+		//new_folder = LLUICtrlFactory::create<LLFolderViewFolder>(p);
+		//new_folder->addToFolder(mFolders, mFolders);
+		//new_folder->toggleOpen();
 
-		createViewsForCategory(&contents, inventory_root, new_folder);
+		createViewsForCategory(&contents, inventory_root, mFolders);
 	}
 }
 
