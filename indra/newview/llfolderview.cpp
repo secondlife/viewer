@@ -2195,7 +2195,7 @@ void LLFolderView::doIdle()
 	mFilter->clearModified();
 	BOOL filter_modified_and_active = mCompletedFilterGeneration < mFilter->getCurrentGeneration() && 
 										mFilter->isNotDefault();
-	mNeedsAutoSelect = filter_modified_and_active &&
+	mNeedsAutoSelect = mFilter->hasFilterString() &&
 							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
 
 	// filter to determine visiblity before arranging

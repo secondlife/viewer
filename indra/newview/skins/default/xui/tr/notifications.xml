@@ -86,17 +86,38 @@ Hata ayrıntıları: &apos;[_NAME]&apos; adlı bildirim notifications.xml içind
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Kaydetme" yestext="Kaydet"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Bu öğeyi Pazaryeri Giden Kutunuza kopyalama izniniz yok. Aşağıdaki öğeyi taşımak istediğinize emin misiniz?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
+		Bu öğelerden bir veya daha fazlasını Satıcı Giden Kutusuna kopyalama izniniz yok.  Bunları taşıyabilir veya bırakabilirsiniz.
+		<usetemplate name="okcancelbuttons" notext="Öğeleri taşıma" yestext="Öğeleri taşı"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Pazaryerinin karşıya yüklenmesi tamamlandı.
-		<usetemplate name="okbutton" yestext="Yaşasın!"/>
+	<notification name="OutboxFolderCreated">
+		Satıcı Giden Kutunuzun üst seviyesine aktardığınız her bir öğe için yeni bir klasör oluşturuldu.
+		<usetemplate ignoretext="Satıcı Giden Kutusunda yeni bir klasör oluşturuldu" name="okignore" yestext="Tamam"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Pazaryerinin karşıya yüklenmesi hatalarla tamamlandı!  Lütfen giden kutunuzdaki sorunları düzeltin ve tekrar deneyin.  Teşekkürler.
-		<usetemplate name="okbutton" yestext="Yuh!"/>
+	<notification name="OutboxImportComplete">
+		Başarılı oldu
+
+Tüm klasörler başarıyla Pazaryerine gönderildi.
+		<usetemplate ignoretext="Tüm klasörler Pazaryerine gönderildi" name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Bazı klasörler aktarılmadı
+
+Bazı klasörler Pazaryerine gönderildiğinde hatalar meydana geldi.  Bu klasörler hala Satıcı Giden Kutunuzda.
+
+Daha fazla bilgi için bkz. [[MARKETPLACE_IMPORTS_URL] hata günlüğü].
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Aktarım başarılamadı
+
+Bir sistem veya ağ hatası nedeniyle Pazaryerine hiçbir klasör gönderilemedi.  Daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Pazaryeri başlatılamadı.
+
+Bir sistem veya ağ hatası nedeniyle Pazaryeri başlatılamadı.  Daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Aşağıdaki nedenden dolayı, bir komut dosyası için metin karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
@@ -2812,6 +2833,18 @@ Ayrıntılar için günlük dosyasına bakın.
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Paylaşmanın yapılacağı Sakinler:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Bir defada sadece bir klasör paylaşılabilir.
+
+Aşağıdaki öğeleri paylaşmak istediğinize emin misiniz?
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+Paylaşmanın yapılacağı Second Life Sakinleri:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
