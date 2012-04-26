@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Anim Preview" title="ANIMATION.ANIM">
+	<text name="name_label">
+		名前：
+	</text>
+	<text name="description_label">
+		説明：
+	</text>
+	<button label="アップロード（L$[AMOUNT]）" name="ok_btn"/>
+	<button label="取り消し" label_selected="取り消し" name="cancel_btn"/>
+</floater>

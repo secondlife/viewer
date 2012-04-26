@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <notifications>
 	<global name="skipnexttime">
 		今後は表示しない
@@ -693,7 +693,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		出力ファイルを作成できません： [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		現在 [APP_NAME] では、アニメーションの一括アップロードはサポートされていません。
+		現在 [APP_NAME] では、BVH 形式のアニメーションファイルの一括アップロードはサポートされていません。
 	</notification>
 	<notification name="CannotUploadReason">
 		次の理由で、「 [FILE] 」をアップロードできません： [REASON]
@@ -2679,16 +2679,16 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[NAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="ブロック"/>
-			<button name="Ignore" text="無視する"/>
+			<button name="Client_Side_Mute" text="ブロック"/>
+			<button name="Client_Side_Ignore" text="無視"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="ブロック"/>
-			<button name="Ignore" text="無視する"/>
+			<button name="Client_Side_Mute" text="ブロック"/>
+			<button name="Client_Side_Ignore" text="無視"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">

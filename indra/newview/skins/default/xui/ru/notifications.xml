@@ -670,7 +670,7 @@
 		Невозможно создать выходной файл: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] пока не поддерживает массовую передачу файлов анимации.
+		[APP_NAME] пока не поддерживает массовую передачу файлов анимации формата BVH.
 	</notification>
 	<notification name="CannotUploadReason">
 		Невозможно передать [FILE] по следующей причине: [REASON]
@@ -2630,16 +2630,16 @@ http://secondlife.com/download.
 		[NAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Блокировать"/>
-			<button name="Ignore" text="Игнорировать"/>
+			<button name="Client_Side_Mute" text="Заблокировать"/>
+			<button name="Client_Side_Ignore" text="Игнорировать"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Блокировать"/>
-			<button name="Ignore" text="Игнорировать"/>
+			<button name="Client_Side_Mute" text="Заблокировать"/>
+			<button name="Client_Side_Ignore" text="Игнорировать"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">

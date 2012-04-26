@@ -832,6 +832,9 @@ support@secondlife.com.
 	<string name="anim_yes_head">
 		Согласие
 	</string>
+	<string name="multiple_textures">
+		Несколько
+	</string>
 	<string name="texture_loading">
 		Загрузка...
 	</string>
@@ -1232,7 +1235,7 @@ support@secondlife.com.
 		В вашем инвентаре нет копии этой текстуры
 	</string>
 	<string name="InventoryInboxNoItems">
-		Здесь будут появляться полученные вами предметы, например подарки.  Их можно будет перетащить в ваш инвентарь.
+		Здесь будут показаны ваши покупки из торгового центра. Их можно будет перетащить в ваш инвентарь для использования.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3914,6 +3917,9 @@ support@secondlife.com.
 	</string>
 	<string name="Saved_message">
 		(Сохранено [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Для просмотра этого сообщения снимите флажок «Только друзья и группы могут звонить мне и отправлять IM» в окне «Настройки/Приватность».
 	</string>
 	<string name="answered_call">
 		На ваш звонок ответили

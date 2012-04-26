@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="objects panel">
 	<panel label="" name="sidepanel__inventory_panel">
 		<layout_stack name="inventory_layout_stack">
@@ -14,7 +14,7 @@
 					<text name="inbox_fresh_new_count">
 						[NUM] 個の新アイテム
 					</text>
-					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
 						<text name="inbox_inventory_placeholder">
 							マーケットプレイスから購入した商品はここに配達されます。
 						</text>

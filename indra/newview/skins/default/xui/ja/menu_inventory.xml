@@ -59,6 +59,7 @@
 	<menu_item_call label="プロパティ" name="Properties"/>
 	<menu_item_call label="名前を変更する" name="Rename"/>
 	<menu_item_call label="UUID をコピーする" name="Copy Asset UUID"/>
+	<menu_item_call label="カット" name="Cut"/>
 	<menu_item_call label="コピー" name="Copy"/>
 	<menu_item_call label="貼り付け" name="Paste"/>
 	<menu_item_call label="リンクを貼り付ける" name="Paste As Link"/>

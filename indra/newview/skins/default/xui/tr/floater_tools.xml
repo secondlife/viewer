@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="İNŞA ET ARAÇLARI">
+	<floater.string name="grid_screen_text">
+		Ekran
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Yerel
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Dünya
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referans
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Aksesuar
+	</floater.string>
 	<floater.string name="status_rotate">
 		Nesneyi döndürmek için renkli bantları sürükleyin
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="Dokuları Uzat" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Yasla" name="checkbox snap to grid"/>
-	<button label="Seçenekler..." name="Options..." tool_tip="İlave ağ seçeneklerine bak"/>
+	<combo_box name="combobox grid mode" tool_tip="Nesneyi konumlandırmak için ağ cetvelini seçin">
+		<combo_box.item label="Dünya" name="World"/>
+		<combo_box.item label="Yerel" name="Local"/>
+		<combo_box.item label="Referans" name="Reference"/>
+	</combo_box>
+	<button label="" name="Options..." tool_tip="İlave ağ seçeneklerine bak"/>
 	<button name="ToolCube" tool_tip="Küp"/>
 	<button name="ToolPrism" tool_tip="Prizma"/>
 	<button name="ToolPyramid" tool_tip="Piramit"/>

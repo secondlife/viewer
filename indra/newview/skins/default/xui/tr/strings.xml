@@ -832,6 +832,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="anim_yes_head">
 		Evet
 	</string>
+	<string name="multiple_textures">
+		Birden Çok
+	</string>
 	<string name="texture_loading">
 		Yükleniyor...
 	</string>
@@ -1232,7 +1235,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Envanterinizde bu dokunun kopyası yok
 	</string>
 	<string name="InventoryInboxNoItems">
-		Özel hediyeler gibi aldığınız belirli öğeler burada görünecektir.  Daha sonra bunları envanterinize sürükleyebilirsiniz.
+		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3917,6 +3920,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="Saved_message">
 		(Kaydedildi [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
 	</string>
 	<string name="answered_call">
 		Aramanız yanıtlandı

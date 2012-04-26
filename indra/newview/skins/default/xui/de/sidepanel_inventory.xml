@@ -14,9 +14,9 @@
 					<text name="inbox_fresh_new_count">
 						[NUM] neu
 					</text>
-					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Artikel zur Verwendung in Ihr Inventar ziehen">
 						<text name="inbox_inventory_placeholder">
-							Einkäufe auf dem Marktplatz werden hierher geliefert.
+							Einkäufe aus dem Marktplatz werden hierher geliefert.
 						</text>
 					</panel>
 				</panel>

@@ -670,7 +670,7 @@ Beklenen [VALIDS]
 		Çıkış dosyası oluşturulamıyor: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] şu an için animasyon dosyalarının toplu olarak karşıya yüklenmesini desteklemiyor.
+		[APP_NAME] şu an için BVH formatında animasyon dosyalarının toplu olarak yüklenmesini desteklemiyor.
 	</notification>
 	<notification name="CannotUploadReason">
 		Aşağıdaki nedenden dolayı [FILE] dosyası karşıya yüklenemedi: [REASON]
@@ -2630,16 +2630,16 @@ Talep kabul edilsin mi?
 		[NAME] adlı kişiye ait &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Engelle"/>
-			<button name="Ignore" text="Yok say"/>
+			<button name="Client_Side_Mute" text="Engelle"/>
+			<button name="Client_Side_Ignore" text="Yok say"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] grubuna ait &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Engelle"/>
-			<button name="Ignore" text="Yok say"/>
+			<button name="Client_Side_Mute" text="Engelle"/>
+			<button name="Client_Side_Ignore" text="Yok say"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
