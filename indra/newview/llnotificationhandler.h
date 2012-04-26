@@ -103,8 +103,8 @@ protected:
 	// at the moment, when a handlers creates a channel.
 	virtual void initChannel()=0;
 
-	LLScreenChannelBase*	mChannel;
-	e_notification_type		mType;
+	LLHandle<LLScreenChannelBase>	mChannel;
+	e_notification_type				mType;
 
 };
 

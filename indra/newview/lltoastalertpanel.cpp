@@ -424,8 +424,8 @@ LLToastAlertPanel::~LLToastAlertPanel()
 			LLTransientFloaterMgr::GLOBAL, this);
 
 	// EXP-1822
-	// return focus to the previously focused view
-	if (mPreviouslyFocusedView.get())
+	// return focus to the previously focused view if the viewer is not exiting
+	if (mPreviouslyFocusedView.get() && !LLApp::isExiting())
 	{
 		mPreviouslyFocusedView.get()->setFocus(TRUE);
 	}

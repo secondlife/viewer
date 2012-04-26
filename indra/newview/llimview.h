@@ -153,7 +153,6 @@ public:
 	std::map<LLUUID, LLIMSession*> mId2SessionMap;
 
 	typedef boost::signals2::signal<void(const LLSD&)> session_signal_t;
-	typedef boost::function<void(const LLSD&)> session_callback_t;
 	session_signal_t mNewMsgSignal;
 	session_signal_t mNoUnreadMsgsSignal;
 	
@@ -174,8 +173,8 @@ public:
 	 */
 	void processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
-	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
-	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
+	boost::signals2::connection addNewMsgCallback(const session_signal_t::slot_type& cb ) { return mNewMsgSignal.connect(cb); }
+	boost::signals2::connection addNoUnreadMsgsCallback(const session_signal_t::slot_type& cb ) { return mNoUnreadMsgsSignal.connect(cb); }
 
 	/**
 	 * Create new session object in a model

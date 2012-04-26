@@ -1158,6 +1158,10 @@ protected:
 	 */
 	void onChicletSizeChanged(LLChiclet* ctrl, const LLSD& param);
 
+	void onMessageCountChanged(const LLSD& data);
+
+	void objectChicletCallback(const LLSD& data);
+
 	typedef std::vector<LLChiclet*> chiclet_list_t;
 
 	/**
