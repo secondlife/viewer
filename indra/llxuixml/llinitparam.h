@@ -1405,7 +1405,7 @@ namespace LLInitParam
 			return *this;
 		}
 
-		self_t& add(const typename named_value_lookup_t::name_t& name)
+		self_t& add(const typename named_value_t::name_t& name)
 		{
 			value_t value;
 
@@ -1612,7 +1612,7 @@ namespace LLInitParam
 			return *this;
 		}
 
-		self_t& add(const typename named_value_lookup_t::name_t& name)
+		self_t& add(const typename named_value_t::name_t& name)
 		{
 			value_t value;
 

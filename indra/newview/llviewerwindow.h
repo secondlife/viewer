@@ -418,6 +418,9 @@ private:
 	bool			mActive;
 	bool			mUIVisible;
 
+	boost::shared_ptr<class LLNotificationChannel>	mAlertsChannel,
+													mModalAlertsChannel;
+
 	LLRect			mWindowRectRaw;				// whole window, including UI
 	LLRect			mWindowRectScaled;			// whole window, scaled by UI size
 	LLRect			mWorldViewRectRaw;			// area of screen for 3D world

@@ -82,61 +82,56 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 
 		// archive message in nearby chat
 	if (notification->canLogToChat())
-		{
-			LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
+	{
+		LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
 
-			// don't show toast if Nearby Chat is opened
-			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-			LLNearbyChatBar* nearby_chat_bar = LLNearbyChatBar::getInstance();
-			if (!nearby_chat_bar->isMinimized() && nearby_chat_bar->getVisible() && nearby_chat->getVisible())
-			{
-				return false;
-			}
-		}
-
-		std::string session_name = notification->getPayload()["SESSION_NAME"];
-		const std::string name = notification->getSubstitutions()["NAME"];
-		if (session_name.empty())
-		{
-			session_name = name;
-		}
-		LLUUID from_id = notification->getPayload()["from_id"];
-	if (notification->canLogToIM())
-		{
-			LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, session_name, name,
-					notification->getMessage(), from_id, from_id);
-		}
-
-	if (notification->canLogToIM() && notification->hasFormElements())
-		{
-			LLHandlerUtil::spawnIMSession(name, from_id);
-		}
-
-	if (notification->canLogToIM() && LLHandlerUtil::isIMFloaterOpened(notification))
+		// don't show toast if Nearby Chat is opened
+		LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
+		LLNearbyChatBar* nearby_chat_bar = LLNearbyChatBar::getInstance();
+		if (!nearby_chat_bar->isMinimized() && nearby_chat_bar->getVisible() && nearby_chat->getVisible())
 		{
 			return false;
 		}
-
-		LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
-
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
-		p.panel = notify_box;
-		p.is_tip = true;
-		p.can_be_stored = false;
-		
-		removeExclusiveNotifications(notification);
-
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-		if(channel)
-			channel->addToast(p);
 	}
-	else if (notify["sigtype"].asString() == "delete")
+
+	std::string session_name = notification->getPayload()["SESSION_NAME"];
+	const std::string name = notification->getSubstitutions()["NAME"];
+	if (session_name.empty())
 	{
-		mChannel->killToastByNotificationID(notification->getID());
+		session_name = name;
 	}
+	LLUUID from_id = notification->getPayload()["from_id"];
+	if (notification->canLogToIM())
+	{
+		LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, session_name, name,
+				notification->getMessage(), from_id, from_id);
+	}
+
+	if (notification->canLogToIM() && notification->hasFormElements())
+	{
+		LLHandlerUtil::spawnIMSession(name, from_id);
+	}
+
+	if (notification->canLogToIM() && LLHandlerUtil::isIMFloaterOpened(notification))
+	{
+		return false;
+	}
+
+	LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
+
+	LLToast::Params p;
+	p.notif_id = notification->getID();
+	p.notification = notification;
+	p.lifetime_secs = gSavedSettings.getS32("NotificationTipToastLifeTime");
+	p.panel = notify_box;
+	p.is_tip = true;
+	p.can_be_stored = false;
+		
+	removeExclusiveNotifications(notification);
+
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+	if(channel)
+		channel->addToast(p);
 	return false;
 }
 

@@ -43,6 +43,7 @@ LLGroupHandler::LLGroupHandler()
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
+	{
 		channel->addOnRejectToastCallback(boost::bind(&LLGroupHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}

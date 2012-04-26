@@ -48,7 +48,7 @@ LLOfferHandler::LLOfferHandler()
 	if(channel)
 	{
 		channel->setControlHovering(true);
-		channel->setOnRejectToastCallback(boost::bind(&LLOfferHandler::onRejectToast, this, _1));
+		channel->addOnRejectToastCallback(boost::bind(&LLOfferHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }

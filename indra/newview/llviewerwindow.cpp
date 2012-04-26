@@ -1542,14 +1542,14 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	// pass its value right now. Instead, pass it a nullary function that
 	// will, when we later need it, return the value of gKeyboard.
 	// boost::lambda::var() constructs such a functor on the fly.
-	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
-	mViewerWindowListener(new LLViewerWindowListener(this)),
+	mWindowListener.reset(new LLWindowListener(this, boost::lambda::var(gKeyboard)));
+	mViewerWindowListener.reset(new LLViewerWindowListener(this));
 
-	LLNotificationChannelPtr vw_alerts_channel(new LLNotificationChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert")));
-	LLNotificationChannelPtr vw_alerts_modal_channel(new LLNotificationChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal")));
+	mAlertsChannel.reset(new LLNotificationChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert")));
+	mModalAlertsChannel.reset(new LLNotificationChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal")));
 
-	vw_alerts_channel->connectChanged(&LLViewerWindow::onAlert);
-	vw_alerts_modal_channel->connectChanged(&LLViewerWindow::onAlert);
+	mAlertsChannel->connectChanged(&LLViewerWindow::onAlert);
+	mModalAlertsChannel->connectChanged(&LLViewerWindow::onAlert);
 	LLNotifications::instance().setIgnoreAllNotifications(gSavedSettings.getBOOL("IgnoreAllNotifications"));
 	llinfos << "NOTE: ALL NOTIFICATIONS THAT OCCUR WILL GET ADDED TO IGNORE LIST FOR LATER RUNS." << llendl;
 

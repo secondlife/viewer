@@ -357,7 +357,7 @@ void LLFolderViewItem::arrangeAndSet(BOOL set_selection,
 	LLFolderView* root = getRoot();
 	if (getParentFolder())
 	{
-	getParentFolder()->requestArrange();
+		getParentFolder()->requestArrange();
 	}
 	if(set_selection)
 	{

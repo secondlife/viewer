@@ -95,7 +95,7 @@ public:
 	// base interface functions
 	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
 	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel) mChannel->killToastByNotificationID(p->getID());}
+	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->killToastByNotificationID(p->getID());}
 
 	virtual bool processNotification(const LLNotificationPtr& notify)=0;
 
