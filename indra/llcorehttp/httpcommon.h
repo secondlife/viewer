@@ -44,13 +44,13 @@
 /// - Minimal data sharing across threads for correctness and low latency.
 /// 
 /// The public interface is declared in a few key header files:
-/// - <core-http/bufferarray.h>
-/// - <core-http/httpcommon.h>
-/// - <core-http/httphandler.h>
-/// - <core-http/httpheaders.h>
-/// - <core-http/httpoptions.h>
-/// - <core-http/httprequest.h>
-/// - <core-http/httpresponse.h>
+/// - "llcorehttp/bufferarray.h"
+/// - "llcorehttp/httpcommon.h"
+/// - "llcorehttp/httphandler.h"
+/// - "llcorehttp/httpheaders.h"
+/// - "llcorehttp/httpoptions.h"
+/// - "llcorehttp/httprequest.h"
+/// - "llcorehttp/httpresponse.h"
 ///
 /// The library is still under early development and particular users
 /// may need access to internal implementation details that are found
