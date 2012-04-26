@@ -162,6 +162,8 @@ public:
 		mCatID = cat_id;
 		mAppend = append;
 
+		LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
+		
 		selfStartPhase("wear_inventory_category_callback");
 	}
 	void fire(const LLUUID& item_id)
@@ -174,6 +176,7 @@ public:
 		 * after the last item has fired the event and dereferenced it -- if all
 		 * the events actually fire!
 		 */
+		LL_DEBUGS("Avatar") << self_av_string() << " fired on copied item, id " << item_id << LL_ENDL;
 	}
 
 protected:
