@@ -4,6 +4,8 @@
  follows="left|top|right|bottom"
  height="305"
  layout="topleft"
+ left="0"
+ right="-1"
  name="block_list_panel"
  help_topic="blocked_list"
  min_height="350"
@@ -28,7 +30,7 @@
      layout="topleft"
      left_pad="10"
      name="title_text"
-     text_color="White"
+     text_color="white"
      top="5"
      width="250">
         Block List
@@ -41,6 +43,7 @@
      name="blocked"
      tool_tip="List of currently blocked Residents"
      top="30"
+  	 right="-1"
      width="270">
         <scroll_list.columns
          name="item_name" />

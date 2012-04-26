@@ -187,14 +187,6 @@ public:
 	// public rename functionality - can only start the process
 	void startRenamingSelectedItem( void );
 
-	// These functions were used when there was only one folderview,
-	// and relied on that concept. This functionality is now handled
-	// by the listeners and the lldraganddroptool.
-	//LLFolderViewItem*	getMovingItem() { return mMovingItem; }
-	//void setMovingItem( LLFolderViewItem* item ) { mMovingItem = item; }
-	//void				dragItemIntoFolder( LLFolderViewItem* moving_item, LLFolderViewFolder* dst_folder, BOOL drop, BOOL* accept );
-	//void				dragFolderIntoFolder( LLFolderViewFolder* moving_folder, LLFolderViewFolder* dst_folder, BOOL drop, BOOL* accept );
-
 	// LLView functionality
 	///*virtual*/ BOOL handleKey( KEY key, MASK mask, BOOL called_from_parent );
 	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );

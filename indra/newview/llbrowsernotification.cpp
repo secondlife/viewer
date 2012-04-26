@@ -35,11 +35,8 @@
 
 using namespace LLNotificationsUI;
 
-bool LLBrowserNotification::processNotification(const LLSD& notify)
+bool LLBrowserNotification::processNotification(const LLNotificationPtr& notification)
 {
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-	if (!notification) return false;
-
 	LLUUID media_id = notification->getPayload()["media_id"].asUUID();
 	LLMediaCtrl* media_instance = LLMediaCtrl::getInstance(media_id);
 	if (media_instance)

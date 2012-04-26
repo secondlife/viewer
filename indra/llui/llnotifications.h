@@ -94,10 +94,11 @@
 // and we need this to manage the notification callbacks
 #include "llevents.h"
 #include "llfunctorregistry.h"
-#include "llpointer.h"
 #include "llinitparam.h"
 #include "llnotificationslistener.h"
 #include "llnotificationptr.h"
+#include "llpointer.h"
+#include "llrefcount.h"
 
 class LLAvatarName;
 typedef enum e_notification_priority
@@ -296,6 +297,7 @@ LOG_CLASS(LLNotification);
 friend class LLNotifications;
 
 public:
+
 	// parameter object used to instantiate a new notification
 	struct Params : public LLInitParam::Block<Params>
 	{
@@ -513,7 +515,17 @@ public:
 	std::string getURL() const;
 	S32 getURLOption() const;
     S32 getURLOpenExternally() const;
+	bool canLogToChat() const;
+	bool canLogToIM() const;
+	bool hasFormElements() const;
+
+	typedef enum e_combine_behavior
+	{
+		USE_NEWEST,
+		USE_OLDEST
+	} ECombineBehavior;
 	
+	ECombineBehavior getCombineBehavior() const;
 	const LLNotificationFormPtr getForm();
 
 	const LLDate getExpiration() const
@@ -704,7 +716,8 @@ typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 // all of the built-in tests should attach to the "Visible" channel
 //
 class LLNotificationChannelBase :
-	public LLEventTrackable
+	public LLEventTrackable,
+	public LLRefCount
 {
 	LOG_CLASS(LLNotificationChannelBase);
 public:
@@ -784,32 +797,47 @@ protected:
 // destroy it, but if it becomes necessary to do so, the shared_ptr model
 // will ensure that we don't leak resources.
 class LLNotificationChannel;
-typedef boost::shared_ptr<LLNotificationChannel> LLNotificationChannelPtr;
+typedef boost::intrusive_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 
 // manages a list of notifications
 // Note that if this is ever copied around, we might find ourselves with multiple copies
 // of a queue with notifications being added to different nonequivalent copies. So we 
-// make it inherit from boost::noncopyable, and then create a map of shared_ptr to manage it.
-// 
-// NOTE: LLNotificationChannel is self-registering. The *correct* way to create one is to 
-// do something like:
-//		LLNotificationChannel::buildChannel("name", "parent"...);
-// This returns an LLNotificationChannelPtr, which you can store, or
-// you can then retrieve the channel by using the registry:
-//		LLNotifications::instance().getChannel("name")...
+// make it inherit from boost::noncopyable, and then create a map of LLPointer to manage it.
 //
 class LLNotificationChannel : 
 	boost::noncopyable, 
-	public LLNotificationChannelBase
+	public LLNotificationChannelBase,
+	public LLInstanceTracker<LLNotificationChannel, std::string>
 {
 	LOG_CLASS(LLNotificationChannel);
 
 public:  
+	// Notification Channels have a filter, which determines which notifications
+	// will be added to this channel. 
+	// Channel filters cannot change.
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Mandatory<std::string>				name;
+		Optional<LLNotificationFilter>		filter;
+		Optional<LLNotificationComparator>	comparator;
+		Multiple<std::string>				sources;
+
+		Params()
+		:	comparator("", LLNotificationComparators::orderByUUID())
+		{}
+	};
+
+	LLNotificationChannel(const Params& p = Params());
+
+	LLNotificationChannel(const std::string& name, const std::string& parent,
+		LLNotificationFilter filter, LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
+
 	virtual ~LLNotificationChannel() {}
 	typedef LLNotificationSet::iterator Iterator;
     
 	std::string getName() const { return mName; }
-	std::string getParentChannelName() { return mParent; }
+    
+	void connectToChannel(const std::string& channel_name);
     
     bool isEmpty() const;
     
@@ -821,21 +849,6 @@ public:
     void setComparator(LLNotificationComparator comparator);
 	
 	std::string summarize();
-
-	// factory method for constructing these channels; since they're self-registering,
-	// we want to make sure that you can't use new to make them
-	static LLNotificationChannelPtr buildChannel(const std::string& name, const std::string& parent,
-						LLNotificationFilter filter=LLNotificationFilters::includeEverything, 
-						LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
-	
-protected:
-    // Notification Channels have a filter, which determines which notifications
-	// will be added to this channel. 
-	// Channel filters cannot change.
-	// Channels have a protected constructor so you can't make smart pointers that don't 
-	// come from our internal reference; call NotificationChannel::build(args)
-	LLNotificationChannel(const std::string& name, const std::string& parent,
-						  LLNotificationFilter filter, LLNotificationComparator comparator);
 
 private:
 	std::string mName;
@@ -923,10 +936,6 @@ public:
 
 	void createDefaultChannels();
 
-	typedef std::map<std::string, LLNotificationChannelPtr> ChannelMap;
-	ChannelMap mChannels;
-
-	void addChannel(LLNotificationChannelPtr pChan);
 	LLNotificationChannelPtr getChannel(const std::string& channelName);
 	
 	std::string getGlobalString(const std::string& key) const;
@@ -965,6 +974,7 @@ private:
 	bool mIgnoreAllNotifications;
 
     boost::scoped_ptr<LLNotificationsListener> mListener;
+	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };
 
 /**

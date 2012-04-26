@@ -30,7 +30,7 @@
 
 #include "llwindow.h"
 
-//#include "llnotificationsutil.h"
+#include "llnotifications.h"
 #include "llchannelmanager.h"
 #include "llchat.h"
 #include "llinstantmessage.h"
@@ -40,20 +40,6 @@ class LLIMFloater;
 
 namespace LLNotificationsUI
 {
-// ENotificationType enumerates all possible types of notifications that could be met
-// 
-typedef enum e_notification_type
-{
-	NT_NOTIFY, 
-	NT_NOTIFYTIP,
-	NT_GROUPNOTIFY,
-	NT_IMCHAT, 
-	NT_GROUPCHAT, 
-	NT_NEARBYCHAT, 
-	NT_ALERT,
-	NT_ALERTMODAL,
-	NT_OFFER
-} ENotificationType;
 
 /**
  * Handler of notification events.
@@ -81,21 +67,8 @@ class LLEventHandler
 public:
 	virtual ~LLEventHandler() {};
 
-	// callbacks for counters
-	typedef boost::function<void (void)> notification_callback_t;
-	typedef boost::signals2::signal<void (void)> notification_signal_t;
-	notification_signal_t mNewNotificationSignal;
-	notification_signal_t mDelNotificationSignal;
-	boost::signals2::connection setNewNotificationCallback(notification_callback_t cb) { return mNewNotificationSignal.connect(cb); }
-	boost::signals2::connection setDelNotification(notification_callback_t cb) { return mDelNotificationSignal.connect(cb); }
-	// callback for notification/toast
-	typedef boost::function<void (const LLUUID id)> notification_id_callback_t;
-	typedef boost::signals2::signal<void (const LLUUID id)> notification_id_signal_t;
-	notification_id_signal_t mNotificationIDSignal;
-	boost::signals2::connection setNotificationIDCallback(notification_id_callback_t cb) { return mNotificationIDSignal.connect(cb); }
-
 protected:
-	virtual void onDeleteToast(LLToast* toast)=0;
+	virtual void onDeleteToast(LLToast* toast) {}
 
 	// arrange handler's channel on a screen
 	// is necessary to unbind a moment of creation of a channel and a moment of positioning of it
@@ -104,8 +77,6 @@ protected:
 	virtual void initChannel()=0;
 
 	LLHandle<LLScreenChannelBase>	mChannel;
-	e_notification_type				mType;
-
 };
 
 // LLSysHandler and LLChatHandler are more specific base classes
@@ -115,13 +86,18 @@ protected:
 /**
  * Handler for system notifications.
  */
-class LLSysHandler : public LLEventHandler
+class LLSysHandler : public LLEventHandler, public LLNotificationChannel
 {
 public:
-	LLSysHandler();
+	LLSysHandler(const std::string& name, const std::string& notification_type);
 	virtual ~LLSysHandler() {};
 
-	virtual bool processNotification(const LLSD& notify)=0;
+	// base interface functions
+	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel) mChannel->killToastByNotificationID(p->getID());}
+
+	virtual bool processNotification(const LLNotificationPtr& notify)=0;
 
 protected :
 	static void init();
@@ -149,15 +125,12 @@ public:
 class LLIMHandler : public LLSysHandler
 {
 public:
-	LLIMHandler(e_notification_type type, const LLSD& id);
+	LLIMHandler();
 	virtual ~LLIMHandler();
 
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
-
 protected:
-	virtual void onDeleteToast(LLToast* toast);
-	virtual void initChannel();
+	bool processNotification(const LLNotificationPtr& p);
+	/*virtual*/ void initChannel();
 };
 
 /**
@@ -167,16 +140,16 @@ protected:
 class LLTipHandler : public LLSysHandler
 {
 public:
-	LLTipHandler(e_notification_type type, const LLSD& id);
+	LLTipHandler();
 	virtual ~LLTipHandler();
 
 	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
-	virtual void onRejectToast(const LLUUID& id);
-	virtual void initChannel();
+	/*virtual*/ void onRejectToast(const LLUUID& id);
+	/*virtual*/ void initChannel();
 };
 
 /**
@@ -186,15 +159,16 @@ protected:
 class LLScriptHandler : public LLSysHandler
 {
 public:
-	LLScriptHandler(e_notification_type type, const LLSD& id);
+	LLScriptHandler();
 	virtual ~LLScriptHandler();
 
+	/*virtual*/ void onDelete(LLNotificationPtr p);
 	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
-	virtual void initChannel();
+	/*virtual*/ void onDeleteToast(LLToast* toast);
+	/*virtual*/ void initChannel();
 
 	// own handlers
 	void onRejectToast(LLUUID& id);
@@ -207,14 +181,14 @@ protected:
 class LLGroupHandler : public LLSysHandler
 {
 public:
-	LLGroupHandler(e_notification_type type, const LLSD& id);
+	LLGroupHandler();
 	virtual ~LLGroupHandler();
 	
 	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 
 	// own handlers
@@ -227,16 +201,14 @@ protected:
 class LLAlertHandler : public LLSysHandler
 {
 public:
-	LLAlertHandler(e_notification_type type, const LLSD& id);
+	LLAlertHandler(const std::string& name, const std::string& notification_type, bool is_modal);
 	virtual ~LLAlertHandler();
 
-	void setAlertMode(bool is_modal) { mIsModal = is_modal; }
-
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	/*virtual*/ void onChange(LLNotificationPtr p);
+	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 
 	bool	mIsModal;
@@ -249,15 +221,16 @@ protected:
 class LLOfferHandler : public LLSysHandler
 {
 public:
-	LLOfferHandler(e_notification_type type, const LLSD& id);
+	LLOfferHandler();
 	virtual ~LLOfferHandler();
 
 	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onDelete(LLNotificationPtr notification);
+	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
-	virtual void initChannel();
+	/*virtual*/ void initChannel();
 
 	// own handlers
 	void onRejectToast(LLUUID& id);
@@ -266,83 +239,54 @@ protected:
 /**
  * Handler for UI hints.
  */
-class LLHintHandler : public LLSingleton<LLHintHandler>
+class LLHintHandler : public LLNotificationChannel
 {
 public:
-	LLHintHandler();
-	virtual ~LLHintHandler();
+	LLHintHandler() : LLNotificationChannel("Hints", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "hint"))
+	{}
+	virtual ~LLHintHandler() {}
 
-	// base interface functions
-	virtual bool processNotification(const LLSD& notify);
+	/*virtual*/ void onAdd(LLNotificationPtr p);
+	/*virtual*/ void onLoad(LLNotificationPtr p);
+	/*virtual*/ void onDelete(LLNotificationPtr p);
 };
 
 /**
  * Handler for browser notifications
  */
-class LLBrowserNotification : public LLSingleton<LLBrowserNotification>
+class LLBrowserNotification : public LLNotificationChannel
 {
 public:
-	virtual bool processNotification(const LLSD& notify);
+	LLBrowserNotification()
+	: LLNotificationChannel("Browser", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "browser"))
+	{}
+	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	bool processNotification(const LLNotificationPtr& p);
 };
 	
 /**
  * Handler for outbox notifications
  */
-class LLOutboxNotification : public LLSingleton<LLOutboxNotification>
+class LLOutboxNotification : public LLNotificationChannel
 {
 public:
-	virtual bool processNotification(const LLSD& notify);
+	LLOutboxNotification()
+	:	LLNotificationChannel("Outbox", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "outbox"))
+	{}
+	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onDelete(LLNotificationPtr p);
+	bool processNotification(const LLNotificationPtr& p);
 };
 	
 class LLHandlerUtil
 {
 public:
 	/**
-	 * Checks sufficient conditions to log notification message to IM session.
-	 */
-	static bool canLogToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks sufficient conditions to log notification message to nearby chat session.
-	 */
-	static bool canLogToNearbyChat(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks sufficient conditions to spawn IM session.
-	 */
-	static bool canSpawnIMSession(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks sufficient conditions to add notification toast panel IM floater.
-	 */
-	static bool canAddNotifPanelToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks whether notification can be used multiple times or not.
-	 */
-	static bool isNotificationReusable(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks if passed notification can create IM session and be written into it.
-	 *
-	 * This method uses canLogToIM() & canSpawnIMSession().
-	 */
-	static bool canSpawnSessionAndLogToIM(const LLNotificationPtr& notification);
-
-	/**
-	 * Checks if passed notification can create toast.
-	 */
-	static bool canSpawnToast(const LLNotificationPtr& notification);
-
-	/**
 	 * Determines whether IM floater is opened.
 	 */
 	static bool isIMFloaterOpened(const LLNotificationPtr& notification);
-
-	/**
-	* Determines whether IM floater is focused.
-	*/
-	static bool isIMFloaterFocused(const LLNotificationPtr& notification);
 
 	/**
 	 * Writes notification message to IM session.
@@ -355,12 +299,7 @@ public:
 	/**
 	 * Writes notification message to IM  p2p session.
 	 */
-	static void logToIMP2P(const LLNotificationPtr& notification);
-
-	/**
-	 * Writes notification message to IM  p2p session.
-	 */
-	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only);
+	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only = false);
 
 	/**
 	 * Writes group notice notification message to IM  group session.
@@ -405,13 +344,6 @@ public:
 	 * Decrements counter of IM messages.
 	 */
 	static void decIMMesageCounter(const LLNotificationPtr& notification);
-
-private:
-
-	/**
-	 * Find IM floater based on "from_id"
-	 */
-	static LLIMFloater* findIMFloater(const LLNotificationPtr& notification);
 
 };
 

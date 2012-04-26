@@ -232,9 +232,11 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 	case LL_HUD_EFFECT_LOOKAT:
 		hud_objectp = new LLHUDEffectLookAt(type);
 		break;
+#ifdef XXX_STINSON_CHUI_REWORK
 	case LL_HUD_EFFECT_VOICE_VISUALIZER:
 		hud_objectp = new LLVoiceVisualizer(type);
 		break;
+#endif // XXX_STINSON_CHUI_REWORK
 	case LL_HUD_EFFECT_POINTAT:
 		hud_objectp = new LLHUDEffectPointAt(type);
 		break;

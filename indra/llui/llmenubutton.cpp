@@ -44,33 +44,27 @@ void LLMenuButton::MenuPositions::declareValues()
 
 LLMenuButton::Params::Params()
 :	menu_filename("menu_filename"),
-	position("position", MP_BOTTOM_LEFT)
+	position("menu_position", MP_BOTTOM_LEFT)
 {
+	addSynonym(position, "position");
 }
 
 
 LLMenuButton::LLMenuButton(const LLMenuButton::Params& p)
 :	LLButton(p),
 	mIsMenuShown(false),
-	mMenuPosition(p.position)
+	mMenuPosition(p.position),
+	mOwnMenu(false)
 {
 	std::string menu_filename = p.menu_filename;
 
-	if (!menu_filename.empty())
-	{
-		LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
-		if (!menu)
-		{
-			llwarns << "Error loading menu_button menu" << llendl;
-			return;
-		}
+	setMenu(menu_filename, mMenuPosition);
+	updateMenuOrigin();
+}
 
-		menu->setVisibilityChangeCallback(boost::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
-
-		mMenuHandle = menu->getHandle();
-
-		updateMenuOrigin();
-	}
+LLMenuButton::~LLMenuButton()
+{
+	cleanup();
 }
 
 boost::signals2::connection LLMenuButton::setMouseDownCallback( const mouse_signal_t::slot_type& cb )
@@ -80,9 +74,7 @@ boost::signals2::connection LLMenuButton::setMouseDownCallback( const mouse_sign
 
 void LLMenuButton::hideMenu()
 {
-	if(mMenuHandle.isDead()) return;
-
-	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
+	LLToggleableMenu* menu = getMenu();
 	if (menu)
 	{
 		menu->setVisible(FALSE);
@@ -94,19 +86,39 @@ LLToggleableMenu* LLMenuButton::getMenu()
 	return dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
 }
 
-void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_TOP_LEFT*/)
+void LLMenuButton::setMenu(const std::string& menu_filename, EMenuPosition position /*MP_TOP_LEFT*/)
+{
+	if (menu_filename.empty())
+	{
+		return;
+	}
+
+	LLToggleableMenu* menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(menu_filename, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+	if (!menu)
+	{
+		llwarns << "Error loading menu_button menu" << llendl;
+		return;
+	}
+
+	setMenu(menu, position, true);
+}
+
+void LLMenuButton::setMenu(LLToggleableMenu* menu, EMenuPosition position /*MP_TOP_LEFT*/, bool take_ownership /*false*/)
 {
 	if (!menu) return;
 
+	cleanup(); // destroy the previous memnu if we own it
+
 	mMenuHandle = menu->getHandle();
 	mMenuPosition = position;
+	mOwnMenu = take_ownership;
 
 	menu->setVisibilityChangeCallback(boost::bind(&LLMenuButton::onMenuVisibilityChange, this, _2));
 }
 
 BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 {
-	if (mMenuHandle.isDead()) return FALSE;
+	if (!getMenu()) return FALSE;
 
 	if( KEY_RETURN == key && mask == MASK_NONE && !gKeyboard->getKeyRepeated(key))
 	{
@@ -118,7 +130,7 @@ BOOL LLMenuButton::handleKeyHere(KEY key, MASK mask )
 		return TRUE;
 	}
 
-	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
+	LLToggleableMenu* menu = getMenu();
 	if (menu && menu->getVisible() && key == KEY_ESCAPE && mask == MASK_NONE)
 	{
 		menu->setVisible(FALSE);
@@ -139,9 +151,12 @@ BOOL LLMenuButton::handleMouseDown(S32 x, S32 y, MASK mask)
 
 void LLMenuButton::toggleMenu()
 {
-	if(mMenuHandle.isDead()) return;
+	if (mValidateSignal && !(*mValidateSignal)(this, LLSD()))
+	{
+		return;
+	}
 
-	LLToggleableMenu* menu = dynamic_cast<LLToggleableMenu*>(mMenuHandle.get());
+	LLToggleableMenu* menu = getMenu();
 	if (!menu) return;
 
 	// Store the button rectangle to toggle menu visibility if a mouse event
@@ -170,7 +185,8 @@ void LLMenuButton::toggleMenu()
 
 void LLMenuButton::updateMenuOrigin()
 {
-	if (mMenuHandle.isDead()) return;
+	LLToggleableMenu* menu = getMenu();
+	if (!menu) return;
 
 	LLRect rect = getRect();
 
@@ -179,12 +195,12 @@ void LLMenuButton::updateMenuOrigin()
 		case MP_TOP_LEFT:
 		{
 			mX = rect.mLeft;
-			mY = rect.mTop + mMenuHandle.get()->getRect().getHeight();
+			mY = rect.mTop + menu->getRect().getHeight();
 			break;
 		}
 		case MP_TOP_RIGHT:
 		{
-			const LLRect& menu_rect = mMenuHandle.get()->getRect();
+			const LLRect& menu_rect = menu->getRect();
 			mX = rect.mRight - menu_rect.getWidth();
 			mY = rect.mTop + menu_rect.getHeight();
 			break;
@@ -209,5 +225,13 @@ void LLMenuButton::onMenuVisibilityChange(const LLSD& param)
 	{
 		setForcePressedState(false);
 		mIsMenuShown = false;
+	}
+}
+
+void LLMenuButton::cleanup()
+{
+	if (mMenuHandle.get() && mOwnMenu)
+	{
+		mMenuHandle.get()->die();
 	}
 }

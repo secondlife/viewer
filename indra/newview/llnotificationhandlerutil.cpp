@@ -54,7 +54,8 @@ void LLSysHandler::init()
 	sExclusiveNotificationGroups.push_back(online_offline_group);
 }
 
-LLSysHandler::LLSysHandler()
+LLSysHandler::LLSysHandler(const std::string& name, const std::string& notification_type)
+:	LLNotificationChannel(name, "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, notification_type))
 {
 	if(sExclusiveNotificationGroups.empty())
 	{
@@ -110,147 +111,18 @@ void LLSysHandler::removeExclusiveNotifications(const LLNotificationPtr& notif)
 	}
 }
 
-const static std::string GRANTED_MODIFY_RIGHTS("GrantedModifyRights"),
-		REVOKED_MODIFY_RIGHTS("RevokedModifyRights"),
-		OBJECT_GIVE_ITEM("ObjectGiveItem"),
-		OBJECT_GIVE_ITEM_UNKNOWN_USER("ObjectGiveItemUnknownUser"),
-						PAYMENT_RECEIVED("PaymentReceived"),
-						PAYMENT_SENT("PaymentSent"),
-						ADD_FRIEND_WITH_MESSAGE("AddFriendWithMessage"),
-						USER_GIVE_ITEM("UserGiveItem"),
-						INVENTORY_ACCEPTED("InventoryAccepted"),
-						INVENTORY_DECLINED("InventoryDeclined"),
-						OFFER_FRIENDSHIP("OfferFriendship"),
-						FRIENDSHIP_ACCEPTED("FriendshipAccepted"),
-						FRIENDSHIP_OFFERED("FriendshipOffered"),
-						FRIENDSHIP_ACCEPTED_BYME("FriendshipAcceptedByMe"),
-						FRIENDSHIP_DECLINED_BYME("FriendshipDeclinedByMe"),
-						FRIEND_ONLINE("FriendOnline"), FRIEND_OFFLINE("FriendOffline"),
-						SERVER_OBJECT_MESSAGE("ServerObjectMessage"),
-						TELEPORT_OFFERED("TeleportOffered"),
-						TELEPORT_OFFER_SENT("TeleportOfferSent"),
-						IM_SYSTEM_MESSAGE_TIP("IMSystemMessageTip");
-
-
-// static
-bool LLHandlerUtil::canLogToIM(const LLNotificationPtr& notification)
-{
-	return GRANTED_MODIFY_RIGHTS == notification->getName()
-			|| REVOKED_MODIFY_RIGHTS == notification->getName()
-			|| PAYMENT_RECEIVED == notification->getName()
-			|| PAYMENT_SENT == notification->getName()
-			|| OFFER_FRIENDSHIP == notification->getName()
-			|| FRIENDSHIP_OFFERED == notification->getName()
-			|| FRIENDSHIP_ACCEPTED == notification->getName()
-			|| FRIENDSHIP_ACCEPTED_BYME == notification->getName()
-			|| FRIENDSHIP_DECLINED_BYME == notification->getName()
-			|| SERVER_OBJECT_MESSAGE == notification->getName()
-			|| INVENTORY_ACCEPTED == notification->getName()
-			|| INVENTORY_DECLINED == notification->getName()
-			|| USER_GIVE_ITEM == notification->getName()
-			|| TELEPORT_OFFERED == notification->getName()
-			|| TELEPORT_OFFER_SENT == notification->getName()
-			|| IM_SYSTEM_MESSAGE_TIP == notification->getName();
-}
-
-// static
-bool LLHandlerUtil::canLogToNearbyChat(const LLNotificationPtr& notification)
-{
-	return notification->getType() == "notifytip"
-			&&  FRIEND_ONLINE != notification->getName()
-			&& FRIEND_OFFLINE != notification->getName()
-			&& INVENTORY_ACCEPTED != notification->getName()
-			&& INVENTORY_DECLINED != notification->getName()
-			&& IM_SYSTEM_MESSAGE_TIP != notification->getName();
-}
-
-// static
-bool LLHandlerUtil::canSpawnIMSession(const LLNotificationPtr& notification)
-{
-	return OFFER_FRIENDSHIP == notification->getName()
-			|| USER_GIVE_ITEM == notification->getName()
-			|| TELEPORT_OFFERED == notification->getName();
-}
-
-// static
-bool LLHandlerUtil::canAddNotifPanelToIM(const LLNotificationPtr& notification)
-{
-	return OFFER_FRIENDSHIP == notification->getName()
-					|| USER_GIVE_ITEM == notification->getName()
-					|| TELEPORT_OFFERED == notification->getName();
-}
-
-// static
-bool LLHandlerUtil::isNotificationReusable(const LLNotificationPtr& notification)
-{
-	return OFFER_FRIENDSHIP == notification->getName()
-		|| USER_GIVE_ITEM == notification->getName()
-		|| TELEPORT_OFFERED == notification->getName();
-}
-
-// static
-bool LLHandlerUtil::canSpawnSessionAndLogToIM(const LLNotificationPtr& notification)
-{
-	return canLogToIM(notification) && canSpawnIMSession(notification);
-}
-
-// static
-bool LLHandlerUtil::canSpawnToast(const LLNotificationPtr& notification)
-{
-	if(INVENTORY_DECLINED == notification->getName() 
-		|| INVENTORY_ACCEPTED == notification->getName())
-	{
-		// return false for inventory accepted/declined notifications if respective IM window is open (EXT-5909)
-		return ! isIMFloaterOpened(notification);
-	}
-
-	if(FRIENDSHIP_ACCEPTED == notification->getName())
-	{
-		// don't show FRIENDSHIP_ACCEPTED if IM window is opened and focused - EXT-6441
-		return ! isIMFloaterFocused(notification);
-	}
-
-	if(OFFER_FRIENDSHIP == notification->getName()
-		|| USER_GIVE_ITEM == notification->getName()
-		|| TELEPORT_OFFERED == notification->getName())
-	{
-		// When ANY offer arrives, show toast, unless IM window is already open - EXT-5904
-		return ! isIMFloaterOpened(notification);
-	}
-
-	return true;
-}
-
-// static
-LLIMFloater* LLHandlerUtil::findIMFloater(const LLNotificationPtr& notification)
-{
-	LLUUID from_id = notification->getPayload()["from_id"];
-	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
-	return LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-}
-
 // static
 bool LLHandlerUtil::isIMFloaterOpened(const LLNotificationPtr& notification)
 {
 	bool res = false;
 
-	LLIMFloater* im_floater = findIMFloater(notification);
+	LLUUID from_id = notification->getPayload()["from_id"];
+	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
+	LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+
 	if (im_floater != NULL)
 	{
 		res = im_floater->getVisible() == TRUE;
-	}
-
-	return res;
-}
-
-bool LLHandlerUtil::isIMFloaterFocused(const LLNotificationPtr& notification)
-{
-	bool res = false;
-
-	LLIMFloater* im_floater = findIMFloater(notification);
-	if (im_floater != NULL)
-	{
-		res = im_floater->hasFocus() == TRUE;
 	}
 
 	return res;
@@ -317,12 +189,6 @@ void LLHandlerUtil::logToIM(const EInstantMessage& session_type,
 	}
 }
 
-// static
-void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification)
-{
-	logToIMP2P(notification, false);
-}
-
 void log_name_callback(const std::string& full_name, const std::string& from_name, 
 					   const std::string& message, const LLUUID& from_id)
 
@@ -334,9 +200,6 @@ void log_name_callback(const std::string& full_name, const std::string& from_nam
 // static
 void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
 {
-	// don't create IM p2p session with objects, it's necessary condition to log
-	if (notification->getName() != OBJECT_GIVE_ITEM)
-	{
 		LLUUID from_id = notification->getPayload()["from_id"];
 
 		if (from_id.isNull())
@@ -354,7 +217,6 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 			gCacheName->get(from_id, false, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
 		}
 	}
-}
 
 // static
 void LLHandlerUtil::logGroupNoticeToIMGroup(
@@ -489,14 +351,10 @@ void LLHandlerUtil::decIMMesageCounter(const LLNotificationPtr& notification)
 	LLUUID from_id = notification->getPayload()["from_id"];
 	LLUUID session_id = LLIMMgr::computeSessionID(IM_NOTHING_SPECIAL, from_id);
 
-	LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(
-			session_id);
+	LLIMModel::LLIMSession * session = LLIMModel::getInstance()->findIMSession(session_id);
 
-	if (session == NULL)
+	if (session)
 	{
-		return;
-	}
-
 	LLSD arg;
 	arg["session_id"] = session_id;
 	session->mNumUnread--;
@@ -505,3 +363,5 @@ void LLHandlerUtil::decIMMesageCounter(const LLNotificationPtr& notification)
 	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
 	LLIMModel::getInstance()->mNewMsgSignal(arg);
 }
+}
+

@@ -1,10 +1,9 @@
-/**
- * @file llnotificationhinthandler.cpp
- * @brief Notification Handler Class for UI Hints
+/** 
+ * @file llfloatervoicevolume.h
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2012, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,15 +23,13 @@
  * $/LicenseInfo$
  */
 
+#ifndef LL_LLFLOATERVOICEVOLUME_H
+#define LL_LLFLOATERVOICEVOLUME_H
 
-#include "llviewerprecompiledheaders.h" // must be first include
+namespace LLFloaterVoiceVolumeUtil
+{
+	// Register with LLFloaterReg
+	void registerFloater();
+}
 
-#include "llnotificationhandler.h"
-#include "llhints.h"
-#include "llnotifications.h"
-
-using namespace LLNotificationsUI;
-
-void LLHintHandler::onAdd(LLNotificationPtr p) { LLHints::show(p); }
-void LLHintHandler::onLoad(LLNotificationPtr p) { LLHints::show(p); }
-void LLHintHandler::onDelete(LLNotificationPtr p) { LLHints::hide(p); }
+#endif // LL_LLFLOATERVOICEVOLUME_H

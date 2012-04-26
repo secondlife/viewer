@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ name="menu_group_plus"
+ left="0" bottom="0" visible="false"
+ mouse_opaque="false">
+    <menu_item_check
+       label="Sort by Recent Speakers"
+       name="sort_by_recent_speakers">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+       parameter="sort_by_recent_speakers"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="sort_by_recent_speakers"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Sort by Name"
+       name="sort_name">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="sort_name"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="sort_name"/>
+    </menu_item_check>
+    <menu_item_check
+       label="Sort by Distance"
+       name="sort_distance">
+      <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="sort_distance"/>
+      <menu_item_check.on_check
+         function="People.Nearby.ViewSort.CheckItem"
+         parameter="sort_distance"/>
+    </menu_item_check>
+    <menu_item_separator layout="topleft" />
+    <menu_item_check name="view_icons" label="View People Icons">
+        <menu_item_check.on_click
+         function="People.Nearby.ViewSort.Action"
+         parameter="view_icons" />
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="NearbyListShowIcons" />
+    </menu_item_check>
+    <menu_item_check name ="view_map" label="View Map">
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="NearbyListShowMap" />
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="NearbyListShowMap" />
+    </menu_item_check>
+</toggleable_menu>

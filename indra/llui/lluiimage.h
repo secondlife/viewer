@@ -64,7 +64,9 @@ public:
 	void drawBorder(S32 x, S32 y, S32 width, S32 height, const LLColor4& color, S32 border_width) const;
 	void drawBorder(const LLRect& rect, const LLColor4& color, S32 border_width) const { drawBorder(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(), color, border_width); }
 	void drawBorder(S32 x, S32 y, const LLColor4& color, S32 border_width) const { drawBorder(x, y, getWidth(), getHeight(), color, border_width); }
-	
+
+	void draw3D(const LLVector3& origin_agent, const LLVector3& x_axis, const LLVector3& y_axis, const LLRect& rect, const LLColor4& color);
+
 	const std::string& getName() const { return mName; }
 
 	virtual S32 getWidth() const;
@@ -92,7 +94,7 @@ protected:
 namespace LLInitParam
 {
 	template<>
-	class ParamValue<LLUIImage*, TypeValues<LLUIImage*> > 
+	class ParamValue<LLUIImage*> 
 	:	public CustomParamValue<LLUIImage*>
 	{
 		typedef boost::add_reference<boost::add_const<LLUIImage*>::type>::type	T_const_ref;
@@ -100,7 +102,7 @@ namespace LLInitParam
 	public:
 		Optional<std::string> name;
 
-		ParamValue(LLUIImage* const& image)
+		ParamValue(LLUIImage* const& image = NULL)
 		:	super_t(image)
 		{
 			updateBlockFromValue(false);

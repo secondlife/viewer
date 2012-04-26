@@ -68,7 +68,6 @@ private:
 	void updateButtons();
 
 	// UI callbacks
-	void onBackBtnClick();
 	void onRemoveBtnClick();
 	void onPickBtnClick();
 	void onBlockByNameClick();

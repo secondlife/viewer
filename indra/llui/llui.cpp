@@ -974,31 +974,31 @@ void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 {
 	if (!LLGLSLShader::sNoFixedFunction)
 	{ 
-		// Initialize the first time this is called.
-		const S32 PIXELS = 32;
-		static GLubyte checkerboard[PIXELS * PIXELS];
-		static BOOL first = TRUE;
-		if( first )
+	// Initialize the first time this is called.
+	const S32 PIXELS = 32;
+	static GLubyte checkerboard[PIXELS * PIXELS];
+	static BOOL first = TRUE;
+	if( first )
+	{
+		for( S32 i = 0; i < PIXELS; i++ )
 		{
-			for( S32 i = 0; i < PIXELS; i++ )
+			for( S32 j = 0; j < PIXELS; j++ )
 			{
-				for( S32 j = 0; j < PIXELS; j++ )
-				{
-					checkerboard[i * PIXELS + j] = ((i & 1) ^ (j & 1)) * 0xFF;
-				}
+				checkerboard[i * PIXELS + j] = ((i & 1) ^ (j & 1)) * 0xFF;
 			}
-			first = FALSE;
 		}
+		first = FALSE;
+	}
 	
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		// ...white squares
-		gGL.color4f( 1.f, 1.f, 1.f, alpha );
-		gl_rect_2d(rect);
+	// ...white squares
+	gGL.color4f( 1.f, 1.f, 1.f, alpha );
+	gl_rect_2d(rect);
 
-		// ...gray squares
-		gGL.color4f( .7f, .7f, .7f, alpha );
-		gGL.flush();
+	// ...gray squares
+	gGL.color4f( .7f, .7f, .7f, alpha );
+	gGL.flush();
 
 		glPolygonStipple( checkerboard );
 
@@ -1474,144 +1474,132 @@ void gl_segmented_rect_2d_fragment_tex(const S32 left,
 	gGL.popUIMatrix();
 }
 
-void gl_segmented_rect_3d_tex(const LLVector2& border_scale, const LLVector3& border_width, 
-							  const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec,
-							  const U32 edges)
+void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv_rect, const LLRectf& center_draw_rect, 
+							 const LLVector3& width_vec, const LLVector3& height_vec)
 {
-	LLVector3 left_border_width = ((edges & (~(U32)ROUNDED_RECT_RIGHT)) != 0) ? border_width : LLVector3::zero;
-	LLVector3 right_border_width = ((edges & (~(U32)ROUNDED_RECT_LEFT)) != 0) ? border_width : LLVector3::zero;
-
-	LLVector3 top_border_height = ((edges & (~(U32)ROUNDED_RECT_BOTTOM)) != 0) ? border_height : LLVector3::zero;
-	LLVector3 bottom_border_height = ((edges & (~(U32)ROUNDED_RECT_TOP)) != 0) ? border_height : LLVector3::zero;
-
-
 	gGL.begin(LLRender::QUADS);
 	{
 		// draw bottom left
-		gGL.texCoord2f(0.f, 0.f);
+		gGL.texCoord2f(clip_rect.mLeft, clip_rect.mBottom);
 		gGL.vertex3f(0.f, 0.f, 0.f);
 
-		gGL.texCoord2f(border_scale.mV[VX], 0.f);
-		gGL.vertex3fv(left_border_width.mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(0.f, border_scale.mV[VY]);
-		gGL.vertex3fv(bottom_border_height.mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mBottom * height_vec).mV);
 
 		// draw bottom middle
-		gGL.texCoord2f(border_scale.mV[VX], 0.f);
-		gGL.vertex3fv(left_border_width.mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 0.f);
-		gGL.vertex3fv((width_vec - right_border_width).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
 		// draw bottom right
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 0.f);
-		gGL.vertex3fv((width_vec - right_border_width).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec).mV);
 
-		gGL.texCoord2f(1.f, 0.f);
+		gGL.texCoord2f(clip_rect.mRight, clip_rect.mBottom);
 		gGL.vertex3fv(width_vec.mV);
 
-		gGL.texCoord2f(1.f, border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + bottom_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
 		// draw left 
-		gGL.texCoord2f(0.f, border_scale.mV[VY]);
-		gGL.vertex3fv(bottom_border_height.mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(0.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mTop * height_vec).mV);
 
 		// draw middle
-		gGL.texCoord2f(border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
 		// draw right 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + bottom_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f, border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + bottom_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mBottom);
+		gGL.vertex3fv((width_vec + center_draw_rect.mBottom * height_vec).mV);
 
-		gGL.texCoord2f(1.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
 		// draw top left
-		gGL.texCoord2f(0.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((left_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + height_vec).mV);
 
-		gGL.texCoord2f(0.f, 1.f);
+		gGL.texCoord2f(clip_rect.mLeft, clip_rect.mTop);
 		gGL.vertex3fv((height_vec).mV);
 
 		// draw top middle
-		gGL.texCoord2f(border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((left_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + height_vec).mV);
 
-		gGL.texCoord2f(border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((left_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mLeft, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mLeft * width_vec + height_vec).mV);
 
 		// draw top right
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec - top_border_height).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f, 1.f - border_scale.mV[VY]);
-		gGL.vertex3fv((width_vec + height_vec - top_border_height).mV);
+		gGL.texCoord2f(clip_rect.mRight, center_uv_rect.mTop);
+		gGL.vertex3fv((width_vec + center_draw_rect.mTop * height_vec).mV);
 
-		gGL.texCoord2f(1.f, 1.f);
+		gGL.texCoord2f(clip_rect.mRight, clip_rect.mTop);
 		gGL.vertex3fv((width_vec + height_vec).mV);
 
-		gGL.texCoord2f(1.f - border_scale.mV[VX], 1.f);
-		gGL.vertex3fv((width_vec - right_border_width + height_vec).mV);
+		gGL.texCoord2f(center_uv_rect.mRight, clip_rect.mTop);
+		gGL.vertex3fv((center_draw_rect.mRight * width_vec + height_vec).mV);
 	}
 	gGL.end();
 
 }
 
-void gl_segmented_rect_3d_tex_top(const LLVector2& border_scale, const LLVector3& border_width, const LLVector3& border_height, const LLVector3& width_vec, const LLVector3& height_vec)
-{
-	gl_segmented_rect_3d_tex(border_scale, border_width, border_height, width_vec, height_vec, ROUNDED_RECT_TOP);
-}
 
 void LLUI::initClass(const settings_map_t& settings,
 					 LLImageProviderInterface* image_provider,
@@ -2114,7 +2102,7 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
 
 namespace LLInitParam
 {
-	ParamValue<LLUIColor, TypeValues<LLUIColor> >::ParamValue(const LLUIColor& color)
+	ParamValue<LLUIColor>::ParamValue(const LLUIColor& color)
 	:	super_t(color),
 		red("red"),
 		green("green"),
@@ -2125,7 +2113,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateValueFromBlock()
+	void ParamValue<LLUIColor>::updateValueFromBlock()
 	{
 		if (control.isProvided() && !control().empty())
 		{
@@ -2137,7 +2125,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<LLUIColor, TypeValues<LLUIColor> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLUIColor>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		LLColor4 color = getValue();
 		red.set(color.mV[VRED], make_block_authoritative);
@@ -2153,7 +2141,7 @@ namespace LLInitParam
 			&& !(b->getFontDesc() < a->getFontDesc());
 	}
 
-	ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::ParamValue(const LLFontGL* fontp)
+	ParamValue<const LLFontGL*>::ParamValue(const LLFontGL* fontp)
 	:	super_t(fontp),
 		name("name"),
 		size("size"),
@@ -2167,7 +2155,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateValueFromBlock()
+	void ParamValue<const LLFontGL*>::updateValueFromBlock()
 	{
 		const LLFontGL* res_fontp = LLFontGL::getFontByName(name);
 		if (res_fontp)
@@ -2190,7 +2178,7 @@ namespace LLInitParam
 		}
 	}
 	
-	void ParamValue<const LLFontGL*, TypeValues<const LLFontGL*> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<const LLFontGL*>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		if (getValue())
 		{
@@ -2200,7 +2188,7 @@ namespace LLInitParam
 		}
 	}
 
-	ParamValue<LLRect, TypeValues<LLRect> >::ParamValue(const LLRect& rect)
+	ParamValue<LLRect>::ParamValue(const LLRect& rect)
 	:	super_t(rect),
 		left("left"),
 		top("top"),
@@ -2212,7 +2200,7 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateValueFromBlock()
+	void ParamValue<LLRect>::updateValueFromBlock()
 	{
 		LLRect rect;
 
@@ -2276,7 +2264,7 @@ namespace LLInitParam
 		updateValue(rect);
 	}
 	
-	void ParamValue<LLRect, TypeValues<LLRect> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLRect>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		// because of the ambiguity in specifying a rect by position and/or dimensions
 		// we use the lowest priority pairing so that any valid pairing in xui 
@@ -2293,7 +2281,7 @@ namespace LLInitParam
 		height.set(value.getHeight(), make_block_authoritative);
 	}
 
-	ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::ParamValue(const LLCoordGL& coord)
+	ParamValue<LLCoordGL>::ParamValue(const LLCoordGL& coord)
 	:	super_t(coord),
 		x("x"),
 		y("y")
@@ -2301,12 +2289,12 @@ namespace LLInitParam
 		updateBlockFromValue(false);
 	}
 
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateValueFromBlock()
+	void ParamValue<LLCoordGL>::updateValueFromBlock()
 	{
 		updateValue(LLCoordGL(x, y));
 	}
 	
-	void ParamValue<LLCoordGL, TypeValues<LLCoordGL> >::updateBlockFromValue(bool make_block_authoritative)
+	void ParamValue<LLCoordGL>::updateBlockFromValue(bool make_block_authoritative)
 	{
 		x.set(getValue().mX, make_block_authoritative);
 		y.set(getValue().mY, make_block_authoritative);

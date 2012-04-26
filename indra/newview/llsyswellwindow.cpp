@@ -433,13 +433,19 @@ BOOL LLIMWellWindow::ObjectRowPanel::handleRightMouseDown(S32 x, S32 y, MASK mas
 
 //////////////////////////////////////////////////////////////////////////
 // PUBLIC METHODS
-LLNotificationWellWindow::LLNotificationWellWindow(const LLSD& key)
-: LLSysWellWindow(key)
+LLNotificationWellWindow::WellNotificationChannel::WellNotificationChannel(LLNotificationWellWindow* well_window)
+:	LLNotificationChannel(LLNotificationChannel::Params().name(well_window->getPathname())),
+	mWellWindow(well_window)
 {
-	// init connections to the list's update events
-	connectListUpdaterToSignal("notify");
-	connectListUpdaterToSignal("groupnotify");
-	connectListUpdaterToSignal("offer");
+	connectToChannel("Notifications");
+	connectToChannel("Group Notifications");
+	connectToChannel("Offer");
+}
+
+LLNotificationWellWindow::LLNotificationWellWindow(const LLSD& key)
+:	LLSysWellWindow(key)
+{
+	mNotificationUpdates.reset(new WellNotificationChannel(this));
 }
 
 // static
@@ -519,7 +525,7 @@ void LLNotificationWellWindow::initChannel()
 	LLSysWellWindow::initChannel();
 	if(mChannel)
 	{
-		mChannel->setOnStoreToastCallback(boost::bind(&LLNotificationWellWindow::onStoreToast, this, _1, _2));
+		mChannel->addOnStoreToastCallback(boost::bind(&LLNotificationWellWindow::onStoreToast, this, _1, _2));
 	}
 }
 
@@ -546,20 +552,6 @@ void LLNotificationWellWindow::onStoreToast(LLPanel* info_panel, LLUUID id)
 	addItem(p);
 }
 
-void LLNotificationWellWindow::connectListUpdaterToSignal(std::string notification_type)
-{
-	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
-	if(n_handler)
-	{
-		n_handler->setNotificationIDCallback(boost::bind(&LLNotificationWellWindow::removeItemByID, this, _1));
-	}
-	else
-	{
-		llwarns << "LLSysWellWindow::connectListUpdaterToSignal() - could not get a handler for '" << notification_type <<"' type of notifications" << llendl;
-	}
-}
-
 void LLNotificationWellWindow::onItemClick(LLSysWellItem* item)
 {
 	LLUUID id = item->getID();
@@ -573,6 +565,12 @@ void LLNotificationWellWindow::onItemClose(LLSysWellItem* item)
 	if(mChannel)
 		mChannel->killToastByNotificationID(id);
 }
+
+void LLNotificationWellWindow::onAdd( LLNotificationPtr notify )
+{
+	removeItemByID(notify->getID());
+}
+
 
 
 
@@ -867,4 +865,4 @@ bool LLIMWellWindow::confirmCloseAll(const LLSD& notification, const LLSD& respo
 	return false;
 }
 
-// EOF
+

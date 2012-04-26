@@ -335,28 +335,13 @@ void LLIMWellChiclet::messageCountChanged(const LLSD& session_data)
 /*               LLNotificationChiclet implementation                   */
 /************************************************************************/
 LLNotificationChiclet::LLNotificationChiclet(const Params& p)
-: LLSysWellChiclet(p)
-, mUreadSystemNotifications(0)
+:	LLSysWellChiclet(p),
+	mUreadSystemNotifications(0)
 {
-	// connect counter handlers to the signals
-	connectCounterUpdatersToSignal("notify");
-	connectCounterUpdatersToSignal("groupnotify");
-	connectCounterUpdatersToSignal("offer");
-
+	mNotificationChannel.reset(new ChicletNotificationChannel(this));
 	// ensure that notification well window exists, to synchronously
 	// handle toast add/delete events.
 	LLNotificationWellWindow::getInstance()->setSysWellChiclet(this);
-}
-
-void LLNotificationChiclet::connectCounterUpdatersToSignal(const std::string& notification_type)
-{
-	LLNotificationsUI::LLNotificationManager* manager = LLNotificationsUI::LLNotificationManager::getInstance();
-	LLNotificationsUI::LLEventHandler* n_handler = manager->getHandlerForNotification(notification_type);
-	if(n_handler)
-	{
-		n_handler->setNewNotificationCallback(boost::bind(&LLNotificationChiclet::incUreadSystemNotifications, this));
-		n_handler->setDelNotification(boost::bind(&LLNotificationChiclet::decUreadSystemNotifications, this));
-	}
 }
 
 void LLNotificationChiclet::onMenuItemClicked(const LLSD& user_data)
@@ -407,6 +392,18 @@ void LLNotificationChiclet::setCounter(S32 counter)
 	updateWidget(getCounter() == 0);
 	
 }
+
+bool LLNotificationChiclet::ChicletNotificationChannel::filterNotification( LLNotificationPtr notification )
+{
+	if( !(notification->canLogToIM() && notification->hasFormElements())
+		&& (!notification->getPayload().has("give_inventory_notification")
+			|| notification->getPayload()["give_inventory_notification"]))
+	{
+		return true;
+	}
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

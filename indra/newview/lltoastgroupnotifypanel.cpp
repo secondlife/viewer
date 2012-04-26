@@ -51,7 +51,7 @@
 
 const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 7;
 
-LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(LLNotificationPtr& notification)
+LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notification)
 :	LLToastPanel(notification),
 	mInventoryOffer(NULL)
 {

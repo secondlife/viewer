@@ -2904,6 +2904,7 @@ Would you like to trust this authority?
    icon="alertmodal.tga"
    name="GrantedModifyRights"
    persist="true"
+   log_to_im="true"   
    type="notify">
 [NAME] has given you permission to edit their objects.
   </notification>
@@ -2912,6 +2913,7 @@ Would you like to trust this authority?
    icon="alertmodal.tga"
    name="RevokedModifyRights"
    persist="true"
+   log_to_im="true"   
    type="notify">
 Your privilege to modify [NAME]&apos;s objects has been revoked
   </notification>
@@ -5161,6 +5163,8 @@ The string [STRING_NAME] is missing from strings.xml
   <notification
    icon="notifytip.tga"
    name="IMSystemMessageTip"
+   log_to_im="true"   
+   log_to_chat="false"   
    type="notifytip">
 [MESSAGE]
   </notification>
@@ -5205,6 +5209,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
   <notification
    icon="notifytip.tga"
    name="FriendOnline"
+   log_to_chat="false"
    type="notifytip">
     <tag>friendship</tag>
 &lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
@@ -5213,6 +5218,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
   <notification
    icon="notifytip.tga"
    name="FriendOffline"
+   log_to_chat="false"
    type="notifytip">
     <tag>friendship</tag>
 &lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
@@ -5459,6 +5465,8 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryAccepted"
+   log_to_im="true"   
+   log_to_chat="false"
    type="notifytip">
 [NAME] received your inventory offer.
   </notification>
@@ -5466,6 +5474,8 @@ You don&apos;t have permission to copy this.
   <notification
    icon="notifytip.tga"
    name="InventoryDeclined"
+   log_to_im="true"   
+   log_to_chat="false"
    type="notifytip">
 [NAME] declined your inventory offer.
   </notification>
@@ -5547,6 +5557,7 @@ Please select at least one type of content to search (General, Moderate, or Adul
   <notification
    icon="notify.tga"
    name="PaymentReceived"
+   log_to_im="true"   
    persist="true"
    type="notify">
     <tag>funds</tag>
@@ -5556,6 +5567,7 @@ Please select at least one type of content to search (General, Moderate, or Adul
   <notification
    icon="notify.tga"
    name="PaymentSent"
+   log_to_im="true"   
    persist="true"
    type="notify">
     <tag>funds</tag>
@@ -5700,6 +5712,7 @@ The objects on the selected parcel that are NOT owned by you have been returned 
   <notification
    icon="notify.tga"
    name="ServerObjectMessage"
+   log_to_im="true"   
    persist="true"
    type="notify">
 Message from [NAME]:
@@ -6070,6 +6083,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="UserGiveItem"
+   log_to_im ="true"
    type="offer">
 [NAME_SLURL] has given you this [OBJECTTYPE]:
 [ITEM_SLURL]
@@ -6125,6 +6139,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered"
+   log_to_im="true"
    type="offer">
 [NAME_SLURL] has offered to teleport you to their location:
 
@@ -6145,6 +6160,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOfferSent"
+   log_to_im="true"   
    type="offer">
 	Teleport offer sent to [TO_NAME]
   </notification>
@@ -6172,6 +6188,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="OfferFriendship"
+   log_to_im="true"
    type="offer">
     <tag>friendship</tag>
     <tag>confirm</tag>
@@ -6195,6 +6212,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="FriendshipOffered"
+   log_to_im="true"   
    type="offer">
     <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
@@ -6224,6 +6242,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="FriendshipAccepted"
+   log_to_im="true"   
    type="offer">
     <tag>friendship</tag>
 &lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
@@ -6232,6 +6251,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="FriendshipDeclined"
+   log_to_im="true"   
    persist="true"
    type="notify">
     <tag>friendship</tag>
@@ -6241,6 +6261,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
     <notification
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
+   log_to_im="true"   
    type="offer">
     <tag>friendship</tag>
 Friendship offer accepted.
@@ -6249,6 +6270,7 @@ Friendship offer accepted.
   <notification
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
+   log_to_im="true"   
    type="offer">
     <tag>friendship</tag>
 Friendship offer declined.

@@ -37,21 +37,16 @@
 
 using namespace LLNotificationsUI;
 
-static const std::string SCRIPT_DIALOG				("ScriptDialog");
-static const std::string SCRIPT_DIALOG_GROUP		("ScriptDialogGroup");
-static const std::string SCRIPT_LOAD_URL			("LoadWebPage");
-
 //--------------------------------------------------------------------------
-LLScriptHandler::LLScriptHandler(e_notification_type type, const LLSD& id)
+LLScriptHandler::LLScriptHandler()
+:	LLSysHandler("Notifications", "notify")
 {
-	mType = type;
-
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
 	{
 		channel->setControlHovering(true);
-		channel->setOnRejectToastCallback(boost::bind(&LLScriptHandler::onRejectToast, this, _1));
+		channel->addOnRejectToastCallback(boost::bind(&LLScriptHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }
@@ -70,17 +65,12 @@ void LLScriptHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLScriptHandler::processNotification(const LLSD& notify)
+bool LLScriptHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(mChannel.isDead())
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel.get()->getVisible())
@@ -88,14 +78,12 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 	
-	if(notify["sigtype"].asString() == "add")
-	{
-		if (LLHandlerUtil::canLogToIM(notification))
+	if (notification->canLogToIM())
 		{
 			LLHandlerUtil::logToIMP2P(notification);
 		}
 
-		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
+	if(notification->hasFormElements())
 		{
 			LLScriptFloaterManager::getInstance()->onAddNotification(notification->getID());
 		}
@@ -114,14 +102,15 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 			{
 				channel->addToast(p);
 			}
-
-			// send a signal to the counter manager
-			mNewNotificationSignal();
-		}
 	}
-	else if (notify["sigtype"].asString() == "delete")
+
+	return false;
+		}
+
+
+void LLScriptHandler::onDelete( LLNotificationPtr notification )
 	{
-		if(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName() || SCRIPT_LOAD_URL == notification->getName())
+	if(notification->hasFormElements())
 		{
 			LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 		}
@@ -130,24 +119,17 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 			mChannel.get()->killToastByNotificationID(notification->getID());
 		}
 	}
-	return false;
-}
+
 
 //--------------------------------------------------------------------------
 
 void LLScriptHandler::onDeleteToast(LLToast* toast)
 {
-	// send a signal to the counter manager
-	mDelNotificationSignal();
-
 	// send a signal to a listener to let him perform some action
 	// in this case listener is a SysWellWindow and it will remove a corresponding item from its list
-	mNotificationIDSignal(toast->getNotificationID());
-
 	LLNotificationPtr notification = LLNotifications::getInstance()->find(toast->getNotificationID());
 	
-	if( notification && 
-		(SCRIPT_DIALOG == notification->getName() || SCRIPT_DIALOG_GROUP == notification->getName()) )
+	if( notification && notification->hasFormElements())
 	{
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}
@@ -158,9 +140,7 @@ void LLScriptHandler::onRejectToast(LLUUID& id)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(id);
 
-	if (notification
-			&& LLNotificationManager::getInstance()->getHandlerForNotification(
-					notification->getType()) == this)
+	if (notification && mItems.find(notification) != mItems.end())
 	{
 		LLNotifications::instance().cancel(notification);
 	}

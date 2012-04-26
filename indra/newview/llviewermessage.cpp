@@ -1148,7 +1148,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 		}
 	}
 }
-
+ 
 // Return "true" if we have a preview method for that asset type, "false" otherwise
 bool check_asset_previewable(const LLAssetType::EType asset_type)
 {
@@ -2373,7 +2373,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
-			if (accept_im_from_only_friend && !is_friend)
+			if(accept_im_from_only_friend&&!is_friend)
 			{
 				if (!gIMMgr->isNonFriendSessionNotified(session_id))
 				{
@@ -2796,7 +2796,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				chat.mOwnerID = from_id;
 				LLSD args;
 				args["slurl"] = location;
-				args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 
 				// Look for IRC-style emotes here so object name formatting is correct
 				std::string prefix = message.substr(0, 4);
@@ -3399,7 +3398,6 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		// pass owner_id to chat so that we can display the remote
 		// object inspect for an object that is chatting with you
 		LLSD args;
-		args["type"] = LLNotificationsUI::NT_NEARBYCHAT;
 		chat.mOwnerID = owner_id;
 
 		if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)

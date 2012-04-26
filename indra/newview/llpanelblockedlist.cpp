@@ -69,8 +69,6 @@ BOOL LLPanelBlockedList::postBuild()
 	mBlockedList = getChild<LLScrollListCtrl>("blocked");
 	mBlockedList->setCommitOnSelectionChange(TRUE);
 
-	childSetCommitCallback("back", boost::bind(&LLPanelBlockedList::onBackBtnClick, this), NULL);
-
 	LLMuteList::getInstance()->addObserver(this);
 	
 	refreshBlockedList();
@@ -99,7 +97,8 @@ void LLPanelBlockedList::selectBlocked(const LLUUID& mute_id)
 
 void LLPanelBlockedList::showPanelAndSelect(const LLUUID& idToSelect)
 {
-	LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD().with(BLOCKED_PARAM_NAME, idToSelect));
+	LLFloaterSidePanelContainer::showPanel("people", "panel_people",
+		LLSD().with("people_panel_tab_name", "blocked_panel").with(BLOCKED_PARAM_NAME, idToSelect));
 }
 
 
@@ -128,17 +127,6 @@ void LLPanelBlockedList::updateButtons()
 {
 	bool hasSelected = NULL != mBlockedList->getFirstSelected();
 	getChildView("Unblock")->setEnabled(hasSelected);
-}
-
-
-
-void LLPanelBlockedList::onBackBtnClick()
-{
-	LLSideTrayPanelContainer* parent = dynamic_cast<LLSideTrayPanelContainer*>(getParent());
-	if(parent)
-	{
-		parent->openPreviousPanel();
-	}
 }
 
 void LLPanelBlockedList::onRemoveBtnClick()

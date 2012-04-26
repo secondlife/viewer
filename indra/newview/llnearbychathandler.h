@@ -37,14 +37,13 @@ namespace LLNotificationsUI{
 class LLNearbyChatHandler : public LLChatHandler
 {
 public:
-	LLNearbyChatHandler(e_notification_type type,const LLSD& id);
+	LLNearbyChatHandler();
 	virtual ~LLNearbyChatHandler();
 
 
 	virtual void processChat(const LLChat& chat_msg, const LLSD &args);
 
 protected:
-	virtual void onDeleteToast(LLToast* toast);
 	virtual void initChannel();
 
 	static boost::scoped_ptr<LLEventPump> sChatWatcher;

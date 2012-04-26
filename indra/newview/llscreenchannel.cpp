@@ -253,7 +253,14 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 {
 	bool store_toast = false, show_toast = false;
 
-	mDisplayToastsAlways ? show_toast = true : show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
+	if (mDisplayToastsAlways)
+	{
+		show_toast = true;
+	}
+	else
+	{
+		show_toast = mWasStartUpToastShown && (mShowToasts || p.force_show);
+	}
 	store_toast = !show_toast && p.can_be_stored && mCanStoreToasts;
 
 	if(!show_toast && !store_toast)
@@ -371,7 +378,7 @@ void LLScreenChannel::storeToast(ToastElem& toast_elem)
 	const LLToast* toast = toast_elem.getToast();
 	if (toast)
 	{
-		mStoredToastList.push_back(toast_elem);
+	mStoredToastList.push_back(toast_elem);
 		mOnStoreToast(toast->getPanel(), toast->getNotificationID());
 	}
 }
@@ -410,14 +417,14 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 	LLToast* toast = it->getToast();
 	if (toast)
 	{
-		if(toast->getVisible())
-		{
-			// toast is already in channel
-			return;
-		}
+	if(toast->getVisible())
+	{
+		// toast is already in channel
+		return;
+	}
 
-		toast->setIsHidden(false);
-		toast->startTimer();
+	toast->setIsHidden(false);
+	toast->startTimer();
 		mToastList.push_back(*it);
 	}
 
@@ -444,7 +451,7 @@ void LLScreenChannel::removeStoredToastByNotificationID(LLUUID id)
 	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
 	if (it != mStoredToastList.end())
 	{
-		mStoredToastList.erase(it);
+	mStoredToastList.erase(it);
 	}
 }
 
@@ -480,16 +487,16 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 	// searching among stored toasts
 	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
 
-	if (it != mStoredToastList.end())
+	if( it != mStoredToastList.end() )
 	{
 		LLToast* toast = it->getToast();
 		if (toast)
 		{
-			// send signal to a listener to let him perform some action on toast rejecting
-			mRejectToastSignal(toast->getNotificationID());
-			deleteToast(toast);
-		}
+		// send signal to a listener to let him perform some action on toast rejecting
+		mRejectToastSignal(toast->getNotificationID());
+		deleteToast(toast);
 	}
+}
 
 	// Call find() once more, because the mStoredToastList could have been changed
 	// in mRejectToastSignal callback and the iterator could have become invalid.
@@ -521,11 +528,11 @@ void LLScreenChannel::modifyToastByNotificationID(LLUUID id, LLPanel* panel)
 		LLToast* toast = it->getToast();
 		if (toast)
 		{
-			LLPanel* old_panel = toast->getPanel();
-			toast->removeChild(old_panel);
-			delete old_panel;
-			toast->insertPanel(panel);
-			toast->startTimer();
+		LLPanel* old_panel = toast->getPanel();
+		toast->removeChild(old_panel);
+		delete old_panel;
+		toast->insertPanel(panel);
+		toast->startTimer();
 		}
 		redrawToasts();
 	}
@@ -679,7 +686,7 @@ void LLScreenChannel::showToastsCentre()
 		return;
 	}
 
-	LLRect	toast_rect;
+	LLRect	toast_rect;	
 	S32		bottom = (getRect().mTop - getRect().mBottom)/2 + toast->getRect().getHeight()/2;
 	std::vector<ToastElem>::reverse_iterator it;
 

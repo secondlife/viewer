@@ -44,14 +44,12 @@
 #include "llviewernetwork.h"
 #include "llwindowshade.h"
 
-#define USE_WINDOWSHADE_DIALOGS	0
-
 
 ///----------------------------------------------------------------------------
 /// LLOutboxNotification class
 ///----------------------------------------------------------------------------
 
-bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLSD& notify)
+bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLNotificationPtr& notify)
 {
 	LLFloaterOutbox* outbox_floater = LLFloaterReg::getTypedInstance<LLFloaterOutbox>("outbox");
 	
@@ -60,6 +58,14 @@ bool LLNotificationsUI::LLOutboxNotification::processNotification(const LLSD& no
 	return false;
 }
 
+void LLNotificationsUI::LLOutboxNotification::onDelete(LLNotificationPtr p)
+{
+	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
+	if (sys_handler)
+	{
+		sys_handler->onDelete(p);
+	}
+}
 
 ///----------------------------------------------------------------------------
 /// LLOutboxAddedObserver helper class
@@ -516,52 +522,11 @@ void LLFloaterOutbox::initializationReportError(U32 status, const LLSD& content)
 	updateView();
 }
 
-void LLFloaterOutbox::showNotification(const LLSD& notify)
+void LLFloaterOutbox::showNotification(const LLNotificationPtr& notification)
 {
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-	
-	if (!notification)
-	{
-		llerrs << "Unable to find outbox notification!" << notify.asString() << llendl;
-		
-		return;
-	}
-
-#if USE_WINDOWSHADE_DIALOGS
-
-	if (mWindowShade)
-	{
-		delete mWindowShade;
-	}
-	
-	LLRect floater_rect = getLocalRect();
-	floater_rect.mTop -= getHeaderHeight();
-	floater_rect.stretch(-5, 0);
-	
-	LLWindowShade::Params params;
-	params.name = "notification_shade";
-	params.rect = floater_rect;
-	params.follows.flags = FOLLOWS_ALL;
-	params.modal = true;
-	params.can_close = false;
-	params.shade_color = LLColor4::white % 0.25f;
-	params.text_color = LLColor4::white;
-	
-	mWindowShade = LLUICtrlFactory::create<LLWindowShade>(params);
-	
-	addChild(mWindowShade);
-	mWindowShade->show(notification);
-	
-#else
-	
-	LLNotificationsUI::LLEventHandler * handler =
-		LLNotificationsUI::LLNotificationManager::instance().getHandlerForNotification("alertmodal");
-	
-	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler *>(handler);
+	LLNotificationsUI::LLSysHandler * sys_handler = dynamic_cast<LLNotificationsUI::LLSysHandler*>(LLNotifications::instance().getChannel("AlertModal").get());
 	llassert(sys_handler);
 	
-	sys_handler->processNotification(notify);
-	
-#endif
+	sys_handler->processNotification(notification);
 }
 

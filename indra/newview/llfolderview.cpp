@@ -176,6 +176,7 @@ LLFolderView::Params::Params()
 	show_load_status("show_load_status", true),
 	use_ellipses("use_ellipses", false)
 {
+	folder_indentation = -4;
 }
 
 
@@ -224,10 +225,7 @@ LLFolderView::LLFolderView(const Params& p)
 	mAutoOpenCandidate = NULL;
 	mAutoOpenTimer.stop();
 	mKeyboardSelection = FALSE;
-	const LLFolderViewItem::Params& item_params =
-		LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
-	S32 indentation = item_params.folder_indentation();
-	mIndentation = -indentation; // children start at indentation 0
+	mIndentation = p.folder_indentation;
 	gIdleCallbacks.addFunction(idle, this);
 
 	//clear label
@@ -235,7 +233,6 @@ LLFolderView::LLFolderView(const Params& p)
 	// just make sure the label ("Inventory Folder") never shows up
 	mLabel = LLStringUtil::null;
 
-	//mRenamer->setWriteableBgColor(LLColor4::white);
 	// Escape is handled by reverting the rename, not commiting it (default behavior)
 	LLLineEditor::Params params;
 	params.name("ren");
@@ -527,7 +524,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
-	width  = llmax(mMinWidth, scroll_rect.getWidth());
+	width = llmax(mMinWidth, scroll_rect.getWidth());
 	height = llmax(mRunningHeight, scroll_rect.getHeight());
 
 	// Restrict width within scroll container's width
@@ -1921,21 +1918,11 @@ BOOL LLFolderView::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 	// when drop is not handled by child, it should be handled
 	// by the folder which is the hierarchy root.
-	if (!handled)
-	{
-		if (getListener()->getUUID().notNull())
+	if (!handled
+		&& getListener()->getUUID().notNull())
 		{
 			handled = LLFolderViewFolder::handleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
 		}
-		else
-		{
-			if (!mFolders.empty())
-			{
-				// dispatch to last folder as a hack to support "Contents" folder in object inventory
-				handled = mFolders.back()->handleDragAndDropFromChild(mask,drop,cargo_type,cargo_data,accept,tooltip_msg);
-			}
-		}
-	}
 
 	if (handled)
 	{

@@ -41,15 +41,14 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLTipHandler::LLTipHandler(e_notification_type type, const LLSD& id)
+LLTipHandler::LLTipHandler()
+:	LLSysHandler("NotificationTips", "notifytip")
 {
-	mType = type;	
-
 	// Getting a Channel for our notifications
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
 	{
-		channel->setOnRejectToastCallback(boost::bind(&LLTipHandler::onRejectToast, this, _1));
+		channel->addOnRejectToastCallback(boost::bind(&LLTipHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }
@@ -68,17 +67,12 @@ void LLTipHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLTipHandler::processNotification(const LLSD& notify)
+bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(mChannel.isDead())
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;	
 
 	// arrange a channel on a screen
 	if(!mChannel.get()->getVisible())
@@ -86,10 +80,8 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 
-	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
-	{
 		// archive message in nearby chat
-		if (LLHandlerUtil::canLogToNearbyChat(notification))
+	if (notification->canLogToChat())
 		{
 			LLHandlerUtil::logToNearbyChat(notification, CHAT_SOURCE_SYSTEM);
 
@@ -109,19 +101,18 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			session_name = name;
 		}
 		LLUUID from_id = notification->getPayload()["from_id"];
-		if (LLHandlerUtil::canLogToIM(notification))
+	if (notification->canLogToIM())
 		{
 			LLHandlerUtil::logToIM(IM_NOTHING_SPECIAL, session_name, name,
 					notification->getMessage(), from_id, from_id);
 		}
 
-		if (LLHandlerUtil::canSpawnIMSession(notification))
+	if (notification->canLogToIM() && notification->hasFormElements())
 		{
 			LLHandlerUtil::spawnIMSession(name, from_id);
 		}
 
-		// don't spawn toast for inventory accepted/declined offers if respective IM window is open (EXT-5909)
-		if (!LLHandlerUtil::canSpawnToast(notification))
+	if (notification->canLogToIM() && LLHandlerUtil::isIMFloaterOpened(notification))
 		{
 			return false;
 		}
@@ -144,14 +135,9 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
-		mChannel.get()->killToastByNotificationID(notification->getID());
+		mChannel->killToastByNotificationID(notification->getID());
 	}
 	return false;
-}
-
-//--------------------------------------------------------------------------
-void LLTipHandler::onDeleteToast(LLToast* toast)
-{
 }
 
 //--------------------------------------------------------------------------
@@ -160,9 +146,7 @@ void LLTipHandler::onRejectToast(const LLUUID& id)
 {
 	LLNotificationPtr notification = LLNotifications::instance().find(id);
 
-	if (notification
-			&& LLNotificationManager::getInstance()->getHandlerForNotification(
-					notification->getType()) == this)
+	if (notification && mItems.find(notification) != mItems.end())
 	{
 		LLNotifications::instance().cancel(notification);
 	}

@@ -445,10 +445,8 @@ void LLNearbyChatScreenChannel::arrangeToasts()
 //-----------------------------------------------------------------------------------------------
 boost::scoped_ptr<LLEventPump> LLNearbyChatHandler::sChatWatcher(new LLEventStream("LLChat"));
 
-LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& id)
+LLNearbyChatHandler::LLNearbyChatHandler()
 {
-	mType = type;
-
 	// Getting a Channel for our notifications
 	LLNearbyChatScreenChannel::Params p;
 	p.id = LLUUID(gSavedSettings.getString("NearByChatChannelUUID"));
@@ -615,10 +613,6 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		notification["message"] = toast_msg;
 		channel->addNotification(notification);	
 	}
-}
-
-void LLNearbyChatHandler::onDeleteToast(LLToast* toast)
-{
 }
 
 

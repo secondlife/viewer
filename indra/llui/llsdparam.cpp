@@ -313,7 +313,7 @@ namespace LLInitParam
 {
 	// LLSD specialization
 	// block param interface
-	bool ParamValue<LLSD, TypeValues<LLSD>, false>::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name)
+	bool ParamValue<LLSD, NOT_BLOCK>::deserializeBlock(Parser& p, Parser::name_stack_range_t name_stack, bool new_name)
 	{
 		LLSD& sd = LLParamSDParserUtilities::getSDWriteNode(mValue, name_stack);
 
@@ -328,12 +328,12 @@ namespace LLInitParam
 	}
 
 	//static
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack)
+	void ParamValue<LLSD, NOT_BLOCK>::serializeElement(Parser& p, const LLSD& sd, Parser::name_stack_t& name_stack)
 	{
 		p.writeValue<LLSD::String>(sd.asString(), name_stack);
 	}
 
-	void ParamValue<LLSD, TypeValues<LLSD>, false>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
+	void ParamValue<LLSD, NOT_BLOCK>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
 	{
 		// read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
 		Parser::name_stack_t stack;

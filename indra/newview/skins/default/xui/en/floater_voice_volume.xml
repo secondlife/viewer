@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!--
+  Not can_close / no title to avoid window chrome
+  Single instance - only have one at a time, recycle it each spawn
+-->
+<floater
+ legacy_header_height="25"
+ bevel_style="in"
+ bg_opaque_image="Inspector_Background"
+ can_close="false"
+ can_minimize="false"
+ height="90"
+ layout="topleft"
+ name="floater_voice_volume"
+ single_instance="true"
+ sound_flags="0"
+ title="VOICE VOLUME"
+ visible="true"
+ width="245">
+    <text
+     follows="top|left|right"
+     font="SansSerifSmall"
+     height="21"
+     left="10"
+     name="avatar_name"
+     parse_urls="false"
+     top="35"
+     text_color="White"
+     translate="false"
+     use_ellipses="true"
+     value="TestString PleaseIgnore"
+     width="225" />
+    <slider
+     follows="top|left"
+     height="23"
+     increment="0.01"
+     left="1"
+     max_val="0.95"
+     min_val="0.05"
+     name="volume_slider"
+     show_text="false"
+     tool_tip="Voice volume"
+     top_pad="0"
+     value="0.5"
+     width="200" />
+    <button
+     follows="top|left"
+     height="16"
+     image_disabled="Audio_Off"
+     image_disabled_selected="AudioMute_Off"
+     image_hover_selected="AudioMute_Over"
+     image_selected="AudioMute_Off"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     left_pad="0"
+     top_delta="4"
+     name="mute_btn"
+     width="16" />
+</floater>

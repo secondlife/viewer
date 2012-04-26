@@ -40,10 +40,10 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsModal(false)
+LLAlertHandler::LLAlertHandler(const std::string& name, const std::string& notification_type, bool is_modal) 
+:	LLSysHandler(name, notification_type),
+	mIsModal(is_modal)
 {
-	mType = type;
-
 	LLScreenChannelBase::Params p;
 	p.id = LLUUID(gSavedSettings.getString("AlertChannelUUID"));
 	p.display_toasts_always = true;
@@ -68,17 +68,12 @@ void LLAlertHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLAlertHandler::processNotification(const LLSD& notify)
+bool LLAlertHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(mChannel.isDead())
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel.get()->getVisible())
@@ -86,9 +81,7 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 
-	if (notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "load")
-	{
-		if (LLHandlerUtil::canSpawnSessionAndLogToIM(notification))
+	if (notification->canLogToIM() && notification->hasFormElements())
 		{
 			const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
@@ -119,28 +112,14 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->addToast(p);
-	}
-	else if (notify["sigtype"].asString() == "change")
-	{
-		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-		if(channel)
-			channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
-	}
-	else
-	{
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-		if(channel)
-			channel->killToastByNotificationID(notification->getID());
-	}
+	
 	return false;
-}
+	}
 
-//--------------------------------------------------------------------------
-
-void LLAlertHandler::onDeleteToast(LLToast* toast)
+void LLAlertHandler::onChange( LLNotificationPtr notification )
 {
+	LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+	if(channel)
+		channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
 }
-
-//--------------------------------------------------------------------------
-

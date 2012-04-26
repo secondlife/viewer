@@ -417,9 +417,8 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height, S32 filter_generation)
 	const Params& p = LLUICtrlFactory::getDefaultParams<LLFolderViewItem>();
 	S32 indentation = p.folder_indentation();
 	// Only indent deeper items in hierarchy
-	mIndentation = (getParentFolder() 
-					&& getParentFolder()->getParentFolder() )
-		? mParentFolder->getIndentation() + indentation
+	mIndentation = (getParentFolder())
+		? getParentFolder()->getIndentation() + indentation
 		: 0;
 	if (mLabelWidthDirty)
 	{

@@ -7,20 +7,20 @@
   height="570"
   help_topic="sidebar_people"
   min_height="440"
-  min_width="333"
+  min_width="390"
   layout="topleft"
   name="floater_people"
   save_rect="true"
   single_instance="true"
   reuse_instance="true"
   title="PEOPLE"
-  width="333">
+  width="390">
     <panel_container
       default_panel_name="panel_people"
       follows="all"
       height="570"
       name="main_panel"
-      width="333">
+      width="390">
       <panel
         class="panel_people"
         name="panel_people"
@@ -30,12 +30,6 @@
         name="panel_group_info_sidetray"
         filename="panel_group_info_sidetray.xml"
         label="Group Profile"
-        font="SansSerifBold"/>
-      <panel
-        class="panel_block_list_sidetray"
-        name="panel_block_list_sidetray"
-        filename="panel_block_list_sidetray.xml"
-        label="Blocked Residents &amp; Objects"
         font="SansSerifBold"/>
     </panel_container>
 </floater>

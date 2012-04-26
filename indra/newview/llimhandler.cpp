@@ -37,10 +37,9 @@
 using namespace LLNotificationsUI;
 
 //--------------------------------------------------------------------------
-LLIMHandler::LLIMHandler(e_notification_type type, const LLSD& id)
+LLIMHandler::LLIMHandler()
+:	LLSysHandler("IM Notifications", "notifytoast")
 {
-	mType = type;
-
 	// Getting a Channel for our notifications
 	mChannel = LLChannelManager::getInstance()->createNotificationChannel()->getHandle();
 }
@@ -59,17 +58,12 @@ void LLIMHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLIMHandler::processNotification(const LLSD& notify)
+bool LLIMHandler::processNotification(const LLNotificationPtr& notification)
 {
 	if(mChannel.isDead())
 	{
 		return false;
 	}
-
-	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
-
-	if(!notification)
-		return false;
 
 	// arrange a channel on a screen
 	if(!mChannel.get()->getVisible())
@@ -77,8 +71,6 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 		initChannel();
 	}
 
-	if(notify["sigtype"].asString() == "add" || notify["sigtype"].asString() == "change")
-	{
 		LLSD substitutions = notification->getSubstitutions();
 
 		// According to comments in LLIMMgr::addMessage(), if we get message
@@ -103,28 +95,12 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 		p.notification = notification;
 		p.panel = im_box;
 		p.can_be_stored = false;
-		p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
 		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->addToast(p);
-
-		// send a signal to the counter manager;
-		mNewNotificationSignal();
-	}
-	else if (notify["sigtype"].asString() == "delete")
-	{
-		mChannel.get()->killToastByNotificationID(notification->getID());
 	}
 	return false;
 }
 
-//--------------------------------------------------------------------------
-void LLIMHandler::onDeleteToast(LLToast* toast)
-{
-	// send a signal to the counter manager
-	mDelNotificationSignal();
-}
-
-//--------------------------------------------------------------------------
 
 

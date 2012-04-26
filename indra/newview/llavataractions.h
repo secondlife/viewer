@@ -124,6 +124,11 @@ public:
 	static void toggleBlock(const LLUUID& id);
 
 	/**
+	 * Block/unblock the avatar voice.
+	 */
+	static void toggleMuteVoice(const LLUUID& id);
+
+	/**
 	 * Return true if avatar with "id" is a friend
 	 */
 	static bool isFriend(const LLUUID& id);
@@ -132,6 +137,11 @@ public:
 	 * @return true if the avatar is blocked
 	 */
 	static bool isBlocked(const LLUUID& id);
+
+	/**
+	 * @return true if the avatar voice is blocked
+	 */
+	static bool isVoiceMuted(const LLUUID& id);
 
 	/**
 	 * @return true if you can block the avatar

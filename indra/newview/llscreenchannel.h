@@ -227,16 +227,16 @@ public:
 
 	// Channel's signals
 	// signal on storing of faded toasts event
-	typedef boost::function<void (LLPanel* info_panel, const LLUUID id)> store_tost_callback_t;
-	typedef boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)> store_tost_signal_t;
-	store_tost_signal_t mOnStoreToast;	
-	boost::signals2::connection setOnStoreToastCallback(store_tost_callback_t cb) { return mOnStoreToast.connect(cb); }
+	typedef boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)> store_toast_signal_t;
+	boost::signals2::connection addOnStoreToastCallback(store_toast_signal_t::slot_type cb) { return mOnStoreToast.connect(cb); }
 	// signal on rejecting of a toast event
-	typedef boost::function<void (LLUUID id)> reject_tost_callback_t;
-	typedef boost::signals2::signal<void (LLUUID id)> reject_tost_signal_t;
-	reject_tost_signal_t mRejectToastSignal; boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mRejectToastSignal.connect(cb); }
+	typedef boost::signals2::signal<void (LLUUID id)> reject_toast_signal_t;
+	boost::signals2::connection addOnRejectToastCallback(reject_toast_signal_t::slot_type cb) { return mRejectToastSignal.connect(cb); }
 
 private:
+	store_toast_signal_t mOnStoreToast;	
+	reject_toast_signal_t mRejectToastSignal; 
+
 	class ToastElem
 	{
 	public:
