@@ -156,7 +156,8 @@ const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] =
 		"AddAndRemoveJoints",
 		"ChangePermissions",
 		"TrackYourCamera",
-		"ControlYourCamera"
+		"ControlYourCamera",
+		"TeleportYourAgent"
 	};
 
 const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] = 
@@ -171,7 +172,8 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE,	// AddAndRemoveJoints
 	FALSE,	// ChangePermissions
 	FALSE,	// TrackYourCamera,
-	FALSE	// ControlYourCamera
+	FALSE,	// ControlYourCamera
+	FALSE	// TeleportYourAgent
 };
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
@@ -2702,7 +2704,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	
 	case IM_SESSION_SEND:
 	{
-		if (!is_linden && is_busy)
+		if (is_busy)
 		{
 			return;
 		}
@@ -2766,7 +2768,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			chat.mSourceType = CHAT_SOURCE_OBJECT;
 
-			if(SYSTEM_FROM == name)
+			// To conclude that the source type of message is CHAT_SOURCE_SYSTEM it's not
+			// enough to check only from name (i.e. fromName = "Second Life"). For example
+			// source type of messages from objects called "Second Life" should not be CHAT_SOURCE_SYSTEM.
+			bool chat_from_system = (SYSTEM_FROM == name) && region_id.isNull() && position.isNull();
+			if(chat_from_system)
 			{
 				// System's UUID is NULL (fixes EXT-4766)
 				chat.mFromID = LLUUID::null;
@@ -2791,7 +2797,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Note: lie to Nearby Chat, pretending that this is NOT an IM, because
 			// IMs from obejcts don't open IM sessions.
 			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-			if(SYSTEM_FROM != name && nearby_chat)
+			if(!chat_from_system && nearby_chat)
 			{
 				chat.mOwnerID = from_id;
 				LLSD args;
@@ -2810,7 +2816,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 
 			//Object IMs send with from name: 'Second Life' need to be displayed also in notification toasts (EXT-1590)
-			if (SYSTEM_FROM != name) break;
+			if (!chat_from_system) break;
 			
 			LLSD substitutions;
 			substitutions["NAME"] = name;

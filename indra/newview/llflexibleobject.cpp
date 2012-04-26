@@ -368,7 +368,7 @@ void LLVolumeImplFlexible::doFlexibleUpdate()
 	LLPath *path = &volume->getPath();
 	if ((mSimulateRes == 0 || !mInitialized) && mVO->mDrawable->isVisible()) 
 	{
-		mVO->markForUpdate(TRUE);
+		//mVO->markForUpdate(TRUE);
 		if (!doIdleUpdate(gAgent, *LLWorld::getInstance(), 0.0))
 		{
 			return;	// we did not get updated or initialized, proceeding without can be dangerous
@@ -729,7 +729,11 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 	else if (!mUpdated || rotated)
 	{
 		volume->mDrawable->setState(LLDrawable::REBUILD_POSITION);
-		volume->dirtyMesh();
+		LLSpatialGroup* group = volume->mDrawable->getSpatialGroup();
+		if (group)
+		{
+			group->dirtyMesh();
+		}
 		volume->genBBoxes(isVolumeGlobal());
 	}
 			

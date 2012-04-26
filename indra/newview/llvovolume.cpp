@@ -682,7 +682,21 @@ void LLVOVolume::updateTextures()
 	const F32 TEXTURE_AREA_REFRESH_TIME = 5.f; // seconds
 	if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
 	{
-		updateTextureVirtualSize();		
+		updateTextureVirtualSize();
+
+		/*if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
+		{ //delete vertex buffer to free up some VRAM
+			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
+			if (group)
+			{
+				group->destroyGL(true);
+
+				//flag the group as having changed geometry so it gets a rebuild next time
+				//it becomes visible
+				group->setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
+			}
+		}*/
+
 	}
 }
 
@@ -715,7 +729,15 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	if(!forced)
 	{
 		if(!isVisible())
-		{
+		{ //don't load textures for non-visible faces
+			const S32 num_faces = mDrawable->getNumFaces();
+			for (S32 i = 0; i < num_faces; i++)
+			{
+				LLFace* face = mDrawable->getFace(i);
+				face->setPixelArea(0.f); 
+				face->setVirtualSize(0.f);
+			}
+
 			return ;
 		}
 
@@ -1416,7 +1438,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
 	BOOL rebuild = mDrawable->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED);
 
-//	bool rigged = false;
+	//	bool rigged = false;
 	LLVolume* volume = mRiggedVolume;
 	if (!volume)
 	{
@@ -1471,7 +1493,7 @@ void LLVOVolume::preRebuild()
 	}
 }
 
-void LLVOVolume::updateRelativeXform()
+void LLVOVolume::updateRelativeXform(bool force_identity)
 {
 	if (mVolumeImpl)
 	{
@@ -1495,15 +1517,16 @@ void LLVOVolume::updateRelativeXform()
 		mRelativeXform.invert();
 		mRelativeXformInvTrans.transpose();
 	}
-	else if (drawable->isActive())
+	else if (drawable->isActive() || force_identity)
 	{				
 		// setup relative transforms
 		LLQuaternion delta_rot;
 		LLVector3 delta_pos, delta_scale;
 		
 		//matrix from local space to parent relative/global space
-		delta_rot = drawable->isSpatialRoot() ? LLQuaternion() : mDrawable->getRotation();
-		delta_pos = drawable->isSpatialRoot() ? LLVector3(0,0,0) : mDrawable->getPosition();
+		bool use_identity = force_identity || drawable->isSpatialRoot();
+		delta_rot = use_identity ? LLQuaternion() : mDrawable->getRotation();
+		delta_pos = use_identity ? LLVector3(0,0,0) : mDrawable->getPosition();
 		delta_scale = mDrawable->getScale();
 
 		// Vertex transform (4x4)
@@ -1604,7 +1627,11 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		return res;
 	}
 	
-	dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+	LLSpatialGroup* group = drawable->getSpatialGroup();
+	if (group)
+	{
+		group->dirtyMesh();
+	}
 
 	BOOL compiled = FALSE;
 			
@@ -1617,6 +1644,8 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 	if (mVolumeChanged || mFaceMappingChanged )
 	{
+		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+
 		compiled = TRUE;
 
 		if (mVolumeChanged)
@@ -1635,6 +1664,8 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	}
 	else if ((mLODChanged) || (mSculptChanged))
 	{
+		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
+
 		LLVolume *old_volumep, *new_volumep;
 		F32 old_lod, new_lod;
 		S32 old_num_faces, new_num_faces ;
@@ -3935,9 +3966,14 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	const LLMatrix4* model_mat = NULL;
 
 	LLDrawable* drawable = facep->getDrawable();
-	if (drawable->isActive())
+	
+	if (drawable->isState(LLDrawable::ANIMATED_CHILD))
 	{
-		model_mat = &(drawable->getRenderMatrix());
+		model_mat = &drawable->getWorldMatrix();
+	}
+	else if (drawable->isActive())
+	{
+		model_mat = &drawable->getRenderMatrix();
 	}
 	else
 	{
@@ -4042,7 +4078,6 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
-static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
 
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
@@ -4084,7 +4119,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		if (group->isState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
 		{
-			LLFastTimer ftm(FTM_REBUILD_VBO);	
 			LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 		
 			rebuildMesh(group);
@@ -4093,8 +4127,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 
 	group->mBuilt = 1.f;
-	LLFastTimer ftm(FTM_REBUILD_VBO);	
-
+	
 	LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
 
 	LLVOAvatar* pAvatarVO = NULL;
@@ -4123,6 +4156,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	group->mGeometryBytes = 0;
 	group->mSurfaceArea = 0;
 	
+	//cache object box size since it might be used for determining visibility
+	group->mObjectBoxSize = group->mObjectBounds[1].getLength3().getF32();
+
 	group->clearDrawMap();
 
 	mFaceList.clear();
@@ -4586,6 +4622,11 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
 
+				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+				{
+					vobj->updateRelativeXform(true);
+				}
+
 				LLVolume* volume = vobj->getVolume();
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
@@ -4605,6 +4646,12 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 						}
 					}
 				}
+
+				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+				{
+					vobj->updateRelativeXform();
+				}
+
 				
 				drawablep->clearState(LLDrawable::REBUILD_ALL);
 			}
@@ -4645,7 +4692,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 	}
 
-	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
+//	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
 }
 
 struct CompareBatchBreakerModified
@@ -4714,11 +4761,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		buffer_index = -1;
 	}
 
-	S32 texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity
+	S32 texture_index_channels = 1;
 	
-	if (gGLManager.mGLVersion < 3.1f)
+	if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 	{
-		texture_index_channels = 1;
+		texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity;
 	}
 
 	if (LLPipeline::sRenderDeferred && distance_sort)
@@ -4919,10 +4966,20 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					LLVOVolume* vobj = drawablep->getVOVolume();
 					LLVolume* volume = vobj->getVolume();
 
+					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+					{
+						vobj->updateRelativeXform(true);
+					}
+
 					U32 te_idx = facep->getTEOffset();
 
 					facep->getGeometryVolume(*volume, te_idx, 
 						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset);
+
+					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+					{
+						vobj->updateRelativeXform(false);
+					}
 				}
 			}
 
@@ -5086,6 +5143,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 	mFaceList.clear();
 
 	//for each drawable
+
 	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 	{
 		LLDrawable* drawablep = *drawable_iter;
@@ -5106,11 +5164,14 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
-			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
+
+			
+			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA && 
+				facep->getGeomCount() + vertex_count <= 65536)
 			{
 				vertex_count += facep->getGeomCount();
 				index_count += facep->getIndicesCount();
-				llassert(facep->getIndicesCount() < 65536);
+				
 				//remember face (for sorting)
 				mFaceList.push_back(facep);
 			}

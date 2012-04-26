@@ -316,7 +316,7 @@ public:
 	void buildOcclusion(); //rebuild mOcclusionVerts
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera); //issue occlusion query
-	void destroyGL();
+	void destroyGL(bool keep_occlusion = false);
 	
 	void updateDistance(LLCamera& camera);
 	BOOL needsUpdate();
@@ -378,6 +378,8 @@ public:
 	LLVector4a mObjectBounds[2]; // bounding box (center, size) of objects in this node
 	LLVector4a mViewAngle;
 	LLVector4a mLastUpdateViewAngle;
+
+	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
 		
 private:
 	U32                     mCurUpdatingTime ;

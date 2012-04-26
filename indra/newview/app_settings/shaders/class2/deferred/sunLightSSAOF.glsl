@@ -25,7 +25,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 //class 2 -- shadows and SSAO
@@ -190,11 +192,11 @@ void main()
 	
 	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
 	{
-		gl_FragColor = vec4(0.0); // doesn't matter
+		frag_color = vec4(0.0); // doesn't matter
 		return;
 	}*/
 	
-	float shadow = 1.0;
+	float shadow = 0.0;
 	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
 
 	vec3 shadow_pos = pos.xyz + displace*norm;
@@ -212,33 +214,63 @@ void main()
 		else
 		{
 			vec4 lpos;
-			
-			if (spos.z < -shadow_clip.z)
+
+			vec4 near_split = shadow_clip*-0.75;
+			vec4 far_split = shadow_clip*-1.25;
+			vec4 transition_domain = near_split-far_split;
+			float weight = 0.0;
+
+			if (spos.z < near_split.z)
 			{
 				lpos = shadow_matrix[3]*spos;
 				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap3, lpos, 0.25);
+
+				float w = 1.0;
+				w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
+				shadow += pcfShadow(shadowMap3, lpos, 0.25)*w;
+				weight += w;
 				shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
 			}
-			else if (spos.z < -shadow_clip.y)
+
+			if (spos.z < near_split.y && spos.z > far_split.z)
 			{
 				lpos = shadow_matrix[2]*spos;
 				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap2, lpos, 0.5);
+
+				float w = 1.0;
+				w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
+				w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
+				shadow += pcfShadow(shadowMap2, lpos, 0.75)*w;
+				weight += w;
 			}
-			else if (spos.z < -shadow_clip.x)
+
+			if (spos.z < near_split.x && spos.z > far_split.y)
 			{
 				lpos = shadow_matrix[1]*spos;
 				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap1, lpos, 0.75);
+
+				float w = 1.0;
+				w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
+				w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
+				shadow += pcfShadow(shadowMap1, lpos, 0.75)*w;
+				weight += w;
 			}
-			else
+
+			if (spos.z > far_split.x)
 			{
 				lpos = shadow_matrix[0]*spos;
 				lpos.xy *= shadow_res;
-				shadow = pcfShadow(shadowMap0, lpos, 1.0);
+				
+				float w = 1.0;
+				w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
+				
+				shadow += pcfShadow(shadowMap0, lpos, 1.0)*w;
+				weight += w;
 			}
 		
+
+			shadow /= weight;
+
 			// take the most-shadowed value out of these two:
 			//  * the blurred sun shadow in the light (shadow) map
 			//  * an unblurred dot product between the sun and this norm
@@ -259,19 +291,19 @@ void main()
 		shadow = 1.0;
 	}
 	
-	gl_FragColor[0] = shadow;
-	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
+	frag_color[0] = shadow;
+	frag_color[1] = calcAmbientOcclusion(pos, norm);
 	
 	spos = vec4(shadow_pos+norm*spot_shadow_offset, 1.0);
 	
 	//spotlight shadow 1
 	vec4 lpos = shadow_matrix[4]*spos;
-	gl_FragColor[2] = pcfShadow(shadowMap4, lpos, 0.8); 
+	frag_color[2] = pcfShadow(shadowMap4, lpos, 0.8); 
 	
 	//spotlight shadow 2
 	lpos = shadow_matrix[5]*spos;
-	gl_FragColor[3] = pcfShadow(shadowMap5, lpos, 0.8); 
+	frag_color[3] = pcfShadow(shadowMap5, lpos, 0.8); 
 
-	//gl_FragColor.rgb = pos.xyz;
-	//gl_FragColor.b = shadow;
+	//frag_color.rgb = pos.xyz;
+	//frag_color.b = shadow;
 }

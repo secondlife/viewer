@@ -94,8 +94,14 @@ void APIENTRY gl_debug_callback(GLenum source,
 	llwarns << "Severity: " << std::hex << severity << llendl;
 	llwarns << "Message: " << message << llendl;
 	llwarns << "-----------------------" << llendl;
+	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	{
+		llerrs << "Halting on GL Error" << llendl;
+	}
 }
 #endif
+
+void parse_glsl_version(S32& major, S32& minor);
 
 void ll_init_fail_log(std::string filename)
 {
@@ -295,6 +301,7 @@ PFNGLGETACTIVEUNIFORMARBPROC glGetActiveUniformARB = NULL;
 PFNGLGETUNIFORMFVARBPROC glGetUniformfvARB = NULL;
 PFNGLGETUNIFORMIVARBPROC glGetUniformivARB = NULL;
 PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB = NULL;
+PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer = NULL;
 
 #if LL_WINDOWS
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
@@ -443,7 +450,8 @@ LLGLManager::LLGLManager() :
 	mDriverVersionMinor(0),
 	mDriverVersionRelease(0),
 	mGLVersion(1.0f),
-		
+	mGLSLVersionMajor(0),
+	mGLSLVersionMinor(0),		
 	mVRAM(0),
 	mGLMaxVertexRange(0),
 	mGLMaxIndexRange(0)
@@ -554,6 +562,29 @@ bool LLGLManager::initGL()
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
 
+	if (mGLVersion >= 2.f)
+	{
+		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
+
+#if LL_DARWIN
+		//never use GLSL greater than 1.20 on OSX
+		if (mGLSLVersionMajor > 1 || mGLSLVersionMinor >= 30)
+		{
+			mGLSLVersionMajor = 1;
+			mGLSLVersionMinor = 20;
+		}
+#endif
+	}
+
+	if (mGLVersion >= 2.1f && LLImageGL::sCompressTextures)
+	{ //use texture compression
+		glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+	}
+	else
+	{ //GL version is < 3.0, always disable texture compression
+		LLImageGL::sCompressTextures = false;
+	}
+	
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
 	if (mGLVendor.substr(0,4) == "ATI ")
@@ -574,11 +605,8 @@ bool LLGLManager::initGL()
 #endif // LL_WINDOWS
 
 #if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
-		// release 7277 is a point at which we verify that ATI OpenGL
-		// drivers get pretty stable with SL, ~Catalyst 8.2,
-		// for both Win32 and Linux.
-		if (mDriverVersionRelease < 7277 &&
-		    mDriverVersionRelease != 0) // 0 == Undetectable driver version - these get to pretend to be new ATI drivers, though that decision may be revisited.
+		// count any pre OpenGL 3.0 implementation as an old driver
+		if (mGLVersion < 3.f) 
 		{
 			mATIOldDriver = TRUE;
 		}
@@ -716,6 +744,11 @@ bool LLGLManager::initGL()
 		mHasTextureMultisample = FALSE;
 	}
 #endif
+
+	if (mIsIntel && mGLVersion <= 3.f)
+	{ //never try to use framebuffer objects on older intel drivers (crashy)
+		mHasFramebufferObject = FALSE;
+	}
 
 	if (mHasFramebufferObject)
 	{
@@ -1300,6 +1333,7 @@ void LLGLManager::initExtensions()
 		glVertexAttrib4uivARB = (PFNGLVERTEXATTRIB4UIVARBPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttrib4uivARB");
 		glVertexAttrib4usvARB = (PFNGLVERTEXATTRIB4USVARBPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttrib4usvARB");
 		glVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttribPointerARB");
+		glVertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttribIPointer");
 		glEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC) GLH_EXT_GET_PROC_ADDRESS("glEnableVertexAttribArrayARB");
 		glDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDisableVertexAttribArrayARB");
 		glProgramStringARB = (PFNGLPROGRAMSTRINGARBPROC) GLH_EXT_GET_PROC_ADDRESS("glProgramStringARB");
@@ -1878,7 +1912,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 	glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	gGL.getTexUnit(0)->activate();
 
-	if (gGLManager.mHasVertexShader)
+	if (gGLManager.mHasVertexShader && LLGLSLShader::sNoFixedFunction)
 	{	//make sure vertex attribs are all disabled
 		GLint count;
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &count);
@@ -1930,6 +1964,7 @@ LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 			case GL_COLOR_MATERIAL:
 			case GL_FOG:
 			case GL_LINE_STIPPLE:
+			case GL_POLYGON_STIPPLE:
 				mState = 0;
 				break;
 		}
@@ -2096,6 +2131,55 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 	{
 		vendor_specific->assign( version + i );
 	}
+}
+
+
+void parse_glsl_version(S32& major, S32& minor)
+{
+	// GL_SHADING_LANGUAGE_VERSION returns a null-terminated string with the format: 
+	// <major>.<minor>[.<release>] [<vendor specific>]
+
+	const char* version = (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION);
+	major = 0;
+	minor = 0;
+	
+	if( !version )
+	{
+		return;
+	}
+
+	std::string ver_copy( version );
+	S32 len = (S32)strlen( version );	/* Flawfinder: ignore */
+	S32 i = 0;
+	S32 start;
+	// Find the major version
+	start = i;
+	for( ; i < len; i++ )
+	{
+		if( '.' == version[i] )
+		{
+			break;
+		}
+	}
+	std::string major_str = ver_copy.substr(start,i-start);
+	LLStringUtil::convertToS32(major_str, major);
+
+	if( '.' == version[i] )
+	{
+		i++;
+	}
+
+	// Find the minor version
+	start = i;
+	for( ; i < len; i++ )
+	{
+		if( ('.' == version[i]) || isspace(version[i]) )
+		{
+			break;
+		}
+	}
+	std::string minor_str = ver_copy.substr(start,i-start);
+	LLStringUtil::convertToS32(minor_str, minor);
 }
 
 LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)

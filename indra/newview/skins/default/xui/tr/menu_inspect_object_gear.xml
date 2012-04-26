@@ -12,6 +12,7 @@
 	<menu_item_call label="Ekle" name="add"/>
 	<menu_item_call label="Raporla" name="report"/>
 	<menu_item_call label="Engelle" name="block"/>
+	<menu_item_call label="Engellemeyi Kaldır" name="unblock"/>
 	<menu_item_call label="Yakınlaştır" name="zoom_in"/>
 	<menu_item_call label="Kaldır" name="remove"/>
 	<menu_item_call label="Ek Bilgi" name="more_info"/>

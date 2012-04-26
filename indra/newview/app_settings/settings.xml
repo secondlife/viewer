@@ -7252,7 +7252,7 @@
     <key>WebContentWindowLimit</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of web brower windows that can be open at once in the Web content floater (0 for no limit)</string>
+      <string>Maximum number of web browser windows that can be open at once in the Web content floater (0 for no limit)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -7620,6 +7620,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderCompressTextures</key>
+  <map>
+    <key>Comment</key>
+    <string>Enable texture compression on OpenGL 3.0 and later implementations (EXPERIMENTAL, requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>RenderPerformanceTest</key>
     <map>
       <key>Comment</key>
@@ -8060,6 +8071,18 @@
     <real>0</real>
   </map>
 
+  <key>RenderDepthPrePass</key>
+  <map>
+    <key>Comment</key>
+    <string>EXPERIMENTAL: Prime the depth buffer with simple prim geometry before rendering with textures.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  
   <key>RenderDepthOfField</key>
   <map>
     <key>Comment</key>
@@ -9112,28 +9135,19 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-    <key>RenderUseShaderLOD</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether we want to have different shaders for LOD</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderUseShaderNearParticles</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether we want to use shaders on near particles</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
+    
+  <key>RenderAutoHideSurfaceAreaLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum surface area of a set of proximal objects inworld before automatically hiding geometry to prevent system overload.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
     <key>RenderVBOEnable</key>
     <map>
       <key>Comment</key>

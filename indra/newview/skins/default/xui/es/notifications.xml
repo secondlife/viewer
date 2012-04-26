@@ -86,17 +86,38 @@ Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No guardarlos" yestext="Guardarlos"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		No tienes permiso para copiar este objeto en el Buzón de salida de comerciante. ¿Estás seguro de que quieres mover el objeto siguiente?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
+		No tienes permiso para copiar uno o varios de estos objetos en el Buzón de salida de comerciante. Puedes moverlos o dejártelos.
+		<usetemplate name="okcancelbuttons" notext="No mover objeto(s)" yestext="Mover objeto(s)"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Envío al mercado finalizado.
-		<usetemplate name="okbutton" yestext="¡Hurra!"/>
+	<notification name="OutboxFolderCreated">
+		Se ha creado una carpeta nueva para cada objeto que has transferido al nivel superior de tu Buzón de salida de comerciante.
+		<usetemplate ignoretext="Se ha creado una carpeta nueva en el Buzón de salida de comerciante" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		El envío al mercado ha tenido errores. Corrige los problemas de tu buzón de salida y repite la operación. Muchas gracias.
-		<usetemplate name="okbutton" yestext="Reintentar"/>
+	<notification name="OutboxImportComplete">
+		Éxito
+
+Todas las carpetas se han enviado correctamente al Mercado.
+		<usetemplate ignoretext="Todas las carpetas enviadas al Mercado" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Algunas carpetas no se han transferido
+
+Han ocurrido errores al enviar algunas carpetas al Mercado. Dichas carpetas todavía están en tu Buzón de salida de comerciante.
+
+Puedes consultar más información en el [[MARKETPLACE_IMPORTS_URL] registro de errores].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Error de transferencia
+
+No se han enviado carpetas al Mercado a causa de un error del sistema o de la red. Vuelve a intentarlo más tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Error al inicializar el mercado
+
+La inicialización del mercado ha fallado por un error del sistema o de la red. Vuelve a intentarlo más tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
@@ -1442,8 +1463,8 @@ Debemos reiniciar [APP_NAME] para instalar la actualización.
 		<usetemplate ignoretext="Confirmar antes de devolver objetos a sus propietarios." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Actualmente, eres miembro del grupo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
-¿Dejar el grupo?
+		Actualmente perteneces al grupo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
+¿Deseas abandonar el grupo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -2822,6 +2843,18 @@ Con los siguientes residentes:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Sólo puedes compartir una carpeta en cada momento.
+
+¿Estás seguro de que quieres compartir los elementos siguientes?
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+Con los siguientes Residentes:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
 	<notification name="ItemsShared">
 		Los elementos se han compartido correctamente.

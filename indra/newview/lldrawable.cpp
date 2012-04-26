@@ -450,7 +450,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 {
 	if (isState(ACTIVE))
 	{
-		clearState(ACTIVE);
+		clearState(ACTIVE | ANIMATED_CHILD);
 
 		if (mParent.notNull() && mParent->isActive() && warning_enabled)
 		{
@@ -538,9 +538,9 @@ F32 LLDrawable::updateXform(BOOL undamped)
 			target_rot = new_rot;
 			target_scale = new_scale;
 		}
-		else
+		else if (mVObjp->getAngularVelocity().isExactlyZero())
 		{
-			// snap to final position
+			// snap to final position (only if no target omega is applied)
 			dist_squared = 0.0f;
 			if (getVOVolume() && !isRoot())
 			{ //child prim snapping to some position, needs a rebuild
@@ -549,14 +549,30 @@ F32 LLDrawable::updateXform(BOOL undamped)
 		}
 	}
 
-	if ((mCurrentScale != target_scale) ||
-		(!isRoot() && 
-		 (dist_squared >= MIN_INTERPOLATE_DISTANCE_SQUARED || 
-		 !mVObjp->getAngularVelocity().isExactlyZero() ||
-		 target_pos != mXform.getPosition() ||
-		 target_rot != mXform.getRotation())))
-	{ //child prim moving or scale change requires immediate rebuild
+	LLVector3 vec = mCurrentScale-target_scale;
+	
+	
+
+	if (vec*vec > MIN_INTERPOLATE_DISTANCE_SQUARED)
+	{ //scale change requires immediate rebuild
+		mCurrentScale = target_scale;
 		gPipeline.markRebuild(this, LLDrawable::REBUILD_POSITION, TRUE);
+	}
+	else if (!isRoot() && 
+		 (!mVObjp->getAngularVelocity().isExactlyZero() ||
+		 target_pos != mXform.getPosition() ||
+		 target_rot != mXform.getRotation()))
+	{ //child prim moving relative to parent, tag as needing to be rendered atomically and rebuild
+		if (!isState(LLDrawable::ANIMATED_CHILD))
+		{
+			setState(LLDrawable::ANIMATED_CHILD);
+			gPipeline.markRebuild(this, LLDrawable::REBUILD_ALL, TRUE);
+			LLSpatialGroup* group = getSpatialGroup();
+			if (group)
+			{
+				gPipeline.markRebuild(group, TRUE);
+			}
+		}
 	}
 	else if (!getVOVolume() && !isAvatar())
 	{
@@ -568,9 +584,7 @@ F32 LLDrawable::updateXform(BOOL undamped)
 	mXform.setRotation(target_rot);
 	mXform.setScale(LLVector3(1,1,1)); //no scale in drawable transforms (IT'S A RULE!)
 	mXform.updateMatrix();
-	
-	mCurrentScale = target_scale;
-	
+
 	if (mSpatialBridge)
 	{
 		gPipeline.markMoved(mSpatialBridge, FALSE);
@@ -651,7 +665,6 @@ BOOL LLDrawable::updateMoveUndamped()
 	}
 
 	mVObjp->clearChanged(LLXform::MOVED);
-	
 	return TRUE;
 }
 
@@ -1529,10 +1542,10 @@ BOOL LLDrawable::isAnimating() const
 		return TRUE;
 	}
 
-	if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
-	{
+	/*if (!isRoot() && !mVObjp->getAngularVelocity().isExactlyZero())
+	{ //target omega
 		return TRUE;
-	}
+	}*/
 
 	return FALSE;
 }

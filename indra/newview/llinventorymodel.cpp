@@ -819,6 +819,11 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item)
 			{
 				parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
 				new_item->setParent(parent_id);
+				LLInventoryModel::update_list_t update;
+				LLInventoryModel::LLCategoryUpdate new_folder(parent_id, 1);
+				update.push_back(new_folder);
+				accountForUpdate(update);
+
 			}
 			item_array_t* item_array = get_ptr_in_map(mParentChildItemTree, parent_id);
 			if(item_array)

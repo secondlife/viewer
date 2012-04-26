@@ -1,9 +1,9 @@
 /** 
- * @file giV.glsl
+ * @file debugF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,26 +23,24 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 modelview_projection_matrix;
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
+uniform vec4 color;
+uniform vec4 clip_plane;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_fragcoord;
+VARYING vec3 vary_position;
 
-uniform vec2 screen_res;
 
-void main()
+void main() 
 {
-	//transform vertex
-	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
-	gl_Position = pos; 
-	
-	vary_fragcoord = (pos.xy * 0.5 + 0.5)*screen_res;	
-	vec4 tex = vec4(texcoord0,0,1);
-	tex.w = 1.0;
+	if (dot(vary_position,clip_plane.xyz)+clip_plane.w < 0.0)
+	{
+		discard;
+	}
 
-	vertex_color = diffuse_color;
+	frag_color = color;
 }

@@ -447,14 +447,21 @@ void LLParticlePartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_co
 				continue;
 			}
 			
-			count++;
-			facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
-			obj->mDepth += facep->mDistance;
+			if ((facep->getGeomCount() + vertex_count) <= 65536)
+			{
+				count++;
+				facep->mDistance = (facep->mCenterLocal - camera->getOrigin()) * camera->getAtAxis();
+				obj->mDepth += facep->mDistance;
 			
-			mFaceList.push_back(facep);
-			vertex_count += facep->getGeomCount();
-			index_count += facep->getIndicesCount();
-			llassert(facep->getIndicesCount() < 65536);
+				mFaceList.push_back(facep);
+				vertex_count += facep->getGeomCount();
+				index_count += facep->getIndicesCount();
+				llassert(facep->getIndicesCount() < 65536);
+			}
+			else
+			{
+				facep->clearVertexBuffer();
+			}
 		}
 		
 		obj->mDepth /= count;

@@ -203,7 +203,7 @@ public:
 														  LLAssetType::EType type,
 														  void* user_data, S32 status, LLExtStat ext_status);
 					
-				void	updateRelativeXform();
+				void	updateRelativeXform(bool force_identity = false);
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
 	/*virtual*/ void	updateFaceSize(S32 idx);
 	/*virtual*/ BOOL	updateLOD();
