@@ -249,8 +249,14 @@ public:
 private:	
 	struct FetchEntry
 	{
+		enum e_curl_state
+		{
+			CURL_NOT_DONE = 0,
+			CURL_IN_PROGRESS,
+			CURL_DONE
+		};
 		LLUUID mID;
-		//S32 mRequestedSize;
+		S32 mRequestedSize;
 		//S32 mFetchedDiscard;
 		//S32 mComponents;
 		S32 mDecodedLevel;
@@ -260,15 +266,17 @@ private:
 		U32 mCacheHandle;
 		LLPointer<LLImageFormatted> mFormattedImage;
 		LLPointer<LLImageRaw> mRawImage;
+		e_curl_state mCurlState;
+		S32 mCurlReceivedSize;
 
 		FetchEntry() :
 			mDecodedLevel(-1),
 			mFetchedSize(0),
 			mDecodedSize(0)
 			{}
-		FetchEntry(LLUUID& id, /*S32 r_size, S32 f_discard, S32 c,*/ S32 level, S32 f_size, S32 d_size) :
+		FetchEntry(LLUUID& id, S32 r_size, /*S32 f_discard, S32 c,*/ S32 level, S32 f_size, S32 d_size) :
 			mID(id),
-			//mRequestedSize(r_size),
+			mRequestedSize(r_size),
 			//mFetchedDiscard(f_discard),
 			//mComponents(c),
 			mDecodedLevel(level),
@@ -306,6 +314,10 @@ private:
 	U32 mRenderedData;
 	U32 mRenderedDecodedData;
 
+	std::string mHTTPUrl;
+	S32 mNbCurlRequests;
+	S32 mNbCurlCompleted;
+
 public:
 	bool update(); //called in the main thread once per frame
 
@@ -327,6 +339,10 @@ public:
 						   S32 imagesize, BOOL islocal);
 	void callbackCacheWrite(S32 id, bool success);
 	void callbackDecoded(S32 id, bool success, LLImageRaw* raw, LLImageRaw* aux);
+	void callbackHTTP(S32 id, const LLChannelDescriptors& channels,
+					  const LLIOPipe::buffer_ptr_t& buffer, 
+					  bool partial, bool success);
+	
 
 	e_debug_state getState()             {return mState;}
 	S32  getNumFetchedTextures()         {return mNumFetchedTextures;}
@@ -359,6 +375,8 @@ private:
 
 	void lockDecoder();
 	void unlockDecoder();
+	
+	S32 fillCurlQueue();
 };
 #endif // LL_LLTEXTUREFETCH_H
 

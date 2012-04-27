@@ -3114,6 +3114,42 @@ private:
 	S32 mID;
 };
 
+class LLDebuggerHTTPResponder : public LLCurl::Responder
+{
+public:
+	LLDebuggerHTTPResponder(LLTextureFetchDebugger* debugger, S32 index)
+	: mDebugger(debugger), mIndex(index)
+	{
+	}
+	virtual void completedRaw(U32 status, const std::string& reason,
+							  const LLChannelDescriptors& channels,
+							  const LLIOPipe::buffer_ptr_t& buffer)
+	{
+		bool success = false;
+		bool partial = false;
+		if (HTTP_OK <= status &&  status < HTTP_MULTIPLE_CHOICES)
+		{
+			success = true;
+			if (HTTP_PARTIAL_CONTENT == status) // partial information
+			{
+				partial = true;
+			}
+		}
+		if (!success)
+		{
+			llinfos << "Fetch Debugger : CURL GET FAILED, index = " << mIndex << ", status:" << status << " reason:" << reason << llendl;
+		}
+		mDebugger->callbackHTTP(mIndex, channels, buffer, partial, success);
+	}
+	virtual bool followRedir()
+	{
+		return true;
+	}
+private:
+	LLTextureFetchDebugger* mDebugger;
+	S32 mIndex;
+};
+
 LLTextureFetchDebugger::LLTextureFetchDebugger(LLTextureFetch* fetcher, LLTextureCache* cache, LLImageDecodeThread* imagedecodethread) :
 	mFetcher(fetcher),
 	mTextureCache(cache),
@@ -3272,7 +3308,7 @@ void LLTextureFetchDebugger::addHistoryEntry(LLTextureFetchWorker* worker)
 	mFetchedData += worker->mFormattedImage->getDataSize();
 	mDecodedData += worker->mRawImage->getDataSize();
 
-	mFetchingHistory.push_back(FetchEntry(worker->mID, worker->mDecodedDiscard, worker->mFormattedImage->getDataSize(), worker->mRawImage->getDataSize()));
+	mFetchingHistory.push_back(FetchEntry(worker->mID, worker->mDesiredSize, worker->mDecodedDiscard, worker->mFormattedImage->getDataSize(), worker->mRawImage->getDataSize()));
 	//mFetchingHistory.push_back(FetchEntry(worker->mID, worker->mDesiredSize, worker->mHaveAllData ? 0 : worker->mLoadedDiscard, worker->mFormattedImage->getComponents(),
 		//worker->mDecodedDiscard, worker->mFormattedImage->getDataSize(), worker->mRawImage->getDataSize()));
 }
@@ -3362,7 +3398,71 @@ void LLTextureFetchDebugger::debugDecoder()
 
 void LLTextureFetchDebugger::debugHTTP()
 {
-	llinfos << "debug HTTP" << llendl;
+	llassert_always(mState == IDLE);
+
+	LLViewerRegion* region = gAgent.getRegion();
+	if (!region)
+	{
+		llinfos << "Fetch Debugger : Current region undefined. Cannot fetch textures through HTTP." << llendl;
+		return;
+	}
+	
+	mHTTPUrl = region->getHttpUrl();
+	if (mHTTPUrl.empty())
+	{
+		llinfos << "Fetch Debugger : Current region URL undefined. Cannot fetch textures through HTTP." << llendl;
+		return;
+	}
+	
+	mTimer.reset();
+	mState = HTTP_FETCHING;
+	
+	S32 size = mFetchingHistory.size();
+	for (S32 i = 0 ; i < size ; i++)
+	{
+		mFetchingHistory[i].mCurlState = FetchEntry::CURL_NOT_DONE;
+		mFetchingHistory[i].mCurlReceivedSize = 0;
+	}
+	mNbCurlRequests = 0;
+	mNbCurlCompleted = 0;
+	
+	fillCurlQueue();
+}
+
+S32 LLTextureFetchDebugger::fillCurlQueue()
+{
+	if (mNbCurlRequests == 24)
+		return mNbCurlRequests;
+	
+	S32 size = mFetchingHistory.size();
+	for (S32 i = 0 ; i < size ; i++)
+	{		
+		if (mFetchingHistory[i].mCurlState != FetchEntry::CURL_NOT_DONE)
+			continue;
+		std::string texture_url = mHTTPUrl + "/?texture_id=" + mFetchingHistory[i].mID.asString().c_str();
+		S32 requestedSize = mFetchingHistory[i].mRequestedSize;
+		// We request the whole file if the size was not set.
+		requestedSize = llmax(0,requestedSize);
+		// We request the whole file if the size was set to an absurdly high value (meaning all file)
+		requestedSize = (requestedSize == 33554432 ? 0 : requestedSize);
+		std::vector<std::string> headers;
+		headers.push_back("Accept: image/x-j2c");
+		bool res = mCurlGetRequest->getByteRange(texture_url, headers, 0, requestedSize, new LLDebuggerHTTPResponder(this, i));
+		if (res)
+		{
+			mFetchingHistory[i].mCurlState = FetchEntry::CURL_IN_PROGRESS;
+			mNbCurlRequests++;
+			// Hack
+			if (mNbCurlRequests == 24)
+				break;
+		}
+		else 
+		{
+			break;
+		}
+	}
+	llinfos << "Fetch Debugger : Having " << mNbCurlRequests << " requests through the curl thread." << llendl;
+	return mNbCurlRequests;
 }
 
 void LLTextureFetchDebugger::debugGLTextureCreation()
@@ -3432,7 +3532,13 @@ bool LLTextureFetchDebugger::update()
 		}
 		break;
 	case HTTP_FETCHING:
-		mState = IDLE;
+		mCurlGetRequest->process();
+		LLCurl::getCurlThread()->update(1);
+		if (!fillCurlQueue())
+		{
+			mHTTPTime =  mTimer.getElapsedTimeF32() ;
+			mState = IDLE;
+		}
 		break;
 	case GL_TEX:
 		mState = IDLE;
@@ -3470,6 +3576,30 @@ void LLTextureFetchDebugger::callbackDecoded(S32 id, bool success, LLImageRaw* r
 		mFetchingHistory[id].mRawImage = raw;
 	}
 }
+
+void LLTextureFetchDebugger::callbackHTTP(S32 id, const LLChannelDescriptors& channels,
+										  const LLIOPipe::buffer_ptr_t& buffer, 
+										  bool partial, bool success)
+{
+	mNbCurlRequests--;
+	if (success)
+	{
+		S32 data_size = buffer->countAfter(channels.in(), NULL);
+		mFetchingHistory[id].mCurlReceivedSize += data_size;
+		llinfos << "Fetch Debugger : got results for " << id << ", data_size = " << data_size << ", received = " << mFetchingHistory[id].mCurlReceivedSize << ", requested = " << mFetchingHistory[id].mRequestedSize << ", partial = " << partial << llendl;
+		if ((mFetchingHistory[id].mCurlReceivedSize >= mFetchingHistory[id].mRequestedSize) || !partial || (mFetchingHistory[id].mRequestedSize == 600))
+		{
+			mFetchingHistory[id].mCurlState = FetchEntry::CURL_DONE;
+			mNbCurlCompleted++;
+		}
+	}
+	else
+	{
+		// Fetch will have to be redone
+		mFetchingHistory[id].mCurlState = FetchEntry::CURL_NOT_DONE;
+	}
+}
+
 
 //---------------------
 ///////////////////////////////////////////////////////////////////////////////////////////
