@@ -3386,10 +3386,13 @@ void LLTextureFetchDebugger::debugCacheWrite()
 	S32 size = mFetchingHistory.size();
 	for(S32 i = 0 ; i < size ; i++)
 	{		
-		mFetchingHistory[i].mCacheHandle = mTextureCache->writeToCache(mFetchingHistory[i].mID, LLWorkerThread::PRIORITY_NORMAL, 
-			mFetchingHistory[i].mFormattedImage->getData(), mFetchingHistory[i].mFetchedSize,
-			mFetchingHistory[i].mDecodedLevel == 0 ? mFetchingHistory[i].mFetchedSize : mFetchingHistory[i].mFetchedSize + 1, 
-			new LLDebuggerCacheWriteResponder(this, i));					
+		if(mFetchingHistory[i].mFormattedImage.notNull())
+		{
+			mFetchingHistory[i].mCacheHandle = mTextureCache->writeToCache(mFetchingHistory[i].mID, LLWorkerThread::PRIORITY_NORMAL, 
+				mFetchingHistory[i].mFormattedImage->getData(), mFetchingHistory[i].mFetchedSize,
+				mFetchingHistory[i].mDecodedLevel == 0 ? mFetchingHistory[i].mFetchedSize : mFetchingHistory[i].mFetchedSize + 1, 
+				new LLDebuggerCacheWriteResponder(this, i));					
+		}
 	}
 }
 
