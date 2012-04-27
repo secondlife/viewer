@@ -51,6 +51,8 @@ public:
 	void onClickDecode();
 	void onClickGLTexture();
 
+	void onClickRefetchVisCache();
+	void onClickRefetchVisHTTP();
 public:
 	void idle() ;
 
@@ -60,9 +62,8 @@ private:
 
 	void updateButtons();
 	void disableButtons();
-private:
-	static F32 sTexelPixelRatio;
 
+private:	
 	LLTextureFetchDebugger* mDebugger;
 	std::map<std::string, bool> mButtonStateMap;
 };

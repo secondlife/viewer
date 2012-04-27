@@ -37,9 +37,7 @@
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "lltexturefetch.h"
-
-//static
-F32 LLFloaterTextureFetchDebugger::sTexelPixelRatio = 1.0f;
+#include "llviewercontrol.h"
 
 LLFloaterTextureFetchDebugger::LLFloaterTextureFetchDebugger(const LLSD& key)
 	: LLFloater(key),
@@ -58,6 +56,9 @@ LLFloaterTextureFetchDebugger::LLFloaterTextureFetchDebugger(const LLSD& key)
 	mCommitCallbackRegistrar.add("TexFetchDebugger.HTTPLoad",	boost::bind(&LLFloaterTextureFetchDebugger::onClickHTTPLoad, this));
 	mCommitCallbackRegistrar.add("TexFetchDebugger.Decode",	boost::bind(&LLFloaterTextureFetchDebugger::onClickDecode, this));
 	mCommitCallbackRegistrar.add("TexFetchDebugger.GLTexture",	boost::bind(&LLFloaterTextureFetchDebugger::onClickGLTexture, this));
+
+	mCommitCallbackRegistrar.add("TexFetchDebugger.RefetchVisCache",	boost::bind(&LLFloaterTextureFetchDebugger::onClickRefetchVisCache, this));
+	mCommitCallbackRegistrar.add("TexFetchDebugger.RefetchVisHTTP",	boost::bind(&LLFloaterTextureFetchDebugger::onClickRefetchVisHTTP, this));
 }
 //----------------------------------------------
 
@@ -74,7 +75,13 @@ BOOL LLFloaterTextureFetchDebugger::postBuild(void)
 	mButtonStateMap["http_btn"] = false;
 	mButtonStateMap["decode_btn"] = false;
 	mButtonStateMap["gl_btn"] = false;
+
+	mButtonStateMap["refetchviscache_btn"] = true;
+	mButtonStateMap["refetchvishttp_btn"] = true;
+
 	updateButtons();
+
+	getChild<LLUICtrl>("texel_pixel_ratio")->setValue(gSavedSettings.getF32("TexelPixelRatio"));
 
 	return TRUE ;
 }
@@ -109,6 +116,8 @@ void LLFloaterTextureFetchDebugger::disableButtons()
 	childDisable("http_btn");
 	childDisable("decode_btn");
 	childDisable("gl_btn");
+	childDisable("refetchviscache_btn");
+	childDisable("refetchvishttp_btn");
 }
 
 void LLFloaterTextureFetchDebugger::idle()
@@ -142,6 +151,11 @@ void LLFloaterTextureFetchDebugger::idle()
 		case LLTextureFetchDebugger::GL_TEX:
 			updateButtons();
 			break;
+		case LLTextureFetchDebugger::REFETCH_VIS_CACHE:
+			updateButtons();
+		case LLTextureFetchDebugger::REFETCH_VIS_HTTP:
+			updateButtons();
+			break;
 		default:
 			break;
 		}
@@ -151,7 +165,7 @@ void LLFloaterTextureFetchDebugger::idle()
 //----------------------
 void LLFloaterTextureFetchDebugger::onChangeTexelPixelRatio()
 {
-	sTexelPixelRatio = getChild<LLUICtrl>("texel_pixel_ratio")->getValue().asReal();
+	gSavedSettings.setF32("TexelPixelRatio", getChild<LLUICtrl>("texel_pixel_ratio")->getValue().asReal());
 }
 
 void LLFloaterTextureFetchDebugger::onClickStart()
@@ -184,6 +198,8 @@ void LLFloaterTextureFetchDebugger::onClickClear()
 	mButtonStateMap["http_btn"] = false;
 	mButtonStateMap["decode_btn"] = false;
 	mButtonStateMap["gl_btn"] = false;
+	mButtonStateMap["refetchviscache_btn"] = true;
+	mButtonStateMap["refetchvishttp_btn"] = true;
 	updateButtons();
 
 	//stop everything
@@ -226,6 +242,20 @@ void LLFloaterTextureFetchDebugger::onClickGLTexture()
 	mDebugger->debugGLTextureCreation();
 }
 
+void LLFloaterTextureFetchDebugger::onClickRefetchVisCache()
+{
+	disableButtons();
+
+	mDebugger->debugRefetchVisibleFromCache();
+}
+
+void LLFloaterTextureFetchDebugger::onClickRefetchVisHTTP()
+{
+	disableButtons();
+
+	mDebugger->debugRefetchVisibleFromHTTP();
+}
+
 void LLFloaterTextureFetchDebugger::draw()
 {
 	//total number of fetched textures
@@ -257,6 +287,7 @@ void LLFloaterTextureFetchDebugger::draw()
 	{
 		getChild<LLUICtrl>("total_fetched_data_label")->setTextArg("[SIZE1]", llformat("%d", mDebugger->getFetchedData() >> 10));		
 		getChild<LLUICtrl>("total_fetched_data_label")->setTextArg("[SIZE2]", llformat("%d", mDebugger->getDecodedData() >> 10));
+		getChild<LLUICtrl>("total_fetched_data_label")->setTextArg("[PIXEL]", llformat("%.3f", mDebugger->getFetchedPixels() / 1000000.f));
 	}
 
 	//total number of visible fetched data
@@ -269,6 +300,7 @@ void LLFloaterTextureFetchDebugger::draw()
 	{
 		getChild<LLUICtrl>("total_fetched_rendered_data_label")->setTextArg("[SIZE1]", llformat("%d", mDebugger->getRenderedData() >> 10));		
 		getChild<LLUICtrl>("total_fetched_rendered_data_label")->setTextArg("[SIZE2]", llformat("%d", mDebugger->getRenderedDecodedData() >> 10));
+		getChild<LLUICtrl>("total_fetched_rendered_data_label")->setTextArg("[PIXEL]", llformat("%.3f", mDebugger->getRenderedPixels() / 1000000.f));
 	}
 
 	//total time on cache readings
@@ -324,6 +356,34 @@ void LLFloaterTextureFetchDebugger::draw()
 	//total time on entire fetching
 	{
 		getChild<LLUICtrl>("total_time_fetch_label")->setTextArg("[TIME]", llformat("%.3f", mDebugger->getTotalFetchingTime()));
+	}
+
+	//total time on refetching visible textures from cache
+	if(mDebugger->getRefetchVisCacheTime() < 0.f)
+	{
+		getChild<LLUICtrl>("total_time_refetch_vis_cache_label")->setTextArg("[TIME]", std::string("----"));
+		getChild<LLUICtrl>("total_time_refetch_vis_cache_label")->setTextArg("[SIZE]", std::string("----"));
+		getChild<LLUICtrl>("total_time_refetch_vis_cache_label")->setTextArg("[PIXEL]", std::string("----"));
+	}
+	else
+	{
+		getChild<LLUICtrl>("total_time_refetch_vis_cache_label")->setTextArg("[TIME]", llformat("%.3f", mDebugger->getRefetchVisCacheTime()));
+		getChild<LLUICtrl>("total_time_refetch_vis_cache_label")->setTextArg("[SIZE]", llformat("%d", mDebugger->getRefetchedData() >> 10));
+		getChild<LLUICtrl>("total_time_refetch_vis_cache_label")->setTextArg("[PIXEL]", llformat("%.3f", mDebugger->getRefetchedPixels() / 1000000.f));
+	}
+
+	//total time on refetching visible textures from http
+	if(mDebugger->getRefetchVisHTTPTime() < 0.f)
+	{
+		getChild<LLUICtrl>("total_time_refetch_vis_http_label")->setTextArg("[TIME]", std::string("----"));
+		getChild<LLUICtrl>("total_time_refetch_vis_http_label")->setTextArg("[SIZE]", std::string("----"));
+		getChild<LLUICtrl>("total_time_refetch_vis_http_label")->setTextArg("[PIXEL]", std::string("----"));
+	}
+	else
+	{
+		getChild<LLUICtrl>("total_time_refetch_vis_http_label")->setTextArg("[TIME]", llformat("%.3f", mDebugger->getRefetchVisHTTPTime()));
+		getChild<LLUICtrl>("total_time_refetch_vis_http_label")->setTextArg("[SIZE]", llformat("%d", mDebugger->getRefetchedData() >> 10));
+		getChild<LLUICtrl>("total_time_refetch_vis_http_label")->setTextArg("[PIXEL]", llformat("%.3f", mDebugger->getRefetchedPixels() / 1000000.f));
 	}
 
 	LLFloater::draw();

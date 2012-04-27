@@ -433,6 +433,8 @@ public:
 
 	bool updateFetch();
 	
+	void clearFetchedResults(); //clear all fetched results, for debug use.
+
 	// Override the computation of discard levels if we know the exact output
 	// size of the image.  Used for UI textures to not decode, even if we have
 	// more data.
