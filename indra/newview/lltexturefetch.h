@@ -261,8 +261,6 @@ private:
 		};
 		LLUUID mID;
 		S32 mRequestedSize;
-		//S32 mFetchedDiscard;
-		//S32 mComponents;
 		S32 mDecodedLevel;
 		S32 mFetchedSize;
 		S32 mDecodedSize;
@@ -272,6 +270,7 @@ private:
 		LLPointer<LLImageRaw> mRawImage;
 		e_curl_state mCurlState;
 		S32 mCurlReceivedSize;
+		S32 mHTTPFailCount;
 
 		FetchEntry() :
 			mDecodedLevel(-1),
@@ -281,12 +280,11 @@ private:
 		FetchEntry(LLUUID& id, S32 r_size, /*S32 f_discard, S32 c,*/ S32 level, S32 f_size, S32 d_size) :
 			mID(id),
 			mRequestedSize(r_size),
-			//mFetchedDiscard(f_discard),
-			//mComponents(c),
 			mDecodedLevel(level),
 			mFetchedSize(f_size),
 			mDecodedSize(d_size),
-			mNeedsAux(false)
+			mNeedsAux(false),
+			mHTTPFailCount(0)
 			{}
 	};
 	std::vector<FetchEntry> mFetchingHistory;

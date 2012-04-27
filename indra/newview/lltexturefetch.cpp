@@ -3448,6 +3448,7 @@ void LLTextureFetchDebugger::debugHTTP()
 	{
 		mFetchingHistory[i].mCurlState = FetchEntry::CURL_NOT_DONE;
 		mFetchingHistory[i].mCurlReceivedSize = 0;
+		mFetchingHistory[i].mHTTPFailCount = 0;
 	}
 	mNbCurlRequests = 0;
 	mNbCurlCompleted = 0;
@@ -3487,7 +3488,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 			break;
 		}
 	}
-	llinfos << "Fetch Debugger : Having " << mNbCurlRequests << " requests through the curl thread." << llendl;
+	//llinfos << "Fetch Debugger : Having " << mNbCurlRequests << " requests through the curl thread." << llendl;
 	return mNbCurlRequests;
 }
 
@@ -3513,7 +3514,8 @@ void LLTextureFetchDebugger::debugGLTextureCreation()
 
 	mTimer.reset();
 	S32 j = 0 ;
-	for(S32 i = 0 ; i < size ; i++)
+	S32 size1 = tex_list.size();
+	for(S32 i = 0 ; i < size && j < size1; i++)
 	{
 		if(mFetchingHistory[i].mRawImage.notNull())
 		{
@@ -3597,7 +3599,7 @@ bool LLTextureFetchDebugger::update()
 	case HTTP_FETCHING:
 		mCurlGetRequest->process();
 		LLCurl::getCurlThread()->update(1);
-		if (!fillCurlQueue())
+		if (!fillCurlQueue() && mNbCurlCompleted == mFetchingHistory.size())
 		{
 			mHTTPTime =  mTimer.getElapsedTimeF32() ;
 			mState = IDLE;
@@ -3663,19 +3665,45 @@ void LLTextureFetchDebugger::callbackHTTP(S32 id, const LLChannelDescriptors& ch
 	mNbCurlRequests--;
 	if (success)
 	{
+		mFetchingHistory[id].mCurlState = FetchEntry::CURL_DONE;
+		mNbCurlCompleted++;
+
 		S32 data_size = buffer->countAfter(channels.in(), NULL);
 		mFetchingHistory[id].mCurlReceivedSize += data_size;
-		llinfos << "Fetch Debugger : got results for " << id << ", data_size = " << data_size << ", received = " << mFetchingHistory[id].mCurlReceivedSize << ", requested = " << mFetchingHistory[id].mRequestedSize << ", partial = " << partial << llendl;
+		//llinfos << "Fetch Debugger : got results for " << id << ", data_size = " << data_size << ", received = " << mFetchingHistory[id].mCurlReceivedSize << ", requested = " << mFetchingHistory[id].mRequestedSize << ", partial = " << partial << llendl;
 		if ((mFetchingHistory[id].mCurlReceivedSize >= mFetchingHistory[id].mRequestedSize) || !partial || (mFetchingHistory[id].mRequestedSize == 600))
+		{
+			U8* d_buffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), data_size);
+			buffer->readAfter(channels.in(), NULL, d_buffer, data_size);
+			
+			llassert_always(mFetchingHistory[id].mFormattedImage.isNull());
+			{
+				// For now, create formatted image based on extension
+				std::string texture_url = mHTTPUrl + "/?texture_id=" + mFetchingHistory[id].mID.asString().c_str();
+				std::string extension = gDirUtilp->getExtension(texture_url);
+				mFetchingHistory[id].mFormattedImage = LLImageFormatted::createFromType(LLImageBase::getCodecFromExtension(extension));
+				if (mFetchingHistory[id].mFormattedImage.isNull())
+				{
+					mFetchingHistory[id].mFormattedImage = new LLImageJ2C; // default
+				}
+			}
+						
+			mFetchingHistory[id].mFormattedImage->setData(d_buffer, data_size);	
+		}
+	}
+	else //failed
+	{
+		mFetchingHistory[id].mHTTPFailCount++;
+		if(mFetchingHistory[id].mHTTPFailCount < 5)
+		{
+			// Fetch will have to be redone
+			mFetchingHistory[id].mCurlState = FetchEntry::CURL_NOT_DONE;
+		}
+		else //skip
 		{
 			mFetchingHistory[id].mCurlState = FetchEntry::CURL_DONE;
 			mNbCurlCompleted++;
 		}
-	}
-	else
-	{
-		// Fetch will have to be redone
-		mFetchingHistory[id].mCurlState = FetchEntry::CURL_NOT_DONE;
 	}
 }
 
