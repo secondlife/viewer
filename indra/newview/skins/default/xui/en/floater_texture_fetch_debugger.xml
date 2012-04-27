@@ -201,7 +201,7 @@
     16, Refetching visibles from HTTP, Time: [TIME] seconds, Fetched: [SIZE]KB, [PIXEL]MPixels
   </text>
   <spinner
-     decimal_digits="1"
+     decimal_digits="2"
      follows="left|top"
      height="20"
      increment="0.01"
