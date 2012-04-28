@@ -123,6 +123,7 @@ private:
 	void handleAgentStateResult(const LLSD &pContent, EAgentState pRequestedAgentState);
 	void handleAgentStateError(U32 pStatus, const std::string &pReason, const std::string &pURL);
 	void handleAgentStateUpdate(const LLSD &pContent);
+	void handleAgentStateUserNotification(const LLSD &pNotification, const LLSD &pResponse);
 
 	std::string getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const;
 	std::string getRetrieveNavMeshURLForRegion(LLViewerRegion *pRegion) const;

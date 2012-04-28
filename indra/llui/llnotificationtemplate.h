@@ -121,6 +121,7 @@ struct LLNotificationTemplate
 		Optional<std::string>	yes_text,
 								no_text,
 								cancel_text,
+								help_text,
 								ignore_text;
 
 		TemplateRef()
@@ -128,6 +129,7 @@ struct LLNotificationTemplate
 			yes_text("yestext"),
 			no_text("notext"),
 			cancel_text("canceltext"),
+			help_text("helptext"),
 			ignore_text("ignoretext")
 		{}
 	};

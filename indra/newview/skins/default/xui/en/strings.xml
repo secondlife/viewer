@@ -3888,6 +3888,9 @@ Try enclosing path to the editor with double quotes.
   <string name="Preview">Preview</string>
   <string name="Normal">Normal</string>
 
+  <!-- Pathfinding -->
+  <string name="Pathfinding_Wiki_URL">http://wiki.secondlife.com/wiki/Pathfinding_Tools_in_the_Second_Life_Viewer</string>
+  
   <!-- Snapshot image quality levels -->
   <string name="snapshot_quality_very_low">Very Low</string>
   <string name="snapshot_quality_low">Low</string>

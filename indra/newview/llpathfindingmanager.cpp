@@ -42,6 +42,9 @@
 #include "llpathfindinglinksetlist.h"
 #include "llpathfindingcharacterlist.h"
 #include "llhttpnode.h"
+#include "llnotificationsutil.h"
+#include "lltrans.h"
+#include "llweb.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -663,6 +666,17 @@ void LLPathfindingManager::handleAgentStateUpdate(const LLSD &pContent)
 	EAgentState agentState = (pContent.get(ALTER_NAVMESH_OBJECTS_FIELD).asBoolean() ? kAgentStateUnfrozen : kAgentStateFrozen);
 
 	setAgentState(agentState);
+
+	LLSD substitutions, payload;
+	LLNotificationsUtil::add("AutomaticAgentStateUnfreeze", substitutions, payload, boost::bind(&LLPathfindingManager::handleAgentStateUserNotification, this, _1, _2));
+}
+
+void LLPathfindingManager::handleAgentStateUserNotification(const LLSD &pNotification, const LLSD &pResponse)
+{
+	if (LLNotificationsUtil::getSelectedOption(pNotification, pResponse) == 1)
+	{
+		LLWeb::loadURL(LLTrans::getString("Pathfinding_Wiki_URL"));
+	}
 }
 
 std::string LLPathfindingManager::getNavMeshStatusURLForRegion(LLViewerRegion *pRegion) const
