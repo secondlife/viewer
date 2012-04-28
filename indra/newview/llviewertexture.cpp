@@ -1146,7 +1146,7 @@ S32  LLViewerTexture::getDiscardLevelInAtlas() const
 
 void LLViewerTexture::destroyGLTexture() 
 {
-	if(mGLTexturep.notNull() && mGLTexturep->getHasGLTexture())
+	if(mGLTexturep.notNull())
 	{
 		mGLTexturep->destroyGLTexture() ;
 		mTextureState = DELETED ;	

@@ -1464,10 +1464,10 @@ void LLImageGL::destroyGLTexture()
 		}
 		
 		LLImageGL::deleteTextures(1, &mTexName);			
-		mTexName = 0;
-		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
+		mTexName = 0;		
 		mGLTextureCreated = FALSE ;
 	}
+	mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
 }
 
 
