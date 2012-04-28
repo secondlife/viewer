@@ -4143,10 +4143,7 @@ static bool get_derezzable_objects(
 			break;
 
 		case DRD_RETURN_TO_OWNER:
-			if (!object->isPermanentEnforced() || gAgent.isGodlike())
-			{
-				can_derez_current = TRUE;
-			}
+			can_derez_current = TRUE;
 			break;
 
 		default:
