@@ -109,6 +109,8 @@ private:
 	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID);
+	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const;
+	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, characters_callback_t pCharactersCallback) const;
 
 	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
