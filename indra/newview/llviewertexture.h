@@ -310,6 +310,7 @@ protected:
 	} LLGLTextureState;
 	LLGLTextureState  mTextureState ;
 
+	static F32 sTexelPixelRatio;
 public:
 	static const U32 sCurrentFileVersion;	
 	static S32 sImageCount;

@@ -56,6 +56,7 @@
 #include "llstartup.h"
 #include "llviewerstats.h"
 
+bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
 LLStat LLTextureFetch::sCacheHitRate("texture_cache_hits", 128);
 LLStat LLTextureFetch::sCacheReadLatency("texture_cache_read_latency", 128);
 
@@ -1424,7 +1425,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		if (mDecoded)
 		{
-			if(!mInLocalCache)
+			if(mFetcher->getFetchDebugger() && !mInLocalCache)
 			{
 				mFetcher->getFetchDebugger()->addHistoryEntry(this);
 			}
@@ -1858,13 +1859,18 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHTTPTextureBits(0),
 	  mTotalHTTPRequests(0),
 	  mCurlGetRequest(NULL),
-	  mQAMode(qa_mode)
+	  mQAMode(qa_mode),
+	  mFetchDebugger(NULL)
 {
 	mCurlPOSTRequestCount = 0;
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
 
-	mFetchDebugger = new LLTextureFetchDebugger(this, cache, imagedecodethread) ;
+	LLTextureFetchDebugger::sDebuggerEnabled = gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
+	if(LLTextureFetchDebugger::isEnabled())
+	{
+		mFetchDebugger = new LLTextureFetchDebugger(this, cache, imagedecodethread) ;
+	}
 }
 
 LLTextureFetch::~LLTextureFetch()
@@ -2311,7 +2317,11 @@ void LLTextureFetch::startThread()
 {
 	// Construct mCurlGetRequest from Worker Thread
 	mCurlGetRequest = new LLCurlRequest();
-	mFetchDebugger->setCurlGetRequest(mCurlGetRequest);
+	
+	if(mFetchDebugger)
+	{
+		mFetchDebugger->setCurlGetRequest(mCurlGetRequest);
+	}
 }
 
 // WORKER THREAD
@@ -2320,7 +2330,10 @@ void LLTextureFetch::endThread()
 	// Destroy mCurlGetRequest from Worker Thread
 	delete mCurlGetRequest;
 	mCurlGetRequest = NULL;
-	mFetchDebugger->setCurlGetRequest(NULL);
+	if(mFetchDebugger)
+	{
+		mFetchDebugger->setCurlGetRequest(NULL);
+	}
 }
 
 // WORKER THREAD

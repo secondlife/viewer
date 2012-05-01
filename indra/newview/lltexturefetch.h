@@ -230,6 +230,7 @@ public:
 //debug use
 class LLTextureFetchDebugger
 {
+	friend class LLTextureFetch;
 public:
 	LLTextureFetchDebugger(LLTextureFetch* fetcher, LLTextureCache* cache, LLImageDecodeThread* imagedecodethread) ;
 	~LLTextureFetchDebugger();
@@ -398,6 +399,11 @@ private:
 	void unlockDecoder();
 	
 	S32 fillCurlQueue();
+
+private:
+	static bool sDebuggerEnabled;
+public:
+	static bool isEnabled() {return sDebuggerEnabled;}
 };
 #endif // LL_LLTEXTUREFETCH_H
 

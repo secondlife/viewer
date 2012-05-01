@@ -1405,12 +1405,15 @@ bool LLAppViewer::mainLoop()
 				}									
 
 				//texture fetching debugger
-				LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
-					LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
-				if(tex_fetch_debugger_instance)
+				if(LLTextureFetchDebugger::isEnabled())
 				{
-					tex_fetch_debugger_instance->idle() ;				
-				}		
+					LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
+						LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
+					if(tex_fetch_debugger_instance)
+					{
+						tex_fetch_debugger_instance->idle() ;				
+					}
+				}
 
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))

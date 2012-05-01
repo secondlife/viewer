@@ -98,6 +98,8 @@ S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA ;
 BOOL LLViewerTexture::sFreezeImageScalingDown = FALSE ;
 F32 LLViewerTexture::sCurrentTime = 0.0f ;
 BOOL LLViewerTexture::sUseTextureAtlas        = FALSE ;
+F32  LLViewerTexture::sTexelPixelRatio = 1.0f;
+
 LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
 const F32 desired_discard_bias_min = -2.0f; // -max number of levels to improve image quality by
@@ -407,6 +409,7 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
+	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
 }
 
 // static
@@ -723,8 +726,6 @@ void LLViewerTexture::forceImmediateUpdate()
 
 void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) const 
 {
-	static LLCachedControl<F32>  sTexelPixelRatio(gSavedSettings,"TexelPixelRatio");
-
 	if(needs_gltexture)
 	{
 		mNeedsGLTexture = TRUE ;

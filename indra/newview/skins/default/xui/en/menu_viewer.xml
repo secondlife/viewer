@@ -1876,14 +1876,7 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="texture" />
-            </menu_item_check>
-          <menu_item_call
-          label="Texture Fetch Debug Console"
-          name="Texture Fetch Debug Console">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="tex_fetch_debugger" />
-          </menu_item_call>
+            </menu_item_check>            
             <menu_item_check
              label="Debug Console"
              name="Debug Console"
@@ -1938,7 +1931,20 @@
                function="Advanced.ToggleConsole"
                parameter="scene view" />
             </menu_item_check>
-
+            <menu_item_call
+              enabled="false"
+              visible="false"
+              label="Texture Fetch Debug Console"
+              name="Texture Fetch Debug Console">
+              <menu_item_call.on_click
+                function="Floater.Show"
+                parameter="tex_fetch_debugger" />
+              <on_enable
+                function="Develop.SetTexFetchDebugger" />
+              <on_visible
+                function="Develop.SetTexFetchDebugger" />
+            </menu_item_call>
+          
             <menu_item_separator/>
 
             <menu_item_call
