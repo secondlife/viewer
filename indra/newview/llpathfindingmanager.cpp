@@ -397,18 +397,20 @@ void LLPathfindingManager::requestSetAgentState(EAgentState pRequestedAgentState
 	}
 }
 
-LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const
+void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const
 {
-	ERequestStatus status;
+	LLPathfindingLinksetListPtr emptyLinksetListPtr;
 
 	std::string objectLinksetsURL = getObjectLinksetsURLForCurrentRegion();
 	std::string terrainLinksetsURL = getTerrainLinksetsURLForCurrentRegion();
 	if (objectLinksetsURL.empty() || terrainLinksetsURL.empty())
 	{
-		status = kRequestNotEnabled;
+		pLinksetsCallback(pRequestId, kRequestNotEnabled, emptyLinksetListPtr);
 	}
 	else
 	{
+		pLinksetsCallback(pRequestId, kRequestStarted, emptyLinksetListPtr);
+
 		bool doRequestTerrain = isAllowViewTerrainProperties();
 		LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, true, doRequestTerrain));
 
@@ -420,22 +422,18 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetLinksets(re
 			LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(terrainLinksetsURL, linksetsResponderPtr);
 			LLHTTPClient::get(terrainLinksetsURL, terrainLinksetsResponder);
 		}
-
-		status = kRequestStarted;
 	}
-
-	return status;
 }
 
-LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(request_id_t pRequestId, LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const
+void LLPathfindingManager::requestSetLinksets(request_id_t pRequestId, LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const
 {
-	ERequestStatus status = kRequestNotEnabled;
+	LLPathfindingLinksetListPtr emptyLinksetListPtr;
 
 	std::string objectLinksetsURL = getObjectLinksetsURLForCurrentRegion();
 	std::string terrainLinksetsURL = getTerrainLinksetsURLForCurrentRegion();
 	if (objectLinksetsURL.empty() || terrainLinksetsURL.empty())
 	{
-		status = kRequestNotEnabled;
+		pLinksetsCallback(pRequestId, kRequestNotEnabled, emptyLinksetListPtr);
 	}
 	else
 	{
@@ -448,10 +446,12 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(re
 
 		if (objectPostData.isUndefined() && terrainPostData.isUndefined())
 		{
-			status = kRequestCompleted;
+			pLinksetsCallback(pRequestId, kRequestCompleted, emptyLinksetListPtr);
 		}
 		else
 		{
+			pLinksetsCallback(pRequestId, kRequestStarted, emptyLinksetListPtr);
+
 			LinksetsResponderPtr linksetsResponderPtr(new LinksetsResponder(pRequestId, pLinksetsCallback, !objectPostData.isUndefined(), !terrainPostData.isUndefined()));
 
 			if (!objectPostData.isUndefined())
@@ -465,32 +465,26 @@ LLPathfindingManager::ERequestStatus LLPathfindingManager::requestSetLinksets(re
 				LLHTTPClient::ResponderPtr terrainLinksetsResponder = new TerrainLinksetsResponder(terrainLinksetsURL, linksetsResponderPtr);
 				LLHTTPClient::put(terrainLinksetsURL, terrainPostData, terrainLinksetsResponder);
 			}
-
-			status = kRequestStarted;
 		}
 	}
-
-	return status;
 }
 
-LLPathfindingManager::ERequestStatus LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, characters_callback_t pCharactersCallback) const
+void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, characters_callback_t pCharactersCallback) const
 {
-	ERequestStatus status;
+	LLPathfindingCharacterListPtr emptyCharacterListPtr;
 
 	std::string charactersURL = getCharactersURLForCurrentRegion();
 	if (charactersURL.empty())
 	{
-		status = kRequestNotEnabled;
+		pCharactersCallback(pRequestId, kRequestNotEnabled, emptyCharacterListPtr);
 	}
 	else
 	{
+		pCharactersCallback(pRequestId, kRequestStarted, emptyCharacterListPtr);
+
 		LLHTTPClient::ResponderPtr charactersResponder = new CharactersResponder(charactersURL, pRequestId, pCharactersCallback);
 		LLHTTPClient::get(charactersURL, charactersResponder);
-
-		status = kRequestStarted;
 	}
-
-	return status;
 }
 
 void LLPathfindingManager::sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus)

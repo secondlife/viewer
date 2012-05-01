@@ -216,27 +216,7 @@ void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagin
 
 void LLFloaterPathfindingCharacters::requestGetCharacters()
 {
-	switch (LLPathfindingManager::getInstance()->requestGetCharacters(++mMessagingRequestId, boost::bind(&LLFloaterPathfindingCharacters::handleNewCharacters, this, _1, _2, _3)))
-	{
-	case LLPathfindingManager::kRequestStarted :
-		setMessagingState(kMessagingGetRequestSent);
-		break;
-	case LLPathfindingManager::kRequestCompleted :
-		clearCharacters();
-		setMessagingState(kMessagingComplete);
-		break;
-	case LLPathfindingManager::kRequestNotEnabled :
-		clearCharacters();
-		setMessagingState(kMessagingNotEnabled);
-		break;
-	case LLPathfindingManager::kRequestError :
-		setMessagingState(kMessagingGetError);
-		break;
-	default :
-		setMessagingState(kMessagingGetError);
-		llassert(0);
-		break;
-	}
+	LLPathfindingManager::getInstance()->requestGetCharacters(++mMessagingRequestId, boost::bind(&LLFloaterPathfindingCharacters::handleNewCharacters, this, _1, _2, _3));
 }
 
 void LLFloaterPathfindingCharacters::handleNewCharacters(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr)
@@ -244,13 +224,19 @@ void LLFloaterPathfindingCharacters::handleNewCharacters(LLPathfindingManager::r
 	llassert(pRequestId <= mMessagingRequestId);
 	if (pRequestId == mMessagingRequestId)
 	{
-		mCharacterListPtr = pCharacterListPtr;
-		updateScrollList();
-
 		switch (pCharacterRequestStatus)
 		{
+		case LLPathfindingManager::kRequestStarted :
+			setMessagingState(kMessagingGetRequestSent);
+			break;
 		case LLPathfindingManager::kRequestCompleted :
+			mCharacterListPtr = pCharacterListPtr;
+			updateScrollList();
 			setMessagingState(kMessagingComplete);
+			break;
+		case LLPathfindingManager::kRequestNotEnabled :
+			clearCharacters();
+			setMessagingState(kMessagingNotEnabled);
 			break;
 		case LLPathfindingManager::kRequestError :
 			setMessagingState(kMessagingGetError);
