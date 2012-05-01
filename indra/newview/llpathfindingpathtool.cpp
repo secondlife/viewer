@@ -27,10 +27,13 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llpathfindingpathtool.h"
+
+#include "llagent.h"
 #include "llsingleton.h"
 #include "lltool.h"
-#include "llviewerwindow.h"
 #include "llviewercamera.h"
+#include "llviewerregion.h"
+#include "llviewerwindow.h"
 #include "llpathfindingmanager.h"
 #include "llpathinglib.h"
 
@@ -166,6 +169,10 @@ LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
 	if (LLPathingLib::getInstance() == NULL)
 	{
 		status = kPathStatusNotImplemented;
+	}
+	else if ((gAgent.getRegion() != NULL) && !gAgent.getRegion()->capabilitiesReceived())
+	{
+		status = kPathStatusUnknown;
 	}
 	else if (!LLPathfindingManager::getInstance()->isPathfindingEnabledForCurrentRegion())
 	{
