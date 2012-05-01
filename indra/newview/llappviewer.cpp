@@ -4964,7 +4964,7 @@ void LLAppViewer::handleLoginComplete()
 
 	// we logged in successfully, so save settings on logout
 	llinfos << "Login successful, per account settings will be saved on log out." << llendl;
-	mSavePerAccountSettings=TRUE;
+	mSavePerAccountSettings=true;
 }
 
 // *TODO - generalize this and move DSO wrangling to a helper class -brad
