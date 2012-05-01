@@ -367,7 +367,7 @@ public:
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
 	void hidePermanentObjects( std::vector<U32>& restoreList );
-	void restorePermanentObjects( std::vector<U32>& restoreList );
+	void restorePermanentObjects( const std::vector<U32>& restoreList );
 
 private:
 	void unloadShaders();

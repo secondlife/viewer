@@ -10140,12 +10140,12 @@ void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
 	}
 }
 
-void LLPipeline::restorePermanentObjects( std::vector<U32>& restoreList )
+void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
 {
 	//This method is used to restore(unhide) any vo's from the object list that may have
 	//been hidden because their permanency flag was set.
-	std::vector<U32>::iterator itCurrent	= restoreList.begin();
-	std::vector<U32>::iterator itEnd		= restoreList.end();
+	std::vector<U32>::const_iterator itCurrent	= restoreList.begin();
+	std::vector<U32>::const_iterator itEnd		= restoreList.end();
 
 	while ( itCurrent != itEnd )
 	{
