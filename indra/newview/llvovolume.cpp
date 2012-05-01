@@ -684,7 +684,7 @@ void LLVOVolume::updateTextures()
 	{
 		updateTextureVirtualSize();
 
-		/*if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
+		if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
 		{ //delete vertex buffer to free up some VRAM
 			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
 			if (group)
@@ -695,7 +695,7 @@ void LLVOVolume::updateTextures()
 				//it becomes visible
 				group->setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 			}
-		}*/
+		}
 
 	}
 }
@@ -1497,7 +1497,7 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
 {
 	if (mVolumeImpl)
 	{
-		mVolumeImpl->updateRelativeXform();
+		mVolumeImpl->updateRelativeXform(force_identity);
 		return;
 	}
 	
@@ -3983,6 +3983,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 			model_mat = NULL;
 		}
 	}
+
+	//drawable->getVObj()->setDebugText(llformat("%d", drawable->isState(LLDrawable::ANIMATED_CHILD)));
 
 	U8 bump = (type == LLRenderPass::PASS_BUMP || type == LLRenderPass::PASS_POST_BUMP) ? facep->getTextureEntry()->getBumpmap() : 0;
 	

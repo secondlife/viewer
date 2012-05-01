@@ -699,6 +699,9 @@ void LLSpatialGroup::rebuildMesh()
 }
 
 static LLFastTimer::DeclareTimer FTM_REBUILD_VBO("VBO Rebuilt");
+static LLFastTimer::DeclareTimer FTM_ADD_GEOMETRY_COUNT("Add Geometry");
+static LLFastTimer::DeclareTimer FTM_CREATE_VB("Create VB");
+static LLFastTimer::DeclareTimer FTM_GET_GEOMETRY("Get Geometry");
 
 void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 {
@@ -720,27 +723,36 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 	//get geometry count
 	U32 index_count = 0;
 	U32 vertex_count = 0;
-	
-	addGeometryCount(group, vertex_count, index_count);
+
+	{
+		LLFastTimer t(FTM_ADD_GEOMETRY_COUNT);
+		addGeometryCount(group, vertex_count, index_count);
+	}
 
 	if (vertex_count > 0 && index_count > 0)
 	{ //create vertex buffer containing volume geometry for this node
-		group->mBuilt = 1.f;
-		if (group->mVertexBuffer.isNull() ||
-			!group->mVertexBuffer->isWriteable() ||
-			(group->mBufferUsage != group->mVertexBuffer->getUsage() && LLVertexBuffer::sEnableVBOs))
 		{
-			group->mVertexBuffer = createVertexBuffer(mVertexDataMask, group->mBufferUsage);
-			group->mVertexBuffer->allocateBuffer(vertex_count, index_count, true);
-			stop_glerror();
+			LLFastTimer t(FTM_CREATE_VB);
+			group->mBuilt = 1.f;
+			if (group->mVertexBuffer.isNull() ||
+				!group->mVertexBuffer->isWriteable() ||
+				(group->mBufferUsage != group->mVertexBuffer->getUsage() && LLVertexBuffer::sEnableVBOs))
+			{
+				group->mVertexBuffer = createVertexBuffer(mVertexDataMask, group->mBufferUsage);
+				group->mVertexBuffer->allocateBuffer(vertex_count, index_count, true);
+				stop_glerror();
+			}
+			else
+			{
+				group->mVertexBuffer->resizeBuffer(vertex_count, index_count);
+				stop_glerror();
+			}
 		}
-		else
+
 		{
-			group->mVertexBuffer->resizeBuffer(vertex_count, index_count);
-			stop_glerror();
+			LLFastTimer t(FTM_GET_GEOMETRY);
+			getGeometry(group);
 		}
-		
-		getGeometry(group);
 	}
 	else
 	{

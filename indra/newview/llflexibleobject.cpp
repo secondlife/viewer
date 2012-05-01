@@ -818,15 +818,17 @@ LLQuaternion LLVolumeImplFlexible::getEndRotation()
 }//------------------------------------------------------------------
 
 
-void LLVolumeImplFlexible::updateRelativeXform()
+void LLVolumeImplFlexible::updateRelativeXform(bool force_identity)
 {
 	LLQuaternion delta_rot;
 	LLVector3 delta_pos, delta_scale;
 	LLVOVolume* vo = (LLVOVolume*) mVO;
 
+	bool use_identity = vo->mDrawable->isSpatialRoot() || force_identity;
+
 	//matrix from local space to parent relative/global space
-	delta_rot = vo->mDrawable->isSpatialRoot() ? LLQuaternion() : vo->mDrawable->getRotation();
-	delta_pos = vo->mDrawable->isSpatialRoot() ? LLVector3(0,0,0) : vo->mDrawable->getPosition();
+	delta_rot = use_identity ? LLQuaternion() : vo->mDrawable->getRotation();
+	delta_pos = use_identity ? LLVector3(0,0,0) : vo->mDrawable->getPosition();
 	delta_scale = LLVector3(1,1,1);
 
 	// Vertex transform (4x4)
