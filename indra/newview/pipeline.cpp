@@ -2624,6 +2624,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		{
 			const LLDrawable* root = ((LLSpatialBridge*) drawablep)->mDrawable;
 			llassert(root); // trying to catch a bad assumption
+					
 			if (root && //  // this test may not be needed, see above
 					root->getVObj()->isAttachment())
 			{
@@ -2646,6 +2647,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 		}
 		else
 		{
+		
 			sCull->pushDrawable(drawablep);
 		}
 
@@ -10101,5 +10103,77 @@ void LLPipeline::addDebugBlip(const LLVector3& position, const LLColor4& color)
 {
 	DebugBlip blip(position, color);
 	mDebugBlips.push_back(blip);
+}
+
+void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
+{
+	//This method is used to hide any vo's from the object list that may have
+	//the permanent flag set.
+	U32 objCnt = gObjectList.getNumObjects();
+	for (U32 i = 0; i < objCnt; ++i)
+	{
+		LLViewerObject* pObject = gObjectList.getObject(i);
+		if ( pObject && pObject->flagObjectPermanent() )
+		{
+			LLDrawable *pDrawable = pObject->mDrawable;
+		
+			if ( pDrawable )
+			{
+				restoreList.push_back( i );
+				pDrawable->setState( LLDrawable::FORCE_INVISIBLE );
+				markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+				//hide children
+				LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+				for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					  iter != child_list.end(); iter++ )
+				{
+					LLViewerObject* child = *iter;
+					LLDrawable* drawable = child->mDrawable;					
+					if (drawable)
+					{
+						drawable->setState( LLDrawable::FORCE_INVISIBLE );
+						markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+					}
+				}
+			}
+		}
+	}
+}
+
+void LLPipeline::restorePermanentObjects( std::vector<U32>& restoreList )
+{
+	//This method is used to restore(unhide) any vo's from the object list that may have
+	//been hidden because their permanency flag was set.
+	std::vector<U32>::iterator itCurrent	= restoreList.begin();
+	std::vector<U32>::iterator itEnd		= restoreList.end();
+
+	while ( itCurrent != itEnd )
+	{
+		U32 index = *itCurrent;
+		LLViewerObject* pObject = gObjectList.getObject( index );
+		if ( pObject )
+		{
+			LLDrawable *pDrawable = pObject->mDrawable;
+			if ( pDrawable )
+			{
+				pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
+				markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+				//restore children
+				LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+				for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+					  iter != child_list.end(); iter++)
+				{
+					LLViewerObject* child = *iter;
+					LLDrawable* drawable = child->mDrawable;					
+					if (drawable)
+					{
+						drawable->clearState( LLDrawable::FORCE_INVISIBLE );
+						markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+					}
+				}
+			}
+		}
+		++itCurrent;
+	}
 }
 

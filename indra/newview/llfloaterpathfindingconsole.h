@@ -126,6 +126,8 @@ private:
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onClearPathClicked();
+	void onRenderWorldMovablesOnly();
+
 	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 	void onRegionBoundaryCross();
@@ -219,6 +221,8 @@ private:
 	boost::signals2::connection                   mSavedSettingWaterSlot;
 
 	EConsoleState                                 mConsoleState;
+ 
+	std::vector<U32>								  mRenderableRestoreList;
 
 	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
 };

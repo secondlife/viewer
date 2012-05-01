@@ -48,7 +48,7 @@
 #include "llpathfindingpathtool.h"
 #include "lltoolmgr.h"
 #include "lltoolfocus.h"
-
+#include "pipeline.h"
 #include "llpathinglib.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
@@ -85,6 +85,8 @@
 
 LLHandle<LLFloaterPathfindingConsole> LLFloaterPathfindingConsole::sInstanceHandle;
 
+extern LLPipeline gPipeline;
+
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingConsole
 //---------------------------------------------------------------------------
@@ -97,8 +99,9 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mShowWorldCheckBox = findChild<LLCheckBoxCtrl>("show_world");
 	llassert(mShowWorldCheckBox != NULL);
 	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldSet, this));
-
+	
 	mShowWorldMovablesOnlyCheckBox = findChild<LLCheckBoxCtrl>("show_world_movables_only");
+	mShowWorldMovablesOnlyCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onRenderWorldMovablesOnly, this));
 	llassert(mShowWorldMovablesOnlyCheckBox != NULL);
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
@@ -600,6 +603,18 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	clearPath();
 }
 
+void LLFloaterPathfindingConsole::onRenderWorldMovablesOnly()
+{
+	if ( mShowWorldMovablesOnlyCheckBox->get() )
+	{
+		gPipeline.hidePermanentObjects( mRenderableRestoreList );
+	}
+	else
+	{
+		gPipeline.restorePermanentObjects( mRenderableRestoreList );
+		mRenderableRestoreList.clear();
+	}
+}
 void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
 {
 	switch (pNavMeshZoneRequestStatus)
