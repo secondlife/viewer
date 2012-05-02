@@ -93,6 +93,7 @@
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
 #include "llcallfloater.h"
+#include "llfloatertexturefetchdebugger.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -1218,7 +1219,7 @@ bool LLAppViewer::mainLoop()
 			if(mem_leak_instance)
 			{
 				mem_leak_instance->idle() ;				
-			}			
+			}							
 
             // canonical per-frame event
             mainloop.post(newFrame);
@@ -1402,6 +1403,17 @@ bool LLAppViewer::mainLoop()
 					LLVFSThread::sLocal->pause(); 
 					LLLFSThread::sLocal->pause(); 
 				}									
+
+				//texture fetching debugger
+				if(LLTextureFetchDebugger::isEnabled())
+				{
+					LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
+						LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
+					if(tex_fetch_debugger_instance)
+					{
+						tex_fetch_debugger_instance->idle() ;				
+					}
+				}
 
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
