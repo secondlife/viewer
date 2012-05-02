@@ -4271,6 +4271,17 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
+    <key>InventoryInboxToggleState</key>
+    <map>
+        <key>Comment</key>
+        <string>Stores the open/closed state of inventory Received items panel</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
 	<key>InventoryLinking</key>
 	<map>
 		<key>Comment</key>
@@ -10631,6 +10642,17 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TexelPixelRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>texel pixel ratio = texel / pixel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>TextureCameraMotionThreshold</key>
     <map>
       <key>Comment</key>
@@ -10640,7 +10662,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>0.2</integer>
+      <real>0.2</real>
     </map>
     <key>TextureCameraMotionBoost</key>
     <map>
@@ -10683,6 +10705,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureFetchDebuggerEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the texture fetching debugger if set</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>

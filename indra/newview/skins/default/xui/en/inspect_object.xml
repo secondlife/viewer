@@ -56,7 +56,7 @@ owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
    halign="right"
    right="-5"
    name="price_text"
-   text_color="white"
+   text_color="White"
    top="60"
    font_shadow="none"
    width="60">
@@ -90,6 +90,7 @@ L$30,000
    follows="all"
    font="SansSerifSmall"
    height="13"
+   clip="false"
    name="object_media_url"
    width="207"
    left_pad="2"

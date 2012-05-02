@@ -94,13 +94,16 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
-	if (features->calculatesLighting)
+	if (features->calculatesLighting || features->atmosphericHelpers)
 	{
 		if (!shader->attachObject("windlight/atmosphericsHelpersV.glsl"))
 		{
 			return FALSE;
 		}
+	}
 		
+	if (features->calculatesLighting)
+	{
 		if (features->isSpecular)
 		{
 			if (!shader->attachObject("lighting/lightFuncSpecularV.glsl"))

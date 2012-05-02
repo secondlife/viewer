@@ -113,6 +113,13 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
 static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+static bool check_category(LLInventoryModel* model,
+						   const LLUUID& cat_id,
+						   LLFolderView* active_folder_view,
+						   LLInventoryFilter* filter);
+static bool check_item(const LLUUID& item_id,
+					   LLFolderView* active_folder_view,
+					   LLInventoryFilter* filter);
 
 // Helper functions
 
@@ -148,7 +155,7 @@ LLInvFVBridge::LLInvFVBridge(LLInventoryPanel* inventory,
 	mInvType(LLInventoryType::IT_NONE),
 	mIsLink(FALSE)
 {
-	mInventoryPanel = inventory->getHandle();
+	mInventoryPanel = inventory->getInventoryPanelHandle();
 	const LLInventoryObject* obj = getInventoryObject();
 	mIsLink = obj && obj->getIsLinkType();
 }
@@ -798,7 +805,7 @@ LLInventoryObject* LLInvFVBridge::getInventoryObject() const
 
 LLInventoryModel* LLInvFVBridge::getInventoryModel() const
 {
-	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLInventoryPanel* panel = mInventoryPanel.get();
 	return panel ? panel->getModel() : NULL;
 }
 
@@ -1324,8 +1331,8 @@ void LLItemBridge::selectItem()
 	LLViewerInventoryItem* item = static_cast<LLViewerInventoryItem*>(getItem());
 	if(item && !item->isFinished())
 	{
-		item->fetchFromServer();
-		//LLInventoryModelBackgroundFetch::instance().start(item->getUUID(), false);
+		//item->fetchFromServer();
+		LLInventoryModelBackgroundFetch::instance().start(item->getUUID(), false);
 	}
 }
 
@@ -1738,7 +1745,7 @@ BOOL LLFolderBridge::isItemRemovable() const
 		return FALSE;
 	}
 
-	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewFolder* folderp = dynamic_cast<LLFolderViewFolder*>(panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL);
 	if (folderp)
 	{
@@ -1959,6 +1966,12 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 	if (!isAgentAvatarValid()) return FALSE;
 	if (!isAgentInventory()) return FALSE; // cannot drag categories into library
 
+	LLInventoryPanel* destination_panel = mInventoryPanel.get();
+	if (!destination_panel) return false;
+
+	LLInventoryFilter* filter = destination_panel->getFilter();
+	if (!filter) return false;
+
 	const LLUUID &cat_id = inv_cat->getUUID();
 	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 	const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
@@ -2096,7 +2109,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 							// NOTE: The cargo id's count is a total of categories AND items but we err on the side of
 							//       prevention rather than letting too many folders into the hierarchy of the outbox,
 							//       when we're dragging the item to a new parent
-							dragged_folder_count += LLToolDragAndDrop::instance().getCargoIDsCount();
+							dragged_folder_count += LLToolDragAndDrop::instance().getCargoCount();
 						}
 					}
 					
@@ -2146,6 +2159,39 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 			}
 		}
 
+		if (is_movable)
+		{
+			LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+			is_movable = active_panel != NULL;
+
+			// For a folder to pass the filter all its descendants are required to pass.
+			// We make this exception to allow reordering folders within an inventory panel,
+			// which has a filter applied, like Recent tab for example.
+			// There may be folders which are displayed because some of their descendants pass
+			// the filter, but other don't, and thus remain hidden. Without this check,
+			// such folders would not be allowed to be moved within a panel.
+			if (destination_panel == active_panel)
+			{
+				is_movable = true;
+			}
+			else
+			{
+				LLFolderView* active_folder_view = NULL;
+
+				if (is_movable)
+				{
+					active_folder_view = active_panel->getRootFolder();
+					is_movable = active_folder_view != NULL;
+				}
+
+				if (is_movable)
+				{
+					// Check whether the folder being dragged from active inventory panel
+					// passes the filter of the destination panel.
+					is_movable = check_category(model, cat_id, active_folder_view, filter);
+				}
+			}
+		}
 		// 
 		//--------------------------------------------------------------------------------
 
@@ -2240,7 +2286,7 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		}
 		else
 		{
-			accept = move_inv_category_world_to_agent(cat_id, mUUID, drop);
+			accept = move_inv_category_world_to_agent(cat_id, mUUID, drop, NULL, NULL, filter);
 		}
 	}
 	else if (LLToolDragAndDrop::SOURCE_LIBRARY == source)
@@ -2285,7 +2331,8 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 									  const LLUUID& category_id,
 									  BOOL drop,
 									  void (*callback)(S32, void*),
-									  void* user_data)
+									  void* user_data,
+									  LLInventoryFilter* filter)
 {
 	// Make sure the object exists. If we allowed dragging from
 	// anonymous objects, it would be possible to bypass
@@ -2309,7 +2356,7 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 		return FALSE;
 	}
 
-	BOOL accept = TRUE;
+	BOOL accept = FALSE;
 	BOOL is_move = FALSE;
 
 	// coming from a task. Need to figure out if the person can
@@ -2318,9 +2365,16 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 	LLInventoryObject::object_list_t::iterator end = inventory_objects.end();
 	for ( ; it != end; ++it)
 	{
+		LLInventoryItem* item = dynamic_cast<LLInventoryItem*>(it->get());
+		if (!item)
+		{
+			llwarns << "Invalid inventory item for drop" << llendl;
+			continue;
+		}
+
 		// coming from a task. Need to figure out if the person can
 		// move/copy this item.
-		LLPermissions perm(((LLInventoryItem*)((LLInventoryObject*)(*it)))->getPermissions());
+		LLPermissions perm(item->getPermissions());
 		if((perm.allowCopyBy(gAgent.getID(), gAgent.getGroupID())
 			&& perm.allowTransferTo(gAgent.getID())))
 //			|| gAgent.isGodlike())
@@ -2335,9 +2389,14 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 			is_move = TRUE;
 			accept = TRUE;
 		}
-		else
+
+		if (filter && accept)
 		{
-			accept = FALSE;
+			accept = filter->check(item);
+		}
+
+		if (!accept)
+		{
 			break;
 		}
 	}
@@ -2820,18 +2879,62 @@ void LLFolderBridge::pasteFromClipboard()
 	if(model && isClipboardPasteable())
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-
-		const LLUUID parent_id(mUUID);
+		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
 
 		LLDynamicArray<LLUUID> objects;
 		LLInventoryClipboard::instance().retrieve(objects);
+
+		if (move_is_into_outbox)
+		{
+			LLFolderViewItem * outbox_itemp = mRoot->getItemByID(mUUID);
+
+			if (outbox_itemp)
+			{
+				LLToolDragAndDrop::instance().setCargoCount(objects.size());
+
+				BOOL can_list = TRUE;
+
+				for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+					(iter != objects.end()) && (can_list == TRUE);
+					++iter)
+				{
+					const LLUUID& item_id = (*iter);
+					LLInventoryItem *item = model->getItem(item_id);
+
+					if (item)
+					{
+						MASK mask = 0x0;
+						BOOL drop = FALSE;
+						EDragAndDropType cargo_type = LLViewerAssetType::lookupDragAndDropType(item->getActualType());
+						void * cargo_data = (void *) item;
+						std::string tooltip_msg;
+
+						can_list = outbox_itemp->getListener()->dragOrDrop(mask, drop, cargo_type, cargo_data, tooltip_msg);
+					}
+				}
+
+				LLToolDragAndDrop::instance().resetCargoCount();
+
+				if (can_list == FALSE)
+				{
+					// Notify user of failure somehow -- play error sound?  modal dialog?
+					return;
+				}
+			}
+		}
+
+		const LLUUID parent_id(mUUID);
+
 		for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
 			 iter != objects.end();
 			 ++iter)
 		{
 			const LLUUID& item_id = (*iter);
+
 			LLInventoryItem *item = model->getItem(item_id);
 			if (item)
 			{
@@ -2874,8 +2977,17 @@ void LLFolderBridge::pasteLinkFromClipboard()
 	if(model)
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
+		const LLUUID &outbox_id = model->findCategoryUUIDForType(LLFolderType::FT_OUTBOX, false);
+
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
 		const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+		const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
+
+		if (move_is_into_outbox)
+		{
+			// Notify user of failure somehow -- play error sound?  modal dialog?
+			return;
+		}
 
 		const LLUUID parent_id(mUUID);
 
@@ -3290,7 +3402,7 @@ void LLFolderBridge::createNewCategory(void* user_data)
 {
 	LLFolderBridge* bridge = (LLFolderBridge*)user_data;
 	if(!bridge) return;
-	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(bridge->mInventoryPanel.get());
+	LLInventoryPanel* panel = bridge->mInventoryPanel.get();
 	if (!panel) return;
 	LLInventoryModel* model = panel->getModel();
 	if(!model) return;
@@ -3470,7 +3582,7 @@ void LLFolderBridge::dropToFavorites(LLInventoryItem* inv_item)
 	// use callback to rearrange favorite landmarks after adding
 	// to have new one placed before target (on which it was dropped). See EXT-4312.
 	LLPointer<AddFavoriteLandmarkCallback> cb = new AddFavoriteLandmarkCallback();
-	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewItem* drag_over_item = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
 	if (drag_over_item && drag_over_item->getListener())
 	{
@@ -3520,6 +3632,12 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	if (!isAgentInventory()) return FALSE; // cannot drag into library
 	if (!isAgentAvatarValid()) return FALSE;
 
+	LLInventoryPanel* destination_panel = mInventoryPanel.get();
+	if (!destination_panel) return false;
+
+	LLInventoryFilter* filter = destination_panel->getFilter();
+	if (!filter) return false;
+
 	const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
 	const LLUUID &favorites_id = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE, false);
 	const LLUUID &landmarks_id = model->findCategoryUUIDForType(LLFolderType::FT_LANDMARK, false);
@@ -3529,7 +3647,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 	const BOOL move_is_into_favorites = (mUUID == favorites_id);
 	const BOOL move_is_into_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
 	const BOOL move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
-	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id); //(mUUID == outbox_id);
+	const BOOL move_is_into_outbox = model->isObjectDescendentOf(mUUID, outbox_id);
 	const BOOL move_is_from_outbox = model->isObjectDescendentOf(inv_item->getUUID(), outbox_id);
 
 	LLToolDragAndDrop::ESource source = LLToolDragAndDrop::getInstance()->getSource();
@@ -3608,7 +3726,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			{
 				const LLViewerInventoryCategory * master_folder = model->getFirstDescendantOf(outbox_id, mUUID);
 				
-				int existing_item_count = LLToolDragAndDrop::instance().getCargoIDsCount();
+				int existing_item_count = LLToolDragAndDrop::instance().getCargoCount();
 				
 				if (master_folder != NULL)
 				{
@@ -3628,6 +3746,21 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 		}
 
+		LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+
+		// Check whether the item being dragged from active inventory panel
+		// passes the filter of the destination panel.
+		if (accept && active_panel)
+		{
+			LLFolderView* active_folder_view = active_panel->getRootFolder();
+			if (!active_folder_view) return false;
+
+			LLFolderViewItem* fv_item = active_folder_view->getItemByID(inv_item->getUUID());
+			if (!fv_item) return false;
+
+			accept = filter->check(fv_item);
+		}
+
 		if (accept && drop)
 		{
 			if (inv_item->getType() == LLAssetType::AT_GESTURE
@@ -3637,15 +3770,10 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			// If an item is being dragged between windows, unselect everything in the active window 
 			// so that we don't follow the selection to its new location (which is very annoying).
-			LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-			if (active_panel)
-			{
-				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
-				if (active_panel && (panel != active_panel))
+			if (active_panel && (destination_panel != active_panel))
 				{
 					active_panel->unSelectAll();
 				}
-			}
 
 			//--------------------------------------------------------------------------------
 			// Destination folder logic
@@ -3655,8 +3783,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			// (only reorder the item in Favorites folder)
 			if ((mUUID == inv_item->getParentUUID()) && move_is_into_favorites)
 			{
-				LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
-				LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getDraggingOverItem() : NULL;
+				LLFolderViewItem* itemp = destination_panel->getRootFolder()->getDraggingOverItem();
 				if (itemp)
 				{
 					LLUUID srcItemId = inv_item->getUUID();
@@ -3760,6 +3887,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			accept = FALSE;
 		}
 		
+		// Check whether the item being dragged from in world
+		// passes the filter of the destination panel.
+		if (accept)
+		{
+			accept = filter->check(inv_item);
+		}
+
 		if (accept && drop)
 		{
 			LLMoveInv* move_inv = new LLMoveInv;
@@ -3797,6 +3931,13 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			accept = !(move_is_into_current_outfit || move_is_into_outfit);
 		}
 		
+		// Check whether the item being dragged from notecard
+		// passes the filter of the destination panel.
+		if (accept)
+		{
+			accept = filter->check(inv_item);
+		}
+
 		if (accept && drop)
 		{
 			copy_inventory_from_notecard(mUUID,  // Drop to the chosen destination folder
@@ -3826,6 +3967,21 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			else if (move_is_into_favorites || move_is_into_landmarks)
 			{
 				accept = can_move_to_landmarks(inv_item);
+			}
+
+			LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+
+			// Check whether the item being dragged from the library
+			// passes the filter of the destination panel.
+			if (accept && active_panel)
+			{
+				LLFolderView* active_folder_view = active_panel->getRootFolder();
+				if (!active_folder_view) return false;
+
+				LLFolderViewItem* fv_item = active_folder_view->getItemByID(inv_item->getUUID());
+				if (!fv_item) return false;
+
+				accept = filter->check(fv_item);
 			}
 
 			if (accept && drop)
@@ -3860,6 +4016,69 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		llwarns << "unhandled drag source" << llendl;
 	}
 	return accept;
+}
+
+// static
+bool check_category(LLInventoryModel* model,
+					const LLUUID& cat_id,
+					LLFolderView* active_folder_view,
+					LLInventoryFilter* filter)
+{
+	if (!model || !active_folder_view || !filter)
+		return false;
+
+	if (!filter->checkFolder(cat_id))
+	{
+		return false;
+	}
+
+	LLInventoryModel::cat_array_t descendent_categories;
+	LLInventoryModel::item_array_t descendent_items;
+	model->collectDescendents(cat_id, descendent_categories, descendent_items, TRUE);
+
+	S32 num_descendent_categories = descendent_categories.count();
+	S32 num_descendent_items = descendent_items.count();
+
+	if (num_descendent_categories + num_descendent_items == 0)
+	{
+		// Empty folder should be checked as any other folder view item.
+		// If we are filtering by date the folder should not pass because
+		// it doesn't have its own creation date. See LLInvFVBridge::getCreationDate().
+		return check_item(cat_id, active_folder_view, filter);
+	}
+
+	for (S32 i = 0; i < num_descendent_categories; ++i)
+	{
+		LLInventoryCategory* category = descendent_categories[i];
+		if(!check_category(model, category->getUUID(), active_folder_view, filter))
+		{
+			return false;
+		}
+	}
+
+	for (S32 i = 0; i < num_descendent_items; ++i)
+	{
+		LLViewerInventoryItem* item = descendent_items[i];
+		if(!check_item(item->getUUID(), active_folder_view, filter))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+// static
+bool check_item(const LLUUID& item_id,
+				LLFolderView* active_folder_view,
+				LLInventoryFilter* filter)
+{
+	if (!active_folder_view || !filter) return false;
+
+	LLFolderViewItem* fv_item = active_folder_view->getItemByID(item_id);
+	if (!fv_item) return false;
+
+	return filter->check(fv_item);
 }
 
 // +=================================================+
@@ -4184,7 +4403,7 @@ LLCallingCardBridge::~LLCallingCardBridge()
 
 void LLCallingCardBridge::refreshFolderViewItem()
 {
-	LLInventoryPanel* panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLInventoryPanel* panel = mInventoryPanel.get();
 	LLFolderViewItem* itemp = panel ? panel->getRootFolder()->getItemByID(mUUID) : NULL;
 	if (itemp)
 	{
@@ -4633,14 +4852,14 @@ void LLAnimationBridge::performAction(LLInventoryModel* model, std::string actio
 	{
 		if (getItem())
 		{
-			LLPreviewAnim::e_activation_type activate = LLPreviewAnim::NONE;
-			if ("playworld" == action) activate = LLPreviewAnim::PLAY;
-			if ("playlocal" == action) activate = LLPreviewAnim::AUDITION;
+			LLSD::String activate = "NONE";
+			if ("playworld" == action) activate = "Inworld";
+			if ("playlocal" == action) activate = "Locally";
 
 			LLPreviewAnim* preview = LLFloaterReg::showTypedInstance<LLPreviewAnim>("preview_anim", LLSD(mUUID));
 			if (preview)
 			{
-				preview->activate(activate);
+				preview->play(activate);
 			}
 		}
 	}

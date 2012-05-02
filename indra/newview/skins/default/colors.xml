@@ -615,6 +615,9 @@
      name="PanelFocusBackgroundColor"
      reference="DkGray2" />
     <color
+     name="PanelNotificationBackground"
+     value="1 0.3 0.3 0" />
+    <color
      name="ParcelHoverColor"
      reference="White" />
     <color
@@ -746,6 +749,9 @@
     <color
      name="TitleBarFocusColor"
      reference="White_10" />
+    <color
+     name="ToastBackground"
+     value="0.3 0.3 0.3 0" />
     <color
      name="ToolTipBgColor"
      value="0.937 0.89 0.655 1" />

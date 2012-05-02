@@ -492,10 +492,10 @@ void LLImageCompressionTester::outputTestRecord(LLSD *sd)
 	F32 decompressionRate = 0.0f;
 	F32 compressionRate   = 0.0f;
 
-	F32 totalkBInDecompression  = (F32)(mTotalBytesInDecompression)  / 1000.0;
-	F32 totalkBOutDecompression = (F32)(mTotalBytesOutDecompression) / 1000.0;
-	F32 totalkBInCompression    = (F32)(mTotalBytesInCompression)    / 1000.0;
-	F32 totalkBOutCompression   = (F32)(mTotalBytesOutCompression)   / 1000.0;
+	F32 totalkBInDecompression  = (F32)(mTotalBytesInDecompression)  / 1000.f;
+	F32 totalkBOutDecompression = (F32)(mTotalBytesOutDecompression) / 1000.f;
+	F32 totalkBInCompression    = (F32)(mTotalBytesInCompression)    / 1000.f;
+	F32 totalkBOutCompression   = (F32)(mTotalBytesOutCompression)   / 1000.f;
 	
 	if (!is_approx_zero(mTotalTimeDecompression))
 	{

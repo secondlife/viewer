@@ -114,6 +114,7 @@ public:
 	// Read back a raw image for this discard level, if it exists
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
 	void destroyGLTexture();
+	void forceToInvalidateGLTexture();
 
 	void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
 	void setComponents(S8 ncomponents) { mComponents = ncomponents; }

@@ -3147,7 +3147,7 @@ bool LLMessageSystem::generateDigestForWindowAndUUIDs(char* digest, const S32 wi
 		LL_ERRS("Messaging") << "Trying to generate complex digest on a machine without a shared secret!" << llendl;
 	}
 
-	U32 now = time(NULL);
+	U32 now = (U32)time(NULL);
 
 	now /= window;
 
@@ -3167,7 +3167,7 @@ bool LLMessageSystem::isMatchingDigestForWindowAndUUIDs(const char* digest, cons
 	}
 	
 	char our_digest[MD5HEX_STR_SIZE];	/* Flawfinder: ignore */
-	U32 now = time(NULL);
+	U32 now = (U32)time(NULL);
 
 	now /= window;
 
@@ -3213,7 +3213,7 @@ bool LLMessageSystem::generateDigestForWindow(char* digest, const S32 window) co
 		LL_ERRS("Messaging") << "Trying to generate simple digest on a machine without a shared secret!" << llendl;
 	}
 
-	U32 now = time(NULL);
+	U32 now = (U32)time(NULL);
 
 	now /= window;
 

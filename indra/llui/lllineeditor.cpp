@@ -1630,7 +1630,7 @@ void LLLineEditor::draw()
 	LLRect background( 0, getRect().getHeight(), getRect().getWidth(), 0 );
 	background.stretch( -mBorderThickness );
 
-	S32 lineeditor_v_pad = llround((background.getHeight() - mGLFont->getLineHeight())/2);
+	S32 lineeditor_v_pad = (background.getHeight() - mGLFont->getLineHeight()) / 2;
 
 	drawBackground();
 	

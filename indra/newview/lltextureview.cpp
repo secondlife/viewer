@@ -384,7 +384,7 @@ public:
 		Params()
 		:	texture_view("texture_view")
 		{
-			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+			S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
@@ -409,7 +409,7 @@ void LLAvatarTexBar::draw()
 	LLVOAvatarSelf* avatarp = gAgentAvatarp;
 	if (!avatarp) return;
 
-	const S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	const S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	const S32 v_offset = 0;
 	const S32 l_offset = 3;
 
@@ -483,7 +483,7 @@ public:
 		Params()
 		:	texture_view("texture_view")
 		{
-			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+			S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};

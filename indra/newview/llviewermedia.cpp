@@ -387,7 +387,6 @@ class LLViewerMediaMuteListObserver : public LLMuteListObserver
 
 static LLViewerMediaMuteListObserver sViewerMediaMuteListObserver;
 static bool sViewerMediaMuteListObserverInitialized = false;
-static bool sInWorldMediaDisabled = false;
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -650,20 +649,6 @@ void LLViewerMedia::muteListChanged()
 		LLViewerMediaImpl* pimpl = *iter;
 		pimpl->mNeedsMuteCheck = true;
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// static
-void LLViewerMedia::setInWorldMediaDisabled(bool disabled)
-{
-	sInWorldMediaDisabled = disabled;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
-// static
-bool LLViewerMedia::getInWorldMediaDisabled()
-{
-	return sInWorldMediaDisabled;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1568,7 +1553,6 @@ LLPluginClassMedia* LLViewerMedia::getSpareBrowserMediaSource()
 
 bool LLViewerMedia::hasInWorldMedia()
 {
-	if (sInWorldMediaDisabled) return false;
 	impl_list::iterator iter = sViewerMediaImplList.begin();
 	impl_list::iterator end = sViewerMediaImplList.end();
 	// This should be quick, because there should be very few non-in-world-media impls
@@ -1901,7 +1885,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		}
 	}
 	
-	LL_WARNS_ONCE("Plugin") << "plugin intialization failed for mime type: " << media_type << LL_ENDL;
+	LL_WARNS_ONCE("Plugin") << "plugin initialization failed for mime type: " << media_type << LL_ENDL;
 	LLSD args;
 	args["MIME_TYPE"] = media_type;
 	LLNotificationsUtil::add("NoPlugin", args);
@@ -3107,15 +3091,6 @@ bool LLViewerMediaImpl::isForcedUnloaded() const
 		return true;
 	}
 	
-	if(sInWorldMediaDisabled)
-	{
-		// When inworld media is disabled, all instances that aren't marked as "used in UI" will not be loaded.
-		if(!mUsedInUI)
-		{
-			return true;
-		}
-	}
-	
 	// If this media's class is not supposed to be shown, unload
 	if (!shouldShowBasedOnClass())
 	{
@@ -3783,12 +3758,22 @@ bool LLViewerMediaImpl::shouldShowBasedOnClass() const
 	
 	// If it is attached to an avatar and the pref is off, we shouldn't show it
 	if (attached_to_another_avatar)
-		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING);
-	
+	{
+		static LLCachedControl<bool> show_media_on_others(gSavedSettings, LLViewerMedia::SHOW_MEDIA_ON_OTHERS_SETTING);
+		return show_media_on_others;
+	}
 	if (inside_parcel)
-		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING);
+	{
+		static LLCachedControl<bool> show_media_within_parcel(gSavedSettings, LLViewerMedia::SHOW_MEDIA_WITHIN_PARCEL_SETTING);
+
+		return show_media_within_parcel;
+	}
 	else 
-		return gSavedSettings.getBOOL(LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING);
+	{
+		static LLCachedControl<bool> show_media_outside_parcel(gSavedSettings, LLViewerMedia::SHOW_MEDIA_OUTSIDE_PARCEL_SETTING);
+
+		return show_media_outside_parcel;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

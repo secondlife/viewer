@@ -786,13 +786,13 @@ std::string LLVOAvatar::avString() const
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
 {
-	LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
-			<< "sec ]"
-			<< avString() 
-			<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
-			<< " Notification " << notification_name
-			<< " : " << comment
-			<< llendl;
+	LL_INFOS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+					   << "sec ]"
+					   << avString() 
+					   << "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+					   << " Notification " << notification_name
+					   << " : " << comment
+					   << llendl;
 
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
@@ -2859,13 +2859,13 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	{
 		if (isFullyLoaded() && mFirstFullyVisible && isSelf())
 		{
-			LL_DEBUGS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+			LL_INFOS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
 			mFirstFullyVisible = FALSE;
 			LLAppearanceMgr::instance().onFirstFullyVisible();
 		}
 		if (isFullyLoaded() && mFirstFullyVisible && !isSelf())
 		{
-			LL_DEBUGS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+			LL_INFOS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
 			mFirstFullyVisible = FALSE;
 		}
 		if (isFullyLoaded())
@@ -6494,7 +6494,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
-		llinfos << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << llendl;
+		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
 		bool is_cloud_or_gray = (rez_status==0 || rez_status==1);
 		bool was_cloud_or_gray = (mLastRezzedStatus==0 || mLastRezzedStatus==1);
 		bool is_cloud = (rez_status==0);
@@ -7180,7 +7180,7 @@ void LLVOAvatar::rebuildHUD()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::onFirstTEMessageReceived()
 {
-	LL_DEBUGS("Avatar") << avString() << LL_ENDL;
+	LL_INFOS("Avatar") << avString() << LL_ENDL;
 	if( !mFirstTEMessageReceived )
 	{
 		mFirstTEMessageReceived = TRUE;
@@ -7271,7 +7271,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
 	mFirstAppearanceMessageReceived = TRUE;
 
-	LL_DEBUGS("Avatar") << avString() << "processAvatarAppearance start " << mID
+	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
 			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
 
 

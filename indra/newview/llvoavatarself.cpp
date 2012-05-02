@@ -403,9 +403,9 @@ BOOL LLVOAvatarSelf::buildMenus()
 						item_params.label = sub_piemenu_name;
 					}
 					item_params.name =(item_params.label );
-					item_params.on_click.function_name = "Attachment.Detach";
+					item_params.on_click.function_name = "Attachment.DetachFromPoint";
 					item_params.on_click.parameter = iter->first;
-					item_params.on_enable.function_name = "Attachment.EnableDetach";
+					item_params.on_enable.function_name = "Attachment.PointFilled";
 					item_params.on_enable.parameter = iter->first;
 					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
@@ -2167,12 +2167,12 @@ public:
 	{
 		if (isGoodStatus(status))
 		{
-			llinfos << "OK" << llendl;
+			LL_DEBUGS("Avatar") << "OK" << LL_ENDL;
 			result(content);
 		}
 		else
 		{
-			llwarns << "Failed " << status << " reason " << reason << llendl;
+			LL_WARNS("Avatar") << "Failed " << status << " reason " << reason << LL_ENDL;
 			error(status,reason);
 		}
 	}
@@ -2462,7 +2462,9 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 
 		// Don't print out non-existent textures.
 		if (j != 0)
-			LL_DEBUGS("Avatar") << out.str() << llendl;
+		{
+			LL_DEBUGS("Avatar") << out.str() << LL_ENDL;
+		}
 	}
 	LL_DEBUGS("Avatar") << "\t Time points for each upload (start / finish)" << llendl;
 	for (U32 i = 0; i < LLVOAvatarDefines::BAKED_NUM_INDICES; ++i)
@@ -2485,7 +2487,7 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 
 void LLVOAvatarSelf::outputRezTiming(const std::string& msg) const
 {
-	LL_DEBUGS("Avatar")
+	LL_INFOS("Avatar")
 		<< avString()
 		<< llformat("%s. Time from avatar creation: %.2f", msg.c_str(), mDebugSelfLoadTimer.getElapsedTimeF32())
 		<< LL_ENDL;

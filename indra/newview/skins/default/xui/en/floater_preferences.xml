@@ -100,7 +100,7 @@
          help_topic="preferences_colors_tab"
          name="colors" />
         <panel
-		 class="panel_preference"
+         class="panel_preference_privacy"
          filename="panel_preferences_privacy.xml"
          label="Privacy"
          layout="topleft"

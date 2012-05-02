@@ -217,14 +217,16 @@ BOOL LLSidepanelInventory::postBuild()
 	{
 		LLLayoutStack* inv_stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 
-		// Collapse inbox panel
-		inv_stack->collapsePanel(getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME), true);
-		
 		// Set up button states and callbacks
 		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
 
-		inbox_button->setToggleState(false);
 		inbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
+
+		// Get the previous inbox state from "InventoryInboxToggleState" setting.
+		bool is_inbox_collapsed = !inbox_button->getToggleState();
+
+		// Restore the collapsed inbox panel state
+		inv_stack->collapsePanel(getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME), is_inbox_collapsed);
 
 		// Set the inbox visible based on debug settings (final setting comes from http request below)
 		enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));

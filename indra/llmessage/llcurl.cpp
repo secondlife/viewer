@@ -271,10 +271,10 @@ void LLCurl::Easy::releaseEasyHandle(CURL* handle)
 
 		if(sFreeHandles.size() < MAX_NUM_FREE_HANDLES)
 		{
-			sFreeHandles.insert(handle);
-		}
-		else
-		{
+		sFreeHandles.insert(handle);
+	}
+	else
+	{
 			LLCurl::deleteEasyHandle(handle) ;
 		}
 	}
@@ -453,9 +453,9 @@ size_t curlReadCallback(char* data, size_t size, size_t nmemb, void* user_data)
 	LLCurl::Easy* easy = (LLCurl::Easy*)user_data;
 	
 	S32 n = size * nmemb;
-	S32 startpos = easy->getInput().tellg();
+	S32 startpos = (S32)easy->getInput().tellg();
 	easy->getInput().seekg(0, std::ios::end);
-	S32 endpos = easy->getInput().tellg();
+	S32 endpos = (S32)easy->getInput().tellg();
 	easy->getInput().seekg(startpos, std::ios::beg);
 	S32 maxn = endpos - startpos;
 	n = llmin(n, maxn);
@@ -560,16 +560,16 @@ LLCurl::Multi::Multi(F32 idle_time_out)
 	}
 	
 	//llassert_always(mCurlMultiHandle);	
-	
+
 	if(mCurlMultiHandle)
 	{
-		if(LLCurl::getCurlThread()->getThreaded())
-		{
-			mMutexp = new LLMutex(NULL) ;
-			mDeletionMutexp = new LLMutex(NULL) ;
-			mEasyMutexp = new LLMutex(NULL) ;
-		}
-		LLCurl::getCurlThread()->addMulti(this) ;
+	if(LLCurl::getCurlThread()->getThreaded())
+	{
+		mMutexp = new LLMutex(NULL) ;
+		mDeletionMutexp = new LLMutex(NULL) ;
+		mEasyMutexp = new LLMutex(NULL) ;
+	}
+	LLCurl::getCurlThread()->addMulti(this) ;
 
 		mIdleTimeOut = idle_time_out ;
 		if(mIdleTimeOut < LLCurl::sCurlRequestTimeOut)
@@ -577,8 +577,8 @@ LLCurl::Multi::Multi(F32 idle_time_out)
 			mIdleTimeOut = LLCurl::sCurlRequestTimeOut ;
 		}
 
-		++gCurlMultiCount;
-	}
+	++gCurlMultiCount;
+}
 }
 
 LLCurl::Multi::~Multi()
@@ -617,7 +617,7 @@ void LLCurl::Multi::cleanup()
 	mDeletionMutexp = NULL ;
 	delete mEasyMutexp ;
 	mEasyMutexp = NULL ;
-	
+
 	mQueued = 0 ;
 	mState = STATE_COMPLETED;
 	
@@ -738,7 +738,7 @@ bool LLCurl::Multi::doPerform()
 		}
 
 		mQueued = q;	
-		setState(STATE_COMPLETED) ;		
+		setState(STATE_COMPLETED) ;
 		mIdleTimer.reset() ;
 	}
 	else if(mIdleTimer.getElapsedTimeF32() > mIdleTimeOut) //idle for too long, remove it.
@@ -911,8 +911,8 @@ bool LLCurlThread::CurlRequest::processRequest()
 
 		if(!completed)
 		{
-			setPriority(LLQueuedThread::PRIORITY_LOW) ;
-		}
+		setPriority(LLQueuedThread::PRIORITY_LOW) ;
+	}
 	}
 
 	return completed ;
@@ -922,7 +922,7 @@ void LLCurlThread::CurlRequest::finishRequest(bool completed)
 {
 	if(mMulti->isDead())
 	{
-		mCurlThread->deleteMulti(mMulti) ;
+	mCurlThread->deleteMulti(mMulti) ;
 	}
 	else
 	{
@@ -968,8 +968,8 @@ void LLCurlThread::killMulti(LLCurl::Multi* multi)
 
 	if(multi->isValid())
 	{
-		multi->markDead() ;
-	}
+	multi->markDead() ;
+}
 	else
 	{
 		deleteMulti(multi) ;
@@ -1033,7 +1033,7 @@ void LLCurlRequest::addMulti()
 		mActiveRequestCount = 0 ;
 		return;
 	}
-
+	
 	mMultiSet.insert(multi);
 	mActiveMulti = multi;
 	mActiveRequestCount = 0;
@@ -1236,15 +1236,15 @@ LLCurlEasyRequest::LLCurlEasyRequest()
 	
 	if(mMulti->isValid())
 	{
-		mEasy = mMulti->allocEasy();
-		if (mEasy)
-		{
-			mEasy->setErrorBuffer();
-			mEasy->setCA();
-			// Set proxy settings if configured to do so.
-			LLProxy::getInstance()->applyProxySettings(mEasy);
-		}
+	mEasy = mMulti->allocEasy();
+	if (mEasy)
+	{
+		mEasy->setErrorBuffer();
+		mEasy->setCA();
+		// Set proxy settings if configured to do so.
+		LLProxy::getInstance()->applyProxySettings(mEasy);
 	}
+}
 	else
 	{
 		LLCurl::getCurlThread()->killMulti(mMulti) ;

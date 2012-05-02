@@ -631,13 +631,14 @@ bool LLXMLNode::updateNode(
 	}
 
 	//update all of node's children with updateNodes children that match name
-	LLXMLNodePtr child;
+	LLXMLNodePtr child = node->getFirstChild();
+	LLXMLNodePtr last_child = child;
 	LLXMLNodePtr updateChild;
 	
 	for (updateChild = update_node->getFirstChild(); updateChild.notNull(); 
 		 updateChild = updateChild->getNextSibling())
 	{
-		for (child = node->getFirstChild(); child.notNull(); child = child->getNextSibling())
+		while(child.notNull())
 		{
 			std::string nodeName;
 			std::string updateName;
@@ -656,6 +657,22 @@ bool LLXMLNode::updateNode(
 			if ((nodeName != "") && (updateName == nodeName))
 			{
 				updateNode(child, updateChild);
+				last_child = child;
+				child = child->getNextSibling();
+				if (child.isNull())
+				{
+					child = node->getFirstChild();
+				}
+				break;
+			}
+			
+			child = child->getNextSibling();
+			if (child.isNull())
+			{
+				child = node->getFirstChild();
+			}
+			if (child == last_child)
+			{
 				break;
 			}
 		}
@@ -784,7 +801,7 @@ bool LLXMLNode::parseStream(
 	while(str.good())
 	{
 		str.read((char*)buffer, BUFSIZE);
-		int count = str.gcount();
+		int count = (int)str.gcount();
 		
 		if (XML_Parse(my_parser, (const char *)buffer, count, !str.good()) != XML_STATUS_OK)
 		{
@@ -882,11 +899,8 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 
 	for (itor = paths.begin(), ++itor; itor != paths.end(); ++itor)
 	{
-		std::string nodeName;
-		std::string updateName;
-
 		std::string layer_filename = *itor;
-		if(layer_filename.empty())
+		if(layer_filename.empty() || layer_filename == filename)
 		{
 			// no localized version of this file, that's ok, keep looking
 			continue;
@@ -897,6 +911,9 @@ bool LLXMLNode::getLayeredXMLNode(LLXMLNodePtr& root,
 			llwarns << "Problem reading localized UI description file: " << layer_filename << llendl;
 			return false;
 		}
+
+		std::string nodeName;
+		std::string updateName;
 
 		updateRoot->getAttributeString("name", updateName);
 		root->getAttributeString("name", nodeName);

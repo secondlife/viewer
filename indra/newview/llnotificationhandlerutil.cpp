@@ -64,7 +64,7 @@ LLSysHandler::LLSysHandler()
 
 void LLSysHandler::removeExclusiveNotifications(const LLNotificationPtr& notif)
 {
-	LLScreenChannel* channel = dynamic_cast<LLScreenChannel *>(mChannel);
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel *>(mChannel.get());
 	if (channel == NULL)
 	{
 		return;
