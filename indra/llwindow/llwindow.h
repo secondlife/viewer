@@ -39,7 +39,7 @@ class LLWindowCallbacks;
 
 // Refer to llwindow_test in test/common/llwindow for usage example
 
-class LLWindow
+class LLWindow : public LLInstanceTracker<LLWindow>
 {
 public:
 	struct LLWindowResolution

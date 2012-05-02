@@ -49,7 +49,7 @@ LLFilePicker LLFilePicker::sInstance;
 #if LL_WINDOWS
 #define SOUND_FILTER L"Sounds (*.wav)\0*.wav\0"
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
-#define ANIM_FILTER L"Animations (*.bvh)\0*.bvh\0"
+#define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
 #ifdef _CORY_TESTING
 #define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"
@@ -593,8 +593,10 @@ Boolean LLFilePicker::navOpenFilterProc(AEDesc *theItem, void *info, void *callB
 						}
 						else if (filter == FFLOAD_ANIM)
 						{
-							if (fileInfo.filetype != 'BVH ' && 
-								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("bvh"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
+							if (fileInfo.filetype != 'BVH ' &&
+								fileInfo.filetype != 'ANIM' &&
+								(fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("bvh"), kCFCompareCaseInsensitive) != kCFCompareEqualTo) &&
+								fileInfo.extension && (CFStringCompare(fileInfo.extension, CFSTR("anim"), kCFCompareCaseInsensitive) != kCFCompareEqualTo))
 							)
 							{
 								result = false;
@@ -1073,8 +1075,11 @@ void LLFilePicker::chooser_responder(GtkWidget *widget, gint response, gpointer 
 	}
 
 	// set the default path for this usage context.
-	picker->mContextToPathMap[picker->mCurContextName] =
-		gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
+	const char* cur_folder = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(widget));
+	if (cur_folder != NULL)
+	{
+		picker->mContextToPathMap[picker->mCurContextName] = cur_folder;
+	}
 
 	gtk_widget_destroy(widget);
 	gtk_main_quit();
@@ -1196,10 +1201,14 @@ static std::string add_wav_filter_to_gtkchooser(GtkWindow *picker)
 						    LLTrans::getString("sound_files") + " (*.wav)");
 }
 
-static std::string add_bvh_filter_to_gtkchooser(GtkWindow *picker)
+static std::string add_anim_filter_to_gtkchooser(GtkWindow *picker)
 {
-	return add_simple_pattern_filter_to_gtkchooser(picker,  "*.bvh",
-						       LLTrans::getString("animation_files") + " (*.bvh)");
+	GtkFileFilter *gfilter = gtk_file_filter_new();
+	gtk_file_filter_add_pattern(gfilter, "*.bvh");
+	gtk_file_filter_add_pattern(gfilter, "*.anim");
+	std::string filtername = LLTrans::getString("animation_files") + " (*.bvh; *.anim)";
+	add_common_filters_to_gtkchooser(gfilter, picker, filtername);
+	return filtername;
 }
 
 static std::string add_collada_filter_to_gtkchooser(GtkWindow *picker)
@@ -1351,7 +1360,7 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 			filtername = add_wav_filter_to_gtkchooser(picker);
 			break;
 		case FFLOAD_ANIM:
-			filtername = add_bvh_filter_to_gtkchooser(picker);
+			filtername = add_anim_filter_to_gtkchooser(picker);
 			break;
 		case FFLOAD_COLLADA:
 			filtername = add_collada_filter_to_gtkchooser(picker);

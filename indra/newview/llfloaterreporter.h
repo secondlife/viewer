@@ -31,6 +31,7 @@
 #include "llfloater.h"
 #include "lluuid.h"
 #include "v3math.h"
+#include "llextendedstatus.h"
 
 class LLAvatarName;
 class LLMessageSystem;

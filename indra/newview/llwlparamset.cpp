@@ -41,33 +41,7 @@
 LLWLParamSet::LLWLParamSet(void) :
 	mName("Unnamed Preset"),
 	mCloudScrollXOffset(0.f), mCloudScrollYOffset(0.f)	
-{
-/* REMOVE or init the LLSD
-	const std::map<std::string, LLVector4>::value_type hardcodedPreset[] = {
-		std::make_pair("lightnorm",				LLVector4(0.f, 0.707f, -0.707f, 0.f)),
-		std::make_pair("sunlight_color",		LLVector4(0.6f, 0.6f, 2.83f, 2.27f)),
-		std::make_pair("ambient",				LLVector4(0.27f, 0.33f, 0.44f, 1.19f)),
-		std::make_pair("blue_horizon",			LLVector4(0.3f, 0.4f, 0.9f, 1.f)),
-		std::make_pair("blue_density",			LLVector4(0.3f, 0.4f, 0.8f, 1.f)),
-		std::make_pair("haze_horizon",			LLVector4(0.6f, 0.6f, 0.6f, 1.f)),
-		std::make_pair("haze_density",			LLVector4(0.3f, 0.3f, 0.3f, 1.f)),
-		std::make_pair("cloud_shadow",			LLVector4(0.f, 0.f, 0.f, 0.f)),
-		std::make_pair("density_multiplier",	LLVector4(0.001f, 0.001f, 0.001f, 0.001f)),
-		std::make_pair("distance_multiplier",	LLVector4(1.f, 1.f, 1.f, 1.f)),
-		std::make_pair("max_y",					LLVector4(600.f, 600.f, 600.f, 0.f)),
-		std::make_pair("glow",					LLVector4(15.f, 0.001f, -0.03125f, 0.f)),
-		std::make_pair("cloud_color",			LLVector4(0.0f, 0.0f, 0.0f, 0.0f)),
-		std::make_pair("cloud_pos_density1",	LLVector4(0.f, 0.f, 0.f, 1.f)),
-		std::make_pair("cloud_pos_density2",	LLVector4(0.f, 0.f, 0.f, 1.f)),
-		std::make_pair("cloud_scale",			LLVector4(0.42f, 0.f, 0.f, 1.f)),
-		std::make_pair("gamma",					LLVector4(2.0f, 2.0f, 2.0f, 0.0f)),
-	};
-	std::map<std::string, LLVector4>::value_type const * endHardcodedPreset = 
-		hardcodedPreset + LL_ARRAY_SIZE(hardcodedPreset);
-
-	mParamValues.insert(hardcodedPreset, endHardcodedPreset);
-*/
-}
+{}
 
 static LLFastTimer::DeclareTimer FTM_WL_PARAM_UPDATE("WL Param Update");
 
@@ -79,55 +53,78 @@ void LLWLParamSet::update(LLGLSLShader * shader) const
 		i != mParamValues.endMap();
 		++i)
 	{
-		
-
 		const std::string& param = i->first;
 		
-		if(	param == "star_brightness" || param == "preset_num" || param == "sun_angle" ||
+		if (param == "star_brightness" || param == "preset_num" || param == "sun_angle" ||
 			param == "east_angle" || param == "enable_cloud_scroll" ||
 			param == "cloud_scroll_rate" || param == "lightnorm" ) 
 		{
 			continue;
 		}
 		
-		if(param == "cloud_pos_density1") 
+		if (param == "cloud_pos_density1")
 		{
 			LLVector4 val;
 			val.mV[0] = F32(i->second[0].asReal()) + mCloudScrollXOffset;
 			val.mV[1] = F32(i->second[1].asReal()) + mCloudScrollYOffset;
 			val.mV[2] = (F32) i->second[2].asReal();
 			val.mV[3] = (F32) i->second[3].asReal();
+
 			stop_glerror();
 			shader->uniform4fv(param, 1, val.mV);
 			stop_glerror();
-		} 
+		}
+		else if (param == "cloud_scale" || param == "cloud_shadow" ||
+				 param == "density_multiplier" || param == "distance_multiplier" ||
+				 param == "haze_density" || param == "haze_horizon" ||
+				 param == "max_y" )
+		{
+			F32 val = (F32) i->second[0].asReal();
+
+			stop_glerror();
+			shader->uniform1f(param, val);
+			stop_glerror();
+		}
 		else // param is the uniform name
 		{
-			LLVector4 val;
-			
 			// handle all the different cases
-			if(i->second.isArray() && i->second.size() == 4) 
+			if (i->second.isArray() && i->second.size() == 4)
 			{
+				LLVector4 val;
+
 				val.mV[0] = (F32) i->second[0].asReal();
 				val.mV[1] = (F32) i->second[1].asReal();
 				val.mV[2] = (F32) i->second[2].asReal();
 				val.mV[3] = (F32) i->second[3].asReal();															
+
+				stop_glerror();
+				shader->uniform4fv(param, 1, val.mV);
+				stop_glerror();
 			} 
-			else if(i->second.isReal()) 
+			else if (i->second.isReal())
 			{
-				val.mV[0] = (F32) i->second.asReal();
+				F32 val = (F32) i->second.asReal();
+
+				stop_glerror();
+				shader->uniform1f(param, val);
+				stop_glerror();
 			} 
-			else if(i->second.isInteger()) 
+			else if (i->second.isInteger())
 			{
-				val.mV[0] = (F32) i->second.asReal();
+				S32 val = (S32) i->second.asInteger();
+
+				stop_glerror();
+				shader->uniform1i(param, val);
+				stop_glerror();
 			} 
-			else if(i->second.isBoolean())
+			else if (i->second.isBoolean())
 			{
-				val.mV[0] = i->second.asBoolean();
+				S32 val = (i->second.asBoolean() ? 1 : 0);
+
+				stop_glerror();
+				shader->uniform1i(param, val);
+				stop_glerror();
 			}
-			stop_glerror();
-			shader->uniform4fv(param, 1, val.mV);
-			stop_glerror();
 		}
 	}
 }
@@ -148,7 +145,8 @@ void LLWLParamSet::set(const std::string& paramName, float x)
 	}
 }
 
-void LLWLParamSet::set(const std::string& paramName, float x, float y) {
+void LLWLParamSet::set(const std::string& paramName, float x, float y)
+{
 	mParamValues[paramName][0] = x;
 	mParamValues[paramName][1] = y;
 }
@@ -194,7 +192,6 @@ void LLWLParamSet::set(const std::string& paramName, const LLColor4 & val)
 
 LLVector4 LLWLParamSet::getVector(const std::string& paramName, bool& error) 
 {
-	
 	// test to see if right type
 	LLSD cur_val = mParamValues.get(paramName);
 	if (!cur_val.isArray()) 
@@ -215,7 +212,6 @@ LLVector4 LLWLParamSet::getVector(const std::string& paramName, bool& error)
 
 F32 LLWLParamSet::getFloat(const std::string& paramName, bool& error) 
 {
-	
 	// test to see if right type
 	LLSD cur_val = mParamValues.get(paramName);
 	if (cur_val.isArray() && cur_val.size() != 0) 
@@ -233,8 +229,6 @@ F32 LLWLParamSet::getFloat(const std::string& paramName, bool& error)
 	error = true;
 	return 0;
 }
-
-
 
 void LLWLParamSet::setSunAngle(float val) 
 {
@@ -263,7 +257,6 @@ void LLWLParamSet::setEastAngle(float val)
 	mParamValues["east_angle"] = val;
 }
 
-
 void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 {
 	// set up the iterators
@@ -282,7 +275,6 @@ void LLWLParamSet::mix(LLWLParamSet& src, LLWLParamSet& dest, F32 weight)
 	// Iterate through values
 	for(LLSD::map_iterator iter = mParamValues.beginMap(); iter != mParamValues.endMap(); ++iter)
 	{
-
 		// If param exists in both src and dest, set the holder variables, otherwise skip
 		if(src.mParamValues.has(iter->first) && dest.mParamValues.has(iter->first))
 		{

@@ -138,7 +138,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	LLUI::translate((F32) winX*1.0f/LLFontGL::sScaleX, (F32) winY*1.0f/(LLFontGL::sScaleY), -(((F32) winZ*2.f)-1.f));
 	F32 right_x;
 	
-	font.render(wstr, 0, 0, 0, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, wstr.length(), 1000, &right_x);
+	font.render(wstr, 0, 0, 1, color, LLFontGL::LEFT, LLFontGL::BASELINE, style, shadow, wstr.length(), 1000, &right_x);
 
 	LLUI::popMatrix();
 	gGL.popMatrix();

@@ -458,7 +458,9 @@ LLNearbyChatHandler::LLNearbyChatHandler(e_notification_type type, const LLSD& i
 
 	channel->setCreatePanelCallback(callback);
 
-	mChannel = LLChannelManager::getInstance()->addChannel(channel);
+	LLChannelManager::getInstance()->addChannel(channel);
+
+	mChannel = channel->getHandle();
 }
 
 LLNearbyChatHandler::~LLNearbyChatHandler()
@@ -558,11 +560,12 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		&& nearby_chat->isInVisibleChain() 
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
-		|| !mChannel->getShowToasts() ) // to prevent toasts in Busy mode
+		|| mChannel.isDead()
+		|| !mChannel.get()->getShowToasts() ) // to prevent toasts in Busy mode
 		return;//no need in toast if chat is visible or if bubble chat is enabled
 
 	// arrange a channel on a screen
-	if(!mChannel->getVisible())
+	if(!mChannel.get()->getVisible())
 	{
 		initChannel();
 	}
@@ -579,7 +582,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	}
 	*/
 
-	LLNearbyChatScreenChannel* channel = dynamic_cast<LLNearbyChatScreenChannel*>(mChannel);
+	LLNearbyChatScreenChannel* channel = dynamic_cast<LLNearbyChatScreenChannel*>(mChannel.get());
 
 	if(channel)
 	{

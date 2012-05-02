@@ -149,7 +149,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 LLFastTimer::NamedTimer* LLFastTimerView::getLegendID(S32 y)
 {
-	S32 idx = (getRect().getHeight() - y) / ((S32) LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
+	S32 idx = (getRect().getHeight() - y) / (LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
 
 	if (idx >= 0 && idx < (S32)ft_display_idx.size())
 	{
@@ -552,7 +552,7 @@ void LLFastTimerView::draw()
 	// update rectangle that includes timer bars
 	mBarRect.mLeft = xleft;
 	mBarRect.mRight = getRect().getWidth();
-	mBarRect.mTop = ytop - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
+	mBarRect.mTop = ytop - (LLFontGL::getFontMonospace()->getLineHeight() + 4);
 	mBarRect.mBottom = margin + LINE_GRAPH_HEIGHT;
 
 	y = ytop;
@@ -846,7 +846,7 @@ void LLFastTimerView::draw()
 				tdesc = llformat("%4.2f ms", ms);
 							
 			x = mGraphRect.mRight - LLFontGL::getFontMonospace()->getWidth(tdesc)-5;
-			y = mGraphRect.mTop - ((S32)LLFontGL::getFontMonospace()->getLineHeight());
+			y = mGraphRect.mTop - LLFontGL::getFontMonospace()->getLineHeight();
  
 			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);

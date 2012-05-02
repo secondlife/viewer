@@ -45,6 +45,7 @@ public:
 	/*virtual*/ void onClose(bool app_quitting);
 
 	static LLFloaterMediaSettings* getInstance();
+	static bool instanceExists();
 	static void apply();
 	static void initValues( const LLSD& media_settings , bool editable);
 	static void clearValues( bool editable);

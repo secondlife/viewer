@@ -112,7 +112,8 @@ public:
 								F32 y_pixels, 
 								const LLColor4& color,
 								F32 relative_z = 0.f,
-								F32 dot_radius = 3.f);
+								F32 dot_radius = 3.f,
+								bool reached_max_z = false);
 	static void		drawIconName(F32 x_pixels, 
 									F32 y_pixels, 
 									const LLColor4& color,
@@ -138,6 +139,7 @@ public:
 	static LLUIImagePtr	sAvatarLevelImage;
 	static LLUIImagePtr	sAvatarAboveImage;
 	static LLUIImagePtr	sAvatarBelowImage;
+	static LLUIImagePtr	sAvatarUnknownImage;
 
 	static LLUIImagePtr	sTelehubImage;
 	static LLUIImagePtr	sInfohubImage;

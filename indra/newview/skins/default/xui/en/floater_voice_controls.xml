@@ -71,7 +71,7 @@
              layout="topleft"
              left_pad="10"
              name="user_text"
-             text_color="white"
+             text_color="White"
              top="4"
              use_ellipses="true"
              value="My Avatar:"

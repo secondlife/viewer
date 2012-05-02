@@ -37,6 +37,7 @@
 #include "lluuid.h"
 #include "llframetimer.h"
 #include "llassettype.h"
+#include "llextendedstatus.h"
 
 #include "lllistener.h"
 

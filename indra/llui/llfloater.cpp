@@ -270,6 +270,7 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
+	mPosition.setFloater(*this);
 //	mNotificationContext = new LLFloaterNotificationContext(getHandle());
 
 	// Clicks stop here.
@@ -925,7 +926,7 @@ void LLFloater::applyPositioning(LLFloater* other)
 			setOrigin(mSpecifiedLeft, mSpecifiedBottom);
 			const LLRect& snap_rect = gFloaterView->getSnapRect();
 			translate(snap_rect.mLeft, snap_rect.mBottom);
-			translateIntoRect(snap_rect, FALSE);
+			translateIntoRect(snap_rect);
 		}
 		break;
 
@@ -949,7 +950,7 @@ void LLFloater::applyPositioning(LLFloater* other)
 			setOrigin(horizontal_offset, vertical_offset - rect_height);
 
 			translate(snap_rect.mLeft, snap_rect.mBottom);
-			translateIntoRect(snap_rect, FALSE);
+			translateIntoRect(snap_rect);
 		}
 		break;
 
@@ -1681,6 +1682,8 @@ LLFloater* LLFloater::getClosableFloaterFromFocus()
 	{
 		if (it->hasFocus())
 		{
+			LLFloater& floater = *it;
+			focused_floater = &floater;
 			break;
 		}
 	}
@@ -1800,7 +1803,7 @@ void LLFloater::draw()
 				
 				const LLFontGL* font = LLFontGL::getFontSansSerif();
 				LLRect r = getRect();
-				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - (S32)font->getLineHeight() - 1, 
+				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - font->getLineHeight() - 1, 
 					titlebar_focus_color % alpha, 0, TRUE);
 			}
 		}
@@ -2641,6 +2644,8 @@ void LLFloaterView::refresh()
 	}
 }
 
+const S32 FLOATER_MIN_VISIBLE_PIXELS = 16;
+
 void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_outside)
 {
 	if (floater->getParent() != this)
@@ -2694,7 +2699,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	}
 
 	// move window fully onscreen
-	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ))
+	if (floater->translateIntoRect( getSnapRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
 	{
 		floater->clearSnapTarget();
 	}
@@ -3269,3 +3274,112 @@ void LLFloater::stackWith(LLFloater& other)
 	setShape(next_rect);
 }
 
+LLCoordFloater::LLCoordFloater(F32 x, F32 y, LLFloater& floater)
+:	coord_t((S32)x, (S32)y)
+{
+	mFloater = floater.getHandle();
+}
+
+
+LLCoordFloater::LLCoordFloater(const LLCoordCommon& other, LLFloater& floater)
+{
+	mFloater = floater.getHandle();
+	convertFromCommon(other);
+}
+
+LLCoordFloater& LLCoordFloater::operator=(const LLCoordFloater& other)
+{
+	mFloater = other.mFloater;
+	coord_t::operator =(other);
+	return *this;
+}
+
+void LLCoordFloater::setFloater(LLFloater& floater)
+{
+	mFloater = floater.getHandle();
+}
+
+bool LLCoordFloater::operator==(const LLCoordFloater& other) const 
+{ 
+	return mX == other.mX && mY == other.mY && mFloater == other.mFloater; 
+}
+
+LLCoordCommon LL_COORD_FLOATER::convertToCommon() const
+{
+	const LLCoordFloater& self = static_cast<const LLCoordFloater&>(*this);
+
+	LLRect snap_rect = gFloaterView->getSnapRect();
+	LLFloater* floaterp = mFloater.get();
+	S32 floater_width = floaterp ? floaterp->getRect().getWidth() : 0;
+	S32 floater_height = floaterp ? floaterp->getRect().getHeight() : 0;
+	LLCoordCommon out;
+	if (self.mX < -0.5f)
+	{
+		out.mX = llround(rescale(self.mX, -1.f, -0.5f, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft));
+	}
+	else if (self.mX > 0.5f)
+	{
+		out.mX = llround(rescale(self.mX, 0.5f, 1.f, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS));
+	}
+	else
+	{
+		out.mX = llround(rescale(self.mX, -0.5f, 0.5f, snap_rect.mLeft, snap_rect.mRight - floater_width));
+	}
+
+	if (self.mY < -0.5f)
+	{
+		out.mY = llround(rescale(self.mY, -1.f, -0.5f, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom));
+	}
+	else if (self.mY > 0.5f)
+	{
+		out.mY = llround(rescale(self.mY, 0.5f, 1.f, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS));
+	}
+	else
+	{
+		out.mY = llround(rescale(self.mY, -0.5f, 0.5f, snap_rect.mBottom, snap_rect.mTop - floater_height));
+	}
+
+	// return center point instead of lower left
+	out.mX += floater_width / 2;
+	out.mY += floater_height / 2;
+
+	return out;
+}
+
+void LL_COORD_FLOATER::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordFloater& self = static_cast<LLCoordFloater&>(*this);
+	LLRect snap_rect = gFloaterView->getSnapRect();
+	LLFloater* floaterp = mFloater.get();
+	S32 floater_width = floaterp ? floaterp->getRect().getWidth() : 0;
+	S32 floater_height = floaterp ? floaterp->getRect().getHeight() : 0;
+
+	S32 from_x = from.mX - floater_width / 2;
+	S32 from_y = from.mY - floater_height / 2;
+
+	if (from_x < snap_rect.mLeft)
+	{
+		self.mX = rescale(from_x, snap_rect.mLeft - (floater_width - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mLeft, -1.f, -0.5f);
+	}
+	else if (from_x + floater_width > snap_rect.mRight)
+	{
+		self.mX = rescale(from_x, snap_rect.mRight - floater_width, snap_rect.mRight - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+	}
+	else
+	{
+		self.mX = rescale(from_x, snap_rect.mLeft, snap_rect.mRight - floater_width, -0.5f, 0.5f);
+	}
+
+	if (from_y < snap_rect.mBottom)
+	{
+		self.mY = rescale(from_y, snap_rect.mBottom - (floater_height - FLOATER_MIN_VISIBLE_PIXELS), snap_rect.mBottom, -1.f, -0.5f);
+	}
+	else if (from_y + floater_height > snap_rect.mTop)
+	{
+		self.mY = rescale(from_y, snap_rect.mTop - floater_height, snap_rect.mTop - FLOATER_MIN_VISIBLE_PIXELS, 0.5f, 1.f);
+	}
+	else
+	{
+		self.mY = rescale(from_y, snap_rect.mBottom, snap_rect.mTop - floater_height, -0.5f, 0.5f);
+	}
+}
