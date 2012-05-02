@@ -158,6 +158,7 @@ private:
 	void handleRetrieveNeighborChange(LLControlVariable *pControl, const LLSD &pNewValue);
 	void handleNavMeshColorChange(LLControlVariable *pControl, const LLSD &pNewValue);
 	void fillInColorsForNavMeshVisualization();
+	void cleanupRenderableRestoreItems();
 
 	LLRootHandle<LLFloaterPathfindingConsole>     mSelfHandle;
 	LLTextBase                                    *mShowLabel;
@@ -222,7 +223,7 @@ private:
 
 	EConsoleState                                 mConsoleState;
  
-	std::vector<U32>								  mRenderableRestoreList;
+	std::vector<U32>							  mRenderableRestoreList;
 
 	static LLHandle<LLFloaterPathfindingConsole>  sInstanceHandle;
 };

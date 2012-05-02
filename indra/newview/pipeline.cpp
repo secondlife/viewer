@@ -10109,6 +10109,7 @@ void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
 {
 	//This method is used to hide any vo's from the object list that may have
 	//the permanent flag set.
+	
 	U32 objCnt = gObjectList.getNumObjects();
 	for (U32 i = 0; i < objCnt; ++i)
 	{
@@ -10144,13 +10145,20 @@ void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
 {
 	//This method is used to restore(unhide) any vo's from the object list that may have
 	//been hidden because their permanency flag was set.
+
 	std::vector<U32>::const_iterator itCurrent	= restoreList.begin();
 	std::vector<U32>::const_iterator itEnd		= restoreList.end();
+	
+	U32 objCnt = gObjectList.getNumObjects();
 
 	while ( itCurrent != itEnd )
 	{
 		U32 index = *itCurrent;
-		LLViewerObject* pObject = gObjectList.getObject( index );
+		LLViewerObject* pObject = NULL;
+		if ( index < objCnt ) 
+		{
+			pObject = gObjectList.getObject( index );
+		}
 		if ( pObject )
 		{
 			LLDrawable *pDrawable = pObject->mDrawable;

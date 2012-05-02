@@ -611,8 +611,7 @@ void LLFloaterPathfindingConsole::onRenderWorldMovablesOnly()
 	}
 	else
 	{
-		gPipeline.restorePermanentObjects( mRenderableRestoreList );
-		mRenderableRestoreList.clear();
+		cleanupRenderableRestoreItems();
 	}
 }
 void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
@@ -993,6 +992,13 @@ void LLFloaterPathfindingConsole::initializeNavMeshZoneForCurrentRegion()
 	mNavMeshZone.initialize();
 	mNavMeshZone.enable();
 	mNavMeshZone.refresh();
+	mRenderableRestoreList.clear();	
+}
+
+void LLFloaterPathfindingConsole::cleanupRenderableRestoreItems()
+{
+	gPipeline.restorePermanentObjects( mRenderableRestoreList );
+	mRenderableRestoreList.clear();
 }
 
 void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
