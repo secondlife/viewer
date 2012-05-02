@@ -2156,6 +2156,11 @@ void LLViewerFetchedTexture::clearFetchedResults()
 	
 	cleanup();
 	destroyGLTexture();
+
+	if(getDiscardLevel() >= 0) //sculpty texture, force to invalidate
+	{
+		mGLTexturep->forceToInvalidateGLTexture();
+	}
 }
 
 void LLViewerFetchedTexture::forceToDeleteRequest()
