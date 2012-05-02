@@ -175,6 +175,7 @@
 #include "llviewershadermgr.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
+#include "llvopartgroup.h"
 #include "llvovolume.h"
 #include "llworld.h"
 #include "llworldmapview.h"
@@ -4654,6 +4655,8 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		LLVOAvatar::destroyGL();
 		stop_glerror();
 
+		LLVOPartGroup::destroyGL();
+
 		LLViewerDynamicTexture::destroyGL();
 		stop_glerror();
 
@@ -4707,7 +4710,8 @@ void LLViewerWindow::restoreGL(const std::string& progress_message)
 		gBumpImageList.restoreGL();
 		LLViewerDynamicTexture::restoreGL();
 		LLVOAvatar::restoreGL();
-		
+		LLVOPartGroup::restoreGL();
+
 		gResizeScreenTexture = TRUE;
 		gWindowResized = TRUE;
 

@@ -657,6 +657,7 @@ class LLParticlePartition : public LLSpatialPartition
 {
 public:
 	LLParticlePartition();
+	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count);
 	virtual F32 calcPixelArea(LLSpatialGroup* group, LLCamera& camera);
@@ -671,10 +672,14 @@ public:
 };
 
 //spatial partition for grass (implemented in LLVOGrass.cpp)
-class LLGrassPartition : public LLParticlePartition
+class LLGrassPartition : public LLSpatialPartition
 {
 public:
 	LLGrassPartition();
+	virtual void getGeometry(LLSpatialGroup* group);
+	virtual void addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32& index_count);
+protected:
+	U32 mRenderPass;
 };
 
 //class for wrangling geometry out of volumes (implemented in LLVOVolume.cpp)

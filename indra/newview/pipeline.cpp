@@ -3334,21 +3334,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	rebuildPriorityGroups();
 	llpushcallstacks ;
 
-	const S32 bin_count = 1024*8;
-		
-	static LLCullResult::drawinfo_list_t alpha_bins[bin_count];
-	static U32 bin_size[bin_count];
-
-	//clear one bin per frame to avoid memory bloat
-	static S32 clear_idx = 0;
-	clear_idx = (1+clear_idx)%bin_count;
-	alpha_bins[clear_idx].clear();
-
-	for (U32 j = 0; j < bin_count; j++)
-	{
-		bin_size[j] = 0;
-	}
-
+	
 	//build render map
 	for (LLCullResult::sg_list_t::iterator i = sCull->beginVisibleGroups(); i != sCull->endVisibleGroups(); ++i)
 	{
@@ -3425,6 +3411,10 @@ void LLPipeline::postSort(LLCamera& camera)
 	{
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
+
+	//flush particle VB
+	LLVOPartGroup::sVB->flush();
+
 	llpushcallstacks ;
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
 	if (LLFloaterReg::instanceVisible("beacons") && !sShadowRender)
@@ -6239,10 +6229,14 @@ void LLPipeline::doResetVertexBuffers()
 
 	gSky.resetVertexBuffers();
 
+	LLVOPartGroup::destroyGL();
+
 	LLVertexBuffer::cleanupClass();
 	
 	//delete all name pool caches
 	LLGLNamePool::cleanupPools();
+
+	
 
 	if (LLVertexBuffer::sGLCount > 0)
 	{
@@ -6263,6 +6257,8 @@ void LLPipeline::doResetVertexBuffers()
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 
 	LLVertexBuffer::initClass(LLVertexBuffer::sEnableVBOs, LLVertexBuffer::sDisableVBOMapping);
+
+	LLVOPartGroup::restoreGL();
 }
 
 void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture, BOOL batch_texture)

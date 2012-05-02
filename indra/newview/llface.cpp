@@ -44,6 +44,7 @@
 #include "llsky.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"
+#include "llvopartgroup.h"
 #include "llvosky.h"
 #include "llvovolume.h"
 #include "pipeline.h"
@@ -161,7 +162,15 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mGeomCount		= 0;
 	mGeomIndex		= 0;
 	mIndicesCount	= 0;
-	mIndicesIndex	= 0;
+	if (drawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
+		drawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES)
+	{ //indicate to LLParticlePartition that this particle is uninitialized
+		mIndicesIndex = 0xFFFFFFFF;
+	}
+	else
+	{
+		mIndicesIndex	= 0;
+	}
 	mIndexInTex = 0;
 	mTexture		= NULL;
 	mTEOffset		= -1;
@@ -203,6 +212,14 @@ void LLFace::destroy()
 		mTexture->removeFace(this) ;
 	}
 	
+	if (mDrawablep.notNull() &&
+		(mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_PARTICLES ||
+		mDrawablep->getRenderType() == LLPipeline::RENDER_TYPE_HUD_PARTICLES) &&
+		mIndicesIndex != 0xFFFFFFFF)
+	{
+		LLVOPartGroup::freeVBSlot(getGeomIndex()/4);
+	}
+
 	if (mDrawPoolp)
 	{
 		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
