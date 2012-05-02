@@ -302,7 +302,7 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 
 	setDefaultInputs();
 	setConsoleState(kConsoleStateUnknown);
-
+	cleanupRenderableRestoreItems();
 	LLFloater::onClose(pIsAppQuitting);
 }
 
@@ -657,8 +657,8 @@ void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentSta
 }
 
 void LLFloaterPathfindingConsole::onRegionBoundaryCross()
-{
-	initializeNavMeshZoneForCurrentRegion();
+{	
+	initializeNavMeshZoneForCurrentRegion();	
 	setRenderWorld(TRUE);
 	setRenderWorldMovablesOnly(FALSE);
 }
@@ -708,6 +708,7 @@ void LLFloaterPathfindingConsole::setDefaultInputs()
 	setRenderExclusionVolumes(FALSE);
 	setRenderWaterPlane(FALSE);
 	setRenderXRay(FALSE);
+	setRenderWorldMovablesOnly(FALSE);
 }
 
 void LLFloaterPathfindingConsole::setConsoleState(EConsoleState pConsoleState)
@@ -992,13 +993,16 @@ void LLFloaterPathfindingConsole::initializeNavMeshZoneForCurrentRegion()
 	mNavMeshZone.initialize();
 	mNavMeshZone.enable();
 	mNavMeshZone.refresh();
-	mRenderableRestoreList.clear();	
+	cleanupRenderableRestoreItems();
 }
 
 void LLFloaterPathfindingConsole::cleanupRenderableRestoreItems()
 {
-	gPipeline.restorePermanentObjects( mRenderableRestoreList );
-	mRenderableRestoreList.clear();
+	if ( !mRenderableRestoreList.empty() ) 
+	{ 
+		gPipeline.restorePermanentObjects( mRenderableRestoreList ); 
+		mRenderableRestoreList.clear();
+	}
 }
 
 void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
