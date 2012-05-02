@@ -3786,7 +3786,7 @@ void LLAgent::sendAgentSetAppearance()
 	}
 	
 	gAgentAvatarp->sendAppearanceChangeMetrics();
-	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
+	LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -3833,7 +3833,7 @@ void LLAgent::sendAgentSetAppearance()
 	// only update cache entries if we have all our baked textures
 	if (textures_current)
 	{
-		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
+		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
 			BOOL generate_valid_hash = TRUE;
