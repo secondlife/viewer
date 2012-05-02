@@ -1074,7 +1074,9 @@ void LLCurlRequest::get(const std::string& url, LLCurl::ResponderPtr responder)
 {
 	getByteRange(url, headers_t(), 0, -1, responder);
 }
-	
+
+// Note: (length==0) is interpreted as "the rest of the file", i.e. the whole file if (offset==0) or
+// the remainder of the file if not.
 bool LLCurlRequest::getByteRange(const std::string& url,
 								 const headers_t& headers,
 								 S32 offset, S32 length,
@@ -1090,6 +1092,11 @@ bool LLCurlRequest::getByteRange(const std::string& url,
 	if (length > 0)
 	{
 		std::string range = llformat("Range: bytes=%d-%d", offset,offset+length-1);
+		easy->slist_append(range.c_str());
+	}
+	else if (offset > 0)
+	{
+		std::string range = llformat("Range: bytes=%d-", offset);
 		easy->slist_append(range.c_str());
 	}
 	easy->setHeaders();

@@ -775,6 +775,7 @@ U32 LLTextureFetchWorker::calcWorkPriority()
 }
 
 // mWorkMutex is locked
+// Merov : Change so to take into account size == 0 == max
 void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 {
 	bool prioritize = false;
@@ -1214,6 +1215,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
+				if (mRequestedSize == MAX_IMAGE_DATA_SIZE)
+				{
+					mRequestedSize = 0;
+					llinfos << "Merov debug : getByteRange, offset = " << offset << ", id = " << mID << llendl;
+				}
 				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize,
 															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true));
 			}
