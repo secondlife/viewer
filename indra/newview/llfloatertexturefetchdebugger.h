@@ -53,6 +53,8 @@ public:
 
 	void onClickRefetchVisCache();
 	void onClickRefetchVisHTTP();
+	void onClickRefetchAllCache();
+	void onClickRefetchAllHTTP();
 public:
 	void idle() ;
 
