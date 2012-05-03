@@ -10719,6 +10719,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchSource</key>
+    <map>
+      <key>Comment</key>
+      <string>Debug use: Source to fetch textures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>

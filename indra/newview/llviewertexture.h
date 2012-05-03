@@ -433,6 +433,8 @@ public:
 	void setMinDiscardLevel(S32 discard) 	{ mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
 
 	bool updateFetch();
+	bool setDebugFetching(S32 debug_level);
+	bool isInDebug() {return mInDebug;}
 	
 	void clearFetchedResults(); //clear all fetched results, for debug use.
 
@@ -513,6 +515,7 @@ private:
 
 private:
 	BOOL  mFullyLoaded;
+	BOOL  mInDebug;
 
 protected:		
 	std::string mLocalFileName;
