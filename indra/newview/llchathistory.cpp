@@ -778,15 +778,19 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	if (use_plain_text_chat_history)
 	{
 		LLStyle::Params timestamp_style(style_params);
-		if (!message_from_log)
-		{
-			LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
-			timestamp_style.color(timestamp_color);
-			timestamp_style.readonly_color(timestamp_color);
-		}
-		mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, timestamp_style);
 
-		if (utf8str_trim(chat.mFromName).size() != 0)
+		if (args["show_time"].asBoolean())
+		{
+			if (!message_from_log)
+			{
+				LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+				timestamp_style.color(timestamp_color);
+				timestamp_style.readonly_color(timestamp_color);
+			}
+			mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, timestamp_style);
+		}
+
+		if (args["show_names_in_p2p_chat"].asBoolean() && utf8str_trim(chat.mFromName).size() != 0)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
@@ -806,13 +810,21 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText(chat.mFromName + delimiter,
 									false, link_params);
 			}
-			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
+			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
-				// Add link to avatar's inspector and delimiter to message.
-				mEditor->appendText(std::string(link_params.link_href) + delimiter, false, link_params);
+				if (gAgentID == chat.mFromID)
+				{	std::string localized_name;
+					bool is_localized = LLTrans::findString(localized_name, "AgentNameSubst");
+					mEditor->appendText((is_localized? localized_name:"(You)") + delimiter, false, link_params);
+				}
+				else
+				{
+					// Add link to avatar's inspector and delimiter to message.
+					mEditor->appendText(std::string(link_params.link_href) + delimiter, false, link_params);
+				}
 			}
 			else
 			{
