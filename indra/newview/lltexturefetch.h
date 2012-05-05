@@ -221,8 +221,7 @@ public:
 	enum e_tex_source
 	{
 		FROM_ALL = 0,
-		FROM_CACHE_ONLY,
-		FROM_NETWORK_ONLY,
+		FROM_HTTP_ONLY,
 		INVALID_SOURCE
 	};
 private:
@@ -240,8 +239,7 @@ public:
 
 	void setLoadSource(e_tex_source source) {mFetchSource = source;}
 	void resetLoadSource() {mFetchSource = mOriginFetchSource;}
-	bool canLoadFromCache() { return mFetchSource != FROM_NETWORK_ONLY;}
-	bool canLoadFromNetwork() { return mFetchSource != FROM_CACHE_ONLY;}
+	bool canLoadFromCache() { return mFetchSource != FROM_HTTP_ONLY;}
 };
 
 //debug use
@@ -257,6 +255,7 @@ public:
 	enum e_debug_state
 	{
 		IDLE = 0,
+		START_DEBUG,
 		READ_CACHE,
 		WRITE_CACHE,
 		DECODING,
@@ -347,13 +346,15 @@ private:
 	U32 mRefetchedAllPixels;
 
 	BOOL mFreezeHistory;
+	BOOL mStopDebug;
+	BOOL mClearHistory;
+	BOOL mRefetchNonVis;
 
 	std::string mHTTPUrl;
 	S32 mNbCurlRequests;
 	S32 mNbCurlCompleted;
 
 	std::map< LLPointer<LLViewerFetchedTexture>, std::vector<S32> > mRefetchList;
-	F32 mRefetchStartTime;
 public:
 	bool update(); //called in the main thread once per frame
 
@@ -364,7 +365,8 @@ public:
 	void setCurlGetRequest(LLCurlRequest* request) { mCurlGetRequest = request;}
 	
 	void startDebug();
-	void stopDebug(); //stop everything
+	void setStopDebug() {mStopDebug = TRUE;}
+	void tryToStopDebug(); //stop everything
 	void debugCacheRead();
 	void debugCacheWrite();	
 	void debugHTTP();

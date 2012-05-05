@@ -409,7 +409,11 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
-	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
+	
+	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
+	{
+		sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
+	}
 }
 
 // static
@@ -2168,7 +2172,10 @@ bool LLViewerFetchedTexture::updateFetch()
 
 void LLViewerFetchedTexture::clearFetchedResults()
 {
-	llassert_always(!mNeedsCreateTexture && !mIsFetching);
+	if(mNeedsCreateTexture || mIsFetching)
+	{
+		return ;
+	}
 	
 	cleanup();
 	destroyGLTexture();
