@@ -143,9 +143,13 @@ namespace LLError
 		CallSite(ELevel, const char* file, int line,
 				const std::type_info& class_info, const char* function, const char* broadTag, const char* narrowTag, bool printOnce);
 						
+#ifdef LL_LIBRARY_INCLUDE
+		bool shouldLog();
+#else // LL_LIBRARY_INCLUDE
 		bool shouldLog()
 			{ return mCached ? mShouldLog : Log::shouldLog(*this); }
 			// this member function needs to be in-line for efficiency
+#endif // LL_LIBRARY_INCLUDE
 		
 		void invalidate();
 		
