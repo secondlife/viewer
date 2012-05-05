@@ -266,7 +266,7 @@
      width="264">
     <radio_item
      height="16"
-     label="Cache + Network"
+     label="Cache + HTTP"
      layout="topleft"
      left="3"
      name="0"
@@ -274,18 +274,10 @@
      width="100" />
     <radio_item
      height="16"
-     label="Cache Only"
-     layout="topleft"
-     left_delta="120"
-     name="1"
-     top_delta="0"
-     width="200" />
-    <radio_item
-     height="16"
-     label="Network Only"
+     label="HTTP Only"
      layout="topleft"
      left_delta="100"
-     name="2"
+     name="1"
      top_delta="0"
      width="200" />
   </radio_group>
