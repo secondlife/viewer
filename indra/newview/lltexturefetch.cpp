@@ -3666,7 +3666,7 @@ void LLTextureFetchDebugger::scanRefetchList()
 		if(iter->second.empty())
 		{
 			gTextureList.setDebugFetching(iter->first, -1);
-			iter = mRefetchList.erase(iter);
+			mRefetchList.erase(iter++);		// This is the correct method to "erase and move on" in an std::map
 		}
 		else
 		{
