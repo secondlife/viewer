@@ -780,7 +780,6 @@ U32 LLTextureFetchWorker::calcWorkPriority()
 }
 
 // mWorkMutex is locked
-// Merov : Change so to take into account size == 0 == max
 void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 {
 	bool prioritize = false;
