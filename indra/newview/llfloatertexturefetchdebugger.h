@@ -53,6 +53,8 @@ public:
 
 	void onClickRefetchVisCache();
 	void onClickRefetchVisHTTP();
+	void onClickRefetchAllCache();
+	void onClickRefetchAllHTTP();
 public:
 	void idle() ;
 
@@ -63,9 +65,12 @@ private:
 	void updateButtons();
 	void disableButtons();
 
+	void setStartStatus(S32 status);
+	bool idleStart();
 private:	
 	LLTextureFetchDebugger* mDebugger;
 	std::map<std::string, bool> mButtonStateMap;
+	S32 mStartStatus;
 };
 
 #endif // LL_FLOATER_TEXTURE_FETCH_DEBUGGER__H

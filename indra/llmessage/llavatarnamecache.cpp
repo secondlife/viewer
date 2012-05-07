@@ -87,6 +87,9 @@ namespace LLAvatarNameCache
     /// Time when unrefreshed cached names were checked last
     static F64 sLastExpireCheck;
 
+	/// Time-to-live for a temp cache entry.
+	const F64 TEMP_CACHE_ENTRY_LIFETIME = 60.0;
+
 	//-----------------------------------------------------------------------
 	// Internal methods
 	//-----------------------------------------------------------------------
@@ -274,7 +277,7 @@ void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
     {
         // there is no existing cache entry, so make a temporary name from legacy
         LL_WARNS("AvNameCache") << "LLAvatarNameCache get legacy for agent "
-                                << agent_id << LL_ENDL;
+								<< agent_id << LL_ENDL;
         gCacheName->get(agent_id, false,  // legacy compatibility
                         boost::bind(&LLAvatarNameCache::legacyNameCallback,
                                     _1, _2, _3));
@@ -287,13 +290,14 @@ void LLAvatarNameCache::handleAgentError(const LLUUID& agent_id)
         // Clear this agent from the pending list
         LLAvatarNameCache::sPendingQueue.erase(agent_id);
 
-        const LLAvatarName& av_name = existing->second;
+        LLAvatarName& av_name = existing->second;
         LL_DEBUGS("AvNameCache") << "LLAvatarNameCache use cache for agent "
                                  << agent_id 
                                  << "user '" << av_name.mUsername << "' "
                                  << "display '" << av_name.mDisplayName << "' "
                                  << "expires in " << av_name.mExpires - LLFrameTimer::getTotalSeconds() << " seconds"
                                  << LL_ENDL;
+		av_name.mExpires = LLFrameTimer::getTotalSeconds() + TEMP_CACHE_ENTRY_LIFETIME; // reset expiry time so we don't constantly rerequest.
     }
 }
 
@@ -402,10 +406,12 @@ void LLAvatarNameCache::legacyNameCallback(const LLUUID& agent_id,
 							 << LL_ENDL;
 	buildLegacyName(full_name, &av_name);
 
-	// Don't add to cache, the data already exists in the legacy name system
-	// cache and we don't want or need duplicate storage, because keeping the
-	// two copies in sync is complex.
-	processName(agent_id, av_name, false);
+	// Add to cache, because if we don't we'll keep rerequesting the
+	// same record forever.  buildLegacyName should always guarantee
+	// that these records expire reasonably soon
+	// (in TEMP_CACHE_ENTRY_LIFETIME seconds), so if the failure was due
+	// to something temporary we will eventually request and get the right data.
+	processName(agent_id, av_name, true);
 }
 
 void LLAvatarNameCache::requestNamesViaLegacy()
@@ -583,7 +589,7 @@ void LLAvatarNameCache::buildLegacyName(const std::string& full_name,
 	av_name->mDisplayName = full_name;
 	av_name->mIsDisplayNameDefault = true;
 	av_name->mIsTemporaryName = true;
-	av_name->mExpires = F64_MAX; // not used because these are not cached
+	av_name->mExpires = LLFrameTimer::getTotalSeconds() + TEMP_CACHE_ENTRY_LIFETIME;
 	LL_DEBUGS("AvNameCache") << "LLAvatarNameCache::buildLegacyName "
 							 << full_name
 							 << LL_ENDL;

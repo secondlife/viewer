@@ -409,7 +409,11 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture() ;
-	sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
+	
+	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
+	{
+		sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
+	}
 }
 
 // static
@@ -1266,6 +1270,8 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mLastReferencedSavedRawImageTime = 0.0f ;
 	mKeptSavedRawImageTime = 0.f ;
 	mLastCallBackActiveTime = 0.f;
+
+	mInDebug = FALSE;
 }
 
 LLViewerFetchedTexture::~LLViewerFetchedTexture()
@@ -1898,6 +1904,20 @@ S32 LLViewerFetchedTexture::getCurrentDiscardLevelForFetching()
 	return current_discard ;
 }
 
+bool LLViewerFetchedTexture::setDebugFetching(S32 debug_level)
+{
+	if(debug_level < 0)
+	{
+		mInDebug = FALSE;
+		return false;
+	}
+	mInDebug = TRUE;
+
+	mDesiredDiscardLevel = debug_level;	
+
+	return true;
+}
+
 bool LLViewerFetchedTexture::updateFetch()
 {
 	static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
@@ -2152,7 +2172,10 @@ bool LLViewerFetchedTexture::updateFetch()
 
 void LLViewerFetchedTexture::clearFetchedResults()
 {
-	llassert_always(!mNeedsCreateTexture && !mIsFetching);
+	if(mNeedsCreateTexture || mIsFetching)
+	{
+		return ;
+	}
 	
 	cleanup();
 	destroyGLTexture();
