@@ -630,6 +630,9 @@ void LLIMFloater::updateMessages()
 	{
 		LLSD chat_args;
 		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+		chat_args["show_names_for_p2p_conv"] =
+				gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();

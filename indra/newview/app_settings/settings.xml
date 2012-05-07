@@ -2,6 +2,29 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
 <map>
+    <key>IMShowTime</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable(disable) timestamp showing in the chat.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>IMShowNamesForP2PConv</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable(disable) showing of a names in the chat.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+
 	<key>CrashHostUrl</key>
     <map>
       <key>Comment</key>

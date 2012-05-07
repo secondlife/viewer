@@ -138,10 +138,6 @@ class LLChatHistory : public LLUICtrl
 		S32 mTopHeaderPad;
 		S32 mBottomHeaderPad;
 
-		S32 mPrependNewLineState;
-
-		bool isNeedPrependNewline() {return (mPrependNewLineState-- > 0);}
-
 		class LLLayoutPanel*	mMoreChatPanel;
 		LLTextBox*		mMoreChatText;
 		LLTextEditor*	mEditor;
