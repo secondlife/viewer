@@ -27,7 +27,7 @@
 #define TEST_LLCORE_HTTP_OPERATION_H_
 
 #include "_httpoperation.h"
-#include <core-http/httphandler.h>
+#include "httphandler.h"
 
 #include <iostream>
 

@@ -73,23 +73,24 @@ target_link_libraries(
   ${CARES_LIBRARIES}
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
+  ${BOOST_THREAD_LIBRARY}
   )
 
 # tests
-#if (LL_TESTS)
-if (LL_TESTS AND 0)
+if (LL_TESTS)
+#if (LL_TESTS AND 0)
   SET(llcorehttp_TEST_SOURCE_FILES
-      test_allocator.cpp
+      tests/test_allocator.cpp
       )
 
   set(llcorehttp_TEST_HEADER_FILS
-      test_httpstatus.hpp
-      test_refcounted.hpp
-      test_httpoperation.hpp
-      test_httprequest.hpp
-      test_httprequestqueue.hpp
-      test_httpheaders.hpp
-      test_bufferarray.hpp
+      tests/test_httpstatus.hpp
+      tests/test_refcounted.hpp
+      tests/test_httpoperation.hpp
+      tests/test_httprequest.hpp
+      tests/test_httprequestqueue.hpp
+      tests/test_httpheaders.hpp
+      tests/test_bufferarray.hpp
       )
 
   set_source_files_properties(${llcorehttp_TEST_HEADER_FILES}
@@ -105,13 +106,16 @@ if (LL_TESTS AND 0)
       ${WINDOWS_LIBRARIES}
       ${LLCOMMON_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES}
+      ${CURL_LIBRARIES}
+      ${OPENSSL_LIBRARIES}
+      ${CRYPTO_LIBRARIES}
       )
 
-  LL_ADD_INTEGRATION_TEST(all
+  LL_ADD_INTEGRATION_TEST(llcorehttp
                           "${llcorehttp_TEST_SOURCE_FILES}"
                           "${test_libs}"
                           )
 
-#endif (LL_TESTS)
-endif (LL_TESTS AND 0)
+endif (LL_TESTS)
+#endif (LL_TESTS AND 0)
 

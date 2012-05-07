@@ -259,6 +259,8 @@ HttpStatus HttpOpRequest::prepareForGet(HttpService * service)
 	HttpStatus status;
 	
 	mCurlHandle = curl_easy_init();
+	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, 30);
+	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOPROGRESS, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());

@@ -1,5 +1,5 @@
 /** 
- * @file test_all
+ * @file llcorehttp_test
  * @brief Main test runner
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -41,6 +41,7 @@
 #include "test_bufferarray.hpp"
 #include "test_httprequestqueue.hpp"
 
+#if 0
 
 namespace tut
 {
@@ -62,3 +63,4 @@ int main()
 	curl_global_cleanup();
 }
 
+#endif

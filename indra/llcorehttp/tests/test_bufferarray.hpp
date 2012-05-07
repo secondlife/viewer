@@ -26,7 +26,7 @@
 #ifndef TEST_LLCORE_BUFFER_ARRAY_H_
 #define TEST_LLCORE_BUFFER_ARRAY_H_
 
-#include <core-http/bufferarray.h>
+#include "bufferarray.h"
 
 #include <iostream>
 
@@ -183,7 +183,6 @@ void BufferArrayTestObjectType::test<4>()
 	char str1[] = "abcdefghij";
 	size_t str1_len(strlen(str1));
 	char str2[] = "ABCDEFGHIJ";
-	size_t str2_len(strlen(str2));
  	char buffer[256];
 	
 	size_t len = ba->write(str1, str1_len);

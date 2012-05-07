@@ -26,11 +26,11 @@
 #ifndef TEST_LLCORE_HTTP_REQUEST_H_
 #define TEST_LLCORE_HTTP_REQUEST_H_
 
-#include <core-http/httprequest.h>
-#include <core-http/httphandler.h>
-#include <core-http/httpresponse.h>
-#include <core-http/_httpservice.h>
-#include <core-http/_httprequestqueue.h>
+#include "httprequest.h"
+#include "httphandler.h"
+#include "httpresponse.h"
+#include "_httpservice.h"
+#include "_httprequestqueue.h"
 
 #include <curl/curl.h>
 
@@ -360,7 +360,7 @@ void HttpRequestTestObjectType::test<5>()
 	mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
 	HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
 												 0.0f,
-												 "http://localhost:2/nothing/here",
+												 "http://127.0.0.1:2/nothing/here",
 												 0,
 												 0,
 												 NULL,

@@ -26,7 +26,7 @@
 #ifndef TEST_LLCOREINT_REF_COUNTED_H_
 #define TEST_LLCOREINT_REF_COUNTED_H_
 
-#include <_refcounted.h>
+#include "_refcounted.h"
 
 #include "test_allocator.h"
 

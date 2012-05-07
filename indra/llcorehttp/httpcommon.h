@@ -93,6 +93,8 @@
 /// <TBD>
 ///
 
+#include "linden_common.h"
+
 #include <string>
 
 

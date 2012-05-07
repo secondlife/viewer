@@ -27,9 +27,11 @@
 #ifndef LLCOREINT_THREAD_H_
 #define LLCOREINT_THREAD_H_
 
+#include <boost/thread.hpp>
+#include <boost/function.hpp>
+
 
 #include "_refcounted.h"
-
 
 namespace LLCoreInt
 {

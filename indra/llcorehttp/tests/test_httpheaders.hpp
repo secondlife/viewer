@@ -26,7 +26,7 @@
 #ifndef TEST_LLCORE_HTTP_HEADERS_H_
 #define TEST_LLCORE_HTTP_HEADERS_H_
 
-#include <core-http/httpheaders.h>
+#include "httpheaders.h"
 
 #include <iostream>
 

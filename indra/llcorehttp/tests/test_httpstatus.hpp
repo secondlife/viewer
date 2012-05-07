@@ -27,7 +27,7 @@
 #ifndef TEST_HTTP_STATUS_H_
 #define TEST_HTTP_STATUS_H_
 
-#include <core-http/httpcommon.h>
+#include "httpcommon.h"
 
 #include <curl/curl.h>
 #include <curl/multi.h>
