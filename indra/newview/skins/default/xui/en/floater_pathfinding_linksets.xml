@@ -79,7 +79,7 @@
         layout="topleft"
         left_pad="0"
         top_pad="-18"
-        max_length_bytes="10"
+        max_length_chars="255"
         name="filter_by_name"
         width="105" />
     <text
@@ -104,7 +104,7 @@
         layout="topleft"
         left_pad="0"
         top_pad="-17"
-        max_length_bytes="10"
+        max_length_chars="255"
         name="filter_by_description"
         width="145" />
     <combo_box
