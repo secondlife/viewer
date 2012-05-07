@@ -397,7 +397,7 @@ void LLFloaterPathfindingLinksets::handleUpdateLinksets(LLPathfindingManager::re
 			{
 				mLinksetsListPtr = pLinksetsListPtr;
 			}
-			else
+			else if (pLinksetsListPtr != NULL)
 			{
 				mLinksetsListPtr->update(*pLinksetsListPtr);
 			}
