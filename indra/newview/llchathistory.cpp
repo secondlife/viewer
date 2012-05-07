@@ -775,10 +775,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		style_params.readonly_color(LLColor4::grey);
 	}
 
+	mPrependNewLineState = (mEditor->getText().size() != 0)? 1 : 0;
+
 	if (use_plain_text_chat_history)
 	{
 		LLStyle::Params timestamp_style(style_params);
 
+		// timestams showing
 		if (args["show_time"].asBoolean())
 		{
 			if (!message_from_log)
@@ -787,9 +790,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				timestamp_style.color(timestamp_color);
 				timestamp_style.readonly_color(timestamp_color);
 			}
-			mEditor->appendText("[" + chat.mTimeStr + "] ", mEditor->getText().size() != 0, timestamp_style);
+			mEditor->appendText("[" + chat.mTimeStr + "] ", isNeedPrependNewline(), timestamp_style);
 		}
 
+		// names showing
 		if (args["show_names_in_p2p_chat"].asBoolean() && utf8str_trim(chat.mFromName).size() != 0)
 		{
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
@@ -807,8 +811,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				link_params.is_link = true;
 				link_params.link_href = url;
 
-				mEditor->appendText(chat.mFromName + delimiter,
-									false, link_params);
+				mEditor->appendText(chat.mFromName + delimiter, isNeedPrependNewline(), link_params);
 			}
 			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
@@ -818,22 +821,26 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				if (gAgentID == chat.mFromID)
 				{	std::string localized_name;
 					bool is_localized = LLTrans::findString(localized_name, "AgentNameSubst");
-					mEditor->appendText((is_localized? localized_name:"(You)") + delimiter, false, link_params);
+					mEditor->appendText((is_localized? localized_name:"(You)") + delimiter,
+							isNeedPrependNewline(), link_params);
 				}
 				else
 				{
 					// Add link to avatar's inspector and delimiter to message.
-					mEditor->appendText(std::string(link_params.link_href) + delimiter, false, link_params);
+					mEditor->appendText(std::string(link_params.link_href) + delimiter,
+							isNeedPrependNewline(), link_params);
 				}
 			}
 			else
 			{
-				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter, false, style_params);
+				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter,
+						isNeedPrependNewline(), style_params);
 			}
 		}
 	}
 	else
 	{
+		mPrependNewLineState = 0;
 		LLView* view = NULL;
 		LLInlineViewSegment::Params p;
 		p.force_newline = true;
@@ -956,7 +963,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			message = chat.mFromName + message;
 		}
 		
-		mEditor->appendText(message, FALSE, style_params);
+		mEditor->appendText(message, isNeedPrependNewline(), style_params);
 	}
 
 	mEditor->blockUndo();
