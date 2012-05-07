@@ -56,6 +56,9 @@ BOOL LLIMFloaterContainer::postBuild()
 	mNewMessageConnection = LLIMModel::instance().mNewMsgSignal.connect(boost::bind(&LLIMFloaterContainer::onNewMessageReceived, this, _1));
 	// Do not call base postBuild to not connect to mCloseSignal to not close all floaters via Close button
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
+	
+	setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
+
 	return TRUE;
 }
 
@@ -74,6 +77,7 @@ void LLIMFloaterContainer::onOpen(const LLSD& key)
 */
 }
 
+// virtual
 void LLIMFloaterContainer::addFloater(LLFloater* floaterp, 
 									BOOL select_added_floater, 
 									LLTabContainer::eInsertionPoint insertion_point)
@@ -88,6 +92,12 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	}
 
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
+
+	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
+
+	// we don't show the header when the floater is hosted,
+	// so reshape floater contents to occupy the header space
+	floater_contents->setShape(floaterp->getRect());
 
 	LLUUID session_id = floaterp->getKey();
 
@@ -114,6 +124,20 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 		floaterp->mCloseSignal.connect(boost::bind(&LLIMFloaterContainer::onCloseFloater, this, session_id));
 	}
 	mTabContainer->setTabImage(floaterp, icon);
+}
+
+// virtual
+void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
+{
+	LLMultiFloater::removeFloater(floaterp);
+
+	LLRect contents_rect = floaterp->getRect();
+
+	// reduce the floater contents height by header height
+	contents_rect.mTop -= floaterp->getHeaderHeight();
+
+	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
+	floater_contents->setShape(contents_rect);
 }
 
 void LLIMFloaterContainer::onCloseFloater(LLUUID& id)

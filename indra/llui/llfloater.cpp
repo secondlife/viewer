@@ -1371,7 +1371,7 @@ void LLFloater::setHost(LLMultiFloater* host)
 		mButtonScale = 1.f;
 		//mButtonsEnabled[BUTTON_TEAR_OFF] = FALSE;
 	}
-	updateTitleButtons();
+
 	if (host)
 	{
 		mHostHandle = host->getHandle();
@@ -1381,6 +1381,8 @@ void LLFloater::setHost(LLMultiFloater* host)
 	{
 		mHostHandle.markDead();
 	}
+
+	updateTitleButtons();
 }
 
 void LLFloater::moveResizeHandlesToFront()

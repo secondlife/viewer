@@ -3,47 +3,86 @@
  can_close="false"  
  can_minimize="true"
  can_resize="true"
- height="390"
+ height="430"
  layout="topleft"
+ min_width="510"
  name="floater_im_box"
  help_topic="floater_im_box"
  save_rect="true"
  save_visibility="true"
  single_instance="true"
  title="CONVERSATIONS"
- width="396">
-    <tab_container
-     follows="left|right|top|bottom"
-     height="390"
-     layout="topleft"
-     left="1"
-     name="im_box_tab_container"
-     tab_position="bottom"
-     tab_width="64"
-     tab_max_width = "134"
-     tab_height="16"
-     use_custom_icon_ctrl="true"
-     tab_icon_ctrl_pad="2"
-     halign="left"
-     use_ellipses="true"
-     top="0"
-     width="394">
-      <first_tab
-       tab_bottom_image_flash="Toolbar_Left_Flash"/>
-      <middle_tab
-       tab_bottom_image_flash="Toolbar_Middle_Flash"/>
-      <last_tab
-       tab_bottom_image_flash="Toolbar_Right_Flash"/>
-    </tab_container>
-    <icon
-     color="DefaultShadowLight"
-     enabled="false"
-     follows="left|right|bottom"
-     height="17"
-     image_name="tabarea.tga"
-     layout="bottomleft"
-     left="1"
-     name="im_box_tab_container_icon"
-     bottom="10"
-     width="394" />
+ width="680">
+    <panel
+         border="true"
+         follows="top|bottom|left"
+         layout="topleft"
+         name="conversations_list"
+         opaque="true"
+         top="0"
+         left="5"
+         height="425"
+         width="263">
+             <menu_button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="OptionsMenu_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left="5"
+                 name="sort_btn"
+                 top="5"
+                 width="31" />
+             <button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+             	 image_overlay="AddItem_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="4"
+                 name="add_btn"
+                 tool_tip="Add button on the left panel"
+                 width="31">
+             </button>
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="TabIcon_Open_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left="228"
+                 name="slide_left_btn"
+                 width="31" />
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="TabIcon_Close_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_delta="0"
+                 name="slide_right_btn"
+                 width="31" />            
+     </panel>
+    <panel_container
+         follows="all"
+         layout="topleft"
+         name="im_box_tab_container"
+         opaque="true"
+         top="0"
+         left_pad="15"
+         height="430"
+         width="389"
+         min_width="290">         
+     </panel_container>
 </multi_floater>

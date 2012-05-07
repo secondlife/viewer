@@ -120,6 +120,8 @@ protected:
 	/* virtual */
 	void	onClickCloseBtn();
 
+	/*virtual*/ void	updateTitleButtons();
+
 private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();

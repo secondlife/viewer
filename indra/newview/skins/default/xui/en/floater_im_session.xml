@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="18"
  background_visible="true"
  default_tab_group="1"
  height="355"
@@ -15,28 +14,147 @@
  can_resize="true"
  min_width="250"
  min_height="190">
+    <view
+        follows="all"
+        layout="topleft"
+        name="contents_view"
+        top="0"
+        left="0"
+        height="355"
+        width="394"> 
+     <panel
+         follows="all"
+         layout="topleft"
+         name="toolbar_panel"
+         top="0"
+         left="0"
+         height="35"
+         width="394">         
+             <menu_button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="OptionsMenu_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 left="5"
+                 name="view_options_btn"
+                 top="5"
+                 width="31" />
+             <button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="AddItem_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="4"
+                 name="add_btn"
+                 width="31">
+                 <commit_callback
+                    function="Chats.add" />
+             </button>   
+             <button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="VoicePTT_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="4"
+                 name="call"
+                 width="31">
+                 <commit_callback
+                    function="Chats.add" />
+             </button>
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Icon_Close_Foreground"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left="283"
+                 name="close_btn"
+                 width="31" />
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="TabIcon_Open_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="5"
+                 name="slide_left_btn"
+                 width="31" />
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="TabIcon_Close_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_delta="0"
+                 name="slide_right_btn"
+                 width="31" />
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="tearoffbox.tga"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="5"
+                 name="tear_off_btn"
+                 width="31" />
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Icon_Dock_Foreground"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_delta="0"
+                 name="return_btn"
+                 width="31" />
+     </panel>
   <layout_stack
    animate="true" 
    default_tab_group="2"
   follows="all"
-  height="320"
+  height="310"
   width="394"
   layout="topleft"
   orientation="horizontal"
   name="im_panels"
   tab_group="1"
-  top="20"
+  top_pad="0"
   left="0">
     <layout_panel
       name="im_control_panel_holder"
       min_width="115"
       width="150" 
-      height="320" 
+      height="310" 
       auto_resize="false">
       <panel
         name="panel_im_control_panel"
         layout="topleft"
-        height="320"
+        height="310"
         width="150" 
         follows="all"/>
       </layout_panel>
@@ -46,39 +164,22 @@
        tab_group="2"
        top="0"
        height="200"
-	     width="254"
+	    width="254"
        user_resize="true">
-        <button
-          height="20"
-          follows="left|top"
-          top="0"
-          left="2"
-          image_overlay="TabIcon_Open_Off"
-          layout="topleft"
-          width="25"
-          name="slide_left_btn" />
-         <button
-          height="20"
-          follows="left|top"
-          top="0"
-          left="2"
-          image_overlay="TabIcon_Close_Off"
-          width="25"
-          name="slide_right_btn" />
         <chat_history
-	 font="SansSerifSmall"
-         follows="left|right|top|bottom"
-         height="150"
+	     font="SansSerifSmall"
+         follows="all"
+         height="170"
          name="chat_history"
          parse_highlights="true"
          parse_urls="true"
-        left="1"
+         left="1"
          width="249">
         </chat_history>
         <line_editor
          bottom="0"
          follows="left|right|bottom"
-	 font="SansSerifSmall"
+	     font="SansSerifSmall"
          height="20"
          label="To"
          layout="bottomleft"
@@ -88,4 +189,5 @@
         </line_editor>
     </layout_panel>
   </layout_stack>
+    </view>
 </floater>

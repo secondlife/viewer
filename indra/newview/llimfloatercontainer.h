@@ -50,6 +50,7 @@ public:
 	/*virtual*/ void addFloater(LLFloater* floaterp, 
 								BOOL select_added_floater, 
 								LLTabContainer::eInsertionPoint insertion_point = LLTabContainer::END);
+	/*virtual*/ void removeFloater(LLFloater* floaterp);
 
 	static LLFloater* getCurrentVoiceFloater();
 

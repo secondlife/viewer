@@ -28,6 +28,7 @@
 
 #include "llimfloater.h"
 
+#include "lldraghandle.h"
 #include "llnotificationsutil.h"
 
 #include "llagent.h"
@@ -250,6 +251,12 @@ BOOL LLIMFloater::postBuild()
 	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
 	slide_right->setVisible(!mControlPanel->getParent()->getVisible());
 	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+
+	LLButton* return_btn = getChild<LLButton>("return_btn");
+	return_btn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
+
+	LLButton* tear_off_btn = getChild<LLButton>("tear_off_btn");
+	tear_off_btn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
@@ -1193,4 +1200,43 @@ void	LLIMFloater::onClickCloseBtn()
 	}
 
 	LLFloater::onClickCloseBtn();
+}
+
+// virtual
+void LLIMFloater::updateTitleButtons()
+{
+	if (!mDragHandle)
+	{
+		return;
+	}
+
+	LLMultiFloater* host_floater = getHost();
+
+	bool is_hosted = host_floater != NULL;
+	if (is_hosted) ///< floater is hosted
+	{
+		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		{
+			if (!mButtons[i])
+			{
+				continue;
+			}
+
+			// Hide the standard header buttons in a docked IM floater.
+			mButtons[i]->setVisible(false);
+		}
+	}
+	else ///< floater is torn off
+	{
+		LLFloater::updateTitleButtons();
+	}
+
+	// toggle floater's drag handle and title visibility
+	mDragHandle->setVisible(!is_hosted);
+	
+	LLButton* return_btn = getChild<LLButton>("return_btn");
+	return_btn->setVisible(!is_hosted);
+
+	LLButton* tear_off_btn = getChild<LLButton>("tear_off_btn");
+	tear_off_btn->setVisible(is_hosted);
 }
