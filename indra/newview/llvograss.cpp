@@ -381,8 +381,10 @@ BOOL LLVOGrass::updateLOD()
 		{
 			mNumBlades <<= 1;
 		}
-
-		face->setSize(mNumBlades*8, mNumBlades*12);
+		if (face)
+		{
+			face->setSize(mNumBlades*8, mNumBlades*12);
+		}
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 	}
 	else if (num_blades <= (mNumBlades >> 1))
@@ -392,7 +394,10 @@ BOOL LLVOGrass::updateLOD()
 			mNumBlades >>=1;
 		}
 
-		face->setSize(mNumBlades*8, mNumBlades*12);
+		if (face)
+		{
+			face->setSize(mNumBlades*8, mNumBlades*12);
+		}
 		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 		return TRUE;
 	}
@@ -450,14 +455,16 @@ void LLVOGrass::plantBlades()
 	}
 		
 	LLFace *face = mDrawable->getFace(0);
+	if (face)
+	{
+		face->setTexture(getTEImage(0));
+		face->setState(LLFace::GLOBAL);
+		face->setSize(mNumBlades * 8, mNumBlades * 12);
+		face->setVertexBuffer(NULL);
+		face->setTEOffset(0);
+		face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
+	}
 
-	face->setTexture(getTEImage(0));
-	face->setState(LLFace::GLOBAL);
-	face->setSize(mNumBlades * 8, mNumBlades * 12);
-	face->setVertexBuffer(NULL);
-	face->setTEOffset(0);
-	face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
-	
 	mDepth = (face->mCenterLocal - LLViewerCamera::getInstance()->getOrigin())*LLViewerCamera::getInstance()->getAtAxis();
 	mDrawable->setPosition(face->mCenterLocal);
 	mDrawable->movePartition();
@@ -487,6 +494,8 @@ void LLVOGrass::getGeometry(S32 idx,
 	LLColor4U color(255,255,255,255);
 
 	LLFace *face = mDrawable->getFace(idx);
+	if (!face)
+		return;
 
 	F32 width  = sSpeciesTable[mSpecies]->mBladeSizeX;
 	F32 height = sSpeciesTable[mSpecies]->mBladeSizeY;

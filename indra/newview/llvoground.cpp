@@ -82,6 +82,7 @@ LLDrawable *LLVOGround::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
+// TO DO - this always returns TRUE, 
 BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 {
 	LLStrider<LLVector3> verticesp;
@@ -96,6 +97,8 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	if (drawable->getNumFaces() < 1)
 		drawable->addFace(poolp, NULL);
 	face = drawable->getFace(0); 
+	if (!face)
+		return TRUE;
 		
 	if (!face->getVertexBuffer())
 	{

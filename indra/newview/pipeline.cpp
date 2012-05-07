@@ -3173,7 +3173,11 @@ void renderScriptedBeacons(LLDrawable* drawablep)
 			S32 count = drawablep->getNumFaces();
 			for (face_id = 0; face_id < count; face_id++)
 			{
-				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+				LLFace * facep = drawablep->getFace(face_id);
+				if (facep) 
+				{
+					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
@@ -3199,7 +3203,11 @@ void renderScriptedTouchBeacons(LLDrawable* drawablep)
 			S32 count = drawablep->getNumFaces();
 			for (face_id = 0; face_id < count; face_id++)
 			{
-				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+				LLFace * facep = drawablep->getFace(face_id);
+				if (facep)
+				{
+					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
@@ -3224,7 +3232,11 @@ void renderPhysicalBeacons(LLDrawable* drawablep)
 			S32 count = drawablep->getNumFaces();
 			for (face_id = 0; face_id < count; face_id++)
 			{
-				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+				LLFace * facep = drawablep->getFace(face_id);
+				if (facep)
+				{
+					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
@@ -3260,7 +3272,11 @@ void renderMOAPBeacons(LLDrawable* drawablep)
 			S32 count = drawablep->getNumFaces();
 			for (face_id = 0; face_id < count; face_id++)
 			{
-				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+				LLFace * facep = drawablep->getFace(face_id);
+				if (facep)
+				{
+					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
@@ -3285,7 +3301,11 @@ void renderParticleBeacons(LLDrawable* drawablep)
 			S32 count = drawablep->getNumFaces();
 			for (face_id = 0; face_id < count; face_id++)
 			{
-				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+				LLFace * facep = drawablep->getFace(face_id);
+				if (facep)
+				{
+					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
@@ -3303,7 +3323,11 @@ void renderSoundHighlights(LLDrawable* drawablep)
 			S32 count = drawablep->getNumFaces();
 			for (face_id = 0; face_id < count; face_id++)
 			{
-				gPipeline.mHighlightFaces.push_back(drawablep->getFace(face_id) );
+				LLFace * facep = drawablep->getFace(face_id);
+				if (facep)
+				{
+					gPipeline.mHighlightFaces.push_back(facep);
+				}
 			}
 		}
 	}
@@ -3488,7 +3512,11 @@ void LLPipeline::postSort(LLCamera& camera)
 				{
 					if (object->mDrawable)
 					{
-						gPipeline.mSelectedFaces.push_back(object->mDrawable->getFace(te));
+						LLFace * facep = object->mDrawable->getFace(te);
+						if (facep)
+						{
+							gPipeline.mSelectedFaces.push_back(facep);
+						}
 					}
 					return true;
 				}
@@ -6193,7 +6221,10 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 	for (S32 i = 0; i < drawable->getNumFaces(); i++)
 	{
 		LLFace* facep = drawable->getFace(i);
-		facep->clearVertexBuffer();
+		if (facep)
+		{
+			facep->clearVertexBuffer();
+		}
 	}
 }
 

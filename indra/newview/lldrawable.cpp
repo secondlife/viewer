@@ -604,7 +604,11 @@ void LLDrawable::moveUpdatePipeline(BOOL moved)
 	// Update the face centers.
 	for (S32 i = 0; i < getNumFaces(); i++)
 	{
-		getFace(i)->updateCenterAgent();
+		LLFace* face = getFace(i);
+		if (face)
+		{
+			face->updateCenterAgent();
+		}
 	}
 }
 
@@ -734,7 +738,8 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 				for (S32 i = 0; i < getNumFaces(); i++)
 				{
 					LLFace* facep = getFace(i);
-					if (force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA)
+					if (facep && 
+						(force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA))
 					{
 						LLVector4a box;
 						box.setSub(facep->mExtents[1], facep->mExtents[0]);
@@ -833,13 +838,16 @@ void LLDrawable::shiftPos(const LLVector4a &shift_vector)
 		for (S32 i = 0; i < getNumFaces(); i++)
 		{
 			LLFace *facep = getFace(i);
-			facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
-			facep->mExtents[0].add(shift_vector);
-			facep->mExtents[1].add(shift_vector);
-			
-			if (!volume && facep->hasGeometry())
+			if (facep)
 			{
-				facep->clearVertexBuffer();
+				facep->mCenterAgent += LLVector3(shift_vector.getF32ptr());
+				facep->mExtents[0].add(shift_vector);
+				facep->mExtents[1].add(shift_vector);
+			
+				if (!volume && facep->hasGeometry())
+				{
+					facep->clearVertexBuffer();
+				}
 			}
 		}
 		
@@ -961,7 +969,10 @@ void LLDrawable::setSpatialGroup(LLSpatialGroup *groupp)
 		for (S32 i = 0; i < getNumFaces(); ++i)
 		{
 			LLFace* facep = getFace(i);
-			facep->clearVertexBuffer();
+			if (facep)
+			{
+				facep->clearVertexBuffer();
+			}
 		}
 	}
 

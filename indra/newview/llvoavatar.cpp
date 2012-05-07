@@ -2004,11 +2004,17 @@ void LLVOAvatar::releaseMeshData()
 	if (mDrawable.notNull())
 	{
 		LLFace* facep = mDrawable->getFace(0);
-		facep->setSize(0, 0);
-		for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
+		if (facep)
 		{
-			facep = mDrawable->getFace(i);
 			facep->setSize(0, 0);
+			for(S32 i = mNumInitFaces ; i < mDrawable->getNumFaces(); i++)
+			{
+				facep = mDrawable->getFace(i);
+				if (facep)
+				{
+					facep->setSize(0, 0);
+				}
+			}
 		}
 	}
 	
@@ -2093,15 +2099,20 @@ void LLVOAvatar::updateMeshData()
 				part_index-- ;
 			}
 		
-			LLFace* facep ;
+			LLFace* facep = NULL;
 			if(f_num < mDrawable->getNumFaces()) 
 			{
 				facep = mDrawable->getFace(f_num);
 			}
 			else
 			{
-				facep = mDrawable->addFace(mDrawable->getFace(0)->getPool(), mDrawable->getFace(0)->getTexture()) ;
+				facep = mDrawable->getFace(0);
+				if (facep)
+				{
+					facep = mDrawable->addFace(facep->getPool(), facep->getTexture()) ;
+				}
 			}
+			if (!facep) continue;
 			
 			// resize immediately
 			facep->setSize(num_vertices, num_indices);
@@ -4130,11 +4141,11 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 	{	//LOD changed or new mesh created, allocate new vertex buffer if needed
 		if (needs_rebuild || mDirtyMesh >= 2 || mVisibilityRank <= 4)
 		{
-		updateMeshData();
+			updateMeshData();
 			mDirtyMesh = 0;
-		mNeedsSkin = TRUE;
-		mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
-	}
+			mNeedsSkin = TRUE;
+			mDrawable->clearState(LLDrawable::REBUILD_GEOMETRY);
+		}
 	}
 
 	if (LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) <= 0)
@@ -4159,10 +4170,14 @@ U32 LLVOAvatar::renderSkinned(EAvatarRenderPass pass)
 			mNeedsSkin = FALSE;
 			mLastSkinTime = gFrameTimeSeconds;
 
-			LLVertexBuffer* vb = mDrawable->getFace(0)->getVertexBuffer();
-			if (vb)
+			LLFace * face = mDrawable->getFace(0);
+			if (face)
 			{
-				vb->flush();
+				LLVertexBuffer* vb = face->getVertexBuffer();
+				if (vb)
+				{
+					vb->flush();
+				}
 			}
 		}
 	}
@@ -8253,7 +8268,7 @@ BOOL LLVOAvatar::updateLOD()
 	BOOL res = updateJointLODs();
 
 	LLFace* facep = mDrawable->getFace(0);
-	if (!facep->getVertexBuffer())
+	if (!facep || !facep->getVertexBuffer())
 	{
 		dirtyMesh(2);
 	}

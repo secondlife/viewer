@@ -1718,7 +1718,10 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			LLViewerObject* last_objectp = NULL;
 			for (S32 face_num = 0; face_num < drawablep->getNumFaces(); face_num++)
 			{
-				LLViewerObject* objectp = drawablep->getFace(face_num)->getViewerObject();
+				LLFace * facep = drawablep->getFace(face_num);
+				if (!facep) continue;
+
+				LLViewerObject* objectp = facep->getViewerObject();
 
 				if (objectp && objectp != last_objectp)
 				{

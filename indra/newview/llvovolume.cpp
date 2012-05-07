@@ -520,6 +520,7 @@ void LLVOVolume::animateTextures()
 		for (S32 i = start; i <= end; i++)
 		{
 			LLFace* facep = mDrawable->getFace(i);
+			if (!facep) continue;
 			if(facep->getVirtualSize() <= MIN_TEX_ANIM_SIZE && facep->mTextureMatrix) continue;
 
 			const LLTextureEntry* te = facep->getTextureEntry();
@@ -734,8 +735,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			for (S32 i = 0; i < num_faces; i++)
 			{
 				LLFace* face = mDrawable->getFace(i);
-				face->setPixelArea(0.f); 
-				face->setVirtualSize(0.f);
+				if (face)
+				{
+					face->setPixelArea(0.f); 
+					face->setVirtualSize(0.f);
+				}
 			}
 
 			return ;
@@ -765,6 +769,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	for (S32 i = 0; i < num_faces; i++)
 	{
 		LLFace* face = mDrawable->getFace(i);
+		if (!face) continue;
 		const LLTextureEntry *te = face->getTextureEntry();
 		LLViewerTexture *imagep = face->getTexture();
 		if (!imagep || !te ||			
@@ -1268,7 +1273,8 @@ BOOL LLVOVolume::calcLOD()
 									llround(radius, 0.01f));
 
 
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO))
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_LOD_INFO) &&
+		mDrawable->getFace(0))
 	{
 		//setDebugText(llformat("%.2f:%.2f, %d", debug_distance, radius, cur_detail));
 
@@ -1347,25 +1353,23 @@ void LLVOVolume::updateFaceFlags()
 	for (S32 i = 0; i < getVolume()->getNumFaces(); i++)
 	{
 		LLFace *face = mDrawable->getFace(i);
-		if (!face)
+		if (face)
 		{
-			return;
-		}
+			BOOL fullbright = getTE(i)->getFullbright();
+			face->clearState(LLFace::FULLBRIGHT | LLFace::HUD_RENDER | LLFace::LIGHT);
 
-		BOOL fullbright = getTE(i)->getFullbright();
-		face->clearState(LLFace::FULLBRIGHT | LLFace::HUD_RENDER | LLFace::LIGHT);
-
-		if (fullbright || (mMaterial == LL_MCODE_LIGHT))
-		{
-			face->setState(LLFace::FULLBRIGHT);
-		}
-		if (mDrawable->isLight())
-		{
-			face->setState(LLFace::LIGHT);
-		}
-		if (isHUDAttachment())
-		{
-			face->setState(LLFace::HUD_RENDER);
+			if (fullbright || (mMaterial == LL_MCODE_LIGHT))
+			{
+				face->setState(LLFace::FULLBRIGHT);
+			}
+			if (mDrawable->isLight())
+			{
+				face->setState(LLFace::LIGHT);
+			}
+			if (isHUDAttachment())
+			{
+				face->setState(LLFace::HUD_RENDER);
+			}
 		}
 	}
 }
@@ -1402,6 +1406,8 @@ void LLVOVolume::regenFaces()
 	for (S32 i = 0; i < mNumFaces; i++)
 	{
 		LLFace* facep = count_changed ? addFace(i) : mDrawable->getFace(i);
+		if (!facep) continue;
+
 		facep->setTEOffset(i);
 		facep->setTexture(getTEImage(i));
 		facep->setViewerObject(this);
@@ -1747,16 +1753,19 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 void LLVOVolume::updateFaceSize(S32 idx)
 {
 	LLFace* facep = mDrawable->getFace(idx);
-	if (idx >= getVolume()->getNumVolumeFaces())
+	if (facep)
 	{
-		facep->setSize(0,0, true);
-	}
-	else
-	{
-		const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
-		facep->setSize(vol_face.mNumVertices, vol_face.mNumIndices, 
-						true); // <--- volume faces should be padded for 16-byte alignment
+		if (idx >= getVolume()->getNumVolumeFaces())
+		{
+			facep->setSize(0,0, true);
+		}
+		else
+		{
+			const LLVolumeFace& vol_face = getVolume()->getVolumeFace(idx);
+			facep->setSize(vol_face.mNumVertices, vol_face.mNumIndices, 
+							true); // <--- volume faces should be padded for 16-byte alignment
 		
+		}
 	}
 }
 
@@ -3129,6 +3138,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	for (S32 i = 0; i < num_faces; ++i)
 	{
 		const LLFace* face = drawablep->getFace(i);
+		if (!face) continue;
 		const LLTextureEntry* te = face->getTextureEntry();
 		const LLViewerTexture* img = face->getTexture();
 
@@ -3400,6 +3410,7 @@ F32 LLVOVolume::getBinRadius()
 		for (S32 i = 0; i < mDrawable->getNumFaces(); i++)
 		{
 			LLFace* face = mDrawable->getFace(i);
+			if (!face) continue;
 			if (face->getPoolType() == LLDrawPool::POOL_ALPHA &&
 			    !face->canRenderAsMask())
 			{
@@ -3623,7 +3634,8 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector3& start, const LLVector3& e
 			{
 				LLFace* face = mDrawable->getFace(face_hit);				
 
-				if (pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n)))
+				if (face &&
+					(pick_transparent || !face->getTexture() || !face->getTexture()->hasGLTexture() || face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
 				{
 					v_end = p;
 					if (face_hitp != NULL)
@@ -4233,6 +4245,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
 			LLFace* facep = drawablep->getFace(i);
+			if (!facep)
+			{
+				continue;
+			}
 
 			//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
 			// batch, it will recover its vertex buffer reference from the spatial group
@@ -4453,12 +4469,20 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						S32 face;
 						for (face = 0; face < vobj->getNumTEs(); face++)
 						{
-							drawablep->getFace(face)->setState(LLFace::TEXTURE_ANIM);
+							LLFace * facep = drawablep->getFace(face);
+							if (facep)
+							{
+								facep->setState(LLFace::TEXTURE_ANIM);
+							}
 						}
 					}
 					else if (vobj->mTextureAnimp->mFace < vobj->getNumTEs())
 					{
-						drawablep->getFace(vobj->mTextureAnimp->mFace)->setState(LLFace::TEXTURE_ANIM);
+						LLFace * facep = drawablep->getFace(vobj->mTextureAnimp->mFace);
+						if (facep)
+						{
+							facep->setState(LLFace::TEXTURE_ANIM);
+						}
 					}
 				}
 
@@ -4682,10 +4706,13 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
 					LLFace* face = drawablep->getFace(i);
-					LLVertexBuffer* buff = face->getVertexBuffer();
-					if (face && buff && buff->isLocked())
+					if (face)
 					{
-						buff->flush();
+						LLVertexBuffer* buff = face->getVertexBuffer();
+						if (buff && buff->isLocked())
+						{
+							buff->flush();
+						}
 					}
 				}
 			} 
@@ -5166,20 +5193,21 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 			//sum up face verts and indices
 			drawablep->updateFaceSize(i);
 			LLFace* facep = drawablep->getFace(i);
-
-			
-			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA && 
-				facep->getGeomCount() + vertex_count <= 65536)
+			if (facep)
 			{
-				vertex_count += facep->getGeomCount();
-				index_count += facep->getIndicesCount();
+				if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA && 
+					facep->getGeomCount() + vertex_count <= 65536)
+				{
+					vertex_count += facep->getGeomCount();
+					index_count += facep->getIndicesCount();
 				
-				//remember face (for sorting)
-				mFaceList.push_back(facep);
-			}
-			else
-			{
-				facep->clearVertexBuffer();
+					//remember face (for sorting)
+					mFaceList.push_back(facep);
+				}
+				else
+				{
+					facep->clearVertexBuffer();
+				}
 			}
 		}
 	}

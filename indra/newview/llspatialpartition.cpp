@@ -1513,7 +1513,10 @@ void LLSpatialGroup::destroyGL(bool keep_occlusion)
 		for (S32 j = 0; j < drawable->getNumFaces(); j++)
 		{
 			LLFace* facep = drawable->getFace(j);
-			facep->clearVertexBuffer();
+			if (facep)
+			{
+				facep->clearVertexBuffer();
+			}
 		}
 	}
 }
@@ -2502,18 +2505,21 @@ void pushVerts(LLSpatialGroup* group, U32 mask)
 
 void pushVerts(LLFace* face, U32 mask)
 {
-	llassert(face->verify());
-
-	LLVertexBuffer* buffer = face->getVertexBuffer();
-
-	if (buffer && (face->getGeomCount() >= 3))
+	if (face)
 	{
-		buffer->setBuffer(mask);
-		U16 start = face->getGeomStart();
-		U16 end = start + face->getGeomCount()-1;
-		U32 count = face->getIndicesCount();
-		U16 offset = face->getIndicesStart();
-		buffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		llassert(face->verify());
+
+		LLVertexBuffer* buffer = face->getVertexBuffer();
+
+		if (buffer && (face->getGeomCount() >= 3))
+		{
+			buffer->setBuffer(mask);
+			U16 start = face->getGeomStart();
+			U16 end = start + face->getGeomCount()-1;
+			U32 count = face->getIndicesCount();
+			U16 offset = face->getIndicesStart();
+			buffer->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+		}
 	}
 }
 
@@ -2650,7 +2656,7 @@ void renderOctree(LLSpatialGroup* group)
 				for (S32 j = 0; j < drawable->getNumFaces(); j++)
 				{
 					LLFace* face = drawable->getFace(j);
-					if (face->getVertexBuffer())
+					if (face && face->getVertexBuffer())
 					{
 						if (gFrameTimeSeconds - face->mLastUpdateTime < 0.5f)
 						{
@@ -3021,15 +3027,17 @@ void renderBoundingBox(LLDrawable* drawable, BOOL set_color = TRUE)
 	for (S32 i = 0; i < drawable->getNumFaces(); i++)
 	{
 		LLFace* facep = drawable->getFace(i);
+		if (facep)
+		{
+			ext = facep->mExtents;
 
-		ext = facep->mExtents;
-
-		pos.setAdd(ext[0], ext[1]);
-		pos.mul(0.5f);
-		size.setSub(ext[1], ext[0]);
-		size.mul(0.5f);
+			pos.setAdd(ext[0], ext[1]);
+			pos.mul(0.5f);
+			size.setSub(ext[1], ext[0]);
+			size.mul(0.5f);
 		
-		drawBoxOutline(pos,size);
+			drawBoxOutline(pos,size);
+		}
 	}
 
 	//render drawable bounding box
@@ -3521,18 +3529,21 @@ void renderPhysicsShapes(LLSpatialGroup* group)
 				for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 				{
 					LLFace* face = drawable->getFace(i);
-					LLVertexBuffer* buff = face->getVertexBuffer();
-					if (buff)
+					if (face)
 					{
-						glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+						LLVertexBuffer* buff = face->getVertexBuffer();
+						if (buff)
+						{
+							glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-						buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
-						gGL.diffuseColor3f(0.2f, 0.5f, 0.3f);
-						buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
+							buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
+							gGL.diffuseColor3f(0.2f, 0.5f, 0.3f);
+							buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
 									
-						gGL.diffuseColor3f(0.2f, 1.f, 0.3f);
-						glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-						buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
+							gGL.diffuseColor3f(0.2f, 1.f, 0.3f);
+							glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+							buff->draw(LLRender::TRIANGLES, buff->getNumIndices(), 0);
+						}
 					}
 				}
 			}
@@ -3556,6 +3567,7 @@ void renderTexturePriority(LLDrawable* drawable)
 		
 		//LLViewerTexture* imagep = facep->getTexture();
 		//if (imagep)
+		if (facep)
 		{
 				
 			//F32 vsize = imagep->mMaxVirtualSize;
@@ -3608,7 +3620,11 @@ void renderPoints(LLDrawable* drawablep)
 		gGL.diffuseColor3f(1,1,1);
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
-			gGL.vertex3fv(drawablep->getFace(i)->mCenterLocal.mV);
+			LLFace * face = drawablep->getFace(i);
+			if (face)
+			{
+				gGL.vertex3fv(face->mCenterLocal.mV);
+			}
 		}
 		gGL.end();
 	}
@@ -3685,7 +3701,11 @@ void renderLights(LLDrawable* drawablep)
 
 		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
 		{
-			pushVerts(drawablep->getFace(i), LLVertexBuffer::MAP_VERTEX);
+			LLFace * face = drawablep->getFace(i);
+			if (face)
+			{
+				pushVerts(face, LLVertexBuffer::MAP_VERTEX);
+			}
 		}
 
 		const LLVector4a* ext = drawablep->getSpatialExtents();
@@ -4083,18 +4103,21 @@ public:
 				for (U32 i = 0; i < drawable->getNumFaces(); ++i)
 				{
 					LLFace* facep = drawable->getFace(i);
-					U8 index = facep->getTextureIndex();
-					if (facep->mDrawInfo)
+					if (facep)
 					{
-						if (index < 255)
+						U8 index = facep->getTextureIndex();
+						if (facep->mDrawInfo)
 						{
-							if (facep->mDrawInfo->mTextureList.size() <= index)
+							if (index < 255)
 							{
-								llerrs << "Face texture index out of bounds." << llendl;
-							}
-							else if (facep->mDrawInfo->mTextureList[index] != facep->getTexture())
-							{
-								llerrs << "Face texture index incorrect." << llendl;
+								if (facep->mDrawInfo->mTextureList.size() <= index)
+								{
+									llerrs << "Face texture index out of bounds." << llendl;
+								}
+								else if (facep->mDrawInfo->mTextureList[index] != facep->getTexture())
+								{
+									llerrs << "Face texture index incorrect." << llendl;
+								}
 							}
 						}
 					}
