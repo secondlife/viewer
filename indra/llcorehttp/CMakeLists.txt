@@ -78,7 +78,6 @@ target_link_libraries(
 
 # tests
 if (LL_TESTS)
-#if (LL_TESTS AND 0)
   SET(llcorehttp_TEST_SOURCE_FILES
       tests/test_allocator.cpp
       )
@@ -117,5 +116,4 @@ if (LL_TESTS)
                           )
 
 endif (LL_TESTS)
-#endif (LL_TESTS AND 0)
 

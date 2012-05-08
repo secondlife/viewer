@@ -27,8 +27,10 @@
 
 #include <iostream>
 
-#include <tut/tut.hpp>
-#include <tut/tut_reporter.hpp>
+// These are not the right way in viewer for some reason:
+// #include <tut/tut.hpp>
+// #include <tut/tut_reporter.hpp>
+#include "../test/lltut.h"
 
 #include <curl/curl.h>
 

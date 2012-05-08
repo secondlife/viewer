@@ -166,13 +166,19 @@ void * operator new[](std::size_t size) THROW_BAD_ALLOC()
 
 void operator delete(void * p) THROW_NOTHING()
 {
-	FreeMem( p );
+	if (p)
+	{
+		FreeMem( p );
+	}
 }
 
 
 void operator delete[](void * p) THROW_NOTHING()
 {
-	FreeMem( p );
+	if (p)
+	{
+		FreeMem( p );
+	}
 }
 
 
