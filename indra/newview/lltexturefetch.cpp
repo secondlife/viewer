@@ -1714,7 +1714,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 			mBuffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), data_size);
 			buffer->readAfter(channels.in(), NULL, mBuffer, data_size);
 			mBufferSize += data_size;
-			if ((data_size < mRequestedSize) || (mRequestedSize == 0))
+			if (mRequestedSize == 0)
 			{
 				mHaveAllData = TRUE;
 			}
