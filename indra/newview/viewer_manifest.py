@@ -1031,6 +1031,8 @@ class Linux_i686Manifest(LinuxManifest):
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.3.10")
+            self.path("libboost_program_options-mt.so.1.48.0")
+            self.path("libboost_regex.so.1.48.0")
             self.path("libbreakpad_client.so.0.0.0")
             self.path("libbreakpad_client.so.0")
             self.path("libbreakpad_client.so")
