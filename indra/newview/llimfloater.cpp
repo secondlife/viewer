@@ -94,7 +94,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		case IM_SESSION_GROUP_START:
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
 			break;
-		case IM_SESSION_INVITE:		
+		case IM_SESSION_INVITE:
 			if (gAgent.isInGroup(mSessionID))
 			{
 				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
@@ -104,7 +104,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
 			}
 			break;
-		default: break;
+		default:
+			break;
 		}
 	}
 	setOverlapsScreenChannel(true);
@@ -112,6 +113,52 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 
 	setDocked(true);
+	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
+			boost::bind(&LLIMFloater::onIMSessionMenuItemClicked,  this, _2));
+	mEnableCallbackRegistrar.add("IMSession.Menu.CompactExpandedModes.CheckItem",
+			boost::bind(&LLIMFloater::onIMCompactExpandedMenuItemCheck,	this, _2));
+	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.CheckItem",
+			boost::bind(&LLIMFloater::onIMShowModesMenuItemCheck,	this, _2));
+	mEnableCallbackRegistrar.add("IMSession.Menu.ShowModes.Enable",
+			boost::bind(&LLIMFloater::onIMShowModesMenuItemEnable,	this, _2));
+}
+
+bool LLIMFloater::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	bool is_plain_text_mode = gSavedSettings.getBOOL("PlainTextChatHistory");
+
+	return is_plain_text_mode? item == "compact_view" : item == "expanded_view";
+}
+
+bool LLIMFloater::onIMShowModesMenuItemCheck(const LLSD& userdata)
+{
+	return gSavedSettings.getBOOL(userdata.asString());
+}
+
+bool LLIMFloater::onIMShowModesMenuItemEnable(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
+	bool is_not_names = (item != "IMShowNamesForP2PConv");
+	bool is_p2p_chat = (mDialog == IM_SESSION_P2P_INVITE || mDialog == IM_NOTHING_SPECIAL);
+	return (plain_text && (is_not_names || is_p2p_chat));
+}
+
+void LLIMFloater::onIMSessionMenuItemClicked(const LLSD& userdata)
+{
+	std::string item = userdata.asString();
+
+	if (item == "compact_view" || item == "expanded_view")
+	{
+		gSavedSettings.setBOOL("PlainTextChatHistory", item == "compact_view");
+	}
+	else
+	{   bool prev_value = gSavedSettings.getBOOL(item);
+		gSavedSettings.setBOOL(item, !prev_value);
+	}
+
+	reloadMessages();
 }
 
 void LLIMFloater::onFocusLost()
@@ -635,11 +682,12 @@ void LLIMFloater::updateMessages()
 
 	if (messages.size())
 	{
+		bool is_p2p_chat = (mDialog == IM_SESSION_P2P_INVITE || mDialog == IM_NOTHING_SPECIAL);
 		LLSD chat_args;
 		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
 		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
 		chat_args["show_names_for_p2p_conv"] =
-				gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+				(!is_p2p_chat) || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();

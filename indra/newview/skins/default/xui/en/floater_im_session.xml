@@ -31,6 +31,7 @@
          height="35"
          width="394">         
              <menu_button
+                 menu_filename="menu_im_session_showmodes.xml"
                  follows="top|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"

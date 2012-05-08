@@ -87,7 +87,6 @@ public:
 
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
-
 	void onVisibilityChange(const LLSD& new_visibility);
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	void processAgentListUpdates(const LLSD& body);
@@ -147,6 +146,11 @@ private:
 	static void*	createPanelIMControl(void* userdata);
 	static void*	createPanelGroupControl(void* userdata);
 	static void* 	createPanelAdHocControl(void* userdata);
+
+	bool onIMCompactExpandedMenuItemCheck(const LLSD& userdata);
+	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
+	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
+	void onIMSessionMenuItemClicked(const LLSD& userdata);
 
 	// Add the "User is typing..." indicator.
 	void addTypingIndicator(const LLIMInfo* im_info);

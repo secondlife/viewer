@@ -120,6 +120,9 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 		tmp_chat.mFromName = chat.mFromName;
 		LLSD chat_args = args;
 		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
+		chat_args["show_time"] = true;
+		chat_args["show_names_for_p2p_conv"] = true;
+
 		mChatHistory->appendMessage(chat, chat_args);
 	}
 
