@@ -1222,6 +1222,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				// Will call callbackHttpGet when curl request completes
 				std::vector<std::string> headers;
 				headers.push_back("Accept: image/x-j2c");
+				// If we try to fetch the whole file, we set the size to 0 so that we generate the correct curl range request
+				// Note: it looks a bit hacky but we need to limit this (size==0) to mean "whole file" to HTTP only as it messes up UDP fetching
+				if ((offset+mRequestedSize) == MAX_IMAGE_DATA_SIZE)
+				{
+					mRequestedSize = 0;
+				}
 				res = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize,
 															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true));
 			}
@@ -1708,7 +1714,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(const LLChannelDescriptors& channels,
 			mBuffer = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), data_size);
 			buffer->readAfter(channels.in(), NULL, mBuffer, data_size);
 			mBufferSize += data_size;
-			if (data_size < mRequestedSize && mRequestedDiscard == 0)
+			if (mRequestedSize == 0)
 			{
 				mHaveAllData = TRUE;
 			}
@@ -1949,6 +1955,8 @@ bool LLTextureFetch::createRequest(const std::string& url, const LLUUID& id, con
 	}
 	else
 	{
+		// If the requester knows nothing about the file, we fetch the smallest
+		// amount of data at the lowest resolution (highest discard level) possible.
 		desired_size = TEXTURE_CACHE_ENTRY_SIZE;
 		desired_discard = MAX_DISCARD_LEVEL;
 	}
@@ -3746,7 +3754,7 @@ void LLTextureFetchDebugger::scanRefetchList()
 		if(iter->second.empty())
 		{
 			gTextureList.setDebugFetching(iter->first, -1);
-			iter = mRefetchList.erase(iter);
+			mRefetchList.erase(iter++);		// This is the correct method to "erase and move on" in an std::map
 		}
 		else
 		{
