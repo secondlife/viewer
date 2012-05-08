@@ -134,46 +134,9 @@ void LLFloaterTextureFetchDebugger::setStartStatus(S32 status)
 	
 bool LLFloaterTextureFetchDebugger::idleStart()
 {
-	switch((LLTextureFetchDebugger::e_debug_state)mStartStatus)
-	{
-		case LLTextureFetchDebugger::IDLE:
-			break;
-		case LLTextureFetchDebugger::START_DEBUG:
-			mDebugger->startDebug();
-			break;
-		case LLTextureFetchDebugger::READ_CACHE:			
-			mDebugger->debugCacheRead();
-			break;
-		case LLTextureFetchDebugger::WRITE_CACHE:
-			mDebugger->debugCacheWrite();
-			break;
-		case LLTextureFetchDebugger::DECODING:
-			mDebugger->debugDecoder();
-			break;
-		case LLTextureFetchDebugger::HTTP_FETCHING:
-			mDebugger->debugHTTP();
-			break;
-		case LLTextureFetchDebugger::GL_TEX:
-			mDebugger->debugGLTextureCreation();
-			break;
-		case LLTextureFetchDebugger::REFETCH_VIS_CACHE:
-			mDebugger->debugRefetchVisibleFromCache();
-			break;
-		case LLTextureFetchDebugger::REFETCH_VIS_HTTP:
-			mDebugger->debugRefetchVisibleFromHTTP();
-			break;
-		case LLTextureFetchDebugger::REFETCH_ALL_CACHE:
-			mDebugger->debugRefetchAllFromCache();
-			break;
-		case LLTextureFetchDebugger::REFETCH_ALL_HTTP:
-			mDebugger->debugRefetchAllFromHTTP();
-			break;
-		default:
-			break;
-		}
-
 	if(mStartStatus != (S32)LLTextureFetchDebugger::IDLE)
 	{
+		mDebugger->startWork((LLTextureFetchDebugger::e_debug_state)mStartStatus);
 		mStartStatus = (S32)LLTextureFetchDebugger::IDLE;
 		return true;
 	}
@@ -188,12 +151,21 @@ void LLFloaterTextureFetchDebugger::idle()
 		return;
 	}
 
+	const F32 max_time = 0.005f; //5ms
 	LLTextureFetchDebugger::e_debug_state state = mDebugger->getState();	
-	if(mDebugger->update())
+	if(mDebugger->update(max_time))
 	{
 		switch(state)
 		{
 		case LLTextureFetchDebugger::IDLE:
+			break;
+		case LLTextureFetchDebugger::START_DEBUG:
+			mButtonStateMap["cacheread_btn"] = true;
+			mButtonStateMap["http_btn"] = true;
+			mButtonStateMap["refetchviscache_btn"] = true;
+			mButtonStateMap["refetchvishttp_btn"] = true;
+			mButtonStateMap["refetchallcache_btn"] = true;
+			mButtonStateMap["refetchallhttp_btn"] = true;
 			break;
 		case LLTextureFetchDebugger::READ_CACHE:			
 			mButtonStateMap["decode_btn"] = true;			
@@ -242,26 +214,6 @@ void LLFloaterTextureFetchDebugger::onClickStart()
 	setStartStatus((S32)LLTextureFetchDebugger::START_DEBUG);	
 
 	mButtonStateMap["start_btn"] = false;
-
-	//if(LLAppViewer::getTextureFetch()->canLoadFromCache())
-	//{
-	//	mButtonStateMap["cacheread_btn"] = true;
-	//	mButtonStateMap["http_btn"] = false;
-	//	mButtonStateMap["refetchviscache_btn"] = true;
-	//	mButtonStateMap["refetchvishttp_btn"] = false;
-	//	mButtonStateMap["refetchallcache_btn"] = true;
-	//	mButtonStateMap["refetchallhttp_btn"] = false;
-	//	mButtonStateMap["cachewrite_btn"] = false;
-	//}
-	//else
-	{
-		mButtonStateMap["cacheread_btn"] = true;
-		mButtonStateMap["http_btn"] = true;
-		mButtonStateMap["refetchviscache_btn"] = true;
-		mButtonStateMap["refetchvishttp_btn"] = true;
-		mButtonStateMap["refetchallcache_btn"] = true;
-		mButtonStateMap["refetchallhttp_btn"] = true;
-	}
 
 	updateButtons();
 }

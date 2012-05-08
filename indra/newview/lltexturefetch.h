@@ -355,8 +355,12 @@ private:
 	S32 mNbCurlCompleted;
 
 	std::map< LLPointer<LLViewerFetchedTexture>, std::vector<S32> > mRefetchList;
+	std::vector< LLPointer<LLViewerFetchedTexture> > mTempTexList;
+	S32 mTempIndex;
+	S32 mHistoryListIndex;
+
 public:
-	bool update(); //called in the main thread once per frame
+	bool update(F32 max_time); //called in the main thread once per frame
 
 	//fetching history
 	void clearHistory();
@@ -364,19 +368,10 @@ public:
 	
 	void setCurlGetRequest(LLCurlRequest* request) { mCurlGetRequest = request;}
 	
-	void startDebug();
+	void startWork(e_debug_state state);
 	void setStopDebug() {mStopDebug = TRUE;}
 	void tryToStopDebug(); //stop everything
-	void debugCacheRead();
-	void debugCacheWrite();	
-	void debugHTTP();
-	void debugDecoder();
-	void debugGLTextureCreation();
-	void debugRefetchVisibleFromCache();
-	void debugRefetchVisibleFromHTTP();
-	void debugRefetchAllFromCache();
-	void debugRefetchAllFromHTTP();
-
+	
 	void callbackCacheRead(S32 id, bool success, LLImageFormatted* image,
 						   S32 imagesize, BOOL islocal);
 	void callbackCacheWrite(S32 id, bool success);
@@ -433,6 +428,20 @@ private:
 	void unlockDecoder();
 	
 	S32 fillCurlQueue();
+
+	void startDebug();
+	void debugCacheRead();
+	void debugCacheWrite();	
+	void debugHTTP();
+	void debugDecoder();
+	void debugGLTextureCreation();
+	void debugRefetchVisibleFromCache();
+	void debugRefetchVisibleFromHTTP();
+	void debugRefetchAllFromCache();
+	void debugRefetchAllFromHTTP();
+
+	bool processStartDebug(F32 max_time);
+	bool processGLCreation(F32 max_time);
 
 private:
 	static bool sDebuggerEnabled;
