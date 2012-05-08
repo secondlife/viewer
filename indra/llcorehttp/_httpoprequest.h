@@ -28,6 +28,8 @@
 #define	_LLCORE_HTTP_OPREQUEST_H_
 
 
+#include "linden_common.h"		// Modifies curl/curl.h interfaces
+
 #include "httpcommon.h"
 
 #include <curl/curl.h>

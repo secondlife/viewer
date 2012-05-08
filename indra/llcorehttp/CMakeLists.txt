@@ -3,8 +3,12 @@
 project(llcorehttp)
 
 include(00-Common)
-include(LLCoreHttp)
 include(GoogleMock)
+include(CURL)
+include(CARes)
+include(OpenSSL)
+include(ZLIB)
+include(LLCoreHttp)
 include(LLAddBuildTest)
 include(LLCommon)
 include(Tut)
@@ -106,8 +110,10 @@ if (LL_TESTS)
       ${LLCOMMON_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES}
       ${CURL_LIBRARIES}
+      ${CARES_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
+      ${BOOST_THREAD_LIBRARY}
       )
 
   LL_ADD_INTEGRATION_TEST(llcorehttp

@@ -54,11 +54,21 @@ else (STANDALONE)
           debug libboost_thread-mt-gd)
     endif (MSVC80)
   elseif (LINUX)
-    set(BOOST_PROGRAM_OPTIONS_LIBRARY boost_program_options-mt)
-    set(BOOST_REGEX_LIBRARY boost_regex-mt)
-    set(BOOST_SYSTEM_LIBRARY boost_system-mt)
-    set(BOOST_FILESYSTEM_LIBRARY boost_filesystem-mt)
-    set(BOOST_THREAD_LIBRARY boost_thread-mt)
+    set(BOOST_PROGRAM_OPTIONS_LIBRARY
+        optimized boost_program_options-mt
+        debug boost_program_options-mt-d)
+    set(BOOST_REGEX_LIBRARY
+        optimized boost_regex-mt
+        debug boost_regex-mt-d)
+    set(BOOST_SYSTEM_LIBRARY
+        optimized boost_system-mt
+        debug boost_system-mt-d)
+    set(BOOST_FILESYSTEM_LIBRARY
+        optimized boost_filesystem-mt
+        debug boost_filesystem-mt-d)
+    set(BOOST_THREAD_LIBRARY
+        optimized boost_thread-mt
+        debug boost_thread-mt-d)
   elseif (DARWIN)
     set(BOOST_PROGRAM_OPTIONS_LIBRARY
         optimized boost_program_options-mt

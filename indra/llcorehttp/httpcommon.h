@@ -93,7 +93,7 @@
 /// <TBD>
 ///
 
-#include "linden_common.h"
+#include "linden_common.h"		// Modifies curl/curl.h interfaces
 
 #include <string>
 

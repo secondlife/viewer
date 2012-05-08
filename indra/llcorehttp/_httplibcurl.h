@@ -27,6 +27,7 @@
 #ifndef	_LLCORE_HTTP_LIBCURL_H_
 #define	_LLCORE_HTTP_LIBCURL_H_
 
+#include "linden_common.h"		// Modifies curl/curl.h interfaces
 
 #include <curl/curl.h>
 #include <curl/multi.h>
