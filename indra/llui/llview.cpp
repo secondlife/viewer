@@ -1106,7 +1106,7 @@ void LLView::drawChildren()
 				{
 					LLUI::pushMatrix();
 					{
-						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom, 0.f);
+						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom);
 						// flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
 						viewp->mInDraw = true;
 						viewp->draw();
@@ -1159,7 +1159,7 @@ void LLView::drawDebugRect()
 
 		if (getUseBoundingRect())
 		{
-			LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom, 0.f);
+			LLUI::translate((F32)mBoundingRect.mLeft - (F32)mRect.mLeft, (F32)mBoundingRect.mBottom - (F32)mRect.mBottom);
 		}
 
 		LLRect debug_rect = getUseBoundingRect() ? mBoundingRect : mRect;
@@ -1231,7 +1231,7 @@ void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_dr
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			{
-				LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset, 0.f);
+				LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset);
 				childp->draw();
 			}
 			LLUI::popMatrix();
@@ -1300,7 +1300,10 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
 			S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
 			viewp->translate( delta_x, delta_y );
-			viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+			if (child_rect.getWidth() != viewp->getRect().getWidth() || child_rect.getHeight() != viewp->getRect().getHeight())
+			{
+				viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
+			}
 		}
 	}
 
@@ -1616,59 +1619,30 @@ LLView* LLView::findNextSibling(LLView* child)
 }
 
 
-LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, BOOL allow_partial_outside)
+LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, S32 min_overlap_pixels)
 {
 	LLCoordGL delta;
 
-	if (allow_partial_outside)
+	const S32 KEEP_ONSCREEN_PIXELS_WIDTH = llmin(min_overlap_pixels, input.getWidth());
+	const S32 KEEP_ONSCREEN_PIXELS_HEIGHT = llmin(min_overlap_pixels, input.getHeight());
+
+	if( input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH < constraint.mLeft )
 	{
-		const S32 KEEP_ONSCREEN_PIXELS = 16;
+		delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS_WIDTH);
+	}
+	else if( input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH > constraint.mRight )
+	{
+		delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS_WIDTH);
+	}
 
-		if( input.mRight - KEEP_ONSCREEN_PIXELS < constraint.mLeft )
-		{
-			delta.mX = constraint.mLeft - (input.mRight - KEEP_ONSCREEN_PIXELS);
-		}
-		else
-		if( input.mLeft + KEEP_ONSCREEN_PIXELS > constraint.mRight )
-		{
-			delta.mX = constraint.mRight - (input.mLeft + KEEP_ONSCREEN_PIXELS);
-		}
-
-		if( input.mTop > constraint.mTop )
-		{
-			delta.mY = constraint.mTop - input.mTop;
-		}
-		else
-		if( input.mTop - KEEP_ONSCREEN_PIXELS < constraint.mBottom )
-		{
-			delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS);
-		}
+	if( input.mTop > constraint.mTop )
+	{
+		delta.mY = constraint.mTop - input.mTop;
 	}
 	else
+	if( input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT < constraint.mBottom )
 	{
-		if( input.mLeft < constraint.mLeft )
-		{
-			delta.mX = constraint.mLeft - input.mLeft;
-		}
-		else
-		if( input.mRight > constraint.mRight )
-		{
-			delta.mX = constraint.mRight - input.mRight;
-			// compensate for left edge possible going off screen
-			delta.mX += llmax( 0, input.getWidth() - constraint.getWidth() );
-		}
-
-		if( input.mTop > constraint.mTop )
-		{
-			delta.mY = constraint.mTop - input.mTop;
-		}
-		else
-		if( input.mBottom < constraint.mBottom )
-		{
-			delta.mY = constraint.mBottom - input.mBottom;
-			// compensate for top edge possible going off screen
-			delta.mY -= llmax( 0, input.getHeight() - constraint.getHeight() );
-		}
+		delta.mY = constraint.mBottom - (input.mTop - KEEP_ONSCREEN_PIXELS_HEIGHT);
 	}
 
 	return delta;
@@ -1677,9 +1651,9 @@ LLCoordGL getNeededTranslation(const LLRect& input, const LLRect& constraint, BO
 // Moves the view so that it is entirely inside of constraint.
 // If the view will not fit because it's too big, aligns with the top and left.
 // (Why top and left?  That's where the drag bars are for floaters.)
-BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outside )
+BOOL LLView::translateIntoRect(const LLRect& constraint, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(getRect(), constraint, allow_partial_outside);
+	LLCoordGL translation = getNeededTranslation(getRect(), constraint, min_overlap_pixels);
 
 	if (translation.mX != 0 || translation.mY != 0)
 	{
@@ -1691,9 +1665,9 @@ BOOL LLView::translateIntoRect(const LLRect& constraint, BOOL allow_partial_outs
 
 // move this view into "inside" but not onto "exclude"
 // NOTE: if this view is already contained in "inside", we ignore the "exclude" rect
-BOOL LLView::translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, BOOL allow_partial_outside )
+BOOL LLView::translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, S32 min_overlap_pixels)
 {
-	LLCoordGL translation = getNeededTranslation(getRect(), inside, allow_partial_outside);
+	LLCoordGL translation = getNeededTranslation(getRect(), inside, min_overlap_pixels);
 	
 	if (translation.mX != 0 || translation.mY != 0)
 	{

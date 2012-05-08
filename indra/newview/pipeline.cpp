@@ -203,10 +203,6 @@ extern S32 gBoxFrame;
 extern BOOL gDisplaySwapBuffers;
 extern BOOL gDebugGL;
 
-// hack counter for rendering a fixed number of frames after toggling
-// fullscreen to work around DEV-5361
-static S32 sDelayedVBOEnable = 0;
-
 BOOL	gAvatarBacklight = FALSE;
 
 BOOL	gDebugPipeline = FALSE;
@@ -411,6 +407,7 @@ LLPipeline::LLPipeline() :
 	mOldRenderDebugMask(0),
 	mGroupQ1Locked(false),
 	mGroupQ2Locked(false),
+	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
 	mSkyPool(NULL),
@@ -692,8 +689,6 @@ void LLPipeline::destroyGL()
 
 	if (LLVertexBuffer::sEnableVBOs)
 	{
-		// render 30 frames after switching to work around DEV-5361
-		sDelayedVBOEnable = 30;
 		LLVertexBuffer::sEnableVBOs = FALSE;
 	}
 }
@@ -2522,15 +2517,6 @@ void LLPipeline::updateGeom(F32 max_dtime)
 	LLFastTimer t(FTM_GEO_UPDATE);
 
 	assertInitialized();
-
-	if (sDelayedVBOEnable > 0)
-	{
-		if (--sDelayedVBOEnable <= 0)
-		{
-			resetVertexBuffers();
-			LLVertexBuffer::sEnableVBOs = TRUE;
-		}
-	}
 
 	// notify various object types to reset internal cost metrics, etc.
 	// for now, only LLVOVolume does this to throttle LOD changes
@@ -6185,7 +6171,7 @@ LLSpatialPartition* LLPipeline::getSpatialPartition(LLViewerObject* vobj)
 
 void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 {
-	if (!drawable || drawable->isDead())
+	if (!drawable)
 	{
 		return;
 	}
@@ -6198,7 +6184,19 @@ void LLPipeline::resetVertexBuffers(LLDrawable* drawable)
 }
 
 void LLPipeline::resetVertexBuffers()
-{	
+{
+	mResetVertexBuffers = true;
+}
+
+void LLPipeline::doResetVertexBuffers()
+{
+	if (!mResetVertexBuffers)
+	{
+		return;
+	}
+	
+	mResetVertexBuffers = false;
+
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -6224,10 +6222,8 @@ void LLPipeline::resetVertexBuffers()
 
 	if (LLVertexBuffer::sGLCount > 0)
 	{
-		llwarns << "VBO wipe failed." << llendl;
+		llwarns << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << llendl;
 	}
-
-	llassert(LLVertexBuffer::sGLCount == 0);
 
 	LLVertexBuffer::unbind();	
 	

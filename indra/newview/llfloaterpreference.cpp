@@ -769,7 +769,8 @@ void LLFloaterPreference::onClose(bool app_quitting)
 
 void LLFloaterPreference::onOpenHardwareSettings()
 {
-	LLFloaterReg::showInstance("prefs_hardware_settings");
+	LLFloater* floater = LLFloaterReg::showInstance("prefs_hardware_settings");
+	addDependentFloater(floater, FALSE);
 }
 // static 
 void LLFloaterPreference::onBtnOK()
@@ -1924,7 +1925,46 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 	}
 }
 
+class LLPanelPreferencePrivacy : public LLPanelPreference
+{
+public:
+	LLPanelPreferencePrivacy()
+	{
+		mAccountIndependentSettings.push_back("VoiceCallsFriendsOnly");
+		mAccountIndependentSettings.push_back("AutoDisengageMic");
+	}
+
+	/*virtual*/ void saveSettings()
+	{
+		LLPanelPreference::saveSettings();
+
+		// Don't save (=erase from the saved values map) per-account privacy settings
+		// if we're not logged in, otherwise they will be reset to defaults on log off.
+		if (LLStartUp::getStartupState() != STATE_STARTED)
+		{
+			// Erase only common settings, assuming there are no color settings on Privacy page.
+			for (control_values_map_t::iterator it = mSavedValues.begin(); it != mSavedValues.end(); )
+			{
+				const std::string setting = it->first->getName();
+				if (std::find(mAccountIndependentSettings.begin(),
+					mAccountIndependentSettings.end(), setting) == mAccountIndependentSettings.end())
+				{
+					mSavedValues.erase(it++);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+	}
+
+private:
+	std::list<std::string> mAccountIndependentSettings;
+};
+
 static LLRegisterPanelClassWrapper<LLPanelPreferenceGraphics> t_pref_graph("panel_preference_graphics");
+static LLRegisterPanelClassWrapper<LLPanelPreferencePrivacy> t_pref_privacy("panel_preference_privacy");
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {

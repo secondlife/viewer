@@ -55,7 +55,7 @@ public:
 		else
 		{
 			width = mEditor.getDocumentView()->getRect().getWidth() - mEditor.getHPad(); 
-			height = llceil(mStyle->getFont()->getLineHeight());
+			height = mStyle->getFont()->getLineHeight();
 		}
 		return true;
 	}

@@ -436,11 +436,6 @@ void LLViewerInventoryItem::fetchFromServer(void) const
 			gAgent.sendReliableMessage();
 		}
 	}
-	else
-	{
-		// *FIX: this can be removed after a bit.
-		llwarns << "request to fetch complete item" << llendl;
-	}
 }
 
 // virtual
@@ -1462,6 +1457,7 @@ const std::string& LLViewerInventoryItem::getName() const
 class LLFavoritesOrderStorage : public LLSingleton<LLFavoritesOrderStorage>
 	, public LLDestroyClass<LLFavoritesOrderStorage>
 {
+	LOG_CLASS(LLFavoritesOrderStorage);
 public:
 	/**
 	 * Sets sort index for specified with LLUUID favorite landmark
@@ -1620,10 +1616,18 @@ void LLFavoritesOrderStorage::load()
 void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 {
 	// Do not change the file if we are not logged in yet.
-	if (!LLLoginInstance::getInstance()->authSuccess()) return;
+	if (!LLLoginInstance::getInstance()->authSuccess())
+	{
+		llwarns << "Cannot save favorites: not logged in" << llendl;
+		return;
+	}
 	
 	std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
-	if (user_dir.empty()) return;
+	if (user_dir.empty())
+	{
+		llwarns << "Cannot save favorites: empty user dir name" << llendl;
+		return;
+	}
 
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
 	llifstream in_file;
@@ -1649,13 +1653,19 @@ void LLFavoritesOrderStorage::saveFavoritesSLURLs()
 		slurls_map_t::iterator slurl_iter = mSLURLs.find(value["asset_id"]);
 		if (slurl_iter != mSLURLs.end())
 		{
+			lldebugs << "Saving favorite: idx=" << (*it)->getSortField() << ", SLURL=" <<  slurl_iter->second << ", value=" << value << llendl;
 			value["slurl"] = slurl_iter->second;
 			user_llsd[(*it)->getSortField()] = value;
+		}
+		else
+		{
+			llwarns << "Not saving favorite " << value["name"] << ": no matching SLURL" << llendl;
 		}
 	}
 
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( gAgentID, &av_name );
+	lldebugs << "Saved favorites for " << av_name.getLegacyName() << llendl;
 	fav_llsd[av_name.getLegacyName()] = user_llsd;
 
 	llofstream file;
@@ -1674,6 +1684,7 @@ void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
 
 	LLAvatarName av_name;
 	LLAvatarNameCache::get( gAgentID, &av_name );
+	lldebugs << "Removed favorites for " << av_name.getLegacyName() << llendl;
 	if (fav_llsd.has(av_name.getLegacyName()))
 	{
 		fav_llsd.erase(av_name.getLegacyName());
@@ -1706,6 +1717,7 @@ void LLFavoritesOrderStorage::onLandmarkLoaded(const LLUUID& asset_id, LLLandmar
 
 void LLFavoritesOrderStorage::storeFavoriteSLURL(const LLUUID& asset_id, std::string& slurl)
 {
+	lldebugs << "Saving landmark SLURL: " << slurl << llendl;
 	mSLURLs[asset_id] = slurl;
 }
 

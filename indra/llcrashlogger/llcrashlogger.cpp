@@ -250,7 +250,7 @@ void LLCrashLogger::gatherFiles()
 		if(minidump_stream.is_open())
 		{
 			minidump_stream.seekg(0, std::ios::end);
-			size_t length = minidump_stream.tellg();
+			size_t length = (size_t)minidump_stream.tellg();
 			minidump_stream.seekg(0, std::ios::beg);
 			
 			LLSD::Binary data;

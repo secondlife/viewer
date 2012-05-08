@@ -1570,7 +1570,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		constraint_it++)
 		{
 			U8 byte = constraint_it->mChainLength;
-			dp.packU8(byte, "chain_lenght");
+			dp.packU8(byte, "chain_length");
 			
 			byte = constraint_it->mConstraintType;
 			dp.packU8(byte, "constraint_type");

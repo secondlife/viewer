@@ -194,7 +194,7 @@ void LLWaterParamManager::updateShaderUniforms(LLGLSLShader * shader)
 		shader->uniform4fv("waterPlane", 1, mWaterPlane.mV);
 		shader->uniform1f("waterFogDensity", getFogDensity());
 		shader->uniform1f("waterFogKS", mWaterFogKS);
-		shader->uniform4f("distance_multiplier", 0, 0, 0, 0);
+		shader->uniform1f("distance_multiplier", 0);
 	}
 }
 

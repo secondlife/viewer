@@ -922,13 +922,20 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	S32 image_top = getRect().getHeight();
 	S32 image_bottom = BTN_HEIGHT_SMALL;
 	S32 image_middle = (image_top + image_bottom) / 2;
-	S32 line_height = llround(LLFontGL::getFontSansSerifSmall()->getLineHeight());
+	S32 line_height = LLFontGL::getFontSansSerifSmall()->getLineHeight();
 
 	LLTextBox::Params tentative_label_p(p.multiselect_text);
 	tentative_label_p.name("Multiple");
 	tentative_label_p.rect(LLRect (0, image_middle + line_height / 2, getRect().getWidth(), image_middle - line_height / 2 ));
 	tentative_label_p.follows.flags(FOLLOWS_ALL);
 	mTentativeLabel = LLUICtrlFactory::create<LLTextBox> (tentative_label_p);
+
+	// It is no longer possible to associate a style with a textbox, so it has to be done in this fashion
+	LLStyle::Params style_params;
+	style_params.color = LLColor4::white;
+
+	mTentativeLabel->setText(LLTrans::getString("multiple_textures"), style_params);
+	mTentativeLabel->setHAlign(LLFontGL::HCENTER);
 	addChild( mTentativeLabel );
 
 	LLRect border_rect = getLocalRect();

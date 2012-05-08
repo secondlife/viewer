@@ -33,10 +33,10 @@
 #include "v4color.h"
 #include "llinitparam.h"
 #include "llscrolllistcell.h"
+#include "llcoord.h"
 
 #include <vector>
 
-class LLCoordGL;
 class LLCheckBoxCtrl;
 class LLResizeBar;
 class LLScrollListCtrl;

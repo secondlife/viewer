@@ -18,7 +18,7 @@
   <text
     follows="left|top"
     font="SansSerifMedium"
-    valign="bottom"
+    valign="top"
     halign="left"
     height="20"
     layout="topleft"
@@ -33,7 +33,7 @@
   <text
     follows="left|top"
     font="SansSerifMedium"
-    valign="bottom"
+    valign="top"
     halign="left"
     height="20"
     layout="topleft"

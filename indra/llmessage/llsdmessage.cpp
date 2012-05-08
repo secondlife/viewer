@@ -88,7 +88,7 @@ bool LLSDMessage::httpListener(const LLSD& request)
                                                        request,
                                                        url, "POST", reply, error),
                        LLSD(),      // headers
-                       timeout);
+                       (F32)timeout);
     return false;
 }
 
