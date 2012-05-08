@@ -51,8 +51,8 @@ LLAlertHandler::LLAlertHandler(e_notification_type type, const LLSD& id) : mIsMo
 	p.channel_align = CA_CENTRE;
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->getChannel(p);
-	mChannel->setCanStoreToasts(false);
+	mChannel = LLChannelManager::getInstance()->getChannel(p)->getHandle();
+	mChannel.get()->setCanStoreToasts(false);
 }
 
 //--------------------------------------------------------------------------
@@ -64,13 +64,13 @@ LLAlertHandler::~LLAlertHandler()
 void LLAlertHandler::initChannel()
 {
 	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().getWidth() / 2;
-	mChannel->init(channel_right_bound, channel_right_bound);
+	mChannel.get()->init(channel_right_bound, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLAlertHandler::processNotification(const LLSD& notify)
 {
-	if(!mChannel)
+	if(mChannel.isDead())
 	{
 		return false;
 	}
@@ -81,7 +81,7 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		return false;
 
 	// arrange a channel on a screen
-	if(!mChannel->getVisible())
+	if(!mChannel.get()->getVisible())
 	{
 		initChannel();
 	}
@@ -114,22 +114,22 @@ bool LLAlertHandler::processNotification(const LLSD& notify)
 		// Show alert in middle of progress view (during teleport) (EXT-1093)
 		LLProgressView* progress = gViewerWindow->getProgressView();
 		LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
-		mChannel->updatePositionAndSize(rc);
+		mChannel.get()->updatePositionAndSize(rc);
 
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->addToast(p);
 	}
 	else if (notify["sigtype"].asString() == "change")
 	{
 		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->modifyToastByNotificationID(notification->getID(), (LLToastPanel*)alert_dialog);
 	}
 	else
 	{
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->killToastByNotificationID(notification->getID());
 	}

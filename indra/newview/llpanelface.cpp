@@ -875,8 +875,15 @@ void LLPanelFace::getState()
 			{
 				getChild<LLUICtrl>("TexScaleU")->setValue(2.0f * getChild<LLUICtrl>("TexScaleU")->getValue().asReal() );
 				getChild<LLUICtrl>("TexScaleV")->setValue(2.0f * getChild<LLUICtrl>("TexScaleV")->getValue().asReal() );
-			}
 
+				// EXP-1507 (change label based on the mapping mode)
+				getChild<LLUICtrl>("rpt")->setValue(getString("string repeats per meter"));
+			}
+			else
+			if (selected_texgen == 0)  // FIXME: should not be magic numbers
+			{
+				getChild<LLUICtrl>("rpt")->setValue(getString("string repeats per face"));
+			}
 		}
 
 		{

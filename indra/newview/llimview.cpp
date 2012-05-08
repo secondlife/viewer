@@ -171,8 +171,8 @@ void LLIMModel::setActiveSessionID(const LLUUID& session_id)
 
 LLIMModel::LLIMModel() 
 {
-	addNewMsgCallback(LLIMFloater::newIMCallback);
-	addNewMsgCallback(toast_callback);
+	addNewMsgCallback(boost::bind(&LLIMFloater::newIMCallback, _1));
+	addNewMsgCallback(boost::bind(&toast_callback, _1));
 }
 
 LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice)
@@ -2458,7 +2458,10 @@ void LLIMMgr::addMessage(
 		make_ui_sound("UISndNewIncomingIMSession");
 	}
 
-	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat))
+	bool skip_message = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") &&
+		LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);
+
+	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
 		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
@@ -2975,6 +2978,17 @@ bool LLIMMgr::isVoiceCall(const LLUUID& session_id)
 	if (!im_session) return false;
 
 	return im_session->mStartedAsIMCall;
+}
+
+void LLIMMgr::addNotifiedNonFriendSessionID(const LLUUID& session_id)
+{
+	mNotifiedNonFriendSessions.insert(session_id);
+}
+
+bool LLIMMgr::isNonFriendSessionNotified(const LLUUID& session_id)
+{
+	return mNotifiedNonFriendSessions.end() != mNotifiedNonFriendSessions.find(session_id);
+
 }
 
 void LLIMMgr::noteOfflineUsers(

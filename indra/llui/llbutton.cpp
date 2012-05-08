@@ -908,9 +908,9 @@ void LLButton::draw()
 		// Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
 		mLastDrawCharsCount = mGLFont->render(label, 0,
 			(F32)x,
-			(F32)(mBottomVPad + y_offset),
+			(F32)(getRect().getHeight() / 2 + mBottomVPad),
 			label_color % alpha,
-			mHAlign, LLFontGL::BOTTOM,
+			mHAlign, LLFontGL::VCENTER,
 			LLFontGL::NORMAL,
 			mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NO_SHADOW,
 			S32_MAX, text_width,

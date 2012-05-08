@@ -45,12 +45,6 @@ void LLVOAvatar::getNearbyRezzedStats(std::vector<S32>& counts)
 	counts[2] = 1;
 }
 
-LLViewerStats::StatsAccumulator& LLVOAvatar::getPhaseStats(const std::string& phase_name)
-{
-	static std::map<std::string,LLViewerStats::StatsAccumulator> stats_map;
-	return stats_map[phase_name];
-}
-
 // static
 std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 {
@@ -58,6 +52,13 @@ std::string LLVOAvatar::rezStatusToString(S32 rez_status)
 	if (rez_status==1) return "gray";
 	if (rez_status==2) return "textured";
 	return "unknown";
+}
+
+// static
+LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
+{
+	static LLViewerStats::StatsAccumulator junk;
+	return junk;
 }
 
 static const char * all_keys[] = 

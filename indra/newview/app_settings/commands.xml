@@ -37,6 +37,8 @@
            tooltip_ref="Command_Build_Tooltip"
            execute_function="Build.Toggle"
            execute_parameters="build"
+           is_enabled_function="Build.Enabled"
+           is_enabled_parameters="build"
            is_running_function="Floater.IsOpen"
            is_running_parameters="build"
            />

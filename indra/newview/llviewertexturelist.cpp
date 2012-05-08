@@ -701,6 +701,11 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			LLPointer<LLViewerFetchedTexture> imagep = iter->second;
 			++iter; // safe to incrament now
 
+			if(imagep->isInDebug())
+			{
+				continue; //is in debug, ignore.
+			}
+
 			//
 			// Flush formatted images using a lazy flush
 			//
@@ -770,6 +775,27 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			}
 			update_counter--;
 		}
+	}
+}
+
+void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level)
+{
+	if(!tex->setDebugFetching(debug_level))
+	{
+		return;
+	}
+
+	const F32 DEBUG_PRIORITY = 100000.f;
+	F32 old_priority_test = llmax(tex->getDecodePriority(), 0.0f);
+	F32 decode_priority_test = DEBUG_PRIORITY;
+	
+	// Ignore < 20% difference
+	if ((decode_priority_test < old_priority_test * .8f) ||
+		(decode_priority_test > old_priority_test * 1.25f))
+	{
+		removeImageFromList(tex);
+		tex->setDecodePriority(decode_priority_test);
+		addImageToList(tex);
 	}
 }
 

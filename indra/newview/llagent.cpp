@@ -169,11 +169,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 
 	const std::string& param = sdname.asString();
 
-	if (param == "build")
-	{
-		retval = gAgent.canEditParcel();
-	}
-	else if (param == "speak")
+	if (param == "speak")
 	{
 		if ( gAgent.isVoiceConnected() && 
 			LLViewerParcelMgr::getInstance()->allowAgentVoice() &&
@@ -3785,12 +3781,12 @@ void LLAgent::sendAgentSetAppearance()
 	if (!gAgentWearables.changeInProgress())
 	{
 		// Change is fully resolved, can close some open phases.
-		gAgentAvatarp->stopPhase("process_initial_wearables_update");
-		gAgentAvatarp->stopPhase("wear_inventory_category");
+		gAgentAvatarp->getPhases().stopPhase("process_initial_wearables_update");
+		gAgentAvatarp->getPhases().stopPhase("wear_inventory_category");
 	}
 	
 	gAgentAvatarp->sendAppearanceChangeMetrics();
-	LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
+	LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sent AgentSetAppearance: " << gAgentAvatarp->getBakedStatusForPrintout() << LL_ENDL;
 	//dumpAvatarTEs( "sendAgentSetAppearance()" );
 
 	LLMessageSystem* msg = gMessageSystem;
@@ -3837,7 +3833,7 @@ void LLAgent::sendAgentSetAppearance()
 	// only update cache entries if we have all our baked textures
 	if (textures_current)
 	{
-		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
+		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "TAT: Sending cached texture data" << LL_ENDL;
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
 			BOOL generate_valid_hash = TRUE;

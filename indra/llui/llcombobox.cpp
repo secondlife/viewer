@@ -613,7 +613,7 @@ void LLComboBox::showList()
 	}
 	mList->setOrigin(rect.mLeft, rect.mBottom);
 	mList->reshape(rect.getWidth(), rect.getHeight());
-	mList->translateIntoRect(root_view_local, FALSE);
+	mList->translateIntoRect(root_view_local);
 
 	// Make sure we didn't go off bottom of screen
 	S32 x, y;

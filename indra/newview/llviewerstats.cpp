@@ -860,3 +860,110 @@ void send_stats()
 	LLHTTPClient::post(url, body, new ViewerStatsResponder());
 }
 
+LLFrameTimer& LLViewerStats::PhaseMap::getPhaseTimer(const std::string& phase_name)
+{
+	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	if (iter == mPhaseMap.end())
+	{
+		LLFrameTimer timer;
+		mPhaseMap[phase_name] = timer;
+	}
+	LLFrameTimer& timer = mPhaseMap[phase_name];
+	return timer;
+}
+
+void LLViewerStats::PhaseMap::startPhase(const std::string& phase_name)
+{
+	LLFrameTimer& timer = getPhaseTimer(phase_name);
+	lldebugs << "startPhase " << phase_name << llendl;
+	timer.unpause();
+}
+
+void LLViewerStats::PhaseMap::stopPhase(const std::string& phase_name)
+{
+	phase_map_t::iterator iter = mPhaseMap.find(phase_name);
+	if (iter != mPhaseMap.end())
+	{
+		if (iter->second.getStarted())
+		{
+			// Going from started to paused state - record stats.
+			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
+		}
+		lldebugs << "stopPhase " << phase_name << llendl;
+		iter->second.pause();
+	}
+	else
+	{
+		lldebugs << "stopPhase " << phase_name << " is not started, no-op" << llendl;
+	}
+}
+
+void LLViewerStats::PhaseMap::stopAllPhases()
+{
+	for (phase_map_t::iterator iter = mPhaseMap.begin();
+		 iter != mPhaseMap.end(); ++iter)
+	{
+		const std::string& phase_name = iter->first;
+		if (iter->second.getStarted())
+		{
+			// Going from started to paused state - record stats.
+			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
+		}
+		lldebugs << "stopPhase (all) " << phase_name << llendl;
+		iter->second.pause();
+	}
+}
+
+void LLViewerStats::PhaseMap::clearPhases()
+{
+	lldebugs << "clearPhases" << llendl;
+
+	mPhaseMap.clear();
+}
+
+LLSD LLViewerStats::PhaseMap::dumpPhases()
+{
+	LLSD result;
+	for (phase_map_t::iterator iter = mPhaseMap.begin(); iter != mPhaseMap.end(); ++iter)
+	{
+		const std::string& phase_name = iter->first;
+		result[phase_name]["completed"] = !(iter->second.getStarted());
+		result[phase_name]["elapsed"] = iter->second.getElapsedTimeF32();
+#if 0 // global stats for each phase seem like overkill here
+		phase_stats_t::iterator stats_iter = sPhaseStats.find(phase_name);
+		if (stats_iter != sPhaseStats.end())
+		{
+			result[phase_name]["stats"] = stats_iter->second.getData();
+		}
+#endif
+	}
+	return result;
+}
+
+// static initializer
+//static
+LLViewerStats::phase_stats_t LLViewerStats::PhaseMap::sStats;
+
+LLViewerStats::PhaseMap::PhaseMap()
+{
+}
+
+// static
+LLViewerStats::StatsAccumulator& LLViewerStats::PhaseMap::getPhaseStats(const std::string& phase_name)
+{
+	phase_stats_t::iterator it = sStats.find(phase_name);
+	if (it == sStats.end())
+	{
+		LLViewerStats::StatsAccumulator new_stats;
+		sStats[phase_name] = new_stats;
+	}
+	return sStats[phase_name];
+}
+
+// static
+void LLViewerStats::PhaseMap::recordPhaseStat(const std::string& phase_name, F32 value)
+{
+	LLViewerStats::StatsAccumulator& stats = getPhaseStats(phase_name);
+	stats.push(value);
+}
+

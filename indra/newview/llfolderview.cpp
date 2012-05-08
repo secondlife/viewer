@@ -255,7 +255,7 @@ LLFolderView::LLFolderView(const Params& p)
 	LLRect new_r = LLRect(rect.mLeft + ICON_PAD,
 			      rect.mTop - TEXT_PAD,
 			      rect.mRight,
-			      rect.mTop - TEXT_PAD - llfloor(font->getLineHeight()));
+			      rect.mTop - TEXT_PAD - font->getLineHeight());
 	text_p.rect(new_r);
 	text_p.name(std::string(p.name));
 	text_p.font(font);
@@ -388,7 +388,7 @@ void LLFolderView::setOpenArrangeRecursively(BOOL openitem, ERecurseType recurse
 
 static LLFastTimer::DeclareTimer FTM_ARRANGE("Arrange");
 
-// This view grows and shinks to enclose all of its children items and folders.
+// This view grows and shrinks to enclose all of its children items and folders.
 S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_generation )
 {
 	if (getListener()->getUUID().notNull())
@@ -414,7 +414,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		getRoot()->getFilter()->getShowFolderState();
 
 	S32 total_width = LEFT_PAD;
-	S32 running_height = mDebugFilters ? llceil(LLFontGL::getFontMonospace()->getLineHeight()) : 0;
+	S32 running_height = mDebugFilters ? LLFontGL::getFontMonospace()->getLineHeight() : 0;
 	S32 target_height = running_height;
 	S32 parent_item_height = getRect().getHeight();
 
@@ -527,15 +527,15 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 		LLView::reshape(width, height, called_from_parent);
 		scroll_rect = mScrollContainer->getContentWindowRect();
 	}
-	width = llmax(mMinWidth, scroll_rect.getWidth());
+	width  = llmax(mMinWidth, scroll_rect.getWidth());
 	height = llmax(mRunningHeight, scroll_rect.getHeight());
 
-	// restrict width with scroll container's width
-	if (mUseEllipses)
+	// Restrict width within scroll container's width
+	if (mUseEllipses && mScrollContainer)
+	{
 		width = scroll_rect.getWidth();
-
+	}
 	LLView::reshape(width, height, called_from_parent);
-
 	mReshapeSignal(mSelectedItems, FALSE);
 }
 
@@ -912,7 +912,7 @@ void LLFolderView::draw()
 	}
 	else if (mShowEmptyMessage)
 	{
-		if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
+		if (LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mCompletedFilterGeneration < mFilter->getMinRequiredGeneration())
 		{
 			mStatusText = LLTrans::getString("Searching");
 		}
@@ -1966,7 +1966,7 @@ void LLFolderView::scrollToShowSelection()
 	// However we allow scrolling for folder views with mAutoSelectOverride
 	// (used in Places SP) as an exception because the selection in them
 	// is not reset during items filtering. See STORM-133.
-	if ( (!LLInventoryModelBackgroundFetch::instance().backgroundFetchActive() || mAutoSelectOverride)
+	if ( (!LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mAutoSelectOverride)
 			&& mSelectedItems.size() )
 	{
 		mNeedsScroll = TRUE;
@@ -1994,7 +1994,7 @@ void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constr
 		LLRect visible_doc_rect = mScrollContainer->getVisibleContentRect();
 		
 		S32 icon_height = mIcon.isNull() ? 0 : mIcon->getHeight(); 
-		S32 label_height = llround(getLabelFontForStyle(mLabelStyle)->getLineHeight()); 
+		S32 label_height = getLabelFontForStyle(mLabelStyle)->getLineHeight(); 
 		// when navigating with keyboard, only move top of opened folder on screen, otherwise show whole folder
 		S32 max_height_to_show = item->isOpen() && mScrollContainer->hasFocus() ? (llmax( icon_height, label_height ) + ICON_PAD) : local_rect.getHeight(); 
 		

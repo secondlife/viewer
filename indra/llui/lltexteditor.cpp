@@ -1992,7 +1992,7 @@ void LLTextEditor::drawPreeditMarker()
 		return;
 	}
 		
-	const S32 line_height = llround( mDefaultFont->getLineHeight() );
+	const S32 line_height = mDefaultFont->getLineHeight();
 
 	S32 line_start = getLineStart(cur_line);
 	S32 line_y = mVisibleTextRect.mTop - line_height;
@@ -2715,7 +2715,7 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 
     const LLWString textString(getWText());
 	const llwchar * const text = textString.c_str();
-	const S32 line_height = llround(mDefaultFont->getLineHeight());
+	const S32 line_height = mDefaultFont->getLineHeight();
 
 	if (coord)
 	{
@@ -2818,7 +2818,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLTextEditor::getPreeditFontSize() const
 {
-	return llround(mDefaultFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
+	return llround((F32)mDefaultFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
 }
 
 BOOL LLTextEditor::isDirty() const

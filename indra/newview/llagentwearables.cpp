@@ -817,7 +817,10 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
+		if (isAgentAvatarValid())
+		{
 		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+		}
 		wearable->setLabelUpdated();
 	}
 }
@@ -953,7 +956,7 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	if (isAgentAvatarValid())
 	{
 		//gAgentAvatarp->clearPhases(); // reset phase timers for outfit loading.
-		gAgentAvatarp->startPhase("process_initial_wearables_update");
+		gAgentAvatarp->getPhases().startPhase("process_initial_wearables_update");
 		gAgentAvatarp->outputRezTiming("Received initial wearables update");
 	}
 
@@ -1642,7 +1645,7 @@ void LLAgentWearables::queryWearableCache()
 			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
 		}
 
-		LL_DEBUGS("Avatar") << gAgentAvatarp->avString() << "Requesting texture cache entry for " << num_queries << " baked textures" << LL_ENDL;
+		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "Requesting texture cache entry for " << num_queries << " baked textures" << LL_ENDL;
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		gAgentQueryManager.mNumPendingQueries++;
 		gAgentQueryManager.mWearablesCacheQueryID++;

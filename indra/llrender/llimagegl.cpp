@@ -1464,13 +1464,24 @@ void LLImageGL::destroyGLTexture()
 		}
 		
 		LLImageGL::deleteTextures(1, &mTexName);			
-		mTexName = 0;
 		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
+		mTexName = 0;		
 		mGLTextureCreated = FALSE ;
-	}
+	}	
 }
 
-
+//force to invalidate the gl texture, most likely a sculpty texture
+void LLImageGL::forceToInvalidateGLTexture()
+{
+	if (mTexName != 0)
+	{
+		destroyGLTexture();
+	}
+	else
+	{
+		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
+	}
+}
 
 //----------------------------------------------------------------------------
 

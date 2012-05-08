@@ -310,6 +310,7 @@ protected:
 	} LLGLTextureState;
 	LLGLTextureState  mTextureState ;
 
+	static F32 sTexelPixelRatio;
 public:
 	static const U32 sCurrentFileVersion;	
 	static S32 sImageCount;
@@ -432,7 +433,11 @@ public:
 	void setMinDiscardLevel(S32 discard) 	{ mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
 
 	bool updateFetch();
+	bool setDebugFetching(S32 debug_level);
+	bool isInDebug() {return mInDebug;}
 	
+	void clearFetchedResults(); //clear all fetched results, for debug use.
+
 	// Override the computation of discard levels if we know the exact output
 	// size of the image.  Used for UI textures to not decode, even if we have
 	// more data.
@@ -510,6 +515,7 @@ private:
 
 private:
 	BOOL  mFullyLoaded;
+	BOOL  mInDebug;
 
 protected:		
 	std::string mLocalFileName;
@@ -701,6 +707,7 @@ public:
 	//"find-texture" just check if the texture exists, if yes, return it, otherwise return null.
 	//
 	static LLViewerTexture*           findTexture(const LLUUID& id) ;
+	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id) ;
 	static LLViewerMediaTexture*      findMediaTexture(const LLUUID& id) ;
 	
 	static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;

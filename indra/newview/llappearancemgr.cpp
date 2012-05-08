@@ -162,6 +162,8 @@ public:
 		mCatID = cat_id;
 		mAppend = append;
 
+		LL_INFOS("Avatar") << self_av_string() << "starting" << LL_ENDL;
+		
 		selfStartPhase("wear_inventory_category_callback");
 	}
 	void fire(const LLUUID& item_id)
@@ -174,14 +176,16 @@ public:
 		 * after the last item has fired the event and dereferenced it -- if all
 		 * the events actually fire!
 		 */
-		selfStopPhase("wear_inventory_category_callback");
+		LL_DEBUGS("Avatar") << self_av_string() << " fired on copied item, id " << item_id << LL_ENDL;
 	}
 
 protected:
 	~LLWearInventoryCategoryCallback()
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "done all inventory callbacks" << LL_ENDL;
+		LL_INFOS("Avatar") << self_av_string() << "done all inventory callbacks" << LL_ENDL;
 		
+		selfStopPhase("wear_inventory_category_callback");
+
 		// Is the destructor called by ordinary dereference, or because the app's shutting down?
 		// If the inventory callback manager goes away, we're shutting down, no longer want the callback.
 		if( LLInventoryCallbackManager::is_instantiated() )
@@ -225,7 +229,7 @@ LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool update_base_outfit
 
 LLUpdateAppearanceOnDestroy::~LLUpdateAppearanceOnDestroy()
 {
-	LL_DEBUGS("Avatar") << self_av_string() << "done update appearance on destroy" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "done update appearance on destroy" << LL_ENDL;
 
 	selfStopPhase("update_appearance_on_destroy");
 	
@@ -488,7 +492,7 @@ void LLWearableHoldingPattern::onAllComplete()
 	}
 
 	// Update wearables.
-	LL_DEBUGS("Avatar") << self_av_string() << "Updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "Updating agent wearables with " << mResolved << " wearable items " << LL_ENDL;
 	LLAppearanceMgr::instance().updateAgentWearables(this, false);
 	
 	// Update attachments to match those requested.
@@ -538,7 +542,7 @@ bool LLWearableHoldingPattern::pollFetchCompletion()
 
 	if (done)
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "polling, done status: " << completed << " timed out " << timed_out
+		LL_INFOS("Avatar") << self_av_string() << "polling, done status: " << completed << " timed out " << timed_out
 				<< " elapsed " << mWaitTime.getElapsedTimeF32() << LL_ENDL;
 
 		mFired = true;
@@ -692,7 +696,7 @@ void LLWearableHoldingPattern::clearCOFLinksForMissingWearables()
 		if ((data.mWearableType < LLWearableType::WT_COUNT) && (!data.mWearable))
 		{
 			// Wearable link that was never resolved; remove links to it from COF
-			LL_DEBUGS("Avatar") << self_av_string() << "removing link for unresolved item " << data.mItemID.asString() << LL_ENDL;
+			LL_INFOS("Avatar") << self_av_string() << "removing link for unresolved item " << data.mItemID.asString() << LL_ENDL;
 			LLAppearanceMgr::instance().removeCOFItemLinks(data.mItemID,false);
 		}
 	}
@@ -712,7 +716,7 @@ bool LLWearableHoldingPattern::pollMissingWearables()
 
 	if (!done)
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "polling missing wearables, waiting for items " << mTypesToRecover.size()
+		LL_INFOS("Avatar") << self_av_string() << "polling missing wearables, waiting for items " << mTypesToRecover.size()
 				<< " links " << mTypesToLink.size()
 				<< " wearables, timed out " << timed_out
 				<< " elapsed " << mWaitTime.getElapsedTimeF32()
@@ -759,7 +763,7 @@ void LLWearableHoldingPattern::handleLateArrivals()
 		llwarns << self_av_string() << "Late arrivals not handled - in middle of missing wearables processing" << llendl;
 	}
 
-	LL_DEBUGS("Avatar") << self_av_string() << "Need to handle " << mLateArrivals.size() << " late arriving wearables" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "Need to handle " << mLateArrivals.size() << " late arriving wearables" << LL_ENDL;
 
 	// Update mFoundList using late-arriving wearables.
 	std::set<LLWearableType::EType> replaced_types;
@@ -1446,7 +1450,7 @@ void LLAppearanceMgr::linkAll(const LLUUID& cat_uuid,
 void LLAppearanceMgr::updateCOF(const LLUUID& category, bool append)
 {
 	LLViewerInventoryCategory *pcat = gInventory.getCategory(category);
-	LL_DEBUGS("Avatar") << self_av_string() << "starting, cat " << (pcat ? pcat->getName() : "[UNKNOWN]") << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "starting, cat '" << (pcat ? pcat->getName() : "[UNKNOWN]") << "'" << LL_ENDL;
 
 	const LLUUID cof = getCOF();
 
@@ -1712,7 +1716,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool update_base_outfit_ordering)
 	
 	BoolSetter setIsInUpdateAppearanceFromCOF(mIsInUpdateAppearanceFromCOF);
 
-	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "starting" << LL_ENDL;
 
 	//checking integrity of the COF in terms of ordering of wearables, 
 	//checking and updating links' descriptions of wearables in the COF (before analyzed for "dirty" state)
@@ -1888,9 +1892,10 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 
 	gAgentWearables.notifyLoadingStarted();
 
-	LL_DEBUGS("Avatar") << self_av_string() << "wearInventoryCategory( " << category->getName()
+	LL_INFOS("Avatar") << self_av_string() << "wearInventoryCategory( " << category->getName()
 			 << " )" << LL_ENDL;
 
+	selfStartPhase("wear_inventory_category_fetch");
 	callAfterCategoryFetch(category->getUUID(),boost::bind(&LLAppearanceMgr::wearCategoryFinal,
 														   &LLAppearanceMgr::instance(),
 														   category->getUUID(), copy, append));
@@ -1898,7 +1903,9 @@ void LLAppearanceMgr::wearInventoryCategory(LLInventoryCategory* category, bool 
 
 void LLAppearanceMgr::wearCategoryFinal(LLUUID& cat_id, bool copy_items, bool append)
 {
-	LL_DEBUGS("Avatar") << self_av_string() << "starting" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "starting" << LL_ENDL;
+
+	selfStopPhase("wear_inventory_category_fetch");
 	
 	// We now have an outfit ready to be copied to agent inventory. Do
 	// it, and wear that outfit normally.
@@ -1981,8 +1988,8 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 	// wearables being dirty.
 	if(!category) return;
 
-	LL_DEBUGS("Avatar") << self_av_string() << "wearInventoryCategoryOnAvatar( " << category->getName()
-			 << " )" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "wearInventoryCategoryOnAvatar '" << category->getName()
+			 << "'" << LL_ENDL;
 			 	
 	if (gAgentCamera.cameraCustomizeAvatar())
 	{
@@ -1995,7 +2002,7 @@ void LLAppearanceMgr::wearInventoryCategoryOnAvatar( LLInventoryCategory* catego
 
 void LLAppearanceMgr::wearOutfitByName(const std::string& name)
 {
-	LL_DEBUGS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "Wearing category " << name << LL_ENDL;
 	//inc_busy_count();
 
 	LLInventoryModel::cat_array_t cat_array;
@@ -2318,7 +2325,7 @@ const std::string OTHER_GESTURES_FOLDER = "Other Gestures";
 
 void LLAppearanceMgr::copyLibraryGestures()
 {
-	LL_DEBUGS("Avatar") << self_av_string() << "Copying library gestures" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "Copying library gestures" << LL_ENDL;
 
 	// Copy gestures
 	LLUUID lib_gesture_cat_id =
@@ -2392,7 +2399,7 @@ void LLAppearanceMgr::autopopulateOutfits()
 	// If this is the very first time the user has logged into viewer2+ (from a legacy viewer, or new account)
 	// then auto-populate outfits from the library into the My Outfits folder.
 
-	LL_DEBUGS("Avatar") << self_av_string() << "avatar fully visible" << LL_ENDL;
+	LL_INFOS("Avatar") << self_av_string() << "avatar fully visible" << LL_ENDL;
 
 	static bool check_populate_my_outfits = true;
 	if (check_populate_my_outfits && 

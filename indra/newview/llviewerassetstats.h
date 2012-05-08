@@ -259,7 +259,7 @@ protected:
 
 	// Nearby avatar stats
 	std::vector<S32> mAvatarRezStates;
-	LLVOAvatar::phase_stats_t mPhaseStats;
+	LLViewerStats::phase_stats_t mPhaseStats;
 };
 
 

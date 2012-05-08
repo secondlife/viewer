@@ -36,6 +36,7 @@
 #include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "llcombobox.h"
 #include "lldraghandle.h"
 #include "llerror.h"
 #include "llfloaterbuildoptions.h"
@@ -103,6 +104,7 @@ const std::string PANEL_NAMES[LLFloaterTools::PANEL_COUNT] =
 
 
 // Local prototypes
+void commit_grid_mode(LLUICtrl *ctrl);
 void commit_select_component(void *data);
 void click_show_more(void*);
 void click_popup_info(void*);
@@ -252,6 +254,7 @@ BOOL	LLFloaterTools::postBuild()
 	getChild<LLUICtrl>("checkbox uniform")->setValue((BOOL)gSavedSettings.getBOOL("ScaleUniform"));
 	mCheckStretchTexture	= getChild<LLCheckBoxCtrl>("checkbox stretch textures");
 	getChild<LLUICtrl>("checkbox stretch textures")->setValue((BOOL)gSavedSettings.getBOOL("ScaleStretchTextures"));
+	mComboGridMode			= getChild<LLComboBox>("combobox grid mode");
 	mCheckStretchUniformLabel = getChild<LLTextBox>("checkbox uniform label");
 
 	//
@@ -330,6 +333,7 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mCheckSnapToGrid(NULL),
 	mBtnGridOptions(NULL),
 	mTitleMedia(NULL),
+	mComboGridMode(NULL),
 	mCheckStretchUniform(NULL),
 	mCheckStretchTexture(NULL),
 	mCheckStretchUniformLabel(NULL),
@@ -386,6 +390,7 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mCommitCallbackRegistrar.add("BuildTool.commitRadioMove",	boost::bind(&commit_radio_group_move,_1));
 	mCommitCallbackRegistrar.add("BuildTool.commitRadioEdit",	boost::bind(&commit_radio_group_edit,_1));
 
+	mCommitCallbackRegistrar.add("BuildTool.gridMode",			boost::bind(&commit_grid_mode,_1));
 	mCommitCallbackRegistrar.add("BuildTool.selectComponent",	boost::bind(&commit_select_component, this));
 	mCommitCallbackRegistrar.add("BuildTool.gridOptions",		boost::bind(&LLFloaterTools::onClickGridOptions,this));
 	mCommitCallbackRegistrar.add("BuildTool.applyToSelection",	boost::bind(&click_apply_to_selection, this));
@@ -685,6 +690,33 @@ void LLFloaterTools::updatePopup(LLCoordGL center, MASK mask)
 	else if ( tool == LLToolFace::getInstance() )
 	{
 		mRadioGroupEdit->setValue("radio select face");
+	}
+
+	if (mComboGridMode) 
+	{
+		mComboGridMode->setVisible( edit_visible );
+		S32 index = mComboGridMode->getCurrentIndex();
+		mComboGridMode->removeall();
+
+		switch (mObjectSelection->getSelectType())
+		{
+			case SELECT_TYPE_HUD:
+				mComboGridMode->add(getString("grid_screen_text"));
+				mComboGridMode->add(getString("grid_local_text"));
+				break;
+			case SELECT_TYPE_WORLD:
+				mComboGridMode->add(getString("grid_world_text"));
+				mComboGridMode->add(getString("grid_local_text"));
+				mComboGridMode->add(getString("grid_reference_text"));
+				break;
+			case SELECT_TYPE_ATTACHMENT:
+				mComboGridMode->add(getString("grid_attachment_text"));
+				mComboGridMode->add(getString("grid_local_text"));
+				mComboGridMode->add(getString("grid_reference_text"));
+				break;
+		}
+
+		mComboGridMode->setCurrentByIndex(index);
 	}
 
 	// Snap to grid disabled for grab tool - very confusing
@@ -1037,6 +1069,13 @@ void LLFloaterTools::setObjectType( LLPCode pcode )
 	gFocusMgr.setMouseCapture(NULL);
 }
 
+void commit_grid_mode(LLUICtrl *ctrl)
+{
+	LLComboBox* combo = (LLComboBox*)ctrl;
+
+	LLSelectMgr::getInstance()->setGridMode((EGridMode)combo->getCurrentIndex());
+}
+
 
 void LLFloaterTools::onClickGridOptions()
 {
@@ -1144,7 +1183,7 @@ void LLFloaterTools::updateLandImpacts()
 	childSetTextArg("remaining_capacity", "[CAPACITY_STRING]", remaining_capacity_str);
 
 	// Update land impacts info in the weights floater
-	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::getTypedInstance<LLFloaterObjectWeights>("object_weights");
+	LLFloaterObjectWeights* object_weights_floater = LLFloaterReg::findTypedInstance<LLFloaterObjectWeights>("object_weights");
 	if(object_weights_floater)
 	{
 		object_weights_floater->updateLandImpacts(parcel);
@@ -1233,6 +1272,7 @@ void LLFloaterTools::getMediaState()
 			return false;
 		}
 	} func;
+	
 	
 	// check if all faces have media(or, all dont have media)
 	LLFloaterMediaSettings::getInstance()->mIdenticalHasMediaInfo = selected_objects->getSelectedTEValue( &func, bool_has_media );

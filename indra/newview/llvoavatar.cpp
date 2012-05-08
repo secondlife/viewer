@@ -637,7 +637,6 @@ F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
 F32 LLVOAvatar::sGreyTime = 0.f;
 F32 LLVOAvatar::sGreyUpdateTime = 0.f;
-LLVOAvatar::phase_stats_t LLVOAvatar::sPhaseStats;
 
 //-----------------------------------------------------------------------------
 // Helper functions
@@ -787,13 +786,13 @@ std::string LLVOAvatar::avString() const
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
 {
-	LL_DEBUGS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
-			<< "sec ]"
-			<< avString() 
-			<< "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
-			<< " Notification " << notification_name
-			<< " : " << comment
-			<< llendl;
+	LL_INFOS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
+					   << "sec ]"
+					   << avString() 
+					   << "RuthTimer " << (U32)mRuthDebugTimer.getElapsedTimeF32()
+					   << " Notification " << notification_name
+					   << " : " << comment
+					   << llendl;
 
 	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
@@ -867,7 +866,7 @@ LLVOAvatar::~LLVOAvatar()
 	mAnimationSources.clear();
 	LLLoadedCallbackEntry::cleanUpCallbackList(&mCallbackTextureList) ;
 
-	clearPhases();
+	getPhases().clearPhases();
 	
 	lldebugs << "LLVOAvatar Destructor end" << llendl;
 }
@@ -949,106 +948,6 @@ S32 LLVOAvatar::getRezzedStatus() const
 	if (isFullyTextured()) return 2;
 	llassert(hasGray());
 	return 1; // gray
-}
-
-LLFrameTimer& LLVOAvatar::getPhaseTimer(const std::string& phase_name)
-{
-	phase_map_t::iterator iter = mPhases.find(phase_name);
-	if (iter == mPhases.end())
-	{
-		LLFrameTimer timer;
-		mPhases[phase_name] = timer;
-	}
-	LLFrameTimer& timer = mPhases[phase_name];
-	return timer;
-}
-
-void LLVOAvatar::startPhase(const std::string& phase_name)
-{
-	LLFrameTimer& timer = getPhaseTimer(phase_name);
-	lldebugs << "startPhase " << phase_name << llendl;
-	timer.unpause();
-}
-
-void LLVOAvatar::stopPhase(const std::string& phase_name)
-{
-	phase_map_t::iterator iter = mPhases.find(phase_name);
-	if (iter != mPhases.end())
-	{
-		if (iter->second.getStarted())
-		{
-			// Going from started to paused state - record stats.
-			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
-		}
-		lldebugs << "stopPhase " << phase_name << llendl;
-		iter->second.pause();
-	}
-	else
-	{
-		lldebugs << "stopPhase " << phase_name << " is not started, no-op" << llendl;
-	}
-}
-
-void LLVOAvatar::stopAllPhases()
-{
-	for (phase_map_t::iterator iter = mPhases.begin();
-		 iter != mPhases.end(); ++iter)
-	{
-		const std::string& phase_name = iter->first;
-		if (iter->second.getStarted())
-		{
-			// Going from started to paused state - record stats.
-			recordPhaseStat(phase_name,iter->second.getElapsedTimeF32());
-		}
-		lldebugs << "stopPhase (all) " << phase_name << llendl;
-		iter->second.pause();
-	}
-}
-
-void LLVOAvatar::clearPhases()
-{
-	lldebugs << "clearPhases" << llendl;
-
-	mPhases.clear();
-	mLastRezzedStatus = -1;
-}
-
-LLSD LLVOAvatar::dumpPhases()
-{
-	LLSD result;
-	for (phase_map_t::iterator iter = mPhases.begin(); iter != mPhases.end(); ++iter)
-	{
-		const std::string& phase_name = iter->first;
-		result[phase_name]["completed"] = !(iter->second.getStarted());
-		result[phase_name]["elapsed"] = iter->second.getElapsedTimeF32();
-#if 0 // global stats for each phase seem like overkill here
-		phase_stats_t::iterator stats_iter = sPhaseStats.find(phase_name);
-		if (stats_iter != sPhaseStats.end())
-		{
-			result[phase_name]["stats"] = stats_iter->second.getData();
-		}
-#endif
-	}
-	return result;
-}
-
-// static
-LLViewerStats::StatsAccumulator& LLVOAvatar::getPhaseStats(const std::string& phase_name)
-{
-	phase_stats_t::iterator it = sPhaseStats.find(phase_name);
-	if (it == sPhaseStats.end())
-	{
-		LLViewerStats::StatsAccumulator new_stats;
-		sPhaseStats[phase_name] = new_stats;
-	}
-	return sPhaseStats[phase_name];
-}
-
-// static
-void LLVOAvatar::recordPhaseStat(const std::string& phase_name, F32 value)
-{
-	LLViewerStats::StatsAccumulator& stats = getPhaseStats(phase_name);
-	stats.push(value);
 }
 
 void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
@@ -2960,13 +2859,13 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 	{
 		if (isFullyLoaded() && mFirstFullyVisible && isSelf())
 		{
-			LL_DEBUGS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+			LL_INFOS("Avatar") << avString() << "self isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
 			mFirstFullyVisible = FALSE;
 			LLAppearanceMgr::instance().onFirstFullyVisible();
 		}
 		if (isFullyLoaded() && mFirstFullyVisible && !isSelf())
 		{
-			LL_DEBUGS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
+			LL_INFOS("Avatar") << avString() << "other isFullyLoaded, mFirstFullyVisible" << LL_ENDL;
 			mFirstFullyVisible = FALSE;
 		}
 		if (isFullyLoaded())
@@ -6595,7 +6494,7 @@ void LLVOAvatar::updateRezzedStatusTimers()
 	S32 rez_status = getRezzedStatus();
 	if (rez_status != mLastRezzedStatus)
 	{
-		llinfos << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << llendl;
+		LL_DEBUGS("Avatar") << avString() << "rez state change: " << mLastRezzedStatus << " -> " << rez_status << LL_ENDL;
 		bool is_cloud_or_gray = (rez_status==0 || rez_status==1);
 		bool was_cloud_or_gray = (mLastRezzedStatus==0 || mLastRezzedStatus==1);
 		bool is_cloud = (rez_status==0);
@@ -6605,24 +6504,24 @@ void LLVOAvatar::updateRezzedStatusTimers()
 		if (is_cloud && !was_cloud)
 		{
 			// start cloud timer.
-			startPhase("cloud");
+			getPhases().startPhase("cloud");
 		}
 		else if (was_cloud && !is_cloud)
 		{
 			// stop cloud timer, which will capture stats.
-			stopPhase("cloud");
+			getPhases().stopPhase("cloud");
 		}
 
 		// Non-cloud-or-gray to cloud-or-gray
 		if (is_cloud_or_gray && !was_cloud_or_gray)
 		{
 			// start cloud-or-gray timer.
-			startPhase("cloud-or-gray");
+			getPhases().startPhase("cloud-or-gray");
 		}
 		else if (was_cloud_or_gray && !is_cloud_or_gray)
 		{
 			// stop cloud-or-gray timer, which will capture stats.
-			stopPhase("cloud-or-gray");
+			getPhases().stopPhase("cloud-or-gray");
 		}
 		
 		mLastRezzedStatus = rez_status;
@@ -7281,7 +7180,7 @@ void LLVOAvatar::rebuildHUD()
 //-----------------------------------------------------------------------------
 void LLVOAvatar::onFirstTEMessageReceived()
 {
-	LL_DEBUGS("Avatar") << avString() << LL_ENDL;
+	LL_INFOS("Avatar") << avString() << LL_ENDL;
 	if( !mFirstTEMessageReceived )
 	{
 		mFirstTEMessageReceived = TRUE;
@@ -7372,7 +7271,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	BOOL is_first_appearance_message = !mFirstAppearanceMessageReceived;
 	mFirstAppearanceMessageReceived = TRUE;
 
-	LL_DEBUGS("Avatar") << avString() << "processAvatarAppearance start " << mID
+	LL_INFOS("Avatar") << avString() << "processAvatarAppearance start " << mID
 			<< " first? " << is_first_appearance_message << " self? " << isSelf() << LL_ENDL;
 
 

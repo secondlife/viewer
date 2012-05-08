@@ -180,6 +180,7 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	params.font = p.font;
 	params.use_ellipses = true;
 	params.wrap = p.wrap;
+	params.font_valign = LLFontGL::VCENTER;
 	params.parse_urls = false; // disallow hyperlinks in tooltips, as they want to spawn their own explanatory tooltips
 	mTextBox = LLUICtrlFactory::create<LLTextBox> (params);
 	addChild(mTextBox);
@@ -190,7 +191,6 @@ LLToolTip::LLToolTip(const LLToolTip::Params& p)
 	{
 		LLButton::Params icon_params;
 		icon_params.name = "tooltip_info";
-		icon_params.label(""); // provid label but set to empty so name does not overwrite it -angela
 		LLRect icon_rect;
 		LLUIImage* imagep = p.image;
 		TOOLTIP_ICON_SIZE = (imagep ? imagep->getWidth() : 16);
@@ -291,6 +291,12 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 	S32 text_width = llmin(p.max_width(), mTextBox->getTextPixelWidth());
 	S32 text_height = mTextBox->getTextPixelHeight();
 	mTextBox->reshape(text_width, text_height);
+	if (mInfoButton)
+	{
+		LLRect text_rect = mTextBox->getRect();
+		LLRect icon_rect = mInfoButton->getRect();
+		mTextBox->translate(0, icon_rect.getCenterY() - text_rect.getCenterY());
+	}
 
 	// reshape tooltip panel to fit text box
 	LLRect tooltip_rect = calcBoundingRect();
@@ -298,6 +304,8 @@ void LLToolTip::initFromParams(const LLToolTip::Params& p)
 	tooltip_rect.mRight += mPadding;
 	tooltip_rect.mBottom = 0;
 	tooltip_rect.mLeft = 0;
+
+	mTextBox->reshape(mTextBox->getRect().getWidth(), llmax(mTextBox->getRect().getHeight(), tooltip_rect.getHeight() - 2 * mPadding));
 
 	setShape(tooltip_rect);
 }

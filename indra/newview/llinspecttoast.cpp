@@ -72,6 +72,8 @@ LLInspectToast::LLInspectToast(const LLSD& notification_id) :
 LLInspectToast::~LLInspectToast()
 {
 	LLTransientFloaterMgr::getInstance()->removeControlView(this);
+
+	mConnection.disconnect();
 }
 
 // virtual

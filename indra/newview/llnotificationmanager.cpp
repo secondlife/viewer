@@ -35,6 +35,7 @@
 #include "llnotifications.h"
 
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 using namespace LLNotificationsUI;
 
@@ -48,6 +49,10 @@ LLNotificationManager::LLNotificationManager()
 //--------------------------------------------------------------------------
 LLNotificationManager::~LLNotificationManager()
 {
+	BOOST_FOREACH(listener_pair_t& pair, mChannelListeners)
+	{
+		pair.second.disconnect();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -64,16 +69,16 @@ void LLNotificationManager::init()
 	LLNotificationChannel::buildChannel("Browser", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "browser"));
 	LLNotificationChannel::buildChannel("Outbox", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "outbox"));
   
-	LLNotifications::instance().getChannel("Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("NotificationTips")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("Group Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("Alerts")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("IM Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("Offer")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
-	LLNotifications::instance().getChannel("Hints")->connectChanged(boost::bind(&LLHintHandler::processNotification, LLHintHandler::getInstance(), _1));
-	LLNotifications::instance().getChannel("Browser")->connectChanged(boost::bind(&LLBrowserNotification::processNotification, LLBrowserNotification::getInstance(), _1));
-	LLNotifications::instance().getChannel("Outbox")->connectChanged(boost::bind(&LLOutboxNotification::processNotification, LLOutboxNotification::getInstance(), _1));
+	mChannelListeners["Notifications"] = LLNotifications::instance().getChannel("Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["NotificationTips"] = LLNotifications::instance().getChannel("NotificationTips")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["Group Notifications"] = LLNotifications::instance().getChannel("Group Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["Alerts"] = LLNotifications::instance().getChannel("Alerts")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["AlertModal"] = LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["IM Notifications"] = LLNotifications::instance().getChannel("IM Notifications")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["Offer"] = LLNotifications::instance().getChannel("Offer")->connectChanged(boost::bind(&LLNotificationManager::onNotification, this, _1));
+	mChannelListeners["Hints"] = LLNotifications::instance().getChannel("Hints")->connectChanged(boost::bind(&LLHintHandler::processNotification, LLHintHandler::getInstance(), _1));
+	mChannelListeners["Browser"] = LLNotifications::instance().getChannel("Browser")->connectChanged(boost::bind(&LLBrowserNotification::processNotification, LLBrowserNotification::getInstance(), _1));
+	mChannelListeners["Outbox"] = LLNotifications::instance().getChannel("Outbox")->connectChanged(boost::bind(&LLOutboxNotification::processNotification, LLOutboxNotification::getInstance(), _1));
 
 	mNotifyHandlers["notify"] = boost::shared_ptr<LLEventHandler>(new LLScriptHandler(NT_NOTIFY, LLSD()));
 	mNotifyHandlers["notifytip"] =  boost::shared_ptr<LLEventHandler>(new LLTipHandler(NT_NOTIFY, LLSD()));
@@ -91,6 +96,9 @@ void LLNotificationManager::init()
 bool LLNotificationManager::onNotification(const LLSD& notify)
 {
 	LLSysHandler* handle = NULL;
+
+	if (LLNotifications::destroyed())
+		return false;
 
 	LLNotificationPtr notification = LLNotifications::instance().find(notify["id"].asUUID());
 	

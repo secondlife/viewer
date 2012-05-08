@@ -64,7 +64,6 @@
 LLWLParamManager::LLWLParamManager() :
 
 	//set the defaults for the controls
-	// index is from sWLUniforms in pipeline.cpp line 979
 
 	/// Sun Delta Terrain tweak variables.
 	mSunDeltaYaw(180.0f),
@@ -72,10 +71,10 @@ LLWLParamManager::LLWLParamManager() :
 	mWLGamma(1.0f, "gamma"),
 
 	mBlueHorizon(0.25f, 0.25f, 1.0f, 1.0f, "blue_horizon", "WLBlueHorizon"),
-	mHazeDensity(1.0f, 1.0f, 1.0f, 0.5f, "haze_density"),
+	mHazeDensity(1.0f, "haze_density"),
 	mBlueDensity(0.25f, 0.25f, 0.25f, 1.0f, "blue_density", "WLBlueDensity"),
 	mDensityMult(1.0f, "density_multiplier", 1000),
-	mHazeHorizon(1.0f, 1.0f, 1.0f, 0.5f, "haze_horizon"),
+	mHazeHorizon(1.0f, "haze_horizon"),
 	mMaxAlt(4000.0f, "max_y"),
 
 	// Lighting

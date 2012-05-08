@@ -166,7 +166,7 @@ set(viewer_SOURCE_FILES
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
-    llfloateranimpreview.cpp
+    llfloaterbvhpreview.cpp
     llfloaterauction.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
@@ -236,6 +236,7 @@ set(viewer_SOURCE_FILES
     llfloatertelehub.cpp
     llfloatertestinspectors.cpp
     llfloatertestlistview.cpp
+	llfloatertexturefetchdebugger.cpp
     llfloatertools.cpp
     llfloatertopobjects.cpp
     llfloatertos.cpp
@@ -722,7 +723,7 @@ set(viewer_HEADER_FILES
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
-    llfloateranimpreview.h
+    llfloaterbvhpreview.h
     llfloaterauction.h
     llfloateravatar.h
     llfloateravatarpicker.h
@@ -792,6 +793,7 @@ set(viewer_HEADER_FILES
     llfloatertelehub.h
     llfloatertestinspectors.h
     llfloatertestlistview.h
+	llfloatertexturefetchdebugger.h
     llfloatertools.h
     llfloatertopobjects.h
     llfloatertos.h
@@ -1345,7 +1347,9 @@ if (WINDOWS)
         DXGUID_LIBRARY
         )
 
+# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
+        opengl32
         ${WINDOWS_LIBRARIES}
         comdlg32
         ${DINPUT_LIBRARY}
@@ -1355,7 +1359,6 @@ if (WINDOWS)
         odbccp32
         ole32
         oleaut32
-        opengl32
         shell32
         Vfw32
         winspool

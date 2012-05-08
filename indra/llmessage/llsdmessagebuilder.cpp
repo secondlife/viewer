@@ -317,7 +317,7 @@ void LLSDMessageBuilder::copyFromMessageData(const LLMsgData& data)
 
 			// S64 not supported in LLSD so we just truncate it
 			case MVT_S64:
-				addS32(varname, *(S64*)mvci.getData());
+				addS32(varname, (S32)*(S64*)mvci.getData());
 				break;
 
 			case MVT_F32:

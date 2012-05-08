@@ -17,13 +17,13 @@
   <voice_call_invited_style
    font="SansSerifSmall"
    font.style="NORMAL"
-   color="0.5 0.5 0.5 0.5"/>
+   color="AvatarListItemIconVoiceInvitedColor"/>
 
   <!-- styles for avatar item JOINED to voice call -->
   <voice_call_joined_style
    font="SansSerifSmall"
    font.style="NORMAL"
-   color="white"/>
+   color="White"/>
 
   <!-- styles for avatar item which HAS LEFT voice call -->
   <voice_call_left_style
@@ -35,11 +35,11 @@
   <online_style
    font="SansSerifSmall"
    font.style="NORMAL"
-   color="white"/>
+   color="White"/>
 
   <!-- styles for OFFLINE avatar item -->
   <offline_style
    font="SansSerifSmall"
    font.style="NORMAL"
-   color="0.5 0.5 0.5 1.0"/>
+   color="Gray"/>
 </avatar_list_item>
