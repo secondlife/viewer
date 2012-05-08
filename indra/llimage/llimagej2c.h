@@ -156,7 +156,8 @@ class LLImageCompressionTester : public LLMetricPerformanceTesterBasic
         U32 mTotalBytesOutDecompression;    // Total bytes produced by decompressor
         U32 mTotalBytesInCompression;       // Total bytes fed to compressor
         U32 mTotalBytesOutCompression;      // Total bytes produced by compressor
-		U32 mRunBytesInDecompression;		// Bytes fed to decompressor in this run
+        U32 mRunBytesInDecompression;		// Bytes fed to decompressor in this run
+        U32 mRunBytesOutDecompression;		// Bytes produced by the decompressor in this run
 		U32 mRunBytesInCompression;			// Bytes fed to compressor in this run
         //
         // Time

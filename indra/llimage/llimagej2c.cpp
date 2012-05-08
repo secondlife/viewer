@@ -464,6 +464,7 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 	addMetric("Perf Compression (kB/s)");
 
 	mRunBytesInDecompression = 0;
+	mRunBytesOutDecompression = 0;
 	mRunBytesInCompression = 0;
 
 	mTotalBytesInDecompression = 0;
@@ -556,13 +557,16 @@ void LLImageCompressionTester::updateDecompressionStats(const S32 bytesIn, const
 	mTotalBytesInDecompression += bytesIn;
 	mRunBytesInDecompression += bytesIn;
 	mTotalBytesOutDecompression += bytesOut;
+	mRunBytesOutDecompression += bytesOut;
 	//if (mRunBytesInDecompression > (1000000))
-	if ((mTotalTimeDecompression - mRunTimeDecompression) >= (5.0f))
+	if (mRunBytesOutDecompression > (10000000))
+	//if ((mTotalTimeDecompression - mRunTimeDecompression) >= (5.0f))
 	{
 		// Output everything
 		outputTestResults();
 		// Reset the decompression data of the run
 		mRunBytesInDecompression = 0;
+		mRunBytesOutDecompression = 0;
 		mRunTimeDecompression = mTotalTimeDecompression;
 	}
 }
