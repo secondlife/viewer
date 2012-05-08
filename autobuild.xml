@@ -378,9 +378,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>47d338ddf5c31ea2b97a96a172b9f0a7</string>
+              <string>cefa829b9eca8f22ecd595921e189c11</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/252603/arch/Darwin/installer/dictionaries-1-darwin-20120330.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/256063/arch/Darwin/installer/dictionaries-1-darwin-20120508.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -390,9 +390,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4ae5ecc7bc028e00c077ab4ed527e796</string>
+              <string>dbc8fd886fb639ddbd6614c00654e7b1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/252603/arch/Linux/installer/dictionaries-1-linux-20120330.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/256063/arch/Linux/installer/dictionaries-1-linux-20120508.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -402,9 +402,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f0513cd8775236ef0f215b88c64e6fa0</string>
+              <string>983fd8afd02b975f85603545983713ed</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/252603/arch/CYGWIN/installer/dictionaries-1-windows-20120330.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oz_3p-dictionaries/rev/256063/arch/CYGWIN/installer/dictionaries-1-windows-20120508.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
