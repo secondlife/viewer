@@ -4340,7 +4340,7 @@ void LLPipeline::renderDebug()
 			{
 				LLFloaterPathfindingConsole *pathfindingConsole = pathfindingConsoleHandle.get();
 
-				if ( pathfindingConsole->isShown() || gAgentCamera.cameraMouselook() )
+				if ( pathfindingConsole->getVisible() || gAgentCamera.cameraMouselook() )
 				{				
 					F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
 
