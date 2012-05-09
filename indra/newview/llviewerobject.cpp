@@ -5294,7 +5294,7 @@ void LLViewerObject::markForUpdate(BOOL priority)
 
 bool LLViewerObject::isPermanentEnforced() const
 {
-	return flagObjectPermanent() && !LLPathfindingManager::getInstance()->isAllowAlterPermanent();
+	return flagObjectPermanent() && !LLPathfindingManager::getInstance()->isAllowAlterPermanent() && !gAgent.isGodlike();
 }
 
 bool LLViewerObject::getIncludeInSearch() const
