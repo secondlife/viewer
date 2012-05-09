@@ -3864,7 +3864,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 							break;
 						}
 						
-						p->render(i);
+						if ( !p->getSkipRenderFlag() ) { p->render(i); }
 					}
 					poolp->endRenderPass(i);
 					LLVertexBuffer::unbind();
@@ -4038,7 +4038,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 						break;
 					}
 										
-					p->renderDeferred(i);
+					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
 				}
 				poolp->endDeferredPass(i);
 				LLVertexBuffer::unbind();
@@ -10139,6 +10139,8 @@ void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
 			}
 		}
 	}
+
+	skipRenderingOfTerrain( true );
 }
 
 void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
@@ -10183,5 +10185,21 @@ void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
 		}
 		++itCurrent;
 	}
+	
+	skipRenderingOfTerrain( false );
 }
 
+void LLPipeline::skipRenderingOfTerrain( BOOL flag )
+{
+	pool_set_t::iterator iter = mPools.begin();
+	while ( iter != mPools.end() )
+	{
+		LLDrawPool* pPool = *iter;		
+		U32 poolType = pPool->getType();					
+		if ( hasRenderType( pPool->getType() ) && poolType == LLDrawPool::POOL_TERRAIN )
+		{
+			pPool->setSkipRenderFlag( flag );			
+		}
+		++iter;
+	}
+}

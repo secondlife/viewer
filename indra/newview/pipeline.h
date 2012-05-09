@@ -368,6 +368,7 @@ public:
 
 	void hidePermanentObjects( std::vector<U32>& restoreList );
 	void restorePermanentObjects( const std::vector<U32>& restoreList );
+	void skipRenderingOfTerrain( BOOL flag );
 
 private:
 	void unloadShaders();

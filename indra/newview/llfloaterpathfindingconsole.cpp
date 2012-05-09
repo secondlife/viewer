@@ -1003,6 +1003,10 @@ void LLFloaterPathfindingConsole::cleanupRenderableRestoreItems()
 		gPipeline.restorePermanentObjects( mRenderableRestoreList ); 
 		mRenderableRestoreList.clear();
 	}
+	else
+	{
+		gPipeline.skipRenderingOfTerrain( false );
+	}
 }
 
 void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
