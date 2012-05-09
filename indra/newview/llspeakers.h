@@ -29,7 +29,6 @@
 
 #include "llevent.h"
 #include "lleventtimer.h"
-#include "llspeakers.h"
 #include "llvoicechannel.h"
 
 class LLSpeakerMgr;
