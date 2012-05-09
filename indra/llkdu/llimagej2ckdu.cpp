@@ -619,36 +619,27 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		// This code is where we specify the target number of bytes for each quality layer.
 		// We're using a logarithmic spacing rule that fits with our way of fetching texture data.
 		// Note: For more info on this layers business, read kdu_codestream::flush() doc in kdu_compressed.h
-		U32 i = FIRST_PACKET_SIZE;
+		layer_bytes[nb_layers++] = FIRST_PACKET_SIZE;
+		U32 i = MIN_LAYER_SIZE;
 		while ((i < max_bytes) && (nb_layers < (MAX_NB_LAYERS-1)))
 		{
-			if (i == FIRST_PACKET_SIZE * 4)
-			{
-				// That really just means that the first layer is FIRST_PACKET_SIZE and the second is MIN_LAYER_SIZE
-				i = MIN_LAYER_SIZE;
-			}
-			layer_bytes[nb_layers] = i;
-			nb_layers++;
+			layer_bytes[nb_layers++] = i;
 			i *= 4;
+		}
+		if (layer_bytes[nb_layers-1] < max_bytes)
+		{
+			// Set the last quality layer if necessary so to fit the preset compression ratio
+			// Use 0 for that last layer for reversible images so all remaining code blocks will be flushed
+			layer_bytes[nb_layers++] = (reversible ? 0 : max_bytes);
 		}
 
 		if (reversible)
 		{
 			codestream.access_siz()->parse_string("Creversible=yes");
-			// *TODO: we should use yuv in reversible mode and one res level since those images are small. 
-			// Don't turn this on now though as both create problems on decoding for the moment
-			//codestream.access_siz()->parse_string("Clevels=1");
+			// *TODO: we should use yuv in reversible mode
+			// Don't turn this on now though as it creates problems on decoding for the moment
 			//codestream.access_siz()->parse_string("Cycc=no");
-			// In the reversible case, set the last entry of that table to 0 so that all generated bits will
-			// indeed be output by the time the last quality layer is encountered.
-			layer_bytes[nb_layers] = 0;
 		}
-		else
-		{
-			// Truncate the last quality layer if necessary so to fit the set compression ratio
-			layer_bytes[nb_layers] = max_bytes;
-		}
-		nb_layers++;
 
 		std::string layer_string = llformat("Clayers=%d",nb_layers);
 		codestream.access_siz()->parse_string(layer_string.c_str());
