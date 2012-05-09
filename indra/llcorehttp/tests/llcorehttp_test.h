@@ -28,7 +28,32 @@
 #ifndef _LLCOREHTTP_TEST_H_
 #define	_LLCOREHTTP_TEST_H_
 
+#include "linden_common.h"		// Modifies curl interfaces
+
+#include <curl/curl.h>
+#include <openssl/crypto.h>
+
+// Initialization and cleanup for libcurl.  Mainly provides
+// a mutex callback for SSL and a thread ID hash for libcurl.
+// If you don't use these (or equivalent) and do use libcurl,
+// you'll see stalls and other anomalies when performing curl
+// operations.
 extern void init_curl();
 extern void term_curl();
+
+class ScopedCurlInit
+{
+public:
+	ScopedCurlInit()
+		{
+			init_curl();
+		}
+
+	~ScopedCurlInit()
+		{
+			term_curl();
+		}
+};
+	
 
 #endif	// _LLCOREHTTP_TEST_H_

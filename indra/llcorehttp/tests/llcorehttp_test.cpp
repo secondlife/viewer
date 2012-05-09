@@ -34,9 +34,6 @@
 // This works:
 #include "../test/lltut.h"
 
-#include <curl/curl.h>
-#include <openssl/crypto.h>
-
 // Pull in each of the test sets
 #include "test_httpstatus.hpp"
 #include "test_refcounted.hpp"
@@ -49,7 +46,7 @@
 unsigned long ssl_thread_id_callback(void);
 void ssl_locking_callback(int mode, int type, const char * file, int line);
 
-#if 0	// lltut provides main
+#if 0	// lltut provides main and runner
 
 namespace tut
 {

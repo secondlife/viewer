@@ -106,6 +106,8 @@ HttpRequestTestGroupType HttpRequestTestGroup("HttpRequest Tests");
 template <> template <>
 void HttpRequestTestObjectType::test<1>()
 {
+	ScopedCurlInit ready;
+	
 	set_test_name("HttpRequest construction");
 
 	// record the total amount of dynamically allocated memory
@@ -131,6 +133,8 @@ void HttpRequestTestObjectType::test<1>()
 template <> template <>
 void HttpRequestTestObjectType::test<2>()
 {
+	ScopedCurlInit ready;
+
 	set_test_name("HttpRequest and Null Op queued");
 
 	// record the total amount of dynamically allocated memory
@@ -168,6 +172,8 @@ void HttpRequestTestObjectType::test<2>()
 template <> template <>
 void HttpRequestTestObjectType::test<3>()
 {
+	ScopedCurlInit ready;
+
 	set_test_name("HttpRequest NoOp + Stop execution");
 
 	// Handler can be stack-allocated *if* there are no dangling
@@ -246,6 +252,8 @@ void HttpRequestTestObjectType::test<3>()
 template <> template <>
 void HttpRequestTestObjectType::test<4>()
 {
+	ScopedCurlInit ready;
+
 	set_test_name("2 HttpRequest instances, one thread");
 
 	// Handler can be stack-allocated *if* there are no dangling
@@ -335,8 +343,8 @@ void HttpRequestTestObjectType::test<4>()
 template <> template <>
 void HttpRequestTestObjectType::test<5>()
 {
-	init_curl();
-	
+	ScopedCurlInit ready;
+
 	set_test_name("HttpRequest GET + Stop execution");
 
 	// Handler can be stack-allocated *if* there are no dangling
@@ -419,8 +427,6 @@ void HttpRequestTestObjectType::test<5>()
 	ensure("Two handler calls on the way out", 2 == mHandlerCalls);
 	// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
 	ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
-
-	term_curl();
 }
 
 }  // end namespace tut
