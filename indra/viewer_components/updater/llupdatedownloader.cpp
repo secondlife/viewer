@@ -40,7 +40,6 @@
 #include "llthread.h"
 #include "llupdaterservice.h"
 #include "llcurl.h"
-#include "llapr.h"
 
 class LLUpdateDownloader::Implementation:
 	public LLThread
@@ -66,7 +65,7 @@ private:
 	LLUpdateDownloader::Client & mClient;
 	CURL * mCurl;
 	LLSD mDownloadData;
-	apr_file_t* mDownloadStream;
+	llofstream mDownloadStream;
 	unsigned char mDownloadPercent;
 	std::string mDownloadRecordPath;
 	curl_slist * mHeaderList;
@@ -189,7 +188,6 @@ LLUpdateDownloader::Implementation::Implementation(LLUpdateDownloader::Client & 
 	mCancelled(false),
 	mClient(client),
 	mCurl(0),
-	mDownloadStream(NULL),
 	mDownloadPercent(0),
 	mHeaderList(0)
 {
@@ -346,9 +344,12 @@ size_t LLUpdateDownloader::Implementation::onBody(void * buffer, size_t size)
 	if(mCancelled) return 0; // Forces a write error which will halt curl thread.
 	if((size == 0) || (buffer == 0)) return 0;
 
-	apr_size_t written(size);
-	ll_apr_assert_status(apr_file_write(mDownloadStream, buffer, &written));
-	return written;
+	mDownloadStream.write(static_cast<const char *>(buffer), size);
+	if(mDownloadStream.bad()) {
+		return 0;
+	} else {
+		return size;
+	}
 }
 
 
@@ -379,8 +380,7 @@ int LLUpdateDownloader::Implementation::onProgress(double downloadSize, double b
 void LLUpdateDownloader::Implementation::run(void)
 {
 	CURLcode code = curl_easy_perform(mCurl);
-	ll_apr_assert_status(apr_file_close(mDownloadStream));
-	mDownloadStream = NULL;
+	mDownloadStream.close();
 	if(code == CURLE_OK) {
 		LLFile::remove(mDownloadRecordPath);
 		if(validateDownload()) {
@@ -459,9 +459,8 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 	if(mHeaderList == 0) throw DownloadError("cannot add Range header");
 	throwOnCurlError(curl_easy_setopt(mCurl, CURLOPT_HTTPHEADER, mHeaderList));
 
-	ll_apr_assert_status(apr_file_open(&mDownloadStream, mDownloadData["path"].asString().c_str(),
-									   APR_WRITE | APR_APPEND | APR_BINARY | APR_BUFFERED,
-									   APR_OS_DEFAULT, gAPRPoolp));
+	mDownloadStream.open(mDownloadData["path"].asString(),
+						 std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 	start();
 }
 
@@ -484,16 +483,7 @@ void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std
 	llofstream dataStream(mDownloadRecordPath);
 	LLSDSerialize::toPrettyXML(mDownloadData, dataStream);
 
-	ll_apr_assert_status(apr_file_open(&mDownloadStream, filePath.c_str(),
-									   APR_WRITE | APR_CREATE | APR_TRUNCATE | APR_BINARY | APR_BUFFERED,
-									   APR_OS_DEFAULT, gAPRPoolp));
-	// IQA-463: Do NOT let this open file be inherited by child processes.
-	// That's why we switched from llofstream to apr_file_t. From
-	// apr_file_open() doc
-	// http://apr.apache.org/docs/apr/1.4/group__apr__file__io.html#gabda14cbf242fb4fe99055434213e5446 :
-	// "By default, the returned file descriptor will not be inherited by
-	// child processes created by apr_proc_create(). This can be changed using
-	// apr_file_inherit_set()."
+	mDownloadStream.open(filePath, std::ios_base::out | std::ios_base::binary);
 	initializeCurlGet(uri.asString(), true);
 	start();
 }

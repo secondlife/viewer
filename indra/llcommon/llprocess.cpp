@@ -539,6 +539,23 @@ LLProcess::LLProcess(const LLSDOrParams& params):
 	apr_procattr_t *procattr = NULL;
 	chkapr(apr_procattr_create(&procattr, gAPRPoolp));
 
+	// IQA-490, CHOP-900: On Windows, ask APR to jump through hoops to
+	// constrain the set of handles passed to the child process. Before we
+	// changed to APR, the Windows implementation of LLProcessLauncher called
+	// CreateProcess(bInheritHandles=FALSE), meaning to pass NO open handles
+	// to the child process. Now that we support pipes, though, we must allow
+	// apr_proc_create() to pass bInheritHandles=TRUE. But without taking
+	// special pains, that causes trouble in a number of ways, due to the fact
+	// that the viewer is constantly opening and closing files -- most of
+	// which CreateProcess() passes to every child process!
+#if ! defined(APR_HAS_PROCATTR_CONSTRAIN_HANDLE_SET)
+	// Our special preprocessor symbol isn't even defined -- wrong APR
+	LL_WARNS("LLProcess") << "This version of APR lacks Linden "
+						  << "apr_procattr_constrain_handle_set() extension" << LL_ENDL;
+#else
+	chkapr(apr_procattr_constrain_handle_set(procattr, 1));
+#endif
+
 	// For which of stdin, stdout, stderr should we create a pipe to the
 	// child? In the viewer, there are only a couple viable
 	// apr_procattr_io_set() alternatives: inherit the viewer's own stdxxx
