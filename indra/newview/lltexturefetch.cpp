@@ -3238,6 +3238,48 @@ void LLTextureFetchDebugger::init()
 	mClearHistory = FALSE;
 }
 
+void LLTextureFetchDebugger::startWork(e_debug_state state)
+{
+	switch(state)
+	{
+		case IDLE:
+			break;
+		case START_DEBUG:
+			startDebug();
+			break;
+		case READ_CACHE:			
+			debugCacheRead();
+			break;
+		case WRITE_CACHE:
+			debugCacheWrite();
+			break;
+		case DECODING:
+			debugDecoder();
+			break;
+		case HTTP_FETCHING:
+			debugHTTP();
+			break;
+		case GL_TEX:
+			debugGLTextureCreation();
+			break;
+		case REFETCH_VIS_CACHE:
+			debugRefetchVisibleFromCache();
+			break;
+		case REFETCH_VIS_HTTP:
+			debugRefetchVisibleFromHTTP();
+			break;
+		case REFETCH_ALL_CACHE:
+			debugRefetchAllFromCache();
+			break;
+		case REFETCH_ALL_HTTP:
+			debugRefetchAllFromHTTP();
+			break;
+		default:
+			break;
+	}
+	return;
+}
+
 void LLTextureFetchDebugger::startDebug()
 {
 	//lock the fetcher
@@ -3247,6 +3289,13 @@ void LLTextureFetchDebugger::startDebug()
 
 	//clear the current fetching queue
 	gTextureList.clearFetchingRequests();
+
+	mState = START_DEBUG;
+}
+
+bool LLTextureFetchDebugger::processStartDebug(F32 max_time)
+{
+	mTimer.reset();
 
 	//wait for all works to be done
 	while(1)
@@ -3258,6 +3307,11 @@ void LLTextureFetchDebugger::startDebug()
 		if(!pending)
 		{
 			break;
+		}
+
+		if(mTimer.getElapsedTimeF32() > max_time)
+		{
+			return false;
 		}
 	}
 
@@ -3297,6 +3351,8 @@ void LLTextureFetchDebugger::startDebug()
 	}
 
 	mNumFetchedTextures = fetched_textures.size();
+
+	return true;
 }
 
 void LLTextureFetchDebugger::tryToStopDebug()
@@ -3348,7 +3404,7 @@ void LLTextureFetchDebugger::tryToStopDebug()
 		break;
 	}
 
-	if(update())
+	if(update(0.005f))
 	{
 		//unlock the fetcher
 		mFetcher->lockFetcher(false);
@@ -3590,7 +3646,7 @@ void LLTextureFetchDebugger::debugGLTextureCreation()
 {
 	llassert_always(mState == IDLE);
 	mState = GL_TEX;
-	std::vector<LLViewerFetchedTexture*> tex_list;
+	mTempTexList.clear();
 
 	S32 size = mFetchingHistory.size();
 	for(S32 i = 0 ; i < size ; i++)
@@ -3601,30 +3657,54 @@ void LLTextureFetchDebugger::debugGLTextureCreation()
 			if(tex && !tex->isForSculptOnly())
 			{
 				tex->destroyGLTexture() ;
-				tex_list.push_back(tex);
+				mTempTexList.push_back(tex);
 			}
 		}
 	}
-
-	mTimer.reset();
+	
 	mGLCreationTime = -1.f;
+	mTempIndex = 0;
+	mHistoryListIndex = 0;
+	
+	return;
+}
 
-	S32 j = 0 ;
-	S32 size1 = tex_list.size();
-	for(S32 i = 0 ; i < size && j < size1; i++)
+bool LLTextureFetchDebugger::processGLCreation(F32 max_time)
+{
+	mTimer.reset();
+
+	bool done = true;
+	S32 size = mFetchingHistory.size();
+	S32 size1 = mTempTexList.size();
+	for(; mHistoryListIndex < size && mTempIndex < size1; mHistoryListIndex++)
 	{
-		if(mFetchingHistory[i].mRawImage.notNull())
+		if(mFetchingHistory[mHistoryListIndex].mRawImage.notNull())
 		{
-			if(mFetchingHistory[i].mID == tex_list[j]->getID())
+			if(mFetchingHistory[mHistoryListIndex].mID == mTempTexList[mTempIndex]->getID())
 			{
-				tex_list[j]->createGLTexture(mFetchingHistory[i].mDecodedLevel, mFetchingHistory[i].mRawImage, 0, TRUE, tex_list[j]->getBoostLevel());
-				j++;
+				mTempTexList[mTempIndex]->createGLTexture(mFetchingHistory[mHistoryListIndex].mDecodedLevel, 
+					mFetchingHistory[mHistoryListIndex].mRawImage, 0, TRUE, mTempTexList[mTempIndex]->getBoostLevel());
+				mTempIndex++;
 			}
+		}
+
+		if(mTimer.getElapsedTimeF32() > max_time)
+		{
+			done = false;
+			break;
 		}
 	}
 
-	mGLCreationTime = mTimer.getElapsedTimeF32() ;
-	return;
+	if(mGLCreationTime < 0.f)
+	{
+		mGLCreationTime = mTimer.getElapsedTimeF32() ;
+	}
+	else
+	{
+		mGLCreationTime += mTimer.getElapsedTimeF32() ;
+	}
+
+	return done;
 }
 
 //clear fetching results of all textures.
@@ -3748,10 +3828,16 @@ void LLTextureFetchDebugger::debugRefetchAllFromHTTP()
 	mRefetchNonVis = TRUE;
 }
 
-bool LLTextureFetchDebugger::update()
+bool LLTextureFetchDebugger::update(F32 max_time)
 {
 	switch(mState)
 	{
+	case START_DEBUG:
+		if(processStartDebug(max_time))
+		{
+			mState = IDLE;
+		}
+		break;
 	case READ_CACHE:
 		if(!mTextureCache->update(1))
 		{
@@ -3786,7 +3872,11 @@ bool LLTextureFetchDebugger::update()
 		}
 		break;
 	case GL_TEX:
-		mState = IDLE;
+		if(processGLCreation(max_time))
+		{
+			mState = IDLE;
+			mTempTexList.clear();
+		}
 		break;
 	case REFETCH_VIS_CACHE:
 		if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
