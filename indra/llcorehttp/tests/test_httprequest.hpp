@@ -35,6 +35,7 @@
 #include <curl/curl.h>
 
 #include "test_allocator.h"
+#include "llcorehttp_test.h"
 
 
 using namespace LLCoreInt;
@@ -334,6 +335,8 @@ void HttpRequestTestObjectType::test<4>()
 template <> template <>
 void HttpRequestTestObjectType::test<5>()
 {
+	init_curl();
+	
 	set_test_name("HttpRequest GET + Stop execution");
 
 	// Handler can be stack-allocated *if* there are no dangling
@@ -416,6 +419,8 @@ void HttpRequestTestObjectType::test<5>()
 	ensure("Two handler calls on the way out", 2 == mHandlerCalls);
 	// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
 	ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+
+	term_curl();
 }
 
 }  // end namespace tut
