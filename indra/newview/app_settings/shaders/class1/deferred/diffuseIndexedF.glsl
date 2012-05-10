@@ -39,5 +39,5 @@ void main()
 	gl_FragData[1] = vertex_color.aaaa; // spec
 	//gl_FragData[1] = vec4(vec3(vertex_color.a), vertex_color.a+(1.0-vertex_color.a)*vertex_color.a); // spec - from former class3 - maybe better, but not so well tested
 	vec3 nvn = normalize(vary_normal);
-	gl_FragData[2] = vec4(nvn.xy * 0.5 + 0.5, nvn.z, 0.0);
+	gl_FragData[2] = vec4(nvn.xyz * 0.5 + 0.5, 0.0);
 }
