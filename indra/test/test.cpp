@@ -66,6 +66,7 @@
 #pragma warning (pop)
 #endif
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
@@ -147,17 +148,16 @@ class LLTestCallback : public tut::callback
 public:
 	LLTestCallback(bool verbose_mode, std::ostream *stream,
 				   boost::shared_ptr<LLReplayLog> replayer) :
-	mVerboseMode(verbose_mode),
-	mTotalTests(0),
-	mPassedTests(0),
-	mFailedTests(0),
-	mSkippedTests(0),
-	// By default, capture a shared_ptr to std::cout, with a no-op "deleter"
-	// so that destroying the shared_ptr makes no attempt to delete std::cout.
-	mStream(boost::shared_ptr<std::ostream>(&std::cout, boost::lambda::_1)),
-	mReplayer(replayer)
-		if (stream)
-		{
+		mVerboseMode(verbose_mode),
+		mTotalTests(0),
+		mPassedTests(0),
+		mFailedTests(0),
+		mSkippedTests(0),
+		// By default, capture a shared_ptr to std::cout, with a no-op "deleter"
+		// so that destroying the shared_ptr makes no attempt to delete std::cout.
+		mStream(boost::shared_ptr<std::ostream>(&std::cout, boost::lambda::_1)),
+		mReplayer(replayer)
+	{
 		if (stream)
 		{
 			// We want a boost::iostreams::tee_device that will stream to two
@@ -593,11 +593,11 @@ int main(int argc, char **argv)
 	LLTestCallback* mycallback;
 	if (getenv("TEAMCITY_PROJECT_NAME"))
 	{
-		mycallback = new LLTCTestCallback(verbose_mode, output, replayer);
+		mycallback = new LLTCTestCallback(verbose_mode, output.get(), replayer);
 	}
 	else
 	{
-		mycallback = new LLTestCallback(verbose_mode, output, replayer);
+		mycallback = new LLTestCallback(verbose_mode, output.get(), replayer);
 	}
 
 	tut::runner.get().set_callback(mycallback);
