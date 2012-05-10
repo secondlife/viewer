@@ -109,6 +109,10 @@ public:
 	inline void incrCurlPOSTCount()		{ mCurlPOSTRequestCount++; }
 	inline void decrCurlPOSTCount()		{ mCurlPOSTRequestCount--; }
 
+	bool canIssueHTTPRequest();
+	void adjustHTTPConcurrency(bool success);
+	S32  getHTTPConcurrency();
+
 protected:
 	void addToNetworkQueue(LLTextureFetchWorker* worker);
 	void removeFromNetworkQueue(LLTextureFetchWorker* worker, bool cancel);
@@ -209,6 +213,9 @@ private:
 	// use the LLCurl module's request counter as it isn't thread compatible.
 	// *NOTE:  Don't mix Atomic and static, apr_initialize must be called first.
 	LLAtomic32<S32> mCurlPOSTRequestCount;
+
+	//control http concurrency for texture fetching
+	S32 mHTTPConcurrency; //which is adaptive to the network situation at an instant
 	
 public:
 	// A probabilistically-correct indicator that the current

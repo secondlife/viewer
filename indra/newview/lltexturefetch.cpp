@@ -1162,8 +1162,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//1, not openning too many file descriptors at the same time;
 			//2, control the traffic of http so udp gets bandwidth.
 			//
-			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 24 ;
-			if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
+			if(!mFetcher->canIssueHTTPRequest())
 			{
 				return false ; //wait.
 			}
@@ -1275,6 +1274,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// requests instead of returning 503... we already limit the number pending.
 					++mHTTPFailCount;
 					max_attempts = mHTTPFailCount+1; // Keep retrying
+					mFetcher->adjustHTTPConcurrency(false);
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
 				}
 				else
@@ -1282,6 +1282,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					const S32 HTTP_MAX_RETRY_COUNT = 3;
 					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
 					++mHTTPFailCount;
+					mFetcher->adjustHTTPConcurrency(false);
 					llinfos << "HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
 							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
@@ -1869,7 +1870,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mFetchDebugger(NULL),
 	  mFetchSource(LLTextureFetch::FROM_ALL),
-	  mOriginFetchSource(LLTextureFetch::FROM_ALL)
+	  mOriginFetchSource(LLTextureFetch::FROM_ALL),
+	  mHTTPConcurrency(24)
 {
 	mCurlPOSTRequestCount = 0;
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
@@ -2094,6 +2096,42 @@ S32 LLTextureFetch::getNumRequests()
 	return size ;
 }
 
+bool LLTextureFetch::canIssueHTTPRequest()
+{
+	LLMutexLock lock(&mNetworkQueueMutex);
+
+	return (S32)mHTTPTextureQueue.size() < mHTTPConcurrency ;
+}
+	
+void LLTextureFetch::adjustHTTPConcurrency(bool success)
+{
+	static LLTimer timer;
+
+	LLMutexLock lock(&mNetworkQueueMutex);
+	if(success)
+	{
+		if(mHTTPConcurrency < 21 && timer.getElapsedTimeF32() > 15.f) //seconds
+		{
+			mHTTPConcurrency += 4; //max is 24
+			timer.reset();
+		}
+	}
+	else
+	{
+		if(mHTTPConcurrency > 11  && timer.getElapsedTimeF32() > 2.0f)
+		{
+			mHTTPConcurrency -= 8; //min is 4
+			timer.reset();
+		}
+	}
+}
+
+S32 LLTextureFetch::getHTTPConcurrency()
+{
+	LLMutexLock lock(&mNetworkQueueMutex);
+	return mHTTPConcurrency;
+}
+
 S32 LLTextureFetch::getNumHTTPRequests() 
 { 
 	mNetworkQueueMutex.lock() ;
@@ -2311,6 +2349,9 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 	{
 		mFetchDebugger->tryToStopDebug(); //check if need to stop debugger.
 	}
+
+	adjustHTTPConcurrency(true);
+
 	return res;
 }
 
@@ -3608,7 +3649,8 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 		return 0;
 	}
 
-	if (mNbCurlRequests == 24)
+	S32 max_concurrency = mFetcher->getHTTPConcurrency();
+	if (mNbCurlRequests == max_concurrency)
 		return mNbCurlRequests;
 	
 	S32 size = mFetchingHistory.size();
@@ -3630,7 +3672,7 @@ S32 LLTextureFetchDebugger::fillCurlQueue()
 			mFetchingHistory[i].mCurlState = FetchEntry::CURL_IN_PROGRESS;
 			mNbCurlRequests++;
 			// Hack
-			if (mNbCurlRequests == 24)
+			if (mNbCurlRequests == max_concurrency)
 				break;
 		}
 		else 
@@ -4007,6 +4049,8 @@ void LLTextureFetchDebugger::callbackHTTP(S32 id, const LLChannelDescriptors& ch
 			mFetchingHistory[id].mCurlState = FetchEntry::CURL_DONE;
 			mNbCurlCompleted++;
 		}
+
+		mFetcher->adjustHTTPConcurrency(false);
 	}
 }
 
