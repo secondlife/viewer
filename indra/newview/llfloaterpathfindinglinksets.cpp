@@ -701,13 +701,17 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfin
 		columns[1]["value"] = getString("linkset_terrain_description");
 		columns[1]["font"] = "SANSSERIF";
 
-		columns[2]["column"] = "land_impact";
-		columns[2]["value"] = getString("linkset_terrain_land_impact");
+		columns[2]["column"] = "owner";
+		columns[2]["value"] = getString("linkset_terrain_owner");
 		columns[2]["font"] = "SANSSERIF";
 
-		columns[3]["column"] = "dist_from_you";
-		columns[3]["value"] = getString("linkset_terrain_dist_from_you");
+		columns[3]["column"] = "land_impact";
+		columns[3]["value"] = getString("linkset_terrain_land_impact");
 		columns[3]["font"] = "SANSSERIF";
+
+		columns[4]["column"] = "dist_from_you";
+		columns[4]["value"] = getString("linkset_terrain_dist_from_you");
+		columns[4]["font"] = "SANSSERIF";
 	}
 	else
 	{
@@ -719,16 +723,20 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfin
 		columns[1]["value"] = pLinksetPtr->getDescription();
 		columns[1]["font"] = "SANSSERIF";
 
-		columns[2]["column"] = "land_impact";
-		columns[2]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
+		columns[2]["column"] = "owner";
+		columns[2]["value"] = (pLinksetPtr->hasOwnerName() ? pLinksetPtr->getOwnerName() : getString("linkset_owner_unknown"));
 		columns[2]["font"] = "SANSSERIF";
 
-		columns[3]["column"] = "dist_from_you";
-		columns[3]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+		columns[3]["column"] = "land_impact";
+		columns[3]["value"] = llformat("%1d", pLinksetPtr->getLandImpact());
 		columns[3]["font"] = "SANSSERIF";
+
+		columns[4]["column"] = "dist_from_you";
+		columns[4]["value"] = llformat("%1.0f m", dist_vec(pAvatarPosition, pLinksetPtr->getLocation()));
+		columns[4]["font"] = "SANSSERIF";
 	}
 
-	columns[4]["column"] = "linkset_use";
+	columns[5]["column"] = "linkset_use";
 	std::string linksetUse = getLinksetUseString(pLinksetPtr->getLinksetUse());
 	if (pLinksetPtr->isTerrain())
 	{
@@ -746,24 +754,24 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListElement(const LLPathfin
 	{
 		linksetUse += (" " + getString("linkset_is_restricted_non_volume_state"));
 	}
-	columns[4]["value"] = linksetUse;
-	columns[4]["font"] = "SANSSERIF";
-
-	columns[5]["column"] = "a_percent";
-	columns[5]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
+	columns[5]["value"] = linksetUse;
 	columns[5]["font"] = "SANSSERIF";
 
-	columns[6]["column"] = "b_percent";
-	columns[6]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
+	columns[6]["column"] = "a_percent";
+	columns[6]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientA());
 	columns[6]["font"] = "SANSSERIF";
 
-	columns[7]["column"] = "c_percent";
-	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
+	columns[7]["column"] = "b_percent";
+	columns[7]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientB());
 	columns[7]["font"] = "SANSSERIF";
 
-	columns[8]["column"] = "d_percent";
-	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
+	columns[8]["column"] = "c_percent";
+	columns[8]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientC());
 	columns[8]["font"] = "SANSSERIF";
+
+	columns[9]["column"] = "d_percent";
+	columns[9]["value"] = llformat("%3d", pLinksetPtr->getWalkabilityCoefficientD());
+	columns[9]["font"] = "SANSSERIF";
 
 	LLSD element;
 	element["id"] = pLinksetPtr->getUUID().asString();

@@ -26,13 +26,18 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
 #include "llpathfindinglinkset.h"
-#include "llsd.h"
+
 #include "v3math.h"
+#include "llavatarname.h"
+#include "llavatarnamecache.h"
+#include "llsd.h"
 #include "lluuid.h"
 
 #define LINKSET_NAME_FIELD                 "name"
 #define LINKSET_DESCRIPTION_FIELD          "description"
+#define LINKSET_OWNER_FIELD                "owner"
 #define LINKSET_LAND_IMPACT_FIELD          "landimpact"
 #define LINKSET_MODIFIABLE_FIELD           "modifiable"
 #ifdef DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
@@ -64,6 +69,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLSD& pTerrainLinksetItem)
 	mIsTerrain(true),
 	mName(),
 	mDescription(),
+	mOwnerUUID(),
+	mOwnerName(),
 	mLandImpact(0U),
 	mLocation(LLVector3::zero),
 #ifdef MISSING_MODIFIABLE_FIELD_WAR
@@ -85,6 +92,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const std::string &pUUID, const LLSD&
 	mIsTerrain(false),
 	mName(),
 	mDescription(),
+	mOwnerUUID(),
+	mOwnerName(),
 	mLandImpact(0U),
 	mLocation(LLVector3::zero),
 #ifdef MISSING_MODIFIABLE_FIELD_WAR
@@ -106,6 +115,8 @@ LLPathfindingLinkset::LLPathfindingLinkset(const LLPathfindingLinkset& pOther)
 	: mUUID(pOther.mUUID),
 	mName(pOther.mName),
 	mDescription(pOther.mDescription),
+	mOwnerUUID(pOther.mOwnerUUID),
+	mOwnerName(pOther.mOwnerName),
 	mLandImpact(pOther.mLandImpact),
 	mLocation(pOther.mLocation),
 #ifdef MISSING_MODIFIABLE_FIELD_WAR
@@ -132,6 +143,8 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mUUID = pOther.mUUID;
 	mName = pOther.mName;
 	mDescription = pOther.mDescription;
+	mOwnerUUID = pOther.mOwnerUUID;
+	mOwnerName = pOther.mOwnerName;
 	mLandImpact = pOther.mLandImpact;
 	mLocation = pOther.mLocation;
 #ifdef MISSING_MODIFIABLE_FIELD_WAR
@@ -151,6 +164,18 @@ LLPathfindingLinkset& LLPathfindingLinkset::operator =(const LLPathfindingLinkse
 	mWalkabilityCoefficientD = pOther.mWalkabilityCoefficientD;
 
 	return *this;
+}
+
+std::string LLPathfindingLinkset::getOwnerName() const
+{
+	std::string ownerName;
+
+	if (hasOwnerName())
+	{
+		ownerName = mOwnerName.getCompleteName();
+	}
+
+	return ownerName;
 }
 
 BOOL LLPathfindingLinkset::isPhantom() const
@@ -227,7 +252,21 @@ void LLPathfindingLinkset::parseObjectData(const LLSD &pLinksetItem)
 	llassert(pLinksetItem.has(LINKSET_DESCRIPTION_FIELD));
 	llassert(pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).isString());
 	mDescription = pLinksetItem.get(LINKSET_DESCRIPTION_FIELD).asString();
-	
+
+#ifdef SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
+	llassert(pLinksetItem.has(LINKSET_OWNER_FIELD));
+	llassert(pLinksetItem.get(LINKSET_OWNER_FIELD).isUUID());
+	mOwnerUUID = pLinksetItem.get(LINKSET_OWNER_FIELD).asUUID();
+	LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
+#else // SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
+	if (pLinksetItem.has(LINKSET_OWNER_FIELD))
+	{
+		llassert(pLinksetItem.get(LINKSET_OWNER_FIELD).isUUID());
+		mOwnerUUID = pLinksetItem.get(LINKSET_OWNER_FIELD).asUUID();
+		LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
+	}
+#endif // SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
+
 	llassert(pLinksetItem.has(LINKSET_LAND_IMPACT_FIELD));
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).isInteger());
 	llassert(pLinksetItem.get(LINKSET_LAND_IMPACT_FIELD).asInteger() >= 0);

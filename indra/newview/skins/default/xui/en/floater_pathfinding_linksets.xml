@@ -4,9 +4,9 @@
     can_resize="true"
     can_tear_off="false"
     height="382"
-    width="950"
+    width="1091"
     min_height="382"
-    min_width="950"
+    min_width="1091"
     layout="topleft"
     name="floater_pathfinding_linksets"
     help_topic="floater_pathfinding_linksets"
@@ -24,8 +24,10 @@
   <floater.string name="linksets_messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="linkset_terrain_name">[Terrain]</floater.string>
   <floater.string name="linkset_terrain_description">--</floater.string>
+  <floater.string name="linkset_terrain_owner">--</floater.string>
   <floater.string name="linkset_terrain_land_impact">--</floater.string>
   <floater.string name="linkset_terrain_dist_from_you">--</floater.string>
+  <floater.string name="linkset_owner_unknown">Unknown</floater.string>
   <floater.string name="linkset_use_walkable">Walkable</floater.string>
   <floater.string name="linkset_use_static_obstacle">Static obstacle</floater.string>
   <floater.string name="linkset_use_dynamic_obstacle">Movable obstacle</floater.string>
@@ -173,7 +175,7 @@
         tab_stop="false"
         multi_select="true"
         name="pathfinding_linksets"
-        width="910">
+        width="1051">
       <scroll_list.columns
           label="Name (root prim)"
           name="name"
@@ -182,6 +184,10 @@
           label="Description (root prim)"
           name="description"
           width="166" />
+      <scroll_list.columns
+          label="Owner"
+          name="owner"
+          width="141" />
       <scroll_list.columns
           label="Land impact"
           name="land_impact"

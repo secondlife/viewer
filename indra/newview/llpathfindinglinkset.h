@@ -29,6 +29,7 @@
 #define LL_LLPATHFINDINGLINKSET_H
 
 #include "v3math.h"
+#include "llavatarname.h"
 #include "lluuid.h"
 
 #include <boost/shared_ptr.hpp>
@@ -66,6 +67,8 @@ public:
 	inline const LLUUID&              getUUID() const                     {return mUUID;};
 	inline const std::string&         getName() const                     {return mName;};
 	inline const std::string&         getDescription() const              {return mDescription;};
+	inline BOOL                       hasOwnerName() const                {return mOwnerUUID.notNull();};
+	std::string                       getOwnerName() const;
 	inline U32                        getLandImpact() const               {return mLandImpact;};
 	inline const LLVector3&           getLocation() const                 {return mLocation;};
 	BOOL                              isModifiable() const                {return mIsModifiable;};
@@ -115,6 +118,8 @@ private:
 	bool         mIsTerrain;
 	std::string  mName;
 	std::string  mDescription;
+	LLUUID       mOwnerUUID;
+	LLAvatarName mOwnerName;
 	U32          mLandImpact;
 	LLVector3    mLocation;
 #ifdef MISSING_MODIFIABLE_FIELD_WAR
