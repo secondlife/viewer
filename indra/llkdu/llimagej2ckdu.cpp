@@ -609,13 +609,6 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		llassert (base.mRate > 0.f);
 		max_bytes = (U32)((F32)(max_bytes) * base.mRate);
 		
-		// If the image is very small, code it in a lossless way.
-		// Note: it'll also have only 1 layer which is fine as there's no point reordering blocks in that case.
-		if (max_bytes < FIRST_PACKET_SIZE)
-		{
-			reversible = true;
-		}
-		
 		// This code is where we specify the target number of bytes for each quality layer.
 		// We're using a logarithmic spacing rule that fits with our way of fetching texture data.
 		// Note: For more info on this layers business, read kdu_codestream::flush() doc in kdu_compressed.h
@@ -626,27 +619,32 @@ BOOL LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			layer_bytes[nb_layers++] = i;
 			i *= 4;
 		}
+		// Note: for small images, we can have (max_bytes < FIRST_PACKET_SIZE), hence the test
 		if (layer_bytes[nb_layers-1] < max_bytes)
 		{
-			// Set the last quality layer if necessary so to fit the preset compression ratio
-			// Use 0 for that last layer for reversible images so all remaining code blocks will be flushed
-			layer_bytes[nb_layers++] = (reversible ? 0 : max_bytes);
+			// Set the last quality layer so to fit the preset compression ratio
+			layer_bytes[nb_layers++] = max_bytes;
 		}
 
 		if (reversible)
 		{
+			// Use 0 for a last quality layer for reversible images so all remaining code blocks will be flushed
+			// Hack: KDU encoding for reversible images has a bug for small images that leads to j2c images that 
+			// cannot be open or are very blurry. Avoiding that last layer prevents the problem to happen.
+			if ((base.getWidth() >= 32) || (base.getHeight() >= 32))
+			{
+				layer_bytes[nb_layers++] = 0;
+			}
 			codestream.access_siz()->parse_string("Creversible=yes");
 			// *TODO: we should use yuv in reversible mode
 			// Don't turn this on now though as it creates problems on decoding for the moment
 			//codestream.access_siz()->parse_string("Cycc=no");
 		}
-
+		
 		std::string layer_string = llformat("Clayers=%d",nb_layers);
 		codestream.access_siz()->parse_string(layer_string.c_str());
 		
 		// Set up data ordering, markers, etc... if precincts or blocks specified
-		// Note: This code is *not* used in the encoding made by the viewer. It is currently used only
-		// by llimage_libtest to create various j2c and test alternative compression schemes.
 		if ((mBlocksSize != -1) || (mPrecinctsSize != -1))
 		{
 			if (mPrecinctsSize != -1)
