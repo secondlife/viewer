@@ -1274,7 +1274,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// requests instead of returning 503... we already limit the number pending.
 					++mHTTPFailCount;
 					max_attempts = mHTTPFailCount+1; // Keep retrying
-					mFetcher->adjustHTTPConcurrency(false);
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
 				}
 				else
@@ -1282,7 +1281,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					const S32 HTTP_MAX_RETRY_COUNT = 3;
 					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
 					++mHTTPFailCount;
-					mFetcher->adjustHTTPConcurrency(false);
 					llinfos << "HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
 							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
@@ -1871,7 +1869,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mFetchDebugger(NULL),
 	  mFetchSource(LLTextureFetch::FROM_ALL),
 	  mOriginFetchSource(LLTextureFetch::FROM_ALL),
-	  mHTTPConcurrency(24)
+	  mHTTPConcurrency(8)
 {
 	mCurlPOSTRequestCount = 0;
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
@@ -2103,32 +2101,9 @@ bool LLTextureFetch::canIssueHTTPRequest()
 	return (S32)mHTTPTextureQueue.size() < mHTTPConcurrency ;
 }
 	
-void LLTextureFetch::adjustHTTPConcurrency(bool success)
-{
-	static LLTimer timer;
-
-	LLMutexLock lock(&mNetworkQueueMutex);
-	if(success)
-	{
-		if(mHTTPConcurrency < 21 && timer.getElapsedTimeF32() > 15.f) //seconds
-		{
-			mHTTPConcurrency += 4; //max is 24
-			timer.reset();
-		}
-	}
-	else
-	{
-		if(mHTTPConcurrency > 11  && timer.getElapsedTimeF32() > 2.0f)
-		{
-			mHTTPConcurrency -= 8; //min is 4
-			timer.reset();
-		}
-	}
-}
-
 S32 LLTextureFetch::getHTTPConcurrency()
 {
-	LLMutexLock lock(&mNetworkQueueMutex);
+	//LLMutexLock lock(&mNetworkQueueMutex);
 	return mHTTPConcurrency;
 }
 
@@ -2349,8 +2324,6 @@ S32 LLTextureFetch::update(F32 max_time_ms)
 	{
 		mFetchDebugger->tryToStopDebug(); //check if need to stop debugger.
 	}
-
-	adjustHTTPConcurrency(true);
 
 	return res;
 }
@@ -4049,8 +4022,6 @@ void LLTextureFetchDebugger::callbackHTTP(S32 id, const LLChannelDescriptors& ch
 			mFetchingHistory[id].mCurlState = FetchEntry::CURL_DONE;
 			mNbCurlCompleted++;
 		}
-
-		mFetcher->adjustHTTPConcurrency(false);
 	}
 }
 

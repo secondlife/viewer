@@ -110,7 +110,6 @@ public:
 	inline void decrCurlPOSTCount()		{ mCurlPOSTRequestCount--; }
 
 	bool canIssueHTTPRequest();
-	void adjustHTTPConcurrency(bool success);
 	S32  getHTTPConcurrency();
 
 protected:
