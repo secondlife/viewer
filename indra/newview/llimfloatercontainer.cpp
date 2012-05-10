@@ -40,6 +40,7 @@
 //
 LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed)
+    ,mMessagesPaneWidth(0)
 {
 	mAutoResize = FALSE;
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
@@ -183,6 +184,31 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	{
 		getActiveFloater()->setVisible(TRUE);
 	}
+}
+
+void LLIMFloaterContainer::toggleMessagesPane(bool expand)
+{
+	LLView* messages_pane = getChild<LLView>("im_box_tab_container");
+	bool is_expanded = messages_pane->getVisible();
+	if (is_expanded == expand)
+	{
+		return;
+	}
+
+	// Store the messages pane width before collapsing it.
+	if (!expand)
+	{
+		LLView* conversations_pane = getChild<LLView>("conversations_pane");
+		S32 horizontal_pad = messages_pane->getRect().mLeft - conversations_pane->getRect().mRight;
+		mMessagesPaneWidth = messages_pane->getRect().getWidth() + horizontal_pad;
+	}
+
+	// Show/hide the messages pane.
+	messages_pane->setVisible(expand);
+
+	S32 floater_width = getRect().getWidth();
+	floater_width += (expand ? mMessagesPaneWidth : -mMessagesPaneWidth);
+	reshape(floater_width, getRect().getHeight());
 }
 
 // EOF

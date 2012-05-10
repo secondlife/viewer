@@ -67,6 +67,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mDialog(IM_NOTHING_SPECIAL),
 	mChatHistory(NULL),
 	mInputEditor(NULL),
+	mExpandCollapseBtn(NULL),
+	mTearOffBtn(NULL),
 	mSavedTitle(),
 	mTypingStart(),
 	mShouldSendTypingState(false),
@@ -177,6 +179,17 @@ void LLIMFloater::onFocusReceived()
 	if (getVisible())
 	{
 		LLIMModel::instance().sendNoUnreadMessages(mSessionID);
+	}
+}
+
+/*virtual*/
+void LLIMFloater::onOpen(const LLSD& key)
+{
+	LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
+	if (host_floater)
+	{
+		// Show the messages pane when opening a floater hosted in the Conversations
+		host_floater->toggleMessagesPane(true);
 	}
 }
 
@@ -291,19 +304,14 @@ BOOL LLIMFloater::postBuild()
 	mControlPanel->setSessionId(mSessionID);
 	mControlPanel->getParent()->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
 
-	LLButton* slide_left = getChild<LLButton>("slide_left_btn");
-	slide_left->setVisible(mControlPanel->getParent()->getVisible());
-	slide_left->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+	getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
 
-	LLButton* slide_right = getChild<LLButton>("slide_right_btn");
-	slide_right->setVisible(!mControlPanel->getParent()->getVisible());
-	slide_right->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
+	mExpandCollapseBtn->setImageOverlay(getString(mControlPanel->getParent()->getVisible() ? "collapse_icon" : "expand_icon"));
+	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
 
-	LLButton* return_btn = getChild<LLButton>("return_btn");
-	return_btn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
-
-	LLButton* tear_off_btn = getChild<LLButton>("tear_off_btn");
-	tear_off_btn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
+	mTearOffBtn = getChild<LLButton>("tear_off_btn");
+	mTearOffBtn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
@@ -427,12 +435,23 @@ void* LLIMFloater::createPanelAdHocControl(void* userdata)
 
 void LLIMFloater::onSlide()
 {
-	mControlPanel->getParent()->setVisible(!mControlPanel->getParent()->getVisible());
+	LLIMFloaterContainer* host_floater = dynamic_cast<LLIMFloaterContainer*>(getHost());
+	if (host_floater)
+	{
+		// Hide the messages pane if a floater is hosted in the Conversations
+		host_floater->toggleMessagesPane(false);
+	}
+	else ///< floater is torn off
+	{
+		bool expand = !mControlPanel->getParent()->getVisible();
 
-	gSavedSettings.setBOOL("IMShowControlPanel", mControlPanel->getParent()->getVisible());
+		// Expand/collapse the IM control panel
+		mControlPanel->getParent()->setVisible(expand);
 
-	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getParent()->getVisible());
-	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getParent()->getVisible());
+		gSavedSettings.setBOOL("IMShowControlPanel", expand);
+
+		mExpandCollapseBtn->setImageOverlay(getString(expand ? "collapse_icon" : "expand_icon"));
+	}
 }
 
 //static
@@ -1253,14 +1272,16 @@ void	LLIMFloater::onClickCloseBtn()
 // virtual
 void LLIMFloater::updateTitleButtons()
 {
-	if (!mDragHandle)
+	// This gets called before LLIMFloater::postBuild() while some LLIMFloater members are NULL
+	if (   !mDragHandle
+		|| !mControlPanel
+		|| !mExpandCollapseBtn
+		|| !mTearOffBtn)
 	{
 		return;
 	}
 
-	LLMultiFloater* host_floater = getHost();
-
-	bool is_hosted = host_floater != NULL;
+	bool is_hosted = getHost() != NULL;
 	if (is_hosted) ///< floater is hosted
 	{
 		for (S32 i = 0; i < BUTTON_COUNT; i++)
@@ -1273,18 +1294,19 @@ void LLIMFloater::updateTitleButtons()
 			// Hide the standard header buttons in a docked IM floater.
 			mButtons[i]->setVisible(false);
 		}
+
+		mExpandCollapseBtn->setImageOverlay(getString("collapse_icon"));
 	}
 	else ///< floater is torn off
 	{
 		LLFloater::updateTitleButtons();
+
+		bool is_expanded = mControlPanel->getParent()->getVisible();
+		mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 	}
 
 	// toggle floater's drag handle and title visibility
 	mDragHandle->setVisible(!is_hosted);
-	
-	LLButton* return_btn = getChild<LLButton>("return_btn");
-	return_btn->setVisible(!is_hosted);
 
-	LLButton* tear_off_btn = getChild<LLButton>("tear_off_btn");
-	tear_off_btn->setVisible(is_hosted);
+	mTearOffBtn->setImageOverlay(getString(is_hosted ? "tear_off_icon" : "return_icon"));
 }

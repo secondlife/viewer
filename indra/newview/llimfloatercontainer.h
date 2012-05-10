@@ -60,12 +60,16 @@ public:
 
 	virtual void setMinimized(BOOL b);
 
+	void toggleMessagesPane(bool expand);
+
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
 	boost::signals2::connection mNewMessageConnection;
 
 	void onNewMessageReceived(const LLSD& data);
+
+	S32	mMessagesPaneWidth;
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H

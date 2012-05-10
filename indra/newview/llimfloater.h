@@ -33,6 +33,7 @@
 #include "lltransientdockablefloater.h"
 
 class LLAvatarName;
+class LLButton;
 class LLLineEditor;
 class LLPanelChatControlPanel;
 class LLChatHistory;
@@ -59,6 +60,7 @@ public:
 	/*virtual*/ void draw();
 
 	// LLFloater overrides
+	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
 
@@ -182,6 +184,9 @@ private:
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
+
+	LLButton* mExpandCollapseBtn;
+	LLButton* mTearOffBtn;
 };
 
 

@@ -12,8 +12,21 @@
  visible="false"
  width="394"
  can_resize="true"
+ can_tear_off="false"
  min_width="250"
  min_height="190">
+    <floater.string
+     name="collapse_icon"
+     value="TabIcon_Open_Off"/>
+    <floater.string
+     name="expand_icon"
+     value="TabIcon_Close_Off"/>
+    <floater.string
+     name="tear_off_icon"
+     value="tearoffbox.tga"/>
+    <floater.string
+     name="return_icon"
+     value="Icon_Dock_Foreground"/>
     <view
         follows="all"
         layout="topleft"
@@ -23,7 +36,7 @@
         height="355"
         width="394"> 
      <panel
-         follows="all"
+         follows="left|top|right"
          layout="topleft"
          name="toolbar_panel"
          top="0"
@@ -95,19 +108,7 @@
                  layout="topleft"
                  top="5"
                  left_pad="5"
-                 name="slide_left_btn"
-                 width="31" />
-             <button
-                 follows="right|top"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="TabIcon_Close_Off"
-                 image_selected="Toolbar_Middle_Selected"
-             	 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 top="5"
-                 left_delta="0"
-                 name="slide_right_btn"
+                 name="expand_collapse_btn"
                  width="31" />
              <button
                  follows="right|top"
@@ -120,18 +121,6 @@
                  top="5"
                  left_pad="5"
                  name="tear_off_btn"
-                 width="31" />
-             <button
-                 follows="right|top"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="Icon_Dock_Foreground"
-                 image_selected="Toolbar_Middle_Selected"
-             	 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 top="5"
-                 left_delta="0"
-                 name="return_btn"
                  width="31" />
      </panel>
   <layout_stack

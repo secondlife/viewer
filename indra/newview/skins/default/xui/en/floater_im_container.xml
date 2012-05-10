@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <multi_floater
- can_close="false"  
+ can_close="true"  
  can_minimize="true"
  can_resize="true"
  height="430"
@@ -17,7 +17,7 @@
          border="true"
          follows="top|bottom|left"
          layout="topleft"
-         name="conversations_list"
+         name="conversations_pane"
          opaque="true"
          top="0"
          left="5"
@@ -29,7 +29,7 @@
                  image_hover_unselected="Toolbar_Middle_Over"
                  image_overlay="OptionsMenu_Off"
                  image_selected="Toolbar_Middle_Selected"
-             	 image_unselected="Toolbar_Middle_Off"
+                 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  left="5"
                  name="sort_btn"
@@ -39,7 +39,7 @@
                  follows="top|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"
-             	 image_overlay="AddItem_Off"
+                 image_overlay="AddItem_Off"
                  image_selected="Toolbar_Middle_Selected"
              	 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
@@ -55,34 +55,20 @@
                  image_hover_unselected="Toolbar_Middle_Over"
                  image_overlay="TabIcon_Open_Off"
                  image_selected="Toolbar_Middle_Selected"
-             	 image_unselected="Toolbar_Middle_Off"
+                 image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  top="5"
                  left="228"
-                 name="slide_left_btn"
+                 name="expand_collapse_btn"
                  width="31" />
-             <button
-                 follows="right|top"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="TabIcon_Close_Off"
-                 image_selected="Toolbar_Middle_Selected"
-             	 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 top="5"
-                 left_delta="0"
-                 name="slide_right_btn"
-                 width="31" />            
-     </panel>
+    </panel>
     <panel_container
-         follows="all"
-         layout="topleft"
-         name="im_box_tab_container"
-         opaque="true"
-         top="0"
-         left_pad="15"
-         height="430"
-         width="389"
-         min_width="290">         
-     </panel_container>
+     follows="all"
+     height="430"
+     layout="topleft"
+     left_pad="15"
+     min_width="290"
+     name="im_box_tab_container"
+     top="0"
+     width="389"/>
 </multi_floater>
