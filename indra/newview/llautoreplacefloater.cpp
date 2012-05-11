@@ -252,7 +252,6 @@ void AutoReplaceFloater::onEntrySettingChange(LLUICtrl* caller, void* user_data)
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
 			AutoReplace::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
-			AutoReplace::getInstance()->setListStyle(listName,self->childGetValue("ac_list_style").asBoolean());
 			AutoReplace::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
 
 			//sInstance->updateEnabledStuff();
