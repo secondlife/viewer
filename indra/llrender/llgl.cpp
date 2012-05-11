@@ -558,7 +558,8 @@ bool LLGLManager::initGL()
 	parse_gl_version( &mDriverVersionMajor, 
 		&mDriverVersionMinor, 
 		&mDriverVersionRelease, 
-		&mDriverVersionVendorString );
+		&mDriverVersionVendorString,
+		&mGLVersionString);
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
 
@@ -2053,7 +2054,7 @@ void LLGLManager::initGLStates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific )
+void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string )
 {
 	// GL_VERSION returns a null-terminated string with the format: 
 	// <major>.<minor>[.<release>] [<vendor specific>]
@@ -2068,6 +2069,8 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 	{
 		return;
 	}
+
+	version_string->assign(version);
 
 	std::string ver_copy( version );
 	S32 len = (S32)strlen( version );	/* Flawfinder: ignore */

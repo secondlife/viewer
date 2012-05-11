@@ -141,6 +141,7 @@ public:
 	S32 mGLSLVersionMajor;
 	S32 mGLSLVersionMinor;
 	std::string mDriverVersionVendorString;
+	std::string mGLVersionString;
 
 	S32 mVRAM; // VRAM in MB
 	S32 mGLMaxVertexRange;
@@ -423,7 +424,7 @@ extern LLMatrix4 gGLObliqueProjectionInverse;
 
 void init_glstates();
 
-void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific );
+void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor_specific, std::string* version_string );
 
 extern BOOL gClothRipple;
 extern BOOL gHeadlessClient;
