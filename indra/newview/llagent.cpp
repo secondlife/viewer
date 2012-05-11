@@ -112,6 +112,81 @@ const F32 MAX_FIDGET_TIME = 20.f; // seconds
 // The agent instance.
 LLAgent gAgent;
 
+class LLTeleportRequest
+{
+public:
+	LLTeleportRequest();
+	virtual ~LLTeleportRequest();
+
+	virtual void doTeleport() = 0;
+
+protected:
+
+private:
+
+};
+
+class LLTeleportRequestViaLandmark : public LLTeleportRequest
+{
+public:
+	LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
+	virtual ~LLTeleportRequestViaLandmark();
+
+	virtual void doTeleport();
+
+protected:
+	inline const LLUUID &getLandmarkId() const {return mLandmarkId;};
+
+private:
+	LLUUID mLandmarkId;
+};
+
+class LLTeleportRequestViaLure : public LLTeleportRequestViaLandmark
+{
+public:
+	LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike);
+	virtual ~LLTeleportRequestViaLure();
+
+	virtual void doTeleport();
+
+protected:
+	inline BOOL isLureGodLike() const {return mIsLureGodLike;};
+
+private:
+	BOOL mIsLureGodLike;
+};
+
+class LLTeleportRequestViaLocation : public LLTeleportRequest
+{
+public:
+	LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
+	virtual ~LLTeleportRequestViaLocation();
+
+	virtual void doTeleport();
+
+protected:
+	inline const LLVector3d &getPosGlobal() const {return mPosGlobal;};
+
+private:
+	LLVector3d mPosGlobal;
+};
+
+
+class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
+{
+public:
+	LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
+	virtual ~LLTeleportRequestViaLocationLookAt();
+
+	virtual void doTeleport();
+
+protected:
+
+private:
+
+};
+
+
 //--------------------------------------------------------------------
 // Statics
 //
@@ -3495,6 +3570,13 @@ void LLAgent::teleportRequest(
 // Landmark ID = LLUUID::null means teleport home
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
+	llassert(mTeleportRequest == NULL);
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
+	mTeleportRequest->doTeleport();
+}
+
+void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
+{
 	LLViewerRegion *regionp = getRegion();
 	if(regionp && teleportCore())
 	{
@@ -3509,6 +3591,13 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 }
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
+{
+	llassert(mTeleportRequest == NULL);
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
+	mTeleportRequest->doTeleport();
+}
+
+void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
 	LLViewerRegion* regionp = getRegion();
 	if(regionp && teleportCore())
@@ -3559,6 +3648,13 @@ void LLAgent::teleportCancel()
 
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
+	llassert(mTeleportRequest == NULL);
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
+	mTeleportRequest->doTeleport();
+}
+
+void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
+{
 	LLViewerRegion* regionp = getRegion();
 	U64 handle = to_region_handle(pos_global);
 	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle);
@@ -3601,6 +3697,13 @@ void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 // Teleport to global position, but keep facing in the same direction 
 void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
 {
+	llassert(mTeleportRequest == NULL);
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
+	mTeleportRequest->doTeleport();
+}
+
+void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
+{
 	mbTeleportKeepsLookAt = true;
 	gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
 	U64 region_handle = to_region_handle(pos_global);
@@ -3620,6 +3723,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 	{
 		case TELEPORT_NONE:
 			mbTeleportKeepsLookAt = false;
+			mTeleportRequest.reset();
 			break;
 
 		case TELEPORT_MOVING:
@@ -4034,5 +4138,91 @@ LLAgentQueryManager::~LLAgentQueryManager()
 {
 }
 
-// EOF
+//-----------------------------------------------------------------------------
+// LLTeleportRequest
+//-----------------------------------------------------------------------------
 
+LLTeleportRequest::LLTeleportRequest()
+{
+}
+
+LLTeleportRequest::~LLTeleportRequest()
+{
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLandmark
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId)
+	: LLTeleportRequest(),
+	mLandmarkId(pLandmarkId)
+{
+}
+
+LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
+{
+}
+
+void LLTeleportRequestViaLandmark::doTeleport()
+{
+	gAgent.doTeleportViaLandmark(getLandmarkId());
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLure
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike)
+	: LLTeleportRequestViaLandmark(pLureId),
+	mIsLureGodLike(pIsLureGodLike)
+{
+}
+
+LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
+{
+}
+
+void LLTeleportRequestViaLure::doTeleport()
+{
+	gAgent.doTeleportViaLure(getLandmarkId(), isLureGodLike());
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLocation
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLocation::LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal)
+	: LLTeleportRequest(),
+	mPosGlobal(pPosGlobal)
+{
+}
+
+LLTeleportRequestViaLocation::~LLTeleportRequestViaLocation()
+{
+}
+
+void LLTeleportRequestViaLocation::doTeleport()
+{
+	gAgent.doTeleportViaLocation(getPosGlobal());
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLocationLookAt
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLocationLookAt::LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal)
+	: LLTeleportRequestViaLocation(pPosGlobal)
+{
+}
+
+LLTeleportRequestViaLocationLookAt::~LLTeleportRequestViaLocationLookAt()
+{
+}
+
+void LLTeleportRequestViaLocationLookAt::doTeleport()
+{
+	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
+}
+
+// EOF

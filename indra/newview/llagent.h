@@ -35,6 +35,7 @@
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llvoavatardefines.h"
 
+#include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
 extern const BOOL 	ANIMATE;
@@ -56,6 +57,9 @@ class LLAgentAccess;
 class LLSLURL;
 class LLPauseRequestHandle;
 class LLUIColor;
+class LLTeleportRequest;
+
+typedef boost::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
 
 //--------------------------------------------------------------------
 // Types
@@ -556,9 +560,6 @@ private:
 	// Teleport Actions
 	//--------------------------------------------------------------------
 public:
-	void 			teleportRequest(const U64& region_handle,
-									const LLVector3& pos_local,				// Go to a named location home
-									bool look_at_from_camera = false);
 	void 			teleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
 	void 			teleportHome()	{ teleportViaLandmark(LLUUID::null); }	// Go home
 	void 			teleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
@@ -569,6 +570,20 @@ public:
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
 
+private:
+	friend class LLTeleportRequest;
+	friend class LLTeleportRequestViaLandmark;
+	friend class LLTeleportRequestViaLure;
+	friend class LLTeleportRequestViaLocation;
+	friend class LLTeleportRequestViaLocationLookAt;
+	void 			teleportRequest(const U64& region_handle,
+									const LLVector3& pos_local,				// Go to a named location home
+									bool look_at_from_camera = false);
+	void 			doTeleportViaLandmark(const LLUUID& landmark_id);			// Teleport to a landmark
+	void 			doTeleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
+	void 			doTeleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
+	void			doTeleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
+
 	//--------------------------------------------------------------------
 	// Teleport State
 	//--------------------------------------------------------------------
@@ -577,6 +592,7 @@ public:
 	void			setTeleportState(ETeleportState state);
 private:
 	ETeleportState	mTeleportState;
+	LLTeleportRequestPtr mTeleportRequest;
 
 	//--------------------------------------------------------------------
 	// Teleport Message
