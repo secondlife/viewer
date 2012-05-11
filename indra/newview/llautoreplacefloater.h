@@ -1,6 +1,6 @@
 /** 
- * @file llautocorrectfloater.h
- * @brief Auto Correct List floater
+ * @file llautoreplacefloater.h
+ * @brief Auto Replace List floater
  * @copyright Copyright (c) 2011 LordGregGreg Back
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -23,8 +23,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef AUTOCORRECTFLOATER_H
-#define AUTOCORRECTFLOATER_H
+#ifndef AUTOREPLACEFLOATER_H
+#define AUTOREPLACEFLOATER_H
 
 #include "llfloater.h"
 #include "llmediactrl.h"
@@ -34,16 +34,16 @@
 #include "llviewerinventory.h"
 #include <boost/bind.hpp>
 
-class AutoCorrectFloater : 
+class AutoReplaceFloater : 
 public LLFloater
 {
 public:
-	AutoCorrectFloater(const LLSD& key);
+	AutoReplaceFloater(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
 
-	static AutoCorrectFloater* showFloater();
+	static AutoReplaceFloater* showFloater();
 
 	void setData(void * data);
 	void updateEnabledStuff();
@@ -72,4 +72,4 @@ private:
 	static void loadList(void* data);
 };
 
-#endif  // AUTOCORRECTFLOATER_H
+#endif  // AUTOREPLACEFLOATER_H

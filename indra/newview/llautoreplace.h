@@ -1,6 +1,6 @@
 /** 
- * @file llautocorrect.h
- * @brief Auto Correct Manager
+ * @file llautoreplace.h
+ * @brief Auto Replace Manager
  * @copyright Copyright (c) 2011 LordGregGreg Back
  *
  * This library is free software; you can redistribute it and/or
@@ -17,21 +17,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef AUTO_CORRECT
-#define AUTO_CORRECT
+#ifndef AUTO_REPLACE
+#define AUTO_REPLACE
 
 #include "lllineeditor.h"
 
-class AutoCorrect : public LLSingleton<AutoCorrect>
+class AutoReplace : public LLSingleton<AutoReplace>
 {
-	AutoCorrect();
-	~AutoCorrect();
-	static AutoCorrect* sInstance;
+	AutoReplace();
+	~AutoReplace();
+	static AutoReplace* sInstance;
 public:
-	void autocorrectCallback(LLUIString& inputText, S32& cursorPos);
-	static AutoCorrect* getInstance();
-	BOOL addCorrectionList(LLSD newList);
-	BOOL removeCorrectionList(std::string listName);
+	void autoreplaceCallback(LLUIString& inputText, S32& cursorPos);
+	static AutoReplace* getInstance();
+	BOOL addReplacementList(LLSD newList);
+	BOOL removeReplacementList(std::string listName);
 	BOOL setListEnabled(std::string listName, BOOL enabled);
 	BOOL setListAnnounceeState(std::string listName, BOOL announce);
 	BOOL setListPriority(std::string listName, int priority);
@@ -43,20 +43,20 @@ public:
 	BOOL saveListToDisk(std::string listName, std::string fileName);
 	LLSD exportList(std::string listName);
 	void runTest();
-	LLSD getAutoCorrects();
-	LLSD getAutoCorrectEntries(std::string listName);
+	LLSD getAutoReplaces();
+	LLSD getAutoReplaceEntries(std::string listName);
 	void save();
 
 	void loadFromDisk();
 
 private:
-	friend class LLSingleton<AutoCorrect>;
+	friend class LLSingleton<AutoReplace>;
 	void saveToDisk(LLSD newSettings);
 	LLSD getExampleLLSD();	
 	std::string getFileName();
 	std::string getDefaultFileName();
 
-	LLSD mAutoCorrects;
+	LLSD mAutoReplaces;
 
 };
 

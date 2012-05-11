@@ -9,7 +9,7 @@
  height="500"
  width="400"
  name="ac_floater"
- title="Autocorrect Settings">
+ title="Autoreplace Settings">
   <check_box
    bottom_delta="50"
    left_delta="5"
@@ -20,8 +20,8 @@
    font="SansSerifSmall"
    mouse_opaque="true"
    radio_style="false"
-   label="Enable Autocorrect"
-   control_name="AutoCorrect"
+   label="Enable Autoreplace"
+   control_name="AutoReplace"
    name="ac_enable"
    tool_tip="You must have this check box enabled to use any of these settings, it will search your writable text entry, and replace any of the search entries with their replacement"/>
   <button

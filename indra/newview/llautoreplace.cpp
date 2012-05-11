@@ -1,6 +1,6 @@
 /** 
- * @file llautocorrect.cpp
- * @brief Auto Correct Manager
+ * @file llautoreplace.cpp
+ * @brief Auto Replace Manager
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,30 +23,30 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llautocorrect.h"
+#include "llautoreplace.h"
 #include "llsdserialize.h"
 #include "llboost.h"
 #include "llcontrol.h"
 #include "llviewercontrol.h"
 #include "llnotificationsutil.h"
 
-AutoCorrect* AutoCorrect::sInstance;
+AutoReplace* AutoReplace::sInstance;
 
-AutoCorrect::AutoCorrect()
+AutoReplace::AutoReplace()
 {
 	sInstance = this;
 	sInstance->loadFromDisk();
 }
 
-AutoCorrect::~AutoCorrect()
+AutoReplace::~AutoReplace()
 {
 	sInstance = NULL;
 }
 
-void AutoCorrect::autocorrectCallback(LLUIString& inputText, S32& cursorPos)
+void AutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 {
-	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
-	if(perform_autocorrect)
+	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
+	if(perform_autoreplace)
 	{
 		S32 wordStart = 0;
 		S32 wordEnd = cursorPos-1;
@@ -80,11 +80,11 @@ void AutoCorrect::autocorrectCallback(LLUIString& inputText, S32& cursorPos)
 
 			std::string strLastWord = std::string(text.begin(), text.end());
 			std::string lastTypedWord = strLastWord.substr(wordStart, wordEnd-wordStart);
-			std::string correctedWord(replaceWord(lastTypedWord));
+			std::string replaceedWord(replaceWord(lastTypedWord));
 
-			if(correctedWord != lastTypedWord)
+			if(replaceedWord != lastTypedWord)
 			{
-				LLWString strNew = utf8str_to_wstring(correctedWord);
+				LLWString strNew = utf8str_to_wstring(replaceedWord);
 				LLWString strOld = utf8str_to_wstring(lastTypedWord);
 				int nDiff = strNew.size() - strOld.size();
 
@@ -97,58 +97,58 @@ void AutoCorrect::autocorrectCallback(LLUIString& inputText, S32& cursorPos)
 	}
 }
 
-AutoCorrect* AutoCorrect::getInstance()
+AutoReplace* AutoReplace::getInstance()
 {
 	if(sInstance)return sInstance;
 	else
 	{
-		sInstance = new AutoCorrect();
+		sInstance = new AutoReplace();
 		return sInstance;
 	}
 }
-void AutoCorrect::save()
+void AutoReplace::save()
 {
-	saveToDisk(mAutoCorrects);
+	saveToDisk(mAutoReplaces);
 }
-std::string AutoCorrect::getFileName()
+std::string AutoReplace::getFileName()
 {
 	std::string path=gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
 
 	if (!path.empty())
 	{
-		path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings_autocorrect.xml");
+		path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings_autoreplace.xml");
 	}
 	return path;  
 }
-std::string AutoCorrect::getDefaultFileName()
+std::string AutoReplace::getDefaultFileName()
 {
 	std::string path=gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "");
 
 	if (!path.empty())
 	{
-		path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_autocorrect.xml");
+		path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_autoreplace.xml");
 	}
 	return path;  
 }
-LLSD AutoCorrect::exportList(std::string listName)
+LLSD AutoReplace::exportList(std::string listName)
 {
 	LLSD toReturn;
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
 		toReturn["listName"]=listName;
-		toReturn["data"]=mAutoCorrects[listName]["data"];
-		toReturn["author"]=mAutoCorrects[listName]["author"];
-		toReturn["wordStyle"]=mAutoCorrects[listName]["wordStyle"];
-		toReturn["priority"]=mAutoCorrects[listName]["priority"];
+		toReturn["data"]=mAutoReplaces[listName]["data"];
+		toReturn["author"]=mAutoReplaces[listName]["author"];
+		toReturn["wordStyle"]=mAutoReplaces[listName]["wordStyle"];
+		toReturn["priority"]=mAutoReplaces[listName]["priority"];
 	}
 	return toReturn;
 }
-BOOL AutoCorrect::addCorrectionList(LLSD newList)
+BOOL AutoReplace::addReplacementList(LLSD newList)
 {
 	if(newList.has("listName"))
 	{
 		std::string name = newList["listName"];
-		//if(!mAutoCorrects.has(name)){
+		//if(!mAutoReplaces.has(name)){
 		LLSD newPart;
 		newPart["data"]=newList["data"];
 		newPart["enabled"]=TRUE;
@@ -157,67 +157,67 @@ BOOL AutoCorrect::addCorrectionList(LLSD newList)
 		newPart["wordStyle"]=newList["wordStyle"];
 		newPart["priority"]=newList["priority"].asInteger();
 		llinfos << "adding new list with settings priority "<<newPart["priority"].asInteger() <<llendl;
-		mAutoCorrects[name]=newPart;
+		mAutoReplaces[name]=newPart;
 
 		return TRUE;
 
 	}
 	return FALSE;
 }
-BOOL AutoCorrect::removeCorrectionList(std::string listName)
+BOOL AutoReplace::removeReplacementList(std::string listName)
 {
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		mAutoCorrects.erase(listName);
+		mAutoReplaces.erase(listName);
 		return TRUE;
 	}
 	return FALSE;
 }
-BOOL AutoCorrect::setListEnabled(std::string listName, BOOL enabled)
+BOOL AutoReplace::setListEnabled(std::string listName, BOOL enabled)
 {
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		mAutoCorrects[listName]["enabled"]=enabled;
+		mAutoReplaces[listName]["enabled"]=enabled;
 		return TRUE;
 	}
 	
 	return FALSE;
 }
-BOOL AutoCorrect::setListAnnounceeState(std::string listName, BOOL announce)
+BOOL AutoReplace::setListAnnounceeState(std::string listName, BOOL announce)
 {
 	
 
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		mAutoCorrects[listName]["announce"]=announce;
+		mAutoReplaces[listName]["announce"]=announce;
 		return TRUE;
 	}
 	return FALSE;
 }
-BOOL AutoCorrect::setListStyle(std::string listName, BOOL announce)
+BOOL AutoReplace::setListStyle(std::string listName, BOOL announce)
 {
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		mAutoCorrects[listName]["wordStyle"]=announce;
+		mAutoReplaces[listName]["wordStyle"]=announce;
 		return TRUE;
 	}
 	return FALSE;
 }
-BOOL AutoCorrect::setListPriority(std::string listName, int priority)
+BOOL AutoReplace::setListPriority(std::string listName, int priority)
 {
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		mAutoCorrects[listName]["priority"]=priority;
+		mAutoReplaces[listName]["priority"]=priority;
 		return TRUE;
 	}
 	return FALSE;
 }
-LLSD AutoCorrect::getAutoCorrects()
+LLSD AutoReplace::getAutoReplaces()
 {
 	//loadFromDisk();
-	return mAutoCorrects;
+	return mAutoReplaces;
 }
-void AutoCorrect::loadFromDisk()
+void AutoReplace::loadFromDisk()
 {
 	std::string filename=getFileName();
 	if (filename.empty())
@@ -249,21 +249,21 @@ void AutoCorrect::loadFromDisk()
 		file.open(filename.c_str());
 		if (file.is_open())
 		{
-			LLSDSerialize::fromXML(mAutoCorrects, file);
+			LLSDSerialize::fromXML(mAutoReplaces, file);
 		}
 		file.close();
 	}	
 }
-void AutoCorrect::saveToDisk(LLSD newSettings)
+void AutoReplace::saveToDisk(LLSD newSettings)
 {
-	mAutoCorrects=newSettings;
+	mAutoReplaces=newSettings;
 	std::string filename=getFileName();
 	llofstream file;
 	file.open(filename.c_str());
-	LLSDSerialize::toPrettyXML(mAutoCorrects, file);
+	LLSDSerialize::toPrettyXML(mAutoReplaces, file);
 	file.close();
 }
-void AutoCorrect::runTest()
+void AutoReplace::runTest()
 {
 	std::string startS("He just abandonned all his abilties");
 	std::string endS = replaceWords(startS);
@@ -271,9 +271,9 @@ void AutoCorrect::runTest()
 
 
 }
-BOOL AutoCorrect::saveListToDisk(std::string listName, std::string fileName)
+BOOL AutoReplace::saveListToDisk(std::string listName, std::string fileName)
 {
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
 		llofstream file;
 		file.open(fileName.c_str());
@@ -283,24 +283,24 @@ BOOL AutoCorrect::saveListToDisk(std::string listName, std::string fileName)
 	}
 	return FALSE;
 }
-LLSD AutoCorrect::getAutoCorrectEntries(std::string listName)
+LLSD AutoReplace::getAutoReplaceEntries(std::string listName)
 {
 	LLSD toReturn;
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		toReturn=mAutoCorrects[listName];
+		toReturn=mAutoReplaces[listName];
 	}
 	return toReturn;
 }
-std::string AutoCorrect::replaceWord(std::string currentWord)
+std::string AutoReplace::replaceWord(std::string currentWord)
 {
-	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
-	if(!(perform_autocorrect))return currentWord;
+	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
+	if(!(perform_autoreplace))return currentWord;
 	//loop through priorities
 	for(int currentPriority = 10;currentPriority>=0;currentPriority--)
 	{
-		LLSD::map_const_iterator loc_it = mAutoCorrects.beginMap();
-		LLSD::map_const_iterator loc_end = mAutoCorrects.endMap();
+		LLSD::map_const_iterator loc_it = mAutoReplaces.beginMap();
+		LLSD::map_const_iterator loc_end = mAutoReplaces.endMap();
 		for (; loc_it != loc_end; ++loc_it)
 		{
 			const std::string& location = (*loc_it).first;
@@ -349,10 +349,10 @@ std::string AutoCorrect::replaceWord(std::string currentWord)
 	}
 	return currentWord;
 }
-std::string AutoCorrect::replaceWords(std::string words)
+std::string AutoReplace::replaceWords(std::string words)
 {
-	static LLCachedControl<bool> perform_autocorrect(gSavedSettings, "AutoCorrect");
-	if(!(perform_autocorrect))return words;
+	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
+	if(!(perform_autoreplace))return words;
 	//*TODO update this function to use the "wordStyle" thing,
 	//but so far this function is never used, so later
 
@@ -360,8 +360,8 @@ std::string AutoCorrect::replaceWords(std::string words)
 	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 	{
 		std::string currentWord(*token_iter);
-		LLSD::map_const_iterator loc_it = mAutoCorrects.beginMap();
-		LLSD::map_const_iterator loc_end = mAutoCorrects.endMap();
+		LLSD::map_const_iterator loc_it = mAutoReplaces.beginMap();
+		LLSD::map_const_iterator loc_end = mAutoReplaces.endMap();
 		for (; loc_it != loc_end; ++loc_it)
 		{
 			const std::string& location = (*loc_it).first;
@@ -388,42 +388,42 @@ std::string AutoCorrect::replaceWords(std::string words)
 	}
 	return words;
 }
-BOOL AutoCorrect::addEntryToList(std::string wrong, std::string right, std::string listName)
+BOOL AutoReplace::addEntryToList(std::string wrong, std::string right, std::string listName)
 {
 	// *HACK: Make sure the "Custom" list exists, because the design of this
 	// system prevents us from updating it by changing the original file...
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		mAutoCorrects[listName]["data"][wrong]=right;
+		mAutoReplaces[listName]["data"][wrong]=right;
 		return TRUE;
 	}
 	else if(listName == "Custom")
 	{
-		mAutoCorrects[listName]["announce"] = 0;
-		mAutoCorrects[listName]["author"] = "You";
-		mAutoCorrects[listName]["data"][wrong] = right;
-		mAutoCorrects[listName]["enabled"] = 1;
-		mAutoCorrects[listName]["priority"] = 10;
-		mAutoCorrects[listName]["wordStyle"] = 1;
+		mAutoReplaces[listName]["announce"] = 0;
+		mAutoReplaces[listName]["author"] = "You";
+		mAutoReplaces[listName]["data"][wrong] = right;
+		mAutoReplaces[listName]["enabled"] = 1;
+		mAutoReplaces[listName]["priority"] = 10;
+		mAutoReplaces[listName]["wordStyle"] = 1;
 		return TRUE;
 	}
 		
 	return FALSE;
 }
-BOOL AutoCorrect::removeEntryFromList(std::string wrong, std::string listName)
+BOOL AutoReplace::removeEntryFromList(std::string wrong, std::string listName)
 {
-	if(mAutoCorrects.has(listName))
+	if(mAutoReplaces.has(listName))
 	{
-		if(mAutoCorrects[listName]["data"].has(wrong))
+		if(mAutoReplaces[listName]["data"].has(wrong))
 		{
-			mAutoCorrects[listName]["data"].erase(wrong);
+			mAutoReplaces[listName]["data"].erase(wrong);
 			return TRUE;
 		}
 	}
 	return FALSE;
 }
 
-LLSD AutoCorrect::getExampleLLSD()
+LLSD AutoReplace::getExampleLLSD()
 {
 	LLSD toReturn;
 

@@ -1,6 +1,6 @@
 /** 
- * @file llautocorrectfloater.cpp
- * @brief Auto Correct List floater
+ * @file llautoreplacefloater.cpp
+ * @brief Auto Replace List floater
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,7 +24,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llautocorrectfloater.h"
+#include "llautoreplacefloater.h"
 
 #include "llagentdata.h"
 #include "llcommandhandler.h"
@@ -44,7 +44,7 @@
 #include "llui.h"
 #include "llcontrol.h"
 #include "llscrollingpanellist.h"
-#include "llautocorrect.h"
+#include "llautoreplace.h"
 #include "llfilepicker.h"
 #include "llfile.h"
 #include "llsdserialize.h"
@@ -64,16 +64,16 @@
 #include "llnotificationmanager.h"
 
 
-AutoCorrectFloater::AutoCorrectFloater(const LLSD& key) :
+AutoReplaceFloater::AutoReplaceFloater(const LLSD& key) :
 LLFloater(key)
 {
 }
-void AutoCorrectFloater::onClose(bool app_quitting)
+void AutoReplaceFloater::onClose(bool app_quitting)
 {
 	destroy();
 }
 
-BOOL AutoCorrectFloater::postBuild(void)
+BOOL AutoReplaceFloater::postBuild(void)
 {
 
 	namesList = getChild<LLScrollListCtrl>("ac_list_name");
@@ -106,17 +106,17 @@ BOOL AutoCorrectFloater::postBuild(void)
 	return true;
 }
 
-void AutoCorrectFloater::onSelectName(LLUICtrl* ctrl, void* user_data)
+void AutoReplaceFloater::onSelectName(LLUICtrl* ctrl, void* user_data)
 {
 	if ( user_data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )user_data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )user_data;
 		if ( self )
 			self->updateItemsList();
 	}
 
 }
-void AutoCorrectFloater::updateItemsList()
+void AutoReplaceFloater::updateItemsList()
 {
 	entryList->deleteAllItems();
 	if((namesList->getAllSelected().size())<=0)
@@ -129,7 +129,7 @@ void AutoCorrectFloater::updateItemsList()
 	updateListControlsEnabled(TRUE);
 	std::string listName= namesList->getFirstSelected()->getColumn(0)->getValue().asString();
 	
-	LLSD listData = AutoCorrect::getInstance()->getAutoCorrectEntries(listName);
+	LLSD listData = AutoReplace::getInstance()->getAutoReplaceEntries(listName);
 	childSetValue("ac_list_enabled",listData["enabled"].asBoolean());
 	childSetValue("ac_list_style",listData["wordStyle"].asBoolean());
 	childSetValue("ac_list_show",listData["announce"].asBoolean());
@@ -137,9 +137,9 @@ void AutoCorrectFloater::updateItemsList()
 	childSetValue("ac_text_author",listData["author"]);
 	childSetValue("ac_priority",listData["priority"]);
 	
-	LLSD autoCorrects = listData["data"];
-	LLSD::map_const_iterator loc_it = autoCorrects.beginMap();
-	LLSD::map_const_iterator loc_end = autoCorrects.endMap();
+	LLSD autoReplaces = listData["data"];
+	LLSD::map_const_iterator loc_it = autoReplaces.beginMap();
+	LLSD::map_const_iterator loc_end = autoReplaces.endMap();
 	for ( ; loc_it != loc_end; ++loc_it)
 	{
 		const std::string& wrong = (*loc_it).first;
@@ -162,17 +162,17 @@ void AutoCorrectFloater::updateItemsList()
 	}
 	
 }
-void AutoCorrectFloater::updateNamesList()
+void AutoReplaceFloater::updateNamesList()
 {
 	namesList->deleteAllItems();
-	if(!gSavedSettings.getBOOL("AutoCorrect"))
+	if(!gSavedSettings.getBOOL("AutoReplace"))
 	{
 		updateItemsList();
 		return;
 	}
-	LLSD autoCorrects = AutoCorrect::getInstance()->getAutoCorrects();
-	LLSD::map_const_iterator loc_it = autoCorrects.beginMap();
-	LLSD::map_const_iterator loc_end = autoCorrects.endMap();
+	LLSD autoReplaces = AutoReplace::getInstance()->getAutoReplaces();
+	LLSD::map_const_iterator loc_it = autoReplaces.beginMap();
+	LLSD::map_const_iterator loc_end = autoReplaces.endMap();
 	for ( ; loc_it != loc_end; ++loc_it)
 	{
 		const std::string& listName = (*loc_it).first;
@@ -195,7 +195,7 @@ void AutoCorrectFloater::updateNamesList()
 	}
 	updateItemsList();
 }
-void AutoCorrectFloater::updateListControlsEnabled(BOOL selected)
+void AutoReplaceFloater::updateListControlsEnabled(BOOL selected)
 {
 
 		childSetEnabled("ac_text1",selected);
@@ -212,10 +212,10 @@ void AutoCorrectFloater::updateListControlsEnabled(BOOL selected)
 		childSetEnabled("ac_priority",selected);
 	
 }
-void AutoCorrectFloater::updateEnabledStuff()
+void AutoReplaceFloater::updateEnabledStuff()
 {
-	BOOL autocorrect = gSavedSettings.getBOOL("AutoCorrect");
-	if(autocorrect)
+	BOOL autoreplace = gSavedSettings.getBOOL("AutoReplace");
+	if(autoreplace)
 	{
 		LLCheckBoxCtrl *enBox = getChild<LLCheckBoxCtrl>("ac_enable");
 		enBox->setDisabledColor(LLColor4::red);
@@ -226,51 +226,51 @@ void AutoCorrectFloater::updateEnabledStuff()
 			LLUIColorTable::instance().getColor( "LabelTextColor" ));
 	}
 
-	childSetEnabled("ac_list_name", autocorrect);
-	childSetEnabled("ac_list_entry", autocorrect);
-	updateListControlsEnabled(autocorrect);
+	childSetEnabled("ac_list_name", autoreplace);
+	childSetEnabled("ac_list_entry", autoreplace);
+	updateListControlsEnabled(autoreplace);
 	updateNamesList();
-	AutoCorrect::getInstance()->save();
+	AutoReplace::getInstance()->save();
 
 }
-void AutoCorrectFloater::setData(void * data)
+void AutoReplaceFloater::setData(void * data)
 {
 }
-void AutoCorrectFloater::onBoxCommitEnabled(LLUICtrl* caller, void* user_data)
+void AutoReplaceFloater::onBoxCommitEnabled(LLUICtrl* caller, void* user_data)
 {
 	if ( user_data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )user_data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )user_data;
 		if ( self )
 		{
 			self->updateEnabledStuff();
 		}
 	}
 }
-void AutoCorrectFloater::onEntrySettingChange(LLUICtrl* caller, void* user_data)
+void AutoReplaceFloater::onEntrySettingChange(LLUICtrl* caller, void* user_data)
 {
 	if ( user_data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )user_data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )user_data;
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			AutoCorrect::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
-			AutoCorrect::getInstance()->setListAnnounceeState(listName,self->childGetValue("ac_list_show").asBoolean());
-			AutoCorrect::getInstance()->setListStyle(listName,self->childGetValue("ac_list_style").asBoolean());
-			AutoCorrect::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
+			AutoReplace::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
+			AutoReplace::getInstance()->setListAnnounceeState(listName,self->childGetValue("ac_list_show").asBoolean());
+			AutoReplace::getInstance()->setListStyle(listName,self->childGetValue("ac_list_style").asBoolean());
+			AutoReplace::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
 
 			//sInstance->updateEnabledStuff();
 			self->updateItemsList();
-			AutoCorrect::getInstance()->save();
+			AutoReplace::getInstance()->save();
 		}
 	}
 }
-void AutoCorrectFloater::deleteEntry(void* data)
+void AutoReplaceFloater::deleteEntry(void* data)
 {
 	if ( data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
 		if ( self )
 		{
 
@@ -279,14 +279,14 @@ void AutoCorrectFloater::deleteEntry(void* data)
 			if((self->entryList->getAllSelected().size())>0)
 			{	
 				std::string wrong= self->entryList->getFirstSelected()->getColumn(0)->getValue().asString();
-   				AutoCorrect::getInstance()->removeEntryFromList(wrong,listName);
+   				AutoReplace::getInstance()->removeEntryFromList(wrong,listName);
 				self->updateItemsList();
-				AutoCorrect::getInstance()->save();
+				AutoReplace::getInstance()->save();
 			}
 		}
 	}
 }
-void AutoCorrectFloater::loadList(void* data)
+void AutoReplaceFloater::loadList(void* data)
 {
 	LLFilePicker& picker = LLFilePicker::instance();
 
@@ -301,34 +301,34 @@ void AutoCorrectFloater::loadList(void* data)
 		LLSDSerialize::fromXMLDocument(blankllsd, file);
 	}
 	file.close();
-	gSavedSettings.setBOOL("AutoCorrect",true);
-	AutoCorrect::getInstance()->addCorrectionList(blankllsd);
+	gSavedSettings.setBOOL("AutoReplace",true);
+	AutoReplace::getInstance()->addReplacementList(blankllsd);
 	if ( data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
 		if ( self )
 			self->updateEnabledStuff();
 	}
 }
-void AutoCorrectFloater::removeList(void* data)
+void AutoReplaceFloater::removeList(void* data)
 {
 	if ( data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			AutoCorrect::getInstance()->removeCorrectionList(listName);
+			AutoReplace::getInstance()->removeReplacementList(listName);
 			self->updateEnabledStuff();
 		}
 
 	}
 }
-void AutoCorrectFloater::exportList(void *data)
+void AutoReplaceFloater::exportList(void *data)
 {
 	if ( data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
 		if ( self )
 		{
 			std::string listName=self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
@@ -340,17 +340,17 @@ void AutoCorrectFloater::exportList(void *data)
 			}	
 			llofstream file;
 			file.open(picker.getFirstFile().c_str());
-			LLSDSerialize::toPrettyXML(AutoCorrect::getInstance()->exportList(listName), file);
+			LLSDSerialize::toPrettyXML(AutoReplace::getInstance()->exportList(listName), file);
 			file.close();	
 		}
 	
 	}
 }
-void AutoCorrectFloater::addEntry(void* data)
+void AutoReplaceFloater::addEntry(void* data)
 {
 	if ( data )
 	{
-		AutoCorrectFloater* self = ( AutoCorrectFloater* )data;
+		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
@@ -358,16 +358,16 @@ void AutoCorrectFloater::addEntry(void* data)
 			std::string right = self->mNewText->getText();
 			if(wrong != "" && right != "")
 			{
-				AutoCorrect::getInstance()->addEntryToList(wrong, right, listName);
+				AutoReplace::getInstance()->addEntryToList(wrong, right, listName);
 				self->updateItemsList();
-				AutoCorrect::getInstance()->save();
+				AutoReplace::getInstance()->save();
 			}
 		}
 	}
 }
-AutoCorrectFloater* AutoCorrectFloater::showFloater()
+AutoReplaceFloater* AutoReplaceFloater::showFloater()
 {
-	AutoCorrectFloater *floater = dynamic_cast<AutoCorrectFloater*>(LLFloaterReg::getInstance("autocorrect"));
+	AutoReplaceFloater *floater = dynamic_cast<AutoReplaceFloater*>(LLFloaterReg::getInstance("autoreplace"));
 	if(floater)
 	{
 		floater->setVisible(true);
@@ -377,7 +377,7 @@ AutoCorrectFloater* AutoCorrectFloater::showFloater()
 	}
 	else
 	{
-		LL_WARNS("AutoCorrect") << "Can't find floater!" << LL_ENDL;
+		LL_WARNS("AutoReplace") << "Can't find floater!" << LL_ENDL;
 		return NULL;
 	}
 }

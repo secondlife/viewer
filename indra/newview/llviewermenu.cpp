@@ -1982,11 +1982,11 @@ class LLAdvancedCompressImage : public view_listener_t
 };
 
 
-class LLAdvancedShowAutocorrectSettings : public view_listener_t
+class LLAdvancedShowAutoreplaceSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::showInstance("settings_autocorrect", userdata);
+		LLFloaterReg::showInstance("settings_autoreplace", userdata);
 		return true;
 	}
 };
@@ -8291,7 +8291,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleShowObjectUpdates(), "Advanced.ToggleShowObjectUpdates");
 	view_listener_t::addMenu(new LLAdvancedCheckShowObjectUpdates(), "Advanced.CheckShowObjectUpdates");
 	view_listener_t::addMenu(new LLAdvancedCompressImage(), "Advanced.CompressImage");
-	view_listener_t::addMenu(new LLAdvancedShowAutocorrectSettings(), "Advanced.ShowAutocorrectSettings");
+	view_listener_t::addMenu(new LLAdvancedShowAutoreplaceSettings(), "Advanced.ShowAutoreplaceSettings");
 	view_listener_t::addMenu(new LLAdvancedShowDebugSettings(), "Advanced.ShowDebugSettings");
 	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");

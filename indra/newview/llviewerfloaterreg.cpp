@@ -30,7 +30,7 @@
 #include "llfloaterreg.h"
 
 #include "llviewerfloaterreg.h"
-#include "llautocorrectfloater.h"
+#include "llautoreplacefloater.h"
 #include "llcompilequeue.h"
 #include "llcallfloater.h"
 #include "llfasttimerview.h"
@@ -170,7 +170,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
 	LLFloaterReg::add("appearance", "floater_my_appearance.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
-	LLFloaterReg::add("settings_autocorrect", "floater_autocorrect.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<AutoCorrectFloater>);
+	LLFloaterReg::add("settings_autoreplace", "floater_autoreplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<AutoReplaceFloater>);
 	LLFloaterReg::add("avatar", "floater_avatar.xml",  (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatar>);
 	LLFloaterReg::add("avatar_picker", "floater_avatar_picker.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarPicker>);
 	LLFloaterReg::add("avatar_textures", "floater_avatar_textures.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAvatarTextures>);

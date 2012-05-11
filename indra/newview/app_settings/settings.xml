@@ -346,10 +346,10 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-    <key>AutoCorrect</key>
+    <key>AutoReplace</key>
     <map>
       <key>Comment</key>
-      <string>Replaces common spelling mistakes with correct word</string>
+      <string>Replaces keywords with a configured word or phrase</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1650,17 +1650,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  	<key>CmdLineAutocorrect</key>
-		<map>
-			<key>Comment</key>
-			<string>Command for adding new entries to autocorrect</string>
-			<key>Persist</key>
-			<integer>1</integer>
-			<key>Type</key>
-			<string>String</string>
-			<key>Value</key>
-			<string>/addac</string>
-		</map>
     <key>CmdLineDisableVoice</key>
     <map>
       <key>Comment</key>
