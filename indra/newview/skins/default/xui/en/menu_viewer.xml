@@ -1836,11 +1836,6 @@
         <menu_item_separator/>
 
         <menu_item_call
-         label="Show Autoreplace Settings">
-         <menu_item_call.on_click
-           function="Advanced.ShowAutoreplaceSettings" />
-        </menu_item_call>
-        <menu_item_call
          label="Show Debug Settings"
          name="Debug Settings">
             <menu_item_call.on_click
