@@ -4,9 +4,9 @@
     can_resize="true"
     can_tear_off="false"
     height="382"
-    width="1091"
+    width="1015"
     min_height="382"
-    min_width="1091"
+    min_width="1015"
     layout="topleft"
     name="floater_pathfinding_linksets"
     help_topic="floater_pathfinding_linksets"
@@ -45,7 +45,7 @@
       follows="left|top|right|bottom"
       layout="topleft"
       height="226"
-      width="950">
+      width="999">
     <text
         height="13"
         word_wrap="false"
@@ -83,7 +83,7 @@
         top_pad="-18"
         max_length_chars="255"
         name="filter_by_name"
-        width="105" />
+        width="161" />
     <text
         height="13"
         word_wrap="false"
@@ -108,7 +108,7 @@
         top_pad="-17"
         max_length_chars="255"
         name="filter_by_description"
-        width="145" />
+        width="162" />
     <combo_box
         height="20"
         layout="topleft"
@@ -175,7 +175,7 @@
         tab_stop="false"
         multi_select="true"
         name="pathfinding_linksets"
-        width="1051">
+        width="980">
       <scroll_list.columns
           label="Name (root prim)"
           name="name"
@@ -183,19 +183,19 @@
       <scroll_list.columns
           label="Description (root prim)"
           name="description"
-          width="166" />
+          dynamic_width="true" />
       <scroll_list.columns
           label="Owner"
           name="owner"
           width="141" />
       <scroll_list.columns
-          label="Land impact"
+          label="Impact"
           name="land_impact"
-          width="88" />
+          width="55" />
       <scroll_list.columns
-          label="Dist from you"
+          label="Distance"
           name="dist_from_you"
-          width="97" />
+          width="65" />
       <scroll_list.columns
           label="Linkset use"
           name="linkset_use"
@@ -228,7 +228,7 @@
         layout="topleft"
         name="linksets_status"
         top_pad="17"
-        width="549">
+        width="619">
       Linksets:
     </text>
     <button
@@ -267,7 +267,7 @@
       name="horiz_separator"
       top_pad="0"
       left="18"
-      width="912"/>
+      width="979"/>
   <panel
       border="false"
       bevel_style="none"
@@ -354,7 +354,7 @@
       name="horiz_separator"
       top_pad="0"
       left="18"
-      width="912"/>
+      width="979"/>
   <panel
       border="false"
       bevel_style="none"
