@@ -33,9 +33,7 @@ public:
 	BOOL addReplacementList(LLSD newList);
 	BOOL removeReplacementList(std::string listName);
 	BOOL setListEnabled(std::string listName, BOOL enabled);
-	BOOL setListAnnounceeState(std::string listName, BOOL announce);
 	BOOL setListPriority(std::string listName, int priority);
-	BOOL setListStyle(std::string listName, BOOL announce);
 	std::string replaceWords(std::string words);
 	std::string replaceWord(std::string currentWord);
 	BOOL addEntryToList(std::string wrong, std::string right, std::string listName);

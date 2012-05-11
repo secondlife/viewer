@@ -131,10 +131,7 @@ void AutoReplaceFloater::updateItemsList()
 	
 	LLSD listData = AutoReplace::getInstance()->getAutoReplaceEntries(listName);
 	childSetValue("ac_list_enabled",listData["enabled"].asBoolean());
-	childSetValue("ac_list_style",listData["wordStyle"].asBoolean());
-	childSetValue("ac_list_show",listData["announce"].asBoolean());
 	childSetValue("ac_text_name",listName);
-	childSetValue("ac_text_author",listData["author"]);
 	childSetValue("ac_priority",listData["priority"]);
 	
 	LLSD autoReplaces = listData["data"];
@@ -201,7 +198,6 @@ void AutoReplaceFloater::updateListControlsEnabled(BOOL selected)
 		childSetEnabled("ac_text1",selected);
 		childSetEnabled("ac_text2",selected);
 		childSetEnabled("ac_text_name",selected);
-		childSetEnabled("ac_text_author",selected);
 		childSetEnabled("ac_list_enabled",selected);
 		childSetEnabled("ac_list_show",selected);
 		childSetEnabled("ac_list_style",selected);
@@ -256,7 +252,6 @@ void AutoReplaceFloater::onEntrySettingChange(LLUICtrl* caller, void* user_data)
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
 			AutoReplace::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
-			AutoReplace::getInstance()->setListAnnounceeState(listName,self->childGetValue("ac_list_show").asBoolean());
 			AutoReplace::getInstance()->setListStyle(listName,self->childGetValue("ac_list_style").asBoolean());
 			AutoReplace::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
 

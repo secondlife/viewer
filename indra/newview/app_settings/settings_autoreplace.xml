@@ -2,25 +2,15 @@
     <map>
     <key>Custom</key>
         <map>
-        <key>announce</key>
-            <integer>0</integer>
-        <key>author</key>
-            <string>You</string>
         <key>data</key>
             <map></map>
         <key>enabled</key>
             <integer>1</integer>
         <key>priority</key>
             <integer>10</integer>
-        <key>wordStyle</key>
-            <integer>1</integer>
         </map>
     <key>Abbreviations</key>
         <map>
-        <key>announce</key>
-            <integer>0</integer>
-        <key>author</key>
-            <string>Wulf / TankMaster</string>
         <key>data</key>
             <map>
             <key>afaic</key>
@@ -90,15 +80,9 @@
             <integer>1</integer>
         <key>priority</key>
             <integer>4</integer>
-        <key>wordStyle</key>
-            <integer>1</integer>
         </map>
     <key>Spelling Corrections</key>
         <map>
-        <key>announce</key>
-            <integer>0</integer>
-        <key>author</key>
-            <string>LordGregGreg / Wikipedia</string>
         <key>data</key>
             <map>
             <key>Amercia</key>
@@ -8362,8 +8346,6 @@
             <integer>1</integer>
         <key>priority</key>
             <integer>5</integer>
-        <key>wordStyle</key>
-            <integer>1</integer>
         </map>
     </map>
 </llsd>

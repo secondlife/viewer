@@ -6764,13 +6764,6 @@ One or more of your Voice Morphs will expire in less than [INTERVAL] days.
   </notification>
 
   <notification
-     icon="notifytip.tga"
-     name="AutoReplace"
-     type="notifytip">
-    &apos;[BEFORE]&apos; has been auto replaced by &apos;[REPLACEMENT]&apos;
-    based on your [LISTNAME] list.
-  </notification>
-  <notification
    icon="notify.tga"
    name="VoiceEffectsNew"
    sound="UISndAlert"

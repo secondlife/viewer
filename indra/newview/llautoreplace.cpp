@@ -137,8 +137,6 @@ LLSD AutoReplace::exportList(std::string listName)
 	{
 		toReturn["listName"]=listName;
 		toReturn["data"]=mAutoReplaces[listName]["data"];
-		toReturn["author"]=mAutoReplaces[listName]["author"];
-		toReturn["wordStyle"]=mAutoReplaces[listName]["wordStyle"];
 		toReturn["priority"]=mAutoReplaces[listName]["priority"];
 	}
 	return toReturn;
@@ -152,9 +150,6 @@ BOOL AutoReplace::addReplacementList(LLSD newList)
 		LLSD newPart;
 		newPart["data"]=newList["data"];
 		newPart["enabled"]=TRUE;
-		newPart["announce"]=FALSE;
-		newPart["author"]=newList["author"];
-		newPart["wordStyle"]=newList["wordStyle"];
 		newPart["priority"]=newList["priority"].asInteger();
 		llinfos << "adding new list with settings priority "<<newPart["priority"].asInteger() <<llendl;
 		mAutoReplaces[name]=newPart;
@@ -183,26 +178,6 @@ BOOL AutoReplace::setListEnabled(std::string listName, BOOL enabled)
 	
 	return FALSE;
 }
-BOOL AutoReplace::setListAnnounceeState(std::string listName, BOOL announce)
-{
-	
-
-	if(mAutoReplaces.has(listName))
-	{
-		mAutoReplaces[listName]["announce"]=announce;
-		return TRUE;
-	}
-	return FALSE;
-}
-BOOL AutoReplace::setListStyle(std::string listName, BOOL announce)
-{
-	if(mAutoReplaces.has(listName))
-	{
-		mAutoReplaces[listName]["wordStyle"]=announce;
-		return TRUE;
-	}
-	return FALSE;
-}
 BOOL AutoReplace::setListPriority(std::string listName, int priority)
 {
 	if(mAutoReplaces.has(listName))
@@ -214,7 +189,6 @@ BOOL AutoReplace::setListPriority(std::string listName, int priority)
 }
 LLSD AutoReplace::getAutoReplaces()
 {
-	//loadFromDisk();
 	return mAutoReplaces;
 }
 void AutoReplace::loadFromDisk()
@@ -308,39 +282,9 @@ std::string AutoReplace::replaceWord(std::string currentWord)
 			const LLSD& loc_map = (*loc_it).second;
 			if(loc_map["priority"].asInteger()==currentPriority)
 			{
-				if(!loc_map["wordStyle"].asBoolean())
-				{
-					//this means look for partial matches instead of a full word
-					if(loc_map["enabled"].asBoolean())
-					{
-						LLSD::map_const_iterator inner_it = loc_map["data"].beginMap();
-						LLSD::map_const_iterator inner_end = loc_map["data"].endMap();
-						for (; inner_it != inner_end; ++inner_it)
-						{
-							const std::string& wrong = (*inner_it).first;
-							const std::string& right = (*inner_it).second;
-							int location = currentWord.find(wrong);
-							if(location != std::string::npos)
-							{
-								currentWord=currentWord.replace(location,wrong.length(),right);
-							}
-						}
-					}
-
-				}else
 				if((loc_map["data"].has(currentWord))&&(loc_map["enabled"].asBoolean()))
 				{
 					std::string replacement = loc_map["data"][currentWord];
-					if(loc_map["announce"].asBoolean())
-					{
-						LLSD args; 
-						//"[Before]" has been auto replaced by "[Replacement]"
-						//	based on your [ListName] list.
-						args["BEFORE"] = currentWord;
-						args["LISTNAME"]=location;
-						args["REPLACEMENT"]=replacement;
-						LLNotificationsUtil::add("AutoReplace",args);
-					}
 					lldebugs << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
 					return replacement;
 				}
@@ -353,8 +297,6 @@ std::string AutoReplace::replaceWords(std::string words)
 {
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
 	if(!(perform_autoreplace))return words;
-	//*TODO update this function to use the "wordStyle" thing,
-	//but so far this function is never used, so later
 
 	boost_tokenizer tokens(words, boost::char_separator<char>(" "));
 	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
@@ -369,16 +311,6 @@ std::string AutoReplace::replaceWords(std::string words)
 			if((loc_map["data"].has(currentWord))&&(loc_map["enabled"].asBoolean()))
 			{
 				std::string replacement = loc_map["data"][currentWord];
-				if(loc_map["announce"].asBoolean())
-				{
-					LLSD args; 
-					//"[Before]" has been auto replaced by "[Replacement]"
-					//	based on your [ListName] list.
-					args["BEFORE"] = currentWord;
-					args["LISTNAME"]=location;
-					args["REPLACEMENT"]=replacement;
-					LLNotificationsUtil::add("AutoReplace",args);
-				}
 				lldebugs << "found a word in list " << location.c_str() << " and it will replace  " << currentWord.c_str() << " => " << replacement.c_str() << llendl;
 				int wordStart = words.find(currentWord);
 				words.replace(wordStart,currentWord.length(),replacement);
@@ -399,12 +331,9 @@ BOOL AutoReplace::addEntryToList(std::string wrong, std::string right, std::stri
 	}
 	else if(listName == "Custom")
 	{
-		mAutoReplaces[listName]["announce"] = 0;
-		mAutoReplaces[listName]["author"] = "You";
 		mAutoReplaces[listName]["data"][wrong] = right;
 		mAutoReplaces[listName]["enabled"] = 1;
 		mAutoReplaces[listName]["priority"] = 10;
-		mAutoReplaces[listName]["wordStyle"] = 1;
 		return TRUE;
 	}
 		
