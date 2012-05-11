@@ -619,13 +619,13 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 		S32 geom_idx = (S32) facep->getGeomIndex();
 
-		verticesp += geom_idx;
-		normalsp += geom_idx;
-		texcoordsp += geom_idx;
-		colorsp += geom_idx;
-		indicesp += facep->getIndicesStart();
+		LLStrider<U16> cur_idx = indicesp + facep->getIndicesStart();
+		LLStrider<LLVector4a> cur_vert = verticesp + geom_idx;
+		LLStrider<LLVector3> cur_norm = normalsp + geom_idx;
+		LLStrider<LLVector2> cur_tc = texcoordsp + geom_idx;
+		LLStrider<LLColor4U> cur_col = colorsp + geom_idx;
 
-		object->getGeometry(facep->getTEOffset(), verticesp, normalsp, texcoordsp, colorsp, indicesp);
+		object->getGeometry(facep->getTEOffset(), cur_vert, cur_norm, cur_tc, cur_col, cur_idx);
 		
 		llassert(facep->getGeomCount() == 4);
 		llassert(facep->getIndicesCount() == 6);
