@@ -130,7 +130,7 @@ void LLFloaterAutoReplaceSettings::updateItemsList()
 	updateListControlsEnabled(TRUE);
 	std::string listName= namesList->getFirstSelected()->getColumn(0)->getValue().asString();
 	
-	LLSD listData = AutoReplace::getInstance()->getAutoReplaceEntries(listName);
+	LLSD listData = LLAutoReplace::getInstance()->getAutoReplaceEntries(listName);
 	childSetValue("ac_list_enabled",listData["enabled"].asBoolean());
 	childSetValue("ac_text_name",listName);
 	childSetValue("ac_priority",listData["priority"]);
@@ -166,7 +166,7 @@ void LLFloaterAutoReplaceSettings::updateNamesList()
 		updateItemsList();
 		return;
 	}
-	LLSD autoReplaces = AutoReplace::getInstance()->getAutoReplaces();
+	LLSD autoReplaces = LLAutoReplace::getInstance()->getAutoReplaces();
 	LLSD::map_const_iterator loc_it = autoReplaces.beginMap();
 	LLSD::map_const_iterator loc_end = autoReplaces.endMap();
 	for ( ; loc_it != loc_end; ++loc_it)
@@ -230,7 +230,7 @@ void LLFloaterAutoReplaceSettings::updateEnabledStuff()
 	childSetEnabled("ac_list_entry", autoreplace);
 	updateListControlsEnabled(autoreplace);
 	updateNamesList();
-	AutoReplace::getInstance()->save();
+	LLAutoReplace::getInstance()->save();
 
 }
 void LLFloaterAutoReplaceSettings::setData(void * data)
@@ -255,12 +255,12 @@ void LLFloaterAutoReplaceSettings::onEntrySettingChange(LLUICtrl* caller, void* 
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			AutoReplace::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
-			AutoReplace::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
+			LLAutoReplace::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
+			LLAutoReplace::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
 
 			//sInstance->updateEnabledStuff();
 			self->updateItemsList();
-			AutoReplace::getInstance()->save();
+			LLAutoReplace::getInstance()->save();
 		}
 	}
 }
@@ -277,9 +277,9 @@ void LLFloaterAutoReplaceSettings::deleteEntry(void* data)
 			if((self->entryList->getAllSelected().size())>0)
 			{	
 				std::string wrong= self->entryList->getFirstSelected()->getColumn(0)->getValue().asString();
-   				AutoReplace::getInstance()->removeEntryFromList(wrong,listName);
+   				LLAutoReplace::getInstance()->removeEntryFromList(wrong,listName);
 				self->updateItemsList();
-				AutoReplace::getInstance()->save();
+				LLAutoReplace::getInstance()->save();
 			}
 		}
 	}
@@ -301,7 +301,7 @@ void LLFloaterAutoReplaceSettings::loadList(void* data)
 	}
 	file.close();
 	gSavedSettings.setBOOL("AutoReplace",true);
-	AutoReplace::getInstance()->addReplacementList(blankllsd);
+	LLAutoReplace::getInstance()->addReplacementList(blankllsd);
 	if ( data )
 	{
 		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
@@ -319,7 +319,7 @@ void LLFloaterAutoReplaceSettings::removeList(void* data)
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			AutoReplace::getInstance()->removeReplacementList(listName);
+			LLAutoReplace::getInstance()->removeReplacementList(listName);
 			self->updateEnabledStuff();
 		}
 
@@ -339,7 +339,7 @@ void LLFloaterAutoReplaceSettings::exportList(void *data)
 			{
 				llofstream file;
 				file.open(picker.getFirstFile().c_str());
-				LLSDSerialize::toPrettyXML(AutoReplace::getInstance()->exportList(listName), file);
+				LLSDSerialize::toPrettyXML(LLAutoReplace::getInstance()->exportList(listName), file);
 				file.close();	
 			}	
 		}
@@ -357,9 +357,9 @@ void LLFloaterAutoReplaceSettings::addEntry(void* data)
 			std::string right = self->mNewText->getText();
 			if(wrong != "" && right != "")
 			{
-				AutoReplace::getInstance()->addEntryToList(wrong, right, listName);
+				LLAutoReplace::getInstance()->addEntryToList(wrong, right, listName);
 				self->updateItemsList();
-				AutoReplace::getInstance()->save();
+				LLAutoReplace::getInstance()->save();
 			}
 		}
 	}

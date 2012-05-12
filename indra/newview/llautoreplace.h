@@ -17,19 +17,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef AUTO_REPLACE
-#define AUTO_REPLACE
+#ifndef LLAUTOREPLACE_H
+#define LLAUTOREPLACE_H
 
 #include "lllineeditor.h"
 
-class AutoReplace : public LLSingleton<AutoReplace>
+class LLAutoReplace : public LLSingleton<LLAutoReplace>
 {
-	AutoReplace();
-	~AutoReplace();
-	static AutoReplace* sInstance;
+	LLAutoReplace();
+	~LLAutoReplace();
+	static LLAutoReplace* sInstance;
 public:
 	void autoreplaceCallback(LLUIString& inputText, S32& cursorPos);
-	static AutoReplace* getInstance();
+	static LLAutoReplace* getInstance();
 	BOOL addReplacementList(LLSD newList);
 	BOOL removeReplacementList(std::string listName);
 	BOOL setListEnabled(std::string listName, BOOL enabled);
@@ -48,7 +48,7 @@ public:
 	void loadFromDisk();
 
 private:
-	friend class LLSingleton<AutoReplace>;
+	friend class LLSingleton<LLAutoReplace>;
 	void saveToDisk(LLSD newSettings);
 	LLSD getExampleLLSD();	
 	std::string getFileName();
@@ -57,7 +57,5 @@ private:
 	LLSD mAutoReplaces;
 
 };
-
-
 
 #endif 

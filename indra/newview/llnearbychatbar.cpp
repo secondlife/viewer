@@ -88,7 +88,7 @@ BOOL LLNearbyChatBar::postBuild()
 {
 	mChatBox = getChild<LLLineEditor>("chat_box");
 
-	mChatBox->setAutoreplaceCallback(boost::bind(&AutoReplace::autoreplaceCallback, AutoReplace::getInstance(), _1, _2));
+	mChatBox->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
 	mChatBox->setCommitCallback(boost::bind(&LLNearbyChatBar::onChatBoxCommit, this));
 	mChatBox->setKeystrokeCallback(&onChatBoxKeystroke, this);
 	mChatBox->setFocusLostCallback(boost::bind(&onChatBoxFocusLost, _1, this));

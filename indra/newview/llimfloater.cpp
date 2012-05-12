@@ -256,7 +256,7 @@ BOOL LLIMFloater::postBuild()
 	// enable line history support for instant message bar
 	mInputEditor->setEnableLineHistory(TRUE);
 	// *TODO Establish LineEditor with autoreplace callback
-	mInputEditor->setAutoreplaceCallback(boost::bind(&AutoReplace::autoreplaceCallback, AutoReplace::getInstance(), _1, _2));
+	mInputEditor->setAutoreplaceCallback(boost::bind(&LLAutoReplace::autoreplaceCallback, LLAutoReplace::getInstance(), _1, _2));
 
 	LLFontGL* font = LLViewerChat::getChatFont();
 	mInputEditor->setFont(font);	

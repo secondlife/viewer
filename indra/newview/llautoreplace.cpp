@@ -30,20 +30,20 @@
 #include "llviewercontrol.h"
 #include "llnotificationsutil.h"
 
-AutoReplace* AutoReplace::sInstance;
+LLAutoReplace* LLAutoReplace::sInstance;
 
-AutoReplace::AutoReplace()
+LLAutoReplace::LLAutoReplace()
 {
 	sInstance = this;
 	sInstance->loadFromDisk();
 }
 
-AutoReplace::~AutoReplace()
+LLAutoReplace::~LLAutoReplace()
 {
 	sInstance = NULL;
 }
 
-void AutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
+void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 {
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
 	if(perform_autoreplace)
@@ -52,16 +52,22 @@ void AutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 		S32 wordEnd = cursorPos-1;
 
 		if(wordEnd < 1)
+		{
 			return;
-
+		}
+		
 		LLWString text = inputText.getWString();
 
 		if(text.size()<1)
+		{
 			return;
-
+		}
+		
 		if(LLWStringUtil::isPartOfWord(text[wordEnd]))
+		{
 			return;//we only check on word breaks
-
+		}
+		
 		wordEnd--;
 
 		if(LLWStringUtil::isPartOfWord(text[wordEnd]))
@@ -80,11 +86,11 @@ void AutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 
 			std::string strLastWord = std::string(text.begin(), text.end());
 			std::string lastTypedWord = strLastWord.substr(wordStart, wordEnd-wordStart);
-			std::string replaceedWord(replaceWord(lastTypedWord));
+			std::string replacedWord(replaceWord(lastTypedWord));
 
-			if(replaceedWord != lastTypedWord)
+			if(replacedWord != lastTypedWord)
 			{
-				LLWString strNew = utf8str_to_wstring(replaceedWord);
+				LLWString strNew = utf8str_to_wstring(replacedWord);
 				LLWString strOld = utf8str_to_wstring(lastTypedWord);
 				int nDiff = strNew.size() - strOld.size();
 
@@ -97,20 +103,21 @@ void AutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 	}
 }
 
-AutoReplace* AutoReplace::getInstance()
+LLAutoReplace* LLAutoReplace::getInstance()
 {
-	if(sInstance)return sInstance;
-	else
+	if(!sInstance)
 	{
-		sInstance = new AutoReplace();
-		return sInstance;
+		sInstance = new LLAutoReplace();
 	}
+	return sInstance;
 }
-void AutoReplace::save()
+
+void LLAutoReplace::save()
 {
 	saveToDisk(mAutoReplaces);
 }
-std::string AutoReplace::getFileName()
+
+std::string LLAutoReplace::getFileName()
 {
 	std::string path=gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
 
@@ -120,7 +127,8 @@ std::string AutoReplace::getFileName()
 	}
 	return path;  
 }
-std::string AutoReplace::getDefaultFileName()
+
+std::string LLAutoReplace::getDefaultFileName()
 {
 	std::string path=gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "");
 
@@ -130,7 +138,8 @@ std::string AutoReplace::getDefaultFileName()
 	}
 	return path;  
 }
-LLSD AutoReplace::exportList(std::string listName)
+
+LLSD LLAutoReplace::exportList(std::string listName)
 {
 	LLSD toReturn;
 	if(mAutoReplaces.has(listName))
@@ -141,12 +150,12 @@ LLSD AutoReplace::exportList(std::string listName)
 	}
 	return toReturn;
 }
-BOOL AutoReplace::addReplacementList(LLSD newList)
+
+BOOL LLAutoReplace::addReplacementList(LLSD newList)
 {
 	if(newList.has("listName"))
 	{
 		std::string name = newList["listName"];
-		//if(!mAutoReplaces.has(name)){
 		LLSD newPart;
 		newPart["data"]=newList["data"];
 		newPart["enabled"]=TRUE;
@@ -155,11 +164,11 @@ BOOL AutoReplace::addReplacementList(LLSD newList)
 		mAutoReplaces[name]=newPart;
 
 		return TRUE;
-
 	}
 	return FALSE;
 }
-BOOL AutoReplace::removeReplacementList(std::string listName)
+
+BOOL LLAutoReplace::removeReplacementList(std::string listName)
 {
 	if(mAutoReplaces.has(listName))
 	{
@@ -168,7 +177,8 @@ BOOL AutoReplace::removeReplacementList(std::string listName)
 	}
 	return FALSE;
 }
-BOOL AutoReplace::setListEnabled(std::string listName, BOOL enabled)
+
+BOOL LLAutoReplace::setListEnabled(std::string listName, BOOL enabled)
 {
 	if(mAutoReplaces.has(listName))
 	{
@@ -178,7 +188,8 @@ BOOL AutoReplace::setListEnabled(std::string listName, BOOL enabled)
 	
 	return FALSE;
 }
-BOOL AutoReplace::setListPriority(std::string listName, int priority)
+
+BOOL LLAutoReplace::setListPriority(std::string listName, int priority)
 {
 	if(mAutoReplaces.has(listName))
 	{
@@ -187,11 +198,13 @@ BOOL AutoReplace::setListPriority(std::string listName, int priority)
 	}
 	return FALSE;
 }
-LLSD AutoReplace::getAutoReplaces()
+
+LLSD LLAutoReplace::getAutoReplaces()
 {
 	return mAutoReplaces;
 }
-void AutoReplace::loadFromDisk()
+
+void LLAutoReplace::loadFromDisk()
 {
 	std::string filename=getFileName();
 	if (filename.empty())
@@ -214,8 +227,11 @@ void AutoReplace::loadFromDisk()
 			}
 			file.close();
 			saveToDisk(blankllsd);
-		}else
-		saveToDisk(getExampleLLSD());
+		}
+		else
+		{
+			saveToDisk(getExampleLLSD());
+		}
 	}
 	else
 	{
@@ -228,7 +244,8 @@ void AutoReplace::loadFromDisk()
 		file.close();
 	}	
 }
-void AutoReplace::saveToDisk(LLSD newSettings)
+
+void LLAutoReplace::saveToDisk(LLSD newSettings)
 {
 	mAutoReplaces=newSettings;
 	std::string filename=getFileName();
@@ -237,7 +254,8 @@ void AutoReplace::saveToDisk(LLSD newSettings)
 	LLSDSerialize::toPrettyXML(mAutoReplaces, file);
 	file.close();
 }
-void AutoReplace::runTest()
+
+void LLAutoReplace::runTest()
 {
 	std::string startS("He just abandonned all his abilties");
 	std::string endS = replaceWords(startS);
@@ -245,7 +263,8 @@ void AutoReplace::runTest()
 
 
 }
-BOOL AutoReplace::saveListToDisk(std::string listName, std::string fileName)
+
+BOOL LLAutoReplace::saveListToDisk(std::string listName, std::string fileName)
 {
 	if(mAutoReplaces.has(listName))
 	{
@@ -257,7 +276,8 @@ BOOL AutoReplace::saveListToDisk(std::string listName, std::string fileName)
 	}
 	return FALSE;
 }
-LLSD AutoReplace::getAutoReplaceEntries(std::string listName)
+
+LLSD LLAutoReplace::getAutoReplaceEntries(std::string listName)
 {
 	LLSD toReturn;
 	if(mAutoReplaces.has(listName))
@@ -266,7 +286,8 @@ LLSD AutoReplace::getAutoReplaceEntries(std::string listName)
 	}
 	return toReturn;
 }
-std::string AutoReplace::replaceWord(std::string currentWord)
+
+std::string LLAutoReplace::replaceWord(std::string currentWord)
 {
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
 	if(!(perform_autoreplace))return currentWord;
@@ -293,11 +314,15 @@ std::string AutoReplace::replaceWord(std::string currentWord)
 	}
 	return currentWord;
 }
-std::string AutoReplace::replaceWords(std::string words)
+
+std::string LLAutoReplace::replaceWords(std::string words)
 {
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
-	if(!(perform_autoreplace))return words;
-
+	if(!(perform_autoreplace))
+	{
+		return words;
+	}
+	
 	boost_tokenizer tokens(words, boost::char_separator<char>(" "));
 	for (boost_tokenizer::iterator token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 	{
@@ -320,7 +345,8 @@ std::string AutoReplace::replaceWords(std::string words)
 	}
 	return words;
 }
-BOOL AutoReplace::addEntryToList(std::string wrong, std::string right, std::string listName)
+
+BOOL LLAutoReplace::addEntryToList(std::string wrong, std::string right, std::string listName)
 {
 	// *HACK: Make sure the "Custom" list exists, because the design of this
 	// system prevents us from updating it by changing the original file...
@@ -339,7 +365,8 @@ BOOL AutoReplace::addEntryToList(std::string wrong, std::string right, std::stri
 		
 	return FALSE;
 }
-BOOL AutoReplace::removeEntryFromList(std::string wrong, std::string listName)
+
+BOOL LLAutoReplace::removeEntryFromList(std::string wrong, std::string listName)
 {
 	if(mAutoReplaces.has(listName))
 	{
@@ -352,7 +379,7 @@ BOOL AutoReplace::removeEntryFromList(std::string wrong, std::string listName)
 	return FALSE;
 }
 
-LLSD AutoReplace::getExampleLLSD()
+LLSD LLAutoReplace::getExampleLLSD()
 {
 	LLSD toReturn;
 
