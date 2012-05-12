@@ -96,7 +96,7 @@
   <scroll_list
    top_delta="0"
    left_delta="199"
-   height="180"
+   height="230"
    width="198"
    follows="left|top"
    column_padding="0"
@@ -128,7 +128,7 @@
   </text>
   <check_box
    bottom_delta="20"
-   left_delta="-32"
+   left_delta="0"
    height="16"
    width="100"
    enabled="true"

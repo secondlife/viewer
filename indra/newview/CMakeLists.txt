@@ -99,7 +99,6 @@ set(viewer_SOURCE_FILES
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llautoreplace.cpp
-    llautoreplacefloater.cpp
     llavataractions.cpp
     llavatariconctrl.cpp
     llavatarlist.cpp
@@ -171,6 +170,7 @@ set(viewer_SOURCE_FILES
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
     llfloaterauction.cpp
+    llfloaterautoreplacesettings.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
     llfloateravatartextures.cpp
@@ -657,7 +657,6 @@ set(viewer_HEADER_FILES
     llattachmentsmgr.h
     llaudiosourcevo.h
     llautoreplace.h
-    llautoreplacefloater.h
     llavataractions.h
     llavatariconctrl.h
     llavatarlist.h
@@ -729,6 +728,7 @@ set(viewer_HEADER_FILES
     llfloaterabout.h
     llfloaterbvhpreview.h
     llfloaterauction.h
+    llfloaterautoreplacesettings.h
     llfloateravatar.h
     llfloateravatarpicker.h
     llfloateravatartextures.h

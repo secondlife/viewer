@@ -24,7 +24,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llautoreplacefloater.h"
+#include "llfloaterautoreplacesettings.h"
 
 #include "llagentdata.h"
 #include "llcommandhandler.h"
@@ -64,16 +64,20 @@
 #include "llnotificationmanager.h"
 
 
-AutoReplaceFloater::AutoReplaceFloater(const LLSD& key) :
-LLFloater(key)
+LLFloaterAutoReplaceSettings::LLFloaterAutoReplaceSettings(const LLSD& key)
+ : LLFloater(key)
+ , namesList(NULL)
+ , entryList(NULL)
+ , mOldText(NULL)
+ , mNewText(NULL)   
 {
 }
-void AutoReplaceFloater::onClose(bool app_quitting)
+void LLFloaterAutoReplaceSettings::onClose(bool app_quitting)
 {
 	destroy();
 }
 
-BOOL AutoReplaceFloater::postBuild(void)
+BOOL LLFloaterAutoReplaceSettings::postBuild(void)
 {
 
 	namesList = getChild<LLScrollListCtrl>("ac_list_name");
@@ -88,11 +92,8 @@ BOOL AutoReplaceFloater::postBuild(void)
 	childSetCommitCallback("ac_list_style",onEntrySettingChange,this);
 	childSetCommitCallback("ac_priority",onEntrySettingChange,this);
 	
-
-	
 	updateEnabledStuff();
 	updateNamesList();	
-
 
 	namesList->setCommitOnSelectionChange(TRUE);
 	childSetCommitCallback("ac_list_name", onSelectName, this);
@@ -106,22 +107,22 @@ BOOL AutoReplaceFloater::postBuild(void)
 	return true;
 }
 
-void AutoReplaceFloater::onSelectName(LLUICtrl* ctrl, void* user_data)
+void LLFloaterAutoReplaceSettings::onSelectName(LLUICtrl* ctrl, void* user_data)
 {
 	if ( user_data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )user_data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )user_data;
 		if ( self )
+		{
 			self->updateItemsList();
+		}
 	}
-
 }
-void AutoReplaceFloater::updateItemsList()
+void LLFloaterAutoReplaceSettings::updateItemsList()
 {
 	entryList->deleteAllItems();
 	if((namesList->getAllSelected().size())<=0)
 	{
-
 		updateListControlsEnabled(FALSE);
 		return;
 	}
@@ -142,8 +143,6 @@ void AutoReplaceFloater::updateItemsList()
 		const std::string& wrong = (*loc_it).first;
 		const std::string& right = (*loc_it).second;
 
-		//std::string lentry(wrong+"=>"+right);
-
 		LLSD element;
 		element["id"] = wrong;
 		LLSD& s_column = element["columns"][0];
@@ -159,7 +158,7 @@ void AutoReplaceFloater::updateItemsList()
 	}
 	
 }
-void AutoReplaceFloater::updateNamesList()
+void LLFloaterAutoReplaceSettings::updateNamesList()
 {
 	namesList->deleteAllItems();
 	if(!gSavedSettings.getBOOL("AutoReplace"))
@@ -182,17 +181,21 @@ void AutoReplaceFloater::updateNamesList()
 		//friend_column["font"] = "SANSSERIF";
 		const LLSD& loc_map = (*loc_it).second;
 		if(loc_map["enabled"].asBoolean())
+		{
 			friend_column["font"] = "SANSSERIF";
-			//friend_column["style"] = "BOLD";
+		}
 		else
+		{
 			friend_column["font"] = "SANSSERIF_SMALL";
-			//friend_column["style"] = "NORMAL";
+		}
 		if(namesList)
-		namesList->addElement(element, ADD_BOTTOM);
+		{
+			namesList->addElement(element, ADD_BOTTOM);
+		}
 	}
 	updateItemsList();
 }
-void AutoReplaceFloater::updateListControlsEnabled(BOOL selected)
+void LLFloaterAutoReplaceSettings::updateListControlsEnabled(BOOL selected)
 {
 
 		childSetEnabled("ac_text1",selected);
@@ -208,7 +211,7 @@ void AutoReplaceFloater::updateListControlsEnabled(BOOL selected)
 		childSetEnabled("ac_priority",selected);
 	
 }
-void AutoReplaceFloater::updateEnabledStuff()
+void LLFloaterAutoReplaceSettings::updateEnabledStuff()
 {
 	BOOL autoreplace = gSavedSettings.getBOOL("AutoReplace");
 	if(autoreplace)
@@ -216,7 +219,8 @@ void AutoReplaceFloater::updateEnabledStuff()
 		LLCheckBoxCtrl *enBox = getChild<LLCheckBoxCtrl>("ac_enable");
 		enBox->setDisabledColor(LLColor4::red);
 		getChild<LLCheckBoxCtrl>("ac_enable")->setEnabledColor(LLColor4(1.0f,0.0f,0.0f,1.0f));		
-	}else
+	}
+	else
 	{
 		getChild<LLCheckBoxCtrl>("ac_enable")->setEnabledColor(
 			LLUIColorTable::instance().getColor( "LabelTextColor" ));
@@ -229,25 +233,25 @@ void AutoReplaceFloater::updateEnabledStuff()
 	AutoReplace::getInstance()->save();
 
 }
-void AutoReplaceFloater::setData(void * data)
+void LLFloaterAutoReplaceSettings::setData(void * data)
 {
 }
-void AutoReplaceFloater::onBoxCommitEnabled(LLUICtrl* caller, void* user_data)
+void LLFloaterAutoReplaceSettings::onBoxCommitEnabled(LLUICtrl* caller, void* user_data)
 {
 	if ( user_data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )user_data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )user_data;
 		if ( self )
 		{
 			self->updateEnabledStuff();
 		}
 	}
 }
-void AutoReplaceFloater::onEntrySettingChange(LLUICtrl* caller, void* user_data)
+void LLFloaterAutoReplaceSettings::onEntrySettingChange(LLUICtrl* caller, void* user_data)
 {
 	if ( user_data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )user_data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )user_data;
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
@@ -260,11 +264,11 @@ void AutoReplaceFloater::onEntrySettingChange(LLUICtrl* caller, void* user_data)
 		}
 	}
 }
-void AutoReplaceFloater::deleteEntry(void* data)
+void LLFloaterAutoReplaceSettings::deleteEntry(void* data)
 {
 	if ( data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
 		if ( self )
 		{
 
@@ -280,12 +284,13 @@ void AutoReplaceFloater::deleteEntry(void* data)
 		}
 	}
 }
-void AutoReplaceFloater::loadList(void* data)
+void LLFloaterAutoReplaceSettings::loadList(void* data)
 {
 	LLFilePicker& picker = LLFilePicker::instance();
 
 	if(!picker.getOpenFile( LLFilePicker::FFLOAD_XML) )
-	{return;
+	{
+		return;
 	}	
 	llifstream file;
 	file.open(picker.getFirstFile().c_str());
@@ -299,16 +304,18 @@ void AutoReplaceFloater::loadList(void* data)
 	AutoReplace::getInstance()->addReplacementList(blankllsd);
 	if ( data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
 		if ( self )
+		{
 			self->updateEnabledStuff();
+		}
 	}
 }
-void AutoReplaceFloater::removeList(void* data)
+void LLFloaterAutoReplaceSettings::removeList(void* data)
 {
 	if ( data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
@@ -318,33 +325,31 @@ void AutoReplaceFloater::removeList(void* data)
 
 	}
 }
-void AutoReplaceFloater::exportList(void *data)
+void LLFloaterAutoReplaceSettings::exportList(void *data)
 {
 	if ( data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
 		if ( self )
 		{
 			std::string listName=self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
 
 			LLFilePicker& picker = LLFilePicker::instance();
-
-			if(!picker.getSaveFile( LLFilePicker::FFSAVE_XML) )
-			{return;
+			if(picker.getSaveFile( LLFilePicker::FFSAVE_XML) )
+			{
+				llofstream file;
+				file.open(picker.getFirstFile().c_str());
+				LLSDSerialize::toPrettyXML(AutoReplace::getInstance()->exportList(listName), file);
+				file.close();	
 			}	
-			llofstream file;
-			file.open(picker.getFirstFile().c_str());
-			LLSDSerialize::toPrettyXML(AutoReplace::getInstance()->exportList(listName), file);
-			file.close();	
 		}
-	
 	}
 }
-void AutoReplaceFloater::addEntry(void* data)
+void LLFloaterAutoReplaceSettings::addEntry(void* data)
 {
 	if ( data )
 	{
-		AutoReplaceFloater* self = ( AutoReplaceFloater* )data;
+		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
 		if ( self )
 		{
 			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
@@ -359,19 +364,4 @@ void AutoReplaceFloater::addEntry(void* data)
 		}
 	}
 }
-AutoReplaceFloater* AutoReplaceFloater::showFloater()
-{
-	AutoReplaceFloater *floater = dynamic_cast<AutoReplaceFloater*>(LLFloaterReg::getInstance("autoreplace"));
-	if(floater)
-	{
-		floater->setVisible(true);
-		floater->setFrontmost(true);
-		floater->center();
-		return floater;
-	}
-	else
-	{
-		LL_WARNS("AutoReplace") << "Can't find floater!" << LL_ENDL;
-		return NULL;
-	}
-}
+

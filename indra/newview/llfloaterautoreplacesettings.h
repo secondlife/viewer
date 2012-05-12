@@ -1,5 +1,5 @@
 /** 
- * @file llautoreplacefloater.h
+ * @file llfloaterautoreplacesettings.h
  * @brief Auto Replace List floater
  * @copyright Copyright (c) 2011 LordGregGreg Back
  *
@@ -23,8 +23,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef AUTOREPLACEFLOATER_H
-#define AUTOREPLACEFLOATER_H
+#ifndef LLFLOATERAUTOREPLACESETTINGS_H
+#define LLFLOATERAUTOREPLACESETTINGS_H
 
 #include "llfloater.h"
 #include "llmediactrl.h"
@@ -34,16 +34,14 @@
 #include "llviewerinventory.h"
 #include <boost/bind.hpp>
 
-class AutoReplaceFloater : 
+class LLFloaterAutoReplaceSettings : 
 public LLFloater
 {
 public:
-	AutoReplaceFloater(const LLSD& key);
+	LLFloaterAutoReplaceSettings(const LLSD& key);
 
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onClose(bool app_quitting);
-
-	static AutoReplaceFloater* showFloater();
 
 	void setData(void * data);
 	void updateEnabledStuff();
@@ -55,15 +53,12 @@ public:
 	LLScrollListCtrl *entryList;
 	LLLineEditor* mOldText;
 	LLLineEditor* mNewText;
-	//LLPanel * empanel;
+
 private:
-	//static JCInvDropTarget* mNotecardDropTarget;
+
 	static void onBoxCommitEnabled(LLUICtrl* caller, void* user_data);
 	static void onEntrySettingChange(LLUICtrl* caller, void* user_data);
 	static void onSelectName(LLUICtrl* caller, void* user_data);
-	//static void ResponseItemDrop(LLViewerInventoryItem* item);
-	//static void onNotecardLoadComplete(LLVFS *vfs,const LLUUID& asset_uuid,LLAssetType::EType type,void* user_data, S32 status, LLExtStat ext_status);
-
 
 	static void deleteEntry(void* data);
 	static void addEntry(void* data);
@@ -72,4 +67,4 @@ private:
 	static void loadList(void* data);
 };
 
-#endif  // AUTOREPLACEFLOATER_H
+#endif  // LLFLOATERAUTOREPLACESETTINGS_H

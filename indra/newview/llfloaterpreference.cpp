@@ -35,7 +35,7 @@
 #include "llfloaterpreference.h"
 
 #include "message.h"
-#include "llautoreplacefloater.h"
+#include "llfloaterautoreplacesettings.h"
 #include "llagent.h"
 #include "llavatarconstants.h"
 #include "llcheckboxctrl.h"
@@ -346,7 +346,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 	mCommitCallbackRegistrar.add("Pref.Proxy",					boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	mCommitCallbackRegistrar.add("Pref.TranslationSettings",	boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
-	mCommitCallbackRegistrar.add("Pref.AutoReplace.",           boost::bind(&AutoReplaceFloater::showFloater, this));
+	mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -604,6 +604,9 @@ void LLFloaterPreference::cancel()
 
 	// hide translation settings floater
 	LLFloaterReg::hideInstance("prefs_translation");
+	
+	// hide translation settings floater
+	LLFloaterReg::hideInstance("prefs_autoreplace");
 	
 	// cancel hardware menu
 	LLFloaterHardwareSettings* hardware_settings = LLFloaterReg::getTypedInstance<LLFloaterHardwareSettings>("prefs_hardware_settings");
@@ -1514,6 +1517,11 @@ void LLFloaterPreference::onClickProxySettings()
 void LLFloaterPreference::onClickTranslationSettings()
 {
 	LLFloaterReg::showInstance("prefs_translation");
+}
+
+void LLFloaterPreference::onClickAutoReplace()
+{
+	LLFloaterReg::showInstance("prefs_autoreplace");
 }
 
 void LLFloaterPreference::onClickActionChange()
