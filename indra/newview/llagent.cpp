@@ -320,6 +320,12 @@ LLAgent::LLAgent() :
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
 	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
+	mCurrentTeleportRequest(),
+	mFailedTeleportRequest(),
+	mTeleportFinishedSlot(),
+	mTeleportFailedSlot(),
+	mIsMaturityRatingChangingDuringTeleport(false),
+	mMaturityRatingChange(0),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -406,7 +412,14 @@ void LLAgent::init()
 	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
 
-	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
+	if (!mTeleportFinishedSlot.connected())
+	{
+		mTeleportFinishedSlot = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(boost::bind(&LLAgent::handleTeleportFinished, this));
+	}
+	if (!mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLAgent::handleTeleportFailed, this));
+	}
 
 	mInitialized = TRUE;
 }
@@ -417,6 +430,14 @@ void LLAgent::init()
 void LLAgent::cleanup()
 {
 	mRegionp = NULL;
+	if (mTeleportFinishedSlot.connected())
+	{
+		mTeleportFinishedSlot.disconnect();
+	}
+	if (mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot.disconnect();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2457,7 +2478,49 @@ int LLAgent::convertTextToMaturity(char text)
 	return LLAgentAccess::convertTextToMaturity(text);
 }
 
-bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
+class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
+{
+public:
+	LLMaturityPreferencesResponder(LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback);
+	virtual ~LLMaturityPreferencesResponder();
+
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
+
+protected:
+
+private:
+	LLAgent::maturity_preferences_callback_t mMaturityPreferencesCallback;
+};
+
+LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback)
+	: LLHTTPClient::Responder(),
+	mMaturityPreferencesCallback(pMaturityPreferencesCallback)
+{
+}
+
+LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
+{
+}
+
+void LLMaturityPreferencesResponder::result(const LLSD &pContent)
+{
+	if (!mMaturityPreferencesCallback.empty())
+	{
+		mMaturityPreferencesCallback(pContent);
+	}
+}
+
+void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
+{
+	if (!mMaturityPreferencesCallback.empty())
+	{
+		LLSD empty;
+		mMaturityPreferencesCallback(empty);
+	}
+}
+
+bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback)
 {
 	if (!getRegion())
 		return false;
@@ -2485,7 +2548,8 @@ bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
 		body["access_prefs"] = access_prefs;
 		llinfos << "Sending access prefs update to " << (access_prefs["max"].asString()) << " via capability to: "
 		<< url << llendl;
-		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());    // Ignore response
+		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(pMaturityPreferencesCallback));
+		LLHTTPClient::post(url, body, responderPtr);
 		return true;
 	}
 	return false;
@@ -3538,6 +3602,62 @@ bool LLAgent::teleportCore(bool is_local)
 	return true;
 }
 
+void LLAgent::restartFailedTeleportRequest()
+{
+	// XXX stinson 05/11/2012 llassert(hasFailedTeleportRequest());
+	if (hasFailedTeleportRequest())
+	{
+		mFailedTeleportRequest->doTeleport();
+	}
+}
+
+void LLAgent::clearFailedTeleportRequest()
+{
+	// XXX stinson 05/11/2012 llassert(hasFailedTeleportRequest());
+	if (hasFailedTeleportRequest())
+	{
+		mFailedTeleportRequest.reset();
+	}
+}
+
+void LLAgent::setMaturityRatingChangeDuringTeleport(int pMaturityRatingChange)
+{
+	mIsMaturityRatingChangingDuringTeleport = true;
+	mMaturityRatingChange = pMaturityRatingChange;
+}
+
+void LLAgent::handleTeleportFinished()
+{
+	// XXX stinson 05/11/2012 llassert(hasCurrentTeleportRequest());
+	if (hasCurrentTeleportRequest())
+	{
+		mCurrentTeleportRequest.reset();
+	}
+	if (hasFailedTeleportRequest())
+	{
+		clearFailedTeleportRequest();
+	}
+	if (mIsMaturityRatingChangingDuringTeleport)
+	{
+		// notify user that the maturity preference has been changed
+		LLSD args;
+		args["RATING"] = LLViewerRegion::accessToString(mMaturityRatingChange);
+		LLNotificationsUtil::add("PreferredMaturityChanged", args);
+		mIsMaturityRatingChangingDuringTeleport = false;
+	}
+}
+
+void LLAgent::handleTeleportFailed()
+{
+	// XXX stinson 05/11/2012 llassert(hasCurrentTeleportRequest());
+	// XXX stinson 05/11/2012 llassert(!hasFailedTeleportRequest());
+	if (hasCurrentTeleportRequest())
+	{
+		mFailedTeleportRequest = mCurrentTeleportRequest;
+	}
+	mIsMaturityRatingChangingDuringTeleport = false;
+}
+
 void LLAgent::teleportRequest(
 	const U64& region_handle,
 	const LLVector3& pos_local,
@@ -3570,9 +3690,9 @@ void LLAgent::teleportRequest(
 // Landmark ID = LLUUID::null means teleport home
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-	llassert(mTeleportRequest == NULL);
-	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
-	mTeleportRequest->doTeleport();
+	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
+	mCurrentTeleportRequest->doTeleport();
 }
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
@@ -3592,9 +3712,9 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
-	llassert(mTeleportRequest == NULL);
-	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
-	mTeleportRequest->doTeleport();
+	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
+	mCurrentTeleportRequest->doTeleport();
 }
 
 void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
@@ -3648,9 +3768,9 @@ void LLAgent::teleportCancel()
 
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
-	llassert(mTeleportRequest == NULL);
-	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
-	mTeleportRequest->doTeleport();
+	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
+	mCurrentTeleportRequest->doTeleport();
 }
 
 void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
@@ -3697,9 +3817,9 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 // Teleport to global position, but keep facing in the same direction 
 void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
 {
-	llassert(mTeleportRequest == NULL);
-	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
-	mTeleportRequest->doTeleport();
+	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
+	mCurrentTeleportRequest->doTeleport();
 }
 
 void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
@@ -3723,7 +3843,6 @@ void LLAgent::setTeleportState(ETeleportState state)
 	{
 		case TELEPORT_NONE:
 			mbTeleportKeepsLookAt = false;
-			mTeleportRequest.reset();
 			break;
 
 		case TELEPORT_MOVING:

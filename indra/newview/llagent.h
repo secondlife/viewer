@@ -35,6 +35,7 @@
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llvoavatardefines.h"
 
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2.hpp>
 
@@ -570,12 +571,32 @@ public:
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
 
+	//--------------------------------------------------------------------
+	// Teleport State
+	//--------------------------------------------------------------------
+
+public:
+	inline bool     hasCurrentTeleportRequest() {return (mCurrentTeleportRequest != NULL);};
+	inline bool     hasFailedTeleportRequest() {return (mFailedTeleportRequest != NULL);};
+	void            restartFailedTeleportRequest();
+	void            clearFailedTeleportRequest();
+	void            setMaturityRatingChangeDuringTeleport(int pMaturityRatingChange);
+
 private:
 	friend class LLTeleportRequest;
 	friend class LLTeleportRequestViaLandmark;
 	friend class LLTeleportRequestViaLure;
 	friend class LLTeleportRequestViaLocation;
 	friend class LLTeleportRequestViaLocationLookAt;
+
+	LLTeleportRequestPtr mCurrentTeleportRequest;
+	LLTeleportRequestPtr mFailedTeleportRequest;
+	boost::signals2::connection mTeleportFinishedSlot;
+	boost::signals2::connection mTeleportFailedSlot;
+
+	bool            mIsMaturityRatingChangingDuringTeleport;
+	int             mMaturityRatingChange;
+
 	void 			teleportRequest(const U64& region_handle,
 									const LLVector3& pos_local,				// Go to a named location home
 									bool look_at_from_camera = false);
@@ -583,6 +604,9 @@ private:
 	void 			doTeleportViaLure(const LLUUID& lure_id, BOOL godlike);	// To an invited location
 	void 			doTeleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
 	void			doTeleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
+
+	void            handleTeleportFinished();
+	void            handleTeleportFailed();
 
 	//--------------------------------------------------------------------
 	// Teleport State
@@ -592,7 +616,6 @@ public:
 	void			setTeleportState(ETeleportState state);
 private:
 	ETeleportState	mTeleportState;
-	LLTeleportRequestPtr mTeleportRequest;
 
 	//--------------------------------------------------------------------
 	// Teleport Message
@@ -668,8 +691,10 @@ public:
 	bool 			isAdult() const;
 	void 			setTeen(bool teen);
 	void 			setMaturity(char text);
-	static int 		convertTextToMaturity(char text); 
-	bool 			sendMaturityPreferenceToServer(int preferredMaturity); // ! "U8" instead of "int"?
+	static int 		convertTextToMaturity(char text);
+
+	typedef boost::function<void (const LLSD &pResponse)> maturity_preferences_callback_t;
+	bool 			sendMaturityPreferenceToServer(int preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback = NULL); // ! "U8" instead of "int"?
 
 	// Maturity callbacks for PreferredMaturity control variable
 	void 			handleMaturity(const LLSD& newvalue);

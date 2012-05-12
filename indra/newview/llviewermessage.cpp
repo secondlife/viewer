@@ -5385,7 +5385,20 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 }
 
-
+void handle_maturity_preference_change(const LLSD &pResponse, int pMaturityRatingChange)
+{
+	if (pResponse.isUndefined())
+	{
+		// XXX stinson 05/11/2012 llinfos << "Maturity response ==> <null>" << llendl;
+		gAgent.clearFailedTeleportRequest();
+	}
+	else
+	{
+		// XXX stinson 05/11/2012 linfos << "Maturity response ==> '" << pResponse << "'" << llendl;
+		gAgent.setMaturityRatingChangeDuringTeleport(pMaturityRatingChange);
+		gAgent.restartFailedTeleportRequest();
+	}
+}
 
 bool handle_special_notification_callback(const LLSD& notification, const LLSD& response)
 {
@@ -5396,12 +5409,11 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 		// set the preference to the maturity of the region we're calling
 		int preferredMaturity = notification["payload"]["_region_access"].asInteger();
 		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
-		gAgent.sendMaturityPreferenceToServer(preferredMaturity);
-
-		// notify user that the maturity preference has been changed
-		LLSD args;
-		args["RATING"] = LLViewerRegion::accessToString(preferredMaturity);
-		LLNotificationsUtil::add("PreferredMaturityChanged", args);
+		gAgent.sendMaturityPreferenceToServer(preferredMaturity, boost::bind(&handle_maturity_preference_change, _1, preferredMaturity));
+	}
+	else
+	{
+		gAgent.clearFailedTeleportRequest();
 	}
 	
 	return false;
@@ -6147,6 +6159,9 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	std::string big_reason;
 	LLSD args;
 
+	// Let the interested parties know that teleport failed.
+	LLViewerParcelMgr::getInstance()->onTeleportFailed();
+
 	// if we have additional alert data
 	if (msg->has(_PREHASH_AlertInfo) && msg->getSizeFast(_PREHASH_AlertInfo, _PREHASH_Message) > 0)
 	{
@@ -6204,9 +6219,6 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	}
 
 	LLNotificationsUtil::add("CouldNotTeleportReason", args);
-
-	// Let the interested parties know that teleport failed.
-	LLViewerParcelMgr::getInstance()->onTeleportFailed();
 
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
