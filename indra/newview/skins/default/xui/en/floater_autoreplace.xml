@@ -39,27 +39,6 @@
    label="Load List.."
    tool_tip="Click this to load a previously exported list from a file."/>
   <view_border
-   bottom_delta="10"
-   left_delta="100"
-   height="40"
-   width="120"
-   follows="left|top"
-   bevel_style="in"
-   mouse_opaque="false"
-   name="ac_notecard_target"/>
-  <text bottom_delta="-18"
-   left_delta="0"
-   height="16"
-   width="120"
-   follows="left|top"
-   halign="center"
-   font="SansSerifSmall"
-   mouse_opaque="true"
-   name="ac_notecard">
-<!--    Drop a Notecard here
-    to load from it.-->
-  </text>
-  <view_border
    bottom="70"
    left="2"
    height="0"
