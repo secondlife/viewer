@@ -268,7 +268,7 @@ void LLViewerAudio::onTeleportFinished(const LLVector3d& pos, const bool& local)
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if (parcel)
 		{
-			LLViewerParcelMgr::optionally_start_music(parcel->getMusicURL());
+			mNextStreamURI = parcel->getMusicURL();
 		}
 	}
 }
