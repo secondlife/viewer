@@ -700,9 +700,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		return;
 	}
 
+	bool from_me = chat.mFromID == gAgent.getID();
 	mEditor->setPlainText(use_plain_text_chat_history);
 
-	if (!mEditor->scrolledToEnd() && chat.mFromID != gAgent.getID() && !chat.mFromName.empty())
+	if (!mEditor->scrolledToEnd() && !from_me && !chat.mFromName.empty())
 	{
 		mUnreadChatSources.insert(chat.mFromName);
 		mMoreChatPanel->setVisible(TRUE);
@@ -777,6 +778,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	bool prependNewLineState = mEditor->getText().size() != 0;
 
+	// show timestamps and names in the compact mode
 	if (use_plain_text_chat_history)
 	{
 		LLStyle::Params timestamp_style(style_params);
@@ -820,7 +822,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				LLStyle::Params link_params(style_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 
-				if (gAgentID == chat.mFromID)
+				if (from_me)
 				{	std::string localized_name;
 					bool is_localized = LLTrans::findString(localized_name, "AgentNameSubst");
 					mEditor->appendText((is_localized? localized_name:"(You)") + delimiter,
@@ -843,9 +845,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			}
 		}
 	}
-	else
+	else // showing timestamp and name in the expanded mode
 	{
-		prependNewLineState = 0;
+		prependNewLineState = false;
 		LLView* view = NULL;
 		LLInlineViewSegment::Params p;
 		p.force_newline = true;
@@ -953,7 +955,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		//MESSAGE TEXT PROCESSING
 		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
-		if (use_plain_text_chat_history && gAgentID != chat.mFromID && chat.mFromID.notNull())
+		if (use_plain_text_chat_history && !from_me && chat.mFromID.notNull())
 		{
 			std::string slurl_about = SLURL_APP_AGENT + chat.mFromID.asString() + SLURL_ABOUT;
 			if (message.length() > slurl_about.length() && 
@@ -975,7 +977,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	mEditor->blockUndo();
 
 	// automatically scroll to end when receiving chat from myself
-	if (chat.mFromID == gAgentID)
+	if (from_me)
 	{
 		mEditor->setCursorAndScrollToEnd();
 	}

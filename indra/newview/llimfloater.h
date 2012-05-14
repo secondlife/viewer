@@ -31,6 +31,8 @@
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
 #include "lltransientdockablefloater.h"
+#include "llvoicechannel.h"
+#include "llvoiceclient.h"
 
 class LLAvatarName;
 class LLButton;
@@ -44,14 +46,16 @@ class LLInventoryCategory;
  * Individual IM window that appears at the bottom of the screen,
  * optionally "docked" to the bottom tray.
  */
-class LLIMFloater : public LLTransientDockableFloater
+class LLIMFloater
+	: public LLTransientDockableFloater
+	, public LLVoiceClientStatusObserver
 {
 	LOG_CLASS(LLIMFloater);
 public:
 	LLIMFloater(const LLUUID& session_id);
 
 	virtual ~LLIMFloater();
-	
+
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
@@ -90,11 +94,20 @@ public:
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
 	void onVisibilityChange(const LLSD& new_visibility);
+
+	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
+	// button when voice is available
+	void onChange(EStatusType status, const std::string &channelURI,
+			bool proximal);
+
+	virtual void onVoiceChannelStateChanged(
+			const LLVoiceChannel::EState& old_state,
+			const LLVoiceChannel::EState& new_state);
+
 	void processIMTyping(const LLIMInfo* im_info, BOOL typing);
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
-	void updateChatHistoryStyle();
 	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
@@ -153,6 +166,13 @@ private:
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
 	void onIMSessionMenuItemClicked(const LLSD& userdata);
+	void onCallButtonClicked();
+
+	void boundVoiceChannel();
+	void enableDisableCallBtn();
+
+	// refresh a visual state of the Call button
+	void updateCallState(LLVoiceChannel::EState state);
 
 	// Add the "User is typing..." indicator.
 	void addTypingIndicator(const LLIMInfo* im_info);
@@ -185,9 +205,11 @@ private:
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
 
+	// connection to voice channel state change signal
+	boost::signals2::connection mVoiceChannelStateChangeConnection;
+
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
 };
-
 
 #endif  // LL_IMFLOATER_H

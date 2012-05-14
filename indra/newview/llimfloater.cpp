@@ -51,13 +51,11 @@
 #include "llchathistory.h"
 #include "llnotifications.h"
 #include "llviewerwindow.h"
-#include "llvoicechannel.h"
 #include "lltransientfloatermgr.h"
 #include "llinventorymodel.h"
 #include "llrootview.h"
 #include "llspeakers.h"
 #include "llviewerchat.h"
-
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id),
@@ -85,11 +83,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 		mSessionInitialized = im_session->mSessionInitialized;
 		
 		mDialog = im_session->mType;
-		switch(mDialog){
-		case IM_NOTHING_SPECIAL:
-		case IM_SESSION_P2P_INVITE:
-			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelIMControl, this);
-			break;
+		switch (mDialog)
+		{
 		case IM_SESSION_CONFERENCE_START:
 			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
 			break;
@@ -106,6 +101,8 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
 			}
 			break;
+		case IM_NOTHING_SPECIAL:
+		case IM_SESSION_P2P_INVITE:
 		default:
 			break;
 		}
@@ -143,7 +140,8 @@ bool LLIMFloater::onIMShowModesMenuItemEnable(const LLSD& userdata)
 	std::string item = userdata.asString();
 	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
 	bool is_not_names = (item != "IMShowNamesForP2PConv");
-	bool is_p2p_chat = (mDialog == IM_SESSION_P2P_INVITE || mDialog == IM_NOTHING_SPECIAL);
+	LLIMModel::LLIMSession* im_session = LLIMModel::instance().findIMSession(mSessionID);
+	bool is_p2p_chat = im_session && im_session->isP2PSessionType();
 	return (plain_text && (is_not_names || is_p2p_chat));
 }
 
@@ -289,6 +287,12 @@ void LLIMFloater::sendMsg()
 
 LLIMFloater::~LLIMFloater()
 {
+	mVoiceChannelStateChangeConnection.disconnect();
+	if(LLVoiceClient::instanceExists())
+	{
+		LLVoiceClient::getInstance()->removeObserver(this);
+	}
+
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 }
 
@@ -301,14 +305,26 @@ BOOL LLIMFloater::postBuild()
 		mOtherParticipantUUID = other_party_id;
 	}
 
-	mControlPanel->setSessionId(mSessionID);
-	mControlPanel->getParent()->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
+	boundVoiceChannel();
 
 	getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
-	mExpandCollapseBtn->setImageOverlay(getString(mControlPanel->getParent()->getVisible() ? "collapse_icon" : "expand_icon"));
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
+
+	if (mControlPanel)
+	{
+		mControlPanel->setSessionId(mSessionID);
+		mControlPanel->getParent()->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
+
+		mExpandCollapseBtn->setImageOverlay(
+				getString(mControlPanel->getParent()->getVisible() ? "collapse_icon" : "expand_icon"));
+	}
+	else
+	{
+		mExpandCollapseBtn->setEnabled(false);
+		getChild<LLLayoutPanel>("im_control_panel_holder")->setVisible(false);
+	}
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
@@ -358,6 +374,10 @@ BOOL LLIMFloater::postBuild()
 		std::string session_name(LLIMModel::instance().getName(mSessionID));
 		updateSessionName(session_name, session_name);
 	}
+
+	childSetAction("voice_call_btn", boost::bind(&LLIMFloater::onCallButtonClicked, this));
+
+	LLVoiceClient::getInstance()->addObserver(this);
 	
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
@@ -370,6 +390,89 @@ BOOL LLIMFloater::postBuild()
 	{
 		return LLDockableFloater::postBuild();
 	}
+}
+
+void LLIMFloater::boundVoiceChannel()
+{
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+	if(voice_channel)
+	{
+		mVoiceChannelStateChangeConnection = voice_channel->setStateChangedCallback(
+				boost::bind(&LLIMFloater::onVoiceChannelStateChanged, this, _1, _2));
+
+		//call (either p2p, group or ad-hoc) can be already in started state
+		updateCallState(voice_channel->getState());
+	}
+}
+
+void LLIMFloater::updateCallState(LLVoiceChannel::EState state)
+{
+	bool is_call_started = state >= LLVoiceChannel::STATE_CALL_STARTED;
+	getChild<LLButton>("voice_call_btn")->setImageOverlay(
+			is_call_started? getString("call_btn_stop") : getString("call_btn_start"));
+    enableDisableCallBtn();
+
+}
+
+void LLIMFloater::enableDisableCallBtn()
+{
+	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled()
+			&& LLVoiceClient::getInstance()->isVoiceWorking();
+
+	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionID);
+
+	if (!session)
+	{
+		getChildView("voice_call_btn")->setEnabled(false);
+		return;
+	}
+
+	bool session_initialized = session->mSessionInitialized;
+	bool callback_enabled = session->mCallBackEnabled;
+
+	BOOL enable_connect = session_initialized
+		&& voice_enabled
+		&& callback_enabled;
+	getChildView("voice_call_btn")->setEnabled(enable_connect);
+}
+
+
+void LLIMFloater::onCallButtonClicked()
+{
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+	if (voice_channel)
+	{
+		bool is_call_active = voice_channel->getState() >= LLVoiceChannel::STATE_CALL_STARTED;
+	    if (is_call_active)
+	    {
+		    gIMMgr->endCall(mSessionID);
+	    }
+	    else
+	    {
+		    gIMMgr->startCall(mSessionID);
+	    }
+	}
+}
+
+/*void LLIMFloater::onOpenVoiceControlsClicked()
+{
+	LLFloaterReg::showInstance("voice_controls");
+}*/
+
+void LLIMFloater::onChange(EStatusType status, const std::string &channelURI, bool proximal)
+{
+	if(status == STATUS_JOINING || status == STATUS_LEFT_CHANNEL)
+	{
+		return;
+	}
+
+	enableDisableCallBtn();
+}
+
+void LLIMFloater::onVoiceChannelStateChanged(
+		const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state)
+{
+	updateCallState(new_state);
 }
 
 void LLIMFloater::updateSessionName(const std::string& ui_title,
@@ -404,17 +507,6 @@ void LLIMFloater::draw()
 	LLTransientDockableFloater::draw();
 }
 
-
-// static
-void* LLIMFloater::createPanelIMControl(void* userdata)
-{
-	LLIMFloater *self = (LLIMFloater*)userdata;
-	self->mControlPanel = new LLPanelIMControlPanel();
-	self->mControlPanel->setXMLFilename("panel_im_control_panel.xml");
-	return self->mControlPanel;
-}
-
-
 // static
 void* LLIMFloater::createPanelGroupControl(void* userdata)
 {
@@ -443,14 +535,17 @@ void LLIMFloater::onSlide()
 	}
 	else ///< floater is torn off
 	{
-		bool expand = !mControlPanel->getParent()->getVisible();
+		if (mControlPanel)
+		{
+			bool expand = !mControlPanel->getParent()->getVisible();
 
-		// Expand/collapse the IM control panel
-		mControlPanel->getParent()->setVisible(expand);
+			// Expand/collapse the IM control panel
+			mControlPanel->getParent()->setVisible(expand);
 
-		gSavedSettings.setBOOL("IMShowControlPanel", expand);
+			gSavedSettings.setBOOL("IMShowControlPanel", expand);
 
-		mExpandCollapseBtn->setImageOverlay(getString(expand ? "collapse_icon" : "expand_icon"));
+			mExpandCollapseBtn->setImageOverlay(getString(expand ? "collapse_icon" : "expand_icon"));
+		}
 	}
 }
 
@@ -659,15 +754,13 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	{
 		mSessionID = im_session_id;
 		setKey(im_session_id);
-		mControlPanel->setSessionId(im_session_id);
+		if (mControlPanel)
+		{
+			mControlPanel->setSessionId(im_session_id);
+		}
+		boundVoiceChannel();
 	}
 
-	// updating "Call" button from group control panel here to enable it without placing into draw() (EXT-4796)
-	if(gAgent.isInGroup(im_session_id))
-	{
-		mControlPanel->updateCallButton();
-	}
-	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
 
@@ -910,13 +1003,6 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 	}
 }
 
-void LLIMFloater::updateChatHistoryStyle()
-{
-	mChatHistory->clear();
-	mLastMessageIndex = -1;
-	updateMessages();
-}
-
 void LLIMFloater::processChatHistoryStyleUpdate(const LLSD& newvalue)
 {
 	LLFontGL* font = LLViewerChat::getChatFont();
@@ -927,11 +1013,10 @@ void LLIMFloater::processChatHistoryStyleUpdate(const LLSD& newvalue)
 		LLIMFloater* floater = dynamic_cast<LLIMFloater*>(*iter);
 		if (floater)
 		{
-			floater->updateChatHistoryStyle();
+			floater->reloadMessages();
 			floater->mInputEditor->setFont(font);
 		}
 	}
-
 }
 
 void LLIMFloater::processSessionUpdate(const LLSD& session_update)
@@ -1152,7 +1237,6 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 				speaker_mgr->setSpeakerTyping(im_info->mFromID, FALSE);
 			}
 		}
-
 	}
 }
 
@@ -1274,7 +1358,7 @@ void LLIMFloater::updateTitleButtons()
 {
 	// This gets called before LLIMFloater::postBuild() while some LLIMFloater members are NULL
 	if (   !mDragHandle
-		|| !mControlPanel
+		//|| !mControlPanel
 		|| !mExpandCollapseBtn
 		|| !mTearOffBtn)
 	{
@@ -1301,8 +1385,22 @@ void LLIMFloater::updateTitleButtons()
 	{
 		LLFloater::updateTitleButtons();
 
-		bool is_expanded = mControlPanel->getParent()->getVisible();
-		mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
+		if (mControlPanel)
+		{
+			bool is_expanded = mControlPanel->getParent()->getVisible();
+			mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
+		}
+	}
+
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
+	if (session)
+	{
+		mExpandCollapseBtn->setEnabled(is_hosted || !session->isP2PSessionType());
+	}
+	else
+	{
+		llwarns << "Empty session." << llendl;
+		return;
 	}
 
 	// toggle floater's drag handle and title visibility

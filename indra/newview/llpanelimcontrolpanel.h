@@ -28,14 +28,12 @@
 #define LL_LLPANELIMCONTROLPANEL_H
 
 #include "llpanel.h"
-#include "llvoicechannel.h"
 #include "llcallingcard.h"
 
 class LLParticipantList;
 
-class LLPanelChatControlPanel 
+class LLPanelChatControlPanel
 	: public LLPanel
-	, public LLVoiceClientStatusObserver
 {
 public:
 	LLPanelChatControlPanel() :
@@ -43,21 +41,6 @@ public:
 	~LLPanelChatControlPanel();
 
 	virtual BOOL postBuild();
-
-	void onCallButtonClicked();
-	void onEndCallButtonClicked();
-	void onOpenVoiceControlsClicked();
-
-	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
-	// button when voice is available
-	/*virtual*/ void onChange(EStatusType status, const std::string &channelURI, bool proximal);
-
-	virtual void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
-
-	void updateButtons(LLVoiceChannel::EState state);
-	
-	// Enables/disables call button depending on voice availability
-	void updateCallButton();
 
 	virtual void setSessionId(const LLUUID& session_id);
 	const LLUUID& getSessionId() { return mSessionId; }
@@ -70,7 +53,7 @@ private:
 };
 
 
-class LLPanelIMControlPanel : public LLPanelChatControlPanel, LLFriendObserver
+class LLPanelIMControlPanel : public LLPanelChatControlPanel
 {
 public:
 	LLPanelIMControlPanel();
@@ -78,10 +61,7 @@ public:
 
 	BOOL postBuild();
 
-	void setSessionId(const LLUUID& session_id);
-
-	// LLFriendObserver trigger
-	virtual void changed(U32 mask);
+	//void setSessionId(const LLUUID& session_id);
 
 protected:
 	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
@@ -93,13 +73,9 @@ private:
 	void onTeleportButtonClicked();
 	void onPayButtonClicked();
 	void onFocusReceived();
-
-	void onClickMuteVolume();
 	void onClickBlock();
 	void onClickUnblock();
 	/*virtual*/ void draw();
-	void onVolumeChange(const LLSD& data);
-
 	LLUUID mAvatarID;
 };
 
@@ -123,7 +99,6 @@ protected:
 private:
 	void onGroupInfoButtonClicked();
 	void onSortMenuItemClicked(const LLSD& userdata);
-	/*virtual*/ void onVoiceChannelStateChanged(const LLVoiceChannel::EState& old_state, const LLVoiceChannel::EState& new_state);
 };
 
 class LLPanelAdHocControlPanel : public LLPanelGroupControlPanel

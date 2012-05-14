@@ -15,6 +15,8 @@
  can_tear_off="false"
  min_width="250"
  min_height="190">
+    <floater.string name="call_btn_start">VoicePTT_Off</floater.string>
+    <floater.string name="call_btn_stop">VoicePTT_On</floater.string>
     <floater.string
      name="collapse_icon"
      value="TabIcon_Open_Off"/>
@@ -47,10 +49,10 @@
                  menu_filename="menu_im_session_showmodes.xml"
                  follows="top|left"
                  height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_hover_unselected="Toolbar_Left_Over"
                  image_overlay="OptionsMenu_Off"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
+                 image_selected="Toolbar_Left_Selected"
+                 image_unselected="Toolbar_Left_Off"
                  layout="topleft"
                  left="5"
                  name="view_options_btn"
@@ -74,14 +76,14 @@
              <button
                  follows="top|left"
                  height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_hover_unselected="Toolbar_Right_Over"
                  image_overlay="VoicePTT_Off"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
+                 image_selected="Toolbar_Right_Selected"
+                 image_unselected="Toolbar_Right_Off"
                  layout="topleft"
                  top="5"
                  left_pad="4"
-                 name="call"
+                 name="voice_call_btn"
                  width="31">
                  <commit_callback
                     function="Chats.add" />
