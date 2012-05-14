@@ -84,7 +84,7 @@ public:
 	// get new messages from LLIMModel
 	void updateMessages();
 	void reloadMessages();
-	static void onSendMsg( LLUICtrl*, void*);
+	static void onSendMsg(LLUICtrl*, void*);
 	void sendMsg();
 
 	// callback for LLIMModel on new messages
@@ -111,9 +111,9 @@ public:
 	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-							   BOOL drop, EDragAndDropType cargo_type,
-							   void *cargo_data, EAcceptance *accept,
-							   std::string& tooltip_msg);
+			BOOL drop, EDragAndDropType cargo_type,
+			void *cargo_data, EAcceptance *accept,
+			std::string& tooltip_msg);
 
 	/**
 	 * Returns true if chat is displayed in multi tabbed floater
@@ -131,10 +131,8 @@ public:
 	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 
 protected:
-	/* virtual */
-	void	onClickCloseBtn();
-
-	/*virtual*/ void	updateTitleButtons();
+	/* virtual */ void onClickCloseBtn();
+	/* virtual */ void updateTitleButtons();
 
 private:
 	// process focus events to set a currently active session
@@ -143,24 +141,23 @@ private:
 
 	// Update the window title, input field help text, etc.
 	void updateSessionName(const std::string& ui_title, const std::string& ui_label);
-	
+
 	// For display name lookups for IM window titles
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-	
+
 	BOOL dropCallingCard(LLInventoryItem* item, BOOL drop);
 	BOOL dropCategory(LLInventoryCategory* category, BOOL drop);
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);
-	
-	static void		onInputEditorFocusReceived( LLFocusableElement* caller, void* userdata );
-	static void		onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
-	static void		onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
-	void			setTyping(bool typing);
-	void			onSlide();
-	static void*	createPanelIMControl(void* userdata);
-	static void*	createPanelGroupControl(void* userdata);
-	static void* 	createPanelAdHocControl(void* userdata);
+
+	static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
+	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
+	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
+	void setTyping(bool typing);
+	void onSlide();
+	static void* createPanelGroupControl(void* userdata);
+	static void* createPanelAdHocControl(void* userdata);
 
 	bool onIMCompactExpandedMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
