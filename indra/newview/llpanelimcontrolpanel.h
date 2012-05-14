@@ -52,34 +52,6 @@ private:
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 };
 
-
-class LLPanelIMControlPanel : public LLPanelChatControlPanel
-{
-public:
-	LLPanelIMControlPanel();
-	~LLPanelIMControlPanel();
-
-	BOOL postBuild();
-
-	//void setSessionId(const LLUUID& session_id);
-
-protected:
-	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
-
-private:
-	void onViewProfileButtonClicked();
-	void onAddFriendButtonClicked();
-	void onShareButtonClicked();
-	void onTeleportButtonClicked();
-	void onPayButtonClicked();
-	void onFocusReceived();
-	void onClickBlock();
-	void onClickUnblock();
-	/*virtual*/ void draw();
-	LLUUID mAvatarID;
-};
-
-
 class LLPanelGroupControlPanel : public LLPanelChatControlPanel
 {
 public:
