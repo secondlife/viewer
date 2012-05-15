@@ -391,6 +391,12 @@ BOOL LLIMFloater::postBuild()
 	}
 }
 
+void LLIMFloater::onTearOffClicked(LLIMFloater* self)
+{
+	onClickTearOff(self);
+	updateTitleButtons();
+}
+
 void LLIMFloater::boundVoiceChannel()
 {
 	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
@@ -1377,6 +1383,7 @@ void LLIMFloater::updateTitleButtons()
 	}
 
 	bool is_hosted = getHost() != NULL;
+
 	if (is_hosted) ///< floater is hosted
 	{
 		for (S32 i = 0; i < BUTTON_COUNT; i++)
@@ -1391,6 +1398,7 @@ void LLIMFloater::updateTitleButtons()
 		}
 
 		mExpandCollapseBtn->setImageOverlay(getString("collapse_icon"));
+
 	}
 	else ///< floater is torn off
 	{
@@ -1402,6 +1410,8 @@ void LLIMFloater::updateTitleButtons()
 			mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 		}
 	}
+
+	getChild<LLButton>("close_btn")->setVisible(is_hosted);
 
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
 	if (session)

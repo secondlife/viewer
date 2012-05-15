@@ -93,6 +93,7 @@ public:
 
 	// called when docked floater's position has been set by chiclet
 	void setPositioned(bool b) { mPositioned = b; };
+
 	void onVisibilityChange(const LLSD& new_visibility);
 
 	// Implements LLVoiceClientStatusObserver::onChange() to enable the call
@@ -138,6 +139,8 @@ private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
+
+	void onTearOffClicked(LLIMFloater *self);
 
 	// Update the window title, input field help text, etc.
 	void updateSessionName(const std::string& ui_title, const std::string& ui_label);
