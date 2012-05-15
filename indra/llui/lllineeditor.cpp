@@ -1805,14 +1805,14 @@ void LLLineEditor::draw()
 	{
 		S32 select_left;
 		S32 select_right;
-		if( mSelectionStart < getCursor() )
+		if (mSelectionStart < mSelectionEnd)
 		{
 			select_left = mSelectionStart;
-			select_right = getCursor();
+			select_right = mSelectionEnd;
 		}
 		else
 		{
-			select_left = getCursor();
+			select_left = mSelectionEnd;
 			select_right = mSelectionStart;
 		}
 		
