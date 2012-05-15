@@ -2450,6 +2450,8 @@ BOOL LLPipeline::updateDrawableGeom(LLDrawable* drawablep, BOOL priority)
 	return update_complete;
 }
 
+static LLFastTimer::DeclareTimer FTM_SEED_VBO_POOLS("Seed VBO Pool");
+
 void LLPipeline::updateGL()
 {
 	while (!LLGLUpdate::sGLQ.empty())
@@ -2458,6 +2460,11 @@ void LLPipeline::updateGL()
 		glu->updateGL();
 		glu->mInQ = FALSE;
 		LLGLUpdate::sGLQ.pop_front();
+	}
+
+	{ //seed VBO Pools
+		LLFastTimer t(FTM_SEED_VBO_POOLS);
+		LLVertexBuffer::seedPools();
 	}
 }
 

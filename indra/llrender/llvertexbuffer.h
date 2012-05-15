@@ -57,20 +57,20 @@ public:
 	static U32 sBytesPooled;
 	static U32 sIndexBytesPooled;
 	
-	LLVBOPool(U32 vboUsage, U32 vboType)
-		: mUsage(vboUsage)
-		, mType(vboType)
-	{}
-
+	LLVBOPool(U32 vboUsage, U32 vboType);
+		
 	const U32 mUsage;
 	const U32 mType;
 
 	//size MUST be a power of 2
-	volatile U8* allocate(U32& name, U32 size);
+	volatile U8* allocate(U32& name, U32 size, bool for_seed = false);
 	
 	//size MUST be the size provided to allocate that returned the given name
 	void release(U32 name, volatile U8* buffer, U32 size);
 	
+	//batch allocate buffers to be provided to the application on demand
+	void seedPool();
+
 	//destroy all records in mFreeList
 	void cleanup();
 
@@ -83,6 +83,8 @@ public:
 
 	typedef std::list<Record> record_list_t;
 	std::vector<record_list_t> mFreeList;
+	std::vector<U32> mMissCount;
+
 };
 
 class LLGLFence
@@ -128,6 +130,8 @@ public:
 	static bool	sUseStreamDraw;
 	static bool sUseVAO;
 	static bool	sPreferStreamDraw;
+
+	static void seedPools();
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();

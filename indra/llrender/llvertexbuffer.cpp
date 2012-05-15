@@ -38,7 +38,7 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 
-#define LL_VBO_POOLING 0
+#define LL_VBO_POOLING 1
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
@@ -67,6 +67,7 @@ U32 wpo2(U32 i)
 
 
 const U32 LL_VBO_BLOCK_SIZE = 2048;
+const U32 LL_VBO_POOL_MAX_SEED_SIZE = 256*1024;
 
 U32 vbo_block_size(U32 size)
 { //what block size will fit size?
@@ -79,6 +80,7 @@ U32 vbo_block_index(U32 size)
 	return vbo_block_size(size)/LL_VBO_BLOCK_SIZE;
 }
 
+const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
 
 
 //============================================================================
@@ -169,8 +171,15 @@ public:
 
 };
 
+LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
+: mUsage(vboUsage), mType(vboType)
+{
+	mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
+	std::fill(mMissCount.begin(), mMissCount.end(), 0);
+}
 
-volatile U8* LLVBOPool::allocate(U32& name, U32 size)
+
+volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 {
 	llassert(vbo_block_size(size) == size);
 	
@@ -183,13 +192,19 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size)
 	if (mFreeList.size() <= i)
 	{
 		mFreeList.resize(i+1);
+		mMissCount.resize(i+1);
 	}
 
-	if (mFreeList[i].empty())
+	if (mFreeList[i].empty() || for_seed)
 	{
 		//make a new buffer
 		glGenBuffersARB(1, &name);
 		glBindBufferARB(mType, name);
+
+		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
+		{ //record this miss
+			mMissCount[i]++;	
+		}
 
 		if (mType == GL_ARRAY_BUFFER_ARB)
 		{
@@ -211,6 +226,25 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size)
 		}
 
 		glBindBufferARB(mType, 0);
+
+		if (for_seed)
+		{ //put into pool for future use
+			llassert(mFreeList.size() > i);
+
+			Record rec;
+			rec.mGLName = name;
+			rec.mClientData = ret;
+	
+			if (mType == GL_ARRAY_BUFFER_ARB)
+			{
+				sBytesPooled += size;
+			}
+			else
+			{
+				sIndexBytesPooled += size;
+			}
+			mFreeList[i].push_back(rec);
+		}
 	}
 	else
 	{
@@ -263,7 +297,7 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 {
 	llassert(vbo_block_size(size) == size);
 
-#if LL_VBO_POOLING
+#if 0 && LL_VBO_POOLING
 
 	U32 i = vbo_block_index(size);
 
@@ -304,6 +338,31 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 #endif
 }
 
+void LLVBOPool::seedPool()
+{
+	U32 dummy_name = 0;
+
+	if (mFreeList.size() < LL_VBO_POOL_SEED_COUNT)
+	{
+		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
+	}
+
+	for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
+	{
+		if (mMissCount[i] > mFreeList[i].size())
+		{ 
+			U32 size = i*LL_VBO_BLOCK_SIZE;
+		
+			S32 count = mMissCount[i] - mFreeList[i].size();
+			for (U32 j = 0; j < count; ++j)
+			{
+				allocate(dummy_name, size, true);
+			}
+		}
+	}
+}
+
+
 void LLVBOPool::cleanup()
 {
 	U32 size = 1;
@@ -339,6 +398,9 @@ void LLVBOPool::cleanup()
 
 		size *= 2;
 	}
+
+	//reset miss counts
+	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
 
 
@@ -372,6 +434,15 @@ U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
 	GL_LINE_LOOP,
 };
 
+
+//static
+void LLVertexBuffer::seedPools()
+{
+	sStreamVBOPool.seedPool();
+	sDynamicVBOPool.seedPool();
+	sStreamIBOPool.seedPool();
+	sDynamicIBOPool.seedPool();
+}
 
 //static
 void LLVertexBuffer::setupClientArrays(U32 data_mask)
