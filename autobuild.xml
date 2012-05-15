@@ -966,9 +966,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dd87a5ffe89b01e6f60a4b9bb13baf99</string>
+              <string>48013e4f7ccc0a1daa224885e0221d29</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/250131/arch/Darwin/installer/kdu-7.0.0-darwin-20120227.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256864/arch/Darwin/installer/kdu-7.0.0-darwin-20120514.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
