@@ -688,12 +688,15 @@ void LLTextBase::drawText()
 				squiggle_start += squiggle_end / 2 - pony * 3;
 				squiggle_end = squiggle_start + pony * 6;
 
+				S32 squiggle_bottom = text_rect.mBottom + (S32)cur_segment->getStyle()->getFont()->getDescenderHeight();
+
 				gGL.color4ub(255, 0, 0, 200);
-				while (squiggle_start < squiggle_end)
+				while (squiggle_start + 1 < squiggle_end)
 				{
-					gl_line_2d(squiggle_start, text_rect.mBottom - 2, squiggle_start + 3, text_rect.mBottom + 1);
-					gl_line_2d(squiggle_start + 3, text_rect.mBottom + 1, squiggle_start + 6, text_rect.mBottom - 2);
-					squiggle_start += 6;
+					gl_line_2d(squiggle_start, squiggle_bottom, squiggle_start + 2, squiggle_bottom - 2);
+					if (squiggle_start + 3 < squiggle_end)
+						gl_line_2d(squiggle_start + 2, squiggle_bottom - 3, squiggle_start + 4, squiggle_bottom - 1);
+					squiggle_start += 4;
 				}
 
 				if (misspell_it->second > seg_end)
