@@ -5389,12 +5389,11 @@ void handle_maturity_preference_change(const LLSD &pResponse, int pMaturityRatin
 {
 	if (pResponse.isUndefined())
 	{
-		// XXX stinson 05/11/2012 llinfos << "Maturity response ==> <null>" << llendl;
+		// XXX stinson 05/15/2012 : should report some notification that the preference has not changed
 		gAgent.clearFailedTeleportRequest();
 	}
 	else
 	{
-		// XXX stinson 05/11/2012 linfos << "Maturity response ==> '" << pResponse << "'" << llendl;
 		gAgent.setMaturityRatingChangeDuringTeleport(pMaturityRatingChange);
 		gAgent.restartFailedTeleportRequest();
 	}

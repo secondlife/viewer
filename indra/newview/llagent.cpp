@@ -3604,7 +3604,7 @@ bool LLAgent::teleportCore(bool is_local)
 
 void LLAgent::restartFailedTeleportRequest()
 {
-	// XXX stinson 05/11/2012 llassert(hasFailedTeleportRequest());
+	llassert(hasFailedTeleportRequest());
 	if (hasFailedTeleportRequest())
 	{
 		mFailedTeleportRequest->doTeleport();
@@ -3613,7 +3613,6 @@ void LLAgent::restartFailedTeleportRequest()
 
 void LLAgent::clearFailedTeleportRequest()
 {
-	// XXX stinson 05/11/2012 llassert(hasFailedTeleportRequest());
 	if (hasFailedTeleportRequest())
 	{
 		mFailedTeleportRequest.reset();
@@ -3628,7 +3627,6 @@ void LLAgent::setMaturityRatingChangeDuringTeleport(int pMaturityRatingChange)
 
 void LLAgent::handleTeleportFinished()
 {
-	// XXX stinson 05/11/2012 llassert(hasCurrentTeleportRequest());
 	if (hasCurrentTeleportRequest())
 	{
 		mCurrentTeleportRequest.reset();
@@ -3649,8 +3647,6 @@ void LLAgent::handleTeleportFinished()
 
 void LLAgent::handleTeleportFailed()
 {
-	// XXX stinson 05/11/2012 llassert(hasCurrentTeleportRequest());
-	// XXX stinson 05/11/2012 llassert(!hasFailedTeleportRequest());
 	if (hasCurrentTeleportRequest())
 	{
 		mFailedTeleportRequest = mCurrentTeleportRequest;
@@ -3690,7 +3686,6 @@ void LLAgent::teleportRequest(
 // Landmark ID = LLUUID::null means teleport home
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
 	mCurrentTeleportRequest->doTeleport();
 }
@@ -3712,7 +3707,6 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
-	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
 	mCurrentTeleportRequest->doTeleport();
 }
@@ -3768,7 +3762,6 @@ void LLAgent::teleportCancel()
 
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
-	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
 	mCurrentTeleportRequest->doTeleport();
 }
@@ -3817,7 +3810,6 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 // Teleport to global position, but keep facing in the same direction 
 void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
 {
-	// XXX stinson 05/11/2012 llassert(!hasCurrentTeleportRequest());
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
 	mCurrentTeleportRequest->doTeleport();
 }
