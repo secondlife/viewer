@@ -64,7 +64,6 @@ mParticipantList(NULL)
 
 BOOL LLPanelGroupControlPanel::postBuild()
 {
-	childSetAction("group_info_btn", boost::bind(&LLPanelGroupControlPanel::onGroupInfoButtonClicked, this));
 
 	return LLPanelChatControlPanel::postBuild();
 }
@@ -84,10 +83,6 @@ void LLPanelGroupControlPanel::draw()
 	LLPanelChatControlPanel::draw();
 }
 
-void LLPanelGroupControlPanel::onGroupInfoButtonClicked()
-{
-	LLGroupActions::show(mGroupID);
-}
 
 void LLPanelGroupControlPanel::onSortMenuItemClicked(const LLSD& userdata)
 {
@@ -114,7 +109,7 @@ void LLPanelGroupControlPanel::setSessionId(const LLUUID& session_id)
 	if(!mParticipantList)
 	{
 		LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(session_id);
-		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true,false);
+		mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
 	}
 }
 

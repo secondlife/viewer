@@ -69,7 +69,6 @@ protected:
 	LLParticipantList* mParticipantList;
 
 private:
-	void onGroupInfoButtonClicked();
 	void onSortMenuItemClicked(const LLSD& userdata);
 };
 
