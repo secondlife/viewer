@@ -32,6 +32,7 @@
 #include "llagent.h"
 
 #include "llimview.h"
+#include "llpanelpeoplemenus.h"
 #include "llnotificationsutil.h"
 #include "llparticipantlist.h"
 #include "llspeakers.h"
@@ -197,10 +198,10 @@ private:
 	uuid_set_t mAvalineCallers;
 };
 
-LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, 
+LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 									 LLAvatarList* avatar_list,
 									 bool use_context_menu/* = true*/,
-									 bool exclude_agent /*= true*/, 
+									 bool exclude_agent /*= true*/,
 									 bool can_toggle_icons /*= true*/) :
 	mSpeakerMgr(data_source),
 	mAvatarList(avatar_list),
@@ -233,8 +234,9 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source,
 
 	if (use_context_menu)
 	{
-		mParticipantListMenu = new LLParticipantListMenu(*this);
-		mAvatarList->setContextMenu(mParticipantListMenu);
+		//mParticipantListMenu = new LLParticipantListMenu(*this);
+		//mAvatarList->setContextMenu(mParticipantListMenu);
+		mAvatarList->setContextMenu(&LLPanelPeopleMenus::gNearbyMenu);
 	}
 	else
 	{
@@ -670,7 +672,7 @@ bool LLParticipantList::SpeakerMuteListener::handleEvent(LLPointer<LLOldEvents::
 	return mParent.onSpeakerMuteEvent(event, userdata);
 }
 
-LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
+/*LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 {
 	// set up the callbacks for all of the avatar menu items
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
@@ -708,7 +710,7 @@ LLContextMenu* LLParticipantList::LLParticipantListMenu::createMenu()
 	main_menu->arrangeAndClear();
 
 	return main_menu;
-}
+}*/
 
 void LLParticipantList::LLParticipantListMenu::show(LLView* spawning_view, const uuid_vec_t& uuids, S32 x, S32 y)
 {
