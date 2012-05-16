@@ -4111,28 +4111,30 @@ You are not allowed in that region due to your maturity Rating.
    type="alertmodal">
    <tag>fail</tag>
     <tag>confirm</tag>
-You are not allowed in that Region due to your maturity Rating preference.
-
-To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, or you can cancel this teleport.
 	 <form name="form">
       <button
        index="0"
        name="OK"
-       text="Change Preference"/>
+       text="Change my preferences"/>
       <button
        default="true"
        index="1"
        name="Cancel"
-       text="Close"/>
+       text="Cancel teleport"/>
        <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
     </form>
   </notification>
 
   <notification
-   icon="notifytip.tga"
+   icon="alertmodal.tga"
    name="PreferredMaturityChanged"
-   type="notifytip">
-Your maturity Rating preference is now [RATING].
+   type="alertmodal">
+You won't receive any more notifications that you're about to visit an [RATING] region.  You may change your content preferences in the future by using Me &gt; Preferences &gt; General from the menu bar.
+  <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
