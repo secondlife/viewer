@@ -3604,7 +3604,6 @@ bool LLAgent::teleportCore(bool is_local)
 
 void LLAgent::restartFailedTeleportRequest()
 {
-	llassert(hasFailedTeleportRequest());
 	if (hasFailedTeleportRequest())
 	{
 		mFailedTeleportRequest->doTeleport();
@@ -3707,8 +3706,29 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
+#if 0
+	// stinson 05/15/2012 : cannot restart a teleport via lure because of server-side restrictions
+	// The current scenario is as follows:
+	//    1. User A initializes a request for User B to teleport via lure
+	//    2. User B accepts the teleport via lure request
+	//    3. The server sees the init request from User A and the accept request from User B and matches them up
+	//    4. The server then removes the paired requests up from the "queue"
+	//    5. The server then fails User B's teleport for reason of maturity level (for example)
+	//    6. User B's viewer prompts user to increase their maturity level profile value.
+	//    7. User B confirms and accepts increase in maturity level
+	//    8. User B's viewer then attempts to teleport via lure again
+	//    9. This fails on the server because User A's initial request has been removed from the "queue" in step 4
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
 	mCurrentTeleportRequest->doTeleport();
+#else
+	// Clear any current and failed teleports.
+	mCurrentTeleportRequest.reset();
+	clearFailedTeleportRequest();
+
+	// Do not persist the teleport via lure request as it is only temporary and cannot be restarted
+	LLTeleportRequestPtr currentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
+	currentTeleportRequest->doTeleport();
+#endif
 }
 
 void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
