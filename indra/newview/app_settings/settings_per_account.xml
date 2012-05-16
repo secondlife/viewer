@@ -22,6 +22,61 @@
         <key>Value</key>
             <string>The Resident you messaged is in &apos;busy mode&apos; which means they have requested not to be disturbed.  Your message will still be shown in their IM panel for later viewing.</string>
         </map>
+    <key>ConversationsExpandMessagePaneFirst</key>
+    <map>
+        <key>Comment</key>
+            <string>Expand either messages or conversations list pane from Conversations compact mode.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>1</integer>
+    </map>
+    <key>ConversationsListPaneCollapsed</key>
+    <map>
+        <key>Comment</key>
+            <string>Stores the expanded/collapsed state of the conversations list pane in Conversations floater.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
+    <key>ConversationsListPaneWidth</key>
+    <map>
+        <key>Comment</key>
+            <string>Conversations floater list pane width.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>268</integer>
+    </map>
+    <key>ConversationsMessagePaneCollapsed</key>
+    <map>
+        <key>Comment</key>
+            <string>Stores the expanded/collapsed state of Conversations floater message pane.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>Boolean</string>
+        <key>Value</key>
+            <integer>0</integer>
+    </map>
+    <key>ConversationsMessagePaneWidth</key>
+    <map>
+        <key>Comment</key>
+            <string>Conversations floater message pane width.</string>
+        <key>Persist</key>
+            <integer>1</integer>
+        <key>Type</key>
+            <string>S32</string>
+        <key>Value</key>
+            <integer>412</integer>
+    </map>
     <key>InstantMessageLogPath</key>
         <map>
         <key>Comment</key>

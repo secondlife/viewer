@@ -93,6 +93,9 @@ protected:
 	LLTabContainer::TabPosition mTabPos;
 	BOOL				mAutoResize;
 	S32					mOrigMinWidth, mOrigMinHeight;  // logically const but initialized late
+
+private:
+	virtual void computeResizeLimits(S32& new_min_width, S32& new_min_height);
 };
 
 #endif  // LL_MULTI_FLOATER_H

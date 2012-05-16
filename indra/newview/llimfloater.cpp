@@ -188,7 +188,7 @@ void LLIMFloater::onOpen(const LLSD& key)
 	if (host_floater)
 	{
 		// Show the messages pane when opening a floater hosted in the Conversations
-		host_floater->toggleMessagesPane(true);
+		host_floater->collapseMessagesPane(false);
 	}
 }
 
@@ -536,7 +536,7 @@ void LLIMFloater::onSlide()
 	if (host_floater)
 	{
 		// Hide the messages pane if a floater is hosted in the Conversations
-		host_floater->toggleMessagesPane(false);
+		host_floater->collapseMessagesPane(true);
 	}
 	else ///< floater is torn off
 	{

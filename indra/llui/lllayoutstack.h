@@ -177,6 +177,8 @@ public:
 	F32 getVisibleAmount() const;
 	S32 getVisibleDim() const;
 
+	bool isCollapsed() const { return mCollapsed;}
+
 	void setOrientation(LLLayoutStack::ELayoutOrientation orientation);
 	void storeOriginalDim();
 

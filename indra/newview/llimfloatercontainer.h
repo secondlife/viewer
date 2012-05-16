@@ -35,6 +35,9 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llgroupmgr.h"
 
+class LLButton;
+class LLLayoutPanel;
+class LLLayoutStack;
 class LLTabContainer;
 
 class LLIMFloaterContainer : public LLMultiFloater
@@ -60,16 +63,27 @@ public:
 
 	virtual void setMinimized(BOOL b);
 
-	void toggleMessagesPane(bool expand);
+	void collapseMessagesPane(bool collapse);
 
 private:
 	typedef std::map<LLUUID,LLFloater*> avatarID_panel_map_t;
 	avatarID_panel_map_t mSessions;
 	boost::signals2::connection mNewMessageConnection;
 
+	/*virtual*/ void computeResizeLimits(S32& new_min_width, S32& new_min_height);
+
 	void onNewMessageReceived(const LLSD& data);
 
-	S32	mMessagesPaneWidth;
+	void onExpandCollapseButtonClicked();
+
+	void collapseConversationsPane(bool collapse);
+
+	void updateState(bool collapse, S32 delta_width);
+
+	LLButton* mExpandCollapseBtn;
+	LLLayoutPanel* mMessagesPane;
+	LLLayoutPanel* mConversationsPane;
+	LLLayoutStack* mConversationsStack;
 };
 
 #endif // LL_LLIMFLOATERCONTAINER_H

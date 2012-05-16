@@ -28,19 +28,23 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llimfloatercontainer.h"
+
 #include "llfloaterreg.h"
-#include "llimview.h"
+#include "lllayoutstack.h"
+
+#include "llagent.h"
 #include "llavatariconctrl.h"
 #include "llgroupiconctrl.h"
-#include "llagent.h"
+#include "llimview.h"
 #include "lltransientfloatermgr.h"
+#include "llviewercontrol.h"
 
 //
 // LLIMFloaterContainer
 //
 LLIMFloaterContainer::LLIMFloaterContainer(const LLSD& seed)
 :	LLMultiFloater(seed)
-    ,mMessagesPaneWidth(0)
+	,mExpandCollapseBtn(NULL)
 {
 	mAutoResize = FALSE;
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
@@ -50,6 +54,9 @@ LLIMFloaterContainer::~LLIMFloaterContainer()
 {
 	mNewMessageConnection.disconnect();
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
+
+	gSavedPerAccountSettings.setBOOL("ConversationsListPaneCollapsed", mConversationsPane->isCollapsed());
+	gSavedPerAccountSettings.setBOOL("ConversationsMessagePaneCollapsed", mMessagesPane->isCollapsed());
 }
 
 BOOL LLIMFloaterContainer::postBuild()
@@ -59,6 +66,16 @@ BOOL LLIMFloaterContainer::postBuild()
 	// mTabContainer will be initialized in LLMultiFloater::addChild()
 	
 	setTabContainer(getChild<LLTabContainer>("im_box_tab_container"));
+
+	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
+	mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
+	mMessagesPane = getChild<LLLayoutPanel>("messages_layout_panel");
+
+	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
+	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
+
+	collapseMessagesPane(gSavedPerAccountSettings.getBOOL("ConversationsMessagePaneCollapsed"));
+	collapseConversationsPane(gSavedPerAccountSettings.getBOOL("ConversationsListPaneCollapsed"));
 
 	return TRUE;
 }
@@ -146,6 +163,37 @@ void LLIMFloaterContainer::onCloseFloater(LLUUID& id)
 	mSessions.erase(id);
 }
 
+// virtual
+void LLIMFloaterContainer::computeResizeLimits(S32& new_min_width, S32& new_min_height)
+{
+	bool is_left_pane_expanded = !mConversationsPane->isCollapsed();
+	bool is_right_pane_expanded = !mMessagesPane->isCollapsed();
+
+	S32 conversations_pane_min_dim = mConversationsPane->getMinDim();
+
+	if (is_right_pane_expanded)
+	{
+		S32 conversations_pane_width =
+				(is_left_pane_expanded ? gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") : conversations_pane_min_dim);
+
+		// possibly increase minimum size constraint due to children's minimums.
+		for (S32 tab_idx = 0; tab_idx < mTabContainer->getTabCount(); ++tab_idx)
+		{
+			LLFloater* floaterp = dynamic_cast<LLFloater*>(mTabContainer->getPanelByIndex(tab_idx));
+			if (floaterp)
+			{
+				new_min_width = llmax(new_min_width,
+						floaterp->getMinWidth() + conversations_pane_width + LLPANEL_BORDER_WIDTH * 2);
+				new_min_height = llmax(new_min_height, floaterp->getMinHeight());
+			}
+		}
+	}
+	else
+	{
+		new_min_width = conversations_pane_min_dim;
+	}
+}
+
 void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
 {
 	LLUUID session_id = data["session_id"].asUUID();
@@ -157,6 +205,21 @@ void LLIMFloaterContainer::onNewMessageReceived(const LLSD& data)
 		if(LLMultiFloater::isFloaterFlashing(floaterp))
 			LLMultiFloater::setFloaterFlashing(floaterp, FALSE);
 		LLMultiFloater::setFloaterFlashing(floaterp, TRUE);
+	}
+}
+
+void LLIMFloaterContainer::onExpandCollapseButtonClicked()
+{
+	if (mConversationsPane->isCollapsed() && mMessagesPane->isCollapsed()
+			&& gSavedPerAccountSettings.getBOOL("ConversationsExpandMessagePaneFirst"))
+	{
+		// Expand the messages pane from ultra minimized state
+		// if it was collapsed last in order.
+		collapseMessagesPane(false);
+	}
+	else
+	{
+		collapseConversationsPane(!mConversationsPane->isCollapsed());
 	}
 }
 
@@ -186,29 +249,67 @@ void LLIMFloaterContainer::setMinimized(BOOL b)
 	}
 }
 
-void LLIMFloaterContainer::toggleMessagesPane(bool expand)
+void LLIMFloaterContainer::collapseMessagesPane(bool collapse)
 {
-	LLView* messages_pane = getChild<LLView>("im_box_tab_container");
-	bool is_expanded = messages_pane->getVisible();
-	if (is_expanded == expand)
+	if (mMessagesPane->isCollapsed() == collapse)
 	{
 		return;
 	}
 
-	// Store the messages pane width before collapsing it.
-	if (!expand)
+	if (collapse)
 	{
-		LLView* conversations_pane = getChild<LLView>("conversations_pane");
-		S32 horizontal_pad = messages_pane->getRect().mLeft - conversations_pane->getRect().mRight;
-		mMessagesPaneWidth = messages_pane->getRect().getWidth() + horizontal_pad;
+		// Save the messages pane width before collapsing it.
+		gSavedPerAccountSettings.setS32("ConversationsMessagePaneWidth", mMessagesPane->getRect().getWidth());
+
+		// Save the order in which the panels are closed to reverse user's last action.
+		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", mConversationsPane->isCollapsed());
 	}
 
 	// Show/hide the messages pane.
-	messages_pane->setVisible(expand);
+	mConversationsStack->collapsePanel(mMessagesPane, collapse);
 
-	S32 floater_width = getRect().getWidth();
-	floater_width += (expand ? mMessagesPaneWidth : -mMessagesPaneWidth);
-	reshape(floater_width, getRect().getHeight());
+	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsMessagePaneWidth"));
+}
+
+void LLIMFloaterContainer::collapseConversationsPane(bool collapse)
+{
+	if (mConversationsPane->isCollapsed() == collapse)
+	{
+		return;
+	}
+
+	LLView* button_panel = getChild<LLView>("conversations_pane_buttons_expanded");
+	button_panel->setVisible(!collapse);
+	mExpandCollapseBtn->setImageOverlay(getString(collapse ? "expand_icon" : "collapse_icon"));
+
+	if (collapse)
+	{
+		// Save the conversations pane width before collapsing it.
+		gSavedPerAccountSettings.setS32("ConversationsListPaneWidth", mConversationsPane->getRect().getWidth());
+
+		// Save the order in which the panels are closed to reverse user's last action.
+		gSavedPerAccountSettings.setBOOL("ConversationsExpandMessagePaneFirst", !mMessagesPane->isCollapsed());
+	}
+
+	mConversationsStack->collapsePanel(mConversationsPane, collapse);
+
+	S32 collapsed_width = mConversationsPane->getMinDim();
+	updateState(collapse, gSavedPerAccountSettings.getS32("ConversationsListPaneWidth") - collapsed_width);
+}
+
+void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
+{
+	LLRect floater_rect = getRect();
+	floater_rect.mRight += ((collapse ? -1 : 1) * delta_width);
+	setShape(floater_rect);
+
+	updateResizeLimits();
+
+	bool is_left_pane_expanded = !mConversationsPane->isCollapsed();
+	bool is_right_pane_expanded = !mMessagesPane->isCollapsed();
+
+	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
+	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
 }
 
 // EOF

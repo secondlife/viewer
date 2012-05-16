@@ -5,7 +5,7 @@
  can_resize="true"
  height="430"
  layout="topleft"
- min_width="510"
+ min_height="50"
  name="floater_im_box"
  help_topic="floater_im_box"
  save_rect="true"
@@ -13,62 +13,110 @@
  single_instance="true"
  title="CONVERSATIONS"
  width="680">
-    <panel
-         border="true"
-         follows="top|bottom|left"
-         layout="topleft"
-         name="conversations_pane"
-         opaque="true"
-         top="0"
-         left="5"
-         height="425"
-         width="263">
-             <menu_button
-                 follows="top|left"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="OptionsMenu_Off"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 left="5"
-                 name="sort_btn"
-                 top="5"
-                 width="31" />
-             <button
-                 follows="top|left"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="AddItem_Off"
-                 image_selected="Toolbar_Middle_Selected"
-             	 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 top="5"
-                 left_pad="4"
-                 name="add_btn"
-                 tool_tip="Add button on the left panel"
-                 width="31">
-             </button>
-             <button
-                 follows="right|top"
-                 height="25"
-                 image_hover_unselected="Toolbar_Middle_Over"
-                 image_overlay="TabIcon_Open_Off"
-                 image_selected="Toolbar_Middle_Selected"
-                 image_unselected="Toolbar_Middle_Off"
-                 layout="topleft"
-                 top="5"
-                 left="228"
-                 name="expand_collapse_btn"
-                 width="31" />
-    </panel>
-    <panel_container
+    <string
+     name="collapse_icon"
+     value="TabIcon_Open_Off"/>
+    <string
+     name="expand_icon"
+     value="TabIcon_Close_Off"/>
+    <layout_stack
+     animate="true" 
      follows="all"
      height="430"
      layout="topleft"
-     left_pad="15"
-     min_width="290"
-     name="im_box_tab_container"
+     left="0"
+     name="conversations_stack"
+     orientation="horizontal"
      top="0"
-     width="389"/>
+     width="680">
+        <layout_panel
+         auto_resize="true"
+         height="430"
+         name="conversations_layout_panel"
+         min_dim="41"
+         width="268">
+            <layout_stack
+             animate="false" 
+             follows="left|top|right"
+             height="35"
+             layout="topleft"
+             left="0"
+             name="conversations_pane_buttons_stack"
+             orientation="horizontal"
+             top="0"
+             width="268">
+                <layout_panel
+                 auto_resize="true"
+                 height="35"
+                 name="conversations_pane_buttons_expanded">
+                    <menu_button
+                     follows="top|left"
+                     height="25"
+                     image_hover_unselected="Toolbar_Middle_Over"
+                     image_overlay="OptionsMenu_Off"
+                     image_selected="Toolbar_Middle_Selected"
+                     image_unselected="Toolbar_Middle_Off"
+                     layout="topleft"
+                     left="10"
+                     name="sort_btn"
+                     top="5"
+                     width="31" />
+                    <button
+                     follows="top|left"
+                     height="25"
+                     image_hover_unselected="Toolbar_Middle_Over"
+                     image_overlay="AddItem_Off"
+                     image_selected="Toolbar_Middle_Selected"
+                      image_unselected="Toolbar_Middle_Off"
+                     layout="topleft"
+                     top="5"
+                     left_pad="4"
+                     name="add_btn"
+                     tool_tip="Add button on the left panel"
+                     width="31"/>
+                </layout_panel>
+                <layout_panel
+                 auto_resize="false"
+                 height="35"
+                 name="conversations_pane_buttons_collapsed"
+                 width="41">
+                    <button
+                     follows="right|top"
+                     height="25"
+                     image_hover_unselected="Toolbar_Middle_Over"
+                     image_overlay="TabIcon_Open_Off"
+                     image_selected="Toolbar_Middle_Selected"
+                     image_unselected="Toolbar_Middle_Off"
+                     layout="topleft"
+                     top="5"
+                     left="5"
+                     name="expand_collapse_btn"
+                     width="31" />
+                </layout_panel>
+            </layout_stack>
+            <panel
+             follows="all"
+             layout="topleft"
+             name="conversations_list_panel"
+             opaque="true"
+             top_pad="0"
+             left="5"
+             height="390"
+             width="263"/>
+        </layout_panel>
+        <layout_panel
+         auto_resize="true"
+         height="430"
+         name="messages_layout_panel"
+         width="412">
+            <panel_container
+             follows="all"
+             height="430"
+             layout="topleft"
+             left="10"
+             name="im_box_tab_container"
+             top="0"
+             width="402"/>
+        </layout_panel>
+    </layout_stack>
 </multi_floater>
