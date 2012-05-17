@@ -4139,6 +4139,17 @@ You won't receive any more notifications that you're about to visit a region wit
 
   <notification
    icon="alertmodal.tga"
+   name="MaturityCouldNotBeChanged"
+   type="alertmodal">
+We were unable to change your preferences to view [RATING] content at this time.  Please attempt to change your preferences by using Me &gt; Preferences &gt; General from the menu bar, and then retrying your teleport.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LandClaimAccessBlocked"
    type="alertmodal">
 You cannot claim this land due to your maturity Rating. This may be a result of a lack of information validating your age.

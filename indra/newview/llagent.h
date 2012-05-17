@@ -580,7 +580,7 @@ public:
 	inline bool     hasFailedTeleportRequest() {return (mFailedTeleportRequest != NULL);};
 	void            restartFailedTeleportRequest();
 	void            clearFailedTeleportRequest();
-	void            setMaturityRatingChangeDuringTeleport(int pMaturityRatingChange);
+	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
 
 private:
 	friend class LLTeleportRequest;
@@ -595,7 +595,7 @@ private:
 	boost::signals2::connection mTeleportFailedSlot;
 
 	bool            mIsMaturityRatingChangingDuringTeleport;
-	int             mMaturityRatingChange;
+	U8              mMaturityRatingChange;
 
 	void 			teleportRequest(const U64& region_handle,
 									const LLVector3& pos_local,				// Go to a named location home

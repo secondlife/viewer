@@ -42,6 +42,7 @@
 #include "llinventorydefines.h"
 #include "lllslconstants.h"
 #include "llregionhandle.h"
+#include "llsd.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
 #include "lltransactionflags.h"
@@ -107,6 +108,7 @@
 #include "llagentui.h"
 #include "llpanelblockedlist.h"
 #include "llpanelplaceprofile.h"
+#include "llviewerregion.h"
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
@@ -5385,17 +5387,101 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 }
 
-void handle_maturity_preference_change(const LLSD &pResponse, int pMaturityRatingChange)
+void handle_maturity_preference_change(const LLSD &pResponse, U8 pMaturityRatingChange)
 {
-	if (pResponse.isUndefined())
+	bool isMaturityPreferenceElevated = false;
+	U8 actualPrefValue = SIM_ACCESS_MIN;
+
+	llassert(!pResponse.isUndefined());
+	llassert(pResponse.isMap());
+	llassert(pResponse.has("access_prefs"));
+	llassert(pResponse.get("access_prefs").isMap());
+	llassert(pResponse.get("access_prefs").has("max"));
+	llassert(pResponse.get("access_prefs").get("max").isString());
+
+	if (!pResponse.isUndefined() && pResponse.isMap() && pResponse.has("access_prefs") &&
+		pResponse.get("access_prefs").isMap() && pResponse.get("access_prefs").has("max") &&
+		pResponse.get("access_prefs").get("max").isString())
 	{
-		// XXX stinson 05/15/2012 : should report some notification that the preference has not changed
-		gAgent.clearFailedTeleportRequest();
+		LLSD::String actualPreference = pResponse.get("access_prefs").get("max").asString();
+		LLStringUtil::trim(actualPreference);
+		actualPrefValue = LLViewerRegion::shortStringToAccess(actualPreference);
 	}
-	else
+
+	switch (actualPrefValue)
+	{
+	case SIM_ACCESS_MIN :
+		switch (pMaturityRatingChange)
+		{
+		case SIM_ACCESS_MIN :
+			isMaturityPreferenceElevated = true;
+			break;
+		case SIM_ACCESS_PG :
+		case SIM_ACCESS_MATURE :
+		case SIM_ACCESS_ADULT :
+		default :
+			isMaturityPreferenceElevated = false;
+			break;
+		}
+		break;
+	case SIM_ACCESS_PG :
+		switch (pMaturityRatingChange)
+		{
+		case SIM_ACCESS_MIN :
+		case SIM_ACCESS_PG :
+			isMaturityPreferenceElevated = true;
+			break;
+		case SIM_ACCESS_MATURE :
+		case SIM_ACCESS_ADULT :
+		default :
+			isMaturityPreferenceElevated = false;
+			break;
+		}
+		break;
+	case SIM_ACCESS_MATURE :
+		switch (pMaturityRatingChange)
+		{
+		case SIM_ACCESS_MIN :
+		case SIM_ACCESS_PG :
+		case SIM_ACCESS_MATURE :
+			isMaturityPreferenceElevated = true;
+			break;
+		case SIM_ACCESS_ADULT :
+		default :
+			isMaturityPreferenceElevated = false;
+			break;
+		}
+		break;
+	case SIM_ACCESS_ADULT :
+		switch (pMaturityRatingChange)
+		{
+		case SIM_ACCESS_MIN :
+		case SIM_ACCESS_PG :
+		case SIM_ACCESS_MATURE :
+		case SIM_ACCESS_ADULT :
+			isMaturityPreferenceElevated = true;
+			break;
+		default :
+			isMaturityPreferenceElevated = false;
+			break;
+		}
+		break;
+	default :
+		isMaturityPreferenceElevated = false;
+		break;
+	}
+
+	if (isMaturityPreferenceElevated)
 	{
 		gAgent.setMaturityRatingChangeDuringTeleport(pMaturityRatingChange);
 		gAgent.restartFailedTeleportRequest();
+	}
+	else
+	{
+		LLSD args;
+		args["RATING"] = LLViewerRegion::accessToString(pMaturityRatingChange);
+		LLNotificationsUtil::add("MaturityCouldNotBeChanged", args);
+		gAgent.clearFailedTeleportRequest();
 	}
 }
 
@@ -5406,8 +5492,8 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 	if (0 == option)
 	{
 		// set the preference to the maturity of the region we're calling
-		int preferredMaturity = notification["payload"]["_region_access"].asInteger();
-		gSavedSettings.setU32("PreferredMaturity", preferredMaturity);
+		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
+		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
 		gAgent.sendMaturityPreferenceToServer(preferredMaturity, boost::bind(&handle_maturity_preference_change, _1, preferredMaturity));
 	}
 	else
@@ -5421,7 +5507,7 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 // some of the server notifications need special handling. This is where we do that.
 bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 {
-	int regionAccess = llsdBlock["_region_access"].asInteger();
+	U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
 	llsdBlock["REGIONMATURITY"] = LLViewerRegion::accessToString(regionAccess);
 	
 	bool returnValue = false;

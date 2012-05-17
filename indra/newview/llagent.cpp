@@ -325,7 +325,7 @@ LLAgent::LLAgent() :
 	mTeleportFinishedSlot(),
 	mTeleportFailedSlot(),
 	mIsMaturityRatingChangingDuringTeleport(false),
-	mMaturityRatingChange(0),
+	mMaturityRatingChange(0U),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -3618,7 +3618,7 @@ void LLAgent::clearFailedTeleportRequest()
 	}
 }
 
-void LLAgent::setMaturityRatingChangeDuringTeleport(int pMaturityRatingChange)
+void LLAgent::setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange)
 {
 	mIsMaturityRatingChangingDuringTeleport = true;
 	mMaturityRatingChange = pMaturityRatingChange;
