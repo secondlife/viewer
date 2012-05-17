@@ -399,6 +399,7 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 :	mName(p.name),
 	mType(p.type),
 	mMessage(p.value),
+	mFooter(p.footer.value),
 	mLabel(p.label),
 	mIcon(p.icon),
 	mURL(p.url.value),
@@ -867,6 +868,15 @@ std::string LLNotification::getMessage() const
 
 	std::string message = mTemplatep->mMessage;
 	LLStringUtil::format(message, mSubstitutions);
+	return message;
+}
+
+std::string LLNotification::getFooter() const
+{
+	if (!mTemplatep)
+		return std::string();
+
+	std::string message = mTemplatep->mFooter;
 	return message;
 }
 
