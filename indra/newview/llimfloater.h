@@ -134,14 +134,11 @@ public:
 
 protected:
 	/* virtual */ void onClickCloseBtn();
-	/* virtual */ void updateTitleButtons();
 
 private:
 	// process focus events to set a currently active session
 	/* virtual */ void onFocusLost();
 	/* virtual */ void onFocusReceived();
-
-	void onTearOffClicked(LLIMFloater *self);
 
 	// Update the window title, input field help text, etc.
 	void updateSessionName(const std::string& ui_title, const std::string& ui_label);
@@ -163,6 +160,8 @@ private:
 	static void* createPanelGroupControl(void* userdata);
 	static void* createPanelAdHocControl(void* userdata);
 
+	void onTearOffClicked();
+
 	bool onIMCompactExpandedMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
 	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
@@ -180,6 +179,9 @@ private:
 
 	// Remove the "User is typing..." indicator.
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
+
+	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
+	void updateHeaderAndToolbar();
 
 	static void closeHiddenIMToasts();
 
@@ -212,6 +214,7 @@ private:
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
 
+	LLButton* mCloseBtn;
 	LLButton* mExpandCollapseBtn;
 	LLButton* mTearOffBtn;
 };

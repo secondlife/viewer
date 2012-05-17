@@ -65,6 +65,7 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
 	mInputEditor(NULL),
+	mCloseBtn(NULL),
 	mExpandCollapseBtn(NULL),
 	mTearOffBtn(NULL),
 	mSavedTitle(),
@@ -192,6 +193,8 @@ void LLIMFloater::onOpen(const LLSD& key)
 		// Show the messages pane when opening a floater hosted in the Conversations
 		host_floater->collapseMessagesPane(false);
 	}
+
+	updateHeaderAndToolbar();
 }
 
 // virtual
@@ -308,7 +311,8 @@ BOOL LLIMFloater::postBuild()
 
 	boundVoiceChannel();
 
-	getChild<LLButton>("close_btn")->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
+	mCloseBtn = getChild<LLButton>("close_btn");
+	mCloseBtn->setCommitCallback(boost::bind(&LLFloater::onClickClose, this));
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloater::onSlide, this));
@@ -328,7 +332,7 @@ BOOL LLIMFloater::postBuild()
 	}
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
-	mTearOffBtn->setCommitCallback(boost::bind(&LLFloater::onClickTearOff, this));
+	mTearOffBtn->setCommitCallback(boost::bind(&LLIMFloater::onTearOffClicked, this));
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
@@ -391,10 +395,11 @@ BOOL LLIMFloater::postBuild()
 	}
 }
 
-void LLIMFloater::onTearOffClicked(LLIMFloater* self)
+void LLIMFloater::onTearOffClicked()
 {
-	onClickTearOff(self);
-	updateTitleButtons();
+	onClickTearOff(this);
+
+	updateHeaderAndToolbar();
 }
 
 void LLIMFloater::boundVoiceChannel()
@@ -1256,6 +1261,51 @@ void LLIMFloater::removeTypingIndicator(const LLIMInfo* im_info)
 	}
 }
 
+void LLIMFloater::updateHeaderAndToolbar()
+{
+	bool is_hosted = getHost() != NULL;
+
+	if (is_hosted)
+	{
+		for (S32 i = 0; i < BUTTON_COUNT; i++)
+		{
+			if (!mButtons[i])
+			{
+				continue;
+			}
+
+			// Hide the standard header buttons in a docked IM floater.
+			mButtons[i]->setVisible(false);
+		}
+	}
+
+	// Display collapse image (<<) if the floater is hosted
+	// or if it is torn off but has an open control panel.
+	bool is_expanded = is_hosted || (mControlPanel && mControlPanel->getParent()->getVisible());
+	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
+
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
+	if (session)
+	{
+		// The button (>>) should be disabled for torn off P2P conversations.
+		mExpandCollapseBtn->setEnabled(is_hosted || !session->isP2PSessionType());
+	}
+	else
+	{
+		llwarns << "IM session not found." << llendl;
+	}
+
+	if (mDragHandle)
+	{
+		// toggle floater's drag handle and title visibility
+		mDragHandle->setVisible(!is_hosted);
+	}
+
+	mTearOffBtn->setImageOverlay(getString(is_hosted ? "tear_off_icon" : "return_icon"));
+
+	mCloseBtn->setVisible(is_hosted);
+}
+
 // static
 void LLIMFloater::closeHiddenIMToasts()
 {
@@ -1375,64 +1425,4 @@ void LLIMFloater::onClickCloseBtn()
 	}
 
 	LLFloater::onClickCloseBtn();
-}
-
-// virtual
-void LLIMFloater::updateTitleButtons()
-{
-	// This gets called before LLIMFloater::postBuild() while some LLIMFloater members are NULL
-	if (   !mDragHandle
-		//|| !mControlPanel
-		|| !mExpandCollapseBtn
-		|| !mTearOffBtn)
-	{
-		return;
-	}
-
-	bool is_hosted = getHost() != NULL;
-
-	if (is_hosted) ///< floater is hosted
-	{
-		for (S32 i = 0; i < BUTTON_COUNT; i++)
-		{
-			if (!mButtons[i])
-			{
-				continue;
-			}
-
-			// Hide the standard header buttons in a docked IM floater.
-			mButtons[i]->setVisible(false);
-		}
-
-		mExpandCollapseBtn->setImageOverlay(getString("collapse_icon"));
-
-	}
-	else ///< floater is torn off
-	{
-		LLFloater::updateTitleButtons();
-
-		if (mControlPanel)
-		{
-			bool is_expanded = mControlPanel->getParent()->getVisible();
-			mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
-		}
-	}
-
-	getChild<LLButton>("close_btn")->setVisible(is_hosted);
-
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
-	if (session)
-	{
-		mExpandCollapseBtn->setEnabled(is_hosted || !session->isP2PSessionType());
-	}
-	else
-	{
-		llwarns << "Empty session." << llendl;
-		return;
-	}
-
-	// toggle floater's drag handle and title visibility
-	mDragHandle->setVisible(!is_hosted);
-
-	mTearOffBtn->setImageOverlay(getString(is_hosted ? "tear_off_icon" : "return_icon"));
 }
