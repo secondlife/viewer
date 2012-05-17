@@ -5508,7 +5508,9 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 {
 	U8 regionAccess = static_cast<U8>(llsdBlock["_region_access"].asInteger());
-	llsdBlock["REGIONMATURITY"] = LLViewerRegion::accessToString(regionAccess);
+	std::string regionMaturity = LLViewerRegion::accessToString(regionAccess);
+	LLStringUtil::toLower(regionMaturity);
+	llsdBlock["REGIONMATURITY"] = regionMaturity;
 	
 	bool returnValue = false;
 	LLNotificationPtr maturityLevelNotification;

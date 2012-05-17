@@ -3637,8 +3637,10 @@ void LLAgent::handleTeleportFinished()
 	if (mIsMaturityRatingChangingDuringTeleport)
 	{
 		// notify user that the maturity preference has been changed
+		std::string maturityRating = LLViewerRegion::accessToString(mMaturityRatingChange);
+		LLStringUtil::toLower(maturityRating);
 		LLSD args;
-		args["RATING"] = LLViewerRegion::accessToString(mMaturityRatingChange);
+		args["RATING"] = maturityRating;
 		LLNotificationsUtil::add("PreferredMaturityChanged", args);
 		mIsMaturityRatingChangingDuringTeleport = false;
 	}

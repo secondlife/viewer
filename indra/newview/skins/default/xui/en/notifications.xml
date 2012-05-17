@@ -4102,7 +4102,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
    name="RegionEntryAccessBlocked_Notify"
    type="notifytip">
    <tag>fail</tag>
-    The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
   </notification>
 
   <notification
