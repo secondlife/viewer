@@ -4102,7 +4102,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
    name="RegionEntryAccessBlocked_Notify"
    type="notifytip">
    <tag>fail</tag>
-You are not allowed in that region due to your maturity Rating.
+    The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
   </notification>
 
   <notification
@@ -4111,17 +4111,17 @@ You are not allowed in that region due to your maturity Rating.
    type="alertmodal">
    <tag>fail</tag>
     <tag>confirm</tag>
-The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, or you can cancel this teleport.
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences and continue with the teleport, or you can cancel this teleport.
 	 <form name="form">
       <button
        index="0"
        name="OK"
-       text="Change my preferences"/>
+       text="Change and continue"/>
       <button
        default="true"
        index="1"
        name="Cancel"
-       text="Cancel teleport"/>
+       text="Cancel"/>
        <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
     </form>
   </notification>
@@ -4130,7 +4130,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    icon="alertmodal.tga"
    name="PreferredMaturityChanged"
    type="alertmodal">
-You won't receive any more notifications that you're about to visit an [RATING] region.  You may change your content preferences in the future by using Me &gt; Preferences &gt; General from the menu bar.
+You won't receive any more notifications that you're about to visit a region with [RATING] content.  You may change your content preferences in the future by using Me &gt; Preferences &gt; General from the menu bar.
   <tag>confirm</tag>
     <usetemplate
      name="okbutton"
