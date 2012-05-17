@@ -25,7 +25,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-
 #include "llnearbychat.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
@@ -55,8 +54,42 @@
 #include "llfloaterreg.h"
 #include "lltrans.h"
 
-static const S32 RESIZE_BAR_THICKNESS = 3;
+// --- 2 functions in the global namespace :( ---
+bool isWordsName(const std::string& name)
+{
+	// checking to see if it's display name plus username in parentheses
+	S32 open_paren = name.find(" (", 0);
+	S32 close_paren = name.find(')', 0);
 
+	if (open_paren != std::string::npos &&
+		close_paren == name.length()-1)
+	{
+		return true;
+	}
+	else
+	{
+		//checking for a single space
+		S32 pos = name.find(' ', 0);
+		return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
+	}
+}
+
+std::string appendTime()
+{
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
+		+LLTrans::getString("TimeMin")+"]";
+
+	LLSD substitution;
+
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+
+	return timeStr;
+}
+
+static const S32 RESIZE_BAR_THICKNESS = 3;
 
 static LLRegisterPanelClassWrapper<LLNearbyChat> t_panel_nearby_chat("panel_nearby_chat");
 
@@ -90,41 +123,32 @@ BOOL LLNearbyChat::postBuild()
 	return true;
 }
 
-std::string appendTime()
-{
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
-		+LLTrans::getString("TimeMin")+"]";
 
-	LLSD substitution;
-
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-
-	return timeStr;
-}
-
-
-void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
+void LLNearbyChat::appendMessage(const LLChat& chat, const LLSD &args)
 {
 	LLChat& tmp_chat = const_cast<LLChat&>(chat);
 
 	if(tmp_chat.mTimeStr.empty())
 		tmp_chat.mTimeStr = appendTime();
 
-	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
-	
 	if (!chat.mMuted)
 	{
 		tmp_chat.mFromName = chat.mFromName;
-		LLSD chat_args = args;
-		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
-		chat_args["show_time"] = true;
-		chat_args["show_names_for_p2p_conv"] = true;
+		LLSD chat_args;
+		if (args) chat_args = args;
+		chat_args["use_plain_text_chat_history"] =
+				gSavedSettings.getBOOL("PlainTextChatHistory");
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+		chat_args["show_names_for_p2p_conv"] = false
+				|| gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
 		mChatHistory->appendMessage(chat, chat_args);
 	}
+}
+
+void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
+{
+	appendMessage(chat, args);
 
 	if(archive)
 	{
@@ -133,12 +157,9 @@ void	LLNearbyChat::addMessage(const LLChat& chat,bool archive,const LLSD &args)
 			mMessageArchive.erase(mMessageArchive.begin());
 	}
 
-	if (args["do_not_log"].asBoolean()) 
-	{
-		return;
-	}
-
-	if (gSavedPerAccountSettings.getBOOL("LogNearbyChat"))
+	// logging
+	if (!args["do_not_log"].asBoolean()
+			&& gSavedPerAccountSettings.getBOOL("LogNearbyChat"))
 	{
 		std::string from_name = chat.mFromName;
 
@@ -165,10 +186,10 @@ void LLNearbyChat::onNearbySpeakers()
 	LLFloaterSidePanelContainer::showPanel("people", "panel_people", param);
 }
 
-
 void	LLNearbyChat::onNearbyChatContextMenuItemClicked(const LLSD& userdata)
 {
 }
+
 bool	LLNearbyChat::onNearbyChatCheckContextMenuItem(const LLSD& userdata)
 {
 	std::string str = userdata.asString();
@@ -216,31 +237,12 @@ void LLNearbyChat::updateChatHistoryStyle()
 }
 
 //static 
-void LLNearbyChat::processChatHistoryStyleUpdate(const LLSD& newvalue)
+void LLNearbyChat::processChatHistoryStyleUpdate()
 {
 	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
 	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
 	if(nearby_chat)
 		nearby_chat->updateChatHistoryStyle();
-}
-
-bool isWordsName(const std::string& name)
-{
-	// checking to see if it's display name plus username in parentheses 
-	S32 open_paren = name.find(" (", 0);
-	S32 close_paren = name.find(')', 0);
-
-	if (open_paren != std::string::npos &&
-		close_paren == name.length()-1)
-	{
-		return true;
-	}
-	else
-	{
-		//checking for a single space
-		S32 pos = name.find(' ', 0);
-		return std::string::npos != pos && name.rfind(' ', name.length()) == pos && 0 != pos && name.length()-1 != pos;
-	}
 }
 
 void LLNearbyChat::loadHistory()

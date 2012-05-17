@@ -27,12 +27,13 @@
 #ifndef LL_IMFLOATER_H
 #define LL_IMFLOATER_H
 
+#include "llimview.h"
 #include "llinstantmessage.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
-#include "lltransientdockablefloater.h"
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
+#include "lltransientdockablefloater.h"
 
 class LLAvatarName;
 class LLButton;
@@ -47,7 +48,7 @@ class LLInventoryCategory;
  * optionally "docked" to the bottom tray.
  */
 class LLIMFloater
-	: public LLTransientDockableFloater
+    : public LLTransientDockableFloater
 	, public LLVoiceClientStatusObserver
 {
 	LOG_CLASS(LLIMFloater);
@@ -109,7 +110,7 @@ public:
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
-	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
+	static void processChatHistoryStyleUpdate();
 
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 			BOOL drop, EDragAndDropType cargo_type,
@@ -153,7 +154,7 @@ private:
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);
-
+	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	static void onInputEditorFocusReceived( LLFocusableElement* caller,void* userdata );
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
@@ -186,11 +187,13 @@ private:
 
 	LLPanelChatControlPanel* mControlPanel;
 	LLUUID mSessionID;
+	LLIMModel::LLIMSession* mSession;
 	S32 mLastMessageIndex;
+
+	LLChatHistory* mChatHistory;
 
 	EInstantMessage mDialog;
 	LLUUID mOtherParticipantUUID;
-	LLChatHistory* mChatHistory;
 	LLLineEditor* mInputEditor;
 	bool mPositioned;
 
@@ -199,6 +202,7 @@ private:
 	bool mMeTyping;
 	bool mOtherTyping;
 	bool mShouldSendTypingState;
+	bool mIsP2PChat;
 	LLFrameTimer mTypingTimer;
 	LLFrameTimer mTypingTimeoutTimer;
 

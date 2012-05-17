@@ -192,12 +192,6 @@ public:
 	bool clearSession(const LLUUID& session_id);
 
 	/**
-	 * Populate supplied std::list with messages starting from index specified by start_index without
-	 * emitting no unread messages signal.
-	 */
-	void getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0);
-
-	/**
 	 * Sends no unread messages signal.
 	 */
 	void sendNoUnreadMessages(const LLUUID& session_id);
@@ -205,7 +199,7 @@ public:
 	/**
 	 * Populate supplied std::list with messages starting from index specified by start_index
 	 */
-	void getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0);
+	void getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0, const bool sendNoUnreadMsgs = true);
 
 	/**
 	 * Add a message to an IM Model - the message is saved in a message store associated with a session specified by session_id
@@ -287,6 +281,12 @@ public:
 
 private:
 	
+	/**
+	 * Populate supplied std::list with messages starting from index specified by start_index without
+	 * emitting no unread messages signal.
+	 */
+	void getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& messages, int start_index = 0);
+
 	/**
 	 * Add message to a list of message associated with session specified by session_id
 	 */

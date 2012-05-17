@@ -44,6 +44,7 @@
 #include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "lllogchat.h"
+#include "llnearbychat.h"
 #include "llpanelimcontrolpanel.h"
 #include "llscreenchannel.h"
 #include "llsyswellwindow.h"
@@ -63,13 +64,14 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mSessionID(session_id),
 	mLastMessageIndex(-1),
 	mDialog(IM_NOTHING_SPECIAL),
-	mChatHistory(NULL),
 	mInputEditor(NULL),
 	mExpandCollapseBtn(NULL),
 	mTearOffBtn(NULL),
 	mSavedTitle(),
 	mTypingStart(),
+	mIsP2PChat(false),
 	mShouldSendTypingState(false),
+	mChatHistory(NULL),
 	mMeTyping(false),
 	mOtherTyping(false),
 	mTypingTimer(),
@@ -77,12 +79,14 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mPositioned(false),
 	mSessionInitialized(false)
 {
-	LLIMModel::LLIMSession* im_session = LLIMModel::getInstance()->findIMSession(mSessionID);
-	if (im_session)
+	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
+
+	if (mSession)
 	{
-		mSessionInitialized = im_session->mSessionInitialized;
+		mIsP2PChat = mSession->isP2PSessionType();
+		mSessionInitialized = mSession->mSessionInitialized;
 		
-		mDialog = im_session->mType;
+		mDialog = mSession->mType;
 		switch (mDialog)
 		{
 		case IM_SESSION_CONFERENCE_START:
@@ -101,8 +105,6 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
 			}
 			break;
-		case IM_NOTHING_SPECIAL:
-		case IM_SESSION_P2P_INVITE:
 		default:
 			break;
 		}
@@ -135,14 +137,13 @@ bool LLIMFloater::onIMShowModesMenuItemCheck(const LLSD& userdata)
 	return gSavedSettings.getBOOL(userdata.asString());
 }
 
+// enable/disable states for the "show time" and "show names" items of the show-modes menu
 bool LLIMFloater::onIMShowModesMenuItemEnable(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
 	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
 	bool is_not_names = (item != "IMShowNamesForP2PConv");
-	LLIMModel::LLIMSession* im_session = LLIMModel::instance().findIMSession(mSessionID);
-	bool is_p2p_chat = im_session && im_session->isP2PSessionType();
-	return (plain_text && (is_not_names || is_p2p_chat));
+	return (plain_text && (is_not_names || mIsP2PChat));
 }
 
 void LLIMFloater::onIMSessionMenuItemClicked(const LLSD& userdata)
@@ -159,7 +160,8 @@ void LLIMFloater::onIMSessionMenuItemClicked(const LLSD& userdata)
 		gSavedSettings.setBOOL(item, !prev_value);
 	}
 
-	reloadMessages();
+	LLIMFloater::processChatHistoryStyleUpdate();
+	LLNearbyChat::processChatHistoryStyleUpdate();
 }
 
 void LLIMFloater::onFocusLost()
@@ -353,18 +355,16 @@ BOOL LLIMFloater::postBuild()
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
 	// Disable input editor if session cannot accept text
-	LLIMModel::LLIMSession* im_session =
-			LLIMModel::instance().findIMSession(mSessionID);
-	if ( im_session && !im_session->mTextIMPossible )
+	if ( mSession && !mSession->mTextIMPossible )
 	{
 		mInputEditor->setEnabled(FALSE);
 		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
 	}
 
-	if (im_session && im_session->isP2PSessionType())
+	if (mIsP2PChat)
 	{
 		// look up display name for window title
-		LLAvatarNameCache::get(im_session->mOtherParticipantID,
+		LLAvatarNameCache::get(mSession->mOtherParticipantID,
 				boost::bind(&LLIMFloater::onAvatarNameCache,
 						this, _1, _2));
 	}
@@ -424,16 +424,14 @@ void LLIMFloater::enableDisableCallBtn()
 	bool voice_enabled = LLVoiceClient::getInstance()->voiceEnabled()
 			&& LLVoiceClient::getInstance()->isVoiceWorking();
 
-	LLIMModel::LLIMSession* session = LLIMModel::getInstance()->findIMSession(mSessionID);
-
-	if (!session)
+	if (!mSession)
 	{
 		getChildView("voice_call_btn")->setEnabled(false);
 		return;
 	}
 
-	bool session_initialized = session->mSessionInitialized;
-	bool callback_enabled = session->mCallBackEnabled;
+	bool session_initialized = mSession->mSessionInitialized;
+	bool callback_enabled = mSession->mCallBackEnabled;
 
 	BOOL enable_connect = session_initialized
 		&& voice_enabled
@@ -763,12 +761,16 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	if (mSessionID != im_session_id)
 	{
 		mSessionID = im_session_id;
+
 		setKey(im_session_id);
 		if (mControlPanel)
 		{
 			mControlPanel->setSessionId(im_session_id);
 		}
 		boundVoiceChannel();
+
+		mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
+		mIsP2PChat = mSession && mSession->isP2PSessionType();
 	}
 
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
@@ -785,30 +787,35 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	}
 }
 
+void LLIMFloater::appendMessage(const LLChat& chat, const LLSD &args)
+{
+	LLChat& tmp_chat = const_cast<LLChat&>(chat);
+
+	if (!chat.mMuted)
+	{
+		tmp_chat.mFromName = chat.mFromName;
+		LLSD chat_args;
+		if (args) chat_args = args;
+		chat_args["use_plain_text_chat_history"] =
+				gSavedSettings.getBOOL("PlainTextChatHistory");
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+		chat_args["show_names_for_p2p_conv"] = !mIsP2PChat
+				|| gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+
+		mChatHistory->appendMessage(chat, chat_args);
+	}
+}
+
 void LLIMFloater::updateMessages()
 {
-	bool use_plain_text_chat_history = gSavedSettings.getBOOL("PlainTextChatHistory");
-
 	std::list<LLSD> messages;
 
 	// we shouldn't reset unread message counters if IM floater doesn't have focus
-	if (hasFocus())
-	{
-		LLIMModel::instance().getMessages(mSessionID, messages, mLastMessageIndex + 1);
-	}
-	else
-	{
-		LLIMModel::instance().getMessagesSilently(mSessionID, messages, mLastMessageIndex + 1);
-	}
+    LLIMModel::instance().getMessages(
+    		mSessionID, messages, mLastMessageIndex + 1, hasFocus());
 
 	if (messages.size())
 	{
-		bool is_p2p_chat = (mDialog == IM_SESSION_P2P_INVITE || mDialog == IM_NOTHING_SPECIAL);
-		LLSD chat_args;
-		chat_args["use_plain_text_chat_history"] = use_plain_text_chat_history;
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] = (!is_p2p_chat) || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
-
 		std::ostringstream message;
 		std::list<LLSD>::const_reverse_iterator iter = messages.rbegin();
 		std::list<LLSD>::const_reverse_iterator iter_end = messages.rend();
@@ -858,7 +865,7 @@ void LLIMFloater::updateMessages()
 				chat.mText = message;
 			}
 
-			mChatHistory->appendMessage(chat, chat_args);
+			appendMessage(chat);
 			mLastMessageIndex = msg["index"].asInteger();
 
 			// if it is a notification - next message is a notification history log, so skip it
@@ -1014,7 +1021,7 @@ void LLIMFloater::processAgentListUpdates(const LLSD& body)
 	}
 }
 
-void LLIMFloater::processChatHistoryStyleUpdate(const LLSD& newvalue)
+void LLIMFloater::processChatHistoryStyleUpdate()
 {
 	LLFontGL* font = LLViewerChat::getChatFont();
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");

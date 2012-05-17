@@ -34,7 +34,8 @@
 class LLResizeBar;
 class LLChatHistory;
 
-class LLNearbyChat: public LLPanel
+class LLNearbyChat
+: public LLPanel
 {
 public:
 	LLNearbyChat(const Params& p = LLPanel::getDefaultParams());
@@ -57,7 +58,7 @@ public:
 	
 	virtual void updateChatHistoryStyle();
 
-	static void processChatHistoryStyleUpdate(const LLSD& newvalue);
+	static void processChatHistoryStyleUpdate();
 
 	void loadHistory();
 
@@ -67,7 +68,8 @@ public:
 private:
 
 	void	getAllowedRect		(LLRect& rect);
-
+	// prepare chat's params and out one message to chatHistory
+	void appendMessage(const LLChat& chat, const LLSD &args = 0);
 	void	onNearbySpeakers	();
 
 

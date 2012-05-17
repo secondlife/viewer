@@ -423,13 +423,13 @@ void LLFloaterPreference::saveAvatarProperties( void )
 
 BOOL LLFloaterPreference::postBuild()
 {
-	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
+	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate));
 
-	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
+	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate));
 
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate, _2));
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate));
 
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate, _2));
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate));
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
 
@@ -457,14 +457,11 @@ BOOL LLFloaterPreference::postBuild()
 void LLFloaterPreference::onBusyResponseChanged()
 {
 	// set "BusyResponseChanged" TRUE if user edited message differs from default, FALSE otherwise
-	if (LLTrans::getString("BusyModeResponseDefault") != getChild<LLUICtrl>("busy_response")->getValue().asString())
-	{
-		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", TRUE );
-	}
-	else
-	{
-		gSavedPerAccountSettings.setBOOL("BusyResponseChanged", FALSE );
-	}
+	bool busy_flag =
+			LLTrans::getString("BusyModeResponseDefault")
+					!= getChild<LLUICtrl>("busy_response")->getValue().asString();
+
+	gSavedPerAccountSettings.setBOOL("BusyResponseChanged", busy_flag );
 }
 
 LLFloaterPreference::~LLFloaterPreference()

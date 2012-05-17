@@ -716,6 +716,16 @@ bool LLIMModel::clearSession(const LLUUID& session_id)
 	return true;
 }
 
+void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index, const bool sendNoUnreadMsgs)
+{
+	getMessagesSilently(session_id, messages, start_index);
+
+	if (sendNoUnreadMsgs)
+	{
+		sendNoUnreadMessages(session_id);
+	}
+}
+
 void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
 {
 	LLIMSession* session = findIMSession(session_id);
@@ -755,13 +765,6 @@ void LLIMModel::sendNoUnreadMessages(const LLUUID& session_id)
 	arg["num_unread"] = 0;
 	arg["participant_unread"] = session->mParticipantUnreadMessageCount;
 	mNoUnreadMsgsSignal(arg);
-}
-
-void LLIMModel::getMessages(const LLUUID& session_id, std::list<LLSD>& messages, int start_index)
-{
-	getMessagesSilently(session_id, messages, start_index);
-
-	sendNoUnreadMessages(session_id);
 }
 
 bool LLIMModel::addToHistory(const LLUUID& session_id, const std::string& from, const LLUUID& from_id, const std::string& utf8_text) {
@@ -2497,6 +2500,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 			gIMMgr->addMessage(session_id, LLUUID::null, SYSTEM_FROM, message.getString());
 		}
 		// log message to file
+
 		else
 		{
 			std::string session_name;
