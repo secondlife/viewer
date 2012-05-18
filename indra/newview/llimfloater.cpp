@@ -56,6 +56,7 @@
 #include "llrootview.h"
 #include "llspeakers.h"
 #include "llviewerchat.h"
+#include "llnotificationmanager.h"
 
 
 LLIMFloater::LLIMFloater(const LLUUID& session_id)

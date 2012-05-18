@@ -265,7 +265,14 @@ void LLScreenChannel::addToast(const LLToast::Params& p)
 
 	if(!show_toast && !store_toast)
 	{
-		mRejectToastSignal(p.notif_id);
+		LLNotificationPtr notification = LLNotifications::instance().find(p.notif_id);
+
+		if (notification &&
+			(!notification->canLogToIM() || !notification->hasFormElements()))
+		{
+			// only cancel notification if it isn't being used in IM session
+			LLNotifications::instance().cancel(notification);
+		}
 		return;
 	}
 
@@ -432,34 +439,12 @@ void LLScreenChannel::loadStoredToastByNotificationIDToChannel(LLUUID id)
 }
 
 //--------------------------------------------------------------------------
-void LLScreenChannel::removeStoredToastByNotificationID(LLUUID id)
-{
-	// *TODO: may be remove this function
-	std::vector<ToastElem>::iterator it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-
-	if( it == mStoredToastList.end() )
-		return;
-
-	const LLToast* toast = it->getToast();
-	if (toast)
-	{
-		mRejectToastSignal(toast->getNotificationID());
-	}
-
-	// Call find() once more, because the mStoredToastList could have been changed
-	// in mRejectToastSignal callback and the iterator could have become invalid.
-	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-	if (it != mStoredToastList.end())
-	{
-	mStoredToastList.erase(it);
-	}
-}
-
-//--------------------------------------------------------------------------
 void LLScreenChannel::killToastByNotificationID(LLUUID id)
 {
 	// searching among toasts on a screen
 	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
+	LLNotificationPtr notification = LLNotifications::instance().find(id);
+	if (!notification) return;
 	
 	if( it != mToastList.end())
 	{
@@ -472,41 +457,66 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 		//			the toast will be destroyed.
 		if(toast && toast->isNotificationValid())
 		{
-			mRejectToastSignal(toast->getNotificationID());
+			if (!notification->canLogToIM() || !notification->hasFormElements())
+			{
+				// only cancel notification if it isn't being used in IM session
+				LLNotifications::instance().cancel(notification);
+			}
 		}
 		else
 		{
-
-			deleteToast(toast);
-			mToastList.erase(it);
-			redrawToasts();
+			removeToastByNotificationID(id);
 		}
-		return;
 	}
-
-	// searching among stored toasts
-	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-
-	if( it != mStoredToastList.end() )
+	else
 	{
-		LLToast* toast = it->getToast();
-		if (toast)
+		// searching among stored toasts
+		it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+
+		if( it != mStoredToastList.end() )
 		{
-		// send signal to a listener to let him perform some action on toast rejecting
-		mRejectToastSignal(toast->getNotificationID());
-		deleteToast(toast);
+			LLToast* toast = it->getToast();
+			if (toast)
+			{
+				if (!notification->canLogToIM() || !notification->hasFormElements())
+				{
+					// only cancel notification if it isn't being used in IM session
+					LLNotifications::instance().cancel(notification);
+				}
+				deleteToast(toast);
+			}
+		}
+	
+		// Call find() once more, because the mStoredToastList could have been changed
+		// via notification cancellation and the iterator could have become invalid.
+		it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+		if (it != mStoredToastList.end())
+		{
+			mStoredToastList.erase(it);
+		}
 	}
 }
 
-	// Call find() once more, because the mStoredToastList could have been changed
-	// in mRejectToastSignal callback and the iterator could have become invalid.
-	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-	if (it != mStoredToastList.end())
+void LLScreenChannel::removeToastByNotificationID(LLUUID id)
+{
+	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
+	if( it != mToastList.end())
 	{
-		mStoredToastList.erase(it);
+		deleteToast(it->getToast());
+		mToastList.erase(it);
+		redrawToasts();
 	}
-
+	else
+	{
+		it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+		if (it != mStoredToastList.end())
+		{
+			deleteToast(it->getToast());
+			mStoredToastList.erase(it);
+		}
+	}
 }
+
 
 void LLScreenChannel::killMatchedToasts(const Matcher& matcher)
 {

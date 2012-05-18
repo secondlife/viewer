@@ -5208,20 +5208,14 @@ Topic: [SUBJECT], Message: [MESSAGE]
 
   <notification
    icon="notifytip.tga"
-   name="FriendOnline"
+   name="FriendOnlineOffline"
    log_to_chat="false"
    type="notifytip">
     <tag>friendship</tag>
-&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
-  </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="FriendOffline"
-   log_to_chat="false"
-   type="notifytip">
-    <tag>friendship</tag>
-&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is [STATUS]
+    <unique combine="cancel_old">
+      <context>NAME</context>
+    </unique>
   </notification>
 
   <notification
@@ -6160,7 +6154,8 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOfferSent"
-   log_to_im="true"   
+   log_to_im="true"
+   show_toast="false"
    type="offer">
 	Teleport offer sent to [TO_NAME]
   </notification>
@@ -6213,6 +6208,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="FriendshipOffered"
    log_to_im="true"   
+   show_toast="false"   
    type="offer">
     <tag>friendship</tag>
 	You have offered friendship to [TO_NAME]
@@ -6262,6 +6258,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    icon="notify.tga"
    name="FriendshipAcceptedByMe"
    log_to_im="true"   
+   show_toast="false"
    type="offer">
     <tag>friendship</tag>
 Friendship offer accepted.
@@ -6271,6 +6268,7 @@ Friendship offer accepted.
    icon="notify.tga"
    name="FriendshipDeclinedByMe"
    log_to_im="true"   
+   show_toast="false"   
    type="offer">
     <tag>friendship</tag>
 Friendship offer declined.

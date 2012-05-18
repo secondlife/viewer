@@ -54,6 +54,7 @@
 #include "llresmgr.h"
 #include "llslurl.h"
 #include "llimview.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
@@ -723,12 +724,13 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	// Use display name only because this user is your friend
 	LLSD args;
 	args["NAME"] = av_name.mDisplayName;
+	args["STATUS"] = online ? LLTrans::getString("OnlineStatus") : LLTrans::getString("OfflineStatus");
 
 	LLNotificationPtr notification;
 	if (online)
 	{
 		notification =
-			LLNotificationsUtil::add("FriendOnline",
+			LLNotificationsUtil::add("FriendOnlineOffline",
 									 args,
 									 payload.with("respond_on_mousedown", TRUE),
 									 boost::bind(&LLAvatarActions::startIM, agent_id));
@@ -736,7 +738,7 @@ static void on_avatar_name_cache_notify(const LLUUID& agent_id,
 	else
 	{
 		notification =
-			LLNotificationsUtil::add("FriendOffline", args, payload);
+			LLNotificationsUtil::add("FriendOnlineOffline", args, payload);
 	}
 
 	// If there's an open IM session with this agent, send a notification there too.

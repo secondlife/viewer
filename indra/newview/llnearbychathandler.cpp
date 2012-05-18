@@ -1,6 +1,6 @@
 /** 
  * @file LLNearbyChatHandler.cpp
- * @brief Nearby chat notification managment
+ * @brief Nearby chat chat managment
  *
  * $LicenseInfo:firstyear=2009&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -47,14 +47,16 @@
 //add LLNearbyChatHandler to LLNotificationsUI namespace
 using namespace LLNotificationsUI;
 
-//-----------------------------------------------------------------------------------------------
-//LLNearbyChatScreenChannel
-//-----------------------------------------------------------------------------------------------	
-LLToastPanelBase* createToastPanel()
+static LLNearbyChatToastPanel* createToastPanel()
 {
 	LLNearbyChatToastPanel* item = LLNearbyChatToastPanel::createInstance();
 	return item;
 }
+
+
+//-----------------------------------------------------------------------------------------------
+//LLNearbyChatScreenChannel
+//-----------------------------------------------------------------------------------------------	
 
 class LLNearbyChatScreenChannel: public LLScreenChannelBase
 {
@@ -81,10 +83,10 @@ public:
 		}
 	}
 
-	void addNotification	(LLSD& notification);
+	void addChat	(LLSD& chat);
 	void arrangeToasts		();
 	
-	typedef boost::function<LLToastPanelBase* (void )> create_toast_panel_callback_t;
+	typedef boost::function<LLNearbyChatToastPanel* (void )> create_toast_panel_callback_t;
 	void setCreatePanelCallback(create_toast_panel_callback_t value) { m_create_toast_panel_callback_t = value;}
 
 	void onToastDestroyed	(LLToast* toast, bool app_quitting);
@@ -151,6 +153,8 @@ protected:
 	bool	mStopProcessing;
 	bool	mChannelRect;
 };
+
+
 
 //-----------------------------------------------------------------------------------------------
 // LLNearbyChatToast
@@ -255,7 +259,7 @@ void LLNearbyChatScreenChannel::updateToastFadingTime()
 
 bool	LLNearbyChatScreenChannel::createPoolToast()
 {
-	LLToastPanelBase* panel= m_create_toast_panel_callback_t();
+	LLNearbyChatToastPanel* panel= m_create_toast_panel_callback_t();
 	if(!panel)
 		return false;
 	
@@ -277,7 +281,7 @@ bool	LLNearbyChatScreenChannel::createPoolToast()
 	return true;
 }
 
-void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
+void LLNearbyChatScreenChannel::addChat(LLSD& chat)
 {
 	//look in pool. if there is any message
 	if(mStopProcessing)
@@ -289,8 +293,8 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 
 	if(m_active_toasts.size())
 	{
-		LLUUID fromID = notification["from_id"].asUUID();		// agent id or object id
-		std::string from = notification["from"].asString();
+		LLUUID fromID = chat["from_id"].asUUID();		// agent id or object id
+		std::string from = chat["from"].asString();
 		LLToast* toast = m_active_toasts[0].get();
 		if (toast)
 		{
@@ -298,7 +302,7 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
   
 			if(panel && panel->messageID() == fromID && panel->getFromName() == from && panel->canAddText())
 			{
-				panel->addMessage(notification);
+				panel->addMessage(chat);
 				toast->reshapeToPanel();
 				toast->startTimer();
 	  
@@ -316,11 +320,11 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 		LL_DEBUGS("NearbyChat") << "Empty pool" << llendl;
 		if(!createPoolToast())//created toast will go to pool. so next call will find it
 			return;
-		addNotification(notification);
+		addChat(chat);
 		return;
 	}
 
-	int chat_type = notification["chat_type"].asInteger();
+	int chat_type = chat["chat_type"].asInteger();
 	
 	if( ((EChatType)chat_type == CHAT_TYPE_DEBUG_MSG))
 	{
@@ -339,10 +343,10 @@ void LLNearbyChatScreenChannel::addNotification(LLSD& notification)
 	m_toast_pool.pop_back();
 
 
-	LLToastPanelBase* panel = dynamic_cast<LLToastPanelBase*>(toast->getPanel());
+	LLNearbyChatToastPanel* panel = dynamic_cast<LLNearbyChatToastPanel*>(toast->getPanel());
 	if(!panel)
 		return;
-	panel->init(notification);
+	panel->init(chat);
 
 	toast->reshapeToPanel();
 	toast->startTimer();
@@ -488,23 +492,23 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
 
 	// Build notification data 
-	LLSD notification;
-	notification["message"] = chat_msg.mText;
-	notification["from"] = chat_msg.mFromName;
-	notification["from_id"] = chat_msg.mFromID;
-	notification["time"] = chat_msg.mTime;
-	notification["source"] = (S32)chat_msg.mSourceType;
-	notification["chat_type"] = (S32)chat_msg.mChatType;
-	notification["chat_style"] = (S32)chat_msg.mChatStyle;
+	LLSD chat;
+	chat["message"] = chat_msg.mText;
+	chat["from"] = chat_msg.mFromName;
+	chat["from_id"] = chat_msg.mFromID;
+	chat["time"] = chat_msg.mTime;
+	chat["source"] = (S32)chat_msg.mSourceType;
+	chat["chat_type"] = (S32)chat_msg.mChatType;
+	chat["chat_style"] = (S32)chat_msg.mChatStyle;
 	// Pass sender info so that it can be rendered properly (STORM-1021).
-	notification["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
+	chat["sender_slurl"] = LLViewerChat::getSenderSLURL(chat_msg, args);
 
 	if (chat_msg.mChatType == CHAT_TYPE_DIRECT &&
 		chat_msg.mText.length() > 0 &&
 		chat_msg.mText[0] == '@')
 	{
 		// Send event on to LLEventStream and exit
-		sChatWatcher->post(notification);
+		sChatWatcher->post(chat);
 		return;
 	}
 
@@ -551,7 +555,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	}
 
 	// Send event on to LLEventStream
-	sChatWatcher->post(notification);
+	sChatWatcher->post(chat);
 
 
 	if( !chat_bar->isMinimized()
@@ -602,16 +606,16 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 		// Add a nearby chat toast.
 		LLUUID id;
 		id.generate();
-		notification["id"] = id;
+		chat["id"] = id;
 		std::string r_color_name = "White";
 		F32 r_color_alpha = 1.0f; 
 		LLViewerChat::getChatColor( chat_msg, r_color_name, r_color_alpha);
 		
-		notification["text_color"] = r_color_name;
-		notification["color_alpha"] = r_color_alpha;
-		notification["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
-		notification["message"] = toast_msg;
-		channel->addNotification(notification);	
+		chat["text_color"] = r_color_name;
+		chat["color_alpha"] = r_color_alpha;
+		chat["font_size"] = (S32)LLViewerChat::getChatFontSize() ;
+		chat["message"] = toast_msg;
+		channel->addChat(chat);	
 	}
 }
 

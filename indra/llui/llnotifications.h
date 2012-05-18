@@ -165,6 +165,7 @@ public:
 	struct FormElementBase : public LLInitParam::Block<FormElementBase>
 	{
 		Optional<std::string>	name;
+		Optional<bool>			enabled;
 
 		FormElementBase();
 	};
@@ -234,16 +235,20 @@ public:
 	} EIgnoreType;
 
 	LLNotificationForm();
+	LLNotificationForm(const LLNotificationForm&);
 	LLNotificationForm(const LLSD& sd);
 	LLNotificationForm(const std::string& name, const Params& p);
 
+	void fromLLSD(const LLSD& sd);
 	LLSD asLLSD() const;
 
 	S32 getNumElements() { return mFormData.size(); }
 	LLSD getElement(S32 index) { return mFormData.get(index); }
 	LLSD getElement(const std::string& element_name);
-	bool hasElement(const std::string& element_name);
-	void addElement(const std::string& type, const std::string& name, const LLSD& value = LLSD());
+	bool hasElement(const std::string& element_name) const;
+	bool getElementEnabled(const std::string& element_name) const;
+	void setElementEnabled(const std::string& element_name, bool enabled);
+	void addElement(const std::string& type, const std::string& name, const LLSD& value = LLSD(), bool enabled = true);
 	void formatElements(const LLSD& substitutions);
 	// appends form elements from another form serialized as LLSD
 	void append(const LLSD& sub_form);
@@ -450,6 +455,11 @@ public:
 	// ["responseFunctor"] = name of registered functor that handles responses to notification;
 	LLSD asLLSD();
 
+	const LLNotificationFormPtr getForm();
+	void updateForm(const LLNotificationFormPtr& form);
+
+	void repost();
+
 	void respond(const LLSD& sd);
 	void respondWithDefault();
 
@@ -517,16 +527,18 @@ public:
     S32 getURLOpenExternally() const;
 	bool canLogToChat() const;
 	bool canLogToIM() const;
+	bool canShowToast() const;
 	bool hasFormElements() const;
 
 	typedef enum e_combine_behavior
 	{
-		USE_NEWEST,
-		USE_OLDEST
+		REPLACE_WITH_NEW,
+		KEEP_OLD,
+		CANCEL_OLD
+
 	} ECombineBehavior;
 	
 	ECombineBehavior getCombineBehavior() const;
-	const LLNotificationFormPtr getForm();
 
 	const LLDate getExpiration() const
 	{
@@ -545,8 +557,6 @@ public:
 
 	bool isReusable() { return mIsReusable; }
 
-	void setReusable(bool reusable) { mIsReusable = reusable; }
-	
 	// comparing two notifications normally means comparing them by UUID (so we can look them
 	// up quickly this way)
 	bool operator<(const LLNotification& rhs) const

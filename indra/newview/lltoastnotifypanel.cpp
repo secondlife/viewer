@@ -45,6 +45,9 @@
 const S32 BOTTOM_PAD = VPAD * 3;
 const S32 IGNORE_BTN_TOP_DELTA = 3*VPAD;//additional ignore_btn padding
 S32 BUTTON_WIDTH = 90;
+// *TODO: magic numbers(???) - copied from llnotify.cpp(250)
+const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
+
 
 //static
 const LLFontGL* LLToastNotifyPanel::sFont = NULL;
@@ -52,171 +55,24 @@ const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
-LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images) : 
-LLToastPanel(notification),
-mTextBox(NULL),
-mInfoPanel(NULL),
-mControlPanel(NULL),
-mNumOptions(0),
-mNumButtons(0),
-mAddedDefaultBtn(false),
-mCloseNotificationOnDestroy(true)
+LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images) 
+:	LLToastPanel(notification),
+	LLInstanceTracker(notification->getID())
 {
-	buildFromFile( "panel_notification.xml");
-	if(rect != LLRect::null)
-	{
-		this->setShape(rect);
-	}		 
-	mInfoPanel = getChild<LLPanel>("info_panel");
-	mControlPanel = getChild<LLPanel>("control_panel");
-	BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
-	// customize panel's attributes
-	// is it intended for displaying a tip?
-	mIsTip = notification->getType() == "notifytip";
-	// is it a script dialog?
-	mIsScriptDialog = (notification->getName() == "ScriptDialog" || notification->getName() == "ScriptDialogGroup");
-	// is it a caution?
+	init(rect, show_images);
+
+
+	//if(notification->isRespondedTo())
+	//{
+	//	// User selected an option in toast, now disable required buttons in IM window
+	//	disableRespondedOptions(notification);
+	//}
 	//
-	// caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
-	// notify xml template specifies that it is a caution
-	// tip-style notification handle 'caution' differently -they display the tip in a different color
-	mIsCaution = notification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
-
-	// setup parameters
-	// get a notification message
-	mMessage = notification->getMessage();
-	// init font variables
-	if (!sFont)
-	{
-		sFont = LLFontGL::getFontSansSerif();
-		sFontSmall = LLFontGL::getFontSansSerifSmall();
-	}
-	// initialize
-	setFocusRoot(!mIsTip);
-	// get a form for the notification
-	LLNotificationFormPtr form(notification->getForm());
-	// get number of elements
-	mNumOptions = form->getNumElements();
-
-	// customize panel's outfit
-	// preliminary adjust panel's layout
-	//move to the end 
-	//mIsTip ? adjustPanelForTipNotice() : adjustPanelForScriptNotice(form);
-
-	// adjust text options according to the notification type
-	// add a caution textbox at the top of a caution notification
-	if (mIsCaution && !mIsTip)
-	{
-		mTextBox = getChild<LLTextBox>("caution_text_box");
-	}
-	else
-	{
-		mTextBox = getChild<LLTextEditor>("text_editor_box"); 
-	}
-
-	// *TODO: magic numbers(???) - copied from llnotify.cpp(250)
-	const S32 MAX_LENGTH = 512 + 20 + DB_FIRST_NAME_BUF_SIZE + DB_LAST_NAME_BUF_SIZE + DB_INV_ITEM_NAME_BUF_SIZE; 
-
-	mTextBox->setMaxTextLength(MAX_LENGTH);
-	mTextBox->setVisible(TRUE);
-	mTextBox->setPlainText(!show_images);
-	mTextBox->setValue(notification->getMessage());
-
-	// add buttons for a script notification
-	if (mIsTip)
-	{
-		adjustPanelForTipNotice();
-	}
-	else
-	{
-		std::vector<index_button_pair_t> buttons;
-		buttons.reserve(mNumOptions);
-		S32 buttons_width = 0;
-		// create all buttons and accumulate they total width to reshape mControlPanel
-		for (S32 i = 0; i < mNumOptions; i++)
-		{
-			LLSD form_element = form->getElement(i);
-			if (form_element["type"].asString() != "button")
-			{
-				// not a button.
-				continue;
-			}
-			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
-			{
-				// a textbox pretending to be a button.
-				continue;
-			}
-			LLButton* new_button = createButton(form_element, TRUE);
-			buttons_width += new_button->getRect().getWidth();
-			S32 index = form_element["index"].asInteger();
-			buttons.push_back(index_button_pair_t(index,new_button));
-		}
-		if (buttons.empty())
-		{
-			addDefaultButton();
-		}
-		else
-		{
-			const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
-			S32 button_panel_height = mControlPanel->getRect().getHeight();
-			//try get an average h_pad to spread out buttons
-			S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
-			if(h_pad < 2*HPAD)
-			{
-				/*
-				 * Probably it is a scriptdialog toast
-				 * for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
-				 * In last case set default h_pad to avoid heaping of buttons 
-				 */
-				S32 button_per_row = button_panel_width / BUTTON_WIDTH;
-				h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
-				if(h_pad < 2*HPAD) // still not enough space between buttons ?
-				{
-					h_pad = 2*HPAD;
-				}
-			}
-			if (mIsScriptDialog)
-			{
-				// we are using default width for script buttons so we can determinate button_rows
-				//to get a number of rows we divide the required width of the buttons to button_panel_width
-				S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
-				//S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
-				//reserve one row for the ignore_btn
-				button_rows++;
-				//calculate required panel height for scripdialog notification.
-				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ IGNORE_BTN_TOP_DELTA + BOTTOM_PAD;
-			}
-			else
-			{
-				// in common case buttons can have different widths so we need to calculate button_rows according to buttons_width
-				//S32 button_rows = llceil(F32(buttons.size()) * (buttons_width + h_pad) / button_panel_width);
-				S32 button_rows = llceil(F32((buttons.size() - 1) * h_pad + buttons_width) / button_panel_width);
-				//calculate required panel height 
-				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ BOTTOM_PAD;
-			}
-		
-			// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
-			adjustPanelForScriptNotice(button_panel_width, button_panel_height);
-			updateButtonsLayout(buttons, h_pad);
-			// save buttons for later use in disableButtons()
-			mButtons.assign(buttons.begin(), buttons.end());
-		}
-	}
-	// adjust panel's height to the text size
-	mInfoPanel->setFollowsAll();
-	snapToMessageHeight(mTextBox, MAX_LENGTH);
-
-	if(notification->isReusable())
-	{
-		mButtonClickConnection = sButtonClickSignal.connect(
-			boost::bind(&LLToastNotifyPanel::onToastPanelButtonClicked, this, _1, _2));
-
-		if(notification->isRespondedTo())
-		{
-			// User selected an option in toast, now disable required buttons in IM window
-			disableRespondedOptions(notification);
-		}
-	}
+	//if(notification->isReusable())
+	//{
+	//	mButtonClickConnection = sButtonClickSignal.connect(
+	//		boost::bind(&LLToastNotifyPanel::disableRespondedOptions, this, notification));
+	//}
 }
 void LLToastNotifyPanel::addDefaultButton()
 {
@@ -235,7 +91,6 @@ void LLToastNotifyPanel::addDefaultButton()
 }
 LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_option)
 {
-
 	InstanceAndS32* userdata = new InstanceAndS32;
 	userdata->mSelf = this;
 	userdata->mButtonName = is_option ? form_element["name"].asString() : "";
@@ -245,14 +100,15 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	LLButton::Params p;
 	bool is_ignore_btn = form_element["index"].asInteger() == -1;
 	const LLFontGL* font = is_ignore_btn ? sFontSmall: sFont; // for ignore button in script dialog
-	p.name(form_element["name"].asString());
-	p.label(form_element["text"].asString());
-	p.font(font);
+	p.name = form_element["name"].asString();
+	p.label = form_element["text"].asString();
+	p.font = font;
 	p.rect.height = BTN_HEIGHT;
 	p.click_callback.function(boost::bind(&LLToastNotifyPanel::onClickButton, userdata));
 	p.rect.width = BUTTON_WIDTH;
 	p.auto_resize = false;
 	p.follows.flags(FOLLOWS_LEFT | FOLLOWS_BOTTOM);
+	p.enabled = !form_element.has("enabled") || form_element["enabled"].asBoolean();
 	if (mIsCaution)
 	{
 		p.image_color(LLUIColorTable::instance().getColor("ButtonCautionImageColor"));
@@ -287,14 +143,9 @@ LLToastNotifyPanel::~LLToastNotifyPanel()
 	mButtonClickConnection.disconnect();
 
 	std::for_each(mBtnCallbackData.begin(), mBtnCallbackData.end(), DeletePointer());
-	if (mCloseNotificationOnDestroy && LLNotificationsUtil::find(mNotification->getID()) != NULL)
+	if (mIsTip)
 	{
-		// let reusable notification be deleted
-		mNotification->setReusable(false);
-		if (!mNotification->isPersistent())
-		{
-			LLNotifications::getInstance()->cancel(mNotification);
-		}
+		LLNotifications::getInstance()->cancel(mNotification);
 	}
 }
 
@@ -393,103 +244,103 @@ void LLToastNotifyPanel::adjustPanelForTipNotice()
 	}
 }
 
-typedef std::set<std::string> button_name_set_t;
-typedef std::map<std::string, button_name_set_t> disable_button_map_t;
+//typedef std::set<std::string> button_name_set_t;
+//typedef std::map<std::string, button_name_set_t> disable_button_map_t;
+//
+//disable_button_map_t initUserGiveItemDisableButtonMap()
+//{
+//	// see EXT-5905 for disable rules
+//
+//	disable_button_map_t disable_map;
+//	button_name_set_t buttons;
+//
+//	buttons.insert("Show");
+//	disable_map.insert(std::make_pair("Show", buttons));
+//
+//	buttons.insert("Discard");
+//	disable_map.insert(std::make_pair("Discard", buttons));
+//
+//	buttons.insert("Mute");
+//	disable_map.insert(std::make_pair("Mute", buttons));
+//
+//	return disable_map;
+//}
+//
+//disable_button_map_t initTeleportOfferedDisableButtonMap()
+//{
+//	disable_button_map_t disable_map;
+//	button_name_set_t buttons;
+//
+//	buttons.insert("Teleport");
+//	buttons.insert("Cancel");
+//
+//	disable_map.insert(std::make_pair("Teleport", buttons));
+//	disable_map.insert(std::make_pair("Cancel", buttons));
+//
+//	return disable_map;
+//}
+//
+//disable_button_map_t initFriendshipOfferedDisableButtonMap()
+//{
+//	disable_button_map_t disable_map;
+//	button_name_set_t buttons;
+//
+//	buttons.insert("Accept");
+//	buttons.insert("Decline");
+//
+//	disable_map.insert(std::make_pair("Accept", buttons));
+//	disable_map.insert(std::make_pair("Decline", buttons));
+//
+//	return disable_map;
+//}
+//
+//button_name_set_t getButtonDisableList(const std::string& notification_name, const std::string& button_name)
+//{
+//	static disable_button_map_t user_give_item_disable_map = initUserGiveItemDisableButtonMap();
+//	static disable_button_map_t teleport_offered_disable_map = initTeleportOfferedDisableButtonMap();
+//	static disable_button_map_t friendship_offered_disable_map = initFriendshipOfferedDisableButtonMap();
+//
+//	disable_button_map_t::const_iterator it;
+//	disable_button_map_t::const_iterator it_end;
+//	disable_button_map_t search_map;
+//
+//	if("UserGiveItem" == notification_name)
+//	{
+//		search_map = user_give_item_disable_map;
+//	}
+//	else if("TeleportOffered" == notification_name)
+//	{
+//		search_map = teleport_offered_disable_map;
+//	}
+//	else if("OfferFriendship" == notification_name)
+//	{
+//		search_map = friendship_offered_disable_map;
+//	}
+//
+//	it = search_map.find(button_name);
+//	it_end = search_map.end();
+//
+//	if(it_end != it)
+//	{
+//		return it->second;
+//	}
+//	return button_name_set_t();
+//}
 
-disable_button_map_t initUserGiveItemDisableButtonMap()
-{
-	// see EXT-5905 for disable rules
+//void LLToastNotifyPanel::disableButtons(const std::string& notification_name, const std::string& selected_button)
+//{
+	//button_name_set_t buttons = getButtonDisableList(notification_name, selected_button);
 
-	disable_button_map_t disable_map;
-	button_name_set_t buttons;
-
-	buttons.insert("Show");
-	disable_map.insert(std::make_pair("Show", buttons));
-
-	buttons.insert("Discard");
-	disable_map.insert(std::make_pair("Discard", buttons));
-
-	buttons.insert("Mute");
-	disable_map.insert(std::make_pair("Mute", buttons));
-
-	return disable_map;
-}
-
-disable_button_map_t initTeleportOfferedDisableButtonMap()
-{
-	disable_button_map_t disable_map;
-	button_name_set_t buttons;
-
-	buttons.insert("Teleport");
-	buttons.insert("Cancel");
-
-	disable_map.insert(std::make_pair("Teleport", buttons));
-	disable_map.insert(std::make_pair("Cancel", buttons));
-
-	return disable_map;
-}
-
-disable_button_map_t initFriendshipOfferedDisableButtonMap()
-{
-	disable_button_map_t disable_map;
-	button_name_set_t buttons;
-
-	buttons.insert("Accept");
-	buttons.insert("Decline");
-
-	disable_map.insert(std::make_pair("Accept", buttons));
-	disable_map.insert(std::make_pair("Decline", buttons));
-
-	return disable_map;
-}
-
-button_name_set_t getButtonDisableList(const std::string& notification_name, const std::string& button_name)
-{
-	static disable_button_map_t user_give_item_disable_map = initUserGiveItemDisableButtonMap();
-	static disable_button_map_t teleport_offered_disable_map = initTeleportOfferedDisableButtonMap();
-	static disable_button_map_t friendship_offered_disable_map = initFriendshipOfferedDisableButtonMap();
-
-	disable_button_map_t::const_iterator it;
-	disable_button_map_t::const_iterator it_end;
-	disable_button_map_t search_map;
-
-	if("UserGiveItem" == notification_name)
-	{
-		search_map = user_give_item_disable_map;
-	}
-	else if("TeleportOffered" == notification_name)
-	{
-		search_map = teleport_offered_disable_map;
-	}
-	else if("OfferFriendship" == notification_name)
-	{
-		search_map = friendship_offered_disable_map;
-	}
-
-	it = search_map.find(button_name);
-	it_end = search_map.end();
-
-	if(it_end != it)
-	{
-		return it->second;
-	}
-	return button_name_set_t();
-}
-
-void LLToastNotifyPanel::disableButtons(const std::string& notification_name, const std::string& selected_button)
-{
-	button_name_set_t buttons = getButtonDisableList(notification_name, selected_button);
-
-	std::vector<index_button_pair_t>::const_iterator it = mButtons.begin();
-	for ( ; it != mButtons.end(); it++)
-	{
-		LLButton* btn = it->second;
-		if(buttons.find(btn->getName()) != buttons.end())
-		{
-			btn->setEnabled(FALSE);
-		}
-	}
-}
+	//std::vector<index_button_pair_t>::const_iterator it = mButtons.begin();
+	//for ( ; it != mButtons.end(); it++)
+	//{
+	//	LLButton* btn = it->second;
+	//	if(buttons.find(btn->getName()) != buttons.end())
+	//	{
+	//		btn->setEnabled(FALSE);
+	//	}
+	//}
+//}
 
 // static
 void LLToastNotifyPanel::onClickButton(void* data)
@@ -515,88 +366,263 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		self->mNotification->setResponder(new_info);
 	}
 
-	self->mNotification->respond(response);
+	// disable all buttons
+	self->mControlPanel->setEnabled(FALSE);
 
-	if(is_reusable)
+	// this might repost notification with new form data/enabled buttons
+	self->mNotification->respond(response);
+}
+
+void LLToastNotifyPanel::init( LLRect rect, bool show_images )
+{
+	deleteAllChildren();
+
+	mTextBox = NULL;
+	mInfoPanel = NULL;
+	mControlPanel = NULL;
+	mNumOptions = 0;
+	mNumButtons = 0;
+	mAddedDefaultBtn = false;
+
+	buildFromFile( "panel_notification.xml");
+	if(rect != LLRect::null)
 	{
-		sButtonClickSignal(self->mNotification->getID(), button_name);
+		this->setShape(rect);
+	}		 
+	mInfoPanel = getChild<LLPanel>("info_panel");
+	mInfoPanel->setFollowsAll();
+
+	mControlPanel = getChild<LLPanel>("control_panel");
+	BUTTON_WIDTH = gSavedSettings.getS32("ToastButtonWidth");
+	// customize panel's attributes
+	// is it intended for displaying a tip?
+	mIsTip = mNotification->getType() == "notifytip";
+	// is it a script dialog?
+	mIsScriptDialog = (mNotification->getName() == "ScriptDialog" || mNotification->getName() == "ScriptDialogGroup");
+	// is it a caution?
+	//
+	// caution flag can be set explicitly by specifying it in the notification payload, or it can be set implicitly if the
+	// notify xml template specifies that it is a caution
+	// tip-style notification handle 'caution' differently -they display the tip in a different color
+	mIsCaution = mNotification->getPriority() >= NOTIFICATION_PRIORITY_HIGH;
+
+	// setup parameters
+	// get a notification message
+	mMessage = mNotification->getMessage();
+	// init font variables
+	if (!sFont)
+	{
+		sFont = LLFontGL::getFontSansSerif();
+		sFontSmall = LLFontGL::getFontSansSerifSmall();
+	}
+	// initialize
+	setFocusRoot(!mIsTip);
+	// get a form for the notification
+	LLNotificationFormPtr form(mNotification->getForm());
+	// get number of elements
+	mNumOptions = form->getNumElements();
+
+	// customize panel's outfit
+	// preliminary adjust panel's layout
+	//move to the end 
+	//mIsTip ? adjustPanelForTipNotice() : adjustPanelForScriptNotice(form);
+
+	// adjust text options according to the notification type
+	// add a caution textbox at the top of a caution notification
+	if (mIsCaution && !mIsTip)
+	{
+		mTextBox = getChild<LLTextBox>("caution_text_box");
 	}
 	else
 	{
-		// disable all buttons
-		self->mControlPanel->setEnabled(FALSE);
+		mTextBox = getChild<LLTextEditor>("text_editor_box"); 
 	}
-}
 
-void LLToastNotifyPanel::onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name)
-{
-	if(mNotification->getID() == notification_id)
+	mTextBox->setMaxTextLength(MAX_LENGTH);
+	mTextBox->setVisible(TRUE);
+	mTextBox->setPlainText(!show_images);
+	mTextBox->setValue(mNotification->getMessage());
+
+	// add buttons for a script notification
+	if (mIsTip)
 	{
-		disableButtons(mNotification->getName(), btn_name);
+		adjustPanelForTipNotice();
 	}
-}
-
-void LLToastNotifyPanel::disableRespondedOptions(const LLNotificationPtr& notification)
-{
-	LLSD response = notification->getResponse();
-	for (LLSD::map_const_iterator response_it = response.beginMap(); 
-		response_it != response.endMap(); ++response_it)
+	else
 	{
-		if (response_it->second.isBoolean() && response_it->second.asBoolean())
+		std::vector<index_button_pair_t> buttons;
+		buttons.reserve(mNumOptions);
+		S32 buttons_width = 0;
+		// create all buttons and accumulate they total width to reshape mControlPanel
+		for (S32 i = 0; i < mNumOptions; i++)
 		{
-			// that after multiple responses there can be many pressed buttons
-			// need to process them all
-			disableButtons(notification->getName(), response_it->first);
+			LLSD form_element = form->getElement(i);
+			if (form_element["type"].asString() != "button")
+			{
+				// not a button.
+				continue;
+			}
+			if (form_element["name"].asString() == TEXTBOX_MAGIC_TOKEN)
+			{
+				// a textbox pretending to be a button.
+				continue;
+			}
+			LLButton* new_button = createButton(form_element, TRUE);
+			buttons_width += new_button->getRect().getWidth();
+			S32 index = form_element["index"].asInteger();
+			buttons.push_back(index_button_pair_t(index,new_button));
+		}
+		if (buttons.empty())
+		{
+			addDefaultButton();
+		}
+		else
+		{
+			const S32 button_panel_width = mControlPanel->getRect().getWidth();// do not change width of the panel
+			S32 button_panel_height = mControlPanel->getRect().getHeight();
+			//try get an average h_pad to spread out buttons
+			S32 h_pad = (button_panel_width - buttons_width) / (S32(buttons.size()));
+			if(h_pad < 2*HPAD)
+			{
+				/*
+				* Probably it is a scriptdialog toast
+				* for a scriptdialog toast h_pad can be < 2*HPAD if we have a lot of buttons.
+				* In last case set default h_pad to avoid heaping of buttons 
+				*/
+				S32 button_per_row = button_panel_width / BUTTON_WIDTH;
+				h_pad = (button_panel_width % BUTTON_WIDTH) / (button_per_row - 1);// -1  because we do not need space after last button in a row   
+				if(h_pad < 2*HPAD) // still not enough space between buttons ?
+				{
+					h_pad = 2*HPAD;
+				}
+			}
+			if (mIsScriptDialog)
+			{
+				// we are using default width for script buttons so we can determinate button_rows
+				//to get a number of rows we divide the required width of the buttons to button_panel_width
+				S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
+				//S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
+				//reserve one row for the ignore_btn
+				button_rows++;
+				//calculate required panel height for scripdialog notification.
+				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ IGNORE_BTN_TOP_DELTA + BOTTOM_PAD;
+			}
+			else
+			{
+				// in common case buttons can have different widths so we need to calculate button_rows according to buttons_width
+				//S32 button_rows = llceil(F32(buttons.size()) * (buttons_width + h_pad) / button_panel_width);
+				S32 button_rows = llceil(F32((buttons.size() - 1) * h_pad + buttons_width) / button_panel_width);
+				//calculate required panel height 
+				button_panel_height = button_rows * (BTN_HEIGHT + VPAD)	+ BOTTOM_PAD;
+			}
+
+			// we need to keep min width and max height to make visible all buttons, because width of the toast can not be changed
+			adjustPanelForScriptNotice(button_panel_width, button_panel_height);
+			updateButtonsLayout(buttons, h_pad);
+			// save buttons for later use in disableButtons()
+			//mButtons.assign(buttons.begin(), buttons.end());
 		}
 	}
+	// adjust panel's height to the text size
+	snapToMessageHeight(mTextBox, MAX_LENGTH);
 }
+
+
+
+//void LLToastNotifyPanel::onToastPanelButtonClicked(const LLUUID& notification_id, const std::string btn_name)
+//{
+//	if(mNotification->getID() == notification_id)
+//	{
+//		disableButtons(mNotification->getName(), btn_name);
+//	}
+//}
+
+//void LLToastNotifyPanel::disableRespondedOptions(const LLNotificationPtr& notification)
+//{
+//	LLSD response = notification->getResponse();
+//	for (LLSD::map_const_iterator response_it = response.beginMap(); 
+//		response_it != response.endMap(); ++response_it)
+//	{
+//		if (response_it->second.isBoolean() && response_it->second.asBoolean())
+//		{
+//			// that after multiple responses there can be many pressed buttons
+//			// need to process them all
+//			disableButtons(notification->getName(), response_it->first);
+//		}
+//	}
+//}
 
 
 //////////////////////////////////////////////////////////////////////////
 
 LLIMToastNotifyPanel::LLIMToastNotifyPanel(LLNotificationPtr& pNotification, const LLUUID& session_id, const LLRect& rect /* = LLRect::null */,
-										   bool show_images /* = true */)
- : mSessionID(session_id), LLToastNotifyPanel(pNotification, rect, show_images)
+										   bool show_images /* = true */, LLTextBase* parent_text)
+:	mSessionID(session_id), LLToastNotifyPanel(pNotification, rect, show_images),
+	mParentText(parent_text)
 {
-	mTextBox->setFollowsAll();
+	compactButtons();
 }
 
 LLIMToastNotifyPanel::~LLIMToastNotifyPanel()
 {
-	// We shouldn't delete notification when IM floater exists
-	// since that notification will be reused by IM floater.
-	// This may happened when IM floater reloads messages, exactly when user
-	// changes layout of IM chat log(disable/enable plaintext mode).
-	// See EXT-6500
-	LLIMFloater* im_floater = LLIMFloater::findInstance(mSessionID);
-	if (im_floater != NULL && !im_floater->isDead())
-	{
-		mCloseNotificationOnDestroy = false;
-	}
 }
 
 void LLIMToastNotifyPanel::reshape(S32 width, S32 height, BOOL called_from_parent /* = TRUE */)
 {
-	S32 text_height = mTextBox->getTextBoundingRect().getHeight();
-	S32 widget_height = mTextBox->getRect().getHeight();
-	S32 delta = text_height - widget_height;
-	LLRect rc = getRect();
-
-	rc.setLeftTopAndSize(rc.mLeft, rc.mTop, width, height + delta);
-	height = rc.getHeight();
-	width = rc.getWidth();
-
-	bool is_width_changed = width != getRect().getWidth();
-
 	LLToastPanel::reshape(width, height, called_from_parent);
 
-	// Notification height required to display the text message depends on
-	// the width of the text box thus if panel width is changed the text box
-	// width is also changed then reshape() is called to adjust proper height.
-	if (is_width_changed)
+	snapToMessageHeight(mTextBox, MAX_LENGTH);
+}
+
+void LLIMToastNotifyPanel::compactButtons()
+{
+	mTextBox->setFollowsAll();
+
+	//we can't set follows in xml since it broke toasts behavior
+	setFollows(FOLLOWS_LEFT|FOLLOWS_RIGHT|FOLLOWS_TOP);
+
+	const child_list_t* children = getControlPanel()->getChildList();
+	S32 offset = 0;
+	// Children were added by addChild() which uses push_front to insert them into list,
+	// so to get buttons in correct order reverse iterator is used (EXT-5906) 
+	for (child_list_t::const_reverse_iterator it = children->rbegin(); it != children->rend(); it++)
 	{
-		reshape(width, height, called_from_parent);
+		LLButton * button = dynamic_cast<LLButton*> (*it);
+		if (button != NULL)
+		{
+			button->setOrigin( offset,button->getRect().mBottom);
+			button->setLeftHPad(2 * HPAD);
+			button->setRightHPad(2 * HPAD);
+			// set zero width before perform autoResize()
+			button->setRect(LLRect(button->getRect().mLeft,
+				button->getRect().mTop, 
+				button->getRect().mLeft,
+				button->getRect().mBottom));
+			button->setAutoResize(true);
+			button->autoResize();
+			offset += HPAD + button->getRect().getWidth();
+			button->setFollowsNone();
+		}
+	}
+
+	if (mParentText)
+	{
+		mParentText->needsReflow();
 	}
 }
 
+void LLIMToastNotifyPanel::updateNotification()
+{
+	init(LLRect(), true);
+}
+
+void LLIMToastNotifyPanel::init( LLRect rect, bool show_images )
+{
+	LLToastNotifyPanel::init(LLRect(), show_images);
+
+	compactButtons();
+}
+
+
 // EOF
+

@@ -66,8 +66,9 @@ struct LLNotificationTemplate
 	{
 		static void declareValues()
 		{
-			declare("newest", LLNotification::USE_NEWEST);
-			declare("oldest", LLNotification::USE_OLDEST);
+			declare("replace_with_new", LLNotification::REPLACE_WITH_NEW);
+			declare("keep_old", LLNotification::KEEP_OLD);
+			declare("cancel_old", LLNotification::CANCEL_OLD);
 		}
 	};
 
@@ -109,7 +110,7 @@ struct LLNotificationTemplate
 
 		UniquenessConstraint()
 		:	contexts("context"),
-			combine("combine", LLNotification::USE_NEWEST),
+			combine("combine", LLNotification::REPLACE_WITH_NEW),
 			dummy_val("")
 		{}
 	};
@@ -185,6 +186,7 @@ struct LLNotificationTemplate
 		Mandatory<std::string>			name;
 		Optional<bool>					persist,
 										log_to_im,
+										show_toast,
 										log_to_chat;
 		Optional<std::string>			functor,
 										icon,
@@ -206,6 +208,7 @@ struct LLNotificationTemplate
 		:	name("name"),
 			persist("persist", false),
 			log_to_im("log_to_im", false),
+			show_toast("show_toast", true),
 			log_to_chat("log_to_chat", true),
 			functor("functor"),
 			icon("icon"),
@@ -313,6 +316,7 @@ struct LLNotificationTemplate
 	// inject these notifications into chat/IM streams
 	bool mLogToChat;
 	bool mLogToIM;
+	bool mShowToast;
 };
 
 #endif //LL_LLNOTIFICATION_TEMPLATE_H
