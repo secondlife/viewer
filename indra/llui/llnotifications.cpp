@@ -876,8 +876,9 @@ std::string LLNotification::getFooter() const
 	if (!mTemplatep)
 		return std::string();
 
-	std::string message = mTemplatep->mFooter;
-	return message;
+	std::string footer = mTemplatep->mFooter;
+	LLStringUtil::format(footer, mSubstitutions);
+	return footer;
 }
 
 std::string LLNotification::getLabel() const

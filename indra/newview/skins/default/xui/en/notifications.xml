@@ -6393,9 +6393,7 @@ It is rare that such a request is legitimate. Do not allow access if you do not 
        text="Deny"/>
     </form>
     <footer>
-If you allow access to your account, you will also be allowing the object to:
-Animate your avatar
-Act on your control inputs
+[FOOTERTEXT]
     </footer>
   </notification>
 
