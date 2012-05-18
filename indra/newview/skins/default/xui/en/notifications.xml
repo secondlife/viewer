@@ -5142,20 +5142,20 @@ Would you like to automatically wear the clothing you are about to create?
    icon="alertmodal.tga"
    name="NotAgeVerified"
    type="alertmodal">
-   <tag>fail</tag>
-To access adult content and areas in Second Life you must be at least 18 years old. Please visit our age verification page to confirm you are over 18. 
-Note this will launch your web browser.
-
-[_URL]
-    <tag>confirm</tag>
-    <url option="0" name="url">
-	    https://secondlife.com/my/account/verification.php
-    </url>
+    The location you're trying to visit is restricted to residents age 18 and over.
+    <tag>fail</tag>
     <usetemplate
-     ignoretext="I have not verified my age"
-     name="okcancelignore"
-     notext="Cancel"
-     yestext="Go to Age Verification"/>
+     ignoretext="I am not old enough to visit age restricted areas."
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="NotAgeVerified_Notify"
+   type="notifytip">
+    Location restricted to age 18 and over.
+    <tag>fail</tag>
   </notification>
 
   <notification
