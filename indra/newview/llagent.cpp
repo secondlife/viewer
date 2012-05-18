@@ -118,7 +118,10 @@ public:
 	LLTeleportRequest();
 	virtual ~LLTeleportRequest();
 
-	virtual void doTeleport() = 0;
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport() = 0;
+	virtual void restartTeleport();
 
 protected:
 
@@ -132,7 +135,10 @@ public:
 	LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
 	virtual ~LLTeleportRequestViaLandmark();
 
-	virtual void doTeleport();
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+	virtual void restartTeleport();
 
 protected:
 	inline const LLUUID &getLandmarkId() const {return mLandmarkId;};
@@ -147,7 +153,9 @@ public:
 	LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike);
 	virtual ~LLTeleportRequestViaLure();
 
-	virtual void doTeleport();
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
 
 protected:
 	inline BOOL isLureGodLike() const {return mIsLureGodLike;};
@@ -162,7 +170,10 @@ public:
 	LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
 	virtual ~LLTeleportRequestViaLocation();
 
-	virtual void doTeleport();
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+	virtual void restartTeleport();
 
 protected:
 	inline const LLVector3d &getPosGlobal() const {return mPosGlobal;};
@@ -178,14 +189,16 @@ public:
 	LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
 	virtual ~LLTeleportRequestViaLocationLookAt();
 
-	virtual void doTeleport();
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+	virtual void restartTeleport();
 
 protected:
 
 private:
 
 };
-
 
 //--------------------------------------------------------------------
 // Statics
@@ -3602,11 +3615,16 @@ bool LLAgent::teleportCore(bool is_local)
 	return true;
 }
 
+bool LLAgent::hasRestartableFailedTeleportRequest()
+{
+	return hasFailedTeleportRequest() && mFailedTeleportRequest->canRestartTeleport();
+}
+
 void LLAgent::restartFailedTeleportRequest()
 {
-	if (hasFailedTeleportRequest())
+	if (hasRestartableFailedTeleportRequest())
 	{
-		mFailedTeleportRequest->doTeleport();
+		mFailedTeleportRequest->restartTeleport();
 	}
 }
 
@@ -3688,7 +3706,7 @@ void LLAgent::teleportRequest(
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
-	mCurrentTeleportRequest->doTeleport();
+	mCurrentTeleportRequest->startTeleport();
 }
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
@@ -3708,29 +3726,8 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
-#if 0
-	// stinson 05/15/2012 : cannot restart a teleport via lure because of server-side restrictions
-	// The current scenario is as follows:
-	//    1. User A initializes a request for User B to teleport via lure
-	//    2. User B accepts the teleport via lure request
-	//    3. The server sees the init request from User A and the accept request from User B and matches them up
-	//    4. The server then removes the paired requests up from the "queue"
-	//    5. The server then fails User B's teleport for reason of maturity level (for example)
-	//    6. User B's viewer prompts user to increase their maturity level profile value.
-	//    7. User B confirms and accepts increase in maturity level
-	//    8. User B's viewer then attempts to teleport via lure again
-	//    9. This fails on the server because User A's initial request has been removed from the "queue" in step 4
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
-	mCurrentTeleportRequest->doTeleport();
-#else
-	// Clear any current and failed teleports.
-	mCurrentTeleportRequest.reset();
-	clearFailedTeleportRequest();
-
-	// Do not persist the teleport via lure request as it is only temporary and cannot be restarted
-	LLTeleportRequestPtr currentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
-	currentTeleportRequest->doTeleport();
-#endif
+	mCurrentTeleportRequest->startTeleport();
 }
 
 void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
@@ -3785,7 +3782,7 @@ void LLAgent::teleportCancel()
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
-	mCurrentTeleportRequest->doTeleport();
+	mCurrentTeleportRequest->startTeleport();
 }
 
 void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
@@ -3833,7 +3830,7 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
 {
 	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
-	mCurrentTeleportRequest->doTeleport();
+	mCurrentTeleportRequest->startTeleport();
 }
 
 void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
@@ -4283,6 +4280,16 @@ LLTeleportRequest::~LLTeleportRequest()
 {
 }
 
+bool LLTeleportRequest::canRestartTeleport()
+{
+	return false;
+}
+
+void LLTeleportRequest::restartTeleport()
+{
+	llassert(0);
+}
+
 //-----------------------------------------------------------------------------
 // LLTeleportRequestViaLandmark
 //-----------------------------------------------------------------------------
@@ -4297,7 +4304,17 @@ LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
 {
 }
 
-void LLTeleportRequestViaLandmark::doTeleport()
+bool LLTeleportRequestViaLandmark::canRestartTeleport()
+{
+	return true;
+}
+
+void LLTeleportRequestViaLandmark::startTeleport()
+{
+	gAgent.doTeleportViaLandmark(getLandmarkId());
+}
+
+void LLTeleportRequestViaLandmark::restartTeleport()
 {
 	gAgent.doTeleportViaLandmark(getLandmarkId());
 }
@@ -4316,7 +4333,24 @@ LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
 {
 }
 
-void LLTeleportRequestViaLure::doTeleport()
+bool LLTeleportRequestViaLure::canRestartTeleport()
+{
+	// stinson 05/17/2012 : cannot restart a teleport via lure because of server-side restrictions
+	// The current scenario is as follows:
+	//    1. User A initializes a request for User B to teleport via lure
+	//    2. User B accepts the teleport via lure request
+	//    3. The server sees the init request from User A and the accept request from User B and matches them up
+	//    4. The server then removes the paired requests up from the "queue"
+	//    5. The server then fails User B's teleport for reason of maturity level (for example)
+	//    6. User B's viewer prompts user to increase their maturity level profile value.
+	//    7. User B confirms and accepts increase in maturity level
+	//    8. User B's viewer then attempts to teleport via lure again
+	//    9. This request will time-out on the viewer-side because User A's initial request has been removed from the "queue" in step 4
+
+	return false;
+}
+
+void LLTeleportRequestViaLure::startTeleport()
 {
 	gAgent.doTeleportViaLure(getLandmarkId(), isLureGodLike());
 }
@@ -4335,7 +4369,17 @@ LLTeleportRequestViaLocation::~LLTeleportRequestViaLocation()
 {
 }
 
-void LLTeleportRequestViaLocation::doTeleport()
+bool LLTeleportRequestViaLocation::canRestartTeleport()
+{
+	return true;
+}
+
+void LLTeleportRequestViaLocation::startTeleport()
+{
+	gAgent.doTeleportViaLocation(getPosGlobal());
+}
+
+void LLTeleportRequestViaLocation::restartTeleport()
 {
 	gAgent.doTeleportViaLocation(getPosGlobal());
 }
@@ -4353,7 +4397,17 @@ LLTeleportRequestViaLocationLookAt::~LLTeleportRequestViaLocationLookAt()
 {
 }
 
-void LLTeleportRequestViaLocationLookAt::doTeleport()
+bool LLTeleportRequestViaLocationLookAt::canRestartTeleport()
+{
+	return true;
+}
+
+void LLTeleportRequestViaLocationLookAt::startTeleport()
+{
+	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
+}
+
+void LLTeleportRequestViaLocationLookAt::restartTeleport()
 {
 	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
 }

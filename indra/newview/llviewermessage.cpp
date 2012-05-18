@@ -5387,7 +5387,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 }
 
-void handle_maturity_preference_change(const LLSD &pResponse, U8 pMaturityRatingChange)
+void handle_maturity_preference_change_and_reteleport(const LLSD &pResponse, U8 pMaturityRatingChange)
 {
 	bool isMaturityPreferenceElevated = false;
 	U8 actualPrefValue = SIM_ACCESS_MIN;
@@ -5485,7 +5485,7 @@ void handle_maturity_preference_change(const LLSD &pResponse, U8 pMaturityRating
 	}
 }
 
-bool handle_special_notification_callback(const LLSD& notification, const LLSD& response)
+bool handle_prompt_for_maturity_level_change_callback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	
@@ -5494,7 +5494,22 @@ bool handle_special_notification_callback(const LLSD& notification, const LLSD& 
 		// set the preference to the maturity of the region we're calling
 		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
 		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
-		gAgent.sendMaturityPreferenceToServer(preferredMaturity, boost::bind(&handle_maturity_preference_change, _1, preferredMaturity));
+		gAgent.sendMaturityPreferenceToServer(preferredMaturity);
+	}
+	
+	return false;
+}
+
+bool handle_prompt_for_maturity_level_change_and_reteleport_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	
+	if (0 == option)
+	{
+		// set the preference to the maturity of the region we're calling
+		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
+		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
+		gAgent.sendMaturityPreferenceToServer(preferredMaturity, boost::bind(&handle_maturity_preference_change_and_reteleport, _1, preferredMaturity));
 	}
 	else
 	{
@@ -5523,8 +5538,16 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 		}
 		else if (gAgent.prefersPG())
 		{
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
-			returnValue = true;
+			if (gAgent.hasRestartableFailedTeleportRequest())
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+				returnValue = true;
+			}
+			else
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeOnly", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				returnValue = true;
+			}
 		}
 	}
 	else if (regionAccess == SIM_ACCESS_ADULT)
@@ -5536,8 +5559,16 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 		}
 		else if (gAgent.prefersPG() || gAgent.prefersMature())
 		{
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_special_notification_callback);
-			returnValue = true;
+			if (gAgent.hasRestartableFailedTeleportRequest())
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
+				returnValue = true;
+			}
+			else
+			{
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeOnly", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				returnValue = true;
+			}
 		}
 	}
 

@@ -578,6 +578,7 @@ protected:
 public:
 	inline bool     hasCurrentTeleportRequest() {return (mCurrentTeleportRequest != NULL);};
 	inline bool     hasFailedTeleportRequest() {return (mFailedTeleportRequest != NULL);};
+	bool            hasRestartableFailedTeleportRequest();
 	void            restartFailedTeleportRequest();
 	void            clearFailedTeleportRequest();
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
