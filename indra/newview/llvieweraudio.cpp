@@ -49,7 +49,8 @@ LLViewerAudio::LLViewerAudio() :
 	mFadeState(FADE_IDLE),
 	mFadeTime(),
     mIdleListnerActive(false),
-	mForcedTeleportFade(false)
+	mForcedTeleportFade(false),
+	mWasPlaying(false)
 {
 	mTeleportFailedConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFailedCallback(boost::bind(&LLViewerAudio::onTeleportFailed, this));
@@ -250,7 +251,7 @@ F32 LLViewerAudio::getFadeVolume()
 
 void LLViewerAudio::onTeleportFailed()
 {
-	if (gAudiop)
+	if (gAudiop && mWasPlaying)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if (parcel)
@@ -259,11 +260,12 @@ void LLViewerAudio::onTeleportFailed()
 			llinfos << "Teleport failed -- resetting music stream" << llendl;
 		}
 	}
+	mWasPlaying = false;
 }
 
 void LLViewerAudio::onTeleportFinished(const LLVector3d& pos, const bool& local)
 {
-	if (gAudiop && local)
+	if (gAudiop && local && mWasPlaying)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if (parcel)
@@ -271,6 +273,7 @@ void LLViewerAudio::onTeleportFinished(const LLVector3d& pos, const bool& local)
 			mNextStreamURI = parcel->getMusicURL();
 		}
 	}
+	mWasPlaying = false;
 }
 
 void init_audio() 
@@ -378,12 +381,22 @@ void audio_update_volume(bool force_update)
 	{
 		if (progress_view_visible  && !LLViewerAudio::getInstance()->getForcedTeleportFade())
 		{
+			// Even though the music was turned off it was starting up (with autoplay disabled) occasionally
+			// after a failed teleport or after an intra-parcel teleport.
+			if (gAudiop->getInternetStreamURL().empty())
+			{
+				LLViewerAudio::getInstance()->setWasPlaying(false);
+			}
+			else
+			{
+				LLViewerAudio::getInstance()->setWasPlaying(true);
+			}
 			LLViewerAudio::getInstance()->setForcedTeleportFade(true);
 			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 			LLViewerAudio::getInstance()->setNextStreamURI(LLStringUtil::null);
 		}
 
-		if (!progress_view_visible && LLViewerAudio::getInstance()->getForcedTeleportFade() == true)
+		if (!progress_view_visible && LLViewerAudio::getInstance()->getForcedTeleportFade())
 		{
 			LLViewerAudio::getInstance()->setForcedTeleportFade(false);
 		}
