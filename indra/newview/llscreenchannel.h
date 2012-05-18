@@ -84,6 +84,7 @@ public:
 	// kill or modify a toast by its ID
 	virtual void		killToastByNotificationID(LLUUID id) {};
 	virtual void		modifyToastNotificationByID(LLUUID id, LLSD data) {};
+	virtual void		removeToastByNotificationID(LLUUID id){};
 	
 	// hide all toasts from screen, but not remove them from a channel
 	virtual void		hideToastsFromScreen() {};
@@ -175,6 +176,7 @@ public:
 	void		addToast(const LLToast::Params& p);
 	// kill or modify a toast by its ID
 	void		killToastByNotificationID(LLUUID id);
+	void		removeToastByNotificationID(LLUUID id);
 	void		killMatchedToasts(const Matcher& matcher);
 	void		modifyToastByNotificationID(LLUUID id, LLPanel* panel);
 	// hide all toasts from screen, but not remove them from a channel
@@ -195,8 +197,6 @@ public:
 	void		loadStoredToastsToChannel();
 	// finds a toast among stored by its Notification ID and throws it on a screen to a channel
 	void		loadStoredToastByNotificationIDToChannel(LLUUID id);
-	// removes a toast from stored finding it by its Notification ID 
-	void		removeStoredToastByNotificationID(LLUUID id);
 	// removes from channel all toasts that belongs to the certain IM session 
 	void		removeToastsBySessionID(LLUUID id);
 	// remove all storable toasts from screen and store them
@@ -229,13 +229,9 @@ public:
 	// signal on storing of faded toasts event
 	typedef boost::signals2::signal<void (LLPanel* info_panel, const LLUUID id)> store_toast_signal_t;
 	boost::signals2::connection addOnStoreToastCallback(store_toast_signal_t::slot_type cb) { return mOnStoreToast.connect(cb); }
-	// signal on rejecting of a toast event
-	typedef boost::signals2::signal<void (LLUUID id)> reject_toast_signal_t;
-	boost::signals2::connection addOnRejectToastCallback(reject_toast_signal_t::slot_type cb) { return mRejectToastSignal.connect(cb); }
 
 private:
 	store_toast_signal_t mOnStoreToast;	
-	reject_toast_signal_t mRejectToastSignal; 
 
 	class ToastElem
 	{

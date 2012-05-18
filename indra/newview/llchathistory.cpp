@@ -786,12 +786,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// timestams showing
 		if (args["show_time"].asBoolean())
 		{
-			if (!message_from_log)
-			{
-				LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
-				timestamp_style.color(timestamp_color);
-				timestamp_style.readonly_color(timestamp_color);
-			}
+		if (!message_from_log)
+		{
+			LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+			timestamp_style.color(timestamp_color);
+			timestamp_style.readonly_color(timestamp_color);
+		}
 			mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
 			prependNewLineState = false;
 		}
@@ -817,7 +817,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
 				prependNewLineState = false;
 			}
-			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(style_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
@@ -831,7 +831,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				}
 				else
 				{
-					// Add link to avatar's inspector and delimiter to message.
+				// Add link to avatar's inspector and delimiter to message.
 					mEditor->appendText(std::string(link_params.link_href) + delimiter,
 							prependNewLineState, link_params);
 					prependNewLineState = false;
@@ -903,35 +903,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		if (notification != NULL)
 		{
 			LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
-					notification, chat.mSessionID, LLRect::null, !use_plain_text_chat_history);
-			//we can't set follows in xml since it broke toasts behavior
-			notify_box->setFollowsLeft();
-			notify_box->setFollowsRight();
-			notify_box->setFollowsTop();
-
-			ctrl_list_t ctrls = notify_box->getControlPanel()->getCtrlList();
-			S32 offset = 0;
-			// Children were added by addChild() which uses push_front to insert them into list,
-			// so to get buttons in correct order reverse iterator is used (EXT-5906) 
-			for (ctrl_list_t::reverse_iterator it = ctrls.rbegin(); it != ctrls.rend(); it++)
-			{
-				LLButton * button = dynamic_cast<LLButton*> (*it);
-				if (button != NULL)
-				{
-					button->setOrigin( offset,
-							button->getRect().mBottom);
-					button->setLeftHPad(2 * HPAD);
-					button->setRightHPad(2 * HPAD);
-					// set zero width before perform autoResize()
-					button->setRect(LLRect(button->getRect().mLeft,
-							button->getRect().mTop, button->getRect().mLeft,
-							button->getRect().mBottom));
-					button->setAutoResize(true);
-					button->autoResize();
-					offset += HPAD + button->getRect().getWidth();
-					button->setFollowsNone();
-				}
-			}
+					notification, chat.mSessionID, LLRect::null, !use_plain_text_chat_history, mEditor);
 
 			//Prepare the rect for the view
 			LLRect target_rect = mEditor->getDocumentView()->getRect();

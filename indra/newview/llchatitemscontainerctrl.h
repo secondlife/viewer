@@ -40,7 +40,7 @@ typedef enum e_show_item_header
 	CHATITEMHEADER_SHOW_BOTH
 } EShowItemHeader;
 
-class LLNearbyChatToastPanel: public LLToastPanelBase
+class LLNearbyChatToastPanel : public LLPanel
 {
 protected:
         LLNearbyChatToastPanel()

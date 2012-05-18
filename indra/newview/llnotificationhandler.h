@@ -95,16 +95,9 @@ public:
 	// base interface functions
 	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
 	/*virtual*/ void onLoad(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->killToastByNotificationID(p->getID());}
+	/*virtual*/ void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->removeToastByNotificationID(p->getID());}
 
 	virtual bool processNotification(const LLNotificationPtr& notify)=0;
-
-protected :
-	static void init();
-	void removeExclusiveNotifications(const LLNotificationPtr& notif);
-
-	typedef std::list< std::set<std::string> > exclusive_notif_sets;
-	static exclusive_notif_sets sExclusiveNotificationGroups;
 };
 
 /**
@@ -148,7 +141,6 @@ public:
 	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
-	/*virtual*/ void onRejectToast(const LLUUID& id);
 	/*virtual*/ void initChannel();
 };
 
@@ -169,9 +161,6 @@ public:
 protected:
 	/*virtual*/ void onDeleteToast(LLToast* toast);
 	/*virtual*/ void initChannel();
-
-	// own handlers
-	void onRejectToast(LLUUID& id);
 };
 
 
@@ -190,9 +179,6 @@ public:
 
 protected:
 	virtual void initChannel();
-
-	// own handlers
-	void onRejectToast(LLUUID& id);
 };
 
 /**
@@ -225,15 +211,12 @@ public:
 	virtual ~LLOfferHandler();
 
 	// base interface functions
-	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onChange(LLNotificationPtr p);
 	/*virtual*/ void onDelete(LLNotificationPtr notification);
 	/*virtual*/ bool processNotification(const LLNotificationPtr& p);
 
 protected:
 	/*virtual*/ void initChannel();
-
-	// own handlers
-	void onRejectToast(LLUUID& id);
 };
 
 /**

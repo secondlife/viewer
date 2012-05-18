@@ -60,7 +60,8 @@ void NotificationPriorityValues::declareValues()
 }
 
 LLNotificationForm::FormElementBase::FormElementBase()
-:	name("name")
+:	name("name"),
+	enabled("enabled", true)
 {}
 
 LLNotificationForm::FormIgnore::FormIgnore()
@@ -210,6 +211,14 @@ LLNotificationForm::LLNotificationForm()
 {
 }
 
+LLNotificationForm::LLNotificationForm( const LLNotificationForm& other )
+{
+	mFormData 	   = other.mFormData;
+	mIgnore 	   = other.mIgnore;
+	mIgnoreMsg 	   = other.mIgnoreMsg;
+	mIgnoreSetting = other.mIgnoreSetting;
+	mInvertSetting = other.mInvertSetting;
+}
 
 LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotificationForm::Params& p) 
 :	mIgnore(IGNORE_NO),
@@ -300,7 +309,7 @@ LLSD LLNotificationForm::getElement(const std::string& element_name)
 }
 
 
-bool LLNotificationForm::hasElement(const std::string& element_name)
+bool LLNotificationForm::hasElement(const std::string& element_name) const
 {
 	for (LLSD::array_const_iterator it = mFormData.beginArray();
 		it != mFormData.endArray();
@@ -311,7 +320,36 @@ bool LLNotificationForm::hasElement(const std::string& element_name)
 	return false;
 }
 
-void LLNotificationForm::addElement(const std::string& type, const std::string& name, const LLSD& value)
+bool LLNotificationForm::getElementEnabled(const std::string& element_name) const
+{
+	for (LLSD::array_const_iterator it = mFormData.beginArray();
+		it != mFormData.endArray();
+		++it)
+	{
+		if ((*it)["name"].asString() == element_name)
+		{
+			return (*it)["enabled"].asBoolean();
+		}
+	}
+
+	return false;
+}
+
+void LLNotificationForm::setElementEnabled(const std::string& element_name, bool enabled)
+{
+	for (LLSD::array_iterator it = mFormData.beginArray();
+		it != mFormData.endArray();
+		++it)
+	{
+		if ((*it)["name"].asString() == element_name)
+		{
+			(*it)["enabled"] = enabled;
+		}
+	}
+}
+
+
+void LLNotificationForm::addElement(const std::string& type, const std::string& name, const LLSD& value, bool enabled)
 {
 	LLSD element;
 	element["type"] = type;
@@ -319,6 +357,7 @@ void LLNotificationForm::addElement(const std::string& type, const std::string& 
 	element["text"] = name;
 	element["value"] = value;
 	element["index"] = mFormData.size();
+	element["enabled"] = enabled;
 	mFormData.append(element);
 }
 
@@ -412,7 +451,8 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 	mPersist(p.persist),
 	mDefaultFunctor(p.functor.isProvided() ? p.functor() : p.name()),
 	mLogToChat(p.log_to_chat),
-	mLogToIM(p.log_to_im)
+	mLogToIM(p.log_to_im),
+	mShowToast(p.show_toast)
 {
 	if (p.sound.isProvided()
 		&& LLUI::sSettingGroups["config"]->controlExists(p.sound))
@@ -571,7 +611,6 @@ void LLNotification::updateFrom(LLNotificationPtr other)
 	mRespondedTo = other->mRespondedTo;
 	mResponse = other->mResponse;
 	mTemporaryResponder = other->mTemporaryResponder;
-	mIsReusable = other->isReusable();
 
 	update();
 }
@@ -670,7 +709,7 @@ void LLNotification::respond(const LLSD& response)
 		return;
 	}
 
-	if (mTemporaryResponder && !isReusable())
+	if (mTemporaryResponder)
 	{
 		LLNotificationFunctorRegistry::instance().unregisterFunctor(mResponseFunctorName);
 		mResponseFunctorName = "";
@@ -899,6 +938,11 @@ bool LLNotification::canLogToIM() const
 	return mTemplatep->mLogToIM;
 }
 
+bool LLNotification::canShowToast() const
+{
+	return mTemplatep->mShowToast;
+}
+
 bool LLNotification::hasFormElements() const
 {
 	return mTemplatep->mForm->getNumElements() != 0;
@@ -907,6 +951,17 @@ bool LLNotification::hasFormElements() const
 LLNotification::ECombineBehavior LLNotification::getCombineBehavior() const
 {
 	return mTemplatep->mCombineBehavior;
+}
+
+void LLNotification::updateForm( const LLNotificationFormPtr& form )
+{
+	mForm = form;
+}
+
+void LLNotification::repost()
+{
+	mRespondedTo = false;
+	LLNotifications::instance().update(shared_from_this());
 }
 
 
@@ -1065,12 +1120,8 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		if (wasFound)
 		{
 			abortProcessing = mChanged(payload);
-			// do not delete the notification to make LLChatHistory::appendMessage add notification panel to IM window
-			if( ! pNotification->isReusable() )
-			{
-				mItems.erase(pNotification);
-				onDelete(pNotification);
-			}
+			mItems.erase(pNotification);
+			onDelete(pNotification);
 		}
 	}
 	return abortProcessing;
@@ -1207,7 +1258,15 @@ bool LLNotifications::uniqueFilter(LLNotificationPtr pNotif)
 		if (pNotif != existing_notification 
 			&& pNotif->isEquivalentTo(existing_notification))
 		{
-			return false;
+			if (pNotif->getCombineBehavior() == LLNotification::CANCEL_OLD)
+			{
+				cancel(existing_notification);
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 
@@ -1247,26 +1306,35 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 		return false;
 	}
 
-	if (pNotif->getCombineBehavior() == LLNotification::USE_NEWEST)
+	switch(pNotif->getCombineBehavior())
 	{
-	// Update the existing unique notification with the data from this particular instance...
-	// This guarantees that duplicate notifications will be collapsed to the one
-	// most recently triggered
-	for (LLNotificationMap::iterator existing_it = mUniqueNotifications.find(pNotif->getName());
-		existing_it != mUniqueNotifications.end();
-		++existing_it)
-	{
-		LLNotificationPtr existing_notification = existing_it->second;
-		if (pNotif != existing_notification 
-			&& pNotif->isEquivalentTo(existing_notification))
+	case  LLNotification::REPLACE_WITH_NEW:
+		// Update the existing unique notification with the data from this particular instance...
+		// This guarantees that duplicate notifications will be collapsed to the one
+		// most recently triggered
+		for (LLNotificationMap::iterator existing_it = mUniqueNotifications.find(pNotif->getName());
+			existing_it != mUniqueNotifications.end();
+			++existing_it)
 		{
-			// copy notification instance data over to oldest instance
-			// of this unique notification and update it
-			existing_notification->updateFrom(pNotif);
-			// then delete the new one
-			cancel(pNotif);
+			LLNotificationPtr existing_notification = existing_it->second;
+			if (pNotif != existing_notification 
+				&& pNotif->isEquivalentTo(existing_notification))
+			{
+				// copy notification instance data over to oldest instance
+				// of this unique notification and update it
+				existing_notification->updateFrom(pNotif);
+				// then delete the new one
+				cancel(pNotif);
+			}
 		}
-	}
+		break;
+	case LLNotification::KEEP_OLD:
+		break;
+	case LLNotification::CANCEL_OLD:
+		// already handled by filter logic
+		break;
+	default:
+		break;
 	}
 
 	return false;
@@ -1594,12 +1662,11 @@ void LLNotifications::cancel(LLNotificationPtr pNotif)
 	if (pNotif == NULL || pNotif->isCancelled()) return;
 
 	LLNotificationSet::iterator it=mItems.find(pNotif);
-	if (it == mItems.end())
+	if (it != mItems.end())
 	{
-		llerrs << "Attempted to delete nonexistent notification " << pNotif->getName() << llendl;
+		pNotif->cancel();
+		updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
 	}
-	pNotif->cancel();
-	updateItem(LLSD().with("sigtype", "delete").with("id", pNotif->id()), pNotif);
 }
 
 void LLNotifications::cancelByName(const std::string& name)

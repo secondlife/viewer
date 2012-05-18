@@ -46,7 +46,6 @@ LLScriptHandler::LLScriptHandler()
 	if(channel)
 	{
 		channel->setControlHovering(true);
-		channel->addOnRejectToastCallback(boost::bind(&LLScriptHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }
@@ -116,7 +115,7 @@ void LLScriptHandler::onDelete( LLNotificationPtr notification )
 		}
 		else
 		{
-			mChannel.get()->killToastByNotificationID(notification->getID());
+			mChannel.get()->removeToastByNotificationID(notification->getID());
 		}
 	}
 
@@ -134,19 +133,6 @@ void LLScriptHandler::onDeleteToast(LLToast* toast)
 		LLScriptFloaterManager::getInstance()->onRemoveNotification(notification->getID());
 	}
 }
-
-//--------------------------------------------------------------------------
-void LLScriptHandler::onRejectToast(LLUUID& id)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(id);
-
-	if (notification && mItems.find(notification) != mItems.end())
-	{
-		LLNotifications::instance().cancel(notification);
-	}
-}
-
-//--------------------------------------------------------------------------
 
 
 

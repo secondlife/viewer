@@ -44,7 +44,6 @@ LLGroupHandler::LLGroupHandler()
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
 	{
-		channel->addOnRejectToastCallback(boost::bind(&LLGroupHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }
@@ -94,16 +93,6 @@ bool LLGroupHandler::processNotification(const LLNotificationPtr& notification)
 	return false;
 }
 
-//--------------------------------------------------------------------------
-void LLGroupHandler::onRejectToast(LLUUID& id)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(id);
-
-	if (notification && mItems.find(notification) != mItems.end())
-	{
-		LLNotifications::instance().cancel(notification);
-	}
-}
 
 //--------------------------------------------------------------------------
 

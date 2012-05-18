@@ -179,6 +179,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	LLMessageSystem* msg = gMessageSystem;
 	const LLSD& payload = notification["payload"];
+	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
 
 	// add friend to recent people list
 	LLRecentPeople::instance().add(payload["from_id"]);
@@ -204,7 +205,6 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		msg->sendReliable(LLHost(payload["sender"].asString()));
 
 		LLSD payload = notification["payload"];
-		payload["SUPPRESS_TOAST"] = true;
 		LLNotificationsUtil::add("FriendshipAcceptedByMe",
 				notification["substitutions"], payload);
 		break;
@@ -212,7 +212,6 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	case 1: // Decline
 	{
 		LLSD payload = notification["payload"];
-		payload["SUPPRESS_TOAST"] = true;
 		LLNotificationsUtil::add("FriendshipDeclinedByMe",
 				notification["substitutions"], payload);
 	}
@@ -240,6 +239,12 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 		// close button probably, possibly timed out
 		break;
 	}
+
+	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	modified_form->setElementEnabled("Accept", false);
+	modified_form->setElementEnabled("Decline", false);
+	notification_ptr->updateForm(modified_form);
+	notification_ptr->repost();
 
 	return false;
 }
@@ -1471,16 +1476,16 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		itemp = (LLViewerInventoryItem*)gInventory.getItem(mObjectID);
 	}
 	 
+	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
+	llassert(notification_ptr != NULL);
+	
 	// For muting, we need to add the mute, then decline the offer.
 	// This must be done here because:
 	// * callback may be called immediately,
 	// * adding the mute sends a message,
 	// * we can't build two messages at once.
-	if (2 == button) // Block
+	if (IOR_MUTE == button) // Block
 	{
-		LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
-
-		llassert(notification_ptr != NULL);
 		if (notification_ptr != NULL)
 		{
 			gCacheName->get(mFromID, mFromGroup, boost::bind(&inventory_offer_mute_callback, _1, _2, _3));
@@ -1495,6 +1500,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	
 	bool busy = gAgent.getBusy();
 	
+	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+
 	switch(button)
 	{
 	case IOR_SHOW:
@@ -1538,6 +1545,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
 			break;
 		}
+
+		modified_form->setElementEnabled("Show", false);
 		break;
 		// end switch (mIM)
 			
@@ -1550,9 +1559,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			args["MESSAGE"] = log_message;
 			LLNotificationsUtil::add("SystemMessageTip", args);
 		}
+
 		break;
 
 	case IOR_MUTE:
+		modified_form->setElementEnabled("Mute", false);
 		// MUTE falls through to decline
 	case IOR_DECLINE:
 		{
@@ -1588,6 +1599,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			{
 				busy_message(gMessageSystem, mFromID);
 			}
+
+			modified_form->setElementEnabled("Show", false);
+			modified_form->setElementEnabled("Discard", false);
+
 			break;
 		}
 	default:
@@ -1607,6 +1622,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	{
 		delete this;
 	}
+
+	notification_ptr->updateForm(modified_form);
+	notification_ptr->repost();
+
 	return false;
 }
 
@@ -1984,6 +2003,15 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 					   lure_id);
 		break;
 	}
+
+	LLNotificationPtr notification_ptr = LLNotifications::instance().find(notification["id"].asUUID());
+
+	LLNotificationFormPtr modified_form(new LLNotificationForm(*notification_ptr->getForm()));
+	modified_form->setElementEnabled("Teleport", false);
+	modified_form->setElementEnabled("Cancel", false);
+	notification_ptr->updateForm(modified_form);
+	notification_ptr->repost();
+
 	return false;
 }
 static LLNotificationFunctorRegistration lure_callback_reg("TeleportOffered", lure_callback);
@@ -6394,7 +6422,6 @@ bool handle_lure_callback(const LLSD& notification, const LLSD& response)
 				
 				//*TODO please rewrite all keys to the same case, lower or upper
 				payload["from_id"] = target_id;
-				payload["SUPPRESS_TOAST"] = true;
 				LLNotificationsUtil::add("TeleportOfferSent", args, payload);
 
 				// Add the recepient to the recent people list.

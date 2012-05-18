@@ -48,7 +48,6 @@ LLTipHandler::LLTipHandler()
 	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
 	{
-		channel->addOnRejectToastCallback(boost::bind(&LLTipHandler::onRejectToast, this, _1));
 		mChannel = channel->getHandle();
 	}
 }
@@ -127,22 +126,8 @@ bool LLTipHandler::processNotification(const LLNotificationPtr& notification)
 	p.is_tip = true;
 	p.can_be_stored = false;
 		
-	removeExclusiveNotifications(notification);
-
 	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 	if(channel)
 		channel->addToast(p);
 	return false;
-}
-
-//--------------------------------------------------------------------------
-
-void LLTipHandler::onRejectToast(const LLUUID& id)
-{
-	LLNotificationPtr notification = LLNotifications::instance().find(id);
-
-	if (notification && mItems.find(notification) != mItems.end())
-	{
-		LLNotifications::instance().cancel(notification);
-	}
 }

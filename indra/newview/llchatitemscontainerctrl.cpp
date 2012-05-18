@@ -372,7 +372,6 @@ void LLNearbyChatToastPanel::draw()
 		}
 		mIsDirty = false;
 	}
-	LLToastPanelBase::draw();
 }
 
 

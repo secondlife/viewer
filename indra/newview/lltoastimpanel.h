@@ -41,11 +41,11 @@ public:
 	struct Params
 	{
 		LLNotificationPtr	notification;
-		LLUUID				avatar_id;
-		LLUUID				session_id;
-		std::string			from;
-		std::string			time;
-		std::string			message;
+		LLUUID				avatar_id,
+							session_id;
+		std::string			from,
+							time,
+							message;
 
 		Params() {}
 	};
