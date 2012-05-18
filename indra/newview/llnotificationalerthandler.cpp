@@ -82,39 +82,39 @@ bool LLAlertHandler::processNotification(const LLNotificationPtr& notification)
 	}
 
 	if (notification->canLogToIM() && notification->hasFormElements())
-		{
-			const std::string name = LLHandlerUtil::getSubstitutionName(notification);
+	{
+		const std::string name = LLHandlerUtil::getSubstitutionName(notification);
 
-			LLUUID from_id = notification->getPayload()["from_id"];
+		LLUUID from_id = notification->getPayload()["from_id"];
 
-			// firstly create session...
-			LLHandlerUtil::spawnIMSession(name, from_id);
+		// firstly create session...
+		LLHandlerUtil::spawnIMSession(name, from_id);
 
-			// ...then log message to have IM Well notified about new message
-			LLHandlerUtil::logToIMP2P(notification);
-		}
+		// ...then log message to have IM Well notified about new message
+		LLHandlerUtil::logToIMP2P(notification);
+	}
 
-		LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
-		LLToast::Params p;
-		p.notif_id = notification->getID();
-		p.notification = notification;
-		p.panel = dynamic_cast<LLToastPanel*>(alert_dialog);
-		p.enable_hide_btn = false;
-		p.can_fade = false;
-		p.is_modal = mIsModal;
-		p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
+	LLToastAlertPanel* alert_dialog = new LLToastAlertPanel(notification, mIsModal);
+	LLToast::Params p;
+	p.notif_id = notification->getID();
+	p.notification = notification;
+	p.panel = dynamic_cast<LLToastPanel*>(alert_dialog);
+	p.enable_hide_btn = false;
+	p.can_fade = false;
+	p.is_modal = mIsModal;
+	p.on_delete_toast = boost::bind(&LLAlertHandler::onDeleteToast, this, _1);
 
-		// Show alert in middle of progress view (during teleport) (EXT-1093)
-		LLProgressView* progress = gViewerWindow->getProgressView();
-		LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
-		mChannel.get()->updatePositionAndSize(rc);
+	// Show alert in middle of progress view (during teleport) (EXT-1093)
+	LLProgressView* progress = gViewerWindow->getProgressView();
+	LLRect rc = progress && progress->getVisible() ? progress->getRect() : gViewerWindow->getWorldViewRectScaled();
+	mChannel.get()->updatePositionAndSize(rc);
 
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
-		if(channel)
-			channel->addToast(p);
+	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
+	if(channel)
+		channel->addToast(p);
 	
 	return false;
-	}
+}
 
 void LLAlertHandler::onChange( LLNotificationPtr notification )
 {
