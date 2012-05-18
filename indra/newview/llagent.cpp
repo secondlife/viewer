@@ -339,6 +339,7 @@ LLAgent::LLAgent() :
 	mTeleportFailedSlot(),
 	mIsMaturityRatingChangingDuringTeleport(false),
 	mMaturityRatingChange(0U),
+	mMaturityPreferenceConfirmCallback(NULL),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -2520,7 +2521,39 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 {
 	if (!mMaturityPreferencesCallback.empty())
 	{
-		mMaturityPreferencesCallback(pContent);
+		U8 actualPreferenceValue = SIM_ACCESS_MIN;
+		llassert(!pContent.isUndefined());
+		llassert(pContent.isMap());
+
+		if (!pContent.isUndefined() && pContent.isMap())
+		{
+			if (pContent.has("access_prefs"))
+			{
+				llassert(pContent.has("access_prefs"));
+				llassert(pContent.get("access_prefs").isMap());
+				llassert(pContent.get("access_prefs").has("max"));
+				llassert(pContent.get("access_prefs").get("max").isString());
+				if (pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max") &&
+					pContent.get("access_prefs").get("max").isString())
+				{
+					LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
+					LLStringUtil::trim(actualPreference);
+					actualPreferenceValue = LLViewerRegion::shortStringToAccess(actualPreference);
+				}
+			}
+			else if (pContent.has("max"))
+			{
+				llassert(pContent.get("max").isString());
+				if (pContent.get("max").isString())
+				{
+					LLSD::String actualPreference = pContent.get("max").asString();
+					LLStringUtil::trim(actualPreference);
+					actualPreferenceValue = LLViewerRegion::shortStringToAccess(actualPreference);
+				}
+			}
+		}
+
+		mMaturityPreferencesCallback(actualPreferenceValue);
 	}
 }
 
@@ -2528,12 +2561,24 @@ void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReas
 {
 	if (!mMaturityPreferencesCallback.empty())
 	{
-		LLSD empty;
-		mMaturityPreferencesCallback(empty);
+		mMaturityPreferencesCallback(SIM_ACCESS_MIN);
 	}
 }
 
-bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback)
+void LLAgent::setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback)
+{
+	llassert(mMaturityPreferenceConfirmCallback == NULL);
+	mMaturityPreferenceConfirmCallback = pMaturityPreferencesCallback;
+
+	gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
+	// PreferredMaturity has a signal hook on change that will call LLAgent::sendMaturityPreferenceToServer
+	// sendMaturityPreferenceToServer will use mMaturityPreferenceConfirmCallback in the LLHTTPResponder
+	// This allows for confirmation that the server has officially received the maturity preference change
+
+	mMaturityPreferenceConfirmCallback = NULL;
+}
+
+bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
 {
 	if (!getRegion())
 		return false;
@@ -2561,7 +2606,7 @@ bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity, maturity_pre
 		body["access_prefs"] = access_prefs;
 		llinfos << "Sending access prefs update to " << (access_prefs["max"].asString()) << " via capability to: "
 		<< url << llendl;
-		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(pMaturityPreferencesCallback));
+		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(mMaturityPreferenceConfirmCallback));
 		LLHTTPClient::post(url, body, responderPtr);
 		return true;
 	}

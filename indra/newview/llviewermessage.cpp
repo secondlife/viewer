@@ -5387,31 +5387,14 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 }
 
-void handle_maturity_preference_change_and_reteleport(const LLSD &pResponse, U8 pMaturityRatingChange)
+void handle_maturity_preference_change_and_reteleport(U8 pActualMaturityRating, U8 pRequestedMaturityRating)
 {
 	bool isMaturityPreferenceElevated = false;
-	U8 actualPrefValue = SIM_ACCESS_MIN;
 
-	llassert(!pResponse.isUndefined());
-	llassert(pResponse.isMap());
-	llassert(pResponse.has("access_prefs"));
-	llassert(pResponse.get("access_prefs").isMap());
-	llassert(pResponse.get("access_prefs").has("max"));
-	llassert(pResponse.get("access_prefs").get("max").isString());
-
-	if (!pResponse.isUndefined() && pResponse.isMap() && pResponse.has("access_prefs") &&
-		pResponse.get("access_prefs").isMap() && pResponse.get("access_prefs").has("max") &&
-		pResponse.get("access_prefs").get("max").isString())
-	{
-		LLSD::String actualPreference = pResponse.get("access_prefs").get("max").asString();
-		LLStringUtil::trim(actualPreference);
-		actualPrefValue = LLViewerRegion::shortStringToAccess(actualPreference);
-	}
-
-	switch (actualPrefValue)
+	switch (pActualMaturityRating)
 	{
 	case SIM_ACCESS_MIN :
-		switch (pMaturityRatingChange)
+		switch (pRequestedMaturityRating)
 		{
 		case SIM_ACCESS_MIN :
 			isMaturityPreferenceElevated = true;
@@ -5425,7 +5408,7 @@ void handle_maturity_preference_change_and_reteleport(const LLSD &pResponse, U8 
 		}
 		break;
 	case SIM_ACCESS_PG :
-		switch (pMaturityRatingChange)
+		switch (pRequestedMaturityRating)
 		{
 		case SIM_ACCESS_MIN :
 		case SIM_ACCESS_PG :
@@ -5439,7 +5422,7 @@ void handle_maturity_preference_change_and_reteleport(const LLSD &pResponse, U8 
 		}
 		break;
 	case SIM_ACCESS_MATURE :
-		switch (pMaturityRatingChange)
+		switch (pRequestedMaturityRating)
 		{
 		case SIM_ACCESS_MIN :
 		case SIM_ACCESS_PG :
@@ -5453,7 +5436,7 @@ void handle_maturity_preference_change_and_reteleport(const LLSD &pResponse, U8 
 		}
 		break;
 	case SIM_ACCESS_ADULT :
-		switch (pMaturityRatingChange)
+		switch (pRequestedMaturityRating)
 		{
 		case SIM_ACCESS_MIN :
 		case SIM_ACCESS_PG :
@@ -5473,13 +5456,13 @@ void handle_maturity_preference_change_and_reteleport(const LLSD &pResponse, U8 
 
 	if (isMaturityPreferenceElevated)
 	{
-		gAgent.setMaturityRatingChangeDuringTeleport(pMaturityRatingChange);
+		gAgent.setMaturityRatingChangeDuringTeleport(pActualMaturityRating);
 		gAgent.restartFailedTeleportRequest();
 	}
 	else
 	{
 		LLSD args;
-		args["RATING"] = LLViewerRegion::accessToString(pMaturityRatingChange);
+		args["RATING"] = LLViewerRegion::accessToString(pRequestedMaturityRating);
 		LLNotificationsUtil::add("MaturityCouldNotBeChanged", args);
 		gAgent.clearFailedTeleportRequest();
 	}
@@ -5494,7 +5477,6 @@ bool handle_prompt_for_maturity_level_change_callback(const LLSD& notification, 
 		// set the preference to the maturity of the region we're calling
 		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
 		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
-		gAgent.sendMaturityPreferenceToServer(preferredMaturity);
 	}
 	
 	return false;
@@ -5508,8 +5490,7 @@ bool handle_prompt_for_maturity_level_change_and_reteleport_callback(const LLSD&
 	{
 		// set the preference to the maturity of the region we're calling
 		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
-		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
-		gAgent.sendMaturityPreferenceToServer(preferredMaturity, boost::bind(&handle_maturity_preference_change_and_reteleport, _1, preferredMaturity));
+		gAgent.setMaturityPreferenceAndConfirm(static_cast<U32>(preferredMaturity), boost::bind(&handle_maturity_preference_change_and_reteleport, _1, preferredMaturity));
 	}
 	else
 	{

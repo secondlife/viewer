@@ -694,9 +694,13 @@ public:
 	void 			setMaturity(char text);
 	static int 		convertTextToMaturity(char text);
 
-	typedef boost::function<void (const LLSD &pResponse)> maturity_preferences_callback_t;
-	bool 			sendMaturityPreferenceToServer(int preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback = NULL); // ! "U8" instead of "int"?
+	typedef boost::function<void (U8)> maturity_preferences_callback_t;
+	void            setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback);
+private:
+	maturity_preferences_callback_t mMaturityPreferenceConfirmCallback;
+	bool 			sendMaturityPreferenceToServer(int preferredMaturity); // ! "U8" instead of "int"?
 
+public:
 	// Maturity callbacks for PreferredMaturity control variable
 	void 			handleMaturity(const LLSD& newvalue);
 	bool 			validateMaturity(const LLSD& newvalue);
