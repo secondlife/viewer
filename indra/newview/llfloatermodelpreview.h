@@ -30,12 +30,12 @@
 #include "llfloaternamedesc.h"
 
 #include "lldynamictexture.h"
-#include "llfloatermodelwizard.h"
 #include "llquaternion.h"
 #include "llmeshrepository.h"
 #include "llmodel.h"
 #include "llthread.h"
 #include "llviewermenufile.h"
+#include "llfloatermodeluploadbase.h"
 
 class LLComboBox;
 class LLJoint;
@@ -390,9 +390,7 @@ private:
  protected:
 	friend class LLModelLoader;
 	friend class LLFloaterModelPreview;
-	friend class LLFloaterModelWizard;
 	friend class LLFloaterModelPreview::DecompRequest;
-	friend class LLFloaterModelWizard::DecompRequest;
 	friend class LLPhysicsDecomp;
 
 	LLFloater*  mFMP;
