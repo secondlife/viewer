@@ -1279,9 +1279,17 @@ void LLIMFloater::updateHeaderAndToolbar()
 		}
 	}
 
+	bool is_control_panel_visible = false;
+	if (mControlPanel)
+	{
+		// Control panel should be visible only in torn off floaters.
+		is_control_panel_visible = !is_hosted && gSavedSettings.getBOOL("IMShowControlPanel");
+		mControlPanel->getParent()->setVisible(is_control_panel_visible);
+	}
+
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.
-	bool is_expanded = is_hosted || (mControlPanel && mControlPanel->getParent()->getVisible());
+	bool is_expanded = is_hosted || is_control_panel_visible;
 	mExpandCollapseBtn->setImageOverlay(getString(is_expanded ? "collapse_icon" : "expand_icon"));
 
 	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(mSessionID);
