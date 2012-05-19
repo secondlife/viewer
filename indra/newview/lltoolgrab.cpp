@@ -239,7 +239,7 @@ BOOL LLToolGrab::handleObjectHit(const LLPickInfo& info)
 			
 		}
 	}
-	else if( !objectp->permMove() || objectp->isPermanentEnforced())
+	else if( objectp->flagCharacter() || !objectp->permMove() || objectp->isPermanentEnforced())
 	{
 		// if mouse is over a physical object without move permission, show feedback if user tries to move it.
 		mMode = GRAB_LOCKED;
