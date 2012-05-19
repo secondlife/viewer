@@ -4626,6 +4626,18 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		case LL_SIM_STAT_IOPUMPTIME:
 			LLViewerStats::getInstance()->mSimPumpIOMsec.addValue(stat_value);
 			break;
+		case LL_SIM_STAT_PCTSCRIPTSRUN:
+			LLViewerStats::getInstance()->mSimPctScriptsRun.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SIMAISTEPTIMEMS:
+			LLViewerStats::getInstance()->mSimSimAIStepMsec.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_SKIPPEDAISILSTEPS_PS:
+			LLViewerStats::getInstance()->mSimSimSkippedSilhouetteSteps.addValue(stat_value);
+			break;
+		case LL_SIM_STAT_PCTSTEPPEDCHARACTERS:
+			LLViewerStats::getInstance()->mSimSimPctSteppedCharacters.addValue(stat_value);
+			break;
 		default:
 			// Used to be a commented out warning.
  			LL_DEBUGS("Messaging") << "Unknown stat id" << stat_id << LL_ENDL;
