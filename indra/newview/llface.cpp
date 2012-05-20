@@ -1742,14 +1742,22 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 		LLVector4a texIdx;
 
-		F32 index = (F32) (mTextureIndex < 255 ? mTextureIndex : 0);
+		U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
+
+		F32 val = 0.f;
+		U8* vp = (U8*) &val;
+		vp[0] = index;
+		vp[1] = 0;
+		vp[2] = 0;
+		vp[3] = 0;
+
 		llassert(index <= LLGLSLShader::sIndexedTextureChannels-1);
 
 		LLVector4Logical mask;
 		mask.clear();
 		mask.setElement<3>();
 		
-		texIdx.set(0,0,0,index);
+		texIdx.set(0,0,0,val);
 
 		{
 			LLFastTimer t(FTM_FACE_POSITION_STORE);

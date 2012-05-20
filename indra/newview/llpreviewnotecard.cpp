@@ -29,7 +29,6 @@
 #include "llpreviewnotecard.h"
 
 #include "llinventory.h"
-#include "llinventoryfunctions.h" // for change_item_parent()
 
 #include "llagent.h"
 #include "llassetuploadresponders.h"
@@ -494,7 +493,7 @@ void LLPreviewNotecard::deleteNotecard()
 	if (item != NULL)
 	{
 		const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		change_item_parent(&gInventory, item, trash_id, FALSE);
+		gInventory.changeItemParent(item, trash_id, FALSE);
 	}
 
 	closeFloater();

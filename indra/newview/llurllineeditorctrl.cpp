@@ -89,5 +89,5 @@ void LLURLLineEditor::copyEscapedURLToClipboard()
 	else // human-readable location
 		text_to_copy = utf8str_to_wstring(unescaped_text);
 		
-	gClipboard.copyFromString( text_to_copy );
+	LLClipboard::instance().copyToClipboard(text_to_copy, 0, text_to_copy.size());
 }

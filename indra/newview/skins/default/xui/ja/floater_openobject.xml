@@ -3,6 +3,6 @@
 	<text name="object_name">
 		[DESC]:
 	</text>
-	<button label="持ち物にコピー" label_selected="持ち物にコピー" name="copy_to_inventory_button"/>
+	<button label="インベントリにコピー" label_selected="インベントリにコピー" name="copy_to_inventory_button"/>
 	<button label="コピーして装着" label_selected="コピーして装着" name="copy_and_wear_button"/>
 </floater>

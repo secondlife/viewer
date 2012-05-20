@@ -6,6 +6,6 @@
 	<text name="desc txt">
 		Açıklama:
 	</text>
-	<button label="SL Dünyasında Oynat" label_selected="Durdur" name="Anim play btn" tool_tip="Bu animasyonu başkaları görebilecek şekilde oynatın"/>
-	<button label="Yerel Olarak Oynat" label_selected="Durdur" name="Anim audition btn" tool_tip="Bu animasyonu sadece kendinizin görebileceği şekilde oynatın"/>
+	<button label="SL Dünyasında Oynat" label_selected="Durdur" name="Inworld" tool_tip="Bu animasyonu başkaları görebilecek şekilde oynatın"/>
+	<button label="Yerel Olarak Oynat" label_selected="Durdur" name="Locally" tool_tip="Bu animasyonu sadece kendinizin görebileceği şekilde oynatın"/>
 </floater>

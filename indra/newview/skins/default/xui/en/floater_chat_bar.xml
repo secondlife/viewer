@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="specified"
- specified_left="10"
- specified_bottom="10"
+ positioning="specified"
+ left="10"
+ bottom="-10"
  height="60"
  layout="topleft"
  legacy_header_height="25"

@@ -26,7 +26,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2DRect diffuseRect;
@@ -299,11 +301,11 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*texture2D(lightFunc, vec2(sa, spec.a)).r;
+			vec3 dumbshiny = vary_SunlitColor*(6 * texture2D(lightFunc, vec2(sa, spec.a)).r);
 			
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
-			bloom = dot(spec_contrib, spec_contrib);
+			bloom = dot(spec_contrib, spec_contrib) / 4;
 			col += spec_contrib;
 
 			//add environmentmap
@@ -322,7 +324,7 @@ void main()
 		col = diffuse.rgb;
 	}
 
-	gl_FragColor.rgb = col;
+	frag_color.rgb = col;
 
-	gl_FragColor.a = bloom;
+	frag_color.a = bloom;
 }

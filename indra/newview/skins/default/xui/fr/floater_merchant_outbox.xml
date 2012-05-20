@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="BOÎTE D&apos;ENVOI VENDEUR">
+	<string name="OutboxFolderCount1">
+		1 dossier
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] dossiers
+	</string>
+	<string name="OutboxImporting">
+		Envoi de dossiers...
+	</string>
+	<string name="OutboxInitializing">
+		Initialisation...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Chargement...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="Envoyer vers la Place du marché" name="outbox_import_btn" tool_tip="Vers ma vitrine de la Place du marché"/>
+		</panel>
+	</panel>
+</floater>

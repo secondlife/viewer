@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="CASELLA IN USCITA DEL RIVENDITORE">
+	<string name="OutboxFolderCount1">
+		1 cartella
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] cartelle
+	</string>
+	<string name="OutboxImporting">
+		Invio cartelle...
+	</string>
+	<string name="OutboxInitializing">
+		Inizializzazione...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Caricamento...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="Invia a Marketplace" name="outbox_import_btn" tool_tip="Push su negozio Marketplace"/>
+		</panel>
+	</panel>
+</floater>
