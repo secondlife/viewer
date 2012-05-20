@@ -382,15 +382,9 @@ void audio_update_volume(bool force_update)
 		if (progress_view_visible  && !LLViewerAudio::getInstance()->getForcedTeleportFade())
 		{
 			// Even though the music was turned off it was starting up (with autoplay disabled) occasionally
-			// after a failed teleport or after an intra-parcel teleport.
-			if (gAudiop->getInternetStreamURL().empty())
-			{
-				LLViewerAudio::getInstance()->setWasPlaying(false);
-			}
-			else
-			{
-				LLViewerAudio::getInstance()->setWasPlaying(true);
-			}
+			// after a failed teleport or after an intra-parcel teleport.  Also, the music sometimes was not
+			// restarting after a successful intra-parcel teleport. Setting mWasPlaying fixes these issues.
+			LLViewerAudio::getInstance()->setWasPlaying(!gAudiop->getInternetStreamURL().empty());
 			LLViewerAudio::getInstance()->setForcedTeleportFade(true);
 			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 			LLViewerAudio::getInstance()->setNextStreamURI(LLStringUtil::null);
@@ -398,6 +392,7 @@ void audio_update_volume(bool force_update)
 
 		if (!progress_view_visible && LLViewerAudio::getInstance()->getForcedTeleportFade())
 		{
+			LLViewerAudio::getInstance()->setWasPlaying(!gAudiop->getInternetStreamURL().empty());
 			LLViewerAudio::getInstance()->setForcedTeleportFade(false);
 		}
 
