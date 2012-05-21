@@ -16,7 +16,7 @@
     <text
       follows="left|right|top"
       font="SansSerifBold"
-      height="150"
+      height="160"
       layout="topleft"
       left="10"
       mouse_opaque="false"
