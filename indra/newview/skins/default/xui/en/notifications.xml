@@ -4128,7 +4128,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
 
   <notification
    icon="alertmodal.tga"
-   name="RegionEntryAccessBlocked_ChangeOnly"
+   name="RegionEntryAccessBlocked_Change"
    type="alertmodal">
     <tag>fail</tag>
     <tag>confirm</tag>

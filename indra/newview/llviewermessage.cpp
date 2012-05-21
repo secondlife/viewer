@@ -5514,19 +5514,22 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	{
 		if (gAgent.isTeen())
 		{
+			gAgent.clearFailedTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_KB", llsdBlock);
 			returnValue = true;
 		}
 		else if (gAgent.prefersPG())
 		{
-			if (gAgent.hasRestartableFailedTeleportRequest())
+			if ((LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0) &&
+				gAgent.hasRestartableFailedTeleportRequest())
 			{
 				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
 				returnValue = true;
 			}
 			else
 			{
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeOnly", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				gAgent.clearFailedTeleportRequest();
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
 		}
@@ -5535,19 +5538,22 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	{
 		if (!gAgent.isAdult())
 		{
+			gAgent.clearFailedTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_KB", llsdBlock);
 			returnValue = true;
 		}
 		else if (gAgent.prefersPG() || gAgent.prefersMature())
 		{
-			if (gAgent.hasRestartableFailedTeleportRequest())
+			if ((LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0) &&
+				gAgent.hasRestartableFailedTeleportRequest())
 			{
 				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeAndReTeleport", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_and_reteleport_callback);
 				returnValue = true;
 			}
 			else
 			{
-				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_ChangeOnly", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+				gAgent.clearFailedTeleportRequest();
+				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
 		}
