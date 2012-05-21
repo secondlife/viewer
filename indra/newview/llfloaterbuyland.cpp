@@ -1305,7 +1305,11 @@ void LLFloaterBuyLandUI::refreshUI()
 	    agrees_to_covenant = check->get();
 	}
 
+#ifndef STINSON_ADULT_CHECK_HACK
+	getChildView("buy_btn")->setEnabled(gSavedSettings.getBOOL("AdultCheckEnablePurchse") || (mCanBuy  &&  mSiteValid  &&  willHaveEnough  &&  !mTransaction && agrees_to_covenant));
+#else // STINSON_ADULT_CHECK_HACK
 	getChildView("buy_btn")->setEnabled(mCanBuy  &&  mSiteValid  &&  willHaveEnough  &&  !mTransaction && agrees_to_covenant);
+#endif // STINSON_ADULT_CHECK_HACK
 }
 
 void LLFloaterBuyLandUI::startBuyPreConfirm()

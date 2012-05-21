@@ -13494,5 +13494,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>AdultCheckEnablePurchse</key>
+  <map>
+    <key>Comment</key>
+    <string>Hack to allow QA testing of purchasing land regardless of maturity rating.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
 </map>
 </llsd>
