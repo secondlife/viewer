@@ -142,16 +142,19 @@ U32 LLVBOPool::genBuffer()
 
 void LLVBOPool::deleteBuffer(U32 name)
 {
-	LLVertexBuffer::unbind();
+	if (gGLManager.mInited)
+	{
+		LLVertexBuffer::unbind();
 
-	glBindBufferARB(mType, name);
-	glBufferDataARB(mType, 0, NULL, mUsage);
+		glBindBufferARB(mType, name);
+		glBufferDataARB(mType, 0, NULL, mUsage);
 
-	llassert(std::find(mGLNamePool.begin(), mGLNamePool.end(), name) == mGLNamePool.end());
+		llassert(std::find(mGLNamePool.begin(), mGLNamePool.end(), name) == mGLNamePool.end());
 
-	mGLNamePool.push_back(name);
+		mGLNamePool.push_back(name);
 
-	LLVertexBuffer::unbind();
+		LLVertexBuffer::unbind();
+	}
 }
 
 

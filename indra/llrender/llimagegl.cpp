@@ -1113,24 +1113,27 @@ void LLImageGL::generateTextures(LLTexUnit::eTextureType type, S32 numTextures, 
 // static
 void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, S32 numTextures, U32 *textures, bool immediate)
 {
-	for (S32 i = 0; i < numTextures; ++i)
-	{ //remove texture from VRAM by setting its size to zero
-		gGL.getTexUnit(0)->bindManual(type, textures[i]);
+	if (gGLManager.mInited)
+	{
+		for (S32 i = 0; i < numTextures; ++i)
+		{ //remove texture from VRAM by setting its size to zero
+			gGL.getTexUnit(0)->bindManual(type, textures[i]);
 
-		if (type == LLTexUnit::TT_CUBE_MAP)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			if (type == LLTexUnit::TT_CUBE_MAP)
+			{
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			}
+			else
+			{
+				glTexImage2D(LLTexUnit::getInternalType(type), 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			}
+			sDeadTextureList[type].push_back(textures[i]);
 		}
-		else
-		{
-			glTexImage2D(LLTexUnit::getInternalType(type), 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		}
-		sDeadTextureList[type].push_back(textures[i]);
 	}
 	
 	/*if (immediate)
