@@ -1021,15 +1021,16 @@ public:
 
 private:
 
+	struct sortByTime
+	{
+		S32 operator ()(const LLNotificationPtr& a, const LLNotificationPtr& b)
+		{
+			return a->getDate() < b->getDate();
+		}
+	};
+
 	void sortHistory()
 	{
-		struct sortByTime
-		{
-			S32 operator ()(const LLNotificationPtr& a, const LLNotificationPtr& b)
-			{
-				return a->getDate() < b->getDate();
-			}
-		};
 		std::sort(mHistory.begin(), mHistory.end(), sortByTime());
 	}
 
