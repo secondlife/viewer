@@ -3516,9 +3516,12 @@ LLVector3 LLVOVolume::agentPositionToVolume(const LLVector3& pos) const
 {
 	LLVector3 ret = pos - getRenderPosition();
 	ret = ret * ~getRenderRotation();
-	LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
-	LLVector3 invObjScale(1.f / objScale.mV[VX], 1.f / objScale.mV[VY], 1.f / objScale.mV[VZ]);
-	ret.scaleVec(invObjScale);
+	if (!isVolumeGlobal())
+	{
+		LLVector3 objScale = getScale();
+		LLVector3 invObjScale(1.f / objScale.mV[VX], 1.f / objScale.mV[VY], 1.f / objScale.mV[VZ]);
+		ret.scaleVec(invObjScale);
+	}
 	
 	return ret;
 }
@@ -3536,8 +3539,12 @@ LLVector3 LLVOVolume::agentDirectionToVolume(const LLVector3& dir) const
 LLVector3 LLVOVolume::volumePositionToAgent(const LLVector3& dir) const
 {
 	LLVector3 ret = dir;
-	LLVector3 objScale = isVolumeGlobal() ? LLVector3(1,1,1) : getScale();
-	ret.scaleVec(objScale);
+	if (!isVolumeGlobal())
+	{
+		LLVector3 objScale = getScale();
+		ret.scaleVec(objScale);
+	}
+
 	ret = ret * getRenderRotation();
 	ret += getRenderPosition();
 	
