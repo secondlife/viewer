@@ -116,6 +116,7 @@ private:
 	virtual ~LLFloaterPathfindingConsole();
 
 	void onShowWorldSet();
+	void onShowWorldMovablesOnlySet();
 	void onShowNavMeshSet();
 	void onShowWalkabilitySet();
 	void onViewCharactersClicked();
@@ -126,7 +127,6 @@ private:
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onClearPathClicked();
-	void onRenderWorldMovablesOnly();
 
 	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
 	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
@@ -137,6 +137,7 @@ private:
 	void setConsoleState(EConsoleState pConsoleState);
 	void setWorldRenderState();
 	void setNavMeshRenderState();
+	void updateRenderablesObjects();
 
 	void        updateControlsOnConsoleState();
 	void        updateStatusOnConsoleState();
