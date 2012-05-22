@@ -283,7 +283,10 @@ void LLParamSDParserUtilities::readSDValues(read_sd_cb_t cb, const LLSD& sd, LLI
 			it != sd.endArray();
 			++it)
 		{
-			stack.back().second = true;
+			if (!stack.empty())
+			{
+				stack.back().second = true;
+			}
 			readSDValues(cb, *it, stack);
 		}
 	}
@@ -336,7 +339,6 @@ namespace LLInitParam
 	void ParamValue<LLSD, NOT_BLOCK>::serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const BaseBlock* diff_block) const
 	{
 		// read from LLSD value and serialize out to parser (which could be LLSD, XUI, etc)
-		Parser::name_stack_t stack;
-		LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, stack);
+		LLParamSDParserUtilities::readSDValues(boost::bind(&serializeElement, boost::ref(p), _1, _2), mValue, name_stack);
 	}
 }

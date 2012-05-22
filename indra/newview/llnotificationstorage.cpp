@@ -84,9 +84,11 @@ bool LLPersistentNotificationStorage::onPersistentChannelChanged(const LLSD& pay
 	return false;
 }
 
+static LLFastTimer::DeclareTimer FTM_SAVE_NOTIFICATIONS("Save Notifications");
+
 void LLPersistentNotificationStorage::saveNotifications()
 {
-	// TODO - think about save optimization.
+	LLFastTimer _(FTM_SAVE_NOTIFICATIONS);
 
 	llofstream notify_file(mFileName.c_str());
 	if (!notify_file.is_open())
@@ -98,10 +100,15 @@ void LLPersistentNotificationStorage::saveNotifications()
 	LLSD output;
 	LLSD& data = output["data"];
 
-	LLNotificationChannelPtr history_channel = LLNotifications::instance().getChannel("Persistent");
-	LLNotificationSet::iterator it = history_channel->begin();
+	boost::intrusive_ptr<LLPersistentNotificationChannel> history_channel = boost::dynamic_pointer_cast<LLPersistentNotificationChannel>(LLNotifications::instance().getChannel("Persistent"));
+	if (!history_channel)
+	{
+		return;
+	}
 
-	for ( ; history_channel->end() != it; ++it)
+	for ( std::vector<LLNotificationPtr>::iterator it = history_channel->beginHistory(), end_it = history_channel->endHistory();
+		it != end_it;
+		++it)
 	{
 		LLNotificationPtr notification = *it;
 
@@ -120,8 +127,11 @@ void LLPersistentNotificationStorage::saveNotifications()
 	formatter->format(output, notify_file, LLSDFormatter::OPTIONS_PRETTY);
 }
 
+static LLFastTimer::DeclareTimer FTM_LOAD_NOTIFICATIONS("Load Notifications");
+
 void LLPersistentNotificationStorage::loadNotifications()
 {
+	LLFastTimer _(FTM_LOAD_NOTIFICATIONS);
 	LLResponderRegistry::registerResponders();
 
 	LLNotifications::instance().getChannel("Persistent")->
