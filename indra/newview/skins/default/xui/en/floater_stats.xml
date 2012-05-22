@@ -602,7 +602,7 @@
               bar_max="100"
               tick_spacing="10"
               label_spacing="20"
-              precision="3"
+              precision="1"
               show_per_sec="false"
               show_bar="false"
               show_mean="true">

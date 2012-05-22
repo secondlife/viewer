@@ -4636,7 +4636,7 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 			LLViewerStats::getInstance()->mSimSimSkippedSilhouetteSteps.addValue(stat_value);
 			break;
 		case LL_SIM_STAT_PCTSTEPPEDCHARACTERS:
-			LLViewerStats::getInstance()->mSimSimPctSteppedCharacters.addValue(stat_value);
+			LLViewerStats::getInstance()->mSimSimPctSteppedCharacters.addValue(stat_value * 100.0f);
 			break;
 		default:
 			// Used to be a commented out warning.
