@@ -51,6 +51,10 @@
 // newview includes
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llappviewer.h"
+#include "lltexturecache.h"
+#include "lltexturefetch.h"
+#include "llimageworker.h"
 #include "lldrawable.h"
 #include "lldrawpoolalpha.h"
 #include "lldrawpoolavatar.h"
@@ -403,9 +407,11 @@ LLPipeline::LLPipeline() :
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
+	mTransformFeedbackPrimitives(0),
 	mRenderDebugFeatureMask(0),
 	mRenderDebugMask(0),
 	mOldRenderDebugMask(0),
+	mMeshDirtyQueryObject(0),
 	mGroupQ1Locked(false),
 	mGroupQ2Locked(false),
 	mResetVertexBuffers(false),
@@ -692,6 +698,12 @@ void LLPipeline::destroyGL()
 	if (LLVertexBuffer::sEnableVBOs)
 	{
 		LLVertexBuffer::sEnableVBOs = FALSE;
+	}
+
+	if (mMeshDirtyQueryObject)
+	{
+		glDeleteQueriesARB(1, &mMeshDirtyQueryObject);
+		mMeshDirtyQueryObject = 0;
 	}
 }
 
@@ -1028,19 +1040,19 @@ void LLPipeline::releaseGLBuffers()
 	
 	if (mNoiseMap)
 	{
-		LLImageGL::deleteTextures(1, &mNoiseMap);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mNoiseMap);
 		mNoiseMap = 0;
 	}
 
 	if (mTrueNoiseMap)
 	{
-		LLImageGL::deleteTextures(1, &mTrueNoiseMap);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mTrueNoiseMap);
 		mTrueNoiseMap = 0;
 	}
 
 	if (mLightFunc)
 	{
-		LLImageGL::deleteTextures(1, &mLightFunc);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mLightFunc);
 		mLightFunc = 0;
 	}
 
@@ -1131,7 +1143,7 @@ void LLPipeline::createGLBuffers()
 				noise[i].mV[2] = ll_frand()*scaler+1.f-scaler/2.f;
 			}
 
-			LLImageGL::generateTextures(1, &mNoiseMap);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &mNoiseMap);
 			
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mNoiseMap);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise, false);
@@ -1147,7 +1159,7 @@ void LLPipeline::createGLBuffers()
 				noise[i] = ll_frand()*2.0-1.0;
 			}
 
-			LLImageGL::generateTextures(1, &mTrueNoiseMap);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &mTrueNoiseMap);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
@@ -1183,7 +1195,7 @@ void LLPipeline::createGLBuffers()
 				}
 			}
 
-			LLImageGL::generateTextures(1, &mLightFunc);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, lg, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
@@ -2829,6 +2841,11 @@ void LLPipeline::processPartitionQ()
 	mPartitionQ.clear();
 }
 
+void LLPipeline::markMeshDirty(LLSpatialGroup* group)
+{
+	mMeshDirtyGroup.push_back(group);
+}
+
 void LLPipeline::markRebuild(LLSpatialGroup* group, BOOL priority)
 {
 	LLMemType mt(LLMemType::MTYPE_PIPELINE);
@@ -3437,14 +3454,42 @@ void LLPipeline::postSort(LLCamera& camera)
 			}
 		}
 	}
+	
+	//flush particle VB
+	LLVOPartGroup::sVB->flush();
+
+	/*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
+
+	if (use_transform_feedback)
+	{ //place a query around potential transform feedback code for synchronization
+		mTransformFeedbackPrimitives = 0;
+
+		if (!mMeshDirtyQueryObject)
+		{
+			glGenQueriesARB(1, &mMeshDirtyQueryObject);
+		}
+
 		
+		glBeginQueryARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
+	}*/
+
+	//pack vertex buffers for groups that chose to delay their updates
+	for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
+	{
+		(*iter)->rebuildMesh();
+	}
+
+	/*if (use_transform_feedback)
+	{
+		glEndQueryARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+	}*/
+	
+	mMeshDirtyGroup.clear();
+
 	if (!sShadowRender)
 	{
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
 	}
-
-	//flush particle VB
-	LLVOPartGroup::sVB->flush();
 
 	llpushcallstacks ;
 	// only render if the flag is set. The flag is only set if we are in edit mode or the toggle is set in the menus
@@ -3532,6 +3577,33 @@ void LLPipeline::postSort(LLCamera& camera)
 		}
 	}
 
+	/*static LLFastTimer::DeclareTimer FTM_TRANSFORM_WAIT("Transform Fence");
+	static LLFastTimer::DeclareTimer FTM_TRANSFORM_DO_WORK("Transform Work");
+	if (use_transform_feedback)
+	{ //using transform feedback, wait for transform feedback to complete
+		LLFastTimer t(FTM_TRANSFORM_WAIT);
+
+		S32 done = 0;
+		//glGetQueryivARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_CURRENT_QUERY, &count);
+		
+		glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
+		
+		while (!done)
+		{ 
+			{
+				LLFastTimer t(FTM_TRANSFORM_DO_WORK);
+				F32 max_time = llmin(gFrameIntervalSeconds*10.f, 1.f);
+				//do some useful work while we wait
+				LLAppViewer::getTextureCache()->update(max_time); // unpauses the texture cache thread
+				LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
+				LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
+			}
+			glGetQueryObjectivARB(mMeshDirtyQueryObject, GL_QUERY_RESULT_AVAILABLE, &done);
+		}
+
+		mTransformFeedbackPrimitives = 0;
+	}*/
+						
 	//LLSpatialGroup::sNoDelete = FALSE;
 	llpushcallstacks ;
 }

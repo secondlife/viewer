@@ -83,6 +83,8 @@ public:
 
 	static void initClass();
 
+	static void cacheFaceInVRAM(const LLVolumeFace& vf);
+
 public:
 	LLFace(LLDrawable* drawablep, LLViewerObject* objp)   { init(drawablep, objp); }
 	~LLFace()  { destroy(); }

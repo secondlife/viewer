@@ -1089,8 +1089,32 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
+
+		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+
+		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
+			(!mVolumeImpl || !mVolumeImpl->isVolumeUnique());
+
+		if (cache_in_vram)
+		{ //this volume might be used as source data for a transform object, put it in vram
+			LLVolume* volume = getVolume();
+			for (S32 i = 0; i < volume->getNumFaces(); ++i)
+			{
+				const LLVolumeFace& face = volume->getVolumeFace(i);
+				if (face.mVertexBuffer.notNull())
+				{ //already cached
+					break;
+				}
+				volume->genBinormals(i);
+				LLFace::cacheFaceInVRAM(face);
+			}
+		}
+		
+
 		return TRUE;
 	}
+
+
 
 	return FALSE;
 }

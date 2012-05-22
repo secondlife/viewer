@@ -249,6 +249,12 @@ PFNGLTEXIMAGE3DMULTISAMPLEPROC glTexImage3DMultisample = NULL;
 PFNGLGETMULTISAMPLEFVPROC glGetMultisamplefv = NULL;
 PFNGLSAMPLEMASKIPROC glSampleMaski = NULL;
 
+//transform feedback (4.0 core)
+PFNGLBEGINTRANSFORMFEEDBACKPROC glBeginTransformFeedback = NULL;
+PFNGLENDTRANSFORMFEEDBACKPROC glEndTransformFeedback = NULL;
+PFNGLTRANSFORMFEEDBACKVARYINGSPROC glTransformFeedbackVaryings = NULL;
+PFNGLBINDBUFFERRANGEPROC glBindBufferRange = NULL;
+
 //GL_ARB_debug_output
 PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB = NULL;
 PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB = NULL;
@@ -421,6 +427,7 @@ LLGLManager::LLGLManager() :
 	mHasDrawBuffers(FALSE),
 	mHasTextureRectangle(FALSE),
 	mHasTextureMultisample(FALSE),
+	mHasTransformFeedback(FALSE),
 	mMaxSampleMaskWords(0),
 	mMaxColorTextureSamples(0),
 	mMaxDepthTextureSamples(0),
@@ -969,6 +976,7 @@ void LLGLManager::initExtensions()
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
 	mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
 	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
+	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -1208,7 +1216,14 @@ void LLGLManager::initExtensions()
 		glTexImage3DMultisample = (PFNGLTEXIMAGE3DMULTISAMPLEPROC) GLH_EXT_GET_PROC_ADDRESS("glTexImage3DMultisample");
 		glGetMultisamplefv = (PFNGLGETMULTISAMPLEFVPROC) GLH_EXT_GET_PROC_ADDRESS("glGetMultisamplefv");
 		glSampleMaski = (PFNGLSAMPLEMASKIPROC) GLH_EXT_GET_PROC_ADDRESS("glSampleMaski");
-	}	
+	}
+	if (mHasTransformFeedback)
+	{
+		glBeginTransformFeedback = (PFNGLBEGINTRANSFORMFEEDBACKPROC) GLH_EXT_GET_PROC_ADDRESS("glBeginTransformFeedback");
+		glEndTransformFeedback = (PFNGLENDTRANSFORMFEEDBACKPROC) GLH_EXT_GET_PROC_ADDRESS("glEndTransformFeedback");
+		glTransformFeedbackVaryings = (PFNGLTRANSFORMFEEDBACKVARYINGSPROC) GLH_EXT_GET_PROC_ADDRESS("glTransformFeedbackVaryings");
+		glBindBufferRange = (PFNGLBINDBUFFERRANGEPROC) GLH_EXT_GET_PROC_ADDRESS("glBindBufferRange");
+	}
 	if (mHasDebugOutput)
 	{
 		glDebugMessageControlARB = (PFNGLDEBUGMESSAGECONTROLARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDebugMessageControlARB");
@@ -2432,4 +2447,66 @@ LLGLSquashToFarClip::~LLGLSquashToFarClip()
 	gGL.popMatrix();
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
+
+
+	
+LLGLSyncFence::LLGLSyncFence()
+{
+#ifdef GL_ARB_sync
+	mSync = 0;
+#endif
+}
+
+LLGLSyncFence::~LLGLSyncFence()
+{
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		glDeleteSync(mSync);
+	}
+#endif
+}
+
+void LLGLSyncFence::placeFence()
+{
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		glDeleteSync(mSync);
+	}
+	mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+#endif
+}
+
+bool LLGLSyncFence::isCompleted()
+{
+	bool ret = true;
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		GLenum status = glClientWaitSync(mSync, 0, 1);
+		if (status == GL_TIMEOUT_EXPIRED)
+		{
+			ret = false;
+		}
+	}
+#endif
+	return ret;
+}
+
+void LLGLSyncFence::wait()
+{
+#ifdef GL_ARB_sync
+	if (mSync)
+	{
+		while (glClientWaitSync(mSync, 0, FENCE_WAIT_TIME_NANOSECONDS) == GL_TIMEOUT_EXPIRED)
+		{ //track the number of times we've waited here
+			static S32 waits = 0;
+			waits++;
+		}
+	}
+#endif
+}
+
+
 

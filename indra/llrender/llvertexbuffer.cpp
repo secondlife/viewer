@@ -93,6 +93,11 @@ LLVBOPool LLVertexBuffer::sDynamicIBOPool(GL_DYNAMIC_DRAW_ARB, GL_ELEMENT_ARRAY_
 
 U32 LLVBOPool::sBytesPooled = 0;
 U32 LLVBOPool::sIndexBytesPooled = 0;
+U32 LLVBOPool::sCurGLName = 1;
+
+std::list<U32> LLVertexBuffer::sAvailableVAOName;
+U32 LLVertexBuffer::sCurVAOName = 1;
+
 U32 LLVertexBuffer::sAllocatedIndexBytes = 0;
 U32 LLVertexBuffer::sIndexCount = 0;
 
@@ -117,59 +122,38 @@ bool LLVertexBuffer::sUseStreamDraw = true;
 bool LLVertexBuffer::sUseVAO = false;
 bool LLVertexBuffer::sPreferStreamDraw = false;
 
-const U32 FENCE_WAIT_TIME_NANOSECONDS = 10000;  //1 ms
 
-class LLGLSyncFence : public LLGLFence
+U32 LLVBOPool::genBuffer()
 {
-public:
-#ifdef GL_ARB_sync
-	GLsync mSync;
-#endif
-	
-	LLGLSyncFence()
+	U32 ret = 0;
+
+	if (mGLNamePool.empty())
 	{
-#ifdef GL_ARB_sync
-		mSync = 0;
-#endif
+		ret = sCurGLName++;
+	}
+	else
+	{
+		ret = mGLNamePool.front();
+		mGLNamePool.pop_front();
 	}
 
-	virtual ~LLGLSyncFence()
-	{
-#ifdef GL_ARB_sync
-		if (mSync)
-		{
-			glDeleteSync(mSync);
-		}
-#endif
-	}
+	return ret;
+}
 
-	void placeFence()
-	{
-#ifdef GL_ARB_sync
-		if (mSync)
-		{
-			glDeleteSync(mSync);
-		}
-		mSync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-#endif
-	}
+void LLVBOPool::deleteBuffer(U32 name)
+{
+	LLVertexBuffer::unbind();
 
-	void wait()
-	{
-#ifdef GL_ARB_sync
-		if (mSync)
-		{
-			while (glClientWaitSync(mSync, 0, FENCE_WAIT_TIME_NANOSECONDS) == GL_TIMEOUT_EXPIRED)
-			{ //track the number of times we've waited here
-				static S32 waits = 0;
-				waits++;
-			}
-		}
-#endif
-	}
+	glBindBufferARB(mType, name);
+	glBufferDataARB(mType, 0, NULL, mUsage);
 
+	llassert(std::find(mGLNamePool.begin(), mGLNamePool.end(), name) == mGLNamePool.end());
 
-};
+	mGLNamePool.push_back(name);
+
+	LLVertexBuffer::unbind();
+}
+
 
 LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
 : mUsage(vboUsage), mType(vboType)
@@ -177,6 +161,9 @@ LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
 	mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
 	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
+
+static LLFastTimer::DeclareTimer FTM_VBO_GEN_BUFFER("gen buffers");
+static LLFastTimer::DeclareTimer FTM_VBO_BUFFER_DATA("glBufferData");
 
 
 volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
@@ -198,7 +185,10 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 	if (mFreeList[i].empty() || for_seed)
 	{
 		//make a new buffer
-		glGenBuffersARB(1, &name);
+		{
+			LLFastTimer t(FTM_VBO_GEN_BUFFER);
+			name = genBuffer();
+		}
 		glBindBufferARB(mType, name);
 
 		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
@@ -222,6 +212,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		}
 		else
 		{ //always use a true hint of static draw when allocating non-client-backed buffers
+			LLFastTimer t(FTM_VBO_BUFFER_DATA);
 			glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
 		}
 
@@ -324,7 +315,7 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 		mFreeList[i].push_back(rec);
 	}
 #else //no pooling
-	glDeleteBuffersARB(1, &name);
+	deleteBuffer(name);
 	ll_aligned_free_16((U8*) buffer);
 
 	if (mType == GL_ARRAY_BUFFER_ARB)
@@ -375,8 +366,8 @@ void LLVBOPool::cleanup()
 		{
 			Record& r = l.front();
 
-			glDeleteBuffersARB(1, &r.mGLName);
-
+			deleteBuffer(r.mGLName);
+			
 			if (r.mClientData)
 			{
 				ll_aligned_free_16((void*) r.mClientData);
@@ -433,6 +424,30 @@ U32 LLVertexBuffer::sGLMode[LLRender::NUM_MODES] =
 	GL_QUADS,
 	GL_LINE_LOOP,
 };
+
+//static
+U32 LLVertexBuffer::getVAOName()
+{
+	U32 ret = 0;
+
+	if (!sAvailableVAOName.empty())
+	{
+		ret = sAvailableVAOName.front();
+		sAvailableVAOName.pop_front();
+	}
+	else
+	{
+		glGenVertexArrays(1, &ret);
+	}
+
+	return ret;		
+}
+
+//static
+void LLVertexBuffer::releaseVAOName(U32 name)
+{
+	sAvailableVAOName.push_back(name);
+}
 
 
 //static
@@ -1052,7 +1067,7 @@ LLVertexBuffer::~LLVertexBuffer()
 	if (mGLArray)
 	{
 #if GL_ARB_vertex_array_object
-		glDeleteVertexArrays(1, &mGLArray);
+		releaseVAOName(mGLArray);
 #endif
 	}
 
@@ -1337,7 +1352,7 @@ void LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		if (gGLManager.mHasVertexArrayObject && useVBOs() && (LLRender::sGLCoreProfile || sUseVAO))
 		{
 #if GL_ARB_vertex_array_object
-			glGenVertexArrays(1, &mGLArray);
+			mGLArray = getVAOName();
 #endif
 			setupVertexArray();
 		}
@@ -2205,6 +2220,14 @@ void LLVertexBuffer::flush()
 	{
 		unmapBuffer();
 	}
+}
+
+// bind for transform feedback (quick 'n dirty)
+void LLVertexBuffer::bindForFeedback(U32 channel, U32 type, U32 index, U32 count)
+{
+	U32 offset = mOffsets[type] + sTypeSize[type]*index;
+	U32 size= (sTypeSize[type]*count);
+	glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, channel, mGLBuffer, offset, size);
 }
 
 // Set for rendering

@@ -125,7 +125,7 @@ S32 LLVOPartGroup::findAvailableVBSlot()
 void LLVOPartGroup::freeVBSlot(S32 idx)
 {
 	llassert(idx < LL_MAX_PARTICLE_COUNT && idx >= 0);
-	llassert(sVBSlotCursor > sVBSlotFree);
+	//llassert(sVBSlotCursor > sVBSlotFree);
 
 	if (sVBSlotCursor > sVBSlotFree)
 	{

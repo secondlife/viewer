@@ -755,12 +755,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				gTextureList.updateImages(max_image_decode_time);
 			}
 
-			{
+			/*{
 				LLFastTimer t(FTM_IMAGE_UPDATE_DELETE);
 				//remove dead textures from GL
 				LLImageGL::deleteDeadTextures();
 				stop_glerror();
-			}
+			}*/
 		}
 
 		LLGLState::checkStates();
