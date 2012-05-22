@@ -50,6 +50,7 @@
 #include "lltoolfocus.h"
 #include "pipeline.h"
 #include "llpathinglib.h"
+#include "llviewerparcelmgr.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
@@ -101,8 +102,8 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	mShowWorldCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldSet, this));
 	
 	mShowWorldMovablesOnlyCheckBox = findChild<LLCheckBoxCtrl>("show_world_movables_only");
-	mShowWorldMovablesOnlyCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onRenderWorldMovablesOnly, this));
 	llassert(mShowWorldMovablesOnlyCheckBox != NULL);
+	mShowWorldMovablesOnlyCheckBox->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onShowWorldMovablesOnlySet, this));
 
 	mShowNavMeshCheckBox = findChild<LLCheckBoxCtrl>("show_navmesh");
 	llassert(mShowNavMeshCheckBox != NULL);
@@ -255,6 +256,11 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
 	}
 
+	if (!mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
+	}
+
 	if (!mPathEventSlot.connected())
 	{
 		mPathEventSlot = LLPathfindingPathTool::getInstance()->registerPathEventListener(boost::bind(&LLFloaterPathfindingConsole::onPathEvent, this));
@@ -277,6 +283,11 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	if (mPathEventSlot.connected())
 	{
 		mPathEventSlot.disconnect();
+	}
+
+	if (mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot.disconnect();
 	}
 
 	if (mRegionBoundarySlot.connected())
@@ -513,6 +524,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mIsNavMeshUpdating(false),
 	mAgentStateSlot(),
 	mRegionBoundarySlot(),
+	mTeleportFailedSlot(),
 	mPathEventSlot(),
 	mPathfindingToolset(NULL),
 	mSavedToolset(NULL),
@@ -542,6 +554,12 @@ LLFloaterPathfindingConsole::~LLFloaterPathfindingConsole()
 void LLFloaterPathfindingConsole::onShowWorldSet()
 {
 	setWorldRenderState();
+	updateRenderablesObjects();
+}
+
+void LLFloaterPathfindingConsole::onShowWorldMovablesOnlySet()
+{
+	updateRenderablesObjects();
 }
 
 void LLFloaterPathfindingConsole::onShowNavMeshSet()
@@ -603,17 +621,6 @@ void LLFloaterPathfindingConsole::onClearPathClicked()
 	clearPath();
 }
 
-void LLFloaterPathfindingConsole::onRenderWorldMovablesOnly()
-{
-	if ( mShowWorldMovablesOnlyCheckBox->get() )
-	{
-		gPipeline.hidePermanentObjects( mRenderableRestoreList );
-	}
-	else
-	{
-		cleanupRenderableRestoreItems();
-	}
-}
 void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus)
 {
 	switch (pNavMeshZoneRequestStatus)
@@ -735,6 +742,18 @@ void LLFloaterPathfindingConsole::setNavMeshRenderState()
 
 	mShowNavMeshWalkabilityLabel->setEnabled(renderNavMesh);
 	mShowNavMeshWalkabilityComboBox->setEnabled(renderNavMesh);
+}
+
+void LLFloaterPathfindingConsole::updateRenderablesObjects()
+{
+	if ( isRenderWorldMovablesOnly() )
+	{
+		gPipeline.hidePermanentObjects( mRenderableRestoreList );
+	}
+	else
+	{
+		cleanupRenderableRestoreItems();
+	}
 }
 
 void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
