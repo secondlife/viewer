@@ -2793,6 +2793,23 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 	   (object = gObjectList.findObject(ft->mTaskID)))
 	{
 		object->loadTaskInvFile(ft->mFilename);
+
+		LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
+		LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
+		std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
+
+		for (; it != end && pending_lst.size(); ++it)
+		{
+			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(it->get());
+			if(item && item->getType() != LLAssetType::AT_CATEGORY)
+			{
+				std::list<LLUUID>::iterator id_it = std::find(pending_lst.begin(), pending_lst.begin(), item->getAssetUUID());
+				if (id_it != pending_lst.end())
+				{
+					pending_lst.erase(id_it);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -2905,7 +2922,22 @@ void LLViewerObject::updateInventory(
 	bool is_new)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
-	
+
+	std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
+	std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
+
+	bool is_fetching = std::find(begin, end, item->getAssetUUID()) != end;
+	bool is_fetched = getInventoryItemByAsset(item->getAssetUUID()) != NULL;
+
+	if (is_fetched || is_fetching)
+	{
+		return;
+	}
+	else
+	{
+		mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
+	}
+
 	// This slices the object into what we're concerned about on the
 	// viewer. The simulator will take the permissions and transfer
 	// ownership.

@@ -148,7 +148,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ApplyTextureImmediately</key>
+    <key>TextureLivePreview</key>
     <map>
       <key>Comment</key>
       <string>Preview selections in texture picker immediately</string>

@@ -92,11 +92,21 @@
      follows="left|bottom"
      height="20"
      initial_value="true"
-     label="Apply now"
+     label="Live Preview"
      layout="topleft"
      left="4"
      name="apply_immediate_check"
      top="262"
+     width="120" />
+   <text
+     follows="left|bottom"
+     height="20"
+     layout="topleft"
+     left="8"
+     name="preview_disabled"
+     top="266"
+     value="Preview Disabled"
+     visible="false"
      width="120" />
     <filter_editor
      follows="left|top|right"

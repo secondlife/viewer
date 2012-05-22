@@ -7200,6 +7200,18 @@ You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME]
 
   <notification
    icon="alertmodal.tga"
+   name="LivePreviewUnavailable"
+   type="alert">
+   
+We cannot display a preview of this texture because it is no-copy and/or no-transfer.
+  <usetemplate
+    ignoretext="Warn me that Live Preview mode is not available for no-copy and/or no-transfer textures"
+    name="okignore"
+    yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="ConfirmLeaveCall"
    type="alert">
 Are you sure you want to leave this call?
