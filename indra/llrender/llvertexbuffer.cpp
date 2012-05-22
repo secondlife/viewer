@@ -153,7 +153,7 @@ void LLVBOPool::deleteBuffer(U32 name)
 
 		mGLNamePool.push_back(name);
 
-		LLVertexBuffer::unbind();
+		glBindBufferARB(mType, 0);
 	}
 }
 
