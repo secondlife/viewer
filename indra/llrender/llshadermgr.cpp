@@ -1062,8 +1062,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("proj_shadow_res");
 	mReservedUniforms.push_back("depth_cutoff");
 	mReservedUniforms.push_back("norm_cutoff");
+	mReservedUniforms.push_back("shadow_target_width");
 	
-	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_NORM_CUTOFF+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
 
 	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");
