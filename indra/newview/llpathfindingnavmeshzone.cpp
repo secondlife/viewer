@@ -332,7 +332,7 @@ void LLPathfindingNavMeshZone::updateStatus()
 		llassert(LLPathingLib::getInstance() != NULL);
 		if (LLPathingLib::getInstance() != NULL)
 		{
-			LLPathingLib::getInstance()->stitchNavMeshes();
+			LLPathingLib::getInstance()->processNavMeshData();
 		}
 #ifdef XXX_STINSON_DEBUG_NAVMESH_ZONE
 		llinfos << "STINSON DEBUG: Navmesh zone update stitching is done" << llendl;
