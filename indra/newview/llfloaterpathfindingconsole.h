@@ -202,6 +202,7 @@ private:
 
 	LLPathfindingManager::agent_state_slot_t      mAgentStateSlot;
 	boost::signals2::connection                   mRegionBoundarySlot;
+	boost::signals2::connection                   mTeleportFailedSlot;
 	LLPathfindingPathTool::path_event_slot_t      mPathEventSlot;
 
 	LLToolset                                     *mPathfindingToolset;

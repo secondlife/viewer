@@ -50,6 +50,7 @@
 #include "lltoolfocus.h"
 #include "pipeline.h"
 #include "llpathinglib.h"
+#include "llviewerparcelmgr.h"
 
 #define XUI_RENDER_HEATMAP_NONE 0
 #define XUI_RENDER_HEATMAP_A 1
@@ -255,6 +256,11 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
 	}
 
+	if (!mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
+	}
+
 	if (!mPathEventSlot.connected())
 	{
 		mPathEventSlot = LLPathfindingPathTool::getInstance()->registerPathEventListener(boost::bind(&LLFloaterPathfindingConsole::onPathEvent, this));
@@ -277,6 +283,11 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	if (mPathEventSlot.connected())
 	{
 		mPathEventSlot.disconnect();
+	}
+
+	if (mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot.disconnect();
 	}
 
 	if (mRegionBoundarySlot.connected())
@@ -513,6 +524,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mIsNavMeshUpdating(false),
 	mAgentStateSlot(),
 	mRegionBoundarySlot(),
+	mTeleportFailedSlot(),
 	mPathEventSlot(),
 	mPathfindingToolset(NULL),
 	mSavedToolset(NULL),
