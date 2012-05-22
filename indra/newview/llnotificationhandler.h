@@ -258,7 +258,7 @@ public:
 	:	LLNotificationChannel("Outbox", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "outbox"))
 	{}
 	/*virtual*/ void onAdd(LLNotificationPtr p) { processNotification(p); }
-	/*virtual*/ void onChange(LLNotificationPtr p) { processNotification(p); }
+	/*virtual*/ void onChange(LLNotificationPtr p) { }
 	/*virtual*/ void onDelete(LLNotificationPtr p);
 	bool processNotification(const LLNotificationPtr& p);
 };

@@ -105,39 +105,7 @@ LLNotificationForm::Params::Params()
 	form_elements("")
 {}
 
-// Local channel for persistent notifications
-// Stores only persistent notifications.
-// Class users can use connectChanged() to process persistent notifications
-// (see LLNotificationStorage for example).
-class LLPersistentNotificationChannel : public LLNotificationChannel
-{
-	LOG_CLASS(LLPersistentNotificationChannel);
-public:
-	LLPersistentNotificationChannel() :
-		LLNotificationChannel("Persistent", "Visible", &notificationFilter, LLNotificationComparators::orderByUUID())
-	{
-	}
 
-private:
-
-	// The channel gets all persistent notifications except those that have been canceled
-	static bool notificationFilter(LLNotificationPtr pNotification)
-	{
-		bool handle_notification = false;
-
-		handle_notification = pNotification->isPersistent()
-			&& !pNotification->isCancelled();
-
-		return handle_notification;
-	}
-
-	void onDelete(LLNotificationPtr pNotification)
-	{
-		// we want to keep deleted notifications in our log, otherwise some 
-		// notifications will be lost on exit.
-		mItems.insert(pNotification);
-	}
-};
 
 bool filterIgnoredNotifications(LLNotificationPtr notification)
 {
@@ -502,18 +470,18 @@ LLNotificationVisibilityRule::LLNotificationVisibilityRule(const LLNotificationV
 	}
 }
 
-LLNotification::LLNotification(const LLNotification::Params& p) : 
+LLNotification::LLNotification(const LLSDParamAdapter<Params>& p) : 
 	mTimestamp(p.time_stamp), 
 	mSubstitutions(p.substitutions),
 	mPayload(p.payload),
-	mExpiresAt(0),
+	mExpiresAt(p.expiry),
 	mTemporaryResponder(false),
 	mRespondedTo(false),
 	mPriority(p.priority),
 	mCancelled(false),
 	mIgnored(false),
 	mResponderObj(NULL),
-	mIsReusable(false)
+	mId(p.id.isProvided() ? p.id : LLUUID::generateNewID())
 {
 	if (p.functor.name.isChosen())
 	{
@@ -536,52 +504,32 @@ LLNotification::LLNotification(const LLNotification::Params& p) :
 		mResponderObj = p.responder;
 	}
 
-	mId.generate();
 	init(p.name, p.form_elements);
-}
-
-
-LLNotification::LLNotification(const LLSD& sd) :
-	mTemporaryResponder(false),
-	mRespondedTo(false),
-	mCancelled(false),
-	mIgnored(false),
-	mResponderObj(NULL),
-	mIsReusable(false)
-{ 
-	mId.generate();
-	mSubstitutions = sd["substitutions"];
-	mPayload = sd["payload"]; 
-	mTimestamp = sd["time"]; 
-	mExpiresAt = sd["expiry"];
-	mPriority = (ENotificationPriority)sd["priority"].asInteger();
-	mResponseFunctorName = sd["responseFunctor"].asString();
-	std::string templatename = sd["name"].asString();
-	init(templatename, LLSD());
-	// replace form with serialized version
-	mForm = LLNotificationFormPtr(new LLNotificationForm(sd["form"]));
 }
 
 
 LLSD LLNotification::asLLSD()
 {
-	LLSD output;
-	output["id"] = mId;
-	output["name"] = mTemplatep->mName;
-	output["form"] = getForm()->asLLSD();
-	output["substitutions"] = mSubstitutions;
-	output["payload"] = mPayload;
-	output["time"] = mTimestamp;
-	output["expiry"] = mExpiresAt;
-	output["priority"] = (S32)mPriority;
-	output["responseFunctor"] = mResponseFunctorName;
-	output["reusable"] = mIsReusable;
+	LLParamSDParser parser;
 
-	if(mResponder)
+	Params p;
+	p.id = mId;
+	p.name = mTemplatep->mName;
+	p.form_elements = getForm()->asLLSD();
+
+	p.substitutions = mSubstitutions;
+	p.payload = mPayload;
+	p.time_stamp = mTimestamp;
+	p.expiry = mExpiresAt;
+	p.priority = mPriority;
+
+	if(!mResponseFunctorName.empty())
 	{
-		output["responder"] = mResponder->asLLSD();
+		p.functor.name = mResponseFunctorName;
 	}
 
+	LLSD output;
+	parser.writeSD(output, p);
 	return output;
 }
 
@@ -1056,8 +1004,8 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		{
 			// not in our list, add it and say so
 			mItems.insert(pNotification);
-			abortProcessing = mChanged(payload);
 			onLoad(pNotification);
+			abortProcessing = mChanged(payload);
 		}
 	}
 	else if (cmd == "change")
@@ -1072,18 +1020,18 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 			{
 				// it already existed, so this is a change
 				// since it changed in place, all we have to do is resend the signal
-				abortProcessing = mChanged(payload);
 				onChange(pNotification);
+				abortProcessing = mChanged(payload);
 			}
 			else
 			{
 				// not in our list, add it and say so
 				mItems.insert(pNotification);
+				onChange(pNotification);
 				// our payload is const, so make a copy before changing it
 				LLSD newpayload = payload;
 				newpayload["sigtype"] = "add";
 				abortProcessing = mChanged(newpayload);
-				onChange(pNotification);
 			}
 		}
 		else
@@ -1092,11 +1040,11 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 			{
 				// it already existed, so this is a delete
 				mItems.erase(pNotification);
+				onChange(pNotification);
 				// our payload is const, so make a copy before changing it
 				LLSD newpayload = payload;
 				newpayload["sigtype"] = "delete";
 				abortProcessing = mChanged(newpayload);
-				onChange(pNotification);
 			}
 			// didn't pass, not on our list, do nothing
 		}
@@ -1110,8 +1058,8 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		{
 			// not in our list, add it and say so
 			mItems.insert(pNotification);
-			abortProcessing = mChanged(payload);
 			onAdd(pNotification);
+			abortProcessing = mChanged(payload);
 		}
 	}
 	else if (cmd == "delete")
@@ -1119,16 +1067,16 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		// if we have it in our list, pass on the delete, then delete it, else do nothing
 		if (wasFound)
 		{
-			abortProcessing = mChanged(payload);
 			mItems.erase(pNotification);
 			onDelete(pNotification);
+			abortProcessing = mChanged(payload);
 		}
 	}
 	return abortProcessing;
 }
 
 LLNotificationChannel::LLNotificationChannel(const Params& p)
-:	LLNotificationChannelBase(p.filter(), p.comparator()),
+:	LLNotificationChannelBase(p.filter()),
 	LLInstanceTracker<LLNotificationChannel, std::string>(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString()),
 	mName(p.name.isProvided() ? p.name : LLUUID::generateNewID().asString())
 {
@@ -1141,26 +1089,13 @@ LLNotificationChannel::LLNotificationChannel(const Params& p)
 
 LLNotificationChannel::LLNotificationChannel(const std::string& name, 
 											 const std::string& parent,
-											 LLNotificationFilter filter, 
-											 LLNotificationComparator comparator) 
-:	LLNotificationChannelBase(filter, comparator),
+											 LLNotificationFilter filter) 
+:	LLNotificationChannelBase(filter),
 	LLInstanceTracker<LLNotificationChannel, std::string>(name),
 	mName(name)
 {
 	// bind to notification broadcast
 	connectToChannel(parent);
-}
-
-
-void LLNotificationChannel::setComparator(LLNotificationComparator comparator) 
-{ 
-	mComparator = comparator; 
-	LLNotificationSet s2(mComparator);
-	s2.insert(mItems.begin(), mItems.end());
-	mItems.swap(s2);
-	
-	// notify clients that we've been resorted
-	mChanged(LLSD().with("sigtype", "sort")); 
 }
 
 bool LLNotificationChannel::isEmpty() const
@@ -1176,6 +1111,11 @@ LLNotificationChannel::Iterator LLNotificationChannel::begin()
 LLNotificationChannel::Iterator LLNotificationChannel::end()
 {
 	return mItems.end();
+}
+
+size_t LLNotificationChannel::size()
+{
+	return mItems.size();
 }
 
 std::string LLNotificationChannel::summarize()
@@ -1205,19 +1145,17 @@ void LLNotificationChannel::connectToChannel( const std::string& channel_name )
 	}
 }
 
-
-
 // ---
 // END OF LLNotificationChannel implementation
 // =========================================================
 
 
-// =========================================================
+// ==============================================	===========
 // LLNotifications implementation
 // ---
-LLNotifications::LLNotifications() : LLNotificationChannelBase(LLNotificationFilters::includeEverything,
-															   LLNotificationComparators::orderByUUID()),
-									mIgnoreAllNotifications(false)
+LLNotifications::LLNotifications() 
+:	LLNotificationChannelBase(LLNotificationFilters::includeEverything),
+	mIgnoreAllNotifications(false)
 {
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Notification.Show", boost::bind(&LLNotifications::addFromCallback, this, _2));
 
@@ -1705,7 +1643,7 @@ void LLNotifications::update(const LLNotificationPtr pNotif)
 
 LLNotificationPtr LLNotifications::find(LLUUID uuid)
 {
-	LLNotificationPtr target = LLNotificationPtr(new LLNotification(uuid));
+	LLNotificationPtr target = LLNotificationPtr(new LLNotification(LLNotification::Params().id(uuid)));
 	LLNotificationSet::iterator it=mItems.find(target);
 	if (it == mItems.end())
 	{

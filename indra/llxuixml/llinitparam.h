@@ -1024,7 +1024,9 @@ namespace LLInitParam
 				if (!parser.writeValue(typed_param.getValue(), name_stack)) 
 				{
 					std::string calculated_key = typed_param.calcValueName(typed_param.getValue());
-					if (!diff_param || !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), calculated_key))
+					if (calculated_key.size() 
+						&& (!diff_param 
+							|| !ParamCompare<std::string>::equals(static_cast<const self_t*>(diff_param)->getValueName(), calculated_key)))
 					{
 						parser.writeValue(calculated_key, name_stack);
 					}

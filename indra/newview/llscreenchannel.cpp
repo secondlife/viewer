@@ -499,21 +499,20 @@ void LLScreenChannel::killToastByNotificationID(LLUUID id)
 
 void LLScreenChannel::removeToastByNotificationID(LLUUID id)
 {
-	std::vector<ToastElem>::iterator it = find(mToastList.begin(), mToastList.end(), id);
-	if( it != mToastList.end())
+	std::vector<ToastElem>::iterator it = mToastList.begin();
+	while( it != mToastList.end())
 	{
+		// find next toast with matching id
+		it = find(it, mToastList.end(), id);
 		deleteToast(it->getToast());
 		mToastList.erase(it);
 		redrawToasts();
 	}
-	else
+	it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
+	if (it != mStoredToastList.end())
 	{
-		it = find(mStoredToastList.begin(), mStoredToastList.end(), id);
-		if (it != mStoredToastList.end())
-		{
-			deleteToast(it->getToast());
-			mStoredToastList.erase(it);
-		}
+		deleteToast(it->getToast());
+		mStoredToastList.erase(it);
 	}
 }
 

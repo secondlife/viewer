@@ -88,10 +88,6 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/type_traits.hpp>
 
-// we want to minimize external dependencies, but this one is important
-#include "llsd.h"
-
-// and we need this to manage the notification callbacks
 #include "llevents.h"
 #include "llfunctorregistry.h"
 #include "llinitparam.h"
@@ -99,6 +95,7 @@
 #include "llnotificationptr.h"
 #include "llpointer.h"
 #include "llrefcount.h"
+#include "llsdparam.h"
 
 class LLAvatarName;
 typedef enum e_notification_priority
@@ -309,13 +306,13 @@ public:
 		friend class LLNotification;
 	
 		Mandatory<std::string>					name;
-
-		// optional
-		Optional<LLSD>							substitutions;
-		Optional<LLSD>							payload;
+		Optional<LLUUID>						id;
+		Optional<LLSD>							substitutions,
+												form_elements,
+												payload;
 		Optional<ENotificationPriority, NotificationPriorityValues>	priority;
-		Optional<LLSD>							form_elements;
-		Optional<LLDate>						time_stamp;
+		Optional<LLDate>						time_stamp,
+												expiry;
 		Optional<LLNotificationContext*>		context;
 		Optional<void*>							responder;
 
@@ -326,7 +323,7 @@ public:
 			Alternative<LLNotificationResponderPtr>						responder;
 
 			Functor()
-			:	name("functor_name"),
+			:	name("responseFunctor"),
 				function("functor"),
 				responder("responder")
 			{}
@@ -335,10 +332,13 @@ public:
 
 		Params()
 		:	name("name"),
+			id("id"),
 			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-			time_stamp("time_stamp"),
+			time_stamp("time"),
 			payload("payload"),
-			form_elements("form_elements")
+			form_elements("form"),
+			substitutions("substitutions"),
+			expiry("expiry")
 		{
 			time_stamp = LLDate::now();
 			responder = NULL;
@@ -347,9 +347,11 @@ public:
 		Params(const std::string& _name) 
 		:	name("name"),
 			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
-			time_stamp("time_stamp"),
+			time_stamp("time"),
 			payload("payload"),
-			form_elements("form_elements")
+			form_elements("form"),
+			substitutions("substitutions"),
+			expiry("expiry")
 		{
 			functor.name = _name;
 			name = _name;
@@ -362,7 +364,7 @@ public:
 
 private:
 	
-	LLUUID mId;
+	const LLUUID mId;
 	LLSD mPayload;
 	LLSD mSubstitutions;
 	LLDate mTimestamp;
@@ -374,7 +376,6 @@ private:
 	ENotificationPriority mPriority;
 	LLNotificationFormPtr mForm;
 	void* mResponderObj; // TODO - refactor/remove this field
-	bool mIsReusable;
 	LLNotificationResponderPtr mResponder;
 
 	// a reference to the template
@@ -399,18 +400,10 @@ private:
 
 	void init(const std::string& template_name, const LLSD& form_elements);
 
-	LLNotification(const Params& p);
-
-	// this is just for making it easy to look things up in a set organized by UUID -- DON'T USE IT
-	// for anything real!
- LLNotification(LLUUID uuid) : mId(uuid), mCancelled(false), mRespondedTo(false), mIgnored(false), mPriority(NOTIFICATION_PRIORITY_UNSPECIFIED), mTemporaryResponder(false) {}
-
 	void cancel();
 
 public:
-
-	// constructor from a saved notification
-	LLNotification(const LLSD& sd);
+	LLNotification(const LLSDParamAdapter<Params>& p);
 
 	void setResponseFunctor(std::string const &responseFunctorName);
 
@@ -555,8 +548,6 @@ public:
 		return mId;
 	}
 
-	bool isReusable() { return mIsReusable; }
-
 	// comparing two notifications normally means comparing them by UUID (so we can look them
 	// up quickly this way)
 	bool operator<(const LLNotification& rhs) const
@@ -668,44 +659,18 @@ namespace LLNotificationFilters
 
 namespace LLNotificationComparators
 {
-	typedef enum e_direction { ORDER_DECREASING, ORDER_INCREASING } EDirection;
-
-	// generic order functor that takes method or member variable reference
-	template<typename T>
-	struct orderBy
+	struct orderByUUID
 	{
-		typedef boost::function<T (LLNotificationPtr)> field_t;
-        	orderBy(field_t field, EDirection direction = ORDER_INCREASING) : mField(field), mDirection(direction) {}
 		bool operator()(LLNotificationPtr lhs, LLNotificationPtr rhs)
 		{
-			if (mDirection == ORDER_DECREASING)
-			{
-				return mField(lhs) > mField(rhs);
-			}
-			else
-			{
-				return mField(lhs) < mField(rhs);
-			}
+			return lhs->id() < rhs->id();
 		}
-
-		field_t mField;
-		EDirection mDirection;
-	};
-
-	struct orderByUUID : public orderBy<const LLUUID&>
-	{
-		orderByUUID(EDirection direction = ORDER_INCREASING) : orderBy<const LLUUID&>(&LLNotification::id, direction) {}
-	};
-
-	struct orderByDate : public orderBy<const LLDate&>
-	{
-		orderByDate(EDirection direction = ORDER_INCREASING) : orderBy<const LLDate&>(&LLNotification::getDate, direction) {}
 	};
 };
 
 typedef boost::function<bool (LLNotificationPtr)> LLNotificationFilter;
 typedef boost::function<bool (LLNotificationPtr, LLNotificationPtr)> LLNotificationComparator;
-typedef std::set<LLNotificationPtr, LLNotificationComparator> LLNotificationSet;
+typedef std::set<LLNotificationPtr, LLNotificationComparators::orderByUUID> LLNotificationSet;
 typedef std::multimap<std::string, LLNotificationPtr> LLNotificationMap;
 
 // ========================================================
@@ -731,8 +696,9 @@ class LLNotificationChannelBase :
 {
 	LOG_CLASS(LLNotificationChannelBase);
 public:
-	LLNotificationChannelBase(LLNotificationFilter filter, LLNotificationComparator comp) : 
-		mFilter(filter), mItems(comp) 
+	LLNotificationChannelBase(LLNotificationFilter filter) 
+	:	mFilter(filter), 
+		mItems() 
 	{}
 	virtual ~LLNotificationChannelBase() {}
 	// you can also connect to a Channel, so you can be notified of
@@ -829,18 +795,11 @@ public:
 	{
 		Mandatory<std::string>				name;
 		Optional<LLNotificationFilter>		filter;
-		Optional<LLNotificationComparator>	comparator;
 		Multiple<std::string>				sources;
-
-		Params()
-		:	comparator("", LLNotificationComparators::orderByUUID())
-		{}
 	};
 
 	LLNotificationChannel(const Params& p = Params());
-
-	LLNotificationChannel(const std::string& name, const std::string& parent,
-		LLNotificationFilter filter, LLNotificationComparator comparator=LLNotificationComparators::orderByUUID());
+	LLNotificationChannel(const std::string& name, const std::string& parent, LLNotificationFilter filter);
 
 	virtual ~LLNotificationChannel() {}
 	typedef LLNotificationSet::iterator Iterator;
@@ -853,11 +812,8 @@ public:
     
     Iterator begin();
     Iterator end();
+	size_t size();
 
-    // Channels have a comparator to control sort order;
-	// the default sorts by arrival date
-    void setComparator(LLNotificationComparator comparator);
-	
 	std::string summarize();
 
 private:
@@ -1045,6 +1001,56 @@ protected:
 
 	LLNotification::Params mParams;
 	std::string mName;
+};
+
+// Stores only persistent notifications.
+// Class users can use connectChanged() to process persistent notifications
+// (see LLNotificationStorage for example).
+class LLPersistentNotificationChannel : public LLNotificationChannel
+{
+	LOG_CLASS(LLPersistentNotificationChannel);
+public:
+	LLPersistentNotificationChannel() 
+		:	LLNotificationChannel("Persistent", "Visible", &notificationFilter)
+	{
+	}
+
+	typedef std::vector<LLNotificationPtr> history_list_t;
+	history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
+	history_list_t::iterator endHistory() { return mHistory.end(); }
+
+private:
+
+	void sortHistory()
+	{
+		struct sortByTime
+		{
+			S32 operator ()(const LLNotificationPtr& a, const LLNotificationPtr& b)
+			{
+				return a->getDate() < b->getDate();
+			}
+		};
+		std::sort(mHistory.begin(), mHistory.end(), sortByTime());
+	}
+
+
+	// The channel gets all persistent notifications except those that have been canceled
+	static bool notificationFilter(LLNotificationPtr pNotification)
+	{
+		bool handle_notification = false;
+
+		handle_notification = pNotification->isPersistent()
+			&& !pNotification->isCancelled();
+
+		return handle_notification;
+	}
+
+	void onAdd(LLNotificationPtr p) 
+	{
+		mHistory.push_back(p);
+	}
+
+	std::vector<LLNotificationPtr> mHistory;
 };
 
 #endif//LL_LLNOTIFICATIONS_H

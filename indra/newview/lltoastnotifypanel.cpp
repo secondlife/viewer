@@ -60,19 +60,6 @@ LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, co
 	LLInstanceTracker<LLToastNotifyPanel, LLUUID>(notification->getID())
 {
 	init(rect, show_images);
-
-
-	//if(notification->isRespondedTo())
-	//{
-	//	// User selected an option in toast, now disable required buttons in IM window
-	//	disableRespondedOptions(notification);
-	//}
-	//
-	//if(notification->isReusable())
-	//{
-	//	mButtonClickConnection = sButtonClickSignal.connect(
-	//		boost::bind(&LLToastNotifyPanel::disableRespondedOptions, this, notification));
-	//}
 }
 void LLToastNotifyPanel::addDefaultButton()
 {
@@ -355,17 +342,6 @@ void LLToastNotifyPanel::onClickButton(void* data)
 		response[button_name] = true;
 	}
 	
-	bool is_reusable = self->mNotification->isReusable();
-	// When we call respond(), LLOfferInfo will delete itself in inventory_offer_callback(), 
-	// lets copy it while it's still valid.
-	LLOfferInfo* old_info = static_cast<LLOfferInfo*>(self->mNotification->getResponder());
-	LLOfferInfo* new_info = NULL;
-	if(is_reusable && old_info)
-	{
-		new_info = new LLOfferInfo(*old_info);
-		self->mNotification->setResponder(new_info);
-	}
-
 	// disable all buttons
 	self->mControlPanel->setEnabled(FALSE);
 
