@@ -129,7 +129,9 @@ void LLGLSLShader::unload()
 }
 
 BOOL LLGLSLShader::createShader(vector<string> * attributes,
-								vector<string> * uniforms)
+								vector<string> * uniforms,
+								U32 varying_count,
+								const char** varyings)
 {
 	//reloading, reset matrix hash values
 	for (U32 i = 0; i < LLRender::NUM_MATRIX_MODES; ++i)
@@ -170,6 +172,11 @@ BOOL LLGLSLShader::createShader(vector<string> * attributes,
 	{ //indexed texture rendering requires GLSL 1.3 or later
 		//attachShaderFeatures may have set the number of indexed texture channels, so set to 1 again
 		mFeatures.mIndexedTextureChannels = llmin(mFeatures.mIndexedTextureChannels, 1);
+	}
+
+	if (varying_count > 0 && varyings)
+	{
+		glTransformFeedbackVaryings(mProgramObject, varying_count, varyings, GL_INTERLEAVED_ATTRIBS);
 	}
 
 	// Map attributes and uniforms

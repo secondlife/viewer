@@ -104,6 +104,7 @@ public:
 	BOOL mHasDepthClamp;
 	BOOL mHasTextureRectangle;
 	BOOL mHasTextureMultisample;
+	BOOL mHasTransformFeedback;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
 	S32 mMaxDepthTextureSamples;
@@ -416,6 +417,31 @@ public:
 		}
 	}
 	virtual void updateGL() = 0;
+};
+
+const U32 FENCE_WAIT_TIME_NANOSECONDS = 10000;  //1 ms
+
+class LLGLFence
+{
+public:
+	virtual void placeFence() = 0;
+	virtual bool isCompleted() = 0;
+	virtual void wait() = 0;
+};
+
+class LLGLSyncFence : public LLGLFence
+{
+public:
+#ifdef GL_ARB_sync
+	GLsync mSync;
+#endif
+	
+	LLGLSyncFence();
+	virtual ~LLGLSyncFence();
+
+	void placeFence();
+	bool isCompleted();
+	void wait();
 };
 
 extern LLMatrix4 gGLObliqueProjectionInverse;

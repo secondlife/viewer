@@ -85,12 +85,32 @@ static F32 sCurMaxTexPriority = 1.f;
 
 class LLOcclusionQueryPool : public LLGLNamePool
 {
+public:
+	LLOcclusionQueryPool()
+	{
+		mCurQuery = 1;
+	}
+
 protected:
+
+	std::list<GLuint> mAvailableName;
+	GLuint mCurQuery;
+		
 	virtual GLuint allocateName()
 	{
-		GLuint name;
-		glGenQueriesARB(1, &name);
-		return name;
+		GLuint ret = 0;
+
+		if (!mAvailableName.empty())
+		{
+			ret = mAvailableName.front();
+			mAvailableName.pop_front();
+		}
+		else
+		{
+			ret = mCurQuery++;
+		}
+
+		return ret;
 	}
 
 	virtual void releaseName(GLuint name)
@@ -98,7 +118,8 @@ protected:
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 		LLSpatialGroup::sPendingQueries.erase(name);
 #endif
-		glDeleteQueriesARB(1, &name);
+		llassert(std::find(mAvailableName.begin(), mAvailableName.end(), name) == mAvailableName.end());
+		mAvailableName.push_back(name);
 	}
 };
 
@@ -687,6 +708,11 @@ void LLSpatialGroup::rebuildGeom()
 	if (!isDead())
 	{
 		mSpatialPartition->rebuildGeom(this);
+
+		if (isState(LLSpatialGroup::MESH_DIRTY))
+		{
+			gPipeline.markMeshDirty(this);
+		}
 	}
 }
 
@@ -1587,7 +1613,7 @@ BOOL LLSpatialGroup::rebound()
 }
 
 static LLFastTimer::DeclareTimer FTM_OCCLUSION_READBACK("Readback Occlusion");
-static LLFastTimer::DeclareTimer FTM_OCCLUSION_WAIT("Wait");
+static LLFastTimer::DeclareTimer FTM_OCCLUSION_WAIT("Occlusion Wait");
 
 void LLSpatialGroup::checkOcclusion()
 {
@@ -1607,7 +1633,9 @@ void LLSpatialGroup::checkOcclusion()
 			{
 				glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 
-				if (mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
+				static LLCachedControl<bool> wait_for_query(gSavedSettings, "RenderSynchronousOcclusion");
+
+				if (wait_for_query && mOcclusionIssued[LLViewerCamera::sCurCameraID] < gFrameCount)
 				{ //query was issued last frame, wait until it's available
 					S32 max_loop = 1024;
 					LLFastTimer t(FTM_OCCLUSION_WAIT);

@@ -540,7 +540,7 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 
 	if (mGLName)
 	{
-		LLImageGL::deleteTextures(1, &mGLName );
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mGLName );
 	}
 
 	delete mStatusLock;

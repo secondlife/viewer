@@ -639,7 +639,7 @@ BOOL LLVOVolume::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
 	LLViewerObject::idleUpdate(agent, world, time);
 
-	static LLFastTimer::DeclareTimer ftm("Volume");
+	static LLFastTimer::DeclareTimer ftm("Volume Idle");
 	LLFastTimer t(ftm);
 
 	if (mDead || mDrawable.isNull())
@@ -1089,8 +1089,32 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
+
+		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
+
+		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
+			(!mVolumeImpl || !mVolumeImpl->isVolumeUnique());
+
+		if (cache_in_vram)
+		{ //this volume might be used as source data for a transform object, put it in vram
+			LLVolume* volume = getVolume();
+			for (S32 i = 0; i < volume->getNumFaces(); ++i)
+			{
+				const LLVolumeFace& face = volume->getVolumeFace(i);
+				if (face.mVertexBuffer.notNull())
+				{ //already cached
+					break;
+				}
+				volume->genBinormals(i);
+				LLFace::cacheFaceInVRAM(face);
+			}
+		}
+		
+
 		return TRUE;
 	}
+
+
 
 	return FALSE;
 }
@@ -3945,8 +3969,11 @@ bool can_batch_texture(LLFace* facep)
 	return true;
 }
 
+static LLFastTimer::DeclareTimer FTM_REGISTER_FACE("Register Face");
+
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
+	LLFastTimer t(FTM_REGISTER_FACE);
 	LLMemType mt(LLMemType::MTYPE_SPACE_PARTITION);
 
 	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
@@ -4091,7 +4118,9 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 }
 
-static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_VB("Volume VB");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_FACE_LIST("Build Face List");
+static LLFastTimer::DeclareTimer FTM_REBUILD_VOLUME_GEN_DRAW_INFO("Gen Draw Info");
 
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
@@ -4122,6 +4151,8 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
+	
+
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -4133,17 +4164,15 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	{
 		if (group->isState(LLSpatialGroup::MESH_DIRTY) && !LLPipeline::sDelayVBUpdate)
 		{
-			LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
-		
 			rebuildMesh(group);
 		}
 		return;
 	}
 
+	LLFastTimer ftm(FTM_REBUILD_VOLUME_VB);
+
 	group->mBuilt = 1.f;
 	
-	LLFastTimer ftm2(FTM_REBUILD_VOLUME_VB);
-
 	LLVOAvatar* pAvatarVO = NULL;
 
 	LLSpatialBridge* bridge = group->mSpatialPartition->asBridge();
@@ -4192,371 +4221,375 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	bool emissive = false;
 
-	//get all the faces into a list
-	for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 	{
-		LLDrawable* drawablep = *drawable_iter;
+		LLFastTimer t(FTM_REBUILD_VOLUME_FACE_LIST);
+
+		//get all the faces into a list
+		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
+		{
+			LLDrawable* drawablep = *drawable_iter;
 		
-		if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
-		{
-			continue;
-		}
+			if (drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
+			{
+				continue;
+			}
 	
-		if (drawablep->isAnimating())
-		{ //fall back to stream draw for animating verts
-			useage = GL_STREAM_DRAW_ARB;
-		}
+			if (drawablep->isAnimating())
+			{ //fall back to stream draw for animating verts
+				useage = GL_STREAM_DRAW_ARB;
+			}
 
-		LLVOVolume* vobj = drawablep->getVOVolume();
+			LLVOVolume* vobj = drawablep->getVOVolume();
 
-		if (!vobj)
-		{
-			continue;
-		}
-
-		if (vobj->isMesh() &&
-			(vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded() || !gMeshRepo.meshRezEnabled()))
-		{
-			continue;
-		}
-
-		LLVolume* volume = vobj->getVolume();
-		if (volume)
-		{
-			const LLVector3& scale = vobj->getScale();
-			group->mSurfaceArea += volume->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
-		}
-
-		llassert_always(vobj);
-		vobj->updateTextureVirtualSize(true);
-		vobj->preRebuild();
-
-		drawablep->clearState(LLDrawable::HAS_ALPHA);
-
-		bool rigged = vobj->isAttachment() && 
-					vobj->isMesh() && 
-					gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
-
-		bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
-
-		bool is_rigged = false;
-
-		//for each face
-		for (S32 i = 0; i < drawablep->getNumFaces(); i++)
-		{
-			LLFace* facep = drawablep->getFace(i);
-			if (!facep)
+			if (!vobj)
 			{
 				continue;
 			}
 
-			//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
-			// batch, it will recover its vertex buffer reference from the spatial group
-			facep->setVertexBuffer(NULL);
-			
-			//sum up face verts and indices
-			drawablep->updateFaceSize(i);
-			
-			
-
-			if (rigged) 
+			if (vobj->isMesh() &&
+				(vobj->getVolume() && !vobj->getVolume()->isMeshAssetLoaded() || !gMeshRepo.meshRezEnabled()))
 			{
-				if (!facep->isState(LLFace::RIGGED))
-				{ //completely reset vertex buffer
-					facep->clearVertexBuffer();
-				}
-		
-				facep->setState(LLFace::RIGGED);
-				is_rigged = true;
-				
-				//get drawpool of avatar with rigged face
-				LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
-				
-				//Determine if we've received skininfo that contains an
-				//alternate bind matrix - if it does then apply the translational component
-				//to the joints of the avatar.
-				bool pelvisGotSet = false;
+				continue;
+			}
 
-				if ( pAvatarVO )
+			LLVolume* volume = vobj->getVolume();
+			if (volume)
+			{
+				const LLVector3& scale = vobj->getScale();
+				group->mSurfaceArea += volume->getSurfaceArea() * llmax(llmax(scale.mV[0], scale.mV[1]), scale.mV[2]);
+			}
+
+			llassert_always(vobj);
+			vobj->updateTextureVirtualSize(true);
+			vobj->preRebuild();
+
+			drawablep->clearState(LLDrawable::HAS_ALPHA);
+
+			bool rigged = vobj->isAttachment() && 
+						vobj->isMesh() && 
+						gMeshRepo.getSkinInfo(vobj->getVolume()->getParams().getSculptID(), vobj);
+
+			bool bake_sunlight = LLPipeline::sBakeSunlight && drawablep->isStatic();
+
+			bool is_rigged = false;
+
+			//for each face
+			for (S32 i = 0; i < drawablep->getNumFaces(); i++)
+			{
+				LLFace* facep = drawablep->getFace(i);
+				if (!facep)
 				{
-					LLUUID currentId = vobj->getVolume()->getParams().getSculptID();
-					const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
-					
-					if ( pSkinData )
+					continue;
+				}
+
+				//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
+				// batch, it will recover its vertex buffer reference from the spatial group
+				facep->setVertexBuffer(NULL);
+			
+				//sum up face verts and indices
+				drawablep->updateFaceSize(i);
+			
+			
+
+				if (rigged) 
+				{
+					if (!facep->isState(LLFace::RIGGED))
+					{ //completely reset vertex buffer
+						facep->clearVertexBuffer();
+					}
+		
+					facep->setState(LLFace::RIGGED);
+					is_rigged = true;
+				
+					//get drawpool of avatar with rigged face
+					LLDrawPoolAvatar* pool = get_avatar_drawpool(vobj);
+				
+					//Determine if we've received skininfo that contains an
+					//alternate bind matrix - if it does then apply the translational component
+					//to the joints of the avatar.
+					bool pelvisGotSet = false;
+
+					if ( pAvatarVO )
 					{
-						const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
-						if ( bindCnt > 0 )
-						{					
-							const int jointCnt = pSkinData->mJointNames.size();
-							const F32 pelvisZOffset = pSkinData->mPelvisOffset;
-							bool fullRig = (jointCnt>=20) ? true : false;
-							if ( fullRig )
-							{
-								for ( int i=0; i<jointCnt; ++i )
+						LLUUID currentId = vobj->getVolume()->getParams().getSculptID();
+						const LLMeshSkinInfo*  pSkinData = gMeshRepo.getSkinInfo( currentId, vobj );
+					
+						if ( pSkinData )
+						{
+							const int bindCnt = pSkinData->mAlternateBindMatrix.size();								
+							if ( bindCnt > 0 )
+							{					
+								const int jointCnt = pSkinData->mJointNames.size();
+								const F32 pelvisZOffset = pSkinData->mPelvisOffset;
+								bool fullRig = (jointCnt>=20) ? true : false;
+								if ( fullRig )
 								{
-									std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
-									//llinfos<<"joint name "<<lookingForJoint.c_str()<<llendl;
-									LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
-									if ( pJoint && pJoint->getId() != currentId )
-									{   									
-										pJoint->setId( currentId );
-										const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
-										//Set the joint position
-										pJoint->storeCurrentXform( jointPos );																																
-										//If joint is a pelvis then handle old/new pelvis to foot values
-										if ( lookingForJoint == "mPelvis" )
-										{	
+									for ( int i=0; i<jointCnt; ++i )
+									{
+										std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+										//llinfos<<"joint name "<<lookingForJoint.c_str()<<llendl;
+										LLJoint* pJoint = pAvatarVO->getJoint( lookingForJoint );
+										if ( pJoint && pJoint->getId() != currentId )
+										{   									
+											pJoint->setId( currentId );
+											const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+											//Set the joint position
 											pJoint->storeCurrentXform( jointPos );																																
-											if ( !pAvatarVO->hasPelvisOffset() )
-											{										
-												pAvatarVO->setPelvisOffset( true, jointPos, pelvisZOffset );
-												//Trigger to rebuild viewer AV
-												pelvisGotSet = true;											
+											//If joint is a pelvis then handle old/new pelvis to foot values
+											if ( lookingForJoint == "mPelvis" )
+											{	
+												pJoint->storeCurrentXform( jointPos );																																
+												if ( !pAvatarVO->hasPelvisOffset() )
+												{										
+													pAvatarVO->setPelvisOffset( true, jointPos, pelvisZOffset );
+													//Trigger to rebuild viewer AV
+													pelvisGotSet = true;											
+												}										
 											}										
-										}										
+										}
 									}
-								}
-							}							
+								}							
+							}
 						}
 					}
-				}
-				//If we've set the pelvis to a new position we need to also rebuild some information that the
-				//viewer does at launch (e.g. body size etc.)
-				if ( pelvisGotSet )
-				{
-					pAvatarVO->postPelvisSetRecalc();
-				}
-
-				if (pool)
-				{
-					const LLTextureEntry* te = facep->getTextureEntry();
-
-					//remove face from old pool if it exists
-					LLDrawPool* old_pool = facep->getPool();
-					if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
+					//If we've set the pelvis to a new position we need to also rebuild some information that the
+					//viewer does at launch (e.g. body size etc.)
+					if ( pelvisGotSet )
 					{
-						((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
+						pAvatarVO->postPelvisSetRecalc();
 					}
 
-					//add face to new pool
-					LLViewerTexture* tex = facep->getTexture();
-					U32 type = gPipeline.getPoolTypeFromTE(te, tex);
-
-					if (type == LLDrawPool::POOL_ALPHA)
+					if (pool)
 					{
-						if (te->getColor().mV[3] > 0.f)
+						const LLTextureEntry* te = facep->getTextureEntry();
+
+						//remove face from old pool if it exists
+						LLDrawPool* old_pool = facep->getPool();
+						if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
+						{
+							((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
+						}
+
+						//add face to new pool
+						LLViewerTexture* tex = facep->getTexture();
+						U32 type = gPipeline.getPoolTypeFromTE(te, tex);
+
+						if (type == LLDrawPool::POOL_ALPHA)
+						{
+							if (te->getColor().mV[3] > 0.f)
+							{
+								if (te->getFullbright())
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
+								}
+								else
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+								}
+							}
+						}
+						else if (te->getShiny())
 						{
 							if (te->getFullbright())
 							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_ALPHA);
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
 							}
 							else
 							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_ALPHA);
+								if (LLPipeline::sRenderDeferred)
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+								}
+								else
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+								}
 							}
-						}
-					}
-					else if (te->getShiny())
-					{
-						if (te->getFullbright())
-						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT_SHINY);
 						}
 						else
 						{
-							if (LLPipeline::sRenderDeferred)
+							if (te->getFullbright())
+							{
+								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+							}
+							else
 							{
 								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
 							}
-							else
+						}
+
+						if (te->getGlow())
+						{
+							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
+						}
+
+						if (LLPipeline::sRenderDeferred)
+						{
+							if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
 							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SHINY);
+								if (te->getBumpmap())
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
+								}
+								else
+								{
+									pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
+								}
 							}
 						}
 					}
-					else
-					{
-						if (te->getFullbright())
+
+					continue;
+				}
+				else
+				{
+					if (facep->isState(LLFace::RIGGED))
+					{ //face is not rigged but used to be, remove from rigged face pool
+						LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
+						if (pool)
 						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_FULLBRIGHT);
+							pool->removeRiggedFace(facep);
 						}
-						else
+						facep->clearState(LLFace::RIGGED);
+					}
+				}
+
+
+				if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
+				{
+					facep->clearVertexBuffer();
+					continue;
+				}
+
+				cur_total += facep->getGeomCount();
+
+				if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
+				{
+					const LLTextureEntry* te = facep->getTextureEntry();
+					LLViewerTexture* tex = facep->getTexture();
+
+					if (te->getGlow() >= 1.f/255.f)
+					{
+						emissive = true;
+					}
+
+					if (facep->isState(LLFace::TEXTURE_ANIM))
+					{
+						if (!vobj->mTexAnimMode)
 						{
-							pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_SIMPLE);
+							facep->clearState(LLFace::TEXTURE_ANIM);
 						}
 					}
 
-					if (te->getGlow())
+					BOOL force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
+					U32 type = gPipeline.getPoolTypeFromTE(te, tex);
+					if (type != LLDrawPool::POOL_ALPHA && force_simple)
 					{
-						pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_GLOW);
+						type = LLDrawPool::POOL_SIMPLE;
+					}
+					facep->setPoolType(type);
+
+					if (vobj->isHUDAttachment())
+					{
+						facep->setState(LLFace::FULLBRIGHT);
 					}
 
-					if (LLPipeline::sRenderDeferred)
+					if (vobj->mTextureAnimp && vobj->mTexAnimMode)
 					{
-						if (type != LLDrawPool::POOL_ALPHA && !te->getFullbright())
+						if (vobj->mTextureAnimp->mFace <= -1)
 						{
-							if (te->getBumpmap())
+							S32 face;
+							for (face = 0; face < vobj->getNumTEs(); face++)
 							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_BUMP);
-							}
-							else
-							{
-								pool->addRiggedFace(facep, LLDrawPoolAvatar::RIGGED_DEFERRED_SIMPLE);
+								LLFace * facep = drawablep->getFace(face);
+								if (facep)
+								{
+									facep->setState(LLFace::TEXTURE_ANIM);
+								}
 							}
 						}
-					}
-				}
-
-				continue;
-			}
-			else
-			{
-				if (facep->isState(LLFace::RIGGED))
-				{ //face is not rigged but used to be, remove from rigged face pool
-					LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
-					if (pool)
-					{
-						pool->removeRiggedFace(facep);
-					}
-					facep->clearState(LLFace::RIGGED);
-				}
-			}
-
-
-			if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
-			{
-				facep->clearVertexBuffer();
-				continue;
-			}
-
-			cur_total += facep->getGeomCount();
-
-			if (facep->hasGeometry() && facep->getPixelArea() > FORCE_CULL_AREA)
-			{
-				const LLTextureEntry* te = facep->getTextureEntry();
-				LLViewerTexture* tex = facep->getTexture();
-
-				if (te->getGlow() >= 1.f/255.f)
-				{
-					emissive = true;
-				}
-
-				if (facep->isState(LLFace::TEXTURE_ANIM))
-				{
-					if (!vobj->mTexAnimMode)
-					{
-						facep->clearState(LLFace::TEXTURE_ANIM);
-					}
-				}
-
-				BOOL force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
-				U32 type = gPipeline.getPoolTypeFromTE(te, tex);
-				if (type != LLDrawPool::POOL_ALPHA && force_simple)
-				{
-					type = LLDrawPool::POOL_SIMPLE;
-				}
-				facep->setPoolType(type);
-
-				if (vobj->isHUDAttachment())
-				{
-					facep->setState(LLFace::FULLBRIGHT);
-				}
-
-				if (vobj->mTextureAnimp && vobj->mTexAnimMode)
-				{
-					if (vobj->mTextureAnimp->mFace <= -1)
-					{
-						S32 face;
-						for (face = 0; face < vobj->getNumTEs(); face++)
+						else if (vobj->mTextureAnimp->mFace < vobj->getNumTEs())
 						{
-							LLFace * facep = drawablep->getFace(face);
+							LLFace * facep = drawablep->getFace(vobj->mTextureAnimp->mFace);
 							if (facep)
 							{
 								facep->setState(LLFace::TEXTURE_ANIM);
 							}
 						}
 					}
-					else if (vobj->mTextureAnimp->mFace < vobj->getNumTEs())
-					{
-						LLFace * facep = drawablep->getFace(vobj->mTextureAnimp->mFace);
-						if (facep)
-						{
-							facep->setState(LLFace::TEXTURE_ANIM);
-						}
-					}
-				}
 
-				if (type == LLDrawPool::POOL_ALPHA)
-				{
-					if (facep->canRenderAsMask())
-					{ //can be treated as alpha mask
-						simple_faces.push_back(facep);
+					if (type == LLDrawPool::POOL_ALPHA)
+					{
+						if (facep->canRenderAsMask())
+						{ //can be treated as alpha mask
+							simple_faces.push_back(facep);
+						}
+						else
+						{
+							if (te->getColor().mV[3] > 0.f)
+							{ //only treat as alpha in the pipeline if < 100% transparent
+								drawablep->setState(LLDrawable::HAS_ALPHA);
+							}
+							alpha_faces.push_back(facep);
+						}
 					}
 					else
 					{
-						if (te->getColor().mV[3] > 0.f)
-						{ //only treat as alpha in the pipeline if < 100% transparent
-							drawablep->setState(LLDrawable::HAS_ALPHA);
+						if (drawablep->isState(LLDrawable::REBUILD_VOLUME))
+						{
+							facep->mLastUpdateTime = gFrameTimeSeconds;
 						}
-						alpha_faces.push_back(facep);
+
+						if (gPipeline.canUseWindLightShadersOnObjects()
+							&& LLPipeline::sRenderBump)
+						{
+							if (te->getBumpmap())
+							{ //needs normal + binormal
+								bump_faces.push_back(facep);
+							}
+							else if (te->getShiny() || !te->getFullbright())
+							{ //needs normal
+								simple_faces.push_back(facep);
+							}
+							else 
+							{ //doesn't need normal
+								facep->setState(LLFace::FULLBRIGHT);
+								fullbright_faces.push_back(facep);
+							}
+						}
+						else
+						{
+							if (te->getBumpmap() && LLPipeline::sRenderBump)
+							{ //needs normal + binormal
+								bump_faces.push_back(facep);
+							}
+							else if ((te->getShiny() && LLPipeline::sRenderBump) ||
+								!(te->getFullbright() || bake_sunlight))
+							{ //needs normal
+								simple_faces.push_back(facep);
+							}
+							else 
+							{ //doesn't need normal
+								facep->setState(LLFace::FULLBRIGHT);
+								fullbright_faces.push_back(facep);
+							}
+						}
 					}
 				}
 				else
-				{
-					if (drawablep->isState(LLDrawable::REBUILD_VOLUME))
-					{
-						facep->mLastUpdateTime = gFrameTimeSeconds;
-					}
+				{	//face has no renderable geometry
+					facep->clearVertexBuffer();
+				}		
+			}
 
-					if (gPipeline.canUseWindLightShadersOnObjects()
-						&& LLPipeline::sRenderBump)
-					{
-						if (te->getBumpmap())
-						{ //needs normal + binormal
-							bump_faces.push_back(facep);
-						}
-						else if (te->getShiny() || !te->getFullbright())
-						{ //needs normal
-							simple_faces.push_back(facep);
-						}
-						else 
-						{ //doesn't need normal
-							facep->setState(LLFace::FULLBRIGHT);
-							fullbright_faces.push_back(facep);
-						}
-					}
-					else
-					{
-						if (te->getBumpmap() && LLPipeline::sRenderBump)
-						{ //needs normal + binormal
-							bump_faces.push_back(facep);
-						}
-						else if ((te->getShiny() && LLPipeline::sRenderBump) ||
-							!(te->getFullbright() || bake_sunlight))
-						{ //needs normal
-							simple_faces.push_back(facep);
-						}
-						else 
-						{ //doesn't need normal
-							facep->setState(LLFace::FULLBRIGHT);
-							fullbright_faces.push_back(facep);
-						}
-					}
-				}
+			if (is_rigged)
+			{
+				drawablep->setState(LLDrawable::RIGGED);
 			}
 			else
-			{	//face has no renderable geometry
-				facep->clearVertexBuffer();
-			}		
-		}
-
-		if (is_rigged)
-		{
-			drawablep->setState(LLDrawable::RIGGED);
-		}
-		else
-		{
-			drawablep->clearState(LLDrawable::RIGGED);
+			{
+				drawablep->clearState(LLDrawable::RIGGED);
+			}
 		}
 	}
 
@@ -4623,15 +4656,15 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM("Volume Geometry");
-static LLFastTimer::DeclareTimer FTM_VOLUME_GEOM_PARTIAL("Terse Rebuild");
 
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
 	llassert(group);
 	if (group && group->isState(LLSpatialGroup::MESH_DIRTY) && !group->isState(LLSpatialGroup::GEOM_DIRTY))
 	{
-		LLFastTimer tm(FTM_VOLUME_GEOM);
+		LLFastTimer ftm(FTM_REBUILD_VOLUME_VB);
+		LLFastTimer t(FTM_REBUILD_VOLUME_GEN_DRAW_INFO); //make sure getgeometryvolume shows up in the right place in timers
+
 		S32 num_mapped_veretx_buffer = LLVertexBuffer::sMappedCount ;
 
 		group->mBuilt = 1.f;
@@ -4640,7 +4673,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 		for (LLSpatialGroup::element_iter drawable_iter = group->getData().begin(); drawable_iter != group->getData().end(); ++drawable_iter)
 		{
-			LLFastTimer t(FTM_VOLUME_GEOM_PARTIAL);
 			LLDrawable* drawablep = *drawable_iter;
 
 			if (!drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) )
@@ -4747,8 +4779,20 @@ struct CompareBatchBreakerModified
 	}
 };
 
+static LLFastTimer::DeclareTimer FTM_GEN_DRAW_INFO_SORT("Draw Info Face Sort");
+static LLFastTimer::DeclareTimer FTM_GEN_DRAW_INFO_FACE_SIZE("Face Sizing");
+static LLFastTimer::DeclareTimer FTM_GEN_DRAW_INFO_ALLOCATE("Allocate VB");
+static LLFastTimer::DeclareTimer FTM_GEN_DRAW_INFO_FIND_VB("Find VB");
+static LLFastTimer::DeclareTimer FTM_GEN_DRAW_INFO_RESIZE_VB("Resize VB");
+
+
+
+
+
 void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::vector<LLFace*>& faces, BOOL distance_sort, BOOL batch_textures)
 {
+	LLFastTimer t(FTM_REBUILD_VOLUME_GEN_DRAW_INFO);
+
 	U32 buffer_usage = group->mBufferUsage;
 	
 #if LL_DARWIN
@@ -4766,15 +4810,18 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->mSpatialPartition->mVertexDataMask);
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
-	if (!distance_sort)
 	{
-		//sort faces by things that break batches
-		std::sort(faces.begin(), faces.end(), CompareBatchBreakerModified());
-	}
-	else
-	{
-		//sort faces by distance
-		std::sort(faces.begin(), faces.end(), LLFace::CompareDistanceGreater());
+		LLFastTimer t(FTM_GEN_DRAW_INFO_SORT);
+		if (!distance_sort)
+		{
+			//sort faces by things that break batches
+			std::sort(faces.begin(), faces.end(), CompareBatchBreakerModified());
+		}
+		else
+		{
+			//sort faces by distance
+			std::sort(faces.begin(), faces.end(), LLFace::CompareDistanceGreater());
+		}
 	}
 				
 	bool hud_group = group->isHUDGroup() ;
@@ -4839,57 +4886,86 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		
 		std::vector<LLViewerTexture*> texture_list;
 
-		if (batch_textures)
 		{
-			U8 cur_tex = 0;
-			facep->setTextureIndex(cur_tex);
-			texture_list.push_back(tex);
-
-			//if (can_batch_texture(facep))
+			LLFastTimer t(FTM_GEN_DRAW_INFO_FACE_SIZE);
+			if (batch_textures)
 			{
-				while (i != faces.end())
+				U8 cur_tex = 0;
+				facep->setTextureIndex(cur_tex);
+				texture_list.push_back(tex);
+
+				//if (can_batch_texture(facep))
 				{
-					facep = *i;
-					if (facep->getTexture() != tex)
+					while (i != faces.end())
 					{
-						if (distance_sort)
-						{ //textures might be out of order, see if texture exists in current batch
-							bool found = false;
-							for (U32 tex_idx = 0; tex_idx < texture_list.size(); ++tex_idx)
-							{
-								if (facep->getTexture() == texture_list[tex_idx])
+						facep = *i;
+						if (facep->getTexture() != tex)
+						{
+							if (distance_sort)
+							{ //textures might be out of order, see if texture exists in current batch
+								bool found = false;
+								for (U32 tex_idx = 0; tex_idx < texture_list.size(); ++tex_idx)
 								{
-									cur_tex = tex_idx;
-									found = true;
-									break;
+									if (facep->getTexture() == texture_list[tex_idx])
+									{
+										cur_tex = tex_idx;
+										found = true;
+										break;
+									}
+								}
+
+								if (!found)
+								{
+									cur_tex = texture_list.size();
 								}
 							}
-
-							if (!found)
+							else
 							{
-								cur_tex = texture_list.size();
+								cur_tex++;
 							}
-						}
-						else
-						{
-							cur_tex++;
+
+							if (!can_batch_texture(facep))
+							{ //face is bump mapped or has an animated texture matrix -- can't 
+								//batch more than 1 texture at a time
+								break;
+							}
+
+							if (cur_tex >= texture_index_channels)
+							{ //cut batches when index channels are depleted
+								break;
+							}
+
+							tex = facep->getTexture();
+
+							texture_list.push_back(tex);
 						}
 
-						if (!can_batch_texture(facep))
-						{ //face is bump mapped or has an animated texture matrix -- can't 
-							//batch more than 1 texture at a time
+						if (geom_count + facep->getGeomCount() > max_vertices)
+						{ //cut batches on geom count too big
 							break;
 						}
 
-						if (cur_tex >= texture_index_channels)
-						{ //cut batches when index channels are depleted
-							break;
-						}
+						++i;
+						index_count += facep->getIndicesCount();
+						geom_count += facep->getGeomCount();
 
-						tex = facep->getTexture();
-
-						texture_list.push_back(tex);
+						facep->setTextureIndex(cur_tex);
 					}
+				}
+
+				tex = texture_list[0];
+			}
+			else
+			{
+				while (i != faces.end() && 
+					(LLPipeline::sTextureBindTest || (distance_sort || (*i)->getTexture() == tex)))
+				{
+					facep = *i;
+			
+
+					//face has no texture index
+					facep->mDrawInfo = NULL;
+					facep->setTextureIndex(255);
 
 					if (geom_count + facep->getGeomCount() > max_vertices)
 					{ //cut batches on geom count too big
@@ -4899,40 +4975,16 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					++i;
 					index_count += facep->getIndicesCount();
 					geom_count += facep->getGeomCount();
-
-					facep->setTextureIndex(cur_tex);
 				}
 			}
-
-			tex = texture_list[0];
 		}
-		else
-		{
-			while (i != faces.end() && 
-				(LLPipeline::sTextureBindTest || (distance_sort || (*i)->getTexture() == tex)))
-			{
-				facep = *i;
-			
 
-				//face has no texture index
-				facep->mDrawInfo = NULL;
-				facep->setTextureIndex(255);
-
-				if (geom_count + facep->getGeomCount() > max_vertices)
-				{ //cut batches on geom count too big
-					break;
-				}
-
-				++i;
-				index_count += facep->getIndicesCount();
-				geom_count += facep->getGeomCount();
-			}
-		}
-	
 		//create/delete/resize vertex buffer if needed
 		LLVertexBuffer* buffer = NULL;
 
+		if (group->mBufferUsage != GL_DYNAMIC_DRAW_ARB)
 		{ //try to find a buffer to reuse
+			LLFastTimer t(FTM_GEN_DRAW_INFO_FIND_VB);
 			LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
 		
 			if (found_iter != group->mBufferMap[mask].end())
@@ -4943,23 +4995,28 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 			}
 		}
-						
-		if (!buffer || !buffer->isWriteable())
-		{ //create new buffer if needed
-			buffer = createVertexBuffer(mask, buffer_usage);
-			buffer->allocateBuffer(geom_count, index_count, TRUE);
-		}
-		else 
-		{ //resize pre-existing buffer
-			if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != buffer_usage ||
-				buffer->getTypeMask() != mask)
-			{
+					
+		{
+			LLFastTimer t(FTM_GEN_DRAW_INFO_ALLOCATE);
+	
+			if (!buffer || !buffer->isWriteable())
+			{ //create new buffer if needed
 				buffer = createVertexBuffer(mask, buffer_usage);
 				buffer->allocateBuffer(geom_count, index_count, TRUE);
 			}
-			else
-			{
-				buffer->resizeBuffer(geom_count, index_count);
+			else 
+			{ //resize pre-existing buffer
+				LLFastTimer t(FTM_GEN_DRAW_INFO_RESIZE_VB);
+				if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != buffer_usage ||
+					buffer->getTypeMask() != mask)
+				{
+					buffer = createVertexBuffer(mask, buffer_usage);
+					buffer->allocateBuffer(geom_count, index_count, TRUE);
+				}
+				else
+				{
+					buffer->resizeBuffer(geom_count, index_count);
+				}
 			}
 		}
 
