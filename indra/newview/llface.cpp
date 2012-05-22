@@ -1434,7 +1434,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
 
-			S32 val = 0.f;
+			S32 val = 0;
 			U8* vp = (U8*) &val;
 			vp[0] = index;
 			vp[1] = 0;
