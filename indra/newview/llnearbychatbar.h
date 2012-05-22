@@ -35,6 +35,8 @@
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
 
+class LLNearbyChatBarListener;
+
 class LLNearbyChatBar :	public LLFloater
 {
 public:
@@ -92,6 +94,8 @@ protected:
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
+
+	boost::shared_ptr<LLNearbyChatBarListener> mListener;
 };
 
 #endif

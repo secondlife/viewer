@@ -335,17 +335,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>AuditTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable texture auditting.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
@@ -1936,7 +1925,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
     <key>DebugBeaconLineWidth</key>
     <map>
@@ -7183,6 +7172,17 @@
       <key>Value</key>
       <integer>-1</integer>
     </map>
+    <key>QAModeMetrics</key>
+    <map>
+      <key>Comment</key>
+      <string>"Enables QA features (logging, faster cycling) for metrics collector"</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>QuietSnapshotsToDisk</key>
     <map>
       <key>Comment</key>
@@ -10664,6 +10664,39 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TexelPixelRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>texel pixel ratio = texel / pixel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TextureCameraMotionThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>If the overall motion is lower than this value, textures will be loaded faster</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
+    </map>
+    <key>TextureCameraMotionBoost</key>
+    <map>
+      <key>Comment</key>
+      <string>Progressive discard level decrement when the camera is still</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
     <key>TextureDecodeDisabled</key>
     <map>
       <key>Comment</key>
@@ -10697,6 +10730,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchDebuggerEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the texture fetching debugger if set</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>
@@ -10719,6 +10763,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureNewByteRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Use the new more accurate byte range computation for j2c discard levels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>TexturePickerShowFolders</key>
     <map>
       <key>Comment</key>
@@ -10740,6 +10795,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>2</integer>
+    </map>
+    <key>TextureReverseByteRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimal percent of the optimal byte range allowed to render a given discard level</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>50</integer>
     </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>
