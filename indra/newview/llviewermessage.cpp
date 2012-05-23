@@ -5533,6 +5533,12 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 				returnValue = true;
 			}
 		}
+		else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
+		{
+			gAgent.clearFailedTeleportRequest();
+			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+			returnValue = true;
+		}
 	}
 	else if (regionAccess == SIM_ACCESS_ADULT)
 	{
@@ -5556,6 +5562,12 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
+		}
+		else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
+		{
+			gAgent.clearFailedTeleportRequest();
+			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
+			returnValue = true;
 		}
 	}
 
