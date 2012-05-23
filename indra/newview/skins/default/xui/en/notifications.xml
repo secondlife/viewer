@@ -4078,7 +4078,7 @@ Are you sure you want to change the Estate Covenant?
 
   <notification
    icon="alertmodal.tga"
-   name="RegionEntryAccessBlocked_KB"
+   name="RegionEntryAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
    <tag>fail</tag>
     <tag>confirm</tag>
@@ -4099,6 +4099,14 @@ Are you sure you want to change the Estate Covenant?
    type="notifytip">
    <tag>fail</tag>
 The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="RegionEntryAccessBlocked_NotifyAdultsOnly"
+   type="notifytip">
+    <tag>fail</tag>
+    The region you're trying to visit contains content, which is accessible to adults only.
   </notification>
 
   <notification
@@ -4189,7 +4197,7 @@ We were unable to change your preferences to view [RATING] content at this time.
 
   <notification
    icon="alertmodal.tga"
-   name="LandClaimAccessBlocked_KB"
+   name="LandClaimAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
     Only adults can claim this land.
     <tag>fail</tag>
@@ -4210,6 +4218,14 @@ We were unable to change your preferences to view [RATING] content at this time.
    type="notifytip">
     The land you're trying to claim contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
     <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="LandClaimAccessBlocked_NotifyAdultsOnly"
+   type="notifytip">
+    <tag>fail</tag>
+    The land you're trying to claim contains content, which is accessible to adults only.
   </notification>
 
   <notification
@@ -4246,7 +4262,7 @@ We were unable to change your preferences to view [RATING] content at this time.
 
   <notification
    icon="alertmodal.tga"
-   name="LandBuyAccessBlocked_KB"
+   name="LandBuyAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
     Only adults can buy this land.
     <tag>confirm</tag>
@@ -4267,6 +4283,14 @@ We were unable to change your preferences to view [RATING] content at this time.
    type="notifytip">
     The land you're trying to buy contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
     <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="LandBuyAccessBlocked_NotifyAdultsOnly"
+   type="notifytip">
+    <tag>fail</tag>
+    The land you're trying to buy contains content, which is accessible to adults only.
   </notification>
 
   <notification

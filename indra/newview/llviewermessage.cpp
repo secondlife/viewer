@@ -5510,13 +5510,16 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	
 	bool returnValue = false;
 	LLNotificationPtr maturityLevelNotification;
+	std::string notifySuffix = "_Notify";
 	if (regionAccess == SIM_ACCESS_MATURE)
 	{
 		if (gAgent.isTeen())
 		{
 			gAgent.clearFailedTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_KB", llsdBlock);
+			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 			returnValue = true;
+
+			notifySuffix = "_NotifyAdultsOnly";
 		}
 		else if (gAgent.prefersPG())
 		{
@@ -5545,8 +5548,10 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 		if (!gAgent.isAdult())
 		{
 			gAgent.clearFailedTeleportRequest();
-			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_KB", llsdBlock);
+			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 			returnValue = true;
+
+			notifySuffix = "_NotifyAdultsOnly";
 		}
 		else if (gAgent.prefersPG() || gAgent.prefersMature())
 		{
@@ -5574,7 +5579,7 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	if ((maturityLevelNotification == NULL) || maturityLevelNotification->isIgnored())
 	{
 		// Given a simple notification if no maturityLevelNotification is set or it is ignore
-		LLNotificationsUtil::add(notificationID+"_Notify", llsdBlock);
+		LLNotificationsUtil::add(notificationID + notifySuffix, llsdBlock);
 	}
 
 	return returnValue;
@@ -5621,16 +5626,20 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			 
 				RegionEntryAccessBlocked
 				RegionEntryAccessBlocked_Notify
+				RegionEntryAccessBlocked_NotifyAdultsOnly
 				RegionEntryAccessBlocked_Change
-				RegionEntryAccessBlocked_KB
+				RegionEntryAccessBlocked_AdultsOnlyContent
+				RegionEntryAccessBlocked_ChangeAndReTeleport
 				LandClaimAccessBlocked 
 				LandClaimAccessBlocked_Notify 
+				LandClaimAccessBlocked_NotifyAdultsOnly
 				LandClaimAccessBlocked_Change 
-				LandClaimAccessBlocked_KB 
+				LandClaimAccessBlocked_AdultsOnlyContent 
 				LandBuyAccessBlocked
 				LandBuyAccessBlocked_Notify
+				LandBuyAccessBlocked_NotifyAdultsOnly
 				LandBuyAccessBlocked_Change
-				LandBuyAccessBlocked_KB
+				LandBuyAccessBlocked_AdultsOnlyContent
 			 
 			-----------------------------------------------------------------------*/ 
 			if (handle_special_notification(notificationID, llsdBlock))
