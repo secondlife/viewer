@@ -4219,11 +4219,18 @@ We were unable to change your preferences to view [RATING] content at this time.
     The land you're trying to claim contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, then you can try claiming the land again.
     <tag>fail</tag>
     <tag>confirm</tag>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Change Preferences"
-	 notext="Cancel"
-	 ignoretext="My chosen Rating preference prevents me from claiming Land"/>
+    <form name="form">
+      <button
+       index="0"
+       name="OK"
+       text="Change preferences"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+      <ignore name="ignore" text="My chosen maturity rating preference prevents me from claiming land"/>
+    </form>
   </notification>
 
   <notification
@@ -4269,11 +4276,18 @@ We were unable to change your preferences to view [RATING] content at this time.
     The land you're trying to buy contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, then you can try buying the land again.
     <tag>confirm</tag>
     <tag>fail</tag>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Change Preferences"
-	 notext="Cancel"
-	 ignoretext="My chosen Rating preference prevents me from buying Land"/>
+    <form name="form">
+      <button
+       index="0"
+       name="OK"
+       text="Change preferences"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+      <ignore name="ignore" text="My chosen maturity rating preference prevents me from buying land"/>
+    </form>
   </notification>
 
 	<notification
