@@ -58,7 +58,7 @@ class HttpOperation;
 /// will be coded anyway so it shouldn't be too much of a
 /// burden.
 
-class HttpReplyQueue: public LLCoreInt::RefCounted
+class HttpReplyQueue : public LLCoreInt::RefCounted
 {
 public:
 	/// Caller acquires a Refcount on construction

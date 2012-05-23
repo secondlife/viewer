@@ -87,31 +87,6 @@ public:
 };  // end class HttpOperation
 
 
-/// HttpOpCancel requests that a previously issued request
-/// be canceled, if possible.  Requests that have been made
-/// active and are available for sending on the wire cannot
-/// be canceled.
-
-class HttpOpCancel : public HttpOperation
-{
-public:
-	HttpOpCancel();
-	virtual ~HttpOpCancel();
-
-private:
-	HttpOpCancel(const HttpOpCancel &);					// Not defined
-	void operator=(const HttpOpCancel &);				// Not defined
-
-public:
-	virtual void stageFromRequest(HttpService *);
-	virtual void stageFromReady(HttpService *);
-	virtual void stageFromActive(HttpService *);
-
-public:
-	HttpHandle			mHandle;
-};  // end class HttpOpCancel
-
-
 /// HttpOpStop requests the servicing thread to shutdown
 /// operations, cease pulling requests from the request
 /// queue and release shared resources (particularly

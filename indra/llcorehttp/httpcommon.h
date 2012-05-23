@@ -122,23 +122,38 @@ enum HttpError
 	// Successful value compatible with the libcurl codes.
 	HE_SUCCESS = 0,
 
+	// Intended for HTTP reply codes 100-999, indicates that
+	// the reply should be considered an error by the application.
+	HE_REPLY_ERROR = 1,
+	
 	// Service is shutting down and requested operation will
 	// not be queued or performed.
-	HE_SHUTTING_DOWN = 1,
+	HE_SHUTTING_DOWN = 2,
 	
 	// Operation was canceled by request.
-	HE_OP_CANCELED = 2,
+	HE_OP_CANCELED = 3,
 	
 	// Invalid content range header received.
-	HE_INV_CONTENT_RANGE_HDR = 3
+	HE_INV_CONTENT_RANGE_HDR = 4
 	
 }; // end enum HttpError
 
 
-/// HttpStatus encapsulates errors from libcurl (easy, multi) as well as
-/// internal errors.  The encapsulation isn't expected to completely
-/// isolate the caller from libcurl but basic operational tests (success
-/// or failure) are provided.
+/// HttpStatus encapsulates errors from libcurl (easy, multi), HTTP
+/// reply status codes and internal errors as well.  The encapsulation
+/// isn't expected to completely isolate the caller from libcurl but
+/// basic operational tests (success or failure) are provided.
+///
+/// Non-HTTP status are encoded as (type, status) with type being
+/// one of:  EXT_CURL_EASY, EXT_CURL_MULTI or LLCORE and status
+/// being the success/error code from that domain.  HTTP status
+/// is encoded as (status, error_flag).  Status should be in the
+/// range [100, 999] and error_flag is either HE_SUCCESS or
+/// HE_REPLY_ERROR to indicate whether this should be treated as
+/// a successful status or an error.  The application is responsible
+/// for making that determination and a range like [200, 299] isn't
+/// automatically assumed to be definitive.
+
 struct HttpStatus
 {
 	typedef unsigned short type_enum_t;
@@ -192,12 +207,42 @@ struct HttpStatus
 		return 0 != mStatus;
 	}
 
+	/// Equality and inequality tests to bypass bool conversion
+	/// which will do the wrong thing in conditional expressions.
+	bool operator==(const HttpStatus & rhs) const
+	{
+		return mType == rhs.mType && mStatus == rhs.mStatus;
+	}
+
+	bool operator!=(const HttpStatus & rhs) const
+	{
+		return ! operator==(rhs);
+	}
+
+	/// Convert to single numeric representation.  Mainly
+	/// for logging or other informal purposes.  Also
+	/// creates an ambiguous second path to integer conversion
+	/// which tends to find programming errors such as formatting
+	/// the status to a stream (operator<<).
+	operator unsigned long() const;
+	unsigned long toULong() const
+	{
+		return operator unsigned long();
+	}
+	
 	/// Convert status to a string representation.  For
 	/// success, returns an empty string.  For failure
 	/// statuses, a string as appropriate for the source of
 	/// the error code (libcurl easy, libcurl multi, or
 	/// LLCore itself).
 	std::string toString() const;
+
+	/// Returns true if the status value represents an
+	/// HTTP response status (100 - 999).
+	bool isHttpStatus() const
+	{
+		return 	mType >= type_enum_t(100) && mType <= type_enum_t(999);
+	}
 	
 }; // end struct HttpStatus
 

@@ -152,8 +152,8 @@ protected:
 	LLCoreInt::HttpThread *		mThread;
 
 	// === working-thread-only data ===
-	HttpPolicy *				mPolicy;
-	HttpLibcurl *				mTransport;
+	HttpPolicy *				mPolicy;		// Simple pointer, has ownership
+	HttpLibcurl *				mTransport;		// Simple pointer, has ownership
 	
 };  // end class HttpService
 

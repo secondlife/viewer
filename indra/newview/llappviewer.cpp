@@ -212,6 +212,11 @@
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
 
+// LLCore::HTTP
+#include "httpcommon.h"
+#include "httprequest.h"
+#include "httphandler.h"
+
 // *FIX: These extern globals should be cleaned up.
 // The globals either represent state/config/resource-storage of either 
 // this app, or another 'component' of the viewer. App globals should be 
@@ -325,6 +330,53 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+
+namespace
+{
+
+// This class manages the lifecyle of the core http library.
+// Slightly different style than traditional code but reflects
+// the use of handler classes and light-weight interface
+// object instances of the new libraries.  To be used
+// as a singleton and static construction is fine.
+class CoreHttp : public LLCore::HttpHandler
+{
+public:
+	CoreHttp();
+	~CoreHttp();
+	
+	// Initialize the LLCore::HTTP library creating service classes
+	// and starting the servicing thread.  Caller is expected to do
+	// other initializations (SSL mutex, thread hash function) appropriate
+	// for the application.
+	void init();
+
+	// Request that the servicing thread stop servicing requests,
+	// release resource references and stop.
+	void requestStop();
+	
+	// Terminate LLCore::HTTP library services.  Caller is expected
+	// to have made a best-effort to shutdown the servicing thread
+	// by issuing a requestThreadStop() and waiting for completion
+	// notification that the stop has completed.
+	void cleanup();
+
+	// Notification when the stop request is complete.
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
+
+private:
+	static const F64			MAX_THREAD_WAIT_TIME;
+	
+private:
+	LLCore::HttpRequest *		mRequest;
+	LLCore::HttpHandle			mStopHandle;
+	F64							mStopRequested;
+	bool						mStopped;
+};
+
+CoreHttp coreHttpLib;
+	
+}  // end anonymous namespace
 
 //-- LLDeferredTaskList ------------------------------------------------------
 
@@ -720,6 +772,9 @@ bool LLAppViewer::init()
 	LLViewerStatsRecorder::initClass();
 #endif
 
+	// Initialize the non-LLCurl libcurl library
+	coreHttpLib.init();
+	
     // *NOTE:Mani - LLCurl::initClass is not thread safe. 
     // Called before threads are created.
     LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
@@ -1807,6 +1862,7 @@ bool LLAppViewer::cleanup()
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
+	coreHttpLib.requestStop();
 	sTextureFetch->shutdown();
 	sTextureCache->shutdown();	
 	sImageDecodeThread->shutdown();
@@ -1889,6 +1945,9 @@ bool LLAppViewer::cleanup()
 
 	// *NOTE:Mani - The following call is not thread safe. 
 	LLCurl::cleanupClass();
+
+	// Non-LLCurl libcurl library
+	coreHttpLib.cleanup();
 
 	// If we're exiting to launch an URL, do that here so the screen
 	// is at the right resolution before we launch IE.
@@ -5267,3 +5326,103 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 	gViewerAssetStatsMain->reset();
 }
 
+namespace
+{
+
+const F64 CoreHttp::MAX_THREAD_WAIT_TIME(10.0);
+
+CoreHttp::CoreHttp()
+	: mRequest(NULL),
+	  mStopHandle(LLCORE_HTTP_HANDLE_INVALID),
+	  mStopRequested(0.0),
+	  mStopped(false)
+{}
+
+
+CoreHttp::~CoreHttp()
+{
+	delete mRequest;
+	mRequest = NULL;
+}
+
+
+void CoreHttp::init()
+{
+	LLCore::HttpStatus status = LLCore::HttpRequest::createService();
+	if (! status)
+	{
+		LL_ERRS("Init") << "Failed to initialize HTTP services.  Reason:  "
+						<< status.toString()
+						<< LL_ENDL;
+	}
+
+	status = LLCore::HttpRequest::startThread();
+	if (! status)
+	{
+		LL_ERRS("Init") << "Failed to start HTTP servicing thread.  Reason:  "
+						<< status.toString()
+						<< LL_ENDL;
+	}
+
+	mRequest = new LLCore::HttpRequest;
+}
+
+
+void CoreHttp::requestStop()
+{
+	llassert_always(mRequest);
+
+	mStopHandle = mRequest->requestStopThread(this);
+	if (LLCORE_HTTP_HANDLE_INVALID != mStopHandle)
+	{
+		mStopRequested = LLTimer::getTotalSeconds();
+	}
+}
+
+
+void CoreHttp::cleanup()
+{
+	if (LLCORE_HTTP_HANDLE_INVALID == mStopHandle)
+	{
+		// Should have been started already...
+		requestStop();
+	}
+	
+	if (LLCORE_HTTP_HANDLE_INVALID == mStopHandle)
+	{
+		LL_WARNS("Cleanup") << "Attempting to cleanup HTTP services without thread shutdown"
+							<< LL_ENDL;
+	}
+	else
+	{
+		while (! mStopped && LLTimer::getTotalSeconds() < (mStopRequested + MAX_THREAD_WAIT_TIME))
+		{
+			mRequest->update(200);
+			ms_sleep(50);
+		}
+		if (! mStopped)
+		{
+			LL_WARNS("Cleanup") << "Attempting to cleanup HTTP services with thread shutdown incomplete"
+								<< LL_ENDL;
+		}
+	}
+
+	delete mRequest;
+	mRequest = NULL;
+
+	LLCore::HttpStatus status = LLCore::HttpRequest::destroyService();
+	if (! status)
+	{
+		LL_WARNS("Cleanup") << "Failed to shutdown HTTP services, continuing.  Reason:  "
+							<< status.toString()
+							<< LL_ENDL;
+	}
+}
+
+
+void CoreHttp::onCompleted(LLCore::HttpHandle, LLCore::HttpResponse *)
+{
+	mStopped = true;
+}
+
+}  // end anonymous namespace

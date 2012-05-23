@@ -30,6 +30,7 @@ set(llcorehttp_SOURCE_FILES
     _httprequestqueue.cpp
     _httpoperation.cpp
     _httpoprequest.cpp
+    _httpopcancel.cpp
     _httpreplyqueue.cpp
     _httppolicy.cpp
     _httplibcurl.cpp
@@ -49,6 +50,7 @@ set(llcorehttp_HEADER_FILES
     httpresponse.h
     _httpoperation.h
     _httpoprequest.h
+    _httpopcancel.h
     _httprequestqueue.h
     _httpreplyqueue.h
     _httpservice.h

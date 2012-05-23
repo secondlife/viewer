@@ -157,6 +157,108 @@ void HttpStatusTestObjectType::test<4>()
 	ensure(! msg.empty());
 }
 
+template <> template <>
+void HttpStatusTestObjectType::test<5>()
+{
+	set_test_name("HttpStatus equality/inequality testing");
+
+	// Make certain equality/inequality tests do not pass
+	// through the bool conversion.  Distinct successful
+	// and error statuses should compare unequal.
+
+	HttpStatus status1(HttpStatus::LLCORE, HE_SUCCESS);
+	HttpStatus status2(HttpStatus::EXT_CURL_EASY, HE_SUCCESS);
+	ensure(status1 != status2);
+
+	status1.mType = HttpStatus::LLCORE;
+	status1.mStatus = HE_REPLY_ERROR;
+	status2.mType = HttpStatus::LLCORE;
+	status2.mStatus= HE_SHUTTING_DOWN;
+	ensure(status1 != status2);
+}
+
+template <> template <>
+void HttpStatusTestObjectType::test<6>()
+{
+	set_test_name("HttpStatus basic HTTP status encoding");
+	
+	HttpStatus status;
+	status.mType = 200;
+	status.mStatus = HE_SUCCESS;
+	std::string msg = status.toString();
+	ensure(msg.empty());
+	ensure(bool(status));
+
+	// Normally a success but application says error
+	status.mStatus = HE_REPLY_ERROR;
+	msg = status.toString();
+	ensure(! msg.empty());
+	ensure(! bool(status));
+	ensure(status.toULong() > 1UL);				// Biggish number, not a bool-to-ulong
+
+	// Same statuses with distinct success/fail are distinct
+	status.mType = 200;
+	status.mStatus = HE_SUCCESS;
+	HttpStatus status2(200, HE_REPLY_ERROR);
+	ensure(status != status2);
+
+	// Normally an error but application says okay
+	status.mType = 406;
+	status.mStatus = HE_SUCCESS;
+	msg = status.toString();
+	ensure(msg.empty());
+	ensure(bool(status));
+
+	// Different statuses but both successful are distinct
+	status.mType = 200;
+	status.mStatus = HE_SUCCESS;
+	status2.mType = 201;
+	status2.mStatus = HE_SUCCESS;
+	ensure(status != status2);
+
+	// Different statuses but both failed are distinct
+	status.mType = 200;
+	status.mStatus = HE_REPLY_ERROR;
+	status2.mType = 201;
+	status2.mStatus = HE_REPLY_ERROR;
+	ensure(status != status2);
+}
+
+template <> template <>
+void HttpStatusTestObjectType::test<7>()
+{
+	set_test_name("HttpStatus HTTP error text strings");
+
+	HttpStatus status(100, HE_REPLY_ERROR);
+	std::string msg(status.toString());
+	ensure(! msg.empty());				// Should be something
+	ensure(msg == "Continue");
+
+	status.mStatus = HE_SUCCESS;
+	msg = status.toString();
+	ensure(msg.empty());				// Success is empty
+
+	status.mType = 199;
+	status.mStatus = HE_REPLY_ERROR;
+	msg = status.toString();
+	ensure(msg == "Unknown error");
+
+	status.mType = 505;					// Last defined string
+	status.mStatus = HE_REPLY_ERROR;
+	msg = status.toString();
+	ensure(msg == "HTTP Version not supported");
+
+	status.mType = 506;					// One beyond
+	status.mStatus = HE_REPLY_ERROR;
+	msg = status.toString();
+	ensure(msg == "Unknown error");
+
+	status.mType = 999;					// Last HTTP status
+	status.mStatus = HE_REPLY_ERROR;
+	msg = status.toString();
+	ensure(msg == "Unknown error");
+}
+
 } // end namespace tut
 
 #endif	// TEST_HTTP_STATUS_H

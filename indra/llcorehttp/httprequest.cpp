@@ -31,6 +31,7 @@
 #include "_httpservice.h"
 #include "_httpoperation.h"
 #include "_httpoprequest.h"
+#include "_httpopcancel.h"
 
 
 namespace
@@ -186,6 +187,22 @@ HttpHandle HttpRequest::requestGetByteRange(unsigned int policy_id,
 	handle = static_cast<HttpHandle>(op);
 	
 	return handle;
+}
+
+
+HttpHandle HttpRequest::requestCancel(HttpHandle handle, HttpHandler * user_handler)
+{
+	HttpStatus status;
+	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpCancel * op = new HttpOpCancel(handle);
+	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
+	mRequestQueue->addOp(op);			// transfer refcount as well
+
+	mLastReqStatus = status;
+	ret_handle = static_cast<HttpHandle>(op);
+	
+	return ret_handle;
 }
 
 

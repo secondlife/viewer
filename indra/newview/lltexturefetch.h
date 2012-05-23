@@ -4,7 +4,7 @@
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2012, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,9 +31,11 @@
 #include "llimage.h"
 #include "lluuid.h"
 #include "llworkerthread.h"
-#include "llcurl.h"
 #include "lltextureinfo.h"
 #include "llapr.h"
+#include "httprequest.h"
+#include "httpoptions.h"
+#include "httpheaders.h"
 
 class LLViewerTexture;
 class LLTextureFetchWorker;
@@ -98,7 +100,7 @@ public:
 							LLViewerAssetStats * main_stats);
 	void commandDataBreak();
 
-	LLCurlRequest & getCurlRequest()	{ return *mCurlGetRequest; }
+	LLCore::HttpRequest & getHttpRequest()	{ return *mHttpRequest; }
 
 	bool isQAMode() const				{ return mQAMode; }
 
@@ -112,7 +114,8 @@ protected:
 	void addToHTTPQueue(const LLUUID& id);
 	void removeFromHTTPQueue(const LLUUID& id, S32 received_size = 0);
 	void removeRequest(LLTextureFetchWorker* worker, bool cancel);
-
+	void cancelHttpRequests();
+	
 	// Overrides from the LLThread tree
 	bool runCondition();
 
@@ -166,7 +169,6 @@ private:
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
-	LLCurlRequest* mCurlGetRequest;
 	
 	// Map of all requests by UUID
 	typedef std::map<LLUUID,LLTextureFetchWorker*> map_t;
@@ -203,6 +205,13 @@ private:
 	// use the LLCurl module's request counter as it isn't thread compatible.
 	// *NOTE:  Don't mix Atomic and static, apr_initialize must be called first.
 	LLAtomic32<S32> mCurlPOSTRequestCount;
+
+	// Interfaces and objects into the core http library used
+	// to make our HTTP requests.  These replace the various
+	// LLCurl interfaces used in the past.
+	LLCore::HttpRequest *		mHttpRequest;
+	LLCore::HttpOptions *		mHttpOptions;
+	LLCore::HttpHeaders *		mHttpHeaders;
 	
 public:
 	// A probabilistically-correct indicator that the current

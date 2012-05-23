@@ -45,6 +45,7 @@ class HttpOpRequest;
 class HttpHeaders;
 
 
+/// Implements libcurl-based transport for an HttpService instance.
 class HttpLibcurl
 {
 public:
@@ -71,7 +72,7 @@ protected:
 	typedef std::set<HttpOpRequest *> active_set_t;
 	
 protected:
-	HttpService *		mService;
+	HttpService *		mService;				// Simple reference, not owner
 	active_set_t		mActiveOps;
 	CURLM *				mMultiHandles[1];
 };  // end class HttpLibcurl

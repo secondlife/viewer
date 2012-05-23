@@ -46,7 +46,7 @@ class HttpOperation;
 /// requests from all HttpRequest instances into the
 /// singleton HttpService instance.
 
-class HttpRequestQueue: public LLCoreInt::RefCounted
+class HttpRequestQueue : public LLCoreInt::RefCounted
 {
 protected:
 	/// Caller acquires a Refcount on construction

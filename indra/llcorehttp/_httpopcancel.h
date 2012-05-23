@@ -1,6 +1,6 @@
 /**
- * @file _httppolicy.h
- * @brief Declarations for internal class enforcing policy decisions.
+ * @file _httpopcancel.h
+ * @brief Internal declarations for the HttpOpCancel subclass
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,46 +24,52 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_POLICY_H_
-#define	_LLCORE_HTTP_POLICY_H_
+#ifndef	_LLCORE_HTTP_OPCANCEL_H_
+#define	_LLCORE_HTTP_OPCANCEL_H_
 
 
-#include <vector>
+#include "linden_common.h"		// Modifies curl/curl.h interfaces
+
+#include "httpcommon.h"
+
+#include <curl/curl.h>
+
+#include "_httpoperation.h"
+#include "_refcounted.h"
 
 
 namespace LLCore
 {
 
 
-class HttpService;
-class HttpOpRequest;
+/// HttpOpCancel requests that a previously issued request
+/// be canceled, if possible.  Requests that have been made
+/// active and are available for sending on the wire cannot
+/// be canceled.
 
-
-/// Implements class-based queuing policies for an HttpService instance.
-class HttpPolicy
+class HttpOpCancel : public HttpOperation
 {
 public:
-	HttpPolicy(HttpService *);
-	virtual ~HttpPolicy();
+	HttpOpCancel(HttpHandle handle);
+	virtual ~HttpOpCancel();
 
 private:
-	HttpPolicy(const HttpPolicy &);				// Not defined
-	void operator=(const HttpPolicy &);			// Not defined
+	HttpOpCancel(const HttpOpCancel &);					// Not defined
+	void operator=(const HttpOpCancel &);				// Not defined
 
 public:
-	void processReadyQueue();
+	virtual void stageFromRequest(HttpService *);
 
-	void addOp(HttpOpRequest *);
-	
-protected:
-	typedef std::vector<HttpOpRequest *> ready_queue_t;
-	
-protected:
-	HttpService *		mService;				// Naked pointer, not refcounted, not owner
-	ready_queue_t		mReadyQueue;
-	
-};  // end class HttpPolicy
+	virtual void visitNotifier(HttpRequest * request);
+			
+public:
+	// Request data
+	HttpHandle			mHandle;
 
-}  // end namespace LLCore
+};  // end class HttpOpCancel
 
-#endif // _LLCORE_HTTP_POLICY_H_
+
+}   // end namespace LLCore
+
+#endif	// _LLCORE_HTTP_OPCANCEL_H_
+

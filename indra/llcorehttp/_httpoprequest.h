@@ -103,22 +103,21 @@ public:
 	std::string			mReqURL;
 	BufferArray *		mReqBody;
 	off_t				mReqOffset;
-	size_t				mReqLen;
-	curl_slist *		mReqHeaders;
+	size_t				mReqLength;
+	HttpHeaders *		mReqHeaders;
 	HttpOptions *		mReqOptions;
 
 	// Transport data
 	bool				mCurlActive;
 	CURL *				mCurlHandle;
-	curl_slist *		mCurlHeaders;
 	HttpService *		mCurlService;
+	curl_slist *		mCurlHeaders;
 	
 	// Result data
 	HttpStatus			mStatus;
-	int					mReplyStatus;
 	BufferArray *		mReplyBody;
 	off_t				mReplyOffset;
-	size_t				mReplyLen;
+	size_t				mReplyLength;
 	HttpHeaders *		mReplyHeaders;
 };  // end class HttpOpRequest
 

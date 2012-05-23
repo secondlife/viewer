@@ -27,7 +27,6 @@
 #include "_httplibcurl.h"
 
 #include "httpheaders.h"
-
 #include "_httpoprequest.h"
 #include "_httpservice.h"
 
@@ -173,8 +172,11 @@ void HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	{
 		int http_status(200);
 
-		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &status);
-		op->mReplyStatus = http_status;
+		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
+		op->mStatus = LLCore::HttpStatus(http_status,
+										 (http_status >= 200 && http_status <= 299
+										  ? HE_SUCCESS
+										  : HE_REPLY_ERROR));
 	}
 
 	// Detach from multi and recycle handle
@@ -202,7 +204,8 @@ int HttpLibcurl::activeCount() const
 struct curl_slist * append_headers_to_slist(const HttpHeaders * headers, struct curl_slist * slist)
 {
 	for (HttpHeaders::container_t::const_iterator it(headers->mHeaders.begin());
-		 headers->mHeaders.end() != it;
+
+		headers->mHeaders.end() != it;
 		 ++it)
 	{
 		slist = curl_slist_append(slist, (*it).c_str());

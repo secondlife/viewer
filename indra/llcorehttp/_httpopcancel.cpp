@@ -1,6 +1,6 @@
 /**
- * @file httpresponse.cpp
- * @brief 
+ * @file _httpopcancel.cpp
+ * @brief Definitions for internal class HttpOpCancel
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,67 +24,59 @@
  * $/LicenseInfo$
  */
 
+#include "_httpopcancel.h"
+
+#include <cstdio>
+#include <algorithm>
+
+#include "httpcommon.h"
+#include "httphandler.h"
 #include "httpresponse.h"
-#include "bufferarray.h"
-#include "httpheaders.h"
+
+#include "_httprequestqueue.h"
+#include "_httpreplyqueue.h"
+#include "_httpservice.h"
+#include "_httppolicy.h"
+#include "_httplibcurl.h"
 
 
 namespace LLCore
 {
 
 
-HttpResponse::HttpResponse()
-	: LLCoreInt::RefCounted(true),
-	  mReplyOffset(0U),
-	  mReplyLength(0U),
-	  mBufferArray(NULL),
-	  mHeaders(NULL)
+// ==================================
+// HttpOpCancel
+// ==================================
+
+
+HttpOpCancel::HttpOpCancel(HttpHandle handle)
+	: HttpOperation(),
+	  mHandle(handle)
 {}
 
 
-HttpResponse::~HttpResponse()
+HttpOpCancel::~HttpOpCancel()
+{}
+
+
+void HttpOpCancel::stageFromRequest(HttpService * service)
 {
-	setBody(NULL);
-	setHeaders(NULL);
+	// *FIXME:  Need cancel functionality into services
+	addAsReply();
 }
 
 
-void HttpResponse::setBody(BufferArray * ba)
+void HttpOpCancel::visitNotifier(HttpRequest * request)
 {
-	if (mBufferArray == ba)
-		return;
-	
-	if (mBufferArray)
+	if (mLibraryHandler)
 	{
-		mBufferArray->release();
+		HttpResponse * response = new HttpResponse();
+		mLibraryHandler->onCompleted(static_cast<HttpHandle>(this), response);
+		response->release();
 	}
-
-	if (ba)
-	{
-		ba->addRef();
-	}
-	
-	mBufferArray = ba;
-}
-
-
-void HttpResponse::setHeaders(HttpHeaders * headers)
-{
-	if (mHeaders == headers)
-		return;
-	
-	if (mHeaders)
-	{
-		mHeaders->release();
-	}
-
-	if (headers)
-	{
-		headers->addRef();
-	}
-	
-	mHeaders = headers;
 }
 
 
 }   // end namespace LLCore
+
+		

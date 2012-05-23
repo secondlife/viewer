@@ -86,53 +86,53 @@ HttpOpRequest::HttpOpRequest()
 	  mReqMethod(HOR_GET),
 	  mReqBody(NULL),
 	  mReqOffset(0),
-	  mReqLen(0),
+	  mReqLength(0),
 	  mReqHeaders(NULL),
 	  mReqOptions(NULL),
 	  mCurlActive(false),
 	  mCurlHandle(NULL),
-	  mCurlHeaders(NULL),
 	  mCurlService(NULL),
-	  mReplyStatus(200),
+	  mCurlHeaders(NULL),
 	  mReplyBody(NULL),
 	  mReplyOffset(0),
-	  mReplyLen(0),
+	  mReplyLength(0),
 	  mReplyHeaders(NULL)
 {}
 
 
 HttpOpRequest::~HttpOpRequest()
 {
-	if (mCurlHandle)
-	{
-		curl_easy_cleanup(mCurlHandle);
-		mCurlHandle = NULL;
-	}
-
-	if (mCurlHeaders)
-	{
-		curl_slist_free_all(mCurlHeaders);
-		mCurlHeaders = NULL;
-	}
-
-	mCurlService = NULL;
-	
 	if (mReqBody)
 	{
 		mReqBody->release();
 		mReqBody = NULL;
 	}
 	
-	if (mReqHeaders)
-	{
-		curl_slist_free_all(mReqHeaders);
-		mReqHeaders = NULL;
-	}
-
 	if (mReqOptions)
 	{
 		mReqOptions->release();
 		mReqOptions = NULL;
+	}
+
+	if (mReqHeaders)
+	{
+		mReqHeaders->release();
+		mReqHeaders = NULL;
+	}
+
+	if (mCurlHandle)
+	{
+		curl_easy_cleanup(mCurlHandle);
+		mCurlHandle = NULL;
+	}
+
+	mCurlService = NULL;
+	
+
+	if (mCurlHeaders)
+	{
+		curl_slist_free_all(mCurlHeaders);
+		mCurlHeaders = NULL;
 	}
 
 	if (mReplyBody)
@@ -165,28 +165,29 @@ void HttpOpRequest::stageFromReady(HttpService * service)
 
 void HttpOpRequest::stageFromActive(HttpService * service)
 {
-	if (mReplyLen)
+	if (mReplyLength)
 	{
 		// If non-zero, we received and processed a Content-Range
 		// header with the response.  Verify that what it says
 		// is consistent with the received data.
-		if (mReplyLen != mReplyBody->size())
+		if (mReplyLength != mReplyBody->size())
 		{
 			// Not as expected, fail the request
 			mStatus = HttpStatus(HttpStatus::LLCORE, HE_INV_CONTENT_RANGE_HDR);
 		}
 	}
 	
-	if (mReqHeaders)
+	if (mCurlHeaders)
 	{
 		// We take these headers out of the request now as they were
 		// allocated originally in this thread and the notifier doesn't
 		// need them.  This eliminates one source of heap moving across
 		// threads.
 
-		curl_slist_free_all(mReqHeaders);
-		mReqHeaders = NULL;
+		curl_slist_free_all(mCurlHeaders);
+		mCurlHeaders = NULL;
 	}
+
 	addAsReply();
 }
 
@@ -196,12 +197,24 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 	if (mLibraryHandler)
 	{
 		HttpResponse * response = new HttpResponse();
-
-		// *FIXME:  add http status, offset, length
 		response->setStatus(mStatus);
-		response->setReplyStatus(mReplyStatus);
 		response->setBody(mReplyBody);
 		response->setHeaders(mReplyHeaders);
+		unsigned int offset(0), length(0);
+		if (mReplyOffset || mReplyLength)
+		{
+			// Got an explicit offset/length in response
+			offset = mReplyOffset;
+			length = mReplyLength;
+		}
+		else if (mReplyBody)
+		{
+			// Provide implicit offset/length from request/response
+			offset = mReqOffset;
+			length = mReplyBody->size();
+		}
+		response->setRange(offset, length);
+
 		mLibraryHandler->onCompleted(static_cast<HttpHandle>(this), response);
 
 		response->release();
@@ -235,14 +248,15 @@ HttpStatus HttpOpRequest::setupGetByteRange(unsigned int policy_id,
 	mReqMethod = HOR_GET;
 	mReqURL = url;
 	mReqOffset = offset;
-	mReqLen = len;
+	mReqLength = len;
 	if (offset || len)
 	{
 		mProcFlags |= PF_SCAN_RANGE_HEADER;
 	}
 	if (headers && ! mReqHeaders)
 	{
-		mReqHeaders = append_headers_to_slist(headers, mReqHeaders);
+		headers->addRef();
+		mReqHeaders = headers;
 	}
 	if (options && ! mReqOptions)
 	{
@@ -257,7 +271,7 @@ HttpStatus HttpOpRequest::prepareForGet(HttpService * service)
 {
 	// *FIXME:  better error handling later
 	HttpStatus status;
-	
+
 	mCurlHandle = curl_easy_init();
 	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, 30);
@@ -268,14 +282,18 @@ HttpStatus HttpOpRequest::prepareForGet(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 	// curl_easy_setopt(handle, CURLOPT_PROXY, "");
 
-	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
 	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
-	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, mCurlHandle);
 
-	if (mReqOffset || mReqLen)
+	if (mReqHeaders)
+	{
+		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
+	}
+	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
+	
+	if (mReqOffset || mReqLength)
 	{
 		static const char * fmt1("Range: bytes=%d-%d");
 		static const char * fmt2("Range: bytes=%d-");
@@ -284,16 +302,17 @@ HttpStatus HttpOpRequest::prepareForGet(HttpService * service)
 
 #if defined(WIN32)
 		_snprintf_s(range_line, sizeof(range_line), sizeof(range_line) - 1,
-					(mReqLen ? fmt1 : fmt2),
-					mReqOffset, mReqOffset + mReqLen - 1);
+					(mReqLength ? fmt1 : fmt2),
+					mReqOffset, mReqOffset + mReqLength - 1);
 #else
 		snprintf(range_line, sizeof(range_line),
-				 (mReqLen ? fmt1 : fmt2),
-				 mReqOffset, mReqOffset + mReqLen - 1);
+				 (mReqLength ? fmt1 : fmt2),
+				 mReqOffset, mReqOffset + mReqLength - 1);
 #endif // defined(WIN32)
 		range_line[sizeof(range_line) - 1] = '\0';
 		mCurlHeaders = curl_slist_append(mCurlHeaders, range_line);
 	}
+	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 	
 	if (mProcFlags & (PF_SCAN_RANGE_HEADER | PF_SAVE_HEADERS))
 	{
@@ -347,8 +366,9 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	if (hdr_size >= status_line_len && ! strncmp(status_line, hdr_data, status_line_len))
 	{
 		// One of possibly several status lines.  Reset what we know and start over
+		// taking results from the last header stanza we receive.
 		op->mReplyOffset = 0;
-		op->mReplyLen = 0;
+		op->mReplyLength = 0;
 		op->mStatus = HttpStatus();
 	}
 	else if (op->mProcFlags & PF_SCAN_RANGE_HEADER)
@@ -371,7 +391,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 			{
 				// Success, record the fragment position
 				op->mReplyOffset = first;
-				op->mReplyLen = last - first + 1;
+				op->mReplyLength = last - first + 1;
 			}
 			else if (-1 == status)
 			{
@@ -390,6 +410,7 @@ size_t HttpOpRequest::headerCallback(void * data, size_t size, size_t nmemb, voi
 	if (op->mProcFlags & PF_SAVE_HEADERS)
 	{
 		// Save headers in response
+		// *FIXME:  Implement this...
 		;
 		
 	}

@@ -67,8 +67,6 @@ protected:
 public:
 	/// Returns the final status of the requested operation.
 	///
-	// *FIXME:  Haven't incorporated HTTP status into this yet.
-	// Will do soon.
 	HttpStatus getStatus() const
 		{
 			return mStatus;
@@ -79,19 +77,6 @@ public:
 			mStatus = status;
 		}
 
-	/// Fetch the HTTP reply status.  This is only guaranteed to be
-	/// valid if the HttpStatus tests successful and was the result
-	/// of a completed HTTP request.
-	unsigned int getReplyStatus() const
-		{
-			return mReplyStatus;
-		}
-
-	void setReplyStatus(unsigned int status)
-		{
-			mReplyStatus = status;
-		}
-			
 	/// Simple getter for the response body returned as a scatter/gather
 	/// buffer.  If the operation doesn't produce data (such as the Null
 	/// or StopThread operations), this may be NULL.
@@ -122,11 +107,26 @@ public:
 
 	/// Behaves like @see setResponse() but for header data.
 	void setHeaders(HttpHeaders * headers);
+
+	/// If a 'Range:' header was used, these methods are involved
+	/// in setting and returning data about the actual response.
+	void getRange(unsigned int * offset, unsigned int * length) const
+		{
+			*offset = mReplyOffset;
+			*length = mReplyLength;
+		}
+
+	void setRange(unsigned int offset, unsigned int length)
+		{
+			mReplyOffset = offset;
+			mReplyLength = length;
+		}
 			
 protected:
 	// Response data here
 	HttpStatus			mStatus;
-	unsigned int		mReplyStatus;
+	unsigned int		mReplyOffset;
+	unsigned int		mReplyLength;
 	BufferArray *		mBufferArray;
 	HttpHeaders *		mHeaders;
 };
