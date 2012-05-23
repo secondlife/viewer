@@ -52,10 +52,11 @@ public:
 
 	enum
 	{
-		VERTEX_DATA_MASK =	(1 << LLVertexBuffer::TYPE_VERTEX) |
-							(1 << LLVertexBuffer::TYPE_NORMAL) |
-							(1 << LLVertexBuffer::TYPE_TEXCOORD0) |
-							(1 << LLVertexBuffer::TYPE_COLOR)
+		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
+							LLVertexBuffer::MAP_NORMAL |
+							LLVertexBuffer::MAP_TEXCOORD0 |
+							LLVertexBuffer::MAP_COLOR |
+							LLVertexBuffer::MAP_TEXTURE_INDEX
 	};
 
 	LLVOPartGroup(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);

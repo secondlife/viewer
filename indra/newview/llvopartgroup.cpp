@@ -69,8 +69,15 @@ void LLVOPartGroup::restoreGL()
 	//indices and texcoords are always the same, set once
 	LLStrider<U16> indicesp;
 
-	sVB->getIndexStrider(indicesp);
+	LLStrider<LLVector4a> verticesp;
 
+	sVB->getIndexStrider(indicesp);
+	sVB->getVertexStrider(verticesp);
+
+	LLVector4a v;
+	v.set(0,0,0,0);
+
+	
 	U16 vert_offset = 0;
 
 	for (U32 i = 0; i < LL_MAX_PARTICLE_COUNT; i++)
@@ -82,6 +89,8 @@ void LLVOPartGroup::restoreGL()
 		*indicesp++ = vert_offset + 1;
 		*indicesp++ = vert_offset + 3;
 		*indicesp++ = vert_offset + 2;
+
+		*verticesp++ = v;
 
 		vert_offset += 4;
 	}
