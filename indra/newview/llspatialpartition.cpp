@@ -280,6 +280,37 @@ U8* get_box_fan_indices_ptr(LLCamera* camera, const LLVector4a& center)
 	return (U8*) (sOcclusionIndices+cypher*8);
 }
 
+//create a vertex buffer for efficiently rendering cubes
+LLVertexBuffer* ll_create_cube_vb(U32 type_mask, U32 usage)
+{
+	LLVertexBuffer* ret = new LLVertexBuffer(type_mask, usage);
+
+	ret->allocateBuffer(8, 64, true);
+
+	LLStrider<LLVector3> pos;
+	LLStrider<U16> idx;
+
+	ret->getVertexStrider(pos);
+	ret->getIndexStrider(idx);
+
+	pos[0] = LLVector3(-1,-1,-1);
+	pos[1] = LLVector3(-1,-1, 1);
+	pos[2] = LLVector3(-1, 1,-1);
+	pos[3] = LLVector3(-1, 1, 1);
+	pos[4] = LLVector3( 1,-1,-1);
+	pos[5] = LLVector3( 1,-1, 1);
+	pos[6] = LLVector3( 1, 1,-1);
+	pos[7] = LLVector3( 1, 1, 1);
+
+	for (U32 i = 0; i < 64; i++)
+	{
+		idx[i] = sOcclusionIndices[i];
+	}
+
+	ret->flush();
+
+	return ret;
+}
 
 static LLFastTimer::DeclareTimer FTM_BUILD_OCCLUSION("Build Occlusion");
 

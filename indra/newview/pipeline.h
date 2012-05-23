@@ -542,6 +542,9 @@ public:
 	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
 	LLPointer<LLVertexBuffer> mDeferredVB;
 
+	//utility buffer for rendering cubes, 8 vertices are corners of a cube [-1, 1]
+	LLPointer<LLVertexBuffer> mCubeVB;
+
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];

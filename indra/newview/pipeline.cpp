@@ -268,6 +268,7 @@ std::string gPoolNames[] =
 void drawBox(const LLVector3& c, const LLVector3& r);
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
 U32 nhpo2(U32 v);
+LLVertexBuffer* ll_create_cube_vb(U32 type_mask, U32 usage);
 
 glh::matrix4f glh_copy_matrix(F32* src)
 {
@@ -508,6 +509,11 @@ void LLPipeline::init()
 	for (U32 i = 0; i < 2; ++i)
 	{
 		mSpotLightFade[i] = 1.f;
+	}
+
+	if (mCubeVB.isNull())
+	{
+		mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
 	}
 
 	mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
@@ -6321,6 +6327,8 @@ void LLPipeline::doResetVertexBuffers()
 	
 	mResetVertexBuffers = false;
 
+	mCubeVB = NULL;
+
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
@@ -7556,12 +7564,17 @@ void LLPipeline::renderDeferredLighting()
 			std::list<LLVector4> light_colors;
 
 			LLVertexBuffer::unbind();
-			LLVector4a* v = (LLVector4a*) vert.get();
 
 			{
 				bindDeferredShader(gDeferredLightProgram);
-				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+				
+				if (mCubeVB.isNull())
+				{
+					mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
+				}
 
+				mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+				
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 				for (LLDrawable::drawable_set_t::iterator iter = mLights.begin(); iter != mLights.end(); ++iter)
 				{
@@ -7607,25 +7620,7 @@ void LLPipeline::renderDeferredLighting()
 					}
 
 					sVisibleLightCount++;
-
-					glh::vec3f tc(c);
-					mat.mult_matrix_vec(tc);
-					
-					//vertex positions are encoded so the 3 bits of their vertex index 
-					//correspond to their axis facing, with bit position 3,2,1 matching
-					//axis facing x,y,z, bit set meaning positive facing, bit clear 
-					//meaning negative facing
-					mDeferredVB->getVertexStrider(vert);
-					v[0].set(c[0]-s,c[1]-s,c[2]-s);  // 0 - 0000 
-					v[1].set(c[0]-s,c[1]-s,c[2]+s);  // 1 - 0001
-					v[2].set(c[0]-s,c[1]+s,c[2]-s);  // 2 - 0010
-					v[3].set(c[0]-s,c[1]+s,c[2]+s);  // 3 - 0011
-																									   
-					v[4].set(c[0]+s,c[1]-s,c[2]-s); // 4 - 0100
-					v[5].set(c[0]+s,c[1]-s,c[2]+s); // 5 - 0101
-					v[6].set(c[0]+s,c[1]+s,c[2]-s); // 6 - 0110
-					v[7].set(c[0]+s,c[1]+s,c[2]+s); // 7 - 0111
-
+										
 					if (camera->getOrigin().mV[0] > c[0] + s + 0.2f ||
 						camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
 						camera->getOrigin().mV[1] > c[1] + s + 0.2f ||
@@ -7643,16 +7638,13 @@ void LLPipeline::renderDeferredLighting()
 							}
 							
 							LLFastTimer ftm(FTM_LOCAL_LIGHTS);
-							//glTexCoord4f(tc.v[0], tc.v[1], tc.v[2], s*s);
-							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
+							gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-							//gGL.diffuseColor4f(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f);
 							gGL.syncMatrices();
-							mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-							glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-								GL_UNSIGNED_SHORT, get_box_fan_indices_ptr(camera, center));
+							
+							mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 							stop_glerror();
 						}
 					}
@@ -7665,6 +7657,9 @@ void LLPipeline::renderDeferredLighting()
 							continue;
 						}
 
+						glh::vec3f tc(c);
+						mat.mult_matrix_vec(tc);
+					
 						fullscreen_lights.push_back(LLVector4(tc.v[0], tc.v[1], tc.v[2], s*s));
 						light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
 					}
@@ -7677,7 +7672,7 @@ void LLPipeline::renderDeferredLighting()
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 				bindDeferredShader(gDeferredSpotLightProgram);
 
-				mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+				mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
 				gDeferredSpotLightProgram.enableTexture(LLShaderMgr::DEFERRED_PROJECTION);
 
@@ -7695,36 +7690,17 @@ void LLPipeline::renderDeferredLighting()
 
 					sVisibleLightCount++;
 
-					glh::vec3f tc(c);
-					mat.mult_matrix_vec(tc);
-					
 					setupSpotLight(gDeferredSpotLightProgram, drawablep);
 					
 					LLColor3 col = volume->getLightColor();
 					
-					//vertex positions are encoded so the 3 bits of their vertex index 
-					//correspond to their axis facing, with bit position 3,2,1 matching
-					//axis facing x,y,z, bit set meaning positive facing, bit clear 
-					//meaning negative facing
-					mDeferredVB->getVertexStrider(vert);
-					v[0].set(c[0]-s,c[1]-s,c[2]-s);  // 0 - 0000 
-					v[1].set(c[0]-s,c[1]-s,c[2]+s);  // 1 - 0001
-					v[2].set(c[0]-s,c[1]+s,c[2]-s);  // 2 - 0010
-					v[3].set(c[0]-s,c[1]+s,c[2]+s);  // 3 - 0011
-																									   
-					v[4].set(c[0]+s,c[1]-s,c[2]-s); // 4 - 0100
-					v[5].set(c[0]+s,c[1]-s,c[2]+s); // 5 - 0101
-					v[6].set(c[0]+s,c[1]+s,c[2]-s); // 6 - 0110
-					v[7].set(c[0]+s,c[1]+s,c[2]+s); // 7 - 0111
-					
-					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
+					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s*s);
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					gGL.syncMatrices();
-					mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-					glDrawRangeElements(GL_TRIANGLE_FAN, 0, 7, 8,
-							GL_UNSIGNED_SHORT, get_box_fan_indices_ptr(camera, center));
+										
+					mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 				}
 				gDeferredSpotLightProgram.disableTexture(LLShaderMgr::DEFERRED_PROJECTION);
 				unbindDeferredShader(gDeferredSpotLightProgram);
@@ -7755,8 +7731,6 @@ void LLPipeline::renderDeferredLighting()
 				const U32 max_count = 8;
 				LLVector4 light[max_count];
 				LLVector4 col[max_count];
-
-//				glVertexPointer(2, GL_FLOAT, 0, vert);
 
 				F32 far_z = 0.f;
 
