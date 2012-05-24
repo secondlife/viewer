@@ -4090,7 +4090,7 @@ Are you sure you want to change the Estate Covenant?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="I can&apos;t enter this Region, due to restrictions of the maturity Rating"/>
+	 ignoretext="The region you&apos;re trying to visit contains content, which is accessible to adults only."/>
   </notification>
 
   <notification
@@ -4126,7 +4126,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
        index="1"
        name="Cancel"
        text="Cancel"/>
-       <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
+       <ignore name="ignore" text="The region you&apos;re trying to visit contains content excluded by your preferences.  We can change your preferences and continue with the teleport."/>
     </form>
   </notification>
 
@@ -4147,7 +4147,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
        index="1"
        name="Cancel"
        text="Cancel"/>
-      <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
+      <ignore name="ignore" text="The region you&apos;re trying to visit contains content excluded by your preferences.  We can change your preferences.  Then, you will need to attempt the teleport again."/>
     </form>
   </notification>
 
@@ -4209,7 +4209,7 @@ We were unable to change your preferences to view [RATING] content at this time.
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="I can&apos;t claim this Land, due to restrictions of the maturity Rating"/>
+	 ignoretext="Only adults can claim this land."/>
   </notification>
 
   <notification
@@ -4245,7 +4245,7 @@ We were unable to change your preferences to view [RATING] content at this time.
        index="1"
        name="Cancel"
        text="Cancel"/>
-      <ignore name="ignore" text="My chosen maturity rating preference prevents me from claiming land"/>
+      <ignore name="ignore" text="The land you&apos;re trying to claim contains content excluded by your preferences."/>
     </form>
   </notification>
 
@@ -4274,7 +4274,7 @@ We were unable to change your preferences to view [RATING] content at this time.
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="I can&apos;t buy this Land, due to restrictions of the maturity Rating"/>
+	 ignoretext="Only adults can buy this land."/>
   </notification>
 
   <notification
@@ -4310,7 +4310,7 @@ We were unable to change your preferences to view [RATING] content at this time.
        index="1"
        name="Cancel"
        text="Cancel"/>
-      <ignore name="ignore" text="My chosen maturity rating preference prevents me from buying land"/>
+      <ignore name="ignore" text="The land you&apos;re trying to buy contains content excluded by your preferences."/>
     </form>
   </notification>
 
