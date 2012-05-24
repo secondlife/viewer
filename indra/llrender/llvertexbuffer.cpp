@@ -38,8 +38,6 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 
-#define LL_VBO_POOLING 1
-
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
 U32 nhpo2(U32 v)
@@ -165,33 +163,24 @@ LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
 	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
 
-static LLFastTimer::DeclareTimer FTM_VBO_GEN_BUFFER("gen buffers");
-static LLFastTimer::DeclareTimer FTM_VBO_BUFFER_DATA("glBufferData");
-
-
 volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 {
 	llassert(vbo_block_size(size) == size);
 	
 	volatile U8* ret = NULL;
 
-#if LL_VBO_POOLING
-
 	U32 i = vbo_block_index(size);
 
 	if (mFreeList.size() <= i)
 	{
 		mFreeList.resize(i+1);
-		mMissCount.resize(i+1);
 	}
 
 	if (mFreeList[i].empty() || for_seed)
 	{
 		//make a new buffer
-		{
-			LLFastTimer t(FTM_VBO_GEN_BUFFER);
-			name = genBuffer();
-		}
+		name = genBuffer();
+		
 		glBindBufferARB(mType, name);
 
 		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
@@ -215,7 +204,6 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		}
 		else
 		{ //always use a true hint of static draw when allocating non-client-backed buffers
-			LLFastTimer t(FTM_VBO_BUFFER_DATA);
 			glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
 		}
 
@@ -256,33 +244,6 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 
 		mFreeList[i].pop_front();
 	}
-#else //no pooling
-
-	glGenBuffersARB(1, &name);
-	glBindBufferARB(mType, name);
-
-	if (mType == GL_ARRAY_BUFFER_ARB)
-	{
-		LLVertexBuffer::sAllocatedBytes += size;
-	}
-	else
-	{
-		LLVertexBuffer::sAllocatedIndexBytes += size;
-	}
-
-	if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB)
-	{
-		glBufferDataARB(mType, size, 0, mUsage);
-		ret = (U8*) ll_aligned_malloc_16(size);
-	}
-	else
-	{ //always use a true hint of static draw when allocating non-client-backed buffers
-		glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
-	}
-
-	glBindBufferARB(mType, 0);
-
-#endif
 
 	return ret;
 }
@@ -291,33 +252,6 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 {
 	llassert(vbo_block_size(size) == size);
 
-#if 0 && LL_VBO_POOLING
-
-	U32 i = vbo_block_index(size);
-
-	llassert(mFreeList.size() > i);
-
-	Record rec;
-	rec.mGLName = name;
-	rec.mClientData = buffer;
-	
-	if (buffer == NULL)
-	{
-		glDeleteBuffersARB(1, &rec.mGLName);
-	}
-	else
-	{
-		if (mType == GL_ARRAY_BUFFER_ARB)
-		{
-			sBytesPooled += size;
-		}
-		else
-		{
-			sIndexBytesPooled += size;
-		}
-		mFreeList[i].push_back(rec);
-	}
-#else //no pooling
 	deleteBuffer(name);
 	ll_aligned_free_16((U8*) buffer);
 
@@ -329,7 +263,6 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	{
 		LLVertexBuffer::sAllocatedIndexBytes -= size;
 	}
-#endif
 }
 
 void LLVBOPool::seedPool()

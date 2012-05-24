@@ -142,6 +142,7 @@ protected:
 	U32 mResX;
 	U32 mResY;
 	std::vector<U32> mTex;
+	std::vector<U32> mInternalFormat;
 	U32 mFBO;
 	U32 mDepth;
 	bool mStencil;

@@ -896,7 +896,7 @@ void LLVOAvatar::deleteLayerSetCaches(bool clearAll)
 		}
 		if (mBakedTextureDatas[i].mMaskTexName)
 		{
-			LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, (GLuint*)&(mBakedTextureDatas[i].mMaskTexName));
+			LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_ALPHA8, 1, (GLuint*)&(mBakedTextureDatas[i].mMaskTexName));
 			mBakedTextureDatas[i].mMaskTexName = 0 ;
 		}
 	}
@@ -7394,7 +7394,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 			}
 
 			U32 gl_name;
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &gl_name );
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_ALPHA8, 1, &gl_name );
 			stop_glerror();
 
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, gl_name);
@@ -7431,7 +7431,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 						maskData->mLastDiscardLevel = discard_level;
 						if (self->mBakedTextureDatas[baked_index].mMaskTexName)
 						{
-							LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &(self->mBakedTextureDatas[baked_index].mMaskTexName));
+							LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_ALPHA8, 1, &(self->mBakedTextureDatas[baked_index].mMaskTexName));
 						}
 						self->mBakedTextureDatas[baked_index].mMaskTexName = gl_name;
 						found_texture_id = true;

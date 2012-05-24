@@ -1046,19 +1046,19 @@ void LLPipeline::releaseGLBuffers()
 	
 	if (mNoiseMap)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mNoiseMap);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 1, &mNoiseMap);
 		mNoiseMap = 0;
 	}
 
 	if (mTrueNoiseMap)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mTrueNoiseMap);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 1, &mTrueNoiseMap);
 		mTrueNoiseMap = 0;
 	}
 
 	if (mLightFunc)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mLightFunc);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_R8, 1, &mLightFunc);
 		mLightFunc = 0;
 	}
 
@@ -1149,7 +1149,7 @@ void LLPipeline::createGLBuffers()
 				noise[i].mV[2] = ll_frand()*scaler+1.f-scaler/2.f;
 			}
 
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &mNoiseMap);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 1, &mNoiseMap);
 			
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mNoiseMap);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise, false);
@@ -1165,7 +1165,7 @@ void LLPipeline::createGLBuffers()
 				noise[i] = ll_frand()*2.0-1.0;
 			}
 
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &mTrueNoiseMap);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 1, &mTrueNoiseMap);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
@@ -1201,7 +1201,7 @@ void LLPipeline::createGLBuffers()
 				}
 			}
 
-			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, 1, &mLightFunc);
+			LLImageGL::generateTextures(LLTexUnit::TT_TEXTURE, GL_R8, 1, &mLightFunc);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
 			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, lg, false);
 			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);

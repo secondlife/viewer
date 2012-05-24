@@ -51,7 +51,7 @@ S32 LLImageGL::sGlobalTextureMemoryInBytes		= 0;
 S32 LLImageGL::sBoundTextureMemoryInBytes		= 0;
 S32 LLImageGL::sCurBoundTextureMemory	= 0;
 S32 LLImageGL::sCount					= 0;
-std::list<U32> LLImageGL::sDeadTextureList[LLTexUnit::TT_NONE];
+LLImageGL::dead_texturelist_t LLImageGL::sDeadTextureList[LLTexUnit::TT_NONE];
 U32 LLImageGL::sCurTexName = 1;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
@@ -766,6 +766,9 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 
 				if (gGLManager.mHasFramebufferObject)
 				{
+					gGL.getTexUnit(0)->unbind(mBindTarget);
+					gGL.getTexUnit(0)->bind(this);
+
 					glGenerateMipmap(LLTexUnit::getInternalType(mBindTarget));
 				}
 			}
@@ -1094,14 +1097,24 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 }
 
 // static
-void LLImageGL::generateTextures(LLTexUnit::eTextureType type, S32 numTextures, U32 *textures)
+void LLImageGL::generateTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures)
 {
+	bool empty = true;
+
+	dead_texturelist_t::iterator iter = sDeadTextureList[type].find(format);
+	
+	if (iter != sDeadTextureList[type].end())
+	{
+		empty = iter->second.empty();
+	}
+	
 	for (S32 i = 0; i < numTextures; ++i)
 	{
-		if (!sDeadTextureList[type].empty())
+		if (!empty)
 		{
-			textures[i] = sDeadTextureList[type].front();
-			sDeadTextureList[type].pop_front();
+			textures[i] = iter->second.front();
+			iter->second.pop_front();
+			empty = iter->second.empty();
 		}
 		else
 		{
@@ -1111,28 +1124,35 @@ void LLImageGL::generateTextures(LLTexUnit::eTextureType type, S32 numTextures, 
 }
 
 // static
-void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, S32 numTextures, U32 *textures, bool immediate)
+void LLImageGL::deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures, bool immediate)
 {
 	if (gGLManager.mInited)
 	{
-		for (S32 i = 0; i < numTextures; ++i)
-		{ //remove texture from VRAM by setting its size to zero
-			gGL.getTexUnit(0)->bindManual(type, textures[i]);
+		if (format == 0)
+		{ //unknown internal format, not safe to reuse
+			glDeleteTextures(numTextures, textures);
+		}
+		else
+		{
+			for (S32 i = 0; i < numTextures; ++i)
+			{ //remove texture from VRAM by setting its size to zero
+				gGL.getTexUnit(0)->bindManual(type, textures[i]);
 
-			if (type == LLTexUnit::TT_CUBE_MAP)
-			{
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				if (type == LLTexUnit::TT_CUBE_MAP)
+				{
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				}
+				else
+				{
+					glTexImage2D(LLTexUnit::getInternalType(type), 0, format, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+				}
+				sDeadTextureList[type][format].push_back(textures[i]);
 			}
-			else
-			{
-				glTexImage2D(LLTexUnit::getInternalType(type), 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-			}
-			sDeadTextureList[type].push_back(textures[i]);
 		}
 	}
 	
@@ -1264,11 +1284,11 @@ BOOL LLImageGL::createGLTexture()
 
 	if(mTexName)
 	{
-		LLImageGL::deleteTextures(mBindTarget, 1, (reinterpret_cast<GLuint*>(&mTexName))) ;
+		LLImageGL::deleteTextures(mBindTarget, mFormatInternal, 1, (reinterpret_cast<GLuint*>(&mTexName))) ;
 	}
 	
 
-	LLImageGL::generateTextures(mBindTarget, 1, &mTexName);
+	LLImageGL::generateTextures(mBindTarget, mFormatInternal, 1, &mTexName);
 	stop_glerror();
 	if (!mTexName)
 	{
@@ -1381,7 +1401,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 	}
 	else
 	{
-		LLImageGL::generateTextures(mBindTarget, 1, &mTexName);
+		LLImageGL::generateTextures(mBindTarget, mFormatInternal, 1, &mTexName);
 		stop_glerror();
 		{
 			llverify(gGL.getTexUnit(0)->bind(this));
@@ -1431,7 +1451,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 			decTextureCounter(mTextureMemory, mComponents, mCategory) ;
 		}
 
-		LLImageGL::deleteTextures(mBindTarget,1, &old_name);
+		LLImageGL::deleteTextures(mBindTarget, mFormatInternal, 1, &old_name);
 
 		stop_glerror();
 	}
@@ -1608,7 +1628,7 @@ void LLImageGL::destroyGLTexture()
 			mTextureMemory = 0;
 		}
 		
-		LLImageGL::deleteTextures(mBindTarget, 1, &mTexName);			
+		LLImageGL::deleteTextures(mBindTarget,  mFormatInternal, 1, &mTexName);			
 		mTexName = 0;
 		mCurrentDiscardLevel = -1 ; //invalidate mCurrentDiscardLevel.
 		mGLTextureCreated = FALSE ;

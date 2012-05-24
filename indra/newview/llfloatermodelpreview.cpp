@@ -396,7 +396,6 @@ mCalculateBtn(NULL)
 	sInstance = this;
 	mLastMouseX = 0;
 	mLastMouseY = 0;
-	mGLName = 0;
 	mStatusLock = new LLMutex(NULL);
 	mModelPreview = NULL;
 
@@ -536,11 +535,6 @@ LLFloaterModelPreview::~LLFloaterModelPreview()
 	if ( mModelPreview )
 	{
 		delete mModelPreview;
-	}
-
-	if (mGLName)
-	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, 1, &mGLName );
 	}
 
 	delete mStatusLock;

@@ -27,10 +27,10 @@ uniform mat3 normal_matrix;
 
 ATTRIBUTE vec3 binormal;
 
-VARYING vec3 binormal_out;
+VARYING vec4 binormal_out;
 
 void main()
 {
-	binormal_out = normal_matrix * binormal;
+	binormal_out = vec4(normal_matrix * binormal, 0.0);
 }
 
