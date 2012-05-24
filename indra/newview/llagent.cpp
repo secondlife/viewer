@@ -2633,11 +2633,6 @@ void LLAgent::setGodLevel(U8 god_level)
 	mAgentAccess->setGodLevel(god_level);
 }
 
-void LLAgent::setAOTransition()
-{
-	mAgentAccess->setTransition();
-}
-
 const LLAgentAccess& LLAgent::getAgentAccess()
 {
 	return *mAgentAccess;

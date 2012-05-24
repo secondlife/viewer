@@ -33,8 +33,7 @@ LLAgentAccess::LLAgentAccess(LLControlGroup& savedSettings) :
 	mSavedSettings(savedSettings),
 	mAccess(SIM_ACCESS_PG),
 	mAdminOverride(false),
-	mGodLevel(GOD_NOT),
-	mAOTransition(false)
+	mGodLevel(GOD_NOT)
 {
 }
 
@@ -180,16 +179,6 @@ void LLAgentAccess::setMaturity(char text)
 		}
 	}
 	mSavedSettings.setU32("PreferredMaturity", preferred_access);
-}
-
-void LLAgentAccess::setTransition()
-{
-	mAOTransition = true;
-}
-
-bool LLAgentAccess::isInTransition() const
-{
-	return mAOTransition;
 }
 
 bool LLAgentAccess::canSetMaturity(S32 maturity)

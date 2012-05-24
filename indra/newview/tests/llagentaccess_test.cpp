@@ -239,18 +239,6 @@ namespace tut
 		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
 		LLAgentAccess aa(cgr);
 		
-		ensure("1 transition starts false", !aa.isInTransition());
-		aa.setTransition();
-		ensure("2 transition now true", aa.isInTransition());
-	}
-
-	template<> template<>
-	void agentaccess_object_t::test<6>()
-	{
-		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
-		LLAgentAccess aa(cgr);
-		
 		cgr.setU32("PreferredMaturity", SIM_ACCESS_ADULT);
 		aa.setMaturity('M');
 		ensure("1 preferred maturity pegged to M when maturity is M", cgr.getU32("PreferredMaturity") == SIM_ACCESS_MATURE);

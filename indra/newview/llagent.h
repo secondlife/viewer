@@ -654,8 +654,6 @@ public:
 	const LLAgentAccess& getAgentAccess();
 	BOOL			canManageEstate() const;
 	BOOL			getAdminOverride() const;
-	// ! BACKWARDS COMPATIBILITY ! This function can go away after the AO transition (see llstartup.cpp).
-	void 			setAOTransition();
 private:
 	LLAgentAccess * mAgentAccess;
 	
