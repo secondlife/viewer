@@ -81,8 +81,6 @@ public:
 					  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);
 	void dump();
 	S32 getNumRequests() ;
-	S32 getNumHTTPRequests() ;
-	U32 getTotalNumHTTPRequests() ;
 	
 	// Public for access by callbacks
     S32 getPending();
@@ -101,7 +99,7 @@ public:
 							LLViewerAssetStats * main_stats);
 	void commandDataBreak();
 
-	LLCurlRequest & getCurlRequest()	{ return *mCurlGetRequest; }
+	LLCurlTextureRequest & getCurlRequest()	{ return *mCurlGetRequest; }
 
 	bool isQAMode() const				{ return mQAMode; }
 
@@ -109,14 +107,10 @@ public:
 	inline void incrCurlPOSTCount()		{ mCurlPOSTRequestCount++; }
 	inline void decrCurlPOSTCount()		{ mCurlPOSTRequestCount--; }
 
-	bool canIssueHTTPRequest();
-	S32  getHTTPConcurrency();
-
 protected:
 	void addToNetworkQueue(LLTextureFetchWorker* worker);
 	void removeFromNetworkQueue(LLTextureFetchWorker* worker, bool cancel);
 	void addToHTTPQueue(const LLUUID& id);
-	void removeFromHTTPQueue(const LLUUID& id, S32 received_size = 0);
 	void removeRequest(LLTextureFetchWorker* worker, bool cancel);
 
 	// Overrides from the LLThread tree
@@ -175,8 +169,8 @@ private:
 
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
-	LLCurlRequest* mCurlGetRequest;
-	
+	LLCurlTextureRequest* mCurlGetRequest;
+
 	// Map of all requests by UUID
 	typedef std::map<LLUUID,LLTextureFetchWorker*> map_t;
 	map_t mRequestMap;
@@ -190,11 +184,6 @@ private:
 	F32 mTextureBandwidth;
 	F32 mMaxBandwidth;
 	LLTextureInfo mTextureInfo;
-
-	U32 mHTTPTextureBits;
-
-	//debug use
-	U32 mTotalHTTPRequests ;
 
 	// Out-of-band cross-thread command queue.  This command queue
 	// is logically tied to LLQueuedThread's list of
@@ -212,9 +201,6 @@ private:
 	// use the LLCurl module's request counter as it isn't thread compatible.
 	// *NOTE:  Don't mix Atomic and static, apr_initialize must be called first.
 	LLAtomic32<S32> mCurlPOSTRequestCount;
-
-	//control http concurrency for texture fetching
-	S32 mHTTPConcurrency; //which is adaptive to the network situation at an instant
 	
 public:
 	// A probabilistically-correct indicator that the current
@@ -332,7 +318,7 @@ private:
 	LLTextureFetch* mFetcher;
 	LLTextureCache* mTextureCache;
 	LLImageDecodeThread* mImageDecodeThread;
-	LLCurlRequest* mCurlGetRequest;
+	LLCurlTextureRequest* mCurlGetRequest;
 	
 	S32 mNumFetchedTextures;
 	S32 mNumCacheHits;
@@ -372,8 +358,9 @@ public:
 	void clearHistory();
 	void addHistoryEntry(LLTextureFetchWorker* worker);
 	
-	void setCurlGetRequest(LLCurlRequest* request) { mCurlGetRequest = request;}
-	
+	void setCurlGetRequest(LLCurlTextureRequest* request) { mCurlGetRequest = request;}
+	LLCurlTextureRequest* getCurlGetRequest() { return mCurlGetRequest;}
+
 	void startWork(e_debug_state state);
 	void setStopDebug() {mStopDebug = TRUE;}
 	void tryToStopDebug(); //stop everything
