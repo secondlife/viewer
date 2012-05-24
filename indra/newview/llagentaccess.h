@@ -59,7 +59,6 @@ public:
 	bool isMature() const;
 	bool isAdult() const;
 	
-	void setTeen(bool teen);
 	void setMaturity(char text);
 	
 	static int convertTextToMaturity(char text);

@@ -132,18 +132,6 @@ bool LLAgentAccess::isAdult() const
 	return mAccess >= SIM_ACCESS_ADULT;
 }
 
-void LLAgentAccess::setTeen(bool teen)
-{
-	if (teen)
-	{
-		mAccess = SIM_ACCESS_PG;
-	}
-	else
-	{
-		mAccess = SIM_ACCESS_MATURE;
-	}
-}
-
 //static 
 int LLAgentAccess::convertTextToMaturity(char text)
 {

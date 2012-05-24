@@ -2481,11 +2481,6 @@ bool LLAgent::isAdult() const
 	return mAgentAccess->isAdult();
 }
 
-void LLAgent::setTeen(bool teen)
-{
-	mAgentAccess->setTeen(teen);
-}
-
 //static 
 int LLAgent::convertTextToMaturity(char text)
 {
