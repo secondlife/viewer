@@ -418,8 +418,6 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
                  image_unselected="Toolbar_Middle_Off"
                  layout="topleft"
                  left_pad="8"
-                 menu_filename="menu_people_groups.xml"
-                 menu_position="bottomleft"
                  name="groups_gear_btn"
                  top="3"
                  width="31" />

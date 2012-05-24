@@ -86,7 +86,7 @@ LLGroupList::LLGroupList(const Params& p)
 	registrar.add("People.Groups.Action",			boost::bind(&LLGroupList::onContextMenuItemClick,	this, _2));
 	enable_registrar.add("People.Groups.Enable",	boost::bind(&LLGroupList::onContextMenuItemEnable,	this, _2));
 
-	LLMenuGL* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_people_groups.xml",
+	LLToggleableMenu* context_menu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_people_groups.xml",
 			gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	if(context_menu)
 		mContextMenuHandle = context_menu->getHandle();
@@ -112,7 +112,7 @@ BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 
-	LLMenuGL* context_menu = (LLMenuGL*)mContextMenuHandle.get();
+	LLToggleableMenu* context_menu = mContextMenuHandle.get();
 	if (context_menu && size() > 0)
 	{
 		context_menu->buildDrawLabels();

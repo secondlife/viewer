@@ -58,6 +58,8 @@ public:
 	// its visibility off.
 	bool toggleVisibility();
 	
+	LLHandle<LLToggleableMenu> getHandle() { return getDerivedHandle<LLToggleableMenu>(); }
+
 protected:
 	bool mClosedByButtonClick;
 	LLRect mButtonRect;

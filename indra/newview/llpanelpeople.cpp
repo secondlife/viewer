@@ -630,6 +630,19 @@ BOOL LLPanelPeople::postBuild()
 	mGroupList->setCommitCallback(boost::bind(&LLPanelPeople::updateButtons, this));
 	mGroupList->setReturnCallback(boost::bind(&LLPanelPeople::onChatButtonClicked, this));
 
+	LLMenuButton* groups_gear_btn = getChild<LLMenuButton>("groups_gear_btn");
+
+	// Use the context menu of the Groups list for the Groups tab gear menu.
+	LLToggleableMenu* groups_gear_menu = mGroupList->getContextMenu();
+	if (groups_gear_menu)
+	{
+		groups_gear_btn->setMenu(groups_gear_menu, LLMenuButton::MP_BOTTOM_LEFT);
+	}
+	else
+	{
+		llwarns << "People->Groups list menu not found" << llendl;
+	}
+
 	LLAccordionCtrlTab* accordion_tab = getChild<LLAccordionCtrlTab>("tab_all");
 	accordion_tab->setDropDownStateChangedCallback(
 		boost::bind(&LLPanelPeople::onFriendsAccordionExpandedCollapsed, this, _1, _2, mAllFriendList));
