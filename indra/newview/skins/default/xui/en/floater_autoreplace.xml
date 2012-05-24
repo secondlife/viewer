@@ -202,8 +202,7 @@
    max_length_bytes="255"
    top_delta="-5"
    width="150"
-   enabled="false"
-   select_on_focus="true" />
+   />
   <text
    type="string"
    follows="left|top"
@@ -224,8 +223,7 @@
    max_length_bytes="255"
    top_delta="-5"
    width="280"
-   enabled="false"
-   select_on_focus="true" />
+   />
   <button
    top_delta="0"
    right="-10"
