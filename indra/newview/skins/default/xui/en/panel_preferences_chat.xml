@@ -222,7 +222,7 @@
    layout="topleft"
    top_pad="-23"
    left_pad="5"
-   name="ac_showgui"
+   name="autoreplace_showgui"
    commit_callback.function="Pref.AutoReplace"
    label="AutoReplace Settings"
    width="150">

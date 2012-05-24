@@ -1,5 +1,5 @@
 /** 
- * @file llautoreplacefloater.cpp
+ * @file llfloaterautoreplacesettings.cpp
  * @brief Auto Replace List floater
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
@@ -48,7 +48,8 @@
 #include "llfilepicker.h"
 #include "llfile.h"
 #include "llsdserialize.h"
-//#include "llfloaterchat.h"
+#include "llsdutil.h"
+
 #include "llchat.h"
 #include "llinventorymodel.h"
 #include "llhost.h"
@@ -62,306 +63,577 @@
 #include "llinspecttoast.h"
 #include "llnotificationhandler.h"
 #include "llnotificationmanager.h"
+#include "llnotificationsutil.h"
 
 
 LLFloaterAutoReplaceSettings::LLFloaterAutoReplaceSettings(const LLSD& key)
  : LLFloater(key)
- , namesList(NULL)
- , entryList(NULL)
- , mOldText(NULL)
- , mNewText(NULL)   
+ , mSelectedListName("")
+ , mListNames(NULL)
+ , mReplacementsList(NULL)
+ , mKeyword(NULL)
+ , mPreviousKeyword("")
+ , mReplacement(NULL)
 {
 }
+
 void LLFloaterAutoReplaceSettings::onClose(bool app_quitting)
 {
-	destroy();
+	cleanUp();
 }
 
 BOOL LLFloaterAutoReplaceSettings::postBuild(void)
 {
+	// get copies of the current settings that we will operate on
+	mEnabled  = gSavedSettings.getBOOL("AutoReplace");
+	LL_DEBUGS("AutoReplace") << ( mEnabled ? "enabled" : "disabled") << LL_ENDL;
 
-	namesList = getChild<LLScrollListCtrl>("ac_list_name");
-	entryList = getChild<LLScrollListCtrl>("ac_list_entry");
-	mOldText = getChild<LLLineEditor>("ac_old_text");
-	mNewText = getChild<LLLineEditor>("ac_new_text");
-
-	childSetCommitCallback("ac_enable",onBoxCommitEnabled,this);
-
-	childSetCommitCallback("ac_list_enabled",onEntrySettingChange,this);
-	childSetCommitCallback("ac_list_show",onEntrySettingChange,this);
-	childSetCommitCallback("ac_list_style",onEntrySettingChange,this);
-	childSetCommitCallback("ac_priority",onEntrySettingChange,this);
+	mSettings = LLAutoReplace::getInstance()->getSettings();
 	
-	updateEnabledStuff();
-	updateNamesList();	
+	// global checkbox for whether or not autoreplace is active
+	LLUICtrl* enabledCheckbox = getChild<LLUICtrl>("autoreplace_enable");
+	enabledCheckbox->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onAutoReplaceToggled, this));
+	enabledCheckbox->setValue(LLSD(mEnabled));
 
-	namesList->setCommitOnSelectionChange(TRUE);
-	childSetCommitCallback("ac_list_name", onSelectName, this);
+	// top row list creation and deletion
+	getChild<LLUICtrl>("autoreplace_import_list")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onImportList,this));
+	getChild<LLUICtrl>("autoreplace_export_list")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onExportList,this));
+	getChild<LLUICtrl>("autoreplace_new_list")->setCommitCallback(   boost::bind(&LLFloaterAutoReplaceSettings::onNewList,this));
+	getChild<LLUICtrl>("autoreplace_delete_list")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onDeleteList,this));
+
+	// the list of keyword->replacement lists
+	mListNames = getChild<LLScrollListCtrl>("autoreplace_list_name");
+	mListNames->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSelectList, this));
+	mListNames->setCommitOnSelectionChange(true);
 	
-	childSetAction("ac_deletelist",removeList,this);
-	childSetAction("ac_rementry",deleteEntry,this);
-	childSetAction("ac_exportlist",exportList,this);
-	childSetAction("ac_addentry",addEntry,this);
-	childSetAction("ac_loadlist",loadList,this);
+	// list ordering
+	getChild<LLUICtrl>("autoreplace_list_up")->setCommitCallback(  boost::bind(&LLFloaterAutoReplaceSettings::onListUp,this));
+	getChild<LLUICtrl>("autoreplace_list_down")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onListDown,this));
+
+	// keyword->replacement entry add / delete
+	getChild<LLUICtrl>("autoreplace_add_entry")->setCommitCallback(   boost::bind(&LLFloaterAutoReplaceSettings::onAddEntry,this));
+	getChild<LLUICtrl>("autoreplace_delete_entry")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onDeleteEntry,this));
+
+	// entry edits
+	mKeyword     = getChild<LLLineEditor>("autoreplace_keyword");
+	mReplacement = getChild<LLLineEditor>("autoreplace_replacement");
+	getChild<LLUICtrl>("autoreplace_save_entry")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSaveEntry, this));
+
+	// dialog termination ( Save Changes / Cancel )
+	getChild<LLUICtrl>("autoreplace_save_changes")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSaveChanges, this));
+	getChild<LLUICtrl>("autoreplace_cancel")->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onCancel, this));
+
+	// the list of keyword->replacement pairs
+	mReplacementsList = getChild<LLScrollListCtrl>("autoreplace_list_replacements");
+	mReplacementsList->setCommitCallback(boost::bind(&LLFloaterAutoReplaceSettings::onSelectEntry, this));
+	mReplacementsList->setCommitOnSelectionChange(true);
+
+	mSelectedListName.clear();
+	updateListNames();
+	updateListNamesControls();
+	updateReplacementsList();
 
 	return true;
 }
 
-void LLFloaterAutoReplaceSettings::onSelectName(LLUICtrl* ctrl, void* user_data)
+
+void LLFloaterAutoReplaceSettings::updateListNames()
 {
-	if ( user_data )
+	mListNames->deleteAllItems(); // start from scratch
+
+	LLSD listNames = mSettings.getListNames(); // Array of Strings
+   
+	for ( LLSD::array_const_iterator entry = listNames.beginArray(), end = listNames.endArray();
+		  entry != end;
+		  ++entry
+		 )
 	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )user_data;
-		if ( self )
-		{
-			self->updateItemsList();
-		}
+		const std::string& listName = entry->asString();
+		mListNames->addSimpleElement(listName);
+	}
+
+	if (!mSelectedListName.empty())
+	{
+		mListNames->setSelectedByValue( LLSD(mSelectedListName), true );
 	}
 }
-void LLFloaterAutoReplaceSettings::updateItemsList()
+
+void LLFloaterAutoReplaceSettings::updateListNamesControls()
 {
-	entryList->deleteAllItems();
-	if((namesList->getAllSelected().size())<=0)
+	if ( mSelectedListName.empty() )
 	{
-		updateListControlsEnabled(FALSE);
-		return;
-	}
+		// There is no selected list
 
-	updateListControlsEnabled(TRUE);
-	std::string listName= namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-	
-	LLSD listData = LLAutoReplace::getInstance()->getAutoReplaceEntries(listName);
-	childSetValue("ac_list_enabled",listData["enabled"].asBoolean());
-	childSetValue("ac_text_name",listName);
-	childSetValue("ac_priority",listData["priority"]);
-	
-	LLSD autoReplaces = listData["data"];
-	LLSD::map_const_iterator loc_it = autoReplaces.beginMap();
-	LLSD::map_const_iterator loc_end = autoReplaces.endMap();
-	for ( ; loc_it != loc_end; ++loc_it)
-	{
-		const std::string& wrong = (*loc_it).first;
-		const std::string& right = (*loc_it).second;
+		// Disable all controls that operate on the selected list
+		getChild<LLButton>("autoreplace_export_list")->setEnabled(false);
+		getChild<LLButton>("autoreplace_delete_list")->setEnabled(false);
+		getChild<LLButton>("autoreplace_list_up")->setEnabled(false);
+		getChild<LLButton>("autoreplace_list_down")->setEnabled(false);
 
-		LLSD element;
-		element["id"] = wrong;
-		LLSD& s_column = element["columns"][0];
-		s_column["column"] = "Search";
-		s_column["value"] = wrong;
-		s_column["font"] = "SANSSERIF";
-		LLSD& r_column = element["columns"][1];
-		r_column["column"] = "Replace";
-		r_column["value"] = right;
-		r_column["font"] = "SANSSERIF";
-
-		entryList->addElement(element, ADD_BOTTOM);
-	}
-	
-}
-void LLFloaterAutoReplaceSettings::updateNamesList()
-{
-	namesList->deleteAllItems();
-	if(!gSavedSettings.getBOOL("AutoReplace"))
-	{
-		updateItemsList();
-		return;
-	}
-	LLSD autoReplaces = LLAutoReplace::getInstance()->getAutoReplaces();
-	LLSD::map_const_iterator loc_it = autoReplaces.beginMap();
-	LLSD::map_const_iterator loc_end = autoReplaces.endMap();
-	for ( ; loc_it != loc_end; ++loc_it)
-	{
-		const std::string& listName = (*loc_it).first;
-
-		LLSD element;
-		element["id"] = listName;
-		LLSD& friend_column = element["columns"][0];
-		friend_column["column"] = "Entries";
-		friend_column["value"] = listName;
-		//friend_column["font"] = "SANSSERIF";
-		const LLSD& loc_map = (*loc_it).second;
-		if(loc_map["enabled"].asBoolean())
-		{
-			friend_column["font"] = "SANSSERIF";
-		}
-		else
-		{
-			friend_column["font"] = "SANSSERIF_SMALL";
-		}
-		if(namesList)
-		{
-			namesList->addElement(element, ADD_BOTTOM);
-		}
-	}
-	updateItemsList();
-}
-void LLFloaterAutoReplaceSettings::updateListControlsEnabled(BOOL selected)
-{
-
-		childSetEnabled("ac_text1",selected);
-		childSetEnabled("ac_text2",selected);
-		childSetEnabled("ac_text_name",selected);
-		childSetEnabled("ac_list_enabled",selected);
-		childSetEnabled("ac_list_show",selected);
-		childSetEnabled("ac_list_style",selected);
-		childSetEnabled("ac_deletelist",selected);
-		childSetEnabled("ac_exportlist",selected);
-		childSetEnabled("ac_addentry",selected);
-		childSetEnabled("ac_rementry",selected);
-		childSetEnabled("ac_priority",selected);
-	
-}
-void LLFloaterAutoReplaceSettings::updateEnabledStuff()
-{
-	BOOL autoreplace = gSavedSettings.getBOOL("AutoReplace");
-	if(autoreplace)
-	{
-		LLCheckBoxCtrl *enBox = getChild<LLCheckBoxCtrl>("ac_enable");
-		enBox->setDisabledColor(LLColor4::red);
-		getChild<LLCheckBoxCtrl>("ac_enable")->setEnabledColor(LLColor4(1.0f,0.0f,0.0f,1.0f));		
+		mReplacementsList->deleteAllItems();
 	}
 	else
 	{
-		getChild<LLCheckBoxCtrl>("ac_enable")->setEnabledColor(
-			LLUIColorTable::instance().getColor( "LabelTextColor" ));
+		// Enable the controls that operate on the selected list
+		getChild<LLButton>("autoreplace_export_list")->setEnabled(true);
+		getChild<LLButton>("autoreplace_delete_list")->setEnabled(true);
+		getChild<LLButton>("autoreplace_list_up")->setEnabled(!selectedListIsFirst());
+		getChild<LLButton>("autoreplace_list_down")->setEnabled(!selectedListIsLast());
 	}
-
-	childSetEnabled("ac_list_name", autoreplace);
-	childSetEnabled("ac_list_entry", autoreplace);
-	updateListControlsEnabled(autoreplace);
-	updateNamesList();
-	LLAutoReplace::getInstance()->save();
-
 }
-void LLFloaterAutoReplaceSettings::setData(void * data)
+
+void LLFloaterAutoReplaceSettings::onSelectList()
 {
-}
-void LLFloaterAutoReplaceSettings::onBoxCommitEnabled(LLUICtrl* caller, void* user_data)
-{
-	if ( user_data )
+	std::string previousSelectedListName = mSelectedListName;
+	// only one selection allowed
+	LLSD selected = mListNames->getSelectedValue();
+	if (selected.isDefined())
 	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )user_data;
-		if ( self )
-		{
-			self->updateEnabledStuff();
-		}
+		mSelectedListName = selected.asString();
+		LL_DEBUGS("AutoReplace")<<"selected list '"<<mSelectedListName<<"'"<<LL_ENDL;
 	}
-}
-void LLFloaterAutoReplaceSettings::onEntrySettingChange(LLUICtrl* caller, void* user_data)
-{
-	if ( user_data )
+	else
 	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )user_data;
-		if ( self )
-		{
-			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			LLAutoReplace::getInstance()->setListEnabled(listName,self->childGetValue("ac_list_enabled").asBoolean());
-			LLAutoReplace::getInstance()->setListPriority(listName,self->childGetValue("ac_priority").asInteger());
-
-			//sInstance->updateEnabledStuff();
-			self->updateItemsList();
-			LLAutoReplace::getInstance()->save();
-		}
+		mSelectedListName.clear();
+		LL_DEBUGS("AutoReplace")<<"unselected"<<LL_ENDL;
 	}
-}
-void LLFloaterAutoReplaceSettings::deleteEntry(void* data)
-{
-	if ( data )
+
+	updateListNamesControls();
+
+	if ( previousSelectedListName != mSelectedListName )
 	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
-		if ( self )
-		{
-
-			std::string listName=self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-
-			if((self->entryList->getAllSelected().size())>0)
-			{	
-				std::string wrong= self->entryList->getFirstSelected()->getColumn(0)->getValue().asString();
-   				LLAutoReplace::getInstance()->removeEntryFromList(wrong,listName);
-				self->updateItemsList();
-				LLAutoReplace::getInstance()->save();
-			}
-		}
+		updateReplacementsList();
 	}
 }
-void LLFloaterAutoReplaceSettings::loadList(void* data)
+
+void LLFloaterAutoReplaceSettings::onSelectEntry()
+{
+    LLSD selectedRow = mReplacementsList->getSelectedValue();
+	if (selectedRow.isDefined())
+	{
+		mPreviousKeyword = selectedRow.asString();
+		LL_DEBUGS("AutoReplace")<<"selected entry '"<<mPreviousKeyword<<"'"<<LL_ENDL;	
+		mKeyword->setValue(selectedRow);
+		std::string replacement = mSettings.replacementFor(mPreviousKeyword, mSelectedListName );
+		mReplacement->setValue(replacement);
+		enableReplacementEntry();		
+		mReplacement->setFocus(true);
+	}
+	else
+	{
+		// no entry selection, so the entry panel should be off
+		disableReplacementEntry();		
+		LL_DEBUGS("AutoReplace")<<"no row selected"<<LL_ENDL;
+	}
+}
+
+void LLFloaterAutoReplaceSettings::updateReplacementsList()
+{
+	// start from scratch, since this should only be called when the list changes
+	mReplacementsList->deleteAllItems();
+
+	if ( mSelectedListName.empty() )
+	{
+		mReplacementsList->setEnabled(false);
+		getChild<LLButton>("autoreplace_add_entry")->setEnabled(false);
+		disableReplacementEntry();		
+	}
+	else
+	{
+		// Populate the keyword->replacement list from the selected list
+		const LLSD* mappings = mSettings.getListEntries(mSelectedListName);
+		for ( LLSD::map_const_iterator entry = mappings->beginMap(), end = mappings->endMap();
+			  entry != end;
+			  entry++
+			 )
+		{
+			LLSD row;
+			row["id"] = entry->first;
+			row["columns"][0]["column"] = "keyword";
+			row["columns"][0]["value"]  = entry->first;
+			row["columns"][1]["column"] = "replacement";
+			row["columns"][1]["value"]  = entry->second;
+
+			mReplacementsList->addElement(row, ADD_BOTTOM);
+		}
+
+		mReplacementsList->deselectAllItems(false /* don't call commit */);
+		mReplacementsList->setEnabled(true);
+
+		getChild<LLButton>("autoreplace_add_entry")->setEnabled(true);
+		disableReplacementEntry();		
+	}
+}
+
+void LLFloaterAutoReplaceSettings::enableReplacementEntry()
+{
+	LL_DEBUGS("AutoReplace")<<LL_ENDL;
+	mKeyword->setEnabled(true);
+	mReplacement->setEnabled(true);
+	getChild<LLButton>("autoreplace_save_entry")->setEnabled(true);
+	getChild<LLButton>("autoreplace_delete_entry")->setEnabled(true);
+}
+
+void LLFloaterAutoReplaceSettings::disableReplacementEntry()
+{
+	LL_DEBUGS("AutoReplace")<<LL_ENDL;
+	mPreviousKeyword.clear();
+	mKeyword->clear();
+	mKeyword->setEnabled(false);
+	mReplacement->clear();
+	mReplacement->setEnabled(false);
+	getChild<LLButton>("autoreplace_save_entry")->setEnabled(false);
+	getChild<LLButton>("autoreplace_delete_entry")->setEnabled(false);
+}
+
+// called when the global settings checkbox is changed
+void LLFloaterAutoReplaceSettings::onAutoReplaceToggled()
+{
+	// set our local copy of the flag, copied to the global preference in onOk
+	mEnabled = childGetValue("autoreplace_enable").asBoolean();
+	LL_DEBUGS("AutoReplace")<< "autoreplace_enable " << ( mEnabled ? "on" : "off" ) << LL_ENDL;
+}
+
+// called when the List Up button is pressed
+void LLFloaterAutoReplaceSettings::onListUp()
+{
+	S32 selectedRow = mListNames->getFirstSelectedIndex();
+	LLSD selectedName = mListNames->getSelectedValue().asString();
+
+	if ( mSettings.increaseListPriority(selectedName) )
+	{
+		mListNames->swapWithPrevious(selectedRow);
+		updateListNamesControls();
+	}
+	else
+	{
+		LL_WARNS("AutoReplace")
+			<< "invalid row ("<<selectedRow<<") selected '"<<selectedName<<"'"
+			<<LL_ENDL;
+	}
+}
+
+// called when the List Down button is pressed
+void LLFloaterAutoReplaceSettings::onListDown()
+{
+	S32 selectedRow = mListNames->getFirstSelectedIndex();
+	std::string selectedName = mListNames->getSelectedValue().asString();
+
+	if ( mSettings.decreaseListPriority(selectedName) )
+	{
+		mListNames->swapWithNext(selectedRow);
+		updateListNamesControls();
+	}
+	else
+	{
+		LL_WARNS("AutoReplace")
+			<< "invalid row ("<<selectedRow<<") selected '"<<selectedName<<"'"
+			<<LL_ENDL;
+	}
+}
+
+// called when the Delete Entry button is pressed
+void LLFloaterAutoReplaceSettings::onDeleteEntry()
+{
+    LLSD selectedRow = mReplacementsList->getSelectedValue();
+	if (selectedRow.isDefined())
+	{	
+		std::string keyword = selectedRow.asString();
+		mReplacementsList->deleteSelectedItems(); // delete from the control
+		mSettings.removeEntryFromList(keyword, mSelectedListName); // delete from the local settings copy
+		disableReplacementEntry(); // no selection active, so turn off the buttons
+	}
+}
+
+// called when the Import List button is pressed
+void LLFloaterAutoReplaceSettings::onImportList()
 {
 	LLFilePicker& picker = LLFilePicker::instance();
-
-	if(!picker.getOpenFile( LLFilePicker::FFLOAD_XML) )
+	if( picker.getOpenFile( LLFilePicker::FFLOAD_XML) )
 	{
-		return;
-	}	
-	llifstream file;
-	file.open(picker.getFirstFile().c_str());
-	LLSD blankllsd;
-	if (file.is_open())
-	{
-		LLSDSerialize::fromXMLDocument(blankllsd, file);
-	}
-	file.close();
-	gSavedSettings.setBOOL("AutoReplace",true);
-	LLAutoReplace::getInstance()->addReplacementList(blankllsd);
-	if ( data )
-	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
-		if ( self )
+		llifstream file;
+		file.open(picker.getFirstFile().c_str());
+		LLSD newList;
+		if (file.is_open())
 		{
-			self->updateEnabledStuff();
+			LLSDSerialize::fromXMLDocument(newList, file);
 		}
-	}
-}
-void LLFloaterAutoReplaceSettings::removeList(void* data)
-{
-	if ( data )
-	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
-		if ( self )
-		{
-			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			LLAutoReplace::getInstance()->removeReplacementList(listName);
-			self->updateEnabledStuff();
-		}
+		file.close();
 
-	}
-}
-void LLFloaterAutoReplaceSettings::exportList(void *data)
-{
-	if ( data )
-	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
-		if ( self )
+		switch ( mSettings.addList(newList) )
 		{
-			std::string listName=self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
+		case LLAutoReplaceSettings::AddListOk:
+			mSelectedListName = LLAutoReplaceSettings::getListName(newList);
+			
+			updateListNames();
+			updateListNamesControls();
+			updateReplacementsList();
+			break;
 
-			LLFilePicker& picker = LLFilePicker::instance();
-			if(picker.getSaveFile( LLFilePicker::FFSAVE_XML) )
+		case LLAutoReplaceSettings::AddListDuplicateName:
 			{
-				llofstream file;
-				file.open(picker.getFirstFile().c_str());
-				LLSDSerialize::toPrettyXML(LLAutoReplace::getInstance()->exportList(listName), file);
-				file.close();	
-			}	
-		}
-	}
-}
-void LLFloaterAutoReplaceSettings::addEntry(void* data)
-{
-	if ( data )
-	{
-		LLFloaterAutoReplaceSettings* self = ( LLFloaterAutoReplaceSettings* )data;
-		if ( self )
-		{
-			std::string listName= self->namesList->getFirstSelected()->getColumn(0)->getValue().asString();
-			std::string wrong = self->mOldText->getText();
-			std::string right = self->mNewText->getText();
-			if(wrong != "" && right != "")
-			{
-				LLAutoReplace::getInstance()->addEntryToList(wrong, right, listName);
-				self->updateItemsList();
-				LLAutoReplace::getInstance()->save();
+				std::string newName = LLAutoReplaceSettings::getListName(newList);
+				LL_WARNS("AutoReplace")<<"name '"<<newName<<"' is in use; prompting for new name"<<LL_ENDL;
+				LLSD newPayload;
+				newPayload["list"] = newList;
+				LLSD args;
+				args["DUPNAME"] = newName;
+	
+				LLNotificationsUtil::add("RenameAutoReplaceList", args, newPayload,
+										 boost::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
 			}
+			break;
+
+		case LLAutoReplaceSettings::AddListInvalidList:
+			LLNotificationsUtil::add("InvalidAutoReplaceList");
+			LL_WARNS("AutoReplace") << "imported list was invalid" << LL_ENDL;
+
+			mSelectedListName.clear();
+			updateListNames();
+			updateListNamesControls();
+			updateReplacementsList();
+			break;
+
+		default:
+			LL_ERRS("AutoReplace") << "invalid AddListResult" << LL_ENDL;
+
 		}
+		
+	}
+	else
+	{
+		LL_DEBUGS("AutoReplace") << "file selection failed for import list" << LL_ENDL;
+	}		
+}
+
+void LLFloaterAutoReplaceSettings::onNewList()
+{
+	LLSD payload;
+	LLSD emptyList;
+	LLAutoReplaceSettings::createEmptyList(emptyList);
+	payload["list"] = emptyList;
+    LLSD args;
+	
+	LLNotificationsUtil::add("AddAutoReplaceList", args, payload,
+							 boost::bind(&LLFloaterAutoReplaceSettings::callbackNewListName, this, _1, _2));
+}
+
+bool LLFloaterAutoReplaceSettings::callbackNewListName(const LLSD& notification, const LLSD& response)
+{
+	LL_DEBUGS("AutoReplace")<<"called"<<LL_ENDL;
+	
+	LLSD newList = notification["payload"]["list"];
+
+	if ( response.has("listname") && response["listname"].isString() )
+	{
+		std::string newName = response["listname"].asString();
+		LLAutoReplaceSettings::setListName(newList, newName);
+
+		switch ( mSettings.addList(newList) )
+		{
+		case LLAutoReplaceSettings::AddListOk:
+			LL_INFOS("AutoReplace") << "added new list '"<<newName<<"'"<<LL_ENDL;
+			mSelectedListName = newName;
+			updateListNames();
+			updateListNamesControls();
+			updateReplacementsList();
+			break;
+
+		case LLAutoReplaceSettings::AddListDuplicateName:
+			{
+				LL_WARNS("AutoReplace")<<"name '"<<newName<<"' is in use; prompting for new name"<<LL_ENDL;
+				LLSD newPayload;
+				newPayload["list"] = notification["payload"]["list"];
+				LLSD args;
+				args["DUPNAME"] = newName;
+	
+				LLNotificationsUtil::add("RenameAutoReplaceList", args, newPayload,
+										 boost::bind(&LLFloaterAutoReplaceSettings::callbackListNameConflict, this, _1, _2));
+			}
+			break;
+
+		case LLAutoReplaceSettings::AddListInvalidList:
+			LLNotificationsUtil::add("InvalidAutoReplaceList");
+
+			mSelectedListName.clear();
+			updateListNames();
+			updateListNamesControls();
+			updateReplacementsList();
+			break;
+
+		default:
+			LL_ERRS("AutoReplace") << "invalid AddListResult" << LL_ENDL;
+		}
+	}
+	else
+	{
+		LL_ERRS("AutoReplace") << "adding notification response" << LL_ENDL;
+	}
+	return false;
+}
+
+// callback for the RenameAutoReplaceList notification
+bool LLFloaterAutoReplaceSettings::callbackListNameConflict(const LLSD& notification, const LLSD& response)
+{
+	LLSD newList = notification["payload"]["list"];
+
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	switch ( option )
+	{
+	case 0:
+		// Replace current list
+		LL_INFOS("AutoReplace")<<"option 'replace current list' selected"<<LL_ENDL;
+		
+		break;
+
+	case 1:
+		// Use New Name
+		LL_INFOS("AutoReplace")<<"option 'use new name' selected"<<LL_ENDL;
+		callbackNewListName(notification, response);
+		break;
+
+	default:
+		LL_ERRS("AutoReplace")<<"invalid selected option "<<option<<LL_ENDL;
+	}
+
+	return false;
+}
+
+void LLFloaterAutoReplaceSettings::onDeleteList()
+{
+	std::string listName= mListNames->getFirstSelected()->getColumn(0)->getValue().asString();
+	mSettings.removeReplacementList(listName); // remove from the copy of settings
+	mReplacementsList->deleteSelectedItems();   // remove from the scrolling list
+
+	mSelectedListName.clear();
+	updateListNames();
+	updateListNamesControls();
+	updateReplacementsList();
+}
+
+void LLFloaterAutoReplaceSettings::onExportList()
+{
+	std::string listName=mListNames->getFirstSelected()->getColumn(0)->getValue().asString();
+	const LLSD* list = mSettings.exportList(listName);
+	std::string listFileName = listName + ".xml";
+	LLFilePicker& picker = LLFilePicker::instance();
+	if( picker.getSaveFile( LLFilePicker::FFSAVE_XML, listFileName) )
+	{
+		llofstream file;
+		file.open(picker.getFirstFile().c_str());
+		LLSDSerialize::toPrettyXML(*list, file);
+		file.close();
 	}
 }
 
+void LLFloaterAutoReplaceSettings::onAddEntry()
+{
+	mPreviousKeyword.clear();
+	mKeyword->clear();
+	mReplacement->clear();
+	enableReplacementEntry();
+	mKeyword->setFocus(true);
+}
+
+void LLFloaterAutoReplaceSettings::onSaveEntry()
+{
+	LL_DEBUGS("AutoReplace")<<"called"<<LL_ENDL;
+	
+	if ( ! mPreviousKeyword.empty() )
+	{
+		// delete any existing value for the key that was editted
+		LL_INFOS("AutoReplace")
+			<< "list '" << mSelectedListName << "' "
+			<< "removed '" << mPreviousKeyword
+			<< "'" << LL_ENDL;
+		mSettings.removeEntryFromList( mPreviousKeyword, mSelectedListName );
+	}
+
+	// @TODO should all these be LLWStrings ?
+	std::string keyword     = mKeyword->getValue().asString();
+	std::string replacement = mReplacement->getValue().asString();
+	if ( mSettings.addEntryToList(keyword, replacement, mSelectedListName) )
+	{
+		// insert the new keyword->replacement pair
+		LL_INFOS("AutoReplace")
+			<< "list '" << mSelectedListName << "' "
+			<< "added '" << keyword
+			<< "' -> '" << replacement
+			<< "'" << LL_ENDL;
+
+		updateReplacementsList();
+	}
+	else
+	{
+		LLNotificationsUtil::add("InvalidAutoReplaceEntry");
+		LL_WARNS("AutoReplace")<<"invalid entry "
+							   << "keyword '" << keyword
+							   << "' replacement '" << replacement
+							   << "'" << LL_ENDL;
+	}
+}
+
+void LLFloaterAutoReplaceSettings::onCancel()
+{
+	cleanUp();
+	closeFloater(false /* not quitting */);
+}
+
+void LLFloaterAutoReplaceSettings::onSaveChanges()
+{
+	// put our local copy of the settings into the active copy
+	LLAutoReplace::getInstance()->setSettings( mSettings );
+	// save our local copy of the global feature enable/disable value
+	gSavedSettings.setBOOL("AutoReplace", mEnabled);
+	cleanUp();
+	closeFloater(false /* not quitting */);
+}
+
+void LLFloaterAutoReplaceSettings::cleanUp()
+{
+
+}
+
+bool LLFloaterAutoReplaceSettings::selectedListIsFirst()
+{
+	bool isFirst = false;
+	
+	if (!mSelectedListName.empty())
+	{
+		LLSD lists = mSettings.getListNames(); // an Array of Strings
+		LLSD first = lists.get(0);
+		if ( first.isString() && first.asString() == mSelectedListName )
+		{
+			isFirst = true;
+		}
+	}
+	return isFirst;
+}
+
+bool LLFloaterAutoReplaceSettings::selectedListIsLast()
+{
+	bool isLast = false;
+	
+	if (!mSelectedListName.empty())
+	{
+		LLSD last;
+		LLSD lists = mSettings.getListNames(); // an Array of Strings
+		for ( LLSD::array_const_iterator list = lists.beginArray(), listEnd = lists.endArray();
+			  list != listEnd;
+			  list++
+			 )
+		{
+			last = *list;
+		}
+		if ( last.isString() && last.asString() == mSelectedListName )
+		{
+			isLast = true;
+		}
+	}
+	return isLast;
+}
+
+/* TBD
+mOldText = getChild<LLLineEditor>("autoreplace_old_text");
+mNewText = getChild<LLLineEditor>("autoreplace_new_text");
+*/

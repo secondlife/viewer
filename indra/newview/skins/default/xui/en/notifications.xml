@@ -2340,6 +2340,63 @@ Would you be my friend?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   label="Add Auto-Replace List"
+   name="AddAutoReplaceList"
+   type="alertmodal">
+    <tag>addlist</tag>
+    Name for the new list:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="listname" type="text"/>
+      <button
+       default="true"
+       index="0"
+       name="SetName"
+       text="OK"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   label="Rename Auto-Replace List"
+   name="RenameAutoReplaceList"
+   type="alertmodal">
+    The name '[DUPNAME]' is in use
+    Enter a new unique name:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="listname" type="text"/>
+      <button
+       default="false"
+       index="0"
+       name="ReplaceList"
+       text="Replace Current List"/>
+      <button
+       default="true"
+       index="1"
+       name="SetName"
+       text="Use New Name"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="InvalidAutoReplaceEntry"
+   type="notify">
+    The keyword must be a single word, and the replacement may not be empty.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="InvalidAutoReplaceList"
+   type="notify">
+    That replacement list is not valid.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
  icon="alertmodal.tga"
  label="Save Outfit"
  name="SaveOutfitAs"

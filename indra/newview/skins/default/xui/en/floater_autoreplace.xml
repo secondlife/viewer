@@ -6,228 +6,286 @@
  bottom="400"
  left="300"
  can_resize="false"
- height="500"
- width="400"
- name="ac_floater"
+ height="455"
+ width="490"
+ name="autoreplace_floater"
  title="Autoreplace Settings">
   <check_box
-   bottom_delta="50"
-   left_delta="5"
+   bottom_delta="30"
+   left_delta="15"
    height="16"
    width="100"
-   enabled="true"
    follows="left|top"
-   font="SansSerifSmall"
-   mouse_opaque="true"
-   radio_style="false"
    label="Enable Autoreplace"
-   control_name="AutoReplace"
-   name="ac_enable"
-   tool_tip="You must have this check box enabled to use any of these settings, it will search your writable text entry, and replace any of the search entries with their replacement"/>
-  <button
-   bottom_delta="-2"
-   left_delta="150"
-   height="22"
-   width="80"
-   enabled="true"
-   follows="left|top"
-   font="SansSerif"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="ac_loadlist"
-   label="Load List.."
-   tool_tip="Click this to load a previously exported list from a file."/>
+   name="autoreplace_enable"
+   tool_tip="As you enter chat text, replace any of the keywords entered with the corresponding replacement"/>
   <view_border
-   bottom="70"
+   top_pad="15"
    left="2"
    height="0"
-   width="396"
+   width="491"
    follows="left|top"
    bevel_style="none"
    border_thickness="1"
    mouse_opaque="false"
    name="divisor1"/>
-  <text
-   top="-355"
-   left_delta="0"
-   height="16"
-   width="400"
+  <button
+   top_pad="10"
+   left="10"
+   height="22"
+   width="110"
+   enabled="true"
    follows="left|top"
-   halign="center"
-   font="SansSerifSmall"
    mouse_opaque="true"
-   name="ac_text1">
-   List Name                                                         List Entries
-  </text>
-  <scroll_list
-   bottom_delta="280"
-   left_delta="0"
-   height="280"
-   width="199"
-   follows="left|top"
-   column_padding="0"
-   draw_heading="true"
-   multi_select="false"
-   name="ac_list_name"
-   search_column="1">
-  </scroll_list>
-  <scroll_list
+   halign="center"
+   scale_image="true"
+   name="autoreplace_import_list"
+   label="Import List..."
+   tool_tip="Load a previously exported list from a file."/>
+  <button
    top_delta="0"
-   left_delta="199"
-   height="230"
-   width="198"
+   left_pad="10"
+   height="22"
+   width="110"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_export_list"
+   label="Export List..."
+   tool_tip="Save the selected list to a file so you can share it."/>
+  <button
+   top_delta="0"
+   left_pad="10"
+   height="22"
+   width="110"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_new_list"
+   label="New List..."
+   tool_tip="Create a new list."/>
+  <button
+   top_delta="0"
+   left_pad="10"
+   height="22"
+   width="110"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_delete_list"
+   label="Delete List"
+   tool_tip="Delete the selected list."/>
+  <scroll_list
+   top_pad="10"
+   left="10"
+   height="100"
+   width="370"
+   follows="left|top"
+   column_padding="0"
+   draw_heading="false"
+   multi_select="false"
+   name="autoreplace_list_name"
+   search_column="0">
+  </scroll_list>
+  <button
+   top_delta="23"
+   left_pad="10"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_list_up"
+   image_overlay="Arrow_Up"
+   tool_tip="Move this list up in priority."/>
+  <button
+   top_pad="10"
+   left_delta="0"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_list_down"
+   image_overlay="Arrow_Down"
+   tool_tip="Move this list down in priority."/>
+  <view_border
+   top_pad="36"
+   left="2"
+   height="0"
+   width="491"
+   follows="left|top"
+   bevel_style="none"
+   border_thickness="1"
+   mouse_opaque="false"
+   name="divisor2"/>
+  <scroll_list
+   top_pad="10"
+   left="10"
+   height="120"
+   width="370"
    follows="left|top"
    column_padding="0"
    draw_heading="true"
-   multi_select="false"
-   name="ac_list_entry"
-   search_column="1">
+   multi_select="true"
+   name="autoreplace_list_replacements"
+   search_column="0">
+    <scroll_list.columns
+        label="Keyword"
+        name="keyword"
+        relative_width="0.30" />
+    <scroll_list.columns
+        label="Replacement"
+        name="replacement"
+        relative_width="0.70" />
   </scroll_list>
+  <button
+   top_delta="41"
+   left_pad="10"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_add_entry"
+   label="Add..."/>
+  <button 
+   top_pad="10"
+   left_delta="0"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_delete_entry"
+   label="Remove"/>
   <view_border
-   bottom_delta="20"
-   left_delta="10"
-   height="16"
-   width="180"
+   top_pad="38"
+   left="2"
+   height="0"
+   width="491"
    follows="left|top"
-   bevel_style="in"
+   bevel_style="none"
+   border_thickness="1"
    mouse_opaque="false"
-   name="ac_box1"/>
-  <text
-   bottom_delta="0"
-   left_delta="0"
-   height="16"
-   width="180"
-   follows="left|top"
-   halign="center"
-   font="SansSerifSmall"
-   mouse_opaque="true"
-   name="ac_text_name">
-   List Name
-  </text>
-  <check_box
-   bottom_delta="20"
-   left_delta="0"
-   height="16"
-   width="100"
-   enabled="true"
-   follows="left|top"
-   font="SansSerifSmall"
-   mouse_opaque="true"
-   radio_style="false"
-   label="Enabled, priority:"
-   control_name="ac_enabled"
-   name="ac_list_enabled"
-   tool_tip="Whether or not you wish to use this particular list."/>
-  <spinner
-   bottom_delta="-0"
-   left_delta="120"
-   height="16"
-   width="50"
-   follows="left|top"
-   decimal_digits="0"
-   increment="1"
-   min_val="0"
-   max_val="10"
-   mouse_opaque="true"
-   label=""
-   label_width="0"
-   name="ac_priority"
-   tool_tip="This number determine what order your list will be used to replace words.  A higher priority means it will be used before lower priority lists."/>
-  <button
-   top="100"
-   left="5"
-   height="22"
-   width="90"
-   enabled="true"
-   follows="left|top"
-   font="SansSerif"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="ac_deletelist"
-   label="Delete List"
-   tool_tip="This will delete the entire list of words and their replacements, it is not reversible."/>
-  <button
-   bottom_delta="-0"
-   left_delta="95"
-   height="22"
-   width="90"
-   enabled="true"
-   follows="left|top"
-   font="SansSerif"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="ac_exportlist"
-   label="Export List"
-   tool_tip="This will save your current list to a file so you can share it with your friends or edit it."/>
-  <button
-   bottom_delta="0"
-   left_delta="110"
-   height="22"
-   width="90"
-   enabled="true"
-   follows="left|top"
-   font="SansSerif"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="ac_addentry"
-   label="Add Entry"/>
-  <button
-   bottom_delta="0"
-   left_delta="95"
-   height="22"
-   width="90"
-   enabled="true"
-   follows="left|top"
-   font="SansSerif"
-   mouse_opaque="true"
-   halign="center"
-   scale_image="true"
-   name="ac_rementry"
-   label="Remove Entry"/>
+   name="divisor3"/>
   <text
    type="string"
-   length="1"
    follows="left|top"
    height="16"
    layout="topleft"
    left="10"
-   top="450"
-   width="364">
+   top_pad="13"
+   width="50">
    Keyword:
   </text>
   <line_editor
+   name="autoreplace_keyword"
    follows="left|top"
    height="23"
    layout="topleft"
    left="100"
    max_length_bytes="255"
-   name="ac_old_text"
    top_delta="-5"
-   right="-15"
+   width="150"
+   enabled="false"
    select_on_focus="true" />
   <text
    type="string"
-   length="1"
    follows="left|top"
    height="16"
    layout="topleft"
    left="10"
-   top="475"
-   width="364">
-   New text:
+   right="90"
+   top_pad="10"
+   >
+   Replacement:
   </text>
   <line_editor
+   name="autoreplace_replacement"
    follows="left|top"
    height="23"
    layout="topleft"
    left="100"
    max_length_bytes="255"
-   name="ac_new_text"
    top_delta="-5"
-   right="-15"
+   width="280"
+   enabled="false"
    select_on_focus="true" />
+  <button
+   top_delta="0"
+   right="-10"
+   height="22"
+   width="90"
+   enabled="false"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_save_entry"
+   label="Save Entry"
+   tool_tip="Save this entry."/>
+  <view_border
+   top_pad="10"
+   left="2"
+   height="0"
+   width="491"
+   follows="left|top"
+   bevel_style="none"
+   border_thickness="1"
+   mouse_opaque="false"
+   name="divisor4"/>
+  <button
+   top_pad="10"
+   right="380"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_save_changes"
+   label="Save Changes"
+   tool_tip="Save all changes."/>
+  <button
+   top_delta="0"
+   right="480"
+   height="22"
+   width="90"
+   enabled="true"
+   follows="left|top"
+   mouse_opaque="true"
+   halign="center"
+   scale_image="true"
+   name="autoreplace_cancel"
+   label="Cancel"
+   tool_tip="Discard all changes."/>
 </floater>
+<!--
+  <text 
+   top_pad="10"
+   left="10"
+   height="16"
+   width="260"
+   follows="left|top"
+   halign="center"
+   mouse_opaque="true"
+   name="autoreplace_text2">
+    Entries
+  </text>
+-->
