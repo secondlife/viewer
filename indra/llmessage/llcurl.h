@@ -413,6 +413,67 @@ private:
 	BOOL mProcessing;
 };
 
+//for texture fetch only
+class LLCurlTextureRequest : public LLCurlRequest
+{
+public:
+	LLCurlTextureRequest(S32 concurrency);
+	~LLCurlTextureRequest();
+
+	U32 getByteRange(const std::string& url, const headers_t& headers, S32 offset, S32 length, U32 pri, LLCurl::ResponderPtr responder);
+	void nextRequests();
+	void completeRequest(S32 received_bytes);
+
+	void updatePriority(U32 handle, U32 pri);
+	void removeRequest(U32 handle);
+
+	U32 getTotalReceivedBits();
+	U32 getTotalIssuedRequests();
+	S32 getNumRequests();
+	
+private:
+	LLMutex mMutex;
+	S32 mConcurrency;
+	S32 mInQueue; //request currently in queue.
+	U32 mHandleCounter;
+	U32 mTotalIssuedRequests;
+	U32 mTotalReceivedBits;
+
+	typedef struct _request_t
+	{
+		_request_t(U32 handle, const std::string& url, const headers_t& headers, S32 offset, S32 length, U32 pri, LLCurl::ResponderPtr responder) :
+				mHandle(handle), mUrl(url), mHeaders(headers), mOffset(offset), mLength(length), mPriority(pri), mResponder(responder)
+				{}
+
+		U32  mHandle;
+		std::string mUrl;
+		LLCurlRequest::headers_t mHeaders;
+		S32 mOffset;
+		S32 mLength;
+		LLCurl::ResponderPtr mResponder;
+		U32 mPriority;
+	} request_t;
+
+	struct request_compare
+	{
+		bool operator()(const request_t* lhs, const request_t* rhs) const
+		{
+			if(lhs->mPriority != rhs->mPriority)
+			{
+				return lhs->mPriority > rhs->mPriority; // higher priority in front of queue (set)
+			}
+			else
+			{
+				return (U32)lhs < (U32)rhs;
+			}
+		}
+	};
+
+	typedef std::set<request_t*, request_compare> req_queue_t;
+	req_queue_t mCachedRequests;
+	std::map<S32, request_t*> mRequestMap;
+};
+
 class LLCurlEasyRequest
 {
 public:

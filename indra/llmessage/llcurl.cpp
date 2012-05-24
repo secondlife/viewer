@@ -911,8 +911,8 @@ bool LLCurlThread::CurlRequest::processRequest()
 
 		if(!completed)
 		{
-		setPriority(LLQueuedThread::PRIORITY_LOW) ;
-	}
+			setPriority(LLQueuedThread::PRIORITY_LOW) ;
+		}
 	}
 
 	return completed ;
@@ -1222,6 +1222,170 @@ S32 LLCurlRequest::getQueued()
 		}
 	}
 	return queued;
+}
+
+LLCurlTextureRequest::LLCurlTextureRequest(S32 concurrency) : 
+	LLCurlRequest(), 
+	mConcurrency(concurrency),
+	mInQueue(0),
+	mMutex(NULL),
+	mHandleCounter(1),
+	mTotalIssuedRequests(0),
+	mTotalReceivedBits(0)
+{
+}
+
+LLCurlTextureRequest::~LLCurlTextureRequest()
+{
+	mRequestMap.clear();
+
+	for(req_queue_t::iterator iter = mCachedRequests.begin(); iter != mCachedRequests.end(); ++iter)
+	{
+		delete *iter;
+	}
+	mCachedRequests.clear();
+}
+
+//return 0: success
+// > 0: cached handle
+U32 LLCurlTextureRequest::getByteRange(const std::string& url,
+								 const headers_t& headers,
+								 S32 offset, S32 length, U32 pri,
+								 LLCurl::ResponderPtr responder)
+{
+	U32 ret_val = 0;
+	bool success = false;	
+
+	if(mInQueue < mConcurrency)
+	{
+		success = LLCurlRequest::getByteRange(url, headers, offset, length, responder);		
+	}
+
+	LLMutexLock lock(&mMutex);
+
+	if(success)
+	{
+		mInQueue++;
+		mTotalIssuedRequests++;
+	}
+	else
+	{
+		request_t* request = new request_t(mHandleCounter, url, headers, offset, length, pri, responder);
+		mCachedRequests.insert(request);
+		mRequestMap[mHandleCounter] = request;
+		ret_val = mHandleCounter;
+		mHandleCounter++;
+
+		if(!mHandleCounter)
+		{
+			mHandleCounter = 1;
+		}
+	}
+
+	return ret_val;
+}
+
+void LLCurlTextureRequest::completeRequest(S32 received_bytes)
+{
+	LLMutexLock lock(&mMutex);
+
+	llassert_always(mInQueue > 0);
+
+	mInQueue--;
+	mTotalReceivedBits += received_bytes * 8;
+}
+
+void LLCurlTextureRequest::nextRequests()
+{
+	while(!mCachedRequests.empty() && mInQueue < mConcurrency)
+	{
+		request_t* request;
+		
+		{
+			LLMutexLock lock(&mMutex);
+			req_queue_t::iterator iter = mCachedRequests.begin();
+			request = *iter;
+		}
+
+		if(!LLCurlRequest::getByteRange(request->mUrl, request->mHeaders, request->mOffset, request->mLength, request->mResponder))
+		{
+			break;
+		}
+
+		{
+			LLMutexLock lock(&mMutex);
+			mInQueue++;
+			mTotalIssuedRequests++;
+			llassert_always(1 == mCachedRequests.erase(request));
+			mRequestMap.erase(request->mHandle);
+		}
+		delete request;
+	}
+
+	return;
+}
+
+void LLCurlTextureRequest::updatePriority(U32 handle, U32 pri)
+{
+	if(!handle)
+	{
+		return;
+	}
+
+	LLMutexLock lock(&mMutex);
+
+	std::map<S32, request_t*>::iterator iter = mRequestMap.find(handle);
+	if(iter != mRequestMap.end())
+	{
+		request_t* req = iter->second;
+		
+		if(req->mPriority != pri)
+		{
+			mCachedRequests.erase(req);
+			req->mPriority = pri;
+			mCachedRequests.insert(req);
+		}
+	}
+}
+
+void LLCurlTextureRequest::removeRequest(U32 handle)
+{
+	if(!handle)
+	{
+		return;
+	}
+
+	LLMutexLock lock(&mMutex);
+
+	std::map<S32, request_t*>::iterator iter = mRequestMap.find(handle);
+	if(iter != mRequestMap.end())
+	{
+		request_t* req = iter->second;
+		mRequestMap.erase(iter);
+		mCachedRequests.erase(req);
+		delete req;
+	}
+}
+
+U32 LLCurlTextureRequest::getTotalReceivedBits()
+{
+	LLMutexLock lock(&mMutex);
+
+	U32 bits = mTotalReceivedBits;
+	mTotalReceivedBits = 0;
+	return bits;
+}
+
+U32 LLCurlTextureRequest::getTotalIssuedRequests()
+{
+	LLMutexLock lock(&mMutex);
+	return mTotalIssuedRequests;
+}
+
+S32 LLCurlTextureRequest::getNumRequests()
+{
+	LLMutexLock lock(&mMutex);
+	return mInQueue;
 }
 
 ////////////////////////////////////////////////////////////////////////////
