@@ -32,7 +32,7 @@
 
 LLAutoReplace* LLAutoReplace::sInstance;
 
-const char* LLAutoReplace::SETTINGS_FILE_NAME = "settings_autoreplace.xml";
+const char* LLAutoReplace::SETTINGS_FILE_NAME = "autoreplace.xml";
 
 LLAutoReplace::LLAutoReplace()
 {
@@ -144,6 +144,8 @@ LLAutoReplaceSettings LLAutoReplace::getSettings()
 void LLAutoReplace::setSettings(const LLAutoReplaceSettings& newSettings)
 {
 	mSettings.set(newSettings);
+	/// Make the newSettings active and write them to user storage
+	saveToUserSettings();
 }
 
 void LLAutoReplace::loadFromSettings()
@@ -175,10 +177,9 @@ void LLAutoReplace::loadFromSettings()
 	else // no user settings found, try application settings
 	{
 		std::string defaultName = getAppSettingsFileName();
-		LL_INFOS("AutoReplace") << " user settings file '" << filename << "' not found;\n"
-								<< " trying '" << defaultName.c_str() << "'"
-								<< LL_ENDL;
+		LL_INFOS("AutoReplace") << " user settings file '" << filename << "' not found"<< LL_ENDL;
 
+		bool gotSettings = false;
 		if(gDirUtilp->fileExists(defaultName))
 		{
 			LLSD appDefault;
@@ -192,15 +193,16 @@ void LLAutoReplace::loadFromSettings()
 
 			if ( mSettings.setFromLLSD(appDefault) )
 			{
-				LL_INFOS("AutoReplace") << "settings loaded from '" << filename << "'" << LL_ENDL;
-				saveToUserSettings(appDefault);
+				LL_INFOS("AutoReplace") << "settings loaded from '" << defaultName.c_str() << "'" << LL_ENDL;
+				gotSettings = true;
 			}
 			else
 			{
-				LL_WARNS("AutoReplace") << "invalid settings found in '" << filename << "'" << LL_ENDL;
+				LL_WARNS("AutoReplace") << "invalid settings found in '" << defaultName.c_str() << "'" << LL_ENDL;
 			}
 		}
-		else
+		
+		if ( ! gotSettings )
 		{
 			if (mSettings.setFromLLSD(mSettings.getExampleLLSD()))
 			{
@@ -214,12 +216,12 @@ void LLAutoReplace::loadFromSettings()
 	}
 }
 
-void LLAutoReplace::saveToUserSettings(const LLSD& newSettings)
+void LLAutoReplace::saveToUserSettings()
 {
 	std::string filename=getUserSettingsFileName();
 	llofstream file;
 	file.open(filename.c_str());
-	LLSDSerialize::toPrettyXML(newSettings, file);
+	LLSDSerialize::toPrettyXML(mSettings.getAsLLSD(), file);
 	file.close();
 	LL_INFOS("AutoReplace") << "settings saved to '" << filename << "'" << LL_ENDL;
 }
@@ -245,24 +247,27 @@ LLAutoReplaceSettings::LLAutoReplaceSettings(const LLAutoReplaceSettings& settin
 		  list++
 		 )
 	{
-		LLSD listMap = LLSD::emptyMap();
-		std::string listName = (*list)[AUTOREPLACE_LIST_NAME];
-		listMap[AUTOREPLACE_LIST_NAME] = listName;
-		listMap[AUTOREPLACE_LIST_REPLACEMENTS] = LLSD::emptyMap();
-
-		for ( LLSD::map_const_iterator
-				  entry = (*list)[AUTOREPLACE_LIST_REPLACEMENTS].beginMap(),
-				  entriesEnd = (*list)[AUTOREPLACE_LIST_REPLACEMENTS].endMap();
-			  entry != entriesEnd;
-			  entry++
-			 )
+		if ( (*list).isMap() ) // can fail due to LLSD-30: ignore it
 		{
-			std::string keyword = entry->first;
-			std::string replacement = entry->second.asString();
-			listMap[AUTOREPLACE_LIST_REPLACEMENTS].insert(keyword, LLSD(replacement));
-		}
+			LLSD listMap = LLSD::emptyMap();
+			std::string listName = (*list)[AUTOREPLACE_LIST_NAME];
+			listMap[AUTOREPLACE_LIST_NAME] = listName;
+			listMap[AUTOREPLACE_LIST_REPLACEMENTS] = LLSD::emptyMap();
 
-		mLists.append(listMap);
+			for ( LLSD::map_const_iterator
+					  entry = (*list)[AUTOREPLACE_LIST_REPLACEMENTS].beginMap(),
+					  entriesEnd = (*list)[AUTOREPLACE_LIST_REPLACEMENTS].endMap();
+				  entry != entriesEnd;
+				  entry++
+				 )
+			{
+				std::string keyword = entry->first;
+				std::string replacement = entry->second.asString();
+				listMap[AUTOREPLACE_LIST_REPLACEMENTS].insert(keyword, LLSD(replacement));
+			}
+
+			mLists.append(listMap);
+		}
 	}
 }
 
@@ -284,7 +289,10 @@ bool LLAutoReplaceSettings::setFromLLSD(const LLSD& settingsFromLLSD)
 			  list++
 			 )
 		{
-			settingsValid = listIsValid(*list);
+			if ( (*list).isDefined() ) // can be undef due to LLSD-30: ignore it
+			{
+				settingsValid = listIsValid(*list);
+			}
 		}
 	}
 	else
@@ -365,9 +373,11 @@ std::string LLAutoReplaceSettings::replacementFor(std::string keyword, std::stri
 
 LLSD LLAutoReplaceSettings::getListNames()
 {
+	LL_DEBUGS("AutoReplace")<<"====="<<LL_ENDL;
 	LLSD toReturn = LLSD::emptyArray();
+	S32 counter=0;
 	for( LLSD::array_const_iterator list = mLists.beginArray(), endList = mLists.endArray();
-		 list != endList && (*list).isDefined(); // deleting entries leaves undefined items in the iterator 
+		 list != endList;
 		 list++
 		)
 	{
@@ -377,18 +387,21 @@ LLSD LLAutoReplaceSettings::getListNames()
 			if ( thisList.has(AUTOREPLACE_LIST_NAME) )
 			{
 				std::string name = thisList[AUTOREPLACE_LIST_NAME].asString();
+				LL_DEBUGS("AutoReplace")<<counter<<" '"<<name<<"'"<<LL_ENDL;
 				toReturn.append(LLSD(name));
 			}
 			else
 			{
-				LL_ERRS("AutoReplace") << "  ! MISSING "<<AUTOREPLACE_LIST_NAME<< LL_ENDL;
+				LL_ERRS("AutoReplace") <<counter<<" ! MISSING "<<AUTOREPLACE_LIST_NAME<< LL_ENDL;
 			}
 		}
 		else
 		{
-			LL_ERRS("AutoReplace") << "  ! not a map: "<<LLSD::typeString(thisList.type())<< LL_ENDL;
+			LL_WARNS("AutoReplace")<<counter<<" ! not a map: "<<LLSD::typeString(thisList.type())<< LL_ENDL;
 		}
+		counter++;
 	}
+	LL_DEBUGS("AutoReplace")<<"^^^^^^"<<LL_ENDL;
 	return toReturn;
 }
 
@@ -544,29 +557,42 @@ bool LLAutoReplaceSettings::increaseListPriority(std::string listName)
 {
 	LL_DEBUGS("AutoReplace")<<listName<<LL_ENDL;
 	bool found = false;
-	S32 search_index;
+	S32 search_index, previous_index;
 	LLSD targetList;
+	// The following is working around the fact that LLSD arrays containing maps also seem to have undefined entries... see LLSD-30
+	previous_index = -1;
 	for ( search_index = 0, targetList = mLists[0];
-		  !found && targetList.isDefined();
+		  !found && search_index < mLists.size();
 		  search_index += 1, targetList = mLists[search_index]
 		 )
 	{
-		if ( listNameMatches( targetList, listName) )
+		if ( targetList.isMap() )
 		{
-			LL_DEBUGS("AutoReplace")<<"found at index "<<search_index<<LL_ENDL;
-			found = true;
-			if (search_index > 0)
+			if ( listNameMatches( targetList, listName) )
 			{
-				// copy the target to before the element preceding it
-				mLists.insert(search_index-1,targetList);
-				// delete the original, now duplicate, copy
-				mLists.erase(search_index+1);
+				LL_DEBUGS("AutoReplace")<<"found at "<<search_index<<", previous is "<<previous_index<<LL_ENDL;
+				found = true;
+				if (previous_index >= 0)
+				{
+					LL_DEBUGS("AutoReplace") << "erase "<<search_index<<LL_ENDL;
+					mLists.erase(search_index);
+					LL_DEBUGS("AutoReplace") << "insert at "<<previous_index<<LL_ENDL;
+					mLists.insert(previous_index, targetList);
+				} 
+				else
+				{
+					LL_WARNS("AutoReplace") << "attempted to move top list up" << LL_ENDL;
+				}
 			}
 			else
 			{
-				LL_WARNS("AutoReplace") << "attempted to move top list up" << LL_ENDL;
+				previous_index = search_index;
 			}
 		}
+		else
+		{
+			LL_DEBUGS("AutoReplace") << search_index<<" is "<<LLSD::typeString(targetList.type())<<LL_ENDL;
+		}		
 	}
 	return found;
 }
@@ -575,10 +601,10 @@ bool LLAutoReplaceSettings::increaseListPriority(std::string listName)
 bool LLAutoReplaceSettings::decreaseListPriority(std::string listName)
 {
 	LL_DEBUGS("AutoReplace")<<listName<<LL_ENDL;
-	S32 found_index = -1;
+	S32 found_index = -1;	
 	S32 search_index;
 	for ( search_index = 0;
-		  found_index == -1 && mLists[search_index].isDefined();
+		  found_index == -1 && search_index < mLists.size();
 		  search_index++
 		 )
 	{
@@ -590,18 +616,31 @@ bool LLAutoReplaceSettings::decreaseListPriority(std::string listName)
 	}
 	if (found_index != -1)
 	{
-		// move this list after the found_index from after it to before it
-		if (mLists[found_index+1].isDefined())
+		S32 next_index;
+		for ( next_index = found_index+1;
+			  next_index < mLists.size() && ! mLists[next_index].isMap();
+			  next_index++
+			 )
 		{
-			// copy item to after the element that follows it
-			mLists.insert(found_index+2, mLists[found_index]);
-			// erase the original, now duplicate, copy
-			mLists.erase(found_index);
+			// skipping over any undefined slots (see LLSD-30)
+			LL_WARNS("AutoReplace")<<next_index<<" ! not a map: "<<LLSD::typeString(mLists[next_index].type())<< LL_ENDL;
+		}
+		if ( next_index < mLists.size() )
+		{
+			LLSD next_list = mLists[next_index];
+			LL_DEBUGS("AutoReplace") << "erase "<<next_index<<LL_ENDL;
+			mLists.erase(next_index);
+			LL_DEBUGS("AutoReplace") << "insert at "<<found_index<<LL_ENDL;
+			mLists.insert(found_index, next_list);
 		}
 		else
 		{
 			LL_WARNS("AutoReplace") << "attempted to move bottom list down" << LL_ENDL;
 		}
+	}
+	else
+	{
+		LL_WARNS("AutoReplace") << "not found" << LL_ENDL;
 	}
 	return (found_index != -1);
 }
@@ -720,6 +759,11 @@ LLSD LLAutoReplaceSettings::getExampleLLSD()
 	example[1][AUTOREPLACE_LIST_REPLACEMENTS]["mistake2"] = "correction 2";
 
 	return example;
+}
+
+const LLSD& LLAutoReplaceSettings::getAsLLSD()
+{
+	return mLists;
 }
 
 LLAutoReplaceSettings::~LLAutoReplaceSettings()

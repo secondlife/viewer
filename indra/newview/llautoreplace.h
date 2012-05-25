@@ -42,7 +42,7 @@ class LLAutoReplaceSettings
 	/// Constructor for creating a tempory copy of the current settings
 	LLAutoReplaceSettings(const LLAutoReplaceSettings& settings);
 
-	/// Replace the current settings with new ones
+	/// Replace the current settings with new ones and save them to the user settings file
 	void set(const LLAutoReplaceSettings& newSettings);
 	
 	/// Load the current settings read from an LLSD file
@@ -127,6 +127,10 @@ class LLAutoReplaceSettings
 
 	/// Provides a hard-coded example of settings 
 	LLSD getExampleLLSD();
+
+	/// Get the actual settings as LLSD
+	const LLSD& getAsLLSD();
+	///< @note for use only in AutoReplace::saveToUserSettings
 	
   private:
 	/// Efficiently and safely compare list names 
@@ -193,9 +197,8 @@ class LLAutoReplace : public LLSingleton<LLAutoReplace>
 	/// Callback that provides the hook for use in text entry methods
 	void autoreplaceCallback(LLUIString& inputText, S32& cursorPos);
 
-	/// Get a copy of the current settings to be manipulated in the preferences dialog
+	/// Get a copy of the current settings
 	LLAutoReplaceSettings getSettings();
-	///< @note: the caller is respon
 
 	/// Commit new settings after making changes
 	void setSettings(const LLAutoReplaceSettings& settings);
@@ -206,11 +209,11 @@ class LLAutoReplace : public LLSingleton<LLAutoReplace>
 
 	LLAutoReplaceSettings mSettings; ///< configuration information
 	
-	/// Write the current lists out to the settings storage
-	void saveToUserSettings(const LLSD& newSettings);
-
 	/// Read settings from persistent storage
 	void loadFromSettings();
+
+	/// Make the newSettings active and write them to user storage
+	void saveToUserSettings();
 
 	/// Compute the user settings file name
 	std::string getUserSettingsFileName();

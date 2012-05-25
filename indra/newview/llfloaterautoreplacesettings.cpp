@@ -302,7 +302,7 @@ void LLFloaterAutoReplaceSettings::onListUp()
 
 	if ( mSettings.increaseListPriority(selectedName) )
 	{
-		mListNames->swapWithPrevious(selectedRow);
+		updateListNames();
 		updateListNamesControls();
 	}
 	else
@@ -321,7 +321,7 @@ void LLFloaterAutoReplaceSettings::onListDown()
 
 	if ( mSettings.decreaseListPriority(selectedName) )
 	{
-		mListNames->swapWithNext(selectedRow);
+		updateListNames();
 		updateListNamesControls();
 	}
 	else
@@ -529,6 +529,7 @@ void LLFloaterAutoReplaceSettings::onExportList()
 void LLFloaterAutoReplaceSettings::onAddEntry()
 {
 	mPreviousKeyword.clear();
+	mReplacementsList->deselectAllItems(false /* don't call commit */);
 	mKeyword->clear();
 	mReplacement->clear();
 	enableReplacementEntry();
