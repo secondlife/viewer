@@ -694,12 +694,21 @@ public:
 	typedef boost::function<void (U8)> maturity_preferences_callback_t;
 	void            setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback);
 private:
+	bool                            mIsDoSendMaturityPreferenceToServer;
 	maturity_preferences_callback_t mMaturityPreferenceConfirmCallback;
-	bool 			sendMaturityPreferenceToServer(int preferredMaturity); // ! "U8" instead of "int"?
+	unsigned int                    mMaturityPerferenceMessageId;
+	boost::signals2::connection     mPreferredMaturityValidateSlot;
+	boost::signals2::connection     mPreferredMaturityCommitSlot;
 
-public:
+	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity, U8 pPreviousMaturity); // ! "U8" instead of "int"?
+
+	friend class LLMaturityPreferencesResponder;
+	void            handlePreferredMaturityResult(unsigned int pMessageId, U8 pServerMaturity);
+	void            handlePreferredMaturityError(unsigned int pMessageId, U8 pPreferredMaturity, U8 pPreviousMaturity);
+	void            handlePreferredMaturityUnexpectedResult(unsigned int pMessageId, U8 pPreferredMaturity, U8 pPreviousMaturity, U8 pServerMaturity);
+
 	// Maturity callbacks for PreferredMaturity control variable
-	void 			handleMaturity(const LLSD& newvalue);
+	void 			handleMaturity(const LLSD &pNewValue, const LLSD &pPreviousValue);
 	bool 			validateMaturity(const LLSD& newvalue);
 
 

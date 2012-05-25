@@ -81,6 +81,7 @@
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -339,7 +340,11 @@ LLAgent::LLAgent() :
 	mTeleportFailedSlot(),
 	mIsMaturityRatingChangingDuringTeleport(false),
 	mMaturityRatingChange(0U),
+	mIsDoSendMaturityPreferenceToServer(false),
 	mMaturityPreferenceConfirmCallback(NULL),
+	mMaturityPerferenceMessageId(0U),
+	mPreferredMaturityValidateSlot(),
+	mPreferredMaturityCommitSlot(),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -423,8 +428,9 @@ void LLAgent::init()
 
 	*mEffectColor = LLUIColorTable::instance().getColor("EffectColor");
 
-	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
-	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
+	mPreferredMaturityValidateSlot = gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
+	mPreferredMaturityCommitSlot = gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2, _3));
+	mIsDoSendMaturityPreferenceToServer = true;
 
 	if (!mTeleportFinishedSlot.connected())
 	{
@@ -2490,7 +2496,7 @@ int LLAgent::convertTextToMaturity(char text)
 class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
 {
 public:
-	LLMaturityPreferencesResponder(LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback);
+	LLMaturityPreferencesResponder(LLAgent *pAgent, unsigned int pMessageId, U8 pPreferredMaturity, U8 pPreviousMaturity, LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback);
 	virtual ~LLMaturityPreferencesResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -2499,11 +2505,21 @@ public:
 protected:
 
 private:
+	U8 parseMaturityFromServerResponse(const LLSD &pContent);
+
+	LLAgent                                  *mAgent;
+	unsigned int                             mMessageId;
+	U8                                       mPreferredMaturity;
+	U8                                       mPreviousMaturity;
 	LLAgent::maturity_preferences_callback_t mMaturityPreferencesCallback;
 };
 
-LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback)
+LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent *pAgent, unsigned int pMessageId, U8 pPreferredMaturity, U8 pPreviousMaturity, LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback)
 	: LLHTTPClient::Responder(),
+	mAgent(pAgent),
+	mMessageId(pMessageId),
+	mPreferredMaturity(pPreferredMaturity),
+	mPreviousMaturity(pPreviousMaturity),
 	mMaturityPreferencesCallback(pMaturityPreferencesCallback)
 {
 }
@@ -2514,14 +2530,65 @@ LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
 
 void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 {
+	U8 actualMaturity = parseMaturityFromServerResponse(pContent);
+
+	if (actualMaturity == mPreferredMaturity)
+	{
+		llinfos << "succesfully changed maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
+			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
+			<< pContent << "]" << llendl;
+		mAgent->handlePreferredMaturityResult(mMessageId, actualMaturity);
+	}
+	else
+	{
+		llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
+			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
+			<< pContent << "]" << llendl;
+		mAgent->handlePreferredMaturityUnexpectedResult(mMessageId, mPreferredMaturity, mPreviousMaturity, actualMaturity);
+	}
+
 	if (!mMaturityPreferencesCallback.empty())
 	{
-		U8 actualPreferenceValue = SIM_ACCESS_MIN;
+		mMaturityPreferencesCallback(actualMaturity);
+	}
+}
+
+void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
+{
+	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error because '"
+		<< pReason << "' [status:" << pStatus << "]" << llendl;
+	mAgent->handlePreferredMaturityError(mMessageId, mPreferredMaturity, mPreviousMaturity);
+	if (!mMaturityPreferencesCallback.empty())
+	{
+		mMaturityPreferencesCallback(mPreviousMaturity);
+	}
+}
+
+U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
+{
+	// stinson 05/24/2012 Pathfinding regions have re-defined the response behavior.  In the old server code,
+	// if you attempted to change the preferred maturity to the same value, the response content would be an
+	// undefined LLSD block.  In the new server code with pathfinding, the response content should always be
+	// defined.  Thus, the check for isUndefined() can be replaced with an assert after pathfinding is merged
+	// into server trunk and fully deployed.
+	U8 maturity = SIM_ACCESS_MIN;
+	if (pContent.isUndefined())
+	{
+		maturity = mPreviousMaturity;
+	}
+	else
+	{
 		llassert(!pContent.isUndefined());
 		llassert(pContent.isMap());
-
+	
 		if (!pContent.isUndefined() && pContent.isMap())
 		{
+			// stinson 05/24/2012 Pathfinding regions have re-defined the response syntax.  The if statement catches
+			// the new syntax, and the else statement catches the old syntax.  After pathfinding is merged into
+			// server trunk and fully deployed, we can remove the else statement.
 			if (pContent.has("access_prefs"))
 			{
 				llassert(pContent.has("access_prefs"));
@@ -2533,7 +2600,7 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 				{
 					LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
 					LLStringUtil::trim(actualPreference);
-					actualPreferenceValue = LLViewerRegion::shortStringToAccess(actualPreference);
+					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
 				}
 			}
 			else if (pContent.has("max"))
@@ -2543,21 +2610,13 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 				{
 					LLSD::String actualPreference = pContent.get("max").asString();
 					LLStringUtil::trim(actualPreference);
-					actualPreferenceValue = LLViewerRegion::shortStringToAccess(actualPreference);
+					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
 				}
 			}
 		}
-
-		mMaturityPreferencesCallback(actualPreferenceValue);
 	}
-}
 
-void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
-{
-	if (!mMaturityPreferencesCallback.empty())
-	{
-		mMaturityPreferencesCallback(SIM_ACCESS_MIN);
-	}
+	return maturity;
 }
 
 void LLAgent::setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback)
@@ -2573,39 +2632,87 @@ void LLAgent::setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_pr
 	mMaturityPreferenceConfirmCallback = NULL;
 }
 
-bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
+void LLAgent::handlePreferredMaturityResult(unsigned int pMessageId, U8 pServerMaturity)
 {
-	if (!getRegion())
-		return false;
-	
-	// Update agent access preference on the server
-	std::string url = getRegion()->getCapability("UpdateAgentInformation");
-	if (!url.empty())
+	llassert(pMessageId <= mMaturityPerferenceMessageId);
+	if (pMessageId < mMaturityPerferenceMessageId)
 	{
-		// Set new access preference
-		LLSD access_prefs = LLSD::emptyMap();
-		if (preferredMaturity == SIM_ACCESS_PG)
-		{
-			access_prefs["max"] = "PG";
-		}
-		else if (preferredMaturity == SIM_ACCESS_MATURE)
-		{
-			access_prefs["max"] = "M";
-		}
-		if (preferredMaturity == SIM_ACCESS_ADULT)
-		{
-			access_prefs["max"] = "A";
-		}
-		
-		LLSD body = LLSD::emptyMap();
-		body["access_prefs"] = access_prefs;
-		llinfos << "Sending access prefs update to " << (access_prefs["max"].asString()) << " via capability to: "
-		<< url << llendl;
-		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(mMaturityPreferenceConfirmCallback));
-		LLHTTPClient::post(url, body, responderPtr);
-		return true;
+		llwarns << "out of order result while changing maturity preference" << llendl;
 	}
-	return false;
+	U8 localMaturity = static_cast<U8>(gSavedSettings.getU32("PreferredMaturity"));
+	if (localMaturity != pServerMaturity)
+	{
+		bool tmpIsDoSendMaturityPreferenceToServer = mIsDoSendMaturityPreferenceToServer;
+		mIsDoSendMaturityPreferenceToServer = false;
+		llinfos << "Setting viewer preferred maturity to '" << LLViewerRegion::accessToString(pServerMaturity) << "'" << llendl;
+		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(pServerMaturity));
+		mIsDoSendMaturityPreferenceToServer = tmpIsDoSendMaturityPreferenceToServer;
+	}
+}
+
+void LLAgent::handlePreferredMaturityError(unsigned int pMessageId, U8 pPreferredMaturity, U8 pPreviousMaturity)
+{
+	llassert(pMessageId <= mMaturityPerferenceMessageId);
+	if (pMessageId < mMaturityPerferenceMessageId)
+	{
+		llwarns << "out of order result while changing maturity preference" << llendl;
+	}
+	if (pMessageId == mMaturityPerferenceMessageId)
+	{
+		bool tmpIsDoSendMaturityPreferenceToServer = mIsDoSendMaturityPreferenceToServer;
+		mIsDoSendMaturityPreferenceToServer = false;
+		llinfos << "Setting viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreviousMaturity) << "'" << llendl;
+		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(pPreviousMaturity));
+		mIsDoSendMaturityPreferenceToServer = tmpIsDoSendMaturityPreferenceToServer;
+	}
+}
+
+void LLAgent::handlePreferredMaturityUnexpectedResult(unsigned int pMessageId, U8 pPreferredMaturity, U8 pPreviousMaturity, U8 pServerMaturity)
+{
+	llassert(pMessageId <= mMaturityPerferenceMessageId);
+	if (pMessageId < mMaturityPerferenceMessageId)
+	{
+		llwarns << "out of order result while changing maturity preference" << llendl;
+	}
+	bool tmpIsDoSendMaturityPreferenceToServer = mIsDoSendMaturityPreferenceToServer;
+	mIsDoSendMaturityPreferenceToServer = false;
+	llinfos << "Setting viewer preferred maturity to '" << LLViewerRegion::accessToString(pServerMaturity) << "'" << llendl;
+	gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(pServerMaturity));
+	mIsDoSendMaturityPreferenceToServer = tmpIsDoSendMaturityPreferenceToServer;
+}
+
+void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity, U8 pPreviousMaturity)
+{
+	if (mIsDoSendMaturityPreferenceToServer)
+	{
+		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(this, ++mMaturityPerferenceMessageId, pPreferredMaturity, pPreviousMaturity, mMaturityPreferenceConfirmCallback));
+		if (getRegion() == NULL)
+		{
+			responderPtr->error(0U, "region is not defined");
+		}
+		else
+		{
+			// Update agent access preference on the server
+			std::string url = getRegion()->getCapability("UpdateAgentInformation");
+			if (url.empty())
+			{
+				responderPtr->error(0U, "capability 'UpdateAgentInformation' is not defined for region");
+			}
+			else
+			{
+				// Set new access preference
+				LLSD access_prefs = LLSD::emptyMap();
+				access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
+
+				LLSD body = LLSD::emptyMap();
+				body["access_prefs"] = access_prefs;
+				llinfos << "Sending access prefs update to " << (access_prefs["max"].asString()) << " via capability to: "
+					<< url << llendl;
+				LLSD headers;
+				LLHTTPClient::post(url, body, responderPtr, headers, 30.0f);
+			}
+		}
+	}
 }
 
 BOOL LLAgent::getAdminOverride() const	
@@ -2638,9 +2745,9 @@ bool LLAgent::validateMaturity(const LLSD& newvalue)
 	return mAgentAccess->canSetMaturity(newvalue.asInteger());
 }
 
-void LLAgent::handleMaturity(const LLSD& newvalue)
+void LLAgent::handleMaturity(const LLSD &pNewValue, const LLSD &pPreviousValue)
 {
-	sendMaturityPreferenceToServer(newvalue.asInteger());
+	sendMaturityPreferenceToServer(static_cast<U8>(pNewValue.asInteger()), static_cast<U8>(pPreviousValue.asInteger()));
 }
 
 //----------------------------------------------------------------------------
