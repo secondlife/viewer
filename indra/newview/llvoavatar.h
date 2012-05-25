@@ -48,6 +48,7 @@
 #include "lltexglobalcolor.h"
 #include "lldriverparam.h"
 #include "material_codes.h"		// LL_MCODE_END
+#include "llviewerstats.h"
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -277,14 +278,27 @@ public:
 public:
 	BOOL			isFullyLoaded() const;
 	bool			isTooComplex() const;
-	bool visualParamWeightsAreDefault();
+	bool 			visualParamWeightsAreDefault();
+	virtual BOOL	getIsCloud() const;
+	BOOL			isFullyTextured() const;
+	BOOL			hasGray() const; 
+	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = fully textured.
+	void			updateRezzedStatusTimers();
+
+	S32				mLastRezzedStatus;
+
+	LLViewerStats::PhaseMap& getPhases()
+	{
+		return mPhases;
+	}
+
 protected:
-	virtual BOOL	getIsCloud();
 	BOOL			updateIsFullyLoaded();
 	BOOL			processFullyLoadedChange(bool loading);
 	void			updateRuthTimer(bool loading);
 	F32 			calcMorphAmount();
 private:
+	BOOL			mFirstFullyVisible;
 	BOOL			mFullyLoaded;
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
@@ -292,6 +306,28 @@ private:
 	S32				mVisualComplexity;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+
+public:
+	class ScopedPhaseSetter
+	{
+	public:
+		ScopedPhaseSetter(LLVOAvatar *avatarp, std::string phase_name):
+			mAvatar(avatarp), mPhaseName(phase_name)
+		{
+			if (mAvatar) { mAvatar->getPhases().startPhase(mPhaseName); }
+		}
+		~ScopedPhaseSetter()
+		{
+			if (mAvatar) { mAvatar->getPhases().stopPhase(mPhaseName); }
+		}
+	private:
+		std::string mPhaseName;
+		LLVOAvatar* mAvatar;
+	};
+
+private:
+	LLViewerStats::PhaseMap mPhases;
+
 protected:
 	LLFrameTimer    mInvisibleTimer;
 	
@@ -518,9 +554,10 @@ public:
 	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, U32 index = 0) const;
 	virtual BOOL	isTextureVisible(LLVOAvatarDefines::ETextureIndex type, LLWearable *wearable) const;
 
-protected:
 	BOOL			isFullyBaked();
 	static BOOL		areAllNearbyInstancesBaked(S32& grey_avatars);
+	static void		getNearbyRezzedStats(std::vector<S32>& counts);
+	static std::string rezStatusToString(S32 status);
 
 	//--------------------------------------------------------------------
 	// Baked textures
@@ -882,6 +919,7 @@ private:
 
 public:
 	std::string		getFullname() const; // Returns "FirstName LastName"
+	std::string		avString() const; // Frequently used string in log messages "Avatar '<full name'"
 protected:
 	static void		getAnimLabels(LLDynamicArray<std::string>* labels);
 	static void		getAnimNames(LLDynamicArray<std::string>* names);	
@@ -983,7 +1021,9 @@ private:
 	// Avatar Rez Metrics
 	//--------------------------------------------------------------------
 public:
+	void 			debugAvatarRezTime(std::string notification_name, std::string comment = "");
 	F32				debugGetExistenceTimeElapsedF32() const { return mDebugExistenceTimer.getElapsedTimeF32(); }
+
 protected:
 	LLFrameTimer	mRuthDebugTimer; // For tracking how long it takes for av to rez
 	LLFrameTimer	mDebugExistenceTimer; // Debugging for how long the avatar has been in memory.

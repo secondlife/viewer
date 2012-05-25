@@ -30,6 +30,8 @@
 #define LL_LISTENER_H
 
 #include "llsd.h"
+#include "llevents.h"
+#include "tests/StringVec.h"
 #include <iostream>
 
 /*****************************************************************************
@@ -133,24 +135,7 @@ struct Collect
         return false;
     }
     void clear() { result.clear(); }
-    typedef std::vector<std::string> StringList;
-    StringList result;
+    StringVec result;
 };
-
-std::ostream& operator<<(std::ostream& out, const Collect::StringList& strings)
-{
-    out << '(';
-    Collect::StringList::const_iterator begin(strings.begin()), end(strings.end());
-    if (begin != end)
-    {
-        out << '"' << *begin << '"';
-        while (++begin != end)
-        {
-            out << ", \"" << *begin << '"';
-        }
-    }
-    out << ')';
-    return out;
-}
 
 #endif /* ! defined(LL_LISTENER_H) */

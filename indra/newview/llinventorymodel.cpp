@@ -1759,6 +1759,7 @@ bool LLInventoryModel::loadSkeleton(
 		update_map_t child_counts;
 		cat_array_t categories;
 		item_array_t items;
+		item_array_t possible_broken_links;
 		cat_set_t invalid_categories; // Used to mark categories that weren't successfully loaded.
 		std::string owner_id_str;
 		owner_id.toString(owner_id_str);
@@ -1807,7 +1808,7 @@ bool LLInventoryModel::loadSkeleton(
 				LLViewerInventoryCategory* tcat = *cit;
 				
 				// we can safely ignore anything loaded from file, but
-				// not sent down in the skeleton.
+				// not sent down in the skeleton. Must have been removed from inventory.
 				if(cit == not_cached)
 				{
 					continue;
@@ -1845,6 +1846,8 @@ bool LLInventoryModel::loadSkeleton(
 			// Add all the items loaded which are parented to a
 			// category with a correctly cached parent
 			S32 bad_link_count = 0;
+			S32 good_link_count = 0;
+			S32 recovered_link_count = 0;
 			cat_map_t::iterator unparented = mCategoryMap.end();
 			for(item_array_t::const_iterator item_iter = items.begin();
 				item_iter != items.end();
@@ -1861,13 +1864,17 @@ bool LLInventoryModel::loadSkeleton(
 						// This can happen if the linked object's baseobj is removed from the cache but the linked object is still in the cache.
 						if (item->getIsBrokenLink())
 						{
-							bad_link_count++;
+							//bad_link_count++;
 							lldebugs << "Attempted to add cached link item without baseobj present ( name: "
 									 << item->getName() << " itemID: " << item->getUUID()
 									 << " assetID: " << item->getAssetUUID()
 									 << " ).  Ignoring and invalidating " << cat->getName() << " . " << llendl;
-							invalid_categories.insert(cit->second);
+							possible_broken_links.push_back(item);
 							continue;
+						}
+						else if (item->getIsLinkType())
+						{
+							good_link_count++;
 						}
 						addItem(item);
 						cached_item_count += 1;
@@ -1875,12 +1882,38 @@ bool LLInventoryModel::loadSkeleton(
 					}
 				}
 			}
-			if (bad_link_count > 0)
+			if (possible_broken_links.size() > 0)
 			{
-				llinfos << "Attempted to add " << bad_link_count
-						<< " cached link items without baseobj present. "
-						<< "The corresponding categories were invalidated." << llendl;
+				for(item_array_t::const_iterator item_iter = possible_broken_links.begin();
+				    item_iter != possible_broken_links.end();
+				    ++item_iter)
+				{
+					LLViewerInventoryItem *item = (*item_iter).get();
+					const cat_map_t::iterator cit = mCategoryMap.find(item->getParentUUID());
+					const LLViewerInventoryCategory* cat = cit->second.get();
+					if (item->getIsBrokenLink())
+					{
+						bad_link_count++;
+						invalid_categories.insert(cit->second);
+						//llinfos << "link still broken: " << item->getName() << " in folder " << cat->getName() << llendl;
+					}
+					else
+					{
+						// was marked as broken because of loading order, its actually fine to load
+						addItem(item);
+						cached_item_count += 1;
+						++child_counts[cat->getUUID()];
+						recovered_link_count++;
+					}
+				}
+
+ 				llinfos << "Attempted to add " << bad_link_count
+ 						<< " cached link items without baseobj present. "
+					    << good_link_count << " link items were successfully added. "
+					    << recovered_link_count << " links added in recovery. "
+ 						<< "The corresponding categories were invalidated." << llendl;
 			}
+
 		}
 		else
 		{
@@ -2778,7 +2811,7 @@ void LLInventoryModel::processBulkUpdateInventory(LLMessageSystem* msg, void**)
 	{
 		LLPointer<LLViewerInventoryItem> titem = new LLViewerInventoryItem;
 		titem->unpackMessage(msg, _PREHASH_ItemData, i);
-		llinfos << "unpaked item '" << titem->getName() << "' in "
+		llinfos << "unpacked item '" << titem->getName() << "' in "
 				<< titem->getParentUUID() << llendl;
 		U32 callback_id;
 		msg->getU32Fast(_PREHASH_ItemData, _PREHASH_CallbackID, callback_id);
