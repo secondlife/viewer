@@ -31,6 +31,7 @@
 #include "llpluginprocessparent.h"
 #include "llpluginmessagepipe.h"
 #include "llpluginmessageclasses.h"
+#include "stringize.h"
 
 #include "llapr.h"
 
@@ -134,7 +135,10 @@ LLPluginProcessParent::~LLPluginProcessParent()
 		mSharedMemoryRegions.erase(iter);
 	}
 	
-	mProcess.kill();
+	if (mProcess)
+	{
+		mProcess->kill();
+	}
 	killSockets();
 }
 
@@ -159,8 +163,8 @@ void LLPluginProcessParent::errorState(void)
 
 void LLPluginProcessParent::init(const std::string &launcher_filename, const std::string &plugin_dir, const std::string &plugin_filename, bool debug)
 {	
-	mProcess.setExecutable(launcher_filename);
-	mProcess.setWorkingDirectory(plugin_dir);
+	mProcessParams.executable = launcher_filename;
+	mProcessParams.cwd = plugin_dir;
 	mPluginFile = plugin_filename;
 	mPluginDir = plugin_dir;
 	mCPUUsage = 0.0f;
@@ -371,10 +375,8 @@ void LLPluginProcessParent::idle(void)
 				// Launch the plugin process.
 				
 				// Only argument to the launcher is the port number we're listening on
-				std::stringstream stream;
-				stream << mBoundPort;
-				mProcess.addArgument(stream.str());
-				if(mProcess.launch() != 0)
+				mProcessParams.args.add(stringize(mBoundPort));
+				if (! (mProcess = LLProcess::create(mProcessParams)))
 				{
 					errorState();
 				}
@@ -388,19 +390,18 @@ void LLPluginProcessParent::idle(void)
 						// The command we're constructing would look like this on the command line:
 						// osascript -e 'tell application "Terminal"' -e 'set win to do script "gdb -pid 12345"' -e 'do script "continue" in win' -e 'end tell'
 
-						std::stringstream cmd;
-						
-						mDebugger.setExecutable("/usr/bin/osascript");
-						mDebugger.addArgument("-e");
-						mDebugger.addArgument("tell application \"Terminal\"");
-						mDebugger.addArgument("-e");
-						cmd << "set win to do script \"gdb -pid " << mProcess.getProcessID() << "\"";
-						mDebugger.addArgument(cmd.str());
-						mDebugger.addArgument("-e");
-						mDebugger.addArgument("do script \"continue\" in win");
-						mDebugger.addArgument("-e");
-						mDebugger.addArgument("end tell");
-						mDebugger.launch();
+						LLProcess::Params params;
+						params.executable = "/usr/bin/osascript";
+						params.args.add("-e");
+						params.args.add("tell application \"Terminal\"");
+						params.args.add("-e");
+						params.args.add(STRINGIZE("set win to do script \"gdb -pid "
+												  << mProcess->getProcessID() << "\""));
+						params.args.add("-e");
+						params.args.add("do script \"continue\" in win");
+						params.args.add("-e");
+						params.args.add("end tell");
+						mDebugger = LLProcess::create(params);
 
 						#endif
 					}
@@ -470,7 +471,7 @@ void LLPluginProcessParent::idle(void)
 			break;
 			
 			case STATE_EXITING:
-				if(!mProcess.isRunning())
+				if (! mProcess->isRunning())
 				{
 					setState(STATE_CLEANUP);
 				}
@@ -498,7 +499,7 @@ void LLPluginProcessParent::idle(void)
 			break;
 			
 			case STATE_CLEANUP:
-				mProcess.kill();
+				mProcess->kill();
 				killSockets();
 				setState(STATE_DONE);
 			break;
@@ -1077,7 +1078,7 @@ bool LLPluginProcessParent::pluginLockedUpOrQuit()
 {
 	bool result = false;
 	
-	if(!mProcess.isRunning())
+	if (! mProcess->isRunning())
 	{
 		LL_WARNS("Plugin") << "child exited" << LL_ENDL;
 		result = true;
