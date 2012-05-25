@@ -622,11 +622,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLSpatialGroup::sNoDelete = TRUE;
 		LLTexUnit::sWhiteTexture = LLViewerFetchedTexture::sWhiteImagep->getTexName();
 
-		/*if (LLPipeline::sUseOcclusion && LLPipeline::sRenderDeferred)
-		{ //force occlusion on for all render types if doing deferred render (tighter shadow frustum)
-			LLPipeline::sUseOcclusion = 3;
-		}*/
-
 		S32 occlusion = LLPipeline::sUseOcclusion;
 		if (gDepthDirty)
 		{ //depth buffer is invalid, don't overwrite occlusion state

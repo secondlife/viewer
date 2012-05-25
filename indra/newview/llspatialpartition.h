@@ -263,11 +263,10 @@ public:
 		SKIP_FRUSTUM_CHECK		= 0x00000020,
 		IN_IMAGE_QUEUE			= 0x00000040,
 		IMAGE_DIRTY				= 0x00000080,
-		OCCLUSION_DIRTY			= 0x00000100,
-		MESH_DIRTY				= 0x00000200,
-		NEW_DRAWINFO			= 0x00000400,
-		IN_BUILD_Q1				= 0x00000800,
-		IN_BUILD_Q2				= 0x00001000,
+		MESH_DIRTY				= 0x00000100,
+		NEW_DRAWINFO			= 0x00000200,
+		IN_BUILD_Q1				= 0x00000400,
+		IN_BUILD_Q2				= 0x00000800,
 		STATE_MASK				= 0x0000FFFF,
 	} eSpatialState;
 
@@ -313,7 +312,6 @@ public:
 	BOOL boundObjects(BOOL empty, LLVector4a& newMin, LLVector4a& newMax);
 	void unbound();
 	BOOL rebound();
-	void buildOcclusion(); //rebuild mOcclusionVerts
 	void checkOcclusion(); //read back last occlusion query (if any)
 	void doOcclusion(LLCamera* camera); //issue occlusion query
 	void destroyGL(bool keep_occlusion = false);
@@ -415,7 +413,6 @@ public:
 	LLSpatialPartition* mSpatialPartition;
 	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
-	LLPointer<LLVertexBuffer> mOcclusionVerts;
 	GLuint					mOcclusionQuery[LLViewerCamera::NUM_CAMERAS];
 
 	U32 mBufferUsage;

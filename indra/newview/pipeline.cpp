@@ -958,6 +958,7 @@ void LLPipeline::refreshCachedSettings()
 
 	LLPipeline::sUseOcclusion = 
 			(!gUseWireframe
+			&& LLGLSLShader::sNoFixedFunction
 			&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
@@ -2216,8 +2217,6 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	gGLLastMatrix = NULL;
 	gGL.loadMatrix(gGLLastModelView);
 
-
-	LLVertexBuffer::unbind();
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -2261,7 +2260,16 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	{ //if no shader is currently bound, use the occlusion shader instead of fixed function if we can
 		// (shadow render uses a special shader that clamps to clip planes)
 		bound_shader = true;
-		gOcclusionProgram.bind();
+		gOcclusionCubeProgram.bind();
+	}
+
+	if (sUseOcclusion > 1)
+	{
+		if (mCubeVB.isNull())
+		{ //cube VB will be used for issuing occlusion queries
+			mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
+		}
+		mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	}
 	
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
@@ -2293,7 +2301,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (bound_shader)
 	{
-		gOcclusionProgram.unbind();
+		gOcclusionCubeProgram.unbind();
 	}
 
 	camera.disableUserClipPlane();
@@ -2426,13 +2434,19 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		{
 			if (LLPipeline::sShadowRender)
 			{
-				gDeferredShadowProgram.bind();
+				gDeferredShadowCubeProgram.bind();
 			}
 			else
 			{
-				gOcclusionProgram.bind();
+				gOcclusionCubeProgram.bind();
 			}
 		}
+
+		if (mCubeVB.isNull())
+		{ //cube VB will be used for issuing occlusion queries
+			mCubeVB = ll_create_cube_vb(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
+		}
+		mCubeVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 
 		for (LLCullResult::sg_list_t::iterator iter = sCull->beginOcclusionGroups(); iter != sCull->endOcclusionGroups(); ++iter)
 		{
@@ -2445,11 +2459,11 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		{
 			if (LLPipeline::sShadowRender)
 			{
-				gDeferredShadowProgram.unbind();
+				gDeferredShadowCubeProgram.unbind();
 			}
 			else
 			{
-				gOcclusionProgram.unbind();
+				gOcclusionCubeProgram.unbind();
 			}
 		}
 
@@ -8388,7 +8402,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
 	if (use_shader)
 	{
-		gDeferredShadowProgram.bind();
+		gDeferredShadowCubeProgram.bind();
 	}
 
 	updateCull(shadow_cam, result);
@@ -8405,23 +8419,20 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	stop_glerror();
 	gGLLastMatrix = NULL;
 
-	{
-		//LLGLDepthTest depth(GL_TRUE);
-		//glClear(GL_DEPTH_BUFFER_BIT);
-	}
-
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 	stop_glerror();
 	
-	//glCullFace(GL_FRONT);
-
 	LLVertexBuffer::unbind();
 
 	{
 		if (!use_shader)
 		{ //occlusion program is general purpose depth-only no-textures
 			gOcclusionProgram.bind();
+		}
+		else
+		{
+			gDeferredShadowProgram.bind();
 		}
 
 		gGL.diffuseColor4f(1,1,1,1);
@@ -8471,7 +8482,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
 	//glCullFace(GL_BACK);
 
-	gDeferredShadowProgram.bind();
+	gDeferredShadowCubeProgram.bind();
 	gGLLastMatrix = NULL;
 	gGL.loadMatrix(gGLModelView);
 	doOcclusion(shadow_cam);

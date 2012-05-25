@@ -222,6 +222,7 @@ extern LLGLSLShader			gTransformBinormalProgram;
 
 //utility shaders
 extern LLGLSLShader			gOcclusionProgram;
+extern LLGLSLShader			gOcclusionCubeProgram;
 extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
 extern LLGLSLShader			gSplatTextureRectProgram;
@@ -340,6 +341,7 @@ extern LLGLSLShader			gDeferredBlurLightProgram;
 extern LLGLSLShader			gDeferredAvatarProgram;
 extern LLGLSLShader			gDeferredSoftenProgram;
 extern LLGLSLShader			gDeferredShadowProgram;
+extern LLGLSLShader			gDeferredShadowCubeProgram;
 extern LLGLSLShader			gDeferredShadowAlphaMaskProgram;
 extern LLGLSLShader			gDeferredPostProgram;
 extern LLGLSLShader			gDeferredCoFProgram;

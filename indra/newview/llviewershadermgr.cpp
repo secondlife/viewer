@@ -72,6 +72,7 @@ LLGLSLShader			gTransformBinormalProgram;
 
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
+LLGLSLShader	gOcclusionCubeProgram;
 LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gSplatTextureRectProgram;
@@ -186,6 +187,7 @@ LLGLSLShader			gDeferredSunProgram;
 LLGLSLShader			gDeferredBlurLightProgram;
 LLGLSLShader			gDeferredSoftenProgram;
 LLGLSLShader			gDeferredShadowProgram;
+LLGLSLShader			gDeferredShadowCubeProgram;
 LLGLSLShader			gDeferredShadowAlphaMaskProgram;
 LLGLSLShader			gDeferredAvatarShadowProgram;
 LLGLSLShader			gDeferredAttachmentShadowProgram;
@@ -655,6 +657,7 @@ void LLViewerShaderMgr::setShaders()
 void LLViewerShaderMgr::unloadShaders()
 {
 	gOcclusionProgram.unload();
+	gOcclusionCubeProgram.unload();
 	gDebugProgram.unload();
 	gClipProgram.unload();
 	gAlphaMaskProgram.unload();
@@ -1076,6 +1079,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredBlurLightProgram.unload();
 		gDeferredSoftenProgram.unload();
 		gDeferredShadowProgram.unload();
+		gDeferredShadowCubeProgram.unload();
 		gDeferredShadowAlphaMaskProgram.unload();
 		gDeferredAvatarShadowProgram.unload();
 		gDeferredAttachmentShadowProgram.unload();
@@ -1427,6 +1431,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredShadowProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredShadowCubeProgram.mName = "Deferred Shadow Cube Shader";
+		gDeferredShadowCubeProgram.mShaderFiles.clear();
+		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowCubeV.glsl", GL_VERTEX_SHADER_ARB));
+		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gDeferredShadowCubeProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredShadowCubeProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -2706,6 +2720,16 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gOcclusionProgram.mShaderFiles.push_back(make_pair("interface/occlusionF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gOcclusionProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gOcclusionProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gOcclusionCubeProgram.mName = "Occlusion Cube Shader";
+		gOcclusionCubeProgram.mShaderFiles.clear();
+		gOcclusionCubeProgram.mShaderFiles.push_back(make_pair("interface/occlusionCubeV.glsl", GL_VERTEX_SHADER_ARB));
+		gOcclusionCubeProgram.mShaderFiles.push_back(make_pair("interface/occlusionF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gOcclusionCubeProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gOcclusionCubeProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
