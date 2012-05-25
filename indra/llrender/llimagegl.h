@@ -54,7 +54,7 @@ public:
 
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
 	static void generateTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures);
-	static void deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 numTextures, U32 *textures, bool immediate = false);
+	static void deleteTextures(LLTexUnit::eTextureType type, U32 format, S32 mip_levels, S32 numTextures, U32 *textures, bool immediate = false);
 	static void deleteDeadTextures();
 
 	// Size calculation
@@ -220,7 +220,8 @@ protected:
 	LLGLenum mTarget;		// Normally GL_TEXTURE2D, sometimes something else (ex. cube maps)
 	LLTexUnit::eTextureType mBindTarget;	// Normally TT_TEXTURE, sometimes something else (ex. cube maps)
 	bool mHasMipMaps;
-	
+	S32 mMipLevels;
+
 	LLGLboolean mIsResident;
 	
 	S8 mComponents;

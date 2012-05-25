@@ -1047,19 +1047,19 @@ void LLPipeline::releaseGLBuffers()
 	
 	if (mNoiseMap)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 1, &mNoiseMap);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 0, 1, &mNoiseMap);
 		mNoiseMap = 0;
 	}
 
 	if (mTrueNoiseMap)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 1, &mTrueNoiseMap);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_RGB16F_ARB, 0, 1, &mTrueNoiseMap);
 		mTrueNoiseMap = 0;
 	}
 
 	if (mLightFunc)
 	{
-		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_R8, 1, &mLightFunc);
+		LLImageGL::deleteTextures(LLTexUnit::TT_TEXTURE, GL_R8, 0, 1, &mLightFunc);
 		mLightFunc = 0;
 	}
 

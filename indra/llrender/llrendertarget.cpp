@@ -294,7 +294,7 @@ void LLRenderTarget::release()
 		}
 		else
 		{
-			LLImageGL::deleteTextures(mUsage, 0, 1, &mDepth, true);
+			LLImageGL::deleteTextures(mUsage, 0, 0, 1, &mDepth, true);
 			stop_glerror();
 		}
 		mDepth = 0;
@@ -326,7 +326,7 @@ void LLRenderTarget::release()
 	if (mTex.size() > 0)
 	{
 		sBytesAllocated -= mResX*mResY*4*mTex.size();
-		LLImageGL::deleteTextures(mUsage, mInternalFormat[0], mTex.size(), &mTex[0], true);
+		LLImageGL::deleteTextures(mUsage, mInternalFormat[0], 0, mTex.size(), &mTex[0], true);
 		mTex.clear();
 		mInternalFormat.clear();
 	}

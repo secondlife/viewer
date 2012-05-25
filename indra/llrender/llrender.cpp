@@ -474,11 +474,25 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 	} 
 	else if (option >= TFO_BILINEAR)
 	{
-		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		if (mHasMipMaps)
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		}
 	}
 	else
 	{
-		glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		if (mHasMipMaps)
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+		}
+		else
+		{
+			glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	}
 
 	if (gGLManager.mHasAnisotropic)

@@ -946,7 +946,6 @@ void LLGLManager::initExtensions()
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
-	mHasMipMapGeneration = glh_init_extensions("GL_SGIS_generate_mipmap");
 	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
 	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
 	glh_init_extensions("GL_ARB_texture_cube_map");
@@ -971,6 +970,8 @@ void LLGLManager::initExtensions()
 							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 #endif
 	
+	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
+
 	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
 	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
 	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
