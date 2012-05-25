@@ -278,6 +278,7 @@ private:
 	S32 mActiveCount;
 	U32 mGetStatus;
 	U32 mHTTPHandle;
+	F32 mDelay;
 	std::string mGetReason;
 	
 	// Work Data
@@ -696,7 +697,8 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mTotalPackets(0),
 	  mImageCodec(IMG_CODEC_INVALID),
 	  mMetricsStartTime(0),
-	  mHTTPHandle(0)
+	  mHTTPHandle(0),
+	  mDelay(-1.f)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -929,6 +931,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mCacheWriteHandle = LLTextureCache::nullHandle();
 		mState = LOAD_FROM_TEXTURE_CACHE;
 		mInCache = FALSE;
+		mDelay = -1.f;
 		mDesiredSize = llmax(mDesiredSize, TEXTURE_CACHE_ENTRY_SIZE); // min desired size is TEXTURE_CACHE_ENTRY_SIZE
 		LL_DEBUGS("Texture") << mID << ": Priority: " << llformat("%8.0f",mImagePriority)
 							 << " Desired Discard: " << mDesiredDiscard << " Desired Size: " << mDesiredSize << LL_ENDL;
@@ -1238,7 +1241,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					mRequestedSize = 0;
 				}
 				mHTTPHandle = mFetcher->mCurlGetRequest->getByteRange(mUrl, headers, offset, mRequestedSize, mWorkPriority,
-															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true));
+															  new HTTPGetResponder(mFetcher, mID, LLTimer::getTotalTime(), mRequestedSize, offset, true), mDelay);
+				mDelay = -1.f; //reset
 				res = true;
 			}
 			if (!res)
@@ -1286,12 +1290,15 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					++mHTTPFailCount;
 					max_attempts = mHTTPFailCount+1; // Keep retrying
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
+					mDelay = 2.0f; //delay 2 second to re-issue the http request
 				}
 				else
 				{
 					const S32 HTTP_MAX_RETRY_COUNT = 3;
 					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
 					++mHTTPFailCount;
+					mDelay = 2.0f; //delay 2 second to re-issue the http request
+
 					llinfos << "HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus << " Reason: '" << mGetReason << "'"
 							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
@@ -1376,13 +1383,29 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		}
 		else
 		{
-			if(FETCHING_TIMEOUT < mRequestedTimer.getElapsedTimeF32())
-			{
-				//timeout, abort.
-				removeFromHTTPQueue();
-				mState = DONE;
-				return true;
-			}
+			//
+			//No need to timeout, the responder should be triggered automatically.
+			//
+
+			//if(FETCHING_TIMEOUT < mRequestedTimer.getElapsedTimeF32())
+			//{
+			//	if(mFetcher->getCurlRequest().isWaiting(mHTTPHandle))
+			//	{
+			//		mRequestedTimer.reset(); //still waiting, request not issued yet.
+			//	}
+			//	else if(!mHTTPWaitCount)
+			//	{
+			//		mHTTPWaitCount++;
+			//		mRequestedTimer.reset(); //wait for one more FETCHING_TIMEOUT cycle in case the request is just issued.
+			//	}
+			//	else
+			//	{
+			//		//timeout, abort.
+			//		removeFromHTTPQueue();
+			//		mState = DONE;
+			//		return true;
+			//	}
+			//}
 
 			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;

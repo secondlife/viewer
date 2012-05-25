@@ -420,7 +420,7 @@ public:
 	LLCurlTextureRequest(S32 concurrency);
 	~LLCurlTextureRequest();
 
-	U32 getByteRange(const std::string& url, const headers_t& headers, S32 offset, S32 length, U32 pri, LLCurl::ResponderPtr responder);
+	U32 getByteRange(const std::string& url, const headers_t& headers, S32 offset, S32 length, U32 pri, LLCurl::ResponderPtr responder, F32 delay_time = -1.f);
 	void nextRequests();
 	void completeRequest(S32 received_bytes);
 
@@ -430,6 +430,7 @@ public:
 	U32 getTotalReceivedBits();
 	U32 getTotalIssuedRequests();
 	S32 getNumRequests();
+	bool isWaiting(U32 handle);
 	
 private:
 	LLMutex mMutex;
@@ -442,7 +443,7 @@ private:
 	typedef struct _request_t
 	{
 		_request_t(U32 handle, const std::string& url, const headers_t& headers, S32 offset, S32 length, U32 pri, LLCurl::ResponderPtr responder) :
-				mHandle(handle), mUrl(url), mHeaders(headers), mOffset(offset), mLength(length), mPriority(pri), mResponder(responder)
+				mHandle(handle), mUrl(url), mHeaders(headers), mOffset(offset), mLength(length), mPriority(pri), mResponder(responder), mStartTime(0.f)
 				{}
 
 		U32  mHandle;
@@ -452,6 +453,7 @@ private:
 		S32 mLength;
 		LLCurl::ResponderPtr mResponder;
 		U32 mPriority;
+		F32 mStartTime; //start time to issue this request
 	} request_t;
 
 	struct request_compare
@@ -472,6 +474,8 @@ private:
 	typedef std::set<request_t*, request_compare> req_queue_t;
 	req_queue_t mCachedRequests;
 	std::map<S32, request_t*> mRequestMap;
+
+	LLFrameTimer mGlobalTimer;
 };
 
 class LLCurlEasyRequest

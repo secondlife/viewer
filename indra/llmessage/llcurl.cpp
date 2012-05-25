@@ -922,7 +922,7 @@ void LLCurlThread::CurlRequest::finishRequest(bool completed)
 {
 	if(mMulti->isDead())
 	{
-	mCurlThread->deleteMulti(mMulti) ;
+		mCurlThread->deleteMulti(mMulti) ;
 	}
 	else
 	{
@@ -968,8 +968,8 @@ void LLCurlThread::killMulti(LLCurl::Multi* multi)
 
 	if(multi->isValid())
 	{
-	multi->markDead() ;
-}
+		multi->markDead() ;
+	}
 	else
 	{
 		deleteMulti(multi) ;
@@ -1233,6 +1233,7 @@ LLCurlTextureRequest::LLCurlTextureRequest(S32 concurrency) :
 	mTotalIssuedRequests(0),
 	mTotalReceivedBits(0)
 {
+	mGlobalTimer.reset();
 }
 
 LLCurlTextureRequest::~LLCurlTextureRequest()
@@ -1251,12 +1252,12 @@ LLCurlTextureRequest::~LLCurlTextureRequest()
 U32 LLCurlTextureRequest::getByteRange(const std::string& url,
 								 const headers_t& headers,
 								 S32 offset, S32 length, U32 pri,
-								 LLCurl::ResponderPtr responder)
+								 LLCurl::ResponderPtr responder, F32 delay_time)
 {
 	U32 ret_val = 0;
 	bool success = false;	
 
-	if(mInQueue < mConcurrency)
+	if(mInQueue < mConcurrency && delay_time < 0.f)
 	{
 		success = LLCurlRequest::getByteRange(url, headers, offset, length, responder);		
 	}
@@ -1271,6 +1272,11 @@ U32 LLCurlTextureRequest::getByteRange(const std::string& url,
 	else
 	{
 		request_t* request = new request_t(mHandleCounter, url, headers, offset, length, pri, responder);
+		if(delay_time > 0.f)
+		{
+			request->mStartTime = mGlobalTimer.getElapsedTimeF32() + delay_time;
+		}
+
 		mCachedRequests.insert(request);
 		mRequestMap[mHandleCounter] = request;
 		ret_val = mHandleCounter;
@@ -1297,29 +1303,50 @@ void LLCurlTextureRequest::completeRequest(S32 received_bytes)
 
 void LLCurlTextureRequest::nextRequests()
 {
-	while(!mCachedRequests.empty() && mInQueue < mConcurrency)
+	if(mCachedRequests.empty() || mInQueue >= mConcurrency)
 	{
-		request_t* request;
-		
-		{
-			LLMutexLock lock(&mMutex);
-			req_queue_t::iterator iter = mCachedRequests.begin();
-			request = *iter;
-		}
+		return;
+	}
 
-		if(!LLCurlRequest::getByteRange(request->mUrl, request->mHeaders, request->mOffset, request->mLength, request->mResponder))
-		{
-			break;
-		}
+	F32 cur_time = mGlobalTimer.getElapsedTimeF32();
 
+	req_queue_t::iterator iter;	
+	{
+		LLMutexLock lock(&mMutex);
+		iter = mCachedRequests.begin();
+	}
+	while(1)
+	{
+		request_t* request = *iter;
+		if(request->mStartTime < cur_time)
 		{
+			if(!LLCurlRequest::getByteRange(request->mUrl, request->mHeaders, request->mOffset, request->mLength, request->mResponder))
+			{
+				break;
+			}
+
 			LLMutexLock lock(&mMutex);
+			++iter;
 			mInQueue++;
 			mTotalIssuedRequests++;
-			llassert_always(1 == mCachedRequests.erase(request));
+			mCachedRequests.erase(request);
 			mRequestMap.erase(request->mHandle);
+			delete request;
+
+			if(iter == mCachedRequests.end() || mInQueue >= mConcurrency)
+			{
+				break;
+			}
 		}
-		delete request;
+		else
+		{
+			LLMutexLock lock(&mMutex);
+			++iter;
+			if(iter == mCachedRequests.end() || mInQueue >= mConcurrency)
+			{
+				break;
+			}
+		}
 	}
 
 	return;
@@ -1365,6 +1392,17 @@ void LLCurlTextureRequest::removeRequest(U32 handle)
 		mCachedRequests.erase(req);
 		delete req;
 	}
+}
+
+bool LLCurlTextureRequest::isWaiting(U32 handle)
+{
+	if(!handle)
+	{
+		return false;
+	}
+
+	LLMutexLock lock(&mMutex);
+	return mRequestMap.find(handle) != mRequestMap.end();
 }
 
 U32 LLCurlTextureRequest::getTotalReceivedBits()
