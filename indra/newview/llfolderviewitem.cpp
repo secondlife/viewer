@@ -40,6 +40,7 @@
 #include "llviewerwindow.h"		// Argh, only for setCursor()
 
 // linden library includes
+#include "llclipboard.h"
 #include "llfocusmgr.h"		// gFocusMgr
 #include "lltrans.h"
 
@@ -220,6 +221,11 @@ BOOL LLFolderViewItem::potentiallyVisible()
 {
 	// we haven't been checked against min required filter
 	// or we have and we passed
+	return potentiallyFiltered();
+}
+
+BOOL LLFolderViewItem::potentiallyFiltered()
+{
 	return getLastFilterGeneration() < getRoot()->getFilter()->getMinRequiredGeneration() || getFiltered();
 }
 
@@ -1002,7 +1008,7 @@ void LLFolderViewItem::draw()
 	LLColor4 color = (mIsSelected && filled) ? sHighlightFgColor : sFgColor;
 	if (highlight_link) color = sLinkColor;
 	if (in_library) color = sLibraryColor;
-
+	
 	F32 right_x  = 0;
 	F32 y = (F32)getRect().getHeight() - font->getLineHeight() - (F32)TEXT_PAD - (F32)TOP_PAD;
 	F32 text_left = (F32)(ARROW_SIZE + TEXT_PAD + ICON_WIDTH + ICON_PAD + mIndentation);
@@ -1158,7 +1164,37 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height, S32 filter_generation)
 		mNeedsSort = false;
 	}
 
-	mHasVisibleChildren = hasFilteredDescendants(filter_generation);
+	// evaluate mHasVisibleChildren
+	mHasVisibleChildren = false;
+	if (hasFilteredDescendants(filter_generation))
+	{
+		// We have to verify that there's at least one child that's not filtered out
+		bool found = false;
+		// Try the items first
+		for (items_t::iterator iit = mItems.begin(); iit != mItems.end(); ++iit)
+		{
+			LLFolderViewItem* itemp = (*iit);
+			found = (itemp->getFiltered(filter_generation));
+			if (found)
+				break;
+		}
+		if (!found)
+		{
+			// If no item found, try the folders
+			for (folders_t::iterator fit = mFolders.begin(); fit != mFolders.end(); ++fit)
+			{
+				LLFolderViewFolder* folderp = (*fit);
+				found = ( folderp->getListener()
+								&&	(folderp->getFiltered(filter_generation)
+									 ||	(folderp->getFilteredFolder(filter_generation) 
+										 && folderp->hasFilteredDescendants(filter_generation))));
+				if (found)
+					break;
+			}
+		}
+
+		mHasVisibleChildren = found;
+	}
 
 	// calculate height as a single item (without any children), and reshapes rectangle to match
 	LLFolderViewItem::arrange( width, height, filter_generation );
@@ -1311,7 +1347,7 @@ void LLFolderViewFolder::requestSort()
 
 void LLFolderViewFolder::setCompletedFilterGeneration(S32 generation, BOOL recurse_up)
 {
-	mMostFilteredDescendantGeneration = llmin(mMostFilteredDescendantGeneration, generation);
+	//mMostFilteredDescendantGeneration = llmin(mMostFilteredDescendantGeneration, generation);
 	mCompletedFilterGeneration = generation;
 	// only aggregate up if we are a lower (older) value
 	if (recurse_up
@@ -1345,7 +1381,8 @@ void LLFolderViewFolder::filter( LLInventoryFilter& filter)
 			&& !mPassedFilter)									// and did not pass the filter
 		{
 			// go ahead and flag this folder as done
-			mLastFilterGeneration = filter_generation;			
+			mLastFilterGeneration = filter_generation;
+			mStringMatchOffset = std::string::npos;
 		}
 		else // filter self only on first pass through
 		{

@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="STRUMENTI PER COSTRUZIONE">
+	<floater.string name="grid_screen_text">
+		Schermo
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Locale
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Mondo
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Riferimento
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Allegato
+	</floater.string>
 	<floater.string name="status_rotate">
 		Sposta le fasce colorate per ruotare l&apos;oggetto
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="Ridimensiona le texture" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Scatto" name="checkbox snap to grid"/>
-	<button label="Opzioni..." label_selected="Opzioni..." name="Options..." tool_tip="Vedi più opzioni della griglia"/>
+	<combo_box name="combobox grid mode" tool_tip="Scegli il tipo di righello per posizionare l&apos;oggetto">
+		<combo_box.item label="Mondo" name="World"/>
+		<combo_box.item label="Locale" name="Local"/>
+		<combo_box.item label="Riferimento" name="Reference"/>
+	</combo_box>
+	<button label="" label_selected="Opzioni..." name="Options..." tool_tip="Vedi più opzioni della griglia"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cubo"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Piramide"/>

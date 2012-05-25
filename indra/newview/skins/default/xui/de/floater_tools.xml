@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="BAU-WERKZEUGE" title="">
+	<floater.string name="grid_screen_text">
+		Bildschirm
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Lokal
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Welt
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referenz
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Anhang
+	</floater.string>
 	<floater.string name="status_rotate">
 		An den farbigen Bändern ziehen, um das Objekt zu drehen
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="Texturen dehnen" name="checkbox stretch textures" top_pad="-5"/>
 	<check_box initial_value="true" label="Einrasten" name="checkbox snap to grid" top_pad="15"/>
-	<button label="Optionen..." label_selected="Optionen..." name="Options..." tool_tip="Mehr Raster-Optionen anzeigen"/>
+	<combo_box name="combobox grid mode" tool_tip="Wählen Sie das gewünschte Rasterlineal zum Positionieren des Objekts aus.">
+		<combo_box.item label="Welt" name="World"/>
+		<combo_box.item label="Lokal" name="Local"/>
+		<combo_box.item label="Referenz" name="Reference"/>
+	</combo_box>
+	<button label="" label_selected="Optionen..." name="Options..." tool_tip="Mehr Raster-Optionen anzeigen"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Würfel"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pyramide"/>

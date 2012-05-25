@@ -1266,6 +1266,31 @@ BOOL LLWindowMacOSX::setSizeImpl(const LLCoordScreen size)
 	return TRUE;
 }
 
+BOOL LLWindowMacOSX::setSizeImpl(const LLCoordWindow size)
+{
+	Rect client_rect;
+	if (mWindow)
+	{
+		OSStatus err = GetWindowBounds(mWindow, kWindowContentRgn, &client_rect);
+		if (err == noErr)
+		{
+			client_rect.right = client_rect.left + size.mX;
+			client_rect.bottom = client_rect.top + size.mY;
+			err = SetWindowBounds(mWindow, kWindowContentRgn, &client_rect);
+		}
+		if (err == noErr)
+		{
+			return TRUE;
+		}
+		else
+		{
+			llinfos << "Error setting size" << err << llendl;
+			return FALSE;
+		}
+	}
+	return FALSE;
+}
+
 void LLWindowMacOSX::swapBuffers()
 {
 	aglSwapBuffers(mContext);

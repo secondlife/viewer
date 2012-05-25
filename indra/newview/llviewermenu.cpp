@@ -25,6 +25,11 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#ifdef INCLUDE_VLD
+#include "vld.h"
+#endif
+
 #include "llviewermenu.h" 
 
 // linden library includes
@@ -215,7 +220,7 @@ void near_sit_down_point(BOOL success, void *);
 
 
 void velocity_interpolate( void* );
-
+void handle_visual_leak_detector_toggle(void*);
 void handle_rebake_textures(void*);
 BOOL check_admin_override(void*);
 void handle_admin_override_toggle(void*);
@@ -512,14 +517,6 @@ class LLAdvancedToggleConsole : public view_listener_t
 		{
 			toggle_visibility( (void*)static_cast<LLUICtrl*>(gDebugView->mDebugConsolep));
 		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			toggle_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			toggle_visibility( (void*)gTextureCategoryView );
-		}
 		else if ("fast timers" == console_type)
 		{
 			LLFloaterReg::toggleInstance("fast_timers");
@@ -551,14 +548,6 @@ class LLAdvancedCheckConsole : public view_listener_t
 		else if ("debug" == console_type)
 		{
 			new_value = get_visibility( (void*)((LLView*)gDebugView->mDebugConsolep) );
-		}
-		else if (gTextureSizeView && "texture size" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureSizeView );
-		}
-		else if (gTextureCategoryView && "texture category" == console_type)
-		{
-			new_value = get_visibility( (void*)gTextureCategoryView );
 		}
 		else if ("fast timers" == console_type)
 		{
@@ -862,6 +851,73 @@ class LLAdvancedCheckFeature : public view_listener_t
 }
 };
 
+class LLAdvancedCheckDisplayTextureDensity : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
+		{
+			return mode == "none";
+		}
+		if (mode == "current")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_CURRENT;
+		}
+		else if (mode == "desired")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_DESIRED;
+		}
+		else if (mode == "full")
+		{
+			return LLViewerTexture::sDebugTexelsMode == LLViewerTexture::DEBUG_TEXELS_FULL;
+		}
+		return false;
+	}
+};
+
+class LLAdvancedSetDisplayTextureDensity : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		std::string mode = userdata.asString();
+		if (mode == "none")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == TRUE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
+		}
+		else if (mode == "current")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_CURRENT;
+		}
+		else if (mode == "desired")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			gPipeline.setRenderDebugFeatureControl(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY, true);
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_DESIRED;
+		}
+		else if (mode == "full")
+		{
+			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXEL_DENSITY) == FALSE) 
+			{
+				gPipeline.toggleRenderDebug((void*)LLPipeline::RENDER_DEBUG_TEXEL_DENSITY);
+			}
+			LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_FULL;
+		}
+		return true;
+	}
+};
+
 
 //////////////////
 // INFO DISPLAY //
@@ -975,6 +1031,10 @@ U32 info_display_from_string(std::string info_display)
 	else if ("wind vectors" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_WIND_VECTORS;
+	}
+	else if ("texel density" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_TEXEL_DENSITY;
 	}
 	else
 	{
@@ -2020,6 +2080,15 @@ class LLAdvancedToggleViewAdminOptions : public view_listener_t
 	}
 };
 
+class LLAdvancedToggleVisualLeakDetector : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		handle_visual_leak_detector_toggle(NULL);
+		return true;
+	}
+};
+
 class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2230,6 +2299,14 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 		U32 level = userdata.asInteger();
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
 		return true;
+	}
+};
+
+class LLDevelopTextureFetchDebugger : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return gSavedSettings.getBOOL("TextureFetchDebuggerEnabled");
 	}
 };
 
@@ -3444,6 +3521,35 @@ void handle_admin_override_toggle(void*)
 
 	// The above may have affected which debug menus are visible
 	show_debug_menus();
+}
+
+void handle_visual_leak_detector_toggle(void*)
+{
+	static bool vld_enabled = false;
+
+	if ( vld_enabled )
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDDisable();
+#endif // _DEBUG
+#endif // INCLUDE_VLD
+		vld_enabled = false;
+	}
+	else
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+	#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDEnable();
+	#endif // _DEBUG
+#endif // INCLUDE_VLD
+
+		vld_enabled = true;
+	};
 }
 
 void handle_god_mode(void*)
@@ -6518,31 +6624,37 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		std::string action = userdata.asString();
 		bool mono = false;
 		std::string msg, name;
+		std::string title;
 		if (action == "compile mono")
 		{
 			name = "compile_queue";
 			mono = true;
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		if (action == "compile lsl")
 		{
 			name = "compile_queue";
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		else if (action == "reset")
 		{
 			name = "reset_queue";
 			msg = "Reset";
+			title = LLTrans::getString("ResetQueueTitle");
 		}
 		else if (action == "start")
 		{
 			name = "start_queue";
 			msg = "SetRunning";
+			title = LLTrans::getString("RunQueueTitle");
 		}
 		else if (action == "stop")
 		{
 			name = "stop_queue";
 			msg = "SetRunningNot";
+			title = LLTrans::getString("NotRunQueueTitle");
 		}
 		LLUUID id; id.generate();
 		
@@ -6551,6 +6663,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		{
 			queue->setMono(mono);
 			queue_actions(queue, msg);
+			queue->setTitle(title);
 		}
 		else
 		{
@@ -8119,6 +8232,10 @@ void initialize_menus()
 	//// Advanced > Render > Features
 	view_listener_t::addMenu(new LLAdvancedToggleFeature(), "Advanced.ToggleFeature");
 	view_listener_t::addMenu(new LLAdvancedCheckFeature(), "Advanced.CheckFeature");
+
+	view_listener_t::addMenu(new LLAdvancedCheckDisplayTextureDensity(), "Advanced.CheckDisplayTextureDensity");
+	view_listener_t::addMenu(new LLAdvancedSetDisplayTextureDensity(), "Advanced.SetDisplayTextureDensity");
+
 	// Advanced > Render > Info Displays
 	view_listener_t::addMenu(new LLAdvancedToggleInfoDisplay(), "Advanced.ToggleInfoDisplay");
 	view_listener_t::addMenu(new LLAdvancedCheckInfoDisplay(), "Advanced.CheckInfoDisplay");
@@ -8242,12 +8359,17 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
+	view_listener_t::addMenu(new LLAdvancedToggleVisualLeakDetector(), "Advanced.ToggleVisualLeakDetector");
+
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 
 	// Develop >Set logging level
 	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
 	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
+	
+	//Develop (Texture Fetch Debug Console)
+	view_listener_t::addMenu(new LLDevelopTextureFetchDebugger(), "Develop.SetTexFetchDebugger");
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

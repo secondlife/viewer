@@ -192,6 +192,21 @@ BOOL LLWindow::setSize(LLCoordScreen size)
 	return setSizeImpl(size);
 }
 
+BOOL LLWindow::setSize(LLCoordWindow size)
+{
+	//HACK: we are inconsistently using minimum window dimensions
+	// in this case, we are constraining the inner "client" rect and other times
+	// we constrain the outer "window" rect
+	// There doesn't seem to be a good way to do this consistently without a bunch of platform
+	// specific code
+	if (!getMaximized())
+	{
+		size.mX = llmax(size.mX, mMinWindowWidth);
+		size.mY = llmax(size.mY, mMinWindowHeight);
+	}
+	return setSizeImpl(size);
+}
+
 
 // virtual
 void LLWindow::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
@@ -440,7 +455,7 @@ BOOL LLWindowManager::isWindowValid(LLWindow *window)
 //coordinate conversion utility funcs that forward to llwindow
 LLCoordCommon LL_COORD_TYPE_WINDOW::convertToCommon() const
 {
-	const LLCoordWindow& self = static_cast<const LLCoordWindow&>(*this);
+	const LLCoordWindow& self = LLCoordWindow::getTypedCoords(*this);
 
 	LLWindow* windowp = &(*LLWindow::beginInstances());
 	LLCoordGL out;
@@ -450,7 +465,7 @@ LLCoordCommon LL_COORD_TYPE_WINDOW::convertToCommon() const
 
 void LL_COORD_TYPE_WINDOW::convertFromCommon(const LLCoordCommon& from)
 {
-	LLCoordWindow& self = static_cast<LLCoordWindow&>(*this);
+	LLCoordWindow& self = LLCoordWindow::getTypedCoords(*this);
 
 	LLWindow* windowp = &(*LLWindow::beginInstances());
 	LLCoordGL from_gl(from);
@@ -459,7 +474,7 @@ void LL_COORD_TYPE_WINDOW::convertFromCommon(const LLCoordCommon& from)
 
 LLCoordCommon LL_COORD_TYPE_SCREEN::convertToCommon() const
 {
-	const LLCoordScreen& self = static_cast<const LLCoordScreen&>(*this);
+	const LLCoordScreen& self = LLCoordScreen::getTypedCoords(*this);
 
 	LLWindow* windowp = &(*LLWindow::beginInstances());
 	LLCoordGL out;
@@ -469,7 +484,7 @@ LLCoordCommon LL_COORD_TYPE_SCREEN::convertToCommon() const
 
 void LL_COORD_TYPE_SCREEN::convertFromCommon(const LLCoordCommon& from)
 {
-	LLCoordScreen& self = static_cast<LLCoordScreen&>(*this);
+	LLCoordScreen& self = LLCoordScreen::getTypedCoords(*this);
 
 	LLWindow* windowp = &(*LLWindow::beginInstances());
 	LLCoordGL from_gl(from);

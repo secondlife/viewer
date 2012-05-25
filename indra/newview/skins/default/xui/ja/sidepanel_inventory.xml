@@ -14,7 +14,7 @@
 					<text name="inbox_fresh_new_count">
 						[NUM] 個の新アイテム
 					</text>
-					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="アイテムを使用するには、そのアイテムをインベントリにドラッグアンドドロップ">
 						<text name="inbox_inventory_placeholder">
 							マーケットプレイスから購入した商品はここに配達されます。
 						</text>
@@ -28,7 +28,7 @@
 					<button label="プロフィール" name="info_btn" tool_tip="オブジェクトのプロフィールを表示する"/>
 				</layout_panel>
 				<layout_panel name="share_btn_lp">
-					<button label="共有" name="share_btn" tool_tip="「持ち物」のアイテムを共有する"/>
+					<button label="共有" name="share_btn" tool_tip="インベントリのアイテムを共有する"/>
 				</layout_panel>
 				<layout_panel name="shop_btn_lp">
 					<button label="店" name="shop_btn" tool_tip="マーケットプレイスのサイトを開く"/>

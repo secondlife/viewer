@@ -1187,20 +1187,23 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 		iter != LLCharacter::sInstances.end(); ++iter)
 	{
 		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
-		LLVector3d pos_global = pVOAvatar->getPositionGlobal();
-		LLUUID uuid = pVOAvatar->getID();
-		if( !pVOAvatar->isDead()
-			&& !pVOAvatar->isSelf()
-			&& !uuid.isNull() &&
-			dist_vec_squared(pos_global, relative_to) <= radius_squared)
+
+		if (!pVOAvatar->isDead() && !pVOAvatar->isSelf())
 		{
-			if(positions != NULL)
+			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
+			LLUUID uuid = pVOAvatar->getID();
+
+			if (!uuid.isNull()
+				&& dist_vec_squared(pos_global, relative_to) <= radius_squared)
 			{
-				positions->push_back(pos_global);
-			}
-			if(avatar_ids !=NULL)
-			{
-				avatar_ids->push_back(uuid);
+				if(positions != NULL)
+				{
+					positions->push_back(pos_global);
+				}
+				if(avatar_ids !=NULL)
+				{
+					avatar_ids->push_back(uuid);
+				}
 			}
 		}
 	}
@@ -1231,6 +1234,11 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	}
 }
 
+bool LLWorld::isRegionListed(const LLViewerRegion* region) const
+{
+	region_list_t::const_iterator it = find(mRegionList.begin(), mRegionList.end(), region);
+	return it != mRegionList.end();
+}
 
 LLHTTPRegistration<LLEstablishAgentCommunication>
 	gHTTPRegistrationEstablishAgentCommunication(

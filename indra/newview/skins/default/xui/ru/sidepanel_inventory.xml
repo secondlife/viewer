@@ -14,7 +14,7 @@
 					<text name="inbox_fresh_new_count">
 						Новых: [NUM]
 					</text>
-					<panel tool_tip="Drag and drop items to your inventory to manage and use them">
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Перетащите вещи в ваш инвентарь для их использования">
 						<text name="inbox_inventory_placeholder">
 							Покупки из торгового центра будут доставлены сюда.
 						</text>

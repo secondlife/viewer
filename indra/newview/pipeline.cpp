@@ -848,9 +848,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 0)
 		{ //allocate 4 sun shadow maps
+			U32 sun_shadow_map_width = ((U32(resX*scale)+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
 			for (U32 i = 0; i < 4; i++)
 			{
-				if (!mShadow[i].allocate(U32(resX*scale),U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
+				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -866,9 +867,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		if (shadow_detail > 1)
 		{ //allocate two spot shadow maps
+			U32 spot_shadow_map_width = width;
 			for (U32 i = 4; i < 6; i++)
 			{
-				if (!mShadow[i].allocate(width, height, 0, TRUE, FALSE)) return false;
+				if (!mShadow[i].allocate(spot_shadow_map_width, height, 0, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -1038,11 +1040,7 @@ void LLPipeline::releaseGLBuffers()
 		mTrueNoiseMap = 0;
 	}
 
-	if (mLightFunc)
-	{
-		LLImageGL::deleteTextures(1, &mLightFunc);
-		mLightFunc = 0;
-	}
+	releaseLUTBuffers();
 
 	mWaterRef.release();
 	mWaterDis.release();
@@ -1056,6 +1054,15 @@ void LLPipeline::releaseGLBuffers()
 
 	gBumpImageList.destroyGL();
 	LLVOAvatar::resetImpostors();
+}
+
+void LLPipeline::releaseLUTBuffers()
+{
+	if (mLightFunc)
+	{
+		LLImageGL::deleteTextures(1, &mLightFunc);
+		mLightFunc = 0;
+	}
 }
 
 void LLPipeline::releaseScreenBuffers()
@@ -1153,50 +1160,69 @@ void LLPipeline::createGLBuffers()
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
-		if (!mLightFunc)
-		{
-			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
-			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
-			U8* lg = new U8[lightResX*lightResY];
-
-			for (U32 y = 0; y < lightResY; ++y)
-			{
-				for (U32 x = 0; x < lightResX; ++x)
-				{
-					//spec func
-					F32 sa = (F32) x/(lightResX-1);
-					F32 spec = (F32) y/(lightResY-1);
-					//lg[y*lightResX+x] = (U8) (powf(sa, 128.f*spec*spec)*255);
-
-					//F32 sp = acosf(sa)/(1.f-spec);
-
-					sa = powf(sa, gSavedSettings.getF32("RenderSpecularExponent"));
-					F32 a = acosf(sa*0.25f+0.75f);
-					F32 m = llmax(0.5f-spec*0.5f, 0.001f);
-					F32 t2 = tanf(a)/m;
-					t2 *= t2;
-
-					F32 c4a = (3.f+4.f*cosf(2.f*a)+cosf(4.f*a))/8.f;
-					F32 bd = 1.f/(4.f*m*m*c4a)*powf(F_E, -t2);
-
-					lg[y*lightResX+x] = (U8) (llclamp(bd, 0.f, 1.f)*255);
-				}
-			}
-
-			LLImageGL::generateTextures(1, &mLightFunc);
-			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, lg, false);
-			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
-			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
-
-			delete [] lg;
-		}
+		createLUTBuffers();
 	}
 
 	gBumpImageList.restoreGL();
 }
 
-void LLPipeline::restoreGL() 
+void LLPipeline::createLUTBuffers()
+{
+	if (sRenderDeferred)
+	{
+		if (!mLightFunc)
+		{
+			U32 lightResX = gSavedSettings.getU32("RenderSpecularResX");
+			U32 lightResY = gSavedSettings.getU32("RenderSpecularResY");
+			U8* ls = new U8[lightResX*lightResY];
+			F32 specExp = gSavedSettings.getF32("RenderSpecularExponent");
+            // Calculate the (normalized) Blinn-Phong specular lookup texture.
+			for (U32 y = 0; y < lightResY; ++y)
+			{
+				for (U32 x = 0; x < lightResX; ++x)
+				{
+					ls[y*lightResX+x] = 0;
+					F32 sa = (F32) x/(lightResX-1);
+					F32 spec = (F32) y/(lightResY-1);
+					F32 n = spec * spec * specExp;
+					
+					// Nothing special here.  Just your typical blinn-phong term.
+					spec = powf(sa, n);
+					
+					// Apply our normalization function.
+					// Note: This is the full equation that applies the full normalization curve, not an approximation.
+					// This is fine, given we only need to create our LUT once per buffer initialization.
+					// The only trade off is we have a really low dynamic range.
+					// This means we have to account for things not being able to exceed 0 to 1 in our shaders.
+					spec *= (((n + 2) * (n + 4)) / (8 * F_PI * (powf(2, -n/2) + n)));
+					
+					// Always sample at a 1.0/2.2 curve.
+					// This "Gamma corrects" our specular term, boosting our lower exponent reflections.
+					spec = powf(spec, 1.f/2.2f);
+					
+					// Easy fix for our dynamic range problem: divide by 6 here, multiply by 6 in our shaders.
+					// This allows for our specular term to exceed a value of 1 in our shaders.
+					// This is something that can be important for energy conserving specular models where higher exponents can result in highlights that exceed a range of 0 to 1.
+					// Technically, we could just use an R16F texture, but driver support for R16F textures can be somewhat spotty at times.
+					// This works remarkably well for higher specular exponents, though banding can sometimes be seen on lower exponents.
+					// Combined with a bit of noise and trilinear filtering, the banding is hardly noticable.
+					ls[y*lightResX+x] = (U8)(llclamp(spec * (1.f / 6), 0.f, 1.f) * 255);
+				}
+			}
+			
+			LLImageGL::generateTextures(1, &mLightFunc);
+			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mLightFunc);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_R8, lightResX, lightResY, GL_RED, GL_UNSIGNED_BYTE, ls, false);
+			gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
+			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_TRILINEAR);
+			
+			delete [] ls;
+		}
+	}
+}
+
+
+void LLPipeline::restoreGL()
 {
 	LLMemType mt_cb(LLMemType::MTYPE_PIPELINE_RESTORE_GL);
 	assertInitialized();
@@ -8274,7 +8300,7 @@ static LLFastTimer::DeclareTimer FTM_SHADOW_RENDER("Render Shadows");
 static LLFastTimer::DeclareTimer FTM_SHADOW_ALPHA("Alpha Shadow");
 static LLFastTimer::DeclareTimer FTM_SHADOW_SIMPLE("Simple Shadow");
 
-void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion)
+void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion, U32 target_width)
 {
 	LLFastTimer t(FTM_SHADOW_RENDER);
 
@@ -8365,7 +8391,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		LLFastTimer ftm(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
-		
+		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
+
 		U32 mask =	LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
 					LLVertexBuffer::MAP_COLOR | 
@@ -9218,11 +9245,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			mShadow[j].getViewport(gGLViewport);
 			mShadow[j].clear();
 		
+			U32 target_width = mShadow[j].getWidth();
+
 			{
 				static LLCullResult result[4];
 
 				//LLGLEnable enable(GL_DEPTH_CLAMP_NV);
-				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE);
+				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
 			}
 
 			mShadow[j].flush();
@@ -9361,11 +9390,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			mShadow[i+4].getViewport(gGLViewport);
 			mShadow[i+4].clear();
 
+			U32 target_width = mShadow[i+4].getWidth();
+
 			static LLCullResult result[2];
 
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_SHADOW0+i+4;
 
-			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE);
+			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
 
 			mShadow[i+4].flush();
  		}

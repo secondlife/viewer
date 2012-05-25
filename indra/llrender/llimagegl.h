@@ -103,8 +103,8 @@ public:
 	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
 
 	BOOL createGLTexture() ;
-	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, 
-		S32 category = sMaxCatagories - 1);
+	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
+		S32 category = sMaxCategories-1);
 	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0);
 	void setImage(const LLImageRaw* imageraw);
 	void setImage(const U8* data_in, BOOL data_hasmips = FALSE);
@@ -115,6 +115,7 @@ public:
 	// Read back a raw image for this discard level, if it exists
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
 	void destroyGLTexture();
+	void forceToInvalidateGLTexture();
 
 	void setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
 	void setComponents(S8 ncomponents) { mComponents = ncomponents; }
@@ -237,8 +238,6 @@ public:
 	static S32 sCount;
 	
 	static F32 sLastFrameTime;
-	
-	static LLGLuint sCurrentBoundTextures[MAX_GL_TEXTURE_UNITS]; // Currently bound texture ID
 
 	// Global memory statistics
 	static S32 sGlobalTextureMemoryInBytes;		// Tracks main memory texmem
@@ -260,9 +259,10 @@ public:
 public:
 	static void initClass(S32 num_catagories) ;
 	static void cleanupClass() ;
-private:
-	static S32 sMaxCatagories ;
 
+private:
+	static S32 sMaxCategories;
+	
 	//the flag to allow to call readBackRaw(...).
 	//can be removed if we do not use that function at all.
 	static BOOL sAllowReadBackRaw ;
@@ -272,39 +272,22 @@ private:
 //****************************************************************************************************
 private:
 	S32 mCategory ;
-public:		
-	void setCategory(S32 category) ;
-	S32  getCategory()const {return mCategory ;}
-
+public:
+	void setCategory(S32 category) {mCategory = category;}
+	S32  getCategory()const {return mCategory;}
+	
 	//for debug use: show texture size distribution 
 	//----------------------------------------
-	static LLPointer<LLImageGL> sHighlightTexturep; //default texture to replace normal textures
-	static std::vector<S32> sTextureLoadedCounter ;
-	static std::vector<S32> sTextureBoundCounter ;
-	static std::vector<S32> sTextureCurBoundCounter ;
 	static S32 sCurTexSizeBar ;
 	static S32 sCurTexPickSize ;
 
-	static void setHighlightTexture(S32 category) ;
-	static S32 getTextureCounterIndex(U32 val) ;
-	static void incTextureCounter(U32 val, S32 ncomponents, S32 category) ;
-	static void decTextureCounter(U32 val, S32 ncomponents, S32 category) ;
 	static void setCurTexSizebar(S32 index, BOOL set_pick_size = TRUE) ;
 	static void resetCurTexSizebar();
-	//----------------------------------------
 
-	//for debug use: show texture category distribution 
-	//----------------------------------------		
-	
-	static std::vector<S32> sTextureMemByCategory;
-	static std::vector<S32> sTextureMemByCategoryBound ;
-	static std::vector<S32> sTextureCurMemByCategoryBound ;
-	//----------------------------------------	
 //****************************************************************************************************
 //End of definitions for texture auditing use only
 //****************************************************************************************************
 
 };
 
-extern BOOL gAuditTexture;
 #endif // LL_LLIMAGEGL_H

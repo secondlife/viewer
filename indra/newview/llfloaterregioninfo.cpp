@@ -650,7 +650,10 @@ void LLPanelRegionGeneralInfo::onClickKick()
 	// in order to set up floater dependency
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelRegionGeneralInfo::onKickCommit, this, _1), FALSE, TRUE);
-	parent_floater->addDependentFloater(child_floater);
+	if (child_floater)
+	{
+		parent_floater->addDependentFloater(child_floater);
+	}
 }
 
 void LLPanelRegionGeneralInfo::onKickCommit(const uuid_vec_t& ids)
@@ -1470,7 +1473,10 @@ void LLPanelEstateInfo::onClickKickUser()
 	// in order to set up floater dependency
 	LLFloater* parent_floater = gFloaterView->getParentFloater(this);
 	LLFloater* child_floater = LLFloaterAvatarPicker::show(boost::bind(&LLPanelEstateInfo::onKickUserCommit, this, _1), FALSE, TRUE);
-	parent_floater->addDependentFloater(child_floater);
+	if (child_floater)
+	{
+		parent_floater->addDependentFloater(child_floater);
+	}
 }
 
 void LLPanelEstateInfo::onKickUserCommit(const uuid_vec_t& ids)
@@ -1889,6 +1895,26 @@ void LLPanelEstateInfo::sendEstateAccessDelta(U32 flags, const LLUUID& agent_or_
 	}
 
 	gAgent.sendReliableMessage();
+}
+
+// static
+void LLPanelEstateInfo::updateEstateOwnerName(const std::string& name)
+{
+	LLPanelEstateInfo* panelp = LLFloaterRegionInfo::getPanelEstate();
+	if (panelp)
+	{
+		panelp->setOwnerName(name);
+	}
+}
+
+// static
+void LLPanelEstateInfo::updateEstateName(const std::string& name)
+{
+	LLPanelEstateInfo* panelp = LLFloaterRegionInfo::getPanelEstate();
+	if (panelp)
+	{
+		panelp->getChildRef<LLTextBox>("estate_name").setText(name);
+	}
 }
 
 void LLPanelEstateInfo::updateControls(LLViewerRegion* region)

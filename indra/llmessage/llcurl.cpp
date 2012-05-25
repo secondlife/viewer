@@ -1527,7 +1527,8 @@ void LLCurl::cleanupClass()
 	delete sHandleMutexp ;
 	sHandleMutexp = NULL ;
 
-	llassert(Easy::sActiveHandles.empty());
+	// removed as per https://jira.secondlife.com/browse/SH-3115
+	//llassert(Easy::sActiveHandles.empty());
 }
 
 //static 

@@ -101,7 +101,7 @@ bool LLScriptHandler::processNotification(const LLSD& notify)
 		}
 		else
 		{
-			LLToastNotifyPanel* notify_box = new LLToastNotifyPanel(notification);
+			LLToastPanel* notify_box = LLToastPanel::buidPanelFromNotification(notification);
 
 			LLToast::Params p;
 			p.notif_id = notification->getID();

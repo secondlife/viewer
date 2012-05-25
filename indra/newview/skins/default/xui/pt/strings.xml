@@ -784,6 +784,9 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 	<string name="anim_yes_head">
 		Sim
 	</string>
+	<string name="multiple_textures">
+		Múltiplo
+	</string>
 	<string name="texture_loading">
 		Carregando...
 	</string>
@@ -1181,7 +1184,7 @@ Pessoas com contas gratuitas não poderão acessar o Second Life no momento para
 		Você não possui uma cópia desta textura no seu inventário
 	</string>
 	<string name="InventoryInboxNoItems">
-		Alguns itens recebidos, como os brindes premium, aparecerão aqui.  Você pode arrastá-los para o seu inventário.
+		Suas compras do Marketplace aparecerão aqui. Depois, você poderá arrastá-las para seu inventário para usá-las.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3796,6 +3799,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="Saved_message">
 		(Salvo em [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Para visualizar esta mensagem, você deve desmarcar &quot;Apenas amigos e grupos podem me ligar ou enviar MIs&quot; em Preferências/Privacidade.
 	</string>
 	<string name="answered_call">
 		Ligação atendida

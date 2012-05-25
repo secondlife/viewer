@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  ignore_ui_scale="false"
  legacy_header_height="225"
  can_minimize="true"
  can_close="true"
  can_resize="true"
  min_height="230"
- min_width="450"
+ min_width="515"
  height="230"
  layout="topleft"
  name="Avatar"

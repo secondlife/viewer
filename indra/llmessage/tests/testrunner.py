@@ -35,7 +35,7 @@ import re
 import errno
 import socket
 
-VERBOSE = os.environ.get("INTEGRATION_TEST_VERBOSE", "1") # default to verbose
+VERBOSE = os.environ.get("INTEGRATION_TEST_VERBOSE", "0") # default to quiet
 # Support usage such as INTEGRATION_TEST_VERBOSE=off -- distressing to user if
 # that construct actually turns on verbosity...
 VERBOSE = not re.match(r"(0|off|false|quiet)$", VERBOSE, re.IGNORECASE)

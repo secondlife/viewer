@@ -31,7 +31,7 @@
 #include "llinitparam.h"
 #include "boost/function.hpp"
 
-struct LLParamSDParserUtilities
+struct LL_COMMON_API LLParamSDParserUtilities
 {
 	static LLSD& getSDWriteNode(LLSD& input, LLInitParam::Parser::name_stack_range_t& name_stack_range);
 
@@ -40,7 +40,7 @@ struct LLParamSDParserUtilities
 	static void readSDValues(read_sd_cb_t cb, const LLSD& sd);
 };
 
-class LLParamSDParser 
+class LL_COMMON_API LLParamSDParser 
 :	public LLInitParam::Parser
 {
 LOG_CLASS(LLParamSDParser);
@@ -92,7 +92,7 @@ private:
 };
 
 
-extern LLFastTimer::DeclareTimer FTM_SD_PARAM_ADAPTOR;
+extern LL_COMMON_API LLFastTimer::DeclareTimer FTM_SD_PARAM_ADAPTOR;
 template<typename T>
 class LLSDParamAdapter : public T
 {

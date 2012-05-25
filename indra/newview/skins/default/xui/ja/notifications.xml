@@ -264,7 +264,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsDeededToGroup">
-		この区画のグループ [NAME] 共有のすべてのオブジェクトを、以前の所有者の「持ち物」に戻そうとしています。
+		この区画のグループ [NAME] 共有のすべてのオブジェクトを、以前の所有者のインベントリに戻そうとしています。
 操作を続行しますか？
 
 *警告* これにより、
@@ -275,21 +275,21 @@ L$ が不足しているのでこのグループに参加することができ�
 	<notification name="ReturnObjectsOwnedByUser">
 		この区画で、
 住人 [NAME] が所有する全てのオブジェクトを
-本人の「持ち物」に本当に返却してもよいですか？
+本人のインベントリに本当に返却してもよいですか？
 
 オブジェクト： [N]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsOwnedBySelf">
 		この土地区画内にある、あなたが所有するすべてのオブジェクトを、
-あなたの「持ち物」に戻そうとしています。続けますか？
+あなたのインベントリに戻そうとしています。続けますか？
 
 オブジェクト： [N]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ReturnObjectsNotOwnedBySelf">
 		この土地区画内にある、あなた以外が所有するすべてのオブジェクトを、
-それぞれの所有者の「持ち物」に戻そうとしています。
+それぞれの所有者のインベントリに戻そうとしています。
 操作を続行しますか？
 グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
 
@@ -300,7 +300,7 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="ReturnObjectsNotOwnedByUser">
 		この土地区画内にある、
-[NAME]以外による所有のオブジェクトをすべてそれぞれの所有者の「持ち物」に返却しようとしています。
+[NAME]以外による所有のオブジェクトをすべてそれぞれの所有者のインベントリに返却しようとしています。
 操作を続行しますか？グループに譲渡された「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されます。
 
 *警告* これにより、
@@ -464,14 +464,14 @@ L$ が不足しているのでこのグループに参加することができ�
 		ジェスチャーの保存に失敗しました。少し待ってからもう一度試してください。
 	</notification>
 	<notification name="GestureSaveFailedObjectNotFound">
-		ジェスチャーの保存に失敗しました。オブジェクト、または関連するオブジェクト持ち物が見つかりません。
+		ジェスチャーの保存に失敗しました。オブジェクト、または関連するオブジェクトインベントリが見つかりません。
 オブジェクトが範囲内に存在しないか、または削除された可能性があります。
 	</notification>
 	<notification name="GestureSaveFailedReason">
 		次の理由で、ジェスチャーの保存時に問題が起こりました。 [REASON]。  後でもう一度試してください。
 	</notification>
 	<notification name="SaveNotecardFailObjectNotFound">
-		ノートカードの保存に失敗しました。オブジェクト、または関連するオブジェクト持ち物が見つかりません。
+		ノートカードの保存に失敗しました。オブジェクト、または関連するオブジェクトインベントリが見つかりません。
 オブジェクトが範囲内に存在しないか、または削除された可能性があります。
 	</notification>
 	<notification name="SaveNotecardFailReason">
@@ -535,11 +535,11 @@ L$ が不足しているのでこのグループに参加することができ�
 		[REGION] では、地形の変更ができません。
 	</notification>
 	<notification name="CannotCopyWarning">
-		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたの「持ち物」から削除されます。本当にこれらのアイテムを譲りますか？
+		あなたには[ITEMS]というアイテムをコピーする許可がありません。他の住人に提供すると、そのアイテムはあなたのインベントリから削除されます。本当にこれらのアイテムを譲りますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
 	<notification name="CannotGiveItem">
-		持ち物のアイテムを渡せません。
+		インベントリのアイテムを渡せません。
 	</notification>
 	<notification name="TransactionCancelled">
 		取引がキャンセルされました。
@@ -552,7 +552,7 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="CannotCopyCountItems">
 		あなたは選択した [COUNT] 個のアイテムののコピーを許されていません。
-これらのアイテムはあなたの「持ち物」から失われます。
+これらのアイテムはあなたのインベントリから失われます。
 本当にアイテムを渡したいですか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
@@ -693,7 +693,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		出力ファイルを作成できません： [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		現在 [APP_NAME] では、アニメーションの一括アップロードはサポートされていません。
+		現在 [APP_NAME] では、BVH 形式のアニメーションファイルの一括アップロードはサポートされていません。
 	</notification>
 	<notification name="CannotUploadReason">
 		次の理由で、「 [FILE] 」をアップロードできません： [REASON]
@@ -796,7 +796,7 @@ L$ が不足しているのでこのグループに参加することができ�
 		テレポート目的地を見つけられません。目的地が一時的に利用できない状態か、すでに消滅している可能性があります。数分後にやり直してください。
 	</notification>
 	<notification name="no_inventory_host">
-		持ち物システムは現在利用できません。
+		インベントリシステムは現在利用できません。
 	</notification>
 	<notification name="CannotSetLandOwnerNothingSelected">
 		土地所有者設定ができません：
@@ -959,7 +959,7 @@ L$ は返金されません。
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmItemCopy">
-		このアイテムをあなたの持ち物にコピーしますか？
+		このアイテムをあなたのインベントリにコピーしますか？
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="コピー"/>
 	</notification>
 	<notification name="ResolutionSwitchFail">
@@ -1011,7 +1011,7 @@ L$ は返金されません。
 		</form>
 	</notification>
 	<notification label="着用物を保存" name="SaveWearableAs">
-		アイテムを別名で持ち物に保存：
+		アイテムを別名でインベントリに保存：
 		<form name="form">
 			<input name="message">
 				[DESC]（新規）
@@ -1896,7 +1896,7 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 	</notification>
 	<notification name="BuyCopy">
 		コピーを [OWNER] から L$ [PRICE] で購入しますか？
-購入したオブジェクトは、あなたの「持ち物」にコピーされます。
+購入したオブジェクトは、あなたのインベントリにコピーされます。
 可能な操作は、
 修正：[MODIFYPERM]、コピー：[COPYPERM]、
 再販・プレゼント：[RESELLPERM] です。
@@ -1904,7 +1904,7 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 	</notification>
 	<notification name="BuyCopyNoOwner">
 		L$ [PRICE] でコピーを購入しますか？
-購入したオブジェクトは、あなたの「持ち物」にコピーされます。
+購入したオブジェクトは、あなたのインベントリにコピーされます。
 可能な操作は、
 修正：[MODIFYPERM]、コピー：[COPYPERM]、
 再販・プレゼント：[RESELLPERM] です。
@@ -1912,12 +1912,12 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 	</notification>
 	<notification name="BuyContents">
 		中身を [OWNER] から L$ [PRICE] で購入しますか？
-購入した中身は、あなたの「持ち物」にコピーされます。
+購入した中身は、あなたのインベントリにコピーされます。
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="BuyContentsNoOwner">
 		L＄ [PRICE] で中身を購入しますか？
-購入した中身は、あなたの「持ち物」にコピーされます。
+購入した中身は、あなたのインベントリにコピーされます。
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmPurchase">
@@ -1946,20 +1946,20 @@ Adult 専用リージョンに入るには、住人のアカウントが年齢�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromObject">
-		「コピー不可」の持ち物アイテムを選択しました。
-これらのアイテムはコピーされないまま、あなたの「持ち物」に移動されます。
+		「コピー不可」のインベントリアイテムを選択しました。
+これらのアイテムはコピーされないまま、あなたのインベントリに移動されます。
 
 
 アイテムを動かしますか？
 		<usetemplate ignoretext="「コピー不可」のアイテムをオブジェクトから動かす前の警告" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="MoveInventoryFromScriptedObject">
-		「コピー不可」の持ち物アイテムを選択しました。
-これらのアイテムはコピーされずに、あなたの「持ち物」に移動されます。
-このオブジェクトはスクリプト付きなので、「持ち物」に移動させると
+		「コピー不可」のインベントリアイテムを選択しました。
+これらのアイテムはコピーされずに、あなたのインベントリに移動されます。
+このオブジェクトはスクリプト付きなので、インベントリに移動させると
 スクリプトに誤動作が起きる可能性があります。
 
-持ち物アイテムを移動しますか？
+インベントリアイテムを移動しますか？
 		<usetemplate ignoretext="スクリプト入りのオブジェクトを壊す恐れのある「コピー不可」のアイテムを動かす前の警告" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ClickActionNotPayable">
@@ -2068,7 +2068,7 @@ Linden Lab
 	</notification>
 	<notification name="ConfirmEmptyTrash">
 		ごみ箱の中身をすべて削除しますか？
-		<usetemplate ignoretext="持ち物のごみ箱フォルダを空にする前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
+		<usetemplate ignoretext="インベントリのごみ箱フォルダを空にする前の確認" name="okcancelignore" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmClearBrowserCache">
 		トラベル、Web、検索の履歴をすべて削除しますか？
@@ -2252,7 +2252,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		親エステート間では IM を送信できません。
 	</notification>
 	<notification name="TransferInventoryAcrossParentEstates">
-		親エステート間で持ち物を移動することはできません。
+		親エステート間でインベントリを移動することはできません。
 	</notification>
 	<notification name="UnableToLoadNotecard">
 		ノートカードを読み込めません。あとで再度お試しください。
@@ -2304,7 +2304,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[NAME] は、あなたが渡したアイテムを受け取りました。
 	</notification>
 	<notification name="InventoryDeclined">
-		[NAME] は、持ち物の提供を断りました。
+		[NAME] は、インベントリの提供を断りました。
 	</notification>
 	<notification name="ObjectMessage">
 		[NAME]： [MESSAGE]
@@ -2389,16 +2389,16 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		</form>
 	</notification>
 	<notification name="OwnedObjectsReturned">
-		選択した土地の区画上にあったあなたのオブジェクトは、すべてあなたの「持ち物」に返却されました。
+		選択した土地の区画上にあったあなたのオブジェクトは、すべてあなたのインベントリに返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned">
-		[NAME] が所有する、選択した区画にあるオブジェクトは、所有者の持ち物に返却されました。
+		[NAME] が所有する、選択した区画にあるオブジェクトは、所有者のインベントリに返却されました。
 	</notification>
 	<notification name="OtherObjectsReturned2">
 		「 [NAME] 」という名前の住人が所有する、選択した区画上のオブジェクトは、本人に返却されました。
 	</notification>
 	<notification name="GroupObjectsReturned">
-		選択した区画上の、[GROUPNAME] というグループと共有していたオブジェクトは、それぞれの所有者の「持ち物」に返却されました。
+		選択した区画上の、[GROUPNAME] というグループと共有していたオブジェクトは、それぞれの所有者のインベントリに返却されました。
 譲渡されていた「再販・プレゼント可」のオブジェクトは、以前の所有者に返却されました。
 グループに譲渡されていた「再販・プレゼント不可」のオブジェクトは、削除されました。
 	</notification>
@@ -2617,7 +2617,7 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 	</notification>
 	<notification name="OfferCallingCard">
 		[NAME] がコーリングカードを渡そうとしています。
-あなたの持ち物にブックマークが追加され、この住人に素早く IM を送ることができます。
+あなたのインベントリにブックマークが追加され、この住人に素早く IM を送ることができます。
 		<form name="form">
 			<button name="Accept" text="受け入れる"/>
 			<button name="Decline" text="辞退"/>
@@ -2679,16 +2679,16 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		[NAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="ブロック"/>
-			<button name="Ignore" text="無視する"/>
+			<button name="Client_Side_Mute" text="ブロック"/>
+			<button name="Client_Side_Ignore" text="無視"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] の「&lt;nolink&gt;[TITLE]&lt;/nolink&gt;」
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="ブロック"/>
-			<button name="Ignore" text="無視する"/>
+			<button name="Client_Side_Mute" text="ブロック"/>
+			<button name="Client_Side_Ignore" text="無視"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2707,7 +2707,7 @@ M キーを押して変更します。
 	<notification name="FirstSandbox">
 		ここはサンドボックスエリアです。住人が制作を学ぶことができます。
 
-ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、持ち物に入れてお持ち帰りするのをお忘れなく。
+ここで制作されたものは時間が経つと削除されます。制作したアイテムを右クリックして「取る」を選び、インベントリに入れてお持ち帰りするのをお忘れなく。
 	</notification>
 	<notification name="MaxListSelectMessage">
 		このリストから [MAX_SELECT] 個までのアイテムを選択できます。
@@ -2728,7 +2728,7 @@ M キーを押して変更します。
 		[NAME] はお金を受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="AutoUnmuteByInventory">
-		[NAME] は持ち物を受け取り、自動的にブロックが解除されました。
+		[NAME] はインベントリを受け取り、自動的にブロックが解除されました。
 	</notification>
 	<notification name="VoiceInviteGroup">
 		[NAME] は [GROUP] のボイスチャットコールに参加しました。
@@ -2895,6 +2895,18 @@ M キーを押して変更します。
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
 	</notification>
+	<notification name="ShareFolderConfirmation">
+		フォルダは一度に 1 つしか共有できません。
+
+次のアイテムを共有しますか？
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+次の住人と共有：
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="Ok"/>
+	</notification>
 	<notification name="ItemsShared">
 		アイテムが共有されました。
 	</notification>
@@ -3021,7 +3033,7 @@ M キーを押して変更します。
 		カメラの視点を変更するには、水平・垂直コントロールを使います。Escape を押すか、または歩行すると、視点がリセットされます。
 	</notification>
 	<notification label="インベントリ" name="HintInventory">
-		持ち物にはあなたのアイテムがすべて含まれます。新しく追加されたアイテムは「最新」タブに一覧表示されています。
+		インベントリにはあなたのアイテムがすべて含まれます。新しく追加されたアイテムは「最新」タブに一覧表示されています。
 	</notification>
 	<notification label="あなたのリンデンドル" name="HintLindenDollar">
 		これがあなたの L$ 残高です。リンデンドルを購入するには「L$ の購入」をクリックします。
@@ -3129,7 +3141,7 @@ M キーを押して変更します。
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoInventory">
-		持ち物の表示はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
+		インベントリの表示はアドバンスモードでのみ利用できます。ログアウトしてモードを変更しますか？
 		<usetemplate name="okcancelbuttons" notext="終了しない" yestext="終了"/>
 	</notification>
 	<notification label="" name="NoAppearance">

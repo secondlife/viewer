@@ -156,7 +156,8 @@ const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] =
 		"AddAndRemoveJoints",
 		"ChangePermissions",
 		"TrackYourCamera",
-		"ControlYourCamera"
+		"ControlYourCamera",
+		"TeleportYourAgent"
 	};
 
 const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] = 
@@ -171,7 +172,8 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE,	// AddAndRemoveJoints
 	FALSE,	// ChangePermissions
 	FALSE,	// TrackYourCamera,
-	FALSE	// ControlYourCamera
+	FALSE,	// ControlYourCamera
+	FALSE	// TeleportYourAgent
 };
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
@@ -1065,7 +1067,9 @@ public:
 		// If we now try to remove the inventory item, it will cause a nested
 		// notifyObservers() call, which won't work.
 		// So defer moving the item to trash until viewer gets idle (in a moment).
-		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeItem, &gInventory, mObjectID));
+		// Use removeObject() rather than removeItem() because at this level,
+		// the object could be either an item or a folder.
+		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeObject, &gInventory, mObjectID));
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -5972,16 +5976,21 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		args["OBJECTNAME"] = object_name;
 		args["NAME"] = LLCacheName::cleanFullName(owner_name);
 
+		BOOL has_not_only_debit = questions ^ LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_DEBIT];
 		// check the received permission flags against each permission
 		for (S32 i = 0; i < SCRIPT_PERMISSION_EOF; i++)
 		{
 			if (questions & LSCRIPTRunTimePermissionBits[i])
 			{
 				count++;
-				script_question += "    " + LLTrans::getString(SCRIPT_QUESTIONS[i]) + "\n";
 
 				// check whether permission question should cause special caution dialog
 				caution |= (SCRIPT_QUESTION_IS_CAUTION[i]);
+
+				if (("ScriptTakeMoney" ==  SCRIPT_QUESTIONS[i]) && has_not_only_debit)
+					continue;
+
+				script_question += "    " + LLTrans::getString(SCRIPT_QUESTIONS[i]) + "\n";
 			}
 		}
 		args["QUESTIONS"] = script_question;
@@ -5997,6 +6006,10 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		// check whether cautions are even enabled or not
 		if (gSavedSettings.getBOOL("PermissionsCautionEnabled"))
 		{
+			if (caution)
+			{
+				args["FOOTERTEXT"] = (count > 1) ? LLTrans::getString("AdditionalPermissionsRequestHeader") + "\n\n" + script_question : "";
+			}
 			// display the caution permissions prompt
 			LLNotificationsUtil::add(caution ? "ScriptQuestionCaution" : "ScriptQuestion", args, payload);
 		}
@@ -6845,12 +6858,14 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 
 	LLPanelEstateCovenant::updateEstateName(estate_name);
 	LLPanelLandCovenant::updateEstateName(estate_name);
+	LLPanelEstateInfo::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
 		LLSLURL("agent", estate_owner_id, "inspect").getSLURLString();
 	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
+	LLPanelEstateInfo::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
 	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");

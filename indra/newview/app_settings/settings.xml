@@ -335,17 +335,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>AuditTexture</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable texture auditting.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>AutoAcceptNewInventory</key>
     <map>
       <key>Comment</key>
@@ -621,6 +610,28 @@
       <key>Value</key>
       <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
     </map>
+    <key>AvatarRotateThresholdSlow</key>
+    <map>
+      <key>Comment</key>
+      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving slowly (degrees)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>60</integer>
+    </map>  
+    <key>AvatarRotateThresholdFast</key>
+    <map>
+      <key>Comment</key>
+      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving fast (degrees)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>  
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
       <key>Comment</key>
@@ -1914,7 +1925,7 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
     <key>DebugBeaconLineWidth</key>
     <map>
@@ -4282,17 +4293,6 @@
         <key>Value</key>
         <integer>0</integer>
     </map>
-    <key>InventoryInboxToggleState</key>
-    <map>
-        <key>Comment</key>
-        <string>Stores the open/closed state of inventory Received items panel</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>Boolean</string>
-        <key>Value</key>
-        <integer>0</integer>
-    </map>
 	<key>InventoryLinking</key>
 	<map>
 		<key>Comment</key>
@@ -4589,6 +4589,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>LeapCommand</key>
+    <map>
+      <key>Comment</key>
+      <string>Zero or more command lines to run LLSD Event API Plugin programs.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array />
     </map>
     <key>LSLFindCaseInsensitivity</key>
         <map>
@@ -7153,7 +7164,7 @@
     <key>QAModeEventHostPort</key>
     <map>
       <key>Comment</key>
-      <string>Port on which lleventhost should listen</string>
+      <string>DEPRECATED: Port on which lleventhost should listen</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -7171,6 +7182,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>-1</integer>
+    </map>
+    <key>QAModeMetrics</key>
+    <map>
+      <key>Comment</key>
+      <string>"Enables QA features (logging, faster cycling) for metrics collector"</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>QuietSnapshotsToDisk</key>
     <map>
@@ -8239,7 +8261,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>128</real>
+    <real>512</real>
   </map>
 
   <key>RenderSpecularResY</key>
@@ -8263,7 +8285,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>8</real>
+    <real>384</real>
   </map>
 
   <key>RenderDeferred</key>
@@ -9621,18 +9643,29 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowConsoleWindow</key>
-    <map>
-      <key>Comment</key>
-      <string>Show log in separate OS window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>NavBarShowCoordinates</key>
+  <key>ShowConsoleWindow</key>
+  <map>
+    <key>Comment</key>
+    <string>Show log in separate OS window</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>EnableVisualLeakDetector</key>
+  <map>
+    <key>Comment</key>
+    <string>EnableVisualLeakDetector</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
       <string>Show coordinates in navigation bar</string>
@@ -10644,6 +10677,39 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
+    <key>TexelPixelRatio</key>
+    <map>
+      <key>Comment</key>
+      <string>texel pixel ratio = texel / pixel</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>TextureCameraMotionThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>If the overall motion is lower than this value, textures will be loaded faster</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
+    </map>
+    <key>TextureCameraMotionBoost</key>
+    <map>
+      <key>Comment</key>
+      <string>Progressive discard level decrement when the camera is still</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
     <key>TextureDecodeDisabled</key>
     <map>
       <key>Comment</key>
@@ -10677,6 +10743,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchDebuggerEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the texture fetching debugger if set</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>
@@ -10699,6 +10776,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureNewByteRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Use the new more accurate byte range computation for j2c discard levels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>TexturePickerShowFolders</key>
     <map>
       <key>Comment</key>
@@ -10720,6 +10808,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>2</integer>
+    </map>
+    <key>TextureReverseByteRange</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimal percent of the optimal byte range allowed to render a given discard level</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>50</integer>
     </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>
@@ -12768,7 +12867,7 @@
     <key>WindowX</key>
     <map>
       <key>Comment</key>
-      <string>X coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>X coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12779,7 +12878,7 @@
     <key>WindowY</key>
     <map>
       <key>Comment</key>
-      <string>Y coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>Y coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

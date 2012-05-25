@@ -346,7 +346,7 @@ support@secondlife.com にお問い合わせください。
 		これらオブジェクトの 1 つまたは複数は売り渡したり譲渡したりできないものです。
 	</string>
 	<string name="TooltipOutboxNotInInventory">
-		マーチャントアウトボックスでは、ご自分の持ち物からのアイテムしか受け入れることができません
+		マーチャントアウトボックスでは、ご自分のインベントリからのアイテムしか受け入れることができません
 	</string>
 	<string name="TooltipOutboxWorn">
 		着用しているアイテムをマーチャントアウトボックスに入れることはできません
@@ -835,6 +835,9 @@ support@secondlife.com にお問い合わせください。
 	<string name="anim_yes_head">
 		頷く
 	</string>
+	<string name="multiple_textures">
+		複数
+	</string>
 	<string name="texture_loading">
 		ローディング...
 	</string>
@@ -1232,10 +1235,10 @@ support@secondlife.com にお問い合わせください。
 		ここにランドマークをドラッグしてお気に入りに追加します。
 	</string>
 	<string name="InventoryNoTexture">
-		「持ち物」内にこのテクスチャのコピーがありません
+		インベントリ内にこのテクスチャのコピーがありません
 	</string>
 	<string name="InventoryInboxNoItems">
-		プレミアムギフトなど、受け取る特定のアイテムはここに表示されます。その後、それらのアイテムを自分の持ち物の中にドラッグできます。
+		マーケットプレイスで購入した商品はここに表示されます。その後、アイテムをインベントリにドラッグすれば、それらのアイテムを使用できます。
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -1270,25 +1273,25 @@ support@secondlife.com にお問い合わせください。
 		エラーなし
 	</string>
 	<string name="Marketplace Error Not Merchant">
-		エラー：マーケットプレイスに商品を送る前に、あなた自身をマーチャント登録する必要があります（登録は無料です）。
+		エラー：マーケットプレイスにアイテムを送る前に、あなた自身をマーチャント登録する必要があります（登録は無料です）。
 	</string>
 	<string name="Marketplace Error Empty Folder">
 		エラー：このフォルダは空です。
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		エラー：あなたのマーチャントアカウントには、商品と無関係のアイテムが多すぎるため、このアイテムをアップロードできませんでした。このエラーを解消するには、マーケットプレイスのウェブサイトにログインし、商品に関係のないアイテムの数を減らしてください。
+		エラー：あなたのマーチャントアカウントには、商品に関連付けられていないアイテムが多すぎるため、このアイテムをアップロードできませんでした。このエラーを解消するには、マーケットプレイスの Web サイトにログインし、関連付けられていないアイテムの数を減らしてください。
 	</string>
 	<string name="Marketplace Error Object Limit">
-		エラー：この商品に含まれるオブジェクトが多すぎます。オブジェクトをいくつかボックスにまとめ、オブジェクト数を200以下に減らしてください。
+		エラー：このアイテムに含まれるオブジェクトが多すぎます。オブジェクトをいくつかボックスにまとめ、オブジェクト数を200以下に減らしてください。
 	</string>
 	<string name="Marketplace Error Folder Depth">
-		エラー：この商品はネスト入りフォルダの階層が多すぎます。ネスト入りフォルダを 3 階層以内にまとめ直してください。
+		エラー：このアイテムはネスト入りフォルダの階層が多すぎます。ネスト入りフォルダを 3 階層以内にまとめ直してください。
 	</string>
 	<string name="Marketplace Error Unsellable Item">
-		エラー：この項目をマーケットプレイスで販売することはできません。
+		エラー：このアイテムをマーケットプレイスで販売することはできません。
 	</string>
 	<string name="Marketplace Error Internal Import">
-		エラー：この商品に関して問題が発生しました。しばらくしてからお試しください。
+		エラー：このアイテムに関して問題が発生しました。しばらくしてからお試しください。
 	</string>
 	<string name="Open landmarks">
 		ランドマークを開く
@@ -1337,7 +1340,7 @@ support@secondlife.com にお問い合わせください。
 	<string name="No Filters" value="いいえ "/>
 	<string name="Since Logoff" value=" - ログオフ以来"/>
 	<string name="InvFolder My Inventory">
-		持ち物
+		インベントリ
 	</string>
 	<string name="InvFolder Library">
 		ライブラリ
@@ -1370,7 +1373,7 @@ support@secondlife.com にお問い合わせください。
 		新規フォルダ
 	</string>
 	<string name="InvFolder Inventory">
-		持ち物
+		インベントリ
 	</string>
 	<string name="InvFolder Uncompressed Images">
 		圧縮されていない画像
@@ -3921,6 +3924,9 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	<string name="Saved_message">
 		（保存日時：[LONG_TIMESTAMP]）
 	</string>
+	<string name="IM_unblock_only_groups_friends">
+		このメッセージを表示するには、「環境設定」の「プライバシー」で「フレンドとグループ以外からはコールと IM を受信しない」チェックボックスをオフにします。
+	</string>
 	<string name="answered_call">
 		相手がコールを受けました
 	</string>
@@ -3952,10 +3958,10 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		[AGENT_NAME] とコンファレンスする
 	</string>
 	<string name="inventory_item_offered-im">
-		持ち物アイテムを送りました
+		インベントリアイテムを送りました
 	</string>
 	<string name="share_alert">
-		持ち物からここにアイテムをドラッグします
+		インベントリからここにアイテムをドラッグします
 	</string>
 	<string name="no_session_message">
 		（IM セッションが存在しません）
@@ -4839,7 +4845,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		ハウツー
 	</string>
 	<string name="Command_Inventory_Label">
-		持ち物
+		インベントリ
 	</string>
 	<string name="Command_Map_Label">
 		地図
@@ -4914,7 +4920,7 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 		一般的タスクの実行方法
 	</string>
 	<string name="Command_Inventory_Tooltip">
-		持ち物を表示・使用
+		インベントリを表示・使用
 	</string>
 	<string name="Command_Map_Tooltip">
 		世界地図

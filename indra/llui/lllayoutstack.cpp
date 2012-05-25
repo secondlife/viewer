@@ -113,7 +113,26 @@ S32 LLLayoutPanel::getLayoutDim() const
 					? getRect().getWidth()
 					: getRect().getHeight()));
 }
- 
+
+S32 LLLayoutPanel::getTargetDim() const
+{
+	return mTargetDim;
+}
+
+void LLLayoutPanel::setTargetDim(S32 value)
+{
+	LLRect new_rect(getRect());
+	if (mOrientation == LLLayoutStack::HORIZONTAL)
+	{
+		new_rect.mRight = new_rect.mLeft + value;
+	}
+	else
+	{
+		new_rect.mTop = new_rect.mBottom + value;
+	}
+	setShape(new_rect, true);
+}
+
 S32 LLLayoutPanel::getVisibleDim() const
 {
 	F32 min_dim = getRelevantMinDim();
@@ -172,12 +191,15 @@ void LLLayoutPanel::handleReshape(const LLRect& new_rect, bool by_user)
 	LLLayoutStack* stackp = dynamic_cast<LLLayoutStack*>(getParent());
 	if (stackp)
 	{
-		stackp->mNeedsLayout = true;
 		if (by_user)
-		{
-			// tell layout stack to account for new shape
+		{	// tell layout stack to account for new shape
+			
+			// make sure that panels have already been auto resized
+			stackp->updateLayout();
+			// now apply requested size to panel
 			stackp->updatePanelRect(this, new_rect);
 		}
+		stackp->mNeedsLayout = true;
 	}
 	LLPanel::handleReshape(new_rect, by_user);
 }
@@ -241,7 +263,6 @@ void LLLayoutStack::draw()
 			drawChild(panelp, 0, 0, !clip_rect.isEmpty());
 		}
 	}
-	mAnimatedThisFrame = false;
 }
 
 void LLLayoutStack::removeChild(LLView* view)
@@ -310,7 +331,7 @@ void LLLayoutStack::updateLayout()
 
 	if (!mNeedsLayout) return;
 
-	bool animation_in_progress = animatePanels();
+	bool continue_animating = animatePanels();
 	F32 total_visible_fraction = 0.f;
 	S32 space_to_distribute = (mOrientation == HORIZONTAL)
 							? getRect().getWidth()
@@ -415,7 +436,7 @@ void LLLayoutStack::updateLayout()
 
 	// clear animation flag at end, since panel resizes will set it
 	// and leave it set if there is any animation in progress
-	mNeedsLayout = animation_in_progress;
+	mNeedsLayout = continue_animating;
 } // end LLLayoutStack::updateLayout
 
 LLLayoutPanel* LLLayoutStack::findEmbeddedPanel(LLPanel* panelp) const
@@ -488,6 +509,7 @@ void LLLayoutStack::updateClass()
 	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
 	{
 		it->updateLayout();
+		it->mAnimatedThisFrame = false;
 	}
 }
 
@@ -557,7 +579,7 @@ void LLLayoutStack::normalizeFractionalSizes()
 
 bool LLLayoutStack::animatePanels()
 {
-	bool animation_in_progress = false;
+	bool continue_animating = false;
 	
 	//
 	// animate visibility
@@ -577,14 +599,15 @@ bool LLLayoutStack::animatePanels()
 					}
 				}
 				
-				animation_in_progress = true;
+				mAnimatedThisFrame = true;
+				continue_animating = true;
 			}
 			else
 			{
 				if (panelp->mVisibleAmt != 1.f)
 				{
 					panelp->mVisibleAmt = 1.f;
-					animation_in_progress = true;
+					mAnimatedThisFrame = true;
 				}
 			}
 		}
@@ -601,14 +624,15 @@ bool LLLayoutStack::animatePanels()
 					}
 				}
 
-				animation_in_progress = true;
+				continue_animating = true;
+				mAnimatedThisFrame = true;
 			}
 			else
 			{
 				if (panelp->mVisibleAmt != 0.f)
 				{
 					panelp->mVisibleAmt = 0.f;
-					animation_in_progress = true;
+					mAnimatedThisFrame = true;
 				}
 			}
 		}
@@ -616,22 +640,31 @@ bool LLLayoutStack::animatePanels()
 		F32 collapse_state = panelp->mCollapsed ? 1.f : 0.f;
 		if (panelp->mCollapseAmt != collapse_state)
 		{
-			if (!mAnimatedThisFrame)
+			if (mAnimate)
 			{
-				panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
-			}
-			animation_in_progress = true;
+				if (!mAnimatedThisFrame)
+				{
+					panelp->mCollapseAmt = lerp(panelp->mCollapseAmt, collapse_state, LLCriticalDamp::getInterpolant(mCloseTimeConstant));
+				}
 			
-			if (llabs(panelp->mCollapseAmt - collapse_state) < 0.001f)
+				if (llabs(panelp->mCollapseAmt - collapse_state) < 0.001f)
+				{
+					panelp->mCollapseAmt = collapse_state;
+				}
+
+				mAnimatedThisFrame = true;
+				continue_animating = true;
+			}
+			else
 			{
 				panelp->mCollapseAmt = collapse_state;
+				mAnimatedThisFrame = true;
 			}
 		}
 	}
 
-	mAnimatedThisFrame = true;
-
-	return animation_in_progress;
+	if (mAnimatedThisFrame) mNeedsLayout = true;
+	return continue_animating;
 }
 
 void LLLayoutStack::updatePanelRect( LLLayoutPanel* resized_panel, const LLRect& new_rect )
