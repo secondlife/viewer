@@ -1067,9 +1067,9 @@ bool LLNotificationChannelBase::updateItem(const LLSD& payload, LLNotificationPt
 		// if we have it in our list, pass on the delete, then delete it, else do nothing
 		if (wasFound)
 		{
-			mItems.erase(pNotification);
 			onDelete(pNotification);
 			abortProcessing = mChanged(payload);
+			mItems.erase(pNotification);
 		}
 	}
 	return abortProcessing;
