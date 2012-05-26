@@ -22,6 +22,8 @@
 		<menu label="Dosya" name="File">
 			<menu_item_call label="Kaydet" name="Save"/>
 			<menu_item_call label="Tüm Değişiklikleri Geri Çevir" name="Revert All Changes"/>
+			<menu_item_call label="Dosyadan yükle..." name="LoadFromFile"/>
+			<menu_item_call label="Dosyaya kaydet..." name="SaveToFile"/>
 		</menu>
 		<menu label="Düzenle" name="Edit">
 			<menu_item_call label="Geri Al" name="Undo"/>

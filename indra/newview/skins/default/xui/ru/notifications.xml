@@ -86,17 +86,38 @@
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Не сохранять" yestext="Сохранить"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		У вас нет прав для копирования этого элемента в исходящую папку магазина. Вы действительно хотите переместить следующий элемент?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
+		У вас нет прав на копирование этих предметов в папку «Торговые исходящие».  Переместите их или оставьте здесь.
+		<usetemplate name="okcancelbuttons" notext="Не перемещать предмет(ы)" yestext="Переместить предмет(ы)"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Передача магазина завершена.
-		<usetemplate name="okbutton" yestext="Ура!"/>
+	<notification name="OutboxFolderCreated">
+		Для каждого предмета, перенесенного на верхний уровень папки «Торговые исходящие», создана новая папка.
+		<usetemplate ignoretext="В папке «Торговые исходящие» создана новая папка" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Передача магазина выполнена с ошибками!  Устраните проблемы в исходящей папке и повторите передачу.  Спасибо!
-		<usetemplate name="okbutton" yestext="Бу-у-у!"/>
+	<notification name="OutboxImportComplete">
+		Успешно
+
+Все папки успешно отправлены в торговый центр.
+		<usetemplate ignoretext="Все папки отправлены в торговый центр" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Некоторые папки не перенесены
+
+Ошибки при отправке некоторых папок в торговый центр.  Эти папки остались в вашей папке «Торговые исходящие».
+
+Подробнее см. в [[MARKETPLACE_IMPORTS_URL] журнале ошибок].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Ошибка при передаче
+
+Папки не отправлены в торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Ошибка инициализации торгового центра
+
+Не удалось инициализировать торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Ошибка при передаче текста скрипта по следующей причине: [REASON]. Повторите попытку позже.
@@ -649,7 +670,7 @@
 		Невозможно создать выходной файл: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] пока не поддерживает массовую передачу файлов анимации.
+		[APP_NAME] пока не поддерживает массовую передачу файлов анимации формата BVH.
 	</notification>
 	<notification name="CannotUploadReason">
 		Невозможно передать [FILE] по следующей причине: [REASON]
@@ -1436,7 +1457,7 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Подтверждать перед возвратом объектов владельцам" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Вы являетесь участником группы &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
+		Вы сейчас входите в группу &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Хотите покинуть группу?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
@@ -2609,16 +2630,16 @@ http://secondlife.com/download.
 		[NAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Блокировать"/>
-			<button name="Ignore" text="Игнорировать"/>
+			<button name="Client_Side_Mute" text="Заблокировать"/>
+			<button name="Client_Side_Ignore" text="Игнорировать"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Блокировать"/>
-			<button name="Ignore" text="Игнорировать"/>
+			<button name="Client_Side_Mute" text="Заблокировать"/>
+			<button name="Client_Side_Ignore" text="Игнорировать"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2815,6 +2836,18 @@ http://secondlife.com/download.
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Раздать можно только одну папку за раз.
+
+Вы действительно хотите поделиться предметами:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+Со следующими жителями:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="ОК"/>
 	</notification>
 	<notification name="ItemsShared">
 		Предметы успешно розданы.

@@ -26,7 +26,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2DRectShadow shadowMap0;
@@ -90,7 +92,7 @@ void main()
 	vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
 	frag *= screen_res;
 	
-	float shadow = 1.0;
+	float shadow = 0.0;
 	vec4 pos = vec4(vary_position, 1.0);
 	
 	vec4 spos = pos;
@@ -99,31 +101,65 @@ void main()
 	{	
 		vec4 lpos;
 		
-		if (spos.z < -shadow_clip.z)
+		vec4 near_split = shadow_clip*-0.75;
+		vec4 far_split = shadow_clip*-1.25;
+		vec4 transition_domain = near_split-far_split;
+		float weight = 0.0;
+
+		if (spos.z < near_split.z)
 		{
 			lpos = shadow_matrix[3]*spos;
 			lpos.xy *= shadow_res;
-			shadow = pcfShadow(shadowMap3, lpos, 1.5);
+
+			float w = 1.0;
+			w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
+			shadow += pcfShadow(shadowMap3, lpos, 0.25)*w;
+			weight += w;
 			shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
 		}
-		else if (spos.z < -shadow_clip.y)
+
+		if (spos.z < near_split.y && spos.z > far_split.z)
 		{
 			lpos = shadow_matrix[2]*spos;
 			lpos.xy *= shadow_res;
-			shadow = pcfShadow(shadowMap2, lpos, 1.5);
+
+			float w = 1.0;
+			w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
+			w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
+			shadow += pcfShadow(shadowMap2, lpos, 0.75)*w;
+			weight += w;
 		}
-		else if (spos.z < -shadow_clip.x)
+
+		if (spos.z < near_split.x && spos.z > far_split.y)
 		{
 			lpos = shadow_matrix[1]*spos;
 			lpos.xy *= shadow_res;
-			shadow = pcfShadow(shadowMap1, lpos, 1.5);
+
+			float w = 1.0;
+			w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
+			w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
+			shadow += pcfShadow(shadowMap1, lpos, 0.75)*w;
+			weight += w;
 		}
-		else
+
+		if (spos.z > far_split.x)
 		{
 			lpos = shadow_matrix[0]*spos;
 			lpos.xy *= shadow_res;
-			shadow = pcfShadow(shadowMap0, lpos, 1.5);
+				
+			float w = 1.0;
+			w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
+				
+			shadow += pcfShadow(shadowMap0, lpos, 1.0)*w;
+			weight += w;
 		}
+		
+
+		shadow /= weight;
+	}
+	else
+	{
+		shadow = 1.0;
 	}
 	
 	vec4 diff = texture2D(diffuseMap,vary_texcoord0.xy);
@@ -137,6 +173,6 @@ void main()
 
 	color.rgb += diff.rgb * vary_pointlight_col.rgb;
 
-	gl_FragColor = color;
+	frag_color = color;
 }
 

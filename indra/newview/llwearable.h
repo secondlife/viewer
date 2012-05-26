@@ -106,6 +106,7 @@ public:
 
 	LLLocalTextureObject* getLocalTextureObject(S32 index);
 	const LLLocalTextureObject* getLocalTextureObject(S32 index) const;
+	std::vector<LLLocalTextureObject*> getLocalTextureListSeq();
 
 	void				setLocalTextureObject(S32 index, LLLocalTextureObject &lto);
 	void				addVisualParam(LLVisualParam *param);

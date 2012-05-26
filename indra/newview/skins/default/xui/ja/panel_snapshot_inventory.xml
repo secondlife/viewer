@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="panel_snapshot_inventory">
 	<text name="title">
-		「持ち物」に保存
+		インベントリに保存
 	</text>
 	<text name="hint_lbl">
-		画像を持ち物に保存するには L$[UPLOAD_COST] の費用がかかります。画像をテクスチャとして保存するには平方形式の 1 つを選択してください。
+		画像をインベントリに保存するには L$[UPLOAD_COST] の費用がかかります。画像をテクスチャとして保存するには平方形式の 1 つを選択してください。
 	</text>
 	<combo_box label="解像度" name="texture_size_combo">
 		<combo_box.item label="現在のウィンドウ" name="CurrentWindow"/>

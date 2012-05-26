@@ -2,47 +2,24 @@
 <panel label="Cose" name="objects panel">
 	<panel label="" name="sidepanel__inventory_panel">
 		<layout_stack name="inventory_layout_stack">
-			<layout_panel name="inbox_outbox_layout_panel">
-				<layout_stack name="inbox_outbox_layout_stack">
-					<layout_panel name="inbox_layout_panel">
-						<panel label="" name="marketplace_inbox">
-							<string name="InboxLabelWithArg">
-								Oggetti ricevuti ([NUM])
-							</string>
-							<string name="InboxLabelNoArg">
-								Oggetti ricevuti
-							</string>
-							<button label="Oggetti ricevuti" name="inbox_btn"/>
-							<text name="inbox_fresh_new_count">
-								[NUM] nuovi
-							</text>
-							<panel tool_tip="Drag and drop items to your inventory to manage and use them">
-								<text name="inbox_inventory_placeholder">
-									Gli acquisti dal mercato verranno consegnati qui.
-								</text>
-							</panel>
-						</panel>
-					</layout_panel>
-					<layout_panel name="outbox_layout_panel">
-						<panel label="" name="marketplace_outbox">
-							<string name="OutboxLabelWithArg">
-								Casella venditore in uscita ([NUM])
-							</string>
-							<string name="OutboxLabelNoArg">
-								Casella venditore in uscita
-							</string>
-							<button label="Casella venditore in uscita" name="outbox_btn"/>
-							<button label="" name="outbox_sync_btn" tool_tip="Push su negozio Marketplace"/>
-							<panel>
-								<panel name="outbox_inventory_placeholder_panel">
-									<text name="outbox_inventory_placeholder_title">
-										Caricamento in corso...
-									</text>
-								</panel>
-							</panel>
-						</panel>
-					</layout_panel>
-				</layout_stack>
+			<layout_panel name="inbox_layout_panel">
+				<panel label="" name="marketplace_inbox">
+					<string name="InboxLabelWithArg">
+						Oggetti ricevuti ([NUM])
+					</string>
+					<string name="InboxLabelNoArg">
+						Oggetti ricevuti
+					</string>
+					<button label="Oggetti ricevuti" name="inbox_btn"/>
+					<text name="inbox_fresh_new_count">
+						[NUM] nuovi
+					</text>
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Trascina gli elementi nell&apos;inventario per usarli">
+						<text name="inbox_inventory_placeholder">
+							Gli acquisti dal mercato verranno consegnati qui.
+						</text>
+					</panel>
+				</panel>
 			</layout_panel>
 		</layout_stack>
 		<panel name="button_panel">
