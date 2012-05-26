@@ -84,7 +84,7 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 					if (atSpace)
 					{
 						// replace the last word in the input
-						LLWString strNew = utf8str_to_wstring(replWord);
+						LLWString strNew = utf8str_to_wstring(replacementWord);
 						LLWString strOld = utf8str_to_wstring(lastWord);
 						int size_change = strNew.size() - strOld.size();
 
@@ -95,7 +95,7 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 					else
 					{
 						// @TODO display replacement as tooltip?
-						LL_DEBUGS("AutoReplace")<<"tooltip: '"<<lastWord<<"' -> '"<<replWord<<"'"<<LL_ENDL;
+						LL_DEBUGS("AutoReplace")<<"tooltip: '"<<lastWord<<"' -> '"<<replacementWord<<"'"<<LL_ENDL;
 					}
 				}
 			}
