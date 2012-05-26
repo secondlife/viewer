@@ -24,12 +24,14 @@
  */
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform vec4 color;
 
 void main() 
 {
-	gl_FragColor = color;
+	frag_color = color;
 }

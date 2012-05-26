@@ -1149,7 +1149,7 @@ Rules:
 	- cut/rename/delete in any other accordions
 	- paste - only in Favorites, Landmarks accordions
  3. For Folders we can: perform any action in Landmarks accordion, except Received folder
- 4. We can not paste folders from Clipboard (processed by LLFolderView::canPaste())
+ 4. We can paste folders from Clipboard (processed by LLFolderView::canPaste())
  5. Check LLFolderView/Inventory Bridges rules
  */
 bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFolderViewItem* item) const
@@ -1206,8 +1206,7 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 
 		if ("cut" == command_name)
 		{
-			// "Cut" disabled for folders. See EXT-8697.
-			can_be_modified = root_folder->canCut() && listenerp->getInventoryType() != LLInventoryType::IT_CATEGORY;
+			can_be_modified = root_folder->canCut();
 		}
 		else if ("rename" == command_name)
 		{

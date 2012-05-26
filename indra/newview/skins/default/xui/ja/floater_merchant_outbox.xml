@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="マーチャントアウトボックス">
+	<string name="OutboxFolderCount1">
+		1 個のフォルダ
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] 個のフォルダ
+	</string>
+	<string name="OutboxImporting">
+		フォルダを送信中...
+	</string>
+	<string name="OutboxInitializing">
+		初期化中...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					ロード中...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="マーケットプレイスに送信" name="outbox_import_btn" tool_tip="自分のマーケットプレイス店頭に移動"/>
+		</panel>
+	</panel>
+</floater>

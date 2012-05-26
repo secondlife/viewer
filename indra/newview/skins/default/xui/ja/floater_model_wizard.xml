@@ -6,20 +6,20 @@
 	<button label="2. 最適化" name="optimize_btn"/>
 	<button label="1. ファイルを選択" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				モデルファイルを選択
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
-				上級ユーザーの場合：3D コンテンツの制作ツールを使い慣れた方は、高度なアップローダーもお試しください。
+				上級ユーザーの場合：3D コンテンツ制作ツールの使用に慣れている方は、高度なアップローダーもお試しください。
 			</text>
 			<button label="アドバンスモードに切り替える" name="switch_to_advanced"/>
 			<text name="Cache location">
-				アップロードするモデルファイルの選択
+				アップロードするモデルファイルを選択
 			</text>
-			<button label="参照" label_selected="参照" name="browse"/>
+			<button label="参照..." label_selected="参照..." name="browse"/>
 			<text name="Model types">
 				Second Life は COLLADA (.dae) ファイルをサポートします。
 			</text>
@@ -35,15 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				モデルを最適化
 			</text>
 		</panel>
-		<text name="description">
-			パフォーマンスを重視してモデルを最適化しました。必要に応じて調整してください。
+		<text name="optimize_description">
+			モデルはパフォーマンスを重視して最適化されています。必要に応じて調整してください。
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
 				次の描画詳細度を作成：高
 			</text>
@@ -79,16 +79,16 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				物理作用の調整
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			モデルの外殻構造のシェイプは弊社が作成します。モデルの目的に応じてシェイプの詳細度を調整してください。
 		</text>
-		<panel name="content">
-			<button label="物理演算ウェイトを再計算" name="recalculate_physics_btn"/>
+		<panel name="physics_content">
+			<button label="物理作用を再計算" name="recalculate_physics_btn"/>
 			<button label="再計算中..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
 				物理作用のプレビュー
@@ -110,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				確認
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				区画/リージョンへの負荷：[EQUIV] プリム換算値
 			</text>
@@ -123,13 +123,13 @@
 				L$ [FEE] のアップロード料金があなたのアカウントに請求されます。
 			</text>
 			<text name="review_confirmation">
-				アップロードボタンをクリックすると、モデルに含まれるマテリアルの所有権や使用許可を所持することを認めたことになります。
+				アップロードボタンをクリックすることにより、モデルに含まれるマテリアルの所有権や使用許可の所持を認めたことになります。
 			</text>
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				アップロード完了
 			</text>
 		</panel>
@@ -137,7 +137,7 @@
 			モデルがアップロードされました。
 		</text>
 		<text name="inventory_text">
-			それは持ち物の「オブジェクト」フォルダにあります。
+			それはインベントリの「オブジェクト」フォルダにあります。
 		</text>
 		<text name="charged_fee">
 			あなたのアカウントに L$ [FEE] が請求されました。

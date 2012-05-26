@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu name="Gear Menu">
+<toggleable_menu name="Gear Menu">
 	<menu_item_call label="Toucher" name="touch"/>
 	<menu_item_call label="M&apos;asseoir" name="sit"/>
 	<menu_item_call label="Payer" name="pay"/>
@@ -12,7 +12,8 @@
 	<menu_item_call label="Ajouter" name="add"/>
 	<menu_item_call label="Signaler" name="report"/>
 	<menu_item_call label="Ignorer" name="block"/>
+	<menu_item_call label="Ne plus ignorer" name="unblock"/>
 	<menu_item_call label="Zoomer en avant" name="zoom_in"/>
 	<menu_item_call label="Supprimer" name="remove"/>
 	<menu_item_call label="En savoir plus" name="more_info"/>
-</menu>
+</toggleable_menu>

@@ -181,7 +181,7 @@ Güncelleştirmeler için www.secondlife.com/status adresini kontrol edin.
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		Second Life üzerindeki aktif kullanıcıların olası en iyi deneyimi yaşamasını sağlamak için, oturum açılması geçici olarak kısıtlanmıştır.
-	 	
+
 Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life&apos;a erişemeyecekler.
 	</string>
 	<string name="LoginFailedComputerProhibited">
@@ -339,17 +339,35 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Buraya sadece bir öğe sürüklenebilir.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipOutboxDragToWorld">
+		Satıcı giden kutunuzda öğeler oluşturamazsınız
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Bu nesnelerden bir veya daha fazlası başka bir kullanıcıya satılamaz veya aktarılamaz.
+		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Satıcı giden kutunuza sadece doğrudan kendi envanterinizden öğeler koyabilirsiniz
 	</string>
 	<string name="TooltipOutboxWorn">
-		Bu nesnelerden bir veya daha fazlasını giyiyorsunuz. Bunları avatarınızdan kaldırın ve tekrar taşımayı deneyin.
+		Giymekte olduğunuz öğeleri Satıcı giden kutunuza koyamazsınız.
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Satıcı giden kutunuza arama kartları koyamazsınız
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Bu klasörde çok fazla alt klasör seviyesi var. Dahili klasörleri tekrar düzenleyerek maksimum 4 seviye derinliğe azaltın (Kök Klasör içinde A içinde B içinde C şeklinde).
+		İç içe geçmiş klasörlerin derinliği üçü geçiyor
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		Üst seviyedeki klasördeki alt klasör sayısı 20&apos;yi geçiyor
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Bu klasörde 200&apos;den fazla nesne var. Nesne sayısını azaltmak için öğelerden bazılarını kutuya koyun.
+		Üst seviyedeki klasördeki öğe sayısı 200&apos;ü geçiyor
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Bir klasörü alt klasörüne taşıyamazsınız
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Bir klasörü kendi içine taşıyamazsınız
 	</string>
 	<string name="TooltipHttpUrl">
 		Bu web sayfasını görmek için tıklayın
@@ -814,6 +832,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="anim_yes_head">
 		Evet
 	</string>
+	<string name="multiple_textures">
+		Birden Çok
+	</string>
 	<string name="texture_loading">
 		Yükleniyor...
 	</string>
@@ -972,6 +993,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="choose_the_directory">
 		Dizin Seç
+	</string>
+	<string name="script_files">
+		Komut Dosyaları
 	</string>
 	<string name="AvatarSetNotAway">
 		Uzakta Değil
@@ -1211,43 +1235,36 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Envanterinizde bu dokunun kopyası yok
 	</string>
 	<string name="InventoryInboxNoItems">
-		Bir öğeyi satın aldığınızda veya başka bir şekilde edindiğinizde burada görünür; bunu envanterinizdeki bir klasöre sürükleyebilir veya tutmak istemiyorsanız silebilirsiniz.
+		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		Satıcı Giden Kutunuz düzgün yapılandırılmamıştır
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Satıcı Giden Kutusu yapılandırma hatası
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Sorunu düzeltmek için lütfen Müşteri Hizmetlerine başvurun.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Pazaryerinde herkes öğe satabilir
+		Pazaryerinde herkes öğe satabilir.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		Bir satıcı olun!
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] Second Life Pazaryeri] içerisinde bir milyondan fazla sanal ürün satışa sunulmuştur, bunların tümü Sakinler tarafından oluşturulmuştur. Siz de oluşturduğunuz öğeleri ve satın aldığınız öğelerin bazılarını satabilirsiniz. Bunu yapmak kolaydır, kurulum da ücretsizdir.  [[LEARN_MORE_URL] Daha fazla bilgi edinin] veya başlamak için Pazaryerinde [[CREATE_STORE_URL] bir mağaza açın].
+		Eğer bir satıcı olmak istiyorsanız, [Pazaryerinde [MARKETPLACE_CREATE_STORE_URL] bir mağaza açmanız gerekir].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Pazaryerine öğe göndermek için yeni bir yol
+		Giden kutunuz boş.
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Öğeleri Pazaryerinde satışa hazırlamak için sürükleyip buraya bırakın
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Satmak istediğiniz öğeleri veya klasörleri bu alana sürükleyin.  Öğenin bir kopyası burada görünür ve kopyalanamaz bir öğeyi sürüklemediyseniz, envanteriniz aynı kalır.  Öğeleri Pazaryerine göndermeye hazır olduğunuzda Karşıya Yükle düğmesine tıklayın. Öğeleriniz Pazaryeri Envanterinize taşındığında bu klasörden kaybolurlar.
+		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
 	</string>
 	<string name="Marketplace Error None">
 		Hata yok
@@ -3904,6 +3921,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="Saved_message">
 		(Kaydedildi [LONG_TIMESTAMP])
 	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
+	</string>
 	<string name="answered_call">
 		Aramanız yanıtlandı
 	</string>
@@ -4100,9 +4120,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Çevrimiçi
 	</string>
 	<string name="uploading_abuse_report">
-		Karşıya Yükleniyor...
-  
-Kötüye Kullanımı Bildirme
+		Kötüye Kullanım Bildirimi Karşıya Yükleniyor...
 	</string>
 	<string name="New Shape">
 		Yeni Şekil
@@ -4369,7 +4387,7 @@ Kötüye Kullanımı Bildirme
 	<string name="server_is_down">
 		Tüm çabalarımıza rağmen beklenmeyen bir hata meydana geldi.
 
-	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.  
+	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.
         Sorun yaşamaya devam ederseniz lütfen ağınızın ve güvenlik duvarınızın ayarlarına bakın.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4848,6 +4866,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Move_Label">
 		Yürü / koş / uç
 	</string>
+	<string name="Command_Outbox_Label">
+		Satıcı giden kutusu
+	</string>
 	<string name="Command_People_Label">
 		Kişiler
 	</string>
@@ -4919,6 +4940,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Command_Move_Tooltip">
 		Avatarınızı hareket ettirmek
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		Satmak amacıyla Pazaryerinize öğeler taşıyın
 	</string>
 	<string name="Command_People_Tooltip">
 		Arkadaşlar, gruplar ve yakındaki kişiler

@@ -14,14 +14,14 @@
 			<menu_item_check label="Voar" name="Fly"/>
 			<menu_item_check label="Correr sempre" name="Always Run"/>
 			<menu_item_call label="Parar minha animação" name="Stop Animating My Avatar"/>
+			<menu_item_call label="Andar/correr/voar..." name="Walk / run / fly"/>
 		</menu>
 		<menu label="Status" name="Status">
 			<menu_item_call label="Ausente" name="Set Away"/>
 			<menu_item_call label="Ocupado" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
-		<menu_item_call label="Sair do modo admin" name="Leave Admin Options"/>
-		<menu_item_call label="Comprar L$" name="Buy and Sell L$"/>
+		<menu_item_call label="Comprar L$..." name="Buy and Sell L$"/>
+		<menu_item_call label="Caixa de saída do lojista..." name="MerchantOutbox"/>
 		<menu_item_call label="Painel da conta..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=pt"/>
 		</menu_item_call>
@@ -63,10 +63,10 @@
 			<menu_item_check label="Propriedades do lote" name="Parcel Properties"/>
 			<menu_item_check label="Menu avançado" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Sol" name="Environment Settings">
+		<menu label="Sol" name="Sun">
 			<menu_item_call label="Amanhecer" name="Sunrise"/>
 			<menu_item_call label="Meio-dia" name="Noon"/>
-			<menu_item_call label="Pôr-do-Sol" name="Sunset"/>
+			<menu_item_call label="Pôr-do-sol" name="Sunset"/>
 			<menu_item_call label="Meia-noite" name="Midnight"/>
 			<menu_item_call label="Usar configurações da região" name="Use Region Settings"/>
 		</menu>
@@ -178,22 +178,22 @@
 			<menu_item_check label="Mostrar retículo na vista subjetiva" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Tipos de renderização" name="Rendering Types">
-			<menu_item_check label="Simples" name="Simple"/>
-			<menu_item_check label="Alpha" name="Alpha"/>
-			<menu_item_check label="Árvore" name="Tree"/>
-			<menu_item_check label="Avatares" name="Character"/>
-			<menu_item_check label="Patch de superfície" name="Surface Patch"/>
-			<menu_item_check label="Céu" name="Sky"/>
-			<menu_item_check label="Água" name="Water"/>
-			<menu_item_check label="Chão" name="Ground"/>
-			<menu_item_check label="Volume" name="Volume"/>
-			<menu_item_check label="Grama" name="Grass"/>
-			<menu_item_check label="Nuvens" name="Clouds"/>
-			<menu_item_check label="Partículas" name="Particles"/>
-			<menu_item_check label="Elevação" name="Bump"/>
+			<menu_item_check label="Simples" name="Rendering Type Simple"/>
+			<menu_item_check label="Alpha" name="Rendering Type Alpha"/>
+			<menu_item_check label="Árvore" name="Rendering Type Tree"/>
+			<menu_item_check label="Avatares" name="Rendering Type Character"/>
+			<menu_item_check label="Patch de superfície" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="Céu" name="Rendering Type Sky"/>
+			<menu_item_check label="Água" name="Rendering Type Water"/>
+			<menu_item_check label="Chão" name="Rendering Type Ground"/>
+			<menu_item_check label="Volume" name="Rendering Type Volume"/>
+			<menu_item_check label="Grama" name="Rendering Type Grass"/>
+			<menu_item_check label="Nuvens" name="Rendering Type Clouds"/>
+			<menu_item_check label="Partículas" name="Rendering Type Particles"/>
+			<menu_item_check label="Elevação" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="Recursos de renderização" name="Rendering Features">
-			<menu_item_check label="Interface" name="UI"/>
+			<menu_item_check label="Interface" name="ToggleUI"/>
 			<menu_item_check label="Selecionado" name="Selected"/>
 			<menu_item_check label="Realçado" name="Highlighted"/>
 			<menu_item_check label="Texturas dinâmicas" name="Dynamic Textures"/>
@@ -206,8 +206,6 @@
 		<menu_item_check label="Smoothing de mouse" name="Mouse Smoothing"/>
 		<menu_item_call label="Liberar teclas" name="Release Keys"/>
 		<menu label="Atalhos" name="Shortcuts">
-			<menu_item_call label="Imagem (L$[COST])..." name="Upload Image"/>
-			<menu_item_check label="Busca" name="Search"/>
 			<menu_item_check label="Mostrar menu avançado - atalho antigo" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Fechar janela" name="Close Window"/>
 			<menu_item_call label="Fechar todas as janelas" name="Close All Windows"/>
@@ -216,13 +214,6 @@
 			<menu_item_check label="Flycam Joystick" name="Joystick Flycam"/>
 			<menu_item_call label="Visão padrão" name="Reset View"/>
 			<menu_item_call label="Olhar para quem fala por último" name="Look at Last Chatter"/>
-			<menu label="Selecionar ferramenta de construção" name="Select Tool">
-				<menu_item_call label="Ferramenta enfoque" name="Focus"/>
-				<menu_item_call label="Ferramenta de movimentação" name="Move"/>
-				<menu_item_call label="Ferramenta de edição" name="Edit"/>
-				<menu_item_call label="Ferramenta criar" name="Create"/>
-				<menu_item_call label="Ferramenta de terrenos" name="Land"/>
-			</menu>
 			<menu_item_call label="Mais zoom" name="Zoom In"/>
 			<menu_item_call label="Zoom padrão" name="Zoom Default"/>
 			<menu_item_call label="Menos zoom" name="Zoom Out"/>
@@ -278,6 +269,7 @@
 			<menu_item_check label="Fila de construção" name="Build Queue"/>
 			<menu_item_check label="Vetores de vento" name="Wind Vectors"/>
 			<menu_item_check label="Renderizar complexidade" name="rendercomplexity"/>
+			<menu_item_check label="Bytes do anexo" name="attachment bytes"/>
 			<menu_item_check label="Esculpir" name="Sculpt"/>
 		</menu>
 		<menu label="Rendering" name="Rendering">
@@ -300,11 +292,10 @@
 			<menu_item_call label="Drop a Packet" name="Drop a Packet"/>
 		</menu>
 		<menu_item_call label="Empurrões, trombadas e tapas" name="Bumps, Pushes &amp;amp; Hits"/>
-		<menu label="Mundo" name="World">
-			<menu_item_check label="Impor sobre sol regional" name="Sim Sun Override"/>
-			<menu_item_check label="Efeito baliza piscando" name="Cheesy Beacon"/>
-			<menu_item_check label="Fixed Weather" name="Fixed Weather"/>
-			<menu_item_call label="Dump Region Object Cache" name="Dump Region Object Cache"/>
+		<menu label="Mundo" name="DevelopWorld">
+			<menu_item_check label="Impor sobre sol de simulação" name="Sim Sun Override"/>
+			<menu_item_check label="Clima fixo" name="Fixed Weather"/>
+			<menu_item_call label="Descartar cache do objeto de região" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="Interface" name="UI">
 			<menu_item_call label="Teste de mídia do navegador" name="Web Browser Test"/>
@@ -324,11 +315,11 @@
 		</menu>
 		<menu label="Avatar" name="Character">
 			<menu label="Grab Baked Texture" name="Grab Baked Texture">
-				<menu_item_call label="Íris" name="Iris"/>
-				<menu_item_call label="Cabeça" name="Head"/>
-				<menu_item_call label="Cintura acima" name="Upper Body"/>
-				<menu_item_call label="Cintura para baixo" name="Lower Body"/>
-				<menu_item_call label="Saia" name="Skirt"/>
+				<menu_item_call label="Íris" name="Grab Iris"/>
+				<menu_item_call label="Cabeça" name="Grab Head"/>
+				<menu_item_call label="Cintura acima" name="Grab Upper Body"/>
+				<menu_item_call label="Cintura para baixo" name="Grab Lower Body"/>
+				<menu_item_call label="Saia" name="Grab Skirt"/>
 			</menu>
 			<menu label="Testes de personagem" name="Character Tests">
 				<menu_item_call label="Toggle Character Geometry" name="Toggle Character Geometry"/>
@@ -344,18 +335,27 @@
 		</menu>
 		<menu_item_check label="Texturas HTTP" name="HTTP Textures"/>
 		<menu_item_check label="Inventário HTTP" name="HTTP Inventory"/>
+		<menu_item_call label="Habilitar Visual Leak Detector" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="Console Window on next Run" name="Console Window"/>
+		<menu label="Configurar nível de registro em log" name="Set Logging Level">
+			<menu_item_check label="Depurar" name="Debug"/>
+			<menu_item_check label="Info" name="Info"/>
+			<menu_item_check label="Aviso" name="Warning"/>
+			<menu_item_check label="Error" name="Error"/>
+			<menu_item_check label="Nenhum" name="None"/>
+		</menu>
 		<menu_item_call label="Request Admin Status" name="Request Admin Options"/>
 		<menu_item_call label="Sair do modo admin" name="Leave Admin Options"/>
 		<menu_item_check label="Mostrar menu admin" name="View Admin Options"/>
 	</menu>
 	<menu label="Admin" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="Pegar uma cópia" name="Take Copy"/>
-			<menu_item_call label="Force Owner To Me" name="Force Owner To Me"/>
-			<menu_item_call label="Force Owner Permissive" name="Force Owner Permissive"/>
+		<menu label="Objeto" name="AdminObject">
+			<menu_item_call label="Pegar uma cópia" name="Admin Take Copy"/>
+			<menu_item_call label="Forçar propriedade para mim" name="Force Owner To Me"/>
+			<menu_item_call label="Forçar permissão de proprietário" name="Force Owner Permissive"/>
 			<menu_item_call label="Excluir" name="Delete"/>
 			<menu_item_call label="Bloquear" name="Lock"/>
+			<menu_item_call label="Obter IDs dos bens" name="Get Assets IDs"/>
 		</menu>
 		<menu label="Lote" name="Parcel">
 			<menu_item_call label="Force Owner To Me" name="Owner To Me"/>
@@ -371,6 +371,17 @@
 	<menu label="Admin" name="Deprecated">
 		<menu label="Take Off Clothing" name="Take Off Clothing">
 			<menu_item_call label="Físico" name="Physics"/>
+		</menu>
+		<menu label="Ajuda" name="DeprecatedHelp">
+			<menu_item_call label="Blog oficial da Linden" name="Official Linden Blog"/>
+			<menu_item_call label="Portal de scripts" name="Scripting Portal"/>
+			<menu label="Relatar bugs" name="Bug Reporting">
+				<menu_item_call label="Monitor de problemas" name="Public Issue Tracker"/>
+				<menu_item_call label="Ajuda do monitor de problemas" name="Publc Issue Tracker Help"/>
+				<menu_item_call label="Relatório de bugs 101" name="Bug Reporing 101"/>
+				<menu_item_call label="Problemas de segurança" name="Security Issues"/>
+				<menu_item_call label="Página Wiki" name="QA Wiki"/>
+			</menu>
 		</menu>
 	</menu>
 </menu_bar>
