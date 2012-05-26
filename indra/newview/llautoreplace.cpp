@@ -48,53 +48,56 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 	static LLCachedControl<bool> perform_autoreplace(gSavedSettings, "AutoReplace");
 	if(perform_autoreplace)
 	{
-		S32 wordStart = 0;
 		S32 wordEnd = cursorPos-1;
-
-		if(wordEnd < 1)
-		{
-			return;
-		}
-
 		LLWString text = inputText.getWString();
-		if(text.size()<1)
-		{
-			return;
-		}
 
-		if(LLWStringUtil::isPartOfWord(text[wordEnd]))
-		{
-			return;//we only check on word breaks
-		}
+		bool atSpace  = (text[wordEnd] == ' ');
+		bool haveWord = (LLWStringUtil::isPartOfWord(text[wordEnd]));
 
-		wordEnd--;
-		if ( LLWStringUtil::isPartOfWord(text[wordEnd]) )
+		if (atSpace || haveWord)
 		{
-			while ((wordEnd > 0) && (' ' != text[wordEnd-1]))
+			if (atSpace)
 			{
+				// find out if this space immediately follows a word
 				wordEnd--;
+				haveWord  = (LLWStringUtil::isPartOfWord(text[wordEnd]));
 			}
-
-			wordStart=wordEnd;
-
-			while ((wordEnd < (S32)text.length()) && (' ' != text[wordEnd]))
+			if (haveWord)
 			{
-				wordEnd++;
-			}
+				std::string word;
+				S32 wordStart = wordEnd;
+				for ( S32 backOne = wordStart - 1;
+					  backOne >= 0 && LLWStringUtil::isPartOfWord(text[backOne]);
+					  backOne--
+					 )
+				{
+					wordStart--; // walk wordStart back to the beginning of the word
+				}
+				LL_DEBUGS("AutoReplace")<<"wordStart: "<<wordStart<<" wordEnd: "<<wordEnd<<LL_ENDL;
+				std::string strText  = std::string(text.begin(), text.end());
+				std::string lastWord = strText.substr(wordStart, wordEnd-wordStart+1);
+				std::string replacementWord( mSettings.replaceWord( lastWord ) );
 
-			std::string strLastWord = std::string(text.begin(), text.end());
-			std::string lastTypedWord = strLastWord.substr(wordStart, wordEnd-wordStart);
-			std::string replacedWord( mSettings.replaceWord(lastTypedWord) );
+				if ( replacementWord != lastWord )
+				{
+					// The last word is one for which we have a replacement
+					if (atSpace)
+					{
+						// replace the last word in the input
+						LLWString strNew = utf8str_to_wstring(replWord);
+						LLWString strOld = utf8str_to_wstring(lastWord);
+						int size_change = strNew.size() - strOld.size();
 
-			if(replacedWord != lastTypedWord)
-			{
-				LLWString strNew = utf8str_to_wstring(replacedWord);
-				LLWString strOld = utf8str_to_wstring(lastTypedWord);
-				int nDiff = strNew.size() - strOld.size();
-
-				text.replace(wordStart,lastTypedWord.length(),strNew);
-				inputText = wstring_to_utf8str(text);
-				cursorPos+=nDiff;
+						text.replace(wordStart,lastWord.length(),strNew);
+						inputText = wstring_to_utf8str(text);
+						cursorPos+=size_change;
+					}
+					else
+					{
+						// @TODO display replacement as tooltip?
+						LL_DEBUGS("AutoReplace")<<"tooltip: '"<<lastWord<<"' -> '"<<replWord<<"'"<<LL_ENDL;
+					}
+				}
 			}
 		}
 	}
