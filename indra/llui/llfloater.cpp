@@ -3307,8 +3307,11 @@ void LLFloater::stackWith(LLFloater& other)
 	
 	setShape(next_rect);
 
-	other.mPositioning = LLFloaterEnums::POSITIONING_CASCADE_GROUP;
-	other.setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
+	if (!other.getHost())
+	{
+		other.mPositioning = LLFloaterEnums::POSITIONING_CASCADE_GROUP;
+		other.setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);
+	}
 }
 
 void LLFloater::applyRelativePosition()

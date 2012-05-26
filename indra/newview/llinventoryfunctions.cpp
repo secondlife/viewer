@@ -108,116 +108,6 @@ void append_path(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
-void change_item_parent(LLInventoryModel* model,
-						LLViewerInventoryItem* item,
-						const LLUUID& new_parent_id,
-						BOOL restamp)
-{
-	if (item->getParentUUID() != new_parent_id)
-	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-		update.push_back(new_folder);
-		gInventory.accountForUpdate(update);
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent_id);
-		new_item->updateParentOnServer(restamp);
-		model->updateItem(new_item);
-		model->notifyObservers();
-	}
-}
-
-void change_category_parent(LLInventoryModel* model,
-	LLViewerInventoryCategory* cat,
-	const LLUUID& new_parent_id,
-	BOOL restamp)
-{
-	if (!model || !cat)
-	{
-		return;
-	}
-
-	// Can't move a folder into a child of itself.
-	if (model->isObjectDescendentOf(new_parent_id, cat->getUUID()))
-	{
-		return;
-	}
-
-	LLInventoryModel::update_list_t update;
-	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
-	update.push_back(old_folder);
-	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-	update.push_back(new_folder);
-	model->accountForUpdate(update);
-
-	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-	new_cat->setParent(new_parent_id);
-	new_cat->updateParentOnServer(restamp);
-	model->updateCategory(new_cat);
-	model->notifyObservers();
-}
-
-// Move the item to the trash. Works for folders and objects.
-// Caution: This method assumes that the item is removable!
-void remove_item(LLInventoryModel* model, const LLUUID& id)
-{
-	LLViewerInventoryItem* item = model->getItem(id);
-	if (!item)
-		return;
-	
-	if (item->getType() == LLAssetType::AT_CATEGORY)
-	{
-		// Call the general helper function to delete a folder
-		remove_category(model, id);
-	}
-	else
-	{
-		// Get the trash UUID
-		LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH, false);
-		if (trash_id.notNull())
-		{
-			// Finally, move the item to the trash
-			change_item_parent(model, item, trash_id, true);
-		}
-	}
-}
-
-void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
-{
-	if (!model || !get_is_category_removable(model, cat_id))
-	{
-		return;
-	}
-
-	// Look for any gestures and deactivate them
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
-
-	for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
-		 iter != descendent_items.end();
-		 ++iter)
-	{
-		const LLViewerInventoryItem* item = (*iter);
-		const LLUUID& item_id = item->getUUID();
-		if (item->getType() == LLAssetType::AT_GESTURE
-			&& LLGestureMgr::instance().isGestureActive(item_id))
-		{
-			LLGestureMgr::instance().deactivateGesture(item_id);
-		}
-	}
-
-	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-	if (cat)
-	{
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		change_category_parent(model, cat, trash_id, TRUE);
-	}
-}
-
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
 {
 	LLViewerInventoryCategory* cat;
@@ -635,8 +525,7 @@ void move_to_outbox_cb_action(const LLSD& payload)
 
 		LLUUID parent = viitem->getParentUUID();
 
-		change_item_parent(
-			&gInventory,
+		gInventory.changeItemParent(
 			viitem,
 			dest_folder_id,
 			false);
@@ -663,7 +552,7 @@ void move_to_outbox_cb_action(const LLSD& payload)
 
 				if (cat_array->empty() && item_array->empty())
 				{
-					remove_category(&gInventory, parent);
+					gInventory.removeCategory(parent);
 				}
 
 				if (parent == top_level_folder)
@@ -737,7 +626,7 @@ void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 
 	
 	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
 
-	change_item_parent(&gInventory,
+	gInventory.changeItemParent(
 					   viewer_inv_item,
 					   dest_folder,
 					   false);

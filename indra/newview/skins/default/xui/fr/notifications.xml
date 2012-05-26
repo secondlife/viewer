@@ -669,7 +669,7 @@ Assurez-vous que le fichier a l&apos;extension correcte.
 		Impossible de créer le fichier de sortie : [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		Actuellement, [APP_NAME] ne prend pas en charge le chargement de lots de fichiers d&apos;animation.
+		Actuellement, [APP_NAME] ne prend pas en charge le chargement par lot de fichiers d&apos;animation au format BVH.
 	</notification>
 	<notification name="CannotUploadReason">
 		Impossible de charger [FILE] suite au problème suivant : [REASON]
@@ -2630,16 +2630,16 @@ Accepter cette requête ?
 		&lt;nolink&gt;[TITLE]&lt;/nolink&gt; de [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Ignorer"/>
-			<button name="Ignore" text="Ignorer"/>
+			<button name="Client_Side_Mute" text="Bloquer"/>
+			<button name="Client_Side_Ignore" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		&lt;nolink&gt;[TITLE]&lt;/nolink&gt; de [GROUPNAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Ignorer"/>
-			<button name="Ignore" text="Ignorer"/>
+			<button name="Client_Side_Mute" text="Bloquer"/>
+			<button name="Client_Side_Ignore" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">

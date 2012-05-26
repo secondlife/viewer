@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="440"
+ height="460"
  layout="topleft"
  name="Image Preview"
  help_topic="image_preview"
@@ -108,7 +108,7 @@
     <text
      type="string"
      length="1"
-     bottom="225"
+     bottom="250"
      height="45"
      word_wrap="true"
      follows="top|left"
@@ -137,7 +137,7 @@ Try saving image as 24 bit Targa (.tga).
      layout="topleft"
      left="165"
      name="cancel_btn"
-     top="410"
+     top="430"
      width="125" />
     <button
      follows="bottom|left"

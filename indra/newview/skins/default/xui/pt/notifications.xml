@@ -664,7 +664,7 @@ Esperada [VALIDS]
 		Incapaz de criar arquivo de saída: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		O [APP_NAME] ainda não faz o upload de vários arquivos de animação de uma vez.
+		O [APP_NAME] ainda não faz o upload de vários arquivos de animação no formato BVH de uma vez.
 	</notification>
 	<notification name="CannotUploadReason">
 		Incapaz de carregar [FILE] devido ao seguinte motivo: [REASON]
@@ -2612,16 +2612,16 @@ Deseja aceitar?
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Bloquear"/>
-			<button name="Ignore" text="Ignorar"/>
+			<button name="Client_Side_Mute" text="Bloquear"/>
+			<button name="Client_Side_Ignore" text="Ignorar"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [GROUPNAME]&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Bloquear"/>
-			<button name="Ignore" text="Ignorar"/>
+			<button name="Client_Side_Mute" text="Bloquear"/>
+			<button name="Client_Side_Ignore" text="Ignorar"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">

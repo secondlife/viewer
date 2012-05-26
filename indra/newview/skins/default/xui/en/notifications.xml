@@ -7801,4 +7801,31 @@ Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
 You died and have been teleported to your home location.
   </global>
 
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsUpdateFileNotFound"
+   persist="true"
+   type="notify">
+[FNAME] could not be updated because the file could no longer be found.
+Disabling future updates for this file.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsUpdateFailedFinal"
+   persist="true"
+   type="notify">
+[FNAME] could not be opened or decoded for [NRETRIES] attempts, and is now considered broken.
+Disabling future updates for this file.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsVerifyFail"
+   persist="true"
+   type="notify">
+Attempted to add an invalid or unreadable image file [FNAME] which could not be opened or decoded.
+Attempt cancelled.
+  </notification>
+  
 </notifications>
