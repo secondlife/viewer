@@ -696,22 +696,21 @@ public:
 private:
 	bool                            mIsDoSendMaturityPreferenceToServer;
 	maturity_preferences_callback_t mMaturityPreferenceConfirmCallback;
-	unsigned int                    mMaturityPerferenceRequestId;
-	unsigned int                    mMaturityPerferenceResponseId;
+	unsigned int                    mMaturityPreferenceRequestId;
+	unsigned int                    mMaturityPreferenceResponseId;
+	unsigned int                    mMaturityPreferenceNumRetries;
 	U8                              mLastKnownRequestMaturity;
 	U8                              mLastKnownResponseMaturity;
-	boost::signals2::connection     mPreferredMaturityValidateSlot;
-	boost::signals2::connection     mPreferredMaturityCommitSlot;
 
-	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity, U8 pPreviousMaturity); // ! "U8" instead of "int"?
+	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
 
 	friend class LLMaturityPreferencesResponder;
-	void            handlePreferredMaturityResult(unsigned int pRequestId, U8 pServerMaturity);
-	void            handlePreferredMaturityError(unsigned int pRequestId, U8 pPreferredMaturity, U8 pPreviousMaturity);
-	void            handlePreferredMaturityUnexpectedResult(unsigned int pRequestId, U8 pPreferredMaturity, U8 pPreviousMaturity, U8 pServerMaturity);
+	void            handlePreferredMaturityResult(U8 pServerMaturity);
+	void            handlePreferredMaturityError();
+	void            reportPreferredMaturityError();
 
 	// Maturity callbacks for PreferredMaturity control variable
-	void 			handleMaturity(const LLSD &pNewValue, const LLSD &pPreviousValue);
+	void 			handleMaturity(const LLSD &pNewValue);
 	bool 			validateMaturity(const LLSD& newvalue);
 
 
