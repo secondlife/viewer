@@ -6356,17 +6356,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>NumpadControl</key>
-    <map>
-      <key>Comment</key>
-      <string>How numpad keys control your avatar. 0 = Like the normal arrow keys, 1 = Numpad moves avatar when numlock is off, 2 = Numpad moves avatar regardless of numlock (use this if you have no numlock)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>ObjectCacheEnabled</key>
     <map>
       <key>Comment</key>
@@ -13516,5 +13505,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>AdultCheckEnablePurchse</key>
+  <map>
+    <key>Comment</key>
+    <string>Hack to allow QA testing of purchasing land regardless of maturity rating.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
 </map>
 </llsd>

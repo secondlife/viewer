@@ -51,6 +51,9 @@
 #include "llviewerregion.h"
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
+#ifndef STINSON_ADULT_CHECK_HACK
+#include "llviewercontrol.h"
+#endif // STINSON_ADULT_CHECK_HACK
 
 LLFloaterBuyContents::LLFloaterBuyContents(const LLSD& key)
 :	LLFloater(key)
@@ -64,7 +67,11 @@ BOOL LLFloaterBuyContents::postBuild()
 	getChild<LLUICtrl>("buy_btn")->setCommitCallback( boost::bind(&LLFloaterBuyContents::onClickBuy, this));
 
 	getChildView("item_list")->setEnabled(FALSE);
+#ifndef STINSON_ADULT_CHECK_HACK
+	getChildView("buy_btn")->setEnabled(gSavedSettings.getBOOL("AdultCheckEnablePurchse"));
+#else // STINSON_ADULT_CHECK_HACK
 	getChildView("buy_btn")->setEnabled(FALSE);
+#endif // STINSON_ADULT_CHECK_HACK
 	getChildView("wear_check")->setEnabled(FALSE);
 
 	setDefaultBtn("cancel_btn"); // to avoid accidental buy (SL-43130)
@@ -163,7 +170,11 @@ void LLFloaterBuyContents::inventoryChanged(LLViewerObject* obj,
 	}
 
 	// default to turning off the buy button.
+#ifndef STINSON_ADULT_CHECK_HACK
+	getChildView("buy_btn")->setEnabled(gSavedSettings.getBOOL("AdultCheckEnablePurchse"));
+#else // STINSON_ADULT_CHECK_HACK
 	getChildView("buy_btn")->setEnabled(FALSE);
+#endif // STINSON_ADULT_CHECK_HACK
 
 	LLUUID owner_id;
 	BOOL is_group_owned;

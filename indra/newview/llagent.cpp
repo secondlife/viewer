@@ -81,6 +81,7 @@
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
@@ -111,6 +112,94 @@ const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 // The agent instance.
 LLAgent gAgent;
+
+class LLTeleportRequest
+{
+public:
+	LLTeleportRequest();
+	virtual ~LLTeleportRequest();
+
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport() = 0;
+	virtual void restartTeleport();
+
+protected:
+
+private:
+
+};
+
+class LLTeleportRequestViaLandmark : public LLTeleportRequest
+{
+public:
+	LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
+	virtual ~LLTeleportRequestViaLandmark();
+
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+	virtual void restartTeleport();
+
+protected:
+	inline const LLUUID &getLandmarkId() const {return mLandmarkId;};
+
+private:
+	LLUUID mLandmarkId;
+};
+
+class LLTeleportRequestViaLure : public LLTeleportRequestViaLandmark
+{
+public:
+	LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike);
+	virtual ~LLTeleportRequestViaLure();
+
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+
+protected:
+	inline BOOL isLureGodLike() const {return mIsLureGodLike;};
+
+private:
+	BOOL mIsLureGodLike;
+};
+
+class LLTeleportRequestViaLocation : public LLTeleportRequest
+{
+public:
+	LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
+	virtual ~LLTeleportRequestViaLocation();
+
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+	virtual void restartTeleport();
+
+protected:
+	inline const LLVector3d &getPosGlobal() const {return mPosGlobal;};
+
+private:
+	LLVector3d mPosGlobal;
+};
+
+
+class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
+{
+public:
+	LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
+	virtual ~LLTeleportRequestViaLocationLookAt();
+
+	virtual bool canRestartTeleport();
+
+	virtual void startTeleport();
+	virtual void restartTeleport();
+
+protected:
+
+private:
+
+};
 
 //--------------------------------------------------------------------
 // Statics
@@ -245,6 +334,19 @@ LLAgent::LLAgent() :
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
 	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
+	mCurrentTeleportRequest(),
+	mFailedTeleportRequest(),
+	mTeleportFinishedSlot(),
+	mTeleportFailedSlot(),
+	mIsMaturityRatingChangingDuringTeleport(false),
+	mMaturityRatingChange(0U),
+	mIsDoSendMaturityPreferenceToServer(false),
+	mMaturityPreferenceConfirmCallback(NULL),
+	mMaturityPreferenceRequestId(0U),
+	mMaturityPreferenceResponseId(0U),
+	mMaturityPreferenceNumRetries(0U),
+	mLastKnownRequestMaturity(SIM_ACCESS_MIN),
+	mLastKnownResponseMaturity(SIM_ACCESS_MIN),
 	mTeleportState( TELEPORT_NONE ),
 	mRegionp(NULL),
 
@@ -330,8 +432,18 @@ void LLAgent::init()
 
 	gSavedSettings.getControl("PreferredMaturity")->getValidateSignal()->connect(boost::bind(&LLAgent::validateMaturity, this, _2));
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLAgent::handleMaturity, this, _2));
+	mLastKnownResponseMaturity = static_cast<U8>(gSavedSettings.getU32("PreferredMaturity"));
+	mLastKnownRequestMaturity = mLastKnownResponseMaturity;
+	mIsDoSendMaturityPreferenceToServer = true;
 
-	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
+	if (!mTeleportFinishedSlot.connected())
+	{
+		mTeleportFinishedSlot = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(boost::bind(&LLAgent::handleTeleportFinished, this));
+	}
+	if (!mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot = LLViewerParcelMgr::getInstance()->setTeleportFailedCallback(boost::bind(&LLAgent::handleTeleportFailed, this));
+	}
 
 	mInitialized = TRUE;
 }
@@ -342,6 +454,14 @@ void LLAgent::init()
 void LLAgent::cleanup()
 {
 	mRegionp = NULL;
+	if (mTeleportFinishedSlot.connected())
+	{
+		mTeleportFinishedSlot.disconnect();
+	}
+	if (mTeleportFailedSlot.connected())
+	{
+		mTeleportFailedSlot.disconnect();
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2371,49 +2491,277 @@ bool LLAgent::isAdult() const
 	return mAgentAccess->isAdult();
 }
 
-void LLAgent::setTeen(bool teen)
-{
-	mAgentAccess->setTeen(teen);
-}
-
 //static 
 int LLAgent::convertTextToMaturity(char text)
 {
 	return LLAgentAccess::convertTextToMaturity(text);
 }
 
-bool LLAgent::sendMaturityPreferenceToServer(int preferredMaturity)
+class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
 {
-	if (!getRegion())
-		return false;
-	
-	// Update agent access preference on the server
-	std::string url = getRegion()->getCapability("UpdateAgentInformation");
-	if (!url.empty())
+public:
+	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity, LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback);
+	virtual ~LLMaturityPreferencesResponder();
+
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
+
+protected:
+
+private:
+	U8 parseMaturityFromServerResponse(const LLSD &pContent);
+
+	LLAgent                                  *mAgent;
+	U8                                       mPreferredMaturity;
+	U8                                       mPreviousMaturity;
+	LLAgent::maturity_preferences_callback_t mMaturityPreferencesCallback;
+};
+
+LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity, LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback)
+	: LLHTTPClient::Responder(),
+	mAgent(pAgent),
+	mPreferredMaturity(pPreferredMaturity),
+	mPreviousMaturity(pPreviousMaturity),
+	mMaturityPreferencesCallback(pMaturityPreferencesCallback)
+{
+}
+
+LLMaturityPreferencesResponder::~LLMaturityPreferencesResponder()
+{
+}
+
+void LLMaturityPreferencesResponder::result(const LLSD &pContent)
+{
+	U8 actualMaturity = parseMaturityFromServerResponse(pContent);
+
+	if (actualMaturity != mPreferredMaturity)
 	{
-		// Set new access preference
-		LLSD access_prefs = LLSD::emptyMap();
-		if (preferredMaturity == SIM_ACCESS_PG)
-		{
-			access_prefs["max"] = "PG";
-		}
-		else if (preferredMaturity == SIM_ACCESS_MATURE)
-		{
-			access_prefs["max"] = "M";
-		}
-		if (preferredMaturity == SIM_ACCESS_ADULT)
-		{
-			access_prefs["max"] = "A";
-		}
-		
-		LLSD body = LLSD::emptyMap();
-		body["access_prefs"] = access_prefs;
-		llinfos << "Sending access prefs update to " << (access_prefs["max"].asString()) << " via capability to: "
-		<< url << llendl;
-		LLHTTPClient::post(url, body, new LLHTTPClient::Responder());    // Ignore response
-		return true;
+		llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+			<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', the server responded with '"
+			<< LLViewerRegion::accessToString(actualMaturity) << "' [value:" << static_cast<U32>(actualMaturity) << ", llsd:"
+			<< pContent << "]" << llendl;
 	}
-	return false;
+	mAgent->handlePreferredMaturityResult(actualMaturity);
+
+	if (!mMaturityPreferencesCallback.empty())
+	{
+		mMaturityPreferencesCallback(actualMaturity);
+	}
+}
+
+void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
+{
+	llwarns << "while attempting to change maturity preference from '" << LLViewerRegion::accessToString(mPreviousMaturity)
+		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error because '"
+		<< pReason << "' [status:" << pStatus << "]" << llendl;
+	mAgent->handlePreferredMaturityError();
+	if (!mMaturityPreferencesCallback.empty())
+	{
+		mMaturityPreferencesCallback(mPreviousMaturity);
+	}
+}
+
+U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
+{
+	// stinson 05/24/2012 Pathfinding regions have re-defined the response behavior.  In the old server code,
+	// if you attempted to change the preferred maturity to the same value, the response content would be an
+	// undefined LLSD block.  In the new server code with pathfinding, the response content should always be
+	// defined.  Thus, the check for isUndefined() can be replaced with an assert after pathfinding is merged
+	// into server trunk and fully deployed.
+	U8 maturity = SIM_ACCESS_MIN;
+	if (pContent.isUndefined())
+	{
+		maturity = mPreferredMaturity;
+	}
+	else
+	{
+		llassert(!pContent.isUndefined());
+		llassert(pContent.isMap());
+	
+		if (!pContent.isUndefined() && pContent.isMap())
+		{
+			// stinson 05/24/2012 Pathfinding regions have re-defined the response syntax.  The if statement catches
+			// the new syntax, and the else statement catches the old syntax.  After pathfinding is merged into
+			// server trunk and fully deployed, we can remove the else statement.
+			if (pContent.has("access_prefs"))
+			{
+				llassert(pContent.has("access_prefs"));
+				llassert(pContent.get("access_prefs").isMap());
+				llassert(pContent.get("access_prefs").has("max"));
+				llassert(pContent.get("access_prefs").get("max").isString());
+				if (pContent.get("access_prefs").isMap() && pContent.get("access_prefs").has("max") &&
+					pContent.get("access_prefs").get("max").isString())
+				{
+					LLSD::String actualPreference = pContent.get("access_prefs").get("max").asString();
+					LLStringUtil::trim(actualPreference);
+					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
+				}
+			}
+			else if (pContent.has("max"))
+			{
+				llassert(pContent.get("max").isString());
+				if (pContent.get("max").isString())
+				{
+					LLSD::String actualPreference = pContent.get("max").asString();
+					LLStringUtil::trim(actualPreference);
+					maturity = LLViewerRegion::shortStringToAccess(actualPreference);
+				}
+			}
+		}
+	}
+
+	return maturity;
+}
+
+void LLAgent::setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback)
+{
+	llassert(mMaturityPreferenceConfirmCallback == NULL);
+	mMaturityPreferenceConfirmCallback = pMaturityPreferencesCallback;
+
+	gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
+	// PreferredMaturity has a signal hook on change that will call LLAgent::sendMaturityPreferenceToServer
+	// sendMaturityPreferenceToServer will use mMaturityPreferenceConfirmCallback in the LLHTTPResponder
+	// This allows for confirmation that the server has officially received the maturity preference change
+
+	mMaturityPreferenceConfirmCallback = NULL;
+}
+
+void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
+{
+	// Update the number of responses received
+	++mMaturityPreferenceResponseId;
+	llassert(mMaturityPreferenceResponseId <= mMaturityPreferenceRequestId);
+
+	// Update the last known server maturity response
+	mLastKnownResponseMaturity = pServerMaturity;
+
+	// Ignore all responses if we know there are more unanswered requests that are expected
+	if (mMaturityPreferenceResponseId == mMaturityPreferenceRequestId)
+	{
+		// If we received a response that matches the last known request, then we are good
+		if (mLastKnownRequestMaturity == mLastKnownResponseMaturity)
+		{
+			mMaturityPreferenceNumRetries = 0;
+			llassert(static_cast<U8>(gSavedSettings.getU32("PreferredMaturity")) == mLastKnownResponseMaturity);
+		}
+		// Else, the viewer is out of sync with the server, so let's try to re-sync with the
+		// server by re-sending our last known request.  Cap the re-tries at 3 just to be safe.
+		else if (++mMaturityPreferenceNumRetries <= 3)
+		{
+			llinfos << "Retrying attempt #" << mMaturityPreferenceNumRetries << " to set viewer preferred maturity to '"
+				<< LLViewerRegion::accessToString(mLastKnownRequestMaturity) << "'" << llendl;
+			sendMaturityPreferenceToServer(mLastKnownRequestMaturity);
+		}
+		// Else, the viewer is style out of sync with the server after 3 retries, so inform the user
+		else
+		{
+			mMaturityPreferenceNumRetries = 0;
+			reportPreferredMaturityError();
+		}
+	}
+}
+
+void LLAgent::handlePreferredMaturityError()
+{
+	// Update the number of responses received
+	++mMaturityPreferenceResponseId;
+	llassert(mMaturityPreferenceResponseId <= mMaturityPreferenceRequestId);
+
+	// Ignore all responses if we know there are more unanswered requests that are expected
+	if (mMaturityPreferenceResponseId == mMaturityPreferenceRequestId)
+	{
+		mMaturityPreferenceNumRetries = 0;
+
+		// If we received a response that matches the last known request, then we are synced with
+		// the server, but not quite sure why we are
+		if (mLastKnownRequestMaturity == mLastKnownResponseMaturity)
+		{
+			llwarns << "Got an error but maturity preference '" << LLViewerRegion::accessToString(mLastKnownRequestMaturity)
+				<< "' seems to be in sync with the server" << llendl;
+			mMaturityPreferenceNumRetries = 0;
+		}
+		// Else, the more likely case is that the last request does not match the last response,
+		// so inform the user
+		else
+		{
+			reportPreferredMaturityError();
+		}
+	}
+}
+
+void LLAgent::reportPreferredMaturityError()
+{
+	// Get the last known maturity request from the user activity
+	std::string preferredMaturity = LLViewerRegion::accessToString(mLastKnownRequestMaturity);
+	LLStringUtil::toLower(preferredMaturity);
+
+	// Get the last known maturity response from the server
+	std::string actualMaturity = LLViewerRegion::accessToString(mLastKnownResponseMaturity);
+	LLStringUtil::toLower(actualMaturity);
+
+	// Notify the user
+	LLSD args = LLSD::emptyMap();
+	args["PREFERRED_MATURITY"] = preferredMaturity;
+	args["ACTUAL_MATURITY"] = actualMaturity;
+	LLNotificationsUtil::add("MaturityChangeError", args);
+
+	// Check the saved settings to ensure that we are consistent.  If we are not consistent, update
+	// the viewer, but do not send anything to server
+	U8 localMaturity = static_cast<U8>(gSavedSettings.getU32("PreferredMaturity"));
+	if (localMaturity != mLastKnownResponseMaturity)
+	{
+		bool tmpIsDoSendMaturityPreferenceToServer = mIsDoSendMaturityPreferenceToServer;
+		mIsDoSendMaturityPreferenceToServer = false;
+		llinfos << "Setting viewer preferred maturity to '" << LLViewerRegion::accessToString(mLastKnownResponseMaturity) << "'" << llendl;
+		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(mLastKnownResponseMaturity));
+		mIsDoSendMaturityPreferenceToServer = tmpIsDoSendMaturityPreferenceToServer;
+	}
+}
+
+void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
+{
+	// Only send maturity preference to the server if enabled
+	if (mIsDoSendMaturityPreferenceToServer)
+	{
+		// Increment the number of requests.  The handlers manage a separate count of responses.
+		++mMaturityPreferenceRequestId;
+
+		// Update the last know maturity request
+		mLastKnownRequestMaturity = pPreferredMaturity;
+
+		// Create a response handler
+		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(this, pPreferredMaturity, mLastKnownResponseMaturity, mMaturityPreferenceConfirmCallback));
+
+		// If we don't have a region, report it as an error
+		if (getRegion() == NULL)
+		{
+			responderPtr->error(0U, "region is not defined");
+		}
+		else
+		{
+			// Find the capability to send maturity preference
+			std::string url = getRegion()->getCapability("UpdateAgentInformation");
+
+			// If the capability is not defined, report it as an error
+			if (url.empty())
+			{
+				responderPtr->error(0U, "capability 'UpdateAgentInformation' is not defined for region");
+			}
+			else
+			{
+				// Set new access preference
+				LLSD access_prefs = LLSD::emptyMap();
+				access_prefs["max"] = LLViewerRegion::accessToShortString(pPreferredMaturity);
+
+				LLSD body = LLSD::emptyMap();
+				body["access_prefs"] = access_prefs;
+				llinfos << "Sending viewer preferred maturity to '" << LLViewerRegion::accessToString(pPreferredMaturity)
+					<< "' via capability to: " << url << llendl;
+				LLSD headers;
+				LLHTTPClient::post(url, body, responderPtr, headers, 30.0f);
+			}
+		}
+	}
 }
 
 BOOL LLAgent::getAdminOverride() const	
@@ -2436,11 +2784,6 @@ void LLAgent::setGodLevel(U8 god_level)
 	mAgentAccess->setGodLevel(god_level);
 }
 
-void LLAgent::setAOTransition()
-{
-	mAgentAccess->setTransition();
-}
-
 const LLAgentAccess& LLAgent::getAgentAccess()
 {
 	return *mAgentAccess;
@@ -2451,9 +2794,9 @@ bool LLAgent::validateMaturity(const LLSD& newvalue)
 	return mAgentAccess->canSetMaturity(newvalue.asInteger());
 }
 
-void LLAgent::handleMaturity(const LLSD& newvalue)
+void LLAgent::handleMaturity(const LLSD &pNewValue)
 {
-	sendMaturityPreferenceToServer(newvalue.asInteger());
+	sendMaturityPreferenceToServer(static_cast<U8>(pNewValue.asInteger()));
 }
 
 //----------------------------------------------------------------------------
@@ -3463,6 +3806,73 @@ bool LLAgent::teleportCore(bool is_local)
 	return true;
 }
 
+bool LLAgent::hasRestartableFailedTeleportRequest()
+{
+	return hasFailedTeleportRequest() && mFailedTeleportRequest->canRestartTeleport();
+}
+
+void LLAgent::restartFailedTeleportRequest()
+{
+	if (hasRestartableFailedTeleportRequest())
+	{
+		mFailedTeleportRequest->restartTeleport();
+	}
+}
+
+void LLAgent::clearFailedTeleportRequest()
+{
+	if (hasFailedTeleportRequest())
+	{
+		mFailedTeleportRequest.reset();
+	}
+}
+
+void LLAgent::setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange)
+{
+	mIsMaturityRatingChangingDuringTeleport = true;
+	mMaturityRatingChange = pMaturityRatingChange;
+}
+
+void LLAgent::handleTeleportFinished()
+{
+	if (hasCurrentTeleportRequest())
+	{
+		mCurrentTeleportRequest.reset();
+	}
+	if (hasFailedTeleportRequest())
+	{
+		clearFailedTeleportRequest();
+	}
+	if (mIsMaturityRatingChangingDuringTeleport)
+	{
+		// notify user that the maturity preference has been changed
+		std::string maturityRating = LLViewerRegion::accessToString(mMaturityRatingChange);
+		LLStringUtil::toLower(maturityRating);
+		LLSD args;
+		args["RATING"] = maturityRating;
+		LLNotificationsUtil::add("PreferredMaturityChanged", args);
+		mIsMaturityRatingChangingDuringTeleport = false;
+	}
+}
+
+void LLAgent::handleTeleportFailed()
+{
+	if (hasCurrentTeleportRequest())
+	{
+		mFailedTeleportRequest = mCurrentTeleportRequest;
+	}
+	if (mIsMaturityRatingChangingDuringTeleport)
+	{
+		// notify user that the maturity preference has been changed
+		std::string maturityRating = LLViewerRegion::accessToString(mMaturityRatingChange);
+		LLStringUtil::toLower(maturityRating);
+		LLSD args;
+		args["RATING"] = maturityRating;
+		LLNotificationsUtil::add("PreferredMaturityChanged", args);
+		mIsMaturityRatingChangingDuringTeleport = false;
+	}
+}
+
 void LLAgent::teleportRequest(
 	const U64& region_handle,
 	const LLVector3& pos_local,
@@ -3495,6 +3905,12 @@ void LLAgent::teleportRequest(
 // Landmark ID = LLUUID::null means teleport home
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
+	mCurrentTeleportRequest->startTeleport();
+}
+
+void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
+{
 	LLViewerRegion *regionp = getRegion();
 	if(regionp && teleportCore())
 	{
@@ -3509,6 +3925,12 @@ void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 }
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
+{
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
+	mCurrentTeleportRequest->startTeleport();
+}
+
+void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
 	LLViewerRegion* regionp = getRegion();
 	if(regionp && teleportCore())
@@ -3559,6 +3981,12 @@ void LLAgent::teleportCancel()
 
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
+	mCurrentTeleportRequest->startTeleport();
+}
+
+void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
+{
 	LLViewerRegion* regionp = getRegion();
 	U64 handle = to_region_handle(pos_global);
 	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle);
@@ -3600,6 +4028,12 @@ void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 
 // Teleport to global position, but keep facing in the same direction 
 void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
+{
+	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
+	mCurrentTeleportRequest->startTeleport();
+}
+
+void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
 {
 	mbTeleportKeepsLookAt = true;
 	gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
@@ -4034,5 +4468,148 @@ LLAgentQueryManager::~LLAgentQueryManager()
 {
 }
 
-// EOF
+//-----------------------------------------------------------------------------
+// LLTeleportRequest
+//-----------------------------------------------------------------------------
 
+LLTeleportRequest::LLTeleportRequest()
+{
+}
+
+LLTeleportRequest::~LLTeleportRequest()
+{
+}
+
+bool LLTeleportRequest::canRestartTeleport()
+{
+	return false;
+}
+
+void LLTeleportRequest::restartTeleport()
+{
+	llassert(0);
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLandmark
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId)
+	: LLTeleportRequest(),
+	mLandmarkId(pLandmarkId)
+{
+}
+
+LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
+{
+}
+
+bool LLTeleportRequestViaLandmark::canRestartTeleport()
+{
+	return true;
+}
+
+void LLTeleportRequestViaLandmark::startTeleport()
+{
+	gAgent.doTeleportViaLandmark(getLandmarkId());
+}
+
+void LLTeleportRequestViaLandmark::restartTeleport()
+{
+	gAgent.doTeleportViaLandmark(getLandmarkId());
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLure
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike)
+	: LLTeleportRequestViaLandmark(pLureId),
+	mIsLureGodLike(pIsLureGodLike)
+{
+}
+
+LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
+{
+}
+
+bool LLTeleportRequestViaLure::canRestartTeleport()
+{
+	// stinson 05/17/2012 : cannot restart a teleport via lure because of server-side restrictions
+	// The current scenario is as follows:
+	//    1. User A initializes a request for User B to teleport via lure
+	//    2. User B accepts the teleport via lure request
+	//    3. The server sees the init request from User A and the accept request from User B and matches them up
+	//    4. The server then removes the paired requests up from the "queue"
+	//    5. The server then fails User B's teleport for reason of maturity level (for example)
+	//    6. User B's viewer prompts user to increase their maturity level profile value.
+	//    7. User B confirms and accepts increase in maturity level
+	//    8. User B's viewer then attempts to teleport via lure again
+	//    9. This request will time-out on the viewer-side because User A's initial request has been removed from the "queue" in step 4
+
+	return false;
+}
+
+void LLTeleportRequestViaLure::startTeleport()
+{
+	gAgent.doTeleportViaLure(getLandmarkId(), isLureGodLike());
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLocation
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLocation::LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal)
+	: LLTeleportRequest(),
+	mPosGlobal(pPosGlobal)
+{
+}
+
+LLTeleportRequestViaLocation::~LLTeleportRequestViaLocation()
+{
+}
+
+bool LLTeleportRequestViaLocation::canRestartTeleport()
+{
+	return true;
+}
+
+void LLTeleportRequestViaLocation::startTeleport()
+{
+	gAgent.doTeleportViaLocation(getPosGlobal());
+}
+
+void LLTeleportRequestViaLocation::restartTeleport()
+{
+	gAgent.doTeleportViaLocation(getPosGlobal());
+}
+
+//-----------------------------------------------------------------------------
+// LLTeleportRequestViaLocationLookAt
+//-----------------------------------------------------------------------------
+
+LLTeleportRequestViaLocationLookAt::LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal)
+	: LLTeleportRequestViaLocation(pPosGlobal)
+{
+}
+
+LLTeleportRequestViaLocationLookAt::~LLTeleportRequestViaLocationLookAt()
+{
+}
+
+bool LLTeleportRequestViaLocationLookAt::canRestartTeleport()
+{
+	return true;
+}
+
+void LLTeleportRequestViaLocationLookAt::startTeleport()
+{
+	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
+}
+
+void LLTeleportRequestViaLocationLookAt::restartTeleport()
+{
+	gAgent.doTeleportViaLocationLookAt(getPosGlobal());
+}
+
+// EOF

@@ -251,7 +251,11 @@ void LLSidepanelTaskInfo::disableAll()
 	
 	mOpenBtn->setEnabled(FALSE);
 	mPayBtn->setEnabled(FALSE);
+#ifndef STINSON_ADULT_CHECK_HACK
+	mBuyBtn->setEnabled(gSavedSettings.getBOOL("AdultCheckEnablePurchse"));
+#else // STINSON_ADULT_CHECK_HACK
 	mBuyBtn->setEnabled(FALSE);
+#endif // STINSON_ADULT_CHECK_HACK
 }
 
 void LLSidepanelTaskInfo::refresh()

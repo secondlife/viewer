@@ -111,18 +111,6 @@ namespace tut
 		ensure("1 isMature",   !aa.isMature());
 		ensure("1 isAdult",    !aa.isAdult());
 		
-		// this is kinda bad -- setting this forces maturity to MATURE but !teen != Mature anymore
-		aa.setTeen(false);
-		ensure("2 isTeen",     !aa.isTeen());
-		ensure("2 isMature",   aa.isMature());
-		ensure("2 isAdult",    !aa.isAdult());
-
-		// have to flip it back and make sure it still works
-		aa.setTeen(true);
-		ensure("3 isTeen",     aa.isTeen());
-		ensure("3 isMature",   !aa.isMature());
-		ensure("3 isAdult",    !aa.isAdult());		
-
 		// check the conversion routine
 		ensure_equals("1 conversion", SIM_ACCESS_PG, aa.convertTextToMaturity('P'));
 		ensure_equals("2 conversion", SIM_ACCESS_MATURE, aa.convertTextToMaturity('M'));
@@ -131,21 +119,21 @@ namespace tut
 		
 		// now try the other method of setting it - PG
 		aa.setMaturity('P');
-		ensure("4 isTeen",     aa.isTeen());
-		ensure("4 isMature",   !aa.isMature());
-		ensure("4 isAdult",    !aa.isAdult());
+		ensure("2 isTeen",     aa.isTeen());
+		ensure("2 isMature",   !aa.isMature());
+		ensure("2 isAdult",    !aa.isAdult());
 		
 		// Mature
 		aa.setMaturity('M');
-		ensure("5 isTeen",     !aa.isTeen());
-		ensure("5 isMature",   aa.isMature());
-		ensure("5 isAdult",    !aa.isAdult());
+		ensure("3 isTeen",     !aa.isTeen());
+		ensure("3 isMature",   aa.isMature());
+		ensure("3 isAdult",    !aa.isAdult());
 		
 		// Adult
 		aa.setMaturity('A');
-		ensure("6 isTeen",     !aa.isTeen());
-		ensure("6 isMature",   aa.isMature());
-		ensure("6 isAdult",    aa.isAdult());
+		ensure("4 isTeen",     !aa.isTeen());
+		ensure("4 isMature",   aa.isMature());
+		ensure("4 isAdult",    aa.isAdult());
 		
 	}
 
@@ -234,18 +222,6 @@ namespace tut
 
 	template<> template<>
 	void agentaccess_object_t::test<5>()
-	{
-		LLControlGroup cgr("test");
-		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);
-		LLAgentAccess aa(cgr);
-		
-		ensure("1 transition starts false", !aa.isInTransition());
-		aa.setTransition();
-		ensure("2 transition now true", aa.isInTransition());
-	}
-
-	template<> template<>
-	void agentaccess_object_t::test<6>()
 	{
 		LLControlGroup cgr("test");
 		cgr.declareU32("PreferredMaturity", SIM_ACCESS_PG, "declared_for_test", FALSE);

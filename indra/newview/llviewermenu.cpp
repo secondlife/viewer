@@ -116,6 +116,9 @@
 #include "lltoolgrab.h"
 #include "llwindow.h"
 #include "boost/unordered_map.hpp"
+#ifndef STINSON_ADULT_CHECK_HACK
+#include "llviewercontrol.h"
+#endif // STINSON_ADULT_CHECK_HACK
 
 using namespace LLVOAvatarDefines;
 
@@ -299,7 +302,6 @@ BOOL enable_buy_land(void*);
 
 void handle_test_male(void *);
 void handle_test_female(void *);
-void handle_toggle_pg(void*);
 void handle_dump_attachments(void *);
 void handle_dump_avatar_local_textures(void*);
 void handle_debug_avatar_textures(void*);
@@ -340,7 +342,11 @@ void LLMenuParcelObserver::changed()
 {
 	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL));
 	
+#ifndef STINSON_ADULT_CHECK_HACK
+	BOOL buyable = gSavedSettings.getBOOL("AdultCheckEnablePurchse") || enable_buy_land(NULL);
+#else // STINSON_ADULT_CHECK_HACK
 	BOOL buyable = enable_buy_land(NULL);
+#endif // STINSON_ADULT_CHECK_HACK
 	gMenuHolder->childSetEnabled("Land Buy", buyable);
 	gMenuHolder->childSetEnabled("Buy Land...", buyable);
 }
@@ -1585,23 +1591,6 @@ class LLAdvancedTestFemale : public view_listener_t
 		return true;
 	}
 };
-
-
-
-///////////////
-// TOGGLE PG //
-///////////////
-
-
-class LLAdvancedTogglePG : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		handle_toggle_pg(NULL);
-		return true;
-	}
-};
-
 
 class LLAdvancedForceParamsToDefault : public view_listener_t
 {
@@ -3255,6 +3244,12 @@ void append_aggregate(std::string& string, const LLAggregatePermissions& ag_perm
 
 bool enable_buy_object()
 {
+#ifndef STINSON_ADULT_CHECK_HACK
+	if (gSavedSettings.getBOOL("AdultCheckEnablePurchse"))
+	{
+		return true;
+	}
+#endif // STINSON_ADULT_CHECK_HACK
     // In order to buy, there must only be 1 purchaseable object in
     // the selection manger.
 	if(LLSelectMgr::getInstance()->getSelection()->getRootObjectCount() != 1) return false;
@@ -5971,6 +5966,12 @@ class LLWorldEnableBuyLand : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+#ifndef STINSON_ADULT_CHECK_HACK
+		if (gSavedSettings.getBOOL("AdultCheckEnablePurchse"))
+		{
+			return true;
+		}
+#endif // STINSON_ADULT_CHECK_HACK
 		bool new_value = LLViewerParcelMgr::getInstance()->canAgentBuyParcel(
 								LLViewerParcelMgr::getInstance()->selectionEmpty()
 									? LLViewerParcelMgr::getInstance()->getAgentParcel()
@@ -6668,15 +6669,6 @@ void handle_test_female(void*)
 {
 	LLAppearanceMgr::instance().wearOutfitByName("Female Shape & Outfit");
 	//gGestureList.requestResetFromServer( FALSE );
-}
-
-void handle_toggle_pg(void*)
-{
-	gAgent.setTeen( !gAgent.isTeen() );
-
-	LLFloaterWorldMap::reloadIcons(NULL);
-
-	llinfos << "PG status set to " << (S32)gAgent.isTeen() << llendl;
 }
 
 void handle_dump_attachments(void*)
@@ -8239,7 +8231,6 @@ void initialize_menus()
 
 	view_listener_t::addMenu(new LLAdvancedTestMale(), "Advanced.TestMale");
 	view_listener_t::addMenu(new LLAdvancedTestFemale(), "Advanced.TestFemale");
-	view_listener_t::addMenu(new LLAdvancedTogglePG(), "Advanced.TogglePG");
 	
 	// Advanced > Character (toplevel)
 	view_listener_t::addMenu(new LLAdvancedForceParamsToDefault(), "Advanced.ForceParamsToDefault");

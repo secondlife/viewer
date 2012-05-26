@@ -41,6 +41,9 @@
 #include "llweb.h"
 #include "llwindow.h"
 #include "llappviewer.h"
+#ifndef STINSON_ADULT_CHECK_HACK
+#include "llviewercontrol.h"
+#endif // STINSON_ADULT_CHECK_HACK
 
 static const S32 STANDARD_BUY_AMOUNT = 2000;
 static const S32 MINIMUM_BALANCE_AMOUNT = 0;
@@ -156,7 +159,11 @@ void LLFloaterBuyCurrencyUI::draw()
 	}
 
 	// disable the Buy button when we are not able to buy
+#ifndef STINSON_ADULT_CHECK_HACK
+	getChildView("buy_btn")->setEnabled(gSavedSettings.getBOOL("AdultCheckEnablePurchse") || mManager.canBuy());
+#else // STINSON_ADULT_CHECK_HACK
 	getChildView("buy_btn")->setEnabled(mManager.canBuy());
+#endif // STINSON_ADULT_CHECK_HACK
 
 	LLFloater::draw();
 }

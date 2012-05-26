@@ -4070,9 +4070,7 @@ Are you sure you want to change the Estate Covenant?
    name="RegionEntryAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
-You are not allowed in that Region due to your maturity Rating. This may be a result of a lack of information validating your age.
-
-Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
+    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -4080,13 +4078,11 @@ Please verify you have the latest Viewer installed, and go to the Knowledge Base
 
   <notification
    icon="alertmodal.tga"
-   name="RegionEntryAccessBlocked_KB"
+   name="RegionEntryAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
    <tag>fail</tag>
     <tag>confirm</tag>
-You are not allowed in that region due to your maturity Rating.
-
-Go to the Knowledge Base for more information about maturity Ratings?
+    The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
     <url option="0" name="url">
 		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
@@ -4094,7 +4090,7 @@ Go to the Knowledge Base for more information about maturity Ratings?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="I can&apos;t enter this Region, due to restrictions of the maturity Rating"/>
+	 ignoretext="The region you&apos;re trying to visit contains content, which is accessible to adults only."/>
   </notification>
 
   <notification
@@ -4102,47 +4098,109 @@ Go to the Knowledge Base for more information about maturity Ratings?
    name="RegionEntryAccessBlocked_Notify"
    type="notifytip">
    <tag>fail</tag>
-You are not allowed in that region due to your maturity Rating.
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="RegionEntryAccessBlocked_NotifyAdultsOnly"
+   type="notifytip">
+    <tag>fail</tag>
+    The region you're trying to visit contains content, which is accessible to adults only.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RegionEntryAccessBlocked_ChangeAndReTeleport"
+   type="alertmodal">
+   <tag>fail</tag>
+    <tag>confirm</tag>
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences and continue with the teleport, or you can cancel this teleport.
+	 <form name="form">
+      <button
+       index="0"
+       name="OK"
+       text="Change and continue"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+       <ignore name="ignore" text="The region you&apos;re trying to visit contains content excluded by your preferences.  We can change your preferences and continue with the teleport."/>
+    </form>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="RegionEntryAccessBlocked_Change"
    type="alertmodal">
-   <tag>fail</tag>
+    <tag>fail</tag>
     <tag>confirm</tag>
-You are not allowed in that Region due to your maturity Rating preference.
-
-To enter the desired region, please change your maturity Rating preference. This will allow you to search for and access [REGIONMATURITY] content. To undo any changes, go to Me &gt; Preferences &gt; General.
-	 <form name="form">
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, or you can cancel the teleport. After your preferences are changed, you will need to attempt the teleport again.
+    <form name="form">
       <button
        index="0"
        name="OK"
-       text="Change Preference"/>
-      <button
+       text="Change preferences"/>
+      <button 
        default="true"
        index="1"
        name="Cancel"
-       text="Close"/>
-       <ignore name="ignore" text="My chosen Rating preference prevents me from entering a Region"/>
+       text="Cancel"/>
+      <ignore name="ignore" text="The region you&apos;re trying to visit contains content excluded by your preferences.  We can change your preferences.  Then, you will need to attempt the teleport again."/>
     </form>
   </notification>
 
   <notification
-   icon="notifytip.tga"
+   icon="alertmodal.tga"
+   name="RegionEntryAccessBlocked_PreferencesOutOfSync"
+   type="alertmodal">
+    <tag>fail</tag>
+    We are having technical difficulties with your teleport because your preferences are out of sync with the server.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PreferredMaturityChanged"
-   type="notifytip">
-Your maturity Rating preference is now [RATING].
+   type="alertmodal">
+You won't receive any more notifications that you're about to visit a region with [RATING] content.  You may change your content preferences in the future by using Me &gt; Preferences &gt; General from the menu bar.
+  <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="MaturityCouldNotBeChanged"
+   type="alertmodal">
+We were unable to change your preferences to view [RATING] content at this time.  Please change your preferences by using Me &gt; Preferences &gt; General from the menu bar, and then attempt your teleport again.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="MaturityChangeError"
+   type="alertmodal">
+    We were unable to change your preferences to view [PREFERRED_MATURITY] content at this time.  Your preferences have been reset to view [ACTUAL_MATURITY] content.  You may attempt to change your preferences again by using Me &gt; Preferences &gt; General from the menu bar.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="LandClaimAccessBlocked"
    type="alertmodal">
-You cannot claim this land due to your maturity Rating. This may be a result of a lack of information validating your age.
-
-Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
-  <tag>fail</tag>
+    The land you're trying to claim has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -4150,12 +4208,10 @@ Please verify you have the latest Viewer installed, and go to the Knowledge Base
 
   <notification
    icon="alertmodal.tga"
-   name="LandClaimAccessBlocked_KB"
+   name="LandClaimAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
-You cannot claim this land due to your maturity Rating.
-
-Go to the Knowledge Base for more information about maturity Ratings?
-  <tag>fail</tag>
+    Only adults can claim this land.
+    <tag>fail</tag>
     <tag>confirm</tag>
     <url option="0" name="url">
 		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
@@ -4164,41 +4220,52 @@ Go to the Knowledge Base for more information about maturity Ratings?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="I can&apos;t claim this Land, due to restrictions of the maturity Rating"/>
+	 ignoretext="Only adults can claim this land."/>
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="LandClaimAccessBlocked_Notify"
    type="notifytip">
-You cannot claim this land due to your maturity Rating.
-  <tag>fail</tag>
+    The land you're trying to claim contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="LandClaimAccessBlocked_NotifyAdultsOnly"
+   type="notifytip">
+    <tag>fail</tag>
+    The land you're trying to claim contains content, which is accessible to adults only.
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="LandClaimAccessBlocked_Change"
    type="alertmodal">
-You cannot claim this land due to your maturity Rating preference.
-
-You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
+    The land you're trying to claim contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, then you can try claiming the land again.
     <tag>fail</tag>
     <tag>confirm</tag>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Change Preference"
-	 notext="Close"
-	 ignoretext="My chosen Rating preference prevents me from claiming Land"/>
+    <form name="form">
+      <button
+       index="0"
+       name="OK"
+       text="Change preferences"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+      <ignore name="ignore" text="The land you&apos;re trying to claim contains content excluded by your preferences."/>
+    </form>
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="LandBuyAccessBlocked"
    type="alertmodal">
-You cannot buy this land due to your maturity Rating. This may be a result of a lack of information validating your age.
-
-Please verify you have the latest Viewer installed, and go to the Knowledge Base for details on accessing areas with this maturity rating.
-  <tag>fail</tag>
+    The land you're trying to buy has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -4206,11 +4273,9 @@ Please verify you have the latest Viewer installed, and go to the Knowledge Base
 
   <notification
    icon="alertmodal.tga"
-   name="LandBuyAccessBlocked_KB"
+   name="LandBuyAccessBlocked_AdultsOnlyContent"
    type="alertmodal">
-You cannot buy this land due to your maturity Rating.
-
-Go to the Knowledge Base for more information about maturity Ratings?
+    Only adults can buy this land.
     <tag>confirm</tag>
   <tag>fail</tag>
     <url option="0" name="url">
@@ -4220,31 +4285,44 @@ Go to the Knowledge Base for more information about maturity Ratings?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="I can&apos;t buy this Land, due to restrictions of the maturity Rating"/>
+	 ignoretext="Only adults can buy this land."/>
   </notification>
 
   <notification
    icon="notifytip.tga"
    name="LandBuyAccessBlocked_Notify"
    type="notifytip">
-You cannot buy this land due to your maturity Rating.
-  <tag>fail</tag>
+    The land you're trying to buy contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="LandBuyAccessBlocked_NotifyAdultsOnly"
+   type="notifytip">
+    <tag>fail</tag>
+    The land you're trying to buy contains content, which is accessible to adults only.
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="LandBuyAccessBlocked_Change"
    type="alertmodal">
-You cannot buy this land due to your maturity Rating preference.
-
-You can click &apos;Change Preference&apos; to raise your maturity Rating preference now and allow you to enter. You will be able to search and access [REGIONMATURITY] content from now on. If you later want to change this setting back, go to Me &gt; Preferences &gt; General.
+    The land you're trying to buy contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, then you can try buying the land again.
     <tag>confirm</tag>
     <tag>fail</tag>
-    <usetemplate
-     name="okcancelignore"
-     yestext="Change Preference"
-	 notext="Close"
-	 ignoretext="My chosen Rating preference prevents me from buying Land"/>
+    <form name="form">
+      <button
+       index="0"
+       name="OK"
+       text="Change preferences"/>
+      <button
+       default="true"
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+      <ignore name="ignore" text="The land you&apos;re trying to buy contains content excluded by your preferences."/>
+    </form>
   </notification>
 
 	<notification
@@ -4399,10 +4477,11 @@ Type a short announcement which will be sent to everyone in this region.
    label="Changed Region Maturity"
    name="RegionMaturityChange"
    type="alertmodal">
-The maturity rating for this region has been updated.
-It may take some time for the change to be reflected on the map.
-
-To enter Adult regions, Residents must be Account Verified, either by age-verification or payment-verification.
+The maturity rating for this region has been changed.
+It may take some time for this change to be reflected on the map.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
   </notification>
 
   <notification
@@ -5108,20 +5187,20 @@ Would you like to automatically wear the clothing you are about to create?
    icon="alertmodal.tga"
    name="NotAgeVerified"
    type="alertmodal">
-   <tag>fail</tag>
-To access adult content and areas in Second Life you must be at least 18 years old. Please visit our age verification page to confirm you are over 18. 
-Note this will launch your web browser.
-
-[_URL]
-    <tag>confirm</tag>
-    <url option="0" name="url">
-	    https://secondlife.com/my/account/verification.php
-    </url>
+    The location you're trying to visit is restricted to residents age 18 and over.
+    <tag>fail</tag>
     <usetemplate
-     ignoretext="I have not verified my age"
-     name="okcancelignore"
-     notext="Cancel"
-     yestext="Go to Age Verification"/>
+     ignoretext="I am not old enough to visit age restricted areas."
+     name="okignore"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="NotAgeVerified_Notify"
+   type="notifytip">
+    Location restricted to age 18 and over.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -5268,7 +5347,7 @@ Terrain.raw downloaded
    icon="notifytip.tga"
    name="GestureMissing"
    type="notifytip">
-Hmm. Gesture [NAME] is missing from the database.
+Gesture [NAME] is missing from the database.
   <tag>fail</tag>
   </notification>
 
@@ -5806,9 +5885,7 @@ You can only claim public land in the Region you&apos;re in.
    persist="true"
    type="notify">
    <tag>fail</tag>
-You aren&apos;t allowed in that Region due to your maturity Rating. You may need to validate your age and/or install the latest Viewer.
-
-Please go to the Knowledge Base for details on accessing areas with this maturity Rating.
+    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
   </notification>
 
   <notification
@@ -5840,11 +5917,11 @@ You do not have proper payment status to enter this region.
 
   <notification
 	icon="notify.tga"
-	name="MustGetAgeRgion"
+	name="MustGetAgeRegion"
    persist="true"
 	type="notify">
    <tag>fail</tag>
-You must be age-verified to enter this region.
+You must be age 18 or over to enter this region.
   </notification>
 
   <notification
@@ -5853,7 +5930,7 @@ You must be age-verified to enter this region.
    persist="true"
 	type="notify">
    <tag>fail</tag>
-You must be age-verified to enter this parcel.
+    You must be age 18 or over to enter this parcel.
   </notification>
 
   <notification

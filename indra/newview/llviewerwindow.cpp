@@ -1700,9 +1700,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	// Can't have spaces in settings.ini strings, so use underscores instead and convert them.
 	LLStringUtil::replaceChar(mOverlayTitle, '_', ' ');
 
-	// sync the keyboard's setting with the saved setting
-	gSavedSettings.getControl("NumpadControl")->firePropertyChanged();
-
 	mDebugText = new LLDebugText(this);
 
 	mWorldViewRectScaled = calcScaledRect(mWorldViewRectRaw, mDisplayScale);
