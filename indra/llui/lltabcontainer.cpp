@@ -1209,7 +1209,11 @@ void LLTabContainer::removeTabPanel(LLPanel* child)
 				update_images(mTabList[mTabList.size()-2], mLastTabParams, getTabPosition());
 			}
 
-			removeChild( tuple->mButton );
+			if (!getTabsHidden())
+			{
+				// We need to remove tab buttons only if the tabs are not hidden.
+				removeChild( tuple->mButton );
+			}
  			delete tuple->mButton;
 
  			removeChild( tuple->mTabPanel );
