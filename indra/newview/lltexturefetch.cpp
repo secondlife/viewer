@@ -1905,7 +1905,8 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQAMode(qa_mode),
 	  mFetchDebugger(NULL),
 	  mFetchSource(LLTextureFetch::FROM_ALL),
-	  mOriginFetchSource(LLTextureFetch::FROM_ALL)
+	  mOriginFetchSource(LLTextureFetch::FROM_ALL),
+          mFetcherLocked(FALSE)
 {
 	mCurlPOSTRequestCount = 0;
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
