@@ -60,6 +60,12 @@ BOOL LLImagePNG::updateData()
 
 	// Decode the PNG data and extract sizing information
 	LLPngWrapper pngWrapper;
+	if (!pngWrapper.isValidPng(getData()))
+	{
+		setLastError("LLImagePNG data does not have a valid PNG header!");
+		return FALSE;
+	}
+
 	LLPngWrapper::ImageInfo infop;
 	if (! pngWrapper.readPng(getData(), NULL, &infop))
 	{
@@ -90,6 +96,12 @@ BOOL LLImagePNG::decode(LLImageRaw* raw_image, F32 decode_time)
 
 	// Decode the PNG data into the raw image
 	LLPngWrapper pngWrapper;
+	if (!pngWrapper.isValidPng(getData()))
+	{
+		setLastError("LLImagePNG data does not have a valid PNG header!");
+		return FALSE;
+	}
+
 	if (! pngWrapper.readPng(getData(), raw_image))
 	{
 		setLastError(pngWrapper.getErrorMessage());

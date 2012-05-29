@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="main inventory panel">
 	<panel.string name="ItemcountFetching">
 		[ITEM_COUNT] 個のアイテムを取得中です... [FILTER]
@@ -9,9 +9,9 @@
 	<text name="ItemcountText">
 		アイテム：
 	</text>
-	<filter_editor label="持ち物をフィルター" name="inventory search editor"/>
+	<filter_editor label="インベントリをフィルター" name="inventory search editor"/>
 	<tab_container name="inventory filter tabs">
-		<inventory_panel label="持ち物" name="All Items"/>
+		<inventory_panel label="インベントリ" name="All Items"/>
 		<recent_inventory_panel label="最新" name="Recent Items"/>
 	</tab_container>
 	<layout_stack name="bottom_panel">

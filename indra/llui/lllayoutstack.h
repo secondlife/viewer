@@ -155,6 +155,8 @@ public:
 	void setVisible(BOOL visible);
 
 	S32 getLayoutDim() const;
+	S32 getTargetDim() const;
+	void setTargetDim(S32 value);
 	S32 getMinDim() const { return llmax(0, mMinDim); }
 	void setMinDim(S32 value) { mMinDim = value; }
 

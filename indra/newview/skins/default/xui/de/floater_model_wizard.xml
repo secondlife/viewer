@@ -6,12 +6,12 @@
 	<button label="2. Optimieren" name="optimize_btn"/>
 	<button label="1. Datei auswählen" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Modelldatei auswählen
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
 				Fortgeschrittene Benutzer: Wenn Sie bereits mit Tools zur Erstellung von 3D-Inhalten vertraut sind, können Sie den erweiterten Uploader verwenden.
 			</text>
@@ -35,26 +35,26 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Modell optimieren
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			Wir haben das Modell auf Leistung optimiert. Sie können es bei Bedarf weiter anpassen.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
-				Detailstufe generieren: Hoch
+				Detailstufe generieren: hoch
 			</text>
 			<text name="medium_detail_text">
-				Detailstufe generieren: Mittel
+				Detailstufe generieren: mittel
 			</text>
 			<text name="low_detail_text">
-				Detailstufe generieren: Niedrig
+				Detailstufe generieren: niedrig
 			</text>
 			<text name="lowest_detail_text">
-				Detailstufe generieren: Niedrigste
+				Detailstufe generieren: niedrigste
 			</text>
 		</panel>
 		<panel name="content2">
@@ -79,15 +79,15 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				Physik anpassen
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Wir erstellen eine Form für die Außenhülle des Modells. Passen Sie die Detailstufe der Form wie für den beabsichtigten Zweck erforderlich an.
 		</text>
-		<panel name="content">
+		<panel name="physics_content">
 			<button label="Physik neu berechnen" name="recalculate_physics_btn"/>
 			<button label="Neu berechnen..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
@@ -110,17 +110,17 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Überprüfen
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Auswirkung auf Parzelle/Region: Prim-Äquivalenzwert [EQUIV]
 			</text>
 			<text name="review_fee">
-				Die für das Hochladen anfallende Gebühr in Höhe von [FEE] L$ wird von Ihrem Konto abgebucht.
+				Die für das Hochladen anfallende Gebühr in Höhe von L$ [FEE] wird von Ihrem Konto abgebucht.
 			</text>
 			<text name="review_confirmation">
 				Durch Klicken auf „Hochladen“ bestätigen Sie, dass Sie die erforderlichen Rechte für das im Modell enthaltene Material besitzen.
@@ -128,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Upload abgeschlossen
 			</text>
 		</panel>

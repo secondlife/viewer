@@ -10,7 +10,7 @@
 		投稿
 	</string>
 	<string name="inventory_progress_str">
-		持ち物に保存
+		インベントリに保存
 	</string>
 	<string name="local_progress_str">
 		コンピュータに保存
@@ -22,7 +22,7 @@
 		メールが送信されました
 	</string>
 	<string name="inventory_succeeded_str">
-		持ち物に保存されました
+		インベントリに保存されました
 	</string>
 	<string name="local_succeeded_str">
 		コンピュータに保存されました
@@ -34,7 +34,7 @@
 		メールを送信できませんでした。
 	</string>
 	<string name="inventory_failed_str">
-		持ち物に保存できませんでした。
+		インベントリに保存できませんでした。
 	</string>
 	<string name="local_failed_str">
 		コンピュータに保存できませんでした。

@@ -24,7 +24,9 @@
  */
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragData[3];
+out vec4 frag_data[3];
+#else
+#define frag_data gl_FragData
 #endif
 
 VARYING vec4 vertex_color;
@@ -36,7 +38,7 @@ void main()
 {
 	vec4 col = vertex_color * texture2D(diffuseMap, vary_texcoord0.xy);
 	
-	gl_FragData[0] = col;
-	gl_FragData[1] = vec4(0,0,0,0);
-	gl_FragData[2] = vec4(0,0,1,0);	
+	frag_data[0] = col;
+	frag_data[1] = vec4(0,0,0,0);
+	frag_data[2] = vec4(0,0,1,0);	
 }

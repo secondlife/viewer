@@ -126,7 +126,7 @@ public:
 
 	virtual void addDebugText( const std::string& text ) = 0;
 
-	virtual const LLUUID&	getID() = 0;
+	virtual const LLUUID&	getID() const = 0;
 	//-------------------------------------------------------------------------
 	// End Interface
 	//-------------------------------------------------------------------------

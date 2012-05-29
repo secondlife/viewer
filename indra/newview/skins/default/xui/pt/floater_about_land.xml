@@ -373,7 +373,7 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clique para escolher uma imagem"/>
 			<text name="allow_label5">
-				e bater papo com avatares neste lote
+				Avatares em outros lotes podem ver e conversar com avatares neste lote
 			</text>
 			<check_box label="Ver avatares" name="SeeAvatarsCheck" tool_tip="Permite que os avatares em outros lotes vejam e batam papo com avatares neste lote. Você poderá vê-los e conversar com eles."/>
 			<text name="landing_point">
@@ -460,12 +460,12 @@ Mídia:
 			<text name="Limit access to this parcel to:">
 				Acesso a este lote
 			</text>
-			<check_box label="Acesso para público categoria [MATURITY]" name="public_access"/>
+			<check_box label="Permitir acesso público (Desmarcar esse item cria limites)" name="public_access"/>
 			<text name="Only Allow">
-				Restringir acesso a contas confirmardas por:
+				Permitir acesso apenas para residentes que:
 			</text>
-			<check_box label="Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Banir residentes sem identificação."/>
-			<check_box label="Idade comprovada: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Banir residentes que não comprovaram a idade. Consulte o [SUPPORT_SITE] para saber mais."/>
+			<check_box label="Possuam Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Os residentes devem ter seus dados de pagamento cadastrados para acessar este lote.  Consulte o [SUPPORT_SITE] para saber mais."/>
+			<check_box label="Tiveram sua idade verificada [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Os residentes devem ter a idade verificada para acessar este lote. Consulte o [SUPPORT_SITE] para saber mais."/>
 			<check_box label="Permitir acesso do grupo: [GROUP]" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
 			<check_box label="Vender passes para:" name="PassCheck" tool_tip="Permite acesso temporário a este terreno"/>
 			<combo_box name="pass_combo">

@@ -24,7 +24,9 @@
  */
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2D diffuseMap;
@@ -42,5 +44,5 @@ void main()
 		discard;
 	}
 
-	gl_FragColor = col;
+	frag_color = col;
 }

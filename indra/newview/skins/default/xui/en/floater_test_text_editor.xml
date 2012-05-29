@@ -3,6 +3,7 @@
  legacy_header_height="18"
  can_resize="true"
  height="600"
+ single_instance="false"
  layout="topleft"
  name="floater_test_text_editor"
  translate="false"

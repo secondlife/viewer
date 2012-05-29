@@ -160,7 +160,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	static const unsigned int vertices_per_quad = 4;
 	static const unsigned int indices_per_quad = 6;
 
-	const S32 size = gSavedSettings.getBOOL("RenderTransparentWater") && !LLGLSLShader::sNoFixedFunction ? 16 : 1;
+	const S32 size = gSavedSettings.getBOOL("RenderTransparentWater") && LLGLSLShader::sNoFixedFunction ? 16 : 1;
 
 	const S32 num_quads = size * size;
 	face->setSize(vertices_per_quad * num_quads,
@@ -197,6 +197,13 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 
 	F32 size_inv = 1.f / size;
 
+	F32 z_fudge = 0.f;
+
+	if (getIsEdgePatch())
+	{ //bump edge patches down 10 cm to prevent aliasing along edges
+		z_fudge = -0.1f;
+	}
+
 	for (y = 0; y < size; y++)
 	{
 		for (x = 0; x < size; x++)
@@ -205,6 +212,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 			position_agent = getPositionAgent() - getScale() * 0.5f;
 			position_agent.mV[VX] += (x + 0.5f) * step_x;
 			position_agent.mV[VY] += (y + 0.5f) * step_y;
+			position_agent.mV[VZ] += z_fudge;
 
 			*verticesp++  = position_agent - right + up;
 			*verticesp++  = position_agent - right - up;
