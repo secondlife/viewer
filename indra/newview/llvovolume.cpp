@@ -4682,7 +4682,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 		{
 			LLDrawable* drawablep = *drawable_iter;
 
-			if (!drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) )
+			if (!drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 			{
 				LLVOVolume* vobj = drawablep->getVOVolume();
 				vobj->preRebuild();
@@ -4701,6 +4701,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 						LLVertexBuffer* buff = face->getVertexBuffer();
 						if (buff)
 						{
+							llassert(!face->isState(LLFace::RIGGED));
 							face->getGeometryVolume(*volume, face->getTEOffset(), 
 								vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex());
 
@@ -5065,6 +5066,8 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 
 					U32 te_idx = facep->getTEOffset();
+
+					llassert(!facep->isState(LLFace::RIGGED));
 
 					facep->getGeometryVolume(*volume, te_idx, 
 						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset);
