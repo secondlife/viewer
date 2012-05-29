@@ -4123,6 +4123,9 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	group->mGeometryBytes = 0;
 	group->mSurfaceArea = 0;
 	
+	//cache object box size since it might be used for determining visibility
+	group->mObjectBoxSize = group->mObjectBounds[1].getLength3().getF32();
+
 	group->clearDrawMap();
 
 	mFaceList.clear();

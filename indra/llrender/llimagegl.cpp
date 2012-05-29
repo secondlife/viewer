@@ -56,6 +56,7 @@ BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
 F32 LLImageGL::sLastFrameTime			= 0.f;
 BOOL LLImageGL::sAllowReadBackRaw       = FALSE ;
 LLImageGL* LLImageGL::sDefaultGLTexture = NULL ;
+bool LLImageGL::sCompressTextures = false;
 
 std::set<LLImageGL*> LLImageGL::sImageList;
 
@@ -409,6 +410,8 @@ void LLImageGL::init(BOOL usemipmaps)
 	mDiscardLevelInAtlas = -1 ;
 	mTexelsInAtlas = 0 ;
 	mTexelsInGLTexture = 0 ;
+
+	mAllowCompression = true;
 	
 	mTarget = GL_TEXTURE_2D;
 	mBindTarget = LLTexUnit::TT_TEXTURE;
@@ -637,7 +640,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 						stop_glerror();
 					}
 						
-					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in);
+					LLImageGL::setManualImage(mTarget, gl_level, mFormatInternal, w, h, mFormatPrimary, GL_UNSIGNED_BYTE, (GLvoid*)data_in, mAllowCompression);
 					if (gl_level == 0)
 					{
 						analyzeAlpha(data_in, w, h);
@@ -679,7 +682,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 					LLImageGL::setManualImage(mTarget, 0, mFormatInternal,
 								 w, h, 
 								 mFormatPrimary, mFormatType,
-								 data_in);
+								 data_in, mAllowCompression);
 					analyzeAlpha(data_in, w, h);
 					stop_glerror();
 
@@ -737,7 +740,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 							stop_glerror();
 						}
 
-						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data);
+						LLImageGL::setManualImage(mTarget, m, mFormatInternal, w, h, mFormatPrimary, mFormatType, cur_mip_data, mAllowCompression);
 						if (m == 0)
 						{
 							analyzeAlpha(data_in, w, h);
@@ -795,7 +798,7 @@ void LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 			}
 
 			LLImageGL::setManualImage(mTarget, 0, mFormatInternal, w, h,
-						 mFormatPrimary, mFormatType, (GLvoid *)data_in);
+						 mFormatPrimary, mFormatType, (GLvoid *)data_in, mAllowCompression);
 			analyzeAlpha(data_in, w, h);
 			
 			updatePickMask(w, h, data_in);
@@ -1042,7 +1045,7 @@ void LLImageGL::deleteTextures(S32 numTextures, U32 *textures, bool immediate)
 }
 
 // static
-void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels)
+void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression)
 {
 	bool use_scratch = false;
 	U32* scratch = NULL;
@@ -1102,6 +1105,36 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 			
 			pixformat = GL_RGBA;
 			intformat = GL_RGB8;
+		}
+	}
+
+	if (LLImageGL::sCompressTextures && allow_compression)
+	{
+		switch (intformat)
+		{
+			case GL_RGB: 
+			case GL_RGB8:
+				intformat = GL_COMPRESSED_RGB; 
+				break;
+			case GL_RGBA:
+			case GL_RGBA8:
+				intformat = GL_COMPRESSED_RGBA; 
+				break;
+			case GL_LUMINANCE:
+			case GL_LUMINANCE8:
+				intformat = GL_COMPRESSED_LUMINANCE;
+				break;
+			case GL_LUMINANCE_ALPHA:
+			case GL_LUMINANCE8_ALPHA8:
+				intformat = GL_COMPRESSED_LUMINANCE_ALPHA;
+				break;
+			case GL_ALPHA:
+			case GL_ALPHA8:
+				intformat = GL_COMPRESSED_ALPHA;
+				break;
+			default:
+				llwarns << "Could not compress format: " << std::hex << intformat << llendl;
+				break;
 		}
 	}
 

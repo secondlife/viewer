@@ -1245,6 +1245,25 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
+   name="IntelOldDriver"
+   type="alertmodal">
+     There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://www.intel.com/p/en_US/support/detect/graphics
+    </url>
+    <usetemplate
+     ignoretext="My graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="UnknownGPU"
    type="alertmodal">
 Your system contains a graphics card that [APP_NAME] doesn't recognize.

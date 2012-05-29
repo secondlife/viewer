@@ -774,7 +774,7 @@ void parse_args_and_init(int argc, char **argv, UpdaterAppState *app_state)
 		else if ((!strcmp(argv[i], "--image-dir")) && (++i < argc))
 		{
 			app_state->image_dir = argv[i];
-			app_state->image_dir_iter = new LLDirIterator(argv[i], "/*.jpg");
+			app_state->image_dir_iter = new LLDirIterator(argv[i], "*.jpg");
 		}
 		else if ((!strcmp(argv[i], "--dest")) && (++i < argc))
 		{
