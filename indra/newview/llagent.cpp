@@ -116,8 +116,19 @@ LLAgent gAgent;
 class LLTeleportRequest
 {
 public:
+	enum EStatus
+	{
+		kPending,
+		kStarted,
+		kFailed,
+		kRestartPending
+	};
+
 	LLTeleportRequest();
 	virtual ~LLTeleportRequest();
+
+	EStatus getStatus() const          {return mStatus;};
+	void    setStatus(EStatus pStatus) {mStatus = pStatus;};
 
 	virtual bool canRestartTeleport();
 
@@ -127,7 +138,7 @@ public:
 protected:
 
 private:
-
+	EStatus mStatus;
 };
 
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
@@ -334,14 +345,12 @@ LLAgent::LLAgent() :
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
 	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
-	mCurrentTeleportRequest(),
-	mFailedTeleportRequest(),
+	mTeleportRequest(),
 	mTeleportFinishedSlot(),
 	mTeleportFailedSlot(),
 	mIsMaturityRatingChangingDuringTeleport(false),
 	mMaturityRatingChange(0U),
 	mIsDoSendMaturityPreferenceToServer(false),
-	mMaturityPreferenceConfirmCallback(NULL),
 	mMaturityPreferenceRequestId(0U),
 	mMaturityPreferenceResponseId(0U),
 	mMaturityPreferenceNumRetries(0U),
@@ -2500,7 +2509,7 @@ int LLAgent::convertTextToMaturity(char text)
 class LLMaturityPreferencesResponder : public LLHTTPClient::Responder
 {
 public:
-	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity, LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback);
+	LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity);
 	virtual ~LLMaturityPreferencesResponder();
 
 	virtual void result(const LLSD &pContent);
@@ -2514,15 +2523,13 @@ private:
 	LLAgent                                  *mAgent;
 	U8                                       mPreferredMaturity;
 	U8                                       mPreviousMaturity;
-	LLAgent::maturity_preferences_callback_t mMaturityPreferencesCallback;
 };
 
-LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity, LLAgent::maturity_preferences_callback_t pMaturityPreferencesCallback)
+LLMaturityPreferencesResponder::LLMaturityPreferencesResponder(LLAgent *pAgent, U8 pPreferredMaturity, U8 pPreviousMaturity)
 	: LLHTTPClient::Responder(),
 	mAgent(pAgent),
 	mPreferredMaturity(pPreferredMaturity),
-	mPreviousMaturity(pPreviousMaturity),
-	mMaturityPreferencesCallback(pMaturityPreferencesCallback)
+	mPreviousMaturity(pPreviousMaturity)
 {
 }
 
@@ -2542,11 +2549,6 @@ void LLMaturityPreferencesResponder::result(const LLSD &pContent)
 			<< pContent << "]" << llendl;
 	}
 	mAgent->handlePreferredMaturityResult(actualMaturity);
-
-	if (!mMaturityPreferencesCallback.empty())
-	{
-		mMaturityPreferencesCallback(actualMaturity);
-	}
 }
 
 void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReason)
@@ -2555,10 +2557,6 @@ void LLMaturityPreferencesResponder::error(U32 pStatus, const std::string& pReas
 		<< "' to '" << LLViewerRegion::accessToString(mPreferredMaturity) << "', we got an error because '"
 		<< pReason << "' [status:" << pStatus << "]" << llendl;
 	mAgent->handlePreferredMaturityError();
-	if (!mMaturityPreferencesCallback.empty())
-	{
-		mMaturityPreferencesCallback(mPreviousMaturity);
-	}
 }
 
 U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &pContent)
@@ -2613,19 +2611,6 @@ U8 LLMaturityPreferencesResponder::parseMaturityFromServerResponse(const LLSD &p
 	return maturity;
 }
 
-void LLAgent::setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback)
-{
-	llassert(mMaturityPreferenceConfirmCallback == NULL);
-	mMaturityPreferenceConfirmCallback = pMaturityPreferencesCallback;
-
-	gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
-	// PreferredMaturity has a signal hook on change that will call LLAgent::sendMaturityPreferenceToServer
-	// sendMaturityPreferenceToServer will use mMaturityPreferenceConfirmCallback in the LLHTTPResponder
-	// This allows for confirmation that the server has officially received the maturity preference change
-
-	mMaturityPreferenceConfirmCallback = NULL;
-}
-
 void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
 {
 	// Update the number of responses received
@@ -2642,6 +2627,7 @@ void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
 		if (mLastKnownRequestMaturity == mLastKnownResponseMaturity)
 		{
 			mMaturityPreferenceNumRetries = 0;
+			reportPreferredMaturitySuccess();
 			llassert(static_cast<U8>(gSavedSettings.getU32("PreferredMaturity")) == mLastKnownResponseMaturity);
 		}
 		// Else, the viewer is out of sync with the server, so let's try to re-sync with the
@@ -2689,6 +2675,14 @@ void LLAgent::handlePreferredMaturityError()
 	}
 }
 
+void LLAgent::reportPreferredMaturitySuccess()
+{
+	if (hasPendingTeleportRequest())
+	{
+		startTeleportRequest();
+	}
+}
+
 void LLAgent::reportPreferredMaturityError()
 {
 	// Get the last known maturity request from the user activity
@@ -2718,6 +2712,11 @@ void LLAgent::reportPreferredMaturityError()
 	}
 }
 
+bool LLAgent::isMaturityPreferenceSyncedWithServer() const
+{
+	return (mMaturityPreferenceRequestId == mMaturityPreferenceResponseId);
+}
+
 void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 {
 	// Only send maturity preference to the server if enabled
@@ -2730,7 +2729,7 @@ void LLAgent::sendMaturityPreferenceToServer(U8 pPreferredMaturity)
 		mLastKnownRequestMaturity = pPreferredMaturity;
 
 		// Create a response handler
-		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(this, pPreferredMaturity, mLastKnownResponseMaturity, mMaturityPreferenceConfirmCallback));
+		LLHTTPClient::ResponderPtr responderPtr = LLHTTPClient::ResponderPtr(new LLMaturityPreferencesResponder(this, pPreferredMaturity, mLastKnownResponseMaturity));
 
 		// If we don't have a region, report it as an error
 		if (getRegion() == NULL)
@@ -3808,23 +3807,22 @@ bool LLAgent::teleportCore(bool is_local)
 
 bool LLAgent::hasRestartableFailedTeleportRequest()
 {
-	return hasFailedTeleportRequest() && mFailedTeleportRequest->canRestartTeleport();
+	return ((mTeleportRequest != NULL) && (mTeleportRequest->getStatus() == LLTeleportRequest::kFailed) &&
+		mTeleportRequest->canRestartTeleport());
 }
 
 void LLAgent::restartFailedTeleportRequest()
 {
 	if (hasRestartableFailedTeleportRequest())
 	{
-		mFailedTeleportRequest->restartTeleport();
+		mTeleportRequest->setStatus(LLTeleportRequest::kRestartPending);
+		startTeleportRequest();
 	}
 }
 
-void LLAgent::clearFailedTeleportRequest()
+void LLAgent::clearTeleportRequest()
 {
-	if (hasFailedTeleportRequest())
-	{
-		mFailedTeleportRequest.reset();
-	}
+	mTeleportRequest.reset();
 }
 
 void LLAgent::setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange)
@@ -3833,16 +3831,38 @@ void LLAgent::setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange)
 	mMaturityRatingChange = pMaturityRatingChange;
 }
 
+bool LLAgent::hasPendingTeleportRequest()
+{
+	return ((mTeleportRequest != NULL) &&
+		((mTeleportRequest->getStatus() == LLTeleportRequest::kPending) ||
+		(mTeleportRequest->getStatus() == LLTeleportRequest::kRestartPending)));
+}
+
+void LLAgent::startTeleportRequest()
+{
+	if (hasPendingTeleportRequest() && isMaturityPreferenceSyncedWithServer())
+	{
+		switch (mTeleportRequest->getStatus())
+		{
+		case LLTeleportRequest::kPending :
+			mTeleportRequest->setStatus(LLTeleportRequest::kStarted);
+			mTeleportRequest->startTeleport();
+			break;
+		case LLTeleportRequest::kRestartPending :
+			llassert(mTeleportRequest->canRestartTeleport());
+			mTeleportRequest->setStatus(LLTeleportRequest::kStarted);
+			mTeleportRequest->restartTeleport();
+			break;
+		default :
+			llassert(0);
+			break;
+		}
+	}
+}
+
 void LLAgent::handleTeleportFinished()
 {
-	if (hasCurrentTeleportRequest())
-	{
-		mCurrentTeleportRequest.reset();
-	}
-	if (hasFailedTeleportRequest())
-	{
-		clearFailedTeleportRequest();
-	}
+	clearTeleportRequest();
 	if (mIsMaturityRatingChangingDuringTeleport)
 	{
 		// notify user that the maturity preference has been changed
@@ -3857,9 +3877,10 @@ void LLAgent::handleTeleportFinished()
 
 void LLAgent::handleTeleportFailed()
 {
-	if (hasCurrentTeleportRequest())
+	llassert(mTeleportRequest != NULL);
+	if (mTeleportRequest != NULL)
 	{
-		mFailedTeleportRequest = mCurrentTeleportRequest;
+		mTeleportRequest->setStatus(LLTeleportRequest::kFailed);
 	}
 	if (mIsMaturityRatingChangingDuringTeleport)
 	{
@@ -3905,8 +3926,8 @@ void LLAgent::teleportRequest(
 // Landmark ID = LLUUID::null means teleport home
 void LLAgent::teleportViaLandmark(const LLUUID& landmark_asset_id)
 {
-	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
-	mCurrentTeleportRequest->startTeleport();
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLandmark(landmark_asset_id));
+	startTeleportRequest();
 }
 
 void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
@@ -3926,8 +3947,8 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 
 void LLAgent::teleportViaLure(const LLUUID& lure_id, BOOL godlike)
 {
-	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
-	mCurrentTeleportRequest->startTeleport();
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLure(lure_id, godlike));
+	startTeleportRequest();
 }
 
 void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
@@ -3963,6 +3984,7 @@ void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
 // James Cook, July 28, 2005
 void LLAgent::teleportCancel()
 {
+	clearTeleportRequest();
 	LLViewerRegion* regionp = getRegion();
 	if(regionp)
 	{
@@ -3981,8 +4003,8 @@ void LLAgent::teleportCancel()
 
 void LLAgent::teleportViaLocation(const LLVector3d& pos_global)
 {
-	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
-	mCurrentTeleportRequest->startTeleport();
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocation(pos_global));
+	startTeleportRequest();
 }
 
 void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
@@ -4029,8 +4051,8 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 // Teleport to global position, but keep facing in the same direction 
 void LLAgent::teleportViaLocationLookAt(const LLVector3d& pos_global)
 {
-	mCurrentTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
-	mCurrentTeleportRequest->startTeleport();
+	mTeleportRequest = LLTeleportRequestPtr(new LLTeleportRequestViaLocationLookAt(pos_global));
+	startTeleportRequest();
 }
 
 void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
@@ -4473,6 +4495,7 @@ LLAgentQueryManager::~LLAgentQueryManager()
 //-----------------------------------------------------------------------------
 
 LLTeleportRequest::LLTeleportRequest()
+	: mStatus(kPending)
 {
 }
 

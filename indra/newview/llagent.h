@@ -576,11 +576,9 @@ protected:
 	//--------------------------------------------------------------------
 
 public:
-	inline bool     hasCurrentTeleportRequest() {return (mCurrentTeleportRequest != NULL);};
-	inline bool     hasFailedTeleportRequest() {return (mFailedTeleportRequest != NULL);};
 	bool            hasRestartableFailedTeleportRequest();
 	void            restartFailedTeleportRequest();
-	void            clearFailedTeleportRequest();
+	void            clearTeleportRequest();
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
 
 private:
@@ -590,13 +588,15 @@ private:
 	friend class LLTeleportRequestViaLocation;
 	friend class LLTeleportRequestViaLocationLookAt;
 
-	LLTeleportRequestPtr mCurrentTeleportRequest;
-	LLTeleportRequestPtr mFailedTeleportRequest;
+	LLTeleportRequestPtr        mTeleportRequest;
 	boost::signals2::connection mTeleportFinishedSlot;
 	boost::signals2::connection mTeleportFailedSlot;
 
 	bool            mIsMaturityRatingChangingDuringTeleport;
 	U8              mMaturityRatingChange;
+
+	bool            hasPendingTeleportRequest();
+	void            startTeleportRequest();
 
 	void 			teleportRequest(const U64& region_handle,
 									const LLVector3& pos_local,				// Go to a named location home
@@ -691,22 +691,21 @@ public:
 	void 			setMaturity(char text);
 	static int 		convertTextToMaturity(char text);
 
-	typedef boost::function<void (U8)> maturity_preferences_callback_t;
-	void            setMaturityPreferenceAndConfirm(U32 preferredMaturity, maturity_preferences_callback_t pMaturityPreferencesCallback);
 private:
 	bool                            mIsDoSendMaturityPreferenceToServer;
-	maturity_preferences_callback_t mMaturityPreferenceConfirmCallback;
 	unsigned int                    mMaturityPreferenceRequestId;
 	unsigned int                    mMaturityPreferenceResponseId;
 	unsigned int                    mMaturityPreferenceNumRetries;
 	U8                              mLastKnownRequestMaturity;
 	U8                              mLastKnownResponseMaturity;
 
+	bool            isMaturityPreferenceSyncedWithServer() const;
 	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
 
 	friend class LLMaturityPreferencesResponder;
 	void            handlePreferredMaturityResult(U8 pServerMaturity);
 	void            handlePreferredMaturityError();
+	void            reportPreferredMaturitySuccess();
 	void            reportPreferredMaturityError();
 
 	// Maturity callbacks for PreferredMaturity control variable

@@ -4175,17 +4175,6 @@ You won't receive any more notifications that you're about to visit a region wit
 
   <notification
    icon="alertmodal.tga"
-   name="MaturityCouldNotBeChanged"
-   type="alertmodal">
-We were unable to change your preferences to view [RATING] content at this time.  Please change your preferences by using Me &gt; Preferences &gt; General from the menu bar, and then attempt your teleport again.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="MaturityChangeError"
    type="alertmodal">
     We were unable to change your preferences to view [PREFERRED_MATURITY] content at this time.  Your preferences have been reset to view [ACTUAL_MATURITY] content.  You may attempt to change your preferences again by using Me &gt; Preferences &gt; General from the menu bar.

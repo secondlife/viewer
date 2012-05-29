@@ -5391,87 +5391,6 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 }
 
-void handle_maturity_preference_change_and_reteleport(U8 pActualMaturityRating, U8 pRequestedMaturityRating)
-{
-	bool isMaturityPreferenceElevated = false;
-
-	switch (pActualMaturityRating)
-	{
-	case SIM_ACCESS_MIN :
-		switch (pRequestedMaturityRating)
-		{
-		case SIM_ACCESS_MIN :
-			isMaturityPreferenceElevated = true;
-			break;
-		case SIM_ACCESS_PG :
-		case SIM_ACCESS_MATURE :
-		case SIM_ACCESS_ADULT :
-		default :
-			isMaturityPreferenceElevated = false;
-			break;
-		}
-		break;
-	case SIM_ACCESS_PG :
-		switch (pRequestedMaturityRating)
-		{
-		case SIM_ACCESS_MIN :
-		case SIM_ACCESS_PG :
-			isMaturityPreferenceElevated = true;
-			break;
-		case SIM_ACCESS_MATURE :
-		case SIM_ACCESS_ADULT :
-		default :
-			isMaturityPreferenceElevated = false;
-			break;
-		}
-		break;
-	case SIM_ACCESS_MATURE :
-		switch (pRequestedMaturityRating)
-		{
-		case SIM_ACCESS_MIN :
-		case SIM_ACCESS_PG :
-		case SIM_ACCESS_MATURE :
-			isMaturityPreferenceElevated = true;
-			break;
-		case SIM_ACCESS_ADULT :
-		default :
-			isMaturityPreferenceElevated = false;
-			break;
-		}
-		break;
-	case SIM_ACCESS_ADULT :
-		switch (pRequestedMaturityRating)
-		{
-		case SIM_ACCESS_MIN :
-		case SIM_ACCESS_PG :
-		case SIM_ACCESS_MATURE :
-		case SIM_ACCESS_ADULT :
-			isMaturityPreferenceElevated = true;
-			break;
-		default :
-			isMaturityPreferenceElevated = false;
-			break;
-		}
-		break;
-	default :
-		isMaturityPreferenceElevated = false;
-		break;
-	}
-
-	if (isMaturityPreferenceElevated)
-	{
-		gAgent.setMaturityRatingChangeDuringTeleport(pActualMaturityRating);
-		gAgent.restartFailedTeleportRequest();
-	}
-	else
-	{
-		LLSD args;
-		args["RATING"] = LLViewerRegion::accessToString(pRequestedMaturityRating);
-		LLNotificationsUtil::add("MaturityCouldNotBeChanged", args);
-		gAgent.clearFailedTeleportRequest();
-	}
-}
-
 bool handle_prompt_for_maturity_level_change_callback(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
@@ -5494,11 +5413,13 @@ bool handle_prompt_for_maturity_level_change_and_reteleport_callback(const LLSD&
 	{
 		// set the preference to the maturity of the region we're calling
 		U8 preferredMaturity = static_cast<U8>(notification["payload"]["_region_access"].asInteger());
-		gAgent.setMaturityPreferenceAndConfirm(static_cast<U32>(preferredMaturity), boost::bind(&handle_maturity_preference_change_and_reteleport, _1, preferredMaturity));
+		gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(preferredMaturity));
+		gAgent.setMaturityRatingChangeDuringTeleport(preferredMaturity);
+		gAgent.restartFailedTeleportRequest();
 	}
 	else
 	{
-		gAgent.clearFailedTeleportRequest();
+		gAgent.clearTeleportRequest();
 	}
 	
 	return false;
@@ -5519,7 +5440,7 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	{
 		if (gAgent.isTeen())
 		{
-			gAgent.clearFailedTeleportRequest();
+			gAgent.clearTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 			returnValue = true;
 
@@ -5535,14 +5456,14 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 			}
 			else
 			{
-				gAgent.clearFailedTeleportRequest();
+				gAgent.clearTeleportRequest();
 				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
 		}
 		else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
 		{
-			gAgent.clearFailedTeleportRequest();
+			gAgent.clearTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 			returnValue = true;
 		}
@@ -5551,7 +5472,7 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 	{
 		if (!gAgent.isAdult())
 		{
-			gAgent.clearFailedTeleportRequest();
+			gAgent.clearTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_AdultsOnlyContent", llsdBlock);
 			returnValue = true;
 
@@ -5567,14 +5488,14 @@ bool handle_special_notification(std::string notificationID, LLSD& llsdBlock)
 			}
 			else
 			{
-				gAgent.clearFailedTeleportRequest();
+				gAgent.clearTeleportRequest();
 				maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_Change", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 				returnValue = true;
 			}
 		}
 		else if (LLStringUtil::compareStrings(notificationID, "RegionEntryAccessBlocked") == 0)
 		{
-			gAgent.clearFailedTeleportRequest();
+			gAgent.clearTeleportRequest();
 			maturityLevelNotification = LLNotificationsUtil::add(notificationID+"_PreferencesOutOfSync", llsdBlock, llsdBlock, handle_prompt_for_maturity_level_change_callback);
 			returnValue = true;
 		}
