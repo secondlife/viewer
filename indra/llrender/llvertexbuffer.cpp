@@ -373,7 +373,9 @@ U32 LLVertexBuffer::getVAOName()
 	}
 	else
 	{
+#ifdef GL_ARB_vertex_array_object
 		glGenVertexArrays(1, &ret);
+#endif
 	}
 
 	return ret;		
@@ -2161,9 +2163,11 @@ void LLVertexBuffer::flush()
 // bind for transform feedback (quick 'n dirty)
 void LLVertexBuffer::bindForFeedback(U32 channel, U32 type, U32 index, U32 count)
 {
+#ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	U32 offset = mOffsets[type] + sTypeSize[type]*index;
 	U32 size= (sTypeSize[type]*count);
 	glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, channel, mGLBuffer, offset, size);
+#endif
 }
 
 // Set for rendering
