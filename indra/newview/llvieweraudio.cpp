@@ -251,13 +251,17 @@ F32 LLViewerAudio::getFadeVolume()
 
 void LLViewerAudio::onTeleportFailed()
 {
+	// Calling audio_update_volume makes sure that the music stream is properly set to be restored to
+	// its previous value
+	audio_update_volume(false);
+
 	if (gAudiop && mWasPlaying)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if (parcel)
 		{
 			mNextStreamURI = parcel->getMusicURL();
-			llinfos << "Teleport failed -- resetting music stream" << llendl;
+			llinfos << "Teleport failed -- setting music stream to " << mNextStreamURI << llendl;
 		}
 	}
 	mWasPlaying = false;
@@ -265,12 +269,17 @@ void LLViewerAudio::onTeleportFailed()
 
 void LLViewerAudio::onTeleportFinished(const LLVector3d& pos, const bool& local)
 {
+	// Calling audio_update_volume makes sure that the music stream is properly set to be restored to
+	// its previous value
+	audio_update_volume(false);
+
 	if (gAudiop && local && mWasPlaying)
 	{
 		LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		if (parcel)
 		{
 			mNextStreamURI = parcel->getMusicURL();
+			llinfos << "Intraparcel teleport -- setting music stream to " << mNextStreamURI << llendl;
 		}
 	}
 	mWasPlaying = false;
@@ -379,8 +388,16 @@ void audio_update_volume(bool force_update)
 	// Streaming Music
 	if (gAudiop) 
 	{
+		if (!progress_view_visible && LLViewerAudio::getInstance()->getForcedTeleportFade())
+		{
+LL_WARNS("FADING") << "DBG ForcedTeleportFade = true, WasPlaying = " << !gAudiop->getInternetStreamURL().empty() << " stream ='" << gAudiop->getInternetStreamURL() << "'" << LL_ENDL;
+			LLViewerAudio::getInstance()->setWasPlaying(!gAudiop->getInternetStreamURL().empty());
+			LLViewerAudio::getInstance()->setForcedTeleportFade(false);
+		}
+
 		if (progress_view_visible  && !LLViewerAudio::getInstance()->getForcedTeleportFade())
 		{
+LL_WARNS("FADING") << "DBG ForcedTeleportFade = false, WasPlaying = " << !gAudiop->getInternetStreamURL().empty() << " stream ='" << gAudiop->getInternetStreamURL() << "'" << LL_ENDL;
 			// Even though the music was turned off it was starting up (with autoplay disabled) occasionally
 			// after a failed teleport or after an intra-parcel teleport.  Also, the music sometimes was not
 			// restarting after a successful intra-parcel teleport. Setting mWasPlaying fixes these issues.
@@ -388,12 +405,6 @@ void audio_update_volume(bool force_update)
 			LLViewerAudio::getInstance()->setForcedTeleportFade(true);
 			LLViewerAudio::getInstance()->startInternetStreamWithAutoFade(LLStringUtil::null);
 			LLViewerAudio::getInstance()->setNextStreamURI(LLStringUtil::null);
-		}
-
-		if (!progress_view_visible && LLViewerAudio::getInstance()->getForcedTeleportFade())
-		{
-			LLViewerAudio::getInstance()->setWasPlaying(!gAudiop->getInternetStreamURL().empty());
-			LLViewerAudio::getInstance()->setForcedTeleportFade(false);
 		}
 
 		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
