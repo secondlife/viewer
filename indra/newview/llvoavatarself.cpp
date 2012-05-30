@@ -2157,7 +2157,12 @@ LLSD LLVOAvatarSelf::metricsData()
 class ViewerAppearanceChangeMetricsResponder: public LLCurl::Responder
 {
 public:
-	ViewerAppearanceChangeMetricsResponder()
+	ViewerAppearanceChangeMetricsResponder( S32 expected_sequence,
+											volatile const S32 & live_sequence,
+											volatile bool & reporting_started):
+		mExpectedSequence(expected_sequence),
+		mLiveSequence(live_sequence),
+		mReportingStarted(reporting_started)
 	{
 	}
 
@@ -2176,14 +2181,44 @@ public:
 			error(status,reason);
 		}
 	}
+
+	// virtual
+	void error(U32 status_num, const std::string & reason)
+	{
+	}
+
+	// virtual
+	void result(const LLSD & content)
+	{
+		if (mLiveSequence == mExpectedSequence)
+		{
+			mReportingStarted = true;
+		}
+	}
+
+private:
+	S32 mExpectedSequence;
+	volatile const S32 & mLiveSequence;
+	volatile bool & mReportingStarted;
 };
 
 void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 {
 	// gAgentAvatarp->stopAllPhases();
+	static volatile bool reporting_started(false);
+	static volatile S32 report_sequence(0);
 
 	LLSD msg = metricsData();
 	msg["message"] = "ViewerAppearanceChangeMetrics";
+	msg["session_id"] = gAgentSessionID;
+	msg["agent_id"] = gAgentID;
+	msg["sequence"] = report_sequence;
+	msg["initial"] = !reporting_started;
+	msg["break"] = false;
+
+	// Update sequence number
+	if (S32_MAX == ++report_sequence)
+		report_sequence = 0;
 
 	LL_DEBUGS("Avatar") << avString() << "message: " << ll_pretty_print_sd(msg) << LL_ENDL;
 	std::string	caps_url;
@@ -2196,8 +2231,10 @@ void LLVOAvatarSelf::sendAppearanceChangeMetrics()
 	{
 		LLCurlRequest::headers_t headers;
 		LLHTTPClient::post(caps_url,
-							msg,
-							new ViewerAppearanceChangeMetricsResponder);
+						   msg,
+						   new ViewerAppearanceChangeMetricsResponder(report_sequence,
+																	  report_sequence,
+																	  reporting_started));
 	}
 }
 
