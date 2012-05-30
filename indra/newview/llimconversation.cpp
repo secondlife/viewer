@@ -25,6 +25,8 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h"
+
 #include "llpanelimcontrolpanel.h"
 
 #include "lldraghandle.h"

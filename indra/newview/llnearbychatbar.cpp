@@ -116,18 +116,11 @@ BOOL LLNearbyChatBar::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
-	// childSetAction("voice_call_btn", boost::bind(&LLNearbyChatBar::onCallButtonClicked, this));
-
 	enableResizeCtrls(true, true, false);
 
 	addToHost();
 
 	return LLIMConversation::postBuild();;
-}
-
-void LLNearbyChatBar::onCallButtonClicked()
-{
-	LLAgent::toggleMicrophone(NULL);
 }
 
 void LLNearbyChatBar::enableDisableCallBtn()
