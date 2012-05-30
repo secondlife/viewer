@@ -58,7 +58,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
-#include "llagent.h"
+#include "llviewerdisplay.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -598,11 +598,15 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
-	if(gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
+	static BOOL cleared = FALSE;
+	if(gTeleportDisplay && !cleared)
 	{
 		clearFetchingRequests();
+		gPipeline.clearRebuildGroups();
+		cleared = TRUE;
 		return;
 	}
+	cleared = FALSE;
 
 	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLViewerStats::getInstance()->mTextureKBitStat.getMeanPerSec());
 
@@ -673,14 +677,13 @@ void LLViewerTextureList::clearFetchingRequests()
 		return;
 	}
 
+	LLAppViewer::getTextureFetch()->deleteAllRequests();
+
 	for (image_priority_list_t::iterator iter = mImageList.begin();
 		 iter != mImageList.end(); ++iter)
 	{
-		LLViewerFetchedTexture* image = *iter;
-		if(image->hasFetcher())
-		{
-			image->forceToDeleteRequest() ;
-		}
+		LLViewerFetchedTexture* imagep = *iter;
+		imagep->forceToDeleteRequest() ;
 	}
 }
 
@@ -703,6 +706,7 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 
 			if(imagep->isInDebug())
 			{
+				update_counter--;
 				continue; //is in debug, ignore.
 			}
 

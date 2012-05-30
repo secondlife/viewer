@@ -4270,6 +4270,10 @@ void LLAppViewer::idle()
     {
 		return;
     }
+	if (gTeleportDisplay)
+    {
+		return;
+    }
 
 	gViewerWindow->updateUI();
 
