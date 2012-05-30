@@ -80,13 +80,14 @@ private:
 	bool mWasPlaying;
 	boost::signals2::connection	mTeleportFailedConnection;
 	boost::signals2::connection	mTeleportFinishedConnection;
+	boost::signals2::connection mTeleportStartedConnection;
 
 	void registerIdleListener();
 	void deregisterIdleListener() { mIdleListnerActive = false; };
 	void startFading();
 	void onTeleportFailed();
 	void onTeleportFinished(const LLVector3d& pos, const bool& local);
-
+	void onTeleportStarted();
 };
 
 #endif //LL_VIEWER_H

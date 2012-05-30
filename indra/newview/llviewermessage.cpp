@@ -3441,6 +3441,11 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 	}
 }
 
+boost::signals2::connection LLViewerMessage::setTeleportStartedCallback(teleport_started_callback_t cb)
+{
+	return mTeleportStartedSignal.connect(cb);
+}
+
 void process_teleport_progress(LLMessageSystem* msg, void**)
 {
 	LLUUID agent_id;

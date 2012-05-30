@@ -41,6 +41,7 @@
 #include "llstartup.h"
 #include "llviewerparcelmgr.h"
 #include "llparcel.h"
+#include "llviewermessage.h"
 
 /////////////////////////////////////////////////////////
 
@@ -56,6 +57,8 @@ LLViewerAudio::LLViewerAudio() :
 		setTeleportFailedCallback(boost::bind(&LLViewerAudio::onTeleportFailed, this));
 	mTeleportFinishedConnection = LLViewerParcelMgr::getInstance()->
 		setTeleportFinishedCallback(boost::bind(&LLViewerAudio::onTeleportFinished, this, _1, _2));
+	mTeleportStartedConnection = LLViewerMessage::getInstance()->
+		setTeleportStartedCallback(boost::bind(&LLViewerAudio::onTeleportStarted, this));
 }
 
 LLViewerAudio::~LLViewerAudio()
@@ -247,6 +250,11 @@ F32 LLViewerAudio::getFadeVolume()
 	}
 
 	return fade_volume;
+}
+
+void LLViewerAudio::onTeleportStarted()
+{
+llwarns << "DBG teleport started" << llendl;
 }
 
 void LLViewerAudio::onTeleportFailed()
