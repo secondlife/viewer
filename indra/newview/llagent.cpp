@@ -445,6 +445,8 @@ void LLAgent::init()
 	mLastKnownRequestMaturity = mLastKnownResponseMaturity;
 	mIsDoSendMaturityPreferenceToServer = true;
 
+	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
+
 	if (!mTeleportFinishedSlot.connected())
 	{
 		mTeleportFinishedSlot = LLViewerParcelMgr::getInstance()->setTeleportFinishedCallback(boost::bind(&LLAgent::handleTeleportFinished, this));
