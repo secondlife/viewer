@@ -423,13 +423,9 @@ void LLFloaterPreference::saveAvatarProperties( void )
 
 BOOL LLFloaterPreference::postBuild()
 {
-	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate));
+//	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
 
-	gSavedSettings.getControl("PlainTextChatHistory")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate));
-
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMFloater::processChatHistoryStyleUpdate));
-
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLNearbyChat::processChatHistoryStyleUpdate));
+	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLIMConversation::processChatHistoryStyleUpdate));
 
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
 

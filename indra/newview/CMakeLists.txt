@@ -277,6 +277,7 @@ set(viewer_SOURCE_FILES
     llhudrender.cpp
     llhudtext.cpp
     llhudview.cpp
+    llimconversation.cpp
     llimfloater.cpp
     llimfloatercontainer.cpp
     llimhandler.cpp
@@ -834,6 +835,7 @@ set(viewer_HEADER_FILES
     llhudrender.h
     llhudtext.h
     llhudview.h
+    llimconversation.h
     llimfloater.h
     llimfloatercontainer.h
     llimview.h

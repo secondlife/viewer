@@ -349,7 +349,7 @@ void LLView::removeChild(LLView* child)
 	}
 	else
 	{
-		llwarns << child->getName() << "is not a child of " << getName() << llendl;
+		llwarns << "\"" << child->getName() << "\" is not a child of " << getName() << llendl;
 	}
 	updateBoundingRect();
 }

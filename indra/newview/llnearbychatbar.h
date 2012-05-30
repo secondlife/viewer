@@ -27,26 +27,31 @@
 #ifndef LL_LLNEARBYCHATBAR_H
 #define LL_LLNEARBYCHATBAR_H
 
-#include "llfloater.h"
+#include "llimconversation.h"
 #include "llcombobox.h"
 #include "llgesturemgr.h"
 #include "llchat.h"
+#include "llnearbychat.h"
 #include "llvoiceclient.h"
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
 
-class LLNearbyChatBar :	public LLFloater
+class LLNearbyChatBar :	public LLIMConversation
 {
 public:
 	// constructor for inline chat-bars (e.g. hosted in chat history window)
 	LLNearbyChatBar(const LLSD& key);
 	~LLNearbyChatBar() {}
 
-	virtual BOOL postBuild();
+	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
 	static LLNearbyChatBar* getInstance();
+//	static LLNearbyChatBar* findInstance();
 
+	void addToHost();
+
+	void reloadMessages();
 	LLLineEditor* getChatBox() { return mChatBox; }
 
 	virtual void draw();
@@ -82,6 +87,11 @@ protected:
 	EChatType processChatTypeTriggers(EChatType type, std::string &str);
 
 	void displaySpeakingIndicator();
+
+	void onCallButtonClicked();
+
+	// set the enable/disable state for the Call button
+	virtual void enableDisableCallBtn();
 
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;

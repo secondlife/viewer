@@ -3,32 +3,151 @@
  open_positioning="specified"
  specified_left="10"
  specified_bottom="10"
- height="60"
- layout="topleft"
- legacy_header_height="25"
- single_instance="true"
- title="NEARBY CHAT"
- save_rect="true"
- save_visibility="true"
- can_close="true"
- can_minimize="true"
- help_topic="chat_bar"
- min_height="60"
- min_width="150"
- can_resize="true"
+ background_visible="true"
  default_tab_group="1"
+ height="355"
+ help_topic="chat_bar"
+ layout="topleft"
  name="chat_bar"
- width="300">
+ can_dock="false"
+ can_minimize="true"
+ can_close="true"
+ visible="false"
+ width="394"
+ can_resize="true"
+ can_tear_off="false"
+ min_width="250"
+ min_height="80"
+ single_instance="true"
+ title="Nearby chat">
+    <floater.string name="call_btn_start">VoicePTT_Off</floater.string>
+    <floater.string name="call_btn_stop">VoicePTT_On</floater.string>
+    <floater.string
+     name="collapse_icon"
+     value="TabIcon_Open_Off"/>
+    <floater.string
+     name="expand_icon"
+     value="TabIcon_Close_Off"/>
+    <floater.string
+     name="tear_off_icon"
+     value="tearoffbox.tga"/>
+    <floater.string
+     name="return_icon"
+     value="Icon_Dock_Foreground"/>
+     <view
+        follows="all"
+        layout="topleft"
+        name="contents_view"
+        top="0"
+        left="0"
+        height="355"
+        width="394">
+      <panel
+         follows="left|top|right"
+         layout="topleft"
+         name="toolbar_panel"
+         top="0"
+         left="0"
+         height="35"
+         width="394">         
+             <menu_button
+                 menu_filename="menu_im_session_showmodes.xml"
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Left_Over"
+                 image_overlay="OptionsMenu_Off"
+                 image_selected="Toolbar_Left_Selected"
+                 image_unselected="Toolbar_Left_Off"
+                 layout="topleft"
+                 left="5"
+                 name="view_options_btn"
+                 top="5"
+                 width="31" />
+             <button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="AddItem_Off"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="4"
+                 name="add_btn"
+                 width="31">
+                 <commit_callback
+                    function="Chats.add" />
+             </button>   
+             <button
+                 follows="top|left"
+                 height="25"
+                 image_hover_unselected="Toolbar_Right_Over"
+                 image_overlay="VoicePTT_Off"
+                 image_selected="Toolbar_Right_Selected"
+                 image_unselected="Toolbar_Right_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="4"
+                 name="voice_call_btn"
+                 width="31">
+                 <commit_callback
+                    function="Chats.add" />
+             </button>
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="Icon_Close_Foreground"
+                 image_selected="Toolbar_Middle_Selected"
+                 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left="283"
+                 name="close_btn"
+                 width="31">
+             </button>
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="TabIcon_Open_Off"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="5"
+                 name="expand_collapse_btn"
+                 width="31">
+             </button>
+             <button
+                 follows="right|top"
+                 height="25"
+                 image_hover_unselected="Toolbar_Middle_Over"
+                 image_overlay="tearoffbox.tga"
+                 image_selected="Toolbar_Middle_Selected"
+             	 image_unselected="Toolbar_Middle_Off"
+                 layout="topleft"
+                 top="5"
+                 left_pad="5"
+                 name="tear_off_btn"
+                 width="31">
+             </button>
+     </panel>
     <panel
-        top="20"
+        top="35"
+        left="0"
         class="panel_nearby_chat"
         follow="all"
-        width="300"
+        width="390"
         height="0"
         visible="false"
         filename="panel_nearby_chat.xml"
         name="nearby_chat" />
-    <panel width="300" 
+    <panel
+    	width="390"
+    	height="10"
+    	visible="true" />
+    <panel width="394" 
            height="31" 
            left="0" 
            name="bottom_panel"
@@ -39,18 +158,15 @@
         border_style="line"
         border_thickness="1"
         follows="left|right"
-        height="23"
+        height="20"
         label="Click here to chat."
         layout="topleft"
-        left_delta="7"
-        left="0"
+        left="1"
         max_length_bytes="1023"
         name="chat_box"
-        text_pad_left="5"
-        text_pad_right="25"
         tool_tip="Press Enter to say, Ctrl+Enter to shout"
         top="2"
-        width="255" />
+        width="384" />
       <output_monitor
         auto_update="true"
         follows="right"
@@ -65,6 +181,7 @@
         width="20" />
       <button
         follows="right"
+        visible="false"
         is_toggle="true"
         width="20"
         top="2"
@@ -81,4 +198,5 @@
         tool_tip="Shows/hides nearby chat log">
       </button>
     </panel>
+  </view>
 </floater>

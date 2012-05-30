@@ -28,17 +28,16 @@
 #define LL_IMFLOATER_H
 
 #include "llimview.h"
+#include "llimconversation.h"
 #include "llinstantmessage.h"
 #include "lllogchat.h"
 #include "lltooldraganddrop.h"
 #include "llvoicechannel.h"
 #include "llvoiceclient.h"
-#include "lltransientdockablefloater.h"
 
 class LLAvatarName;
 class LLButton;
 class LLLineEditor;
-class LLPanelChatControlPanel;
 class LLChatHistory;
 class LLInventoryItem;
 class LLInventoryCategory;
@@ -48,8 +47,8 @@ class LLInventoryCategory;
  * optionally "docked" to the bottom tray.
  */
 class LLIMFloater
-    : public LLTransientDockableFloater
-	, public LLVoiceClientStatusObserver
+    : public LLVoiceClientStatusObserver
+    , public LLIMConversation
 {
 	LOG_CLASS(LLIMFloater);
 public:
@@ -64,21 +63,22 @@ public:
 	// Check typing timeout timer.
 	/*virtual*/ void draw();
 
+	static void* createPanelGroupControl(void* userdata);
+	static void* createPanelAdHocControl(void* userdata);
+
+	static LLIMFloater* findInstance(const LLUUID& session_id);
+	static LLIMFloater* getInstance(const LLUUID& session_id);
+	static void addToHost(const LLUUID& session_id);
+
 	// LLFloater overrides
-	/*virtual*/ void onOpen(const LLSD& key);
 	/*virtual*/ void onClose(bool app_quitting);
 	/*virtual*/ void setDocked(bool docked, bool pop_on_undock = true);
-
 	// Make IM conversion visible and update the message history
 	static LLIMFloater* show(const LLUUID& session_id);
 
 	// Toggle panel specified by session_id
 	// Returns true iff panel became visible
 	static bool toggle(const LLUUID& session_id);
-
-	static LLIMFloater* findInstance(const LLUUID& session_id);
-
-	static LLIMFloater* getInstance(const LLUUID& session_id);
 
 	void sessionInitReplyReceived(const LLUUID& im_session_id);
 
@@ -102,6 +102,7 @@ public:
 	void onChange(EStatusType status, const std::string &channelURI,
 			bool proximal);
 
+	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 	virtual void onVoiceChannelStateChanged(
 			const LLVoiceChannel::EState& old_state,
 			const LLVoiceChannel::EState& new_state);
@@ -110,27 +111,17 @@ public:
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
-	static void processChatHistoryStyleUpdate();
-
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 			BOOL drop, EDragAndDropType cargo_type,
 			void *cargo_data, EAcceptance *accept,
 			std::string& tooltip_msg);
 
-	/**
-	 * Returns true if chat is displayed in multi tabbed floater
-	 *         false if chat is displayed in multiple windows
-	 */
-	static bool isChatMultiTab();
 
 	static void initIMFloater();
 
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
-
 	static void onIMChicletCreated(const LLUUID& session_id);
-
-	virtual LLTransientFloaterMgr::ETransientGroup getGroup() { return LLTransientFloaterMgr::IM; }
 
 protected:
 	/* virtual */ void onClickCloseBtn();
@@ -156,23 +147,13 @@ private:
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	void setTyping(bool typing);
-	void onSlide();
-	static void* createPanelGroupControl(void* userdata);
-	static void* createPanelAdHocControl(void* userdata);
 
-	void onTearOffClicked();
-
-	bool onIMCompactExpandedMenuItemCheck(const LLSD& userdata);
-	bool onIMShowModesMenuItemCheck(const LLSD& userdata);
-	bool onIMShowModesMenuItemEnable(const LLSD& userdata);
-	void onIMSessionMenuItemClicked(const LLSD& userdata);
 	void onCallButtonClicked();
 
-	void boundVoiceChannel();
-	void enableDisableCallBtn();
+	// set the enable/disable state for the Call button
+	virtual void enableDisableCallBtn();
 
-	// refresh a visual state of the Call button
-	void updateCallState(LLVoiceChannel::EState state);
+	void boundVoiceChannel();
 
 	// Add the "User is typing..." indicator.
 	void addTypingIndicator(const LLIMInfo* im_info);
@@ -180,15 +161,11 @@ private:
 	// Remove the "User is typing..." indicator.
 	void removeTypingIndicator(const LLIMInfo* im_info = NULL);
 
-	/// Update floater header and toolbar buttons when hosted/torn off state is toggled.
-	void updateHeaderAndToolbar();
-
 	static void closeHiddenIMToasts();
 
 	static void confirmLeaveCallCallback(const LLSD& notification, const LLSD& response);
 
-	LLPanelChatControlPanel* mControlPanel;
-	LLUUID mSessionID;
+
 	LLIMModel::LLIMSession* mSession;
 	S32 mLastMessageIndex;
 
@@ -204,7 +181,6 @@ private:
 	bool mMeTyping;
 	bool mOtherTyping;
 	bool mShouldSendTypingState;
-	bool mIsP2PChat;
 	LLFrameTimer mTypingTimer;
 	LLFrameTimer mTypingTimeoutTimer;
 
@@ -213,10 +189,6 @@ private:
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
-
-	LLButton* mCloseBtn;
-	LLButton* mExpandCollapseBtn;
-	LLButton* mTearOffBtn;
 };
 
 #endif  // LL_IMFLOATER_H

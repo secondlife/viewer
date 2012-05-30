@@ -25,7 +25,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llnearbychat.h"
 #include "llviewercontrol.h"
 #include "llviewerwindow.h"
 #include "llrootview.h"
@@ -93,9 +92,9 @@ static const S32 RESIZE_BAR_THICKNESS = 3;
 
 static LLRegisterPanelClassWrapper<LLNearbyChat> t_panel_nearby_chat("panel_nearby_chat");
 
-LLNearbyChat::LLNearbyChat(const LLNearbyChat::Params& p) 
-:	LLPanel(p),
-	mChatHistory(NULL)
+LLNearbyChat::LLNearbyChat(const LLNearbyChat::Params& p)
+	: LLPanel(p),
+	  mChatHistory(NULL)
 {
 }
 
@@ -117,10 +116,7 @@ BOOL LLNearbyChat::postBuild()
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
 
-	if(!LLPanel::postBuild())
-		return false;
-	
-	return true;
+    return LLPanel::postBuild();
 }
 
 
@@ -139,8 +135,7 @@ void LLNearbyChat::appendMessage(const LLChat& chat, const LLSD &args)
 		chat_args["use_plain_text_chat_history"] =
 				gSavedSettings.getBOOL("PlainTextChatHistory");
 		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
-		chat_args["show_names_for_p2p_conv"] = false
-				|| gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+		chat_args["show_names_for_p2p_conv"] = true;
 
 		mChatHistory->appendMessage(chat, chat_args);
 	}
@@ -223,7 +218,7 @@ void LLNearbyChat::getAllowedRect(LLRect& rect)
 	rect = gViewerWindow->getWorldViewRectScaled();
 }
 
-void LLNearbyChat::updateChatHistoryStyle()
+void LLNearbyChat::reloadMessages()
 {
 	mChatHistory->clear();
 
@@ -234,15 +229,6 @@ void LLNearbyChat::updateChatHistoryStyle()
 		// Update the messages without re-writing them to a log file.
 		addMessage(*it,false, do_not_log);
 	}
-}
-
-//static 
-void LLNearbyChat::processChatHistoryStyleUpdate()
-{
-	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
-	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
-	if(nearby_chat)
-		nearby_chat->updateChatHistoryStyle();
 }
 
 void LLNearbyChat::loadHistory()

@@ -1635,6 +1635,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		// give focus to new window to keep continuity for the user
 		self->setFocus(TRUE);
 		self->setTornOff(true);
+
 	}
 	else  //Attach to parent.
 	{
@@ -1649,6 +1650,7 @@ void LLFloater::onClickTearOff(LLFloater* self)
 		self->setTornOff(false);
 	}
 	self->updateTitleButtons();
+	self->setOpenPositioning(LLFloaterEnums::OPEN_POSITIONING_NONE);
 }
 
 // static

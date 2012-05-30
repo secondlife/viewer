@@ -31,7 +31,7 @@
 #include "llappviewer.h"
 #include "llfloaterreg.h"
 #include "lltrans.h"
-
+#include "llimfloatercontainer.h"
 #include "llfirstuse.h"
 #include "llnearbychatbar.h"
 #include "llagent.h"
@@ -54,7 +54,7 @@
 
 S32 LLNearbyChatBar::sLastSpecialChatChannel = 0;
 
-const S32 EXPANDED_HEIGHT = 300;
+const S32 EXPANDED_HEIGHT = 266;
 const S32 COLLAPSED_HEIGHT = 60;
 const S32 EXPANDED_MIN_HEIGHT = 150;
 
@@ -72,7 +72,7 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 };
 
 LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
-:	LLFloater(key),
+:	LLIMConversation(key),
 	mChatBox(NULL),
 	mNearbyChat(NULL),
 	mOutputMonitor(NULL),
@@ -116,14 +116,44 @@ BOOL LLNearbyChatBar::postBuild()
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
 
+	// childSetAction("voice_call_btn", boost::bind(&LLNearbyChatBar::onCallButtonClicked, this));
+
 	enableResizeCtrls(true, true, false);
 
-	return TRUE;
+	addToHost();
+
+	return LLIMConversation::postBuild();;
+}
+
+void LLNearbyChatBar::onCallButtonClicked()
+{
+	LLAgent::toggleMicrophone(NULL);
+}
+
+void LLNearbyChatBar::enableDisableCallBtn()
+{
+	// bool btn_enabled = LLAgent::isActionAllowed("speak");
+
+	getChildView("voice_call_btn")->setEnabled(false /*btn_enabled*/);
+}
+
+void LLNearbyChatBar::addToHost()
+{
+	if (LLIMConversation::isChatMultiTab())
+	{
+		LLIMFloaterContainer* im_box = LLIMFloaterContainer::getInstance();
+
+		if (im_box)
+		{
+			im_box->addFloater(this, FALSE, LLTabContainer::END);
+		}
+	}
 }
 
 // virtual
 void LLNearbyChatBar::onOpen(const LLSD& key)
 {
+	LLIMConversation::onOpen(key);
 	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 }
 
@@ -160,6 +190,12 @@ LLNearbyChatBar* LLNearbyChatBar::getInstance()
 	return LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar");
 }
 
+//static
+//LLNearbyChatBar* LLNearbyChatBar::findInstance()
+//{
+//	return LLFloaterReg::findTypedInstance<LLNearbyChatBar>("chat_bar");
+//}
+
 void LLNearbyChatBar::showHistory()
 {
 	openFloater();
@@ -178,7 +214,8 @@ void LLNearbyChatBar::showTranslationCheckbox(BOOL show)
 void LLNearbyChatBar::draw()
 {
 	displaySpeakingIndicator();
-	LLFloater::draw();
+	updateCallBtnState(LLVoiceClient::getInstance()->getUserPTTState());
+	LLIMConversation::draw();
 }
 
 std::string LLNearbyChatBar::getCurrentChat()
@@ -206,22 +243,24 @@ BOOL LLNearbyChatBar::matchChatTypeTrigger(const std::string& in_str, std::strin
 	U32 in_len = in_str.length();
 	S32 cnt = sizeof(sChatTypeTriggers) / sizeof(*sChatTypeTriggers);
 	
-	for (S32 n = 0; n < cnt; n++)
+	bool string_was_found = false;
+
+	for (S32 n = 0; n < cnt && !string_was_found; n++)
 	{
-		if (in_len > sChatTypeTriggers[n].name.length())
-			continue;
-
-		std::string trigger_trunc = sChatTypeTriggers[n].name;
-		LLStringUtil::truncate(trigger_trunc, in_len);
-
-		if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
+		if (in_len <= sChatTypeTriggers[n].name.length())
 		{
-			*out_str = sChatTypeTriggers[n].name;
-			return TRUE;
+			std::string trigger_trunc = sChatTypeTriggers[n].name;
+			LLStringUtil::truncate(trigger_trunc, in_len);
+
+			if (!LLStringUtil::compareInsensitive(in_str, trigger_trunc))
+			{
+				*out_str = sChatTypeTriggers[n].name;
+				string_was_found = true;
+			}
 		}
 	}
 
-	return FALSE;
+	return string_was_found;
 }
 
 void LLNearbyChatBar::onChatBoxKeystroke(LLLineEditor* caller, void* userdata)
@@ -421,6 +460,11 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 	gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
 }
 
+void LLNearbyChatBar::reloadMessages()
+{
+	LLNearbyChat::getInstance()->reloadMessages();
+}
+
 void LLNearbyChatBar::setMinimized(BOOL b)
 {
 	LLNearbyChat* nearby_chat = getChild<LLNearbyChat>("nearby_chat");
@@ -531,20 +575,20 @@ void LLNearbyChatBar::startChat(const char* line)
 {
 	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
-	if (!cb )
-		return;
-
-	cb->setVisible(TRUE);
-	cb->setFocus(TRUE);
-	cb->mChatBox->setFocus(TRUE);
-
-	if (line)
+	if (cb )
 	{
-		std::string line_string(line);
-		cb->mChatBox->setText(line_string);
-	}
+		cb->setVisible(TRUE);
+		cb->setFocus(TRUE);
+		cb->mChatBox->setFocus(TRUE);
 
-	cb->mChatBox->setCursorToEnd();
+		if (line)
+		{
+			std::string line_string(line);
+			cb->mChatBox->setText(line_string);
+		}
+
+		cb->mChatBox->setCursorToEnd();
+	}
 }
 
 // Exit "chat mode" and do the appropriate focus changes
@@ -553,13 +597,13 @@ void LLNearbyChatBar::stopChat()
 {
 	LLNearbyChatBar* cb = LLNearbyChatBar::getInstance();
 
-	if (!cb)
-		return;
+	if (cb)
+	{
+		cb->mChatBox->setFocus(FALSE);
 
-	cb->mChatBox->setFocus(FALSE);
-
- 	// stop typing animation
- 	gAgent.stopTyping();
+		// stop typing animation
+		gAgent.stopTyping();
+	}
 }
 
 // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.

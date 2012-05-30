@@ -31,6 +31,7 @@
 
 #include "llfloaterreg.h"
 #include "lllayoutstack.h"
+#include "llnearbychatbar.h"
 
 #include "llagent.h"
 #include "llavatariconctrl.h"

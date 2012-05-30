@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
  follows="all"
- height="300"
+ top="0"
+ bottom_delta="10"
  help_topic="nearby_chat"
  layout="topleft"
  name="nearby_chat"
- width="320">
+ width="394">
   <layout_stack
    follows="all"
-   height="295"
+   height="278"
    layout="topleft"
    left="0"
    name="stack"
    top="5"
    orientation="vertical"
-   width="320">
+   width="394">
     <layout_panel
      auto_resize="false"
      height="26"
@@ -23,7 +24,7 @@
      name="translate_chat_checkbox_lp"
      top_delta="0"
      visible="true"
-     width="313">
+     width="387">
       <check_box
        top="10"
        control_name="TranslateChat"
@@ -33,15 +34,15 @@
        layout="topleft"
        left="5"
        name="translate_chat_checkbox"
-       width="300" />
+       width="374" />
     </layout_panel>
     <layout_panel
      auto_resize="true"
-     height="277"
+     height="256"
      left_delta="0"
      layout="topleft"
      name="chat_history_lp"
-     width="318">
+     width="394">
       <chat_history
        bg_readonly_color="ChatHistoryBgColor"
        bg_writeable_color="ChatHistoryBgColor"
@@ -49,7 +50,7 @@
        layout="topleft"
        left="5"
        left_widget_pad="0"
-       height="272"
+       height="240"
        name="chat_history"
        parse_highlights="true"
        parse_urls="true"
@@ -57,7 +58,7 @@
        text_color="ChatHistoryTextColor"
        text_readonly_color="ChatHistoryTextColor"
        top="0"
-       width="313" />
+       width="384" />
     </layout_panel>
   </layout_stack>
 </panel>

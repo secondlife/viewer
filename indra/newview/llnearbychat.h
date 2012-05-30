@@ -29,13 +29,13 @@
 
 #include "llscrollbar.h"
 #include "llviewerchat.h"
-#include "llfloater.h"
+#include "llpanel.h"
 
 class LLResizeBar;
 class LLChatHistory;
 
 class LLNearbyChat
-: public LLPanel
+	: public LLPanel
 {
 public:
 	LLNearbyChat(const Params& p = LLPanel::getDefaultParams());
@@ -56,12 +56,8 @@ public:
 	
 	/*virtual*/ void	setVisible(BOOL visible);
 	
-	virtual void updateChatHistoryStyle();
-
-	static void processChatHistoryStyleUpdate();
-
 	void loadHistory();
-
+    void reloadMessages();
 	static LLNearbyChat* getInstance();
 	void removeScreenChat();
 

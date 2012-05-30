@@ -41,7 +41,7 @@
 #include "lltextutil.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
-
+#include "llimconversation.h"
 #include "llagent.h"
 #include "llagentui.h"
 #include "llappviewer.h"
