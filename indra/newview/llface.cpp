@@ -1951,6 +1951,12 @@ BOOL LLFace::hasMedia() const
 const F32 LEAST_IMPORTANCE = 0.05f ;
 const F32 LEAST_IMPORTANCE_FOR_LARGE_IMAGE = 0.3f ;
 
+void LLFace::resetVirtualSize()
+{
+	setVirtualSize(0.f);
+	mImportanceToCamera = 0.f;
+}
+
 F32 LLFace::getTextureVirtualSize()
 {
 	F32 radius;

@@ -4178,7 +4178,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 
 		llassert_always(vobj);
-		vobj->updateTextureVirtualSize(true);
+		vobj->updateTextureVirtualSize();
 		vobj->preRebuild();
 
 		drawablep->clearState(LLDrawable::HAS_ALPHA);
