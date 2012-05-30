@@ -59,6 +59,7 @@
 	<menu_item_call label="Свойства" name="Properties"/>
 	<menu_item_call label="Переименовать" name="Rename"/>
 	<menu_item_call label="Копировать UUID актива" name="Copy Asset UUID"/>
+	<menu_item_call label="Вырезать" name="Cut"/>
 	<menu_item_call label="Копировать" name="Copy"/>
 	<menu_item_call label="Вставить" name="Paste"/>
 	<menu_item_call label="Вставить как ссылку" name="Paste As Link"/>

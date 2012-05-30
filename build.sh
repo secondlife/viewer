@@ -173,9 +173,6 @@ eval "$("$AUTOBUILD" source_environment)"
 env|sort
 
 
-# Install packages.
-"$AUTOBUILD" install --skip-license-check
-
 # Now run the build
 succeeded=true
 build_processes=
@@ -191,10 +188,19 @@ do
   begin_section "Do$variant"
   build_dir=`build_dir_$arch $variant`
   build_dir_stubs="$build_dir/win_setup/$variant"
+
+  begin_section "PreClean"
   rm -rf "$build_dir"
+  end_section "PreClean"
+
   mkdir -p "$build_dir"
   mkdir -p "$build_dir/tmp"
-  #export TMP="$build_dir/tmp"
+
+  # Install packages.
+  begin_section "AutobuildInstall" 
+  "$AUTOBUILD" install --verbose --skip-license-check
+  end_section "AutobuildInstall" 
+
   if pre_build "$variant" "$build_dir" >> "$build_log" 2>&1
   then
     if $build_link_parallel

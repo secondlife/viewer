@@ -829,6 +829,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="anim_yes_head">
 		Si
 	</string>
+	<string name="multiple_textures">
+		Multiple
+	</string>
 	<string name="texture_loading">
 		Caricamento in corso...
 	</string>
@@ -1226,7 +1229,7 @@ Prova ad accedere nuovamente tra un minuto.
 		Non hai una copia di questa texture nel tuo inventario
 	</string>
 	<string name="InventoryInboxNoItems">
-		Alcuni elementi che riceverai, come ad esempio gli omaggi per l&apos;abbonamento Premium, verranno mostrati qui.  Potrai quindi trascinarli nel tuo inventario.
+		Gli acquissti dal mercato verranno mostrati qui. Potrai quindi trascinarli nel tuo inventario per usarli.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3842,6 +3845,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="Saved_message">
 		(Salvato [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Per vedere questo messaggio, devi deselezionare &apos;Solo amici e gruppi possono chiamarmi o mandarmi IM&apos; in Preferenze/Privacy.
 	</string>
 	<string name="answered_call">
 		Risposto alla chiamata

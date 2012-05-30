@@ -835,6 +835,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="anim_yes_head">
 		Oui
 	</string>
+	<string name="multiple_textures">
+		Multiples
+	</string>
 	<string name="texture_loading">
 		Chargement...
 	</string>
@@ -1235,7 +1238,7 @@ Veuillez réessayer de vous connecter dans une minute.
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
 	<string name="InventoryInboxNoItems">
-		Certains articles reçus, tels que les cadeaux Premium, s&apos;afficheront ici. Vous pourrez alors les faire glisser vers votre inventaire.
+		Les achats que vous avez effectués sur la Place du marché s&apos;affichent ici. Vous pouvez alors les faire glisser vers votre inventaire afin de les utiliser.
 	</string>
 	<string name="MarketplaceURL">
 		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
@@ -3920,6 +3923,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	</string>
 	<string name="Saved_message">
 		(Enregistrement : [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Pour afficher ce message, vous devez désactiver la case Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM, sous Préférences/Confidentialité.
 	</string>
 	<string name="answered_call">
 		Votre appel a fait l&apos;objet d&apos;une réponse

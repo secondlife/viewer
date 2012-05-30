@@ -59,6 +59,7 @@
 	<menu_item_call label="Özellikler" name="Properties"/>
 	<menu_item_call label="Yeniden Adlandır" name="Rename"/>
 	<menu_item_call label="Varlık UUID&apos;sini Kopyala" name="Copy Asset UUID"/>
+	<menu_item_call label="Kes" name="Cut"/>
 	<menu_item_call label="Kopyala" name="Copy"/>
 	<menu_item_call label="Yapıştır" name="Paste"/>
 	<menu_item_call label="Bağlantı Olarak Yapıştır" name="Paste As Link"/>

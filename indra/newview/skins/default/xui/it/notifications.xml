@@ -668,7 +668,7 @@ Attese [VALIDS]
 		Impossibile creare il file in uscita: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] non supporta ancora il caricamento in blocco di file di animazione.
+		[APP_NAME] non supporta ancora il caricamento in blocco di file di animazione in formato BVH.
 	</notification>
 	<notification name="CannotUploadReason">
 		Impossibile importare il file [FILE] a causa del seguente motivo: [REASON]
@@ -2632,16 +2632,16 @@ Concedi questa richiesta?
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; di [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Blocca"/>
-			<button name="Ignore" text="Ignora"/>
+			<button name="Client_Side_Mute" text="Blocca"/>
+			<button name="Client_Side_Ignore" text="Ignora"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; di [GROUPNAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Blocca"/>
-			<button name="Ignore" text="Ignora"/>
+			<button name="Client_Side_Mute" text="Blocca"/>
+			<button name="Client_Side_Ignore" text="Ignora"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
