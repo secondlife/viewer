@@ -292,7 +292,7 @@ void LLVBOPool::seedPool()
 
 void LLVBOPool::cleanup()
 {
-	U32 size = 1;
+	U32 size = LL_VBO_BLOCK_SIZE;
 
 	for (U32 i = 0; i < mFreeList.size(); ++i)
 	{
@@ -323,7 +323,7 @@ void LLVBOPool::cleanup()
 			}
 		}
 
-		size *= 2;
+		size += LL_VBO_BLOCK_SIZE;
 	}
 
 	//reset miss counts

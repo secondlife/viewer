@@ -130,11 +130,27 @@ S32 LLVOPartGroup::findAvailableVBSlot()
 	return ret;
 }
 
+bool ll_is_part_idx_allocated(S32 idx, S32* start, S32* end)
+{
+	while (start < end)
+	{
+		if (*start == idx)
+		{ //not allocated (in free list)
+			return false;
+		}
+		++start;
+	}
+
+	//allocated (not in free list)
+	return true;
+}
+
 //static
 void LLVOPartGroup::freeVBSlot(S32 idx)
 {
 	llassert(idx < LL_MAX_PARTICLE_COUNT && idx >= 0);
-	//llassert(sVBSlotCursor > sVBSlotFree);
+	llassert(sVBSlotCursor > sVBSlotFree);
+	llassert(ll_is_part_idx_allocated(idx, sVBSlotCursor, sVBSlotFree+LL_MAX_PARTICLE_COUNT));
 
 	if (sVBSlotCursor > sVBSlotFree)
 	{
