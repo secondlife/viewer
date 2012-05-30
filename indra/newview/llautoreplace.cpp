@@ -56,7 +56,7 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 
 		if (atSpace || haveWord)
 		{
-			if (atSpace)
+			if (atSpace && wordEnd > 0)
 			{
 				// find out if this space immediately follows a word
 				wordEnd--;
@@ -91,11 +91,6 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 						text.replace(wordStart,lastWord.length(),strNew);
 						inputText = wstring_to_utf8str(text);
 						cursorPos+=size_change;
-					}
-					else
-					{
-						// @TODO display replacement as tooltip?
-						LL_DEBUGS("AutoReplace")<<"tooltip: '"<<lastWord<<"' -> '"<<replacementWord<<"'"<<LL_ENDL;
 					}
 				}
 			}
