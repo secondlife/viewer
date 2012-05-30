@@ -544,7 +544,8 @@ public:
 		TELEPORT_MOVING = 3,		// Viewer has received destination location from source simulator
 		TELEPORT_START_ARRIVAL = 4,	// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 		TELEPORT_ARRIVING = 5,		// Make the user wait while content "pre-caches"
-		TELEPORT_LOCAL = 6			// Teleporting in-sim without showing the progress screen
+		TELEPORT_LOCAL = 6,			// Teleporting in-sim without showing the progress screen
+		TELEPORT_PENDING = 7
 	};
 
 public:

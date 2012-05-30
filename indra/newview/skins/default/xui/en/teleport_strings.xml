@@ -83,5 +83,8 @@ Go to &apos;Welcome Island Public&apos; to repeat the tutorial.
 		<message name="requesting">
 			Requesting Teleport...
 		</message>
-	</message_set>
+    <message name="pending">
+      Pending Teleport...
+    </message>
+  </message_set>
 </teleport_messages>

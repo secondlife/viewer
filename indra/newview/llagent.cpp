@@ -3727,7 +3727,7 @@ void LLAgent::clearVisualParams(void *data)
 // protected
 bool LLAgent::teleportCore(bool is_local)
 {
-	if(TELEPORT_NONE != mTeleportState)
+	if ((TELEPORT_NONE != mTeleportState) && (mTeleportState != TELEPORT_PENDING))
 	{
 		llwarns << "Attempt to teleport when already teleporting." << llendl;
 		return false;
@@ -3840,22 +3840,30 @@ bool LLAgent::hasPendingTeleportRequest()
 
 void LLAgent::startTeleportRequest()
 {
-	if (hasPendingTeleportRequest() && isMaturityPreferenceSyncedWithServer())
+	if (hasPendingTeleportRequest())
 	{
-		switch (mTeleportRequest->getStatus())
+		if  (!isMaturityPreferenceSyncedWithServer())
 		{
-		case LLTeleportRequest::kPending :
-			mTeleportRequest->setStatus(LLTeleportRequest::kStarted);
-			mTeleportRequest->startTeleport();
-			break;
-		case LLTeleportRequest::kRestartPending :
-			llassert(mTeleportRequest->canRestartTeleport());
-			mTeleportRequest->setStatus(LLTeleportRequest::kStarted);
-			mTeleportRequest->restartTeleport();
-			break;
-		default :
-			llassert(0);
-			break;
+			gTeleportDisplay = TRUE;
+			setTeleportState(TELEPORT_PENDING);
+		}
+		else
+		{
+			switch (mTeleportRequest->getStatus())
+			{
+			case LLTeleportRequest::kPending :
+				mTeleportRequest->setStatus(LLTeleportRequest::kStarted);
+				mTeleportRequest->startTeleport();
+				break;
+			case LLTeleportRequest::kRestartPending :
+				llassert(mTeleportRequest->canRestartTeleport());
+				mTeleportRequest->setStatus(LLTeleportRequest::kStarted);
+				mTeleportRequest->restartTeleport();
+				break;
+			default :
+				llassert(0);
+				break;
+			}
 		}
 	}
 }
