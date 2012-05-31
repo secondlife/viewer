@@ -31,11 +31,15 @@
 
 #include "llpathfindingobject.h"
 #include "llsd.h"
+#include "llpathinglib.h"
 
 #define CHARACTER_CPU_TIME_FIELD   "cpu_time"
 #define CHARACTER_HORIZONTAL_FIELD "horizontal"
 #define CHARACTER_LENGTH_FIELD     "length"
 #define CHARACTER_RADIUS_FIELD     "radius"
+
+//prep#
+#define SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 
 //---------------------------------------------------------------------------
 // LLPathfindingCharacter
@@ -119,5 +123,9 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 	llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
 	llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
 	mRadius = pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
+
+	//Create the rep inside the pathing library
+	LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, LLVector3(0,0,0), getUUID() );
+
 #endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 }

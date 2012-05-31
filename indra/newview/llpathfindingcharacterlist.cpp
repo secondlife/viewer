@@ -33,6 +33,7 @@
 #include "llpathfindingobject.h"
 #include "llpathfindingobjectlist.h"
 #include "llsd.h"
+#include "llpathinglib.h"
 
 //---------------------------------------------------------------------------
 // LLPathfindingCharacterList
@@ -46,6 +47,13 @@ LLPathfindingCharacterList::LLPathfindingCharacterList()
 LLPathfindingCharacterList::LLPathfindingCharacterList(const LLSD& pCharacterListData)
 	: LLPathfindingObjectList()
 {
+	if ( LLPathingLib::getInstance() == NULL )
+	{
+		LLPathingLib::initSystem();
+	}
+	
+	LLPathingLib::getInstance()->cleanupPhysicsCapsuleRepResiduals( );
+
 	parseCharacterListData(pCharacterListData);
 }
 
