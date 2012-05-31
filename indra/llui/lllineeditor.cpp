@@ -1905,7 +1905,7 @@ void LLLineEditor::draw()
 				{
 					word_end++;
 				}
-				if (word_end >= text.length())
+				if (word_end > text.length())
 					break;
 
 				// Don't process words shorter than 3 characters
