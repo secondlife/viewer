@@ -27,25 +27,27 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llpanelimcontrolpanel.h"
+#include "llimconversation.h"
 
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
-#include "llimconversation.h"
 #include "llimfloater.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "lllayoutstack.h"
 #include "llnearbychat.h"
-#include "llnearbychatbar.h"
+#include "llnearbychat.h"
+
+const F32 REFRESH_INTERVAL = 0.2;
 
 LLIMConversation::LLIMConversation(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
-  ,  mControlPanel(NULL)
+  ,	LLEventTimer(REFRESH_INTERVAL)
   ,  mIsP2PChat(false)
   ,  mExpandCollapseBtn(NULL)
   ,  mTearOffBtn(NULL)
   ,  mCloseBtn(NULL)
   ,  mSessionID(session_id)
+  , mParticipantList(NULL)
 {
 	mCommitCallbackRegistrar.add("IMSession.Menu.Action",
 			boost::bind(&LLIMConversation::onIMSessionMenuItemClicked,  this, _2));
@@ -63,6 +65,15 @@ LLIMConversation::LLIMConversation(const LLUUID& session_id)
 			boost::bind(&LLIMConversation::onIMShowModesMenuItemEnable,  this, _2));
 }
 
+LLIMConversation::~LLIMConversation()
+{
+	if (mParticipantList)
+	{
+		delete mParticipantList;
+		mParticipantList = NULL;
+	}
+}
+
 BOOL LLIMConversation::postBuild()
 {
 	mCloseBtn = getChild<LLButton>("close_btn");
@@ -71,19 +82,12 @@ BOOL LLIMConversation::postBuild()
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMConversation::onSlide, this));
 
-	if (mControlPanel)
-	{
-	    mControlPanel->setSessionId(mSessionID);
-	    mControlPanel->getParent()->setVisible(gSavedSettings.getBOOL("IMShowControlPanel"));
-
-		mExpandCollapseBtn->setImageOverlay(
-				getString(mControlPanel->getParent()->getVisible() ? "collapse_icon" : "expand_icon"));
-	}
-	else
-	{
-		mExpandCollapseBtn->setEnabled(false);
-		getChild<LLLayoutPanel>("im_control_panel_holder")->setVisible(false);
-	}
+	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
+	mParticipantListPanel->setVisible(
+			mIsNearbyChat? false : gSavedSettings.getBOOL("IMShowControlPanel"));
+	mExpandCollapseBtn->setImageOverlay(
+				getString(mParticipantListPanel->getVisible() ? "collapse_icon" : "expand_icon"));
+	mExpandCollapseBtn->setEnabled(!mIsP2PChat);
 
 	mTearOffBtn = getChild<LLButton>("tear_off_btn");
 	mTearOffBtn->setCommitCallback(boost::bind(&LLIMConversation::onTearOffClicked, this));
@@ -93,6 +97,8 @@ BOOL LLIMConversation::postBuild()
 		setOpenPositioning(LLFloaterEnums::OPEN_POSITIONING_NONE);
 	}
 
+	buildParticipantList();
+
 	if (isChatMultiTab())
 	{
 		return LLFloater::postBuild();
@@ -100,6 +106,47 @@ BOOL LLIMConversation::postBuild()
 	else
 	{
 		return LLDockableFloater::postBuild();
+	}
+
+}
+
+BOOL LLIMConversation::tick()
+{
+	// Need to resort the participant list if it's in sort by recent speaker order.
+	if (mParticipantList)
+	{
+		mParticipantList->update();
+	}
+
+	return false;
+}
+
+void LLIMConversation::buildParticipantList()
+{	if (mIsNearbyChat)
+	{
+	}
+	else
+	{
+		// for group and Ad-hoc chat we need to include agent into list
+		if(!mIsP2PChat && !mParticipantList && mSessionID.notNull())
+		{
+			LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+			mParticipantList = new LLParticipantList(speaker_manager, getChild<LLAvatarList>("speakers_list"), true, false);
+		}
+	}
+}
+
+void LLIMConversation::onSortMenuItemClicked(const LLSD& userdata)
+{
+	// TODO: Check this code when when sort order menu will be added. (EM)
+	if (true || !mParticipantList)
+		return;
+
+	std::string chosen_item = userdata.asString();
+
+	if (chosen_item == "sort_name")
+	{
+		mParticipantList->setSortOrder(LLParticipantList::E_SORT_BY_NAME);
 	}
 
 }
@@ -162,11 +209,11 @@ void LLIMConversation::updateHeaderAndToolbar()
 	}
 
 	bool is_control_panel_visible = false;
-	if (mControlPanel)
+	if (!mIsP2PChat)
 	{
 		// Control panel should be visible only in torn off floaters.
 		is_control_panel_visible = !is_hosted && gSavedSettings.getBOOL("IMShowControlPanel");
-		mControlPanel->getParent()->setVisible(is_control_panel_visible);
+		mParticipantListPanel->setVisible(is_control_panel_visible);
 	}
 
 	// Display collapse image (<<) if the floater is hosted
@@ -215,10 +262,10 @@ void LLIMConversation::processChatHistoryStyleUpdate()
 		}
 	}
 
-	LLNearbyChatBar* nearby_chat_bar = LLNearbyChatBar::getInstance();
-	if (nearby_chat_bar)
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
+	if (nearby_chat)
 	{
-		nearby_chat_bar->reloadMessages();
+		nearby_chat->reloadMessages();
 	}
 }
 
@@ -240,12 +287,12 @@ void LLIMConversation::onSlide(LLIMConversation* self)
 	}
 	else ///< floater is torn off
 	{
-		if (self->mControlPanel)
+		if (!self->mIsP2PChat)
 		{
-			bool expand = !self->mControlPanel->getParent()->getVisible();
+			bool expand = !self->mParticipantListPanel->getVisible();
 
 			// Expand/collapse the IM control panel
-			self->mControlPanel->getParent()->setVisible(expand);
+			self->mParticipantListPanel->setVisible(expand);
 
 			gSavedSettings.setBOOL("IMShowControlPanel", expand);
 

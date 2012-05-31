@@ -40,7 +40,7 @@
 #include "llviewermessage.h" // send_guid_sound_trigger
 #include "llviewernetwork.h"
 #include "llagent.h"
-#include "llnearbychatbar.h"
+#include "llnearbychat.h"
 
 // Globals
 LLViewerGestureList gGestureList;
@@ -130,7 +130,7 @@ void LLViewerGesture::doTrigger( BOOL send_chat )
 	{
 		// Don't play nodding animation, since that might not blend
 		// with the gesture animation.
-		LLNearbyChatBar::getInstance()->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
+		LLNearbyChat::getInstance()->sendChatFromViewer(mOutputString, CHAT_TYPE_NORMAL, FALSE);
 	}
 }
 

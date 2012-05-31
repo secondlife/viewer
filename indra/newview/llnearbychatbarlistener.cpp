@@ -29,14 +29,14 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llnearbychatbarlistener.h"
-#include "llnearbychatbar.h"
+#include "llnearbychat.h"
 
 #include "llagent.h"
 #include "llchat.h"
 
 
 
-LLNearbyChatBarListener::LLNearbyChatBarListener(LLNearbyChatBar & chatbar)
+LLNearbyChatBarListener::LLNearbyChatBarListener(LLNearbyChat & chatbar)
   : LLEventAPI("LLChatBar",
                "LLChatBar listener to (e.g.) sendChat, etc."),
 	mChatbar(chatbar)

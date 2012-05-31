@@ -332,7 +332,6 @@ set(viewer_SOURCE_FILES
     llnamelistctrl.cpp
     llnavigationbar.cpp
     llnearbychat.cpp
-    llnearbychatbar.cpp
     llnearbychathandler.cpp
     llnearbychatbarlistener.cpp
     llnetmap.cpp
@@ -364,7 +363,6 @@ set(viewer_SOURCE_FILES
     llpanelgroupnotices.cpp
     llpanelgrouproles.cpp
     llpanelhome.cpp
-    llpanelimcontrolpanel.cpp
     llpanelland.cpp
     llpanellandaudio.cpp
     llpanellandmarkinfo.cpp
@@ -890,7 +888,6 @@ set(viewer_HEADER_FILES
     llnamelistctrl.h
     llnavigationbar.h
     llnearbychat.h
-    llnearbychatbar.h
     llnearbychathandler.h
     llnearbychatbarlistener.h
     llnetmap.h
@@ -916,7 +913,6 @@ set(viewer_HEADER_FILES
     llpanelgroupnotices.h
     llpanelgrouproles.h
     llpanelhome.h
-    llpanelimcontrolpanel.h
     llpanelland.h
     llpanellandaudio.h
     llpanellandmarkinfo.h

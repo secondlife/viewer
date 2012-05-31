@@ -28,19 +28,24 @@
 #ifndef LL_IMCONVERSATION_H
 #define LL_IMCONVERSATION_H
 
+#include "lllayoutstack.h"
+#include "llparticipantlist.h"
 #include "lltransientdockablefloater.h"
 #include "llviewercontrol.h"
+#include "lleventtimer.h"
 
 class LLPanelChatControlPanel;
 
 class LLIMConversation
 	: public LLTransientDockableFloater
+	, public LLEventTimer
 {
 
 public:
 	LOG_CLASS(LLIMConversation);
 
 	LLIMConversation(const LLUUID& session_id);
+	~LLIMConversation();
 
 	// reload all message with new settings of visual modes
 	static void processChatHistoryStyleUpdate();
@@ -75,13 +80,16 @@ protected:
 	// set the enable/disable state for the Call button
 	virtual void enableDisableCallBtn() = 0;
 
-//	/* virtual */ void updateTitleButtons();
+	void buildParticipantList();
+	void onSortMenuItemClicked(const LLSD& userdata);
 
+	/*virtual*/ BOOL tick();
 
-	LLPanelChatControlPanel* mControlPanel;
 	bool mIsNearbyChat;
 	bool mIsP2PChat;
 
+	LLLayoutPanel* mParticipantListPanel;
+	LLParticipantList* mParticipantList;
 	LLUUID mSessionID;
 
 	LLButton* mExpandCollapseBtn;

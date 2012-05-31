@@ -40,7 +40,7 @@
 
 #include "llfloaterreg.h"//for LLFloaterReg::getTypedInstance
 #include "llviewerwindow.h"//for screen channel position
-#include "llnearbychatbar.h"
+#include "llnearbychat.h"
 #include "llrootview.h"
 #include "lllayoutstack.h"
 
@@ -487,9 +487,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	if(chat_msg.mText.empty())
 		return;//don't process empty messages
 
-	LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
-
-	LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
+	LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 
 	// Build notification data 
 	LLSD chat;
@@ -558,8 +556,7 @@ void LLNearbyChatHandler::processChat(const LLChat& chat_msg,
 	sChatWatcher->post(chat);
 
 
-	if( !chat_bar->isMinimized()
-		&& nearby_chat->isInVisibleChain() 
+	if( nearby_chat->isInVisibleChain()
 		|| ( chat_msg.mSourceType == CHAT_SOURCE_AGENT
 			&& gSavedSettings.getBOOL("UseChatBubbles") )
 		|| mChannel.isDead()

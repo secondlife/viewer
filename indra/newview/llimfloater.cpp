@@ -44,7 +44,6 @@
 //#include "lllayoutstack.h"
 #include "lllineeditor.h"
 #include "lllogchat.h"
-#include "llpanelimcontrolpanel.h"
 #include "llscreenchannel.h"
 #include "llsyswellwindow.h"
 #include "lltrans.h"
@@ -82,53 +81,13 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	{
 		mIsP2PChat = mSession->isP2PSessionType();
 		mSessionInitialized = mSession->mSessionInitialized;
-		
 		mDialog = mSession->mType;
-		switch (mDialog)
-		{
-		case IM_SESSION_CONFERENCE_START:
-			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
-			break;
-		case IM_SESSION_GROUP_START:
-			mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
-			break;
-		case IM_SESSION_INVITE:
-			if (gAgent.isInGroup(mSessionID))
-			{
-				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelGroupControl, this);
-			}
-			else
-			{
-				mFactoryMap["panel_im_control_panel"] = LLCallbackMap(createPanelAdHocControl, this);
-			}
-			break;
-		default:
-			break;
-		}
 	}
 	setOverlapsScreenChannel(true);
 
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
 
 	setDocked(true);
-}
-
-// static
-void* LLIMFloater::createPanelGroupControl(void* userdata)
-{
-	LLIMFloater *self = (LLIMFloater*) userdata;
-	self->mControlPanel = new LLPanelGroupControlPanel(self->mSessionID);
-	self->mControlPanel->setXMLFilename("panel_group_control_panel.xml");
-	return self->mControlPanel;
-}
-
-// static
-void* LLIMFloater::createPanelAdHocControl(void* userdata)
-{
-	LLIMFloater *self = (LLIMFloater*) userdata;
-	self->mControlPanel = new LLPanelAdHocControlPanel(self->mSessionID);
-	self->mControlPanel->setXMLFilename("panel_adhoc_control_panel.xml");
-	return self->mControlPanel;
 }
 
 void LLIMFloater::onFocusLost()
@@ -409,8 +368,10 @@ void LLIMFloater::onAvatarNameCache(const LLUUID& agent_id,
 }
 
 // virtual
-void LLIMFloater::draw()
+BOOL LLIMFloater::tick()
 {
+	BOOL parents_retcode = LLIMConversation::tick();
+
 	if ( mMeTyping )
 	{
 		// Time out if user hasn't typed for a while.
@@ -420,7 +381,7 @@ void LLIMFloater::draw()
 		}
 	}
 
-	LLTransientDockableFloater::draw();
+	return parents_retcode;
 }
 
 //static
@@ -643,16 +604,14 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	if (mSessionID != im_session_id)
 	{
 		mSessionID = im_session_id;
-
 		setKey(im_session_id);
-		if (mControlPanel)
-		{
-		mControlPanel->setSessionId(im_session_id);
-	}
+
 		boundVoiceChannel();
 
 		mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
 		mIsP2PChat = mSession && mSession->isP2PSessionType();
+
+		buildParticipantList();
 	}
 	
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
@@ -841,10 +800,14 @@ void LLIMFloater::setTyping(bool typing)
 		}
 	}
 
-	LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
-	if (speaker_mgr)
-		speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
-
+	if (!mIsNearbyChat)
+	{
+		LLIMSpeakerMgr* speaker_mgr = LLIMModel::getInstance()->getSpeakerManager(mSessionID);
+		if (speaker_mgr)
+		{
+			speaker_mgr->setSpeakerTyping(gAgent.getID(), FALSE);
+		}
+	}
 }
 
 void LLIMFloater::processIMTyping(const LLIMInfo* im_info, BOOL typing)

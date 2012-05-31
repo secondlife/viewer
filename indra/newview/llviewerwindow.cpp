@@ -185,7 +185,7 @@
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
-#include "llnearbychatbar.h"
+#include "llnearbychat.h"
 #include "llagentui.h"
 #include "llwearablelist.h"
 
@@ -2482,7 +2482,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// Traverses up the hierarchy
 	if( keyboard_focus )
 	{
-		LLNearbyChatBar* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChatBar>("chat_bar");
+		LLNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLNearbyChat>("chat_bar");
 
 		if (nearby_chat)
 		{
@@ -2549,11 +2549,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
-		LLLineEditor* chat_editor = LLFloaterReg::getTypedInstance<LLNearbyChatBar>("chat_bar")->getChatBox();
+		LLLineEditor* chat_editor = LLFloaterReg::getTypedInstance<LLNearbyChat>("chat_bar")->getChatBox();
 		if (chat_editor)
 		{
 			// passing NULL here, character will be added later when it is handled by character handler.
-			LLNearbyChatBar::getInstance()->startChat(NULL);
+			LLNearbyChat::getInstance()->startChat(NULL);
 			return TRUE;
 		}
 	}

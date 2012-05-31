@@ -138,18 +138,24 @@
   top_pad="0"
   left="0">
     <layout_panel
-      name="im_control_panel_holder"
+      name="speakers_list_panel"
       min_width="115"
       width="150" 
       height="310" 
       auto_resize="false">
-      <panel
-        name="panel_im_control_panel"
-        layout="topleft"
-        height="310"
-        width="150" 
-        follows="all"/>
-      </layout_panel>
+            <avatar_list
+             color="DkGray2"
+             follows="all"
+             height="100"
+             ignore_online_status="true"
+             layout="topleft"
+             name="speakers_list"
+             opaque="false"
+             show_info_btn="true"
+             show_profile_btn="false"
+             show_speaking_indicator="false"
+             width="145" />
+    </layout_panel>
     <layout_panel
        default_tab_group="3"
        left="0"
@@ -158,27 +164,82 @@
        height="200"
 	    width="254"
        user_resize="true">
-        <chat_history
-	     font="SansSerifSmall"
-         follows="all"
-         height="170"
-         name="chat_history"
-         parse_highlights="true"
-         parse_urls="true"
-         left="1"
-         width="249">
-        </chat_history>
-        <line_editor
-         bottom="0"
-         follows="left|right|bottom"
-	     font="SansSerifSmall"
-         height="20"
-         label="To"
-         layout="bottomleft"
-         name="chat_editor"
-         tab_group="3"
-         width="249">
-        </line_editor>
+         <layout_stack
+          animate="true" 
+          default_tab_group="2"
+          follows="all"
+          height="200"
+          width="254"
+          layout="topleft"
+          orientation="vertical"
+          name="chat_area"
+          tab_group="1"
+          left_pad="0"
+          top="0">
+            <layout_panel
+             auto_resize="false"
+             height="26"
+             layout="topleft"
+             left_delta="0"
+             name="translate_chat_checkbox_lp"
+             top_delta="0"
+             visible="true"
+             width="230">
+                <check_box
+                 top="10"
+                 control_name="TranslateChat"
+                 enabled="true"
+                 height="16"
+                 label="Translate chat"
+                 layout="topleft"
+                 left="5"
+                 name="translate_chat_checkbox"
+                 width="230" />
+            </layout_panel>
+            <layout_panel
+             auto_resize="false"
+             height="170"
+             layout="topleft"
+             left_delta="0"
+             name="translate_chat_checkbox_lp"
+             top_delta="0"
+             visible="true"
+             width="230">      
+           		<chat_history
+    	     		font="SansSerifSmall"
+             		follows="all"
+             		height="170"
+            	 	name="chat_history"
+             		parse_highlights="true"
+             		parse_urls="true"
+             		left="1"
+             		width="229">
+            	</chat_history>
+            	<line_editor
+             		bottom="0"
+             		follows="left|right|bottom"
+	         		font="SansSerifSmall"
+             		height="20"
+             		label="To"
+             		layout="bottomleft"
+             		name="chat_editor"
+             		tab_group="3"
+             		width="230">
+            	</line_editor>
+            	<output_monitor
+                 auto_update="true"
+                 follows="right"
+                 draw_border="false"
+                 height="16"
+                 layout="topleft"
+                 left_pad="-24"
+                 mouse_opaque="true"
+                 name="chat_zone_indicator"
+                 top="6"
+                 visible="true"
+                 width="20" />           	
+            </layout_panel>
+        </layout_stack>
     </layout_panel>
   </layout_stack>
     </view>

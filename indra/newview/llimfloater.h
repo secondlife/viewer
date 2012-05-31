@@ -61,14 +61,14 @@ public:
 	/*virtual*/ void setVisible(BOOL visible);
 	/*virtual*/ BOOL getVisible();
 	// Check typing timeout timer.
-	/*virtual*/ void draw();
-
-	static void* createPanelGroupControl(void* userdata);
-	static void* createPanelAdHocControl(void* userdata);
+	/*virtual*/ BOOL tick();
 
 	static LLIMFloater* findInstance(const LLUUID& session_id);
 	static LLIMFloater* getInstance(const LLUUID& session_id);
 	static void addToHost(const LLUUID& session_id);
+
+	static void* createPanelGroupControl(void* userdata);
+	static void* createPanelAdHocControl(void* userdata);
 
 	// LLFloater overrides
 	/*virtual*/ void onClose(bool app_quitting);
@@ -147,7 +147,6 @@ private:
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	void setTyping(bool typing);
-
 	void onCallButtonClicked();
 
 	// set the enable/disable state for the Call button

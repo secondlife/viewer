@@ -907,7 +907,7 @@ const LLUUID& LLIMModel::getOtherParticipantID(const LLUUID& session_id) const
 	LLIMSession* session = findIMSession(session_id);
 	if (!session)
 	{
-		llwarns << "session " << session_id << "does not exist " << llendl;
+		llwarns << "session " << session_id << " does not exist " << llendl;
 		return LLUUID::null;
 	}
 
@@ -2483,8 +2483,7 @@ void LLIMMgr::addSystemMessage(const LLUUID& session_id, const std::string& mess
 		LLChat chat(message);
 		chat.mSourceType = CHAT_SOURCE_SYSTEM;
 		
-		LLFloater* chat_bar = LLFloaterReg::getInstance("chat_bar");
-		LLNearbyChat* nearby_chat = chat_bar->findChild<LLNearbyChat>("nearby_chat");
+		LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 
 		if(nearby_chat)
 		{

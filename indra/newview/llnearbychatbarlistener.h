@@ -33,17 +33,17 @@
 #include "lleventapi.h"
 
 class LLSD;
-class LLNearbyChatBar;
+class LLNearbyChat;
 
 class LLNearbyChatBarListener : public LLEventAPI
 {
 public:
-	LLNearbyChatBarListener(LLNearbyChatBar & chatbar);
+	LLNearbyChatBarListener(LLNearbyChat & chatbar);
 
 private:
     void sendChat(LLSD const & chat_data) const;
 
-	LLNearbyChatBar & mChatbar;
+	LLNearbyChat & mChatbar;
 };
 
 #endif // LL_LLNEARBYCHATBARLISTENER_H
