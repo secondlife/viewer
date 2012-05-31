@@ -29,6 +29,7 @@
 
 #include <boost/signals2.hpp>
 
+#include "llagent.h"
 #include "llfloater.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingobject.h"
@@ -115,6 +116,7 @@ private:
 	void onScrollListSelectionChanged();
 	void onSelectionListChanged();
 	void onRegionBoundaryCrossed();
+	void onGodLevelChange(U8 pGodLevel);
 
 	void updateMessagingStatus();
 	void updateStateOnListActionControls();
@@ -148,6 +150,7 @@ private:
 
 	boost::signals2::connection        mSelectionUpdateSlot;
 	boost::signals2::connection        mRegionBoundaryCrossingSlot;
+	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGOBJECTS_H

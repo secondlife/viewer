@@ -243,6 +243,7 @@ LLAgent::LLAgent() :
 	mbTeleportKeepsLookAt(false),
 
 	mAgentAccess(new LLAgentAccess(gSavedSettings)),
+	mGodLevelChangeSignal(),
 	mCanEditParcel(false),
 	mTeleportSourceSLURL(new LLSLURL),
 	mTeleportState( TELEPORT_NONE ),
@@ -2434,6 +2435,12 @@ void LLAgent::setAdminOverride(BOOL b)
 void LLAgent::setGodLevel(U8 god_level)	
 { 
 	mAgentAccess->setGodLevel(god_level);
+	mGodLevelChangeSignal(god_level);
+}
+
+LLAgent::god_level_change_slot_t LLAgent::registerGodLevelChanageListener(god_level_change_callback_t pGodLevelChangeCallback)
+{
+	return mGodLevelChangeSignal.connect(pGodLevelChangeCallback);
 }
 
 void LLAgent::setAOTransition()

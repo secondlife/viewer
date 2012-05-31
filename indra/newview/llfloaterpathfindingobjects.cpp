@@ -78,11 +78,21 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 		mRegionBoundaryCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLFloaterPathfindingObjects::onRegionBoundaryCrossed, this));
 	}
 
+	if (!mGodLevelChangeSlot.connected())
+	{
+		mGodLevelChangeSlot = gAgent.registerGodLevelChanageListener(boost::bind(&LLFloaterPathfindingObjects::onGodLevelChange, this, _1));
+	}
+
 	requestGetObjects();
 }
 
 void LLFloaterPathfindingObjects::onClose(bool pIsAppQuitting)
 {
+	if (mGodLevelChangeSlot.connected())
+	{
+		mGodLevelChangeSlot.disconnect();
+	}
+
 	if (mRegionBoundaryCrossingSlot.connected())
 	{
 		mRegionBoundaryCrossingSlot.disconnect();
@@ -550,6 +560,11 @@ void LLFloaterPathfindingObjects::onSelectionListChanged()
 }
 
 void LLFloaterPathfindingObjects::onRegionBoundaryCrossed()
+{
+	requestGetObjects();
+}
+
+void LLFloaterPathfindingObjects::onGodLevelChange(U8 pGodLevel)
 {
 	requestGetObjects();
 }
