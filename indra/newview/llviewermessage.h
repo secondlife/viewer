@@ -36,6 +36,9 @@
 #include "stdenums.h"
 #include "llnotifications.h"
 
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
+
 //
 // Forward declarations
 //
@@ -211,7 +214,6 @@ public:
 	typedef boost::signals2::signal<void()> teleport_started_signal_t;
 	boost::signals2::connection setTeleportStartedCallback(teleport_started_callback_t cb);
 
-protected:
 	teleport_started_signal_t	mTeleportStartedSignal;
 };
 
