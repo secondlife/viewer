@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LLFLOATERAUTOREPLACESETTINGS_H
-#define LLFLOATERAUTOREPLACESETTINGS_H
+#ifndef LLFLOATERSPELLCHECKERSETTINGS_H
+#define LLFLOATERSPELLCHECKERSETTINGS_H
 
 #include "llfloater.h"
 
@@ -45,4 +45,4 @@ protected:
 	void refreshDictionaryLists(bool from_settings);
 };
 
-#endif  // LLFLOATERAUTOREPLACESETTINGS_H
+#endif  // LLFLOATERSPELLCHECKERSETTINGS_H
