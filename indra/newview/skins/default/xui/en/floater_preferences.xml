@@ -120,12 +120,6 @@
          layout="topleft"
          help_topic="preferences_advanced1_tab"
          name="advanced1" />
-        <panel
-         class="panel_preference"
-         filename="panel_preferences_spellcheck.xml"
-         label="Spell Check"
-         layout="topleft"
-         name="spell_check" />
     </tab_container>
 
 </floater>
