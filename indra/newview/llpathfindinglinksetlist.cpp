@@ -27,72 +27,44 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <string>
-#include <map>
+#include "llpathfindinglinksetlist.h"
 
 #include "llsd.h"
-#include "lluuid.h"
 #include "llpathfindinglinkset.h"
-#include "llpathfindinglinksetlist.h"
+#include "llpathfindingobject.h"
+#include "llpathfindingobjectlist.h"
 
 //---------------------------------------------------------------------------
 // LLPathfindingLinksetList
 //---------------------------------------------------------------------------
 
 LLPathfindingLinksetList::LLPathfindingLinksetList()
-	: LLPathfindingLinksetMap()
+	: LLPathfindingObjectList()
 {
 }
 
-LLPathfindingLinksetList::LLPathfindingLinksetList(const LLSD& pLinksetItems)
-	: LLPathfindingLinksetMap()
+LLPathfindingLinksetList::LLPathfindingLinksetList(const LLSD& pLinksetListData)
+	: LLPathfindingObjectList()
 {
-	for (LLSD::map_const_iterator linksetItemIter = pLinksetItems.beginMap();
-		linksetItemIter != pLinksetItems.endMap(); ++linksetItemIter)
-	{
-		const std::string& uuid(linksetItemIter->first);
-		const LLSD& linksetData = linksetItemIter->second;
-		LLPathfindingLinksetPtr linkset(new LLPathfindingLinkset(uuid, linksetData));
-		insert(std::pair<std::string, LLPathfindingLinksetPtr>(uuid, linkset));
-	}
+	parseLinksetListData(pLinksetListData);
 }
 
 LLPathfindingLinksetList::~LLPathfindingLinksetList()
 {
-	clear();
-}
-
-void LLPathfindingLinksetList::update(const LLPathfindingLinksetList &pUpdateLinksetList)
-{
-	for (LLPathfindingLinksetList::const_iterator updateLinksetIter = pUpdateLinksetList.begin();
-		updateLinksetIter != pUpdateLinksetList.end(); ++updateLinksetIter)
-	{
-		const std::string &uuid = updateLinksetIter->first;
-		const LLPathfindingLinksetPtr updateLinksetPtr = updateLinksetIter->second;
-
-		LLPathfindingLinksetList::iterator linksetIter = find(uuid);
-		if (linksetIter == end())
-		{
-			insert(std::pair<std::string, LLPathfindingLinksetPtr>(uuid, updateLinksetPtr));
-		}
-		else
-		{
-			LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-			*linksetPtr = *updateLinksetPtr;
-		}
-	}
 }
 
 LLSD LLPathfindingLinksetList::encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD listData;
 
-	for (LLPathfindingLinksetMap::const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
+	for (const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
 	{
-		const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-		if (!linksetPtr->isTerrain())
+		const LLPathfindingObjectPtr objectPtr = linksetIter->second;
+		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+
+		if (!linkset->isTerrain())
 		{
-			LLSD linksetData = linksetPtr->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+			LLSD linksetData = linkset->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
 			if (!linksetData.isUndefined())
 			{
 				const std::string& uuid(linksetIter->first);
@@ -107,16 +79,114 @@ LLSD LLPathfindingLinksetList::encodeObjectFields(LLPathfindingLinkset::ELinkset
 LLSD LLPathfindingLinksetList::encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const
 {
 	LLSD terrainData;
-	
-	for (LLPathfindingLinksetMap::const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
+
+	for (const_iterator linksetIter = begin(); linksetIter != end(); ++linksetIter)
 	{
-		const LLPathfindingLinksetPtr linksetPtr = linksetIter->second;
-		if (linksetPtr->isTerrain())
+		const LLPathfindingObjectPtr objectPtr = linksetIter->second;
+		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+
+		if (linkset->isTerrain())
 		{
-			terrainData = linksetPtr->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
+			terrainData = linkset->encodeAlteredFields(pLinksetUse, pA, pB, pC, pD);
 			break;
 		}
 	}
 	
 	return terrainData;
+}
+
+bool LLPathfindingLinksetList::isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
+{
+	bool isShowWarning = false;
+
+	for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
+	{
+		const LLPathfindingObjectPtr objectPtr = objectIter->second;
+		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+		isShowWarning = linkset->isShowUnmodifiablePhantomWarning(pLinksetUse);
+	}
+
+	return isShowWarning;
+}
+
+bool LLPathfindingLinksetList::isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const
+{
+	bool isShowWarning = false;
+
+	for (const_iterator objectIter = begin(); !isShowWarning && (objectIter != end()); ++objectIter)
+	{
+		const LLPathfindingObjectPtr objectPtr = objectIter->second;
+		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+		isShowWarning = linkset->isShowCannotBeVolumeWarning(pLinksetUse);
+	}
+
+	return isShowWarning;
+}
+
+void LLPathfindingLinksetList::determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
+	BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const
+{
+	pCanBeWalkable = FALSE;
+	pCanBeStaticObstacle = FALSE;
+	pCanBeDynamicObstacle = FALSE;
+	pCanBeMaterialVolume = FALSE;
+	pCanBeExclusionVolume = FALSE;
+	pCanBeDynamicPhantom = FALSE;
+
+	for (const_iterator objectIter = begin();
+		!(pCanBeWalkable && pCanBeStaticObstacle && pCanBeDynamicObstacle && pCanBeMaterialVolume && pCanBeExclusionVolume && pCanBeDynamicPhantom) && (objectIter != end());
+		++objectIter)
+	{
+		const LLPathfindingObjectPtr objectPtr = objectIter->second;
+		const LLPathfindingLinkset *linkset = dynamic_cast<const LLPathfindingLinkset *>(objectPtr.get());
+
+		if (linkset->isTerrain())
+		{
+			pCanBeWalkable = TRUE;
+		}
+		else
+		{
+			if (linkset->isModifiable())
+			{
+				pCanBeWalkable = TRUE;
+				pCanBeStaticObstacle = TRUE;
+				pCanBeDynamicObstacle = TRUE;
+				pCanBeDynamicPhantom = TRUE;
+				if (linkset->canBeVolume())
+				{
+					pCanBeMaterialVolume = TRUE;
+					pCanBeExclusionVolume = TRUE;
+				}
+			}
+			else if (linkset->isPhantom())
+			{
+				pCanBeDynamicPhantom = TRUE;
+				if (linkset->canBeVolume())
+				{
+					pCanBeMaterialVolume = TRUE;
+					pCanBeExclusionVolume = TRUE;
+				}
+			}
+			else
+			{
+				pCanBeWalkable = TRUE;
+				pCanBeStaticObstacle = TRUE;
+				pCanBeDynamicObstacle = TRUE;
+			}
+		}
+	}
+}
+
+void LLPathfindingLinksetList::parseLinksetListData(const LLSD& pLinksetListData)
+{
+	LLPathfindingObjectMap &objectMap = getObjectMap();
+
+	for (LLSD::map_const_iterator linksetDataIter = pLinksetListData.beginMap();
+		linksetDataIter != pLinksetListData.endMap(); ++linksetDataIter)
+	{
+		const std::string& uuid(linksetDataIter->first);
+		const LLSD& linksetData = linksetDataIter->second;
+		LLPathfindingObjectPtr linksetPtr(new LLPathfindingLinkset(uuid, linksetData));
+		objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, linksetPtr));
+	}
 }

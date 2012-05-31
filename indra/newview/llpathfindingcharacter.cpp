@@ -3,9 +3,9 @@
  * @author William Todd Stinson
  * @brief Definition of a pathfinding character that contains various properties required for havok pathfinding.
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2012, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,62 +26,28 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llpathfindingcharacter.h"
-#include "llsd.h"
-#include "v3math.h"
-#include "lluuid.h"
-#include "llavatarname.h"
-#include "llavatarnamecache.h"
 
-#define CHARACTER_NAME_FIELD        "name"
-#define CHARACTER_DESCRIPTION_FIELD "description"
-#define CHARACTER_OWNER_FIELD       "owner"
-#define CHARACTER_CPU_TIME_FIELD    "cpu_time"
-#define CHARACTER_POSITION_FIELD    "position"
+#include "llpathfindingcharacter.h"
+
+#include "llpathfindingobject.h"
+#include "llsd.h"
+
+#define CHARACTER_CPU_TIME_FIELD "cpu_time"
 
 //---------------------------------------------------------------------------
 // LLPathfindingCharacter
 //---------------------------------------------------------------------------
 
-LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const LLSD& pCharacterItem)
-	: mUUID(pUUID),
-	mName(),
-	mDescription(),
-	mOwnerUUID(),
-	mOwnerName(),
-	mCPUTime(0U),
-	mLocation(LLVector3::zero)
+LLPathfindingCharacter::LLPathfindingCharacter(const std::string &pUUID, const LLSD& pCharacterData)
+	: LLPathfindingObject(pUUID, pCharacterData),
+	mCPUTime(0U)
 {
-	llassert(pCharacterItem.has(CHARACTER_NAME_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_NAME_FIELD).isString());
-	mName = pCharacterItem.get(CHARACTER_NAME_FIELD).asString();
-
-	llassert(pCharacterItem.has(CHARACTER_DESCRIPTION_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_DESCRIPTION_FIELD).isString());
-	mDescription = pCharacterItem.get(CHARACTER_DESCRIPTION_FIELD).asString();
-
-	llassert(pCharacterItem.has(CHARACTER_OWNER_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_OWNER_FIELD).isUUID());
-	mOwnerUUID = pCharacterItem.get(CHARACTER_OWNER_FIELD).asUUID();
-	LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
-
-	llassert(pCharacterItem.has(CHARACTER_CPU_TIME_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).isReal());
-	mCPUTime = pCharacterItem.get(CHARACTER_CPU_TIME_FIELD).asReal();
-
-	llassert(pCharacterItem.has(CHARACTER_POSITION_FIELD));
-	llassert(pCharacterItem.get(CHARACTER_POSITION_FIELD).isArray());
-	mLocation.setValue(pCharacterItem.get(CHARACTER_POSITION_FIELD));
+	parseCharacterData(pCharacterData);
 }
 
 LLPathfindingCharacter::LLPathfindingCharacter(const LLPathfindingCharacter& pOther)
-	: mUUID(pOther.mUUID),
-	mName(pOther.mName),
-	mDescription(pOther.mDescription),
-	mOwnerUUID(pOther.mOwnerUUID),
-	mOwnerName(pOther.mOwnerName),
-	mCPUTime(pOther.mCPUTime),
-	mLocation(pOther.mLocation)
+	: LLPathfindingObject(pOther),
+	mCPUTime(pOther.mCPUTime)
 {
 }
 
@@ -91,13 +57,16 @@ LLPathfindingCharacter::~LLPathfindingCharacter()
 
 LLPathfindingCharacter& LLPathfindingCharacter::operator =(const LLPathfindingCharacter& pOther)
 {
-	mUUID = pOther.mUUID;
-	mName = pOther.mName;
-	mDescription = pOther.mDescription;
-	mOwnerUUID = pOther.mOwnerUUID;
-	mOwnerName = pOther.mOwnerName;
+	dynamic_cast<LLPathfindingObject &>(*this) = pOther;
+
 	mCPUTime = pOther.mCPUTime;
-	mLocation = pOther.mLocation;
 
 	return *this;
+}
+
+void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
+{
+	llassert(pCharacterData.has(CHARACTER_CPU_TIME_FIELD));
+	llassert(pCharacterData.get(CHARACTER_CPU_TIME_FIELD).isReal());
+	mCPUTime = pCharacterData.get(CHARACTER_CPU_TIME_FIELD).asReal();
 }

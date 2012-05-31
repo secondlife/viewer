@@ -14,14 +14,14 @@
     save_rect="false"
     single_instance="true"
     title="Pathfinding linksets">
-  <floater.string name="linksets_messaging_initial"></floater.string>
-  <floater.string name="linksets_messaging_get_inprogress">Querying for pathfinding linksets ...</floater.string>
-  <floater.string name="linksets_messaging_get_error">Error detected while querying for pathfinding linksets.</floater.string>
-  <floater.string name="linksets_messaging_set_inprogress">Modifying selected pathfinding linksets ...</floater.string>
-  <floater.string name="linksets_messaging_set_error">Error detected while modifying selected pathfinding linksets.</floater.string>
-  <floater.string name="linksets_messaging_complete_none_found">No pathfinding linksets.</floater.string>
-  <floater.string name="linksets_messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL].</floater.string>
-  <floater.string name="linksets_messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="messaging_initial"></floater.string>
+  <floater.string name="messaging_get_inprogress">Querying for pathfinding linksets ...</floater.string>
+  <floater.string name="messaging_get_error">Error detected while querying for pathfinding linksets.</floater.string>
+  <floater.string name="messaging_set_inprogress">Modifying selected pathfinding linksets ...</floater.string>
+  <floater.string name="messaging_set_error">Error detected while modifying selected pathfinding linksets.</floater.string>
+  <floater.string name="messaging_complete_none_found">No pathfinding linksets.</floater.string>
+  <floater.string name="messaging_complete_available">[NUM_SELECTED] linksets selected out of [NUM_TOTAL].</floater.string>
+  <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="linkset_terrain_name">[Terrain]</floater.string>
   <floater.string name="linkset_terrain_description">--</floater.string>
   <floater.string name="linkset_terrain_owner">--</floater.string>
@@ -174,7 +174,7 @@
         top_pad="15"
         tab_stop="false"
         multi_select="true"
-        name="pathfinding_linksets"
+        name="objects_scroll_list"
         width="980">
       <scroll_list.columns
           label="Name (root prim)"
@@ -226,7 +226,7 @@
         length="1"
         follows="left|bottom|right"
         layout="topleft"
-        name="linksets_status"
+        name="messaging_status"
         top_pad="17"
         width="619">
       Linksets:
@@ -236,7 +236,7 @@
         height="21"
         label="Refresh list"
         layout="topleft"
-        name="refresh_linksets_list"
+        name="refresh_objects_list"
         top_pad="-16"
         left_pad="0"
         width="115"/>
@@ -245,7 +245,7 @@
         height="21"
         label="Select all"
         layout="topleft"
-        name="select_all_linksets"
+        name="select_all_objects"
         top_pad="-21"
         left_pad="8"
         width="115"/>
@@ -254,7 +254,7 @@
         height="21"
         label="Select none"
         layout="topleft"
-        name="select_none_linksets"
+        name="select_none_objects"
         top_pad="-21"
         left_pad="8"
         width="115"/>
@@ -305,7 +305,7 @@
         height="21"
         label="Take"
         layout="topleft"
-        name="take_linksets"
+        name="take_objects"
         top_pad="9"
         left="18"
         width="95"/>
@@ -314,7 +314,7 @@
         height="21"
         label="Take copy"
         layout="topleft"
-        name="take_copy_linksets"
+        name="take_copy_objects"
         top_pad="-21"
         left_pad="6"
         width="95"/>
@@ -323,7 +323,7 @@
         height="21"
         label="Return"
         layout="topleft"
-        name="return_linksets"
+        name="return_objects"
         top_pad="-21"
         left_pad="6"
         width="95"/>
@@ -332,7 +332,7 @@
         height="21"
         label="Delete"
         layout="topleft"
-        name="delete_linksets"
+        name="delete_objects"
         top_pad="-21"
         left_pad="6"
         width="95"/>
@@ -341,7 +341,7 @@
         height="21"
         label="Teleport me to it"
         layout="topleft"
-        name="teleport_me_to_linkset"
+        name="teleport_me_to_object"
         top_pad="-21"
         left_pad="6"
         width="160"/>

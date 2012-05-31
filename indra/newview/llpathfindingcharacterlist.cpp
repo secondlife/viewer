@@ -27,37 +27,42 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <string>
-#include <map>
+#include "llpathfindingcharacterlist.h"
 
 #include "llsd.h"
-#include "lluuid.h"
 #include "llpathfindingcharacter.h"
-#include "llpathfindingcharacterlist.h"
+#include "llpathfindingobject.h"
+#include "llpathfindingobjectlist.h"
 
 //---------------------------------------------------------------------------
 // LLPathfindingCharacterList
 //---------------------------------------------------------------------------
 
 LLPathfindingCharacterList::LLPathfindingCharacterList()
-	: LLPathfindingCharacterMap()
+	: LLPathfindingObjectList()
 {
 }
 
-LLPathfindingCharacterList::LLPathfindingCharacterList(const LLSD& pCharacterItems)
-	: LLPathfindingCharacterMap()
+LLPathfindingCharacterList::LLPathfindingCharacterList(const LLSD& pCharacterListData)
+	: LLPathfindingObjectList()
 {
-	for (LLSD::map_const_iterator characterItemIter = pCharacterItems.beginMap();
-		characterItemIter != pCharacterItems.endMap(); ++characterItemIter)
-	{
-		const std::string& uuid(characterItemIter->first);
-		const LLSD& characterData = characterItemIter->second;
-		LLPathfindingCharacterPtr character(new LLPathfindingCharacter(uuid, characterData));
-		insert(std::pair<std::string, LLPathfindingCharacterPtr>(uuid, character));
-	}
+	parseCharacterListData(pCharacterListData);
 }
 
 LLPathfindingCharacterList::~LLPathfindingCharacterList()
 {
-	clear();
+}
+
+void LLPathfindingCharacterList::parseCharacterListData(const LLSD& pCharacterListData)
+{
+	LLPathfindingObjectMap &objectMap = getObjectMap();
+
+	for (LLSD::map_const_iterator characterDataIter = pCharacterListData.beginMap();
+		characterDataIter != pCharacterListData.endMap(); ++characterDataIter)
+	{
+		const std::string& uuid(characterDataIter->first);
+		const LLSD& characterData = characterDataIter->second;
+		LLPathfindingObjectPtr character(new LLPathfindingCharacter(uuid, characterData));
+		objectMap.insert(std::pair<std::string, LLPathfindingObjectPtr>(uuid, character));
+	}
 }

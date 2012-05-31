@@ -104,6 +104,15 @@
   <color
       name="LtGreen"
       value="0.2 1 0.2 1" />
+  <color
+      name="Red_80"
+      value="1 0 0 0.8" />
+  <color
+      name="Green_80"
+      value="0 1 0 0.8" />
+  <color
+      name="Blue_80"
+      value="0 0 1 0.8" />
 
   <!-- This color name makes potentially unused colors show up bright purple.
        Leave this here until all Unused? are removed below, otherwise
@@ -635,6 +644,18 @@
   <color
       name="PathfindingGoodColor"
       reference="LtGreen" />
+  <color
+      name="PathfindingDefaultBeaconColor"
+      reference="Red_80" />
+  <color
+      name="PathfindingDefaultBeaconTextColor"
+      reference="White" />
+  <color
+      name="PathfindingLinksetBeaconColor"
+      reference="Blue_80" />
+  <color
+      name="PathfindingCharacterBeaconColor"
+      reference="Red_80" />
   <color
       name="PieMenuBgColor"
       value="0.24 0.24 0.24 0.59" />

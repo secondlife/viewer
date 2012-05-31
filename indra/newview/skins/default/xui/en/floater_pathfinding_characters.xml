@@ -14,12 +14,14 @@
     save_rect="false"
     single_instance="true"
     title="Pathfinding characters">
-  <floater.string name="characters_messaging_initial"></floater.string>
-  <floater.string name="characters_messaging_get_inprogress">Querying for pathfinding characters ...</floater.string>
-  <floater.string name="characters_messaging_get_error">Error detected while querying for pathfinding characters.</floater.string>
-  <floater.string name="characters_messaging_complete_none_found">No pathfinding characters.</floater.string>
-  <floater.string name="characters_messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL].</floater.string>
-  <floater.string name="characters_messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
+  <floater.string name="messaging_initial"></floater.string>
+  <floater.string name="messaging_get_inprogress">Querying for pathfinding characters ...</floater.string>
+  <floater.string name="messaging_get_error">Error detected while querying for pathfinding characters.</floater.string>
+  <floater.string name="messaging_set_inprogress"></floater.string>
+  <floater.string name="messaging_set_error"></floater.string>
+  <floater.string name="messaging_complete_none_found">No pathfinding characters.</floater.string>
+  <floater.string name="messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL].</floater.string>
+  <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="character_cpu_time">[CPU_TIME] µs</floater.string>
   <panel
       border="false"
@@ -38,7 +40,7 @@
         top_pad="10"
         tab_stop="false"
         multi_select="true"
-        name="pathfinding_characters"
+        name="objects_scroll_list"
         width="600">
       <scroll_list.columns
           label="Name"
@@ -70,7 +72,7 @@
         length="1"
         follows="left|bottom|right"
         layout="topleft"
-        name="characters_status"
+        name="messaging_status"
         top_pad="17"
         width="238">
       Characters:
@@ -80,7 +82,7 @@
         height="21"
         label="Refresh list"
         layout="topleft"
-        name="refresh_characters_list"
+        name="refresh_objects_list"
         top_pad="-29"
         left_pad="0"
         width="115"/>
@@ -89,7 +91,7 @@
         height="21"
         label="Select all"
         layout="topleft"
-        name="select_all_characters"
+        name="select_all_objects"
         top_pad="-21"
         left_pad="8"
         width="115"/>
@@ -98,7 +100,7 @@
         height="21"
         label="Select none"
         layout="topleft"
-        name="select_none_characters"
+        name="select_none_objects"
         top_pad="-21"
         left_pad="8"
         width="115"/>
@@ -150,7 +152,7 @@
         height="22"
         label="Take"
         layout="topleft"
-        name="take_characters"
+        name="take_objects"
         top_pad="9"
         left="18"
         width="94"/>
@@ -159,7 +161,7 @@
         height="22"
         label="Take copy"
         layout="topleft"
-        name="take_copy_characters"
+        name="take_copy_objects"
         top_pad="-22"
         left_pad="6"
         width="94"/>
@@ -168,7 +170,7 @@
         height="22"
         label="Return"
         layout="topleft"
-        name="return_characters"
+        name="return_objects"
         top_pad="-22"
         left_pad="6"
         width="94"/>
@@ -177,7 +179,7 @@
         height="22"
         label="Delete"
         layout="topleft"
-        name="delete_characters"
+        name="delete_objects"
         top_pad="-22"
         left_pad="6"
         width="94"/>
@@ -186,7 +188,7 @@
         height="22"
         label="Teleport me to it"
         layout="topleft"
-        name="teleport_to_character"
+        name="teleport_me_to_object"
         tool_tip="Enabled only when one character is selected."
         top_pad="-22"
         left_pad="6"

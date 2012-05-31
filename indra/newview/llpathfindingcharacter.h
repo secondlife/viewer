@@ -28,43 +28,27 @@
 #ifndef LL_LLPATHFINDINGCHARACTER_H
 #define LL_LLPATHFINDINGCHARACTER_H
 
-#include "v3math.h"
-#include "lluuid.h"
-#include "llavatarname.h"
-
-#include <boost/shared_ptr.hpp>
+#include "llpathfindingobject.h"
 
 class LLSD;
-class LLPathfindingCharacter;
 
-typedef boost::shared_ptr<LLPathfindingCharacter> LLPathfindingCharacterPtr;
-
-class LLPathfindingCharacter
+class LLPathfindingCharacter : public LLPathfindingObject
 {
 public:
-	LLPathfindingCharacter(const std::string &pUUID, const LLSD &pCharacterItem);
+	LLPathfindingCharacter(const std::string &pUUID, const LLSD &pCharacterData);
 	LLPathfindingCharacter(const LLPathfindingCharacter& pOther);
 	virtual ~LLPathfindingCharacter();
 
-	LLPathfindingCharacter& operator = (const LLPathfindingCharacter& pOther);
+	LLPathfindingCharacter& operator =(const LLPathfindingCharacter& pOther);
 
-	inline const LLUUID&      getUUID() const        {return mUUID;};
-	inline const std::string& getName() const        {return mName;};
-	inline const std::string& getDescription() const {return mDescription;};
-	inline const std::string  getOwnerName() const   {return mOwnerName.getCompleteName();};
-	inline F32                getCPUTime() const     {return mCPUTime;};
-	inline const LLVector3&   getLocation() const    {return mLocation;};
+	inline F32 getCPUTime() const {return mCPUTime;};
 
 protected:
 
 private:
-	LLUUID       mUUID;
-	std::string  mName;
-	std::string  mDescription;
-	LLUUID       mOwnerUUID;
-	LLAvatarName mOwnerName;
-	F32          mCPUTime;
-	LLVector3    mLocation;
+	void parseCharacterData(const LLSD &pCharacterData);
+
+	F32 mCPUTime;
 };
 
 #endif // LL_LLPATHFINDINGCHARACTER_H

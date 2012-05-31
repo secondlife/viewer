@@ -28,34 +28,32 @@
 #ifndef LL_LLPATHFINDINGLINKSETLIST_H
 #define LL_LLPATHFINDINGLINKSETLIST_H
 
-#include <string>
-#include <map>
 #include "llpathfindinglinkset.h"
-
-#include <boost/shared_ptr.hpp>
+#include "llpathfindingobjectlist.h"
 
 class LLSD;
-class LLPathfindingLinksetList;
+class LLVector3;
 
-typedef boost::shared_ptr<LLPathfindingLinksetList> LLPathfindingLinksetListPtr;
-typedef std::map<std::string, LLPathfindingLinksetPtr> LLPathfindingLinksetMap;
-
-class LLPathfindingLinksetList : public LLPathfindingLinksetMap
+class LLPathfindingLinksetList : public LLPathfindingObjectList
 {
 public:
 	LLPathfindingLinksetList();
-	LLPathfindingLinksetList(const LLSD& pLinksetItems);
+	LLPathfindingLinksetList(const LLSD& pLinksetListData);
 	virtual ~LLPathfindingLinksetList();
-
-	void update(const LLPathfindingLinksetList &pUpdateLinksetList);
 
 	LLSD encodeObjectFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 	LLSD encodeTerrainFields(LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
+	bool isShowUnmodifiablePhantomWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+	bool isShowCannotBeVolumeWarning(LLPathfindingLinkset::ELinksetUse pLinksetUse) const;
+
+	void determinePossibleStates(BOOL &pCanBeWalkable, BOOL &pCanBeStaticObstacle, BOOL &pCanBeDynamicObstacle,
+		BOOL &pCanBeMaterialVolume, BOOL &pCanBeExclusionVolume, BOOL &pCanBeDynamicPhantom) const;
+
 protected:
 
 private:
-
+	void parseLinksetListData(const LLSD& pLinksetListData);
 };
 
 #endif // LL_LLPATHFINDINGLINKSETLIST_H

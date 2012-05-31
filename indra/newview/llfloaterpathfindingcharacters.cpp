@@ -26,152 +26,20 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "llfloater.h"
+
 #include "llfloaterpathfindingcharacters.h"
+
+#include "llfloaterreg.h"
+#include "llfloaterpathfindingobjects.h"
+#include "llpathfindingcharacter.h"
 #include "llpathfindingcharacterlist.h"
 #include "llsd.h"
-#include "llagent.h"
-#include "llhandle.h"
-#include "llfloaterreg.h"
-#include "lltextbase.h"
-#include "llscrolllistitem.h"
-#include "llscrolllistctrl.h"
-#include "llcheckboxctrl.h"
-#include "llradiogroup.h"
-#include "llbutton.h"
-#include "llresmgr.h"
-#include "llviewerregion.h"
-#include "llhttpclient.h"
 #include "lluuid.h"
-#include "llviewerobject.h"
-#include "llviewerobjectlist.h"
-#include "llviewermenu.h"
-#include "llselectmgr.h"
-#include "llenvmanager.h"
+#include "llviewerregion.h"
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingCharacters
 //---------------------------------------------------------------------------
-
-BOOL LLFloaterPathfindingCharacters::postBuild()
-{
-	mCharactersScrollList = findChild<LLScrollListCtrl>("pathfinding_characters");
-	llassert(mCharactersScrollList != NULL);
-	mCharactersScrollList->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onCharactersSelectionChange, this));
-	mCharactersScrollList->sortByColumnIndex(0, true);
-
-	mCharactersStatus = findChild<LLTextBase>("characters_status");
-	llassert(mCharactersStatus != NULL);
-
-	mRefreshListButton = findChild<LLButton>("refresh_characters_list");
-	llassert(mRefreshListButton != NULL);
-	mRefreshListButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onRefreshCharactersClicked, this));
-
-	mSelectAllButton = findChild<LLButton>("select_all_characters");
-	llassert(mSelectAllButton != NULL);
-	mSelectAllButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onSelectAllCharactersClicked, this));
-
-	mSelectNoneButton = findChild<LLButton>("select_none_characters");
-	llassert(mSelectNoneButton != NULL);
-	mSelectNoneButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onSelectNoneCharactersClicked, this));
-
-	mShowBeaconCheckBox = findChild<LLCheckBoxCtrl>("show_beacon");
-	llassert(mShowBeaconCheckBox != NULL);
-
-	mTakeButton = findChild<LLButton>("take_characters");
-	llassert(mTakeButton != NULL)
-	mTakeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTakeCharactersClicked, this));
-
-	mTakeCopyButton = findChild<LLButton>("take_copy_characters");
-	llassert(mTakeCopyButton != NULL)
-	mTakeCopyButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTakeCopyCharactersClicked, this));
-
-	mReturnButton = findChild<LLButton>("return_characters");
-	llassert(mReturnButton != NULL)
-	mReturnButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onReturnCharactersClicked, this));
-
-	mDeleteButton = findChild<LLButton>("delete_characters");
-	llassert(mDeleteButton != NULL)
-	mDeleteButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onDeleteCharactersClicked, this));
-
-	mTeleportButton = findChild<LLButton>("teleport_to_character");
-	llassert(mTeleportButton != NULL)
-	mTeleportButton->setCommitCallback(boost::bind(&LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked, this));
-
-	return LLFloater::postBuild();
-}
-
-void LLFloaterPathfindingCharacters::onOpen(const LLSD& pKey)
-{
-	LLFloater::onOpen(pKey);
-
-	requestGetCharacters();
-	selectNoneCharacters();
-	mCharactersScrollList->setCommitOnSelectionChange(true);
-
-	if (!mSelectionUpdateSlot.connected())
-	{
-		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingCharacters::updateControls, this));
-	}
-
-	if (!mRegionBoundarySlot.connected())
-	{
-		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingCharacters::onRegionBoundaryCross, this));
-	}
-}
-
-void LLFloaterPathfindingCharacters::onClose(bool pAppQuitting)
-{
-	if (mRegionBoundarySlot.connected())
-	{
-		mRegionBoundarySlot.disconnect();
-	}
-
-	if (mSelectionUpdateSlot.connected())
-	{
-		mSelectionUpdateSlot.disconnect();
-	}
-
-	mCharactersScrollList->setCommitOnSelectionChange(false);
-	selectNoneCharacters();
-	if (mCharacterSelection.notNull())
-	{
-		mCharacterSelection.clear();
-	}
-
-	LLFloater::onClose(pAppQuitting);
-}
-
-void LLFloaterPathfindingCharacters::draw()
-{
-	if (mShowBeaconCheckBox->get())
-	{
-		std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-		if (!selectedItems.empty())
-		{
-			int numSelectedItems = selectedItems.size();
-
-			std::vector<LLViewerObject *> viewerObjects;
-			viewerObjects.reserve(numSelectedItems);
-
-			for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
-				selectedItemIter != selectedItems.end(); ++selectedItemIter)
-			{
-				const LLScrollListItem *selectedItem = *selectedItemIter;
-
-				const std::string &objectName = selectedItem->getColumn(0)->getValue().asString();
-
-				LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-				if (viewerObject != NULL)
-				{
-					gObjectList.addDebugBeacon(viewerObject->getPositionAgent(), objectName, LLColor4(0.f, 0.f, 1.f, 0.8f), LLColor4(1.f, 1.f, 1.f, 1.f), 6);
-				}
-			}
-		}
-	}
-
-	LLFloater::draw();
-}
 
 void LLFloaterPathfindingCharacters::openCharactersViewer()
 {
@@ -179,23 +47,8 @@ void LLFloaterPathfindingCharacters::openCharactersViewer()
 }
 
 LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed)
-	: LLFloater(pSeed),
-	mCharactersScrollList(NULL),
-	mCharactersStatus(NULL),
-	mRefreshListButton(NULL),
-	mSelectAllButton(NULL),
-	mSelectNoneButton(NULL),
-	mShowBeaconCheckBox(NULL),
-	mTakeButton(NULL),
-	mTakeCopyButton(NULL),
-	mReturnButton(NULL),
-	mDeleteButton(NULL),
-	mTeleportButton(NULL),
-	mMessagingState(kMessagingUnknown),
-	mMessagingRequestId(0U),
-	mCharacterListPtr(),
-	mCharacterSelection(),
-	mSelectionUpdateSlot()
+	: LLFloaterPathfindingObjects(pSeed),
+	mBeaconColor()
 {
 }
 
@@ -203,208 +56,52 @@ LLFloaterPathfindingCharacters::~LLFloaterPathfindingCharacters()
 {
 }
 
-LLFloaterPathfindingCharacters::EMessagingState LLFloaterPathfindingCharacters::getMessagingState() const
+BOOL LLFloaterPathfindingCharacters::postBuild()
 {
-	return mMessagingState;
+	mBeaconColor = LLUIColorTable::getInstance()->getColor("PathfindingCharacterBeaconColor");
+
+	return LLFloaterPathfindingObjects::postBuild();
 }
 
-void LLFloaterPathfindingCharacters::setMessagingState(EMessagingState pMessagingState)
+void LLFloaterPathfindingCharacters::requestGetObjects()
 {
-	mMessagingState = pMessagingState;
-	updateControls();
+	LLPathfindingManager::getInstance()->requestGetCharacters(getNewRequestId(), boost::bind(&LLFloaterPathfindingCharacters::handleNewObjectList, this, _1, _2, _3));
 }
 
-void LLFloaterPathfindingCharacters::requestGetCharacters()
+LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const
 {
-	LLPathfindingManager::getInstance()->requestGetCharacters(++mMessagingRequestId, boost::bind(&LLFloaterPathfindingCharacters::handleNewCharacters, this, _1, _2, _3));
-}
+	llassert(pObjectListPtr != NULL);
+	llassert(!pObjectListPtr->isEmpty());
 
-void LLFloaterPathfindingCharacters::handleNewCharacters(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr)
-{
-	llassert(pRequestId <= mMessagingRequestId);
-	if (pRequestId == mMessagingRequestId)
+	LLSD scrollListData;
+
+	for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 	{
-		switch (pCharacterRequestStatus)
-		{
-		case LLPathfindingManager::kRequestStarted :
-			setMessagingState(kMessagingGetRequestSent);
-			break;
-		case LLPathfindingManager::kRequestCompleted :
-			mCharacterListPtr = pCharacterListPtr;
-			updateScrollList();
-			setMessagingState(kMessagingComplete);
-			break;
-		case LLPathfindingManager::kRequestNotEnabled :
-			clearCharacters();
-			setMessagingState(kMessagingNotEnabled);
-			break;
-		case LLPathfindingManager::kRequestError :
-			setMessagingState(kMessagingGetError);
-			break;
-		default :
-			setMessagingState(kMessagingGetError);
-			llassert(0);
-			break;
-		}
-	}
-}
-
-void LLFloaterPathfindingCharacters::onCharactersSelectionChange()
-{
-	mCharacterSelection.clear();
-	LLSelectMgr::getInstance()->deselectAll();
-
-	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-	if (!selectedItems.empty())
-	{
-		int numSelectedItems = selectedItems.size();
-
-		std::vector<LLViewerObject *> viewerObjects;
-		viewerObjects.reserve(numSelectedItems);
-
-		for (std::vector<LLScrollListItem*>::const_iterator selectedItemIter = selectedItems.begin();
-			selectedItemIter != selectedItems.end(); ++selectedItemIter)
-		{
-			const LLScrollListItem *selectedItem = *selectedItemIter;
-
-			LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-			if (viewerObject != NULL)
-			{
-				viewerObjects.push_back(viewerObject);
-			}
-		}
-
-		if (!viewerObjects.empty())
-		{
-			mCharacterSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
-		}
+		const LLPathfindingCharacter *characterPtr = dynamic_cast<const LLPathfindingCharacter *>(objectIter->second.get());
+		LLSD element = buildCharacterScrollListData(characterPtr);
+		scrollListData.append(element);
 	}
 
-	updateControls();
+	return scrollListData;
 }
 
-void LLFloaterPathfindingCharacters::onRefreshCharactersClicked()
+S32 LLFloaterPathfindingCharacters::getNameColumnIndex() const
 {
-	requestGetCharacters();
+	return 0;
 }
 
-void LLFloaterPathfindingCharacters::onSelectAllCharactersClicked()
+const LLColor4 &LLFloaterPathfindingCharacters::getBeaconColor() const
 {
-	selectAllCharacters();
+	return mBeaconColor;
 }
 
-void LLFloaterPathfindingCharacters::onSelectNoneCharactersClicked()
+LLPathfindingObjectListPtr LLFloaterPathfindingCharacters::getEmptyObjectList() const
 {
-	selectNoneCharacters();
+	LLPathfindingObjectListPtr objectListPtr(new LLPathfindingCharacterList());
+	return objectListPtr;
 }
 
-void LLFloaterPathfindingCharacters::onTakeCharactersClicked()
-{
-	handle_take();
-}
-
-void LLFloaterPathfindingCharacters::onTakeCopyCharactersClicked()
-{
-	handle_take_copy();
-}
-
-void LLFloaterPathfindingCharacters::onReturnCharactersClicked()
-{
-	handle_object_return();
-}
-
-void LLFloaterPathfindingCharacters::onDeleteCharactersClicked()
-{
-	handle_object_delete();
-}
-
-void LLFloaterPathfindingCharacters::onTeleportCharacterToMeClicked()
-{
-	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-	llassert(selectedItems.size() == 1);
-	if (selectedItems.size() == 1)
-	{
-		std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
-		const LLScrollListItem *selectedItem = selectedItemRef;
-		LLPathfindingCharacterList::const_iterator characterIter = mCharacterListPtr->find(selectedItem->getUUID().asString());
-		const LLPathfindingCharacterPtr &characterPtr = characterIter->second;
-		const LLVector3 &characterLocation = characterPtr->getLocation();
-
-		LLViewerRegion* region = gAgent.getRegion();
-		if (region != NULL)
-		{
-			gAgent.teleportRequest(region->getHandle(), characterLocation, true);
-		}
-	}
-}
-
-void LLFloaterPathfindingCharacters::onRegionBoundaryCross()
-{
-	requestGetCharacters();
-}
-
-void LLFloaterPathfindingCharacters::selectAllCharacters()
-{
-	mCharactersScrollList->selectAll();
-}
-
-void LLFloaterPathfindingCharacters::selectNoneCharacters()
-{
-	mCharactersScrollList->deselectAllItems();
-}
-
-void LLFloaterPathfindingCharacters::clearCharacters()
-{
-	if (mCharacterListPtr != NULL)
-	{
-		mCharacterListPtr->clear();
-	}
-	updateScrollList();
-}
-
-void LLFloaterPathfindingCharacters::updateControls()
-{
-	updateStatusMessage();
-	updateEnableStateOnListActions();
-	updateEnableStateOnEditFields();
-}
-
-void LLFloaterPathfindingCharacters::updateScrollList()
-{
-	std::vector<LLScrollListItem*> selectedItems = mCharactersScrollList->getAllSelected();
-	int numSelectedItems = selectedItems.size();
-	uuid_vec_t selectedUUIDs;
-	if (numSelectedItems > 0)
-	{
-		selectedUUIDs.reserve(selectedItems.size());
-		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
-			itemIter != selectedItems.end(); ++itemIter)
-		{
-			const LLScrollListItem *listItem = *itemIter;
-			selectedUUIDs.push_back(listItem->getUUID());
-		}
-	}
-
-	S32 origScrollPosition = mCharactersScrollList->getScrollPos();
-	mCharactersScrollList->deleteAllItems();
-
-	if (mCharacterListPtr != NULL)
-	{
-		for (LLPathfindingCharacterList::const_iterator characterIter = mCharacterListPtr->begin();
-			characterIter != mCharacterListPtr->end(); ++characterIter)
-		{
-			const LLPathfindingCharacterPtr& character(characterIter->second);
-			LLSD element = buildCharacterScrollListElement(character);
-			mCharactersScrollList->addElement(element);
-		}
-	}
-
-	mCharactersScrollList->selectMultiple(selectedUUIDs);
-	mCharactersScrollList->setScrollPos(origScrollPosition);
-	updateControls();
-}
-
-LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListElement(const LLPathfindingCharacterPtr pCharacterPtr) const
+LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const
 {
 	LLSD columns;
 
@@ -438,107 +135,4 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListElement(const LLPat
 	element["column"] = columns;
 
 	return element;
-}
-
-void LLFloaterPathfindingCharacters::updateStatusMessage()
-{
-	static const LLColor4 errorColor = LLUIColorTable::instance().getColor("PathfindingErrorColor");
-	static const LLColor4 warningColor = LLUIColorTable::instance().getColor("PathfindingWarningColor");
-
-	std::string statusText("");
-	LLStyle::Params styleParams;
-
-	switch (getMessagingState())
-	{
-	case kMessagingUnknown:
-		statusText = getString("characters_messaging_initial");
-		styleParams.color = errorColor;
-		break;
-	case kMessagingGetRequestSent :
-		statusText = getString("characters_messaging_get_inprogress");
-		styleParams.color = warningColor;
-		break;
-	case kMessagingGetError :
-		statusText = getString("characters_messaging_get_error");
-		styleParams.color = errorColor;
-		break;
-	case kMessagingComplete :
-		if (mCharactersScrollList->isEmpty())
-		{
-			statusText = getString("characters_messaging_complete_none_found");
-		}
-		else
-		{
-			S32 numItems = mCharactersScrollList->getItemCount();
-			S32 numSelectedItems = mCharactersScrollList->getNumSelected();
-
-			LLLocale locale(LLStringUtil::getLocale());
-			std::string numItemsString;
-			LLResMgr::getInstance()->getIntegerString(numItemsString, numItems);
-
-			std::string numSelectedItemsString;
-			LLResMgr::getInstance()->getIntegerString(numSelectedItemsString, numSelectedItems);
-
-			LLStringUtil::format_map_t string_args;
-			string_args["[NUM_SELECTED]"] = numSelectedItemsString;
-			string_args["[NUM_TOTAL]"] = numItemsString;
-			statusText = getString("characters_messaging_complete_available", string_args);
-		}
-		break;
-	case kMessagingNotEnabled:
-		statusText = getString("characters_messaging_not_enabled");
-		styleParams.color = errorColor;
-		break;
-	default:
-		statusText = getString("characters_messaging_initial");
-		styleParams.color = errorColor;
-		llassert(0);
-		break;
-	}
-
-	mCharactersStatus->setText((LLStringExplicit)statusText, styleParams);
-}
-
-void LLFloaterPathfindingCharacters::updateEnableStateOnListActions()
-{
-	switch (getMessagingState())
-	{
-	case kMessagingUnknown:
-	case kMessagingGetRequestSent :
-		mRefreshListButton->setEnabled(FALSE);
-		mSelectAllButton->setEnabled(FALSE);
-		mSelectNoneButton->setEnabled(FALSE);
-		break;
-	case kMessagingGetError :
-	case kMessagingNotEnabled :
-		mRefreshListButton->setEnabled(TRUE);
-		mSelectAllButton->setEnabled(FALSE);
-		mSelectNoneButton->setEnabled(FALSE);
-		break;
-	case kMessagingComplete :
-		{
-			int numItems = mCharactersScrollList->getItemCount();
-			int numSelectedItems = mCharactersScrollList->getNumSelected();
-			mRefreshListButton->setEnabled(TRUE);
-			mSelectAllButton->setEnabled(numSelectedItems < numItems);
-			mSelectNoneButton->setEnabled(numSelectedItems > 0);
-		}
-		break;
-	default:
-		llassert(0);
-		break;
-	}
-}
-
-void LLFloaterPathfindingCharacters::updateEnableStateOnEditFields()
-{
-	int numSelectedItems = mCharactersScrollList->getNumSelected();
-	bool isEditEnabled = (numSelectedItems > 0);
-
-	mShowBeaconCheckBox->setEnabled(isEditEnabled);
-	mTakeButton->setEnabled(isEditEnabled && visible_take_object());
-	mTakeCopyButton->setEnabled(isEditEnabled && enable_object_take_copy());
-	mReturnButton->setEnabled(isEditEnabled && enable_object_return());
-	mDeleteButton->setEnabled(isEditEnabled && enable_object_delete());
-	mTeleportButton->setEnabled(numSelectedItems == 1);
 }

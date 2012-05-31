@@ -28,29 +28,22 @@
 #ifndef LL_LLPATHFINDINGCHARACTERLIST_H
 #define LL_LLPATHFINDINGCHARACTERLIST_H
 
-#include <string>
-#include <map>
 #include "llpathfindingcharacter.h"
-
-#include <boost/shared_ptr.hpp>
+#include "llpathfindingobjectlist.h"
 
 class LLSD;
-class LLPathfindingCharacterList;
 
-typedef boost::shared_ptr<LLPathfindingCharacterList> LLPathfindingCharacterListPtr;
-typedef std::map<std::string, LLPathfindingCharacterPtr> LLPathfindingCharacterMap;
-
-class LLPathfindingCharacterList : public LLPathfindingCharacterMap
+class LLPathfindingCharacterList : public LLPathfindingObjectList
 {
 public:
 	LLPathfindingCharacterList();
-	LLPathfindingCharacterList(const LLSD& pCharacterItems);
+	LLPathfindingCharacterList(const LLSD& pCharacterListData);
 	virtual ~LLPathfindingCharacterList();
 
 protected:
 
 private:
-
+	void parseCharacterListData(const LLSD& pCharacterListData);
 };
 
 #endif // LL_LLPATHFINDINGCHARACTERLIST_H

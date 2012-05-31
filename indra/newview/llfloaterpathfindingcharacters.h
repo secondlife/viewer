@@ -28,101 +28,45 @@
 #ifndef LL_LLFLOATERPATHFINDINGCHARACTERS_H
 #define LL_LLFLOATERPATHFINDINGCHARACTERS_H
 
-#include <string>
-#include <map>
-
-#include "llfloater.h"
+#include "llfloaterpathfindingobjects.h"
 #include "llpathfindingcharacter.h"
-#include "llpathfindingcharacterlist.h"
 #include "llpathfindingmanager.h"
-#include "llselectmgr.h"
+#include "llpathfindingobjectlist.h"
+#include "v4color.h"
 
-#include <boost/signals2.hpp>
-
-class LLSD;
-class LLTextBase;
-class LLScrollListCtrl;
+class LLButton;
 class LLCheckBoxCtrl;
 class LLRadioGroup;
-class LLButton;
+class LLScrollListCtrl;
+class LLSD;
+class LLTextBase;
 
-class LLFloaterPathfindingCharacters
-	:	public LLFloater
+class LLFloaterPathfindingCharacters : public LLFloaterPathfindingObjects
 {
-	friend class LLFloaterReg;
-
 public:
-	typedef enum
-	{
-		kMessagingUnknown,
-		kMessagingGetRequestSent,
-		kMessagingGetError,
-		kMessagingComplete,
-		kMessagingNotEnabled
-	} EMessagingState;
-
-	virtual BOOL postBuild();
-	virtual void onOpen(const LLSD& pKey);
-	virtual void onClose(bool pAppQuitting);
-	virtual void draw();
-
-	static void openCharactersViewer();
+	static void  openCharactersViewer();
 
 protected:
+	friend class LLFloaterReg;
 
-private:
-	LLScrollListCtrl *mCharactersScrollList;
-	LLTextBase       *mCharactersStatus;
-	LLButton         *mRefreshListButton;
-	LLButton         *mSelectAllButton;
-	LLButton         *mSelectNoneButton;
-	LLCheckBoxCtrl   *mShowBeaconCheckBox;
-	LLButton         *mTakeButton;
-	LLButton         *mTakeCopyButton;
-	LLButton         *mReturnButton;
-	LLButton         *mDeleteButton;
-	LLButton         *mTeleportButton;
-
-	EMessagingState                    mMessagingState;
-	LLPathfindingManager::request_id_t mMessagingRequestId;
-	LLPathfindingCharacterListPtr      mCharacterListPtr;
-	LLObjectSelectionHandle            mCharacterSelection;
-	boost::signals2::connection        mSelectionUpdateSlot;
-	boost::signals2::connection        mRegionBoundarySlot;
-
-	// Does its own instance management, so clients not allowed
-	// to allocate or destroy.
 	LLFloaterPathfindingCharacters(const LLSD& pSeed);
 	virtual ~LLFloaterPathfindingCharacters();
 
-	EMessagingState getMessagingState() const;
-	void            setMessagingState(EMessagingState pMessagingState);
+	virtual BOOL                       postBuild();
 
-	void requestGetCharacters();
-	void handleNewCharacters(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pCharacterRequestStatus, LLPathfindingCharacterListPtr pCharacterListPtr);
+	virtual void                       requestGetObjects();
 
-	void onCharactersSelectionChange();
-	void onRefreshCharactersClicked();
-	void onSelectAllCharactersClicked();
-	void onSelectNoneCharactersClicked();
-	void onTakeCharactersClicked();
-	void onTakeCopyCharactersClicked();
-	void onReturnCharactersClicked();
-	void onDeleteCharactersClicked();
-	void onTeleportCharacterToMeClicked();
-	void onRegionBoundaryCross();
+	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const;
 
-	void selectAllCharacters();
-	void selectNoneCharacters();
-	void clearCharacters();
+	virtual S32                        getNameColumnIndex() const;
+	virtual const LLColor4             &getBeaconColor() const;
 
-	void updateControls();
-	void updateScrollList();
-	LLSD buildCharacterScrollListElement(const LLPathfindingCharacterPtr pCharacterPtr) const;
+	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
 
-	void updateStatusMessage();
-	void updateEnableStateOnListActions();
-	void updateEnableStateOnEditFields();
+private:
+	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
+
+	LLColor4                           mBeaconColor;
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCHARACTERS_H

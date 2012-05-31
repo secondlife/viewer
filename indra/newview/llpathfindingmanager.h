@@ -28,18 +28,17 @@
 #ifndef LL_LLPATHFINDINGMANAGER_H
 #define LL_LLPATHFINDINGMANAGER_H
 
-#include "llsingleton.h"
-#include "lluuid.h"
-#include "llpathfindingnavmesh.h"
-#include "llpathfindinglinkset.h"
-#include "llpathfindinglinksetlist.h"
-#include "llpathfindingcharacterlist.h"
-
 #include <string>
 #include <map>
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
+
+#include "llpathfindinglinkset.h"
+#include "llpathfindingobjectlist.h"
+#include "llpathfindingnavmesh.h"
+#include "llsingleton.h"
+#include "lluuid.h"
 
 class LLFloater;
 class LLViewerRegion;
@@ -73,11 +72,6 @@ public:
 		kRequestError
 	} ERequestStatus;
 
-	typedef U32 request_id_t;
-
-	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingLinksetListPtr)>   linksets_callback_t;
-	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingCharacterListPtr)> characters_callback_t;
-
 	LLPathfindingManager();
 	virtual ~LLPathfindingManager();
 
@@ -98,10 +92,13 @@ public:
 	EAgentState        getLastKnownNonErrorAgentState() const;
 	void               requestSetAgentState(EAgentState pAgentState);
 
-	void requestGetLinksets(request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const;
-	void requestSetLinksets(request_id_t pRequestId, LLPathfindingLinksetListPtr pLinksetList, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, linksets_callback_t pLinksetsCallback) const;
+	typedef U32 request_id_t;
+	typedef boost::function<void (request_id_t, ERequestStatus, LLPathfindingObjectListPtr)> object_request_callback_t;
 
-	void requestGetCharacters(request_id_t pRequestId, characters_callback_t pCharactersCallback) const;
+	void requestGetLinksets(request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
+	void requestSetLinksets(request_id_t pRequestId, const LLPathfindingObjectListPtr &pLinksetListPtr, LLPathfindingLinkset::ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD, object_request_callback_t pLinksetsCallback) const;
+
+	void requestGetCharacters(request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
 protected:
 
@@ -109,8 +106,8 @@ private:
 	void sendRequestGetNavMeshForRegion(LLPathfindingNavMeshPtr navMeshPtr, LLViewerRegion *pRegion, const LLPathfindingNavMeshStatus &pNavMeshStatus);
 
 	void handleDeferredGetNavMeshForRegion(const LLUUID &pRegionUUID);
-	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, linksets_callback_t pLinksetsCallback) const;
-	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, characters_callback_t pCharactersCallback) const;
+	void handleDeferredGetLinksetsForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pLinksetsCallback) const;
+	void handleDeferredGetCharactersForRegion(const LLUUID &pRegionUUID, request_id_t pRequestId, object_request_callback_t pCharactersCallback) const;
 
 	void handleNavMeshStatusRequest(const LLPathfindingNavMeshStatus &pNavMeshStatus, LLViewerRegion *pRegion);
 	void handleNavMeshStatusUpdate(const LLPathfindingNavMeshStatus &pNavMeshStatus);
