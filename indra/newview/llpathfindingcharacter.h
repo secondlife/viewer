@@ -41,14 +41,28 @@ public:
 
 	LLPathfindingCharacter& operator =(const LLPathfindingCharacter& pOther);
 
-	inline F32 getCPUTime() const {return mCPUTime;};
+	inline F32  getCPUTime() const   {return mCPUTime;};
+
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	inline bool hasShapeData() const {return mHasShapeData;};
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	inline BOOL isHorizontal() const {return mIsHorizontal;};
+	inline F32  getLength() const    {return mLength;};
+	inline F32  getRadius() const    {return mRadius;};
 
 protected:
 
 private:
 	void parseCharacterData(const LLSD &pCharacterData);
 
-	F32 mCPUTime;
+	F32  mCPUTime;
+
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	bool mHasShapeData;
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	BOOL mIsHorizontal;
+	F32  mLength;
+	F32  mRadius;
 };
 
 #endif // LL_LLPATHFINDINGCHARACTER_H
