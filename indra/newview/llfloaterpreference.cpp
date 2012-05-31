@@ -347,6 +347,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Proxy",					boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	mCommitCallbackRegistrar.add("Pref.TranslationSettings",	boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
 	mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
+	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -935,7 +936,6 @@ void LLFloaterPreference::refreshSkin(void* data)
 	self->getChild<LLRadioGroup>("skin_selection", true)->setValue(sSkin);
 }
 
-
 void LLFloaterPreference::buildPopupLists()
 {
 	LLScrollListCtrl& disabled_popups =
@@ -1522,6 +1522,11 @@ void LLFloaterPreference::onClickTranslationSettings()
 void LLFloaterPreference::onClickAutoReplace()
 {
 	LLFloaterReg::showInstance("prefs_autoreplace");
+}
+
+void LLFloaterPreference::onClickSpellChecker()
+{
+		LLFloaterReg::showInstance("prefs_spellchecker");
 }
 
 void LLFloaterPreference::onClickActionChange()

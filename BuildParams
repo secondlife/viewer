@@ -138,6 +138,10 @@ oz_viewer-beta-review.viewer_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.login_channel = "Second Life Beta Viewer"
 oz_viewer-beta-review.email = oz@lindenlab.com
 
+oz_project-7.build_debug_release_separately = true
+oz_project-7.codeticket_add_context = false
+oz_project-7.email = "sldev@catznip.com oz@lindenlab.com"
+
 # =================================================================
 # asset delivery 2010 projects
 # =================================================================

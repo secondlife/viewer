@@ -227,4 +227,16 @@
    label="AutoReplace Settings"
    width="150">
   </button>
+  <button
+   follows="top|left"
+   height="23"
+   layout="topleft"
+   top_pad="-23"
+   left_pad="5"
+   name="spellcheck_showgui"
+   commit_callback.function="Pref.SpellChecker"
+   label="Spell Checker Settings"
+   width="150">
+  </button>
+
 </panel>

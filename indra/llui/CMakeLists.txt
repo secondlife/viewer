@@ -25,6 +25,7 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LLXUIXML_INCLUDE_DIRS}
+    ${LIBS_PREBUILD_DIR}/include/hunspell
     )
 
 set(llui_SOURCE_FILES
@@ -87,6 +88,7 @@ set(llui_SOURCE_FILES
     llsearcheditor.cpp
     llslider.cpp
     llsliderctrl.cpp
+    llspellcheck.cpp
     llspinctrl.cpp
     llstatbar.cpp
     llstatgraph.cpp
@@ -192,6 +194,8 @@ set(llui_HEADER_FILES
     llsdparam.h
     llsliderctrl.h
     llslider.h
+    llspellcheck.h
+    llspellcheckmenuhandler.h
     llspinctrl.h
     llstatbar.h
     llstatgraph.h
@@ -258,6 +262,7 @@ target_link_libraries(llui
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
+    ${HUNSPELL_LIBRARY}
     ${LLCOMMON_LIBRARIES} # must be after llimage, llwindow, llrender
     )
 
