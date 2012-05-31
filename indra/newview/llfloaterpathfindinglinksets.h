@@ -41,6 +41,7 @@ class LLScrollListItem;
 class LLSD;
 class LLTextBase;
 class LLUICtrl;
+class LLVector3;
 
 class LLFloaterPathfindingLinksets : public LLFloaterPathfindingObjects
 {

@@ -29,10 +29,13 @@
 
 #include "llpathfindinglinksetlist.h"
 
-#include "llsd.h"
+#include <string>
+#include <map>
+
 #include "llpathfindinglinkset.h"
 #include "llpathfindingobject.h"
 #include "llpathfindingobjectlist.h"
+#include "llsd.h"
 
 //---------------------------------------------------------------------------
 // LLPathfindingLinksetList

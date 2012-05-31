@@ -40,7 +40,6 @@
 #include "llsingleton.h"
 #include "lluuid.h"
 
-class LLFloater;
 class LLViewerRegion;
 class LLPathfindingNavMeshStatus;
 
@@ -143,4 +142,3 @@ private:
 };
 
 #endif // LL_LLPATHFINDINGMANAGER_H
-

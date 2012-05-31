@@ -30,7 +30,7 @@
 #include "llpathfindingmanager.h"
 
 #include <string>
-#include <vector>
+#include <map>
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -39,14 +39,12 @@
 #include "llhttpclient.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
-#include "llpathfindingcharacter.h"
 #include "llpathfindingcharacterlist.h"
 #include "llpathfindinglinkset.h"
 #include "llpathfindinglinksetlist.h"
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
 #include "llpathfindingobject.h"
-#include "llpathfindinglinksetlist.h"
 #include "llsingleton.h"
 #include "llsd.h"
 #include "lltrans.h"

@@ -39,6 +39,7 @@
 class LLButton;
 class LLCheckBoxCtrl;
 class LLScrollListCtrl;
+class LLScrollListItem;
 class LLSD;
 class LLTextBase;
 

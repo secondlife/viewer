@@ -27,9 +27,9 @@
 #ifndef LL_LLPATHFINDINGOBJECT_H
 #define LL_LLPATHFINDINGOBJECT_H
 
-#include "v3math.h"
 #include "llavatarname.h"
 #include "lluuid.h"
+#include "v3math.h"
 
 #include <string>
 
@@ -60,7 +60,7 @@ public:
 protected:
 
 private:
-	void                      parseObjectData(const LLSD &pObjectData);
+	void parseObjectData(const LLSD &pObjectData);
 
 	LLUUID       mUUID;
 	std::string  mName;

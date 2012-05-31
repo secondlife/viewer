@@ -29,10 +29,10 @@
 
 #include "llpathfindingcharacterlist.h"
 
-#include "llsd.h"
 #include "llpathfindingcharacter.h"
 #include "llpathfindingobject.h"
 #include "llpathfindingobjectlist.h"
+#include "llsd.h"
 
 //---------------------------------------------------------------------------
 // LLPathfindingCharacterList

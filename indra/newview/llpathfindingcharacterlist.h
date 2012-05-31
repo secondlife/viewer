@@ -28,7 +28,6 @@
 #ifndef LL_LLPATHFINDINGCHARACTERLIST_H
 #define LL_LLPATHFINDINGCHARACTERLIST_H
 
-#include "llpathfindingcharacter.h"
 #include "llpathfindingobjectlist.h"
 
 class LLSD;

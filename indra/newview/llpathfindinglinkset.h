@@ -28,6 +28,8 @@
 #ifndef LL_LLPATHFINDINGLINKSET_H
 #define LL_LLPATHFINDINGLINKSET_H
 
+#include <string>
+
 #include "llpathfindingobject.h"
 
 #define DEPRECATED_NAVMESH_PERMANENT_WALKABLE_FLAGS
@@ -56,23 +58,23 @@ public:
 
 	LLPathfindingLinkset& operator = (const LLPathfindingLinkset& pOther);
 
-	inline bool                       isTerrain() const                   {return mIsTerrain;};
-	inline U32                        getLandImpact() const               {return mLandImpact;};
-	BOOL                              isModifiable() const                {return mIsModifiable;};
-	BOOL                              isPhantom() const;
-	BOOL                              canBeVolume() const                 {return mCanBeVolume;};
-	static ELinksetUse                getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
+	inline bool        isTerrain() const                   {return mIsTerrain;};
+	inline U32         getLandImpact() const               {return mLandImpact;};
+	BOOL               isModifiable() const                {return mIsModifiable;};
+	BOOL               isPhantom() const;
+	BOOL               canBeVolume() const                 {return mCanBeVolume;};
+	static ELinksetUse getLinksetUseWithToggledPhantom(ELinksetUse pLinksetUse);
 
-	inline ELinksetUse                getLinksetUse() const               {return mLinksetUse;};
+	inline ELinksetUse getLinksetUse() const               {return mLinksetUse;};
 
-	inline S32                        getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
-	inline S32                        getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
-	inline S32                        getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
-	inline S32                        getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
+	inline S32         getWalkabilityCoefficientA() const  {return mWalkabilityCoefficientA;};
+	inline S32         getWalkabilityCoefficientB() const  {return mWalkabilityCoefficientB;};
+	inline S32         getWalkabilityCoefficientC() const  {return mWalkabilityCoefficientC;};
+	inline S32         getWalkabilityCoefficientD() const  {return mWalkabilityCoefficientD;};
 
-	bool                              isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
-	bool                              isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
-	LLSD                              encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
+	bool               isShowUnmodifiablePhantomWarning(ELinksetUse pLinksetUse) const;
+	bool               isShowCannotBeVolumeWarning(ELinksetUse pLinksetUse) const;
+	LLSD               encodeAlteredFields(ELinksetUse pLinksetUse, S32 pA, S32 pB, S32 pC, S32 pD) const;
 
 	static const S32 MIN_WALKABILITY_VALUE;
 	static const S32 MAX_WALKABILITY_VALUE;

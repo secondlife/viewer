@@ -33,9 +33,10 @@
 #include "llfloaterpathfindingobjects.h"
 #include "llpathfindingcharacter.h"
 #include "llpathfindingcharacterlist.h"
+#include "llpathfindingmanager.h"
+#include "llpathfindingobjectlist.h"
 #include "llsd.h"
-#include "lluuid.h"
-#include "llviewerregion.h"
+#include "lluicolortable.h"
 
 //---------------------------------------------------------------------------
 // LLFloaterPathfindingCharacters

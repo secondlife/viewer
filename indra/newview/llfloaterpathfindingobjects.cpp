@@ -34,14 +34,10 @@
 #include <boost/bind.hpp>
 #include <boost/signals2.hpp>
 
-#include "v4color.h"
-
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
-#include "llcombobox.h"
 #include "llenvmanager.h"
-#include "lllineeditor.h"
 #include "llfloater.h"
 #include "llpathfindingmanager.h"
 #include "llresmgr.h"
@@ -57,6 +53,7 @@
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "v4color.h"
 
 #define DEFAULT_BEACON_WIDTH 6
 

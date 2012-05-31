@@ -32,7 +32,6 @@
 #include "llpathfindingobjectlist.h"
 
 class LLSD;
-class LLVector3;
 
 class LLPathfindingLinksetList : public LLPathfindingObjectList
 {

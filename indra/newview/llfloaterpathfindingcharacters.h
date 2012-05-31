@@ -29,17 +29,11 @@
 #define LL_LLFLOATERPATHFINDINGCHARACTERS_H
 
 #include "llfloaterpathfindingobjects.h"
-#include "llpathfindingcharacter.h"
-#include "llpathfindingmanager.h"
 #include "llpathfindingobjectlist.h"
 #include "v4color.h"
 
-class LLButton;
-class LLCheckBoxCtrl;
-class LLRadioGroup;
-class LLScrollListCtrl;
+class LLPathfindingCharacter;
 class LLSD;
-class LLTextBase;
 
 class LLFloaterPathfindingCharacters : public LLFloaterPathfindingObjects
 {
