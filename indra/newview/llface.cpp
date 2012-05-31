@@ -187,12 +187,6 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 	mFaceColor = LLColor4(1,0,0,1);
 
-	mLastVertexBuffer = mVertexBuffer;
-	mLastGeomCount = mGeomCount;
-	mLastGeomIndex = mGeomIndex;
-	mLastIndicesCount = mIndicesCount;
-	mLastIndicesIndex = mIndicesIndex;
-
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
@@ -219,6 +213,7 @@ void LLFace::destroy()
 		mIndicesIndex != 0xFFFFFFFF)
 	{
 		LLVOPartGroup::freeVBSlot(getGeomIndex()/4);
+		mIndicesIndex = 0xFFFFFFFF;
 	}
 
 	if (mDrawPoolp)
@@ -390,7 +385,6 @@ void LLFace::setSize(S32 num_vertices, S32 num_indices, bool align)
 		mGeomCount    = num_vertices;
 		mIndicesCount = num_indices;
 		mVertexBuffer = NULL;
-		mLastVertexBuffer = NULL;
 	}
 
 	llassert(verify());
@@ -783,12 +777,6 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		LLMatrix4a mat_normal;
 		mat_normal.loadu(mat_normal_in);
 
-		//if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
-		//{ //vertex buffer no longer valid
-		//	mVertexBuffer = NULL;
-		//	mLastVertexBuffer = NULL;
-		//}
-
 		//VECTORIZE THIS
 		LLVector4a min,max;
 	
@@ -1050,30 +1038,13 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
 void LLFace::updateRebuildFlags()
 {
-	if (!mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
-	{
-		BOOL moved = TRUE;
-		if (mLastVertexBuffer == mVertexBuffer && 
-			!mVertexBuffer->isEmpty())
-		{	//this face really doesn't need to be regenerated, try real hard not to do so
-			if (mLastGeomCount == mGeomCount &&
-				mLastGeomIndex == mGeomIndex &&
-				mLastIndicesCount == mIndicesCount &&
-				mLastIndicesIndex == mIndicesIndex)
-			{ //data is in same location in vertex buffer
-				moved = FALSE;
-			}
-		}
-		mLastMoveTime = gFrameTimeSeconds;
-		
-		if (moved)
-		{
-			mDrawablep->setState(LLDrawable::REBUILD_VOLUME);
-		}
+	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME))
+	{ //this rebuild is zero overhead (direct consequence of some change that affects this face)
+		mLastUpdateTime = gFrameTimeSeconds;
 	}
 	else
-	{
-		mLastUpdateTime = gFrameTimeSeconds;
+	{ //this rebuild is overhead (side effect of some change that does not affect this face)
+		mLastMoveTime = gFrameTimeSeconds;
 	}
 }
 
@@ -1228,9 +1199,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					<< " VF Num Indices: " << num_indices
 					<< " Indices Index: " << mIndicesIndex
 					<< " VB Num Indices: " << mVertexBuffer->getNumIndices() << llendl;
-			llwarns	<< "Last Indices Count: " << mLastIndicesCount
-					<< " Last Indices Index: " << mLastIndicesIndex
-					<< " Face Index: " << f
+			llwarns	<< " Face Index: " << f
 					<< " Pool Type: " << mPoolType << llendl;
 			return FALSE;
 		}
@@ -1404,6 +1373,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback");
 
+#ifdef GL_TRANSFORM_FEEDBACK_BUFFER
 	if (use_transform_feedback &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
 		mVertexBuffer->useVBOs() && //target buffer is in VRAM
@@ -1547,6 +1517,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		}
 	}
 	else
+#endif
 	{
 		//if it's not fullbright and has no normals, bake sunlight based on face normal
 		//bool bake_sunlight = !getTextureEntry()->getFullbright() &&
@@ -2167,12 +2138,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	}
 
 
-	mLastVertexBuffer = mVertexBuffer;
-	mLastGeomCount = mGeomCount;
-	mLastGeomIndex = mGeomIndex;
-	mLastIndicesCount = mIndicesCount;
-	mLastIndicesIndex = mIndicesIndex;
-
 	return TRUE;
 }
 
@@ -2751,7 +2716,6 @@ void LLFace::setVertexBuffer(LLVertexBuffer* buffer)
 void LLFace::clearVertexBuffer()
 {
 	mVertexBuffer = NULL;
-	mLastVertexBuffer = NULL;
 }
 
 //static

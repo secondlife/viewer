@@ -4987,45 +4987,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			}
 		}
 
-		//create/delete/resize vertex buffer if needed
+		//create vertex buffer
 		LLVertexBuffer* buffer = NULL;
 
-		if (group->mBufferUsage != GL_DYNAMIC_DRAW_ARB)
-		{ //try to find a buffer to reuse
-			LLFastTimer t(FTM_GEN_DRAW_INFO_FIND_VB);
-			LLSpatialGroup::buffer_texture_map_t::iterator found_iter = group->mBufferMap[mask].find(*face_iter);
-		
-			if (found_iter != group->mBufferMap[mask].end())
-			{
-				if ((U32) buffer_index < found_iter->second.size())
-				{
-					buffer = found_iter->second[buffer_index];
-				}
-			}
-		}
-					
 		{
 			LLFastTimer t(FTM_GEN_DRAW_INFO_ALLOCATE);
-	
-			if (!buffer || !buffer->isWriteable())
-			{ //create new buffer if needed
-				buffer = createVertexBuffer(mask, buffer_usage);
-				buffer->allocateBuffer(geom_count, index_count, TRUE);
-			}
-			else 
-			{ //resize pre-existing buffer
-				LLFastTimer t(FTM_GEN_DRAW_INFO_RESIZE_VB);
-				if (LLVertexBuffer::sEnableVBOs && buffer->getUsage() != buffer_usage ||
-					buffer->getTypeMask() != mask)
-				{
-					buffer = createVertexBuffer(mask, buffer_usage);
-					buffer->allocateBuffer(geom_count, index_count, TRUE);
-				}
-				else
-				{
-					buffer->resizeBuffer(geom_count, index_count);
-				}
-			}
+			buffer = createVertexBuffer(mask, buffer_usage);
+			buffer->allocateBuffer(geom_count, index_count, TRUE);
 		}
 
 		group->mGeometryBytes += buffer->getSize() + buffer->getIndicesSize();
@@ -5070,7 +5038,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					llassert(!facep->isState(LLFace::RIGGED));
 
 					facep->getGeometryVolume(*volume, te_idx, 
-						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset);
+						vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), index_offset,true);
 
 					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
 					{
