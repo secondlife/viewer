@@ -142,7 +142,7 @@ void LLSpellChecker::addToIgnoreList(const std::string& word)
 {
 	std::string word_lower(word);
 	LLStringUtil::toLower(word_lower);
-	if (mIgnoreList.end() != std::find(mIgnoreList.begin(), mIgnoreList.end(), word_lower))
+	if (mIgnoreList.end() == std::find(mIgnoreList.begin(), mIgnoreList.end(), word_lower))
 	{
 		mIgnoreList.push_back(word_lower);
 		addToDictFile(getDictionaryUserPath() + mDictFile + DICT_IGNORE_SUFFIX + ".dic", word_lower);
