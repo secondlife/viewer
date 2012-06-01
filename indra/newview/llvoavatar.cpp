@@ -2306,7 +2306,7 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	}
 }
 
-static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Update Avatar");
+static LLFastTimer::DeclareTimer FTM_AVATAR_UPDATE("Avatar Update");
 static LLFastTimer::DeclareTimer FTM_JOINT_UPDATE("Update Joints");
 
 //------------------------------------------------------------------------

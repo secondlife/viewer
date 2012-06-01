@@ -4069,7 +4069,7 @@ public:
 						{
 							if (index < 255)
 							{
-								if (facep->mDrawInfo->mTextureList.size() <= index)
+								if (facep->mDrawInfo->mTextureList.size()<= index)
 								{
 									llerrs << "Face texture index out of bounds." << llendl;
 								}
@@ -4581,28 +4581,62 @@ LLVertexBuffer* LLGeometryManager::createVertexBuffer(U32 type_mask, U32 usage)
 
 LLCullResult::LLCullResult() 
 {
+	mVisibleGroupsAllocated = 0;
+	mAlphaGroupsAllocated = 0;
+	mOcclusionGroupsAllocated = 0;
+	mDrawableGroupsAllocated = 0;
+	mVisibleListAllocated = 0;
+	mVisibleBridgeAllocated = 0;
+
+	mVisibleGroups = NULL;
+	mVisibleGroupsEnd = NULL;
+	mAlphaGroups = NULL;
+	mAlphaGroupsEnd = NULL;
+	mOcclusionGroups = NULL;
+	mOcclusionGroupsEnd = NULL;
+	mDrawableGroups = NULL;
+	mDrawableGroupsEnd = NULL;
+	mVisibleList = NULL;
+	mVisibleListEnd = NULL;
+	mVisibleBridge = NULL;
+	mVisibleBridgeEnd = NULL;
+
+	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
+	{
+		mRenderMap[i] = NULL;
+		mRenderMapEnd[i] = NULL;
+		mRenderMapAllocated[i] = NULL;
+	}
+
 	clear();
+}
+
+void LLCullResult::pushBack(void**& head, U32& count, void* val)
+{
+	count++;
+	head = (void**) realloc((void*) head, sizeof(void*) * count);
+	head[count-1] = val;
 }
 
 void LLCullResult::clear()
 {
 	mVisibleGroupsSize = 0;
-	mVisibleGroupsEnd = mVisibleGroups.begin();
+	mVisibleGroupsEnd = mVisibleGroups;
 
 	mAlphaGroupsSize = 0;
-	mAlphaGroupsEnd = mAlphaGroups.begin();
+	mAlphaGroupsEnd = mAlphaGroups;
 
 	mOcclusionGroupsSize = 0;
-	mOcclusionGroupsEnd = mOcclusionGroups.begin();
+	mOcclusionGroupsEnd = mOcclusionGroups;
 
 	mDrawableGroupsSize = 0;
-	mDrawableGroupsEnd = mDrawableGroups.begin();
+	mDrawableGroupsEnd = mDrawableGroups;
 
 	mVisibleListSize = 0;
-	mVisibleListEnd = mVisibleList.begin();
+	mVisibleListEnd = mVisibleList;
 
 	mVisibleBridgeSize = 0;
-	mVisibleBridgeEnd = mVisibleBridge.begin();
+	mVisibleBridgeEnd = mVisibleBridge;
 
 
 	for (U32 i = 0; i < LLRenderPass::NUM_RENDER_TYPES; i++)
@@ -4612,176 +4646,176 @@ void LLCullResult::clear()
 			mRenderMap[i][j] = 0;
 		}
 		mRenderMapSize[i] = 0;
-		mRenderMapEnd[i] = mRenderMap[i].begin();
+		mRenderMapEnd[i] = mRenderMap[i];
 	}
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::beginVisibleGroups()
+LLCullResult::sg_iterator LLCullResult::beginVisibleGroups()
 {
-	return mVisibleGroups.begin();
+	return mVisibleGroups;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::endVisibleGroups()
+LLCullResult::sg_iterator LLCullResult::endVisibleGroups()
 {
 	return mVisibleGroupsEnd;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::beginAlphaGroups()
+LLCullResult::sg_iterator LLCullResult::beginAlphaGroups()
 {
-	return mAlphaGroups.begin();
+	return mAlphaGroups;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::endAlphaGroups()
+LLCullResult::sg_iterator LLCullResult::endAlphaGroups()
 {
 	return mAlphaGroupsEnd;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::beginOcclusionGroups()
+LLCullResult::sg_iterator LLCullResult::beginOcclusionGroups()
 {
-	return mOcclusionGroups.begin();
+	return mOcclusionGroups;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::endOcclusionGroups()
+LLCullResult::sg_iterator LLCullResult::endOcclusionGroups()
 {
 	return mOcclusionGroupsEnd;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::beginDrawableGroups()
+LLCullResult::sg_iterator LLCullResult::beginDrawableGroups()
 {
-	return mDrawableGroups.begin();
+	return mDrawableGroups;
 }
 
-LLCullResult::sg_list_t::iterator LLCullResult::endDrawableGroups()
+LLCullResult::sg_iterator LLCullResult::endDrawableGroups()
 {
 	return mDrawableGroupsEnd;
 }
 
-LLCullResult::drawable_list_t::iterator LLCullResult::beginVisibleList()
+LLCullResult::drawable_iterator LLCullResult::beginVisibleList()
 {
-	return mVisibleList.begin();
+	return mVisibleList;
 }
 
-LLCullResult::drawable_list_t::iterator LLCullResult::endVisibleList()
+LLCullResult::drawable_iterator LLCullResult::endVisibleList()
 {
 	return mVisibleListEnd;
 }
 
-LLCullResult::bridge_list_t::iterator LLCullResult::beginVisibleBridge()
+LLCullResult::bridge_iterator LLCullResult::beginVisibleBridge()
 {
-	return mVisibleBridge.begin();
+	return mVisibleBridge;
 }
 
-LLCullResult::bridge_list_t::iterator LLCullResult::endVisibleBridge()
+LLCullResult::bridge_iterator LLCullResult::endVisibleBridge()
 {
 	return mVisibleBridgeEnd;
 }
 
-LLCullResult::drawinfo_list_t::iterator LLCullResult::beginRenderMap(U32 type)
+LLCullResult::drawinfo_iterator LLCullResult::beginRenderMap(U32 type)
 {
-	return mRenderMap[type].begin();
+	return mRenderMap[type];
 }
 
-LLCullResult::drawinfo_list_t::iterator LLCullResult::endRenderMap(U32 type)
+LLCullResult::drawinfo_iterator LLCullResult::endRenderMap(U32 type)
 {
 	return mRenderMapEnd[type];
 }
 
 void LLCullResult::pushVisibleGroup(LLSpatialGroup* group)
 {
-	if (mVisibleGroupsSize < mVisibleGroups.size())
+	if (mVisibleGroupsSize < mVisibleGroupsAllocated)
 	{
 		mVisibleGroups[mVisibleGroupsSize] = group;
 	}
 	else
 	{
-		mVisibleGroups.push_back(group);
+		pushBack((void**&) mVisibleGroups, mVisibleGroupsAllocated, (void*) group);
 	}
 	++mVisibleGroupsSize;
-	mVisibleGroupsEnd = mVisibleGroups.begin()+mVisibleGroupsSize;
+	mVisibleGroupsEnd = mVisibleGroups+mVisibleGroupsSize;
 }
 
 void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
 {
-	if (mAlphaGroupsSize < mAlphaGroups.size())
+	if (mAlphaGroupsSize < mAlphaGroupsAllocated)
 	{
 		mAlphaGroups[mAlphaGroupsSize] = group;
 	}
 	else
 	{
-		mAlphaGroups.push_back(group);
+		pushBack((void**&) mAlphaGroups, mAlphaGroupsAllocated, (void*) group);
 	}
 	++mAlphaGroupsSize;
-	mAlphaGroupsEnd = mAlphaGroups.begin()+mAlphaGroupsSize;
+	mAlphaGroupsEnd = mAlphaGroups+mAlphaGroupsSize;
 }
 
 void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
 {
-	if (mOcclusionGroupsSize < mOcclusionGroups.size())
+	if (mOcclusionGroupsSize < mOcclusionGroupsAllocated)
 	{
 		mOcclusionGroups[mOcclusionGroupsSize] = group;
 	}
 	else
 	{
-		mOcclusionGroups.push_back(group);
+		pushBack((void**&) mOcclusionGroups, mOcclusionGroupsAllocated, (void*) group);
 	}
 	++mOcclusionGroupsSize;
-	mOcclusionGroupsEnd = mOcclusionGroups.begin()+mOcclusionGroupsSize;
+	mOcclusionGroupsEnd = mOcclusionGroups+mOcclusionGroupsSize;
 }
 
 void LLCullResult::pushDrawableGroup(LLSpatialGroup* group)
 {
-	if (mDrawableGroupsSize < mDrawableGroups.size())
+	if (mDrawableGroupsSize < mDrawableGroupsAllocated)
 	{
 		mDrawableGroups[mDrawableGroupsSize] = group;
 	}
 	else
 	{
-		mDrawableGroups.push_back(group);
+		pushBack((void**&) mDrawableGroups, mDrawableGroupsAllocated, (void*) group);
 	}
 	++mDrawableGroupsSize;
-	mDrawableGroupsEnd = mDrawableGroups.begin()+mDrawableGroupsSize;
+	mDrawableGroupsEnd = mDrawableGroups+mDrawableGroupsSize;
 }
 
 void LLCullResult::pushDrawable(LLDrawable* drawable)
 {
-	if (mVisibleListSize < mVisibleList.size())
+	if (mVisibleListSize < mVisibleListAllocated)
 	{
 		mVisibleList[mVisibleListSize] = drawable;
 	}
 	else
 	{
-		mVisibleList.push_back(drawable);
+		pushBack((void**&) mVisibleList, mVisibleListAllocated, (void*) drawable);
 	}
 	++mVisibleListSize;
-	mVisibleListEnd = mVisibleList.begin()+mVisibleListSize;
+	mVisibleListEnd = mVisibleList+mVisibleListSize;
 }
 
 void LLCullResult::pushBridge(LLSpatialBridge* bridge)
 {
-	if (mVisibleBridgeSize < mVisibleBridge.size())
+	if (mVisibleBridgeSize < mVisibleBridgeAllocated)
 	{
 		mVisibleBridge[mVisibleBridgeSize] = bridge;
 	}
 	else
 	{
-		mVisibleBridge.push_back(bridge);
+		pushBack((void**&) mVisibleBridge, mVisibleBridgeAllocated, (void*) bridge);
 	}
 	++mVisibleBridgeSize;
-	mVisibleBridgeEnd = mVisibleBridge.begin()+mVisibleBridgeSize;
+	mVisibleBridgeEnd = mVisibleBridge+mVisibleBridgeSize;
 }
 
 void LLCullResult::pushDrawInfo(U32 type, LLDrawInfo* draw_info)
 {
-	if (mRenderMapSize[type] < mRenderMap[type].size())
+	if (mRenderMapSize[type] < mRenderMapAllocated[type])
 	{
 		mRenderMap[type][mRenderMapSize[type]] = draw_info;
 	}
 	else
 	{
-		mRenderMap[type].push_back(draw_info);
+		pushBack((void**&) mRenderMap[type], mRenderMapAllocated[type], (void*) draw_info);
 	}
 	++mRenderMapSize[type];
-	mRenderMapEnd[type] = mRenderMap[type].begin() + mRenderMapSize[type];
+	mRenderMapEnd[type] = mRenderMap[type] + mRenderMapSize[type];
 }
 
 
