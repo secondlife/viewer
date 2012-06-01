@@ -162,6 +162,15 @@ BOOL LLPathfindingPathTool::handleHover(S32 pX, S32 pY, MASK pMask)
 	return returnVal;
 }
 
+BOOL LLPathfindingPathTool::handleKey(KEY pKey, MASK pMask)
+{
+	// Eat the escape key or else the camera tool will pick up and reset to default view.  This,
+	// in turn, will cause some other methods to get called.  And one of those methods will reset
+	// the current toolset back to the basic toolset.  This means that the pathfinding path toolset
+	// will no longer be active, but typically with pathfinding path elements on screen.
+	return (pKey == KEY_ESCAPE);
+}
+
 LLPathfindingPathTool::EPathStatus LLPathfindingPathTool::getPathStatus() const
 {
 	EPathStatus status = kPathStatusUnknown;

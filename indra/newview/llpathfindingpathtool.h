@@ -77,6 +77,8 @@ public:
 
 	virtual BOOL      handleHover(S32 pX, S32 pY, MASK pMask);
 
+	virtual BOOL      handleKey(KEY pKey, MASK pMask);
+
 	EPathStatus       getPathStatus() const;
 
 	F32               getCharacterWidth() const;
