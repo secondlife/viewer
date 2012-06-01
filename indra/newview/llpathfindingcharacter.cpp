@@ -126,8 +126,7 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 
 	//Create the rep inside the pathing library
 	LLVector3 empty(0,0,0);
-	const LLUUID id = getUUID();
-	LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, empty, id );
+	LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, empty, getUUID() );
 
 #endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 }
