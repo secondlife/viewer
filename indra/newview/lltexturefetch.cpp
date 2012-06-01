@@ -51,6 +51,7 @@
 #include "llviewerstats.h"
 #include "llviewerassetstats.h"
 #include "llworld.h"
+#include "llsdserialize.h"
 
 #include "httprequest.h"
 #include "httphandler.h"
@@ -748,7 +749,7 @@ void LLTextureFetchWorker::setImagePriority(F32 priority)
 	{
 		mImagePriority = priority;
 		calcWorkPriority();
-		U32 work_priority = mWorkPriority | LLWorkerThread::PRIORITY_LOW;
+		U32 work_priority = mWorkPriority | (getPriority() & LLWorkerThread::PRIORITY_HIGHBITS);
 		setPriority(work_priority);
 	}
 }
@@ -855,7 +856,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == LOAD_FROM_TEXTURE_CACHE)
 	{
-		setPriority(0); // Set priority first since Responder may change it
 		if (mCacheReadHandle == LLTextureCache::nullHandle())
 		{
 			U32 cache_priority = mWorkPriority;
@@ -871,6 +871,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			
 			if (mUrl.compare(0, 7, "file://") == 0)
 			{
+				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
+
 				// read file from local disk
 				std::string filename = mUrl.substr(7, std::string::npos);
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
@@ -879,6 +881,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			}
 			else if (mUrl.empty())
 			{
+				setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
+
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
 																		  offset, size, responder);
@@ -890,12 +894,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					// *TODO:?remove this warning
 					llwarns << "Unknown URL Type: " << mUrl << llendl;
 				}
-				setPriority(LLWorkerThread::PRIORITY_HIGH);
+				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = SEND_HTTP_REQ;
 			}
 			else
 			{
-				setPriority(LLWorkerThread::PRIORITY_HIGH);
+				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = LOAD_FROM_NETWORK;
 			}
 		}
@@ -907,7 +911,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				mCacheReadHandle = LLTextureCache::nullHandle();
 				mState = CACHE_POST;
-				setPriority(LLWorkerThread::PRIORITY_HIGH);
 				// fall through
 			}
 			else
@@ -931,7 +934,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			llassert_always(mFormattedImage->getDataSize() > 0);
 			mLoadedDiscard = mDesiredDiscard;
 			mState = DECODE_IMAGE;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			mWriteToCacheState = NOT_WRITE ;
 			LL_DEBUGS("Texture") << mID << ": Cached. Bytes: " << mFormattedImage->getDataSize()
 								 << " Size: " << llformat("%dx%d",mFormattedImage->getWidth(),mFormattedImage->getHeight())
@@ -949,7 +951,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			else
 			{
 				LL_DEBUGS("Texture") << mID << ": Not in Cache" << LL_ENDL;
-				setPriority(LLWorkerThread::PRIORITY_HIGH);
 				mState = LOAD_FROM_NETWORK;
 			}
 			// fall through
@@ -960,7 +961,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		static LLCachedControl<bool> use_http(gSavedSettings,"ImagePipelineUseHTTP");
 
-		setPriority(0);
 // 		if (mHost != LLHost::invalid) get_url = false;
 		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
 		{
@@ -993,7 +993,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if (mCanUseHTTP && !mUrl.empty())
 		{
 			mState = SEND_HTTP_REQ;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
+			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			if(mWriteToCacheState != NOT_WRITE)
 			{
 				mWriteToCacheState = CAN_WRITE ;
@@ -1010,6 +1010,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mSentRequest = QUEUED;
 			mFetcher->addToNetworkQueue(this);
 			recordTextureStart(false);
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			
 			return false;
 		}
@@ -1027,7 +1028,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == LOAD_FROM_SIMULATOR)
 	{
-		setPriority(0);
 		if (mFormattedImage.isNull())
 		{
 			mFormattedImage = new LLImageJ2C;
@@ -1042,7 +1042,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 // 				llwarns << "processSimulatorPackets() failed to load buffer" << llendl;
 				return true; // failed
 			}
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
+			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			mState = DECODE_IMAGE;
 			mWriteToCacheState = SHOULD_WRITE;
 			recordTextureDone(false);
@@ -1050,6 +1050,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		else
 		{
 			mFetcher->addToNetworkQueue(this); // failsafe
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			recordTextureStart(false);
 		}
 		return false;
@@ -1057,7 +1058,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == SEND_HTTP_REQ)
 	{
-		setPriority(0);
 		if(mCanUseHTTP)
 		{
 			//NOTE:
@@ -1065,11 +1065,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//1, not openning too many file descriptors at the same time;
 			//2, control the traffic of http so udp gets bandwidth.
 			//
-			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 8 ;
-			if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
-			{
-				return false ; //wait.
-			}
+			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 8;
+			// *FIXME:  For the moment, allow everything to transition into HTTP
+			// and have the new library order and throttle.
+			//if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
+			//{
+			//return false ; //wait.
+			//}
 
 			mFetcher->removeFromNetworkQueue(this, false);
 			
@@ -1083,7 +1085,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					{
 						// We already have all the data, just decode it
 						mLoadedDiscard = mFormattedImage->getDiscardLevel();
-						setPriority(LLWorkerThread::PRIORITY_HIGH);
 						mState = DECODE_IMAGE;
 						return false;
 					}
@@ -1135,7 +1136,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mHttpActive = true;
 			mFetcher->addToHTTPQueue(mID);
 			recordTextureStart(true);
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			mState = WAIT_HTTP_REQ;	
 
 			// fall through
@@ -1148,7 +1149,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == WAIT_HTTP_REQ)
 	{
-		setPriority(0);
 		if (mLoaded)
 		{
 			S32 cur_size = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
@@ -1165,7 +1165,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					{
 						mState = INIT;
 						mCanUseHTTP = false;
-						setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+						setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 						return false;
 					}
 				}
@@ -1184,7 +1184,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
 					++mHTTPFailCount;
 					llinfos << "HTTP GET failed for: " << mUrl
-							<< " Status: " << mGetStatus.toULong() << " Reason: '" << mGetReason << "'"
+							<< " Status: " << mGetStatus.toHex()
+							<< " Reason: '" << mGetReason << "'"
 							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
 				}
 
@@ -1194,14 +1195,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					{
 						// Use available data
 						mLoadedDiscard = mFormattedImage->getDiscardLevel();
-						setPriority(LLWorkerThread::PRIORITY_HIGH);
 						mState = DECODE_IMAGE;
 						return false; 
 					}
 					else
 					{
 						resetFormattedData();
-						setPriority(LLWorkerThread::PRIORITY_HIGH);
 						mState = DONE;
 						return true; // failed
 					}
@@ -1223,7 +1222,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 
 				// abort.
-				setPriority(LLWorkerThread::PRIORITY_HIGH);
 				mState = DONE;
 				return true;
 			}
@@ -1268,29 +1266,30 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			mHttpBufferArray = NULL;
 			
 			mLoadedDiscard = mRequestedDiscard;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			mState = DECODE_IMAGE;
 			if (mWriteToCacheState != NOT_WRITE)
 			{
 				mWriteToCacheState = SHOULD_WRITE ;
 			}
+			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			return false;
 		}
 		else
 		{
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return false;
 		}
 	}
 	
 	if (mState == DECODE_IMAGE)
 	{
-		setPriority(0);
 		static LLCachedControl<bool> textures_decode_disabled(gSavedSettings,"TextureDecodeDisabled");
+
+		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		if (textures_decode_disabled)
 		{
 			// for debug use, don't decode
 			mState = DONE;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			return true;
 		}
 
@@ -1298,7 +1297,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			// We aborted, don't decode
 			mState = DONE;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			return true;
 		}
 		
@@ -1308,7 +1306,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			
 			//abort, don't decode
 			mState = DONE;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			return true;
 		}
 		if (mLoadedDiscard < 0)
@@ -1317,7 +1314,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 			//abort, don't decode
 			mState = DONE;
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			return true;
 		}
 
@@ -1337,7 +1333,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == DECODE_IMAGE_UPDATE)
 	{
-		setPriority(0);
 		if (mDecoded)
 		{
 			if (mDecodedDiscard < 0)
@@ -1350,14 +1345,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 					llassert_always(mDecodeHandle == 0);
 					mFormattedImage = NULL;
 					++mRetryAttempt;
-					setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
+					setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 					mState = INIT;
 					return false;
 				}
 				else
 				{
 // 					llwarns << "UNABLE TO LOAD TEXTURE: " << mID << " RETRIES: " << mRetryAttempt << llendl;
-					setPriority(LLWorkerThread::PRIORITY_HIGH);
 					mState = DONE; // failed
 				}
 			}
@@ -1366,7 +1360,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				llassert_always(mRawImage.notNull());
 				LL_DEBUGS("Texture") << mID << ": Decoded. Discard: " << mDecodedDiscard
 						<< " Raw Image: " << llformat("%dx%d",mRawImage->getWidth(),mRawImage->getHeight()) << LL_ENDL;
-				setPriority(LLWorkerThread::PRIORITY_HIGH);
+				setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 				mState = WRITE_TO_CACHE;
 			}
 			// fall through
@@ -1379,12 +1373,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == WRITE_TO_CACHE)
 	{
-		setPriority(0);
 		if (mWriteToCacheState != SHOULD_WRITE || mFormattedImage.isNull())
 		{
 			// If we're in a local cache or we didn't actually receive any new data,
 			// or we failed to load anything, skip
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			mState = DONE;
 			return false;
 		}
@@ -1404,7 +1396,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority); // Set priority first since Responder may change it
 		U32 cache_priority = mWorkPriority;
 		mWritten = FALSE;
-		setPriority(LLWorkerThread::PRIORITY_HIGH);
 		mState = WAIT_ON_WRITE;
 		CacheWriteResponder* responder = new CacheWriteResponder(mFetcher, mID);
 		mCacheWriteHandle = mFetcher->mTextureCache->writeToCache(mID, cache_priority,
@@ -1415,10 +1406,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	
 	if (mState == WAIT_ON_WRITE)
 	{
-		setPriority(0);
 		if (writeToCacheComplete())
 		{
-			setPriority(LLWorkerThread::PRIORITY_HIGH);
 			mState = DONE;
 			// fall through
 		}
@@ -1437,15 +1426,16 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == DONE)
 	{
-		setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 		if (mDecodedDiscard >= 0 && mDesiredDiscard < mDecodedDiscard)
 		{
 			// More data was requested, return to INIT
 			mState = INIT;
+			setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 			return false;
 		}
 		else
 		{
+			setPriority(LLWorkerThread::PRIORITY_LOW | mWorkPriority);
 			return true;
 		}
 	}
@@ -1477,7 +1467,8 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	LLCore::HttpStatus status(response->getStatus());
 	
 	lldebugs << "HTTP COMPLETE: " << mID
-			 << " status: " << status.toULong() << " '" << status.toString() << "'"
+			 << " status: " << status.toHex()
+			 << " '" << status.toString() << "'"
 			 << llendl;
 	unsigned int offset(0), length(0);
 	response->getRange(&offset, &length);
@@ -1492,7 +1483,8 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 		success = false;
 		std::string reason(status.toString());
 		setGetStatus(status, reason);
- 		llwarns << "CURL GET FAILED, status:" << status.toULong() << " reason:" << reason << llendl;
+ 		llwarns << "CURL GET FAILED, status: " << status.toHex()
+				<< " reason: " << reason << llendl;
 	}
 	else
 	{
@@ -1727,7 +1719,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 		mRequestedSize = -1; // error
 	}
 	mLoaded = TRUE;
-	setPriority(LLWorkerThread::PRIORITY_HIGH);
+	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 
 	return data_size ;
 }
@@ -1756,7 +1748,7 @@ void LLTextureFetchWorker::callbackCacheRead(bool success, LLImageFormatted* ima
 		}
 	}
 	mLoaded = TRUE;
-	setPriority(LLWorkerThread::PRIORITY_HIGH);
+	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 }
 
 void LLTextureFetchWorker::callbackCacheWrite(bool success)
@@ -1768,7 +1760,7 @@ void LLTextureFetchWorker::callbackCacheWrite(bool success)
 		return;
 	}
 	mWritten = TRUE;
-	setPriority(LLWorkerThread::PRIORITY_HIGH);
+	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1806,7 +1798,7 @@ void LLTextureFetchWorker::callbackDecoded(bool success, LLImageRaw* raw, LLImag
 	}
 	mDecoded = TRUE;
 // 	llinfos << mID << " : DECODE COMPLETE " << llendl;
-	setPriority(LLWorkerThread::PRIORITY_HIGH);
+	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1883,7 +1875,6 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mHttpOptions(NULL),
 	  mHttpHeaders(NULL)
 {
-	mCurlPOSTRequestCount = 0;
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), gSavedSettings.getU32("TextureLoggingThreshold"));
 	
@@ -2253,7 +2244,6 @@ S32 LLTextureFetch::getPending()
         LLMutexLock lock(&mQueueMutex);
         
         res = mRequestQueue.size();
-        res += mCurlPOSTRequestCount;
         res += mCommands.size();
     }
 	unlockData();
@@ -2279,10 +2269,7 @@ bool LLTextureFetch::runCondition()
 		have_no_commands = mCommands.empty();
 	}
 	
-    bool have_no_curl_requests(0 == mCurlPOSTRequestCount);
-	
 	return ! (have_no_commands
-			  && have_no_curl_requests
 			  && (mRequestQueue.empty() && mIdleThread));		// From base class
 }
 
@@ -2690,7 +2677,7 @@ bool LLTextureFetch::receiveImageHeader(const LLHost& host, const LLUUID& id, U8
 	llassert_always(totalbytes > 0);
 	llassert_always(data_size == FIRST_PACKET_SIZE || data_size == worker->mFileSize);
 	res = worker->insertPacket(0, data, data_size);
-	worker->setPriority(LLWorkerThread::PRIORITY_HIGH);
+	worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
 	worker->mState = LLTextureFetchWorker::LOAD_FROM_SIMULATOR;
 	worker->unlockWorkMutex();
 	return res;
@@ -2734,7 +2721,7 @@ bool LLTextureFetch::receiveImagePacket(const LLHost& host, const LLUUID& id, U1
 	if ((worker->mState == LLTextureFetchWorker::LOAD_FROM_SIMULATOR) ||
 		(worker->mState == LLTextureFetchWorker::LOAD_FROM_NETWORK))
 	{
-		worker->setPriority(LLWorkerThread::PRIORITY_HIGH);
+		worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mWorkPriority);
 		worker->mState = LLTextureFetchWorker::LOAD_FROM_SIMULATOR;
 	}
 	else
@@ -2930,6 +2917,35 @@ void LLTextureFetch::cmdDoWork()
 namespace
 {
 
+
+// Example of a simple notification handler for metrics
+// delivery notification.  Earlier versions of the code used
+// a Responder that tried harder to detect delivery breaks
+// but it really isn't that important.  If someone wants to
+// revisit that effort, here is a place to start.
+class AssetReportHandler : public LLCore::HttpHandler
+{
+public:
+	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response)
+	{
+		LLCore::HttpStatus status(response->getStatus());
+
+		if (status)
+		{
+			LL_WARNS("Texture") << "Successfully delivered asset metrics to grid."
+								<< LL_ENDL;
+		}
+		else
+		{
+			LL_WARNS("Texture") << "Error delivering asset metrics to grid.  Reason:  "
+								<< status.toString() << LL_ENDL;
+		}
+	}
+}; // end class AssetReportHandler
+
+AssetReportHandler stats_handler;
+
+
 /**
  * Implements the 'Set Region' command.
  *
@@ -2960,73 +2976,9 @@ TFReqSendMetrics::~TFReqSendMetrics()
 bool
 TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 {
-	/*
-	 * HTTP POST responder.  Doesn't do much but tries to
-	 * detect simple breaks in recording the metrics stream.
-	 *
-	 * The 'volatile' modifiers don't indicate signals,
-	 * mmap'd memory or threads, really.  They indicate that
-	 * the referenced data is part of a pseudo-closure for
-	 * this responder rather than being required for correct
-	 * operation.
-     *
-     * We don't try very hard with the POST request.  We give
-     * it one shot and that's more-or-less it.  With a proper
-     * refactoring of the LLQueuedThread usage, these POSTs
-     * could be put in a request object and made more reliable.
-	 */
-	class lcl_responder : public LLCurl::Responder
-	{
-	public:
-		lcl_responder(LLTextureFetch * fetcher,
-					  S32 expected_sequence,
-                      volatile const S32 & live_sequence,
-                      volatile bool & reporting_break,
-					  volatile bool & reporting_started)
-			: LLCurl::Responder(),
-			  mFetcher(fetcher),
-              mExpectedSequence(expected_sequence),
-              mLiveSequence(live_sequence),
-			  mReportingBreak(reporting_break),
-			  mReportingStarted(reporting_started)
-			{
-                mFetcher->incrCurlPOSTCount();
-            }
-        
-        ~lcl_responder()
-            {
-                mFetcher->decrCurlPOSTCount();
-            }
-
-		// virtual
-		void error(U32 status_num, const std::string & reason)
-			{
-                if (mLiveSequence == mExpectedSequence)
-                {
-                    mReportingBreak = true;
-                }
-				LL_WARNS("Texture") << "Break in metrics stream due to POST failure to metrics collection service.  Reason:  "
-									<< reason << LL_ENDL;
-			}
-
-		// virtual
-		void result(const LLSD & content)
-			{
-                if (mLiveSequence == mExpectedSequence)
-                {
-                    mReportingBreak = false;
-                    mReportingStarted = true;
-                }
-			}
-
-	private:
-		LLTextureFetch * mFetcher;
-        S32 mExpectedSequence;
-        volatile const S32 & mLiveSequence;
-		volatile bool & mReportingBreak;
-		volatile bool & mReportingStarted;
-
-	}; // class lcl_responder
+	static const U32 report_priority(LLWorkerThread::PRIORITY_LOW);
+	static const int report_policy_class(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+	static LLCore::HttpHandler * const handler(fetcher->isQAMode() || true ? &stats_handler : NULL);
 	
 	if (! gViewerAssetStatsThread1)
 		return true;
@@ -3054,24 +3006,37 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	// Update sequence number
 	if (S32_MAX == ++report_sequence)
 		report_sequence = 0;
-
+	reporting_started = true;
+	
 	// Limit the size of the stats report if necessary.
 	merged_llsd["truncated"] = truncate_viewer_metrics(10, merged_llsd);
 
 	if (! mCapsURL.empty())
 	{
-		LLCurlRequest::headers_t headers;
-#if 0
-		// *FIXME:  Going to need a post op after all...
-		fetcher->getCurlRequest().post(mCapsURL,
-									   headers,
-									   merged_llsd,
-									   new lcl_responder(fetcher,
-														 report_sequence,
-                                                         report_sequence,
-                                                         LLTextureFetch::svMetricsDataBreak,
-														 reporting_started));
-#endif
+		// *FIXME:  This mess to get an llsd into a string though
+		// it's actually no worse than what we currently do...
+		std::stringstream body;
+		LLSDSerialize::toXML(merged_llsd, body);
+		std::string body_str(body.str());
+		body.clear();
+		
+		LLCore::HttpHeaders * headers = new LLCore::HttpHeaders;
+		headers->mHeaders.push_back("Content-Type: application/llsd+xml");
+
+		LLCore::BufferArray * ba = new LLCore::BufferArray;
+		ba->append(body_str.c_str(), body_str.length());
+		body_str.clear();
+		
+		fetcher->getHttpRequest().requestPost(report_policy_class,
+											  report_priority,
+											  mCapsURL,
+											  ba,
+											  NULL,
+											  headers,
+											  handler);
+		ba->release();
+		headers->release();
+		LLTextureFetch::svMetricsDataBreak = false;
 	}
 	else
 	{
@@ -3079,7 +3044,7 @@ TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 	}
 
 	// In QA mode, Metrics submode, log the result for ease of testing
-	if (fetcher->isQAMode())
+	if (fetcher->isQAMode() || true)
 	{
 		LL_INFOS("Textures") << merged_llsd << LL_ENDL;
 	}

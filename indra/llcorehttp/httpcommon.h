@@ -134,7 +134,10 @@ enum HttpError
 	HE_OP_CANCELED = 3,
 	
 	// Invalid content range header received.
-	HE_INV_CONTENT_RANGE_HDR = 4
+	HE_INV_CONTENT_RANGE_HDR = 4,
+	
+	// Request handle not found
+	HE_HANDLE_NOT_FOUND = 5
 	
 }; // end enum HttpError
 
@@ -229,6 +232,9 @@ struct HttpStatus
 	{
 		return operator unsigned long();
 	}
+
+	/// And to convert to a hex string.
+	std::string toHex() const;
 	
 	/// Convert status to a string representation.  For
 	/// success, returns an empty string.  For failure

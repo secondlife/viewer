@@ -41,6 +41,7 @@ class HttpService;
 class HttpOptions;
 class HttpHeaders;
 class HttpOperation;
+class BufferArray;
 
 /// HttpRequest supplies the entry into the HTTP transport
 /// services in the LLCore libraries.  Services provided include:
@@ -96,6 +97,10 @@ public:
 	/// Represents a default, catch-all policy class that guarantees
 	/// eventual service for any HTTP request.
 	static const int DEFAULT_POLICY_ID = 0;
+
+	/// Maximum number of policies that may be defined.  No policy
+	/// ID will equal or exceed this value.
+	static const int POLICY_CLASS_LIMIT = 1;
 	
 	enum EGlobalPolicy
 	{
@@ -177,7 +182,7 @@ public:
 	/// @param	policy_id		Default or user-defined policy class under
 	///							which this request is to be serviced.
 	/// @param	priority		Standard priority scheme inherited from
-	///							Indra code base.
+	///							Indra code base (U32-type scheme).
 	/// @param	url
 	/// @param	offset
 	/// @param	len
@@ -190,13 +195,39 @@ public:
 	///							case, @see getStatus() will return more info.
 	///
 	HttpHandle requestGetByteRange(unsigned int policy_id,
-								   float priority,
+								   unsigned int priority,
 								   const std::string & url,
 								   size_t offset,
 								   size_t len,
 								   HttpOptions * options,
 								   HttpHeaders * headers,
 								   HttpHandler * handler);
+
+
+	///
+	/// @param	policy_id		Default or user-defined policy class under
+	///							which this request is to be serviced.
+	/// @param	priority		Standard priority scheme inherited from
+	///							Indra code base.
+	/// @param	url
+	/// @param	body			Byte stream to be sent as the body.  No
+	///							further encoding or escaping will be done
+	///							to the content.
+	/// @param	options			(optional)
+	/// @param	headers			(optional)
+	/// @param	handler			(optional)
+	/// @return					The handle of the request if successfully
+	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
+	///							request could not be queued.  In the latter
+	///							case, @see getStatus() will return more info.
+	///
+	HttpHandle requestPost(unsigned int policy_id,
+						   unsigned int priority,
+						   const std::string & url,
+						   BufferArray * body,
+						   HttpOptions * options,
+						   HttpHeaders * headers,
+						   HttpHandler * handler);
 
 
 	/// Queue a NoOp request.
@@ -234,6 +265,20 @@ public:
 	/// @{
 	
 	HttpHandle requestCancel(HttpHandle request, HttpHandler *);
+
+	/// Request that a previously-issued request be reprioritized.
+	/// The status of whether the change itself succeeded arrives
+	/// via notification.  
+	///
+	/// @param	request			Handle of previously-issued request to
+	///							be changed.
+	/// @param	priority		New priority value.
+	/// @param	handler			(optional)
+	/// @return					The handle of the request if successfully
+	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
+	///							request could not be queued.
+	///
+	HttpHandle requestSetPriority(HttpHandle request, unsigned int priority, HttpHandler * handler);
 
 	/// @}
 

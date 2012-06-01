@@ -35,6 +35,8 @@
 #include "_httplibcurl.h"
 #include "_thread.h"
 
+#include "lltimer.h"
+
 
 namespace LLCore
 {
@@ -89,8 +91,8 @@ HttpService::~HttpService()
 
 void HttpService::init(HttpRequestQueue * queue)
 {
-	LLINT_ASSERT(! sInstance);
-	LLINT_ASSERT(NOT_INITIALIZED == sState);
+	llassert_always(! sInstance);
+	llassert_always(NOT_INITIALIZED == sState);
 	sInstance = new HttpService();
 
 	queue->addRef();
@@ -103,7 +105,7 @@ void HttpService::init(HttpRequestQueue * queue)
 
 void HttpService::term()
 {
-	LLINT_ASSERT(RUNNING != sState);
+	llassert_always(RUNNING != sState);
 	if (sInstance)
 	{
 		delete sInstance;
@@ -132,8 +134,8 @@ bool HttpService::isStopped()
 
 void HttpService::startThread()
 {
-	LLINT_ASSERT(! mThread || STOPPED == sState);
-	LLINT_ASSERT(INITIALIZED == sState || STOPPED == sState);
+	llassert_always(! mThread || STOPPED == sState);
+	llassert_always(INITIALIZED == sState || STOPPED == sState);
 
 	if (mThread)
 	{
@@ -150,6 +152,20 @@ void HttpService::stopRequested()
 	mExitRequested = true;
 }
 
+bool HttpService::changePriority(HttpHandle handle, unsigned int priority)
+{
+	bool found(false);
+
+	// Skip the request queue as we currently don't leave earlier
+	// requests sitting there.  Start with the ready queue...
+	found = mPolicy->changePriority(handle, priority);
+
+	// If not there, we could try the transport/active queue but priority
+	// doesn't really have much effect there so we don't waste cycles.
+	
+	return found;
+}
+
 
 void HttpService::shutdown()
 {
@@ -157,38 +173,46 @@ void HttpService::shutdown()
 }
 
 
+// Working thread loop-forever method.  Gives time to
+// each of the request queue, policy layer and transport
+// layer pieces and then either sleeps for a small time
+// or waits for a request to come in.  Repeats until
+// requested to stop.
 void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 {
 	boost::this_thread::disable_interruption di;
-
+	ELoopSpeed loop(REQUEST_SLEEP);
+	
 	while (! mExitRequested)
 	{
-		processRequestQueue();
+		loop = processRequestQueue(loop);
 
 		// Process ready queue issuing new requests as needed
-		mPolicy->processReadyQueue();
+		ELoopSpeed new_loop = mPolicy->processReadyQueue();
+		loop = (std::min)(loop, new_loop);
 		
 		// Give libcurl some cycles
-		mTransport->processTransport();
+		new_loop = mTransport->processTransport();
+		loop = (std::min)(loop, new_loop);
 		
 		// Determine whether to spin, sleep briefly or sleep for next request
-		// *FIXME:  For now, do this
-#if defined(WIN32)
-		Sleep(50);
-#else
-		usleep(5000);
-#endif
+		if (REQUEST_SLEEP != loop)
+		{
+			ms_sleep(50);
+		}
 	}
+
 	shutdown();
 	sState = STOPPED;
 }
 
 
-void HttpService::processRequestQueue()
+HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 {
 	HttpRequestQueue::OpContainer ops;
-
-	mRequestQueue->fetchAll(false, ops);
+	const bool wait_for_req(REQUEST_SLEEP == loop);
+	
+	mRequestQueue->fetchAll(wait_for_req, ops);
 	while (! ops.empty())
 	{
 		HttpOperation * op(ops.front());
@@ -203,6 +227,9 @@ void HttpService::processRequestQueue()
 		// Done with operation
 		op->release();
 	}
+
+	// Queue emptied, allow polling loop to sleep
+	return REQUEST_SLEEP;
 }
 
 

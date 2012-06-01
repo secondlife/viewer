@@ -28,48 +28,113 @@
 
 #include "_httpoprequest.h"
 #include "_httpservice.h"
+#include "_httplibcurl.h"
 
 
 namespace LLCore
 {
 
-
 HttpPolicy::HttpPolicy(HttpService * service)
 	: mService(service)
-{}
+{
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
+	{
+		mReadyInClass[policy_class] = 0;
+	}
+}
 
 
 HttpPolicy::~HttpPolicy()
 {
-	for (ready_queue_t::reverse_iterator i(mReadyQueue.rbegin());
-		 mReadyQueue.rend() != i;)
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{
-		ready_queue_t::reverse_iterator cur(i++);
-
-		(*cur)->cancel();
-		(*cur)->release();
+		HttpReadyQueue & readyq(mReadyQueue[policy_class]);
+		
+		while (! readyq.empty())
+		{
+			HttpOpRequest * op(readyq.top());
+		
+			op->cancel();
+			op->release();
+			mReadyInClass[policy_class]--;
+			readyq.pop();
+		}
 	}
-
 	mService = NULL;
 }
 
 
 void HttpPolicy::addOp(HttpOpRequest * op)
 {
-	mReadyQueue.push_back(op);
+	const int policy_class(op->mReqPolicy);
+	
+	mReadyQueue[policy_class].push(op);
+	++mReadyInClass[policy_class];
 }
 
 
-void HttpPolicy::processReadyQueue()
+HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 {
-	while (! mReadyQueue.empty())
+	HttpService::ELoopSpeed result(HttpService::REQUEST_SLEEP);
+	HttpLibcurl * pTransport(mService->getTransport());
+	
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{
-		HttpOpRequest * op(mReadyQueue.front());
-		mReadyQueue.erase(mReadyQueue.begin());
+		HttpReadyQueue & readyq(mReadyQueue[policy_class]);
+		int active(pTransport->getActiveCountInClass(policy_class));
+		int needed(8 - active);
 
-		op->stageFromReady(mService);
-		op->release();
+		if (needed > 0 && mReadyInClass[policy_class] > 0)
+		{
+			// Scan ready queue for requests that match policy
+
+			while (! readyq.empty() && needed > 0 && mReadyInClass[policy_class] > 0)
+			{
+				HttpOpRequest * op(readyq.top());
+				readyq.pop();
+
+				op->stageFromReady(mService);
+				op->release();
+					
+				--mReadyInClass[policy_class];
+				--needed;
+			}
+		}
+
+		if (! readyq.empty())
+		{
+			// If anything is ready, continue looping...
+			result = (std::min)(result, HttpService::NORMAL);
+		}
 	}
+
+	return result;
+}
+
+
+bool HttpPolicy::changePriority(HttpHandle handle, unsigned int priority)
+{
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
+	{
+		HttpReadyQueue::container_type & c(mReadyQueue[policy_class].get_container());
+	
+		// Scan ready queue for requests that match policy
+		for (HttpReadyQueue::container_type::iterator iter(c.begin()); c.end() != iter;)
+		{
+			HttpReadyQueue::container_type::iterator cur(iter++);
+
+			if (static_cast<HttpHandle>(*cur) == handle)
+			{
+				HttpOpRequest * op(*cur);
+				c.erase(cur);							// All iterators are now invalidated
+				op->mReqPriority = priority;
+				mReadyQueue[policy_class].push(op);		// Re-insert using adapter class
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }
 
 

@@ -93,6 +93,7 @@ HttpOpRequest::HttpOpRequest()
 	  mCurlHandle(NULL),
 	  mCurlService(NULL),
 	  mCurlHeaders(NULL),
+	  mCurlBodyPos(0),
 	  mReplyBody(NULL),
 	  mReplyOffset(0),
 	  mReplyLength(0),
@@ -267,12 +268,46 @@ HttpStatus HttpOpRequest::setupGetByteRange(unsigned int policy_id,
 }
 
 
-HttpStatus HttpOpRequest::prepareForGet(HttpService * service)
+HttpStatus HttpOpRequest::setupPost(unsigned int policy_id,
+									float priority,
+									const std::string & url,
+									BufferArray * body,
+									HttpOptions * options,
+									HttpHeaders * headers)
+{
+	HttpStatus status;
+
+	mProcFlags = 0;
+	mReqPolicy = policy_id;
+	mReqPriority = priority;
+	mReqMethod = HOR_POST;
+	mReqURL = url;
+	if (body)
+	{
+		body->addRef();
+		mReqBody = body;
+	}
+	if (headers && ! mReqHeaders)
+	{
+		headers->addRef();
+		mReqHeaders = headers;
+	}
+	if (options && ! mReqOptions)
+	{
+		mReqOptions = new HttpOptions(*options);
+	}
+	
+	return status;
+}
+
+
+HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
 	mCurlHandle = curl_easy_init();
+	// curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
@@ -280,20 +315,68 @@ HttpStatus HttpOpRequest::prepareForGet(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_URL, mReqURL.c_str());
 	curl_easy_setopt(mCurlHandle, CURLOPT_PRIVATE, this);
 	curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
+	// *FIXME:  Need to deal with proxy setup...
 	// curl_easy_setopt(handle, CURLOPT_PROXY, "");
 
+	// *FIXME:  Revisit this old DNS timeout setting - may no longer be valid
 	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
+	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, 10);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, mCurlHandle);
+	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
+	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, mCurlHandle);
 
+	switch (mReqMethod)
+	{
+	case HOR_GET:
+		curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+		break;
+		
+	case HOR_POST:
+		{
+			curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
+			long data_size(0);
+			if (mReqBody)
+			{
+				mReqBody->seek(0);
+				data_size = mReqBody->size();
+			}
+			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
+			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDSIZE, data_size);
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Transfer-Encoding: chunked");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
+		}
+		break;
+		
+	case HOR_PUT:
+		{
+			curl_easy_setopt(mCurlHandle, CURLOPT_UPLOAD, 1);
+			long data_size(0);
+			if (mReqBody)
+			{
+				mReqBody->seek(0);
+				data_size = mReqBody->size();
+			}
+			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Transfer-Encoding: chunked");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
+		}
+		break;
+		
+	default:
+		// *FIXME:  fail out here
+		break;
+	}
+	
 	if (mReqHeaders)
 	{
 		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
 	}
 	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
 	
-	if (mReqOffset || mReqLength)
+	if ((mReqOffset || mReqLength) && HOR_GET == mReqMethod)
 	{
 		static const char * fmt1("Range: bytes=%d-%d");
 		static const char * fmt2("Range: bytes=%d-");
@@ -344,6 +427,32 @@ size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void
 	memcpy(lump, data, req_size);
 
 	return req_size;
+}
+
+		
+size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void * userdata)
+{
+	CURL * handle(static_cast<CURL *>(userdata));
+	HttpOpRequest * op(NULL);
+	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
+	// *FIXME:  check the pointer
+
+	if (! op->mReqBody)
+	{
+		return 0;
+	}
+	const size_t req_size(size * nmemb);
+	const size_t body_size(op->mReqBody->size());
+	if (body_size <= op->mCurlBodyPos)
+	{
+		// *FIXME:  should probably log this event - unexplained
+		return 0;
+	}
+
+	const size_t do_size((std::min)(req_size, body_size - op->mCurlBodyPos));
+	op->mReqBody->read(static_cast<char *>(data), do_size);
+	op->mCurlBodyPos += do_size;
+	return do_size;
 }
 
 		

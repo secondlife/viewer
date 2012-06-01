@@ -23,17 +23,18 @@ include_directories(
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
     httpcommon.cpp
+    httpheaders.cpp
+    httpoptions.cpp
     httprequest.cpp
     httpresponse.cpp
-    httpoptions.cpp
-    httpheaders.cpp
-    _httprequestqueue.cpp
+    _httplibcurl.cpp
+    _httpopcancel.cpp
     _httpoperation.cpp
     _httpoprequest.cpp
-    _httpopcancel.cpp
-    _httpreplyqueue.cpp
+    _httpopsetpriority.cpp
     _httppolicy.cpp
-    _httplibcurl.cpp
+    _httpreplyqueue.cpp
+    _httprequestqueue.cpp
     _httpservice.cpp
     _refcounted.cpp
     )
@@ -48,17 +49,19 @@ set(llcorehttp_HEADER_FILES
     httpoptions.h
     httprequest.h
     httpresponse.h
+    _assert.h
+    _httplibcurl.h
+    _httpopcancel.h
     _httpoperation.h
     _httpoprequest.h
-    _httpopcancel.h
-    _httprequestqueue.h
-    _httpreplyqueue.h
-    _httpservice.h
+    _httpopsetpriority.h
     _httppolicy.h
-    _httplibcurl.h
-    _assert.h
-    _refcounted.h
+    _httpreadyqueue.h
+    _httpreplyqueue.h
+    _httprequestqueue.h
+    _httpservice.h
     _mutex.h
+    _refcounted.h
     _thread.h
     )
 

@@ -31,6 +31,7 @@
 #include "_httpservice.h"
 #include "_httpoperation.h"
 #include "_httpoprequest.h"
+#include "_httpopsetpriority.h"
 #include "_httpopcancel.h"
 
 
@@ -162,7 +163,7 @@ HttpStatus HttpRequest::getStatus() const
 
 
 HttpHandle HttpRequest::requestGetByteRange(unsigned int policy_id,
-											float priority,
+											unsigned int priority,
 											const std::string & url,
 											size_t offset,
 											size_t len,
@@ -175,6 +176,34 @@ HttpHandle HttpRequest::requestGetByteRange(unsigned int policy_id,
 
 	HttpOpRequest * op = new HttpOpRequest();
 	if (! (status = op->setupGetByteRange(policy_id, priority, url, offset, len, options, headers)))
+	{
+		op->release();
+		mLastReqStatus = status;
+		return handle;
+	}
+	op->setHandlers(mReplyQueue, mSelfHandler, user_handler);
+	mRequestQueue->addOp(op);			// transfers refcount
+	
+	mLastReqStatus = status;
+	handle = static_cast<HttpHandle>(op);
+	
+	return handle;
+}
+
+
+HttpHandle HttpRequest::requestPost(unsigned int policy_id,
+									unsigned int priority,
+									const std::string & url,
+									BufferArray * body,
+									HttpOptions * options,
+									HttpHeaders * headers,
+									HttpHandler * user_handler)
+{
+	HttpStatus status;
+	HttpHandle handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpRequest * op = new HttpOpRequest();
+	if (! (status = op->setupPost(policy_id, priority, url, body, options, headers)))
 	{
 		op->release();
 		mLastReqStatus = status;
@@ -222,6 +251,23 @@ HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 }
 
 
+HttpHandle HttpRequest::requestSetPriority(HttpHandle request, unsigned int priority,
+										   HttpHandler * handler)
+{
+	HttpStatus status;
+	HttpHandle ret_handle(LLCORE_HTTP_HANDLE_INVALID);
+
+	HttpOpSetPriority * op = new HttpOpSetPriority(request, priority);
+	op->setHandlers(mReplyQueue, mSelfHandler, handler);
+	mRequestQueue->addOp(op);			// transfer refcount as well
+
+	mLastReqStatus = status;
+	ret_handle = static_cast<HttpHandle>(op);
+	
+	return ret_handle;
+}
+
+
 HttpStatus HttpRequest::update(long millis)
 {
 	HttpStatus status;
@@ -259,7 +305,7 @@ HttpStatus HttpRequest::createService()
 {
 	HttpStatus status;
 
-	LLINT_ASSERT(! has_inited);
+	llassert_always(! has_inited);
 	HttpRequestQueue::init();
 	HttpRequestQueue * rq = HttpRequestQueue::instanceOf();
 	HttpService::init(rq);
@@ -273,7 +319,7 @@ HttpStatus HttpRequest::destroyService()
 {
 	HttpStatus status;
 
-	LLINT_ASSERT(has_inited);
+	llassert_always(has_inited);
 	HttpService::term();
 	HttpRequestQueue::term();
 	has_inited = false;

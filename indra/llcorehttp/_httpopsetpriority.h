@@ -1,6 +1,6 @@
 /**
- * @file _httpopcancel.h
- * @brief Internal declarations for the HttpOpCancel subclass
+ * @file _httpsetpriority.h
+ * @brief Internal declarations for HttpSetPriority
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,15 +24,11 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_OPCANCEL_H_
-#define	_LLCORE_HTTP_OPCANCEL_H_
+#ifndef	_LLCORE_HTTP_SETPRIORITY_H_
+#define	_LLCORE_HTTP_SETPRIORITY_H_
 
-
-#include "linden_common.h"		// Modifies curl/curl.h interfaces
 
 #include "httpcommon.h"
-
-#include <curl/curl.h>
 
 #include "_httpoperation.h"
 #include "_refcounted.h"
@@ -42,34 +38,33 @@ namespace LLCore
 {
 
 
-/// HttpOpCancel requests that a previously issued request
-/// be canceled, if possible.  Requests that have been made
-/// active and are available for sending on the wire cannot
-/// be canceled.  
+/// HttpOpSetPriority is an immediate request that
+/// searches the various queues looking for a given
+/// request handle and changing it's priority if
+/// found.
 
-class HttpOpCancel : public HttpOperation
+class HttpOpSetPriority : public HttpOperation
 {
 public:
-	HttpOpCancel(HttpHandle handle);
-	virtual ~HttpOpCancel();
+	HttpOpSetPriority(HttpHandle handle, unsigned int priority);
+	virtual ~HttpOpSetPriority();
 
 private:
-	HttpOpCancel(const HttpOpCancel &);					// Not defined
-	void operator=(const HttpOpCancel &);				// Not defined
+	HttpOpSetPriority(const HttpOpSetPriority &);			// Not defined
+	void operator=(const HttpOpSetPriority &);				// Not defined
 
 public:
 	virtual void stageFromRequest(HttpService *);
 
 	virtual void visitNotifier(HttpRequest * request);
-			
-public:
-	// Request data
+
+protected:
+	HttpStatus			mStatus;
 	HttpHandle			mHandle;
+	unsigned int		mPriority;
+}; // end class HttpOpSetPriority
 
-};  // end class HttpOpCancel
+}  // end namespace LLCore
 
-
-}   // end namespace LLCore
-
-#endif	// _LLCORE_HTTP_OPCANCEL_H_
+#endif	// _LLCORE_HTTP_SETPRIORITY_H_
 

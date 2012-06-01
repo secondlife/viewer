@@ -28,6 +28,9 @@
 #define	_LLCORE_HTTP_SERVICE_H_
 
 
+#include "httpcommon.h"
+
+
 namespace LLCoreInt
 {
 
@@ -86,7 +89,17 @@ public:
 		RUNNING,				///< thread created and running
 		STOPPED					///< thread has committed to exiting
 	};
-	
+
+	// Ordered enumeration of idling strategies available to
+	// threadRun's loop.  Ordered so that std::min on values
+	// produces the most conservative result of multiple
+	// requests.
+	enum ELoopSpeed
+	{
+		NORMAL,					///< continuous polling of request, ready, active queues
+		REQUEST_SLEEP			///< can sleep indefinitely waiting for request queue write
+	};
+		
 	static void init(HttpRequestQueue *);
 	static void term();
 
@@ -124,6 +137,15 @@ public:
 
 	/// Threading:  callable by worker thread.
 	void shutdown();
+
+	/// Try to find the given request handle on any of the request
+	/// queues and reset the priority (and queue position) of the
+	/// request if found.
+	///
+	/// @return			True if the request was found somewhere.
+	///
+	/// Threading:  callable by worker thread.
+	bool changePriority(HttpHandle handle, unsigned int priority);
 	
 	HttpPolicy * getPolicy()
 		{
@@ -138,7 +160,7 @@ public:
 protected:
 	void threadRun(LLCoreInt::HttpThread * thread);
 	
-	void processRequestQueue();
+	ELoopSpeed processRequestQueue(ELoopSpeed loop);
 	
 protected:
 	static HttpService *		sInstance;

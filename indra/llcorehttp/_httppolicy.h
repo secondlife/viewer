@@ -28,18 +28,23 @@
 #define	_LLCORE_HTTP_POLICY_H_
 
 
-#include <vector>
+#include "httprequest.h"
+#include "_httpservice.h"
+#include "_httpreadyqueue.h"
 
 
 namespace LLCore
 {
 
-
-class HttpService;
+class HttpReadyQueue;
 class HttpOpRequest;
 
 
 /// Implements class-based queuing policies for an HttpService instance.
+///
+/// Threading:  Single-threaded.  Other than for construction/destruction,
+/// all methods are expected to be invoked in a single thread, typically
+/// a worker thread of some sort.
 class HttpPolicy
 {
 public:
@@ -51,16 +56,23 @@ private:
 	void operator=(const HttpPolicy &);			// Not defined
 
 public:
-	void processReadyQueue();
+	/// Give the policy layer some cycles to scan the ready
+	/// queue promoting higher-priority requests to active
+	/// as permited.
+	HttpService::ELoopSpeed processReadyQueue();
 
+	/// Add request to a ready queue.  Caller is expected to have
+	/// provided us with a reference count to hold the request.  (No
+	/// additional references will be added.)
 	void addOp(HttpOpRequest *);
+
+	// Shadows HttpService's method
+	bool changePriority(HttpHandle handle, unsigned int priority);
 	
 protected:
-	typedef std::vector<HttpOpRequest *> ready_queue_t;
-	
-protected:
+	int					mReadyInClass[HttpRequest::POLICY_CLASS_LIMIT];
+	HttpReadyQueue		mReadyQueue[HttpRequest::POLICY_CLASS_LIMIT];
 	HttpService *		mService;				// Naked pointer, not refcounted, not owner
-	ready_queue_t		mReadyQueue;
 	
 };  // end class HttpPolicy
 

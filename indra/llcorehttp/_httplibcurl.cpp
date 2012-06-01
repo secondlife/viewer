@@ -28,7 +28,6 @@
 
 #include "httpheaders.h"
 #include "_httpoprequest.h"
-#include "_httpservice.h"
 
 
 namespace LLCore
@@ -38,6 +37,12 @@ namespace LLCore
 HttpLibcurl::HttpLibcurl(HttpService * service)
 	: mService(service)
 {
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
+	{
+		mMultiHandles[policy_class] = 0;
+	}
+
+	// Create multi handle for default class
 	mMultiHandles[0] = curl_multi_init();
 }
 
@@ -51,15 +56,18 @@ HttpLibcurl::~HttpLibcurl()
 
 		(*item)->cancel();
 		(*item)->release();
+		mActiveOps.erase(item);
 	}
 
-	if (mMultiHandles[0])
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{
-		// *FIXME:  Do some multi cleanup here first
-
+		if (mMultiHandles[policy_class])
+		{
+			// *FIXME:  Do some multi cleanup here first
 		
-		curl_multi_cleanup(mMultiHandles[0]);
-		mMultiHandles[0] = NULL;
+			curl_multi_cleanup(mMultiHandles[policy_class]);
+			mMultiHandles[policy_class] = 0;
+		}
 	}
 
 	mService = NULL;
@@ -74,31 +82,34 @@ void HttpLibcurl::term()
 {}
 
 
-void HttpLibcurl::processTransport()
+HttpService::ELoopSpeed HttpLibcurl::processTransport()
 {
-	if (mMultiHandles[0])
+	// Give libcurl some cycles to do I/O & callbacks
+	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{
-		// Give libcurl some cycles to do I/O & callbacks
+		if (! mMultiHandles[policy_class])
+			continue;
+		
 		int running(0);
 		CURLMcode status(CURLM_CALL_MULTI_PERFORM);
 		do
 		{
 			running = 0;
-			status = curl_multi_perform(mMultiHandles[0], &running);
+			status = curl_multi_perform(mMultiHandles[policy_class], &running);
 		}
 		while (0 != running && CURLM_CALL_MULTI_PERFORM == status);
 
 		// Run completion on anything done
 		CURLMsg * msg(NULL);
 		int msgs_in_queue(0);
-		while ((msg = curl_multi_info_read(mMultiHandles[0], &msgs_in_queue)))
+		while ((msg = curl_multi_info_read(mMultiHandles[policy_class], &msgs_in_queue)))
 		{
 			if (CURLMSG_DONE == msg->msg)
 			{
 				CURL * handle(msg->easy_handle);
 				CURLcode result(msg->data.result);
 
-				completeRequest(mMultiHandles[0], handle, result);
+				completeRequest(mMultiHandles[policy_class], handle, result);
 				handle = NULL;			// No longer valid on return
 			}
 			else if (CURLMSG_NONE == msg->msg)
@@ -114,13 +125,18 @@ void HttpLibcurl::processTransport()
 			msgs_in_queue = 0;
 		}
 	}
+
+	return mActiveOps.empty() ? HttpService::REQUEST_SLEEP : HttpService::NORMAL;
 }
 
 
 void HttpLibcurl::addOp(HttpOpRequest * op)
 {
+	llassert_always(op->mReqPolicy < HttpRequest::POLICY_CLASS_LIMIT);
+	llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
+	
 	// Create standard handle
-	if (! op->prepareForGet(mService))
+	if (! op->prepareRequest(mService))
 	{
 		// Couldn't issue request, fail with notification
 		// *FIXME:  Need failure path
@@ -128,7 +144,7 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 	}
 
 	// Make the request live
-	curl_multi_add_handle(mMultiHandles[0], op->mCurlHandle);
+	curl_multi_add_handle(mMultiHandles[op->mReqPolicy], op->mCurlHandle);
 	op->mCurlActive = true;
 	
 	// On success, make operation active
@@ -190,9 +206,15 @@ void HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 }
 
 
-int HttpLibcurl::activeCount() const
+int HttpLibcurl::getActiveCount() const
 {
 	return mActiveOps.size();
+}
+
+
+int HttpLibcurl::getActiveCountInClass(int /* policy_class */) const
+{
+	return getActiveCount();
 }
 
 

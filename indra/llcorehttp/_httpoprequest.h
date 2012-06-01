@@ -84,12 +84,20 @@ public:
 								 HttpOptions * options,
 								 HttpHeaders * headers);
 	
-	HttpStatus prepareForGet(HttpService * service);
+	HttpStatus setupPost(unsigned int policy_id,
+						 float priority,
+						 const std::string & url,
+						 BufferArray * body,
+						 HttpOptions * options,
+						 HttpHeaders * headers);
+	
+	HttpStatus prepareRequest(HttpService * service);
 	
 	virtual HttpStatus cancel();
 
 protected:
 	static size_t writeCallback(void * data, size_t size, size_t nmemb, void * userdata);
+	static size_t readCallback(void * data, size_t size, size_t nmemb, void * userdata);
 	static size_t headerCallback(void * data, size_t size, size_t nmemb, void * userdata);
 
 protected:
@@ -112,6 +120,7 @@ public:
 	CURL *				mCurlHandle;
 	HttpService *		mCurlService;
 	curl_slist *		mCurlHeaders;
+	size_t				mCurlBodyPos;
 	
 	// Result data
 	HttpStatus			mStatus;

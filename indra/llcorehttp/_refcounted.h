@@ -30,7 +30,7 @@
 
 #include <boost/thread.hpp>
 
-#include "_assert.h"
+#include "linden_common.h"
 
 
 namespace LLCoreInt
@@ -71,7 +71,7 @@ private:
 inline void RefCounted::addRef() const
 {
 	boost::mutex::scoped_lock lock(mRefLock);
-	LLINT_ASSERT(mRefCount >= 0);
+	llassert_always(mRefCount >= 0);
 	++mRefCount;
 }
 
@@ -82,8 +82,8 @@ inline void RefCounted::release() const
 	{
 		// CRITICAL SECTION
 		boost::mutex::scoped_lock lock(mRefLock);
-		LLINT_ASSERT(mRefCount != NOT_REF_COUNTED);
-		LLINT_ASSERT(mRefCount > 0);
+		llassert_always(mRefCount != NOT_REF_COUNTED);
+		llassert_always(mRefCount > 0);
 		count = --mRefCount;
 		// CRITICAL SECTION
 	}
@@ -104,8 +104,8 @@ inline bool RefCounted::isLastRef() const
 		// CRITICAL SECTION
 		boost::mutex::scoped_lock lock(mRefLock);
 
-		LLINT_ASSERT(mRefCount != NOT_REF_COUNTED);
-		LLINT_ASSERT(mRefCount >= 1);
+		llassert_always(mRefCount != NOT_REF_COUNTED);
+		llassert_always(mRefCount >= 1);
 		count = mRefCount;
 		// CRITICAL SECTION
 	}
@@ -125,7 +125,7 @@ inline int RefCounted::getRefCount() const
 inline void RefCounted::noRef() const
 {
 	boost::mutex::scoped_lock lock(mRefLock);
-	LLINT_ASSERT(mRefCount <= 1);
+	llassert_always(mRefCount <= 1);
 	mRefCount = NOT_REF_COUNTED;
 }
 

@@ -370,7 +370,7 @@ void HttpRequestTestObjectType::test<5>()
 	// Issue a GET that can't connect
 	mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
 	HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
-												 0.0f,
+												 0U,
 												 "http://127.0.0.1:2/nothing/here",
 												 0,
 												 0,

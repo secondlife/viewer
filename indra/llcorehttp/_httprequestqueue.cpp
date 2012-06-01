@@ -57,7 +57,7 @@ HttpRequestQueue::~HttpRequestQueue()
 
 void HttpRequestQueue::init()
 {
-	LLINT_ASSERT(! sInstance);
+	llassert_always(! sInstance);
 	sInstance = new HttpRequestQueue();
 }
 

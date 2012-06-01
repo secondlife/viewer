@@ -28,6 +28,7 @@
 
 #include <curl/curl.h>
 #include <string>
+#include <sstream>
 
 
 namespace LLCore
@@ -46,6 +47,16 @@ HttpStatus::operator unsigned long() const
 }
 
 
+std::string HttpStatus::toHex() const
+{
+	std::ostringstream result;
+	result.width(8);
+	result.fill('0');
+	result << std::hex << operator unsigned long();
+	return result.str();
+	
+}
+
 std::string HttpStatus::toString() const
 {
 	static const char * llcore_errors[] =
@@ -54,7 +65,8 @@ std::string HttpStatus::toString() const
 			"HTTP error reply status",
 			"Services shutting down",
 			"Operation canceled",
-			"Invalid Content-Range header encountered"
+			"Invalid Content-Range header encountered",
+			"Request handle not found"
 		};
 	static const int llcore_errors_count(sizeof(llcore_errors) / sizeof(llcore_errors[0]));
 
@@ -131,6 +143,7 @@ std::string HttpStatus::toString() const
 	default:
 		if (isHttpStatus())
 		{
+			// Binary search for the error code and string
 			int bottom(0), top(http_errors_count);
 			while (true)
 			{

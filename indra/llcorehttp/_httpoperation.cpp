@@ -50,7 +50,7 @@ HttpOperation::HttpOperation()
 	  mLibraryHandler(NULL),
 	  mUserHandler(NULL),
 	  mReqPolicy(HttpRequest::DEFAULT_POLICY_ID),
-	  mReqPriority(0.0f)
+	  mReqPriority(0U)
 {
 }
 
@@ -95,7 +95,7 @@ void HttpOperation::stageFromRequest(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LLINT_ASSERT(false);
+	llassert_always(false);
 }
 
 
@@ -105,7 +105,7 @@ void HttpOperation::stageFromReady(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LLINT_ASSERT(false);
+	llassert_always(false);
 }
 
 
@@ -115,7 +115,7 @@ void HttpOperation::stageFromActive(HttpService *)
 	// Default implementation should never be called.  This
 	// indicates an operation making a transition that isn't
 	// defined.
-	LLINT_ASSERT(false);
+	llassert_always(false);
 }
 
 	

@@ -34,18 +34,25 @@
 
 #include <set>
 
+#include "httprequest.h"
+#include "_httpservice.h"
+
 
 namespace LLCore
 {
 
 
-class HttpService;
 class HttpPolicy;
 class HttpOpRequest;
 class HttpHeaders;
 
 
 /// Implements libcurl-based transport for an HttpService instance.
+///
+/// Threading:  Single-threaded.  Other than for construction/destruction,
+/// all methods are expected to be invoked in a single thread, typically
+/// a worker thread of some sort.
+
 class HttpLibcurl
 {
 public:
@@ -60,12 +67,22 @@ public:
 	static void init();
 	static void term();
 
-	void processTransport();
+	/// Give cycles to libcurl to run active requests.  Completed
+	/// operations (successful or failed) will be retried or handed
+	/// over to the reply queue as final responses.
+	HttpService::ELoopSpeed processTransport();
+
+	/// Add request to the active list.  Caller is expected to have
+	/// provided us with a reference count to hold the request.  (No
+	/// additional references will be added.)
 	void addOp(HttpOpRequest * op);
 
-	int activeCount() const;
-
+	int getActiveCount() const;
+	int getActiveCountInClass(int policy_class) const;
+	
 protected:
+	/// Invoked when libcurl has indicated a request has been processed
+	/// to completion and we need to move the request to a new state.
 	void completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status);
 	
 protected:
@@ -74,7 +91,7 @@ protected:
 protected:
 	HttpService *		mService;				// Simple reference, not owner
 	active_set_t		mActiveOps;
-	CURLM *				mMultiHandles[1];
+	CURLM *				mMultiHandles[HttpRequest::POLICY_CLASS_LIMIT];
 };  // end class HttpLibcurl
 
 

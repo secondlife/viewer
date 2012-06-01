@@ -44,6 +44,32 @@ class HttpRequest;
 /// HttpOperation is the base class for all request/reply
 /// pairs.
 ///
+/// Operations are expected to be of two types:  immediate
+/// and queued.  Immediate requests go to the singleton
+/// request queue and when picked up by the worker thread
+/// are executed immediately and there results placed on
+/// the supplied reply queue.  Queued requests (namely for
+/// HTTP operations), go to the request queue, are picked
+/// up and moved to a ready queue where they're ordered by
+/// priority and managed by the policy component, are
+/// then activated issuing HTTP requests and moved to an
+/// active list managed by the transport (libcurl) component
+/// and eventually finalized when a response is available
+/// and status and data return via reply queue.
+///
+/// To manage these transitions, derived classes implement
+/// three methods:  stageFromRequest, stageFromReady and
+/// stageFromActive.  Immediate requests will only override
+/// stageFromRequest which will perform the operation and
+/// return the result by invoking addAsReply() to put the
+/// request on a reply queue.  Queued requests will involve
+/// all three stage methods.
+///
+/// Threading:  not thread-safe.  Base and derived classes
+/// provide no locking.  Instances move across threads
+/// via queue-like interfaces that are thread compatible
+/// and those interfaces establish the access rules.
+
 class HttpOperation : public LLCoreInt::RefCounted
 {
 public:
@@ -82,7 +108,7 @@ protected:
 
 public:
 	unsigned int		mReqPolicy;
-	float				mReqPriority;
+	unsigned int		mReqPriority;
 	
 };  // end class HttpOperation
 
@@ -133,6 +159,20 @@ public:
 
 };  // end class HttpOpNull
 
+
+/// HttpOpCompare isn't an operation but a uniform comparison
+/// functor for STL containers that order by priority.  Mainly
+/// used for the ready queue container but defined here.
+class HttpOpCompare
+{
+public:
+	bool operator()(const HttpOperation * lhs, const HttpOperation * rhs)
+		{
+			return lhs->mReqPriority > rhs->mReqPriority;
+		}
+};  // end class HttpOpCompare
+
+	
 }   // end namespace LLCore
 
 #endif	// _LLCORE_HTTP_OPERATION_H_
