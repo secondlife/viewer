@@ -2666,7 +2666,7 @@ void LLAgent::handlePreferredMaturityError()
 		{
 			llwarns << "Got an error but maturity preference '" << LLViewerRegion::accessToString(mLastKnownRequestMaturity)
 				<< "' seems to be in sync with the server" << llendl;
-			mMaturityPreferenceNumRetries = 0;
+			reportPreferredMaturitySuccess();
 		}
 		// Else, the more likely case is that the last request does not match the last response,
 		// so inform the user
@@ -2679,6 +2679,8 @@ void LLAgent::handlePreferredMaturityError()
 
 void LLAgent::reportPreferredMaturitySuccess()
 {
+	// If there is a pending teleport request waiting for the maturity preference to be synced with
+	// the server, let's start the pending request
 	if (hasPendingTeleportRequest())
 	{
 		startTeleportRequest();
@@ -2687,6 +2689,14 @@ void LLAgent::reportPreferredMaturitySuccess()
 
 void LLAgent::reportPreferredMaturityError()
 {
+	// If there is a pending teleport request waiting for the maturity preference to be synced with
+	// the server, we were unable to successfully sync with the server on maturity preference, so let's
+	// just raise the screen.
+	if (hasPendingTeleportRequest())
+	{
+		setTeleportState(LLAgent::TELEPORT_NONE);
+	}
+
 	// Get the last known maturity request from the user activity
 	std::string preferredMaturity = LLViewerRegion::accessToString(mLastKnownRequestMaturity);
 	LLStringUtil::toLower(preferredMaturity);
@@ -3994,19 +4004,21 @@ void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
 // James Cook, July 28, 2005
 void LLAgent::teleportCancel()
 {
-	clearTeleportRequest();
-	LLViewerRegion* regionp = getRegion();
-	if(regionp)
+	if (!hasPendingTeleportRequest())
 	{
-		// send the message
-		LLMessageSystem* msg = gMessageSystem;
-		msg->newMessage("TeleportCancel");
-		msg->nextBlockFast(_PREHASH_Info);
-		msg->addUUIDFast(_PREHASH_AgentID, getID());
-		msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
-		sendReliableMessage();
-	}	
-	gTeleportDisplay = FALSE;
+		LLViewerRegion* regionp = getRegion();
+		if(regionp)
+		{
+			// send the message
+			LLMessageSystem* msg = gMessageSystem;
+			msg->newMessage("TeleportCancel");
+			msg->nextBlockFast(_PREHASH_Info);
+			msg->addUUIDFast(_PREHASH_AgentID, getID());
+			msg->addUUIDFast(_PREHASH_SessionID, getSessionID());
+			sendReliableMessage();
+		}	
+	}
+	clearTeleportRequest();
 	gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 }
 
