@@ -234,6 +234,7 @@ BOOL LLFloaterPathfindingObjects::postBuild()
 
 void LLFloaterPathfindingObjects::requestGetObjects()
 {
+	llassert(0);
 }
 
 LLPathfindingManager::request_id_t LLFloaterPathfindingObjects::getNewRequestId()
@@ -496,6 +497,7 @@ void LLFloaterPathfindingObjects::onSelectNoneObjectsClicked()
 void LLFloaterPathfindingObjects::onTakeClicked()
 {
 	handle_take();
+	requestGetObjects();
 }
 
 void LLFloaterPathfindingObjects::onTakeCopyClicked()
@@ -506,11 +508,13 @@ void LLFloaterPathfindingObjects::onTakeCopyClicked()
 void LLFloaterPathfindingObjects::onReturnClicked()
 {
 	handle_object_return();
+	requestGetObjects();
 }
 
 void LLFloaterPathfindingObjects::onDeleteClicked()
 {
 	handle_object_delete();
+	requestGetObjects();
 }
 
 void LLFloaterPathfindingObjects::onTeleportClicked()
