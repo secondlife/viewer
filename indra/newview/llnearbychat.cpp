@@ -68,7 +68,6 @@
 
 S32 LLNearbyChat::sLastSpecialChatChannel = 0;
 
-
 // --- 2 functions in the global namespace :( ---
 bool isWordsName(const std::string& name)
 {
@@ -179,8 +178,12 @@ BOOL LLNearbyChat::postBuild()
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", true);
 
 	mChatHistory = getChild<LLChatHistory>("chat_history");
+	if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
+	{
+		loadHistory();
+	}
 
-	return LLIMConversation::postBuild();;
+	return LLIMConversation::postBuild();
 }
 
 void LLNearbyChat::onNearbySpeakers()

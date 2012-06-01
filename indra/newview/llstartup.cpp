@@ -1376,15 +1376,6 @@ bool idle_startup()
 		LLVoiceClient::getInstance()->updateSettings();
 		display_startup();
 
-		//gCacheName is required for nearby chat history loading
-		//so I just moved nearby history loading a few states further
-		if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
-		{
-			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
-			if (nearby_chat) nearby_chat->loadHistory();
-		}
-		display_startup();
-
 		// *Note: this is where gWorldMap used to be initialized.
 
 		// register null callbacks for audio until the audio system is initialized

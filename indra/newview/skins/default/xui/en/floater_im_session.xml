@@ -70,8 +70,6 @@
                  left_pad="4"
                  name="add_btn"
                  width="31">
-                 <commit_callback
-                    function="Chats.add" />
              </button>   
              <button
                  follows="top|left"
@@ -85,8 +83,6 @@
                  left_pad="4"
                  name="voice_call_btn"
                  width="31">
-                 <commit_callback
-                    function="Chats.add" />
              </button>
              <button
                  follows="right|top"
@@ -136,9 +132,12 @@
   name="im_panels"
   tab_group="1"
   top_pad="0"
-  left="0">
+  left="0"
+  auto_resize="true"
+  user_resize="true">
     <layout_panel
       name="speakers_list_panel"
+      follows="all"
       min_width="115"
       width="150" 
       height="310" 
@@ -146,7 +145,7 @@
             <avatar_list
              color="DkGray2"
              follows="all"
-             height="100"
+             height="310"
              ignore_online_status="true"
              layout="topleft"
              name="speakers_list"
@@ -154,28 +153,44 @@
              show_info_btn="true"
              show_profile_btn="false"
              show_speaking_indicator="false"
-             width="145" />
+             width="150" />
     </layout_panel>
     <layout_panel
        default_tab_group="3"
        left="0"
        tab_group="2"
+       follows="all"
        top="0"
-       height="200"
-	    width="254"
-       user_resize="true">
+       height="310"
+	   width="244"
+       layout="topleft"
+       user_resize="true"
+       auto_resize="true"
+       visible="true"
+       name="left_part_holder">
+        <panel
+         name="trnsAndChat_panel"
+         follows="all"
+         layout="topleft"
+         visible="true"
+         height="275"
+         width="244">
          <layout_stack
           animate="true" 
           default_tab_group="2"
           follows="all"
-          height="200"
-          width="254"
+          height="275"
+          width="244"
           layout="topleft"
+          visible="true"
           orientation="vertical"
-          name="chat_area"
+          name="translate_and_chat_stack"
           tab_group="1"
+          auto_resize="true"
+          user_resize="true"
           left_pad="0"
-          top="0">
+          top="0"
+          left="0">
             <layout_panel
              auto_resize="false"
              height="26"
@@ -197,49 +212,52 @@
                  width="230" />
             </layout_panel>
             <layout_panel
-             auto_resize="false"
-             height="170"
+             height="248"
+             width="234"
              layout="topleft"
+             follows="all"
              left_delta="0"
-             name="translate_chat_checkbox_lp"
              top_delta="0"
+             bottom="0"
              visible="true"
-             width="230">      
+             user_resize="true"
+             auto_resize="true"
+             name="chat_holder">      
            		<chat_history
     	     		font="SansSerifSmall"
              		follows="all"
-             		height="170"
+             		visible="true"
+             		height="240"
             	 	name="chat_history"
              		parse_highlights="true"
              		parse_urls="true"
              		left="1"
              		width="229">
-            	</chat_history>
+            	</chat_history>           
+            </layout_panel>
+           </layout_stack>
+           </panel>
+            <panel width="228" 
+             height="31" 
+             left="4"
+             right="4" 
+             name="bottom_panel"
+             bottom="-1" 
+             follows="left|right|bottom" 
+             tab_group="1">    
             	<line_editor
              		bottom="0"
              		follows="left|right|bottom"
 	         		font="SansSerifSmall"
+	         		visible="true"
              		height="20"
              		label="To"
              		layout="bottomleft"
              		name="chat_editor"
              		tab_group="3"
-             		width="230">
+             		width="240">
             	</line_editor>
-            	<output_monitor
-                 auto_update="true"
-                 follows="right"
-                 draw_border="false"
-                 height="16"
-                 layout="topleft"
-                 left_pad="-24"
-                 mouse_opaque="true"
-                 name="chat_zone_indicator"
-                 top="6"
-                 visible="true"
-                 width="20" />           	
-            </layout_panel>
-        </layout_stack>
+              </panel>
     </layout_panel>
   </layout_stack>
     </view>
