@@ -59,6 +59,8 @@ protected:
 	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
 
 	
+	void unhideAnyCharacters();
+
 
 private:
 	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;

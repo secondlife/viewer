@@ -124,8 +124,6 @@ private:
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 
-	void unhideAnyCharacters( );
-
 protected:
 	LLScrollListCtrl                   *mObjectsScrollList;
 	LLTextBase                         *mMessagingStatus;

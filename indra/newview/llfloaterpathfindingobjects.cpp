@@ -90,8 +90,7 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 
 void LLFloaterPathfindingObjects::onClose(bool pIsAppQuitting)
 {
-	unhideAnyCharacters();
-
+	
 	if (mGodLevelChangeSlot.connected())
 	{
 		mGodLevelChangeSlot.disconnect();
@@ -693,19 +692,3 @@ LLPathfindingObjectPtr LLFloaterPathfindingObjects::findObject(const LLScrollLis
 	return objectPtr;
 }
 
-
-void LLFloaterPathfindingObjects::unhideAnyCharacters( )
-{
-	std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
-	int numSelectedItems = selectedItems.size();
-	uuid_vec_t selectedUUIDs;
-	if (numSelectedItems > 0)
-	{
-		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
-			 itemIter != selectedItems.end(); ++itemIter)
-		{
-			const LLScrollListItem *listItem = *itemIter;
-			gPipeline.restoreHiddenObject( listItem->getUUID() );
-		}
-	}
-}
