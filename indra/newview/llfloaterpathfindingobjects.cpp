@@ -757,7 +757,7 @@ LLUUID LLFloaterPathfindingObjects::getUUIDFromSelection( LLVector3& pos )
 		{
 			pos = viewerObject->getRenderPosition();
 		}
-		//prep#llinfos<<"id : "<<selectedItem->getUUID()<<llendl;
+		//llinfos<<"id : "<<selectedItem->getUUID()<<llendl;
 		return selectedItem->getUUID();
 	}
 
