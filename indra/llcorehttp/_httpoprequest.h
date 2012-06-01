@@ -131,6 +131,19 @@ public:
 };  // end class HttpOpRequest
 
 
+/// HttpOpRequestCompare isn't an operation but a uniform comparison
+/// functor for STL containers that order by priority.  Mainly
+/// used for the ready queue container but defined here.
+class HttpOpRequestCompare
+{
+public:
+	bool operator()(const HttpOpRequest * lhs, const HttpOpRequest * rhs)
+		{
+			return lhs->mReqPriority > rhs->mReqPriority;
+		}
+};  // end class HttpOpRequestCompare
+
+
 }   // end namespace LLCore
 
 #endif	// _LLCORE_HTTP_OPREQUEST_H_

@@ -159,19 +159,6 @@ public:
 };  // end class HttpOpNull
 
 
-/// HttpOpCompare isn't an operation but a uniform comparison
-/// functor for STL containers that order by priority.  Mainly
-/// used for the ready queue container but defined here.
-class HttpOpCompare
-{
-public:
-	bool operator()(const HttpOperation * lhs, const HttpOperation * rhs)
-		{
-			return lhs->mReqPriority > rhs->mReqPriority;
-		}
-};  // end class HttpOpCompare
-
-	
 }   // end namespace LLCore
 
 #endif	// _LLCORE_HTTP_OPERATION_H_

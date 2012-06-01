@@ -30,7 +30,7 @@
 
 #include <queue>
 
-#include "_httpoperation.h"
+#include "_httpoprequest.h"
 
 
 namespace LLCore
@@ -49,13 +49,15 @@ class HttpOpRequest;
 /// Threading:  not thread-safe.  Expected to be used entirely by
 /// a single thread, typically a worker thread of some sort.
 
-class HttpReadyQueue : public std::priority_queue<HttpOpRequest *,
-												  std::deque<HttpOpRequest *>,
-												  LLCore::HttpOpCompare>
+typedef std::priority_queue<HttpOpRequest *,
+							std::deque<HttpOpRequest *>,
+							LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
+
+class HttpReadyQueue : public HttpReadyQueueBase
 {
 public:
 	HttpReadyQueue()
-		: priority_queue()
+		: HttpReadyQueueBase()
 		{}
 	
 	~HttpReadyQueue()
