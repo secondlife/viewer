@@ -65,7 +65,6 @@ protected:
 	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const;
 
 	virtual void                       updateControls();
-	virtual void                       updateSelection();
 
 	virtual S32                        getNameColumnIndex() const;
 	virtual const LLColor4             &getBeaconColor() const;

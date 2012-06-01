@@ -79,7 +79,6 @@ protected:
 	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const;
 
 	virtual void                       updateControls();
-	virtual void                       updateSelection();
 
 	virtual S32                        getNameColumnIndex() const;
 	virtual const LLColor4             &getBeaconColor() const;
@@ -102,25 +101,26 @@ protected:
 private:
 	LLFloaterPathfindingObjects(const LLFloaterPathfindingObjects &pOther);
 
-	void setMessagingState(EMessagingState pMessagingState);
+	void                   setMessagingState(EMessagingState pMessagingState);
 
-	void onRefreshObjectsClicked();
-	void onSelectAllObjectsClicked();
-	void onSelectNoneObjectsClicked();
-	void onTakeClicked();
-	void onTakeCopyClicked();
-	void onReturnClicked();
-	void onDeleteClicked();
-	void onTeleportClicked();
+	void                   onRefreshObjectsClicked();
+	void                   onSelectAllObjectsClicked();
+	void                   onSelectNoneObjectsClicked();
+	void                   onTakeClicked();
+	void                   onTakeCopyClicked();
+	void                   onReturnClicked();
+	void                   onDeleteClicked();
+	void                   onTeleportClicked();
 
-	void onScrollListSelectionChanged();
-	void onSelectionListChanged();
-	void onRegionBoundaryCrossed();
-	void onGodLevelChange(U8 pGodLevel);
+	void                   onScrollListSelectionChanged();
+	void                   onInWorldSelectionListChanged();
+	void                   onRegionBoundaryCrossed();
+	void                   onGodLevelChange(U8 pGodLevel);
 
-	void updateMessagingStatus();
-	void updateStateOnListActionControls();
-	void updateStateOnEditFields();
+	void                   updateMessagingStatus();
+	void                   updateStateOnListActionControls();
+	void                   updateStateOnEditFields();
+	void                   updateOnScrollListChange();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 
