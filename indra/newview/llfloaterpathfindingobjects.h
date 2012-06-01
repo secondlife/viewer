@@ -98,28 +98,33 @@ protected:
 
 	EMessagingState                    getMessagingState() const;
 
+public:
+	LLUUID getUUIDFromSelection( LLVector3& pos );
+	BOOL isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos );
+	void onShowPhysicsCapsuleClicked();
+
 private:
 	LLFloaterPathfindingObjects(const LLFloaterPathfindingObjects &pOther);
 
-	void                   setMessagingState(EMessagingState pMessagingState);
+	void setMessagingState(EMessagingState pMessagingState);
 
-	void                   onRefreshObjectsClicked();
-	void                   onSelectAllObjectsClicked();
-	void                   onSelectNoneObjectsClicked();
-	void                   onTakeClicked();
-	void                   onTakeCopyClicked();
-	void                   onReturnClicked();
-	void                   onDeleteClicked();
-	void                   onTeleportClicked();
+	void onRefreshObjectsClicked();
+	void onSelectAllObjectsClicked();
+	void onSelectNoneObjectsClicked();
+	void onTakeClicked();
+	void onTakeCopyClicked();
+	void onReturnClicked();
+	void onDeleteClicked();
+	void onTeleportClicked();
 
-	void                   onScrollListSelectionChanged();
+	void onScrollListSelectionChanged();
 	void                   onInWorldSelectionListChanged();
-	void                   onRegionBoundaryCrossed();
+	void onRegionBoundaryCrossed();
 	void                   onGodLevelChange(U8 pGodLevel);
 
-	void                   updateMessagingStatus();
-	void                   updateStateOnListActionControls();
-	void                   updateStateOnEditFields();
+	void updateMessagingStatus();
+	void updateStateOnListActionControls();
+	void updateStateOnEditFields();
 	void                   updateOnScrollListChange();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
@@ -130,6 +135,7 @@ private:
 	LLButton                           *mSelectAllButton;
 	LLButton                           *mSelectNoneButton;
 	LLCheckBoxCtrl                     *mShowBeaconCheckBox;
+	LLCheckBoxCtrl                     *mShowPhysicsCapsuleCheckBox;
 	LLButton                           *mTakeButton;
 	LLButton                           *mTakeCopyButton;
 	LLButton                           *mReturnButton;
@@ -151,6 +157,11 @@ private:
 	boost::signals2::connection        mSelectionUpdateSlot;
 	boost::signals2::connection        mRegionBoundaryCrossingSlot;
 	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
+public:
+	
+	LLRootHandle<LLFloaterPathfindingObjects>     mSelfHandle;
+	static LLHandle<LLFloaterPathfindingObjects>  sInstanceHandle;
+	static LLHandle<LLFloaterPathfindingObjects> getInstanceHandle();
 };
 
 #endif // LL_LLFLOATERPATHFINDINGOBJECTS_H

@@ -371,6 +371,8 @@ public:
 	void hidePermanentObjects( std::vector<U32>& restoreList );
 	void restorePermanentObjects( const std::vector<U32>& restoreList );
 	void skipRenderingOfTerrain( BOOL flag );
+	void hideObject( const LLUUID& id );
+	void restoreHiddenObject( const LLUUID& id );
 
 private:
 	void unloadShaders();
@@ -379,7 +381,8 @@ private:
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
 	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
-	
+	void hideDrawable( LLDrawable *pDrawable );
+	void unhideDrawable( LLDrawable *pDrawable );
 public:
 	enum {GPU_CLASS_MAX = 3 };
 

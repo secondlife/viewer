@@ -106,6 +106,7 @@
 #include "llnotifications.h"
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
+#include "llfloaterpathfindingobjects.h"
 #include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
@@ -4359,6 +4360,49 @@ void LLPipeline::renderDebug()
 		LLPathingLib *llPathingLibInstance = LLPathingLib::getInstance();
 		if ( llPathingLibInstance != NULL ) 
 		{
+			//character floater renderables
+			
+			LLHandle<LLFloaterPathfindingObjects> pathfindingCharacterHandle = LLFloaterPathfindingObjects::getInstanceHandle();
+			if ( !pathfindingCharacterHandle.isDead() )
+			{
+				LLFloaterPathfindingObjects *pathfindingCharacter = pathfindingCharacterHandle.get();
+
+				if ( pathfindingCharacter->getVisible() || gAgentCamera.cameraMouselook() )			
+				{	
+					if (LLGLSLShader::sNoFixedFunction)
+					{					
+						gPathfindingProgram.bind();			
+						gPathfindingProgram.uniform1f("tint", 1.f);
+						gPathfindingProgram.uniform1f("ambiance", 1.f);
+						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
+					}
+
+					LLUUID id;
+					LLVector3 pos;
+					if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos ) )
+					{						
+						if (LLGLSLShader::sNoFixedFunction)
+						{					
+							//remove blending artifacts
+							gGL.setColorMask(false, false);
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );						
+							gGL.setColorMask(true, false);
+							LLGLEnable blend(GL_BLEND);
+							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos );
+							gPathfindingProgram.bind();
+						}
+						else
+						{
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos );
+						}
+					}
+				}
+			}
+			
+
+			//pathing console renderables
 			LLHandle<LLFloaterPathfindingConsole> pathfindingConsoleHandle = LLFloaterPathfindingConsole::getInstanceHandle();
 			if (!pathfindingConsoleHandle.isDead())
 			{
@@ -10145,21 +10189,7 @@ void LLPipeline::hidePermanentObjects( std::vector<U32>& restoreList )
 			if ( pDrawable )
 			{
 				restoreList.push_back( i );
-				pDrawable->setState( LLDrawable::FORCE_INVISIBLE );
-				markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
-				//hide children
-				LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
-				for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					  iter != child_list.end(); iter++ )
-				{
-					LLViewerObject* child = *iter;
-					LLDrawable* drawable = child->mDrawable;					
-					if (drawable)
-					{
-						drawable->setState( LLDrawable::FORCE_INVISIBLE );
-						markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
-					}
-				}
+				hideDrawable( pDrawable );			
 			}
 		}
 	}
@@ -10191,20 +10221,7 @@ void LLPipeline::restorePermanentObjects( const std::vector<U32>& restoreList )
 			if ( pDrawable )
 			{
 				pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
-				markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
-				//restore children
-				LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
-				for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					  iter != child_list.end(); iter++)
-				{
-					LLViewerObject* child = *iter;
-					LLDrawable* drawable = child->mDrawable;					
-					if (drawable)
-					{
-						drawable->clearState( LLDrawable::FORCE_INVISIBLE );
-						markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
-					}
-				}
+				unhideDrawable( pDrawable );				
 			}
 		}
 		++itCurrent;
@@ -10227,3 +10244,72 @@ void LLPipeline::skipRenderingOfTerrain( BOOL flag )
 		++iter;
 	}
 }
+
+void LLPipeline::hideObject( const LLUUID& id )
+{
+	LLViewerObject *pVO = gObjectList.findObject( id );
+	
+	if ( pVO )
+	{
+		LLDrawable *pDrawable = pVO->mDrawable;
+		
+		if ( pDrawable )
+		{
+			hideDrawable( pDrawable );		
+		}		
+	}
+}
+
+void LLPipeline::hideDrawable( LLDrawable *pDrawable )
+{
+	pDrawable->setState( LLDrawable::FORCE_INVISIBLE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	//hide the children
+	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		  iter != child_list.end(); iter++ )
+	{
+		LLViewerObject* child = *iter;
+		LLDrawable* drawable = child->mDrawable;					
+		if ( drawable )
+		{
+			drawable->setState( LLDrawable::FORCE_INVISIBLE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+		}
+	}
+}
+void LLPipeline::unhideDrawable( LLDrawable *pDrawable )
+{
+	pDrawable->clearState( LLDrawable::FORCE_INVISIBLE );
+	markRebuild( pDrawable, LLDrawable::REBUILD_ALL, TRUE );
+	//restore children
+	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
+	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
+		  iter != child_list.end(); iter++)
+	{
+		LLViewerObject* child = *iter;
+		LLDrawable* drawable = child->mDrawable;					
+		if ( drawable )
+		{
+			drawable->clearState( LLDrawable::FORCE_INVISIBLE );
+			markRebuild( drawable, LLDrawable::REBUILD_ALL, TRUE );
+		}
+	}
+}
+void LLPipeline::restoreHiddenObject( const LLUUID& id )
+{
+	LLViewerObject *pVO = gObjectList.findObject( id );
+	
+	if ( pVO )
+	{
+		LLDrawable *pDrawable = pVO->mDrawable;
+		if ( pDrawable )
+		{
+			unhideDrawable( pDrawable );			
+		}
+	}
+}
+
+
+
+
