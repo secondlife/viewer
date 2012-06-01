@@ -37,7 +37,7 @@
 #include "llnearbychat.h"
 #include "llnearbychat.h"
 
-const F32 REFRESH_INTERVAL = 0.2;
+const F32 REFRESH_INTERVAL = 0.2f;
 
 LLIMConversation::LLIMConversation(const LLUUID& session_id)
   : LLTransientDockableFloater(NULL, true, session_id)
@@ -127,7 +127,7 @@ void LLIMConversation::buildParticipantList()
 	}
 	else
 	{
-		// for group and Ad-hoc chat we need to include agent into list
+		// for group and ad-hoc chat we need to include agent into list
 		if(!mIsP2PChat && !mParticipantList && mSessionID.notNull())
 		{
 			LLSpeakerMgr* speaker_manager = LLIMModel::getInstance()->getSpeakerManager(mSessionID);

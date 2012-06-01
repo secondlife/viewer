@@ -108,8 +108,6 @@ protected:
 
 	void displaySpeakingIndicator();
 
-	void onCallButtonClicked();
-
 	// set the enable/disable state for the Call button
 	virtual void enableDisableCallBtn();
 

@@ -318,10 +318,6 @@ void	LLNearbyChat::setVisible(BOOL visible)
 	LLIMConversation::setVisible(visible);
 }
 
-void LLNearbyChat::onCallButtonClicked()
-{
-	LLAgent::toggleMicrophone(NULL);
-}
 
 void LLNearbyChat::enableDisableCallBtn()
 {
