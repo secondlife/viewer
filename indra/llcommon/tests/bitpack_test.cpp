@@ -95,6 +95,7 @@ namespace tut
 		ensure("bitPack: individual unpack: 5", unpackbuffer[0] == (U8) str[5]);
 		unpack_bufsize = bitunpack.bitUnpack(unpackbuffer, 8*4); // Life
 		ensure_memory_matches("bitPack: 4 bytes unpack:", unpackbuffer, 4, str+6, 4);
+		ensure("keep compiler quiet", unpack_bufsize == unpack_bufsize);
 	}
 
 	// U32 packing

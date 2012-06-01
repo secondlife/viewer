@@ -1065,13 +1065,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			//1, not openning too many file descriptors at the same time;
 			//2, control the traffic of http so udp gets bandwidth.
 			//
-			static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 8;
+			// static const S32 MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE = 8;
 			// *FIXME:  For the moment, allow everything to transition into HTTP
 			// and have the new library order and throttle.
-			//if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
-			//{
-			//return false ; //wait.
-			//}
+			// if(mFetcher->getNumHTTPRequests() > MAX_NUM_OF_HTTP_REQUESTS_IN_QUEUE)
+			// {
+			//  return false ; //wait.
+			// }
 
 			mFetcher->removeFromNetworkQueue(this, false);
 			

@@ -73,7 +73,7 @@ std::string HttpStatus::toString() const
 	static const struct
 	{
 		type_enum_t		mCode;
-		char *			mText;
+		const char *	mText;
 	}
 	http_errors[] =
 		{
