@@ -264,13 +264,6 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 void LLFloaterPathfindingLinksets::updateControls()
 {
 	LLFloaterPathfindingObjects::updateControls();
-	updateStateOnEditFields();
-	updateStateOnEditLinksetUse();
-}
-
-void LLFloaterPathfindingLinksets::updateSelection()
-{
-	LLFloaterPathfindingObjects::updateSelection();
 	updateEditFieldValues();
 	updateStateOnEditFields();
 	updateStateOnEditLinksetUse();

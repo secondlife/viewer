@@ -29,6 +29,7 @@
 
 #include <boost/signals2.hpp>
 
+#include "llagent.h"
 #include "llfloater.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingobject.h"
@@ -78,7 +79,6 @@ protected:
 	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const;
 
 	virtual void                       updateControls();
-	virtual void                       updateSelection();
 
 	virtual S32                        getNameColumnIndex() const;
 	virtual const LLColor4             &getBeaconColor() const;
@@ -118,12 +118,14 @@ private:
 	void onTeleportClicked();
 
 	void onScrollListSelectionChanged();
-	void onSelectionListChanged();
+	void                   onInWorldSelectionListChanged();
 	void onRegionBoundaryCrossed();
+	void                   onGodLevelChange(U8 pGodLevel);
 
 	void updateMessagingStatus();
 	void updateStateOnListActionControls();
 	void updateStateOnEditFields();
+	void                   updateOnScrollListChange();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 
@@ -154,6 +156,7 @@ private:
 
 	boost::signals2::connection        mSelectionUpdateSlot;
 	boost::signals2::connection        mRegionBoundaryCrossingSlot;
+	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
 public:
 	
 	LLRootHandle<LLFloaterPathfindingObjects>     mSelfHandle;

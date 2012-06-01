@@ -74,7 +74,7 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 
 	if (!mSelectionUpdateSlot.connected())
 	{
-		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingObjects::onSelectionListChanged, this));
+		mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterPathfindingObjects::onInWorldSelectionListChanged, this));
 	}
 
 	if (!mRegionBoundaryCrossingSlot.connected())
@@ -82,11 +82,21 @@ void LLFloaterPathfindingObjects::onOpen(const LLSD &pKey)
 		mRegionBoundaryCrossingSlot = LLEnvManagerNew::getInstance()->setRegionChangeCallback(boost::bind(&LLFloaterPathfindingObjects::onRegionBoundaryCrossed, this));
 	}
 
+	if (!mGodLevelChangeSlot.connected())
+	{
+		mGodLevelChangeSlot = gAgent.registerGodLevelChanageListener(boost::bind(&LLFloaterPathfindingObjects::onGodLevelChange, this, _1));
+	}
+
 	requestGetObjects();
 }
 
 void LLFloaterPathfindingObjects::onClose(bool pIsAppQuitting)
 {
+	if (mGodLevelChangeSlot.connected())
+	{
+		mGodLevelChangeSlot.disconnect();
+	}
+
 	if (mRegionBoundaryCrossingSlot.connected())
 	{
 		mRegionBoundaryCrossingSlot.disconnect();
@@ -357,40 +367,6 @@ void LLFloaterPathfindingObjects::updateControls()
 	updateStateOnEditFields();
 }
 
-void LLFloaterPathfindingObjects::updateSelection()
-{
-	mObjectsSelection.clear();
-	LLSelectMgr::getInstance()->deselectAll();
-
-	std::vector<LLScrollListItem *> selectedItems = mObjectsScrollList->getAllSelected();
-	if (!selectedItems.empty())
-	{
-		int numSelectedItems = selectedItems.size();
-
-		std::vector<LLViewerObject *>viewerObjects;
-		viewerObjects.reserve(numSelectedItems);
-
-		for (std::vector<LLScrollListItem *>::const_iterator selectedItemIter = selectedItems.begin();
-			selectedItemIter != selectedItems.end(); ++selectedItemIter)
-		{
-			const LLScrollListItem *selectedItem = *selectedItemIter;
-
-			LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
-			if (viewerObject != NULL)
-			{
-				viewerObjects.push_back(viewerObject);
-			}
-		}
-
-		if (!viewerObjects.empty())
-		{
-			mObjectsSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
-		}
-	}
-
-	updateControls();
-}
-
 S32 LLFloaterPathfindingObjects::getNameColumnIndex() const
 {
 	return 0;
@@ -552,15 +528,20 @@ void LLFloaterPathfindingObjects::onTeleportClicked()
 
 void LLFloaterPathfindingObjects::onScrollListSelectionChanged()
 {
-	updateSelection();
+	updateOnScrollListChange();
 }
 
-void LLFloaterPathfindingObjects::onSelectionListChanged()
+void LLFloaterPathfindingObjects::onInWorldSelectionListChanged()
 {
 	updateControls();
 }
 
 void LLFloaterPathfindingObjects::onRegionBoundaryCrossed()
+{
+	requestGetObjects();
+}
+
+void LLFloaterPathfindingObjects::onGodLevelChange(U8 pGodLevel)
 {
 	requestGetObjects();
 }
@@ -674,6 +655,38 @@ void LLFloaterPathfindingObjects::updateStateOnEditFields()
 	mReturnButton->setEnabled(isEditEnabled && enable_object_return());
 	mDeleteButton->setEnabled(isEditEnabled && enable_object_delete());
 	mTeleportButton->setEnabled(numSelectedItems == 1);
+}
+
+void LLFloaterPathfindingObjects::updateOnScrollListChange()
+{
+	mObjectsSelection.clear();
+	LLSelectMgr::getInstance()->deselectAll();
+
+	std::vector<LLScrollListItem *> selectedItems = mObjectsScrollList->getAllSelected();
+	if (!selectedItems.empty())
+	{
+		int numSelectedItems = selectedItems.size();
+
+		std::vector<LLViewerObject *>viewerObjects;
+		viewerObjects.reserve(numSelectedItems);
+
+		for (std::vector<LLScrollListItem *>::const_iterator selectedItemIter = selectedItems.begin();
+			selectedItemIter != selectedItems.end(); ++selectedItemIter)
+		{
+			const LLScrollListItem *selectedItem = *selectedItemIter;
+
+			LLViewerObject *viewerObject = gObjectList.findObject(selectedItem->getUUID());
+			if (viewerObject != NULL)
+			{
+				viewerObjects.push_back(viewerObject);
+			}
+		}
+
+		if (!viewerObjects.empty())
+		{
+			mObjectsSelection = LLSelectMgr::getInstance()->selectObjectAndFamily(viewerObjects);
+		}
+	}
 }
 
 LLPathfindingObjectPtr LLFloaterPathfindingObjects::findObject(const LLScrollListItem *pListItem) const
