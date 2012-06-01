@@ -4115,7 +4115,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    type="alertmodal">
     <tag>fail</tag>
     <tag>confirm</tag>
-The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, or you can cancel. After your preferences are changed, you may attempt enter the region again.
+The region you're trying to visit contains [REGIONMATURITY] content, but your current preferences are set to exclude [REGIONMATURITY] content. We can change your preferences, or you can cancel. After your preferences are changed, you may attempt to enter the region again.
     <form name="form">
       <button
        index="0"
