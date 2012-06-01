@@ -300,15 +300,6 @@
         left_pad="0"
         top_pad="-16"
         width="90" />
-    <check_box
-     height="19"
-     follows="left|bottom"
-     label="Show physics capsule"
-     layout="topleft"
-     name="show_physics_capsule"
-     top_pad="-19"
-     left_pad="10"
-     width="90" />
     <button
         follows="left|bottom"
         height="21"

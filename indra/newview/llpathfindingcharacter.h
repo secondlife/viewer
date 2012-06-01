@@ -52,6 +52,8 @@ public:
 
 protected:
 
+public:
+
 private:
 	void parseCharacterData(const LLSD &pCharacterData);
 

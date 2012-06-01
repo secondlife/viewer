@@ -50,6 +50,7 @@ public:
 	virtual void onOpen(const LLSD &pKey);
 	virtual void onClose(bool pIsAppQuitting);
 	virtual void draw();
+	virtual void updateStateOnEditFields();
 
 protected:
 	friend class LLFloaterReg;
@@ -98,11 +99,6 @@ protected:
 
 	EMessagingState                    getMessagingState() const;
 
-public:
-	LLUUID getUUIDFromSelection( LLVector3& pos );
-	BOOL isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos );
-	void onShowPhysicsCapsuleClicked();
-
 private:
 	LLFloaterPathfindingObjects(const LLFloaterPathfindingObjects &pOther);
 
@@ -124,18 +120,20 @@ private:
 
 	void updateMessagingStatus();
 	void updateStateOnListActionControls();
-	void updateStateOnEditFields();
 	void                   updateOnScrollListChange();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 
+	void unhideAnyCharacters( );
+
+protected:
 	LLScrollListCtrl                   *mObjectsScrollList;
 	LLTextBase                         *mMessagingStatus;
 	LLButton                           *mRefreshListButton;
 	LLButton                           *mSelectAllButton;
 	LLButton                           *mSelectNoneButton;
 	LLCheckBoxCtrl                     *mShowBeaconCheckBox;
-	LLCheckBoxCtrl                     *mShowPhysicsCapsuleCheckBox;
+	
 	LLButton                           *mTakeButton;
 	LLButton                           *mTakeCopyButton;
 	LLButton                           *mReturnButton;
@@ -157,11 +155,7 @@ private:
 	boost::signals2::connection        mSelectionUpdateSlot;
 	boost::signals2::connection        mRegionBoundaryCrossingSlot;
 	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
-public:
-	
-	LLRootHandle<LLFloaterPathfindingObjects>     mSelfHandle;
-	static LLHandle<LLFloaterPathfindingObjects>  sInstanceHandle;
-	static LLHandle<LLFloaterPathfindingObjects> getInstanceHandle();
+
 };
 
 #endif // LL_LLFLOATERPATHFINDINGOBJECTS_H

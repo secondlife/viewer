@@ -39,7 +39,8 @@ class LLFloaterPathfindingCharacters : public LLFloaterPathfindingObjects
 {
 public:
 	static void  openCharactersViewer();
-
+	/*virtual*/ void onClose(bool pIsAppQuitting);
+	void updateStateOnEditFields();
 protected:
 	friend class LLFloaterReg;
 
@@ -57,10 +58,25 @@ protected:
 
 	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
 
+	
+
 private:
 	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
 
 	LLColor4                           mBeaconColor;
+	
+	LLUUID getUUIDFromSelection( LLVector3& pos );
+
+public:
+	BOOL isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos );
+	void onShowPhysicsCapsuleClicked();
+	LLRootHandle<LLFloaterPathfindingCharacters>     mSelfHandle;
+	static LLHandle<LLFloaterPathfindingCharacters>  sInstanceHandle;
+	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();
+
+public:
+	LLCheckBoxCtrl                     *mShowPhysicsCapsuleCheckBox;
+
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCHARACTERS_H

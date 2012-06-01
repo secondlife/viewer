@@ -106,7 +106,7 @@
 #include "llnotifications.h"
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
-#include "llfloaterpathfindingobjects.h"
+#include "llfloaterpathfindingcharacters.h"
 #include "llpathfindingpathtool.h"
 
 #ifdef _DEBUG
@@ -4362,10 +4362,10 @@ void LLPipeline::renderDebug()
 		{
 			//character floater renderables
 			
-			LLHandle<LLFloaterPathfindingObjects> pathfindingCharacterHandle = LLFloaterPathfindingObjects::getInstanceHandle();
+			LLHandle<LLFloaterPathfindingCharacters> pathfindingCharacterHandle = LLFloaterPathfindingCharacters::getInstanceHandle();
 			if ( !pathfindingCharacterHandle.isDead() )
 			{
-				LLFloaterPathfindingObjects *pathfindingCharacter = pathfindingCharacterHandle.get();
+				LLFloaterPathfindingCharacters *pathfindingCharacter = pathfindingCharacterHandle.get();
 
 				if ( pathfindingCharacter->getVisible() || gAgentCamera.cameraMouselook() )			
 				{	
