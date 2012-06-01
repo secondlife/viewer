@@ -29,7 +29,7 @@
 
 
 #include "httpcommon.h"
-
+#include "httprequest.h"
 #include "_refcounted.h"
 
 
@@ -39,7 +39,6 @@ namespace LLCore
 class HttpReplyQueue;
 class HttpHandler;
 class HttpService;
-class HttpRequest;
 
 /// HttpOperation is the base class for all request/reply
 /// pairs.
@@ -102,13 +101,13 @@ protected:
 	void addAsReply();
 	
 protected:
-	HttpReplyQueue *	mReplyQueue;					// Have refcount
-	HttpHandler *		mLibraryHandler;				// Have refcount
-	HttpHandler *		mUserHandler;					// Have refcount
+	HttpReplyQueue *			mReplyQueue;			// Have refcount
+	HttpHandler *				mLibraryHandler;		// Have refcount
+	HttpHandler *				mUserHandler;			// Have refcount
 
 public:
-	unsigned int		mReqPolicy;
-	unsigned int		mReqPriority;
+	HttpRequest::policy_t		mReqPolicy;
+	HttpRequest::priority_t		mReqPriority;
 	
 };  // end class HttpOperation
 

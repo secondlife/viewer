@@ -112,7 +112,7 @@ HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 }
 
 
-bool HttpPolicy::changePriority(HttpHandle handle, unsigned int priority)
+bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
 {
 	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{

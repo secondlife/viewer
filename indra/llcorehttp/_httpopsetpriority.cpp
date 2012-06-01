@@ -35,7 +35,7 @@ namespace LLCore
 {
 
 
-HttpOpSetPriority::HttpOpSetPriority(HttpHandle handle, unsigned int priority)
+HttpOpSetPriority::HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority)
 	: HttpOperation(),
 	  mHandle(handle),
 	  mPriority(priority)

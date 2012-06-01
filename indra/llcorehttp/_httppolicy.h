@@ -67,7 +67,7 @@ public:
 	void addOp(HttpOpRequest *);
 
 	// Shadows HttpService's method
-	bool changePriority(HttpHandle handle, unsigned int priority);
+	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 	
 protected:
 	int					mReadyInClass[HttpRequest::POLICY_CLASS_LIMIT];

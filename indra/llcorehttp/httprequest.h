@@ -91,6 +91,10 @@ private:
 	void operator=(const HttpRequest &);		// Disallowed		
 
 public:
+	typedef unsigned int policy_t;
+	typedef unsigned int priority_t;
+	
+public:
 	/// @name PolicyMethods
 	/// @{
 
@@ -125,7 +129,7 @@ public:
 	///					the class in other methods.  If -1, an error
 	///					occurred and @see getStatus() may provide more
 	///					detail on the reason.
-	unsigned int createPolicyClass();
+	policy_t createPolicyClass();
 
 	enum EClassPolicy
 	{
@@ -149,7 +153,7 @@ public:
 	/// @param opt				Enum of option to be set.
 	/// @param value			Desired value of option.
 	/// @return					Standard status code.
-	HttpStatus setPolicyClassOption(unsigned int policy_id,
+	HttpStatus setPolicyClassOption(policy_t policy_id,
 									EClassPolicy opt,
 									long value);
 
@@ -194,8 +198,8 @@ public:
 	///							request could not be queued.  In the latter
 	///							case, @see getStatus() will return more info.
 	///
-	HttpHandle requestGetByteRange(unsigned int policy_id,
-								   unsigned int priority,
+	HttpHandle requestGetByteRange(policy_t policy_id,
+								   priority_t priority,
 								   const std::string & url,
 								   size_t offset,
 								   size_t len,
@@ -221,8 +225,8 @@ public:
 	///							request could not be queued.  In the latter
 	///							case, @see getStatus() will return more info.
 	///
-	HttpHandle requestPost(unsigned int policy_id,
-						   unsigned int priority,
+	HttpHandle requestPost(policy_t policy_id,
+						   priority_t priority,
 						   const std::string & url,
 						   BufferArray * body,
 						   HttpOptions * options,
@@ -278,7 +282,7 @@ public:
 	///							queued or LLCORE_HTTP_HANDLE_INVALID if the
 	///							request could not be queued.
 	///
-	HttpHandle requestSetPriority(HttpHandle request, unsigned int priority, HttpHandler * handler);
+	HttpHandle requestSetPriority(HttpHandle request, priority_t priority, HttpHandler * handler);
 
 	/// @}
 
@@ -345,7 +349,7 @@ private:
 	/// Must be established before any threading is allowed to
 	/// start.
 	///
-	static unsigned int		sNextPolicyID;
+	static policy_t		sNextPolicyID;
 	
 	/// @}
 	// End Global State

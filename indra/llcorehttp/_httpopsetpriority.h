@@ -29,7 +29,7 @@
 
 
 #include "httpcommon.h"
-
+#include "httprequest.h"
 #include "_httpoperation.h"
 #include "_refcounted.h"
 
@@ -46,7 +46,7 @@ namespace LLCore
 class HttpOpSetPriority : public HttpOperation
 {
 public:
-	HttpOpSetPriority(HttpHandle handle, unsigned int priority);
+	HttpOpSetPriority(HttpHandle handle, HttpRequest::priority_t priority);
 	virtual ~HttpOpSetPriority();
 
 private:
@@ -59,9 +59,9 @@ public:
 	virtual void visitNotifier(HttpRequest * request);
 
 protected:
-	HttpStatus			mStatus;
-	HttpHandle			mHandle;
-	unsigned int		mPriority;
+	HttpStatus					mStatus;
+	HttpHandle					mHandle;
+	HttpRequest::priority_t		mPriority;
 }; // end class HttpOpSetPriority
 
 }  // end namespace LLCore

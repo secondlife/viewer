@@ -152,7 +152,7 @@ void HttpService::stopRequested()
 	mExitRequested = true;
 }
 
-bool HttpService::changePriority(HttpHandle handle, unsigned int priority)
+bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
 {
 	bool found(false);
 

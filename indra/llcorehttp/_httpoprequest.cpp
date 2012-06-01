@@ -233,8 +233,8 @@ HttpStatus HttpOpRequest::cancel()
 }
 
 
-HttpStatus HttpOpRequest::setupGetByteRange(unsigned int policy_id,
-											float priority,
+HttpStatus HttpOpRequest::setupGetByteRange(HttpRequest::policy_t policy_id,
+											HttpRequest::priority_t priority,
 											const std::string & url,
 											size_t offset,
 											size_t len,
@@ -268,8 +268,8 @@ HttpStatus HttpOpRequest::setupGetByteRange(unsigned int policy_id,
 }
 
 
-HttpStatus HttpOpRequest::setupPost(unsigned int policy_id,
-									float priority,
+HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
+									HttpRequest::priority_t priority,
 									const std::string & url,
 									BufferArray * body,
 									HttpOptions * options,

@@ -29,6 +29,7 @@
 
 
 #include "httpcommon.h"
+#include "httprequest.h"
 
 
 namespace LLCoreInt
@@ -145,7 +146,7 @@ public:
 	/// @return			True if the request was found somewhere.
 	///
 	/// Threading:  callable by worker thread.
-	bool changePriority(HttpHandle handle, unsigned int priority);
+	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 	
 	HttpPolicy * getPolicy()
 		{

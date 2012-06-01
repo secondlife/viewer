@@ -83,7 +83,7 @@ protected:
 // ====================================
 
 
-unsigned int HttpRequest::sNextPolicyID(1);
+HttpRequest::policy_t HttpRequest::sNextPolicyID(1);
 
 
 HttpRequest::HttpRequest()
@@ -133,15 +133,15 @@ HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, long value)
 }
 
 
-unsigned int HttpRequest::createPolicyClass()
+HttpRequest::policy_t HttpRequest::createPolicyClass()
 {
-	unsigned int policy_id = 1;
+	policy_t policy_id = 1;
 	
 	return policy_id;
 }
 
 
-HttpStatus HttpRequest::setPolicyClassOption(unsigned int policy_id,
+HttpStatus HttpRequest::setPolicyClassOption(policy_t policy_id,
 											 EClassPolicy opt,
 											 long value)
 {
@@ -162,8 +162,8 @@ HttpStatus HttpRequest::getStatus() const
 }
 
 
-HttpHandle HttpRequest::requestGetByteRange(unsigned int policy_id,
-											unsigned int priority,
+HttpHandle HttpRequest::requestGetByteRange(policy_t policy_id,
+											priority_t priority,
 											const std::string & url,
 											size_t offset,
 											size_t len,
@@ -191,8 +191,8 @@ HttpHandle HttpRequest::requestGetByteRange(unsigned int policy_id,
 }
 
 
-HttpHandle HttpRequest::requestPost(unsigned int policy_id,
-									unsigned int priority,
+HttpHandle HttpRequest::requestPost(policy_t policy_id,
+									priority_t priority,
 									const std::string & url,
 									BufferArray * body,
 									HttpOptions * options,
@@ -251,7 +251,7 @@ HttpHandle HttpRequest::requestNoOp(HttpHandler * user_handler)
 }
 
 
-HttpHandle HttpRequest::requestSetPriority(HttpHandle request, unsigned int priority,
+HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priority,
 										   HttpHandler * handler)
 {
 	HttpStatus status;

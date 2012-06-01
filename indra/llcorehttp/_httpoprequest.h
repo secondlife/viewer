@@ -30,10 +30,10 @@
 
 #include "linden_common.h"		// Modifies curl/curl.h interfaces
 
-#include "httpcommon.h"
-
 #include <curl/curl.h>
 
+#include "httpcommon.h"
+#include "httprequest.h"
 #include "_httpoperation.h"
 #include "_refcounted.h"
 
@@ -76,16 +76,16 @@ public:
 			
 public:
 	// Setup Methods
-	HttpStatus setupGetByteRange(unsigned int policy_id,
-								 float priority,
+	HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
+								 HttpRequest::priority_t priority,
 								 const std::string & url,
 								 size_t offset,
 								 size_t len,
 								 HttpOptions * options,
 								 HttpHeaders * headers);
 	
-	HttpStatus setupPost(unsigned int policy_id,
-						 float priority,
+	HttpStatus setupPost(HttpRequest::policy_t policy_id,
+						 HttpRequest::priority_t priority,
 						 const std::string & url,
 						 BufferArray * body,
 						 HttpOptions * options,
