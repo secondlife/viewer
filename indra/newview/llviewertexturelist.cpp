@@ -503,6 +503,7 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 
 void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 {
+	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
 	if (image->isInImageList())
@@ -519,6 +520,7 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 
 void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 {
+	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
 	if (!image->isInImageList())
@@ -763,7 +765,12 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 					imagep->setInactive() ;										
 				}
 			}
-			
+
+			if (!imagep->isInImageList())
+			{
+				continue;
+			}
+
 			imagep->processTextureStats();
 			F32 old_priority = imagep->getDecodePriority();
 			F32 old_priority_test = llmax(old_priority, 0.0f);
@@ -773,9 +780,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				removeImageFromList(imagep);
+				mImageList.erase(imagep) ;
 				imagep->setDecodePriority(decode_priority);
-				addImageToList(imagep);
+				mImageList.insert(imagep);
 			}
 			update_counter--;
 		}
