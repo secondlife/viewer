@@ -1255,8 +1255,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			{
 				memcpy(buffer, mFormattedImage->getData(), cur_size);
 			}
-			mHttpBufferArray->seek(0);
-			mHttpBufferArray->read((char *) buffer + cur_size, append_size);
+			mHttpBufferArray->read(0, (char *) buffer + cur_size, append_size);
 
 			// NOTE: setData releases current data and owns new data (buffer)
 			mFormattedImage->setData(buffer, total_size);

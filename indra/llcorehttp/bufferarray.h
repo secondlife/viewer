@@ -73,6 +73,9 @@ private:
 	void operator=(const BufferArray &);		// Not defined
 
 public:
+	// Internal magic number, may be used by unit tests.
+	static const size_t BLOCK_ALLOC_SIZE = 1504;
+	
 	/// Appends the indicated data to the BufferArray
 	/// modifying current position and total size.  New
 	/// position is one beyond the final byte of the buffer.
@@ -96,24 +99,16 @@ public:
 			return mLen;
 		}
 
-	/// Set the current position for subsequent read and
-	/// write operations.  'pos' values before the beginning
-	/// or greater than the size of the buffer are coerced
-	/// to a value within the buffer.
-	///
-	/// @return			Actual current position after seek.
-	size_t seek(size_t pos);
-
-	/// Copies data from the current position in the instance
+	/// Copies data from the given position in the instance
 	/// to the caller's buffer.  Will return a short count of
 	/// bytes copied if the 'len' extends beyond the data.
-	size_t read(char * dst, size_t len);
+	size_t read(size_t pos, char * dst, size_t len);
 
 	/// Copies data from the caller's buffer to the instance
 	/// at the current position.  May overwrite existing data,
 	/// append data when current position is equal to the
 	/// size of the instance or do a mix of both.
-	size_t write(const char * src, size_t len);
+	size_t write(size_t pos, const char * src, size_t len);
 	
 protected:
 	int findBlock(size_t pos, size_t * ret_offset);
@@ -123,45 +118,9 @@ protected:
 	typedef std::vector<Block *> container_t;
 
 	container_t			mBlocks;
-	size_t				mPos;
 	size_t				mLen;
 };  // end class BufferArray
 
-
-#if 0
-
-// Conceptual for now.  Another possibility is going with
-// something like Boost::asio's buffers interface.  They're
-// trying to achieve the same thing above and below....
-
-class BufferStream : public std::streambuf
-{
-public:
-	BufferStream(BufferArray * buffer);
-	virtual ~BufferStream();
-
-private:
-	BufferStream(const BufferStream &);			// Not defined
-	void operator=(const BufferStream &);		// Not defined
-
-public:
-	// Types
-	typedef std::streambuf::pos_type pos_type;
-	typedef std::streambuf::off_type off_type;
-
-	virtual int underflow();
-
-	virtual int overflow(int c);
-
-	virtual int sync();
-
-	virtual pos_type seekoff(off_type off, std::ios::seekdir way, std::ios::openmode which);
-
-protected:
-	BufferArray *		mBufferArray;
-};  // end class BufferStream
-
-#endif // 0
 
 }  // end namespace LLCore
 

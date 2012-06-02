@@ -67,7 +67,7 @@ void BufferArrayTestObjectType::test<1>()
 
 	// Try to read
 	char buffer[20];
-	size_t read_len(ba->read(buffer, sizeof(buffer)));
+	size_t read_len(ba->read(0, buffer, sizeof(buffer)));
 	ensure("Read returns empty", 0 == read_len);
 	
 	// release the implicit reference, causing the object to be released
@@ -92,16 +92,13 @@ void BufferArrayTestObjectType::test<2>()
 	char str1[] = "abcdefghij";
  	char buffer[256];
 	
-	size_t len = ba->write(str1, strlen(str1));
+	size_t len = ba->write(0, str1, strlen(str1));
 	ensure("Wrote length correct", strlen(str1) == len);
 	ensure("Recorded size correct", strlen(str1) == ba->size());
 
 	// read some data back
-	len = ba->seek(2);
-	ensure("Seek worked", 2 == len);
-
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, 2);
+	len = ba->read(2, buffer, 2);
 	ensure("Read length correct", 2 == len);
 	ensure("Read content correct", 'c' == buffer[0] && 'd' == buffer[1]);
 	ensure("Read didn't overwrite", 'X' == buffer[2]);
@@ -130,32 +127,26 @@ void BufferArrayTestObjectType::test<3>()
 	size_t str1_len(strlen(str1));
  	char buffer[256];
 	
-	size_t len = ba->write(str1, str1_len);
+	size_t len = ba->write(0, str1, str1_len);
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", str1_len == ba->size());
 
 	// again...
-	len = ba->write(str1, strlen(str1));
+	len = ba->write(str1_len, str1, strlen(str1));
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", (2 * str1_len) == ba->size());
 
 	// read some data back
-	len = ba->seek(8);
-	ensure("Seek worked", 8 == len);
-
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, 4);
+	len = ba->read(8, buffer, 4);
 	ensure("Read length correct", 4 == len);
 	ensure("Read content correct", 'i' == buffer[0] && 'j' == buffer[1]);
 	ensure("Read content correct", 'a' == buffer[2] && 'b' == buffer[3]);
 	ensure("Read didn't overwrite", 'X' == buffer[4]);
 
 	// Read whole thing
-	len = ba->seek(0);
-	ensure("Seek worked (2)", 0 == len);
-
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, sizeof(buffer));
+	len = ba->read(0, buffer, sizeof(buffer));
 	ensure("Read length correct", (2 * str1_len) == len);
 	ensure("Read content correct (3)", 0 == strncmp(buffer, str1, str1_len));
 	ensure("Read content correct (4)", 0 == strncmp(&buffer[str1_len], str1, str1_len));
@@ -185,33 +176,29 @@ void BufferArrayTestObjectType::test<4>()
 	char str2[] = "ABCDEFGHIJ";
  	char buffer[256];
 	
-	size_t len = ba->write(str1, str1_len);
+	size_t len = ba->write(0, str1, str1_len);
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", str1_len == ba->size());
 
 	// again...
-	len = ba->write(str1, strlen(str1));
+	len = ba->write(str1_len, str1, strlen(str1));
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", (2 * str1_len) == ba->size());
 
 	// reposition and overwrite
-	len = ba->seek(8);
-	ensure("Seek worked", 8 == len);
-	len = ba->write(str2, 4);
+	len = ba->write(8, str2, 4);
 	ensure("Overwrite length correct", 4 == len);
 
-	// Leave position and read verifying content
+	// Leave position and read verifying content (stale really from seek() days)
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, 4);
+	len = ba->read(12, buffer, 4);
 	ensure("Read length correct", 4 == len);
 	ensure("Read content correct", 'c' == buffer[0] && 'd' == buffer[1]);
 	ensure("Read content correct.2", 'e' == buffer[2] && 'f' == buffer[3]);
 	ensure("Read didn't overwrite", 'X' == buffer[4]);
 
 	// reposition and check
-	len = ba->seek(6);
-	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, 8);
+	len = ba->read(6, buffer, 8);
 	ensure("Read length correct.2", 8 == len);
 	ensure("Read content correct.3", 'g' == buffer[0] && 'h' == buffer[1]);
 	ensure("Read content correct.4", 'A' == buffer[2] && 'B' == buffer[3]);
@@ -242,21 +229,18 @@ void BufferArrayTestObjectType::test<5>()
 	size_t str1_len(strlen(str1));
  	char buffer[256];
 	
-	size_t len = ba->write(str1, str1_len);
+	size_t len = ba->write(0, str1, str1_len);
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", str1_len == ba->size());
 
 	// again...
-	len = ba->write(str1, strlen(str1));
+	len = ba->write(str1_len, str1, str1_len);
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", (2 * str1_len) == ba->size());
 
 	// read some data back
-	len = ba->seek(8);
-	ensure("Seek worked", 8 == len);
-
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, 4);
+	len = ba->read(8, buffer, 4);
 	ensure("Read length correct", 4 == len);
 	ensure("Read content correct", 'i' == buffer[0] && 'j' == buffer[1]);
 	ensure("Read content correct.2", 'a' == buffer[2] && 'b' == buffer[3]);
@@ -264,7 +248,7 @@ void BufferArrayTestObjectType::test<5>()
 
 	// Read some more without repositioning
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, sizeof(buffer));
+	len = ba->read(12, buffer, sizeof(buffer));
 	ensure("Read length correct", (str1_len - 2) == len);
 	ensure("Read content correct.3", 0 == strncmp(buffer, str1+2, str1_len-2));
 	ensure("Read didn't overwrite.2", 'X' == buffer[str1_len-1]);
@@ -294,31 +278,27 @@ void BufferArrayTestObjectType::test<6>()
 	size_t str2_len(strlen(str2));
  	char buffer[256];
 	
-	size_t len = ba->write(str1, str1_len);
+	size_t len = ba->write(0, str1, str1_len);
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", str1_len == ba->size());
 
 	// again...
-	len = ba->write(str1, strlen(str1));
+	len = ba->write(str1_len, str1, strlen(str1));
 	ensure("Wrote length correct", str1_len == len);
 	ensure("Recorded size correct", (2 * str1_len) == ba->size());
 
 	// reposition and overwrite
-	len = ba->seek(8);
-	ensure("Seek worked", 8 == len);
-	len = ba->write(str2, str2_len);
+	len = ba->write(8, str2, str2_len);
 	ensure("Overwrite length correct", str2_len == len);
 
 	// Leave position and read verifying content
 	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, 0);
+	len = ba->read(8 + str2_len, buffer, 0);
 	ensure("Read length correct", 0 == len);
 	ensure("Read didn't overwrite", 'X' == buffer[0]);
 
 	// reposition and check
-	len = ba->seek(0);
-	memset(buffer, 'X', sizeof(buffer));
-	len = ba->read(buffer, sizeof(buffer));
+	len = ba->read(0, buffer, sizeof(buffer));
 	ensure("Read length correct.2", (str1_len + str2_len - 2) == len);
 	ensure("Read content correct", 0 == strncmp(buffer, str1, str1_len-2));
 	ensure("Read content correct.2", 0 == strncmp(buffer+str1_len-2, str2, str2_len));
@@ -350,18 +330,17 @@ void BufferArrayTestObjectType::test<7>()
  	char buffer[256];
 
 	// 2x str1
-	size_t len = ba->write(str1, str1_len);
-	len = ba->write(str1, strlen(str1));
+	size_t len = ba->write(0, str1, str1_len);
+	len = ba->write(str1_len, str1, str1_len);
 
 	// reposition and overwrite
-	len = ba->seek(6);
-	len = ba->write(str2, 2);
+	len = ba->write(6, str2, 2);
 	ensure("Overwrite length correct", 2 == len);
 
-	len = ba->write(str2, 2);
+	len = ba->write(8, str2, 2);
 	ensure("Overwrite length correct.2", 2 == len);
 
-	len = ba->write(str2, 2);
+	len = ba->write(10, str2, 2);
 	ensure("Overwrite length correct.3", 2 == len);
 
 	// append some data
@@ -373,13 +352,12 @@ void BufferArrayTestObjectType::test<7>()
 	memcpy(out_buf, str1, str1_len);
 
 	// And some final writes
-	len = ba->write(str2, 2);
+	len = ba->write(3 * str1_len + str2_len, str2, 2);
 	ensure("Write length correct.2", 2 == len);
 	
 	// Check contents
 	memset(buffer, 'X', sizeof(buffer));
-	ba->seek(0);
-	len = ba->read(buffer, sizeof(buffer));
+	len = ba->read(0, buffer, sizeof(buffer));
 	ensure("Final buffer length correct", (3 * str1_len + str2_len + 2) == len);
 	ensure("Read content correct", 0 == strncmp(buffer, str1, 6));
 	ensure("Read content correct.2", 0 == strncmp(buffer + 6, str2, 2));
@@ -417,8 +395,8 @@ void BufferArrayTestObjectType::test<8>()
  	char buffer[256];
 
 	// 2x str1
-	size_t len = ba->write(str1, str1_len);
-	len = ba->write(str1, strlen(str1));
+	size_t len = ba->write(0, str1, str1_len);
+	len = ba->write(str1_len, str1, str1_len);
 
 	// zero-length allocate (we allow this with a valid pointer returned)
 	char * out_buf(ba->appendBufferAlloc(0));
@@ -430,12 +408,11 @@ void BufferArrayTestObjectType::test<8>()
 	ensure("Two zero-length appendBufferAlloc buffers distinct", out_buf != out_buf2);
 
 	// And some final writes
-	len = ba->write(str2, str2_len);
+	len = ba->write(2 * str1_len, str2, str2_len);
 	
 	// Check contents
 	memset(buffer, 'X', sizeof(buffer));
-	ba->seek(0);
-	len = ba->read(buffer, sizeof(buffer));
+	len = ba->read(0, buffer, sizeof(buffer));
 	ensure("Final buffer length correct", (2 * str1_len + str2_len) == len);
 	ensure("Read content correct.1", 0 == strncmp(buffer, str1, str1_len));
 	ensure("Read content correct.2", 0 == strncmp(buffer + str1_len, str1, str1_len));
