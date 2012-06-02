@@ -1117,7 +1117,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				// Will call callbackHttpGet when curl request completes
 				// *FIXME:  enable redirection follow
 				mHttpHandle = mFetcher->mHttpRequest->requestGetByteRange(mHttpPolicyClass,
-																		  mRequestedPriority,
+																		  mWorkPriority,
 																		  mUrl,
 																		  mRequestedOffset,
 																		  mRequestedSize,
@@ -2976,7 +2976,7 @@ TFReqSendMetrics::~TFReqSendMetrics()
 bool
 TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 {
-	static const U32 report_priority(LLWorkerThread::PRIORITY_LOW);
+	static const U32 report_priority(1);
 	static const int report_policy_class(LLCore::HttpRequest::DEFAULT_POLICY_ID);
 	static LLCore::HttpHandler * const handler(fetcher->isQAMode() || true ? &stats_handler : NULL);
 	
