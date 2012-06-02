@@ -85,7 +85,9 @@ public:
 // ==================================
 
 
+#if	! defined(WIN32)
 const size_t BufferArray::BLOCK_ALLOC_SIZE;
+#endif	// ! defined(WIN32)
 
 BufferArray::BufferArray()
 	: LLCoreInt::RefCounted(true),
