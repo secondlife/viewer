@@ -85,6 +85,8 @@ public:
 // ==================================
 
 
+const size_t BufferArray::BLOCK_ALLOC_SIZE;
+
 BufferArray::BufferArray()
 	: LLCoreInt::RefCounted(true),
 	  mLen(0)
