@@ -340,7 +340,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			long data_size(0);
 			if (mReqBody)
 			{
-				mReqBody->seek(0);
 				data_size = mReqBody->size();
 			}
 			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, static_cast<void *>(NULL));
@@ -356,7 +355,6 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 			long data_size(0);
 			if (mReqBody)
 			{
-				mReqBody->seek(0);
 				data_size = mReqBody->size();
 			}
 			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
@@ -423,10 +421,8 @@ size_t HttpOpRequest::writeCallback(void * data, size_t size, size_t nmemb, void
 		op->mReplyBody = new BufferArray();
 	}
 	const size_t req_size(size * nmemb);
-	char * lump(op->mReplyBody->appendBufferAlloc(req_size));
-	memcpy(lump, data, req_size);
-
-	return req_size;
+	const size_t write_size(op->mReplyBody->append(static_cast<char *>(data), req_size));
+	return write_size;
 }
 
 		
@@ -450,9 +446,9 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 	}
 
 	const size_t do_size((std::min)(req_size, body_size - op->mCurlBodyPos));
-	op->mReqBody->read(static_cast<char *>(data), do_size);
-	op->mCurlBodyPos += do_size;
-	return do_size;
+	const size_t read_size(op->mReqBody->read(op->mCurlBodyPos, static_cast<char *>(data), do_size));
+	op->mCurlBodyPos += read_size;
+	return read_size;
 }
 
 		
