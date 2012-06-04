@@ -71,6 +71,7 @@
 #include "llcallingcard.h"
 #include "llslurl.h"			// IDEVO
 #include "llsidepanelinventory.h"
+#include "llavatarname.h"
 
 // static
 void LLAvatarActions::requestFriendshipDialog(const LLUUID& id, const std::string& name)
@@ -393,6 +394,18 @@ void LLAvatarActions::pay(const LLUUID& id)
 	{
 		LLNotifications::instance().forceResponse(params, 1);
 	}
+}
+
+// static
+void LLAvatarActions::requestTeleport(const LLUUID& id)
+{
+	LLMessageSystem* msg = gMessageSystem;
+
+	msg->newMessageFast(_PREHASH_RequestTeleport);
+	msg->nextBlockFast(_PREHASH_AgentData);
+	msg->addUUIDFast(_PREHASH_AgentID, id);
+	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+	gAgent.sendReliableMessage();
 }
 
 // static

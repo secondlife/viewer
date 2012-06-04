@@ -109,6 +109,11 @@ public:
 	static void pay(const LLUUID& id);
 
 	/**
+	 * Request teleport from other avatar
+	 */
+	static void requestTeleport(const LLUUID& id);
+
+	/**
 	 * Share items with the avatar.
 	 */
 	static void share(const LLUUID& id);

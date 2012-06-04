@@ -1379,3 +1379,4 @@ char const* const _PREHASH_ProductSKU = LLMessageStringTable::getInstance()->get
 char const* const _PREHASH_SeeAVs = LLMessageStringTable::getInstance()->getString("SeeAVs");
 char const* const _PREHASH_AnyAVSounds = LLMessageStringTable::getInstance()->getString("AnyAVSounds");
 char const* const _PREHASH_GroupAVSounds = LLMessageStringTable::getInstance()->getString("GroupAVSounds");
+char const* const _PREHASH_RequestTeleport = LLMessageStringTable::getInstance()->getString("RequestTeleport");

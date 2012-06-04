@@ -70,6 +70,13 @@
         <menu_item_call.on_click
          function="Avatar.Pay" />
     </menu_item_call>
+    <menu_item_call
+     label="Request Teleport"
+     layout="topleft"
+     name="Request Teleport">
+        <menu_item_call.on_click
+         function="Avatar.RequestTeleport" />
+    </menu_item_call>
     <menu_item_check
      label="Block/Unblock"
      layout="topleft"

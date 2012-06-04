@@ -1992,6 +1992,54 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration lure_callback_reg("TeleportOffered", lure_callback);
 
+bool teleport_requested_callback(const LLSD& notification, const LLSD& response)
+{
+	LLUUID from_id = notification["payload"]["from_id"].asUUID();
+	std::string from_name;
+	gCacheName->getFullName(from_id, from_name);
+
+	if(from_id.isNull() || (LLMuteList::getInstance()->isMuted(from_id) && !LLMuteList::getInstance()->isLinden(from_name)))
+	{
+		return false;
+	}
+
+	S32 option = 0;
+	if (response.isInteger()) 
+	{
+		option = response.asInteger();
+	}
+	else
+	{
+		option = LLNotificationsUtil::getSelectedOption(notification, response);
+	}
+
+	switch(option)
+	{
+	// Yes
+	case 0:
+		{
+			LLAvatarActions::offerTeleport(from_id);
+		}
+		break;
+
+	// No
+	case 1:
+	default:
+		break;
+
+	// Block
+	case 2:
+		{
+			LLMute mute(from_id, from_name, LLMute::AGENT);
+			LLPanelBlockedList::showPanelAndSelect(mute.mID);
+		}
+		break;
+	}
+	return false;
+}
+
+static LLNotificationFunctorRegistration teleport_requested_callback_reg("TeleportRequested", teleport_requested_callback);
+
 bool goto_url_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string url = notification["payload"]["url"].asString();
