@@ -26,7 +26,9 @@
 #extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2DRect diffuseRect;
@@ -51,12 +53,12 @@ uniform vec4 sunlight_color;
 uniform vec4 ambient;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
-uniform vec4 haze_horizon;
-uniform vec4 haze_density;
-uniform vec4 cloud_shadow;
-uniform vec4 density_multiplier;
-uniform vec4 distance_multiplier;
-uniform vec4 max_y;
+uniform float haze_horizon;
+uniform float haze_density;
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float distance_multiplier;
+uniform float max_y;
 uniform vec4 glow;
 uniform float scene_light_strength;
 uniform mat3 env_mat;
@@ -161,13 +163,13 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 
 	//sunlight attenuation effect (hue and brightness) due to atmosphere
 	//this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density * 1.0 + vec4(haze_density.r) * 0.25) * (density_multiplier.x * max_y.x);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 		//I had thought blue_density and haze_density should have equal weighting,
 		//but attenuation due to haze_density tends to seem too strong
 
-	temp1 = blue_density + vec4(haze_density.r);
+	temp1 = blue_density + vec4(haze_density);
 	blue_weight = blue_density / temp1;
-	haze_weight = vec4(haze_density.r) / temp1;
+	haze_weight = vec4(haze_density) / temp1;
 
 	//(TERRAIN) compute sunlight from lightnorm only (for short rays like terrain)
 	temp2.y = max(0.0, tmpLightnorm.y);
@@ -175,12 +177,12 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// main atmospheric scattering line integral
-	temp2.z = Plen * density_multiplier.x;
+	temp2.z = Plen * density_multiplier;
 
 	// Transparency (-> temp1)
-	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier.x in a variable because the ati
+	// ATI Bugfix -- can't store temp1*temp2.z*distance_multiplier in a variable because the ati
 	// compiler gets confused.
-	temp1 = exp(-temp1 * temp2.z * distance_multiplier.x);
+	temp1 = exp(-temp1 * temp2.z * distance_multiplier);
 
 	//final atmosphere attenuation factor
 	setAtmosAttenuation(temp1.rgb);
@@ -201,7 +203,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	temp2.x += .25;
 	
 	//increase ambient when there are more clouds
-	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow.x * 0.5;
+	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
 	
 	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
 	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
@@ -215,8 +217,8 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 
 	//haze color
 	setAdditiveColor(
-		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow.x) + tmpAmbient)
-	  + (haze_horizon.r * haze_weight) * (sunlight*(1.-cloud_shadow.x) * temp2.x
+		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
+	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
 
 	//brightness of surface both sunlight and ambient
@@ -307,11 +309,11 @@ void main()
 			//
 			vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 			float sa = dot(refnormpersp, sun_dir.xyz);
-			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*texture2D(lightFunc, vec2(sa, spec.a)).r;
+			vec3 dumbshiny = vary_SunlitColor*scol_ambocc.r*(6 * texture2D(lightFunc, vec2(sa, spec.a)).r);
 
 			// add the two types of shiny together
 			vec3 spec_contrib = dumbshiny * spec.rgb;
-			bloom = dot(spec_contrib, spec_contrib);
+			bloom = dot(spec_contrib, spec_contrib) / 4;
 			col += spec_contrib;
 
 			//add environmentmap
@@ -330,6 +332,6 @@ void main()
 		col = diffuse.rgb;
 	}
 		
-	gl_FragColor.rgb = col;
-	gl_FragColor.a = bloom;
+	frag_color.rgb = col;
+	frag_color.a = bloom;
 }

@@ -16,10 +16,10 @@
 		(unbekannt)
 	</text>
 	<text name="Only Allow">
-		Zugang nur dann, wenn überprüft mit:
+		Zugang nur Einwohnern gestatten, die:
 	</text>
-	<check_box label="Zahlungsinformation gespeichert" name="limit_payment" tool_tip="Einwohner ohne Zahlungsinformation nicht zulassen."/>
-	<check_box label="Altersüberprüfung" name="limit_age_verified" tool_tip="Einwohner ohne Altersüberprüfung verbannen. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+	<check_box label="Zahlungsinformationen hinterlegt haben" name="limit_payment" tool_tip="Um diesen Grundbesitz besuchen zu können, müssen Einwohner Zahlungsinformationen hinterlegt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
+	<check_box label="ihr Alter bestätigt haben" name="limit_age_verified" tool_tip="Um diesen Grundbesitz besuchen zu können, müssen Einwohner ihr Alter bestätigt haben. Weitere Informationen finden Sie auf [SUPPORT_SITE]."/>
 	<check_box label="Voice-Chat erlauben" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<text name="abuse_email_text" width="222">

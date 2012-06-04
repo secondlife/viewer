@@ -61,7 +61,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 	void showHistory();
-	void enableTranslationCheckbox(BOOL enable);
+	void showTranslationCheckbox(BOOL show);
 	/*virtual*/void setMinimized(BOOL b);
 
 protected:

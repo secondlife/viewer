@@ -42,7 +42,7 @@ LLIMHandler::LLIMHandler(e_notification_type type, const LLSD& id)
 	mType = type;
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
+	mChannel = LLChannelManager::getInstance()->createNotificationChannel()->getHandle();
 }
 
 //--------------------------------------------------------------------------
@@ -55,13 +55,13 @@ void LLIMHandler::initChannel()
 {
 	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLIMHandler::processNotification(const LLSD& notify)
 {
-	if(!mChannel)
+	if(mChannel.isDead())
 	{
 		return false;
 	}
@@ -72,7 +72,7 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 		return false;
 
 	// arrange a channel on a screen
-	if(!mChannel->getVisible())
+	if(!mChannel.get()->getVisible())
 	{
 		initChannel();
 	}
@@ -104,7 +104,7 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 		p.panel = im_box;
 		p.can_be_stored = false;
 		p.on_delete_toast = boost::bind(&LLIMHandler::onDeleteToast, this, _1);
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->addToast(p);
 
@@ -113,7 +113,7 @@ bool LLIMHandler::processNotification(const LLSD& notify)
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
-		mChannel->killToastByNotificationID(notification->getID());
+		mChannel.get()->killToastByNotificationID(notification->getID());
 	}
 	return false;
 }

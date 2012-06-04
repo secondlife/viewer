@@ -15,7 +15,7 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<panel name="balance_bg">
+	<panel left="-370" name="balance_bg" width="160">
 		<text name="balance" tool_tip="クリックして L$ 残高を更新" value="L$20"/>
 		<button label="L$ の購入" name="buyL" tool_tip="クリックして L$ を購入します"/>
 		<button label="店" name="goShop" tool_tip="Second Life マーケットプレイスを開く"  width="40"/>

@@ -26,11 +26,16 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#ifdef INCLUDE_VLD
+#include "vld.h"
+#endif
+
 #include "llappviewerwin32.h"
 
 #include "llmemtype.h"
 
-#include "llwindowwin32.cpp" // *FIX: for setting gIconResource.
+#include "llwindowwin32.h" // *FIX: for setting gIconResource.
+#include "llgl.h"
 #include "res/resource.h" // *FIX: for setting gIconResource.
 
 #include <fcntl.h>		//_O_APPEND
@@ -104,6 +109,14 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
                      LPSTR     lpCmdLine,
                      int       nCmdShow)
 {
+#ifdef INCLUDE_VLD
+	// only works for debug builds (hard coded into vld.h)
+	#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDGlobalDisable();
+	#endif // _DEBUG
+#endif // INCLUDE_VLD
+
 	LLMemType mt1(LLMemType::MTYPE_STARTUP);
 
 	const S32 MAX_HEAPS = 255;

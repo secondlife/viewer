@@ -30,9 +30,9 @@
 #include "llpanel.h"
 #include "llviewermedia.h"
 #include "llnotificationptr.h"
+#include "llcoord.h"
 
 class LLButton;
-class LLCoordWindow;
 class LLIconCtrl;
 class LLLayoutStack;
 class LLProgressBar;

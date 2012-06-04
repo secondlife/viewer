@@ -111,10 +111,13 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
+	void doResetVertexBuffers();
 	void resizeScreenTexture();
 	void releaseGLBuffers();
+	void releaseLUTBuffers();
 	void releaseScreenBuffers();
 	void createGLBuffers();
+	void createLUTBuffers();
 
 	void allocateScreenBuffer(U32 resX, U32 resY);
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
@@ -652,6 +655,8 @@ protected:
 
 	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
+
+	bool mResetVertexBuffers; //if true, clear vertex buffers on next update
 
 	LLViewerObject::vobj_list_t		mCreateQ;
 		

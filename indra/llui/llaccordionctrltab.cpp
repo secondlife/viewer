@@ -976,7 +976,7 @@ void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			{
-				LLUI::translate((F32)child->getRect().mLeft, (F32)child->getRect().mBottom, 0.f);
+				LLUI::translate((F32)child->getRect().mLeft, (F32)child->getRect().mBottom);
 				child->draw();
 
 			}

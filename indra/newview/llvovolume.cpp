@@ -4433,10 +4433,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					else
 					{
 						if (te->getColor().mV[3] > 0.f)
-						{
+						{ //only treat as alpha in the pipeline if < 100% transparent
 							drawablep->setState(LLDrawable::HAS_ALPHA);
-							alpha_faces.push_back(facep);
 						}
+						alpha_faces.push_back(facep);
 					}
 				}
 				else
@@ -4714,11 +4714,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 		buffer_index = -1;
 	}
 
-	S32 texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity
+	S32 texture_index_channels = 1;
 	
-	if (gGLManager.mGLVersion < 3.1f)
+	if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 	{
-		texture_index_channels = 1;
+		texture_index_channels = LLGLSLShader::sIndexedTextureChannels-1; //always reserve one for shiny for now just for simplicity;
 	}
 
 	if (LLPipeline::sRenderDeferred && distance_sort)
@@ -4939,6 +4939,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				fullbright = TRUE;
 			}
 
+			if (hud_group)
+			{ //all hud attachments are fullbright
+				fullbright = TRUE;
+			}
+
 			const LLTextureEntry* te = facep->getTextureEntry();
 			tex = facep->getTexture();
 
@@ -4947,7 +4952,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 			if (is_alpha)
 			{
 				// can we safely treat this as an alpha mask?
-				if (facep->canRenderAsMask())
+				if (facep->getFaceColor().mV[3] <= 0.f)
+				{ //100% transparent, don't render unless we're highlighting transparent
+					registerFace(group, facep, LLRenderPass::PASS_ALPHA_INVISIBLE);
+				}
+				else if (facep->canRenderAsMask())
 				{
 					if (te->getFullbright() || LLPipeline::sNoAlpha)
 					{
@@ -4964,7 +4973,6 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 				}
 			}
 			else if (gPipeline.canUseVertexShaders()
-				&& group->mSpatialPartition->mPartitionType != LLViewerRegion::PARTITION_HUD 
 				&& LLPipeline::sRenderBump 
 				&& te->getShiny())
 			{ //shiny
@@ -5029,9 +5037,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, std::
 					}
 				}
 				
-				//not sure why this is here -- shiny HUD attachments maybe?  -- davep 5/11/2010
-				if (!is_alpha && te->getShiny() && LLPipeline::sRenderBump)
-				{
+				
+				if (!gPipeline.canUseVertexShaders() && 
+					!is_alpha && 
+					te->getShiny() && 
+					LLPipeline::sRenderBump)
+				{ //shiny as an extra pass when shaders are disabled
 					registerFace(group, facep, LLRenderPass::PASS_SHINY);
 				}
 			}

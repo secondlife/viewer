@@ -11,7 +11,7 @@ label_pad_left - padding to the left of tab button labels
                halign="center"
                font="SansSerifSmall" 
                tab_height="21"
-               label_pad_bottom="2"
+               label_pad_bottom="1"
                label_pad_left="4">
   <!--
   Possible additional attributes for tabs:

@@ -1,6 +1,6 @@
 /** 
- * @file llfloateranimpreview.cpp
- * @brief LLFloaterAnimPreview class implementation
+ * @file llfloaterbvhpreview.cpp
+ * @brief LLFloaterBvhPreview class implementation
  *
  * $LicenseInfo:firstyear=2004&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,7 +26,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "llfloateranimpreview.h"
+#include "llfloaterbvhpreview.h"
 
 #include "llbvhloader.h"
 #include "lldatapacker.h"
@@ -115,9 +115,9 @@ std::string STATUS[] =
 };
 
 //-----------------------------------------------------------------------------
-// LLFloaterAnimPreview()
+// LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterAnimPreview::LLFloaterAnimPreview(const std::string& filename) : 
+LLFloaterBvhPreview::LLFloaterBvhPreview(const std::string& filename) : 
 	LLFloaterNameDesc(filename)
 {
 	mLastMouseX = 0;
@@ -153,35 +153,35 @@ LLFloaterAnimPreview::LLFloaterAnimPreview(const std::string& filename) :
 //-----------------------------------------------------------------------------
 // setAnimCallbacks()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::setAnimCallbacks()
+void LLFloaterBvhPreview::setAnimCallbacks()
 {
-	getChild<LLUICtrl>("playback_slider")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onSliderMove, this));
+	getChild<LLUICtrl>("playback_slider")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onSliderMove, this));
 	
-	getChild<LLUICtrl>("preview_base_anim")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitBaseAnim, this));
+	getChild<LLUICtrl>("preview_base_anim")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitBaseAnim, this));
 	getChild<LLUICtrl>("preview_base_anim")->setValue("Standing");
 
-	getChild<LLUICtrl>("priority")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitPriority, this));
-	getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitLoop, this));
-	getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitLoopIn, this));
-	getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( boost::bind(&LLFloaterAnimPreview::validateLoopIn, this, _1));
-	getChild<LLUICtrl>("loop_out_point")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitLoopOut, this));
-	getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( boost::bind(&LLFloaterAnimPreview::validateLoopOut, this, _1));
+	getChild<LLUICtrl>("priority")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitPriority, this));
+	getChild<LLUICtrl>("loop_check")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoop, this));
+	getChild<LLUICtrl>("loop_in_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopIn, this));
+	getChild<LLUICtrl>("loop_in_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopIn, this, _1));
+	getChild<LLUICtrl>("loop_out_point")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitLoopOut, this));
+	getChild<LLUICtrl>("loop_out_point")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateLoopOut, this, _1));
 
-	getChild<LLUICtrl>("hand_pose_combo")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitHandPose, this));
+	getChild<LLUICtrl>("hand_pose_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitHandPose, this));
 	
-	getChild<LLUICtrl>("emote_combo")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitEmote, this));
+	getChild<LLUICtrl>("emote_combo")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEmote, this));
 	getChild<LLUICtrl>("emote_combo")->setValue("[None]");
 
-	getChild<LLUICtrl>("ease_in_time")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitEaseIn, this));
-	getChild<LLUICtrl>("ease_in_time")->setValidateBeforeCommit( boost::bind(&LLFloaterAnimPreview::validateEaseIn, this, _1));
-	getChild<LLUICtrl>("ease_out_time")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitEaseOut, this));
-	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterAnimPreview::validateEaseOut, this, _1));
+	getChild<LLUICtrl>("ease_in_time")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEaseIn, this));
+	getChild<LLUICtrl>("ease_in_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseIn, this, _1));
+	getChild<LLUICtrl>("ease_out_time")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitEaseOut, this));
+	getChild<LLUICtrl>("ease_out_time")->setValidateBeforeCommit( boost::bind(&LLFloaterBvhPreview::validateEaseOut, this, _1));
 }
 
 //-----------------------------------------------------------------------------
 // postBuild()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::postBuild()
+BOOL LLFloaterBvhPreview::postBuild()
 {
 	LLKeyframeMotion* motionp = NULL;
 	LLBVHLoader* loaderp = NULL;
@@ -191,7 +191,7 @@ BOOL LLFloaterAnimPreview::postBuild()
 		return FALSE;
 	}
 
-	getChild<LLUICtrl>("name_form")->setCommitCallback(boost::bind(&LLFloaterAnimPreview::onCommitName, this));
+	getChild<LLUICtrl>("name_form")->setCommitCallback(boost::bind(&LLFloaterBvhPreview::onCommitName, this));
 
 	childSetAction("ok_btn", onBtnOK, this);
 	setDefaultBtn();
@@ -203,15 +203,15 @@ BOOL LLFloaterAnimPreview::postBuild()
 	mPreviewImageRect.set(0.f, 1.f, 1.f, 0.f);
 
 	mPlayButton = getChild<LLButton>( "play_btn");
-	mPlayButton->setClickedCallback(boost::bind(&LLFloaterAnimPreview::onBtnPlay, this));
+	mPlayButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnPlay, this));
 	mPlayButton->setVisible(true);
 
 	mPauseButton = getChild<LLButton>( "pause_btn");
-	mPauseButton->setClickedCallback(boost::bind(&LLFloaterAnimPreview::onBtnPause, this));
+	mPauseButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnPause, this));
 	mPauseButton->setVisible(false);
 	
 	mStopButton = getChild<LLButton>( "stop_btn");
-	mStopButton->setClickedCallback(boost::bind(&LLFloaterAnimPreview::onBtnStop, this));
+	mStopButton->setClickedCallback(boost::bind(&LLFloaterBvhPreview::onBtnStop, this));
 
 	getChildView("bad_animation_text")->setVisible(FALSE);
 
@@ -363,9 +363,9 @@ BOOL LLFloaterAnimPreview::postBuild()
 }
 
 //-----------------------------------------------------------------------------
-// LLFloaterAnimPreview()
+// LLFloaterBvhPreview()
 //-----------------------------------------------------------------------------
-LLFloaterAnimPreview::~LLFloaterAnimPreview()
+LLFloaterBvhPreview::~LLFloaterBvhPreview()
 {
 	mAnimPreview = NULL;
 
@@ -375,7 +375,7 @@ LLFloaterAnimPreview::~LLFloaterAnimPreview()
 //-----------------------------------------------------------------------------
 // draw()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::draw()
+void LLFloaterBvhPreview::draw()
 {
 	LLFloater::draw();
 	LLRect r = getRect();
@@ -414,7 +414,7 @@ void LLFloaterAnimPreview::draw()
 //-----------------------------------------------------------------------------
 // resetMotion()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::resetMotion()
+void LLFloaterBvhPreview::resetMotion()
 {
 	LLVOAvatar* avatarp = mAnimPreview->getDummyAvatar();
 	BOOL paused = avatarp->areAnimationsPaused();
@@ -450,7 +450,7 @@ void LLFloaterAnimPreview::resetMotion()
 //-----------------------------------------------------------------------------
 // handleMouseDown()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::handleMouseDown(S32 x, S32 y, MASK mask)
+BOOL LLFloaterBvhPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mPreviewRect.pointInRect(x, y))
 	{
@@ -468,7 +468,7 @@ BOOL LLFloaterAnimPreview::handleMouseDown(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 // handleMouseUp()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::handleMouseUp(S32 x, S32 y, MASK mask)
+BOOL LLFloaterBvhPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	gFocusMgr.setMouseCapture(FALSE);
 	gViewerWindow->showCursor();
@@ -478,7 +478,7 @@ BOOL LLFloaterAnimPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 // handleHover()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::handleHover(S32 x, S32 y, MASK mask)
+BOOL LLFloaterBvhPreview::handleHover(S32 x, S32 y, MASK mask)
 {
 	MASK local_mask = mask & ~MASK_ALT;
 
@@ -533,7 +533,7 @@ BOOL LLFloaterAnimPreview::handleHover(S32 x, S32 y, MASK mask)
 //-----------------------------------------------------------------------------
 // handleScrollWheel()
 //-----------------------------------------------------------------------------
-BOOL LLFloaterAnimPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
+BOOL LLFloaterBvhPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	mAnimPreview->zoom((F32)clicks * -0.2f);
 	mAnimPreview->requestUpdate();
@@ -544,7 +544,7 @@ BOOL LLFloaterAnimPreview::handleScrollWheel(S32 x, S32 y, S32 clicks)
 //-----------------------------------------------------------------------------
 // onMouseCaptureLost()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onMouseCaptureLost()
+void LLFloaterBvhPreview::onMouseCaptureLost()
 {
 	gViewerWindow->showCursor();
 }
@@ -552,7 +552,7 @@ void LLFloaterAnimPreview::onMouseCaptureLost()
 //-----------------------------------------------------------------------------
 // onBtnPlay()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onBtnPlay()
+void LLFloaterBvhPreview::onBtnPlay()
 {
 	if (!getEnabled())
 		return;
@@ -576,7 +576,7 @@ void LLFloaterAnimPreview::onBtnPlay()
 //-----------------------------------------------------------------------------
 // onBtnPause()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onBtnPause()
+void LLFloaterBvhPreview::onBtnPause()
 {
 	if (!getEnabled())
 		return;
@@ -598,7 +598,7 @@ void LLFloaterAnimPreview::onBtnPause()
 //-----------------------------------------------------------------------------
 // onBtnStop()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onBtnStop()
+void LLFloaterBvhPreview::onBtnStop()
 {
 	if (!getEnabled())
 		return;
@@ -614,7 +614,7 @@ void LLFloaterAnimPreview::onBtnStop()
 //-----------------------------------------------------------------------------
 // onSliderMove()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onSliderMove()
+void LLFloaterBvhPreview::onSliderMove()
 {
 	if (!getEnabled())
 		return;
@@ -639,7 +639,7 @@ void LLFloaterAnimPreview::onSliderMove()
 //-----------------------------------------------------------------------------
 // onCommitBaseAnim()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitBaseAnim()
+void LLFloaterBvhPreview::onCommitBaseAnim()
 {
 	if (!getEnabled())
 		return;
@@ -668,7 +668,7 @@ void LLFloaterAnimPreview::onCommitBaseAnim()
 //-----------------------------------------------------------------------------
 // onCommitLoop()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitLoop()
+void LLFloaterBvhPreview::onCommitLoop()
 {
 	if (!getEnabled())
 		return;
@@ -687,7 +687,7 @@ void LLFloaterAnimPreview::onCommitLoop()
 //-----------------------------------------------------------------------------
 // onCommitLoopIn()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitLoopIn()
+void LLFloaterBvhPreview::onCommitLoopIn()
 {
 	if (!getEnabled())
 		return;
@@ -707,7 +707,7 @@ void LLFloaterAnimPreview::onCommitLoopIn()
 //-----------------------------------------------------------------------------
 // onCommitLoopOut()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitLoopOut()
+void LLFloaterBvhPreview::onCommitLoopOut()
 {
 	if (!getEnabled())
 		return;
@@ -727,7 +727,7 @@ void LLFloaterAnimPreview::onCommitLoopOut()
 //-----------------------------------------------------------------------------
 // onCommitName()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitName()
+void LLFloaterBvhPreview::onCommitName()
 {
 	if (!getEnabled())
 		return;
@@ -746,7 +746,7 @@ void LLFloaterAnimPreview::onCommitName()
 //-----------------------------------------------------------------------------
 // onCommitHandPose()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitHandPose()
+void LLFloaterBvhPreview::onCommitHandPose()
 {
 	if (!getEnabled())
 		return;
@@ -757,7 +757,7 @@ void LLFloaterAnimPreview::onCommitHandPose()
 //-----------------------------------------------------------------------------
 // onCommitEmote()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitEmote()
+void LLFloaterBvhPreview::onCommitEmote()
 {
 	if (!getEnabled())
 		return;
@@ -768,7 +768,7 @@ void LLFloaterAnimPreview::onCommitEmote()
 //-----------------------------------------------------------------------------
 // onCommitPriority()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitPriority()
+void LLFloaterBvhPreview::onCommitPriority()
 {
 	if (!getEnabled())
 		return;
@@ -782,7 +782,7 @@ void LLFloaterAnimPreview::onCommitPriority()
 //-----------------------------------------------------------------------------
 // onCommitEaseIn()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitEaseIn()
+void LLFloaterBvhPreview::onCommitEaseIn()
 {
 	if (!getEnabled())
 		return;
@@ -797,7 +797,7 @@ void LLFloaterAnimPreview::onCommitEaseIn()
 //-----------------------------------------------------------------------------
 // onCommitEaseOut()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onCommitEaseOut()
+void LLFloaterBvhPreview::onCommitEaseOut()
 {
 	if (!getEnabled())
 		return;
@@ -812,7 +812,7 @@ void LLFloaterAnimPreview::onCommitEaseOut()
 //-----------------------------------------------------------------------------
 // validateEaseIn()
 //-----------------------------------------------------------------------------
-bool LLFloaterAnimPreview::validateEaseIn(const LLSD& data)
+bool LLFloaterBvhPreview::validateEaseIn(const LLSD& data)
 {
 	if (!getEnabled())
 		return false;
@@ -832,7 +832,7 @@ bool LLFloaterAnimPreview::validateEaseIn(const LLSD& data)
 //-----------------------------------------------------------------------------
 // validateEaseOut()
 //-----------------------------------------------------------------------------
-bool LLFloaterAnimPreview::validateEaseOut(const LLSD& data)
+bool LLFloaterBvhPreview::validateEaseOut(const LLSD& data)
 {
 	if (!getEnabled())
 		return false;
@@ -852,7 +852,7 @@ bool LLFloaterAnimPreview::validateEaseOut(const LLSD& data)
 //-----------------------------------------------------------------------------
 // validateLoopIn()
 //-----------------------------------------------------------------------------
-bool LLFloaterAnimPreview::validateLoopIn(const LLSD& data)
+bool LLFloaterBvhPreview::validateLoopIn(const LLSD& data)
 {
 	if (!getEnabled())
 		return false;
@@ -880,7 +880,7 @@ bool LLFloaterAnimPreview::validateLoopIn(const LLSD& data)
 //-----------------------------------------------------------------------------
 // validateLoopOut()
 //-----------------------------------------------------------------------------
-bool LLFloaterAnimPreview::validateLoopOut(const LLSD& data)
+bool LLFloaterBvhPreview::validateLoopOut(const LLSD& data)
 {
 	if (!getEnabled())
 		return false;
@@ -909,7 +909,7 @@ bool LLFloaterAnimPreview::validateLoopOut(const LLSD& data)
 //-----------------------------------------------------------------------------
 // refresh()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::refresh()
+void LLFloaterBvhPreview::refresh()
 {
 	// Are we showing the play button (default) or the pause button?
 	bool show_play = true;
@@ -958,9 +958,9 @@ void LLFloaterAnimPreview::refresh()
 //-----------------------------------------------------------------------------
 // onBtnOK()
 //-----------------------------------------------------------------------------
-void LLFloaterAnimPreview::onBtnOK(void* userdata)
+void LLFloaterBvhPreview::onBtnOK(void* userdata)
 {
-	LLFloaterAnimPreview* floaterp = (LLFloaterAnimPreview*)userdata;
+	LLFloaterBvhPreview* floaterp = (LLFloaterBvhPreview*)userdata;
 	if (!floaterp->getEnabled()) return;
 
 	if (floaterp->mAnimPreview)

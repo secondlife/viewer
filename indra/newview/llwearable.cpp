@@ -221,7 +221,7 @@ void LLWearable::createVisualParams()
 		param->resetDrivenParams();
 		if(!param->linkDrivenParams(boost::bind(wearable_function,(LLWearable*)this, _1), false))
 		{
-			if( !param->linkDrivenParams(boost::bind(avatar_function,gAgentAvatarp,_1 ), true))
+			if( !param->linkDrivenParams(boost::bind(avatar_function,gAgentAvatarp.get(),_1 ), true))
 			{
 				llwarns << "could not link driven params for wearable " << getName() << " id: " << param->getID() << llendl;
 				continue;
@@ -808,6 +808,20 @@ const LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index) const
 		return lto;
 	}
 	return NULL;
+}
+
+std::vector<LLLocalTextureObject*> LLWearable::getLocalTextureListSeq()
+{
+	std::vector<LLLocalTextureObject*> result;
+
+	for(te_map_t::const_iterator iter = mTEMap.begin();
+		iter != mTEMap.end(); iter++)
+	{
+		LLLocalTextureObject* lto = iter->second;
+		result.push_back(lto);
+	}
+
+	return result;
 }
 
 void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)

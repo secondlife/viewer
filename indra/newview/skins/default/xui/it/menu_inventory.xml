@@ -59,6 +59,7 @@
 	<menu_item_call label="Proprietà" name="Properties"/>
 	<menu_item_call label="Rinomina" name="Rename"/>
 	<menu_item_call label="Copia UUID dell&apos;oggetto" name="Copy Asset UUID"/>
+	<menu_item_call label="Taglia" name="Cut"/>
 	<menu_item_call label="Copia" name="Copy"/>
 	<menu_item_call label="Incolla" name="Paste"/>
 	<menu_item_call label="Incolla come link" name="Paste As Link"/>
@@ -84,6 +85,6 @@
 	<menu_item_call label="Aggiungi" name="Wearable Add"/>
 	<menu_item_call label="Togli" name="Take Off"/>
 	<menu_item_call label="Copia nella casella venditore in uscita" name="Merchant Copy"/>
-	<menu_item_call label="Passa alla casella venditore in uscita" name="Merchant Move"/>
+	<menu_item_call label="Invia a Marketplace" name="Marketplace Send"/>
 	<menu_item_call label="--nessuna opzione--" name="--no options--"/>
 </menu>

@@ -392,8 +392,12 @@ void LLFloaterSellLandUI::onChangeValue(LLUICtrl *ctrl, void *userdata)
 
 void LLFloaterSellLandUI::doSelectAgent()
 {
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE);
 	// grandparent is a floater, in order to set up dependency
-	addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLFloaterSellLandUI::callbackAvatarPick, this, _1, _2), FALSE, TRUE));
+	if (picker)
+	{
+		addDependentFloater(picker);
+	}
 }
 
 void LLFloaterSellLandUI::callbackAvatarPick(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)

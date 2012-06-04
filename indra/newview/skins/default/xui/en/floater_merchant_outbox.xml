@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <floater
-    open_positioning="cascading"
+    positioning="cascading"
     can_close="true"
     can_resize="true"
     height="440"
@@ -99,7 +99,7 @@
             halign="center"
             font="SansSerifMedium"
             font_shadow="hard"
-            valign="bottom">
+            valign="top">
           Drag items here to create folders
         </text>
       </panel>
@@ -114,8 +114,8 @@
           height="20"
           wrap="true"
           halign="left"
-          valign="bottom"
-          font="SansSerif" />
+          valign="center"
+          font="SansSerif"/>
       <button
           label="Send to Marketplace"
           tool_tip="Push to my Marketplace Storefront"
@@ -132,16 +132,16 @@
     </panel>
     <layout_stack name="import_progress_indicator" orientation="vertical" left="0" height="440" top="0" width="333" follows="all" visible="false">
       <layout_panel />
-      <layout_panel height="45" auto_resize="false">
-        <layout_stack orientation="horizontal" left="0" height="45" top="0" width="333" follows="all">
+      <layout_panel height="24" auto_resize="false">
+        <layout_stack orientation="horizontal" left="0" height="24" top="0" width="333" follows="all">
           <layout_panel width="0" />
-          <layout_panel width="45" auto_resize="false">
+          <layout_panel width="24" auto_resize="false">
             <loading_indicator
-                height="45"
+                height="24"
                 layout="topleft"
                 left="0"
                 top="0"
-                width="45" />
+                width="24" />
           </layout_panel>
           <layout_panel width="0" />
         </layout_stack>

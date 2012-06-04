@@ -151,8 +151,8 @@ void LLFloaterEditSky::initCallbacks(void)
 	getChild<LLUICtrl>("WLBlueHorizon")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlMoved, this, _1, &param_mgr.mBlueHorizon));
 
 	// haze density, horizon, mult, and altitude
-	getChild<LLUICtrl>("WLHazeDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mHazeDensity));
-	getChild<LLUICtrl>("WLHazeHorizon")->setCommitCallback(boost::bind(&LLFloaterEditSky::onColorControlRMoved, this, _1, &param_mgr.mHazeHorizon));
+	getChild<LLUICtrl>("WLHazeDensity")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &param_mgr.mHazeDensity));
+	getChild<LLUICtrl>("WLHazeHorizon")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &param_mgr.mHazeHorizon));
 	getChild<LLUICtrl>("WLDensityMult")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &param_mgr.mDensityMult));
 	getChild<LLUICtrl>("WLMaxAltitude")->setCommitCallback(boost::bind(&LLFloaterEditSky::onFloatControlMoved, this, _1, &param_mgr.mMaxAlt));
 
@@ -220,15 +220,14 @@ void LLFloaterEditSky::syncControls()
 	setColorSwatch("WLBlueHorizon", param_mgr->mBlueHorizon, WL_BLUE_HORIZON_DENSITY_SCALE);
 
 	// haze density, horizon, mult, and altitude
-	param_mgr->mHazeDensity = cur_params.getVector(param_mgr->mHazeDensity.mName, err);
-	childSetValue("WLHazeDensity", param_mgr->mHazeDensity.r);
-	param_mgr->mHazeHorizon = cur_params.getVector(param_mgr->mHazeHorizon.mName, err);
-	childSetValue("WLHazeHorizon", param_mgr->mHazeHorizon.r);
-	param_mgr->mDensityMult = cur_params.getVector(param_mgr->mDensityMult.mName, err);
-	childSetValue("WLDensityMult", param_mgr->mDensityMult.x *
-		param_mgr->mDensityMult.mult);
-	param_mgr->mMaxAlt = cur_params.getVector(param_mgr->mMaxAlt.mName, err);
-	childSetValue("WLMaxAltitude", param_mgr->mMaxAlt.x);
+	param_mgr->mHazeDensity = cur_params.getFloat(param_mgr->mHazeDensity.mName, err);
+	childSetValue("WLHazeDensity", (F32) param_mgr->mHazeDensity);
+	param_mgr->mHazeHorizon = cur_params.getFloat(param_mgr->mHazeHorizon.mName, err);
+	childSetValue("WLHazeHorizon", (F32) param_mgr->mHazeHorizon);
+	param_mgr->mDensityMult = cur_params.getFloat(param_mgr->mDensityMult.mName, err);
+	childSetValue("WLDensityMult", ((F32) param_mgr->mDensityMult) * param_mgr->mDensityMult.mult);
+	param_mgr->mMaxAlt = cur_params.getFloat(param_mgr->mMaxAlt.mName, err);
+	childSetValue("WLMaxAltitude", (F32) param_mgr->mMaxAlt);
 
 	// blue density
 	param_mgr->mBlueDensity = cur_params.getVector(param_mgr->mBlueDensity.mName, err);
@@ -273,10 +272,10 @@ void LLFloaterEditSky::syncControls()
 	childSetValue("WLCloudDetailDensity", param_mgr->mCloudDetail.b);
 
 	// Cloud extras
-	param_mgr->mCloudCoverage = cur_params.getVector(param_mgr->mCloudCoverage.mName, err);
-	param_mgr->mCloudScale = cur_params.getVector(param_mgr->mCloudScale.mName, err);
-	childSetValue("WLCloudCoverage", param_mgr->mCloudCoverage.x);
-	childSetValue("WLCloudScale", param_mgr->mCloudScale.x);
+	param_mgr->mCloudCoverage = cur_params.getFloat(param_mgr->mCloudCoverage.mName, err);
+	param_mgr->mCloudScale = cur_params.getFloat(param_mgr->mCloudScale.mName, err);
+	childSetValue("WLCloudCoverage", (F32) param_mgr->mCloudCoverage);
+	childSetValue("WLCloudScale", (F32) param_mgr->mCloudScale);
 
 	// cloud scrolling
 	bool lockX = !param_mgr->mCurParams.getEnableCloudScrollX();
@@ -306,13 +305,13 @@ void LLFloaterEditSky::syncControls()
 	childSetValue("WLCloudScrollX", param_mgr->mCurParams.getCloudScrollX() - 10.0f);
 	childSetValue("WLCloudScrollY", param_mgr->mCurParams.getCloudScrollY() - 10.0f);
 
-	param_mgr->mDistanceMult = cur_params.getVector(param_mgr->mDistanceMult.mName, err);
-	childSetValue("WLDistanceMult", param_mgr->mDistanceMult.x);
+	param_mgr->mDistanceMult = cur_params.getFloat(param_mgr->mDistanceMult.mName, err);
+	childSetValue("WLDistanceMult", (F32) param_mgr->mDistanceMult);
 
 	// Tweak extras
 
-	param_mgr->mWLGamma = cur_params.getVector(param_mgr->mWLGamma.mName, err);
-	childSetValue("WLGamma", param_mgr->mWLGamma.x);
+	param_mgr->mWLGamma = cur_params.getFloat(param_mgr->mWLGamma.mName, err);
+	childSetValue("WLGamma", (F32) param_mgr->mWLGamma);
 
 	childSetValue("WLStarAlpha", param_mgr->mCurParams.getStarBrightness());
 }

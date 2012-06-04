@@ -35,6 +35,7 @@
 #include "message.h"
 #include "stdenums.h"
 #include "llnotifications.h"
+#include "llextendedstatus.h"
 
 //
 // Forward declarations

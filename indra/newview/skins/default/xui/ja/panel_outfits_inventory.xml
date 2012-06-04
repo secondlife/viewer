@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="もの" name="Outfits">
 	<panel.string name="wear_outfit_tooltip">
 		選択したアウトフィットを着用する
 	</panel.string>
 	<panel.string name="wear_items_tooltip">
-		選択した商品を着用
+		選択したアイテムを着用
 	</panel.string>
 	<tab_container name="appearance_tabs">
 		<panel label="マイ アウトフィット" name="outfitslist_tab"/>

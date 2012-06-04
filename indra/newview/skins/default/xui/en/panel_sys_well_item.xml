@@ -13,7 +13,7 @@
   follows="left|right"
   background_opaque="false"
   background_visible="true"
-  bg_alpha_color="0.0 0.0 0.0 0.0" >
+  bg_alpha_color="SysWellItemUnselected" >
   <text
     clip_partial="true" 
     top="2"
@@ -22,7 +22,7 @@
     height="28"
     layout="topleft"
     follows="right|left"
-    text_color="white"
+    text_color="White"
     use_ellipses="true"
     word_wrap="true"
     mouse_opaque="false"

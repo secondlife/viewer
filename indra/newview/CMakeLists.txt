@@ -41,12 +41,13 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -166,7 +167,7 @@ set(viewer_SOURCE_FILES
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
-    llfloateranimpreview.cpp
+    llfloaterbvhpreview.cpp
     llfloaterauction.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
@@ -287,7 +288,6 @@ set(viewer_SOURCE_FILES
     llinspectremoteobject.cpp
     llinspecttoast.cpp
     llinventorybridge.cpp
-    llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventoryicon.cpp
@@ -303,6 +303,7 @@ set(viewer_SOURCE_FILES
     lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
+    lllocalbitmaps.cpp
     lllocaltextureobject.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
@@ -722,7 +723,7 @@ set(viewer_HEADER_FILES
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
-    llfloateranimpreview.h
+    llfloaterbvhpreview.h
     llfloaterauction.h
     llfloateravatar.h
     llfloateravatarpicker.h
@@ -842,7 +843,6 @@ set(viewer_HEADER_FILES
     llinspectremoteobject.h
     llinspecttoast.h
     llinventorybridge.h
-    llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventoryicon.h
@@ -859,6 +859,7 @@ set(viewer_HEADER_FILES
     lllistbrowser.h
     lllistcontextmenu.h
     lllistview.h
+    lllocalbitmaps.h
     lllocaltextureobject.h
     lllocationhistory.h
     lllocationinputctrl.h
@@ -1345,7 +1346,9 @@ if (WINDOWS)
         DXGUID_LIBRARY
         )
 
+# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
+        opengl32
         ${WINDOWS_LIBRARIES}
         comdlg32
         ${DINPUT_LIBRARY}
@@ -1355,7 +1358,6 @@ if (WINDOWS)
         odbccp32
         ole32
         oleaut32
-        opengl32
         shell32
         Vfw32
         winspool

@@ -22,7 +22,6 @@
           top="5"
           width="180"
           height="40"
-          pad_bottom="-5"
           label="Pause"
           font="SansSerifHuge"/>
 </floater>

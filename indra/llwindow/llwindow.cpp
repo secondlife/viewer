@@ -192,6 +192,21 @@ BOOL LLWindow::setSize(LLCoordScreen size)
 	return setSizeImpl(size);
 }
 
+BOOL LLWindow::setSize(LLCoordWindow size)
+{
+	//HACK: we are inconsistently using minimum window dimensions
+	// in this case, we are constraining the inner "client" rect and other times
+	// we constrain the outer "window" rect
+	// There doesn't seem to be a good way to do this consistently without a bunch of platform
+	// specific code
+	if (!getMaximized())
+	{
+		size.mX = llmax(size.mX, mMinWindowWidth);
+		size.mY = llmax(size.mY, mMinWindowHeight);
+	}
+	return setSizeImpl(size);
+}
+
 
 // virtual
 void LLWindow::setMinSize(U32 min_width, U32 min_height, bool enforce_immediately)
@@ -435,4 +450,43 @@ BOOL LLWindowManager::destroyWindow(LLWindow* window)
 BOOL LLWindowManager::isWindowValid(LLWindow *window)
 {
 	return sWindowList.find(window) != sWindowList.end();
+}
+
+//coordinate conversion utility funcs that forward to llwindow
+LLCoordCommon LL_COORD_TYPE_WINDOW::convertToCommon() const
+{
+	const LLCoordWindow& self = LLCoordWindow::getTypedCoords(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL out;
+	windowp->convertCoords(self, &out);
+	return out.convert();
+}
+
+void LL_COORD_TYPE_WINDOW::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordWindow& self = LLCoordWindow::getTypedCoords(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL from_gl(from);
+	windowp->convertCoords(from_gl, &self);
+}
+
+LLCoordCommon LL_COORD_TYPE_SCREEN::convertToCommon() const
+{
+	const LLCoordScreen& self = LLCoordScreen::getTypedCoords(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL out;
+	windowp->convertCoords(self, &out);
+	return out.convert();
+}
+
+void LL_COORD_TYPE_SCREEN::convertFromCommon(const LLCoordCommon& from)
+{
+	LLCoordScreen& self = LLCoordScreen::getTypedCoords(*this);
+
+	LLWindow* windowp = &(*LLWindow::beginInstances());
+	LLCoordGL from_gl(from);
+	windowp->convertCoords(from_gl, &self);
 }

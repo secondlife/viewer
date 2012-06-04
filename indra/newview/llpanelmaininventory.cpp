@@ -375,7 +375,7 @@ void LLPanelMainInventory::onClearSearch()
 	if (mActivePanel)
 	{
 		mActivePanel->setFilterSubString(LLStringUtil::null);
-		mActivePanel->setFilterTypes(0xffffffff);
+		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
 		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
 	}
 
@@ -567,7 +567,7 @@ void LLPanelMainInventory::updateItemcountText()
 
 	std::string text = "";
 
-	if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive())
+	if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
 	{
 		text = getString("ItemcountFetching", string_args);
 	}
@@ -726,7 +726,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 void LLFloaterInventoryFinder::draw()
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_DRAW);
-	U32 filter = 0xffffffff;
+	U64 filter = 0xffffffffffffffffULL;
 	BOOL filtered_by_all_types = TRUE;
 
 	if (!getChild<LLUICtrl>("check_animation")->getValue())

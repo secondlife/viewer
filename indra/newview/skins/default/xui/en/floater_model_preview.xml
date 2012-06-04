@@ -117,18 +117,18 @@
              name="lod_tab_border"
              top_pad="0"
              width="619" />
-            <text
-             follows="left|top"
-             height="18"
-             initial_value="Source"
-             layout="topleft"
-             left="75"
-             name="source"
-             text_color="ModelUploaderLabels"
-             top="15"
-             valign="center"
-             value="Source"
-             width="335" />
+          <text
+           follows="left|top"
+           height="18"
+           initial_value="Source"
+           layout="topleft"
+           left="75"
+           name="source"
+           text_color="ModelUploaderLabels"
+           top="15"
+           valign="center"
+           value="Source"
+           width="335"/>
             <text
              follows="left|top"
              halign="right"
@@ -163,7 +163,7 @@
              name="high_label"
              text_color="ModelUploaderLabels"
              top_pad="10"
-             valign="center"
+             valign="top"
              value="High"
              width="65" />
             <combo_box
@@ -240,34 +240,34 @@
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="high_triangles"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="high_vertices"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="center"
-             height="18"
+             height="15"
              initial_value=""
              layout="topleft"
              left_pad="0"
              name="high_status"
-             valign="center"
+             valign="top"
              value=""
              width="65" />
             <icon
@@ -277,7 +277,7 @@
              left_delta="20"
              mouse_opaque="true"
              name="status_icon_high"
-             top_delta="0"
+             top_delta="-2"
              width="16" />
             <text
              follows="left|top"
@@ -288,7 +288,7 @@
              name="medium_label"
              text_color="ModelUploaderLabels"
              top_pad="15"
-             valign="center"
+             valign="top"
              value="Medium"
              width="65" />
             <combo_box
@@ -368,34 +368,34 @@
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="medium_triangles"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="medium_vertices"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="center"
-             height="18"
+             height="15"
              initial_value=""
              layout="topleft"
              left_pad="0"
              name="medium_status"
-             valign="center"
+             valign="top"
              value=""
              width="65" />
             <icon
@@ -405,7 +405,7 @@
              left_delta="20"
              mouse_opaque="true"
              name="status_icon_medium"
-             top_delta="0"
+             top_delta="-2"
              width="16" />
             <text
              follows="left|top"
@@ -416,7 +416,7 @@
              name="low_label"
              text_color="ModelUploaderLabels"
              top_pad="15"
-             valign="center"
+             valign="top"
              value="Low"
              width="65" />
             <combo_box
@@ -496,34 +496,34 @@
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="low_triangles"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="low_vertices"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="center"
-             height="18"
+             height="15"
              initial_value=""
              layout="topleft"
              left_pad="0"
              name="low_status"
-             valign="center"
+             valign="top"
              value=""
              width="65" />
             <icon
@@ -533,7 +533,7 @@
              left_delta="20"
              mouse_opaque="true"
              name="status_icon_low"
-             top_delta="0"
+             top_delta="-2"
              width="16" />
             <text
              follows="left|top"
@@ -544,7 +544,7 @@
              name="lowest_label"
              text_color="ModelUploaderLabels"
              top_pad="15"
-             valign="center"
+             valign="top"
              value="Lowest"
              width="65" />
             <combo_box
@@ -624,34 +624,34 @@
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="lowest_triangles"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="right"
-             height="18"
+             height="15"
              initial_value="0"
              layout="topleft"
              left_pad="0"
              name="lowest_vertices"
-             valign="center"
+             valign="top"
              value="0"
              width="65" />
             <text
              follows="left|top"
              halign="center"
-             height="18"
+             height="15"
              initial_value=""
              layout="topleft"
              left_pad="0"
              name="lowest_status"
-             valign="center"
+             valign="top"
              value=""
              width="65" />
             <icon

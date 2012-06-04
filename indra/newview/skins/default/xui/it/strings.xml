@@ -178,8 +178,8 @@ Visita www.secondlife.com/status per aggiornamenti.
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		L&apos;accesso a Second Life è temporaneamente limitato per garantire che chi è nel mondo virtuale abbia la migliore esperienza possibile.
-	 	
-Le persona con account gratuiti non potrenno accedere a Second Life durante questo periodo, per lasciare spazio alle persone che hanno pagato per Second Life.
+
+Le persone con account gratuiti non potranno accedere a Second Life durante questo periodo, per lasciare spazio alle persone che hanno pagato per Second Life.
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		Non si può accedere a Second Life da questo computer.
@@ -336,17 +336,35 @@ Prova ad accedere nuovamente tra un minuto.
 		Solo un singolo oggetto può essere creato qui
 	</string>
 	<string name="TooltipPrice" value="L$ [AMOUNT]:"/>
+	<string name="TooltipOutboxDragToWorld">
+		Non puoi rezzare elementi nella tua casella in uscita del rivenditore
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Almeno un oggetto non può essere venduto o trasferito a un altro utente.
+		Almeno uno di questi oggetti non può essere venduto o trasferito.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		La tua casella in uscita del rivenditore può accettare solo elementi provenienti dal tuo inventario
 	</string>
 	<string name="TooltipOutboxWorn">
-		Stai indossando almeno uno degli oggetti. Rimuovili dall&apos;avatar e prova nuovamente a spostarli.
+		Non puoi mettere gli elementi che indossi nella casella in uscita del rivenditore
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Non puoi inserire il tuo biglietto da visita nella tua casella in uscita del rivenditore
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Questa cartella contiene troppi livelli di cartelle nidificate. Riordina le cartelle interne in modo che non ci siano più di 4 livelli (cartella principale che contiene la cartella A, che contiene la cartella B, che contiene la cartella C).
+		La profondità delle caselle nidificate è maggiore di 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		Il numero di sottocartelle nella cartella al livello più alto è maggiore di 20
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Questa cartella contiene più di 200 oggetti. Inserisci alcuni oggetti in scatole per ridurne il numero.
+		Il numero di elementi nella cartella al livello più alto è maggiore di 200
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Non puoi spostare una cartella nella relativa cartella secondaria
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Non puoi spostare una cartella in se stessa
 	</string>
 	<string name="TooltipHttpUrl">
 		Clicca per visitare questa pagina web
@@ -811,6 +829,9 @@ Prova ad accedere nuovamente tra un minuto.
 	<string name="anim_yes_head">
 		Si
 	</string>
+	<string name="multiple_textures">
+		Multiple
+	</string>
 	<string name="texture_loading">
 		Caricamento in corso...
 	</string>
@@ -966,6 +987,9 @@ Prova ad accedere nuovamente tra un minuto.
 	</string>
 	<string name="choose_the_directory">
 		Scegli la cartella
+	</string>
+	<string name="script_files">
+		Script
 	</string>
 	<string name="AvatarSetNotAway">
 		Imposta come non assente
@@ -1205,43 +1229,36 @@ Prova ad accedere nuovamente tra un minuto.
 		Non hai una copia di questa texture nel tuo inventario
 	</string>
 	<string name="InventoryInboxNoItems">
-		Quando acquisti o ricevi un oggetto, verrà visualizzato qui per permetterti di trascinarlo in una cartella dell&apos;inventario o di cancellarlo se non desideri mantenerlo.
+		Gli acquissti dal mercato verranno mostrati qui. Potrai quindi trascinarli nel tuo inventario per usarli.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]/learn_more
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		La casella in uscita del rivenditore non è configurata correttamente
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Errore di configurazione della casella in uscita del rivenditore
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Contatta l&apos;Assistenza clienti per correggere il problema.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Chiunque può vendere oggetti nel Marketplace
+		Chiunque può vendere oggetti nel Marketplace.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		Diventa un rivenditore!
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] Second Life Marketplace] offre in vendita più di un milione di prodotti virtuali, tutti creati da Residenti. Anche tu puoi vendere gli oggetti che crei, oltre ad alcuni degli oggetti che hai acquistato. È facile da usare e l&apos;impostazione è gratuita. [[LEARN_MORE_URL] Leggi ulteriori informazioni] oppure [[CREATE_STORE_URL] crea un negozio] sul Marketplace per cominciare.
+		Per diventare un venditore, devi [[MARKETPLACE_CREATE_STORE_URL] creare un negozio nel Marketplace].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Un nuovo modo di inviare oggetti al Marketplace
+		La tua casella in uscita è vuota.
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Trascina gli oggetti qui per prepararli per la vendita nel Marketplace
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Trascina elementi o cartelle che desideri vendere in quest&apos;area. Verrà visualizzata una copia dell&apos;elemento, senza che venga modificato l&apos;inventario, tranne nel caso in cui venga trascinato un oggetto per cui non è permessa la copia. Clicca sul pulsante Carica per caricare gli elementi su Marketplace. Dopo aver spostato gli elementi nell&apos;inventario di Marketplace, non saranno più visibili in questa cartella.
+		Trascina le cartelle in questa area e clicca su &quot;Invia a Marketplace&quot; per metterle in vendita su [[MARKETPLACE_DASHBOARD_URL] Marketplace].
 	</string>
 	<string name="Marketplace Error None">
 		Nessun errore
@@ -1253,7 +1270,7 @@ Prova ad accedere nuovamente tra un minuto.
 		Errore: questa cartella non include alcun contenuto.
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		Errore: Oggetto non caricato perché il tuo account venditore ha troppi oggetti che non sono associati con dei prodotti. Per risolvere questo errore, esegui l&apos;accesso al sito di Marketplace e riduci il numero di oggetti non associati.
+		Errore: Oggetto non caricato perché il tuo account venditore ha troppi oggetti che non sono associati con dei prodotti.  Per risolvere questo errore, esegui l&apos;accesso al sito di Marketplace e riduci il numero di oggetti non associati.
 	</string>
 	<string name="Marketplace Error Object Limit">
 		Errore: questo elemento contiene troppi oggetti. Per risolvere questo problema, inserisci più oggetti insieme in una scatola per ridurre a meno di 200 il numero totale di oggetti.
@@ -3829,6 +3846,9 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	<string name="Saved_message">
 		(Salvato [LONG_TIMESTAMP])
 	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Per vedere questo messaggio, devi deselezionare &apos;Solo amici e gruppi possono chiamarmi o mandarmi IM&apos; in Preferenze/Privacy.
+	</string>
 	<string name="answered_call">
 		Risposto alla chiamata
 	</string>
@@ -4014,7 +4034,7 @@ Se il messaggio persiste, contatta [SUPPORT_SITE].
 	</string>
 	<string name="uploading_abuse_report">
 		Caricamento in corso...
-  
+
 Segnala abuso
 	</string>
 	<string name="New Shape">
@@ -4282,7 +4302,7 @@ Segnala abuso
 	<string name="server_is_down">
 		Nonostante i nostri tentativi, si è verificato un errore imprevisto.
 
-	Consulta la pagina status.secondlifegrid.net per determinare se si sia verificato un problema noto con il servizio.  
+	Consulta la pagina status.secondlifegrid.net per determinare se si sia verificato un problema noto con il servizio.
         Se il problema continua, ti consigliamo di controllare le tue impostazioni di rete e della firewall.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4749,6 +4769,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	<string name="Command_Move_Label">
 		Cammina / corri / vola
 	</string>
+	<string name="Command_Outbox_Label">
+		Casella in uscita del rivenditore
+	</string>
 	<string name="Command_People_Label">
 		Persone
 	</string>
@@ -4820,6 +4843,9 @@ Prova a racchiudere il percorso dell&apos;editor in doppie virgolette.
 	</string>
 	<string name="Command_Move_Tooltip">
 		Movimento avatar
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		Trasferisci elementi al tuo mercato per la vendita
 	</string>
 	<string name="Command_People_Tooltip">
 		Amici, gruppi e persone vicine

@@ -41,13 +41,9 @@
 // Methods
 //
 
-void commit_grid_mode(LLUICtrl *);
-
 LLFloaterBuildOptions::LLFloaterBuildOptions(const LLSD& key)
-  : LLFloater(key),
-    mComboGridMode(NULL)
+  : LLFloater(key)
 {
-	mCommitCallbackRegistrar.add("GridOptions.gridMode", boost::bind(&commit_grid_mode,_1));
 }
 
 LLFloaterBuildOptions::~LLFloaterBuildOptions()
@@ -55,43 +51,7 @@ LLFloaterBuildOptions::~LLFloaterBuildOptions()
 
 BOOL LLFloaterBuildOptions::postBuild()
 {
-	mComboGridMode = getChild<LLComboBox>("combobox grid mode");
-
 	return TRUE;
-}
-
-void LLFloaterBuildOptions::setGridMode(EGridMode mode)
-{
-	mComboGridMode->setCurrentByIndex((S32)mode);
-}
-
-void LLFloaterBuildOptions::updateGridMode()
-{
-	if (mComboGridMode)
-	{
-		S32 index = mComboGridMode->getCurrentIndex();
-		mComboGridMode->removeall();
-
-		switch (mObjectSelection->getSelectType())
-		{
-		case SELECT_TYPE_HUD:
-		  mComboGridMode->add(getString("grid_screen_text"));
-		  mComboGridMode->add(getString("grid_local_text"));
-		  break;
-		case SELECT_TYPE_WORLD:
-		  mComboGridMode->add(getString("grid_world_text"));
-		  mComboGridMode->add(getString("grid_local_text"));
-		  mComboGridMode->add(getString("grid_reference_text"));
-		  break;
-		case SELECT_TYPE_ATTACHMENT:
-		  mComboGridMode->add(getString("grid_attachment_text"));
-		  mComboGridMode->add(getString("grid_local_text"));
-		  mComboGridMode->add(getString("grid_reference_text"));
-		  break;
-		}
-
-		mComboGridMode->setCurrentByIndex(index);
-	}
 }
 
 // virtual
@@ -104,11 +64,4 @@ void LLFloaterBuildOptions::onOpen(const LLSD& key)
 void LLFloaterBuildOptions::onClose(bool app_quitting)
 {
 	mObjectSelection = NULL;
-}
-
-void commit_grid_mode(LLUICtrl *ctrl)
-{
-	LLComboBox* combo = (LLComboBox*)ctrl;
-
-	LLSelectMgr::getInstance()->setGridMode((EGridMode)combo->getCurrentIndex());
 }

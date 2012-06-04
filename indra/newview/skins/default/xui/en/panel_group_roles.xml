@@ -172,7 +172,7 @@ including the Everyone and Owner Roles.
              draw_heading="true"
              draw_stripes="false"
              heading_height="23"
-             height="130"
+             height="132"
              layout="topleft"
              search_column="1"
              left="0"

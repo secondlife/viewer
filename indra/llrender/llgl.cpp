@@ -97,6 +97,8 @@ void APIENTRY gl_debug_callback(GLenum source,
 }
 #endif
 
+void parse_glsl_version(S32& major, S32& minor);
+
 void ll_init_fail_log(std::string filename)
 {
 	gFailLog.open(filename.c_str());
@@ -295,6 +297,7 @@ PFNGLGETACTIVEUNIFORMARBPROC glGetActiveUniformARB = NULL;
 PFNGLGETUNIFORMFVARBPROC glGetUniformfvARB = NULL;
 PFNGLGETUNIFORMIVARBPROC glGetUniformivARB = NULL;
 PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB = NULL;
+PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer = NULL;
 
 #if LL_WINDOWS
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
@@ -443,7 +446,8 @@ LLGLManager::LLGLManager() :
 	mDriverVersionMinor(0),
 	mDriverVersionRelease(0),
 	mGLVersion(1.0f),
-		
+	mGLSLVersionMajor(0),
+	mGLSLVersionMinor(0),		
 	mVRAM(0),
 	mGLMaxVertexRange(0),
 	mGLMaxIndexRange(0)
@@ -553,6 +557,20 @@ bool LLGLManager::initGL()
 		&mDriverVersionVendorString );
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
+
+	if (mGLVersion >= 2.f)
+	{
+		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
+
+#if LL_DARWIN
+		//never use GLSL greater than 1.20 on OSX
+		if (mGLSLVersionMajor > 1 || mGLSLVersionMinor >= 30)
+		{
+			mGLSLVersionMajor = 1;
+			mGLSLVersionMinor = 20;
+		}
+#endif
+	}
 
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
@@ -1300,6 +1318,7 @@ void LLGLManager::initExtensions()
 		glVertexAttrib4uivARB = (PFNGLVERTEXATTRIB4UIVARBPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttrib4uivARB");
 		glVertexAttrib4usvARB = (PFNGLVERTEXATTRIB4USVARBPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttrib4usvARB");
 		glVertexAttribPointerARB = (PFNGLVERTEXATTRIBPOINTERARBPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttribPointerARB");
+		glVertexAttribIPointer = (PFNGLVERTEXATTRIBIPOINTERPROC) GLH_EXT_GET_PROC_ADDRESS("glVertexAttribIPointer");
 		glEnableVertexAttribArrayARB = (PFNGLENABLEVERTEXATTRIBARRAYARBPROC) GLH_EXT_GET_PROC_ADDRESS("glEnableVertexAttribArrayARB");
 		glDisableVertexAttribArrayARB = (PFNGLDISABLEVERTEXATTRIBARRAYARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDisableVertexAttribArrayARB");
 		glProgramStringARB = (PFNGLPROGRAMSTRINGARBPROC) GLH_EXT_GET_PROC_ADDRESS("glProgramStringARB");
@@ -2096,6 +2115,55 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 	{
 		vendor_specific->assign( version + i );
 	}
+}
+
+
+void parse_glsl_version(S32& major, S32& minor)
+{
+	// GL_SHADING_LANGUAGE_VERSION returns a null-terminated string with the format: 
+	// <major>.<minor>[.<release>] [<vendor specific>]
+
+	const char* version = (const char*) glGetString(GL_SHADING_LANGUAGE_VERSION);
+	major = 0;
+	minor = 0;
+	
+	if( !version )
+	{
+		return;
+	}
+
+	std::string ver_copy( version );
+	S32 len = (S32)strlen( version );	/* Flawfinder: ignore */
+	S32 i = 0;
+	S32 start;
+	// Find the major version
+	start = i;
+	for( ; i < len; i++ )
+	{
+		if( '.' == version[i] )
+		{
+			break;
+		}
+	}
+	std::string major_str = ver_copy.substr(start,i-start);
+	LLStringUtil::convertToS32(major_str, major);
+
+	if( '.' == version[i] )
+	{
+		i++;
+	}
+
+	// Find the minor version
+	start = i;
+	for( ; i < len; i++ )
+	{
+		if( ('.' == version[i]) || isspace(version[i]) )
+		{
+			break;
+		}
+	}
+	std::string minor_str = ver_copy.substr(start,i-start);
+	LLStringUtil::convertToS32(minor_str, minor);
 }
 
 LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)

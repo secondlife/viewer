@@ -593,7 +593,7 @@ void LLStatTime::stop()
 {
     if ( LLStatAccum::SCALE_PER_FRAME == scale )
     {
-        return mTotalTimeInFrame;
+        return (F32)mTotalTimeInFrame;
     }
     else
     {

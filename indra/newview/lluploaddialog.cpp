@@ -115,7 +115,7 @@ void LLUploadDialog::setMessage( const std::string& msg)
 		token = strtok( NULL, "\n" );
 	}
 
-	S32 line_height = S32( font->getLineHeight() + 0.99f );
+	S32 line_height = font->getLineHeight();
 	S32 dialog_width = max_msg_width + 2 * HPAD;
 	S32 dialog_height = line_height * msg_lines.size() + 2 * VPAD;
 

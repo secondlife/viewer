@@ -26,80 +26,87 @@
 #ifndef LL_LLCOORD_H
 #define LL_LLCOORD_H
 
+template<typename> class LLCoord;
+struct LL_COORD_TYPE_GL;
+struct LL_COORD_TYPE_WINDOW;
+struct LL_COORD_TYPE_SCREEN;
+
+typedef LLCoord<LL_COORD_TYPE_GL> LLCoordGL;
+typedef LLCoord<LL_COORD_TYPE_WINDOW> LLCoordWindow;
+typedef LLCoord<LL_COORD_TYPE_SCREEN> LLCoordScreen;
+
+struct LLCoordCommon
+{
+	LLCoordCommon(S32 x, S32 y) : mX(x), mY(y) {}
+	LLCoordCommon() : mX(0), mY(0) {}
+	S32 mX;
+	S32 mY;
+};
+
 // A two-dimensional pixel value
-class LLCoord
+template<typename COORD_FRAME>
+class LLCoord : protected COORD_FRAME
 {
 public:
-	S32		mX;
-	S32		mY;
+	typedef LLCoord<COORD_FRAME> self_t;
+	typename COORD_FRAME::value_t	mX;
+	typename COORD_FRAME::value_t	mY;
 
 	LLCoord():	mX(0), mY(0)
 	{}
-	LLCoord(S32 x, S32 y): mX(x), mY(y)
-	{}
-	virtual ~LLCoord()
+	LLCoord(typename COORD_FRAME::value_t x, typename COORD_FRAME::value_t y): mX(x), mY(y)
 	{}
 
-	virtual void set(S32 x, S32 y)		{ mX = x; mY = y; }
+	LLCoord(const LLCoordCommon& other)
+	{
+		COORD_FRAME::convertFromCommon(other);
+	}
+
+	LLCoordCommon convert() const
+	{
+		return COORD_FRAME::convertToCommon();
+	}
+
+	void set(typename COORD_FRAME::value_t x, typename COORD_FRAME::value_t y) { mX = x; mY = y;}
+	bool operator==(const self_t& other) const { return mX == other.mX && mY == other.mY; }
+	bool operator!=(const self_t& other) const { return !(*this == other); }
+
+	static const self_t& getTypedCoords(const COORD_FRAME& self) { return static_cast<const self_t&>(self); }
+	static self_t& getTypedCoords(COORD_FRAME& self) { return static_cast<self_t&>(self); }
 };
 
-
-// GL coordinates start in the client region of a window,
-// with left, bottom = 0, 0
-class LLCoordGL : public LLCoord
+struct LL_COORD_TYPE_GL 
 {
-public:
-	LLCoordGL() : LLCoord()
-	{}
-	LLCoordGL(S32 x, S32 y) : LLCoord(x, y)
-	{}
-	bool operator==(const LLCoordGL& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordGL& other) const { return !(*this == other); }
+	typedef S32 value_t;
+
+	LLCoordCommon convertToCommon() const
+	{
+		const LLCoordGL& self = LLCoordGL::getTypedCoords(*this);
+		return LLCoordCommon(self.mX, self.mY);
+	}
+
+	void convertFromCommon(const LLCoordCommon& from)
+	{
+		LLCoordGL& self = LLCoordGL::getTypedCoords(*this);
+		self.mX = from.mX;
+		self.mY = from.mY;
+	}
 };
 
-//bool operator ==(const LLCoordGL& a, const LLCoordGL& b);
-
-// Window coords include things like window borders,
-// menu regions, etc.
-class LLCoordWindow : public LLCoord
+struct LL_COORD_TYPE_WINDOW 
 {
-public:
-	LLCoordWindow() : LLCoord()
-	{}
-	LLCoordWindow(S32 x, S32 y) : LLCoord(x, y)
-	{}
-	bool operator==(const LLCoordWindow& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordWindow& other) const { return !(*this == other); }
+	typedef S32 value_t;
+
+	LLCoordCommon convertToCommon() const;
+	void convertFromCommon(const LLCoordCommon& from);
 };
 
-
-// Screen coords start at left, top = 0, 0
-class LLCoordScreen : public LLCoord
+struct LL_COORD_TYPE_SCREEN 
 {
-public:
-	LLCoordScreen() : LLCoord()
-	{}
-	LLCoordScreen(S32 x, S32 y) : LLCoord(x, y)
-	{}
-	bool operator==(const LLCoordScreen& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordScreen& other) const { return !(*this == other); }
-};
+	typedef S32 value_t;
 
-class LLCoordFont : public LLCoord
-{
-public:
-	F32 mZ;
-	
-	LLCoordFont() : LLCoord(), mZ(0.f)
-	{}
-	LLCoordFont(S32 x, S32 y, F32 z = 0) : LLCoord(x,y), mZ(z)
-	{}
-	
-	void set(S32 x, S32 y) { LLCoord::set(x,y); mZ = 0.f; }
-	void set(S32 x, S32 y, F32 z) { mX = x; mY = y; mZ = z; }
-	bool operator==(const LLCoordFont& other) const { return mX == other.mX && mY == other.mY; }
-	bool operator!=(const LLCoordFont& other) const { return !(*this == other); }
+	LLCoordCommon convertToCommon() const;
+	void convertFromCommon(const LLCoordCommon& from);
 };
-	
 
 #endif

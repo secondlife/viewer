@@ -24,7 +24,9 @@
  */
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2D texture0;
@@ -38,5 +40,5 @@ void main()
 	float tex0 = texture2D(texture0, vary_texcoord0.xy).a;
 	float tex1 = texture2D(texture1, vary_texcoord1.xy).a;
 
-	gl_FragColor = vec4(tex0+(1.0-tex1)-0.5);
+	frag_color = vec4(tex0+(1.0-tex1)-0.5);
 }

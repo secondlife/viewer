@@ -100,9 +100,9 @@ namespace tut
 	{
 		S32 level = mMap->scaleToLevel(0.0);
 		ensure("scaleToLevel() test 1 failed", level == LLWorldMipmap::MAP_LEVELS);
-		level = mMap->scaleToLevel(LLWorldMipmap::MAP_TILE_SIZE);
+		level = mMap->scaleToLevel((F32)LLWorldMipmap::MAP_TILE_SIZE);
 		ensure("scaleToLevel() test 2 failed", level == 1);
-		level = mMap->scaleToLevel(10 * LLWorldMipmap::MAP_TILE_SIZE);
+		level = mMap->scaleToLevel(10.f * LLWorldMipmap::MAP_TILE_SIZE);
 		ensure("scaleToLevel() test 3 failed", level == 1);
 	}
 	// Test 2 : globalToMipmap()

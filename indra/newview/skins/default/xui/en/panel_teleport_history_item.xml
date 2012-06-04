@@ -44,7 +44,7 @@
      parse_urls="false"
      use_ellipses="true"
      name="region"
-     text_color="white"
+     text_color="White"
      top="4"
      value="..."
      width="330" />

@@ -70,9 +70,10 @@ elseif (LINUX)
         QtNetwork
         QtGui
         QtCore
-        qgif
-        qjpeg
-        jpeg
+        jscore
+#        qgif
+#        qjpeg
+#        jpeg
         fontconfig
         X11
         Xrender

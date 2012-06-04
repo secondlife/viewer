@@ -89,7 +89,7 @@ void LLPlacesFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 		std::vector<std::string> items;
 		std::vector<std::string> disabled_items;
 
-		LLInventoryPanel* inv_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+		LLInventoryPanel* inv_panel = mInventoryPanel.get();
 		bool is_open = false;
 		if (inv_panel)
 		{
@@ -137,7 +137,7 @@ void LLPlacesFolderBridge::performAction(LLInventoryModel* model, std::string ac
 LLFolderViewFolder* LLPlacesFolderBridge::getFolder()
 {
 	LLFolderViewFolder* folder = NULL;
-	LLInventoryPanel* inv_panel = dynamic_cast<LLInventoryPanel*>(mInventoryPanel.get());
+	LLInventoryPanel* inv_panel = mInventoryPanel.get();
 	if (inv_panel)
 	{
 		folder = dynamic_cast<LLFolderViewFolder*>(inv_panel->getRootFolder()->getItemByID(mUUID));

@@ -48,6 +48,7 @@
 #include "llpreviewnotecard.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
+#include "lltoolbarview.h"
 #include "lltoolmgr.h"
 #include "lltooltip.h"
 #include "lltrans.h"
@@ -333,14 +334,15 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
-:	 LLTool(std::string("draganddrop"), NULL),
-	 mDragStartX(0),
-	 mDragStartY(0),
-	 mSource(SOURCE_AGENT),
-	 mCursor(UI_CURSOR_NO),
-	 mLastAccept(ACCEPT_NO),
-	 mDrop(FALSE),
-	 mCurItemIndex(0)
+:	LLTool(std::string("draganddrop"), NULL),
+	mCargoCount(0),
+	mDragStartX(0),
+	mDragStartY(0),
+	mSource(SOURCE_AGENT),
+	mCursor(UI_CURSOR_NO),
+	mLastAccept(ACCEPT_NO),
+	mDrop(FALSE),
+	mCurItemIndex(0)
 {
 
 }
@@ -2527,7 +2529,7 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 	}
 	else if(mSource == SOURCE_VIEWER)
 	{
-		item = (LLViewerInventoryItem*)gClipboard.getSourceObject();
+		item = (LLViewerInventoryItem*)gToolBarView->getDragItem();
 	}
 	if(item) return item;
 	if(cat) return cat;
