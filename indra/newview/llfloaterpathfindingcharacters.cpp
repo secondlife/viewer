@@ -29,6 +29,7 @@
 
 #include "llfloaterpathfindingcharacters.h"
 
+#include "llcheckboxctrl.h"
 #include "llfloaterreg.h"
 #include "llfloaterpathfindingobjects.h"
 #include "llpathfindingcharacter.h"
@@ -38,12 +39,6 @@
 #include "llsd.h"
 #include "lluicolortable.h"
 
-#include "llbutton.h"
-#include "llcheckboxctrl.h"
-#include "llfloater.h"
-#include "llscrolllistctrl.h"
-#include "llscrolllistitem.h"
-#include "llselectmgr.h"
 #include "pipeline.h"
 #include "llviewerobjectlist.h"
 
@@ -53,22 +48,46 @@ LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::sInstan
 // LLFloaterPathfindingCharacters
 //---------------------------------------------------------------------------
 
-void LLFloaterPathfindingCharacters::openCharactersViewer()
-{
-	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_characters");
-}
-
 void LLFloaterPathfindingCharacters::onClose(bool pIsAppQuitting)
 {
 	unhideAnyCharacters();
 	LLFloaterPathfindingObjects::onClose( pIsAppQuitting );
 }
 
+BOOL LLFloaterPathfindingCharacters::isShowPhysicsCapsule() const
+{
+	return mShowPhysicsCapsuleCheckBox->get();
+}
+
+void LLFloaterPathfindingCharacters::setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule)
+{
+	mShowPhysicsCapsuleCheckBox->set(pIsShowPhysicsCapsule);
+}
+
+void LLFloaterPathfindingCharacters::openCharactersViewer()
+{
+	LLFloaterReg::toggleInstanceOrBringToFront("pathfinding_characters");
+}
+
+LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::getInstanceHandle()
+{
+	if ( sInstanceHandle.isDead() )
+	{
+		LLFloaterPathfindingCharacters *floaterInstance = LLFloaterReg::getTypedInstance<LLFloaterPathfindingCharacters>("pathfinding_characters");
+		if (floaterInstance != NULL)
+		{
+			sInstanceHandle = floaterInstance->mSelfHandle;
+		}
+	}
+
+	return sInstanceHandle;
+}
+
 LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed)
 	: LLFloaterPathfindingObjects(pSeed),
+	mShowPhysicsCapsuleCheckBox(NULL),
 	mBeaconColor(),
-	mSelfHandle(),
-	mShowPhysicsCapsuleCheckBox(NULL)
+	mSelfHandle()
 {
 	mSelfHandle.bind(this);
 }
@@ -115,6 +134,12 @@ LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPa
 	return scrollListData;
 }
 
+void LLFloaterPathfindingCharacters::updateControls()
+{
+	LLFloaterPathfindingObjects::updateControls();
+	updateStateOnEditFields();
+}
+
 S32 LLFloaterPathfindingCharacters::getNameColumnIndex() const
 {
 	return 0;
@@ -129,6 +154,24 @@ LLPathfindingObjectListPtr LLFloaterPathfindingCharacters::getEmptyObjectList() 
 {
 	LLPathfindingObjectListPtr objectListPtr(new LLPathfindingCharacterList());
 	return objectListPtr;
+}
+
+void LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked()
+{
+	LLVector3 pos;
+	LLUUID id = getUUIDFromSelection( pos );
+	if ( id.notNull() )
+	{
+		if ( isShowPhysicsCapsule() )
+		{
+			//We want to hide the VO and display the the objects physics capsule		
+			gPipeline.hideObject( id );
+		}
+		else
+		{
+			gPipeline.restoreHiddenObject( id );
+		}
+	}
 }
 
 LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const
@@ -169,35 +212,51 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 	return element;
 }
 
-
-void LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked()
+void LLFloaterPathfindingCharacters::updateStateOnEditFields()
 {
-	 if ( mShowPhysicsCapsuleCheckBox->get() )
-	 {
-		//We want to hide the VO and display the the objects physics capsule		
-		LLVector3 pos;
-		LLUUID id = getUUIDFromSelection( pos );
-		if ( id.notNull() )
+	int numSelectedItems = getNumSelectedObjects();;
+	bool isEditEnabled = (numSelectedItems == 1);
+
+	mShowPhysicsCapsuleCheckBox->setEnabled(isEditEnabled);
+	if (!isEditEnabled)
+	{
+		setShowPhysicsCapsule(FALSE);
+	}
+}
+
+LLUUID LLFloaterPathfindingCharacters::getUUIDFromSelection( LLVector3& pos )
+{
+	LLUUID uuid = LLUUID::null;
+
+	if (getNumSelectedObjects() == 1)
+	{
+		LLPathfindingObjectPtr selectedObjectPtr = getFirstSelectedObject();
+		uuid = selectedObjectPtr->getUUID();
+		LLViewerObject *viewerObject = gObjectList.findObject(uuid);
+		if ( viewerObject != NULL )
 		{
-			gPipeline.hideObject( id );
-		}		
-	 }
-	 else
-	 {
-		 //We want to restore the selected objects vo and disable the physics capsule rendering	
-		  LLVector3 pos;
-		  LLUUID id = getUUIDFromSelection( pos );
-		  if ( id.notNull() )
-		  {	
-			gPipeline.restoreHiddenObject( id );
-		  }		
-	 }
+			pos = viewerObject->getRenderPosition();
+		}
+	}
+
+	return uuid;
+}
+
+void LLFloaterPathfindingCharacters::unhideAnyCharacters()
+{
+	LLPathfindingObjectListPtr objectListPtr = getSelectedObjects();
+	for (LLPathfindingObjectList::const_iterator objectIter = objectListPtr->begin();
+		objectIter != objectListPtr->end(); ++objectIter)
+	{
+		LLPathfindingObjectPtr objectPtr = objectIter->second;
+		gPipeline.restoreHiddenObject(objectPtr->getUUID());
+	}
 }
 
 BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos )
 {
 	BOOL result = false;
-	if ( mShowPhysicsCapsuleCheckBox->get() )
+	if ( isShowPhysicsCapsule() )
 	{	
 		 id = getUUIDFromSelection( pos );
 		 result = true;
@@ -207,69 +266,4 @@ BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled( LLUUID& id, LLVect
 		id.setNull();
 	}
 	return result;
-}
-
-LLUUID LLFloaterPathfindingCharacters::getUUIDFromSelection( LLVector3& pos )
-{ 	
-	std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
-	if ( selectedItems.size() > 1 )
-	{
-		return LLUUID::null;
-	}
-	if (selectedItems.size() == 1)
-	{
-		std::vector<LLScrollListItem*>::const_reference selectedItemRef = selectedItems.front();
-		const LLScrollListItem *selectedItem = selectedItemRef;
-		llassert(mObjectList != NULL);	
-		LLViewerObject *viewerObject = gObjectList.findObject( selectedItem->getUUID() );
-		if ( viewerObject != NULL )
-		{
-			pos = viewerObject->getRenderPosition();
-		}
-		//llinfos<<"id : "<<selectedItem->getUUID()<<llendl;
-		return selectedItem->getUUID();
-	}
-
-	return LLUUID::null;
-}
-
-LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::getInstanceHandle()
-{
-	if ( sInstanceHandle.isDead() )
-	{
-		LLFloaterPathfindingCharacters *floaterInstance = LLFloaterReg::getTypedInstance<LLFloaterPathfindingCharacters>("pathfinding_characters");
-		if (floaterInstance != NULL)
-		{
-			sInstanceHandle = floaterInstance->mSelfHandle;
-		}
-	}
-
-	return sInstanceHandle;
-}
-
-void LLFloaterPathfindingCharacters::updateStateOnEditFields()
-{
-	int numSelectedItems = mObjectsScrollList->getNumSelected();
-	bool isEditEnabled = (numSelectedItems > 0);
-
-	mShowPhysicsCapsuleCheckBox->setEnabled(isEditEnabled);
-
-	LLFloaterPathfindingObjects::updateStateOnEditFields();
-}
-
-
-void LLFloaterPathfindingCharacters::unhideAnyCharacters( )
-{
-	std::vector<LLScrollListItem*> selectedItems = mObjectsScrollList->getAllSelected();
-	int numSelectedItems = selectedItems.size();
-	uuid_vec_t selectedUUIDs;
-	if (numSelectedItems > 0)
-	{
-		for (std::vector<LLScrollListItem*>::const_iterator itemIter = selectedItems.begin();
-			 itemIter != selectedItems.end(); ++itemIter)
-		{
-			const LLScrollListItem *listItem = *itemIter;
-			gPipeline.restoreHiddenObject( listItem->getUUID() );
-		}
-	}
 }

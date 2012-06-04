@@ -52,7 +52,6 @@ public:
 	virtual void onOpen(const LLSD &pKey);
 	virtual void onClose(bool pIsAppQuitting);
 	virtual void draw();
-	virtual void updateStateOnEditFields();
 
 protected:
 	friend class LLFloaterReg;
@@ -126,11 +125,11 @@ private:
 
 	void                   updateMessagingStatus();
 	void                   updateStateOnListActionControls();
+	void                   updateStateOnEditFields();
 	void                   updateOnScrollListChange();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
 
-protected:
 	LLScrollListCtrl                   *mObjectsScrollList;
 	LLTextBase                         *mMessagingStatus;
 	LLButton                           *mRefreshListButton;

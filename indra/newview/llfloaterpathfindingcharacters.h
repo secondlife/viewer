@@ -29,6 +29,7 @@
 #define LL_LLFLOATERPATHFINDINGCHARACTERS_H
 
 #include "llfloaterpathfindingobjects.h"
+#include "llhandle.h"
 #include "llpathfindingobjectlist.h"
 #include "v4color.h"
 
@@ -38,9 +39,17 @@ class LLSD;
 class LLFloaterPathfindingCharacters : public LLFloaterPathfindingObjects
 {
 public:
-	static void  openCharactersViewer();
-	/*virtual*/ void onClose(bool pIsAppQuitting);
-	void updateStateOnEditFields();
+	virtual void                                    onClose(bool pIsAppQuitting);
+
+	BOOL                                            isShowPhysicsCapsule() const;
+	void                                            setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule);
+
+	BOOL                                            isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos );
+
+	static void                                     openCharactersViewer();
+	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();
+
+
 protected:
 	friend class LLFloaterReg;
 
@@ -53,32 +62,30 @@ protected:
 
 	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
 
+	virtual void                       updateControls();
+
 	virtual S32                        getNameColumnIndex() const;
 	virtual const LLColor4             &getBeaconColor() const;
 
 	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
 
-	
-	void unhideAnyCharacters();
-
 
 private:
-	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
+	void    onShowPhysicsCapsuleClicked();
 
-	LLColor4                           mBeaconColor;
-	
-	LLUUID getUUIDFromSelection( LLVector3& pos );
+	LLSD    buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
+	void    updateStateOnEditFields();
+	LLUUID  getUUIDFromSelection( LLVector3& pos );
+	void    unhideAnyCharacters();
 
-public:
-	BOOL isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos );
-	void onShowPhysicsCapsuleClicked();
+	LLCheckBoxCtrl                                   *mShowPhysicsCapsuleCheckBox;
+
+	LLColor4                                         mBeaconColor;
+
 	LLRootHandle<LLFloaterPathfindingCharacters>     mSelfHandle;
 	static LLHandle<LLFloaterPathfindingCharacters>  sInstanceHandle;
-	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();
 
 public:
-	LLCheckBoxCtrl                     *mShowPhysicsCapsuleCheckBox;
-
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCHARACTERS_H
