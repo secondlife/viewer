@@ -27,13 +27,19 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llcombobox.h"
+#include "llfilepicker.h"
+#include "llfloaterreg.h"
 #include "llfloaterspellchecksettings.h"
 #include "llscrolllistctrl.h"
+#include "llsdserialize.h"
 #include "llspellcheck.h"
 #include "llviewercontrol.h"
 
 #include <boost/algorithm/string.hpp>
 
+///----------------------------------------------------------------------------
+/// Class LLFloaterSpellCheckerSettings
+///----------------------------------------------------------------------------
 LLFloaterSpellCheckerSettings::LLFloaterSpellCheckerSettings(const LLSD& key)
 	: LLFloater(key)
 {
@@ -42,21 +48,28 @@ LLFloaterSpellCheckerSettings::LLFloaterSpellCheckerSettings(const LLSD& key)
 BOOL LLFloaterSpellCheckerSettings::postBuild(void)
 {
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaryLists, this, false));
+	LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
+	getChild<LLUICtrl>("spellcheck_import_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnImport, this));
 	getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaryLists, this, false));
-	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onClickDictMove, this, "spellcheck_active_list", "spellcheck_available_list"));
-	getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onClickDictMove, this, "spellcheck_available_list", "spellcheck_active_list"));
-	getChild<LLUICtrl>("spellcheck_ok")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onOK, this));
-	getChild<LLUICtrl>("spellcheck_cancel")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onCancel, this));
+	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
+	getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
+	getChild<LLUICtrl>("spellcheck_ok")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnOK, this));
+	getChild<LLUICtrl>("spellcheck_cancel")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnCancel, this));
 
 	return true;
 }
 
-void LLFloaterSpellCheckerSettings::onCancel()
+void LLFloaterSpellCheckerSettings::onBtnCancel()
 {
 	closeFloater(false);
 }
 
-void LLFloaterSpellCheckerSettings::onClickDictMove(const std::string& from, const std::string& to)
+void LLFloaterSpellCheckerSettings::onBtnImport()
+{
+	LLFloaterReg::showInstance("prefs_spellchecker_import");
+}
+
+void LLFloaterSpellCheckerSettings::onBtnMove(const std::string& from, const std::string& to)
 {
 	LLScrollListCtrl* from_ctrl = findChild<LLScrollListCtrl>(from);
 	LLScrollListCtrl* to_ctrl = findChild<LLScrollListCtrl>(to);
@@ -75,7 +88,7 @@ void LLFloaterSpellCheckerSettings::onClickDictMove(const std::string& from, con
 	from_ctrl->deleteSelectedItems();
 }
 
-void LLFloaterSpellCheckerSettings::onOK()
+void LLFloaterSpellCheckerSettings::onBtnOK()
 {
 	std::list<std::string> list_dict;
 
@@ -96,6 +109,11 @@ void LLFloaterSpellCheckerSettings::onOK()
 }
 
 void LLFloaterSpellCheckerSettings::onOpen(const LLSD& key)
+{
+	refreshDictionaryLists(true);
+}
+
+void LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange()
 {
 	refreshDictionaryLists(true);
 }
@@ -176,4 +194,99 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 			avail_ctrl->addElement(row);
 		}
 	}
+}
+
+///----------------------------------------------------------------------------
+/// Class LLFloaterSpellCheckerImport
+///----------------------------------------------------------------------------
+LLFloaterSpellCheckerImport::LLFloaterSpellCheckerImport(const LLSD& key)
+	: LLFloater(key)
+{
+}
+
+BOOL LLFloaterSpellCheckerImport::postBuild(void)
+{
+	getChild<LLUICtrl>("dictionary_path_browse")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnBrowse, this));
+	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnOK, this));
+	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerImport::onBtnCancel, this));
+
+	return true;
+}
+
+void LLFloaterSpellCheckerImport::onBtnBrowse()
+{
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if (!file_picker.getOpenFile(LLFilePicker::FFLOAD_DICTIONARY))
+	{
+		return;
+	}
+
+	const std::string filepath = file_picker.getFirstFile();
+	getChild<LLUICtrl>("dictionary_path")->setValue(filepath);
+	
+	mDictionaryDir = gDirUtilp->getDirName(filepath);
+	mDictionaryBasename = gDirUtilp->getBaseFileName(filepath, true);
+	getChild<LLUICtrl>("dictionary_name")->setValue(mDictionaryBasename);
+}
+
+void LLFloaterSpellCheckerImport::onBtnCancel()
+{
+	closeFloater(false);
+}
+
+void LLFloaterSpellCheckerImport::onBtnOK()
+{
+	const std::string dict_dic = mDictionaryDir + gDirUtilp->getDirDelimiter() + mDictionaryBasename + ".dic";
+	const std::string dict_aff = mDictionaryDir + gDirUtilp->getDirDelimiter() + mDictionaryBasename + ".aff";
+	std::string dict_language = getChild<LLUICtrl>("dictionary_language")->getValue().asString();
+	LLStringUtil::trim(dict_language);
+	if ( (dict_language.empty()) || (!gDirUtilp->fileExists(dict_dic)) || 
+		 (mDictionaryDir.empty()) || (mDictionaryBasename.empty()) )
+	{
+		return;
+	}
+
+	LLSD custom_dict_info;
+	custom_dict_info["is_primary"] = (bool)gDirUtilp->fileExists(dict_aff);
+	custom_dict_info["name"] = mDictionaryBasename;
+	custom_dict_info["language"] = dict_language;
+
+	LLSD custom_dict_map;
+	llifstream custom_file_in(LLSpellChecker::getDictionaryUserPath() + "user_dictionaries.xml");
+	if (custom_file_in.is_open())
+	{
+		LLSDSerialize::fromXMLDocument(custom_dict_map, custom_file_in);
+		custom_file_in.close();
+	}
+	
+	LLSD::array_iterator it = custom_dict_map.beginArray();
+	for (; it != custom_dict_map.endArray(); ++it)
+	{
+		LLSD& dict_info = *it;
+		if (dict_info["name"].asString() == mDictionaryBasename)
+		{
+			dict_info = custom_dict_info;
+			break;
+		}
+	}
+	if (custom_dict_map.endArray() == it)
+	{
+		custom_dict_map.append(custom_dict_info);
+	}
+
+	llofstream custom_file_out(LLSpellChecker::getDictionaryUserPath() + "user_dictionaries.xml", std::ios::trunc);
+	if (custom_file_out.is_open())
+	{
+		LLSDSerialize::toPrettyXML(custom_dict_map, custom_file_out);
+		custom_file_out.close();
+	}
+
+	LLFile::rename(dict_dic, LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".dic");
+	if (gDirUtilp->fileExists(dict_aff))
+	{
+		LLFile::rename(dict_aff, LLSpellChecker::getDictionaryUserPath() + mDictionaryBasename + ".aff");
+	}
+	LLSpellChecker::refreshDictionaryMap();
+
+	closeFloater(false);
 }

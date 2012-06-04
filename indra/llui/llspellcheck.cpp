@@ -88,15 +88,35 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
 }
 
 // static
-const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_name)
+const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_language)
 {
 	for (LLSD::array_const_iterator it = sDictMap.beginArray(); it != sDictMap.endArray(); ++it)
 	{
 		const LLSD& dict_entry = *it;
-		if (dict_name == dict_entry["language"].asString())
+		if (dict_language == dict_entry["language"].asString())
 			return dict_entry;
 	}
 	return LLSD();
+}
+
+// static
+void LLSpellChecker::setDictionaryData(const LLSD& dict_info)
+{
+	const std::string dict_language = dict_info["language"].asString();
+	if (dict_language.empty())
+		return;
+
+	for (LLSD::array_iterator it = sDictMap.beginArray(); it != sDictMap.endArray(); ++it)
+	{
+		LLSD& dict_entry = *it;
+		if (dict_language == dict_entry["language"].asString())
+		{
+			dict_entry = dict_info;
+			return;
+		}
+	}
+	sDictMap.append(dict_info);
+	return;
 }
 
 // static
@@ -106,12 +126,23 @@ void LLSpellChecker::refreshDictionaryMap()
 	const std::string user_path = getDictionaryUserPath();
 
 	// Load dictionary information (file name, friendly name, ...)
-	llifstream user_map(user_path + "dictionaries.xml", std::ios::binary);
-	if ( (!user_map.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, user_map)) || (0 == sDictMap.size()) )
+	llifstream user_file(user_path + "dictionaries.xml", std::ios::binary);
+	if ( (!user_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, user_file)) || (0 == sDictMap.size()) )
 	{
-		llifstream app_map(app_path + "dictionaries.xml", std::ios::binary);
-		if ( (!app_map.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_map)) || (0 == sDictMap.size()) )
+		llifstream app_file(app_path + "dictionaries.xml", std::ios::binary);
+		if ( (!app_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_file)) || (0 == sDictMap.size()) )
 			return;
+	}
+
+	// Load user installed dictionary information
+	llifstream custom_file(user_path + "user_dictionaries.xml", std::ios::binary);
+	if (custom_file.is_open())
+	{
+		LLSD custom_dict_map;
+		LLSDSerialize::fromXMLDocument(custom_dict_map, custom_file);
+		for (LLSD::array_const_iterator it = custom_dict_map.beginArray(); it != custom_dict_map.endArray(); ++it)
+			setDictionaryData(*it);
+		custom_file.close();
 	}
 
 	// Look for installed dictionaries
@@ -126,6 +157,8 @@ void LLSpellChecker::refreshDictionaryMap()
 		sdDict["has_custom"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_CUSTOM_SUFFIX + ".dic"));
 		sdDict["has_ignore"] = (!tmp_user_path.empty()) && (gDirUtilp->fileExists(tmp_user_path + DICT_IGNORE_SUFFIX + ".dic"));
 	}
+
+	sSettingsChangeSignal();
 }
 
 void LLSpellChecker::addToCustomDictionary(const std::string& word)

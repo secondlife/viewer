@@ -38,11 +38,28 @@ public:
 	/*virtual*/ void onOpen(const LLSD& key);
 
 protected:
-	void onCancel();
-	void onClickDictMove(const std::string& from, const std::string& to);
-	void onOK();
-	void onSave();
+	void onBtnCancel();
+	void onBtnImport();
+	void onBtnMove(const std::string& from, const std::string& to);
+	void onBtnOK();
+	void onSpellCheckSettingsChange();
 	void refreshDictionaryLists(bool from_settings);
+};
+
+class LLFloaterSpellCheckerImport : public LLFloater
+{
+public:
+	LLFloaterSpellCheckerImport(const LLSD& key);
+
+	/*virtual*/ BOOL postBuild();
+
+protected:
+	void onBtnBrowse();
+	void onBtnCancel();
+	void onBtnOK();
+
+	std::string mDictionaryDir;
+	std::string mDictionaryBasename;
 };
 
 #endif  // LLFLOATERSPELLCHECKERSETTINGS_H
