@@ -803,6 +803,7 @@ LLVOAvatar::~LLVOAvatar()
 	lldebugs << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << llendl;
 
 	mRoot.removeAllChildren();
+	mJointMap.clear();
 
 	deleteAndClearArray(mSkeleton);
 	deleteAndClearArray(mCollisionVolumes);
@@ -1844,6 +1845,7 @@ void LLVOAvatar::buildCharacter()
 	// remove all of mRoot's children
 	//-------------------------------------------------------------------------
 	mRoot.removeAllChildren();
+	mJointMap.clear();
 	mIsBuilt = FALSE;
 
 	//-------------------------------------------------------------------------
@@ -5060,7 +5062,20 @@ const LLUUID& LLVOAvatar::getID() const
 // RN: avatar joints are multi-rooted to include screen-based attachments
 LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
-	LLJoint* jointp = mRoot.findJoint(name);
+	joint_map_t::iterator iter = mJointMap.find(name);
+
+	LLJoint* jointp = NULL;
+
+	if (iter == mJointMap.end())
+	{ //search for joint and cache found joint in lookup table
+		LLJoint* jointp = mRoot.findJoint(name);
+		mJointMap[name] = jointp;
+	}
+	else
+	{ //return cached pointer
+		jointp = iter->second;
+	}
+
 	return jointp;
 }
 
