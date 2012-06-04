@@ -213,7 +213,7 @@ void LLFloaterPathfindingLinksets::requestGetObjects()
 	LLPathfindingManager::getInstance()->requestGetLinksets(getNewRequestId(), boost::bind(&LLFloaterPathfindingLinksets::handleNewObjectList, this, _1, _2, _3));
 }
 
-LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const
+LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
 {
 	llassert(pObjectListPtr != NULL);
 	llassert(!pObjectListPtr->isEmpty());
@@ -245,6 +245,11 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 			{
 				LLSD element = buildLinksetScrollListData(linksetPtr, avatarPosition);
 				scrollListData.append(element);
+
+				if (linksetPtr->hasOwner() && !linksetPtr->hasOwnerName())
+				{
+					rebuildScrollListAfterAvatarNameLoads(linksetPtr->getUUID());
+				}
 			}
 		}
 	}
@@ -255,6 +260,11 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 			const LLPathfindingLinkset *linksetPtr = dynamic_cast<const LLPathfindingLinkset *>(objectIter->second.get());
 			LLSD element = buildLinksetScrollListData(linksetPtr, avatarPosition);
 			scrollListData.append(element);
+
+			if (linksetPtr->hasOwner() && !linksetPtr->hasOwnerName())
+			{
+				rebuildScrollListAfterAvatarNameLoads(linksetPtr->getUUID());
+			}
 		}
 	}
 
@@ -409,7 +419,9 @@ LLSD LLFloaterPathfindingLinksets::buildLinksetScrollListData(const LLPathfindin
 		columns[1]["font"] = "SANSSERIF";
 
 		columns[2]["column"] = "owner";
-		columns[2]["value"] = (pLinksetPtr->hasOwnerName() ? pLinksetPtr->getOwnerName() : getString("linkset_owner_unknown"));
+		columns[2]["value"] = (pLinksetPtr->hasOwner() ?
+			(pLinksetPtr->hasOwnerName() ? pLinksetPtr->getOwnerName() : getString("linkset_owner_loading")) :
+			getString("linkset_owner_unknown"));
 		columns[2]["font"] = "SANSSERIF";
 
 		columns[3]["column"] = "land_impact";

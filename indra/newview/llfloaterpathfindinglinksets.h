@@ -62,7 +62,7 @@ protected:
 
 	virtual void                       requestGetObjects();
 
-	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const;
+	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
 
 	virtual void                       updateControls();
 

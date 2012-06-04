@@ -27,6 +27,7 @@
 #ifndef LL_LLFLOATERPATHFINDINGOBJECTS_H
 #define LL_LLFLOATERPATHFINDINGOBJECTS_H
 
+#include <set>
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
@@ -37,6 +38,7 @@
 #include "llselectmgr.h"
 #include "v4color.h"
 
+class LLAvatarName;
 class LLButton;
 class LLCheckBoxCtrl;
 class LLScrollListCtrl;
@@ -77,7 +79,9 @@ protected:
 	void                               handleUpdateObjectList(LLPathfindingManager::request_id_t pRequestId, LLPathfindingManager::ERequestStatus pRequestStatus, LLPathfindingObjectListPtr pObjectList);
 
 	void                               rebuildObjectsScrollList();
-	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const;
+	virtual LLSD                       convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr);
+
+	void                               rebuildScrollListAfterAvatarNameLoads(const LLUUID &pAvatarId);
 
 	virtual void                       updateControls();
 
@@ -102,24 +106,26 @@ protected:
 private:
 	LLFloaterPathfindingObjects(const LLFloaterPathfindingObjects &pOther);
 
-	void setMessagingState(EMessagingState pMessagingState);
+	void                   setMessagingState(EMessagingState pMessagingState);
 
-	void onRefreshObjectsClicked();
-	void onSelectAllObjectsClicked();
-	void onSelectNoneObjectsClicked();
-	void onTakeClicked();
-	void onTakeCopyClicked();
-	void onReturnClicked();
-	void onDeleteClicked();
-	void onTeleportClicked();
+	void                   onRefreshObjectsClicked();
+	void                   onSelectAllObjectsClicked();
+	void                   onSelectNoneObjectsClicked();
+	void                   onTakeClicked();
+	void                   onTakeCopyClicked();
+	void                   onReturnClicked();
+	void                   onDeleteClicked();
+	void                   onTeleportClicked();
 
-	void onScrollListSelectionChanged();
+	void                   onScrollListSelectionChanged();
 	void                   onInWorldSelectionListChanged();
-	void onRegionBoundaryCrossed();
+	void                   onRegionBoundaryCrossed();
 	void                   onGodLevelChange(U8 pGodLevel);
 
-	void updateMessagingStatus();
-	void updateStateOnListActionControls();
+	void                   handleAvatarNameLoads(const LLUUID &pAvatarId, const LLAvatarName &pAvatarName);
+
+	void                   updateMessagingStatus();
+	void                   updateStateOnListActionControls();
 	void                   updateOnScrollListChange();
 
 	LLPathfindingObjectPtr findObject(const LLScrollListItem *pListItem) const;
@@ -131,12 +137,14 @@ protected:
 	LLButton                           *mSelectAllButton;
 	LLButton                           *mSelectNoneButton;
 	LLCheckBoxCtrl                     *mShowBeaconCheckBox;
-	
+
 	LLButton                           *mTakeButton;
 	LLButton                           *mTakeCopyButton;
 	LLButton                           *mReturnButton;
 	LLButton                           *mDeleteButton;
 	LLButton                           *mTeleportButton;
+
+	std::set<LLUUID>                   mLoadingAvatarNames;
 
 	LLColor4                           mDefaultBeaconColor;
 	LLColor4                           mDefaultBeaconTextColor;
@@ -153,7 +161,6 @@ protected:
 	boost::signals2::connection        mSelectionUpdateSlot;
 	boost::signals2::connection        mRegionBoundaryCrossingSlot;
 	LLAgent::god_level_change_slot_t   mGodLevelChangeSlot;
-
 };
 
 #endif // LL_LLFLOATERPATHFINDINGOBJECTS_H

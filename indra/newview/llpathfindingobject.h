@@ -53,7 +53,8 @@ public:
 	inline const LLUUID&      getUUID() const        {return mUUID;};
 	inline const std::string& getName() const        {return mName;};
 	inline const std::string& getDescription() const {return mDescription;};
-	inline BOOL               hasOwnerName() const   {return mOwnerUUID.notNull();};
+	inline BOOL               hasOwner() const       {return mOwnerUUID.notNull();};
+	inline bool               hasOwnerName() const   {return mHasOwnerName;};
 	std::string               getOwnerName() const;
 	inline const LLVector3&   getLocation() const    {return mLocation;};
 
@@ -62,10 +63,14 @@ protected:
 private:
 	void parseObjectData(const LLSD &pObjectData);
 
+	void fetchOwnerName();
+	void handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName);
+
 	LLUUID       mUUID;
 	std::string  mName;
 	std::string  mDescription;
 	LLUUID       mOwnerUUID;
+	bool         mHasOwnerName;
 	LLAvatarName mOwnerName;
 	LLVector3    mLocation;
 };

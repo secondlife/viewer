@@ -23,6 +23,8 @@
   <floater.string name="messaging_complete_available">[NUM_SELECTED] characters selected out of [NUM_TOTAL].</floater.string>
   <floater.string name="messaging_not_enabled">This region is not enabled for pathfinding.</floater.string>
   <floater.string name="character_cpu_time">[CPU_TIME] µs</floater.string>
+  <floater.string name="character_owner_loading">[Loading]</floater.string>
+  <floater.string name="character_owner_unknown">Unknown</floater.string>
   <panel
       border="false"
       bevel_style="none"

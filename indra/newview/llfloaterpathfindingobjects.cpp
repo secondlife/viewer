@@ -35,6 +35,8 @@
 #include <boost/signals2.hpp>
 
 #include "llagent.h"
+#include "llavatarname.h"
+#include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
 #include "llenvmanager.h"
@@ -162,6 +164,7 @@ LLFloaterPathfindingObjects::LLFloaterPathfindingObjects(const LLSD &pSeed)
 	mReturnButton(NULL),
 	mDeleteButton(NULL),
 	mTeleportButton(NULL),
+	mLoadingAvatarNames(),
 	mDefaultBeaconColor(),
 	mDefaultBeaconTextColor(),
 	mErrorTextColor(),
@@ -346,11 +349,21 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 	updateControls();
 }
 
-LLSD LLFloaterPathfindingObjects::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr) const
+LLSD LLFloaterPathfindingObjects::convertObjectsIntoScrollListData(const LLPathfindingObjectListPtr pObjectListPtr)
 {
 	llassert(0);
 	LLSD nullObjs = LLSD::emptyArray();
 	return nullObjs;
+}
+
+void LLFloaterPathfindingObjects::rebuildScrollListAfterAvatarNameLoads(const LLUUID &pAvatarId)
+{
+	std::set<LLUUID>::const_iterator iter = mLoadingAvatarNames.find(pAvatarId);
+	if (iter == mLoadingAvatarNames.end())
+	{
+		mLoadingAvatarNames.insert(pAvatarId);
+		LLAvatarNameCache::get(pAvatarId, boost::bind(&LLFloaterPathfindingObjects::handleAvatarNameLoads, this, _1, _2));
+	}
 }
 
 void LLFloaterPathfindingObjects::updateControls()
@@ -540,6 +553,16 @@ void LLFloaterPathfindingObjects::onRegionBoundaryCrossed()
 void LLFloaterPathfindingObjects::onGodLevelChange(U8 pGodLevel)
 {
 	requestGetObjects();
+}
+
+void LLFloaterPathfindingObjects::handleAvatarNameLoads(const LLUUID &pAvatarId, const LLAvatarName &pAvatarName)
+{
+	llassert(mLoadingAvatarNames.find(pAvatarId) != mLoadingAvatarNames.end());
+	mLoadingAvatarNames.erase(pAvatarId);
+	if (mLoadingAvatarNames.empty())
+	{
+		rebuildObjectsScrollList();
+	}
 }
 
 void LLFloaterPathfindingObjects::updateMessagingStatus()

@@ -52,6 +52,7 @@ LLPathfindingObject::LLPathfindingObject()
 	mName(),
 	mDescription(),
 	mOwnerUUID(),
+	mHasOwnerName(false),
 	mOwnerName(),
 	mLocation()
 {
@@ -62,6 +63,7 @@ LLPathfindingObject::LLPathfindingObject(const std::string &pUUID, const LLSD &p
 	mName(),
 	mDescription(),
 	mOwnerUUID(),
+	mHasOwnerName(false),
 	mOwnerName(),
 	mLocation()
 {
@@ -73,9 +75,11 @@ LLPathfindingObject::LLPathfindingObject(const LLPathfindingObject& pOther)
 	mName(pOther.mName),
 	mDescription(pOther.mDescription),
 	mOwnerUUID(pOther.mOwnerUUID),
-	mOwnerName(pOther.mOwnerName),
+	mHasOwnerName(false),
+	mOwnerName(),
 	mLocation(pOther.mLocation)
 {
+	fetchOwnerName();
 }
 
 LLPathfindingObject::~LLPathfindingObject()
@@ -88,7 +92,7 @@ LLPathfindingObject &LLPathfindingObject::operator =(const LLPathfindingObject& 
 	mName = pOther.mName;
 	mDescription = pOther.mDescription;
 	mOwnerUUID = pOther.mOwnerUUID;
-	mOwnerName = pOther.mOwnerName;
+	fetchOwnerName();
 	mLocation = pOther.mLocation;
 
 	return *this;
@@ -98,7 +102,7 @@ std::string LLPathfindingObject::getOwnerName() const
 {
 	std::string ownerName;
 
-	if (hasOwnerName())
+	if (hasOwner())
 	{
 		ownerName = mOwnerName.getCompleteName();
 	}
@@ -126,11 +130,27 @@ void LLPathfindingObject::parseObjectData(const LLSD &pObjectData)
 	{
 		llassert(pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).isUUID());
 		mOwnerUUID = pObjectData.get(PATHFINDING_OBJECT_OWNER_FIELD).asUUID();
-		LLAvatarNameCache::get(mOwnerUUID, &mOwnerName);
+		fetchOwnerName();
 	}
 #endif // SERVER_SIDE_OWNER_ROLLOUT_COMPLETE
 
 	llassert(pObjectData.has(PATHFINDING_OBJECT_POSITION_FIELD));
 	llassert(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD).isArray());
 	mLocation.setValue(pObjectData.get(PATHFINDING_OBJECT_POSITION_FIELD));
+}
+
+void LLPathfindingObject::fetchOwnerName()
+{
+	mHasOwnerName = false;
+	if (hasOwner())
+	{
+		LLAvatarNameCache::get(mOwnerUUID, boost::bind(&LLPathfindingObject::handleAvatarNameFetch, this, _1, _2));
+	}
+}
+
+void LLPathfindingObject::handleAvatarNameFetch(const LLUUID &pOwnerUUID, const LLAvatarName &pAvatarName)
+{
+	llassert(mOwnerUUID == pOwnerUUID);
+	mOwnerName = pAvatarName;
+	mHasOwnerName = true;
 }
