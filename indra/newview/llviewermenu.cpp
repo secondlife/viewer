@@ -5367,6 +5367,14 @@ void toggle_debug_menus(void*)
 // }
 //
 
+class LLCommunicateBlockList : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloaterSidePanelContainer::showPanel("people", "panel_block_list_sidetray", LLSD());
+		return true;
+	}
+};
 
 class LLWorldSetHomeLocation : public view_listener_t
 {
@@ -8152,6 +8160,9 @@ void initialize_menus()
 
 	// Me > Movement
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
+
+	// Communicate
+	view_listener_t::addMenu(new LLCommunicateBlockList(), "Communicate.BlockList");
 	
 	// World menu
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");

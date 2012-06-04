@@ -210,7 +210,6 @@ set(viewer_SOURCE_FILES
     llfloatermemleak.cpp
     llfloatermodelpreview.cpp
     llfloatermodeluploadbase.cpp
-    llfloatermodelwizard.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
     llfloaterobjectweights.cpp
@@ -768,7 +767,6 @@ set(viewer_HEADER_FILES
     llfloatermemleak.h
     llfloatermodelpreview.h
     llfloatermodeluploadbase.h
-    llfloatermodelwizard.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
     llfloaterobjectweights.h

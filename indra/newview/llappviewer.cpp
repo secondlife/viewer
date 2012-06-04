@@ -625,6 +625,7 @@ LLAppViewer::LLAppViewer() :
 	mPurgeOnExit(false),
 	mSecondInstance(false),
 	mSavedFinalSnapshot(false),
+	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
 	mForceGraphicsDetail(false),
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
@@ -1795,6 +1796,13 @@ bool LLAppViewer::cleanup()
 	if (gSavedSettings.getString("PerAccountSettingsFile").empty())
 	{
 		llinfos << "Not saving per-account settings; don't know the account name yet." << llendl;
+	}
+	// Only save per account settings if the previous login succeeded, otherwise
+	// we might end up with a cleared out settings file in case a previous login
+	// failed after loading per account settings.
+	else if (!mSavePerAccountSettings)
+	{
+		llinfos << "Not saving per-account settings; last login was not successful." << llendl;
 	}
 	else
 	{
@@ -5009,6 +5017,10 @@ void LLAppViewer::handleLoginComplete()
 	mOnLoginCompleted();
 
 	writeDebugInfo();
+
+	// we logged in successfully, so save settings on logout
+	llinfos << "Login successful, per account settings will be saved on log out." << llendl;
+	mSavePerAccountSettings=true;
 }
 
 void LLAppViewer::launchUpdater()
