@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="マイ プロフィール" name="panel_me">
-	<panel label="マイ ピック" name="panel_picks"/>
+	<panel label="マイ-ピック" name="panel_picks"/>
 </panel>

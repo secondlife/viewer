@@ -1,2 +1,2 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<outbox_inventory_panel name="inventory_outbox" tool_tip="商品をここにドラッグアンドドロップすると、あなたの店頭に並びます"/>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<outbox_inventory_panel name="inventory_outbox" tool_tip="アイテムをここにドラッグアンドドロップすると、あなたの店頭に並びます"/>

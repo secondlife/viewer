@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="BUILD TOOLS" title="">
+	<floater.string name="grid_screen_text">
+		Tela
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Local
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Mundo
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referência
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Anexo
+	</floater.string>
 	<floater.string name="status_rotate">
 		Arrastar as faixas coloridas para girar o objeto
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="Esticar texturas" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Ajustar" name="checkbox snap to grid"/>
-	<button label="Opções..." label_selected="Opções..." name="Options..." tool_tip="Mais opções de grade"/>
+	<combo_box name="combobox grid mode" tool_tip="Selecione o tipo de régua da grade onde o objeto será colocado">
+		<combo_box.item label="Mundo" name="World"/>
+		<combo_box.item label="Local" name="Local"/>
+		<combo_box.item label="Referência" name="Reference"/>
+	</combo_box>
+	<button label="" label_selected="Opções..." name="Options..." tool_tip="Mais opções de grade"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="Cubo"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="Prisma"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="Pirâmide"/>

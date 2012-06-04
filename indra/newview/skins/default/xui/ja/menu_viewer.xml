@@ -4,8 +4,8 @@
 		<menu_item_call label="プロフィール..." name="Profile"/>
 		<menu_item_call label="容姿..." name="ChangeOutfit"/>
 		<menu_item_call label="アバターを選択..." name="Avatar Picker"/>
-		<menu_item_check label="持ち物..." name="Inventory"/>
-		<menu_item_call label="新しい持ち物ウィンドウ" name="NewInventoryWindow"/>
+		<menu_item_check label="インベントリ..." name="Inventory"/>
+		<menu_item_call label="新しいインベントリウィンドウ" name="NewInventoryWindow"/>
 		<menu_item_call label="場所..." name="Places"/>
 		<menu_item_call label="ピック..." name="Picks"/>
 		<menu_item_call label="カメラコントロール..." name="Camera Controls"/>
@@ -14,14 +14,14 @@
 			<menu_item_check label="飛ぶ" name="Fly"/>
 			<menu_item_check label="常に走る" name="Always Run"/>
 			<menu_item_call label="私のアニメーションを停止する" name="Stop Animating My Avatar"/>
+			<menu_item_call label="歩行／走行／飛行..." name="Walk / run / fly"/>
 		</menu>
 		<menu label="ログイン" name="Status">
 			<menu_item_call label="一時退席中" name="Set Away"/>
 			<menu_item_call label="取り込み中" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="管理者権限のリクエスト" name="Request Admin Options"/>
-		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
-		<menu_item_call label="L$ の購入" name="Buy and Sell L$"/>
+		<menu_item_call label="L$ の購入..." name="Buy and Sell L$"/>
+		<menu_item_call label="マーチャントアウトボックス..." name="MerchantOutbox"/>
 		<menu_item_call label="マイアカウント..." name="Manage My Account">
 			<menu_item_call.on_click name="ManageMyAccount_url" parameter="WebLaunchJoinNow,http://secondlife.com/account/index.php?lang=ja"/>
 		</menu_item_call>
@@ -63,11 +63,11 @@
 			<menu_item_check label="区画プロパティ" name="Parcel Properties"/>
 			<menu_item_check label="アドバンスメニュー" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="太陽" name="Environment Settings">
+		<menu label="太陽" name="Sun">
 			<menu_item_call label="日の出" name="Sunrise"/>
 			<menu_item_call label="正午" name="Noon"/>
 			<menu_item_call label="日没" name="Sunset"/>
-			<menu_item_call label="深夜" name="Midnight"/>
+			<menu_item_call label="真夜中" name="Midnight"/>
 			<menu_item_call label="リージョンの設定を使用" name="Use Region Settings"/>
 		</menu>
 		<menu label="自然環境エディター" name="Environment Editor">
@@ -113,7 +113,7 @@
 			<menu_item_call label="買う" name="Menu Object Buy"/>
 			<menu_item_call label="取る" name="Menu Object Take"/>
 			<menu_item_call label="コピーを取る" name="Take Copy"/>
-			<menu_item_call label="「持ち物」に保存" name="Save Object Back to My Inventory"/>
+			<menu_item_call label="マイインベントリに保存" name="Save Object Back to My Inventory"/>
 			<menu_item_call label="オブジェクトの中身に保存" name="Save Object Back to Object Contents"/>
 			<menu_item_call label="オブジェクトを返却する" name="Return Object back to Owner"/>
 		</menu>
@@ -178,22 +178,22 @@
 			<menu_item_check label="一人称視点のときに十字線を表示する" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="レンダリング（種類）" name="Rendering Types">
-			<menu_item_check label="シンプル" name="Simple"/>
-			<menu_item_check label="アルファ" name="Alpha"/>
-			<menu_item_check label="木" name="Tree"/>
-			<menu_item_check label="アバター" name="Character"/>
-			<menu_item_check label="サーフェスパッチ" name="Surface Patch"/>
-			<menu_item_check label="空" name="Sky"/>
-			<menu_item_check label="水" name="Water"/>
-			<menu_item_check label="地面" name="Ground"/>
-			<menu_item_check label="ボリューム" name="Volume"/>
-			<menu_item_check label="草" name="Grass"/>
-			<menu_item_check label="雲" name="Clouds"/>
-			<menu_item_check label="パーティクル" name="Particles"/>
-			<menu_item_check label="衝突" name="Bump"/>
+			<menu_item_check label="シンプル" name="Rendering Type Simple"/>
+			<menu_item_check label="アルファ" name="Rendering Type Alpha"/>
+			<menu_item_check label="木" name="Rendering Type Tree"/>
+			<menu_item_check label="アバター" name="Rendering Type Character"/>
+			<menu_item_check label="サーフェスパッチ" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="空" name="Rendering Type Sky"/>
+			<menu_item_check label="水" name="Rendering Type Water"/>
+			<menu_item_check label="地面" name="Rendering Type Ground"/>
+			<menu_item_check label="取引高" name="Rendering Type Volume"/>
+			<menu_item_check label="草" name="Rendering Type Grass"/>
+			<menu_item_check label="雲" name="Rendering Type Clouds"/>
+			<menu_item_check label="パーティクル" name="Rendering Type Particles"/>
+			<menu_item_check label="衝突" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="レンダリング（機能）" name="Rendering Features">
-			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="UI" name="ToggleUI"/>
 			<menu_item_check label="選択済" name="Selected"/>
 			<menu_item_check label="ハイライト" name="Highlighted"/>
 			<menu_item_check label="ダイナミックテクスチャ" name="Dynamic Textures"/>
@@ -207,8 +207,6 @@
 		<menu_item_check label="マウスの平滑化" name="Mouse Smoothing"/>
 		<menu_item_call label="リリースキー" name="Release Keys"/>
 		<menu label="ショートカット" name="Shortcuts">
-			<menu_item_call label="画像 （L$ [COST] ）..." name="Upload Image"/>
-			<menu_item_check label="検索" name="Search"/>
 			<menu_item_check label="アドバンスメニューを表示 - レガシーのショートカット" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="ウィンドウを閉じる" name="Close Window"/>
 			<menu_item_call label="全てのウィンドウを閉じる" name="Close All Windows"/>
@@ -217,13 +215,6 @@
 			<menu_item_check label="ジョイスティックフライカム" name="Joystick Flycam"/>
 			<menu_item_call label="表示をリセットする" name="Reset View"/>
 			<menu_item_call label="最後の発言者を見る" name="Look at Last Chatter"/>
-			<menu label="制作ツールを選択する" name="Select Tool">
-				<menu_item_call label="焦点ツール" name="Focus"/>
-				<menu_item_call label="移動ツール" name="Move"/>
-				<menu_item_call label="編集ツール" name="Edit"/>
-				<menu_item_call label="作成ツール" name="Create"/>
-				<menu_item_call label="土地ツール" name="Land"/>
-			</menu>
 			<menu_item_call label="ズームイン" name="Zoom In"/>
 			<menu_item_call label="ズーム（デフォルト）" name="Zoom Default"/>
 			<menu_item_call label="ズームアウト" name="Zoom Out"/>
@@ -296,6 +287,7 @@
 			<menu_item_check label="レイキャスト" name="Raycast"/>
 			<menu_item_check label="風のベクトル" name="Wind Vectors"/>
 			<menu_item_check label="描画の詳細度" name="rendercomplexity"/>
+			<menu_item_check label="添付アイテムのバイト数" name="attachment bytes"/>
 			<menu_item_check label="スカルプト" name="Sculpt"/>
 		</menu>
 		<menu label="レンダリング" name="Rendering">
@@ -337,17 +329,16 @@
 			<menu_item_call label="記録開始" name="Start Record"/>
 			<menu_item_call label="記録停止" name="Stop Record"/>
 		</menu>
-		<menu label="世界" name="World">
+		<menu label="世界" name="DevelopWorld">
 			<menu_item_check label="シムの太陽の設定を無視する" name="Sim Sun Override"/>
-			<menu_item_check label="ビーコンを強調表示する" name="Cheesy Beacon"/>
 			<menu_item_check label="固定された天気" name="Fixed Weather"/>
-			<menu_item_call label="リージョンオブジェクトのキャッシュをダンプする" name="Dump Region Object Cache"/>
+			<menu_item_call label="リージョンオブジェクトのキャッシュをダンプ" name="Dump Region Object Cache"/>
 		</menu>
 		<menu label="UI" name="UI">
 			<menu_item_call label="メディアブラウザのテスト" name="Web Browser Test"/>
 			<menu_item_call label="Web コンテンツブラウザ" name="Web Content Browser"/>
 			<menu_item_call label="SelectMgr をダンプ" name="Dump SelectMgr"/>
-			<menu_item_call label="持ち物の出力" name="Dump Inventory"/>
+			<menu_item_call label="インベントリの出力" name="Dump Inventory"/>
 			<menu_item_call label="タイマーをダンプ" name="Dump Timers"/>
 			<menu_item_call label="フォーカスホールダーをダンプ" name="Dump Focus Holder"/>
 			<menu_item_call label="選択したオブジェクト情報をプリント" name="Print Selected Object Info"/>
@@ -371,11 +362,11 @@
 		</menu>
 		<menu label="アバター" name="Character">
 			<menu label="ベークドテクスチャを取得する" name="Grab Baked Texture">
-				<menu_item_call label="瞳" name="Iris"/>
-				<menu_item_call label="頭" name="Head"/>
-				<menu_item_call label="上半身" name="Upper Body"/>
-				<menu_item_call label="下半身" name="Lower Body"/>
-				<menu_item_call label="スカート" name="Skirt"/>
+				<menu_item_call label="瞳" name="Grab Iris"/>
+				<menu_item_call label="頭" name="Grab Head"/>
+				<menu_item_call label="上半身" name="Grab Upper Body"/>
+				<menu_item_call label="下半身" name="Grab Lower Body"/>
+				<menu_item_call label="スカート" name="Grab Skirt"/>
 			</menu>
 			<menu label="キャラクターテスト" name="Character Tests">
 				<menu_item_call label="容姿を XML に保存する" name="Appearance To XML"/>
@@ -401,22 +392,30 @@
 			<menu_item_call label="ローカルテクスチャをダンプ" name="Dump Local Textures"/>
 		</menu>
 		<menu_item_check label="HTTP Texture" name="HTTP Textures"/>
-		<menu_item_check label="HTTP 持ち物" name="HTTP Inventory"/>
+		<menu_item_check label="HTTP インベントリ" name="HTTP Inventory"/>
 		<menu_item_call label="圧縮画像" name="Compress Images"/>
+		<menu_item_call label="Visual Leak Detector を有効にする" name="Enable Visual Leak Detector"/>
 		<menu_item_check label="デバッグ用のミニダンプを出力する" name="Output Debug Minidump"/>
 		<menu_item_check label="次回の起動時にコンソールウィンドウを表示する" name="Console Window"/>
+		<menu label="ログレベルを設定" name="Set Logging Level">
+			<menu_item_check label="デバッグ" name="Debug"/>
+			<menu_item_check label="情報" name="Info"/>
+			<menu_item_check label="警告" name="Warning"/>
+			<menu_item_check label="エラー" name="Error"/>
+			<menu_item_check label="なし" name="None"/>
+		</menu>
 		<menu_item_call label="管理者ステータスの呼び出し" name="Request Admin Options"/>
 		<menu_item_call label="管理者ステータス解除" name="Leave Admin Options"/>
 		<menu_item_check label="管理者メニューを表示する" name="View Admin Options"/>
 	</menu>
 	<menu label="管理者" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="コピーを取る" name="Take Copy"/>
+		<menu label="オブジェクト" name="AdminObject">
+			<menu_item_call label="コピーを取る" name="Admin Take Copy"/>
 			<menu_item_call label="私を所有者にする" name="Force Owner To Me"/>
-			<menu_item_call label="所有者権限を実行する" name="Force Owner Permissive"/>
+			<menu_item_call label="所有者権限の実行" name="Force Owner Permissive"/>
 			<menu_item_call label="削除" name="Delete"/>
 			<menu_item_call label="ロック" name="Lock"/>
-			<menu_item_call label="アセット ID を取得する" name="Get Assets IDs"/>
+			<menu_item_call label="アセット ID を取得" name="Get Assets IDs"/>
 		</menu>
 		<menu label="区画" name="Parcel">
 			<menu_item_call label="私を所有者にする" name="Owner To Me"/>
@@ -447,7 +446,7 @@
 			<menu_item_call label="物理作用" name="Physics"/>
 			<menu_item_call label="すべての衣類" name="All Clothes"/>
 		</menu>
-		<menu label="ヘルプ" name="Help">
+		<menu label="ヘルプ" name="DeprecatedHelp">
 			<menu_item_call label="リンデン公式ブログ" name="Official Linden Blog"/>
 			<menu_item_call label="スクリプトポータル" name="Scripting Portal"/>
 			<menu label="バグの報告" name="Bug Reporting">

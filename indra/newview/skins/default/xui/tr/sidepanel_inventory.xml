@@ -2,47 +2,24 @@
 <panel label="Eşyalar" name="objects panel">
 	<panel label="" name="sidepanel__inventory_panel">
 		<layout_stack name="inventory_layout_stack">
-			<layout_panel name="inbox_outbox_layout_panel">
-				<layout_stack name="inbox_outbox_layout_stack">
-					<layout_panel name="inbox_layout_panel">
-						<panel label="" name="marketplace_inbox">
-							<string name="InboxLabelWithArg">
-								Alınan öğeler ([NUM])
-							</string>
-							<string name="InboxLabelNoArg">
-								Alınan öğeler
-							</string>
-							<button label="Alınan öğeler" name="inbox_btn"/>
-							<text name="inbox_fresh_new_count">
-								[NUM] yeni
-							</text>
-							<panel tool_tip="Drag and drop items to your inventory to manage and use them">
-								<text name="inbox_inventory_placeholder">
-									Pazaryerinden satın alınan öğeler buraya teslim edilir.
-								</text>
-							</panel>
-						</panel>
-					</layout_panel>
-					<layout_panel name="outbox_layout_panel">
-						<panel label="" name="marketplace_outbox">
-							<string name="OutboxLabelWithArg">
-								Satıcı giden kutusu ([NUM])
-							</string>
-							<string name="OutboxLabelNoArg">
-								Satıcı giden kutusu
-							</string>
-							<button label="Satıcı giden kutusu" name="outbox_btn"/>
-							<button label="" name="outbox_sync_btn" tool_tip="Pazaryeri Vitrinime Gönder"/>
-							<panel>
-								<panel name="outbox_inventory_placeholder_panel">
-									<text name="outbox_inventory_placeholder_title">
-										Yükleniyor...
-									</text>
-								</panel>
-							</panel>
-						</panel>
-					</layout_panel>
-				</layout_stack>
+			<layout_panel name="inbox_layout_panel">
+				<panel label="" name="marketplace_inbox">
+					<string name="InboxLabelWithArg">
+						Alınan öğeler ([NUM])
+					</string>
+					<string name="InboxLabelNoArg">
+						Alınan öğeler
+					</string>
+					<button label="Alınan öğeler" name="inbox_btn"/>
+					<text name="inbox_fresh_new_count">
+						[NUM] yeni
+					</text>
+					<panel name="inbox_inventory_placeholder_panel" tool_tip="Öğeleri kullanmak için bunları sürükleyin ve envanterinize bırakın">
+						<text name="inbox_inventory_placeholder">
+							Pazaryerinden satın alınan öğeler buraya teslim edilir.
+						</text>
+					</panel>
+				</panel>
 			</layout_panel>
 		</layout_stack>
 		<panel name="button_panel">

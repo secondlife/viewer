@@ -41,7 +41,6 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 VARYING vec3 vary_position;
 VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
-VARYING vec3 vary_normal;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_pointlight_col;
 VARYING vec4 vertex_color;
@@ -110,8 +109,7 @@ void main()
 	gl_Position = frag_pos;
 	
 	vary_position = pos.xyz;
-	vary_normal = norm;	
-	
+		
 	calcAtmospherics(pos.xyz);
 
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);

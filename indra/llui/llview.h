@@ -505,7 +505,7 @@ public:
 
 	// Set up params after XML load before calling new(),
 	// usually to adjust layout.
-	static void applyXUILayout(Params& p, LLView* parent);
+	static void applyXUILayout(Params& p, LLView* parent, LLRect layout_rect = LLRect());
 
 	// For re-export of floaters and panels, convert the coordinate system
 	// to be top-left based.
