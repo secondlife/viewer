@@ -59,12 +59,15 @@ public:
 
 	static const std::string getDictionaryAppPath();
 	static const std::string getDictionaryUserPath();
-	static const LLSD		 getDictionaryData(const std::string& dict_name);
+	static const LLSD		 getDictionaryData(const std::string& dict_language);
 	static const LLSD&		 getDictionaryMap() { return sDictMap; }
 	static bool				 getUseSpellCheck();
 	static void				 refreshDictionaryMap();
 	static void				 setUseSpellCheck(const std::string& dict_name);
+protected:
+	static void				 setDictionaryData(const LLSD& dict_info);
 
+public:
 	typedef boost::signals2::signal<void()> settings_change_signal_t;
 	static boost::signals2::connection setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb);
 protected:

@@ -53,6 +53,16 @@
    top_pad="-15"
    width="175"
   />
+  <button
+   follows="left|top"
+   height="23"
+   label="Import"
+   label_selected="Import"
+   layout="topleft"
+   left_pad="5"
+   name="spellcheck_import_btn"
+   top_delta="0"
+   width="75" />
   <text
    enabled_control="SpellCheck"
    follows="top|left"
