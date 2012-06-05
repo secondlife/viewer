@@ -44,11 +44,10 @@ public:
 	BOOL                                            isShowPhysicsCapsule() const;
 	void                                            setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule);
 
-	BOOL                                            isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos );
+	BOOL                                            isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos) const;
 
 	static void                                     openCharactersViewer();
 	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();
-
 
 protected:
 	friend class LLFloaterReg;
@@ -69,23 +68,27 @@ protected:
 
 	virtual LLPathfindingObjectListPtr getEmptyObjectList() const;
 
-
 private:
-	void    onShowPhysicsCapsuleClicked();
+	void onShowPhysicsCapsuleClicked();
 
-	LLSD    buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
-	void    updateStateOnEditFields();
-	LLUUID  getUUIDFromSelection( LLVector3& pos );
-	void    unhideAnyCharacters();
+	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
+
+	void updateStateOnEditFields();
+	void updateOnScrollListChange();
+
+	void showCapsule() const;
+	void hideCapsule() const;
+
+	bool getCapsulePosition(LLVector3 &pPosition) const;
 
 	LLCheckBoxCtrl                                   *mShowPhysicsCapsuleCheckBox;
+
+	LLUUID                                           mSelectedCharacterId;
 
 	LLColor4                                         mBeaconColor;
 
 	LLRootHandle<LLFloaterPathfindingCharacters>     mSelfHandle;
 	static LLHandle<LLFloaterPathfindingCharacters>  sInstanceHandle;
-
-public:
 };
 
 #endif // LL_LLFLOATERPATHFINDINGCHARACTERS_H

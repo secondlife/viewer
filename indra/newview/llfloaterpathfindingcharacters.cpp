@@ -50,7 +50,8 @@ LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::sInstan
 
 void LLFloaterPathfindingCharacters::onClose(bool pIsAppQuitting)
 {
-	unhideAnyCharacters();
+	// Hide any capsule that might be showing on floater close
+	hideCapsule();
 	LLFloaterPathfindingObjects::onClose( pIsAppQuitting );
 }
 
@@ -62,6 +63,14 @@ BOOL LLFloaterPathfindingCharacters::isShowPhysicsCapsule() const
 void LLFloaterPathfindingCharacters::setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule)
 {
 	mShowPhysicsCapsuleCheckBox->set(pIsShowPhysicsCapsule);
+}
+
+BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos) const
+{
+	id = mSelectedCharacterId;
+	// Physics capsule is enable if the checkbox is enabled and if we can get a position
+	// for any selected object
+	return (isShowPhysicsCapsule() &&  getCapsulePosition(pos));
 }
 
 void LLFloaterPathfindingCharacters::openCharactersViewer()
@@ -86,6 +95,7 @@ LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::getInst
 LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed)
 	: LLFloaterPathfindingObjects(pSeed),
 	mShowPhysicsCapsuleCheckBox(NULL),
+	mSelectedCharacterId(),
 	mBeaconColor(),
 	mSelfHandle()
 {
@@ -137,6 +147,7 @@ LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPa
 void LLFloaterPathfindingCharacters::updateControls()
 {
 	LLFloaterPathfindingObjects::updateControls();
+	updateOnScrollListChange();
 	updateStateOnEditFields();
 }
 
@@ -158,19 +169,13 @@ LLPathfindingObjectListPtr LLFloaterPathfindingCharacters::getEmptyObjectList() 
 
 void LLFloaterPathfindingCharacters::onShowPhysicsCapsuleClicked()
 {
-	LLVector3 pos;
-	LLUUID id = getUUIDFromSelection( pos );
-	if ( id.notNull() )
+	if (mSelectedCharacterId.notNull() && isShowPhysicsCapsule())
 	{
-		if ( isShowPhysicsCapsule() )
-		{
-			//We want to hide the VO and display the the objects physics capsule		
-			gPipeline.hideObject( id );
-		}
-		else
-		{
-			gPipeline.restoreHiddenObject( id );
-		}
+		showCapsule();
+	}
+	else
+	{
+		hideCapsule();
 	}
 }
 
@@ -224,46 +229,59 @@ void LLFloaterPathfindingCharacters::updateStateOnEditFields()
 	}
 }
 
-LLUUID LLFloaterPathfindingCharacters::getUUIDFromSelection( LLVector3& pos )
+void LLFloaterPathfindingCharacters::updateOnScrollListChange()
 {
-	LLUUID uuid = LLUUID::null;
+	// Hide any previous capsule
+	hideCapsule();
 
+	// Get the only selected object, or set the selected object to null if we do not have exactly
+	// one object selected
 	if (getNumSelectedObjects() == 1)
 	{
 		LLPathfindingObjectPtr selectedObjectPtr = getFirstSelectedObject();
-		uuid = selectedObjectPtr->getUUID();
-		LLViewerObject *viewerObject = gObjectList.findObject(uuid);
-		if ( viewerObject != NULL )
-		{
-			pos = viewerObject->getRenderPosition();
-		}
-	}
-
-	return uuid;
-}
-
-void LLFloaterPathfindingCharacters::unhideAnyCharacters()
-{
-	LLPathfindingObjectListPtr objectListPtr = getSelectedObjects();
-	for (LLPathfindingObjectList::const_iterator objectIter = objectListPtr->begin();
-		objectIter != objectListPtr->end(); ++objectIter)
-	{
-		LLPathfindingObjectPtr objectPtr = objectIter->second;
-		gPipeline.restoreHiddenObject(objectPtr->getUUID());
-	}
-}
-
-BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled( LLUUID& id, LLVector3& pos )
-{
-	BOOL result = false;
-	if ( isShowPhysicsCapsule() )
-	{	
-		 id = getUUIDFromSelection( pos );
-		 result = true;
+		mSelectedCharacterId = selectedObjectPtr->getUUID();
 	}
 	else
 	{
-		id.setNull();
+		mSelectedCharacterId.setNull();
 	}
+
+	// Show any capsule if enabled
+	showCapsule();
+}
+
+void LLFloaterPathfindingCharacters::showCapsule() const
+{
+	if (mSelectedCharacterId.notNull() && isShowPhysicsCapsule())
+	{
+		gPipeline.hideObject(mSelectedCharacterId);
+	}
+}
+
+void LLFloaterPathfindingCharacters::hideCapsule() const
+{
+	if (mSelectedCharacterId.notNull())
+	{
+		gPipeline.restoreHiddenObject(mSelectedCharacterId);
+	}
+}
+
+bool LLFloaterPathfindingCharacters::getCapsulePosition(LLVector3 &pPosition) const
+{
+	bool result = false;
+
+	// If we have a selected object, find the object on the viewer object list and return its
+	// position.  Else, return false indicating that we either do not have a selected object
+	// or we cannot find the selected object on the viewer object list
+	if (mSelectedCharacterId.notNull())
+	{
+		LLViewerObject *viewerObject = gObjectList.findObject(mSelectedCharacterId);
+		if ( viewerObject != NULL )
+		{
+			pPosition = viewerObject->getRenderPosition();
+			result = true;
+		}
+	}
+
 	return result;
 }
