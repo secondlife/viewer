@@ -766,7 +766,7 @@
      reference="LtGray" />
     <color
      name="UserChatColor"
-     reference="White" />
+     reference="Yellow" />
     <color
      name="llOwnerSayChatColor"
      reference="LtYellow" />

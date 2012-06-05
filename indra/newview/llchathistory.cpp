@@ -693,6 +693,7 @@ void LLChatHistory::clear()
 void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LLStyle::Params& input_append_params)
 {
 	bool use_plain_text_chat_history = args["use_plain_text_chat_history"].asBoolean();
+	bool square_brackets = false; // square brackets necessary for a system messages
 
 	llassert(mEditor);
 	if (!mEditor)
@@ -781,6 +782,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	// show timestamps and names in the compact mode
 	if (use_plain_text_chat_history)
 	{
+		square_brackets = chat.mFromName == SYSTEM_FROM;
+
 		LLStyle::Params timestamp_style(style_params);
 
 		// timestams showing
@@ -942,6 +945,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			message = chat.mFromName + message;
 		}
 		
+		if (square_brackets)
+		{
+			message = "[" + message + "]";
+		}
+
 		mEditor->appendText(message, prependNewLineState, style_params);
 		prependNewLineState = false;
 	}
