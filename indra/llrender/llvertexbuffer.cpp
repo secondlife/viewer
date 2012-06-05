@@ -38,7 +38,11 @@
 #include "llglslshader.h"
 #include "llmemory.h"
 
+#if LL_DARWIN
+#define LL_VBO_POOLING 1
+#else
 #define LL_VBO_POOLING 0
+#endif
 
 //Next Highest Power Of Two
 //helper function, returns first number > v that is a power of 2, or v if v is already a power of 2
