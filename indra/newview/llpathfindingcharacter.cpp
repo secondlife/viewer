@@ -38,9 +38,6 @@
 #define CHARACTER_LENGTH_FIELD     "length"
 #define CHARACTER_RADIUS_FIELD     "radius"
 
-//prep#
-#define SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
-
 //---------------------------------------------------------------------------
 // LLPathfindingCharacter
 //---------------------------------------------------------------------------

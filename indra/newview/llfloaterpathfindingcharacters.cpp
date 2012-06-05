@@ -57,12 +57,20 @@ void LLFloaterPathfindingCharacters::onClose(bool pIsAppQuitting)
 
 BOOL LLFloaterPathfindingCharacters::isShowPhysicsCapsule() const
 {
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	return mHasCharacterShapeData && mShowPhysicsCapsuleCheckBox->get();
+#else // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	return mShowPhysicsCapsuleCheckBox->get();
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 }
 
 void LLFloaterPathfindingCharacters::setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule)
 {
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	mShowPhysicsCapsuleCheckBox->set(mHasCharacterShapeData && pIsShowPhysicsCapsule);
+#else // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	mShowPhysicsCapsuleCheckBox->set(pIsShowPhysicsCapsule);
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 }
 
 BOOL LLFloaterPathfindingCharacters::isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos) const
@@ -95,6 +103,9 @@ LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::getInst
 LLFloaterPathfindingCharacters::LLFloaterPathfindingCharacters(const LLSD& pSeed)
 	: LLFloaterPathfindingObjects(pSeed),
 	mShowPhysicsCapsuleCheckBox(NULL),
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	mHasCharacterShapeData(false),
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	mSelectedCharacterId(),
 	mBeaconColor(),
 	mSelfHandle()
@@ -134,6 +145,10 @@ LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPa
 		const LLPathfindingCharacter *characterPtr = dynamic_cast<const LLPathfindingCharacter *>(objectIter->second.get());
 		LLSD element = buildCharacterScrollListData(characterPtr);
 		scrollListData.append(element);
+
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+		mHasCharacterShapeData = characterPtr->hasShapeData();
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 
 		if (characterPtr->hasOwner() && !characterPtr->hasOwnerName())
 		{
@@ -220,7 +235,11 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 void LLFloaterPathfindingCharacters::updateStateOnEditFields()
 {
 	int numSelectedItems = getNumSelectedObjects();;
+#ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
+	bool isEditEnabled = mHasCharacterShapeData && (numSelectedItems == 1);
+#else // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	bool isEditEnabled = (numSelectedItems == 1);
+#endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 
 	mShowPhysicsCapsuleCheckBox->setEnabled(isEditEnabled);
 	if (!isEditEnabled)
