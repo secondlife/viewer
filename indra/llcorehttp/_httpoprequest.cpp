@@ -376,19 +376,19 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	
 	if ((mReqOffset || mReqLength) && HOR_GET == mReqMethod)
 	{
-		static const char * fmt1("Range: bytes=%d-%d");
-		static const char * fmt2("Range: bytes=%d-");
+		static const char * const fmt1("Range: bytes=%lu-%lu");
+		static const char * const fmt2("Range: bytes=%lu-");
 
 		char range_line[64];
 
 #if defined(WIN32)
 		_snprintf_s(range_line, sizeof(range_line), sizeof(range_line) - 1,
 					(mReqLength ? fmt1 : fmt2),
-					mReqOffset, mReqOffset + mReqLength - 1);
+					(unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
 #else
 		snprintf(range_line, sizeof(range_line),
 				 (mReqLength ? fmt1 : fmt2),
-				 mReqOffset, mReqOffset + mReqLength - 1);
+				 (unsigned long) mReqOffset, (unsigned long) (mReqOffset + mReqLength - 1));
 #endif // defined(WIN32)
 		range_line[sizeof(range_line) - 1] = '\0';
 		mCurlHeaders = curl_slist_append(mCurlHeaders, range_line);
