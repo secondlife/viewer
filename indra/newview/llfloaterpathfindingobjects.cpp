@@ -538,6 +538,7 @@ void LLFloaterPathfindingObjects::onTeleportClicked()
 void LLFloaterPathfindingObjects::onScrollListSelectionChanged()
 {
 	updateOnScrollListChange();
+	updateControls();
 }
 
 void LLFloaterPathfindingObjects::onInWorldSelectionListChanged()
