@@ -38,6 +38,10 @@
 #include "lltimer.h"
 
 
+// Tuning parameters
+static const int LOOP_SLEEP_NORMAL_MS = 10;		// Normal per-loop sleep in milliseconds
+
+
 namespace LLCore
 {
 
@@ -198,7 +202,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 		// Determine whether to spin, sleep briefly or sleep for next request
 		if (REQUEST_SLEEP != loop)
 		{
-			ms_sleep(50);
+			ms_sleep(LOOP_SLEEP_NORMAL_MS);
 		}
 	}
 

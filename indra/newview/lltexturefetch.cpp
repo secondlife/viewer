@@ -736,7 +736,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 	if ((prioritize && mState == INIT) || mState == DONE)
 	{
 		mState = INIT;
-		U32 work_priority = mWorkPriority | LLWorkerThread::PRIORITY_LOW;
+		U32 work_priority = mWorkPriority | LLWorkerThread::PRIORITY_HIGH;
 		setPriority(work_priority);
 	}
 }
