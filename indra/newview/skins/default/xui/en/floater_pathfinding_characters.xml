@@ -148,7 +148,7 @@
         name="show_beacon"
         top_pad="-16"
         left_pad="0"
-        width="90" />
+        width="150" />
     <check_box
      height="19"
      follows="left|bottom"
@@ -156,8 +156,8 @@
      layout="topleft"
      name="show_physics_capsule"
      top_pad="-19"
-     left_pad="10"
-     width="90" />
+     left_pad="0"
+     width="150" />
     <button
         follows="left|bottom"
         height="22"
