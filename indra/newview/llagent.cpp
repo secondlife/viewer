@@ -2692,6 +2692,7 @@ void LLAgent::reportPreferredMaturityError()
 	// If there is a pending teleport request waiting for the maturity preference to be synced with
 	// the server, we were unable to successfully sync with the server on maturity preference, so let's
 	// just raise the screen.
+	mIsMaturityRatingChangingDuringTeleport = false;
 	if (hasPendingTeleportRequest())
 	{
 		setTeleportState(LLAgent::TELEPORT_NONE);
