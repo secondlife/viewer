@@ -108,6 +108,8 @@ void LLDrawable::init()
 	
 	mGeneration = -1;
 	mBinRadius = 1.f;
+	mBinIndex = -1;
+
 	mSpatialBridge = NULL;
 }
 
@@ -1099,6 +1101,8 @@ LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 dat
 	mDrawable = root;
 	root->setSpatialBridge(this);
 	
+	mBinIndex = -1;
+
 	mRenderType = mDrawable->mRenderType;
 	mDrawableType = mDrawable->mRenderType;
 	

@@ -328,16 +328,16 @@ public:
 		LLVector4a& min = node->mExtents[0];
 		LLVector4a& max = node->mExtents[1];
 
-		if (!branch->getData().empty())
+		if (!branch->isEmpty())
 		{ //node has data, find AABB that binds data set
-			const LLVolumeTriangle* tri = *(branch->getData().begin());
+			const LLVolumeTriangle* tri = *(branch->getDataBegin());
 			
 			//initialize min/max to first available vertex
 			min = *(tri->mV[0]);
 			max = *(tri->mV[0]);
 			
 			for (LLOctreeNode<LLVolumeTriangle>::const_element_iter iter = 
-				branch->getData().begin(); iter != branch->getData().end(); ++iter)
+				branch->getDataBegin(); iter != branch->getDataEnd(); ++iter)
 			{ //for each triangle in node
 
 				//stretch by triangles in node

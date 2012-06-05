@@ -158,14 +158,11 @@ BOOL LLEditingMotion::onActivate()
 	return TRUE;
 }
 
-static LLFastTimer::DeclareTimer FTM_EDITING_MOTION("Editing Motion");
-
 //-----------------------------------------------------------------------------
 // LLEditingMotion::onUpdate()
 //-----------------------------------------------------------------------------
 BOOL LLEditingMotion::onUpdate(F32 time, U8* joint_mask)
 {
-	LLFastTimer t(FTM_EDITING_MOTION);
 	LLVector3 focus_pt;
 	LLVector3* pointAtPt = (LLVector3*)mCharacter->getAnimationData("PointAtPoint");
 
