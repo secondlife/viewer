@@ -32,15 +32,16 @@
 #include "llcheckboxctrl.h"
 #include "llfloaterreg.h"
 #include "llfloaterpathfindingobjects.h"
+#include "llhandle.h"
 #include "llpathfindingcharacter.h"
 #include "llpathfindingcharacterlist.h"
 #include "llpathfindingmanager.h"
 #include "llpathfindingobjectlist.h"
 #include "llsd.h"
 #include "lluicolortable.h"
-
-#include "pipeline.h"
+#include "llviewerobject.h"
 #include "llviewerobjectlist.h"
+#include "pipeline.h"
 
 LLHandle<LLFloaterPathfindingCharacters> LLFloaterPathfindingCharacters::sInstanceHandle;
 
@@ -163,7 +164,7 @@ void LLFloaterPathfindingCharacters::updateControls()
 {
 	LLFloaterPathfindingObjects::updateControls();
 	updateOnScrollListChange();
-	updateStateOnEditFields();
+	updateStateOnActionFields();
 }
 
 S32 LLFloaterPathfindingCharacters::getNameColumnIndex() const
@@ -232,7 +233,7 @@ LLSD LLFloaterPathfindingCharacters::buildCharacterScrollListData(const LLPathfi
 	return element;
 }
 
-void LLFloaterPathfindingCharacters::updateStateOnEditFields()
+void LLFloaterPathfindingCharacters::updateStateOnActionFields()
 {
 	int numSelectedItems = getNumSelectedObjects();;
 #ifndef SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE

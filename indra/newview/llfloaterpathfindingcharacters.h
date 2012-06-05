@@ -73,7 +73,7 @@ private:
 
 	LLSD buildCharacterScrollListData(const LLPathfindingCharacter *pCharacterPtr) const;
 
-	void updateStateOnEditFields();
+	void updateStateOnActionFields();
 	void updateOnScrollListChange();
 
 	void showCapsule() const;
