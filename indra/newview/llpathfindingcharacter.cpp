@@ -107,6 +107,10 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 		llassert(pCharacterData.has(CHARACTER_RADIUS_FIELD));
 		llassert(pCharacterData.get(CHARACTER_RADIUS_FIELD).isReal());
 		mRadius = pCharacterData.get(CHARACTER_RADIUS_FIELD).asReal();
+
+		//Create the rep inside the pathing library
+		LLVector3 empty(0,0,0);
+		LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, empty, getUUID() );
 	}
 #else // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 	llassert(pCharacterData.has(CHARACTER_HORIZONTAL_FIELD));
@@ -124,6 +128,5 @@ void LLPathfindingCharacter::parseCharacterData(const LLSD &pCharacterData)
 	//Create the rep inside the pathing library
 	LLVector3 empty(0,0,0);
 	LLPathingLib::getInstance()->createPhysicsCapsuleRep( mLength, mRadius, mIsHorizontal, empty, getUUID() );
-
 #endif // SERVER_SIDE_CHARACTER_SHAPE_ROLLOUT_COMPLETE
 }
