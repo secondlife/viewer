@@ -3441,6 +3441,9 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 
 	LL_DEBUGS("Messaging") << "Got TeleportStart with TeleportFlags=" << teleport_flags << ". gTeleportDisplay: " << gTeleportDisplay << ", gAgent.mTeleportState: " << gAgent.getTeleportState() << LL_ENDL;
 
+	// *NOTE: The server sends two StartTeleport packets when you are teleporting to a LM
+	LLViewerMessage::getInstance()->mTeleportStartedSignal();
+
 	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 	{
 		gViewerWindow->setProgressCancelButtonVisible(FALSE);
@@ -3460,9 +3463,15 @@ void process_teleport_start(LLMessageSystem *msg, void**)
 		make_ui_sound("UISndTeleportOut");
 		
 		LL_INFOS("Messaging") << "Teleport initiated by remote TeleportStart message with TeleportFlags: " <<  teleport_flags << LL_ENDL;
+
 		// Don't call LLFirstUse::useTeleport here because this could be
 		// due to being killed, which would send you home, not to a Telehub
 	}
+}
+
+boost::signals2::connection LLViewerMessage::setTeleportStartedCallback(teleport_started_callback_t cb)
+{
+	return mTeleportStartedSignal.connect(cb);
 }
 
 void process_teleport_progress(LLMessageSystem* msg, void**)

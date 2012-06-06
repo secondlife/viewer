@@ -78,8 +78,8 @@ class LLViewerParcelMgr : public LLSingleton<LLViewerParcelMgr>
 {
 
 public:
-	typedef boost::function<void (const LLVector3d&)> teleport_finished_callback_t;
-	typedef boost::signals2::signal<void (const LLVector3d&)> teleport_finished_signal_t;
+	typedef boost::function<void (const LLVector3d&, const bool& local)> teleport_finished_callback_t;
+	typedef boost::signals2::signal<void (const LLVector3d&, const bool&)> teleport_finished_signal_t;
 	typedef boost::function<void()> parcel_changed_callback_t;
 	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
 
@@ -274,6 +274,8 @@ public:
 	// currently selected parcel.
 	// *NOTE: Taken out 2005-03-21. Phoenix.
 	//void makeLandmarkAtSelection();
+
+	static void optionally_start_music(const std::string& music_url);
 
 	static void processParcelOverlay(LLMessageSystem *msg, void **user_data);
 	static void processParcelProperties(LLMessageSystem *msg, void **user_data);
