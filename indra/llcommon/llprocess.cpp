@@ -819,14 +819,41 @@ bool LLProcess::kill(const std::string& who)
 	return ! isRunning();
 }
 
+//static
+bool LLProcess::kill(const LLProcessPtr& p, const std::string& who)
+{
+	if (! p)
+		return true;                // process dead! (was never running)
+	return p->kill(who);
+}
+
 bool LLProcess::isRunning() const
 {
 	return getStatus().mState == RUNNING;
 }
 
+//static
+bool LLProcess::isRunning(const LLProcessPtr& p)
+{
+	if (! p)
+		return false;
+	return p->isRunning();
+}
+
 LLProcess::Status LLProcess::getStatus() const
 {
 	return mStatus;
+}
+
+//static
+LLProcess::Status LLProcess::getStatus(const LLProcessPtr& p)
+{
+	if (! p)
+	{
+		// default-constructed Status has mState == UNSTARTED
+		return Status();
+	}
+	return p->getStatus();
 }
 
 std::string LLProcess::getStatusString() const
@@ -837,6 +864,17 @@ std::string LLProcess::getStatusString() const
 std::string LLProcess::getStatusString(const Status& status) const
 {
 	return getStatusString(mDesc, status);
+}
+
+//static
+std::string LLProcess::getStatusString(const std::string& desc, const LLProcessPtr& p)
+{
+	if (! p)
+	{
+		// default-constructed Status has mState == UNSTARTED
+		return getStatusString(desc, Status());
+	}
+	return desc + " " + p->getStatusString();
 }
 
 //static

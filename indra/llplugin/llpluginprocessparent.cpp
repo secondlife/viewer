@@ -134,11 +134,8 @@ LLPluginProcessParent::~LLPluginProcessParent()
 		// and remove it from our map
 		mSharedMemoryRegions.erase(iter);
 	}
-	
-	if (mProcess)
-	{
-		mProcess->kill();
-	}
+
+	LLProcess::kill(mProcess);
 	killSockets();
 }
 
@@ -471,7 +468,7 @@ void LLPluginProcessParent::idle(void)
 			break;
 			
 			case STATE_EXITING:
-				if (! mProcess->isRunning())
+				if (! LLProcess::isRunning(mProcess))
 				{
 					setState(STATE_CLEANUP);
 				}
@@ -499,7 +496,7 @@ void LLPluginProcessParent::idle(void)
 			break;
 			
 			case STATE_CLEANUP:
-				mProcess->kill();
+				LLProcess::kill(mProcess);
 				killSockets();
 				setState(STATE_DONE);
 			break;
@@ -1078,7 +1075,7 @@ bool LLPluginProcessParent::pluginLockedUpOrQuit()
 {
 	bool result = false;
 	
-	if (! mProcess->isRunning())
+	if (! LLProcess::isRunning(mProcess))
 	{
 		LL_WARNS("Plugin") << "child exited" << LL_ENDL;
 		result = true;
