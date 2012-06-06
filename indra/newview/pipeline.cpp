@@ -4385,8 +4385,7 @@ void LLPipeline::renderDebug()
 						{					
 							//remove blending artifacts
 							gGL.setColorMask(false, false);
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );						
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos );				
 							gGL.setColorMask(true, false);
 							LLGLEnable blend(GL_BLEND);
 							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
