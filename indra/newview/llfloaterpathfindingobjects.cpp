@@ -304,10 +304,12 @@ void LLFloaterPathfindingObjects::handleUpdateObjectList(LLPathfindingManager::r
 			setMessagingState(kMessagingNotEnabled);
 			break;
 		case LLPathfindingManager::kRequestError :
-			setMessagingState(kMessagingGetError);
+			clearAllObjects();
+			setMessagingState(kMessagingSetError);
 			break;
 		default :
-			setMessagingState(kMessagingGetError);
+			clearAllObjects();
+			setMessagingState(kMessagingSetError);
 			llassert(0);
 			break;
 		}
@@ -401,7 +403,7 @@ BOOL LLFloaterPathfindingObjects::isShowBeacons() const
 void LLFloaterPathfindingObjects::clearAllObjects()
 {
 	selectNoneObjects();
-	mObjectsScrollList->clear();
+	mObjectsScrollList->deleteAllItems();
 	mObjectList.reset();
 }
 
