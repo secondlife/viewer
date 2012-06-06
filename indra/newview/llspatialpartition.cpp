@@ -923,7 +923,7 @@ void LLSpatialGroup::shift(const LLVector4a &offset)
 	mObjectExtents[0].add(offset);
 	mObjectExtents[1].add(offset);
 
-	//if (!mSpatialPartition->mRenderByGroup)
+	if (!mSpatialPartition->mRenderByGroup)
 	{
 		setState(GEOM_DIRTY);
 		gPipeline.markRebuild(this, TRUE);
