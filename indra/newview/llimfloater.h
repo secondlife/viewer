@@ -56,6 +56,9 @@ public:
 
 	virtual ~LLIMFloater();
 
+	void initIMSession(const LLUUID& session_id);
+	void initIMFloater();
+
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
@@ -117,14 +120,11 @@ public:
 			std::string& tooltip_msg);
 
 
-	static void initIMFloater();
-
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
 	static void onIMChicletCreated(const LLUUID& session_id);
 
-protected:
-	/* virtual */ void onClickCloseBtn();
+	bool getStartConferenceInSameFloater() const { return mStartConferenceInSameFloater; }
 
 private:
 	// process focus events to set a currently active session
@@ -185,6 +185,8 @@ private:
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
+
+	bool mStartConferenceInSameFloater;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;

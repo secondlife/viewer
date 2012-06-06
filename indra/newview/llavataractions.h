@@ -86,9 +86,9 @@ public:
 	static void startAdhocCall(const uuid_vec_t& ids);
 
 	/**
-	 * Start conference chat with the given avatars.
+	 * Start conference chat with the given avatars in a specific IM floater.
 	 */
-	static void startConference(const uuid_vec_t& ids);
+	static void startConference(const uuid_vec_t& ids, const LLUUID& floater_id = LLUUID::null);
 
 	/**
 	 * Show avatar profile.

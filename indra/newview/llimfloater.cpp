@@ -71,18 +71,12 @@ LLIMFloater::LLIMFloater(const LLUUID& session_id)
 	mTypingTimer(),
 	mTypingTimeoutTimer(),
 	mPositioned(false),
-	mSessionInitialized(false)
+	mSessionInitialized(false),
+	mStartConferenceInSameFloater(false)
 {
 	mIsNearbyChat = false;
+	initIMSession(session_id);
 
-	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
-
-	if (mSession)
-	{
-		mIsP2PChat = mSession->isP2PSessionType();
-		mSessionInitialized = mSession->mSessionInitialized;
-		mDialog = mSession->mType;
-	}
 	setOverlapsScreenChannel(true);
 
 	LLTransientFloaterMgr::getInstance()->addControlView(LLTransientFloaterMgr::IM, this);
@@ -112,6 +106,29 @@ void LLIMFloater::onFocusReceived()
 // virtual
 void LLIMFloater::onClose(bool app_quitting)
 {
+	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
+				mSessionID);
+
+	if (session == NULL)
+	{
+		llwarns << "Empty session." << llendl;
+		return;
+	}
+
+	bool is_call_with_chat = session->isGroupSessionType()
+			|| session->isAdHocSessionType() || session->isP2PSessionType();
+
+	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
+
+	if (is_call_with_chat && voice_channel != NULL
+			&& voice_channel->isActive())
+	{
+		LLSD payload;
+		payload["session_id"] = mSessionID;
+		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
+		return;
+	}
+
 	setTyping(false);
 
 	// The source of much argument and design thrashing
@@ -211,8 +228,24 @@ LLIMFloater::~LLIMFloater()
 	LLTransientFloaterMgr::getInstance()->removeControlView(LLTransientFloaterMgr::IM, this);
 }
 
-//virtual
-BOOL LLIMFloater::postBuild()
+void LLIMFloater::initIMSession(const LLUUID& session_id)
+{
+	// Change the floater key to bind it to a new session.
+	setKey(session_id);
+
+	mSessionID = session_id;
+	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
+
+	if (mSession)
+	{
+		mIsP2PChat = mSession->isP2PSessionType();
+		mSessionInitialized = mSession->mSessionInitialized;
+
+		mDialog = mSession->mType;
+	}
+}
+
+void LLIMFloater::initIMFloater()
 {
 	const LLUUID& other_party_id =
 			LLIMModel::getInstance()->getOtherParticipantID(mSessionID);
@@ -223,6 +256,34 @@ BOOL LLIMFloater::postBuild()
 
 	boundVoiceChannel();
 
+	// Show control panel in torn off floaters only.
+	mParticipantListPanel->setVisible(!getHost() && gSavedSettings.getBOOL("IMShowControlPanel"));
+
+	// Disable input editor if session cannot accept text
+	if ( mSession && !mSession->mTextIMPossible )
+	{
+		mInputEditor->setEnabled(FALSE);
+		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
+	}
+
+	if (mIsP2PChat)
+	{
+		// look up display name for window title
+		LLAvatarNameCache::get(mSession->mOtherParticipantID,
+							   boost::bind(&LLIMFloater::onAvatarNameCache,
+										   this, _1, _2));
+	}
+	else
+	{
+		std::string session_name(LLIMModel::instance().getName(mSessionID));
+		updateSessionName(session_name, session_name);
+	}
+}
+
+//virtual
+BOOL LLIMFloater::postBuild()
+{
+	LLIMConversation::postBuild();
 
 	mInputEditor = getChild<LLLineEditor>("chat_editor");
 	mInputEditor->setMaxTextLength(1023);
@@ -248,26 +309,6 @@ BOOL LLIMFloater::postBuild()
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
-	// Disable input editor if session cannot accept text
-	if ( mSession && !mSession->mTextIMPossible )
-	{
-		mInputEditor->setEnabled(FALSE);
-		mInputEditor->setLabel(LLTrans::getString("IM_unavailable_text_label"));
-	}
-
-	if (mIsP2PChat)
-	{
-		// look up display name for window title
-		LLAvatarNameCache::get(mSession->mOtherParticipantID,
-							   boost::bind(&LLIMFloater::onAvatarNameCache,
-										   this, _1, _2));
-	}
-	else
-	{
-		std::string session_name(LLIMModel::instance().getName(mSessionID));
-		updateSessionName(session_name, session_name);
-	}
-	
 	childSetAction("voice_call_btn", boost::bind(&LLIMFloater::onCallButtonClicked, this));
 
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -275,7 +316,9 @@ BOOL LLIMFloater::postBuild()
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
-	return LLIMConversation::postBuild();
+	initIMFloater();
+
+	return TRUE;
 }
 
 void LLIMFloater::boundVoiceChannel()
@@ -603,17 +646,15 @@ void LLIMFloater::sessionInitReplyReceived(const LLUUID& im_session_id)
 	//will be different only for an ad-hoc im session
 	if (mSessionID != im_session_id)
 	{
-		mSessionID = im_session_id;
-		setKey(im_session_id);
+		initIMSession(im_session_id);
 
 		boundVoiceChannel();
 
-		mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
-		mIsP2PChat = mSession && mSession->isP2PSessionType();
-
 		buildParticipantList();
 	}
-	
+
+	initIMFloater();
+
 	//*TODO here we should remove "starting session..." warning message if we added it in postBuild() (IB)
 
 	//need to send delayed messaged collected while waiting for session initialization
@@ -965,7 +1006,8 @@ BOOL LLIMFloater::dropCategory(LLInventoryCategory* category, BOOL drop)
 BOOL LLIMFloater::isInviteAllowed() const
 {
 	return ((IM_SESSION_CONFERENCE_START == mDialog)
-			|| (IM_SESSION_INVITE == mDialog));
+			 || (IM_SESSION_INVITE == mDialog && !gAgent.isInGroup(mSessionID))
+			 || mIsP2PChat);
 }
 
 class LLSessionInviteResponder: public LLHTTPClient::Responder
@@ -1107,14 +1149,6 @@ void LLIMFloater::confirmLeaveCallCallback(const LLSD& notification, const LLSD&
 }
 
 // static
-void LLIMFloater::initIMFloater()
-{
-	// This is called on viewer start up
-	// init chat window type before user changed it in preferences
-	isChatMultiTab();
-}
-
-//static
 void LLIMFloater::sRemoveTypingIndicator(const LLSD& data)
 {
 	LLUUID session_id = data["session_id"];
@@ -1139,7 +1173,6 @@ void LLIMFloater::onIMChicletCreated( const LLUUID& session_id )
 {
 	LLIMFloater::addToHost(session_id);
 }
-
 void LLIMFloater::addToHost(const LLUUID& session_id)
 {
 	if (LLIMConversation::isChatMultiTab())
@@ -1156,33 +1189,4 @@ void LLIMFloater::addToHost(const LLUUID& session_id)
 			im_box->addFloater(new_tab, FALSE, LLTabContainer::END);
 		}
 	}
-}
-
-void	LLIMFloater::onClickCloseBtn()
-{
-
-	LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(
-			mSessionID);
-
-	if (session == NULL)
-	{
-		llwarns << "Empty session." << llendl;
-		return;
-	}
-
-	bool is_call_with_chat = session->isGroupSessionType()
-			|| session->isAdHocSessionType() || session->isP2PSessionType();
-
-	LLVoiceChannel* voice_channel = LLIMModel::getInstance()->getVoiceChannel(mSessionID);
-
-	if (is_call_with_chat && voice_channel != NULL
-			&& voice_channel->isActive())
-	{
-		LLSD payload;
-		payload["session_id"] = mSessionID;
-		LLNotificationsUtil::add("ConfirmLeaveCall", LLSD(), payload, confirmLeaveCallCallback);
-		return;
-	}
-
-	LLFloater::onClickCloseBtn();
 }
