@@ -139,7 +139,7 @@ LLSD LLFloaterPathfindingCharacters::convertObjectsIntoScrollListData(const LLPa
 	llassert(pObjectListPtr != NULL);
 	llassert(!pObjectListPtr->isEmpty());
 
-	LLSD scrollListData;
+	LLSD scrollListData = LLSD::emptyArray();
 
 	for (LLPathfindingObjectList::const_iterator objectIter = pObjectListPtr->begin();	objectIter != pObjectListPtr->end(); ++objectIter)
 	{

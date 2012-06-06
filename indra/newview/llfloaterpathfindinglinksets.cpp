@@ -225,7 +225,7 @@ LLSD LLFloaterPathfindingLinksets::convertObjectsIntoScrollListData(const LLPath
 	bool isFilteringDescription = !descriptionFilter.empty();
 	bool isFilteringLinksetUse = (linksetUseFilter != LLPathfindingLinkset::kUnknown);
 
-	LLSD scrollListData;
+	LLSD scrollListData = LLSD::emptyArray();
 	const LLVector3& avatarPosition = gAgent.getPositionAgent();
 
 	if (isFilteringName || isFilteringDescription || isFilteringLinksetUse)
