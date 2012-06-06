@@ -40,8 +40,10 @@
 #include "_httpreplyqueue.h"
 #include "_httpservice.h"
 #include "_httppolicy.h"
+#include "_httppolicyglobal.h"
 #include "_httplibcurl.h"
 
+#include "llhttpstatuscodes.h"
 
 namespace
 {
@@ -153,14 +155,14 @@ HttpOpRequest::~HttpOpRequest()
 void HttpOpRequest::stageFromRequest(HttpService * service)
 {
 	addRef();
-	service->getPolicy()->addOp(this);			// transfers refcount
+	service->getPolicy().addOp(this);			// transfers refcount
 }
 
 
 void HttpOpRequest::stageFromReady(HttpService * service)
 {
 	addRef();
-	service->getTransport()->addOp(this);		// transfers refcount
+	service->getTransport().addOp(this);		// transfers refcount
 }
 
 
@@ -195,6 +197,8 @@ void HttpOpRequest::stageFromActive(HttpService * service)
 
 void HttpOpRequest::visitNotifier(HttpRequest * request)
 {
+	static const HttpStatus partial_content(HTTP_PARTIAL_CONTENT, HE_SUCCESS);
+	
 	if (mLibraryHandler)
 	{
 		HttpResponse * response = new HttpResponse();
@@ -208,9 +212,15 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 			offset = mReplyOffset;
 			length = mReplyLength;
 		}
-		else if (mReplyBody)
+		else if (mReplyBody && partial_content == mStatus)
 		{
-			// Provide implicit offset/length from request/response
+			// Legacy grid services did not provide a 'Content-Range'
+			// header in responses to full- or partly-satisfyiable
+			// 'Range' requests.  For these, we have to hope that
+			// the data starts where requested and the length is simply
+			// whatever we received.  A bit of sanity could be provided
+			// by overlapping ranged requests and verifying that the
+			// overlap matches.
 			offset = mReqOffset;
 			length = mReplyBody->size();
 		}
@@ -306,6 +316,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
+	// Get policy options
+	HttpPolicyGlobal & policy(service->getPolicy().getGlobalOptions());
+	
 	mCurlHandle = curl_easy_init();
 	// curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, 30);
@@ -322,21 +335,40 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	curl_easy_setopt(mCurlHandle, CURLOPT_DNS_CACHE_TIMEOUT, 0);
 	curl_easy_setopt(mCurlHandle, CURLOPT_AUTOREFERER, 1);
 	curl_easy_setopt(mCurlHandle, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, 10);
+	curl_easy_setopt(mCurlHandle, CURLOPT_MAXREDIRS, 10);		// *FIXME:  parameterize this later
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEFUNCTION, writeCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_WRITEDATA, mCurlHandle);
 	curl_easy_setopt(mCurlHandle, CURLOPT_READFUNCTION, readCallback);
 	curl_easy_setopt(mCurlHandle, CURLOPT_READDATA, mCurlHandle);
+	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYPEER, 1);
+	curl_easy_setopt(mCurlHandle, CURLOPT_SSL_VERIFYHOST, 0);
 
+	std::string opt_value;
+	if (policy.get(HttpRequest::GP_CA_PATH, opt_value))
+	{
+		curl_easy_setopt(mCurlHandle, CURLOPT_CAPATH, opt_value.c_str());
+	}
+	if (policy.get(HttpRequest::GP_CA_FILE, opt_value))
+	{
+		curl_easy_setopt(mCurlHandle, CURLOPT_CAINFO, opt_value.c_str());
+	}
+	if (policy.get(HttpRequest::GP_HTTP_PROXY, opt_value))
+	{
+		curl_easy_setopt(mCurlHandle, CURLOPT_PROXY, opt_value.c_str());
+	}
+	
 	switch (mReqMethod)
 	{
 	case HOR_GET:
 		curl_easy_setopt(mCurlHandle, CURLOPT_HTTPGET, 1);
+		mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
+		mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		break;
 		
 	case HOR_POST:
 		{
 			curl_easy_setopt(mCurlHandle, CURLOPT_POST, 1);
+			curl_easy_setopt(mCurlHandle, CURLOPT_ENCODING, "");
 			long data_size(0);
 			if (mReqBody)
 			{
@@ -358,8 +390,11 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 				data_size = mReqBody->size();
 			}
 			curl_easy_setopt(mCurlHandle, CURLOPT_INFILESIZE, data_size);
+			curl_easy_setopt(mCurlHandle, CURLOPT_POSTFIELDS, (void *) NULL);
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Transfer-Encoding: chunked");
 			mCurlHeaders = curl_slist_append(mCurlHeaders, "Expect:");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Connection: keep-alive");
+			mCurlHeaders = curl_slist_append(mCurlHeaders, "Keep-alive: 300");
 		}
 		break;
 		

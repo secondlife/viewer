@@ -27,6 +27,7 @@
 #include "_httplibcurl.h"
 
 #include "httpheaders.h"
+#include "bufferarray.h"
 #include "_httpoprequest.h"
 
 

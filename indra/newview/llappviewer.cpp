@@ -5356,6 +5356,17 @@ void CoreHttp::init()
 						<< LL_ENDL;
 	}
 
+	mRequest = new LLCore::HttpRequest;
+
+	status = mRequest->setPolicyGlobalOption(LLCore::HttpRequest::GP_CA_FILE,
+											 gDirUtilp->getCAFile());
+	if (! status)
+	{
+		LL_ERRS("Init") << "Failed to set CA File for HTTP services.  Reason:  "
+						<< status.toString()
+						<< LL_ENDL;
+	}
+	
 	status = LLCore::HttpRequest::startThread();
 	if (! status)
 	{
@@ -5364,7 +5375,6 @@ void CoreHttp::init()
 						<< LL_ENDL;
 	}
 
-	mRequest = new LLCore::HttpRequest;
 }
 
 

@@ -137,7 +137,16 @@ enum HttpError
 	HE_INV_CONTENT_RANGE_HDR = 4,
 	
 	// Request handle not found
-	HE_HANDLE_NOT_FOUND = 5
+	HE_HANDLE_NOT_FOUND = 5,
+
+	// Invalid datatype for option/setting
+	HE_INVALID_ARG = 6,
+
+	// Option hasn't been explicitly set
+	HE_OPT_NOT_SET = 7,
+	
+	// Option not dynamic, must be set during init phase
+	HE_OPT_NOT_DYNAMIC = 8
 	
 }; // end enum HttpError
 

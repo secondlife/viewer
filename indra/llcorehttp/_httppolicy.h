@@ -31,6 +31,7 @@
 #include "httprequest.h"
 #include "_httpservice.h"
 #include "_httpreadyqueue.h"
+#include "_httppolicyglobal.h"
 
 
 namespace LLCore
@@ -68,11 +69,20 @@ public:
 
 	// Shadows HttpService's method
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
+
+	// Get pointer to global policy options.  Caller is expected
+	// to do context checks like no setting once running.
+	HttpPolicyGlobal &	getGlobalOptions()
+		{
+			return mGlobalOptions;
+		}
+	
 	
 protected:
 	int					mReadyInClass[HttpRequest::POLICY_CLASS_LIMIT];
 	HttpReadyQueue		mReadyQueue[HttpRequest::POLICY_CLASS_LIMIT];
 	HttpService *		mService;				// Naked pointer, not refcounted, not owner
+	HttpPolicyGlobal	mGlobalOptions;
 	
 };  // end class HttpPolicy
 

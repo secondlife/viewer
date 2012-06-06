@@ -148,14 +148,14 @@ public:
 	/// Threading:  callable by worker thread.
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 	
-	HttpPolicy * getPolicy()
+	HttpPolicy & getPolicy()
 		{
-			return mPolicy;
+			return *mPolicy;
 		}
 
-	HttpLibcurl * getTransport()
+	HttpLibcurl & getTransport()
 		{
-			return mTransport;
+			return *mTransport;
 		}
 	
 protected:

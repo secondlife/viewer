@@ -33,6 +33,7 @@ set(llcorehttp_SOURCE_FILES
     _httpoprequest.cpp
     _httpopsetpriority.cpp
     _httppolicy.cpp
+    _httppolicyglobal.cpp
     _httpreplyqueue.cpp
     _httprequestqueue.cpp
     _httpservice.cpp
@@ -55,6 +56,7 @@ set(llcorehttp_HEADER_FILES
     _httpoprequest.h
     _httpopsetpriority.h
     _httppolicy.h
+    _httppolicyglobal.h
     _httpreadyqueue.h
     _httpreplyqueue.h
     _httprequestqueue.h

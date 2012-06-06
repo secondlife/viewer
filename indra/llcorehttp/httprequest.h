@@ -111,7 +111,10 @@ public:
 		/// Maximum number of connections the library will use to
 		/// perform operations.  This is somewhat soft as the underlying
 		/// transport will cache some connections (up to 5).
-		GLOBAL_CONNECTION_LIMIT
+		GP_CONNECTION_LIMIT,		///< Takes long giving number of connections
+		GP_CA_PATH,					///< System path/directory where SSL certs are stored.
+		GP_CA_FILE,					///< System path/file containing certs.
+		GP_HTTP_PROXY				///< String giving host/port to use for HTTP proxy
 	};
 
 	/// Set a parameter on a global policy option.  Calls
@@ -122,6 +125,7 @@ public:
 	/// @param value	Desired value of option.
 	/// @return			Standard status code.
 	HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, long value);
+	HttpStatus setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value);
 
 	/// Create a new policy class into which requests can be made.
 	///
@@ -134,15 +138,15 @@ public:
 	enum EClassPolicy
 	{
 		/// Limits the number of connections used for the class.
-		CLASS_CONNECTION_LIMIT,
+		CP_CONNECTION_LIMIT,
 
 		/// Limits the number of connections used for a single
 		/// literal address/port pair within the class.
-		PER_HOST_CONNECTION_LIMIT,
+		CP_PER_HOST_CONNECTION_LIMIT,
 
 		/// Suitable requests are allowed to pipeline on their
 		/// connections when they ask for it.
-		ENABLE_PIPELINING
+		CP_ENABLE_PIPELINING
 	};
 	
 	/// Set a parameter on a class-based policy option.  Calls
@@ -153,9 +157,7 @@ public:
 	/// @param opt				Enum of option to be set.
 	/// @param value			Desired value of option.
 	/// @return					Standard status code.
-	HttpStatus setPolicyClassOption(policy_t policy_id,
-									EClassPolicy opt,
-									long value);
+	HttpStatus setPolicyClassOption(policy_t policy_id, EClassPolicy opt, long value);
 
 	/// @}
 

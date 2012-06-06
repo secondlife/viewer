@@ -66,7 +66,10 @@ std::string HttpStatus::toString() const
 			"Services shutting down",
 			"Operation canceled",
 			"Invalid Content-Range header encountered",
-			"Request handle not found"
+			"Request handle not found",
+			"Invalid datatype for argument or option",
+			"Option has not been explicitly set",
+			"Option is not dynamic and must be set early"
 		};
 	static const int llcore_errors_count(sizeof(llcore_errors) / sizeof(llcore_errors[0]));
 

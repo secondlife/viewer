@@ -29,6 +29,7 @@
 #include "_httprequestqueue.h"
 #include "_httpreplyqueue.h"
 #include "_httpservice.h"
+#include "_httppolicy.h"
 #include "_httpoperation.h"
 #include "_httpoprequest.h"
 #include "_httpopsetpriority.h"
@@ -127,9 +128,17 @@ HttpRequest::~HttpRequest()
 
 HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, long value)
 {
-	HttpStatus status;
+	// *FIXME:  Fail if thread is running.
 
-	return status;
+	return HttpService::instanceOf()->getPolicy().getGlobalOptions().set(opt, value);
+}
+
+
+HttpStatus HttpRequest::setPolicyGlobalOption(EGlobalPolicy opt, const std::string & value)
+{
+	// *FIXME:  Fail if thread is running.
+
+	return HttpService::instanceOf()->getPolicy().getGlobalOptions().set(opt, value);
 }
 
 

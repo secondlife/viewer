@@ -816,14 +816,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mFetchTimer.reset();
 	}
 
-	static LLUUID last_id;
-	if (mID != last_id)
-	{
-		// LL_WARNS("Texture") << "DOWORK SWITCH: " << last_id << " to: " << mID
-		// << LL_ENDL;
-		last_id = mID;
-	}
-	
 	if (mState == INIT)
 	{		
 		mRawImage = NULL ;
@@ -1109,10 +1101,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 									 << " Bytes: " << mRequestedSize
 									 << " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
 									 << LL_ENDL;
-// 				LL_WARNS("Texture") << "HTTP GET: " << mID << " Offset: " << mRequestedOffset
-// 									<< " Bytes: " << mRequestedSize
-// 									<< " Bandwidth(kbps): " << mFetcher->getTextureBandwidth() << "/" << mFetcher->mMaxBandwidth
-// 									<< LL_ENDL;
 
 				// Will call callbackHttpGet when curl request completes
 				// *FIXME:  enable redirection follow
@@ -1241,7 +1229,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				}
 			}
 						
-			if (mHaveAllData && mRequestedDiscard == 0) //the image file is fully loaded.
+			if (mHaveAllData /* && mRequestedDiscard == 0*/) //the image file is fully loaded.
 			{
 				mFileSize = total_size;
 			}
@@ -1692,13 +1680,32 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 			body->addRef();
 			mHttpBufferArray = body;
 
-			if (data_size < mRequestedSize && mRequestedDiscard == 0)
+			if (! partial)
 			{
+				// Response indicates this is the entire asset regardless
+				// of our asking for a byte range.  Mark it so and drop
+				// any partial data we might have so that the current
+				// response body becomes the entire dataset.
+				if (data_size <= mRequestedOffset)
+				{
+					LL_WARNS("Texture") << "Fetched entire texture " << mID
+										<< " when it was expected to be marked complete.  mImageSize:  "
+										<< mFileSize << " datasize:  " << mFormattedImage->getDataSize()
+										<< LL_ENDL;
+				}
+				mHaveAllData = TRUE;
+				llassert_always(mDecodeHandle == 0);
+				mFormattedImage = NULL; // discard any previous data we had
+			}
+			else if (data_size < mRequestedSize && mRequestedDiscard == 0)
+			{
+				// *FIXME:  I think we can treat this as complete regardless
+				// of requested discard level.  Revisit this...
 				mHaveAllData = TRUE;
 			}
 			else if (data_size > mRequestedSize)
 			{
-				// *TODO: This shouldn't be happening any more
+				// *TODO: This shouldn't be happening any more  (REALLY don't expect this anymore)
 				llwarns << "data_size = " << data_size << " > requested: " << mRequestedSize << llendl;
 				mHaveAllData = TRUE;
 				llassert_always(mDecodeHandle == 0);

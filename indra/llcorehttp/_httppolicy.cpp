@@ -76,12 +76,12 @@ void HttpPolicy::addOp(HttpOpRequest * op)
 HttpService::ELoopSpeed HttpPolicy::processReadyQueue()
 {
 	HttpService::ELoopSpeed result(HttpService::REQUEST_SLEEP);
-	HttpLibcurl * pTransport(mService->getTransport());
+	HttpLibcurl & transport(mService->getTransport());
 	
 	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{
 		HttpReadyQueue & readyq(mReadyQueue[policy_class]);
-		int active(pTransport->getActiveCountInClass(policy_class));
+		int active(transport.getActiveCountInClass(policy_class));
 		int needed(8 - active);
 
 		if (needed > 0 && mReadyInClass[policy_class] > 0)
