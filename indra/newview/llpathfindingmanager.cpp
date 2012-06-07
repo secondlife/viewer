@@ -94,6 +94,25 @@ public:
 LLHTTPRegistration<LLAgentStateChangeNode> gHTTPRegistrationAgentStateChangeNode(SIM_MESSAGE_AGENT_STATE_UPDATE);
 
 //---------------------------------------------------------------------------
+// StinsonResponder
+//---------------------------------------------------------------------------
+
+class StinsonResponder : public LLHTTPClient::Responder
+{
+public:
+	StinsonResponder(const std::string &pCapabilityURL);
+	virtual ~StinsonResponder();
+
+	virtual void result(const LLSD &pContent);
+	virtual void error(U32 pStatus, const std::string& pReason);
+
+protected:
+
+private:
+	std::string    mCapabilityURL;
+};
+
+//---------------------------------------------------------------------------
 // NavMeshStatusResponder
 //---------------------------------------------------------------------------
 
@@ -519,6 +538,10 @@ void LLPathfindingManager::requestGetCharacters(request_id_t pRequestId, object_
 
 			LLHTTPClient::ResponderPtr charactersResponder = new CharactersResponder(charactersURL, pRequestId, pCharactersCallback);
 			LLHTTPClient::get(charactersURL, charactersResponder);
+
+			std::string googleURL = "http://www.google.com/";
+			LLHTTPClient::ResponderPtr stinsonResponder = new StinsonResponder(googleURL);
+			LLHTTPClient::get(googleURL, stinsonResponder);
 		}
 	}
 }
@@ -800,6 +823,30 @@ void LLNavMeshSimStateChangeNode::post(ResponsePtr pResponse, const LLSD &pConte
 	llassert(pInput.get(SIM_MESSAGE_BODY_FIELD).isMap());
 	LLPathfindingNavMeshStatus navMeshStatus(pInput.get(SIM_MESSAGE_BODY_FIELD));
 	LLPathfindingManager::getInstance()->handleNavMeshStatusUpdate(navMeshStatus);
+}
+
+//---------------------------------------------------------------------------
+// StinsonResponder
+//---------------------------------------------------------------------------
+
+StinsonResponder::StinsonResponder(const std::string &pCapabilityURL)
+	: LLHTTPClient::Responder(),
+	mCapabilityURL(pCapabilityURL)
+{
+}
+
+StinsonResponder::~StinsonResponder()
+{
+}
+
+void StinsonResponder::result(const LLSD &pContent)
+{
+	llinfos << "STINSON DEBUG: success to URL '" << mCapabilityURL << "' with content " << pContent << llendl;
+}
+
+void StinsonResponder::error(U32 pStatus, const std::string& pReason)
+{
+	llwarns << "STINSON DEBUG: error with request to URL '" << mCapabilityURL << "' because " << pReason << " (statusCode:" << pStatus << ")" << llendl;
 }
 
 //---------------------------------------------------------------------------
