@@ -1584,7 +1584,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == DONE)
 	{
-		if (mDecodedDiscard >= 0 && mDesiredDiscard < mDecodedDiscard)
+		if (mDecodedDiscard > 0 && mDesiredDiscard < mDecodedDiscard)
 		{
 			// More data was requested, return to INIT
 			mState = INIT;
@@ -1883,7 +1883,7 @@ S32 LLTextureFetchWorker::callbackHttpGet(LLCore::HttpResponse * response,
 				llassert_always(mDecodeHandle == 0);
 				mFormattedImage = NULL; // discard any previous data we had
 			}
-			else if (data_size < mRequestedSize && mRequestedDiscard == 0)
+			else if (data_size < mRequestedSize /*&& mRequestedDiscard == 0*/)
 			{
 				// *FIXME:  I think we can treat this as complete regardless
 				// of requested discard level.  Revisit this...
