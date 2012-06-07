@@ -143,7 +143,7 @@ namespace tut
         httpPump.post(request);
         ensure("got response", netio.pump());
         ensure("success response", success);
-        ensure_equals(result.asString(), "success");
+        ensure_equals(result["reply"].asString(), "success");
 
         body["status"] = 499;
         body["reason"] = "custom error message";
