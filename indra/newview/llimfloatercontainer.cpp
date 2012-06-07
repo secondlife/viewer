@@ -71,6 +71,8 @@ BOOL LLIMFloaterContainer::postBuild()
 	mConversationsStack = getChild<LLLayoutStack>("conversations_stack");
 	mConversationsPane = getChild<LLLayoutPanel>("conversations_layout_panel");
 	mMessagesPane = getChild<LLLayoutPanel>("messages_layout_panel");
+	
+	mConversationsListPanel = getChild<LLPanel>("conversations_list_panel");
 
 	mExpandCollapseBtn = getChild<LLButton>("expand_collapse_btn");
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMFloaterContainer::onExpandCollapseButtonClicked, this));
@@ -112,6 +114,22 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
+	// CHUI-137
+	llinfos << "Merov debug : addFloater, title = " << floaterp->getTitle() << llendl;
+	// Create a conversation item
+	LLConversationItem item(floaterp->getTitle());
+	// Add it to the list
+	mConversationsItems.push_back(item);
+	// Create a widget from it
+	LLFolderViewItem* widget = createConversationItemWidget(&item);
+	// Add it to the list of widgets
+	mConversationsWidgets.push_back(widget);
+	// Add it to the UI
+	widget->setVisible(TRUE);
+	mConversationsListPanel->addChild(widget);
+	// Reposition it...
+	// CHUI-137 : end
+	
 	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
 
 	// we don't show the header when the floater is hosted,
@@ -149,6 +167,8 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 void LLIMFloaterContainer::removeFloater(LLFloater* floaterp)
 {
 	LLMultiFloater::removeFloater(floaterp);
+
+	llinfos << "Merov debug : removeFloater, title = " << floaterp->getTitle() << llendl;
 
 	LLRect contents_rect = floaterp->getRect();
 
@@ -312,5 +332,64 @@ void LLIMFloaterContainer::updateState(bool collapse, S32 delta_width)
 	setCanResize(is_left_pane_expanded || is_right_pane_expanded);
 	setCanMinimize(is_left_pane_expanded || is_right_pane_expanded);
 }
+
+// CHUI-137 : Temp implementation of conversations list
+LLFolderViewItem* LLIMFloaterContainer::createConversationItemWidget(LLConversationItem* item)
+{
+	LLFolderViewItem::Params params;
+	
+	params.name = item->getDisplayName();
+	//params.icon = bridge->getIcon();
+	//params.icon_open = bridge->getOpenIcon();
+		
+	//params.creation_date = bridge->getCreationDate();
+	//params.root = mFolderRoot;
+	params.listener = item;
+	params.rect = LLRect (0, 0, 0, 0);
+	params.tool_tip = params.name;
+	
+	return LLUICtrlFactory::create<LLFolderViewItem>(params);
+}
+
+// Conversation items
+LLConversationItem::LLConversationItem(std::string name) :
+	mName(name),
+	mUUID(LLUUID::null)
+{
+	if (name == "")
+		mName = "Nearby Chat";
+}
+
+// Virtual action callbacks
+void LLConversationItem::performAction(LLInventoryModel* model, std::string action)
+{
+	llinfos << "Merov debug : performAction, title = " << mName << ", action = " << action << llendl;
+}
+
+void LLConversationItem::openItem( void )
+{
+	llinfos << "Merov debug : openItem, title = " << mName << llendl;
+}
+
+void LLConversationItem::closeItem( void )
+{
+	llinfos << "Merov debug : closeItem, title = " << mName << llendl;
+}
+
+void LLConversationItem::previewItem( void )
+{
+	llinfos << "Merov debug : previewItem, title = " << mName << llendl;
+}
+
+void LLConversationItem::selectItem(void)
+{
+	llinfos << "Merov debug : selectItem, title = " << mName << llendl;
+}
+
+void LLConversationItem::showProperties(void)
+{
+	llinfos << "Merov debug : showProperties, title = " << mName << llendl;
+}
+
 
 // EOF

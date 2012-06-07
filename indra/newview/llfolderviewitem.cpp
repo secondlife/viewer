@@ -287,7 +287,7 @@ void LLFolderViewItem::refreshFromListener()
 			setCreationDate(creation_date);
 			dirtyFilter();
 		}
-		if (mRoot->useLabelSuffix())
+		if (mRoot && mRoot->useLabelSuffix())
 		{
 			mLabelStyle = mListener->getLabelStyle();
 			mLabelSuffix = mListener->getLabelSuffix();
