@@ -59,6 +59,7 @@
                  top="5"
                  width="31" />
              <button
+                 enabled="false"
                  follows="top|left"
                  height="25"
                  image_hover_unselected="Toolbar_Middle_Over"

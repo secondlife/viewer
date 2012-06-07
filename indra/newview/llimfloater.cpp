@@ -311,7 +311,12 @@ BOOL LLIMFloater::postBuild()
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
-	childSetAction("add_btn", boost::bind(&LLIMFloater::onAddButtonClicked, this));
+	LLButton* add_btn = getChild<LLButton>("add_btn");
+
+	// Allow to add chat participants depending on the session type
+	add_btn->setEnabled(isInviteAllowed());
+	add_btn->setClickedCallback(boost::bind(&LLIMFloater::onAddButtonClicked, this));
+
 	childSetAction("voice_call_btn", boost::bind(&LLIMFloater::onCallButtonClicked, this));
 
 	LLVoiceClient::getInstance()->addObserver(this);
