@@ -114,10 +114,11 @@ public:
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-			BOOL drop, EDragAndDropType cargo_type,
-			void *cargo_data, EAcceptance *accept,
-			std::string& tooltip_msg);
+	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+									   EDragAndDropType cargo_type,
+									   void* cargo_data,
+									   EAcceptance* accept,
+									   std::string& tooltip_msg);
 
 
 	//used as a callback on receiving new IM message
@@ -137,8 +138,7 @@ private:
 	// For display name lookups for IM window titles
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-	BOOL dropCallingCard(LLInventoryItem* item, BOOL drop);
-	BOOL dropCategory(LLInventoryCategory* category, BOOL drop);
+	bool dropPerson(LLInventoryObject* item, bool drop);
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);

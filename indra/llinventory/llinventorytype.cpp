@@ -85,6 +85,7 @@ LLInventoryDictionary::LLInventoryDictionary()
 	addEntry(LLInventoryType::IT_GESTURE,             new InventoryEntry("gesture",   "gesture",       1, LLAssetType::AT_GESTURE)); 
 	addEntry(LLInventoryType::IT_MESH,                new InventoryEntry("mesh",      "mesh",          1, LLAssetType::AT_MESH));
 	addEntry(LLInventoryType::IT_WIDGET,              new InventoryEntry("widget",    "widget",        1, LLAssetType::AT_WIDGET));
+	addEntry(LLInventoryType::IT_PERSON,              new InventoryEntry("person",    "person",        1, LLAssetType::AT_PERSON));
 }
 
 
@@ -140,7 +141,7 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
 	LLInventoryType::IT_NONE,			// 42	AT_NONE
 	LLInventoryType::IT_NONE,			// 43	AT_NONE
 	LLInventoryType::IT_NONE,			// 44	AT_NONE
-	LLInventoryType::IT_NONE,			// 45	AT_NONE
+	LLInventoryType::IT_PERSON,			// 45	AT_PERSON
 	LLInventoryType::IT_NONE,			// 46	AT_NONE
 	LLInventoryType::IT_NONE,			// 47	AT_NONE
 	LLInventoryType::IT_NONE,			// 48	AT_NONE

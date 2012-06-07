@@ -63,7 +63,8 @@ public:
 		IT_GESTURE = 20,
 		IT_MESH = 22,
 		IT_WIDGET = 23,
-		IT_COUNT = 24,
+		IT_PERSON = 24,
+		IT_COUNT = 25,
 
 		IT_NONE = -1
 	};

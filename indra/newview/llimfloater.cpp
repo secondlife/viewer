@@ -986,90 +986,55 @@ void LLIMFloater::processSessionUpdate(const LLSD& session_update)
 	}
 }
 
-BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask,
-		BOOL drop, EDragAndDropType cargo_type,
-		void *cargo_data, EAcceptance *accept,
-		std::string& tooltip_msg)
+// virtual
+BOOL LLIMFloater::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+									EDragAndDropType cargo_type,
+									void* cargo_data,
+									EAcceptance* accept,
+									std::string& tooltip_msg)
 {
-	if (mDialog == IM_NOTHING_SPECIAL)
+	if (cargo_type == DAD_PERSON)
 	{
-		LLToolDragAndDrop::handleGiveDragAndDrop(mOtherParticipantUUID, mSessionID, drop,
-				cargo_type, cargo_data, accept);
-	}
-
-	// handle case for dropping calling cards (and folders of calling cards) onto invitation panel for invites
-	else if (isInviteAllowed())
-	{
-		*accept = ACCEPT_NO;
-
-		if (cargo_type == DAD_CALLINGCARD)
+		if (dropPerson(static_cast<LLInventoryObject*>(cargo_data), drop))
 		{
-			if (dropCallingCard((LLInventoryItem*) cargo_data, drop))
-			{
-				*accept = ACCEPT_YES_MULTI;
-			}
+			*accept = ACCEPT_YES_MULTI;
 		}
-		else if (cargo_type == DAD_CATEGORY)
+		else
 		{
-			if (dropCategory((LLInventoryCategory*) cargo_data, drop))
-			{
-				*accept = ACCEPT_YES_MULTI;
-			}
+			*accept = ACCEPT_NO;
 		}
 	}
 	return TRUE;
 }
 
-BOOL LLIMFloater::dropCallingCard(LLInventoryItem* item, BOOL drop)
+bool LLIMFloater::dropPerson(LLInventoryObject* item, bool drop)
 {
-	BOOL rv = isInviteAllowed();
-	if (rv && item && item->getCreatorUUID().notNull())
+	bool res = item && item->getUUID().notNull();
+	if(res)
 	{
-		if (drop)
-		{
-			uuid_vec_t ids;
-			ids.push_back(item->getCreatorUUID());
-			inviteToSession(ids);
-		}
-	}
-	else
-	{
-		// set to false if creator uuid is null.
-		rv = FALSE;
-	}
-	return rv;
-}
+		uuid_vec_t ids;
+		ids.push_back(item->getUUID());
 
-BOOL LLIMFloater::dropCategory(LLInventoryCategory* category, BOOL drop)
-{
-	BOOL rv = isInviteAllowed();
-	if (rv && category)
-	{
-		LLInventoryModel::cat_array_t cats;
-		LLInventoryModel::item_array_t items;
-		LLUniqueBuddyCollector buddies;
-		gInventory.collectDescendentsIf(category->getUUID(),
-				cats,
-				items,
-				LLInventoryModel::EXCLUDE_TRASH,
-				buddies);
-		S32 count = items.count();
-		if (count == 0)
+		res = canAddSelectedToChat(ids);
+		if(res && drop)
 		{
-			rv = FALSE;
-		}
-		else if (drop)
-		{
-			uuid_vec_t ids;
-			ids.reserve(count);
-			for (S32 i = 0; i < count; ++i)
+			if (mIsP2PChat)
 			{
-				ids.push_back(items.get(i)->getCreatorUUID());
+				mStartConferenceInSameFloater = true;
+				onClose(false);
+
+				ids.push_back(mOtherParticipantUUID);
+
+				LLAvatarActions::startConference(ids, mSessionID);
 			}
-			inviteToSession(ids);
+			else
+			{
+				inviteToSession(ids);
+			}
 		}
 	}
-	return rv;
+
+	return res;
 }
 
 BOOL LLIMFloater::isInviteAllowed() const
