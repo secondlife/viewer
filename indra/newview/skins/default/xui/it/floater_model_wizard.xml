@@ -6,12 +6,12 @@
 	<button label="2. Ottimizza" name="optimize_btn"/>
 	<button label="1. Seleziona file" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Seleziona file modello
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
 				Utenti avanzati: Gli utenti che hanno dimestichezza con gli strumenti di creazione 3D possono usare le opzioni di caricamento avanzate.
 			</text>
@@ -20,6 +20,9 @@
 				Scegli il file del modello da caricare
 			</text>
 			<button label="Sfoglia..." label_selected="Sfoglia..." name="browse"/>
+			<text name="Model types">
+				Second Life supporta file COLLADA (.dae)
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
@@ -32,15 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Ottimizza modello
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			Abbiamo ottimizzato il modello per migliorare le prestazioni. Se necessario, può essere regolato ulteriormente.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
 				Genera livello di dettaglio: Alto
 			</text>
@@ -76,15 +79,15 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				Modifica fisica
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Verrà creata una forma per lo scafo esterno del modello. Regola il livello di dettaglio della forma in base al fine desiderato del modello.
 		</text>
-		<panel name="content">
+		<panel name="physics_content">
 			<button label="Ricalcola fisica" name="recalculate_physics_btn"/>
 			<button label="Ricalcolo in corso..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
@@ -107,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Rivedi
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Impatto sul lotto o sulla regione: [EQUIV] prim equivalenti
 			</text>
@@ -125,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Caricamento completato
 			</text>
 		</panel>

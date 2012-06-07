@@ -23,8 +23,13 @@
  */
  
 
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
 //class 1 -- no shadow, SSAO only
 
@@ -34,21 +39,15 @@ uniform sampler2D noiseMap;
 
 
 // Inputs
-uniform mat4 shadow_matrix[6];
-uniform vec4 shadow_clip;
 uniform float ssao_radius;
 uniform float ssao_max_radius;
 uniform float ssao_factor;
 uniform float ssao_factor_inv;
 
-varying vec2 vary_fragcoord;
-varying vec4 vary_light;
+VARYING vec2 vary_fragcoord;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
-
-uniform float shadow_bias;
-uniform float shadow_offset;
 
 vec4 getPosition(vec2 pos_screen)
 {
@@ -126,8 +125,8 @@ void main()
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 		
-	gl_FragColor[0] = 1.0;
-	gl_FragColor[1] = calcAmbientOcclusion(pos, norm);
-	gl_FragColor[2] = 1.0; 
-	gl_FragColor[3] = 1.0;
+	frag_color[0] = 1.0;
+	frag_color[1] = calcAmbientOcclusion(pos, norm);
+	frag_color[2] = 1.0; 
+	frag_color[3] = 1.0;
 }

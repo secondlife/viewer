@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="floater_voice_controls" title="ボイスコントロール">
 	<string name="title_nearby">
-		近くのボイス
+		ボイス設定
 	</string>
 	<string name="title_group">
 		[GROUP] とグループコール
@@ -10,7 +10,7 @@
 		コンファレンスコール
 	</string>
 	<string name="title_peer_2_peer">
-		[NAME] でコール
+		[NAME] とコール
 	</string>
 	<string name="no_one_near">
 		近くにボイスを有効にしている人はいません。

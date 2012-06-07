@@ -289,12 +289,12 @@ void LLPanelGroupInvite::impl::callbackClickAdd(void* userdata)
 		//Soon the avatar picker will be embedded into this panel
 		//instead of being it's own separate floater.  But that is next week.
 		//This will do for now. -jwolk May 10, 2006
-		LLFloater* parentp;
-
-		parentp = gFloaterView->getParentFloater(panelp);
-		parentp->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(impl::callbackAddUsers, _1,
-																panelp->mImplementation),
-																 TRUE));
+		LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+			boost::bind(impl::callbackAddUsers, _1, panelp->mImplementation), TRUE);
+		if (picker)
+		{
+			gFloaterView->getParentFloater(panelp)->addDependentFloater(picker);
+		}
 	}
 }
 

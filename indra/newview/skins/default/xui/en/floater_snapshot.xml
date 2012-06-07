@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  legacy_header_height="18"
  can_minimize="true"
  can_close="true"
- follows="left|top"
- height="600"
+ height="500"
  layout="topleft"
  name="Snapshot"
  help_topic="snapshot"
  save_rect="true"
- save_visibility="true"
+ save_visibility="false"
  title="SNAPSHOT PREVIEW"
  width="470">
     <floater.string
@@ -35,7 +34,7 @@
     </string>
  	<string
  	 name="profile_succeeded_str">
- 	    Your Profile Feed has been updated!
+ 	    Image uploaded
  	</string>
  	<string
  	 name="postcard_succeeded_str">
@@ -51,7 +50,7 @@
  	</string>
  	<string
  	 name="profile_failed_str">
- 	    Failed to update your Profile Feed.
+ 	    Failed to upload image to your Profile Feed.
  	</string>
  	<string
  	 name="postcard_failed_str">
@@ -65,45 +64,15 @@
  	 name="local_failed_str">
  	    Failed to save to computer.
  	</string>
-   <view_border 
-    bevel_style="in"
-    follows="left|top" 
-    height="21"
-    left="10"
-    layout="topleft"
-    name="img_info_border"
-    top="22"
-    width="50"
-   />
-   <icon
-    follows="top|left"
-    height="18"
-    image_name="Snapshot_Off"
-    layout="topleft"
-    left_delta="-5"
-    mouse_opaque="true"
-    name="refresh_icon"
-    top_delta="3"
-    width="36" />
-   <button
-    follows="left|top"
-    height="22"
-    image_overlay="Refresh_Off"
-    layout="topleft"
-    left_delta="31"
-    name="new_snapshot_btn"
-    top_delta="-3"
-    width="23" />
     <button
      follows="left|top"
      height="23"
      image_overlay="TabIcon_Close_Off"
-     is_toggle="true"
      layout="topleft"
-     left="240"
+     left="236"
      name="advanced_options_btn"
      tool_tip="Advanced options"
-     top_delta="0"
+     top="25"
      width="23" />
   <ui_ctrl 
     height="160"
@@ -113,6 +82,70 @@
     top="50"
     follows="left|top"
     left="10">
+      <panel
+       background_visible="true"
+       bg_alpha_color="0.9 1 0.9 1"
+       follows="left|top"
+       font="SansSerifLarge"
+       halign="center"
+       height="20"
+       layout="topleft"
+       left="0"
+       length="1"
+       name="succeeded_panel"
+       right="-1"
+       top="0"
+       type="string"
+       visible="false">
+          <text
+           follows="all"
+           font="SansSerif"
+           halign="center"
+           height="18"
+           layout="topleft"
+           left="1"
+           length="1"
+           name="succeeded_lbl"
+           right="-1"
+           text_color="0.2 0.5 0.2 1"
+           top="4"
+           translate="false"
+           type="string">
+              Succeeded
+          </text>
+      </panel>
+      <panel
+       background_visible="true"
+       bg_alpha_color="1 0.9 0.9 1"
+       follows="left|top"
+       font="SansSerifLarge"
+       halign="center"
+       height="20"
+       layout="topleft"
+       left_delta="0"
+       length="1"
+       name="failed_panel"
+       right="-1"
+       top="0"
+       type="string"
+       visible="false">
+          <text
+           follows="all"
+           font="SansSerif"
+           halign="center"
+           height="18"
+           layout="topleft"
+           left="1"
+           length="1"
+           name="failed_lbl"
+           right="-1"
+           text_color="0.5 0.2 0.2 1"
+           top="4"
+           translate="false"
+           type="string">
+              Failed
+          </text>
+      </panel>
       <loading_indicator
        follows="left|top"
        height="48"
@@ -138,6 +171,34 @@
        visible="false"
        width="130">
           Working
+      </text>
+      <button
+       follows="left|top"
+       height="22"
+       image_overlay="Refresh_Off"
+       layout="topleft"
+       left="20"
+       name="new_snapshot_btn"
+       bottom="-20"
+       visible="false"
+       width="22" />
+      <text
+       follows="left|top"
+       font="SansSerifBold"
+       halign="left"
+       height="18"
+       layout="topleft"
+       left_pad="10"
+       length="1"
+       name="refresh_lbl"
+       right="-5"
+       text_color="red"
+       top_delta="0"
+       translate="false"
+       type="string"
+       visible="false"
+       width="130">
+          Refresh to save.
       </text>
   </ui_ctrl>
   <view_border 
@@ -180,7 +241,7 @@
    </text>
     <panel_container
      follows="left|top"
-     height="360"
+     height="260"
      layout="topleft"
      left="0"
      name="panel_container"

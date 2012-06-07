@@ -86,17 +86,38 @@ Hata ayrıntıları: &apos;[_NAME]&apos; adlı bildirim notifications.xml içind
 		<usetemplate canceltext="İptal" name="yesnocancelbuttons" notext="Kaydetme" yestext="Kaydet"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Bu öğeyi Pazaryeri Giden Kutunuza kopyalama izniniz yok. Aşağıdaki öğeyi taşımak istediğinize emin misiniz?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
+		Bu öğelerden bir veya daha fazlasını Satıcı Giden Kutusuna kopyalama izniniz yok.  Bunları taşıyabilir veya bırakabilirsiniz.
+		<usetemplate name="okcancelbuttons" notext="Öğeleri taşıma" yestext="Öğeleri taşı"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Pazaryerinin karşıya yüklenmesi tamamlandı.
-		<usetemplate name="okbutton" yestext="Yaşasın!"/>
+	<notification name="OutboxFolderCreated">
+		Satıcı Giden Kutunuzun üst seviyesine aktardığınız her bir öğe için yeni bir klasör oluşturuldu.
+		<usetemplate ignoretext="Satıcı Giden Kutusunda yeni bir klasör oluşturuldu" name="okignore" yestext="Tamam"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Pazaryerinin karşıya yüklenmesi hatalarla tamamlandı!  Lütfen giden kutunuzdaki sorunları düzeltin ve tekrar deneyin.  Teşekkürler.
-		<usetemplate name="okbutton" yestext="Yuh!"/>
+	<notification name="OutboxImportComplete">
+		Başarılı oldu
+
+Tüm klasörler başarıyla Pazaryerine gönderildi.
+		<usetemplate ignoretext="Tüm klasörler Pazaryerine gönderildi" name="okignore" yestext="Tamam"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Bazı klasörler aktarılmadı
+
+Bazı klasörler Pazaryerine gönderildiğinde hatalar meydana geldi.  Bu klasörler hala Satıcı Giden Kutunuzda.
+
+Daha fazla bilgi için bkz. [[MARKETPLACE_IMPORTS_URL] hata günlüğü].
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Aktarım başarılamadı
+
+Bir sistem veya ağ hatası nedeniyle Pazaryerine hiçbir klasör gönderilemedi.  Daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Pazaryeri başlatılamadı.
+
+Bir sistem veya ağ hatası nedeniyle Pazaryeri başlatılamadı.  Daha sonra tekrar deneyin.
+		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Aşağıdaki nedenden dolayı, bir komut dosyası için metin karşıya yüklenirken bir sorun oluştu: [REASON]. Lütfen daha sonra tekrar deneyin.
@@ -649,7 +670,7 @@ Beklenen [VALIDS]
 		Çıkış dosyası oluşturulamıyor: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] şu an için animasyon dosyalarının toplu olarak karşıya yüklenmesini desteklemiyor.
+		[APP_NAME] şu an için BVH formatında animasyon dosyalarının toplu olarak yüklenmesini desteklemiyor.
 	</notification>
 	<notification name="CannotUploadReason">
 		Aşağıdaki nedenden dolayı [FILE] dosyası karşıya yüklenemedi: [REASON]
@@ -979,7 +1000,7 @@ Etkin grubunuz adına arazi satın almak için gerekli izne sahip değilsiniz.
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		[NAME] adlı kişiyi Arkadaş Listenizden çıkarmak istiyor musunuz?
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; adlı kişiyi Arkadaş Listenizden çıkarmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1110,8 +1131,13 @@ Arazinin satış bedeli sahibine geri ödenmez. Devredilen bir parsel satılırs
 	<notification name="DisplaySetToSafe">
 		Güvenli seçeneği seçtiğiniz için görüntüleme ayarları güvenli düzeye ayarlandı.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Görüntüleme ayarları sistem yapılandırmanız için önerilen düzeye ayarlandı.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Grafik kartınız değiştiği için görüntü ayarları tavsiye edilen seviyelere ayarlandı
+önceki: &apos;[LAST_GPU]&apos;
+sonraki: &apos;[THIS_GPU]&apos;
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		İşleme alt sistemindeki bir değişiklik nedeniyle görüntü ayarları tavsiye edilen seviyelere ayarlandı.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1431,7 +1457,7 @@ Güncellemeyi kurmak için [APP_NAME] uygulamasını yeniden başlatmalısınız
 		<usetemplate ignoretext="Nesneleri sahiplerine iade etmeden önce doğrulama iste" name="okcancelignore" notext="İptal" yestext="Tamam"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Şu anda [GROUP] grubunun bir üyesisiniz.
+		Şu anda &lt;nolink&gt;[GROUP]&lt;/nolink&gt; grubunun bir üyesisiniz.
 Gruptan ayrılmak istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
 	</notification>
@@ -1910,7 +1936,13 @@ Envanter öğesi/öğeleri taşınsın mı?
 		<usetemplate ignoretext="Çıkmadan önce doğrulama iste" name="okcancelignore" notext="Çıkma" yestext="Çık"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Varsayılan düğmelerinizi ve araç çubuklarınızı geri yüklemek istediğinize emin misiniz? 
+		Bu eylem, varsayılan düğmelerinizi ve araç çubuklarınızı geri yükleyecek.
+
+Bu eylemi geri alamazsınız.
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Bu eylem ile tüm düğmeler araç kutusuna döner ve araç çubuklarınız boş olur.
     
 Bu eylemi geri alamazsınız.
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
@@ -2119,10 +2151,10 @@ Bu adımda web tarayıcınızın başlatılacağına dikkat edin.
 		Konu: [SUBJECT], İleti: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] Çevrimiçi
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; çevrimiçi
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] Çevrimdışı
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; çevrimdışı
 	</notification>
 	<notification name="AddSelfFriend">
 		Çok iyi biri olduğunuza eminiz fakat kendinizi arkadaş olarak ekleyemezsiniz.
@@ -2236,14 +2268,16 @@ Lütfen tek bir nesne seçin.
 		Arama kartınız reddedildi.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Ekranınızın sağ tarafındaki Yerler panelini açıp Yer İmleri sekmesini seçerek &apos;[NAME]&apos; gibi konumlara ışınlanabilirsiniz.
-Seçmek için herhangi bir yer iminin üzerini tıklatın ve ardından panelin en altındaki &apos;Işınla&apos; düğmesini tıklatın.
-(Yer iminin üzerini çift tıklatabilir veya sağ tıklayıp &apos;Işınla&apos;yı seçebilirsiniz.)
+		&apos;[NAME]&apos; gibi konumlara ışınlanmak için &quot;Yerler&quot; düğmesine tıklayın,
+    sonra açılan pencerede Yer İmleri sekmesini seçin. Herhangi bir
+    yer iminin üzerine tıklayarak bunu seçin ve ardından pencerenin en altındaki &apos;Işınla&apos; düğmesine tıklayın.
+    (Ayrıca yer imine çift tıklayabilir veya sağ tıklayarak
+    &apos;Işınla&apos; seçimini yapabilirsiniz.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Ekranınızın sağ tarafındaki İnsanlar panelini açarak  &apos;[NAME]&apos; gibi Sakinler ile iletişim kurabilirsiniz.
-Sakini listeden seçin ve  panelin altındaki &apos;Aİ&quot; düğmesini tıklatın.
-(Listede adlarını çift tıklatarak veya sağ tıklatıp &quot;Aİ&quot;yi seçerek de bunu yapabilirsiniz.)
+		&apos;[NAME]&apos; gibi sakinlerle bağlantıya geçmek için &quot;Kişiler&quot; düğmesine tıklayın, açılan pencereden bir Sakin seçin ve sonra
+    pencerenin altında &apos;Anlık İleti&quot; üzerine tıklayın.
+    (Listede adlarına çift tıklayarak veya sağ tıklayıp &quot;Anlık İleti&quot;yi seçerek de bunu yapabilirsiniz.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Sunucunun sınırları dışındaki arazi seçilemez.
@@ -2264,13 +2298,16 @@ Daha küçük bir arazi parçası seçmeyi deneyin.
 	<notification name="PaymentSent">
 		[MESSAGE]
 	</notification>
+	<notification name="PaymentFailure">
+		[MESSAGE]
+	</notification>
 	<notification name="EventNotification">
 		Etkinlik Bildirimi
 
 [NAME]
 [DATE]
 		<form name="form">
-			<button name="Details" text="Ayrıntılar"/>
+			<button name="Details" text="Ayrıntl"/>
 			<button name="Cancel" text="İptal"/>
 		</form>
 	</notification>
@@ -2518,10 +2555,10 @@ Lütfen biraz sonra tekrar deneyin.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] arkadaşlık teklifinizi kabul etti.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; arkadaşlık teklifinizi kabul etti.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] arkadaşlık teklifinizi reddetti.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; arkadaşlık teklifinizi reddetti.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Arkadaşlık teklifi kabul edildi.
@@ -2593,16 +2630,16 @@ Talep kabul edilsin mi?
 		[NAME] adlı kişiye ait &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Engelle"/>
-			<button name="Ignore" text="Yok say"/>
+			<button name="Client_Side_Mute" text="Engelle"/>
+			<button name="Client_Side_Ignore" text="Yok say"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] grubuna ait &apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Engelle"/>
-			<button name="Ignore" text="Yok say"/>
+			<button name="Client_Side_Mute" text="Engelle"/>
+			<button name="Client_Side_Ignore" text="Yok say"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2796,6 +2833,18 @@ Ayrıntılar için günlük dosyasına bakın.
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 Paylaşmanın yapılacağı Sakinler:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Bir defada sadece bir klasör paylaşılabilir.
+
+Aşağıdaki öğeleri paylaşmak istediğinize emin misiniz?
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+Paylaşmanın yapılacağı Second Life Sakinleri:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Tamam"/>

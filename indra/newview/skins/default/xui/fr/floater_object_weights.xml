@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="object_weights" title="AVANCÉ">
 	<floater.string name="nothing_selected" value="--"/>
-	<text name="selected_text" value="SELECTIONNÉ"/>
+	<text name="selected_text" value="SÉLECTION"/>
 	<text name="objects" value="--"/>
 	<text name="objects_label" value="Objets"/>
 	<text name="prims" value="--"/>
 	<text name="prims_label" value="Prims"/>
-	<text name="weights_of_selected_text" value="POIDS DES OBJETS SELECTIONNÉS"/>
+	<text name="weights_of_selected_text" value="POIDS DE LA SÉLECTION"/>
 	<text name="download" value="--"/>
-	<text name="download_label" value="Télécharger"/>
+	<text name="download_label" value="Téléchargement"/>
 	<text name="physics" value="--"/>
-	<text name="physics_label" value="Propriétés physiques"/>
+	<text name="physics_label" value="Physique"/>
 	<text name="server" value="--"/>
 	<text name="server_label" value="Serveur"/>
 	<text name="display" value="--"/>
-	<text name="display_label" value="Afficher"/>
+	<text name="display_label" value="Affichage"/>
 	<text name="land_impacts_text" value="IMPACTS SUR LE TERRAIN"/>
 	<text name="selected" value="--"/>
 	<text name="selected_label" value="Sélection"/>
 	<text name="rezzed_on_land" value="--"/>
-	<text name="rezzed_on_land_label" value="Rezzé sur le terrain"/>
+	<text name="rezzed_on_land_label" value="Rezzés sur le terrain"/>
 	<text name="remaining_capacity" value="--"/>
 	<text name="remaining_capacity_label" value="Capacité restante"/>
 	<text name="total_capacity" value="--"/>
 	<text name="total_capacity_label" value="Capacité totale"/>
-	<text name="help_SLURL" value="[secondlife:///app/help/object_weights What is all this?...]"/>
+	<text name="help_SLURL" value="[secondlife:///app/help/object_weights De quoi s&apos;agit-il ?...]"/>
 </floater>

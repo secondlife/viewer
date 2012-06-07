@@ -22,16 +22,23 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_data[3];
+#else
+#define frag_data gl_FragData
+#endif
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 uniform sampler2D diffuseMap;
 
 void main() 
 {
-	vec4 col = gl_Color * texture2D(diffuseMap, gl_TexCoord[0].xy);
+	vec4 col = vertex_color * texture2D(diffuseMap, vary_texcoord0.xy);
 	
-	gl_FragData[0] = col;
-	gl_FragData[1] = vec4(0,0,0,0);
-	gl_FragData[2] = vec4(0,0,1,0);	
+	frag_data[0] = col;
+	frag_data[1] = vec4(0,0,0,0);
+	frag_data[2] = vec4(0,0,1,0);	
 }

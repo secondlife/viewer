@@ -103,6 +103,7 @@ Aleric Inglewood
 	STORM-163
 	STORM-955
 	STORM-960
+	STORM-1793
 Ales Beaumont
 	VWR-9352
 	SNOW-240
@@ -159,6 +160,7 @@ Alissa Sabre
 	VWR-12620
 	VWR-12789
 	SNOW-322
+    STORM-1723
 Alliez Mysterio
 Angus Boyd
 	VWR-592
@@ -170,6 +172,8 @@ Ansariel Hiller
 	STORM-1101
 	VWR-25480
 	VWR-26150
+	STORM-1685
+	STORM-1713
 Aralara Rajal
 Ardy Lay
 	STORM-859
@@ -230,7 +234,7 @@ Borg Capalini
 Boroondas Gupte
 	OPEN-29
 	OPEN-39
-	OPEN-39
+	OPEN-54
 	OPEN-99
 	SNOW-278
 	SNOW-503
@@ -392,6 +396,8 @@ Frontera Thor
 Fury Rosewood
 Gaberoonie Zanzibar
 Ganymedes Costagravas
+Geenz Spad
+	STORM-1823
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -463,6 +469,8 @@ Hiro Sommambulist
 	VWR-132
 	VWR-136
 	VWR-143
+Hitomi Tiponi
+	STORM-1741
 Holger Gilruth
 Horatio Freund
 Hoze Menges
@@ -482,6 +490,7 @@ Ima Mechanique
 	OPEN-76
 	STORM-959
 	STORM-1175
+	STORM-1708
 Imnotgoing Sideways
 Inma Rau
 Innula Zenovka
@@ -581,11 +590,45 @@ Jonathan Yap
 	STORM-976
 	STORM-1639
 	STORM-910
+	STORM-1653
 	STORM-1642
+	STORM-591
 	STORM-1105
+	STORM-1679
 	STORM-1222
 	STORM-1659
 	STORM-1674
+	STORM-1685
+	STORM-1718
+	STORM-1721
+	STORM-1718
+	STORM-1727
+	STORM-1725
+	STORM-1719
+	STORM-1712
+	STORM-1728
+	STORM-1736
+	STORM-1804
+	STORM-1734
+	STORM-1731
+	STORM-653
+	STORM-1737
+	STORM-1733
+	STORM-1741
+	STORM-1790
+	STORM-1795
+	STORM-1788
+	STORM-1803
+	STORM-1795
+	STORM-1799
+	STORM-1796
+	STORM-1807
+	STORM-1808
+	STORM-637
+	STORM-1822
+	STORM-1809
+	STORM-1793
+	STORM-1810
 Kadah Coba
 	STORM-1060
 Jondan Lundquist
@@ -621,6 +664,7 @@ Kitty Barnett
 	STORM-1001
 	STORM-1175
     VWR-24217
+	STORM-1804
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
@@ -828,6 +872,7 @@ Nicky Perian
 	OPEN-1
 	STORM-1087
 	STORM-1090
+	STORM-1828
 Nicoladie Gymnast
 Nounouch Hapmouche
 	VWR-238
@@ -920,6 +965,7 @@ Robin Cornelius
 	SNOW-599
 	SNOW-747
 	STORM-422
+	STORM-591
 	STORM-960
 	STORM-1019
 	STORM-1095
@@ -1114,6 +1160,9 @@ Tofu Buzzard
 	CTS-411
 	STORM-546
 	VWR-24509
+    STORM-1684
+	SH-2477
+	STORM-1684
 Tony Kembia
 Torben Trautman
 TouchaHoney Perhaps
@@ -1143,6 +1192,8 @@ Unlikely Quintessa
 UsikuFarasi Kanarik
 Vadim Bigbear
 	VWR-2681
+Vaalith Jinn
+    STORM-64
 Vector Hastings
 	VWR-8726
 Veritas Raymaker
@@ -1211,6 +1262,8 @@ WolfPup Lowenhar
 	VWR-20741
 	VWR-20933
 Wundur Primbee
+Xellessanova Zenith
+	STORM-1793
 Xiki Luik
 xstorm Radek
 YongYong Francois
@@ -1233,6 +1286,7 @@ Zi Ree
 	VWR-1140
 	VWR-24017
 	VWR-25588
+	STORM-1790
 Zipherius Turas
 	VWR-76
 	VWR-77

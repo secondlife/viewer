@@ -220,7 +220,7 @@ void LLMemoryView::draw()
 	S32 x, y;
 
 	S32 margin = 10;
-	S32 texth = (S32)LLFontGL::getFontMonospace()->getLineHeight();
+	S32 texth = LLFontGL::getFontMonospace()->getLineHeight();
 
 	S32 xleft = margin;
 	S32 ytop = height - margin;

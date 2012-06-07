@@ -91,7 +91,7 @@ public:
 	void			setReserveScrollCorner( BOOL b ) { mReserveScrollCorner = b; }
 	LLRect			getVisibleContentRect();
 	LLRect			getContentWindowRect();
-	const LLRect&	getScrolledViewRect() const { return mScrolledView ? mScrolledView->getRect() : LLRect::null; }
+	virtual const LLRect	getScrolledViewRect() const { return mScrolledView ? mScrolledView->getRect() : LLRect::null; }
 	void			pageUp(S32 overlap = 0);
 	void			pageDown(S32 overlap = 0);
 	void			goToTop();
@@ -116,6 +116,9 @@ public:
 	
 	bool autoScroll(S32 x, S32 y);
 
+protected:
+	LLView*		mScrolledView;
+
 private:
 	// internal scrollbar handlers
 	virtual void scrollHorizontal( S32 new_pos );
@@ -124,7 +127,6 @@ private:
 	void calcVisibleSize( S32 *visible_width, S32 *visible_height, BOOL* show_h_scrollbar, BOOL* show_v_scrollbar ) const;
 
 	LLScrollbar* mScrollbar[SCROLLBAR_COUNT];
-	LLView*		mScrolledView;
 	S32			mSize;
 	BOOL		mIsOpaque;
 	LLUIColor	mBackgroundColor;

@@ -87,6 +87,12 @@ public:
 
 	boost::signals2::connection setEndDragCallback( const enddrag_signal_t::slot_type& cb ) { return mEndDragSignal.connect(cb); }
 
+	void setCargoCount(U32 count) { mCargoCount = count; }
+	void resetCargoCount() { mCargoCount = 0; }
+	U32 getCargoCount() const { return (mCargoCount > 0) ? mCargoCount : mCargoIDs.size(); }
+
+	static S32 getOperationId() { return sOperationId; }
+
 protected:
 	enum EDropTarget
 	{
@@ -115,6 +121,8 @@ protected:
 
 protected:
 
+	U32				mCargoCount;
+
 	S32				mDragStartX;
 	S32				mDragStartY;
 	
@@ -124,6 +132,8 @@ protected:
 	ESource mSource;
 	LLUUID mSourceID;
 	LLUUID mObjectID;
+
+	static S32		sOperationId;
 
 	LLVector3d		mLastCameraPos;
 	LLVector3d		mLastHitPos;

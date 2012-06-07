@@ -341,45 +341,11 @@ U32 LLVOTree::processUpdateMessage(LLMessageSystem *mesgsys,
 
 BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 {
-	const U16 FRAMES_PER_WIND_UPDATE = 20;				//  How many frames between wind update per tree
-	const F32 TREE_WIND_SENSITIVITY = 0.005f;
-	const F32 TREE_TRUNK_STIFFNESS = 0.1f;
-
  	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_TREE)))
 	{
 		return TRUE;
 	}
 	
-	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
-	{
-		F32 mass_inv; 
-
-		//  For all tree objects, update the trunk bending with the current wind 
-		//  Walk sprite list in order away from viewer 
-		if (!(mFrameCount % FRAMES_PER_WIND_UPDATE)) 
-		{
-			//  If needed, Get latest wind for this tree
-			mWind = mRegionp->mWind.getVelocity(getPositionRegion());
-		}
-		mFrameCount++;
-
-		mass_inv = 1.f/(5.f + mDepth*mBranches*0.2f);
-		mTrunkVel += (mWind * mass_inv * TREE_WIND_SENSITIVITY);		//  Pull in direction of wind
-		mTrunkVel -= (mTrunkBend * mass_inv * TREE_TRUNK_STIFFNESS);		//  Restoring force in direction of trunk 	
-		mTrunkBend += mTrunkVel;
-		mTrunkVel *= 0.99f;									//  Add damping
-
-		if (mTrunkBend.length() > 1.f)
-		{
-			mTrunkBend.normalize();
-		}
-
-		if (mTrunkVel.length() > 1.f)
-		{
-			mTrunkVel.normalize();
-		}
-	}
-
 	S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ;
 	F32 app_angle = getAppAngle()*LLVOTree::sTreeFactor;
 
@@ -392,39 +358,36 @@ BOOL LLVOTree::idleUpdate(LLAgent &agent, LLWorld &world, const F64 &time)
 		}
 	} 
 
-	if (!gSavedSettings.getBOOL("RenderAnimateTrees"))
+	if (mReferenceBuffer.isNull())
 	{
-		if (mReferenceBuffer.isNull())
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
+	}
+	else if (trunk_LOD != mTrunkLOD)
+	{
+		gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, FALSE);
+	}
+	else
+	{
+		// we're not animating but we may *still* need to
+		// regenerate the mesh if we moved, since position
+		// and rotation are baked into the mesh.
+		// *TODO: I don't know what's so special about trees
+		// that they don't get REBUILD_POSITION automatically
+		// at a higher level.
+		const LLVector3 &this_position = getPositionAgent();
+		if (this_position != mLastPosition)
 		{
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
-		}
-		else if (trunk_LOD != mTrunkLOD)
-		{
-			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, FALSE);
+			gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
+			mLastPosition = this_position;
 		}
 		else
 		{
-			// we're not animating but we may *still* need to
-			// regenerate the mesh if we moved, since position
-			// and rotation are baked into the mesh.
-			// *TODO: I don't know what's so special about trees
-			// that they don't get REBUILD_POSITION automatically
-			// at a higher level.
-			const LLVector3 &this_position = getPositionAgent();
-			if (this_position != mLastPosition)
+			const LLQuaternion &this_rotation = getRotation();
+			
+			if (this_rotation != mLastRotation)
 			{
 				gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
-				mLastPosition = this_position;
-			}
-			else
-			{
-				const LLQuaternion &this_rotation = getRotation();
-				
-				if (this_rotation != mLastRotation)
-				{
-					gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_POSITION);
-					mLastRotation = this_rotation;
-				}
+				mLastRotation = this_rotation;
 			}
 		}
 	}
@@ -559,7 +522,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 			max_vertices += sLODVertexCount[lod];
 		}
 
-		mReferenceBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, gSavedSettings.getBOOL("RenderAnimateTrees") ? GL_STATIC_DRAW_ARB : 0);
+		mReferenceBuffer = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, 0);
 		mReferenceBuffer->allocateBuffer(max_vertices, max_indices, TRUE);
 
 		LLStrider<LLVector3> vertices;
@@ -858,20 +821,13 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 			slices /= 2; 
 		}
 
-		mReferenceBuffer->setBuffer(0);
+		mReferenceBuffer->flush();
 		llassert(vertex_count == max_vertices);
 		llassert(index_count == max_indices);
 	}
 
-	if (gSavedSettings.getBOOL("RenderAnimateTrees"))
-	{
-		mDrawable->getFace(0)->setVertexBuffer(mReferenceBuffer);
-	}
-	else
-	{
-		//generate tree mesh
-		updateMesh();
-	}
+	//generate tree mesh
+	updateMesh();
 	
 	return TRUE;
 }
@@ -882,7 +838,7 @@ void LLVOTree::updateMesh()
 	
 	// Translate to tree base  HACK - adjustment in Z plants tree underground
 	const LLVector3 &pos_agent = getPositionAgent();
-	//glTranslatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
+	//gGL.translatef(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 	LLMatrix4 trans_mat;
 	trans_mat.setTranslation(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ] - 0.1f);
 	trans_mat *= matrix;
@@ -940,8 +896,8 @@ void LLVOTree::updateMesh()
 
 	genBranchPipeline(vertices, normals, tex_coords, indices, idx_offset, scale_mat, mTrunkLOD, stop_depth, mDepth, mTrunkDepth, 1.0, mTwist, droop, mBranches, alpha);
 	
-	mReferenceBuffer->setBuffer(0);
-	buff->setBuffer(0);
+	mReferenceBuffer->flush();
+	buff->flush();
 }
 
 void LLVOTree::appendMesh(LLStrider<LLVector3>& vertices, 
@@ -1158,7 +1114,8 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 				scale_mat.mMatrix[2][2] = scale*length;
 				scale_mat *= matrix;
 
-				glLoadMatrixf((F32*) scale_mat.mMatrix);
+				gGL.loadMatrix((F32*) scale_mat.mMatrix);
+				gGL.syncMatrices();
  				glDrawElements(GL_TRIANGLES, sLODIndexCount[trunk_LOD], GL_UNSIGNED_SHORT, indicesp + sLODIndexOffset[trunk_LOD]);
 				gPipeline.addTrianglesDrawn(LEAF_INDICES);
 				stop_glerror();
@@ -1208,7 +1165,8 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 				scale_mat *= matrix;
 
 			
-				glLoadMatrixf((F32*) scale_mat.mMatrix);
+				gGL.loadMatrix((F32*) scale_mat.mMatrix);
+				gGL.syncMatrices();
 				glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
 				gPipeline.addTrianglesDrawn(LEAF_INDICES);							
 				stop_glerror();
@@ -1229,19 +1187,20 @@ U32 LLVOTree::drawBranchPipeline(LLMatrix4& matrix, U16* indicesp, S32 trunk_LOD
 
 		scale_mat *= matrix;
 	
-		glMatrixMode(GL_TEXTURE);
-		glTranslatef(0.0, -0.5, 0.0);
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.translatef(0.0, -0.5, 0.0);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 					
-		glLoadMatrixf((F32*) scale_mat.mMatrix);
+		gGL.loadMatrix((F32*) scale_mat.mMatrix);
+		gGL.syncMatrices();
 		glDrawElements(GL_TRIANGLES, LEAF_INDICES, GL_UNSIGNED_SHORT, indicesp);
 		gPipeline.addTrianglesDrawn(LEAF_INDICES);
 		stop_glerror();
 		ret += LEAF_INDICES;
 
-		glMatrixMode(GL_TEXTURE);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_TEXTURE);
+		gGL.loadIdentity();
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 	}
 
 	return ret;

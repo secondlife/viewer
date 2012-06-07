@@ -188,7 +188,7 @@ void LLCallFloater::draw()
 
 	// Need to resort the participant list if it's in sort by recent speaker order.
 	if (mParticipants)
-		mParticipants->updateRecentSpeakersOrder();
+		mParticipants->update();
 
 	LLFloater::draw();
 }
@@ -333,6 +333,7 @@ void LLCallFloater::refreshParticipantList()
 
 	if (!non_avatar_caller)
 	{
+		llassert(mParticipants == NULL); // check for possible memory leak
 		mParticipants = new LLParticipantList(mSpeakerManager, mAvatarList, true, mVoiceType != VC_GROUP_CHAT && mVoiceType != VC_AD_HOC_CHAT, false);
 		mParticipants->setValidateSpeakerCallback(boost::bind(&LLCallFloater::validateSpeaker, this, _1));
 		const U32 speaker_sort_order = gSavedSettings.getU32("SpeakerParticipantDefaultOrder");

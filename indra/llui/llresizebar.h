@@ -70,6 +70,7 @@ public:
 	void			setResizeLimits( S32 min_size, S32 max_size ) { mMinSize = min_size; mMaxSize = max_size; }
 	void			setEnableSnapping(BOOL enable) { mSnappingEnabled = enable; }
 	void			setAllowDoubleClickSnapping(BOOL allow) { mAllowDoubleClickSnapping = allow; }
+	bool			canResize() { return getEnabled() && mMaxSize > mMinSize; }
 
 private:
 	S32				mDragLastScreenX;

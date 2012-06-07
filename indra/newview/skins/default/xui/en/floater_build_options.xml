@@ -1,71 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- follows="right"
- height="198"
+ height="170"
  layout="topleft"
  name="build options floater"
  help_topic="build_options_floater"
  save_rect="true"
  title="GRID OPTIONS"
  width="264">
- 	<floater.string
-     name="grid_screen_text">
-        Screen
-    </floater.string>
-    <floater.string
-     name="grid_local_text">
-        Local
-    </floater.string>
-    <floater.string
-     name="grid_world_text">
-        World
-    </floater.string>
-    <floater.string
-     name="grid_reference_text">
-        Reference
-    </floater.string>
-    <floater.string
-     name="grid_attachment_text">
-        Attachment
-    </floater.string>
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="16"
-     layout="topleft"
-     left="10"
-     tool_tip="Grid opacity"
-     name="grid_mode_label"
-     top_pad="30"
-     width="123">
-        Mode
-    </text>
-    <combo_box
-     height="23"
-     layout="topleft"
-     left_pad="9"
-     follows="left|top"
-     name="combobox grid mode"
-     tool_tip="Choose the type of grid ruler for positioning the object"
-     top_delta="-3"
-     width="108">
-      <combo_box.item
-       label="World grid"
-       name="World"
-       value="World" />
-      <combo_box.item
-       label="Local grid"
-       name="Local"
-       value="Local" />
-      <combo_box.item
-       label="Reference grid"
-       name="Reference"
-       value="Reference" />
-       <combo_box.commit_callback
-      function="GridOptions.gridMode"/>
-    </combo_box>
     <spinner
      control_name="GridResolution"
      follows="left|top"
@@ -78,7 +20,7 @@
      max_val="5"
      min_val="0.01"
      name="GridResolution"
-     top_pad="4"
+     top_pad="30"
      width="200" />
     <spinner
      control_name="GridDrawSize"

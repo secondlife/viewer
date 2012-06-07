@@ -86,16 +86,37 @@ Veuillez vérifier votre connexion Internet.
 		<usetemplate canceltext="Cancel" name="yesnocancelbuttons" notext="Ne pas enregistrer" yestext="Enregistrer"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Vous n&apos;êtes pas autorisé à copier cet article dans la boîte d&apos;envoi vers la Place du marché. Voulez-vous vraiment déplacer l&apos;article suivant ?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
+		Vous n&apos;êtes pas autorisé à copier un ou plusieurs de ces articles dans la boîte d&apos;envoi vendeur. Vous pouvez les déplacer ou les laisser.
+		<usetemplate name="okcancelbuttons" notext="Ne pas déplacer les articles" yestext="Déplacer les articles"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Chargement sur la Place du marché terminé.
-		<usetemplate name="okbutton" yestext="Hourra !"/>
+	<notification name="OutboxFolderCreated">
+		Un nouveau dossier a été créé pour chaque article que vous avez transféré vers le niveau supérieur de votre boîte d&apos;envoi vendeur.
+		<usetemplate ignoretext="Un nouveau dossier a été créé dans la boîte d&apos;envoi vendeur." name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Chargement sur la Place du marché effectué avec des erreurs ! Corrigez les problèmes dans votre boîte d&apos;envoi et réessayez. Merci !
+	<notification name="OutboxImportComplete">
+		Transfert réussi
+
+Tous les dossiers ont été envoyés vers la Place du marché.
+		<usetemplate ignoretext="Tous les dossiers envoyés vers la Place du marché" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Impossible de transférer certains dossiers
+
+Des erreurs se sont produites lors de l&apos;envoi de certains dossiers vers la Place du marché. Ces dossiers sont toujours disponibles dans votre boîte d&apos;envoi vendeur.
+
+Pour plus d&apos;informations, consultez le [[MARKETPLACE_IMPORTS_URL] journal des erreurs].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Échec de transfert
+
+Aucun dossier n&apos;a été envoyé vers la Place du marché en raison d&apos;une erreur système ou réseau. Veuillez réessayer ultérieurement.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Échec d&apos;initialisation de la Place du marché
+
+L&apos;initialisation de la Place du marché a échoué en raison d&apos;une erreur système ou réseau. Veuillez réessayer ultérieurement.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
@@ -648,7 +669,7 @@ Assurez-vous que le fichier a l&apos;extension correcte.
 		Impossible de créer le fichier de sortie : [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		Actuellement, [APP_NAME] ne prend pas en charge le chargement de lots de fichiers d&apos;animation.
+		Actuellement, [APP_NAME] ne prend pas en charge le chargement par lot de fichiers d&apos;animation au format BVH.
 	</notification>
 	<notification name="CannotUploadReason">
 		Impossible de charger [FILE] suite au problème suivant : [REASON]
@@ -980,7 +1001,7 @@ Proposer à [NAME] de devenir votre ami(e) ?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Voulez-vous supprimer [NAME] de votre liste d&apos;amis ?
+		Voulez-vous supprimer &lt;nolink&gt;[NAME]&lt;/nolink&gt; de votre liste d&apos;amis ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1105,8 +1126,13 @@ Céder ces [AREA] m² de terrain au groupe [GROUP_NAME] ?
 	<notification name="DisplaySetToSafe">
 		Les paramètres d&apos;affichage sont au niveau le plus sûr, comme vous l&apos;aviez indiqué.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Vos paramètres d&apos;affichage ont été réglés avec une marge de sécurité en fonction de votre configuration système.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Les paramètres d&apos;affichage ont été modifiés selon les niveaux recommandés car votre carte graphique
+[LAST_GPU] a été remplacée
+par une carte [THIS_GPU].
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		Les paramètres d&apos;affichage ont été modifiés selon les niveaux recommandés en raison d&apos;un changement relatif au sous-système de rendu.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1428,8 +1454,8 @@ Version [VERSION]
 		<usetemplate ignoretext="Confirmer avant de rendre les objets à leurs propriétaires" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Vous êtes actuellement membre du groupe [GROUP].
-Quitter le groupe ?
+		Vous êtes actuellement membre du groupe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
+Quitter le groupe ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -1910,9 +1936,15 @@ Déplacer les objets de l&apos;inventaire ?
 		<usetemplate ignoretext="Confirmer avant de quitter" name="okcancelignore" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Etes-vous certain de vouloir restaurer vos boutons et barres d&apos;outils par défaut ? 
+		Cette action rétablira vos boutons et barres d&apos;outils par défaut.
+
+Vous ne pouvez pas l&apos;annuler.
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Cette action replacera tous les boutons dans la boîte à outils de sorte que vos barres d&apos;outils seront vides.
     
-Vous ne pouvez pas annuler cette action.
+Vous ne pouvez pas l&apos;annuler.
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification name="DeleteItems">
@@ -2119,10 +2151,10 @@ Cette opération lancera votre navigateur Web.
 		Sujet : [SUBJECT], Message : [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] est en ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est en ligne
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] est hors ligne
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; est hors ligne
 	</notification>
 	<notification name="AddSelfFriend">
 		Même si vous êtes extrêmement sympathique, vous ne pouvez pas devenir ami avec vous-même.
@@ -2236,14 +2268,16 @@ Veuillez sélectionner un seul objet.
 		Votre carte de visite a été refusée.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Vous pouvez vous téléporter vers des endroits comme [NAME] en ouvrant le panneau Lieux sur le côté droit de votre écran, puis en sélectionnant l&apos;onglet Repères.
-Cliquez sur le repère de votre choix pour le sélectionner, puis sur Téléporter en bas du panneau.
-(Vous pouvez aussi double-cliquer sur le repère ou cliquer dessus avec le bouton droit de la souris et sélectionner Téléporter.)
+		Pour vous téléporter vers un lieu tel que [NAME], cliquez sur le bouton Endroits,
+    puis sélectionnez l&apos;onglet Repères dans la fenêtre qui s&apos;ouvre. Cliquez sur n&apos;importe quel
+    repère pour le sélectionner, puis sur Téléportation en bas de la fenêtre.
+    (Vous pouvez aussi double-cliquer sur le repère ou cliquer-droit dessus et
+    choisir Téléportation).
 	</notification>
 	<notification name="TeleportToPerson">
-		Vous pouvez contacter des résidents comme [NAME] en ouvrant le panneau Résidents sur le côté droit de votre écran.
-Sélectionnez le résident de votre choix dans la liste, puis cliquez sur IM en bas du panneau.
-(Vous pouvez aussi double-cliquer sur le nom du résident dans la liste ou cliquer dessus avec le bouton droit de la souris et sélectionner IM.)
+		Pour contacter un résident tel que [NAME], cliquez sur le bouton Personnes, sélectionnez le résident dans la fenêtre qui s&apos;ouvre, puis cliquez sur IM en
+    bas de la fenêtre.
+    (Vous pouvez aussi double-cliquer sur le nom du résident dans la liste ou cliquer-droit dessus et choisir IM.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Vous ne pouvez pas sélectionner de terrain en dehors des limites du serveur.
@@ -2262,6 +2296,9 @@ Veuillez sélectionner un terrain plus petit.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2518,10 +2555,10 @@ Veuillez réessayer dans quelques minutes.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] a accepté votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a accepté votre amitié.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] a refusé votre amitié.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; a refusé votre amitié.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Amitié acceptée.
@@ -2593,16 +2630,16 @@ Accepter cette requête ?
 		&lt;nolink&gt;[TITLE]&lt;/nolink&gt; de [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Ignorer"/>
-			<button name="Ignore" text="Ignorer"/>
+			<button name="Client_Side_Mute" text="Bloquer"/>
+			<button name="Client_Side_Ignore" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		&lt;nolink&gt;[TITLE]&lt;/nolink&gt; de [GROUPNAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Ignorer"/>
-			<button name="Ignore" text="Ignorer"/>
+			<button name="Client_Side_Mute" text="Bloquer"/>
+			<button name="Client_Side_Ignore" text="Ignorer"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2798,6 +2835,18 @@ Voir le fichier journal pour plus de détails.
 avec les résidents suivants :
 
 [RESIDENTS] ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Vous ne pouvez partager qu&apos;un dossier à la fois.
+
+Voulez-vous vraiment partager les articles suivants :
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+avec les résidents suivants :
+
+[RESIDENTS] ?
 		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Ok"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -2888,7 +2937,7 @@ Les résidents rejoignant l&apos;appel ultérieurement seront également
 ignorés, même si vous quittez l&apos;appel.
 
 Ignorer les autres ?
-		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Annuler" yestext="Ok"/>
+		<usetemplate ignoretext="Confirmer avant d&apos;ignorer les autres lors d&apos;un appel de groupe" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<notification label="Chat" name="HintChat">
 		Pour participer à la conversation, saisissez du texte dans le champ de chat situé en dessous.
@@ -3046,8 +3095,8 @@ Cliquez sur un point dans le monde et faites glisser votre souris pour faire tou
 		<usetemplate name="okcancelbuttons" notext="Ne pas quitter" yestext="Quitter"/>
 	</notification>
 	<notification label="" name="ConfirmHideUI">
-		Cette action cachera tous les objets des menus et boutons. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
-		<usetemplate ignoretext="Confimer avant de cacher l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
+		Cette action masquera tous les boutons et articles de menu. Pour les récupérer, cliquez de nouveau sur [SHORTCUT].
+		<usetemplate ignoretext="Confirmer avant de masquer l&apos;interface" name="okcancelignore" notext="Annuler" yestext="OK"/>
 	</notification>
 	<global name="UnsupportedGLRequirements">
 		Vous semblez ne pas avoir le matériel requis pour utiliser [APP_NAME]. [APP_NAME] requiert une carte graphique OpenGL avec une prise en charge du multitexturing. Si vous avez une telle carte, assurez-vous que vous avez aussi les pilotes les plus récents pour la carte, ainsi que les service packs et les patchs pour votre système d&apos;exploitation.

@@ -183,7 +183,7 @@ void LLFilePickerThread::clearDead()
 #if LL_WINDOWS
 static std::string SOUND_EXTENSIONS = "wav";
 static std::string IMAGE_EXTENSIONS = "tga bmp jpg jpeg png";
-static std::string ANIM_EXTENSIONS =  "bvh";
+static std::string ANIM_EXTENSIONS =  "bvh anim";
 #ifdef _CORY_TESTING
 static std::string GEOMETRY_EXTENSIONS = "slg";
 #endif
@@ -385,7 +385,14 @@ class LLFileUploadAnim : public view_listener_t
 		const std::string filename = upload_pick((void*)LLFilePicker::FFLOAD_ANIM);
 		if (!filename.empty())
 		{
-			LLFloaterReg::showInstance("upload_anim", LLSD(filename));
+			if (filename.rfind(".anim") != std::string::npos)
+			{
+				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
+			}
+			else
+			{
+				LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
+			}
 		}
 		return true;
 	}
@@ -527,8 +534,22 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   FALSE))
 		{
 			gViewerWindow->playSnapshotAnimAndSound();
-			
-			LLPointer<LLImageFormatted> formatted = new LLImagePNG;
+			LLPointer<LLImageFormatted> formatted;
+			LLFloaterSnapshot::ESnapshotFormat fmt = (LLFloaterSnapshot::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+			switch (fmt)
+			{
+			case LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG:
+				formatted = new LLImageJPEG(gSavedSettings.getS32("SnapshotQuality"));
+				break;
+			default:
+				llwarns << "Unknown local snapshot format: " << fmt << llendl;
+			case LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG:
+				formatted = new LLImagePNG;
+				break;
+			case LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP:
+				formatted = new LLImageBMP;
+				break;
+			}
 			formatted->enableOverSize() ;
 			formatted->encode(raw, 0);
 			formatted->disableOverSize() ;
@@ -785,6 +806,11 @@ LLUUID upload_new_resource(
 		upload_error(error_message, "DoNotSupportBulkAnimationUpload", filename, args);
 		return LLUUID();
 	}
+	else if (exten == "anim")
+	{
+		asset_type = LLAssetType::AT_ANIMATION;
+		filename = src_filename;
+	}
 	else
 	{
 		// Unknown extension
@@ -949,11 +975,12 @@ void upload_done_callback(
 			args["REASON"] = std::string(LLAssetStorage::getErrorString(result));
 			LLNotificationsUtil::add("CannotUploadReason", args);
 		}
+
+		delete data;
+		data = NULL;
 	}
 
 	LLUploadDialog::modalUploadFinished();
-	delete data;
-	data = NULL;
 
 	// *NOTE: This is a pretty big hack. What this does is check the
 	// file picker if there are any more pending uploads. If so,

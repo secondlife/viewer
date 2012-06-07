@@ -135,6 +135,8 @@ public:
 	const LLColor4&	getBackgroundColor() const { return mBgOpaqueColor; }
 	void			setTransparentColor(const LLColor4& color) { mBgAlphaColor = color; }
 	const LLColor4& getTransparentColor() const { return mBgAlphaColor; }
+	void			setBackgroundImage(LLUIImage* image) { mBgOpaqueImage = image; }
+	void			setTransparentImage(LLUIImage* image) { mBgAlphaImage = image; }
 	LLPointer<LLUIImage> getBackgroundImage() const { return mBgOpaqueImage; }
 	LLPointer<LLUIImage> getTransparentImage() const { return mBgAlphaImage; }
 	LLColor4		getBackgroundImageOverlay() { return mBgOpaqueImageOverlay; }
@@ -153,7 +155,7 @@ public:
 	
 	void			setCtrlsEnabled(BOOL b);
 
-	LLHandle<LLPanel>	getHandle() const { return mPanelHandle; }
+	LLHandle<LLPanel>	getHandle() const { return getDerivedHandle<LLPanel>(); }
 
 	const LLCallbackMap::map_t& getFactoryMap() const { return mFactoryMap; }
 	
@@ -278,7 +280,6 @@ private:
 	LLViewBorder*	mBorder;
 	LLButton*		mDefaultBtn;
 	LLUIString		mLabel;
-	LLRootHandle<LLPanel> mPanelHandle;
 
 	typedef std::map<std::string, std::string> ui_string_map_t;
 	ui_string_map_t	mUIStrings;

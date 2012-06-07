@@ -9,14 +9,6 @@
      name="Me"
      tear_off="true">
       <menu_item_call
-           label="Dashboard..."
-           name="Manage My Account">
-        <menu_item_call.on_click
-         function="PromptShowURL"
-         name="ManageMyAccount_url"
-         parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
-      </menu_item_call>
-      <menu_item_call
        label="Profile..."
        name="Profile">
         <menu_item_call.on_click
@@ -31,6 +23,14 @@
         <menu_item_call.on_enable
          function="Edit.EnableCustomizeAvatar" />
       </menu_item_call>
+      <menu_item_call
+       label="Choose an avatar..."
+       name="Avatar Picker">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="avatar" />
+      </menu_item_call>
+      <menu_item_separator/>
       <menu_item_check
          label="Inventory..."
          name="Inventory"
@@ -52,29 +52,28 @@
          function="Inventory.NewWindow"
          parameter="" />
       </menu_item_call>
-      <menu_item_check
-       label="Gestures..."
-       name="Gestures"
-       shortcut="control|G">
-        <menu_item_check.on_check
-         function="Floater.Visible"
-         parameter="gestures" />
-        <menu_item_check.on_click
-         function="Floater.Toggle"
-         parameter="gestures" />
-      </menu_item_check>
-      <menu_item_check
-       label="Voice..."
-       name="ShowVoice"
-       visibility_control="VoiceMorphingEnabled">
-        <menu_item_check.on_check
-         function="Floater.Visible"
-         Parameter="voice_effect" />
-        <menu_item_check.on_click
-         function="Floater.Toggle"
-         parameter="voice_effect" />
-      </menu_item_check>
-
+      <menu_item_call
+       label="Places..."
+       name="Places">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="places" />
+      </menu_item_call>
+      <menu_item_call
+       label="Picks..."
+       name="Picks">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="picks" />
+      </menu_item_call>
+      <menu_item_separator/>
+      <menu_item_call
+       label="Camera Controls..."
+       name="Camera Controls">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="camera" />
+      </menu_item_call>
       <menu
        create_jump_keys="true"
        label="Movement"
@@ -117,6 +116,13 @@
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
+        <menu_item_call
+         label="Walk / run / fly..."
+         name="Walk / run / fly">
+          <menu_item_call.on_click
+           function="Floater.ToggleOrBringToFront"
+           parameter="moveview" />
+        </menu_item_call>
       </menu>
 
       <menu
@@ -138,30 +144,28 @@
         </menu_item_call>
       </menu>
 
-      <menu_item_call
-       label="Request Admin Status"
-       name="Request Admin Options"
-       shortcut="control|alt|G"
-       visible="false">
-        <menu_item_call.on_click
-         function="Advanced.RequestAdminStatus" />
-      </menu_item_call>
-      <menu_item_call
-       label="Leave Admin Status"
-       name="Leave Admin Options"
-       shortcut="control|alt|shift|G"
-       visible="false">
-        <menu_item_call.on_click
-         function="Advanced.LeaveAdminStatus" />
-      </menu_item_call>
-
       <menu_item_separator/>
 
       <menu_item_call
-         label="Buy L$"
+         label="Buy L$..."
          name="Buy and Sell L$">
         <menu_item_call.on_click
          function="BuyCurrency" />
+      </menu_item_call>
+      <menu_item_call
+         label="Merchant Outbox..."
+         name="MerchantOutbox">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="outbox" />
+      </menu_item_call>
+      <menu_item_call
+           label="Account dashboard..."
+           name="Manage My Account">
+        <menu_item_call.on_click
+         function="PromptShowURL"
+         name="ManageMyAccount_url"
+         parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
       </menu_item_call>
 
       <menu_item_separator/>
@@ -205,33 +209,8 @@
      label="Communicate"
      name="Communicate"
      tear_off="true">
-        <menu_item_call
-         label="My Friends"
-         name="My Friends"
-         shortcut="control|shift|F">
-            <menu_item_call.on_click
-             function="SideTray.PanelPeopleTab"
-             parameter="friends_panel" />
-            </menu_item_call>
-        <menu_item_call
-         label="My Groups"
-         name="My Groups"
-         shortcut="control|shift|G">
-            <menu_item_call.on_click
-             function="SideTray.PanelPeopleTab"
-             parameter="groups_panel" />
-        </menu_item_call>
-
-        <menu_item_separator/>
-
-        <!--menu_item_call
-         label="Chat"
-         name="Chat">
-            <menu_item_call.on_click
-             function="World.Chat" />
-        </menu_item_call-->
         <menu_item_check
-         label="Nearby Chat"
+         label="Chat..."
          name="Nearby Chat"
          shortcut="control|H"
          use_mac_ctrl="true">
@@ -242,16 +221,21 @@
              function="Floater.Toggle"
              parameter="chat_bar" />
         </menu_item_check>
-        <menu_item_call
-         label="Nearby People"
-         name="Active Speakers"
-         shortcut="control|shift|A">
-            <menu_item_call.on_click
-             function="SideTray.PanelPeopleTab"
-             parameter="nearby_panel" />
-            </menu_item_call>
         <menu_item_check
-         label="Nearby Voice"
+         label="Speak"
+         name="Speak">
+            <menu_item_check.on_check
+             function="Agent.IsMicrophoneOn"
+             parameter="speak" />
+            <menu_item_check.on_enable
+             function="Agent.IsActionAllowed"
+             parameter="speak" />
+            <menu_item_check.on_click
+             function="Agent.ToggleMicrophone"
+             parameter="speak" />
+        </menu_item_check>
+        <menu_item_check
+         label="Voice settings..."
          name="Nearby Voice">
             <menu_item_check.on_check
              function="Floater.Visible"
@@ -260,12 +244,86 @@
              function="Floater.Toggle"
              parameter="voice_controls" />
         </menu_item_check>
+        <menu_item_check
+         label="Voice morphing..."
+         name="ShowVoice"
+         visibility_control="VoiceMorphingEnabled">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="voice_effect" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="voice_effect" />
+        </menu_item_check>
+        <menu_item_check
+         label="Gestures..."
+         name="Gestures"
+         shortcut="control|G">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="gestures" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="gestures" />
+        </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_call
+         label="Friends"
+         name="My Friends"
+         shortcut="control|shift|F">
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="friends_panel" />
+            </menu_item_call>
+        <menu_item_call
+         label="Groups"
+         name="My Groups"
+         shortcut="control|shift|G">
+            <menu_item_call.on_click
+             function="SideTray.PanelPeopleTab"
+             parameter="groups_panel" />
+        </menu_item_call>
+        <menu_item_call
+         label="Nearby people"
+         name="Active Speakers"
+         shortcut="control|shift|A">
+            <menu_item_call.on_click
+              function="SideTray.PanelPeopleTab"
+              parameter="nearby_panel" />
+        </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
      label="World"
      name="World"
      tear_off="true">
+        <menu_item_call
+         label="Landmark This Place"
+         name="Create Landmark Here">
+            <menu_item_call.on_click
+             function="World.CreateLandmark" />
+            <menu_item_call.on_enable
+             function="World.EnableCreateLandmark" />
+        </menu_item_call>
+        <menu_item_call
+         label="Destinations..."
+         name="Destinations">
+            <menu_item_call.on_click
+             function="Floater.ToggleOrBringToFront"
+             parameter="destinations" />
+        </menu_item_call>
+        <menu_item_check
+         label="World map"
+         name="World Map"
+         shortcut="control|M"
+         use_mac_ctrl="true">
+            <menu_item_check.on_check
+             function="Floater.Visible"
+             parameter="world_map" />
+            <menu_item_check.on_click
+             function="Floater.Toggle"
+             parameter="world_map" />
+        </menu_item_check>
             <menu_item_check
          label="Mini-map"
          name="Mini-Map"
@@ -276,18 +334,6 @@
             <menu_item_check.on_click
              function="Floater.Toggle"
              parameter="mini_map" />
-        </menu_item_check>
-         <menu_item_check
-         label="World Map"
-         name="World Map"
-         shortcut="control|M"
-         use_mac_ctrl="true">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="world_map" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="world_map" />
         </menu_item_check>
         <menu_item_check
         label="Search"
@@ -300,6 +346,25 @@
              function="Floater.Toggle"
              parameter="search" />
             </menu_item_check>
+        <menu_item_separator/>
+        <menu_item_call
+         label="Teleport home"
+         name="Teleport Home"
+         shortcut="control|shift|H">
+        <menu_item_call.on_click
+         function="World.TeleportHome" />
+        <menu_item_call.on_enable
+         function="World.EnableTeleportHome" />
+        </menu_item_call>
+            <menu_item_call
+             label="Set home to here"
+             name="Set Home to Here">
+                <menu_item_call.on_click
+                 function="World.SetHomeLocation" />
+                <menu_item_call.on_enable
+                 function="World.EnableSetHomeLocation" />
+            </menu_item_call>
+        <menu_item_separator/>
         <menu_item_call
          label="Snapshot"
          name="Take Snapshot"
@@ -308,82 +373,51 @@
              function="Floater.Show"
              parameter="snapshot" />
         </menu_item_call>
-      <menu_item_call
-             label="Landmark This Place"
-             name="Create Landmark Here">
-                <menu_item_call.on_click
-                 function="World.CreateLandmark" />
-                <menu_item_call.on_enable
-                 function="World.EnableCreateLandmark" />
-            </menu_item_call>
-      <menu
-           create_jump_keys="true"
-           label="Place Profile"
-           name="Land"
-           tear_off="true">
+        <menu_item_separator/>
         <menu_item_call
-         label="Place Profile"
+         label="Place profile"
          layout="topleft"
          name="Place Profile">
             <menu_item_call.on_click
              function="World.PlaceProfile" />
         </menu_item_call>
         <menu_item_call
-         label="About Land"
+         label="About land"
          name="About Land">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="about_land" />
         </menu_item_call>
         <menu_item_call
-         label="Region/Estate"
+         label="Region / Estate"
          name="Region/Estate">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="region_info" />
         </menu_item_call>
-        </menu>
+        <menu_item_call
+         label="My land holdings..."
+         name="My Land">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="land_holdings" />
+        </menu_item_call>
+        <menu_item_call
+         label="Buy this land"
+         name="Buy Land">
+            <menu_item_call.on_click
+             function="Land.Buy" />
+            <menu_item_call.on_enable
+             function="World.EnableBuyLand" />
+            </menu_item_call>
 
         <menu_item_separator/>
 
-        <menu_item_call
-             label="Buy This Land"
-             name="Buy Land">
-                <menu_item_call.on_click
-                 function="Land.Buy" />
-                <menu_item_call.on_enable
-                 function="World.EnableBuyLand" />
-            </menu_item_call>
-        <menu_item_call
-             label="My Land"
-             name="My Land">
-                <menu_item_call.on_click
-                 function="Floater.Show"
-                 parameter="land_holdings" />
-        </menu_item_call>
         <menu
            create_jump_keys="true"
            label="Show"
            name="LandShow"
            tear_off="true">
-         <menu_item_check
-         label="Move Controls"
-         name="Movement Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="moveview" />
-            <menu_item_check.on_click
-             function="World.Toggle.MovementControls" />
-        </menu_item_check>
-        <menu_item_check
-         label="View Controls"
-         name="Camera Controls">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="camera" />
-            <menu_item_check.on_click
-             function="World.Toggle.CameraControls" />
-        </menu_item_check>
           <menu_item_check
              label="Ban Lines"
              name="Ban Lines">
@@ -456,24 +490,6 @@
         </menu>
 
         <menu_item_separator/>
-
-	    <menu_item_call
-	     label="Teleport Home"
-	     name="Teleport Home"
-	     shortcut="control|shift|H">
-		<menu_item_call.on_click
-		 function="World.TeleportHome" />
-		<menu_item_call.on_enable
-		 function="World.EnableTeleportHome" />
-	    </menu_item_call>
-            <menu_item_call
-             label="Set Home to Here"
-             name="Set Home to Here">
-                <menu_item_call.on_click
-                 function="World.SetHomeLocation" />
-                <menu_item_call.on_enable
-                 function="World.EnableSetHomeLocation" />
-            </menu_item_call>
     <!--    <menu_item_check
          label="Show Navigation Bar"
          name="ShowNavbarNavigationPanel">
@@ -496,12 +512,10 @@
         </menu_item_check>
         <menu_item_separator/>-->
 
-        <menu_item_separator/>
-
         <menu
          create_jump_keys="true"
          label="Sun"
-         name="Environment Settings"
+         name="Sun"
          tear_off="true">
             <menu_item_call
              label="Sunrise"
@@ -532,6 +546,14 @@
                 <menu_item_call.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
+            </menu_item_call>
+            <menu_item_separator/>
+            <menu_item_call
+             label="Use Region Settings"
+             name="Use Region Settings">
+                <menu_item_call.on_click
+                 function="World.EnvSettings"
+                 parameter="region" />
             </menu_item_call>
         </menu>
 	    
@@ -1122,6 +1144,7 @@
          enabled="false"
          label="Undo"
          name="Undo"
+         allow_key_repeat="true"
          shortcut="control|Z">
             <on_click
              function="Edit.Undo"
@@ -1133,6 +1156,7 @@
          enabled="false"
          label="Redo"
          name="Redo"
+         allow_key_repeat="true"
          shortcut="control|Y">
             <on_click
              function="Edit.Redo"
@@ -1146,6 +1170,13 @@
      label="Help"
      name="Help"
      tear_off="true">
+        <menu_item_call
+         label="How to..."
+         name="How To">
+            <menu_item_call.on_click
+             function="Help.ToggleHowTo"
+             parameter="" />
+        </menu_item_call>
         <menu_item_call
          label="[SECOND_LIFE] Help"
          name="Second Life Help"
@@ -1411,7 +1442,7 @@
          tear_off="true">
             <menu_item_check
              label="Simple"
-             name="Simple"
+             name="Rendering Type Simple"
              shortcut="control|alt|shift|1">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1422,7 +1453,7 @@
             </menu_item_check>
             <menu_item_check
              label="Alpha"
-             name="Alpha"
+             name="Rendering Type Alpha"
              shortcut="control|alt|shift|2">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1433,7 +1464,7 @@
             </menu_item_check>
             <menu_item_check
              label="Tree"
-             name="Tree"
+             name="Rendering Type Tree"
              shortcut="control|alt|shift|3">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1444,7 +1475,7 @@
             </menu_item_check>
             <menu_item_check
              label="Avatars"
-             name="Character"
+             name="Rendering Type Character"
              shortcut="control|alt|shift|4">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1455,7 +1486,7 @@
             </menu_item_check>
             <menu_item_check
              label="Surface Patch"
-             name="Surface Patch"
+             name="Rendering Type Surface Patch"
              shortcut="control|alt|shift|5">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1466,7 +1497,7 @@
             </menu_item_check>
             <menu_item_check
              label="Sky"
-             name="Sky"
+             name="Rendering Type Sky"
              shortcut="control|alt|shift|6">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1477,7 +1508,7 @@
             </menu_item_check>
             <menu_item_check
              label="Water"
-             name="Water"
+             name="Rendering Type Water"
              shortcut="control|alt|shift|7">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1488,7 +1519,7 @@
             </menu_item_check>
             <menu_item_check
              label="Ground"
-             name="Ground"
+             name="Rendering Type Ground"
              shortcut="control|alt|shift|8">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1499,7 +1530,7 @@
             </menu_item_check>
             <menu_item_check
              label="Volume"
-             name="Volume"
+             name="Rendering Type Volume"
              shortcut="control|alt|shift|9">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1510,7 +1541,7 @@
             </menu_item_check>
             <menu_item_check
              label="Grass"
-             name="Grass"
+             name="Rendering Type Grass"
              shortcut="control|alt|shift|0">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1521,7 +1552,7 @@
             </menu_item_check>
             <menu_item_check
              label="Clouds"
-             name="Clouds"
+             name="Rendering Type Clouds"
              shortcut="control|alt|shift|-">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1532,7 +1563,7 @@
             </menu_item_check>
             <menu_item_check
              label="Particles"
-             name="Particles"
+             name="Rendering Type Particles"
              shortcut="control|alt|shift|=">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1543,7 +1574,7 @@
             </menu_item_check>
             <menu_item_check
              label="Bump"
-             name="Bump"
+             name="Rendering Type Bump"
              shortcut="control|alt|shift|\">
                 <menu_item_check.on_check
                  function="Advanced.CheckRenderType"
@@ -1560,7 +1591,7 @@
          tear_off="true">
             <menu_item_check
              label="UI"
-             name="UI"
+             name="ToggleUI"
              shortcut="control|alt|F1">
                 <menu_item_check.on_check
                  function="Advanced.CheckFeature"
@@ -1674,36 +1705,6 @@
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
-
-        <menu_item_separator/>
-
-        <menu
-         create_jump_keys="true"
-         label="Shortcuts"
-         name="Shortcuts"
-         tear_off="true"
-         visible="false">
-          <menu_item_call
-             label="Image (L$[COST])..."
-             name="Upload Image"
-             shortcut="control|U">
-            <menu_item_call.on_click
-               function="File.UploadImage"
-               parameter="" />
-            <menu_item_call.on_enable
-               function="File.EnableUpload" />
-            </menu_item_call>
-            <menu_item_check
-               label="Search"
-               name="Search"
-               shortcut="control|F">
-            <menu_item_check.on_check
-             function="Floater.Visible"
-             parameter="search" />
-            <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="search" />
-            </menu_item_check>
             <menu_item_call
              enabled="false"
              label="Release Keys"
@@ -1715,12 +1716,14 @@
                  function="Tools.EnableReleaseKeys"
                  parameter="" />
             </menu_item_call>
-            <menu_item_call
-             label="Set UI Size to Default"
-             name="Set UI Size to Default">
-                <menu_item_call.on_click
-                 function="View.DefaultUISize" />
-            </menu_item_call>
+        <menu_item_separator/>
+
+        <menu
+         create_jump_keys="true"
+         label="Shortcuts"
+         name="Shortcuts"
+         tear_off="true"
+         visible="false">
             <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
             <menu_item_check
                label="Show Advanced Menu - legacy shortcut"
@@ -1804,55 +1807,6 @@
                 <menu_item_call.on_enable
                  function="View.EnableLastChatter" />
             </menu_item_call>
-
-            <menu_item_separator/>
-
-            <menu
-             create_jump_keys="true"
-             label="Select Build Tool"
-             name="Select Tool"
-             tear_off="true">
-                <menu_item_call
-                 label="Focus Tool"
-                 name="Focus"
-                 shortcut="control|1">
-                    <menu_item_call.on_click
-                     function="Tools.SelectTool"
-                     parameter="focus" />
-                </menu_item_call>
-                <menu_item_call
-                 label="Move Tool"
-                 name="Move"
-                 shortcut="control|2">
-                    <menu_item_call.on_click
-                     function="Tools.SelectTool"
-                     parameter="move" />
-                </menu_item_call>
-                <menu_item_call
-                 label="Edit Tool"
-                 name="Edit"
-                 shortcut="control|3">
-                    <menu_item_call.on_click
-                     function="Tools.SelectTool"
-                     parameter="edit" />
-                </menu_item_call>
-                <menu_item_call
-                 label="Create Tool"
-                 name="Create"
-                 shortcut="control|4">
-                    <menu_item_call.on_click
-                     function="Tools.SelectTool"
-                     parameter="create" />
-                </menu_item_call>
-                <menu_item_call
-                 label="Land Tool"
-                 name="Land"
-                 shortcut="control|5">
-                    <menu_item_call.on_click
-                     function="Tools.SelectTool"
-                     parameter="land" />
-                </menu_item_call>
-            </menu>
 
             <menu_item_separator/>
 
@@ -2465,6 +2419,16 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="rendercomplexity" />
         </menu_item_check>
+        <menu_item_check
+         label="Attachment Bytes"
+         name="attachment bytes">
+          <menu_item_check.on_check
+           function="Advanced.CheckInfoDisplay"
+           parameter="attachment bytes" />
+          <menu_item_check.on_click
+           function="Advanced.ToggleInfoDisplay"
+           parameter="attachment bytes" />
+        </menu_item_check>
 		<menu_item_check
          label="Sculpt"
          name="Sculpt">
@@ -2569,19 +2533,6 @@
             <menu_item_check.on_enable
                  function="Advanced.EnableRenderDeferredOptions" />
           </menu_item_check>
-          <menu_item_check
-                   label="   Global Illumination (experimental)"
-                   name="Global Illumination">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderDeferredGI" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderDeferredGI" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderDeferredOptions" />
-          </menu_item_check>
-
           <menu_item_separator />
 
           <menu_item_check
@@ -2831,7 +2782,7 @@
         <menu
          create_jump_keys="true"
          label="World"
-         name="World"
+         name="DevelopWorld"
          tear_off="true">
             <menu_item_check
              label="Sim Sun Override"
@@ -2842,16 +2793,6 @@
                 <menu_item_check.on_click
                  function="ToggleControl"
                  parameter="SkyOverrideSimSunPosition" />
-            </menu_item_check>
-            <menu_item_check
-             label="Cheesy Beacon"
-             name="Cheesy Beacon">
-                <menu_item_check.on_check
-                 function="CheckControl"
-                 parameter="CheesyBeacon" />
-                <menu_item_check.on_click
-                 function="ToggleControl"
-                 parameter="CheesyBeacon" />
             </menu_item_check>
             <menu_item_check
              label="Fixed Weather"
@@ -3077,7 +3018,7 @@
              tear_off="true">
                 <menu_item_call
                  label="Iris"
-                 name="Iris">
+                 name="Grab Iris">
                     <menu_item_call.on_click
                      function="Advanced.GrabBakedTexture"
                      parameter="iris" />
@@ -3087,7 +3028,7 @@
                 </menu_item_call>
                 <menu_item_call
                  label="Head"
-                 name="Head">
+                 name="Grab Head">
                     <menu_item_call.on_click
                      function="Advanced.GrabBakedTexture"
                      parameter="head" />
@@ -3097,7 +3038,7 @@
                 </menu_item_call>
                 <menu_item_call
                  label="Upper Body"
-                 name="Upper Body">
+                 name="Grab Upper Body">
                     <menu_item_call.on_click
                      function="Advanced.GrabBakedTexture"
                      parameter="upper" />
@@ -3107,7 +3048,7 @@
                 </menu_item_call>
                 <menu_item_call
                  label="Lower Body"
-                 name="Lower Body">
+                 name="Grab Lower Body">
                     <menu_item_call.on_click
                      function="Advanced.GrabBakedTexture"
                      parameter="lower" />
@@ -3117,7 +3058,7 @@
                 </menu_item_call>
                 <menu_item_call
                  label="Skirt"
-                 name="Skirt">
+                 name="Grab Skirt">
                     <menu_item_call.on_click
                      function="Advanced.GrabBakedTexture"
                      parameter="skirt" />
@@ -3327,6 +3268,14 @@
             <menu_item_call.on_click
              function="Advanced.CompressImage" />
         </menu_item_call>
+
+      <menu_item_call
+         label="Enable Visual Leak Detector"
+         name="Enable Visual Leak Detector">
+        <menu_item_call.on_click
+           function="Advanced.ToggleVisualLeakDetector" />
+        </menu_item_call>
+      
         <menu_item_check
          label="Output Debug Minidump"
          name="Output Debug Minidump">
@@ -3347,6 +3296,62 @@
              function="ToggleControl"
              parameter="ShowConsoleWindow" />
         </menu_item_check>
+        <menu
+         create_jump_keys="true"
+         label="Set Logging Level"
+         name="Set Logging Level"
+         tear_off="true">
+          <menu_item_check
+            name="Debug"
+            label="Debug">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="0" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="0" />
+          </menu_item_check>
+          <menu_item_check
+            name="Info"
+            label="Info">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="1" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="1" />
+          </menu_item_check>
+          <menu_item_check
+            name="Warning"
+            label="Warning">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="2" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="2" />
+          </menu_item_check>
+          <menu_item_check
+            name="Error"
+            label="Error">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="3" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="3" />
+          </menu_item_check>
+          <menu_item_check
+            name="None"
+            label="None">
+            <menu_item_check.on_check
+              function="Develop.CheckLoggingLevel"
+              parameter="4" />
+            <menu_item_check.on_click
+             function="Develop.SetLoggingLevel"
+             parameter="4" />
+          </menu_item_check>
+       </menu>
 
         <menu_item_separator/>
 
@@ -3385,10 +3390,11 @@
         <menu
          create_jump_keys="true"
          label="Object"
+         name="AdminObject"
          tear_off="true">
             <menu_item_call
              label="Take Copy"
-             name="Take Copy"
+             name="Admin Take Copy"
              shortcut="control|alt|shift|O">
                 <menu_item_call.on_click
                  function="Admin.ForceTakeCopy" />
@@ -3657,7 +3663,7 @@
         <menu
          create_jump_keys="true"
          label="Help"
-         name="Help"
+         name="DeprecatedHelp"
          tear_off="true">
             <menu_item_call
              label="Official Linden Blog"

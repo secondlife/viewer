@@ -37,10 +37,13 @@
 const S32 MIN_NOTIFICATION_AREA_HEIGHT = 30;
 const S32 MAX_NOTIFICATION_AREA_HEIGHT = 100;
 
+static LLDefaultChildRegistry::Register<LLWindowShade> r("window_shade");
+
 LLWindowShade::Params::Params()
 :	bg_image("bg_image"),
 	modal("modal", false),
 	text_color("text_color"),
+	shade_color("shade_color"),
 	can_close("can_close", true)
 {
 	changeDefault(mouse_opaque, false);
@@ -48,7 +51,6 @@ LLWindowShade::Params::Params()
 
 LLWindowShade::LLWindowShade(const LLWindowShade::Params& params)
 :	LLUICtrl(params),
-	mNotification(params.notification),
 	mModal(params.modal),
 	mFormHeight(0),
 	mTextColor(params.text_color)
@@ -72,7 +74,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	addChild(stackp);
 
 	LLLayoutPanel::Params panel_p;
-	panel_p.rect = LLRect(0, 30, 800, 0);
+	panel_p.rect = LLRect(0, MIN_NOTIFICATION_AREA_HEIGHT, 800, 0);
 	panel_p.name = "notification_area";
 	panel_p.visible = false;
 	panel_p.user_resize = false;
@@ -89,7 +91,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	panel_p.name = "background_area";
 	panel_p.mouse_opaque = false;
 	panel_p.background_visible = false;
-	panel_p.bg_alpha_color = LLColor4(0.f, 0.f, 0.f, 0.2f);
+	panel_p.bg_alpha_color = params.shade_color;
 	LLLayoutPanel* dummy_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
 	stackp->addChild(dummy_panel);
 
@@ -107,11 +109,11 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 
 	LLIconCtrl::Params icon_p;
 	icon_p.name = "notification_icon";
-	icon_p.rect = LLRect(5, 23, 21, 8);
+	icon_p.rect = LLRect(5, 25, 21, 10);
 	panel->addChild(LLUICtrlFactory::create<LLIconCtrl>(icon_p));
 
 	LLTextBox::Params text_p;
-	text_p.rect = LLRect(31, 20, panel->getRect().getWidth() - 5, 0);
+	text_p.rect = LLRect(31, 23, panel->getRect().getWidth() - 5, 3);
 	text_p.follows.flags = FOLLOWS_ALL;
 	text_p.text_color = mTextColor;
 	text_p.font = LLFontGL::getFontSansSerifSmall();
@@ -125,41 +127,132 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	panel_p.auto_resize = false;
 	panel_p.user_resize = false;
 	panel_p.name="form_elements";
-	panel_p.rect = LLRect(0, 30, 130, 0);
+	panel_p.rect = LLRect(0, MIN_NOTIFICATION_AREA_HEIGHT, 130, 0);
 	LLLayoutPanel* form_elements_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
 	stackp->addChild(form_elements_panel);
 
-	if (params.can_close)
+	panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
+	panel_p.auto_resize = false;
+	panel_p.user_resize = false;
+	panel_p.rect = LLRect(0, MIN_NOTIFICATION_AREA_HEIGHT, 25, 0);
+	panel_p.name = "close_panel";
+	LLLayoutPanel* close_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
+	stackp->addChild(close_panel);
+
+	LLButton::Params button_p;
+	button_p.name = "close_notification";
+	button_p.rect = LLRect(5, 23, 21, 7);
+	button_p.image_color.control="DkGray_66";
+	button_p.image_unselected.name="Icon_Close_Foreground";
+	button_p.image_selected.name="Icon_Close_Press";
+	button_p.click_callback.function = boost::bind(&LLWindowShade::onCloseNotification, this);
+
+	close_panel->addChild(LLUICtrlFactory::create<LLButton>(button_p));
+	
+	close_panel->setVisible(params.can_close);
+}
+
+void LLWindowShade::draw()
+{
+	LLRect message_rect = getChild<LLTextBox>("notification_text")->getTextBoundingRect();
+
+	LLLayoutPanel* notification_area = getChild<LLLayoutPanel>("notification_area");
+
+	notification_area->reshape(notification_area->getRect().getWidth(), 
+		llclamp(message_rect.getHeight() + 15, 
+				llmax(mFormHeight, MIN_NOTIFICATION_AREA_HEIGHT),
+				MAX_NOTIFICATION_AREA_HEIGHT));
+
+	LLUICtrl::draw();
+
+	while(!mNotifications.empty() && !mNotifications.back()->isActive())
 	{
-		panel_p = LLUICtrlFactory::getDefaultParams<LLLayoutPanel>();
-		panel_p.auto_resize = false;
-		panel_p.user_resize = false;
-		panel_p.rect = LLRect(0, 30, 25, 0);
-		LLLayoutPanel* close_panel = LLUICtrlFactory::create<LLLayoutPanel>(panel_p);
-		stackp->addChild(close_panel);
-
-		LLButton::Params button_p;
-		button_p.name = "close_notification";
-		button_p.rect = LLRect(5, 23, 21, 7);
-		button_p.image_color.control="DkGray_66";
-		button_p.image_unselected.name="Icon_Close_Foreground";
-		button_p.image_selected.name="Icon_Close_Press";
-		button_p.click_callback.function = boost::bind(&LLWindowShade::onCloseNotification, this);
-
-		close_panel->addChild(LLUICtrlFactory::create<LLButton>(button_p));
+		mNotifications.pop_back();
+		// go ahead and hide 
+		hide();
 	}
 
-	LLSD payload = mNotification->getPayload();
+	if (mNotifications.empty())
+	{
+		hide();
+	}
+	else if (notification_area->getVisibleAmount() < 0.01f)
+	{
+		displayLatestNotification();
+	}
 
-	LLNotificationFormPtr formp = mNotification->getForm();
+	if (!notification_area->getVisible() && (notification_area->getVisibleAmount() < 0.001f))
+	{
+		getChildRef<LLLayoutPanel>("background_area").setBackgroundVisible(false);
+		setMouseOpaque(false);
+	}
+}
+
+void LLWindowShade::hide()
+{
+	getChildRef<LLLayoutPanel>("notification_area").setVisible(false);
+}
+
+void LLWindowShade::onCloseNotification()
+{
+	if (!mNotifications.empty())
+		LLNotifications::instance().cancel(mNotifications.back());
+}
+
+void LLWindowShade::onClickIgnore(LLUICtrl* ctrl)
+{
+	LLNotificationPtr notify = getCurrentNotification();
+	if (!notify) return;
+
+	bool check = ctrl->getValue().asBoolean();
+	if (notify->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
+	{
+		// question was "show again" so invert value to get "ignore"
+		check = !check;
+	}
+	notify->setIgnored(check);
+}
+
+void LLWindowShade::onClickNotificationButton(const std::string& name)
+{
+	LLNotificationPtr notify = getCurrentNotification();
+	if (!notify) return;
+
+	mNotificationResponse[name] = true;
+
+	notify->respond(mNotificationResponse);
+}
+
+void LLWindowShade::onEnterNotificationText(LLUICtrl* ctrl, const std::string& name)
+{
+	mNotificationResponse[name] = ctrl->getValue().asString();
+}
+
+void LLWindowShade::show(LLNotificationPtr notification)
+{
+	mNotifications.push_back(notification);
+
+	displayLatestNotification();
+}
+
+void LLWindowShade::displayLatestNotification()
+{
+	if (mNotifications.empty()) return;
+
+	LLNotificationPtr notification = mNotifications.back();
+
+	LLSD payload = notification->getPayload();
+
+	LLNotificationFormPtr formp = notification->getForm();
 	LLLayoutPanel& notification_area = getChildRef<LLLayoutPanel>("notification_area");
-	notification_area.getChild<LLUICtrl>("notification_icon")->setValue(mNotification->getIcon());
-	notification_area.getChild<LLUICtrl>("notification_text")->setValue(mNotification->getMessage());
-	notification_area.getChild<LLUICtrl>("notification_text")->setToolTip(mNotification->getMessage());
+	notification_area.getChild<LLUICtrl>("notification_icon")->setValue(notification->getIcon());
+	notification_area.getChild<LLUICtrl>("notification_text")->setValue(notification->getMessage());
+	notification_area.getChild<LLUICtrl>("notification_text")->setToolTip(notification->getMessage());
 
 	LLNotificationForm::EIgnoreType ignore_type = formp->getIgnoreType(); 
 	LLLayoutPanel& form_elements = notification_area.getChildRef<LLLayoutPanel>("form_elements");
 	form_elements.deleteAllChildren();
+	form_elements.reshape(form_elements.getRect().getWidth(), MIN_NOTIFICATION_AREA_HEIGHT);
 
 	const S32 FORM_PADDING_HORIZONTAL = 10;
 	const S32 FORM_PADDING_VERTICAL = 3;
@@ -229,7 +322,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 			label_p.v_pad = 5;
 			LLTextBox* textbox = LLUICtrlFactory::create<LLTextBox>(label_p);
 			textbox->reshapeToFitText();
-			textbox->reshape(textbox->getRect().getWidth(), form_elements.getRect().getHeight() - 2 * FORM_PADDING_VERTICAL); 
+			textbox->reshape(textbox->getRect().getWidth(), MIN_NOTIFICATION_AREA_HEIGHT - 2 * FORM_PADDING_VERTICAL); 
 			form_elements.addChild(textbox);
 			cur_x = textbox->getRect().mRight + FORM_PADDING_HORIZONTAL;
 
@@ -249,7 +342,7 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 		}
 	}
 
-	mFormHeight = form_elements.getRect().getHeight() - (cur_y - FORM_PADDING_VERTICAL) + WIDGET_HEIGHT;
+	mFormHeight = form_elements.getRect().getHeight() - (cur_y - WIDGET_HEIGHT - FORM_PADDING_VERTICAL);
 	form_elements.reshape(form_width, mFormHeight);
 	form_elements.setMinDim(form_width);
 
@@ -261,68 +354,39 @@ void LLWindowShade::initFromParams(const LLWindowShade::Params& params)
 	{
 		(*it)->translate(0, delta_y);
 	}
-}
 
-void LLWindowShade::show()
-{
 	getChildRef<LLLayoutPanel>("notification_area").setVisible(true);
 	getChildRef<LLLayoutPanel>("background_area").setBackgroundVisible(mModal);
 
 	setMouseOpaque(mModal);
 }
 
-void LLWindowShade::draw()
+void LLWindowShade::setBackgroundImage(LLUIImage* image)
 {
-	LLRect message_rect = getChild<LLTextBox>("notification_text")->getTextBoundingRect();
+	getChild<LLLayoutPanel>("notification_area")->setTransparentImage(image);
+}
 
-	LLLayoutPanel* notification_area = getChild<LLLayoutPanel>("notification_area");
+void LLWindowShade::setTextColor(LLColor4 color)
+{
+	getChild<LLTextBox>("notification_text")->setColor(color);
+}
 
-	notification_area->reshape(notification_area->getRect().getWidth(), 
-		llclamp(message_rect.getHeight() + 10, 
-				llmin(mFormHeight, MAX_NOTIFICATION_AREA_HEIGHT),
-				MAX_NOTIFICATION_AREA_HEIGHT));
+bool LLWindowShade::isShown() const
+{
+	return getChildRef<LLLayoutPanel>("notification_area").getVisible();
+}
 
-	LLUICtrl::draw();
-	if (mNotification && !mNotification->isActive())
+void LLWindowShade::setCanClose(bool can_close)
+{
+	getChildView("close_panel")->setVisible(can_close);
+}
+
+LLNotificationPtr LLWindowShade::getCurrentNotification()
+{
+	if (mNotifications.empty())
 	{
-		hide();
+		return LLNotificationPtr();
 	}
+	return mNotifications.back();
 }
 
-void LLWindowShade::hide()
-{
-	getChildRef<LLLayoutPanel>("notification_area").setVisible(false);
-	getChildRef<LLLayoutPanel>("background_area").setBackgroundVisible(false);
-
-	setMouseOpaque(false);
-}
-
-void LLWindowShade::onCloseNotification()
-{
-	LLNotifications::instance().cancel(mNotification);
-}
-
-void LLWindowShade::onClickIgnore(LLUICtrl* ctrl)
-{
-	bool check = ctrl->getValue().asBoolean();
-	if (mNotification && mNotification->getForm()->getIgnoreType() == LLNotificationForm::IGNORE_SHOW_AGAIN)
-	{
-		// question was "show again" so invert value to get "ignore"
-		check = !check;
-	}
-	mNotification->setIgnored(check);
-}
-
-void LLWindowShade::onClickNotificationButton(const std::string& name)
-{
-	if (!mNotification) return;
-
-	mNotificationResponse[name] = true;
-
-	mNotification->respond(mNotificationResponse);
-}
-
-void LLWindowShade::onEnterNotificationText(LLUICtrl* ctrl, const std::string& name)
-{
-	mNotificationResponse[name] = ctrl->getValue().asString();
-}

@@ -22,23 +22,31 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-varying vec3 vary_normal;
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_data[3];
+#else
+#define frag_data gl_FragData
+#endif
+
+VARYING vec3 vary_normal;
 
 uniform float minimum_alpha;
-uniform float maximum_alpha;
+
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec4 col = diffuseLookup(gl_TexCoord[0].xy) * gl_Color;
+	vec4 col = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
-	if (col.a < minimum_alpha || col.a > maximum_alpha)
+	if (col.a < minimum_alpha)
 	{
 		discard;
 	}
 
-	gl_FragData[0] = vec4(col.rgb, 0.0);
-	gl_FragData[1] = vec4(0,0,0,0);
+	frag_data[0] = vec4(col.rgb, 0.0);
+	frag_data[1] = vec4(0,0,0,0);
 	vec3 nvn = normalize(vary_normal);
-	gl_FragData[2] = vec4(nvn.xy * 0.5 + 0.5, nvn.z, 0.0);
+	frag_data[2] = vec4(nvn.xy * 0.5 + 0.5, nvn.z, 0.0);
 }

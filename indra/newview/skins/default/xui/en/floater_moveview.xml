@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="specified"
- specified_left="558"
- specified_bottom="80"
+ positioning="specified"
+ left="320"
+ bottom="-80"
  legacy_header_height="18"
  can_dock="false"
  can_minimize="true"
  can_close="true"
- follows="bottom"
  height="110"
  layout="topleft"
  name="move_floater"
@@ -16,7 +15,7 @@
  save_visibility="true"
  single_instance="true"
  chrome="true"
- title="MOVE"
+ title="WALK / RUN / FLY"
  width="133">
     <string
      name="walk_forward_tooltip">

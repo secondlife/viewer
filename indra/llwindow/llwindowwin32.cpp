@@ -41,6 +41,7 @@
 #include "llgl.h"
 #include "llstring.h"
 #include "lldir.h"
+#include "llglslshader.h"
 
 // System includes
 #include <commdlg.h>
@@ -861,7 +862,7 @@ BOOL LLWindowWin32::setPosition(const LLCoordScreen position)
 	return TRUE;
 }
 
-BOOL LLWindowWin32::setSize(const LLCoordScreen size)
+BOOL LLWindowWin32::setSizeImpl(const LLCoordScreen size)
 {
 	LLCoordScreen position;
 
@@ -871,8 +872,28 @@ BOOL LLWindowWin32::setSize(const LLCoordScreen size)
 		return FALSE;
 	}
 
+	WINDOWPLACEMENT placement;
+	placement.length = sizeof(WINDOWPLACEMENT);
+
+	if (!GetWindowPlacement(mWindowHandle, &placement)) return FALSE;
+
+	placement.showCmd = SW_RESTORE;
+
+	if (!SetWindowPlacement(mWindowHandle, &placement)) return FALSE;
+
 	moveWindow(position, size);
 	return TRUE;
+}
+
+BOOL LLWindowWin32::setSizeImpl(const LLCoordWindow size)
+{
+	RECT window_rect = {0, 0, size.mX, size.mY };
+	DWORD dw_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
+	DWORD dw_style = WS_OVERLAPPEDWINDOW;
+
+	AdjustWindowRectEx(&window_rect, dw_style, FALSE, dw_ex_style);
+
+	return setSizeImpl(LLCoordScreen(window_rect.right - window_rect.left, window_rect.bottom - window_rect.top));
 }
 
 // changing fullscreen resolution
@@ -885,12 +906,12 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	DWORD	current_refresh;
 	DWORD	dw_ex_style;
 	DWORD	dw_style;
-	RECT	window_rect;
+	RECT	window_rect = {0, 0, 0, 0};
 	S32 width = size.mX;
 	S32 height = size.mY;
 	BOOL auto_show = FALSE;
 
-	if (mhRC)
+	if (mhRC)	
 	{
 		auto_show = TRUE;
 		resetDisplayResolution();
@@ -985,7 +1006,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			dw_ex_style = WS_EX_APPWINDOW;
 			dw_style = WS_POPUP;
 
-			// Move window borders out not to cover window contents
+			// Move window borders out not to cover window contents.
+			// This converts client rect to window rect, i.e. expands it by the window border size.
 			AdjustWindowRectEx(&window_rect, dw_style, FALSE, dw_ex_style);
 		}
 		// If it failed, we don't want to run fullscreen
@@ -1012,6 +1034,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		dw_ex_style = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;
 		dw_style = WS_OVERLAPPEDWINDOW;
 	}
+
 
 	// don't post quit messages when destroying old windows
 	mPostQuit = FALSE;
@@ -1064,6 +1087,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
+	LL_INFOS("Window") << "Device context retrieved." << llendl ;
+
 	if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
 	{
 		close();
@@ -1071,6 +1096,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
+
+	LL_INFOS("Window") << "Pixel format chosen." << llendl ;
 
 	// Verify what pixel format we actually received.
 	if (!DescribePixelFormat(mhDC, pixel_format, sizeof(PIXELFORMATDESCRIPTOR),
@@ -1081,6 +1108,37 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
+
+	// (EXP-1765) dump pixel data to see if there is a pattern that leads to unreproducible crash
+	LL_INFOS("Window") << "--- begin pixel format dump ---" << llendl ;
+	LL_INFOS("Window") << "pixel_format is " << pixel_format << llendl ;
+	LL_INFOS("Window") << "pfd.nSize:            " << pfd.nSize << llendl ;
+	LL_INFOS("Window") << "pfd.nVersion:         " << pfd.nVersion << llendl ;
+	LL_INFOS("Window") << "pfd.dwFlags:          0x" << std::hex << pfd.dwFlags << std::dec << llendl ;
+	LL_INFOS("Window") << "pfd.iPixelType:       " << (int)pfd.iPixelType << llendl ;
+	LL_INFOS("Window") << "pfd.cColorBits:       " << (int)pfd.cColorBits << llendl ;
+	LL_INFOS("Window") << "pfd.cRedBits:         " << (int)pfd.cRedBits << llendl ;
+	LL_INFOS("Window") << "pfd.cRedShift:        " << (int)pfd.cRedShift << llendl ;
+	LL_INFOS("Window") << "pfd.cGreenBits:       " << (int)pfd.cGreenBits << llendl ;
+	LL_INFOS("Window") << "pfd.cGreenShift:      " << (int)pfd.cGreenShift << llendl ;
+	LL_INFOS("Window") << "pfd.cBlueBits:        " << (int)pfd.cBlueBits << llendl ;
+	LL_INFOS("Window") << "pfd.cBlueShift:       " << (int)pfd.cBlueShift << llendl ;
+	LL_INFOS("Window") << "pfd.cAlphaBits:       " << (int)pfd.cAlphaBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAlphaShift:      " << (int)pfd.cAlphaShift << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumBits:       " << (int)pfd.cAccumBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumRedBits:    " << (int)pfd.cAccumRedBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumGreenBits:  " << (int)pfd.cAccumGreenBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumBlueBits:   " << (int)pfd.cAccumBlueBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAccumAlphaBits:  " << (int)pfd.cAccumAlphaBits << llendl ;
+	LL_INFOS("Window") << "pfd.cDepthBits:       " << (int)pfd.cDepthBits << llendl ;
+	LL_INFOS("Window") << "pfd.cStencilBits:     " << (int)pfd.cStencilBits << llendl ;
+	LL_INFOS("Window") << "pfd.cAuxBuffers:      " << (int)pfd.cAuxBuffers << llendl ;
+	LL_INFOS("Window") << "pfd.iLayerType:       " << (int)pfd.iLayerType << llendl ;
+	LL_INFOS("Window") << "pfd.bReserved:        " << (int)pfd.bReserved << llendl ;
+	LL_INFOS("Window") << "pfd.dwLayerMask:      " << pfd.dwLayerMask << llendl ;
+	LL_INFOS("Window") << "pfd.dwVisibleMask:    " << pfd.dwVisibleMask << llendl ;
+	LL_INFOS("Window") << "pfd.dwDamageMask:     " << pfd.dwDamageMask << llendl ;
+	LL_INFOS("Window") << "--- end pixel format dump ---" << llendl ;
 
 	if (pfd.cColorBits < 32)
 	{
@@ -1125,7 +1183,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	LL_INFOS("Window") << "Drawing context is created." << llendl ;
 
 	gGLManager.initWGL();
-
+	
 	if (wglChoosePixelFormatARB)
 	{
 		// OK, at this point, use the ARB wglChoosePixelFormatsARB function to see if we
@@ -1384,7 +1442,53 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 
-	if (!(mhRC = wglCreateContext(mhDC)))
+	mhRC = 0;
+	if (wglCreateContextAttribsARB)
+	{ //attempt to create a specific versioned context
+		S32 attribs[] = 
+		{ //start at 4.2
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+			WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+			WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
+			0
+		};
+
+		bool done = false;
+		while (!done)
+		{
+			mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+
+			if (!mhRC)
+			{
+				if (attribs[3] > 0)
+				{ //decrement minor version
+					attribs[3]--;
+				}
+				else if (attribs[1] > 3)
+				{ //decrement major version and start minor version over at 3
+					attribs[1]--;
+					attribs[3] = 3;
+				}
+				else
+				{ //we reached 3.0 and still failed, bail out
+					done = true;
+				}
+			}
+			else
+			{
+				llinfos << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << " context." << llendl;
+				done = true;
+
+				if (LLRender::sGLCoreProfile)
+				{
+					LLGLSLShader::sNoFixedFunction = true;
+				}
+			}
+		}
+	}
+
+	if (!mhRC && !(mhRC = wglCreateContext(mhDC)))
 	{
 		close();
 		OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
@@ -1404,7 +1508,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		OSMessageBox(mCallbacks->translateString("MBVideoDrvErr"), mCallbacks->translateString("MBError"), OSMB_OK);
 		return FALSE;
 	}
-
+	
 	// Disable vertical sync for swap
 	if (disable_vsync && wglSwapIntervalEXT)
 	{
@@ -1463,24 +1567,16 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
 
 BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 {
-	LLCoordScreen screen_pos;
-
 	mMousePositionModified = TRUE;
 	if (!mWindowHandle)
 	{
 		return FALSE;
 	}
 
-	if (!convertCoords(position, &screen_pos))
-	{
-		return FALSE;
-	}
 
 	// Inform the application of the new mouse position (needed for per-frame
 	// hover/picking to function).
-	LLCoordGL gl_pos;
-	convertCoords(position, &gl_pos);
-	mCallbacks->handleMouseMove(this, gl_pos, (MASK)0);
+	mCallbacks->handleMouseMove(this, position.convert(), (MASK)0);
 	
 	// DEV-18951 VWR-8524 Camera moves wildly when alt-clicking.
 	// Because we have preemptively notified the application of the new
@@ -1490,24 +1586,23 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 	while (PeekMessage(&msg, NULL, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
 	{ }
 
-	return SetCursorPos(screen_pos.mX, screen_pos.mY);
+	LLCoordScreen screen_pos(position.convert());
+	return ::SetCursorPos(screen_pos.mX, screen_pos.mY);
 }
 
 BOOL LLWindowWin32::getCursorPosition(LLCoordWindow *position)
 {
 	POINT cursor_point;
-	LLCoordScreen screen_pos;
 
-	if (!mWindowHandle ||
-		!GetCursorPos(&cursor_point))
+	if (!mWindowHandle 
+		|| !GetCursorPos(&cursor_point)
+		|| !position)
 	{
 		return FALSE;
 	}
 
-	screen_pos.mX = cursor_point.x;
-	screen_pos.mY = cursor_point.y;
-
-	return convertCoords(screen_pos, position);
+	*position = LLCoordScreen(cursor_point.x, cursor_point.y).convert();
+	return TRUE;
 }
 
 void LLWindowWin32::hideCursor()
@@ -1620,18 +1715,18 @@ void LLWindowWin32::initCursors()
 
 
 
-void LLWindowWin32::setCursor(ECursorType cursor)
+void LLWindowWin32::updateCursor()
 {
-	if (cursor == UI_CURSOR_ARROW
+	if (mNextCursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
-		cursor = UI_CURSOR_WORKING;
+		mNextCursor = UI_CURSOR_WORKING;
 	}
 
-	if( mCurrentCursor != cursor )
+	if( mCurrentCursor != mNextCursor )
 	{
-		mCurrentCursor = cursor;
-		SetCursor( mCursor[cursor] );
+		mCurrentCursor = mNextCursor;
+		SetCursor( mCursor[mNextCursor] );
 	}
 }
 
@@ -1669,7 +1764,7 @@ void LLWindowWin32::gatherInput()
 
 	LLMemType m1(LLMemType::MTYPE_GATHER_INPUT);
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) && msg_count < MAX_MESSAGE_PER_UPDATE)
+	while ((msg_count < MAX_MESSAGE_PER_UPDATE) && PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
 		mCallbacks->handlePingWatchdog(this, "Main:TranslateGatherInput");
 		TranslateMessage(&msg);
@@ -1713,6 +1808,8 @@ void LLWindowWin32::gatherInput()
 
 	mInputProcessingPaused = FALSE;
 
+	updateCursor();
+
 	// clear this once we've processed all mouse messages that might have occurred after
 	// we slammed the mouse position
 	mMousePositionModified = FALSE;
@@ -1723,6 +1820,10 @@ static LLFastTimer::DeclareTimer FTM_MOUSEHANDLER("Handle Mouse");
 
 LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
+	// Ignore clicks not originated in the client area, i.e. mouse-up events not preceded with a WM_LBUTTONDOWN.
+	// This helps prevent avatar walking after maximizing the window by double-clicking the title bar.
+	static bool sHandleLeftMouseUp = true;
+
 	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLong(h_wnd, GWL_USERDATA);
 
 
@@ -2069,10 +2170,20 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->handleUnicodeUTF16((U16)w_param, gKeyboard->currentMask(FALSE));
 			return 0;
 
+		case WM_NCLBUTTONDOWN:
+			{
+				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_NCLBUTTONDOWN");
+				// A click in a non-client area, e.g. title bar or window border.
+				sHandleLeftMouseUp = false;
+			}
+			break;
+
 		case WM_LBUTTONDOWN:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONDOWN");
 				LLFastTimer t2(FTM_MOUSEHANDLER);
+				sHandleLeftMouseUp = true;
+
 				if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 				{
 					window_imp->interruptLanguageTextInput();
@@ -2083,15 +2194,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2113,15 +2224,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2137,6 +2248,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_LBUTTONUP");
 				LLFastTimer t2(FTM_MOUSEHANDLER);
+
+				if (!sHandleLeftMouseUp)
+				{
+					sHandleLeftMouseUp = true;
+					break;
+				}
+
 				//if (gDebugClicks)
 				//{
 				//	LL_INFOS("Window") << "WndProc left button up" << LL_ENDL;
@@ -2146,15 +2264,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2181,15 +2299,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2210,15 +2328,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2245,15 +2363,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2274,15 +2392,15 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// If we don't do this, many clicks could get buffered up, and if the
 				// first click changes the cursor position, all subsequent clicks
 				// will occur at the wrong location.  JC
-				LLCoordWindow cursor_coord_window;
 				if (window_imp->mMousePositionModified)
 				{
+					LLCoordWindow cursor_coord_window;
 					window_imp->getCursorPosition(&cursor_coord_window);
-					window_imp->convertCoords(cursor_coord_window, &gl_coord);
+					gl_coord = cursor_coord_window.convert();
 				}
 				else
 				{
-					window_imp->convertCoords(window_coord, &gl_coord);
+					gl_coord = window_coord.convert();
 				}
 				MASK mask = gKeyboard->currentMask(TRUE);
 				// generate move event to update mouse coordinates
@@ -2354,17 +2472,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		case WM_MOUSEMOVE:
 			{
 				window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_MOUSEMOVE");
-				window_imp->convertCoords(window_coord, &gl_coord);
 				MASK mask = gKeyboard->currentMask(TRUE);
-				window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+				window_imp->mCallbacks->handleMouseMove(window_imp, window_coord.convert(), mask);
 				return 0;
 			}
 
 		case WM_GETMINMAXINFO:
 			{
 				LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
-				min_max->ptMinTrackSize.x = 1024;
-				min_max->ptMinTrackSize.y = 768;
+				min_max->ptMinTrackSize.x = window_imp->mMinWindowWidth;
+				min_max->ptMinTrackSize.y = window_imp->mMinWindowHeight;
 				return 0;
 			}
 
@@ -2910,7 +3027,6 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
-	glFinish();
 	SwapBuffers(mhDC);
 }
 
@@ -3245,7 +3361,7 @@ void LLWindowWin32::setLanguageTextInput( const LLCoordGL & position )
 
 			LLWinImm::setCompositionWindow( himc, &ime_form );
 
-			sWinIMEWindowPosition.set( win_pos.mX, win_pos.mY );
+			sWinIMEWindowPosition = win_pos;
 		}
 
 		LLWinImm::releaseContext(mWindowHandle, himc);

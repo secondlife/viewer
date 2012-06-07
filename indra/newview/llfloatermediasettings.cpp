@@ -212,10 +212,13 @@ void LLFloaterMediaSettings::commitFields()
 //static 
 void LLFloaterMediaSettings::clearValues( bool editable)
 {
-	// clean up all panels before updating
-	sInstance->mPanelMediaSettingsGeneral	 ->clearValues(sInstance->mPanelMediaSettingsGeneral,  editable);
-	sInstance->mPanelMediaSettingsSecurity	 ->clearValues(sInstance->mPanelMediaSettingsSecurity,	editable);
-	sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions,  editable);	
+	if (sInstance)
+	{
+		// clean up all panels before updating
+		sInstance->mPanelMediaSettingsGeneral	 ->clearValues(sInstance->mPanelMediaSettingsGeneral,  editable);
+		sInstance->mPanelMediaSettingsSecurity	 ->clearValues(sInstance->mPanelMediaSettingsSecurity,	editable);
+		sInstance->mPanelMediaSettingsPermissions->clearValues(sInstance->mPanelMediaSettingsPermissions,  editable);
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -308,4 +311,10 @@ bool LLFloaterMediaSettings::haveValuesChanged() const
 	}
 	return values_changed;
 }
+
+bool LLFloaterMediaSettings::instanceExists()
+{
+	return LLFloaterReg::findTypedInstance<LLFloaterMediaSettings>("media_settings");
+}
+
 

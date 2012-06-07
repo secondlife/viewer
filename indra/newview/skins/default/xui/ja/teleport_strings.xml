@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
@@ -21,8 +21,8 @@
 もう少し後でやり直してください。
 		</message>
 		<message name="NoHelpIslandTP">
-		Welcome Islandには戻ることができません。
-「Welcome Island Public」に行き、
+			ウェルカムアイランドにテレポートで戻ることはできません。
+「Welcome Island Public」に行き再度チュートリアルを行ってください。
 		</message>
 		<message name="noaccess_tport">
 			残念ながら、そのテレポート目的地へのアクセスがありません。
@@ -45,7 +45,7 @@
 			テレポートの目的地を見つけられません。目的地が一時的に利用できない状態か、またはすでに消滅している可能性があります。数分後にやり直してください。
 		</message>
 		<message name="no_inventory_host">
-			持ち物システムは現在利用できません。
+			インベントリシステムは現在利用できません。
 		</message>
 	</message_set>
 	<message_set name="progress">

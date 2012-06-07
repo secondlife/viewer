@@ -6,12 +6,12 @@
 	<button label="2. Optimizar" name="optimize_btn"/>
 	<button label="1. Seleccionar archivo" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Elige el archivo de modelo
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
 				Usuarios avanzados: si tienes experiencia con las herramientas de creación de contenidos 3D, quizá te interese utilizar la función de subida avanzada.
 			</text>
@@ -19,7 +19,10 @@
 			<text name="Cache location">
 				Elige el archivo de modelo que deseas subir
 			</text>
-			<button label="Buscar..." label_selected="Buscar..." name="browse"/>
+			<button label="Examinar..." label_selected="Examinar..." name="browse"/>
+			<text name="Model types">
+				‎Second Life admite los archivos COLLADA (.dae)
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
@@ -32,15 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Optimizar el modelo
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			Hemos optimizado el rendimiento del modelo, pero puedes ajustarlo más si lo deseas.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
 				Generar el nivel de detalle: Alto
 			</text>
@@ -76,15 +79,15 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				Ajustar la física
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Crearemos una forma para la apariencia exterior del modelo. Ajusta el nivel de detalle de la forma según se necesite para el propósito proyectado del modelo.
 		</text>
-		<panel name="content">
+		<panel name="physics_content">
 			<button label="Recalcular física" name="recalculate_physics_btn"/>
 			<button label="Recalculando..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
@@ -107,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Revisar
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Impacto en la parcela/región: [EQUIV] equivalentes en prim
 			</text>
@@ -125,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Subida finalizada
 			</text>
 		</panel>

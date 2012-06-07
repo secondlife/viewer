@@ -302,6 +302,12 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids)
 	make_ui_sound("UISndStartIM");
 }
 
+static const char* get_profile_floater_name(const LLUUID& avatar_id)
+{
+	// Use different floater XML for our profile to be able to save its rect.
+	return avatar_id == gAgentID ? "my_profile" : "profile";
+}
+
 static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
 	std::string username = av_name.mUsername;
@@ -314,15 +320,10 @@ static void on_avatar_name_show_profile(const LLUUID& agent_id, const LLAvatarNa
 	std::string url = getProfileURL(username);
 
 	// PROFILES: open in webkit window
-	const bool show_chrome = false;
-	static LLCachedControl<LLRect> profile_rect(gSavedSettings, "WebProfileRect");
 	LLFloaterWebContent::Params p;
 	p.url(url).
-		id(agent_id.asString()).
-		show_chrome(show_chrome).
-		window_class("profile").
-		preferred_media_size(profile_rect);
-	LLFloaterReg::showInstance("profile", p);
+		id(agent_id.asString());
+	LLFloaterReg::showInstance(get_profile_floater_name(agent_id), p);
 }
 
 // static
@@ -339,14 +340,15 @@ bool LLAvatarActions::profileVisible(const LLUUID& id)
 {
 	LLSD sd;
 	sd["id"] = id;
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", sd));
+	LLFloater* browser = getProfileFloater(id);
 	return browser && browser->isShown();
 }
 
 //static
 LLFloater* LLAvatarActions::getProfileFloater(const LLUUID& id)
 {
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", LLSD().with("id", id)));
+	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*>
+		(LLFloaterReg::findInstance(get_profile_floater_name(id), LLSD().with("id", id)));
 	return browser;
 }
 
@@ -355,7 +357,7 @@ void LLAvatarActions::hideProfile(const LLUUID& id)
 {
 	LLSD sd;
 	sd["id"] = id;
-	LLFloaterWebContent *browser = dynamic_cast<LLFloaterWebContent*> (LLFloaterReg::findInstance("profile", sd));
+	LLFloater* browser = getProfileFloater(id);
 	if (browser)
 	{
 		browser->closeFloater();
@@ -678,12 +680,29 @@ namespace action_give_inventory
 		std::string items;
 		build_items_string(inventory_selected_uuids, items);
 
+		int folders_count = 0;
+		std::set<LLUUID>::const_iterator it = inventory_selected_uuids.begin();
+
+		//traverse through selected inventory items and count folders among them
+		for ( ; it != inventory_selected_uuids.end() && folders_count <=1 ; ++it)
+		{
+			LLViewerInventoryCategory* inv_cat = gInventory.getCategory(*it);
+			if (NULL != inv_cat)
+			{
+				folders_count++;
+			}
+		}
+
+		// EXP-1599
+		// In case of sharing multiple folders, make the confirmation
+		// dialog contain a warning that only one folder can be shared at a time.
+		std::string notification = (folders_count > 1) ? "ShareFolderConfirmation" : "ShareItemsConfirmation";
 		LLSD substitutions;
 		substitutions["RESIDENTS"] = residents;
 		substitutions["ITEMS"] = items;
 		LLShareInfo::instance().mAvatarNames = avatar_names;
 		LLShareInfo::instance().mAvatarUuids = avatar_uuids;
-		LLNotificationsUtil::add("ShareItemsConfirmation", substitutions, LLSD(), &give_inventory_cb);
+		LLNotificationsUtil::add(notification, substitutions, LLSD(), &give_inventory_cb);
 	}
 }
 
@@ -705,7 +724,7 @@ std::set<LLUUID> LLAvatarActions::getInventorySelectedUUIDs()
 		LLSidepanelInventory *sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 		if (sidepanel_inventory)
 		{
-			inventory_selected_uuids = sidepanel_inventory->getInboxOrOutboxSelectionList();
+			inventory_selected_uuids = sidepanel_inventory->getInboxSelectionList();
 		}
 	}
 
@@ -719,6 +738,11 @@ void LLAvatarActions::shareWithAvatars()
 
 	LLFloaterAvatarPicker* picker =
 		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
+	if (!picker)
+	{
+		return;
+	}
+
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
 	picker->openFriendsTab();
 	LLNotificationsUtil::add("ShareNotification");

@@ -26,10 +26,24 @@
 #ifndef LLFLOATERWINDOWSIZE_H
 #define LLFLOATERWINDOWSIZE_H
 
-// Allow user to set the window size for filming tutorials, machinima, etc
-namespace LLFloaterWindowSizeUtil
+#include "llfloater.h"
+
+///----------------------------------------------------------------------------
+/// Class LLFloaterWindowSize
+///----------------------------------------------------------------------------
+class LLFloaterWindowSize
+	:	public LLFloater
 {
-	void registerFloater();
-}
+	friend class LLFloaterReg;
+private:
+	LLFloaterWindowSize(const LLSD& key);
+	virtual ~LLFloaterWindowSize();
+
+public:
+	/*virtual*/ BOOL postBuild();
+	void initWindowSizeControls();
+	void onClickSet();
+	void onClickCancel();
+};
 
 #endif

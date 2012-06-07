@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  legacy_header_height="18"
  can_resize="true"
  height="600"
@@ -34,7 +34,6 @@
          left_delta="0"
          top_delta="0"
          name="external_controls"
-         user_resize="false"
          width="620">
             <web_browser
              trusted_content="true" 

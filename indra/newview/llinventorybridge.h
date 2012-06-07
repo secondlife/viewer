@@ -35,6 +35,7 @@
 #include "llviewercontrol.h"
 #include "llwearable.h"
 
+class LLInventoryFilter;
 class LLInventoryPanel;
 class LLInventoryModel;
 class LLMenuGL;
@@ -69,9 +70,9 @@ public:
 									   U32 flags = 0x00);
 	virtual ~LLInvFVBridge() {}
 
-	BOOL canShare() const;
-	BOOL canListOnMarketplace() const;
-	BOOL canListOnMarketplaceNow() const;
+	bool canShare() const;
+	bool canListOnMarketplace() const;
+	bool canListOnMarketplaceNow() const;
 
 	//--------------------------------------------------------------------
 	// LLInvFVBridge functionality
@@ -105,8 +106,8 @@ public:
 	virtual void removeBatch(LLDynamicArray<LLFolderViewEventListener*>& batch);
 	virtual void move(LLFolderViewEventListener* new_parent_bridge) {}
 	virtual BOOL isItemCopyable() const { return FALSE; }
-	virtual BOOL copyToClipboard() const { return FALSE; }
-	virtual void cutToClipboard();
+	virtual BOOL copyToClipboard() const;
+	virtual BOOL cutToClipboard() const;
 	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
 	virtual void pasteFromClipboard() {}
@@ -131,6 +132,9 @@ protected:
 	virtual void addDeleteContextMenuOptions(menuentry_vec_t &items,
 											 menuentry_vec_t &disabled_items);
 	virtual void addOpenRightClickMenuOption(menuentry_vec_t &items);
+	virtual void addOutboxContextMenuOptions(U32 flags,
+											 menuentry_vec_t &items,
+											 menuentry_vec_t &disabled_items);
 protected:
 	LLInvFVBridge(LLInventoryPanel* inventory, LLFolderView* root, const LLUUID& uuid);
 
@@ -144,6 +148,7 @@ protected:
 	BOOL isCOFFolder() const; // true if COF or descendent of
 	BOOL isInboxFolder() const; // true if COF or descendent of marketplace inbox
 	BOOL isOutboxFolder() const; // true if COF or descendent of marketplace outbox
+	BOOL isOutboxFolderDirectParent() const;
 	const LLUUID getOutboxFolder() const;
 
 	virtual BOOL isItemPermissive() const;
@@ -157,7 +162,7 @@ protected:
 									 BOOL restamp);
 	void removeBatchNoCheck(LLDynamicArray<LLFolderViewEventListener*>& batch);
 protected:
-	LLHandle<LLPanel> mInventoryPanel;
+	LLHandle<LLInventoryPanel> mInventoryPanel;
 	LLFolderView* mRoot;
 	const LLUUID mUUID;	// item id
 	LLInventoryType::EType mInvType;
@@ -207,7 +212,6 @@ public:
 	virtual BOOL renameItem(const std::string& new_name);
 	virtual BOOL removeItem();
 	virtual BOOL isItemCopyable() const;
-	virtual BOOL copyToClipboard() const;
 	virtual BOOL hasChildren() const { return FALSE; }
 	virtual BOOL isUpToDate() const { return TRUE; }
 
@@ -270,7 +274,6 @@ public:
 	virtual BOOL isItemCopyable() const;
 	virtual BOOL isClipboardPasteable() const;
 	virtual BOOL isClipboardPasteableAsLink() const;
-	virtual BOOL copyToClipboard() const;
 	
 	static void createWearable(LLFolderBridge* bridge, LLWearableType::EType type);
 
@@ -278,6 +281,9 @@ public:
 	LLHandle<LLFolderBridge> getHandle() { mHandle.bind(this); return mHandle; }
 
 protected:
+	void buildContextMenuBaseOptions(U32 flags);
+	void buildContextMenuFolderOptions(U32 flags);
+
 	//--------------------------------------------------------------------
 	// Menu callbacks
 	//--------------------------------------------------------------------
@@ -306,8 +312,6 @@ protected:
 
 	void dropToFavorites(LLInventoryItem* inv_item);
 	void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
-	void dropToOutbox(LLInventoryItem* inv_item);
-	void dropFolderToOutbox(LLInventoryCategory* inv_cat);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options
@@ -315,12 +319,10 @@ protected:
 public:
 	static LLHandle<LLFolderBridge> sSelf;
 	static void staticFolderOptionsMenu();
-	void folderOptionsMenu();
 
 private:
 	BOOL				mCallingCards;
 	BOOL				mWearables;
-	LLHandle<LLView>	mMenu;
 	menuentry_vec_t		mItems;
 	menuentry_vec_t		mDisabledItems;
 	LLRootHandle<LLFolderBridge> mHandle;
@@ -642,7 +644,8 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 									  const LLUUID& category_id,
 									  BOOL drop,
 									  void (*callback)(S32, void*) = NULL,
-									  void* user_data = NULL);
+									  void* user_data = NULL,
+									  LLInventoryFilter* filter = NULL);
 
 // Utility function to hide all entries except those in the list
 // Can be called multiple times on the same menu (e.g. if multiple items
@@ -650,7 +653,6 @@ BOOL move_inv_category_world_to_agent(const LLUUID& object_id,
 // are set as enabled.
 void hide_context_entries(LLMenuGL& menu, 
 						  const menuentry_vec_t &entries_to_show, 
-						  const menuentry_vec_t &disabled_entries,
-						  BOOL append = FALSE);
+						  const menuentry_vec_t &disabled_entries);
 
 #endif // LL_LLINVENTORYBRIDGE_H

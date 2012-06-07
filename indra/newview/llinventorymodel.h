@@ -64,6 +64,7 @@ class LLInventoryCollectFunctor;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class LLInventoryModel
 {
+	LOG_CLASS(LLInventoryModel);
 public:
 	friend class LLInventoryModelFetchDescendentsResponder;
 
@@ -238,6 +239,9 @@ public:
 	
 	// Get whatever special folder this object is a child of, if any.
 	const LLViewerInventoryCategory *getFirstNondefaultParent(const LLUUID& obj_id) const;
+	
+	// Get first descendant of the child object under the specified parent
+	const LLViewerInventoryCategory *getFirstDescendantOf(const LLUUID& master_parent_id, const LLUUID& obj_id) const;
 
 	// Get the object by id. Returns NULL if not found.
 	//   NOTE: Use the pointer returned for read operations - do
@@ -302,6 +306,16 @@ public:
 	// observer notification, or server update is performed.
 	void moveObject(const LLUUID& object_id, const LLUUID& cat_id);
 
+	// Migrated from llinventoryfunctions
+	void changeItemParent(LLViewerInventoryItem* item,
+						  const LLUUID& new_parent_id,
+						  BOOL restamp);
+
+	// Migrated from llinventoryfunctions
+	void changeCategoryParent(LLViewerInventoryCategory* cat,
+							  const LLUUID& new_parent_id,
+							  BOOL restamp);
+
 	//--------------------------------------------------------------------
 	// Delete
 	//--------------------------------------------------------------------
@@ -311,8 +325,13 @@ public:
 	// consistent internal state. No cache accounting, observer
 	// notification, or server update is performed.
 	void deleteObject(const LLUUID& id);
+	/// move Item item_id to Trash
 	void removeItem(const LLUUID& item_id);
-	
+	/// move Category category_id to Trash
+	void removeCategory(const LLUUID& category_id);
+	/// removeItem() or removeCategory(), whichever is appropriate
+	void removeObject(const LLUUID& object_id);
+
 	// Delete a particular inventory object by ID, and delete it from
 	// the server. Also updates linked items.
 	void purgeObject(const LLUUID& id);
@@ -360,7 +379,9 @@ public:
 	// name based on type, pass in a NULL to the 'name' parameter.
 	LLUUID createNewCategory(const LLUUID& parent_id,
 							 LLFolderType::EType preferred_type,
-							 const std::string& name);
+							 const std::string& name,
+							 void (*callback)(const LLSD&, void*) = NULL,
+							 void* user_data = NULL );
 protected:
 	// Internal methods that add inventory and make sure that all of
 	// the internal data structures are consistent. These methods
@@ -411,7 +432,7 @@ public:
 	// Return (yes/no/maybe) child status of category children.
 	EHasChildren categoryHasChildren(const LLUUID& cat_id) const;
 
-	// Returns true iff category version is known and theoretical
+	// Returns true if category version is known and theoretical
 	// descendents == actual descendents.
 	bool isCategoryComplete(const LLUUID& cat_id) const;
 	

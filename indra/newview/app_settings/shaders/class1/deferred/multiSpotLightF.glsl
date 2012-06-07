@@ -23,7 +23,11 @@
  * $/LicenseInfo$
  */
 
-
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
 //class 1 -- no shadows
 
@@ -35,7 +39,6 @@ uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
 uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
-uniform sampler2D lightFunc;
 uniform sampler2D projectionMap;
 
 uniform mat4 proj_mat; //screen space to light space
@@ -55,9 +58,12 @@ uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
 
-varying vec4 vary_light;
+uniform vec3 center;
+uniform vec3 color;
+uniform float falloff;
+uniform float size;
 
-varying vec4 vary_fragcoord;
+VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
@@ -110,7 +116,7 @@ vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 
 vec4 getPosition(vec2 pos_screen)
 {
-	float depth = texture2DRect(depthMap, pos_screen.xy).a;
+	float depth = texture2DRect(depthMap, pos_screen.xy).r;
 	vec2 sc = pos_screen.xy*2.0;
 	sc /= screen_res;
 	sc -= vec2(1.0,1.0);
@@ -129,9 +135,9 @@ void main()
 	frag.xy *= screen_res;
 	
 	vec3 pos = getPosition(frag.xy).xyz;
-	vec3 lv = vary_light.xyz-pos.xyz;
+	vec3 lv = center.xyz-pos.xyz;
 	float dist2 = dot(lv,lv);
-	dist2 /= vary_light.w;
+	dist2 /= size;
 	if (dist2 > 1.0)
 	{
 		discard;
@@ -150,7 +156,7 @@ void main()
 	
 	proj_tc.xyz /= proj_tc.w;
 	
-	float fa = gl_Color.a+1.0;
+	float fa = falloff+1.0;
 	float dist_atten = min(1.0-(dist2-1.0*(1.0-fa))/fa, 1.0);
 	if (dist_atten <= 0.0)
 	{
@@ -182,7 +188,7 @@ void main()
 			
 			vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
 		
-			vec3 lcol = gl_Color.rgb * plcol.rgb * plcol.a;
+			vec3 lcol = color.rgb * plcol.rgb * plcol.a;
 			
 			lit = da * dist_atten * noise;
 			
@@ -199,7 +205,7 @@ void main()
 			
 		amb_da = min(amb_da, 1.0-lit);
 			
-		col += amb_da*gl_Color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
+		col += amb_da*color.rgb*diff_tex.rgb*amb_plcol.rgb*amb_plcol.a;
 	}
 	
 	
@@ -232,12 +238,12 @@ void main()
 					stc.y > 0.0)
 				{
 					vec4 scol = texture2DLodSpecular(projectionMap, stc.xy, proj_lod-spec.a*proj_lod);
-					col += dist_atten*scol.rgb*gl_Color.rgb*scol.a*spec.rgb;
+					col += dist_atten*scol.rgb*color.rgb*scol.a*spec.rgb;
 				}
 			}
 		}
 	}
 	
-	gl_FragColor.rgb = col;	
-	gl_FragColor.a = 0.0;
+	frag_color.rgb = col;	
+	frag_color.a = 0.0;
 }

@@ -358,7 +358,7 @@ void LLTeleportHistoryPanel::ContextMenu::onInfo()
 //static
 void LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback(const std::string& slurl)
 {
-	gClipboard.copyFromString(utf8str_to_wstring(slurl));
+	LLClipboard::instance().copyToClipboard(utf8str_to_wstring(slurl),0,slurl.size());
 }
 
 void LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard()
@@ -388,7 +388,7 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
 	LLTeleportHistoryFlatItemStorage::instance().purge();
-	delete mGearMenuHandle.get();
+	if (mGearMenuHandle.get()) mGearMenuHandle.get()->die();
 	mTeleportHistoryChangedConnection.disconnect();
 }
 

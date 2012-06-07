@@ -386,7 +386,7 @@ public:
 		Params()
 		:	texture_view("texture_view")
 		{
-			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+			S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
@@ -411,7 +411,7 @@ void LLAvatarTexBar::draw()
 	LLVOAvatarSelf* avatarp = gAgentAvatarp;
 	if (!avatarp) return;
 
-	const S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	const S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	const S32 v_offset = 0;
 	const S32 l_offset = 3;
 
@@ -485,7 +485,7 @@ public:
 		Params()
 		:	texture_view("texture_view")
 		{
-			S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+			S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 			changeDefault(rect, LLRect(0,0,100,line_height * 4));
 		}
 	};
@@ -512,7 +512,7 @@ void LLGLTexMemBar::draw()
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getUsage()) ;
 	F32 cache_max_usage = (F32)BYTES_TO_MEGA_BYTES(LLAppViewer::getTextureCache()->getMaxUsage()) ;
-	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 v_offset = (S32)((texture_bar_height + 2.2f) * mTextureView->mNumTextureBars + 2.0f);
 	F32 total_texture_downloaded = (F32)gTotalTextureBytes / (1024 * 1024);
 	F32 total_object_downloaded = (F32)gTotalObjectBytes / (1024 * 1024);
@@ -527,11 +527,12 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*6,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
+	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB Net Tot Tex: %.1f MB Tot Obj: %.1f MB Tot Htp: %d",
 					total_mem,
 					max_total_mem,
 					bound_mem,
 					max_bound_mem,
+					LLRenderTarget::sBytesAllocated/(1024*1024),
 					LLImageRaw::sGlobalRawMemory >> 20,	discard_bias,
 					cache_usage, cache_max_usage, total_texture_downloaded, total_object_downloaded, total_http_requests);
 	//, cache_entries, cache_max_entries
@@ -571,7 +572,7 @@ void LLGLTexMemBar::draw()
 	color = (total_mem < llfloor(max_total_mem * texmem_lower_bound_scale)) ? LLColor4::green :
 		  	(total_mem < max_total_mem) ? LLColor4::yellow : LLColor4::red;
 	color[VALPHA] = .75f;
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 	
 	gl_rect_2d(left, top, right, bottom); // red/yellow/green
 
@@ -594,7 +595,7 @@ void LLGLTexMemBar::draw()
 	color = (bound_mem < llfloor(max_bound_mem * texmem_lower_bound_scale)) ? LLColor4::green :
 		  	(bound_mem < max_bound_mem) ? LLColor4::yellow : LLColor4::red;
 	color[VALPHA] = .75f;
-	glColor4fv(color.mV);
+	gGL.diffuseColor4fv(color.mV);
 
 	gl_rect_2d(left, top, right, bottom);
 #else
@@ -1096,7 +1097,7 @@ void LLTextureSizeView::drawTextureSizeGraph()
 {
 	if(mTextureSizeBar.size() == 0)
 	{
-		S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+		S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 		mTextureSizeBar.resize(LLImageGL::sTextureLoadedCounter.size()) ;
 		mTextureSizeBarRect.set(700, line_height * 2 + 400, 700 + mTextureSizeBar.size() * mTextureSizeBarWidth, line_height * 2) ;
 		
@@ -1139,7 +1140,7 @@ F32 LLTextureSizeView::drawTextureSizeDistributionGraph()
 		}
 	}
 
-	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 left = mTextureSizeBarRect.mLeft ;
 	S32 bottom = mTextureSizeBarRect.mBottom ;
 	S32 right = mTextureSizeBarRect.mRight ;
@@ -1221,7 +1222,7 @@ void LLTextureSizeView::drawTextureCategoryGraph()
 {
 	if(mTextureSizeBar.size() == 0)
 	{
-		S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+		S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 		mTextureSizeBar.resize(LLViewerTexture::getTotalNumOfCategories()) ;
 		mTextureSizeBarRect.set(700, line_height * 2 + 400, 700 + mTextureSizeBar.size() * mTextureSizeBarWidth, line_height * 2) ;
 		
@@ -1266,7 +1267,7 @@ F32 LLTextureSizeView::drawTextureCategoryDistributionGraph()
 		}
 	}
 
-	S32 line_height = (S32)(LLFontGL::getFontMonospace()->getLineHeight() + .5f);
+	S32 line_height = LLFontGL::getFontMonospace()->getLineHeight();
 	S32 left = mTextureSizeBarRect.mLeft ;
 	S32 bottom = mTextureSizeBarRect.mBottom ;
 	S32 right = mTextureSizeBarRect.mRight ;

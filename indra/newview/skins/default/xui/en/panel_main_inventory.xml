@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="true"
  default_tab_group="1"
  follows="all"
  height="423"
@@ -51,10 +50,6 @@
    top="18"
    width="303" />
   <tab_container
-     bg_alpha_color="DkGray"
-     bg_opaque_color="DkGray"
-     background_visible="true"
-     background_opaque="true"
      follows="all"
      halign="center"
      height="339"
@@ -71,7 +66,6 @@
      bg_opaque_color="DkGray2"
      bg_alpha_color="DkGray2"
      background_visible="true"
-     background_opaque="true"
      border="false"
      bevel_style="none"
      follows="all"
@@ -86,11 +80,9 @@
      top="16"
      width="288" />
     <recent_inventory_panel
-     accepts_drag_and_drop="false"
      bg_opaque_color="DkGray2"
      bg_alpha_color="DkGray2"
      background_visible="true"
-     background_opaque="true"
      border="false"
      bevel_style="none"
      follows="all"
@@ -119,7 +111,6 @@
        height="25"
        layout="topleft"
        name="options_gear_btn_panel"
-       user_resize="false"
        width="32">
           <menu_button
            follows="bottom|left"
@@ -140,7 +131,6 @@
        height="25"
        layout="topleft"
        name="add_btn_panel"
-       user_resize="false"
        width="32">
           <button
            follows="bottom|left"
@@ -161,7 +151,6 @@
        height="25"
        layout="topleft"
        name="dummy_panel"
-       user_resize="false"
        width="212">
           <icon
            follows="bottom|left|right"
@@ -178,7 +167,6 @@
        height="25"
        layout="topleft"
        name="trash_btn_panel"
-       user_resize="false"
        width="31">
           <dnd_button
            follows="bottom|left"

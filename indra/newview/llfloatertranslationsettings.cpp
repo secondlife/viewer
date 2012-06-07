@@ -29,6 +29,7 @@
 #include "llfloatertranslationsettings.h"
 
 // Viewer includes
+#include "llnearbychatbar.h"
 #include "lltranslate.h"
 #include "llviewercontrol.h" // for gSavedSettings
 
@@ -292,5 +293,6 @@ void LLFloaterTranslationSettings::onBtnOK()
 	gSavedSettings.setString("TranslationService", getSelectedService());
 	gSavedSettings.setString("BingTranslateAPIKey", getEnteredBingKey());
 	gSavedSettings.setString("GoogleTranslateAPIKey", getEnteredGoogleKey());
+	LLNearbyChatBar::getInstance()->showTranslationCheckbox(LLTranslate::isTranslationConfigured());
 	closeFloater(false);
 }

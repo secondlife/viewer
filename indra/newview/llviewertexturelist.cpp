@@ -534,6 +534,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	S32 count = mImageList.erase(image) ;
 	if(count != 1) 
 	{
+		llinfos << image->getID() << llendl ;
 		llerrs << "Error happens when remove image from mImageList: " << count << llendl ;
 	}
       
@@ -588,6 +589,11 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 
 ////////////////////////////////////////////////////////////////////////////
 static LLFastTimer::DeclareTimer FTM_IMAGE_MARK_DIRTY("Dirty Images");
+static LLFastTimer::DeclareTimer FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
+static LLFastTimer::DeclareTimer FTM_IMAGE_CALLBACKS("Callbacks");
+static LLFastTimer::DeclareTimer FTM_IMAGE_FETCH("Fetch");
+static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create");
+static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
@@ -599,14 +605,25 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	LLViewerStats::getInstance()->mGLBoundMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageGL::sBoundTextureMemoryInBytes));
 	LLViewerStats::getInstance()->mRawMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageRaw::sGlobalRawMemory));
 	LLViewerStats::getInstance()->mFormattedMemStat.addValue((F32)BYTES_TO_MEGA_BYTES(LLImageFormatted::sGlobalFormattedMemory));
-	
-	updateImagesDecodePriorities();
+
+
+	{
+		LLFastTimer t(FTM_IMAGE_UPDATE_PRIORITIES);
+		updateImagesDecodePriorities();
+	}
 
 	F32 total_max_time = max_time;
-	max_time -= updateImagesFetchTextures(max_time);
+
+	{
+		LLFastTimer t(FTM_IMAGE_FETCH);
+		max_time -= updateImagesFetchTextures(max_time);
+	}
 	
-	max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
-	max_time -= updateImagesCreateTextures(max_time);
+	{
+		LLFastTimer t(FTM_IMAGE_CREATE);
+		max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
+		max_time -= updateImagesCreateTextures(max_time);
+	}
 	
 	if (!mDirtyTextureList.empty())
 	{
@@ -614,24 +631,32 @@ void LLViewerTextureList::updateImages(F32 max_time)
 		gPipeline.dirtyPoolObjectTextures(mDirtyTextureList);
 		mDirtyTextureList.clear();
 	}
-	bool didone = false;
-	for (image_list_t::iterator iter = mCallbackList.begin();
-		iter != mCallbackList.end(); )
+
 	{
-		//trigger loaded callbacks on local textures immediately
-		LLViewerFetchedTexture* image = *iter++;
-		if (!image->getUrl().empty())
+		LLFastTimer t(FTM_IMAGE_CALLBACKS);
+		bool didone = false;
+		for (image_list_t::iterator iter = mCallbackList.begin();
+			iter != mCallbackList.end(); )
 		{
-			// Do stuff to handle callbacks, update priorities, etc.
-			didone = image->doLoadedCallbacks();
-		}
-		else if (!didone)
-		{
-			// Do stuff to handle callbacks, update priorities, etc.
-			didone = image->doLoadedCallbacks();
+			//trigger loaded callbacks on local textures immediately
+			LLViewerFetchedTexture* image = *iter++;
+			if (!image->getUrl().empty())
+			{
+				// Do stuff to handle callbacks, update priorities, etc.
+				didone = image->doLoadedCallbacks();
+			}
+			else if (!didone)
+			{
+				// Do stuff to handle callbacks, update priorities, etc.
+				didone = image->doLoadedCallbacks();
+			}
 		}
 	}
-	updateImagesUpdateStats();
+
+	{
+		LLFastTimer t(FTM_IMAGE_STATS);
+		updateImagesUpdateStats();
+	}
 }
 
 void LLViewerTextureList::updateImagesDecodePriorities()
@@ -749,7 +774,6 @@ void LLViewerTextureList::updateImagesDecodePriorities()
  return type_from_host;
  }
  */
-static LLFastTimer::DeclareTimer FTM_IMAGE_CREATE("Create Images");
 
 F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 {
@@ -759,8 +783,7 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 	// Create GL textures for all textures that need them (images which have been
 	// decoded, but haven't been pushed into GL).
 	//
-	LLFastTimer t(FTM_IMAGE_CREATE);
-	
+		
 	LLTimer create_timer;
 	image_list_t::iterator enditer = mCreateTextureList.begin();
 	for (image_list_t::iterator iter = mCreateTextureList.begin();
@@ -897,6 +920,8 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		image_list.push_back(imagep);
 		imagep->setInImageList(FALSE) ;
 	}
+
+	llassert_always(image_list.size() == mImageList.size()) ;
 	mImageList.clear();
 	for (std::vector<LLPointer<LLViewerFetchedTexture> >::iterator iter = image_list.begin();
 		 iter != image_list.end(); ++iter)

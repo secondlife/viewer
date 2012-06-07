@@ -73,7 +73,9 @@ LLToolBarView::ToolbarSet::ToolbarSet()
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
 	mDragStarted(false),
+	mShowToolbars(true),
 	mDragToolbarButton(NULL),
+	mDragItem(NULL),
 	mToolbarsLoaded(false)
 {
 	for (S32 i = 0; i < TOOLBAR_COUNT; i++)
@@ -530,6 +532,13 @@ void LLToolBarView::draw()
 		}
 	}
 	
+	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
+	{
+		mToolbars[i]->getParent()->setVisible(mShowToolbars 
+											&& (mToolbars[i]->hasButtons() 
+											|| isToolDragged()));
+	}
+
 	// Draw drop zones if drop of a tool is active
 	if (isToolDragged())
 	{
@@ -571,7 +580,6 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			uuid_vec_t cargo_ids;
 			types.push_back(DAD_WIDGET);
 			cargo_ids.push_back(uuid);
-			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
@@ -654,12 +662,21 @@ void LLToolBarView::resetDragTool(LLToolBarButton* toolbarButton)
 	gToolBarView->mDragToolbarButton = toolbarButton;
 }
 
+// Provide a handle on a free standing inventory item containing references to the tool.
+// This might be used by Drag and Drop to move around references to tool items.
+LLInventoryObject* LLToolBarView::getDragItem()
+{
+	if (mDragToolbarButton)
+	{
+		LLUUID item_uuid = mDragToolbarButton->getCommandId().uuid();
+		mDragItem = new LLInventoryObject (item_uuid, LLUUID::null, LLAssetType::AT_WIDGET, "");
+	}
+	return mDragItem;
+}
+
 void LLToolBarView::setToolBarsVisible(bool visible)
 {
-	for (S32 i = TOOLBAR_FIRST; i <= TOOLBAR_LAST; i++)
-	{
-		mToolbars[i]->getParent()->setVisible(visible);
-	}
+	mShowToolbars = visible;
 }
 
 bool LLToolBarView::isModified() const

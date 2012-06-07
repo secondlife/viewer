@@ -6,12 +6,12 @@
 	<button label="2. Optimize et" name="optimize_btn"/>
 	<button label="1. Dosya Seç" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Model dosyasını seçin
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
 				Gelişmiş kullanıcılar: Eğer 3B içerik oluşturma araçlarını kullanmayı biliyorsanız, Gelişmiş Karşıya Yükleyiciyi kullanmak isteyebilirsiniz.
 			</text>
@@ -20,6 +20,9 @@
 				Karşıya yüklenecek model dosyasını seçin
 			</text>
 			<button label="Gözat..." label_selected="Gözat..." name="browse"/>
+			<text name="Model types">
+				Second Life, COLLADA (.dae) dosyalarını destekler
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
@@ -32,15 +35,15 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Modeli optimize et
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			Modeli performans için optimize ettik. İstiyorsanız daha da ayarlayabilirsiniz.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
 				Ayrıntı Seviyesi Oluştur: Yüksek
 			</text>
@@ -76,15 +79,15 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				Fizik ayarlarını yap
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Modelin dış gövdesi için bir şekil oluşturacağız. Modelinizin amacına uygun olarak şeklin ayrıntı seviyesini belirleyin.
 		</text>
-		<panel name="content">
+		<panel name="physics_content">
 			<button label="Fizik hesaplarını tekrar yap" name="recalculate_physics_btn"/>
 			<button label="Tekrar hesaplanıyor..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
@@ -107,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				İncele
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Parsele/bölgeye etkisi: [EQUIV] prim eşdeğerleri
 			</text>
@@ -125,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Karşıya yükleme bitti
 			</text>
 		</panel>

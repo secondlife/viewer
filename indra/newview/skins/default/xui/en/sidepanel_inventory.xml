@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
-	  background_visible="true"
 	  follows="all"
 	  height="570"
 	  label="Things"
@@ -30,11 +29,12 @@
               width="330">
              <layout_panel
                  name="main_inventory_layout_panel"
-								 layout="topleft"
+                 layout="topleft"
+                 auto_resize="true"
+                 user_resize="true"
                  min_dim="150"
                  width="330"
                  follows="bottom|left|right"
-                 user_resize="false"
                  height="300">
                  <panel
                       class="panel_main_inventory"
@@ -48,41 +48,18 @@
                       height="300"
                       width="330" />
              </layout_panel>
-					   <layout_panel
+			 <layout_panel
                  width="330"
-								 layout="topleft"
-                 auto_resize="true"
-                 user_resize="false"
-                 follows="bottom|left|right"
-                 name="inbox_outbox_layout_panel"
-                 visible="false"
-                 min_dim="35"
-                 max_dim="235"
-                 expanded_min_dim="125"
-                 height="235">
-							 <layout_stack
-										follows="left|right|top|bottom"
-										layout="topleft"
-										left="0"
-										top="0"
-										orientation="vertical"
-										name="inbox_outbox_layout_stack"
-                    open_time_constant="0.02"
-                    close_time_constant="0.02"
-										height="235"
-										width="330">
-								 <layout_panel
-                 width="330"
-								 layout="topleft"
-                 auto_resize="true"
-                 user_resize="false"
+                 layout="topleft"
+                 auto_resize="false"
+                 user_resize="true"
                  follows="left|right|top"
                  name="inbox_layout_panel"
                  visible="false"
                  min_dim="35"
-                 max_dim="200"
+                 max_dim="235"
                  expanded_min_dim="90"
-                 height="200">
+                 height="235">
                  <panel
                       follows="all"
                       layout="topleft"
@@ -91,13 +68,14 @@
                       class="panel_marketplace_inbox"
                       top="0"
                       label=""
-                      height="200"
+                      height="235"
                       width="330">
                      <string name="InboxLabelWithArg">Received items ([NUM])</string>
                      <string name="InboxLabelNoArg">Received items</string>
                      <button
+                        control_name="InventoryInboxToggleState"
                         label="Received items"
-												font="SansSerifMedium"
+						font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
                         width="308"
@@ -127,15 +105,16 @@
                         [NUM] new
                      </text>
                      <panel
+                        name="inbox_inventory_placeholder_panel"
                         follows="all"
                         left="10"
-                        bottom="200"
+                        bottom="235"
                         width="308"
                         top="35"
                         bg_opaque_color="InventoryBackgroundColor"
                         background_visible="true"
                         background_opaque="true"
-                        tool_tip="Drag and drop items to your inventory to manage and use them"
+                        tool_tip="Drag and drop items to your inventory to use them"
                         >
                         <text
 							name="inbox_inventory_placeholder"
@@ -145,7 +124,7 @@
 							top="0"
 							left="0"
 							width="308"
-							height="165"
+							height="200"
 							wrap="true"
 							halign="center">
 							Purchases from the marketplace will be delivered here.
@@ -153,139 +132,6 @@
                     </panel>
                  </panel>
              </layout_panel>
-             <layout_panel
-                 width="330"
-                 layout="topleft"
-                 auto_resize="true"
-                 user_resize="false"
-                 follows="all"
-                 name="outbox_layout_panel"
-                 visible="false"
-                 min_dim="35"
-                 max_dim="200"
-                 expanded_min_dim="90"
-                 height="200">
-                 <panel
-                      follows="all"
-                      layout="topleft"
-                      left="0"
-                      name="marketplace_outbox"
-                      class="panel_marketplace_outbox"
-                      top="0"
-                      label=""
-                      height="200"
-                      width="330">
-                     <string name="OutboxLabelWithArg">Merchant outbox ([NUM])</string>
-                     <string name="OutboxLabelNoArg">Merchant outbox</string>
-                     <button
-                        label="Merchant outbox"
-                        font="SansSerifMedium"
-                        name="outbox_btn"
-                        height="35"
-                        width="308"
-                        image_unselected="MarketplaceBtn_Off"
-                        image_selected="MarketplaceBtn_Selected"
-                        halign="left"
-                        handle_right_mouse="false"
-                        follows="top|left|right"
-                        is_toggle="true"
-                        tab_stop="false"
-                        pad_left="35"
-                        top="0"
-                        left="10" />
-                     <button
-                         image_unselected="OutboxPush_Off"
-                         image_selected="OutboxPush_Selected"
-                         image_hover_selected="OutboxPush_Selected_Over"
-                         image_hover_unselected="OutboxPush_Over"
-                         image_disabled_selected="OutboxPush_Selected_Disabled"
-                         image_disabled="OutboxPush_Disabled"
-                         image_pressed="OutboxPush_Press"
-                         image_pressed_selected="OutboxPush_Selected_Press"
-                         label=""
-                         tool_tip="Push to my Marketplace Storefront"
-                         is_toggle="false"
-                         name="outbox_sync_btn"
-                         follows="top|right"
-                         tab_stop="false"
-                         halign="center"
-                         top="6"
-                         left="-50"
-                         height="23"
-                         width="32"
-                         enabled="false" />
-                     <loading_indicator
-                        follows="top|right"
-                        name="outbox_sync_indicator"
-                        top="6"
-                        left="-50"
-                        height="23"
-                        width="32"
-                        images_per_sec="1.15"
-                        tab_stop="false"
-                        visible="false">
-                         <images>
-                             <image name="OutboxPush_Progress_1"/>
-                             <image name="OutboxPush_Progress_2"/>
-                             <image name="OutboxPush_Progress_3"/>
-                             <image name="OutboxPush_Progress_4"/>
-                             <image name="OutboxPush_Progress_5"/>
-                             <image name="OutboxPush_Progress_6"/>
-                         </images>
-                     </loading_indicator>
-                     <panel
-                        follows="all"
-                        left="10"
-                        bottom="200"
-                        width="308"
-                        top="35"
-                        bg_opaque_color="InventoryBackgroundColor"
-                        background_visible="true"
-                        background_opaque="true"
-                        >
-						<panel
-							name="outbox_inventory_placeholder_panel"
-							follows="all"
-							layout="topleft"
-							top="0"
-							left="0"
-							width="308"
-							height="165"
-							bg_opaque_color="InventoryBackgroundColor"
-							background_visible="true"
-							background_opaque="true"
-							>
-							<text
-								name="outbox_inventory_placeholder_title"
-								type="string"
-								follows="all"
-								layout="topleft"
-								top="10"
-								left="0"
-								width="308"
-								height="25"
-								wrap="true"
-								halign="center"
-								font="SansSerifBold">
-								Loading...
-							</text>
-							<text
-								name="outbox_inventory_placeholder_text"
-								type="string"
-								follows="all"
-								layout="topleft"
-								top="35"
-								left="0"
-								width="308"
-								height="130"
-								wrap="true"
-								halign="left" />
-						</panel>
-                    </panel>
-                 </panel>
-             </layout_panel>
-						 </layout_stack>
-						 </layout_panel>
          </layout_stack>
 		<panel
 		     follows="bottom|left|right"
@@ -312,7 +158,6 @@
                      left="0"			
                      mouse_opaque="false"
                      name="info_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="101">
                     <button
@@ -334,7 +179,6 @@
                      left_pad="1"			
                      mouse_opaque="false"
                      name="share_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="100">
                     <button
@@ -356,7 +200,6 @@
                      left_pad="1"			
                      mouse_opaque="false"
                      name="shop_btn_lp"
-                     user_resize="false" 
                      auto_resize="true"
                      width="100">
                     <button
@@ -406,8 +249,7 @@
 			</layout_stack>
 		</panel>
 	</panel>
-
-<panel
+	<panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"
@@ -420,8 +262,7 @@
 		 visible="false"
 		 width="330">
 	</panel>
-
-<panel
+	<panel
 		 follows="all"
 		 layout="topleft"
 		 left="0"

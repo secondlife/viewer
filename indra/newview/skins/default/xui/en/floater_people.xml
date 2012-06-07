@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <floater
-  open_positioning="cascading"
+  positioning="cascading"
   can_close="true"
   can_resize="true"
   height="570"
@@ -25,10 +25,6 @@
         class="panel_people"
         name="panel_people"
         filename="panel_people.xml"/>
-      <panel
-        class="panel_profile_view"
-        name="panel_profile_view"
-        filename="panel_profile_view.xml"/>
       <panel
         class="panel_group_info_sidetray"
         name="panel_group_info_sidetray"

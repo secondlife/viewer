@@ -23,9 +23,13 @@
  * $/LicenseInfo$
  */
 
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect diffuseRect;
@@ -45,7 +49,7 @@ uniform int light_count;
 uniform vec4 light[MAX_LIGHT_COUNT];
 uniform vec4 light_col[MAX_LIGHT_COUNT];
 
-varying vec4 vary_fragcoord;
+VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 uniform float far_z;
@@ -124,7 +128,7 @@ void main()
 				
 				if (sa > 0.0)
 				{
-					sa = texture2D(lightFunc,vec2(sa, spec.a)).a * min(dist_atten*4.0, 1.0);
+					sa = 6 * texture2D(lightFunc, vec2(sa, spec.a)).r * min(dist_atten*4.0, 1.0);
 					sa *= noise;
 					col += da*sa*light_col[i].rgb*spec.rgb;
 				}
@@ -139,8 +143,6 @@ void main()
 		discard;
 	}
 	
-	gl_FragColor.rgb = out_col;
-	gl_FragColor.a = 0.0;
-	
-	//gl_FragColor = vec4(0.1, 0.025, 0.025/4.0, 0.0);
+	frag_color.rgb = out_col;
+	frag_color.a = 0.0;
 }

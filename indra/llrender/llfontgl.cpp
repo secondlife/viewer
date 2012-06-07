@@ -56,8 +56,9 @@ std::string LLFontGL::sAppDir;
 LLColor4 LLFontGL::sShadowColor(0.f, 0.f, 0.f, 1.f);
 LLFontRegistry* LLFontGL::sFontRegistry = NULL;
 
-LLCoordFont LLFontGL::sCurOrigin;
-std::vector<LLCoordFont> LLFontGL::sOriginStack;
+LLCoordGL LLFontGL::sCurOrigin;
+F32 LLFontGL::sCurDepth;
+std::vector<std::pair<LLCoordGL, F32> > LLFontGL::sOriginStack;
 
 const F32 EXT_X_BEARING = 1.f;
 const F32 EXT_Y_BEARING = 0.f;
@@ -67,20 +68,6 @@ const F32 PIXEL_CORRECTION_DISTANCE = 0.01f;
 
 const F32 PAD_UVY = 0.5f; // half of vertical padding between glyphs in the glyph texture
 const F32 DROP_SHADOW_SOFT_STRENGTH = 0.3f;
-
-static F32 llfont_round_x(F32 x)
-{
-	//return llfloor((x-LLFontGL::sCurOrigin.mX)/LLFontGL::sScaleX+0.5f)*LLFontGL::sScaleX+LLFontGL::sCurOrigin.mX;
-	//return llfloor(x/LLFontGL::sScaleX+0.5f)*LLFontGL::sScaleY;
-	return x;
-}
-
-static F32 llfont_round_y(F32 y)
-{
-	//return llfloor((y-LLFontGL::sCurOrigin.mY)/LLFontGL::sScaleY+0.5f)*LLFontGL::sScaleY+LLFontGL::sCurOrigin.mY;
-	//return llfloor(y+0.5f);
-	return y;
-}
 
 LLFontGL::LLFontGL()
 {
@@ -115,23 +102,23 @@ static LLFastTimer::DeclareTimer FTM_RENDER_FONTS("Fonts");
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
 {
-	F32 x = rect.mLeft;
+	F32 x = (F32)rect.mLeft;
 	F32 y = 0.f;
 
 	switch(valign)
 	{
 	case TOP:
-		y = rect.mTop;
+		y = (F32)rect.mTop;
 		break;
 	case VCENTER:
-		y = rect.getCenterY();
+		y = (F32)rect.getCenterY();
 		break;
 	case BASELINE:
 	case BOTTOM:
-		y = rect.mBottom;
+		y = (F32)rect.mBottom;
 		break;
 	default:
-		y = rect.mBottom;
+		y = (F32)rect.mBottom;
 		break;
 	}
 	return render(wstr, begin_offset, x, y, color, halign, valign, style, shadow, max_chars, rect.getWidth(), right_x, use_ellipses);
@@ -177,21 +164,11 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 
 	gGL.loadUIIdentity();
 	
-	//gGL.translateUI(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY), sCurOrigin.mZ);
-
-	// this code snaps the text origin to a pixel grid to start with
-	//F32 pixel_offset_x = llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
-	//F32 pixel_offset_y = llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
-	//gGL.translateUI(-pixel_offset_x, -pixel_offset_y, 0.f);
-
 	LLVector2 origin(floorf(sCurOrigin.mX*sScaleX), floorf(sCurOrigin.mY*sScaleY));
-	// snap the text origin to a pixel grid to start with
-	origin.mV[VX] -= llround((F32)sCurOrigin.mX) - (sCurOrigin.mX);
-	origin.mV[VY] -= llround((F32)sCurOrigin.mY) - (sCurOrigin.mY);
 
-	// Depth translation, so that floating text appears 'inworld'
-	// and is correclty occluded.
-	gGL.translatef(0.f,0.f,sCurOrigin.mZ);
+	// Depth translation, so that floating text appears 'in-world'
+	// and is correctly occluded.
+	gGL.translatef(0.f,0.f,sCurDepth);
 
 	S32 chars_drawn = 0;
 	S32 i;
@@ -215,16 +192,17 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	cur_y = ((F32)y * sScaleY) + origin.mV[VY];
 
 	// Offset y by vertical alignment.
+	// use unscaled font metrics here
 	switch (valign)
 	{
 	case TOP:
-		cur_y -= mFontFreetype->getAscenderHeight();
+		cur_y -= llceil(mFontFreetype->getAscenderHeight());
 		break;
 	case BOTTOM:
-		cur_y += mFontFreetype->getDescenderHeight();
+		cur_y += llceil(mFontFreetype->getDescenderHeight());
 		break;
 	case VCENTER:
-		cur_y -= (mFontFreetype->getAscenderHeight() - mFontFreetype->getDescenderHeight()) / 2.f;
+		cur_y -= llceil((llceil(mFontFreetype->getAscenderHeight()) - llceil(mFontFreetype->getDescenderHeight())) / 2.f);
 		break;
 	case BASELINE:
 		// Baseline, do nothing.
@@ -250,7 +228,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	cur_render_y = cur_y;
 	cur_render_x = cur_x;
 
-	F32 start_x = llround(cur_x);
+	F32 start_x = (F32)llround(cur_x);
 
 	const LLFontBitmapCache* font_bitmap_cache = mFontFreetype->getFontBitmapCache();
 
@@ -304,6 +282,18 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 		S32 next_bitmap_num = fgi->mBitmapNum;
 		if (next_bitmap_num != bitmap_num)
 		{
+			// Actually draw the queued glyphs before switching their texture;
+			// otherwise the queued glyphs will be taken from wrong textures.
+			if (glyph_count > 0)
+			{
+				gGL.begin(LLRender::QUADS);
+				{
+					gGL.vertexBatchPreTransformed(vertices, uvs, colors, glyph_count * 4);
+				}
+				gGL.end();
+				glyph_count = 0;
+			}
+
 			bitmap_num = next_bitmap_num;
 			LLImageGL *font_image = font_bitmap_cache->getImageGL(bitmap_num);
 			gGL.getTexUnit(0)->bind(font_image);
@@ -322,10 +312,10 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 				(fgi->mXBitmapOffset + fgi->mWidth) * inv_width,
 				(fgi->mYBitmapOffset - PAD_UVY) * inv_height);
 		// snap glyph origin to whole screen pixel
-		LLRectf screen_rect(llround(cur_render_x + (F32)fgi->mXBearing),
-				    llround(cur_render_y + (F32)fgi->mYBearing),
-				    llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
-				    llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
+		LLRectf screen_rect((F32)llround(cur_render_x + (F32)fgi->mXBearing),
+				    (F32)llround(cur_render_y + (F32)fgi->mYBearing),
+				    (F32)llround(cur_render_x + (F32)fgi->mXBearing) + (F32)fgi->mWidth,
+				    (F32)llround(cur_render_y + (F32)fgi->mYBearing) - (F32)fgi->mHeight);
 		
 		if (glyph_count >= GLYPH_BATCH_SIZE)
 		{
@@ -378,12 +368,12 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	//FIXME: add underline as glyph?
 	if (style_to_add & UNDERLINE)
 	{
-		F32 descender = mFontFreetype->getDescenderHeight();
+		F32 descender = (F32)llfloor(mFontFreetype->getDescenderHeight());
 
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		gGL.begin(LLRender::LINES);
-		gGL.vertex2f(start_x, cur_y - (descender));
-		gGL.vertex2f(cur_x, cur_y - (descender));
+		gGL.vertex2f(start_x, cur_y - descender);
+		gGL.vertex2f(cur_x, cur_y - descender);
 		gGL.end();
 	}
 
@@ -432,19 +422,9 @@ S32 LLFontGL::renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y
 }
 
 // font metrics - override for LLFontFreetype that returns units of virtual pixels
-F32 LLFontGL::getLineHeight() const
+S32 LLFontGL::getLineHeight() const
 { 
-	return (F32)llround(mFontFreetype->getLineHeight() / sScaleY); 
-}
-
-F32 LLFontGL::getAscenderHeight() const
-{ 
-	return (F32)llround(mFontFreetype->getAscenderHeight() / sScaleY); 
-}
-
-F32 LLFontGL::getDescenderHeight() const
-{ 
-	return (F32)llround(mFontFreetype->getDescenderHeight() / sScaleY); 
+	return llceil(mFontFreetype->getAscenderHeight() / sScaleY) + llceil(mFontFreetype->getDescenderHeight() / sScaleY);
 }
 
 S32 LLFontGL::getWidth(const std::string& utf8text) const
@@ -633,7 +613,7 @@ S32 LLFontGL::maxDrawableChars(const llwchar* wchars, F32 max_pixels, S32 max_ch
 		}
 
 		// Round after kerning.
-		cur_x = llround(cur_x);
+		cur_x = (F32)llround(cur_x);
 		drawn_x = cur_x;
 	}
 
@@ -704,7 +684,7 @@ S32	LLFontGL::firstDrawableChar(const llwchar* wchars, F32 max_pixels, S32 text_
 		}
 
 		// Round after kerning.
-		total_width = llround(total_width);
+		total_width = (F32)llround(total_width);
 	}
 
 	if (drawable_chars == 0)
@@ -787,7 +767,7 @@ S32 LLFontGL::charFromPixelOffset(const llwchar* wchars, S32 begin_offset, F32 t
 
 
 		// Round after kerning.
-		cur_x = llround(cur_x);
+		cur_x = (F32)llround(cur_x);
 	}
 
 	return llmin(max_chars, pos - begin_offset);
@@ -1134,22 +1114,22 @@ void LLFontGL::renderQuad(LLVector3* vertex_out, LLVector2* uv_out, LLColor4U* c
 {
 	S32 index = 0;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mRight), llfont_round_y(screen_rect.mTop), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mRight, screen_rect.mTop, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mTop);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mLeft), llfont_round_y(screen_rect.mTop), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mLeft, screen_rect.mTop, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mTop);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mLeft), llfont_round_y(screen_rect.mBottom), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mLeft, screen_rect.mBottom, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mLeft, uv_rect.mBottom);
 	colors_out[index] = color;
 	index++;
 
-	vertex_out[index] = LLVector3(llfont_round_x(screen_rect.mRight), llfont_round_y(screen_rect.mBottom), 0.f);
+	vertex_out[index] = LLVector3(screen_rect.mRight, screen_rect.mBottom, 0.f);
 	uv_out[index] = LLVector2(uv_rect.mRight, uv_rect.mBottom);
 	colors_out[index] = color;
 }

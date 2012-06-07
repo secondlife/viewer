@@ -35,33 +35,12 @@
 // newview includes
 #include "llchiclet.h"
 #include "llimfloater.h" // for LLIMFloater
+#include "llpaneltopinfobar.h"
 #include "llsyswellwindow.h"
 
 namespace
 {
 	const std::string& PANEL_CHICLET_NAME	= "chiclet_list_panel";
-
-	S32 get_panel_min_width(LLLayoutStack* stack, LLView* panel)
-	{
-		S32 minimal_width = 0;
-		llassert(stack);
-		if ( stack && panel && panel->getVisible() )
-		{
-			stack->getPanelMinSize(panel->getName(), &minimal_width);
-		}
-		return minimal_width;
-	}
-
-	S32 get_panel_max_width(LLLayoutStack* stack, LLPanel* panel)
-	{
-		S32 max_width = 0;
-		llassert(stack);
-		if ( stack && panel && panel->getVisible() )
-		{
-			stack->getPanelMaxSize(panel->getName(), &max_width);
-		}
-		return max_width;
-	}
 
 	S32 get_curr_width(LLUICtrl* ctrl)
 	{
@@ -181,6 +160,9 @@ BOOL LLChicletBar::postBuild()
 	showWellButton("im_well", !LLIMWellWindow::getInstance()->isWindowEmpty());
 	showWellButton("notification_well", !LLNotificationWellWindow::getInstance()->isWindowEmpty());
 
+	LLPanelTopInfoBar::instance().setResizeCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
+	LLPanelTopInfoBar::instance().setVisibleCallback(boost::bind(&LLChicletBar::fitWithTopInfoBar, this));
+
 	return TRUE;
 }
 
@@ -230,15 +212,8 @@ void LLChicletBar::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		// Firstly, update layout stack to ensure we deal with correct panel sizes.
 		{
-			BOOL saved_anim = mToolbarStack->getAnimate();
-			// Set chiclet panel to be autoresized by default.
-			mToolbarStack->updatePanelAutoResize(PANEL_CHICLET_NAME, TRUE);
-			// Disable animation to prevent layout updating in several frames.
-			mToolbarStack->setAnimate(FALSE);
 			// Force the updating of layout to reset panels collapse factor.
 			mToolbarStack->updateLayout();
-			// Restore animate state.
-			mToolbarStack->setAnimate(saved_anim);
 		}
 
 		// chiclet bar is narrowed
@@ -337,4 +312,34 @@ S32 LLChicletBar::getChicletPanelShrinkHeadroom() const
 	S32 shrink_headroom = cur_width - min_width;
 	llassert(shrink_headroom >= 0); // the panel cannot get narrower than the minimum
 	return shrink_headroom;
+}
+
+void LLChicletBar::fitWithTopInfoBar()
+{
+	LLPanelTopInfoBar& top_info_bar = LLPanelTopInfoBar::instance();
+
+	LLRect rect = getRect();
+	S32 width = rect.getWidth();
+
+	if (top_info_bar.getVisible())
+	{
+		S32 delta = top_info_bar.calcScreenRect().mRight - calcScreenRect().mLeft;
+		if (delta < 0 && rect.mLeft < llabs(delta))
+			delta = -rect.mLeft;
+		rect.setLeftTopAndSize(rect.mLeft + delta, rect.mTop, rect.getWidth(), rect.getHeight());
+		width = rect.getWidth() - delta;
+	}
+	else
+	{
+		LLView* parent = getParent();
+		if (parent)
+		{
+			LLRect parent_rect = parent->getRect();
+			rect.setLeftTopAndSize(0, rect.mTop, rect.getWidth(), rect.getHeight());
+			width = parent_rect.getWidth();
+		}
+	}
+
+	setRect(rect);
+	LLPanel::reshape(width, rect.getHeight(), false);
 }

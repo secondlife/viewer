@@ -20,7 +20,7 @@
 	<check_box label="Inclure la date et l&apos;heure pour chaque ligne du journal de chat" name="show_timestamps_check_im"/>
 	<check_box label="Inclure la date dans le nom du fichier journal" name="logfile_name_datestamp"/>
 	<text name="log_path_desc">
-		Emplacement :
+		Emplacement journaux :
 	</text>
 	<line_editor left="308" name="log_path_string" right="-20"/>
 	<button label="Parcourir" label_selected="Parcourir" name="log_path_button" width="150"/>

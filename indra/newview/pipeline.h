@@ -72,7 +72,7 @@ BOOL compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 BOOL setup_hud_matrices(); // use whole screen to render hud
 BOOL setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
-glh::matrix4f glh_copy_matrix(GLdouble* src);
+glh::matrix4f glh_copy_matrix(F32* src);
 glh::matrix4f glh_get_current_modelview();
 void glh_set_current_modelview(const glh::matrix4f& mat);
 glh::matrix4f glh_get_current_projection();
@@ -111,10 +111,13 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
+	void doResetVertexBuffers();
 	void resizeScreenTexture();
 	void releaseGLBuffers();
+	void releaseLUTBuffers();
 	void releaseScreenBuffers();
 	void createGLBuffers();
+	void createLUTBuffers();
 
 	void allocateScreenBuffer(U32 resX, U32 resY);
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
@@ -231,7 +234,7 @@ public:
 	void postSort(LLCamera& camera);
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
-	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE);
+	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
 	void grabReferences(LLCullResult& result);
@@ -248,7 +251,7 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera);
 	void renderGeomShadow(LLCamera& camera);
-	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, LLRenderTarget* gi_source = NULL, LLRenderTarget* last_gi_post = NULL, U32 noise_map = 0xFFFFFFFF);
+	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
@@ -262,7 +265,6 @@ public:
 
 
 	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader = TRUE, BOOL use_occlusion = TRUE);
-	void generateGI(LLCamera& camera, LLVector3& lightDir, std::vector<LLVector3>& vpc);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -360,7 +362,7 @@ public:
 	static BOOL getRenderHighlights(void* data);
 
 	static void updateRenderDeferred();
-	static void refreshRenderDeferred();
+	static void refreshCachedSettings();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
 
@@ -408,7 +410,6 @@ public:
 		RENDER_TYPE_PASS_ALPHA					= LLRenderPass::PASS_ALPHA,
 		RENDER_TYPE_PASS_ALPHA_MASK				= LLRenderPass::PASS_ALPHA_MASK,
 		RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK	= LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK,
-		RENDER_TYPE_PASS_ALPHA_SHADOW = LLRenderPass::PASS_ALPHA_SHADOW,
 		// Following are object types (only used in drawable mRenderType)
 		RENDER_TYPE_HUD = LLRenderPass::NUM_RENDER_TYPES,
 		RENDER_TYPE_VOLUME,
@@ -434,34 +435,35 @@ public:
 
 	enum LLRenderDebugMask
 	{
-		RENDER_DEBUG_COMPOSITION		= 0x0000001,
-		RENDER_DEBUG_VERIFY				= 0x0000002,
-		RENDER_DEBUG_BBOXES				= 0x0000004,
-		RENDER_DEBUG_OCTREE				= 0x0000008,
-		RENDER_DEBUG_WIND_VECTORS		= 0x0000010,
-		RENDER_DEBUG_OCCLUSION			= 0x0000020,
-		RENDER_DEBUG_POINTS				= 0x0000040,
-		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x0000080,
-		RENDER_DEBUG_TEXTURE_AREA		= 0x0000100,
-		RENDER_DEBUG_FACE_AREA			= 0x0000200,
-		RENDER_DEBUG_PARTICLES			= 0x0000400,
-		RENDER_DEBUG_GLOW				= 0x0000800,
-		RENDER_DEBUG_TEXTURE_ANIM		= 0x0001000,
-		RENDER_DEBUG_LIGHTS				= 0x0002000,
-		RENDER_DEBUG_BATCH_SIZE			= 0x0004000,
-		RENDER_DEBUG_ALPHA_BINS			= 0x0008000,
-		RENDER_DEBUG_RAYCAST            = 0x0010000,
-		RENDER_DEBUG_SHAME				= 0x0020000,
-		RENDER_DEBUG_SHADOW_FRUSTA		= 0x0040000,
-		RENDER_DEBUG_SCULPTED           = 0x0080000,
-		RENDER_DEBUG_AVATAR_VOLUME      = 0x0100000,
-		RENDER_DEBUG_BUILD_QUEUE		= 0x0200000,
-		RENDER_DEBUG_AGENT_TARGET       = 0x0400000,
-		RENDER_DEBUG_UPDATE_TYPE		= 0x0800000,
-		RENDER_DEBUG_PHYSICS_SHAPES     = 0x1000000,
-		RENDER_DEBUG_NORMALS	        = 0x2000000,
-		RENDER_DEBUG_LOD_INFO	        = 0x4000000,
-		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x8000000
+		RENDER_DEBUG_COMPOSITION		= 0x00000001,
+		RENDER_DEBUG_VERIFY				= 0x00000002,
+		RENDER_DEBUG_BBOXES				= 0x00000004,
+		RENDER_DEBUG_OCTREE				= 0x00000008,
+		RENDER_DEBUG_WIND_VECTORS		= 0x00000010,
+		RENDER_DEBUG_OCCLUSION			= 0x00000020,
+		RENDER_DEBUG_POINTS				= 0x00000040,
+		RENDER_DEBUG_TEXTURE_PRIORITY	= 0x00000080,
+		RENDER_DEBUG_TEXTURE_AREA		= 0x00000100,
+		RENDER_DEBUG_FACE_AREA			= 0x00000200,
+		RENDER_DEBUG_PARTICLES			= 0x00000400,
+		RENDER_DEBUG_GLOW				= 0x00000800,
+		RENDER_DEBUG_TEXTURE_ANIM		= 0x00001000,
+		RENDER_DEBUG_LIGHTS				= 0x00002000,
+		RENDER_DEBUG_BATCH_SIZE			= 0x00004000,
+		RENDER_DEBUG_ALPHA_BINS			= 0x00008000,
+		RENDER_DEBUG_RAYCAST            = 0x00010000,
+		RENDER_DEBUG_SHAME				= 0x00020000,
+		RENDER_DEBUG_SHADOW_FRUSTA		= 0x00040000,
+		RENDER_DEBUG_SCULPTED           = 0x00080000,
+		RENDER_DEBUG_AVATAR_VOLUME      = 0x00100000,
+		RENDER_DEBUG_BUILD_QUEUE		= 0x00200000,
+		RENDER_DEBUG_AGENT_TARGET       = 0x00400000,
+		RENDER_DEBUG_UPDATE_TYPE		= 0x00800000,
+		RENDER_DEBUG_PHYSICS_SHAPES     = 0x01000000,
+		RENDER_DEBUG_NORMALS	        = 0x02000000,
+		RENDER_DEBUG_LOD_INFO	        = 0x04000000,
+		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x08000000,
+		RENDER_DEBUG_ATTACHMENT_BYTES	= 0x10000000,
 	};
 
 public:
@@ -531,14 +533,15 @@ public:
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
 	LLRenderTarget			mDeferredScreen;
+	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
-	LLRenderTarget			mDeferredLight[3];
-	LLRenderTarget			mGIMap;
-	LLRenderTarget			mGIMapPost[2];
-	LLRenderTarget			mLuminanceMap;
+	LLRenderTarget			mDeferredLight;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
+
+	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
+	LLPointer<LLVertexBuffer> mDeferredVB;
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
@@ -585,6 +588,7 @@ public:
 
 	LLColor4				mSunDiffuse;
 	LLVector3				mSunDir;
+	LLVector3				mTransformedSunDir;
 
 	BOOL					mInitialized;
 	BOOL					mVertexShadersEnabled;
@@ -651,6 +655,8 @@ protected:
 
 	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
+
+	bool mResetVertexBuffers; //if true, clear vertex buffers on next update
 
 	LLViewerObject::vobj_list_t		mCreateQ;
 		
@@ -770,6 +776,81 @@ public:
 
 	//debug use
 	static U32              sCurRenderPoolType ;
+
+	//cached settings
+	static BOOL WindLightUseAtmosShaders;
+	static BOOL VertexShaderEnable;
+	static BOOL RenderAvatarVP;
+	static BOOL RenderDeferred;
+	static F32 RenderDeferredSunWash;
+	static U32 RenderFSAASamples;
+	static U32 RenderResolutionDivisor;
+	static BOOL RenderUIBuffer;
+	static S32 RenderShadowDetail;
+	static BOOL RenderDeferredSSAO;
+	static F32 RenderShadowResolutionScale;
+	static BOOL RenderLocalLights;
+	static BOOL RenderDelayCreation;
+	static BOOL RenderAnimateRes;
+	static BOOL FreezeTime;
+	static S32 DebugBeaconLineWidth;
+	static F32 RenderHighlightBrightness;
+	static LLColor4 RenderHighlightColor;
+	static F32 RenderHighlightThickness;
+	static BOOL RenderSpotLightsInNondeferred;
+	static LLColor4 PreviewAmbientColor;
+	static LLColor4 PreviewDiffuse0;
+	static LLColor4 PreviewSpecular0;
+	static LLColor4 PreviewDiffuse1;
+	static LLColor4 PreviewSpecular1;
+	static LLColor4 PreviewDiffuse2;
+	static LLColor4 PreviewSpecular2;
+	static LLVector3 PreviewDirection0;
+	static LLVector3 PreviewDirection1;
+	static LLVector3 PreviewDirection2;
+	static F32 RenderGlowMinLuminance;
+	static F32 RenderGlowMaxExtractAlpha;
+	static F32 RenderGlowWarmthAmount;
+	static LLVector3 RenderGlowLumWeights;
+	static LLVector3 RenderGlowWarmthWeights;
+	static S32 RenderGlowResolutionPow;
+	static S32 RenderGlowIterations;
+	static F32 RenderGlowWidth;
+	static F32 RenderGlowStrength;
+	static BOOL RenderDepthOfField;
+	static F32 CameraFocusTransitionTime;
+	static F32 CameraFNumber;
+	static F32 CameraFocalLength;
+	static F32 CameraFieldOfView;
+	static F32 RenderShadowNoise;
+	static F32 RenderShadowBlurSize;
+	static F32 RenderSSAOScale;
+	static U32 RenderSSAOMaxScale;
+	static F32 RenderSSAOFactor;
+	static LLVector3 RenderSSAOEffect;
+	static F32 RenderShadowOffsetError;
+	static F32 RenderShadowBiasError;
+	static F32 RenderShadowOffset;
+	static F32 RenderShadowBias;
+	static F32 RenderSpotShadowOffset;
+	static F32 RenderSpotShadowBias;
+	static F32 RenderEdgeDepthCutoff;
+	static F32 RenderEdgeNormCutoff;
+	static LLVector3 RenderShadowGaussian;
+	static F32 RenderShadowBlurDistFactor;
+	static BOOL RenderDeferredAtmospheric;
+	static S32 RenderReflectionDetail;
+	static F32 RenderHighlightFadeTime;
+	static LLVector3 RenderShadowClipPlanes;
+	static LLVector3 RenderShadowOrthoClipPlanes;
+	static LLVector3 RenderShadowNearDist;
+	static F32 RenderFarClip;
+	static LLVector3 RenderShadowSplitExponent;
+	static F32 RenderShadowErrorCutoff;
+	static F32 RenderShadowFOVCutoff;
+	static BOOL CameraOffset;
+	static F32 CameraMaxCoF;
+	static F32 CameraDoFResScale;
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

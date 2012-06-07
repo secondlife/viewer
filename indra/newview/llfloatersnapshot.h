@@ -58,7 +58,7 @@ public:
 	// TODO: create a snapshot model instead
 	static LLFloaterSnapshot* getInstance();
 	static void saveTexture();
-	static void saveLocal();
+	static BOOL saveLocal();
 	static void preUpdate();
 	static void postUpdate();
 	static void postSave();
@@ -71,6 +71,8 @@ public:
 
 private:
 	static LLUICtrl* sThumbnailPlaceholder;
+	LLUICtrl *mRefreshBtn, *mRefreshLabel;
+	LLUICtrl *mSucceessLblPanel, *mFailureLblPanel;
 
 	class Impl;
 	Impl& impl;

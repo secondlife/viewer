@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" title="表示">
+<floater name="camera_floater" title="カメラのコントロール">
 	<floater.string name="rotate_tooltip">
 		フォーカスを中心にカメラを回転
 	</floater.string>
@@ -8,15 +8,6 @@
 	</floater.string>
 	<floater.string name="move_tooltip">
 		カメラを上下左右に移動
-	</floater.string>
-	<floater.string name="camera_modes_title">
-		カメラモード
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		旋回 - ズーム - 水平・垂直移動
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		事前設定の視野
 	</floater.string>
 	<floater.string name="free_mode_title">
 		オブジェクトを見る

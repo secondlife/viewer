@@ -215,7 +215,7 @@
     <text
      type="string"
      length="1"
-     text_color="0.7 0.7 0.7 0.5"
+     text_color="LtGray_50"
      follows="top|left"
      layout="topleft"
      halign="right"
@@ -224,12 +224,12 @@
      width="300"
      height="30"
      name="currency_links">
-      [http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency] | [http://www.secondlife.com/my/account/exchange_rates.php exchange rate]
+      [http://www.secondlife.com/my/account/payment_method_management.php payment method] | [http://www.secondlife.com/my/account/currency.php currency]
     </text>
     <text
      type="string"
      length="1"
-     text_color="0.7 0.7 0.7 0.5"
+     text_color="LtGray_50"
      follows="top|left"
      layout="topleft"
      halign="right"
@@ -243,7 +243,7 @@ Re-enter amount to see the latest exchange rate.
     <text
      type="string"
      length="1"
-     text_color="0.7 0.7 0.7 0.5"
+     text_color="LtGray_50"
      follows="top|left"
      layout="topleft"
      halign="right"
@@ -257,7 +257,7 @@ Re-enter amount to see the latest exchange rate.
     <text
      type="string"
      length="1"
-     text_color="0.7 0.7 0.7 0.5"
+     text_color="LtGray_50"
      follows="top|left"
      layout="topleft"
      halign="right"

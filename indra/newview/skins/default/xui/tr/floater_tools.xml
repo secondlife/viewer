@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="İNŞA ET ARAÇLARI">
+	<floater.string name="grid_screen_text">
+		Ekran
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Yerel
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Dünya
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Referans
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Aksesuar
+	</floater.string>
 	<floater.string name="status_rotate">
 		Nesneyi döndürmek için renkli bantları sürükleyin
 	</floater.string>
@@ -55,7 +70,7 @@
 		<radio_item label="Uzat (Ctrl+Shift)" name="radio stretch"/>
 		<radio_item label="Yüzü Seç" name="radio select face"/>
 	</radio_group>
-	<check_box label="Bağlantılı olanları düzenle" name="checkbox edit linked parts"/>
+	<check_box label="Bağlantılıları düzenle" name="checkbox edit linked parts"/>
 	<button label="Bağla" name="link_btn"/>
 	<button label="Bağlantıyı Kopar" name="unlink_btn"/>
 	<text label="Her İki Tarafı Uzat" name="checkbox uniform label">
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="Dokuları Uzat" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="Yasla" name="checkbox snap to grid"/>
-	<button label="Seçenekler..." name="Options..." tool_tip="İlave ağ seçeneklerine bak"/>
+	<combo_box name="combobox grid mode" tool_tip="Nesneyi konumlandırmak için ağ cetvelini seçin">
+		<combo_box.item label="Dünya" name="World"/>
+		<combo_box.item label="Yerel" name="Local"/>
+		<combo_box.item label="Referans" name="Reference"/>
+	</combo_box>
+	<button label="" name="Options..." tool_tip="İlave ağ seçeneklerine bak"/>
 	<button name="ToolCube" tool_tip="Küp"/>
 	<button name="ToolPrism" tool_tip="Prizma"/>
 	<button name="ToolPyramid" tool_tip="Piramit"/>
@@ -81,7 +101,7 @@
 	<button name="ToolGrass" tool_tip="Çimen"/>
 	<check_box label="Seçili Aracı tut" name="checkbox sticky"/>
 	<check_box label="Seçimi kopyala" name="checkbox copy selection"/>
-	<check_box initial_value="true" label="Kopyayı Merkeze Al" name="checkbox copy centers"/>
+	<check_box initial_value="true" label="Kopyayı Merkezle" name="checkbox copy centers"/>
 	<check_box label="Kopyayı Döndür" name="checkbox copy rotates"/>
 	<radio_group name="land_radio_group">
 		<radio_item label="Araziyi Seç" name="radio select land"/>
@@ -376,7 +396,7 @@
 			</combo_box>
 			<spinner label="Yerçekimi" name="Physics Gravity"/>
 			<spinner label="Sürtünme" name="Physics Friction"/>
-			<spinner label="100 kg/m^3 cinsinden yoğunluk" name="Physics Density"/>
+			<spinner label="100 kg/m3 cinsinden yoğunluk" name="Physics Density"/>
 			<spinner label="Restitüsyon" name="Physics Restitution"/>
 		</panel>
 		<panel label="Doku" name="Texture">

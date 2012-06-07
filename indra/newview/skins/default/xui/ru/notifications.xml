@@ -86,17 +86,38 @@
 		<usetemplate canceltext="Отмена" name="yesnocancelbuttons" notext="Не сохранять" yestext="Сохранить"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		У вас нет прав для копирования этого элемента в исходящую папку магазина. Вы действительно хотите переместить следующий элемент?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
+		У вас нет прав на копирование этих предметов в папку «Торговые исходящие».  Переместите их или оставьте здесь.
+		<usetemplate name="okcancelbuttons" notext="Не перемещать предмет(ы)" yestext="Переместить предмет(ы)"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Передача магазина завершена.
-		<usetemplate name="okbutton" yestext="Ура!"/>
+	<notification name="OutboxFolderCreated">
+		Для каждого предмета, перенесенного на верхний уровень папки «Торговые исходящие», создана новая папка.
+		<usetemplate ignoretext="В папке «Торговые исходящие» создана новая папка" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Передача магазина выполнена с ошибками!  Устраните проблемы в исходящей папке и повторите передачу.  Спасибо!
-		<usetemplate name="okbutton" yestext="Бу-у-у!"/>
+	<notification name="OutboxImportComplete">
+		Успешно
+
+Все папки успешно отправлены в торговый центр.
+		<usetemplate ignoretext="Все папки отправлены в торговый центр" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Некоторые папки не перенесены
+
+Ошибки при отправке некоторых папок в торговый центр.  Эти папки остались в вашей папке «Торговые исходящие».
+
+Подробнее см. в [[MARKETPLACE_IMPORTS_URL] журнале ошибок].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Ошибка при передаче
+
+Папки не отправлены в торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Ошибка инициализации торгового центра
+
+Не удалось инициализировать торговый центр из-за ошибки системы или сети.  Повторите попытку позже.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Ошибка при передаче текста скрипта по следующей причине: [REASON]. Повторите попытку позже.
@@ -649,7 +670,7 @@
 		Невозможно создать выходной файл: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		[APP_NAME] пока не поддерживает массовую передачу файлов анимации.
+		[APP_NAME] пока не поддерживает массовую передачу файлов анимации формата BVH.
 	</notification>
 	<notification name="CannotUploadReason">
 		Невозможно передать [FILE] по следующей причине: [REASON]
@@ -979,7 +1000,7 @@
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Удалить жителя [NAME] из вашего списка друзей?
+		Удалить жителя &lt;nolink&gt;[NAME]&lt;/nolink&gt; из вашего списка друзей?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1110,8 +1131,13 @@
 	<notification name="DisplaySetToSafe">
 		Установлен безопасный уровень настроек отображения, так как указан параметр -safe.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Установлен рекомендуемый уровень настроек отображения в соответствии с вашей системной конфигурацией.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Установлен рекомендуемый уровень настроек отображения, так как графическая карта изменена:
+с «[LAST_GPU]»
+на «[THIS_GPU]»
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		Установлен рекомендуемый уровень настроек отображения, так как подсистема визуализации изменена.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1431,7 +1457,7 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Подтверждать перед возвратом объектов владельцам" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Вы являетесь участником группы [GROUP].
+		Вы сейчас входите в группу &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Хотите покинуть группу?
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
@@ -1910,7 +1936,13 @@ http://secondlife.com/download.
 		<usetemplate ignoretext="Подтверждать перед выходом" name="okcancelignore" notext="Не выходить" yestext="Выйти"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Вы действительно хотите восстановить принятые по умолчанию кнопки и панели инструментов? 
+		Это действие приведет к восстановлению стандартных кнопок и панелей инструментов.
+
+Это действие нельзя отменить.
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Это действие возвращает все кнопки в инструментарий, а панели инструментов становятся пустыми.
     
 Это действие нельзя отменить.
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
@@ -2119,10 +2151,10 @@ http://secondlife.com/download.
 		Раздел: [SUBJECT], сообщение: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] в сети
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; в сети
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] не в сети
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; не в сети
 	</notification>
 	<notification name="AddSelfFriend">
 		Вы лучше всех, но нельзя добавить в друзья себя самого.
@@ -2236,14 +2268,16 @@ http://secondlife.com/download.
 		Ваша визитка отклонена.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Вы можете телепортироваться в такие места, как «[NAME]», открыв панель «Места» в правой части экрана и выбрав вкладку «Закладки».
-Щелкните любую закладку, чтобы выбрать ее, а затем нажмите кнопку «Телепортация» внизу панели.
-(Также можно дважды щелкнуть закладку или щелкнуть ее правой кнопкой мыши и выбрать команду «Телепортация».)
+		Для телепортации в другое место, например «[NAME]», нажмите кнопку «Места»,
+    затем в открывшемся окне выберите вкладку «Закладки». Щелкните любую
+    закладку, чтобы выбрать ее, а затем нажмите кнопку «Телепортация» внизу окна.
+    (Также можно дважды щелкнуть закладку или щелкнуть ее правой кнопкой мыши и
+    выбрать команду «Телепортация».)
 	</notification>
 	<notification name="TeleportToPerson">
-		Вы можете общаться с такими жителями, как «[NAME]», открыв панель «Люди» в правой части экрана.
-Выберите в списке нужного жителя, а затем нажмите кнопку «IM» внизу панели.
-(Также можно дважды щелкнуть имя жителя в списке или щелкнуть ее правой кнопкой мыши и выбрать команду «IM».)
+		Чтобы обратиться к жителю, например «[NAME]», нажмите кнопку «Люди», выберите жителя в появившемся окне и нажмите кнопку
+    «IM» внизу окна.
+    (Также можно дважды щелкнуть имя жителя в списке или щелкнуть его правой кнопкой мыши и выбрать команду «IM».)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Нельзя выбрать землю с обеих сторон границы между серверами.
@@ -2262,6 +2296,9 @@ http://secondlife.com/download.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2518,10 +2555,10 @@ http://secondlife.com/download.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] принял(а) ваше предложение дружить.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; принял(а) ваше предложение дружить.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] отклонил(а) ваше предложение дружить.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; отклонил(а) ваше предложение дружить.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Предложение дружить принято.
@@ -2593,16 +2630,16 @@ http://secondlife.com/download.
 		[NAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Блокировать"/>
-			<button name="Ignore" text="Игнорировать"/>
+			<button name="Client_Side_Mute" text="Заблокировать"/>
+			<button name="Client_Side_Ignore" text="Игнорировать"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		[GROUPNAME] – «&lt;nolink&gt;[TITLE]&lt;/nolink&gt;»
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Блокировать"/>
-			<button name="Ignore" text="Игнорировать"/>
+			<button name="Client_Side_Mute" text="Заблокировать"/>
+			<button name="Client_Side_Ignore" text="Игнорировать"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2798,6 +2835,18 @@ http://secondlife.com/download.
 Со следующими жителями:
 
 [RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Раздать можно только одну папку за раз.
+
+Вы действительно хотите поделиться предметами:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+Со следующими жителями:
+
+[RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="ОК"/>
 	</notification>
 	<notification name="ItemsShared">
@@ -2888,7 +2937,7 @@ http://secondlife.com/download.
 позже, даже после того, как вы покинули разговор.
 
 Заглушить всех?
-		<usetemplate ignoretext="Подтверждать перед заглушением всех участников группового разговора" name="okcancelignore" notext="Отмена" yestext="ОК"/>
+		<usetemplate ignoretext="Подтверждать перед заглушением всех участников группового разговора" name="okcancelignore" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification label="Чат" name="HintChat">
 		Чтобы присоединиться к чату, введите слова в поле чата ниже.

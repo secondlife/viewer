@@ -40,10 +40,10 @@
 /**
 	LLSD provides a flexible data system similar to the data facilities of
 	dynamic languages like Perl and Python.  It is created to support exchange
-	of structured data between loosly coupled systems.  (Here, "loosly coupled"
+	of structured data between loosely coupled systems.  (Here, "loosely coupled"
 	means not compiled together into the same module.)
 	
-	Data in such exchanges must be highly tollerant of changes on either side
+	Data in such exchanges must be highly tolerant of changes on either side
 	such as:
 			- recompilation
 			- implementation in a different langauge
@@ -51,19 +51,19 @@
 			- execution of older versions (with fewer parameters)
 
 	To this aim, the C++ API of LLSD strives to be very easy to use, and to
-	default to "the right thing" whereever possible.  It is extremely tollerant
+	default to "the right thing" wherever possible.  It is extremely tolerant
 	of errors and unexpected situations.
 	
-	The fundimental class is LLSD.  LLSD is a value holding object.  It holds
+	The fundamental class is LLSD.  LLSD is a value holding object.  It holds
 	one value that is either undefined, one of the scalar types, or a map or an
 	array.  LLSD objects have value semantics (copying them copies the value,
-	though it can be considered efficient, due to shareing.), and mutable.
+	though it can be considered efficient, due to sharing), and mutable.
 
 	Undefined is the singular value given to LLSD objects that are not
 	initialized with any data.  It is also used as the return value for
-	operations that return an LLSD,
+	operations that return an LLSD.
 	
-	The sclar data types are:
+	The scalar data types are:
 		- Boolean	- true or false
 		- Integer	- a 32 bit signed integer
 		- Real		- a 64 IEEE 754 floating point value
@@ -80,8 +80,72 @@
 	
 	An array is a sequence of zero or more LLSD values.
 	
+	Thread Safety
+
+	In general, these LLSD classes offer *less* safety than STL container
+	classes.  Implementations prior to this one were unsafe even when
+	completely unrelated LLSD trees were in two threads due to reference
+	sharing of special 'undefined' values that participated in the reference
+	counting mechanism.
+
+	The dereference-before-refcount and aggressive tree sharing also make
+	it impractical to share an LLSD across threads.  A strategy of passing
+	ownership or a copy to another thread is still difficult due to a lack
+	of a cloning interface but it can be done with some care.
+
+	One way of transferring ownership is as follows:
+
+		void method(const LLSD input) {
+		...
+		LLSD * xfer_tree = new LLSD();
+		{
+			// Top-level values
+			(* xfer_tree)['label'] = "Some text";
+			(* xfer_tree)['mode'] = APP_MODE_CONSTANT;
+
+			// There will be a second-level
+			LLSD subtree(LLSD::emptyMap());
+			(* xfer_tree)['subtree'] = subtree;
+
+			// Do *not* copy from LLSD objects via LLSD
+			// intermediaries.  Only use plain-old-data
+			// types as intermediaries to prevent reference
+			// sharing.
+			subtree['value1'] = input['value1'].asInteger();
+			subtree['value2'] = input['value2'].asString();
+
+			// Close scope and drop 'subtree's reference.
+			// Only xfer_tree has a reference to the second
+			// level data.
+		}
+		...
+		// Transfer the LLSD pointer to another thread.  Ownership
+		// transfers, this thread no longer has a reference to any
+		// part of the xfer_tree and there's nothing to free or
+		// release here.  Receiving thread does need to delete the
+		// pointer when it is done with the LLSD.  Transfer
+		// mechanism must perform correct data ordering operations
+		// as dictated by architecture.
+		other_thread.sendMessageAndPointer("Take This", xfer_tree);
+		xfer_tree = NULL;
+
+
+	Avoid this pattern which provides half of a race condition:
+	
+		void method(const LLSD input) {
+		...
+		LLSD xfer_tree(LLSD::emptyMap());
+		xfer_tree['label'] = "Some text";
+		xfer_tree['mode'] = APP_MODE_CONSTANT;
+		...
+		other_thread.sendMessageAndPointer("Take This", xfer_tree);
+
+	
 	@nosubgrouping
 */
+
+// Normally undefined, used for diagnostics
+//#define LLSD_DEBUG_INFO	1
 
 class LL_COMMON_API LLSD
 {
@@ -202,7 +266,7 @@ public:
 	//@}
 	
 	/** @name Character Pointer Helpers
-		These are helper routines to make working with char* the same as easy as
+		These are helper routines to make working with char* as easy as
 		working with strings.
 	 */
 	//@{
@@ -266,7 +330,7 @@ public:
 	/** @name Type Testing */
 	//@{
 		enum Type {
-			TypeUndefined,
+			TypeUndefined = 0,
 			TypeBoolean,
 			TypeInteger,
 			TypeReal,
@@ -276,7 +340,10 @@ public:
 			TypeURI,
 			TypeBinary,
 			TypeMap,
-			TypeArray
+			TypeArray,
+			TypeLLSDTypeEnd,
+			TypeLLSDTypeBegin = TypeUndefined,
+			TypeLLSDNumTypes = (TypeLLSDTypeEnd - TypeLLSDTypeBegin)
 		};
 		
 		Type type() const;
@@ -302,7 +369,7 @@ public:
 		If you get a linker error about these being missing, you have made
 		mistake in your code.  DO NOT IMPLEMENT THESE FUNCTIONS as a fix.
 		
-		All of thse problems stem from trying to support char* in LLSD or in
+		All of these problems stem from trying to support char* in LLSD or in
 		std::string.  There are too many automatic casts that will lead to
 		using an arbitrary pointer or scalar type to std::string.
 	 */
@@ -311,7 +378,7 @@ public:
 		void assign(const void*);		///< assign from arbitrary pointers
 		LLSD& operator=(const void*);	///< assign from arbitrary pointers
 		
-		bool has(Integer) const;		///< has only works for Maps
+		bool has(Integer) const;		///< has() only works for Maps
 	//@}
 	
 	/** @name Implementation */
@@ -320,13 +387,7 @@ public:
 		class Impl;
 private:
 		Impl* impl;
-	//@}
-	
-	/** @name Unit Testing Interface */
-	//@{
-public:
-		static U32 allocationCount();	///< how many Impls have been made
-		static U32 outstandingCount();	///< how many Impls are still alive
+		friend class LLSD::Impl;
 	//@}
 
 private:
@@ -338,6 +399,10 @@ private:
 		/// Returns Notation version of llsd -- only to be called from debugger
 		static const char *dump(const LLSD &llsd);
 	//@}
+
+public:
+
+	static std::string		typeString(Type type);		// Return human-readable type as a string
 };
 
 struct llsd_select_bool : public std::unary_function<LLSD, LLSD::Boolean>
@@ -385,9 +450,32 @@ struct llsd_select_string : public std::unary_function<LLSD, LLSD::String>
 
 LL_COMMON_API std::ostream& operator<<(std::ostream& s, const LLSD& llsd);
 
+namespace llsd
+{
+
+#ifdef LLSD_DEBUG_INFO
+/** @name Unit Testing Interface */
+//@{
+	LL_COMMON_API void dumpStats(const LLSD&);	///< Output information on object and usage
+
+	/// @warn THE FOLLOWING COUNTS WILL NOT BE ACCURATE IN A MULTI-THREADED
+	/// ENVIRONMENT.
+	///
+	/// These counts track LLSD::Impl (hidden) objects.
+	LL_COMMON_API U32 allocationCount();	///< how many Impls have been made
+	LL_COMMON_API U32 outstandingCount();	///< how many Impls are still alive
+
+	/// These counts track LLSD (public) objects.
+	LL_COMMON_API extern S32 sLLSDAllocationCount;	///< Number of LLSD objects ever created
+	LL_COMMON_API extern S32 sLLSDNetObjects;		///< Number of LLSD objects that exist
+#endif
+//@}
+
+} // namespace llsd
+
 /** QUESTIONS & TO DOS
-	- Would Binary be more convenient as usigned char* buffer semantics?
-	- Should Binary be convertable to/from String, and if so how?
+	- Would Binary be more convenient as unsigned char* buffer semantics?
+	- Should Binary be convertible to/from String, and if so how?
 		- as UTF8 encoded strings (making not like UUID<->String)
 		- as Base64 or Base96 encoded (making like UUID<->String)
 	- Conversions to std::string and LLUUID do not result in easy assignment

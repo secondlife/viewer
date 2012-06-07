@@ -95,7 +95,7 @@ LLGroupList::LLGroupList(const Params& p)
 LLGroupList::~LLGroupList()
 {
 	gAgent.removeListener(this);
-	delete mContextMenuHandle.get();
+	if (mContextMenuHandle.get()) mContextMenuHandle.get()->die();
 }
 
 // virtual
@@ -118,6 +118,22 @@ BOOL LLGroupList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		context_menu->buildDrawLabels();
 		context_menu->updateParent(LLMenuGL::sMenuContainer);
 		LLMenuGL::showPopup(this, context_menu, x, y);
+	}
+
+	return handled;
+}
+
+// virtual
+BOOL LLGroupList::handleDoubleClick(S32 x, S32 y, MASK mask)
+{
+	BOOL handled = LLView::handleDoubleClick(x, y, mask);
+	// Handle double click only for the selected item in the list, skip clicks on empty space.
+	if (handled)
+	{
+		if (mDoubleClickSignal)
+		{
+			(*mDoubleClickSignal)(this, x, y, mask);
+		}
 	}
 
 	return handled;

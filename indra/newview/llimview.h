@@ -153,7 +153,6 @@ public:
 	std::map<LLUUID, LLIMSession*> mId2SessionMap;
 
 	typedef boost::signals2::signal<void(const LLSD&)> session_signal_t;
-	typedef boost::function<void(const LLSD&)> session_callback_t;
 	session_signal_t mNewMsgSignal;
 	session_signal_t mNoUnreadMsgsSignal;
 	
@@ -174,8 +173,8 @@ public:
 	 */
 	void processSessionInitializedReply(const LLUUID& old_session_id, const LLUUID& new_session_id);
 
-	boost::signals2::connection addNewMsgCallback( session_callback_t cb ) { return mNewMsgSignal.connect(cb); }
-	boost::signals2::connection addNoUnreadMsgsCallback( session_callback_t cb ) { return mNoUnreadMsgsSignal.connect(cb); }
+	boost::signals2::connection addNewMsgCallback(const session_signal_t::slot_type& cb ) { return mNewMsgSignal.connect(cb); }
+	boost::signals2::connection addNoUnreadMsgsCallback(const session_signal_t::slot_type& cb ) { return mNoUnreadMsgsSignal.connect(cb); }
 
 	/**
 	 * Create new session object in a model
@@ -438,6 +437,10 @@ public:
 
 	bool isVoiceCall(const LLUUID& session_id);
 
+	void addNotifiedNonFriendSessionID(const LLUUID& session_id);
+
+	bool isNonFriendSessionNotified(const LLUUID& session_id);
+
 private:
 
 	/**
@@ -464,6 +467,14 @@ private:
 	
 	typedef std::list <LLIMSessionObserver *> session_observers_list_t;
 	session_observers_list_t mSessionObservers;
+
+	// EXP-901
+	// If "Only friends and groups can IM me" option is ON but the user got message from non-friend,
+	// the user should be notified that to be able to see this message the option should be OFF.
+	// This set stores session IDs in which user was notified. Need to store this IDs so that the user
+	// be notified only one time per session with non-friend.
+	typedef std::set<LLUUID> notified_non_friend_sessions_t;
+	notified_non_friend_sessions_t mNotifiedNonFriendSessions;
 
 	LLSD mPendingInvitations;
 	LLSD mPendingAgentListUpdates;

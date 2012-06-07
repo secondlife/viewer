@@ -130,7 +130,7 @@ Vá para o menu Mundo &gt; Sobre o terreno ou selecione outro lote para mostrar 
 				Tráfego:
 			</text>
 			<text name="DwellText">
-				0
+				Carregando...
 			</text>
 			<button label="Comprar terreno..." label_selected="Comprar terreno..." left="130" name="Buy Land..." width="125"/>
 			<button label="Venda Linden" name="Linden Sale..." tool_tip="O terreno precisa ser possuído, estar com o conteúdo configurado e não estar pronto para leilão."/>
@@ -309,13 +309,15 @@ Apenas lotes maiores podem ser listados na busca.
 				Proibido empurrar (regulamento da região)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Veja e bata papo com os residentes deste terreno
+				Avatares em outros lotes podem ver
 			</panel.string>
 			<text name="allow_label">
 				Autorizar outros residentes a:
 			</text>
-			<check_box label="Editar terreno" name="edit land check" tool_tip="Se ativado, qualquer um pode modificar o terreno. É melhor deixar esta opção desativada, uma vez que você sempre pode editar seu próprio terreno."/>
-			<check_box label="Voar" name="check fly" tool_tip="Se ativado,  residentes podem voar sobre seu terreno. Se desativado, eles podem voar apenas até chegar ou sobrevoar o seu terreno."/>
+			<text name="allow_label0">
+				Voar:
+			</text>
+			<check_box label="Todos" name="check fly" tool_tip="Se ativado,  residentes podem voar sobre seu terreno. Se desativado, eles podem voar apenas até chegar ou sobrevoar o seu terreno."/>
 			<text name="allow_label2">
 				Criar objetos:
 			</text>
@@ -331,9 +333,6 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<check_box label="Residentes" name="check other scripts"/>
 			<check_box label="Grupo" name="check group scripts"/>
-			<text name="land_options_label">
-				Opções do terreno:
-			</text>
 			<check_box label="Seguro (sem danos)" name="check safe" tool_tip="Se ativado, ajusta o terreno para Seguro, impedindo lutas com danos. Se não ativado, lutas com danos é habilitado."/>
 			<check_box label="Proibido empurrar" name="PushRestrictCheck" tool_tip="Evita scripts que empurram. Ativar essa opção ajuda a prevenir comportamentos desordeiros no seu terreno."/>
 			<check_box label="Mostrar terreno nos resultados de busca (L$30/semana)" name="ShowDirectoryCheck" tool_tip="Permitir que as pessoas vejam este terreno nos resultados de busca"/>
@@ -374,9 +373,9 @@ Apenas lotes maiores podem ser listados na busca.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Clique para escolher uma imagem"/>
 			<text name="allow_label5">
-				Permitir que residentes de outros terrenos:
+				Avatares em outros lotes podem ver e conversar com avatares neste lote
 			</text>
-			<check_box label="Ver avatares" name="SeeAvatarsCheck" tool_tip="Permite que residentes de outros terrenos vejam e conversem com os residentes deste terreno e vice-versa."/>
+			<check_box label="Ver avatares" name="SeeAvatarsCheck" tool_tip="Permite que os avatares em outros lotes vejam e batam papo com avatares neste lote. Você poderá vê-los e conversar com eles."/>
 			<text name="landing_point">
 				Ponto de Aterrissagem: [LANDING]
 			</text>
@@ -461,12 +460,12 @@ Mídia:
 			<text name="Limit access to this parcel to:">
 				Acesso a este lote
 			</text>
-			<check_box label="Acesso para público categoria [MATURITY]" name="public_access"/>
+			<check_box label="Permitir acesso público (Desmarcar esse item cria limites)" name="public_access"/>
 			<text name="Only Allow">
-				Restringir acesso a contas confirmardas por:
+				Permitir acesso apenas para residentes que:
 			</text>
-			<check_box label="Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Banir residentes sem identificação."/>
-			<check_box label="Idade comprovada: [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Banir residentes que não comprovaram a idade. Consulte o [SUPPORT_SITE] para saber mais."/>
+			<check_box label="Possuam Dados de pagamento fornecidos [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Os residentes devem ter seus dados de pagamento cadastrados para acessar este lote.  Consulte o [SUPPORT_SITE] para saber mais."/>
+			<check_box label="Tiveram sua idade verificada [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Os residentes devem ter a idade verificada para acessar este lote. Consulte o [SUPPORT_SITE] para saber mais."/>
 			<check_box label="Permitir acesso do grupo: [GROUP]" name="GroupCheck" tool_tip="Definir grupo na aba Geral."/>
 			<check_box label="Vender passes para:" name="PassCheck" tool_tip="Permite acesso temporário a este terreno"/>
 			<combo_box name="pass_combo">

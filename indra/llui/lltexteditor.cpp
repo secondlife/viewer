@@ -1332,7 +1332,7 @@ void LLTextEditor::cut()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromSubstring( getWText(), left_pos, length, mSourceID );
+	LLClipboard::instance().copyToClipboard( getWText(), left_pos, length);
 	deleteSelection( FALSE );
 
 	onKeyStroke();
@@ -1352,12 +1352,12 @@ void LLTextEditor::copy()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromSubstring(getWText(), left_pos, length, mSourceID);
+	LLClipboard::instance().copyToClipboard(getWText(), left_pos, length);
 }
 
 BOOL LLTextEditor::canPaste() const
 {
-	return !mReadOnly && gClipboard.canPasteString();
+	return !mReadOnly && LLClipboard::instance().isTextAvailable();
 }
 
 // paste from clipboard
@@ -1393,16 +1393,8 @@ void LLTextEditor::pasteHelper(bool is_primary)
 		return;
 	}
 
-	LLUUID source_id;
 	LLWString paste;
-	if (is_primary)
-	{
-		paste = gClipboard.getPastePrimaryWString(&source_id);
-	}
-	else 
-	{
-		paste = gClipboard.getPasteWString(&source_id);
-	}
+	LLClipboard::instance().pasteFromClipboard(paste, is_primary);
 
 	if (paste.empty())
 	{
@@ -1475,12 +1467,12 @@ void LLTextEditor::copyPrimary()
 	}
 	S32 left_pos = llmin( mSelectionStart, mSelectionEnd );
 	S32 length = llabs( mSelectionStart - mSelectionEnd );
-	gClipboard.copyFromPrimarySubstring(getWText(), left_pos, length, mSourceID);
+	LLClipboard::instance().copyToClipboard(getWText(), left_pos, length, true);
 }
 
 BOOL LLTextEditor::canPastePrimary() const
 {
-	return !mReadOnly && gClipboard.canPastePrimaryString();
+	return !mReadOnly && LLClipboard::instance().isTextAvailable(true);
 }
 
 void LLTextEditor::updatePrimary()
@@ -1992,7 +1984,7 @@ void LLTextEditor::drawPreeditMarker()
 		return;
 	}
 		
-	const S32 line_height = llround( mDefaultFont->getLineHeight() );
+	const S32 line_height = mDefaultFont->getLineHeight();
 
 	S32 line_start = getLineStart(cur_line);
 	S32 line_y = mVisibleTextRect.mTop - line_height;
@@ -2247,6 +2239,22 @@ void LLTextEditor::insertText(const std::string &new_text)
 
 	setCursorPos(mCursorPos + insert( mCursorPos, utf8str_to_wstring(new_text), FALSE, LLTextSegmentPtr() ));
 	
+	setEnabled( enabled );
+}
+
+void LLTextEditor::insertText(LLWString &new_text)
+{
+	BOOL enabled = getEnabled();
+	setEnabled( TRUE );
+
+	// Delete any selected characters (the insertion replaces them)
+	if( hasSelection() )
+	{
+		deleteSelection(TRUE);
+	}
+
+	setCursorPos(mCursorPos + insert( mCursorPos, new_text, FALSE, LLTextSegmentPtr() ));
+
 	setEnabled( enabled );
 }
 
@@ -2699,7 +2707,7 @@ BOOL LLTextEditor::getPreeditLocation(S32 query_offset, LLCoordGL *coord, LLRect
 
     const LLWString textString(getWText());
 	const llwchar * const text = textString.c_str();
-	const S32 line_height = llround(mDefaultFont->getLineHeight());
+	const S32 line_height = mDefaultFont->getLineHeight();
 
 	if (coord)
 	{
@@ -2802,7 +2810,7 @@ void LLTextEditor::markAsPreedit(S32 position, S32 length)
 
 S32 LLTextEditor::getPreeditFontSize() const
 {
-	return llround(mDefaultFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
+	return llround((F32)mDefaultFont->getLineHeight() * LLUI::sGLScaleFactor.mV[VY]);
 }
 
 BOOL LLTextEditor::isDirty() const
@@ -2837,4 +2845,14 @@ void LLTextEditor::clear()
 {
 	getViewModel()->setDisplay(LLWStringUtil::null);
 	clearSegments();
+}
+
+bool LLTextEditor::canLoadOrSaveToFile()
+{
+	return !mReadOnly;
+}
+
+S32 LLTextEditor::spacesPerTab()
+{
+	return SPACES_PER_TAB;
 }

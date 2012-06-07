@@ -227,7 +227,7 @@ void LLHUDText::renderText()
 			 segment_iter != mTextSegments.end(); ++segment_iter )
 		{
 			const LLFontGL* fontp = segment_iter->mFont;
-			y_offset -= fontp->getLineHeight();
+			y_offset -= fontp->getLineHeight() - 1; // correction factor to match legacy font metrics
 
 			U8 style = segment_iter->mStyle;
 			LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
@@ -480,8 +480,6 @@ void LLHUDText::updateSize()
 	F32 width = 0.f;
 
 	S32 max_lines = getMaxLines();
-	//S32 lines = (max_lines < 0) ? (S32)mTextSegments.size() : llmin((S32)mTextSegments.size(), max_lines);
-	//F32 height = (F32)mFontp->getLineHeight() * (lines + mLabelSegments.size());
 
 	S32 start_segment;
 	if (max_lines < 0) start_segment = 0;
@@ -491,7 +489,7 @@ void LLHUDText::updateSize()
 	while (iter != mTextSegments.end())
 	{
 		const LLFontGL* fontp = iter->mFont;
-		height += fontp->getLineHeight();
+		height += fontp->getLineHeight() - 1; // correction factor to match legacy font metrics
 		width = llmax(width, llmin(iter->getWidth(fontp), HUD_TEXT_MAX_WIDTH));
 		++iter;
 	}

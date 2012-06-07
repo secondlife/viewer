@@ -135,6 +135,7 @@ extern BOOL gDebugClicks;
 
 // function prototypes
 bool check_offer_throttle(const std::string& from_name, bool check_only);
+bool check_asset_previewable(const LLAssetType::EType asset_type);
 static void process_money_balance_reply_extended(LLMessageSystem* msg);
 
 //inventory offer throttle globals
@@ -155,7 +156,8 @@ const std::string SCRIPT_QUESTIONS[SCRIPT_PERMISSION_EOF] =
 		"AddAndRemoveJoints",
 		"ChangePermissions",
 		"TrackYourCamera",
-		"ControlYourCamera"
+		"ControlYourCamera",
+		"TeleportYourAgent"
 	};
 
 const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] = 
@@ -170,7 +172,8 @@ const BOOL SCRIPT_QUESTION_IS_CAUTION[SCRIPT_PERMISSION_EOF] =
 	FALSE,	// AddAndRemoveJoints
 	FALSE,	// ChangePermissions
 	FALSE,	// TrackYourCamera,
-	FALSE	// ControlYourCamera
+	FALSE,	// ControlYourCamera
+	FALSE	// TeleportYourAgent
 };
 
 bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
@@ -1064,7 +1067,9 @@ public:
 		// If we now try to remove the inventory item, it will cause a nested
 		// notifyObservers() call, which won't work.
 		// So defer moving the item to trash until viewer gets idle (in a moment).
-		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeItem, &gInventory, mObjectID));
+		// Use removeObject() rather than removeItem() because at this level,
+		// the object could be either an item or a folder.
+		LLAppViewer::instance()->addOnIdleCallback(boost::bind(&LLInventoryModel::removeObject, &gInventory, mObjectID));
 		gInventory.removeObserver(this);
 		delete this;
 	}
@@ -1147,7 +1152,18 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 		}
 	}
 }
- 
+
+// Return "true" if we have a preview method for that asset type, "false" otherwise
+bool check_asset_previewable(const LLAssetType::EType asset_type)
+{
+	return	(asset_type == LLAssetType::AT_NOTECARD)  || 
+			(asset_type == LLAssetType::AT_LANDMARK)  ||
+			(asset_type == LLAssetType::AT_TEXTURE)   ||
+			(asset_type == LLAssetType::AT_ANIMATION) ||
+			(asset_type == LLAssetType::AT_SCRIPT)    ||
+			(asset_type == LLAssetType::AT_SOUND);
+}
+
 void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_name)
 {
 	for (uuid_vec_t::const_iterator obj_iter = objects.begin();
@@ -1171,7 +1187,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 
 		// Either an inventory item or a category.
 		const LLInventoryItem* item = dynamic_cast<const LLInventoryItem*>(obj);
-		if (item)
+		if (item && check_asset_previewable(asset_type))
 		{
 			////////////////////////////////////////////////////////////////////////////////
 			// Special handling for various types.
@@ -1246,6 +1262,7 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 						LLFloaterReg::showInstance("preview_sound", LLSD(obj_id), take_focus);
 						break;
 					default:
+						LL_DEBUGS("Messaging") << "No preview method for previewable asset type : " << LLAssetType::lookupHumanReadable(asset_type)  << LL_ENDL;
 						break;
 				}
 			}
@@ -2235,6 +2252,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	{
         name = LLTrans::getString("Unnamed");
 	}
+
+	// Preserve the unaltered name for use in group notice mute checking.
+	std::string original_name = name;
+
 	// IDEVO convert new-style "Resident" names for display
 	name = clean_name_from_im(name, dialog);
 
@@ -2356,8 +2377,15 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
-			if(accept_im_from_only_friend&&!is_friend)
+			if (accept_im_from_only_friend && !is_friend)
 			{
+				if (!gIMMgr->isNonFriendSessionNotified(session_id))
+				{
+					std::string message = LLTrans::getString("IM_unblock_only_groups_friends");
+					gIMMgr->addMessage(session_id, from_id, name, message);
+					gIMMgr->addNotifiedNonFriendSessionID(session_id);
+				}
+
 				mute_im = true;
 			}
 			if (!mute_im || is_linden) 
@@ -2438,6 +2466,26 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				|| (binary_bucket[binary_bucket_size - 1] != '\0') )
 			{
 				LL_WARNS("Messaging") << "Malformed group notice binary bucket" << LL_ENDL;
+				break;
+			}
+
+			// The group notice packet does not have an AgentID.  Obtain one from the name cache.
+			// If last name is "Resident" strip it out so the cache name lookup works.
+			U32 index = original_name.find(" Resident");
+			if (index != std::string::npos)
+			{
+				original_name = original_name.substr(0, index);
+			}
+			std::string legacy_name = gCacheName->buildLegacyName(original_name);
+			LLUUID agent_id;
+			gCacheName->getUUID(legacy_name, agent_id);
+
+			if (agent_id.isNull())
+			{
+				LL_WARNS("Messaging") << "buildLegacyName returned null while processing " << original_name << LL_ENDL;
+			}
+			else if (LLMuteList::getInstance()->isMuted(agent_id))
+			{
 				break;
 			}
 
@@ -3637,6 +3685,9 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAssetStorage->setUpstream(sim);
 	gCacheName->setUpstream(sim);
 */
+
+	// Make sure we're standing
+	gAgent.standUp();
 
 	// now, use the circuit info to tell simulator about us!
 	LL_INFOS("Messaging") << "process_teleport_finish() Enabling "
@@ -5203,6 +5254,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	BOOL is_dest_group = FALSE;
     S32 amount = 0;
     std::string item_description;
+	BOOL success = FALSE;
 
     msg->getS32("TransactionInfo", "TransactionType", transaction_type);
     msg->getUUID("TransactionInfo", "SourceID", source_id);
@@ -5211,6 +5263,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
     msg->getS32("TransactionInfo", "Amount", amount);
     msg->getString("TransactionInfo", "ItemDescription", item_description);
+	msg->getBOOL("MoneyData", "TransactionSuccess", success);
     LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
 		<< " dest " << dest_id
 		<< " type " << transaction_type
@@ -5272,28 +5325,32 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars", args);
+				message = success ? LLTrans::getString("you_paid_ldollars", args) :
+									LLTrans::getString("you_paid_failure_ldollars", args);
 			}
 			else
 			{
 				// transaction fee to the system, eg, to create a group
-				message = LLTrans::getString("you_paid_ldollars_no_name", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_name", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_name", args);
 			}
 		}
 		else
 		{
 			if (dest_id.notNull())
 			{
-				message = LLTrans::getString("you_paid_ldollars_no_reason", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_reason", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
 			}
 			else
 			{
 				// no target, no reason, you just paid money
-				message = LLTrans::getString("you_paid_ldollars_no_info", args);
+				message = success ? LLTrans::getString("you_paid_ldollars_no_info", args) :
+									LLTrans::getString("you_paid_failure_ldollars_no_info", args);
 			}
 		}
 		final_args["MESSAGE"] = message;
-		notification = "PaymentSent";
+		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
 	else {
 		// ...someone paid you
@@ -5783,6 +5840,16 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 	S32 orig = notification["payload"]["questions"].asInteger();
 	S32 new_questions = orig;
 
+	if (response["Details"])
+	{
+		// respawn notification...
+		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
+
+		// ...with description on top
+		LLNotificationsUtil::add("DebitPermissionDetails");
+		return false;
+	}
+
 	// check whether permissions were granted or denied
 	BOOL allowed = TRUE;
 	// the "yes/accept" button is the first button in the template, making it button 0
@@ -5840,14 +5907,6 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 				gSavedSettings.getString("NotificationChannelUUID")), OfferMatcher(item_id));
 	}
 
-	if (response["Details"])
-	{
-		// respawn notification...
-		LLNotificationsUtil::add(notification["name"], notification["substitutions"], notification["payload"]);
-
-		// ...with description on top
-		LLNotificationsUtil::add("DebitPermissionDetails");
-	}
 	return false;
 }
 static LLNotificationFunctorRegistration script_question_cb_reg_1("ScriptQuestion", script_question_cb);
@@ -6790,12 +6849,14 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 
 	LLPanelEstateCovenant::updateEstateName(estate_name);
 	LLPanelLandCovenant::updateEstateName(estate_name);
+	LLPanelEstateInfo::updateEstateName(estate_name);
 	LLFloaterBuyLand::updateEstateName(estate_name);
 
 	std::string owner_name =
 		LLSLURL("agent", estate_owner_id, "inspect").getSLURLString();
 	LLPanelEstateCovenant::updateEstateOwnerName(owner_name);
 	LLPanelLandCovenant::updateEstateOwnerName(owner_name);
+	LLPanelEstateInfo::updateEstateOwnerName(owner_name);
 	LLFloaterBuyLand::updateEstateOwnerName(owner_name);
 
 	LLPanelPlaceProfile* panel = LLFloaterSidePanelContainer::getPanel<LLPanelPlaceProfile>("places", "panel_place_profile");

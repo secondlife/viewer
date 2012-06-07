@@ -164,7 +164,7 @@
      layout="topleft"
      left_pad="8"
      name="edit_wearable_title"
-     text_color="white"
+     text_color="White"
      top="3"
      value="Editing Shape"
      use_ellipses="true"
@@ -190,7 +190,7 @@
          layout="topleft"
          left="10"
          name="description_text"
-         text_color="white"
+         text_color="White"
          top="10"
          value="Shape:"
          width="150" />
@@ -254,7 +254,7 @@
          name="description"
          prevalidate_callback="ascii"
          select_on_focus="true"
-         text_color="black"
+         text_color="Black"
          top_pad="3"
          width="290" />
     </panel>
@@ -454,7 +454,6 @@
              left="0"			
              mouse_opaque="false"
              name="save_as_btn_lp"
-             user_resize="false" 
              auto_resize="true"
              width="154">
                 <button
@@ -474,7 +473,6 @@
              left_pad="3"			
              mouse_opaque="false"
              name="revert_btn_lp"
-             user_resize="false" 
              auto_resize="true"
              width="152">
                 <button

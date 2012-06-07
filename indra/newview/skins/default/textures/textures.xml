@@ -122,6 +122,8 @@ with the same filename but different name
   <texture name="Checkbox_Press" file_name="widgets/Checkbox_Press.png" preload="true" />
   <texture name="Check_Mark" file_name="icons/check_mark.png" preload="true" />
 
+  <texture name="Checker" file_name="checker.png" preload="false" />
+  
   <texture name="Command_AboutLand_Icon"    file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_Appearance_Icon"   file_name="toolbar_icons/appearance.png"   preload="true" />
   <texture name="Command_Avatar_Icon"       file_name="toolbar_icons/avatars.png"      preload="true" />
@@ -137,6 +139,7 @@ with the same filename but different name
   <texture name="Command_MiniCart_Icon"     file_name="toolbar_icons/mini_cart.png"    preload="true" />
   <texture name="Command_MiniMap_Icon"      file_name="toolbar_icons/mini_map.png"     preload="true" />
   <texture name="Command_Move_Icon"         file_name="toolbar_icons/move.png"         preload="true" />
+  <texture name="Command_Outbox_Icon"       file_name="toolbar_icons/outbox.png"       preload="true" />
   <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png"       preload="true" />
   <texture name="Command_Picks_Icon"        file_name="toolbar_icons/picks.png"        preload="true" />
   <texture name="Command_Places_Icon"       file_name="toolbar_icons/places.png"       preload="true" />
@@ -386,22 +389,9 @@ with the same filename but different name
   <texture name="OptionsMenu_Off" file_name="icons/OptionsMenu_Off.png" preload="false" />
   <texture name="OptionsMenu_Press" file_name="icons/OptionsMenu_Press.png" preload="false" />
 
-  <texture name="OutboxPush_Disabled" file_name="icons/OutboxPush_Disabled.png" preload="true" />
-  <texture name="OutboxPush_Off" file_name="icons/OutboxPush_Off.png" preload="true" />
-  <texture name="OutboxPush_On" file_name="icons/OutboxPush_On.png" preload="true" />
-  <texture name="OutboxPush_On_Over" file_name="icons/OutboxPush_On_Over.png" preload="true" />
-  <texture name="OutboxPush_Over" file_name="icons/OutboxPush_Over.png" preload="true" />
-  <texture name="OutboxPush_Press" file_name="icons/OutboxPush_Press.png" preload="true" />
-  <texture name="OutboxPush_Progress_1" file_name="icons/OutboxPush_Progress_1.png" preload="true" />
-  <texture name="OutboxPush_Progress_2" file_name="icons/OutboxPush_Progress_2.png" preload="true" />
-  <texture name="OutboxPush_Progress_3" file_name="icons/OutboxPush_Progress_3.png" preload="true" />
-  <texture name="OutboxPush_Progress_4" file_name="icons/OutboxPush_Progress_4.png" preload="true" />
-  <texture name="OutboxPush_Progress_5" file_name="icons/OutboxPush_Progress_5.png" preload="true" />
-  <texture name="OutboxPush_Progress_6" file_name="icons/OutboxPush_Progress_6.png" preload="true" />
-  <texture name="OutboxPush_Selected" file_name="icons/OutboxPush_Selected.png" preload="true" />
-  <texture name="OutboxPush_Selected_Disabled" file_name="icons/OutboxPush_Selected_Disabled.png" preload="true" />
-  <texture name="OutboxPush_Selected_Over" file_name="icons/OutboxPush_Selected_Over.png" preload="true" />
-  <texture name="OutboxPush_Selected_Press" file_name="icons/OutboxPush_Selected_Press.png" preload="true" />
+  <texture name="OutboxStatus_Success" file_name="green_checkmark.png" preload="false" />
+  <texture name="OutboxStatus_Warning" file_name="icons/pop_up_caution.png" preload="false" />
+  <texture name="OutboxStatus_Error" file_name="red_x.png" preload="false" />
 
   <texture name="PanOrbit_Off" file_name="bottomtray/PanOrbit_Off.png" preload="false" />
 

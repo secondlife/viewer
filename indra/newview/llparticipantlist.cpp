@@ -390,7 +390,10 @@ void LLParticipantList::onAvatarListRefreshed(LLUICtrl* ctrl, const LLSD& param)
 		{
 			const LLPointer<LLSpeaker>& speakerp = *it;
 
-			update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
+			if (speakerp->mStatus == LLSpeaker::STATUS_TEXT_ONLY)
+			{
+				update_speaker_indicator(list, speakerp->mID, speakerp->mModeratorMutedVoice);
+			}
 		}
 	}
 }
@@ -466,15 +469,22 @@ void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t c
 	mValidateSpeakerCallback = cb;
 }
 
-void LLParticipantList::updateRecentSpeakersOrder()
+void LLParticipantList::update()
 {
-	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder())
+	mSpeakerMgr->update(true);
+
+	if (E_SORT_BY_RECENT_SPEAKERS == getSortOrder() && !isHovered())
 	{
-		// Need to update speakers to sort list correctly
-		mSpeakerMgr->update(true);
 		// Resort avatar list
 		sort();
 	}
+}
+
+bool LLParticipantList::isHovered()
+{
+	S32 x, y;
+	LLUI::getMousePositionScreen(&x, &y);
+	return mAvatarList->calcScreenRect().pointInRect(x, y);
 }
 
 bool LLParticipantList::onAddItemEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& userdata)
@@ -753,6 +763,7 @@ void LLParticipantList::LLParticipantListMenu::toggleMute(const LLSD& userdata, 
 	LLPointer<LLSpeaker> speakerp = mParent.mSpeakerMgr->findSpeaker(speaker_id);
 	if (speakerp.isNull())
 	{
+		LL_WARNS("Speakers") << "Speaker " << speaker_id << " not found" << llendl;
 		return;
 	}
 	LLAvatarListItem* item = dynamic_cast<LLAvatarListItem*>(mParent.mAvatarList->getItemByValue(speaker_id));

@@ -132,7 +132,7 @@
 #pragma warning( 3       : 4265 )	// "class has virtual functions, but destructor is not virtual"
 #pragma warning( 3      :  4266 )	// 'function' : no override available for virtual member function from base 'type'; function is hidden
 #pragma warning (disable : 4180)	// qualifier applied to function type has no meaning; ignored
-#pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
+//#pragma warning( disable : 4284 )	// silly MS warning deep inside their <map> include file
 #pragma warning( disable : 4503 )	// 'decorated name length exceeded, name was truncated'. Does not seem to affect compilation.
 #pragma warning( disable : 4800 )	// 'BOOL' : forcing value to bool 'true' or 'false' (performance warning)
 #pragma warning( disable : 4996 )	// warning: deprecated
@@ -151,6 +151,8 @@
 
 #pragma warning (disable : 4251) // member needs to have dll-interface to be used by clients of class
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
+#pragma warning (disable : 4018) // '<' : signed/unsigned mismatch	
+
 #endif	//	LL_MSVC
 
 #if LL_WINDOWS

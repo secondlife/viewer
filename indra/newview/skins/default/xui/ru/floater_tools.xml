@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="ИНСТРУМЕНТЫ ДЛЯ СТРОИТЕЛЬСТВА">
+	<floater.string name="grid_screen_text">
+		Экран
+	</floater.string>
+	<floater.string name="grid_local_text">
+		Локальная
+	</floater.string>
+	<floater.string name="grid_world_text">
+		Мировая
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		Точка отсчета
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		Присоединение
+	</floater.string>
 	<floater.string name="status_rotate">
 		Перетягивайте цветные полосы для вращения объекта
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="истина" label="Растягивать текстуры" name="checkbox stretch textures"/>
 	<check_box initial_value="истина" label="Привязка" name="checkbox snap to grid"/>
-	<button label="Параметры..." name="Options..." tool_tip="Дополнительные параметры сетки"/>
+	<combo_box name="combobox grid mode" tool_tip="Выберите тип линейки сетки для размещения объекта">
+		<combo_box.item label="Мировая" name="World"/>
+		<combo_box.item label="Локальная" name="Local"/>
+		<combo_box.item label="Точка отсчета" name="Reference"/>
+	</combo_box>
+	<button label="" name="Options..." tool_tip="Дополнительные параметры сетки"/>
 	<button name="ToolCube" tool_tip="Куб"/>
 	<button name="ToolPrism" tool_tip="Призма"/>
 	<button name="ToolPyramid" tool_tip="Пирамида"/>

@@ -46,7 +46,7 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php способ оплаты] | [http://www.secondlife.com/my/account/currency.php валюта] | [http://www.secondlife.com/my/account/exchange_rates.php обменный курс]
+		[http://www.secondlife.com/my/account/payment_method_management.php способ оплаты] | [http://www.secondlife.com/my/account/currency.php деньги]
 	</text>
 	<text name="exchange_rate_note">
 		Повторно введите сумму, чтобы увидеть новый обменный курс.

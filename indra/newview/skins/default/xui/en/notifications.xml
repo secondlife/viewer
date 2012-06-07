@@ -203,34 +203,80 @@ Save changes to current clothing/body part?
    icon="alertmodal.tga"
      name="ConfirmNoCopyToOutbox"
      type="alertmodal">
-        You don't have permission to copy this item to the Marketplace Outbox. Are you sure you want to move the following item?
-        [ITEM_NAME]
-        <usetemplate
-         name="okcancelbuttons"
-         notext="No"
-         yestext="Yes"/>
-    </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="OutboxUploadComplete"
-   type="alertmodal">
-Marketplace upload complete.
-        <usetemplate
-         name="okbutton"
-         yestext="Hooray!"/>
+You don't have permission to copy one or more of these items to the Merchant Outbox.  You can move them or leave them behind.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Don't move item(s)"
+     yestext="Move item(s)"/>
   </notification>
 
   <notification
-   icon="alertmodal.tga"
-   name="OutboxUploadHadErrors"
-   type="alertmodal">
-Marketplace upload completed with errors!  Please correct the problems in your outbox and retry.  Thanks.
-        <usetemplate
-         name="okbutton"
-         yestext="Boo!"/>
+   icon="OutboxStatus_Success"
+   name="OutboxFolderCreated"
+   type="outbox">
+    <unique/>
+A new folder has been created for each item you have transferred into the top level of your Merchant Outbox.
+
+    <usetemplate
+     ignoretext="A new folder was created in the Merchant Outbox"
+     name="okignore"
+     yestext="OK"/>
   </notification>
 
+  <notification
+   icon="OutboxStatus_Success"
+   name="OutboxImportComplete"
+   type="outbox">
+Success
+
+All folders were successfully sent to the Marketplace.
+
+        <usetemplate
+         ignoretext="All folders sent to the Marketplace"
+         name="okignore"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Warning"
+   name="OutboxImportHadErrors"
+   type="outbox">
+Some folders did not transfer
+
+Errors occurred when some folders were sent to the Marketplace.  Those folders are still in your Merchant Outbox.
+
+See the [[MARKETPLACE_IMPORTS_URL] error log] for more information.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxImportFailed"
+   type="outbox">
+Transfer failed
+
+No folders were sent to the Marketplace because of a system or network error.  Try again later.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="OutboxStatus_Error"
+   name="OutboxInitFailed"
+   type="outbox">
+Marketplace initialization failed
+
+Initialization with the Marketplace failed because of a system or network error.  Try again later.
+
+        <usetemplate
+         name="okbutton"
+         yestext="OK"/>
+  </notification>
     
 
     <notification
@@ -1621,7 +1667,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
-[APP_NAME] does not currently support bulk upload of animation files.
+[APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
 
@@ -2369,7 +2415,7 @@ Would you be my friend?
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
-Do you want to remove [NAME] from your Friends List?
+Do you want to remove &lt;nolink&gt;[NAME]&lt;/nolink&gt; from your Friends List?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3409,7 +3455,7 @@ Are you sure you want to return the selected objects to their owners? Transferab
    icon="alert.tga"
    name="GroupLeaveConfirmMember"
    type="alert">
-You are currently a member of the group [GROUP].
+You are currently a member of the group &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Leave Group?
     <tag>group</tag>
     <tag>confirm</tag>
@@ -5161,7 +5207,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOnline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Online
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Online
   </notification>
 
   <notification
@@ -5169,7 +5215,7 @@ Topic: [SUBJECT], Message: [MESSAGE]
    name="FriendOffline"
    type="notifytip">
     <tag>friendship</tag>
-[NAME] is Offline
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; is Offline
   </notification>
 
   <notification
@@ -5510,6 +5556,15 @@ Please select at least one type of content to search (General, Moderate, or Adul
   <notification
    icon="notify.tga"
    name="PaymentSent"
+   persist="true"
+   type="notify">
+    <tag>funds</tag>
+[MESSAGE]
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="PaymentFailure"
    persist="true"
    type="notify">
     <tag>funds</tag>
@@ -6171,7 +6226,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    name="FriendshipAccepted"
    type="offer">
     <tag>friendship</tag>
-[NAME] accepted your friendship offer.
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
   </notification>
 
   <notification
@@ -6180,7 +6235,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
    persist="true"
    type="notify">
     <tag>friendship</tag>
-[NAME] declined your friendship offer.
+&lt;nolink&gt;[NAME]&lt;/nolink&gt; declined your friendship offer.
   </notification>
   
     <notification
@@ -6354,11 +6409,11 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Mute"
+       name="Client_Side_Mute"
        text="Block"/>
       <button
        index="-1"
-       name="Ignore"
+       name="Client_Side_Ignore"
        text="Ignore"/>
     </form>
   </notification>
@@ -6373,11 +6428,11 @@ Grant this request?
     <form name="form">
       <button
        index="-2"
-       name="Mute"
+       name="Client_Side_Mute"
        text="Block"/>
       <button
        index="-1"
-       name="Ignore"
+       name="Client_Side_Ignore"
        text="Ignore"/>
     </form>
   </notification>
@@ -6939,6 +6994,26 @@ With the following Residents:
 	<usetemplate
      name="okcancelbuttons"
      notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="notifytip.tga"
+   name="ShareFolderConfirmation"
+   type="alertmodal">
+Only one folder at a time can be shared.
+
+Are you sure you want to share the following items:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+With the following Residents:
+
+[RESIDENTS]
+  <tag>confirm</tag>
+	<usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
      yestext="Ok"/>
   </notification>
   
@@ -7135,7 +7210,7 @@ Mute everyone?
     <usetemplate
      ignoretext="Confirm before I mute all participants in a group call"
      name="okcancelignore"
-     yestext="Ok"
+     yestext="OK"
      notext="Cancel">
       <unique/>
     </usetemplate>
@@ -7621,4 +7696,31 @@ Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
 You died and have been teleported to your home location.
   </global>
 
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsUpdateFileNotFound"
+   persist="true"
+   type="notify">
+[FNAME] could not be updated because the file could no longer be found.
+Disabling future updates for this file.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsUpdateFailedFinal"
+   persist="true"
+   type="notify">
+[FNAME] could not be opened or decoded for [NRETRIES] attempts, and is now considered broken.
+Disabling future updates for this file.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LocalBitmapsVerifyFail"
+   persist="true"
+   type="notify">
+Attempted to add an invalid or unreadable image file [FNAME] which could not be opened or decoded.
+Attempt cancelled.
+  </notification>
+  
 </notifications>

@@ -15,10 +15,10 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<panel name="balance_bg">
+	<panel left="-425" name="balance_bg" width="215">
 		<text name="balance" tool_tip="L$ bakiyenizi yenilemek için buraya tıklayın" value="L$20"/>
 		<button label="L$ Satın Al" name="buyL" tool_tip="Daha fazla L$ satın almak için tıklayın"/>
-		<button label="Alışveriş yap" name="goShop" tool_tip="Second Life Pazaryeri Aç"/>
+		<button label="Alışveriş yap" name="goShop" tool_tip="Second Life Pazaryeri Aç" width="95"/>
 	</panel>
 	<text name="TimeText" tool_tip="Geçerli zaman (Pasifik)">
 		24:00 AM PST

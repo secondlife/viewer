@@ -39,7 +39,7 @@ class LLWindowCallbacks;
 
 // Refer to llwindow_test in test/common/llwindow for usage example
 
-class LLWindow
+class LLWindow : public LLInstanceTracker<LLWindow>
 {
 public:
 	struct LLWindowResolution
@@ -72,7 +72,9 @@ public:
 	virtual BOOL getSize(LLCoordScreen *size) = 0;
 	virtual BOOL getSize(LLCoordWindow *size) = 0;
 	virtual BOOL setPosition(LLCoordScreen position) = 0;
-	virtual BOOL setSize(LLCoordScreen size) = 0;
+	BOOL setSize(LLCoordScreen size);
+	BOOL setSize(LLCoordWindow size);
+	virtual void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
 	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) = 0;
 	virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
@@ -91,8 +93,9 @@ public:
 	virtual S32 getBusyCount() const;
 
 	// Sets cursor, may set to arrow+hourglass
-	virtual void setCursor(ECursorType cursor) = 0;
+	virtual void setCursor(ECursorType cursor) { mNextCursor = cursor; };
 	virtual ECursorType getCursor() const;
+	virtual void updateCursor() = 0;
 
 	virtual void captureMouse() = 0;
 	virtual void releaseMouse() = 0;
@@ -169,6 +172,9 @@ protected:
 	// Defaults to true
 	virtual BOOL canDelete();
 
+	virtual BOOL setSizeImpl(LLCoordScreen size) = 0;
+	virtual BOOL setSizeImpl(LLCoordWindow size) = 0;
+
 protected:
 	LLWindowCallbacks*	mCallbacks;
 
@@ -181,6 +187,7 @@ protected:
 	LLWindowResolution* mSupportedResolutions;
 	S32			mNumSupportedResolutions;
 	ECursorType	mCurrentCursor;
+	ECursorType	mNextCursor;
 	BOOL		mCursorHidden;
 	S32			mBusyCount;	// how deep is the "cursor busy" stack?
 	BOOL		mIsMouseClipping;  // Is this window currently clipping the mouse
@@ -188,6 +195,8 @@ protected:
 	BOOL		mHideCursorPermanent;
 	U32			mFlags;
 	U16			mHighSurrogate;
+	S32			mMinWindowWidth;
+	S32			mMinWindowHeight;
 
  	// Handle a UTF-16 encoding unit received from keyboard.
  	// Converting the series of UTF-16 encoding units to UTF-32 data,

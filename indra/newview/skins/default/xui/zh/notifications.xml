@@ -966,7 +966,7 @@ Offer friendship to [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Do you want to remove [NAME] from your Friends List?
+		Do you want to remove &lt;nolink&gt;[NAME]&lt;/nolink&gt; from your Friends List?
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1418,7 +1418,7 @@ We must restart [APP_NAME] to install the update.
 		<usetemplate ignoretext="在我退回物件給它們的擁有者前確認" name="okcancelignore" notext="取消" yestext="確定"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		你目前是 [GROUP] 群組的成員。
+		你目前是 &lt;nolink&gt;[GROUP]&lt;/nolink&gt; 群組的成員。
 是否要離開群組？
 		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
 	</notification>
@@ -2109,10 +2109,10 @@ Link to this from a web page to give others easy access to this location, or try
 		Topic: [SUBJECT], Message: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] 上線
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 上線
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] 離線
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 離線
 	</notification>
 	<notification name="AddSelfFriend">
 		Although you&apos;re very nice, you can&apos;t add yourself as a friend.
@@ -2491,10 +2491,10 @@ Please try again in a few moments.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] accepted your friendship offer.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; accepted your friendship offer.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] 謝絕你的交友邀請。
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; 謝絕你的交友邀請。
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		交友邀請被接受。

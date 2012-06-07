@@ -86,17 +86,38 @@ Stellen Sie sicher, dass Ihre Internetverbindung funktioniert.
 		<usetemplate canceltext="Abbrechen" name="yesnocancelbuttons" notext="Nicht speichern" yestext="Speichern"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Ihnen fehlt die Berechtigung zum Kopieren dieses Artikels in die Händler-Outbox. Möchten Sie wirklich den folgenden Artikel verschieben?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
+		Sie sind nicht berechtigt, einen oder mehrere dieser Artikel in die Händler-Outbox zu kopieren. Sie können sie verschieben oder zurücklassen.
+		<usetemplate name="okcancelbuttons" notext="Artikel nicht verschieben" yestext="Artikel verschieben"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Marktplatz-Upload abgeschlossen.
-		<usetemplate name="okbutton" yestext="Hurra!"/>
+	<notification name="OutboxFolderCreated">
+		Für jeden Artikel, den Sie in die oberste Ebene Ihrer Händler-Outbox übertragen haben, wurde ein neuer Ordner erstellt.
+		<usetemplate ignoretext="Neuer Ordner in Händler-Outbox erstellt" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Marktplatz-Upload mit Fehlern abgeschlossen. Korrigieren Sie die Fehler in Ihrer Outbox und versuchen Sie es erneut. Vielen Dank!
-		<usetemplate name="okbutton" yestext="Erneut versuchen"/>
+	<notification name="OutboxImportComplete">
+		Erfolg
+
+Alle Ordner wurden erfolgreich an den Marktplatz übertragen.
+		<usetemplate ignoretext="Alle Ordner an den Marktplatz übertragen" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Einige Ordner wurden nicht übertragen
+
+Beim Übertragen bestimmter Ordner an den Marktplatz ist ein Fehler aufgetreten. Diese Ordner befinden sich noch in Ihrer Händler-Outbox.
+
+Weitere Informationen finden Sie im [[MARKETPLACE_IMPORTS_URL] Fehlerprotokoll].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Übertragung fehlgeschlagen
+
+Aufgrund eines System- oder Netzwerkfehlers wurden keine Ordner an den Marktplatz übertragen. Versuchen Sie es später erneut.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Marktplatzinitialisierung fehlgeschlagen
+
+Marktplatzinitialisierung aufgrund eines System- oder Netzwerkfehlers fehlgeschlagen. Versuchen Sie es später erneut.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Der Text für ein Skript konnte aus folgendem Grund nicht hochgeladen werden: [REASON]. Bitte versuchen Sie es erneut.
@@ -656,7 +677,7 @@ Erwartet wurde [VALIDS]
 		Ausgabedatei konnte nicht erstellt werden: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		Der Mehrfach-Upload von Animationsdateien wird zurzeit von [APP_NAME] nicht unterstützt.
+		Der Bulk-Upload von BVH-Animationsdateien wird zurzeit von [APP_NAME] nicht unterstützt.
 	</notification>
 	<notification name="CannotUploadReason">
 		Datei [FILE] kann aus folgendem Grund nicht hochgeladen werden: [REASON]
@@ -992,7 +1013,7 @@ Sie sind nicht berechtigt, Land für die aktive Gruppe zu kaufen.
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Möchten Sie [NAME] aus Ihrer Freundesliste entfernen?
+		Möchten Sie &lt;nolink&gt;[NAME]&lt;/nolink&gt; aus Ihrer Freundesliste entfernen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1124,8 +1145,13 @@ Der Gruppe „[GROUP_NAME]“ [AREA] m² an Land schenken?
 	<notification name="DisplaySetToSafe">
 		Es wurden sichere Anzeige-Einstellungen gewählt, da die Option -safe verwendet wurde.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Es wurden die für Ihre Systemkonfiguration empfohlenen Anzeige-Einstellungen gewählt.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		Die Anzeigeeinstellungen wurden auf die empfohlenen Werte gesetzt, da Ihre Grafikkarte geändert wurde
+von „[LAST_GPU]“
+in „[THIS_GPU]“
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		Aufgrund einer Änderung des Rendersubsystems wurden die Anzeigeeinstellungen auf die empfohlenen Werte gesetzt.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1443,7 +1469,7 @@ Zur Installation des Updates muss [APP_NAME] neu gestartet werden.
 		<usetemplate ignoretext="Bestätigen, bevor Objekte an Ihre Eigentümer zurückgegeben werden" name="okcancelignore" notext="Abbrechen" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Sie sind Mitglied der Gruppe [GROUP].
+		Sie sind gegenwärtig Mitglied der Gruppe &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
 Diese Gruppe verlassen?
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
 	</notification>
@@ -1926,7 +1952,13 @@ Inventarobjekt(e) verschieben?
 		<usetemplate ignoretext="Bestätigen, bevor Sitzung beendet wird" name="okcancelignore" notext="Nicht beenden" yestext="Beenden"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Möchten Sie wirklich Ihre Standardschaltflächen und -symbolleisten wiederherstellen? 
+		Durch diese Aktion werden Ihre Standardschaltflächen und -symbolleisten wiederhergestellt.
+
+Diese Aktion kann nicht rückgängig gemacht werden.
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Durch diese Aktion werden alle Schaltflächen zurück in die Toolbox gestellt; die Symbolleisten sind leer.
     
 Diese Aktion kann nicht rückgängig gemacht werden.
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
@@ -2134,10 +2166,10 @@ Hierzu wird Ihr Webbrowser geöffnet.
 		Betreff: [SUBJECT], Nachricht: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] ist online
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ist online
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] ist offline
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ist offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Obwohl Sie ein sehr netter Mensch sind, können Sie sich nicht selbst als Freund hinzufügen.
@@ -2250,14 +2282,16 @@ Wählen Sie ein einzelnes Objekt aus.
 		Ihre Visitenkarte wurde abgelehnt.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Sie können an Positionen wie „[NAME]“ teleportieren, wenn Sie rechts in Ihrem Bildschirm die Tafel „Orte“ öffnen und dann die Registerkarte „Meine Landmarken“ auswählen.
-Klicken Sie auf eine Landmarke, um diese auszuwählen. Klicken Sie anschließend auf unten in der Registerkarte auf „Teleportieren“.
-(Sie können auch auf die Landmarke doppelt klicken oder mit rechts auf die Landmarke klicken und dann „Teleportieren“ auswählen).
+		Um zu Orten wie „[NAME]“ zu teleportieren, klicken Sie zuerst auf die Schaltfläche „Orte“
+    und dann im eingeblendeten Fenster auf die Registerkarte „Landmarken“. Klicken Sie auf
+    die gewünschte Landmarke und dann unten im Fenster auf „Teleportieren“.
+    (Sie können auch auf die Landmarke doppelklicken bzw. sie mit der rechten Maustaste ankklicken und dann
+    „Teleportieren“ wählen.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Sie können Einwohner wie „[NAME]“ kontaktieren, wenn Sie die Tafel „Leute“ auf der rechten Seite Ihres Bildschirms öffnen.
-Wählen Sie den Einwohner aus der Liste aus und klicken Sie unten auf „IM“.
-(Sie können auch auf den Namen doppelt klicken oder mit rechts auf den Namen klicken und dann „IM“ auswählen).
+		Um Einwohner wie „[NAME]“ zu kontaktieren, klicken Sie auf die Schaltfläche „Leute“, wählen Sie eingeblendeten Fenster einen Einwohner aus
+    und klicken Sie unten im Fenster auf „IM“.
+    (Sie können auch auf den Namen doppelklicken bzw. ihn mit der rechten Maustaste anklicken und dann „IM“ wählen.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Land kann nicht über Servergrenzen hinweg ausgewählt werden.
@@ -2276,6 +2310,9 @@ Wählen Sie eine kleinere Landfläche.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2532,10 +2569,10 @@ Versuchen Sie es in einigen Minuten erneut.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] hat Ihr Freundschaftsangebot akzeptiert.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; hat Ihr Freundschaftsangebot akzeptiert.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] hat Ihr Freundschaftsangebot abgelehnt.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; hat Ihr Freundschaftsangebot abgelehnt.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Ihr Freundschaftsangebot wurde angeommen.
@@ -2607,16 +2644,16 @@ Anfrage gestatten?
 		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Blockieren"/>
-			<button name="Ignore" text="Ignorieren"/>
+			<button name="Client_Side_Mute" text="Blockieren"/>
+			<button name="Client_Side_Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		„&lt;nolink&gt;[TITLE]&lt;/nolink&gt;“ von [GROUPNAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Blockieren"/>
-			<button name="Ignore" text="Ignorieren"/>
+			<button name="Client_Side_Mute" text="Blockieren"/>
+			<button name="Client_Side_Ignore" text="Ignorieren"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2811,6 +2848,18 @@ Details finden Sie in der Protokolldatei.
 &lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
 
 für folgende Einwohner freigeben:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Es kann nur jeweils ein Ordner geteilt werden.
+
+Möchten Sie wirklich die folgenden Artikel:
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+mit den folgenden Einwohnern teilen:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="OK"/>

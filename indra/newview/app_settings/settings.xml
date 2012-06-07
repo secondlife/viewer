@@ -621,6 +621,28 @@
       <key>Value</key>
       <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/avatars.html</string>
     </map>
+    <key>AvatarRotateThresholdSlow</key>
+    <map>
+      <key>Comment</key>
+      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving slowly (degrees)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>60</integer>
+    </map>  
+    <key>AvatarRotateThresholdFast</key>
+    <map>
+      <key>Comment</key>
+      <string>Angle between avatar facing and camera facing at which avatar turns to face same direction as camera, when moving fast (degrees)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>  
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
       <key>Comment</key>
@@ -1150,6 +1172,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>EnableButtonFlashing</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow UI to flash buttons to get your attention</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ButtonHPad</key>
     <map>
       <key>Comment</key>
@@ -1392,6 +1425,18 @@
     <real>0.5</real>
   </map>
 
+  <key>CameraMaxCoF</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum camera circle of confusion for DoF effect</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10.0</real>
+  </map>
+
   <key>CameraFNumber</key>
   <map>
     <key>Comment</key>
@@ -1543,17 +1588,6 @@
     <map>
       <key>Comment</key>
       <string>Show timestamps in chat</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>ChatVisible</key>
-    <map>
-      <key>Comment</key>
-      <string>Chat bar is visible</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1816,6 +1850,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CurlMaximumNumberOfHandles</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of handles curl can use (requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>256</integer>
+  </map>
+  <key>CurlRequestTimeOut</key>
+  <map>
+    <key>Comment</key>
+    <string>Max idle time of a curl request before killed (requires restart)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>120.0</real>
+  </map>
   <key>CurlUseMultipleThreads</key>
   <map>
     <key>Comment</key>
@@ -1890,6 +1946,17 @@
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>DebugHideEmptySystemFolders</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide empty system folders when on</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -3115,17 +3182,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>EnableRippleWater</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether to use ripple water shader or not</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>EnableTextureAtlas</key>
     <map>
       <key>Comment</key>
@@ -4259,16 +4315,49 @@
 		<key>Value</key>
 		<integer>0</integer>
 	</map>
-    <key>InventoryMarketplaceUserStatus</key>
+	<key>InventoryOutboxLogging</key>
+	<map>
+		<key>Comment</key>
+		<string>Enable debug output associated with the Merchant Outbox.</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+		<string>Boolean</string>
+		<key>Value</key>
+		<integer>0</integer>
+	</map>
+    <key>InventoryOutboxMaxFolderCount</key>
     <map>
       <key>Comment</key>
-      <string>Marketplace user status.</string>
+      <string>Maximum number of subfolders allowed in a listing in the merchant outbox.</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string />
+      <integer>21</integer>
+    </map>
+    <key>InventoryOutboxMaxFolderDepth</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of nested levels of subfolders allowed in a listing in the merchant outbox.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>InventoryOutboxMaxItemCount</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of items allowed in a listing in the merchant outbox.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>200</integer>
     </map>
     <key>InventorySortOrder</key>
     <map>
@@ -7796,7 +7885,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <integer>6</integer>
+    <integer>16</integer>
   </map>
     <key>RenderDebugTextureBind</key>
     <map>
@@ -7856,162 +7945,6 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-
-  <key>RenderAnimateTrees</key>
-  <map>
-    <key>Comment</key>
-    <string>Use GL matrix ops to animate tree branches.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-
-  <key>RenderGIRange</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance to cut off GI effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>96</real>
-  </map>
-
-  <key>RenderGILuminance</key>
-  <map>
-    <key>Comment</key>
-    <string>Luminance factor of global illumination contribution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.075</real>
-  </map>
-  
-  <key>RenderGIBrightness</key>
-  <map>
-    <key>Comment</key>
-    <string>Brightness factor of global illumination contribution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.3</real>
-  </map>
-
-  <key>RenderGINoise</key>
-  <map>
-    <key>Comment</key>
-    <string>Noise of position sampling for GI photon mapping.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.7</real>
-  </map>
-
-  <key>RenderGIAttenuation</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance attenuation factor for indirect lighting.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.1</real>
-  </map>
-
-  <key>RenderGIBlurBrightness</key>
-  <map>
-    <key>Comment</key>
-    <string>Brightness factor of global illumination blur effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.025</real>
-  </map>
-
-  <key>RenderGIBlurEdgeWeight</key>
-  <map>
-    <key>Comment</key>
-    <string>Edge weight for GI soften filter (sharpness).</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.8</real>
-  </map>
-
-  <key>RenderGIBlurIncrement</key>
-  <map>
-    <key>Comment</key>
-    <string>Increment of scale for each pass of global illumination blur effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.8</real>
-  </map>
-
-  <key>RenderLuminanceScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Luminance value scalar for darkening effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
-
-  <key>RenderSunLuminanceScale</key>
-  <map>
-    <key>Comment</key>
-    <string>Sun Luminance value scalar for darkening effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>1.0</real>
-  </map>
-
-  <key>RenderSunLuminanceOffset</key>
-  <map>
-    <key>Comment</key>
-    <string>Sun Luminance value offset for darkening effect.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0</real>
-  </map>
-
-  <key>RenderLuminanceDetail</key>
-  <map>
-    <key>Comment</key>
-    <string>Mipmap level to use for luminance</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>16.0</real>
-   </map>
 
   <key>RenderMinimumLODTriangleCount</key>
   <map>
@@ -8149,7 +8082,19 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
+  <key>CameraDoFResScale</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount to scale down depth of field resolution.  Valid range is 0.25 (quarter res) to 1.0 (full res)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0.7</real>
+  </map>
+
   <key>RenderSpotLightsInNondeferred</key>
   <map>
     <key>Comment</key>
@@ -8294,7 +8239,7 @@
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
-    <real>128</real>
+    <real>512</real>
   </map>
 
   <key>RenderSpecularResY</key>
@@ -8318,25 +8263,13 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>8</real>
+    <real>384</real>
   </map>
 
   <key>RenderDeferred</key>
   <map>
     <key>Comment</key>
     <string>Use deferred rendering pipeline.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
-
-  <key>RenderDeferredGI</key>
-  <map>
-    <key>Comment</key>
-    <string>Enable GI in deferred renderer.</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -8488,92 +8421,6 @@
     <real>0</real>
   </map>
 
-  <key>RenderGIAmbiance</key>
-  <map>
-    <key>Comment</key>
-    <string>Ambiance factor of global illumination contribution.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-
-  <key>RenderGIMinRenderSize</key>
-  <map>
-    <key>Comment</key>
-    <string>Minimum size of objects to put into GI source map.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.5</real>
-  </map>
-
-  <key>RenderGIBlurColorCurve</key>
-  <map>
-    <key>Comment</key>
-    <string>Color curve for GI softening kernel</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Vector3</string>
-    <key>Value</key>
-    <array>
-      <real>1.0</real>
-      <real>0.6</real>
-      <real>0.02</real>
-    </array>
-  </map>
-
-  <key>RenderGIBlurPasses</key>
-  <map>
-    <key>Comment</key>
-    <string>Scale of GI softening kernel.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>4</real>
-  </map>
-
-  <key>RenderGIBlurSize</key>
-  <map>
-    <key>Comment</key>
-    <string>Scale of GI softening kernel.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>4.0</real>
-  </map>
-  <key>RenderGIBlurSamples</key>
-  <map>
-    <key>Comment</key>
-    <string>Number of samples to take for each pass of GI blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <real>16</real>
-  </map>
-  <key>RenderGIBlurDistFactor</key>
-  <map>
-    <key>Comment</key>
-    <string>Distance scaler for GI blur.</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>F32</string>
-    <key>Value</key>
-    <real>0.0</real>
-  </map>
-
   <key>RenderDynamicLOD</key>
     <map>
       <key>Comment</key>
@@ -8616,7 +8463,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>RenderAutoMaskAlphaDeferred</key>
     <map>
@@ -8672,6 +8519,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>RenderGLCoreProfile</key>
+    <map>
+      <key>Comment</key>
+      <string>Don't use a compatibility profile OpenGL context.  Requires restart.  Basic shaders MUST be enabled.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>RenderGlow</key>
     <map>
@@ -9243,6 +9101,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+  <key>RenderAutoMuteByteLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum bytes of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>RenderAutoMuteSurfaceAreaLimit</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum surface area of attachments before an avatar is automatically visually muted (0 for no limit).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>RenderUseShaderLOD</key>
     <map>
       <key>Comment</key>
@@ -9276,6 +9156,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderUseVAO</key>
+    <map>
+      <key>Comment</key>
+      <string>Use GL Vertex Array Objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderVBOMappingDisable</key>
     <map>
       <key>Comment</key>
@@ -9285,7 +9176,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
   <key>RenderUseStreamVBO</key>
   <map>
@@ -9739,18 +9630,29 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowConsoleWindow</key>
-    <map>
-      <key>Comment</key>
-      <string>Show log in separate OS window</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>NavBarShowCoordinates</key>
+  <key>ShowConsoleWindow</key>
+  <map>
+    <key>Comment</key>
+    <string>Show log in separate OS window</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>EnableVisualLeakDetector</key>
+  <map>
+    <key>Comment</key>
+    <string>EnableVisualLeakDetector</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
       <string>Show coordinates in navigation bar</string>
@@ -10586,39 +10488,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>  
-    <key>SnapshotLocalLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next local snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>SnapshotProfileLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next profile snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>SnapshotPostcardLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next postcard snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>SnapshotQuality</key>
     <map>
       <key>Comment</key>
@@ -10651,17 +10520,6 @@
       <string>String</string>
       <key>Value</key>
       <string>http://photos.apps.staging.avatarsunited.com/viewer_config</string>
-    </map>
-    <key>SnapshotTextureLastResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Take next texture snapshot at this resolution</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>SpeedTest</key>
     <map>
@@ -11597,17 +11455,6 @@
       <key>Value</key>
       <real>3</real>
     </map>
-    <key>UIResizeBarOverlap</key>
-    <map>
-      <key>Comment</key>
-      <string>Size of UI resize bar overlap</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <real>1</real>
-    </map>
     <key>UIScaleFactor</key>
     <map>
       <key>Comment</key>
@@ -12277,7 +12124,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <boolean>1</boolean>
     </map>
     <key>UseFreezeFrame</key>
     <map>
@@ -12418,50 +12265,6 @@
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>VectorizeEnable</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable general vector operations and data alignment.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>VectorizePerfTest</key>
-    <map>
-      <key>Comment</key>
-      <string>Test SSE/vectorization performance and choose fastest version.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>VectorizeProcessor</key>
-    <map>
-      <key>Comment</key>
-      <string>0=Compiler Default, 1=SSE, 2=SSE2, autodetected</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>VectorizeSkin</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable vector operations for avatar skinning.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -12916,14 +12719,25 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>WindowFullScreen</key>
+    <key>FullScreen</key>
     <map>
       <key>Comment</key>
-      <string>SL viewer window full screen</string>
+      <string>run a fullscreen session</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>MinWindowHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>SL viewer minimum window height in pixels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -12934,7 +12748,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
       <integer>738</integer>
     </map>
@@ -12949,6 +12763,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>MinWindowWidth</key>
+    <map>
+      <key>Comment</key>
+      <string>SL viewer minimum window width in pixels</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>WindowWidth</key>
     <map>
       <key>Comment</key>
@@ -12956,14 +12781,14 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
       <integer>1024</integer>
     </map>
     <key>WindowX</key>
     <map>
       <key>Comment</key>
-      <string>X coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>X coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -12974,7 +12799,7 @@
     <key>WindowY</key>
     <map>
       <key>Comment</key>
-      <string>Y coordinate of lower left corner of SL viewer window, relative to primary display (pixels)</string>
+      <string>Y coordinate of upper left corner of SL viewer window, relative to upper left corner of primary display (pixels)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13653,10 +13478,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-     <key>WebProfileRect</key>
+     <key>WebProfileFloaterRect</key>
     <map>
       <key>Comment</key>
-      <string>Web profile dimensions</string>
+      <string>Web profile floater dimensions</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -13664,8 +13489,8 @@
       <key>Value</key>
       <array>
         <integer>0</integer>
-        <integer>650</integer>
-        <integer>490</integer>
+        <integer>680</integer>
+        <integer>485</integer>
         <integer>0</integer>
         </array>
         </map>

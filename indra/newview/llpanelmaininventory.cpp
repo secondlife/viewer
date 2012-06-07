@@ -28,6 +28,7 @@
 #include "llpanelmaininventory.h"
 
 #include "llagent.h"
+#include "llagentcamera.h"
 #include "llavataractions.h"
 #include "lldndbutton.h"
 #include "lleconomy.h"
@@ -294,7 +295,13 @@ void LLPanelMainInventory::closeAllFolders()
 
 void LLPanelMainInventory::newWindow()
 {
-	LLFloaterInventory::showAgentInventory();
+	static S32 instance_num = 0;
+	instance_num = (instance_num + 1) % S32_MAX;
+
+	if (!gAgentCamera.cameraMouselook())
+	{
+		LLFloaterReg::showTypedInstance<LLFloaterSidePanelContainer>("inventory", LLSD(instance_num));
+	}
 }
 
 void LLPanelMainInventory::doCreate(const LLSD& userdata)
@@ -368,7 +375,7 @@ void LLPanelMainInventory::onClearSearch()
 	if (mActivePanel)
 	{
 		mActivePanel->setFilterSubString(LLStringUtil::null);
-		mActivePanel->setFilterTypes(0xffffffff);
+		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
 		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
 	}
 
@@ -560,7 +567,7 @@ void LLPanelMainInventory::updateItemcountText()
 
 	std::string text = "";
 
-	if (LLInventoryModelBackgroundFetch::instance().backgroundFetchActive())
+	if (LLInventoryModelBackgroundFetch::instance().folderFetchActive())
 	{
 		text = getString("ItemcountFetching", string_args);
 	}
@@ -586,7 +593,7 @@ void LLPanelMainInventory::onFocusReceived()
 		return;
 	}
 
-	sidepanel_inventory->clearSelections(false, true, true);
+	sidepanel_inventory->clearSelections(false, true);
 }
 
 void LLPanelMainInventory::setFilterTextFromFilter() 
@@ -719,7 +726,7 @@ void LLFloaterInventoryFinder::updateElementsFromFilter()
 void LLFloaterInventoryFinder::draw()
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_DRAW);
-	U32 filter = 0xffffffff;
+	U64 filter = 0xffffffffffffffffULL;
 	BOOL filtered_by_all_types = TRUE;
 
 	if (!getChild<LLUICtrl>("check_animation")->getValue())

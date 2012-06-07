@@ -2078,6 +2078,7 @@ LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL ge
 	mFaceMask = 0x0;
 	mDetail = detail;
 	mSculptLevel = -2;
+	mSurfaceArea = 1.f; //only calculated for sculpts, defaults to 1 for all other prims
 	mIsMeshAssetLoaded = FALSE;
 	mLODScaleBias.setVec(1,1,1);
 	mHullPoints = NULL;
@@ -2903,7 +2904,7 @@ F32 LLVolume::sculptGetSurfaceArea()
 			// compute the area of the quad by taking the length of the cross product of the two triangles
 			LLVector3 cross1 = (p1 - p2) % (p1 - p3);
 			LLVector3 cross2 = (p4 - p2) % (p4 - p3);
-			area += (cross1.magVec() + cross2.magVec()) / 2.0;
+			area += (cross1.magVec() + cross2.magVec()) / 2.f;
 		}
 	}
 
@@ -3143,6 +3144,8 @@ void LLVolume::sculpt(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components,
 		if (mDetail > SCULPT_MIN_AREA_DETAIL)
 		{
 			F32 area = sculptGetSurfaceArea();
+
+			mSurfaceArea = area;
 
 			const F32 SCULPT_MAX_AREA = 384.f;
 
@@ -4305,15 +4308,25 @@ S32 LLVolume::getNumTriangleIndices() const
 }
 
 
-S32 LLVolume::getNumTriangles() const
+S32 LLVolume::getNumTriangles(S32* vcount) const
 {
 	U32 triangle_count = 0;
+	U32 vertex_count = 0;
 
 	for (S32 i = 0; i < getNumVolumeFaces(); ++i)
 	{
-		triangle_count += getVolumeFace(i).mNumIndices/3;
+		const LLVolumeFace& face = getVolumeFace(i);
+		triangle_count += face.mNumIndices/3;
+
+		vertex_count += face.mNumVertices;
 	}
 
+
+	if (vcount)
+	{
+		*vcount = vertex_count;
+	}
+	
 	return triangle_count;
 }
 
@@ -4607,18 +4620,83 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 				genBinormals(i);
 			}
 
-			if (!face.mOctree)
-			{
-				face.createOctree();
-			}
-			
-			//LLVector4a* p = (LLVector4a*) face.mPositions;
+			if (isUnique())
+			{ //don't bother with an octree for flexi volumes
+				U32 tri_count = face.mNumIndices/3;
 
-			LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, bi_normal);
-			intersect.traverse(face.mOctree);
-			if (intersect.mHitFace)
+				for (U32 j = 0; j < tri_count; ++j)
+				{
+					U16 idx0 = face.mIndices[j*3+0];
+					U16 idx1 = face.mIndices[j*3+1];
+					U16 idx2 = face.mIndices[j*3+2];
+
+					const LLVector4a& v0 = face.mPositions[idx0];
+					const LLVector4a& v1 = face.mPositions[idx1];
+					const LLVector4a& v2 = face.mPositions[idx2];
+				
+					F32 a,b,t;
+
+					if (LLTriangleRayIntersect(v0, v1, v2,
+							start, dir, a, b, t))
+					{
+						if ((t >= 0.f) &&      // if hit is after start
+							(t <= 1.f) &&      // and before end
+							(t < closest_t))   // and this hit is closer
+						{
+							closest_t = t;
+							hit_face = i;
+
+							if (intersection != NULL)
+							{
+								LLVector4a intersect = dir;
+								intersect.mul(closest_t);
+								intersect.add(start);
+								intersection->set(intersect.getF32ptr());
+							}
+
+
+							if (tex_coord != NULL)
+							{
+								LLVector2* tc = (LLVector2*) face.mTexCoords;
+								*tex_coord = ((1.f - a - b)  * tc[idx0] +
+									a              * tc[idx1] +
+									b              * tc[idx2]);
+
+							}
+
+							if (normal!= NULL)
+							{
+								LLVector4* norm = (LLVector4*) face.mNormals;
+
+								*normal		= ((1.f - a - b)  * LLVector3(norm[idx0]) + 
+									a              * LLVector3(norm[idx1]) +
+									b              * LLVector3(norm[idx2]));
+							}
+
+							if (bi_normal != NULL)
+							{
+								LLVector4* binormal = (LLVector4*) face.mBinormals;
+								*bi_normal = ((1.f - a - b)  * LLVector3(binormal[idx0]) + 
+										a              * LLVector3(binormal[idx1]) +
+										b              * LLVector3(binormal[idx2]));
+							}
+						}
+					}
+				}
+			}
+			else
 			{
-				hit_face = i;
+				if (!face.mOctree)
+				{
+					face.createOctree();
+				}
+			
+				LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, bi_normal);
+				intersect.traverse(face.mOctree);
+				if (intersect.mHitFace)
+				{
+					hit_face = i;
+				}
 			}
 		}		
 	}
@@ -5812,7 +5890,7 @@ F32 find_vertex_score(LLVCacheVertexData& data)
 	}
 
 	//bonus points for having low valence
-	F32 valence_boost = powf(data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
+	F32 valence_boost = powf((F32)data.mActiveTriangles, -FindVertexScore_ValenceBoostPower);
 	score += FindVertexScore_ValenceBoostScale * valence_boost;
 
 	return score;

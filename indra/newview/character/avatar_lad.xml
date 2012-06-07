@@ -395,7 +395,7 @@
        
     <attachment_point
        id="39"
-       group="9"
+       group="6"
        pie_slice="1"
        name="Neck"
        joint="mNeck"
@@ -405,7 +405,7 @@
   	
   	<attachment_point
        id="40"
-       group="9"
+       group="6"
        pie_slice="2"
        name="Avatar Center"
        joint="mRoot"

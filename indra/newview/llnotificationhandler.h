@@ -103,8 +103,8 @@ protected:
 	// at the moment, when a handlers creates a channel.
 	virtual void initChannel()=0;
 
-	LLScreenChannelBase*	mChannel;
-	e_notification_type		mType;
+	LLHandle<LLScreenChannelBase>	mChannel;
+	e_notification_type				mType;
 
 };
 
@@ -283,9 +283,17 @@ class LLBrowserNotification : public LLSingleton<LLBrowserNotification>
 {
 public:
 	virtual bool processNotification(const LLSD& notify);
-	
 };
-
+	
+/**
+ * Handler for outbox notifications
+ */
+class LLOutboxNotification : public LLSingleton<LLOutboxNotification>
+{
+public:
+	virtual bool processNotification(const LLSD& notify);
+};
+	
 class LLHandlerUtil
 {
 public:

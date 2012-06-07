@@ -115,9 +115,7 @@ public:
 	S32 renderUTF8(const std::string &text, S32 begin_offset, S32 x, S32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style = NORMAL, ShadowType shadow = NO_SHADOW) const;
 
 	// font metrics - override for LLFontFreetype that returns units of virtual pixels
-	F32 getLineHeight() const;
-	F32 getAscenderHeight() const;
-	F32 getDescenderHeight() const;
+	S32 getLineHeight() const;
 
 	S32 getWidth(const std::string& utf8text) const;
 	S32 getWidth(const llwchar* wchars) const;
@@ -188,8 +186,9 @@ public:
 	static std::string getFontPathLocal();
 	static std::string getFontPathSystem();
 
-	static LLCoordFont sCurOrigin;
-	static std::vector<LLCoordFont> sOriginStack;
+	static LLCoordGL sCurOrigin;
+	static F32			sCurDepth;
+	static std::vector<std::pair<LLCoordGL, F32> > sOriginStack;
 
 	static LLColor4 sShadowColor;
 

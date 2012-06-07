@@ -41,6 +41,7 @@ struct LocalTextureData;
 class LLVOAvatarSelf :
 	public LLVOAvatar
 {
+	LOG_CLASS(LLVOAvatarSelf);
 
 /********************************************************************************
  **                                                                            **
@@ -249,10 +250,7 @@ public:
 	// Scratch textures (used for compositing)
 	//--------------------------------------------------------------------
 public:
-	BOOL			bindScratchTexture(LLGLenum format);
 	static void		deleteScratchTextures();
-protected:
-	LLGLuint		getScratchTexName(LLGLenum format, S32& components, U32* texture_bytes);
 private:
 	static S32 		sScratchTexBytes;
 	static LLMap< LLGLenum, LLGLuint*> sScratchTexNames;
@@ -361,6 +359,8 @@ public:
 	void 					debugWearablesLoaded() { mDebugTimeWearablesLoaded = mDebugSelfLoadTimer.getElapsedTimeF32(); }
 	void 					debugAvatarVisible() { mDebugTimeAvatarVisible = mDebugSelfLoadTimer.getElapsedTimeF32(); }
 	void 					outputRezDiagnostics() const;
+	void					outputRezTiming(const std::string& msg) const;
+	void					reportAvatarRezTime() const;
 	void 					debugBakedTextureUpload(LLVOAvatarDefines::EBakedTextureIndex index, BOOL finished);
 	static void				debugOnTimingLocalTexLoaded(BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata);
 
@@ -383,7 +383,7 @@ private:
 
 };
 
-extern LLVOAvatarSelf *gAgentAvatarp;
+extern LLPointer<LLVOAvatarSelf> gAgentAvatarp;
 
 BOOL isAgentAvatarValid();
 

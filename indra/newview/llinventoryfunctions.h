@@ -57,26 +57,17 @@ void show_task_item_profile(const LLUUID& item_uuid, const LLUUID& object_id);
 
 void show_item_original(const LLUUID& item_uuid);
 
-void change_item_parent(LLInventoryModel* model,
-									 LLViewerInventoryItem* item,
-									 const LLUUID& new_parent_id,
-									 BOOL restamp);
-
-void change_category_parent(LLInventoryModel* model,
-	LLViewerInventoryCategory* cat,
-	const LLUUID& new_parent_id,
-	BOOL restamp);
-
-void remove_category(LLInventoryModel* model, const LLUUID& cat_id);
-
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name);
+
+void copy_inventory_category(LLInventoryModel* model, LLViewerInventoryCategory* cat, const LLUUID& parent_id, const LLUUID& root_copy_id = LLUUID::null);
 
 // Generates a string containing the path to the item specified by item_id.
 void append_path(const LLUUID& id, std::string& path);
 
-void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder);
+void copy_item_to_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, const LLUUID& top_level_folder, S32 operation_id);
+void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 operation_id);
 
-void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder);
+void copy_folder_to_outbox(LLInventoryCategory* inv_cat, const LLUUID& dest_folder, const LLUUID& top_level_folder, S32 operation_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **

@@ -234,12 +234,6 @@ LLIMFloater::~LLIMFloater()
 //virtual
 BOOL LLIMFloater::postBuild()
 {
-	// User-resizable control panels in P2P sessions look ugly (EXT-3470).
-	if (mDialog == IM_NOTHING_SPECIAL || mDialog == IM_SESSION_P2P_INVITE)
-	{
-		getChild<LLLayoutStack>("im_panels")->setPanelUserResize("panel_im_control_panel", FALSE);
-	}
-
 	const LLUUID& other_party_id = LLIMModel::getInstance()->getOtherParticipantID(mSessionID);
 	if (other_party_id.notNull())
 	{
@@ -385,9 +379,6 @@ void LLIMFloater::onSlide()
 
 	getChild<LLButton>("slide_left_btn")->setVisible(mControlPanel->getParent()->getVisible());
 	getChild<LLButton>("slide_right_btn")->setVisible(!mControlPanel->getParent()->getVisible());
-
-	LLLayoutStack* stack = getChild<LLLayoutStack>("im_panels");
-	if (stack) stack->setAnimate(true);
 }
 
 //static

@@ -45,12 +45,13 @@ LLOfferHandler::LLOfferHandler(e_notification_type type, const LLSD& id)
 	mType = type;
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
-	mChannel->setControlHovering(true);
-
-	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
+	{
+		channel->setControlHovering(true);
 		channel->setOnRejectToastCallback(boost::bind(&LLOfferHandler::onRejectToast, this, _1));
+		mChannel = channel->getHandle();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -63,13 +64,13 @@ void LLOfferHandler::initChannel()
 {
 	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin");
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLOfferHandler::processNotification(const LLSD& notify)
 {
-	if(!mChannel)
+	if(mChannel.isDead())
 	{
 		return false;
 	}
@@ -80,7 +81,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 		return false;
 
 	// arrange a channel on a screen
-	if(!mChannel->getVisible())
+	if(!mChannel.get()->getVisible())
 	{
 		initChannel();
 	}
@@ -134,7 +135,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 				// we not save offer notifications to the syswell floater that should be added to the IM floater
 				p.can_be_stored = !add_notid_to_im;
 
-				LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+				LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 				if(channel)
 					channel->addToast(p);
 
@@ -175,7 +176,7 @@ bool LLOfferHandler::processNotification(const LLSD& notify)
 			{
 				LLHandlerUtil::decIMMesageCounter(notification);
 			}
-			mChannel->killToastByNotificationID(notification->getID());
+			mChannel.get()->killToastByNotificationID(notification->getID());
 		}
 	}
 

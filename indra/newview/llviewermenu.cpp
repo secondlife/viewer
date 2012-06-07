@@ -25,6 +25,11 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#ifdef INCLUDE_VLD
+#include "vld.h"
+#endif
+
 #include "llviewermenu.h" 
 
 // linden library includes
@@ -76,7 +81,6 @@
 #include "llinventoryfunctions.h"
 #include "llpanellogin.h"
 #include "llpanelblockedlist.h"
-#include "llmenucommands.h"
 #include "llmoveview.h"
 #include "llparcel.h"
 #include "llrootview.h"
@@ -215,7 +219,7 @@ void near_sit_down_point(BOOL success, void *);
 
 
 void velocity_interpolate( void* );
-
+void handle_visual_leak_detector_toggle(void*);
 void handle_rebake_textures(void*);
 BOOL check_admin_override(void*);
 void handle_admin_override_toggle(void*);
@@ -948,6 +952,10 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_COMPOSITION;
 	}
+	else if ("attachment bytes" == info_display)
+	{
+		return LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES;
+	}
 	else if ("glow" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_GLOW;
@@ -1035,26 +1043,6 @@ class LLAdvancedCheckRandomizeFramerate : public view_listener_t
 	{
 		bool new_value = gRandomizeFramerate;
 		return new_value;
-	}
-};
-
-void run_vectorize_perf_test(void *)
-{
-	gSavedSettings.setBOOL("VectorizePerfTest", TRUE);
-}
-
-
-////////////////////////////////
-// RUN Vectorized Perform Test//
-////////////////////////////////
-
-
-class LLAdvancedVectorizePerfTest : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		run_vectorize_perf_test(NULL);
-		return true;
 	}
 };
 
@@ -2035,6 +2023,15 @@ class LLAdvancedToggleViewAdminOptions : public view_listener_t
 	}
 };
 
+class LLAdvancedToggleVisualLeakDetector : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		handle_visual_leak_detector_toggle(NULL);
+		return true;
+	}
+};
+
 class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2223,6 +2220,30 @@ class LLAdvancedEnableToggleHackedGodmode : public view_listener_t
 ////-------------------------------------------------------------------
 //// Advanced menu
 ////-------------------------------------------------------------------
+
+
+//////////////////
+// DEVELOP MENU //
+//////////////////
+
+class LLDevelopCheckLoggingLevel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		U32 level = userdata.asInteger();
+		return (static_cast<LLError::ELevel>(level) == LLError::getDefaultLevel());
+	}
+};
+
+class LLDevelopSetLoggingLevel : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		U32 level = userdata.asInteger();
+		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
+		return true;
+	}
+};
 
 //////////////////
 // ADMIN MENU   //
@@ -2783,8 +2804,31 @@ bool enable_object_mute()
 	else
 	{
 		// Just a regular object
-		return LLSelectMgr::getInstance()->getSelection()->
-			contains( object, SELECT_ALL_TES );
+		return LLSelectMgr::getInstance()->getSelection()->contains( object, SELECT_ALL_TES ) &&
+			   !LLMuteList::getInstance()->isMuted(object->getID());
+	}
+}
+
+bool enable_object_unmute()
+{
+	LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+	if (!object) return false;
+
+	LLVOAvatar* avatar = find_avatar_from_object(object); 
+	if (avatar)
+	{
+		// It's an avatar
+		LLNameValue *lastname = avatar->getNVPair("LastName");
+		bool is_linden =
+			lastname && !LLStringUtil::compareStrings(lastname->getString(), "Linden");
+		bool is_self = avatar->isSelf();
+		return !is_linden && !is_self;
+	}
+	else
+	{
+		// Just a regular object
+		return LLSelectMgr::getInstance()->getSelection()->contains( object, SELECT_ALL_TES ) &&
+			   LLMuteList::getInstance()->isMuted(object->getID());;
 	}
 }
 
@@ -3122,7 +3166,7 @@ void handle_avatar_eject(const LLSD& avatar_id)
 
 bool my_profile_visible()
 {
-	LLFloater* floaterp = LLFloaterReg::findInstance("profile", LLSD().with("id", gAgent.getID()));
+	LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
 	return floaterp && floaterp->isInVisibleChain();
 }
 
@@ -3412,6 +3456,35 @@ void handle_admin_override_toggle(void*)
 
 	// The above may have affected which debug menus are visible
 	show_debug_menus();
+}
+
+void handle_visual_leak_detector_toggle(void*)
+{
+	static bool vld_enabled = false;
+
+	if ( vld_enabled )
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDDisable();
+#endif // _DEBUG
+#endif // INCLUDE_VLD
+		vld_enabled = false;
+	}
+	else
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+	#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDEnable();
+	#endif // _DEBUG
+#endif // INCLUDE_VLD
+
+		vld_enabled = true;
+	};
 }
 
 void handle_god_mode(void*)
@@ -6483,31 +6556,37 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		std::string action = userdata.asString();
 		bool mono = false;
 		std::string msg, name;
+		std::string title;
 		if (action == "compile mono")
 		{
 			name = "compile_queue";
 			mono = true;
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		if (action == "compile lsl")
 		{
 			name = "compile_queue";
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		else if (action == "reset")
 		{
 			name = "reset_queue";
 			msg = "Reset";
+			title = LLTrans::getString("ResetQueueTitle");
 		}
 		else if (action == "start")
 		{
 			name = "start_queue";
 			msg = "SetRunning";
+			title = LLTrans::getString("RunQueueTitle");
 		}
 		else if (action == "stop")
 		{
 			name = "stop_queue";
 			msg = "SetRunningNot";
+			title = LLTrans::getString("NotRunQueueTitle");
 		}
 		LLUUID id; id.generate();
 		
@@ -6516,6 +6595,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		{
 			queue->setMono(mono);
 			queue_actions(queue, msg);
+			queue->setTitle(title);
 		}
 		else
 		{
@@ -7251,12 +7331,6 @@ class LLToolsUseSelectionForGrid : public view_listener_t
 		} func;
 		LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func);
 		LLSelectMgr::getInstance()->setGridMode(GRID_MODE_REF_OBJECT);
-
-		LLFloaterBuildOptions* build_options_floater = LLFloaterReg::getTypedInstance<LLFloaterBuildOptions>("build_options");
-		if (build_options_floater && build_options_floater->getVisible())
-		{
-			build_options_floater->setGridMode(GRID_MODE_REF_OBJECT);
-		}
 		return true;
 	}
 };
@@ -7701,7 +7775,14 @@ class LLWorldEnvSettings : public view_listener_t
 		}
 		else
 		{
-			LLEnvManagerNew::instance().setUseDayCycle(LLEnvManagerNew::instance().getDayCycleName());
+			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
+			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
+			bool use_fixed_sky = false;
+			bool use_region_settings = true;
+			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
+					    envmgr.getSkyPresetName(),
+					    envmgr.getDayCycleName(),
+					    use_fixed_sky, use_region_settings);
 		}
 
 		return true;
@@ -7799,24 +7880,6 @@ class LLWorldPostProcess : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterReg::showInstance("env_post_process");
-		return true;
-	}
-};
-
-class LLWorldToggleMovementControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("moveview");
-		return true;
-	}
-};
-
-class LLWorldToggleCameraControls : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLFloaterReg::toggleInstanceOrBringToFront("camera");
 		return true;
 	}
 };
@@ -7976,6 +8039,11 @@ void initialize_menus()
 	// Agent
 	commit.add("Agent.toggleFlying", boost::bind(&LLAgent::toggleFlying));
 	enable.add("Agent.enableFlying", boost::bind(&LLAgent::enableFlying));
+	commit.add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
+	commit.add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
+	commit.add("Agent.ToggleMicrophone", boost::bind(&LLAgent::toggleMicrophone, _2));
+	enable.add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
+	enable.add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
 
 	// File menu
 	init_menu_file();
@@ -8018,7 +8086,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedAgentFlyingInfo(), "Agent.getFlying");
 	
 	// World menu
-	commit.add("World.Chat", boost::bind(&handle_chat, (void*)NULL));
 	view_listener_t::addMenu(new LLWorldAlwaysRun(), "World.AlwaysRun");
 	view_listener_t::addMenu(new LLWorldCreateLandmark(), "World.CreateLandmark");
 	view_listener_t::addMenu(new LLWorldPlaceProfile(), "World.PlaceProfile");
@@ -8038,9 +8105,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
-
-	view_listener_t::addMenu(new LLWorldToggleMovementControls(), "World.Toggle.MovementControls");
-	view_listener_t::addMenu(new LLWorldToggleCameraControls(), "World.Toggle.CameraControls");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -8117,7 +8181,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
 	view_listener_t::addMenu(new LLAdvancedCheckPeriodicSlowFrame(), "Advanced.CheckPeriodicSlowFrame");
-	view_listener_t::addMenu(new LLAdvancedVectorizePerfTest(), "Advanced.VectorizePerfTest");
 	view_listener_t::addMenu(new LLAdvancedToggleFrameTest(), "Advanced.ToggleFrameTest");
 	view_listener_t::addMenu(new LLAdvancedCheckFrameTest(), "Advanced.CheckFrameTest");
 	view_listener_t::addMenu(new LLAdvancedHandleAttachedLightParticles(), "Advanced.HandleAttachedLightParticles");
@@ -8224,9 +8287,14 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
+	view_listener_t::addMenu(new LLAdvancedToggleVisualLeakDetector(), "Advanced.ToggleVisualLeakDetector");
+
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 
+	// Develop >Set logging level
+	view_listener_t::addMenu(new LLDevelopCheckLoggingLevel(), "Develop.CheckLoggingLevel");
+	view_listener_t::addMenu(new LLDevelopSetLoggingLevel(), "Develop.SetLoggingLevel");
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");
@@ -8313,6 +8381,7 @@ void initialize_menus()
 
 	enable.add("Avatar.EnableMute", boost::bind(&enable_object_mute));
 	enable.add("Object.EnableMute", boost::bind(&enable_object_mute));
+	enable.add("Object.EnableUnmute", boost::bind(&enable_object_unmute));
 	enable.add("Object.EnableBuy", boost::bind(&enable_buy_object));
 	commit.add("Object.ZoomIn", boost::bind(&handle_look_at_selection, "zoom"));
 

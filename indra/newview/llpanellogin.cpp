@@ -216,6 +216,7 @@ void LLPanelLogin::addUsersWithFavoritesToUsername()
 
 void LLPanelLogin::addFavoritesToStartLocation()
 {
+	// Clear the combo.
 	LLComboBox* combo = getChild<LLComboBox>("start_location_combo");
 	if (!combo) return;
 	int num_items = combo->getItemCount();
@@ -223,6 +224,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	{
 		combo->remove(i);
 	}
+
+	// Load favorites into the combo.
+	std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
+	std::string canonical_user_name = canonicalize_username(user_defined_name);
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "stored_favorites.xml");
 	LLSD fav_llsd;
 	llifstream file;
@@ -232,15 +237,18 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	for (LLSD::map_const_iterator iter = fav_llsd.beginMap();
 		iter != fav_llsd.endMap(); ++iter)
 	{
-		std::string user_defined_name = getChild<LLComboBox>("username_combo")->getSimple();
-
 		// The account name in stored_favorites.xml has Resident last name even if user has
 		// a single word account name, so it can be compared case-insensitive with the
 		// user defined "firstname lastname".
-		S32 res = LLStringUtil::compareInsensitive(canonicalize_username(user_defined_name), iter->first);
-		if (res != 0) continue;
+		S32 res = LLStringUtil::compareInsensitive(canonical_user_name, iter->first);
+		if (res != 0)
+		{
+			lldebugs << "Skipping favorites for " << iter->first << llendl;
+			continue;
+		}
 
 		combo->addSeparator();
+		lldebugs << "Loading favorites for " << iter->first << llendl;
 		LLSD user_llsd = iter->second;
 		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
 			iter1 != user_llsd.endArray(); ++iter1)
@@ -283,15 +291,15 @@ LLPanelLogin::~LLPanelLogin()
 // virtual
 void LLPanelLogin::draw()
 {
-	glPushMatrix();
+	gGL.pushMatrix();
 	{
 		F32 image_aspect = 1.333333f;
 		F32 view_aspect = (F32)getRect().getWidth() / (F32)getRect().getHeight();
 		// stretch image to maintain aspect ratio
 		if (image_aspect > view_aspect)
 		{
-			glTranslatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
-			glScalef(image_aspect / view_aspect, 1.f, 1.f);
+			gGL.translatef(-0.5f * (image_aspect / view_aspect - 1.f) * getRect().getWidth(), 0.f, 0.f);
+			gGL.scalef(image_aspect / view_aspect, 1.f, 1.f);
 		}
 
 		S32 width = getRect().getWidth();
@@ -306,7 +314,7 @@ void LLPanelLogin::draw()
 			mLogoImage->draw(0, -264, width + 8, mLogoImage->getHeight());
 		};
 	}
-	glPopMatrix();
+	gGL.popMatrix();
 
 	LLPanel::draw();
 }

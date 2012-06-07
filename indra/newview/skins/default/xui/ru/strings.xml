@@ -180,8 +180,8 @@ http://secondlife.com/viewer-access-faq
 Обновление состояния см. на веб-странице www.secondlife.com/status.
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		Вход в Second Life временно ограничен, чтобы обеспечить наилучшее времяпровождение в игровом мире.
-	 	
+		Вход в Second Life временно ограничен, чтобы сохранить наивысшее качество игрового мира для текущих пользователей.
+
 В это время у пользователей с бесплатными аккаунтами не будет доступа к Second Life, чтобы у тех, кто заплатил, было больше места.
 	</string>
 	<string name="LoginFailedComputerProhibited">
@@ -339,17 +339,35 @@ support@secondlife.com.
 		Сюда можно перетащить только одну вещь
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipOutboxDragToWorld">
+		Нельзя выложить предметы из папке «Торговые исходящие»
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Часть этих объектов нельзя продать, или они переданы другому пользователю.
+		Часть этих объектов нельзя продать или передать.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Ваша папка «Торговые исходящие» может получать вещи только непосредственно из вашего инвентаря
 	</string>
 	<string name="TooltipOutboxWorn">
-		Часть этих объектов на вас. Снимите их со своего аватара и попробуйте переместить их еще раз.
+		Носимые предметы нельзя поместить в папку «Торговые исходящие»
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Визитки нельзя поместить в папку «Торговые исходящие»
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		В этой папке слишком много уровней вложенных папок. Измените структуру вложенных папок, ограничив ее глубину 4 уровнями (корневая папка, вложенные папки уровня А, вложенные в них папки уровня Б, вложенные в них папки уровня В).
+		Глубина вложения папок превышает 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		В папке верхнего уровня более 20 подпапок
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Эта папка содержит более 200 объектов. Сложите некоторые вещи в коробки, чтобы уменьшить число объектов.
+		В папке верхнего уровня более 200 предметов
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Папку нельзя переместить в ее подпапку
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Папку нельзя переместить саму в себя
 	</string>
 	<string name="TooltipHttpUrl">
 		Щелкните, чтобы просмотреть эту веб-страницу
@@ -814,6 +832,9 @@ support@secondlife.com.
 	<string name="anim_yes_head">
 		Согласие
 	</string>
+	<string name="multiple_textures">
+		Несколько
+	</string>
 	<string name="texture_loading">
 		Загрузка...
 	</string>
@@ -972,6 +993,9 @@ support@secondlife.com.
 	</string>
 	<string name="choose_the_directory">
 		Выбрать каталог
+	</string>
+	<string name="script_files">
+		Скрипты
 	</string>
 	<string name="AvatarSetNotAway">
 		На месте
@@ -1211,43 +1235,36 @@ support@secondlife.com.
 		В вашем инвентаре нет копии этой текстуры
 	</string>
 	<string name="InventoryInboxNoItems">
-		Покупки из торгового центра будут доставлены сюда.
+		Здесь будут показаны ваши покупки из торгового центра. Их можно будет перетащить в ваш инвентарь для использования.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		Папка «Торговые исходящие» настроена неправильно
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Ошибка конфигурации папки «Торговые исходящие»
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Чтобы исправить эту проблему, обратитесь в службу поддержки.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Продавать вещи в торговом центре может кто угодно
+		Продавать вещи в торговом центре может кто угодно.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		Станьте торговцем!
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] Торговый центр Second Life] предлагает на продажу более миллиона виртуальных продуктов, и все они созданы жителями Second Life. Вы тоже можете продавать созданные вами вещи, а также некоторые из вещей, купленных вами. Это совсем несложно. Настройка выполняется бесплатно.  [[LEARN_MORE_URL] Узнайте подробности] или [[CREATE_STORE_URL] создайте магазин] в торговом центре, чтобы начать торговлю.
+		Если вы хотите стать торговцем, [[MARKETPLACE_CREATE_STORE_URL] создайте магазин].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Новый способ отправки вещей в торговый центр
+		Ваша папка «Исходящие» пуста.
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Перетащите вещи сюда, чтобы подготовить их для продажи в торговом центре
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Перетаскивайте в эту область вещи и папки, которые хотите продать.  При перетаскивании создается копия вещи (за исключением вещей, недоступных для копирования), поэтому инвентарь не изменяется.  Когда все готово для отправки вещей в торговый центр, нажмите кнопку «Передать». Вещи, перемещенные в инвентарь магазина, исчезают из этой папки.
+		Перетащите папки в эту область и щелкните «Отправить в торговый центр», чтобы выставить их на продажу в [[MARKETPLACE_DASHBOARD_URL] Торговом центре].
 	</string>
 	<string name="Marketplace Error None">
 		Ошибок нет
@@ -1409,6 +1426,9 @@ support@secondlife.com.
 	<string name="no_attachments">
 		Нет прикрепленных объектов
 	</string>
+	<string name="Attachments remain">
+		Присоединения (осталось гнезд: [COUNT])
+	</string>
 	<string name="Buy">
 		Купить
 	</string>
@@ -1534,6 +1554,12 @@ support@secondlife.com.
 	</string>
 	<string name="Right Pec">
 		Правая грудь
+	</string>
+	<string name="Neck">
+		Шея
+	</string>
+	<string name="Avatar Center">
+		Центр аватара
 	</string>
 	<string name="Invalid Attachment">
 		Неверная точка присоединения
@@ -3892,6 +3918,9 @@ support@secondlife.com.
 	<string name="Saved_message">
 		(Сохранено [LONG_TIMESTAMP])
 	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Для просмотра этого сообщения снимите флажок «Только друзья и группы могут звонить мне и отправлять IM» в окне «Настройки/Приватность».
+	</string>
 	<string name="answered_call">
 		На ваш звонок ответили
 	</string>
@@ -4024,6 +4053,18 @@ support@secondlife.com.
 	<string name="you_paid_ldollars_no_name">
 		Вы заплатили L$[AMOUNT] за [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]: [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Вы не смогли заплатить L$[AMOUNT]
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Вы не смогли заплатить пользователю [NAME] L$[AMOUNT]
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Вы не смогли заплатить L$[AMOUNT]: [REASON].
+	</string>
 	<string name="for item">
 		за [ITEM]
 	</string>
@@ -4077,7 +4118,7 @@ support@secondlife.com.
 	</string>
 	<string name="uploading_abuse_report">
 		Загружается...
-  
+
 Жалоба
 	</string>
 	<string name="New Shape">
@@ -4344,7 +4385,8 @@ support@secondlife.com.
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
 		Несмотря на наши усилия, что-то неожиданно пошло не так.
-	Ознакомьтесь с описанием известных проблем в работе этой службы на сайте status.secondlifegrid.net.  
+
+	Ознакомьтесь с описанием известных проблем в работе этой службы на сайте status.secondlifegrid.net.
         Если проблемы продолжаются, то проверьте подключение к сети и настройки брандмауэра.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4432,6 +4474,12 @@ support@secondlife.com.
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Не удалось запустить внешний редактор.
+	</string>
+	<string name="TranslationFailed">
+		Ошибка телепортации: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Ошибка при анализе ответа переводчика.
 	</string>
 	<string name="Esc">
 		ESC
@@ -4815,7 +4863,10 @@ support@secondlife.com.
 		Миникарта
 	</string>
 	<string name="Command_Move_Label">
-		Переместить
+		Ходьба / бег / полет
+	</string>
+	<string name="Command_Outbox_Label">
+		Торговые исходящие
 	</string>
 	<string name="Command_People_Label">
 		Люди
@@ -4842,7 +4893,7 @@ support@secondlife.com.
 		Говорить
 	</string>
 	<string name="Command_View_Label">
-		Вид
+		Управление камерой
 	</string>
 	<string name="Command_Voice_Label">
 		Настройки голоса
@@ -4889,6 +4940,9 @@ support@secondlife.com.
 	<string name="Command_Move_Tooltip">
 		Перемещение аватара
 	</string>
+	<string name="Command_Outbox_Tooltip">
+		Перенести предметы в торговый центр для продажи
+	</string>
 	<string name="Command_People_Tooltip">
 		Друзья, группы и люди поблизости
 	</string>
@@ -4917,7 +4971,16 @@ support@secondlife.com.
 		Изменение угла камеры
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Громкость звонков и голосов окружающих вас людей
+		Регулировка громкости вызовов и разговоров с людьми около вас
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		сейчас на нижней панели инструментов
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		сейчас на левой панели инструментов
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		сейчас на правой панели инструментов
 	</string>
 	<string name="Retain%">
 		Остаток%
@@ -4942,5 +5005,20 @@ support@secondlife.com.
 	</string>
 	<string name="Normal">
 		Нормальный
+	</string>
+	<string name="snapshot_quality_very_low">
+		Очень низкий
+	</string>
+	<string name="snapshot_quality_low">
+		Низкий
+	</string>
+	<string name="snapshot_quality_medium">
+		Средний
+	</string>
+	<string name="snapshot_quality_high">
+		Высокий
+	</string>
+	<string name="snapshot_quality_very_high">
+		Очень высокий
 	</string>
 </strings>

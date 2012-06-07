@@ -64,12 +64,12 @@ namespace LLFloaterEnums
 {
 	enum EOpenPositioning
 	{
-		OPEN_POSITIONING_NONE,
-		OPEN_POSITIONING_CASCADING,
-		OPEN_POSITIONING_CASCADE_GROUP,
-		OPEN_POSITIONING_CENTERED,
-		OPEN_POSITIONING_SPECIFIED,
-		OPEN_POSITIONING_COUNT
+		POSITIONING_RELATIVE,
+		POSITIONING_CASCADING,
+		POSITIONING_CASCADE_GROUP,
+		POSITIONING_CENTERED,
+		POSITIONING_SPECIFIED,
+		POSITIONING_COUNT
 	};
 }
 
@@ -82,8 +82,39 @@ namespace LLInitParam
 	};
 }
 
+struct LL_COORD_FLOATER
+{
+	typedef F32 value_t;
 
-class LLFloater : public LLPanel
+	LLCoordCommon convertToCommon() const;
+	void convertFromCommon(const LLCoordCommon& from);
+protected:
+	LLHandle<LLFloater> mFloater;
+};
+
+struct LLCoordFloater : LLCoord<LL_COORD_FLOATER>
+{
+	typedef LLCoord<LL_COORD_FLOATER> coord_t;
+
+	LLCoordFloater() {}
+	LLCoordFloater(F32 x, F32 y, LLFloater& floater);
+	LLCoordFloater(const LLCoordCommon& other, LLFloater& floater);
+
+	LLCoordFloater& operator=(const LLCoordCommon& other)
+	{
+		convertFromCommon(other);
+		return *this;
+	}
+
+	LLCoordFloater& operator=(const LLCoordFloater& other);
+
+	bool operator==(const LLCoordFloater& other) const;
+	bool operator!=(const LLCoordFloater& other) const { return !(*this == other); }
+
+	void setFloater(LLFloater& floater);
+};
+
+class LLFloater : public LLPanel, public LLInstanceTracker<LLFloater>
 {
 	friend class LLFloaterView;
 	friend class LLFloaterReg;
@@ -132,10 +163,7 @@ public:
 								can_dock,
 								show_title;
 		
-		Optional<LLFloaterEnums::EOpenPositioning>	open_positioning;
-		Optional<S32>								specified_left;
-		Optional<S32>								specified_bottom;
-
+		Optional<LLFloaterEnums::EOpenPositioning>	positioning;
 		
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
@@ -156,6 +184,8 @@ public:
 		
 		Optional<CommitCallbackParam> open_callback,
 									  close_callback;
+
+		Ignored					follows;
 		
 		Params();
 	};
@@ -182,7 +212,7 @@ public:
 	bool initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node = NULL);
 
 	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
-	/*virtual*/ BOOL canSnapTo(const LLView* other_view);
+	/*virtual*/ BOOL canSnapTo(const LLView* other_view); 
 	/*virtual*/ void setSnappedTo(const LLView* snap_view);
 	/*virtual*/ void setFocus( BOOL b );
 	/*virtual*/ void setIsChrome(BOOL is_chrome);
@@ -234,12 +264,11 @@ public:
 	void			setCanTearOff(BOOL can_tear_off);
 	virtual void	setCanResize(BOOL can_resize);
 	void			setCanDrag(BOOL can_drag);
+	bool			getCanDrag();
 	void			setHost(LLMultiFloater* host);
 	BOOL			isResizable() const				{ return mResizable; }
 	void			setResizeLimits( S32 min_width, S32 min_height );
 	void			getResizeLimits( S32* min_width, S32* min_height ) { *min_width = mMinWidth; *min_height = mMinHeight; }
-	LLRect			getSavedRect() const;
-	bool			hasSavedRect() const;
 
 	static std::string		getControlName(const std::string& name, const LLSD& key);
 	static LLControlGroup*	getControlGroup();
@@ -282,7 +311,7 @@ public:
 	void			clearSnapTarget() { mSnappedTo.markDead(); }
 	LLHandle<LLFloater>	getSnapTarget() const { return mSnappedTo; }
 
-	LLHandle<LLFloater> getHandle() const { return mHandle; }
+	LLHandle<LLFloater> getHandle() const { return getDerivedHandle<LLFloater>(); }
 	const LLSD& 	getKey() { return mKey; }
 	virtual bool	matchesKey(const LLSD& key) { return mSingleInstance || KeyCompare::equate(key, mKey); }
 	
@@ -321,7 +350,7 @@ public:
 		
 	void			enableResizeCtrls(bool enable, bool width = true, bool height = true);
 
-	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mOpenPositioning); }
+	bool			isPositioning(LLFloaterEnums::EOpenPositioning p) const { return (p == mPositioning); }
 protected:
 	void			applyControlsAndPosition(LLFloater* other);
 
@@ -329,7 +358,9 @@ protected:
 
 	virtual bool	applyRectControl();
 	bool			applyDockState();
-	void			applyPositioning(LLFloater* other);
+	void			applyPositioning(LLFloater* other, bool on_open);
+	void			applyRelativePosition();
+
 	void			storeRectControl();
 	void			storeVisibilityControl();
 	void			storeDockStateControl();
@@ -393,7 +424,10 @@ public:
 	commit_signal_t* mMinimizeSignal;
 
 protected:
+	bool			mSaveRect;
 	std::string		mRectControl;
+	std::string		mPosXControl;
+	std::string		mPosYControl;
 	std::string		mVisibilityControl;
 	std::string		mDocStateControl;
 	LLSD			mKey;				// Key used for retrieving instances; set (for now) by LLFLoaterReg
@@ -419,9 +453,8 @@ private:
 	BOOL			mDragOnLeft;
 	BOOL			mResizable;
 
-	LLFloaterEnums::EOpenPositioning	mOpenPositioning;
-	S32									mSpecifiedLeft;
-	S32									mSpecifiedBottom;
+	LLFloaterEnums::EOpenPositioning	mPositioning;
+	LLCoordFloater	mPosition;
 	
 	S32				mMinWidth;
 	S32				mMinHeight;
@@ -460,16 +493,9 @@ private:
 	typedef void(*click_callback)(LLFloater*);
 	static click_callback sButtonCallbacks[BUTTON_COUNT];
 
-	typedef std::map<LLHandle<LLFloater>, LLFloater*> handle_map_t;
-	typedef std::map<LLHandle<LLFloater>, LLFloater*>::iterator handle_map_iter_t;
-	static handle_map_t	sFloaterMap;
-
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
-
-//	LLFloaterNotificationContext* mNotificationContext;
-	LLRootHandle<LLFloater>		mHandle;	
 };
 
 
@@ -537,6 +563,7 @@ public:
 private:
 	void hiddenFloaterClosed(LLFloater* floater);
 
+	LLRect				mLastSnapRect;
 	LLHandle<LLView>	mSnapView;
 	BOOL			mFocusCycleMode;
 	S32				mSnapOffsetBottom;
