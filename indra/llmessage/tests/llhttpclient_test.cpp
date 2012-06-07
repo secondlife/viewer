@@ -363,7 +363,7 @@ namespace tut
 		runThePump();
 		ensureStatusOK();
 		LLSD header = getHeader();
-		ensure_equals("got a header", header.emptyMap().asBoolean(), FALSE);
+		ensure("got a header", ! header.emptyMap().asBoolean());
 	}
 	template<> template<>
 	void HTTPClientTestObject::test<9>()
