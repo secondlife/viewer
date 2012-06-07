@@ -44,7 +44,7 @@ public:
 	BOOL                                            isShowPhysicsCapsule() const;
 	void                                            setShowPhysicsCapsule(BOOL pIsShowPhysicsCapsule);
 
-	BOOL                                            isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos) const;
+	BOOL                                            isPhysicsCapsuleEnabled(LLUUID& id, LLVector3& pos, LLQuaternion& rot ) const;
 
 	static void                                     openCharactersViewer();
 	static LLHandle<LLFloaterPathfindingCharacters> getInstanceHandle();
@@ -79,7 +79,7 @@ private:
 	void showCapsule() const;
 	void hideCapsule() const;
 
-	bool getCapsulePosition(LLVector3 &pPosition) const;
+	bool getCapsuleRenderData(LLVector3& pPosition, LLQuaternion& rot) const;
 
 	LLCheckBoxCtrl                                   *mShowPhysicsCapsuleCheckBox;
 

@@ -4377,24 +4377,27 @@ void LLPipeline::renderDebug()
 						gPathfindingProgram.uniform1f("alpha_scale", 1.f);
 					}
 
-					LLUUID id;
+					//Requried character physics capsule render parameters
+					LLUUID id;					
 					LLVector3 pos;
-					if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos ) )
-					{						
+					LLQuaternion rot;
+				
+					if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos, rot ) )
+					{
 						if (LLGLSLShader::sNoFixedFunction)
 						{					
 							//remove blending artifacts
 							gGL.setColorMask(false, false);
-							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos );				
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );				
 							gGL.setColorMask(true, false);
 							LLGLEnable blend(GL_BLEND);
 							gPathfindingProgram.uniform1f("alpha_scale", 0.90f);
-							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos );
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
 							gPathfindingProgram.bind();
 						}
 						else
 						{
-							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos );
+							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
 						}
 					}
 				}
