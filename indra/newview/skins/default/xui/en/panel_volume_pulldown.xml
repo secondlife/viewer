@@ -12,20 +12,6 @@
  layout="topleft"
  name="volumepulldown_floater"
  width="225">
-   <button
-    left="187"
-    top_pad="9"
-    width="12"
-    height="12"
-    follows="top|left"
-    name="prefs_btn"
-    image_unselected="Icon_Gear_Foreground"
-    image_disabled="Icon_Gear_Background"
-    image_pressed="Icon_Gear_Press"
-    scale_image="false">
-    <button.commit_callback
-       function="Vol.GoAudioPrefs" />
-  </button>
       <slider
      control_name="AudioLevelMaster"
      follows="top|left"
