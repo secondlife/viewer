@@ -181,8 +181,8 @@ Consultez la page www.secondlife.com/status pour plus d&apos;informations.
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		Les connexions à Second Life sont temporairement limitées afin de s&apos;assurer que l&apos;expérience des utilisateurs présents dans le monde virtuel soit optimale.
-	 	
-Les personnes disposant de comptes gratuits ne pourront pas accéder à Second Life pendant ce temps afin de permettre à celles qui ont payé pour pouvoir utiliser Second Life puissent le faire.
+
+Les personnes disposant de comptes gratuits ne pourront pas accéder à Second Life pendant ce temps afin de permettre à celles qui ont payé pour pouvoir utiliser Second Life de le faire.
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		Impossible d&apos;accéder à Second Life depuis cet ordinateur.
@@ -339,17 +339,35 @@ Veuillez réessayer de vous connecter dans une minute.
 		Impossible de faire glisser plus d&apos;un objet ici
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$ :"/>
+	<string name="TooltipOutboxDragToWorld">
+		Impossible de rezzer des articles dans la boîte d&apos;envoi vendeur
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Impossible de vendre ou de transférer un ou plusieurs de ces objets à un autre utilisateur.
+		Impossible de vendre ou de transférer un ou plusieurs de ces objets.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		La boîte d&apos;envoi vendeur n&apos;accepte que les articles directement issus de votre inventaire.
 	</string>
 	<string name="TooltipOutboxWorn">
-		Vous portez un ou plusieurs de ces objets. Retirez-les de votre avatar, puis réessayez de les déplacer.
+		Impossible de placer des articles que vous portez dans votre boîte d&apos;envoi vendeur
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Impossible de placer des cartes de visite dans votre boîte d&apos;envoi vendeur
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Trop de niveaux de sous-dossiers dans ce dossier. Réorganisez-le de sorte qu&apos;un maximum de 4 niveaux soit utilisé (dossier racine contenant A contenant B contenant C).
+		Il existe plus de 3 niveaux de dossiers imbriqués.
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		Le dossier de niveau supérieur contient plus de 20 sous-dossiers.
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Ce dossier contient plus de 200 objets. Regroupez une partie des articles dans un paquet afin de réduire le nombre d&apos;objets.
+		Le dossier de niveau supérieur contient plus de 200 articles.
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Impossible de déplacer un dossier vers son enfant
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Impossible de déplacer un dossier vers lui-même
 	</string>
 	<string name="TooltipHttpUrl">
 		Cliquez pour afficher cette page web
@@ -817,6 +835,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="anim_yes_head">
 		Oui
 	</string>
+	<string name="multiple_textures">
+		Multiples
+	</string>
 	<string name="texture_loading">
 		Chargement...
 	</string>
@@ -975,6 +996,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="choose_the_directory">
 		Choisir le répertoire
+	</string>
+	<string name="script_files">
+		Scripts
 	</string>
 	<string name="AvatarSetNotAway">
 		Présent
@@ -1214,43 +1238,36 @@ Veuillez réessayer de vous connecter dans une minute.
 		Vous n&apos;avez pas de copie de cette texture dans votre inventaire
 	</string>
 	<string name="InventoryInboxNoItems">
-		Ici seront livrés les articles achetés sur la Place du marché.
+		Les achats que vous avez effectués sur la Place du marché s&apos;affichent ici. Vous pouvez alors les faire glisser vers votre inventaire afin de les utiliser.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		Configuration incorrecte de votre boîte d&apos;envoi vendeur
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Erreur de configuration de la boîte d&apos;envoi vendeur
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Veuillez contacter le service clientèle pour résoudre le problème.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Tout le monde peut vendre des articles sur la Place du marché
+		Tout le monde peut vendre des articles sur la Place du marché.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		Devenez vendeur !
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] La Place du marché Second Life] comprend plus d&apos;un million de produits virtuels à vendre, tous créés par des résidents. Vous aussi pouvez vendre les articles que vous créez, ainsi que certains articles que vous avez achetés. Le processus est simple et la configuration gratuite. [[LEARN_MORE_URL] En savoir plus] ou [[CREATE_STORE_URL] créer une boutique] sur la Place du marché pour démarrer
+		Pour devenir vendeur, vous devez [[MARKETPLACE_CREATE_STORE_URL] créer une boutique sur la Place du marché].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Un nouveau moyen d&apos;envoyer des articles sur la Place du marché
+		Votre boîte d&apos;envoi est vide.
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Glisser-déposer des articles ici afin de les préparer à la vente sur la Place du marché.
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Faites glisser les articles ou dossiers d&apos;articles à vendre dans cette zone. Une copie de l&apos;article s&apos;affiche, sans que votre inventaire ne soit modifié, sauf si vous avez fait glisser un article pour lequel la copie est interdite. Une fois prêt à envoyer les articles vers la Place du marché, cliquez sur le bouton Charger. Les articles disparaissent de ce dossier lorsqu&apos;ils ont été déplacés vers l&apos;inventaire de la Place du marché.
+		Pour mettre des dossiers en vente sur la [[MARKETPLACE_DASHBOARD_URL] Place du marché], faites-les glisser vers cette zone et cliquez sur &quot;Envoyer vers la Place du marché&quot;.
 	</string>
 	<string name="Marketplace Error None">
 		Aucune erreur
@@ -1412,6 +1429,9 @@ Veuillez réessayer de vous connecter dans une minute.
 	<string name="no_attachments">
 		Aucun élément attaché porté
 	</string>
+	<string name="Attachments remain">
+		Éléments attachés ([COUNT] emplacements restants)
+	</string>
 	<string name="Buy">
 		Acheter
 	</string>
@@ -1537,6 +1557,12 @@ Veuillez réessayer de vous connecter dans une minute.
 	</string>
 	<string name="Right Pec">
 		Pectoral droit
+	</string>
+	<string name="Neck">
+		Cou
+	</string>
+	<string name="Avatar Center">
+		Centre de l&apos;avatar
 	</string>
 	<string name="Invalid Attachment">
 		Point d&apos;attache non valide
@@ -3898,6 +3924,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="Saved_message">
 		(Enregistrement : [LONG_TIMESTAMP])
 	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Pour afficher ce message, vous devez désactiver la case Seuls mes amis et groupes peuvent m&apos;appeler ou m&apos;envoyer un IM, sous Préférences/Confidentialité.
+	</string>
 	<string name="answered_call">
 		Votre appel a fait l&apos;objet d&apos;une réponse
 	</string>
@@ -4030,6 +4059,18 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 	<string name="you_paid_ldollars_no_name">
 		Vous avez payé à [AMOUNT] L$ [REASON].
 	</string>
+	<string name="you_paid_failure_ldollars">
+		Votre paiement de [AMOUNT] L$ à [NAME] [REASON] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Votre paiement de [AMOUNT] L$ a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Votre paiement de [AMOUNT] L$ à [NAME] a échoué.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Votre paiement de [AMOUNT] L$ [REASON] a échoué.
+	</string>
 	<string name="for item">
 		pour l&apos;article suivant : [ITEM]
 	</string>
@@ -4082,9 +4123,9 @@ Si ce message persiste, veuillez aller sur la page [SUPPORT_SITE].
 		En ligne
 	</string>
 	<string name="uploading_abuse_report">
-		Chargement en cours... 
+		Chargement...
 
-de l&apos;infraction signalée
+du rapport d&apos;infraction
 	</string>
 	<string name="New Shape">
 		Nouvelle silhouette
@@ -4351,7 +4392,7 @@ de l&apos;infraction signalée
 	<string name="server_is_down">
 		Malgré nos efforts, une erreur inattendue s&apos;est produite.
 
-	Veuillez vous reporter à status.secondlifegrid.net afin de déterminer si un problème connu existe avec ce service.  
+	Veuillez vous reporter à status.secondlifegrid.net afin de déterminer si un problème connu existe avec ce service.
         Si le problème persiste, vérifiez la configuration de votre réseau et de votre pare-feu.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4439,6 +4480,12 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Échec d&apos;exécution de l&apos;éditeur externe.
+	</string>
+	<string name="TranslationFailed">
+		Échec de traduction : [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Erreur lors de l&apos;analyse de la réponse relative à la traduction.
 	</string>
 	<string name="Esc">
 		Échap
@@ -4810,7 +4857,10 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Mini-carte
 	</string>
 	<string name="Command_Move_Label">
-		Bouger
+		Marcher / Courir / Voler
+	</string>
+	<string name="Command_Outbox_Label">
+		Boîte d&apos;envoi vendeur
 	</string>
 	<string name="Command_People_Label">
 		Personnes
@@ -4837,10 +4887,10 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Parler
 	</string>
 	<string name="Command_View_Label">
-		Vue
+		Paramètres de la caméra
 	</string>
 	<string name="Command_Voice_Label">
-		Chat près de vous
+		Paramètres vocaux
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Information sur le terrain que vous visitez
@@ -4884,6 +4934,9 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Command_Move_Tooltip">
 		Faire bouger votre avatar
 	</string>
+	<string name="Command_Outbox_Tooltip">
+		Transférer des articles vers votre place de marché afin de les vendre.
+	</string>
 	<string name="Command_People_Tooltip">
 		Amis, groupes et personnes près de vous
 	</string>
@@ -4912,7 +4965,16 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 		Changer l&apos;angle de la caméra
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Personnes près de vous avec le chat vocal
+		Commandes de réglage du volume des appels et des personnes près de vous dans Second Life.
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		actuellement dans la barre d&apos;outils du bas
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		actuellement dans la barre d&apos;outils de gauche
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		actuellement dans la barre d&apos;outils de droite
 	</string>
 	<string name="Retain%">
 		Garder%
@@ -4937,5 +4999,20 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Très faible
+	</string>
+	<string name="snapshot_quality_low">
+		Faible
+	</string>
+	<string name="snapshot_quality_medium">
+		Moyenne
+	</string>
+	<string name="snapshot_quality_high">
+		Élevée
+	</string>
+	<string name="snapshot_quality_very_high">
+		Très élevée
 	</string>
 </strings>

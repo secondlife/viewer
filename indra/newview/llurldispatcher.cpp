@@ -167,9 +167,9 @@ bool LLURLDispatcherImpl::dispatchApp(const LLSLURL& slurl,
 // static
 bool LLURLDispatcherImpl::dispatchRegion(const LLSLURL& slurl, const std::string& nav_type, bool right_mouse)
 {
-  if(slurl.getType() != LLSLURL::LOCATION)
+	if(slurl.getType() != LLSLURL::LOCATION)
     {
-      return false;
+		return false;
     }
 	// Before we're logged in, need to update the startup screen
 	// to tell the user where they are going.

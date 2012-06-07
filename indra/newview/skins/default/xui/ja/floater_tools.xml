@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="toolbox floater" short_title="制作ツール" title="">
+	<floater.string name="grid_screen_text">
+		画面
+	</floater.string>
+	<floater.string name="grid_local_text">
+		ローカル
+	</floater.string>
+	<floater.string name="grid_world_text">
+		世界
+	</floater.string>
+	<floater.string name="grid_reference_text">
+		リファレンス
+	</floater.string>
+	<floater.string name="grid_attachment_text">
+		アタッチメント
+	</floater.string>
 	<floater.string name="status_rotate">
 		色の付いたバンドをドラッグしてオブジェクトを回転
 	</floater.string>
@@ -63,7 +78,12 @@
 	</text>
 	<check_box initial_value="true" label="テクスチャを引き延ばす" name="checkbox stretch textures"/>
 	<check_box initial_value="true" label="スナップ" name="checkbox snap to grid"/>
-	<button label="オプション..." label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
+	<combo_box name="combobox grid mode" tool_tip="オブジェクトの配置に使うグリッドルーラの種類を選択">
+		<combo_box.item label="世界" name="World"/>
+		<combo_box.item label="ローカル" name="Local"/>
+		<combo_box.item label="リファレンス" name="Reference"/>
+	</combo_box>
+	<button label="" label_selected="オプション" name="Options..." tool_tip="グリッドオプションを表示します"/>
 	<button label="" label_selected="" name="ToolCube" tool_tip="キューブ"/>
 	<button label="" label_selected="" name="ToolPrism" tool_tip="プリズム"/>
 	<button label="" label_selected="" name="ToolPyramid" tool_tip="ピラミッド"/>

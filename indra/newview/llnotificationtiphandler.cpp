@@ -46,11 +46,12 @@ LLTipHandler::LLTipHandler(e_notification_type type, const LLSD& id)
 	mType = type;	
 
 	// Getting a Channel for our notifications
-	mChannel = LLChannelManager::getInstance()->createNotificationChannel();
-
-	LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+	LLScreenChannel* channel = LLChannelManager::getInstance()->createNotificationChannel();
 	if(channel)
+	{
 		channel->setOnRejectToastCallback(boost::bind(&LLTipHandler::onRejectToast, this, _1));
+		mChannel = channel->getHandle();
+	}
 }
 
 //--------------------------------------------------------------------------
@@ -63,13 +64,13 @@ void LLTipHandler::initChannel()
 {
 	S32 channel_right_bound = gViewerWindow->getWorldViewRectScaled().mRight - gSavedSettings.getS32("NotificationChannelRightMargin"); 
 	S32 channel_width = gSavedSettings.getS32("NotifyBoxWidth");
-	mChannel->init(channel_right_bound - channel_width, channel_right_bound);
+	mChannel.get()->init(channel_right_bound - channel_width, channel_right_bound);
 }
 
 //--------------------------------------------------------------------------
 bool LLTipHandler::processNotification(const LLSD& notify)
 {
-	if(!mChannel)
+	if(mChannel.isDead())
 	{
 		return false;
 	}
@@ -80,7 +81,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		return false;	
 
 	// arrange a channel on a screen
-	if(!mChannel->getVisible())
+	if(!mChannel.get()->getVisible())
 	{
 		initChannel();
 	}
@@ -95,7 +96,7 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 			// don't show toast if Nearby Chat is opened
 			LLNearbyChat* nearby_chat = LLNearbyChat::getInstance();
 			LLNearbyChatBar* nearby_chat_bar = LLNearbyChatBar::getInstance();
-			if (nearby_chat_bar->getVisible() && nearby_chat->getVisible())
+			if (!nearby_chat_bar->isMinimized() && nearby_chat_bar->getVisible() && nearby_chat->getVisible())
 			{
 				return false;
 			}
@@ -137,13 +138,13 @@ bool LLTipHandler::processNotification(const LLSD& notify)
 		
 		removeExclusiveNotifications(notification);
 
-		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel);
+		LLScreenChannel* channel = dynamic_cast<LLScreenChannel*>(mChannel.get());
 		if(channel)
 			channel->addToast(p);
 	}
 	else if (notify["sigtype"].asString() == "delete")
 	{
-		mChannel->killToastByNotificationID(notification->getID());
+		mChannel.get()->killToastByNotificationID(notification->getID());
 	}
 	return false;
 }

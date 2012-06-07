@@ -157,9 +157,9 @@ Para saber mais, visite as perguntas frequentes abaixo: http://secondlife.com/vi
 		O Second Life está fechado para manutenção no momento.  Somente funcionários podem acessá-lo.  Consulte www.secondlife.com/status para as últimas atualizações.
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		O acesso ao Second Life está sendo restrito por alguns instantes para que todos tenham a melhor experiência possível. 
-	 	
-Titulares de contas gratuitas não poderão acessar o Second Life para acomodar os assinantes do Second Life.
+		Logons do Second Life estão temporariamente restritos para garantir a melhor experiência possível para os usuários no mundo virtual.
+
+Pessoas com contas gratuitas não poderão acessar o Second Life no momento para dar espaço para aquelas que pagaram pelo Second Life.
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		O Second Life não pode ser acessado deste computador.  Se você acredita que houve algum equívoco, contate support@secondlife.com.
@@ -291,17 +291,35 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Apenas um item único pode ser arrastado para este local
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]"/>
+	<string name="TooltipOutboxDragToWorld">
+		Não é possível fazer rez do itens em sua caixa de saída do lojista
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Um ou mais objetos não podem ser vendidos ou transferidos para outros usuário.
+		Um ou mais destes objetos não podem ser vendidos ou transferidos.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Sua caixa de saída do lojista aceita apenas itens direto do seu inventário
 	</string>
 	<string name="TooltipOutboxWorn">
-		Você está usando um ou mais desses objetos. Remova-os de seu avatar e tente movê-los novamente.
+		Você não pode colocar os itens que está vestindo na sua caixa de saída do lojista
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Não é possível colocar cartões de visita em sua caixa de saída do lojista
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Esta pasta tem muitos níveis de subpastas. Reorganize as pastas internas em até 4 níveis no máximo (Pasta raiz contém A que contém B que contém C).
+		A profundidade das pastas aninhadas excede 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		A contagem de subpastas na pasta de nível superior excede 20
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Esta pasta contém mais de 200 objetos. Embale alguns dos itens para reduzir a contagem de objetos.
+		A contagem de itens na pasta de nível superior excede 200
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Não é possível mover uma pasta para seu filho
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Não é possível mover uma pasta para dentro dela mesma
 	</string>
 	<string name="TooltipHttpUrl">
 		Clique para ver a página web
@@ -547,6 +565,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="mesh">
 		mesh
 	</string>
+	<string name="AvatarEditingAppearance">
+		(Edição Aparência)
+	</string>
 	<string name="AvatarAway">
 		Distante
 	</string>
@@ -763,6 +784,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="anim_yes_head">
 		Sim
 	</string>
+	<string name="multiple_textures">
+		Múltiplo
+	</string>
 	<string name="texture_loading">
 		Carregando...
 	</string>
@@ -918,6 +942,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="choose_the_directory">
 		Selecionar pasta
+	</string>
+	<string name="script_files">
+		Scripts
 	</string>
 	<string name="AvatarSetNotAway">
 		deixar como ausente
@@ -1157,43 +1184,36 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Você não possui uma cópia desta textura no seu inventário
 	</string>
 	<string name="InventoryInboxNoItems">
-		Compras do marketplace serão entregues aqui.
+		Suas compras do Marketplace aparecerão aqui. Depois, você poderá arrastá-las para seu inventário para usá-las.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		Sua Caixa de saída do lojista não está configurada corretamente
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Erro de configuração na Caixa de saída do lojista
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Entre em contato com o Atendimento para corrigir o problema.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Qualquer um pode vender itens no Mercado
+		Qualquer um pode vender itens no Mercado.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		Torne-se um lojista!
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] O Mercado do Second Life] oferece mais de um milhão de produtos virtuais para venda, todos criados pelos residentes. Você também pode vender os itens que você cria, além de alguns itens que comprou. É fácil e a configuração é gratuita. [[LEARN_MORE_URL] Saiba mais] ou [[CREATE_STORE_URL] crie uma loja] no Mercado para começar.
+		Se você deseja se tornar um lojista, precisará [[MARKETPLACE_CREATE_STORE_URL] criar uma loja no Mercado].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Uma nova maneira de vender os itens no Mercado
+		Sua caixa de saída está vazia
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Arraste e solte os itens aqui para prepará-los para venda no Mercado
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Arraste os itens ou pastas que deseja vender para esta área. Será exibida uma cópia deles, deixando seu inventário inalterado, a menos que você arraste um item que não permita cópia. Quando estiver pronto para enviar os itens para o Mercado, clique no botão Enviar. Quando os itens tiverem sido movidos para seu Inventário de mercado, eles desaparecerão desta pasta.
+		Arraste as pastas para estas áreas e então clique em &quot;Enviar para Mercado&quot; para listar os itens para venda no [[MARKETPLACE_DASHBOARD_URL] Mercado].
 	</string>
 	<string name="Marketplace Error None">
 		Sem erros
@@ -1205,7 +1225,7 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 		Erro: esta pasta está vazia.
 	</string>
 	<string name="Marketplace Error Unassociated Products">
-		Erro: ocorreu uma falha ao enviar este item, pois sua conta de lojista tem muitos itens não associados a produtos. Para corrigir esse erro, faça o login no site do mercado e reduza a contagem de itens não associados.
+		Erro: ocorreu uma falha ao enviar este item, pois sua conta de lojista tem muitos itens não associados a produtos.  Para corrigir esse erro, faça o login no site do mercado e reduza a contagem de itens não associados.
 	</string>
 	<string name="Marketplace Error Object Limit">
 		Erro: este item contém muitos objetos. Corrija esse erro unindo os objetos em caixa para reduzir a contagem total a menos de 200.
@@ -1349,6 +1369,9 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	<string name="no_attachments">
 		Nenhum anexo vestido
 	</string>
+	<string name="Attachments remain">
+		Anexos ([COUNT] slots permanecem)
+	</string>
 	<string name="Buy">
 		Comprar
 	</string>
@@ -1474,6 +1497,12 @@ Titulares de contas gratuitas não poderão acessar o Second Life para acomodar 
 	</string>
 	<string name="Right Pec">
 		Peitoral D
+	</string>
+	<string name="Neck">
+		Pescoço
+	</string>
+	<string name="Avatar Center">
+		Centro do avatar
 	</string>
 	<string name="Invalid Attachment">
 		Ponto de encaixe inválido
@@ -3771,6 +3800,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="Saved_message">
 		(Salvo em [LONG_TIMESTAMP])
 	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Para visualizar esta mensagem, você deve desmarcar &quot;Apenas amigos e grupos podem me ligar ou enviar MIs&quot; em Preferências/Privacidade.
+	</string>
 	<string name="answered_call">
 		Ligação atendida
 	</string>
@@ -3883,16 +3915,28 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 		[NAME] lhe pagou L$ [AMOUNT]
 	</string>
 	<string name="you_paid_ldollars">
-		You pagou L$[AMOUNT] por [REASON] a [NAME].
+		Você pagou L$[AMOUNT] por [REASON] a [NAME].
 	</string>
 	<string name="you_paid_ldollars_no_info">
 		Você acaba de pagar L$[AMOUNT].
 	</string>
 	<string name="you_paid_ldollars_no_reason">
-		You pagou L$[AMOUNT] a [NAME].
+		Você pagou L$[AMOUNT] a [NAME].
 	</string>
 	<string name="you_paid_ldollars_no_name">
-		You pagou L$[AMOUNT] por [REASON].
+		Você pagou L$[AMOUNT] por [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars">
+		Você não pagou L$[AMOUNT] a [NAME] referentes a [REASON].
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		Você não pagou L$[AMOUNT].
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		Você não pagou L$[AMOUNT] a [NAME].
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		Você não pagou L$[AMOUNT] referentes a [REASON].
 	</string>
 	<string name="for item">
 		por [ITEM]
@@ -3947,7 +3991,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="uploading_abuse_report">
 		Carregando...
-  
+
 Denunciar abuso
 	</string>
 	<string name="New Shape">
@@ -4213,10 +4257,10 @@ Denunciar abuso
 	</string>
 	<string name="words_separator" value=","/>
 	<string name="server_is_down">
-		Aconteceu algo inesperado, apesar de termos tentador impedir isso.
+		Aconteceu algo inesperado, apesar de termos tentado impedir isso.
 
-	Cheque secondlifegrid.net para saber se foi detectado um problema com o serviço.   
-        Se o problema persisitr, cheque a configuração da sua rede e firewall.
+	Cheque secondlifegrid.net para saber se foi detectado um problema com o serviço.
+        Se o problema persistir, cheque a configuração da sua rede e firewall.
 	</string>
 	<string name="dateTimeWeekdaysNames">
 		Domingo:Segunda:Terça:Quarta:Quinta:Sexta:Sábado
@@ -4303,6 +4347,12 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Falha de execução do editor externo.
+	</string>
+	<string name="TranslationFailed">
+		Falha na tradução: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Erro ao analisar resposta de tradução.
 	</string>
 	<string name="Esc">
 		Esc
@@ -4674,7 +4724,10 @@ Tente colocar o caminho do editor entre aspas.
 		Mini Mapa
 	</string>
 	<string name="Command_Move_Label">
-		Mover
+		Andar/correr/voar
+	</string>
+	<string name="Command_Outbox_Label">
+		Caixa de saída do lojista
 	</string>
 	<string name="Command_People_Label">
 		Pessoas
@@ -4701,10 +4754,10 @@ Tente colocar o caminho do editor entre aspas.
 		Falar
 	</string>
 	<string name="Command_View_Label">
-		Exibir
+		Controles da câmera
 	</string>
 	<string name="Command_Voice_Label">
-		Voz próxima
+		Configurações de voz
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Informações sobre o terreno que você está visitando
@@ -4748,6 +4801,9 @@ Tente colocar o caminho do editor entre aspas.
 	<string name="Command_Move_Tooltip">
 		Movendo seu avatar
 	</string>
+	<string name="Command_Outbox_Tooltip">
+		Transferir itens para o seu mercado para venda
+	</string>
 	<string name="Command_People_Tooltip">
 		Amigos, grupos e pessoas próximas
 	</string>
@@ -4776,7 +4832,16 @@ Tente colocar o caminho do editor entre aspas.
 		Alterar o ângulo da câmera
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Pessoas próximas com recursos de voz
+		Controles de volume das chamadas e pessoas próximas a você no mundo virtual
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		atualmente na sua barra de ferramentas inferior
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		atualmente na sua barra de ferramentas esquerda
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		atualmente na sua barra de ferramentas direita
 	</string>
 	<string name="Retain%">
 		Reter%
@@ -4801,5 +4866,20 @@ Tente colocar o caminho do editor entre aspas.
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Muito baixo
+	</string>
+	<string name="snapshot_quality_low">
+		Baixo
+	</string>
+	<string name="snapshot_quality_medium">
+		Médio
+	</string>
+	<string name="snapshot_quality_high">
+		Alto
+	</string>
+	<string name="snapshot_quality_very_high">
+		Muito alto
 	</string>
 </strings>

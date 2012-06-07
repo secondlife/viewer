@@ -89,6 +89,11 @@ public:
 		std::string& detected_lang,
 		std::string& err_msg) const = 0;
 
+	/**
+	 * @return if the handler is configured to function properly
+	 */
+	virtual bool isConfigured() const = 0;
+
 	virtual ~LLTranslationAPIHandler() {}
 
 protected:
@@ -115,6 +120,7 @@ public:
 		std::string& translation,
 		std::string& detected_lang,
 		std::string& err_msg) const;
+	/*virtual*/ bool isConfigured() const;
 
 private:
 	static void parseErrorResponse(
@@ -148,8 +154,10 @@ public:
 		std::string& translation,
 		std::string& detected_lang,
 		std::string& err_msg) const;
+	/*virtual*/ bool isConfigured() const;
 private:
 	static std::string getAPIKey();
+	static std::string getAPILanguageCode(const std::string& lang);
 };
 
 /**
@@ -275,7 +283,16 @@ public :
 	 * @param key       Key to verify.
 	 */
 	static void verifyKey(KeyVerificationReceiverPtr& receiver, const std::string& key);
+
+	/**
+	 * @return translation target language
+	 */
 	static std::string getTranslateLanguage();
+
+	/**
+	 * @return true if translation is configured properly.
+	 */
+	static bool isTranslationConfigured();
 
 private:
 	static const LLTranslationAPIHandler& getPreferredHandler();

@@ -130,7 +130,7 @@ Vaya al menú Mundo &gt; Acerca del terreno o seleccione otra parcela para ver s
 				Tráfico:
 			</text>
 			<text name="DwellText">
-				0
+				Cargando...
 			</text>
 			<button label="Comprar terreno" left="130" name="Buy Land..." width="125"/>
 			<button label="Venta Linden" name="Linden Sale..." tool_tip="El terreno debe estar en propiedad, con contenido, y no estar en subasta."/>
@@ -309,13 +309,15 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 				Sin &apos;empujones&apos; (prevalece lo marcado en la región)
 			</panel.string>
 			<panel.string name="see_avs_text">
-				Ver a los residentes de esta parcela y chatear con ellos
+				Los avatares de otras parcelas pueden ver
 			</panel.string>
 			<text name="allow_label">
 				Permitir a otros Residentes:
 			</text>
-			<check_box label="Editar el terreno" name="edit land check" tool_tip="Si se marca, cualquiera podrá modificar su terreno. Mejor dejarlo desmarcado, pues usted siempre puede modificar su terreno."/>
-			<check_box label="Volar" name="check fly" tool_tip="Si se marca, los residentes podrán volar en su terreno. Si no, sólo podrán volar al cruzarlo o hasta que aterricen en él."/>
+			<text name="allow_label0">
+				Volar:
+			</text>
+			<check_box label="Todos" name="check fly" tool_tip="Si se marca, los residentes podrán volar en su terreno. Si no, sólo podrán volar al cruzarlo o hasta que aterricen en él."/>
 			<text name="allow_label2">
 				Crear objetos:
 			</text>
@@ -331,9 +333,6 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<check_box label="Todos los residentes" name="check other scripts"/>
 			<check_box label="El grupo" name="check group scripts"/>
-			<text name="land_options_label">
-				Opciones del terreno:
-			</text>
 			<check_box label="Seguro (sin daño)" name="check safe" tool_tip="Si se marca, convierte el terreno en &apos;seguro&apos;, desactivando el daño en combate. Si no, se activa el daño en combate."/>
 			<check_box label="Sin &apos;empujones&apos;" name="PushRestrictCheck" tool_tip="Previene scripts que empujen. Marcando esta opción prevendrá que en su terreno haya comportamientos destructivos."/>
 			<check_box label="Mostrar el sitio en la búsqueda (30 L$/semana)" name="ShowDirectoryCheck" tool_tip="Let people see this parcel in search results"/>
@@ -374,9 +373,9 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
 			<text name="allow_label5">
-				Permitir a los residentes de otras parcelas:
+				Los avatares de otras parcelas pueden ver a los avatares de esta parcela y chatear con ellos
 			</text>
-			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los residentes de otras parcelas vean a los residentes de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
+			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
 			<text name="landing_point">
 				Punto de llegada: [LANDING]
 			</text>
@@ -461,12 +460,12 @@ los media:
 			<text name="Limit access to this parcel to:">
 				Acceso a esta parcela
 			</text>
-			<check_box label="Permitir el acceso público [MATURITY]" name="public_access"/>
+			<check_box label="Permitir el acceso público (si no seleccionas esta opción, se crearán líneas de prohibición)" name="public_access"/>
 			<text name="Only Allow">
-				Restringir el acceso a residentes verificados con:
+				Permitir únicamente el acceso a los Residentes que:
 			</text>
-			<check_box label="Información de pago aportada [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Expulsa a los Residentes no identificados."/>
-			<check_box label="Verificación de edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Expulsa a los Residentes que no hayan verificado su edad. Más información en [SUPPORT_SITE]."/>
+			<check_box label="Han aportado información de pago [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Para poder acceder a esta parcela los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
+			<check_box label="Han verificado su edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben haber verificado su edad. Para más información, ver [SUPPORT_SITE]."/>
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">

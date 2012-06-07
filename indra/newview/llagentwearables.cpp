@@ -185,6 +185,7 @@ void LLAgentWearables::setAvatarObject(LLVOAvatarSelf *avatar)
 { 
 	if (avatar)
 	{
+		avatar->outputRezTiming("Sending wearables request");
 		sendAgentWearablesRequest();
 	}
 }
@@ -816,7 +817,10 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
+		if (isAgentAvatarValid())
+		{
 		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+		}
 		wearable->setLabelUpdated();
 	}
 }
@@ -948,6 +952,11 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 	// that may result from AgentWearablesRequest having been sent more than once.
 	if (mInitialWearablesUpdateReceived)
 		return;
+
+	if (isAgentAvatarValid())
+	{
+		gAgentAvatarp->outputRezTiming("Received initial wearables update");
+	}
 
 	// notify subscribers that wearables started loading. See EXT-7777
 	// *TODO: find more proper place to not be called from deprecated method.
@@ -1619,6 +1628,11 @@ void LLAgentWearables::queryWearableCache()
 	//VWR-22113: gAgent.getRegion() can return null if invalid, seen here on logout
 	if(gAgent.getRegion())
 	{
+		if (isAgentAvatarValid())
+		{
+			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
+		}
+
 		llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		gAgentQueryManager.mNumPendingQueries++;

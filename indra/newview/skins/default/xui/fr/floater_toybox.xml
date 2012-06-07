@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="Toybox" title="PERSONNALISER LA BARRE D&apos;OUTILS">
+<floater name="Toybox" title="BOUTONS DES BARRES D&apos;OUTILS">
 	<text name="toybox label 1">
-		Ajouter ou supprimer des boutons en les faisant glisser vers les barres d&apos;outils ou à partir de ces dernières.
+		Ajouter ou supprimer des boutons : les faire glisser vers ou depuis les barres d&apos;outils.
 	</text>
 	<text name="toybox label 2">
-		Les boutons s&apos;afficheront comme indiqué ou comme des icônes, en fonction des paramètres de chaque barre d&apos;outils.
+		Ils s&apos;afficheront comme indiqué ou comme des icônes, selon les paramètres de barre d&apos;outils.
 	</text>
-	<button label="Restaurer les choix par défaut" label_selected="Restaurer les choix par défaut" name="btn_restore_defaults"/>
+	<button label="Effacer tout" label_selected="Effacer tout" name="btn_clear_all"/>
+	<button label="Valeurs par défaut" label_selected="Valeurs par défaut" name="btn_restore_defaults"/>
 </floater>

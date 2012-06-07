@@ -705,7 +705,7 @@ private:
 		// look up "Display Name" in meta data
 		OSType meta_data_key = kQTMetaDataCommonKeyDisplayName;
 		QTMetaDataItem item = kQTMetaDataItemUninitialized;
-		result = QTMetaDataGetNextItem( media_data_ref, kQTMetaDataStorageFormatWildcard, 
+		result = (OSErr)QTMetaDataGetNextItem( media_data_ref, kQTMetaDataStorageFormatWildcard, 
 										0, kQTMetaDataKeyFormatCommon, 
 										(const UInt8 *)&meta_data_key, 
 										sizeof( meta_data_key ), &item );
@@ -714,14 +714,14 @@ private:
 
 		// find the size of the title
 		ByteCount size;
-		result = QTMetaDataGetItemValue( media_data_ref, item, NULL, 0, &size );
+		result = (OSErr)QTMetaDataGetItemValue( media_data_ref, item, NULL, 0, &size );
 		if ( noErr != result || size <= 0 /*|| size > 1024  FIXME: arbitrary limit */ ) 
 			return false;
 
 		// allocate some space and grab it
 		UInt8* item_data = new UInt8[ size + 1 ];
 		memset( item_data, 0, ( size + 1 ) * sizeof( UInt8 ) );
-		result = QTMetaDataGetItemValue( media_data_ref, item, item_data, size, NULL );
+		result = (OSErr)QTMetaDataGetItemValue( media_data_ref, item, item_data, size, NULL );
 		if ( noErr != result ) 
 		{
 			delete [] item_data;

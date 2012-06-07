@@ -22,10 +22,10 @@ le Lindex...
 	<text name="currency_action">
 		Je veux acheter
 	</text>
-	<text name="currency_label" left="308">
+	<text left="308" name="currency_label">
 		L$
 	</text>
-	<line_editor label="L$" name="currency_amt" width="65" left_pad="-85">
+	<line_editor label="L$" left_pad="-85" name="currency_amt" width="65">
 		1234
 	</line_editor>
 	<text name="buying_label">
@@ -47,13 +47,13 @@ le Lindex...
 		[AMT] L$
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php?lang=fr-FR mode de paiement] | [http://www.secondlife.com/my/account/currency.php?lang=fr-FR devise] | [http://www.secondlife.com/my/account/exchange_rates.php?lang=fr-FR taux de change]
+		[http://www.secondlife.com/my/account/payment_method_management.php mode de paiement] | [http://www.secondlife.com/my/account/currency.php devise]
 	</text>
 	<text name="exchange_rate_note">
 		Saisissez à nouveau le montant pour voir le taux de change actuel.
 	</text>
 	<text name="purchase_warning_repurchase">
-		Confirmer cet achat n'achète que des L$, pas l'objet.
+		Confirmer cet achat n&apos;achète que des L$, pas l&apos;objet.
 	</text>
 	<text bottom_delta="16" name="purchase_warning_notenough">
 		Vous n&apos;achetez pas assez de L$. Veuillez augmenter le montant.

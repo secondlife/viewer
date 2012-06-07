@@ -271,7 +271,7 @@ void LLFloaterColorPicker::destroyUI ()
 	if ( mSwatchView )
 	{
 		this->removeChild ( mSwatchView );
-		delete mSwatchView;
+		mSwatchView->die();;
 		mSwatchView = NULL;
 	}
 }

@@ -115,7 +115,7 @@ LLButton::Params::Params()
 
 LLButton::LLButton(const LLButton::Params& p)
 :	LLUICtrl(p),
-	LLBadgeOwner(LLView::getHandle()),
+	LLBadgeOwner(getHandle()),
 	mMouseDownFrame(0),
 	mMouseHeldDownCount(0),
 	mBorderEnabled( FALSE ),
@@ -589,15 +589,23 @@ void LLButton::getOverlayImageSize(S32& overlay_width, S32& overlay_height)
 // virtual
 void LLButton::draw()
 {
+	static LLCachedControl<bool> sEnableButtonFlashing(*LLUI::sSettingGroups["config"], "EnableButtonFlashing", true);
 	F32 alpha = mUseDrawContextAlpha ? getDrawContext().mAlpha : getCurrentTransparency();
 	bool flash = FALSE;
 
-	if( mFlashing )
+	if( mFlashing)
 	{
-		F32 elapsed = mFlashingTimer.getElapsedTimeF32();
-		S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
-		// flash on or off?
-		flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
+		if ( sEnableButtonFlashing)
+		{
+			F32 elapsed = mFlashingTimer.getElapsedTimeF32();
+			S32 flash_count = S32(elapsed * mButtonFlashRate * 2.f);
+			// flash on or off?
+			flash = (flash_count % 2 == 0) || flash_count > S32((F32)mButtonFlashCount * 2.f);
+		}
+		else
+		{ // otherwise just highlight button in flash color
+			flash = true;
+		}
 	}
 
 	bool pressed_by_keyboard = FALSE;
@@ -900,9 +908,9 @@ void LLButton::draw()
 		// Not sure if it is really needed. Probably S32_MAX should be always passed as max_chars.
 		mLastDrawCharsCount = mGLFont->render(label, 0,
 			(F32)x,
-			(F32)(mBottomVPad + y_offset),
+			(F32)(getRect().getHeight() / 2 + mBottomVPad),
 			label_color % alpha,
-			mHAlign, LLFontGL::BOTTOM,
+			mHAlign, LLFontGL::VCENTER,
 			LLFontGL::NORMAL,
 			mDropShadowedText ? LLFontGL::DROP_SHADOW_SOFT : LLFontGL::NO_SHADOW,
 			S32_MAX, text_width,
@@ -1233,7 +1241,6 @@ void LLButton::resetMouseDownTimer()
 	mMouseDownTimer.stop();
 	mMouseDownTimer.reset();
 }
-
 
 BOOL LLButton::handleDoubleClick(S32 x, S32 y, MASK mask)
 {

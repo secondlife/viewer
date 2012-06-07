@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="Anim Preview" title="ANIMATION.ANIM">
+	<text name="name_label">
+		Название:
+	</text>
+	<text name="description_label">
+		Описание:
+	</text>
+	<button label="Передать (L$[AMOUNT])" name="ok_btn"/>
+	<button label="Отмена" label_selected="Отмена" name="cancel_btn"/>
+</floater>

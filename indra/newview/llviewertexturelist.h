@@ -65,6 +65,7 @@ class LLViewerTextureList
 
 	friend class LLTextureView;
 	friend class LLViewerTextureManager;
+	friend class LLLocalBitmap;
 	
 public:
 	static BOOL createUploadFile(const std::string& filename, const std::string& out_filename, const U8 codec);

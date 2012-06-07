@@ -38,7 +38,6 @@
 #include "llviewernetwork.h"
 
 static const std::string PANEL_PICKS = "panel_picks";
-static const std::string PANEL_PROFILE = "panel_profile";
 
 std::string getProfileURL(const std::string& agent_name)
 {
@@ -168,6 +167,23 @@ LLPanelProfile::ChildStack::ChildStack()
 {
 }
 
+LLPanelProfile::ChildStack::~ChildStack()
+{
+	while (mStack.size() != 0)
+	{
+		view_list_t& top = mStack.back();
+		for (view_list_t::const_iterator it = top.begin(); it != top.end(); ++it)
+		{
+			LLView* viewp = *it;
+			if (viewp)
+			{
+				viewp->die();
+			}
+		}
+		mStack.pop_back();
+	}
+}
+
 void LLPanelProfile::ChildStack::setParent(LLPanel* parent)
 {
 	llassert_always(parent != NULL);
@@ -272,7 +288,6 @@ BOOL LLPanelProfile::postBuild()
 	panel_picks->setProfilePanel(this);
 
 	getTabContainer()[PANEL_PICKS] = panel_picks;
-	getTabContainer()[PANEL_PROFILE] = findChild<LLPanelAvatarProfile>(PANEL_PROFILE);
 
 	return TRUE;
 }

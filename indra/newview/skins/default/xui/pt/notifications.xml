@@ -85,17 +85,38 @@ Verifique se a conexão à internet está funcionando.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="Não salvar" yestext="Salvar"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		Você não tem permissão para copiar este item para a Caixa de saída do lojista. Tem certeza de que deseja mover o itens a seguir?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+		Você não possui permissão para copiar um ou mais destes itens para a Caixa de saída do lojista.  Você pode movê-los ou abandoná-los.
+		<usetemplate name="okcancelbuttons" notext="Não mover item(ns)" yestext="Mover item(ns)"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Envio para Mercado concluído.
-		<usetemplate name="okbutton" yestext="Viva!"/>
+	<notification name="OutboxFolderCreated">
+		Uma nova pasta foi criada para cada item transferido para o nível superior de sua Caixa de saída do lojista.
+		<usetemplate ignoretext="Uma nova pasta foi criada na Caixa de saída do lojista" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		Envio para Mercado concluído com erros!  Corrija os problemas em sua caixa de saída e tente novamente. Obrigado.
-		<usetemplate name="okbutton" yestext="Tudo bem!"/>
+	<notification name="OutboxImportComplete">
+		Êxito
+
+Todas as pastas foram enviadas para o Mercado com êxito.
+		<usetemplate ignoretext="Todas as pastas enviadas para o Mercado" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Algumas pastas não foram transferidas
+
+Erro ao enviar algumas pastas para o Mercado.  Estas pastas ainda estão na sua Caixa de saída do lojista.
+
+Consulte o [[MARKETPLACE_IMPORTS_URL] log de erros] para mais informações.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Falha de transferência
+
+Nenhuma pasta enviada para o Mercado devido a um erro do sistema ou da rede.  Tente novamente mais tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Falha na inicialização do Mercado
+
+Falha na inicialização do mercado devido a um erro do sistema ou da rede.  Tente novamente mais tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Houve um problema com o carregamento do texto para um script devido à seguinte razão: [REASON]. Por favor, tente novamente mais tarde.
@@ -643,7 +664,7 @@ Esperada [VALIDS]
 		Incapaz de criar arquivo de saída: [FILE]
 	</notification>
 	<notification name="DoNotSupportBulkAnimationUpload">
-		O [APP_NAME] ainda não faz o upload de vários arquivos de animação de uma vez.
+		O [APP_NAME] ainda não faz o upload de vários arquivos de animação no formato BVH de uma vez.
 	</notification>
 	<notification name="CannotUploadReason">
 		Incapaz de carregar [FILE] devido ao seguinte motivo: [REASON]
@@ -973,7 +994,7 @@ Oferecer amizade para [NAME]?
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		Remover [NAME] da sua lista de amigos?
+		Deseja remover &lt;nolink&gt;[NAME]&lt;/nolink&gt; da sua lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Remover"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1099,8 +1120,13 @@ Doar este terreno de [AREA] m² para o grupo &apos;[GROUP_NAME]&apos;?
 	<notification name="DisplaySetToSafe">
 		Configurações de display foram ajustadas para níveis de segurança porque você especificou -- opção de segurança.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Configurações de display foram ajustadas para nível recomendado baseado na configuração do seu sistema.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		As configurações de tela foram definidas nos níveis recomendados porque sua placa de vídeo foi alterada
+de &apos;[LAST_GPU]&apos;
+para &apos;[THIS_GPU]&apos;
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		As configurações de tela foram definidas nos níveis recomendados por causa de uma alteração no subsistema de renderização.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1419,8 +1445,7 @@ Para instalar a atualização, será preciso reiniciar o [APP_NAME].
 		<usetemplate ignoretext="Confirmar antes de devolver objetos a seus donos" name="okcancelignore" notext="Cancelar" yestext="Retornar"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Você é atualmente um membro do grupo [GROUP].
-Sair do grupo?
+		Você é atualmente um membro do grupo
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Sair"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -1900,7 +1925,13 @@ Mover para o inventário o(s) item(s)?
 		<usetemplate ignoretext="Confirmar antes de sair" name="okcancelignore" notext="Não sair" yestext="Sair"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		Tem certeza que deseja restaurar seus botões e barras de ferramenta padrão? 
+		Essa ação irá restaurar os botões e barras de ferramenta padrão.
+
+Não é possível desfazer essa ação.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Essa ação fará com que todos os botões voltem para a caixa de ferramentas e suas barras de ferramentas ficarão vazias.
     
 Não é possível desfazer essa ação.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -2109,10 +2140,10 @@ Isso abrirá o seu navegador.
 		Assunto: [SUBJECT], Mensagem: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] está online
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está online
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] está offline
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está offline
 	</notification>
 	<notification name="AddSelfFriend">
 		Você é o máximo! Mesmo assim, não dá para adicionar a si mesmo(a) como amigo(a).
@@ -2225,14 +2256,16 @@ Selecione só um objeto.
 		Seu cartão de visita foi negado.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Para se teletransportar para lugares como &apos;[NAME]&apos;, abra o painel &apos;Lugares&apos; à direita da tela e selecione a guia Marcos.  
-Basta clicar em qualquer marco e depois clicar em &apos;Teletransportar&apos; na parte inferior da tela. 
-(Também é possível clicar duas vezes no marco, ou clicar no marco com o botão direito e selecionar &apos;Teletransportar&apos;.)
+		Para se teletransportar para locais como &apos;[NAME]&apos;, clique no botão &quot;Lugares&quot;,
+    e selecione a guia Marcos na janela que é exibida. Clique em qualquer
+    marco para selecioná-lo e em seguida em &apos;Teletransportar&apos; na parte inferior da tela.
+    (Também é possível clicar duas vezes sobre o marco ou clicar com o botão direito do mouse sobre ele
+    e selecionar &apos;Teletransportar&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Para entrar em contato com residentes como &apos;&apos;[NAME]&apos;,  abra o painel &apos;Pessoas&apos; à direita da tela.
-Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do painel.
-(Também é possível clicar duas vezes no nome, ou clicar no nome com o botão direito e selecionar &apos;MI&apos;.)
+		Para entrar em contato com residentes como &apos;[NAME]&apos;, clique no botão &quot;Pessoas&quot;, selecione um residente na janela que é exibida e clique em &apos;MI&apos; na
+    parte inferior da janela.
+    (Também é possível clicar duas vezes no nome, ou clicar no nome com o botão direito e selecionar &apos;MI&apos;.)
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		Impossível selecionar terra nas fronteiras do servidor. Tente selecionar um pedaço menor de terra.
@@ -2250,6 +2283,9 @@ Selecione o residente da lista e clique em &apos;MI&apos; na parte de baixo do p
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2501,10 +2537,10 @@ Cada um pode ver o status do outro (definição padrão).
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] aceitou seu convite de amizade.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; aceitou sua oferta de amizade.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] recusou seu convite de amizade
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; rejeitou sua oferta de amizade.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Oferta de amizada aceita.
@@ -2576,16 +2612,16 @@ Deseja aceitar?
 		&apos;&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [NAME]
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Bloquear"/>
-			<button name="Ignore" text="Ignorar"/>
+			<button name="Client_Side_Mute" text="Bloquear"/>
+			<button name="Client_Side_Ignore" text="Ignorar"/>
 		</form>
 	</notification>
 	<notification name="ScriptDialogGroup">
 		&lt;nolink&gt;[TITLE]&lt;/nolink&gt;&apos; de [GROUPNAME]&apos;
 [MESSAGE]
 		<form name="form">
-			<button name="Mute" text="Bloquear"/>
-			<button name="Ignore" text="Ignorar"/>
+			<button name="Client_Side_Mute" text="Bloquear"/>
+			<button name="Client_Side_Ignore" text="Ignorar"/>
 		</form>
 	</notification>
 	<notification name="BuyLindenDollarSuccess">
@@ -2781,6 +2817,12 @@ Mais detalhes no log.
 Com os seguintes residentes:
 
 [RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Apenas uma pasta pode ser compartilhada por vez.
+
+Tem certeza de que quer compartilhar os itens abaixo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ItemsShared">

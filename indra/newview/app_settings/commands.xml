@@ -37,6 +37,8 @@
            tooltip_ref="Command_Build_Tooltip"
            execute_function="Build.Toggle"
            execute_parameters="build"
+           is_enabled_function="Build.Enabled"
+           is_enabled_parameters="build"
            is_running_function="Floater.IsOpen"
            is_running_parameters="build"
            />
@@ -134,6 +136,16 @@
            execute_parameters="moveview"
            is_running_function="Floater.IsOpen"
            is_running_parameters="moveview"
+           />
+  <command name="outbox"
+           available_in_toybox="false"
+           icon="Command_Outbox_Icon"
+           label_ref="Command_Outbox_Label"
+           tooltip_ref="Command_Outbox_Tooltip"
+           execute_function="Floater.ToggleOrBringToFront"
+           execute_parameters="outbox"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="outbox"
            />
   <command name="people"
            available_in_toybox="true"

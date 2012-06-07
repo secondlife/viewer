@@ -15,10 +15,10 @@
 	<panel.string name="buycurrencylabel">
 		L$ [AMT]
 	</panel.string>
-	<panel name="balance_bg">
+	<panel left="-410" name="balance_bg" width="200">
 		<text name="balance" tool_tip="Atualizar saldo de L$" value="L$20"/>
 		<button label="Comprar L$" name="buyL" tool_tip="Comprar mais L$"/>
-		<button label="Comprar" name="goShop" tool_tip="Abrir Mercado do Second Life"/>
+		<button label="Comprar" name="goShop" tool_tip="Abrir Mercado do Second Life" width="80"/>
 	</panel>
 	<text name="TimeText" tool_tip="Hora atual (Pacífico)">
 		24:00 AM PST

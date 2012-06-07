@@ -23,10 +23,10 @@
 	<check_box label="Permitir acesso público" name="externally_visible_check"/>
 	<button label="?" name="externally_visible_help"/>
 	<text name="Only Allow">
-		Restringir acesso a contas confirmardas por:
+		Permitir acesso apenas para residentes que:
 	</text>
-	<check_box label="Dados de pagamento fornecidos" name="limit_payment" tool_tip="Banir residentes sem identificação."/>
-	<check_box label="Verificação de idade" name="limit_age_verified" tool_tip="Banir residentes que não comprovaram a idade. Consulte o [SUPPORT_SITE] para saber mais."/>
+	<check_box label="Dados de pagamento constam no registro." name="limit_payment" tool_tip="Propriedade de acesso restrito a residentes que já cadastraram seus dados de pagamento  Consulte o [SUPPORT_SITE] para saber mais."/>
+	<check_box label="A idade foi verificada" name="limit_age_verified" tool_tip="Residentes devem ter a idade verificada para acessar esta propriedade. Consulte o [SUPPORT_SITE] para saber mais."/>
 	<check_box label="Permitir conversa de voz" name="voice_chat_check"/>
 	<button label="?" name="voice_chat_help"/>
 	<check_box label="Permitir Tele-transporte direto" name="allow_direct_teleport"/>

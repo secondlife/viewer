@@ -153,11 +153,11 @@ void gl_state_for_2d(S32 width, S32 height)
 	F32 window_width = (F32) width;//gViewerWindow->getWindowWidth();
 	F32 window_height = (F32) height;//gViewerWindow->getWindowHeight();
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0f, llmax(window_width, 1.f), 0.0f, llmax(window_height,1.f), -1.0f, 1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.loadIdentity();
+	gGL.ortho(0.0f, llmax(window_width, 1.f), 0.0f, llmax(window_height,1.f), -1.0f, 1.0f);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
+	gGL.loadIdentity();
 	stop_glerror();
 }
 
@@ -537,7 +537,7 @@ void gl_draw_scaled_image_with_border(S32 x, S32 y, S32 width, S32 height, LLTex
 		}
 	}
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
 	
@@ -735,7 +735,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 	LLGLSUIDefault gls_ui;
 
 
-	gGL.getTexUnit(0)->bind(image);
+	gGL.getTexUnit(0)->bind(image, true);
 
 	gGL.color4fv(color.mV);
 
@@ -788,7 +788,7 @@ void gl_draw_scaled_rotated_image(S32 x, S32 y, S32 width, S32 height, F32 degre
 
 		LLMatrix3 quat(0.f, 0.f, degrees*DEG_TO_RAD);
 		
-		gGL.getTexUnit(0)->bind(image);
+		gGL.getTexUnit(0)->bind(image, true);
 
 		gGL.color4fv(color.mV);
 		
@@ -955,10 +955,12 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 		if( render_center )
 		{
 			gGL.color4fv(center_color.mV);
+			gGL.diffuseColor4fv(center_color.mV);
 			gl_deep_circle( radius, width, steps );
 		}
 		else
 		{
+			gGL.diffuseColor4fv(side_color.mV);
 			gl_washer_2d(radius, radius - width, steps, side_color, side_color);
 			gGL.translateUI(0.f, 0.f, width);
 			gl_washer_2d(radius - width, radius, steps, side_color, side_color);
@@ -970,35 +972,53 @@ void gl_ring( F32 radius, F32 width, const LLColor4& center_color, const LLColor
 // Draw gray and white checkerboard with black border
 void gl_rect_2d_checkerboard(const LLRect& rect, GLfloat alpha)
 {
-	// Initialize the first time this is called.
-	const S32 PIXELS = 32;
-	static GLubyte checkerboard[PIXELS * PIXELS];
-	static BOOL first = TRUE;
-	if( first )
-	{
-		for( S32 i = 0; i < PIXELS; i++ )
+	if (!LLGLSLShader::sNoFixedFunction)
+	{ 
+		// Initialize the first time this is called.
+		const S32 PIXELS = 32;
+		static GLubyte checkerboard[PIXELS * PIXELS];
+		static BOOL first = TRUE;
+		if( first )
 		{
-			for( S32 j = 0; j < PIXELS; j++ )
+			for( S32 i = 0; i < PIXELS; i++ )
 			{
-				checkerboard[i * PIXELS + j] = ((i & 1) ^ (j & 1)) * 0xFF;
+				for( S32 j = 0; j < PIXELS; j++ )
+				{
+					checkerboard[i * PIXELS + j] = ((i & 1) ^ (j & 1)) * 0xFF;
+				}
 			}
+			first = FALSE;
 		}
-		first = FALSE;
+	
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+		// ...white squares
+		gGL.color4f( 1.f, 1.f, 1.f, alpha );
+		gl_rect_2d(rect);
+
+		// ...gray squares
+		gGL.color4f( .7f, .7f, .7f, alpha );
+		gGL.flush();
+
+		glPolygonStipple( checkerboard );
+
+		LLGLEnable polygon_stipple(GL_POLYGON_STIPPLE);
+		gl_rect_2d(rect);
+	}
+	else
+	{ //polygon stipple is deprecated, use "Checker" texture
+		LLPointer<LLUIImage> img = LLUI::getUIImage("Checker");
+		gGL.getTexUnit(0)->bind(img->getImage());
+		gGL.getTexUnit(0)->setTextureAddressMode(LLTexUnit::TAM_WRAP);
+		gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+
+		LLColor4 color(1.f, 1.f, 1.f, alpha);
+		LLRectf uv_rect(0, 0, rect.getWidth()/32.f, rect.getHeight()/32.f);
+
+		gl_draw_scaled_image(rect.mLeft, rect.mBottom, rect.getWidth(), rect.getHeight(),
+			img->getImage(), color, uv_rect);
 	}
 	
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-	// ...white squares
-	gGL.color4f( 1.f, 1.f, 1.f, alpha );
-	gl_rect_2d(rect);
-
-	// ...gray squares
-	gGL.color4f( .7f, .7f, .7f, alpha );
-	gGL.flush();
-	glPolygonStipple( checkerboard );
-
-	LLGLEnable polygon_stipple(GL_POLYGON_STIPPLE);
-	gl_rect_2d(rect);
 	gGL.flush();
 }
 
@@ -1678,21 +1698,22 @@ void LLUI::translate(F32 x, F32 y, F32 z)
 	gGL.translateUI(x,y,z);
 	LLFontGL::sCurOrigin.mX += (S32) x;
 	LLFontGL::sCurOrigin.mY += (S32) y;
-	LLFontGL::sCurOrigin.mZ += z;
+	LLFontGL::sCurDepth += z;
 }
 
 //static
 void LLUI::pushMatrix()
 {
 	gGL.pushUIMatrix();
-	LLFontGL::sOriginStack.push_back(LLFontGL::sCurOrigin);
+	LLFontGL::sOriginStack.push_back(std::make_pair(LLFontGL::sCurOrigin, LLFontGL::sCurDepth));
 }
 
 //static
 void LLUI::popMatrix()
 {
 	gGL.popUIMatrix();
-	LLFontGL::sCurOrigin = *LLFontGL::sOriginStack.rbegin();
+	LLFontGL::sCurOrigin = LLFontGL::sOriginStack.back().first;
+	LLFontGL::sCurDepth = LLFontGL::sOriginStack.back().second;
 	LLFontGL::sOriginStack.pop_back();
 }
 
@@ -1702,7 +1723,7 @@ void LLUI::loadIdentity()
 	gGL.loadUIIdentity(); 
 	LLFontGL::sCurOrigin.mX = 0;
 	LLFontGL::sCurOrigin.mY = 0;
-	LLFontGL::sCurOrigin.mZ = 0;
+	LLFontGL::sCurDepth = 0.f;
 }
 
 //static
@@ -1725,10 +1746,7 @@ void LLUI::setMousePositionScreen(S32 x, S32 y)
 	screen_x = llround((F32)x * sGLScaleFactor.mV[VX]);
 	screen_y = llround((F32)y * sGLScaleFactor.mV[VY]);
 	
-	LLCoordWindow window_point;
-	LLView::getWindow()->convertCoords(LLCoordGL(screen_x, screen_y), &window_point);
-
-	LLView::getWindow()->setCursorPosition(window_point);
+	LLView::getWindow()->setCursorPosition(LLCoordGL(screen_x, screen_y).convert());
 }
 
 //static 
@@ -1736,8 +1754,7 @@ void LLUI::getMousePositionScreen(S32 *x, S32 *y)
 {
 	LLCoordWindow cursor_pos_window;
 	getWindow()->getCursorPosition(&cursor_pos_window);
-	LLCoordGL cursor_pos_gl;
-	getWindow()->convertCoords(cursor_pos_window, &cursor_pos_gl);
+	LLCoordGL cursor_pos_gl(cursor_pos_window.convert());
 	*x = llround((F32)cursor_pos_gl.mX / sGLScaleFactor.mV[VX]);
 	*y = llround((F32)cursor_pos_gl.mY / sGLScaleFactor.mV[VX]);
 }
@@ -1823,9 +1840,12 @@ void LLUI::setupPaths()
 	LLXMLNodePtr root;
 	BOOL success  = LLXMLNode::parseFile(filename, root, NULL);
 	Paths paths;
-	LLXUIParser parser;
-	parser.readXUI(root, paths, filename);
 
+	if(success)
+	{
+		LLXUIParser parser;
+		parser.readXUI(root, paths, filename);
+	}
 	sXUIPaths.clear();
 	
 	if (success && paths.validateBlock())
@@ -2039,7 +2059,7 @@ void LLUI::positionViewNearMouse(LLView* view, S32 spawn_x, S32 spawn_y)
 	// Start at spawn position (using left/top)
 	view->setOrigin( local_x, local_y - view->getRect().getHeight());
 	// Make sure we're on-screen and not overlapping the mouse
-	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect, FALSE );
+	view->translateIntoRectWithExclusion( virtual_window_rect, mouse_rect );
 }
 
 LLView* LLUI::resolvePath(LLView* context, const std::string& path)

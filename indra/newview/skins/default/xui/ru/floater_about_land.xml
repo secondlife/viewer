@@ -129,7 +129,7 @@
 				Посещаемость:
 			</text>
 			<text name="DwellText">
-				0
+				Загрузка...
 			</text>
 			<button label="Купить землю" name="Buy Land..."/>
 			<button label="Продать для Linden" name="Linden Sale..." tool_tip="Земля должна быть в собственности, иметь заданное содержимое и не быть выставленной на аукцион,"/>
@@ -306,14 +306,13 @@
 			<panel.string name="push_restrict_region_text">
 				Не толкать (настройки региона)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Видеть жителей этого участка и общаться с ними в чате
-			</panel.string>
 			<text name="allow_label">
 				Позволить другим жителям:
 			</text>
-			<check_box label="Изменить ландшафт" name="edit land check" tool_tip="Если отмечено, вашу землю сможет терраформировать кто угодно. Лучше не отмечать, так как вы всегда можете изменить вашу землю."/>
-			<check_box label="Полет" name="check fly" tool_tip="Если отмечено, жители смогут летать над вашей землей. Если не отметить, они смогут только прилетать и пролетать мимо земли."/>
+			<text name="allow_label0">
+				Полет:
+			</text>
+			<check_box label="Все" name="check fly" tool_tip="Если отмечено, жители смогут летать над вашей землей. Если не отметить, они смогут только прилетать и пролетать мимо земли."/>
 			<text name="allow_label2">
 				Строительство:
 			</text>
@@ -329,9 +328,6 @@
 			</text>
 			<check_box label="Все" name="check other scripts"/>
 			<check_box label="Группа" name="check group scripts"/>
-			<text name="land_options_label">
-				Параметры земли:
-			</text>
 			<check_box label="Безопасно (нет повреждений)" name="check safe" tool_tip="Если отмечено, то земля считается безопасной, отключены боевые повреждения. Если не отмечено, то боевые повреждения включены."/>
 			<check_box label="Не толкать" name="PushRestrictCheck" tool_tip="Запрещает скриптам функцию толкания. Этот параметр может оказаться полезным для предотвращения нежелательного поведения на вашей земле."/>
 			<check_box label="Показать место в поиске (L$30/неделя)" name="ShowDirectoryCheck" tool_tip="Позволить людям видеть участок в результатах поиска"/>
@@ -372,9 +368,9 @@
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Щелкните для выбора изображения"/>
 			<text name="allow_label5">
-				Позволить жителям с других участков:
+				Аватары с других участков могут видеть аватары на этом участке и общаться с ними
 			</text>
-			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Жители с других участков могут видеть жителей этого участка и общаться с ними в чате (вы также сможете видеть жителей с других участков и общаться с ними)."/>
+			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Аватары с других участков смогут видеть аватары на этом участке и общаться с ними в чате, а вы также сможете видеть их и общаться с ними."/>
 			<text name="landing_point">
 				В точку телепортации: [LANDING]
 			</text>
@@ -447,20 +443,15 @@
 			<panel.string name="access_estate_defined">
 				(Определено на землевладении)
 			</panel.string>
-			<panel.string name="allow_public_access">
-				Разрешить общий доступ ([MATURITY]) (Снятие приведет к созданию линий запрета)
-			</panel.string>
 			<panel.string name="estate_override">
 				Часть этих параметров установлена на уровне землевладения
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				Доступ на этот участок
-			</text>
+			<check_box label="Разрешить публичный доступ (снятие флажка приведет к созданию линий запрета)" name="public_access"/>
 			<text name="Only Allow">
-				Разрешить доступ только жителям, у которых:
+				Разрешить доступ только таким жителям:
 			</text>
-			<check_box label="Записана информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Банить нераспознанных жителей."/>
-			<check_box label="Проверка возраста [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Банить жителей, не прошедших проверку возраста. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="Зарегистрирована информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Для доступа к этому участку у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="Подтвержден возраст [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Для доступа к этому участку житель должен подтвердить свой возраст. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 			<check_box label="Разрешить доступ группе: [GROUP]" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>
 			<check_box label="Продать доступ:" name="PassCheck" tool_tip="Разрешить временный доступ к участку."/>
 			<combo_box name="pass_combo">

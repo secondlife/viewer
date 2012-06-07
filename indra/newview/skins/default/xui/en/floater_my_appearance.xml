@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <floater
-  open_positioning="cascading"
+  positioning="cascading"
   legacy_header_height="18"
   can_resize="true"
   height="588"
@@ -12,7 +12,7 @@
   single_instance="true"
   reuse_instance="true"
   title="APPEARANCE"
-  min_height="260"
+  min_height="440"
   min_width="333"
   width="333">
     <panel

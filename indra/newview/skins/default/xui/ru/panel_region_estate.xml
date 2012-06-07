@@ -20,10 +20,10 @@
 	<slider label="Фаза" name="sun_hour_slider"/>
 	<check_box label="Разрешить общий доступ" name="externally_visible_check"/>
 	<text name="Only Allow">
-		Разрешить доступ только аккаунтам с подтверждением:
+		Разрешить доступ только таким жителям:
 	</text>
-	<check_box label="Информации об оплате в файле" name="limit_payment" tool_tip="Банить нераспознанных жителей"/>
-	<check_box label="Проверка возраста" name="limit_age_verified" tool_tip="Банить жителей, не прошедших проверку возраста. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+	<check_box label="Зарегистрирована информация об оплате" name="limit_payment" tool_tip="Для доступа к этому землевладению у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+	<check_box label="Подтвержден возраст" name="limit_age_verified" tool_tip="Для доступа к этому землевладению житель должен подтвердить свой возраст. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 	<check_box label="Разрешить голосовое общение" name="voice_chat_check"/>
 	<check_box label="Разрешить прямой телепорт" name="allow_direct_teleport"/>
 	<button label="Применить" name="apply_btn"/>

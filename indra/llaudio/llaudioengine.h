@@ -37,6 +37,7 @@
 #include "lluuid.h"
 #include "llframetimer.h"
 #include "llassettype.h"
+#include "llextendedstatus.h"
 
 #include "lllistener.h"
 
@@ -334,6 +335,7 @@ protected:
 	bool			mSyncSlave;
 	bool			mQueueSounds;
 	bool			mPlayedOnce;
+	bool            mCorrupted;
 	S32             mType;
 	LLVector3d		mPositionGlobal;
 	LLVector3		mVelocity;

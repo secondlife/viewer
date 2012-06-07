@@ -108,7 +108,7 @@
 		 height="22"
 		 top_pad="15"
 		 width="505"
-		 name="header_panel"
+		 name="choose_file_header_panel"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true"
@@ -117,7 +117,7 @@
 			 width="200"
 			 left="10"
 			 top="3"
-			 name="header_text"
+			 name="choose_file_header_text"
 			 text_color="White"
 			 height="10"
 			 font="SansSerifBig"
@@ -130,7 +130,7 @@
 		 left="15"
 		 height="310"
 		 width="505"
-		 name="content"
+		 name="choose_file_content"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
@@ -287,7 +287,7 @@
 		<panel
 		 height="22"
 		 top_pad="15"
-		 name="header_panel"
+		 name="optimize_header_panel"
 		 width="505"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
@@ -296,7 +296,7 @@
 			<text
 			 width="200"
 			 left="10"
-			 name="header_text"
+			 name="optimize_header_text"
 			 top="3"
 			 text_color="White"
 			 height="10"
@@ -311,7 +311,7 @@
 		 height="20"
 		 font="SansSerifSmall"
 		 layout="topleft"
-		 name="description"
+		 name="optimize_description"
 		 word_wrap="true"
 		 left_delta="5">
 			We have optimized the model for performance. Adjust it further if you wish.
@@ -322,7 +322,7 @@
 		 left="15"
 		 height="270"
 		 width="505"
-		 name="content"
+		 name="optimize_content"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
@@ -497,7 +497,7 @@ Higher prim weight</text>
 		<panel
 		 height="22"
 		 top_pad="15"
-		 name="header_panel"
+		 name="physics_header_panel"
 		 width="505"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
@@ -506,7 +506,7 @@ Higher prim weight</text>
 			<text
 			 width="200"
 			 left="10"
-			 name="header_text"
+			 name="physics_header_text"
 			 top="3"
 			 height="10"
 			 font="SansSerifBig"
@@ -521,7 +521,7 @@ Higher prim weight</text>
 		 height="50"
 		 font="SansSerifSmall"
 		 layout="topleft"
-		 name="description"
+		 name="physics_description"
 		 word_wrap="true"
 		 left_delta="5">
 			We will create a shape for the outer hull of the model. Adjust the shape's detail level as needed for the intended purpose of your model.
@@ -531,7 +531,7 @@ Higher prim weight</text>
 		 left="15"
 		 height="270"
 		 width="505"
-		 name="content"
+		 name="physics_content"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
@@ -635,7 +635,7 @@ Buildings</text>
 		<panel
 		 height="22"
 		 top_pad="15"
-		 name="header_panel"
+		 name="review_header_panel"
 		 width="505"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
@@ -644,7 +644,7 @@ Buildings</text>
 			<text
 			 width="200"
 			 left="10"
-			 name="header_text"
+			 name="review_header_text"
 			 text_color="White" 
 			 top="3"
 			 height="10"
@@ -658,7 +658,7 @@ Buildings</text>
 		 left="15"
 		 height="310"
 		 width="505"
-		 name="content"
+		 name="review_content"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
 		 background_opaque="true">
@@ -706,7 +706,7 @@ Buildings</text>
 		<panel
 		 height="22"
 		 top_pad="15"
-		 name="header_panel"
+		 name="upload_header_panel"
 		 width="505"
 		 bg_opaque_color="DkGray2"
 		 background_visible="true"
@@ -715,7 +715,7 @@ Buildings</text>
 			<text
 			 width="200"
 			 left="10"
-			 name="header_text"
+			 name="upload_header_text"
 			 top="3"
 			 text_color="White" 
 			 height="10"

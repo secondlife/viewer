@@ -1806,7 +1806,6 @@ LLPanelLandOptions::LLPanelLandOptions(LLParcelSelectionHandle& parcel)
 	mCheckEditGroupObjects(NULL),
 	mCheckAllObjectEntry(NULL),
 	mCheckGroupObjectEntry(NULL),
-	mCheckEditLand(NULL),
 	mCheckSafe(NULL),
 	mCheckFly(NULL),
 	mCheckGroupScripts(NULL),
@@ -1839,10 +1838,6 @@ BOOL LLPanelLandOptions::postBuild()
 
 	mCheckGroupObjectEntry = getChild<LLCheckBoxCtrl>( "group object entry check");
 	childSetCommitCallback("group object entry check", onCommitAny, this);
-	
-	mCheckEditLand = getChild<LLCheckBoxCtrl>( "edit land check");
-	childSetCommitCallback("edit land check", onCommitAny, this);
-
 	
 	mCheckGroupScripts = getChild<LLCheckBoxCtrl>( "check group scripts");
 	childSetCommitCallback("check group scripts", onCommitAny, this);
@@ -1956,9 +1951,6 @@ void LLPanelLandOptions::refresh()
 		mCheckGroupObjectEntry	->set(FALSE);
 		mCheckGroupObjectEntry	->setEnabled(FALSE);
 
-		mCheckEditLand		->set(FALSE);
-		mCheckEditLand		->setEnabled(FALSE);
-		
 		mCheckSafe			->set(FALSE);
 		mCheckSafe			->setEnabled(FALSE);
 
@@ -2006,10 +1998,6 @@ void LLPanelLandOptions::refresh()
 
 		mCheckGroupObjectEntry	->set( parcel->getAllowGroupObjectEntry() ||  parcel->getAllowAllObjectEntry());
 		mCheckGroupObjectEntry	->setEnabled( can_change_options && !parcel->getAllowAllObjectEntry() );
-
-		BOOL can_change_terraform = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_EDIT);
-		mCheckEditLand		->set( parcel->getAllowTerraform() );
-		mCheckEditLand		->setEnabled( can_change_terraform );
 		
 		mCheckSafe			->set( !parcel->getAllowDamage() );
 		mCheckSafe			->setEnabled( can_change_options );
@@ -2037,7 +2025,6 @@ void LLPanelLandOptions::refresh()
 		}
 
 		mSeeAvatarsCtrl->set(parcel->getSeeAVs());
-		mSeeAvatarsCtrl->setLabel(getString("see_avs_text"));
 		mSeeAvatarsCtrl->setEnabled(can_change_options && parcel->getHaveNewParcelLimitData());
 
 		BOOL can_change_landing_point = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, 
@@ -2235,7 +2222,7 @@ void LLPanelLandOptions::onCommitAny(LLUICtrl *ctrl, void *userdata)
 	BOOL create_group_objects	= self->mCheckEditGroupObjects->get() || self->mCheckEditObjects->get();
 	BOOL all_object_entry		= self->mCheckAllObjectEntry->get();
 	BOOL group_object_entry	= self->mCheckGroupObjectEntry->get() || self->mCheckAllObjectEntry->get();
-	BOOL allow_terraform	= self->mCheckEditLand->get();
+	BOOL allow_terraform	= false; // removed from UI so always off now - self->mCheckEditLand->get();
 	BOOL allow_damage		= !self->mCheckSafe->get();
 	BOOL allow_fly			= self->mCheckFly->get();
 	BOOL allow_landmark		= TRUE; // cannot restrict landmark creation
@@ -2486,27 +2473,6 @@ void LLPanelLandAccess::refresh()
 				}
 				mListBanned->addNameItem(entry.mID, ADD_DEFAULT, TRUE, suffix);
 			}
-		}
-		
-		LLCheckBoxWithTBAcess* maturity_checkbox = (LLCheckBoxWithTBAcess*) getChild<LLCheckBoxCtrl>( "public_access");
-		LLViewerRegion* region = LLViewerParcelMgr::getInstance()->getSelectionRegion();
-		if(region)
-		{
-			LLTextBox* maturity_textbox = maturity_checkbox->getTextBox();
-			insert_maturity_into_textbox(maturity_textbox, gFloaterView->getParentFloater(this), getString("allow_public_access"));
-			maturity_checkbox->reshape(maturity_checkbox->getRect().getWidth(), maturity_checkbox->getRect().getHeight(), FALSE);
-		}
-		else
-		{
-			std::string maturity_string = getString("allow_public_access");
-			size_t maturity_pos = maturity_string.find(MATURITY);
-
-			if (maturity_pos != std::string::npos)
-			{
-				maturity_string.replace(maturity_pos, MATURITY.length(), std::string(""));
-			}
-
-			maturity_checkbox->setLabel(maturity_string);
 		}
 
 		if(parcel->getRegionDenyAnonymousOverride())
@@ -2773,7 +2739,12 @@ void LLPanelLandAccess::onCommitAny(LLUICtrl *ctrl, void *userdata)
 
 void LLPanelLandAccess::onClickAddAccess()
 {
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1)) );
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBAccess, this, _1));
+	if (picker)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+	}
 }
 
 void LLPanelLandAccess::callbackAvatarCBAccess(const uuid_vec_t& ids)
@@ -2817,7 +2788,12 @@ void LLPanelLandAccess::onClickRemoveAccess(void* data)
 // static
 void LLPanelLandAccess::onClickAddBanned()
 {
-	gFloaterView->getParentFloater(this)->addDependentFloater(LLFloaterAvatarPicker::show(boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1)));
+	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(
+		boost::bind(&LLPanelLandAccess::callbackAvatarCBBanned, this, _1));
+	if (picker)
+	{
+		gFloaterView->getParentFloater(this)->addDependentFloater(picker);
+	}
 }
 
 // static

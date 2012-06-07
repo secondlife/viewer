@@ -59,7 +59,10 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 	LLView* view = findChildView(panel_name, true);
 	if (!view) return NULL;
 
-	openFloater();
+	if (!getVisible())
+	{
+		openFloater();
+	}
 
 	LLPanel* panel = NULL;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" title="ANSICHT">
+<floater name="camera_floater" title="KAMERASTEUERUNGEN">
 	<floater.string name="rotate_tooltip">
 		Kamera um Fokus drehen
 	</floater.string>
@@ -8,15 +8,6 @@
 	</floater.string>
 	<floater.string name="move_tooltip">
 		Kamera nach oben, unten, links und rechts bewegen
-	</floater.string>
-	<floater.string name="camera_modes_title">
-		Kameramodi
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Kreisen - Zoomen - Schwenken
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Ansichten
 	</floater.string>
 	<floater.string name="free_mode_title">
 		Objekt ansehen

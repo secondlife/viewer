@@ -84,7 +84,7 @@ public:
 	/*virtual*/ BOOL			handleHover(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL			handleScrollWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL			handleToolTip(S32 x, S32 y, MASK mask);
-	/*virtual*/ std::string		getName() const;
+	/*virtual*/ const std::string&	getName() const;
 	/*virtual*/ void			onMouseCaptureLost();
 	/*virtual*/ void			screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
 	/*virtual*/ void			localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
@@ -461,6 +461,8 @@ protected:
 	void                			getSegmentAndOffset( S32 startpos, segment_set_t::const_iterator* seg_iter, S32* offsetp ) const;
 	void                			getSegmentAndOffset( S32 startpos, segment_set_t::iterator* seg_iter, S32* offsetp );
 	LLTextSegmentPtr    			getSegmentAtLocalPos( S32 x, S32 y, bool hit_past_end_of_line = true);
+	segment_set_t::iterator			getEditableSegIterContaining(S32 index);
+	segment_set_t::const_iterator	getEditableSegIterContaining(S32 index) const;
 	segment_set_t::iterator			getSegIterContaining(S32 index);
 	segment_set_t::const_iterator	getSegIterContaining(S32 index) const;
 	void                			clearSegments();

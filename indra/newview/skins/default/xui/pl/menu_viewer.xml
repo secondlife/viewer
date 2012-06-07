@@ -20,8 +20,6 @@
 			<menu_item_call label="Tryb oddalenia" name="Set Away"/>
 			<menu_item_call label="Tryb pracy" name="Set Busy"/>
 		</menu>
-		<menu_item_call label="Zażądaj statusu administratora" name="Request Admin Options"/>
-		<menu_item_call label="Wyłącz atatus administratora" name="Leave Admin Options"/>
 		<menu_item_call label="Wyłącz [APP_NAME]" name="Quit"/>
 	</menu>
 	<menu label="Komunikacja" name="Communicate">
@@ -36,11 +34,10 @@
 		<menu_item_check label="Szukaj" name="Search"/>
 		<menu_item_call label="Zrób zdjęcie" name="Take Snapshot"/>
 		<menu_item_call label="Zapamiętaj to miejsce (LM)" name="Create Landmark Here"/>
-		<menu label="Miejsce" name="Land">
-			<menu_item_call label="Profil miejsca" name="Place Profile"/>
-			<menu_item_call label="O posiadłości" name="About Land"/>
-			<menu_item_call label="Region/Majątek" name="Region/Estate"/>
-		</menu>
+		<menu_item_separator/>
+		<menu_item_call label="Profil miejsca" name="Place Profile"/>
+		<menu_item_call label="O posiadłości" name="About Land"/>
+		<menu_item_call label="Region/Majątek" name="Region/Estate"/>
 		<menu_item_call label="Kup posiadłość" name="Buy Land"/>
 		<menu_item_call label="Moje posiadłości" name="My Land"/>
 		<menu label="Pokaż" name="LandShow">
@@ -56,7 +53,7 @@
 		</menu>
 		<menu_item_call label="Teleportuj do Miejsca Startu" name="Teleport Home"/>
 		<menu_item_call label="Ustaw Miejsce Startu" name="Set Home to Here"/>
-		<menu label="Słońce" name="Environment Settings">
+		<menu label="Słońce" name="Sun">
 			<menu_item_call label="Wschód Słońca" name="Sunrise"/>
 			<menu_item_call label="Południe" name="Noon"/>
 			<menu_item_call label="Zachód Słońca" name="Sunset"/>
@@ -119,6 +116,7 @@
 			<menu_item_call label="dźwięk (L$[COST])..." name="Upload Sound"/>
 			<menu_item_call label="animację (L$[COST])..." name="Upload Animation"/>
 			<menu_item_call label="zbiór plików (L$[COST] za jeden plik)..." name="Bulk Upload"/>
+			<menu_item_call label="Ustaw domyślne pozwolenia ładowania" name="perm prefs"/>
 		</menu>
 		<menu_item_call label="Cofnij" name="Undo"/>
 		<menu_item_call label="Ponów" name="Redo"/>
@@ -152,22 +150,22 @@
 			<menu_item_check label="Pokaż celownik myszki" name="ShowCrosshairs"/>
 		</menu>
 		<menu label="Rodzaje renderowania" name="Rendering Types">
-			<menu_item_check label="Podstawowe" name="Simple"/>
-			<menu_item_check label="Maska alpha" name="Alpha"/>
-			<menu_item_check label="Drzewo" name="Tree"/>
-			<menu_item_check label="Awatary" name="Character"/>
-			<menu_item_check label="Płaszczyzna powierzchni" name="SurfacePath"/>
-			<menu_item_check label="Niebo" name="Sky"/>
-			<menu_item_check label="Woda" name="Water"/>
-			<menu_item_check label="Ziemia" name="Ground"/>
-			<menu_item_check label="Głośność" name="Volume"/>
-			<menu_item_check label="Trawa" name="Grass"/>
-			<menu_item_check label="Chmury" name="Clouds"/>
-			<menu_item_check label="Cząsteczki" name="Particles"/>
-			<menu_item_check label="Zderzenie" name="Bump"/>
+			<menu_item_check label="Podstawowe" name="Rendering Type Simple"/>
+			<menu_item_check label="Maska alpha" name="Rendering Type Alpha"/>
+			<menu_item_check label="Drzewo" name="Rendering Type Tree"/>
+			<menu_item_check label="Awatary" name="Rendering Type Character"/>
+			<menu_item_check label="Płaszczyzna powierzchni" name="Rendering Type Surface Patch"/>
+			<menu_item_check label="Niebo" name="Rendering Type Sky"/>
+			<menu_item_check label="Woda" name="Rendering Type Water"/>
+			<menu_item_check label="Ziemia" name="Rendering Type Ground"/>
+			<menu_item_check label="Głośność" name="Rendering Type Volume"/>
+			<menu_item_check label="Trawa" name="Rendering Type Grass"/>
+			<menu_item_check label="Chmury" name="Rendering Type Clouds"/>
+			<menu_item_check label="Cząsteczki" name="Rendering Type Particles"/>
+			<menu_item_check label="Zderzenie" name="Rendering Type Bump"/>
 		</menu>
 		<menu label="Opcje renderowania" name="Rendering Features">
-			<menu_item_check label="UI" name="UI"/>
+			<menu_item_check label="UI" name="ToggleUI"/>
 			<menu_item_check label="Zaznaczone" name="Selected"/>
 			<menu_item_check label="Podświetlenie" name="Highlighted"/>
 			<menu_item_check label="Tekstury dynamiczne" name="Dynamic Textures"/>
@@ -179,10 +177,7 @@
 		<menu_item_call label="Wyczyść bufor danych grupy" name="ClearGroupCache"/>
 		<menu_item_check label="Wygładzanie ruchu myszki" name="Mouse Smoothing"/>
 		<menu label="Skróty" name="Shortcuts">
-			<menu_item_call label="Obraz (L$[COST])..." name="Upload Image"/>
-			<menu_item_check label="Szukaj" name="Search"/>
 			<menu_item_call label="Zwolnij klawisze" name="Release Keys"/>
-			<menu_item_call label="Domyślne ustawienia rozmiaru interfejsu" name="Set UI Size to Default"/>
 			<menu_item_check label="Pokaż menu Zaawansowane - skrót" name="Show Advanced Menu - legacy shortcut"/>
 			<menu_item_call label="Zamknij okno" name="Close Window"/>
 			<menu_item_call label="Zamknij wszystkie okna" name="Close All Windows"/>
@@ -191,13 +186,6 @@
 			<menu_item_check label="Wolna kamera" name="Joystick Flycam"/>
 			<menu_item_call label="Reset widoku" name="Reset View"/>
 			<menu_item_call label="Zobacz ostatniego rozmówcę" name="Look at Last Chatter"/>
-			<menu label="Wybierz narzędzie budowania" name="Select Tool">
-				<menu_item_call label="Narzędzie ogniskowej" name="Focus"/>
-				<menu_item_call label="Narzędzie ruchu" name="Move"/>
-				<menu_item_call label="Narzędzie edycji" name="Edit"/>
-				<menu_item_call label="Stwórz narzędzie" name="Create"/>
-				<menu_item_call label="Narzędzia posiadłości" name="Land"/>
-			</menu>
 			<menu_item_call label="Przybliż" name="Zoom In"/>
 			<menu_item_call label="Domyślne przybliżenie" name="Zoom Default"/>
 			<menu_item_call label="Oddal" name="Zoom Out"/>
@@ -266,9 +254,8 @@
 			<menu_item_call label="Upuść pakiet pamięci" name="Drop a Packet"/>
 		</menu>
 		<menu_item_call label="Zderzenia, popchnięcia &amp;  uderzenia" name="Bumps, Pushes &amp;amp; Hits"/>
-		<menu label="Świat" name="World">
+		<menu label="Świat" name="DevelopWorld">
 			<menu_item_check label="Domyślne ustawienia środowiska Regionu" name="Sim Sun Override"/>
-			<menu_item_check label="Efekty emiterów" name="Cheesy Beacon"/>
 			<menu_item_check label="Ustalona pogoda" name="Fixed Weather"/>
 			<menu_item_call label="Zachowaj bufor pamięci obiektów regionu" name="Dump Region Object Cache"/>
 		</menu>
@@ -290,11 +277,11 @@
 		</menu>
 		<menu label="Awatar" name="Character">
 			<menu label="Przesuń bakowaną teksturę" name="Grab Baked Texture">
-				<menu_item_call label="Tęczówka oka" name="Iris"/>
-				<menu_item_call label="Głowa" name="Head"/>
-				<menu_item_call label="Górna część ciała" name="Upper Body"/>
-				<menu_item_call label="Dolna część ciała" name="Lower Body"/>
-				<menu_item_call label="Spódnica" name="Skirt"/>
+				<menu_item_call label="Tęczówka oka" name="Grab Iris"/>
+				<menu_item_call label="Głowa" name="Grab Head"/>
+				<menu_item_call label="Górna część ciała" name="Grab Upper Body"/>
+				<menu_item_call label="Dolna część ciała" name="Grab Lower Body"/>
+				<menu_item_call label="Spódnica" name="Grab Skirt"/>
 			</menu>
 			<menu label="Testy postaci" name="Character Tests">
 				<menu_item_call label="Przesuń geometrię postaci" name="Toggle Character Geometry"/>
@@ -315,8 +302,8 @@
 		<menu_item_check label="Pokaż menu administratora" name="View Admin Options"/>
 	</menu>
 	<menu label="Administrator" name="Admin">
-		<menu label="Object">
-			<menu_item_call label="Weź kopię" name="Take Copy"/>
+		<menu label="Object" name="AdminObject">
+			<menu_item_call label="Weź kopię" name="Admin Take Copy"/>
 			<menu_item_call label="Reset właściciela" name="Force Owner To Me"/>
 			<menu_item_call label="Reset przyzwolenia właściciela" name="Force Owner Permissive"/>
 			<menu_item_call label="Usuń" name="Delete"/>

@@ -68,83 +68,117 @@
          name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
-    <spinner
-     allow_text_entry="false"
-     decimal_digits="0"
-     follows="left|top"
-     height="20"
-     increment="32"
-     label="Width"
-     label_width="40"
-     layout="topleft"
-     left="10"
-     max_val="6016"
-     min_val="32"
-     name="profile_snapshot_width"
-     top_pad="10"
-     width="95" />
-    <spinner
-     allow_text_entry="false"
-     decimal_digits="0"
-     follows="left|top"
-     height="20"
-     increment="32"
-     label="Height"
-     label_width="40"
-     layout="topleft"
-     left_pad="5"
-     max_val="6016"
-     min_val="32"
-     name="profile_snapshot_height"
-     top_delta="0"
-     width="95" />
-    <check_box
-     bottom_delta="20"
-     label="Constrain proportions"
-     layout="topleft"
-     left="10"
-     name="profile_keep_aspect_check" />
-    <text
-     length="1"
-     follows="top|left|right"
-     font="SansSerif"
-     height="16"
-     layout="topleft"
-     left="12"
-     name="caption_label"
-     right="-10"
-     top_pad="10"
-     type="string">
-        Caption:
-    </text>
-    <text_editor
+    <layout_stack
+     animate="false"
      follows="all"
-     height="170"
-     layout="topleft"
+     height="270"
+     layout="bottomleft"
+     name="profile_image_params_ls"
      left_delta="0"
-     length="1"
-     max_length="700"
-     name="caption"
-     right="-10"
-     top_pad="5"
-     type="string"
-     word_wrap="true">
-    </text_editor>
-    <check_box
-     follows="left|bottom"
-     initial_value="true"
-     label="Include location"
-     layout="topleft"
-     left_delta="0"
-     name="add_location_cb"
-     top_pad="15" />
+     orientation="vertical"
+     top_pad="10"
+     right="-10">
+        <layout_panel
+         follows="top|left|right"
+         height="55"
+         layout="topleft"
+         left="0"
+         name="profile_image_size_lp"
+         auto_resize="false"
+         top="0"
+         right="-1"
+         visible="true">
+            <spinner
+             allow_text_entry="false"
+             decimal_digits="0"
+             follows="left|top"
+             height="20"
+             increment="32"
+             label="Width"
+             label_width="40"
+             layout="topleft"
+             left="10"
+             max_val="6016"
+             min_val="32"
+             name="profile_snapshot_width"
+             top_pad="10"
+             width="95" />
+            <spinner
+             allow_text_entry="false"
+             decimal_digits="0"
+             follows="left|top"
+             height="20"
+             increment="32"
+             label="Height"
+             label_width="40"
+             layout="topleft"
+             left_pad="5"
+             max_val="6016"
+             min_val="32"
+             name="profile_snapshot_height"
+             top_delta="0"
+             width="95" />
+            <check_box
+              height="10"
+             bottom_delta="20"
+             label="Constrain proportions"
+             layout="topleft"
+             left="10"
+             name="profile_keep_aspect_check" />
+        </layout_panel>
+        <layout_panel
+         follows="top|left|right"
+         height="200"
+         layout="topleft"
+         left="0"
+         name="profile_image_metadata_lp"
+         auto_resize="true"
+         top="0"
+         right="-1"
+         visible="true">
+            <text
+             length="1"
+             follows="top|left|right"
+             font="SansSerif"
+             height="16"
+             layout="topleft"
+             left="0"
+             name="caption_label"
+             right="-10"
+             top_pad="0"
+             type="string">
+                Caption:
+            </text>
+            <text_editor
+             follows="all"
+             height="155"
+             layout="topleft"
+             left_delta="0"
+             length="1"
+             max_length="700"
+             name="caption"
+             right="-10"
+             top_pad="5"
+             type="string"
+             word_wrap="true">
+            </text_editor>
+            <check_box
+             follows="left|bottom"
+             initial_value="true"
+             label="Include location"
+             layout="topleft"
+             left_delta="0"
+             name="add_location_cb"
+             top_pad="15" />
+        </layout_panel>
+    </layout_stack>
     <button
      follows="right|bottom"
      height="23"
      label="Cancel"
      layout="topleft"
      name="cancel_btn"
-     right="-10"
+     right="-32"
      top="350"
      width="100">
       <button.commit_callback

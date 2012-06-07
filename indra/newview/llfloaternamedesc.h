@@ -51,6 +51,7 @@ protected:
 
 protected:
 	BOOL        mIsAudio;
+	bool		mIsText;
 
 	std::string		mFilenameAndPath;
 	std::string		mFilename;
@@ -62,5 +63,19 @@ public:
 	LLFloaterSoundPreview(const LLSD& filename );
 	virtual BOOL postBuild();
 };
-	
+
+class LLFloaterAnimPreview : public LLFloaterNameDesc
+{
+public:
+	LLFloaterAnimPreview(const LLSD& filename );
+	virtual BOOL postBuild();
+};
+
+class LLFloaterScriptPreview : public LLFloaterNameDesc
+{
+public:
+	LLFloaterScriptPreview(const LLSD& filename );
+	virtual BOOL postBuild();
+};
+
 #endif  // LL_LLFLOATERNAMEDESC_H

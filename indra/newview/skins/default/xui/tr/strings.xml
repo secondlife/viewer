@@ -181,7 +181,7 @@ Güncelleştirmeler için www.secondlife.com/status adresini kontrol edin.
 	</string>
 	<string name="LoginFailedPremiumOnly">
 		Second Life üzerindeki aktif kullanıcıların olası en iyi deneyimi yaşamasını sağlamak için, oturum açılması geçici olarak kısıtlanmıştır.
-	 	
+
 Second Life için ödeme yapmış olan kişilere öncelik tanımak amacıyla, ücretsiz hesaplara sahip kişiler bu süre içerisinde Second Life&apos;a erişemeyecekler.
 	</string>
 	<string name="LoginFailedComputerProhibited">
@@ -339,17 +339,35 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Buraya sadece bir öğe sürüklenebilir.
 	</string>
 	<string name="TooltipPrice" value="L$[AMOUNT]:"/>
+	<string name="TooltipOutboxDragToWorld">
+		Satıcı giden kutunuzda öğeler oluşturamazsınız
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Bu nesnelerden bir veya daha fazlası başka bir kullanıcıya satılamaz veya aktarılamaz.
+		Bu nesnelerden bir veya daha fazlası satılamaz veya aktarılamaz.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Satıcı giden kutunuza sadece doğrudan kendi envanterinizden öğeler koyabilirsiniz
 	</string>
 	<string name="TooltipOutboxWorn">
-		Bu nesnelerden bir veya daha fazlasını giyiyorsunuz. Bunları avatarınızdan kaldırın ve tekrar taşımayı deneyin.
+		Giymekte olduğunuz öğeleri Satıcı giden kutunuza koyamazsınız.
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		Satıcı giden kutunuza arama kartları koyamazsınız
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Bu klasörde çok fazla alt klasör seviyesi var. Dahili klasörleri tekrar düzenleyerek maksimum 4 seviye derinliğe azaltın (Kök Klasör içinde A içinde B içinde C şeklinde).
+		İç içe geçmiş klasörlerin derinliği üçü geçiyor
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		Üst seviyedeki klasördeki alt klasör sayısı 20&apos;yi geçiyor
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Bu klasörde 200&apos;den fazla nesne var. Nesne sayısını azaltmak için öğelerden bazılarını kutuya koyun.
+		Üst seviyedeki klasördeki öğe sayısı 200&apos;ü geçiyor
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		Bir klasörü alt klasörüne taşıyamazsınız
+	</string>
+	<string name="TooltipDragOntoSelf">
+		Bir klasörü kendi içine taşıyamazsınız
 	</string>
 	<string name="TooltipHttpUrl">
 		Bu web sayfasını görmek için tıklayın
@@ -814,6 +832,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="anim_yes_head">
 		Evet
 	</string>
+	<string name="multiple_textures">
+		Birden Çok
+	</string>
 	<string name="texture_loading">
 		Yükleniyor...
 	</string>
@@ -972,6 +993,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="choose_the_directory">
 		Dizin Seç
+	</string>
+	<string name="script_files">
+		Komut Dosyaları
 	</string>
 	<string name="AvatarSetNotAway">
 		Uzakta Değil
@@ -1211,43 +1235,36 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Envanterinizde bu dokunun kopyası yok
 	</string>
 	<string name="InventoryInboxNoItems">
-		Pazaryeri üzerinden satın alınan öğeler buraya teslim edilir.
+		Pazaryerinda satın aldıklarınız burada görünecektir. Bunları kullanmak için envanterinize sürükleyebilirsiniz.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		Satıcı Giden Kutunuz düzgün yapılandırılmamıştır
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Satıcı Giden Kutusu yapılandırma hatası
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Sorunu düzeltmek için lütfen Müşteri Hizmetlerine başvurun.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Pazaryerinde herkes öğe satabilir
+		Pazaryerinde herkes öğe satabilir.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		Bir satıcı olun!
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] Second Life Pazaryeri] içerisinde bir milyondan fazla sanal ürün satışa sunulmuştur, bunların tümü Sakinler tarafından oluşturulmuştur. Siz de oluşturduğunuz öğeleri ve satın aldığınız öğelerin bazılarını satabilirsiniz. Bunu yapmak kolaydır, kurulum da ücretsizdir.  [[LEARN_MORE_URL] Daha fazla bilgi edinin] veya başlamak için Pazaryerinde [[CREATE_STORE_URL] bir mağaza açın].
+		Eğer bir satıcı olmak istiyorsanız, [Pazaryerinde [MARKETPLACE_CREATE_STORE_URL] bir mağaza açmanız gerekir].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Pazaryerine öğe göndermek için yeni bir yol
+		Giden kutunuz boş.
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Öğeleri Pazaryerinde satışa hazırlamak için sürükleyip buraya bırakın
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Satmak istediğiniz öğeleri veya klasörleri bu alana sürükleyin.  Öğenin bir kopyası burada görünür ve kopyalanamaz bir öğeyi sürüklemediyseniz, envanteriniz aynı kalır.  Öğeleri Pazaryerine göndermeye hazır olduğunuzda Karşıya Yükle düğmesine tıklayın. Öğeleriniz Pazaryeri Envanterinize taşındığında bu klasörden kaybolurlar.
+		Bu alana klasörleri sürükleyin ve bunları [[MARKETPLACE_DASHBOARD_URL] Pazaryerinde] satılık olarak duyurmak için &quot;Pazaryerine Gönder&quot; üzerine tıklayın.
 	</string>
 	<string name="Marketplace Error None">
 		Hata yok
@@ -1409,6 +1426,9 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="no_attachments">
 		Giyilen aksesuar yok
 	</string>
+	<string name="Attachments remain">
+		Aksesuarlar ([COUNT] yuva mevcut)
+	</string>
 	<string name="Buy">
 		Satın Al
 	</string>
@@ -1534,6 +1554,12 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	</string>
 	<string name="Right Pec">
 		Sağ Göğüs
+	</string>
+	<string name="Neck">
+		Boyun
+	</string>
+	<string name="Avatar Center">
+		Avatar Merkezi
 	</string>
 	<string name="Invalid Attachment">
 		Geçersiz Aksesuar Noktası
@@ -2160,7 +2186,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Aşağı
 	</string>
 	<string name="Any Category">
-		Herhangi Bir Kategori
+		Herh. Bir Kategori
 	</string>
 	<string name="Shopping">
 		Alışveriş
@@ -2190,7 +2216,7 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 		Kişisel
 	</string>
 	<string name="None">
-		Hiçbiri
+		Renksiz
 	</string>
 	<string name="Linden Location">
 		Linden Konumu
@@ -2390,7 +2416,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Arka Perçem
 	</string>
 	<string name="Baggy">
-		Lüleler
+		Torbalı
 	</string>
 	<string name="Bangs">
 		Kahküller
@@ -2480,7 +2506,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Geniş
 	</string>
 	<string name="Brow Size">
-		Kaş Büyüklüğü
+		Alın Genişliği
 	</string>
 	<string name="Bug Eyes">
 		Patlak Gözlü
@@ -2777,7 +2803,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kaş Yüksekliği
 	</string>
 	<string name="Eyebrow Points">
-		Kaş Noktaları
+		Kaş Yapısı
 	</string>
 	<string name="Eyebrow Size">
 		Kaş Büyüklüğü
@@ -2846,13 +2872,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Ön Perçem
 	</string>
 	<string name="Full Back">
-		Saçlar Arkada
+		Arkası Düz
 	</string>
 	<string name="Full Eyeliner">
 		Çift Taraflı Göz Kalemi
 	</string>
 	<string name="Full Front">
-		Saçlar Önde
+		Önü Düz
 	</string>
 	<string name="Full Hair Sides">
 		Saçlar Yanda
@@ -2936,13 +2962,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Yüksek Topuklar
 	</string>
 	<string name="High Jaw">
-		Yüksek Çene Ucu
+		Ayrık
 	</string>
 	<string name="High Platforms">
-		Yüksek Topuklu Ayakkabılar
+		Yüksek Topuklu
 	</string>
 	<string name="High and Tight">
-		Tepede Bırakılmış Saç
+		Düşük
 	</string>
 	<string name="Higher">
 		Daha Yüksek
@@ -2954,7 +2980,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kalça Genişliği
 	</string>
 	<string name="In">
-		İç
+		İçeri
 	</string>
 	<string name="In Shdw Color">
 		İç Gölge Rengi
@@ -2978,19 +3004,19 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Ceket Kırışıklıkları
 	</string>
 	<string name="Jaw Angle">
-		Çene Ucu Açısı
+		Çenenin Boyuna Uzaklığı
 	</string>
 	<string name="Jaw Jut">
-		Çene Ucu Çıkıntısı
+		Alt Çene Uzunluğu
 	</string>
 	<string name="Jaw Shape">
-		Çene Ucu Şekli
+		Çene Kemiği Genişliği
 	</string>
 	<string name="Join">
-		Birleştir
+		Birleşik
 	</string>
 	<string name="Jowls">
-		Gıdıklar
+		Avurtlar
 	</string>
 	<string name="Knee Angle">
 		Diz Açısı
@@ -3029,7 +3055,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Az Dolgun
 	</string>
 	<string name="Less Gravity">
-		Daha Az Yerçekimi
+		Dik Göğüs
 	</string>
 	<string name="Less Love">
 		Daha İnce Bel
@@ -3047,7 +3073,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Az Yuvarlak
 	</string>
 	<string name="Less Saddle">
-		Daha Dar Kalça
+		Basensiz
 	</string>
 	<string name="Less Square">
 		Daha Az Küt
@@ -3098,7 +3124,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Uzun Kafa
 	</string>
 	<string name="Long Hips">
-		Geniş Kalçalar
+		Yüksek kalça
 	</string>
 	<string name="Long Legs">
 		Uzun Bacaklar
@@ -3107,7 +3133,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Uzun Boyun
 	</string>
 	<string name="Long Pigtails">
-		Uzun Saç Örgüleri
+		Yandan Uzun Kuyruk
 	</string>
 	<string name="Long Ponytail">
 		Uzun Atkuyruğu
@@ -3137,13 +3163,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Alçak Topuklar
 	</string>
 	<string name="Low Jaw">
-		Düşük Çene Ucu
+		Bitişik
 	</string>
 	<string name="Low Platforms">
 		Alçak Topuklu
 	</string>
 	<string name="Low and Loose">
-		Serbest At Kuyruğu
+		Yüksek
 	</string>
 	<string name="Lower">
 		Daha Alçak
@@ -3182,7 +3208,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Dolgun
 	</string>
 	<string name="More Gravity">
-		Daha Çok Yerçekimi
+		Sarkık Göğüs
 	</string>
 	<string name="More Lipstick">
 		Daha Çok Ruj
@@ -3191,7 +3217,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Kalın Bel
 	</string>
 	<string name="More Lower Lip">
-		Daha Çok Alt Dudak
+		Daha Dolgun Alt Dudak
 	</string>
 	<string name="More Muscles">
 		Daha Çok Kas
@@ -3206,7 +3232,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Yuvarlak
 	</string>
 	<string name="More Saddle">
-		Daha Geniş Kalça
+		Basenli
 	</string>
 	<string name="More Sloped">
 		Daha Eğimli
@@ -3215,7 +3241,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Daha Küt
 	</string>
 	<string name="More Upper Lip">
-		Daha Çok Üst Dudak
+		Daha Dolgun Üst Dudak
 	</string>
 	<string name="More Vertical">
 		Daha Dikey
@@ -3260,7 +3286,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Önü Dar
 	</string>
 	<string name="Narrow Lips">
-		İnce Dudaklar
+		Küçük Dudaklar
 	</string>
 	<string name="Natural">
 		Doğal
@@ -3359,7 +3385,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Turuncu
 	</string>
 	<string name="Out">
-		Dış
+		Dışarı
 	</string>
 	<string name="Out Shdw Color">
 		Dış Gölge Rengi
@@ -3377,7 +3403,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dış Gölge
 	</string>
 	<string name="Overbite">
-		Üst Dişler Önde
+		Öne Doğru
 	</string>
 	<string name="Package">
 		Apış Arası Şişkinliği
@@ -3416,7 +3442,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Pigment
 	</string>
 	<string name="Pigtails">
-		Saç Örgüleri
+		Yan Kuyruklar
 	</string>
 	<string name="Pink">
 		Pembe
@@ -3431,7 +3457,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Topuk Genişliği
 	</string>
 	<string name="Pointy">
-		Sivri
+		Dar
 	</string>
 	<string name="Pointy Heels">
 		Sivri Topuklar
@@ -3482,25 +3508,25 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dağınık Saç
 	</string>
 	<string name="Saddle Bags">
-		Kalça Kalınlığı
+		Basen Genişliği
 	</string>
 	<string name="Scrawny Leg">
 		Sıska Bacak
 	</string>
 	<string name="Separate">
-		Ayrı
+		Ayrık
 	</string>
 	<string name="Shallow">
 		Sığ
 	</string>
 	<string name="Shear Back">
-		Arkayı Dikey Kaydır
+		Arka Dolgunluğu
 	</string>
 	<string name="Shear Face">
 		Yüzü Dikey Kaydır
 	</string>
 	<string name="Shear Front">
-		Önü Dikey Kaydır
+		Ön Dolgunluğu
 	</string>
 	<string name="Shear Left Up">
 		Solu Yukarı Kaydır
@@ -3509,10 +3535,10 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Sağı Yukarı Kaydır
 	</string>
 	<string name="Sheared Back">
-		Arkası Dikey Kaydırılmış
+		Arkası Dolgun
 	</string>
 	<string name="Sheared Front">
-		Önü Dikey Kaydırılmış
+		Önü Dolgun
 	</string>
 	<string name="Shift Left">
 		Sola Kaydır
@@ -3548,7 +3574,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kısa Boyun
 	</string>
 	<string name="Short Pigtails">
-		Kısa Atkuyrukları
+		Yandan Kısa Kuyruk
 	</string>
 	<string name="Short Ponytail">
 		Kısa Atkuyruğu
@@ -3560,7 +3586,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kısa Gövde
 	</string>
 	<string name="Short hips">
-		Dar kalçalar
+		Düşük kalça
 	</string>
 	<string name="Shoulders">
 		Omuzlar
@@ -3638,7 +3664,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dikleştirilmiş Saç
 	</string>
 	<string name="Square">
-		Kare
+		Geniş
 	</string>
 	<string name="Square Toe">
 		Küt Burunlu
@@ -3680,7 +3706,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Kalın Boyun
 	</string>
 	<string name="Thick Toe">
-		Kalın kabu Burnu
+		Kalın Ayak Ucu
 	</string>
 	<string name="Thin">
 		İnce
@@ -3695,7 +3721,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		İnce Burun
 	</string>
 	<string name="Tight Chin">
-		Dar Çene
+		Çift Çene
 	</string>
 	<string name="Tight Cuffs">
 		Dar Paçalar
@@ -3710,7 +3736,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Dar Etek
 	</string>
 	<string name="Tight Sleeves">
-		Dar Kollar
+		Dar Kollu
 	</string>
 	<string name="Toe Shape">
 		Ayakkabu Burnu Şekli
@@ -3728,13 +3754,13 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Sıska Gövde
 	</string>
 	<string name="Unattached">
-		Bağımsız
+		Ayrık
 	</string>
 	<string name="Uncreased">
 		Buruşuk olmayan
 	</string>
 	<string name="Underbite">
-		Alt Dişler Önde
+		Geriye Doğru
 	</string>
 	<string name="Unnatural">
 		Doğal Olmayan
@@ -3770,7 +3796,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Geniş
 	</string>
 	<string name="Wide Back">
-		Geniş Sırt
+		Geniş Arka
 	</string>
 	<string name="Wide Front">
 		Geniş Ön
@@ -3894,6 +3920,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="Saved_message">
 		(Kaydedildi [LONG_TIMESTAMP])
+	</string>
+	<string name="IM_unblock_only_groups_friends">
+		Bu mesajı görmek için Tercihler/Gizlilik&apos;de &apos;Sadece arkadaşlar ve gruplar beni arasın veya Aİ göndersin&apos; seçeneğinin işaretini kaldırmalısınız.
 	</string>
 	<string name="answered_call">
 		Aramanız yanıtlandı
@@ -4027,6 +4056,18 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	<string name="you_paid_ldollars_no_name">
 		[REASON] L$[AMOUNT] ödediniz.
 	</string>
+	<string name="you_paid_failure_ldollars">
+		[REASON] [NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_no_info">
+		L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_no_reason">
+		[NAME]&apos;e L$[AMOUNT] ödeyemediniz.
+	</string>
+	<string name="you_paid_failure_ldollars_no_name">
+		[REASON] L$[AMOUNT] ödeyemediniz.
+	</string>
 	<string name="for item">
 		[ITEM] için.
 	</string>
@@ -4079,9 +4120,7 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 		Çevrimiçi
 	</string>
 	<string name="uploading_abuse_report">
-		Karşıya Yükleniyor...
-  
-Kötüye Kullanımı Bildirme
+		Kötüye Kullanım Bildirimi Karşıya Yükleniyor...
 	</string>
 	<string name="New Shape">
 		Yeni Şekil
@@ -4348,7 +4387,7 @@ Kötüye Kullanımı Bildirme
 	<string name="server_is_down">
 		Tüm çabalarımıza rağmen beklenmeyen bir hata meydana geldi.
 
-	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.  
+	Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen status.secondlifegrid.net adresine bakın.
         Sorun yaşamaya devam ederseniz lütfen ağınızın ve güvenlik duvarınızın ayarlarına bakın.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4436,6 +4475,12 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="ExternalEditorFailedToRun">
 		Harici düzenleyici çalışmadı.
+	</string>
+	<string name="TranslationFailed">
+		Çeviri başarılamadı: [REASON]
+	</string>
+	<string name="TranslationResponseParseError">
+		Çeviri yanıtı ayrıştırılırken hata meydana geldi.
 	</string>
 	<string name="Esc">
 		Esc
@@ -4819,7 +4864,10 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Mini-harita
 	</string>
 	<string name="Command_Move_Label">
-		Hareket Et
+		Yürü / koş / uç
+	</string>
+	<string name="Command_Outbox_Label">
+		Satıcı giden kutusu
 	</string>
 	<string name="Command_People_Label">
 		Kişiler
@@ -4846,10 +4894,10 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Konuş
 	</string>
 	<string name="Command_View_Label">
-		Görünüm
+		Kamera denetimleri
 	</string>
 	<string name="Command_Voice_Label">
-		Yakındaki ses
+		Ses ayarları
 	</string>
 	<string name="Command_AboutLand_Tooltip">
 		Ziyaret ettiğiniz araziyle ilgili bilgi
@@ -4893,6 +4941,9 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	<string name="Command_Move_Tooltip">
 		Avatarınızı hareket ettirmek
 	</string>
+	<string name="Command_Outbox_Tooltip">
+		Satmak amacıyla Pazaryerinize öğeler taşıyın
+	</string>
 	<string name="Command_People_Tooltip">
 		Arkadaşlar, gruplar ve yakındaki kişiler
 	</string>
@@ -4921,7 +4972,16 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 		Kamera açısını değiştirmek
 	</string>
 	<string name="Command_Voice_Tooltip">
-		Ses imkanına sahip yakındaki kişiler
+		Aramalar ve 	SL dünyası içinde size yakın kişiler için ses denetimleri
+	</string>
+	<string name="Toolbar_Bottom_Tooltip">
+		şu anda alt araç çubuğunuzda
+	</string>
+	<string name="Toolbar_Left_Tooltip">
+		şu anda sol araç çubuğunuzda
+	</string>
+	<string name="Toolbar_Right_Tooltip">
+		şu anda sağ araç çubuğunuzda
 	</string>
 	<string name="Retain%">
 		Koru %
@@ -4946,5 +5006,20 @@ Düzenleyici yolunu çift tırnakla çevrelemeyi deneyin.
 	</string>
 	<string name="Normal">
 		Normal
+	</string>
+	<string name="snapshot_quality_very_low">
+		Çok Düşük
+	</string>
+	<string name="snapshot_quality_low">
+		Düşük
+	</string>
+	<string name="snapshot_quality_medium">
+		Orta
+	</string>
+	<string name="snapshot_quality_high">
+		Yüksek
+	</string>
+	<string name="snapshot_quality_very_high">
+		Çok Yüksek
 	</string>
 </strings>

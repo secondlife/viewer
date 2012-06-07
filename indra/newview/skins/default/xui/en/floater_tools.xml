@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  legacy_header_height="18"
- follows="left|top|right"
  height="580"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
@@ -15,7 +14,27 @@
  save_visibility="true"
  sound_flags="0"
  width="295">
-    <floater.string
+  <floater.string
+     name="grid_screen_text">
+    Screen
+  </floater.string>
+  <floater.string
+   name="grid_local_text">
+    Local
+  </floater.string>
+  <floater.string
+   name="grid_world_text">
+    World
+  </floater.string>
+  <floater.string
+   name="grid_reference_text">
+    Reference
+  </floater.string>
+  <floater.string
+   name="grid_attachment_text">
+    Attachment
+  </floater.string>
+  <floater.string
      name="status_rotate">
         Drag colored bands to rotate object
     </floater.string>
@@ -313,20 +332,48 @@
      top_pad="0"
      name="checkbox snap to grid"
      width="134" />
-    <button
-     left_pad="0"
-     label="Options..."
+    <combo_box
+      height="20"
+      layout="topleft"
+      follows="left|top"
+      name="combobox grid mode"
+      tool_tip="Choose the type of grid ruler for positioning the object"
+      top="83"
+      left="195"
+      top_pad="0"
+      width="60">
+      <combo_box.item
+      label="World"
+      name="World"
+      value="World" />
+      <combo_box.item
+      label="Local"
+      name="Local"
+      value="Local" />
+      <combo_box.item
+      label="Reference"
+      name="Reference"
+      value="Reference" />
+      <combo_box.commit_callback
+      function="BuildTool.gridMode"/>
+    </combo_box>  
+  
+  <button
+     left="259"
+     label=""
+     image_selected="ForwardArrow_Press"
+     image_unselected="ForwardArrow_Off"
      layout="topleft"
      follows="top|left"
      name="Options..."
      tool_tip="See more grid options"
      top="83"
-     right="-35"
-     width="65"
-     height="21" >
+     width="25"
+     height="20" >
 	 <button.commit_callback
 	     function="BuildTool.gridOptions"/>
 	</button>
+  
    <button
      follows="left|top"
      height="20"
@@ -791,6 +838,7 @@
      tab_min_width="40"
      tab_position="top"
      tab_height="25"
+     open_tabs_on_drag_and_drop="true"
      top="173"
      width="295">
 	
@@ -1158,6 +1206,7 @@ even though the user gets a free copy.
              label="Modify"
              layout="topleft"
              left="10"
+             height="10"
              name="checkbox next owner can modify"
              width="85" />
             <check_box

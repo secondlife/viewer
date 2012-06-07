@@ -447,7 +447,7 @@ void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
 	LL_INFOS("UpdaterService") << "will check for update again in " << 
 	seconds << " seconds" << LL_ENDL; 
 	mTimer.start();
-	mTimer.setTimerExpirySec(seconds);
+	mTimer.setTimerExpirySec((F32)seconds);
 	LLEventPumps::instance().obtain("mainloop").listen(
 		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
 }

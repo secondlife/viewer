@@ -10,7 +10,6 @@
 -->
 
 <floater
- open_positioning="none"
  legacy_header_height="0"
  header_height="0"
  name="toast"
@@ -21,7 +20,6 @@
  width="310"
  left="0"
  top="0"
- follows="right|bottom"
  background_visible="false"
  bg_opaque_image="Toast_Over"
  bg_alpha_image="Toast_Background"
@@ -60,7 +58,7 @@
    left="20"
    name="toast_text"
    word_wrap="true"
-   text_color="white"
+   text_color="White"
    top="5"
    translate="false"
    use_ellipses="true"

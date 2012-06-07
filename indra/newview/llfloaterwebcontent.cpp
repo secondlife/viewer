@@ -55,6 +55,15 @@ LLFloaterWebContent::_Params::_Params()
 LLFloaterWebContent::LLFloaterWebContent( const Params& params )
 :	LLFloater( params ),
 	LLInstanceTracker<LLFloaterWebContent, std::string>(params.id()),
+	mWebBrowser(NULL),
+	mAddressCombo(NULL),
+	mSecureLockIcon(NULL),
+	mStatusBarText(NULL),
+	mStatusBarProgress(NULL),
+	mBtnBack(NULL),
+	mBtnForward(NULL),
+	mBtnReload(NULL),
+	mBtnStop(NULL),
 	mUUID(params.id()),
 	mShowPageTitle(params.show_page_title)
 {
@@ -74,11 +83,16 @@ BOOL LLFloaterWebContent::postBuild()
 	mStatusBarText     = getChild< LLTextBox >( "statusbartext" );
 	mStatusBarProgress = getChild<LLProgressBar>("statusbarprogress" );
 
+	mBtnBack           = getChildView( "back" );
+	mBtnForward        = getChildView( "forward" );
+	mBtnReload         = getChildView( "reload" );
+	mBtnStop           = getChildView( "stop" );
+
 	// observe browser events
 	mWebBrowser->addObserver( this );
 
 	// these buttons are always enabled
-	getChildView("reload")->setEnabled( true );
+	mBtnReload->setEnabled( true );
 	getChildView("popexternal")->setEnabled( true );
 
 	// cache image for secure browsing
@@ -128,6 +142,60 @@ bool LLFloaterWebContent::matchesKey(const LLSD& key)
 //static
 LLFloater* LLFloaterWebContent::create( Params p)
 {
+	preCreate(p);
+	return new LLFloaterWebContent(p);
+}
+
+//static
+void LLFloaterWebContent::closeRequest(const std::string &uuid)
+{
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
+	if (floaterp)
+	{
+		floaterp->closeFloater(false);
+	}
+}
+
+//static
+void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
+{
+	LLFloaterWebContent* floaterp = instance_tracker_t::getInstance(uuid);
+	if (floaterp)
+	{
+		floaterp->geometryChanged(x, y, width, height);
+	}
+}
+
+void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
+{
+	// Make sure the layout of the browser control is updated, so this calculation is correct.
+	getChild<LLLayoutStack>("stack1")->updateLayout();
+
+	// TODO: need to adjust size and constrain position to make sure floaters aren't moved outside the window view, etc.
+	LLCoordWindow window_size;
+	getWindow()->getSize(&window_size);
+
+	// Adjust width and height for the size of the chrome on the web Browser window.
+	LLRect browser_rect;
+	mWebBrowser->localRectToOtherView(mWebBrowser->getLocalRect(), &browser_rect, this);
+
+	S32 requested_browser_bottom = window_size.mY - (y + height);
+	LLRect geom;
+	geom.setOriginAndSize(x - browser_rect.mLeft, 
+						requested_browser_bottom - browser_rect.mBottom, 
+						width + getRect().getWidth() - browser_rect.getWidth(), 
+						height + getRect().getHeight() - browser_rect.getHeight());
+
+	lldebugs << "geometry change: " << geom << llendl;
+	
+	LLRect new_rect;
+	getParent()->screenRectToLocal(geom, &new_rect);
+	setShape(new_rect);	
+}
+
+// static
+void LLFloaterWebContent::preCreate(LLFloaterWebContent::Params& p)
+{
 	lldebugs << "url = " << p.url() << ", target = " << p.target() << ", uuid = " << p.id() << llendl;
 
 	if (!p.id.isProvided())
@@ -160,55 +228,6 @@ LLFloater* LLFloaterWebContent::create( Params p)
 			(*instances.begin())->closeFloater();
 		}
 	}
-
-	return new LLFloaterWebContent(p);
-}
-
-//static
-void LLFloaterWebContent::closeRequest(const std::string &uuid)
-{
-	LLFloaterWebContent* floaterp = getInstance(uuid);
-	if (floaterp)
-	{
-		floaterp->closeFloater(false);
-	}
-}
-
-//static
-void LLFloaterWebContent::geometryChanged(const std::string &uuid, S32 x, S32 y, S32 width, S32 height)
-{
-	LLFloaterWebContent* floaterp = getInstance(uuid);
-	if (floaterp)
-	{
-		floaterp->geometryChanged(x, y, width, height);
-	}
-}
-
-void LLFloaterWebContent::geometryChanged(S32 x, S32 y, S32 width, S32 height)
-{
-	// Make sure the layout of the browser control is updated, so this calculation is correct.
-	LLLayoutStack::updateClass();
-
-	// TODO: need to adjust size and constrain position to make sure floaters aren't moved outside the window view, etc.
-	LLCoordWindow window_size;
-	getWindow()->getSize(&window_size);
-
-	// Adjust width and height for the size of the chrome on the web Browser window.
-	LLRect browser_rect;
-	mWebBrowser->localRectToOtherView(mWebBrowser->getLocalRect(), &browser_rect, this);
-
-	S32 requested_browser_bottom = window_size.mY - (y + height);
-	LLRect geom;
-	geom.setOriginAndSize(x - browser_rect.mLeft, 
-						requested_browser_bottom - browser_rect.mBottom, 
-						width + getRect().getWidth() - browser_rect.getWidth(), 
-						height + getRect().getHeight() - browser_rect.getHeight());
-
-	lldebugs << "geometry change: " << geom << llendl;
-	
-	LLRect new_rect;
-	getParent()->screenRectToLocal(geom, &new_rect);
-	setShape(new_rect);	
 }
 
 void LLFloaterWebContent::open_media(const Params& p)
@@ -239,7 +258,7 @@ void LLFloaterWebContent::open_media(const Params& p)
 
 	if (!p.preferred_media_size().isEmpty())
 	{
-		LLLayoutStack::updateClass();
+		getChild<LLLayoutStack>("stack1")->updateLayout();
 		LLRect browser_rect = mWebBrowser->calcScreenRect();
 		LLCoordWindow window_size;
 		getWindow()->getSize(&window_size);
@@ -276,8 +295,8 @@ void LLFloaterWebContent::onClose(bool app_quitting)
 void LLFloaterWebContent::draw()
 {
 	// this is asynchronous so we need to keep checking
-	getChildView( "back" )->setEnabled( mWebBrowser->canNavigateBack() );
-	getChildView( "forward" )->setEnabled( mWebBrowser->canNavigateForward() );
+	mBtnBack->setEnabled( mWebBrowser->canNavigateBack() );
+	mBtnForward->setEnabled( mWebBrowser->canNavigateForward() );
 
 	LLFloater::draw();
 }
@@ -297,12 +316,12 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAVIGATE_BEGIN)
 	{
 		// flags are sent with this event
-		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
-		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
+		mBtnBack->setEnabled( self->getHistoryBackAvailable() );
+		mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
 
 		// toggle visibility of these buttons based on browser state
-		getChildView("reload")->setVisible( false );
-		getChildView("stop")->setVisible( true );
+		mBtnReload->setVisible( false );
+		mBtnStop->setVisible( true );
 
 		// turn "on" progress bar now we're about to start loading
 		mStatusBarProgress->setVisible( true );
@@ -310,12 +329,12 @@ void LLFloaterWebContent::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent
 	else if(event == MEDIA_EVENT_NAVIGATE_COMPLETE)
 	{
 		// flags are sent with this event
-		getChildView("back")->setEnabled( self->getHistoryBackAvailable() );
-		getChildView("forward")->setEnabled( self->getHistoryForwardAvailable() );
+		mBtnBack->setEnabled( self->getHistoryBackAvailable() );
+		mBtnForward->setEnabled( self->getHistoryForwardAvailable() );
 
 		// toggle visibility of these buttons based on browser state
-		getChildView("reload")->setVisible( true );
-		getChildView("stop")->setVisible( false );
+		mBtnReload->setVisible( true );
+		mBtnStop->setVisible( false );
 
 		// turn "off" progress bar now we're loaded
 		mStatusBarProgress->setVisible( false );
@@ -421,8 +440,8 @@ void LLFloaterWebContent::onClickStop()
 	// still should happen when we catch the navigate complete event
 	// but sometimes (don't know why) that event isn't sent from Qt
 	// and we ghetto a point where the stop button stays active.
-	getChildView("reload")->setVisible( true );
-	getChildView("stop")->setVisible( false );
+	mBtnReload->setVisible( true );
+	mBtnStop->setVisible( false );
 }
 
 void LLFloaterWebContent::onEnterAddress()

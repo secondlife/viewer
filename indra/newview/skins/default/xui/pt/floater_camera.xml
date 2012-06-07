@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" title="EXIBIR">
+<floater name="camera_floater" title="CONTROLES DA CÂMERA">
 	<floater.string name="rotate_tooltip">
 		Girar a Câmera ao redor do Foco
 	</floater.string>
@@ -8,15 +8,6 @@
 	</floater.string>
 	<floater.string name="move_tooltip">
 		Mover a Câmera para Cima e para Baixo, para a Esquerda e para a Direita
-	</floater.string>
-	<floater.string name="camera_modes_title">
-		Modos de câmera
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Pan zoom orbital
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Ângulos predefinidos
 	</floater.string>
 	<floater.string name="free_mode_title">
 		Visualizar objeto

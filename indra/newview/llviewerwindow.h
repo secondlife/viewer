@@ -44,6 +44,7 @@
 #include "llstat.h"
 #include "llmousehandler.h"
 #include "llhandle.h"
+#include "llinitparam.h"
 
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
@@ -133,7 +134,23 @@ public:
 	//
 	// CREATORS
 	//
-	LLViewerWindow(const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, BOOL fullscreen, BOOL ignore_pixel_depth);
+	struct Params : public LLInitParam::Block<Params>
+	{
+		Mandatory<std::string>		title,
+									name;
+		Mandatory<S32>				x,
+									y,
+									width,
+									height,
+									min_width,
+									min_height;
+		Optional<bool>				fullscreen,
+									ignore_pixel_depth;
+
+		Params();
+	};
+
+	LLViewerWindow(const Params& p);
 	virtual ~LLViewerWindow();
 
 	void			shutdownViews();

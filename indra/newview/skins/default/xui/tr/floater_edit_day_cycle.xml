@@ -22,10 +22,10 @@
 		Not: Ön ayarınızın adını değiştirirseniz, yeni bir ön ayar oluşturursunuz ve mevcut ön ayar değişmez.
 	</text>
 	<text name="hint_item1">
-		- Belirli gökyüzü ayarlarını ve zamanı düzenlemek için bir sekmeye tıklayın.
+		- Birine tıklayarak gökyüzü ayarlarını/zamanı düzenleyin.
 	</text>
 	<text name="hint_item2">
-		- Geçiş sürelerini ayarlamak için sekmelere tıklayın ve bunları sürükleyin.
+		- Sekmelere tıklayıp sürükleyerek geçiş sürlrn. ayarlayın.
 	</text>
 	<text name="hint_item3">
 		- Gün döngünüzü önizlemek için fırçayı kullanın.

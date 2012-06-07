@@ -151,13 +151,19 @@ void LLToolBar::createContextMenu()
 		if (menu)
 		{
 			menu->setBackgroundColor(LLUIColorTable::instance().getColor("MenuPopupBgColor"));
-
 			mPopupMenuHandle = menu->getHandle();
+			mRemoveButtonHandle = menu->getChild<LLView>("Remove button")->getHandle();
 		}
 		else
 		{
 			llwarns << "Unable to load toolbars context menu." << llendl;
 		}
+	}
+	
+	if (mRemoveButtonHandle.get())
+	{
+		// Disable/Enable the "Remove button" menu item depending on whether or not a button was clicked
+		mRemoveButtonHandle.get()->setEnabled(mRightMouseTargetButton != NULL);
 	}
 }
 
@@ -401,6 +407,7 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	{
 		// Determine which button the mouse was over during the click in case the context menu action
 		// is intended to affect the button.
+		mRightMouseTargetButton = NULL;
 		BOOST_FOREACH(LLToolBarButton* button, mButtons)
 		{
 			LLRect button_rect;
@@ -770,6 +777,12 @@ void LLToolBar::updateLayoutAsNeeded()
 	// re-center toolbar buttons
 	mCenteringStack->updateLayout();
 
+	if (!mButtons.empty())
+	{
+		mButtonPanel->setVisible(TRUE);
+		mButtonPanel->setMouseOpaque(TRUE);
+	}
+
 	// don't clear flag until after we've resized ourselves, to avoid laying out every frame
 	mNeedsLayout = false;
 }
@@ -814,7 +827,7 @@ void LLToolBar::draw()
 	// rect may have shifted during layout
 	LLUI::popMatrix();
 	LLUI::pushMatrix();
-	LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom, 0.f);
+	LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 
 	// Position the caret 
 	LLIconCtrl* caret = getChild<LLIconCtrl>("caret");

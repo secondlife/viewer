@@ -417,11 +417,24 @@ const S32 min_non_tex_system_mem = (128<<20); // 128 MB
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
 
+static LLFastTimer::DeclareTimer FTM_TEXTURE_MEMORY_CHECK("Memory Check");
+
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
-	const static S32 MIN_FREE_TEXTURE_MEMORY = 5 ; //MB
-	const static S32 MIN_FREE_MAIN_MEMORy = 100 ; //MB
+	const F32 WAIT_TIME = 1.0f ; //second
+	static LLFrameTimer timer ;
+
+	if(timer.getElapsedTimeF32() < WAIT_TIME) //call this once per second.
+	{
+		return false;
+	}
+	timer.reset() ;
+
+	LLFastTimer t(FTM_TEXTURE_MEMORY_CHECK);
+
+	const S32 MIN_FREE_TEXTURE_MEMORY = 5 ; //MB
+	const S32 MIN_FREE_MAIN_MEMORy = 100 ; //MB	
 
 	bool low_mem = false ;
 	if (gGLManager.mHasATIMemInfo)
@@ -432,6 +445,15 @@ bool LLViewerTexture::isMemoryForTextureLow()
 		if(meminfo[0] / 1024 < MIN_FREE_TEXTURE_MEMORY)
 		{
 			low_mem = true ;
+		}
+
+		if(!low_mem) //check main memory, only works for windows.
+		{
+			LLMemory::updateMemoryInfo() ;
+			if(LLMemory::getAvailableMemKB() / 1024 < MIN_FREE_MAIN_MEMORy)
+			{
+				low_mem = true ;
+			}
 		}
 	}
 #if 0  //ignore nVidia cards
@@ -445,19 +467,13 @@ bool LLViewerTexture::isMemoryForTextureLow()
 			low_mem = true ;
 		}
 	}
-#endif
-
-	if(!low_mem) //check main memory, only works for windows.
-	{
-		LLMemory::updateMemoryInfo() ;
-		if(LLMemory::getAvailableMemKB() / 1024 < MIN_FREE_MAIN_MEMORy)
-		{
-			low_mem = true ;
-		}
-	}
+#endif	
 
 	return low_mem ;
 }
+
+static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE_MEDIA("Media");
+static LLFastTimer::DeclareTimer FTM_TEXTURE_UPDATE_TEST("Test");
 
 //static
 void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity)
@@ -467,9 +483,14 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 	if (tester)
 	{
+		LLFastTimer t(FTM_TEXTURE_UPDATE_TEST);
 		tester->update() ;
 	}
-	LLViewerMediaTexture::updateClass() ;
+
+	{
+		LLFastTimer t(FTM_TEXTURE_UPDATE_MEDIA);
+		LLViewerMediaTexture::updateClass() ;
+	}
 
 	sBoundTextureMemoryInBytes = LLImageGL::sBoundTextureMemoryInBytes;//in bytes
 	sTotalTextureMemoryInBytes = LLImageGL::sGlobalTextureMemoryInBytes;//in bytes
@@ -2269,6 +2290,7 @@ void LLViewerFetchedTexture::unpauseLoadedCallbacks(const LLLoadedCallbackEntry:
 		}
 	}
 	mPauseLoadedCallBacks = FALSE ;
+	mLastCallBackActiveTime = sCurrentTime ;
 	if(need_raw)
 	{
 		mSaveRawImage = TRUE ;
@@ -2308,13 +2330,18 @@ void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::s
 
 bool LLViewerFetchedTexture::doLoadedCallbacks()
 {
-	static const F32 MAX_INACTIVE_TIME = 120.f ; //seconds
+	static const F32 MAX_INACTIVE_TIME = 900.f ; //seconds
 
 	if (mNeedsCreateTexture)
 	{
 		return false;
 	}
-	if(sCurrentTime - mLastCallBackActiveTime > MAX_INACTIVE_TIME)
+	if(mPauseLoadedCallBacks)
+	{
+		destroyRawImage();
+		return false; //paused
+	}	
+	if(sCurrentTime - mLastCallBackActiveTime > MAX_INACTIVE_TIME && !mIsFetching)
 	{
 		clearCallbackEntryList() ; //remove all callbacks.
 		return false ;
@@ -2337,12 +2364,8 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 
 		// Remove ourself from the global list of textures with callbacks
 		gTextureList.mCallbackList.erase(this);
-	}
-	if(mPauseLoadedCallBacks)
-	{
-		destroyRawImage();
-		return res; //paused
-	}
+		return false ;
+	}	
 
 	S32 gl_discard = getDiscardLevel();
 
@@ -2604,7 +2627,11 @@ bool LLViewerFetchedTexture::needsToSaveRawImage()
 
 void LLViewerFetchedTexture::destroyRawImage()
 {	
-	if (mAuxRawImage.notNull()) sAuxCount--;
+	if (mAuxRawImage.notNull())
+	{
+		sAuxCount--;
+		mAuxRawImage = NULL;
+	}
 
 	if (mRawImage.notNull()) 
 	{
@@ -2618,12 +2645,12 @@ void LLViewerFetchedTexture::destroyRawImage()
 			}		
 			setCachedRawImage() ;
 		}
+		
+		mRawImage = NULL;
+	
+		mIsRawImageValid = FALSE;
+		mRawDiscardLevel = INVALID_DISCARD_LEVEL;
 	}
-
-	mRawImage = NULL;
-	mAuxRawImage = NULL;
-	mIsRawImageValid = FALSE;
-	mRawDiscardLevel = INVALID_DISCARD_LEVEL;
 }
 
 //use the mCachedRawImage to (re)generate the gl texture.
@@ -3136,8 +3163,13 @@ void LLViewerLODTexture::processTextureStats()
 		S32 current_discard = getDiscardLevel();
 		if (sDesiredDiscardBias > 0.0f && mBoostLevel < LLViewerTexture::BOOST_SCULPTED && current_discard >= 0)
 		{
+			if(desired_discard_bias_max <= sDesiredDiscardBias && !mForceToSaveRawImage)
+			{
+				//needs to release texture memory urgently
+				scaleDown() ;
+			}
 			// Limit the amount of GL memory bound each frame
-			if ( BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) > sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale &&
+			else if ( BYTES_TO_MEGA_BYTES(sBoundTextureMemoryInBytes) > sMaxBoundTextureMemInMegaBytes * texmem_middle_bound_scale &&
 				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
 			{
 				scaleDown() ;

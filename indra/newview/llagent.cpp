@@ -169,11 +169,7 @@ bool LLAgent::isActionAllowed(const LLSD& sdname)
 
 	const std::string& param = sdname.asString();
 
-	if (param == "build")
-	{
-		retval = gAgent.canEditParcel();
-	}
-	else if (param == "speak")
+	if (param == "speak")
 	{
 		if ( gAgent.isVoiceConnected() && 
 			LLViewerParcelMgr::getInstance()->allowAgentVoice() &&
@@ -202,6 +198,12 @@ void LLAgent::pressMicrophone(const LLSD& name)
 void LLAgent::releaseMicrophone(const LLSD& name)
 {
 	LLVoiceClient::getInstance()->inputUserControlState(false);
+}
+
+// static
+void LLAgent::toggleMicrophone(const LLSD& name)
+{
+	LLVoiceClient::getInstance()->toggleUserPTTState();
 }
 
 // static
@@ -331,12 +333,6 @@ void LLAgent::init()
 
 	LLViewerParcelMgr::getInstance()->addAgentParcelChangedCallback(boost::bind(&LLAgent::parcelChangedCallback));
 
-	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsActionAllowed", boost::bind(&LLAgent::isActionAllowed, _2));
-	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.PressMicrophone", boost::bind(&LLAgent::pressMicrophone, _2));
-	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Agent.ReleaseMicrophone", boost::bind(&LLAgent::releaseMicrophone, _2));
-	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Agent.IsMicrophoneOn", boost::bind(&LLAgent::isMicrophoneOn, _2));
-
-	
 	mInitialized = TRUE;
 }
 
@@ -1101,19 +1097,10 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 
 	LLVector3 skyward = getReferenceUpVector();
 
-	F32			look_down_limit;
-	F32			look_up_limit = 10.f * DEG_TO_RAD;
+	const F32 look_down_limit = 179.f * DEG_TO_RAD;;
+	const F32 look_up_limit   =   1.f * DEG_TO_RAD;
 
 	F32 angle_from_skyward = acos( mFrameAgent.getAtAxis() * skyward );
-
-	if (isAgentAvatarValid() && gAgentAvatarp->isSitting())
-	{
-		look_down_limit = 130.f * DEG_TO_RAD;
-	}
-	else
-	{
-		look_down_limit = 170.f * DEG_TO_RAD;
-	}
 
 	// clamp pitch to limits
 	if ((angle >= 0.f) && (angle_from_skyward + angle > look_down_limit))
@@ -3323,6 +3310,7 @@ void LLAgent::processAgentCachedTextureResponse(LLMessageSystem *mesgsys, void *
 	}
 
 	llinfos << "Received cached texture response for " << num_results << " textures." << llendl;
+	gAgentAvatarp->outputRezTiming("Fetched agent wearables textures from cache. Will now load them");
 
 	gAgentAvatarp->updateMeshTextures();
 
@@ -4004,14 +3992,14 @@ void LLAgent::renderAutoPilotTarget()
 		F32 height_meters;
 		LLVector3d target_global;
 
-		glMatrixMode(GL_MODELVIEW);
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
 
 		// not textured
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 		// lovely green
-		glColor4f(0.f, 1.f, 1.f, 1.f);
+		gGL.color4f(0.f, 1.f, 1.f, 1.f);
 
 		target_global = mAutoPilotTargetGlobal;
 
@@ -4019,9 +4007,9 @@ void LLAgent::renderAutoPilotTarget()
 
 		height_meters = 1.f;
 
-		glScalef(height_meters, height_meters, height_meters);
+		gGL.scalef(height_meters, height_meters, height_meters);
 
-		gSphere.render(1500.f);
+		gSphere.render();
 
 		gGL.popMatrix();
 	}

@@ -76,7 +76,7 @@
 				<button label="Compartir" name="share_btn" tool_tip="Compartir un objeto del inventario"/>
 			</layout_panel>
 			<layout_panel name="teleport_btn_lp">
-				<button label="Teleportarte" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
+				<button label="Teleporte" name="teleport_btn" tool_tip="Ofrecer teleporte"/>
 			</layout_panel>
 		</layout_stack>
 		<layout_stack name="bottom_bar_ls1">

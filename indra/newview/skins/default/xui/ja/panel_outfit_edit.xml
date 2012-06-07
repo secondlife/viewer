@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <!-- Side tray Outfit Edit panel -->
 <panel label="アウトフットの編集" name="outfit_edit">
 	<string name="No Outfit" value="アウトフィットなし"/>
@@ -30,7 +30,7 @@
 					<button label="さらに追加..." name="show_add_wearables_btn" tool_tip="開く／閉じる"/>
 				</layout_panel>
 				<layout_panel name="filter_panel">
-					<filter_editor label="持ち物の着用物をフィルター" name="look_item_filter"/>
+					<filter_editor label="インベントリの着用物をフィルター" name="look_item_filter"/>
 				</layout_panel>
 			</layout_stack>
 		</layout_panel>

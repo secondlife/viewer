@@ -23,9 +23,13 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
@@ -38,7 +42,7 @@ uniform sampler2D		depthGIMap;
 uniform sampler2D		lightFunc;
 
 // Inputs
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 uniform vec2 screen_res;
 
@@ -182,5 +186,5 @@ void main()
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
 	norm = vec3((norm.xy-0.5)*2.0,norm.z); // unpack norm
 	
-	gl_FragData[0].xyz = giAmbient(pos, norm);
+	frag_color.xyz = giAmbient(pos, norm);
 }

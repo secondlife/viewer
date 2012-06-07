@@ -37,6 +37,7 @@
 #include "llselectmgr.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerobject.h"
 #include "lluictrlfactory.h"
@@ -166,6 +167,15 @@ LLUUID LLFloaterInspect::getSelectedUUID()
 	return LLUUID::null;
 }
 
+void LLFloaterInspect::onGetAvNameCallback(const LLUUID& idCreator, const LLAvatarName& av_name, void* FloaterPtr)
+{
+	if (FloaterPtr)
+	{
+		LLFloaterInspect* floater = (LLFloaterInspect*)FloaterPtr;
+		floater->dirty();
+	}
+}
+
 void LLFloaterInspect::refresh()
 {
 	LLUUID creator_id;
@@ -205,11 +215,32 @@ void LLFloaterInspect::refresh()
 		substitution["datetime"] = (S32) timestamp;
 		LLStringUtil::format (timeStr, substitution);
 
+		const LLUUID& idOwner = obj->mPermissions->getOwner();
+		const LLUUID& idCreator = obj->mPermissions->getCreator();
 		LLAvatarName av_name;
-		LLAvatarNameCache::get(obj->mPermissions->getOwner(), &av_name);
-		owner_name = av_name.getCompleteName();
-		LLAvatarNameCache::get(obj->mPermissions->getCreator(), &av_name);
-		creator_name = av_name.getCompleteName();
+
+		// Only work with the names if we actually get a result
+		// from the name cache. If not, defer setting the
+		// actual name and set a placeholder.
+		if (LLAvatarNameCache::get(idOwner, &av_name))
+		{
+			owner_name = av_name.getCompleteName();
+		}
+		else
+		{
+			owner_name = LLTrans::getString("RetrievingData");
+			LLAvatarNameCache::get(idOwner, boost::bind(&LLFloaterInspect::onGetAvNameCallback, _1, _2, this));
+		}
+
+		if (LLAvatarNameCache::get(idCreator, &av_name))
+		{
+			creator_name = av_name.getCompleteName();
+		}
+		else
+		{
+			creator_name = LLTrans::getString("RetrievingData");
+			LLAvatarNameCache::get(idCreator, boost::bind(&LLFloaterInspect::onGetAvNameCallback, _1, _2, this));
+		}
 		
 		row["id"] = obj->getObject()->getID();
 		row["columns"][0]["column"] = "object_name";

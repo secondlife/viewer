@@ -27,9 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerwindow.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
 
 // system library includes
 #include <stdio.h>
@@ -49,7 +46,6 @@
 #include "llviewquery.h"
 #include "llxmltree.h"
 #include "llslurl.h"
-//#include "llviewercamera.h"
 #include "llrender.h"
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
@@ -130,6 +126,7 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
+#include "llpaneltopinfobar.h"
 #include "llpopupview.h"
 #include "llpreviewtexture.h"
 #include "llprogressview.h"
@@ -489,6 +486,7 @@ public:
 			{
 				F32 cost = 0.f;
 				S32 count = 0;
+				S32 vcount = 0;
 				S32 object_count = 0;
 				S32 total_bytes = 0;
 				S32 visible_bytes = 0;
@@ -510,7 +508,9 @@ public:
 								S32 bytes = 0;	
 								S32 visible = 0;
 								cost += object->getStreamingCost(&bytes, &visible);
-								count += object->getTriangleCount();
+								S32 vt = 0;
+								count += object->getTriangleCount(&vt);
+								vcount += vt;
 								total_bytes += bytes;
 								visible_bytes += visible;
 							}
@@ -521,20 +521,20 @@ public:
 				{
 					label = "Selection";
 					cost = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectStreamingCost(&total_bytes, &visible_bytes);
-					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount();
+					count = LLSelectMgr::getInstance()->getSelection()->getSelectedObjectTriangleCount(&vcount);
 					object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 				}
 					
 				addText(xpos,ypos, llformat("%s streaming cost: %.1f", label, cost));
 				ypos += y_inc;
 
-				addText(xpos, ypos, llformat("    %.3f KTris, %.1f/%.1f KB, %d objects",
-										count/1000.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
+				addText(xpos, ypos, llformat("    %.3f KTris, %.3f KVerts, %.1f/%.1f KB, %d objects",
+										count/1000.f, vcount/1000.f, visible_bytes/1024.f, total_bytes/1024.f, object_count));
 				ypos += y_inc;
 			
 			}
 
-			addText(xpos, ypos, llformat("%d MB Vertex Data", LLVertexBuffer::sAllocatedBytes/(1024*1024)));
+			addText(xpos, ypos, llformat("%d MB Vertex Data (%d MB Pooled)", LLVertexBuffer::sAllocatedBytes/(1024*1024), LLVBOPool::sBytesPooled/(1024*1024)));
 			ypos += y_inc;
 
 			addText(xpos, ypos, llformat("%d Vertex Buffers", LLVertexBuffer::sGLCount));
@@ -609,7 +609,9 @@ public:
 				
 				addText(xpos, ypos, llformat("%d/%d Mesh HTTP Requests/Retries", LLMeshRepository::sHTTPRequestCount,
 					LLMeshRepository::sHTTPRetryCount));
-				
+				ypos += y_inc;
+
+				addText(xpos, ypos, llformat("%d/%d Mesh LOD Pending/Processing", LLMeshRepository::sLODPending, LLMeshRepository::sLODProcessing));
 				ypos += y_inc;
 
 				addText(xpos, ypos, llformat("%.3f/%.3f MB Mesh Cache Read/Write ", LLMeshRepository::sCacheBytesRead/(1024.f*1024.f), LLMeshRepository::sCacheBytesWritten/(1024.f*1024.f)));
@@ -737,37 +739,6 @@ public:
 			}
 		}				
 
-		//temporary hack to give feedback on mesh upload progress
-		if (!gMeshRepo.mUploads.empty())
-		{
-			for (std::vector<LLMeshUploadThread*>::iterator iter = gMeshRepo.mUploads.begin(); 
-				iter != gMeshRepo.mUploads.end(); ++iter)
-			{
-				LLMeshUploadThread* thread = *iter;
-
-				addText(xpos, ypos, llformat("Mesh Uploads: %d", 
-								thread->mPendingUploads));
-				ypos += y_inc;
-			}
-		}
-
-		if (!gMeshRepo.mPendingRequests.empty() ||
-			!gMeshRepo.mThread->mHeaderReqQ.empty() ||
-			!gMeshRepo.mThread->mLODReqQ.empty())
-		{
-			LLMutexLock lock(gMeshRepo.mThread->mMutex);
-			S32 pending = (S32) gMeshRepo.mPendingRequests.size();
-			S32 header = (S32) gMeshRepo.mThread->mHeaderReqQ.size();
-			S32 lod = (S32) gMeshRepo.mThread->mLODReqQ.size();
-
-			addText(xpos, ypos, llformat ("Mesh Queue - %d pending (%d:%d header | %d:%d LOD)", 
-												pending,
-												LLMeshRepoThread::sActiveHeaderRequests, header,
-												LLMeshRepoThread::sActiveLODRequests, lod));
-
-			ypos += y_inc;
-		}
-		
 		if (gSavedSettings.getBOOL("DebugShowTextureInfo"))
 		{
 			LLViewerObject* objectp = NULL ;
@@ -837,6 +808,20 @@ void LLViewerWindow::updateDebugText()
 //
 // LLViewerWindow
 //
+
+LLViewerWindow::Params::Params()
+:	title("title"),
+	name("name"),
+	x("x"),
+	y("y"),
+	width("width"),
+	height("height"),
+	min_width("min_width"),
+	min_height("min_height"),
+	fullscreen("fullscreen", false),
+	ignore_pixel_depth("ignore_pixel_depth", false)
+{}
+
 
 BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down)
 {
@@ -1219,7 +1204,8 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 
 	mWindow->showCursorFromMouseMove();
 
-	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
+	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME
+		&& !gDisconnected)
 	{
 		gAgent.clearAFK();
 	}
@@ -1531,18 +1517,13 @@ std::string LLViewerWindow::translateString(const char* tag,
 //
 // Classes
 //
-LLViewerWindow::LLViewerWindow(
-	const std::string& title, const std::string& name,
-	S32 x, S32 y,
-	S32 width, S32 height,
-	BOOL fullscreen, BOOL ignore_pixel_depth) // fullscreen is no longer used
-	:
-	mWindow(NULL),
+LLViewerWindow::LLViewerWindow(const Params& p)
+:	mWindow(NULL),
 	mActive(true),
 	mUIVisible(true),
-	mWindowRectRaw(0, height, width, 0),
-	mWindowRectScaled(0, height, width, 0),
-	mWorldViewRectRaw(0, height, width, 0),
+	mWindowRectRaw(0, p.height, p.width, 0),
+	mWindowRectScaled(0, p.height, p.width, 0),
+	mWorldViewRectRaw(0, p.height, p.width, 0),
 	mLeftMouseDown(FALSE),
 	mMiddleMouseDown(FALSE),
 	mRightMouseDown(FALSE),
@@ -1555,14 +1536,14 @@ LLViewerWindow::LLViewerWindow(
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
+	mProgressView(NULL)
+{
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
 	// will, when we later need it, return the value of gKeyboard.
 	// boost::lambda::var() constructs such a functor on the fly.
-	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
-	mViewerWindowListener(new LLViewerWindowListener(this)),
-	mProgressView(NULL)
-{
+	mWindowListener.reset(new LLWindowListener(this, boost::lambda::var(gKeyboard)));
+	mViewerWindowListener.reset(new LLViewerWindowListener(this));
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
 
@@ -1578,13 +1559,19 @@ LLViewerWindow::LLViewerWindow(
 
 	// create window
 	mWindow = LLWindowManager::createWindow(this,
-		title, name, x, y, width, height, 0,
-		fullscreen, 
+		p.title, p.name, p.x, p.y, p.width, p.height, 0,
+		p.fullscreen, 
 		gHeadlessClient,
 		gSavedSettings.getBOOL("DisableVerticalSync"),
 		!gHeadlessClient,
-		ignore_pixel_depth,
+		p.ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
+
+	if (!LLViewerShaderMgr::sInitialized)
+	{ //immediately initialize shaders
+		LLViewerShaderMgr::sInitialized = TRUE;
+		LLViewerShaderMgr::instance()->setShaders();
+	}
 
 	if (NULL == mWindow)
 	{
@@ -1610,10 +1597,12 @@ LLViewerWindow::LLViewerWindow(
 		LL_WARNS("Window") << " Someone took over my signal/exception handler (post createWindow)!" << LL_ENDL;
 	}
 
+	const bool do_not_enforce = false;
+	mWindow->setMinSize(p.min_width, p.min_height, do_not_enforce);  // root view not set 
 	LLCoordScreen scr;
     mWindow->getSize(&scr);
 
-    if(fullscreen && ( scr.mX!=width || scr.mY!=height))
+    if(p.fullscreen && ( scr.mX!=p.width || scr.mY!=p.height))
     {
 		llwarns << "Fullscreen has forced us in to a different resolution now using "<<scr.mX<<" x "<<scr.mY<<llendl;
 		gSavedSettings.setS32("FullScreenWidth",scr.mX);
@@ -1722,32 +1711,30 @@ LLViewerWindow::LLViewerWindow(
 void LLViewerWindow::initGLDefaults()
 {
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
 
-	F32 ambient[4] = {0.f,0.f,0.f,0.f };
-	F32 diffuse[4] = {1.f,1.f,1.f,1.f };
-	glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-	glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-	
+	if (!LLGLSLShader::sNoFixedFunction)
+	{ //initialize fixed function state
+		glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
+
+		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,LLColor4::black.mV);
+		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,LLColor4::white.mV);
+
+		// lights for objects
+		glShadeModel( GL_SMOOTH );
+
+		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
+		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
+	}
+
 	glPixelStorei(GL_PACK_ALIGNMENT,1);
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
-	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-
-	// lights for objects
-	glShadeModel( GL_SMOOTH );
-
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-	
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-
+	gGL.setAmbientLightColor(LLColor4::black);
+		
 	glCullFace(GL_BACK);
 
 	// RN: Need this for translation and stretch manip.
-	gCone.prerender();
 	gBox.prerender();
-	gSphere.prerender();
-	gCylinder.prerender();
 }
 
 struct MainPanel : public LLPanel
@@ -1969,34 +1956,43 @@ void LLViewerWindow::shutdownViews()
 	// clean up warning logger
 	LLError::removeRecorder(RecordToChatConsole::getInstance());
 
+	llinfos << "Warning logger is cleaned." << llendl ;
+
 	delete mDebugText;
 	mDebugText = NULL;
 	
+	llinfos << "DebugText deleted." << llendl ;
+
 	// Cleanup global views
 	if (gMorphView)
 	{
 		gMorphView->setVisible(FALSE);
 	}
-
+	llinfos << "Global views cleaned." << llendl ;
+	
 	// DEV-40930: Clear sModalStack. Otherwise, any LLModalDialog left open
 	// will crump with LL_ERRS.
 	LLModalDialog::shutdownModals();
-	
+	llinfos << "LLModalDialog shut down." << llendl; 
+
 	// destroy the nav bar, not currently part of gViewerWindow
 	// *TODO: Make LLNavigationBar part of gViewerWindow
 	if (LLNavigationBar::instanceExists())
 	{
 		delete LLNavigationBar::getInstance();
 	}
-
+	llinfos << "LLNavigationBar destroyed." << llendl ;
+	
 	// destroy menus after instantiating navbar above, as it needs
 	// access to gMenuHolder
 	cleanup_menus();
-
+	llinfos << "menus destroyed." << llendl ;
+	
 	// Delete all child views.
 	delete mRootView;
 	mRootView = NULL;
-
+	llinfos << "RootView deleted." << llendl ;
+	
 	// Automatically deleted as children of mRootView.  Fix the globals.
 	gStatusBar = NULL;
 	gIMMgr = NULL;
@@ -2021,6 +2017,12 @@ void LLViewerWindow::shutdownGL()
 	gSky.cleanup();
 	stop_glerror();
 
+	llinfos << "Cleaning up pipeline" << llendl;
+	gPipeline.cleanup();
+	stop_glerror();
+
+	//MUST clean up pipeline before cleaning up wearables
+	llinfos << "Cleaning up wearables" << llendl;
 	LLWearableList::instance().cleanup() ;
 
 	gTextureList.shutdown();
@@ -2030,10 +2032,6 @@ void LLViewerWindow::shutdownGL()
 	stop_glerror();
 
 	LLWorldMapView::cleanupTextures();
-
-	llinfos << "Cleaning up pipeline" << llendl;
-	gPipeline.cleanup();
-	stop_glerror();
 
 	LLViewerTextureManager::cleanup() ;
 	LLImageGL::cleanupClass() ;
@@ -2153,20 +2151,29 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		sendShapeToSim();
 
 		// store new settings for the mode we are in, regardless
-		// Only save size if not maximized
 		BOOL maximized = mWindow->getMaximized();
 		gSavedSettings.setBOOL("WindowMaximized", maximized);
 
-		LLCoordScreen window_size;
-		if (!maximized
-			&& mWindow->getSize(&window_size))
+		if (!maximized)
 		{
-			gSavedSettings.setS32("WindowWidth", window_size.mX);
-			gSavedSettings.setS32("WindowHeight", window_size.mY);
+			U32 min_window_width=gSavedSettings.getU32("MinWindowWidth");
+			U32 min_window_height=gSavedSettings.getU32("MinWindowHeight");
+			// tell the OS specific window code about min window size
+			mWindow->setMinSize(min_window_width, min_window_height);
+
+			LLCoordScreen window_rect;
+			if (mWindow->getSize(&window_rect))
+			{
+			// Only save size if not maximized
+				gSavedSettings.setU32("WindowWidth", window_rect.mX);
+				gSavedSettings.setU32("WindowHeight", window_rect.mY);
+			}
 		}
 
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+
+		LLLayoutStack::updateClass();
 	}
 }
 
@@ -2252,6 +2259,10 @@ void LLViewerWindow::drawDebugText()
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
@@ -2261,6 +2272,10 @@ void LLViewerWindow::drawDebugText()
 	gGL.popMatrix();
 
 	gGL.flush();
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.unbind();
+	}
 }
 
 void LLViewerWindow::draw()
@@ -2275,9 +2290,9 @@ void LLViewerWindow::draw()
 
 	LLUI::setLineWidth(1.f);
 	// Reset any left-over transforms
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	
-	glLoadIdentity();
+	gGL.loadIdentity();
 
 	//S32 screen_x, screen_y;
 
@@ -2292,7 +2307,7 @@ void LLViewerWindow::draw()
 		// draw timecode block
 		std::string text;
 
-		glLoadIdentity();
+		gGL.loadIdentity();
 
 		microsecondsToTimecodeString(gFrameTime,text);
 		const LLFontGL* font = LLFontGL::getFontSansSerif();
@@ -2328,10 +2343,10 @@ void LLViewerWindow::draw()
 			int pos_y = sub_region / llceil(zoom_factor);
 			int pos_x = sub_region - (pos_y*llceil(zoom_factor));
 			// offset for this tile
-			glTranslatef((F32)getWindowWidthScaled() * -(F32)pos_x, 
+			gGL.translatef((F32)getWindowWidthScaled() * -(F32)pos_x, 
 						(F32)getWindowHeightScaled() * -(F32)pos_y, 
 						0.f);
-			glScalef(zoom_factor, zoom_factor, 1.f);
+			gGL.scalef(zoom_factor, zoom_factor, 1.f);
 			LLUI::sGLScaleFactor *= zoom_factor;
 		}
 
@@ -2360,9 +2375,9 @@ void LLViewerWindow::draw()
 			S32 screen_x, screen_y;
 			top_ctrl->localPointToScreen(0, 0, &screen_x, &screen_y);
 
-			glMatrixMode(GL_MODELVIEW);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
-			LLUI::translate( (F32) screen_x, (F32) screen_y, 0.f);
+			LLUI::translate( (F32) screen_x, (F32) screen_y);
 			top_ctrl->draw();	
 			LLUI::popMatrix();
 		}
@@ -3170,12 +3185,6 @@ void LLViewerWindow::updateLayout()
 		//gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
 	}
 
-	LLFloaterBuildOptions* build_options_floater = LLFloaterReg::findTypedInstance<LLFloaterBuildOptions>("build_options");
-	if (build_options_floater && build_options_floater->getVisible())
-	{
-		build_options_floater->updateGridMode();
-	}
-
 	// Always update console
 	if(gConsole)
 	{
@@ -3420,17 +3429,17 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 
 			// set up transform to encompass bounding box of HUD
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glLoadIdentity();
+			gGL.matrixMode(LLRender::MM_PROJECTION);
+			gGL.pushMatrix();
+			gGL.loadIdentity();
 			F32 depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-			glOrtho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
+			gGL.ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, depth);
 			
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-			glLoadMatrixf(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
-			glTranslatef(-hud_bbox.getCenterLocal().mV[VX] + (depth *0.5f), 0.f, 0.f);
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
+			gGL.pushMatrix();
+			gGL.loadIdentity();
+			gGL.loadMatrix(OGL_TO_CFR_ROTATION);		// Load Cory's favorite reference frame
+			gGL.translatef(-hud_bbox.getCenterLocal().mV[VX] + (depth *0.5f), 0.f, 0.f);
 		}
 
 		// Render light for editing
@@ -3440,12 +3449,12 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			LLGLEnable gls_blend(GL_BLEND);
 			LLGLEnable gls_cull(GL_CULL_FACE);
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
+			gGL.matrixMode(LLRender::MM_MODELVIEW);
+			gGL.pushMatrix();
 			if (selection->getSelectType() == SELECT_TYPE_HUD)
 			{
 				F32 zoom = gAgentCamera.mHUDCurZoom;
-				glScalef(zoom, zoom, zoom);
+				gGL.scalef(zoom, zoom, zoom);
 			}
 
 			struct f : public LLSelectedObjectFunctor
@@ -3456,33 +3465,33 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					if (drawable && drawable->isLight())
 					{
 						LLVOVolume* vovolume = drawable->getVOVolume();
-						glPushMatrix();
+						gGL.pushMatrix();
 
 						LLVector3 center = drawable->getPositionAgent();
-						glTranslatef(center[0], center[1], center[2]);
+						gGL.translatef(center[0], center[1], center[2]);
 						F32 scale = vovolume->getLightRadius();
-						glScalef(scale, scale, scale);
+						gGL.scalef(scale, scale, scale);
 
 						LLColor4 color(vovolume->getLightColor(), .5f);
-						glColor4fv(color.mV);
+						gGL.color4fv(color.mV);
 					
-						F32 pixel_area = 100000.f;
+						//F32 pixel_area = 100000.f;
 						// Render Outside
-						gSphere.render(pixel_area);
+						gSphere.render();
 
 						// Render Inside
 						glCullFace(GL_FRONT);
-						gSphere.render(pixel_area);
+						gSphere.render();
 						glCullFace(GL_BACK);
 					
-						glPopMatrix();
+						gGL.popMatrix();
 					}
 					return true;
 				}
 			} func;
 			LLSelectMgr::getInstance()->getSelection()->applyToObjects(&func);
 			
-			glPopMatrix();
+			gGL.popMatrix();
 		}				
 		
 		// NOTE: The average position for the axis arrows of the selected objects should
@@ -3545,11 +3554,11 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 			}
 			if (selection->getSelectType() == SELECT_TYPE_HUD && selection->getObjectCount())
 			{
-				glMatrixMode(GL_PROJECTION);
-				glPopMatrix();
+				gGL.matrixMode(LLRender::MM_PROJECTION);
+				gGL.popMatrix();
 
-				glMatrixMode(GL_MODELVIEW);
-				glPopMatrix();
+				gGL.matrixMode(LLRender::MM_MODELVIEW);
+				gGL.popMatrix();
 				stop_glerror();
 			}
 		}
@@ -4089,24 +4098,14 @@ void LLViewerWindow::resetSnapshotLoc()
 	sSnapshotDir.clear();
 }
 
-static S32 BORDERHEIGHT = 0;
-static S32 BORDERWIDTH = 0;
-
 // static
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
-	LLCoordScreen size;
+	LLCoordWindow size;
+	LLCoordWindow new_size(new_width, new_height);
 	gViewerWindow->getWindow()->getSize(&size);
-	if (  (size.mX != new_width + BORDERWIDTH)
-		||(size.mY != new_height + BORDERHEIGHT))
+	if ( size != new_size )
 	{
-		// use actual display dimensions, not virtual UI dimensions
-		S32 x = gViewerWindow->getWindowWidthRaw();
-		S32 y = gViewerWindow->getWindowHeightRaw();
-		BORDERWIDTH = size.mX - x;
-		BORDERHEIGHT = size.mY- y;
-		LLCoordScreen new_size(new_width + BORDERWIDTH, 
-							   new_height + BORDERHEIGHT);
 		gViewerWindow->getWindow()->setSize(new_size);
 	}
 }
@@ -4665,10 +4664,7 @@ void LLViewerWindow::stopGL(BOOL save_state)
 			gPipeline.destroyGL();
 		}
 		
-		gCone.cleanupGL();
 		gBox.cleanupGL();
-		gSphere.cleanupGL();
-		gCylinder.cleanupGL();
 		
 		if(gPostProcess)
 		{
@@ -4742,6 +4738,9 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 {
 	LLFontGL::destroyAllGL();
 	// Initialize with possibly different zoom factor
+
+	LLFontManager::initClass();
+
 	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
@@ -5010,8 +5009,8 @@ void LLViewerWindow::setUIVisibility(bool visible)
 		gToolBarView->setToolBarsVisible(visible);
 	}
 
-	mRootView->getChildView("topinfo_bar_container")->setVisible(visible);
-	mRootView->getChildView("nav_bar_container")->setVisible(visible);
+	LLNavigationBar::getInstance()->setVisible(visible ? gSavedSettings.getBOOL("ShowNavbarNavigationPanel") : FALSE);
+	LLPanelTopInfoBar::getInstance()->setVisible(visible? gSavedSettings.getBOOL("ShowMiniLocationPanel") : FALSE);
 	mRootView->getChildView("status_bar_container")->setVisible(visible);
 }
 

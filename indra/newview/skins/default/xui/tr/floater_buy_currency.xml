@@ -46,7 +46,7 @@
 		L$ [AMT]
 	</text>
 	<text name="currency_links">
-		[http://www.secondlife.com/my/account/payment_method_management.php ödeme yöntemi] | [http://www.secondlife.com/my/account/currency.php para birimi | [http://www.secondlife.com/my/account/exchange_rates.php döviz kurları]
+		[http://www.secondlife.com/my/account/payment_method_management.php ödeme yöntemi] | [http://www.secondlife.com/my/account/currency.php para birimi]
 	</text>
 	<text name="exchange_rate_note">
 		En son döviz kurunu görmek için miktarı yeniden girin.

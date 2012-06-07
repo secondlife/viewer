@@ -378,19 +378,24 @@ void LLScrollContainer::calcVisibleSize( S32 *visible_width, S32 *visible_height
 
 	if (!mHideScrollbar)
 	{
-		if( *visible_height < doc_height )
+		// Note: 1 pixel change can happen on final animation and should not trigger 
+		// the display of sliders.
+		if ((doc_height - *visible_height) > 1)
 		{
 			*show_v_scrollbar = TRUE;
 			*visible_width -= scrollbar_size;
 		}
-
-		if( *visible_width < doc_width )
+		if ((doc_width - *visible_width) > 1)
 		{
 			*show_h_scrollbar = TRUE;
 			*visible_height -= scrollbar_size;
 
+			// The view inside the scroll container should not be extended
+			// to container's full height to ensure the correct computation
+			// of *show_v_scrollbar after subtracting horizontal scrollbar_size.
+
 			// Must retest now that visible_height has changed
-			if( !*show_v_scrollbar && (*visible_height < doc_height) )
+			if( !*show_v_scrollbar && ((doc_height - *visible_height) > 1) )
 			{
 				*show_v_scrollbar = TRUE;
 				*visible_width -= scrollbar_size;
@@ -424,63 +429,66 @@ void LLScrollContainer::draw()
 		focusFirstItem();
 	}
 
-	// Draw background
-	if( mIsOpaque )
+	if (getRect().isValid()) 
 	{
-		F32 alpha = getCurrentTransparency();
+		// Draw background
+		if( mIsOpaque )
+		{
+			F32 alpha = getCurrentTransparency();
 
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gl_rect_2d(mInnerRect, mBackgroundColor.get() % alpha);
-	}
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gl_rect_2d(mInnerRect, mBackgroundColor.get() % alpha);
+		}
 	
-	// Draw mScrolledViews and update scroll bars.
-	// get a scissor region ready, and draw the scrolling view. The
-	// scissor region ensures that we don't draw outside of the bounds
-	// of the rectangle.
-	if( mScrolledView )
-	{
-		updateScroll();
-
-		// Draw the scrolled area.
+		// Draw mScrolledViews and update scroll bars.
+		// get a scissor region ready, and draw the scrolling view. The
+		// scissor region ensures that we don't draw outside of the bounds
+		// of the rectangle.
+		if( mScrolledView )
 		{
-			S32 visible_width = 0;
-			S32 visible_height = 0;
-			BOOL show_v_scrollbar = FALSE;
-			BOOL show_h_scrollbar = FALSE;
-			calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
+			updateScroll();
 
-			LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
-					mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0) + visible_height,
-					mInnerRect.mRight - (show_v_scrollbar ? scrollbar_size: 0),
-					mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0)
-					));
-			drawChild(mScrolledView);
+			// Draw the scrolled area.
+			{
+				S32 visible_width = 0;
+				S32 visible_height = 0;
+				BOOL show_v_scrollbar = FALSE;
+				BOOL show_h_scrollbar = FALSE;
+				calcVisibleSize( &visible_width, &visible_height, &show_h_scrollbar, &show_v_scrollbar );
+
+				LLLocalClipRect clip(LLRect(mInnerRect.mLeft, 
+						mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0) + visible_height,
+						mInnerRect.mRight - (show_v_scrollbar ? scrollbar_size: 0),
+						mInnerRect.mBottom + (show_h_scrollbar ? scrollbar_size : 0)
+						));
+				drawChild(mScrolledView);
+			}
 		}
-	}
 
-	// Highlight border if a child of this container has keyboard focus
-	if( mBorder->getVisible() )
-	{
-		mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus(this) );
-	}
+		// Highlight border if a child of this container has keyboard focus
+		if( mBorder->getVisible() )
+		{
+			mBorder->setKeyboardFocusHighlight( gFocusMgr.childHasKeyboardFocus(this) );
+		}
 
-	// Draw all children except mScrolledView
-	// Note: scrollbars have been adjusted by above drawing code
-	for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
-		 child_iter != getChildList()->rend(); ++child_iter)
-	{
-		LLView *viewp = *child_iter;
-		if( sDebugRects )
+		// Draw all children except mScrolledView
+		// Note: scrollbars have been adjusted by above drawing code
+		for (child_list_const_reverse_iter_t child_iter = getChildList()->rbegin();
+			 child_iter != getChildList()->rend(); ++child_iter)
 		{
-			sDepth++;
-		}
-		if( (viewp != mScrolledView) && viewp->getVisible() )
-		{
-			drawChild(viewp);
-		}
-		if( sDebugRects )
-		{
-			sDepth--;
+			LLView *viewp = *child_iter;
+			if( sDebugRects )
+			{
+				sDepth++;
+			}
+			if( (viewp != mScrolledView) && viewp->getVisible() )
+			{
+				drawChild(viewp);
+			}
+			if( sDebugRects )
+			{
+				sDepth--;
+			}
 		}
 	}
 } // end draw

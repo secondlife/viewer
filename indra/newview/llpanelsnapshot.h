@@ -44,6 +44,7 @@ public:
 	virtual std::string getHeightSpinnerName() const = 0;
 	virtual std::string getAspectRatioCBName() const = 0;
 	virtual std::string getImageSizeComboName() const = 0;
+	virtual std::string getImageSizePanelName() const = 0;
 
 	virtual S32 getTypedPreviewWidth() const;
 	virtual S32 getTypedPreviewHeight() const;
@@ -52,6 +53,7 @@ public:
 	virtual void enableAspectRatioCheckbox(BOOL enable);
 	virtual LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
 	virtual void updateControls(const LLSD& info) = 0; ///< Update controls from saved settings
+	void enableControls(BOOL enable);
 
 protected:
 	LLSideTrayPanelContainer* getParentContainer();

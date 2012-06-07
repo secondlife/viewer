@@ -1412,6 +1412,7 @@ void addPathIfExists(const std::string& new_path, std::vector<std::string>& path
 
 bool LLNotifications::loadTemplates()
 {
+	llinfos << "Reading notifications template" << llendl;
 	std::vector<std::string> search_paths;
 	
 	std::string skin_relative_path = gDirUtilp->getDirDelimiter() + LLUI::getSkinPath() + gDirUtilp->getDirDelimiter() + "notifications.xml";
@@ -1483,6 +1484,8 @@ bool LLNotifications::loadTemplates()
 		}
 		mTemplates[notification.name] = LLNotificationTemplatePtr(new LLNotificationTemplate(notification));
 	}
+
+	llinfos << "...done" << llendl;
 
 	return true;
 }
@@ -1624,7 +1627,7 @@ LLNotificationPtr LLNotifications::find(LLUUID uuid)
 	LLNotificationSet::iterator it=mItems.find(target);
 	if (it == mItems.end())
 	{
-		llwarns << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << llendl;
+		LL_DEBUGS("Notifications") << "Tried to dereference uuid '" << uuid << "' as a notification key but didn't find it." << llendl;
 		return LLNotificationPtr((LLNotification*)NULL);
 	}
 	else

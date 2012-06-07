@@ -48,6 +48,7 @@
 #include "llrootview.h"
 #include "llviewerchat.h"
 #include "llnearbychat.h"
+#include "lltranslate.h"
 
 #include "llresizehandle.h"
 
@@ -71,9 +72,14 @@ static LLChatTypeTrigger sChatTypeTriggers[] = {
 };
 
 LLNearbyChatBar::LLNearbyChatBar(const LLSD& key)
-	: LLFloater(key),
-	mChatBox(NULL)
-{	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
+:	LLFloater(key),
+	mChatBox(NULL),
+	mNearbyChat(NULL),
+	mOutputMonitor(NULL),
+	mSpeakerMgr(NULL),
+	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
+{
+	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 
 //virtual
@@ -95,6 +101,7 @@ BOOL LLNearbyChatBar::postBuild()
 	mChatBox->setEnableLineHistory(TRUE);
 	mChatBox->setFont(LLViewerChat::getChatFont());
 
+	mNearbyChat = getChildView("nearby_chat");
 
 	LLUICtrl* show_btn = getChild<LLUICtrl>("show_nearby_chat");
 	show_btn->setCommitCallback(boost::bind(&LLNearbyChatBar::onToggleNearbyChatPanel, this));
@@ -102,22 +109,29 @@ BOOL LLNearbyChatBar::postBuild()
 	mOutputMonitor = getChild<LLOutputMonitorCtrl>("chat_zone_indicator");
 	mOutputMonitor->setVisible(FALSE);
 
+	gSavedSettings.declareBOOL("nearbychat_history_visibility", mNearbyChat->getVisible(), "Visibility state of nearby chat history", TRUE);
+
+	mNearbyChat->setVisible(gSavedSettings.getBOOL("nearbychat_history_visibility"));
+
 	// Register for font change notifications
 	LLViewerChat::setFontChangedCallback(boost::bind(&LLNearbyChatBar::onChatFontChange, this, _1));
-
-	mExpandedHeight = COLLAPSED_HEIGHT + EXPANDED_HEIGHT;
 
 	enableResizeCtrls(true, true, false);
 
 	return TRUE;
 }
 
+// virtual
+void LLNearbyChatBar::onOpen(const LLSD& key)
+{
+	showTranslationCheckbox(LLTranslate::isTranslationConfigured());
+}
+
 bool LLNearbyChatBar::applyRectControl()
 {
 	bool rect_controlled = LLFloater::applyRectControl();
 
-	LLView* nearby_chat = getChildView("nearby_chat");	
-	if (!nearby_chat->getVisible())
+	if (!mNearbyChat->getVisible())
 	{
 		reshape(getRect().getWidth(), getMinHeight());
 		enableResizeCtrls(true, true, false);
@@ -154,6 +168,11 @@ void LLNearbyChatBar::showHistory()
 	{
 		onToggleNearbyChatPanel();
 	}
+}
+
+void LLNearbyChatBar::showTranslationCheckbox(BOOL show)
+{
+	getChild<LLUICtrl>("translate_chat_checkbox_lp")->setVisible(show);
 }
 
 void LLNearbyChatBar::draw()
@@ -398,6 +417,8 @@ void LLNearbyChatBar::onToggleNearbyChatPanel()
 		enableResizeCtrls(true);
 		storeRectControl();
 	}
+
+	gSavedSettings.setBOOL("nearbychat_history_visibility", mNearbyChat->getVisible());
 }
 
 void LLNearbyChatBar::setMinimized(BOOL b)

@@ -22,17 +22,25 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
 
+uniform mat4 modelview_projection_matrix;
+
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
 //////////////////////////////////////////////////////////////////////////
 // The vertex shader for creating the atmospheric sky
 ///////////////////////////////////////////////////////////////////////////////
 
 // Output parameters
-varying vec4 vary_CloudColorSun;
-varying vec4 vary_CloudColorAmbient;
-varying float vary_CloudDensity;
+VARYING vec4 vary_CloudColorSun;
+VARYING vec4 vary_CloudColorAmbient;
+VARYING float vary_CloudDensity;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_texcoord3;
 
 // Inputs
 uniform vec3 camPosLocal;
@@ -42,34 +50,34 @@ uniform vec4 sunlight_color;
 uniform vec4 ambient;
 uniform vec4 blue_horizon;
 uniform vec4 blue_density;
-uniform vec4 haze_horizon;
-uniform vec4 haze_density;
+uniform float haze_horizon;
+uniform float haze_density;
 
-uniform vec4 cloud_shadow;
-uniform vec4 density_multiplier;
-uniform vec4 max_y;
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float max_y;
 
 uniform vec4 glow;
 
 uniform vec4 cloud_color;
 
-uniform vec4 cloud_scale;
+uniform float cloud_scale;
 
 void main()
 {
 
 	// World / view / projection
-	gl_Position = ftransform();
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
 
-	gl_TexCoord[0] = gl_MultiTexCoord0;
+	vary_texcoord0 = texcoord0;
 
 	// Get relative position
-	vec3 P = gl_Vertex.xyz - camPosLocal.xyz + vec3(0,50,0);
+	vec3 P = position.xyz - camPosLocal.xyz + vec3(0,50,0);
 
 	// Set altitude
 	if (P.y > 0.)
 	{
-		P *= (max_y.x / P.y);
+		P *= (max_y / P.y);
 	}
 	else
 	{
@@ -91,12 +99,12 @@ void main()
 
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
-	light_atten = (blue_density * 1.0 + haze_density.x * 0.25) * (density_multiplier.x * max_y.x);
+	light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
 
 	// Calculate relative weights
-	temp1 = blue_density + haze_density.x;
+	temp1 = blue_density + haze_density;
 	blue_weight = blue_density / temp1;
-	haze_weight = haze_density.x / temp1;
+	haze_weight = haze_density / temp1;
 
 	// Compute sunlight from P & lightnorm (for long rays like sky)
 	temp2.y = max(0., max(0., Pn.y) * 1.0 + lightnorm.y );
@@ -104,7 +112,7 @@ void main()
 	sunlight *= exp( - light_atten * temp2.y);
 
 	// Distance
-	temp2.z = Plen * density_multiplier.x;
+	temp2.z = Plen * density_multiplier;
 
 	// Transparency (-> temp1)
 	// ATI Bugfix -- can't store temp1*temp2.z in a variable because the ati
@@ -128,14 +136,14 @@ void main()
 
 	// Increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient;
-	tmpAmbient += (1. - tmpAmbient) * cloud_shadow.x * 0.5; 
+	tmpAmbient += (1. - tmpAmbient) * cloud_shadow * 0.5; 
 
 	// Dim sunlight by cloud shadow percentage
-	sunlight *= (1. - cloud_shadow.x);
+	sunlight *= (1. - cloud_shadow);
 
 	// Haze color below cloud
 	vec4 additiveColorBelowCloud = (	  blue_horizon * blue_weight * (sunlight + tmpAmbient)
-				+ (haze_horizon.r * haze_weight) * (sunlight * temp2.x + tmpAmbient)
+				+ (haze_horizon * haze_weight) * (sunlight * temp2.x + tmpAmbient)
 			 );	
 
 	// CLOUDS
@@ -156,21 +164,21 @@ void main()
 	vec4 oHazeColorBelowCloud = additiveColorBelowCloud * (1. - temp1);
 
 	// Make a nice cloud density based on the cloud_shadow value that was passed in.
-	vary_CloudDensity = 2. * (cloud_shadow.x - 0.25);
+	vary_CloudDensity = 2. * (cloud_shadow - 0.25);
 
 
 	// Texture coords
-	gl_TexCoord[0] = gl_MultiTexCoord0;
-	gl_TexCoord[0].xy -= 0.5;
-	gl_TexCoord[0].xy /= cloud_scale.x;
-	gl_TexCoord[0].xy += 0.5;
+	vary_texcoord0 = texcoord0;
+	vary_texcoord0.xy -= 0.5;
+	vary_texcoord0.xy /= cloud_scale;
+	vary_texcoord0.xy += 0.5;
 
-	gl_TexCoord[1] = gl_TexCoord[0];
-	gl_TexCoord[1].x += lightnorm.x * 0.0125;
-	gl_TexCoord[1].y += lightnorm.z * 0.0125;
+	vary_texcoord1 = vary_texcoord0;
+	vary_texcoord1.x += lightnorm.x * 0.0125;
+	vary_texcoord1.y += lightnorm.z * 0.0125;
 
-	gl_TexCoord[2] = gl_TexCoord[0] * 16.;
-	gl_TexCoord[3] = gl_TexCoord[1] * 16.;
+	vary_texcoord2 = vary_texcoord0 * 16.;
+	vary_texcoord3 = vary_texcoord1 * 16.;
 
 	// Combine these to minimize register use
 	vary_CloudColorAmbient += oHazeColorBelowCloud;

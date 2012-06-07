@@ -105,6 +105,7 @@ void LLFastTimerView::onPause()
 	if (!LLFastTimer::sPauseHistory)
 	{
 		mScrollIndex = 0;
+		LLFastTimer::sResetHistory = true;
 		getChild<LLButton>("pause_btn")->setLabel(getString("pause"));
 	}
 	else
@@ -148,7 +149,7 @@ BOOL LLFastTimerView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 LLFastTimer::NamedTimer* LLFastTimerView::getLegendID(S32 y)
 {
-	S32 idx = (getRect().getHeight() - y) / ((S32) LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
+	S32 idx = (getRect().getHeight() - y) / (LLFontGL::getFontMonospace()->getLineHeight()+2) - 5;
 
 	if (idx >= 0 && idx < (S32)ft_display_idx.size())
 	{
@@ -551,7 +552,7 @@ void LLFastTimerView::draw()
 	// update rectangle that includes timer bars
 	mBarRect.mLeft = xleft;
 	mBarRect.mRight = getRect().getWidth();
-	mBarRect.mTop = ytop - ((S32)LLFontGL::getFontMonospace()->getLineHeight() + 4);
+	mBarRect.mTop = ytop - (LLFontGL::getFontMonospace()->getLineHeight() + 4);
 	mBarRect.mBottom = margin + LINE_GRAPH_HEIGHT;
 
 	y = ytop;
@@ -591,6 +592,7 @@ void LLFastTimerView::draw()
 			{
 				mAvgCountTotal = ticks;
 				mMaxCountTotal = ticks;
+				LLFastTimer::sResetHistory = false;
 			}
 		}
 
@@ -844,7 +846,7 @@ void LLFastTimerView::draw()
 				tdesc = llformat("%4.2f ms", ms);
 							
 			x = mGraphRect.mRight - LLFontGL::getFontMonospace()->getWidth(tdesc)-5;
-			y = mGraphRect.mTop - ((S32)LLFontGL::getFontMonospace()->getLineHeight());
+			y = mGraphRect.mTop - LLFontGL::getFontMonospace()->getLineHeight();
  
 			LLFontGL::getFontMonospace()->renderUTF8(tdesc, 0, x, y, LLColor4::white,
 										 LLFontGL::LEFT, LLFontGL::TOP);
@@ -1125,10 +1127,10 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 	LLPointer<LLImageRaw> scratch = new LLImageRaw(1024, 512, 3);
 
 	gGL.pushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-0.05, 1.05, -0.05, 1.05, -1.0, 1.0);
+	gGL.loadIdentity();
+	gGL.matrixMode(LLRender::MM_PROJECTION);
+	gGL.loadIdentity();
+	gGL.ortho(-0.05f, 1.05f, -0.05f, 1.05f, -1.0f, 1.0f);
 
 	//render charts
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1367,7 +1369,7 @@ void LLFastTimerView::exportCharts(const std::string& base, const std::string& t
 	buffer.flush();
 
 	gGL.popMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 }
 

@@ -6,12 +6,12 @@
 	<button label="2. Optimisation" name="optimize_btn"/>
 	<button label="1. Sélection du fichier" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Choisir un fichier de modèle
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
 				Utilisateurs expérimentés : si vous êtes habitué à utiliser des outils de création de contenu en 3D, l&apos;outil de chargement avancé est mis à votre disposition.
 			</text>
@@ -20,6 +20,9 @@
 				Choisir un fichier de modèle à charger
 			</text>
 			<button label="Parcourir..." label_selected="Parcourir..." name="browse"/>
+			<text name="Model types">
+				Second Life prend en charge les fichiers COLLADA (.dae).
+			</text>
 			<text name="dimensions">
 				X         Y         Z
 			</text>
@@ -27,20 +30,20 @@
 				AVERTISSEMENT :
 			</text>
 			<text name="warning_text">
-				Vous ne pourrez pas effectuer l&apos;étape de chargement finale du modèle sur les serveurs Second Life. [secondlife:///app/floater/learn_more Découvrez comment] configurer votre compte pour les chargements de modèle de maillage.
+				Vous ne pourrez pas effectuer l&apos;étape de chargement finale du modèle sur les serveurs Second Life. [secondlife:///app/floater/learn_more Découvrez comment] configurer votre compte pour le chargement de modèles de maillage.
 			</text>
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Optimiser le modèle
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			Le modèle a été optimisé en termes de performances. Vous pouvez l&apos;ajuster si vous le souhaitez.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
 				Générer le niveau de détail : Élevé
 			</text>
@@ -76,15 +79,15 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
 				Ajuster les propriétés physiques
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Une forme va être créée pour l&apos;enveloppe externe du modèle. Ajustez le niveau de détail de la forme en fonction de l&apos;objectif souhaité pour votre modèle.
 		</text>
-		<panel name="content">
+		<panel name="physics_content">
 			<button label="Recalcul physique" name="recalculate_physics_btn"/>
 			<button label="Recalcul en cours..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
@@ -107,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Vérification
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Impact sur la parcelle/région : équivalent à [EQUIV] prims
 			</text>
@@ -125,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Chargement terminé
 			</text>
 		</panel>

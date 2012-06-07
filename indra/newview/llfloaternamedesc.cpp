@@ -204,3 +204,43 @@ BOOL LLFloaterSoundPreview::postBuild()
 	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
 	return TRUE;
 }
+
+
+//-----------------------------------------------------------------------------
+// LLFloaterAnimPreview()
+//-----------------------------------------------------------------------------
+
+LLFloaterAnimPreview::LLFloaterAnimPreview(const LLSD& filename )
+	: LLFloaterNameDesc(filename)
+{
+}
+
+BOOL LLFloaterAnimPreview::postBuild()
+{
+	if (!LLFloaterNameDesc::postBuild())
+	{
+		return FALSE;
+	}
+	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// LLFloaterScriptPreview()
+//-----------------------------------------------------------------------------
+
+LLFloaterScriptPreview::LLFloaterScriptPreview(const LLSD& filename )
+	: LLFloaterNameDesc(filename)
+{
+	mIsText = TRUE;
+}
+
+BOOL LLFloaterScriptPreview::postBuild()
+{
+	if (!LLFloaterNameDesc::postBuild())
+	{
+		return FALSE;
+	}
+	getChild<LLUICtrl>("ok_btn")->setCommitCallback(boost::bind(&LLFloaterNameDesc::onBtnOK, this));
+	return TRUE;
+}

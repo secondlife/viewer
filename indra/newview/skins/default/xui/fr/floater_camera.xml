@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="camera_floater" title="AFFICHER">
+<floater name="camera_floater" title="PARAMÈTRES DE LA CAMÉRA">
 	<floater.string name="rotate_tooltip">
 		Faire tourner la caméra autour du point central
 	</floater.string>
@@ -8,15 +8,6 @@
 	</floater.string>
 	<floater.string name="move_tooltip">
 		Déplacer la caméra vers le haut et le bas, la gauche et la droite
-	</floater.string>
-	<floater.string name="camera_modes_title">
-		Modes
-	</floater.string>
-	<floater.string name="pan_mode_title">
-		Rotation - Zoom - Panoramique
-	</floater.string>
-	<floater.string name="presets_mode_title">
-		Préréglages
 	</floater.string>
 	<floater.string name="free_mode_title">
 		Voir l&apos;objet

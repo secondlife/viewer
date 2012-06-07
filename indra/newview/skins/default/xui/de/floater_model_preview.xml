@@ -4,6 +4,9 @@
 	<string name="status_parse_error">
 		Fehler: Fehler beim DAE-Parsen – Details siehe Protokoll.
 	</string>
+	<string name="status_material_mismatch">
+		Fehler: Das Material des Modells ist keine Teilmenge des Referenzmodells.
+	</string>
 	<string name="status_reading_file">
 		Laden...
 	</string>
@@ -137,7 +140,7 @@
 				</panel>
 				<panel name="physics analysis">
 					<text name="method_label">
-						Schritt 2: Analyse
+						Schritt 2: Analysieren
 					</text>
 					<text name="analysis_method_label">
 						Methode:

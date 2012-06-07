@@ -1,4 +1,4 @@
-/** 
+ /** 
  * @file llrender.cpp
  * @brief LLRender implementation
  *
@@ -34,19 +34,21 @@
 #include "llimagegl.h"
 #include "llrendertarget.h"
 #include "lltexture.h"
+#include "llshadermgr.h"
 
 LLRender gGL;
 
 // Handy copies of last good GL matrices
-F64	gGLModelView[16];
-F64	gGLLastModelView[16];
-F64 gGLLastProjection[16];
-F64 gGLProjection[16];
+F32	gGLModelView[16];
+F32	gGLLastModelView[16];
+F32 gGLLastProjection[16];
+F32 gGLProjection[16];
 S32	gGLViewport[4];
 
 U32 LLRender::sUICalls = 0;
 U32 LLRender::sUIVerts = 0;
 U32 LLTexUnit::sWhiteTexture = 0;
+bool LLRender::sGLCoreProfile = false;
 
 static const U32 LL_NUM_TEXTURE_LAYERS = 32; 
 static const U32 LL_NUM_LIGHT_UNITS = 8;
@@ -178,10 +180,13 @@ void LLTexUnit::enable(eTextureType type)
 
 	if ( (mCurrTexType != type || gGL.mDirty) && (type != TT_NONE) )
 	{
+		stop_glerror();
 		activate();
+		stop_glerror();
 		if (mCurrTexType != TT_NONE && !gGL.mDirty)
 		{
 			disable(); // Force a disable of a previous texture type if it's enabled.
+			stop_glerror();
 		}
 		mCurrTexType = type;
 
@@ -190,7 +195,9 @@ void LLTexUnit::enable(eTextureType type)
 			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
+			stop_glerror();
 			glEnable(sGLTextureType[type]);
+			stop_glerror();
 		}
 	}
 }
@@ -286,25 +293,34 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		{
 			return bind(LLImageGL::sDefaultGLTexture) ;
 		}
+		stop_glerror();
 		return false ;
 	}
 
 	if ((mCurrTexture != texture->getTexName()) || forceBind)
 	{
 		gGL.flush();
+		stop_glerror();
 		activate();
+		stop_glerror();
 		enable(texture->getTarget());
+		stop_glerror();
 		mCurrTexture = texture->getTexName();
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
+		stop_glerror();
 		texture->updateBindStats(texture->mTextureMemory);		
 		mHasMipMaps = texture->mHasMipMaps;
 		if (texture->mTexOptionsDirty)
 		{
+			stop_glerror();
 			texture->mTexOptionsDirty = false;
 			setTextureAddressMode(texture->mAddressMode);
 			setTextureFilteringOption(texture->mFilterOption);
+			stop_glerror();
 		}
 	}
+
+	stop_glerror();
 
 	return true;
 }
@@ -814,14 +830,16 @@ LLLightState::LLLightState(S32 index)
 	mAmbient.set(0,0,0,1);
 	mPosition.set(0,0,1,0);
 	mSpotDirection.set(0,0,-1);
-
 }
 
 void LLLightState::enable()
 {
 	if (!mEnabled)
 	{
-		glEnable(GL_LIGHT0+mIndex);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glEnable(GL_LIGHT0+mIndex);
+		}
 		mEnabled = true;
 	}
 }
@@ -830,7 +848,10 @@ void LLLightState::disable()
 {
 	if (mEnabled)
 	{
-		glDisable(GL_LIGHT0+mIndex);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glDisable(GL_LIGHT0+mIndex);
+		}
 		mEnabled = false;
 	}
 }
@@ -839,8 +860,12 @@ void LLLightState::setDiffuse(const LLColor4& diffuse)
 {
 	if (mDiffuse != diffuse)
 	{
+		++gGL.mLightHash;
 		mDiffuse = diffuse;
-		glLightfv(GL_LIGHT0+mIndex, GL_DIFFUSE, mDiffuse.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightfv(GL_LIGHT0+mIndex, GL_DIFFUSE, mDiffuse.mV);
+		}
 	}
 }
 
@@ -848,8 +873,12 @@ void LLLightState::setAmbient(const LLColor4& ambient)
 {
 	if (mAmbient != ambient)
 	{
+		++gGL.mLightHash;
 		mAmbient = ambient;
-		glLightfv(GL_LIGHT0+mIndex, GL_AMBIENT, mAmbient.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightfv(GL_LIGHT0+mIndex, GL_AMBIENT, mAmbient.mV);
+		}
 	}
 }
 
@@ -857,16 +886,34 @@ void LLLightState::setSpecular(const LLColor4& specular)
 {
 	if (mSpecular != specular)
 	{
+		++gGL.mLightHash;
 		mSpecular = specular;
-		glLightfv(GL_LIGHT0+mIndex, GL_SPECULAR, mSpecular.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightfv(GL_LIGHT0+mIndex, GL_SPECULAR, mSpecular.mV);
+		}
 	}
 }
 
 void LLLightState::setPosition(const LLVector4& position)
 {
 	//always set position because modelview matrix may have changed
+	++gGL.mLightHash;
 	mPosition = position;
-	glLightfv(GL_LIGHT0+mIndex, GL_POSITION, mPosition.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightfv(GL_LIGHT0+mIndex, GL_POSITION, mPosition.mV);
+	}
+	else
+	{ //transform position by current modelview matrix
+		glh::vec4f pos(position.mV);
+
+		const glh::matrix4f& mat = gGL.getModelviewMatrix();
+		mat.mult_matrix_vec(pos);
+
+		mPosition.set(pos.v);
+	}
+
 }
 
 void LLLightState::setConstantAttenuation(const F32& atten)
@@ -874,7 +921,11 @@ void LLLightState::setConstantAttenuation(const F32& atten)
 	if (mConstantAtten != atten)
 	{
 		mConstantAtten = atten;
-		glLightf(GL_LIGHT0+mIndex, GL_CONSTANT_ATTENUATION, atten);
+		++gGL.mLightHash;
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_CONSTANT_ATTENUATION, atten);
+		}
 	}
 }
 
@@ -882,8 +933,12 @@ void LLLightState::setLinearAttenuation(const F32& atten)
 {
 	if (mLinearAtten != atten)
 	{
+		++gGL.mLightHash;
 		mLinearAtten = atten;
-		glLightf(GL_LIGHT0+mIndex, GL_LINEAR_ATTENUATION, atten);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_LINEAR_ATTENUATION, atten);
+		}
 	}
 }
 
@@ -891,8 +946,12 @@ void LLLightState::setQuadraticAttenuation(const F32& atten)
 {
 	if (mQuadraticAtten != atten)
 	{
+		++gGL.mLightHash;
 		mQuadraticAtten = atten;
-		glLightf(GL_LIGHT0+mIndex, GL_QUADRATIC_ATTENUATION, atten);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_QUADRATIC_ATTENUATION, atten);
+		}
 	}
 }
 
@@ -900,8 +959,12 @@ void LLLightState::setSpotExponent(const F32& exponent)
 {
 	if (mSpotExponent != exponent)
 	{
+		++gGL.mLightHash;
 		mSpotExponent = exponent;
-		glLightf(GL_LIGHT0+mIndex, GL_SPOT_EXPONENT, exponent);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_SPOT_EXPONENT, exponent);
+		}
 	}
 }
 
@@ -909,21 +972,39 @@ void LLLightState::setSpotCutoff(const F32& cutoff)
 {
 	if (mSpotCutoff != cutoff)
 	{
+		++gGL.mLightHash;
 		mSpotCutoff = cutoff;
-		glLightf(GL_LIGHT0+mIndex, GL_SPOT_CUTOFF, cutoff);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightf(GL_LIGHT0+mIndex, GL_SPOT_CUTOFF, cutoff);
+		}
 	}
 }
 
 void LLLightState::setSpotDirection(const LLVector3& direction)
 {
 	//always set direction because modelview matrix may have changed
+	++gGL.mLightHash;
 	mSpotDirection = direction;
-	glLightfv(GL_LIGHT0+mIndex, GL_SPOT_DIRECTION, direction.mV);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		glLightfv(GL_LIGHT0+mIndex, GL_SPOT_DIRECTION, direction.mV);
+	}
+	else
+	{ //transform direction by current modelview matrix
+		glh::vec3f dir(direction.mV);
+
+		const glh::matrix4f& mat = gGL.getModelviewMatrix();
+		mat.mult_matrix_dir(dir);
+
+		mSpotDirection.set(dir.v);
+	}
 }
 
 LLRender::LLRender()
   : mDirty(false),
     mCount(0),
+	mQuadCycle(0),
     mMode(LLRender::TRIANGLES),
     mCurrTextureUnitIndex(0),
     mMaxAnisotropy(0.f) 
@@ -951,6 +1032,17 @@ LLRender::LLRender()
 	mCurrBlendAlphaSFactor = BF_UNDEF;
 	mCurrBlendColorDFactor = BF_UNDEF;
 	mCurrBlendAlphaDFactor = BF_UNDEF;
+
+	mMatrixMode = LLRender::MM_MODELVIEW;
+	
+	for (U32 i = 0; i < NUM_MATRIX_MODES; ++i)
+	{
+		mMatIdx[i] = 0;
+		mMatHash[i] = 0;
+		mCurMatHash[i] = 0xFFFFFFFF;
+	}
+
+	mLightHash = 0;
 }
 
 LLRender::~LLRender()
@@ -961,12 +1053,13 @@ LLRender::~LLRender()
 void LLRender::init()
 {
 	llassert_always(mBuffer.isNull()) ;
-
+	stop_glerror();
 	mBuffer = new LLVertexBuffer(immediate_mask, 0);
 	mBuffer->allocateBuffer(4096, 0, TRUE);
 	mBuffer->getVertexStrider(mVerticesp);
 	mBuffer->getTexCoord0Strider(mTexcoordsp);
 	mBuffer->getColorStrider(mColorsp);
+	stop_glerror();
 }
 
 void LLRender::shutdown()
@@ -1007,28 +1100,355 @@ void LLRender::refreshState(void)
 	mDirty = false;
 }
 
+void LLRender::syncLightState()
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	if (!shader)
+	{
+		return;
+	}
+
+	if (shader->mLightHash != mLightHash)
+	{
+		shader->mLightHash = mLightHash;
+
+		LLVector4 position[8];
+		LLVector3 direction[8];
+		LLVector3 attenuation[8];
+		LLVector3 diffuse[8];
+
+		for (U32 i = 0; i < 8; i++)
+		{
+			LLLightState* light = mLightState[i];
+
+			position[i] = light->mPosition;
+			direction[i] = light->mSpotDirection;
+			attenuation[i].set(light->mLinearAtten, light->mQuadraticAtten, light->mSpecular.mV[3]);
+			diffuse[i].set(light->mDiffuse.mV);
+		}
+
+		shader->uniform4fv(LLShaderMgr::LIGHT_POSITION, 8, position[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_DIRECTION, 8, direction[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_ATTENUATION, 8, attenuation[0].mV);
+		shader->uniform3fv(LLShaderMgr::LIGHT_DIFFUSE, 8, diffuse[0].mV);
+		shader->uniform4fv(LLShaderMgr::LIGHT_AMBIENT, 1, mAmbientLightColor.mV);
+		//HACK -- duplicate sunlight color for compatibility with drivers that can't deal with multiple shader objects referencing the same uniform
+		shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
+	}
+}
+
+void LLRender::syncMatrices()
+{
+	stop_glerror();
+
+	U32 name[] = 
+	{
+		LLShaderMgr::MODELVIEW_MATRIX,
+		LLShaderMgr::PROJECTION_MATRIX,
+		LLShaderMgr::TEXTURE_MATRIX0,
+		LLShaderMgr::TEXTURE_MATRIX1,
+		LLShaderMgr::TEXTURE_MATRIX2,
+		LLShaderMgr::TEXTURE_MATRIX3,
+	};
+
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+
+	static glh::matrix4f cached_mvp;
+	static U32 cached_mvp_mdv_hash = 0xFFFFFFFF;
+	static U32 cached_mvp_proj_hash = 0xFFFFFFFF;
+	
+	static glh::matrix4f cached_normal;
+	static U32 cached_normal_hash = 0xFFFFFFFF;
+
+	if (shader)
+	{
+		llassert(shader);
+
+		bool mvp_done = false;
+
+		U32 i = MM_MODELVIEW;
+		if (mMatHash[i] != shader->mMatHash[i])
+		{ //update modelview, normal, and MVP
+			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+
+			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
+			shader->mMatHash[i] = mMatHash[i];
+
+			//update normal matrix
+			S32 loc = shader->getUniformLocation(LLShaderMgr::NORMAL_MATRIX);
+			if (loc > -1)
+			{
+				if (cached_normal_hash != mMatHash[i])
+				{
+					cached_normal = mat.inverse().transpose();
+					cached_normal_hash = mMatHash[i];
+				}
+
+				glh::matrix4f& norm = cached_normal;
+
+				F32 norm_mat[] = 
+				{
+					norm.m[0], norm.m[1], norm.m[2],
+					norm.m[4], norm.m[5], norm.m[6],
+					norm.m[8], norm.m[9], norm.m[10] 
+				};
+
+				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
+			}
+
+			//update MVP matrix
+			mvp_done = true;
+			loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
+			if (loc > -1)
+			{
+				U32 proj = MM_PROJECTION;
+
+				if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+				{
+					cached_mvp = mat;
+					cached_mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
+					cached_mvp_mdv_hash = mMatHash[i];
+					cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
+				}
+
+				shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
+			}
+		}
+
+
+		i = MM_PROJECTION;
+		if (mMatHash[i] != shader->mMatHash[i])
+		{ //update projection matrix, normal, and MVP
+			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
+
+			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
+			shader->mMatHash[i] = mMatHash[i];
+
+			if (!mvp_done)
+			{
+				//update MVP matrix
+				S32 loc = shader->getUniformLocation(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX);
+				if (loc > -1)
+				{
+					if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
+					{
+						U32 mdv = MM_MODELVIEW;
+						cached_mvp = mat;
+						cached_mvp.mult_right(mMatrix[mdv][mMatIdx[mdv]]);
+						cached_mvp_mdv_hash = mMatHash[MM_MODELVIEW];
+						cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
+					}
+									
+					shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
+				}
+			}
+		}
+
+		for (i = MM_TEXTURE0; i < NUM_MATRIX_MODES; ++i)
+		{
+			if (mMatHash[i] != shader->mMatHash[i])
+			{
+				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
+				shader->mMatHash[i] = mMatHash[i];
+			}
+		}
+
+
+		if (shader->mFeatures.hasLighting || shader->mFeatures.calculatesLighting)
+		{ //also sync light state
+			syncLightState();
+		}
+	}
+	else if (!LLGLSLShader::sNoFixedFunction)
+	{
+		GLenum mode[] = 
+		{
+			GL_MODELVIEW,
+			GL_PROJECTION,
+			GL_TEXTURE,
+			GL_TEXTURE,
+			GL_TEXTURE,
+			GL_TEXTURE,
+		};
+
+		for (U32 i = 0; i < 2; ++i)
+		{
+			if (mMatHash[i] != mCurMatHash[i])
+			{
+				glMatrixMode(mode[i]);
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
+				mCurMatHash[i] = mMatHash[i];
+			}
+		}
+
+		for (U32 i = 2; i < NUM_MATRIX_MODES; ++i)
+		{
+			if (mMatHash[i] != mCurMatHash[i])
+			{
+				gGL.getTexUnit(i-2)->activate();
+				glMatrixMode(mode[i]);
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
+				mCurMatHash[i] = mMatHash[i];
+			}
+		}
+	}
+
+	stop_glerror();
+}
+
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
-	glTranslatef(x,y,z);
+
+	{
+		glh::matrix4f trans_mat(1,0,0,x,
+								0,1,0,y,
+								0,0,1,z,
+								0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(trans_mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 {
 	flush();
-	glScalef(x,y,z);
+	
+	{
+		glh::matrix4f scale_mat(x,0,0,0,
+								0,y,0,0,
+								0,0,z,0,
+								0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(scale_mat);
+		mMatHash[mMatrixMode]++;
+	}
+}
+
+void LLRender::ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zFar)
+{
+	flush();
+
+	{
+
+		glh::matrix4f ortho_mat(2.f/(right-left),0,0,	-(right+left)/(right-left),
+								0,2.f/(top-bottom),0,	-(top+bottom)/(top-bottom),
+								0,0,-2.f/(zFar-zNear),	-(zFar+zNear)/(zFar-zNear),
+								0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(ortho_mat);
+		mMatHash[mMatrixMode]++;
+	}
+}
+
+void LLRender::rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, const GLfloat& z)
+{
+	flush();
+
+	{
+		F32 r = a * DEG_TO_RAD;
+
+		F32 c = cosf(r);
+		F32 s = sinf(r);
+
+		F32 ic = 1.f-c;
+
+		glh::matrix4f rot_mat(x*x*ic+c,		x*y*ic-z*s,		x*z*ic+y*s,		0,
+							  x*y*ic+z*s,	y*y*ic+c,		y*z*ic-x*s,		0,
+							  x*z*ic-y*s,	y*z*ic+x*s,		z*z*ic+c,		0,
+							  0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(rot_mat);
+		mMatHash[mMatrixMode]++;
+	}
 }
 
 void LLRender::pushMatrix()
 {
 	flush();
-	glPushMatrix();
+	
+	{
+		if (mMatIdx[mMatrixMode] < LL_MATRIX_STACK_DEPTH-1)
+		{
+			mMatrix[mMatrixMode][mMatIdx[mMatrixMode]+1] = mMatrix[mMatrixMode][mMatIdx[mMatrixMode]];
+			++mMatIdx[mMatrixMode];
+		}
+		else
+		{
+			llwarns << "Matrix stack overflow." << llendl;
+		}
+	}
 }
 
 void LLRender::popMatrix()
 {
 	flush();
-	glPopMatrix();
+	{
+		if (mMatIdx[mMatrixMode] > 0)
+		{
+			--mMatIdx[mMatrixMode];
+			mMatHash[mMatrixMode]++;
+		}
+		else
+		{
+			llwarns << "Matrix stack underflow." << llendl;
+		}
+	}
+}
+
+void LLRender::loadMatrix(const GLfloat* m)
+{
+	flush();
+	{
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
+		mMatHash[mMatrixMode]++;
+	}
+}
+
+void LLRender::multMatrix(const GLfloat* m)
+{
+	flush();
+	{
+		glh::matrix4f mat((GLfloat*) m);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(mat);
+		mMatHash[mMatrixMode]++;
+	}
+}
+
+void LLRender::matrixMode(U32 mode)
+{
+	if (mode == MM_TEXTURE)
+	{
+		mode = MM_TEXTURE0 + gGL.getCurrentTexUnitIndex();
+	}
+
+	llassert(mode < NUM_MATRIX_MODES);
+	mMatrixMode = mode;
+}
+
+void LLRender::loadIdentity()
+{
+	flush();
+
+	{
+		llassert_always(mMatrixMode < NUM_MATRIX_MODES) ;
+
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
+		mMatHash[mMatrixMode]++;
+	}
+}
+
+const glh::matrix4f& LLRender::getModelviewMatrix()
+{
+	return mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
+}
+
+const glh::matrix4f& LLRender::getProjectionMatrix()
+{
+	return mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 }
 
 void LLRender::translateUI(F32 x, F32 y, F32 z)
@@ -1284,6 +1704,19 @@ LLLightState* LLRender::getLight(U32 index)
 	return NULL;
 }
 
+void LLRender::setAmbientLightColor(const LLColor4& color)
+{
+	if (color != mAmbientLightColor)
+	{
+		++mLightHash;
+		mAmbientLightColor = color;
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glLightModelfv(GL_LIGHT_MODEL_AMBIENT, color.mV);
+		}
+	}
+}
+
 bool LLRender::verifyTexUnitActive(U32 unitToVerify)
 {
 	if (mCurrTextureUnitIndex == unitToVerify)
@@ -1309,6 +1742,11 @@ void LLRender::begin(const GLuint& mode)
 {
 	if (mode != mMode)
 	{
+		if (mode == LLRender::QUADS)
+		{
+			mQuadCycle = 1;
+		}
+
 		if (mMode == LLRender::QUADS ||
 			mMode == LLRender::LINES ||
 			mMode == LLRender::TRIANGLES ||
@@ -1396,7 +1834,7 @@ void LLRender::flush()
 		
 		if (gDebugGL)
 		{
-			if (mMode == LLRender::QUADS)
+			if (mMode == LLRender::QUADS && !sGLCoreProfile)
 			{
 				if (mCount%4 != 0)
 				{
@@ -1421,12 +1859,34 @@ void LLRender::flush()
 			}
 		}
 
-		mBuffer->setBuffer(immediate_mask);
-		mBuffer->drawArrays(mMode, 0, mCount);
+		//store mCount in a local variable to avoid re-entrance (drawArrays may call flush)
+		U32 count = mCount;
+		mCount = 0;
+
+		if (mBuffer->useVBOs() && !mBuffer->isLocked())
+		{ //hack to only flush the part of the buffer that was updated (relies on stream draw using buffersubdata)
+			mBuffer->getVertexStrider(mVerticesp, 0, count);
+			mBuffer->getTexCoord0Strider(mTexcoordsp, 0, count);
+			mBuffer->getColorStrider(mColorsp, 0, count);
+		}
 		
-		mVerticesp[0] = mVerticesp[mCount];
-		mTexcoordsp[0] = mTexcoordsp[mCount];
-		mColorsp[0] = mColorsp[mCount];
+		mBuffer->flush();
+		mBuffer->setBuffer(immediate_mask);
+
+		if (mMode == LLRender::QUADS && sGLCoreProfile)
+		{
+			mBuffer->drawArrays(LLRender::TRIANGLES, 0, count);
+			mQuadCycle = 1;
+		}
+		else
+		{
+			mBuffer->drawArrays(mMode, 0, count);
+		}
+		
+		mVerticesp[0] = mVerticesp[count];
+		mTexcoordsp[0] = mTexcoordsp[count];
+		mColorsp[0] = mColorsp[count];
+		
 		mCount = 0;
 	}
 }
@@ -1434,6 +1894,17 @@ void LLRender::flush()
 void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 { 
 	//the range of mVerticesp, mColorsp and mTexcoordsp is [0, 4095]
+	if (mCount > 2048)
+	{ //break when buffer gets reasonably full to keep GL command buffers happy and avoid overflow below
+		switch (mMode)
+		{
+			case LLRender::POINTS: flush(); break;
+			case LLRender::TRIANGLES: if (mCount%3==0) flush(); break;
+			case LLRender::QUADS: if(mCount%4 == 0) flush(); break; 
+			case LLRender::LINES: if (mCount%2 == 0) flush(); break;
+		}
+	}
+			
 	if (mCount > 4094)
 	{
 	//	llwarns << "GL immediate mode overflow.  Some geometry not drawn." << llendl;
@@ -1450,10 +1921,29 @@ void LLRender::vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 		mVerticesp[mCount] = vert;
 	}
 
+	if (mMode == LLRender::QUADS && LLRender::sGLCoreProfile)
+	{
+		mQuadCycle++;
+		if (mQuadCycle == 4)
+		{ //copy two vertices so fourth quad element will add a triangle
+			mQuadCycle = 0;
+	
+			mCount++;
+			mVerticesp[mCount] = mVerticesp[mCount-3];
+			mColorsp[mCount] = mColorsp[mCount-3];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-3];
+
+			mCount++;
+			mVerticesp[mCount] = mVerticesp[mCount-2];
+			mColorsp[mCount] = mColorsp[mCount-2];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-2];
+		}
+	}
+
 	mCount++;
 	mVerticesp[mCount] = mVerticesp[mCount-1];
 	mColorsp[mCount] = mColorsp[mCount-1];
-	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+	mTexcoordsp[mCount] = mTexcoordsp[mCount-1];	
 }
 
 void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
@@ -1464,13 +1954,50 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, S32 vert_count)
 		return;
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
+	if (sGLCoreProfile && mMode == LLRender::QUADS)
+	{ //quads are deprecated, convert to triangle list
+		S32 i = 0;
+		
+		while (i < vert_count)
+		{
+			//read first three
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
 
-		mCount++;
-		mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
-		mColorsp[mCount] = mColorsp[mCount-1];
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			//copy two
+			mVerticesp[mCount++] = verts[i-3];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount++] = verts[i-1];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+			
+			//copy last one
+			mVerticesp[mCount++] = verts[i++];
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < vert_count; i++)
+		{
+			mVerticesp[mCount] = verts[i];
+
+			mCount++;
+			mTexcoordsp[mCount] = mTexcoordsp[mCount-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
@@ -1484,13 +2011,50 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, S32 v
 		return;
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
-		mTexcoordsp[mCount] = uvs[i];
+	if (sGLCoreProfile && mMode == LLRender::QUADS)
+	{ //quads are deprecated, convert to triangle list
+		S32 i = 0;
 
-		mCount++;
-		mColorsp[mCount] = mColorsp[mCount-1];
+		while (i < vert_count)
+		{
+			//read first three
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			//copy last two
+			mVerticesp[mCount] = verts[i-3];
+			mTexcoordsp[mCount++] = uvs[i-3];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			mVerticesp[mCount] = verts[i-1];
+			mTexcoordsp[mCount++] = uvs[i-1];
+			mColorsp[mCount] = mColorsp[mCount-1];
+
+			//copy last one
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount++] = uvs[i++];
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < vert_count; i++)
+		{
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+
+			mCount++;
+			mColorsp[mCount] = mColorsp[mCount-1];
+		}
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
@@ -1505,13 +2069,51 @@ void LLRender::vertexBatchPreTransformed(LLVector3* verts, LLVector2* uvs, LLCol
 		return;
 	}
 
-	for (S32 i = 0; i < vert_count; i++)
-	{
-		mVerticesp[mCount] = verts[i];
-		mTexcoordsp[mCount] = uvs[i];
-		mColorsp[mCount] = colors[i];
+	
+	if (sGLCoreProfile && mMode == LLRender::QUADS)
+	{ //quads are deprecated, convert to triangle list
+		S32 i = 0;
 
-		mCount++;
+		while (i < vert_count)
+		{
+			//read first three
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+
+			//copy last two
+			mVerticesp[mCount] = verts[i-3];
+			mTexcoordsp[mCount] = uvs[i-3];
+			mColorsp[mCount++] = colors[i-3];
+
+			mVerticesp[mCount] = verts[i-1];
+			mTexcoordsp[mCount] = uvs[i-1];
+			mColorsp[mCount++] = colors[i-1];
+
+			//copy last one
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount++] = colors[i++];
+		}
+	}
+	else
+	{
+		for (S32 i = 0; i < vert_count; i++)
+		{
+			mVerticesp[mCount] = verts[i];
+			mTexcoordsp[mCount] = uvs[i];
+			mColorsp[mCount] = colors[i];
+
+			mCount++;
+		}
 	}
 
 	mVerticesp[mCount] = mVerticesp[mCount-1];
@@ -1584,6 +2186,81 @@ void LLRender::color3f(const GLfloat& r, const GLfloat& g, const GLfloat& b)
 void LLRender::color3fv(const GLfloat* c)
 { 
 	color4f(c[0],c[1],c[2],1);
+}
+
+void LLRender::diffuseColor3f(F32 r, F32 g, F32 b)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r,g,b,1.f);
+	}
+	else
+	{
+		glColor3f(r,g,b);
+	}
+}
+
+void LLRender::diffuseColor3fv(const F32* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0], c[1], c[2], 1.f);
+	}
+	else
+	{
+		glColor3fv(c);
+	}
+}
+
+void LLRender::diffuseColor4f(F32 r, F32 g, F32 b, F32 a)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, r,g,b,a);
+	}
+	else
+	{
+		glColor4f(r,g,b,a);
+	}
+}
+
+void LLRender::diffuseColor4fv(const F32* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4fv(LLShaderMgr::DIFFUSE_COLOR, 1, c);
+	}
+	else
+	{
+		glColor4fv(c);
+	}
+}
+
+void LLRender::diffuseColor4ubv(const U8* c)
+{
+	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+	llassert(!LLGLSLShader::sNoFixedFunction || shader != NULL);
+
+	if (shader)
+	{
+		shader->uniform4f(LLShaderMgr::DIFFUSE_COLOR, c[0]/255.f, c[1]/255.f, c[2]/255.f, c[3]/255.f);
+	}
+	else
+	{
+		glColor4ubv(c);
+	}
 }
 
 void LLRender::debugTexUnits(void)

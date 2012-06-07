@@ -2,7 +2,6 @@
 <floater
  legacy_header_height="18"
  bevel_style="in"
- follows="right|bottom"
  layout="topleft"
  name="sys_well_window"
  help_topic="notification_chiclet"

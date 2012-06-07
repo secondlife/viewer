@@ -102,10 +102,11 @@ private:
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 
+	LLView		*mBtnStats;
 	LLButton	*mBtnVolume;
 	LLTextBox	*mBoxBalance;
 	LLButton	*mMediaToggle;
-	LLView*		mScriptOut;
+	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
 
 	S32				mBalance;

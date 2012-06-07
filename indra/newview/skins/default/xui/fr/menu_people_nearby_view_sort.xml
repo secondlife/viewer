@@ -5,5 +5,5 @@
 	<menu_item_check label="Trier par distance" name="sort_distance"/>
 	<menu_item_check label="Afficher les icônes des résidents" name="view_icons"/>
 	<menu_item_check label="Afficher la carte" name="view_map"/>
-	<menu_item_call label="Afficher les résidents et les objets interdits" name="show_blocked_list"/>
+	<menu_item_call label="Afficher les résidents et les objets ignorés" name="show_blocked_list"/>
 </toggleable_menu>

@@ -5,12 +5,12 @@
   can_minimize="false"
   can_resize="false"
   default_tab_group="1"
-  height="330"
+  height="375"
   help_topic="toybox"
   layout="topleft"
   legacy_header_height="18"
   name="Toybox"
-  open_positioning="centered"
+  positioning="centered"
   save_rect="true"
   single_instance="true"
   title="TOOLBAR BUTTONS"
@@ -18,7 +18,7 @@
   <text
     follows="left|top"
     font="SansSerifMedium"
-    valign="bottom"
+    valign="top"
     halign="left"
     height="20"
     layout="topleft"
@@ -33,7 +33,7 @@
   <text
     follows="left|top"
     font="SansSerifMedium"
-    valign="bottom"
+    valign="top"
     halign="left"
     height="20"
     layout="topleft"
@@ -46,7 +46,7 @@
       Buttons will appear as shown or as icon-only depending on each toolbar's settings.
   </text>
   <toolbar
-    bottom="265"
+    bottom="310"
     button_display_mode="icons_with_text"
     follows="all"
     left="20"
@@ -82,11 +82,11 @@
   <panel
     bevel_style="none"
     border="true"
-    bottom="266"
+    bottom="311"
     follows="left|bottom|right"
     left="20"
     right="-20"
-    top="266" />
+    top="311" />
   <button
     follows="left|bottom|right"
     height="23"
@@ -95,7 +95,7 @@
     layout="topleft"
     left="185"
     name="btn_clear_all"
-    top="285"
+    top="330"
     width="130">
     <button.commit_callback function="Toybox.ClearAll" />
   </button>
@@ -107,7 +107,7 @@
     layout="topleft"
     left="335"
     name="btn_restore_defaults"
-    top="285"
+    top="330"
     width="130">
     <button.commit_callback function="Toybox.RestoreDefaults" />
   </button>

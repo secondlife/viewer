@@ -1,4 +1,4 @@
-version 30
+version 32
 // The version number above should be implemented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -43,7 +43,6 @@ RenderGlowResolutionPow			1	9
 RenderGround					1	1
 RenderLocalLights				1	1
 RenderMaxPartCount				1	8192
-RenderNightBrightness			1	1.0
 RenderObjectBump				1	1
 RenderReflectionDetail			1	4
 RenderTerrainDetail				1	1
@@ -51,10 +50,10 @@ RenderTerrainLODFactor			1	2.0
 RenderTransparentWater			1	1
 RenderTreeLODFactor				1	1.0
 RenderUseImpostors				1	1
-RenderVBOEnable					1	0
-RenderVBOMappingDisable		1	0
+RenderVBOEnable					1	1
+RenderVBOMappingDisable			1	1
 RenderVolumeLODFactor			1	2.0
-UseStartScreen				1	1
+UseStartScreen					1	1
 UseOcclusion					1	1
 VertexShaderEnable				1	1
 WindLightUseAtmosShaders		1	1
@@ -67,8 +66,9 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WatchdogDisabled				1	1
-RenderUseStreamVBO			1	0
+RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
+RenderMaxTextureIndex		1	16
 
 //
 // Low Graphics Settings
@@ -159,7 +159,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	4
+RenderFSAASamples			1	2
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -189,7 +189,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	2
-RenderFSAASamples			1	8
+RenderFSAASamples			1	2
 
 //
 // Class Unknown Hardware (unknown)
@@ -290,7 +290,7 @@ list TexUnit8orLess
 RenderDeferredSSAO			0	0
 
 list ATI
-RenderDeferredSSAO			0	0
+RenderDeferredSSAO			1	0
 
 list Intel
 RenderAnisotropic			1	0

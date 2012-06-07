@@ -464,7 +464,7 @@ void LLVOGrass::plantBlades()
 }
 
 void LLVOGrass::getGeometry(S32 idx,
-								LLStrider<LLVector3>& verticesp,
+								LLStrider<LLVector4a>& verticesp,
 								LLStrider<LLVector3>& normalsp, 
 								LLStrider<LLVector2>& texcoordsp,
 								LLStrider<LLColor4U>& colorsp, 
@@ -516,21 +516,24 @@ void LLVOGrass::getGeometry(S32 idx,
 		position.mV[0]  = mPosition.mV[VX] + x + xf;
 		position.mV[1]  = mPosition.mV[VY] + y + yf;
 		position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
-		*verticesp++    = v1 = position + mRegionp->getOriginAgent();
-		*verticesp++    = v1;
+		v1 = position + mRegionp->getOriginAgent();
+		(*verticesp++).load3(v1.mV);
+		(*verticesp++).load3(v1.mV);
 
 
 		position.mV[0] += dzx;
 		position.mV[1] += dzy;
 		position.mV[2] += blade_height;
-		*verticesp++    = v2 = position + mRegionp->getOriginAgent();
-		*verticesp++    = v2;
+		v2 = position + mRegionp->getOriginAgent();
+		(*verticesp++).load3(v2.mV);
+		(*verticesp++).load3(v2.mV);
 
 		position.mV[0]  = mPosition.mV[VX] + x - xf;
 		position.mV[1]  = mPosition.mV[VY] + y - xf;
 		position.mV[2]  = mRegionp->getLand().resolveHeightRegion(position);
-		*verticesp++    = v3 = position + mRegionp->getOriginAgent();
-		*verticesp++    = v3;
+		v3 = position + mRegionp->getOriginAgent();
+		(*verticesp++).load3(v3.mV);
+		(*verticesp++).load3(v3.mV);
 
 		LLVector3 normal1 = (v1-v2) % (v2-v3);
 		normal1.mV[VZ] = 0.75f;
@@ -541,8 +544,9 @@ void LLVOGrass::getGeometry(S32 idx,
 		position.mV[0] += dzx;
 		position.mV[1] += dzy;
 		position.mV[2] += blade_height;
-		*verticesp++    = v1 = position + mRegionp->getOriginAgent();
-		*verticesp++    = v1;
+		v1 = position + mRegionp->getOriginAgent();
+		(*verticesp++).load3(v1.mV);
+		(*verticesp++).load3(v1.mV);
 
 		*(normalsp++)   = normal1;
 		*(normalsp++)   = normal2;

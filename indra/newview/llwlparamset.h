@@ -110,7 +110,7 @@ public:
 	/// \param error		A flag to set if it's not the proper return type
 	LLVector4 getVector(const std::string& paramName, bool& error);
 
-	/// Get an integer parameter
+	/// Get a float parameter
 	/// \param paramName	The name of the parameter to set.
 	/// \param error		A flag to set if it's not the proper return type	
 	F32 getFloat(const std::string& paramName, bool& error);

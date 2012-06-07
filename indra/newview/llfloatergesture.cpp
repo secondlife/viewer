@@ -32,7 +32,7 @@
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
-#include "llinventoryclipboard.h"
+#include "llclipboard.h"
 
 #include "llagent.h"
 #include "llappearancemgr.h"
@@ -90,6 +90,12 @@ public:
 		if(mFloater)
 		{
 			mFloater->addGesture(inv_item,NULL,mFloater->getChild<LLScrollListCtrl>("gesture_list"));
+
+			// EXP-1909 (Pasted gesture displayed twice)
+			// The problem is that addGesture is called here for the second time for the same item (which is copied)
+			// First time addGesture is called from LLFloaterGestureObserver::changed(), which is a callback for inventory
+			// change. So we need to refresh the gesture list to avoid duplicates.
+			mFloater->refreshAll();
 		}
 	}
 };
@@ -391,11 +397,11 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 	std::string command_name = command.asString();
 	if("paste" == command_name)
 	{
-		if(!LLInventoryClipboard::instance().hasContents())
+		if(!LLClipboard::instance().hasContents())
 			return false;
 
 		LLDynamicArray<LLUUID> ids;
-		LLInventoryClipboard::instance().retrieve(ids);
+		LLClipboard::instance().pasteFromClipboard(ids);
 		for(LLDynamicArray<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
@@ -490,27 +496,26 @@ void LLFloaterGesture::onActivateBtnClick()
 void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 {
 	std::string command_name  = command.asString();
-	// since we select this comman inventory item had  already arrived .
+	// Since we select this command, the inventory items must have already arrived
 	if("copy_gesture" == command_name)
 	{
 		uuid_vec_t ids;
 		getSelectedIds(ids);
-		// make sure that clopboard is empty
-		LLInventoryClipboard::instance().reset();
+		// Make sure the clipboard is empty
+		LLClipboard::instance().reset();
 		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); it++)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
 			{
-				LLInventoryClipboard::instance().add(item->getUUID());
+				LLClipboard::instance().addToClipboard(item->getUUID(),LLAssetType::AT_GESTURE);
 			}
 		}
 	}
 	else if ("paste" == command_name)
 	{
-		LLInventoryClipboard& clipbord = LLInventoryClipboard::instance();
 		LLDynamicArray<LLUUID> ids;
-		clipbord.retrieve(ids);
+		LLClipboard::instance().pasteFromClipboard(ids);
 		if(ids.empty() || !gInventory.isCategoryComplete(mGestureFolderID))
 			return;
 		LLInventoryCategory* gesture_dir = gInventory.getCategory(mGestureFolderID);
@@ -530,11 +535,11 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 						gesture_dir->getUUID(), getString("copy_name", string_args), cb);
 			}
 		}
-		clipbord.reset();
+		LLClipboard::instance().reset();
 	}
 	else if ("copy_uuid" == command_name)
 	{
-		gClipboard.copyFromString(utf8str_to_wstring(mGestureList->getCurrentID().asString()), mGestureList->getCurrentID());
+		LLClipboard::instance().copyToClipboard(mGestureList->getCurrentID(),LLAssetType::AT_GESTURE);
 	}
 }
 

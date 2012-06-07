@@ -62,6 +62,7 @@ private:
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "postcard_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "postcard_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "postcard_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const	{ return "postcard_image_size_lp"; }
 	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const { return LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG; }
 	/*virtual*/ void updateControls(const LLSD& info);
 

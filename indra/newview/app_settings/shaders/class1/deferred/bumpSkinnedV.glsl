@@ -22,33 +22,43 @@
  * $/LicenseInfo$
  */
 
+uniform mat4 projection_matrix;
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
 
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec4 diffuse_color;
+ATTRIBUTE vec3 normal;
+ATTRIBUTE vec2 texcoord0;
+ATTRIBUTE vec3 binormal;
 
-varying vec3 vary_mat0;
-varying vec3 vary_mat1;
-varying vec3 vary_mat2;
+VARYING vec3 vary_mat0;
+VARYING vec3 vary_mat1;
+VARYING vec3 vary_mat2;
+VARYING vec4 vertex_color;
+VARYING vec2 vary_texcoord0;
 
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
-	gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	mat4 mat = getObjectSkinnedTransform();
 	
-	mat = gl_ModelViewMatrix * mat;
+	mat = modelview_matrix * mat;
 	
-	vec3 pos = (mat*gl_Vertex).xyz;
+	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
 	
-	vec3 n = normalize((mat * vec4(gl_Normal.xyz+gl_Vertex.xyz, 1.0)).xyz-pos.xyz);
-	vec3 b = normalize((mat * vec4(gl_MultiTexCoord2.xyz+gl_Vertex.xyz, 1.0)).xyz-pos.xyz);
+	vec3 n = normalize((mat * vec4(normal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
+	vec3 b = normalize((mat * vec4(binormal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
 	vec3 t = cross(b, n);
 	
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
 	vary_mat2 = vec3(t.z, b.z, n.z);
 	
-	gl_Position = gl_ProjectionMatrix*vec4(pos, 1.0);
-	gl_FrontColor = gl_Color;
+	gl_Position = projection_matrix*vec4(pos, 1.0);
+	vertex_color = diffuse_color;
 }

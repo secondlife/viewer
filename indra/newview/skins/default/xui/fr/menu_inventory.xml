@@ -59,6 +59,7 @@
 	<menu_item_call label="Propriétés" name="Properties"/>
 	<menu_item_call label="Renommer" name="Rename"/>
 	<menu_item_call label="Copier l&apos;UUID (identifiant universel unique)" name="Copy Asset UUID"/>
+	<menu_item_call label="Couper" name="Cut"/>
 	<menu_item_call label="Copier" name="Copy"/>
 	<menu_item_call label="Coller" name="Paste"/>
 	<menu_item_call label="Coller comme lien" name="Paste As Link"/>
@@ -71,7 +72,7 @@
 	<menu_item_call label="Jouer dans Second Life" name="Animation Play"/>
 	<menu_item_call label="Jouer localement" name="Animation Audition"/>
 	<menu_item_call label="Envoyer un message instantané" name="Send Instant Message"/>
-	<menu_item_call label="Offrir de téléporter..." name="Offer Teleport..."/>
+	<menu_item_call label="Proposer une téléportation..." name="Offer Teleport..."/>
 	<menu_item_call label="Démarrer le chat conférence" name="Conference Chat"/>
 	<menu_item_call label="Activer" name="Activate"/>
 	<menu_item_call label="Désactiver" name="Deactivate"/>
@@ -84,6 +85,6 @@
 	<menu_item_call label="Ajouter" name="Wearable Add"/>
 	<menu_item_call label="Enlever" name="Take Off"/>
 	<menu_item_call label="Copier vers la boîte d&apos;envoi vendeur" name="Merchant Copy"/>
-	<menu_item_call label="Déplacer vers la boîte d&apos;envoi vendeur" name="Merchant Move"/>
+	<menu_item_call label="Envoyer vers la Place du marché" name="Marketplace Send"/>
 	<menu_item_call label="--aucune option--" name="--no options--"/>
 </menu>

@@ -54,11 +54,11 @@
     width="800"
     height="2"/>
 	 <layout_stack
-       use_border="true"
-       bevel_style="none"
        follows="all"
        height="34"
        layout="topleft"
+       border_size="0"
+       resize_bar_overlap="3"
        left="0"
        mouse_opaque="false"
        name="nvp_stack"
@@ -70,133 +70,134 @@
            layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="480"
+           min_width="410"
            name="navigation_layout_panel"
            width="480">
-	<panel
-	 background_visible="false"
-	 follows="left|top|right"
-	 top="3"
-	 height="23"
-	 layout="topleft"
-               left="0"
-	 name="navigation_panel"
-     width="480">
-	     <pull_button
-	     follows="left|top"
-	     direction="down"
-	     height="23"
-	     image_overlay="Arrow_Left_Off"
-	     image_bottom_pad="1"
-	     layout="topleft"
-	     left="10"
-	     name="back_btn"
-	     tool_tip="Go back to previous location"
-	     top="2"
-	     width="31" />
-	    <pull_button
-	     follows="left|top"
-	     direction="down"
-	     height="23"
-	     image_overlay="Arrow_Right_Off"
-	     image_bottom_pad="1"
-	     layout="topleft"
-	     left_pad="0"
-	     name="forward_btn"
-	     tool_tip="Go forward one location"
-	     top_delta="0"
-	     width="31" />
-	    <button
-	     follows="left|top"
-	     height="23"
-	     image_bottom_pad="1"
-	     image_overlay="Home_Off"
-	     layout="topleft"
-	     left_pad="7"
-	     name="home_btn"
-	     tool_tip="Teleport to my home location"
-	     top_delta="0"
-	     width="32" />
-	    <location_input
-                   follows="all"
-	     halign="right"
-	     height="23"
-	     label="Location"
-	     layout="topleft"
-	     left_pad="7"
-	     max_chars="254"
-	     mouse_opaque="false"
-	     name="location_combo"
-	     top_delta="0"
-            width="355">
-         <combo_list
-         mouse_wheel_opaque="true"/>
-	    </location_input>
-             </panel>
-         </layout_panel>
-         
-         <layout_panel
-           auto_resize="false"
-           layout="topleft"
-           max_width="5"
-           min_width="5"
-           name="nav_bar_resize_handle_panel"
-           user_resize="false"
-           width="5">
-             <icon
-               follows="top|right"
-               height="25"
-               image_name="ChatBarHandle"
-               layout="topleft"
-               left="-6"
-               name="resize_handle"
-               top="4"
-               width="5" />
-         </layout_panel>
-         
+	        <panel
+	         background_visible="false"
+	         follows="left|top|right"
+	         top="3"
+	         height="23"
+	         layout="topleft"
+                       left="0"
+	         name="navigation_panel"
+             width="480">
+	         <pull_button
+	         follows="left|top"
+	         direction="down"
+	         height="23"
+	         image_overlay="Arrow_Left_Off"
+	         image_bottom_pad="1"
+	         layout="topleft"
+	         left="10"
+	         name="back_btn"
+	         tool_tip="Go back to previous location"
+	         top="2"
+	         width="31" />
+	        <pull_button
+	         follows="left|top"
+	         direction="down"
+	         height="23"
+	         image_overlay="Arrow_Right_Off"
+	         image_bottom_pad="1"
+	         layout="topleft"
+	         left_pad="0"
+	         name="forward_btn"
+	         tool_tip="Go forward one location"
+	         top_delta="0"
+	         width="31" />
+	        <button
+	         follows="left|top"
+	         height="23"
+	         image_bottom_pad="1"
+	         image_overlay="Home_Off"
+	         layout="topleft"
+	         left_pad="7"
+	         name="home_btn"
+	         tool_tip="Teleport to my home location"
+	         top_delta="0"
+	         width="32" />
+	        <location_input
+                       follows="all"
+	         halign="right"
+	         height="23"
+	         label="Location"
+	         layout="topleft"
+	         left_pad="7"
+	         max_chars="254"
+	         mouse_opaque="false"
+	         name="location_combo"
+	         top_delta="0"
+                width="355">
+             <combo_list
+             mouse_wheel_opaque="true"/>
+	        </location_input>
+         </panel>
+          <icon
+             follows="top|right"
+             height="25"
+             image_name="ChatBarHandle"
+             layout="topleft"
+             left="-3"
+             name="resize_handle"
+             top="4"
+             width="5" />
+        </layout_panel>
          <layout_panel
            follows="top|left"
-	     layout="topleft"
+	         layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="315"
+           min_width="185"
            name="favorites_layout_panel"
-           width="315">
-    <favorites_bar
-     follows="left|right|top"
-     font="SansSerifSmall"
-               height="20"
-     layout="topleft"
-     left="0"
-     name="favorite"
-     image_drag_indication="Accordion_ArrowOpened_Off"
-     tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-               width="311">
-        <label
-         follows="left|top"
-         height="15"
-         layout="topleft"
-         left="10"
-         name="favorites_bar_label"
-         text_color="LtGray"
-         tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-         top="12"
-         width="102">
-          Favorites Bar
-        </label>
-                 <!-- More button actually is a text box. -->
-                 <more_button
-                   follows="left|bottom"
-                   name=">>"
-                   tab_stop="false"
-                   tool_tip="Show more of My Favorites"
-                   top="13"
-                   width="50"
-                   bottom="0"
-                   valign="bottom">
-                   More &#9660;
-                   </more_button>
-  </favorites_bar>
+           width="320">
+           <icon
+             follows="top|left"
+             height="25"
+             image_name="ChatBarHandle"
+             layout="topleft"
+             left="-323"
+             name="resize_handle"
+             top="4"
+             width="5" />
+
+           <favorites_bar
+             follows="left|right|top"
+             font="SansSerifSmall"
+             height="20"
+             layout="topleft"
+             left="0"
+             top="4"
+             name="favorite"
+             image_drag_indication="Accordion_ArrowOpened_Off"
+             tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
+             width="320">
+            <label
+             follows="left|top"
+             height="13"
+             layout="topleft"
+             left="10"
+             name="favorites_bar_label"
+             text_color="LtGray"
+             tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
+             top="13"
+	     valign="bottom"
+             width="102">
+              Favorites Bar
+            </label>
+              <!-- More button actually is a text box. -->
+              <more_button
+                follows="left|bottom"
+                name=">>"
+                tab_stop="false"
+                tool_tip="Show more of My Favorites"
+                top="13"
+                width="50"
+                bottom="0"
+                valign="bottom">
+                More &#9660;
+                </more_button>
+         </favorites_bar>
          </layout_panel>
      
      </layout_stack>

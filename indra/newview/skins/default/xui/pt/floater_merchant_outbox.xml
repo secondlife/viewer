@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="CAIXA DE SAÍDA DO LOJISTA">
+	<string name="OutboxFolderCount1">
+		1 pasta
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] pasta(s)
+	</string>
+	<string name="OutboxImporting">
+		Enviando pastas...
+	</string>
+	<string name="OutboxInitializing">
+		Iniciando...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Carregando...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="Enviar para Mercado" name="outbox_import_btn" tool_tip="Enviar para a Frente da loja do meu Mercado"/>
+		</panel>
+	</panel>
+</floater>

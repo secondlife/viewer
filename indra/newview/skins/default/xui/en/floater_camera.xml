@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="specified"
- specified_left="320"
- specified_bottom="80"
+ positioning="specified"
+ left="458"
+ bottom="-80"
+ follows="left|bottom"
  legacy_header_height="18"
  can_minimize="true"
  can_close="true"
- follows="bottom"
  height="164"
  layout="topleft"
  name="camera_floater"
  help_topic="camera_floater"
  save_visibility="true"
  single_instance="true"
- title="VIEW"
+ title="CAMERA CONTROLS"
  chrome="true"
  save_rect="true"
  width="228">
@@ -28,18 +28,6 @@
     <floater.string
      name="move_tooltip">
         Move Camera Up and Down, Left and Right
-    </floater.string>
-    <floater.string
-     name="camera_modes_title">
-        Camera modes
-    </floater.string>
-    <floater.string
-     name="pan_mode_title">
-       Orbit Zoom Pan
-    </floater.string>
-    <floater.string
-     name="presets_mode_title">
-        Preset Views
     </floater.string>
     <floater.string
      name="free_mode_title">

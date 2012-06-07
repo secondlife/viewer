@@ -86,17 +86,38 @@ Asegúrate de que tu conexión a Internet está funcionando adecuadamente.
 		<usetemplate canceltext="Cancelar" name="yesnocancelbuttons" notext="No guardarlos" yestext="Guardarlos"/>
 	</notification>
 	<notification name="ConfirmNoCopyToOutbox">
-		No tienes permiso para copiar este objeto en el Buzón de salida de comerciante. ¿Estás seguro de que quieres mover el objeto siguiente?
-        [ITEM_NAME]
-		<usetemplate name="okcancelbuttons" notext="No" yestext="Sí"/>
+		No tienes permiso para copiar uno o varios de estos objetos en el Buzón de salida de comerciante. Puedes moverlos o dejártelos.
+		<usetemplate name="okcancelbuttons" notext="No mover objeto(s)" yestext="Mover objeto(s)"/>
 	</notification>
-	<notification name="OutboxUploadComplete">
-		Envío al mercado finalizado.
-		<usetemplate name="okbutton" yestext="¡Hurra!"/>
+	<notification name="OutboxFolderCreated">
+		Se ha creado una carpeta nueva para cada objeto que has transferido al nivel superior de tu Buzón de salida de comerciante.
+		<usetemplate ignoretext="Se ha creado una carpeta nueva en el Buzón de salida de comerciante" name="okignore" yestext="OK"/>
 	</notification>
-	<notification name="OutboxUploadHadErrors">
-		El envío al mercado ha tenido errores. Corrige los problemas de tu buzón de salida y repite la operación. Muchas gracias.
-		<usetemplate name="okbutton" yestext="Reintentar"/>
+	<notification name="OutboxImportComplete">
+		Éxito
+
+Todas las carpetas se han enviado correctamente al Mercado.
+		<usetemplate ignoretext="Todas las carpetas enviadas al Mercado" name="okignore" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportHadErrors">
+		Algunas carpetas no se han transferido
+
+Han ocurrido errores al enviar algunas carpetas al Mercado. Dichas carpetas todavía están en tu Buzón de salida de comerciante.
+
+Puedes consultar más información en el [[MARKETPLACE_IMPORTS_URL] registro de errores].
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxImportFailed">
+		Error de transferencia
+
+No se han enviado carpetas al Mercado a causa de un error del sistema o de la red. Vuelve a intentarlo más tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="OutboxInitFailed">
+		Error al inicializar el mercado
+
+La inicialización del mercado ha fallado por un error del sistema o de la red. Vuelve a intentarlo más tarde.
+		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="CompileQueueSaveText">
 		Hubo un problema al subir el texto de un script por la siguiente razón: [REASON]. Por favor, inténtalo más tarde.
@@ -981,7 +1002,7 @@ no tienes el permiso de comprar terreno para el grupo que tienes activado actual
 		</form>
 	</notification>
 	<notification name="RemoveFromFriends">
-		¿Quieres eliminar a [NAME] de tu lista de amigos?
+		¿Quieres eliminar a &lt;nolink&gt;[NAME]&lt;/nolink&gt; de tu lista de amigos?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="RemoveMultipleFromFriends">
@@ -1114,8 +1135,13 @@ El precio de compra del terreno no se le devolverá al propietario. Si se vende 
 	<notification name="DisplaySetToSafe">
 		Las configuraciones que se muestran se han fijado en los niveles guardados, pues especificaste la opción de guardarlos.
 	</notification>
-	<notification name="DisplaySetToRecommended">
-		Las configuraciones que se muestran se han fijado en los niveles recomendados para la configuración de tu sistema.
+	<notification name="DisplaySetToRecommendedGPUChange">
+		La configuración de pantalla se ha establecido en los niveles recomendados porque tu tarjeta de gráficos ha cambiado
+de &apos;[LAST_GPU]&apos;
+a &apos;[THIS_GPU]&apos;
+	</notification>
+	<notification name="DisplaySetToRecommendedFeatureChange">
+		La configuración de pantalla se ha establecido en los niveles recomendados a causa de un cambio en el subsistema de renderizado.
 	</notification>
 	<notification name="ErrorMessage">
 		[ERROR_MESSAGE]
@@ -1437,8 +1463,8 @@ Debemos reiniciar [APP_NAME] para instalar la actualización.
 		<usetemplate ignoretext="Confirmar antes de devolver objetos a sus propietarios." name="okcancelignore" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="GroupLeaveConfirmMember">
-		Actualmente, eres miembro del grupo [GROUP].
-¿Dejar el grupo?
+		Actualmente perteneces al grupo &lt;nolink&gt;[GROUP]&lt;/nolink&gt;.
+¿Deseas abandonar el grupo?
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="ConfirmKick">
@@ -1920,7 +1946,13 @@ Dado que estos objetos tienen scripts, moverlos a tu inventario puede provocar u
 		<usetemplate ignoretext="Confirmar antes de salir" name="okcancelignore" notext="No salir" yestext="Salir"/>
 	</notification>
 	<notification name="ConfirmRestoreToybox">
-		¿Estás seguro de que quieres restaurar los botones y barras de herramientas predeterminados? 
+		Esta acción restaurará los botones y barras de herramientas predeterminados.
+
+Esta acción no se puede deshacer.
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ConfirmClearAllToybox">
+		Esta acción volverá a colocar todos los botones a la caja de herramientas y las barras de herramientas aparecerán vacías.
     
 Esta acción no se puede deshacer.
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
@@ -2128,10 +2160,10 @@ Al hacerlo se iniciará el navegador web.
 		Asunto: [SUBJECT], Mensaje: [MESSAGE]
 	</notification>
 	<notification name="FriendOnline">
-		[NAME] está conectado
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está conectado
 	</notification>
 	<notification name="FriendOffline">
-		[NAME] está desconectado
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; está desconectado
 	</notification>
 	<notification name="AddSelfFriend">
 		Aunque eres muy agradable, no puedes añadirte como amigo a ti mismo.
@@ -2244,14 +2276,16 @@ Por favor, selecciona un sólo objeto.
 		Se ha rehusado tu tarjeta de visita.
 	</notification>
 	<notification name="TeleportToLandmark">
-		Puedes teleportarte a lugares como &apos;[NAME]&apos; abriendo el panel Lugares -a la derecha de tu pantalla- y seleccionando la sección Hitos.
-Pulsa en un hito para seleccionarlo, y, luego, pulsa &apos;Teleportar&apos; en la parte inferior del panel.
-(También puedes pulsar dos veces en el hito o pulsarlo con el botón derecho del ratón y elegir &apos;Teleportar&apos;.)
+		Para teleportarte a lugares como &apos;[NAME]&apos;, pulsa el botón &quot;Lugares&quot;,
+    y selecciona la pestaña Hitos en la ventana que se abre. Pulsa en un
+    hito para seleccionarlo y luego pulsa &apos;Teleportar&apos; en la parte inferior de la ventana.
+    (También puedes pulsar dos veces en el hito o pulsarlo con el botón derecho del ratón y
+    elegir &apos;Teleportar&apos;.)
 	</notification>
 	<notification name="TeleportToPerson">
-		Puedes contactar con un Residente como &apos;[NAME]&apos; abriendo el panel Gente en el lado derecho de tu pantalla.
-Elige al Residente de la lista y pulsa &apos;MI&apos; en la parte inferior del panel.
-(También puedes pulsar dos veces en su nombre o pulsarlo con el botón derecho y elegir &apos;MI&apos;).
+		Para ponerte en contacto con Residentes como &apos;[NAME]&apos;, pulsa el botón &quot;Gente&quot;, selecciona un Residente en la ventana que se abre y después pulsa en &apos;MI&apos; en
+    la parte inferior de la ventana.
+    (También puedes pulsar dos veces en su nombre o pulsarlo con el botón derecho y elegir &apos;MI&apos;).
 	</notification>
 	<notification name="CantSelectLandFromMultipleRegions">
 		No puedes seleccionar un terreno que cruce las fronteras entre servidores.
@@ -2270,6 +2304,9 @@ Inténtalo seleccionando un trozo más pequeño de terreno.
 		[MESSAGE]
 	</notification>
 	<notification name="PaymentSent">
+		[MESSAGE]
+	</notification>
+	<notification name="PaymentFailure">
 		[MESSAGE]
 	</notification>
 	<notification name="EventNotification">
@@ -2526,10 +2563,10 @@ Por favor, vuelve a intentarlo en unos momentos.
 		</form>
 	</notification>
 	<notification name="FriendshipAccepted">
-		[NAME] ha aceptado tu oferta de amistad.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ha aceptado tu ofrecimiento de amistad.
 	</notification>
 	<notification name="FriendshipDeclined">
-		[NAME] ha rehusado tu oferta de amistad.
+		&lt;nolink&gt;[NAME]&lt;/nolink&gt; ha rechazado tu ofrecimiento de amistad.
 	</notification>
 	<notification name="FriendshipAcceptedByMe">
 		Aceptado el ofrecimiento de amistad.
@@ -2806,6 +2843,18 @@ Con los siguientes residentes:
 
 [RESIDENTS]
 		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
+	</notification>
+	<notification name="ShareFolderConfirmation">
+		Sólo puedes compartir una carpeta en cada momento.
+
+¿Estás seguro de que quieres compartir los elementos siguientes?
+
+&lt;nolink&gt;[ITEMS]&lt;/nolink&gt;
+
+Con los siguientes Residentes:
+
+[RESIDENTS]
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Aceptar"/>
 	</notification>
 	<notification name="ItemsShared">
 		Los elementos se han compartido correctamente.

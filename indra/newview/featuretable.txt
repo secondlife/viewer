@@ -42,7 +42,6 @@ RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderGround				1	1
 RenderMaxPartCount			1	8192
-RenderNightBrightness		1	1.0
 RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	4
@@ -69,6 +68,8 @@ RenderShadowDetail			1	2
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
+RenderMaxTextureIndex		1	16
+
 
 //
 // Low Graphics Settings
@@ -159,7 +160,7 @@ WLSkyDetail					1	48
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-RenderFSAASamples			1	4
+RenderFSAASamples			1	2
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -188,7 +189,7 @@ WLSkyDetail					1	128
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
-RenderFSAASamples			1	8
+RenderFSAASamples			1	2
 
 
 //
@@ -296,6 +297,7 @@ RenderVBOEnable				1	0
 
 list OpenGLPre30
 RenderDeferred				0	0
+RenderMaxTextureIndex		1	1
 
 list Intel
 RenderAnisotropic			1	0

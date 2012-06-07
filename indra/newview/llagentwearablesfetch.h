@@ -40,6 +40,8 @@
 //--------------------------------------------------------------------
 class LLInitialWearablesFetch : public LLInventoryFetchDescendentsObserver
 {
+	LOG_CLASS(LLInitialWearablesFetch);
+
 public:
 	LLInitialWearablesFetch(const LLUUID& cof_id);
 	~LLInitialWearablesFetch();

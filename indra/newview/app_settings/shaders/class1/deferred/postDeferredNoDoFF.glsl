@@ -1,5 +1,5 @@
 /** 
- * @file postDeferredF.glsl
+ * @file postDeferredNoDoFF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,20 +23,25 @@
  * $/LicenseInfo$
  */
  
-
-
 #extension GL_ARB_texture_rectangle : enable
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
 uniform sampler2DRect diffuseRect;
 uniform sampler2D bloomMap;
 
 uniform vec2 screen_res;
-varying vec2 vary_fragcoord;
+VARYING vec2 vary_fragcoord;
 
 void main() 
 {
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	
 	vec4 bloom = texture2D(bloomMap, vary_fragcoord.xy/screen_res);
-	gl_FragColor = diff + bloom;
+	frag_color = diff + bloom;
 }
+

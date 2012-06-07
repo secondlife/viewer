@@ -382,9 +382,9 @@ private:
 		
 		//lldebugs << "data url is: " << url.str() << llendl;
 
-		// loading overlay debug screen follows media debugging flag from client for now.
+		// always display loading overlay now
 #if LLQTWEBKIT_API_VERSION >= 16
-		LLQtWebKit::getInstance()->enableLoadingOverlay(mBrowserWindowId, mEnableMediaPluginDebugging);
+		LLQtWebKit::getInstance()->enableLoadingOverlay(mBrowserWindowId, true);
 #else
 		llwarns << "Ignoring enableLoadingOverlay() call (llqtwebkit version is too old)." << llendl;
 #endif
@@ -991,7 +991,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 		{
 			if(message_name == "set_volume")
 			{
-				F32 volume = message_in.getValueReal("volume");
+				F32 volume = (F32)message_in.getValueReal("volume");
 				setVolume(volume);
 			}
 		}
@@ -1057,9 +1057,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 				S32 height = message_in.getValueS32("height");
 				S32 texture_width = message_in.getValueS32("texture_width");
 				S32 texture_height = message_in.getValueS32("texture_height");
-				mBackgroundR = message_in.getValueReal("background_r");
-				mBackgroundG = message_in.getValueReal("background_g");
-				mBackgroundB = message_in.getValueReal("background_b");
+				mBackgroundR = (F32)message_in.getValueReal("background_r");
+				mBackgroundG = (F32)message_in.getValueReal("background_g");
+				mBackgroundB = (F32)message_in.getValueReal("background_b");
 //				mBackgroundA = message_in.setValueReal("background_a");		// Ignore any alpha
 								
 				if(!name.empty())
@@ -1245,9 +1245,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			if(message_name == "js_agent_location")
 			{
 #if LLQTWEBKIT_API_VERSION >= 9
-				F32 x = message_in.getValueReal("x");
-				F32 y = message_in.getValueReal("y");
-				F32 z = message_in.getValueReal("z");
+				F32 x = (F32)message_in.getValueReal("x");
+				F32 y = (F32)message_in.getValueReal("y");
+				F32 z = (F32)message_in.getValueReal("z");
 				LLQtWebKit::getInstance()->setAgentLocation( x, y, z );
 				LLQtWebKit::getInstance()->emitLocation();
 #endif
@@ -1256,9 +1256,9 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			if(message_name == "js_agent_global_location")
 			{
 #if LLQTWEBKIT_API_VERSION >= 9
-				F32 x = message_in.getValueReal("x");
-				F32 y = message_in.getValueReal("y");
-				F32 z = message_in.getValueReal("z");
+				F32 x = (F32)message_in.getValueReal("x");
+				F32 y = (F32)message_in.getValueReal("y");
+				F32 z = (F32)message_in.getValueReal("z");
 				LLQtWebKit::getInstance()->setAgentGlobalLocation( x, y, z );
 				LLQtWebKit::getInstance()->emitLocation();
 #endif
@@ -1267,7 +1267,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			if(message_name == "js_agent_orientation")
 			{
 #if LLQTWEBKIT_API_VERSION >= 9
-				F32 angle = message_in.getValueReal("angle");
+				F32 angle = (F32)message_in.getValueReal("angle");
 				LLQtWebKit::getInstance()->setAgentOrientation( angle );
 				LLQtWebKit::getInstance()->emitLocation();
 #endif
@@ -1323,7 +1323,7 @@ void MediaPluginWebKit::receiveMessage(const char *message_string)
 			else if(message_name == "set_page_zoom_factor")
 			{
 #if LLQTWEBKIT_API_VERSION >= 15
-				F32 factor = message_in.getValueReal("factor");
+				F32 factor = (F32)message_in.getValueReal("factor");
 				LLQtWebKit::getInstance()->setPageZoomFactor(factor);
 #else
 				llwarns << "Ignoring setPageZoomFactor message (llqtwebkit version is too old)." << llendl;

@@ -34,6 +34,7 @@
 #include "llfloatersnapshot.h" // FIXME: replace with a snapshot storage model
 #include "llpanelsnapshot.h"
 #include "llviewercontrol.h" // gSavedSettings
+#include "llviewerwindow.h"
 
 /**
  * The panel provides UI for saving snapshot to a local folder.
@@ -53,19 +54,19 @@ private:
 	/*virtual*/ std::string getHeightSpinnerName() const	{ return "local_snapshot_height"; }
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "local_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "local_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const	{ return "local_image_size_lp"; }
 	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
 	/*virtual*/ void updateControls(const LLSD& info);
 
 	void onFormatComboCommit(LLUICtrl* ctrl);
 	void onQualitySliderCommit(LLUICtrl* ctrl);
-	void onSend();
+	void onSaveFlyoutCommit(LLUICtrl* ctrl);
 };
 
 static LLRegisterPanelClassWrapper<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal");
 
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
-	mCommitCallbackRegistrar.add("Local.Save",		boost::bind(&LLPanelSnapshotLocal::onSend,		this));
 	mCommitCallbackRegistrar.add("Local.Cancel",	boost::bind(&LLPanelSnapshotLocal::cancel,		this));
 }
 
@@ -74,6 +75,7 @@ BOOL LLPanelSnapshotLocal::postBuild()
 {
 	getChild<LLUICtrl>("image_quality_slider")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onQualitySliderCommit, this, _1));
 	getChild<LLUICtrl>("local_format_combo")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onFormatComboCommit, this, _1));
+	getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLPanelSnapshotLocal::onSaveFlyoutCommit, this, _1));
 
 	return LLPanelSnapshot::postBuild();
 }
@@ -142,13 +144,25 @@ void LLPanelSnapshotLocal::onQualitySliderCommit(LLUICtrl* ctrl)
 	LLFloaterSnapshot::getInstance()->notify(info);
 }
 
-void LLPanelSnapshotLocal::onSend()
+void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 {
+	if (ctrl->getValue().asString() == "save as")
+	{
+		gViewerWindow->resetSnapshotLoc();
+	}
+
 	LLFloaterSnapshot* floater = LLFloaterSnapshot::getInstance();
 
 	floater->notify(LLSD().with("set-working", true));
-	LLFloaterSnapshot::saveLocal();
-	LLFloaterSnapshot::postSave();
-	goBack();
-	floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
+	BOOL saved = LLFloaterSnapshot::saveLocal();
+	if (saved)
+	{
+		LLFloaterSnapshot::postSave();
+		goBack();
+		floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
+	}
+	else
+	{
+		cancel();
+	}
 }

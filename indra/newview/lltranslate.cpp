@@ -95,6 +95,12 @@ bool LLGoogleTranslationHandler::parseResponse(
 	return parseTranslation(root, translation, detected_lang);
 }
 
+// virtual
+bool LLGoogleTranslationHandler::isConfigured() const
+{
+	return !getAPIKey().empty();
+}
+
 // static
 void LLGoogleTranslationHandler::parseErrorResponse(
 	const Json::Value& root,
@@ -156,10 +162,10 @@ void LLBingTranslationHandler::getTranslateURL(
 	const std::string &text) const
 {
 	url = std::string("http://api.microsofttranslator.com/v2/Http.svc/Translate?appId=")
-		+ getAPIKey() + "&text=" + LLURI::escape(text) + "&to=" + to_lang;
+		+ getAPIKey() + "&text=" + LLURI::escape(text) + "&to=" + getAPILanguageCode(to_lang);
 	if (!from_lang.empty())
 	{
-		url += "&from=" + from_lang;
+		url += "&from=" + getAPILanguageCode(from_lang);
 	}
 }
 
@@ -218,10 +224,22 @@ bool LLBingTranslationHandler::parseResponse(
 	return true;
 }
 
+// virtual
+bool LLBingTranslationHandler::isConfigured() const
+{
+	return !getAPIKey().empty();
+}
+
 // static
 std::string LLBingTranslationHandler::getAPIKey()
 {
 	return gSavedSettings.getString("BingTranslateAPIKey");
+}
+
+// static
+std::string LLBingTranslationHandler::getAPILanguageCode(const std::string& lang)
+{
+	return lang == "zh" ? "zh-CHT" : lang; // treat Chinese as Traditional Chinese
 }
 
 LLTranslate::TranslationReceiver::TranslationReceiver(const std::string& from_lang, const std::string& to_lang)
@@ -329,6 +347,12 @@ std::string LLTranslate::getTranslateLanguage()
 	}
 	language = language.substr(0,2);
 	return language;
+}
+
+// static
+bool LLTranslate::isTranslationConfigured()
+{
+	return getPreferredHandler().isConfigured();
 }
 
 // static

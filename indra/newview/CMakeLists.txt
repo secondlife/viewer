@@ -41,12 +41,13 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -166,7 +167,7 @@ set(viewer_SOURCE_FILES
     llfirstuse.cpp
     llflexibleobject.cpp
     llfloaterabout.cpp
-    llfloateranimpreview.cpp
+    llfloaterbvhpreview.cpp
     llfloaterauction.cpp
     llfloateravatar.cpp
     llfloateravatarpicker.cpp
@@ -216,6 +217,7 @@ set(viewer_SOURCE_FILES
     llfloaternotificationsconsole.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
+    llfloateroutbox.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpostprocess.cpp
@@ -244,6 +246,7 @@ set(viewer_SOURCE_FILES
     llfloaterurlentry.cpp
     llfloatervoiceeffect.cpp
     llfloaterwebcontent.cpp
+    llfloaterwebprofile.cpp
     llfloaterwhitelistentry.cpp
     llfloaterwindowsize.cpp
     llfloaterworldmap.cpp
@@ -285,7 +288,6 @@ set(viewer_SOURCE_FILES
     llinspectremoteobject.cpp
     llinspecttoast.cpp
     llinventorybridge.cpp
-    llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventoryicon.cpp
@@ -301,6 +303,7 @@ set(viewer_SOURCE_FILES
     lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
+    lllocalbitmaps.cpp
     lllocaltextureobject.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
@@ -313,10 +316,11 @@ set(viewer_SOURCE_FILES
     llmaniprotate.cpp
     llmanipscale.cpp
     llmaniptranslate.cpp
+    llmarketplacefunctions.cpp
+    llmarketplacenotifications.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
     llmemoryview.cpp
-    llmenucommands.cpp
     llmeshrepository.cpp
     llmimetypes.cpp
     llmorphview.cpp
@@ -370,7 +374,6 @@ set(viewer_SOURCE_FILES
     llpanelmaininventory.cpp
     llpanelmarketplaceinbox.cpp
     llpanelmarketplaceinboxinventory.cpp
-    llpanelmarketplaceoutbox.cpp
     llpanelmarketplaceoutboxinventory.cpp
     llpanelmediasettingsgeneral.cpp
     llpanelmediasettingspermissions.cpp
@@ -393,7 +396,6 @@ set(viewer_SOURCE_FILES
     llpanelplacestab.cpp
     llpanelprimmediacontrols.cpp
     llpanelprofile.cpp
-    llpanelprofileview.cpp
     llpanelsnapshot.cpp
     llpanelsnapshotinventory.cpp
     llpanelsnapshotlocal.cpp
@@ -545,9 +547,6 @@ set(viewer_SOURCE_FILES
     llviewerjoint.cpp
     llviewerjointattachment.cpp
     llviewerjointmesh.cpp
-    llviewerjointmesh_sse.cpp
-    llviewerjointmesh_sse2.cpp
-    llviewerjointmesh_vec.cpp
     llviewerjoystick.cpp
     llviewerkeyboard.cpp
     llviewerlayer.cpp
@@ -595,7 +594,6 @@ set(viewer_SOURCE_FILES
     llvopartgroup.cpp
     llvosky.cpp
     llvosurfacepatch.cpp
-    llvotextbubble.cpp
     llvotree.cpp
     llvovolume.cpp
     llvowater.cpp
@@ -630,20 +628,6 @@ set(viewer_SOURCE_FILES
 
 set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
     "The name of the viewer executable to create.")
-
-if (LINUX)
-  # We can't set these flags for Darwin, because they get passed to
-  # the PPC compiler.  Ugh.
-
-  set_source_files_properties(
-      llviewerjointmesh_sse.cpp
-      PROPERTIES COMPILE_FLAGS "-msse -mfpmath=sse"
-      )
-  set_source_files_properties(
-      llviewerjointmesh_sse2.cpp
-      PROPERTIES COMPILE_FLAGS "-msse2 -mfpmath=sse"
-      )
-endif (LINUX)
 
 set(viewer_HEADER_FILES
     CMakeLists.txt
@@ -739,7 +723,7 @@ set(viewer_HEADER_FILES
     llfirstuse.h
     llflexibleobject.h
     llfloaterabout.h
-    llfloateranimpreview.h
+    llfloaterbvhpreview.h
     llfloaterauction.h
     llfloateravatar.h
     llfloateravatarpicker.h
@@ -789,6 +773,7 @@ set(viewer_HEADER_FILES
     llfloaternotificationsconsole.h
     llfloaterobjectweights.h
     llfloateropenobject.h
+    llfloateroutbox.h
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpostprocess.h
@@ -817,6 +802,7 @@ set(viewer_HEADER_FILES
     llfloaterurlentry.h
     llfloatervoiceeffect.h
     llfloaterwebcontent.h
+    llfloaterwebprofile.h
     llfloaterwhitelistentry.h
     llfloaterwindowsize.h
     llfloaterworldmap.h
@@ -857,7 +843,6 @@ set(viewer_HEADER_FILES
     llinspectremoteobject.h
     llinspecttoast.h
     llinventorybridge.h
-    llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventoryicon.h
@@ -874,6 +859,7 @@ set(viewer_HEADER_FILES
     lllistbrowser.h
     lllistcontextmenu.h
     lllistview.h
+    lllocalbitmaps.h
     lllocaltextureobject.h
     lllocationhistory.h
     lllocationinputctrl.h
@@ -886,10 +872,11 @@ set(viewer_HEADER_FILES
     llmaniprotate.h
     llmanipscale.h
     llmaniptranslate.h
+    llmarketplacefunctions.h
+    llmarketplacenotifications.h
     llmediactrl.h
     llmediadataclient.h
     llmemoryview.h
-    llmenucommands.h
     llmeshrepository.h
     llmimetypes.h
     llmorphview.h
@@ -937,7 +924,6 @@ set(viewer_HEADER_FILES
     llpanelmaininventory.h
     llpanelmarketplaceinbox.h
     llpanelmarketplaceinboxinventory.h
-    llpanelmarketplaceoutbox.h
     llpanelmarketplaceoutboxinventory.h
     llpanelmediasettingsgeneral.h
     llpanelmediasettingspermissions.h
@@ -960,7 +946,6 @@ set(viewer_HEADER_FILES
     llpanelplacestab.h
     llpanelprimmediacontrols.h
     llpanelprofile.h
-    llpanelprofileview.h
     llpanelsnapshot.h
     llpanelteleporthistory.h
     llpaneltiptoast.h
@@ -1156,7 +1141,6 @@ set(viewer_HEADER_FILES
     llvopartgroup.h
     llvosky.h
     llvosurfacepatch.h
-    llvotextbubble.h
     llvotree.h
     llvotreenew.h
     llvovolume.h
@@ -1362,7 +1346,9 @@ if (WINDOWS)
         DXGUID_LIBRARY
         )
 
+# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
+        opengl32
         ${WINDOWS_LIBRARIES}
         comdlg32
         ${DINPUT_LIBRARY}
@@ -1372,7 +1358,6 @@ if (WINDOWS)
         odbccp32
         ole32
         oleaut32
-        opengl32
         shell32
         Vfw32
         winspool

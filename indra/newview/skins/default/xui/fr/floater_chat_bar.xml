@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="chat_bar" title="CHAT PRÈS DE MOI">
-	<panel>
-		<line_editor label="Cliquer ici pour chatter." name="chat_box" tool_tip="Appuyer sur Entrée pour dire, Ctrl-Entrée pour crier"/>
-		<button name="show_nearby_chat" tool_tip="Affiche/Masque le journal de chats près de vous"/>
+	<panel name="bottom_panel">
+		<line_editor label="Cliquer ici pour chatter." name="chat_box" tool_tip="Appuyer sur Entrée pour dire, Ctrl+Entrée pour crier"/>
+		<button name="show_nearby_chat" tool_tip="Afficher/masquer le journal de chat près de vous."/>
 	</panel>
 </floater>

@@ -78,6 +78,7 @@ private:
 	LLGLSLShader* target_shader;
 	LLGLSLShader* simple_shader;
 	LLGLSLShader* fullbright_shader;	
+	LLGLSLShader* emissive_shader;
 
 	// our 'normal' alpha blend function for this pass
 	LLRender::eBlendFactor mColorSFactor;

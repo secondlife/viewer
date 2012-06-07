@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  can_minimize="true" 
  can_resize="true"
  chrome="true"
- follows="top|right"
  height="200"
  layout="topleft"
  min_height="128"

@@ -43,6 +43,7 @@ public:
 	~LLNearbyChatBar() {}
 
 	virtual BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key);
 
 	static LLNearbyChatBar* getInstance();
 
@@ -60,6 +61,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 	void showHistory();
+	void showTranslationCheckbox(BOOL show);
 	/*virtual*/void setMinimized(BOOL b);
 
 protected:
@@ -84,9 +86,10 @@ protected:
 	// Which non-zero channel did we last chat on?
 	static S32 sLastSpecialChatChannel;
 
-	LLLineEditor*		mChatBox;
-	LLOutputMonitorCtrl* mOutputMonitor;
-	LLLocalSpeakerMgr*  mSpeakerMgr;
+	LLLineEditor*			mChatBox;
+	LLView*					mNearbyChat;
+	LLOutputMonitorCtrl*	mOutputMonitor;
+	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
 };

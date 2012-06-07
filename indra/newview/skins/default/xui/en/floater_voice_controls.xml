@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- open_positioning="cascading"
+ positioning="cascading"
  can_resize="true"
  can_minimize="true"
  can_close="true"
@@ -49,7 +49,6 @@
          width="263">
         <layout_panel
          follows="top|left|right"
-         user_resize="false"
          auto_resize="false"
          layout="topleft"
          min_height="20"
@@ -72,7 +71,7 @@
              layout="topleft"
              left_pad="10"
              name="user_text"
-             text_color="white"
+             text_color="White"
              top="4"
              use_ellipses="true"
              value="My Avatar:"
@@ -89,7 +88,7 @@
              visible="true"
              width="20" />
         </layout_panel>
-        <layout_panel name="leave_call_panel" height="26" min_height="26" user_resize="false" auto_resize="false">
+        <layout_panel name="leave_call_panel" height="26" min_height="26" auto_resize="false">
         <layout_stack
          clip="true"
          follows="left|top|right"
@@ -110,7 +109,6 @@
           </layout_panel>
           <layout_panel
            auto_resize="false"
-           user_resize="false"
            follows="top|right"
            height="23"
            visible="true"
@@ -133,7 +131,6 @@
           top_pad="0"
           height="132"
           name="callers_panel"
-          user_resize="false" 
           auto_resize="true"
           width="280">
         <avatar_list

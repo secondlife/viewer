@@ -3,10 +3,10 @@
 	<floater.string name="NoDevice">
 		cihaz tespit edilmedi
 	</floater.string>
-	<check_box label="Oyun Çubuğunu Etkinleştir:" name="enable_joystick"/>
-	<spinner label="X Eksen Haritalama" name="JoystickAxis1"/>
-	<spinner label="Y Eksen Haritalama" name="JoystickAxis2"/>
-	<spinner label="Z Eksen Haritalama" name="JoystickAxis0"/>
+	<check_box label="Oyun Çub. Etkşt:" name="enable_joystick"/>
+	<spinner label="X Eks. Haritalama" name="JoystickAxis1"/>
+	<spinner label="Y Eks. Haritalama" name="JoystickAxis2"/>
+	<spinner label="Z Eks. Haritalama" name="JoystickAxis0"/>
 	<spinner label="Eğim Haritalama" name="JoystickAxis4"/>
 	<spinner label="Düşey Sapma Haritalama" name="JoystickAxis5"/>
 	<spinner label="Tilt Haritalama" name="JoystickAxis3"/>

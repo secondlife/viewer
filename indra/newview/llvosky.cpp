@@ -342,7 +342,7 @@ LLVOSky::LLVOSky(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 	blue_density = LLColor3();
 	blue_horizon = LLColor3();
 	haze_density = 0.f;
-	haze_horizon = LLColor3();
+	haze_horizon = 1.f;
 	density_multiplier = 0.f;
 	max_y = 0.f;
 	glow = LLColor3();
@@ -651,17 +651,17 @@ void LLVOSky::initAtmospherics(void)
 	sunlight_color = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("sunlight_color", error));
 	ambient = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("ambient", error));
 	//lightnorm = LLWLParamManager::getInstance()->mCurParams.getVector("lightnorm", error);
-	gamma = LLWLParamManager::getInstance()->mCurParams.getVector("gamma", error)[0];
+	gamma = LLWLParamManager::getInstance()->mCurParams.getFloat("gamma", error);
 	blue_density = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("blue_density", error));
 	blue_horizon = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("blue_horizon", error));
-	haze_density = LLWLParamManager::getInstance()->mCurParams.getVector("haze_density", error)[0];
-	haze_horizon = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("haze_horizon", error));
-	density_multiplier = LLWLParamManager::getInstance()->mCurParams.getVector("density_multiplier", error)[0];
-	max_y = LLWLParamManager::getInstance()->mCurParams.getVector("max_y", error)[0];
+	haze_density = LLWLParamManager::getInstance()->mCurParams.getFloat("haze_density", error);
+	haze_horizon = LLWLParamManager::getInstance()->mCurParams.getFloat("haze_horizon", error);
+	density_multiplier = LLWLParamManager::getInstance()->mCurParams.getFloat("density_multiplier", error);
+	max_y = LLWLParamManager::getInstance()->mCurParams.getFloat("max_y", error);
 	glow = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("glow", error));
-	cloud_shadow = LLWLParamManager::getInstance()->mCurParams.getVector("cloud_shadow", error)[0];
+	cloud_shadow = LLWLParamManager::getInstance()->mCurParams.getFloat("cloud_shadow", error);
 	cloud_color = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("cloud_color", error));
-	cloud_scale = LLWLParamManager::getInstance()->mCurParams.getVector("cloud_scale", error)[0];
+	cloud_scale = LLWLParamManager::getInstance()->mCurParams.getFloat("cloud_scale", error);
 	cloud_pos_density1 = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("cloud_pos_density1", error));
 	cloud_pos_density2 = LLColor3(LLWLParamManager::getInstance()->mCurParams.getVector("cloud_pos_density2", error));
 
@@ -825,7 +825,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 
 	// Haze color above cloud
 	vary_HazeColor = (blue_horizon * blue_weight * (sunlight + ambient)
-				+ componentMult(haze_horizon.mV[0] * haze_weight, sunlight * temp2.mV[0] + ambient)
+				+ componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + ambient)
 			 );	
 
 	// Increase ambient when there are more clouds
@@ -836,7 +836,7 @@ void LLVOSky::calcSkyColorWLVert(LLVector3 & Pn, LLColor3 & vary_HazeColor, LLCo
 
 	// Haze color below cloud
 	LLColor3 additiveColorBelowCloud = (blue_horizon * blue_weight * (sunlight + tmpAmbient)
-				+ componentMult(haze_horizon.mV[0] * haze_weight, sunlight * temp2.mV[0] + tmpAmbient)
+				+ componentMult(haze_horizon * haze_weight, sunlight * temp2.mV[0] + tmpAmbient)
 			 );	
 
 	// Final atmosphere additive
@@ -1002,7 +1002,7 @@ void LLVOSky::calcAtmospherics(void)
 		//haze color
 		vary_HazeColor =
 			(blue_horizon * blue_weight * (sunlight*(1.f - cloud_shadow) + tmpAmbient)	
-			+ componentMult(haze_horizon.mV[0] * haze_weight, sunlight*(1.f - cloud_shadow) * temp2.mV[0] + tmpAmbient)
+			+ componentMult(haze_horizon * haze_weight, sunlight*(1.f - cloud_shadow) * temp2.mV[0] + tmpAmbient)
 				 );	
 
 		//brightness of surface both sunlight and ambient
@@ -1267,7 +1267,7 @@ void LLVOSky::updateDummyVertexBuffer()
 	LLStrider<LLVector3> vertices ;
 	mFace[FACE_DUMMY]->getVertexBuffer()->getVertexStrider(vertices,  0);
 	*vertices = mCameraPosAgent ;
-	mFace[FACE_DUMMY]->getVertexBuffer()->setBuffer(0) ;
+	mFace[FACE_DUMMY]->getVertexBuffer()->flush();
 }
 //----------------------------------
 //end of fake vertex buffer updating
@@ -1351,7 +1351,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 			*indicesp++ = index_offset + 3;
 			*indicesp++ = index_offset + 2;
 
-			buff->setBuffer(0);
+			buff->flush();
 		}
 	}
 
@@ -1516,7 +1516,7 @@ BOOL LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, const S32 f, cons
 	*indicesp++ = index_offset + 2;
 	*indicesp++ = index_offset + 3;
 
-	facep->getVertexBuffer()->setBuffer(0);
+	facep->getVertexBuffer()->flush();
 
 	if (is_sun)
 	{
@@ -2030,7 +2030,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		}
 	}
 
-	face->getVertexBuffer()->setBuffer(0);
+	face->getVertexBuffer()->flush();
 }
 
 
@@ -2040,9 +2040,12 @@ void LLVOSky::updateFog(const F32 distance)
 {
 	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG))
 	{
-		glFogf(GL_FOG_DENSITY, 0);
-		glFogfv(GL_FOG_COLOR, (F32 *) &LLColor4::white.mV);
-		glFogf(GL_FOG_END, 1000000.f);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glFogf(GL_FOG_DENSITY, 0);
+			glFogfv(GL_FOG_COLOR, (F32 *) &LLColor4::white.mV);
+			glFogf(GL_FOG_END, 1000000.f);
+		}
 		return;
 	}
 
@@ -2112,7 +2115,10 @@ void LLVOSky::updateFog(const F32 distance)
 	if (camera_height > water_height)
 	{
 		LLColor4 fog(render_fog_color);
-		glFogfv(GL_FOG_COLOR, fog.mV);
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glFogfv(GL_FOG_COLOR, fog.mV);
+		}
 		mGLFogCol = fog;
 
 		if (hide_clip_plane)
@@ -2120,13 +2126,19 @@ void LLVOSky::updateFog(const F32 distance)
 			// For now, set the density to extend to the cull distance.
 			const F32 f_log = 2.14596602628934723963618357029f; // sqrt(fabs(log(0.01f)))
 			fog_density = f_log/fog_distance;
-			glFogi(GL_FOG_MODE, GL_EXP2);
+			if (!LLGLSLShader::sNoFixedFunction)
+			{
+				glFogi(GL_FOG_MODE, GL_EXP2);
+			}
 		}
 		else
 		{
 			const F32 f_log = 4.6051701859880913680359829093687f; // fabs(log(0.01f))
 			fog_density = (f_log)/fog_distance;
-			glFogi(GL_FOG_MODE, GL_EXP);
+			if (!LLGLSLShader::sNoFixedFunction)
+			{
+				glFogi(GL_FOG_MODE, GL_EXP);
+			}
 		}
 	}
 	else
@@ -2146,23 +2158,29 @@ void LLVOSky::updateFog(const F32 distance)
 		fogCol.setAlpha(1);
 
 		// set the gl fog color
-		glFogfv(GL_FOG_COLOR, (F32 *) &fogCol.mV);
 		mGLFogCol = fogCol;
 
 		// set the density based on what the shaders use
 		fog_density = water_fog_density * gSavedSettings.getF32("WaterGLFogDensityScale");
-		glFogi(GL_FOG_MODE, GL_EXP2);
+
+		if (!LLGLSLShader::sNoFixedFunction)
+		{
+			glFogfv(GL_FOG_COLOR, (F32 *) &fogCol.mV);
+			glFogi(GL_FOG_MODE, GL_EXP2);
+		}
 	}
 
 	mFogColor = sky_fog_color;
 	mFogColor.setAlpha(1);
-	LLGLSFog gls_fog;
+	LLDrawPoolWater::sWaterFogEnd = fog_distance*2.2f;
 
-	glFogf(GL_FOG_END, fog_distance*2.2f);
-
-	glFogf(GL_FOG_DENSITY, fog_density);
-
-	glHint(GL_FOG_HINT, GL_NICEST);
+	if (!LLGLSLShader::sNoFixedFunction)
+	{
+		LLGLSFog gls_fog;
+		glFogf(GL_FOG_END, fog_distance*2.2f);
+		glFogf(GL_FOG_DENSITY, fog_density);
+		glHint(GL_FOG_HINT, GL_NICEST);
+	}
 	stop_glerror();
 }
 

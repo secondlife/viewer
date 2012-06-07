@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <role_actions>
 	<action_set description="これらの能力には、グループメンバーを追加、排除し、招待状なしに新メンバーの参加を認める権限が含まれます。" name="Membership">
 		<action description="このグループに人を招待" longdescription="「役割」セクションの「メンバー」タブ内にある「招待」ボタンを押して、このグループにメンバーを招待します。" name="member invite" value="1"/>
@@ -51,7 +51,7 @@
 		<action description="グループ所有オブジェクトの返却" longdescription="グループ所有の区画上のオブジェクトのうち、グループ所有のオブジェクトを返却するには、「土地情報」＞「オブジェクト」タブを使います。" name="land return group owned" value="48"/>
 		<action description="グループに設定されているオブジェクトを返却" longdescription="グループ所有の区画上のオブジェクトのうち、グループに設定されているオブジェクトを返却するには、「土地情報」＞「オブジェクト」タブを使います。" name="land return group set" value="33"/>
 		<action description="非グループオブジェクトの返却" longdescription="グループ所有の区画上のオブジェクトのうち、グループ以外のオブジェクトを返却するには、「土地情報」＞「オブジェクト」タブを使います。" name="land return non group" value="34"/>
-		<action description="リンデン製の植物を使用して景観作成" longdescription="リンデン製の樹木、植物、草を植える、景観づくりの能力です。 これらの植物はあなたの持ち物内の「ライブラリ」 &gt; 「オブジェクト」フォルダにあります。「制作」メニューで作成することもできます。" name="land gardening" value="35"/>
+		<action description="リンデン製の植物を使用して景観作成" longdescription="リンデン製の樹木、植物、草を植える、景観づくりの能力です。 これらの植物はあなたのインベントリ内の「ライブラリ」 &gt; 「オブジェクト」フォルダにあります。「制作」メニューで作成することもできます。" name="land gardening" value="35"/>
 	</action_set>
 	<action_set description="これらの「能力」には、グループ所有のオブジェクトを譲渡、修正、販売する権限が含まれます。 変更は「制作ツール」 &gt; 「一般」タブで行います。 オブジェクトを右クリックして「編集」を開くと設定内容を確認できます。" name="Object Management">
 		<action description="グループにオブジェクトを譲渡" longdescription="「制作ツール」 &gt; 「一般」タブで、オブジェクトをグループに譲渡します。" name="object deed" value="36"/>
