@@ -511,7 +511,6 @@ void LLPanelObject::getState( )
 	// Physics checkbox
 	mIsPhysical = root_objectp->flagUsePhysics();
 	llassert(!is_permanent || !mIsPhysical); // should never have a permanent object that is also physical
-	llassert(!is_character || mIsPhysical); // all characters should also be physical
 
 	mCheckPhysics->set( mIsPhysical );
 	mCheckPhysics->setEnabled( roots_selected>0 
