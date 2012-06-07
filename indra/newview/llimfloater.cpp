@@ -33,12 +33,14 @@
 
 #include "llagent.h"
 #include "llappviewer.h"
+#include "llavataractions.h"
 #include "llavatarnamecache.h"
 #include "llbutton.h"
 #include "llchannelmanager.h"
 #include "llchiclet.h"
 #include "llchicletbar.h"
 #include "llfloaterreg.h"
+#include "llfloateravatarpicker.h"
 #include "llimfloatercontainer.h" // to replace separate IM Floaters with multifloater container
 #include "llinventoryfunctions.h"
 //#include "lllayoutstack.h"
@@ -309,6 +311,7 @@ BOOL LLIMFloater::postBuild()
 
 	mTypingStart = LLTrans::getString("IM_typing_start_string");
 
+	childSetAction("add_btn", boost::bind(&LLIMFloater::onAddButtonClicked, this));
 	childSetAction("voice_call_btn", boost::bind(&LLIMFloater::onCallButtonClicked, this));
 
 	LLVoiceClient::getInstance()->addObserver(this);
@@ -319,6 +322,72 @@ BOOL LLIMFloater::postBuild()
 	initIMFloater();
 
 	return TRUE;
+}
+
+void LLIMFloater::onAddButtonClicked()
+{
+       LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLIMFloater::onAvatarPicked, this, _1, _2), TRUE, TRUE);
+       if (!picker)
+       {
+               return;
+       }
+
+       // Need to disable 'ok' button when selected users are already in conversation.
+       picker->setOkBtnEnableCb(boost::bind(&LLIMFloater::canAddSelectedToChat, this, _1));
+       LLFloater* root_floater = gFloaterView->getParentFloater(this);
+       if (root_floater)
+       {
+               root_floater->addDependentFloater(picker);
+       }
+}
+
+void LLIMFloater::onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
+{
+       if (mIsP2PChat)
+       {
+               mStartConferenceInSameFloater = true;
+               onClose(false);
+
+               uuid_vec_t temp_ids;
+               temp_ids.push_back(mOtherParticipantUUID);
+               temp_ids.insert(temp_ids.end(), ids.begin(), ids.end());
+
+               LLAvatarActions::startConference(temp_ids, mSessionID);
+       }
+       else
+       {
+               inviteToSession(ids);
+       }
+}
+
+bool LLIMFloater::canAddSelectedToChat(const uuid_vec_t& uuids)
+{
+       if (!mSession
+               || mDialog == IM_SESSION_GROUP_START
+               || mDialog == IM_SESSION_INVITE && gAgent.isInGroup(mSessionID))
+       {
+               return false;
+       }
+
+       for (uuid_vec_t::const_iterator id = uuids.begin();
+                       id != uuids.end(); ++id)
+       {
+               if (*id == mOtherParticipantUUID)
+               {
+                       return false;
+               }
+
+               for (uuid_vec_t::const_iterator target_id = mSession->mInitialTargetIDs.begin();
+                               target_id != mSession->mInitialTargetIDs.end(); ++target_id)
+               {
+                       if (*id == *target_id)
+                       {
+                               return false;
+                       }
+               }
+       }
+
+       return true;
 }
 
 void LLIMFloater::boundVoiceChannel()

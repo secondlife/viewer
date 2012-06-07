@@ -147,6 +147,10 @@ private:
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	void setTyping(bool typing);
+	void onAddButtonClicked();
+	void onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+	bool canAddSelectedToChat(const uuid_vec_t& uuids);
+
 	void onCallButtonClicked();
 
 	// set the enable/disable state for the Call button
