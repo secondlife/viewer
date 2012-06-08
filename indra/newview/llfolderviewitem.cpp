@@ -864,8 +864,8 @@ void LLFolderViewItem::draw()
 	const S32 FOCUS_LEFT = 1;
 	const LLFontGL* font = getLabelFontForStyle(mLabelStyle);
 
-	const BOOL in_inventory = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getRootFolderID());
-	const BOOL in_library = getListener() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getLibraryRootFolderID());
+	const BOOL in_inventory = getListener() && getListener()->getUUID().notNull() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getRootFolderID());
+	const BOOL in_library = getListener() && getListener()->getUUID().notNull() && gInventory.isObjectDescendentOf(getListener()->getUUID(), gInventory.getLibraryRootFolderID());
 
 	//--------------------------------------------------------------------------------//
 	// Draw open folder arrow
