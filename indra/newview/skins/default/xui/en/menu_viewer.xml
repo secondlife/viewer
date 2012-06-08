@@ -193,6 +193,15 @@
            <menu_item_call.on_click
             function="View.ToggleUI" />
          </menu_item_call>
+         <menu_item_check
+         label="Show HUD Attachments"
+         name="Show HUD Attachments"
+         shortcut="alt|shift|H">
+           <menu_item_check.on_check
+            function="View.CheckHUDAttachments" />
+            <menu_item_check.on_click
+             function="View.ShowHUDAttachments" />
+         </menu_item_check>
 
         <menu_item_separator/>
 
@@ -1378,15 +1387,6 @@
                  function="View.CheckHighlightTransparent" />
                 <menu_item_check.on_click
                  function="View.HighlightTransparent" />
-            </menu_item_check>
-            <menu_item_check
-             label="Show HUD Attachments"
-             name="Show HUD Attachments"
-             shortcut="alt|shift|H">
-                <menu_item_check.on_check
-                 function="View.CheckHUDAttachments" />
-                <menu_item_check.on_click
-                 function="View.ShowHUDAttachments" />
             </menu_item_check>
             <menu_item_check
              label="Show Mouselook Crosshairs"

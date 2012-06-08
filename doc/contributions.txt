@@ -297,6 +297,8 @@ Cherry Cheevers
 ChickyBabes Zuzu
 Christopher  Organiser
 Ciaran Laval
+Cinder Roxley
+    STORM-1703
 Clara Young
 Coaldust Numbers
     VWR-1095
@@ -636,6 +638,8 @@ Jonathan Yap
 	STORM-1810
 	STORM-1860
 	STORM-1852
+	STORM-1870
+	STORM-1872
 	STORM-1858
 	STORM-1862
 Kadah Coba
@@ -734,6 +738,8 @@ Marc2 Sands
 Marianne McCann
 Marine Kelley
     STORM-281
+MartinRJ Fayray
+    STORM-1845
 Matthew Anthony
 Matthew Dowd
 	VWR-1344

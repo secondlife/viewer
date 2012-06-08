@@ -10863,7 +10863,8 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.1</real>
-    </map>   <key>ToolTipFadeTime</key>
+    </map>
+    <key>ToolTipFadeTime</key>
     <map>
       <key>Comment</key>
       <string>Seconds over which tooltip fades away</string>
