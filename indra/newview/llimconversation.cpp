@@ -83,8 +83,10 @@ BOOL LLIMConversation::postBuild()
 	mExpandCollapseBtn->setClickedCallback(boost::bind(&LLIMConversation::onSlide, this));
 
 	mParticipantListPanel = getChild<LLLayoutPanel>("speakers_list_panel");
-	mParticipantListPanel->setVisible(
-			mIsNearbyChat? false : gSavedSettings.getBOOL("IMShowControlPanel"));
+
+	// Show the participants list in torn off floaters only.
+	mParticipantListPanel->setVisible(gSavedSettings.getBOOL("IMShowControlPanel")
+									  && !mIsNearbyChat); // *TODO: temporarily disabled for Nearby chat
 	mExpandCollapseBtn->setImageOverlay(
 				getString(mParticipantListPanel->getVisible() ? "collapse_icon" : "expand_icon"));
 	mExpandCollapseBtn->setEnabled(!mIsP2PChat);
@@ -209,12 +211,10 @@ void LLIMConversation::updateHeaderAndToolbar()
 	}
 
 	bool is_control_panel_visible = false;
-	if (!mIsP2PChat)
-	{
 		// Control panel should be visible only in torn off floaters.
 		is_control_panel_visible = !is_hosted && gSavedSettings.getBOOL("IMShowControlPanel");
-		mParticipantListPanel->setVisible(is_control_panel_visible);
-	}
+		mParticipantListPanel->setVisible(!mIsP2PChat && is_control_panel_visible
+				&& !mIsNearbyChat); // *TODO: temporarily disabled for Nearby chat
 
 	// Display collapse image (<<) if the floater is hosted
 	// or if it is torn off but has an open control panel.

@@ -2153,7 +2153,6 @@ bool idle_startup()
 
 		LLAgentPicksInfo::getInstance()->requestNumberOfPicks();
 
-		LLIMFloater::initIMFloater();
 		display_startup();
 
 		return TRUE;

@@ -112,6 +112,9 @@ public:
 		AT_WIDGET = 40,
 			// UI Widget: this is *not* an inventory asset type, only a viewer side asset (e.g. button, other ui items...)
 		
+		AT_PERSON = 45,
+			// A user uuid  which is not an inventory asset type, used in viewer only for adding a person to a chat via drag and drop.
+
 		AT_MESH = 49,
 			// Mesh data in our proprietary SLM format
 		

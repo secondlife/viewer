@@ -130,6 +130,7 @@ LLNearbyChat::LLNearbyChat(const LLSD& key)
 	mSpeakerMgr(NULL),
 	mExpandedHeight(COLLAPSED_HEIGHT + EXPANDED_HEIGHT)
 {
+	mIsNearbyChat = true;
 	mSpeakerMgr = LLLocalSpeakerMgr::getInstance();
 }
 

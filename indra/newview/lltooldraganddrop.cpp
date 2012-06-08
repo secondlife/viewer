@@ -2527,7 +2527,7 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 			item = (LLViewerInventoryItem*)preview->getDragItem();
 		}
 	}
-	else if(mSource == SOURCE_VIEWER)
+	else if(mSource == SOURCE_VIEWER || mSource == SOURCE_PEOPLE)
 	{
 		item = (LLViewerInventoryItem*)gToolBarView->getDragItem();
 	}

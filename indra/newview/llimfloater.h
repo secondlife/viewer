@@ -56,6 +56,9 @@ public:
 
 	virtual ~LLIMFloater();
 
+	void initIMSession(const LLUUID& session_id);
+	void initIMFloater();
+
 	// LLView overrides
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void setVisible(BOOL visible);
@@ -111,20 +114,18 @@ public:
 	void processAgentListUpdates(const LLSD& body);
 	void processSessionUpdate(const LLSD& session_update);
 
-	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
-			BOOL drop, EDragAndDropType cargo_type,
-			void *cargo_data, EAcceptance *accept,
-			std::string& tooltip_msg);
+	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+									   EDragAndDropType cargo_type,
+									   void* cargo_data,
+									   EAcceptance* accept,
+									   std::string& tooltip_msg);
 
-
-	static void initIMFloater();
 
 	//used as a callback on receiving new IM message
 	static void sRemoveTypingIndicator(const LLSD& data);
 	static void onIMChicletCreated(const LLUUID& session_id);
 
-protected:
-	/* virtual */ void onClickCloseBtn();
+	bool getStartConferenceInSameFloater() const { return mStartConferenceInSameFloater; }
 
 private:
 	// process focus events to set a currently active session
@@ -137,8 +138,7 @@ private:
 	// For display name lookups for IM window titles
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-	BOOL dropCallingCard(LLInventoryItem* item, BOOL drop);
-	BOOL dropCategory(LLInventoryCategory* category, BOOL drop);
+	bool dropPerson(LLInventoryObject* item, bool drop);
 
 	BOOL isInviteAllowed() const;
 	BOOL inviteToSession(const uuid_vec_t& agent_ids);
@@ -147,6 +147,10 @@ private:
 	static void onInputEditorFocusLost(LLFocusableElement* caller, void* userdata);
 	static void onInputEditorKeystroke(LLLineEditor* caller, void* userdata);
 	void setTyping(bool typing);
+	void onAddButtonClicked();
+	void onAvatarPicked(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+	bool canAddSelectedToChat(const uuid_vec_t& uuids);
+
 	void onCallButtonClicked();
 
 	// set the enable/disable state for the Call button
@@ -185,6 +189,8 @@ private:
 
 	bool mSessionInitialized;
 	LLSD mQueuedMsgsForInit;
+
+	bool mStartConferenceInSameFloater;
 
 	// connection to voice channel state change signal
 	boost::signals2::connection mVoiceChannelStateChangeConnection;
