@@ -115,9 +115,11 @@ public:
 	// Control Variables
 	static std::string getRectControlName(const std::string& name);
 	static std::string declareRectControl(const std::string& name);
+	static std::string declarePosXControl(const std::string& name);
+	static std::string declarePosYControl(const std::string& name);
 	static std::string getVisibilityControlName(const std::string& name);
 	static std::string declareVisibilityControl(const std::string& name);
-
+	static std::string getBaseControlName(const std::string& name);
 	static std::string declareDockStateControl(const std::string& name);
 	static std::string getDockStateControlName(const std::string& name);
 

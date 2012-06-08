@@ -94,7 +94,7 @@ BOOL LLIMConversation::postBuild()
 
 	if (!getTornOff())
 	{
-		setOpenPositioning(LLFloaterEnums::OPEN_POSITIONING_NONE);
+		setOpenPositioning(LLFloaterEnums::POSITIONING_RELATIVE);
 	}
 
 	buildParticipantList();

@@ -24,7 +24,9 @@
  */
  
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 gl_FragColor;
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
 #endif
 
 uniform sampler2D diffuseMap;
@@ -33,7 +35,7 @@ VARYING vec4 post_pos;
 
 void main() 
 {
-	gl_FragColor = vec4(1,1,1,1);
+	frag_color = vec4(1,1,1,1);
 
 	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 }

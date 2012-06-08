@@ -54,7 +54,7 @@ public:
 
 	LLCoord():	mX(0), mY(0)
 	{}
-	LLCoord(S32 x, S32 y): mX(x), mY(y)
+	LLCoord(typename COORD_FRAME::value_t x, typename COORD_FRAME::value_t y): mX(x), mY(y)
 	{}
 
 	LLCoord(const LLCoordCommon& other)
@@ -67,7 +67,7 @@ public:
 		return COORD_FRAME::convertToCommon();
 	}
 
-	void set(S32 x, S32 y) { mX = x; mY = y;}
+	void set(typename COORD_FRAME::value_t x, typename COORD_FRAME::value_t y) { mX = x; mY = y;}
 	bool operator==(const self_t& other) const { return mX == other.mX && mY == other.mY; }
 	bool operator!=(const self_t& other) const { return !(*this == other); }
 

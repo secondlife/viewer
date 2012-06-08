@@ -6,14 +6,14 @@
 	<button label="2. Оптимизировать" name="optimize_btn"/>
 	<button label="1. Выбрать файл" name="choose_file_btn"/>
 	<panel name="choose_file_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="choose_file_header_panel">
+			<text name="choose_file_header_text">
 				Выберите файл модели
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="choose_file_content">
 			<text name="advanced_users_text">
-				Пользователям в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
+				Пользователям, работающим в расширенном режиме: если вы умеете создавать трехмерные графические объекты, то, возможно, захотите воспользоваться средством Advanced Uploader, которое предоставляет расширенные возможности передачи объектов.
 			</text>
 			<button label="Перейти в расширенный режим" name="switch_to_advanced"/>
 			<text name="Cache location">
@@ -35,26 +35,26 @@
 		</panel>
 	</panel>
 	<panel name="optimize_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="optimize_header_panel">
+			<text name="optimize_header_text">
 				Оптимизировать модель
 			</text>
 		</panel>
-		<text name="description">
+		<text name="optimize_description">
 			Мы оптимизировали модель для повышения быстродействия. По желанию можно выполнить дополнительную настройку.
 		</text>
-		<panel name="content">
+		<panel name="optimize_content">
 			<text name="high_detail_text">
-				Создать уровень детализации: высокий
+				Создать уровень детализации: Высокий
 			</text>
 			<text name="medium_detail_text">
-				Создать уровень детализации: средний
+				Создать уровень детализации: Средний
 			</text>
 			<text name="low_detail_text">
-				Создать уровень детализации: низкий
+				Создать уровень детализации: Низкий
 			</text>
 			<text name="lowest_detail_text">
-				Создать уровень детализации: самый низкий
+				Создать уровень детализации: Самый низкий
 			</text>
 		</panel>
 		<panel name="content2">
@@ -79,19 +79,19 @@
 		</panel>
 	</panel>
 	<panel name="physics_panel">
-		<panel name="header_panel">
-			<text name="header_text">
-				Настроить физику
+		<panel name="physics_header_panel">
+			<text name="physics_header_text">
+				Настроить физические параметры
 			</text>
 		</panel>
-		<text name="description">
+		<text name="physics_description">
 			Мы создадим форму для внешнего каркаса модели. Настройте уровень детализации формы в соответствии с целями, для которых предназначена модель.
 		</text>
-		<panel name="content">
-			<button label="Пересчитать физику" name="recalculate_physics_btn"/>
+		<panel name="physics_content">
+			<button label="Пересчитать физические данные" name="recalculate_physics_btn"/>
 			<button label="Пересчет..." name="recalculating_physics_btn"/>
 			<text name="lod_label">
-				Просмотр физики
+				Просмотр физических данных
 			</text>
 			<combo_box name="preview_lod_combo2" tool_tip="Уровень детализации при предварительном просмотре">
 				<combo_item name="high">
@@ -110,12 +110,12 @@
 		</panel>
 	</panel>
 	<panel name="review_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="review_header_panel">
+			<text name="review_header_text">
 				Просмотр
 			</text>
 		</panel>
-		<panel name="content">
+		<panel name="review_content">
 			<text name="review_prim_equiv">
 				Воздействие на участок/регион: эквивалент в примитивах: [EQUIV]
 			</text>
@@ -128,8 +128,8 @@
 		</panel>
 	</panel>
 	<panel name="upload_panel">
-		<panel name="header_panel">
-			<text name="header_text">
+		<panel name="upload_header_panel">
+			<text name="upload_header_text">
 				Передача завершена
 			</text>
 		</panel>

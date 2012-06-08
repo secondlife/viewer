@@ -25,6 +25,11 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+
+#ifdef INCLUDE_VLD
+#include "vld.h"
+#endif
+
 #include "llviewermenu.h" 
 
 // linden library includes
@@ -214,7 +219,7 @@ void near_sit_down_point(BOOL success, void *);
 
 
 void velocity_interpolate( void* );
-
+void handle_visual_leak_detector_toggle(void*);
 void handle_rebake_textures(void*);
 BOOL check_admin_override(void*);
 void handle_admin_override_toggle(void*);
@@ -2018,6 +2023,15 @@ class LLAdvancedToggleViewAdminOptions : public view_listener_t
 	}
 };
 
+class LLAdvancedToggleVisualLeakDetector : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		handle_visual_leak_detector_toggle(NULL);
+		return true;
+	}
+};
+
 class LLAdvancedCheckViewAdminOptions : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -3433,6 +3447,35 @@ void handle_admin_override_toggle(void*)
 
 	// The above may have affected which debug menus are visible
 	show_debug_menus();
+}
+
+void handle_visual_leak_detector_toggle(void*)
+{
+	static bool vld_enabled = false;
+
+	if ( vld_enabled )
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDDisable();
+#endif // _DEBUG
+#endif // INCLUDE_VLD
+		vld_enabled = false;
+	}
+	else
+	{
+#ifdef INCLUDE_VLD
+		// only works for debug builds (hard coded into vld.h)
+	#ifdef _DEBUG
+		// start with Visual Leak Detector turned off
+		VLDEnable();
+	#endif // _DEBUG
+#endif // INCLUDE_VLD
+
+		vld_enabled = true;
+	};
 }
 
 void handle_god_mode(void*)
@@ -6504,31 +6547,37 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		std::string action = userdata.asString();
 		bool mono = false;
 		std::string msg, name;
+		std::string title;
 		if (action == "compile mono")
 		{
 			name = "compile_queue";
 			mono = true;
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		if (action == "compile lsl")
 		{
 			name = "compile_queue";
 			msg = "Recompile";
+			title = LLTrans::getString("CompileQueueTitle");
 		}
 		else if (action == "reset")
 		{
 			name = "reset_queue";
 			msg = "Reset";
+			title = LLTrans::getString("ResetQueueTitle");
 		}
 		else if (action == "start")
 		{
 			name = "start_queue";
 			msg = "SetRunning";
+			title = LLTrans::getString("RunQueueTitle");
 		}
 		else if (action == "stop")
 		{
 			name = "stop_queue";
 			msg = "SetRunningNot";
+			title = LLTrans::getString("NotRunQueueTitle");
 		}
 		LLUUID id; id.generate();
 		
@@ -6537,6 +6586,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		{
 			queue->setMono(mono);
 			queue_actions(queue, msg);
+			queue->setTitle(title);
 		}
 		else
 		{
@@ -8228,6 +8278,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedCheckViewAdminOptions(), "Advanced.CheckViewAdminOptions");
+	view_listener_t::addMenu(new LLAdvancedToggleVisualLeakDetector(), "Advanced.ToggleVisualLeakDetector");
+
 	view_listener_t::addMenu(new LLAdvancedRequestAdminStatus(), "Advanced.RequestAdminStatus");
 	view_listener_t::addMenu(new LLAdvancedLeaveAdminStatus(), "Advanced.LeaveAdminStatus");
 

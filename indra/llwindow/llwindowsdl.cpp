@@ -981,6 +981,25 @@ BOOL LLWindowSDL::setSizeImpl(const LLCoordScreen size)
 	return FALSE;
 }
 
+BOOL LLWindowSDL::setSizeImpl(const LLCoordWindow size)
+{
+	if(mWindow)
+	{
+		// Push a resize event onto SDL's queue - we'll handle it
+		// when it comes out again.
+		SDL_Event event;
+		event.type = SDL_VIDEORESIZE;
+		event.resize.w = size.mX;
+		event.resize.h = size.mY;
+		SDL_PushEvent(&event); // copied into queue
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
 void LLWindowSDL::swapBuffers()
 {
 	if (mWindow)

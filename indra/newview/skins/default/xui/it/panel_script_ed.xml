@@ -22,6 +22,8 @@
 		<menu label="File" name="File">
 			<menu_item_call label="Salva" name="Save"/>
 			<menu_item_call label="Annulla tutte le modifiche" name="Revert All Changes"/>
+			<menu_item_call label="Carica da file..." name="LoadFromFile"/>
+			<menu_item_call label="Salva su file..." name="SaveToFile"/>
 		</menu>
 		<menu label="Modifica" name="Edit">
 			<menu_item_call label="Annulla" name="Undo"/>

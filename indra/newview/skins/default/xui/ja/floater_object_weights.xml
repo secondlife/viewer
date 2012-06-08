@@ -6,7 +6,7 @@
 	<text name="objects_label" value="オブジェクト"/>
 	<text name="prims" value="--"/>
 	<text name="prims_label" value="プリム"/>
-	<text name="weights_of_selected_text" value="選択済み項目のウエイト"/>
+	<text name="weights_of_selected_text" value="選択済みアイテムのウエイト"/>
 	<text name="download" value="--"/>
 	<text name="download_label" value="ダウンロード"/>
 	<text name="physics" value="--"/>

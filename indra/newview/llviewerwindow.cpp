@@ -2162,13 +2162,19 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			// tell the OS specific window code about min window size
 			mWindow->setMinSize(min_window_width, min_window_height);
 
+			LLCoordScreen window_rect;
+			if (mWindow->getSize(&window_rect))
+			{
 			// Only save size if not maximized
-			gSavedSettings.setU32("WindowWidth", mWindowRectRaw.getWidth());
-			gSavedSettings.setU32("WindowHeight", mWindowRectRaw.getHeight());
+				gSavedSettings.setU32("WindowWidth", window_rect.mX);
+				gSavedSettings.setU32("WindowHeight", window_rect.mY);
+			}
 		}
 
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+
+		LLLayoutStack::updateClass();
 	}
 }
 
@@ -4101,7 +4107,7 @@ void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 	gViewerWindow->getWindow()->getSize(&size);
 	if ( size != new_size )
 	{
-		gViewerWindow->getWindow()->setSize(new_size.convert());
+		gViewerWindow->getWindow()->setSize(new_size);
 	}
 }
 

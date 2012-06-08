@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<floater name="item properties" title="持ち物アイテムのプロパティ">
+<floater name="item properties" title="インベントリアイテムのプロパティ">
 	<floater.string name="unknown">
 		(不明）
 	</floater.string>
@@ -24,11 +24,11 @@
 	<text name="LabelCreatorTitle">
 		クリエーター
 	</text>
-	<button label="情報" label_selected="" name="BtnCreator"/>
+	<button label="プロフィール..." label_selected="" name="BtnCreator"/>
 	<text name="LabelOwnerTitle">
 		オーナー：
 	</text>
-	<button label="情報" label_selected="" name="BtnOwner"/>
+	<button label="プロフィール..." label_selected="" name="BtnOwner"/>
 	<text name="LabelAcquiredTitle">
 		入手日時：
 	</text>

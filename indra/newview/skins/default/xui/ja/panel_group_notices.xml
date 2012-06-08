@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="通知" name="notices_tab">
 	<panel.string name="help_text">
 		通知でメッセージを送ることができ、通知にアイテムを添付することができます。
@@ -39,10 +39,10 @@
 		<text name="string">
 			ここにアイテムをドラッグ＆ドロップして添付してください：
 		</text>
-		<button label="持ち物" name="open_inventory" tool_tip="持ち物を開きます"/>
+		<button label="インベントリ" name="open_inventory" tool_tip="インベントリを開きます"/>
 		<button label="取り外す" label_selected="添付物を削除" name="remove_attachment" tool_tip="あなたの通知から添付されたアイテムを削除します"/>
 		<button label="送信" label_selected="送信" name="send_notice"/>
-		<group_drop_target name="drop_target" tool_tip="持ち物のアイテムをこのボックスにドラッグして、通知と一緒に送ります。 添付するには、そのアイテムのコピーと再販・プレゼントの権限があなたにある必要があります。"/>
+		<group_drop_target name="drop_target" tool_tip="インベントリのアイテムをこのボックスにドラッグして、通知と一緒に送ります。 添付するには、そのアイテムのコピーと再販・プレゼントの権限があなたにある必要があります。"/>
 	</panel>
 	<panel label="過去の通知を表示" name="panel_view_past_notice">
 		<text name="lbl">

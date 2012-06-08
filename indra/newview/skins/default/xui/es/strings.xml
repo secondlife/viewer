@@ -171,9 +171,9 @@ Actualmente, solo se permite iniciar sesión a los empleados.
 Consulta www.secondlife.com/status si deseas obtener actualizaciones.
 	</string>
 	<string name="LoginFailedPremiumOnly">
-		Se ha restringido de manera temporal el inicio de sesión en Second Life con el fin de garantizar una experiencia óptima a nuestros residentes.
-	 	
-Aquellos usuarios que dispongan de cuentas gratuitas no podrán acceder a Second Life durante este período de tiempo, ya que el propósito de esta medida es obtener espacio suficiente para los residentes que hayan pagado por acceder a Second Life.
+		Las conexiones a Second Life se han restringido provisionalmente para garantizar que los usuarios que ya están conectados tengan la mejor experiencia posible.
+
+Durante este tiempo, las personas con cuentas gratuitas no podrán acceder a Second Life, ya que tienen prioridad los usuarios con una cuenta de pago.
 	</string>
 	<string name="LoginFailedComputerProhibited">
 		No se puede acceder a Second Life desde este ordenador.
@@ -330,17 +330,35 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		Aquí se puede arrastrar sólo un ítem
 	</string>
 	<string name="TooltipPrice" value="[AMOUNT] L$:"/>
+	<string name="TooltipOutboxDragToWorld">
+		No puedes colocar objetos en tu buzón de salida de comerciante
+	</string>
 	<string name="TooltipOutboxNoTransfer">
-		Uno o varios de estos objetos no se pueden vender o transferir a otro usuario.
+		Uno o varios de estos objetos no se pueden vender o transferir.
+	</string>
+	<string name="TooltipOutboxNotInInventory">
+		Tu buzón de salida de comerciante sólo puede aceptar objetos procedentes directamente de tu inventario
 	</string>
 	<string name="TooltipOutboxWorn">
-		Llevas puestos uno o más de estos objetos. Quítatelos del avatar y vuelve a intentar moverlos.
+		No puedes poner artículos que llevas puestos en el buzón de salida de comerciante
+	</string>
+	<string name="TooltipOutboxCallingCard">
+		No puedes poner tarjetas de visita en tu buzón de salida de comerciante
 	</string>
 	<string name="TooltipOutboxFolderLevels">
-		Esta carpeta tiene demasiados niveles de subcarpetas. Reorganiza las carpetas interiores de forma que tengas como máximo 4 niveles de profundidad (la carpeta raíz contiene A, que contiene B, que contiene C).
+		La profundidad de carpetas anidadas excede de 3
+	</string>
+	<string name="TooltipOutboxTooManyFolders">
+		El número de subcarpetas de la carpeta de nivel superior excede de 20
 	</string>
 	<string name="TooltipOutboxTooManyObjects">
-		Esta carpeta contiene más de 200 objetos. Guarda algunos objetos en una caja para disminuir su cantidad.
+		El número de elementos de la carpeta de nivel superior excede de 200
+	</string>
+	<string name="TooltipDragOntoOwnChild">
+		No puedes mover una carpeta a su carpeta secundaria
+	</string>
+	<string name="TooltipDragOntoSelf">
+		No puedes mover una carpeta dentro de sí misma
 	</string>
 	<string name="TooltipHttpUrl">
 		Pulsa para ver esta página web
@@ -961,6 +979,9 @@ Intenta iniciar sesión de nuevo en unos instantes.
 	<string name="choose_the_directory">
 		Elegir directorio
 	</string>
+	<string name="script_files">
+		Scripts
+	</string>
 	<string name="AvatarSetNotAway">
 		Salir del estado ausente
 	</string>
@@ -1199,43 +1220,36 @@ Intenta iniciar sesión de nuevo en unos instantes.
 		No tienes en tu inventario una copia de esta textura
 	</string>
 	<string name="InventoryInboxNoItems">
-		Cuando compres un objeto o lo recibas por otra vía, aparecerá aquí, para que puedas arrastrarlo a una carpeta de tu inventario o eliminarlo si no deseas conservarlo.
+		Aquí aparecerán algunos de los objetos que recibas, como los regalos Premium. Después puedes arrastrarlos a tu inventario.
 	</string>
 	<string name="MarketplaceURL">
-		http://marketplace.[DOMAIN_NAME]
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/
 	</string>
 	<string name="MarketplaceURL_CreateStore">
-		http://marketplace.[DOMAIN_NAME]/create_store
+		http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4
+	</string>
+	<string name="MarketplaceURL_Dashboard">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard
+	</string>
+	<string name="MarketplaceURL_Imports">
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/imports
 	</string>
 	<string name="MarketplaceURL_LearnMore">
-		http://marketplace.[DOMAIN_NAME]/learn_more
-	</string>
-	<string name="InventoryOutboxCreationErrorTitle">
-		Tu Buzón de salida de comerciante no está configurado correctamente
-	</string>
-	<string name="InventoryOutboxCreationErrorTooltip">
-		Error de configuración del Buzón de salida de comerciante
-	</string>
-	<string name="InventoryOutboxCreationError">
-		Ponte en contacto con el servicio de atención al cliente para resolver el problema.
+		https://marketplace.[MARKETPLACE_DOMAIN_NAME]/learn_more
 	</string>
 	<string name="InventoryOutboxNotMerchantTitle">
-		Cualquiera puede vender objetos en el mercado
+		Cualquier usuario puede vender objetos en el mercado.
 	</string>
-	<string name="InventoryOutboxNotMerchantTooltip">
-		¡Hazte comerciante!
-	</string>
+	<string name="InventoryOutboxNotMerchantTooltip"/>
 	<string name="InventoryOutboxNotMerchant">
-		[[MARKETPLACE_URL] El Mercado de Second Life] pone en venta más de un millón de productos virtuales, todos ellos creados por residentes. Tú también puedes vender los objetos que crees, así como algunos de los objetos que hayas comprado. Es fácil y es gratuito. [[LEARN_MORE_URL] Más información] o [[CREATE_STORE_URL] crea una tienda] en el mercado para empezar.
+		Para hacerte comerciante debes [[MARKETPLACE_CREATE_STORE_URL] crear una tienda del Mercado].
 	</string>
 	<string name="InventoryOutboxNoItemsTitle">
-		Una nueva forma para enviar objetos al mercado
+		El buzón de salida está vacío.
 	</string>
-	<string name="InventoryOutboxNoItemsTooltip">
-		Arrastra y coloca aquí los objetos que desees preparar para venderlos en el mercado
-	</string>
+	<string name="InventoryOutboxNoItemsTooltip"/>
 	<string name="InventoryOutboxNoItems">
-		Arrastra a esta zona los objetos o carpetas que desees vender. Aparecerá una copia del objeto, sin quitarlo de tu inventario, salvo que el objeto arrastrado sea &quot;no copiable&quot;. Cuando estés listo para enviar los objetos al mercado, pulsa en el botón Subir. Cuando se hayan trasladado los objetos a tu inventario en el mercado, desaparecerán de esta carpeta.
+		Arrastra carpetas a esta sección y pulsa en &quot;Enviar al Mercado&quot; para incluirlas en la lista de venta del [[MARKETPLACE_DASHBOARD_URL] Mercado].
 	</string>
 	<string name="Marketplace Error None">
 		Sin errores
@@ -4017,7 +4031,7 @@ Si sigues recibiendo este mensaje, contacta con [SUPPORT_SITE].
 	</string>
 	<string name="uploading_abuse_report">
 		Subiendo...
-  
+
 Denuncia de infracción
 	</string>
 	<string name="New Shape">
@@ -4285,7 +4299,7 @@ Denuncia de infracción
 	<string name="server_is_down">
 		Parece que hay algún problema que ha escapado a nuestros controles.
 
-	Visita status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.  
+	Visita status.secondlifegrid.net para ver si hay alguna incidencia conocida que esté afectando al servicio.
         Si sigues teniendo problemas, comprueba la configuración de la red y del servidor de seguridad.
 	</string>
 	<string name="dateTimeWeekdaysNames">
@@ -4752,6 +4766,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	<string name="Command_Move_Label">
 		Caminar / Correr / Volar
 	</string>
+	<string name="Command_Outbox_Label">
+		Buzón de salida de comerciante
+	</string>
 	<string name="Command_People_Label">
 		Gente
 	</string>
@@ -4823,6 +4840,9 @@ Inténtalo incluyendo la ruta de acceso al editor entre comillas
 	</string>
 	<string name="Command_Move_Tooltip">
 		Desplazando el avatar
+	</string>
+	<string name="Command_Outbox_Tooltip">
+		Transfiere objetos a tu mercado para venderlos
 	</string>
 	<string name="Command_People_Tooltip">
 		Amigos, grupos y personas próximas
