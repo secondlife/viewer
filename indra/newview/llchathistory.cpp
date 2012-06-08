@@ -737,7 +737,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
 	std::string font_name = LLFontGL::nameFromFont(fontp);
-	std::string font_size = LLFontGL::sizeFromFont(fontp);	
+	std::string font_size = LLFontGL::sizeFromFont(fontp);
+
 	LLStyle::Params style_params;
 	style_params.color(txt_color);
 	style_params.readonly_color(txt_color);
@@ -773,8 +774,9 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	// We graying out chat history by graying out messages that contains full date in a time string
 	if (message_from_log)
 	{
-		style_params.color(LLColor4::grey);
-		style_params.readonly_color(LLColor4::grey);
+		txt_color = LLColor4::grey;
+		style_params.color(txt_color);
+		style_params.readonly_color(txt_color);
 	}
 
 	bool prependNewLineState = mEditor->getText().size() != 0;
@@ -786,7 +788,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		LLStyle::Params timestamp_style(style_params);
 
-		// timestams showing
+		// out of the timestamp
 		if (args["show_time"].asBoolean())
 		{
 		if (!message_from_log)
@@ -796,6 +798,13 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			timestamp_style.readonly_color(timestamp_color);
 		}
 			mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
+			prependNewLineState = false;
+		}
+
+        // out the opening square bracket (if need)
+		if (square_brackets)
+		{
+			mEditor->appendText("[", prependNewLineState, style_params);
 			prependNewLineState = false;
 		}
 
@@ -947,7 +956,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		
 		if (square_brackets)
 		{
-			message = "[" + message + "]";
+			message += "]";
 		}
 
 		mEditor->appendText(message, prependNewLineState, style_params);
