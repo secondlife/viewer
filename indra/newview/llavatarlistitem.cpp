@@ -383,7 +383,6 @@ BOOL LLAvatarListItem::handleHover(S32 x, S32 y, MASK mask)
 			uuid_vec_t cargo_ids;
 			types.push_back(DAD_PERSON);
 			cargo_ids.push_back(mAvatarId);
-			gClipboard.setSourceObject(mAvatarId, LLAssetType::AT_PERSON);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_PEOPLE;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src);
 		}
