@@ -1,5 +1,5 @@
 /** 
- * @file llhttpclient_tut.cpp
+ * @file llhttpclient_test.cpp
  * @brief Testing the HTTP client classes.
  *
  * $LicenseInfo:firstyear=2006&license=viewerlgpl$
@@ -33,9 +33,6 @@
 #include <tut/tut.hpp>
 #include "linden_common.h"
 
-// These are too slow on Windows to actually include in the build. JC
-#if !LL_WINDOWS
-
 #include "lltut.h"
 #include "llhttpclient.h"
 #include "llformat.h"
@@ -46,6 +43,7 @@
 #include "llsdhttpserver.h"
 #include "lliohttpserver.h"
 #include "lliosocket.h"
+#include "stringize.h"
 
 namespace tut
 {
@@ -83,7 +81,8 @@ namespace tut
 	struct HTTPClientTestData
 	{
 	public:
-		HTTPClientTestData()
+		HTTPClientTestData():
+			local_server(STRINGIZE("http://127.0.0.1:" << getenv("PORT") << "/"))
 		{
 			apr_pool_create(&mPool, NULL);
 			LLCurl::initClass(false);
@@ -134,13 +133,14 @@ namespace tut
 			delete mServerPump;
 			mServerPump = NULL;
 		}
-	
+
+		const std::string local_server;
+
 	private:
 		apr_pool_t* mPool;
 		LLPumpIO* mServerPump;
 		LLPumpIO* mClientPump;
 
-		
 	protected:
 		void ensureStatusOK()
 		{
@@ -257,7 +257,7 @@ namespace tut
 	template<> template<>
 	void HTTPClientTestObject::test<1>()
 	{
-		LLHTTPClient::get("http://www.google.com/", newResult());
+		LLHTTPClient::get(local_server, newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure("result object wasn't destroyed", mResultDeleted);
@@ -266,8 +266,8 @@ namespace tut
 	template<> template<>
 	void HTTPClientTestObject::test<2>()
 	{
-		skip("error test depends on dev's local ISP not supplying \"helpful\" search page");
-		LLHTTPClient::get("http://www.invalid", newResult());
+		// Please nobody listen on this particular port...
+		LLHTTPClient::get("http://127.0.0.1:7950", newResult());
 		runThePump();
 		ensureStatusError();
 	}
@@ -344,18 +344,13 @@ namespace tut
 		// won't ever let it run.  Instead get from a known LLSD
 		// source and compare results with the non-blocking get which
 		// is tested against the mini server earlier.
-		skip("secondlife.com is not reliable enough for unit tests.");
-
-
-		LLSD expected;
-
-		LLHTTPClient::get("http://secondlife.com/xmlhttp/homepage.php", newResult());
+		LLHTTPClient::get(local_server, newResult());
 		runThePump();
 		ensureStatusOK();
-		expected = getResult();
+		LLSD expected = getResult();
 
 		LLSD result;
-		result = LLHTTPClient::blockingGet("http://secondlife.com/xmlhttp/homepage.php");
+		result = LLHTTPClient::blockingGet(local_server);
 		LLSD body = result["body"];
 		ensure_equals("echoed result matches", body.size(), expected.size());
 	}
@@ -364,20 +359,18 @@ namespace tut
 	{
 		// This is testing for the presence of the Header in the returned results
 		// from an HTTP::get call.
-		LLHTTPClient::get("http://www.google.com/", newResult());
+		LLHTTPClient::get(local_server, newResult());
 		runThePump();
 		ensureStatusOK();
 		LLSD header = getHeader();
-		ensure_equals("got a header", header.emptyMap().asBoolean(), FALSE);
+		ensure("got a header", ! header.emptyMap().asBoolean());
 	}
 	template<> template<>
 	void HTTPClientTestObject::test<9>()
 	{
-		LLHTTPClient::head("http://www.google.com/", newResult());
+		LLHTTPClient::head(local_server, newResult());
 		runThePump();
 		ensureStatusOK();
 		ensure("result object wasn't destroyed", mResultDeleted);
 	}
 }
-
-#endif	// !LL_WINDOWS
