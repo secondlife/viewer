@@ -2132,9 +2132,7 @@ LLSD LLVOAvatarSelf::metricsData()
 {
 	// runway - add region info
 	LLSD result;
-	result["id"] = getID();
 	result["rez_status"] = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	result["is_self"] = isSelf();
 	std::vector<S32> rez_counts;
 	LLVOAvatar::getNearbyRezzedStats(rez_counts);
 	result["nearby"] = LLSD::emptyMap();
@@ -2148,7 +2146,6 @@ LLSD LLVOAvatarSelf::metricsData()
 	result["timers"]["ruth"] = mRuthTimer.getElapsedTimeF32();
 	result["timers"]["invisible"] = mInvisibleTimer.getElapsedTimeF32();
 	result["timers"]["fully_loaded"] = mFullyLoadedTimer.getElapsedTimeF32();
-	result["phases"] = getPhases().dumpPhases();
 	result["startup"] = LLStartUp::getPhases().dumpPhases();
 	
 	return result;
