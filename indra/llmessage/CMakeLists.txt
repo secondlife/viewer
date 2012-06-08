@@ -254,6 +254,14 @@ if (LL_TESTS)
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
     )
 
+  LL_ADD_INTEGRATION_TEST(
+    llhttpclient
+    "llhttpclient.cpp"
+    "${test_libs}"
+    ${PYTHON_EXECUTABLE}
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llsdmessage_peer.py"
+    )
+
   LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpartdata "" "${test_libs}")
