@@ -239,6 +239,10 @@ public:
 
 	/// Is child process still running?
 	bool isRunning() const;
+	// static isRunning(LLProcessPtr), getStatus(LLProcessPtr),
+	// getStatusString(LLProcessPtr), kill(LLProcessPtr) handle the case in
+	// which the passed LLProcessPtr might be NULL (default-constructed).
+	static bool isRunning(const LLProcessPtr&);
 
 	/**
 	 * State of child process
@@ -272,8 +276,10 @@ public:
 
 	/// Status query
 	Status getStatus() const;
+	static Status getStatus(const LLProcessPtr&);
 	/// English Status string query, for logging etc.
 	std::string getStatusString() const;
+	static std::string getStatusString(const std::string& desc, const LLProcessPtr&);
 	/// English Status string query for previously-captured Status
 	std::string getStatusString(const Status& status) const;
 	/// static English Status string query
@@ -282,6 +288,7 @@ public:
 	// Attempt to kill the process -- returns true if the process is no longer running when it returns.
 	// Note that even if this returns false, the process may exit some time after it's called.
 	bool kill(const std::string& who="");
+	static bool kill(const LLProcessPtr& p, const std::string& who="");
 
 #if LL_WINDOWS
 	typedef int id;                 ///< as returned by getProcessID()
@@ -314,10 +321,10 @@ public:
 	 * New functionality should be added as nonstatic members operating on
 	 * the same data as getProcessHandle().
 	 *
-	 * In particular, if child termination is detected by static isRunning()
+	 * In particular, if child termination is detected by this static isRunning()
 	 * rather than by nonstatic isRunning(), the LLProcess object won't be
 	 * aware of the child's changed status and may encounter OS errors trying
-	 * to obtain it. static isRunning() is only intended for after the
+	 * to obtain it. This static isRunning() is only intended for after the
 	 * launching LLProcess object has been destroyed.
 	 */
 	static handle isRunning(handle, const std::string& desc="");
