@@ -1352,6 +1352,8 @@ void create_new_item(const std::string& name,
 			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Notecards");
 			break;
 		}
+		default:
+			break;
 	}
 
 	create_inventory_item(gAgent.getID(),
