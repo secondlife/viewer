@@ -279,7 +279,19 @@ public:
 	void fire(const LLUUID& inv_item);
 };
 
+class CreateScriptCallback : public LLInventoryCallback
+{
+public:
+	void fire(const LLUUID& inv_item);
+};
+
 class CreateGestureCallback : public LLInventoryCallback
+{
+public:
+	void fire(const LLUUID& inv_item);
+};
+
+class CreateNotecardCallback : public LLInventoryCallback
 {
 public:
 	void fire(const LLUUID& inv_item);

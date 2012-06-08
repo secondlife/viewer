@@ -303,6 +303,11 @@ LLInventoryItem::LLInventoryItem(const LLUUID& uuid,
 	LLStringUtil::replaceNonstandardASCII(mDescription, ' ');
 	LLStringUtil::replaceChar(mDescription, '|', ' ');
 	mPermissions.initMasks(inv_type);
+//	if (LLInventoryType::IT_LSL == inv_type)
+//	{
+//		mPermissions.setMaskNext(permissions.getMaskNextOwner());
+		mPermissions.setMaskNext(PERM_ALL);
+//	}
 }
 
 LLInventoryItem::LLInventoryItem() :

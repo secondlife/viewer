@@ -171,7 +171,7 @@ void LLFloaterNameDesc::onBtnOK( )
 			    getChild<LLUICtrl>("name_form")->getValue().asString(), 
 			    getChild<LLUICtrl>("description_form")->getValue().asString(), 
 			    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			    LLFloaterPerms::getNextOwnerPerms(), LLFloaterPerms::getGroupPerms(), LLFloaterPerms::getEveryonePerms(),
+			    LLFloaterPerms::getNextOwnerPerms("Uploads"), LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
 			    display_name, callback, expected_upload_cost, nruserdata);
 	closeFloater(false);
 }

@@ -37,66 +37,11 @@
 LLFloaterPerms::LLFloaterPerms(const LLSD& seed)
 : LLFloater(seed)
 {
-	mCommitCallbackRegistrar.add("Perms.Copy",	boost::bind(&LLFloaterPerms::onCommitCopy, this));
-	mCommitCallbackRegistrar.add("Perms.OK",	boost::bind(&LLFloaterPerms::onClickOK, this));
-	mCommitCallbackRegistrar.add("Perms.Cancel",	boost::bind(&LLFloaterPerms::onClickCancel, this));
-
 }
 
 BOOL LLFloaterPerms::postBuild()
 {
-	mCloseSignal.connect(boost::bind(&LLFloaterPerms::cancel, this));
-	
-	refresh();
-	
-	return TRUE;
-}
-
-void LLFloaterPerms::onClickOK()
-{
-	ok();
-	closeFloater();
-}
-
-void LLFloaterPerms::onClickCancel()
-{
-	cancel();
-	closeFloater();
-}
-
-void LLFloaterPerms::onCommitCopy()
-{
-	// Implements fair use
-	BOOL copyable = gSavedSettings.getBOOL("NextOwnerCopy");
-	if(!copyable)
-	{
-		gSavedSettings.setBOOL("NextOwnerTransfer", TRUE);
-	}
-	LLCheckBoxCtrl* xfer = getChild<LLCheckBoxCtrl>("next_owner_transfer");
-	xfer->setEnabled(copyable);
-}
-
-void LLFloaterPerms::ok()
-{
-	refresh(); // Changes were already applied to saved settings. Refreshing internal values makes it official.
-}
-
-void LLFloaterPerms::cancel()
-{
-	gSavedSettings.setBOOL("ShareWithGroup",    mShareWithGroup);
-	gSavedSettings.setBOOL("EveryoneCopy",      mEveryoneCopy);
-	gSavedSettings.setBOOL("NextOwnerCopy",     mNextOwnerCopy);
-	gSavedSettings.setBOOL("NextOwnerModify",   mNextOwnerModify);
-	gSavedSettings.setBOOL("NextOwnerTransfer", mNextOwnerTransfer);
-}
-
-void LLFloaterPerms::refresh()
-{
-	mShareWithGroup    = gSavedSettings.getBOOL("ShareWithGroup");
-	mEveryoneCopy      = gSavedSettings.getBOOL("EveryoneCopy");
-	mNextOwnerCopy     = gSavedSettings.getBOOL("NextOwnerCopy");
-	mNextOwnerModify   = gSavedSettings.getBOOL("NextOwnerModify");
-	mNextOwnerTransfer = gSavedSettings.getBOOL("NextOwnerTransfer");
+	return true;
 }
 
 //static 
@@ -130,3 +75,101 @@ U32 LLFloaterPerms::getNextOwnerPerms(std::string prefix)
 	return flags;
 }
 
+//static 
+U32 LLFloaterPerms::getNextOwnerPermsInverted(std::string prefix)
+{
+	// Sets bits for permissions that are off
+	U32 flags = PERM_MOVE;
+	if ( !gSavedSettings.getBOOL(prefix+"NextOwnerCopy") )
+	{
+		flags |= PERM_COPY;
+	}
+	if ( !gSavedSettings.getBOOL(prefix+"NextOwnerModify") )
+	{
+		flags |= PERM_MODIFY;
+	}
+	if ( !gSavedSettings.getBOOL(prefix+"NextOwnerTransfer") )
+	{
+		flags |= PERM_TRANSFER;
+	}
+	return flags;
+}
+
+LLFloaterPermsDefault::LLFloaterPermsDefault(const LLSD& seed)
+: LLFloater(seed)
+{
+	mCommitCallbackRegistrar.add("PermsDefault.Copy", boost::bind(&LLFloaterPermsDefault::onCommitCopy, this, _2));
+	mCommitCallbackRegistrar.add("PermsDefault.OK", boost::bind(&LLFloaterPermsDefault::onClickOK, this));
+	mCommitCallbackRegistrar.add("PermsDefault.Cancel", boost::bind(&LLFloaterPermsDefault::onClickCancel, this));
+}
+
+BOOL LLFloaterPermsDefault::postBuild()
+{
+	mCloseSignal.connect(boost::bind(&LLFloaterPermsDefault::cancel, this));
+
+	category_names[CAT_OBJECTS] = "Objects";
+	category_names[CAT_UPLOADS] = "Uploads";
+	category_names[CAT_SCRIPTS] = "Scripts";
+	category_names[CAT_NOTECARDS] = "Notecards";
+	category_names[CAT_GESTURES] = "Gestures";
+	category_names[CAT_WEARABLES] = "Wearables";
+
+	refresh();
+	
+	return true;
+}
+
+void LLFloaterPermsDefault::onClickOK()
+{
+	ok();
+	closeFloater();
+}
+
+void LLFloaterPermsDefault::onClickCancel()
+{
+	cancel();
+	closeFloater();
+}
+
+void LLFloaterPermsDefault::onCommitCopy(const LLSD& user_data)
+{
+	// Implements fair use
+	std::string prefix = user_data.asString();
+
+	BOOL copyable = gSavedSettings.getBOOL(prefix+"NextOwnerCopy");
+	if(!copyable)
+	{
+		gSavedSettings.setBOOL(prefix+"NextOwnerTransfer", TRUE);
+	}
+	LLCheckBoxCtrl* xfer = getChild<LLCheckBoxCtrl>(prefix+"_transfer");
+	xfer->setEnabled(copyable);
+}
+
+void LLFloaterPermsDefault::ok()
+{
+	refresh(); // Changes were already applied to saved settings. Refreshing internal values makes it official.
+}
+
+void LLFloaterPermsDefault::cancel()
+{
+	for (U32 iter = CAT_OBJECTS; iter < CAT_LAST; iter++)
+	{
+		gSavedSettings.setBOOL(category_names[iter]+"NextOwnerCopy",		mNextOwnerCopy[iter]);
+		gSavedSettings.setBOOL(category_names[iter]+"NextOwnerModify",		mNextOwnerModify[iter]);
+		gSavedSettings.setBOOL(category_names[iter]+"NextOwnerTransfer",	mNextOwnerTransfer[iter]);
+		gSavedSettings.setBOOL(category_names[iter]+"ShareWithGroup",		mShareWithGroup[iter]);
+		gSavedSettings.setBOOL(category_names[iter]+"EveryoneCopy",			mEveryoneCopy[iter]);
+	}
+}
+
+void LLFloaterPermsDefault::refresh()
+{
+	for (U32 iter = CAT_OBJECTS; iter < CAT_LAST; iter++)
+	{
+		mShareWithGroup[iter]    = gSavedSettings.getBOOL(category_names[iter]+"ShareWithGroup");
+		mEveryoneCopy[iter]      = gSavedSettings.getBOOL(category_names[iter]+"EveryoneCopy");
+		mNextOwnerCopy[iter]     = gSavedSettings.getBOOL(category_names[iter]+"NextOwnerCopy");
+		mNextOwnerModify[iter]   = gSavedSettings.getBOOL(category_names[iter]+"NextOwnerModify");
+		mNextOwnerTransfer[iter] = gSavedSettings.getBOOL(category_names[iter]+"NextOwnerTransfer");
+	}
+}

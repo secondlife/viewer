@@ -1369,9 +1369,9 @@ void LLMeshUploadThread::wholeModelToLLSD(LLSD& dest, bool include_textures)
 	result["asset_type"] = "mesh";
 	result["inventory_type"] = "object";
 	result["description"] = "(No Description)";
-	result["next_owner_mask"] = LLSD::Integer(LLFloaterPerms::getNextOwnerPerms());
-	result["group_mask"] = LLSD::Integer(LLFloaterPerms::getGroupPerms());
-	result["everyone_mask"] = LLSD::Integer(LLFloaterPerms::getEveryonePerms());
+	result["next_owner_mask"] = LLSD::Integer(LLFloaterPerms::getNextOwnerPerms("Uploads"));
+	result["group_mask"] = LLSD::Integer(LLFloaterPerms::getGroupPerms("Uploads"));
+	result["everyone_mask"] = LLSD::Integer(LLFloaterPerms::getEveryonePerms("Uploads"));
 
 	res["mesh_list"] = LLSD::emptyArray();
 	res["texture_list"] = LLSD::emptyArray();

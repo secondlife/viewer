@@ -980,8 +980,8 @@ void LLSnapshotLivePreview::saveTexture()
 				    LLFolderType::FT_SNAPSHOT_CATEGORY,
 				    LLInventoryType::IT_SNAPSHOT,
 				    PERM_ALL,  // Note: Snapshots to inventory is a special case of content upload
-				    LLFloaterPerms::getGroupPerms(), // that is more permissive than other uploads
-				    LLFloaterPerms::getEveryonePerms(),
+				    LLFloaterPerms::getGroupPerms("Uploads"), // that is more permissive than other uploads
+				    LLFloaterPerms::getEveryonePerms("Uploads"),
 				    "Snapshot : " + pos_string,
 				    callback, expected_upload_cost, userdata);
 		gViewerWindow->playSnapshotAnimAndSound();

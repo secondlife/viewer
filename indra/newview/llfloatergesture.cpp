@@ -48,6 +48,7 @@
 #include "llviewermenu.h" 
 #include "llviewerinventory.h"
 #include "llviewercontrol.h"
+#include "llfloaterperms.h"
 
 BOOL item_name_precedes( LLInventoryItem* a, LLInventoryItem* b )
 {
@@ -74,6 +75,16 @@ public:
 	void fire(const LLUUID &inv_item)
 	{
 		LLPreviewGesture::show(inv_item, LLUUID::null);
+		
+		LLInventoryItem* item = gInventory.getItem(inv_item);
+		if (item)
+		{
+			LLPermissions perm = item->getPermissions();
+			perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Gestures"));
+			perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Gestures"));
+			perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Gestures"));
+			item->setPermissions(perm);
+		}
 	}
 };
 
@@ -449,9 +460,17 @@ void LLFloaterGesture::onClickPlay()
 void LLFloaterGesture::onClickNew()
 {
 	LLPointer<LLInventoryCallback> cb = new GestureShowCallback();
-	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
-		LLUUID::null, LLTransactionID::tnull, "New Gesture", "", LLAssetType::AT_GESTURE,
-		LLInventoryType::IT_GESTURE, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
+	create_inventory_item(gAgent.getID(),
+						  gAgent.getSessionID(),
+						  LLUUID::null,
+						  LLTransactionID::tnull,
+						  "New Gesture",
+						  "",
+						  LLAssetType::AT_GESTURE,
+						  LLInventoryType::IT_GESTURE,
+						  NOT_WEARABLE,
+						  PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Gestures"),
+						  cb);
 }
 
 void LLFloaterGesture::onActivateBtnClick()

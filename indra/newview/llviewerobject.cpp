@@ -100,6 +100,7 @@
 #include "lltrans.h"
 #include "llsdutil.h"
 #include "llmediaentry.h"
+#include "llfloaterperms.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -2571,8 +2572,15 @@ void LLViewerObject::saveScript(
 	 * interaction with doUpdateInventory() called below.
 	 */
 	lldebugs << "LLViewerObject::saveScript() " << item->getUUID() << " " << item->getAssetUUID() << llendl;
+
+	LLPermissions perm = item->getPermissions();
+	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
+	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
+	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
+	perm.setMaskNext(PERM_ALL);
+
 	LLPointer<LLViewerInventoryItem> task_item =
-		new LLViewerInventoryItem(item->getUUID(), mID, item->getPermissions(),
+		new LLViewerInventoryItem(item->getUUID(), mID, perm,
 								  item->getAssetUUID(), item->getType(),
 								  item->getInventoryType(),
 								  item->getName(), item->getDescription(),
@@ -2593,6 +2601,8 @@ void LLViewerObject::saveScript(
 	msg->nextBlockFast(_PREHASH_InventoryBlock);
 	task_item->packMessage(msg);
 	msg->sendReliable(mRegionp->getHost());
+
+	task_item->setPermissions(perm);
 
 	// do the internal logic
 	doUpdateInventory(task_item, TASK_INVENTORY_ITEM_KEY, is_new);

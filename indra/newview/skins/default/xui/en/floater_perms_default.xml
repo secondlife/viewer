@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ height="250"
+ layout="topleft"
+ name="perms default"
+ help_topic="perms_default"
+ save_rect="true"
+ title="DEFAULT CREATION PERMISSIONS"
+ width="700">
+
+  <panel
+   follows="left|top|right|bottom"
+   height="200"
+   label="Default Permissions"
+   layout="topleft"
+   left="10"
+   name="default permissions"
+   top="20"
+   width="690">
+
+     <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="16"
+      halign="center"
+      layout="topleft"
+      left="120"
+      top="10"
+      width="100">
+         Copy
+      </text>
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       halign="center"
+       layout="topleft"
+       left_pad="5"
+       top="10"
+       width="100">
+          Modify
+      </text>
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       halign="center"
+       layout="topleft"
+       left_pad="5"
+       top="10"
+       width="100">
+          Transfer
+      </text>
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="32"
+       halign="center"
+       layout="topleft"
+       left_pad="5"
+       top="10"
+       word_wrap="true"
+       width="100">
+          Share with group
+      </text>
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="32"
+       halign="center"
+       layout="topleft"
+       left_pad="5"
+       top="10"
+       word_wrap="true"
+       width="120">
+          Allow anyone to copy
+      </text>
+
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       top_pad="10"
+       tool_tip="Set default permissions for when Objects are created"
+       width="100">
+          Objects
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Object"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+
+      <check_box
+       control_name="ObjectsNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="objects_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Objects" />
+      </check_box>
+      <check_box
+       control_name="ObjectsNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="objects_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="ObjectsNextOwnerCopy"
+       control_name="ObjectsNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="Objects_transfer"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="ObjectsShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="objects_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="ObjectsEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="objects_a"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for uploaded items"
+       width="100">
+          Uploads
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Texture"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+
+      <check_box
+       control_name="UploadsNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="uploads_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Uploads" />
+      </check_box>
+      <check_box
+       control_name="UploadsNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="uploads_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="UploadsNextOwnerCopy"
+       control_name="UploadsNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="Uploads_transfer"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="UploadsShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="uploads_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="UploadsEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="uploads_a"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for when Scripts are created"
+       width="100">
+          Scripts
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Script"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+
+      <check_box
+       control_name="ScriptsNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="scripts_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Scripts" />
+      </check_box>
+      <check_box
+       control_name="ScriptsNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="scripts_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="ScriptsNextOwnerCopy"
+       control_name="ScriptsNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="Scripts_transfer"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="ScriptsShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="scripts_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="ScriptsEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="scripts_a"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for when Notecards are created"
+       width="100">
+        Notecards
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Notecard"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+
+      <check_box
+       control_name="NotecardsNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="notecards_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Notecards" />
+      </check_box>
+      <check_box
+       control_name="NotecardsNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="notecards_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="NotecardsNextOwnerCopy"
+       control_name="NotecardsNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="Notecards_transfer"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="NotecardsShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="notecards_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="NotecardsEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="notecards_a"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for when Gestures are created"
+       width="100">
+          Gestures
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Gesture"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+
+      <check_box
+       control_name="GesturesNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="gestures_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Gestures" />
+      </check_box>
+      <check_box
+       control_name="GesturesNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="gestures_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="GesturesNextOwnerCopy"
+       control_name="GesturesNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="Gestures_transfer"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="GesturesShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="gestures_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="GesturesEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="gestures_a"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+
+
+      <text
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for when Clothing or Body Parts are created"
+       width="100">
+          Wearables
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_BodyShape"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+
+      <check_box
+       control_name="WearablesNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="wearables_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Wearables" />
+      </check_box>
+      <check_box
+       control_name="WearablesNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="wearables_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="WearablesNextOwnerCopy"
+       control_name="WearablesNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="Wearables_transfer"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="WearablesShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="wearables_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="WearablesEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="wearables_a"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+
+  </panel>
+
+  <button
+   height="20"
+   label="OK"
+   label_selected="OK"
+   layout="topleft"
+   name="ok"
+   left="480"
+   width="100">
+	<button.commit_callback
+	 function="PermsDefault.OK" />
+  </button>
+
+  <button
+   height="20"
+   label="Cancel"
+   label_selected="Cancel"
+   layout="topleft"
+   left_pad="5"
+   name="cancel"
+   top_delta="0"
+   width="100">
+    <button.commit_callback
+     function="PermsDefault.Cancel" />
+  </button>
+</floater>

@@ -222,4 +222,15 @@
      name="show_develop_menu_check"
      top_pad="5"
      width="237"/>
+    <button
+     height="20"
+     label="Default Creation Permissions"
+     layout="topleft"
+     name="Default Creation Permissions"
+     left="30"
+     top_pad = "20"
+     width="250">
+	<button.commit_callback
+	 function="Pref.PermsDefault" />
+  </button>
 </panel>

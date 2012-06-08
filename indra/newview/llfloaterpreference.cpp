@@ -346,7 +346,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.BlockList",				boost::bind(&LLFloaterPreference::onClickBlockList, this));
 	mCommitCallbackRegistrar.add("Pref.Proxy",					boost::bind(&LLFloaterPreference::onClickProxySettings, this));
 	mCommitCallbackRegistrar.add("Pref.TranslationSettings",	boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
-	
+	mCommitCallbackRegistrar.add("Pref.PermsDefault",	boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
+
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
 	mCommitCallbackRegistrar.add("Pref.ClickActionChange",				boost::bind(&LLFloaterPreference::onClickActionChange, this));
@@ -1518,6 +1519,11 @@ void LLFloaterPreference::onClickTranslationSettings()
 void LLFloaterPreference::onClickActionChange()
 {
 	mClickActionDirty = true;
+}
+
+void LLFloaterPreference::onClickPermsDefault()
+{
+	LLFloaterReg::showInstance("perms_default");
 }
 
 void LLFloaterPreference::updateClickActionSettings()

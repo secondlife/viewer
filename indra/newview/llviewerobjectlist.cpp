@@ -74,6 +74,7 @@
 #include "object_flags.h"
 
 #include "llappviewer.h"
+#include "llfloaterperms.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -266,6 +267,17 @@ void LLViewerObjectList::processUpdateCore(LLViewerObject* objectp,
 			// llinfos << "DEBUG selecting " << objectp->mID << " " 
 			// << objectp->mLocalID << llendl;
 			LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+
+			// This is a bit of a hack.  Because the server ensures one of either COPY or TRANSFER is always be on
+			// to set the bits we want it is first necessary to set them all on and then clear the ones that
+			// are not needed.
+			LLSelectMgr::getInstance()->selectionSetObjectPermissions(PERM_NEXT_OWNER, TRUE, PERM_COPY | PERM_MODIFY | PERM_TRANSFER);
+			LLSelectMgr::getInstance()->selectionSetObjectPermissions(PERM_NEXT_OWNER, FALSE, LLFloaterPerms::getNextOwnerPermsInverted("Objects"));
+
+			LLSelectMgr::getInstance()->selectionSetObjectPermissions(PERM_EVERYONE, TRUE, LLFloaterPerms::getEveryonePerms("Objects"));
+
+			LLSelectMgr::getInstance()->selectionSetObjectPermissions(PERM_GROUP, TRUE, LLFloaterPerms::getGroupPerms("Objects"));
+
 			dialog_refresh_all();
 		}
 
