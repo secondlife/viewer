@@ -59,6 +59,8 @@ U32 LLFloaterPerms::getEveryonePerms(std::string prefix)
 //static 
 U32 LLFloaterPerms::getNextOwnerPerms(std::string prefix)
 {
+llwarns << "DBG prefix=" << prefix << llendl;
+
 	U32 flags = PERM_MOVE;
 	if ( gSavedSettings.getBOOL(prefix+"NextOwnerCopy") )
 	{

@@ -45,6 +45,7 @@
 #include "lluictrlfactory.h"
 #include "llstring.h"
 #include "lleconomy.h"
+#include "llpermissions.h"
 
 // linden includes
 #include "llassetstorage.h"
@@ -167,11 +168,16 @@ void LLFloaterNameDesc::onBtnOK( )
 	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
 	void *nruserdata = NULL;
 	std::string display_name = LLStringUtil::null;
+		LLPermissions perm;
+		perm.setMaskNext(PERM_COPY);
 	upload_new_resource(mFilenameAndPath, // file
 			    getChild<LLUICtrl>("name_form")->getValue().asString(), 
 			    getChild<LLUICtrl>("description_form")->getValue().asString(), 
 			    0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			    LLFloaterPerms::getNextOwnerPerms("Uploads"), LLFloaterPerms::getGroupPerms("Uploads"), LLFloaterPerms::getEveryonePerms("Uploads"),
+perm.getMaskNextOwner(),
+//			    LLFloaterPerms::getNextOwnerPerms("Uploads"),
+				LLFloaterPerms::getGroupPerms("Uploads"),
+				LLFloaterPerms::getEveryonePerms("Uploads"),
 			    display_name, callback, expected_upload_cost, nruserdata);
 	closeFloater(false);
 }

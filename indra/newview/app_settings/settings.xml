@@ -6043,39 +6043,6 @@
       <key>Value</key>
       <integer>130</integer>
     </map>
-    <key>NextOwnerCopy</key>
-    <map>
-      <key>Comment</key>
-      <string>Newly created objects can be copied by next owner</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>NextOwnerModify</key>
-    <map>
-      <key>Comment</key>
-      <string>Newly created objects can be modified by next owner</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>NextOwnerTransfer</key>
-    <map>
-      <key>Comment</key>
-      <string>Newly created objects can be resold or given away by next owner</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>NewCacheLocation</key>
     <map>
       <key>Comment</key>

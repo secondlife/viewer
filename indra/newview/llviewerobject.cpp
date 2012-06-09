@@ -2577,7 +2577,6 @@ void LLViewerObject::saveScript(
 	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
 	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
 	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-	perm.setMaskNext(PERM_ALL);
 
 	LLPointer<LLViewerInventoryItem> task_item =
 		new LLViewerInventoryItem(item->getUUID(), mID, perm,
@@ -2602,10 +2601,10 @@ void LLViewerObject::saveScript(
 	task_item->packMessage(msg);
 	msg->sendReliable(mRegionp->getHost());
 
-	task_item->setPermissions(perm);
-
 	// do the internal logic
 	doUpdateInventory(task_item, TASK_INVENTORY_ITEM_KEY, is_new);
+llwarns << "DBG is_new:" << is_new << llendl;
+	task_item->setPermissions(perm);
 }
 
 void LLViewerObject::moveInventory(const LLUUID& folder_id,
