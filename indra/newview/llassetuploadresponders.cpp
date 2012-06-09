@@ -151,7 +151,7 @@ void on_new_single_inventory_upload_complete(
 			LLSaleInfo::DEFAULT,
 			inventory_item_flags,
 			creation_date_now);
-llwarns << "DBG -------------" << llendl;
+
 		gInventory.updateItem(item);
 		gInventory.notifyObservers();
 		success = true;

@@ -164,8 +164,8 @@ void LLPanelContents::onClickNewScript(void *userdata)
 			PERM_ALL,
 			PERM_NONE,
 			PERM_NONE,
-			PERM_ALL);
-//			PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
+			// this does not work
+			PERM_MOVE | LLFloaterPerms::getNextOwnerPerms("Scripts"));
 		std::string desc;
 		LLViewerAssetType::generateDescriptionFor(LLAssetType::AT_LSL_TEXT, desc);
 		LLPointer<LLViewerInventoryItem> new_item =

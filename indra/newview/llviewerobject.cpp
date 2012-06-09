@@ -2555,6 +2555,17 @@ void LLViewerObject::doUpdateInventory(
 		doInventoryCallback();
 		++mInventorySerialNum;
 	}
+
+	if(is_new && mInventory)
+	{
+		std::string name = item->getName();
+llwarns << "DBG " << name << llendl;
+		LLPermissions perm = item->getPermissions();
+		perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
+		perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
+		perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
+		item->setPermissions(perm);
+	}
 }
 
 // save a script, which involves removing the old one, and rezzing
@@ -2573,13 +2584,8 @@ void LLViewerObject::saveScript(
 	 */
 	lldebugs << "LLViewerObject::saveScript() " << item->getUUID() << " " << item->getAssetUUID() << llendl;
 
-	LLPermissions perm = item->getPermissions();
-	perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("Scripts"));
-	perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Scripts"));
-	perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Scripts"));
-
 	LLPointer<LLViewerInventoryItem> task_item =
-		new LLViewerInventoryItem(item->getUUID(), mID, perm,
+		new LLViewerInventoryItem(item->getUUID(), mID, item->getPermissions(),
 								  item->getAssetUUID(), item->getType(),
 								  item->getInventoryType(),
 								  item->getName(), item->getDescription(),
@@ -2603,8 +2609,6 @@ void LLViewerObject::saveScript(
 
 	// do the internal logic
 	doUpdateInventory(task_item, TASK_INVENTORY_ITEM_KEY, is_new);
-llwarns << "DBG is_new:" << is_new << llendl;
-	task_item->setPermissions(perm);
 }
 
 void LLViewerObject::moveInventory(const LLUUID& folder_id,
