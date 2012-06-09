@@ -46,7 +46,7 @@ class LLTabContainer;
 // CHUI-137 : Temporary implementation of conversations list
 class LLConversationItem;
 
-typedef std::list<LLConversationItem> conversations_items_list_t;
+typedef std::list<LLConversationItem*> conversations_items_list_t;
 typedef std::list<LLFolderViewItem*> conversations_widgets_list_t;
 
 // Conversation items: we hold a list of those and create an LLFolderViewItem widget for each that we tuck 
@@ -110,7 +110,7 @@ public:
 							std::string& tooltip_msg) { return FALSE; }
 private:
 	std::string mName;
-	LLUUID mUUID;
+	const LLUUID mUUID;
 };
 	// CHUI-137 : End
 

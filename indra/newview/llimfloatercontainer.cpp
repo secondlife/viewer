@@ -115,19 +115,22 @@ void LLIMFloaterContainer::addFloater(LLFloater* floaterp,
 	LLMultiFloater::addFloater(floaterp, select_added_floater, insertion_point);
 
 	// CHUI-137
-	llinfos << "Merov debug : addFloater, title = " << floaterp->getTitle() << llendl;
 	// Create a conversation item
-	LLConversationItem item(floaterp->getTitle());
-	// Add it to the list
+	LLConversationItem* item = new LLConversationItem(floaterp->getTitle());
 	mConversationsItems.push_back(item);
 	// Create a widget from it
-	LLFolderViewItem* widget = createConversationItemWidget(&item);
-	// Add it to the list of widgets
+	LLFolderViewItem* widget = createConversationItemWidget(item);
 	mConversationsWidgets.push_back(widget);
 	// Add it to the UI
 	widget->setVisible(TRUE);
 	mConversationsListPanel->addChild(widget);
-	// Reposition it...
+	LLRect panel_rect = mConversationsListPanel->getRect();
+	S32 item_height = 16;
+	S32 index = mConversationsWidgets.size() - 1;
+	widget->setRect(LLRect(0,
+						   panel_rect.getHeight() - item_height*index,
+						   panel_rect.getWidth(),
+						   panel_rect.getHeight() - item_height*(index+1)));
 	// CHUI-137 : end
 	
 	LLView* floater_contents = floaterp->getChild<LLView>("contents_view");
