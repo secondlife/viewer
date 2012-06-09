@@ -78,7 +78,7 @@ public:
 	virtual void move( LLFolderViewEventListener* parent_listener ) { }
 	virtual BOOL isItemCopyable() const { return FALSE; }
 	virtual BOOL copyToClipboard() const { return FALSE; }
-	virtual void cutToClipboard() { }
+	virtual BOOL cutToClipboard() const { return FALSE; }
 	virtual BOOL isClipboardPasteable() const { return FALSE; }
 	virtual void pasteFromClipboard() { }
 	virtual void pasteLinkFromClipboard() { }
