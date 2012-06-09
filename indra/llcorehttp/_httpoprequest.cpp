@@ -99,8 +99,15 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyBody(NULL),
 	  mReplyOffset(0),
 	  mReplyLength(0),
-	  mReplyHeaders(NULL)
-{}
+	  mReplyHeaders(NULL),
+	  mPolicyRetries(0),
+	  mPolicyRetryAt(HttpTime(0)),
+	  mPolicyRetryLimit(5)				// *FIXME:  Get from policy definitions
+{
+	// *NOTE:  As members are added, retry initialization/cleanup
+	// may need to be extended in @prepareRequest().
+}
+
 
 
 HttpOpRequest::~HttpOpRequest()
@@ -130,7 +137,6 @@ HttpOpRequest::~HttpOpRequest()
 	}
 
 	mCurlService = NULL;
-	
 
 	if (mCurlHeaders)
 	{
@@ -313,6 +319,30 @@ HttpStatus HttpOpRequest::setupPost(HttpRequest::policy_t policy_id,
 
 HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 {
+	// Scrub transport and result data for retried op case
+	mCurlActive = false;
+	mCurlHandle = NULL;
+	mCurlService = NULL;
+	if (mCurlHeaders)
+	{
+		curl_slist_free_all(mCurlHeaders);
+		mCurlHeaders = NULL;
+	}
+	mCurlBodyPos = 0;
+
+	if (mReplyBody)
+	{
+		mReplyBody->release();
+		mReplyBody = NULL;
+	}
+	mReplyOffset = 0;
+	mReplyLength = 0;
+	if (mReplyHeaders)
+	{
+		mReplyHeaders->release();
+		mReplyHeaders = NULL;
+	}
+	
 	// *FIXME:  better error handling later
 	HttpStatus status;
 
@@ -321,6 +351,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 	
 	mCurlHandle = curl_easy_init();
 	// curl_easy_setopt(mCurlHandle, CURLOPT_VERBOSE, 1);
+	curl_easy_setopt(mCurlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 	curl_easy_setopt(mCurlHandle, CURLOPT_TIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_CONNECTTIMEOUT, 30);
 	curl_easy_setopt(mCurlHandle, CURLOPT_NOSIGNAL, 1);
@@ -403,12 +434,7 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		break;
 	}
 	
-	if (mReqHeaders)
-	{
-		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
-	}
-	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
-	
+	// There's a CURLOPT for this now...
 	if ((mReqOffset || mReqLength) && HOR_GET == mReqMethod)
 	{
 		static const char * const fmt1("Range: bytes=%lu-%lu");
@@ -427,6 +453,13 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 #endif // defined(WIN32)
 		range_line[sizeof(range_line) - 1] = '\0';
 		mCurlHeaders = curl_slist_append(mCurlHeaders, range_line);
+	}
+
+	mCurlHeaders = curl_slist_append(mCurlHeaders, "Pragma:");
+	if (mReqHeaders)
+	{
+		// Caller's headers last to override
+		mCurlHeaders = append_headers_to_slist(mReqHeaders, mCurlHeaders);
 	}
 	curl_easy_setopt(mCurlHandle, CURLOPT_HTTPHEADER, mCurlHeaders);
 	

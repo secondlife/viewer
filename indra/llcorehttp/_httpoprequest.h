@@ -128,6 +128,11 @@ public:
 	off_t				mReplyOffset;
 	size_t				mReplyLength;
 	HttpHeaders *		mReplyHeaders;
+
+	// Policy data
+	int					mPolicyRetries;
+	HttpTime			mPolicyRetryAt;
+	const int			mPolicyRetryLimit;
 };  // end class HttpOpRequest
 
 

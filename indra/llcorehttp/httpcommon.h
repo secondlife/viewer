@@ -114,6 +114,9 @@ namespace LLCore
 typedef void * HttpHandle;
 #define LLCORE_HTTP_HANDLE_INVALID		(NULL)
 
+/// For internal scheduling and metrics, we use a microsecond
+/// timebase compatible with the environment.
+typedef U64 HttpTime;
 
 /// Error codes defined by the library itself as distinct from
 /// libcurl (or any other transport provider).
@@ -179,6 +182,15 @@ struct HttpStatus
 		: mType(type),
 		  mStatus(status)
 		{}
+	
+	HttpStatus(int http_status)
+		: mType(http_status),
+		  mStatus(http_status >= 200 && http_status <= 299
+				  ? HE_SUCCESS
+				  : HE_REPLY_ERROR)
+		{
+			llassert(http_status >= 100 && http_status <= 999);
+		}
 	
 	HttpStatus(const HttpStatus & rhs)
 		: mType(rhs.mType),

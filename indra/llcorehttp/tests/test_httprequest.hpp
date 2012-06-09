@@ -381,7 +381,7 @@ void HttpRequestTestObjectType::test<5>()
 
 	// Run the notification pump.
 	int count(0);
-	int limit(20);
+	int limit(180);				// With retries, can take more than 10 seconds to give up
 	while (count++ < limit && mHandlerCalls < 1)
 	{
 		req->update(1000);

@@ -29,6 +29,7 @@
 #include "httpheaders.h"
 #include "bufferarray.h"
 #include "_httpoprequest.h"
+#include "_httppolicy.h"
 
 
 namespace LLCore
@@ -85,6 +86,8 @@ void HttpLibcurl::term()
 
 HttpService::ELoopSpeed HttpLibcurl::processTransport()
 {
+	HttpService::ELoopSpeed	ret(HttpService::REQUEST_SLEEP);
+
 	// Give libcurl some cycles to do I/O & callbacks
 	for (int policy_class(0); policy_class < HttpRequest::POLICY_CLASS_LIMIT; ++policy_class)
 	{
@@ -110,7 +113,8 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 				CURL * handle(msg->easy_handle);
 				CURLcode result(msg->data.result);
 
-				completeRequest(mMultiHandles[policy_class], handle, result);
+				HttpService::ELoopSpeed	speed(completeRequest(mMultiHandles[policy_class], handle, result));
+				ret = (std::min)(ret, speed);
 				handle = NULL;			// No longer valid on return
 			}
 			else if (CURLMSG_NONE == msg->msg)
@@ -127,7 +131,11 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 		}
 	}
 
-	return mActiveOps.empty() ? HttpService::REQUEST_SLEEP : HttpService::NORMAL;
+	if (! mActiveOps.empty())
+	{
+		ret = (std::min)(ret, HttpService::NORMAL);
+	}
+	return ret;
 }
 
 
@@ -153,8 +161,12 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 }
 
 
-void HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
+HttpService::ELoopSpeed HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
+	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+	static const HttpStatus cant_res_proxy(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
+	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
+
 	HttpOpRequest * op(NULL);
 	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
 	// *FIXME:  check the pointer
@@ -190,10 +202,7 @@ void HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 		int http_status(200);
 
 		curl_easy_getinfo(handle, CURLINFO_RESPONSE_CODE, &http_status);
-		op->mStatus = LLCore::HttpStatus(http_status,
-										 (http_status >= 200 && http_status <= 299
-										  ? HE_SUCCESS
-										  : HE_REPLY_ERROR));
+		op->mStatus = LLCore::HttpStatus(http_status);
 	}
 
 	// Detach from multi and recycle handle
@@ -201,9 +210,42 @@ void HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode 
 	curl_easy_cleanup(handle);
 	op->mCurlHandle = NULL;
 	
-	// Deliver to reply queue and release
+	// Retry or finalize
+	if (! op->mStatus)
+	{
+		// If this failed, we might want to retry.  Have to inspect
+		// the status a little more deeply for those reasons worth retrying...
+		if (op->mPolicyRetries < op->mPolicyRetryLimit &&
+			((op->mStatus.isHttpStatus() && op->mStatus.mType >= 499 && op->mStatus.mType <= 599) ||
+			 cant_connect == op->mStatus ||
+			 cant_res_proxy == op->mStatus ||
+			 cant_res_host == op->mStatus))
+		{
+			// Okay, worth a retry.  We include 499 in this test as
+			// it's the old 'who knows?' error from many grid services...
+			HttpPolicy & policy(mService->getPolicy());
+		
+			policy.retryOp(op);
+			return HttpService::NORMAL;			// Having pushed to retry, keep things running
+		}
+	}
+
+	// This op is done, finalize it delivering it to the reply queue...
+	if (! op->mStatus)
+	{
+		LL_WARNS("CoreHttp") << "URL op failed after " << op->mPolicyRetries
+							 << " retries.  Reason:  " << op->mStatus.toString()
+							 << LL_ENDL;
+	}
+	else if (op->mPolicyRetries)
+	{
+		LL_WARNS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
+							 << LL_ENDL;
+	}
+	
 	op->stageFromActive(mService);
 	op->release();
+	return HttpService::REQUEST_SLEEP;
 }
 
 

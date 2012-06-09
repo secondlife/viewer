@@ -308,9 +308,9 @@ private:
 	// Interfaces and objects into the core http library used
 	// to make our HTTP requests.  These replace the various
 	// LLCurl interfaces used in the past.
-	LLCore::HttpRequest *		mHttpRequest;
-	LLCore::HttpOptions *		mHttpOptions;
-	LLCore::HttpHeaders *		mHttpHeaders;
+	LLCore::HttpRequest *		mHttpRequest;							// Ttf
+	LLCore::HttpOptions *		mHttpOptions;							// Ttf
+	LLCore::HttpHeaders *		mHttpHeaders;							// Ttf
 
 	typedef std::set<LLUUID> wait_http_res_queue_t;
 	wait_http_res_queue_t		mHttpWaitResource;						// Mfnq

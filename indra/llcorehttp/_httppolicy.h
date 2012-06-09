@@ -31,6 +31,7 @@
 #include "httprequest.h"
 #include "_httpservice.h"
 #include "_httpreadyqueue.h"
+#include "_httpretryqueue.h"
 #include "_httppolicyglobal.h"
 
 
@@ -67,6 +68,14 @@ public:
 	/// additional references will be added.)
 	void addOp(HttpOpRequest *);
 
+	/// Similar to addOp, used when a caller wants to retry a
+	/// request that has failed.  It's placed on a special retry
+	/// queue but ordered by retry time not priority.  Otherwise,
+	/// handling is the same and retried operations are considered
+	/// before new ones but that doesn't guarantee completion
+	/// order.
+	void retryOp(HttpOpRequest *);
+
 	// Shadows HttpService's method
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 
@@ -77,10 +86,14 @@ public:
 			return mGlobalOptions;
 		}
 	
-	
 protected:
-	int					mReadyInClass[HttpRequest::POLICY_CLASS_LIMIT];
-	HttpReadyQueue		mReadyQueue[HttpRequest::POLICY_CLASS_LIMIT];
+	struct State
+	{
+		HttpReadyQueue		mReadyQueue;
+		HttpRetryQueue		mRetryQueue;
+	};
+
+	State				mState[HttpRequest::POLICY_CLASS_LIMIT];
 	HttpService *		mService;				// Naked pointer, not refcounted, not owner
 	HttpPolicyGlobal	mGlobalOptions;
 	

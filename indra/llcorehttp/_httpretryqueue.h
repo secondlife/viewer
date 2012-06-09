@@ -1,6 +1,6 @@
 /**
- * @file _httpreadyqueue.h
- * @brief Internal declaration for the operation ready queue
+ * @file _httpretryqueue.h
+ * @brief Internal declaration for the operation retry queue
  *
  * $LicenseInfo:firstyear=2012&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef	_LLCORE_HTTP_READY_QUEUE_H_
-#define	_LLCORE_HTTP_READY_QUEUE_H_
+#ifndef	_LLCORE_HTTP_RETRY_QUEUE_H_
+#define	_LLCORE_HTTP_RETRY_QUEUE_H_
 
 
 #include <queue>
@@ -36,7 +36,7 @@
 namespace LLCore
 {
 
-/// HttpReadyQueue provides a simple priority queue for HttpOpRequest objects.
+/// HttpRetryQueue provides a simple priority queue for HttpOpRequest objects.
 ///
 /// This uses the priority_queue adaptor class to provide the queue
 /// as well as the ordering scheme while allowing us access to the
@@ -47,23 +47,32 @@ namespace LLCore
 /// Threading:  not thread-safe.  Expected to be used entirely by
 /// a single thread, typically a worker thread of some sort.
 
+struct HttpOpRetryCompare
+{
+	bool operator()(const HttpOpRequest * lhs, const HttpOpRequest * rhs)
+		{
+			return lhs->mPolicyRetryAt < rhs->mPolicyRetryAt;
+		}
+};
+
+	
 typedef std::priority_queue<HttpOpRequest *,
 							std::deque<HttpOpRequest *>,
-							LLCore::HttpOpRequestCompare> HttpReadyQueueBase;
+							LLCore::HttpOpRetryCompare> HttpRetryQueueBase;
 
-class HttpReadyQueue : public HttpReadyQueueBase
+class HttpRetryQueue : public HttpRetryQueueBase
 {
 public:
-	HttpReadyQueue()
-		: HttpReadyQueueBase()
+	HttpRetryQueue()
+		: HttpRetryQueueBase()
 		{}
 	
-	~HttpReadyQueue()
+	~HttpRetryQueue()
 		{}
 	
 protected:
-	HttpReadyQueue(const HttpReadyQueue &);		// Not defined
-	void operator=(const HttpReadyQueue &);		// Not defined
+	HttpRetryQueue(const HttpRetryQueue &);		// Not defined
+	void operator=(const HttpRetryQueue &);		// Not defined
 
 public:
 	const container_type & get_container() const
@@ -76,10 +85,10 @@ public:
 			return c;
 		}
 
-}; // end class HttpReadyQueue
+}; // end class HttpRetryQueue
 
 
 }  // end namespace LLCore
 
 
-#endif	// _LLCORE_HTTP_READY_QUEUE_H_
+#endif	// _LLCORE_HTTP_RETRY_QUEUE_H_

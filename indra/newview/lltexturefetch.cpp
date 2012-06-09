@@ -67,9 +67,53 @@
 // This is an attempt to document what's going on in here after-the-fact.
 // It's a sincere attempt to be accurate but there will be mistakes.
 //
+//
 // Purpose
 //
-// (What is this solving?)
+// What is this module trying to do?  It accepts requests to load textures
+// at a given priority and discard level and notifies the caller when done
+// (successfully or not).  Additional constraints are:
+//
+// * Support a local texture cache.  Don't hit network when possible
+//   to avoid it.
+// * Use UDP or HTTP as directed or as fallback.  HTTP is tried when
+//   not disabled and a URL is available.  UDP when a URL isn't
+//   available or HTTP attempts fail.
+// * Asynchronous (using threads).  Main thread is not to be blocked or
+//   burdened.
+// * High concurrency.  Many requests need to be in-flight and at various
+//   stages of completion.
+// * Tolerate frequent re-prioritizations of requests.  Priority is
+//   a reflection of a camera's viewpoint and as that viewpoint changes,
+//   objects and textures become more and less relevant and that is
+//   expressed at this level by priority changes and request cancelations.
+//
+// The caller interfaces that fall out of the above and shape the
+// implementation are:
+// * createRequest - Load j2c image via UDP or HTTP at given discard level and priority
+// * deleteRequest - Request removal of prior request
+// * getRequestFinished - Test if request is finished returning data to caller
+// * updateRequestPriority - Change priority of existing request
+// * getFetchState - Retrieve progress on existing request
+//
+// Everything else in here is mostly plumbing, metrics and debug.
+//
+//
+// The Work Queue
+//
+// The two central classes are LLTextureFetch and LLTextureFetchWorker.
+// LLTextureFetch combines threading with a priority queue of work
+// requests.  The priority queue is sorted by a U32 priority derived
+// from the F32 priority in the APIs.  The *only* work request that
+// receives service time by this thread is the highest priority
+// request.  All others wait until it is complete or a dynamic priority
+// change has re-ordered work.
+//
+// LLTextureFetchWorker implements the work request and is 1:1 with
+// texture fetch requests.  Embedded in each is a state machine that
+// walks it through the cache, HTTP, UDP, image decode and retry
+// steps of texture acquisition.
+//
 //
 // Threads
 //
@@ -82,6 +126,7 @@
 // 4.  Ttc      LLTextureCache's worker thread
 // 5.  Tid      Image decoder's worker thread
 // 6.  Thl      HTTP library's worker thread
+//
 //
 // Mutexes/Condition Variables
 //
@@ -98,6 +143,7 @@
 //              LLTextureFetchWorker).  One per request.
 // 7.  Mw       LLTextureFetchWorker's mutex.  One per request.
 //
+//
 // Lock Ordering Rules
 //
 // Not an exhaustive list but shows the order of lock acquisition
@@ -105,6 +151,8 @@
 // acquiring 'B'.
 //
 // 1.    Mw < Mfnq
+// (there are many more...)
+//
 //
 // Method and Member Definitions
 //
@@ -124,7 +172,10 @@
 // comment can mean the member is unlocked or that I didn't bother
 // to do the archaeology.  In the case of LLTextureFetchWorker,
 // most data members added by the leaf class are actually covered
-// by the Mw lock.
+// by the Mw lock.  You may also see "// T<xxx>" which means that
+// the member's usage is restricted to one thread (except for
+// perhaps construction and destruction) and so explicit locking
+// isn't used.
 //
 // In code, a trailing comment like "// [-+]M<xxx>" indicates a
 // lock acquision or release point.
@@ -132,27 +183,54 @@
 //
 // Worker Lifecycle
 //
-// (Can't unilaterally delete, cleanup is two-phase, etc.)
+// The threading and responder model makes it very likely that
+// other components are holding on to a pointer to a worker request.
+// So, uncoordinated deletions of requests is a guarantee of memory
+// corruption in a short time.  So destroying a request involves
+// invocations's of LLQueuedThread/LLWorkerThread's abort/stop
+// logic that removes workers and puts them ona delete queue for
+// 2-phase destruction.  That second phase is deferrable by calls
+// to deleteOK() which only allow final destruction (via dtor)
+// once deleteOK has determined that the request is in a safe
+// state.
+//
 //
 // Worker State Machine
 //
 // (ASCII art needed)
 //
+//
 // Priority Scheme
 //
 // [PRIORITY_LOW, PRIORITY_NORMAL)   - for WAIT_HTTP_RESOURCE state
 // [PRIORITY_NORMAL, PRIORITY_HIGH)  - waiting for external event
-// [PRIORITY_HIGH, PRIORITY_URGENT)  - rapidly transitioning through states,
+// [PRIORITY_HIGH, PRIORITY_URGENT)  - External event delivered,
+//                                     rapidly transitioning through states,
 //                                     no waiting allowed
 //
+// By itself, the above work queue model would fail the concurrency
+// and liveness requirements of the interface.  A high priority
+// request could find itself on the head and stalled for external
+// reasons (see VWR-28996).  So a few additional constraints are
+// required to keep things running:
+// * Anything that can make forward progress must be kept at a
+//   higher priority than anything that can't.
+// * On completion of external events, the associated request
+//   needs to be elevated beyond the normal range to handle
+//   any data delivery and release any external resource.
+//
+// This effort is made to keep higher-priority entities moving
+// forward in their state machines at every possible step of
+// processing.  It's not entirely proven that this produces the
+// experiencial benefits promised.
 //
 
 //////////////////////////////////////////////////////////////////////////////
 
 // Tuning/Parameterization Constants
 
-static const S32 HTTP_REQUESTS_IN_QUEUE_HIGH_WATER = 40;
-static const S32 HTTP_REQUESTS_IN_QUEUE_LOW_WATER = 20;
+static const S32 HTTP_REQUESTS_IN_QUEUE_HIGH_WATER = 40;		// Maximum requests to have active in HTTP
+static const S32 HTTP_REQUESTS_IN_QUEUE_LOW_WATER = 20;			// Active level at which to refill
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -425,7 +503,6 @@ private:
 	BOOL mInLocalCache;
 	bool mCanUseHTTP ;
 	bool mCanUseNET ; //can get from asset server.
-	S32 mHTTPFailCount;
 	S32 mRetryAttempt;
 	S32 mActiveCount;
 	LLCore::HttpStatus mGetStatus;
@@ -745,7 +822,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mHaveAllData(FALSE),
 	  mInLocalCache(FALSE),
 	  mCanUseHTTP(true),
-	  mHTTPFailCount(0),
 	  mRetryAttempt(0),
 	  mActiveCount(0),
 	  mWorkMutex(NULL),
@@ -936,6 +1012,9 @@ void LLTextureFetchWorker::startWork(S32 param)
 // Threads:  Ttf
 bool LLTextureFetchWorker::doWork(S32 param)
 {
+	static const LLCore::HttpStatus http_not_found(HTTP_NOT_FOUND);
+	static const LLCore::HttpStatus http_service_unavail(HTTP_SERVICE_UNAVAILABLE);
+	
 	// Release waiters while we aren't holding the Mw lock.
 	mFetcher->releaseHttpWaiters();
 	
@@ -1286,7 +1365,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		{
 			llwarns << "HTTP GET request failed for " << mID << llendl;
 			resetFormattedData();
-			++mHTTPFailCount;
 			return true; // failed
 		}
 
@@ -1313,10 +1391,8 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			S32 cur_size = mFormattedImage.notNull() ? mFormattedImage->getDataSize() : 0;
 			if (mRequestedSize < 0)
 			{
-				S32 max_attempts;
-				if (mGetStatus == LLCore::HttpStatus(HTTP_NOT_FOUND, LLCore::HE_REPLY_ERROR))
+				if (http_not_found == mGetStatus)
 				{
-					mHTTPFailCount = max_attempts = 1; // Don't retry
 					llwarns << "Texture missing from server (404): " << mUrl << llendl;
 
 					// roll back to try UDP
@@ -1328,47 +1404,32 @@ bool LLTextureFetchWorker::doWork(S32 param)
 						return false;
 					}
 				}
-				else if (mGetStatus == LLCore::HttpStatus(HTTP_SERVICE_UNAVAILABLE, LLCore::HE_REPLY_ERROR))
+				else if (http_service_unavail == mGetStatus)
 				{
-					// *TODO: Should probably introduce a timer here to delay future HTTP requsts
-					// for a short time (~1s) to ease server load? Ideally the server would queue
-					// requests instead of returning 503... we already limit the number pending.
-					++mHTTPFailCount;
-					max_attempts = mHTTPFailCount+1; // Keep retrying
 					LL_INFOS_ONCE("Texture") << "Texture server busy (503): " << mUrl << LL_ENDL;
 				}
 				else
 				{
-					const S32 HTTP_MAX_RETRY_COUNT = 3;
-					max_attempts = HTTP_MAX_RETRY_COUNT + 1;
-					++mHTTPFailCount;
 					llinfos << "HTTP GET failed for: " << mUrl
 							<< " Status: " << mGetStatus.toHex()
 							<< " Reason: '" << mGetReason << "'"
-							<< " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts << llendl;
+						// *FIXME:  Add retry info for reporting purposes...
+						// << " Attempt:" << mHTTPFailCount+1 << "/" << max_attempts
+							<< llendl;
 				}
 
-				if (mHTTPFailCount >= max_attempts)
+				if (cur_size > 0)
 				{
-					if (cur_size > 0)
-					{
-						// Use available data
-						mLoadedDiscard = mFormattedImage->getDiscardLevel();
-						mState = DECODE_IMAGE;
-						return false; 
-					}
-					else
-					{
-						resetFormattedData();
-						mState = DONE;
-						return true; // failed
-					}
+					// Use available data
+					mLoadedDiscard = mFormattedImage->getDiscardLevel();
+					mState = DECODE_IMAGE;
+					return false; 
 				}
-				else
-				{
-					mState = SEND_HTTP_REQ;
-					return false; // retry
-				}
+
+				// Fail harder
+				resetFormattedData();
+				mState = DONE;
+				return true; // failed
 			}
 			
 			if (! mHttpBufferArray || ! mHttpBufferArray->size())
@@ -1649,7 +1710,7 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	}
 	else
 	{
-		static const LLCore::HttpStatus par_status(LLCore::HttpStatus(HTTP_PARTIAL_CONTENT, LLCore::HE_SUCCESS));
+		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
 
 		partial = (par_status == status);
 	}
