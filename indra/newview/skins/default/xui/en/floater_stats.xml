@@ -149,13 +149,52 @@
 				 show_per_sec="true"
 				 show_bar="false">
 			  </stat_bar>
+       <stat_bar
+				 name="object_cache_hits"
+				 label="Object Cache Hit Rate"
+				 stat="object_cache_hits"
+				 bar_min="0"
+				 bar_max="100"
+         unit_label="%"
+				 tick_spacing="20"
+				 label_spacing="20"
+				 show_history="true"
+         show_per_sec="false"
+				 show_bar="false">
+        </stat_bar>
 			</stat_view>
         <!--Texture Stats-->
 			<stat_view
 			   name="texture"
 			   label="Texture"
 			   show_label="true">
-			  <stat_bar
+        <stat_bar
+				 name="texture_cache_hits"
+				 label="Cache Hit Rate"
+				 stat="texture_cache_hits"
+				 bar_min="0.f"
+				 bar_max="100.f"
+         unit_label="%"
+				 tick_spacing="20"
+				 label_spacing="20"
+				 show_history="true"
+         show_per_sec="false"
+				 show_bar="false">
+        </stat_bar>
+        <stat_bar
+				 name="texture_cache_read_latency"
+				 label="Cache Read Latency"
+         unit_label="msec"
+				 stat="texture_cache_read_latency"
+				 bar_min="0.f"
+				 bar_max="1000.f"
+				 tick_spacing="100"
+				 label_spacing="200"
+				 show_history="true"
+         show_per_sec="false"
+				 show_bar="false">
+        </stat_bar>
+        <stat_bar
 				 name="numimagesstat"
 				 label="Count"
 				 stat="numimagesstat" 

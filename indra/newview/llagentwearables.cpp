@@ -817,7 +817,10 @@ void LLAgentWearables::popWearable(const LLWearableType::EType type, U32 index)
 	if (wearable)
 	{
 		mWearableDatas[type].erase(mWearableDatas[type].begin() + index);
+		if (isAgentAvatarValid())
+		{
 		gAgentAvatarp->wearableUpdated(wearable->getType(), TRUE);
+		}
 		wearable->setLabelUpdated();
 	}
 }
@@ -952,6 +955,8 @@ void LLAgentWearables::processAgentInitialWearablesUpdate(LLMessageSystem* mesgs
 
 	if (isAgentAvatarValid())
 	{
+		//gAgentAvatarp->clearPhases(); // reset phase timers for outfit loading.
+		gAgentAvatarp->getPhases().startPhase("process_initial_wearables_update");
 		gAgentAvatarp->outputRezTiming("Received initial wearables update");
 	}
 
@@ -1445,7 +1450,16 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	{
 		gAgentAvatarp->setCompositeUpdatesEnabled(TRUE);
 		gAgentAvatarp->updateVisualParams();
-		gAgentAvatarp->invalidateAll();
+
+		// If we have not yet declouded, we may want to use
+		// baked texture UUIDs sent from the first objectUpdate message
+		// don't overwrite these. If we have already declouded, we've saved
+		// these ids as the last known good textures and can invalidate without
+		// re-clouding.
+		if (!gAgentAvatarp->getIsCloud())
+		{
+			gAgentAvatarp->invalidateAll();
+		}
 	}
 
 	// Start rendering & update the server
@@ -1627,10 +1641,11 @@ void LLAgentWearables::queryWearableCache()
 	{
 		if (isAgentAvatarValid())
 		{
+			selfStartPhase("fetch_texture_cache_entries");
 			gAgentAvatarp->outputRezTiming("Fetching textures from cache");
 		}
 
-		llinfos << "Requesting texture cache entry for " << num_queries << " baked textures" << llendl;
+		LL_INFOS("Avatar") << gAgentAvatarp->avString() << "Requesting texture cache entry for " << num_queries << " baked textures" << LL_ENDL;
 		gMessageSystem->sendReliable(gAgent.getRegion()->getHost());
 		gAgentQueryManager.mNumPendingQueries++;
 		gAgentQueryManager.mWearablesCacheQueryID++;
@@ -2076,6 +2091,11 @@ boost::signals2::connection LLAgentWearables::addLoadingStartedCallback(loading_
 boost::signals2::connection LLAgentWearables::addLoadedCallback(loaded_callback_t cb)
 {
 	return mLoadedSignal.connect(cb);
+}
+
+bool LLAgentWearables::changeInProgress() const
+{
+	return mCOFChangeInProgress;
 }
 
 void LLAgentWearables::notifyLoadingStarted()

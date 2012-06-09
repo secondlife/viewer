@@ -35,7 +35,6 @@
 #include "llcallfloater.h"
 #include "llfasttimerview.h"
 #include "llfloaterabout.h"
-#include "llfloateranimpreview.h"
 #include "llfloaterauction.h"
 #include "llfloateravatar.h"
 #include "llfloateravatarpicker.h"
@@ -49,6 +48,7 @@
 #include "llfloaterbuyland.h"
 #include "llfloaterbulkpermission.h"
 #include "llfloaterbump.h"
+#include "llfloaterbvhpreview.h"
 #include "llfloatercamera.h"
 #include "llfloaterdeleteenvpreset.h"
 #include "llfloaterdisplayname.h"
@@ -103,6 +103,7 @@
 #include "llfloatertelehub.h"
 #include "llfloatertestinspectors.h"
 #include "llfloatertestlistview.h"
+#include "llfloatertexturefetchdebugger.h"
 #include "llfloatertools.h"
 #include "llfloatertos.h"
 #include "llfloatertopobjects.h"
@@ -227,6 +228,11 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);
 	
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
+
+	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
+	{
+		LLFloaterReg::add("tex_fetch_debugger", "floater_texture_fetch_debugger.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTextureFetchDebugger>);
+	}
 	LLFloaterReg::add("media_settings", "floater_media_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaSettings>);	
 	LLFloaterReg::add("message_critical", "floater_critical.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
 	LLFloaterReg::add("message_tos", "floater_tos.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTOS>);
@@ -294,7 +300,8 @@ void LLViewerFloaterReg::registerFloaters()
 
 	
 	LLFloaterUIPreviewUtil::registerFloater();
-	LLFloaterReg::add("upload_anim", "floater_animation_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
+	LLFloaterReg::add("upload_anim_bvh", "floater_animation_bvh_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBvhPreview>, "upload");
+	LLFloaterReg::add("upload_anim_anim", "floater_animation_anim_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAnimPreview>, "upload");
 	LLFloaterReg::add("upload_image", "floater_image_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterImagePreview>, "upload");
 	LLFloaterReg::add("upload_model", "floater_model_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelPreview>, "upload");
 	LLFloaterReg::add("upload_model_wizard", "floater_model_wizard.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterModelWizard>);

@@ -58,6 +58,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llxuiparser.h"
+#include "llviewerdisplay.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -502,6 +503,7 @@ LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 
 void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 {
+	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
 	if (image->isInImageList())
@@ -518,6 +520,7 @@ void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
 
 void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 {
+	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
 	if (!image->isInImageList())
@@ -597,6 +600,16 @@ static LLFastTimer::DeclareTimer FTM_IMAGE_STATS("Stats");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
+	static BOOL cleared = FALSE;
+	if(gTeleportDisplay && !cleared)
+	{
+		clearFetchingRequests();
+		gPipeline.clearRebuildGroups();
+		cleared = TRUE;
+		return;
+	}
+	cleared = FALSE;
+
 	LLAppViewer::getTextureFetch()->setTextureBandwidth(LLViewerStats::getInstance()->mTextureKBitStat.getMeanPerSec());
 
 	LLViewerStats::getInstance()->mNumImagesStat.addValue(sNumImages);
@@ -659,6 +672,23 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	}
 }
 
+void LLViewerTextureList::clearFetchingRequests()
+{
+	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
+	{
+		return;
+	}
+
+	LLAppViewer::getTextureFetch()->deleteAllRequests();
+
+	for (image_priority_list_t::iterator iter = mImageList.begin();
+		 iter != mImageList.end(); ++iter)
+	{
+		LLViewerFetchedTexture* imagep = *iter;
+		imagep->forceToDeleteRequest() ;
+	}
+}
+
 void LLViewerTextureList::updateImagesDecodePriorities()
 {
 	// Update the decode priority for N images each frame
@@ -675,6 +705,12 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			mLastUpdateUUID = iter->first;
 			LLPointer<LLViewerFetchedTexture> imagep = iter->second;
 			++iter; // safe to incrament now
+
+			if(imagep->isInDebug())
+			{
+				update_counter--;
+				continue; //is in debug, ignore.
+			}
 
 			//
 			// Flush formatted images using a lazy flush
@@ -729,7 +765,12 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 					imagep->setInactive() ;										
 				}
 			}
-			
+
+			if (!imagep->isInImageList())
+			{
+				continue;
+			}
+
 			imagep->processTextureStats();
 			F32 old_priority = imagep->getDecodePriority();
 			F32 old_priority_test = llmax(old_priority, 0.0f);
@@ -739,12 +780,33 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				removeImageFromList(imagep);
+				mImageList.erase(imagep) ;
 				imagep->setDecodePriority(decode_priority);
-				addImageToList(imagep);
+				mImageList.insert(imagep);
 			}
 			update_counter--;
 		}
+	}
+}
+
+void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level)
+{
+	if(!tex->setDebugFetching(debug_level))
+	{
+		return;
+	}
+
+	const F32 DEBUG_PRIORITY = 100000.f;
+	F32 old_priority_test = llmax(tex->getDecodePriority(), 0.0f);
+	F32 decode_priority_test = DEBUG_PRIORITY;
+	
+	// Ignore < 20% difference
+	if ((decode_priority_test < old_priority_test * .8f) ||
+		(decode_priority_test > old_priority_test * 1.25f))
+	{
+		removeImageFromList(tex);
+		tex->setDecodePriority(decode_priority_test);
+		addImageToList(tex);
 	}
 }
 
@@ -1030,7 +1092,6 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 {
 	raw_image->biasedScaleToPowerOfTwo(LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
 	LLPointer<LLImageJ2C> compressedImage = new LLImageJ2C();
-	compressedImage->setRate(0.f);
 	
 	if (gSavedSettings.getBOOL("LosslessJ2CUpload") &&
 		(raw_image->getWidth() * raw_image->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF))

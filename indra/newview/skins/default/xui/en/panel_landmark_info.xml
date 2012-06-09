@@ -271,7 +271,7 @@
                 <text_editor
                  bg_readonly_color="DkGray2"
                  follows="all"
-                 height="70"
+                 height="75"
                  layout="topleft"
                  left="0"
                  max_length="127"
@@ -288,7 +288,7 @@
                  layout="topleft"
                  left="0"
                  name="folder_label"
-                 top_pad="15"
+                 top_pad="10"
                  value="Landmark location:"
                  width="290" />
                 <combo_box

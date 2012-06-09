@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel name="item properties" title="アイテムのプロフィール">
 	<panel.string name="unknown">
 		（不明）
@@ -16,13 +16,13 @@
 		[year,datetime,local] [mth,datetime,local] [day,datetime,local] [wkday,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]
 	</panel.string>
 	<panel.string name="origin_inventory">
-		（持ち物）
+		（インベントリ）
 	</panel.string>
 	<panel.string name="origin_inworld">
 		（インワールド）
 	</panel.string>
 	<text name="title" value="アイテムのプロフィール"/>
-	<text name="origin" value="（持ち物）"/>
+	<text name="origin" value="（インベントリ）"/>
 	<scroll_container name="item_profile_scroll">
 		<panel label="" name="item_profile">
 			<text name="LabelItemNameTitle">

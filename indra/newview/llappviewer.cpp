@@ -93,6 +93,7 @@
 #include "llsecondlifeurls.h"
 #include "llupdaterservice.h"
 #include "llcallfloater.h"
+#include "llfloatertexturefetchdebugger.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -560,7 +561,6 @@ static void settings_modify()
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
-	gAuditTexture = gSavedSettings.getBOOL("AuditTexture");
 }
 
 class LLFastTimerLogThread : public LLThread
@@ -731,12 +731,12 @@ bool LLAppViewer::init()
 	
 	{
 		// Viewer metrics initialization
-		static LLCachedControl<bool> metrics_submode(gSavedSettings,
-													 "QAModeMetrics",
-													 false,
-													 "Enables QA features (logging, faster cycling) for metrics collector");
+		//static LLCachedControl<bool> metrics_submode(gSavedSettings,
+		//											 "QAModeMetrics",
+		//											 false,
+		//											 "Enables QA features (logging, faster cycling) for metrics collector");
 
-		if (metrics_submode)
+		if (gSavedSettings.getBOOL("QAModeMetrics"))
 		{
 			app_metrics_qa_mode = true;
 			app_metrics_interval = METRICS_INTERVAL_QA;
@@ -1219,7 +1219,7 @@ bool LLAppViewer::mainLoop()
 			if(mem_leak_instance)
 			{
 				mem_leak_instance->idle() ;				
-			}			
+			}							
 
             // canonical per-frame event
             mainloop.post(newFrame);
@@ -1340,13 +1340,11 @@ bool LLAppViewer::mainLoop()
 					ms_sleep(500);
 				}
 
-				static const F64 FRAME_SLOW_THRESHOLD = 0.5; //2 frames per seconds				
 				const F64 max_idle_time = llmin(.005*10.0*gFrameTimeSeconds, 0.005); // 5 ms a second
 				idleTimer.reset();
-				bool is_slow = (frameTimer.getElapsedTimeF64() > FRAME_SLOW_THRESHOLD) ;
 				S32 total_work_pending = 0;
 				S32 total_io_pending = 0;	
-				while(!is_slow)//do not unpause threads if the frame rates are very low.
+				while(1)
 				{
 					S32 work_pending = 0;
 					S32 io_pending = 0;
@@ -1405,6 +1403,17 @@ bool LLAppViewer::mainLoop()
 					LLVFSThread::sLocal->pause(); 
 					LLLFSThread::sLocal->pause(); 
 				}									
+
+				//texture fetching debugger
+				if(LLTextureFetchDebugger::isEnabled())
+				{
+					LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
+						LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
+					if(tex_fetch_debugger_instance)
+					{
+						tex_fetch_debugger_instance->idle() ;				
+					}
+				}
 
 				if ((LLStartUp::getStartupState() >= STATE_CLEANUP) &&
 					(frameTimer.getElapsedTimeF64() > FRAME_STALL_THRESHOLD))
@@ -1487,6 +1496,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	//ditch LLVOAvatarSelf instance
+	gAgentAvatarp = NULL;
+
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
 
@@ -1948,7 +1960,7 @@ bool LLAppViewer::initThreads()
 	static const bool enable_threads = true;
 #endif
 
-	LLImage::initClass();
+	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
 	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
@@ -4198,6 +4210,7 @@ void LLAppViewer::idle()
 			// The 5-second interval is nice for this purpose.  If the object debug
 			// bit moves or is disabled, please give this a suitable home.
 			LLViewerAssetStatsFF::record_fps_main(gFPSClamped);
+			LLViewerAssetStatsFF::record_avatar_stats();
 		}
 	}
 
@@ -4245,7 +4258,8 @@ void LLAppViewer::idle()
 		static LLTimer report_interval;
 
 		// *TODO:  Add configuration controls for this
-		if (report_interval.getElapsedTimeF32() >= app_metrics_interval)
+		F32 seconds = report_interval.getElapsedTimeF32();
+		if (seconds >= app_metrics_interval)
 		{
 			metricsSend(! gDisconnected);
 			report_interval.reset();
@@ -4253,6 +4267,10 @@ void LLAppViewer::idle()
 	}
 
 	if (gDisconnected)
+    {
+		return;
+    }
+	if (gTeleportDisplay)
     {
 		return;
     }

@@ -153,6 +153,13 @@
          function="BuyCurrency" />
       </menu_item_call>
       <menu_item_call
+         label="Merchant Outbox..."
+         name="MerchantOutbox">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="outbox" />
+      </menu_item_call>
+      <menu_item_call
            label="Account dashboard..."
            name="Manage My Account">
         <menu_item_call.on_click
@@ -1869,7 +1876,7 @@
                 <menu_item_check.on_click
                  function="Advanced.ToggleConsole"
                  parameter="texture" />
-            </menu_item_check>
+            </menu_item_check>            
             <menu_item_check
              label="Debug Console"
              name="Debug Console"
@@ -1890,28 +1897,6 @@
                function="Floater.Toggle"
                parameter="notifications_console" />
             </menu_item_call>
-            <menu_item_check
-               label="Texture Size Console"
-               name="Texture Size"
-               shortcut="control|shift|6">
-              <menu_item_check.on_check
-               function="Advanced.CheckConsole"
-               parameter="texture size" />
-              <menu_item_check.on_click
-               function="Advanced.ToggleConsole"
-               parameter="texture size" />
-            </menu_item_check>
-            <menu_item_check
-               label="Texture Category Console"
-               name="Texture Category"
-               shortcut="control|shift|7">
-              <menu_item_check.on_check
-               function="Advanced.CheckConsole"
-               parameter="texture category" />
-              <menu_item_check.on_click
-               function="Advanced.ToggleConsole"
-               parameter="texture category" />
-            </menu_item_check>
             <menu_item_check
              label="Fast Timers"
              name="Fast Timers"
@@ -1946,7 +1931,20 @@
                function="Advanced.ToggleConsole"
                parameter="scene view" />
             </menu_item_check>
-
+            <menu_item_call
+              enabled="false"
+              visible="false"
+              label="Texture Fetch Debug Console"
+              name="Texture Fetch Debug Console">
+              <menu_item_call.on_click
+                function="Floater.Show"
+                parameter="tex_fetch_debugger" />
+              <on_enable
+                function="Develop.SetTexFetchDebugger" />
+              <on_visible
+                function="Develop.SetTexFetchDebugger" />
+            </menu_item_call>
+          
             <menu_item_separator/>
 
             <menu_item_call
@@ -2432,6 +2430,52 @@
            function="Advanced.ToggleInfoDisplay"
            parameter="sculpt" />
 		</menu_item_check>
+       <menu
+         create_jump_keys="true"
+         label="Texture Density"
+         name="Texture Density"
+         tear_off="true">
+          <menu_item_check
+           label="None"
+           name="None">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="none" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="none" />
+          </menu_item_check>
+          <menu_item_check
+           label="Current"
+           name="Current">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="current" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="current" />
+          </menu_item_check>
+          <menu_item_check
+           label="Desired"
+           name="Desired">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="desired" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="desired" />
+          </menu_item_check>
+          <menu_item_check
+           label="Full"
+           name="Full">
+            <menu_item_check.on_check
+             function="Advanced.CheckDisplayTextureDensity"
+             parameter="full" />
+            <menu_item_check.on_click
+             function="Advanced.SetDisplayTextureDensity"
+             parameter="full" />
+          </menu_item_check>
+        </menu>
       </menu>
         <menu
          create_jump_keys="true"
@@ -2597,16 +2641,6 @@
                 <menu_item_check.on_click
                  function="ToggleControl"
                  parameter="TextureLoadFullRes" />
-            </menu_item_check>
-            <menu_item_check
-               label="Audit Textures"
-               name="Audit Textures">
-              <menu_item_check.on_check
-               function="CheckControl"
-               parameter="AuditTexture" />
-              <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="AuditTexture" />
             </menu_item_check>
             <menu_item_check
              label="Texture Atlas (experimental)"
@@ -3261,6 +3295,14 @@
             <menu_item_call.on_click
              function="Advanced.CompressImage" />
         </menu_item_call>
+
+      <menu_item_call
+         label="Enable Visual Leak Detector"
+         name="Enable Visual Leak Detector">
+        <menu_item_call.on_click
+           function="Advanced.ToggleVisualLeakDetector" />
+        </menu_item_call>
+      
         <menu_item_check
          label="Output Debug Minidump"
          name="Output Debug Minidump">
@@ -3287,6 +3329,7 @@
          name="Set Logging Level"
          tear_off="true">
           <menu_item_check
+            name="Debug"
             label="Debug">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3296,6 +3339,7 @@
              parameter="0" />
           </menu_item_check>
           <menu_item_check
+            name="Info"
             label="Info">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3305,6 +3349,7 @@
              parameter="1" />
           </menu_item_check>
           <menu_item_check
+            name="Warning"
             label="Warning">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3314,6 +3359,7 @@
              parameter="2" />
           </menu_item_check>
           <menu_item_check
+            name="Error"
             label="Error">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"
@@ -3323,6 +3369,7 @@
              parameter="3" />
           </menu_item_check>
           <menu_item_check
+            name="None"
             label="None">
             <menu_item_check.on_check
               function="Develop.CheckLoggingLevel"

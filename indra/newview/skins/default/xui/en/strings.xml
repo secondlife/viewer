@@ -369,6 +369,9 @@ Please try logging in again in a minute.</string>
 	<string name="anim_yes_happy">Yes (Happy)</string>
 	<string name="anim_yes_head">Yes</string>
 
+	<!-- build floater -->
+	<string name="multiple_textures">Multiple</string>
+
 	<!-- world map -->
 	<string name="texture_loading">Loading...</string>
 	<string name="worldmap_offline">Offline</string>
@@ -400,8 +403,9 @@ Please try logging in again in a minute.</string>
 	<string name="AddAndRemoveJoints">Add and remove joints with other objects</string>
 	<string name="ChangePermissions">Change its permissions</string>
 	<string name="TrackYourCamera">Track your camera</string>
-	<string name="ControlYourCamera">Control your camera</string>
-	<string name="NotConnected">Not Connected</string>
+  <string name="ControlYourCamera">Control your camera</string>
+  <string name="TeleportYourAgent">Teleport you</string>
+  <string name="NotConnected">Not Connected</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>
@@ -2037,7 +2041,7 @@ Returns a string with the requested data about the region
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
-	<string name="InventoryInboxNoItems">Certain items you receive, such as premium gifts, will appear here.  You may then drag them into your inventory.</string>
+	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
 	<string name="MarketplaceURL">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/</string>
 	<string name="MarketplaceURL_CreateStore">http://community.secondlife.com/t5/English-Knowledge-Base/Selling-in-the-Marketplace/ta-p/700193#Section_.4</string>
 	<string name="MarketplaceURL_Dashboard">https://marketplace.[MARKETPLACE_DOMAIN_NAME]/merchants/store/dashboard</string>
@@ -3238,6 +3242,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_to_label">To</string>
 	<string name="IM_moderator_label">(Moderator)</string>
 	<string name="Saved_message">(Saved [LONG_TIMESTAMP])</string>
+	<string name="IM_unblock_only_groups_friends">To see this message, you must uncheck &apos;Only friends and groups can call or IM me&apos; in Preferences/Privacy.</string>
 
 	<!-- voice calls -->
 	<string name="answered_call">Your call has been answered</string>

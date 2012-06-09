@@ -42,13 +42,16 @@
 	<string name="effect_Demon">
 		Démon
 	</string>
+	<string name="effect_Female Elf">
+		Femme elfe
+	</string>
 	<string name="effect_Flirty">
 		Flirt
 	</string>
 	<string name="effect_Foxy">
 		Séduction
 	</string>
-	<string name="effect_Halloween_2010_Bonus">
+	<string name="effect_Halloween 2010 Bonus">
 		Halloween_2010_Bonus
 	</string>
 	<string name="effect_Helium">
@@ -57,8 +60,17 @@
 	<string name="effect_Husky">
 		Rauque
 	</string>
+	<string name="effect_Husky Whisper">
+		Murmure rauque
+	</string>
 	<string name="effect_Intercom">
 		Interphone
+	</string>
+	<string name="effect_Julia">
+		Julia
+	</string>
+	<string name="effect_Lo Lilt">
+		Mélodieux
 	</string>
 	<string name="effect_Macho">
 		Macho
@@ -68,6 +80,9 @@
 	</string>
 	<string name="effect_Mini">
 		Mini
+	</string>
+	<string name="effect_Model">
+		Modèle
 	</string>
 	<string name="effect_Nano">
 		Nano
@@ -90,6 +105,9 @@
 	<string name="effect_Roxanne">
 		Roxanne
 	</string>
+	<string name="effect_Rumble">
+		Grondement
+	</string>
 	<string name="effect_Sabrina">
 		Sabrina
 	</string>
@@ -101,6 +119,9 @@
 	</string>
 	<string name="effect_Shorty">
 		Petite voix
+	</string>
+	<string name="effect_Smaller">
+		Plus faible
 	</string>
 	<string name="effect_Sneaky">
 		Sournois

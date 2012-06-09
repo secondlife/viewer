@@ -240,6 +240,7 @@ static bool mLoginStatePastUI = false;
 
 boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
+boost::scoped_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
 
 //
 // local function declaration
@@ -880,7 +881,6 @@ bool idle_startup()
 		LLFile::mkdir(gDirUtilp->getLindenUserDir());
 
 		// Set PerAccountSettingsFile to the default value.
-		std::string per_account_settings_file = LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount");
 		gSavedSettings.setString("PerAccountSettingsFile",
 			gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, 
 				LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount")));
@@ -2706,7 +2706,10 @@ void LLStartUp::setStartupState( EStartupState state )
 	LL_INFOS("AppInit") << "Startup state changing from " <<  
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
+
+	sPhases->stopPhase(getStartupStateString());
 	gStartupState = state;
+	sPhases->startPhase(getStartupStateString());
 	postStartupState();
 }
 

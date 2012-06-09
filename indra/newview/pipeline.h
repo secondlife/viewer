@@ -111,10 +111,13 @@ public:
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
+	void doResetVertexBuffers();
 	void resizeScreenTexture();
 	void releaseGLBuffers();
+	void releaseLUTBuffers();
 	void releaseScreenBuffers();
 	void createGLBuffers();
+	void createLUTBuffers();
 
 	void allocateScreenBuffer(U32 resX, U32 resY);
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);
@@ -219,6 +222,7 @@ public:
 	void updateGL();
 	void rebuildPriorityGroups();
 	void rebuildGroups();
+	void clearRebuildGroups();
 
 	//calculate pixel area of given box from vantage point of given camera
 	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
@@ -461,6 +465,7 @@ public:
 		RENDER_DEBUG_LOD_INFO	        = 0x04000000,
 		RENDER_DEBUG_RENDER_COMPLEXITY  = 0x08000000,
 		RENDER_DEBUG_ATTACHMENT_BYTES	= 0x10000000,
+		RENDER_DEBUG_TEXEL_DENSITY		= 0x20000000
 	};
 
 public:
@@ -652,6 +657,8 @@ protected:
 
 	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
+
+	bool mResetVertexBuffers; //if true, clear vertex buffers on next update
 
 	LLViewerObject::vobj_list_t		mCreateQ;
 		

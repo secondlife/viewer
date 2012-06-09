@@ -35,6 +35,8 @@
 #include "lloutputmonitorctrl.h"
 #include "llspeakers.h"
 
+class LLNearbyChatBarListener;
+
 class LLNearbyChatBar :	public LLFloater
 {
 public:
@@ -61,7 +63,7 @@ public:
 	static void sendChatFromViewer(const LLWString &wtext, EChatType type, BOOL animate);
 
 	void showHistory();
-	void enableTranslationCheckbox(BOOL enable);
+	void showTranslationCheckbox(BOOL show);
 	/*virtual*/void setMinimized(BOOL b);
 
 protected:
@@ -92,6 +94,8 @@ protected:
 	LLLocalSpeakerMgr*		mSpeakerMgr;
 
 	S32 mExpandedHeight;
+
+	boost::shared_ptr<LLNearbyChatBarListener> mListener;
 };
 
 #endif

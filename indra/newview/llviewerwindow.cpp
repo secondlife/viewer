@@ -27,9 +27,6 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerwindow.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
-#endif
 
 // system library includes
 #include <stdio.h>
@@ -49,7 +46,6 @@
 #include "llviewquery.h"
 #include "llxmltree.h"
 #include "llslurl.h"
-//#include "llviewercamera.h"
 #include "llrender.h"
 
 #include "llvoiceclient.h"	// for push-to-talk button handling
@@ -1540,14 +1536,14 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mResDirty(false),
 	mStatesDirty(false),
 	mCurrResolutionIndex(0),
+	mProgressView(NULL)
+{
 	// gKeyboard is still NULL, so it doesn't do LLWindowListener any good to
 	// pass its value right now. Instead, pass it a nullary function that
 	// will, when we later need it, return the value of gKeyboard.
 	// boost::lambda::var() constructs such a functor on the fly.
-	mWindowListener(new LLWindowListener(this, boost::lambda::var(gKeyboard))),
-	mViewerWindowListener(new LLViewerWindowListener(this)),
-	mProgressView(NULL)
-{
+	mWindowListener.reset(new LLWindowListener(this, boost::lambda::var(gKeyboard)));
+	mViewerWindowListener.reset(new LLViewerWindowListener(this));
 	LLNotificationChannel::buildChannel("VW_alerts", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alert"));
 	LLNotificationChannel::buildChannel("VW_alertmodal", "Visible", LLNotificationFilters::filterBy<std::string>(&LLNotification::getType, "alertmodal"));
 
@@ -2021,6 +2017,12 @@ void LLViewerWindow::shutdownGL()
 	gSky.cleanup();
 	stop_glerror();
 
+	llinfos << "Cleaning up pipeline" << llendl;
+	gPipeline.cleanup();
+	stop_glerror();
+
+	//MUST clean up pipeline before cleaning up wearables
+	llinfos << "Cleaning up wearables" << llendl;
 	LLWearableList::instance().cleanup() ;
 
 	gTextureList.shutdown();
@@ -2030,10 +2032,6 @@ void LLViewerWindow::shutdownGL()
 	stop_glerror();
 
 	LLWorldMapView::cleanupTextures();
-
-	llinfos << "Cleaning up pipeline" << llendl;
-	gPipeline.cleanup();
-	stop_glerror();
 
 	LLViewerTextureManager::cleanup() ;
 	LLImageGL::cleanupClass() ;
@@ -2163,13 +2161,19 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			// tell the OS specific window code about min window size
 			mWindow->setMinSize(min_window_width, min_window_height);
 
+			LLCoordScreen window_rect;
+			if (mWindow->getSize(&window_rect))
+			{
 			// Only save size if not maximized
-			gSavedSettings.setU32("WindowWidth", mWindowRectRaw.getWidth());
-			gSavedSettings.setU32("WindowHeight", mWindowRectRaw.getHeight());
+				gSavedSettings.setU32("WindowWidth", window_rect.mX);
+				gSavedSettings.setU32("WindowHeight", window_rect.mY);
+			}
 		}
 
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_WIDTH, (F64)width);
 		LLViewerStats::getInstance()->setStat(LLViewerStats::ST_WINDOW_HEIGHT, (F64)height);
+
+		LLLayoutStack::updateClass();
 	}
 }
 
@@ -2373,7 +2377,7 @@ void LLViewerWindow::draw()
 
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
-			LLUI::translate( (F32) screen_x, (F32) screen_y, 0.f);
+			LLUI::translate( (F32) screen_x, (F32) screen_y);
 			top_ctrl->draw();	
 			LLUI::popMatrix();
 		}
@@ -3179,12 +3183,6 @@ void LLViewerWindow::updateLayout()
 			gFloaterTools->setVisible(FALSE);
 		}
 		//gMenuBarView->setItemVisible("BuildTools", gFloaterTools->getVisible());
-	}
-
-	LLFloaterBuildOptions* build_options_floater = LLFloaterReg::findTypedInstance<LLFloaterBuildOptions>("build_options");
-	if (build_options_floater && build_options_floater->getVisible())
-	{
-		build_options_floater->updateGridMode();
 	}
 
 	// Always update console
@@ -4104,14 +4102,11 @@ void LLViewerWindow::resetSnapshotLoc()
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
 	LLCoordWindow size;
+	LLCoordWindow new_size(new_width, new_height);
 	gViewerWindow->getWindow()->getSize(&size);
-	if ( size.mX != new_width
-		|| size.mY != new_height)
+	if ( size != new_size )
 	{
-		LLCoordWindow new_size(new_width, new_height);
-		LLCoordScreen screen_size;
-		gViewerWindow->getWindow()->convertCoords(new_size, &screen_size);
-		gViewerWindow->getWindow()->setSize(screen_size);
+		gViewerWindow->getWindow()->setSize(new_size);
 	}
 }
 

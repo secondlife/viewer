@@ -117,7 +117,7 @@ public:
 	
 	// get ID of a channel
 	LLUUID	getChannelID() { return mID; }
-	LLHandle<LLScreenChannelBase> getHandle() { mRootHandle.bind(this); return mRootHandle; }
+	LLHandle<LLScreenChannelBase> getHandle() { return getDerivedHandle<LLScreenChannelBase>(); }
 
 protected:
 	void	updateRect();
@@ -130,7 +130,6 @@ protected:
 	bool		mDisplayToastsAlways;
 	// controls whether a channel shows toasts or not
 	bool		mShowToasts;
-	LLRootHandle<LLScreenChannelBase> mRootHandle;
 	// 
 	EToastAlignment		mToastAlignment;
 	EChannelAlignment	mChannelAlignment;
@@ -163,7 +162,7 @@ public:
 		virtual bool matches(const LLNotificationPtr) const = 0;
 	};
 
-	std::list<LLToast*> findToasts(const Matcher& matcher);
+	std::list<const LLToast*> findToasts(const Matcher& matcher);
 
 	// Channel's outfit-functions
 	// update channel's size and position in the World View
@@ -238,31 +237,39 @@ public:
 	reject_tost_signal_t mRejectToastSignal; boost::signals2::connection setOnRejectToastCallback(reject_tost_callback_t cb) { return mRejectToastSignal.connect(cb); }
 
 private:
-	struct ToastElem
+	class ToastElem
 	{
-		LLUUID		id;
-		LLToast*	toast;
-
-		ToastElem(LLToast::Params p) : id(p.notif_id)
+	public:
+		ToastElem(const LLHandle<LLToast>& toast) : mToast(toast)
 		{
-			toast = new LLToast(p);
 		}
 
-		ToastElem(const ToastElem& toast_elem)
+		ToastElem(const ToastElem& toast_elem) : mToast(toast_elem.mToast)
 		{
-			id = toast_elem.id;
-			toast = toast_elem.toast;
+		}
+
+		LLToast* getToast() const
+		{
+			return mToast.get();
+		}
+
+		LLUUID getID() const
+		{
+			return mToast.isDead() ? LLUUID() : mToast.get()->getNotificationID();
 		}
 
 		bool operator == (const LLUUID &id_op) const
 		{
-			return (id == id_op);
+			return (getID() == id_op);
 		}
 
 		bool operator == (LLPanel* panel_op) const
 		{
-			return (toast == panel_op);
+			return (mToast.get() == panel_op);
 		}
+
+	private:
+		LLHandle<LLToast>	mToast;
 	};
 
 	// Channel's handlers

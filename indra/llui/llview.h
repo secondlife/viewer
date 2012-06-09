@@ -370,8 +370,8 @@ public:
 	virtual void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	virtual void	translate( S32 x, S32 y );
 	void			setOrigin( S32 x, S32 y )	{ mRect.translate( x - mRect.mLeft, y - mRect.mBottom ); }
-	BOOL			translateIntoRect( const LLRect& constraint, BOOL allow_partial_outside );
-	BOOL			translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, BOOL allow_partial_outside );
+	BOOL			translateIntoRect( const LLRect& constraint, S32 min_overlap_pixels = S32_MAX);
+	BOOL			translateIntoRectWithExclusion( const LLRect& inside, const LLRect& exclude, S32 min_overlap_pixels = S32_MAX);
 	void			centerWithin(const LLRect& bounds);
 
 	void	setShape(const LLRect& new_rect, bool by_user = false);
@@ -505,7 +505,7 @@ public:
 
 	// Set up params after XML load before calling new(),
 	// usually to adjust layout.
-	static void applyXUILayout(Params& p, LLView* parent);
+	static void applyXUILayout(Params& p, LLView* parent, LLRect layout_rect = LLRect());
 
 	// For re-export of floaters and panels, convert the coordinate system
 	// to be top-left based.

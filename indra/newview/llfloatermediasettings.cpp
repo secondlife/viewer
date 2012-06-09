@@ -312,3 +312,9 @@ bool LLFloaterMediaSettings::haveValuesChanged() const
 	return values_changed;
 }
 
+bool LLFloaterMediaSettings::instanceExists()
+{
+	return LLFloaterReg::findTypedInstance<LLFloaterMediaSettings>("media_settings");
+}
+
+

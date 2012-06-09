@@ -41,7 +41,6 @@ vec3 atmosAffectDirectionalLight(float lightIntensity);
 VARYING vec3 vary_position;
 VARYING vec3 vary_ambient;
 VARYING vec3 vary_directional;
-VARYING vec3 vary_normal;
 VARYING vec3 vary_fragcoord;
 VARYING vec3 vary_pointlight_col;
 VARYING vec4 vertex_color;
@@ -54,6 +53,12 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8];
 uniform vec3 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
+
+float calcDirectionalLight(vec3 n, vec3 l)
+{
+        float a = max(dot(n,l),0.0);
+        return a;
+}
 
 float calcPointLightOrSpotLight(vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight)
 {
@@ -104,8 +109,7 @@ void main()
 	gl_Position = frag_pos;
 	
 	vary_position = pos.xyz;
-	vary_normal = norm;	
-	
+		
 	calcAtmospherics(pos.xyz);
 
 	vec4 col = vec4(0.0, 0.0, 0.0, diffuse_color.a);

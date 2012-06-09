@@ -8,21 +8,7 @@
  help_topic="floater_test_textbox"
  translate="false"
  width="800">
-    <text
-     type="string"
-     length="1"
-     height="90"
-     layout="topleft"
-     left="10"
-     top_pad="30"
-     width="300">
-        First line of multiple lines
-Second line of multiple lines
-Third line of multiple lines
-Fourth line of multiple lines
-Fifth line of multiple lines
-    </text>
-  <text
+ <text
     clip_partial="true"
     top_pad="10"
     left="10"

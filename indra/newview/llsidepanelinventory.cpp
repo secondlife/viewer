@@ -78,7 +78,6 @@ static const char * const MARKETPLACE_INBOX_PANEL = "marketplace_inbox";
 //
 // Helpers
 //
-
 class LLInboxAddedObserver : public LLInventoryCategoryAddedObserver
 {
 public:
@@ -130,6 +129,11 @@ LLSidepanelInventory::LLSidepanelInventory()
 
 LLSidepanelInventory::~LLSidepanelInventory()
 {
+	LLLayoutPanel* inbox_layout_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+
+	// Save the InventoryMainPanelHeight in settings per account
+	gSavedPerAccountSettings.setS32("InventoryInboxHeight", inbox_layout_panel->getTargetDim());
+
 	if (mCategoriesObserver && gInventory.containsObserver(mCategoriesObserver))
 	{
 		gInventory.removeObserver(mCategoriesObserver);
@@ -217,14 +221,21 @@ BOOL LLSidepanelInventory::postBuild()
 	{
 		LLLayoutStack* inv_stack = getChild<LLLayoutStack>(INVENTORY_LAYOUT_STACK_NAME);
 
-		// Collapse inbox panel
-		inv_stack->collapsePanel(getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME), true);
-		
 		// Set up button states and callbacks
 		LLButton * inbox_button = getChild<LLButton>(INBOX_BUTTON_NAME);
 
-		inbox_button->setToggleState(false);
 		inbox_button->setCommitCallback(boost::bind(&LLSidepanelInventory::onToggleInboxBtn, this));
+
+		// Get the previous inbox state from "InventoryInboxToggleState" setting.
+		bool is_inbox_collapsed = !inbox_button->getToggleState();
+
+		// Restore the collapsed inbox panel state
+		LLLayoutPanel* inbox_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+		inv_stack->collapsePanel(inbox_panel, is_inbox_collapsed);
+		if (!is_inbox_collapsed)
+		{
+			inbox_panel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
+		}
 
 		// Set the inbox visible based on debug settings (final setting comes from http request below)
 		enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
@@ -368,10 +379,19 @@ void LLSidepanelInventory::onToggleInboxBtn()
 	// Expand/collapse the indicated panel
 	inv_stack->collapsePanel(inboxPanel, !inbox_expanded);
 
-	if (inbox_expanded && inboxPanel->isInVisibleChain())
+	if (inbox_expanded)
 	{
-		gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+		inboxPanel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
+		if (inboxPanel->isInVisibleChain())
+		{
+			gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+		}
 	}
+	else
+	{
+		gSavedPerAccountSettings.setS32("InventoryInboxHeight", inboxPanel->getTargetDim());
+	}
+
 }
 
 void LLSidepanelInventory::onOpen(const LLSD& key)

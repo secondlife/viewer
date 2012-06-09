@@ -28,6 +28,8 @@
 #ifndef LL_LLNOTIFICATIONMANAGER_H
 #define LL_LLNOTIFICATIONMANAGER_H
 
+#include "llevents.h"
+
 #include "lluictrl.h"
 #include "llnotificationhandler.h"
 
@@ -47,6 +49,7 @@ class LLToast;
 class LLNotificationManager : public LLSingleton<LLNotificationManager>
 {
 	typedef std::pair<std::string, LLEventHandler*> eventhandlers;
+	typedef std::pair<const std::string, LLBoundListener> listener_pair_t;
 public:	
 	LLNotificationManager();	
 	virtual ~LLNotificationManager();
@@ -70,6 +73,8 @@ private:
 	//TODO (*)
 	std::map<std::string, boost::shared_ptr<LLEventHandler> > mNotifyHandlers;
 	// cruft std::map<std::string, LLChatHandler*> mChatHandlers;
+
+	std::map<std::string, LLBoundListener> mChannelListeners;
 };
 
 }

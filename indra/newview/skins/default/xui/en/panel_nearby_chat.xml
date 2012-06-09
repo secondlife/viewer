@@ -1,35 +1,63 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel
- height="300"
  follows="all"
+ height="300"
+ help_topic="nearby_chat"
  layout="topleft"
  name="nearby_chat"
- help_topic="nearby_chat"
  width="320">
-            <check_box
-             bottom_delta="36"
-             control_name="TranslateChat"
-             enabled="true"
-             height="16"
-             label="Translate chat"
-             layout="topleft"
-             left="5"
-             name="translate_chat_checkbox"
-             width="230" />
-  <chat_history
-    parse_urls="true"
-    bg_readonly_color="ChatHistoryBgColor"
-    bg_writeable_color="ChatHistoryBgColor"
-    follows="all"
-    left="5"
-    top_delta="17"
-    layout="topleft"
-    height="260"
-    name="chat_history"
-    parse_highlights="true"
-    text_color="ChatHistoryTextColor"
-    text_readonly_color="ChatHistoryTextColor"
-    right_widget_pad="5"
-    left_widget_pad="0"
-    width="315" />
+  <layout_stack
+   follows="all"
+   height="295"
+   layout="topleft"
+   left="0"
+   name="stack"
+   top="5"
+   orientation="vertical"
+   width="320">
+    <layout_panel
+     auto_resize="false"
+     height="26"
+     layout="topleft"
+     left_delta="0"
+     name="translate_chat_checkbox_lp"
+     top_delta="0"
+     visible="true"
+     width="313">
+      <check_box
+       top="10"
+       control_name="TranslateChat"
+       enabled="true"
+       height="16"
+       label="Translate chat"
+       layout="topleft"
+       left="5"
+       name="translate_chat_checkbox"
+       width="300" />
+    </layout_panel>
+    <layout_panel
+     auto_resize="true"
+     height="277"
+     left_delta="0"
+     layout="topleft"
+     name="chat_history_lp"
+     width="318">
+      <chat_history
+       bg_readonly_color="ChatHistoryBgColor"
+       bg_writeable_color="ChatHistoryBgColor"
+       follows="all"
+       layout="topleft"
+       left="5"
+       left_widget_pad="0"
+       height="272"
+       name="chat_history"
+       parse_highlights="true"
+       parse_urls="true"
+       right_widget_pad="5"
+       text_color="ChatHistoryTextColor"
+       text_readonly_color="ChatHistoryTextColor"
+       top="0"
+       width="313" />
+    </layout_panel>
+  </layout_stack>
 </panel>

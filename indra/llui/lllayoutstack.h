@@ -72,7 +72,7 @@ public:
 	/*virtual*/ void draw();
 	/*virtual*/ void removeChild(LLView*);
 	/*virtual*/ BOOL postBuild();
-	/*virtual*/ bool addChild(LLView* child, S32 tab_group = 0);
+	/*virtual*/ bool addChild(LLView* child, S32 tab_groupdatefractuiona = 0);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
 
@@ -112,6 +112,7 @@ private:
 	LLLayoutPanel* findEmbeddedPanel(LLPanel* panelp) const;
 	LLLayoutPanel* findEmbeddedPanelByName(const std::string& name) const;
 	void updateFractionalSizes();
+	void normalizeFractionalSizes();
 	void updatePanelRect( LLLayoutPanel* param1, const LLRect& new_rect );
 
 	S32 mPanelSpacing;
@@ -154,10 +155,12 @@ public:
 	void setVisible(BOOL visible);
 
 	S32 getLayoutDim() const;
-	S32 getMinDim() const { return (mMinDim >= 0 || mAutoResize) ? llmax(0, mMinDim) : getLayoutDim(); }
+	S32 getTargetDim() const;
+	void setTargetDim(S32 value);
+	S32 getMinDim() const { return llmax(0, mMinDim); }
 	void setMinDim(S32 value) { mMinDim = value; }
 
-	S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : mMinDim; }
+	S32 getExpandedMinDim() const { return mExpandedMinDim >= 0 ? mExpandedMinDim : getMinDim(); }
 	void setExpandedMinDim(S32 value) { mExpandedMinDim = value; }
 	
 	S32 getRelevantMinDim() const

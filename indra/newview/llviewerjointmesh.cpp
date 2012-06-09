@@ -63,7 +63,6 @@ extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
 #endif
 
-static LLPointer<LLVertexBuffer> sRenderBuffer = NULL;
 static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
 							   LLVertexBuffer::MAP_NORMAL |
 							   LLVertexBuffer::MAP_TEXCOORD0;
@@ -577,7 +576,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		{
 			old_mode = mTexture->getAddressMode();
 		}
-		gGL.getTexUnit(diffuse_channel)->bind(mTexture.get());
 		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
 		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}

@@ -13,6 +13,7 @@
     </floater.string>
     <check_box
      bottom="38"
+     height="10"
      control_name="JoystickEnabled"
      halign="left"
      label="Enable Joystick:"
@@ -28,6 +29,7 @@
      width="380" />
     <spinner
      bottom="48"
+     height="10"
      control_name="JoystickAxis1"
      decimal_digits="0"
      increment="1"
@@ -41,6 +43,7 @@
      width="140" />
     <spinner
      bottom="48"
+     height="10"     
      control_name="JoystickAxis2"
      decimal_digits="0"
      increment="1"
@@ -54,6 +57,7 @@
      width="140" />
     <spinner
      bottom="48"
+     height="10"     
      control_name="JoystickAxis0"
      decimal_digits="0"
      increment="1"
@@ -67,6 +71,7 @@
      width="140" />
     <spinner
      bottom="68"
+     height="10"     
      control_name="JoystickAxis4"
      decimal_digits="0"
      increment="1"
@@ -80,6 +85,7 @@
      width="140" />
     <spinner
      bottom="68"
+     height="10"     
      control_name="JoystickAxis5"
      decimal_digits="0"
      increment="1"
@@ -93,6 +99,7 @@
      width="140" />
     <spinner
      bottom="68"
+     height="10"     
      control_name="JoystickAxis3"
      decimal_digits="0"
      increment="1"
@@ -106,6 +113,7 @@
      width="140" />
     <spinner
      bottom="88"
+     height="10"     
      control_name="JoystickAxis6"
      decimal_digits="0"
      increment="1"
@@ -119,6 +127,7 @@
      width="140" />
     <check_box
      bottom_delta="18"
+     height="10"
      control_name="ZoomDirect"
      label="Direct Zoom"
      layout="topleft"
@@ -127,6 +136,7 @@
      width="60" />
     <check_box
      bottom_delta="0"
+     height="10"     
      control_name="Cursor3D"
      label="3D Cursor"
      layout="topleft"
@@ -135,6 +145,7 @@
      width="60" />
     <check_box
      bottom_delta="0"
+     height="10"     
      control_name="AutoLeveling"
      label="Auto Level"
      layout="topleft"
@@ -157,6 +168,7 @@
     </text>
     <check_box
      bottom="127"
+     height="10"     
      control_name="JoystickAvatarEnabled"
      halign="center"
      label="Avatar"
@@ -166,6 +178,7 @@
      width="60" />
     <check_box
      bottom="127"
+     height="10"     
      control_name="JoystickBuildEnabled"
      halign="center"
      label="Build"
@@ -175,6 +188,7 @@
      width="60" />
     <check_box
      bottom="127"
+     height="10"     
      control_name="JoystickFlycamEnabled"
      halign="center"
      label="Flycam"
@@ -257,6 +271,7 @@
     </text>
     <spinner
      bottom="144"
+     height="10"     
      control_name="AvatarAxisScale1"
      decimal_digits="2"
      label_width="0"
@@ -268,6 +283,7 @@
      width="56" />
     <spinner
      bottom="144"
+     height="10"     
      control_name="BuildAxisScale1"
      decimal_digits="2"
      label_width="0"
@@ -279,6 +295,7 @@
      width="56" />
     <spinner
      bottom="144"
+     height="10"     
      control_name="FlycamAxisScale1"
      decimal_digits="2"
      label_width="0"
@@ -301,6 +318,7 @@
     </text>
     <spinner
      bottom="164"
+     height="10"     
      control_name="AvatarAxisScale2"
      decimal_digits="2"
      label_width="0"
@@ -312,6 +330,7 @@
      width="56" />
     <spinner
      bottom="164"
+     height="10"     
      control_name="BuildAxisScale2"
      decimal_digits="2"
      label_width="0"
@@ -323,6 +342,7 @@
      width="56" />
     <spinner
      bottom="164"
+     height="10"     
      control_name="FlycamAxisScale2"
      decimal_digits="2"
      label_width="0"
@@ -345,6 +365,7 @@
     </text>
     <spinner
      bottom="184"
+     height="10"     
      control_name="AvatarAxisScale0"
      decimal_digits="2"
      label_width="0"
@@ -356,6 +377,7 @@
      width="56" />
     <spinner
      bottom="184"
+     height="10"     
      control_name="BuildAxisScale0"
      decimal_digits="2"
      label_width="0"
@@ -367,6 +389,7 @@
      width="56" />
     <spinner
      bottom="184"
+     height="10"     
      control_name="FlycamAxisScale0"
      decimal_digits="2"
      label_width="0"
@@ -389,6 +412,7 @@
     </text>
     <spinner
      bottom="204"
+     height="10"     
      control_name="AvatarAxisScale4"
      decimal_digits="2"
      label_width="0"
@@ -400,6 +424,7 @@
      width="56" />
     <spinner
      bottom="204"
+     height="10"     
      control_name="BuildAxisScale4"
      decimal_digits="2"
      label_width="0"
@@ -411,6 +436,7 @@
      width="56" />
     <spinner
      bottom="204"
+     height="10"     
      control_name="FlycamAxisScale4"
      decimal_digits="2"
      label_width="0"
@@ -433,6 +459,7 @@
     </text>
     <spinner
      bottom="224"
+     height="10"
      control_name="AvatarAxisScale5"
      decimal_digits="2"
      label_width="0"
@@ -444,6 +471,7 @@
      width="56" />
     <spinner
      bottom="224"
+     height="10"
      control_name="BuildAxisScale5"
      decimal_digits="2"
      label_width="0"
@@ -455,6 +483,7 @@
      width="56" />
     <spinner
      bottom="224"
+     height="10"
      control_name="FlycamAxisScale5"
      decimal_digits="2"
      label_width="0"
@@ -477,6 +506,7 @@
     </text>
     <spinner
      bottom="244"
+     height="10"
      control_name="BuildAxisScale3"
      decimal_digits="2"
      label_width="0"
@@ -488,6 +518,7 @@
      width="56" />
     <spinner
      bottom="244"
+     height="10"
      control_name="FlycamAxisScale3"
      decimal_digits="2"
      label_width="0"
@@ -510,6 +541,7 @@
     </text>
     <spinner
      bottom="274"
+     height="10"
      control_name="AvatarAxisDeadZone1"
      decimal_digits="2"
      increment="0.01"
@@ -520,6 +552,7 @@
      width="56" />
     <spinner
      bottom="274"
+     height="10"
      control_name="BuildAxisDeadZone1"
      decimal_digits="2"
      increment="0.01"
@@ -530,6 +563,7 @@
      width="56" />
     <spinner
      bottom="274"
+     height="10"
      control_name="FlycamAxisDeadZone1"
      decimal_digits="2"
      increment="0.01"
@@ -551,6 +585,7 @@
     </text>
     <spinner
      bottom="294"
+     height="10"     
      control_name="AvatarAxisDeadZone2"
      decimal_digits="2"
      increment="0.01"
@@ -561,6 +596,7 @@
      width="56" />
     <spinner
      bottom="294"
+     height="10"
      control_name="BuildAxisDeadZone2"
      decimal_digits="2"
      increment="0.01"
@@ -571,6 +607,7 @@
      width="56" />
     <spinner
      bottom="294"
+     height="10"
      control_name="FlycamAxisDeadZone2"
      decimal_digits="2"
      increment="0.01"
@@ -592,6 +629,7 @@
     </text>
     <spinner
      bottom="314"
+     height="10"
      control_name="AvatarAxisDeadZone0"
      decimal_digits="2"
      increment="0.01"
@@ -602,6 +640,7 @@
      width="56" />
     <spinner
      bottom="314"
+     height="10"
      control_name="BuildAxisDeadZone0"
      decimal_digits="2"
      increment="0.01"
@@ -612,6 +651,7 @@
      width="56" />
     <spinner
      bottom="314"
+     height="10"
      control_name="FlycamAxisDeadZone0"
      decimal_digits="2"
      increment="0.01"
@@ -633,6 +673,7 @@
     </text>
     <spinner
      bottom="334"
+     height="10"
      control_name="AvatarAxisDeadZone4"
      decimal_digits="2"
      increment="0.01"
@@ -643,6 +684,7 @@
      width="56" />
     <spinner
      bottom="334"
+     height="10"
      control_name="BuildAxisDeadZone4"
      decimal_digits="2"
      increment="0.01"
@@ -653,6 +695,7 @@
      width="56" />
     <spinner
      bottom="334"
+     height="10"
      control_name="FlycamAxisDeadZone4"
      decimal_digits="2"
      increment="0.01"
@@ -674,6 +717,7 @@
     </text>
     <spinner
      bottom="354"
+     height="10"
      control_name="AvatarAxisDeadZone5"
      decimal_digits="2"
      increment="0.01"
@@ -684,6 +728,7 @@
      width="56" />
     <spinner
      bottom="354"
+     height="10"
      control_name="BuildAxisDeadZone5"
      decimal_digits="2"
      increment="0.01"
@@ -694,6 +739,7 @@
      width="56" />
     <spinner
      bottom="354"
+     height="10"
      control_name="FlycamAxisDeadZone5"
      decimal_digits="2"
      increment="0.01"
@@ -715,6 +761,7 @@
     </text>
     <spinner
      bottom="374"
+     height="10"
      control_name="BuildAxisDeadZone3"
      decimal_digits="2"
      increment="0.01"
@@ -725,6 +772,7 @@
      width="56" />
     <spinner
      bottom="374"
+     height="10"
      control_name="FlycamAxisDeadZone3"
      decimal_digits="2"
      increment="0.01"
@@ -802,6 +850,7 @@
     </text>
     <spinner
      bottom="430"
+     height="10"
      control_name="FlycamAxisScale6"
      decimal_digits="2"
      label_width="0"
@@ -824,6 +873,7 @@
     </text>
     <spinner
      bottom="450"
+     height="10"
      control_name="FlycamAxisDeadZone6"
      decimal_digits="2"
      increment="0.01"

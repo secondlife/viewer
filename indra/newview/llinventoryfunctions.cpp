@@ -54,7 +54,6 @@
 #include "lliconctrl.h"
 #include "llimview.h"
 #include "llinventorybridge.h"
-#include "llinventoryclipboard.h"
 #include "llinventorymodel.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
@@ -109,91 +108,6 @@ void append_path(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
-void change_item_parent(LLInventoryModel* model,
-						LLViewerInventoryItem* item,
-						const LLUUID& new_parent_id,
-						BOOL restamp)
-{
-	if (item->getParentUUID() != new_parent_id)
-	{
-		LLInventoryModel::update_list_t update;
-		LLInventoryModel::LLCategoryUpdate old_folder(item->getParentUUID(),-1);
-		update.push_back(old_folder);
-		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-		update.push_back(new_folder);
-		gInventory.accountForUpdate(update);
-
-		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
-		new_item->setParent(new_parent_id);
-		new_item->updateParentOnServer(restamp);
-		model->updateItem(new_item);
-		model->notifyObservers();
-	}
-}
-
-void change_category_parent(LLInventoryModel* model,
-	LLViewerInventoryCategory* cat,
-	const LLUUID& new_parent_id,
-	BOOL restamp)
-{
-	if (!model || !cat)
-	{
-		return;
-	}
-
-	// Can't move a folder into a child of itself.
-	if (model->isObjectDescendentOf(new_parent_id, cat->getUUID()))
-	{
-		return;
-	}
-
-	LLInventoryModel::update_list_t update;
-	LLInventoryModel::LLCategoryUpdate old_folder(cat->getParentUUID(), -1);
-	update.push_back(old_folder);
-	LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
-	update.push_back(new_folder);
-	model->accountForUpdate(update);
-
-	LLPointer<LLViewerInventoryCategory> new_cat = new LLViewerInventoryCategory(cat);
-	new_cat->setParent(new_parent_id);
-	new_cat->updateParentOnServer(restamp);
-	model->updateCategory(new_cat);
-	model->notifyObservers();
-}
-
-void remove_category(LLInventoryModel* model, const LLUUID& cat_id)
-{
-	if (!model || !get_is_category_removable(model, cat_id))
-	{
-		return;
-	}
-
-	// Look for any gestures and deactivate them
-	LLInventoryModel::cat_array_t	descendent_categories;
-	LLInventoryModel::item_array_t	descendent_items;
-	gInventory.collectDescendents(cat_id, descendent_categories, descendent_items, FALSE);
-
-	for (LLInventoryModel::item_array_t::const_iterator iter = descendent_items.begin();
-		 iter != descendent_items.end();
-		 ++iter)
-	{
-		const LLViewerInventoryItem* item = (*iter);
-		const LLUUID& item_id = item->getUUID();
-		if (item->getType() == LLAssetType::AT_GESTURE
-			&& LLGestureMgr::instance().isGestureActive(item_id))
-		{
-			LLGestureMgr::instance().deactivateGesture(item_id);
-		}
-	}
-
-	LLViewerInventoryCategory* cat = gInventory.getCategory(cat_id);
-	if (cat)
-	{
-		const LLUUID trash_id = model->findCategoryUUIDForType(LLFolderType::FT_TRASH);
-		change_category_parent(model, cat, trash_id, TRUE);
-	}
-}
-
 void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::string& new_name)
 {
 	LLViewerInventoryCategory* cat;
@@ -212,6 +126,49 @@ void rename_category(LLInventoryModel* model, const LLUUID& cat_id, const std::s
 	model->updateCategory(new_cat);
 
 	model->notifyObservers();
+}
+
+void copy_inventory_category(LLInventoryModel* model,
+							 LLViewerInventoryCategory* cat,
+							 const LLUUID& parent_id,
+							 const LLUUID& root_copy_id)
+{
+	// Create the initial folder
+	LLUUID new_cat_uuid = gInventory.createNewCategory(parent_id, LLFolderType::FT_NONE, cat->getName());
+	model->notifyObservers();
+	
+	// We need to exclude the initial root of the copy to avoid recursively copying the copy, etc...
+	LLUUID root_id = (root_copy_id.isNull() ? new_cat_uuid : root_copy_id);
+
+	// Get the content of the folder
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
+
+	// Copy all the items
+	LLInventoryModel::item_array_t item_array_copy = *item_array;
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	{
+		LLInventoryItem* item = *iter;
+		copy_inventory_item(
+							gAgent.getID(),
+							item->getPermissions().getOwner(),
+							item->getUUID(),
+							new_cat_uuid,
+							std::string(),
+							LLPointer<LLInventoryCallback>(NULL));
+	}
+	
+	// Copy all the folders
+	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	{
+		LLViewerInventoryCategory* category = *iter;
+		if (category->getUUID() != root_id)
+		{
+			copy_inventory_category(model, category, new_cat_uuid, root_id);
+		}
+	}
 }
 
 class LLInventoryCollectAllItems : public LLInventoryCollectFunctor
@@ -568,8 +525,7 @@ void move_to_outbox_cb_action(const LLSD& payload)
 
 		LLUUID parent = viitem->getParentUUID();
 
-		change_item_parent(
-			&gInventory,
+		gInventory.changeItemParent(
 			viitem,
 			dest_folder_id,
 			false);
@@ -596,7 +552,7 @@ void move_to_outbox_cb_action(const LLSD& payload)
 
 				if (cat_array->empty() && item_array->empty())
 				{
-					remove_category(&gInventory, parent);
+					gInventory.removeCategory(parent);
 				}
 
 				if (parent == top_level_folder)
@@ -670,7 +626,7 @@ void move_item_within_outbox(LLInventoryItem* inv_item, LLUUID dest_folder, S32 
 	
 	LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) inv_item;
 
-	change_item_parent(&gInventory,
+	gInventory.changeItemParent(
 					   viewer_inv_item,
 					   dest_folder,
 					   false);
@@ -992,20 +948,24 @@ void LLSaveFolderState::setApply(BOOL apply)
 void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 {
 	LLMemType mt(LLMemType::MTYPE_INVENTORY_DO_FOLDER);
+	LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
+	if(!bridge) return;
+	
 	if(mApply)
 	{
 		// we're applying the open state
-		LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
-		if(!bridge) return;
 		LLUUID id(bridge->getUUID());
 		if(mOpenFolders.find(id) != mOpenFolders.end())
 		{
-			folder->setOpen(TRUE);
+			if (!folder->isOpen())
+			{
+				folder->setOpen(TRUE);
+			}
 		}
 		else
 		{
 			// keep selected filter in its current state, this is less jarring to user
-			if (!folder->isSelected())
+			if (!folder->isSelected() && folder->isOpen())
 			{
 				folder->setOpen(FALSE);
 			}
@@ -1016,8 +976,6 @@ void LLSaveFolderState::doFolder(LLFolderViewFolder* folder)
 		// we're recording state at this point
 		if(folder->isOpen())
 		{
-			LLInvFVBridge* bridge = (LLInvFVBridge*)folder->getListener();
-			if(!bridge) return;
 			mOpenFolders.insert(bridge->getUUID());
 		}
 	}
@@ -1053,7 +1011,6 @@ void LLSelectFirstFilteredItem::doItem(LLFolderViewItem *item)
 		{
 			item->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 		}
-		item->getRoot()->scrollToShowSelection();
 		mItemSelected = TRUE;
 	}
 }
@@ -1067,7 +1024,6 @@ void LLSelectFirstFilteredItem::doFolder(LLFolderViewFolder* folder)
 		{
 			folder->getParentFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_UP);
 		}
-		folder->getRoot()->scrollToShowSelection();
 		mItemSelected = TRUE;
 	}
 }

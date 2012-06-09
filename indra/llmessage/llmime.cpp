@@ -388,7 +388,7 @@ bool LLMimeParser::Impl::parseHeaders(
 		// not to read past limit when we get() the newline.
 		S32 max_get = llmin((S32)LINE_BUFFER_LENGTH, limit - mScanCount - 1);
 		istr.getline(mBuffer, max_get, '\r');
-		mScanCount += istr.gcount();
+		mScanCount += (S32)istr.gcount();
 		int c = istr.get();
 		if(EOF == c)
 		{
@@ -496,7 +496,7 @@ void LLMimeParser::Impl::scanPastSeparator(
 		// past limit when we get() the newline.
 		S32 max_get = llmin((S32)LINE_BUFFER_LENGTH, limit - mScanCount - 1);
 		istr.getline(mBuffer, max_get, '\r');
-		mScanCount += istr.gcount();
+		mScanCount += (S32)istr.gcount();
 		if(istr.gcount() >= LINE_BUFFER_LENGTH - 1)
 		{
 			// that's way too long to be a separator, so ignore it.

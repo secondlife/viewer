@@ -75,6 +75,7 @@ class LLToast : public LLModalDialog, public LLInstanceTracker<LLToast>
 public:
 	typedef boost::function<void (LLToast* toast)> toast_callback_t;
 	typedef boost::signals2::signal<void (LLToast* toast)> toast_signal_t;
+	typedef boost::signals2::signal<void (LLToast* toast, bool mouse_enter)> toast_hover_check_signal_t;
 
 	struct Params : public LLInitParam::Block<Params>
 	{
@@ -131,7 +132,7 @@ public:
 	void reshapeToPanel();
 
 	// get toast's panel
-	LLPanel* getPanel() { return mPanel; }
+	LLPanel* getPanel() const { return mPanel; }
 	// enable/disable Toast's Hide button
 	void setHideButtonEnabled(bool enabled);
 	//
@@ -155,6 +156,8 @@ public:
 
 	void setFadingTime(S32 seconds);
 
+	void closeToast();
+
 	/**
 	 * Returns padding between floater top and wrapper_panel top.
 	 * This padding should be taken into account when positioning or reshaping toasts
@@ -167,9 +170,9 @@ public:
 	// get information whether the notification corresponding to the toast is valid or not
 	bool isNotificationValid();
 	// get toast's Notification ID
-	const LLUUID getNotificationID() { return mNotificationID;}
+	const LLUUID getNotificationID() const { return mNotificationID;}
 	// get toast's Session ID
-	const LLUUID getSessionID() { return mSessionID;}
+	const LLUUID getSessionID() const { return mSessionID;}
 	//
 	void setCanFade(bool can_fade);
 	//
@@ -179,19 +182,12 @@ public:
 	// set whether this toast considered as hidden or not
 	void setIsHidden( bool is_toast_hidden ) { mIsHidden = is_toast_hidden; }
 
-	const LLNotificationPtr& getNotification() { return mNotification;}
+	const LLNotificationPtr& getNotification() const { return mNotification;}
 
 	// Registers signals/callbacks for events
-	toast_signal_t mOnFadeSignal;
-	toast_signal_t mOnDeleteToastSignal;
-	toast_signal_t mOnToastDestroyedSignal;
-	boost::signals2::connection setOnFadeCallback(toast_callback_t cb) { return mOnFadeSignal.connect(cb); }
-	boost::signals2::connection setOnToastDestroyedCallback(toast_callback_t cb) { return mOnToastDestroyedSignal.connect(cb); }
-
-	typedef boost::function<void (LLToast* toast, bool mouse_enter)> toast_hover_check_callback_t;
-	typedef boost::signals2::signal<void (LLToast* toast, bool mouse_enter)> toast_hover_check_signal_t;
-	toast_hover_check_signal_t mOnToastHoverSignal;	
-	boost::signals2::connection setOnToastHoverCallback(toast_hover_check_callback_t cb) { return mOnToastHoverSignal.connect(cb); }
+	boost::signals2::connection setOnFadeCallback(const toast_signal_t::slot_type& cb) { return mOnFadeSignal.connect(cb); }
+	boost::signals2::connection setOnToastDestroyedCallback(const toast_signal_t::slot_type& cb) { return mOnToastDestroyedSignal.connect(cb); }
+	boost::signals2::connection setOnToastHoverCallback(const toast_hover_check_signal_t::slot_type& cb) { return mOnToastHoverSignal.connect(cb); }
 
 	boost::signals2::connection setMouseEnterCallback( const commit_signal_t::slot_type& cb ) { return mToastMouseEnterSignal.connect(cb); };
 	boost::signals2::connection setMouseLeaveCallback( const commit_signal_t::slot_type& cb ) { return mToastMouseLeaveSignal.connect(cb); };
@@ -236,6 +232,11 @@ private:
 	bool		mIsTip;
 	bool		mIsFading;
 	bool		mIsHovered;
+
+	toast_signal_t mOnFadeSignal;
+	toast_signal_t mOnDeleteToastSignal;
+	toast_signal_t mOnToastDestroyedSignal;
+	toast_hover_check_signal_t mOnToastHoverSignal;
 
 	commit_signal_t mToastMouseEnterSignal;
 	commit_signal_t mToastMouseLeaveSignal;

@@ -78,25 +78,32 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
 ##         debug("root node tag %s", tree.getroot().tag)
 ##         return llsd.to_python(tree.getroot())
 
-    def do_GET(self):
+    def do_HEAD(self):
+        self.do_GET(withdata=False)
+
+    def do_GET(self, withdata=True):
         # Of course, don't attempt to read data.
-        self.answer(dict(reply="success", status=500,
-                         reason="Your GET operation requested failure"))
+        data = dict(reply="success", body="avatar", random=17)
+        self.answer(data, withdata=withdata)
 
     def do_POST(self):
         # Read the provided POST data.
         self.answer(self.read_xml())
 
-    def answer(self, data):
+    def answer(self, data, withdata=True):
         debug("%s.answer(%s): self.path = %r", self.__class__.__name__, data, self.path)
         if "fail" not in self.path:
-            response = llsd.format_xml(data.get("reply", llsd.LLSD("success")))
+            data = data.copy()          # we're going to modify
+            # Ensure there's a "reply" key in data, even if there wasn't before
+            data["reply"] = data.get("reply", llsd.LLSD("success"))
+            response = llsd.format_xml(data)
             debug("success: %s", response)
             self.send_response(200)
             self.send_header("Content-type", "application/llsd+xml")
             self.send_header("Content-Length", str(len(response)))
             self.end_headers()
-            self.wfile.write(response)
+            if withdata:
+                self.wfile.write(response)
         else:                           # fail requested
             status = data.get("status", 500)
             # self.responses maps an int status to a (short, long) pair of

@@ -51,7 +51,7 @@
 			 <layout_panel
                  width="330"
                  layout="topleft"
-                 auto_resize="true"
+                 auto_resize="false"
                  user_resize="true"
                  follows="left|right|top"
                  name="inbox_layout_panel"
@@ -73,6 +73,7 @@
                      <string name="InboxLabelWithArg">Received items ([NUM])</string>
                      <string name="InboxLabelNoArg">Received items</string>
                      <button
+                        control_name="InventoryInboxToggleState"
                         label="Received items"
 						font="SansSerifMedium"
                         name="inbox_btn"
@@ -104,6 +105,7 @@
                         [NUM] new
                      </text>
                      <panel
+                        name="inbox_inventory_placeholder_panel"
                         follows="all"
                         left="10"
                         bottom="235"
@@ -112,7 +114,7 @@
                         bg_opaque_color="InventoryBackgroundColor"
                         background_visible="true"
                         background_opaque="true"
-                        tool_tip="Drag and drop items to your inventory to manage and use them"
+                        tool_tip="Drag and drop items to your inventory to use them"
                         >
                         <text
 							name="inbox_inventory_placeholder"

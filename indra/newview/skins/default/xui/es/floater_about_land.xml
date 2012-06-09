@@ -373,7 +373,7 @@ Sólo las parcelas más grandes pueden listarse en la búsqueda.
 			</text>
 			<texture_picker label="" name="snapshot_ctrl" tool_tip="Pulse para elegir una imagen"/>
 			<text name="allow_label5">
-				a los avatares de esta parcela y chatear con ellos
+				Los avatares de otras parcelas pueden ver a los avatares de esta parcela y chatear con ellos
 			</text>
 			<check_box label="Ver los avatares" name="SeeAvatarsCheck" tool_tip="Permite que los avatares de otras parcelas vean a los avatares de ésta y chateen con ellos, y también que tú puedas verles y chatear con ellos."/>
 			<text name="landing_point">
@@ -460,12 +460,12 @@ los media:
 			<text name="Limit access to this parcel to:">
 				Acceso a esta parcela
 			</text>
-			<check_box label="Permitir el acceso público [MATURITY]" name="public_access"/>
+			<check_box label="Permitir el acceso público (si no seleccionas esta opción, se crearán líneas de prohibición)" name="public_access"/>
 			<text name="Only Allow">
-				Restringir el acceso a residentes verificados con:
+				Permitir únicamente el acceso a los Residentes que:
 			</text>
-			<check_box label="Información de pago aportada [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Expulsa a los Residentes no identificados."/>
-			<check_box label="Verificación de edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Expulsa a los Residentes que no hayan verificado su edad. Más información en [SUPPORT_SITE]."/>
+			<check_box label="Han aportado información de pago [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Para poder acceder a esta parcela los Residentes deben haber aportado información de pago en su cuenta. Para más información, ver [SUPPORT_SITE]."/>
+			<check_box label="Han verificado su edad [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Para poder acceder a esta parcela los Residentes deben haber verificado su edad. Para más información, ver [SUPPORT_SITE]."/>
 			<check_box label="Acceso permitido al grupo: [GROUP]" name="GroupCheck" tool_tip="Elija el grupo en la pestaña General."/>
 			<check_box label="Vender pases a:" name="PassCheck" tool_tip="Permitir acceso temporal a esta parcela"/>
 			<combo_box name="pass_combo">

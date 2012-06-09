@@ -1162,8 +1162,13 @@ void LLPanelPeople::onAddFriendWizButtonClicked()
 {
 	// Show add friend wizard.
 	LLFloaterAvatarPicker* picker = LLFloaterAvatarPicker::show(boost::bind(&LLPanelPeople::onAvatarPicked, _1, _2), FALSE, TRUE);
+	if (!picker)
+	{
+		return;
+	}
+
 	// Need to disable 'ok' button when friend occurs in selection
-	if (picker)	picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
+	picker->setOkBtnEnableCb(boost::bind(&LLPanelPeople::isItemsFreeOfFriends, this, _1));
 	LLFloater* root_floater = gFloaterView->getParentFloater(this);
 	if (root_floater)
 	{
