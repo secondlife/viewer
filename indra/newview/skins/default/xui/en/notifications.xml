@@ -4090,7 +4090,7 @@ Are you sure you want to change the Estate Covenant?
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="Region crossing: The region you&apos;re trying to visit contains content, which is accessible to adults only."/>
+	 ignoretext="Region crossing: The region you&apos;re trying to visit contains content which is accessible to adults only."/>
   </notification>
 
   <notification
@@ -4106,7 +4106,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    name="RegionEntryAccessBlocked_NotifyAdultsOnly"
    type="notifytip">
     <tag>fail</tag>
-    The region you're trying to visit contains content, which is accessible to adults only.
+    The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
   </notification>
 
   <notification
@@ -4166,7 +4166,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
      name="okcancelignore"
      yestext="Go to Knowledge Base"
 	 notext="Close"
-	 ignoretext="Teleport: The region you&apos;re trying to visit contains content, which is accessible to adults only."/>
+	 ignoretext="Teleport: The region you&apos;re trying to visit contains content which is accessible to adults only."/>
   </notification>
 
   <notification
@@ -4182,7 +4182,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    name="RegionEntryAccessBlocked_NotifyAdultsOnly"
    type="notifytip">
     <tag>fail</tag>
-    The region you're trying to visit contains content, which is accessible to adults only.
+    The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
   </notification>
 
   <notification
@@ -4301,7 +4301,7 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandClaimAccessBlocked_NotifyAdultsOnly"
    type="notifytip">
     <tag>fail</tag>
-    The land you're trying to claim contains content, which is accessible to adults only.
+    The land you're trying to claim contains [REGIONMATURITY] content, which is accessible to adults only.
   </notification>
 
   <notification
@@ -4366,7 +4366,7 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandBuyAccessBlocked_NotifyAdultsOnly"
    type="notifytip">
     <tag>fail</tag>
-    The land you're trying to buy contains content, which is accessible to adults only.
+    The land you're trying to buy contains [REGIONMATURITY] content, which is accessible to adults only.
   </notification>
 
   <notification
@@ -6282,6 +6282,40 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
        name="Cancel"
        text="Cancel"/>
     </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="TeleportOffered_MaturityExceeded"
+   type="offer">
+[NAME_SLURL] has offered to teleport you to their location:
+
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+
+However, this region contains [REGION_CONTENT_MATURITY] content, but your current preferences are set to exclude [REGION_CONTENT_MATURITY] content.  We can change your preferences and continue with the teleport, or you can cancel this teleport.
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Teleport"
+       text="Change and Continue"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="TeleportOffered_MaturityBlocked"
+   type="notifytip">
+[NAME_SLURL] has offered to teleport you to their location:
+
+[MESSAGE] - [MATURITY_STR] &lt;icon&gt;[MATURITY_ICON]&lt;/icon&gt;
+
+However, this region contains [REGION_CONTENT_MATURITY] content, which is accessible to adults only.
+    <tag>fail</tag>
   </notification>
 
   <notification

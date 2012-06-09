@@ -1994,6 +1994,46 @@ bool lure_callback(const LLSD& notification, const LLSD& response)
 }
 static LLNotificationFunctorRegistration lure_callback_reg("TeleportOffered", lure_callback);
 
+bool mature_lure_callback(const LLSD& notification, const LLSD& response)
+{
+	S32 option = 0;
+	if (response.isInteger()) 
+	{
+		option = response.asInteger();
+	}
+	else
+	{
+		option = LLNotificationsUtil::getSelectedOption(notification, response);
+	}
+	
+	LLUUID from_id = notification["payload"]["from_id"].asUUID();
+	LLUUID lure_id = notification["payload"]["lure_id"].asUUID();
+	BOOL godlike = notification["payload"]["godlike"].asBoolean();
+	U8 region_access = static_cast<U8>(notification["payload"]["region_maturity"].asInteger());
+
+	switch(option)
+	{
+	case 0:
+		{
+			// accept
+			gSavedSettings.setU32("PreferredMaturity", static_cast<U32>(region_access));
+			gAgent.setMaturityRatingChangeDuringTeleport(region_access);
+			gAgent.teleportViaLure(lure_id, godlike);
+		}
+		break;
+	case 1:
+	default:
+		// decline
+		send_simple_im(from_id,
+					   LLStringUtil::null,
+					   IM_LURE_DECLINED,
+					   lure_id);
+		break;
+	}
+	return false;
+}
+static LLNotificationFunctorRegistration mature_lure_callback_reg("TeleportOffered_MaturityExceeded", mature_lure_callback);
+
 bool goto_url_callback(const LLSD& notification, const LLSD& response)
 {
 	std::string url = notification["payload"]["url"].asString();
@@ -2881,15 +2921,54 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				LLVector3 pos, look_at;
 				U64 region_handle(0);
-				U8 region_access(0);
+				U8 region_access(SIM_ACCESS_MIN);
 				std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
 				std::string region_access_str = LLStringUtil::null;
 				std::string region_access_icn = LLStringUtil::null;
+				std::string region_access_lc  = LLStringUtil::null;
+
+				bool canUserAccessDstRegion = true;
+				bool doesUserRequireMaturityIncrease = false;
 
 				if (parse_lure_bucket(region_info, region_handle, pos, look_at, region_access))
 				{
 					region_access_str = LLViewerRegion::accessToString(region_access);
 					region_access_icn = LLViewerRegion::getAccessIcon(region_access);
+					region_access_lc  = region_access_str;
+					LLStringUtil::toLower(region_access_lc);
+
+					if (!gAgent.isGodlike())
+					{
+						switch (region_access)
+						{
+						case SIM_ACCESS_MIN :
+						case SIM_ACCESS_PG :
+							break;
+						case SIM_ACCESS_MATURE :
+							if (gAgent.isTeen())
+							{
+								canUserAccessDstRegion = false;
+							}
+							else if (gAgent.prefersPG())
+							{
+								doesUserRequireMaturityIncrease = true;
+							}
+							break;
+						case SIM_ACCESS_ADULT :
+							if (!gAgent.isAdult())
+							{
+								canUserAccessDstRegion = false;
+							}
+							else if (!gAgent.prefersAdult())
+							{
+								doesUserRequireMaturityIncrease = true;
+							}
+							break;
+						default :
+							llassert(0);
+							break;
+						}
+					}
 				}
 
 				LLSD args;
@@ -2898,28 +2977,126 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				args["MESSAGE"] = message;
 				args["MATURITY_STR"] = region_access_str;
 				args["MATURITY_ICON"] = region_access_icn;
+				args["REGION_CONTENT_MATURITY"] = region_access_lc;
 				LLSD payload;
 				payload["from_id"] = from_id;
 				payload["lure_id"] = session_id;
 				payload["godlike"] = FALSE;
+				payload["region_maturity"] = region_access;
 
-			    LLNotification::Params params("TeleportOffered");
-			    params.substitutions = args;
-			    params.payload = payload;
-			    LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+				if (!canUserAccessDstRegion)
+				{
+					LLNotification::Params params("TeleportOffered_MaturityBlocked");
+					params.substitutions = args;
+					params.payload = payload;
+					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+				}
+				else if (doesUserRequireMaturityIncrease)
+				{
+					LLNotification::Params params("TeleportOffered_MaturityExceeded");
+					params.substitutions = args;
+					params.payload = payload;
+					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+				}
+				else
+				{
+					LLNotification::Params params("TeleportOffered");
+					params.substitutions = args;
+					params.payload = payload;
+					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+				}
+
 			}
 		}
 		break;
 
 	case IM_GODLIKE_LURE_USER:
 		{
+			LLVector3 pos, look_at;
+			U64 region_handle(0);
+			U8 region_access(SIM_ACCESS_MIN);
+			std::string region_info = ll_safe_string((char*)binary_bucket, binary_bucket_size);
+			std::string region_access_str = LLStringUtil::null;
+			std::string region_access_icn = LLStringUtil::null;
+			std::string region_access_lc  = LLStringUtil::null;
+
+			bool canUserAccessDstRegion = true;
+			bool doesUserRequireMaturityIncrease = false;
+
+			if (parse_lure_bucket(region_info, region_handle, pos, look_at, region_access))
+			{
+				region_access_str = LLViewerRegion::accessToString(region_access);
+				region_access_icn = LLViewerRegion::getAccessIcon(region_access);
+				region_access_lc  = region_access_str;
+				LLStringUtil::toLower(region_access_lc);
+
+				if (!gAgent.isGodlike())
+				{
+					switch (region_access)
+					{
+					case SIM_ACCESS_MIN :
+					case SIM_ACCESS_PG :
+						break;
+					case SIM_ACCESS_MATURE :
+						if (gAgent.isTeen())
+						{
+							canUserAccessDstRegion = false;
+						}
+						else if (gAgent.prefersPG())
+						{
+							doesUserRequireMaturityIncrease = true;
+						}
+						break;
+					case SIM_ACCESS_ADULT :
+						if (!gAgent.isAdult())
+						{
+							canUserAccessDstRegion = false;
+						}
+						else if (!gAgent.prefersAdult())
+						{
+							doesUserRequireMaturityIncrease = true;
+						}
+						break;
+					default :
+						llassert(0);
+						break;
+					}
+				}
+			}
+
+			LLSD args;
+			// *TODO: Translate -> [FIRST] [LAST] (maybe)
+			args["NAME_SLURL"] = LLSLURL("agent", from_id, "about").getSLURLString();
+			args["MESSAGE"] = message;
+			args["MATURITY_STR"] = region_access_str;
+			args["MATURITY_ICON"] = region_access_icn;
+			args["REGION_CONTENT_MATURITY"] = region_access_lc;
 			LLSD payload;
 			payload["from_id"] = from_id;
 			payload["lure_id"] = session_id;
 			payload["godlike"] = TRUE;
-			// do not show a message box, because you're about to be
-			// teleported.
-			LLNotifications::instance().forceResponse(LLNotification::Params("TeleportOffered").payload(payload), 0);
+			payload["region_maturity"] = region_access;
+
+			if (!canUserAccessDstRegion)
+			{
+				LLNotification::Params params("TeleportOffered_MaturityBlocked");
+				params.substitutions = args;
+				params.payload = payload;
+				LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+			}
+			else if (doesUserRequireMaturityIncrease)
+			{
+				LLNotification::Params params("TeleportOffered_MaturityExceeded");
+				params.substitutions = args;
+				params.payload = payload;
+				LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
+			}
+			else
+			{
+				// do not show a message box, because you're about to be
+				// teleported.
+				LLNotifications::instance().forceResponse(LLNotification::Params("TeleportOffered").payload(payload), 0);
+			}
 		}
 		break;
 
