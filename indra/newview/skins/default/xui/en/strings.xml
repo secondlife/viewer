@@ -3757,4 +3757,6 @@ Try enclosing path to the editor with double quotes.
   <string name="snapshot_quality_high">High</string>
   <string name="snapshot_quality_very_high">Very High</string>
 
+  <string name="TeleportMaturityExceeded">The user you have offered to teleport cannot view the region&apos;s content.</string>
+
   </strings>
