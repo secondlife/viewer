@@ -2991,6 +2991,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					params.payload = payload;
 					LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 					send_simple_im(from_id, LLTrans::getString("TeleportMaturityExceeded"), IM_NOTHING_SPECIAL, session_id);
+					send_simple_im(from_id, LLStringUtil::null, IM_LURE_DECLINED, session_id);
 				}
 				else if (doesUserRequireMaturityIncrease)
 				{
@@ -3085,6 +3086,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				params.payload = payload;
 				LLPostponedNotification::add<LLPostponedOfferNotification>(	params, from_id, false);
 				send_simple_im(from_id, LLTrans::getString("TeleportMaturityExceeded"), IM_NOTHING_SPECIAL, session_id);
+				send_simple_im(from_id, LLStringUtil::null, IM_LURE_DECLINED, session_id);
 			}
 			else if (doesUserRequireMaturityIncrease)
 			{
