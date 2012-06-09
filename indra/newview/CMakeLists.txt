@@ -41,12 +41,13 @@ include(UnixInstall)
 include(LLKDU)
 include(ViewerMiscLibs)
 include(LLLogin)
+include(VisualLeakDetector)
 include(GLOD)
 include(CMakeCopyIfDifferent)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIRS}
+    ${JSONCPP_INCLUDE_DIR}
     ${GLOD_INCLUDE_DIR}
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCHARACTER_INCLUDE_DIRS}
@@ -289,7 +290,6 @@ set(viewer_SOURCE_FILES
     llinspectremoteobject.cpp
     llinspecttoast.cpp
     llinventorybridge.cpp
-    llinventoryclipboard.cpp
     llinventoryfilter.cpp
     llinventoryfunctions.cpp
     llinventoryicon.cpp
@@ -305,6 +305,7 @@ set(viewer_SOURCE_FILES
     lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
+    lllocalbitmaps.cpp
     lllocaltextureobject.cpp
     lllocationhistory.cpp
     lllocationinputctrl.cpp
@@ -844,7 +845,6 @@ set(viewer_HEADER_FILES
     llinspectremoteobject.h
     llinspecttoast.h
     llinventorybridge.h
-    llinventoryclipboard.h
     llinventoryfilter.h
     llinventoryfunctions.h
     llinventoryicon.h
@@ -861,6 +861,7 @@ set(viewer_HEADER_FILES
     lllistbrowser.h
     lllistcontextmenu.h
     lllistview.h
+    lllocalbitmaps.h
     lllocaltextureobject.h
     lllocationhistory.h
     lllocationinputctrl.h

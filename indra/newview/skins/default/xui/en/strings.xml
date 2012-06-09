@@ -406,6 +406,7 @@ Please try logging in again in a minute.</string>
 	<string name="ControlYourCamera">Control your camera</string>
 	<string name="NotConnected">Not Connected</string>
 	<string name="AgentNameSubst">(You)</string> <!-- Substitution for agent name -->
+    <string name="TeleportYourAgent">Teleport you</string>
 
 	<!-- Sim Access labels -->
 	<string name="SIM_ACCESS_PG">General</string>

@@ -75,6 +75,7 @@ LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 	mDragStarted(false),
 	mShowToolbars(true),
 	mDragToolbarButton(NULL),
+	mDragItem(NULL),
 	mToolbarsLoaded(false)
 {
 	for (S32 i = 0; i < TOOLBAR_COUNT; i++)
@@ -579,7 +580,6 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 			uuid_vec_t cargo_ids;
 			types.push_back(DAD_WIDGET);
 			cargo_ids.push_back(uuid);
-			gClipboard.setSourceObject(uuid,LLAssetType::AT_WIDGET);
 			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_VIEWER;
 			LLUUID srcID;
 			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src, srcID);
@@ -603,7 +603,7 @@ BOOL LLToolBarView::handleDragTool( S32 x, S32 y, const LLUUID& uuid, LLAssetTyp
 BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* toolbar)
 {
 	BOOL handled = FALSE;
-	LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
+	LLInventoryObject* inv_item = static_cast<LLInventoryObject*>(cargo_data);
 	
 	LLAssetType::EType type = inv_item->getType();
 	if (type == LLAssetType::AT_WIDGET)
@@ -660,6 +660,18 @@ void LLToolBarView::resetDragTool(LLToolBarButton* toolbarButton)
 	// Clear the saved command, toolbar and rank
 	gToolBarView->mDragStarted = false;
 	gToolBarView->mDragToolbarButton = toolbarButton;
+}
+
+// Provide a handle on a free standing inventory item containing references to the tool.
+// This might be used by Drag and Drop to move around references to tool items.
+LLInventoryObject* LLToolBarView::getDragItem()
+{
+	if (mDragToolbarButton)
+	{
+		LLUUID item_uuid = mDragToolbarButton->getCommandId().uuid();
+		mDragItem = new LLInventoryObject (item_uuid, LLUUID::null, LLAssetType::AT_WIDGET, "");
+	}
+	return mDragItem;
 }
 
 void LLToolBarView::setToolBarsVisible(bool visible)

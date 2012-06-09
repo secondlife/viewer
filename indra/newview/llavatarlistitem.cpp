@@ -31,6 +31,7 @@
 #include "llavatarlistitem.h"
 
 #include "llbutton.h"
+#include "llclipboard.h"
 #include "llfloaterreg.h"
 #include "lltextutil.h"
 
@@ -38,6 +39,7 @@
 #include "llavatarnamecache.h"
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
+#include "lltooldraganddrop.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -332,6 +334,61 @@ BOOL LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 		return TRUE;
 	}
 	return LLPanel::handleDoubleClick(x, y, mask);
+}
+
+BOOL LLAvatarListItem::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+	if (LLUICtrl::handleMouseDown(x, y, mask))
+	{
+		return TRUE;
+	}
+
+	gFocusMgr.setMouseCapture(this);
+
+	S32 screen_x;
+	S32 screen_y;
+	localPointToScreen(x, y, &screen_x, &screen_y);
+	LLToolDragAndDrop::getInstance()->setDragStart(screen_x, screen_y);
+
+	return TRUE;
+}
+
+BOOL LLAvatarListItem::handleMouseUp( S32 x, S32 y, MASK mask )
+{
+	if (LLUICtrl::childrenHandleMouseUp(x, y, mask))
+	{
+		return TRUE;
+	}
+
+	if(hasMouseCapture())
+	{
+		gFocusMgr.setMouseCapture(NULL);
+	}
+	return TRUE;
+}
+
+BOOL LLAvatarListItem::handleHover(S32 x, S32 y, MASK mask)
+{
+	bool handled = hasMouseCapture();
+	if(handled)
+	{
+		S32 screen_x;
+		S32 screen_y;
+		localPointToScreen(x, y, &screen_x, &screen_y);
+
+		if(LLToolDragAndDrop::getInstance()->isOverThreshold(screen_x, screen_y))
+		{
+			// First, create the global drag and drop object
+			std::vector<EDragAndDropType> types;
+			uuid_vec_t cargo_ids;
+			types.push_back(DAD_PERSON);
+			cargo_ids.push_back(mAvatarId);
+			LLToolDragAndDrop::ESource src = LLToolDragAndDrop::SOURCE_PEOPLE;
+			LLToolDragAndDrop::getInstance()->beginMultiDrag(types, cargo_ids, src);
+		}
+	}
+
+	return handled;
 }
 
 void LLAvatarListItem::setValue( const LLSD& value )

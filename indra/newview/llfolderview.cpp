@@ -30,7 +30,7 @@
 
 #include "llcallbacklist.h"
 #include "llinventorybridge.h"
-#include "llinventoryclipboard.h" // *TODO: remove this once hack below gone.
+#include "llclipboard.h" // *TODO: remove this once hack below gone.
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -163,6 +163,33 @@ void LLCloseAllFoldersFunctor::doFolder(LLFolderViewFolder* folder)
 // Do nothing.
 void LLCloseAllFoldersFunctor::doItem(LLFolderViewItem* item)
 { }
+
+///----------------------------------------------------------------------------
+/// Class LLFolderViewScrollContainer
+///----------------------------------------------------------------------------
+
+// virtual
+const LLRect LLFolderViewScrollContainer::getScrolledViewRect() const
+{
+	LLRect rect = LLRect::null;
+	if (mScrolledView)
+	{
+		LLFolderView* folder_view = dynamic_cast<LLFolderView*>(mScrolledView);
+		if (folder_view)
+		{
+			S32 height = folder_view->mRunningHeight;
+
+			rect = mScrolledView->getRect();
+			rect.setLeftTopAndSize(rect.mLeft, rect.mTop, rect.getWidth(), height);
+		}
+	}
+
+	return rect;
+}
+
+LLFolderViewScrollContainer::LLFolderViewScrollContainer(const LLScrollContainer::Params& p)
+:	LLScrollContainer(p)
+{}
 
 ///----------------------------------------------------------------------------
 /// Class LLFolderView
@@ -426,8 +453,8 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height, S32 filter_gen
 		}
 		else
 		{
-			folderp->setVisible(show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
-									(folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))); // passed filter or has descendants that passed filter
+			folderp->setVisible((show_folder_state == LLInventoryFilter::SHOW_ALL_FOLDERS || // always show folders?
+								 (folderp->getFiltered(filter_generation) || folderp->hasFilteredDescendants(filter_generation))));
 		}
 
 		if (folderp->getVisible())
@@ -532,6 +559,7 @@ void LLFolderView::reshape(S32 width, S32 height, BOOL called_from_parent)
 	{
 		width = scroll_rect.getWidth();
 	}
+
 	LLView::reshape(width, height, called_from_parent);
 	mReshapeSignal(mSelectedItems, FALSE);
 }
@@ -766,7 +794,7 @@ void LLFolderView::sanitizeSelection()
 	// if nothing selected after prior constraints...
 	if (mSelectedItems.empty())
 	{
-		// ...select first available parent of original selection, or "My Inventory" otherwise
+		// ...select first available parent of original selection
 		LLFolderViewItem* new_selection = NULL;
 		if (original_selected_item)
 		{
@@ -940,6 +968,9 @@ void LLFolderView::draw()
 			// We should call this method to also notify parent about required rect.
 			// See EXT-7564, EXT-7047.
 			arrangeFromRoot();
+			LLUI::popMatrix();
+			LLUI::pushMatrix();
+			LLUI::translate((F32)getRect().mLeft, (F32)getRect().mBottom);
 		}
 	}
 
@@ -1009,6 +1040,24 @@ bool isDescendantOfASelectedItem(LLFolderViewItem* item, const std::vector<LLFol
 	}
 
 	return false;
+}
+
+// static
+void LLFolderView::removeCutItems()
+{
+	// There's no item in "cut" mode on the clipboard -> exit
+	if (!LLClipboard::instance().isCutMode())
+		return;
+
+	// Get the list of clipboard item uuids and iterate through them
+	LLDynamicArray<LLUUID> objects;
+	LLClipboard::instance().pasteFromClipboard(objects);
+	for (LLDynamicArray<LLUUID>::const_iterator iter = objects.begin();
+		 iter != objects.end();
+		 ++iter)
+	{
+		gInventory.removeObject(*iter);
+	}
 }
 
 void LLFolderView::onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response)
@@ -1290,7 +1339,7 @@ BOOL LLFolderView::canCopy() const
 void LLFolderView::copy()
 {
 	// *NOTE: total hack to clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1331,7 +1380,7 @@ BOOL LLFolderView::canCut() const
 void LLFolderView::cut()
 {
 	// clear the inventory clipboard
-	LLInventoryClipboard::instance().reset();
+	LLClipboard::instance().reset();
 	S32 count = mSelectedItems.size();
 	if(getVisible() && getEnabled() && (count > 0))
 	{
@@ -1345,6 +1394,7 @@ void LLFolderView::cut()
 				listener->cutToClipboard();
 			}
 		}
+		LLFolderView::removeCutItems();
 	}
 	mSearchString.clear();
 }
@@ -1948,19 +1998,13 @@ void LLFolderView::deleteAllChildren()
 
 void LLFolderView::scrollToShowSelection()
 {
-	// If items are filtered while background fetch is in progress
-	// scrollbar resets to the first filtered item. See EXT-3981.
-	// However we allow scrolling for folder views with mAutoSelectOverride
-	// (used in Places SP) as an exception because the selection in them
-	// is not reset during items filtering. See STORM-133.
-	if ( (!LLInventoryModelBackgroundFetch::instance().folderFetchActive() || mAutoSelectOverride)
-			&& mSelectedItems.size() )
+	if ( mSelectedItems.size() )
 	{
 		mNeedsScroll = TRUE;
 	}
 }
 
-// If the parent is scroll containter, scroll it to make the selection
+// If the parent is scroll container, scroll it to make the selection
 // is maximally visible.
 void LLFolderView::scrollToShowItem(LLFolderViewItem* item, const LLRect& constraint_rect)
 {
@@ -2095,10 +2139,10 @@ bool LLFolderView::doToSelected(LLInventoryModel* model, const LLSD& userdata)
 		removeSelectedItems();
 		return true;
 	}
-
-	if ("copy" == action)
-	{	
-		LLInventoryClipboard::instance().reset();
+	if (("copy" == action) || ("cut" == action))
+	{
+		// Clear the clipboard before we start adding things on it
+		LLClipboard::instance().reset();
 	}
 
 	static const std::string change_folder_string = "change_folder_type_";
@@ -2179,46 +2223,56 @@ void LLFolderView::doIdle()
 		arrangeAll();
 	}
 
+	if (mFilter->isModified() && mFilter->isNotDefault())
+	{
+		mNeedsAutoSelect = TRUE;
+	}
 	mFilter->clearModified();
-	BOOL filter_modified_and_active = mCompletedFilterGeneration < mFilter->getCurrentGeneration() && 
-										mFilter->isNotDefault();
-	mNeedsAutoSelect = filter_modified_and_active &&
-							!(gFocusMgr.childHasKeyboardFocus(this) || gFocusMgr.getMouseCapture());
 
-	// filter to determine visiblity before arranging
+	// filter to determine visibility before arranging
 	filterFromRoot();
 
 	// automatically show matching items, and select first one if we had a selection
-	// do this every frame until user puts keyboard focus into the inventory window
-	// signaling the end of the automatic update
-	// only do this when mNeedsFilter is set, meaning filtered items have
-	// potentially changed
 	if (mNeedsAutoSelect)
 	{
 		LLFastTimer t3(FTM_AUTO_SELECT);
 		// select new item only if a filtered item not currently selected
 		LLFolderViewItem* selected_itemp = mSelectedItems.empty() ? NULL : mSelectedItems.back();
-		if ((selected_itemp && !selected_itemp->getFiltered()) && !mAutoSelectOverride)
+		if (!mAutoSelectOverride && (!selected_itemp || !selected_itemp->potentiallyFiltered()))
 		{
-			// select first filtered item
-			LLSelectFirstFilteredItem filter;
-			applyFunctorRecursively(filter);
+			// these are named variables to get around gcc not binding non-const references to rvalues
+			// and functor application is inherently non-const to allow for stateful functors
+			LLSelectFirstFilteredItem functor;
+			applyFunctorRecursively(functor);
 		}
 
 		// Open filtered folders for folder views with mAutoSelectOverride=TRUE.
 		// Used by LLPlacesFolderView.
 		if (mAutoSelectOverride && !mFilter->getFilterSubString().empty())
 		{
-			LLOpenFilteredFolders filter;
-			applyFunctorRecursively(filter);
+			// these are named variables to get around gcc not binding non-const references to rvalues
+			// and functor application is inherently non-const to allow for stateful functors
+			LLOpenFilteredFolders functor;
+			applyFunctorRecursively(functor);
 		}
 
 		scrollToShowSelection();
 	}
 
+	BOOL filter_finished = mCompletedFilterGeneration >= mFilter->getCurrentGeneration() 
+						&& !LLInventoryModelBackgroundFetch::instance().folderFetchActive();
+	if (filter_finished 
+		|| gFocusMgr.childHasKeyboardFocus(inventory_panel) 
+		|| gFocusMgr.childHasMouseCapture(inventory_panel))
+	{
+		// finishing the filter process, giving focus to the folder view, or dragging the scrollbar all stop the auto select process
+		mNeedsAutoSelect = FALSE;
+	}
+
+
 	// during filtering process, try to pin selected item's location on screen
 	// this will happen when searching your inventory and when new items arrive
-	if (filter_modified_and_active)
+	if (!filter_finished)
 	{
 		// calculate rectangle to pin item to at start of animated rearrange
 		if (!mPinningSelectedItem && !mSelectedItems.empty())
@@ -2284,7 +2338,7 @@ void LLFolderView::doIdle()
 	{
 		scrollToShowItem(mSelectedItems.back(), constraint_rect);
 		// continue scrolling until animated layout change is done
-		if (!filter_modified_and_active 
+		if (filter_finished
 			&& (!needsArrange() || !is_visible))
 		{
 			mNeedsScroll = FALSE;

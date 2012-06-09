@@ -186,7 +186,7 @@ public:
 	void					resetSpecificJointPosition( const std::string& name );
 	
 	virtual const char*		getAnimationPrefix() { return "avatar"; }
-	virtual const LLUUID&   getID();
+	virtual const LLUUID&   getID() const;
 	virtual LLVector3		getVolumePos(S32 joint_index, LLVector3& volume_offset);
 	virtual LLJoint*		findCollisionVolume(U32 volume_id);
 	virtual S32				getCollisionVolumeID(std::string &name);
@@ -385,7 +385,7 @@ private:
 
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
-	bool		isVisuallyMuted();
+	bool		isVisuallyMuted() const;
 
 	U32 		renderRigid();
 	U32 		renderSkinned(EAvatarRenderPass pass);

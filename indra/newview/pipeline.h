@@ -114,8 +114,10 @@ public:
 	void doResetVertexBuffers();
 	void resizeScreenTexture();
 	void releaseGLBuffers();
+	void releaseLUTBuffers();
 	void releaseScreenBuffers();
 	void createGLBuffers();
+	void createLUTBuffers();
 
 	void allocateScreenBuffer(U32 resX, U32 resY);
 	bool allocateScreenBuffer(U32 resX, U32 resY, U32 samples);

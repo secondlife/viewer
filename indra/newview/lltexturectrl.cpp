@@ -67,6 +67,9 @@
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 
+#include "llradiogroup.h"
+#include "llfloaterreg.h"
+#include "lllocalbitmaps.h"
 
 static const S32 HPAD = 4;
 static const S32 VPAD = 4;
@@ -77,6 +80,8 @@ static const S32 TEXTURE_INVENTORY_PADDING = 30;
 static const F32 CONTEXT_CONE_IN_ALPHA = 0.0f;
 static const F32 CONTEXT_CONE_OUT_ALPHA = 1.f;
 static const F32 CONTEXT_FADE_TIME = 0.08f;
+
+static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
@@ -142,6 +147,12 @@ public:
 	static void		onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
 		   void		onTextureSelect( const LLTextureEntry& te );
 
+	static void		onModeSelect(LLUICtrl* ctrl, void *userdata);
+	static void		onBtnAdd(void* userdata);
+	static void		onBtnRemove(void* userdata);
+	static void		onBtnUpload(void* userdata);
+	static void		onLocalScrollCommit(LLUICtrl* ctrl, void* userdata);
+
 protected:
 	LLPointer<LLViewerTexture> mTexturep;
 	LLTextureCtrl*		mOwner;
@@ -169,8 +180,10 @@ protected:
 	BOOL				mNoCopyTextureSelected;
 	F32					mContextConeOpacity;
 	LLSaveFolderState	mSavedFolderState;
-
 	BOOL				mSelectedItemPinned;
+	
+	LLRadioGroup*		mModeSelector;
+	LLScrollListCtrl*	mLocalScrollCtrl;
 };
 
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
@@ -437,6 +450,17 @@ BOOL LLFloaterTexturePicker::postBuild()
 		mInventoryPanel->setSelection(findItemID(mImageAssetID, FALSE), TAKE_FOCUS_NO);
 	}
 
+	mModeSelector = getChild<LLRadioGroup>("mode_selection");
+	mModeSelector->setCommitCallback(onModeSelect, this);
+	mModeSelector->setSelectedIndex(0, 0);
+
+	childSetAction("l_add_btn", LLFloaterTexturePicker::onBtnAdd, this);
+	childSetAction("l_rem_btn", LLFloaterTexturePicker::onBtnRemove, this);
+	childSetAction("l_upl_btn", LLFloaterTexturePicker::onBtnUpload, this);
+
+	mLocalScrollCtrl = getChild<LLScrollListCtrl>("l_name_list");
+	mLocalScrollCtrl->setCommitCallback(onLocalScrollCommit, this);
+	LLLocalBitmapMgr::feedScrollList(mLocalScrollCtrl);
 
 	mNoCopyTextureSelected = FALSE;
 
@@ -464,7 +488,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 // virtual
 void LLFloaterTexturePicker::draw()
 {
-	S32 floater_header_size = getHeaderHeight();
 	if (mOwner)
 	{
 		// draw cone of context pointing back to texture swatch	
@@ -554,10 +577,7 @@ void LLFloaterTexturePicker::draw()
 		}
 
 		// Border
-		LLRect border( BORDER_PAD, 
-					   getRect().getHeight() - floater_header_size - BORDER_PAD, 
-					   ((getMinWidth() / 2) - TEXTURE_INVENTORY_PADDING - HPAD) - BORDER_PAD,
-					   BORDER_PAD + FOOTER_HEIGHT + (getRect().getHeight() - getMinHeight()));
+		LLRect border = getChildView("preview_widget")->getRect();
 		gl_rect_2d( border, LLColor4::black, FALSE );
 
 
@@ -748,7 +768,15 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
 	if (self->mOwner)
 	{
-		self->mOwner->onFloaterCommit(LLTextureCtrl::TEXTURE_SELECT);
+		LLUUID local_id = LLUUID::null;
+
+		if (self->mLocalScrollCtrl->getVisible() && !self->mLocalScrollCtrl->getAllSelected().empty())
+		{
+			LLUUID temp_id = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
+			local_id = LLLocalBitmapMgr::getWorldID(temp_id);
+		}
+
+		self->mOwner->onFloaterCommit(LLTextureCtrl::TEXTURE_SELECT, local_id);
 	}
 	self->closeFloater();
 }
@@ -787,6 +815,112 @@ void LLFloaterTexturePicker::onSelectionChange(const std::deque<LLFolderViewItem
 				// only commit intentional selections, not implicit ones
 				commitIfImmediateSet();
 			}
+		}
+	}
+}
+
+// static
+void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	bool mode = (self->mModeSelector->getSelectedIndex() == 0);
+
+	self->getChild<LLButton>("Default")->setVisible(mode);
+	self->getChild<LLButton>("Blank")->setVisible(mode);
+	self->getChild<LLButton>("None")->setVisible(mode);
+	self->getChild<LLButton>("Pipette")->setVisible(mode);
+	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(mode);
+	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(mode);
+
+	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
+	  no idea under which conditions the above is even shown, needs testing. */
+
+	self->getChild<LLButton>("l_add_btn")->setVisible(!mode);
+	self->getChild<LLButton>("l_rem_btn")->setVisible(!mode);
+	self->getChild<LLButton>("l_upl_btn")->setVisible(!mode);
+	self->getChild<LLScrollListCtrl>("l_name_list")->setVisible(!mode);
+}
+
+// static
+void LLFloaterTexturePicker::onBtnAdd(void* userdata)
+{
+	if (LLLocalBitmapMgr::addUnit() == true)
+	{
+		LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+		LLLocalBitmapMgr::feedScrollList(self->mLocalScrollCtrl);
+	}
+}
+
+// static
+void LLFloaterTexturePicker::onBtnRemove(void* userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	std::vector<LLScrollListItem*> selected_items = self->mLocalScrollCtrl->getAllSelected();
+
+	if (!selected_items.empty())
+	{
+		for(std::vector<LLScrollListItem*>::iterator iter = selected_items.begin();
+			iter != selected_items.end(); iter++)
+		{
+			LLScrollListItem* list_item = *iter;
+			if (list_item)
+			{
+				LLUUID tracking_id = list_item->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
+				LLLocalBitmapMgr::delUnit(tracking_id);
+			}
+		}
+
+		self->getChild<LLButton>("l_rem_btn")->setEnabled(false);
+		self->getChild<LLButton>("l_upl_btn")->setEnabled(false);
+		LLLocalBitmapMgr::feedScrollList(self->mLocalScrollCtrl);
+	}
+
+}
+
+// static
+void LLFloaterTexturePicker::onBtnUpload(void* userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	std::vector<LLScrollListItem*> selected_items = self->mLocalScrollCtrl->getAllSelected();
+
+	if (selected_items.empty())
+	{
+		return;
+	}
+
+	/* currently only allows uploading one by one, picks the first item from the selection list.  (not the vector!)
+	   in the future, it might be a good idea to check the vector size and if more than one units is selected - opt for multi-image upload. */
+	
+	LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN);
+	std::string filename = LLLocalBitmapMgr::getFilename(tracking_id);
+
+	if (!filename.empty())
+	{
+		LLFloaterReg::showInstance("upload_image", LLSD(filename));
+	}
+
+}
+
+//static
+void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
+{
+	LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
+	std::vector<LLScrollListItem*> selected_items = self->mLocalScrollCtrl->getAllSelected();
+	bool has_selection = !selected_items.empty();
+
+	self->getChild<LLButton>("l_rem_btn")->setEnabled(has_selection);
+	self->getChild<LLButton>("l_upl_btn")->setEnabled(has_selection && (selected_items.size() < 2));
+	/* since multiple-localbitmap upload is not implemented, upl button gets disabled if more than one is selected. */
+
+	if (has_selection)
+	{
+		LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN); 
+		LLUUID inworld_id = LLLocalBitmapMgr::getWorldID(tracking_id);
+		self->mOwner->setImageAssetID(inworld_id);
+
+		if (self->childGetValue("apply_immediate_check").asBoolean())
+		{
+			self->mOwner->onFloaterCommit(LLTextureCtrl::TEXTURE_CHANGE, inworld_id);
 		}
 	}
 }
@@ -1133,7 +1267,7 @@ void LLTextureCtrl::onFloaterClose()
 	mFloaterHandle.markDead();
 }
 
-void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
+void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 {
 	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
@@ -1146,14 +1280,24 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op)
 		// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
 		else if (mCommitOnSelection || op == TEXTURE_SELECT)
 			mViewModel->setDirty(); // *TODO: shouldn't we be using setValue() here?
-			
-		if( floaterp->isDirty() )
+
+		if(floaterp->isDirty() || id.notNull()) // mModelView->setDirty does not work.
 		{
 			setTentative( FALSE );
-			mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-			lldebugs << "mImageItemID: " << mImageItemID << llendl;
-			mImageAssetID = floaterp->getAssetID();
-			lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
+
+			if (id.notNull())
+			{
+				mImageItemID = id;
+				mImageAssetID = id;
+			}
+			else
+			{
+				mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+				lldebugs << "mImageItemID: " << mImageItemID << llendl;
+				mImageAssetID = floaterp->getAssetID();
+				lldebugs << "mImageAssetID: " << mImageAssetID << llendl;
+			}
+
 			if (op == TEXTURE_SELECT && mOnSelectCallback)
 			{
 				mOnSelectCallback( this, LLSD() );

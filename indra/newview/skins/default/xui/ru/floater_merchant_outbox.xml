@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="ТОРГОВЫЕ ИСХОДЯЩИЕ">
+	<string name="OutboxFolderCount1">
+		1 папка
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] папки
+	</string>
+	<string name="OutboxImporting">
+		Отправка папок....
+	</string>
+	<string name="OutboxInitializing">
+		Инициализация...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Загрузка...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="Отправить в торговый центр" name="outbox_import_btn" tool_tip="Выставить на витрину моего магазина"/>
+		</panel>
+	</panel>
+</floater>

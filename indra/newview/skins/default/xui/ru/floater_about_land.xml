@@ -306,9 +306,6 @@
 			<panel.string name="push_restrict_region_text">
 				Не толкать (настройки региона)
 			</panel.string>
-			<panel.string name="see_avs_text">
-				Аватары с других участков могут видеть
-			</panel.string>
 			<text name="allow_label">
 				Позволить другим жителям:
 			</text>
@@ -371,7 +368,7 @@
 			</text>
 			<texture_picker name="snapshot_ctrl" tool_tip="Щелкните для выбора изображения"/>
 			<text name="allow_label5">
-				аватары на этом участке и общаться с ними
+				Аватары с других участков могут видеть аватары на этом участке и общаться с ними
 			</text>
 			<check_box label="Видны аватары" name="SeeAvatarsCheck" tool_tip="Аватары с других участков смогут видеть аватары на этом участке и общаться с ними в чате, а вы также сможете видеть их и общаться с ними."/>
 			<text name="landing_point">
@@ -446,20 +443,15 @@
 			<panel.string name="access_estate_defined">
 				(Определено на землевладении)
 			</panel.string>
-			<panel.string name="allow_public_access">
-				Разрешить общий доступ ([MATURITY]) (Снятие приведет к созданию линий запрета)
-			</panel.string>
 			<panel.string name="estate_override">
 				Часть этих параметров установлена на уровне землевладения
 			</panel.string>
-			<text name="Limit access to this parcel to:">
-				Доступ на этот участок
-			</text>
+			<check_box label="Разрешить публичный доступ (снятие флажка приведет к созданию линий запрета)" name="public_access"/>
 			<text name="Only Allow">
-				Разрешить доступ только жителям, у которых:
+				Разрешить доступ только таким жителям:
 			</text>
-			<check_box label="Записана информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Банить нераспознанных жителей."/>
-			<check_box label="Проверка возраста [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Банить жителей, не прошедших проверку возраста. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="Зарегистрирована информация об оплате [ESTATE_PAYMENT_LIMIT]" name="limit_payment" tool_tip="Для доступа к этому участку у жителя должна быть зарегистрирована информация об оплате.  Более подробная информация находится здесь: [SUPPORT_SITE]."/>
+			<check_box label="Подтвержден возраст [ESTATE_AGE_LIMIT]" name="limit_age_verified" tool_tip="Для доступа к этому участку житель должен подтвердить свой возраст. Более подробная информация находится здесь: [SUPPORT_SITE]."/>
 			<check_box label="Разрешить доступ группе: [GROUP]" name="GroupCheck" tool_tip="Группа устанавливается на основной вкладке."/>
 			<check_box label="Продать доступ:" name="PassCheck" tool_tip="Разрешить временный доступ к участку."/>
 			<combo_box name="pass_combo">

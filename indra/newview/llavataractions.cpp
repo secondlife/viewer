@@ -285,7 +285,7 @@ bool LLAvatarActions::canCall()
 }
 
 // static
-void LLAvatarActions::startConference(const uuid_vec_t& ids)
+void LLAvatarActions::startConference(const uuid_vec_t& ids, const LLUUID& floater_id)
 {
 	// *HACK: Copy into dynamic array
 	LLDynamicArray<LLUUID> id_array;
@@ -294,7 +294,7 @@ void LLAvatarActions::startConference(const uuid_vec_t& ids)
 		id_array.push_back(*it);
 	}
 	const std::string title = LLTrans::getString("conference-title");
-	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START, ids[0], id_array);
+	LLUUID session_id = gIMMgr->addSession(title, IM_SESSION_CONFERENCE_START, ids[0], id_array, false, floater_id);
 	if (session_id != LLUUID::null)
 	{
 		LLIMFloater::show(session_id);
@@ -738,6 +738,11 @@ void LLAvatarActions::shareWithAvatars()
 
 	LLFloaterAvatarPicker* picker =
 		LLFloaterAvatarPicker::show(boost::bind(give_inventory, _1, _2), TRUE, FALSE);
+	if (!picker)
+	{
+		return;
+	}
+
 	picker->setOkBtnEnableCb(boost::bind(is_give_inventory_acceptable));
 	picker->openFriendsTab();
 	LLNotificationsUtil::add("ShareNotification");

@@ -85,8 +85,8 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 	mBtnCallbackData.push_back(userdata);
 
 	LLButton::Params p;
-	bool is_ignore_btn = form_element["index"].asInteger() == -1;
-	const LLFontGL* font = is_ignore_btn ? sFontSmall: sFont; // for ignore button in script dialog
+	bool make_small_btn = form_element["index"].asInteger() == -1 || form_element["index"].asInteger() == -2;
+	const LLFontGL* font = make_small_btn ? sFontSmall: sFont; // for block and ignore buttons in script dialog
 	p.name = form_element["name"].asString();
 	p.label = form_element["text"].asString();
 	p.font = font;
@@ -107,7 +107,7 @@ LLButton* LLToastNotifyPanel::createButton(const LLSD& form_element, BOOL is_opt
 		p.rect.width = 1;
 		p.auto_resize = true;
 	}
-	else if (mIsScriptDialog && is_ignore_btn)
+	else if (mIsScriptDialog && make_small_btn)
 	{
 		// this is ignore button, make it smaller
 		p.rect.height = BTN_HEIGHT_SMALL;

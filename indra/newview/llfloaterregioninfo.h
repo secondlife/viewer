@@ -294,6 +294,9 @@ public:
 	
 	void updateControls(LLViewerRegion* region);
 	
+	static void updateEstateName(const std::string& name);
+	static void updateEstateOwnerName(const std::string& name);
+
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg);
 	

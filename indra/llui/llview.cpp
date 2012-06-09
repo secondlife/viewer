@@ -1835,7 +1835,10 @@ const LLCtrlQuery & LLView::getFocusRootsQuery()
 
 void	LLView::setShape(const LLRect& new_rect, bool by_user)
 {
-	handleReshape(new_rect, by_user);
+	if (new_rect != getRect())
+	{
+		handleReshape(new_rect, by_user);
+	}
 }
 
 void LLView::handleReshape(const LLRect& new_rect, bool by_user)
@@ -2225,145 +2228,163 @@ static bool get_last_child_rect(LLView* parent, LLRect *rect)
 }
 
 //static
-void LLView::applyXUILayout(LLView::Params& p, LLView* parent)
+void LLView::applyXUILayout(LLView::Params& p, LLView* parent, LLRect layout_rect)
 {
+	if (!parent) return;
+
 	const S32 VPAD = 4;
 	const S32 MIN_WIDGET_HEIGHT = 10;
 	
 	// *NOTE:  This will confuse export of floater/panel coordinates unless
 	// the default is also "topleft".  JC
-	if (p.layout().empty() && parent)
+	if (p.layout().empty())
 	{
 		p.layout = parent->getLayout();
 	}
 
-	if (parent)
+	if (layout_rect.isEmpty())
 	{
-		LLRect parent_rect = parent->getLocalRect();
-		// overwrite uninitialized rect params, using context
-		LLRect default_rect = parent->getLocalRect();
+		layout_rect = parent->getLocalRect();
+	}
 
-		bool layout_topleft = (p.layout() == "topleft");
+	// overwrite uninitialized rect params, using context
+	LLRect default_rect = parent->getLocalRect();
 
-		// convert negative or centered coordinates to parent relative values
-		// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
-		if (p.rect.left.isProvided() && p.rect.left < 0) p.rect.left = p.rect.left + parent_rect.getWidth();
-		if (p.rect.right.isProvided() && p.rect.right < 0) p.rect.right = p.rect.right + parent_rect.getWidth();
-		if (p.rect.bottom.isProvided() && p.rect.bottom < 0) p.rect.bottom = p.rect.bottom + parent_rect.getHeight();
-		if (p.rect.top.isProvided() && p.rect.top < 0) p.rect.top = p.rect.top + parent_rect.getHeight();
+	bool layout_topleft = (p.layout() == "topleft");
 
+	// convert negative or centered coordinates to parent relative values
+	// Note: some of this logic matches the logic in TypedParam<LLRect>::setValueFromBlock()
+	if (p.rect.left.isProvided()) 
+	{
+		p.rect.left = p.rect.left + ((p.rect.left >= 0) ? layout_rect.mLeft : layout_rect.mRight);
+	}
+	if (p.rect.right.isProvided())
+	{
+		p.rect.right = p.rect.right + ((p.rect.right >= 0) ? layout_rect.mLeft : layout_rect.mRight);
+	}
+	if (p.rect.bottom.isProvided()) 
+	{
+		p.rect.bottom = p.rect.bottom + ((p.rect.bottom >= 0) ? layout_rect.mBottom : layout_rect.mTop);
 		if (layout_topleft)
 		{
 			//invert top to bottom
-			if (p.rect.top.isProvided()) p.rect.top = parent_rect.getHeight() - p.rect.top;
-			if (p.rect.bottom.isProvided()) p.rect.bottom = parent_rect.getHeight() - p.rect.bottom;
+			p.rect.bottom = layout_rect.mBottom + layout_rect.mTop - p.rect.bottom;
 		}
-
-		// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
-		if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)
-		{
-			p.rect.height = MIN_WIDGET_HEIGHT;
-		}
-
-		default_rect.translate(0, default_rect.getHeight());
-
-		// If there was a recently constructed child, use its rectangle
-		get_last_child_rect(parent, &default_rect);
-
+	}
+	if (p.rect.top.isProvided())
+	{
+		p.rect.top = p.rect.top + ((p.rect.top >= 0) ? layout_rect.mBottom : layout_rect.mTop);
 		if (layout_topleft)
 		{
-			// Invert the sense of bottom_delta for topleft layout
-			if (p.bottom_delta.isProvided())
-			{
-				p.bottom_delta = -p.bottom_delta;
-			}
-			else if (p.top_pad.isProvided()) 
-			{
-				p.bottom_delta = -(p.rect.height + p.top_pad);
-			}
-			else if (p.top_delta.isProvided())
-			{
-				p.bottom_delta =
-					-(p.top_delta + p.rect.height - default_rect.getHeight());
-			}
-			else if (!p.left_delta.isProvided()
-					 && !p.left_pad.isProvided())
-			{
-				// set default position is just below last rect
-				p.bottom_delta.set(-(p.rect.height + VPAD), false);
-			}
-			else
-			{
-				p.bottom_delta.set(0, false);
-			}
-	
-			// default to same left edge
-			if (!p.left_delta.isProvided())
-			{
-				p.left_delta.set(0, false);
-			}
-			if (p.left_pad.isProvided())
-			{
-				// left_pad is based on prior widget's right edge
-				p.left_delta.set(p.left_pad + default_rect.getWidth(), false);
-			}
-			
-			default_rect.translate(p.left_delta, p.bottom_delta);				
+			//invert top to bottom
+			p.rect.top = layout_rect.mBottom + layout_rect.mTop - p.rect.top;
+		}
+	}
+
+	// DEPRECATE: automatically fall back to height of MIN_WIDGET_HEIGHT pixels
+	if (!p.rect.height.isProvided() && !p.rect.top.isProvided() && p.rect.height == 0)
+	{
+		p.rect.height = MIN_WIDGET_HEIGHT;
+	}
+
+	default_rect.translate(0, default_rect.getHeight());
+
+	// If there was a recently constructed child, use its rectangle
+	get_last_child_rect(parent, &default_rect);
+
+	if (layout_topleft)
+	{
+		// Invert the sense of bottom_delta for topleft layout
+		if (p.bottom_delta.isProvided())
+		{
+			p.bottom_delta = -p.bottom_delta;
+		}
+		else if (p.top_pad.isProvided()) 
+		{
+			p.bottom_delta = -(p.rect.height + p.top_pad);
+		}
+		else if (p.top_delta.isProvided())
+		{
+			p.bottom_delta =
+				-(p.top_delta + p.rect.height - default_rect.getHeight());
+		}
+		else if (!p.left_delta.isProvided()
+					&& !p.left_pad.isProvided())
+		{
+			// set default position is just below last rect
+			p.bottom_delta.set(-(p.rect.height + VPAD), false);
 		}
 		else
-		{	
-			// set default position is just below last rect
-			if (!p.bottom_delta.isProvided())
-			{
-				p.bottom_delta.set(-(p.rect.height + VPAD), false);
-			}
-			if (!p.left_delta.isProvided())
-			{
-				p.left_delta.set(0, false);
-			}
-			default_rect.translate(p.left_delta, p.bottom_delta);
+		{
+			p.bottom_delta.set(0, false);
 		}
+	
+		// default to same left edge
+		if (!p.left_delta.isProvided())
+		{
+			p.left_delta.set(0, false);
+		}
+		if (p.left_pad.isProvided())
+		{
+			// left_pad is based on prior widget's right edge
+			p.left_delta.set(p.left_pad + default_rect.getWidth(), false);
+		}
+			
+		default_rect.translate(p.left_delta, p.bottom_delta);				
+	}
+	else
+	{	
+		// set default position is just below last rect
+		if (!p.bottom_delta.isProvided())
+		{
+			p.bottom_delta.set(-(p.rect.height + VPAD), false);
+		}
+		if (!p.left_delta.isProvided())
+		{
+			p.left_delta.set(0, false);
+		}
+		default_rect.translate(p.left_delta, p.bottom_delta);
+	}
 
-		// this handles case where *both* x and x_delta are provided
-		// ignore x in favor of default x + x_delta
-		if (p.bottom_delta.isProvided()) p.rect.bottom.set(0, false);
-		if (p.left_delta.isProvided()) p.rect.left.set(0, false);
+	// this handles case where *both* x and x_delta are provided
+	// ignore x in favor of default x + x_delta
+	if (p.bottom_delta.isProvided()) p.rect.bottom.set(0, false);
+	if (p.left_delta.isProvided()) p.rect.left.set(0, false);
 
-		// selectively apply rectangle defaults, making sure that
-		// params are not flagged as having been "provided"
-		// as rect params are overconstrained and rely on provided flags
-		if (!p.rect.left.isProvided())
-		{
-			p.rect.left.set(default_rect.mLeft, false);
-			//HACK: get around the fact that setting a rect param component value won't invalidate the existing rect object value
-			p.rect.paramChanged(p.rect.left, true);
-		}
-		if (!p.rect.bottom.isProvided())
-		{
-			p.rect.bottom.set(default_rect.mBottom, false);
-			p.rect.paramChanged(p.rect.bottom, true);
-		}
-		if (!p.rect.top.isProvided())
-		{
-			p.rect.top.set(default_rect.mTop, false);
-			p.rect.paramChanged(p.rect.top, true);
-		}
-		if (!p.rect.right.isProvided())
-		{
-			p.rect.right.set(default_rect.mRight, false);
-			p.rect.paramChanged(p.rect.right, true);
+	// selectively apply rectangle defaults, making sure that
+	// params are not flagged as having been "provided"
+	// as rect params are overconstrained and rely on provided flags
+	if (!p.rect.left.isProvided())
+	{
+		p.rect.left.set(default_rect.mLeft, false);
+		//HACK: get around the fact that setting a rect param component value won't invalidate the existing rect object value
+		p.rect.paramChanged(p.rect.left, true);
+	}
+	if (!p.rect.bottom.isProvided())
+	{
+		p.rect.bottom.set(default_rect.mBottom, false);
+		p.rect.paramChanged(p.rect.bottom, true);
+	}
+	if (!p.rect.top.isProvided())
+	{
+		p.rect.top.set(default_rect.mTop, false);
+		p.rect.paramChanged(p.rect.top, true);
+	}
+	if (!p.rect.right.isProvided())
+	{
+		p.rect.right.set(default_rect.mRight, false);
+		p.rect.paramChanged(p.rect.right, true);
 
-		}
-		if (!p.rect.width.isProvided())
-		{
-			p.rect.width.set(default_rect.getWidth(), false);
-			p.rect.paramChanged(p.rect.width, true);
-		}
-		if (!p.rect.height.isProvided())
-		{
-			p.rect.height.set(default_rect.getHeight(), false);
-			p.rect.paramChanged(p.rect.height, true);
-		}
+	}
+	if (!p.rect.width.isProvided())
+	{
+		p.rect.width.set(default_rect.getWidth(), false);
+		p.rect.paramChanged(p.rect.width, true);
+	}
+	if (!p.rect.height.isProvided())
+	{
+		p.rect.height.set(default_rect.getHeight(), false);
+		p.rect.paramChanged(p.rect.height, true);
 	}
 }
 

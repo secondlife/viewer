@@ -810,6 +810,20 @@ const LLLocalTextureObject* LLWearable::getLocalTextureObject(S32 index) const
 	return NULL;
 }
 
+std::vector<LLLocalTextureObject*> LLWearable::getLocalTextureListSeq()
+{
+	std::vector<LLLocalTextureObject*> result;
+
+	for(te_map_t::const_iterator iter = mTEMap.begin();
+		iter != mTEMap.end(); iter++)
+	{
+		LLLocalTextureObject* lto = iter->second;
+		result.push_back(lto);
+	}
+
+	return result;
+}
+
 void LLWearable::setLocalTextureObject(S32 index, LLLocalTextureObject &lto)
 {
 	if( mTEMap.find(index) != mTEMap.end() )

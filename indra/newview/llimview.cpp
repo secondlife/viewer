@@ -2591,7 +2591,8 @@ LLUUID LLIMMgr::addSession(
 	const std::string& name,
 	EInstantMessage dialog,
 	const LLUUID& other_participant_id,
-	const LLDynamicArray<LLUUID>& ids, bool voice)
+	const LLDynamicArray<LLUUID>& ids, bool voice,
+	const LLUUID& floater_id)
 {
 	if (0 == ids.getLength())
 	{
@@ -2605,6 +2606,18 @@ LLUUID LLIMMgr::addSession(
 	}
 
 	LLUUID session_id = computeSessionID(dialog,other_participant_id);
+
+	if (floater_id.notNull())
+	{
+		LLIMFloater* im_floater = LLIMFloater::findInstance(floater_id);
+		if (im_floater && im_floater->getStartConferenceInSameFloater())
+		{
+			// The IM floater should be initialized with a new session_id
+			// so that it is found by that id when creating a chiclet in LLIMFloater::onIMChicletCreated,
+			// and a new floater is not created.
+			im_floater->initIMSession(session_id);
+		}
+	}
 
 	bool new_session = !LLIMModel::getInstance()->findIMSession(session_id);
 

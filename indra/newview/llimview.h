@@ -347,10 +347,12 @@ public:
 
 	// Adds a session using a specific group of starting agents
 	// the dialog type is assumed correct. Returns the uuid of the session.
+	// A session can be added to a floater specified by floater_id.
 	LLUUID addSession(const std::string& name,
 					  EInstantMessage dialog,
 					  const LLUUID& other_participant_id,
-					  const LLDynamicArray<LLUUID>& ids, bool voice = false);
+					  const LLDynamicArray<LLUUID>& ids, bool voice = false,
+					  const LLUUID& floater_id = LLUUID::null);
 
 	/**
 	 * Creates a P2P session with the requisite handle for responding to voice calls.

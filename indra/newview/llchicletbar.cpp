@@ -125,10 +125,12 @@ void LLChicletBar::sessionRemoved(const LLUUID& session_id)
 	if(getChicletPanel())
 	{
 		// IM floater should be closed when session removed and associated chiclet closed
-		LLIMFloater* iMfloater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
-		if (iMfloater != NULL)
+		LLIMFloater* im_floater = LLFloaterReg::findTypedInstance<LLIMFloater>("impanel", session_id);
+		if (im_floater != NULL && !im_floater->getStartConferenceInSameFloater())
 		{
-			iMfloater->closeFloater();
+			// Close the IM floater only if we are not planning to close the P2P chat
+			// and start a new conference in the same floater.
+			im_floater->closeFloater();
 		}
 
 		getChicletPanel()->removeChiclet(session_id);

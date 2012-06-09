@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="floater_merchant_outbox" title="SATICI GİDEN KUTUSU">
+	<string name="OutboxFolderCount1">
+		1 klasör
+	</string>
+	<string name="OutboxFolderCountN">
+		[NUM] klasör
+	</string>
+	<string name="OutboxImporting">
+		Klasörler gönderiliyor...
+	</string>
+	<string name="OutboxInitializing">
+		Başlatılıyor...
+	</string>
+	<panel label="">
+		<panel>
+			<panel name="outbox_inventory_placeholder_panel">
+				<text name="outbox_inventory_placeholder_title">
+					Yükleniyor...
+				</text>
+			</panel>
+		</panel>
+		<panel>
+			<button label="Pazaryerine Gönder" name="outbox_import_btn" tool_tip="Pazaryeri Vitrinime Gönder"/>
+		</panel>
+	</panel>
+</floater>
