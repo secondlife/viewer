@@ -101,7 +101,9 @@ void LLFloaterSpellCheckerSettings::onBtnOK()
 		LLScrollListCtrl* list_ctrl = findChild<LLScrollListCtrl>("spellcheck_active_list");
 		std::vector<LLScrollListItem*> list_items = list_ctrl->getAllData();
 		for (std::vector<LLScrollListItem*>::const_iterator item_it = list_items.begin(); item_it != list_items.end(); ++item_it)
+		{
 			list_dict.push_back((*item_it)->getColumn(0)->getValue().asString());
+		}
 	}
 	gSavedSettings.setString("SpellCheckDictionary", boost::join(list_dict, ","));
 
@@ -128,7 +130,9 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 	LLComboBox* dict_combo = findChild<LLComboBox>("spellcheck_main_combo");
 	std::string dict_cur = dict_combo->getSelectedItemLabel();
 	if ((dict_cur.empty() || from_settings) && (LLSpellChecker::getUseSpellCheck()))
+	{
 		dict_cur = LLSpellChecker::instance().getActiveDictionary();
+	}
 	dict_combo->clearRows();
 	dict_combo->setEnabled(enabled);
 
@@ -139,10 +143,14 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 		{
 			const LLSD& dict = *dict_it;
 			if ( (dict["installed"].asBoolean()) && (dict["is_primary"].asBoolean()) && (dict.has("language")) )
+			{
 				dict_combo->add(dict["language"].asString());
+			}
 		}
 		if (!dict_combo->selectByValue(dict_cur))
+		{
 			dict_combo->clear();
+		}
 	}
 
 	// Populate the available and active dictionary list
@@ -153,7 +161,9 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 	if ( ((!avail_ctrl->getItemCount()) && (!active_ctrl->getItemCount())) || (from_settings) )
 	{
 		if (LLSpellChecker::getUseSpellCheck())
+		{
 			active_list = LLSpellChecker::instance().getSecondaryDictionaries();
+		}
 	}
 	else
 	{
@@ -162,7 +172,9 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 		{
 			std::string dict = (*item_it)->getColumn(0)->getValue().asString();
 			if (dict_cur != dict)
+			{
 				active_list.push_back(dict);
+			}
 		}
 	}
 

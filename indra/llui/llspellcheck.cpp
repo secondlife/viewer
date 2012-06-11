@@ -75,13 +75,17 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
 {
 	suggestions.clear();
 	if ( (!mHunspell) || (word.length() < 3) )
+	{
 		return 0;
+	}
 
 	char** suggestion_list; int suggestion_cnt = 0;
 	if ( (suggestion_cnt = mHunspell->suggest(&suggestion_list, word.c_str())) != 0 )
 	{
 		for (int suggestion_index = 0; suggestion_index < suggestion_cnt; suggestion_index++)
+		{
 			suggestions.push_back(suggestion_list[suggestion_index]);
+		}
 		mHunspell->free_list(&suggestion_list, suggestion_cnt);	
 	}
 	return suggestions.size();
@@ -94,7 +98,9 @@ const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_language)
 	{
 		const LLSD& dict_entry = *it;
 		if (dict_language == dict_entry["language"].asString())
+		{
 			return dict_entry;
+		}
 	}
 	return LLSD();
 }
@@ -104,7 +110,9 @@ void LLSpellChecker::setDictionaryData(const LLSD& dict_info)
 {
 	const std::string dict_language = dict_info["language"].asString();
 	if (dict_language.empty())
+	{
 		return;
+	}
 
 	for (LLSD::array_iterator it = sDictMap.beginArray(); it != sDictMap.endArray(); ++it)
 	{
@@ -131,7 +139,9 @@ void LLSpellChecker::refreshDictionaryMap()
 	{
 		llifstream app_file(app_path + "dictionaries.xml", std::ios::binary);
 		if ( (!app_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_file)) || (0 == sDictMap.size()) )
+		{
 			return;
+		}
 	}
 
 	// Load user installed dictionary information
@@ -141,7 +151,9 @@ void LLSpellChecker::refreshDictionaryMap()
 		LLSD custom_dict_map;
 		LLSDSerialize::fromXMLDocument(custom_dict_map, custom_file);
 		for (LLSD::array_const_iterator it = custom_dict_map.beginArray(); it != custom_dict_map.endArray(); ++it)
+		{
 			setDictionaryData(*it);
+		}
 		custom_file.close();
 	}
 
@@ -197,7 +209,9 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 			{
 				// Skip over the first line since that's just a line count
 				if (0 != line_num)
+				{
 					word_list.push_back(word);
+				}
 				line_num++;
 			}
 		}
@@ -215,7 +229,9 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 	{
 		file_out << word_list.size() << std::endl;
 		for (std::vector<std::string>::const_iterator itWord = word_list.begin(); itWord != word_list.end(); ++itWord)
+		{
 			file_out << *itWord << std::endl;
+		}
 		file_out.close();
 	}
 }
@@ -249,13 +265,19 @@ void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 		{
 			const LLSD dict_entry = getDictionaryData(*it_added);
 			if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
+			{
 				continue;
+			}
 
 			const std::string strFileDic = dict_entry["name"].asString() + ".dic";
 			if (gDirUtilp->fileExists(user_path + strFileDic))
+			{
 				mHunspell->add_dic((user_path + strFileDic).c_str());
+			}
 			else if (gDirUtilp->fileExists(app_path + strFileDic))
+			{
 				mHunspell->add_dic((app_path + strFileDic).c_str());
+			}
 		}
 		mDictSecondary = dict_list;
 		sSettingsChangeSignal();
@@ -287,11 +309,17 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 		const std::string filename_aff = dict_entry["name"].asString() + ".aff";
 		const std::string filename_dic = dict_entry["name"].asString() + ".dic";
 		if ( (gDirUtilp->fileExists(user_path + filename_aff)) && (gDirUtilp->fileExists(user_path + filename_dic)) )
+		{
 			mHunspell = new Hunspell((user_path + filename_aff).c_str(), (user_path + filename_dic).c_str());
+		}
 		else if ( (gDirUtilp->fileExists(app_path + filename_aff)) && (gDirUtilp->fileExists(app_path + filename_dic)) )
+		{
 			mHunspell = new Hunspell((app_path + filename_aff).c_str(), (app_path + filename_dic).c_str());
+		}
 		if (!mHunspell)
+		{
 			return;
+		}
 
 		mDictName = dict_name;
 		mDictFile = dict_entry["name"].asString();
@@ -325,13 +353,19 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 		{
 			const LLSD dict_entry = getDictionaryData(*it);
 			if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
+			{
 				continue;
+			}
 
 			const std::string filename_dic = dict_entry["name"].asString() + ".dic";
 			if (gDirUtilp->fileExists(user_path + filename_dic))
+			{
 				mHunspell->add_dic((user_path + filename_dic).c_str());
+			}
 			else if (gDirUtilp->fileExists(app_path + filename_dic))
+			{
 				mHunspell->add_dic((app_path + filename_dic).c_str());
+			}
 		}
 	}
 
@@ -382,5 +416,7 @@ void LLSpellChecker::setUseSpellCheck(const std::string& dict_name)
 void LLSpellChecker::initClass()
 {
 	if (sDictMap.isUndefined())
+	{
 		refreshDictionaryMap();
+	}
 }

@@ -3909,9 +3909,13 @@ void LLContextMenu::show(S32 x, S32 y, LLView* spawning_view)
 	arrange();
 
 	if (spawning_view)
+	{
 		mSpawningViewHandle = spawning_view->getHandle();
+	}
 	else
+	{
 		mSpawningViewHandle.markDead();
+	}
 	LLView::setVisible(TRUE);
 }
 
