@@ -292,11 +292,6 @@ bool LLPathfindingManager::isPathfindingNavMeshVersioningEnabledForCurrentRegion
 }
 #endif // DEPRECATED_UNVERSIONED_NAVMESH
 
-bool LLPathfindingManager::isAllowAlterPermanent()
-{
-	return (!isPathfindingEnabledForCurrentRegion() || (getAgentState() == kAgentStateUnfrozen));
-}
-
 bool LLPathfindingManager::isAllowViewTerrainProperties() const
 {
 	LLViewerRegion* region = getCurrentRegion();

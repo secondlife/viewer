@@ -80,7 +80,6 @@ public:
 	bool isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX() const;
 #endif // DEPRECATED_UNVERSIONED_NAVMESH
 
-	bool isAllowAlterPermanent();
 	bool isAllowViewTerrainProperties() const;
 
 	LLPathfindingNavMesh::navmesh_slot_t registerNavMeshListenerForRegion(LLViewerRegion *pRegion, LLPathfindingNavMesh::navmesh_callback_t pNavMeshCallback);
