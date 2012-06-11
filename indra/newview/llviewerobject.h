@@ -229,6 +229,8 @@ public:
 	const LLUUID &getID() const						{ return mID; }
 	U32 getLocalID() const							{ return mLocalID; }
 	U32 getCRC() const								{ return mTotalCRC; }
+	S32 getListIndex() const						{ return mListIndex; }
+	void setListIndex(S32 idx)						{ mListIndex = idx; }
 
 	virtual BOOL isFlexible() const					{ return FALSE; }
 	virtual BOOL isSculpted() const 				{ return FALSE; }
@@ -588,6 +590,9 @@ public:
 
 	// Last total CRC received from sim, used for caching
 	U32				mTotalCRC;
+
+	// index into LLViewerObjectList::mActiveObjects or -1 if not in list
+	S32				mListIndex;
 
 	LLPointer<LLViewerTexture> *mTEImages;
 

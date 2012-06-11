@@ -928,21 +928,30 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	LLViewerObject *objectp = NULL;	
 	
 	// Make a copy of the list in case something in idleUpdate() messes with it
-	std::vector<LLViewerObject*> idle_list;
-	
+	static std::vector<LLViewerObject*> idle_list;
+
+	U32 idle_count = 0;
+		
 	static LLFastTimer::DeclareTimer idle_copy("Idle Copy");
 
 	{
 		LLFastTimer t(idle_copy);
-		idle_list.reserve( mActiveObjects.size() );
-
- 		for (std::set<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
+		
+ 		for (std::vector<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
 			active_iter != mActiveObjects.end(); active_iter++)
 		{
 			objectp = *active_iter;
 			if (objectp)
 			{
-				idle_list.push_back( objectp );
+				if (idle_count >= idle_list.size())
+				{
+					idle_list.push_back( objectp );
+				}
+				else
+				{
+					idle_list[idle_count] = objectp;
+				}
+				++idle_count;
 			}
 			else
 			{	// There shouldn't be any NULL pointers in the list, but they have caused
@@ -952,10 +961,13 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 		}
 	}
 
+	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
+
 	if (gSavedSettings.getBOOL("FreezeTime"))
 	{
+		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
-			iter != idle_list.end(); iter++)
+			iter != idle_end; iter++)
 		{
 			objectp = *iter;
 			if (objectp->isAvatar())
@@ -967,17 +979,17 @@ void LLViewerObjectList::update(LLAgent &agent, LLWorld &world)
 	else
 	{
 		for (std::vector<LLViewerObject*>::iterator idle_iter = idle_list.begin();
-			idle_iter != idle_list.end(); idle_iter++)
+			idle_iter != idle_end; idle_iter++)
 		{
 			objectp = *idle_iter;
-			if (!objectp->idleUpdate(agent, world, frame_time))
+			if (objectp->idleUpdate(agent, world, frame_time))
 			{
-				//  If Idle Update returns false, kill object!
-				kill_list.push_back(objectp);
+				num_active_objects++;				
 			}
 			else
 			{
-				num_active_objects++;
+				//  If Idle Update returns false, kill object!
+				kill_list.push_back(objectp);
 			}
 		}
 		for (std::vector<LLViewerObject*>::iterator kill_iter = kill_list.begin();
@@ -1215,7 +1227,7 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	{
 		//llinfos << "Removing " << objectp->mID << " " << objectp->getPCodeString() << " from active list in cleanupReferences." << llendl;
 		objectp->setOnActiveList(FALSE);
-		mActiveObjects.erase(objectp);
+		removeFromActiveList(objectp);
 	}
 
 	if (objectp->isOnMap())
@@ -1392,6 +1404,26 @@ void LLViewerObjectList::cleanDeadObjects(BOOL use_timer)
 	mNumDeadObjects = 0;
 }
 
+void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
+{
+	S32 idx = objectp->getListIndex();
+	if (idx != -1)
+	{ //remove by moving last element to this object's position
+		llassert(mActiveObjects[idx] == objectp);
+		
+		objectp->setListIndex(-1);
+
+		S32 last_index = mActiveObjects.size()-1;
+
+		if (idx != last_index)
+		{
+			mActiveObjects[idx] = mActiveObjects[last_index];
+			mActiveObjects[idx]->setListIndex(idx);
+			mActiveObjects.pop_back();
+		}
+	}
+}
+
 void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 {
 	LLMemType mt(LLMemType::MTYPE_OBJECT);
@@ -1406,13 +1438,17 @@ void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 		if (active)
 		{
 			//llinfos << "Adding " << objectp->mID << " " << objectp->getPCodeString() << " to active list." << llendl;
-			mActiveObjects.insert(objectp);
+			llassert(objectp->getListIndex() == -1);
+
+			mActiveObjects.push_back(objectp);
+			objectp->setListIndex(mActiveObjects.size()-1);
+
 			objectp->setOnActiveList(TRUE);
 		}
 		else
 		{
 			//llinfos << "Removing " << objectp->mID << " " << objectp->getPCodeString() << " from active list." << llendl;
-			mActiveObjects.erase(objectp);
+			removeFromActiveList(objectp);
 			objectp->setOnActiveList(FALSE);
 		}
 	}

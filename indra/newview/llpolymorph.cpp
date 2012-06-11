@@ -647,7 +647,7 @@ void	LLPolyMorphTarget::applyMask(U8 *maskTextureData, S32 width, S32 height, S3
 					LLVector4a* clothing_weight = &clothing_weights[out_vert];
 					LLVector4a t;
 					t.setSub(*clothing_weight, clothing_offset);
-					clothing_weight->setSelectWithMask(clothing_mask, clothing_offset, *clothing_weight);
+					clothing_weight->setSelectWithMask(clothing_mask, t, *clothing_weight);
 				}
 			}
 		}
