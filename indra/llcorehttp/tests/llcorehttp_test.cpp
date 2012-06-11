@@ -27,6 +27,7 @@
 #include "llcorehttp_test.h"
 
 #include <iostream>
+#include <sstream>
 
 // These are not the right way in viewer for some reason:
 // #include <tut/tut.hpp>
@@ -130,3 +131,38 @@ void ssl_locking_callback(int mode, int type, const char * /* file */, int /* li
 }
 
 
+std::string get_base_url()
+{
+	const char * env(getenv("LL_TEST_PORT"));
+
+	if (! env)
+	{
+		std::cerr << "LL_TEST_PORT environment variable missing." << std::endl;
+		std::cerr << "Test expects to run in test_llcorehttp_peer.py script." << std::endl;
+		tut::ensure("LL_TEST_PORT set in environment", NULL != env);
+	}
+
+	int port(atoi(env));
+	std::ostringstream out;
+	out << "http://localhost:" << port << "/";
+	return out.str();
+}
+
+
+void stop_thread(LLCore::HttpRequest * req)
+{
+	if (req)
+	{
+		req->requestStopThread(NULL);
+	
+		int count = 0;
+		int limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+	}
+}
+
+	

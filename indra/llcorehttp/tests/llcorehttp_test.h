@@ -32,6 +32,9 @@
 
 #include <curl/curl.h>
 #include <openssl/crypto.h>
+#include <string>
+
+#include "httprequest.h"
 
 // Initialization and cleanup for libcurl.  Mainly provides
 // a mutex callback for SSL and a thread ID hash for libcurl.
@@ -40,6 +43,8 @@
 // operations.
 extern void init_curl();
 extern void term_curl();
+extern std::string get_base_url();
+extern void stop_thread(LLCore::HttpRequest * req);
 
 class ScopedCurlInit
 {

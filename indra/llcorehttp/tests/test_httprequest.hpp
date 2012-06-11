@@ -84,8 +84,10 @@ public:
 			if (response && mState)
 			{
 				const HttpStatus actual_status(response->getStatus());
-				
-				ensure("Expected HttpStatus received in response", actual_status == mState->mStatus);
+				std::ostringstream test;
+				test << "Expected HttpStatus received in response.  Wanted:  "
+					 << mState->mStatus.toHex() << " Received:  " << actual_status.toHex();
+				ensure(test.str().c_str(), actual_status == mState->mStatus);
 			}
 			if (mState)
 			{
@@ -184,6 +186,7 @@ void HttpRequestTestObjectType::test<2>()
 	}
 	catch (...)
 	{
+		stop_thread(req);
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -275,6 +278,7 @@ void HttpRequestTestObjectType::test<3>()
 	}
 	catch (...)
 	{
+		stop_thread(req);
 		delete req;
 		HttpRequest::destroyService();
 		throw;
@@ -377,6 +381,7 @@ void HttpRequestTestObjectType::test<4>()
 	}
 	catch (...)
 	{
+		stop_thread(req1);
 		delete req1;
 		delete req2;
 		HttpRequest::destroyService();
@@ -483,6 +488,116 @@ void HttpRequestTestObjectType::test<5>()
 	}
 	catch (...)
 	{
+		stop_thread(req);
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
+}
+
+template <> template <>
+void HttpRequestTestObjectType::test<6>()
+{
+	ScopedCurlInit ready;
+
+	std::string url_base(get_base_url());
+	std::cerr << "Base:  "  << url_base << std::endl;
+	
+	set_test_name("HttpRequest GET to real service");
+
+	// Handler can be stack-allocated *if* there are no dangling
+	// references to it after completion of this method.
+	// Create before memory record as the string copy will bump numbers.
+	TestHandler2 handler(this, "handler");
+		
+	// record the total amount of dynamically allocated memory
+	mMemTotal = GetMemTotal();
+	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
+		
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
+
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+
+		// Issue a GET that *can* connect
+		mStatus = HttpStatus(200);
+		HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+													 0U,
+													 url_base,
+													 0,
+													 0,
+													 NULL,
+													 NULL,
+													 &handler);
+		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+
+		// Run the notification pump.
+		int count(0);
+		int limit(10);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
+
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+	
+		// Run the notification pump again
+		count = 0;
+		limit = 10;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
+
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
+	
+		// release the request object
+		delete req;
+		req = NULL;
+
+		// Shut down service
+		HttpRequest::destroyService();
+	
+		ensure("Two handler calls on the way out", 2 == mHandlerCalls);
+
+#if defined(WIN32)
+		// Can only do this memory test on Windows.  On other platforms,
+		// the LL logging system holds on to memory and produces what looks
+		// like memory leaks...
+	
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+#endif
+	}
+	catch (...)
+	{
+		stop_thread(req);
 		delete req;
 		HttpRequest::destroyService();
 		throw;

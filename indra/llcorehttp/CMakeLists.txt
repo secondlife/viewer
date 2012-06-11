@@ -125,6 +125,8 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llcorehttp
                           "${llcorehttp_TEST_SOURCE_FILES}"
                           "${test_libs}"
+                          ${PYTHON_EXECUTABLE}
+                          "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_llcorehttp_peer.py"
                           )
 
 endif (LL_TESTS)
