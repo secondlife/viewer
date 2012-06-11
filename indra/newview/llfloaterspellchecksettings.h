@@ -43,7 +43,7 @@ protected:
 	void onBtnMove(const std::string& from, const std::string& to);
 	void onBtnOK();
 	void onSpellCheckSettingsChange();
-	void refreshDictionaryLists(bool from_settings);
+	void refreshDictionaries(bool from_settings);
 };
 
 class LLFloaterSpellCheckerImport : public LLFloater

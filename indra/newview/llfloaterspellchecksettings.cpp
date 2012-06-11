@@ -33,6 +33,7 @@
 #include "llscrolllistctrl.h"
 #include "llsdserialize.h"
 #include "llspellcheck.h"
+#include "lltrans.h"
 #include "llviewercontrol.h"
 
 #include <boost/algorithm/string.hpp>
@@ -47,10 +48,10 @@ LLFloaterSpellCheckerSettings::LLFloaterSpellCheckerSettings(const LLSD& key)
 
 BOOL LLFloaterSpellCheckerSettings::postBuild(void)
 {
-	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaryLists, this, false));
+	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
 	LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
 	getChild<LLUICtrl>("spellcheck_import_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnImport, this));
-	getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaryLists, this, false));
+	getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
 	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
 	getChild<LLUICtrl>("spellcheck_moveright_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_available_list", "spellcheck_active_list"));
 	getChild<LLUICtrl>("spellcheck_ok")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnOK, this));
@@ -82,6 +83,7 @@ void LLFloaterSpellCheckerSettings::onBtnMove(const std::string& from, const std
 	std::vector<LLScrollListItem*> sel_items = from_ctrl->getAllSelected();
 	for (std::vector<LLScrollListItem*>::const_iterator sel_it = sel_items.begin(); sel_it != sel_items.end(); ++sel_it)
 	{
+		row["value"] = (*sel_it)->getValue();
 		row["columns"][0]["value"] = (*sel_it)->getColumn(0)->getValue();
 		to_ctrl->addElement(row);
 	}
@@ -102,7 +104,11 @@ void LLFloaterSpellCheckerSettings::onBtnOK()
 		std::vector<LLScrollListItem*> list_items = list_ctrl->getAllData();
 		for (std::vector<LLScrollListItem*>::const_iterator item_it = list_items.begin(); item_it != list_items.end(); ++item_it)
 		{
-			list_dict.push_back((*item_it)->getColumn(0)->getValue().asString());
+			const std::string language = (*item_it)->getValue().asString();
+			if (LLSpellChecker::hasDictionary(language, true))
+			{
+				list_dict.push_back(language);
+			}
 		}
 	}
 	gSavedSettings.setString("SpellCheckDictionary", boost::join(list_dict, ","));
@@ -112,15 +118,15 @@ void LLFloaterSpellCheckerSettings::onBtnOK()
 
 void LLFloaterSpellCheckerSettings::onOpen(const LLSD& key)
 {
-	refreshDictionaryLists(true);
+	refreshDictionaries(true);
 }
 
 void LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange()
 {
-	refreshDictionaryLists(true);
+	refreshDictionaries(true);
 }
 
-void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
+void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 {
 	bool enabled = gSavedSettings.getBOOL("SpellCheck");
 	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setEnabled(enabled);
@@ -170,7 +176,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 		std::vector<LLScrollListItem*> active_items = active_ctrl->getAllData();
 		for (std::vector<LLScrollListItem*>::const_iterator item_it = active_items.begin(); item_it != active_items.end(); ++item_it)
 		{
-			std::string dict = (*item_it)->getColumn(0)->getValue().asString();
+			std::string dict = (*item_it)->getValue().asString();
 			if (dict_cur != dict)
 			{
 				active_list.push_back(dict);
@@ -185,27 +191,31 @@ void LLFloaterSpellCheckerSettings::refreshDictionaryLists(bool from_settings)
 
 	active_ctrl->clearRows();
 	active_ctrl->setEnabled(enabled);
-	active_ctrl->sortByColumnIndex(0, true);
 	for (LLSpellChecker::dict_list_t::const_iterator it = active_list.begin(); it != active_list.end(); ++it)
 	{
-		row["columns"][0]["value"] = *it;
+		const std::string language = *it;
+		const LLSD dict = LLSpellChecker::getDictionaryData(language);
+		row["value"] = language;
+		row["columns"][0]["value"] = (!dict["user_installed"].asBoolean()) ? language : language + " " + LLTrans::getString("UserDictionary");
 		active_ctrl->addElement(row);
 	}
+	active_ctrl->sortByColumnIndex(0, true);
 	active_list.push_back(dict_cur);
 
 	avail_ctrl->clearRows();
 	avail_ctrl->setEnabled(enabled);
-	avail_ctrl->sortByColumnIndex(0, true);
 	for (LLSD::array_const_iterator dict_it = dict_map.beginArray(); dict_it != dict_map.endArray(); ++dict_it)
 	{
 		const LLSD& dict = *dict_it;
-		if ( (dict["installed"].asBoolean()) && (dict.has("language")) && 
-			 (active_list.end() == std::find(active_list.begin(), active_list.end(), dict["language"].asString())) )
+		const std::string language = dict["language"].asString();
+		if ( (dict["installed"].asBoolean()) && (active_list.end() == std::find(active_list.begin(), active_list.end(), language)) )
 		{
-			row["columns"][0]["value"] = dict["language"].asString();
+			row["value"] = language;
+			row["columns"][0]["value"] = (!dict["user_installed"].asBoolean()) ? language : language + " " + LLTrans::getString("UserDictionary");
 			avail_ctrl->addElement(row);
 		}
 	}
+	avail_ctrl->sortByColumnIndex(0, true);
 }
 
 ///----------------------------------------------------------------------------

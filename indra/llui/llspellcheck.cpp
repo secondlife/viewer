@@ -106,6 +106,13 @@ const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_language)
 }
 
 // static
+bool LLSpellChecker::hasDictionary(const std::string& dict_language, bool check_installed)
+{
+	const LLSD dict_info = getDictionaryData(dict_language);
+	return dict_info.has("language") && ( (!check_installed) || (dict_info["installed"].asBoolean()) );
+}
+
+// static
 void LLSpellChecker::setDictionaryData(const LLSD& dict_info)
 {
 	const std::string dict_language = dict_info["language"].asString();
@@ -150,9 +157,11 @@ void LLSpellChecker::refreshDictionaryMap()
 	{
 		LLSD custom_dict_map;
 		LLSDSerialize::fromXMLDocument(custom_dict_map, custom_file);
-		for (LLSD::array_const_iterator it = custom_dict_map.beginArray(); it != custom_dict_map.endArray(); ++it)
+		for (LLSD::array_iterator it = custom_dict_map.beginArray(); it != custom_dict_map.endArray(); ++it)
 		{
-			setDictionaryData(*it);
+			LLSD& dict_info = *it;
+			dict_info["user_installed"] = true;
+			setDictionaryData(dict_info);
 		}
 		custom_file.close();
 	}

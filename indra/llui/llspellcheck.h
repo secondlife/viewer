@@ -62,6 +62,7 @@ public:
 	static const LLSD		 getDictionaryData(const std::string& dict_language);
 	static const LLSD&		 getDictionaryMap() { return sDictMap; }
 	static bool				 getUseSpellCheck();
+	static bool				 hasDictionary(const std::string& dict_language, bool check_installed = false);
 	static void				 refreshDictionaryMap();
 	static void				 setUseSpellCheck(const std::string& dict_name);
 protected:
