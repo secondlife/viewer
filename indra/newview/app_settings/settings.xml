@@ -10752,6 +10752,72 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchUpdateHighPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of high priority textures to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>32</integer>
+    </map>
+    <key>TextureFetchUpdateMaxMediumPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum number of medium priority textures to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>256</integer>
+    </map>
+    <key>TextureFetchUpdateMinMediumPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Minimum number of medium priority textures to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>32</integer>
+    </map>
+    <key>TextureFetchUpdatePriorityThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Threshold under which textures will be considered too low priority and skipped for update</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>0.0</integer>
+    </map>
+    <key>TextureFetchUpdateSkipLowPriority</key>
+    <map>
+      <key>Comment</key>
+      <string>Flag indicating if we want to skip textures with too low of a priority</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>TextureFetchUpdatePriorities</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of priority texture to update per frame</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>32</integer>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>

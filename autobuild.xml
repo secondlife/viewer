@@ -966,9 +966,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d91e1f483209cd3eba04135c6a59e829</string>
+              <string>a5b2dff0d97b643227a58473e5c57906</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/Darwin/installer/kdu-6.4.1-darwin-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/Darwin/installer/kdu-7.0.0-darwin-20120515.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -990,9 +990,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6cd9f36465ef73a3df34bf2b3bba2ced</string>
+              <string>6d80d35524e1c0c32d3385014d02d48c</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/221672/arch/CYGWIN/installer/kdu-6.4.1-windows-20110218.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/3p-kdu-private/rev/256978/arch/CYGWIN/installer/kdu-7.0.0-windows-20120515.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
