@@ -63,7 +63,7 @@
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
 #include "llmoveview.h"
-#include "llnearbychat.h"
+#include "llimfloatercontainer.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
 #include "llteleporthistory.h"
@@ -1375,6 +1375,10 @@ bool idle_startup()
 		// so that we can construct voice UI that relies on the name cache
 		LLVoiceClient::getInstance()->updateSettings();
 		display_startup();
+
+		// create a container's instance for start a controlling conversation windows
+		// by the voice's events
+		LLIMFloaterContainer::getInstance();
 
 		// *Note: this is where gWorldMap used to be initialized.
 

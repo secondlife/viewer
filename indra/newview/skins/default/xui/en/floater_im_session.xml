@@ -236,10 +236,9 @@
             </layout_panel>
            </layout_stack>
            </panel>
-            <panel width="228" 
+            <panel width="225" 
              height="31" 
-             left="4"
-             right="4" 
+             left="4" 
              name="bottom_panel"
              bottom="-1" 
              follows="left|right|bottom" 
@@ -254,7 +253,7 @@
              		layout="bottomleft"
              		name="chat_editor"
              		tab_group="3"
-             		width="240">
+             		width="220">
             	</line_editor>
               </panel>
     </layout_panel>
