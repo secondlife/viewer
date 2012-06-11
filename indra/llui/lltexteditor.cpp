@@ -1960,9 +1960,13 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 	if (hasSelection())
 	{
 		if ( (mCursorPos < llmin(mSelectionStart, mSelectionEnd)) || (mCursorPos > llmax(mSelectionStart, mSelectionEnd)) )
+		{
 			deselect();
+		}
 		else
+		{
 			setCursorPos(llmax(mSelectionStart, mSelectionEnd));
+		}
 	}
 
 	bool use_spellcheck = getSpellCheck(), is_misspelled = false;

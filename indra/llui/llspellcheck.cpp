@@ -41,6 +41,9 @@ static const std::string DICT_DIR = "dictionaries";
 static const std::string DICT_CUSTOM_SUFFIX = "_custom";
 static const std::string DICT_IGNORE_SUFFIX = "_ignore";
 
+static const std::string DICT_FILE_MAIN = "dictionaries.xml";
+static const std::string DICT_FILE_USER = "user_dictionaries.xml";
+
 LLSD LLSpellChecker::sDictMap;
 LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 
@@ -75,13 +78,17 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
 {
 	suggestions.clear();
 	if ( (!mHunspell) || (word.length() < 3) )
+	{
 		return 0;
+	}
 
 	char** suggestion_list; int suggestion_cnt = 0;
 	if ( (suggestion_cnt = mHunspell->suggest(&suggestion_list, word.c_str())) != 0 )
 	{
 		for (int suggestion_index = 0; suggestion_index < suggestion_cnt; suggestion_index++)
+		{
 			suggestions.push_back(suggestion_list[suggestion_index]);
+		}
 		mHunspell->free_list(&suggestion_list, suggestion_cnt);	
 	}
 	return suggestions.size();
@@ -94,9 +101,18 @@ const LLSD LLSpellChecker::getDictionaryData(const std::string& dict_language)
 	{
 		const LLSD& dict_entry = *it;
 		if (dict_language == dict_entry["language"].asString())
+		{
 			return dict_entry;
+		}
 	}
 	return LLSD();
+}
+
+// static
+bool LLSpellChecker::hasDictionary(const std::string& dict_language, bool check_installed)
+{
+	const LLSD dict_info = getDictionaryData(dict_language);
+	return dict_info.has("language") && ( (!check_installed) || (dict_info["installed"].asBoolean()) );
 }
 
 // static
@@ -104,7 +120,9 @@ void LLSpellChecker::setDictionaryData(const LLSD& dict_info)
 {
 	const std::string dict_language = dict_info["language"].asString();
 	if (dict_language.empty())
+	{
 		return;
+	}
 
 	for (LLSD::array_iterator it = sDictMap.beginArray(); it != sDictMap.endArray(); ++it)
 	{
@@ -126,22 +144,28 @@ void LLSpellChecker::refreshDictionaryMap()
 	const std::string user_path = getDictionaryUserPath();
 
 	// Load dictionary information (file name, friendly name, ...)
-	llifstream user_file(user_path + "dictionaries.xml", std::ios::binary);
+	llifstream user_file(user_path + DICT_FILE_MAIN, std::ios::binary);
 	if ( (!user_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, user_file)) || (0 == sDictMap.size()) )
 	{
-		llifstream app_file(app_path + "dictionaries.xml", std::ios::binary);
+		llifstream app_file(app_path + DICT_FILE_MAIN, std::ios::binary);
 		if ( (!app_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_file)) || (0 == sDictMap.size()) )
+		{
 			return;
+		}
 	}
 
 	// Load user installed dictionary information
-	llifstream custom_file(user_path + "user_dictionaries.xml", std::ios::binary);
+	llifstream custom_file(user_path + DICT_FILE_USER, std::ios::binary);
 	if (custom_file.is_open())
 	{
 		LLSD custom_dict_map;
 		LLSDSerialize::fromXMLDocument(custom_dict_map, custom_file);
-		for (LLSD::array_const_iterator it = custom_dict_map.beginArray(); it != custom_dict_map.endArray(); ++it)
-			setDictionaryData(*it);
+		for (LLSD::array_iterator it = custom_dict_map.beginArray(); it != custom_dict_map.endArray(); ++it)
+		{
+			LLSD& dict_info = *it;
+			dict_info["user_installed"] = true;
+			setDictionaryData(dict_info);
+		}
 		custom_file.close();
 	}
 
@@ -197,7 +221,9 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 			{
 				// Skip over the first line since that's just a line count
 				if (0 != line_num)
+				{
 					word_list.push_back(word);
+				}
 				line_num++;
 			}
 		}
@@ -215,9 +241,18 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 	{
 		file_out << word_list.size() << std::endl;
 		for (std::vector<std::string>::const_iterator itWord = word_list.begin(); itWord != word_list.end(); ++itWord)
+		{
 			file_out << *itWord << std::endl;
+		}
 		file_out.close();
 	}
+}
+
+bool LLSpellChecker::isActiveDictionary(const std::string& dict_language) const
+{
+	return
+		(mDictLanguage == dict_language) || 
+		(mDictSecondary.end() != std::find(mDictSecondary.begin(), mDictSecondary.end(), dict_language));
 }
 
 void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
@@ -238,8 +273,8 @@ void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 	{
 		mDictSecondary = dict_list;
 
-		std::string dict_name = mDictName;
-		initHunspell(dict_name);
+		std::string dict_language = mDictLanguage;
+		initHunspell(dict_language);
 	}
 	else if (end_added != dict_add.begin())		// Add the new secondary dictionaries one by one
 	{
@@ -249,31 +284,37 @@ void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 		{
 			const LLSD dict_entry = getDictionaryData(*it_added);
 			if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
+			{
 				continue;
+			}
 
 			const std::string strFileDic = dict_entry["name"].asString() + ".dic";
 			if (gDirUtilp->fileExists(user_path + strFileDic))
+			{
 				mHunspell->add_dic((user_path + strFileDic).c_str());
+			}
 			else if (gDirUtilp->fileExists(app_path + strFileDic))
+			{
 				mHunspell->add_dic((app_path + strFileDic).c_str());
+			}
 		}
 		mDictSecondary = dict_list;
 		sSettingsChangeSignal();
 	}
 }
 
-void LLSpellChecker::initHunspell(const std::string& dict_name)
+void LLSpellChecker::initHunspell(const std::string& dict_language)
 {
 	if (mHunspell)
 	{
 		delete mHunspell;
 		mHunspell = NULL;
-		mDictName.clear();
+		mDictLanguage.clear();
 		mDictFile.clear();
 		mIgnoreList.clear();
 	}
 
-	const LLSD dict_entry = (!dict_name.empty()) ? getDictionaryData(dict_name) : LLSD();
+	const LLSD dict_entry = (!dict_language.empty()) ? getDictionaryData(dict_language) : LLSD();
 	if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) || (!dict_entry["is_primary"].asBoolean()))
 	{
 		sSettingsChangeSignal();
@@ -287,13 +328,19 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 		const std::string filename_aff = dict_entry["name"].asString() + ".aff";
 		const std::string filename_dic = dict_entry["name"].asString() + ".dic";
 		if ( (gDirUtilp->fileExists(user_path + filename_aff)) && (gDirUtilp->fileExists(user_path + filename_dic)) )
+		{
 			mHunspell = new Hunspell((user_path + filename_aff).c_str(), (user_path + filename_dic).c_str());
+		}
 		else if ( (gDirUtilp->fileExists(app_path + filename_aff)) && (gDirUtilp->fileExists(app_path + filename_dic)) )
+		{
 			mHunspell = new Hunspell((app_path + filename_aff).c_str(), (app_path + filename_dic).c_str());
+		}
 		if (!mHunspell)
+		{
 			return;
+		}
 
-		mDictName = dict_name;
+		mDictLanguage = dict_language;
 		mDictFile = dict_entry["name"].asString();
 
 		if (dict_entry["has_custom"].asBoolean())
@@ -325,13 +372,19 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 		{
 			const LLSD dict_entry = getDictionaryData(*it);
 			if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) )
+			{
 				continue;
+			}
 
 			const std::string filename_dic = dict_entry["name"].asString() + ".dic";
 			if (gDirUtilp->fileExists(user_path + filename_dic))
+			{
 				mHunspell->add_dic((user_path + filename_dic).c_str());
+			}
 			else if (gDirUtilp->fileExists(app_path + filename_dic))
+			{
 				mHunspell->add_dic((app_path + filename_dic).c_str());
+			}
 		}
 	}
 
@@ -363,18 +416,85 @@ bool LLSpellChecker::getUseSpellCheck()
 }
 
 // static
+bool LLSpellChecker::canRemoveDictionary(const std::string& dict_language)
+{
+	// Only user-installed inactive dictionaries can be removed
+	const LLSD dict_info = getDictionaryData(dict_language);
+	return 
+		(dict_info["user_installed"].asBoolean()) && 
+		( (!getUseSpellCheck()) || (!LLSpellChecker::instance().isActiveDictionary(dict_language)) );
+}
+
+// static
+void LLSpellChecker::removeDictionary(const std::string& dict_language)
+{
+	if (!canRemoveDictionary(dict_language))
+	{
+		return;
+	}
+
+	LLSD dict_map = loadUserDictionaryMap();
+	for (LLSD::array_const_iterator it = dict_map.beginArray(); it != dict_map.endArray(); ++it)
+	{
+		const LLSD& dict_info = *it;
+		if (dict_info["language"].asString() == dict_language)
+		{
+			const std::string dict_dic = getDictionaryUserPath() + dict_info["name"].asString() + ".dic";
+			if (gDirUtilp->fileExists(dict_dic))
+			{
+				LLFile::remove(dict_dic);
+			}
+			const std::string dict_aff = getDictionaryUserPath() + dict_info["name"].asString() + ".aff";
+			if (gDirUtilp->fileExists(dict_aff))
+			{
+				LLFile::remove(dict_aff);
+			}
+			dict_map.erase(it - dict_map.beginArray());
+			break;
+		}
+	}
+	saveUserDictionaryMap(dict_map);
+
+	refreshDictionaryMap();
+}
+
+// static
+LLSD LLSpellChecker::loadUserDictionaryMap()
+{
+	LLSD dict_map;
+	llifstream dict_file(getDictionaryUserPath() + DICT_FILE_USER, std::ios::binary);
+	if (dict_file.is_open())
+	{
+		LLSDSerialize::fromXMLDocument(dict_map, dict_file);
+		dict_file.close();
+	}
+	return dict_map;
+}
+
+// static
+void LLSpellChecker::saveUserDictionaryMap(const LLSD& dict_map)
+{
+	llofstream dict_file(getDictionaryUserPath() + DICT_FILE_USER, std::ios::trunc);
+	if (dict_file.is_open())
+	{
+		LLSDSerialize::toPrettyXML(dict_map, dict_file);
+		dict_file.close();
+	}
+}
+
+// static
 boost::signals2::connection LLSpellChecker::setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb)
 {
 	return sSettingsChangeSignal.connect(cb);
 }
 
 // static
-void LLSpellChecker::setUseSpellCheck(const std::string& dict_name)
+void LLSpellChecker::setUseSpellCheck(const std::string& dict_language)
 {
-	if ( (((dict_name.empty()) && (getUseSpellCheck())) || (!dict_name.empty())) && 
-		 (LLSpellChecker::instance().mDictName != dict_name) )
+	if ( (((dict_language.empty()) && (getUseSpellCheck())) || (!dict_language.empty())) && 
+		 (LLSpellChecker::instance().mDictLanguage != dict_language) )
 	{
-		LLSpellChecker::instance().initHunspell(dict_name);
+		LLSpellChecker::instance().initHunspell(dict_language);
 	}
 }
 
@@ -382,5 +502,7 @@ void LLSpellChecker::setUseSpellCheck(const std::string& dict_name)
 void LLSpellChecker::initClass()
 {
 	if (sDictMap.isUndefined())
+	{
 		refreshDictionaryMap();
+	}
 }

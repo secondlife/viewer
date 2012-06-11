@@ -3,10 +3,10 @@
  border="true"
  can_close="true"
  can_minimize="true"
- bottom="275"
+ bottom="300"
  left="300"
  can_resize="false"
- height="330"
+ height="355"
  width="490"
  name="spellcheck_floater"
  title="Spell Checker Settings">
@@ -53,16 +53,6 @@
    top_pad="-15"
    width="175"
   />
-  <button
-   follows="left|top"
-   height="23"
-   label="Import"
-   label_selected="Import"
-   layout="topleft"
-   left_pad="5"
-   name="spellcheck_import_btn"
-   top_delta="0"
-   width="75" />
   <text
    enabled_control="SpellCheck"
    follows="top|left"
@@ -148,6 +138,25 @@
    top_pad="-105"
    width="175"
   />
+  <button
+   enabled="false"
+   follows="left|top"
+   height="23"
+   label="Remove"
+   layout="topleft"
+   left="55"
+   name="spellcheck_remove_btn"
+   top_pad="5"
+   width="80" />
+  <button
+   follows="left|top"
+   height="23"
+   label="Import..."
+   layout="topleft"
+   left_pad="15"
+   name="spellcheck_import_btn"
+   top_delta="0"
+   width="80" />
   <view_border
    top_pad="10"
    left="2"
@@ -159,7 +168,7 @@
    mouse_opaque="false"
    name="divisor4"/>
   <button
-   top_pad="10"
+   top_pad="8"
    right="380"
    height="22"
    width="90"

@@ -599,7 +599,9 @@ std::string LLLineEditor::getMisspelledWord(U32 pos) const
 	for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
 	{
 		if ( (it->first <= pos) && (it->second >= pos) )
+		{
 			return wstring_to_utf8str(mText.getWString().substr(it->first, it->second - it->first));
+		}
 	}
 	return LLStringUtil::null;
 }
@@ -609,7 +611,9 @@ bool LLLineEditor::isMisspelledWord(U32 pos) const
 	for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
 	{
 		if ( (it->first <= pos) && (it->second >= pos) )
+		{
 			return true;
+		}
 	}
 	return false;
 }
@@ -1896,7 +1900,9 @@ void LLLineEditor::draw()
 			// Find the start of the first word
 			U32 word_start = 0, word_end = 0;
 			while ( (word_start < text.length()) && (!LLStringOps::isAlpha(text[word_start])) )
+			{
 				word_start++;
+			}
 
 			// Iterate over all words in the text block and check them one by one
 			mMisspellRanges.clear();
@@ -1912,17 +1918,23 @@ void LLLineEditor::draw()
 					word_end++;
 				}
 				if (word_end > text.length())
+				{
 					break;
+				}
 
 				// Don't process words shorter than 3 characters
 				std::string word = wstring_to_utf8str(text.substr(word_start, word_end - word_start));
 				if ( (word.length() >= 3) && (!LLSpellChecker::instance().checkSpelling(word)) )
+				{
 					mMisspellRanges.push_back(std::pair<U32, U32>(start + word_start, start + word_end));
+				}
 
 				// Find the start of the next word
 				word_start = word_end + 1;
 				while ( (word_start < text.length()) && (!LLWStringUtil::isPartOfWord(text[word_start])) )
+				{
 					word_start++;
+				}
 			}
 
 			mSpellCheckStart = start;
@@ -1934,19 +1946,27 @@ void LLLineEditor::draw()
 		{
 			// Skip over words that aren't (partially) visible
 			if ( ((it->first < start) && (it->second < start)) || (it->first > end) )
+			{
 				continue;
+			}
 
 			// Skip the current word if the user is still busy editing it
 			if ( (!mSpellCheckTimer.hasExpired()) && (it->first <= (U32)mCursorPos) && (it->second >= (U32)mCursorPos) )
+			{
  				continue;
+			}
 
 			S32 pxWidth = getRect().getWidth();
 			S32 pxStart = findPixelNearestPos(it->first - getCursor());
 			if (pxStart > pxWidth)
+			{
 				continue;
+			}
 			S32 pxEnd = findPixelNearestPos(it->second - getCursor());
 			if (pxEnd > pxWidth)
+			{
 				pxEnd = pxWidth;
+			}
 
 			S32 pxBottom = (S32)(text_bottom + mGLFont->getDescenderHeight());
 
@@ -1955,7 +1975,9 @@ void LLLineEditor::draw()
 			{
 				gl_line_2d(pxStart, pxBottom, pxStart + 2, pxBottom - 2);
 				if (pxStart + 3 < pxEnd)
+				{
 					gl_line_2d(pxStart + 2, pxBottom - 3, pxStart + 4, pxBottom - 1);
+				}
 				pxStart += 4;
 			}
 		}
@@ -2582,9 +2604,13 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 		if (hasSelection())
 		{
 			if ( (mCursorPos < llmin(mSelectionStart, mSelectionEnd)) || (mCursorPos > llmax(mSelectionStart, mSelectionEnd)) )
+			{
 				deselect();
+			}
 			else
+			{
 				setCursor(llmax(mSelectionStart, mSelectionEnd));
+			}
 		}
 
 		bool use_spellcheck = getSpellCheck(), is_misspelled = false;

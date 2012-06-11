@@ -582,7 +582,9 @@ void LLTextBase::drawText()
 				// Find the start of the first word
 				U32 word_start = seg_start, word_end = -1;
 				while ( (word_start < wstrText.length()) && (!LLStringOps::isAlpha(wstrText[word_start])) )
+				{
 					word_start++;
+				}
 
 				// Iterate over all words in the text block and check them one by one
 				while (word_start < seg_end)
@@ -597,7 +599,9 @@ void LLTextBase::drawText()
 						word_end++;
 					}
 					if (word_end > seg_end)
+					{
 						break;
+					}
 
 					// Don't process words shorter than 3 characters
 					std::string word = wstring_to_utf8str(wstrText.substr(word_start, word_end - word_start));
@@ -609,7 +613,9 @@ void LLTextBase::drawText()
 					// Find the start of the next word
 					word_start = word_end + 1;
 					while ( (word_start < seg_end) && (!LLWStringUtil::isPartOfWord(wstrText[word_start])) )
+					{
 						word_start++;
+					}
 				}
 			}
 
@@ -695,12 +701,16 @@ void LLTextBase::drawText()
 				{
 					gl_line_2d(squiggle_start, squiggle_bottom, squiggle_start + 2, squiggle_bottom - 2);
 					if (squiggle_start + 3 < squiggle_end)
+					{
 						gl_line_2d(squiggle_start + 2, squiggle_bottom - 3, squiggle_start + 4, squiggle_bottom - 1);
+					}
 					squiggle_start += 4;
 				}
 
 				if (misspell_it->second > seg_end)
+				{
 					break;
+				}
 				++misspell_it;
 			}
 
@@ -1297,7 +1307,9 @@ std::string LLTextBase::getMisspelledWord(U32 pos) const
 	for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
 	{
 		if ( (it->first <= pos) && (it->second >= pos) )
+		{
 			return wstring_to_utf8str(getWText().substr(it->first, it->second - it->first));
+		}
 	}
 	return LLStringUtil::null;
 }
@@ -1307,7 +1319,9 @@ bool LLTextBase::isMisspelledWord(U32 pos) const
 	for (std::list<std::pair<U32, U32> >::const_iterator it = mMisspellRanges.begin(); it != mMisspellRanges.end(); ++it)
 	{
 		if ( (it->first <= pos) && (it->second >= pos) )
+		{
 			return true;
+		}
 	}
 	return false;
 }
