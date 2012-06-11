@@ -342,7 +342,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	pathfinding_dynamic_icon.tool_tip = LLTrans::getString("PathfindingDynamicTooltip");
 	pathfinding_dynamic_icon.mouse_opaque = true;
 	mParcelIcon[PATHFINDING_DYNAMIC] = LLUICtrlFactory::create<LLIconCtrl>(pathfinding_dynamic_icon);
-	mParcelIcon[PATHFINDING_DYNAMIC]->setMouseDownCallback(boost::bind(&LLLocationInputCtrl::onParcelIconClick, this, PATHFINDING_DYNAMIC));
 	addChild(mParcelIcon[PATHFINDING_DYNAMIC]);
 
 	LLTextBox::Params damage_text = p.damage_text;
