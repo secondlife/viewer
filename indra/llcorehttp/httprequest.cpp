@@ -35,6 +35,8 @@
 #include "_httpopsetpriority.h"
 #include "_httpopcancel.h"
 
+#include "lltimer.h"
+
 
 namespace
 {
@@ -279,14 +281,9 @@ HttpHandle HttpRequest::requestSetPriority(HttpHandle request, priority_t priori
 
 HttpStatus HttpRequest::update(long millis)
 {
-	HttpStatus status;
-
-	// *FIXME:  need timer stuff
-	// long now(getNow());
-	// long limit(now + millis);
-	
+	const HttpTime limit(totalTime() + (1000 * HttpTime(millis)));
 	HttpOperation * op(NULL);
-	while ((op = mReplyQueue->fetchOp()))
+	while (limit >= totalTime() && (op = mReplyQueue->fetchOp()))
 	{
 		// Process operation
 		op->visitNotifier(this);
@@ -295,7 +292,7 @@ HttpStatus HttpRequest::update(long millis)
 		op->release();
 	}
 	
-	return status;
+	return HttpStatus();
 }
 
 

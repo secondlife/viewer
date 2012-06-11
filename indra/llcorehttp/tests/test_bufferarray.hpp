@@ -348,7 +348,7 @@ void BufferArrayTestObjectType::test<7>()
 	ensure("Append length correct", str2_len == len);
 
 	// append some more
-	char * out_buf(ba->appendBufferAlloc(str1_len));
+	void * out_buf(ba->appendBufferAlloc(str1_len));
 	memcpy(out_buf, str1, str1_len);
 
 	// And some final writes
@@ -399,11 +399,11 @@ void BufferArrayTestObjectType::test<8>()
 	len = ba->write(str1_len, str1, str1_len);
 
 	// zero-length allocate (we allow this with a valid pointer returned)
-	char * out_buf(ba->appendBufferAlloc(0));
+	void * out_buf(ba->appendBufferAlloc(0));
 	ensure("Buffer from zero-length appendBufferAlloc non-NULL", NULL != out_buf);
 
 	// Do it again
-	char * out_buf2(ba->appendBufferAlloc(0));
+	void * out_buf2(ba->appendBufferAlloc(0));
 	ensure("Buffer from zero-length appendBufferAlloc non-NULL.2", NULL != out_buf2);
 	ensure("Two zero-length appendBufferAlloc buffers distinct", out_buf != out_buf2);
 

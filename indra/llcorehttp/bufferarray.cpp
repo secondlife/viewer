@@ -108,10 +108,11 @@ BufferArray::~BufferArray()
 }
 
 
-size_t BufferArray::append(const char * src, size_t len)
+size_t BufferArray::append(const void * src, size_t len)
 {
 	const size_t ret(len);
-	
+	const char * c_src(static_cast<const char *>(src));
+					  
 	// First, try to copy into the last block
 	if (len && ! mBlocks.empty())
 	{
@@ -121,11 +122,11 @@ size_t BufferArray::append(const char * src, size_t len)
 			// Some will fit...
 			const size_t copy_len((std::min)(len, (last.mAlloced - last.mUsed)));
 
-			memcpy(&last.mData[last.mUsed], src, copy_len);
+			memcpy(&last.mData[last.mUsed], c_src, copy_len);
 			last.mUsed += copy_len;
 			llassert_always(last.mUsed <= last.mAlloced);
 			mLen += copy_len;
-			src += copy_len;
+			c_src += copy_len;
 			len -= copy_len;
 		}
 	}
@@ -140,19 +141,19 @@ size_t BufferArray::append(const char * src, size_t len)
 			mBlocks.reserve(mBlocks.size() + 5);
 		}
 		Block * block = Block::alloc(BLOCK_ALLOC_SIZE);
-		memcpy(block->mData, src, copy_len);
+		memcpy(block->mData, c_src, copy_len);
 		block->mUsed = copy_len;
 		llassert_always(block->mUsed <= block->mAlloced);
 		mBlocks.push_back(block);
 		mLen += copy_len;
-		src += copy_len;
+		c_src += copy_len;
 		len -= copy_len;
 	}
 	return ret;
 }
 
 
-char * BufferArray::appendBufferAlloc(size_t len)
+void * BufferArray::appendBufferAlloc(size_t len)
 {
 	// If someone asks for zero-length, we give them a valid pointer.
 	if (mBlocks.size() >= mBlocks.capacity())
@@ -167,8 +168,10 @@ char * BufferArray::appendBufferAlloc(size_t len)
 }
 
 
-size_t BufferArray::read(size_t pos, char * dst, size_t len)
+size_t BufferArray::read(size_t pos, void * dst, size_t len)
 {
+	char * c_dst(static_cast<char *>(dst));
+	
 	if (pos >= mLen)
 		return 0;
 	size_t len_limit(mLen - pos);
@@ -188,10 +191,10 @@ size_t BufferArray::read(size_t pos, char * dst, size_t len)
 		size_t block_limit(block.mUsed - offset);
 		size_t block_len(std::min(block_limit, len));
 		
-		memcpy(dst, &block.mData[offset], block_len);
+		memcpy(c_dst, &block.mData[offset], block_len);
 		result += block_len;
 		len -= block_len;
-		dst += block_len;
+		c_dst += block_len;
 		offset = 0;
 		++block_start;
 	}
@@ -201,8 +204,10 @@ size_t BufferArray::read(size_t pos, char * dst, size_t len)
 }
 
 
-size_t BufferArray::write(size_t pos, const char * src, size_t len)
+size_t BufferArray::write(size_t pos, const void * src, size_t len)
 {
+	const char * c_src(static_cast<const char *>(src));
+	
 	if (pos > mLen || 0 == len)
 		return 0;
 	
@@ -220,9 +225,9 @@ size_t BufferArray::write(size_t pos, const char * src, size_t len)
 			size_t block_limit(block.mUsed - offset);
 			size_t block_len(std::min(block_limit, len));
 		
-			memcpy(&block.mData[offset], src, block_len);
+			memcpy(&block.mData[offset], c_src, block_len);
 			result += block_len;
-			src += block_len;
+			c_src += block_len;
 			len -= block_len;
 			offset = 0;
 			++block_start;
@@ -240,12 +245,12 @@ size_t BufferArray::write(size_t pos, const char * src, size_t len)
 			// Some will fit...
 			const size_t copy_len((std::min)(len, (last.mAlloced - last.mUsed)));
 
-			memcpy(&last.mData[last.mUsed], src, copy_len);
+			memcpy(&last.mData[last.mUsed], c_src, copy_len);
 			last.mUsed += copy_len;
 			result += copy_len;
 			llassert_always(last.mUsed <= last.mAlloced);
 			mLen += copy_len;
-			src += copy_len;
+			c_src += copy_len;
 			len -= copy_len;
 		}
 	}
@@ -254,7 +259,7 @@ size_t BufferArray::write(size_t pos, const char * src, size_t len)
 	{
 		// Some or all of the remaining write data will
 		// be an append.
-		result += append(src, len);
+		result += append(c_src, len);
 	}
 
 	return result;

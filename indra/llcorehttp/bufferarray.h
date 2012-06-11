@@ -81,7 +81,7 @@ public:
 	/// position is one beyond the final byte of the buffer.
 	///
 	/// @return			Count of bytes copied to BufferArray
-	size_t append(const char * src, size_t len);
+	size_t append(const void * src, size_t len);
 
 	/// Similar to @see append(), this call guarantees a
 	/// contiguous block of memory of requested size placed
@@ -91,7 +91,7 @@ public:
 	///
 	/// @return			Pointer to contiguous region at end
 	///					of BufferArray of 'len' size.
-	char * appendBufferAlloc(size_t len);
+	void * appendBufferAlloc(size_t len);
 
 	/// Current count of bytes in BufferArray instance.
 	size_t size() const
@@ -102,13 +102,13 @@ public:
 	/// Copies data from the given position in the instance
 	/// to the caller's buffer.  Will return a short count of
 	/// bytes copied if the 'len' extends beyond the data.
-	size_t read(size_t pos, char * dst, size_t len);
+	size_t read(size_t pos, void * dst, size_t len);
 
 	/// Copies data from the caller's buffer to the instance
 	/// at the current position.  May overwrite existing data,
 	/// append data when current position is equal to the
 	/// size of the instance or do a mix of both.
-	size_t write(size_t pos, const char * src, size_t len);
+	size_t write(size_t pos, const void * src, size_t len);
 	
 protected:
 	int findBlock(size_t pos, size_t * ret_offset);

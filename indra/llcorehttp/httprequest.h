@@ -259,7 +259,7 @@ public:
 	/// @param	millis			Maximum number of wallclock milliseconds to
 	///							spend in the call.  As hinted at above, this
 	///							is partly a function of application code so it's
-	///							a soft limit.  (And not currently implemented.)
+	///							a soft limit.
 	///
 	/// @return					Standard status code.
 	HttpStatus update(long millis);
