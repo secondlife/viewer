@@ -4179,7 +4179,7 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
 
   <notification
    icon="notifytip.tga"
-   name="RegionEntryAccessBlocked_NotifyAdultsOnly"
+   name="TeleportEntryAccessBlocked_NotifyAdultsOnly"
    type="notifytip">
     <tag>fail</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
