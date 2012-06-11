@@ -142,7 +142,6 @@ with the same filename but different name
   <texture name="Command_Outbox_Icon"       file_name="toolbar_icons/outbox.png"       preload="true" />
   <texture name="Command_Pathfinding_Icon"  file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_People_Icon"       file_name="toolbar_icons/people.png"       preload="true" />
-  <texture name="Command_PF_Basic_Icon"     file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_PF_Characters_Icon" file_name="toolbar_icons/land.png"        preload="true" />
   <texture name="Command_PF_Linksets_Icon"  file_name="toolbar_icons/land.png"         preload="true" />
   <texture name="Command_Picks_Icon"        file_name="toolbar_icons/picks.png"        preload="true" />
