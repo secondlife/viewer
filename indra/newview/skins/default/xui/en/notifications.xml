@@ -2381,17 +2381,17 @@ Would you be my friend?
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="InvalidAutoReplaceEntry"
-   type="notify">
+   type="alertmodal">
     The keyword must be a single word, and the replacement may not be empty.
     <tag>fail</tag>
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="InvalidAutoReplaceList"
-   type="notify">
+   type="alertmodal">
     That replacement list is not valid.
     <tag>fail</tag>
   </notification>

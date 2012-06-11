@@ -64,6 +64,7 @@ void LLAutoReplace::autoreplaceCallback(LLUIString& inputText, S32& cursorPos)
 			}
 			if (haveWord)
 			{
+				// wordEnd points to the end of a word, now find the start of the word
 				std::string word;
 				S32 wordStart = wordEnd;
 				for ( S32 backOne = wordStart - 1;
@@ -650,6 +651,7 @@ std::string LLAutoReplaceSettings::replaceWord(const std::string currentWord)
 	static LLCachedControl<bool> autoreplace_enabled(gSavedSettings, "AutoReplace");
 	if ( autoreplace_enabled )
 	{
+		LL_DEBUGS("AutoReplace")<<"checking '"<<currentWord<<"'"<< LL_ENDL;
 		//loop through lists in order
 		bool found = false;
 		for( LLSD::array_const_iterator list = mLists.beginArray(), endLists = mLists.endArray();
@@ -664,8 +666,8 @@ std::string LLAutoReplaceSettings::replaceWord(const std::string currentWord)
 			{
 				found = true;
 				LL_DEBUGS("AutoReplace")
-					<< "found in list '" << checkList[AUTOREPLACE_LIST_NAME].asString() << "' : '"
-					<< currentWord << "' => '" << replacements[currentWord].asString() << "'"
+					<< "  found in list '" << checkList[AUTOREPLACE_LIST_NAME].asString()
+					<< " => '" << replacements[currentWord].asString() << "'"
 					<< LL_ENDL;
 				returnedWord = replacements[currentWord].asString();
 			}
@@ -674,7 +676,7 @@ std::string LLAutoReplaceSettings::replaceWord(const std::string currentWord)
 	return returnedWord;
 }
 
-bool LLAutoReplaceSettings::addEntryToList(std::string keyword, std::string replacement, std::string listName)
+bool LLAutoReplaceSettings::addEntryToList(LLWString keyword, LLWString replacement, std::string listName)
 {
 	bool added = false;
 
@@ -685,7 +687,7 @@ bool LLAutoReplaceSettings::addEntryToList(std::string keyword, std::string repl
 		{
 			if ( ! LLWStringUtil::isPartOfWord(keyword[character]) )
 			{
-				LL_WARNS("AutoReplace") << "keyword '" << keyword << "' not a single word" << LL_ENDL;
+				LL_WARNS("AutoReplace") << "keyword '" << wstring_to_utf8str(keyword) << "' not a single word (len "<<keyword.size()<<" '"<<character<<"')" << LL_ENDL;
 				isOneWord = false;
 			}
 		}
@@ -701,7 +703,7 @@ bool LLAutoReplaceSettings::addEntryToList(std::string keyword, std::string repl
 				if ( listNameMatches(*list, listName) )
 				{
 					listFound = true;
-					(*list)[AUTOREPLACE_LIST_REPLACEMENTS][keyword]=replacement;
+					(*list)[AUTOREPLACE_LIST_REPLACEMENTS][wstring_to_utf8str(keyword)]=wstring_to_utf8str(replacement);
 				}
 			}
 			if (listFound)
