@@ -46,10 +46,24 @@ LLFloaterSpellCheckerSettings::LLFloaterSpellCheckerSettings(const LLSD& key)
 {
 }
 
+void LLFloaterSpellCheckerSettings::draw()
+{
+	LLFloater::draw();
+
+	std::vector<LLScrollListItem*> sel_items = getChild<LLScrollListCtrl>("spellcheck_available_list")->getAllSelected();
+	bool enable_remove = !sel_items.empty();
+	for (std::vector<LLScrollListItem*>::const_iterator sel_it = sel_items.begin(); sel_it != sel_items.end(); ++sel_it)
+	{
+		enable_remove &= LLSpellChecker::canRemoveDictionary((*sel_it)->getValue().asString());
+	}
+	getChild<LLUICtrl>("spellcheck_remove_btn")->setEnabled(enable_remove);
+}
+
 BOOL LLFloaterSpellCheckerSettings::postBuild(void)
 {
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
 	LLSpellChecker::setSettingsChangeCallback(boost::bind(&LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange, this));
+	getChild<LLUICtrl>("spellcheck_remove_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnRemove, this));
 	getChild<LLUICtrl>("spellcheck_import_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnImport, this));
 	getChild<LLUICtrl>("spellcheck_main_combo")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::refreshDictionaries, this, false));
 	getChild<LLUICtrl>("spellcheck_moveleft_btn")->setCommitCallback(boost::bind(&LLFloaterSpellCheckerSettings::onBtnMove, this, "spellcheck_active_list", "spellcheck_available_list"));
@@ -121,6 +135,15 @@ void LLFloaterSpellCheckerSettings::onOpen(const LLSD& key)
 	refreshDictionaries(true);
 }
 
+void LLFloaterSpellCheckerSettings::onBtnRemove()
+{
+	std::vector<LLScrollListItem*> sel_items = getChild<LLScrollListCtrl>("spellcheck_available_list")->getAllSelected();
+	for (std::vector<LLScrollListItem*>::const_iterator sel_it = sel_items.begin(); sel_it != sel_items.end(); ++sel_it)
+	{
+		LLSpellChecker::instance().removeDictionary((*sel_it)->getValue().asString());
+	}
+}
+
 void LLFloaterSpellCheckerSettings::onSpellCheckSettingsChange()
 {
 	refreshDictionaries(true);
@@ -137,7 +160,7 @@ void LLFloaterSpellCheckerSettings::refreshDictionaries(bool from_settings)
 	std::string dict_cur = dict_combo->getSelectedItemLabel();
 	if ((dict_cur.empty() || from_settings) && (LLSpellChecker::getUseSpellCheck()))
 	{
-		dict_cur = LLSpellChecker::instance().getActiveDictionary();
+		dict_cur = LLSpellChecker::instance().getPrimaryDictionary();
 	}
 	dict_combo->clearRows();
 	dict_combo->setEnabled(enabled);

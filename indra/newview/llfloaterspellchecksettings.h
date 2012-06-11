@@ -34,6 +34,7 @@ class LLFloaterSpellCheckerSettings : public LLFloater
 public:
 	LLFloaterSpellCheckerSettings(const LLSD& key);
 
+	/*virtual*/ void draw();
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -42,6 +43,7 @@ protected:
 	void onBtnImport();
 	void onBtnMove(const std::string& from, const std::string& to);
 	void onBtnOK();
+	void onBtnRemove();
 	void onSpellCheckSettingsChange();
 	void refreshDictionaries(bool from_settings);
 };

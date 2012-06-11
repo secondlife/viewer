@@ -41,6 +41,9 @@ static const std::string DICT_DIR = "dictionaries";
 static const std::string DICT_CUSTOM_SUFFIX = "_custom";
 static const std::string DICT_IGNORE_SUFFIX = "_ignore";
 
+static const std::string DICT_FILE_MAIN = "dictionaries.xml";
+static const std::string DICT_FILE_USER = "user_dictionaries.xml";
+
 LLSD LLSpellChecker::sDictMap;
 LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 
@@ -141,10 +144,10 @@ void LLSpellChecker::refreshDictionaryMap()
 	const std::string user_path = getDictionaryUserPath();
 
 	// Load dictionary information (file name, friendly name, ...)
-	llifstream user_file(user_path + "dictionaries.xml", std::ios::binary);
+	llifstream user_file(user_path + DICT_FILE_MAIN, std::ios::binary);
 	if ( (!user_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, user_file)) || (0 == sDictMap.size()) )
 	{
-		llifstream app_file(app_path + "dictionaries.xml", std::ios::binary);
+		llifstream app_file(app_path + DICT_FILE_MAIN, std::ios::binary);
 		if ( (!app_file.is_open()) || (0 == LLSDSerialize::fromXMLDocument(sDictMap, app_file)) || (0 == sDictMap.size()) )
 		{
 			return;
@@ -152,7 +155,7 @@ void LLSpellChecker::refreshDictionaryMap()
 	}
 
 	// Load user installed dictionary information
-	llifstream custom_file(user_path + "user_dictionaries.xml", std::ios::binary);
+	llifstream custom_file(user_path + DICT_FILE_USER, std::ios::binary);
 	if (custom_file.is_open())
 	{
 		LLSD custom_dict_map;
@@ -245,6 +248,13 @@ void LLSpellChecker::addToDictFile(const std::string& dict_path, const std::stri
 	}
 }
 
+bool LLSpellChecker::isActiveDictionary(const std::string& dict_language) const
+{
+	return
+		(mDictLanguage == dict_language) || 
+		(mDictSecondary.end() != std::find(mDictSecondary.begin(), mDictSecondary.end(), dict_language));
+}
+
 void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 {
 	if (!getUseSpellCheck())
@@ -263,8 +273,8 @@ void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 	{
 		mDictSecondary = dict_list;
 
-		std::string dict_name = mDictName;
-		initHunspell(dict_name);
+		std::string dict_language = mDictLanguage;
+		initHunspell(dict_language);
 	}
 	else if (end_added != dict_add.begin())		// Add the new secondary dictionaries one by one
 	{
@@ -293,18 +303,18 @@ void LLSpellChecker::setSecondaryDictionaries(dict_list_t dict_list)
 	}
 }
 
-void LLSpellChecker::initHunspell(const std::string& dict_name)
+void LLSpellChecker::initHunspell(const std::string& dict_language)
 {
 	if (mHunspell)
 	{
 		delete mHunspell;
 		mHunspell = NULL;
-		mDictName.clear();
+		mDictLanguage.clear();
 		mDictFile.clear();
 		mIgnoreList.clear();
 	}
 
-	const LLSD dict_entry = (!dict_name.empty()) ? getDictionaryData(dict_name) : LLSD();
+	const LLSD dict_entry = (!dict_language.empty()) ? getDictionaryData(dict_language) : LLSD();
 	if ( (!dict_entry.isDefined()) || (!dict_entry["installed"].asBoolean()) || (!dict_entry["is_primary"].asBoolean()))
 	{
 		sSettingsChangeSignal();
@@ -330,7 +340,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_name)
 			return;
 		}
 
-		mDictName = dict_name;
+		mDictLanguage = dict_language;
 		mDictFile = dict_entry["name"].asString();
 
 		if (dict_entry["has_custom"].asBoolean())
@@ -406,18 +416,85 @@ bool LLSpellChecker::getUseSpellCheck()
 }
 
 // static
+bool LLSpellChecker::canRemoveDictionary(const std::string& dict_language)
+{
+	// Only user-installed inactive dictionaries can be removed
+	const LLSD dict_info = getDictionaryData(dict_language);
+	return 
+		(dict_info["user_installed"].asBoolean()) && 
+		( (!getUseSpellCheck()) || (!LLSpellChecker::instance().isActiveDictionary(dict_language)) );
+}
+
+// static
+void LLSpellChecker::removeDictionary(const std::string& dict_language)
+{
+	if (!canRemoveDictionary(dict_language))
+	{
+		return;
+	}
+
+	LLSD dict_map = loadUserDictionaryMap();
+	for (LLSD::array_const_iterator it = dict_map.beginArray(); it != dict_map.endArray(); ++it)
+	{
+		const LLSD& dict_info = *it;
+		if (dict_info["language"].asString() == dict_language)
+		{
+			const std::string dict_dic = getDictionaryUserPath() + dict_info["name"].asString() + ".dic";
+			if (gDirUtilp->fileExists(dict_dic))
+			{
+				LLFile::remove(dict_dic);
+			}
+			const std::string dict_aff = getDictionaryUserPath() + dict_info["name"].asString() + ".aff";
+			if (gDirUtilp->fileExists(dict_aff))
+			{
+				LLFile::remove(dict_aff);
+			}
+			dict_map.erase(it - dict_map.beginArray());
+			break;
+		}
+	}
+	saveUserDictionaryMap(dict_map);
+
+	refreshDictionaryMap();
+}
+
+// static
+LLSD LLSpellChecker::loadUserDictionaryMap()
+{
+	LLSD dict_map;
+	llifstream dict_file(getDictionaryUserPath() + DICT_FILE_USER, std::ios::binary);
+	if (dict_file.is_open())
+	{
+		LLSDSerialize::fromXMLDocument(dict_map, dict_file);
+		dict_file.close();
+	}
+	return dict_map;
+}
+
+// static
+void LLSpellChecker::saveUserDictionaryMap(const LLSD& dict_map)
+{
+	llofstream dict_file(getDictionaryUserPath() + DICT_FILE_USER, std::ios::trunc);
+	if (dict_file.is_open())
+	{
+		LLSDSerialize::toPrettyXML(dict_map, dict_file);
+		dict_file.close();
+	}
+}
+
+// static
 boost::signals2::connection LLSpellChecker::setSettingsChangeCallback(const settings_change_signal_t::slot_type& cb)
 {
 	return sSettingsChangeSignal.connect(cb);
 }
 
 // static
-void LLSpellChecker::setUseSpellCheck(const std::string& dict_name)
+void LLSpellChecker::setUseSpellCheck(const std::string& dict_language)
 {
-	if ( (((dict_name.empty()) && (getUseSpellCheck())) || (!dict_name.empty())) && 
-		 (LLSpellChecker::instance().mDictName != dict_name) )
+	if ( (((dict_language.empty()) && (getUseSpellCheck())) || (!dict_language.empty())) && 
+		 (LLSpellChecker::instance().mDictLanguage != dict_language) )
 	{
-		LLSpellChecker::instance().initHunspell(dict_name);
+		LLSpellChecker::instance().initHunspell(dict_language);
 	}
 }
 
