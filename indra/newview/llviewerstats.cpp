@@ -927,15 +927,8 @@ LLSD LLViewerStats::PhaseMap::dumpPhases()
 	for (phase_map_t::iterator iter = mPhaseMap.begin(); iter != mPhaseMap.end(); ++iter)
 	{
 		const std::string& phase_name = iter->first;
-		result[phase_name]["completed"] = !(iter->second.getStarted());
+		result[phase_name]["completed"] = LLSD::Integer(!(iter->second.getStarted()));
 		result[phase_name]["elapsed"] = iter->second.getElapsedTimeF32();
-#if 0 // global stats for each phase seem like overkill here
-		phase_stats_t::iterator stats_iter = sPhaseStats.find(phase_name);
-		if (stats_iter != sPhaseStats.end())
-		{
-			result[phase_name]["stats"] = stats_iter->second.getData();
-		}
-#endif
 	}
 	return result;
 }

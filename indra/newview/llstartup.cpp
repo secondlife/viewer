@@ -361,6 +361,15 @@ bool idle_startup()
 
 	if ( STATE_FIRST == LLStartUp::getStartupState() )
 	{
+		static bool first_call = true;
+		if (first_call)
+		{
+			// Other phases get handled when startup state changes,
+			// need to capture the initial state as well.
+			LLStartUp::getPhases().startPhase(LLStartUp::getStartupStateString());
+			first_call = false;
+		}
+
 		gViewerWindow->showCursor(); 
 		gViewerWindow->getWindow()->setCursor(UI_CURSOR_WAIT);
 
@@ -2707,9 +2716,10 @@ void LLStartUp::setStartupState( EStartupState state )
 		getStartupStateString() << " to " <<  
 		startupStateToString(state) << LL_ENDL;
 
-	sPhases->stopPhase(getStartupStateString());
+	getPhases().stopPhase(getStartupStateString());
 	gStartupState = state;
-	sPhases->startPhase(getStartupStateString());
+	getPhases().startPhase(getStartupStateString());
+
 	postStartupState();
 }
 
