@@ -247,8 +247,6 @@ public:
 	void setMediaWidth(S32 width);
 	void setMediaHeight(S32 height);
 	void setMediaCurrentURL(const std::string& url);
-	void setMediaURLFilterEnable(U8 enable) { mMediaURLFilterEnable = enable; }
-	void setMediaURLFilterList(LLSD list);
 	void setMediaAllowNavigate(U8 enable) { mMediaAllowNavigate = enable; }
 	void setMediaURLTimeout(F32 timeout) { mMediaURLTimeout = timeout; }
 	void setMediaPreventCameraZoom(U8 enable) { mMediaPreventCameraZoom = enable; }
@@ -310,7 +308,6 @@ public:
 
 //	BOOL	importStream(std::istream& input_stream);
 	BOOL	importAccessEntry(std::istream& input_stream, LLAccessEntry* entry);
-	BOOL    importMediaURLFilter(std::istream& input_stream, std::string& url);
 	// BOOL	exportStream(std::ostream& output_stream);
 
 	void	packMessage(LLMessageSystem* msg);
@@ -354,8 +351,6 @@ public:
 	U8				getMediaAutoScale() const	{ return mMediaAutoScale; }
 	U8              getMediaLoop() const        { return mMediaLoop; }
 	const std::string&  getMediaCurrentURL() const { return mMediaCurrentURL; }
-	U8              getMediaURLFilterEnable() const   { return mMediaURLFilterEnable; }
-	LLSD            getMediaURLFilterList() const     { return mMediaURLFilterList; }
 	U8              getMediaAllowNavigate() const { return mMediaAllowNavigate; }
 	F32				getMediaURLTimeout() const { return mMediaURLTimeout; }
 	U8              getMediaPreventCameraZoom() const { return mMediaPreventCameraZoom; }
@@ -651,8 +646,6 @@ protected:
 	U8                  mMediaLoop;
 	std::string         mMediaCurrentURL;
 	LLUUID				mMediaID;
-	U8                  mMediaURLFilterEnable;
-	LLSD                mMediaURLFilterList;
 	U8                  mMediaAllowNavigate;
 	U8					mMediaPreventCameraZoom;
 	F32					mMediaURLTimeout;
