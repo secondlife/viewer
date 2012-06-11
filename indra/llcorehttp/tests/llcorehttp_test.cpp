@@ -130,12 +130,3 @@ void ssl_locking_callback(int mode, int type, const char * /* file */, int /* li
 }
 
 
-#if defined(WIN32)
-
-int getopt(int argc, char * const argv[], const char *optstring)
-{
-	return -1;
-}
-
-#endif
-

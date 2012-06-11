@@ -110,24 +110,35 @@ void HttpRequestTestObjectType::test<1>()
 	
 	set_test_name("HttpRequest construction");
 
+	HttpRequest * req = NULL;
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 
-	// Get singletons created
-	HttpRequest::createService();
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
 		
-	// create a new ref counted object with an implicit reference
-	HttpRequest * req = new HttpRequest();
-	ensure(mMemTotal < GetMemTotal());
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure(mMemTotal < GetMemTotal());
 		
-	// release the request object
-	delete req;
-	req = NULL;
+		// release the request object
+		delete req;
+		req = NULL;
 
-	HttpRequest::destroyService();
+		HttpRequest::destroyService();
 
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
+		// make sure we didn't leak any memory
+		ensure(mMemTotal == GetMemTotal());
+	}
+	catch (...)
+	{
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
 }
 
 template <> template <>
@@ -137,35 +148,46 @@ void HttpRequestTestObjectType::test<2>()
 
 	set_test_name("HttpRequest and Null Op queued");
 
+	HttpRequest * req = NULL;
+
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 
-	// Get singletons created
-	HttpRequest::createService();
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
 		
-	// create a new ref counted object with an implicit reference
-	HttpRequest * req = new HttpRequest();
-	ensure(mMemTotal < GetMemTotal());
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure(mMemTotal < GetMemTotal());
 
-	// Issue a NoOp
-	HttpHandle handle = req->requestNoOp(NULL);
-	ensure(handle != LLCORE_HTTP_HANDLE_INVALID);
+		// Issue a NoOp
+		HttpHandle handle = req->requestNoOp(NULL);
+		ensure(handle != LLCORE_HTTP_HANDLE_INVALID);
 		
-	// release the request object
-	delete req;
-	req = NULL;
+		// release the request object
+		delete req;
+		req = NULL;
 
-	// We're still holding onto the operation which is
-	// sitting, unserviced, on the request queue so...
-	ensure(mMemTotal < GetMemTotal());
+		// We're still holding onto the operation which is
+		// sitting, unserviced, on the request queue so...
+		ensure(mMemTotal < GetMemTotal());
 
-	// Request queue should have two references:  global singleton & service object
-	ensure("Two references to request queue", 2 == HttpRequestQueue::instanceOf()->getRefCount());
+		// Request queue should have two references:  global singleton & service object
+		ensure("Two references to request queue", 2 == HttpRequestQueue::instanceOf()->getRefCount());
 
-	// Okay, tear it down
-	HttpRequest::destroyService();
-	// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
-	ensure(mMemTotal == GetMemTotal());
+		// Okay, tear it down
+		HttpRequest::destroyService();
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure(mMemTotal == GetMemTotal());
+	}
+	catch (...)
+	{
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
 }
 
 
@@ -173,7 +195,7 @@ template <> template <>
 void HttpRequestTestObjectType::test<3>()
 {
 	ScopedCurlInit ready;
-
+	
 	set_test_name("HttpRequest NoOp + Stop execution");
 
 	// Handler can be stack-allocated *if* there are no dangling
@@ -184,69 +206,79 @@ void HttpRequestTestObjectType::test<3>()
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
+
+	HttpRequest * req = NULL;
+	
+	try
+	{
 		
-	// Get singletons created
-	HttpRequest::createService();
+		// Get singletons created
+		HttpRequest::createService();
 		
-	// Start threading early so that thread memory is invariant
-	// over the test.
-	HttpRequest::startThread();
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
 
-	// create a new ref counted object with an implicit reference
-	HttpRequest * req = new HttpRequest();
-	ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-	// Issue a NoOp
-	HttpHandle handle = req->requestNoOp(&handler);
-	ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		// Issue a NoOp
+		HttpHandle handle = req->requestNoOp(&handler);
+		ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
-	// Run the notification pump.
-	int count(0);
-	int limit(20);
-	while (count++ < limit && mHandlerCalls < 1)
-	{
-		req->update(1000);
-		usleep(100000);
-	}
-	ensure("Request executed in reasonable time", count < limit);
-	ensure("One handler invocation for request", mHandlerCalls == 1);
+		// Run the notification pump.
+		int count(0);
+		int limit(20);
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
 
-	// Okay, request a shutdown of the servicing thread
-	handle = req->requestStopThread(&handler);
-	ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		// Okay, request a shutdown of the servicing thread
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
-	// Run the notification pump again
-	count = 0;
-	limit = 100;
-	while (count++ < limit && mHandlerCalls < 2)
-	{
-		req->update(1000);
-		usleep(100000);
-	}
-	ensure("Second request executed in reasonable time", count < limit);
-	ensure("Second handler invocation", mHandlerCalls == 2);
+		// Run the notification pump again
+		count = 0;
+		limit = 100;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
 
-	// See that we actually shutdown the thread
-	count = 0;
-	limit = 10;
-	while (count++ < limit && ! HttpService::isStopped())
-	{
-		usleep(100000);
-	}
-	ensure("Thread actually stopped running", HttpService::isStopped());
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
 	
-	// release the request object
-	delete req;
-	req = NULL;
+		// release the request object
+		delete req;
+		req = NULL;
 
-	// Shut down service
-	HttpRequest::destroyService();
+		// Shut down service
+		HttpRequest::destroyService();
 	
-	// We have left over state so can't really say something
-	// definitive about memory usage at the end of this.
-	ensure("Two handler calls on the way out", 2 == mHandlerCalls);
-	// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
-	ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+		ensure("Two handler calls on the way out", 2 == mHandlerCalls);
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+	}
+	catch (...)
+	{
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
 }
 
 template <> template <>
@@ -264,80 +296,92 @@ void HttpRequestTestObjectType::test<4>()
 	// record the total amount of dynamically allocated memory
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
+
+	HttpRequest * req1 = NULL;
+	HttpRequest * req2 = NULL;
+	
+	try
+	{
 		
-	// Get singletons created
-	HttpRequest::createService();
+		// Get singletons created
+		HttpRequest::createService();
 		
-	// Start threading early so that thread memory is invariant
-	// over the test.
-	HttpRequest::startThread();
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
 
-	// create a new ref counted object with an implicit reference
-	HttpRequest * req1 = new HttpRequest();
-	HttpRequest * req2 = new HttpRequest();
-	ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+		// create a new ref counted object with an implicit reference
+		req1 = new HttpRequest();
+		req2 = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-	// Issue some NoOps
-	HttpHandle handle = req1->requestNoOp(&handler1);
-	ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
-	handler1.mExpectHandle = handle;
+		// Issue some NoOps
+		HttpHandle handle = req1->requestNoOp(&handler1);
+		ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		handler1.mExpectHandle = handle;
 
-	handle = req2->requestNoOp(&handler2);
-	ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
-	handler2.mExpectHandle = handle;
+		handle = req2->requestNoOp(&handler2);
+		ensure("Valid handle returned for first request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		handler2.mExpectHandle = handle;
 
-	// Run the notification pump.
-	int count(0);
-	int limit(20);
-	while (count++ < limit && mHandlerCalls < 2)
-	{
-		req1->update(1000);
-		req2->update(1000);
-		usleep(100000);
-	}
-	ensure("Request executed in reasonable time", count < limit);
-	ensure("One handler invocation for request", mHandlerCalls == 2);
+		// Run the notification pump.
+		int count(0);
+		int limit(20);
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req1->update(1000);
+			req2->update(1000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 2);
 
-	// Okay, request a shutdown of the servicing thread
-	handle = req2->requestStopThread(&handler2);
-	ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
-	handler2.mExpectHandle = handle;
+		// Okay, request a shutdown of the servicing thread
+		handle = req2->requestStopThread(&handler2);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		handler2.mExpectHandle = handle;
 	
-	// Run the notification pump again
-	count = 0;
-	limit = 100;
-	while (count++ < limit && mHandlerCalls < 3)
-	{
-		req1->update(1000);
-		req2->update(1000);
-		usleep(100000);
-	}
-	ensure("Second request executed in reasonable time", count < limit);
-	ensure("Second handler invocation", mHandlerCalls == 3);
+		// Run the notification pump again
+		count = 0;
+		limit = 100;
+		while (count++ < limit && mHandlerCalls < 3)
+		{
+			req1->update(1000);
+			req2->update(1000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 3);
 
-	// See that we actually shutdown the thread
-	count = 0;
-	limit = 10;
-	while (count++ < limit && ! HttpService::isStopped())
-	{
-		usleep(100000);
-	}
-	ensure("Thread actually stopped running", HttpService::isStopped());
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
 	
-	// release the request object
-	delete req1;
-	req1 = NULL;
-	delete req2;
-	req2 = NULL;
+		// release the request object
+		delete req1;
+		req1 = NULL;
+		delete req2;
+		req2 = NULL;
 
-	// Shut down service
-	HttpRequest::destroyService();
+		// Shut down service
+		HttpRequest::destroyService();
 	
-	// We have left over state so can't really say something
-	// definitive about memory usage at the end of this.
-	ensure("Two handler calls on the way out", 3 == mHandlerCalls);
-	// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
-	ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+		ensure("Two handler calls on the way out", 3 == mHandlerCalls);
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+	}
+	catch (...)
+	{
+		delete req1;
+		delete req2;
+		HttpRequest::destroyService();
+		throw;
+	}
 }
 
 template <> template <>
@@ -356,77 +400,93 @@ void HttpRequestTestObjectType::test<5>()
 	mMemTotal = GetMemTotal();
 	mHandlerCalls = 0;
 
-	// Get singletons created
-	HttpRequest::createService();
+	HttpRequest * req = NULL;
+
+	try
+	{
+		// Get singletons created
+		HttpRequest::createService();
 		
-	// Start threading early so that thread memory is invariant
-	// over the test.
-	HttpRequest::startThread();
+		// Start threading early so that thread memory is invariant
+		// over the test.
+		HttpRequest::startThread();
 
-	// create a new ref counted object with an implicit reference
-	HttpRequest * req = new HttpRequest();
-	ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
+		// create a new ref counted object with an implicit reference
+		req = new HttpRequest();
+		ensure("Memory allocated on construction", mMemTotal < GetMemTotal());
 
-	// Issue a GET that can't connect
-	mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
-	HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
-												 0U,
-												 "http://127.0.0.1:2/nothing/here",
-												 0,
-												 0,
-												 NULL,
-												 NULL,
-												 &handler);
-	ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		// Issue a GET that can't connect
+		mStatus = HttpStatus(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+		HttpHandle handle = req->requestGetByteRange(HttpRequest::DEFAULT_POLICY_ID,
+													 0U,
+													 "http://127.0.0.1:2/nothing/here",
+													 0,
+													 0,
+													 NULL,
+													 NULL,
+													 &handler);
+		ensure("Valid handle returned for ranged request", handle != LLCORE_HTTP_HANDLE_INVALID);
 
-	// Run the notification pump.
-	int count(0);
-	int limit(180);				// With retries, can take more than 10 seconds to give up
-	while (count++ < limit && mHandlerCalls < 1)
-	{
-		req->update(1000);
-		usleep(100000);
-	}
-	ensure("Request executed in reasonable time", count < limit);
-	ensure("One handler invocation for request", mHandlerCalls == 1);
+		// Run the notification pump.
+		int count(0);
+		int limit(180);				// With retries, can take more than 10 seconds to give up
+		while (count++ < limit && mHandlerCalls < 1)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("Request executed in reasonable time", count < limit);
+		ensure("One handler invocation for request", mHandlerCalls == 1);
 
-	// Okay, request a shutdown of the servicing thread
-	mStatus = HttpStatus();
-	handle = req->requestStopThread(&handler);
-	ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
+		// Okay, request a shutdown of the servicing thread
+		mStatus = HttpStatus();
+		handle = req->requestStopThread(&handler);
+		ensure("Valid handle returned for second request", handle != LLCORE_HTTP_HANDLE_INVALID);
 	
-	// Run the notification pump again
-	count = 0;
-	limit = 100;
-	while (count++ < limit && mHandlerCalls < 2)
-	{
-		req->update(1000);
-		usleep(100000);
-	}
-	ensure("Second request executed in reasonable time", count < limit);
-	ensure("Second handler invocation", mHandlerCalls == 2);
+		// Run the notification pump again
+		count = 0;
+		limit = 100;
+		while (count++ < limit && mHandlerCalls < 2)
+		{
+			req->update(1000);
+			usleep(100000);
+		}
+		ensure("Second request executed in reasonable time", count < limit);
+		ensure("Second handler invocation", mHandlerCalls == 2);
 
-	// See that we actually shutdown the thread
-	count = 0;
-	limit = 10;
-	while (count++ < limit && ! HttpService::isStopped())
-	{
-		usleep(100000);
-	}
-	ensure("Thread actually stopped running", HttpService::isStopped());
+		// See that we actually shutdown the thread
+		count = 0;
+		limit = 10;
+		while (count++ < limit && ! HttpService::isStopped())
+		{
+			usleep(100000);
+		}
+		ensure("Thread actually stopped running", HttpService::isStopped());
 	
-	// release the request object
-	delete req;
-	req = NULL;
+		// release the request object
+		delete req;
+		req = NULL;
 
-	// Shut down service
-	HttpRequest::destroyService();
+		// Shut down service
+		HttpRequest::destroyService();
 	
-	// We have left over state so can't really say something
-	// definitive about memory usage at the end of this.
-	ensure("Two handler calls on the way out", 2 == mHandlerCalls);
-	// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
-	ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+		ensure("Two handler calls on the way out", 2 == mHandlerCalls);
+
+#if defined(WIN32)
+		// Can only do this memory test on Windows.  On other platforms,
+		// the LL logging system holds on to memory and produces what looks
+		// like memory leaks...
+	
+		// printf("Old mem:  %d, New mem:  %d\n", mMemTotal, GetMemTotal());
+		ensure("Memory usage back to that at entry", mMemTotal == GetMemTotal());
+#endif
+	}
+	catch (...)
+	{
+		delete req;
+		HttpRequest::destroyService();
+		throw;
+	}
 }
 
 }  // end namespace tut

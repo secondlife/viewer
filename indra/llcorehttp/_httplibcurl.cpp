@@ -242,7 +242,7 @@ HttpService::ELoopSpeed HttpLibcurl::completeRequest(CURLM * multi_handle, CURL 
 		LL_WARNS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
 							 << LL_ENDL;
 	}
-	
+
 	op->stageFromActive(mService);
 	op->release();
 	return HttpService::REQUEST_SLEEP;
