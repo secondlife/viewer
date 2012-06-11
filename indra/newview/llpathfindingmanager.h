@@ -74,11 +74,15 @@ public:
 	LLPathfindingManager();
 	virtual ~LLPathfindingManager();
 
+	void initSystem();
+
 	bool isPathfindingEnabledForCurrentRegion() const;
 	bool isPathfindingEnabledForRegion(LLViewerRegion *pRegion) const;
 #ifdef DEPRECATED_UNVERSIONED_NAVMESH
 	bool isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX() const;
 #endif // DEPRECATED_UNVERSIONED_NAVMESH
+
+	bool isPathfindingDebugEnabled() const;
 
 	bool isAllowViewTerrainProperties() const;
 

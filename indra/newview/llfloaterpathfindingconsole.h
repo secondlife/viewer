@@ -31,7 +31,6 @@
 #include "llfloater.h"
 #include "llhandle.h"
 #include "llpathinglib.h"
-#include "llpathfindingmanager.h"
 #include "llpathfindingnavmeshzone.h"
 #include "llpathfindingpathtool.h"
 
@@ -43,7 +42,6 @@ class LLSliderCtrl;
 class LLLineEditor;
 class LLTextBase;
 class LLCheckBoxCtrl;
-class LLTabContainer;
 class LLComboBox;
 class LLButton;
 class LLToolset;
@@ -120,16 +118,11 @@ private:
 	void onShowNavMeshSet();
 	void onShowWalkabilitySet();
 	void onViewCharactersClicked();
-	void onTabSwitch();
-	void onUnfreezeClicked();
-	void onFreezeClicked();
-	void onViewEditLinksetClicked();
 	void onCharacterWidthSet();
 	void onCharacterTypeSwitch();
 	void onClearPathClicked();
 
 	void onNavMeshZoneCB(LLPathfindingNavMeshZone::ENavMeshZoneRequestStatus pNavMeshZoneRequestStatus);
-	void onAgentStateCB(LLPathfindingManager::EAgentState pAgentState);
 	void onRegionBoundaryCross();
 	void onPathEvent();
 
@@ -144,8 +137,6 @@ private:
 	std::string getSimulatorStatusText() const;
 
 	void initializeNavMeshZoneForCurrentRegion();
-
-	void setAgentState(LLPathfindingManager::EAgentState pAgentState);
 
 	void switchIntoTestPathMode();
 	void switchOutOfTestPathMode();
@@ -177,15 +168,7 @@ private:
 	LLTextBase                                    *mPathfindingViewerStatus;
 	LLTextBase                                    *mPathfindingSimulatorStatus;
 	LLButton                                      *mViewCharactersButton;
-	LLTabContainer                                *mEditTestTabContainer;
-	LLPanel                                       *mEditTab;
 	LLPanel                                       *mTestTab;
-	LLTextBase                                    *mUnfreezeLabel;
-	LLButton                                      *mUnfreezeButton;
-	LLTextBase                                    *mLinksetsLabel;
-	LLButton                                      *mLinksetsButton;
-	LLTextBase                                    *mFreezeLabel;
-	LLButton                                      *mFreezeButton;
 	LLTextBase                                    *mCtrlClickLabel;
 	LLTextBase                                    *mShiftClickLabel;
 	LLTextBase                                    *mCharacterWidthLabel;
@@ -200,7 +183,6 @@ private:
 	LLPathfindingNavMeshZone                      mNavMeshZone;
 	bool                                          mIsNavMeshUpdating;
 
-	LLPathfindingManager::agent_state_slot_t      mAgentStateSlot;
 	boost::signals2::connection                   mRegionBoundarySlot;
 	boost::signals2::connection                   mTeleportFailedSlot;
 	LLPathfindingPathTool::path_event_slot_t      mPathEventSlot;

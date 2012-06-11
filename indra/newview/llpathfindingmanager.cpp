@@ -45,6 +45,7 @@
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
 #include "llpathfindingobject.h"
+#include "llpathinglib.h"
 #include "llsingleton.h"
 #include "llsd.h"
 #include "lltrans.h"
@@ -273,6 +274,14 @@ LLPathfindingManager::~LLPathfindingManager()
 {
 }
 
+void LLPathfindingManager::initSystem()
+{
+	if (LLPathingLib::getInstance() == NULL)
+	{
+		LLPathingLib::initSystem();
+	}
+}
+
 bool LLPathfindingManager::isPathfindingEnabledForCurrentRegion() const
 {
 	return isPathfindingEnabledForRegion(getCurrentRegion());
@@ -291,6 +300,11 @@ bool LLPathfindingManager::isPathfindingNavMeshVersioningEnabledForCurrentRegion
 	return !navMeshStatusURL.empty();
 }
 #endif // DEPRECATED_UNVERSIONED_NAVMESH
+
+bool LLPathfindingManager::isPathfindingDebugEnabled() const
+{
+	return (LLPathingLib::getInstance() != NULL);
+}
 
 bool LLPathfindingManager::isAllowViewTerrainProperties() const
 {

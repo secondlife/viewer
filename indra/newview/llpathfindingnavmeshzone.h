@@ -32,6 +32,7 @@
 #include "lluuid.h"
 #include "llpathfindingnavmesh.h"
 #include "llpathfindingnavmeshstatus.h"
+#include "llviewerregion.h"
 
 #include <vector>
 

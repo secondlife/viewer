@@ -64,9 +64,6 @@
 #define XUI_CHARACTER_TYPE_C 3
 #define XUI_CHARACTER_TYPE_D 4
 
-#define XUI_EDIT_TAB_INDEX 0
-#define XUI_TEST_TAB_INDEX 1
-
 #define SET_SHAPE_RENDER_FLAG(_flag,_type) _flag |= (1U << _type)
 
 #define CONTROL_NAME_RETRIEVE_NEIGHBOR       "RetrieveNeighboringRegion"
@@ -138,36 +135,8 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mViewCharactersButton != NULL);
 	mViewCharactersButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onViewCharactersClicked, this));
 
-	mEditTestTabContainer = findChild<LLTabContainer>("edit_test_tab_container");
-	llassert(mEditTestTabContainer != NULL);
-	mEditTestTabContainer->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onTabSwitch, this));
-
-	mEditTab = findChild<LLPanel>("edit_panel");
-	llassert(mEditTab != NULL);
-
 	mTestTab = findChild<LLPanel>("test_panel");
 	llassert(mTestTab != NULL);
-
-	mUnfreezeLabel = findChild<LLTextBase>("unfreeze_label");
-	llassert(mUnfreezeLabel != NULL);
-
-	mUnfreezeButton = findChild<LLButton>("enter_unfrozen_mode");
-	llassert(mUnfreezeButton != NULL);
-	mUnfreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onUnfreezeClicked, this));
-
-	mLinksetsLabel = findChild<LLTextBase>("edit_linksets_label");
-	llassert(mLinksetsLabel != NULL);
-
-	mLinksetsButton = findChild<LLButton>("view_and_edit_linksets");
-	llassert(mLinksetsButton != NULL);
-	mLinksetsButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onViewEditLinksetClicked, this));
-
-	mFreezeLabel = findChild<LLTextBase>("freeze_label");
-	llassert(mFreezeLabel != NULL);
-
-	mFreezeButton = findChild<LLButton>("enter_frozen_mode");
-	llassert(mFreezeButton != NULL);
-	mFreezeButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onFreezeClicked, this));
 
 	mPathfindingViewerStatus = findChild<LLTextBase>("pathfinding_viewer_status");
 	llassert(mPathfindingViewerStatus != NULL);
@@ -205,11 +174,6 @@ BOOL LLFloaterPathfindingConsole::postBuild()
 	llassert(mClearPathButton != NULL);
 	mClearPathButton->setCommitCallback(boost::bind(&LLFloaterPathfindingConsole::onClearPathClicked, this));
 
-	if (LLPathingLib::getInstance() == NULL)
-	{
-		LLPathingLib::initSystem();
-	}
-
 	if (LLPathingLib::getInstance() != NULL)
 	{
 		mPathfindingToolset = new LLToolset();
@@ -246,11 +210,6 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		fillInColorsForNavMeshVisualization();
 	}		
 
-	if (!mAgentStateSlot.connected())
-	{
-		mAgentStateSlot = LLPathfindingManager::getInstance()->registerAgentStateListener(boost::bind(&LLFloaterPathfindingConsole::onAgentStateCB, this, _1));
-	}
-
 	if (!mRegionBoundarySlot.connected())
 	{
 		mRegionBoundarySlot = LLEnvManagerNew::instance().setRegionChangeCallback(boost::bind(&LLFloaterPathfindingConsole::onRegionBoundaryCross, this));
@@ -266,14 +225,10 @@ void LLFloaterPathfindingConsole::onOpen(const LLSD& pKey)
 		mPathEventSlot = LLPathfindingPathTool::getInstance()->registerPathEventListener(boost::bind(&LLFloaterPathfindingConsole::onPathEvent, this));
 	}
 
-	setAgentState(LLPathfindingManager::getInstance()->getAgentState());
 	setDefaultInputs();
 	updatePathTestStatus();
 
-	if (mEditTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX)
-	{
-		switchIntoTestPathMode();
-	}
+	switchIntoTestPathMode();
 }
 
 void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
@@ -293,11 +248,6 @@ void LLFloaterPathfindingConsole::onClose(bool pIsAppQuitting)
 	if (mRegionBoundarySlot.connected())
 	{
 		mRegionBoundarySlot.disconnect();
-	}
-
-	if (mAgentStateSlot.connected())
-	{
-		mAgentStateSlot.disconnect();
 	}
 
 	if (mNavMeshZoneSlot.connected())
@@ -501,15 +451,7 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mPathfindingViewerStatus(NULL),
 	mPathfindingSimulatorStatus(NULL),
 	mViewCharactersButton(NULL),
-	mEditTestTabContainer(NULL),
-	mEditTab(NULL),
 	mTestTab(NULL),
-	mUnfreezeLabel(NULL),
-	mUnfreezeButton(NULL),
-	mLinksetsLabel(NULL),
-	mLinksetsButton(NULL),
-	mFreezeLabel(NULL),
-	mFreezeButton(NULL),
 	mCtrlClickLabel(),
 	mShiftClickLabel(),
 	mCharacterWidthLabel(),
@@ -522,7 +464,6 @@ LLFloaterPathfindingConsole::LLFloaterPathfindingConsole(const LLSD& pSeed)
 	mNavMeshZoneSlot(),
 	mNavMeshZone(),
 	mIsNavMeshUpdating(false),
-	mAgentStateSlot(),
 	mRegionBoundarySlot(),
 	mTeleportFailedSlot(),
 	mPathEventSlot(),
@@ -577,35 +518,6 @@ void LLFloaterPathfindingConsole::onViewCharactersClicked()
 	LLFloaterPathfindingCharacters::openCharactersViewer();
 }
 
-void LLFloaterPathfindingConsole::onTabSwitch()
-{
-	if (mEditTestTabContainer->getCurrentPanelIndex() == XUI_TEST_TAB_INDEX)
-	{
-		switchIntoTestPathMode();
-	}
-	else
-	{
-		switchOutOfTestPathMode();
-	}
-}
-
-void LLFloaterPathfindingConsole::onUnfreezeClicked()
-{
-	mUnfreezeButton->setEnabled(FALSE);
-	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateUnfrozen);
-}
-
-void LLFloaterPathfindingConsole::onFreezeClicked()
-{
-	mFreezeButton->setEnabled(FALSE);
-	LLPathfindingManager::getInstance()->requestSetAgentState(LLPathfindingManager::kAgentStateFrozen);
-}
-
-void LLFloaterPathfindingConsole::onViewEditLinksetClicked()
-{
-	LLFloaterPathfindingLinksets::openLinksetsEditor();
-}
-
 void LLFloaterPathfindingConsole::onCharacterWidthSet()
 {
 	updateCharacterWidth();
@@ -658,11 +570,6 @@ void LLFloaterPathfindingConsole::onNavMeshZoneCB(LLPathfindingNavMeshZone::ENav
 	}
 }
 
-void LLFloaterPathfindingConsole::onAgentStateCB(LLPathfindingManager::EAgentState pAgentState)
-{
-	setAgentState(pAgentState);
-}
-
 void LLFloaterPathfindingConsole::onRegionBoundaryCross()
 {	
 	initializeNavMeshZoneForCurrentRegion();	
@@ -706,7 +613,6 @@ void LLFloaterPathfindingConsole::onPathEvent()
 
 void LLFloaterPathfindingConsole::setDefaultInputs()
 {
-	mEditTestTabContainer->selectTab(XUI_EDIT_TAB_INDEX);
 	setRenderWorld(TRUE);
 	setRenderNavMesh(FALSE);
 	setRenderWalkables(FALSE);
@@ -776,7 +682,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(FALSE);
-		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
 		mCtrlClickLabel->setEnabled(FALSE);
 		mShiftClickLabel->setEnabled(FALSE);
@@ -802,7 +707,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(TRUE);
-		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
 		mCtrlClickLabel->setEnabled(FALSE);
 		mShiftClickLabel->setEnabled(FALSE);
@@ -830,7 +734,6 @@ void LLFloaterPathfindingConsole::updateControlsOnConsoleState()
 		mShowRenderWaterPlaneCheckBox->setEnabled(FALSE);
 		mShowXRayCheckBox->setEnabled(FALSE);
 		mViewCharactersButton->setEnabled(TRUE);
-		mEditTestTabContainer->selectTab(0);
 		mTestTab->setEnabled(FALSE);
 		mCtrlClickLabel->setEnabled(FALSE);
 		mShiftClickLabel->setEnabled(FALSE);
@@ -1025,44 +928,6 @@ void LLFloaterPathfindingConsole::cleanupRenderableRestoreItems()
 	else
 	{
 		gPipeline.skipRenderingOfTerrain( false );
-	}
-}
-
-void LLFloaterPathfindingConsole::setAgentState(LLPathfindingManager::EAgentState pAgentState)
-{
-	switch (LLPathfindingManager::getInstance()->getLastKnownNonErrorAgentState())
-	{
-	case LLPathfindingManager::kAgentStateUnknown :
-	case LLPathfindingManager::kAgentStateNotEnabled :
-		mEditTab->setEnabled(FALSE);
-		mUnfreezeLabel->setEnabled(FALSE);
-		mUnfreezeButton->setEnabled(FALSE);
-		mLinksetsLabel->setEnabled(FALSE);
-		mLinksetsButton->setEnabled(FALSE);
-		mFreezeLabel->setEnabled(FALSE);
-		mFreezeButton->setEnabled(FALSE);
-		break;
-	case LLPathfindingManager::kAgentStateFrozen :
-		mEditTab->setEnabled(TRUE);
-		mUnfreezeLabel->setEnabled(TRUE);
-		mUnfreezeButton->setEnabled(TRUE);
-		mLinksetsLabel->setEnabled(FALSE);
-		mLinksetsButton->setEnabled(FALSE);
-		mFreezeLabel->setEnabled(FALSE);
-		mFreezeButton->setEnabled(FALSE);
-		break;
-	case LLPathfindingManager::kAgentStateUnfrozen :
-		mEditTab->setEnabled(TRUE);
-		mUnfreezeLabel->setEnabled(FALSE);
-		mUnfreezeButton->setEnabled(FALSE);
-		mLinksetsLabel->setEnabled(TRUE);
-		mLinksetsButton->setEnabled(TRUE);
-		mFreezeLabel->setEnabled(TRUE);
-		mFreezeButton->setEnabled(TRUE);
-		break;
-	default :
-		llassert(0);
-		break;
 	}
 }
 
