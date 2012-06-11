@@ -185,5 +185,47 @@ bool HttpPolicy::changePriority(HttpHandle handle, HttpRequest::priority_t prior
 	return false;
 }
 
+bool HttpPolicy::stageAfterCompletion(HttpOpRequest * op)
+{
+	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
+	static const HttpStatus cant_res_proxy(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
+	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
+
+	// Retry or finalize
+	if (! op->mStatus)
+	{
+		// If this failed, we might want to retry.  Have to inspect
+		// the status a little more deeply for those reasons worth retrying...
+		if (op->mPolicyRetries < op->mPolicyRetryLimit &&
+			((op->mStatus.isHttpStatus() && op->mStatus.mType >= 499 && op->mStatus.mType <= 599) ||
+			 cant_connect == op->mStatus ||
+			 cant_res_proxy == op->mStatus ||
+			 cant_res_host == op->mStatus))
+		{
+			// Okay, worth a retry.  We include 499 in this test as
+			// it's the old 'who knows?' error from many grid services...
+			retryOp(op);
+			return true;				// still active/ready
+		}
+	}
+
+	// This op is done, finalize it delivering it to the reply queue...
+	if (! op->mStatus)
+	{
+		LL_WARNS("CoreHttp") << "URL op failed after " << op->mPolicyRetries
+							 << " retries.  Reason:  " << op->mStatus.toString()
+							 << LL_ENDL;
+	}
+	else if (op->mPolicyRetries)
+	{
+		LL_WARNS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
+							 << LL_ENDL;
+	}
+
+	op->stageFromActive(mService);
+	op->release();
+	return false;						// not active
+}
+
 
 }  // end namespace LLCore

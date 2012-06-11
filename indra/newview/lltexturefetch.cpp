@@ -1692,8 +1692,8 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 			 << " status: " << status.toHex()
 			 << " '" << status.toString() << "'"
 			 << llendl;
-	unsigned int offset(0), length(0);
-	response->getRange(&offset, &length);
+//	unsigned int offset(0), length(0);
+//	response->getRange(&offset, &length);
 // 	llwarns << "HTTP COMPLETE: " << mID << " handle: " << handle
 // 			<< " status: " << status.toULong() << " '" << status.toString() << "'"
 // 			<< " req offset: " << mRequestedOffset << " req length: " << mRequestedSize
@@ -1710,6 +1710,11 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 	}
 	else
 	{
+		// A warning about partial (HTTP 206) data.  Some grid services
+		// do *not* return a 'Content-Range' header in the response to
+		// Range requests with a 206 status.  We're forced to assume
+		// we get what we asked for in these cases until we can fix
+		// the services.
 		static const LLCore::HttpStatus par_status(HTTP_PARTIAL_CONTENT);
 
 		partial = (par_status == status);

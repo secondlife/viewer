@@ -79,6 +79,16 @@ public:
 	// Shadows HttpService's method
 	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
 
+	/// When transport is finished with an op and takes it off the
+	/// active queue, it is delivered here for dispatch.  Policy
+	/// may send it back to the ready/retry queues if it needs another
+	/// go or we may finalize it and send it on to the reply queue.
+	///
+	/// @return			Returns true of the request is still active
+	///					or ready after staging, false if has been
+	///					sent on to the reply queue.
+	bool stageAfterCompletion(HttpOpRequest * op);
+	
 	// Get pointer to global policy options.  Caller is expected
 	// to do context checks like no setting once running.
 	HttpPolicyGlobal &	getGlobalOptions()

@@ -144,6 +144,8 @@ HttpOpRequest::~HttpOpRequest()
 		mCurlHeaders = NULL;
 	}
 
+	mReplyOffset = 0;
+	mReplyLength = 0;
 	if (mReplyBody)
 	{
 		mReplyBody->release();
@@ -211,26 +213,11 @@ void HttpOpRequest::visitNotifier(HttpRequest * request)
 		response->setStatus(mStatus);
 		response->setBody(mReplyBody);
 		response->setHeaders(mReplyHeaders);
-		unsigned int offset(0), length(0);
 		if (mReplyOffset || mReplyLength)
 		{
 			// Got an explicit offset/length in response
-			offset = mReplyOffset;
-			length = mReplyLength;
+			response->setRange(mReplyOffset, mReplyLength);
 		}
-		else if (mReplyBody && partial_content == mStatus)
-		{
-			// Legacy grid services did not provide a 'Content-Range'
-			// header in responses to full- or partly-satisfyiable
-			// 'Range' requests.  For these, we have to hope that
-			// the data starts where requested and the length is simply
-			// whatever we received.  A bit of sanity could be provided
-			// by overlapping ranged requests and verifying that the
-			// overlap matches.
-			offset = mReqOffset;
-			length = mReplyBody->size();
-		}
-		response->setRange(offset, length);
 
 		mLibraryHandler->onCompleted(static_cast<HttpHandle>(this), response);
 

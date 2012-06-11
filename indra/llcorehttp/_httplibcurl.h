@@ -83,9 +83,7 @@ public:
 protected:
 	/// Invoked when libcurl has indicated a request has been processed
 	/// to completion and we need to move the request to a new state.
-	HttpService::ELoopSpeed completeRequest(CURLM * multi_handle,
-											CURL * handle,
-											CURLcode status);
+	bool completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status);
 	
 protected:
 	typedef std::set<HttpOpRequest *> active_set_t;

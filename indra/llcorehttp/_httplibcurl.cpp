@@ -113,8 +113,11 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 				CURL * handle(msg->easy_handle);
 				CURLcode result(msg->data.result);
 
-				HttpService::ELoopSpeed	speed(completeRequest(mMultiHandles[policy_class], handle, result));
-				ret = (std::min)(ret, speed);
+				if (completeRequest(mMultiHandles[policy_class], handle, result))
+				{
+					// Request is still active, don't get too sleepy
+					ret = (std::min)(ret, HttpService::NORMAL);
+				}
 				handle = NULL;			// No longer valid on return
 			}
 			else if (CURLMSG_NONE == msg->msg)
@@ -161,12 +164,8 @@ void HttpLibcurl::addOp(HttpOpRequest * op)
 }
 
 
-HttpService::ELoopSpeed HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
+bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
-	static const HttpStatus cant_connect(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_CONNECT);
-	static const HttpStatus cant_res_proxy(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_PROXY);
-	static const HttpStatus cant_res_host(HttpStatus::EXT_CURL_EASY, CURLE_COULDNT_RESOLVE_HOST);
-
 	HttpOpRequest * op(NULL);
 	curl_easy_getinfo(handle, CURLINFO_PRIVATE, &op);
 	// *FIXME:  check the pointer
@@ -209,43 +208,11 @@ HttpService::ELoopSpeed HttpLibcurl::completeRequest(CURLM * multi_handle, CURL 
 	curl_multi_remove_handle(multi_handle, handle);
 	curl_easy_cleanup(handle);
 	op->mCurlHandle = NULL;
-	
-	// Retry or finalize
-	if (! op->mStatus)
-	{
-		// If this failed, we might want to retry.  Have to inspect
-		// the status a little more deeply for those reasons worth retrying...
-		if (op->mPolicyRetries < op->mPolicyRetryLimit &&
-			((op->mStatus.isHttpStatus() && op->mStatus.mType >= 499 && op->mStatus.mType <= 599) ||
-			 cant_connect == op->mStatus ||
-			 cant_res_proxy == op->mStatus ||
-			 cant_res_host == op->mStatus))
-		{
-			// Okay, worth a retry.  We include 499 in this test as
-			// it's the old 'who knows?' error from many grid services...
-			HttpPolicy & policy(mService->getPolicy());
-		
-			policy.retryOp(op);
-			return HttpService::NORMAL;			// Having pushed to retry, keep things running
-		}
-	}
 
-	// This op is done, finalize it delivering it to the reply queue...
-	if (! op->mStatus)
-	{
-		LL_WARNS("CoreHttp") << "URL op failed after " << op->mPolicyRetries
-							 << " retries.  Reason:  " << op->mStatus.toString()
-							 << LL_ENDL;
-	}
-	else if (op->mPolicyRetries)
-	{
-		LL_WARNS("CoreHttp") << "URL op succeeded after " << op->mPolicyRetries << " retries."
-							 << LL_ENDL;
-	}
+	HttpPolicy & policy(mService->getPolicy());
+	bool still_active(policy.stageAfterCompletion(op));
 
-	op->stageFromActive(mService);
-	op->release();
-	return HttpService::REQUEST_SLEEP;
+	return still_active;
 }
 
 
