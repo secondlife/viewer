@@ -1199,6 +1199,9 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 	case SEE_AVATARS_ICON:
 		LLNotificationsUtil::add("SeeAvatars");
 		break;
+	case PATHFINDING_DYNAMIC:
+		// prep TODO : add something here
+		break;
 	case ICON_COUNT:
 		break;
 	// no default to get compiler warning when a new icon gets added
