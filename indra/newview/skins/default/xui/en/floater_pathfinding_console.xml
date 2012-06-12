@@ -21,7 +21,6 @@
   <floater.string name="navmesh_viewer_status_has_navmesh">Latest navmesh has been downloaded.</floater.string>
   <floater.string name="navmesh_viewer_status_error">Unable to download navmesh successfully.</floater.string>
   <floater.string name="navmesh_simulator_status_unknown"></floater.string>
-  <floater.string name="navmesh_simulator_status_region_not_enabled">This region does not expose the navmesh status.</floater.string>
   <floater.string name="navmesh_simulator_status_pending">Navmesh has pending changes.</floater.string>
   <floater.string name="navmesh_simulator_status_building">Navmesh is building.</floater.string>
   <floater.string name="navmesh_simulator_status_some_pending">Some navmesh regions have pending changes.</floater.string>

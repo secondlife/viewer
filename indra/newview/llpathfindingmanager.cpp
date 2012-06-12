@@ -293,14 +293,6 @@ bool LLPathfindingManager::isPathfindingEnabledForRegion(LLViewerRegion *pRegion
 	return !retrieveNavMeshURL.empty();
 }
 
-#ifdef DEPRECATED_UNVERSIONED_NAVMESH
-bool LLPathfindingManager::isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX() const
-{
-	std::string navMeshStatusURL = getNavMeshStatusURLForRegion(getCurrentRegion());
-	return !navMeshStatusURL.empty();
-}
-#endif // DEPRECATED_UNVERSIONED_NAVMESH
-
 bool LLPathfindingManager::isPathfindingDebugEnabled() const
 {
 	return (LLPathingLib::getInstance() != NULL);
@@ -338,25 +330,10 @@ void LLPathfindingManager::requestGetNavMeshForRegion(LLViewerRegion *pRegion)
 	else
 	{
 		std::string navMeshStatusURL = getNavMeshStatusURLForRegion(pRegion);
-#ifdef DEPRECATED_UNVERSIONED_NAVMESH
-		if (navMeshStatusURL.empty())
-		{
-			LLPathfindingNavMeshStatus navMeshStatus = navMeshPtr->getNavMeshStatusXXX();
-			navMeshStatus.incrementNavMeshVersionXXX();
-			sendRequestGetNavMeshForRegion(navMeshPtr, pRegion, navMeshStatus);
-		}
-		else
-		{
-			navMeshPtr->handleNavMeshCheckVersion();
-			LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
-			LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
-		}
-#else // DEPRECATED_UNVERSIONED_NAVMESH
 		llassert(!navMeshStatusURL.empty());
 		navMeshPtr->handleNavMeshCheckVersion();
 		LLHTTPClient::ResponderPtr navMeshStatusResponder = new NavMeshStatusResponder(navMeshStatusURL, pRegion);
 		LLHTTPClient::get(navMeshStatusURL, navMeshStatusResponder);
-#endif // DEPRECATED_UNVERSIONED_NAVMESH
 	}
 }
 

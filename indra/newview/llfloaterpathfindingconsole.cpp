@@ -847,39 +847,6 @@ std::string LLFloaterPathfindingConsole::getSimulatorStatusText() const
 {
 	std::string simulatorStatusText("");
 
-#ifdef DEPRECATED_UNVERSIONED_NAVMESH
-	if (LLPathfindingManager::getInstance()->isPathfindingNavMeshVersioningEnabledForCurrentRegionXXX())
-	{
-		switch (mNavMeshZone.getNavMeshZoneStatus())
-		{
-		case LLPathfindingNavMeshZone::kNavMeshZonePending : 
-			simulatorStatusText = getString("navmesh_simulator_status_pending");
-			break;
-		case LLPathfindingNavMeshZone::kNavMeshZoneBuilding : 
-			simulatorStatusText = getString("navmesh_simulator_status_building");
-			break;
-		case LLPathfindingNavMeshZone::kNavMeshZoneSomePending : 
-			simulatorStatusText = getString("navmesh_simulator_status_some_pending");
-			break;
-		case LLPathfindingNavMeshZone::kNavMeshZoneSomeBuilding : 
-			simulatorStatusText = getString("navmesh_simulator_status_some_building");
-			break;
-		case LLPathfindingNavMeshZone::kNavMeshZonePendingAndBuilding : 
-			simulatorStatusText = getString("navmesh_simulator_status_pending_and_building");
-			break;
-		case LLPathfindingNavMeshZone::kNavMeshZoneComplete : 
-			simulatorStatusText = getString("navmesh_simulator_status_complete");
-			break;
-		default : 
-			simulatorStatusText = getString("navmesh_simulator_status_unknown");
-			break;
-		}
-	}
-	else
-	{
-		simulatorStatusText = getString("navmesh_simulator_status_region_not_enabled");
-	}
-#else // DEPRECATED_UNVERSIONED_NAVMESH
 	switch (mNavMeshZone.getNavMeshZoneStatus())
 	{
 	case LLPathfindingNavMeshZone::kNavMeshZonePending : 
@@ -904,7 +871,6 @@ std::string LLFloaterPathfindingConsole::getSimulatorStatusText() const
 		simulatorStatusText = getString("navmesh_simulator_status_unknown");
 		break;
 	}
-#endif // DEPRECATED_UNVERSIONED_NAVMESH
 
 	return simulatorStatusText;
 }
