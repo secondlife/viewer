@@ -121,6 +121,7 @@ private:
 	F32  updateImagesCreateTextures(F32 max_time);
 	F32  updateImagesFetchTextures(F32 max_time);
 	void updateImagesUpdateStats();
+	F32  updateImagesLoadingFastCache(F32 max_time);
 
 	void addImage(LLViewerFetchedTexture *image);
 	void deleteImage(LLViewerFetchedTexture *image);
@@ -174,6 +175,7 @@ public:
 	image_list_t mLoadingStreamList;
 	image_list_t mCreateTextureList;
 	image_list_t mCallbackList;
+	image_list_t mFastCacheList;
 
 	// Note: just raw pointers because they are never referenced, just compared against
 	std::set<LLViewerFetchedTexture*> mDirtyTextureList;

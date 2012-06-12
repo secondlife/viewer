@@ -1536,7 +1536,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		CacheWriteResponder* responder = new CacheWriteResponder(mFetcher, mID);
 		mCacheWriteHandle = mFetcher->mTextureCache->writeToCache(mID, cache_priority,
 																  mFormattedImage->getData(), datasize,
-																  mFileSize, responder);
+																  mFileSize, mRawImage, mDecodedDiscard, responder);
 		// fall through
 	}
 	
@@ -3551,7 +3551,7 @@ void LLTextureFetchDebugger::debugCacheWrite()
 			mFetchingHistory[i].mCacheHandle = mTextureCache->writeToCache(mFetchingHistory[i].mID, LLWorkerThread::PRIORITY_NORMAL, 
 				mFetchingHistory[i].mFormattedImage->getData(), mFetchingHistory[i].mFetchedSize,
 				mFetchingHistory[i].mDecodedLevel == 0 ? mFetchingHistory[i].mFetchedSize : mFetchingHistory[i].mFetchedSize + 1, 
-				new LLDebuggerCacheWriteResponder(this, i));					
+				NULL, 0, new LLDebuggerCacheWriteResponder(this, i));					
 		}
 	}
 }

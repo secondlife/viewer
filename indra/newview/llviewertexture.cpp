@@ -62,6 +62,7 @@
 #include "llmediaentry.h"
 #include "llvovolume.h"
 #include "llviewermedia.h"
+#include "lltexturecache.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 // statics
@@ -1257,6 +1258,7 @@ void LLViewerFetchedTexture::init(bool firstinit)
 	mRequestDeltaTime = 0.f;
 	mForSculpt = FALSE ;
 	mIsFetched = FALSE ;
+	mInFastCacheList = FALSE;
 
 	mCachedRawImage = NULL ;
 	mCachedRawDiscardLevel = -1 ;
@@ -1313,7 +1315,38 @@ void LLViewerFetchedTexture::cleanup()
 	mCachedRawDiscardLevel = -1 ;
 	mCachedRawImageReady = FALSE ;
 	mSavedRawImage = NULL ;
-	mSavedRawDiscardLevel = -1;
+}
+
+//access the fast cache
+void LLViewerFetchedTexture::loadFromFastCache()
+{
+	if(!mInFastCacheList)
+	{
+		return; //no need to access the fast cache.
+	}
+	mInFastCacheList = FALSE;
+
+	mRawImage = LLAppViewer::getTextureCache()->readFromFastCache(getID(), mRawDiscardLevel) ;
+	if(mRawImage.notNull())
+	{
+		mFullWidth = mRawImage->getWidth() << mRawDiscardLevel;
+		mFullHeight = mRawImage->getHeight() << mRawDiscardLevel;
+		setTexelsPerImage();
+
+		if(mFullWidth > MAX_IMAGE_SIZE || mFullHeight > MAX_IMAGE_SIZE)
+		{ 
+			//discard all oversized textures.
+			destroyRawImage();
+			setIsMissingAsset();
+			mRawDiscardLevel = INVALID_DISCARD_LEVEL ;
+		}
+		else
+		{
+			mRequestedDiscardLevel = mDesiredDiscardLevel + 1;
+			mIsRawImageValid = TRUE;			
+			addToCreateTexture() ;
+		}
+	}
 }
 
 void LLViewerFetchedTexture::setForSculpt()
@@ -1741,7 +1774,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		S32 ddiscard = MAX_DISCARD_LEVEL - (S32)desired;
 		ddiscard = llclamp(ddiscard, 0, MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY);
 		priority = (ddiscard + 1) * PRIORITY_DELTA_DISCARD_LEVEL_FACTOR;
-		setAdditionalDecodePriority(1.0f) ;//boost the textures without any data so far.
+		setAdditionalDecodePriority(0.1f) ;//boost the textures without any data so far.
 	}
 	else if ((mMinDiscardLevel > 0) && (cur_discard <= mMinDiscardLevel))
 	{
@@ -1953,6 +1986,10 @@ bool LLViewerFetchedTexture::updateFetch()
 	{
 		return false; // process any raw image data in callbacks before replacing
 	}
+	if(mInFastCacheList)
+	{
+		return false;
+	}
 	
 	S32 current_discard = getCurrentDiscardLevelForFetching() ;
 	S32 desired_discard = getDesiredDiscardLevel();
@@ -2081,6 +2118,11 @@ bool LLViewerFetchedTexture::updateFetch()
 	else if (current_discard >= 0 && current_discard <= mMinDiscardLevel)
 	{
 		make_request = false;
+	}
+	else if(mCachedRawImage.notNull() && (current_discard < 0 || current_discard > mCachedRawDiscardLevel))
+	{
+		make_request = false;
+		switchToCachedImage() ; //use the cached raw data first
 	}
 	//else if (!isJustBound() && mCachedRawImageReady)
 	//{
